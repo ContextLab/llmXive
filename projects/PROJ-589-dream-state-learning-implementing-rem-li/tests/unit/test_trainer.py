@@ -55,12 +55,12 @@ def test_perplexity_skip(trainer_setup):
             def __init__(self):
                 self.loss = torch.tensor(5.0) # exp(5) > 50
         mock_forward.return_value = HighLossOutput()
-        
+
         held_out_batch = {
             'input_ids': torch.randint(0, 100, (1, 64)),
             'labels': torch.randint(0, 100, (1, 64))
         }
-        
+
         skipped = trainer.scheduler.maybe_skip_dream_due_to_perplexity(trainer.model, held_out_batch)
         assert skipped is True
 
@@ -68,7 +68,7 @@ def test_entropy_retry_logic(trainer_setup):
     """Verify that low entropy triggers retries."""
     trainer, _ = trainer_setup
     batch = {'input_ids': torch.randint(0, 100, (4, 64)), 'labels': torch.randint(0, 100, (4, 64))}
-    
+
     # Mock train_step_wake to return low entropy first, then high
     with patch.object(trainer, 'train_step_wake') as mock_step:
         mock_step.side_effect = [
@@ -76,7 +76,7 @@ def test_entropy_retry_logic(trainer_setup):
             {'loss': 1.0, 'entropy': 0.1, 'phase': 'WAKE'}, # Try 2: Low
             {'loss': 1.0, 'entropy': 0.8, 'phase': 'WAKE'}, # Try 3: High (Success)
         ]
-        
+
         # We manually simulate the loop logic for a single wake step
         metrics = trainer.train_step_wake(batch)
         if metrics['entropy'] < trainer.config.entropy_threshold:
@@ -84,6 +84,6 @@ def test_entropy_retry_logic(trainer_setup):
             while metrics['entropy'] < trainer.config.entropy_threshold and retry_count < trainer.config.max_retries:
                 retry_count += 1
                 metrics = trainer.train_step_wake(batch)
-        
+
         assert retry_count == 2
         assert metrics['entropy'] == 0.8

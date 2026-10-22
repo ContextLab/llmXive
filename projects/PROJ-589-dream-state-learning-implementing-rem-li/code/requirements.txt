@@ -1,8 +1,8 @@
 # Project dependencies for Dream-State Learning
-# Core libraries (already available in the environment) are not listed.
-transformers>=4.40.0
-datasets>=2.18.0
-torch>=2.2.0
-accelerate>=0.28.0
-scikit-learn>=1.4.0
-scipy>=1.12.0
+# Exact version pins to ensure reproducible installations.
+transformers==4.40.2
+datasets==2.18.0
+torch==2.2.0
+accelerate==0.28.0
+scikit-learn==1.4.2
+scipy==1.12.0

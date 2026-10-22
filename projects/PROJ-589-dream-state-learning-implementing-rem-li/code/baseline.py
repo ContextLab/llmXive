@@ -56,6 +56,12 @@ def main() -> None:
         help="Number of warm‑up wake‑only steps before dream could be allowed.",
     )
     parser.add_argument(
+        "--ratio",
+        type=str,
+        default=None,
+        help="Wake:Dream ratio (ignored for baseline; present for CLI compatibility).",
+    )
+    parser.add_argument(
         "--glue_subset",
         type=str,
         default="mrpc",

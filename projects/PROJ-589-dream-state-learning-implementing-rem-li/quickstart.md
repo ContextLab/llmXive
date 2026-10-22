@@ -17,7 +17,6 @@ pip install -r code/requirements.txt
 
 ## Run a full train‑eval cycle (runnable quick‑start)
 ```bash
-# Execute the training (debug mode) and immediately evaluate the checkpoint
 python code/train.py --seed 0 --total_steps 20 --warmup 5 --ratio 4:1 --mode debug && python code/eval.py --checkpoint checkpoints/debug_seed0.pt
 ```
 
@@ -31,4 +30,4 @@ The verification step runs:
 ```bash
 bash -c "$(grep '^```' -A2 quickstart.md | tail -n1)"
 ```
-which extracts the command above, executes it in a fresh environment, and checks that `data/results/evaluation_result_debug_seed0.json` exists. This demonstrates that the entire pipeline (training → evaluation) works end‑to‑end on a real GLUE subset.
+which extracts the command above, executes it in a fresh environment, and checks that `data/results/evaluation_result_debug_seed0.json` exists. This demonstrates that the entire pipeline (training → evaluation) works end‑to‑end on a real GLUE subset. [UNRESOLVED-CLAIM: c_e8735fb9 — status=not_enough_info]

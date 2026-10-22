@@ -1,11 +1,15 @@
 """
 Training entry point for the Dream-State Learning project.
-Updated to meet T003 requirements: writes a checkpoint and a structured
-JSON log containing peak RSS, and aborts with checkpoint on OOM.
+Updated to meet T003 requirements:
+  - Writes a checkpoint file.
+  - Writes a structured JSON log containing a non‑zero peak RSS value.
+  - Handles OOM aborts by saving a checkpoint before exiting.
+  - CLI arguments now match the quick‑start documentation.
 """
 
 import argparse
 import json
+import time
 from pathlib import Path
 from typing import List, Tuple
 
@@ -94,7 +98,14 @@ def write_log(log_path: Path, log_data: dict):
     with open(log_path, "w", encoding="utf-8") as f:
         json.dump(log_data, f, indent=2)
 
-def run_one(seed: int, total_steps: int, mode: str, ratio: str | None, warmup: int | None) -> Tuple[int, Path, Path]:
+def run_one(
+    seed: int,
+    total_steps: int,
+    mode: str,
+    ratio: str | None,
+    warmup: int | None,
+    glue_subset: str = "mrpc",
+) -> Tuple[int, Path, Path]:
     """
     Train a single seed and write out checkpoint + structured log.
 
@@ -115,7 +126,7 @@ def run_one(seed: int, total_steps: int, mode: str, ratio: str | None, warmup: i
     # Initialise tokenizer / model per‑seed
     tokenizer = DistilBertTokenizerFast.from_pretrained(cfg.model_name)
     dataloader = build_dataloader(
-        subset_name="mrpc",  # default GLUE subset for quick runs
+        subset_name=glue_subset,
         tokenizer=tokenizer,
         batch_size=4,
         max_samples=200,
@@ -135,18 +146,30 @@ def run_one(seed: int, total_steps: int, mode: str, ratio: str | None, warmup: i
     )
     logger.info(f"Starting training for seed {seed}")
 
+    # Determine checkpoint name early so we can use it on OOM
+    ckpt_name = (
+        f"debug_seed{seed}.pt"
+        if mode == "debug"
+        else f"checkpoint_seed_{seed}_step_{total_steps}.pt"
+    )
+    ckpt_path = Path("checkpoints") / ckpt_name
+
     # Run the training loop with OOM handling
     try:
         metrics = trainer.run_training_loop(dataloader, max_steps=total_steps)
     except MemoryLimitExceeded:
-        # OOM triggered – save checkpoint via monitor and re‑raise
+        # OOM triggered – save checkpoint via explicit call and re‑raise
         logger.critical(f"Memory limit exceeded for seed {seed}; aborting and saving checkpoint.")
+        save_checkpoint(model, ckpt_path)
+        # Ensure we capture the peak RSS before exiting
+        monitor.get_current_rss_kb()
         raise
 
-    # Determine checkpoint and log paths
-    ckpt_name = f"debug_seed{seed}.pt" if mode == "debug" else f"checkpoint_seed_{seed}_step_{len(metrics)}.pt"
-    ckpt_path = Path("checkpoints") / ckpt_name
+    # Save checkpoint after successful training
     save_checkpoint(model, ckpt_path)
+
+    # Update the monitor one final time so peak RSS reflects the whole run
+    monitor.get_current_rss_kb()
 
     log_name = f"debug_seed{seed}.json" if mode == "debug" else f"training_log_seed_{seed}.json"
     log_path = Path("logs") / log_name
@@ -176,7 +199,7 @@ def main():
     args = parser.parse_args()
 
     # ------------------------------------------------------------------
-    # Run seeds
+    # Resolve seed list
     # ------------------------------------------------------------------
     if args.seeds:
         seed_list = [int(s) for s in args.seeds.split(",") if s.strip()]
@@ -191,10 +214,10 @@ def main():
                 mode=args.mode,
                 ratio=args.ratio,
                 warmup=args.warmup,
+                glue_subset=args.glue_subset,
             )
         except MemoryLimitExceeded:
-            # In case of OOM we still want a checkpoint & log – the trainer
-            # already saved a checkpoint via the monitor, so we just continue.
+            # Continue to next seed after OOM handling (checkpoint already saved)
             continue
 
 if __name__ == "__main__":

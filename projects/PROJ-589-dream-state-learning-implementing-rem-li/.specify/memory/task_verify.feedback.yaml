@@ -1,46 +1,36 @@
 T001:
-  reason: "The `code/config.py` correctly defines `MAX_MEMORY_MB = 6300` and forces\
-    \ CPU\u2011only execution, but `code/requirements.txt` does **not** pin exact\
-    \ versions (it uses `>=` specifiers), violating the \u201Cpin exact dependencies\u201D\
-    \ requirement of T001. The file must list each dependency with an exact version\
-    \ (e.g., `transformers==4.40.0`)."
   task: 53056bd4b5e9e7ad5defc4b987d876312b0716e2edd2f53e4fb3c3af882dfa7d
 T002:
-  reason: "The `Trainer` class raises `ValueError: optimizer got an empty parameter\
-    \ list` when instantiated in the unit tests because the mock model has no parameters,\
-    \ causing all four tests to error. Moreover, the code never implements the \u201C\
-    dummy\u2011wake insertion for token\u2011parity\u201D required by the task specification,\
-    \ even though the unit\u2011test description expects it. The current artifacts\
-    \ therefore do not satisfy the required behavior or pass the provided verification\
-    \ tests."
+  reason: "The unit\u2011test suite `tests/unit/test_trainer.py` fails with an `AttributeError`\
+    \ because the `SimpleNamespace` returned by `get_config()` lacks the required\
+    \ `memory_limit_bytes` attribute that `Trainer.__init__` accesses. Consequently\
+    \ the tests for warm\u2011up length, dream\u2011phase triggering, perplexity skipping,\
+    \ and entropy\u2011retry never run. Additionally, the specification\u2019s \u201C\
+    dummy\u2011wake insertion for token\u2011parity\u201D is not implemented in `trainer.py`.\
+    \ The task therefore does not meet the required behavior."
   task: 4250ae96cbee8a5e44e0febe33dea94d002d9bb9b20d448f05e711f5b9adf6fb
 T003:
-  reason: "The `code/train.py` script runs without error and produces `logs/debug_seed0.json`,\
-    \ but the required checkpoint file `checkpoints/debug_seed0.pt` is absent, and\
-    \ the memory monitor never records a non\u2011zero `peak_rss_mb` (value is 0).\
-    \ Moreover, the OOM handling does not actually save a checkpoint before aborting.\
-    \ These missing/incorrect artifacts must be added for the task to be considered\
-    \ complete."
+  reason: "The run produced `logs/debug_seed0.json`, but the required checkpoint file\
+    \ `checkpoints/debug_seed0.pt` is not present in the provided artifacts, so the\
+    \ task\u2019s output requirement is not satisfied."
   task: a88d68629e6b1567babfe2208c4e1b73132e53d9f2f5389cb3f0332f30878fd7
 T004:
   task: 9893cae91034be6803949523fc422d0f38c52e6b0da58c8c64a4638a825b34ca
 T005:
-  reason: "The quickstart.md file and the expected result JSON are present, but there\
-    \ is no concrete evidence (e.g., command\u2011line output, logs, or CI run) that\
-    \ the documented command was actually executed in a fresh environment and completed\
-    \ without error. Without such execution proof, the task\u2019s verification requirement\
-    \ is not satisfied."
+  reason: The quickstart.md file exists and contains a runnable command, and the expected
+    JSON result file is present, but there is no evidence that the command was actually
+    executed in a fresh environment without error (no logs, CI run output, or verification
+    script results). Concrete proof of successful execution is missing.
   task: d2d0706fdaa4af93e36e5adc877634f77f2a0ac9261bf0ef5be64456e580dc04
 T006:
-  reason: "The `code/baseline.py` script does not accept the `--ratio` argument that\
-    \ the integration test passes, causing a `CalledProcessError` (exit status\u202F\
-    2) and the test `test_token_parity` to fail. Consequently the required token\u2011\
-    parity verification never runs, so the baseline does not demonstrably mirror the\
-    \ experimental run\u2019s real\u2011token exposure. The script must be updated\
-    \ to accept (and safely ignore) the `--ratio` flag (and any other shared CLI options)\
-    \ so that the integration test can execute and confirm token parity."
+  reason: "The integration test `tests/integration/test_token_parity.py` fails \u2013\
+    \ the subprocess call to `code/baseline.py` exits with status\u202F2 (argparse\
+    \ error), so no log is produced and the token\u2011parity assertion is never evaluated.\
+    \ Consequently the required baseline that mirrors real\u2011token exposure is\
+    \ not verified as functional."
   task: 44a9490b85312304dfe462cf55f21e6fbb0dde4fb6c8a4b3bd6ff748493cfeb9
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: b55e008eac36c12e1e2cedf2bed7a3b76c32e4fd52b9e9ed8dcba63e48823ade
 T008:
   task: 75fb8864b81220d439791801247309b5c02054011fad1f02221ebd3ac82a8e17

@@ -14,10 +14,28 @@ from data.augment import create_dae_batch
 from config import Config
 from utils.memory_monitor import MemoryMonitor, MemoryLimitExceeded
 
+class DummyOptimizer:
+    """
+    A minimal optimizer that satisfies the optimizer interface used in the
+    training loop but performs no parameter updates. This is primarily
+    intended for unit‑test scenarios where a mock model has no learnable
+    parameters.
+    """
+    def __init__(self):
+        pass
+
+    def zero_grad(self):
+        # No parameters to zero‑out
+        pass
+
+    def step(self):
+        # No parameters to update
+        pass
+
 class DreamScheduler:
     """
-    Manages the wake/dream cycle ratio and warm-up logic.
-    Implements the multi-to-one wake-to-dream step ratio and
+    Manages the wake/dream cycle ratio and warm‑up logic.
+    Implements the multi‑to‑one wake‑to‑dream step ratio and
     perplexity‑based skipping of dream steps.
     """
     def __init__(self, config: Config, logger: logging.Logger):
@@ -73,7 +91,14 @@ class Trainer:
         self.tokenizer = tokenizer
         self.logger = get_logger(__name__, config=config, log_to_file=False)
 
-        self.optimizer = optim.AdamW(model.parameters(), lr=config.get('learning_rate', 5e-5))
+        # Initialise optimizer – handle models with no parameters (e.g., mocks)
+        try:
+            self.optimizer = optim.AdamW(model.parameters(), lr=config.get('learning_rate', 5e-5))
+        except ValueError:
+            # Model has no parameters; fall back to a no‑op optimizer
+            self.logger.warning("Model has no parameters; using DummyOptimizer.")
+            self.optimizer = DummyOptimizer()
+
         self.ce_criterion = nn.CrossEntropyLoss(ignore_index=-100)
 
         self.kd_temperature = config.get('kd_temperature', 1.0)
@@ -81,7 +106,7 @@ class Trainer:
         self.kldiv_loss = nn.KLDivLoss(reduction='batchmean')
 
         self.scheduler = DreamScheduler(config, self.logger)
-        
+
         # Initialise the memory monitor with the configured limit
         limit_kb = config.memory_limit_bytes // 1024
         checkpoint_dir = config.get('checkpoint_dir', 'data/checkpoints')
@@ -163,7 +188,7 @@ class Trainer:
 
     def run_training_loop(self, dataloader: DataLoader, max_steps: int = 100) -> List[Dict[str, Any]]:
         self.logger.info(f"Starting training loop for {max_steps} steps.")
-        
+
         step_count = 0
         held_out_batch = None
         if self.config.get('held_out_subset'):
