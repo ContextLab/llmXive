@@ -1,11 +1,13 @@
 status: none
-intent: pip install cocoapi download MS-COCO 2017 COCO Captions validation dataset
+intent: download MS-COCO 2017 validation set with captions via HuggingFace datasets
   python package dataset
 required_fields:
+- prompt_text
+- prompt_entropy
 - image_id
-- file_name
+- image_path_or_url
 - caption
-- split
-cache_key: f87ba56ec0f3cbbce3c41fa825274e676a7388a2f432a1d9ad413db83fd495e3
-searched_at: '2026-10-22T08:22:34.341350+00:00'
+- activation_variance_by_layer
+cache_key: 8223efe893a718818d4663ea7f1aa689d81431e080ef599ab6f2eeeb9609abc3
+searched_at: '2026-10-22T08:24:06.047597+00:00'
 retry_count: 1

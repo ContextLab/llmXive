@@ -1,89 +1,74 @@
 """
-Entry point for the project skeleton initialization.
+Main entry point for the project skeleton initialization.
 
-The script is invoked as:
+This script creates the required sub‑directories under the ``code/`` package,
+adds ``__init__.py`` markers so that they are recognised as Python packages,
+and prints a confirmation message.
+
+The quick‑start guide (``specs/001‑llmxive‑followup‑extending‑orbitquant‑d/quickstart.md``)
+expects the command::
+
     python -m code.main --phase init
 
-It creates the required sub‑directories under ``code/`` as well as the
-top‑level ``tests/``, ``data/`` and ``figures/`` directories.  After
-successful creation it prints ``Initialization complete`` which is used
-by the quick‑start verification.
+to output the line ``Initialization complete``.
 """
 import argparse
 import sys
+from pathlib import Path
 from llmxive_toolkit import paths
 
-# List of sub‑directories that must exist under ``code/``.
-CODE_SUBDIRS = [
-    "analysis",
-    "models",
-    "quantization",
-    "evaluation",
-    "utils",
-    "data",
-    "runners",
-    "validation",
-    "security",
-]
+def create_subdirs(base_path: Path, subdirs):
+    """
+    Create sub‑directories under ``base_path`` and ensure each contains an
+    ``__init__.py`` file so that it is a proper Python package.
+    """
+    for sub in subdirs:
+        dir_path = base_path / sub
+        dir_path.mkdir(parents=True, exist_ok=True)
+        init_file = dir_path / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
 
-def _create_code_subdirs():
-    """Create all required ``code/<subdir>`` folders."""
-    for sub in CODE_SUBDIRS:
-        # ``paths.code`` returns a ``Path`` inside the project and creates the
-        # parent folder if it does not exist.
-        sub_path = paths.code(sub)
-        sub_path.mkdir(parents=True, exist_ok=True)
-
-def _create_common_dirs():
-    """Create top‑level data and figures directories used by the project."""
-    # Raw and processed data folders
-    paths.data("raw").mkdir(parents=True, exist_ok=True)
-    paths.data("processed").mkdir(parents=True, exist_ok=True)
-    # Logs sub‑folder inside processed data
-    paths.data("processed", "logs").mkdir(parents=True, exist_ok=True)
-    # Figures folder
-    paths.figures("").mkdir(parents=True, exist_ok=True)
-
-def _create_tests_dir():
-    """Create the ``tests/`` package."""
-    # The toolkit provides a generic ``tests`` helper via the dynamic attribute.
-    # If it does not exist we fall back to a manual Path construction.
-    try:
-        tests_path = paths.tests("")
-    except Exception:
-        from pathlib import Path
-        tests_path = Path(__file__).resolve().parents[1] / "tests"
-    tests_path.mkdir(parents=True, exist_ok=True)
-
-def init_phase():
-    """Run the ``init`` phase: create directory skeleton and report success."""
-    _create_code_subdirs()
-    _create_common_dirs()
-    _create_tests_dir()
-    print("Initialization complete")
-
-def parse_args(argv):
-    parser = argparse.ArgumentParser(
-        description="Project entry point – supports multiple phases."
-    )
+def main():
+    parser = argparse.ArgumentParser(description="Project skeleton initializer")
     parser.add_argument(
         "--phase",
-        type=str,
         required=True,
-        help="Execution phase (e.g. 'init')."
+        choices=["init"],
+        help="Initialization phase to run (currently only 'init' is supported)."
     )
-    return parser.parse_args(argv)
-
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv[1:]
-    args = parse_args(argv)
+    args = parser.parse_args()
 
     if args.phase == "init":
-        init_phase()
+        # Root of the ``code`` package
+        code_root = Path(__file__).resolve().parent
+
+        # List of required sub‑directories (as specified in the quick‑start)
+        required_subdirs = [
+            "analysis",
+            "models",
+            "quantization",
+            "evaluation",
+            "utils",
+            "data",
+            "runners",
+            "validation",
+            "security",
+        ]
+
+        create_subdirs(code_root, required_subdirs)
+
+        # Ensure the top‑level ``tests`` directory exists with an ``__init__`` file
+        tests_dir = paths.root / "tests"
+        tests_dir.mkdir(parents=True, exist_ok=True)
+        init_test = tests_dir / "__init__.py"
+        if not init_test.exists():
+            init_test.touch()
+
+        print("Initialization complete")
+        sys.exit(0)
     else:
-        print(f"Unknown phase: {args.phase}", file=sys.stderr)
-        sys.exit(1)
+        parser.error(f"Unsupported phase: {args.phase}")
 
 if __name__ == "__main__":
     main()

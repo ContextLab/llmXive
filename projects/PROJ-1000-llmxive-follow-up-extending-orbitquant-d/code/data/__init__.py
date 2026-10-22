@@ -1,3 +1,1 @@
-"""
-Package marker for the `code.data` sub‑module.
-"""
+# Package marker for ``code.data``
