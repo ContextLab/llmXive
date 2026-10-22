@@ -1,19 +1,18 @@
 status: none
-intent: CodeNet dataset and Codeforces problemset for C++ solutions python package
-  dataset
+intent: download Codeforces problemset dataset with C++ reference solutions python
+  package dataset
 required_fields:
 - problem_id
-- contest_id
-- problem_name
+- title
 - problem_statement
-- time_limit
-- memory_limit
-- difficulty
-- tags
+- input_format
+- output_format
+- sample_inputs
+- sample_outputs
 - reference_solution_code
-- reference_solution_language
-- submission_id
-- test_cases_input
-cache_key: ddb3ef0c45245b6f72f071e3ecdbae7192152daa1caf679de6725d2d29390b6e
-searched_at: '2026-10-18T10:24:30.733897+00:00'
+- language
+- tags
+- difficulty_rating
+cache_key: ee5b4ebb1f42b5af1ba0494a6a98ef9942abdb1548d92a5343dbd244cd449fe2
+searched_at: '2026-10-22T00:21:30.863091+00:00'
 retry_count: 1
