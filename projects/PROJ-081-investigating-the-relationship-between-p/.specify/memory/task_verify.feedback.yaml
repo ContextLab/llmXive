@@ -1,16 +1,18 @@
 T001:
-  reason: "The required `outputs/fetch_log.txt` file is missing, and there is no evidence\
-    \ that the verification steps (running `pytest` and confirming the log file is\
-    \ non\u2011empty) were performed. Without this log file the task\u2019s verification\
-    \ criteria are not satisfied."
+  reason: The fetch functions work and the tests pass, but `code/src/fetch_data.py`
+    does not contain the required URL/API endpoint documentation as comments; the
+    URLs are only present as string literals inside the functions. Adding comment
+    lines that explicitly list each URL will satisfy the task.
   task: fb98baa17164a3eb850dad8e6c81bbcff493bee33c7d48194cbef68ef8430e51
 T002:
-  reason: "The pipeline code (`code/src/preprocess.py`) and its unit tests exist,\
-    \ but the required output artifacts are absent: `processed_data.schema.yaml` is\
-    \ missing (so schema validation cannot occur), and the function never produced\
-    \ `data/processed/clean.parquet` nor `outputs/preprocessing_log.json` (both files\
-    \ are reported as missing). Consequently the tests that check for these files\
-    \ would fail, and the task\u2019s validation requirement is not satisfied."
+  reason: "The repository contains `code/src/preprocess.py` and the unit\u2011test\
+    \ file, but the required output artifacts (`data/processed/clean.parquet`, `outputs/preprocessing_log.json`)\
+    \ and the schema file (`processed_data.schema.yaml`) are missing. Moreover, the\
+    \ implementation adds `species_name` to `REQUIRED_COLUMNS` and then drops rows\
+    \ with Na\u202FN in that column, causing the test data (which lacks a `species_name`\
+    \ column) to be eliminated and the Z\u2011scoring step to fail. Consequently the\
+    \ tests cannot pass and the validation step is skipped due to the absent schema.\
+    \ Fix the handling of optional `species_na"
   task: 05bcfff232e606d5d3ab471e8bf75397568409bfe08840bd75639203eddd47c9
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/src/correlation_analysis.py

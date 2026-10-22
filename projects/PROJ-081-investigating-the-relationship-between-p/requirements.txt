@@ -1,4 +1,3 @@
-# Project dependencies
 pandas
 numpy
 scikit-learn
@@ -12,4 +11,4 @@ scipy
 fuzzywuzzy
 python-Levenshtein
 pytest
-pyarrow>=12.0.0  # added for parquet support
+pyarrow>=12.0.0

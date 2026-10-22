@@ -1,8 +1,20 @@
 T001:
   c: false
-  h: bb3f1b508981be6fdbd62ac03903790466113a224a3717c4234e01f345f451cc
-  r: "The required `outputs/fetch_log.txt` file is missing, and there is no evidence\
-    \ that the verification steps (running `pytest` and confirming the log file is\
-    \ non\u2011empty) were performed. Without this log file the task\u2019s verification\
-    \ criteria are not satisfied."
-  sig: 5c0cbfa8420468891decde7d6e8892547aec76e8b4c5e24a56b7434932efb2ef
+  h: 49ec8fd521d27d63eba48a8abb07c564bd4a89d3ae3e287bcf60b82723db9bdc
+  r: The fetch functions work and the tests pass, but `code/src/fetch_data.py` does
+    not contain the required URL/API endpoint documentation as comments; the URLs
+    are only present as string literals inside the functions. Adding comment lines
+    that explicitly list each URL will satisfy the task.
+  sig: 5d89e5c76e43753969c7e7721a073298aed0dc46ddbff472a552bd0ab3889970
+T002:
+  c: false
+  h: 487142c289efb69a622806201de4581d1db97190c742fa18387fa95c0a854458
+  r: "The repository contains `code/src/preprocess.py` and the unit\u2011test file,\
+    \ but the required output artifacts (`data/processed/clean.parquet`, `outputs/preprocessing_log.json`)\
+    \ and the schema file (`processed_data.schema.yaml`) are missing. Moreover, the\
+    \ implementation adds `species_name` to `REQUIRED_COLUMNS` and then drops rows\
+    \ with Na\u202FN in that column, causing the test data (which lacks a `species_name`\
+    \ column) to be eliminated and the Z\u2011scoring step to fail. Consequently the\
+    \ tests cannot pass and the validation step is skipped due to the absent schema.\
+    \ Fix the handling of optional `species_na"
+  sig: a981441706d7b2ba6871c017d76521f511b600160c94f8afed05570b887f5f4c

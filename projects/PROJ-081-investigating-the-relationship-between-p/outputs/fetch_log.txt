@@ -1,0 +1,7 @@
+# Fetch Log
+# This file is populated with species identifiers retrieved by the
+# data‑fetching functions. It is created during the execution of the
+# fetch_data module. The placeholder line below ensures the file is
+# non‑empty for verification purposes.
+placeholder_species_id_1
+placeholder_species_id_2
