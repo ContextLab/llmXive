@@ -15,14 +15,14 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
   `data/raw`, `data/processed`, `data/assets`, `code`, `artifacts`, `tests` (add a `.gitkeep` in each).  
   **Verification**: `git ls-files` shows the directories and a `.gitkeep` file inside each.
 
-- [ ] T002 [P] **Add configuration, linting files & run checks**  
-  - Create `.flake8` with a basic configuration (e.g., `max-line-length = 88`).  
+- [ ] T002 [P] **Add linting configuration and run checks**  
+  - Create a `.flake8` file at the repository root with a basic configuration (e.g., `max-line-length = 88`).  
   - Ensure `requirements.txt` pins all required packages, `pyproject.toml` contains Black configuration, and `ruff.toml` contains ruff settings.  
   - Execute `ruff check . --output-format=json > artifacts/ruff_report.json` **and** `black --check . > artifacts/black_report.txt`. Both commands must exit with status 0.  
-  - **Verification**:  
-    1. `.flake8` exists at the repository root.  
-    2. `artifacts/ruff_report.json` contains zero violations.  
-    3. `artifacts/black_report.txt` reports “All done! ✨” with no formatting differences.
+  **Verification**:  
+  1. `.flake8` exists at the repository root.  
+  2. `artifacts/ruff_report.json` contains zero violations.  
+  3. `artifacts/black_report.txt` reports “All done! ✨” with no formatting differences.
 
 - [ ] T003 [P] **Define empty checksum manifest**  
   - Create `data/raw/checksums.json` containing exactly an empty JSON array: `[]`.  
@@ -30,7 +30,7 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
   **Verification**: JSON‑schema validation passes and the file’s content is `[]`.
 
 - [ ] T004 [US1] **Download QM9 subset & record its checksum**  
-  Stream the QM9 dataset (≈100 k molecules) via `torch_geometric.datasets.QM9` to `data/raw/qm9_subset.parquet`. Compute its SHA‑256 hash and **append** an entry to `data/raw/checksums.json` with fields `file_path` and `sha256`.  
+  Stream the QM9 dataset (≈100 k molecules) via `torch_geometric.datasets.QM9` to `data/raw/qm9_subset.parquet`. Compute its SHA‑256 hash and **append** an entry to `data/raw/checksums.json` with fields `file_path: "data/raw/qm9_subset.parquet"` and `sha256`.  
   **Verification**: `data/raw/qm9_subset.parquet` exists, is non‑empty, the hash entry matches the computed value, and schema validation succeeds.
 
 - [ ] T005 [US1] **Curate reference substructures CSV & record its checksum**  
@@ -53,9 +53,7 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
 
 ---
 
-## Phase 1 – Data Acquisition & Integrity
-
-*(Phase 0 already covers acquisition; Phase 1 now focuses on preprocessing.)*
+## Phase 1 – Data Acquisition & Integrity (Preprocessing)
 
 - [ ] T008 [US1] **Preprocess QM9 to graph objects**  
   `code/data/preprocess.py` streams `qm9_subset.parquet`, converts each SMILES to a `torch_geometric.data.Data` object using RDKit (node features: atomic number, hybridization, formal charge, num_neighbors; edge features: bond type, conjugation, in_ring).  
@@ -80,29 +78,31 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
   Each module exports a `train` function and a `predict` function.  
   **Verification**: Files import without error (`python -c "import code.models.spectral_gnn"` etc.).
 
-### Granular training and evaluation tasks (split from original T011)
+- [ ] T027 [US2] **Shared hyper‑parameter grid search**  
+  Perform a **grid search** over learning rate ∈ {1e‑3,5e‑4} and hidden dimension ∈ {64,128} using 5‑fold cross‑validation on the training split. Select the best configuration (based on validation MAE) and write the chosen values to `code/config.py` so that all three models use identical hyper‑parameters and comparable training budgets.  
+  **Verification**: `code/config.py` contains `LEARNING_RATE` and `HIDDEN_DIM` fields matching the selected best config; a log `artifacts/hyperparam_search.log` records the search results.
 
-- [ ] T011-a [US2] **Train Spectral GNN**  
+- [ ] T011‑a [US2] **Train Spectral GNN**  
   `code/train/train_spectral.py` loads `graphs.pt`, trains the Spectral GNN with early stopping (patience = 5), monitors RAM (reduces batch size if > 4 GB), and saves best weights to `artifacts/models/best_spectral_gnn.pt`.  
   **Verification**: Checkpoint file exists and training log records early‑stopping event.
 
-- [ ] T011-b [US2] **Train Heterophily‑aware GNN**  
+- [ ] T011‑b [US2] **Train Heterophily‑aware GNN**  
   `code/train/train_hetero.py` performs analogous training for the heterophily‑aware model, saving to `artifacts/models/best_hetero_gnn.pt`.  
   **Verification**: Checkpoint file exists and early‑stopping log present.
 
-- [ ] T011-c [US2] **Train Random Forest baseline**  
+- [ ] T011‑c [US2] **Train Random Forest baseline**  
   `code/train/train_rf.py` computes Morgan fingerprints (radius 2, nBits = 2048) from the training split, trains a Random Forest with early stopping on validation MAE, and saves the model to `artifacts/models/best_rf.pkl`.  
   **Verification**: Model file exists and validation MAE improvement log is present.
 
-- [ ] T011-d [US2] **Generate predictions for test set**  
+- [ ] T011‑d [US2] **Generate predictions for test set**  
   `code/train/predict_test.py` loads the three trained models, runs inference on the test split, and writes `artifacts/predictions.json` conforming to `contracts/model-output.schema.yaml`.  
   **Verification**: Prediction file exists and schema validation passes.
 
-- [ ] T011-e [US2] **Compute evaluation metrics**  
+- [ ] T011‑e [US2] **Compute evaluation metrics**  
   `code/eval/compute_metrics.py` reads `artifacts/predictions.json`, calculates MSE, MAE, and Pearson R for each model, and writes `artifacts/metrics.json` (conforms to `contracts/metrics.schema.yaml`).  
   **Verification**: Metrics file exists and schema validation passes.
 
-- [ ] T011-f [US2] **Run statistical tests**  
+- [ ] T011‑f [US2] **Run statistical tests**  
   `code/eval/run_stats.py` performs a paired t‑test (GNN vs RF) and a Fisher‑Z test on Pearson R, applies Bonferroni correction (α = 0.05), and appends the results to `artifacts/metrics.json` under `statistical_tests`.  
   **Verification**: Statistical test entries are present with `p_value`, `is_significant`, and `alpha_adjusted` fields.
 
@@ -151,32 +151,33 @@ description: "Task list for Predicting Molecular Reactivity Using Graph Neural N
 
 ## Dependency & Execution Order Summary
 
-| Task | Depends On |
-|------|------------|
-| T001 | – |
-| T002 | T001 |
-| T003 | T001 |
-| T004 | T003 |
-| T005 | T003 |
-| T006 | T003 |
-| T007 | T004‑T006 |
-| T008 | T004, T007 |
-| T009 | T008 |
-| T010 | – |
-| T018 | T002 |
-| T011-a | T009, T010 |
-| T011-b | T009, T010 |
-| T011-c | T009, T010 |
-| T011-d | T011-a, T011-b, T011-c |
-| T011-e | T011-d |
-| T011-f | T011-e |
-| T012 | T011-f |
-| T013 | T011-f |
-| T014 | T012‑T013 |
-| T015 | T014 |
-| T016 | T014‑T015 |
-| T017 | T015 |
+| Task   | Depends On |
+|--------|------------|
+| T001   | – |
+| T002   | T001 |
+| T003   | T001 |
+| T004   | T003 |
+| T005   | T003 |
+| T006   | T003 |
+| T007   | T004‑T006 |
+| T008   | T004, T007 |
+| T009   | T008 |
+| T010   | – |
+| T018   | T002 |
+| T027   | T010, T009 |
+| T011‑a | T009, T010, T027 |
+| T011‑b | T009, T010, T027 |
+| T011‑c | T009, T010, T027 |
+| T011‑d | T011‑a, T011‑b, T011‑c |
+| T011‑e | T011‑d |
+| T011‑f | T011‑e |
+| T012   | T011‑f |
+| T013   | T011‑f |
+| T014   | T012‑T013 |
+| T015   | T014 |
+| T016   | T014‑T015 |
+| T017   | T015 |
 
 --- 
 
-*End of `tasks.md`.*
+*End of `tasks.md`.* 
