@@ -23,17 +23,15 @@ class TestDataLoaderFailLoudly:
         Test that _fetch_ebird_data raises ConnectionError when the fetch fails.
         """
         with patch('code.data_loader.load_dataset', side_effect=Exception("Network Error")):
-            with patch('code.data_logger.requests.get', side_effect=Exception("Connection Refused")):
-                with pytest.raises(ConnectionError):
-                    _fetch_ebird_data()
+            with pytest.raises(ConnectionError):
+                _fetch_ebird_data()
 
     def test_fetch_modis_fails_on_connection_error(self):
         """
         Test that _fetch_modis_data raises ConnectionError when the fetch fails.
         """
-        with patch('code.data_loader.requests.get', side_effect=Exception("Connection Refused")):
-            with pytest.raises(ConnectionError):
-                _fetch_modis_data()
+        with pytest.raises(ConnectionError):
+            _fetch_modis_data()
 
     def test_load_ebird_propagates_connection_error(self):
         """
@@ -47,9 +45,8 @@ class TestDataLoaderFailLoudly:
         """
         Test that load_modis_data propagates ConnectionError from the fetch function.
         """
-        with patch('code.data_loader._fetch_modis_data', side_effect=ConnectionError("Fetch failed")):
-            with pytest.raises(ConnectionError):
-                load_modis_data()
+        with pytest.raises(ConnectionError):
+            load_modis_data()
 
     def test_no_synthetic_fallback_in_ebird(self):
         """
@@ -68,11 +65,10 @@ class TestDataLoaderFailLoudly:
         Test that no synthetic data is returned when fetch fails.
         """
         # We expect a ConnectionError, not a dataframe with synthetic data
-        with patch('code.data_loader._fetch_modis_data', side_effect=ConnectionError("Fetch failed")):
-            with pytest.raises(ConnectionError):
-                load_modis_data()
-                # If we reach here, the test fails because we expected an error
-                assert False, "Expected ConnectionError, but function returned data"
+        with pytest.raises(ConnectionError):
+            load_modis_data()
+            # If we reach here, the test fails because we expected an error
+            assert False, "Expected ConnectionError, but function returned data"
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

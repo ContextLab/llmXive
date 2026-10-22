@@ -1,13 +1,11 @@
 T001:
   c: true
-  h: d9399910c0704db392ae05e3206a2bfa6e49c8b0021d25a332cd06f0c508c326
-  r: '`code/config.py` defines all required constants exactly (RANDOM_SEED=42, DATA_ROOT/RAW_DIR/PROC_DIR/OUT_DIR,
-    REGIONAL_BBOX, REGIONAL_SUBSET, XGB_PARAMS, THRESHOLDS, MAX_GAP_DAYS, RAM_LIMIT_GB,
-    TIME_LIMIT_HOURS) and seeds both `np.random` and `random`. `run_pipeline.sh` at
-    project root supports data/model/viz/full stages, records psutil-based elapsed-time
-    and memory metrics to JSON, and the execution log confirms `--help` exits 0 with
-    usage output.'
-  sig: 40a2ea0ba87125c7fe276f996af63a56d9e997a12519addbac3c645ca744fd9e
+  h: 03dbe1be0fbca6c88a9e425537dde0dc8585b6968f80d7c3fb4222d7d7ddb8bf
+  r: "Checked `code/config.py` \u2013 it defines all required constants with the exact\
+    \ values and seeds NumPy and Python RNGs. Verified `run_pipeline.sh` provides\
+    \ the four stage sub\u2011commands, invokes the specified Python modules, records\
+    \ psutil metrics, and its `--help` output matches the usage description."
+  sig: dc1b4e26533ad8419af56cdfd56d86b16106b4b79145c1b478106a82e666800f
 T010:
   c: false
   h: 32227fcff35eb97d077095f3e9479443a481175fa01af3ba6ed43431ff5e5b31
