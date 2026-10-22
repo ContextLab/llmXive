@@ -162,3 +162,41 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-08T16:30:01Z'
+- artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/quickstart.md
+  attempts: 1
+  canonical: pipeline creates checkpoint, training log with peak_rss_mb, and evaluation
+    result file
+  claim_id: c_713335e1
+  context: "The quick\u2011start guide states that after running the training\u2011\
+    eval command you should see specific output files indicating successful execution."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "After the command finishes you should see: - `checkpoints/debug_seed0.pt`\
+    \ \u2013 model checkpoint - `logs/debug_seed0.json` \u2013 training log containing\
+    \ 'peak_rss_mb' - `data/results/evaluation_result_debug_seed0.json` \u2013 few-shot\
+    \ QNLI evaluation result"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T21:29:21Z'
+- artifact_path: projects/PROJ-589-dream-state-learning-implementing-rem-li/quickstart.md
+  attempts: 1
+  canonical: pipeline works end-to-end on a real GLUE subset
+  claim_id: c_dedc566d
+  context: "The verification step runs the command in a fresh environment and checks\
+    \ that the evaluation result file exists, showing end\u2011to\u2011end functionality\
+    \ on a GLUE subset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This demonstrates that the entire pipeline (training\u2192evaluation)\
+    \ works end-to-end on a real GLUE subset"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T21:29:21Z'

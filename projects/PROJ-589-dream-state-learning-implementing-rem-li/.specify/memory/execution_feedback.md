@@ -1,21 +1,61 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
+
+The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
+
+1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
+2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
+3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
+
+- code/eval.py: self-declared fabricated metric — “…oss on the QNLI inputs)   * a dummy accuracy metric (token‑level match rat…”
+
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/train.py  --seed 42  --total_steps 20  --warmup_steps 5  --ratio 4:1  --mode debug`
+  - script usage: `train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]`
+  - argparse error: `train.py: error: unrecognized arguments: --warmup_steps 5`
+- run-book command: `python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline`
+  - script usage: `train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]`
+  - argparse error: `train.py: error: unrecognized arguments: --warmup_steps 20 --temp 1.0 --baseline`
+- run-book command: `python code/train.py  --seeds 3,4  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp_sweep 0.5 1.0 1.5 2.0  --baseline`
+  - script usage: `train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]`
+  - argparse error: `train.py: error: unrecognized arguments: --warmup_steps 20 --temp_sweep 0.5 1.0 1.5 2.0 --baseline`
+- run-book command: `python code/eval.py --results_dir data/results/`
+  - script usage: `eval.py [-h] [--checkpoint CHECKPOINT] [--output-dir OUTPUT_DIR]`
+  - argparse error: `eval.py: error: unrecognized arguments: --results_dir data/results/`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python code/train.py --seeds 0,1,2,3,4 --ratio 4:1 --warmup 20 (rc=-1)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/eval.py: self-declared fabricated metric — “…oss on the QNLI inputs)   * a dummy accuracy metric (token‑level match rat…”; 4 command(s) failed: python code/train.py  --seed 42  --total_steps 20  --warmup_steps 5  --ratio 4:1  --mode debug (rc=2); python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline (rc=2); python code/train.py  --seeds 3,4  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp_sweep 0.5 1.0 1.5 2.0  --baseline (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/train.py --seeds 0,1,2,3,4 --ratio 4:1 --warmup 20 -> rc=-1
-ing...
-2026-10-20 02:29:52,807 - models.trainer - WARNING - Low entropy (0.0021 < 0.5). Retrying...
-2026-10-20 02:29:53,445 - models.trainer - WARNING - Low entropy (0.0016 < 0.5). Retrying...
-2026-10-20 02:29:53,445 - models.trainer - WARNING - Low entropy (0.0016 < 0.5). Retrying...
-2026-10-20 02:29:54,084 - models.trainer - INFO - [training_step] {"step": 9, "phase": "WAKE", "loss": 5.534078081836924e-05, "entropy": 0.0011952482163906097}
-2026-10-20 02:29:54,084 - models.trainer - INFO - [training_step] {"step": 9, "phase": "WAKE", "loss": 5.534078081836924e-05, "entropy": 0.0011952482163906097}
+- python code/train.py  --seed 42  --total_steps 20  --warmup_steps 5  --ratio 4:1  --mode debug -> rc=2
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
-  warnings.warn(
-We strongly recommend passing in an `attention_mask` since your input_ids may be padded. See https://huggingface.co/docs/transformers/troubleshooting#incorrect-output-when-padding-tokens-arent-masked.
+usage: train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]
+                [--seeds SEEDS] [--ratio RATIO] [--warmup WARMUP]
+                [--glue_subset GLUE_SUBSET]
+train.py: error: unrecognized arguments: --warmup_steps 5
 
-[TIMEOUT after 120s]
+- python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline -> rc=2
+
+usage: train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]
+                [--seeds SEEDS] [--ratio RATIO] [--warmup WARMUP]
+                [--glue_subset GLUE_SUBSET]
+train.py: error: unrecognized arguments: --warmup_steps 20 --temp 1.0 --baseline
+
+- python code/train.py  --seeds 3,4  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp_sweep 0.5 1.0 1.5 2.0  --baseline -> rc=2
+
+usage: train.py [-h] [--seed SEED] [--total_steps TOTAL_STEPS] [--mode MODE]
+                [--seeds SEEDS] [--ratio RATIO] [--warmup WARMUP]
+                [--glue_subset GLUE_SUBSET]
+train.py: error: unrecognized arguments: --warmup_steps 20 --temp_sweep 0.5 1.0 1.5 2.0 --baseline
+
+- python code/eval.py --results_dir data/results/ -> rc=2
+
+usage: eval.py [-h] [--checkpoint CHECKPOINT] [--output-dir OUTPUT_DIR]
+eval.py: error: unrecognized arguments: --results_dir data/results/
+

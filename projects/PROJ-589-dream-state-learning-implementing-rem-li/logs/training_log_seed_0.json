@@ -1,0 +1,8 @@
+{
+  "seed": 0,
+  "mode": "run",
+  "steps_completed": 20,
+  "final_loss": 1.004930853843689,
+  "checkpoint": "checkpoints/checkpoint_seed_0_step_20.pt",
+  "peak_rss_mb": 0
+}

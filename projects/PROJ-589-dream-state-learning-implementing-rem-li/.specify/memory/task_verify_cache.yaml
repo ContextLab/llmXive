@@ -1,0 +1,56 @@
+T001:
+  c: false
+  h: f86eba2f922481c64bedd721110c996251632367c555a9091e51cfc5940aa188
+  r: "The `code/config.py` correctly defines `MAX_MEMORY_MB = 6300` and forces CPU\u2011\
+    only execution, but `code/requirements.txt` does **not** pin exact versions (it\
+    \ uses `>=` specifiers), violating the \u201Cpin exact dependencies\u201D requirement\
+    \ of T001. The file must list each dependency with an exact version (e.g., `transformers==4.40.0`)."
+  sig: b2a77baa97356144b4d3eddf4058525168c066afcf1e4e8d9c89afadd92f1fd3
+T002:
+  c: false
+  h: 655aa9167c75e548829d789a10c0565e6113f3bd0983fbdb20a19a9b14ada295
+  r: "The `Trainer` class raises `ValueError: optimizer got an empty parameter list`\
+    \ when instantiated in the unit tests because the mock model has no parameters,\
+    \ causing all four tests to error. Moreover, the code never implements the \u201C\
+    dummy\u2011wake insertion for token\u2011parity\u201D required by the task specification,\
+    \ even though the unit\u2011test description expects it. The current artifacts\
+    \ therefore do not satisfy the required behavior or pass the provided verification\
+    \ tests."
+  sig: 163f83bb51ec45e8f6d6d42b6789419a971090cfd1ecb0ea3f535536dcb29017
+T003:
+  c: false
+  h: c4aabdfe5ead9eda7933f55375b7ee80177993dc1db2a48cf119a2e130d011d1
+  r: "The `code/train.py` script runs without error and produces `logs/debug_seed0.json`,\
+    \ but the required checkpoint file `checkpoints/debug_seed0.pt` is absent, and\
+    \ the memory monitor never records a non\u2011zero `peak_rss_mb` (value is 0).\
+    \ Moreover, the OOM handling does not actually save a checkpoint before aborting.\
+    \ These missing/incorrect artifacts must be added for the task to be considered\
+    \ complete."
+  sig: 2379673d417da6b999df1824f63320ee942ac8c874fc72cbbc11b9eedc8c66bc
+T004:
+  c: true
+  h: 1caf155b5699b6a2c96d35d0dabe366ea934d81ab30ea4a1e7490227aec2d8a0
+  r: "Checked `code/eval.py` which runs successfully and writes `data/results/evaluation_result_debug_seed0.json`\
+    \ containing all required fields that conform to `contracts/evaluation_result.schema.yaml`;\
+    \ also verified the presence of the non\u2011empty `code/eval/metrics.py`."
+  sig: 7be6c4a33a4cb750c1ecb6bb64f5002f2c5b7a3145be109c0bf547053044ba3b
+T005:
+  c: false
+  h: 62dc43424009d9a5f41e4475db8abd305fd6d87ebe93c121c404f33e37735141
+  r: "The quickstart.md file and the expected result JSON are present, but there is\
+    \ no concrete evidence (e.g., command\u2011line output, logs, or CI run) that\
+    \ the documented command was actually executed in a fresh environment and completed\
+    \ without error. Without such execution proof, the task\u2019s verification requirement\
+    \ is not satisfied."
+  sig: 62e3f0ded283d7ffad5cd97e058062863eafbaca7f95e09bcd3c2a1e7072d687
+T006:
+  c: false
+  h: bafedcc3aa44af8231c0b315ea659daeae1e43eacd4f85959e33ece9b01033d3
+  r: "The `code/baseline.py` script does not accept the `--ratio` argument that the\
+    \ integration test passes, causing a `CalledProcessError` (exit status\u202F2)\
+    \ and the test `test_token_parity` to fail. Consequently the required token\u2011\
+    parity verification never runs, so the baseline does not demonstrably mirror the\
+    \ experimental run\u2019s real\u2011token exposure. The script must be updated\
+    \ to accept (and safely ignore) the `--ratio` flag (and any other shared CLI options)\
+    \ so that the integration test can execute and confirm token parity."
+  sig: fb59226ce41acf71cc5a4af885a2424012445148bdda01ad53e8c7b49d5aeedb

@@ -35,6 +35,7 @@ class DreamScheduler:
     def should_run_dream_phase(self) -> bool:
         if self.current_step < self.warm_up_steps:
             return False
+        # Dream step occurs when the step index is a multiple of the total cycle length
         return (self.current_step % self.wake_to_dream_ratio) == 0
 
     def advance_step(self):
@@ -57,7 +58,7 @@ class Trainer:
     """
     Core training engine implementing wake/dream cycles,
     BERT‑style masking, DAE reconstruction, knowledge‑distillation,
-    entropy‑based retry, and perplexity‑based dream skipping.
+    entropy‑based retry (only for dream phases), and perplexity‑based dream skipping.
     """
     def __init__(
         self,
@@ -81,9 +82,9 @@ class Trainer:
 
         self.scheduler = DreamScheduler(config, self.logger)
         
-        # FIX: Pass limit_kb (int) and checkpoint_dir (str) to MemoryMonitor
-        checkpoint_dir = config.get('checkpoint_dir', 'data/checkpoints')
+        # Initialise the memory monitor with the configured limit
         limit_kb = config.memory_limit_bytes // 1024
+        checkpoint_dir = config.get('checkpoint_dir', 'data/checkpoints')
         self.memory_monitor = MemoryMonitor(limit_kb, checkpoint_dir)
 
         self.metrics_history: List[Dict[str, Any]] = []
@@ -126,6 +127,7 @@ class Trainer:
         return {'loss': loss.item(), 'entropy': entropy, 'phase': 'WAKE'}
 
     def train_step_dream(self, batch: Dict[str, torch.Tensor], held_out_batch: Optional[Dict[str, torch.Tensor]] = None) -> Dict[str, Any]:
+        # Perplexity‑based skipping (only evaluated for dream phases)
         if held_out_batch is not None and self.scheduler.maybe_skip_dream_due_to_perplexity(self.model, held_out_batch):
             return {'loss': 0.0, 'entropy': 0.0, 'phase': 'DREAM_SKIPPED'}
 
@@ -133,6 +135,7 @@ class Trainer:
         inputs = batch['input_ids'].to(self.device)
         original_labels = batch['labels'].to(self.device)
 
+        # Create DAE‑style masked inputs and targets
         masked_inputs_list, _, targets_list = create_dae_batch(
             inputs.tolist(),
             mask_rate=self.config.get('mask_rate', 0.15)
@@ -179,6 +182,7 @@ class Trainer:
             if step_count >= max_steps:
                 break
 
+            # Enforce memory cap before each step
             self.memory_monitor.enforce()
             is_dream = self.scheduler.should_run_dream_phase()
 
@@ -188,15 +192,15 @@ class Trainer:
                 else:
                     metrics = self.train_step_wake(batch)
 
-                threshold = self.config.get('entropy_threshold', 0.5)
-                if metrics['entropy'] < threshold:
+                # Entropy‑based retry only for dream phases
+                if is_dream and metrics['entropy'] < self.config.get('entropy_threshold', 0.5):
                     retry_count = 0
-                    while metrics['entropy'] < threshold and retry_count < self.config.get('max_retries', 3):
-                        self.logger.warning(f"Low entropy ({metrics['entropy']:.4f} < {threshold}). Retrying...")
+                    while metrics['entropy'] < self.config.get('entropy_threshold', 0.5) and retry_count < self.config.get('max_retries', 3):
+                        self.logger.warning(f"Low entropy ({metrics['entropy']:.4f} < {self.config.get('entropy_threshold')}) during DREAM – retry {retry_count+1}")
                         retry_count += 1
-                        metrics = self.train_step_dream(batch, held_out_batch) if is_dream else self.train_step_wake(batch)
+                        metrics = self.train_step_dream(batch, held_out_batch)
 
-                # FIX: use log_event directly, not self.log_event
+                # Log structured event
                 log_event(self.logger, "training_step", {
                     "step": self.scheduler.current_step,
                     "phase": metrics['phase'],

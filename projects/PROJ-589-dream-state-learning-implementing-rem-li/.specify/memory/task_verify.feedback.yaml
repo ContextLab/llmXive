@@ -1,30 +1,60 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/train.py exit=1'
-  task: c1c042daeb1e86fb984ff3075e3d3961b6603d6a951d3dfafe44e3aac19a881f
-T002a:
-  reason: 'Requested task execution failed; rerun successfully: code/train.py exit=-1
-    (TIMEOUT)'
-  task: a646a90bad7336a59fbc351037e9ab92d2350a493ef9e668aa7d170e92cfffce
-T002b:
-  reason: 'Requested task execution failed; rerun successfully: code/train.py exit=1'
-  task: e8568f1eb777439b96db668244b2df613a6de065aac92634ff92d0e99b3ce2e9
+  reason: "The `code/config.py` correctly defines `MAX_MEMORY_MB = 6300` and forces\
+    \ CPU\u2011only execution, but `code/requirements.txt` does **not** pin exact\
+    \ versions (it uses `>=` specifiers), violating the \u201Cpin exact dependencies\u201D\
+    \ requirement of T001. The file must list each dependency with an exact version\
+    \ (e.g., `transformers==4.40.0`)."
+  task: 53056bd4b5e9e7ad5defc4b987d876312b0716e2edd2f53e4fb3c3af882dfa7d
+T002:
+  reason: "The `Trainer` class raises `ValueError: optimizer got an empty parameter\
+    \ list` when instantiated in the unit tests because the mock model has no parameters,\
+    \ causing all four tests to error. Moreover, the code never implements the \u201C\
+    dummy\u2011wake insertion for token\u2011parity\u201D required by the task specification,\
+    \ even though the unit\u2011test description expects it. The current artifacts\
+    \ therefore do not satisfy the required behavior or pass the provided verification\
+    \ tests."
+  task: 4250ae96cbee8a5e44e0febe33dea94d002d9bb9b20d448f05e711f5b9adf6fb
 T003:
-  task: cb966e6faa9c429375eed09031ccda16a2c7acaf05661b99b5780124a7bab0c3
+  reason: "The `code/train.py` script runs without error and produces `logs/debug_seed0.json`,\
+    \ but the required checkpoint file `checkpoints/debug_seed0.pt` is absent, and\
+    \ the memory monitor never records a non\u2011zero `peak_rss_mb` (value is 0).\
+    \ Moreover, the OOM handling does not actually save a checkpoint before aborting.\
+    \ These missing/incorrect artifacts must be added for the task to be considered\
+    \ complete."
+  task: a88d68629e6b1567babfe2208c4e1b73132e53d9f2f5389cb3f0332f30878fd7
 T004:
-  task: 740262d3af4bdfc3883dfb43a8c8466bf223e80158c9d149c7b05d0aa6666289
+  task: 9893cae91034be6803949523fc422d0f38c52e6b0da58c8c64a4638a825b34ca
 T005:
-  task: 78f33c2dc73e312de6a1cace4859c4b9b450a81923cc409cb5eb39c039af0a41
+  reason: "The quickstart.md file and the expected result JSON are present, but there\
+    \ is no concrete evidence (e.g., command\u2011line output, logs, or CI run) that\
+    \ the documented command was actually executed in a fresh environment and completed\
+    \ without error. Without such execution proof, the task\u2019s verification requirement\
+    \ is not satisfied."
+  task: d2d0706fdaa4af93e36e5adc877634f77f2a0ac9261bf0ef5be64456e580dc04
 T006:
-  task: b67aed75fe5b033e080200dee542602b03ffd11bdf4b28ea3ac038aa2f3332c6
+  reason: "The `code/baseline.py` script does not accept the `--ratio` argument that\
+    \ the integration test passes, causing a `CalledProcessError` (exit status\u202F\
+    2) and the test `test_token_parity` to fail. Consequently the required token\u2011\
+    parity verification never runs, so the baseline does not demonstrably mirror the\
+    \ experimental run\u2019s real\u2011token exposure. The script must be updated\
+    \ to accept (and safely ignore) the `--ratio` flag (and any other shared CLI options)\
+    \ so that the integration test can execute and confirm token parity."
+  task: 44a9490b85312304dfe462cf55f21e6fbb0dde4fb6c8a4b3bd6ff748493cfeb9
 T007:
-  task: 6d0befc76a3356e88afd27e3121405b0bb6a4c7639e37b699ed5efb55f553ebe
+  task: b55e008eac36c12e1e2cedf2bed7a3b76c32e4fd52b9e9ed8dcba63e48823ade
 T008:
-  task: 6ebbb2a104795994e9e60c0a1fed7b23a7bd24d02ed6dc7a81ceccc05f5cc7c0
+  task: 75fb8864b81220d439791801247309b5c02054011fad1f02221ebd3ac82a8e17
 T009:
-  task: beac5ee12705e71aacbed12f4bced3952338f00e9e89599bcd347fe4eb4a90ac
+  task: c2c17030460051e53e8cbbb56a956eace215fa9af384058a265b4b8bc96cdf93
 T010:
-  task: 9a0a729a074598b27031f68f762390e74152d7a6ffa5c3e5627af03d5eb75929
+  task: 8697cd3dfffda957c8c48c20d303abcad1c2d3c6f8c948e97315fe12382f3f19
 T011:
-  task: 13f0a44f1a60596c0398cf369f0ffb41b513fb8242f727f5bd583819cdfb467d
+  task: 63347c9341cb6d9767bfe3a4e0848e04103c16d540b57d8f7b5a66c22a5975e6
 T012:
-  task: 7aa67af3418db323cb5963c429084d33ecaf5ddb9285730fc71eec8a132b8dde
+  task: 20708de78cadaaf827d9617bdd0467ff626f0a5ae6589e08cabf03fa289aea11
+T013:
+  task: 1f7aad836e96b547e7c6799df303ae8cd77f242a01fb8fa9a9a5e2f4bc453c02
+T014:
+  task: a1fab8d8efe328f9a4bdfe26f05b1d46ce648e28c01b1a2e59f3ea28410e7676
+T015:
+  task: 483fccdf76501662125a9e1bc201c7fdd3428172fe59826fa85a1cc480281f3a

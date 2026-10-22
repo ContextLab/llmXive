@@ -1,13 +1,12 @@
 status: none
-intent: huggingface datasets GLUE MNLI QNLI python package dataset
+intent: download GLUE benchmark MNLI QNLI via HuggingFace python package dataset
 required_fields:
 - premise
 - hypothesis
+- label
 - question
 - sentence
-- text_a
-- text_b
-- label
-cache_key: e31cdbe63a549556fc770755cd14f369658e33274e27356b8cc724a5fd8e42ea
-searched_at: '2026-10-20T02:32:37.527789+00:00'
+- idx
+cache_key: 4ff3430b2e8a4d2de1c6ab9bca81d0f552e70bf96835d8368586e6b3cc498dd5
+searched_at: '2026-10-22T21:35:26.758728+00:00'
 retry_count: 1

@@ -55,14 +55,14 @@ def get_peak_rss() -> int:
 
 class MemoryMonitor:
     """Monitor memory usage and enforce limits."""
-    
+
     def __init__(self, limit_kb: int, checkpoint_dir: str):
         self.limit_kb = limit_kb
         self.checkpoint_dir = Path(checkpoint_dir)
         self.peak_rss_kb = 0
         self._monitoring = False
         self._monitor_thread = None
-        
+
         # Ensure checkpoint directory exists
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
@@ -81,7 +81,7 @@ class MemoryMonitor:
     def enforce(self, checkpoint_callback: Optional[Callable] = None) -> None:
         """Enforce memory limit, saving checkpoint if exceeded."""
         current = self.get_current_rss_kb()
-        
+
         if current > self.limit_kb:
             if checkpoint_callback:
                 checkpoint_callback(reason="oom_abort")
@@ -92,12 +92,12 @@ class MemoryMonitor:
     def start_monitoring(self, interval: float = 1.0) -> None:
         """Start background monitoring thread."""
         self._monitoring = True
-        
+
         def monitor_loop():
             while self._monitoring:
                 self.get_current_rss_kb()
                 time.sleep(interval)
-        
+
         self._monitor_thread = threading.Thread(target=monitor_loop, daemon=True)
         self._monitor_thread.start()
 
@@ -113,8 +113,8 @@ def enforce_memory_limit(limit_kb: int, checkpoint_dir: str, checkpoint_callback
     monitor.enforce(checkpoint_callback)
 
 class MemoryLimitEnforcer:
-    """Context manager for memory-limited operations."""
-    
+    """Context manager for memory‑limited operations."""
+
     def __init__(self, limit_kb: int, checkpoint_dir: str, checkpoint_callback: Optional[Callable] = None):
         self.limit_kb = limit_kb
         self.checkpoint_dir = checkpoint_dir

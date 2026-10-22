@@ -1,0 +1,8 @@
+{
+  "seed": 4,
+  "mode": "baseline",
+  "steps_completed": 50,
+  "final_loss": 0.015422736294567585,
+  "checkpoint": "checkpoints/checkpoint_seed_4_step_50.pt",
+  "peak_rss_mb": 0
+}

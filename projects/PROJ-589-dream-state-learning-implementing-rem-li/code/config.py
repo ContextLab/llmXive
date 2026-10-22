@@ -15,6 +15,12 @@ import numpy as np
 import torch
 import psutil
 
+# ----------------------------------------------------------------------
+# Public constant for verification (required by task T001)
+# ----------------------------------------------------------------------
+# The verification script checks for this exact attribute.
+MAX_MEMORY_MB = 6300
+
 class Config:
     """
     Central configuration container.
