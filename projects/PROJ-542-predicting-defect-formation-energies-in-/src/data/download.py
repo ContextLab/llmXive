@@ -5,8 +5,7 @@ src/data/download.py
 This script downloads oxygen‑vacancy defect formation energies for perovskite
 oxides from the Materials Project API using the official ``mp-api`` client.
 If a valid ``MP_API_KEY`` environment variable is not available, it falls back
-to a public CSV mirror hosted on GitHub (the repository
-https://github.com/materialsproject/mp-data).  The script validates the
+to a public CSV mirror hosted on GitHub.  The script validates the
 downloaded data against the JSON‑schema contract ``contracts/raw_dataset.schema.yaml``
 and writes the result to ``data/raw/materials_defects.csv``.  The script aborts
 with clear error messages when required conditions are not met (missing API
@@ -132,37 +131,63 @@ def _fallback_download_csv() -> pd.DataFrame:
     This fallback is used only when no API key is available; it provides a
     real, reproducible dataset that satisfies the contract.
     """
-    # The repository moved to the ``main`` branch; the older ``master`` URL
-    # now returns 404.  Using the canonical raw URL ensures a stable source.
-    fallback_url = (
-        "https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv"
-    )
-    log.info(f"Attempting public fallback download from {fallback_url}")
-    resp = requests.get(fallback_url, timeout=30)
-    if resp.status_code != 200:
-        raise RuntimeError(
-            f"Fallback download failed with status code {resp.status_code}"
-        )
-    # The CSV from the repository uses a header row.
-    from io import StringIO
+    # Try a handful of known stable URLs.  If all fail we raise an error.
+    fallback_urls = [
+        # Primary location (main branch)
+        "https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv",
+        # Historic location (master branch) – kept for backward compatibility
+        "https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv",
+        # Direct download via raw.githubusercontent with explicit ?raw=true
+        "https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv?raw=true",
+    ]
 
-    df = pd.read_csv(StringIO(resp.text))
-    required = {"composition", "defect_type", "formation_energy", "material_id", "species"}
-    missing = required - set(df.columns)
-    if missing:
-        raise RuntimeError(
-            f"Fallback CSV is missing required columns: {', '.join(missing)}"
-        )
-    # Apply perovskite filter to stay consistent with the API path.
-    perovskite_mask = df["composition"].apply(_is_perovskite)
-    df = df[perovskite_mask].copy()
+    last_error: Exception | None = None
+    for url in fallback_urls:
+        log.info(f"Attempting public fallback download from {url}")
+        try:
+            resp = requests.get(url, timeout=30)
+        except Exception as exc:
+            last_error = exc
+            continue
+        if resp.status_code != 200:
+            last_error = RuntimeError(
+                f"Fallback download failed with status code {resp.status_code}"
+            )
+            continue
 
-    # Keep only the columns required by the schema.
-    df = df[["composition", "defect_type", "formation_energy", "material_id"]].copy()
-    # Rename ``material_id`` to the nested ``metadata`` structure expected by the schema.
-    df["metadata"] = df["material_id"].apply(lambda mid: {"material_id": mid})
-    df.drop(columns=["material_id"], inplace=True)
-    return df
+        # Load CSV from the response text.
+        from io import StringIO
+
+        df = pd.read_csv(StringIO(resp.text))
+        required = {
+            "composition",
+            "defect_type",
+            "formation_energy",
+            "material_id",
+            "species",
+        }
+        missing = required - set(df.columns)
+        if missing:
+            last_error = RuntimeError(
+                f"Fallback CSV is missing required columns: {', '.join(missing)}"
+            )
+            continue
+
+        # Apply perovskite filter to stay consistent with the API path.
+        perovskite_mask = df["composition"].apply(_is_perovskite)
+        df = df[perovskite_mask].copy()
+
+        # Keep only the columns required by the schema.
+        df = df[["composition", "defect_type", "formation_energy", "material_id"]].copy()
+        # Rename ``material_id`` to the nested ``metadata`` structure expected by the schema.
+        df["metadata"] = df["material_id"].apply(lambda mid: {"material_id": mid})
+        df.drop(columns=["material_id"], inplace=True)
+        return df
+
+    # If we reach here none of the URLs succeeded.
+    raise RuntimeError(
+        f"All fallback download attempts failed. Last error: {last_error}"
+    ) from last_error
 
 
 def _records_to_dataframe(records: List[Dict]) -> pd.DataFrame:

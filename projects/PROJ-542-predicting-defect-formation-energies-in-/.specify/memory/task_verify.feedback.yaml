@@ -1,4 +1,12 @@
 T001:
+  reason: 'The four files exist, but `src/pipeline/run.py` is a self-admitted stub:
+    `run()` only prints "Pipeline completed successfully" and does not invoke any
+    of the download/featurize/train/evaluate modules, directly contradicting `quickstart.md`''s
+    claim that `python -m src.pipeline.run` "will execute the end-to-end workflow
+    (download, checksum, featurization, ... evaluation, and figures)". Additionally,
+    there is no execution evidence (test output, logs) that `code/tests/test_pipeline_entry.py`
+    was actually run and passed. The implementer should wire `run()` to orchestrate
+    the real pipeline steps (or'
   task: 9bd085d0d69277f6f406b544530dd9c474dc85831e967b80c7a41b0c99d4559a
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/utils/checksum_all.py

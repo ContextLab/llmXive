@@ -5,8 +5,8 @@ src/utils/checksum_all.py
 Compute and write the SHA‑256 checksums for the raw defect CSV and the
 processed feature matrix CSV.  The script is invoked by the quick‑start
 test suite (``tests/test_generate_checksums.py``) and therefore must
-create the two checksum files even if the corresponding data files are not
-present – it will generate them on‑fly by invoking the appropriate data
+create the two checksum files even if the corresponding data files
+are not present – it will generate them on‑fly by invoking the appropriate data
 acquisition and featurization steps.
 
 The script is deliberately tiny: it imports the generic ``compute_checksum``

@@ -1,15 +1,14 @@
 T001:
-  c: true
-  h: 2ab727e7e084dc4d36e0c441cb95ae3d60945622fd63ca1df44ba11869b48165
-  r: 'All four required artifacts exist with substantive content: `quickstart.md`
-    documents the `python -m src.pipeline.run` entry point with setup/run instructions;
-    `src/pipeline/run.py` exposes a real `run()` that returns None; `src/data/download.py`
-    and `src/data/featurize.py` contain genuine implementations (MP API query with
-    fallback, schema validation, 12-descriptor featurization via pymatgen); and `code/tests/test_pipeline_entry.py`
-    asserts exactly the required contract (module imports, `run` exists, returns None
-    without raising). The task explicitly defers end-to-end execution to T010, so
-    `r'
-  sig: 69db7b3d40683c94dddbfea0c4aa9a0caa39a7f5c1f5243d4d8b2f324acba4c8
+  c: false
+  h: c23d769fcb2b784a0f225dd43be3aa1f5fc11be6309fadd86f08eb86177e2e9b
+  r: 'The four files exist, but `src/pipeline/run.py` is a self-admitted stub: `run()`
+    only prints "Pipeline completed successfully" and does not invoke any of the download/featurize/train/evaluate
+    modules, directly contradicting `quickstart.md`''s claim that `python -m src.pipeline.run`
+    "will execute the end-to-end workflow (download, checksum, featurization, ...
+    evaluation, and figures)". Additionally, there is no execution evidence (test
+    output, logs) that `code/tests/test_pipeline_entry.py` was actually run and passed.
+    The implementer should wire `run()` to orchestrate the real pipeline steps (or'
+  sig: d6040f6db44f009c5526b81a5f798efc49901ee5fab72b3ef56cc26894147f1b
 T003:
   c: false
   h: cc29533459009d21d0843745223a270f616c37ec2cb864a205076a52bb904b5a
