@@ -68,6 +68,12 @@ def parse_args(argv=None) -> argparse.Namespace:
         help="Path to write the result file.",
     )
     parser.add_argument(
+        "--max_epochs",
+        type=int,
+        default=10,
+        help="Maximum number of epochs for training runs (passed to trainer).",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print parsed arguments and exit without running.",
@@ -120,7 +126,8 @@ def _run_fixed_mode(args: argparse.Namespace) -> None:
     run_fixed_baselines(
         rhos=args.rhos,
         seeds=args.seeds,
-        output_csv=args.output
+        max_epochs=args.max_epochs,
+        output_csv=args.output,
     )
     print(f"Fixed-density results written to {args.output}")
 
@@ -177,7 +184,7 @@ def main(argv=None) -> int:
                     seeds=t_cfg.get("seeds", [42]),
                     max_epochs=t_cfg.get("max_epochs", 10),
                     batch_size=t_cfg.get("batch_size", 16),
-                    timeout_seconds=t_cfg.get("timeout_seconds", 21600)
+                    timeout_seconds=t_cfg.get("timeout_seconds", 21600),
                 )
             elif stage == "adaptive_runs":
                 log.warning("Stage 'adaptive_runs' is pending implementation (T006).")

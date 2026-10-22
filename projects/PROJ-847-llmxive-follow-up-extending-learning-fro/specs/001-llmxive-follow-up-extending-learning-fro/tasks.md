@@ -27,7 +27,7 @@ The tasks are ordered to respect data‑flow dependencies and to satisfy all fun
   - Write metadata to `outputs/model_checkpoint.json` (model id, parameter count, device, SHA‑256 of config, `substitution_note`).  
   - **Verification**: `python -c "from code.model import load_diffusion_model; m=load_diffusion_model(); print(sum(p.numel() for p in m.parameters()))"` prints a number ≤ 100 000 000 and runs a forward pass on a dummy batch without CUDA errors.  
 
-- [ ] T004 [US1] **Thin end‑to‑end training run (ρ = 0.5, seed = 42, 2 epochs)**  
+- [ ] T004 [US1] **Thin end‑to‑end training run (ρ = 0.5, seed = 42, 2 epochs)**   <!-- FAILED-IN-EXECUTION: code/run_thin_training.py exit=1 -->
   - Extend `code/trainer.py` to accept `rho_teacher`, `seed`, `max_epochs`, `batch_size=16`.  
   - Train on the materialized GSM8K train sample from T002 with `ρ=0.5`, `seed=42`, `max_epochs=2`.  
   - Evaluate on both the GSM8K test sample and the bigbench logical subset; compute exact‑match accuracy and token‑level F1.  

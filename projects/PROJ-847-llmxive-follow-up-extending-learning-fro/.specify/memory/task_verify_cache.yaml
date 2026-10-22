@@ -1,0 +1,17 @@
+T002:
+  c: false
+  h: 447d713082cac02e61283d1da050826364c0af74700ec340c62ea2d91ac5dc52
+  r: "The repository contains the rewritten `code/data.py` with the correct streaming\
+    \ loaders, but the required `data/raw/manifest.txt` file is missing, so the task\u2019\
+    s requirement to record sample sizes and source identifiers is not satisfied."
+  sig: c34fc12d03411a920fd6bfc6afbfa4e8d5425766276f7e16184d5f182b575a42
+T003:
+  c: false
+  h: 5577e54428b9f94d2ca2b2267256e929720e5ba73d18c120ddf58f84ce59ff5b
+  r: The repository contains `code/diffusion.py`, which implements a masking schedule,
+    but the required real diffusion checkpoint is never loaded (no `code/model.py`
+    or `load_diffusion_model` function) and the metadata file `outputs/model_checkpoint.json`
+    is missing. Additionally, the test suite fails because the `torch` dependency
+    is not installed, so the verification command cannot be run. These missing pieces
+    prevent the task from being considered complete.
+  sig: a9f180882660923c7d2a3173b42f692894983d2fe8bcbfafdc5a42490da36ee1

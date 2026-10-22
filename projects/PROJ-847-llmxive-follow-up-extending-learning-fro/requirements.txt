@@ -1,1 +1,9 @@
-pyarrow
+# Project dependencies
+# Existing dependencies are provided by the environment:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil, llmxive_toolkit
+#
+# Additional third‑party packages required for this task:
+datasets>=2.0.0
+transformers>=4.0.0
+torch>=2.0.0
