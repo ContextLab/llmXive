@@ -75,3 +75,28 @@
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/rest/v/materials/
   verified_at: '2026-10-05T12:52:53.959111Z'
+- artifact_hash: 677d17cd9caa7be618194136399630418313404bd959e86f40cc16560961c6db
+  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2312.01650] Adaptive Confidence Threshold for ByteTrack in Multi-Object
+    Tracking'
+  kind: url
+  value: https://arxiv.org/abs/2312.01650
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2312.01650
+  verified_at: '2026-10-22T03:49:19.173801Z'
+- artifact_hash: 677d17cd9caa7be618194136399630418313404bd959e86f40cc16560961c6db
+  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2604.10702] Backbone-Conditional Behavior of Modality Gating in
+    Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism
+    Analysis'
+  kind: url
+  value: https://arxiv.org/abs/2604.10702
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2604.10702
+  verified_at: '2026-10-22T03:49:19.173801Z'
