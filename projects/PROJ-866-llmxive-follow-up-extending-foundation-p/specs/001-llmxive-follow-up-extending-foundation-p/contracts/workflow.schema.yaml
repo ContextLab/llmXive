@@ -22,10 +22,10 @@ properties:
     type: "integer"
     minimum: 1
     maximum: 20
-    description: "Number of policy constraints attached to the workflow."
+    description: "Number of policy constraints attached."
   nodes:
     type: "array"
-    description: "List of policy nodes in the workflow graph."
+    description: "List of policy nodes"
     items:
       $ref: "#/definitions/PolicyNode"
   edges:
@@ -52,12 +52,9 @@ definitions:
         type: "string"
       type:
         type: "string"
-        description: "Policy type (e.g., \"budget\", \"sovereignty\")."
       content:
         type: "string"
-        description: "Text description of the policy."
       dependencies:
         type: "array"
-        description: "IDs of prerequisite nodes."
         items:
           type: "string"

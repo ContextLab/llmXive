@@ -51,10 +51,16 @@ python code/utils/verify_invalid_exclusion.py \
 ```
 *Output*: `invalid_exclusion_report.json` containing `invalid_workflow_count`, `excluded_count`, and `status`.
 
-### 5️⃣ Run statistical analysis
+### 5️⃣ Prepare Step‑Level Outcome Data
+```bash
+python src/cli/run_simulation.py --prepare-step-data
+```
+*Output*: `data/processed/step_outcomes.json` (flat per‑step binary outcomes for GEE).
+
+### 6️⃣ Run statistical analysis
 ```bash
 python src/cli/run_simulation.py --analyze \
-    --bootstraps <large number>   # matches verified fact
+    --bootstraps 1000   # matches verified fact
 ```
 *Outputs*:
 - `data/results/tradeoff_curve.csv` (SSoT for the paper)  
@@ -62,7 +68,7 @@ python src/cli/run_simulation.py --analyze \
 - `data/results/run_metrics.json` (wall‑clock time, invalid‑workflow proportion, estimated power)  
 - `data/results/analysis_results.json` (validated against `contracts/analysis_results.schema.yaml`)
 
-### 6️⃣ Verify everything
+### 7️⃣ Verify everything
 ```bash
 pytest -v
 ```
@@ -81,7 +87,7 @@ Tests include:
     "confidence_interval": [estimated lower limit, estimated upper limit]
   }
   ```
- This means reducing context by up to **[deferred]** keeps policy‑violation error ≤ 1 % with 95 % confidence.
+  This means reducing context by up to **[deferred]** keeps policy‑violation error ≤ 1 % with 95 % confidence.
 
 - **Reproducibility**: The SHA‑256 hashes of all generated files are recorded in `state/projects/PROJ-866-llmxive-follow-up-extending-foundation-p.yaml`. Re‑run the pipeline on a fresh GitHub Actions runner; the hashes must match exactly.
 
@@ -89,6 +95,3 @@ Tests include:
 ```bash
 rm -rf data/raw/* data/processed/* data/results/*
 ```
-
----
-
