@@ -1,18 +1,20 @@
 """
 code/pipeline/run.py
 --------------------
-
-Thin wrapper that re‑exports the implementation located in
-``src.pipeline.run``.  The public documentation (quickstart) refers
-to this path, while the test suite imports the ``src`` module.
-Providing the wrapper keeps both import styles functional without
-duplicating logic.
+Wrapper that re-exports the pipeline orchestration logic from src.pipeline.run.
 """
 
-from src.pipeline.run import main as _impl_main
+from src.pipeline.run import run as _run_impl, main as _main_impl
 
 def main() -> None:
     """
-    CLI entry point used by ``python -m code.pipeline.run``.
+    CLI entry point used by `python -m code.pipeline.run`.
     """
-    _impl_main()
+    _main_impl()
+
+def run():
+    """
+    Programmatic entry point that executes the pipeline and returns 
+    the paths to the primary artifacts.
+    """
+    return _run_impl()

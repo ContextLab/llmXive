@@ -30,13 +30,14 @@ API cannot be reached or the required key is missing, the script fails
 loudly, satisfying the “no silent synthetic data” rule.
 """
 
-import hashlib
 import os
 import sys
+import re
 from pathlib import Path
 
 import pandas as pd
 from llmxive_toolkit import get_logger, paths
+from src.utils.checksum import compute_checksum
 
 # ``mp_api`` is declared in the pinned requirements.
 try:
@@ -55,16 +56,6 @@ CHECKSUM_PATH = paths.data("checksums", "raw_defects.sha256")
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _write_checksum(file_path: Path, checksum_path: Path) -> None:
-    """Write the SHA‑256 checksum of *file_path* to *checksum_path*."""
-    checksum_path.parent.mkdir(parents=True, exist_ok=True)
-    sha256 = hashlib.sha256()
-    with file_path.open("rb") as f:
-        for block in iter(lambda: f.read(8192), b""):
-            sha256.update(block)
-    checksum_path.write_text(sha256.hexdigest())
-    log.info(f"Checksum written to {checksum_path}")
-
 def _is_perovskite(formula: str) -> bool:
     """
     Very small heuristic to decide whether a formula is a perovskite
@@ -75,7 +66,6 @@ def _is_perovskite(formula: str) -> bool:
     """
     if "O" not in formula:
         return False
-    import re
 
     elements = re.findall(r"[A-Z][a-z]?", formula)
     return len(set(elements)) == 3
@@ -164,8 +154,9 @@ def main() -> None:
     df.to_csv(RAW_CSV_PATH, index=False)
     log.info(f"Raw dataset written to {RAW_CSV_PATH}")
 
-    # Compute and write checksum.
-    _write_checksum(RAW_CSV_PATH, CHECKSUM_PATH)
+    # Compute and write checksum using project utility.
+    compute_checksum(RAW_CSV_PATH, CHECKSUM_PATH)
+    log.info(f"Checksum written to {CHECKSUM_PATH}")
 
 if __name__ == "__main__":
     # When executed as a script we exit with a non‑zero code on failure.

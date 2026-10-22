@@ -1,22 +1,23 @@
 """
 code/tests/test_pipeline_entry.py
 ---------------------------------
-
-Unit test that verifies the pipeline module can be imported and that the
-``run`` function executes without raising an exception.  The test does not
-invoke the full end‑to‑end workflow (that is exercised by the quick‑start
-integration test); it merely checks that the public API is present.
+Unit test verifying that the public pipeline API is correctly wired
+and returns the expected artifact metadata.
 """
 
-import importlib
+from code.pipeline.run import run
 
 def test_pipeline_entry():
     """
-    Import the pipeline module and ensure that a ``run`` callable exists.
-    Execute ``run()`` and assert that it returns ``None`` without raising.
+    Verify that run() executes without exception and returns a 
+    dictionary containing the required path keys.
     """
-    pipeline = importlib.import_module("src.pipeline.run")
-    assert hasattr(pipeline, "run"), "pipeline module must expose a 'run' function"
-    # The function should complete without raising; any exception will cause the test to fail.
-    result = pipeline.run()
-    assert result is None, "pipeline.run() should return None on success"
+    # The function should execute without raising.
+    result = run()
+    
+    # Assert the return type and required keys.
+    assert isinstance(result, dict), "run() must return a dictionary"
+    
+    required_keys = {"raw_path", "features_path", "model_path"}
+    assert required_keys.issubset(result.keys()), \
+        f"Return dict missing required keys. Expected {required_keys}, got {result.keys()}"

@@ -73,6 +73,6 @@ FAILED src/tests/test_train.py::test_training_produces_outputs - AssertionErr...
 FAILED tests/test_generate_checksums.py::test_checksum_files_created - Assert...
 FAILED tests/test_split.py::test_split_dataset_basic - assert 2 <= 1
 FAILED tests/test_split.py::test_cli_execution - AssertionError: assert False
-6 failed, 8 passed, 15 warnings in 7.32s
+6 failed, 8 passed, 15 warnings in 5.12s
 
 

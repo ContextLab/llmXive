@@ -1,13 +1,11 @@
 T001:
-  c: false
-  h: e3b0c299de0802c37e464f2bdf453ede187b716d6fe5bc18f8052a79e3cef286
-  r: The provided `code/tests/test_pipeline_entry.py` imports `src.pipeline.run` (not
-    `code.pipeline.run`) and checks that `run()` returns `None`, whereas the task
-    requires a test that imports `code.pipeline.run` and asserts `run()` returns a
-    dict with keys `raw_path`, `features_path`, and `model_path`. Consequently the
-    verification does not satisfy the stated requirement. The pipeline entry point
-    needs to be adjusted and a correct unit test added.
-  sig: f17caafd4f72f12105b425d980cc824c57a3193a39196fabbeb5383962280989
+  c: true
+  h: 4c021f4570d03b7ed434f178f1d9a2179cf6c6461032806ef9819fe36612ccf3
+  r: "Checked that `code/quickstart.md`, `code/pipeline/run.py`, `code/data/download.py`,\
+    \ and `code/data/featurize.py` all exist and contain non\u2011placeholder implementations,\
+    \ and that the unit test `code/tests/test_pipeline_entry.py` ran (log shows exit\u202F\
+    0) and verified that `run()` returns a dict with the required keys."
+  sig: e38b5b6b94ff45f05e16667627ec73cbbcd1e0f4d3b2e28939c20456147ea02a
 T004:
   c: true
   h: 33667c11fd637050f00e3de4361a359397322d5c211dfeff83fd707cd0001cbc

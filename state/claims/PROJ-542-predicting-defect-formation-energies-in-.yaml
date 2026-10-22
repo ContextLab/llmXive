@@ -152,3 +152,19 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-22T12:47:17Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/code/quickstart.md
+  attempts: 1
+  canonical: 12 compositional descriptors computed via pymatgen
+  claim_id: c_00eaf5ae
+  context: 'The command executes the end-to-end workflow: ... 2. Featurization: Computes
+    12 compositional descriptors via `pymatgen`.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Computes 12 compositional descriptors via `pymatgen`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:10:58Z'
