@@ -1,4 +1,4 @@
-extend = "pyproject.toml"
-
-# Project-specific overrides can be added here if needed.
-# Currently, we rely entirely on the configuration in pyproject.toml.
+line-length = 88
+select = ["E", "F", "W", "C90"]
+ignore = ["E501"]
+target-version = "py311"

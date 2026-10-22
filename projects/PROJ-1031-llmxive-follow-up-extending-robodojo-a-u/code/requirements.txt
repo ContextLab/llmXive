@@ -1,11 +1,6 @@
-torch-cpu
-scikit-learn
-networkx
-pandas
-datasets
-opencv-python
-pyyaml
-jsonschema
-scipy
-numpy
-torchvision
+# Existing dependencies (implicitly available in the environment):
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil, llmxive_toolkit
+
+# New dependency required for dataset streaming
+datasets>=2.20.0

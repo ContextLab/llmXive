@@ -1,48 +1,10 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "robodojo-symbolic"
-version = "0.1.0"
-description = "Extending RoboDojo with Symbolic Abstractions"
-requires-python = ">=3.11"
-dependencies = [
-    "torch",
-    "scikit-learn",
-    "networkx",
-    "pandas",
-    "datasets",
-    "opencv-python",
-    "pyyaml",
-    "jsonschema",
-    "scipy",
-    "black",
-    "ruff",
-]
-
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
+include = '\.pyi?$'
 
 [tool.ruff]
-target-version = "py311"
 line-length = 88
-select = [
-    "E",    # pycodestyle errors
-    "F",    # pyflakes
-    "W",    # pycodestyle warnings
-    "I",    # isort
-    "N",    # pep8-naming
-    "UP",   # pyupgrade
-    "B",    # flake8-bugbear
-    "C4",   # flake8-comprehensions
-]
-ignore = []
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
-"tests/*" = ["S101"]
-
-[tool.ruff.isort]
-known-first-party = ["src", "scripts", "tests"]
+select = ["E", "F", "W", "C90"]
+ignore = ["E501"]
+target-version = "py311"

@@ -20,11 +20,11 @@ The following checklist implements the smallest complete study that satisfies ev
   - **Files**: `code/pyproject.toml`, `code/.ruff.toml`, `code/.black.toml`.  
   - **Verification**: `ruff --config code/.ruff.toml .` returns no errors; `black --check code/` exits with status 0.
 
-- [ ] T003 **Create data directory hierarchy (project‑owned paths only)**  
+- [X] T003 **Create data directory hierarchy (project‑owned paths only)**  
   - **Paths**: `data/raw/`, `data/interim/`, `data/processed/`, `data/final/`.  
   - **Verification**: `tree -d data` lists the four sub‑folders; no files are placed outside `data/`.
 
-- [ ] T004 **Add verified RoboDojo dataset download script**  
+- [ ] T004 **Add verified RoboDojo dataset download script**   <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 -->
   - **File**: `code/utils/io.py` – uses `datasets.load_dataset("robodojo", split="real", streaming=True)` with checksum validation.  
   - **Verification**: Executing `python -m code.utils.io --test` streams at least one record and raises on any fetch error (no silent fallback).
 

@@ -1,0 +1,63 @@
+T001:
+  reason: "`code/config.py` exists and defines SEED, CPU/memory limits and a function\
+    \ to load task IDs, but it imports `from src.data_loader import stream_robodojo_tasks`\
+    \ which cannot resolve because the `src` package lives under `code/` (there is\
+    \ no top\u2011level `src` directory or `code/__init__.py`). Consequently importing\
+    \ `code.config` would raise an ImportError, so the required `TASK_IDS` list would\
+    \ not be created and the verification command cannot succeed. The task therefore\
+    \ lacks a working configuration module."
+  task: 928417be1fb297ffcbcbdf90ac1597cd5af4714899a1f5fff650c9b5cc098d1b
+T001a:
+  reason: The provided `requirements.txt` does not contain the required `ruff` and
+    `black` entries (let alone pinned versions), so the linting/formatting tools are
+    not installed as specified. Adding those packages with exact version pins is needed
+    to satisfy the task.
+  task: d69556cca882828757192f4a86cb88822db7fb0532820081958e6b92011c0d17
+T002:
+  reason: "The three required configuration files (`code/pyproject.toml`, `code/.ruff.toml`,\
+    \ `code/.black.toml`) are present, but there is no provided evidence (e.g., command\
+    \ output, logs, or status codes) showing that `ruff --config code/.ruff.toml .`\
+    \ runs without errors and that `black --check code/` exits with status\u202F0.\
+    \ Those verification artifacts are missing."
+  task: 263322d2d82315777c37deffcb547b5f66f41430a795ede007c11c66f4c803e2
+T003:
+  task: 32cdf292126d51aaf6e2aca68d3f46490c70b863cd63d6da2973d4fe199a4107
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/utils/io.py exit=1'
+  task: ef6af8ecc9908f8b68f07889ac88abcca4da6ea19c05a122df224f1094946612
+T005:
+  task: ad24e380d9762fb0bdd35ddb77a08d4e762b8b0fe2ac05d484b8a7e8e6c151c8
+T006:
+  task: abd7356315f6c50f45ddeed105d5b608658d81d4e707209e0b11f51f948c99a1
+T006a:
+  task: ae721d11f1dac1b9b3b3050088713ac73e983cf0e19e62bbb983edc5699ee5ba
+T007:
+  task: acbe95e6a71e8c92ebc812da73cc59b782d1385790a21d25a67ba3065c9e3908
+T008:
+  task: d471614a187b36a9eb60005ea11127a87c2b7c148d10ac544fe3343f3d95fcf2
+T009:
+  task: c68819789d36f3c6ec7737dd5352e17b4317f15a99a793b3873710fccff03430
+T009a:
+  task: 82d131baebe91c7977256d4ec5ea5c18b6d7b7e682d009febfd5bcdbfc332ae0
+T010:
+  task: 41e581d55b0f32df6b5e064c1b25d28f630e67430b52eddc676604f7d4468f66
+T011:
+  task: ab2047006d3260bd9bfe88ae3243641394b49425c582c85ba951792f511f3d89
+T012:
+  task: 549ff1ab08f8c2e0a944c49601732884ad10f402dd7f0dad1fcbcce9629f1f34
+T012a:
+  task: c1dfd03d1757ee8d6e737f59e2134511c620604c08c080a4338bc59ecbca96c2
+T013:
+  task: 7a185ffe666b0ec224d3df8ec1f9ea81cfa61002d8a8bc553fec08e98682a98b
+T013a:
+  task: 72d03d0fb313a48a51b645409d711ca725c6f99c952215130df38fc264ad6ca5
+T014:
+  task: 48c1ce62a88ac2fb13583bfad351b8701e70a1e880ffd50955301f5ae165c1ca
+T015:
+  task: 52fd4f5e8fdf5a9033e26ebe812da003f9ecff029c11061ec0a38535b2de8c95
+T016:
+  task: 5c1b5a4b429049e98f7070dd8617083ff4c40a893a3d3490cd6a9fedadc876f2
+T017:
+  task: b1fd0a899a60c6f4a8e01eb2ced2b0c815bd0251c5526ef2bbddcdd41c458cd8
+T018:
+  task: d6ddebac7336227638a5b19ad69df0e06af7f1ced268edddf32ac219633461b0

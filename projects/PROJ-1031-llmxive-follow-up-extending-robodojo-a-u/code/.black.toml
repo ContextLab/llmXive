@@ -1,4 +1,2 @@
-# Explicit config for black
 line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
+target-version = ["py311"]

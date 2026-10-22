@@ -1,16 +1,17 @@
 status: none
-intent: RoboDojo LERobot v3.0 dataset download python package GitHub
+intent: RoboDojo task metadata parquet dataset HuggingFace download python package
+  dataset
 required_fields:
 - task_id
-- video_uri_or_path
-- initial_symbolic_state
-- goal_symbolic_state
-- object_affordance_definitions
+- scene_name
+- task_specification
+- semantic_embedding
+- object_poses
+- position_threshold
+- orientation_threshold
+- success_criteria
+- object_affordances
 - symbolic_state_predicates
-- semantic_embedding_vector
-- metadata_timestamp
-- environment_configuration
-- action_sequence_ground_truth
-cache_key: 529a84d00a291e60a9a72bc217ba901b2e4474d99e350c5f34a4540985448b20
-searched_at: '2026-10-19T10:26:13.541689+00:00'
+cache_key: d7fdcc7524db8368989644bf011d2b221e1b133d9889dede23236687b971b9f9
+searched_at: '2026-10-22T10:28:42.214469+00:00'
 retry_count: 1

@@ -1,28 +1,36 @@
+T001:
+  c: false
+  h: 3ca013a97a71926e0a2adea550c739d926346f03cf1ad70a123705dd56cf42d2
+  r: "`code/config.py` exists and defines SEED, CPU/memory limits and a function to\
+    \ load task IDs, but it imports `from src.data_loader import stream_robodojo_tasks`\
+    \ which cannot resolve because the `src` package lives under `code/` (there is\
+    \ no top\u2011level `src` directory or `code/__init__.py`). Consequently importing\
+    \ `code.config` would raise an ImportError, so the required `TASK_IDS` list would\
+    \ not be created and the verification command cannot succeed. The task therefore\
+    \ lacks a working configuration module."
+  sig: 884039316d9aa6e5b0f494d57f5961d041c6b5c2911ba1865431e0bcd278fc77
+T001a:
+  c: false
+  h: 46712ee52743ef0b3bc663f18177f833247d4c4d8548c283e5f3cdc75eca2caf
+  r: The provided `requirements.txt` does not contain the required `ruff` and `black`
+    entries (let alone pinned versions), so the linting/formatting tools are not installed
+    as specified. Adding those packages with exact version pins is needed to satisfy
+    the task.
+  sig: ff840ba60d287d783d36ac0fa1117fc3384f27f12f2384b93cdf201c776cc87e
 T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
-    \ or `black` settings) or setup scripts are present in the `code/` directory,\
-    \ so the required ruff and black tooling has not been actually configured. The\
-    \ implementer provided no artifacts to verify the task\u2019s completion."
-T024:
-  c: false
-  h: 4095e7359a003e4fff63eaf7cb0caed7e076a64f18b1e1f0e20b4b620eec1025
-  r: "The `data/interim/execution_logs.parquet` file does not exist, so no outcomes\
-    \ are being logged. Moreover, the provided `executor.py` is truncated and lacks\
-    \ concrete logic that detects planner vs. controller failures and appends those\
-    \ labels (and outcomes) to a Parquet log. The required failure\u2011detection\
-    \ implementation and logging step are therefore missing."
-T026:
-  c: false
-  h: 3b6be3551625853ac6bd1b41ebbbbc3322621f1331c7507f3653cf0788f80155
-  r: The required artifact `data/interim/execution_logs.parquet` is missing, so no
-    execution metrics have been logged as specified. The task therefore is not satisfied.
-T032:
+  h: 37cf3121c0b1f6fa4b692c208658694fa44738f993adfafd0122fc99f0e47371
+  r: "The three required configuration files (`code/pyproject.toml`, `code/.ruff.toml`,\
+    \ `code/.black.toml`) are present, but there is no provided evidence (e.g., command\
+    \ output, logs, or status codes) showing that `ruff --config code/.ruff.toml .`\
+    \ runs without errors and that `black --check code/` exits with status\u202F0.\
+    \ Those verification artifacts are missing."
+  sig: 50b53deb1a2ee66b4c3649444719fd5fc6f1688c9aa74fe20785d80cd6a2fee9
+T003:
   c: true
-  h: 77f666f5af545b58e9cda70fa9a716402c2c2ad86a9f1fc14db23b3ae295834e
-  r: "The `code/src/stats_analysis.py` file exists, is non\u2011empty, and defines\
-    \ `load_baseline_results` and `load_symbolic_results` functions that read the\
-    \ required Parquet files (raising clear errors if they are missing). This matches\
-    \ the task\u2019s requirement to implement loading of the baseline and symbolic\
-    \ results."
+  h: 3ce7e14511c3a6432f461b56da5748a5a82d4c896c0ad2d38ad2a23bb8c8534f
+  r: "Checked the `data/` directory tree \u2013 it contains exactly the four required\
+    \ empty sub\u2011folders (`raw`, `interim`, `processed`, `final`) and no other\
+    \ data files appear outside this hierarchy. The `create_data_dirs.py` script ran\
+    \ successfully and logged creation of all four directories."
+  sig: 6bd6c7401ec7e60c59326e9c80de59195d391b6b1ce2a890aabb1eefe52c39de
