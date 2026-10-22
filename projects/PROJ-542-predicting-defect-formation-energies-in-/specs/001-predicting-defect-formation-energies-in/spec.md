@@ -24,7 +24,7 @@ The researcher MUST be able to download a dataset of perovskite defect formation
 
 ### User Story 2 - Model Training and Cross-Validation (Priority: P2) (US-2)
 
-The researcher MUST be able to train baseline machine learning models (Random Forest and Gradient Boosting) on the engineered dataset using 5-fold cross-validation, ensuring the entire process completes on a CPU-only environment without GPU dependencies.
+The researcher MUST be able to train baseline machine learning models (Random Forest and Gradient Boosting) on the engineered dataset using k‑fold cross‑validation, ensuring the entire process completes on a CPU-only environment without GPU dependencies.
 
 **Why this priority**: This validates the core hypothesis that compositional descriptors can predict defect energies. It must run on free-tier CI resources (CPU only) to ensure feasibility.
 

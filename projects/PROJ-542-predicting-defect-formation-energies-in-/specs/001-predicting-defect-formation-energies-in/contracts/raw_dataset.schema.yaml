@@ -18,5 +18,8 @@ properties:
     description: "DFT‑computed defect formation energy in eV."
   metadata:
     type: object
-    description: "Optional additional fields (e.g., Materials Project ID)."
+    description: "Optional additional fields (e.g., Materials Project ID, DFT functional)."
+  structure_cif:
+    type: string
+    description: "Optional path or URL to a CIF/POSCAR file containing the crystal structure."
 additionalProperties: false
