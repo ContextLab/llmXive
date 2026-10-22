@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: 151ba65961f7b95c7066645c617475767ad86642205a4711484718675f47fdbe
-  r: "The project lacks the required `scripts/`, `data/raw/`, and `outputs/` directories\
-    \ (and the `outputs/fetch_log.txt` file is missing). The three fetch functions\
-    \ raise an `AttributeError` because they use `pd.compat.StringIO`, causing all\
-    \ `test_fetch_data.py` tests to error, so the verification step fails and the\
-    \ paired\u2011species count is never checked."
-  sig: dbdb3d7f5d4f4ed454dfe48b84cd40fb7c48375e8a83fe8dc70a72cf974d6239
 T002:
   c: false
   h: fbad8969ca0b7f2706af0214ee9bc5bc8216553faa70d29e5e0253b019fcf32d

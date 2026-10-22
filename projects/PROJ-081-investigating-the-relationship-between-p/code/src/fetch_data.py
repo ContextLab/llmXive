@@ -17,6 +17,7 @@ measurements** from the source files, merely renamed to match the analysis
 schema.
 """
 
+import io
 import json
 import time
 from pathlib import Path
@@ -68,8 +69,10 @@ def _fetch_with_backoff(url: str, max_attempts: int = 3, base_delay: int = 30) -
                 log.error(f"All {max_attempts} attempts to fetch {url} failed.")
                 raise RuntimeError(f"Failed to fetch {url}") from exc
             delay = base_delay * (2 ** (attempt - 1))
-            log.warning(f"Fetch failed (attempt {attempt}/{max_attempts}): {exc}. "
-                        f"Retrying after {delay}s...")
+            log.warning(
+                f"Fetch failed (attempt {attempt}/{max_attempts}): {exc}. "
+                f"Retrying after {delay}s..."
+            )
             time.sleep(delay)
 
 # ----------------------------------------------------------------------
@@ -179,7 +182,7 @@ def fetch_metabolights() -> pd.DataFrame:
     # stable, small CSV that can be fetched without authentication.
     url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv"
     content = _fetch_with_backoff(url)
-    df = pd.read_csv(Path(url).name) if False else pd.read_csv(pd.compat.StringIO(content.decode()))
+    df = pd.read_csv(io.StringIO(content.decode()))
     df = _rename_iris(df)
     log.info(f"MetaboLights fetch succeeded – {len(df)} records")
     return df
@@ -191,7 +194,7 @@ def fetch_pmn() -> pd.DataFrame:
     """
     url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv"
     content = _fetch_with_backoff(url)
-    df = pd.read_csv(pd.compat.StringIO(content.decode()))
+    df = pd.read_csv(io.StringIO(content.decode()))
     df = _rename_penguins(df)
     log.info(f"PMN fetch succeeded – {len(df)} records")
     return df
@@ -204,7 +207,7 @@ def fetch_hpid() -> pd.DataFrame:
     """
     url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/titanic.csv"
     content = _fetch_with_backoff(url)
-    df = pd.read_csv(pd.compat.StringIO(content.decode()))
+    df = pd.read_csv(io.StringIO(content.decode()))
     df = _rename_titanic(df)
     log.info(f"HPID fetch succeeded – {len(df)} records")
     return df
