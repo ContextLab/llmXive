@@ -135,6 +135,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                 rna_uri = _query_encode_file(
                     session,
                     cell_line_term=term,
+                    assay="RNA-seq",                     # <-- added assay filter
                     output_type="gene quantifications",
                     file_format="tsv"
                 )
@@ -196,7 +197,8 @@ def download_file(uri: str, output_path: Path, session: requests.Session) -> boo
                 tmp_path = output_path.with_suffix(output_path.suffix + ".gz")
                 with tmp_path.open("wb") as f:
                     for chunk in r.iter_content(chunk_size=8192):
-                        if chunk: f.write(chunk)
+                        if chunk:
+                            f.write(chunk)
                 with gzip.open(tmp_path, "rb") as src, output_path.open("wb") as dst:
                     for chunk in iter(lambda: src.read(8192), b""):
                         dst.write(chunk)
@@ -204,7 +206,8 @@ def download_file(uri: str, output_path: Path, session: requests.Session) -> boo
             else:
                 with output_path.open("wb") as f:
                     for chunk in r.iter_content(chunk_size=8192):
-                        if chunk: f.write(chunk)
+                        if chunk:
+                            f.write(chunk)
         if output_path.stat().st_size == 0:
             raise RuntimeError(f"Downloaded file is empty: {output_path}")
         return True
@@ -242,7 +245,8 @@ def process_accessibility_data(input_path: Path, output_path: Path) -> None:
     with input_path.open("rb") as src, output_path.open("wb") as dst:
         while True:
             chunk = src.read(8192)
-            if not chunk: break
+            if not chunk:
+                break
             dst.write(chunk)
 
 def write_gene_coords_bed(output_path: Path) -> None:
@@ -255,20 +259,25 @@ def write_gene_coords_bed(output_path: Path) -> None:
 
     with gzip.open(gtf_path, "rt") as gtf_f, output_path.open("w") as bed_f:
         for line in gtf_f:
-            if line.startswith("#"): continue
+            if line.startswith("#"):
+                continue
             fields = line.strip().split("\t")
-            if len(fields) != 9 or fields[2] != "gene": continue
+            if len(fields) != 9 or fields[2] != "gene":
+                continue
             attributes = fields[8]
             attr_dict = {}
             for attr in attributes.split(";"):
                 attr = attr.strip()
-                if not attr: continue
+                if not attr:
+                    continue
                 parts = attr.split(" ", 1)
-                if len(parts) < 2: continue
+                if len(parts) < 2:
+                    continue
                 key, value = parts
                 attr_dict[key] = value.strip('"')
             gene_id = attr_dict.get("gene_id")
-            if not gene_id: continue
+            if not gene_id:
+                continue
             start_int = int(fields[3]) - 1
             end_int = int(fields[4])
             strand = fields[6]
@@ -311,6 +320,7 @@ def main() -> None:
     args = parser.parse_args()
     
     cell_lines = parse_cell_lines(args.cell_lines)
+    # Resolve wildcard shortcuts (e.g., GM128* -> GM12878)
     wildcard_map = {"GM128*": "GM12878"}
     cell_lines = [wildcard_map.get(cl, cl) for cl in cell_lines]
 

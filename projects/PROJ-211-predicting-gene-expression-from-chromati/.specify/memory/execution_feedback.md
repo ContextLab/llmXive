@@ -38,10 +38,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_encode.py  --cell-lines GM128*, K562, HMEC, IMR90, HepG2  --output-dir data/raw -> rc=1
-2026-10-22 10:11:16,113 - __main__ - INFO - Directories ensured: ['data/raw', 'data/processed', 'data/models', 'logs', 'tests', 'docs', 'contracts']
-2026-10-22 10:11:16,518 - __main__ - INFO - Found RNA-seq for GM12878 using term GM12878
-2026-10-22 10:11:17,511 - __main__ - INFO - Found RNA-seq for K562 using term K562
-2026-10-22 10:11:18,457 - __main__ - ERROR - Failed to retrieve ENCODE metadata: RNA-seq file not found for HMEC after trying all aliases ['HMEC', 'Human Mammary Epithelial Cells']
+2026-10-22 21:15:07,857 - __main__ - INFO - Directories ensured: ['data/raw', 'data/processed', 'data/models', 'logs', 'tests', 'docs', 'contracts']
+2026-10-22 21:15:08,087 - __main__ - ERROR - Failed to retrieve ENCODE metadata: RNA-seq file not found for GM12878 after trying all aliases ['GM12878']
 
 
 - python code/generate_synthetic.py --seed 42 --output-dir data/raw -> rc=2
@@ -82,7 +80,7 @@ ERROR tests/unit/test_preprocess.py::test_merge_features_expression - FileNot...
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_success_on_first_attempt
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_retry_on_failure
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_failure_after_max_attempts
-============= 25 failed, 33 passed, 3 warnings, 5 errors in 2.06s ==============
+============= 25 failed, 33 passed, 3 warnings, 5 errors in 2.14s ==============
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -98,7 +96,7 @@ FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::t
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_required_keys_present
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_value_types
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_delta_r2_calculation
-=================== 15 failed, 1 passed, 7 skipped in 0.23s ====================
+=================== 15 failed, 1 passed, 7 skipped in 0.24s ====================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -116,7 +114,7 @@ E   ImportError: cannot import name 'train_elastic_net_cv' from 'code.train' (/h
 ERROR tests/integration/test_data_pipeline.py
 ERROR tests/integration/test_training_loop.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.95s ===============================
+============================== 2 errors in 0.99s ===============================
 
 
 
