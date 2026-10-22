@@ -33,9 +33,13 @@ T010:
 T011:
   task: e89f0abd8f8f3219055bf159450dd844b2f864ca281ca7a98ac571dd7e3d2c66
 T012:
-  reason: The `code/requirements.txt` file exists but contains an invalid entry `python==3.11`,
-    causing `pip install -r code/requirements.txt` to fail (see `code/.tasks/T012.code_tests_test_requirements.py.log`).
-    The required verification that installation succeeds therefore does not hold.
+  reason: "The file `code/requirements.txt` exists but omits the `python==3.11` pin\
+    \ the task's specified contents require, and the recorded verification test (`code/tests/test_requirements.py`)\
+    \ failed with exit 1 \u2014 `pip install -r code/requirements.txt` did not succeed\
+    \ (historically due to the un-installable `python==3.11` line, which was then\
+    \ removed rather than resolved, e.g., via a comment or separate Python-version\
+    \ pin). The implementer must reconcile the file with the specified contents and\
+    \ provide evidence of a passing install/import verification run."
   task: 8fdbf71a10e6cacc247de6b9a3a2db01f3e8fb3f5befa3075c1a7bf5e2310508
 T013:
   task: b38600a88616df2dc2e3d4ef65be4a64cdb5cce99bcc236d534bd561bf4326f0

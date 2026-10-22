@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-19T01:27:22Z",
+  "updated_at": "2026-10-22T04:36:47Z",
   "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
   "replan_rounds": 1
 }

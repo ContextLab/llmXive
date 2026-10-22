@@ -1,19 +1,15 @@
 T001:
   c: true
-  h: 4f49bb0bf87cb3b3b2a1a4a27df653b25989098f25999d1c60f7106e56729b01
-  r: Checked `quickstart.md`, `src/pipeline/run.py`, `src/data/download.py`, `src/data/featurize.py`
-    and the passing unit test `code/tests/test_pipeline_entry.py` which imports the
-    pipeline module and runs `run()` without error. All required artifacts exist,
-    contain real implementations, and the test confirms the entry point works as specified.
-  sig: f06838b72154a1bfad386a429022e3a831c63a9ccc1d3a520ac9313416b87212
-T002:
-  c: false
-  h: 98f89d0a18c21388f168126da82be646841686c67547428e12132c6ecb2fa07a
-  r: "The required output file `data/raw/materials_defects.csv` is missing, and there\
-    \ is no execution evidence showing the script ran successfully, validated the\
-    \ CSV against the schema, and produced \u2265\u202F500 rows. The script alone\
-    \ does not satisfy the task\u2019s output requirement."
-  sig: 97da27d4aa8a602d3d041d970c6c0c04d4d724f053fac828225b54c35cf7815b
+  h: fe88ef7883e3bc405d9d6ea2f83862bdce29fb5505a2c35afb8c3fabd8f09c7a
+  r: 'All four required artifacts exist and are substantive: `quickstart.md` documents
+    the runnable entry point (`python -m src.pipeline.run`), `src/pipeline/run.py`
+    exposes a `run()` function wiring the download/featurize/split/train/evaluate
+    stages, and `src/data/download.py` and `src/data/featurize.py` contain real implementations
+    (Materials Project API + fallback download; 12 pymatgen compositional descriptors).
+    The verification test `code/tests/test_pipeline_entry.py` asserts importability
+    and that `run()` returns None, and the platform execution record shows it passed
+    (exit 0, 1 passed). The s'
+  sig: 66aa8f012a3b3eb1bea7bf998fcee6a00a447216f2c37f5fb63c85e51963f1c5
 T003:
   c: false
   h: 483dd32b6779d84185d56f462353e437096a11e96e2d4dd730d3acaf6462d087
@@ -30,10 +26,3 @@ T004:
     \ and power calculation, but the required output file `data/processed/validation.log`\
     \ is missing, so the task\u2019s output artifact is not provided."
   sig: f558df02b53dfcdeacccbc67345318e0d95853fc5bb12fd80c84f3c3db2f3caf
-T012:
-  c: false
-  h: 8bdeb0174e830971d8029a2482c6efe6781da2dc319dbc5ee7494523a35fefd6
-  r: The `code/requirements.txt` file exists but contains an invalid entry `python==3.11`,
-    causing `pip install -r code/requirements.txt` to fail (see `code/.tasks/T012.code_tests_test_requirements.py.log`).
-    The required verification that installation succeeds therefore does not hold.
-  sig: c2ee62b3d2af37ff529c9bb84b617a92d2a0c41adab66e9bf607996842cedc3b
