@@ -1,5 +1,12 @@
-# Core dependencies (already available in the base environment)
-# torch and torchvision are not part of the default list and are required
-# for the linear‑classifier training.
+# Core scientific stack (already available in the base environment)
+# Additional dependencies required for the counterfactual pipeline
 torch==2.3.0
-torchvision
+torchvision==0.18.0
+opencv-python
+tqdm
+datasets
+requests
+pandas
+numpy
+# The following are already in the base environment and listed for clarity:
+# scipy, scikit-learn, matplotlib, seaborn, pytest, PyYAML, psutil

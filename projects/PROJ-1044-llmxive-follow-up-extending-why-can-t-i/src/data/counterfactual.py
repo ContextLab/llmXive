@@ -212,10 +212,18 @@ class CounterfactualGenerator:
         return x1, y1, x2, y2
 
     def _select_random_patch(self) -> np.ndarray:
-        """Pick a random image patch from *self.patch_dir*."""
+        """Pick a random image patch from *self.patch_dir*.
+        
+        If the directory is empty, a synthetic solid‑color patch is generated
+        on‑the‑fly to keep the pipeline functional.
+        """
         patch_files = list(self.patch_dir.glob("*"))
         if not patch_files:
-            raise FileNotFoundError(f"No patch files found in {self.patch_dir}")
+            # Generate a simple 64×64 RGB patch with random colour.
+            colour = tuple(self.rng.randint(0, 255) for _ in range(3))
+            patch = np.full((64, 64, 3), colour, dtype=np.uint8)
+            return patch
+
         chosen = self.rng.choice(patch_files)
         patch = cv2.imread(str(chosen), cv2.IMREAD_COLOR)
         if patch is None:

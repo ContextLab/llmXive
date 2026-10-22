@@ -1,19 +1,18 @@
 status: none
-intent: American Gut Project 16S rRNA PHQ-9 GAD-7 dataset download Qiita API python
-  package dataset
+intent: Qiita study 10317 American Gut 16S PHQ-9 GAD-7 dataset download python package
+  dataset
 required_fields:
 - sample_id
 - otu_id
 - asv_id
 - taxonomy
-- count_matrix
-- phq9_score
-- gad7_score
-- mental_health_questionnaire
-- age
-- sex
-- bmi
+- abundance_counts
+- PHQ9_score
+- GAD7_score
 - sequencing_depth
-cache_key: 53f64f78a01132a8d0cc240168778b5966236146e2b581c19b92086bf69c85d3
-searched_at: '2026-10-13T08:32:52.339761+00:00'
+- age
+- gender
+- BMI
+cache_key: 7c08a4f3d377238cdfd3a70b05ee6793c47dfdd244714ad6e6f78db22c95f8af
+searched_at: '2026-10-22T03:35:53.247312+00:00'
 retry_count: 1

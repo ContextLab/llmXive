@@ -19,14 +19,14 @@
 - [X] T000b [P] [US1] If no linked dataset is found, generate a “Data Gap Report” at `results/data_gap_report.md` (JSON/Markdown) and halt the pipeline.  
   • Verify that `results/data_gap_report.md` is created and contains the required “Data Gap” statement.  
 
-- [ ] T000c [P] [US1] Log a confirmation message and allow the pipeline to continue when a suitable dataset is discovered.  
+- [ ] T000c [P] [US1] Log a confirmation message and allow the pipeline to continue when a suitable dataset is discovered.   <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 -->
   • Verify that the log entry `Data feasibility confirmed` appears in `logs/pipeline.log`.  
 
 ---
 
 ## Phase 1 – Project Setup (Shared Infrastructure)
 
-- [X] T001a [P] Create data directories: `mkdir -p data/raw/ data/processed/ data/interior/`.  
+- [ ] T001a [P] Create data directories: `mkdir -p data/raw/ data/processed/ data/interior/`.  
   • Verify that each directory exists after execution.  
 
 - [X] T001b [P] Create code directories: `mkdir -p code/ code/models/ code/utils/`.  
@@ -38,7 +38,7 @@
 - [ ] T002a [P] Add `requirements.txt` with pinned versions for core dependencies (pandas, scikit‑learn, scipy, numpy, biom-format, scikit‑bio, matplotlib, seaborn, requests, pytest, statsmodels).  
   • Verify that `requirements.txt` contains at least the listed packages and that `pip install -r requirements.txt` succeeds without errors.  
 
-- [~] T002b [P] Implement `code/scripts/generate_lock.py` to produce `requirements.lock` from `requirements.txt`.  
+- [ ] T002b [P] Implement `code/scripts/generate_lock.py` to produce `requirements.lock` from `requirements.txt`.  
   • Verify that `requirements.lock` is generated and matches the installed package versions.  
 
 - [ ] T002c [P] Implement `code/seeds.py` that writes `state/seeds.yaml` containing `random_seed`, `numpy_seed`, and (if applicable) `torch_seed`.  
@@ -48,7 +48,7 @@
 
 ## Phase 2 – Foundational Infrastructure (Blocking Prerequisites)
 
-- [~] T004 [P] Implement `code/config.py` with global paths, random seeds, and thresholds (0.1 % prevalence, 20 % rarefaction‑loss cutoff).  
+- [ ] T004 [P] Implement `code/config.py` with global paths, random seeds, and thresholds (0.1 % prevalence, 20 % rarefaction‑loss cutoff).  
   • Verify that `code/config.py` can be imported and that all constants are defined.  
 
 - [~] T005 [P] Implement logging in `code/utils/logging.py` that writes to `logs/pipeline.log` with rotation.  

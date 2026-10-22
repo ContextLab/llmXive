@@ -1,28 +1,41 @@
 T001:
-  c: true
-  h: 32e1ad44de16bf0a6a44b137b94a78dab5c4e810562ec140d300e81670697724
-  r: "Checked `quickstart.md` (contains the required command and environment notes)\
-    \ and `configs/run.yaml` (present and valid). The execution log `code/.tasks/T001.src_pipeline_run_all.py.log`\
-    \ shows the command ran, printed a summary of artifacts, and exited with status\u202F\
-    0."
-  sig: 7d4d35fb35dad527c955fb420dbb8c8c10d060ad5a26cf75d55df41f7ac397aa
+  c: false
+  h: ad275384624aedbcee5bcccfcca9b8696f194f97f34d86cb37caa51e8fc22279
+  r: "The repository contains the required `quickstart.md` and `configs/run.yaml`,\
+    \ and the log shows the command exits with status\u202F0, but there is no evidence\
+    \ that the command prints a summary of the generated artifacts (only a configuration\
+    \ summary is shown). Add execution output that includes such a summary to satisfy\
+    \ the task."
+  sig: 2c278815836fc22cc21c5e1ee49fec858bd86b3b53d553090b662bc298857294
+T002:
+  c: false
+  h: fdaab227dc4e7e26e6fe133c55cbeca14cc8e5f45b8d2b2ebd2e79a3f98e4d55
+  r: "The `src/data/something_loader.py` lacks the required bundled fallback videos\
+    \ (the `data/fallback/` directory is missing, so the loader resorts to downloading\
+    \ a remote sample instead of using local fallback files). Additionally, the unit\
+    \ test `tests/test_something_loader.py` only checks that OpenCV can open the video\
+    \ file, not that each frame can be decoded, which does not meet the \u201Cassert\
+    \ that each frame can be decoded\u201D requirement."
+  sig: b7270a6a43684e265e2bb2a25c868e5175e7e10a5c47afe9d3177117e5becf10
+T003:
+  c: false
+  h: cdf05d127e00ecfa6be49086b05172f20d21e3d83fe11481819e789c19d89935
+  r: "The `src/data/counterfactual.py` script does not meet several core requirements:\
+    \ it falls back to a synthetic patch when `data/patches/` is missing (the directory\
+    \ is absent), it uses optical\u2011flow vectors instead of a ResNet\u201118 feature\
+    \ for the \u2265\u202F0.9 cosine\u2011similarity check, and it never writes any\
+    \ counterfactual video files (the `data/counterfactuals/videos/` directory is\
+    \ missing). Consequently the unit test `tests/test_counterfactual_generation.py`\
+    \ fails during dataset loading (fallback video download SSL error) and no rows\
+    \ are recorded in the output `metadata.csv`. These issues must be fixed "
+  sig: e2da7b47da04d955111f13b47d332022ef8d06894ac637870ae75fea6684a944
 T004:
-  c: true
-  h: 573ce7b834446e37d7f7e08bbffbde4908fbdfb7a6365f2f7cbd169ecdf98dc7
-  r: "Checked `src/data/optical_flow_loader.py` \u2013 it implements copying or symlinking\
-    \ of pre\u2011computed `.npy` files, creates `data/flow_features/` if needed,\
-    \ and verifies SHA\u2011256 checksums when a manifest is present, with no on\u2011\
-    the\u2011fly flow computation."
-  sig: e92667d46f61445ea84b6fc2d341e72a96fdfcb77289d2d68fef7cb525e81adb
-T005:
-  c: true
-  h: eeba2a0f250763e8f2d97fccc7c4eff0ac414a95c09d2ea9dab7517f0d183c3b
-  r: 'Both required files exist and are non-empty: `src/model/loss.py` implements
-    `cross_entropy_loss` as a standard `torch.nn.CrossEntropyLoss`, `counterfactual_consistency_loss`
-    using `F.kl_div(log_softmax, softmax, reduction="batchmean")`, and `total_loss
-    = ce + lambda_ * cc`, exactly as specified. `src/model/check_loss.py` feeds identical
-    logits for orig/CF and asserts the CC loss is zero (with a small float tolerance),
-    matching the sanity-check requirement; the `src.model.loss` import resolves from
-    the project root (namespace packages work even without `src/model/__init__.py`,
-    and `src/__init__'
-  sig: 573210aa201188b37902c0acbe63da2b6a7b3b51773c88d75194a477f8f1a192
+  c: false
+  h: 6e24246d5ba0307218ff22335da7fac587a15a41d96bffd5b920357c46fb8459
+  r: "The provided `src/data/optical_flow_precompute.py` only creates a placeholder\
+    \ directory and never iterates over `data/videos/orig/*.mp4`, computes Farneback\
+    \ flow, or writes `.npy` files; consequently `data/flow/orig/` remains empty and\
+    \ `data/checksums/manifest.csv` is a zero\u2011byte file. The test suite also\
+    \ fails (checksum mismatch and missing expected files). The task\u2019s core functionality\
+    \ is therefore missing."
+  sig: 8e7cc00e1ae679656781f40f91955af8fc92fca27e0d98f409d26f6f35046437

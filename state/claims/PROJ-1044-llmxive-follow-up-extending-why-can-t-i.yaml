@@ -17,3 +17,21 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-12T05:35:44Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces full experiment on free-tier GitHub Actions runner
+  claim_id: c_c3a0692f
+  context: "The Quickstart section advertises an end\u2011to\u2011end command that\
+    \ reproduces the complete experiment on the free\u2011tier GitHub Actions runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "One\u2011command end\u2011to\u2011end \u2013 reproduces the full experiment\
+    \ (data generation, training, evaluation, and report) on the free\u2011tier GitHub\
+    \ Actions runner."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T03:27:51Z'

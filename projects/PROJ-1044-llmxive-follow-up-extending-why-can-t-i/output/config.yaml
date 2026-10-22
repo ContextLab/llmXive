@@ -1,0 +1,23 @@
+dataset_name: something-something-v2
+feature_similarity_threshold: 0.9
+lambda_values:
+- 0.1
+- 0.5
+- 1.0
+optical_flow_divergence_threshold: 0.15
+output_dir: ./output
+seeds:
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+- 8
+- 9
+- 10
+subset_size: 200
+test_split: 0.1
+train_split: 0.8
+val_split: 0.1

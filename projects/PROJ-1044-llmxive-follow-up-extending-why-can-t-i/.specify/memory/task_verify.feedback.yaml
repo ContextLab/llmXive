@@ -1,42 +1,51 @@
 T001:
-  task: 032d383888aec79d5bbd4bae3d760a7c79089cbfceb99c725da081b1168fda06
+  reason: "The repository contains the required `quickstart.md` and `configs/run.yaml`,\
+    \ and the log shows the command exits with status\u202F0, but there is no evidence\
+    \ that the command prints a summary of the generated artifacts (only a configuration\
+    \ summary is shown). Add execution output that includes such a summary to satisfy\
+    \ the task."
+  task: 135d9f2d64e2fc48477a7db249a8e13984addba24f49490b1581f160d2624884
 T002:
-  reason: The provided `something_loader.py` raises a `RuntimeError` when the HuggingFace
-    dataset cannot be accessed, and this exception propagates out of `something_stream`,
-    causing the unit test `tests/test_something_loader.py` to fail (no items are yielded).
-    The test therefore does not load five videos with decodable frames as required.
-    The loader must handle the missing dataset gracefully (e.g., by using the fallback
-    video) so that the test passes.
-  task: d5f6e56dbc464be34e26c171a27aecfac468412d176ea72b1ba5a2b1f98acc2a
+  reason: "The `src/data/something_loader.py` lacks the required bundled fallback\
+    \ videos (the `data/fallback/` directory is missing, so the loader resorts to\
+    \ downloading a remote sample instead of using local fallback files). Additionally,\
+    \ the unit test `tests/test_something_loader.py` only checks that OpenCV can open\
+    \ the video file, not that each frame can be decoded, which does not meet the\
+    \ \u201Cassert that each frame can be decoded\u201D requirement."
+  task: 2ed1d5bc75e0b8726f0ad041317b1bb315b9874a16a883d140b54e015cb1486e
 T003:
-  reason: 'Requested task execution failed; rerun successfully: src/data/counterfactual.py
-    exit=1'
-  task: b3f786d84aa252b8f46aec25191bb46b5518e3d12fdf6f0ffba51e6442a5b78b
+  reason: "The `src/data/counterfactual.py` script does not meet several core requirements:\
+    \ it falls back to a synthetic patch when `data/patches/` is missing (the directory\
+    \ is absent), it uses optical\u2011flow vectors instead of a ResNet\u201118 feature\
+    \ for the \u2265\u202F0.9 cosine\u2011similarity check, and it never writes any\
+    \ counterfactual video files (the `data/counterfactuals/videos/` directory is\
+    \ missing). Consequently the unit test `tests/test_counterfactual_generation.py`\
+    \ fails during dataset loading (fallback video download SSL error) and no rows\
+    \ are recorded in the output `metadata.csv`. These issues must be fixed"
+  task: 5f0540a3df70a4fd434f00383397ee920c2e5891f3544f4d66a88b81b498d67c
 T004:
-  task: a55754e23e7bcb5f4a91db770a675d75498b1c8bd1cf78fd92a0d3a1f80536d4
+  reason: "The provided `src/data/optical_flow_precompute.py` only creates a placeholder\
+    \ directory and never iterates over `data/videos/orig/*.mp4`, computes Farneback\
+    \ flow, or writes `.npy` files; consequently `data/flow/orig/` remains empty and\
+    \ `data/checksums/manifest.csv` is a zero\u2011byte file. The test suite also\
+    \ fails (checksum mismatch and missing expected files). The task\u2019s core functionality\
+    \ is therefore missing."
+  task: 099e621128831ae9054613b6e81107e1b21da047cd00ca9d790578d5806ce3e8
 T005:
-  task: b9ca6fbcce0b15448a92347f3318ffbf688b127d116868ff48a839d34600c8b9
+  task: d95398a47a4a87d60cf150c37757fe589fe0076b130b50c93623df1db1ed0740
 T006:
-  task: d3aae80a021054573c51d420bb2eae6c930a0f18812d95db3c41b856b439ccff
-T007:
-  task: e1a97c2d530729594fb5ed31d6a32c9cc0f9372b8e3cef66169a20535e6b5f06
+  task: ebe4344870ef65ebd401eb3364e12ca743aa1311ae7aa47922df5efd810207e7
 T008:
-  task: 2e45f6fed875e9f173f1e461719aff60d3a3eca8a3a6288e40c82e05bea6bc22
+  task: e08d4f7741254b3062b76ef21c3a1801d4615d1d4e06fd9b370ca589af71502d
 T009:
-  task: 562554228eb42099e4b4e090ffcf1a4c8c784b86cdc2091a178b6183469f3015
+  task: fcdfcd122b9827016d3731dfb4e26b4d574b096441e944b13c1d42bd1b5000bf
 T010:
-  task: e3c04e97f4f688a9dd9997bf28e9d6b20c7de41ec5f28e378aad91113e0696c6
+  task: 589a7d95345a7142d460cc22b76875886b4cde96e728e23da50ec8e327270121
 T011:
-  task: 21c72521a7d26fbd2b4fd5dbf6586528b2cc009321303df93315cc15cba2daef
+  task: 00240a567ed2ebb200225b99a408db83913d9a8de72f34fd0bf93ce6473e4845
 T012:
-  task: 58849c72c0308b9a309b123eff1cf72f3760474ce7fc69acd631a0e70eecd7ff
+  task: b33f200a6e2b92a650d019db3938b5885ecd9fb0b08b03a4188ab4fef5f34bae
 T013:
-  task: f2d2fe585eb911105b05166be1a2e40ad87351cb1fbb0f12010d63609f9fcf6a
+  task: 587059a1ef262699bea960cfcc06724c50678cef9f4935a9838dcd74797c06a0
 T014:
-  task: bdd3aeedbfd3a7adb6906cfc2fe36be518d584c1e13c6c871f62cc8b54b35881
-T015:
-  task: 650530a94121bab6cc5e1bd95ba039786373cc705e7a5e360f3e365eeea9c83a
-T016:
-  task: ae7af887d2b86149746c09ed881a06b6353022d5adb4d49a54df33179c2814db
-T017:
-  task: 666a939439adbac174a50b8478152bcd686adaf0accd7c50c47511616e5ef009
+  task: 3fefa0ae0a750e4d2e0917e546d0ae0fe6763bbc2df0f5f4902a6f0f9b3ede88

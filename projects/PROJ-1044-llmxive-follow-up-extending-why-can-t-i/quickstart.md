@@ -41,7 +41,7 @@ ls output/figures/
 
 ### What `run_all` does internally
 | Stage | Script | Key Output |
-|-------|---------|------------|
+|-------|--------|------------|
 | **Dataset streaming & sampling** | `src/data/something_something_loader.py` | `output/data/videos/orig/*.mp4` (sampled subset) |
 | **Counterfactual generation & validation** | `src/data/counterfactual.py` | `output/data/videos/cf/*.mp4`, `metadata.csv` |
 | **Optical‑flow extraction** | `src/data/optical_flow.py` | `output/data/flow/*.npy` |

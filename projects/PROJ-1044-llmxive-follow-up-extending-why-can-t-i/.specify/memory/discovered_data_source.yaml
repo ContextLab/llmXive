@@ -1,14 +1,14 @@
 status: none
-intent: Something-Something V2 video dataset download site:github.com python package
-  dataset
+intent: Something Something V2 video dataset with object masks and optical flow python
+  package dataset
 required_fields:
 - video_id
-- video_path_or_url
-- action_label
-- primary_object_category
-- object_segmentation_mask_or_bbox
+- video_path
+- class_label
+- object_mask_path
+- optical_flow_path
 - frame_rate
-- duration
-cache_key: f5febe61f64cc6e186f3a55902f89791896fe6c73ac50c35b2f90ac140dbc498
-searched_at: '2026-10-19T16:08:41.355861+00:00'
+- split
+cache_key: 9f7ad167878b2c04c047d42098caea65a0d8ac2337bec8babb36f8f7f6e85d88
+searched_at: '2026-10-22T03:31:10.714008+00:00'
 retry_count: 1

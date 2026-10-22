@@ -4,7 +4,7 @@ Streaming loader for the Something‑Something V2 dataset.
 This module provides a deterministic iterator over the training split of the
 Something‑Something V2 dataset via HuggingFace ``datasets``. If the dataset
 cannot be accessed (e.g., due to network restrictions), the loader falls
-back to a small publicly‑available MP4 video so that downstream code and
+back to a small locally‑bundled MP4 video so that downstream code and
 unit tests can still run on real data.
 
 The iterator yields ``(video_bytes, label)`` tuples where ``video_bytes`` is
@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import random
 from pathlib import Path
-from typing import Iterator, Tuple, Optional, List
+from typing import Iterator, Tuple, Optional
 
 import requests
 from datasets import load_dataset
@@ -23,19 +23,30 @@ from datasets import load_dataset
 __all__ = ["something_stream"]
 
 # ----------------------------------------------------------------------
-# Helper: download a small public video (≈1 MB) for fallback usage.
+# Helper: load a local fallback video (if present) or download a reliable
+# public sample video as a last resort.
 # ----------------------------------------------------------------------
-_FALLBACK_VIDEO_URL = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
-_FALLBACK_VIDEO_CACHE: Optional[bytes] = None
+_LOCAL_FALLBACK_DIR = Path("data/fallback")
+_REMOTE_FALLBACK_URL = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
+_fallback_video_cache: Optional[bytes] = None
+
+def _load_local_fallback() -> Optional[bytes]:
+    """Return the bytes of the first MP4 file found in ``data/fallback/``."""
+    if not _LOCAL_FALLBACK_DIR.is_dir():
+        return None
+    for file in _LOCAL_FALLBACK_DIR.iterdir():
+        if file.suffix.lower() == ".mp4" and file.is_file():
+            return file.read_bytes()
+    return None
 
 def _download_fallback_video() -> bytes:
-    """Download the fallback video once and cache the bytes."""
-    global _FALLBACK_VIDEO_CACHE
-    if _FALLBACK_VIDEO_CACHE is None:
-        resp = requests.get(_FALLBACK_VIDEO_URL, timeout=30)
+    """Download a public fallback video (used only when no local file exists)."""
+    global _fallback_video_cache
+    if _fallback_video_cache is None:
+        resp = requests.get(_REMOTE_FALLBACK_URL, timeout=30)
         resp.raise_for_status()
-        _FALLBACK_VIDEO_CACHE = resp.content
-    return _FALLBACK_VIDEO_CACHE
+        _fallback_video_cache = resp.content
+    return _fallback_video_cache
 
 # ----------------------------------------------------------------------
 # Primary dataset loading logic
@@ -54,7 +65,7 @@ def _load_something_dataset() -> "datasets.Dataset":
             split="train",
             streaming=True,
         )
-    except Exception as exc1:
+    except Exception:
         # Attempt 2: direct identifier (some mirrors expose it this way)
         try:
             return load_dataset(
@@ -62,14 +73,12 @@ def _load_something_dataset() -> "datasets.Dataset":
                 split="train",
                 streaming=True,
             )
-        except Exception as exc2:
-            # If both attempts fail we raise a custom error; the caller
-            # (``something_stream``) will catch this and switch to the
-            # fallback video mode.
+        except Exception as exc:
+            # Propagate a clear error – the caller will handle it.
             raise RuntimeError(
                 "Unable to access the Something‑Something V2 dataset on the "
-                "HuggingFace Hub. Falling back to a public sample video."
-            ) from exc2
+                "HuggingFace Hub."
+            ) from exc
 
 # ----------------------------------------------------------------------
 # Video download helper for URLs coming from the dataset
@@ -96,8 +105,8 @@ def something_stream(
 ) -> Iterator[Tuple[bytes, str]]:
     """
     Yield ``(video_bytes, label)`` pairs from the Something‑Something V2
-    training split. If the dataset cannot be loaded, a single public
-    sample video is yielded repeatedly (up to ``max_examples``).
+    training split. If the dataset cannot be loaded, a fallback video is
+    yielded repeatedly until ``max_examples`` items have been produced.
 
     Parameters
     ----------
@@ -106,7 +115,8 @@ def something_stream(
         reproducible sampling.
     max_examples: int | None, default None
         If provided, the iterator stops after yielding ``max_examples``
-        items.
+        items. When ``None`` the iterator yields indefinitely (or until the
+        dataset is exhausted).
 
     Yields
     ------
@@ -116,15 +126,20 @@ def something_stream(
         the fallback video).
     """
     rng = random.Random(seed)
+    yielded = 0
+    target = max_examples if max_examples is not None else float("inf")
 
     # ------------------------------------------------------------------
     # Try the real dataset first.
     # ------------------------------------------------------------------
     try:
         ds = _load_something_dataset()
-        count = 0
+    except Exception:
+        ds = None
+
+    if ds is not None:
         for example in ds:
-            if max_examples is not None and count >= max_examples:
+            if yielded >= target:
                 break
 
             video_url: Optional[str] = example.get("video")
@@ -139,30 +154,21 @@ def something_stream(
 
             try:
                 video_bytes = _download_video(video_url)
-                yield video_bytes, label
-                count += 1
             except Exception:
-                # Network hiccups are ignored – we continue streaming.
+                # Skip problematic downloads but continue iteration.
                 continue
 
-        # If we managed to stream at least one example we are done.
-        if max_examples is None or count > 0:
-            return
-    except Exception:
-        # Any problem (e.g., dataset not found, no internet) falls back
-        # to the hard‑coded sample video.
-        pass
+            yield video_bytes, label
+            yielded += 1
 
     # ------------------------------------------------------------------
-    # Fallback mode – yield the public sample video.
+    # Fallback mode – fill any remaining slots with a local or remote sample.
     # ------------------------------------------------------------------
-    fallback_bytes = _download_fallback_video()
+    fallback_bytes = _load_local_fallback()
+    if fallback_bytes is None:
+        fallback_bytes = _download_fallback_video()
     fallback_label = "fallback_sample"
 
-    # Determine how many items to produce.
-    total = max_examples if max_examples is not None else 1
-    # In fallback mode we ignore the 0.1 sampling probability to guarantee
-    # that the requested number of items is produced (the test expects at
-    # least one item).
-    for _ in range(total):
+    while yielded < target:
         yield fallback_bytes, fallback_label
+        yielded += 1

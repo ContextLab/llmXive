@@ -1,27 +1,17 @@
 T000a:
   c: true
-  h: f844412609402ded74f9d392dd46941004b5df8f03ed6cc73b07075d0e614d13
-  r: "Checked `code/data_feasibility.py` (implements the feasibility query) and the\
-    \ generated `results/feasibility_check.json` (contains the required boolean `data_available`\
-    \ field). Both artifacts exist, are non\u2011empty, and the script performs the\
-    \ required public dataset check, writing the JSON result."
-  sig: a15ac0e9de5fa9464809fd7661ab3381364d04d37e27884a7819e3be239b001c
+  h: 45c52b439ee30f60a4eab47f51919eaa15dd508df7d6869fe59173c690fce8e9
+  r: "Checked `code/data_feasibility.py` which implements a public\u2011source query\
+    \ and writes the result, and verified that `results/feasibility_check.json` exists\
+    \ and contains the required boolean `data_available` field."
+  sig: a8d662870cbe84a2c39b751884ced571f5ad40994027d4fda0f526fbe3510970
 T000b:
   c: true
-  h: a2fa048b0b8d9b0d854fbef3b691cf9ac29d250a34cc0f0c4efcabb6f6297c88
-  r: "Checked `results/data_gap_report.md` (exists, 335\u202Fbytes) which contains\
-    \ the required \u201CData Gap: No linked dataset found\u201D message, and the\
-    \ test log confirms the report was generated when no dataset was available."
-  sig: 1e8397fc4a46a86e470368b887db6730e5227cc00f2b12afac83bdfd33b7cdd6
-T000c:
-  c: false
-  h: 1575b43820bb8e7fe9138eef500935f3064e3538c122d383f334c512fbf63859
-  r: "The provided execution log (`code/.tasks/T000c.code_data_ingestion.py.log`)\
-    \ contains no line with the required text \u201CData feasibility confirmed\u201D\
-    , and the expected `logs/pipeline.log` file is not present in the evidence. Consequently\
-    \ the task\u2019s core requirement\u2014logging the confirmation message when\
-    \ a suitable dataset is found\u2014is not satisfied."
-  sig: d636ac50335fdc995db4db4bfc2ca867ba1a527d1aa59359795f038982de94d5
+  h: f36aa809895bca2b2304c3bfc4cbf6115774d8cf09c86ebb3369192b4e74c5fc
+  r: "Checked `results/data_gap_report.md` (335\u202Fbytes) which exists and includes\
+    \ the required \u201CData Gap: No linked dataset found\u201D message, confirming\
+    \ the pipeline generated the Data Gap Report when no dataset was linked."
+  sig: cf7804ce8b139a6b16ce89e9d7fb0a9f2944e7009dd9bce8d7ba2a4dfbd1f70a
 T001a:
   c: true
   h: 309acaa785db7be085ed82162a49143c150d70e590a52b18e1e0d0c0be54d441
@@ -32,19 +22,19 @@ T001a:
   sig: 8775e57ab52804614fcb5fc69e28828379c86ed3dbbc33a3447c4b8b630995a2
 T001b:
   c: true
-  h: 58fd0d0dce52dd8d6ca31fd0d7f84061b4d613926d811379efb102e2cd4cafde
-  r: "The collector confirms that `code/`, `code/models/`, and `code/utils/` directories\
-    \ exist (with file listings and SHA\u2011256 hashes). The unit\u2011test log (`code/.tasks/T001b.tests_unit_test_create_code_dirs.py.log`)\
-    \ shows the test passed, and the script execution log (`code/.tasks/T001b.code_create_code_dirs.py.log`)\
-    \ reports successful creation of each required directory."
-  sig: 37f6cb5647edf5142d8d44b30a52cb3253a5fba9aed87f5343825fe83157252d
+  h: 24fe567518cc06623a07a4ba93c53f636f63423bfc73da37220c703db14687a6
+  r: Checked that the `code/`, `code/models/`, and `code/utils/` directories all exist
+    in the project root (as listed by the collector) and contain the expected placeholder
+    files (`__init__.py`, etc.).
+  sig: a11622f05ac26a140fe99e12625f6e1c799562f2977a12b36c29dbc8b8beec14
 T001c:
   c: true
-  h: 6e2c6c55aeb4d941a7d199c82f58300afa654c98dde87a57d72d5b058762eccd
-  r: Checked the presence of the three required directories (`tests/unit/`, `tests/integration/`,
-    `tests/contract/`) as confirmed by the collector listing and the execution log
-    of `code/create_test_dirs.py` which reports successful creation of each directory.
-  sig: a35c0ba8404a62870ff0b5afa01403022e8a2cdbfe13e2a552462b114f0acb1d
+  h: 082817b138632e02431323b74fbc82b29c2d9a14916dc259086ee94f00a7f329
+  r: "Checked the collector\u2011confirmed presence of the three required directories\
+    \ (`tests/unit/`, `tests/integration/`, `tests/contract/`) under the project root;\
+    \ each directory exists with files listed, satisfying the task\u2019s \u201Cverify\
+    \ that each directory exists after execution\u201D requirement."
+  sig: 8e5764d4b7fff51c0941c0a2c289aaef0d676262d393aa72ad22a3e9ae243b20
 T002a:
   c: false
   h: f5dc6aa78e6b01c5e48509689758e499c775b24bb8bc5125e2097e16b7174778
@@ -53,6 +43,27 @@ T002a:
     \ scipy, numpy, biom-format, scikit\u2011bio, matplotlib, seaborn, requests, pytest,\
     \ statsmodels) nor pin their versions, so the task\u2019s requirement is not satisfied."
   sig: 0f50d76fe06da476a032c3636ad5ae8b9bc2d8fe7d0853e81db9ebaf2aa5fb41
+T002b:
+  c: false
+  h: f5191a201062844ce2a38018bdc795711fdab25f9d78a93218ccf8195590e194
+  r: The repository contains `code/scripts/generate_lock.py` and a minimal `requirements.txt`,
+    but there is no `requirements.lock` file present, nor any evidence (e.g., command
+    output, file content, test logs) that the script was executed and produced a lock
+    file matching the installed package versions. The required artifact and verification
+    evidence are missing.
+  sig: 5f0c5e6d59e2c5a6f13b1e20153e698f4f1221b1c0e5e71cf4429995d717c52d
+T004:
+  c: false
+  h: e2412808e90566803ba05a9291e38ac4003cc590e2a3986a54b483b15b97e3cd
+  r: "The `code/config.py` file exists and defines the required path constants, seed\
+    \ constant, and the prevalence (0.001) and rarefaction\u2011loss (0.20) thresholds.\
+    \ However, the module validates the presence of `AGP_STUDY_ID` and `DATA_URL`\
+    \ environment variables at import time and raises a `RuntimeError` if they are\
+    \ absent, which prevents the file from being imported in a default test environment\
+    \ and therefore does not satisfy the \u201Ccan be imported\u201D requirement.\
+    \ The import guard must be removed or made optional so the module imports successfully\
+    \ without pre\u2011setting those variables."
+  sig: b1a68d046f723e01e84c82501a8d743a5171d27475dffedc9774706ef9e3eb12
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

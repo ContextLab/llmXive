@@ -3,13 +3,12 @@ T000a:
 T000b:
   task: 123a32088406321a4915bd75e0f937b9083afa079d4d92a587333640861de3bf
 T000c:
-  reason: "The provided execution log (`code/.tasks/T000c.code_data_ingestion.py.log`)\
-    \ contains no line with the required text \u201CData feasibility confirmed\u201D\
-    , and the expected `logs/pipeline.log` file is not present in the evidence. Consequently\
-    \ the task\u2019s core requirement\u2014logging the confirmation message when\
-    \ a suitable dataset is found\u2014is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/data_ingestion.py
+    exit=1'
   task: d1e43025f826cc20dbf0840b4fcdd1f1ea972e4ab317ea6bfdfdb1933ad175e3
 T001a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/, data/processed/,
+    data/interior/'
   task: 6789be785f03087705fc5425fc4df786e3b2025da65afd43264a8087ea420e53
 T001b:
   task: c2bdb9ecd389a9a3e2d5060fc51c4eb7c1f1b4ab4c4ba1a4abb073a04fa3e799
@@ -23,6 +22,11 @@ T002a:
     \ is not satisfied."
   task: 9c6ba422deee55742acf7ba884c5004a1dd3054a48e7ad488cdef2dad89ffd4b
 T002b:
+  reason: The repository contains `code/scripts/generate_lock.py` and a minimal `requirements.txt`,
+    but there is no `requirements.lock` file present, nor any evidence (e.g., command
+    output, file content, test logs) that the script was executed and produced a lock
+    file matching the installed package versions. The required artifact and verification
+    evidence are missing.
   task: 2481b50463afd9f4300ff286a40adab33af0a05223851f7cf292f3218d44abc9
 T002c:
   reason: 'the task writes platform-owned path(s) inside the project: `state/seeds.yaml`
@@ -31,6 +35,14 @@ T002c:
     to write only project-owned outputs.'
   task: 95a7e72ad78ab9e77bc2477f34a31b11407c63c419ce7f4a4049c528865756b0
 T004:
+  reason: "The `code/config.py` file exists and defines the required path constants,\
+    \ seed constant, and the prevalence (0.001) and rarefaction\u2011loss (0.20) thresholds.\
+    \ However, the module validates the presence of `AGP_STUDY_ID` and `DATA_URL`\
+    \ environment variables at import time and raises a `RuntimeError` if they are\
+    \ absent, which prevents the file from being imported in a default test environment\
+    \ and therefore does not satisfy the \u201Ccan be imported\u201D requirement.\
+    \ The import guard must be removed or made optional so the module imports successfully\
+    \ without pre\u2011setting those variables."
   task: af68e2a691575a838b9640c30cce1bb4f09390cda997425c9af9a32c2374e819
 T005:
   task: ef10ed758ba27ad085eae4c8710c675a76a5893dc0ed272e3b1feaa7a6c80430

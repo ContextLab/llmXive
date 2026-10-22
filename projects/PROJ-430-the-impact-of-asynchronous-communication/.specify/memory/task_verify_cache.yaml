@@ -1,34 +1,35 @@
 T001:
   c: false
-  h: a53973a74caa6ba012d67b9dfc96ead4d9f4d7e81fb5f88391c967919fe36860
-  r: "The project root contains `code/`, `data/`, and `tests/` as required, but the\
-    \ `docs/` and `config/` directories specified in the task are absent. These missing\
-    \ directories prevent the task\u2019s full directory\u2011structure requirement\
-    \ from being satisfied."
-  sig: 7bf961c10d723f7b325a469d24b8db40312cd9fc292c35f59810b28aaab4ccf5
+  h: 1bc42b062a2219acf8690d1a0568a3eb956e8deef943166257afd30b468ee2dd
+  r: "The project root contains `code/`, `data/`, and `tests/` but the required `docs/`\
+    \ and `config/` sub\u2011directories are absent, and the provided test script\
+    \ fails because it looks for `projects/code/init_project_structure.py` instead\
+    \ of the correct path. The directory structure does not fully meet the task specification."
+  sig: 5b800ddd4e3ba3e6d3b4381bafa74e5a8dc5b98fb4b7a0e12104866f5ce191d3
 T001c:
   c: false
-  h: 5c3d76b030294e224c0c116a434210ef1b1308bbf002ade535365c2a470dc9f5
-  r: The evidence shows the `data/raw/` and `data/derived/` directories but provides
-    no `.gitignore` file at `projects/PROJ-430-the-impact-of-asynchronous-communication/.gitignore`,
+  h: 6c01c2c668683aeb961c6792060085985c055fb12fbed3c09cbb2c4a8d66cea3
+  r: The evidence shows the `data/raw/` and `data/derived/` directories but no `.gitignore`
+    file at `projects/PROJ-430-the-impact-of-asynchronous-communication/.gitignore`,
     nor any content confirming the required exclusion patterns. The required artifact
     is missing.
-  sig: b9d7d72002e881ae2d97143768ea1385ec5d621d7ab06fce07b2443f18b4044e
+  sig: 6cf03682cf6d7511ba5ce2f0f38d0fd7fa337851624d90b4709fb6bdc0688f6a
 T001d:
-  c: false
-  h: 4975b0d8624910515af922fff52ec446c4f316c0b5923d7754c9dd703773dc99
-  r: "The `requirements.txt` file exists and lists all requested packages, but it\
-    \ does not pin them to specific versions (e.g., `pandas==1.5.0`). The task explicitly\
-    \ required \u201CPin dependencies,\u201D so the artifact fails to meet the specification."
-  sig: e758eb7189c45bb4ff62a59752b50fe0addbab29e735fafbad659d2dda88f152
+  c: true
+  h: 802d53eb1463a2c41f781d806844b0558ad73dc402522c6b485608510e270cce
+  r: "Checked the `requirements.txt` file (215\u202Fbytes) at `projects/PROJ-430-the-impact-of-asynchronous-communication/requirements.txt`;\
+    \ it contains pinned versions for all listed dependencies (pandas, scikit-learn,\
+    \ nltk, requests, matplotlib, seaborn, pyyaml, langdetect, networkx, pytest, ruff,\
+    \ black, statsmodels, pylmm)."
+  sig: 45cbb35a41e6c5af67c2f2f5ff49badbbe840218967b50f8d4d0a65784a262d1
 T002a:
-  c: false
-  h: f280bf510c93db3ff4678c06fa856586b1917e9b316ace757aa4fbbddba9bad0
-  r: "The evidence provides only the project root path and no `venv/` directory or\
-    \ any output confirming that `venv/bin/python --version` returns Python\u202F\
-    3.11.x. The required virtual\u2011environment artifact and its verification output\
-    \ are missing."
-  sig: 7782433f8c02e9312e03110a865c215b98ae5c0ecb3de43de8cda6cfa0644012
+  c: true
+  h: c706cc02d303bb5cd9db20dbeb7fb4056dd6bb54b01f25afb13b16b6db860b68
+  r: "Checked the execution log `code/.tasks/T002a.code_create_venv.py.log`, which\
+    \ shows the `python3.11 -m venv venv` command ran successfully, created the `venv/`\
+    \ directory, and reports `venv/bin/python` version `Python 3.11.17`. This fulfills\
+    \ the task\u2019s requirement for a Python\u202F3.11 virtual environment."
+  sig: 55b463b2f93b8aca8db05c554310c5d788ad0a558177714ba7ed6bbcb753e03c
 T002b:
   c: false
   h: b95e63ad8b4052da0eb3a8d3d614ec7931eb4a0d1c417b51737ec79c5e1da092
@@ -45,6 +46,24 @@ T003:
     \ that an initial lint/formatting check was actually executed. The task\u2019\
     s requirement to \u201Crun initial lint check\u201D is therefore unmet."
   sig: 1257261442470be034febb54132ad44c80cd848fcbf04b8913c6f134b8671edd
+T004:
+  c: false
+  h: 13a2d0beb50ff3532a930a763c26934014a50cc8328d67b73d3684473606e1a2
+  r: The `code/config.py` file is present and defines paths and the deferred thresholds
+    (`sample_size`, `min_events`, `deferred_threshold`), but it does not provide any
+    mechanism for configuring or loading API keys as required by the task. Adding
+    support for API key storage (e.g., reading from environment variables or a `config.json`
+    entry) is needed to satisfy the specification.
+  sig: 1bfb78ae680dff78f45c37f8ab685f513c2efbeff90aa47c793b18185083f9da
+T005:
+  c: true
+  h: 21561460f41b05e8c62d63374726fcdd737942461472ad47fef7e4ffaf347561
+  r: "Checked the `code/utils/hygiene.py` file (resolved path `projects/PROJ-430-the-impact-of-asynchronous-communication/code/utils/hygiene.py`).\
+    \ It contains a functional `compute_sha256` implementation and an `update_state_manifest`\
+    \ routine that records the file\u2019s SHA\u2011256 hash, size, and modification\
+    \ time in a JSON manifest, fulfilling the required SHA\u2011256 hashing and state\u2011\
+    update behavior."
+  sig: 6b4ac6e4135fc1832c0ad56c5c8b4c028f647b063067004d1542de9d4fbe9731
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

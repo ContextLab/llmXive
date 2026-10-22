@@ -1,16 +1,19 @@
 status: none
-intent: download GitHub repository metadata events GHTorrent GitHub Archive python
-  package dataset
+intent: Download GHTorrent MySQL dump GitHub repository metadata issues PR comments
+  VADER python package
 required_fields:
-- repository_id
-- repository_name
+- repo_id
+- repo_name
+- issue_id
+- pull_request_id
+- comment_id
 - event_type
-- event_id
 - author_login
+- author_id
 - created_at
-- issue_or_pr_number
-- parent_comment_id
-- event_body
-cache_key: c8428c26c8af616363021227543539e31b799ccc3c2547cc2c588767b534f417
-searched_at: '2026-10-11T12:17:57.365951+00:00'
+- event_timestamp
+- parent_id
+- thread_type
+cache_key: 3b55e8b84ccb7c9ae2a32bddf021c6dbacb25146de9e2bb93b148489e9754edd
+searched_at: '2026-10-22T03:33:48.911227+00:00'
 retry_count: 1
