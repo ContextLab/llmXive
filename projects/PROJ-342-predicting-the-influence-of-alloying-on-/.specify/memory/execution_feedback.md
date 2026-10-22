@@ -13,17 +13,15 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”; 4 command(s) failed: python code/ingest.py --verify-only (rc=1); python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py (rc=1); python -m pytest tests/unit/ (rc=2); 3 declared deliverable(s) absent: data/processed/cleaned_mg.csv; data/processed/correlation_matrix.csv; data/processed/vif_diagnostic_log.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/download_dataset.py   # creates data/raw/metalic_glass_raw.csv; 8 command(s) failed: python code/ingest.py               # writes data/processed/cleaned_data.csv (rc=1); python code/descriptors.py (rc=1); python code/train.py (rc=1); 2 declared deliverable(s) absent: data/processed/correlation_matrix.csv; data/processed/vif_diagnostic_log.json
 
 ## Failing / missing run-book commands
 
-- python code/ingest.py --verify-only -> rc=1
-2026-10-12 14:17:24,794 - zenodo_client - ERROR - No CSV file found in Zenodo record 10.5281/zenodo.10043838
-2026-10-12 14:17:26,204 - zenodo_client - ERROR - No CSV file found in Zenodo record 10.5281/zenodo.11023456
-2026-10-12 14:17:26,204 - __main__ - ERROR - Verification failed: No CSV file found in Zenodo record 10.5281/zenodo.11023456
+- python code/download_dataset.py   # creates data/raw/metalic_glass_raw.csv -> rc=2
 
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-342-predicting-the-influence-of-alloying-on-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/download_dataset.py': [Errno 2] No such file or directory
 
-- python code/ingest.py &&  python code/descriptors.py &&  python code/train.py &&  python code/analyze.py &&  python code/report.py -> rc=1
+- python code/ingest.py               # writes data/processed/cleaned_data.csv -> rc=1
 -of-alloying-on-/code/zenodo_client.py", line 49, in download_csv_from_zenodo
     raise DataUnavailableError(f"No CSV file found in Zenodo record {doi}")
 zenodo_client.DataUnavailableError: No CSV file found in Zenodo record 10.5281/zenodo.11023456
@@ -41,6 +39,75 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 138, in run_ingestion
     raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from fe
 zenodo_client.DataUnavailableError: Both primary and fallback DOIs are unavailable.
+
+- python code/descriptors.py -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 252, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 249, in main
+    run_descriptors()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/resource_monitor.py", line 320, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 238, in run_descriptors
+    raise FileNotFoundError(f"Input file not found: {input_path}")
+FileNotFoundError: Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/cleaned_mg.csv
+
+- python code/train.py -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/train.py", line 222, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/train.py", line 219, in main
+    run_training_pipeline()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/train.py", line 205, in run_training_pipeline
+    raise FileNotFoundError(f"Input data file not found: {data_path}")
+FileNotFoundError: Input data file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/descriptors.csv
+
+- python code/analyze.py -> rc=1
+model_path)
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/analyze.py", line 72, in load_model
+    raise FileNotFoundError(f"Model file not found at {model_path}")
+FileNotFoundError: Model file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/artifacts/models/best_model.pkl
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/analyze.py", line 279, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/analyze.py", line 233, in main
+    model = load_model(model_path)
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/analyze.py", line 72, in load_model
+    raise FileNotFoundError(f"Model file not found at {model_path}")
+FileNotFoundError: Model file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/artifacts/models/best_model.pkl
+
+- python code/report.py -> rc=1
+elation matrix from /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
+2026-10-22 14:22:14,544 - ERROR - Input file missing: Correlation matrix file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/report.py", line 230, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/report.py", line 214, in main
+    df = load_correlation_matrix(input_path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/report.py", line 58, in load_correlation_matrix
+    raise FileNotFoundError(f"Correlation matrix file not found: {csv_path}")
+FileNotFoundError: Correlation matrix file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
+
+- python code/descriptors.py && python code/train.py && python code/analyze.py && python code/report.py -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 252, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 249, in main
+    run_descriptors()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/resource_monitor.py", line 320, in wrapper
+    result = func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/descriptors.py", line 238, in run_descriptors
+    raise FileNotFoundError(f"Input file not found: {input_path}")
+FileNotFoundError: Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/cleaned_mg.csv
 
 - python -m pytest tests/unit/ -> rc=2
 ure your test modules/packages have valid Python names.
@@ -62,7 +129,7 @@ ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
 ERROR tests/unit/test_zenodo_client.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 10 errors in 2.06s ==============================
+============================== 10 errors in 1.32s ==============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -80,27 +147,38 @@ ERROR tests/integration/test_data_ingestion.py
 ERROR tests/integration/test_statistical_validation.py
 ERROR tests/integration/test_train_cv.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 3 errors in 1.65s =========================
+========================= 1 warning, 3 errors in 1.26s =========================
 
 
 
 ## Declared deliverables still missing
 
-- data/processed/cleaned_mg.csv
 - data/processed/correlation_matrix.csv
 - data/processed/vif_diagnostic_log.json
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `matminer` to the project's `requirements.txt` and `pip install matminer`.
+- **Verified**: this loads **5959** real records with fields: formula, gfa.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import pandas as pd
+from matminer.datasets import load_dataset
+
+df = load_dataset('glass_binary')
+print(f'RECORDS={len(df)}')
+print(f'FIELDS={",".join(df.columns)}')
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/cleaned_mg.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/analyze.py` — IS a run-book command
-    - `code/descriptors.py` — IS a run-book command
-    - `code/ingest.py` — IS a run-book command
-    - `code/run_full_pipeline.py` — NOT invoked by the run-book
-    - `code/verify_artifacts.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/cleaned_mg.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/correlation_matrix.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analyze.py` — IS a run-book command
     - `code/report.py` — IS a run-book command

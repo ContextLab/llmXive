@@ -1,14 +1,24 @@
-status: none
-intent: Metallic Glass Database Zenodo 10.5281/zenodo.10043838 MatNVP Metallic Glass
-  Zenodo 10.5281/zenodo.11023456 python package dataset
+status: verified
+kind: pypi_package
+ref: matminer
+access_python: 'import pandas as pd
+
+  from matminer.datasets import load_dataset
+
+
+  df = load_dataset(''glass_binary'')
+
+  print(f''RECORDS={len(df)}'')
+
+  print(f''FIELDS={",".join(df.columns)}'')'
+record_count: 5959
+sample_fields:
+- formula
+- gfa
+field_coverage: 0.5
 required_fields:
-- material_id
-- composition_formula
-- element_symbols
-- element_fractions
-- glass_transition_temperature_Tg
-- temperature_units
-- source_dataset
-cache_key: dde551b1c37933b3c0370d307627abc5b802ae257692da82674a1b8dfd5867f7
-searched_at: '2026-10-19T21:45:30.889937+00:00'
-retry_count: 1
+- formula
+- tg
+intent: download Metallic Glass Database Zenodo 10.5281/zenodo.10043838 MatNVP Metallic
+  Glass Materials Project python package dataset
+cache_key: cb38959568bcca573a0cda97369f9de86a3da8888e864594f2e646de3c002f55

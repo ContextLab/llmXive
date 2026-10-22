@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "b64d8126aca56cabde835ed493c876f3fb714f554fe748c20a2e911ef0fc1789",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/ingest.py': imports nonexistent names from sibling files: `from zenodo_client import fetch_from_zenodo` (available: DataInsufficientError, DataUnavailableError, Optional, Path, download_csv_from_zenodo, logger, logging, requests). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

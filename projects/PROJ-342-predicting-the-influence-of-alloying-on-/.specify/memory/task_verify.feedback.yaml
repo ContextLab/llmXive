@@ -1,31 +1,34 @@
 T001:
-  task: fb719cb7e05897ffd4d5940329ba63a0a575e188e8409938c54dda3a443a7c89
+  reason: "Missing required skeleton directories: `artifacts/models/`, `artifacts/metrics/`,\
+    \ `figures/`, `paper/`, and `logs/` are not present in the repository (they are\
+    \ not listed by the collector). Consequently the \u201Call listed directories\
+    \ exist\u201D condition of T001 is not satisfied."
+  task: 4255fa6266113a7a83df157aae6cb1cd7675d542621f1aa71dbcf24645ffdc20
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=1'
-  task: a688214d31e458ad14c10f2248ed7d7b9924ee088d073f3e5999872e61b6896a
+  task: 1574194d3a673bde5d9abf4b7b8ca05fdf486c6d7e8dfa17a3315ee464a96a0c
 T003:
-  task: 1ecb34ed549de6bed196c892a669c9fb0ce310f356fa7a9e62239d2dcda6097a
+  task: 10dcba6451f40060d9656cc67816021606988c833c72c3c0bffc9e17f8d3f31e
 T004:
-  task: d02957d50f3da6d6e175a47ad13725c6e1795a9dc5159a6091c0bb99af01aff6
+  task: a472d2d38cd4254a3f0ae5fb61fcac504657779eaf54026ba7cbdedcc386c3b1
 T005:
-  task: a9c20359fd78a6e95b4aafd9fffdb93b63c7e32909a4af2071ba4113af2f4544
+  task: d748db0c736a4c7c65cce513814dfdc0f33276586d1b47799185ac528752f8a4
 T006:
-  task: a2a9bfc062debff04ec19941829f3a858e5cbbd65a79faf9ab42de085f21f10a
+  task: 5e6a50fb2ff210620dddabcecdcf1480e8e0dee25e1781c8043a6db9ee8350b3
 T007:
-  task: c40aec11b00a9162f60ef6d7ded98365824586c3b0e2d480c3729ffbfcc97d00
+  task: 53d08f7dd44340adb525d2ea46bbc59573ee0cf3540c30ca5aeddd1fa2972b07
 T008:
-  task: e563ed7e3d8ea6feeea04d21cb36e948744c1e2652a3359c8d2c706fc52e6fb9
+  task: a6c9820cc023257f0ba39f305b53794d9908004bae42832fc989c88ffe02eea1
 T009:
-  task: 698f8d7cb719c45a29a5d5bb8cfab86ee24249a66ff6523aa72d1d4938dbedaa
+  task: d7c0cb1d00716ad0f47088a3d3e9436ce2002da1c5cbf6be2b55ce86e059e31a
 T010:
-  task: 8b679eba3b0c18377f2c5f59c52cce7e7249ca8674c70855dc8d309d5f54c6d0
+  task: 2caec91a164d2333c46b0d5ce2d480abb7a5b8117b96b8dc68893885060f9be6
 T011:
-  task: d05d3da6ea99a7ddb83d29ed62c6d1b69d3ab3b4c39a9a61d2cc087ef800cd12
+  task: 154b141cae26e0f1a31fc182c4ceb5d47b9290964f025dead5459aeeceda904a
 T012:
-  task: c196871ff29034f873a8a1b4236c12d553a4e17bbfb30bed5a3e16d004b5543d
+  task: 74859b628174842239353a96735fe8fbad7162fc3df9ae56439ccdda0642bd17
 T013:
-  task: 2d1b95afd69eec9a9a937c8b4657ee36da111fb69d6a2d346d09d21f9bc3c391
+  task: 01112aba3c85f97cc5dad81b5d5197b2bfd44e3483a80875270d6fff08886ddb
 T014:
-  task: 17ba6741ce94d4a7cf635ab747d5870d7949be3b81685e327b6b860b5a69c897
+  task: 866512ae33975db4ccb698bbc34ac0a26d38b93ea1bb00d48e2d57704e802705
 T015:
-  task: de636a1d5f45b82f9f75642f6587817d31a60a0d10a855d5d49be7f5b20c490b
+  task: ed49f557f232adbd15190f25da59318408e39c25098d8d1a5c2250b3243c0385

@@ -1,18 +1,8 @@
 T001:
-  c: true
-  h: 7c9a91f953b576c51113c944ef7c20e7d8dbf93a0fa13111f36416cdb6cb75fc
-  r: "All required directories exist (code/, data/raw/, data/processed/, artifacts\
-    \ subdirs, tests/, specs contracts/), `code/__init__.py` configures a project-wide\
-    \ logger writing to `logs/`, and `code/resource_monitor.py` implements `@limit_resources`\
-    \ reading limits from `config.yaml` (6h/7GB) with env-var overrides and writing\
-    \ a JSON report to `data/resource_usage.json`, which exists with the required\
-    \ keys `runtime_seconds` and `peak_ram_gb` \u2014 consistent with a dummy decorated\
-    \ run having executed."
-  sig: c5b2ef65fe9de5ad0b4cd50fd0f1a8ca7c2017f8c064fc84c4b70090544afae4
-T014:
   c: false
-  h: 0ccaa938303a00de8bd7e10ae6f9105b87eb94a254a4828905e960883c675709
-  r: "The `data/ingestion_stats.json` file is present and contains the required keys\
-    \ with valid values, but the required `data/processed/cleaned_mg.csv` file is\
-    \ missing, so the task\u2019s requirement to save the cleaned data is not satisfied.\
-    \ The missing CSV must be created and be non\u2011empty for the task to be complete."
+  h: c88dd7e2cc988bd362bf4a8e1712abcd4dcd1b9ee59572ed34fd8f8523686dbf
+  r: "Missing required skeleton directories: `artifacts/models/`, `artifacts/metrics/`,\
+    \ `figures/`, `paper/`, and `logs/` are not present in the repository (they are\
+    \ not listed by the collector). Consequently the \u201Call listed directories\
+    \ exist\u201D condition of T001 is not satisfied."
+  sig: 1d2bf181570db26b275e4e9759bd8a71f342d8977e1f1a615c69438f67ec5693
