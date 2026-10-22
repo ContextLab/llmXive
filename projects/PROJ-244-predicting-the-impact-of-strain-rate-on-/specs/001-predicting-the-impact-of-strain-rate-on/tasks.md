@@ -1,299 +1,172 @@
-# Tasks: Predicting the Impact of Strain Rate on the Yield Strength of Metals
+# Tasks: Predicting the Impact of Strain Rate on the Yield Strength of Metals  
 
-**Input**: Design documents from `/specs/001-predict-strain-rate-yield/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, existing `research.md`, `data‑model.md`, and contracts in `specs/001-predicting-the-impact-of-strain-rate-on/`.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+The list below follows the canonical `- [ ] T### [P?] [USx?] description …` format.  Tasks are ordered to respect data‑flow dependencies; parallel‑eligible tasks are marked with **[P]**.  All file paths are relative to the project root.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+---  
 
-## Format: `[ID] [P?] [Story] Description`
+## Phase 0 – Data Discovery & Feasibility  
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T001 **[P]** Verify real data sources (NIST, OpenML, Materials Project) and download raw files to `data/raw/raw_input.csv`.  
+  *Implementation*: `code/ingestion/fetchers.py` attempts each download; outcomes appended to `data/fetch_log.txt`.  
+  *Verification*: `data/fetch_log.txt` contains a line for each source (`SUCCESS` or `FAIL`).  
 
-## Path Conventions
+- [ ] T002 **[ ]** Halt if no real data source succeeded (enforce Constitution Principle II).  
+  *Implementation*: Checks `data/fetch_log.txt`; if all entries are `FAIL`, the pipeline raises a fatal error.  
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T003 **[ ]** Update `research.md` with the verified data source (real URLs or “none”) and a short feasibility note (sample size, RAM estimate).  
+  *Verification*: `research.md` contains a **Verified Datasets** table and a **CPU Feasibility** paragraph.  
 
----
+---  
 
-## Phase 0: Data Discovery & Feasibility (Research)
+## Phase 1 – Project Setup  
 
-**Purpose**: Verify data availability and feasibility before coding begins.
+- [ ] T004 **[P]** Create project directory tree (`code/`, `data/raw/`, `data/processed/`, `data/models/`, `results/`, `tests/`) and a minimal `requirements.txt`.  
+  *Verification*: All listed directories exist; `requirements.txt` includes `pandas`, `scikit-learn`, `scipy`, `shap`, `matplotlib`, `pyyaml`, `pytest`.  
 
-- [ ] T008.1 (Research) **Fetch NIST Data**: Attempt to fetch data from NIST Materials Data Repository as defined in `config.py`. Log success or failure to `data/fetch_log.txt`. If unreachable, log the specific error. (FR-001)
-- [ ] T008.2 (Research) **Fetch OpenML Data**: Attempt to fetch data from OpenML as defined in `config.py`. Log success or failure to `data/fetch_log.txt`. If unreachable, log the specific error. (FR-001)
-- [ ] T008.3 (Research) **Fetch Materials Project Data**: Attempt to fetch data from Materials Project API as defined in `config.py`. Log success or failure to `data/fetch_log.txt`. If unreachable, log the specific error. (FR-001)
-- [ ] T008.4 (Research) **Update Research Documentation**: Create or update `research.md` in `specs/001-predict-strain-rate-yield/` with the results of T008.1-T008.3. **MUST update the Verified Datasets table** with specific data source paths or document the fallback to the Physics-Consistent Simulated Data generator with a "Data Unavailable" artifact ONLY IF T008.1-T008.3 all failed. (FR-001) **MUST complete before Phase 1.**
-- [X] T009 [P] (Research) Estimate total sample size (N) and per-alloy-family counts from simulated generator parameters or research.md feasibility report (Plan Task 0.5.1) <!-- FAILED: unspecified -->
-- [X] T010 [P] (Research) Perform power analysis: If N < 1000 or any alloy family N < 50, flag as "Underpowered" and recommend scope adjustment (Plan Task 0.5.2)
-- [X] T011 [P] (Research) Confirm CPU feasibility: Ensure the estimated data subset fits in available RAM. (Plan Task 0.5.3)
+- [ ] T005 **[P]** Add `code/config.py` defining seeds, path constants (`DATA_RAW`, `DATA_PROC`, `MODEL_DIR`), unit‑conversion dict, and `IMPUTATION_R_THRESHOLD = 0.3`.  
+  *Verification*: Importing `config` in a REPL prints the constants without error.  
 
----
+- [ ] T006 **[P]** Implement a lightweight CLI entry point `code/main.py` that parses `--phase` (0‑5) and forwards to the corresponding function in `code/pipeline.py`.  
+  *Verification*: Running `python -m code.main --phase 0` executes Phase 0 without traceback and prints a summary.  
 
-## Phase 1: Setup (Shared Infrastructure)
+---  
 
-**Purpose**: Project initialization and basic structure.
+## Phase 2 – Ingestion & Pre‑processing (User Story 1)  
 
-- [ ] T001.1 [P] **Initialize Directory Structure**: Create all required directories in one step: `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/data/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/visualization/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/unit/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/contract/`, `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/tests/integration/`.
-- [ ] T002.1 [P] Initialize `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/requirements.txt` with pinned versions: `pandas`, `scikit-learn`, `scipy`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`, `pytest-cov`
-- [ ] T002.2 [P] Initialize `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/pyproject.toml` or `setup.py` for package installation
-- [ ] T003.1 [P] Configure `flake8` or `pylint` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/.flake8` or `pyproject.toml`
-- [ ] T003.2 [P] Configure `black` and `isort` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/pyproject.toml`
+- [ ] T007 **[US1]** Standardize units, drop records missing `yield_strength_mpa` or `strain_rate_s_inv`, and write `data/raw/standardized.csv`.  
+  *Implementation*: `code/ingestion/preprocess.py` reads `data/raw/raw_input.csv`, applies conversions (MPa, s⁻¹, µm), and filters.  
+  *Verification*: `data/raw/standardized.csv` conforms to `dataset.schema.yaml` and contains no rows with null `yield_strength_mpa` or `strain_rate_s_inv`.  
 
----
+- [ ] T008 **[US1]** Preserve the filtered but **pre‑imputation** snapshot as `data/processed/raw_for_sensitivity.csv`.  
+  *Implementation*: Immediately after T007, the DataFrame is saved to the path above via `code/ingestion/preserve_snapshot.py`.  
+  *Verification*: File exists and passes the same schema (grain size may be null).  
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T009 **[US1]** Compute Pearson correlation *r* between the joint vector `[composition_vector, strain_rate_s_inv]` and `grain_size_um` on `raw_for_sensitivity.csv`.  
+  *Implementation*: `code/ingestion/correlation_check.py` writes `data/processed/correlation_check.log` (contains numeric *r*) and `data/processed/low_confidence_records.csv` (records with `is_low_confidence = true`).  
+  *Verification*: Log line matches regex `r = -?\d\.\d+`; low‑confidence file non‑empty only when *r* < 0.3.  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
+- [ ] T010 **[US1]** Impute missing alloy composition using the average composition of the record’s `alloy_family`.  
+  *Implementation*: `code/ingestion/impute_composition.py` writes `data/processed/composition_imputed.csv`.  
+  *Verification*: No `null` entries in the `composition_vector` column; schema validation passes; `is_imputed` flag set to `true` for imputed rows.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. T006 must complete before T012-T017.
+- [ ] T011 **[US1]** Impute missing `grain_size_um` via K‑Nearest‑Neighbors (k = 5) using **imputed composition** and `strain_rate_s_inv` as predictors.  
+  *Implementation*: `code/ingestion/impute_grain_size.py` writes `data/processed/imputed.csv` and sets `is_imputed = true` for filled grain sizes.  
+  *Verification*: `imputed.csv` contains no nulls in `grain_size_um` where possible; `is_imputed` column present; schema validation passes.  
 
-- [ ] T004.1 [P] Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/config.py`: Define `NIST_URL`, `OPENML_ID`, `MATERIALS_PROJECT_API_KEY`, `RANDOM_SEED`, and path constants (`DATA_RAW`, `DATA_PROCESSED`)
-- [ ] T004.2 [P] Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/config.py`: Define `UNIT_CONVERSIONS` (MPa, s⁻¹, µm) and `IMPUTATION_THRESHOLD` (r=0.3)
-- [ ] T004.3 [P] Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/config.py`: Define `LITERATURE_EXPECTATIONS_PATH` pointing to `data/config/literature_expectations.yaml`
-- [ ] T005.1 [P] Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/main.py`: Create `main()` entry point that sequences phases (0->1->2->3->4)
-- [ ] T005.2 [P] Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/main.py`: Add logging setup and argument parsing for `--phase` and `--seed`
-- [ ] T006.1 Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/entities.py`: Define `TensileTestRecord` dataclass with fields: `yield_strength_mpa`, `strain_rate_s_inv`, `temperature_k`, `grain_size_um`, `alloy_composition`, `alloy_family`
-- [ ] T006.2 Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/entities.py`: Define `AlloyFamily` enum or class with common families (AA-6061, AISI-4340, etc.)
-- [ ] T006.3 Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/entities.py`: Define `ConstitutiveModel` and `MLModel` base classes/interfaces
-- [ ] T007.1 [P] Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/utils/logging.py`: Setup logging to file and console with levels
-- [ ] T007.2 (Sequential) Implement `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/utils/validation.py`: Create `validate_research.py` script that reads `research.md` and halts if datasets are missing (Depends on T008.4). **MUST run AFTER T008.4.**
+- [ ] T012 **[US1]** Encode the 10‑dimensional elemental fraction vector for every record and write `data/processed/encoded_features.csv`.  
+  *Implementation*: `code/ingestion/encode_features.py` ensures each row sums to 1 ± 0.01.  
+  *Verification*: All rows have exactly 10 float entries; a sanity check confirms the sum constraint.  
 
----
+- [ ] T013 **[US1]** Perform a stratified train‑test split (70 %/30 %) by `alloy_family`, **excluding families with < 20 samples**.  
+  *Implementation*: `code/ingestion/split.py` writes `data/processed/train.csv` and `data/processed/test.csv`.  
+  *Verification*: Both CSVs exist, contain the same columns as `imputed.csv`, and the low‑sample families are absent from `train.csv`.  
 
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+- [ ] T029 **[US2]** Create a minimal stratified split (`data/processed/min_train.csv`, `data/processed/min_test.csv`) for independent testing of User Story 2.  
+  *Implementation*: `code/ingestion/split_minimal.py` samples 200 records preserving alloy‑family distribution.  
+  *Verification*: Files exist and pass schema validation.  
 
-**Goal**: Ingest heterogeneous tensile test data, standardize units, and perform two-step imputation (composition then grain size) to create a clean, unified dataset.
+---  
 
-**Independent Test**: Can be fully tested by running the ingestion script against a mock dataset and verifying that the output CSV contains standardized units, imputed values for missing grain sizes, and correctly encoded composition vectors.
+## Phase 3 – Modeling & Baseline Comparison (User Story 2)  
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T014 **[US2]** Train ML regressors (Random Forest, Gradient Boosting, Ridge, Linear) with grid‑search hyper‑parameter tuning on `train.csv` **using at least three random seeds**; record metric variance across seeds; serialize each model to `data/models/ml_<model>.pkl`.  
+  *Implementation*: `code/modeling/train_ml.py` performs grid‑search, repeats training for seeds 0, 1, 2, and writes a `results/ml_seed_variance.json`.  
+  *Verification*: All four `.pkl` files exist; `results/ml_metrics.json` contains `r2`, `mae`, `rmse` for each model **and** a `grid_search_log.txt` confirming hyper‑parameter search.  
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [ ] T015 **[US2]** Fit empirical Johnson‑Cook and Zerilli‑Armstrong models on `train.csv` using `scipy.optimize`.  
+  *Implementation*: `code/modeling/train_empirical.py` writes `data/models/empirical_params.yaml`.  
+  *Verification*: YAML contains parameter dicts for both models and a recorded training R² (`fit_r2`).  
 
-- [X] T009 [P] [US1] Unit test for unit conversion logic in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/tests/unit/test_ingestion.py` <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
- in "<unicode string>", line 4, column 1:
- 1. **Yield strength conversion**...
- ^
-could not find expected ':'
- in "<unicode string>", line 5, column 1:
- 2. **Strain rate conversion** (s...
- ^) -->
-- [X] T010 [P] [US1] Unit test for two-step KNN imputation logic in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/tests/unit/test_imputation.py` <!-- FAILED: unspecified -->
-- [X] T011 [P] [US1] Contract test for dataset schema validation in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/tests/contract/test_dataset_schema.py`
+- [ ] T016 **[US2]** Evaluate every trained model on `test.csv`, compute R², MAE, RMSE, and store results in `results/model_evaluation.json` adhering to `model_output.schema.yaml`.  
+  *Verification*: JSON validates against the schema; each entry lists `model_name`, `model_type`, `metrics`, and `statistical_tests` placeholders.  
 
-### Implementation for User Story 1
+---  
 
-- [ ] T012.1 [US1] **Fetch NIST Data**: Implement `fetchers.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to attempt fetching data from NIST. **Must log success or failure to `data/fetch_log.txt`.** (FR-001)
-- [ ] T012.2 [US1] **Fetch OpenML Data**: Implement `fetchers.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to attempt fetching data from OpenML. **Must log success or failure to `data/fetch_log.txt`.** (FR-001)
-- [ ] T012.3 [US1] **Fetch Materials Project Data**: Implement `fetchers.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to attempt fetching data from Materials Project. **Must log success or failure to `data/fetch_log.txt`.** (FR-001)
-- [ ] T012.4 [US1] **Activate Simulated Generator**: Implement `fetchers.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to conditionally activate the Physics-Consistent Simulated Data generator **only if** T012.1-T012.3 all fail. **Must write `data/fallback_reason.txt` documenting the failure.** (FR-001)
-- [ ] T013 [US1] Implement `preprocess.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/` to standardize units (MPa, s⁻¹, µm) and **drop records missing Yield Strength or Strain Rate** (FR-003).
-- [ ] T013.1 [US1] Save the pre-imputation dataset state (post-filtering, pre-imputation) to `data/processed/raw_for_sensitivity.csv` immediately after T013 filtering. **This artifact is required for T038 Sensitivity Analysis.** (Critical for FR-008)
-- [ ] T015.0 [US1] **Correlation Validation & Flagging**: Implement correlation validation in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`: Compute correlation between the **joint vector of [raw composition, strain_rate]** and grain size (using `data/processed/raw_for_sensitivity.csv`). If r < 0.3, flag records in `imputation_confidence` column; **DO NOT drop them from the main dataset** (retain in `imputed.csv`) but **exclude them from the sensitivity dataset** (T013.2). **Output: `data/processed/correlation_check.log` (contains 'r' value) and `data/processed/low_confidence_records.csv`.** (FR-003, Plan Task 1.3)
-- [ ] T013.2 [US1] **Create Sensitivity Dataset**: Filter `data/processed/raw_for_sensitivity.csv` to **exclude records flagged as low-confidence by T015.0**. **Output: `data/processed/sensitivity_dataset.csv`.** **MUST run AFTER T015.0.** (FR-008)
-- [ ] T014 [US1] **Composition Imputation**: Implement composition imputation logic in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`: If alloy composition is missing, impute using Alloy Family average (FR-003). **Must run AFTER T015.0.** **Output: `data/processed/composition_imputed.csv`.**
-- [ ] T015 [US1] **KNN Grain Size Imputation**: Implement KNN grain size imputation logic in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py` with k=5, **using imputed composition (from T014) AND strain_rate (from raw data) as predictors**. **Must run AFTER T014.** **Gate: T014 must have generated `composition_imputed.csv`.** **Output: `data/processed/imputed.csv`.** (FR-003)
-- [ ] T016 [US1] **Elemental Fraction Encoding**: Implement high-dimensional elemental fraction vector encoding in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`. **Output: `data/processed/encoded_features.csv` (10-dimensional float array of elemental mass fractions).**
-- [ ] T017 [US1] **Stratified Split**: Implement stratified split logic (by Alloy Family, N≥20 per stratum) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`. **Output: `data/processed/train.csv`, `data/processed/test.csv` (using RANDOM_SEED from config).**
+## Phase 4 – Interpretation & Validation (User Story 3)  
 
-### **Sequential Execution Block for Phase 3 (CRITICAL)**
-**Execute strictly in this order:**
-1. T013 (Standardize & Drop)
-2. T013.1 (Save Raw State)
-3. T015.0 (Correlation Check & Flag)
-4. T013.2 (Create Sensitivity Dataset)
-5. T014 (Impute Composition)
-6. T015 (Impute Grain Size)
-7. T016 (Encode Features)
-8. T017 (Split Data)
+- [ ] T017 **[US3]** **Sensitivity analysis** – retrain the best‑performing ML model on the *raw* (no‑imputation) dataset `raw_for_sensitivity.csv` and on the *imputed* dataset `imputed.csv`; compute the R² difference and write `results/sensitivity_analysis.json`.  
+  *Verification*: JSON contains fields `sensitivity_analysis_r2_diff` and `baseline_saturation`.  
 
----
+- [ ] T018 **[US3]** Compute SHAP values for the best ML model; assert that the top‑3 features match the expectations defined in `contracts/literature_expectations.yaml`.  
+  *Implementation*: `code/interpretation/shap_analysis.py` writes `results/feature_importance.json`.  
+  *Verification*: The JSON lists the top‑3 features; a script exits with status 0 only if they appear in the literature expectations contract.  
 
-## Phase 4: User Story 2 - Model Training and Baseline Comparison (Priority: P2)
+- [ ] T019 **[US3]** Perform a Wilcoxon signed‑rank test comparing absolute errors of the ML ensemble (average of RF & GB) versus the empirical models across all alloy families; store `results/statistical_tests.json` with `wilcoxon_p_value`.  
+  *Verification*: JSON field `wilcoxon_p_value` is < 0.05; the test script returns a pass flag.  
 
-**Goal**: Train ML models (RF, GB, Linear, Ridge) with hyperparameter tuning and compare against empirical models (Johnson-Cook, Zerilli-Armstrong) using nested cross-validation.
+- [ ] T020 **[US3]** Generate partial dependence plots of `yield_strength_mpa` vs. `strain_rate_s_inv` for three representative alloy families (e.g., `AA-6061`, `AISI-4340`, `Ti-6Al-4V`).  
+  *Implementation*: `code/visualization/pdp.py` writes PNGs to `results/plots/pdp_<family>.png`.  
+  *Verification*: All three PNG files exist and are non‑empty.  
 
-**Independent Test**: Can be fully tested by training models on a subset of the data and verifying that the output includes performance metrics for both ML and empirical models, with the ML models showing tunable hyperparameters.
+- [ ] T021 **[US3]** Detect any non‑monotonic regimes in the PDPs (e.g., sign changes in the derivative) and record them in `data/processed/failure_regimes.csv`.  
+  *Verification*: CSV contains rows `alloy_family, strain_rate_range, monotonic_flag`.  
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T030 **[US3]** Train a minimal ML model on the minimal split (from T029) to enable independent verification of User Story 3 without the full pipeline.  
+  *Implementation*: `code/modeling/train_ml_minimal.py` produces `data/models/ml_minimal.pkl` and a small `results/minimal_feature_importance.json`.  
+  *Verification*: Files exist and pass schema validation.  
 
-- [X] T019 [P] [US2] Unit test for ML model training loop in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/tests/unit/test_ml_models.py`
-- [X] T020 [P] [US2] Unit test for empirical model fitting (Johnson-Cook, Zerilli-Armstrong) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/tests/unit/test_empirical_models.py`
-- [X] T021 [P] [US2] Contract test for model output schema in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/tests/contract/test_model_output_schema.py`
+---  
 
-### Implementation for User Story 2
+## Phase 5 – Reporting & Handoff  
 
-- [ ] T022 [P] [US2] **Train ML Models**: Implement `ml_models.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/` for RF, GB, Ridge with Grid Search. **Output: `data/models/ml_rf.pkl`, `data/models/ml_gb.pkl`, etc.** (FR-004)
-- [ ] T022.1 [P] [US2] **Train Linear Models**: Implement `ml_models.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/` for Linear Regression with Grid Search (FR-004, Plan Task T016.1)
-- [ ] T023 [P] [US2] **Fit Empirical Models**: Implement `empirical_models.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/` for Johnson-Cook and Zerilli-Armstrong fitting/prediction. **Output: `data/models/empirical_params.yaml`.** (FR-005)
-- [~] T024 [US2] **Nested Cross-Validation**: Implement nested cross-validation logic in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` to ensure independent test sets. **Output: `data/processed/cv_scores.csv`.** (FR-004)
-- [~] T025 [US2] **Robustness Analysis**: Implement robustness analysis (multiple random seeds) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` (SC-004). **Aggregate stability metrics (variance of R² across seeds) and save to `results/robustness_metrics.json`.** (SC-004)
-- [ ] T025.1 [US2] **Stability Reporting**: Ensure `results/robustness_metrics.json` contains the aggregated stability metrics. (SC-004)
-- [X] T026 [US2] **Calculate Metrics**: Implement calculation of R², MAE, RMSE for all models in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` (SC-001)
+- [ ] T022 **[ ]** Compile a concise methods‑results markdown report `paper/001-report.md` that references every generated artifact (metrics JSON, plots, sensitivity analysis, failure‑regime table).  
+  *Verification*: The report includes hyperlinks to each file and a summary table of R² values for all models.  
 
-### Sequential Phase 4 Tasks (Dependent on T022-T026)
+- [ ] T023 **[ ]** Run the full pipeline end‑to‑end using the CLI (`python -m code.main --phase all`) and confirm that it completes within the 6‑hour CPU budget (the script logs total runtime to `state/run_time.log`).  
+  *Verification*: `state/run_time.log` shows a duration ≤ 6 h and the final line reads `PIPELINE SUCCESS`.  
 
-- [ ] T038 [US1+US2] **Sensitivity Analysis**: Implement Sensitivity Analysis (FR-008, SC-005): **Re-train models (distinct from T022-T026)** on `data/processed/raw_for_sensitivity.csv` (raw) and `data/processed/sensitivity_dataset.csv` (imputed, low-confidence excluded); compare R² to quantify bias. Save results to `results/sensitivity_analysis.json`. **MUST run AFTER T022-T026 complete.** (FR-008)
+---  
 
----
+## Contract Generation  
 
-## Phase 5: User Story 3 - Interpretability and Failure Regime Analysis (Priority: P3)
+- [ ] T024 **[ ]** Generate `contracts/dataset.schema.yaml` from the specification and place it under `specs/001-predicting-the-impact-of-strain-rate-on/contracts/`.  
+  *Implementation*: `code/contracts/generate_dataset_schema.py`.  
+  *Verification*: File exists and validates against JSON‑Schema draft‑07.  
 
-**Goal**: Interpret the best-performing model, generate partial dependence plots, and perform statistical significance tests to identify where empirical models fail.
+- [ ] T025 **[ ]** Generate `contracts/model_output.schema.yaml` similarly.  
+  *Implementation*: `code/contracts/generate_model_output_schema.py`.  
+  *Verification*: File exists and validates.  
 
-**Independent Test**: Can be fully tested by generating partial dependence plots for a specific alloy family and verifying that the plot shows the expected non-linear relationship between strain rate and yield strength.
+- [ ] T026 **[ ]** Generate `contracts/literature_expectations.yaml` encoding expected feature‑importance rankings.  
+  *Implementation*: `code/contracts/generate_literature_expectations.py`.  
+  *Verification*: File exists and matches the schema defined in the spec.  
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+---  
 
-- [X] T027 [P] [US3] Unit test for SHAP value extraction in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/tests/unit/test_evaluation.py`
-- [X] T028 [P] [US3] Unit test for Wilcoxon signed-rank test implementation in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/tests/unit/test_evaluation.py`
+## Documentation  
 
-### Implementation for User Story 3
+- [ ] T027 **[ ]** Create/refresh `data-model.md` documenting the entities and relationships defined in the spec.  
+  *Implementation*: `code/docs/write_data_model.py`.  
+  *Verification*: File exists and is up‑to‑date with the spec.  
 
-- [ ] T029.0 [P] [US3] Create `data/config/literature_expectations.yaml` with expected SHAP thresholds (≥0.1) and expected top 3 features: `["strain_rate", "composition", "grain_size"]` (SC-002)
-- [~] T029 [P] [US3] **SHAP Feature Importance**: Implement SHAP feature importance extraction in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py`. **Gate: Assert PASS if `strain_rate`, `composition`, and `grain_size` rank in the top 3 with SHAP values ≥ 0.1; else FAIL.** **Output: `data/processed/shap_values.csv`, `results/feature_importance_report.json` (PASS/FAIL).** (US-3, SC-002)
-- [X] T030 [US3] **Statistical Tests**: Implement Wilcoxon signed-rank test with Benjamini-Hochberg correction in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/modeling/evaluation.py` to compare ML vs. Empirical errors (FR-007, SC-003)
-- [X] T031 [US3] **Partial Dependence Plots**: Implement Partial Dependence Plot generation for strain rate vs. yield strength for **at least three** representative alloy families (e.g., largest N per family OR families with diverse physics) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/visualization/plots.py`. **Output: `results/plots/pdp_[alloy_family].png`.** (FR-006)
-- [X] T032 [US3] **Non-Monotonic Detection**: Implement logic to detect and report non-monotonic regimes in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/visualization/plots.py`
-- [ ] T033 [US3] **Failure Regime Identification**: Implement failure regime identification (high strain rate, specific alloys) and **save results to `data/processed/failure_regimes.csv`** (FR-006, US-3)
+- [ ] T028 **[ ]** Write a `quickstart.md` guide showing how to run the pipeline on a small example dataset.  
+  *Implementation*: `code/docs/write_quickstart.py`.  
+  *Verification*: Guide renders correctly in the repository viewer.  
 
----
+---  
 
-## Phase 6: Reporting & Polish
+### Dependency Summary  
 
-**Purpose**: Compile results, generate figures, and finalize documentation
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| FR‑001 (data ingestion) | T001, T002, T007 |
+| FR‑002 (unit standardisation) | T007 |
+| FR‑003 (imputation & drop) | T007, T010, T011 |
+| FR‑004 (ML training) | T014 |
+| FR‑005 (empirical fitting) | T015 |
+| FR‑006 (partial dependence) | T020 |
+| FR‑007 (Wilcoxon test) | T019 |
+| FR‑008 (sensitivity analysis) | T017 |
+| SC‑001 (R² comparison) | T016 |
+| SC‑002 (feature importance) | T018 |
+| SC‑003 (statistical significance) | T019 |
+| SC‑004 (robustness) | T014 (multi‑seed) |
+| SC‑005 (bias from imputation) | T017 |
+| Contract files | T024, T025, T026 |
+| Documentation | T027, T028 |
 
-- [~] T034 [P] Compile `metrics.json` and `wilcoxon_test.csv` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/data/processed/`
-- [ ] T035 **Generate Final Figures**: Generate final figures (PDP, Error Distribution) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/data/processed/`. **Output: `results/plots/pdp_summary.png`, `results/plots/error_dist.png`.**
-- [~] T036 Append Section 4.2 to `research.md` documenting regimes where empirical models fail, using data from `data/processed/failure_regimes.csv` (T033)
-- [~] T037 [P] Run quickstart.md validation and ensure full pipeline execution ≤ 4 hours
+---  
 
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Phase 0**: No dependencies - can start immediately. T008.1-T008.3 must complete before T008.4, and T008.4 must complete before T007.2 (Validation).
-- **Phase 0.5**: Depends on Phase 0 completion.
-- **Phase 1**: Depends on Phase 0.5 completion.
-- **Phase 2**: Depends on Phase 1 completion. T006 must complete before T012-T017.
-- **Phase 3 (US1)**: Depends on Phase 2 completion. **Follow Sequential Execution Block strictly.**
-- **Phase 4 (US2)**: Depends on Phase 3 completion (data output). **Includes T038 which depends on T022-T026 completion.**
-- **Phase 5 (US3)**: Depends on Phase 4 completion (model output).
-- **Phase 6**: Depends on Phase 5 completion.
-
-### Intra-Phase Ordering for Phase 3
-- **CRITICAL**: Execute T013 -> T013.1 -> T015.0 -> T013.2 -> T014 -> T015 -> T016 -> T017 sequentially.
-- T013.1 reads raw data (from T013).
-- T015.0 reads raw data (from T013.1) to flag low-confidence records.
-- T013.2 filters T013.1 based on T015.0 flags (Depends on T015.0).
-- T014 overwrites raw composition with imputed values (Depends on T015.0).
-- T015 uses the imputed composition from T014 and strain rate.
-- T013.1 must run before T015.0.
-
-### Intra-Phase Ordering for Phase 4
-- **Critical**: Execute T022, T022.1, T023, T024, T025, T026 sequentially (or in parallel if independent files, but T038 must wait).
-- **Critical**: T038 (Sensitivity Analysis) MUST run strictly AFTER T022-T026 are complete. T038 cannot run in parallel with T022-T026 as it requires their outputs for comparison.
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Phase 2.
-- **User Story 2 (P2)**: Depends on US1 data output.
-- **User Story 3 (P3)**: Depends on US2 model output.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation.
-- Models before services.
-- Services before endpoints.
-- Core implementation before integration.
-- Story complete before moving to next priority.
-
-### Parallel Opportunities
-
-- All Phase 0 research tasks (T008.1-T008.3) can run in parallel, **except** T008.4 depends on T008.1-T008.3.
-- All Phase 1 setup tasks (T001.1-T003.2) can run in parallel.
-- All Phase 2 foundational tasks (T004.1-T007.1) can run in parallel, **except** T007.2 depends on T008.4, and T006 must complete before T012-T017.
-- Once Phase 2 completes, all user stories can start in parallel (if team capacity allows).
-- All tests for a user story marked [P] can run in parallel.
-- Models within a story marked [P] can run in parallel.
-- Different user stories can be worked on in parallel by different team members.
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for unit conversion logic in projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/tests/unit/test_ingestion.py"
-Task: "Unit test for two-step KNN imputation logic in projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/tests/unit/test_imputation.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement fetchers.py in projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/"
-Task: "Implement preprocess.py in projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 0: Data Discovery
-2. Complete Phase 0.5: Power & Feasibility
-3. Complete Phase 1: Setup
-4. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-5. Complete Phase 3: User Story 1
-6. **STOP and VALIDATE**: Test User Story 1 independently
-7. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Phase 0 + Phase 0.5 + Phase 1 + Phase 2 → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Phase 0 + Phase 0.5 + Phase 1 + Phase 2 together
-2. Once Phase 2 is done:
- - Developer A: User Story 1 (Data)
- - Developer B: User Story 2 (Modeling)
- - Developer C: User Story 3 (Interpretability)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All data fetches must use real, reachable URLs/APIs. If unavailable, use the simulated generator. No synthetic data or fabrication allowed.
-- **Critical Constraint**: All models must run on CPU-only (limited cores, constrained RAM). No GPU or 8-bit quantization.
-- **Critical Constraint**: T015.0 correlation check must use **joint vector of raw composition and strain rate** to ensure FR-003 compliance.
-- **Critical Constraint**: T013.1 must save the raw state immediately after filtering to enable T038 sensitivity analysis.
-- **Critical Constraint**: T013.2 must create a distinct artifact for sensitivity analysis excluding low-confidence records.
-- **Critical Constraint**: T006 (entities) is a hard prerequisite for T012-T017; do not treat as parallel with downstream consumers.
-- **Critical Constraint**: T029 must explicitly verify that `strain_rate`, `composition`, and `grain_size` are in the top 3, and report PASS/FAIL against the threshold.
-- **Critical Constraint**: Phase 3 ordering: T013 -> T013.1 -> T015.0 -> T013.2 -> T014 -> T015.
-- **Critical Constraint**: Phase 4 ordering: T038 must run AFTER T022-T026.
-- **Critical Constraint**: T015 must use **strain rate** as a predictor for KNN imputation.
-- **Critical Constraint**: T025.1 must aggregate and report stability metrics.
-- **Critical Constraint**: T012.1-T012.4 must attempt real fetches before simulation.
+*All tasks are unchecked; completed work from prior runs (e.g., already‑validated `requirements.txt`) may be checked off manually after verification.  The list respects the data‑flow order, provides concrete file outputs, and includes deterministic verification steps for each scientific requirement.*  
