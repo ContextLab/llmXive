@@ -11,22 +11,22 @@
 | `sentiment_neu_ratio` | float (0‑1) | Proportion of neutral sentiment scores (confidence ≥ 0.7). |
 | `sentiment_ilr_1` | float | First ILR component derived from the three ratios. |
 | `sentiment_ilr_2` | float | Second ILR component derived from the three ratios. |
-| `media_volume` | integer | Total number of sentiment‑bearing social‑media posts (tweets) observed in the quarter; used as a control variable for omitted‑variable bias. |
+| `media_volume` | integer | Total number of sentiment‑bearing posts observed in the quarter; used as a control variable. |
 | `gdp_growth` | float | Quarterly GDP growth rate (percent). |
 | `unemployment_rate` | float | Quarterly unemployment rate (percent). |
 | `consumer_confidence` | float | Quarterly Consumer Confidence Index (percent). |
-| `low_confidence_flag` | boolean | `true` if the quarter lacked sufficient sentiment sample size. |
+| `low_confidence_flag` | boolean | `true` if the quarter lacked sufficient sentiment sample size (≤ 30 observations). |
 | `interpolation_percent_gdp` | float (0‑100) | % of GDP points filled by linear interpolation. |
-| `interpolation_percent_unrate` | float (0‑100) | % of UNRATE points filled by linear interpolation. |
-| `interpolation_percent_cons_conf` | float (0‑100) | % of Consumer Confidence points filled by linear interpolation. |
-| `vif_gdp` | float | VIF for GDP series (collinearity diagnostic). |
+| `interpolation_percent_unrate` | float (0‑100) | % of unemployment points filled by linear interpolation. |
+| `interpolation_percent_cons_conf` | float (0‑100) | % of consumer‑confidence points filled by linear interpolation. |
+| `vif_gdp` | float | VIF for GDP series. |
 | `vif_unrate` | float | VIF for unemployment series. |
-| `vif_cons_conf` | float | VIF for consumer confidence series. |
+| `vif_cons_conf` | float | VIF for consumer‑confidence series. |
 
 ### TimeSeriesMonthly (Intermediate Monthly Alignment)
 | Field | Type | Description |
 |-------|------|-------------|
-| `date` | string (ISO‑format `YYYY‑MM`) | Primary key for monthly aggregation. |
+| `date` | string (ISO‑format `YYYY‑MM`) | Primary key. |
 | `sentiment_pos_ratio` | float (0‑1) | Monthly proportion of positive sentiment. |
 | `sentiment_neg_ratio` | float (0‑1) | Monthly proportion of negative sentiment. |
 | `sentiment_neu_ratio` | float (0‑1) | Monthly proportion of neutral sentiment. |
@@ -38,8 +38,8 @@
 | `consumer_confidence` | float | Monthly consumer confidence index. |
 | `low_confidence_flag` | boolean | `true` if the month has insufficient sentiment volume. |
 | `interpolation_percent_gdp` | float (0‑100) | % of GDP points interpolated in this month. |
-| `interpolation_percent_unrate` | float (0‑100) | % of UNRATE points interpolated in this month. |
-| `interpolation_percent_cons_conf` | float (0‑100) | % of Consumer Confidence points interpolated in this month. |
+| `interpolation_percent_unrate` | float (0‑100) | % of unemployment points interpolated in this month. |
+| `interpolation_percent_cons_conf` | float (0‑100) | % of consumer‑confidence points interpolated in this month. |
 | `vif_gdp` | float | VIF for GDP (monthly view). |
 | `vif_unrate` | float | VIF for unemployment (monthly view). |
 | `vif_cons_conf` | float | VIF for consumer confidence (monthly view). |
@@ -67,12 +67,9 @@
 | `label` | string | Human‑readable label (e.g., `"2008‑2009 Financial Crisis"`). |
 
 ## Relationships
-- `TimeSeries` rows are merged on `quarter` to create the modeling matrix.  
+- `TimeSeries` rows are merged on `quarter` to form the modeling matrix.  
 - `TimeSeriesMonthly` rows are merged on `date` to produce `aligned_monthly.csv` before quarterly aggregation.  
 - `ModelResult` references the set of `RecessionPeriod` used for validation.  
 - All entities are persisted as CSV/JSON files under `data/processed/` and `outputs/`.
 
 ---
-
-
-

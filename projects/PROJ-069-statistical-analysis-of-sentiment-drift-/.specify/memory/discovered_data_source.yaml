@@ -1,12 +1,16 @@
 status: none
-intent: download GDELT Event Database sentiment series and FRED macroeconomic data
-  python package dataset
+intent: FRED macroeconomic quarterly data with Twitter Academic Research API sentiment
+  scores python package dataset
 required_fields:
-- quarter
-- sentiment_score
+- date
 - gdp
 - unemployment_rate
 - consumer_confidence_index
-cache_key: c98bcbe3018ee154384bc9d34fb7624aa0a62363b9296acc7b0f5396d9460430
-searched_at: '2026-10-22T03:22:50.236698+00:00'
+- sentiment_score
+- sentiment_polarity_ratio
+- sentiment_observations
+- low_confidence_flag
+- interpolation_flag
+cache_key: efd147d211926806f1e259927540f05ba3194d948317efb4eaba6086bd350881
+searched_at: '2026-10-22T03:45:13.420560+00:00'
 retry_count: 1

@@ -30,7 +30,11 @@ properties:
     type: array
     items:
       type: object
-      required: [direction, f_stat, p_value, p_value_fdr]
+      required:
+        - direction
+        - f_stat
+        - p_value
+        - p_value_fdr
       properties:
         direction:
           type: string
@@ -49,7 +53,9 @@ properties:
     type: object
     additionalProperties:
       type: object
-      required: [lower, upper]
+      required:
+        - lower
+        - upper
       properties:
         lower:
           type: number
@@ -60,7 +66,10 @@ properties:
     type: array
     items:
       type: object
-      required: [masking_proportion, p_value_shift, direction]
+      required:
+        - masking_proportion
+        - p_value_shift
+        - direction
       properties:
         masking_proportion:
           type: number
@@ -73,7 +82,10 @@ properties:
           type: string
   recession_validation:
     type: object
-    required: [masked_periods, coeff_shift, passed]
+    required:
+      - masked_periods
+      - coeff_shift
+      - passed
     properties:
       masked_periods:
         type: array
@@ -101,3 +113,4 @@ properties:
   block_length:
     type: integer
     description: "Block length (weeks) used for Moving Block Bootstrap."
+additionalProperties: false
