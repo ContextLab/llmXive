@@ -1,19 +1,19 @@
 status: none
-intent: Materials Project perovskite oxygen vacancy defect formation energies dataset
+intent: Materials Project perovskite oxygen vacancy formation energy dataset pymatgen
   python package dataset
 required_fields:
-- composition
-- mp_id
-- site_A_atomic_radius
-- site_A_electronegativity
-- site_A_oxidation_state
-- site_A_valence_electron_count
-- site_B_atomic_radius
-- site_B_electronegativity
-- site_B_oxidation_state
-- site_B_valence_electron_count
-- site_X_atomic_radius
-- site_X_electronegativity
-cache_key: 62a075f20d4da169860bf5c322d1d36724ecf6bec47ad41801f593a6e8a63ad0
-searched_at: '2026-10-22T07:21:22.075540+00:00'
+- formula
+- A_atomic_radius
+- B_atomic_radius
+- X_atomic_radius
+- A_electronegativity
+- B_electronegativity
+- X_electronegativity
+- A_oxidation_state
+- B_oxidation_state
+- X_oxidation_state
+- A_valence_electrons
+- B_valence_electrons
+cache_key: 279430616c8db7415e5a20e89646506200244ff62b6b536964fdbebe9d4d2efb
+searched_at: '2026-10-22T08:12:12.342658+00:00'
 retry_count: 1

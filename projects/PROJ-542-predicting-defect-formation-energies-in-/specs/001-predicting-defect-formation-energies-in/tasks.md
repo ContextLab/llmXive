@@ -24,7 +24,7 @@
   ```
   *Verification:* `pip install -r code/requirements.txt` succeeds in a fresh venv and all import statements used in the code resolve.
 
-- [ ] T002 [US1] Implement the real data acquisition step: fetch perovskite oxygen‑vacancy defect formation energies from the Materials Project API via `mp_api`. <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1; src/utils/checksum_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1 -->
+- [ ] T002 [US1] Implement the real data acquisition step: fetch perovskite oxygen‑vacancy defect formation energies from the Materials Project API via `mp_api`. <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1; src/utils/checksum_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/utils/checksum_all.py exit=1 -->
   *File:* `src/data/download.py`.
   *Requirements:* Abort with clear error if `MP_API_KEY` missing (`"Materials Project API key not provided"`). Abort with `"No data found for specified filters."` if the query returns zero records. No user‑provided CSV fallback.
   *Output:* `data/raw/materials_defects.csv`.

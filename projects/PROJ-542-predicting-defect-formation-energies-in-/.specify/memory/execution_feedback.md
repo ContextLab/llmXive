@@ -8,11 +8,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.featurize data/raw/materials_defects.csv data/processed/features.csv -> rc=1
 
-2026-10-22 07:19:37,568 INFO src.data.featurize: Input file data/raw/materials_defects.csv not found – attempting to download raw dataset.
-2026-10-22 07:19:37,568 INFO src.data.download: Attempting public fallback download from https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv
-2026-10-22 07:19:37,613 INFO src.data.download: Attempting public fallback download from https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv
-2026-10-22 07:19:37,655 INFO src.data.download: Attempting public fallback download from https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv?raw=true
-2026-10-22 07:19:37,686 ERROR src.data.download: Fallback download failed: All fallback download attempts failed. Last error: Fallback download failed with status code 404
+2026-10-22 08:10:34,099 INFO src.data.featurize: Input file data/raw/materials_defects.csv not found – attempting to download raw dataset.
+2026-10-22 08:10:34,099 INFO src.data.download: Attempting public fallback download from https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv
+2026-10-22 08:10:34,144 INFO src.data.download: Attempting public fallback download from https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv
+2026-10-22 08:10:34,170 ERROR src.data.download: Fallback download failed: All fallback download attempts failed. Last error: HTTP Error 404: Not Found
 Materials Project API key not provided
 
 - python -m src.validate data/processed/features.csv -> rc=1
@@ -47,8 +46,7 @@ FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXi
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-542-predicting-defect-formation-energies-in-/bin/python: No module named src.evaluate
 
 - python -m pytest -q -> rc=1
-s.py::test_requirements_install_and_imports
-projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_requirements.py::test_requirements_install_and_imports
+and_imports
   /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-542-predicting-defect-formation-energies-in-/lib/python3.11/site-packages/matplotlib/_fontconfig_pattern.py:89: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
 
@@ -58,8 +56,10 @@ projects/PROJ-542-predicting-defect-formation-energies-in-/code/tests/test_requi
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
+FAILED code/tests/test_pipeline_entry.py::test_pipeline_entry - NameError: na...
 FAILED src/tests/test_descriptor_gaps.py::test_check_descriptor_gaps_with_missing
+FAILED src/tests/test_quickstart.py::test_quickstart_pipeline - subprocess.Ca...
 FAILED tests/test_generate_checksums.py::test_checksum_files_created - Assert...
-2 failed, 4 passed, 14 warnings in 4.44s
+4 failed, 2 passed, 14 warnings in 6.28s
 
 

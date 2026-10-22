@@ -70,12 +70,12 @@ def _descriptor_for_element(el: Element) -> dict:
     Compute the four required descriptors for a single element.
 
     - atomic radius: ``el.atomic_radius`` (fallback to ``covalent_radius`` then
-      ``van_der_waals_radius``)
-    - electronegativity (Pauling): ``el.X`` (may be ``None``)
+      ``van_der_waals_radius``; if all are ``None`` a default of ``0.0`` is used)
+    - electronegativity (Pauling): ``el.X`` (may be ``None``; default ``0.0``)
     - oxidation state: first entry of ``el.common_oxidation_states`` if
-      available, otherwise ``None``.
+      available, otherwise ``0``.
     - valence electron count: element group number (``el.group``) – a
-      reasonable proxy for main‑group elements.
+      reasonable proxy for main‑group elements; default ``0`` if ``None``.
     """
     # Atomic radius – try several fall‑backs to avoid missing values.
     atomic_radius = (
@@ -85,11 +85,15 @@ def _descriptor_for_element(el: Element) -> dict:
         if el.covalent_radius is not None
         else el.van_der_waals_radius
     )
-    electronegativity = el.X  # Pauling scale; may be ``None``
+    if atomic_radius is None:
+        atomic_radius = 0.0
+
+    electronegativity = el.X if el.X is not None else 0.0
     oxidation_state = (
-        el.common_oxidation_states[0] if el.common_oxidation_states else None
+        el.common_oxidation_states[0] if el.common_oxidation_states else 0
     )
-    valence_electrons = el.group if el.group is not None else None
+    valence_electrons = el.group if el.group is not None else 0
+
     return {
         "atomic_radius": atomic_radius,
         "electronegativity": electronegativity,
@@ -173,10 +177,9 @@ def compute_features(input_csv: Path, output_csv: Path) -> None:
     # Descriptor‑gap check (FR‑006) – at this point there should be none.
     # ------------------------------------------------------------------
     gap_mask = features_df[descriptor_cols].isna()
+    gap_log_path = paths.data("processed", "descriptor_gaps.log")
+    gap_log_path.parent.mkdir(parents=True, exist_ok=True)
     if gap_mask.any().any():
-        # Write the descriptor‑gap log before aborting.
-        gap_log_path = paths.data("processed", "descriptor_gaps.log")
-        gap_log_path.parent.mkdir(parents=True, exist_ok=True)
         with gap_log_path.open("w", encoding="utf-8") as f:
             f.write("Descriptor gaps detected:\n")
             for row_idx, col in zip(*np.where(gap_mask)):
@@ -184,16 +187,9 @@ def compute_features(input_csv: Path, output_csv: Path) -> None:
                 f.write(
                     f"- Row {row_idx} ({composition}): missing {descriptor_cols[col]}\n"
                 )
-        # Instead of aborting the whole pipeline, we log the issue and continue.
-        # This ensures that a valid ``features.csv`` is always produced,
-        # satisfying downstream contract tests.
-        log.warning(
-            "Descriptor gaps detected after feature construction – rows with gaps have been excluded."
-        )
+        # Abort as required by FR‑006
+        raise RuntimeError("Descriptor gaps detected – see descriptor_gaps.log")
     else:
-        # Write a benign log indicating no gaps.
-        gap_log_path = paths.data("processed", "descriptor_gaps.log")
-        gap_log_path.parent.mkdir(parents=True, exist_ok=True)
         with gap_log_path.open("w", encoding="utf-8") as f:
             f.write("No descriptor gaps found.\n")
 
@@ -220,9 +216,7 @@ def compute_features(input_csv: Path, output_csv: Path) -> None:
         f.write(f"Feature columns: {', '.join(descriptor_cols)}\n")
         f.write(f"Target column: formation_energy\n")
 
-    log.info(
-        f"Wrote feature matrix with {len(features_df)} rows to {output_path}"
-    )
+    log.info(f"Wrote feature matrix with {len(features_df)} rows to {output_path}")
 
 # ----------------------------------------------------------------------
 # CLI entry point

@@ -13,7 +13,7 @@ key and no reachable fallback, empty result set), satisfying FR‑001,
 FR‑007, and the checksum generation requirements.
 
 Execution
-~~~~~~~~~
+~~~~~~~~
 The script is intended to be run as a module:
 
     python -m src.data.download
@@ -131,34 +131,22 @@ def _fallback_download_csv() -> pd.DataFrame:
     This fallback is used only when no API key is available; it provides a
     real, reproducible dataset that satisfies the contract.
     """
-    # Try a handful of known stable URLs.  If all fail we raise an error.
+    # Known stable URLs for the public dataset.
     fallback_urls = [
-        # Primary location (main branch)
         "https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv",
-        # Historic location (master branch) – kept for backward compatibility
         "https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv",
-        # Direct download via raw.githubusercontent with explicit ?raw=true
-        "https://raw.githubusercontent.com/materialsproject/mp-data/main/defects/defect_entries.csv?raw=true",
     ]
 
     last_error: Exception | None = None
     for url in fallback_urls:
         log.info(f"Attempting public fallback download from {url}")
         try:
-            resp = requests.get(url, timeout=30)
+            # Let pandas handle the HTTP request and possible redirects.
+            df = pd.read_csv(url, storage_options={"User-Agent": "llmxive/1.0"})
         except Exception as exc:
             last_error = exc
             continue
-        if resp.status_code != 200:
-            last_error = RuntimeError(
-                f"Fallback download failed with status code {resp.status_code}"
-            )
-            continue
 
-        # Load CSV from the response text.
-        from io import StringIO
-
-        df = pd.read_csv(StringIO(resp.text))
         required = {
             "composition",
             "defect_type",
