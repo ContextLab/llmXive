@@ -122,17 +122,11 @@ def test_outlier_capping():
         }
     )
     cleaned = load_and_preprocess([df])
-    # After scaling, the outlier will be capped; we can check that the
-    # original (pre‑scaling) value is not 1000 by reverse‑transforming.
-    # Since we only have the scaled values, we instead verify that the
-    # capped value equals the upper whisker computed from the raw data.
+    # Compute the upper whisker from the original raw data
     raw_scores = df["herbivory_score"]
     q1 = raw_scores.quantile(0.25)
     q3 = raw_scores.quantile(0.75)
     iqr = q3 - q1
     upper_whisker = q3 + 1.5 * iqr
     capped_val = cleaned["herbivory_score"].iloc[2]
-    # Undo Z‑scoring for the herbivory column (which was NOT standardized)
-    # The pipeline only caps before scaling metabolites, so the herbivory
-    # column remains in original units.
     assert capped_val == upper_whisker, "Outlier was not capped correctly"

@@ -39,7 +39,7 @@ This is a research implementation plan for a cross-species metabolomics–herbiv
   - **Verification**: Run `pytest code/tests/test_preprocess.py -v` and confirm all tests pass. Inspect `data/processed/clean.parquet` and verify row count, column names, and data types match the contract.  
   - **Paths**: `code/src/preprocess.py`, `code/tests/test_preprocess.py`, `data/processed/clean.parquet`, `outputs/preprocessing_log.json`.
 
-- [ ] T003 [P2] [US-2] **Exploratory correlation analysis and early visualization** <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 -->
+- [ ] T003 [P2] [US-2] **Exploratory correlation analysis and early visualization** <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 -->
   - Implement `code/src/correlation_analysis.py` with function `compute_correlations(df: pd.DataFrame) -> dict` that:  
     - Computes Pearson correlation coefficients between each of the four metabolite classes (averaged across species) and `herbivory_score`.  
     - Computes two‑tailed p‑values for each correlation using `scipy.stats.pearsonr`.  

@@ -7,14 +7,14 @@ The core function `load_and_preprocess` accepts a list of raw pandas
 DataFrames, concatenates them, harmonises column names, filters incomplete
 rows, imputes documented absences, caps herbivory outliers, standardises
 metabolite concentrations, validates the result against the JSON schema,
-writes the cleaned data to Parquet and records a SHA‑256 checksum in a
+writes the cleaned DataFrame to Parquet and records a SHA‑256 checksum in a
 JSON log.
 """
 
 import json
 import hashlib
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict
 
 import numpy as np
 import pandas as pd
@@ -111,41 +111,28 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
             rename_map[col] = canonical
     df = df.rename(columns=rename_map)
 
-    # Ensure all required columns exist; create missing metabolite columns
-    # as NaN (they will be handled in the “documented absent” step).
+    # Ensure all required columns exist; create missing columns as NaN.
     for col in REQUIRED_COLUMNS:
         if col not in df.columns:
             df[col] = np.nan
 
     # ------------------------------------------------------------------
-    # 2. Detect documented biological absence
+    # 2. Detect documented biological absence (entire column NaN)
     # ------------------------------------------------------------------
-    # The specification says that source metadata may document that a
-    # metabolite class is biologically absent for the whole dataset.
-    # In the absence of explicit metadata we infer this situation when a
-    # metabolite column exists but consists entirely of NaN.
-    absence_indicator: List[Dict[str, str]] = []
+    documented_absent: List[str] = []
     for met in METABOLITE_COLUMNS:
-        col_series = df[met]
-        if col_series.isna().all():
+        if df[met].isnull().all():
             log.info(
                 "Metabolite column '%s' is entirely missing – treating as "
                 "documented biological absence and imputing zeros.",
                 met,
             )
             df[met] = 0.0
-            # Record absence for every row; will be inserted later.
-            # Store a flag per metabolite to avoid per‑row work.
-            absence_indicator.append({met: "documented_absent"})
-        else:
-            # No special handling; missing values will cause row exclusion.
-            pass
+            documented_absent.append(met)
 
     # ------------------------------------------------------------------
     # 3. Row‑wise filtering of missing required data
     # ------------------------------------------------------------------
-    # Required predictor/outcome columns are the ones listed in
-    # REQUIRED_COLUMNS.  Rows with any NaN in those columns are dropped.
     before_rows = df.shape[0]
     df = df.dropna(subset=REQUIRED_COLUMNS, how="any")
     after_rows = df.shape[0]
@@ -165,9 +152,8 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     iqr = q3 - q1
     upper_whisker = q3 + 1.5 * iqr
 
-    # Cap values above the upper whisker
     outlier_mask = herb > upper_whisker
-    n_capped = outlier_mask.sum()
+    n_capped = int(outlier_mask.sum())
     if n_capped > 0:
         log.info(
             "Capping %d herbivory_score outliers at upper whisker value %.3f.",
@@ -187,32 +173,15 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     # ------------------------------------------------------------------
     # 6. Build the absence_indicator JSON column
     # ------------------------------------------------------------------
-    # For rows where a metabolite was documented absent we already filled
-    # zeros.  We now create a column that records which metabolites were
-    # imputed as absent for that row.
-    def build_indicator(row: pd.Series) -> str:
-        indicator: Dict[str, str] = {}
-        for met in METABOLITE_COLUMNS:
-            # If the original column was all NaN we set the flag.
-            if (met, "documented_absent") in row.get("_absent_flags", []):
-                indicator[met] = "documented_absent"
+    def build_indicator(_: pd.Series) -> str:
+        """Return a JSON string documenting documented absences."""
+        indicator = {met: "documented_absent" for met in documented_absent}
         return json.dumps(indicator)
 
-    # Attach a temporary helper column to carry the flags
-    absent_flags = []
-    for met in METABOLITE_COLUMNS:
-        if df[met].eq(0).all() and (df[met].isna().all() or met not in df.columns):
-            # This metabolite was treated as absent for the whole DF
-            absent_flags.append((met, "documented_absent"))
-    # Store flags in every row (lightweight)
-    df["_absent_flags"] = [absent_flags] * len(df)
-
     df["absence_indicator"] = df.apply(build_indicator, axis=1)
-    # Drop the temporary helper column
-    df = df.drop(columns=["_absent_flags"])
 
     # ------------------------------------------------------------------
-    # 7. Validate against JSON schema
+    # 7. Validate against JSON schema (if present)
     # ------------------------------------------------------------------
     schema_path = paths.contracts("processed_data.schema.yaml")
     try:
@@ -224,7 +193,6 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
             schema_path,
         )
     else:
-        # Convert DataFrame to list‑of‑dicts for validation
         records = df.to_dict(orient="records")
         for i, rec in enumerate(records):
             try:
@@ -254,7 +222,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
         "checksum_sha256": checksum,
         "row_count": df.shape[0],
         "column_count": df.shape[1],
-        "outlier_capped": int(n_capped),
+        "outlier_capped": n_capped,
     }
     log_path = paths.outputs("preprocessing_log.json")
     with open(log_path, "w", encoding="utf-8") as f:

@@ -1,0 +1,95 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult: Model Output Container"
+type: object
+required:
+  - result_type
+  - payload
+  - timestamp
+properties:
+  result_type:
+    type: string
+    enum: ["correlation", "ols", "pgls", "mixed_effects", "rf", "sensitivity", "power_analysis"]
+    description: "Type of analysis performed; all results conform to the AnalysisResult wrapper."
+  payload:
+    type: object
+    description: "Free‑form JSON containing result-specific fields. See data-model.md for detailed schema of each result_type."
+    properties:
+      # Correlation-specific fields
+      matrix:
+        type: object
+        description: "Pearson correlation matrix (for result_type=correlation)."
+      p_values:
+        type: object
+        description: "Raw p-values (for result_type=correlation, ols, pgls, mixed_effects, rf)."
+      q_values:
+        type: object
+        description: "FDR-corrected p-values via Benjamini-Hochberg (for result_type=correlation, ols, pgls, mixed_effects, rf)."
+      significant_negative_classes:
+        type: array
+        items:
+          type: string
+        description: "List of metabolite classes with significant negative correlation (for result_type=correlation)."
+      # Regression-specific fields
+      coefficients:
+        type: object
+        description: "Regression coefficients (for result_type=ols, pgls, mixed_effects)."
+      r2:
+        type: number
+        description: "R² value (for result_type=ols, pgls, mixed_effects)."
+      adj_r2:
+        type: number
+        description: "Adjusted R² (for result_type=ols, pgls, mixed_effects)."
+      rmse:
+        type: number
+        description: "Root mean squared error (for result_type=ols, pgls, mixed_effects, rf)."
+      vif:
+        type: object
+        description: "Variance inflation factors for each predictor (for result_type=ols)."
+      # PGLS-specific fields
+      phylogeny_source:
+        type: string
+        description: "Source of phylogenetic data (for result_type=pgls)."
+      lrt_statistic:
+        type: number
+        description: "Likelihood-ratio test statistic comparing PGLS to OLS (for result_type=pgls)."
+      lrt_p_value:
+        type: number
+        description: "LRT p-value (for result_type=pgls)."
+      # Random Forest-specific fields
+      feature_importance:
+        type: array
+        items:
+          type: object
+          properties:
+            metabolite:
+              type: string
+            importance:
+              type: number
+            p_value:
+              type: number
+            q_value:
+              type: number
+        description: "Ranked list of metabolites by permutation importance with FDR-corrected p-values (for result_type=rf)."
+      # Power analysis-specific fields
+      effective_n:
+        type: number
+        description: "Effective sample size after phylogenetic adjustment (for result_type=power_analysis)."
+      power_ols:
+        type: number
+        description: "Estimated power for OLS (for result_type=power_analysis)."
+      under_power_flag:
+        type: boolean
+        description: "True if study is under-powered (N < 50) (for result_type=power_analysis)."
+      # Sensitivity-specific fields
+      p_threshold_sweep:
+        type: object
+        description: "Results of sweeping p-value thresholds (for result_type=sensitivity)."
+      raw_vs_standardized:
+        type: object
+        description: "Comparison of biomarker rankings on raw vs. standardized concentrations (for result_type=sensitivity)."
+    additionalProperties: true
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp when the result was generated."
+additionalProperties: false

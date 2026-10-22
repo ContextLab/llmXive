@@ -1,19 +1,19 @@
 T001:
   c: false
-  h: 3a7bf1afdc356f0cdd3eaa64182cb76feac7afb73e8e750a692e00d394151304
-  r: The project lacks the required `code/src/config.py`, `code/src/fetch_data.py`,
-    and `code/tests/test_fetch_data.py` files, the `scripts/` and `data/raw/` directories,
-    and the `outputs/fetch_log.txt` log file. Consequently the fetch functions, their
-    tests, and the verification steps are not present, so the task is not satisfied.
-  sig: 79bd09b049f1b202256e8b03638f82c5cc42b860be3eb30f7462e568ec66b76f
+  h: 151ba65961f7b95c7066645c617475767ad86642205a4711484718675f47fdbe
+  r: "The project lacks the required `scripts/`, `data/raw/`, and `outputs/` directories\
+    \ (and the `outputs/fetch_log.txt` file is missing). The three fetch functions\
+    \ raise an `AttributeError` because they use `pd.compat.StringIO`, causing all\
+    \ `test_fetch_data.py` tests to error, so the verification step fails and the\
+    \ paired\u2011species count is never checked."
+  sig: dbdb3d7f5d4f4ed454dfe48b84cd40fb7c48375e8a83fe8dc70a72cf974d6239
 T002:
   c: false
-  h: 3038dbb19ccd58eddf111252256528950ba25925cb958b7ccbe58890bdd21551
-  r: "The run of `pytest` shows all three tests failing: a ValueError in the column\u2011\
-    absence check, and ImportErrors when trying to write the Parquet file because\
-    \ no parquet engine (pyarrow/fastparquet) is installed. Consequently `data/processed/clean.parquet`\
-    \ and `outputs/preprocessing_log.json` are never created, and the required schema\
-    \ file `processed_data.schema.yaml` is missing, so the pipeline does not perform\
-    \ the mandated JSON\u2011schema validation. The implementation therefore does\
-    \ not satisfy the task\u2019s specifications."
-  sig: 3abcfd4a2b5fa983d257c8355c522a0e755a3c5db99ba0f6ad5f8c676d1c2e42
+  h: fbad8969ca0b7f2706af0214ee9bc5bc8216553faa70d29e5e0253b019fcf32d
+  r: "The implementation `code/src/preprocess.py` raises errors during execution (ambiguous\
+    \ Series truth value and JSONDecodeError when loading the schema), causing all\
+    \ three pytest cases to fail. Consequently the required output files `data/processed/clean.parquet`\
+    \ and `outputs/preprocessing_log.json` are never created, and the schema file\
+    \ `processed_data.schema.yaml` is missing/empty. The tests therefore do not pass\
+    \ and the task\u2019s deliverables are not satisfied."
+  sig: ef086c7e273eba058a25be426baeaf48449bd4a7a95aa5636d9c29a8a134ebae
