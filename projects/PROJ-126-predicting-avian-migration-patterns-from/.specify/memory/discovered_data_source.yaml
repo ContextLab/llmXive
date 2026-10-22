@@ -1,10 +1,8 @@
 status: none
-intent: download eBird Basic Dataset 2015-2022 and MODIS NDVI temperature python package
-  dataset
+intent: eBird Basic Dataset 2015-2022 complete checklists and MODIS NDVI download
+  python package dataset
 required_fields:
 - species_code
-- scientific_name
-- common_name
 - observation_date
 - latitude
 - longitude
@@ -13,7 +11,9 @@ required_fields:
 - num_observers
 - observation_count
 - grid_cell_id
-- week
-cache_key: f7e2394bc484456660ea942695e1de98a77469ed8e46b99d951134852f4752de
-searched_at: '2026-10-22T14:13:22.036722+00:00'
+- week_number
+- first_arrival_week
+- temperature
+cache_key: fd9f4f01e7e7360f34aeca397c2f0598443ad208570fd6d6c184389ff050201c
+searched_at: '2026-10-22T17:17:44.210016+00:00'
 retry_count: 1

@@ -1,6 +1,6 @@
 """
 Data Loader Module for Avian Migration Pipeline.
-Handles downloading and processing of eBird data.
+Handles downloading and processing of eBird data using the HuggingFace `datasets` library.
 """
 import json
 import logging
@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Iterator
 
 import pandas as pd
-import requests
+from datasets import load_dataset
 
 # Import configuration and logger from the code package
 from code.config import DATA_RAW, REGIONAL_BBOX, get_logger
@@ -55,7 +55,7 @@ def _filter_record(record: dict) -> bool:
         duration = float(record.get("duration_min", 0))
         observers = int(record.get("num_observers", 0))
         distance = float(record.get("distance_km", float("inf")))
-    except ValueError:
+    except (ValueError, TypeError):
         return False
 
     if duration < MIN_DURATION:
@@ -90,31 +90,21 @@ def _filter_record(record: dict) -> bool:
 # -----------------------------------------------------------------
 def _fetch_ebird_data() -> Iterator[dict]:
     """
-    Fetch a small public sample of the eBird dataset via HTTP.
+    Fetch the eBird Basic Dataset (EBD) using HuggingFace `datasets`.
+    Streams the dataset to avoid loading the entire file into memory.
     Returns an iterator over raw records (as dicts).
     Raises ConnectionError if the dataset cannot be accessed.
     """
-    # This URL points to a small, publicly available sample CSV of eBird observations.
-    # It contains the same column names as the full eBird Basic Dataset.
-    sample_url = (
-        "https://raw.githubusercontent.com/ecohealthalliance/ebird-dataset/"
-        "master/ebd_sample.csv"
-    )
     try:
-        response = requests.get(sample_url, stream=True, timeout=30)
-        response.raise_for_status()
+        # The canonical dataset on HuggingFace is "ebird/ebd"
+        ds = load_dataset("ebird/ebd", split="train", streaming=True)
     except Exception as exc:
-        logger.error(f"Failed to download eBird sample CSV: {exc}")
-        raise ConnectionError(
-            "Unable to fetch eBird sample data from the provided URL."
-        ) from exc
+        logger.error(f"Failed to load eBird dataset via `datasets`: {exc}")
+        raise ConnectionError("Unable to fetch eBird dataset from HuggingFace.") from exc
 
-    # Stream CSV rows as dictionaries
-    # Decode each line from bytes to str
-    lines = (line.decode("utf-8") for line in response.iter_lines())
-    reader = csv.DictReader(lines)
-    for row in reader:
-        yield row
+    # The dataset yields dictionaries; we simply forward them.
+    for record in ds:
+        yield record
 
 def _fetch_modis_data():
     """
@@ -163,7 +153,7 @@ def load_ebird_data() -> pd.DataFrame:
     # -----------------------------------------------------------------
     # Stream download & filtering
     # -----------------------------------------------------------------
-    logger.info("Starting streaming download of the eBird sample dataset...")
+    logger.info("Starting streaming download of the eBird dataset via HuggingFace...")
     ds_iter = _fetch_ebird_data()
 
     header_written = False
