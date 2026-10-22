@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1609.03860",
+  "judged_at": "2026-10-22T12:27:03Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the statistical significance of fine-structure constant variations physics",
+  "rationale": "The paper directly measures variations in the fine‑structure constant (Δα/α) and reports statistical and systematic uncertainties, thereby providing empirical evidence and significance assessment of such variations—fulfilling acceptance criterion (a) (same‑mechanism evidence) and (c) (empirical baseline) for the user’s question.",
+  "relevant": true
+}

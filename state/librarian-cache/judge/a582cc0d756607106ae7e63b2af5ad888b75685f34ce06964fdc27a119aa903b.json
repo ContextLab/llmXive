@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "astro-ph/0311280",
+  "judged_at": "2026-10-22T12:27:17Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the statistical significance of fine-structure constant variations physics",
+  "rationale": "The paper directly measures the fine‑structure constant’s variability and quantifies its statistical significance, providing same‑mechanism evidence (category a) and an empirical baseline (category c) for the question of statistical significance of α variations.",
+  "relevant": true
+}
