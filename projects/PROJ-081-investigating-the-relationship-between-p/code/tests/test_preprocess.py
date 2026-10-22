@@ -46,6 +46,14 @@ def raw_dataframes():
     )
     return [df1, df2]
 
+def _is_absent(indicator_json: str, metabolite: str) -> bool:
+    """Return True if the given metabolite is recorded as absent in the JSON indicator."""
+    try:
+        indicator = json.loads(indicator_json)
+    except json.JSONDecodeError:
+        return False
+    return metabolite in indicator
+
 def test_load_and_preprocess_basic(raw_dataframes):
     """Basic sanity checks after running the preprocessing pipeline."""
     cleaned_df = load_and_preprocess(raw_dataframes)
@@ -62,12 +70,22 @@ def test_load_and_preprocess_basic(raw_dataframes):
     ]
     assert not cleaned_df[required].isnull().any().any(), "Missing values remain after preprocessing"
 
-    # 2. Metabolite columns are Z‑scored (mean ≈ 0, std ≈ 1)
+    # 2. For rows where a metabolite class was documented as absent,
+    #    the standardized value must be exactly zero.
     for met in ["alkaloids", "terpenes", "phenolics", "benzoxazinoids"]:
-        mean = cleaned_df[met].mean()
-        std = cleaned_df[met].std(ddof=0)  # population std matches StandardScaler
-        assert abs(mean) < 1e-6, f"{met} mean not close to 0 (got {mean})"
-        assert abs(std - 1.0) < 1e-6, f"{met} std not close to 1 (got {std})"
+        absent_mask = cleaned_df["absence_indicator"].apply(lambda x: _is_absent(x, met))
+        # Values in absent rows should be zero
+        assert (cleaned_df.loc[absent_mask, met] == 0.0).all(), f"{met} not zero for documented absent rows"
+
+        # For rows where the metabolite is *present*, the Z‑scored values
+        # should have mean ≈ 0 and std ≈ 1 (population std).
+        present_mask = ~absent_mask
+        present_vals = cleaned_df.loc[present_mask, met]
+        if not present_vals.empty:
+            mean = present_vals.mean()
+            std = present_vals.std(ddof=0)
+            assert abs(mean) < 1e-6, f"{met} mean not close to 0 (got {mean})"
+            assert abs(std - 1.0) < 1e-6, f"{met} std not close to 1 (got {std})"
 
     # 3. absence_indicator column exists and is valid JSON
     assert "absence_indicator" in cleaned_df.columns
@@ -84,10 +102,6 @@ def test_load_and_preprocess_basic(raw_dataframes):
     with open(log_path, "r", encoding="utf-8") as f:
         log_content = json.load(f)
     assert "checksum_sha256" in log_content, "Checksum missing in preprocessing log"
-
-    # 5. Schema validation should have run without raising
-    # (If the schema file is missing the function logs a warning but does not
-    # raise; the test therefore only checks that no exception was thrown.)
 
 def test_missing_required_rows_are_dropped():
     """Rows with any required NaN should be removed."""

@@ -125,7 +125,8 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
         # Track which metabolite columns are missing from this source
         missing_mets = [m for m in METABOLITE_COLUMNS if m not in df.columns]
         for met in missing_mets:
-            # Insert a column of zeros for the absent metabolite
+            # Insert a column of zeros for the absent metabolite (temporary
+            # placeholder – will be overwritten after scaling)
             df[met] = 0.0
             # Record the documented absence for every row of this dataframe
             df[f"_absent_{met}"] = True
@@ -203,7 +204,17 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     df[METABOLITE_COLUMNS] = scaled
 
     # ------------------------------------------------------------------
-    # 7. Build the absence_indicator JSON column.
+    # 7. Insert zeros **after** standardisation for documented absences.
+    #    The temporary ``_absent_<met>`` flags tell us which rows need
+    #    this correction.
+    # ------------------------------------------------------------------
+    for met in METABOLITE_COLUMNS:
+        absent_mask = df[f"_absent_{met}"]
+        if absent_mask.any():
+            df.loc[absent_mask, met] = 0.0
+
+    # ------------------------------------------------------------------
+    # 8. Build the absence_indicator JSON column.
     #    For each row we include only the metabolites whose
     #    ``_absent_<met>`` flag is True.
     # ------------------------------------------------------------------
@@ -221,7 +232,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     df.drop(columns=temp_absence_cols, inplace=True, errors="ignore")
 
     # ------------------------------------------------------------------
-    # 8. Validate against JSON schema (if present)
+    # 9. Validate against JSON schema (if present)
     # ------------------------------------------------------------------
     schema_path = paths.contracts("processed_data.schema.yaml")
     try:
@@ -248,7 +259,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
                 raise
 
     # ------------------------------------------------------------------
-    # 9. Persist cleaned DataFrame
+    # 10. Persist cleaned DataFrame
     # ------------------------------------------------------------------
     out_path = paths.data("processed", "clean.parquet")
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -256,7 +267,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     log.info("Cleaned data written to %s", out_path)
 
     # ------------------------------------------------------------------
-    # 10. Compute SHA‑256 checksum and write log JSON
+    # 11. Compute SHA‑256 checksum and write log JSON
     # ------------------------------------------------------------------
     sha256 = hashlib.sha256()
     with open(out_path, "rb") as f:
