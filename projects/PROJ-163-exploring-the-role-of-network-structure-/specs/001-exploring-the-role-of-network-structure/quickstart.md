@@ -83,7 +83,7 @@ cat data/processed/power_analysis.csv
 
 ## Troubleshooting
 - **Rate‑limit errors** – the fetcher retries with exponential backoff; set `QISKIT_IBM_TOKEN` to increase limits.  
-- **Disconnected graphs** – `spectral_gap` will be 0; path‑length metrics are computed on the largest component only.  
+- **Disconnected graphs** – `spectral_gap` will be assigned its minimal baseline value; path‑length metrics are computed on the largest component only.  
 - **Missing metrics** – devices lacking a metric are omitted from that specific correlation pair.  
 - **Low statistical power** – if `N < 30`, the MDES report will flag the study as exploratory; only effect‑size estimates with permutation‑CI are reported.  
 

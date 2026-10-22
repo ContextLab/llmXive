@@ -15,29 +15,32 @@ required:
   - source_window
 properties:
   device_id:
-    type: string
-    description: Backend identifier (e.g., ibmq_manila).
+    type: "string"
+    description: "Backend identifier (e.g., ibmq_manila)."
   timestamp:
-    type: string
+    type: "string"
     format: date-time
-    description: ISO‑8601 timestamp when the snapshot was taken (null for window‑averaged rows).
+    description: "ISO‑8601 timestamp when the snapshot was taken (for window rows this is the window‑end date)."
   t1_mean:
-    type: number
-    description: Mean T1 (seconds) across qubits.
+    type: "number"
+    description: "Mean T1 (seconds) across qubits."
   t2_mean:
-    type: number
-    description: Mean T2 (seconds) across qubits.
+    type: "number"
+    description: "Mean T2 (seconds) across qubits."
   cx_error_mean:
-    type: number
-    description: Mean two‑qubit (CX) gate error.
+    type: "number"
+    description: "Mean two‑qubit (CX) gate error."
   readout_error_mean:
-    type: number
-    description: Mean readout error across qubits.
+    type: "number"
+    description: "Mean readout error across qubits."
+  entanglement_fidelity_mean:
+    type: "number"
+    description: "Mean entanglement fidelity across qubits."
   chip_family:
-    type: string
-    description: Human‑readable chip family derived from the backend name.
+    type: "string"
+    description: "Human‑readable chip family derived from the backend name."
   source_window:
-    type: string
-    enum: ["current", "window"]
-    description: Indicates whether the row corresponds to the current snapshot ("current") or the 30‑day averaged performance window ("window").
+    type: "string"
+    enum: ["current","window"]
+    description: "Indicates whether the row corresponds to the current snapshot (\"current\") or the 30‑day averaged performance window (\"window\")."
 additionalProperties: false

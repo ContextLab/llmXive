@@ -20,6 +20,9 @@ properties:
   partial_rho:
     type: "number"
     description: "Partial correlation coefficient controlling for covariates (optional)."
+  window_delta:
+    type: "number"
+    description: "Difference between 30‑day window rho and cross‑sectional rho (SC‑004)."
 required:
   - metric_a
   - metric_b

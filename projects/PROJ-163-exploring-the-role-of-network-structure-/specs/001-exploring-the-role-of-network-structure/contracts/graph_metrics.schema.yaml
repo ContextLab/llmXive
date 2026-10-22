@@ -24,3 +24,7 @@ properties:
   component_size:
     type: "integer"
     description: "Size of the largest connected component (used for filtering)."
+  edge_type:
+    type: "string"
+    enum: ["active","inactive"]
+    description: "Edge status for tunable‑coupler devices (FR‑007)."

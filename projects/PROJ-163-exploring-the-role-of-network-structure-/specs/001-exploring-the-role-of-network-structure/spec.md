@@ -124,6 +124,6 @@ Power analysis must demonstrate **≥ 80 % power** to detect ρ = 0.4; t
 ## Assumptions
 
 - Users have stable internet connectivity to query the IBM Quantum API.
-- The IBM Quantum archive provides reliable 30‑day historical snapshots.
-- Devices’ coupling maps are relatively static over the 30‑day horizon.
+- The IBM Quantum archive provides reliable historical snapshots over a multi‑day period.
+- Devices’ coupling maps are relatively static over a multi‑week horizon.
 - All required backend properties (including entanglement fidelity) are exposed via the API.
