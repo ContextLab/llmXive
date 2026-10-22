@@ -1,7 +1,7 @@
 # Data Model: Structural Mismatch Cost in Heterogeneous Retrieval
 
 ## Overview
-Defines all persistent artifacts produced by the benchmarking pipeline. Files live under `data/` and conform to the JSON‑Schema contracts in `contracts/`.
+Defines all persistent artifacts produced by the benchmarking pipeline. Files live under `data/` and conform to the YAML‑Schema contracts in `contracts/` (each contract is a single valid YAML document).
 
 ## Entities
 
@@ -11,30 +11,29 @@ Defines all persistent artifacts produced by the benchmarking pipeline. Files li
 | `query_id` | UUID (string) | Unique identifier |
 | `logical_plan` | object | `{ "steps": [ "op1", "op2", … ] }` |
 | `source_type` | enum(`text`,`relational`,`graph`) | Source category |
-| `complexity_level` | integer (≥ 1) | Exact plan depth |
-| `ground_truth_plan` | string | Identifier of the deterministic **reference** plan (used as the reproducible baseline for measuring **disagreement** with the router’s plan) |
-| `synthetic_flag` | boolean | `true` if topology was synthetically generated (excluded from primary analysis) |
+| `complexity_level` | integer (≥ 1) | Exact plan depth |
+| `ground_truth_plan` | string | Identifier of the deterministic reference plan (reproducible baseline for measuring disagreement with the router's plan) |
+| `synthetic_flag` | boolean | `true` if topology was synthetically generated |
 
 ### 2. Execution Metric (Final SSoT)
 | Field | Type | Description |
 |-------|------|-------------|
 | `query_id` | UUID (string) | FK to Query Instance |
 | `latency_ms` | float | Wall‑clock latency in milliseconds (baseline‑corrected) |
-| `translation_error` | boolean | **Disagreement** flag: `true` if engine‑generated plan deviates from the deterministic `ground_truth_plan` |
-| `timeout_flag` | boolean | `true` if execution exceeded the 60‑second safety limit |
+| `translation_error` | boolean | Disagreement flag: `true` if engine‑generated plan deviates from the **true** optimal plan on the sampled subset, otherwise from the greedy reference plan |
+| `precision_at_10` | float | Precision@10 for this query (relevance defined in Research) |
+| `timeout_flag` | boolean | `true` if execution exceeded the 60‑second limit |
 | `success_flag` | boolean | `true` if execution completed without error |
 | `timestamp` | ISO‑8601 string | When the measurement was taken |
 | `synthetic_flag` | boolean | Propagated from the originating Query Instance |
 | `throttling_mode` | enum(`cgroups`,`failed`) | How CPU limits were enforced |
 
-*Note: The `execution_metric.json` file aggregates these per‑query records and conforms to `execution_metric.schema.yaml` (added in the plan).*
-
 ### 3. Statistical Result
 | Field | Type | Description |
 |-------|------|-------------|
-| `test_type` | string (`ancova`, `tukey`, `chi2`, `sensitivity`) | Analysis performed |
-| `parameters` | object | e.g., `{ "cutoff": 3 }` |
-| `statistics` | object | F‑statistic, p‑value, χ², etc. |
+| `test_type` | string (`anova`, `tukey`, `chi2`, `sensitivity`, `slope_ratio`) | Analysis performed |
+| `parameters` | object | e.g. `{ "cutoff": 3 }` |
+| `statistics` | object | F‑statistic, p‑value, χ², slope_ratio, etc. |
 | `interpretation` | string | Human‑readable summary |
 
 ## File Formats
@@ -42,25 +41,33 @@ Defines all persistent artifacts produced by the benchmarking pipeline. Files li
 ### `data/processed/generation_log.json`
 *Array of Query Instances.* Validated by `contracts/query_instance.schema.yaml`.
 
+### `data/processed/optimal_ground_truth.json`
+*Mapping of sampled `query_id` → true optimal plan identifier* (produced by Phase 0).
+
 ### `data/processed/execution_logs.csv`
 **Primary SSoT** for latency and error metrics. Columns (in order):
 
 ```
-query_id,source_type,complexity_level,latency_ms,timestamp,translation_error,success_flag,timeout_flag,synthetic_flag,throttling_mode
+query_id,source_type,complexity_level,latency_ms,precision_at_10,timestamp,translation_error,success_flag,timeout_flag,synthetic_flag,throttling_mode
 ```
 
-Validated by `contracts/execution_log.schema.yaml`. `complexity_level` is a strict integer (FR‑002 compliance). `synthetic_flag` is boolean.
+Validated by `contracts/execution_log.schema.yaml`. `complexity_level` is a strict integer (FR‑002 compliance). `precision_at_10` is a float in [0,1].
 
 ### `data/processed/execution_metric.json`
-Aggregated per‑query metric file conforming to `execution_metric.schema.yaml`. Contains one JSON object per query with the fields listed in the **Execution Metric** table above.
+Aggregated per‑query metric file conforming to `contracts/execution_metric.schema.yaml`. Contains one JSON object per query with the fields listed in the **Execution Metric** table above.
+
+### `data/processed/baseline_overhead.json`
+JSON object `{ "bm25": <median_ms>, "sqlite": <median_ms>, "rdflib": <median_ms> }` storing the median baseline latency per engine (Phase 3).
 
 ### `data/results/anova_results.json`
 ```json
 {
-  "ancova": {
+  "anova": {
     "f_statistic": "[deferred]",
     "p_value": "[deferred]",
     "interaction_p_value": "[deferred]",
+    "interaction_ci95": "[deferred]",
+    "slope_ratio": "[deferred]",
     "significant": "[deferred]"
   },
   "tukey": [
@@ -86,22 +93,34 @@ Written by `code/stats.py`.
   {"cutoff": 4, "spike_point": "[deferred]", "slope_change": "[deferred]"}
 ]
 ```
-Written by `code/stats.py`.
+Written by `code/stats.py`; each element validated against `contracts/statistics_result.schema.yaml`.
+
+### `data/results/statistics_results.json`
+```json
+{
+  "avg_precision_at_10": {
+    "text": "[deferred]",
+    "relational": "[deferred]",
+    "graph": "[deferred]"
+  },
+  "precision_diff_max": "[deferred]"
+}
+```
+Contains the per‑source average Precision@10 and the maximum absolute difference between any two sources (used for SC‑002).
 
 ### `data/results/interaction_plot.png`
 PNG image of latency vs. complexity interaction, generated by `code/visualize.py`.
 
 ## Data Flow
-1. **Data Loader** → downloads raw datasets → `data/raw/`.  
-2. **Query Generator** → creates `generation_log.json`.  
-3. **Reference Engine** → enriches each instance with `ground_truth_plan`.  
-4. **Benchmark Runner** → reads `generation_log.json`, executes under cgroups, writes `execution_logs.csv` and `execution_metric.json`.  
-5. **Stats Module** → consumes `execution_logs.csv` → produces `anova_results.json`, `sensitivity_analysis.json`.  
-6. **Visualization** → reads `execution_logs.csv` → creates `interaction_plot.png`.
+1. **Data Loader** → downloads raw datasets → `data/raw/`.
+2. **Query Generator** → creates `generation_log.json`.
+3. **Reference Engine** → enriches each instance with `ground_truth_plan`.
+4. **Optimal Planner** (Phase 0) → produces `optimal_ground_truth.json` for sampled queries.
+5. **Benchmark Runner** → reads `generation_log.json`, executes under cgroups, writes `execution_logs.csv`, `execution_metric.json`, and `baseline_overhead.json`.
+6. **Stats Module** → consumes `execution_logs.csv` → produces `anova_results.json`, `sensitivity_analysis.json`, `statistics_results.json`.
+7. **Visualization** → reads `execution_logs.csv` → creates `interaction_plot.png`.
 
-All transformations are pure functions; no in‑place mutation (Constitution Principle III).
+All transformations are pure functions; no in‑place mutation (Constitution Principle III).
 
 ---
-
-
 

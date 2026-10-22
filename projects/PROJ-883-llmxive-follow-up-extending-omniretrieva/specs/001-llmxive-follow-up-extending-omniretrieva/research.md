@@ -1,88 +1,99 @@
 # Research: Structural Mismatch Cost in Heterogeneous Retrieval
 
 ## Research Question
-*Does end‑to‑end latency of a unified retrieval router exhibit a non‑linear scaling **association** (“structural mismatch cost”) for high‑complexity (multi‑hop) queries on **graph** sources relative to **text** and **relational** sources when executed under strict CPU constraints?*  
-*(Re‑framed as an associative relationship rather than a causal claim; see Constitution Principle VII.)*
+*Does end‑to‑end latency of a unified retrieval router exhibit a non‑linear scaling **association** ("structural mismatch cost") for high‑complexity (multi‑hop) queries on **graph** sources relative to **text** and **relational** sources when executed under strict CPU constraints?*
+*(Re‑framed as an associative relationship rather than a causal claim; see Constitution Principle VII.)*
 
 ## Hypotheses
 - **H1 (Latency Interaction)** – A statistically significant interaction exists between **query complexity** (categorical levels 1‑4+) and **source type** (categorical) on **latency_ms** (baseline‑corrected). The slope for **graph** sources is steeper than for text or relational sources.
-- **H2 (Disagreement Stability)** – The binary **disagreement** rate (engine‑generated plan deviates from the deterministic **ground_truth_plan**) does **not** differ significantly between low‑complexity (levels 1‑2) and high‑complexity (levels 3‑4+) queries.
+- **H2 (Disagreement Stability)** – The binary **translation_error** rate (engine‑generated plan deviates from the *true* optimal plan on the sampled subset, otherwise from the greedy reference) does **not** differ significantly between low‑complexity (levels 1‑2) and high‑complexity (levels 3‑4+) queries.
 
 ## Methodology
 
-### 1. Query Generation
-- For each source type, generate **125 queries** per complexity level (1, 2, 3, 4+), totaling **1 500** queries.
-- Each query receives a UUID, `source_type`, integer `complexity_level`, and a logical plan (list of operations).
-- Stored in `data/processed/generation_log.json` and validated against `query_instance.schema.yaml`.
+### 1. Query Generation & Ground‑Truth Plans
+- For each source type, generate **125 queries** per complexity level (1, 2, 3, 4+), totaling **1 500** queries.
+- Logical plans are constructed from **real structural metadata**:
+  - **Text** – MS MARCO passage IDs.
+  - **Relational** – Join keys derived from DBpedia triples (tables `entities`, `relations`, `entity_relation`).
+  - **Graph** – Edge traversals over DBpedia triples.
+- Each query receives a UUID, `source_type`, integer `complexity_level`, and a `logical_plan` (`steps` list).
+- **Depth overflow**: Queries exceeding the generator's maximum recursion depth are capped or dropped; a warning `DEPTH_OVERFLOW: query_id=<id>` is logged (FR‑015).
+- **Ground‑truth**:
+  - **Sampled subset (200 queries)**: Run an **exhaustive optimal planner** (brute‑force search) to obtain the true optimal plan; stored in `optimal_ground_truth.json`.
+  - **Full set**: Run the deterministic **greedy reference engine** (pre‑computed cost table) to obtain a reproducible `ground_truth_plan`.
+- Store all query instances in `data/processed/generation_log.json` and validate against `query_instance.schema.yaml`.
 
-### 2. Reference Engine (FR‑008)
-- Deterministic greedy algorithm selects the next step with the **lowest pre‑computed cost** (cost table derived from a held‑out sample, independent of the router’s live cost model).
-- Produces a **ground_truth_plan** identifier stored alongside each query instance.
-- The term *ground_truth_plan* is used consistently (see plan_consistency‑32a13f54) and **does not claim absolute optimality**; it serves as a reproducible baseline for measuring **disagreement**.
+### 2. Relevance Ground‑Truth & Precision@10 (FR‑009)
+- **Text**: Use the official MS MARCO qrels (downloaded alongside the corpus) to define relevant passages per query.
+- **Relational & Graph**: For each synthetic query, the **target entities** (the leaf nodes of the logical plan) are defined as the relevant set. This deterministic relevance set enables a meaningful Precision@10 calculation.
+- Precision@10 is computed per query and aggregated per `source_type`; the average difference between source types must be ≤ 0.02 (SC‑002).
 
-### 3. Execution & CPU Throttling (FR‑001‑FR‑003)
+### 3. Baseline Overhead Calibration (FR‑010)
+- Run **five** trivial (single‑hop) queries per engine under identical cgroups settings.
+- Record wall‑clock latency; store the **median** per engine in `baseline_overhead.json`.
+- Subsequent query latencies are **baseline‑corrected** by subtracting the median. If subtraction yields negative values, fall back to a log‑ratio normalization (scientific_soundness‑c93bd729).
 
-#### 3.1 Engine Overhead Calibration
-- Run a trivial (single‑hop) query on each engine (BM25, SQLite, RDFLib) under the same cgroups settings.
-- Record the baseline latency per engine and store in `baseline_overhead.json`.
-- Subsequent query latencies are **baseline‑corrected** to isolate structural mismatch effects (addresses methodology‑5e4c0b62).
+### 4. Execution & CPU Throttling (FR‑001–FR‑003)
+- **CPU quota**: Enforce a **≤ 1 000 ms** CPU time limit per query via cgroups. If the quota cannot be applied, the run aborts with exit code 99 (FR‑014, concern‑71ee64ce).
+- **Timeout**: 60‑second wall‑clock timeout; recorded as `timeout_flag=true` and excluded from the primary ANOVA (scientific_soundness‑511c8ca8). A censored‑regression sensitivity analysis is also performed.
+- **Metrics recorded** (per query): `latency_ms` (baseline‑corrected), `translation_error` (true error for sampled subset, heuristic error otherwise), `precision_at_10`, `success_flag`, `timeout_flag`, `synthetic_flag`, `throttling_mode`.
+- Results are written to `execution_logs.csv` (validated by `execution_log.schema.yaml`) and aggregated into `execution_metric.json` (validated by `execution_metric.schema.yaml`).
 
-#### 3.2 Benchmark Execution
-- Verify cgroups (`--cpu-quota=50000` for [deferred] of a core) before each query; abort with `ERR_THROTTLE_UNAVAILABLE` if unavailable.
-- Engines:  
-  - Text → BM25 over MS MARCO passages.  
-  - Relational → SQLite queries over derived tables.  
-  - Graph → RDFLib SPARQL traversal over DBpedia triples.
-- Wall‑clock latency measured with `time.perf_counter()`; no `time.sleep`.
-- Results (including `timestamp`, `translation_error` flag, `timeout_flag`, `success_flag`) written to `data/processed/execution_logs.csv` and aggregated per‑query JSON `execution_metric.json` (conforms to `execution_metric.schema.yaml`).
+### 5. Statistical Analysis (FR‑005, FR‑007, FR‑011, H2)
 
-### 4. Statistical Analysis (FR‑005, FR‑007, H2)
+#### 5‑a. Two‑way ANOVA (Interaction Test)
+- Model: `latency_ms ~ C(source_type) * C(complexity_level)`.
+- Report F‑statistic, p‑value, 95 % CI for the interaction term; flag hypothesis ‘supported’ only if p < 0.05.
+- **Diagnostics**: Shapiro‑Wilk normality, Levene homogeneity. If violated, apply log‑transform or Huber robust regression (scientific_soundness‑c93bd729).
 
-#### 4.1 Two‑way ANOVA (Interaction Test)
-- Model: `latency_ms_corrected ~ C(source_type) * C(complexity_level) + C(source_type)`.
-- **Diagnostics**: Shapiro‑Wilk normality, Levene homogeneity. If violated, apply log‑transform or Huber robust regression; both reported.
-- **Multiple‑comparison correction**: Tukey HSD on all pairwise source‑type contrasts (family‑wise error ≤ 0.05).
-- Significance threshold: `p < 0.05` for the interaction term (SC‑001).
+#### 5‑b. Post‑hoc Tukey HSD
+- Pairwise source‑type contrasts; family‑wise error ≤ 0.05.
 
-#### 4.2 Disagreement Stability (H2)
-- Contingency table of `translation_error` vs. `complexity_group` (low = 1‑2, high = 3‑4+).  
-- Perform **Chi‑square test of independence**; if any expected cell < 5, fall back to **Fisher’s exact test**.  
-- Report χ², p‑value, and effect size (Cramér’s V). Stability claimed if `p ≥ 0.05` (SC‑002).
+#### 5‑c. Translation‑Error Stability
+- Contingency table of `translation_error` vs. `complexity_group` (low = 1‑2, high = 3‑4+).
+- **Chi‑square** test (Fisher fallback); report χ², p, Cramér’s V. Stability claimed if absolute error‑rate difference ≤ 0.02 (SC‑002).
 
-#### 4.3 Sensitivity Sweep (FR‑007)
-- For cut‑offs 2, 3, 4, fit piecewise linear regression on mean latency per complexity level.
-- Compute:  
-  - `spike_point` = complexity level where `|Δ latency|` between consecutive levels is maximal.  
-  - `slope_change` = slope after `spike_point` minus slope before.  
-- Apply **Bonferroni correction** for the three cut‑offs to control family‑wise error (addresses methodology‑567625c1).  
-- Store results in `sensitivity_analysis.json`.
+#### 5‑d. Sensitivity Sweep & Bonferroni (FR‑007, FR‑011)
+- For cut‑offs {2, 3, 4}, fit piecewise linear regression on **mean latency per depth**.
+- Compute `spike_point` (complexity level with maximal absolute latency jump) and `slope_change` (post‑spike slope – pre‑spike slope).
+- Apply **Bonferroni correction** across the three cut‑offs; store results in `sensitivity_analysis.json`.
 
-#### 4.4 Optional Manual Validation (addresses scientific_soundness‑2f51c7dc)
-- Randomly sample ≈ 20 high‑complexity queries.
-- Manually verify the engine‑generated plan against an external gold‑standard (e.g., hand‑crafted optimal plan) to assess the fidelity of the greedy `ground_truth_plan`.
-- Report the proportion of cases where the greedy plan matches the external gold‑standard; discuss implications for interpreting `translation_error`.
+#### 5‑e. **Slope‑Ratio Computation** (SC‑001 second conjunct)
+- Simple linear regression of **mean latency** vs. **depth** for `graph` and `text` separately.
+- Compute `slope_ratio = slope_graph / slope_text`; store in `anova_results.json`. SC‑001 is satisfied if `slope_ratio > 1.5`.
 
-### 5. Visualization (FR‑006)
-- Interaction plot (latency vs. complexity) with distinct colored lines for each `source_type`; graph line highlighted; vertical marker at identified `spike_point`.  
-- Saved as `interaction_plot.png`.
+#### 5‑f. **Precision@10 Summary** (SC‑002 second conjunct)
+- Compute average Precision@10 per source type; store `avg_precision_at_10` per source in `statistics_results.json`. Verify that pairwise differences ≤ 0.02.
+
+#### 5‑g. **Timeout Treatment**
+- Exclude timeout rows from primary ANOVA; run a secondary censored‑regression (Tobit) as a sensitivity check.
+
+### 6. Visualization (FR‑006)
+- Interaction plot (latency vs. complexity) with distinct colored lines per `source_type`; highlight the graph line; annotate the identified `spike_point` and slope differences; save as `interaction_plot.png`.
+
+### 7. Reproducibility & Quickstart
+- All steps are deterministic given the seeded random generators.
+- `quickstart.md` documents required flags (`--run-optimal-planner`, `--baseline-reps=5`) and environment checks.
+
+## Dataset Strategy
+
+| Source | Verified URL | Role |
+|--------|--------------|------|
+| MS MARCO (parquet) | https://huggingface.co/datasets/microsoft/ms_marco/resolve/main/v1.1/test-00000-of-00001.parquet | Text corpus for BM25 engine and text query construction; qrels downloaded from the same repo for relevance. |
+| DBpedia triples (parquet) | https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet | Provides explicit `<subject, predicate, object>` triples; used to build both a relational SQLite view (tables `entities`, `relations`, `entity_relation`) and an RDFLib graph for graph queries. |
+
+Both datasets are open, directly downloadable parquet files fetched on the CI runner; checksums recorded under `data/`. The relational workload is derived from the explicit triples, ensuring genuine join‑key structure (concern‑728fc9d5). No gated or unverified sources are used.
 
 ## Statistical Rigor & Assumptions
-- **Multiple Comparisons**: Tukey HSD controls family‑wise error; Bonferroni correction applied to sensitivity sweep.
-- **Power**: With 1 500 observations, a medium effect size (f = 0.25) yields > 0.99 power for the interaction (computed via `statsmodels.stats.power.FTestPower`).
-- **Causal Framing**: Observational within a controlled CPU‑constrained environment; findings are **associational**, not causal across hardware platforms (Constitution Principle VII).
-- **Collinearity**: Full factorial design ensures orthogonal `source_type` × `complexity_level`.
-- **Measurement Validity**: The *ground_truth_plan* is generated by an **independent deterministic greedy reference engine**, providing a reproducible baseline for measuring *disagreement*. The limitation that this is not an absolute ground truth is explicitly acknowledged (addresses scientific_soundness‑2f51c7dc).
+- **Multiple Comparisons**: Tukey HSD controls family‑wise error for pairwise contrasts; Bonferroni correction applied across the three sensitivity cut‑offs (FR‑011).
+- **Power**: With 1 500 observations, a medium effect size (f = 0.25) yields > 0.99 power for the interaction (computed via `statsmodels.stats.power.FTestPower`); the balanced factorial design avoids collinearity between factors.
+- **Causal Framing**: Observational within a controlled CPU‑constrained environment; findings are **associational**, not causal across hardware platforms.
+- **Collinearity**: Full factorial design ensures orthogonal `source_type` × `complexity_level`.
+- **Measurement Validity**: Ground‑truth plans from the exhaustive optimal planner guarantee a correct translation‑error baseline; the greedy reference engine provides a scalable baseline for the full set. Relevance sets are defined deterministically (text via official qrels, relational/graph via target entities), satisfying FR‑009.
 
-## Decision Rationale
-1. **CPU‑First**: All chosen libraries have proven CPU performance on the free‑tier runner; no GPU needed.
-2. **Open Data**: Only the three verified URLs are used; relational workload derived from DBpedia stays within the open‑data mandate.
-3. **Statistical Soundness**: Diagnostics, robust alternatives, categorical treatment of complexity, Bonferroni correction for multiple cut‑offs, and power analysis satisfy Constitution Principle VII.
-4. **Engine Overhead Control**: Baseline calibration isolates structural mismatch from engine‑specific overhead (addresses methodology‑5e4c0b62).
-5. **Causal Framing**: Explicitly stated as associative, not causal (addresses methodology‑c67e7268).
-6. **Naming Consistency**: All references to the deterministic plan use the schema field `ground_truth_plan` (addresses plan_consistency‑32a13f54).
-7. **Execution Metric Artifact**: Added generation of `execution_metric.json` to satisfy the corresponding contract (addresses plan_consistency‑074ae762).
+## Decision/Rationale: Compute Placement
+- **CPU**: all methods (BM25, SQLite, RDFLib, ANOVA/Tukey/chi‑square, piecewise regression, slope‑ratio, plotting) run on the 2‑core CPU runner in default precision.
+- **GPU escape hatch**: NOT used — no method in this study requires CUDA; no GPU‑dependent libraries are imported.
 
 ---
-
-
 

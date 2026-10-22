@@ -1,12 +1,12 @@
 status: none
-intent: DBpedia knowledge graph and MS MARCO subset v2.1 downloadable python package
-  dataset
+intent: LDBC SNB interactive query workload download with plan depth information python
+  package dataset
 required_fields:
 - query_id
-- source_type
+- query_text
 - plan_depth
+- source_type
 - latency_ms
-- timestamp
-cache_key: 008c85c50dca2555af46dd09a86b3724b9f22c81af55184cc3d341e725bf062e
-searched_at: '2026-10-22T04:10:25.531529+00:00'
+cache_key: 564a26d76c0ff18d827dd243929840a71d52760530429a0461688826a16adc5e
+searched_at: '2026-10-22T04:30:42.414282+00:00'
 retry_count: 1

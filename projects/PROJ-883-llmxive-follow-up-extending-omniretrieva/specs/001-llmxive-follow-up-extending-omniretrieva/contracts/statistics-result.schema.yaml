@@ -1,6 +1,4 @@
-type: object
-properties:
-  cutoff: {type: integer}
-  spike_point: {type: number}
-  slope_change: {type: number}
-required: [cutoff, spike_point, slope_change]
+# Deprecated duplicate schema – use contracts/statistics_result.schema.yaml instead.
+# This file is kept only to avoid broken imports; it contains no active schema.
+```
+

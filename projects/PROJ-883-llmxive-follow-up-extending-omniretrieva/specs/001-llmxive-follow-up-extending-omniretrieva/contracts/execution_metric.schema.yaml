@@ -5,10 +5,13 @@ properties:
     description: "UUID of the query"
   latency_ms:
     type: number
-    description: "Wall‑clock latency in milliseconds (baseline‑corrected)"
+    description: "Baseline‑corrected wall‑clock latency in milliseconds"
   translation_error:
     type: boolean
-    description: "Disagreement flag: true if engine plan deviates from deterministic ground_truth_plan"
+    description: "Disagreement flag: true if engine plan deviates from deterministic ground_truth_plan (optimal for sampled subset, greedy otherwise)"
+  precision_at_10:
+    type: number
+    description: "Precision@10 for this query (0 ≤ value ≤ 1)"
   timeout_flag:
     type: boolean
     description: "True if execution exceeded the 60‑second limit"
@@ -30,8 +33,11 @@ required:
   - query_id
   - latency_ms
   - translation_error
+  - precision_at_10
   - timeout_flag
   - success_flag
   - timestamp
   - synthetic_flag
   - throttling_mode
+```
+
