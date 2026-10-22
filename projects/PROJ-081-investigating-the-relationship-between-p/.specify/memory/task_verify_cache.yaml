@@ -1,0 +1,19 @@
+T001:
+  c: false
+  h: 3a7bf1afdc356f0cdd3eaa64182cb76feac7afb73e8e750a692e00d394151304
+  r: The project lacks the required `code/src/config.py`, `code/src/fetch_data.py`,
+    and `code/tests/test_fetch_data.py` files, the `scripts/` and `data/raw/` directories,
+    and the `outputs/fetch_log.txt` log file. Consequently the fetch functions, their
+    tests, and the verification steps are not present, so the task is not satisfied.
+  sig: 79bd09b049f1b202256e8b03638f82c5cc42b860be3eb30f7462e568ec66b76f
+T002:
+  c: false
+  h: 3038dbb19ccd58eddf111252256528950ba25925cb958b7ccbe58890bdd21551
+  r: "The run of `pytest` shows all three tests failing: a ValueError in the column\u2011\
+    absence check, and ImportErrors when trying to write the Parquet file because\
+    \ no parquet engine (pyarrow/fastparquet) is installed. Consequently `data/processed/clean.parquet`\
+    \ and `outputs/preprocessing_log.json` are never created, and the required schema\
+    \ file `processed_data.schema.yaml` is missing, so the pipeline does not perform\
+    \ the mandated JSON\u2011schema validation. The implementation therefore does\
+    \ not satisfy the task\u2019s specifications."
+  sig: 3abcfd4a2b5fa983d257c8355c522a0e755a3c5db99ba0f6ad5f8c676d1c2e42

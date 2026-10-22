@@ -10,7 +10,7 @@ This is a research implementation plan for a cross-species metabolomics–herbiv
 
 **Goal**: Establish project structure, configure dependencies with pinned random seeds, acquire and validate a real dataset from public repositories, and run a minimal executable analysis to confirm data flow and output contracts early.
 
-- [ ] T001 [P1] [US-1] **Project initialization and data acquisition framework**
+- [ ] T001 [P1] [US-1] **Project initialization and data acquisition framework** <!-- ATOMIZE: requested -->
   - Create `code/` directory structure with `src/`, `tests/`, and `scripts/` subdirectories.  
   - Create `data/raw/`, `data/processed/`, `outputs/`, `contracts/` directories.  
   - Pin Python 3.11 with `requirements.txt` including `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `dendropy`, `requests`, `tqdm`, `scipy`, `fuzzywuzzy`, `python-Levenshtein`, `pytest`.  
@@ -39,7 +39,7 @@ This is a research implementation plan for a cross-species metabolomics–herbiv
   - **Verification**: Run `pytest code/tests/test_preprocess.py -v` and confirm all tests pass. Inspect `data/processed/clean.parquet` and verify row count, column names, and data types match the contract.  
   - **Paths**: `code/src/preprocess.py`, `code/tests/test_preprocess.py`, `data/processed/clean.parquet`, `outputs/preprocessing_log.json`.
 
-- [ ] T003 [P2] [US-2] **Exploratory correlation analysis and early visualization**
+- [ ] T003 [P2] [US-2] **Exploratory correlation analysis and early visualization** <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 -->
   - Implement `code/src/correlation_analysis.py` with function `compute_correlations(df: pd.DataFrame) -> dict` that:  
     - Computes Pearson correlation coefficients between each of the four metabolite classes (averaged across species) and `herbivory_score`.  
     - Computes two‑tailed p‑values for each correlation using `scipy.stats.pearsonr`.  

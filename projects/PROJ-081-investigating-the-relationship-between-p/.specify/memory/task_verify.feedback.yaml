@@ -1,0 +1,37 @@
+T001:
+  reason: The project lacks the required `code/src/config.py`, `code/src/fetch_data.py`,
+    and `code/tests/test_fetch_data.py` files, the `scripts/` and `data/raw/` directories,
+    and the `outputs/fetch_log.txt` log file. Consequently the fetch functions, their
+    tests, and the verification steps are not present, so the task is not satisfied.
+  task: fb98baa17164a3eb850dad8e6c81bbcff493bee33c7d48194cbef68ef8430e51
+T002:
+  reason: "The run of `pytest` shows all three tests failing: a ValueError in the\
+    \ column\u2011absence check, and ImportErrors when trying to write the Parquet\
+    \ file because no parquet engine (pyarrow/fastparquet) is installed. Consequently\
+    \ `data/processed/clean.parquet` and `outputs/preprocessing_log.json` are never\
+    \ created, and the required schema file `processed_data.schema.yaml` is missing,\
+    \ so the pipeline does not perform the mandated JSON\u2011schema validation. The\
+    \ implementation therefore does not satisfy the task\u2019s specifications."
+  task: 05bcfff232e606d5d3ab471e8bf75397568409bfe08840bd75639203eddd47c9
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/src/correlation_analysis.py
+    exit=1'
+  task: d241dd28911ea67939be747b908a974c2e2075391abb81d92b5ea340c5f64c54
+T004:
+  task: af802048e44b90ebc3651abbe38b9fced951741f45036b95d97912e41110fc01
+T005:
+  task: e1176879aa6b19c759a718528da11b209253a12eddd70324c5d2feb22438b893
+T006:
+  task: cf51abd834445827a0a9632094958ba4c665bf57db509a91b757006a29a8c28e
+T007:
+  task: 48b39e804f3acf9b83e49d663307b7d88ae7c2957f38553cd2c933f173c51e35
+T008:
+  task: f37add7887773c522b1a55967bdeb207ac7ba4374f9ff08c2dfce2fb883baf72
+T009:
+  task: 28d5b9f1efc9e51573f86df449941397da50c23b3243f2624fb15b26ed6800ab
+T010:
+  task: 6d8de538bc90070a8cee0dd49963e3e1c1189885be9c394f2068922ff87633d7
+T011:
+  task: 48bceb8c002fc780e4e07b70dd1405e1df3bc739d5126b4d97d26edf77c5a797
+T012:
+  task: f72253661951263d6708ce7ff3c680dec9706c91d5a4af64a6a5b38fc76747cb
