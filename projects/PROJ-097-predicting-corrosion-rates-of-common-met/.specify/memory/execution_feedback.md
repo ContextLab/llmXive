@@ -13,15 +13,15 @@ ll.py", line 47, in <module>
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/run_all.py", line 17, in main
     rc = ingest_main([])
          ^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 432, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 433, in main
     raw_path = ingest(dataset_id=args.dataset_id, max_candidates=args.max_candidates)
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 316, in ingest
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 317, in ingest
     frame, mapping = fetch_dataset(
                      ^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 135, in fetch_dataset
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-097-predicting-corrosion-rates-of-common-met/src/pipeline/ingest.py", line 136, in fetch_dataset
     raise RuntimeError(
-RuntimeError: Fallback download failed for https://raw.githubusercontent.com/selva86/datasets/master/corrosion.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/selva86/datasets/master/corrosion.csv
+RuntimeError: Fallback download failed for https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv
 
 - python -m pytest src/tests/ -> rc=1
 V.
@@ -33,16 +33,16 @@ V.
 >           raise RuntimeError(
                 f"Fallback download failed for {FALLBACK_URL}: {exc}"
             ) from exc
-E           RuntimeError: Fallback download failed for https://raw.githubusercontent.com/selva86/datasets/master/corrosion.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/selva86/datasets/master/corrosion.csv
+E           RuntimeError: Fallback download failed for https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv
 
-src/pipeline/ingest.py:135: RuntimeError
+src/pipeline/ingest.py:136: RuntimeError
 =========================== short test summary info ============================
 FAILED src/tests/test_ingest.py::test_ingest_creates_raw_and_provenance - Run...
 FAILED src/tests/test_train.py::test_first_run_metrics_created - FileNotFound...
 FAILED src/tests/test_vif.py::test_vif_diagnostics_created - RuntimeError: Fa...
 ERROR src/tests/test_features.py::test_features_parquet_created - AssertionEr...
 ERROR src/tests/test_features.py::test_feature_names_json - AssertionError: f...
-========================= 3 failed, 2 errors in 1.51s ==========================
+==================== 3 failed, 2 passed, 2 errors in 3.94s =====================
 
 
 

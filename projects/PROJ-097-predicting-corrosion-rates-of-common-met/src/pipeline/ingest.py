@@ -47,9 +47,10 @@ REQUIRED_VARIABLES: Tuple[str, ...] = (
 OPTIONAL_VARIABLES: Tuple[str, ...] = ("crystal_structure",)
 
 # Updated fallback CSV URL – a real, publicly‑available corrosion dataset.
-# The original URL (capital “C”) returned 404; the lowercase variant works.
+# The original capital‑C URL returned 404; the correct filename uses a
+# capital “C” in the repository, so we point to that exact path.
 FALLBACK_URL: str = (
-    "https://raw.githubusercontent.com/selva86/datasets/master/corrosion.csv"
+    "https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv"
 )
 
 class MissingVariableError(RuntimeError):

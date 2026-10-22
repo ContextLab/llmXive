@@ -68,8 +68,8 @@ All tests must pass before the CI job is considered successful.
 
 ## Runtime & Resource Summary
 
-- **Total wall‑time**: ≤ 6 h (empirically on the order of a few hours on the free tier).  
-- **Peak RAM**: Monitored via `psutil`; if > 7 GB, a stratified sample (seed 42) is used automatically (FR‑003).  
+- **Total wall‑time**: ≤ 6 h (empirically on the free tier).  
+- **Peak RAM**: Monitored via `psutil`; if > 7 GB, a stratified sample (seed 42) is used automatically (FR‑003).
 
 ## Important Notes
 

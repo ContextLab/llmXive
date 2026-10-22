@@ -39,8 +39,19 @@ def _numeric_env_columns(df: pd.DataFrame) -> List[str]:
     return [col for col in ("ph", "salinity", "temperature") if col in df.columns]
 
 def _composition_one_hot_columns(df: pd.DataFrame) -> List[str]:
-    """Return columns that are one‑hot encoded composition features."""
-    return [col for col in df.columns if col.startswith("composition_")]
+    """Return columns that are one‑hot encoded composition features.
+
+    The ingestion step creates one‑hot columns prefixed with ``composition_``.
+    An auxiliary column ``composition_original`` (the raw string label) is also
+    added; it is **not** one‑hot encoded and should be excluded. We therefore
+    filter by the prefix **and** ensure the column dtype is numeric (int/float).
+    """
+    return [
+        col
+        for col in df.columns
+        if col.startswith("composition_")
+        and pd.api.types.is_numeric_dtype(df[col])
+    ]
 
 def _residualize(series: pd.Series, predictors: pd.DataFrame) -> pd.Series:
     """Orthogonalize ``series`` against ``predictors`` using OLS residuals.
@@ -130,18 +141,12 @@ def build_features(cleaned_path: Path) -> pd.DataFrame:
     # ------------------------------------------------------------------
     residualized = {}
     for name, series in interaction_features.items():
-        # Determine constituent columns from the name pattern.
-        # Expected patterns:
-        #   env1_x_env2
-        #   env_x_comp
         parts = name.split("_x_")
         if len(parts) != 2:
-            # Unexpected naming – skip residualization.
             residualized[name] = series
             continue
+        # Determine which parts correspond to actual columns in the DataFrame.
         main_cols = [p for p in parts if p in df.columns]
-        # If any constituent is missing (e.g., composition one‑hot not present),
-        # skip residualization.
         if len(main_cols) != 2:
             residualized[name] = series
             continue
@@ -179,10 +184,19 @@ def main(argv: List[str] | None = None) -> int:
     # Write Parquet file.
     out_path = paths.data("processed", "features.parquet")
     feature_df.to_parquet(out_path, index=False)
-    log.info("Feature matrix written to %s (%d columns, %d rows)", out_path, feature_df.shape[1], feature_df.shape[0])
+    log.info(
+        "Feature matrix written to %s (%d columns, %d rows)",
+        out_path,
+        feature_df.shape[1],
+        feature_df.shape[0],
+    )
 
     # Store the list of feature names (excluding the target and grouping columns).
-    feature_names = [c for c in feature_df.columns if c not in ("corrosion_rate", "source_id")]
+    feature_names = [
+        c
+        for c in feature_df.columns
+        if c not in ("corrosion_rate", "source_id")
+    ]
     names_path = paths.data("processed", "feature_names.json")
     with open(names_path, "w", encoding="utf-8") as fh:
         json.dump(feature_names, fh, indent=2)
