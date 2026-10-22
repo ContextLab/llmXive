@@ -1,4 +1,4 @@
-# Existing dependencies are sufficient for the current pipeline.
-# tiktoken is required for token counting but is already available in the
-# execution environment. If it were missing, add:
-# tiktoken==0.5.2
+tiktoken==0.7.0
+networkx==3.2.1
+jsonschema==4.21.1
+PyYAML==6.0.1
