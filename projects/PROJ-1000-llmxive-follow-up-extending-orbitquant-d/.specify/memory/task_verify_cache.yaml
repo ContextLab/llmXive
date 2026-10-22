@@ -1,0 +1,9 @@
+T001:
+  c: true
+  h: 8a5e120119f1ab59a9d9c2442cd52470a3892dac508cbd9c44242a3320de7907
+  r: "Checked that `code/` contains the required sub\u2011directories (analysis, models,\
+    \ quantization, evaluation, utils), `tests/` has a placeholder test, `requirements.txt`\
+    \ lists torch, `code/config.py` imports `llmxive_toolkit.paths` without error,\
+    \ and `quickstart.md` documents the `python -m code.main --phase init` command\
+    \ which runs successfully and prints \u201CInitialization complete\u201D."
+  sig: a4b5d51b20fccc11548a1f6840c398aca9c0df79c03b686447229316cfdb39a2

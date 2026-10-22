@@ -53,14 +53,3 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/coco2017/datasets
   verified_at: '2026-10-19T04:01:55.405244Z'
-- artifact_hash: 50a8a917b56ce7110b0d1337aa626156f55bb3e819b3e035268d9cb1e8cfc000
-  artifact_path: projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/specs/001-llmxive-follow-up-extending-orbitquant-d/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://images.cocodataset.org/val2017/000000123456.jpg`
-  verification_status: unreachable
-  verified_against_url: https://images.cocodataset.org/val2017/000000123456.jpg
-  verified_at: '2026-10-19T04:02:09.820072Z'

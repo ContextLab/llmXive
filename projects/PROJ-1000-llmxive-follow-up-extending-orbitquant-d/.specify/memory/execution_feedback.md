@@ -13,35 +13,63 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/analysis/clustering.py: synthetic/fake INPUT data not authorized by the spec — “…cluster center values to generate synthetic activations         # th…”
 - code/run_quantization_validation.py: synthetic/fake INPUT data not authorized by the spec — “…# We'll create a dummy input to the model's main bloc…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python -m code.main --phase init | grep "Initialization complete"`
-  - script usage: `main.py [-h] --phase {init}`
-  - argparse error: `main.py: error: unrecognized arguments: | grep Initialization complete`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/run_router_inference.py: self-declared fabricated metric — “…entropy, matrix index, and a placeholder metric structure.…”; code/runners/router_inference_runner.py: self-declared fabricated metric — “…# For this runner, we simulate the metric collection structure.…”; code/analysis/clustering.py: synthetic/fake INPUT data not authorized by the spec — “…cluster center values to generate synthetic activations         # th…”; 1 command(s) failed: python -m code.main --phase init | grep "Initialization complete" (rc=2); 7 declared deliverable(s) absent: data/processed/clustering_report.json; data/processed/correlation_results.json; data/processed/diverse_prompts.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/run_router_inference.py: self-declared fabricated metric — “…entropy, matrix index, and a placeholder metric structure.…”; code/runners/router_inference_runner.py: self-declared fabricated metric — “…# For this runner, we simulate the metric collection structure.…”; code/analysis/clustering.py: synthetic/fake INPUT data not authorized by the spec — “…cluster center values to generate synthetic activations         # th…”; run-book completed but produced no data/figure artifacts; 6 declared deliverable(s) absent: data/processed/clustering_report.json; data/processed/correlation_results.json; data/processed/entropy_scores.csv
 
 ## Failing / missing run-book commands
 
-- python -m code.main --phase init | grep "Initialization complete" -> rc=2
-
-usage: main.py [-h] --phase {init}
-main.py: error: unrecognized arguments: | grep Initialization complete
-
+- (no per-command failures; the run produced no real data/figure artifacts — ensure scripts WRITE their declared outputs under data/ and figures/)
 
 ## Declared deliverables still missing
 
 - data/processed/clustering_report.json
 - data/processed/correlation_results.json
-- data/processed/diverse_prompts.csv
 - data/processed/entropy_scores.csv
 - data/processed/final_evaluation_report.json
 - data/processed/logs/model_load_log.json
 - data/processed/prompts.csv
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `pycocotools` to the project's `requirements.txt` and `pip install pycocotools`.
+- **Verified**: this loads **5000** real records with fields: image_id, file_name, height, width, captions.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import os, urllib.request, zipfile, tempfile
+from pycocotools.coco import COCO
+
+# Download COCO 2017 validation annotations
+url = "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
+tmp_dir = tempfile.mkdtemp()
+zip_path = os.path.join(tmp_dir, "ann.zip")
+urllib.request.urlretrieve(url, zip_path)
+with zipfile.ZipFile(zip_path, "r") as z:
+    json_path = z.extract("annotations/captions_val2017.json", path=tmp_dir)
+
+coco = COCO(json_path)
+img_ids = coco.getImgIds()
+records = []
+for img_id in img_ids:
+    img_info = coco.loadImgs(img_id)[0]
+    ann_ids = coco.getAnnIds(imgIds=img_id)
+    anns = coco.loadAnns(ann_ids)
+    captions = " ".join(a["caption"] for a in anns)
+    records.append({
+        "image_id": img_info["id"],
+        "file_name": img_info["file_name"],
+        "height": img_info["height"],
+        "width": img_info["width"],
+        "captions": captions,
+    })
+print(f"RECORDS={len(records)}")
+print("FIELDS=image_id,file_name,height,width,captions")
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -67,15 +95,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/run_correlation.py` — NOT invoked by the run-book
     - `code/validation/validate_correlation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/correlation_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/diverse_prompts.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/config.py` — IS a run-book command
-    - `code/data/download_diverse_prompts.py` — NOT invoked by the run-book
-    - `code/data/preprocess.py` — NOT invoked by the run-book
-    - `code/evaluation/timing.py` — NOT invoked by the run-book
-    - `code/run_correlation.py` — NOT invoked by the run-book
-    - `code/run_evaluation.py` — NOT invoked by the run-book
-    - `code/run_router_inference.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/diverse_prompts.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/entropy_scores.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/correlation.py` — NOT invoked by the run-book
     - `code/analysis/generate_correlation_results.py` — NOT invoked by the run-book

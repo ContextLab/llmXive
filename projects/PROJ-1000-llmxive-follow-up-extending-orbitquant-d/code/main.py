@@ -1,74 +1,107 @@
 """
-Main entry point for the project skeleton initialization.
+Central command-line entry point for the project.
 
-This script creates the required sub‑directories under the ``code/`` package,
-adds ``__init__.py`` markers so that they are recognised as Python packages,
-and prints a confirmation message.
-
-The quick‑start guide (``specs/001‑llmxive‑followup‑extending‑orbitquant‑d/quickstart.md``)
-expects the command::
-
+Usage:
     python -m code.main --phase init
 
-to output the line ``Initialization complete``.
+The ``init`` phase creates the full project skeleton (code/ sub-packages,
+tests/, data/ and figures/ directories) and prints a confirmation message.
 """
 import argparse
 import sys
 from pathlib import Path
+
 from llmxive_toolkit import paths
 
-def create_subdirs(base_path: Path, subdirs):
-    """
-    Create sub‑directories under ``base_path`` and ensure each contains an
-    ``__init__.py`` file so that it is a proper Python package.
-    """
-    for sub in subdirs:
-        dir_path = base_path / sub
-        dir_path.mkdir(parents=True, exist_ok=True)
-        init_file = dir_path / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
+# Sub-packages required under code/ (per plan.md project structure).
+CODE_SUBDIRS = [
+    "analysis",
+    "models",
+    "quantization",
+    "evaluation",
+    "utils",
+    "data",
+    "runners",
+    "validation",
+    "security",
+]
 
-def main():
-    parser = argparse.ArgumentParser(description="Project skeleton initializer")
+# Data / output directories required by the pipeline.
+DATA_DIRS = [
+    Path("data") / "raw",
+    Path("data") / "processed",
+    Path("data") / "processed" / "logs",
+    Path("data") / "processed" / "activation_stats",
+    Path("data") / "processed" / "rotation_matrices",
+    Path("data") / "processed" / "generated_images",
+    Path("figures"),
+    Path("tests"),
+    Path("tests") / "unit",
+]
+
+
+def _ensure_package_marker(directory: Path) -> None:
+    """Create an ``__init__.py`` marker inside ``directory`` if missing."""
+    init_file = directory / "__init__.py"
+    if not init_file.exists():
+        init_file.write_text(
+            '"""Auto-generated package marker (code.main --phase init)."""\n',
+            encoding="utf-8",
+        )
+
+
+def run_init() -> None:
+    """Create the project skeleton and print the confirmation message."""
+    root = paths.root
+
+    # code/ package itself plus its sub-packages.
+    code_root = root / "code"
+    code_root.mkdir(parents=True, exist_ok=True)
+    _ensure_package_marker(code_root)
+    for sub in CODE_SUBDIRS:
+        sub_path = code_root / sub
+        sub_path.mkdir(parents=True, exist_ok=True)
+        _ensure_package_marker(sub_path)
+
+    # Data, figures and tests directories.
+    for rel in DATA_DIRS:
+        target = root / rel
+        target.mkdir(parents=True, exist_ok=True)
+
+    # tests/ package markers.
+    _ensure_package_marker(root / "tests")
+    _ensure_package_marker(root / "tests" / "unit")
+
+    # Touch the placeholder test so pytest has something to collect.
+    placeholder = root / "tests" / "test_placeholder.py"
+    if not placeholder.exists():
+        placeholder.write_text(
+            'def test_skeleton_present():\n'
+            '    """Placeholder test verifying the skeleton imports."""\n'
+            '    from code import config  # noqa: F401\n'
+            '    assert config.SEED == 42\n',
+            encoding="utf-8",
+        )
+
+    print("Initialization complete")
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Project orchestration entry point."
+    )
     parser.add_argument(
         "--phase",
         required=True,
         choices=["init"],
-        help="Initialization phase to run (currently only 'init' is supported)."
+        help="Pipeline phase to run. Currently supported: init.",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.phase == "init":
-        # Root of the ``code`` package
-        code_root = Path(__file__).resolve().parent
+        run_init()
+    return 0
 
-        # List of required sub‑directories (as specified in the quick‑start)
-        required_subdirs = [
-            "analysis",
-            "models",
-            "quantization",
-            "evaluation",
-            "utils",
-            "data",
-            "runners",
-            "validation",
-            "security",
-        ]
-
-        create_subdirs(code_root, required_subdirs)
-
-        # Ensure the top‑level ``tests`` directory exists with an ``__init__`` file
-        tests_dir = paths.root / "tests"
-        tests_dir.mkdir(parents=True, exist_ok=True)
-        init_test = tests_dir / "__init__.py"
-        if not init_test.exists():
-            init_test.touch()
-
-        print("Initialization complete")
-        sys.exit(0)
-    else:
-        parser.error(f"Unsupported phase: {args.phase}")
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,13 +1,32 @@
-status: none
-intent: download MS-COCO 2017 validation set with captions via HuggingFace datasets
-  python package dataset
-required_fields:
-- prompt_text
-- prompt_entropy
+status: verified
+kind: pypi_package
+ref: pycocotools
+access_python: "import os, urllib.request, zipfile, tempfile\nfrom pycocotools.coco\
+  \ import COCO\n\n# Download COCO 2017 validation annotations\nurl = \"http://images.cocodataset.org/annotations/annotations_trainval2017.zip\"\
+  \ntmp_dir = tempfile.mkdtemp()\nzip_path = os.path.join(tmp_dir, \"ann.zip\")\n\
+  urllib.request.urlretrieve(url, zip_path)\nwith zipfile.ZipFile(zip_path, \"r\"\
+  ) as z:\n    json_path = z.extract(\"annotations/captions_val2017.json\", path=tmp_dir)\n\
+  \ncoco = COCO(json_path)\nimg_ids = coco.getImgIds()\nrecords = []\nfor img_id in\
+  \ img_ids:\n    img_info = coco.loadImgs(img_id)[0]\n    ann_ids = coco.getAnnIds(imgIds=img_id)\n\
+  \    anns = coco.loadAnns(ann_ids)\n    captions = \" \".join(a[\"caption\"] for\
+  \ a in anns)\n    records.append({\n        \"image_id\": img_info[\"id\"],\n  \
+  \      \"file_name\": img_info[\"file_name\"],\n        \"height\": img_info[\"\
+  height\"],\n        \"width\": img_info[\"width\"],\n        \"captions\": captions,\n\
+  \    })\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=image_id,file_name,height,width,captions\"\
+  )"
+record_count: 5000
+sample_fields:
 - image_id
-- image_path_or_url
-- caption
-- activation_variance_by_layer
-cache_key: 8223efe893a718818d4663ea7f1aa689d81431e080ef599ab6f2eeeb9609abc3
-searched_at: '2026-10-22T08:24:06.047597+00:00'
-retry_count: 1
+- file_name
+- height
+- width
+- captions
+field_coverage: 1.0
+required_fields:
+- image_id
+- file_name
+- height
+- width
+- captions
+intent: MS COCO 2017 validation set download python package dataset
+cache_key: 2d57dd16908125b6357da989de1340054ccb19bc1027bef2b84fcd87b381be40
