@@ -1,14 +1,14 @@
 """
-build_features.py
------------------
-Constructs the various feature sets required for downstream modeling:
+code/src/build_features.py
+--------------------------
+Constructs the four feature sets required for downstream modeling:
 
-* Feature Set A – process‑parameter columns only.
+* Feature Set A – process‑parameter columns only, **restricted to the
+  balanced subset where measured residual stress is available**.
 * Feature Set B (balanced) – process parameters + measured residual stress,
-  limited to rows where ``is_proxy`` is ``False`` (i.e. measured stress is
-  present).  The row indices are identical to those of Feature Set A.
+  using the same balanced subset as Feature Set A.
 * Feature Set B‑full – process parameters + residual‑stress column that
-  uses the measured value where it exists and the proxy otherwise.
+  prefers measured values and falls back to the proxy for the full dataset.
 * Feature Set C – process parameters + material‑property attributes +
   the proxy stress column (full dataset).
 
@@ -16,9 +16,6 @@ All numeric features are standardised (zero mean, unit variance) using a
 ``sklearn.preprocessing.StandardScaler``.  The fitted scalers are persisted
 to ``data/processed`` so that later stages (training, inference) can reuse
 them.
-
-The module can be executed as a script (``python -m src.build_features``) or
-imported; the public entry point is :func:`build_feature_sets`.
 """
 
 import json
@@ -53,8 +50,8 @@ def _select_process_columns(df: pd.DataFrame) -> list:
     Return a list of column names that are considered *process parameters*.
 
     The project schema defines the following columns as process‑related:
-    ``heat_input``, ``cooling_rate`` and ``other_process_params``.  Any
-    additional columns that are not explicitly recognised as material
+    ``heat_input``, ``cooling_rate`` and ``other_process_params``.
+    Any additional columns that are not explicitly recognised as material
     properties, stress, target or metadata are ignored for simplicity.
     """
     candidate = ["heat_input", "cooling_rate", "other_process_params"]
@@ -109,12 +106,20 @@ def build_feature_sets(unified_path: Path = None) -> Dict[str, pd.DataFrame]:
     df = _load_unified_dataset(unified_path)
 
     # ------------------------------------------------------------------
-    # 1. Feature Set A – process parameters only
+    # Identify the balanced subset (rows where measured stress is present)
+    # ------------------------------------------------------------------
+    if "is_proxy" not in df.columns:
+        raise KeyError("Column 'is_proxy' missing – cannot build balanced sets.")
+    mask_measured = ~df["is_proxy"].astype(bool)
+
+    # ------------------------------------------------------------------
+    # 1. Feature Set A – process parameters only, on the balanced subset
     # ------------------------------------------------------------------
     proc_cols = _select_process_columns(df)
     if not proc_cols:
         raise ValueError("No process‑parameter columns found in the dataset.")
-    X_A = df[proc_cols].copy()
+    df_balanced = df.loc[mask_measured].reset_index(drop=True)
+    X_A = df_balanced[proc_cols].copy()
     X_A, scaler_A = _standardise(X_A)
     _save_scaler(scaler_A, "A")
     _write_feature_set(X_A, "A")
@@ -123,15 +128,8 @@ def build_feature_sets(unified_path: Path = None) -> Dict[str, pd.DataFrame]:
     # 2. Feature Set B (balanced) – process + measured stress, rows where
     #    ``is_proxy`` is False.
     # ------------------------------------------------------------------
-    if "is_proxy" not in df.columns:
-        raise KeyError("Column 'is_proxy' missing – cannot build balanced B set.")
-    mask_measured = ~df["is_proxy"].astype(bool)
-    if mask_measured.sum() == 0:
-        raise ValueError("No rows with measured residual stress found for balanced B set.")
     b_balanced_cols = proc_cols + ["residual_stress_measured"]
-    X_B_balanced = df.loc[mask_measured, b_balanced_cols].copy()
-    # Ensure the index alignment with A (they should be identical after filtering)
-    X_B_balanced = X_B_balanced.reset_index(drop=True)
+    X_B_balanced = df_balanced[b_balanced_cols].copy()
     X_B_balanced, scaler_B = _standardise(X_B_balanced)
     _save_scaler(scaler_B, "B_balanced")
     _write_feature_set(X_B_balanced, "B_balanced")
@@ -142,7 +140,6 @@ def build_feature_sets(unified_path: Path = None) -> Dict[str, pd.DataFrame]:
     # ------------------------------------------------------------------
     if "residual_stress_measured" not in df.columns or "residual_stress_proxy" not in df.columns:
         raise KeyError("Required stress columns missing for B‑full construction.")
-    # Create a unified stress column that prefers measured values.
     stress_full = df["residual_stress_measured"].copy()
     missing = stress_full.isna()
     stress_full.loc[missing] = df.loc[missing, "residual_stress_proxy"]

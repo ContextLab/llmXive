@@ -1,5 +1,16 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/raw/checksums.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
@@ -10,13 +21,9 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 10 command(s) failed: bash scripts/env_check.sh (rc=1); python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success (rc=2); python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation (rc=1); 5 declared deliverable(s) absent: data/processed/unified_fatigue.csv; data/raw/checksums.json; data/results/model_performance.csv
+**Summary**: every produced artifact is gitignored (data/raw/checksums.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 9 command(s) failed: python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success (rc=2); python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation (rc=1); python -m src.models.train --feature-set A   # process‑only (rc=1); 4 declared deliverable(s) absent: data/processed/unified_fatigue.csv; data/results/model_performance.csv; data/results/proxy_agreement.csv
 
 ## Failing / missing run-book commands
-
-- bash scripts/env_check.sh -> rc=1
-
-IMPORT FAILURE (mandatory): No module named 'torch'
 
 - python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success -> rc=2
 
@@ -53,7 +60,9 @@ ingest.py: error: unrecognized arguments: # downloads, checksums, merges, proxy 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.mediation.bootstrap_mediation' (ModuleNotFoundError: No module named 'src.mediation')
 
 - python -m pytest -q -> rc=1
-/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/ingest/ingest.py:103: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.
+mmary ===============================
+projects/PROJ-291-predicting-the-impact-of-residual-stress/tests/test_ingest.py::test_run_ingest_creates_unified_csv
+  /home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/code/ingest/ingest.py:103: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.
   The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.
   
   For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.
@@ -63,18 +72,15 @@ ingest.py: error: unrecognized arguments: # downloads, checksums, merges, proxy 
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-FAILED code/tests/test_env_check.py::test_env_check_exits_successfully - Asse...
-FAILED code/tests/test_env_check.py::test_checksums_match_files - AssertionEr...
 FAILED tests/test_features.py::test_feature_sets_build_correctly - assert 8 == 4
 FAILED tests/test_ingest.py::test_run_ingest_creates_unified_csv - ValueError...
-4 failed, 1 passed, 1 warning in 1.39s
+2 failed, 3 passed, 1 warning in 1.90s
 
 
 
 ## Declared deliverables still missing
 
 - data/processed/unified_fatigue.csv
-- data/raw/checksums.json
 - data/results/model_performance.csv
 - data/results/proxy_agreement.csv
 - data/results/runtime_summary.csv
@@ -89,10 +95,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/src/proxy_agreement.py` — NOT invoked by the run-book
     - `code/src/run_e2e.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/unified_fatigue.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/checksums.json` is declared but was NOT written. Scripts referencing it:
-    - `code/src/env_check.py` — NOT invoked by the run-book
-    - `code/tests/test_env_check.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/model_performance.csv` is declared but was NOT written. Scripts referencing it:
     - `code/src/train.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/model_performance.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

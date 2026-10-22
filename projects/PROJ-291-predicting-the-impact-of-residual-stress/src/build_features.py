@@ -1,7 +1,8 @@
 """
 src/build_features.py
 ---------------------
-Thin wrapper that re‑exports the implementation from ``code.src.build_features``.
-This mirrors the import pattern used elsewhere in the project (e.g. ``src.ingest``).
+Re‑exports the public API of ``code/src/build_features.py`` so that the
+package layout ``src`` works with the existing test suite.
 """
+
 from code.src.build_features import *  # noqa: F401,F403
