@@ -1,15 +1,14 @@
 status: none
-intent: download pi-bench interaction traces and hidden intents from HuggingFace python
-  package dataset
+intent: "download \u03C0\u2011Bench interaction traces dataset from HuggingFace python\
+  \ package dataset"
 required_fields:
-- dialogue_id
 - task_id
-- turn_number
+- dialogue_turns
+- turn_index
 - speaker
 - utterance
 - timestamp
 - ground_truth_intent
-- intent_label
-cache_key: 8b98cf4d09b27c9ad18fa57ef5d6c0fce068b818fe56fe9e3b5ea3e52b258040
-searched_at: '2026-10-22T05:12:56.762676+00:00'
+cache_key: dc5e1819f277af84ced6c5c10192eaac9843b28f0cfe98b743397bda59ee77d6
+searched_at: '2026-10-22T06:13:38.407508+00:00'
 retry_count: 1

@@ -1,20 +1,28 @@
-# Existing dependencies (the environment already provides the following, but we
-# pin explicit versions for reproducibility where needed).
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
+# Core scientific stack (provided by the platform, pinned for reproducibility).
+# NOTE: numpy must be >= 2.0 because the installed pyarrow build requires it
+# (the previous numpy 1.26.4 pin made `import datasets` fail with
+#  "ImportError: pyarrow requires NumPy 2.0 or newer").
+numpy>=2.0,<3
+pandas>=2.2
+scipy>=1.11
+matplotlib>=3.8
+scikit-learn>=1.4
+statsmodels>=0.14
+seaborn>=0.13
+pytest>=7.4
+PyYAML>=6.0
+requests>=2.31
+jsonschema>=4.20
+psutil>=5.9
 
-# Additional packages required for deterministic intent inference (T003)
-torch==2.2.0
-transformers==4.40.0
-sentencepiece==0.2.0  # required by some tokenizers used by transformers
-datasets==2.14.0  # used elsewhere in the pipeline; ensure it is available
+# Dataset access (T001/T002): datasets 2.x with a pyarrow build that
+# supports numpy 2.x.
+datasets>=2.19,<3.0
+pyarrow>=16.0
+
+# Deterministic intent inference / lightweight agent models (T003, T006).
+# Left unpinned to CPU-compatible latest releases; seeds are fixed in code.
+torch
+transformers>=4.40
+sentencepiece>=0.2.0
+networkx>=3.2

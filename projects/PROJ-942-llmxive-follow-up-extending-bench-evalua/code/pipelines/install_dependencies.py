@@ -68,7 +68,8 @@ def main() -> None:
 
     # Initialise deterministic seeds after the environment is ready.
     logger.info("Setting reproducibility seeds.")
-    set_seeds()  # uses the default seed (42)
+    summary = set_seeds()  # uses the default seed (42)
+    logger.info("Seed summary: %s", summary)
     logger.info("Setup completed successfully.")
 
 if __name__ == "__main__":

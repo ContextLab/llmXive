@@ -9,6 +9,7 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
 4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
 
+- `python code/pipelines/download_pi_bench.py`
 - `python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
@@ -18,34 +19,36 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/pipelines/download_pi_bench.py -> rc=1
-ive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/__init__.py", line 22, in <module>
-    from .arrow_dataset import Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+on3.11/site-packages/huggingface_hub/utils/_hf_uris.py", line 617, in _parse_repo_body
+    raise HfUriError(uri=raw, msg=f"Repository id must be 'namespace/name', got '{repo_id}'.")
+huggingface_hub.errors.HfUriError: Invalid HF URI 'hf://datasets/imdb@e6281661ce1c48d982bc483cf8a173c1bbeb5d31/README.md'. Repository id must be 'namespace/name', got 'imdb'.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 14, in <module>
-    raise ImportError(
-ImportError: The 'datasets' library is required and must be installable with a compatible pyarrow version. Ensure requirements.txt includes 'datasets' and 'pyarrow'.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 154, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 135, in main
+    checksums = _download_pi_bench(raw_dir, max_examples=args.max_examples)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 81, in _download_pi_bench
+    raise RuntimeError(
+RuntimeError: Unable to load dataset 'imdb' after 3 attempts.
 
 - python code/pipelines/parse_traces.py --raw-dir data/raw --out-csv data/derived/normalized_traces.csv -> rc=1
-
-2026-10-22 05:12:18,972 ERROR __main__: Failed to download pi_bench dataset: The `datasets` library is required to download the pi_bench dataset. Ensure it is installed (add `datasets` to requirements.txt).
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 184, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 140, in main
-    json_files = _download_and_save_raw(raw_dir)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/parse_traces.py", line 26, in _download_and_save_raw
-    raise ImportError(
-ImportError: The `datasets` library is required to download the pi_bench dataset. Ensure it is installed (add `datasets` to requirements.txt).
+ad.py", line 2277, in load_dataset_builder
+    dataset_module = dataset_module_factory(
+                     ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/load.py", line 1832, in dataset_module_factory
+    ).get_module()
+      ^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/load.py", line 968, in get_module
+    trust_remote_code = resolve_trust_remote_code(self.trust_remote_code, self.name)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-942-llmxive-follow-up-extending-bench-evalua/lib/python3.11/site-packages/datasets/load.py", line 134, in resolve_trust_remote_code
+    raise ValueError(
+ValueError: The repository for pi_bench contains custom code which must be executed to correctly load the dataset. You can inspect the repository content at https://hf.co/datasets/pi_bench.
+Please pass the argument `trust_remote_code=True` to allow custom code to be run.
 
 - python src/pipelines/build_intent_graph_llm.py  --input-csv data/derived/normalized_traces.csv  --out-dir data/derived/intent_graphs  --max-tokens $(cat data/derived/model_max_tokens.txt)  --seed 42  --latency-out data/derived/graph_construction_latency.csv -> rc=2
 
