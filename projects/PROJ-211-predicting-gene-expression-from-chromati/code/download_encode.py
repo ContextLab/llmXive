@@ -83,6 +83,7 @@ def _query_encode_file(
     Query ENCODE for a single file matching the criteria.
     Returns the full URL to the file or raises if not found.
     """
+    # Base query parameters that are broadly applicable
     params = {
         "type": "File",
         "biosample_ontology.term_name": cell_line,
@@ -92,6 +93,7 @@ def _query_encode_file(
         "limit": "1",
         "field": "href",
     }
+    # Optional filters
     if assay:
         params["assay_title"] = assay
     if output_type:
@@ -127,25 +129,24 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
     """
     results = []
     for cl in cell_lines:
-        # RNA‑seq gene quantifications (TSV)
+        # --------------------------------------------------------------
+        # RNA‑seq gene quantifications
+        # --------------------------------------------------------------
+        # Try a generic query first; ENCODE sometimes omits the assay field.
         try:
             rna_uri = _query_encode_file(
                 session,
                 cell_line=cl,
-                assay="RNA-seq",
                 output_type="gene quantifications",
                 file_format="tsv"
             )
-        except Exception as e1:
-            logger.warning(f"Primary RNA‑seq query failed for {cl}: {e1}. Trying fallback without assay.")
-            rna_uri = _query_encode_file(
-                session,
-                cell_line=cl,
-                output_type="gene quantifications",
-                file_format="tsv"
-            )
+        except Exception as e:
+            logger.error(f"Failed to locate RNA‑seq file for {cl}: {e}")
+            raise RuntimeError(f"RNA‑seq file not found for {cl}")
 
-        # Accessibility: prefer DNase‑seq, fallback to ATAC‑seq, then any peak file
+        # --------------------------------------------------------------
+        # Accessibility peaks (prefer DNase‑seq, then ATAC‑seq)
+        # --------------------------------------------------------------
         dnase_uri = None
         for assay_name in ["DNase-seq", "ATAC-seq"]:
             try:
@@ -156,11 +157,12 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                     output_type="peaks",
                     file_format="narrowPeak"
                 )
+                logger.info(f"Selected {assay_name} peaks for {cl}")
                 break
-            except Exception as e_dnase:
-                logger.warning(f"{assay_name} not found for {cl}: {e_dnase}")
+            except Exception as e:
+                logger.warning(f"{assay_name} not found for {cl}: {e}")
 
-        # Final fallback: try without specifying file_format (any peak file)
+        # Final fallback: any peak file (no assay, no format restriction)
         if dnase_uri is None:
             try:
                 dnase_uri = _query_encode_file(
@@ -168,8 +170,9 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                     cell_line=cl,
                     output_type="peaks"
                 )
-            except Exception as e_fallback:
-                logger.error(f"No accessibility file found for {cl}: {e_fallback}")
+                logger.info(f"Falling back to generic peaks file for {cl}")
+            except Exception as e:
+                logger.error(f"No accessibility file found for {cl}: {e}")
                 raise RuntimeError(f"No accessibility file for {cl}")
 
         results.append({

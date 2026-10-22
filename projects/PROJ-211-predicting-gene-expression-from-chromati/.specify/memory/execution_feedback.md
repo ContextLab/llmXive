@@ -38,7 +38,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_encode.py  --cell-lines GM128*, K562, HMEC, IMR90, HepG2  --output-dir data/raw -> rc=1
-type=File&biosample_ontology.term_name=HMEC&assembly=GRCh38&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv"}, {"field": "assembly", "term": "GRCh38", "remove": "/search/?type=File&biosample_ontology.term_name=HMEC&status=released&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv"}, {"field": "output_type", "term": "gene quantifications", "remove": "/search/?type=File&biosample_ontology.term_name=HMEC&status=released&assembly=GRCh38&format=json&limit=1&field=href&file_format=tsv"}, {"field": "file_format", "term": "tsv", "remove": "/search/?type=File&biosample_ontology.term_name=HMEC&status=released&assembly=GRCh38&format=json&limit=1&field=href&output_type=gene+quantifications"}, {"field": "type", "term": "File", "remove": "/search/?biosample_ontology.term_name=HMEC&status=released&assembly=GRCh38&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv"}],"notification":"No results found","sort":{"date_created": {"order": "desc", "unmapped_type": "keyword"}, "label": {"order": "desc", "unmapped_type": "keyword"}, "uuid": {"order": "desc", "unmapped_type": "keyword"}},"title":"Search","total":0}
+ifications&file_format=tsv"}, {"field": "assembly", "term": "GRCh38", "remove": "/search/?type=File&biosample_ontology.term_name=HMEC&status=released&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv"}, {"field": "output_type", "term": "gene quantifications", "remove": "/search/?type=File&biosample_ontology.term_name=HMEC&status=released&assembly=GRCh38&format=json&limit=1&field=href&file_format=tsv"}, {"field": "file_format", "term": "tsv", "remove": "/search/?type=File&biosample_ontology.term_name=HMEC&status=released&assembly=GRCh38&format=json&limit=1&field=href&output_type=gene+quantifications"}, {"field": "type", "term": "File", "remove": "/search/?biosample_ontology.term_name=HMEC&status=released&assembly=GRCh38&format=json&limit=1&field=href&output_type=gene+quantifications&file_format=tsv"}],"notification":"No results found","sort":{"date_created": {"order": "desc", "unmapped_type": "keyword"}, "label": {"order": "desc", "unmapped_type": "keyword"}, "uuid": {"order": "desc", "unmapped_type": "keyword"}},"title":"Search","total":0}
+2026-10-22 04:08:09,587 - __main__ - ERROR - Failed to retrieve ENCODE metadata: RNA‑seq file not found for HMEC
 
 
 - python code/generate_synthetic.py --seed 42 --output-dir data/raw -> rc=2
@@ -79,7 +80,7 @@ ERROR tests/unit/test_preprocess.py::test_merge_features_expression - FileNot...
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_success_on_first_attempt
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_retry_on_failure
 ERROR tests/unit/test_utils.py::TestRetryRequest::test_failure_after_max_attempts
-============= 25 failed, 33 passed, 3 warnings, 5 errors in 2.41s ==============
+============= 25 failed, 33 passed, 3 warnings, 5 errors in 2.24s ==============
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -95,7 +96,7 @@ FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::t
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_required_keys_present
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_value_types
 FAILED tests/contract/test_interpretation_schema.py::TestPerformanceGapSchema::test_delta_r2_calculation
-=================== 15 failed, 1 passed, 7 skipped in 0.28s ====================
+=================== 15 failed, 1 passed, 7 skipped in 0.26s ====================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -113,7 +114,7 @@ E   ImportError: cannot import name 'train_elastic_net_cv' from 'code.train' (/h
 ERROR tests/integration/test_data_pipeline.py
 ERROR tests/integration/test_training_loop.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.11s ===============================
+============================== 2 errors in 1.14s ===============================
 
 
 
