@@ -1,18 +1,11 @@
 T001:
-  reason: "The repository contains the required `quickstart.md` and `configs/run.yaml`,\
-    \ but there is no evidence that the command `python -m src.pipeline.run_all --config\
-    \ configs/run.yaml` actually runs successfully, prints a summary, and exits with\
-    \ status\u202F0. The provided test log shows the test failing with a `NameError`\
-    \ (missing `import os`), and no successful execution output or exit\u2011code\
-    \ proof is present. The task therefore lacks the required verification artifact."
   task: 135d9f2d64e2fc48477a7db249a8e13984addba24f49490b1581f160d2624884
 T002:
-  reason: "Checked `src/data/something_loader.py`, `tests/test_something_loader.py`,\
-    \ and the test execution log. The test suite fails to import because the required\
-    \ `datasets` package is missing, so the unit test never runs, and the `data/fallback/`\
-    \ directory containing bundled fallback videos is absent (the loader downloads\
-    \ a video instead of using a pre\u2011bundled one). Both issues prevent the task\u2019\
-    s requirements from being satisfied."
+  reason: The `src/data/something_loader.py` falls back to a remote video when `data/fallback/`
+    is absent, but the required `data/fallback/` directory (with bundled MP4 files)
+    is missing, causing the fallback download to fail (SSL error) and the unit test
+    `tests/test_something_loader.py` to error out instead of successfully loading
+    five videos. The test therefore does not pass the required OpenCV decoding check.
   task: 2ed1d5bc75e0b8726f0ad041317b1bb315b9874a16a883d140b54e015cb1486e
 T003:
   reason: "The `src/data/counterfactual.py` script does not meet several core requirements:\

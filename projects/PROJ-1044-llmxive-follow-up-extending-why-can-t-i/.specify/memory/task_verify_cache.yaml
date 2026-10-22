@@ -1,23 +1,11 @@
 T001:
-  c: false
-  h: a0ff4d85ca423545ca968fb8a3e2beb959dded1285fc4e84c94a479504b637e6
-  r: "The repository contains the required `quickstart.md` and `configs/run.yaml`,\
-    \ but there is no evidence that the command `python -m src.pipeline.run_all --config\
-    \ configs/run.yaml` actually runs successfully, prints a summary, and exits with\
-    \ status\u202F0. The provided test log shows the test failing with a `NameError`\
-    \ (missing `import os`), and no successful execution output or exit\u2011code\
-    \ proof is present. The task therefore lacks the required verification artifact."
-  sig: ed1be274636c41b0b8e50f900af9e5f129f286774b803f92680dc63cfbb71b65
-T002:
-  c: false
-  h: 3a4de69c3f9bdd974b4b8f569cd9294c53c8332c3d2de1a6c3f64cf7ca07a74f
-  r: "Checked `src/data/something_loader.py`, `tests/test_something_loader.py`, and\
-    \ the test execution log. The test suite fails to import because the required\
-    \ `datasets` package is missing, so the unit test never runs, and the `data/fallback/`\
-    \ directory containing bundled fallback videos is absent (the loader downloads\
-    \ a video instead of using a pre\u2011bundled one). Both issues prevent the task\u2019\
-    s requirements from being satisfied."
-  sig: 56f0929cc1740fa633525ee3bf54708e97a6b0ab6e5d58ba223f1a4f309be127
+  c: true
+  h: 174d86a262912bf9a531d70a5b79a55310e7e5b71f695f83c8f723276ece6510
+  r: "Checked `quickstart.md` (contains the required command description) and `configs/run.yaml`\
+    \ (default config present). Execution log `code/.tasks/T001.src_pipeline_run_all.py.log`\
+    \ shows the command ran, printed a pipeline summary, and exited with status\u202F\
+    0."
+  sig: 9f64b638f8c7ceb8369c362cc9fa14780c45d036e39d0e26401c65fc90851c5f
 T003:
   c: false
   h: cdf05d127e00ecfa6be49086b05172f20d21e3d83fe11481819e789c19d89935

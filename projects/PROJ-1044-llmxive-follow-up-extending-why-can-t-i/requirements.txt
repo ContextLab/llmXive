@@ -1,17 +1,5 @@
-# Core dependencies (already available in the execution environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependencies required for the optical‑flow step
-opencv-python
-tqdm
+# Project dependencies
+# Existing packages (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil) are pre‑installed.
+# The streaming loader requires the HuggingFace `datasets` library.
+datasets>=2.0.0
