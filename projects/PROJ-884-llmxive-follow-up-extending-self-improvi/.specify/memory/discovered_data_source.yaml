@@ -1,17 +1,29 @@
-status: none
-intent: CSPLib constraint satisfaction puzzles verification scripts MiniZinc Challenge
-  python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import sys\nfrom datasets import load_dataset\n# Load the Sudoku dataset\
+  \ from Hugging Face Hub\nds = load_dataset(\"Ritvik19/Sudoku-Dataset\", split=\"\
+  train\")\nrecords = len(ds)\nprint(f\"RECORDS={records}\")\n# List the fields (column\
+  \ names) present in the dataset\nif records:\n    first = ds[0]\n    fields = list(first.keys())\n\
+  \    print(\"FIELDS=\" + \",\".join(fields))\nelse:\n    print(\"FIELDS=\")"
+record_count: 16951130
+sample_fields:
+- puzzle
+- solution
+- missing
+- difficulty
+- set
+- solving_time
+field_coverage: 0.625
 required_fields:
 - puzzle_id
 - puzzle_type
-- puzzle_definition
+- puzzle_description
 - constraints_formal
-- verification_script
+- verifier_script
 - example_solution
-- solution_path
-- final_answer
-- source
 - difficulty_level
-cache_key: e7a2726a75f464ec080523f13d8fcd50da999b10daa6ee09e621d399fec6e8ff
-searched_at: '2026-08-20T07:24:07.243937+00:00'
-retry_count: 1
+- source_url
+intent: Kaggle Sudoku Dataset and PuzzleDB logic puzzles with Python verification
+  scripts python package dataset
+cache_key: f8099bec26aa8c65b9a0a124c360b8650cf97aa233c2fd6a9c89db9d8f83c8e1

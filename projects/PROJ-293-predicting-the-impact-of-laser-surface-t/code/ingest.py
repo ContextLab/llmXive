@@ -21,6 +21,7 @@ logger = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
+# Updated path to the research markdown file as per specification
 RESEARCH_MD_PATH = Path("specs/001-predicting-the-impact-of-laser-surface-t/research.md")
 SCHEMA_MAP_PATH = Path("code/config/schema_map.json")
 REQUIRED_COLUMNS = [
@@ -114,7 +115,7 @@ def _download_huggingface(dataset_id: str) -> pd.DataFrame:
     logger.info(f"Fetching HuggingFace dataset id={dataset_id}")
     try:
         ds = load_dataset(dataset_id, split="train")
-        # ds can be a Dataset object; convert to pandas
+        # Convert to pandas DataFrame
         df = pd.DataFrame(ds)
         return df
     except Exception as e:
@@ -196,7 +197,7 @@ def fetch_sources() -> None:
             logger.error(f"Unsupported source configuration for '{name}': {src}")
             raise RuntimeError(f"data_schema_mismatch: unsupported source '{name}'")
 
-        # Load schema map
+        # Load schema map and rename columns
         schema_map = load_schema_map()
         df = _apply_schema_mapping(df, schema_map)
 

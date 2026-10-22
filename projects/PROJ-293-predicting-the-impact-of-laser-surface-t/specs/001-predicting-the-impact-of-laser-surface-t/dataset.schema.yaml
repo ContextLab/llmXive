@@ -1,0 +1,37 @@
+# Dataset schema for Laser Surface Texturing wear resistance data
+# This schema lists the canonical column names expected throughout the pipeline.
+type: object
+properties:
+  pulse_duration:
+    type: number
+  power:
+    type: number
+  scanning_speed:
+    type: number
+  pattern_geometry:
+    type: string
+  hardness:
+    type: number
+  elastic_modulus:
+    type: number
+  wear_rate:
+    type: number
+  contact_load:
+    type: number
+  sliding_speed:
+    type: number
+  density:
+    type: number
+  geometry:
+    type: string
+  source_id:
+    type: string
+  normalization_method:
+    type: string
+  wear_coefficient_K:
+    type: number
+required:
+  - pulse_duration
+  - power
+  - scanning_speed
+  - wear_rate

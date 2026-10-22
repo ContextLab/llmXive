@@ -1,0 +1,24 @@
+- artifact_hash: 23cfcdba936021c4e5281b6f64a2c7a78a26ffebd6d4930b7d7c3acaa8aacd7f
+  artifact_path: projects/PROJ-098-predicting-corrosion-rates-in-alloys-usi/specs/001-predicting-corrosion-rates-in-alloys-usi/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: '2008.06415'
+  fetched_title: '[2008.06415] Orbital Graph Convolutional Neural Network for Material
+    Property Prediction'
+  kind: url
+  value: https://arxiv.org/abs/2008.06415
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2008.06415
+  verified_at: '2026-10-22T06:29:25.416907Z'
+- artifact_hash: 23cfcdba936021c4e5281b6f64a2c7a78a26ffebd6d4930b7d7c3acaa8aacd7f
+  artifact_path: projects/PROJ-098-predicting-corrosion-rates-in-alloys-usi/specs/001-predicting-corrosion-rates-in-alloys-usi/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: '1706.08663'
+  fetched_title: '[1706.08663] Influence of Heat Treatment on the Corrosion Behavior
+    of Purified Magnesium and AZ31 Alloy'
+  kind: url
+  value: https://arxiv.org/abs/1706.08663
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1706.08663
+  verified_at: '2026-10-22T06:29:25.416907Z'

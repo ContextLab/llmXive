@@ -7,7 +7,7 @@ This document contains **verified static URLs and Dataset IDs** for the automate
 
 | Source Name                | Type   | Verified | URL / ID                                                                 | Notes                                 |
 |:---------------------------|:-------|:--------|:--------------------------------------------------------------------------|:--------------------------------------|
-| **OpenML LST Wear**        | Tabular| True    | `https://www.openml.org/d/45678`<br>`Dataset ID: 45678`                  | Contains laser parameters and wear rates. |
+| **OpenML LST Wear**        | Tabular| True    | `<br>`Dataset ID: 45678`                  | Contains laser parameters and wear rates. |
 | **HuggingFace Materials**  | Tabular| True    | `https://huggingface.co/datasets/materials-science/lst-wear-v1`<br>`Dataset ID: materials-science/lst-wear-v1` | Verified static path. |
 
 ## Verification Status

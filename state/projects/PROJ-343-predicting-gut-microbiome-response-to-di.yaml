@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T07:08:12.893593Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-343-predicting-gut-microbiome-response-to-di
-last_run_id: 85b6132a-0708-482b-9bc1-9d493d8a9b17
+last_run_id: f89bad02-8d0a-4566-9704-2ec36a6f9dc8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-343-predicting-gut-microbiome-response-to-di/specs/001-predicting-gut-microbiome-response-to-di
 title: Predicting Gut Microbiome Response to Dietary Interventions Using Publicly
   Available Data
-updated_at: '2026-10-16T03:41:09.060903Z'
+updated_at: '2026-10-22T06:30:16.829823Z'

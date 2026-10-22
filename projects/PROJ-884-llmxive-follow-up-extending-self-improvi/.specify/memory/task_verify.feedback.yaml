@@ -1,0 +1,40 @@
+T001:
+  task: 9cc76c156b336145c9d8302690031c9cb0ca0a0afc3d4594f09719e026c6c318
+T002:
+  task: 463649f468922757615a5af58e32fc9c4d8b1ee10dabb111db2fc4f2c7f7ca93
+T003:
+  task: ad394fc93017184958857f7aa7cf207a33e43e141b279d83ee2ab522e493d3b4
+T004:
+  task: b2169fe4dd07814be97ce5d52b98fd8d0ef2b94cc84caed4838307577af343ee
+T005:
+  task: 59443091c0209a3fd1caaadcf6c801da44c5add0bb3bb572dd93e8e0632495a5
+T006:
+  task: 4f5a843da34970f5b0b2a9ed2b17e2dd61a4db21139f8550bf0296b12b00b38f
+T007:
+  task: f4018d0792cd23a6d51eb0af5565d902b26e5e9538d40111453da5d5467e51e6
+T008:
+  task: 4be3735afde7d730bfa859af46ac5c69f4a529d53ea5fd7079f3f9f9cf2bfc45
+T009:
+  task: 24d2e3bc5b8900582957442d46aaeb6e0ed6a93c055fb4258ea1199c95a65fd6
+T010:
+  task: 7800085b8007d6124960798fab1a6ce09ee958964937470e4e547eca907ae258
+T011:
+  task: b27d410f98ba98c873d9517cba5e001f8c2841c5e013211371c0b180862f42d7
+T012:
+  task: b399e0b6945611f2c1e5f47fa069fe2e2218ba18a92d0166219496786fb80ab8
+T013:
+  task: 421b232de3ab1384a235c6bb424bf331e4ff1a6d7f8a102a5d5df84db3e4a838
+T014:
+  task: 7dbdc608d71a229478390b2b186212c00068bee4fb5cccf8f6974d5930657a1c
+T015:
+  task: 4d9e25dcdd59740df2374cc4d10ef76a1abfcb7c65954405025fcd9a0ca77dfe
+T016:
+  reason: The quickstart.md file exists and contains the required `python -m code.main
+    --pilot` command, but there is no evidence (e.g., logs, test output, or execution
+    trace) showing that this command runs successfully on a clean repository. Execution
+    proof is missing.
+  task: b46893981ffdc3a4d6c1c062b3e4b3db40d2c40f4a64de516b4b5ed4bf351423
+T017:
+  task: 669a5b250f4915e56a64fb4acc047eb8e4912380f2eb0e16e92e3b9f57407e85
+T018:
+  task: 88cce4cb6d8f3cc654662eb8d352df95d3f3ed833abe68a50540041318d1f340

@@ -5,16 +5,16 @@
 
 ## Phase 0: Design and documentation (traceability for plan items)
 
-- [ ] T012 [US1] Finalize Dataset Strategy – document the generation methodology, complexity scaling, and provenance metadata in `specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md`.  
+- [X] T012 [US1] Finalize Dataset Strategy – document the generation methodology, complexity scaling, and provenance metadata in `specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md`.  
   Observable check: the markdown file exists and includes sections for puzzle types, scaling plan, and seed management.
 
-- [ ] T013 [US2] Define Statistical Analysis Plan – specify TOST bounds, alpha level, power analysis, and effect‑size targets in `specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md`.  
+- [X] T013 [US2] Define Statistical Analysis Plan – specify TOST bounds, alpha level, power analysis, and effect‑size targets in `specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md`.  
   Observable check: file exists and contains numeric values for delta, alpha, and required sample size.
 
-- [ ] T014 [US3] Select Baseline Architecture – choose the small CPU‑only LLM (e.g., `distilbert-base-uncased`), record the exact HuggingFace commit hash and fallback options in `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`.  
+- [X] T014 [US3] Select Baseline Architecture – choose the small CPU‑only LLM (e.g., `distilbert-base-uncased`), record the exact HuggingFace commit hash and fallback options in `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`.  
   Observable check: file lists model identifier, commit hash, and device settings.
 
-- [ ] T015 [US4] Validate Contracts – generate and place the contract schemas `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` (already present) and ensure they are syntactically valid.  
+- [X] T015 [US4] Validate Contracts – generate and place the contract schemas `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` (already present) and ensure they are syntactically valid.  
   Observable check: `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` runs without error.
 
 - [ ] T016 [US5] Create Quickstart Documentation – author `specs/001-llmxive-follow-up-extending-self-improvi/quickstart.md` with a reproducible command chain that runs the pilot end‑to‑end experiment and points to the expected output locations.  
