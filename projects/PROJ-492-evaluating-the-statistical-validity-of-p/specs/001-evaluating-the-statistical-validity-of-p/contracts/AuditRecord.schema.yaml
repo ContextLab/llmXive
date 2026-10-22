@@ -1,50 +1,62 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AuditRecord"
-description: "Schema for audit record results (FR-024)"
-type: "object"
+type: object
 required:
-  - "url"
-  - "reported_p"
-  - "reported_effect_size"
-  - "reported_sample_size_a"
-  - "reported_sample_size_b"
-  - "reconstructed_p"
-  - "reconstructed_effect_size"
-  - "diff_abs_p"
-  - "diff_abs_effect"
-  - "flag_inconsistent"
-  - "notes"
+  - url
+  - reported_p
+  - reported_effect_size
+  - reported_sample_size_a
+  - reported_sample_size_b
+  - reconstructed_p
+  - reconstructed_effect_size
+  - diff_abs_p
+  - diff_abs_effect
+  - flag_inconsistent
+  - notes
 properties:
   url:
-    type: "string"
-    format: "uri"
+    type: string
+    format: uri
+    description: "Source URL of the audited summary"
   reported_p:
-    type: "number"
+    type:
+      - number
+      - "null"
     minimum: 0.0
     maximum: 1.0
-    nullable: true
+    description: "Reported p‑value (null if inequality bound)"
   reported_effect_size:
-    type: "number"
+    type: number
+    description: "Reported effect size from the summary"
   reported_sample_size_a:
-    type: "integer"
+    type: integer
     minimum: 1
+    description: "Reported sample size for variant A"
   reported_sample_size_b:
-    type: "integer"
+    type: integer
     minimum: 1
+    description: "Reported sample size for variant B"
   reconstructed_p:
-    type: "number"
+    type: number
     minimum: 0.0
     maximum: 1.0
+    description: "p‑value recomputed from extracted numbers"
   reconstructed_effect_size:
-    type: "number"
+    type: number
+    description: "Effect size recomputed from extracted numbers"
   diff_abs_p:
-    type: "number"
+    type: number
     minimum: 0.0
+    description: "Absolute difference |reported p – reconstructed p|"
   diff_abs_effect:
-    type: "number"
+    type: number
     minimum: 0.0
+    description: "Absolute relative difference in effect size"
   flag_inconsistent:
-    type: "boolean"
+    type: boolean
+    description: "True if any inconsistency criterion is met"
   notes:
-    type: "string"
-    maxLength: 500
+    type: string
+    maxLength: 200
+    description: "Audit notes, including ERR‑### codes if applicable"
+additionalProperties: false

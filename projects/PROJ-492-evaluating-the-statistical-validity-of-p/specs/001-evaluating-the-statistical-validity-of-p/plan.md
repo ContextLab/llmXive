@@ -1,176 +1,131 @@
 # Implementation Plan: Evaluating the Statistical Validity of Public A/B Test Summaries
 
-**Branch**: `001-eval-ab-test-validity` | **Date**: 2026-06-24 | **Spec**: `specs/001-evaluating-the-statistical-validity-of-p/spec.md`
+**Branch**: `001-eval-ab-test-validity` | **Date**: 2026-10-21 | **Spec**: `specs/001-evaluating-the-statistical-validity-of-p/spec.md`  
 **Input**: Feature specification from `/specs/001-evaluating-the-statistical-validity-of-p/spec.md`
 
 ## Summary
-
-This project implements an automated pipeline to audit publicly available A/B test summaries for **statistical consistency** (p-values, effect sizes, sample sizes). The system extracts reported metrics, reconstructs the statistical tests (two-proportion z-test, Welch's t-test), and flags inconsistencies based on an **absolute threshold of 0.05** for p-value discrepancy (Constitution VI). It generates JSON/CSV reports, performs power analysis (N≥300), validates implementations via Monte Carlo simulation, and adjusts for domain bias. The pipeline is designed to run within GitHub Actions free-tier constraints (CPU-only, ≤7GB RAM, ≤6h).
-
-> **Construct Validity Limitation**: This project tests **internal consistency** of reported statistics, not ground-truth statistical validity. Without access to raw data, we cannot verify whether the reported p-values correctly reflect the actual statistical evidence. This limitation is acknowledged per the specification.
+The pipeline will (1) ingest a user‑provided CSV of URLs, (2) scrape each public A/B test summary, (3) extract the required fields into `ABSummary` records, (4) reconstruct p‑values and effect sizes using the appropriate statistical test, (5) flag inconsistencies according to the absolute 0.05 p‑value threshold mandated by Constitution VI, (6) compute overall and bias‑adjusted inconsistency prevalence (binomial test, sensitivity analysis, domain weighting), (7) validate every statistical routine with a high‑replication Monte Carlo simulation **(FR‑026 – synthetic validation dataset generation and independent Monte‑Carlo validation)**, (8) generate a synthetic validation set (a large number of records) with independent ground truth **(FR‑030)**, (9) evaluate extraction accuracy on a manually annotated real‑world set (≥ 100 summaries) **(FR‑031b)**, and (10) export JSON and CSV artifacts while remaining within the GitHub Actions free‑tier limits (≤ 2 vCPUs, ≤ 2 GB RAM, ≤ 6 h runtime).
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `scipy`, `pandas`, `requests`, `beautifulsoup4`, `pytest`, `pyyaml`  
-**Storage**: Local filesystem (`data/` for inputs, `output/` for artifacts)  
-**Testing**: `pytest` (unit, contract, integration)  
-**Target Platform**: Ubuntu-latest (GitHub Actions)  
-**Project Type**: CLI/Data Pipeline  
-**Performance Goals**: ≤6 hours runtime, ≤7GB RAM peak, ≤2 vCPUs  
-**Constraints**: No GPU, no heavy LLM inference, **absolute p-value threshold 0.05** (Constitution VI)  
-**Scale/Scope**: N ≥ 300 summaries (FR-025), 10,000 synthetic samples (FR-030)
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `requests`, `beautifulsoup4`, `scipy`, `statsmodels`, `pyyaml`, `pytest`  
+- **Storage**: Local filesystem (`data/` for inputs & intermediates, `output/` for results)  
+- **Testing**: `pytest` with contract tests (YAML schemas) and integration tests  
+- **Target Platform**: Ubuntu‑latest GitHub Actions runner (CPU‑only)  
+- **Project Type**: CLI/Data‑pipeline library  
+- **Performance Goals**: Full audit of ≥ 300 summaries ≤ 6 h, memory ≤ 2 GB  
+- **Constraints**: No GPU, strict adherence to Constitution VI absolute p‑value floor, domain bias ≤ 30 % (FR‑027)  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Compliance Strategy |
-|-----------|---------------------|
-| **I. Reproducibility** | All code in `code/` uses pinned `requirements.txt`. Random seeds set in `config.yaml`. CI runs on isolated GitHub Actions runner. |
-| **II. Verified Accuracy** | Citations (e.g., Kohavi et al.) validated by Reference-Validator Agent before inclusion in reports. |
-| **III. Data Hygiene** | All files in `data/` (including synthetic validation data) checksummed and recorded in `data/checksums.txt` (T076). Raw data preserved; derivations written to new files. |
-| **IV. Single Source of Truth** | Final statistics in paper/reports trace to `output/audit_report.json`. Checksums for run artifacts written to `output/checksums.txt` (T077). |
-| **V. Versioning Discipline** | Content hashes tracked in `state/projects/PROJ-492-...yaml`. Artifact changes update `updated_at`. |
-| **VI. Statistical Consistency** | Hard-coded threshold 0.05 for p-value discrepancy (FR-004). Reconstruction logic validated via Monte Carlo (FR-026). |
-| **VII. Source Provenance** | URL metadata recorded in every `ABSummary` entity (FR-002). |
+| Principle | How the plan satisfies it |
+|-----------|--------------------------|
+| **I. Reproducibility** | All code lives under `src/`, `requirements.txt` pins exact versions, random seeds are fixed in `config.yaml`. The CI workflow runs the full pipeline from scratch on every push. |
+| **II. Verified Accuracy** | Citations (Kohavi 2020, John 2022) are validated by the Reference‑Validator before inclusion in any report. |
+| **III. Data Hygiene** | Raw inputs (`data/input/urls.csv`) are checksummed (`data/checksums.txt`). Every transformation writes a new file; original files remain untouched. |
+| **IV. Single Source of Truth** | Every statistic in the final paper will be derived from `output/audit_report.json` and `output/summary_report.csv`. No hand‑typed numbers are permitted. |
+| **V. Versioning Discipline** | Each artifact’s SHA‑256 is recorded in `output/checksums.txt` and the project state file is updated on change. |
+| **VI. Statistical Consistency Verification** | The inconsistency flag uses the absolute 0.05 p‑value rule (FR‑004, Constitution VI). Monte Carlo validation (**FR‑026**) guarantees implementation fidelity; the synthetic dataset used for Monte Carlo is generated independently of the reconstruction code (see Research). |
+| **VII. Source Provenance & Transparency** | Every `ABSummary` stores the original URL, `source_domain`, and extraction timestamp; the provenance is carried through to all reports. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
-```text
-specs/[###-feature]/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
 ```
+specs/001-evaluating-the-statistical-validity-of-p/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── ABSummary.schema.yaml
+    ├── AuditRecord.schema.yaml
+    └── SummaryReport.schema.yaml
 
-### Source Code (repository root)
-
-```text
 src/
-├── extraction/          # Web scraping and field extraction (FR-001, FR-002)
-├── statistics/          # Reconstruction logic (FR-003, FR-004)
-├── validation/          # Monte Carlo, Synthetic Data, Real-world Validation (FR-026, FR-030, FR-031b)
-├── reporting/           # JSON/CSV export, Bias adjustment (FR-005a, FR-024, FR-027)
-├── cli/                 # Entry point
-└── config/              # Constants, Thresholds (Constitution VI)
+├── extraction/          # URL fetching & HTML parsing (FR‑001, FR‑002)
+├── statistics/          # Reconstruction logic (FR‑003, FR‑004)
+├── validation/          # Synthetic generator, Monte Carlo, real‑world eval (FR‑030‑031b, FR‑026)
+├── reporting/           # JSON/CSV export, bias adjustment, subgroup analysis (FR‑005‑032)
+├── cli/                 # `run_audit` entry point
+└── config/              # thresholds, random seeds, domain limits
 
 tests/
-├── contract/            # Schema validation
-├── integration/         # Pipeline end-to-end
-└── unit/                # Statistical function tests
+├── contract/            # Schema validation tests
+├── unit/                # Statistical functions
+└── integration/         # End‑to‑end pipeline test
 
 data/
-├── input/               # User-provided URLs (FR-001)
-├── synthetic/           # Generated validation data (FR-030)
-├── real_world/          # Manually annotated set (FR-031b)
-└── checksums.txt        # Input data checksums (Constitution III, T076)
+├── input/               # `urls.csv` supplied by the user
+├── synthetic/           # Generated synthetic validation set
+├── real_world/          # Human‑annotated extraction set
+└── checksums.txt        # SHA‑256 of raw inputs
 
 output/
-├── audit_report.json    # Detailed results (FR-024)
-├── summary_report.csv   # Aggregate results (FR-024)
-├── bias_report.json     # Domain proportions (FR-027)
-├── subgroup_report.json # Domain/Year analysis (FR-032)
-└── checksums.txt        # Output artifact checksums (T077)
+├── audit_report.json
+├── summary_report.csv
+├── bias_report.json
+├── subgroup_report.json
+└── checksums.txt        # SHA‑256 of all outputs
 ```
 
-**Structure Decision**: Single project structure selected to minimize complexity and align with CLI tool requirements. Data and Output directories are separated to satisfy Constitution Principles III and IV.
+**Structure Decision**: A single‑project layout keeps the CI footprint minimal and aligns with the CLI nature of the tool.
+
+## Complexity Tracking
+- **Memory**: All data structures (< 10 000 rows) occupy < 200 MB.  
+- **CPU**: Monte Carlo (a substantial number of replicates) ≈ 1.5 CPU‑hours; extraction of several hundred URLs ≈ 0.5 CPU‑hours. Total < 3 CPU‑hours.  
+- **Disk**: Synthetic CSV ≈ moderate size; all other artifacts < 10 MB. Well under the 14 GB limit.  
+- **GPU**: Not required; all libraries are CPU‑only.  
+
+## Task Registry (selected)
+| Task ID | Description | Phase | Status |
+|---------|-------------|-------|--------|
+| T026 | Generate synthetic validation dataset (10 000 records) via `src/validation/synthetic_generator.py` | Phase 3 V02 | Planned |
+| T044 | Power‑analysis calculation confirming N ≥ 300 | Phase 0 R04 | Planned |
+| T062 | Monte Carlo validation of statistical tests (10 000 replicates) | Phase 3 V01 | Planned |
+| T076 | Input data checksumming (`data/checksums.txt`) | Phase 4 C02 | Planned |
+| T077 | Output artifact checksumming (`output/checksums.txt`) | Phase 4 C03 | Planned |
+| T081 | Create manually annotated real‑world extraction set (≥ 100 summaries) | Phase 3 V04 | Planned |
+| T082 | Evaluate extraction accuracy on real‑world set | Phase 3 V04 | Planned |
+| T083 | Quickstart runner verification (≤ 30 min on 30 URLs) | Phase 4 C04 | Planned |
+| T099 | Constitution compliance audit (Principles I‑VII) | Phase 3 V05 | Planned |
 
 ## Implementation Phases
 
-### Phase 0: Research & Validation Setup
-1.  **R01**: Verify statistical libraries (`scipy`) run within 7GB RAM on CPU.
-2.  **R02**: Design synthetic data generator (FR-030) using independent logic from reconstruction (FR-026).
-3.  **R03**: Define manual annotation protocol for real-world validation set (FR-031b, ≥100 samples).
-4.  **R04**: Confirm power analysis calculation (FR-025) for N≥300.
+### Phase 0 – Research & Validation Setup
+1. **R01** – Verify that `scipy` and `statsmodels` run within ≤ 2 GB RAM on the default runner.  
+2. **R02** – Design the synthetic generator (independent of the reconstruction code) and lock a random seed.  
+3. **R03** – Draft the annotation protocol for the real‑world validation set (two annotators + resolver).  
+4. **R04** – Compute the required N for [deferred] power detecting a 0.10 inconsistency proportion (≥ 300).
 
-### Phase 1: Data Model & Contracts
-1.  **D01**: Define `ABSummary`, `AuditRecord` schemas (FR-002).
-2.  **D02**: Create YAML contracts for `audit_report.json` and `summary_report.csv`.
-3.  **D03**: Document Quickstart guide (FR-028) with explicit GitHub Actions runner verification (T083).
+### Phase 1 – Data Model & Contracts
+1. **D01** – Formalise `ABSummary`, `AuditRecord`, and `SummaryReport` as JSON/YAML schemas (see `contracts/`).  
+2. **D02** – Write the Quickstart guide (FR‑028) and embed a runtime check that 30 URLs finish ≤ 30 min on the runner.  
+3. **D03** – Add contract tests that validate output files against the schemas.  
 
-### Phase 2: Core Implementation
-1.  **I01**: Implement URL ingestion and HTML extraction (FR-001, FR-002).
-2.  **I02**: Implement statistical reconstruction (z-test, t-test, Fisher) (FR-003).
-3.  **I03**: Implement inconsistency flagging logic (FR-004, Constitution VI). **Note**: Uses **absolute threshold 0.05 only**.
-4.  **I04**: Implement bias adjustment and domain subsampling (FR-027).
-5.  **I05a**: Implement binomial test (FR-005a) and sensitivity analysis (FR-005b, SC-014, SC-015). **Note**: Explicitly quantifies effect size reconstruction uncertainty when baseline heuristic is used (FR-012).
-6.  **I05b**: Implement report generation (JSON/CSV) (FR-024) and subgroup analysis (FR-032).
+### Phase 2 – Core Implementation
+1. **I01** – URL ingestion (`src/extraction/loader.py`) and HTML parsing (`src/extraction/parser.py`).  
+2. **I02** – Reconstruction module (`src/statistics/reconstruct.py`) implementing two‑proportion z/Fisher and Welch t‑test.  
+3. **I03** – Inconsistency logic (`src/statistics/inconsistency.py`) applying the absolute 0.05 p‑value rule and the [deferred] effect‑size relative rule.  
+4. **I04** – Domain bias handling (`src/reporting/bias.py`): compute domain proportions using the `source_domain` field (present in `ABSummary`), subsample if > 30 %, calculate bias‑adjusted rate.  
+5. **I05a** – Prevalence estimation (`src/reporting/prevalence.py`): binomial test, Wilson CI, sensitivity sweep (0.02‑0.10).  
+6. **I05b** – Reporting module (`src/reporting/export.py`) writes `audit_report.json`, `summary_report.csv`, `bias_report.json`, `subgroup_report.json`.  
+7. **I06** – Logging utilities (`src/config/logger.py`) emit `ERR‑###` codes with ≤ 200‑char messages (FR‑007).  
 
-### Phase 3: Validation & Testing
-1.  **V01**: Run Monte Carlo validation (10,000 replicates) to validate statistical reconstruction logic per Constitution VI (FR-026, SC-003).
-2.  **V02**: Generate synthetic dataset (10,000 rows) using a pinned random seed (FR-030, T026).
-3.  **V03**: Evaluate extraction accuracy on real-world set (≥100 samples, FR-031b, SC-031b).
-4.  **V04**: Execute Constitution Compliance Audit (T099) to verify all Principles I-VII.
+### Phase 3 – Validation & Testing
+1. **V01** – Monte Carlo validation (a substantial number of replicates) for each statistical routine; compare to `scipy` results (FR‑026, SC‑003).  
+2. **V02** – **Synthetic dataset generation** (`src/validation/synthetic_generator.py`) producing exactly 10 000 records and `synthetic_ground_truth.json`. **Independence Note:** The generator uses direct random draws (`numpy.random`) and closed‑form calculations (`scipy.stats`) **without** invoking the reconstruction code from FR‑003, ensuring true independence for validation.  
+3. **V03** – Run the detector on the synthetic set, compute precision/recall/F1, enforce ≥ 90 % / ≥ 80 % / ≥ 0.85 (FR‑031).  
+4. **V04** – Execute extraction on the manually annotated real‑world set, compute precision/recall/F1, enforce ≥ 85 % / ≥ 75 % / ≥ 0.80 (FR‑031b, SC‑031b).  
+5. **V05** – Constitution compliance audit (Task T099) that checks all seven principles.  
 
-### Phase 4: CI & Documentation
-1.  **C01**: Configure GitHub Actions workflow (Ubuntu-latest).
-2.  **C02**: Implement Input Data Checksumming Task (T076) writing to `data/checksums.txt`.
-3.  **C03**: Implement Output Artifact Checksumming Task (T077) writing to `output/checksums.txt`.
-4.  **C04**: Verify Quickstart execution time on **default GitHub Actions runner** (T083).
-5.  **C05**: Final resource usage logging (SC-008).
+### Phase 4 – CI & Documentation
+1. **C01** – GitHub Actions workflow (`.github/workflows/audit.yml`) installs dependencies, runs `run_audit.py`, captures resource usage, and fails if limits are exceeded.  
+2. **C02** – Compute SHA‑256 checksums for every input file (`data/checksums.txt`).  
+3. **C03** – Compute SHA‑256 checksums for every output file (`output/checksums.txt`).  
+4. **C04** – Run the Quickstart verification (Task T083) on the runner; abort if runtime > 30 min.  
+5. **C05** – Log CPU time, peak memory, and total runtime to `manifest.json` (SC‑013, SC‑008).  
 
 ## Compute Feasibility
+- **Memory**: All data structures (< 10 000 rows) occupy < 200 MB.  
+- **CPU**: Monte Carlo (10 k replicates) ≈ 1.5 CPU‑hours; extraction of 300 URLs ≈ 0.5 CPU‑hours. Total < 3 CPU‑hours.  
+- **Disk**: Synthetic CSV ≈ tens of megabytes; all other artifacts < 10 MB. Well under the 14 GB limit.  
+- **GPU**: Not required; all libraries are CPU‑only.  
 
-- **Memory**: Data subset to ≤7GB. `pandas` operations on N=300 summaries are negligible. Synthetic data (10k rows) fits in RAM.
-- **CPU**: Statistical tests (`scipy.stats`) are CPU-bound but lightweight. No GPU required.
-- **Time**: Extraction (network bound) + Stats (CPU bound). 300 URLs estimated at <1 hour. Monte Carlo (10k reps) estimated at <2 hours. Total <6 hours.
-- **Disk**: Output files <10MB. Synthetic data <50MB. Well within 14GB limit.
-
-## FR/SC Coverage Map
-
-| ID | Status | Plan Location |
-|----|--------|---------------|
-| FR-001 | Covered | Phase 2, I01 |
-| FR-002 | Covered | Phase 2, I01; Data Model |
-| FR-003 | Covered | Phase 2, I02 |
-| FR-004 | Covered | Phase 2, I03; Constitution VI |
-| FR-004b | Covered | Phase 2, I03 |
-| FR-005a | Covered | Phase 2, I05a; Binomial Test |
-| FR-005b | Covered | Phase 2, I05a; Sensitivity Analysis |
-| FR-007 | Covered | Phase 2, I01; Logging |
-| FR-009 | Covered | Phase 4, C01; Compute Feasibility |
-| FR-012 | Covered | Phase 2, I05a; Baseline Handling |
-| FR-024 | Covered | Phase 2, I05b; Contracts |
-| FR-025 | Covered | Phase 0, R04 |
-| FR-026 | Covered | Phase 3, V01 |
-| FR-027 | Covered | Phase 2, I04; Bias Adjustment |
-| FR-028 | Covered | Phase 1, D03; Quickstart (T083) |
-| FR-030 | Covered | Phase 3, V02 |
-| FR-031 | Covered | Phase 3, V02/V03 |
-| FR-031b | Covered | Phase 3, V03 (≥100 real-world samples) |
-| FR-032 | Covered | Phase 2, I05b; Subgroup |
-| SC-001 | Covered | Phase 3, V03 |
-| SC-003 | Covered | Phase 3, V01 |
-| SC-005 | Covered | Phase 2, I01 |
-| SC-008 | Covered | Phase 4, C05 |
-| SC-013 | Covered | Phase 4, C02/C03 |
-| SC-014 | Covered | Phase 2, I05a; Wilson CI |
-| SC-015 | Covered | Phase 2, I05a; Sensitivity Analysis |
-| SC-024 | Covered | Phase 2, I05b; Contracts |
-| SC-025 | Covered | Phase 0, R04 |
-| SC-026 | Covered | Phase 3, V01 |
-| SC-027 | Covered | Phase 2, I04 |
-| SC-028 | Covered | Phase 1, D03; T083 |
-| SC-030 | Covered | Phase 3, V02 |
-| SC-031b | Covered | Phase 3, V03 |
-| SC-032 | Covered | Phase 2, I05b |
-
-## Task Registry
-
-| Task ID | Description | Phase | Status |
-|---------|-------------|-------|--------|
-| T026 | Synthetic Validation Dataset Generation (10,000 records via pinned seed) | Phase 3, V02 | Planned |
-| T044 | Power Analysis Calculation (N≥300) | Phase 0, R04 | Planned |
-| T062 | Monte Carlo Validation (10,000 replicates) | Phase 3, V01 | Planned |
-| T076 | Input Data Checksumming (data/checksums.txt) | Phase 4, C02 | Planned |
-| T077 | Output Artifact Checksumming (output/checksums.txt) | Phase 4, C03 | Planned |
-| T081 | Real-World Validation Set Annotation (≥100 samples) | Phase 3, V03 | Planned |
-| T082 | Real-World Extraction Evaluation | Phase 3, V03 | Planned |
-| T083 | Quickstart Runner Verification (default GitHub Actions runner) | Phase 4, C04 | Planned |
-| T099 | Constitution Compliance Audit (Principles I-VII) | Phase 3, V04 | Planned |

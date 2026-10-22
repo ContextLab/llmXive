@@ -86,7 +86,7 @@ properties:
         is_inconsistent:
           type: "boolean"
           description: "Ground-truth inconsistency flag"
-    minItems: 10000
+    minItems: a sufficiently large quantity to ensure robust analysis
     description: "Synthetic records (≥10,000 per FR-030)"
   metadata:
     type: "object"

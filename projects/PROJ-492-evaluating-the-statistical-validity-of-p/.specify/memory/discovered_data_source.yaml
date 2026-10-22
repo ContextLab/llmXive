@@ -1,14 +1,19 @@
 status: none
-intent: A/B testing results summaries dataset for p-value audit Kaggle UCI python
-  package dataset
+intent: download AB test summary dataset with validation set and statistical reference
+  python package dataset
 required_fields:
-- reported_p_value
-- control_sample_size
-- treatment_sample_size
-- control_conversions
-- treatment_conversions
-- summary_url
+- url
+- experiment_id
 - domain
-cache_key: 0330bf0cbff0de3bb8253923d9892053a90193d3d23d59fcf0d21a0b5a05dc59
-searched_at: '2026-10-16T03:40:38.241279+00:00'
+- variant_a_name
+- variant_b_name
+- sample_size_a
+- sample_size_b
+- conversion_rate_a
+- conversion_rate_b
+- reported_p_value
+- reported_confidence_interval
+- test_type
+cache_key: 416a0996b3eb28a33e5f5cc087b16495fcf6c5b94143f55bb3697097a7b26e23
+searched_at: '2026-10-22T01:21:58.705194+00:00'
 retry_count: 1

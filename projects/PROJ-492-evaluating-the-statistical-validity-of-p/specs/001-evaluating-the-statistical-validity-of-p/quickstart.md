@@ -1,59 +1,57 @@
 # Quickstart: Evaluating the Statistical Consistency of Public A/B Test Summaries
 
 ## Overview
-
-This guide enables a new user to execute the audit pipeline on a sample corpus of 30 URLs within 30 minutes on the **default GitHub Actions runner** (FR-028).
+Run the full audit on a small sample (≥ 30 URLs) in ≤ 30 minutes on the default GitHub Actions runner.
 
 ## Prerequisites
-
-- Python 3.11+
-- pip
+- Python 3.11+
+- `pip`
 - Git
 
-## Step 1: Prepare Input URLs
-
-Create a file `input/urls.csv` with a header `url` and a collection of reachable URLs (one per line).
+## Step 1: Prepare Input URLs
+Create `data/input/urls.csv` with a header `url` and at least 30 reachable URLs:
 
 ```csv
 url
 https://example.com/ab-test-1
 https://example.com/ab-test-2
-#... (minimum 30 for quickstart, ≥300 for full audit per FR-025)
+# … add at least 28 more …
 ```
 
-## Step 2: Install Dependencies
-
+## Step 2: Install Dependencies
 ```bash
+git clone https://github.com/your-org/ab-test-audit.git
+cd ab-test-audit
 pip install -r requirements.txt
 ```
 
-## Step 3: Run the Audit Pipeline
-
-Execute the main script. This performs extraction, reconstruction, and reporting.
-
+## Step 3: Run the Audit
 ```bash
-python -m src.cli.run_audit --input input/urls.csv --output output/
+python -m src.cli.run_audit \
+  --input data/input/urls.csv \
+  --output output/
 ```
+The script will:
+1. Download each URL and extract the required fields.  
+2. Reconstruct p‑values/effect‑sizes.  
+3. Flag inconsistencies (absolute 0.05 p‑value rule).  
+4. Perform the binomial prevalence test and bias adjustment.  
+5. Write `output/audit_report.json` and `output/summary_report.csv`.  
 
-**Expected Runtime**: ≤30 minutes for 30 URLs on **default GitHub Actions runner** (2 vCPU, 7GB RAM).
+## Step 4: Verify Output
+```bash
+ls output/
+# should show:
+# audit_report.json  summary_report.csv  checksums.txt
+```
+- Open `output/summary_report.csv` in a spreadsheet to see `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, and the Wilson CI bounds.  
+- Confirm that `output/checksums.txt` contains SHA‑256 hashes for both output files.  
 
-## Step 4: Verify Output
+## Step 5: Resource Check (automated)
+The CI workflow logs `cpu_time_seconds`, `memory_peak_mb`, and total `runtime_seconds` to `output/manifest.json`. Ensure:
+- `runtime_seconds` ≤ 1800 (30 min) for the quickstart run.  
+- `memory_peak_mb` ≤ 2000 (2 GB).  
 
-Check that the following files exist in `output/`:
-- `audit_report.json` (FR-024)
-- `summary_report.csv` (FR-024)
-- `checksums.txt` (T077)
+If any of these limits are exceeded, the run fails with a clear error message.
 
-## Step 5: Validate Results
-
-1. Open `output/summary_report.csv` to view inconsistency rates.
-2. Verify `output/checksums.txt` matches file hashes (T077).
-3. Check logs for parsing errors (FR-007). Ensure error rate ≤5% (SC-005).
-
-## Resource Compliance
-
-This pipeline is designed for the **default GitHub Actions runner** (Ubuntu-latest).
-- **Memory**: ≤7GB
-- **CPU**: ≤2 vCPUs
-- **Disk**: ≤14GB
-- **Time**: ≤6 hours
+---

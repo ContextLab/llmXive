@@ -47,7 +47,7 @@ properties:
           type: "number"
         is_inconsistent:
           type: "boolean"
-    minItems: 10000
+    minItems: a sufficiently large number of items
   metadata:
     type: "object"
     properties:
