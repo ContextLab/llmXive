@@ -16,10 +16,15 @@ It then writes a JSON file ``data/processed/setup_dirs_verified.json`` containin
 a list of objects, each with the absolute path of a created directory and the
 timestamp (ISO‑8601, UTC) at which the directory was confirmed/created.
 
+The script **must not** create or write to any ``state/`` directory,
+as that location is owned by the platform. If a stale ``state/`` directory
+exists from a previous run, it is removed to keep the project clean.
+
 The script exits with status 0 on success; any unexpected exception will
 propagate and cause a non‑zero exit code.
 """
 import json
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Dict
@@ -94,11 +99,30 @@ def write_manifest(entries: List[Dict[str, str]]) -> Path:
     log.info("Wrote verification manifest to %s", manifest_path)
     return manifest_path
 
+def clean_platform_state_dir() -> None:
+    """
+    Remove any ``state/`` directory that may have been created by a previous
+    version of this script. The platform owns ``state/``; the project must
+    not leave artefacts there.
+    """
+    state_dir = Path(paths.root, "state")
+    if state_dir.is_dir():
+        try:
+            shutil.rmtree(state_dir)
+            log.info("Removed platform‑owned state directory: %s", state_dir)
+        except Exception as e:
+            log.error("Failed to remove state directory %s: %s", state_dir, e)
+            # Propagate the error – we do not want to silently ignore platform‑owned artefacts.
+            raise
+
 def main() -> None:
     """
     Main entry point for the setup script.
     """
     log.info("Starting project directory setup...")
+    # Remove any stray platform‑owned ``state`` directory before proceeding.
+    clean_platform_state_dir()
+
     entries = ensure_directories(REQUIRED_DIRS)
     write_manifest(entries)
     log.info("Setup completed successfully.")

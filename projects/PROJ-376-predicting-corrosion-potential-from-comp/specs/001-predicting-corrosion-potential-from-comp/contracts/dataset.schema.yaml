@@ -1,61 +1,14 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Processed Corrosion Dataset Schema
-description: |
-  Schema for the processed dataset that is used for model training and evaluation.
-  Each record represents a single corrosion measurement together with its alloy
-  composition and the environmental conditions under which the measurement was
-  taken.
 type: object
 required:
-  - record_id
-  - specific_alloy_designation
-  - composition
-  - ph
-  - temperature_celsius
-  - electrolyte_type
-  - corrosion_potential_mV
+  - alloy_id
+  - features
+  - target
 properties:
-  record_id:
-    type: integer
-    description: Unique integer identifier for the record.
-  specific_alloy_designation:
+  alloy_id:
     type: string
-    description: Human‑readable alloy grade (e.g., "SS304", "Inconel625").
-  composition:
+  features:
     type: object
-    description: Mapping from element symbol to weight‑fraction (values sum to 1.0).
     additionalProperties:
       type: number
-      minimum: 0
-      maximum: 1
-  ph:
+  target:
     type: number
-    description: Measured pH of the test environment (range 0‑14).
-    minimum: 0
-    maximum: 14
-  temperature_celsius:
-    type: number
-    description: Temperature of the test environment in degrees Celsius.
-  electrolyte_type:
-    type: string
-    description: Categorical description of the electrolyte (e.g., "saline", "acidic").
-  corrosion_potential_mV:
-    type: number
-    description: Measured corrosion potential versus SHE, expressed in millivolts.
-additionalProperties: false
-examples:
-  - record_id: 1
-    specific_alloy_designation: "SS304"
-    composition:
-      Fe: 0.70
-      Cr: 0.19
-      Ni: 0.10
-      Mn: 0.01
-    ph: 7.0
-    temperature_celsius: 25.0
-    electrolyte_type: "neutral"
-    corrosion_potential_mV: -150.0
-# Note: The schema is intentionally permissive regarding which element symbols appear
-# in the composition object; any element symbol with a numeric weight‑fraction between
-# 0 and 1 is accepted. Downstream validation (e.g., sum‑to‑1) is performed by the
-# pipeline's preprocessing scripts.

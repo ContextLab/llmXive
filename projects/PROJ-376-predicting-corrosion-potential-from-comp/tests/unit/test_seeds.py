@@ -1,14 +1,13 @@
 """
 Unit test for the seed configuration loader.
 
-The test imports ``code.utils.config_loader`` (which automatically loads
-``config/seeds.yaml`` and applies the seeds) and then checks that the
-random state for ``numpy``, ``random`` and, if available, ``torch`` matches
-the expected deterministic values for seed ``42``.
+The test imports ``code.utils.config_loader`` (which automatically sets
+the seeds from ``config/seeds.yaml``) and then checks that the random state
+for ``numpy``, ``random`` and, if available, ``torch`` matches the expected
+deterministic values for seed ``42``.
 """
 
 import importlib
-import sys
 
 import numpy as np
 import random
@@ -32,9 +31,6 @@ def test_numpy_random_state():
     After seeding with 42, the first ``numpy.random.rand()`` call must
     yield the well‑known value 0.3745401188473625.
     """
-    # Reset numpy's generator to ensure the test is deterministic even if
-    # other code has already drawn from it.
-    np.random.seed(42)
     val = np.random.rand()
     assert np.isclose(val, 0.3745401188473625)
 
@@ -43,7 +39,6 @@ def test_python_random_state():
     After seeding with 42, the first ``random.random()`` call must yield
     0.6394267984578837.
     """
-    random.seed(42)
     val = random.random()
     assert abs(val - 0.6394267984578837) < 1e-12
 

@@ -29,7 +29,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
   **File path**: `code/utils/verify_logging.py` → scans the log file and asserts non‑emptiness per stage.  
   **Verification**: Script exits with status 0 only when the log is populated; otherwise raises `RuntimeError`.
 
-- [ ] **T028** Pin random seeds in a central configuration file and ensure all scripts load them.  
+- [X] **T028** Pin random seeds in a central configuration file and ensure all scripts load them.  
   **File path**: `code/utils/config_loader.py` reads `config/seeds.yaml` (contains `random_seed: 42`).  
   **Verification**: Unit test (`tests/unit/test_seeds.py`) checks that `np.random.seed`, `random.seed`, and `torch.manual_seed` (if torch is present) are set to the configured value.
 
@@ -57,7 +57,7 @@ Unchecked boxes indicate work that still needs to be completed or corrected; che
 
 ## Phase 3 – Data ingestion  
 
-- [ ] **T006** Implement the NIST‑IR‑8200 download script with exponential‑backoff retry logic (FR‑001, FR‑015) and optional Materials Project augmentation (FR‑019). Abort with `DataInsufficientError` if < 500 records after merging.   <!-- FAILED-IN-EXECUTION: code/cli/run_pipeline.py exit=1 -->
+- [ ] **T006** Implement the NIST‑IR‑8200 download script with exponential‑backoff retry logic (FR‑001, FR‑015) and optional Materials Project augmentation (FR‑019). Abort with `DataInsufficientError` if < 500 records after merging.   <!-- FAILED-IN-EXECUTION: code/cli/run_pipeline.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/cli/run_pipeline_download_test.py exit=4; code/cli/run_pipeline_validate_test.py exit=4; code/cli/run_pipeline_preprocess_test.py exit=4; code/cli/run_pipeline_train_test.py exit=4; code/cli/run_pipeline_evaluate_test.py exit=4; code/cli/run_pipeline_interpret_test.py exit=4 -->
   **File path**: `code/data/download_nist.py`.  
   **Outputs**: `data/raw/nist/` (raw NIST CSV/JSON) and `data/raw/materials_project/` (composition augment files).  
   **Verification**: Successful run creates both directories, logs attempts in `data/logs/download.log`, writes `data/logs/download_summary.json` containing `record_count` and `alloy_designation_count`, and exits with non‑zero status if thresholds are unmet.

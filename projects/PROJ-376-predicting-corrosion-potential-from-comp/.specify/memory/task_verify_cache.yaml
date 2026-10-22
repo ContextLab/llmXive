@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `state/setup_dirs_verified.json` file was presented, nor any evidence that\
-    \ the required directory hierarchy (`code/`, `data/`, etc.) exists. Without the\
-    \ JSON listing absolute paths and timestamps, the verification condition cannot\
-    \ be satisfied. The implementer must create the directories and produce the specified\
-    \ JSON file that the script exits with status\u202F0 only when all directories\
-    \ are present."
 T002:
   c: true
   h: ebdda83b4c1f342785f2b6630c05e9efef1797aac2649da1cc077220cbfee4f0
@@ -18,41 +9,38 @@ T002:
   sig: 6be7507f7170a83da19aeb23d04c3585a0b1f18d7f5e954185cf10a8bdc26ca9
 T003:
   c: true
-  h: bae533a6eb1e67933ba078be46e4c19877d4234968fb5942b0bde139b9ee484d
-  r: "Checked `code/utils/logging.py` for the required `get_logger` implementation,\
-    \ the presence and JSON\u2011line content of `data/logs/pipeline.log`, and the\
-    \ passing unit test `tests/unit/test_logging.py` which validates file creation\
-    \ and correct JSON fields. All artifacts exist, contain the proper logging behavior,\
-    \ and the test confirms compliance."
-  sig: b5ce27e98398837c9e4965bb47da270cf96f47b591bce432a372c8a23cd9653e
+  h: fc277c593c3d2dfd6f02f5296197fdc24e467da3b31a9091ff3eac53d16960d9
+  r: "Checked `code/utils/logging.py` for the required `get_logger` implementation\
+    \ and JSON\u2011line formatter, verified that it writes to `data/logs/pipeline.log`,\
+    \ and confirmed the unit test `tests/unit/test_logging.py` runs successfully and\
+    \ validates the JSON\u2011line format."
+  sig: e3a868b2ff0230177b4c85101f832cc207232d85c9b980a7687a78fa4645b654
 T003a:
   c: true
-  h: b2741dd925299067ce5b9f07332adec93785278506bf5f8478ce64e7257a1940
-  r: "Checked `data/logs/pipeline.log` (contains JSON\u2011lines with all required\
-    \ stages) and the implementation in `code/utils/verify_logging.py`, which correctly\
-    \ loads the log, validates presence of each stage, and exits with status\u202F\
-    0 (as shown by the execution log). All unit tests also pass, confirming the script\u2019\
-    s behavior."
-  sig: a2cebfeeefa6979472e73cc9c8be8767f1b50eb4fc8d2705cba32eddfc81bb71
+  h: 91036504e94fcde109fb4f736ae88d623ae7fcc5a460cf011f2b3a26d522bbcf
+  r: "The `data/logs/pipeline.log` file is present (4715\u202Fbytes) and includes\
+    \ JSON\u2011line entries for all expected stages (download, validate, preprocess,\
+    \ split, train, evaluate, interpret). The `code/utils/verify_logging.py` script\
+    \ correctly reads this log, confirms each stage is represented, and exits with\
+    \ status\u202F0 (as shown in its execution log). Unit tests also verify the script\u2019\
+    s behavior for success and failure cases."
+  sig: 7a35cde909930636889c82f87f32b841aefa421b60d55f24763d3ca62b149d12
 T004:
   c: true
-  h: 6a79db011589001ad732fdc88c1427fbe6fd7d9ff32662d1dcbaad1900492e65
-  r: "Checked the two contract files at the specified paths \u2013 both exist, are\
-    \ non\u2011empty, define the required properties (record_id, specific_alloy_designation,\
-    \ composition, ph, temperature_celsius, electrolyte_type, corrosion_potential_mV)\
-    \ and are syntactically valid YAML (no yamllint errors evident)."
-  sig: f6eda3132b2880ec41a6e31d193a2d42565894a53c05aafbef41af49acde0165
+  h: 89916f34424fdd1f6a421664ead3ab10f88c75336a22dce3071703919ecb1e40
+  r: "Checked that both `ingest.schema.yaml` and `dataset.schema.yaml` exist at the\
+    \ required paths, are non\u2011empty, contain valid YAML/JSON\u2011Schema definitions\
+    \ matching the expected fields, and show no linting errors."
+  sig: 2ffb8ae2ae0378f3e3e77f34713c7a1fadf04946ce667defcab341a901e5e404
 T005:
   c: false
-  h: 1c5f718c6cd31494742a2ec1c8f80408bc8df93c541d87ccc45ae50cb14413d4
+  h: 03a07a98daf0cb6b7ff2d8f5fcd891212453678401d24d173810bbe0849901f0
   r: The `code/utils/validate_schemas.py` file exists and defines the required `validate`
-    function, but the unit test `tests/unit/test_validate_schemas.py` fails (see the
-    execution log) because the referenced schema files (`ingest.schema.yaml` and `dataset.schema.yaml`)
-    are missing, causing `FileNotFoundError` before any validation occurs. The test
-    therefore does not demonstrate successful validation of compliant data. Fix by
-    adding the missing schema files (or correcting their paths) so the tests can run
-    and pass.
-  sig: 6f5308a74e4f124b972aea4ac08168815e89beb0fa2f2e68bd6c0081e5397796
+    function, but the unit test `tests/unit/test_validate_schemas.py` fails (FileNotFoundError)
+    because the referenced schema files (`ingest.schema.yaml` and `dataset.schema.yaml`)
+    are missing, so the test does not successfully validate a compliant sample without
+    raising. The missing schema artifacts must be added for the test to pass.
+  sig: ced0544a00a6f658446d666781c2f6a3c3bee63323ebb84c1403593be7f65fe7
 T009:
   c: false
   h: 5fb80ff4b715b8378ca9737077bb4161d947fc4f3f6f733a244a05d864e21533
@@ -70,13 +58,9 @@ T014:
     \ Moreover, the two required log files are absent from the repository. Consequently,\
     \ the task\u2019s requirements are not satisfied."
 T028:
-  c: false
-  h: 9b1c479de27f3a268ef6b3a7b45e253360e8ebf0987e92b7ecdfe4936ea3b9ec
-  r: "Checked `code/utils/config_loader.py`, `config/seeds.yaml`, and `tests/unit/test_seeds.py`.\
-    \ The loader reads the seed file and sets the seeds, but the provided unit test\
-    \ only verifies `GLOBAL_SEED` and the torch seed; it does **not** assert that\
-    \ `numpy.random.seed` or `random.seed` were actually set to 42, contrary to the\
-    \ task\u2019s verification requirement. The test should include checks that the\
-    \ first values from `np.random.rand()` and `random.random()` match the expected\
-    \ deterministic outputs after import."
-  sig: ce4bfedd21755b8b61938838eca4c037d79bfe2968938dcb11f6d3e30758c2ab
+  c: true
+  h: a7c1d7c93f369edbad25a3e72e0f893da2744ee471a8fc6a84e90c6e85de3933
+  r: "Checked `code/utils/config_loader.py`, `config/seeds.yaml`, and the passing\
+    \ unit test `tests/unit/test_seeds.py` which confirms the seed 42 is loaded and\
+    \ applied to NumPy, Python\u2019s `random`, and Torch (if available)."
+  sig: 610b3b29c3de02a1c591f0d6e103915ebb015a8889b359043b2b033e87899ada
