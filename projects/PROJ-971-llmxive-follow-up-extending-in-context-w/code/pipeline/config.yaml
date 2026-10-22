@@ -1,0 +1,10 @@
+# Minimal configuration for the grid‑search labeling step.
+# The environment used is the default PickPlace from robosuite.
+env_name: PickPlace
+max_episode_steps: 100
+seeds:
+  - 42
+  - 101
+  - 202
+  - 303
+  - 404

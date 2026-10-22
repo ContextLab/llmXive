@@ -15,7 +15,7 @@ For every ``clip_*.npz`` file found in ``data/raw/`` it:
      dimensions,
    * **spectral density** – mean power spectral density (Welch estimate) across
      dimensions.
-4. Writes a CSV file ``data/descriptors_subset.csv`` that conforms to the
+4. Writes a CSV file ``data/processed/descriptors.csv`` that conforms to the
    JSON‑Schema located at
    ``specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml``.
 
@@ -31,7 +31,7 @@ optional CLI flags to customise input / output locations:
 
     python -m src.pipeline.extract_descriptors \\
         --input-dir data/raw \\
-        --output data/descriptors_subset.csv
+        --output data/processed/descriptors.csv
 
 The CI quick‑start invokes the script without arguments, relying on the
 default ``paths`` helpers.
@@ -58,6 +58,10 @@ except ImportError as exc:
 
 log = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Descriptor helper functions
+# ----------------------------------------------------------------------
+
 
 def _variance(tokens: np.ndarray) -> float:
     """Return the overall sample variance of the token matrix."""
@@ -80,6 +84,7 @@ def _lag1_autocorrelation(tokens: np.ndarray) -> float:
     for dim in range(tokens.shape[1]):
         x = tokens[:-1, dim]
         y = tokens[1:, dim]
+        # If the series is constant, correlation is undefined – treat as 0.
         if np.allclose(x, x[0]) and np.allclose(y, y[0]):
             corrs.append(0.0)
         else:
@@ -103,6 +108,11 @@ def _mean_spectral_density(tokens: np.ndarray) -> float:
         f, pxx = welch(tokens[:, dim], nperseg=min(256, tokens.shape[0]))
         psd_means.append(float(np.mean(pxx)))
     return float(np.mean(psd_means))
+
+
+# ----------------------------------------------------------------------
+# Core processing
+# ----------------------------------------------------------------------
 
 
 def process_clip(clip_path: Path) -> dict:
@@ -135,8 +145,14 @@ def process_clip(clip_path: Path) -> dict:
 
     # Compute descriptors.
     var = _variance(tokens)
-    ac1 = _lag1_autocorrelation(tokens)
-    spec = _mean_spectral_density(tokens)
+
+    # Edge‑case handling: near‑zero variance → set dependent descriptors to 0.
+    if var < 1e-8:
+        ac1 = 0.0
+        spec = 0.0
+    else:
+        ac1 = _lag1_autocorrelation(tokens)
+        spec = _mean_spectral_density(tokens)
 
     return {
         "clip_id": clip_path.stem,
@@ -156,9 +172,9 @@ def extract_all_descriptors(input_dir: Path, output_path: Path) -> None:
     if not npz_files:
         log.warning(f"No clip files found in {input_dir}. Writing empty descriptor CSV.")
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        pd.DataFrame(columns=["clip_id", "variance", "autocorr_lag1", "spectral_density"]).to_csv(
-            output_path, index=False
-        )
+        pd.DataFrame(
+            columns=["clip_id", "variance", "autocorr_lag1", "spectral_density"]
+        ).to_csv(output_path, index=False)
         return
 
     records = []
@@ -189,8 +205,8 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         type=Path,
-        default=paths.data("descriptors_subset.csv"),
-        help="Path to the output CSV file (default: data/descriptors_subset.csv).",
+        default=paths.data("processed", "descriptors.csv"),
+        help="Path to the output CSV file (default: data/processed/descriptors.csv).",
     )
     return parser.parse_args()
 

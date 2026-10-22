@@ -1,52 +1,60 @@
 T001:
-  task: e0a7c78ac8e9e8cad9542ecc62bd22edd9c82d5fbe7c37fb714f2def7e65a425
+  task: a1fa9ec922d0502fb6673e4009c127577659ade8d4e42d58e2c72bcdd595fb8a
 T002:
-  task: 28d1f8c658e9f4da6991a31c0413b3066f85153a1803d57e9954047d278e9ebe
+  task: c84a75669ba6506c448380019bedbdf7d5764eaf70eb6edb0d914f03eeb39050
 T003:
-  task: 12f4ec4c4e55658a1f7ebd32133859d968ab71b715117afd737a4162174fd8b2
+  reason: "The provided `tests/test_descriptor_schema.py` looks for the schema at\
+    \ `specs/001-auto-icwm-latent-dynamics/contracts/descriptor.schema.yaml`, but\
+    \ the actual schema file is located at `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`;\
+    \ this causes the test to fail with a FileNotFoundError. Additionally, there is\
+    \ no test or code that asserts the required sanity check \u201Cvariance_high\u202F\
+    >\u202F2\u202F\xD7\u202Fvariance_low\u201D for a known high\u2011 vs low\u2011\
+    variance clip pair. These missing/incorrect verification steps mean the task\u2019\
+    s acceptance criteria are not fully met."
+  task: 122ef7f38385dd08bda424450099818fde99ea24eda817f279025496d3030a7a
 T004:
-  reason: "The task requires actually running `run_end_to_end.py --subset 50` and\
-    \ producing a printed 50-row summary table, but the evidence contains only source\
-    \ files \u2014 no execution output, no generated `data/raw/clip_*.npz` files,\
-    \ no `data/processed/descriptors.csv` or `data/descriptors_subset.csv`, and no\
-    \ run log, so there is no proof the pipeline ever ran or that the table was printed.\
-    \ Additionally, there are two divergent copies of `generate_clips.py` and `extract_descriptors.py`\
-    \ (`code/src/pipeline/` vs `src/pipeline/`), and the `code/src` extract_descriptors\
-    \ version depends on a schema file (`spec"
-  task: 38c33a84128d4ce7f18a01f55d5a504dcbc14eec7fe112e46e08240347770c59
+  reason: Checked `data/processed/descriptors_subset.csv`, `data/processed/descriptors.csv`,
+    and the execution log `code/.tasks/T004.src_pipeline_run_all.py.log`, which show
+    the pipeline was run and the CSVs were written. However, the required `logs/run_end_to_end.log`
+    file is not provided (no table or checksum evidence), and there is no proof that
+    schema validation was performed on `descriptors.csv`. These missing artifacts
+    prevent confirming full task completion.
+  task: f6e5cf012bee162daaecc2d1c3f4c698a4cf91c2d395ec0af2751fd1f777e1fc
 T005:
-  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/grid_search_labels.py
-    exit=1'
-  task: b07512d7440ab7650626c9b52ec7f4e3321f8e80d016932f70630b5fee29abcf
+  task: b84fd29d315d45663f84721074228bae6dfb77ba99325f78b4f92cef958afe44
 T006:
-  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/train_regressor.py
-    exit=1'
-  task: 25c79ef82ba4f463b10960207827c16afb2a158dc98bce892a46f14dcf425680
+  task: cfce4e71a441ee5378691c44ab44ce8d498ce1d0313603b04b5e958d53a51106
 T007:
-  reason: 'Requested task execution failed; rerun successfully: scripts/run_minimal.sh
-    exit=1'
-  task: f22a3a5d18f246fd8259190deb0fa4ad54e79e40869feb978b442f2596c9a4a4
+  task: 19f9c0b81090147b3d47411b9612715566acfe8cd4b1ee0b66b0533d31a05c8d
 T008:
-  task: 3ef7b8b1d4fe779595adc1d342b2bee0279af9d6ad35abdd387b18fdd335c456
+  task: 652135d6d66de8e60a88d8a456903f8ce63f14fc8dcee1899354ca708fd5eae6
 T009:
-  task: 028c6967cf606e170f0d1b65ae0f8495477f14f53ba9fb13b6e2c641a418ff7d
+  task: 81c3a7cb5885d81f11f1d47bc8e832962927bf67a4cc5a86eac5c4400b74653b
 T010:
-  task: 2dddd10f507334d1fe0e8357a0c4e666bb8cd3675982eee0e1443a9a985e28b4
+  task: 37cc0dd3931e5b325b9f623af779bb7f8da5ecb360bad2af3d01cfe9854fd7c8
 T011:
-  task: 15b5e92ab8d789a25987ed0ec452e29710c85f7c741b0c9d44bdf8429a995f95
+  task: dc7fdf5611ca0309cbe69166052bd5812023280e02d4bf03edee4d1d0d103fe1
 T012:
-  task: 7af61ec3a97bdac805473d5fb820f42881747f19e965126525d33aed5012fa7a
+  task: 18f366550ee6f3c38faa6ed6d45081bd731f6ee95622198345d7cbc608cfcc0f
 T013:
-  task: d620d8a23d68341f5f49134b753e6acbdf7a16f4a9c7e512325a645a3371cf53
+  task: 32aa421ef394c97e393a19816aa214f81c7404e1ca49466e36402770de78e083
 T014:
-  task: f531c765f24da9d5db3e279d468b5e2341d05fcded98c9e40ebf21769c623863
+  task: f7885182beac0fe25ebbb619966fddb340335a7963578d640a79b4cb038b5d2c
 T015:
-  task: b58b56b5cf6fd2019f8d57f03cb1ec611ca6731467fe87cf20527e4c32552643
+  task: d6df3528cc373fa4decfd7b03b3b8f6dbe2db378a434ba749b05f65732277514
 T016:
-  reason: The test `code/tests/test_descriptor_schema.py` exists, but it raises a
-    `FileNotFoundError` because the required schema file `specs/001-auto-icwm-latent-dynamics/contracts/descriptor.schema.yaml`
-    is missing, causing pytest to fail. The missing schema file must be added (or
-    the path corrected) and the test must pass for the task to be considered complete.
-  task: 30062d10ff1bea3f2e08046ee496a0e32f7ae62fb1cc6f2ebd71400b82409654
+  task: e60a6ac0300f8a4e09ff1f66543ae56fad9d623829f7a135ef846d5f4370d48e
 T017:
-  task: 1ea03f366b89a4c50a48b2c8c8fb37a1b202c6bc111784f947bd45998087c1f7
+  task: 8923aab3ea6c9095765ae1d29ca45f6065680fa07580d60a1884f3ca683487b8
+T018:
+  reason: 'Requested task execution failed; rerun successfully: code/src/pipeline/verify_checksum.py
+    exit=1'
+  task: 76087991286610024b4c34e51ce7a5e6ec9a448e3205d2db0bf7bb75de5fe0fb
+T020:
+  task: fe2d857af8fb91dd3b52dbfa69ce201839e2da4c8a1a1b77847c46ffbb40410f
+T021:
+  task: ab12cd51437853e066e26d86a272f818c380414d53f207db92a77a33e6ab8567
+T022:
+  task: e410a8721b20068690d16c3385a6921f876216012d668273da7f5e446cfc653d
+T023:
+  task: f4c4a7da1cba401e139528c898bb5c430aeb763f8c17b58307d2fda3ac58cf37

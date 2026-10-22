@@ -1,68 +1,36 @@
 T001:
   c: true
-  h: 2d0bf5e4ed0fbb8e3c71442a01d2828e5d083845320517b4d75ccec4abd85e6d
-  r: The quickstart.md documents a single command (`bash -c "source scripts/quickstart.sh
-    && ./scripts/run_minimal.sh"`) for the 50-clip minimal pipeline, and the historical
-    execution log shows that command exiting 0 with 50 clips processed. Both `data/processed/descriptors.csv`
-    and the legacy `data/descriptors_subset.csv` exist, non-empty, with the required
-    columns (clip_id, variance, autocorr_lag1, spectral_density) and 50 rows of finite
-    values matching the run log output.
-  sig: ffee87fa61580c0cb7c82c7cc1d23c88112cd309746c829b7ce5d0a0aa912a92
+  h: 0ca678945af61a3ed03afd1ffeb644dfa91095c22d60b8e791c38ca39180939b
+  r: Checked that `quickstart.md` contains the exact command `python -m src.pipeline.run_all
+    --subset 50`, that the CI log (`code/.tasks/T001.src_pipeline_run_all.py.log`)
+    shows the command ran successfully and produced `data/processed/descriptors.csv`
+    with 50 data rows, and verified the CSV matches the required schema fields.
+  sig: 47480c4c772beae6fb7d2c4565be3a561c8a26e4f3b09e05b82466d910ce24b9
 T002:
   c: true
-  h: d3afa59f0b5518f58f107684713eb654af0872bbef8a18e1b3760a35dc5d292b
-  r: The script `code/src/pipeline/generate_clips.py` exists and generates real CartPole
-    trajectories with fixed seeds, saving `states`, `actions`, and `observations`
-    arrays. The `data/raw/` directory contains exactly 50 `clip_*.npz` files, and
-    the inspected npz contents (clip_000, clip_049) confirm all three required arrays
-    are present with non-trivial, varying data.
-  sig: 06465e5588928419b05f239cbe407aba7d159ceb2d5c203e2648aaea1c13f37c
+  h: 2f5996d3c4d0f1bc2cf7e5511c835e9c9333d0a4956807a0dedf9817004f8e29
+  r: Checked `src/pipeline/generate_clips.py` (creates deterministic clips) and the
+    presence of exactly 50 `.npz` files in `data/raw/` (e.g., `clip_000.npz` and `clip_049.npz`)
+    each containing the three required arrays (`states`, `actions`, `observations`).
+  sig: 130eea6d708fe4825a9a67c31b36149ad7a4264a7810eb9e60f8f5a54dd0ab3a
 T003:
-  c: true
-  h: b3071493bc7a9780c0b16fecd0c5cf20acb3d23b1c7a54c1c7b4b28c276066ef
-  r: "The script exists and implements all required descriptors (variance, lag-1 autocorrelation\
-    \ with zero-variance edge case, Welch spectral density), schema validation, null\
-    \ checks, and the variance-ratio assertion; the CSV exists with 50 non-null rows\
-    \ matching the schema columns, and the execution log shows a successful exit-0\
-    \ run writing that CSV. The variance ratio check is satisfied by the data (max\
-    \ 0.679 > 2\xD7min 0.085)."
-  sig: 2b378fcb08d8bbb7c5f45505d20b05820c457d48d2485e7eda688f270580e139
+  c: false
+  h: a2f7dff5487efbd98e8d9c0963ad1d668aeb5831a9d57ddb32cd259d071f1825
+  r: "The provided `tests/test_descriptor_schema.py` looks for the schema at `specs/001-auto-icwm-latent-dynamics/contracts/descriptor.schema.yaml`,\
+    \ but the actual schema file is located at `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`;\
+    \ this causes the test to fail with a FileNotFoundError. Additionally, there is\
+    \ no test or code that asserts the required sanity check \u201Cvariance_high\u202F\
+    >\u202F2\u202F\xD7\u202Fvariance_low\u201D for a known high\u2011 vs low\u2011\
+    variance clip pair. These missing/incorrect verification steps mean the task\u2019\
+    s acceptance criteria are not fully met."
+  sig: 9fcb79c88b0fc19b0583e3d0da4cd31dcee70c9a05e00d310deb02a9157c43e5
 T004:
   c: false
-  h: a7552b03f0f3de84e9922119ddf48a7d274f344d8e91dedeccb16aedea05b48d
-  r: "The task requires actually running `run_end_to_end.py --subset 50` and producing\
-    \ a printed 50-row summary table, but the evidence contains only source files\
-    \ \u2014 no execution output, no generated `data/raw/clip_*.npz` files, no `data/processed/descriptors.csv`\
-    \ or `data/descriptors_subset.csv`, and no run log, so there is no proof the pipeline\
-    \ ever ran or that the table was printed. Additionally, there are two divergent\
-    \ copies of `generate_clips.py` and `extract_descriptors.py` (`code/src/pipeline/`\
-    \ vs `src/pipeline/`), and the `code/src` extract_descriptors version depends\
-    \ on a schema file (`spec"
-  sig: f01d57114f7f8de3b737ddbf602c56fc14b49f42f391644b99bfdff6d3869d77
-T005:
-  c: false
-  h: 95e9fb38239f9a81cd5a314591aaa33d7eade3dc5a086bc22cc958d6fa8d8282
-  r: "The produced `data/processed/labels.csv` is 1 byte (empty) \u2014 the run log\
-    \ shows it completed in 0.5s with no clips processed, so no labels were actually\
-    \ generated. Additionally, the required `label.schema.yaml` and `src/pipeline/config.yaml`\
-    \ (fixed seeds) do not exist, and the \"policy evaluation\" is a synthetic MSE\
-    \ heuristic on precomputed latents, not N=5 robosuite episodes with success from\
-    \ environment termination flags, nor is there any clip-to-configuration-ID mapping."
-  sig: 27e11654c8f03f8179571f0acb52e7abb09e11ed17ad2b493f6cdd039c7e745f
-T006:
-  c: false
-  h: 642b0ead9dd5450502ec2e2946818f57cd8f730c01fccc71f793e964a069d57b
-  r: "The `train_regressor.py` script runs and writes `metrics.json`, but the metrics\
-    \ show a baseline MSE of\u202F0.0 and a validation MSE >\u202F0, so `meets_sc006`\
-    \ is false \u2013 the regressor does **not** beat the temperature\u2011only baseline\
-    \ as required. Additionally, the promised verification test `code/tests/test_train_regressor_metrics.py`\
-    \ is missing."
-  sig: 27642b84baae5d21d156afed562882fd6d233f3ab8449166b1eb8618486d6539
-T016:
-  c: false
-  h: 8b7f68f9d95ee7505d849c767998535ecee600a4d2783cac9eec2c81a3df7a57
-  r: The test `code/tests/test_descriptor_schema.py` exists, but it raises a `FileNotFoundError`
-    because the required schema file `specs/001-auto-icwm-latent-dynamics/contracts/descriptor.schema.yaml`
-    is missing, causing pytest to fail. The missing schema file must be added (or
-    the path corrected) and the test must pass for the task to be considered complete.
-  sig: 674de34973ea463ca4c2b94a68b03225929aa886c27f2d93d98871fe494903a7
+  h: cba35dc466f53a143d7279ae8e1adcb9ccf36aa78e71efa65c7ece532f9b30da
+  r: Checked `data/processed/descriptors_subset.csv`, `data/processed/descriptors.csv`,
+    and the execution log `code/.tasks/T004.src_pipeline_run_all.py.log`, which show
+    the pipeline was run and the CSVs were written. However, the required `logs/run_end_to_end.log`
+    file is not provided (no table or checksum evidence), and there is no proof that
+    schema validation was performed on `descriptors.csv`. These missing artifacts
+    prevent confirming full task completion.
+  sig: baab8834aec68775c13df8c699dea9b18d73a8ec91b6c9ff1df308dc67e4c0fa

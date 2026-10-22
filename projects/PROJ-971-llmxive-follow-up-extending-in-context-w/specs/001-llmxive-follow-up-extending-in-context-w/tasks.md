@@ -7,11 +7,11 @@ All scripts live under `src/pipeline/`; all outputs follow the plan’s data‑m
 
 ## User Story 1 – Automated Latent Statistic Extraction (US‑1)
 
-- [ ] T001 [P1] [US1] **Document project layout & quick‑start command**  
+- [X] T001 [P1] [US1] **Document project layout & quick‑start command**  
   - Creates `quickstart.md` that explains the single command `python -m src.pipeline.run_all --subset 50`.  
   - *Verification*: CI runs the command on a fresh checkout; it must finish without error, produce `data/processed/descriptors.csv` (50 rows), and the command listed in `quickstart.md` must match the executed command **exactly**. Additionally, the generated `descriptors.csv` is validated against `specs/001-llmxive-follow-up-extending-in-context-w/contracts/descriptor.schema.yaml`.
 
-- [ ] T002 [P1] [US1] **Generate a small dataset of interaction clips**  
+- [X] T002 [P1] [US1] **Generate a small dataset of interaction clips**  
   - `src/pipeline/generate_clips.py` creates 50 reproducible clips (`data/raw/clip_<id>.npz`) containing the three arrays `states`, `actions`, `observations`.  
   - *Verification*: `ls data/raw | wc -l` equals 50 **and** each `.npz` file loads successfully and contains the required three arrays.
 
@@ -25,7 +25,7 @@ All scripts live under `src/pipeline/`; all outputs follow the plan’s data‑m
   - Produces a 50‑row summary table (printed to stdout) and writes `data/processed/descriptors_subset.csv`.  
   - *Verification*: `logs/run_end_to_end.log` contains the full printed table; the SHA‑256 checksum of the table matches that of `descriptors_subset.csv`. Additionally, the run asserts that `data/processed/descriptors.csv` exists and passes schema validation.
 
-- [ ] T018 [P1] [US1] **Verify end‑to‑end summary checksum**  
+- [ ] T018 [P1] [US1] **Verify end‑to‑end summary checksum**   <!-- FAILED-IN-EXECUTION: code/src/pipeline/verify_checksum.py exit=1 -->
   - Computes SHA‑256 of the printed 50‑row table and compares it to the checksum recorded for `data/processed/descriptors_subset.csv`.  
   - *Verification*: CI fails if the two checksums differ.
 

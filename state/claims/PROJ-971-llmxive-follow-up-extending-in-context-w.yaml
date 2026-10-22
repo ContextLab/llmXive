@@ -78,3 +78,84 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-19T23:15:15Z'
+- artifact_path: projects/PROJ-971-llmxive-follow-up-extending-in-context-w/quickstart.md
+  attempts: 1
+  canonical: generate 50 reproducible interaction clips
+  claim_id: c_a658f5b2
+  context: Running the full pipeline command will generate 50 reproducible interaction
+    clips.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Generate 50 reproducible interaction clips (data/raw/clip_*.npz).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:26:24Z'
+- artifact_path: projects/PROJ-971-llmxive-follow-up-extending-in-context-w/quickstart.md
+  attempts: 1
+  canonical: extract latent descriptors for every clip and write descriptors.csv
+  claim_id: c_bd75d8b8
+  context: Step 2 of the pipeline extracts latent descriptors for each clip and saves
+    them.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command will extract latent descriptors (variance, lag\u20111 autocorrelation,\
+    \ Welch spectral density) for every clip and write data/processed/descriptors.csv."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:26:24Z'
+- artifact_path: projects/PROJ-971-llmxive-follow-up-extending-in-context-w/quickstart.md
+  attempts: 1
+  canonical: perform grid-search labeling for each clip and write labels.csv
+  claim_id: c_ab850cf7
+  context: "Step 3 of the pipeline performs labeling via grid\u2011search for each\
+    \ clip."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command will perform a real grid\u2011search labeling for each clip\
+    \ and write data/processed/labels.csv."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:26:24Z'
+- artifact_path: projects/PROJ-971-llmxive-follow-up-extending-in-context-w/quickstart.md
+  attempts: 1
+  canonical: descriptor table has 51 lines
+  claim_id: c_e6dfbcdf
+  context: After running the pipeline, the descriptor CSV is expected to contain 51
+    lines.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The descriptor table should have 51 lines (header + 50 rows).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:26:24Z'
+- artifact_path: projects/PROJ-971-llmxive-follow-up-extending-in-context-w/quickstart.md
+  attempts: 1
+  canonical: label table has 51 lines
+  claim_id: c_6aff9c93
+  context: After running the pipeline, the label CSV is expected to contain 51 lines.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The label table should have 51 lines (header + 50 rows).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:26:24Z'

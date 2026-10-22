@@ -1,11 +1,10 @@
 status: none
-intent: download ICWM interaction clip dataset with state action observation tuples
-  python package dataset
+intent: download ICWM interaction clip dataset and pretrained encoder python package
 required_fields:
 - clip_id
-- states
-- actions
-- observations
-cache_key: 81ea5614e455127fbade0a160619d71a8e833640b128984a6993643b12f90143
-searched_at: '2026-10-20T00:48:16.276750+00:00'
+- state_vector
+- action_vector
+- observation_vector
+cache_key: 51bc7e69be256d07b12b27d868ac9e0c2ad0a10afb40201cb376c38529f98a72
+searched_at: '2026-10-22T18:28:17.323210+00:00'
 retry_count: 1
