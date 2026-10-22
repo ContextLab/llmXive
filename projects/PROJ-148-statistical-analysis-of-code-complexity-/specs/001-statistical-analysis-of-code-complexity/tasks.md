@@ -1,57 +1,160 @@
 # Tasks: Statistical Analysis of Code Complexity Metrics and Bug Prediction
 
-**Input**: `spec.md`, `plan.md`, `data-model.md`, `contracts/`, original research idea  
-**Prerequisites**: `plan.md` (required), `spec.md` (required)  
-**Re-plan note**: Duplicate task IDs (T040–T045 appearing in both Phase 0 and Phase N) have been removed; each identity now appears exactly once. Rejected tasks T041, T042, T045 are reopened below with corrected requirements. GHTorrent is no longer a reachable archive service; the data‑acquisition tasks use a verified real alternative — direct `git clone` of ≥10 well‑known public Java repositories on GitHub (real URLs, real commit histories) — which preserves the spec's scientific requirements (Java source, commit metadata, issue‑linkage labeling via regex).
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, all contract schemas, the original research idea, and any reviewer feedback.
 
-## Phase 1: Setup and first end‑to‑end analysis
+The goal is to deliver a fully reproducible end‑to‑end pipeline that satisfies every functional requirement (FR‑001 … FR‑009) and success criterion (SC‑001 … SC‑003) in the specification.  
+Tasks are grouped by research phase; each task is a single unchecked checkbox that can be marked when its artifact exists and its verification step passes.
 
-- [ ] T001 [US1] Fix the data‑model design document (`specs/001-statistical-analysis-of-code-complexity/data-model.md`) so it matches spec Section 4 exactly: function‑level rows keyed by `file_path` + `function_name` + `start_line`/`end_line`, integer `cyclomatic_complexity`, columns `loc`, `token_count`, `nesting_depth`, `halstead_volume`, `bug_label`, `project_id`, output file `data/processed/bug_complexity_dataset.csv`. Remove all placeholder markers (`{{claim:...}}`, `[UNRESOLVED-CLAIM: ...]`). Keep the pre‑fix‑snapshot temporal constraint and the LOC/token_count collinearity note. Verification: document contains no placeholder markers and its column list matches spec Section 4 field‑for‑field.
+---
 
-- [ ] T002 [US1] Implement real data acquisition (`code/data/download_gh.py`): clone a fixed, hardcoded list of ≥10 real public Java repositories (e.g., `https://github.com/TheAlgorithms/Java.git`, `https://github.com/junit-team/junit5.git`, `https://github.com/google/guava.git`, `https://github.com/apache/commons-lang.git`, `https://github.com/spring-projects/spring-framework.git`, `https://github.com/mockito/mockito.git`, `https://github.com/google/exoplayer.git`, `https://github.com/apache/kafka.git`, `https://github.com/elastic/elasticsearch.git`, `https://github.com/ReactiveX/RxJava.git`) into `data/raw/<project_id>/` using `git clone --filter=blob:none` (partial clone, chunked checkout to stay within RAM/disk). If a clone fails, RAISE — never fall back to synthetic data. Record SHA‑256 checksums of the resulting trees via `code/utils/checksum.py` into `data/raw/checksums.csv`. Verification: `data/raw/` contains ≥10 real cloned repos with `.git` histories; `checksums.csv` has one row per project.
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T003 [US1] Implement bug‑fix labeling from real git history (`code/data/label_bug_fixes.py`): for each repo, run `git log --name-only` and regex‑match bug‑fix commit messages (`fix(es|ed)?`, `bug`, `close(s|d)? #\d+`, `resolve(s|d)? #\d+`). Emit **file‑level** rows (`project_id`, `file_path`, `bug_label=1`) for files touched by bug‑fix commits; also emit `bug_label=0` rows for a random sample of untouched files from the same snapshot. Fail loudly if a repo yields zero bug‑fix commits. Verification: `data/interim/labels_<project>.csv` per project with columns `project_id`, `file_path`, `bug_label`.
+| Goal | Run a minimal, real‑data pipeline that produces a valid `bug_complexity_dataset.csv` and demonstrates that the modeling code works on a small subset. |
+|------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T005 [US1] Validate bug‑label reliability (`code/data/validate_bug_labels.py` + `code/tests/test_bug_label_validation.py`): audit a fixed‑seed random sample of ≥100 labeled bug‑fix commits; for each sampled commit, (a) confirm the regex‑matched keywords are present, **and** (b) cross‑check the referenced issue number via the GitHub API to ensure the issue is labeled as a bug and is closed. Compute precision and FAIL the pipeline if precision < 0.85. The function signature must be `validate_bug_labels(df, precision_threshold=0.85)` returning a dict with a `passed` boolean, matching the test file's calls. Verification: `pytest code/tests/test_bug_label_validation.py` passes; `data/results/label_validation.json` records sample size, precision, and `passed`.
+- [ ] **T001** [US1] Align the data‑model design document (`specs/001-statistical-analysis-of-code-complexity/data-model.md`) with **Section 4** of `spec.md`.  
+  - Ensure the column list exactly matches the specification (function‑level keys, `cyclomatic_complexity` as integer, `loc`, `token_count`, `nesting_depth`, `halstead_volume`, `bug_label`, `project_id`, `file_path`, `function_name`, `start_line`, `end_line`).  
+  - Remove every placeholder marker (`{{claim:…}}`, `[UNRESOLVED‑CLAIM: …]`).  
+  - **Verification**: The file contains no placeholder text and its table of fields matches the spec line‑for‑line.
 
-- [ ] T004 [US1] Implement complexity‑metric extraction with lizard (`code/data/extract_metrics.py`): run `lizard` (pinned version) on the **pre‑fix** snapshots identified by T003, emitting per‑function rows with `function_name`, `start_line`, `end_line`, `cyclomatic_complexity` (integer), `loc`, `token_count`, `nesting_depth`, `halstead_volume`. Join with the **file‑level** labels from T003 to produce `data/processed/bug_complexity_dataset.csv` that conforms to the **updated** `contracts/dataset.schema.yaml` (see T014). Skip unparsable files with a logged warning; process one repository at a time, deleting intermediate checkouts to stay within ~7 GB RAM / ~14 GB disk. Verification: CSV has ≥10 000 rows, ≥5 metric columns, binary `bug_label`, all 10+ `project_id`s present; a contract test in `code/tests/test_dataset_schema.py` validates the CSV against the schema.
+- [ ] **T002** [US1] Implement real data acquisition in `code/data/download_gh.py`:  
+  - Clone a hard‑coded list of **≥ 10** public Java repositories (e.g., `https://github.com/TheAlgorithms/Java.git`, `https://github.com/junit-team/junit5.git`, `https://github.com/google/guava.git`, …) using `git clone --filter=blob:none` into `data/raw/<project_id>/`.  
+  - Abort with an exception if any clone fails (no synthetic fallback).  
+  - Record a SHA‑256 checksum for each repository tree in `data/raw/checksums.csv`.  
+  - **Verification**: `data/raw/` contains ≥ 10 directories each with a `.git` folder; `checksums.csv` has one row per project and matches the on‑disk tree hashes.
 
-- [ ] T006 [US1] Preprocess and split (`code/data/preprocess.py`, `code/data/split_dataset.py`): impute missing values when <5 % of rows affected (else drop), log‑transform metrics with skewness >2, drop rows with >5 % missing features. Then perform a **project‑level stratified** 70/30 train/test split — ALL functions of a project in exactly one split — with an assertion that no `project_id` appears in both. Save `data/processed/train_split.csv` and `data/processed/test_split.csv`. Verification: split assertion passes; train fraction is 70 % ± 5 % of projects; both CSVs validate against the dataset schema.
+- [ ] **T003** [US1] Implement bug‑fix labeling in `code/data/label_bug_fixes.py`:  
+  - For each cloned repo, run `git log --name-only` and regex‑match bug‑fix commit messages (`fix(es|ed)?|bug|close(s|d)? #\d+|resolve(s|d)? #\d+`).  
+  - Emit **file‑level** rows (`project_id`, `file_path`, `bug_label=1`) for files touched by bug‑fix commits.  
+  - Emit `bug_label=0` rows for a random sample of untouched files from the same snapshot (fixed random seed).  
+  - Fail loudly if a repository yields zero bug‑fix commits.  
+  - **Verification**: For every project, `data/interim/labels_<project>.csv` exists with columns `project_id,file_path,bug_label` and contains at least one row with `bug_label=1`.
 
-- [ ] T007 [US2] Create the model‑output contract schema (`specs/001-statistical-analysis-of-code-complexity/contracts/model_output.schema.yaml`) exactly matching the read‑only contract above (model_type, roc_auc, pr_auc, calibration_error, feature_importance with FDR‑corrected p‑values, stability_correlation, partial_dependence with thresholds), and a contract test `code/tests/test_model_output_schema.py` that validates every emitted result JSON against it. Verification: `pytest code/tests/test_model_output_schema.py` passes against a real result file.
+- [ ] **T004** [US1] **Fix** the bug‑label validation implementation (addresses rejected **T045**).  
+  - Update `code/data/validate_bug_labels.py` to expose `validate_bug_labels(df: pd.DataFrame, precision_threshold: float = 0.85) -> dict` where `df` has columns `project_id`, `file_path`, `bug_label`.  
+  - The function samples a fixed‑seed 100 rows, checks that the regex‑matched keywords are present, and verifies the referenced issue via the GitHub API is labeled “bug” and closed.  
+  - Return a dict containing `{ "passed": bool, "precision": float, "sample_size": int }`.  
+  - Add/adjust `code/tests/test_bug_label_validation.py` to call the function with the new signature and assert that `result["passed"]` exists.  
+  - **Verification**: `pytest code/tests/test_bug_label_validation.py` passes; a JSON summary `data/results/label_validation.json` is written.
 
-- [ ] T020 [US2] Collinearity diagnostics (`code/modeling/vif_report.py`): compute VIF on the metric set, drop features with VIF > 10 (documenting the LOC/token_count overlap), and write `data/results/vif_report.csv`. Verification: CSV lists VIF per retained feature; no retained feature has VIF > 10.
+- [ ] **T005** [US1] **Update** the dataset contract schema (addresses rejected **T042**).  
+  - Rewrite `specs/001-statistical-analysis-of-code-complexity/contracts/dataset.schema.yaml` so it matches **Section 4** of the spec exactly: include `function_id`, `project_id`, `file_path`, `function_name`, `start_line`, `end_line`, `cyclomatic_complexity` (integer), `loc`, `token_count`, `nesting_depth`, `halstead_volume`, `bug_label` (0/1), `split` (`train`/`test`).  
+  - Remove any placeholder markers.  
+  - Add a corresponding contract test `code/tests/test_dataset_schema.py` that validates `data/processed/bug_complexity_dataset.csv` against the schema.  
+  - **Verification**: The schema file validates against the JSON‑Schema meta‑schema; the test suite passes.
 
-- [ ] T021 [US2] Train primary L1‑regularized logistic regression (`code/modeling/train_primary.py`): train on `data/processed/train_split.csv` using `sklearn.linear_model.LogisticRegression` with `penalty='l1'`, `solver='saga'`, `max_iter=100`, seeded from `code/utils/config.py`. Assert convergence and that the coefficient vector contains at least one non‑zero entry. Persist `data/model/primary.pkl`. Verification: model loads; non‑zero coefficients exist.
+- [ ] **T006** [US1] Extract complexity metrics with **lizard** and produce the canonical function‑level CSV (`data/processed/bug_complexity_dataset.csv`).  
+  - Run `lizard` on the **pre‑fix** snapshots identified in T003, emitting one row per function with the required columns.  
+  - Join with the file‑level bug labels from T003.  
+  - Skip unparsable files with a logged warning; process repositories sequentially to stay within ~7 GB RAM.  
+  - **Verification**: The CSV contains ≥ 10 000 rows, all required columns, and passes the schema test from T005.
 
-- [ ] T022 [US2] Train alternative Random Forest (`code/modeling/train_rf.py`): train on the same training split with `sklearn.ensemble.RandomForestClassifier` (100 trees, `max_depth=10`), seeded. Persist `data/model/alternative.pkl`. Verification: model loads.
+- [ ] **T007** [US1] Preprocess and split the dataset.  
+  - Impute missing values when < 5 % of rows are affected (else drop the rows).  
+  - Log‑transform any metric whose skewness > 2.  
+  - Drop rows with > 5 % missing features.  
+  - Perform a **project‑level stratified** 70 % train / 30 % test split, asserting that a `project_id` never appears in both splits.  
+  - Write `data/processed/train_split.csv` and `data/processed/test_split.csv`.  
+  - **Verification**: Split assertion passes; both CSVs validate against the updated dataset schema; the train proportion is 70 % ± 5 % of projects.
 
-- [ ] T009 [US2] Compare models (`code/modeling/evaluate.py`): compute ROC‑AUC and PR‑AUC for both models on the held‑out test split, **calibration plot** (reliability diagram) saved as `figures/calibration_plot.png`, and Brier score as `calibration_error`. Also compute Spearman rank correlation of feature importances between the two models. Assert ROC‑AUC ≥ 0.50 for both and that the AUC difference respects the ±0.05 tolerance (H2); assert rank‑correlation ≥ 0.70 (SC‑003). Record results in `data/results/model_comparison.json` conforming to `model_output.schema.yaml`. Verification: JSON passes schema test; PNG exists and is >10 KB.
+- [ ] **T008** [US2] Compute Variance‑Inflation‑Factor (VIF) diagnostics and drop high‑VIF predictors.  
+  - Implement `code/modeling/vif_report.py` to calculate VIF for all numeric predictors on the training split, drop any with VIF > 10, and write `data/results/vif_report.csv`.  
+  - **Verification**: The CSV lists VIF values for every retained feature; no retained feature exceeds 10.
 
-- [ ] T010 [US3] Statistical inference with multiple‑testing correction (`code/modeling/correct_pvalues.py`): extract per‑feature Wald p‑values from the statsmodels‑fitted logistic regression, apply Benjamini–Hochberg correction, write `data/model/corrected_pvalues.csv` with raw p, adjusted p, and significance flags; assert FDR ≤ 0.05. Verification: CSV exists with one row per retained feature; `data/results/fdr_report.json` states the FDR and passes.
+- [ ] **T009** [US2] **Create** the model‑output contract schema (addresses rejected **T041**).  
+  - Write `specs/001-statistical-analysis-of-code-complexity/contracts/model_output.schema.yaml` exactly as described in the specification (fields: `model_type`, `roc_auc`, `pr_auc`, `calibration_error`, `feature_importance` array with `feature_name`, `importance_score`, `p_value`, `is_significant`, `stability_correlation`, `partial_dependence` array).  
+  - Add `code/tests/test_model_output_schema.py` that validates any JSON result file against this schema.  
+  - **Verification**: The schema file loads without error; the test passes against a real result JSON produced later.
 
-- [ ] T011 [US3] Thresholds and partial dependence plots (`code/modeling/pdp.py`, `code/modeling/generate_thresholds.py`): generate partial dependence plots for the top‑3 metrics by importance as `figures/pdp_top3.png`; derive practical threshold values where the predicted bug probability crosses 0.5 (and note any metric where this crossing is out of range, providing a ≥10 % risk justification). Write `data/model/thresholds.csv` with columns `metric_name`, `threshold`, `justification`. Verification: PNG exists (>10 KB); thresholds CSV has three rows with numeric thresholds within observed feature ranges.
+- [ ] **T010** [US2] Train the primary **L1‑regularized logistic regression** model.  
+  - Use `sklearn.linear_model.LogisticRegression` with `penalty='l1'`, `solver='saga'`, `max_iter=100`, and the global seed from `code/utils/config.py`.  
+  - Assert convergence and that the coefficient vector contains at least one non‑zero entry.  
+  - Persist the fitted model to `data/model/primary.pkl`.  
+  - **Verification**: Loading the pickle yields a model with `coef_` containing non‑zero values and `n_iter_` ≤ 100.
 
-## Phase 2: Reproducible results and paper handoff
+- [ ] **T011** [US2] Train the alternative **Random Forest** model.  
+  - Use `sklearn.ensemble.RandomForestClassifier` with `n_estimators=100`, `max_depth=10`, and the global seed.  
+  - Persist to `data/model/alternative.pkl`.  
+  - **Verification**: Model loads; `feature_importances_` is present.
 
-- [ ] T012 Write a concise methods/results account (`reports/final_report.md`) linked to the actual output cells in `data/results/` and figure files: RQ1 (significance of metrics after BH correction), RQ2 (L1 vs RF AUC comparison against H2), RQ3 (thresholds table), plus honest limitations (label noise, project‑level split, pre‑fix snapshot design, sampled negatives). No hand‑typed numbers — every statistic cites its source file. Note that the final PDF will be generated by the downstream paper pipeline, preserving the spec’s PDF deliverable. Verification: every numeric claim traces to a row in `data/results/` or `data/model/` artifacts.
+- [ ] **T012** [US2] Evaluate both models and generate comparison artifacts.  
+  - Compute ROC‑AUC, PR‑AUC, Brier score (calibration error), and a reliability diagram saved as `figures/calibration_plot.png`.  
+  - Compute Spearman rank correlation of feature‑importance rankings between the two models.  
+  - Assert ROC‑AUC ≥ 0.50 for each model and that the difference between the L1 and RF AUCs is ≤ 0.05 (H2). Also assert rank correlation ≥ 0.70 (SC‑003).  
+  - Write a JSON results file `data/results/model_comparison.json` that conforms to the schema from T009 and includes the path to the calibration plot.  
+  - **Verification**: The JSON passes the schema test; the PNG file exists and is > 10 KB.
 
-- [ ] T013 Re‑run the documented workflow end‑to‑end from the quickstart run‑book (`specs/001-statistical-analysis-of-code-complexity/quickstart.md`, updated to invoke the new entry points), confirm `pytest code/tests/` passes (dataset schema, label validation, model‑output schema, split assertions), and document the paper‑stage handoff: PDF compilation of `reports/final_report.md`, figures, and publication remain with the paper pipeline. Verification: the quickstart commands execute without error and the full test suite is green.
+- [ ] **T013** [US2] Apply **Benjamini–Hochberg** correction to logistic‑regression p‑values.  
+  - Extract Wald p‑values from a statsmodels‑fit logistic regression on the training split.  
+  - Perform FDR correction, write `data/model/corrected_pvalues.csv` with columns `feature_name`, `raw_p`, `adj_p`, `is_significant`.  
+  - Assert that the overall false‑discovery rate ≤ 0.05.  
+  - **Verification**: The CSV exists, contains one row per retained feature, and a summary JSON `data/results/fdr_report.json` reports the achieved FDR ≤ 0.05.
 
-## Phase 3: Alignment, documentation, and governance
+- [ ] **T014** [US2] Generate **partial dependence plots** and practical thresholds (addresses RQ3).  
+  - For the three most important metrics (by absolute coefficient magnitude in the L1 model), compute PDPs and save a combined figure `figures/pdp_top3.png`.  
+  - Determine the metric value at which the predicted bug probability crosses 0.5; write `data/model/thresholds.csv` with columns `metric_name`, `threshold`, `justification`.  
+  - **Verification**: PNG > 10 KB; CSV contains exactly three rows with numeric thresholds that lie within the observed range of each metric.
 
-- [ ] T014 [US1] Amend `contracts/dataset.schema.yaml` to match spec Section 4: add `function_name` (string), `start_line` (integer), `end_line` (integer), rename `lines_of_code` → `loc` (integer), replace boolean `is_bug_fix` with integer `bug_label` (0/1), retain `project_id`, `file_path`, `code_unit_id`, and keep `split` enum (`train`, `test`). Update `required` list accordingly and set `additionalProperties: false`. Verification: updated schema validates the CSV produced by T004.
+---
 
-- [ ] T015 [US2] Generate calibration plots: produce a reliability diagram (`figures/calibration_plot.png`) showing predicted probability vs. observed bug frequency, and include it in the model‑comparison JSON (`calibration_plot_path`). Verification: plot file exists and is referenced in results JSON.
+## Phase 2 – Complete study, validation, and handoff  
 
-- [ ] T016 [US1] Implement fallback manual‑review workflow for low label precision: if `validate_bug_labels` reports precision < 0.85, trigger a manual audit script (`code/data/manual_label_review.py`) that outputs a report `data/results/manual_review_report.md` and halts the pipeline pending reviewer approval. Verification: pipeline aborts with clear instruction; manual report is generated.
+| Goal | Produce all deliverables, verify them, and hand the reproducible workflow to the paper pipeline. |
+|------|---------------------------------------------------------------------------------------------------|
 
-- [ ] T017 [US1] Create a pinned `requirements.txt` in `code/` that includes exact versions for all dependencies, notably `lizard==1.17.10` (or latest stable at time of writing). Verification: file exists; CI installs from it.
+- [ ] **T015** [US3] Write the **methods & results report** (`reports/final_report.md`).  
+  - Every numeric claim (e.g., ROC‑AUC values, significant p‑values, thresholds) must be cited to a specific line in an artifact (`data/results/...` or `data/model/...`).  
+  - Include sections for RQ1 (significance after BH correction), RQ2 (model comparison), RQ3 (thresholds), and a transparent limitations discussion (label noise, project‑level split, pre‑fix snapshot).  
+  - **Verification**: A script `code/utils/link_check.py` confirms that every number in the markdown has a source reference; the script exits with status 0.
 
-- [ ] T018 [US1] Amend `plan.md` (and the corresponding sections of `spec.md`) to replace all references to GHTorrent with the verified git‑clone data‑source described in T002, and update the data‑flow diagram accordingly. Verification: plan and spec contain the updated source description.
+- [ ] **T016** [US3] Update **quickstart.md** and execute a full end‑to‑end run.  
+  - Document the exact commands to (1) download data, (2) extract metrics, (3) preprocess, (4) train, (5) evaluate, and (6) generate the report.  
+  - Run the documented workflow from a clean checkout; all `pytest` suites must pass, and the final PDF (produced downstream) is reachable via `reports/final_report.pdf`.  
+  - **Verification**: The quickstart script exits without error; `pytest -q` reports 0 failures; a CI log snippet is saved to `data/results/quickstart_success.log`.
 
-- [ ] T019 [US1] Harmonise path layout across plan, spec, and tasks: standardise on `data/processed/` for cleaned datasets, `data/model/` for model artefacts, and `data/results/` for evaluation outputs. Update any stale references in documentation. Verification: all referenced paths are consistent.
+- [ ] **T017** [US1] Implement a **manual‑review fallback** for low label precision.  
+  - If `validate_bug_labels` (T004) reports `passed=False`, run `code/data/manual_label_review.py` which samples 50 low‑confidence bug‑label rows, writes a markdown review report `data/results/manual_review_report.md`, and aborts the pipeline with a clear “review required” exit code.  
+  - **Verification**: When precision < 0.85 the pipeline stops, the report file exists, and the exit code is 1.
 
-- [ ] T020‑T022 (already defined above) address VIF diagnostics and model training as atomic, verifiable steps.
+- [ ] **T018** [US1] Pin exact dependency versions in `code/requirements.txt`.  
+  - Include `lizard==1.17.10`, `pandas==2.2.*`, `scikit-learn==1.4.*`, `statsmodels==0.14.*`, `matplotlib==3.8.*`, `seaborn==0.13.*`, and any other libraries used.  
+  - **Verification**: `pip install -r code/requirements.txt` completes without version conflicts on the CI runner.
 
-- [ ] T023 [US2] Remove the Mixed‑Effects model requirement from the plan and any downstream documentation, noting that project‑level stratification sufficiently mitigates within‑project correlation for the logistic regression analysis. Verification: plan no longer mentions `pymer4` or Mixed‑Effects; dependency list updated accordingly.
+- [ ] **T019** [US1] Amend **plan.md** (and the corresponding sections of `spec.md`) to replace all references to the unavailable GHTorrent dump with the verified git‑clone data source defined in T002.  
+  - Update any data‑flow diagrams and narrative text accordingly.  
+  - **Verification**: A diff check (`git diff plan.md spec.md`) shows no remaining mentions of GHTorrent.
+
+- [ ] **T020** [US1] **Harmonize path layout** across all documentation and code.  
+  - Ensure every script, test, and markdown file uses the canonical directories: `data/raw/`, `data/interim/`, `data/processed/`, `data/splits/`, `data/model/`, `data/results/`, `figures/`, `reports/`.  
+  - Update stale references in README, quickstart, and any notebooks.  
+  - **Verification**: Search for any path that does **not** start with one of the canonical prefixes; none should be found.
+
+- [ ] **T021** [US2] **Remove** the mixed‑effects modeling requirement (pymer4) from the plan and from any code.  
+  - Delete `pymer4` from `requirements.txt` and remove any import or usage in the repository.  
+  - Update the plan narrative to note that project‑level stratified splitting provides sufficient control for the logistic regression.  
+  - **Verification**: No Python file imports `pymer4`; `pip install -r requirements.txt` succeeds without it.
+
+- [ ] **T022** [US2] Ensure **all contract tests** are present and pass.  
+  - Run `pytest code/tests/` and confirm that tests for dataset schema (T005), model output schema (T009), bug‑label validation (T004), and any others succeed.  
+  - **Verification**: CI log records “X passed” with zero failures.
+
+---
+
+## Phase 3 – Governance and finalization  
+
+| Goal | Confirm that the project complies with all constitutional and reproducibility rules before handoff. |
+|------|---------------------------------------------------------------------------------------------------|
+
+- [ ] **T023** [US1] Record **checksums** for every final artifact (CSV, PKL, PNG, PDF) in `state/artifact_checksums.csv`.  
+  - The file must have columns `artifact_path, sha256`.  
+  - **Verification**: A verification script recomputes hashes and reports no mismatches.
+
+- [ ] **T024** [US1] Archive the **exact Git commit** hash of the repository used for the final run in `state/run_commit.txt`.  
+  - **Verification**: The file contains a 40‑character SHA‑1 string matching `git rev-parse HEAD`.
+
+- [ ] **T025** [US1] Submit the **research handoff package** to the downstream paper pipeline (simulated by copying `reports/`, `figures/`, `data/model/`, and `data/results/` into `paper/handshake/`).  
+  - **Verification**: The `paper/handshake/` directory contains all expected files; a sentinel file `paper/handshake/READY` is created.
+
+--- 
+
+*All tasks above are unchecked; each must be completed and verified before the project can advance to the next stage.*
