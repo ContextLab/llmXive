@@ -46,6 +46,11 @@ def _download_fallback_video() -> bytes:
         resp = requests.get(_REMOTE_FALLBACK_URL, timeout=30)
         resp.raise_for_status()
         _fallback_video_cache = resp.content
+        # Persist the downloaded video for future runs
+        _LOCAL_FALLBACK_DIR.mkdir(parents=True, exist_ok=True)
+        fallback_path = _LOCAL_FALLBACK_DIR / "fallback.mp4"
+        if not fallback_path.is_file():
+            fallback_path.write_bytes(_fallback_video_cache)
     return _fallback_video_cache
 
 # ----------------------------------------------------------------------

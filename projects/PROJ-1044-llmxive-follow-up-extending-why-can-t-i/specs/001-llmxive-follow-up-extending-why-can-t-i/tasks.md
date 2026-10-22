@@ -18,7 +18,7 @@ All tasks respect the data‑flow order, stay within the free‑tier CPU budget,
   - Unit test `tests/test_something_loader.py` must load **at least five** videos and assert that each frame can be decoded by OpenCV.  
   - **File(s)**: `src/data/something_loader.py`, `tests/test_something_loader.py`.
 
-- [ ] **T004** [P] **Pre‑compute optical‑flow for original videos (CPU‑only)**  
+- [ ] **T004** [P] **Pre‑compute optical‑flow for original videos (CPU‑only)**   <!-- FAILED-IN-EXECUTION: src/data/optical_flow_precompute.py exit=1 -->
   - Implement `src/data/optical_flow_precompute.py` that iterates over `data/videos/orig/*.mp4`, computes Farneback flow on the CPU, and stores `.npy` tensors under `data/flow/orig/`.  
   - After processing, generate `data/checksums/manifest.csv` containing SHA‑256 hashes for every `.npy` file created.  
   - **Verification**: assert that `manifest.csv` exists and that each entry’s hash matches the on‑disk file.  

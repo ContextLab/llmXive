@@ -35,3 +35,74 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-22T03:27:51Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "pipeline reproduces full experiment on free\u2011tier GitHub Actions\
+    \ runner"
+  claim_id: c_72a9ad4a
+  context: "The Quickstart description states that the pipeline reproduces the full\
+    \ experiment on the free\u2011tier GitHub Actions runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "One\u2011command end\u2011to\u2011end \u2013 reproduces the full experiment\
+    \ (data generation, training, evaluation, and report) on the free\u2011tier GitHub\
+    \ Actions runner."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T04:14:56Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "pipeline requires no internet download beyond Something\u2011Something\
+    \ V2 dataset"
+  claim_id: c_b772fcfc
+  context: "The prerequisites note that no internet download is required beyond the\
+    \ open\u2011source Something\u2011Something V2 dataset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "No internet download required beyond the open\u2011source Something\u2011\
+    Something V2 dataset (automatically streamed)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T04:14:56Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline automatically checksums all files and writes hashes to manifest.csv
+  claim_id: c_44affead
+  context: The documentation mentions that all files are automatically checksummed
+    and hashes are recorded.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All files are automatically checksummed; hashes are written to data/checksums/manifest.csv.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T04:14:56Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "pipeline preserves reproducibility by recording seeds and hyper\u2011\
+    parameters in config.yaml"
+  claim_id: c_2d6ace93
+  context: "The README states that all changes preserve reproducibility due to recording\
+    \ seeds and hyper\u2011parameters."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All changes preserve reproducibility because seeds and hyper\u2011parameters\
+    \ are recorded in output/config.yaml."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T04:14:56Z'

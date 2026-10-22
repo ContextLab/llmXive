@@ -1,17 +1,18 @@
 T001:
   reason: "The repository contains the required `quickstart.md` and `configs/run.yaml`,\
-    \ and the log shows the command exits with status\u202F0, but there is no evidence\
-    \ that the command prints a summary of the generated artifacts (only a configuration\
-    \ summary is shown). Add execution output that includes such a summary to satisfy\
-    \ the task."
+    \ but there is no evidence that the command `python -m src.pipeline.run_all --config\
+    \ configs/run.yaml` actually runs successfully, prints a summary, and exits with\
+    \ status\u202F0. The provided test log shows the test failing with a `NameError`\
+    \ (missing `import os`), and no successful execution output or exit\u2011code\
+    \ proof is present. The task therefore lacks the required verification artifact."
   task: 135d9f2d64e2fc48477a7db249a8e13984addba24f49490b1581f160d2624884
 T002:
-  reason: "The `src/data/something_loader.py` lacks the required bundled fallback\
-    \ videos (the `data/fallback/` directory is missing, so the loader resorts to\
-    \ downloading a remote sample instead of using local fallback files). Additionally,\
-    \ the unit test `tests/test_something_loader.py` only checks that OpenCV can open\
-    \ the video file, not that each frame can be decoded, which does not meet the\
-    \ \u201Cassert that each frame can be decoded\u201D requirement."
+  reason: "Checked `src/data/something_loader.py`, `tests/test_something_loader.py`,\
+    \ and the test execution log. The test suite fails to import because the required\
+    \ `datasets` package is missing, so the unit test never runs, and the `data/fallback/`\
+    \ directory containing bundled fallback videos is absent (the loader downloads\
+    \ a video instead of using a pre\u2011bundled one). Both issues prevent the task\u2019\
+    s requirements from being satisfied."
   task: 2ed1d5bc75e0b8726f0ad041317b1bb315b9874a16a883d140b54e015cb1486e
 T003:
   reason: "The `src/data/counterfactual.py` script does not meet several core requirements:\
@@ -24,12 +25,8 @@ T003:
     \ are recorded in the output `metadata.csv`. These issues must be fixed"
   task: 5f0540a3df70a4fd434f00383397ee920c2e5891f3544f4d66a88b81b498d67c
 T004:
-  reason: "The provided `src/data/optical_flow_precompute.py` only creates a placeholder\
-    \ directory and never iterates over `data/videos/orig/*.mp4`, computes Farneback\
-    \ flow, or writes `.npy` files; consequently `data/flow/orig/` remains empty and\
-    \ `data/checksums/manifest.csv` is a zero\u2011byte file. The test suite also\
-    \ fails (checksum mismatch and missing expected files). The task\u2019s core functionality\
-    \ is therefore missing."
+  reason: 'Requested task execution failed; rerun successfully: src/data/optical_flow_precompute.py
+    exit=1'
   task: 099e621128831ae9054613b6e81107e1b21da047cd00ca9d790578d5806ce3e8
 T005:
   task: d95398a47a4a87d60cf150c37757fe589fe0076b130b50c93623df1db1ed0740

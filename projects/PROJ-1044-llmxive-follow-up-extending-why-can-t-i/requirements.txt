@@ -1,12 +1,17 @@
-# Core scientific stack (already available in the base environment)
-# Additional dependencies required for the counterfactual pipeline
-torch==2.3.0
-torchvision==0.18.0
+# Core dependencies (already available in the execution environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for the optical‑flow step
 opencv-python
 tqdm
-datasets
-requests
-pandas
-numpy
-# The following are already in the base environment and listed for clarity:
-# scipy, scikit-learn, matplotlib, seaborn, pytest, PyYAML, psutil

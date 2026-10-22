@@ -1,22 +1,23 @@
 T001:
   c: false
-  h: ad275384624aedbcee5bcccfcca9b8696f194f97f34d86cb37caa51e8fc22279
+  h: a0ff4d85ca423545ca968fb8a3e2beb959dded1285fc4e84c94a479504b637e6
   r: "The repository contains the required `quickstart.md` and `configs/run.yaml`,\
-    \ and the log shows the command exits with status\u202F0, but there is no evidence\
-    \ that the command prints a summary of the generated artifacts (only a configuration\
-    \ summary is shown). Add execution output that includes such a summary to satisfy\
-    \ the task."
-  sig: 2c278815836fc22cc21c5e1ee49fec858bd86b3b53d553090b662bc298857294
+    \ but there is no evidence that the command `python -m src.pipeline.run_all --config\
+    \ configs/run.yaml` actually runs successfully, prints a summary, and exits with\
+    \ status\u202F0. The provided test log shows the test failing with a `NameError`\
+    \ (missing `import os`), and no successful execution output or exit\u2011code\
+    \ proof is present. The task therefore lacks the required verification artifact."
+  sig: ed1be274636c41b0b8e50f900af9e5f129f286774b803f92680dc63cfbb71b65
 T002:
   c: false
-  h: fdaab227dc4e7e26e6fe133c55cbeca14cc8e5f45b8d2b2ebd2e79a3f98e4d55
-  r: "The `src/data/something_loader.py` lacks the required bundled fallback videos\
-    \ (the `data/fallback/` directory is missing, so the loader resorts to downloading\
-    \ a remote sample instead of using local fallback files). Additionally, the unit\
-    \ test `tests/test_something_loader.py` only checks that OpenCV can open the video\
-    \ file, not that each frame can be decoded, which does not meet the \u201Cassert\
-    \ that each frame can be decoded\u201D requirement."
-  sig: b7270a6a43684e265e2bb2a25c868e5175e7e10a5c47afe9d3177117e5becf10
+  h: 3a4de69c3f9bdd974b4b8f569cd9294c53c8332c3d2de1a6c3f64cf7ca07a74f
+  r: "Checked `src/data/something_loader.py`, `tests/test_something_loader.py`, and\
+    \ the test execution log. The test suite fails to import because the required\
+    \ `datasets` package is missing, so the unit test never runs, and the `data/fallback/`\
+    \ directory containing bundled fallback videos is absent (the loader downloads\
+    \ a video instead of using a pre\u2011bundled one). Both issues prevent the task\u2019\
+    s requirements from being satisfied."
+  sig: 56f0929cc1740fa633525ee3bf54708e97a6b0ab6e5d58ba223f1a4f309be127
 T003:
   c: false
   h: cdf05d127e00ecfa6be49086b05172f20d21e3d83fe11481819e789c19d89935
