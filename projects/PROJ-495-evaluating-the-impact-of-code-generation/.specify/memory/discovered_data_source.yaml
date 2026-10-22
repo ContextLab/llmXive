@@ -1,13 +1,16 @@
 status: none
-intent: CodeVulnBench Juliet Test Suite CWE taxonomy Anticloud SonarQube results python
-  package dataset
+intent: download CodeVulnBench dataset Juliet Test Suite CWE taxonomy SonarQube results
+  python package dataset
 required_fields:
+- file_id
 - file_path
-- code
-- source_type
+- source
+- code_text
+- sha256_checksum
 - vulnerability_count
 - cwe_ids
-- static_tool_results
-cache_key: a3f5b0d8de4f94a13905cea74557654f20b5c1a21bf6fde15dd4c32f21aeb43e
-searched_at: '2026-10-22T13:16:50.762995+00:00'
+- tool_results
+- language
+cache_key: 667f0b5ed4cc72c5adc64a8e9d5783da0e851832d250f9f526b75418db74889c
+searched_at: '2026-10-22T13:47:19.354625+00:00'
 retry_count: 1

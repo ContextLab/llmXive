@@ -33,10 +33,10 @@
 | loc | integer \| null | Lines of code |
 | vulnerability_count | integer (≥ 0) | Total findings **before** deduplication |
 | deduped_vulnerability_count | integer (≥ 0) | Unique findings after deduplication across tools |
-| corrected_vulnerability_count | integer (≥ 0) | Count after adjusting for **both** tool‑specific false‑positive **and** false‑negative rates (derived from audit). |
+| corrected_vulnerability_count | integer (≥ 0) | Count after adjusting for **both** tool‑specific false‑positive **and** false‑negative rates (derived from audit). Rounded to the nearest integer before statistical modeling. |
 | cwe_ids | array of strings (`CWE-####`) | Unique CWE IDs present |
 | density | number \| string (`"undefined"`) | Vulnerabilities per LOC (raw) |
-| density_corrected | number \| string (`"undefined"`) | Vulnerabilities per LOC after **FP and FN** correction |
+| density_corrected | number \| string (`"undefined"`) | Vulnerabilities per LOC after **FP and FN** correction; null or `"undefined"` when LOC is zero |
 | tools_run | array of `bandit`/`semgrep`/`sonarqube` | Which tools produced findings |
 
 ### AnalysisResult (`results/tables/group_summary.csv` + `statistical_tests.csv`)
@@ -48,14 +48,14 @@
 | median_density | number \| null | Median density (raw) |
 | sd_density | number \| null | Standard deviation (raw) |
 | mean_density_corrected | number \| null | Mean density after audit correction |
-| median_density_corrected | number \| null | Median corrected density |
-| sd_density_corrected | number \| null | Std‑dev corrected density |
+| median_density_corrected | number \| null |
+| sd_density_corrected | number \| null |
 | test_name | enum: `negbin` \| `mannwhitneyu` | Test identifier |
 | p_value | number \| null | Raw p‑value |
 | p_adjusted | number \| null | Benjamini‑Hochberg‑adjusted p‑value |
 | coefficient | number \| null | NB log‑rate ratio (if applicable) |
-| ci_low | number \| null | 95 % CI lower bound |
-| ci_high | number \| null | 95 % CI upper bound |
+| ci_low | number \| null |
+| ci_high | number \| null |
 | significant | boolean \| null | True if `p_adjusted` < α (BH‑corrected) |
 | power_estimate | number \| null | Estimated statistical power for the primary test |
 
@@ -71,10 +71,9 @@
 
 ## Derivation Chain (Constitution III/IV)
 
-`data/raw/*` → **Ingest** → `file_manifest.csv` → **Static analysis** → `findings_raw.csv` → **Deduplication** → `findings.csv` & `per_file_analysis.csv` (adds deduped counts) → **Complexity proxy** (adds `complexity_proxy`) → **Density & audit‑adjusted counts** → updated `per_file_analysis.csv` → **Group summary** → `group_summary.csv` → **Statistical tests** → `statistical_tests.csv` → **Aggregate results** → `aggregate_results.yaml` → **Figures** → `results/figures/*`.  
+`data/raw/*` → **Ingest** → `file_manifest.csv` → **Static analysis** → `findings_raw.csv` → **Deduplication** → `findings.csv` & `per_file_analysis.csv` (adds deduped counts) → **Complexity proxy** (adds `complexity_proxy`) → **Density & audit‑adjusted counts** (adds corrected counts, rounded) → **Group summary** → `group_summary.csv` → **Statistical tests** → `statistical_tests.csv` → **Aggregate results** → `aggregate_results.yaml` → **Figures** → `results/figures/*`.  
 
 Each step records its input hash, output hash, script name, and random seed (if any) in `data/derived/provenance.json`.
 
 ---
-
 

@@ -29,7 +29,7 @@ The pipeline will automatically compute the required sample size for a target ra
 
 ## Smoke Run (US‑1 validation) – processes a small subset
 ```bash
-python -m src.pipeline --smoke 50
+python -m src.pipeline --smoke <representative count>
 ```
 **What to check**
 - `data/derived/file_manifest.csv` lists ≥ 45 entries (≥ 90 % of the subset).  
@@ -42,13 +42,14 @@ python -m src.pipeline
 ```
 The pipeline executes all phases in order:
 1. **A‑priori Power Planning** – ensures sufficient sample size before any download.  
-2. **Ingest** – downloads the **CodeVulnBench** (LLM‑generated) and **Juliet Test Suite** (human‑written) datasets, verifies checksums, and aborts if they do not match the verified values. No proxy data are used.  
+2. **Data Ingestion** – streams the **VulnCodeRepo** (LLM‑generated) and **Juliet JavaScript** (human‑written) datasets, verifies checksums, and aborts if they do not match the verified values. No proxy data are used beyond the documented substitute.  
 3. **Static analysis** – runs Bandit, Semgrep, and SonarQube (Docker).  
-4. **Deduplication**, **complexity**, **density**, **audit‑adjusted counts** (both FP and FN corrections).  
+4. **Deduplication**, **complexity**, **density**, **audit‑adjusted counts** (both FP and FN corrections, rounding to integer).  
 5. **Statistical tests** – power analysis, over‑dispersion check, NB regression (or Poisson fallback), Mann‑Whitney U, Benjamini‑Hochberg correction.  
 6. **Audit sample** generation (`audit_sample.csv`). Findings in this sample are **excluded** from the regression dataset.  
-7. **Figures** – boxplot and CWE bar chart saved under `results/figures/`.  
-8. **Aggregate results** – merges `group_summary.csv` and `statistical_tests.csv` into `aggregate_results.yaml` (validated against the schema).  
+7. **Bias Assessment** – compares detection rates per language and reports any systematic differences; also computes the FPR disparity between LLM and human groups (SC‑008).  
+8. **Figures** – boxplot and CWE bar chart saved under `results/figures/`.  
+9. **Aggregate results** – merges `group_summary.csv` and `statistical_tests.csv` into `aggregate_results.yaml` (validated against the schema).  
 
 ### Manual Audit (FR‑007)
 1. Open `data/derived/audit_sample.csv` and fill the `verdict` column (`true_positive` / `false_positive`).  
@@ -65,11 +66,10 @@ cd code && pytest
 Tests include:
 - Unit tests for each module.  
 - Contract validation against the three YAML schemas in `specs/001-evaluating-the-impact-of-code-generation/contracts/`.  
-- Synthetic data checks confirming that the NB regression returns a known p‑value within 0.001 of the expected value (US‑3) and that density calculations (including audit correction) match expected values (US‑2).
+- Synthetic data checks confirming that the NB regression returns a known p‑value within 0.001 of the expected value (US‑3) and that density calculations (including audit correction and rounding) match expected values (US‑2).
 
 ## Expected Failure Mode
-If **either** the CodeVulnBench or Juliet dataset cannot be downloaded or fails checksum verification, the pipeline aborts early with a clear error message stating the missing or mismatched source. No synthetic data are generated; the failure indicates that a spec amendment is required to provide a verifiable open dataset before the primary hypothesis test can be performed.
+If **either** the VulnCodeRepo or the Juliet JavaScript dataset cannot be downloaded or fails checksum verification, the pipeline aborts early with a clear error message stating the missing or mismatched source. No synthetic data are generated; the failure indicates that a spec amendment is required to provide a verifiable open dataset before the primary hypothesis test can be performed.
 
 ---
-
 
