@@ -7,7 +7,8 @@ This script performs three actions:
 1. Pins random seeds for the standard libraries used throughout the
    project (Python ``random``, ``numpy`` and, if available, ``torch``).
 2. Retrieves the immutable Docker image digest for the deterministic
-   image ``gcc:13.2-bullseye`` via the Docker Hub Registry HTTP API.
+   image ``gcc:13.2-bullseye`` via the Docker Hub Registry HTTP API,
+   handling the token authentication flow required by Docker Hub.
 3. Writes a JSON configuration file ``data/env_config.json`` that
    captures the seed values and Docker image information for downstream
    reproducibility checks (as required by task T000).
@@ -55,10 +56,47 @@ except Exception as exc:  # pragma: no cover – torch may be missing
 # ----------------------------------------------------------------------
 DOCKER_IMAGE = "gcc:13.2-bullseye"
 
+def _fetch_auth_token(repository: str) -> str:
+    """
+    Obtain a Bearer token for accessing a public Docker Hub repository.
+
+    Parameters
+    ----------
+    repository: str
+        Repository name in the form ``library/gcc`` (no tag).
+
+    Returns
+    -------
+    str
+        The access token to be used in the Authorization header.
+
+    Raises
+    ------
+    RuntimeError
+        If the token cannot be retrieved.
+    """
+    token_url = (
+        "https://auth.docker.io/token"
+        "?service=registry.docker.io"
+        f"&scope=repository:{repository}:pull"
+    )
+    log.debug("Requesting Docker Hub auth token for %s", repository)
+    resp = requests.get(token_url, timeout=30)
+    try:
+        resp.raise_for_status()
+    except Exception as exc:
+        raise RuntimeError(f"Failed to obtain Docker Hub token: {exc}") from exc
+
+    data = resp.json()
+    token = data.get("token") or data.get("access_token")
+    if not token:
+        raise RuntimeError("Docker Hub token response missing token field")
+    return token
+
 def _fetch_docker_digest(image: str) -> str:
     """
     Retrieve the immutable digest for a public Docker image using the
-    Docker Hub Registry HTTP API.
+    Docker Hub Registry HTTP API, handling token authentication.
 
     Parameters
     ----------
@@ -79,12 +117,15 @@ def _fetch_docker_digest(image: str) -> str:
     # Official images are under the ``library`` namespace.
     if "/" not in repo:
         repo = f"library/{repo}"
-    url = f"https://registry-1.docker.io/v2/{repo}/manifests/{tag}"
+    manifest_url = f"https://registry-1.docker.io/v2/{repo}/manifests/{tag}"
     headers = {
         "Accept": "application/vnd.docker.distribution.manifest.v2+json"
     }
+    # First obtain an auth token for the repository.
+    token = _fetch_auth_token(repo)
+    headers["Authorization"] = f"Bearer {token}"
     log.info("Requesting Docker manifest for %s", image)
-    response = requests.get(url, headers=headers, timeout=30)
+    response = requests.get(manifest_url, headers=headers, timeout=30)
     try:
         response.raise_for_status()
     except Exception as exc:

@@ -7,21 +7,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/setup_env.py -> rc=1
--157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 89, in _fetch_docker_digest
+PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 130, in _fetch_docker_digest
     response.raise_for_status()
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
     raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://registry-1.docker.io/v2/library/gcc/manifests/13.2-bullseye
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://registry-1.docker.io/v2/library/gcc/manifests/13.2-bullseye
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 101, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 142, in <module>
     docker_digest = _fetch_docker_digest(DOCKER_IMAGE)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 91, in _fetch_docker_digest
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-157-evaluating-the-impact-of-code-generation/code/setup_env.py", line 132, in _fetch_docker_digest
     raise RuntimeError(f"Failed to fetch manifest for {image}: {exc}") from exc
-RuntimeError: Failed to fetch manifest for gcc:13.2-bullseye: 401 Client Error: Unauthorized for url: https://registry-1.docker.io/v2/library/gcc/manifests/13.2-bullseye
+RuntimeError: Failed to fetch manifest for gcc:13.2-bullseye: 404 Client Error: Not Found for url: https://registry-1.docker.io/v2/library/gcc/manifests/13.2-bullseye
 
 - python code/download_humaneval.py  --output data/raw/codeforces_cpp.jsonl  --min-problems 50  --seed 20231027 -> rc=2
 
@@ -62,13 +62,50 @@ rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
 collected 0 items
 
-============================ no tests ran in 0.07s =============================
+============================ no tests ran in 0.09s =============================
 
 
 
 ## Declared deliverables still missing
 
 - data/env_config.json
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
+- **Verified**: this loads **9556** real records with fields: problem_id, problem_title, submission_id, tags, rating.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import datasets
+
+ds = datasets.load_dataset('open-r1/codeforces', split='train')
+record_count = len(ds)
+print(f'RECORDS={record_count}')
+# Map required fields to possible column names in the dataset
+mapping = {
+    'problem_id': ['contest_id', 'problem_id'],
+    'problem_title': ['problem_name', 'title'],
+    'problem_statement': ['problem_statement', 'statement'],
+    'human_solution_code': ['code', 'source_code'],
+    'language': ['programming_language', 'language'],
+    'submission_id': ['submission_id', 'id'],
+    'verdict': ['verdict', 'result'],
+    'tags': ['problem_tags', 'tags'],
+    'rating': ['rating', 'difficulty']
+}
+available = []
+for req, candidates in mapping.items():
+    for col in candidates:
+        if col in ds.column_names:
+            available.append(req)
+            break
+print('FIELDS=' + ','.join(available))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

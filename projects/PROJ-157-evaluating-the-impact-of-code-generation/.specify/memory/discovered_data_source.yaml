@@ -1,18 +1,34 @@
-status: none
-intent: Codeforces C++ reference solutions paired with CodeLlama-7B StarCoder-15B
-  generated code python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import datasets\n\nds = datasets.load_dataset('open-r1/codeforces',\
+  \ split='train')\nrecord_count = len(ds)\nprint(f'RECORDS={record_count}')\n# Map\
+  \ required fields to possible column names in the dataset\nmapping = {\n    'problem_id':\
+  \ ['contest_id', 'problem_id'],\n    'problem_title': ['problem_name', 'title'],\n\
+  \    'problem_statement': ['problem_statement', 'statement'],\n    'human_solution_code':\
+  \ ['code', 'source_code'],\n    'language': ['programming_language', 'language'],\n\
+  \    'submission_id': ['submission_id', 'id'],\n    'verdict': ['verdict', 'result'],\n\
+  \    'tags': ['problem_tags', 'tags'],\n    'rating': ['rating', 'difficulty']\n\
+  }\navailable = []\nfor req, candidates in mapping.items():\n    for col in candidates:\n\
+  \        if col in ds.column_names:\n            available.append(req)\n       \
+  \     break\nprint('FIELDS=' + ','.join(available))"
+record_count: 9556
+sample_fields:
+- problem_id
+- problem_title
+- submission_id
+- tags
+- rating
+field_coverage: 0.667
 required_fields:
 - problem_id
+- problem_title
+- problem_statement
 - human_solution_code
-- human_solution_language
-- llm_solution_code
-- llm_model_name
-- llm_generation_timestamp
-- compilation_status_human
-- compilation_status_llm
-- generation_attempts
-- source_url_human
-- source_url_llm
-cache_key: 9351ec64ba6e894883aa67665ac42b2e439b6673d200d117365a9499f3b4a712
-searched_at: '2026-10-22T00:22:45.192234+00:00'
-retry_count: 1
+- language
+- submission_id
+- verdict
+- tags
+- rating
+intent: codeforces c++ submissions dataset huggingface python package dataset
+cache_key: f34df1dfbf09be1c26a587669a125a643dce6d0b895b546109c6022f51c6a44c
