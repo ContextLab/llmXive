@@ -13,6 +13,8 @@ T003:
     exit=2'
   task: f932fa404340ee5f5b7cafe07b8c219ff3f17169c0ca7fef1b62a7a495b9df13
 T004:
+  reason: 'Requested task execution failed; rerun successfully: src/cli/run_fidelity.py
+    exit=1'
   task: cf57c73a851a86898146ffd49b2fb6121f0c7f08e2f738158f378947ecd0beea
 T005:
   task: 66c2e9bcc425effe20fb9b8b8d84e5c56c477cd9e64eb72003442a5154e0fe2b

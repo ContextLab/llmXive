@@ -31,7 +31,7 @@ The goal is a fully automated CPU‑only pipeline that (1) loads the verified pu
   - For each seed (42, 123, 2026) train on the processed training split and generate a synthetic CSV matching the training row count, written to `outputs/synthetic/<dataset>_<model>_seed<NN>.csv` with a side‑car JSON (`...seed<NN>.json`) containing dataset, model, seed, row count, timestamp, and `privacy_epsilon` (null for non‑DP models).
   *Verification*: `pytest tests/unit/test_trainer.py` runs a quick 2‑epoch CTGAN fit on a down‑sampled split and asserts (i) the CSV exists with correct row count, (ii) the JSON contains required fields, (iii) early‑stopping logic executes, (iv) `sdv`/`rdt` import from site‑packages with no shadowing, and (v) `outputs/synthetic/` is non‑empty after the test run.
 
-- [ ] T004 [US1] Implement and successfully execute the CLI entry point `src/cli/run_fidelity.py` (REDO — previous run exited 1).
+- [ ] T004 [US1] Implement and successfully execute the CLI entry point `src/cli/run_fidelity.py` (REDO — previous run exited 1). <!-- FAILED-IN-EXECUTION: src/cli/run_fidelity.py exit=1 -->
   *Behaviour*
   - `--smoke` runs a minimal end‑to‑end pass: load **one** dataset, train CTGAN with seed 42, generate synthetic data, and write `outputs/metrics/metric_results_smoke.json` **without** computing downstream metrics (the smoke run only validates data loading, model training, and CSV generation).
   - `--full` triggers the complete grid (all datasets, models, seeds) and subsequently runs the full metric pipeline (T006) after generation.

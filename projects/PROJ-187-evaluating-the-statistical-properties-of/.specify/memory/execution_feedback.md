@@ -8,7 +8,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- src/cli/run_fidelity.py: self-declared fabricated metric — “…)     log.info("Full pipeline placeholder metric results written to %s", metri…”
+- src/cli/run_fidelity.py: self-declared fabricated metric — “….info(         "Full pipeline placeholder metric results written to %s",…”
 
 ## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
 
@@ -23,51 +23,39 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/cli/run_fidelity.py: self-declared fabricated metric — “…)     log.info("Full pipeline placeholder metric results written to %s", metri…”; every produced artifact is gitignored (data/processed/adult/holdout.parquet, data/processed/adult/train.parquet, data/raw/adult/raw.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python -m src.cli.run_fidelity --smoke (rc=1); python -m src.cli.run_fidelity --full  --seeds 42 123 2026  --max-epochs 30  --early-stopping-delta 0.001  --early-stopping-patience 3 (rc=1); python -m pytest -q tests/contract (rc=1)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/cli/run_fidelity.py: self-declared fabricated metric — “….info(         "Full pipeline placeholder metric results written to %s",…”; every produced artifact is gitignored (data/processed/adult/holdout.parquet, data/processed/adult/train.parquet, data/raw/adult/raw.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python -m src.cli.run_fidelity --smoke (rc=1); python -m src.cli.run_fidelity --full  --seeds 42 123 2026  --max-epochs 30  --early-stopping-delta 0.001  --early-stopping-patience 3 (rc=1); python -m pytest -q tests/contract (rc=1)
 
 ## Failing / missing run-book commands
 
 - python -m src.cli.run_fidelity --smoke -> rc=1
-  df[col].fillna(mode, inplace=True)
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/src/cli/run_fidelity.py", line 192, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/src/cli/run_fidelity.py", line 177, in main
-    _run_smoke()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/src/cli/run_fidelity.py", line 59, in _run_smoke
-    csv_path = generate_and_save(
-               ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/src/models/synthesize.py", line 53, in generate_and_save
-    synth_df = train_model(
-               ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/src/models/trainer.py", line 94, in train_model
-    ModelClass = sdv.tabular.CTGAN
-                 ^^^^^^^^^^^
-AttributeError: module 'sdv' has no attribute 'tabular'
+_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/__init__.py", line 17, in <module>
+    from sdv import (
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/constraints/__init__.py", line 2, in <module>
+    from sdv.constraints.base import Constraint
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/constraints/base.py", line 11, in <module>
+    from rdt import HyperTransformer
+ImportError: cannot import name 'HyperTransformer' from 'rdt' (/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/rdt/__init__.py)
 
 - python -m src.cli.run_fidelity --full  --seeds 42 123 2026  --max-epochs 30  --early-stopping-delta 0.001  --early-stopping-patience 3 -> rc=1
-he operation inplace on the original object.
-
-
-  df[col].fillna(mode, inplace=True)
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/src/cli/run_fidelity.py", line 192, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/src/cli/run_fidelity.py", line 179, in main
-    _run_full(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/src/cli/run_fidelity.py", line 118, in _run_full
-    generate_and_save(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/src/models/synthesize.py", line 53, in generate_and_save
-    synth_df = train_model(
-               ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/src/models/trainer.py", line 94, in train_model
-    ModelClass = sdv.tabular.CTGAN
-                 ^^^^^^^^^^^
-AttributeError: module 'sdv' has no attribute 'tabular'
+_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/__init__.py", line 17, in <module>
+    from sdv import (
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/constraints/__init__.py", line 2, in <module>
+    from sdv.constraints.base import Constraint
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-187-evaluating-the-statistical-properties-of/lib/python3.11/site-packages/sdv/constraints/base.py", line 11, in <module>
+    from rdt import HyperTransformer
+ImportError: cannot import name 'HyperTransformer' from 'rdt' (/home/runner/work/llmXive/llmXive/projects/PROJ-187-evaluating-the-statistical-properties-of/rdt/__init__.py)
 
 - python -m pytest -q tests/contract -> rc=1
 E                                                                        [100%]
@@ -83,6 +71,6 @@ E           Failed: Schema file not found: /home/runner/work/llmXive/llmXive/pro
 tests/contract/test_metric_schema.py:39: Failed
 =========================== short test summary info ============================
 ERROR tests/contract/test_metric_schema.py::test_metric_results_schema - Fail...
-1 error in 0.32s
+1 error in 0.28s
 
 

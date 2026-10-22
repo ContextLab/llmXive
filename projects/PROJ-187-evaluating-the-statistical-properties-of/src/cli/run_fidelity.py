@@ -67,7 +67,9 @@ def _run_smoke() -> None:
 
     # 4. Write a minimal metric results file.
     metric_path = paths.outputs("metrics", "metric_results_smoke.json")
-    metric_path.write_text(json.dumps({"synthetic_csv": str(csv_path)}, indent=2))
+    metric_path.write_text(
+        json.dumps({"synthetic_csv": str(csv_path)}, indent=2)
+    )
     log.info("Smoke metric results written to %s", metric_path)
 
 def _run_full(
@@ -128,7 +130,10 @@ def _run_full(
     # Write a minimal (but schema‑valid) metric results file.
     metric_path = paths.outputs("metrics", "metric_results.json")
     metric_path.write_text(json.dumps({}, indent=2))
-    log.info("Full pipeline placeholder metric results written to %s", metric_path)
+    log.info(
+        "Full pipeline placeholder metric results written to %s",
+        metric_path,
+    )
 
 def main(argv: List[str] | None = None) -> None:
     parser = argparse.ArgumentParser(

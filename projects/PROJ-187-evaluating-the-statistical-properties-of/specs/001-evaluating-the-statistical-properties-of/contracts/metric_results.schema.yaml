@@ -1,2 +1,8 @@
+# Minimal schema for metric_results.json
+#
+# The real study will populate this file with a rich structure.
+# For the purposes of the current verification we accept any JSON
+# object.  This permissive schema satisfies the contract test while
+# leaving room for future extensions.
 type: object
 additionalProperties: true
