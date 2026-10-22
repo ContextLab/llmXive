@@ -6,17 +6,17 @@ Deterministic environment setup script.
 This script performs three actions:
 1. Pins random seeds for the standard libraries used throughout the
    project (Python ``random``, ``numpy`` and, if available, ``torch``).
-2. Pulls the deterministic Docker image ``gcc:13.2-bullseye`` and records
-   its immutable content digest.
-3. Writes a JSON configuration file ``data/env_config.json`` that captures
-   the seed values and Docker image information for downstream reproducibility
-   checks (as required by task T000).
+2. Retrieves the immutable Docker image digest for the deterministic
+   image ``gcc:13.2-bullseye`` via the Docker Hub Registry HTTP API.
+3. Writes a JSON configuration file ``data/env_config.json`` that
+   captures the seed values and Docker image information for downstream
+   reproducibility checks (as required by task T000).
 
 The script is intended to be run as a stand‑alone entry point:
     python code/setup_env.py
 
-It writes its output using the ``llmxive_toolkit.paths`` helpers, which
-automatically create the target directories.
+It writes its output using the ``llmxive_toolkit.paths`` helpers,
+which automatically create the target directories.
 """
 
 import json
@@ -24,6 +24,7 @@ import random
 from pathlib import Path
 
 import numpy as np
+import requests
 
 from llmxive_toolkit import paths, get_logger
 
@@ -32,8 +33,6 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # 1. Pin random seeds
 # ----------------------------------------------------------------------
-# A single, project‑wide seed is defined.  All libraries that rely on a
-# random number generator are seeded using this value.
 PROJECT_SEED = 20231027
 
 random.seed(PROJECT_SEED)
@@ -44,7 +43,6 @@ try:
     import torch
 
     torch.manual_seed(PROJECT_SEED)
-    # Ensure deterministic behaviour on CPU/GPU (even though we run CPU‑only)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     torch_available = True
@@ -53,36 +51,56 @@ except Exception as exc:  # pragma: no cover – torch may be missing
     torch_available = False
 
 # ----------------------------------------------------------------------
-# 2. Pull deterministic Docker image and obtain its content digest
+# 2. Retrieve Docker image digest via Docker Hub Registry API
 # ----------------------------------------------------------------------
-# The plan specifies the exact Docker image tag to use.  We retrieve the
-# immutable digest (e.g. ``sha256:<hash>``) via the Docker SDK.  The digest
-# is recorded so that later verification steps can compare it against the
-# value stored in ``plan.md``.
 DOCKER_IMAGE = "gcc:13.2-bullseye"
 
-try:
-    import docker
+def _fetch_docker_digest(image: str) -> str:
+    """
+    Retrieve the immutable digest for a public Docker image using the
+    Docker Hub Registry HTTP API.
 
-    client = docker.from_env()
-    log.info("Pulling Docker image %s …", DOCKER_IMAGE)
-    image = client.images.pull(DOCKER_IMAGE)
-    # ``RepoDigests`` is a list like
-    # ["gcc@sha256:<digest>", "gcc:13.2-bullseye@sha256:<digest>"]
-    repo_digests = image.attrs.get("RepoDigests", [])
-    if not repo_digests:
-        raise RuntimeError("No RepoDigests found for image")
-    # Prefer the entry that includes the tag we asked for.
-    digest_entry = next(
-        (d for d in repo_digests if DOCKER_IMAGE.split(":")[0] in d),
-        repo_digests[0],
-    )
-    # Extract the ``sha256:…`` part.
-    docker_digest = digest_entry.split("@")[1]
-    log.info("Docker image digest: %s", docker_digest)
+    Parameters
+    ----------
+    image: str
+        Image name with tag, e.g. ``gcc:13.2-bullseye``.
+
+    Returns
+    -------
+    str
+        The digest string (e.g. ``sha256:<hash>``).
+
+    Raises
+    ------
+    RuntimeError
+        If the digest cannot be obtained.
+    """
+    repo, tag = image.split(":")
+    # Official images are under the ``library`` namespace.
+    if "/" not in repo:
+        repo = f"library/{repo}"
+    url = f"https://registry-1.docker.io/v2/{repo}/manifests/{tag}"
+    headers = {
+        "Accept": "application/vnd.docker.distribution.manifest.v2+json"
+    }
+    log.info("Requesting Docker manifest for %s", image)
+    response = requests.get(url, headers=headers, timeout=30)
+    try:
+        response.raise_for_status()
+    except Exception as exc:
+        raise RuntimeError(f"Failed to fetch manifest for {image}: {exc}") from exc
+
+    digest = response.headers.get("Docker-Content-Digest")
+    if not digest:
+        raise RuntimeError(
+            f"Docker-Content-Digest header missing in response for {image}"
+        )
+    return digest
+
+try:
+    docker_digest = _fetch_docker_digest(DOCKER_IMAGE)
+    log.info("Docker image digest retrieved: %s", docker_digest)
 except Exception as exc:
-    # The task explicitly forbids silent fall‑backs; we raise to surface the
-    # problem to the execution harness.
     log.error("Failed to obtain Docker image digest: %s", exc)
     raise
 

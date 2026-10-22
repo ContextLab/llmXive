@@ -7,6 +7,11 @@
 
 ## Step‑by‑Step
 
+0. **Set up deterministic environment**  
+   ```bash
+   python code/setup_env.py
+   ```
+
 1. **Clone the repository and install Python dependencies**  
    ```bash
    git clone 
@@ -80,7 +85,3 @@
    ```
 
 All intermediate files are content‑hashed; rerunning any step will automatically detect changes and recompute downstream artifacts.
-
----
-
-

@@ -1,18 +1,18 @@
 status: none
-intent: download Codeforces problemset dataset with C++ reference solutions python
-  package dataset
+intent: Codeforces C++ reference solutions paired with CodeLlama-7B StarCoder-15B
+  generated code python package dataset
 required_fields:
 - problem_id
-- title
-- problem_statement
-- input_format
-- output_format
-- sample_inputs
-- sample_outputs
-- reference_solution_code
-- language
-- tags
-- difficulty_rating
-cache_key: ee5b4ebb1f42b5af1ba0494a6a98ef9942abdb1548d92a5343dbd244cd449fe2
-searched_at: '2026-10-22T00:21:30.863091+00:00'
+- human_solution_code
+- human_solution_language
+- llm_solution_code
+- llm_model_name
+- llm_generation_timestamp
+- compilation_status_human
+- compilation_status_llm
+- generation_attempts
+- source_url_human
+- source_url_llm
+cache_key: 9351ec64ba6e894883aa67665ac42b2e439b6673d200d117365a9499f3b4a712
+searched_at: '2026-10-22T00:22:45.192234+00:00'
 retry_count: 1
