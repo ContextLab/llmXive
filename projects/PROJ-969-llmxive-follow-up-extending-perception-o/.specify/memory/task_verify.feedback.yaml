@@ -3,6 +3,8 @@ T001:
     exit=1'
   task: 66e914aa5cc57a56afabc55add975619b4a692f9205762c1907fff6e7bcdc6ee
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/src/context/knowledge_base.py
+    exit=1'
   task: 68109eab6a09be2f344b86b3e98f40891a4acc95b792b840c0a34d8d45302803
 T003:
   task: 596432fd05b396e8153f9527505d42f1e119007f9d54a604dbe294e39d3aab2a
