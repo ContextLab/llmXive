@@ -9,13 +9,13 @@
     "python code/main.py --stage execute_and_compare -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/main.py': [Errno 2] No such file or directory",
     "python code/main.py --stage analyze -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch/code/main.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 3,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "data_unreachable",
   "evidence": [
     "python -c \"from datasets import load_dataset; ds = load_dataset('claw-ai-lab/arc-bench', streaming=True); print(next(iter(ds)))\""
   ],
-  "updated_at": "2026-08-01T23:25:31Z"
+  "updated_at": "2026-10-22T21:36:08Z"
 }

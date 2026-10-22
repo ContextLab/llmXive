@@ -19,15 +19,21 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T050** — declared artifact(s) missing/empty/invalid: code/utils/verify_data_source.py, data/raw/.checksums, data/artifacts/data_source_report.json
 - **T036** — declared artifact(s) missing/empty/invalid: code/data/loader.py
 - **T005a** — declared artifact(s) missing/empty/invalid: code/annotation/gold_standard_loader.py, data/raw/gold_standard.json
+- **T005d** — The required artifacts `code/annotation/interface.py`, `data/derived/human_annotations.csv`, and `docs/human_review_protocol.md` are all reported as missing, so the Streamlit interface and review protocol documentation were not provided. Consequently the task’s deliverables are not present.
 - **T005e** — declared artifact(s) missing/empty/invalid: data/raw/gold_standard.json, code/annotation/generate_gold_standard.py, data/derived/human_annotations.csv
 - **T009a** — declared artifact(s) missing/empty/invalid: code/annotation/annotator.py
 - **T054** — declared artifact(s) missing/empty/invalid: code/annotation/kappa_calculator.py, data/derived/kappa_report.json
 - **T005b** — declared artifact(s) missing/empty/invalid: code/annotation/consensus.py, data/derived/consensus_annotations.csv
 - **T005c** — declared artifact(s) missing/empty/invalid: code/annotation/disagreement_resolver.py, data/derived/disagreements.csv
+- **T005f** — The `download_arc_bench.py` script catches any download error and calls `sys.exit(1)` instead of propagating (raising) the exception, so it does not “raise an exception” as required. No synthetic fallback is present, but the error‑handling does not satisfy the fail‑loudly specification. The implementer must modify the code to let the exception bubble up (or re‑raise) rather than swallowing it with `sys.exit`.
 - **T011a** — declared artifact(s) missing/empty/invalid: code/annotation/create_split.py, data/derived/train_split.json, data/derived/holdout_split.json
+- **T011c** — The `code/annotation/distill_rules.py` file exists but contains only regex‑based rule extraction and a placeholder `extract_rules_with_llm` that returns an empty list; it never imports or loads a quantized Llama model (e.g., with `load_in_8bit=True` or INT4) nor enforces CPU‑only execution. The core requirement to load a CPU‑tractable model and generate rules from it is therefore missing.
 - **T011b** — declared artifact(s) missing/empty/invalid: data/derived/rules_library.json
 - **T011d** — declared artifact(s) missing/empty/invalid: data/derived/coverage_report.json
+- **T015b** — The required script `code/annotation/validate_rules_schema.py` and the output file `data/derived/schema_validation_report.json` are both missing, so the schema validation step cannot be performed.
 - **T016** — declared artifact(s) missing/empty/invalid: data/derived/metrics_log.json
+- **T017** — The provided `code/03_execution/rule_engine.py` does not expose a simple function that takes an `error_log` string and a list of rules and returns exactly `{pivot_action: ..., matched_rule_id: ...}` (or the UNMATCHED/null case). Instead it implements a full pipeline with many extra utilities, uses different output keys (`action`, `method`), and lacks the required “Manual Review” fallback and exact output schema. The core matching logic also only supports regex, not JSON‑path patterns as required.
+- **T041a** — The required script `ci/check_gpu_policy.sh` is not present, and the expected output file `data/artifacts/gpu_policy_check.json` is missing. Without these artifacts the GPU‑policy CI check cannot be verified.
 - **T041b** — declared artifact(s) missing/empty/invalid: code/utils/gpu_guard.py
 - **T019a** — declared artifact(s) missing/empty/invalid: data/derived/experiment_manifest.json
 - **T058c** — declared artifact(s) missing/empty/invalid: ci/baseline_job.yml, ci/rule_engine_job.yml

@@ -53,12 +53,22 @@ T005c:
     data/derived/disagreements.csv'
   task: 6aa8f8b13ee3d4e9170e3d5bdfd2b57fd28bc4ec38d68d54b7ff0a56f5c41b6e
 T005d:
+  reason: "The required artifacts `code/annotation/interface.py`, `data/derived/human_annotations.csv`,\
+    \ and `docs/human_review_protocol.md` are all reported as missing, so the Streamlit\
+    \ interface and review protocol documentation were not provided. Consequently\
+    \ the task\u2019s deliverables are not present."
   task: 7257ec6e3b63bc8962f8c5360489c4f7f503c8fcda04f64bdef94c7412f6f9ac
 T005e:
   reason: 'declared artifact(s) missing/empty/invalid: data/raw/gold_standard.json,
     code/annotation/generate_gold_standard.py, data/derived/human_annotations.csv'
   task: 98c5ce3071366051d8a190ebba389b1d4be2f09588ce4fea88890fc11e62d806
 T005f:
+  reason: "The `download_arc_bench.py` script catches any download error and calls\
+    \ `sys.exit(1)` instead of propagating (raising) the exception, so it does not\
+    \ \u201Craise an exception\u201D as required. No synthetic fallback is present,\
+    \ but the error\u2011handling does not satisfy the fail\u2011loudly specification.\
+    \ The implementer must modify the code to let the exception bubble up (or re\u2011\
+    raise) rather than swallowing it with `sys.exit`."
   task: cd9ed176af863e7ee8a969dad864a55c0990566ef5bce014154517f8521482c0
 T006a:
   reason: "The file `specs/001-llmxive-followup/contracts/failure_case.schema.yaml`\
@@ -116,16 +126,32 @@ T011b:
   reason: 'declared artifact(s) missing/empty/invalid: data/derived/rules_library.json'
   task: a397a99ae76af39843cf13dc085822ef65edf1df9646fed024fc7e01477e57b4
 T011c:
+  reason: "The `code/annotation/distill_rules.py` file exists but contains only regex\u2011\
+    based rule extraction and a placeholder `extract_rules_with_llm` that returns\
+    \ an empty list; it never imports or loads a quantized Llama model (e.g., with\
+    \ `load_in_8bit=True` or INT4) nor enforces CPU\u2011only execution. The core\
+    \ requirement to load a CPU\u2011tractable model and generate rules from it is\
+    \ therefore missing."
   task: 3441a9eb0af9b66fb1a068d8e54a414bd538c19b82609f74bfe906f946581fb6
 T011d:
   reason: 'declared artifact(s) missing/empty/invalid: data/derived/coverage_report.json'
   task: 53c1a42971484c17ec39045ed52f791bc50de415d1f440f99c96277f73114d3f
 T015b:
+  reason: The required script `code/annotation/validate_rules_schema.py` and the output
+    file `data/derived/schema_validation_report.json` are both missing, so the schema
+    validation step cannot be performed.
   task: a1520c9a0824e470cdbc8f33fdb901b0a26de11502b61f15264044067712f92c
 T016:
   reason: 'declared artifact(s) missing/empty/invalid: data/derived/metrics_log.json'
   task: df5616e94efbdeb0d2ff4458045ec22a2b59d9c2584bbc859292f6598b451ade
 T017:
+  reason: "The provided `code/03_execution/rule_engine.py` does not expose a simple\
+    \ function that takes an `error_log` string and a list of rules and returns exactly\
+    \ `{pivot_action: ..., matched_rule_id: ...}` (or the UNMATCHED/null case). Instead\
+    \ it implements a full pipeline with many extra utilities, uses different output\
+    \ keys (`action`, `method`), and lacks the required \u201CManual Review\u201D\
+    \ fallback and exact output schema. The core matching logic also only supports\
+    \ regex, not JSON\u2011path patterns as required."
   task: 21285da209499d01d6055d8e0f5dd48f0a318cd46046c7dd502b650dbaecdd4b
 T019:
   task: a773a9df8af56ed60f4e1c9d94892c561e8e302441c49ac50892e29a54507f91
@@ -172,6 +198,9 @@ T036:
   reason: 'declared artifact(s) missing/empty/invalid: code/data/loader.py'
   task: 912b4bbfcb68766d350b151cf2efc2669580d30b61087383ee62d93afb565d14
 T041a:
+  reason: "The required script `ci/check_gpu_policy.sh` is not present, and the expected\
+    \ output file `data/artifacts/gpu_policy_check.json` is missing. Without these\
+    \ artifacts the GPU\u2011policy CI check cannot be verified."
   task: 48b26934f32a2cb8735b19c7e8c7226f355455a1d9862590c954babca5c13696
 T041b:
   reason: 'declared artifact(s) missing/empty/invalid: code/utils/gpu_guard.py'

@@ -48,6 +48,24 @@ T005:
     \ an extra `pyyaml` entry. These deviations mean the task\u2019s requirement is\
     \ not satisfied."
   sig: dfd5187b9d99f464f93aeb2b5e3bb81e30607f28ed1dd670ba814220ada94698
+T005d:
+  c: false
+  h: 41220fbdcf6c5f9271c7751039e5aba669d7c0e6becde3bb364678e45e05889b
+  r: "The required artifacts `code/annotation/interface.py`, `data/derived/human_annotations.csv`,\
+    \ and `docs/human_review_protocol.md` are all reported as missing, so the Streamlit\
+    \ interface and review protocol documentation were not provided. Consequently\
+    \ the task\u2019s deliverables are not present."
+  sig: 4de2d51181a713f45fde78c2141355920a93d7c3bcf26a7abeeacd2b1826cc95
+T005f:
+  c: false
+  h: d7fe257285104aa127ac69c0a49cfabaf504a0087adb2bf36b421af9d81bf7c7
+  r: "The `download_arc_bench.py` script catches any download error and calls `sys.exit(1)`\
+    \ instead of propagating (raising) the exception, so it does not \u201Craise an\
+    \ exception\u201D as required. No synthetic fallback is present, but the error\u2011\
+    handling does not satisfy the fail\u2011loudly specification. The implementer\
+    \ must modify the code to let the exception bubble up (or re\u2011raise) rather\
+    \ than swallowing it with `sys.exit`."
+  sig: df92227c7942e9ea7b962395bb80ce2769bd310428b568c1d2ccace233712402
 T006a:
   c: false
   h: 7bd5ff71a40bda68dbc08bcd13e2b323b2ac7074161a3a11ed69c22ada4c7b0f
@@ -103,13 +121,34 @@ T009:
     \ or SHA\u2011256 checksum generation. Consequently the required `data/raw/arc_bench_topic_subset.parquet`\
     \ and `data/raw/.checksums` files are missing."
   sig: 97f1d702e21f28d2bbb11d9a9e2b4d7ffe30404154ca2eb8417f7c110b8b866f
+T011c:
+  c: false
+  h: 2969c5f1bb95c49d292378d143fb0f78f5a56f33d734e037832a56765afa1dce
+  r: "The `code/annotation/distill_rules.py` file exists but contains only regex\u2011\
+    based rule extraction and a placeholder `extract_rules_with_llm` that returns\
+    \ an empty list; it never imports or loads a quantized Llama model (e.g., with\
+    \ `load_in_8bit=True` or INT4) nor enforces CPU\u2011only execution. The core\
+    \ requirement to load a CPU\u2011tractable model and generate rules from it is\
+    \ therefore missing."
+  sig: 9ec385575472a348cfe8978510a4f774781e27b128d17f261a5631b39b15557a
 T015b:
   c: false
-  h: cfc439a05981677f666f5d9dd99aa8fb5cc37b6ccc92c9330c91e1557d733b59
-  r: "The repository contains `validate_rules.py`, but the required input files (`data/derived/rules_library.json`\
-    \ and `specs/001-llmxive-followup/contracts/distilled_rule.schema.yaml`) are absent,\
-    \ and no `data/artifacts/rule_validation_report.json` was generated. Consequently\
-    \ the validator was never run and the task\u2019s output artifact is missing."
+  h: db0d3d10d6692f85382893732512704ca3b41123be38b06160b25e8b047cd0cc
+  r: The required script `code/annotation/validate_rules_schema.py` and the output
+    file `data/derived/schema_validation_report.json` are both missing, so the schema
+    validation step cannot be performed.
+  sig: 5a448da8022bed74e3464b73cc8ec87a1bccadcc743eb667a43e8c84b4d9b658
+T017:
+  c: false
+  h: 50c5f5c8b38754c712502e4f5d3808a7f53c285be2012c285e8af5400a61a601
+  r: "The provided `code/03_execution/rule_engine.py` does not expose a simple function\
+    \ that takes an `error_log` string and a list of rules and returns exactly `{pivot_action:\
+    \ ..., matched_rule_id: ...}` (or the UNMATCHED/null case). Instead it implements\
+    \ a full pipeline with many extra utilities, uses different output keys (`action`,\
+    \ `method`), and lacks the required \u201CManual Review\u201D fallback and exact\
+    \ output schema. The core matching logic also only supports regex, not JSON\u2011\
+    path patterns as required."
+  sig: 548c325f4cc88c9f979de3dd3b0038cd0bb6581025d2fb41164f8e1ffdb6c159
 T019:
   c: false
   h: 538a10cb0cc8afca3c596a27e24f8d74c40bb1a8692f027ec9705dfaaae2b1d8
@@ -149,6 +188,13 @@ T036:
     also saves the fetched data to `data/raw/arc_bench.json` instead of processing
     it into `data/derived/parsed_traces.json`, and that target file is missing. Consequently
     the required behavior and output are not fulfilled.
+T041a:
+  c: false
+  h: fb2bdbe79400f15dafc04b0da0f47c7c3afe76bf77088f8d5cf1dbc0b7860d08
+  r: "The required script `ci/check_gpu_policy.sh` is not present, and the expected\
+    \ output file `data/artifacts/gpu_policy_check.json` is missing. Without these\
+    \ artifacts the GPU\u2011policy CI check cannot be verified."
+  sig: 487b71bf8d97f3ba3b508f05152690198ec830cda3179fc6c8b3ae153ef5b454
 T083:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

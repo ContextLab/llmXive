@@ -189,23 +189,46 @@ def build_report(citation_ids: list[str]) -> dict:
     }
 
 
-def main() -> int:
+def parse_arguments() -> argparse.Namespace:
+    """
+    Parse CLI arguments. Defaults are provided so the script can be run
+    without explicit arguments (useful for automated verification).
+    """
     parser = argparse.ArgumentParser(
         description="Validate citations in markdown files against primary sources."
     )
     parser.add_argument(
         "--input",
         action="append",
-        required=True,
-        help="Path to a markdown file containing citations. Can be used multiple times.",
+        help=(
+            "Path to a markdown file containing citations. Can be used multiple times. "
+            "If omitted, defaults to the project's plan and spec files."
+        ),
     )
     parser.add_argument(
         "--output",
-        required=True,
-        help="Path to write the JSON citation validation report.",
+        help=(
+            "Path to write the JSON citation validation report. "
+            "If omitted, defaults to data/artifacts/citation_validation_report.json"
+        ),
     )
-
     args = parser.parse_args()
+
+    # Apply sensible defaults when arguments are missing
+    if not args.input:
+        # Default to the two specification markdown files
+        args.input = [
+            str(Path("specs/001-llmxive-follow-up-extending-autoresearch/plan.md")),
+            str(Path("specs/001-llmxive-follow-up-extending-autoresearch/spec.md")),
+        ]
+    if not args.output:
+        args.output = str(Path("data/artifacts/citation_validation_report.json"))
+
+    return args
+
+
+def main() -> int:
+    args = parse_arguments()
 
     # Aggregate all citation identifiers from all input files
     all_citations: list[str] = []

@@ -13,7 +13,7 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/derived/pipeline_execution_log.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python code/main.py --stage ingest_and_distill (rc=1); python code/main.py --stage execute_and_compare (rc=1); python code/main.py --stage analyze (rc=1); 11 declared deliverable(s) absent: data/artifacts/final_constitution_check.json; data/derived/coverage_report.json; data/derived/error_taxonomy.json
+**Summary**: every produced artifact is gitignored (data/derived/pipeline_execution_log.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python code/main.py --stage ingest_and_distill (rc=1); python code/main.py --stage execute_and_compare (rc=1); python code/main.py --stage analyze (rc=1); 12 declared deliverable(s) absent: data/artifacts/citation_validation_report.json; data/artifacts/final_constitution_check.json; data/derived/coverage_report.json
 
 ## Failing / missing run-book commands
 
@@ -86,7 +86,7 @@ TypeError: log_stage_end() got an unexpected keyword argument 'status'
 
 - python -m pytest tests/unit/ -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.6.0
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch
 configfile: pyproject.toml
 plugins: anyio-4.15.1
@@ -99,7 +99,7 @@ ERROR: file or directory not found: tests/unit/
 
 - python -m pytest tests/contract/ -> rc=4
 ============================= test session starts ==============================
-platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.6.0
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-865-llmxive-follow-up-extending-autoresearch
 configfile: pyproject.toml
 plugins: anyio-4.15.1
@@ -113,6 +113,7 @@ ERROR: file or directory not found: tests/contract/
 
 ## Declared deliverables still missing
 
+- data/artifacts/citation_validation_report.json
 - data/artifacts/final_constitution_check.json
 - data/derived/coverage_report.json
 - data/derived/error_taxonomy.json
@@ -129,6 +130,12 @@ ERROR: file or directory not found: tests/contract/
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/artifacts/citation_validation_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/utils/reference_validator.py` — NOT invoked by the run-book
+    - `code/utils/update_state.py` — NOT invoked by the run-book
+    - `code/utils/validate_citations.py` — NOT invoked by the run-book
+    - `code/utils/validate_constitution.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/artifacts/citation_validation_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/artifacts/final_constitution_check.json` is declared but was NOT written. Scripts referencing it:
     - `code/utils/validate_constitution.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/artifacts/final_constitution_check.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
