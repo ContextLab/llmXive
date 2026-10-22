@@ -1,56 +1,46 @@
 """Orchestrator for the corrosion‑rate prediction pipeline.
 
-Executes the core stages in order:
-1. Ingestion & cleaning
-2. Feature engineering
-3. VIF diagnostics
-4. Model training & baseline evaluation
-
-Each stage is invoked via its ``main`` entry point. If any stage
-returns a non‑zero exit code the pipeline aborts and propagates that
-code.
+The orchestrator coordinates ingestion, feature engineering, VIF
+diagnostics, split generation, and model training.  All steps must
+succeed for the pipeline to be considered successful.
 """
 
 from __future__ import annotations
 
 import sys
+from typing import List
 
 from llmxive_toolkit import get_logger
 
-# Import stage entry points.
+# Import sub‑module entry points.
 from src.pipeline.ingest import main as ingest_main
 from src.pipeline.features import main as features_main
 from src.pipeline.vif import main as vif_main
+from src.pipeline.split import main as split_main
 from src.pipeline.train import main as train_main
 
 log = get_logger(__name__)
 
-def main(argv: list[str] | None = None) -> int:
-    """Run the full pipeline end‑to‑end."""
-    # 1. Ingestion
-    rc = ingest_main([])
-    if rc != 0:
-        log.error("Ingestion step failed with code %s", rc)
-        return rc
+_STEPS: List[tuple[str, callable]] = [
+    ("ingest", ingest_main),
+    ("features", features_main),
+    ("vif", vif_main),
+    ("split", split_main),
+    ("train", train_main),
+]
 
-    # 2. Feature engineering
-    rc = features_main([])
-    if rc != 0:
-        log.error("Feature‑engineering step failed with code %s", rc)
-        return rc
+def main(argv: List[str] | None = None) -> int:
+    """Run the full pipeline end‑to‑end.
 
-    # 3. VIF diagnostics
-    rc = vif_main([])
-    if rc != 0:
-        log.error("VIF step failed with code %s", rc)
-        return rc
-
-    # 4. Model training & baseline evaluation
-    rc = train_main([])
-    if rc != 0:
-        log.error("Training step failed with code %s", rc)
-        return rc
-
+    Returns ``0`` on success; otherwise returns the first non‑zero
+    exit code encountered.
+    """
+    for name, step_fn in _STEPS:
+        log.info("Running pipeline step: %s", name)
+        rc = step_fn([])
+        if rc != 0:
+            log.error("Step %s failed with exit code %d", name, rc)
+            return rc
     log.info("Pipeline completed successfully.")
     return 0
 

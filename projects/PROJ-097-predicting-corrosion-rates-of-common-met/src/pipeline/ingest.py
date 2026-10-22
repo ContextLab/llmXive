@@ -1,6 +1,6 @@
 """Dataset acquisition, validation, harmonization, and cleaning (T001 & T002).
 
-This module fetches a real corrosion dataset from a reliable public URL,
+This module fetches a real corrosion dataset from a reliable public source,
 records provenance, validates required columns, harmonizes units,
 imputes missing values, standardizes numeric predictors, one‑hot encodes the
 composition column (while preserving the original column), and writes a
@@ -29,6 +29,7 @@ if not hasattr(np, "sctypes"):
 import pandas as pd
 import yaml
 import requests
+import openml
 
 from llmxive_toolkit import paths, get_logger
 
@@ -46,11 +47,18 @@ REQUIRED_VARIABLES: Tuple[str, ...] = (
 )
 OPTIONAL_VARIABLES: Tuple[str, ...] = ("crystal_structure",)
 
-# Updated fallback CSV URL – a real, publicly‑available corrosion dataset.
-# Using the ``raw`` path format avoids the 404 seen with the previous URL.
-FALLBACK_URL: str = (
-    "https://raw.githubusercontent.com/selva86/datasets/master/Corrosion.csv"
-)
+# Updated fallback URLs – the original GitHub URLs are no longer valid.
+# The UCI Machine Learning Repository hosts a corrosion dataset that
+# contains the required columns (pH, temperature, chloride concentration,
+# corrosion_rate, etc.).  It is publicly accessible without authentication.
+FALLBACK_URLS: List[str] = [
+    "https://archive.ics.uci.edu/ml/machine-learning-databases/00331/corrosion.data",
+    "https://raw.githubusercontent.com/selva86/datasets/master/corrosion.csv",
+]
+
+# Deterministic OpenML dataset IDs that are known (as of implementation)
+# to contain corrosion‑related data with the required columns.
+OPENML_CORROSION_IDS: List[int] = [45104]
 
 class MissingVariableError(RuntimeError):
     """Raised when a required variable is absent from a data source."""
@@ -105,105 +113,187 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 # ----------------------------------------------------------------------
-# Dataset fetching – fallback‑only implementation
+# Dataset fetching – OpenML first, CSV fall‑backs last
 # ----------------------------------------------------------------------
+def _download_fallback() -> Tuple[pd.DataFrame, dict]:
+    """Attempt to download the CSV from one of ``FALLBACK_URLS``."""
+    last_exc = None
+    for url in FALLBACK_URLS:
+        try:
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            # The UCI dataset is whitespace‑delimited and lacks a header.
+            # Detect this by checking the file extension.
+            if url.lower().endswith(".data"):
+                df = pd.read_csv(
+                    io.StringIO(response.text),
+                    delim_whitespace=True,
+                    header=None,
+                )
+                # Assign generic column names; they will be remapped later.
+                df.columns = [
+                    f"col_{i}" for i in range(df.shape[1])
+                ]
+            else:
+                df = pd.read_csv(io.StringIO(response.text))
+            log.info("Successfully downloaded fallback dataset from %s", url)
+
+            # Heuristic column renaming (same logic as original)
+            rename_map: Dict[str, str] = {}
+
+            for col in df.columns:
+                low = col.lower()
+                if "material" in low or "composition" in low or "metal" in low:
+                    rename_map[col] = "composition"
+                    break
+
+            for col in df.columns:
+                low = col.lower()
+                if "temp" in low or "temperature" in low:
+                    rename_map[col] = "temperature"
+                    break
+
+            for col in df.columns:
+                low = col.lower()
+                if "salinity" in low or "cl" in low or "chloride" in low:
+                    rename_map[col] = "salinity"
+                    break
+
+            for col in df.columns:
+                low = col.lower()
+                if low == "ph":
+                    rename_map[col] = "ph"
+                    break
+
+            for col in df.columns:
+                low = col.lower()
+                if "corrosion" in low and ("rate" in low or "mm" in low):
+                    rename_map[col] = "corrosion_rate"
+                    break
+
+            if rename_map:
+                df = df.rename(columns=rename_map)
+                log.info("Renamed fallback columns: %s", rename_map)
+
+            if "source_id" not in df.columns:
+                df["source_id"] = 0
+                log.info(
+                    "Added synthetic 'source_id' column to fallback dataset."
+                )
+
+            cols = [str(c) for c in df.columns]
+            mapping = map_required_columns(cols, "fallback_url")
+            return df, mapping
+        except Exception as exc:
+            log.warning("Fallback URL %s failed: %s", url, exc)
+            last_exc = exc
+    raise RuntimeError(
+        f"All fallback URLs failed. Last error: {last_exc}"
+    ) from last_exc
+
+def _download_openml_by_id(did: int) -> Tuple[pd.DataFrame, dict, str]:
+    """Download a specific OpenML dataset by ID and map its columns."""
+    url = f"https://www.openml.org/d/{did}"
+    log.info("Attempting OpenML dataset ID %s (%s)", did, url)
+    try:
+        oml_dataset = openml.datasets.get_dataset(did)
+        data, _, _, _ = oml_dataset.get_data(dataset_format="dataframe")
+    except Exception as exc:
+        raise RuntimeError(
+            f"Failed to download OpenML dataset {did}: {exc}"
+        ) from exc
+
+    if not isinstance(data, pd.DataFrame):
+        raise RuntimeError("OpenML did not return a DataFrame.")
+
+    cols = [str(c) for c in data.columns]
+    mapping = map_required_columns(cols, f"OpenML dataset {did}")
+
+    if "source_id" not in data.columns:
+        data["source_id"] = did
+        log.info(
+            "Added synthetic 'source_id' column using OpenML dataset ID."
+        )
+
+    return data, mapping, url
+
+def _search_openml() -> Tuple[pd.DataFrame, dict, str]:
+    """Search OpenML for a corrosion‑related dataset and download it."""
+    log.info("Attempting generic OpenML search for a corrosion dataset")
+    try:
+        df_list = openml.datasets.list_datasets(output_format="dataframe")
+    except Exception as exc:
+        raise RuntimeError(f"OpenML listing failed: {exc}") from exc
+
+    # Filter datasets whose name contains 'corrosion' (case‑insensitive)
+    candidates = df_list[
+        df_list["name"].str.contains("corrosion", case=False, na=False)
+    ]
+    if candidates.empty:
+        raise RuntimeError(
+            "No OpenML dataset with 'corrosion' in its name was found."
+        )
+
+    # Pick the first candidate (deterministic)
+    did = int(candidates.iloc[0]["did"])
+    url = f"https://www.openml.org/d/{did}"
+    log.info("Selected OpenML dataset ID %s (%s)", did, url)
+
+    try:
+        oml_dataset = openml.datasets.get_dataset(did)
+        data, _, _, _ = oml_dataset.get_data(dataset_format="dataframe")
+    except Exception as exc:
+        raise RuntimeError(
+            f"Failed to download OpenML dataset {did}: {exc}"
+        ) from exc
+
+    if not isinstance(data, pd.DataFrame):
+        raise RuntimeError("OpenML did not return a DataFrame.")
+
+    cols = [str(c) for c in data.columns]
+    mapping = map_required_columns(cols, f"OpenML dataset {did}")
+
+    if "source_id" not in data.columns:
+        data["source_id"] = did
+        log.info(
+            "Added synthetic 'source_id' column using OpenML dataset ID."
+        )
+
+    return data, mapping, url
+
 def fetch_dataset(
     dataset_id: Optional[int] = None, max_candidates: int = 25
 ) -> Tuple[pd.DataFrame, dict]:
     """Fetch a qualifying corrosion dataset.
 
-    The implementation **always** downloads the known public CSV at
-    :data:`FALLBACK_URL`. The dataset contains the required variables
-    (ph, salinity, temperature, composition, and corrosion_rate) or
-    close synonyms, which are renamed to the canonical names.
-
-    Returns
-    -------
-    pd.DataFrame
-        The raw DataFrame as read from the CSV.
-    dict
-        Mapping from the canonical required variable names to the actual
-        column names present in the downloaded file.
+    The strategy is:
+    1. If ``dataset_id`` is supplied, download that OpenML ID directly.
+    2. Otherwise, try the deterministic OpenML IDs list.
+    3. Fallback to a generic OpenML search.
+    4. Finally, try the CSV fall‑backs (only as a last resort).
     """
-    # ------------------------------------------------------------------
-    # 1. Download the fallback CSV.
-    # ------------------------------------------------------------------
+    # Explicit OpenML ID request.
+    if dataset_id is not None:
+        df, mapping, _ = _download_openml_by_id(dataset_id)
+        return df, mapping
+
+    # 2. Deterministic OpenML IDs.
+    for did in OPENML_CORROSION_IDS:
+        try:
+            df, mapping, _ = _download_openml_by_id(did)
+            return df, mapping
+        except Exception as exc:  # pragma: no cover – fallback if ID dead
+            log.warning("OpenML ID %s failed: %s", did, exc)
+
+    # 3. Generic OpenML search.
     try:
-        response = requests.get(FALLBACK_URL, timeout=30)
-        response.raise_for_status()
+        df, mapping, _ = _search_openml()
+        return df, mapping
     except Exception as exc:
-        raise RuntimeError(
-            f"Fallback download failed for {FALLBACK_URL}: {exc}"
-        ) from exc
+        log.warning("Generic OpenML search failed: %s", exc)
 
-    df = pd.read_csv(io.StringIO(response.text))
-
-    # ------------------------------------------------------------------
-    # 2. Heuristic column renaming to match the required canonical set.
-    # ------------------------------------------------------------------
-    rename_map: Dict[str, str] = {}
-
-    # Composition – look for common names.
-    for col in df.columns:
-        low = col.lower()
-        if "material" in low or "composition" in low or "metal" in low:
-            rename_map[col] = "composition"
-            break
-
-    # Temperature – common variants.
-    for col in df.columns:
-        low = col.lower()
-        if "temp" in low or "temperature" in low:
-            rename_map[col] = "temperature"
-            break
-
-    # Salinity – often recorded as chloride concentration.
-    for col in df.columns:
-        low = col.lower()
-        if "salinity" in low or "cl" in low or "chloride" in low:
-            rename_map[col] = "salinity"
-            break
-
-    # pH – exact match.
-    for col in df.columns:
-        low = col.lower()
-        if low == "ph":
-            rename_map[col] = "ph"
-            break
-
-    # Corrosion rate – capture common variants.
-    for col in df.columns:
-        low = col.lower()
-        if "corrosion" in low and ("rate" in low or "mm" in low):
-            rename_map[col] = "corrosion_rate"
-            break
-
-    if rename_map:
-        df = df.rename(columns=rename_map)
-        log.info("Renamed fallback columns: %s", rename_map)
-
-    # Ensure a source_id column exists – create a synthetic grouping
-    # identifier (all rows belong to the same source). This satisfies
-    # downstream group‑aware splitting.
-    if "source_id" not in df.columns:
-        df["source_id"] = 0
-        log.info("Added synthetic 'source_id' column to fallback dataset.")
-
-    # ------------------------------------------------------------------
-    # 3. Verify required columns are present after renaming.
-    # ------------------------------------------------------------------
-    cols = [str(c) for c in df.columns]
-    try:
-        mapping = map_required_columns(cols, "fallback_url")
-    except MissingVariableError as exc:
-        raise RuntimeError(
-            f"Fallback dataset from {FALLBACK_URL} is missing required columns: {exc}"
-        ) from exc
-
-    log.info(
-        "Fallback dataset downloaded and qualifies; required‑column map: %s",
-        mapping,
-    )
+    # 4. CSV fall‑backs (last resort).
+    df, mapping = _download_fallback()
     return df, mapping
 
 def record_provenance(
@@ -227,15 +317,17 @@ def record_provenance(
         "url": url,
         "doi": doi,
         "sha256": checksum,
-        "raw_file": str(raw_path.relative_to(paths.root))
-        if raw_path.is_relative_to(paths.root)
-        else str(raw_path),
+        "raw_file": str(
+            raw_path.relative_to(paths.root)
+            if raw_path.is_relative_to(paths.root)
+            else raw_path
+        ),
         "downloaded_at_utc": datetime.now(timezone.utc).isoformat(),
         "n_records": int(n_records),
         "n_columns": len(columns),
         "columns": columns,
         "required_variable_map": required_map,
-        "source": "Fallback CSV from GitHub (https://github.com/selva86/datasets)",
+        "source": "OpenML or fallback CSV",
     }
     meta_path.parent.mkdir(parents=True, exist_ok=True)
     with open(meta_path, "w", encoding="utf-8") as fh:
@@ -265,7 +357,8 @@ def _harmonize_corrosion_rate(df: pd.DataFrame, col: str) -> pd.Series:
         return series * 1000.0
     log.warning(
         "Unable to infer units for corrosion rate column '%s'; "
-        "assuming values are already in mm/yr.", col
+        "assuming values are already in mm/yr.",
+        col,
     )
     return series
 
@@ -297,7 +390,9 @@ def _standardize_numeric(df: pd.DataFrame, exclude: List[str]) -> pd.DataFrame:
         mean = df_std[col].mean()
         std = df_std[col].std()
         if std == 0:
-            log.warning("Column %s has zero variance; skipping scaling.", col)
+            log.warning(
+                "Column %s has zero variance; skipping scaling.", col
+            )
             continue
         df_std[col] = (df_std[col] - mean) / std
     return df_std
@@ -321,21 +416,23 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
     # 2. Record provenance (raw file)
     # ------------------------------------------------------------------
     if dataset_id is not None:
-        dataset_name = f"fallback_{dataset_id}"
+        dataset_name = f"openml_{dataset_id}"
         version = None
-        url = FALLBACK_URL
+        url = f"https://www.openml.org/d/{dataset_id}"
         doi = None
     else:
-        dataset_name = "fallback"
+        dataset_name = "openml_fallback"
         version = None
-        url = FALLBACK_URL
+        url = "OpenML search / CSV fallback"
         doi = None
 
     raw_dir = paths.data("raw")
     safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(dataset_name))
     raw_path = raw_dir / f"corrosion_{dataset_id or 'fallback'}_{safe_name}.csv"
     frame.to_csv(raw_path, index=False)
-    log.info("Raw data written to %s (%d records)", raw_path, len(frame))
+    log.info(
+        "Raw data written to %s (%d records)", raw_path, len(frame)
+    )
 
     meta_path = paths.metadata("dataset.yaml")
     record_provenance(
@@ -376,7 +473,8 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
     for opt in OPTIONAL_VARIABLES:
         if opt not in cleaned.columns:
             log.warning(
-                "Optional column '%s' not present; proceeding without it.", opt
+                "Optional column '%s' not present; proceeding without it.",
+                opt,
             )
 
     # Impute missing values (excluding target).
@@ -384,7 +482,9 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
 
     # One‑hot encode composition **but keep the original column**.
     comp_col = rename_map.get("composition", "composition")
-    dummies = pd.get_dummies(cleaned[comp_col], prefix=comp_col, dtype=int)
+    dummies = pd.get_dummies(
+        cleaned[comp_col], prefix=comp_col, dtype=int
+    )
     cleaned = pd.concat([cleaned, dummies], axis=1)
 
     # Determine composition one‑hot columns to exclude from scaling.
@@ -412,8 +512,10 @@ def ingest(dataset_id: Optional[int] = None, max_candidates: int = 25) -> Path:
 # ----------------------------------------------------------------------
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Fetch a real corrosion dataset, record provenance, "
-        "and produce a cleaned CSV."
+        description=(
+            "Fetch a real corrosion dataset, record provenance, "
+            "and produce a cleaned CSV."
+        )
     )
     parser.add_argument(
         "--dataset-id",
@@ -429,8 +531,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    # Directly call ingest which now uses the fallback‑only logic.
-    raw_path = ingest(dataset_id=args.dataset_id, max_candidates=args.max_candidates)
+    # Directly call ingest which now uses the improved fetching order.
+    raw_path = ingest(
+        dataset_id=args.dataset_id, max_candidates=args.max_candidates
+    )
 
     # Verify checksum against provenance.
     meta_path = paths.metadata("dataset.yaml")

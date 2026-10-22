@@ -10,7 +10,7 @@ and success criteria (SC‑001 – SC‑007).
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [X] T013 [P] [US1] Create `src/requirements.txt` (mirrored in `code/requirements.txt`) pinning exact dependency versions required by the project.  
+- [ ] T013 [P] [US1] Create `src/requirements.txt` (mirrored in `code/requirements.txt`) pinning exact dependency versions required by the project.  
   *Verification*: `pip install -r src/requirements.txt` and `pip install -r code/requirements.txt` both succeed; the two files are byte‑identical.
 
 - [X] T015 [P] [US1] Author `quickstart.md` in the feature’s spec directory documenting the single command to run the full workflow (`python -m src.pipeline.run_all`) and the pytest command (`pytest src/tests/`).  
@@ -56,7 +56,7 @@ and success criteria (SC‑001 – SC‑007).
   - `data/results/model_artifact.yaml` (conforms to `contracts/model_artifact.schema.yaml`).  
   *Verification*: The YAML validates; the best Full model’s CV R² exceeds the mean‑only baseline by ≥ 0.05 (SC‑001) or improves RMSE by ≥ 10 %; training completes within the 7 GB RAM limit and ≤ 30 min wall‑time per hyper‑parameter combo.
 
-- [ ] T007 [US2] **Interaction‑gain significance (target‑permutation test)** – Implement in `src/pipeline/evaluate.py`:  
+- [ ] T007 [US2] **Interaction‑gain significance (target‑permutation test)** – Implement in `src/pipeline/evaluate.py`:   <!-- FAILED-IN-EXECUTION: src/pipeline/evaluate.py exit=1 -->
   1. For each of the 5 CV folds compute RMSE (or R²) for the Full and Null models on the held‑out validation set and record the observed statistic ΔRMSE = (RMSE Null − RMSE Full).  
   2. Generate a null distribution by **permuting the target variable** (`corrosion_rate`) across the entire training data (or within each fold) — for each of 1 000 permutations, retrain both Full and Null models with the same hyper‑parameters and compute the permuted ΔRMSE.  
   3. Calculate a two‑sided empirical p‑value as the proportion of permuted ΔRMSE values that are greater than or equal to the observed ΔRMSE.  

@@ -9,14 +9,37 @@ T002:
     cannot be verified.
   task: 3eafbb26671a8cc9a072a4d1d4ce11222e599ec984597b710c1b1cbe56bd6aa7
 T003:
+  reason: "The `src/pipeline/vif.py` script is present and appears to implement the\
+    \ VIF computation, but the required output file `data/results/vif_diagnostics.json`\
+    \ is missing, and there is no provided log evidence showing warnings for VIF\u202F\
+    >\u202F5. The task\u2019s verification criteria are therefore not met."
   task: 6ca1436d0bee85be6f985f52d93bebf3280098aa71aff6a0644807fe461784d8
 T004:
+  reason: "The `src/pipeline/features.py` script exists, but it never produces the\
+    \ required output files: `data/processed/features.parquet` is missing, and the\
+    \ specification calls for a plain\u2011text `feature_names.txt` (the script writes\
+    \ a JSON file `feature_names.json` instead, which also does not exist). Moreover,\
+    \ the script aborts if `data/processed/cleaned_dataset.csv` is absent, and no\
+    \ such cleaned dataset is present in the evidence, so the feature\u2011engineering\
+    \ entry point cannot succeed and the pytest suite would fail. These missing/incorrect\
+    \ artifacts must be added for the task to be considered compl"
   task: 314df3eb101af0283572220b2e875ca4d866f08123dd244d58ca2b911db20c85
 T005:
+  reason: The `src/pipeline/split.py` script is present, but the required output file
+    `data/processed/splits.pkl` is missing, so the split indices are not serialized
+    and the verification conditions cannot be checked. The task therefore remains
+    unfinished.
   task: 46c1f663a6f14fea05d08b3307f5d89d79f56ebb7614dac9f43198b15a782684
 T006:
+  reason: "The required output files `data/results/best_full_model.joblib`, `data/results/best_null_model.joblib`,\
+    \ and `data/results/model_artifact.yaml` are missing, and there is no evidence\
+    \ that the saved model meets the performance criteria (baseline R\xB2/RMSE improvement)\
+    \ or the RAM/time limits. The training script exists, but without the generated\
+    \ artifacts the task is not fulfilled."
   task: 416631d287729b292747b966e69a7ade92cc89eb3589ac55c851701300bc1dd1
 T007:
+  reason: 'Requested task execution failed; rerun successfully: src/pipeline/evaluate.py
+    exit=1'
   task: 2cabe81efd2206d8d68eafc709da1f19f33f67f63c405c229445241765ccef3c
 T008:
   task: 41f49ece0823c940c17707d6358f038e07f6fea26bbaaf82c313c2db95a7286a
@@ -29,6 +52,10 @@ T011:
 T012:
   task: bf01c4922065848d731e70be1a834fdcc5d3030cd9128a2c1116ebf85e2a4487
 T013:
+  reason: "The `src/requirements.txt` uses wildcard version specifiers (e.g., `pandas==2.2.*`)\
+    \ instead of exact pins, and `code/requirements.txt` differs in content and order,\
+    \ so the two files are not byte\u2011identical. The task\u2019s requirement for\
+    \ exact version pins and a mirrored file is therefore not satisfied."
   task: 181c6ee1c73a155616c1ff9da6dcab73ccce207ef79abdc8c31a016edfe003f0
 T015:
   task: 7fbf22227fbf56eb12601ae92d98de63ad9a617875d5bf3cecb5482827da2e1f

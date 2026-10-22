@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-22T20:25:18Z",
+  "updated_at": "2026-10-22T22:37:07Z",
   "project_id": "PROJ-097-predicting-corrosion-rates-of-common-met",
-  "replan_rounds": 1
+  "replan_rounds": 2
 }

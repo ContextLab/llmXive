@@ -6,15 +6,50 @@ T002:
     are all missing, so the cleaning, validation, and harmonization functionality
     cannot be verified.
   sig: d6b170cdb9d32816d5c7fa4be26396b018cae4d0224d6929bbdb1564672d2c08
+T003:
+  c: false
+  h: 670dbfdaed613df89632898af33e9fdc9984e5fc2f528878ffb24b8124ffc1ad
+  r: "The `src/pipeline/vif.py` script is present and appears to implement the VIF\
+    \ computation, but the required output file `data/results/vif_diagnostics.json`\
+    \ is missing, and there is no provided log evidence showing warnings for VIF\u202F\
+    >\u202F5. The task\u2019s verification criteria are therefore not met."
+  sig: 12088f14c899193fdab9678319c698d871417660fc5b9265c93411babd603eeb
+T004:
+  c: false
+  h: 0bdeb027fece5bb0d8177bc4d766297a25174f7d6c8bd7f2fd7e001ef4da565e
+  r: "The `src/pipeline/features.py` script exists, but it never produces the required\
+    \ output files: `data/processed/features.parquet` is missing, and the specification\
+    \ calls for a plain\u2011text `feature_names.txt` (the script writes a JSON file\
+    \ `feature_names.json` instead, which also does not exist). Moreover, the script\
+    \ aborts if `data/processed/cleaned_dataset.csv` is absent, and no such cleaned\
+    \ dataset is present in the evidence, so the feature\u2011engineering entry point\
+    \ cannot succeed and the pytest suite would fail. These missing/incorrect artifacts\
+    \ must be added for the task to be considered compl"
+  sig: 645d651b81fce7b66ad8facb5957ecf298e8a0a58b7a687dd821852b9635ea3b
+T005:
+  c: false
+  h: 600032d3101fd6229c9ea0e4ad54b30819ebda583a346ef3a3b81e8b9890a6aa
+  r: The `src/pipeline/split.py` script is present, but the required output file `data/processed/splits.pkl`
+    is missing, so the split indices are not serialized and the verification conditions
+    cannot be checked. The task therefore remains unfinished.
+  sig: 709387e6decce6c789207a3183fbfb0c7d4c7c4dee7698832d76576b19b567a3
+T006:
+  c: false
+  h: 74fc26528aeb5b9d775aa99b58057affb077bdae473b0a975184a1d548a4c63f
+  r: "The required output files `data/results/best_full_model.joblib`, `data/results/best_null_model.joblib`,\
+    \ and `data/results/model_artifact.yaml` are missing, and there is no evidence\
+    \ that the saved model meets the performance criteria (baseline R\xB2/RMSE improvement)\
+    \ or the RAM/time limits. The training script exists, but without the generated\
+    \ artifacts the task is not fulfilled."
+  sig: 2b2e5e90fb4bb1cf964048b930b1472a1752b1c94ef2b48780f8c3038263a353
 T013:
-  c: true
-  h: 46f35dfdb1d66fb598c892b7907498e120728aeeb3352063a28835983289de25
-  r: "The src/requirements.txt and code/requirements.txt files both exist, are non\u2011\
-    empty, have identical SHA\u2011256 hashes, and contain exact version pins. The\
-    \ execution log `code/.tasks/T013.code_verify_requirements.sh.log` shows `pip\
-    \ install -r src/requirements.txt` (and by mirroring, code/requirements.txt) completed\
-    \ successfully with all packages satisfied."
-  sig: 77f5d56292f2fd900de9b0b814b4099f0d99f85d18a8e59029515eb685aaafca
+  c: false
+  h: 37dc1398475675b834af50ffe8a2943ad33ab471c49bafa1035d72d852f05d44
+  r: "The `src/requirements.txt` uses wildcard version specifiers (e.g., `pandas==2.2.*`)\
+    \ instead of exact pins, and `code/requirements.txt` differs in content and order,\
+    \ so the two files are not byte\u2011identical. The task\u2019s requirement for\
+    \ exact version pins and a mirrored file is therefore not satisfied."
+  sig: fc3a2a99c0725e0e77a19474ee7acb2d5049e1eb748282cde7194c0f4de9c36d
 T015:
   c: true
   h: ad1c0de099baee3355e1ba5a45a76440a912369314392a56783bd69a46fb99bb
