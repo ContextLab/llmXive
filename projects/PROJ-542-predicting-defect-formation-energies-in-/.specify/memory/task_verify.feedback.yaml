@@ -1,15 +1,8 @@
 T001:
-  reason: The repository contains `quickstart.md`, `src/pipeline/run.py`, `src/data/download.py`,
-    and `src/data/featurize.py`, but the required unit test `code/tests/test_pipeline_entry.py`
-    is missing, and `src/pipeline/run.py` does not define a `run()` function (only
-    `main()`), so the test cannot import and call `run()` as specified. Add the missing
-    test file and expose a `run()` function that executes without error.
   task: 9bd085d0d69277f6f406b544530dd9c474dc85831e967b80c7a41b0c99d4559a
 T002:
-  reason: "The required output file `data/raw/materials_defects.csv` is missing, and\
-    \ there is no execution evidence showing the script ran successfully, validated\
-    \ the CSV against the schema, and produced \u2265\u202F500 rows. The script alone\
-    \ does not satisfy the task\u2019s output requirement."
+  reason: 'Requested task execution failed; rerun successfully: src/utils/checksum_all.py
+    exit=1'
   task: 77051c7dac683b33d14578a22aabe0b6a1a6f764a57709a3bcd70f7662683279
 T003:
   reason: 'The repository contains the required `src/data/featurize.py`, but the expected
@@ -40,11 +33,9 @@ T010:
 T011:
   task: e89f0abd8f8f3219055bf159450dd844b2f864ca281ca7a98ac571dd7e3d2c66
 T012:
-  reason: The `code/requirements.txt` file exists and contains the pinned versions,
-    but there is no provided evidence (e.g., install logs, test script output) showing
-    that `pip install -r code/requirements.txt` actually succeeds in a fresh virtual
-    environment and that all imports used in the code resolve. This verification step
-    is missing.
+  reason: The `code/requirements.txt` file exists but contains an invalid entry `python==3.11`,
+    causing `pip install -r code/requirements.txt` to fail (see `code/.tasks/T012.code_tests_test_requirements.py.log`).
+    The required verification that installation succeeds therefore does not hold.
   task: 8fdbf71a10e6cacc247de6b9a3a2db01f3e8fb3f5befa3075c1a7bf5e2310508
 T013:
   task: b38600a88616df2dc2e3d4ef65be4a64cdb5cce99bcc236d534bd561bf4326f0

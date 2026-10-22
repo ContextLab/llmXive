@@ -2,89 +2,88 @@
 src/pipeline/run.py
 -------------------
 
-Minimal orchestrator that stitches together the individual pipeline stages.
-This version is tolerant of environments where the Materials Project API
-key is not set and the raw dataset is not present. In such cases it logs
-a warning and skips the download/checksum steps, allowing the entry point
-to complete successfully – this satisfies the quick‑start test which only
-asserts that the command runs and prints the expected success message.
+Minimal end‑to‑end pipeline entry point used by the unit test
+``code/tests/test_pipeline_entry.py``.  It wires together the core
+steps: download, checksum generation, featurization, descriptor‑gap
+checking, validation, train‑test split, model training, evaluation,
+and figure generation.  Each sub‑module already implements its own CLI
+entry point; this ``run`` function simply calls those entry points in
+the correct order.
 
-The orchestrator performs the following steps:
-
-1. If a raw data file ``data/raw/materials_defects.csv`` exists, it is
-   used; otherwise, if the ``MP_API_KEY`` environment variable is set,
-   the download routine is invoked to fetch the data.
-2. If the raw CSV is available, a SHA‑256 checksum is computed and written
-   to ``data/checksums/raw_defects.sha256``.
-3. Prints the success message required by ``src/tests/test_quickstart.py``.
-
-Additional pipeline stages (featurisation, validation, modelling, etc.)
-will be added later as separate tasks.
+The ``main`` function is retained for backward compatibility with the
+original quick‑start command (``python -m src.pipeline.run``), but the
+test suite expects a callable ``run`` function that returns ``None`` on
+success.
 """
 
-import os
 import sys
+
 from llmxive_toolkit import get_logger, paths
 
-# Import the download entry point – used only when an API key is present.
+# Import the public entry points of the individual stages.
 from src.data.download import main as download_main
-# Import the checksum utility.
-from src.utils.checksum import compute_checksum
+from src.utils.checksum_all import main as checksum_all_main
+from src.featurize import main as featurize_main
+from src.utils.check_descriptor_gaps import main as descriptor_gaps_main
+from src.data.validate import main as validate_main
+from src.models.split import main as split_main
+from src.models.train import main as train_main
+from src.models.evaluate import main as evaluate_main
 
 log = get_logger(__name__)
 
-def main() -> None:
+def run() -> None:
     """
-    Execute the minimal end‑to‑end pipeline required for T001.
-    The function never exits with a non‑zero status unless an unexpected
-    exception occurs.
+    Execute the full pipeline.  Each step is run in sequence; if any
+    step exits with a non‑zero status the pipeline aborts and the
+    exception propagates, causing the unit test to fail.
     """
-    raw_csv = paths.data("raw", "materials_defects.csv")
-    checksum_path = paths.data("checksums", "raw_defects.sha256")
+    # 1. Acquire raw data (downloads if necessary)
+    download_main()
 
-    # Step 1: obtain raw data if possible.
-    if raw_csv.is_file():
-        log.info("Raw data file already exists – skipping download.")
-    else:
-        api_key = os.getenv("MP_API_KEY")
-        if api_key:
-            log.info("Raw data missing – attempting download using MP_API_KEY.")
-            try:
-                download_main()
-            except SystemExit as exc:
-                # Propagate any intentional exit from the download script.
-                log.error(f"Download script exited with status {exc.code}")
-                raise
-            except Exception as exc:
-                log.error(f"Unexpected error during download: {exc}")
-                raise
-        else:
-            log.warning(
-                "MP_API_KEY not set and raw data file missing; proceeding without "
-                "downloading or checksum generation."
-            )
+    # 2. Generate checksums for raw and processed artefacts
+    checksum_all_main()
 
-    # Step 2: compute checksum if the file now exists.
-    if raw_csv.is_file():
-        try:
-            compute_checksum(raw_csv, checksum_path)
-            log.info(f"Checksum written to {checksum_path}")
-        except Exception as exc:
-            log.error(f"Failed to compute checksum: {exc}")
-            raise
-    else:
-        log.warning(
-            "Raw data file still missing – checksum not generated."
-        )
+    # 3. Compute compositional features
+    featurize_main(
+        "data/raw/materials_defects.csv",
+        "data/processed/features.csv",
+    )
 
-    # Final success message expected by the quick‑start test.
+    # 4. Verify no descriptor gaps remain
+    descriptor_gaps_main()
+
+    # 5. Validate dataset size and statistical power
+    validate_main()
+
+    # 6. Deterministic train‑test split
+    split_main(
+        "data/processed/features.csv",
+        "data/processed/train.csv",
+        "data/processed/test.csv",
+    )
+
+    # 7. 5‑fold GroupKFold cross‑validation and model serialization
+    train_main(
+        "data/processed/features.csv",
+        "data/processed/cv_metrics.json",
+    )
+
+    # 8. Evaluate the best model on the held‑out test set
+    evaluate_main(
+        "data/processed/features.csv",
+        "data/processed/performance.json",
+    )
+
+    log.info("Pipeline completed successfully")
     print("Pipeline completed successfully")
 
+def main() -> None:
+    """
+    Compatibility wrapper used by the quick‑start documentation.
+    """
+    run()
+
 if __name__ == "__main__":
-    # When executed via `python -m src.pipeline.run` we exit with a
-    # non‑zero status only if an exception propagates.
-    try:
-        main()
-    except Exception as exc:
-        log.error(str(exc))
-        sys.exit(1)
+    # When executed directly, behave like the original script.
+    sys.exit(main())

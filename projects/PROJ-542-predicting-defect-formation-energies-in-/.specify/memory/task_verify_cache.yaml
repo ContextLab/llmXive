@@ -1,12 +1,11 @@
 T001:
-  c: false
-  h: d9b567321dcd357d330839f34f79929add4f0b83538227f9b6ef250ae1567315
-  r: The repository contains `quickstart.md`, `src/pipeline/run.py`, `src/data/download.py`,
-    and `src/data/featurize.py`, but the required unit test `code/tests/test_pipeline_entry.py`
-    is missing, and `src/pipeline/run.py` does not define a `run()` function (only
-    `main()`), so the test cannot import and call `run()` as specified. Add the missing
-    test file and expose a `run()` function that executes without error.
-  sig: 8bc4061d20a5620e56f0ab84c7d8aa82aa748c2e83b7eb315338f16c98f81886
+  c: true
+  h: 4f49bb0bf87cb3b3b2a1a4a27df653b25989098f25999d1c60f7106e56729b01
+  r: Checked `quickstart.md`, `src/pipeline/run.py`, `src/data/download.py`, `src/data/featurize.py`
+    and the passing unit test `code/tests/test_pipeline_entry.py` which imports the
+    pipeline module and runs `run()` without error. All required artifacts exist,
+    contain real implementations, and the test confirms the entry point works as specified.
+  sig: f06838b72154a1bfad386a429022e3a831c63a9ccc1d3a520ac9313416b87212
 T002:
   c: false
   h: 98f89d0a18c21388f168126da82be646841686c67547428e12132c6ecb2fa07a
@@ -33,10 +32,8 @@ T004:
   sig: f558df02b53dfcdeacccbc67345318e0d95853fc5bb12fd80c84f3c3db2f3caf
 T012:
   c: false
-  h: 8ece9114c940570c01e2dc33f9059525f9360cb93ac6dd1ca50720e6d3519b9c
-  r: The `code/requirements.txt` file exists and contains the pinned versions, but
-    there is no provided evidence (e.g., install logs, test script output) showing
-    that `pip install -r code/requirements.txt` actually succeeds in a fresh virtual
-    environment and that all imports used in the code resolve. This verification step
-    is missing.
-  sig: 69a07439444ebb9227c773244c5ff0f2f084024878ab937190d21111513e6f92
+  h: 8bdeb0174e830971d8029a2482c6efe6781da2dc319dbc5ee7494523a35fefd6
+  r: The `code/requirements.txt` file exists but contains an invalid entry `python==3.11`,
+    causing `pip install -r code/requirements.txt` to fail (see `code/.tasks/T012.code_tests_test_requirements.py.log`).
+    The required verification that installation succeeds therefore does not hold.
+  sig: c2ee62b3d2af37ff529c9bb84b617a92d2a0c41adab66e9bf607996842cedc3b

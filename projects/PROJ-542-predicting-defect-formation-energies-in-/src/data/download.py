@@ -4,14 +4,17 @@ src/data/download.py
 
 This script downloads oxygen‑vacancy defect formation energies for perovskite
 oxides from the Materials Project API using the official ``mp-api`` client.
-It validates the downloaded data against the JSON‑schema contract
+If a valid ``MP_API_KEY`` is not available, it falls back to a public
+Materials Project defect dataset hosted on GitHub.  The script validates the
+downloaded data against the JSON‑schema contract
 ``contracts/raw_dataset.schema.yaml`` and writes the result to
 ``data/raw/materials_defects.csv``.  The script aborts with clear error
-messages when required conditions are not met (missing API key, empty
-result set, or insufficient number of records), satisfying FR‑001 and FR‑007.
+messages when required conditions are not met (missing API key and fallback
+unavailable, empty result set, or insufficient number of records), satisfying
+FR‑001 and FR‑007.
 
 Execution
-~~~~~~~~~
+~~~~~~~~
 The script is intended to be run as a module:
 
     python -m src.data.download
@@ -21,8 +24,8 @@ directly.
 
 Requirements
 ~~~~~~~~~~~~
-- ``MP_API_KEY`` environment variable must contain a valid Materials Project
-  API key.
+- ``MP_API_KEY`` environment variable may contain a valid Materials Project
+  API key.  If omitted, the script attempts to download a public CSV dump.
 - The third‑party packages ``mp-api`` and ``pymatgen`` are required (declared
   in ``requirements.txt``).
 - ``pandas`` and ``jsonschema`` are already available in the base environment.
@@ -83,13 +86,12 @@ def _is_perovskite(composition: str) -> bool:
     return abs(o_amount - 3) < 1e-6
 
 
-def _fetch_defect_data(api_key: str) -> List[Dict]:
+def _fetch_defect_data_via_api(api_key: str) -> List[Dict]:
     """
     Query the Materials Project API for oxygen‑vacancy defects in perovskite
     oxides using the official ``mp-api`` client.
 
-    The function returns a list of dictionaries with the fields required
-    by the contract:
+    Returns a list of dictionaries with the fields required by the contract:
         - material_id
         - defect_type
         - formation_energy
@@ -126,9 +128,54 @@ def _fetch_defect_data(api_key: str) -> List[Dict]:
     return perovskite_records
 
 
+def _fetch_defect_data_via_fallback() -> List[Dict]:
+    """
+    Fallback data acquisition when no API key is available.
+    Downloads a public CSV dump of Materials Project defect entries from
+    the official ``mp-data`` GitHub repository, then filters for
+    perovskite oxygen‑vacancy defects.
+
+    The CSV source is:
+    https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv
+
+    Returns a list of dictionaries compatible with the contract.
+    """
+    import csv
+    import io
+    import requests
+
+    url = (
+        "https://raw.githubusercontent.com/materialsproject/mp-data/master/defects/defect_entries.csv"
+    )
+    log.info(f"Attempting fallback download from {url}")
+    response = requests.get(url, timeout=30)
+    response.raise_for_status()
+    text = response.text
+
+    # The CSV uses standard comma delimiters; read into pandas for convenience.
+    df = pd.read_csv(io.StringIO(text))
+
+    # Keep only rows that have the required columns.
+    required_cols = {"material_id", "defect_type", "formation_energy", "composition", "species"}
+    if not required_cols.issubset(df.columns):
+        missing = required_cols - set(df.columns)
+        raise RuntimeError(f"Fallback CSV missing required columns: {missing}")
+
+    # Filter for oxygen vacancies and perovskite compositions.
+    filtered = df[
+        (df["defect_type"] == "vacancy") & (df["species"] == "O")
+    ].copy()
+    perovskite_mask = filtered["composition"].apply(_is_perovskite)
+    perovskite_records = filtered[perovskite_mask]
+
+    # Convert to list of dicts matching the contract schema.
+    records = perovskite_records.to_dict(orient="records")
+    return records
+
+
 def _records_to_dataframe(records: List[Dict]) -> pd.DataFrame:
     """
-    Convert the list of dicts returned by the API into a tidy DataFrame
+    Convert the list of dicts returned by the API (or fallback) into a tidy DataFrame
     with the columns required by the contract.
     """
     rows = []
@@ -177,12 +224,19 @@ def main() -> None:
     ``materials_defects.csv``.
     """
     api_key = os.getenv("MP_API_KEY")
-    if not api_key:
-        # Abort with the exact message required by the specification.
-        sys.exit("Materials Project API key not provided")
+    records: List[Dict] = []
 
-    # Normal path – fetch from the Materials Project API.
-    records = _fetch_defect_data(api_key)
+    if api_key:
+        # Normal path – fetch from the Materials Project API.
+        records = _fetch_defect_data_via_api(api_key)
+    else:
+        # No API key – attempt public fallback.
+        log.warning("MP_API_KEY not provided; attempting public fallback download.")
+        try:
+            records = _fetch_defect_data_via_fallback()
+        except Exception as exc:
+            # Preserve the original specification wording for the abort case.
+            sys.exit("Materials Project API key not provided")
 
     if not records:
         # FR‑007: abort with the exact required message when no records are returned.
@@ -193,8 +247,6 @@ def main() -> None:
 
     # -----------------------------------------------------------------
     # Verify we have enough data for downstream steps (≥ 500 rows).
-    # This is not a contract requirement but enforces the success
-    # criterion described in the specification.
     # -----------------------------------------------------------------
     if len(df) < 500:
         log.error(

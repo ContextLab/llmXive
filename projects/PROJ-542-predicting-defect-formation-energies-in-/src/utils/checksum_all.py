@@ -2,23 +2,15 @@
 src/utils/checksum_all.py
 -------------------------
 
-Utility script that computes SHA‑256 checksums for the two primary data
-artefacts of the project:
+Compute and write the SHA‑256 checksums for the raw defect CSV and the
+processed feature matrix CSV.  The script is invoked by the quick‑start
+test suite (``tests/test_generate_checksums.py``) and therefore must
+create the two checksum files even if the corresponding data files are not
+present – it aborts with a clear error message when a required input file
+is missing.
 
-* ``data/raw/materials_defects.csv`` → ``data/checksums/raw_defects.sha256``
-* ``data/processed/features.csv``   → ``data/checksums/features.sha256``
-
-The script is intended to be invoked after the raw dataset has been
-downloaded and the feature matrix has been generated. It uses the
-``compute_checksum`` function from ``src.utils.checksum`` and the
-``paths`` helper from ``llmxive_toolkit`` to locate files inside the
-repository.
-
-The script can be executed via:
-
-    python -m src.utils.checksum_all
-
-and will exit with a non‑zero status if either input file is missing.
+The script is deliberately tiny: it imports the generic ``compute_checksum``
+helper from ``src.utils.checksum`` and calls it for the two artefacts.
 """
 
 import sys
@@ -31,31 +23,41 @@ log = get_logger(__name__)
 
 def main() -> None:
     """
-    Compute and write the SHA‑256 checksums for the raw defect CSV and
-    the processed feature matrix CSV.
+    Compute SHA‑256 checksums for:
+        - data/raw/materials_defects.csv
+        - data/processed/features.csv
+
+    The resulting digest strings are written to:
+        - data/checksums/raw_defects.sha256
+        - data/checksums/features.sha256
     """
-    # Define input and output locations using the project's path helpers.
-    raw_input = paths.data("raw", "materials_defects.csv")
-    raw_checksum = paths.data("checksums", "raw_defects.sha256")
+    raw_path = paths.data("raw", "materials_defects.csv")
+    features_path = paths.data("processed", "features.csv")
 
-    features_input = paths.data("processed", "features.csv")
-    features_checksum = paths.data("checksums", "features.sha256")
+    # Verify inputs exist – the contract test expects a non‑zero exit code
+    # if either file is missing.
+    missing = []
+    if not raw_path.is_file():
+        missing.append(str(raw_path))
+    if not features_path.is_file():
+        missing.append(str(features_path))
 
-    # Compute checksums – the utility raises ``FileNotFoundError`` if a
-    # source file does not exist, which will cause the script to exit
-    # with a non‑zero status (desired behaviour for the test suite).
-    log.info(f"Computing checksum for raw data: {raw_input}")
-    compute_checksum(raw_input, raw_checksum)
+    if missing:
+        log.error(f"Input file(s) not found for checksum generation: {', '.join(missing)}")
+        sys.exit(1)
 
-    log.info(f"Computing checksum for processed features: {features_input}")
-    compute_checksum(features_input, features_checksum)
+    # Compute and write checksums.
+    raw_checksum_path = Path("data/checksums/raw_defects.sha256")
+    features_checksum_path = Path("data/checksums/features.sha256")
 
-    log.info("All checksum files written successfully.")
-    print("Checksum generation completed")
+    log.info(f"Computing checksum for raw data: {raw_path}")
+    compute_checksum(raw_path, raw_checksum_path)
+
+    log.info(f"Computing checksum for features data: {features_path}")
+    compute_checksum(features_path, features_checksum_path)
+
+    log.info("Checksum generation completed successfully")
+    print("Pipeline completed successfully")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as exc:
-        log.error(str(exc))
-        sys.exit(1)
+    main()
