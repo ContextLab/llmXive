@@ -48,7 +48,7 @@ ERROR tests/unit/test_data_loader_streaming.py
 ERROR tests/unit/test_statistics.py
 ERROR tests/unit/test_streaming_loader.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.41s ===============================
+============================== 7 errors in 1.19s ===============================
 
 
 - python -m src.pipeline.visualize  --stress-curves data/derived/stress_curves.parquet  --collapse-points data/derived/collapse_points.parquet  --critical-vectors data/derived/critical_vector.parquet  --output-dir figures/ -> rc=1

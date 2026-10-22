@@ -2,9 +2,9 @@
 Quick‑start pilot script for T001.
 
 It loads a tiny real subset (10 clips) from the
-``voices-in-the-wild/2M`` dataset, computes a deterministic
+`voices_in_the_wild/2M` dataset, computes a deterministic
 stress‑curve, collapse‑point and critical‑vector artifact,
-and writes them to the expected locations under ``data/derived/``.
+and writes them to the expected locations under `data/derived/`.
 All values are derived from real data (embeddings, transcript
 length, etc.) – no random or fabricated numbers are used.
 """
@@ -30,8 +30,9 @@ logger = logging.getLogger(__name__)
 def fetch_ten_clips() -> List[Dict]:
     """Fetch exactly ten clean clips from Voices‑in‑the‑Wild‑2M."""
     logger.info("Downloading 10 clips from Voices‑in‑the‑Wild‑2M (streaming)...")
+    # NOTE: The correct HF repository identifier uses underscores, not hyphens.
     ds = load_dataset(
-        "voices-in-the-wild/2M",
+        "voices_in_the_wild/2M",
         split="train",
         streaming=True,
     )

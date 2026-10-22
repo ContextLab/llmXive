@@ -8,7 +8,7 @@ The list below follows the canonical checklist format `- [ ] T### [P?] [USx?] de
 
 ## Phase 1: Setup and first end‑to‑end analysis
 
-- [ ] T001 [P] **Establish project layout, test scaffolding, and quickstart command** –   <!-- FAILED-IN-EXECUTION: code/run_quickstart.py exit=1 -->
+- [ ] T001 [P] **Establish project layout, test scaffolding, and quickstart command** –   <!-- FAILED-IN-EXECUTION: code/run_quickstart.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_quickstart.py exit=1 -->
   Create `code/`, `data/raw/`, `data/derived/`, `data/validation/`, `tests/unit/` (with `tests/__init__.py` and `tests/unit/__init__.py`) and `pytest.ini` / `conftest.py`. Add `code/config.py` with pinned constants (FR‑023): `SEED=42`, `SAMPLE_SIZE=50000`, SNR levels (9 values, −10 dB … 30 dB), RT60 levels (6 values, 0.1 s … 0.6 s), CCM threshold 0.5, SSS absolute threshold 0.5, WER multiplier 2.0, FDR 0.05, R² target 0.6. Write `docs/quickstart.md` documenting a runnable pilot command on 10 real clips producing `data/derived/stress_curves.parquet`, `data/derived/collapse_points.parquet`, and `data/derived/critical_vector.parquet`.  
   **Verification**: `pytest --collect-only` exits 0; `python -c "import code.config"` succeeds; the documented quickstart command runs end‑to‑end on real inputs and all three Parquet files contain ≥ 1 row each.
 

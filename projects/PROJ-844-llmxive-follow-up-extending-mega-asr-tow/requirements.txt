@@ -1,8 +1,9 @@
-datasets
-sentence-transformers
-jiwer
-pandas
-pyarrow
-numpy
-torch
-tqdm
+# Core dependencies (already available in the environment)
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+
+# Additional packages required for the quickstart pilot
+sentence-transformers>=2.2.2
+jiwer>=3.0.2
+datasets>=2.18.0
+# Note: huggingface_hub is a transitive dependency of datasets.
