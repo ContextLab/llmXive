@@ -1,22 +1,62 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PipelineExecutionSchema"
-description: "Schema for the pipeline execution log and status."
+description: "Schema for the overall pipeline execution log."
 type: object
 properties:
   run_id:
     type: string
-    description: "Unique identifier for the run"
-  timestamp:
+    description: "Unique identifier for this pipeline run."
+  start_timestamp:
     type: string
     format: date-time
-    description: "Execution timestamp"
+    description: "When the run started."
+  end_timestamp:
+    type: string
+    format: date-time
+    description: "When the run finished."
   status:
     type: string
     enum:
       - "success"
       - "partial_success"
       - "failure"
-    description: "Overall pipeline status"
+    description: "Overall outcome."
   steps:
-    type: object
-    additional_...
+    type: array
+    items:
+      type: object
+      properties:
+        step_name:
+          type: string
+          description: "Name of the pipeline step."
+        cpu_seconds:
+          type: number
+          description: "CPU time consumed."
+        peak_ram_gb:
+          type: number
+          description: "Peak RAM usage in gigabytes."
+        status:
+          type: string
+          enum:
+            - "success"
+            - "failed"
+            - "skipped"
+          description: "Step outcome."
+        notes:
+          type: string
+          description: "Optional free‑form notes."
+      required:
+        - step_name
+        - cpu_seconds
+        - peak_ram_gb
+        - status
+  notes:
+    type: string
+    description: "Optional free‑form notes about the run."
+required:
+  - run_id
+  - start_timestamp
+  - end_timestamp
+  - status
+  - steps
+additionalProperties: false

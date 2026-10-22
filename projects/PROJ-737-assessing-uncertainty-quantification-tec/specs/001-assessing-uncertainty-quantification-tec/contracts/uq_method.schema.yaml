@@ -1,3 +1,40 @@
-$schema: "http://json-schema.org/draft-04?"
+$schema: "http://json-schema.org/draft-07/schema#"
 title: "UQMethodSchema"
-description: ...
+description: "Schema for the registry of uncertainty‑quantification methods."
+type: object
+properties:
+  method_id:
+    type: string
+    enum:
+      - "gpr"
+      - "mc_dropout"
+      - "deep_ensemble"
+      - "conformal"
+      - "deterministic_mlp"
+    description: "Identifier of the UQ technique."
+  baseline_model:
+    type: string
+    description: "Name of the underlying predictive model."
+  hyperparams:
+    type: object
+    description: "Dictionary of hyper‑parameter settings."
+  n_iterations:
+    type: integer
+    description: "Number of stochastic passes (MC‑Dropout) or ensemble members."
+  status:
+    type: string
+    enum:
+      - "success"
+      - "failed"
+      - "skipped"
+    description: "Execution status."
+  error_msg:
+    type: string
+    description: "Error message if status == 'failed' (optional)."
+required:
+  - method_id
+  - baseline_model
+  - hyperparams
+  - n_iterations
+  - status
+additionalProperties: false

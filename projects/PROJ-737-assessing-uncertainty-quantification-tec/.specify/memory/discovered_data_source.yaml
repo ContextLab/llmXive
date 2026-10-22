@@ -1,9 +1,5 @@
 status: none
-intent: OQMD band gap and formation energy HuggingFace python package dataset
-required_fields:
-- composition
-- band_gap
-- formation_energy_per_atom
-cache_key: 082ccda6ab234cb28ee9afe82e6c3104fa8624aa0c1d067ca07eff7ea3425da8
-searched_at: '2026-10-22T23:12:12.206229+00:00'
-retry_count: 1
+reason: no data intent found in planning artifacts
+cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
+searched_at: '2026-10-22T23:35:52.204592+00:00'
+retry_count: 3

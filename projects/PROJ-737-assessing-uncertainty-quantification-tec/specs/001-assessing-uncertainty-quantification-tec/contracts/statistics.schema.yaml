@@ -1,3 +1,5 @@
-$schema: "http://json-schema.org/draft-04?"
+$schema: "http://json-schema.org/draft-04/schema#"
 title: "StatisticalResultSchema"
-description: ...
+description: "Placeholder schema for statistical results (not used)."
+type: object
+additionalProperties: false

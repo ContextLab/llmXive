@@ -1,3 +1,54 @@
-$schema: "http://json-schema.org/draft-04?"
+$schema: "http://json-schema.org/draft-07/schema#"
 title: "StatisticalTestResultSchema"
-description: ...
+description: "Schema for paired statistical test outcomes."
+type: object
+properties:
+  dataset_id:
+    type: string
+    description: "Dataset identifier."
+  metric_type:
+    type: string
+    enum:
+      - "abs_error"
+      - "interval_width"
+      - "coverage"
+    description: "Metric on which the test was performed."
+  method_a:
+    type: string
+    description: "First UQ method in the pair."
+  method_b:
+    type: string
+    description: "Second UQ method in the pair."
+  test_name:
+    type: string
+    enum:
+      - "wilcoxon"
+    description: "Statistical test used."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Two‑sided p‑value."
+  significant:
+    type: boolean
+    description: "True if p_value < Bonferroni‑adjusted α."
+  alpha_adj:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Adjusted significance threshold."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp of test execution."
+required:
+  - dataset_id
+  - metric_type
+  - method_a
+  - method_b
+  - test_name
+  - p_value
+  - significant
+  - alpha_adj
+  - timestamp
+additionalProperties: false

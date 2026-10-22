@@ -1,9 +1,53 @@
-columns:
-  - {name: sample_id, dtype: object}
-  - {name: dataset, dtype: object}
-  - {name: method, dtype: object}
-  - {name: prediction, dtype: float64}
-  - {name: lower_bound, dtype: float64}
-  - {name: upper_bound, dtype: float64}
-  - {name: ground_truth, dtype: float64}
-  - {name: abs_error, dtype: float64}
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PerSampleErrorsSchema"
+description: "Schema for per‑sample prediction results."
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the test sample."
+  dataset_id:
+    type: string
+    description: "Dataset identifier (e.g., 'band_gap')."
+  method_id:
+    type: string
+    enum:
+      - "gpr"
+      - "mc_dropout"
+      - "deep_ensemble"
+      - "conformal"
+      - "deterministic_mlp"
+    description: "UQ method identifier."
+  prediction:
+    type: number
+    description: "Point prediction."
+  lower_bound:
+    type: number
+    description: "Lower bound of the prediction interval."
+  upper_bound:
+    type: number
+    description: "Upper bound of the prediction interval."
+  ground_truth:
+    type: number
+    description: "True target value."
+  abs_error:
+    type: number
+    description: "Absolute error |prediction - ground_truth|."
+  interval_width:
+    type: number
+    description: "Width of the prediction interval (upper‑lower)."
+  covered:
+    type: integer
+    description: "Binary flag (1 if ground_truth in interval, 0 otherwise)."
+required:
+  - sample_id
+  - dataset_id
+  - method_id
+  - prediction
+  - lower_bound
+  - upper_bound
+  - ground_truth
+  - abs_error
+  - interval_width
+  - covered
+additionalProperties: false

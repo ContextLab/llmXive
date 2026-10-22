@@ -16,24 +16,24 @@ properties:
   n_samples:
     type: integer
     minimum: 1
-    description: "Total number of samples."
+    description: "Total number of rows after loading."
   n_train:
     type: integer
     minimum: 1
-    description: "Number of training samples (capped at 2000)."
+    description: "Number of training rows (capped at 2000)."
   n_val:
     type: integer
     minimum: 0
-    description: "Number of validation samples."
+    description: "Number of validation rows."
   n_test:
     type: integer
     minimum: 200
-    description: "Number of test samples (≥ 200)."
+    description: "Number of test rows (≥ 200)."
   features:
     type: array
     items:
       type: string
-    description: "List of feature column names."
+    description: "List of feature column names after featurisation."
   target:
     type: string
     description: "Name of the target column."
