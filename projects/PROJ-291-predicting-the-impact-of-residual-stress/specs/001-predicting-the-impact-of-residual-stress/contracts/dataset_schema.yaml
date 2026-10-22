@@ -7,6 +7,7 @@ required:
   - heat_input
   - cooling_rate
   - other_process_params
+  - stress_unit
   - fatigue_life_cycles
   - source
   - checksum
@@ -26,7 +27,11 @@ properties:
     description: "Cooling rate in kelvin per second (K/s)."
   other_process_params:
     type: string
-    description: "JSON‑encoded dictionary of additional numeric process parameters."
+    description: "JSON-encoded dictionary of additional numeric process parameters."
+  stress_unit:
+    type: string
+    enum: ["MPa", "psi"]
+    description: "Original unit of the residual stress measurement before conversion."
   elastic_modulus:
     type: number
     description: "Elastic modulus in gigapascals (optional)."
@@ -38,10 +43,10 @@ properties:
     description: "Directly measured residual stress in MPa."
   is_proxy:
     type: boolean
-    description: "True if the proxy value is used in place of a missing measured stress; otherwise false."
+    description: "True if the proxy value is used as the stress feature in place of a missing measured stress; false if a measured value exists and is used."
   residual_stress_proxy:
     type: number
-    description: "Proxy‑computed residual stress in MPa (present for all rows; may be identical to measured value when is_proxy is false)."
+    description: "Proxy-computed residual stress in MPa, computed for all rows but used as a stress feature only when is_proxy is true; never set equal to the measured value."
   fatigue_life_cycles:
     type: integer
     description: "Number of cycles to failure."
@@ -50,5 +55,5 @@ properties:
     description: "Origin of the record (e.g., 'synthetic', dataset name)."
   checksum:
     type: string
-    description: "SHA‑256 checksum of the raw row for provenance."
+    description: "SHA-256 checksum of the raw row for provenance."
 additionalProperties: false

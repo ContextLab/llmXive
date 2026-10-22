@@ -1,6 +1,6 @@
 # Quickstart: Predicting Residual‑Stress Impact on Fatigue Life
 
-> Assumes a recent Python 3.11 interpreter and internet access from the repository root.
+> Assumes a recent Python 3.11 interpreter and internet access from the repository root.
 
 ## 1. Set up the environment
 ```bash
@@ -14,27 +14,38 @@ pip install -r requirements.txt
 
 ## 2. Verify the runner environment (CI sanity check)
 ```bash
-# This script ensures the GitHub Actions runner meets RAM, disk, and package requirements.
-# It must exit with status 0 before any further step.
+# Checks Python version, required packages, RAM, and disk space.
+# Must exit with status 0 before proceeding.
 bash scripts/env_check.sh
 ```
 
-## 3. Run the full analysis pipeline
+## 3. Run the full analysis pipeline (end‑to‑end)
 ```bash
-# 1) Ingest & preprocess (downloads open data and loads the synthetic validation set)
-python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success
-python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation
+# 0) Run the deterministic synthetic data generator
+python -m src.data.gen_synthetic
 
-# 2) Train models (5‑fold CV, hyper‑grid)
-python -m src.models.train --feature-set A   # process‑only
-python -m src.models.train --feature-set B   # process + measured stress (balanced subset)
-python -m src.models.train --feature-set C   # process + material props (+ proxy stress)
+# 1) Ingest & preprocess (unit conversion, imputation, proxy calc)
+python -m src.ingest.ingest          # creates unified_fatigue.csv & missing_flags.json
+python -m src.preprocess.validate    # validates against contracts/dataset_schema.yaml
 
-# 3) Evaluate predictive gains
-python -m src.models.evaluate --compare A B   # Wilcoxon signed‑rank test (≥10 % MAPE improvement required)
-python -m src.models.evaluate --cross-material  # transfer learning ΔMAPE + permutation test
+# 2) Build feature sets (balanced A & B, full C)
+python -m src.features.build_sets
 
-# 4) Mediation analysis (runs only when ≥64 measured‑stress rows are present)
+# 3) Train models (5‑fold CV, hyper‑grid)
+python -m src.models.train --feature-set A
+python -m src.models.train --feature-set B
+python -m src.models.train --feature-set C
+
+# 4) Evaluate predictive gains
+python -m src.models.evaluate --compare A B   # Wilcoxon test + Bonferroni‑corrected significance
+
+# 5) Cross‑material transfer evaluation
+python -m src.models.evaluate --cross-material   # transfer ΔMAPE + permutation test
+
+# 6) Mediation analysis — runs ONLY if a real open dataset (source != synthetic
+#    and != verification) contributes >= 50 rows with measured residual stress.
+#    The synthetic dataset is never eligible; if no real dataset is present,
+#    this step is skipped and a limitation is reported.
 python -m src.mediation.bootstrap_mediation --resamples 10000
 ```
 
@@ -42,12 +53,13 @@ python -m src.mediation.bootstrap_mediation --resamples 10000
 - Model metrics: `results/reports/model_performance.csv`  
 - Wilcoxon test: `results/reports/wilcoxon_test.csv`  
 - Cross‑material ΔMAPE: `results/reports/cross_material.csv`  
-- Mediation (if executed): `results/reports/mediation_summary.csv`  
-- Figures (PNG): `results/reports/*.png`
+- Proxy–measured agreement: `results/reports/proxy_agreement.csv`  
+- Mediation (if executed on real data): `results/reports/mediation_summary.csv`  
+- Figures (PNG): `results/reports/*.png`  
 
 ## 5. Run automated tests
 ```bash
 pytest -q
 ```
 
-All steps complete within the GitHub Actions free‑tier limits (≈ 2.5 h, < 7 GB RAM). Synthetic data is **not** used for external scientific conclusions; it only confirms that the pipeline runs without error.
+All steps complete within the GitHub Actions free‑tier limits (≈ 2.5 h, < 7 GB RAM). Synthetic data is **not** used for external scientific conclusions and is **never used for mediation**; it only validates that the pipeline runs correctly.

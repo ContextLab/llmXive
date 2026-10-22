@@ -1,17 +1,15 @@
 status: none
-intent: download fatigue dataset with residual stress and process parameters from
+intent: download fatigue life dataset with residual stress material properties from
   NIST UCI OpenML python package dataset
 required_fields:
 - material_type
-- material_class
 - yield_strength
 - hardness
-- process_parameter_1
-- process_parameter_2
-- process_parameter_3
-- residual_stress
-- residual_stress_source
+- process_parameters
+- residual_stress_measured
+- residual_stress_estimated
+- residual_stress_source_flag
 - fatigue_life_cycles
-cache_key: a29eaa73bcda21152bf7fbb92c6c81da9dfbbafae6a6213d01fbf6549e51dae8
-searched_at: '2026-10-22T05:19:35.006421+00:00'
+cache_key: 40ea58e3c9555cf71b87ac25ff65c6f37a34afed64a3682d9300e173b3738c44
+searched_at: '2026-10-22T05:22:54.875525+00:00'
 retry_count: 1
