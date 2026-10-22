@@ -18,22 +18,23 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_loader.py -> rc=1
-the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/ebird/ebd to ask for access.
+e-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/ecohealthalliance/ebird-dataset/master/ebd_sample.csv
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 232, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 244, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 225, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 237, in main
     df = load_ebird_data()
          ^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 155, in load_ebird_data
-    ds_iter = _fetch_ebird_data()
-              ^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 102, in _fetch_ebird_data
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 173, in load_ebird_data
+    for idx, record in enumerate(ds_iter, start=1):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 108, in _fetch_ebird_data
     raise ConnectionError(
-ConnectionError: Unable to fetch eBird data from HuggingFace. The dataset identifier may have changed or network access is unavailable.
+ConnectionError: Unable to fetch eBird sample data from the provided URL.
 
 - bash code/run_pipeline.sh -> rc=-1
 
@@ -55,7 +56,7 @@ ERROR tests/unit/test_first_arrival_sweep.py
 ERROR tests/unit/test_grid_aggregation.py
 ERROR tests/unit/test_regional_map.py - NameError: name 'Optional' is not def...
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 23 warnings, 3 errors in 2.07s ========================
+======================== 23 warnings, 3 errors in 2.92s ========================
 
 
 

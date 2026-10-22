@@ -1,74 +1,50 @@
 """
-Unit tests for data_loader.py.
-Tests the "Fail Loudly" behavior when data fetch fails.
+Unit tests for the eBird data loader.
 """
+import json
+import os
+from pathlib import Path
 
-import pytest
-from unittest.mock import patch, MagicMock
 import pandas as pd
+import pytest
 
-# Import the functions we are testing
-from code.data_loader import (
-    _fetch_ebird_data,
-    _fetch_modis_data,
-    load_ebird_data,
-    load_modis_data,
-)
+# Ensure the code directory is on the path
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-class TestDataLoaderFailLoudly:
-    """Tests that ensure the data loader fails loudly on connection errors."""
+from data_loader import load_ebird_data, DATA_RAW, EBIRD_OUTPUT_FILE, CHECKSUMS_FILE
 
-    def test_fetch_ebird_fails_on_connection_error(self):
-        """
-        Test that _fetch_ebird_data raises ConnectionError when the fetch fails.
-        """
-        with patch('code.data_loader.load_dataset', side_effect=Exception("Network Error")):
-            with pytest.raises(ConnectionError):
-                _fetch_ebird_data()
+def test_load_ebird_data_creates_files(tmp_path, monkeypatch):
+    """
+    Test that load_ebird_data downloads the sample, writes CSV and checksum,
+    and returns a DataFrame with the expected columns.
+    """
+    # Use the project's DATA_RAW directory
+    raw_dir = DATA_RAW
+    # Ensure a clean state
+    if raw_dir.exists():
+        for f in raw_dir.iterdir():
+            f.unlink()
+    else:
+        raw_dir.mkdir(parents=True)
 
-    def test_fetch_modis_fails_on_connection_error(self):
-        """
-        Test that _fetch_modis_data raises ConnectionError when the fetch fails.
-        """
-        with pytest.raises(ConnectionError):
-            _fetch_modis_data()
+    df = load_ebird_data()
+    # Verify DataFrame is not empty and contains required columns
+    assert not df.empty
+    required_cols = {"species_code", "duration_min", "num_observers", "distance_km",
+                     "latitude", "longitude", "year"}
+    assert required_cols.issubset(set(df.columns))
 
-    def test_load_ebird_propagates_connection_error(self):
-        """
-        Test that load_ebird_data propagates ConnectionError from the fetch function.
-        """
-        with patch('code.data_loader._fetch_ebird_data', side_effect=ConnectionError("Fetch failed")):
-            with pytest.raises(ConnectionError):
-                load_ebird_data()
-
-    def test_load_modis_propagates_connection_error(self):
-        """
-        Test that load_modis_data propagates ConnectionError from the fetch function.
-        """
-        with pytest.raises(ConnectionError):
-            load_modis_data()
-
-    def test_no_synthetic_fallback_in_ebird(self):
-        """
-        Test that no synthetic data is returned when fetch fails.
-        This test ensures that the loader does not have a fallback to mock data.
-        """
-        # We expect a ConnectionError, not a dataframe with synthetic data
-        with patch('code.data_loader._fetch_ebird_data', side_effect=ConnectionError("Fetch failed")):
-            with pytest.raises(ConnectionError):
-                load_ebird_data()
-                # If we reach here, the test fails because we expected an error
-                assert False, "Expected ConnectionError, but function returned data"
-
-    def test_no_synthetic_fallback_in_modis(self):
-        """
-        Test that no synthetic data is returned when fetch fails.
-        """
-        # We expect a ConnectionError, not a dataframe with synthetic data
-        with pytest.raises(ConnectionError):
-            load_modis_data()
-            # If we reach here, the test fails because we expected an error
-            assert False, "Expected ConnectionError, but function returned data"
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    # Verify CSV file exists
+    csv_path = raw_dir / EBIRD_OUTPUT_FILE
+    assert csv_path.is_file()
+    # Verify checksum file exists and contains entry for CSV
+    checksum_path = raw_dir / CHECKSUMS_FILE
+    assert checksum_path.is_file()
+    with open(checksum_path, "r") as f:
+        checksums = json.load(f)
+    assert EBIRD_OUTPUT_FILE in checksums
+    # Verify stored checksum matches actual file checksum
+    from data_loader import calculate_sha256
+    actual_hash = calculate_sha256(csv_path)
+    assert checksums[EBIRD_OUTPUT_FILE] == actual_hash

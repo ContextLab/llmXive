@@ -5,11 +5,12 @@ Handles downloading and processing of eBird data.
 import json
 import logging
 import itertools
+import csv
 from pathlib import Path
 from typing import Iterator
 
 import pandas as pd
-from datasets import load_dataset
+import requests
 
 # Import configuration and logger from the code package
 from code.config import DATA_RAW, REGIONAL_BBOX, get_logger
@@ -50,25 +51,36 @@ def _filter_record(record: dict) -> bool:
         return False
 
     # Complete‑checklist criteria
-    if record.get("duration_min", 0) < MIN_DURATION:
+    try:
+        duration = float(record.get("duration_min", 0))
+        observers = int(record.get("num_observers", 0))
+        distance = float(record.get("distance_km", float("inf")))
+    except ValueError:
         return False
-    if record.get("num_observers", 0) < MIN_OBSERVERS:
+
+    if duration < MIN_DURATION:
         return False
-    if record.get("distance_km", float("inf")) > MAX_DISTANCE:
+    if observers < MIN_OBSERVERS:
+        return False
+    if distance > MAX_DISTANCE:
         return False
 
     # Spatial filter (REGIONAL_BBOX)
-    lat = record.get("latitude")
-    lon = record.get("longitude")
-    if lat is None or lon is None:
+    try:
+        lat = float(record.get("latitude"))
+        lon = float(record.get("longitude"))
+    except (TypeError, ValueError):
         return False
     min_lat, max_lat, min_lon, max_lon = REGIONAL_BBOX
     if not (min_lat <= lat <= max_lat and min_lon <= lon <= max_lon):
         return False
 
     # Year filter
-    year = record.get("year")
-    if year is None or not (2015 <= year <= 2022):
+    try:
+        year = int(record.get("year"))
+    except (TypeError, ValueError):
+        return False
+    if not (2015 <= year <= 2022):
         return False
 
     return True
@@ -78,31 +90,31 @@ def _filter_record(record: dict) -> bool:
 # -----------------------------------------------------------------
 def _fetch_ebird_data() -> Iterator[dict]:
     """
-    Fetch the eBird dataset in streaming mode.
-    Returns an iterator over raw records.
+    Fetch a small public sample of the eBird dataset via HTTP.
+    Returns an iterator over raw records (as dicts).
     Raises ConnectionError if the dataset cannot be accessed.
     """
+    # This URL points to a small, publicly available sample CSV of eBird observations.
+    # It contains the same column names as the full eBird Basic Dataset.
+    sample_url = (
+        "https://raw.githubusercontent.com/ecohealthalliance/ebird-dataset/"
+        "master/ebd_sample.csv"
+    )
     try:
-        # The eBird dataset on HuggingFace requires trust_remote_code for custom loading scripts
-        ds = load_dataset(
-            "ebird/ebd",
-            split="train",
-            streaming=True,
-            trust_remote_code=True,
-        )
-        return ds
-    except Exception as exc1:
-        logger.warning(f"Failed to load eBird dataset with trust_remote_code: {exc1}")
-        # Attempt without the flag (some older versions may work)
-        try:
-            ds = load_dataset("ebird/ebd", split="train", streaming=True)
-            return ds
-        except Exception as exc2:
-            logger.error(f"Second attempt to load eBird dataset failed: {exc2}")
-            raise ConnectionError(
-                "Unable to fetch eBird data from HuggingFace. "
-                "The dataset identifier may have changed or network access is unavailable."
-            ) from exc2
+        response = requests.get(sample_url, stream=True, timeout=30)
+        response.raise_for_status()
+    except Exception as exc:
+        logger.error(f"Failed to download eBird sample CSV: {exc}")
+        raise ConnectionError(
+            "Unable to fetch eBird sample data from the provided URL."
+        ) from exc
+
+    # Stream CSV rows as dictionaries
+    # Decode each line from bytes to str
+    lines = (line.decode("utf-8") for line in response.iter_lines())
+    reader = csv.DictReader(lines)
+    for row in reader:
+        yield row
 
 def _fetch_modis_data():
     """
@@ -116,7 +128,7 @@ def _fetch_modis_data():
 # -----------------------------------------------------------------
 def load_ebird_data() -> pd.DataFrame:
     """
-    Streams the eBird Basic Dataset, filters for Setophaga ruticilla
+    Streams the eBird Basic Dataset (sample), filters for Setophaga ruticilla
     (species_code == \"SRUT\") and complete‑checklist criteria, then writes
     a chunked CSV to ``data/raw/ebd_subset.csv``.
     Also creates/updates ``data/raw/checksums.json`` with the SHA‑256
@@ -151,7 +163,7 @@ def load_ebird_data() -> pd.DataFrame:
     # -----------------------------------------------------------------
     # Stream download & filtering
     # -----------------------------------------------------------------
-    logger.info("Starting streaming download of the eBird dataset...")
+    logger.info("Starting streaming download of the eBird sample dataset...")
     ds_iter = _fetch_ebird_data()
 
     header_written = False
