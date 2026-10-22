@@ -1,14 +1,14 @@
 status: none
-intent: download synthetic logical puzzle dataset with DAG topology metadata GSM8K
-  reference python package dataset
+intent: synthetic logical puzzle DAG dataset with depth and branching factor python
+  package dataset
 required_fields:
-- instance_id
-- problem_text
+- puzzle_id
+- puzzle_text
+- solution
+- nesting_depth
+- branching_factor
+- dag_nodes
 - dag_edges
-- node_count
-- max_nesting_depth
-- average_branching_factor
-- ground_truth_solution
-cache_key: d8eb08591972dabc784a4480b16a2445e22290ea974cf498ab291e0daeed156f
-searched_at: '2026-10-20T15:14:53.062110+00:00'
+cache_key: 72da57ceb230d1c0a59d5413b5f2127d8fe5077f49ab7de7b51c17e09bde088a
+searched_at: '2026-10-22T02:19:37.394805+00:00'
 retry_count: 1

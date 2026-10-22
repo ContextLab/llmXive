@@ -2,45 +2,31 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python code/graph_generator.py  --count 500  --depth-min 1  --depth-max 10  --branch-min 1  --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 (rc=-1); python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu (rc=1); python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 (rc=1); 3 declared deliverable(s) absent: data/processed/execution_log.csv; data/processed/execution_log_smoke.csv; data/processed/extended_budget_log.csv
+**Summary**: 3 command(s) failed: python code/graph_generator.py  --count 500  --depth-min 1  --depth-max 10  --branch-min 1  --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 (rc=1); python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu (rc=1); python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 (rc=1); 3 declared deliverable(s) absent: data/processed/execution_log.csv; data/processed/execution_log_smoke.csv; data/processed/extended_budget_log.csv
 
 ## Failing / missing run-book commands
 
-- python code/graph_generator.py  --count 500  --depth-min 1  --depth-max 10  --branch-min 1  --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 -> rc=-1
-a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
-Only a single path exists in the DAG; using longest path as ground truth.
+- python code/graph_generator.py  --count 500  --depth-min 1  --depth-max 10  --branch-min 1  --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 -> rc=1
 
-[TIMEOUT after 120s]
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/graph_generator.py", line 10, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/datasets/__init__.py", line 22, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.24.3
+
 - python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu -> rc=1
--venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/transformers/models/auto/tokenization_auto.py", line 550, in get_tokenizer_config
-    resolved_config_file = cached_file(
-                           ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/transformers/utils/hub.py", line 430, in cached_file
-    resolved_file = hf_hub_download(
-                    ^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 110, in _inner_fn
-    validate_repo_id(arg_value)
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 164, in validate_repo_id
-    raise HFValidationError(
-huggingface_hub.utils._validators.HFValidationError: Repo id must use alphanumeric chars or '-', '_', '.', '--' and '..' are forbidden, '-' and '.' cannot start or end the name, max length is 96: 'distilbert-base-uncased\n'.
+
+MODEL_PATH not found in .env. Please set it.
 
 - python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 -> rc=1
 
-2026-10-20 15:14:31,565 - __main__ - ERROR - Analysis failed: Execution results file not found: data/processed/execution_log.csv
+2026-10-22 02:18:42,760 - __main__ - ERROR - Analysis failed: Execution results file not found: data/processed/execution_log.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/analyzer.py", line 213, in <module>
     main()
@@ -50,6 +36,12 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/analyzer.py", line 38, in load_execution_results
     raise FileNotFoundError(f"Execution results file not found: {filepath}")
 FileNotFoundError: Execution results file not found: data/processed/execution_log.csv
+
+- python -c "import json; data = [json.loads(l) for l in open('data/raw/synthetic_puzzles.jsonl')]; print(f'Count: {len(data)}'); print(f'Depth Range: {min(d[\"nesting_depth\"] for d in data)}-{max(d[\"nesting_depth\"] for d in data)}')" -> rc=1
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/synthetic_puzzles.jsonl'
 
 
 ## Declared deliverables still missing

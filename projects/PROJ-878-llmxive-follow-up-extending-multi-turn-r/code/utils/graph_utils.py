@@ -1,6 +1,6 @@
 import networkx as nx
+import random
 from typing import Dict, List, Any, Optional
-from collections import deque
 
 def is_dag(graph: nx.DiGraph) -> bool:
     """Check if a graph is a Directed Acyclic Graph."""
@@ -66,22 +66,6 @@ def graph_to_dict(graph: nx.DiGraph) -> Dict[str, Any]:
         "edges": list(graph.edges())
     }
 
-def get_all_simple_paths_from_source_to_target(
-    graph: nx.DiGraph,
-    source: int,
-    target: int
-) -> List[List[int]]:
-    """
-    Find all simple paths from source to target in the graph.
-    Returns a list of paths, where each path is a list of node IDs.
-    """
-    if source not in graph or target not in graph:
-        return []
-    try:
-        return list(nx.all_simple_paths(graph, source=source, target=target))
-    except nx.NetworkXError:
-        return []
-
 def get_random_valid_path_different_from_reference(
     graph: nx.DiGraph,
     reference_path: List[int],
@@ -91,19 +75,10 @@ def get_random_valid_path_different_from_reference(
     Select a valid ground‑truth path that is different from the reference path.
     A valid path is defined as a simple path from a source node (in‑degree 0) 
     to a sink node (out‑degree 0).
-
-    Args:
-        graph: The DAG to search in.
-        reference_path: The path to exclude (usually the longest path).
-        max_attempts: Maximum number of random attempts to find a different path.
-
-    Returns:
-        A valid path list if found, None otherwise.
     """
     if not graph.nodes():
         return None
 
-    # Identify sources and sinks
     sources = [n for n, d in graph.in_degree() if d == 0]
     sinks = [n for n, d in graph.out_degree() if d == 0]
 
@@ -112,12 +87,12 @@ def get_random_valid_path_different_from_reference(
 
     attempts = 0
     while attempts < max_attempts:
-        src = sources[attempts % len(sources)]
-        snk = sinks[attempts % len(sinks)]
+        src = random.choice(sources)
+        snk = random.choice(sinks)
 
         try:
             paths = list(nx.all_simple_paths(graph, source=src, target=snk))
-        except nx.NetworkXNoPath:
+        except (nx.NetworkXNoPath, nx.NodeNotFound):
             attempts += 1
             continue
 
@@ -125,22 +100,9 @@ def get_random_valid_path_different_from_reference(
             attempts += 1
             continue
 
-        import random
         candidate = random.choice(paths)
         if candidate != reference_path:
             return candidate
-
         attempts += 1
 
-    # Exhaustive fallback for small graphs
-    if graph.number_of_nodes() < 50:
-        for src in sources:
-            for snk in sinks:
-                try:
-                    paths = list(nx.all_simple_paths(graph, source=src, target=snk))
-                except nx.NetworkXNoPath:
-                    continue
-                for p in paths:
-                    if p != reference_path:
-                        return p
     return None

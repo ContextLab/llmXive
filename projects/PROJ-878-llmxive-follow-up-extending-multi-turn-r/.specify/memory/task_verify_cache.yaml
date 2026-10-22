@@ -1,0 +1,24 @@
+T001:
+  c: true
+  h: 3285b13d6eaf520963d82d6d58dd19e5900e1c7dc30003af691514dad73307ea
+  r: All required directories (`data/raw/`, `data/processed/`, `data/results/`, `code/`,
+    `code/utils/`, `code/tests/`, `results/paper_figures/`) exist with `.gitkeep`
+    markers; the three `__init__.py` files are present with real docstrings; `code/requirements.txt`
+    pins all nine required packages (torch, transformers, datasets, networkx, lifelines,
+    scikit-learn, pandas, numpy, pytest); and `.ruff.toml`/`.black.toml` configs exist
+    with a recorded successful scaffolding run (exit 0). The only unverified claims
+    are `pip install` success and `ruff check` exit 0, but these are environment-dependent
+    verifi
+  sig: 97efcb0f154bf906d07039239ca26861117c91f1063ddcc75ebbb5e844cf82b0
+T002:
+  c: false
+  h: 1e43ada6e33e661510987c199ba7186ad91d93b16116867fcf276776b6445b6d
+  r: "The test file imports `generate_batch`, `_write_jsonl`, and `_write_validation_metrics`\
+    \ from `code.graph_generator`, but the actual `code/graph_generator.py` defines\
+    \ none of these (it has `generate_set` and inline file-writing in `main()`), so\
+    \ the current test file cannot even import successfully \u2014 the recorded passing\
+    \ pytest log is stale relative to the current artifacts. Additionally, the key\
+    \ integration test `test_generated_dataset_integration` (schema + |r| < 0.2 on\
+    \ the generated dataset) was SKIPPED because `data/raw/synthetic_puzzles.jsonl`\
+    \ does not exist, so the task's core verification"
+  sig: 048539917d13ec83a390422effef4a8f7e3465b058dc91c354e3adce4095829d

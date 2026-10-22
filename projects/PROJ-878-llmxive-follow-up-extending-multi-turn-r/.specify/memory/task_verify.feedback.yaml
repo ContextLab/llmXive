@@ -1,28 +1,18 @@
 T001:
-  reason: 'The three `__init__.py` files and `code/requirements.txt` (with all required
-    pins) exist, but two explicitly required directories are missing: `data/results/`
-    and `results/paper_figures/` (both reported MISSING by the collector). The implementer
-    must create these directories (e.g., with `.gitkeep` markers) to complete the
-    scaffolding task.'
   task: 04beb1208ff2afd2d188ef2b70bd93cede5411d9f9ee2dfa60a911985bc40b23
 T002:
-  reason: "The test file `code/tests/test_graph_generator.py` exists and contains\
-    \ substantive tests (schema fields, JSONL round-trip, correlation/orthogonalization\
-    \ check, reproducibility), and the imported `code/graph_generator.py` implements\
-    \ the required functions. However, the task's explicit verification criterion\
-    \ \u2014 that `pytest code/tests/test_graph_generator.py` passes after T003 \u2014\
-    \ has no execution evidence: no pytest output, exit code, or CI log is included\
-    \ in the artifacts, so the claimed passing run cannot be confirmed. Additionally,\
-    \ there is no `conftest.py` or documented `sys.path` setup shown"
+  reason: "The test file imports `generate_batch`, `_write_jsonl`, and `_write_validation_metrics`\
+    \ from `code.graph_generator`, but the actual `code/graph_generator.py` defines\
+    \ none of these (it has `generate_set` and inline file-writing in `main()`), so\
+    \ the current test file cannot even import successfully \u2014 the recorded passing\
+    \ pytest log is stale relative to the current artifacts. Additionally, the key\
+    \ integration test `test_generated_dataset_integration` (schema + |r| < 0.2 on\
+    \ the generated dataset) was SKIPPED because `data/raw/synthetic_puzzles.jsonl`\
+    \ does not exist, so the task's core verification"
   task: e5dad39be55f3a48af0b2a2d128c0953abf4d998c1d65313fd80c490c723267d
 T003:
-  reason: "The evidence shows only the auxiliary 200-puzzle dataset was ever generated:\
-    \ the execution log runs `--count 200 --depth-min 7 --depth-max 10 --output data/raw/aux_puzzles.jsonl`,\
-    \ `validation_metrics.json` reports `samples_generated_primary: 200, samples_generated_aux:\
-    \ 0` (contradicting the required 500 primary + 200 aux split), `checksums_primary.txt`\
-    \ actually contains the checksum of `aux_puzzles.jsonl`, and `data/checksums_aux.txt`\
-    \ is MISSING. Additionally, the required 500-instance `synthetic_puzzles.jsonl`\
-    \ with depth 3\u20136 has no generation evidence, there is no GSM8K metadata download/vers"
+  reason: 'Requested task execution failed; rerun successfully: code/graph_generator.py
+    exit=1'
   task: 414c156dcaa7e05c3ee31253ef3b804cd19722155b748dfd9db95ca4c858515a
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/rm_executor.py
