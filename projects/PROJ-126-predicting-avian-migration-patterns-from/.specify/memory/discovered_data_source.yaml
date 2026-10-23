@@ -1,18 +1,19 @@
 status: none
-intent: download eBird Basic Dataset and MODIS NDVI temperature python package dataset
+intent: download Cornell eBird Basic Dataset and NASA MODIS temperature NDVI python
+  package dataset
 required_fields:
-- species_scientific_name
+- species
 - observation_date
-- week_of_year
 - latitude
 - longitude
-- checklist_id
-- checklist_duration_minutes
-- number_of_observers
-- distance_traveled_km
-- species_observation_count
-- effort_duration_minutes
-- effort_distance_km
-cache_key: c2268566a45ea62d2f455b86186a2447e9f09ab422235d6cd9b2f900c92493ff
-searched_at: '2026-10-23T12:22:20.045393+00:00'
+- duration_minutes
+- observer_count
+- distance_km
+- grid_cell_id
+- week_number
+- temperature
+- ndvi
+- first_arrival_week
+cache_key: 51b8d173cfb8f4a01a98f78363f9d1894ba36a1d9064f1632e11793c9850b66a
+searched_at: '2026-10-23T14:13:52.112762+00:00'
 retry_count: 1
