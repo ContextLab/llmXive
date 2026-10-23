@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Data Sufficiency Schema"
-description: "Schema for data sufficiency check results. Calculated power to detect a minimum AUC difference of 0.05 (source: statistical power analysis)."
+description: "Schema for data sufficiency check results. Calculated power to detect a small AUC difference (source: statistical power analysis)."
 type: "object"
 properties:
   species:

@@ -14,7 +14,7 @@ properties:
     description: "Metric value"
   confidenceInterval:
     type: "string"
-    description: "Confidence interval (e.g., “a conventional high‑confidence interval, such as a standard confidence level, [0.8, 0.9]”)"
+    description: "Confidence interval (e.g., “a conventional high‑confidence interval, such as a standard confidence level, spanning a high‑probability range”)"
   pValue:
     type: "number"
     description: "P-value from statistical test"
