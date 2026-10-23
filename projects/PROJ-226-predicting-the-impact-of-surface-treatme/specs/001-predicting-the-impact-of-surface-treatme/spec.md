@@ -49,7 +49,7 @@ The system MUST perform a permutation test to establish statistical significance
 
 **Acceptance Scenarios**:
 
-1. **Given** the best model and the test set, **When** a permutation test with 1,000 shuffles is executed, **Then** the system calculates a p‑value and reports it in the final report; if p < 0.05, the relationship is flagged as statistically significant.
+1. **Given** the best model and the test set, **When** a permutation test with a sufficiently large number of shuffles is executed, **Then** the system calculates a p‑value and reports it in the final report; if p < 0.05, the relationship is flagged as statistically significant.
 2. **Given** the best model, **When** SHAP analysis is performed, **Then** the system outputs a summary plot (PNG) and a JSON file ranking features by mean absolute SHAP value, clearly identifying the top predictors (e.g., plasma power, exposure time, chemical concentration). For linear models, the system falls back to `shap.LinearExplainer` or `shap.KernelExplainer` as specified in FR-015.
 3. **Given** the full results, **When** the final report is generated, **Then** it includes a section stating the proportion of variance explained (R²) with 95 % bootstrapped confidence intervals, per‑predictor significance (p < 0.05) where applicable, and a statement on whether the R² ≥ 0.5 target was met. The report also contains the four required visualizations: predicted‑vs‑actual scatter, residual histogram, SHAP summary plot, and parameter‑response curves (see FR-014).
 

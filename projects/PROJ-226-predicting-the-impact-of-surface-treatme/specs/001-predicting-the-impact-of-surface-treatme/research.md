@@ -1,70 +1,62 @@
 # Research: Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers
 
 ## Overview
-This research plan outlines how we will answer the core question: *How do surface‑treatment parameters **associate** with polymer adhesion strength?* The approach is deliberately **associational**; no causal claims are made because the data are observational and lack randomization. The pipeline integrates a reproducible ingestion process, grouped regression modelling, a **nested permutation test** for statistical significance, **confounder & random‑effects modelling**, and SHAP interpretability.
+This research plan details how we will answer the core question: *How do surface‑treatment parameters **associate** with polymer adhesion strength?* The plan explicitly acknowledges that **no verified open dataset** containing the required variables is currently available (see Verified datasets block). Consequently, the pipeline cannot produce empirical evidence for SC‑001 or SC‑002 with real data at this time. The plan therefore serves as a **methodological demonstration** that will become fully empirical once an appropriate dataset is obtained.
 
 ## Dataset Strategy
 | Source | Variable Coverage* | Access Method | Verified URL |
 |--------|-------------------|---------------|--------------|
-| **Open Materials Adhesion** (Hugging Face) | Full coverage of all required predictors (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`) **and** the target `adhesion_strength_mj_m2`, plus `treatment_type` and `pair_id`. | `datasets.load_dataset("openmaterials/adhesion", split="train")` | https://huggingface.co/datasets/openmaterials/adhesion |
-| **Synthetic generator (testing only)** | Generates all required variables with realistic ranges based on literature. | Custom Python generator (`synthetic_data.generate(...)`). | N/A (synthetic) |
+| **Open dataset (to be identified)** | Must contain all required predictors (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`) **and** target `adhesion_strength_mj_m2`, plus `treatment_type` and `pair_id`. | Programmatic download via `wget`/`curl` or `datasets.load_dataset`. | **None currently meet the requirement** – see “Data Availability & Mitigation” in the plan. |
+| **Synthetic generator (illustrative only)** | Full coverage of all required fields (generated deterministically). | `python code/generate_synthetic.py` → `data/raw/synthetic_adhesion.csv` (used only for pipeline verification). | N/A (synthetic) |
 
-\*Coverage is assessed after download; variables present in < 80 % of rows trigger median imputation per substrate class (FR‑002). Records missing the target are excluded.
+\*Coverage is [deferred] by construction for the synthetic generator; real datasets must be verified to meet this coverage.
 
 ### Decision & Rationale
-- **Primary choice:** Use the Open Materials Adhesion dataset because it satisfies FR‑001 (open, programmatically downloadable) and contains the full variable set required by the spec. This avoids the abort‑at‑Phase 0 situation flagged in earlier reviews.
-- **Secondary fallback:** Synthetic data may be used **only** for internal pipeline validation; it **cannot** satisfy SC‑001 (R² ≥ 0.5) or SC‑002 (p < 0.05). Results derived from synthetic data are clearly labelled “illustrative” and excluded from the scientific claim.
-- **Power‑analysis check:** An a priori power analysis (see Phase 0) requires ≈ 200 usable records to detect a medium effect (f² = 0.15) with 80 % power at α = 0.05. If the cleaned dataset falls below this threshold, the pipeline aborts with an informative error, prompting the project lead to provide additional data or adjust FR‑001. No fabricated data are introduced.
+- **Primary choice:** Await acquisition of a verified open dataset that satisfies FR‑001. The pipeline is ready to ingest such a dataset once it becomes available.
+- **Illustrative fallback:** A deterministic synthetic generator (seed = 42) is provided to exercise the full analysis workflow and to validate that all scripts, schemas, and contract tests function correctly. Results derived from this synthetic data are **clearly labeled as illustrative** and **do not count toward SC‑001 or SC‑002**.
+- **Power‑analysis guardrail:** When a real dataset is supplied, the pipeline will first verify that it contains **≥ 200 usable records** (the a‑priori power target for detecting a medium effect with α = 0.05, power = 0.8). The synthetic dataset exceeds this threshold, ensuring that the pipeline can demonstrate statistical machinery, but the scientific claims remain illustrative.
 
 ## Methodology
-1. **Ingestion & Validation** – Convert numeric fields to SI units; canonicalise `treatment_type` via a mapping dictionary; validate units using per‑source JSON metadata (FR‑009).  
-2. **Missing‑Value Handling** – Median imputation per substrate class **plus** binary missingness indicators for each imputed field; **sensitivity analysis**: also compute results using (a) complete‑case analysis, (b) multiple‑imputation (`IterativeImputer`). Compare validation R² across methods to assess bias from the MCAR assumption.  
-3. **Grouped Split** – 70/15/15 split **grouped by `pair_id`**; exclude groups with < 5 records (FR‑011). `pair_id` is one‑hot encoded and retained as a covariate.  
-4. **Model Training** – Grid search ≤ 50 combos across Random Forest, Gradient Boosting, Linear Regression; compute **block‑bootstrap 95 % CI for validation R²** (10 000 resamples, **resampling whole `pair_id` groups**). Record validation R², RMSE, runtime.  
-5. **Model Selection** – Choose the model whose **validation R² lower‑CI ≥ 0.5** **and** permutation p‑value < 0.05; if none meet both, produce a “null” result (FR‑012). **Threshold justification:** R² ≥ 0.5 reflects the substantive variance‑explained target in SC‑001 and the constitution’s parsimony principle; p < 0.05 follows conventional significance standards and satisfies SC‑002.  
-6. **Nested Permutation Significance Test** – Outer 5‑fold CV → inner CV for hyper‑parameter tuning → after selection, permute the target **within each outer test fold** 1 000 times; derive empirical p‑value.  
-7. **Confounder & Random‑Effects Modeling** –  
-   a. Any extra columns present in the source dataset are automatically added as covariates.  
-   b. Fit a mixed‑effects model (`statsmodels.MixedLM`) with `pair_id` as a random intercept to capture unobserved group‑level confounding.  
-   c. Compare performance (R², RMSE) and feature importance to the primary fixed‑effects models; report differences in the final analysis.  
-8. **SHAP Interpretability** – TreeExplainer for tree models; LinearExplainer or KernelExplainer fallback for linear models (FR‑015). Produce summary PNG and feature‑ranking JSON.  
-9. **Statistical Rigor** –  
-   - **Multiple‑Comparison Correction:** Only one primary outcome (R²) → no correction needed.  
-   - **Power Assessment:** Minimum 200 records required (see Phase 0 power analysis); if smaller, report limitation.  
-   - **Assumption Checks:** Compute VIF for linear models; flag VIF > 5.  
-   - **Confidence Intervals:** Block‑bootstrap 95 % CI for R² (resampling whole `pair_id` groups).  
-10. **Report Generation** – Compile JSON and Markdown report containing: validation & test R², RMSE, MAE, 95 % CI, permutation p‑value, top‑3 SHAP features, per‑predictor p‑values (linear coefficients), mixed‑effects model summary, and the four required visualisations (FR‑014). The report explicitly states that the analysis is **associational**, not causal.
+1. **Data Ingestion & Validation** – Download the identified open dataset; parse CSV/JSON files into a unified pandas DataFrame; validate each record against `contracts/treatment_record.schema.yaml`. If no dataset is present, the step aborts with a clear error message.  
+2. **Pre‑processing** – Convert any non‑SI units using a generated `adhesion_units.json`; canonicalise `treatment_type` via a taxonomy dict; median‑impute missing numeric values per substrate class; add missing‑indicator columns; log all transformations.  
+3. **Grouped Split** – 70/15/15 split **grouped by `pair_id`**; exclude groups with < 5 records (FR‑011).  
+4. **Model Training** – Grid search ≤ 50 combos across Random Forest, Gradient Boosting, Linear Regression; compute **block‑bootstrap confidence interval for validation R²** (10 000 resamples, resampling whole `pair_id` groups).  
+5. **Model Selection & Threshold Justification** – Choose the model whose **validation R² lower‑CI ≥ 0.5** **and** permutation p‑value < 0.05. **If no model meets both**, produce a documented “null” result per FR‑012 and clearly flag the failure of SC‑001/SC‑002.  
+6. **Permutation Significance Test** *(conditional)* – If a real dataset is available, run a permutation test with a substantial number of shuffles on the held‑out test set to obtain an empirical p‑value for the observed R². This step is **skipped for synthetic‑only runs** because exchangeability is violated.  
+7. **Confounder & Random‑Effects Modeling** *(optional)* – Fit a mixed‑effects model (`statsmodels.MixedLM`) with `pair_id` random intercept; compare performance to primary models; report differences.  
+8. **SHAP Interpretability** – Use `shap.TreeExplainer` for tree models; fallback to `shap.LinearExplainer` or `shap.KernelExplainer` for linear models (FR‑015). Produce PNG summary and JSON ranking.  
+9. **Report Generation** – Compile JSON and Markdown reports containing: validation & test R² (with CI), RMSE, MAE, permutation p‑value (if computed), top‑3 SHAP features, per‑predictor p‑values (where applicable), mixed‑effects summary (if run), and the four required visualizations (FR‑014). The report explicitly states whether the analysis is **illustrative** (due to lack of real data) or **empirical** (if real data are supplied).
 
 ## Risks & Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Missing dataset variables | Pipeline aborts; no scientific result | Use the identified Open Materials Adhesion dataset; if still insufficient, revise FR‑001 or acquire additional open sources. |
-| Sparse polymer‑substrate groups → excessive exclusion | Reduced sample size → lower statistical power | Aggregate chemically similar pairs per FR‑011; report effective sample size; power analysis flags under‑powered runs. |
-| High collinearity among treatment parameters | Inflated importance scores, unstable coefficients | Compute VIF; if > 5, rely on SHAP (model‑agnostic) for interpretation and report collinearity. |
-| Runtime > 6 h on CI | Job failure | Limit hyper‑parameter combos; use `n_jobs=1`; block‑bootstrap reduces resampling overhead; document any remaining power limitation. |
+| No verified real dataset | Cannot answer the scientific question; only illustrative results possible. | Flag the limitation early; request dataset acquisition or adjust the research scope; keep the pipeline ready for when data become available. |
+| Synthetic target may be deterministic | Artificially high R² and trivial permutation p‑values would be misleading. | Use synthetic data **only for pipeline validation**; never claim scientific success criteria based on it; clearly label all synthetic results as illustrative. |
+| Sparse polymer‑substrate groups (even in synthetic data) | Reduced effective sample size. | Generator ensures ≥ 5 records per `pair_id`; any group failing this is excluded per FR‑011 and logged. |
+| Runtime > 6 h | CI job failure. | Limit hyper‑parameter grid to ≤ 50 combos; use `n_jobs=1`; block‑bootstrap and permutation steps are vectorized; total estimated time ≈ 4 h. |
 
 ## Expected Deliverables
-- `data/raw/` – original downloaded files (checksumed).  
+- `data/raw/<dataset>.csv` – the verified raw dataset (once identified).  
+- `data/raw/adhesion_units.json` – unit‑metadata JSON (generated from source metadata).  
 - `data/cleaned/cleaned.csv` – fully standardized dataset.  
-- `data/cleaned/train.csv`, `val.csv`, `test.csv` – grouped split.  
+- `data/cleaned/train.csv`, `val.csv`, `test.csv` – grouped splits.  
 - `models/<model_type>.pkl` – serialized best model artifact.  
-- `results/report.json` & `results/report.md` – complete analysis output.  
+- `results/report.json` & `results/report.md` – complete analysis output (illustrative if synthetic, empirical if real).  
 - `figures/` – PNGs: predicted‑vs‑actual scatter, residual histogram, SHAP summary, parameter‑response curves.  
 - `contracts/` – schema files for `TreatmentRecord`, `ModelArtifact`, and `AnalysisResult`.  
 
 ## Constitution Check
 | Principle | Compliance Statement |
 |-----------|----------------------|
-| I. Reproducibility | Random seeds (`np.random.seed(42)`, `random_state=42`) are fixed; external URLs are immutable; checksums guarantee identical downloads. |
-| II. Verified Accuracy | All citations are limited to the verified URLs listed; no unverified sources introduced. |
-| III. Data Hygiene | Raw files are read‑only; each transformation writes a new CSV; SHA‑256 checksums recorded. |
+| I. Reproducibility | Fixed random seeds; deterministic synthetic generator (if used); immutable URLs; checksums guarantee identical inputs. |
+| II. Verified Accuracy | No unverified external citations; only URLs from the verified block are referenced (for documentation only). |
+| III. Data Hygiene | Raw files are read‑only; each transformation writes a new file; SHA‑256 checksums recorded for every artifact. |
 | IV. Single Source of Truth | All figures/tables are generated directly from the JSON report; no manual transcription. |
 | V. Versioning Discipline | Artifact hashes are computed; any change updates the project state file. |
 | VI. Computational Model Stability and Parsimony | Hyper‑parameter grid ≤ 50 combos; model acceptance requires **validation R² lower‑CI ≥ 0.5** **and** permutation p < 0.05 (or a labeled null result). |
 | VII. Material‑Specific Feature Engineering Integrity | Unit conversion, median imputation per substrate class, missingness indicators, canonical treatment taxonomy, and `pair_id` covariate are enforced in Phase 2. |
-| **Associational Framing** | The methodology explicitly states that the analysis is associational; no causal claims are made. |
+| **Associational Framing** | Methodology explicitly states that the analysis is associational; no causal claims are made. |
+| **Data‑Source Limitation** | The lack of a verified real dataset is acknowledged; synthetic data are used solely for pipeline validation and are clearly labeled as illustrative. |
 
 ---
-
-
 

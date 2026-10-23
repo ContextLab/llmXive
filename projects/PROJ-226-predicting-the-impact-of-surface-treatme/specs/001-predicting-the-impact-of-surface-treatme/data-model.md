@@ -18,7 +18,7 @@ Represents a single experimental observation after ingestion and preprocessing.
 | `substrate_roughness_nm` | number | Roughness of substrate in **nanometers**. | Yes |
 | `adhesion_strength_mj_m2` | number | Measured adhesion strength in **mJ / m²** (target variable). | Yes |
 | `pair_id` | string | Identifier for the polymer‑substrate pair (e.g., `"PE‑Glass"`). | Yes |
-| `source` | string | Identifier of the originating dataset (e.g., `"NIST"`). | Yes |
+| `source` | string | Identifier of the originating dataset (e.g., `"synthetic"`). | Yes |
 
 ### 2. ModelArtifact
 Encapsulates a trained regression model and its metadata.
@@ -62,4 +62,3 @@ The concrete YAML schemas are provided in the `contracts/` directory:
 These schemas are used by `pytest` contract tests to ensure every artifact conforms to the defined structure.
 
 ---
-

@@ -1,13 +1,16 @@
 status: none
-intent: download adhesion dataset NIST Zenodo Materials Project python package dataset
+intent: Open Materials Adhesion dataset Materials Project NIST Zenodo adhesion data
+  python package dataset
 required_fields:
 - substrate_material
-- treatment_type
+- substrate_class
+- coating_material
+- surface_roughness
 - plasma_power_watts
-- treatment_time_seconds
+- plasma_time_seconds
 - plasma_gas_percent
-- surface_roughness_nm
+- treatment_type
 - adhesion_strength
-cache_key: c368e9a7827a9234eb3b82126bf1b63ee11e9610f029ac089a3076d659be2a02
-searched_at: '2026-10-21T14:11:24.579092+00:00'
+cache_key: f6107ba7a45ad23f03de15fd471f9356793dda1cdcdbe2a02394e83617a58d00
+searched_at: '2026-10-23T07:18:54.218837+00:00'
 retry_count: 1
