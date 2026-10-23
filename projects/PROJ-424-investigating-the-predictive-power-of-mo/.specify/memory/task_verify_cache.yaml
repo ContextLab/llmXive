@@ -1,12 +1,12 @@
 T001:
   c: false
-  h: bbfb32af24aef121ff687f09d89f6ca6c52522e41057bc617866f5ee2986848f
+  h: 59dc133a4b7d9a114dc7d25bf91e85d8b4d14692f31a53e4cba4b411c13001ac
   r: "The `data/raw/nist_refs.json.sha256` file records a hash that does **not** match\
-    \ the actual SHA\u2011256 of `nist_refs.json`, causing `_verify_checksum` to raise\
-    \ a `ValueError`. Consequently `load_refs()` fails on the valid file, the `test_load_valid`\
-    \ and `test_checksum_matches` tests fail, and the malformed\u2011schema test also\
-    \ fails because the loader checks the checksum before schema validation (and the\
-    \ temporary file lacks a `.sha256`). Additionally, the loader looks for the schema\
-    \ under a non\u2011existent `specs/001\u2011investigating\u2011the\u2011predictive\u2011\
-    power\u2011of\u2011mo/contracts/` path, which would raise `FileNotF"
-  sig: 36ef26083759d1c74680d1a8dfa3a0089e39ae5304a5204eccdcec601b4fb4fc
+    \ the actual contents of `nist_refs.json` (computed hash\u202F=\u202Fa81b3f2b\u2026\
+    , recorded\u202F=\u202F6c9f020e\u2026). Consequently `load_refs()` raises a checksum\u2011\
+    mismatch error, causing the `test_load_valid` and `test_checksum_matches` unit\
+    \ tests to fail. Moreover, `loader.py` raises a `FileNotFoundError` when a temporary\
+    \ JSON file lacks a `.sha256` file, contradicting the `test_malformed_schema`\
+    \ expectation that checksum verification be skipped. Fix the checksum file and\
+    \ adjust the loader\u2019s checksum logic (or test expectations) so that al"
+  sig: 4db3cf72d2fdc781d17ac5068bcd3662253ae196b457348471f41fa06e545009

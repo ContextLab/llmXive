@@ -1,18 +1,16 @@
 status: none
-intent: download experimental diffusion coefficient benchmark and MD trajectory dataset
+intent: download experimental diffusion coefficient dataset NIST ThermoML IUPAC database
   python package dataset
 required_fields:
-- compound_name
-- solvent
+- solute_name
+- solvent_name
 - temperature_K
 - pressure_atm
-- experimental_diffusion_coefficient_cm2_per_s
+- diffusion_coefficient_m2_per_s
 - measurement_method
-- reference_doi
-- md_trajectory_file
-- simulation_time_ps
-- convergence_R2
-- loglog_slope
-cache_key: 4435e00da3320b5cdb6d65ad5f930d6422e76e63c34a5b9ebf2afe314a4e4f2a
-searched_at: '2026-10-23T11:25:39.524902+00:00'
+- uncertainty
+- reference_citation
+- doi
+cache_key: f3019ba1307c02e579e16d5e19889a280abb5d0f3e5e175578b8f7badffd0e82
+searched_at: '2026-10-23T11:28:15.192437+00:00'
 retry_count: 1

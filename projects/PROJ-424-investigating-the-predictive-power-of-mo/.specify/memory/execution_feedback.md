@@ -25,18 +25,17 @@ Traceback (most recent call last):
 ImportError: cannot import name 'SIMULATION_CONFIG' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/config.py)
 
 - python code/pipeline.py --solvent water --duration 1 --seed 0 -> rc=1
-NFO __main__: Pipeline start: water, 1.0ns, seed 0
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 127, in <module>
+me/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 127, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 124, in main
     run_pipeline(solvent=args.solvent, duration_ns=args.duration, seed=args.seed)
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 78, in run_pipeline
     refs = load_refs()
            ^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/data/loader.py", line 89, in load_refs
-    _verify_checksum(json_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/data/loader.py", line 54, in _verify_checksum
-    raise ValueError(
-ValueError: Checksum mismatch for nist_refs.json: computed a81b3f2b1c6059459e121dfa834574745ef83bfa95b338c5007b7ebf6dbc4e7d, expected 6c9f020e8c6683c7b2e406c1c5caa5f7a0c0d8591b3c0e5c9f7a2d1e4c3b7a5f
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/data/loader.py", line 106, in load_refs
+    schema = _load_schema()
+             ^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/data/loader.py", line 35, in _load_schema
+    raise FileNotFoundError(f"NIST schema file not found: {schema_path}")
+FileNotFoundError: NIST schema file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/specs/001-investigating-the-predictive-power-of-mo/contracts/nist_refs.schema.yaml
 

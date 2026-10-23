@@ -1,14 +1,16 @@
 T001:
   reason: "The `data/raw/nist_refs.json.sha256` file records a hash that does **not**\
-    \ match the actual SHA\u2011256 of `nist_refs.json`, causing `_verify_checksum`\
-    \ to raise a `ValueError`. Consequently `load_refs()` fails on the valid file,\
-    \ the `test_load_valid` and `test_checksum_matches` tests fail, and the malformed\u2011\
-    schema test also fails because the loader checks the checksum before schema validation\
-    \ (and the temporary file lacks a `.sha256`). Additionally, the loader looks for\
-    \ the schema under a non\u2011existent `specs/001\u2011investigating\u2011the\u2011\
-    predictive\u2011power\u2011of\u2011mo/contracts/` path, which would raise `FileNotF"
+    \ match the actual contents of `nist_refs.json` (computed hash\u202F=\u202Fa81b3f2b\u2026\
+    , recorded\u202F=\u202F6c9f020e\u2026). Consequently `load_refs()` raises a checksum\u2011\
+    mismatch error, causing the `test_load_valid` and `test_checksum_matches` unit\
+    \ tests to fail. Moreover, `loader.py` raises a `FileNotFoundError` when a temporary\
+    \ JSON file lacks a `.sha256` file, contradicting the `test_malformed_schema`\
+    \ expectation that checksum verification be skipped. Fix the checksum file and\
+    \ adjust the loader\u2019s checksum logic (or test expectations) so that al"
   task: 544ce9c31ab8633dc71cc7959af8be4943f3e18f999019d8d58b34c1d558033d
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/tests/test_simulation.py
+    exit=1'
   task: 0210874b3d30163c5e8bb57dcdaf84434ac81d1632cc9153ca6b7ee676de585b
 T003:
   task: c23e5190e4c7bcb71b02fdd59d24e5358d19a8b22a59b533e700294420d6c7aa

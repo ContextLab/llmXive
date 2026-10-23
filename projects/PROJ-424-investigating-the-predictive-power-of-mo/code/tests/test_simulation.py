@@ -9,10 +9,10 @@ from simulations.run_simulation import run_simulation
 
 @pytest.mark.timeout(300)
 def test_water_smoke_simulation():
-    """Run a minimal water simulation (shortened for test) and verify outputs."""
-    # Use a very small duration for the smoke test to ensure it finishes quickly
-    duration_ns = 0.01 # 10 ps
-    
+    """Run a minimal water simulation and verify that trajectory and log files are created."""
+    # Use a very short duration (10 ps) to keep the test fast
+    duration_ns = 0.01  # 10 ps
+
     result = run_simulation(
         Solvent.WATER,
         DEFAULT_SIMULATION_CONFIG,
