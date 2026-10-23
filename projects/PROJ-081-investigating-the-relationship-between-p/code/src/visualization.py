@@ -1,3 +1,11 @@
+"""
+visualization.py
+-----------------
+Simple visualisation utilities for the analysis pipeline.
+Currently provides a function to plot a correlation heat‑map with
+significance annotations.
+"""
+
 import json
 from pathlib import Path
 from typing import Dict
@@ -10,10 +18,11 @@ from llmxive_toolkit import get_logger
 
 log = get_logger(__name__)
 
-
 def plot_correlation_heatmap(corr_dict: Dict, output_path: str) -> None:
     """
-    Generate a seaborn heatmap PNG visualising metabolite‑herbivory correlations.
+    Generate a seaborn heatmap PNG visualising metabolite‑herbivory
+    correlations. Cells display the Pearson r value; cells with
+    q‑value < 0.05 are annotated with an asterisk.
 
     Parameters
     ----------
@@ -22,30 +31,29 @@ def plot_correlation_heatmap(corr_dict: Dict, output_path: str) -> None:
     output_path : str
         Destination file path (including filename) for the PNG figure.
     """
-    # Build a DataFrame suitable for heatmap: metabolites as rows, herbivory_score as column
-    matrix = corr_dict.get("matrix", {})
-    q_vals = corr_dict.get("q_values", {})
+    # Build a DataFrame suitable for heatmap: rows = metabolites, cols = herbivory
+    metabolites = ["alkaloids", "terpenes", "phenolics", "benzoxazinoids"]
+    r_vals = [corr_dict["matrix"][m] for m in metabolites]
+    q_vals = [corr_dict["q_values"][m] for m in metabolites]
 
-    if not matrix:
-        raise ValueError("Correlation matrix is empty; cannot plot heatmap.")
+    heat_df = pd.DataFrame(
+        data=[r_vals],
+        index=["herbivory_score"],
+        columns=metabolites,
+    ).T
 
-    df_plot = pd.Series(matrix, name="herbivory_score").to_frame()
+    # Prepare annotation: show r value and * if significant
+    annotations = []
+    for r, q in zip(r_vals, q_vals):
+        ann = f"{r:.2f}"
+        if q < 0.05:
+            ann += "*"
+        annotations.append(ann)
 
-    # Create annotation strings with asterisk for significance
-    annot = pd.Series(
-        {
-            met: f"{matrix[met]:.2f}{'*' if q_vals.get(met, 1) < 0.05 else ''}"
-            for met in matrix
-        },
-        name="herbivory_score",
-    ).to_frame()
-
-    # Plot
-    plt.figure(figsize=(4, 4))
-    sns.set(style="whitegrid")
+    plt.figure(figsize=(8, 4))
     ax = sns.heatmap(
-        df_plot,
-        annot=annot,
+        heat_df,
+        annot=annotations,
         fmt="",
         cmap="vlag",
         center=0,
@@ -53,15 +61,11 @@ def plot_correlation_heatmap(corr_dict: Dict, output_path: str) -> None:
         linewidths=0.5,
         linecolor="gray",
     )
-    ax.set_ylabel("")
-    ax.set_xlabel("")
-    ax.set_yticklabels(df_plot.index, rotation=0)
-    ax.set_xticklabels(["herbivory_score"], rotation=0)
+    ax.set_title("Metabolite Class vs. Herbivory Correlation")
+    plt.tight_layout()
 
-    # Ensure the output directory exists
     out_path = Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.tight_layout()
-    plt.savefig(out_path, dpi=300)
+    plt.savefig(out_path, dpi=150)
     plt.close()
     log.info(f"Correlation heatmap saved to {out_path}")
