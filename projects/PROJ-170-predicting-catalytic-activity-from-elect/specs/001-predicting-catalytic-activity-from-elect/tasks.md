@@ -6,11 +6,11 @@ The checklist implements the full end‑to‑end study while respecting the func
 
 ---
 
-- [X] T000 **Skeleton Setup** `code/setup_skeleton.py`  
+- [ ] T000 **Skeleton Setup** `code/setup_skeleton.py`  
   - Creates the required directory hierarchy: `data/raw/`, `data/processed/`, `outputs/`.  
   - **Verification**: all three directories exist and are writable; a tiny `README.txt` is written in each confirming creation.
 
-- [ ] T001 **Download OC20 & Materials Project descriptors** `code/download_data.py`   <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
+- [ ] T001 **Download OC20 & Materials Project descriptors** `code/download_data.py`   <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
   - Streams the OC20 dataset via `datasets.load_dataset(..., streaming=True)` and writes a stratified sample to `data/raw/oc20_sample.parquet`.  
   - Retrieves bulk electronic descriptors from the Materials Project API (`mp-api`) and caches them as `data/raw/mp_descriptors.json`.  
   - Generates `data/raw/required_columns.json` describing the mandatory columns for the unified DataFrame.  

@@ -43,9 +43,9 @@ logger = get_logger(__name__)
 # Constants
 # ----------------------------------------------------------------------
 # A small, publicly accessible CSV that contains a formula/composition column.
-# This dataset is hosted on GitHub and is part of the Materials Project examples.
+# Updated to point to the current default branch ("main") of the repository.
 FALLBACK_CSV_URL = (
-    "https://raw.githubusercontent.com/materialsproject/mp-api/master/examples/structures.csv"
+    "https://raw.githubusercontent.com/materialsproject/mp-api/main/examples/structures.csv"
 )
 SAMPLE_SIZE = 1000            # Target number of rows in the stratified sample
 BUFFER_SIZE = 5000            # Number of rows to consider for stratification when streaming

@@ -1,8 +1,8 @@
 T000:
-  c: true
-  h: 53b31746af804265e74c290487b3669f2ac7afaf3965b95807437643097ac5f0
-  r: "Checked `code/setup_skeleton.py` (which creates the hierarchy), the existence\
-    \ of `data/raw/`, `data/processed/`, and `outputs/` directories with their `README.txt`\
-    \ files, and the execution log confirming successful creation and write\u2011\
-    access. All required directories are present and writable."
-  sig: e0bfee85adf3f16e6c075afaa352f17e00232521b9e46614e6a00264cda7b599
+  c: false
+  h: 95d827b011931835b01b30c6992ecf64380cc0da8b5f0a7d4dcd439c8bb45916
+  r: The evidence shows that `outputs/` exists with its README, but the required `data/raw/`
+    and `data/processed/` directories (and their README.txt files) are missing, so
+    the skeleton setup is not fully realized. The implementer must ensure the script
+    creates those two directories and places a README.txt in each.
+  sig: 88ee904e5bb6c2a1d1c0f4dfe1dadb65947d10a9ee24de0a61690006024187cc
