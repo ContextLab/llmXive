@@ -7,7 +7,7 @@
 
 ## User Scenarios & Testing
 
-### User Story 1 - Baseline Execution & Metric Logging (Priority: P1)
+### User Story 1 - Baseline Execution & Metric Logging (Priority: P1) (Identifier: US-1)
 
 **Journey**: The researcher downloads the $\tau^c$-Bench dataset, executes a suite of CPU-tractable agents (e.g., Llama-3-8B via `ollama`), and automatically logs success status, total API calls, and token consumption for each task step to enable the calculation of efficiency penalties.
 
@@ -23,7 +23,7 @@
 
 ---
 
-### User Story 2 - Efficiency Penalty Calculation & Task Filtering (Priority: P2)
+### User Story 2 - Efficiency Penalty Calculation & Task Filtering (Priority: P2) (Identifier: US-2)
 
 **Journey**: The researcher calculates the "efficiency penalty" (ratio of agent calls to optimal calls) for each task, identifies tasks where this ratio exceeds a threshold of 2.0x, and filters the dataset to focus on "inefficiently solved" tasks for further analysis.
 
@@ -39,7 +39,7 @@
 
 ---
 
-### User Story 3 - Task Evolution & Reward Modeling (Priority: P3)
+### User Story 3 - Task Evolution & Reward Modeling (Priority: P3) (Identifier: US-3)
 
 **Journey**: The researcher trains a lightweight regression tree to predict efficiency penalties based on task features, then uses this model to generate "evolved" task variations (via the TASTE evolution process) that maximize the gap between minimal and agent sequences, creating a harder subset for trade-off validation.
 
@@ -55,7 +55,7 @@
 
 ---
 
-### User Story 4 - Trade-off Evaluation & Statistical Significance (Priority: P4)
+### User Story 4 - Trade-off Evaluation & Statistical Significance (Priority: P4) (Identifier: US-4)
 
 **Journey**: The researcher re-runs agents on the "Evolved" task subset, computes the correlation between the baseline efficiency penalty and the change in task success rate (baseline vs. evolved), and performs McNemar's test to determine if the performance drop on complex tasks is statistically significant.
 
@@ -81,12 +81,14 @@
 
 - **FR-001**: System MUST download and parse the $\tau^c$-Bench dataset from the official HuggingFace repository, extracting task definitions and execution logs. (See US-1)
 - **FR-002**: System MUST execute a suite of CPU-tractable agents (e.g., Llama-3-8B via `ollama`) on the dataset and record success/failure, total API calls, and token consumption per step. (See US-1)
-- **FR-003**: System MUST calculate the efficiency penalty for each task as the ratio of (agent calls / optimal calls) and filter tasks where this ratio exceeds 2.0. (See US-2)
-- **FR-004**: System MUST re-run agents on the **evolved task variations** generated in US-3 and compute the correlation between the **baseline efficiency penalty** and the **change in task success rate**. (See US-4)
-- **FR-005**: System MUST perform **McNemar's test** to determine if the drop in success rate on complex, evolved tasks is statistically significant (p < 0.05) compared to the baseline run of the *same* tasks. (See US-4)
-- **FR-006**: System MUST detect cases where the dataset lacks the required "optimal path length" variable, apply the **tool diversity heuristic** (k) to derive the value, and log a warning with the code `OPTIMAL_PATH_MISSING` and the message "Optimal path length not provided; using tool diversity heuristic (k)." (See US-2, SC-002)
-- **FR-007**: System MUST train a lightweight regression tree on the filtered task set to predict efficiency penalties and use this model to drive the generation of "evolved" task variations that maximize the penalty gap. (See US-3)
-- **FR-008**: System MUST perform a sensitivity analysis by comparing the primary results (using tool diversity heuristic) against an alternative metric (e.g., minimum step count) to validate that the trade-off hypothesis holds regardless of the "optimal" definition. (See US-4)
+- **FR-003**: System MUST calculate the efficiency penalty for each task as the ratio of (agent calls / optimal calls) and filter tasks where this ratio exceeds 2.0 × for downstream analyses; correlation and other global analyses will use the full, unfiltered task set. (See US-2)
+- **FR-004**: System MUST compute the point‑biserial correlation between the continuous efficiency‑penalty score and the baseline binary success rate across the complete task set. (See US-4)
+- **FR-005**: System MUST perform a paired t‑test on success‑rate differences between baseline and evolved tasks; a p‑value < 0.05 indicates a statistically significant trade‑off. McNemar's test is generated as supplementary output. (See US-4)
+- **FR-006**: System MUST detect cases where the dataset lacks the required "optimal path length" variable, apply the **tool diversity heuristic** (k) to derive the value, and log a warning with the code `OPTIMAL_PATH_MISSING` and the message "Optimal path length not provided; using tool diversity heuristic (k)." (See US-2, SC-002)  
+  *Justification*: The tool‑diversity count is a lower bound on true step count, yielding a conservative denominator for the efficiency penalty.
+- **FR-007**: System MUST train a lightweight regression tree on the filtered task set to predict efficiency penalties and use this model to drive the generation of "evolved" task variations that maximize the penalty gap. Each evolved task is emitted as a full Task record conforming to `evolved_task.schema.yaml`, including `optimal_path_length`, `tool_diversity_k`, `features`, etc. (See US-3)
+- **FR-008**: System MUST perform a sensitivity analysis by comparing primary results (using the tool‑diversity heuristic) against an alternative metric defined as the **minimum step count**; the analysis must show that the sign of the correlation remains unchanged and that effect‑size differences are ≤ 0.05. (See US-4)  
+  *Justification*: Demonstrates that the observed trade‑off is robust to the choice of optimal‑path proxy, confirming the hypothesis is not an artifact of metric selection.
 
 ### Key Entities
 
@@ -100,17 +102,22 @@
 
 ### Measurable Outcomes
 
-- **SC-001**: Task success rate on complex, multi-hop tasks is measured against the baseline success rate to quantify performance degradation. (See FR-005)
-- **SC-002**: Efficiency penalty (agent calls / optimal calls) is measured against the theoretical minimum valid sequence length (tool diversity count) to identify redundant strategies. (See FR-003)
-- **SC-003**: Statistical significance of the trade-off is measured against the standard null hypothesis (p < 0.05) via McNemar's test. (See FR-005)
-- **SC-004**: Correlation strength between efficiency penalty and success rate is measured against a null correlation (r = 0) to validate the non-linear trade-off hypothesis. (See FR-004)
-- **SC-005**: Computational feasibility is measured against the constraint of ≤6 hours total runtime on a 2-core CPU runner with no GPU, for the filtered subset of ≤200 tasks. (See FR-002)
+- **SC-001**: Task success rate on complex, multi‑hop tasks must drop by at least 10 % when comparing evolved to baseline results (success_evolved ≤ 0.90 × success_baseline) and this drop must be statistically significant (p < 0.05) per SC‑005. (See FR-005)
+- **SC-002**: Efficiency penalty (agent calls / optimal calls) is measured against the theoretical minimum valid sequence length (tool diversity count); at least 30 % of tasks must have a penalty > 2.0 to ensure sufficient coverage of redundant strategies. (See FR-003)
+- **SC-003**: Statistical significance of the trade‑off is measured against the standard null hypothesis (p < 0.05) via the paired t‑test. (See FR-005)
+- **SC-004**: Correlation strength between efficiency penalty and baseline success rate is measured against a null correlation (r = 0); the point‑biserial correlation must be statistically significant (p < 0.05) and have absolute value ≥ 0.2. (See FR-004)
+- **SC-005**: Computational feasibility is measured against the constraint of ≤6 hours total runtime on a 2‑core CPU runner with no GPU, for the filtered subset of ≤200 tasks. (See FR-002)
+- **SC-006**: Log completeness – [deferred] of tasks must have non‑null `task_id`, `success`, `total_calls`, and `total_tokens` fields recorded; any missing field causes the run to be flagged as failed. (See FR-001, FR-002)
+- **SC-007**: Regression‑tree validation – hold‑out R² must be ≥ 0.6, confirming the model captures sufficient variance to be useful for evolution. (See FR-007)
+- **SC-008**: Evolved‑task penalty increase – the average predicted efficiency penalty of evolved tasks must be ≥ 10 % higher than that of their source tasks, demonstrating effective difficulty amplification. (See FR-007)
+- **SC-009**: Correlation significance – the point‑biserial correlation reported in SC‑004 must satisfy the numeric thresholds described above. (See FR-004)
+- **SC-010**: Sensitivity analysis consistency – results using the tool‑diversity heuristic must have the same correlation sign and an effect‑size difference ≤ 0.05 when using the alternative minimum‑step metric. (See FR-008)
 
 ## Assumptions
 
 - The $\tau^c$-Bench dataset (or its supplementary materials) contains the "optimal path length" or sufficient ground truth to derive a minimal valid tool sequence for every task; if not, the analysis will use a heuristic based on **tool diversity** (minimum number of distinct tool types), which is acknowledged as a proxy metric for reasoning depth and may inflate the efficiency penalty.
-- Open-source models like Llama-3-8B can be executed via `ollama` on a CPU-only GitHub Actions runner within the 6-hour time limit for the selected subset size (e.g., ≤ 200 tasks).
-- The "brute-force" strategies observed in the baseline are not artifacts of the specific agent implementation but reflect a broader limitation in current LLM agents' meta-cognitive pruning capabilities.
-- The dataset size and complexity are such that the full analysis (baseline + evolution + re-run + statistical testing) fits within ~7 GB RAM and ~14 GB disk, allowing for the use of `scikit-learn` regression trees without sampling.
-- The "optimal path" is defined as the minimum number of **distinct tool types** required to achieve the task goal, serving as a constructed proxy for reasoning depth rather than an absolute step-count minimum.
-- The "Evolved" task variations generated in US-3 are statistically representative of the difficulty distribution required to test the trade-off hypothesis.
+- Open-source models like Llama-3-8B can be executed via `ollama` on a CPU‑only GitHub Actions runner within the 6‑hour time limit for the selected subset size (e.g., ≤ 200 tasks).
+- The "brute‑force" strategies observed in the baseline are not artifacts of the specific agent implementation but reflect a broader limitation in current LLM agents' meta‑cognitive pruning capabilities.
+- The dataset size and complexity are such that the full analysis (baseline + evolution + re‑run + statistical testing) fits within ~7 GB RAM and ~14 GB disk, allowing for the use of `scikit-learn` regression trees without sampling.
+- The "optimal path" is defined as the minimum number of **distinct tool types** required to achieve the task goal, serving as a constructed proxy for reasoning depth rather than an absolute step‑count minimum.
+- The "Evolved" task variations generated in US‑3 are statistically representative of the difficulty distribution required to test the trade‑off hypothesis.
