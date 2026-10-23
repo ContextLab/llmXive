@@ -183,6 +183,17 @@ def resolve_project_path(project_dir: Path, rel: str) -> Path | None:
         ))
     ):
         path = root / "code" / relative
+        if not path.exists() and len(relative.parts) == 1:
+            # A task that names a contract by its bare file name
+            # (`summary.schema.yaml`) means the active feature's contract: the
+            # planner writes contracts nowhere else. Batch 4 (2026-10-12): the
+            # verifier was told both schemas were MISSING four times, the task
+            # went unverifiable, and the implementer wrote a second copy that
+            # then disagreed with the first.
+            from llmxive.state.project import feature_dir_for
+            feature = feature_dir_for(project_dir, track="research")
+            if feature is not None and (feature / "contracts" / relative).is_file():
+                path = feature / "contracts" / relative
     if not path.resolve().is_relative_to(root):
         return None
     return path.resolve()

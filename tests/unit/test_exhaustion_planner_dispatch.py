@@ -34,7 +34,10 @@ def test_exhaustion_dispatches_planner_with_saved_feedback(tmp_path, monkeypatch
         es.bump_model_tier(pid, repo_root=tmp_path)
     if failure_kind == 'verification':
         (feature / 'tasks.md').write_text('- [ ] T001 Driver must emit a valid table\n')
-        unverifiable.record_unverifiable(pid, 'T001', 'driver has wrong denominator', repo_root=tmp_path)
+        # Escalation is per task (2026-10-12): the planner is dispatched once this
+        # task has exhausted its cap on every free tier, not on its first exhaustion.
+        for _ in es.FREE_MODEL_TIERS:
+            unverifiable.record_unverifiable(pid, 'T001', 'driver has wrong denominator', repo_root=tmp_path)
     else:
         _force_fix_rounds_at_cap(tmp_path, pid)
     tasks_before = (feature / 'tasks.md').read_bytes()

@@ -590,3 +590,84 @@ def test_hollow_results_reopen_the_owning_task(tmp_path: Path) -> None:
     assert n >= 1, "hollow results re-opened NO task — the implementer never runs"
     assert "- [ ] T020" in updated
     assert "- [X] T021" in updated
+
+
+_PYTEST_TAIL = (
+    "FAILED tests/test_no_prohibited_artifacts.py::test_no_prohibited_artifacts - ...\n"
+    "FAILED tests/test_sieve_validation.py::test_sieve_validation - ImportError: c...\n"
+    "2 failed, 37 passed, 273 warnings in 5.15s\n"
+)
+
+
+def _pytest_failure() -> AnalysisRunResult:
+    return AnalysisRunResult(
+        ok=False,
+        commands=[RunCommandResult("python -m pytest -q", False, 1, 5.2, False, _PYTEST_TAIL)],
+        reason="1 command(s) failed: python -m pytest -q (rc=1)",
+    )
+
+
+def test_a_failed_run_that_reopens_nothing_adds_a_task_that_owns_the_failure(
+    tmp_path: Path,
+) -> None:
+    """Batch 3 run 3 (2026-10-11): after a review revision the run-book's
+    ``pytest -q`` failed in two test modules no task line names. Zero tasks were
+    reopened, the implementer was never dispatched, and the project spent its
+    last 19 steps re-running the same failing command."""
+    from llmxive.execution.stage import _reopen_failing_tasks
+
+    tasks_md = (
+        "# Tasks\n"
+        "- [X] T002 Implement the totient sieve in `code/sieve.py`.\n"
+        "  *Verification*: `pytest -q tests/test_module.py::test_sieve_validation` must pass.\n"
+        "- [X] T007 Add a comprehensive pytest suite.\n"
+    )
+    proj = _bootstrap_project(tmp_path, "PROJ-9999-inert", tasks_md)
+    tasks_path = proj / "specs" / "001-x" / "tasks.md"
+
+    assert _reopen_failing_tasks(proj, _pytest_failure()) == 1
+    updated = tasks_path.read_text(encoding="utf-8")
+    added = [ln for ln in updated.splitlines() if ln.startswith("- [ ] ")]
+    assert len(added) == 1
+    assert "`python -m pytest -q`" in added[0]
+    assert "tests/test_no_prohibited_artifacts.py" in added[0]
+    assert "tests/test_sieve_validation.py" in added[0]
+    assert "- [X] T002" in updated and "- [X] T007" in updated
+
+    # While that task is open the implementer has work: nothing more is added.
+    _reopen_failing_tasks(proj, _pytest_failure())
+    assert tasks_path.read_text(encoding="utf-8") == updated
+
+    # Once it was done and the same failure returns, it is reopened, not duplicated.
+    tasks_path.write_text(updated.replace("- [ ] ", "- [X] "), encoding="utf-8")
+    assert _reopen_failing_tasks(proj, _pytest_failure()) == 1
+    assert tasks_path.read_text(encoding="utf-8") == updated
+
+
+def test_a_failing_test_module_reopens_the_task_that_names_it(tmp_path: Path) -> None:
+    from llmxive.execution.stage import _reopen_failing_tasks
+
+    tasks_md = (
+        "# Tasks\n"
+        "- [X] T002 Implement the totient sieve in `code/sieve.py`.\n"
+        "- [X] T007 Write `tests/test_sieve_validation.py` and "
+        "`tests/test_no_prohibited_artifacts.py`.\n"
+    )
+    proj = _bootstrap_project(tmp_path, "PROJ-9999-owned", tasks_md)
+    assert _reopen_failing_tasks(proj, _pytest_failure()) == 1
+    updated = (proj / "specs" / "001-x" / "tasks.md").read_text(encoding="utf-8")
+    assert "- [ ] T007" in updated and "- [X] T002" in updated
+    assert updated.count("- [") == 2
+
+
+def test_an_open_task_means_no_task_is_added_for_the_failure(tmp_path: Path) -> None:
+    from llmxive.execution.stage import _reopen_failing_tasks
+
+    tasks_md = (
+        "# Tasks\n"
+        "- [X] T002 Implement the totient sieve in `code/sieve.py`.\n"
+        "- [ ] T009 Write the methods paper.\n"
+    )
+    proj = _bootstrap_project(tmp_path, "PROJ-9999-open", tasks_md)
+    assert _reopen_failing_tasks(proj, _pytest_failure()) == 0
+    assert (proj / "specs" / "001-x" / "tasks.md").read_text(encoding="utf-8") == tasks_md

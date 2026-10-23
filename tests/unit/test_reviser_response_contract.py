@@ -488,3 +488,39 @@ def test_tasks_reviser_accepts_hallucinated_slug_reply():
     assert "# tasks v2" in new_tasks
     assert responses[0].concern_id == "F001"
     assert responses[0].response == "fixed"
+
+
+_PLAN_WITH_FENCES = (
+    "# Plan\n\nRun it:\n\n```bash\npython code/run_all.py\n```\n\n"
+    "Layout:\n\n```\ncode/\n  run_all.py\n```\n"
+)
+
+
+def _reply(changelog_open: str, changelog_close: str) -> str:
+    log = json.dumps({"responses": [
+        {"concern_id": "data_resources-d379bd15", "response": "Added TeX provisioning.",
+         "artifacts_changed": ["specs/001/plan.md"]},
+        {"concern_id": "scientific_soundness-1", "response": "Stated the reference source.",
+         "artifacts_changed": ["specs/001/plan.md"]},
+    ]}, indent=2)
+    return (f"{changelog_open}{log}\n{changelog_close}"
+            f"===BEGIN_ARTIFACT specs/001/plan.md===\n{_PLAN_WITH_FENCES}===END_ARTIFACT===\n")
+
+
+@pytest.mark.parametrize(("opening", "closing"), [
+    ("```json\n", "```\n\n"),   # the documented form
+    ("```json\n", "\n"),        # canary batches 1-5: the fence is never closed (102 of 157 replies)
+    ("", "\n"),                 # no fence at all
+])
+def test_the_change_log_is_read_whether_or_not_its_fence_is_closed(opening: str, closing: str) -> None:
+    artifacts, responses = parse_reviser_response(
+        _reply(opening, closing), expected_artifacts=["specs/001/plan.md"])
+    assert artifacts["specs/001/plan.md"].rstrip("\n") == _PLAN_WITH_FENCES.rstrip("\n")
+    assert [r["concern_id"] for r in responses] == ["data_resources-d379bd15", "scientific_soundness-1"]
+
+
+def test_a_fence_inside_an_artifact_is_never_taken_for_the_change_log() -> None:
+    reply = ("I revised the plan.\n"
+             f"===BEGIN_ARTIFACT specs/001/plan.md===\n{_PLAN_WITH_FENCES}===END_ARTIFACT===\n")
+    _, responses = parse_reviser_response(reply, expected_artifacts=["specs/001/plan.md"])
+    assert responses == []
