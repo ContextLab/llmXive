@@ -3065,3 +3065,35 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-23T14:23:31Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline completed' on success
+  claim_id: c_8e85f394
+  context: After running the full pipeline, the script outputs a line indicating completion.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'On success you will see the exact line: Pipeline completed'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T15:25:44Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: test suite verifies module importability and successful dry-run exit
+  claim_id: c_29676dba
+  context: Running pytest verifies that the code imports without error and the pipeline
+    completes in a dry run.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The test suite confirms that all modules import correctly and that a\
+    \ dry\u2011run of the pipeline exits cleanly."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T15:25:45Z'

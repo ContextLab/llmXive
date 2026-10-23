@@ -1,1 +1,1 @@
-# Ensure ``code/tests`` is recognised as a package for relative imports.
+# Ensure the ``code.tests`` package is recognised by pytest.

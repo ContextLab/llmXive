@@ -2,43 +2,52 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 command(s) failed: python -m src.run_pipeline  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --entropy-r 0.15  --entropy-m 2  --scales 1 2 3 4 5  --n-permutations 1000  --seed 42 (rc=1); python -m pytest -v tests/ (rc=-1); 5 declared deliverable(s) absent: data/derived/clean_subjects.parquet; data/derived/entropy_matrix.parquet; data/derived/invalid_parcels.csv
+**Summary**: 2 command(s) failed: python -m src.run_pipeline  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --entropy-r 0.15  --entropy-m 2  --scales 1 2 3 4 5  --n-permutations 1000  --seed 42 (rc=1); python -m pytest -v tests/ (rc=2); 5 declared deliverable(s) absent: data/derived/clean_subjects.parquet; data/derived/entropy_matrix.parquet; data/derived/invalid_parcels.csv
 
 ## Failing / missing run-book commands
 
 - python -m src.run_pipeline  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --entropy-r 0.15  --entropy-m 2  --scales 1 2 3 4 5  --n-permutations 1000  --seed 42 -> rc=1
-_run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/src/run_pipeline.py", line 14, in <module>
-    from code.src.run_pipeline import main as _real_main
+import main  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/__init__.py", line 11, in <module>
     from . import run_pipeline as run_pipeline  # noqa: F401
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/run_pipeline.py", line 15, in <module>
     from code.src.pipeline import run_pipeline as orchestrator
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/pipeline.py", line 20, in <module>
-    from code.src.compute_entropy import main as entropy_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/compute_entropy.py", line 19, in <module>
-    from src.analysis.entropy import multiscale_entropy
-ModuleNotFoundError: No module named 'src.analysis'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/pipeline.py", line 18, in <module>
+    from code.src.download_data import main as download_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/download_data.py", line 12, in <module>
+    from code.src.data.download_hcp import main as _download_hcp_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/data/download_hcp.py", line 17, in <module>
+    from datasets import load_dataset
+ModuleNotFoundError: No module named 'datasets'
 
-- python -m pytest -v tests/ -> rc=-1
-tials PASSED [ 39%]
-tests/unit/test_env_manager.py::TestValidateHcpCredentials::test_token_too_short PASSED [ 42%]
-tests/unit/test_env_manager.py::TestGetOptionalEnv::test_env_present PASSED [ 45%]
-tests/unit/test_env_manager.py::TestGetOptionalEnv::test_env_missing_with_default PASSED [ 48%]
-tests/unit/test_env_manager.py::TestGetOptionalEnv::test_env_missing_no_default PASSED [ 51%]
-tests/unit/test_env_manager.py::TestCheckEnvironment::test_all_good PASSED [ 54%]
-tests/unit/test_env_manager.py::TestCheckEnvironment::test_missing_token FAILED [ 57%]
-tests/unit/test_env_manager.py::TestMain::test_main_success PASSED       [ 60%]
-tests/unit/test_env_manager.py::TestMain::test_main_failure PASSED       [ 63%]
-tests/unit/test_lint_format.py::TestLintFormatConfig::test_ruff_config_exists PASSED [ 66%]
-tests/unit/test_lint_format.py::TestLintFormatConfig::test_pyproject_config_exists FAILED [ 69%]
-tests/unit/test_lint_format.py::TestLintFormatConfig::test_lint_format_script_syntax PASSED [ 72%]
-tests/unit/test_lint_format.py::TestLintFormatConfig::test_lint_format_help_command PASSED [ 75%]
-tests/unit/test_lint_format.py::TestLintFormatConfig::test_ruff_check_runs 
+- python -m pytest -v tests/ -> rc=2
+ython3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_qc.py:17: in <module>
+    from src.entities.models import Subject
+src/__init__.py:8: in <module>
+    from .run_pipeline import run_pipeline  # noqa: F401
+src/run_pipeline.py:9: in <module>
+    from code.src.run_pipeline import main  # noqa: F401
+code/src/__init__.py:11: in <module>
+    from . import run_pipeline as run_pipeline  # noqa: F401
+code/src/run_pipeline.py:15: in <module>
+    from code.src.pipeline import run_pipeline as orchestrator
+code/src/pipeline.py:18: in <module>
+    from code.src.download_data import main as download_main
+code/src/download_data.py:12: in <module>
+    from code.src.data.download_hcp import main as _download_hcp_main
+code/src/data/download_hcp.py:17: in <module>
+    from datasets import load_dataset
+E   ModuleNotFoundError: No module named 'datasets'
+=========================== short test summary info ============================
+ERROR tests/unit/test_qc.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.44s ===============================
 
-[TIMEOUT after 120s]
+
 
 ## Declared deliverables still missing
 

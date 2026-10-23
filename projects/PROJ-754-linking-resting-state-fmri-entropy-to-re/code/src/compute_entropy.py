@@ -3,7 +3,7 @@ compute_entropy.py
 ------------------
 Reads the cleaned subject table, loads each subject's parcel‑wise
 time‑series, computes multiscale sample entropy using the implementation
-in ``src.analysis.entropy``, and writes two artefacts:
+in ``code.src.analysis.entropy``, and writes two artefacts:
 
   * ``results/entropy_matrix.parquet`` – subjects × parcels matrix
   * ``results/covariates.parquet`` – behavioural covariates for the same
@@ -16,7 +16,7 @@ import argparse
 import pandas as pd
 from pathlib import Path
 from llmxive_toolkit import paths, get_logger
-from src.analysis.entropy import multiscale_entropy
+from code.src.analysis.entropy import multiscale_entropy
 
 def _batch_iter(seq, batch_size):
     """Yield successive batches from *seq* of size *batch_size*."""

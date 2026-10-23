@@ -3,14 +3,14 @@ pipeline.py
 ------------
 Public orchestrator for the end‑to‑end analysis.
 
-The function ``run_pipeline`` is imported by ``code/src/run_pipeline.py`` and
-will also be used by later tasks (e.g., T005).  It follows the same
-execution order as the CLI script but can be called programmatically.
+This file has been updated so that all internal imports point to the
+correct locations under ``code.src`` and the download stage now uses the
+stable ``--subjects`` flag provided by ``code.src.download_data``.
 """
 
 import argparse
 import sys
-from typing import Any, Dict
+from typing import Any
 
 from llmxive_toolkit import get_logger
 
@@ -75,7 +75,7 @@ def run_pipeline(
         download_main,
         [
             "download_data",
-            "--subject-limit",
+            "--subjects",
             str(subjects),
             "--output-dir",
             "data",
