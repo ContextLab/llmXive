@@ -1,16 +1,15 @@
 """Download a real sample of InstructPix2Pix prompts (T001).
 
-This script streams the public ``timbrooks/instruct-pix2pix`` training split
+This script streams the public ``timbrooks/instructpix2pix`` training split
 via ``datasets.load_dataset(..., streaming=True)``. It extracts the first
 ``N_PROMPTS`` rows that contain a non‑empty ``edit_prompt``. For each row a
-stable SHA‑256 checksum over the identifying fields is computed and stored
-alongside the prompt text.
+stable SHA‑256 checksum over the identifying fields is computed.
 
 The loader **fails loudly** (raises ``RuntimeError``) if fewer than the
 requested number of prompts can be collected – there is no synthetic or
 mock fallback. The output is written as a parquet file to
-``data/raw/prompts_sample.parquet`` and a provenance JSON file is emitted
-to ``data/raw/prompts_sample_provenance.json``.
+``data/raw/prompts_sample.parquet`` and a checksum manifest is emitted
+to ``data/raw/checksums_manifest.json``.
 
 The script is intended to be run from the project root as:
     python -m code.src.data.download
@@ -32,21 +31,20 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Verified dataset identifier on Hugging Face Hub (the correct repo name)
-DATASET_ID = "timbrooks/instruct-pix2pix"
+# Correct dataset identifier on Hugging Face Hub
+DATASET_ID = "timbrooks/instructpix2pix"
 SPLIT = "train"
 N_PROMPTS = 2000  # target number of prompts to collect
 
-# Exported paths for tests and quick‑start
+# Exported paths
 OUTPUT_PATH = paths.data("raw", "prompts_sample.parquet")
-PROVENANCE_PATH = paths.data("raw", "prompts_sample_provenance.json")
+MANIFEST_PATH = paths.data("raw", "checksums_manifest.json")
 # ----------------------------------------------------------------------
-
 
 def _row_checksum(row: Mapping[str, object]) -> str:
     """Compute a stable SHA‑256 checksum for a source row.
 
-    The checksum is over the JSON serialisation of the three fields that
+    The checksum is over the JSON serialisation of the fields that
     uniquely identify a prompt in the original dataset.
     """
     payload = json.dumps(
@@ -60,89 +58,40 @@ def _row_checksum(row: Mapping[str, object]) -> str:
     )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
-
 def _iter_stream_hf() -> Iterator[Mapping[str, object]]:
     """Yield rows from the HF streaming loader.
 
-    Primary method uses the ``datasets`` library. If that fails (e.g. due
-    to missing ``pyarrow``), it falls back to downloading the raw parquet
-    shards via the Hugging Face Hub and reading them with ``fastparquet``.
+    Primary method uses the ``datasets`` library.
     """
     try:
         from datasets import load_dataset
-
-        log.info(
-            "Attempting primary streaming load via datasets.load_dataset for %s/%s",
-            DATASET_ID,
-            SPLIT,
-        )
+        log.info("Streaming load via datasets.load_dataset for %s/%s", DATASET_ID, SPLIT)
         ds = load_dataset(DATASET_ID, split=SPLIT, streaming=True)
         for row in ds:
             yield row
-    except Exception as exc:  # pragma: no cover – exercised only on failure
-        log.warning(
-            "Primary HF streaming loader failed (%s); falling back to raw parquet shards",
-            exc,
-        )
-        # Fallback: use huggingface_hub to download parquet shards
-        try:
-            from huggingface_hub import HfFileSystem, hf_hub_download
-            import fastparquet
+    except Exception as exc:
+        log.error("HF streaming loader failed: %s", exc)
+        raise RuntimeError(f"Unable to stream dataset {DATASET_ID} from Hugging Face") from exc
 
-            fs = HfFileSystem()
-            repo_path = f"{DATASET_ID}/{SPLIT}"
-            files = fs.ls(repo_path)
-            parquet_files = [
-                f["name"]
-                for f in files
-                if f["type"] == "file" and f["name"].endswith(".parquet")
-            ]
-            if not parquet_files:
-                raise RuntimeError(
-                    f"No parquet files found in {repo_path} on the HF hub."
-                )
-            for hf_path in parquet_files:
-                local_path = hf_hub_download(
-                    repo_id=DATASET_ID,
-                    filename=hf_path,
-                    repo_type="dataset",
-                )
-                pf = fastparquet.ParquetFile(local_path)
-                for df in pf.iter_row_groups():
-                    for _, row in df.iterrows():
-                        yield row.to_dict()
-        except Exception as fallback_exc:  # pragma: no cover
-            log.error("Fallback parquet‑shard loader also failed: %s", fallback_exc)
-            raise RuntimeError(
-                "Unable to stream dataset from Hugging Face (both primary and fallback failed)"
-            ) from fallback_exc
-
-
-def collect_prompt_sample(
-    n_prompts: int = N_PROMPTS,
-) -> pd.DataFrame:
+def collect_prompt_sample(n_prompts: int = N_PROMPTS) -> pd.DataFrame:
     """Collect the first ``n_prompts`` valid prompts from the streaming source.
 
     A row is considered valid when ``edit_prompt`` is a non‑empty string.
-    The function raises ``RuntimeError`` if the source yields fewer than
-    ``n_prompts`` valid rows.
     """
     records: list[dict] = []
     scanned = 0
 
-    try:
-        row_iter = _iter_stream_hf()
-    except Exception as exc:
-        log.exception("Failed to open the streaming dataset")
-        raise RuntimeError("Unable to stream the dataset") from exc
+    row_iter = _iter_stream_hf()
 
     for row in row_iter:
         scanned += 1
         prompt = row.get("edit_prompt")
         if not prompt or not str(prompt).strip():
             continue
+        
         records.append(
             {
+                "row_id": len(records),
                 "edit_prompt": str(prompt).strip(),
                 "original_prompt": row.get("original_prompt"),
                 "edit_type": row.get("edit_type"),
@@ -158,61 +107,44 @@ def collect_prompt_sample(
             f"stream ended after scanning {scanned} rows."
         )
 
-    df = pd.DataFrame(records[:n_prompts])
-    if df["edit_prompt"].isna().any() or df["checksum"].isna().any():
-        raise RuntimeError("Null prompt or checksum in collected sample.")
-    if df["checksum"].duplicated().any():
-        raise RuntimeError("Duplicate row checksums in collected sample.")
-
-    log.info(
-        "Successfully collected %d prompts from %d scanned rows",
-        len(df),
-        scanned,
-    )
-    df.attrs["source"] = "datasets.load_dataset streaming (or fallback parquet shards)"
-    df.attrs["scanned_rows"] = scanned
+    df = pd.DataFrame(records)
+    log.info("Successfully collected %d prompts from %d scanned rows", len(df), scanned)
     return df
-
 
 def main() -> int:
     """Entry point for ``python -m code.src.data.download``."""
-    df = collect_prompt_sample()
+    try:
+        df = collect_prompt_sample()
+    except RuntimeError as e:
+        log.error("Data collection failed: %s", e)
+        return 1
 
-    # Write the parquet file using fastparquet (engine chosen for compatibility)
-    output_path = OUTPUT_PATH
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(output_path, index=False, engine="fastparquet")
-    log.info("Wrote %d rows to %s", len(df), output_path)
+    # 1. Write the parquet file
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(OUTPUT_PATH, index=False, engine="fastparquet")
+    log.info("Wrote %d rows to %s", len(df), OUTPUT_PATH)
 
-    # Write provenance information.
-    provenance = {
-        "dataset_id": DATASET_ID,
-        "split": SPLIT,
-        "streaming_rule": (
-            "datasets.load_dataset streaming primary; fallback to HF parquet shards"
-        ),
-        "source_used": df.attrs["source"],
-        "rows_scanned": df.attrs["scanned_rows"],
-        "n_rows_written": int(len(df)),
-        "n_prompts_target": N_PROMPTS,
-        "checksum_algorithm": "sha256 over (edit_prompt, original_prompt, edit_type) JSON",
-        "output_file": str(output_path),
-        "output_sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
-    }
-    PROVENANCE_PATH.write_text(json.dumps(provenance, indent=2))
-    log.info("Wrote provenance to %s", PROVENANCE_PATH)
+    # 2. Generate the checksums manifest (row_id -> checksum)
+    manifest = df.set_index("row_id")["checksum"].to_dict()
+    # Convert keys to string for JSON validity
+    manifest_str = {str(k): v for k, v in manifest.items()}
+    MANIFEST_PATH.write_text(json.dumps(manifest_str, indent=2))
+    log.info("Wrote checksum manifest to %s", MANIFEST_PATH)
 
-    # Observable check – read back using fastparquet.
-    check = pd.read_parquet(output_path, engine="fastparquet")
-    assert len(check) >= N_PROMPTS, "fewer than required prompts"
-    assert check["edit_prompt"].notna().all(), "null prompts present"
-    assert check["checksum"].notna().all(), "null checksums present"
-    log.info(
-        "Check passed: %d rows, all prompts and checksums non‑null",
-        len(check),
-    )
+    # 3. Observable verification
+    check_df = pd.read_parquet(OUTPUT_PATH, engine="fastparquet")
+    assert len(check_df) >= N_PROMPTS, "Parquet contains fewer than required prompts"
+    assert check_df["edit_prompt"].notna().all(), "Null prompts present"
+    assert check_df["checksum"].notna().all(), "Null checksums present"
+    
+    # Verify manifest matches parquet
+    with open(MANIFEST_PATH, 'r') as f:
+        loaded_manifest = json.load(f)
+    for idx, row in check_df.iterrows():
+        assert loaded_manifest[str(row['row_id'])] == row['checksum'], f"Checksum mismatch for row {idx}"
+
+    log.info("Verification passed: Parquet and Manifest are consistent and complete.")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

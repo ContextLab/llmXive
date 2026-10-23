@@ -1,22 +1,3 @@
-# Core dependencies (already available in the base environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional required packages for this project
-datasets==2.21.0
-fastparquet==2024.5.0
-huggingface-hub==0.24.0
-spacy==3.7.4
-en-core-web-sm==3.7.0
-# Note: the spaCy model will be downloaded via the quickstart command
-# `python -m spacy download en_core_web_sm`. No further code changes are needed.
+datasets
+fastparquet
+huggingface_hub

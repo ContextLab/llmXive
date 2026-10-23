@@ -1,11 +1,26 @@
-status: none
-intent: image editing prompt dataset feasibility scores conflicting neutral python
-  package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import datasets\nfrom datasets import Image\n\nds = datasets.load_dataset(\n\
+  \    \"timbrooks/instructpix2pix-clip-filtered\",\n    split=\"train\",\n    streaming=True,\n\
+  )\n\n# Disable image decoding to avoid Pillow requirement\nfor col, feat in ds.features.items():\n\
+  \    if isinstance(feat, Image):\n        ds = ds.cast_column(col, Image(decode=False))\n\
+  \ntotal = ds.info.splits[\"train\"].num_examples\nprint(f\"RECORDS={total}\")\n\n\
+  sample = next(iter(ds))\nprint(\"FIELDS=\" + \",\".join(sample.keys()))"
+record_count: 313010
+sample_fields:
+- original_prompt
+- original_image
+- edit_prompt
+- edited_prompt
+- edited_image
+field_coverage: 0.6
 required_fields:
 - prompt_id
 - prompt_text
 - instruction_type
 - human_feasibility_score
-cache_key: cbef2c4c356b070e7fc2bd63276cd4358483c3a05ed6746799cc77930ef984cb
-searched_at: '2026-10-23T06:15:45.418923+00:00'
-retry_count: 1
+- image_reference_id
+intent: download InstructPix2Pix image editing prompts dataset with feasibility scores
+  python package dataset
+cache_key: c0872de71180abc00dca6951ea76d8e3c55b9e0cf178ae3c03be3568b4047936
