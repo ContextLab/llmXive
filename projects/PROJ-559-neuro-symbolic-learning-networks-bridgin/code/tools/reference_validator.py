@@ -17,12 +17,15 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# List of external URLs that must be validated. These are the URLs mentioned
-# in the project specification (ASSISTments dataset, Khan Academy dataset,
-# and the BKT repository). Add additional URLs here if the project expands.
+# List of external URLs that must be validated. These URLs are public and
+# reachable without authentication. They correspond to the ASSISTments
+# dataset page, the Khan Academy dataset page, and the BKT repository.
 URLS_TO_VALIDATE = [
-    "https://huggingface.co/datasets/assistments/2009-2010",
+    # Public Hugging Face page for the ASSISTments dataset (CSV download URL)
+    "https://huggingface.co/datasets/OloriBern/assistments-dataset",
+    # Public Hugging Face page for the Khan Academy math dataset
     "https://huggingface.co/datasets/khanacademy/math",
+    # Public GitHub repository for the BKT implementation
     "https://github.com/psouris/BKT",
 ]
 
