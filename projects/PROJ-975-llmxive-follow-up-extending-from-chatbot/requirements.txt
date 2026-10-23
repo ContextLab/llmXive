@@ -1,16 +1,12 @@
-# Core dependencies (already provided by the platform)
+sentence-transformers==2.2.2
+huggingface-hub>=0.20.0
+psutil
 numpy
 pandas
-scipy
-matplotlib
 scikit-learn
+pwlf
 statsmodels
-seaborn
-pytest
-PyYAML
-requests
+pyyaml
 jsonschema
-psutil
-
-# Additional required packages for data generation
-sentence-transformers==2.2.2
+tqdm
+# other dependencies are already provided by the platform

@@ -1,16 +1,19 @@
 status: none
-intent: Meta-World benchmark multi-step tasks skill dataset python package
+intent: synthetic multi-step task and skill library dataset MetaWorld OpenAI Gym python
+  package dataset
 required_fields:
 - task_id
 - task_description
-- ground_truth_solution_path (ordered list of skill_ids)
+- ground_truth_actions
+- ground_truth_action_sequence_index
+- task_complexity_level
 - skill_id
 - skill_name
+- skill_description
 - skill_embedding_vector
 - skill_overlap_level
-- semantic_density_score
-- task_number_of_steps
-- skill_metadata (e.g., category, difficulty)
-cache_key: c5f98868856e10a3c9b218a9d796d3b1cff4189bf99153fd6c4784178d27b3d9
-searched_at: '2026-10-23T09:25:35.737368+00:00'
+- skill_semantic_density_score
+- skill_associated_tasks
+cache_key: 69c48511fb27d56cd2a1775e4fe2c34b99d5665bd10a4e0e999eb0351f9773e4
+searched_at: '2026-10-23T09:28:07.423547+00:00'
 retry_count: 1

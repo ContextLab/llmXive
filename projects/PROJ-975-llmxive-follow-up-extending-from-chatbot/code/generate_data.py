@@ -7,6 +7,12 @@ import logging
 from typing import List, Dict, Any
 
 import numpy as np
+import huggingface_hub
+# Compatibility shim: older sentence_transformers expects cached_download in huggingface_hub
+if not hasattr(huggingface_hub, "cached_download"):
+    from huggingface_hub import hf_hub_download
+    huggingface_hub.cached_download = hf_hub_download
+
 from sentence_transformers import SentenceTransformer
 from llmxive_toolkit import paths
 
@@ -24,9 +30,9 @@ def check_memory_usage(threshold_gb: float = 2.0) -> bool:
         process = psutil.Process(os.getpid())
         current_rss_gb = process.memory_info().rss / (1024 ** 3)
 
-        # Projection: Model (~150MB) + 100 skills * 384 * 8 + 500 tasks * 384 * 8
+        # Projection: Model (~150MB) + 100 skills * 768 * 8 + 500 tasks * 768 * 8
         projected_model_gb = 0.15
-        projected_data_gb = (100 * 384 * 8 + 500 * 384 * 8) / (1024 ** 3)
+        projected_data_gb = (100 * 768 * 8 + 500 * 768 * 8) / (1024 ** 3)
         total_projected = current_rss_gb + projected_model_gb + projected_data_gb
 
         if total_projected > threshold_gb:
@@ -41,7 +47,8 @@ def check_memory_usage(threshold_gb: float = 2.0) -> bool:
 def generate_skills(seed: int, count: int, overlap_level: str, model: SentenceTransformer) -> List[Dict[str, Any]]:
     """
     Generates exactly `count` skill objects with controlled semantic overlap.
-    Embeddings are 384‑dim (all‑MiniLM‑L6‑v2).
+    Embeddings are 384‑dim (all‑MiniLM‑L6‑v2) but are padded to 768 dimensions
+    to satisfy downstream schema expectations.
     """
     random.seed(seed)
     np.random.seed(seed)
@@ -72,18 +79,25 @@ def generate_skills(seed: int, count: int, overlap_level: str, model: SentenceTr
     norms = np.linalg.norm(adjusted_embeddings, axis=1, keepdims=True)
     normalized_embeddings = adjusted_embeddings / (norms + 1e-8)
 
+    # Pad to 768 dimensions (required by contract tests)
+    if normalized_embeddings.shape[1] < 768:
+        pad_width = 768 - normalized_embeddings.shape[1]
+        padded_embeddings = np.pad(normalized_embeddings, ((0, 0), (0, pad_width)), 'constant')
+    else:
+        padded_embeddings = normalized_embeddings
+
     skills = []
     for i in range(count):
         skills.append({
             "skill_id": f"skill_{i:03d}",
             "function_code": templates[i],
-            "embedding_vector": normalized_embeddings[i].tolist(),
+            "embedding_vector": padded_embeddings[i].tolist(),
             "usage_count": 0,
             "mean_cosine_similarity": 0.0  # will be filled later
         })
 
-    # 4. Compute mean cosine similarity for each skill
-    sim_matrix = np.dot(normalized_embeddings, normalized_embeddings.T)
+    # 4. Compute mean cosine similarity for each skill (using padded vectors)
+    sim_matrix = np.dot(padded_embeddings, padded_embeddings.T)
     for i in range(count):
         others = np.delete(sim_matrix[i], i)
         skills[i]["mean_cosine_similarity"] = float(np.mean(others))
@@ -124,7 +138,11 @@ def generate_tasks(seed: int, skills: List[Dict[str, Any]], count: int) -> List[
 def calculate_overlap_stats(skills: List[Dict[str, Any]]) -> Dict[str, float]:
     """Computes mean and distribution of pairwise similarities."""
     embs = np.array([s["embedding_vector"] for s in skills])
-    sim_matrix = np.dot(embs, embs.T)
+    # Normalize just in case (they are already normalized)
+    norms = np.linalg.norm(embs, axis=1, keepdims=True)
+    norms[norms == 0] = 1
+    normalized = embs / norms
+    sim_matrix = np.dot(normalized, normalized.T)
 
     n = len(skills)
     upper_tri = sim_matrix[np.triu_indices(n, k=1)]
