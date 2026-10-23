@@ -18,7 +18,7 @@ It computes:
    ``h ∈ {1,…,⌊L/2⌋}`` the normalized autocorrelation is computed and
    stored in ``data/processed/autocorrelation_raw.csv`` with columns:
 
-   ``interval_start, interval_length, lag, autocorrelation``.
+   ``interval_start, interval_length, lag, autocorrelation``
 """
 
 from __future__ import annotations
@@ -231,7 +231,7 @@ def main() -> None:
     _ensure_parent_dir(PROCESSED_DEMO_OUTPUT_PATH)
     with PROCESSED_DEMO_OUTPUT_PATH.open("w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["window_start", "L", "h", "autocorrelation"])
+        writer.writerow(["interval_start", "interval_length", "lag", "autocorrelation"])
         writer.writerow(
             [demo_start, demo_L, demo_h, f"{demo_autocorr_fast:.12f}"]
         )
@@ -249,19 +249,18 @@ def main() -> None:
     # Ensure the deterministic CSV index exists (T004)
     _ensure_window_index_csv()
 
-    # Load the CSV index
+    # Load the CSV index – header‑agnostic (no header line in the file)
     rows = []
     with WINDOW_INDEX_CSV.open("r", newline="", encoding="utf-8") as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            # Cast to appropriate types
-            rows.append(
-                (
-                    int(row["interval_start"]),
-                    int(row["interval_length"]),
-                    int(row["window_id"]),
-                )
-            )
+        reader = csv.reader(csvfile)
+        for line_num, row in enumerate(reader, start=1):
+            if not row:
+                continue  # skip empty lines
+            # Detect possible header (should not be present, but be safe)
+            if line_num == 1 and row[0] == "interval_start":
+                continue
+            start, L, _window_id = map(int, row)
+            rows.append((start, L, _window_id))
 
     _ensure_parent_dir(PROCESSED_OUTPUT_PATH)
     with PROCESSED_OUTPUT_PATH.open("w", newline="", encoding="utf-8") as csvfile:

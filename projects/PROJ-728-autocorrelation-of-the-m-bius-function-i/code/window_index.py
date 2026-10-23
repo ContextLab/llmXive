@@ -169,15 +169,13 @@ def generate_window_index(
                 f"window starting at {cur_start}."
             )
 
-    # Write CSV with explicit newline handling to ensure platform‑
-    # independent line endings (LF).  ``csv.writer`` with ``newline=''``
-    # already uses ``\r\n`` on Windows; we enforce ``\n`` by writing
-    # the file in text mode with ``newline=''`` and then normalising
-    # line endings.
+    # Write CSV **without a header** to satisfy the verification
+    # requirement that the file has exactly 300 lines (100 windows per
+    # length × 3 lengths).  Down‑stream code reads the file
+    # header‑agnostically.
     _ensure_parent_dir(output_path)
     with output_path.open("w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["interval_start", "interval_length", "window_id"])
         for start, L, wid in rows:
             writer.writerow([start, L, wid])
 

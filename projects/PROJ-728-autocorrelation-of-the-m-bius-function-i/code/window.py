@@ -5,7 +5,7 @@ Generate the deterministic window index required for the Möbius
 autocorrelation pipeline and write it to the correct location
 ``data/processed/window_index.csv``.
 
-The implementation mirrors the logic in ``code/window_index.py`` but
+The implementation mirrors the logic in ``code/window_index`` but
 uses the project's ``paths`` helper to ensure the file is placed
 under the ``data`` top‑level folder (as required by the specification
 and the verification tests).
