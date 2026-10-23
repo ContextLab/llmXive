@@ -20,9 +20,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python -m src.data.acquire_real   # creates data/raw/tide.parquet, verifies SHA‑256, writes data/raw/tide.csv and data/raw/tide.sha256 -> rc=1
 failed
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 221, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 199, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 163, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 148, in main
     df = pd.read_parquet(parquet_path)
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 651, in read_parquet
@@ -38,8 +38,8 @@ Trying to import the above resulted in these errors:
 
 - python -m src.features.extract   # reads all .py files, writes data/features.csv (includes origin + sha256) -> rc=1
 
-2026-10-23 06:13:47,763 INFO __main__: Starting feature extraction.
-2026-10-23 06:13:47,764 ERROR __main__: Feature extraction failed
+2026-10-23 08:12:06,828 INFO __main__: Starting feature extraction.
+2026-10-23 08:12:06,829 ERROR __main__: Feature extraction failed
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/features/extract.py", line 210, in <module>
     main()

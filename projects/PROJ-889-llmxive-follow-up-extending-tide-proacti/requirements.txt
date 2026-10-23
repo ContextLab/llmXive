@@ -1,12 +1,6 @@
+pyarrow
 datasets==2.20.0
 huggingface_hub==0.23.0
-pandas==2.2.2
-pyarrow
 torch==2.2.2
 transformers==4.41.2
 radon==6.0.1
-scikit-learn==1.5.0
-statsmodels==0.14.2
-matplotlib==3.9.0
-psutil==5.9.8
-numpy==1.26.4

@@ -6,9 +6,7 @@ verifies its SHA‑256 checksum, converts it to CSV, and writes accompanying
 checksum and log files. It aborts on any checksum mismatch.
 
 The implementation robustly maps identifier and label columns to the
-required schema names ``instance_id`` and ``ground_truth_label``. It
-searches a wide set of possible alternative column names and, if necessary,
-falls back to generating identifiers from the dataframe index.
+required schema names ``instance_id`` and ``ground_truth_label``.
 """
 
 import hashlib
@@ -78,18 +76,12 @@ def _verify_checksums(file_path: Path, manifest_path: Path) -> None:
 # Column‑mapping utilities
 # ----------------------------------------------------------------------
 def _infer_instance_id_column(df: pd.DataFrame) -> str | None:
-    """
-    Heuristically locate a column that can serve as the instance identifier.
-    """
+    """Heuristically locate a column that can serve as the instance identifier."""
     if "instance_id" in df.columns:
         return "instance_id"
-    
-    # Priority list of exact matches
     for candidate in ["id", "index", "row_id", "uid"]:
         if candidate in df.columns:
             return candidate
-            
-    # Partial matches
     for col in df.columns:
         lowered = col.lower()
         if "id" in lowered and "ground" not in lowered and "label" not in lowered:
@@ -97,18 +89,12 @@ def _infer_instance_id_column(df: pd.DataFrame) -> str | None:
     return None
 
 def _infer_label_column(df: pd.DataFrame) -> str | None:
-    """
-    Heuristically locate a column that holds the ground‑truth label.
-    """
+    """Heuristically locate a column that holds the ground‑truth label."""
     if "ground_truth_label" in df.columns:
         return "ground_truth_label"
-    
-    # Priority list of exact matches
     for candidate in ["label", "ground_truth", "target", "class"]:
         if candidate in df.columns:
             return candidate
-            
-    # Partial matches
     for col in df.columns:
         lowered = col.lower()
         if "label" in lowered or "ground" in lowered or "target" in lowered:
@@ -119,9 +105,7 @@ def _infer_label_column(df: pd.DataFrame) -> str | None:
 # Main download / conversion routine
 # ----------------------------------------------------------------------
 def main() -> None:
-    """
-    Execute the real data acquisition process.
-    """
+    """Execute the real data acquisition process."""
     log_path = paths.data("logs", _LOG_NAME)
     logger = get_logger(__name__, log_file=str(log_path))
     logger.info("Starting TIDE dataset acquisition.")
@@ -160,6 +144,7 @@ def main() -> None:
     csv_path = raw_dir / _CSV_NAME
     logger.info(f"Converting Parquet to CSV at '{csv_path}'")
     try:
+        # Requires pyarrow
         df = pd.read_parquet(parquet_path)
     except Exception as e:
         logger.error(f"Failed to read Parquet file: {e}")
@@ -181,18 +166,13 @@ def main() -> None:
 
     if rename_map:
         logger.info(f"Renaming columns {rename_map} to match required schema.")
-        # Rename found_name -> required_name
         df = df.rename(columns={found: req for req, found in rename_map.items()})
 
-    # Last-ditch effort for instance_id: generate from index if still missing
     if "instance_id" not in df.columns:
         logger.info("Could not infer instance_id column; generating from dataframe index.")
         df = df.reset_index()
-        # After reset_index, the index column is usually named 'index' or the original index name
-        # We rename the first column (which is the reset index) to instance_id
         df = df.rename(columns={df.columns[0]: "instance_id"})
 
-    # Re‑check after renaming and generation
     missing = required_cols - set(df.columns)
     if missing:
         raise RuntimeError(
@@ -207,12 +187,10 @@ def main() -> None:
     _write_checksum_manifest(csv_path, csv_checksum_path)
     logger.info(f"Wrote CSV checksum to '{csv_checksum_path}'")
 
-    # 7. Final verification of row count
-    # The verified source contains 168 rows. We adjust the threshold to 150 to allow 
-    # the real dataset while still ensuring the file is not empty or severely truncated.
-    if len(df) < 150:
+    # 7. Final verification of row count (T001 requires >= 200)
+    if len(df) < 200:
         raise RuntimeError(
-            f"Dataset contains insufficient rows ({len(df)}). Expected at least 150."
+            f"Dataset contains insufficient rows ({len(df)}). Expected at least 200."
         )
     logger.info("Dataset acquisition and verification completed successfully.")
 
