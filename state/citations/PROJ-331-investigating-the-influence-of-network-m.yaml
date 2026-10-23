@@ -54,7 +54,7 @@
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q387749
   verified_at: '2026-09-03T21:46:42.715150Z'
-- artifact_hash: cf43da6cdb4f447f8784dab65664cfe6b38dcb3b642664ff958cfd33c7269686
+- artifact_hash: 103b28665938e6adede7fcd9525839bcceb2739c374f77c402c70669523e3378
   artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/spec.md
   cite_id: c-001
   cited_authors: []
@@ -64,4 +64,4 @@
   value: 10.1016/j.neuroimage.2017.06.030
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.neuroimage.2017.06.030
-  verified_at: '2026-10-18T05:34:11.909455Z'
+  verified_at: '2026-10-23T02:31:51.004071Z'
