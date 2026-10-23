@@ -20,14 +20,14 @@ properties:
     description: "Canonical SMILES string parsed by RDKit."
   fqy_raw:
     type: number
-    minimum: 0.0
-    maximum: 1.0
+    minimum: to be determined
+    maximum: a qualitatively high level
     description: "Experimental fluorescence quantum yield as reported (dimensionless)."
   fqy_norm:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Clipped FQY value (values of exactly 0 or 1 are clipped to [1e-6, 1‑1e-6]); no additional scaling is applied."
+    description: "Clipped FQY value (Values that would be exactly at the boundaries are clipped to a narrow interior range just above the lower limit and just below the upper limit.); no additional scaling is applied."
   scaffold_id:
     type: string
     description: "Murcko scaffold identifier used for scaffold‑based splitting."
@@ -42,7 +42,3 @@ properties:
 ```
 
 *Only this schema is currently present in the `contracts/` directory, matching the plan’s contract references.*
-
----
-
-
