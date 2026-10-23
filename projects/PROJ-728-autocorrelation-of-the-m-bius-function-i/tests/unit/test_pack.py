@@ -12,11 +12,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-# Import the functions under test.
-from pack import pack_mu, unpack_mu
+# Import the functions under test from the code package.
+# Fixed import to resolve the ModuleNotFoundError reported by the verifier.
+from code.pack import pack_mu, unpack_mu
 
-# Path helpers (the project already provides ``paths`` but we keep the
-# test self‑contained).
+# Path helpers.
 MOBIUS_RAW_PATH = Path("data/raw/mobius_array.npy")
 PACKED_PATH = Path("data/raw/mobius_2bit.npy")
 CHECKSUM_MANIFEST = Path("data/checksums/manifest.sha256")

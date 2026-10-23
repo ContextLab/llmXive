@@ -46,7 +46,7 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1211.0189
   verified_at: '2026-10-20T06:42:14.924510Z'
-- artifact_hash: d0dcdab458f60679281d3988ce86e1008251745f955418a2fc37736a3588eca9
+- artifact_hash: 1c8571faf022573c4a9a160a2b9c38e9e5d28e7cef88e4dad4b849485672198a
   artifact_path: projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/specs/001-autocorrelation-of-the-m-bius-function-i/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -56,4 +56,4 @@
   value: 10.5281/zenodo.XXXXX
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXX
-  verified_at: '2026-10-23T05:16:24.170598Z'
+  verified_at: '2026-10-23T10:09:50.329385Z'

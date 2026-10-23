@@ -17,7 +17,7 @@ All tasks respect data‑flow dependencies and use the canonical checklist forma
   • Path: `code/sieve.py`, `data/raw/mobius_array.npy`  
   • Verification: unit tests `tests/unit/test_sieve.py` check known values (μ(1)=1, μ(2)=−1, μ(4)=0, μ(30)=−1, μ(3025)=0) and assert every entry lies in `{−1,0,1}`.  
 
-- [ ] T003 **Add 2‑bit packing utilities** – create `code/pack.py` with `pack_mu` and `unpack_mu` that produce the packed ternary array `data/raw/mobius_2bit.npy`. Include a round‑trip test for the full array and for 100 random sub‑slices; after creation run `code/checksum.py` to record both `data/raw/mobius_array.npy` and `data/raw/mobius_2bit.npy` in `data/checksums/manifest.sha256`.  
+- [ ] T003 **Add 2‑bit packing utilities** – create `code/pack.py` with `pack_mu` and `unpack_mu` that produce the packed ternary array `data/raw/mobius_2bit.npy`. Include a round‑trip test for the full array and for 100 random sub‑slices; after creation run `code/checksum.py` to record both `data/raw/mobius_array.npy` and `data/raw/mobius_2bit.npy` in `data/checksums/manifest.sha256`.   <!-- FAILED-IN-EXECUTION: code/pack.py exit=1 -->
   • Path: `code/pack.py`, `data/raw/mobius_2bit.npy`  
   • Verification: tests `tests/unit/test_pack.py` confirm `unpack_mu(pack_mu(arr)) == arr` for the whole dataset and for random slices; SHA‑256 hashes of both files appear in `manifest.sha256`.  
 

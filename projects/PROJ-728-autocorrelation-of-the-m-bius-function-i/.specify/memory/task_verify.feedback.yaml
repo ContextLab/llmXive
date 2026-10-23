@@ -3,14 +3,7 @@ T001:
 T002:
   task: 2396c7098f8b72c6063a30418165d8d985528a1190b1c485d9076c2c827bac9a
 T003:
-  reason: "The repository contains `code/pack.py` with `pack_mu`/`unpack_mu`, the\
-    \ packed file `data/raw/mobius_2bit.npy`, and a checksum manifest that lists both\
-    \ raw and packed files. However, the unit test `tests/unit/test_pack.py` imports\
-    \ the functions with `from pack import \u2026`, which cannot resolve because `pack.py`\
-    \ lives in the `code/` subdirectory (no `pack.py` at the project root). This import\
-    \ error means the round\u2011trip tests never actually run, so the required verification\
-    \ is not satisfied. The test file must be corrected (e.g., `from code.pack import\
-    \ pack_mu, unpack_mu` or adjust the Python path)"
+  reason: 'Requested task execution failed; rerun successfully: code/pack.py exit=1'
   task: b2dbc8aa54e9239d2666b5d8fcad079be0370e99329e638bb1218e1ef9f555fb
 T004:
   reason: "The required output file `data/processed/window_index.csv` is missing;\
