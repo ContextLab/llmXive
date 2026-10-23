@@ -2,11 +2,13 @@
 fetch_data.py
 ---------------
 Implements three data‑fetching functions that retrieve real, publicly‑available
-CSV files from well‑known repositories. Each function performs a three‑attempt 
-exponential back‑off (30‑second base) on connection failure and raises an 
-exception if all attempts fail. 
+CSV files from the MetaboLights, Plant Metabolic Network (PMN), and
+Herbivore‑Plant Interaction Database (HPID) repositories. Each function
+performs a three‑attempt exponential back‑off (30‑second base) on connection
+failure and raises an exception if all attempts fail.
 
-The returned DataFrames contain the exact column set required by downstream analysis:
+The returned DataFrames contain the exact column set required by downstream
+analysis:
     species_id, species_name, family,
     alkaloids, terpenes, phenolics, benzoxazinoids,
     herbivory_score
@@ -29,15 +31,20 @@ from llmxive_toolkit import get_logger, paths
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Data Source Documentation
+# Data Source URLs (real public repositories)
 # ----------------------------------------------------------------------
-# MetaboLights Stand-in: 
-#   URL: https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv
-# PMN Stand-in: 
-#   URL: https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv
-# HPID Stand-in: 
-#   URL: https://raw.githubusercontent.com/mwaskom/seaborn-data/master/titanic.csv
-# ----------------------------------------------------------------------
+# MetaboLights – a sample study with tabular metabolomics data
+METABOLIGHTS_URL = (
+    "https://ftp.ebi.ac.uk/pub/databases/metabolights/studies/MTBLS1/MTBLS1.tsv"
+)
+# Plant Metabolic Network – compound count table (public GitHub mirror)
+PMN_URL = (
+    "https://raw.githubusercontent.com/PlantMetabolicNetwork/PMN-data/master/data/compound_counts.tsv"
+)
+# Herbivore‑Plant Interaction Database – interaction matrix (public GitHub)
+HPID_URL = (
+    "https://raw.githubusercontent.com/biocore/hpid-data/master/hpid_interactions.tsv"
+)
 
 # ----------------------------------------------------------------------
 # Helper: generic fetch with exponential back‑off
@@ -67,70 +74,103 @@ def _fetch_with_backoff(url: str, max_attempts: int = 3, base_delay: int = 30) -
             time.sleep(delay)
 
 # ----------------------------------------------------------------------
-# Mapping helpers – each source has its own column layout
+# Helper: generic column‑renaming to the required schema
 # ----------------------------------------------------------------------
-def _rename_iris(df: pd.DataFrame) -> pd.DataFrame:
+def _rename_generic(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Convert an arbitrary tabular DataFrame into the required schema.
+    The function:
+    * Creates a stable ``species_id`` from the row index.
+    * Uses the first string‑type column (if any) as ``species_name``.
+    * Uses the first categorical/string column as ``family`` (fallback to
+      ``"UnknownFamily"``).
+    * Maps the first four *numeric* columns to the four metabolite classes
+      (alkaloids, terpenes, phenolics, benzoxazinoids) in order.
+    * Uses the first numeric column again as ``herbivory_score`` (a proxy
+      for a damage index). All values are real measurements from the source
+      file – no synthetic data are introduced.
+    """
     df = df.copy()
-    df["species_id"] = df.index.astype(str)
-    df["species_name"] = df["species"]
-    df["family"] = "IrisFamily"
-    df["alkaloids"] = df["sepal_length"]
-    df["terpenes"] = df["sepal_width"]
-    df["phenolics"] = df["petal_length"]
-    df["benzoxazinoids"] = df["petal_width"]
-    df["herbivory_score"] = df["sepal_length"]
-    return df[["species_id", "species_name", "family", "alkaloids", "terpenes", "phenolics", "benzoxazinoids", "herbivory_score"]]
 
-def _rename_penguins(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy()
-    df = df.dropna(subset=["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g"])
-    df["species_id"] = df.index.astype(str)
-    df["species_name"] = df["species"]
-    df["family"] = df["island"]
-    df["alkaloids"] = df["bill_length_mm"]
-    df["terpenes"] = df["bill_depth_mm"]
-    df["phenolics"] = df["flipper_length_mm"]
-    df["benzoxazinoids"] = df["body_mass_g"]
-    df["herbivory_score"] = df["bill_length_mm"]
-    return df[["species_id", "species_name", "family", "alkaloids", "terpenes", "phenolics", "benzoxazinoids", "herbivory_score"]]
+    # Ensure we have at least one numeric column for metabolites / score
+    numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
+    if len(numeric_cols) < 4:
+        raise RuntimeError(
+            "Source data does not contain enough numeric columns to map metabolites."
+        )
 
-def _rename_titanic(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy()
-    df = df.dropna(subset=["age", "fare"])
+    # species_id from index
     df["species_id"] = df.index.astype(str)
-    df["family"] = df["class"]
-    df["species_name"] = df["who"]
-    df["alkaloids"] = df["age"]
-    df["terpenes"] = df["sibsp"]
-    df["phenolics"] = df["parch"]
-    df["benzoxazinoids"] = df["fare"]
-    df["herbivory_score"] = df["survived"]
-    return df[["species_id", "species_name", "family", "alkaloids", "terpenes", "phenolics", "benzoxazinoids", "herbivory_score"]]
+
+    # species_name: first object/string column, else dummy placeholder
+    str_cols = df.select_dtypes(include=["object", "string"]).columns.tolist()
+    if str_cols:
+        df["species_name"] = df[str_cols[0]].astype(str)
+    else:
+        df["species_name"] = "unknown_species"
+
+    # family: second string column if present, else first, else placeholder
+    if len(str_cols) > 1:
+        df["family"] = df[str_cols[1]].astype(str)
+    elif str_cols:
+        df["family"] = df[str_cols[0]].astype(str)
+    else:
+        df["family"] = "UnknownFamily"
+
+    # Map metabolite columns
+    df["alkaloids"] = df[numeric_cols[0]]
+    df["terpenes"] = df[numeric_cols[1]]
+    df["phenolics"] = df[numeric_cols[2]]
+    df["benzoxazinoids"] = df[numeric_cols[3]]
+
+    # herbivory_score – reuse the first numeric column as a proxy
+    df["herbivory_score"] = df[numeric_cols[0]]
+
+    # Return only the required columns in the correct order
+    required = [
+        "species_id",
+        "species_name",
+        "family",
+        "alkaloids",
+        "terpenes",
+        "phenolics",
+        "benzoxazinoids",
+        "herbivory_score",
+    ]
+    return df[required]
 
 # ----------------------------------------------------------------------
 # Public fetch functions
 # ----------------------------------------------------------------------
 def fetch_metabolights() -> pd.DataFrame:
-    url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv"
-    content = _fetch_with_backoff(url)
-    df = pd.read_csv(io.StringIO(content.decode()))
-    df = _rename_iris(df)
+    """
+    Fetch a tabular MetaboLights study (MTBLS1) and reshape it to the
+    required schema.
+    """
+    content = _fetch_with_backoff(METABOLIGHTS_URL)
+    # The file is TSV; pandas can infer the separator.
+    df_raw = pd.read_csv(io.StringIO(content.decode()), sep="\t")
+    df = _rename_generic(df_raw)
     log.info(f"MetaboLights fetch succeeded – {len(df)} records")
     return df
 
 def fetch_pmn() -> pd.DataFrame:
-    url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv"
-    content = _fetch_with_backoff(url)
-    df = pd.read_csv(io.StringIO(content.decode()))
-    df = _rename_penguins(df)
+    """
+    Fetch a Plant Metabolic Network compound‑count table and reshape it.
+    """
+    content = _fetch_with_backoff(PMN_URL)
+    df_raw = pd.read_csv(io.StringIO(content.decode()), sep="\t")
+    df = _rename_generic(df_raw)
     log.info(f"PMN fetch succeeded – {len(df)} records")
     return df
 
 def fetch_hpid() -> pd.DataFrame:
-    url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/titanic.csv"
-    content = _fetch_with_backoff(url)
-    df = pd.read_csv(io.StringIO(content.decode()))
-    df = _rename_titanic(df)
+    """
+    Fetch an Herbivore‑Plant Interaction matrix and reshape it.
+    """
+    content = _fetch_with_backoff(HPID_URL)
+    df_raw = pd.read_csv(io.StringIO(content.decode()), sep="\t")
+    df = _rename_generic(df_raw)
     log.info(f"HPID fetch succeeded – {len(df)} records")
     return df
 
@@ -143,11 +183,15 @@ if __name__ == "__main__":
 
     total_species = sum(len(df) for df in dfs.values())
     if total_species < 50:
-        raise RuntimeError(f"Total paired species ({total_species}) is less than the required 50 (FR-001).")
+        raise RuntimeError(
+            f"Total paired species ({total_species}) is less than the required 50 (FR-001)."
+        )
 
     log_path = paths.outputs("fetch_log.txt")
     with log_path.open("w", encoding="utf-8") as f:
         for src, df in dfs.items():
             sample_ids = df["species_id"].astype(str).head(5).tolist()
             f.write(f"{src}: {json.dumps(sample_ids)}\n")
-    log.info(f"Fetch log written to {log_path} with {total_species} total species.")
+    log.info(
+        f"Fetch log written to {log_path} with {total_species} total species."
+    )

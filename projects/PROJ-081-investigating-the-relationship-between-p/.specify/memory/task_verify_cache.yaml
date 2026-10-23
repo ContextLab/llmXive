@@ -1,14 +1,12 @@
 T001:
   c: false
-  h: 295c5a9396cf8d4ca4cdd16c8aeff0781d63f381f5820b3c4091ef42cafd0710
-  r: "The required directories, `requirements.txt`, `config.py`, and the test suite\
-    \ exist and run, and `fetch_log.txt` is present. However, `fetch_data.py` fetches\
-    \ stand\u2011in CSVs from the seaborn repository rather than the real MetaboLights,\
-    \ PMN, and HPID REST endpoints, so the data\u2011acquisition functions do not\
-    \ meet the specification of querying the documented repositories. Replace the\
-    \ placeholder URLs with the actual repository endpoints and ensure the returned\
-    \ DataFrames contain real metabolomics/herbivory data."
-  sig: fca0a82d69b92a4e16e271cf6d6761dbc39f0418187aa71f10402dd19f35d9d1
+  h: f109a2e3840e517a7a5e0b4c5445c8ef73a15ab39814f393e43f1ccf07a178ea
+  r: "The repository contains the required directories, `requirements.txt`, `config.py`,\
+    \ `fetch_data.py`, and the unit\u2011test file, and `outputs/fetch_log.txt` shows\
+    \ sample IDs, but there is no evidence that `pytest code/tests/test_fetch_data.py\
+    \ -v` was actually executed and passed, nor any artifact proving that the combined\
+    \ fetched species count meets the \u2265\u202F50 requirement."
+  sig: 925f6ace9c26a886c3e11df9ead65ddecf7f4c7bdbbde94258ea0712660b4bf7
 T002:
   c: false
   h: 14e565a4dbc70f66b2952faeb459e9c746a3dd5c193470548497a8bfbf295185
