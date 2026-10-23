@@ -16,7 +16,9 @@ properties:
     type: "number"
     description: "Cumulative sum of 1/p for p <= n."
   R_n:
-    type: "number"
+    type:
+      - "number"
+      - "null"
     description: "Target variable: log-residual."
 required:
   - n

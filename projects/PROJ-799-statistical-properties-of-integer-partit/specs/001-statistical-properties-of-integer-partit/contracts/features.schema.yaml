@@ -8,7 +8,9 @@ properties:
     minimum: 1
     description: "The integer"
   R_n:
-    type: "number"
+    type:
+      - "number"
+      - "null"
     description: "Log-residual (must not be null)"
   pi_n:
     type: "integer"

@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.11 or newer
 - Git
-- Internet access (to download the repository)
+- Internet access (to clone the repository)
 
 ## Installation
 
@@ -29,10 +29,10 @@ python code/main.py
 The script executes the steps in order:
 
 1. Generate primes up to 50 000 (if not already present).  
-2. Compute exact partition counts `p_P_n`.  
-3. Compute the calibrated Meinardus asymptotic `Q_as_n`.  
+2. Compute exact partition counts `p_P_n` (DP).  
+3. Compute the calibrated **numerical saddle‑point** asymptotic `Q_as_n`.  
 4. Engineer density features and log‑residuals, producing `data/processed/features.csv`.  
-5. Fit the regression model (with null model) and perform 10‑fold time‑series CV.  
+5. Fit the regression model (OLS with optional ridge, null model, BH correction, HAC SE).  
 6. Save `model_results.json` and the diagnostic plot `residuals_plot.png`.
 
 All intermediate artifacts are written under `data/processed/`.
@@ -56,18 +56,17 @@ pytest tests/ -v
 
 Key tests:
 
-- `test_dp_logic.py` – checks DP counts for $n=5,6,10$ against known values.  
-- `test_features_non_null.py` – asserts that `features.csv` contains no missing entries in the columns used for regression.  
+- `test_dp_logic.py` – checks DP counts for \(n=5,6,10\) against known values.  
+- `test_features_non_null.py` – asserts **no missing values** in the columns used for regression (`pi_n`, `inv_log_n`, `cum_density`, `gap_n`).  
 - `test_baseline.py` – validates that the asymptotic formula produces positive values and respects the clamping rule.  
-- `test_schemas.py` – runs JSON‑schema validation against all `contracts/*.schema.yaml`.
+- `test_schema_contracts.py` – runs JSON‑schema validation against all `contracts/*.schema.yaml`.  
 
 ## Expected Outputs
 
-- `data/processed/features.csv` – full dataset (≈ a large number of rows).  
-- `data/processed/model_results.json` – regression coefficients, $R^{2}$, corrected $p$‑values, CV MSE, and null‑model statistics.  
+- `data/processed/features.csv` – full dataset (≈ tens of thousands of rows) with required columns.  
+- `data/processed/model_results.json` – regression coefficients, \(R^{2}\), FDR‑adjusted \(p\)‑values, CV MSE, and null‑model statistics.  
 - `data/processed/residuals_plot.png` – visual comparison of raw residuals and fitted correction term.  
 
 All files are checksum‑tracked for reproducibility.
 
----
 

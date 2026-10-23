@@ -1,9 +1,9 @@
 status: none
-intent: download OEIS A000607 partitions into distinct primes python package dataset
+intent: OEIS A000607 partitions into distinct primes python package dataset
 required_fields:
-- n
-- p_P(n)
-- Q_as(n)
-cache_key: a47a94a2df76d2734db8722383fcc6c4381353d6c455866474852e815035cdb1
-searched_at: '2026-10-12T12:36:13.860753+00:00'
+- n (integer)
+- p_P(n) (exact count, integer)
+- Q_as(n) (asymptotic value, float)
+cache_key: b1c627bb2f75c659031bee25a0057677dc05dc764fd32e16ceefd3de96b21eee
+searched_at: '2026-10-23T04:25:02.864182+00:00'
 retry_count: 1
