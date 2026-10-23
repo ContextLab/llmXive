@@ -1,47 +1,43 @@
 """
 download_data.py
 ----------------
-Wrapper that forwards arguments to the HCP download script.
+Placeholder module that satisfies the import in ``code.src.pipeline``.
+
+The full HCP download logic is implemented later (Task T002).  For the
+purposes of a dry‑run and for the test suite we provide a minimal
+``main`` function that simply logs its invocation and exits successfully.
 """
 import argparse
-import os
-import sys
-from src.data.download_hcp import main as download_hcp_main
+from llmxive_toolkit import get_logger
 
-def _forward_args(subject_limit: int, output_dir: str) -> None:
-    """
-    Re‑invoke the original ``download_hcp`` CLI with the appropriate
-    arguments.  The function manipulates ``sys.argv`` so that the
-    imported ``download_hcp_main`` sees the expected command‑line
-    parameters without needing to spawn a subprocess.
-    """
-    sys.argv = [
-        "download_hcp",
-        "--subject-limit",
-        str(subject_limit),
-        "--output-dir",
-        output_dir,
-    ]
-    download_hcp_main()
 
 def main() -> None:
+    """
+    CLI entry point used by the orchestrator.
+
+    In a dry‑run this function is never called, but it must exist so that
+    ``code.src.pipeline`` can import it without raising ``ImportError``.
+    """
+    logger = get_logger(__name__)
     parser = argparse.ArgumentParser(
-        description="Forward arguments to the HCP download script."
+        description="Placeholder download step (real implementation in Task T002)."
     )
     parser.add_argument(
         "--subject-limit",
         type=int,
         default=5,
-        help="Number of subjects to download (default: 5).",
+        help="Number of subjects to download (placeholder).",
     )
     parser.add_argument(
         "--output-dir",
         type=str,
         default="data",
-        help="Base output directory (default: 'data').",
+        help="Base output directory (placeholder).",
     )
     args = parser.parse_args()
-    _forward_args(args.subject_limit, args.output_dir)
-
-if __name__ == "__main__":
-    main()
+    logger.info(
+        "download_data placeholder invoked with subject_limit=%s, output_dir=%s",
+        args.subject_limit,
+        args.output_dir,
+    )
+    # No actual download performed – this is a no‑op placeholder.

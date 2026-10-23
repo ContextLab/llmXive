@@ -19,7 +19,7 @@ GitHub Actions runner (or any Linux environment with Python 3.11).
 
 2. **Run the full pipeline (small test cohort)**
  ```bash
- python -m code.src.run_pipeline --subjects 5
+ python -m src.run_pipeline --subjects 5
  ```
  - The script will download a tiny subset of HCP data, perform QC, compute
  multiscale entropy and write the results to `results/`.

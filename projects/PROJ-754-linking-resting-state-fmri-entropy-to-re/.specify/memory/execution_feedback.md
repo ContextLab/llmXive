@@ -7,8 +7,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.run_pipeline  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --entropy-r 0.15  --entropy-m 2  --scales 1 2 3 4 5  --n-permutations 1000  --seed 42 -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/bin/python: No module named src.run_pipeline
+_run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/src/run_pipeline.py", line 14, in <module>
+    from code.src.run_pipeline import main as _real_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/__init__.py", line 11, in <module>
+    from . import run_pipeline as run_pipeline  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/run_pipeline.py", line 15, in <module>
+    from code.src.pipeline import run_pipeline as orchestrator
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/pipeline.py", line 20, in <module>
+    from code.src.compute_entropy import main as entropy_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/compute_entropy.py", line 19, in <module>
+    from src.analysis.entropy import multiscale_entropy
+ModuleNotFoundError: No module named 'src.analysis'
 
 - python -m pytest -v tests/ -> rc=-1
 tials PASSED [ 39%]
