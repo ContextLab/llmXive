@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.11+  
 - `pip` (standard Python package manager)  
-- Internet access (to download the verified datasets)  
+- Internet access (to download the verified OpenML datasets and the six HuggingFace URLs)  
 - At least **5 GB** free disk space  
 
 ## Installation
@@ -26,18 +26,14 @@ python -m src.main --stage all
 ```
 
 ### What the command does
-1. **Download & checksum** the datasets by issuing a programmatic OpenML query that selects public classification datasets with ≥ 30 rows, at least one continuous feature, and a categorical target (the seven URLs listed in the constitution are excluded because they lack the required structure).  
-2. **Impute missing values** (mean for near‑symmetric variables, median for skewed) and also run a K‑NN‑imputation sensitivity branch.  
-3. **Filter** for non‑normality (Shapiro‑Wilk *p* ∈ [0.01, 0.20]) and *N* ≥ 30.  
-4. **If < 50 datasets survive**, the pipeline continues querying OpenML until the ≥ 50‑dataset goal is reached.  
-5. **Apply transformations** (Box‑Cox, Yeo‑Johnson, rank‑inverse‑normal, baseline).  
-6. **Estimate Type I error** using stratified label shuffling (5 000 iterations each).  
-7. **Generate simulated power datasets** for Cohen’s *d* = 0.2, 0.5, 0.8 (1 000 per effect size per real dataset).  
-8. **Run t‑tests / ANOVAs** on all transformed versions.  
-9. **Bootstrap** (10 000 resamples) to obtain 95 % CIs with **target half‑width ≤ 0.02**; if the target cannot be met, the actual half‑width is reported.  
-10. **Friedman test** with Bonferroni‑corrected post‑hoc comparisons.  
-11. **α‑sensitivity sweep** (α = 0.01, 0.05, 0.10).  
-12. **Produce** `results/aggregated_results.csv` and figures in `results/figures/`.  
+1. **Download & checksum**: Queries OpenML for classification datasets meeting the size/feature criteria, streams them, computes SHA‑256, and records metadata in `data/datasets.csv`. If the OpenML pool is insufficient, the six verified HuggingFace URLs are inspected and added when they satisfy the same criteria.  
+2. **Impute & filter**: Applies mean/median imputation (primary) and logs the method per variable; also runs a K‑NN‑imputation sensitivity branch. Filters out datasets failing Shapiro‑Wilk (*p* ≥ 0.05), *N* < 30, or missing > 10 %.  
+3. **Simulate null & power datasets**: Generates synthetic data preserving each real dataset’s skewness/kurtosis and embeds Cohen’s *d* = 0.2, 0.5, 0.8 for power estimation.  
+4. **Apply transformations**: Baseline, Box‑Cox, Yeo‑Johnson, rank‑inverse‑normal (log‑shift applied automatically when needed).  
+5. **Estimate Type I error**: Stratified label shuffling (5 000 permutations, seed = 42) and parametric testing.  
+6. **Estimate power**: Runs the same tests on simulated data; compares empirical power to analytical power from `statsmodels`.  
+7. **Aggregate & infer**: Hierarchical bootstrap (target CI half‑width ≤ 0.07), Friedman test, Bonferroni‑corrected Wilcoxon post‑hoc, α‑sensitivity sweep.  
+8. **Produce outputs**: `results/aggregated_results.csv`, `results/sensitivity_results.csv`, and figures in `results/figures/`.  
 
 ### Step‑by‑step (optional)
 | Step | Command |
@@ -73,12 +69,9 @@ display results/figures/alpha_sweep.png
 ## Troubleshooting
 - **Download failures** – Verify network connectivity; the OpenML query is deterministic and does not rely on hard‑coded URLs.  
 - **Transformation errors** – Check `data/imputation_log.csv` for any log‑shift interventions.  
-- **Memory errors** – The pipeline streams files; ensure at least 4 GB RAM is free.  
+- **Memory errors** – The pipeline streams data; ensure at least 4 GB RAM is free.  
 - **Friedman test ties** – See `results/friedman_summary.txt`; the fallback Wilcoxon analysis runs automatically.  
 - **Missing group label** – Dataset will be excluded and recorded in `data/exclusions.csv`.  
-- **Imputation impact** – Review `data/imputation_log.csv`; you can rerun with `--impute-method median` to compare.  
+- **Imputation impact** – Review `data/imputation_log.csv`; you can rerun with `--impute-method knn` to compare.  
 
 ---
-
-
-

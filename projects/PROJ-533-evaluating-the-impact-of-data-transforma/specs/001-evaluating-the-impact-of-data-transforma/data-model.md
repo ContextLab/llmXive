@@ -10,13 +10,13 @@
 | **AggregatedResult** | `agg_id` | `transformation`, `test_type`, `metric` (`type1_error`, `power`), `mean_value`, `ci_lower`, `ci_upper`, `ci_half_width`, `n_datasets`, `n_iterations` | — |
 | **FriedmanResult** | `friedman_id` | `test_type`, `transformation_comparison` (list), `statistic`, `p_value`, `significant`, `posthoc_pairs` (list of `{pair, p_adj}`) | — |
 | **SensitivityResult** | `sens_id` | `transformation`, `test_type`, `alpha`, `error_rate`, `n_iterations` | — |
-| **ImputationLog** | `log_id` | `dataset_id` (FK), `variable_name`, `method` (`mean`/`median`), `imputed_pct`, `timestamp` | — |
+| **ImputationLog** | `log_id` | `dataset_id` (FK), `variable_name`, `method` (`mean`/`median`/`knn`), `imputed_pct`, `timestamp` | — |
 
 ## Data Flow
 1. **Ingestion** – `Dataset` rows created from `data/datasets.csv`.  
 2. **Filtering** – `status` updated; exclusions logged.  
-3. **Imputation** – `ImputationLog` entries recorded; missing values filled.  
-4. **Simulation (null & power)** – For each retained `Dataset`, create `SimulatedDataset` rows preserving that dataset’s skewness/kurtosis.  
+3. **Imputation** – `ImputationLog` entries recorded; missing values filled in temporary copies.  
+4. **Simulation (null & power)** – For each retained `Dataset`, create `SimulatedDataset` rows preserving that dataset’s distributional moments.  
 5. **Transformation** – Each `Dataset` and each `SimulatedDataset` receives four `Transformation` rows (baseline + three methods).  
 6. **Testing** – `TestResult` rows generated for every (`Transformation`, `test_type`, `condition`, `iteration`).  
 7. **Aggregation** – `AggregatedResult` rows computed from `TestResult`.  
