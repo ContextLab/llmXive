@@ -13,24 +13,9 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/reporting/plots.py: synthetic/fake INPUT data not authorized by the spec — “…tting function."""     # Mock data     results = […”; code/simulation/runner.py: synthetic/fake INPUT data not authorized by the spec — “…# Write some dummy coordinate data to make it look real…”; 2 command(s) failed: python code/pipeline.py --solvent water --duration 1 --seed 0 (rc=1); python code/main.py --full-batch (rc=1); 1 declared deliverable(s) absent: data/raw/nist_refs.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/reporting/plots.py: synthetic/fake INPUT data not authorized by the spec — “…tting function."""     # Mock data     results = […”; code/simulation/runner.py: synthetic/fake INPUT data not authorized by the spec — “…# Write some dummy coordinate data to make it look real…”; 2 command(s) failed: python code/main.py --full-batch (rc=1); python code/pipeline.py --solvent water --duration 1 --seed 0 (rc=1)
 
 ## Failing / missing run-book commands
-
-- python code/pipeline.py --solvent water --duration 1 --seed 0 -> rc=1
-
-2026-10-21 12:11:37,826 INFO __main__: Pipeline start: water, 1.0ns, seed 0
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 127, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 124, in main
-    run_pipeline(solvent=args.solvent, duration_ns=args.duration, seed=args.seed)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 78, in run_pipeline
-    refs = load_refs()
-           ^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/data/loader.py", line 71, in load_refs
-    raise FileNotFoundError(f"NIST reference file not found: {json_path}")
-FileNotFoundError: NIST reference file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/data/raw/nist_refs.json
 
 - python code/main.py --full-batch -> rc=1
 
@@ -39,22 +24,19 @@ Traceback (most recent call last):
     from config import (
 ImportError: cannot import name 'SIMULATION_CONFIG' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/config.py)
 
+- python code/pipeline.py --solvent water --duration 1 --seed 0 -> rc=1
+NFO __main__: Pipeline start: water, 1.0ns, seed 0
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 127, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 124, in main
+    run_pipeline(solvent=args.solvent, duration_ns=args.duration, seed=args.seed)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/pipeline.py", line 78, in run_pipeline
+    refs = load_refs()
+           ^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/data/loader.py", line 89, in load_refs
+    _verify_checksum(json_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-424-investigating-the-predictive-power-of-mo/code/data/loader.py", line 54, in _verify_checksum
+    raise ValueError(
+ValueError: Checksum mismatch for nist_refs.json: computed a81b3f2b1c6059459e121dfa834574745ef83bfa95b338c5007b7ebf6dbc4e7d, expected 6c9f020e8c6683c7b2e406c1c5caa5f7a0c0d8591b3c0e5c9f7a2d1e4c3b7a5f
 
-## Declared deliverables still missing
-
-- data/raw/nist_refs.json
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/raw/nist_refs.json` is declared but was NOT written. Scripts referencing it:
-    - `code/analysis/bootstrap.py` — NOT invoked by the run-book
-    - `code/config.py` — NOT invoked by the run-book
-    - `code/data/generate_nist_refs.py` — NOT invoked by the run-book
-    - `code/data/loader.py` — NOT invoked by the run-book
-    - `code/data/raw/generate_nist_refs.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
-    - `code/reporting/plots.py` — NOT invoked by the run-book
-    - `code/reporting/tables.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/nist_refs.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

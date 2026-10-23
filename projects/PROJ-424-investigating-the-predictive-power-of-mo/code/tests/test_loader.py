@@ -15,7 +15,7 @@ from llmxive_toolkit import paths
 from code.data.loader import load_refs
 
 def test_load_valid():
-    """The curated JSON file should load and contain three entries."""
+    """The curated JSON file should load and contain three entries with the correct schema."""
     refs = load_refs()
     assert isinstance(refs, list)
     assert len(refs) == 3
@@ -25,8 +25,8 @@ def test_load_valid():
 
     for entry in refs:
         assert isinstance(entry["solvent"], str)
-        assert isinstance(entry["temperature"], (int, float))
-        assert isinstance(entry["value"], (int, float))
+        assert isinstance(entry["temperature_K"], (int, float))
+        assert isinstance(entry["D_exp_m2_s"], (int, float))
         assert isinstance(entry["source"], str)
 
 def test_missing_file():
@@ -38,8 +38,12 @@ def test_missing_file():
 def test_malformed_schema():
     """Entries that do not conform to the schema raise ValueError."""
     malformed_data = [
-        {"solvent": "water", "temperature": 298.15, "value": 2.3e-9}
-        # 'source' key is omitted deliberately
+        {
+            "solvent": "water",
+            "temperature_K": 298,
+            # 'D_exp_m2_s' key is omitted deliberately
+            "source": "NIST"
+        }
     ]
 
     with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as tmp:
@@ -49,7 +53,7 @@ def test_malformed_schema():
     try:
         with pytest.raises(ValueError) as excinfo:
             load_refs(tmp_path)
-        assert "Missing required keys" in str(excinfo.value)
+        assert "Missing required keys" in str(excinfo.value) or "Schema validation error" in str(excinfo.value)
     finally:
         os.unlink(tmp_path)
 

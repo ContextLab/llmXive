@@ -1,16 +1,18 @@
 status: none
-intent: download experimental solvent self diffusion coefficients from NIST ThermoData
-  Engine and IUPAC database python package dataset
+intent: download experimental diffusion coefficient benchmark and MD trajectory dataset
+  python package dataset
 required_fields:
-- solvent_name
-- chemical_formula
+- compound_name
+- solvent
 - temperature_K
 - pressure_atm
-- diffusion_coefficient_cm2_per_s
+- experimental_diffusion_coefficient_cm2_per_s
 - measurement_method
-- uncertainty
 - reference_doi
-- source_database
-cache_key: d525768768cddb8d241f36a95f5383c7905e95668729b2088c98bf315254d294
-searched_at: '2026-10-21T12:17:37.190315+00:00'
+- md_trajectory_file
+- simulation_time_ps
+- convergence_R2
+- loglog_slope
+cache_key: 4435e00da3320b5cdb6d65ad5f930d6422e76e63c34a5b9ebf2afe314a4e4f2a
+searched_at: '2026-10-23T11:25:39.524902+00:00'
 retry_count: 1
