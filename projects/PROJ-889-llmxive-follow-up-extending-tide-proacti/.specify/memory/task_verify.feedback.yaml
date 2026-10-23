@@ -3,6 +3,13 @@ T001:
     exit=1; code/data/download_real.py exit=1'
   task: 23b44c7dc74641c7bbd32b8b8ed792a7a32e0da119ae5d82dde224205e22e4dd
 T002:
+  reason: "The repository contains the generator script, the synthetic `.py` files,\
+    \ the manifest CSV and the cap\u2011warning log, all of which appear correct,\
+    \ but there is no concrete evidence that the command `python -m src.data.generate_synthetic\
+    \ --seed 42` was actually executed and exited with status\u202F0, nor any proof\
+    \ that the manifest CSV contains exactly 200 rows (the row count is not shown).\
+    \ Provide a recorded run (e.g., command\u2011line output or a test script asserting\
+    \ exit code\u202F0 and row count\u202F200) to satisfy the verification criteria."
   task: e68eae3d84f1c861b5faf5665d02ff334fcf11faca5a590d647c3be8c17bf487
 T003:
   task: 76a10105b5da0f46d8fdd22ecad63e784ae38c0d4cb7d54cf157d7da94ad354e

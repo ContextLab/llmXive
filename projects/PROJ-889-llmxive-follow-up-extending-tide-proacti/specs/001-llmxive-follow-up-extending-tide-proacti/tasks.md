@@ -8,14 +8,14 @@ The checklist implements the smallest complete study that satisfies every functi
 
 ## Phase 1 – Data acquisition & feature extraction  
 
-- [ ] T001 [US-1] **Download the verified TIDE evaluation dataset and verify its integrity**.   <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1; code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1 -->
+- [ ] T001 [US-1] **Download the verified TIDE evaluation dataset and verify its integrity**.   <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1; code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1 -->
   **Path**: `src/data/download_real.py` (script downloads from the verified URL, computes SHA‑256 checksum, aborts on mismatch, and writes `data/raw/tide.csv`).  
   **Verification**:  
   • Running `python -m src.data.download_real` exits with status 0.  
   • `data/raw/tide.csv` contains ≥ 200 rows and the checksum file `data/raw/tide.sha256` matches the downloaded file.  
   • A log entry `data/logs/download_real.log` records successful download and checksum validation.  
 
-- [X] T002 [US-1] **Generate a deterministic synthetic code corpus (≥ 200 instances) with systematic variation of intrinsic properties**.  
+- [ ] T002 [US-1] **Generate a deterministic synthetic code corpus (≥ 200 instances) with systematic variation of intrinsic properties**.  
   **Path**: `src/data/generate_synthetic.py` (accepts `--seed 42`, respects FR‑009 caps, writes `.py` files under `data/synthetic/` and a manifest `data/raw/synthetic_meta.csv`).  
   **Verification**:  
   • Running `python -m src.data.generate_synthetic --seed 42` exits with status 0.  

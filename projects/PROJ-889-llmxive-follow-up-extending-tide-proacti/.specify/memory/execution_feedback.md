@@ -19,22 +19,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.data.acquire_real   # creates data/raw/tide.parquet, verifies SHA‑256, writes data/raw/tide.csv and data/raw/tide.sha256 -> rc=1
 
-2026-10-23 03:23:02,953 INFO __main__: Starting TIDE dataset acquisition.
-2026-10-23 03:23:02,989 INFO __main__: Wrote Parquet checksum to '/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/data/raw/tide.sha256'
-2026-10-23 03:23:03,025 INFO __main__: Converting Parquet to CSV at '/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/data/raw/tide.csv'
-2026-10-23 03:23:03,076 INFO __main__: Renaming columns {'ground_truth_label': 'label'} to match required schema.
-2026-10-23 03:23:03,077 ERROR __main__: Acquisition failed
+2026-10-23 04:09:12,797 INFO __main__: Starting TIDE dataset acquisition.
+2026-10-23 04:09:12,847 INFO __main__: Wrote Parquet checksum to '/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/data/raw/tide.sha256'
+2026-10-23 04:09:12,896 INFO __main__: Converting Parquet to CSV at '/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/data/raw/tide.csv'
+2026-10-23 04:09:12,981 INFO __main__: Renaming columns {'ground_truth_label': 'label'} to match required schema.
+2026-10-23 04:09:12,981 ERROR __main__: Acquisition failed
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 235, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 268, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 207, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 240, in main
     raise RuntimeError(
 RuntimeError: Parquet file is missing required columns after renaming: {'instance_id'}
 
 - python -m src.features.extract   # reads all .py files, writes data/features.csv (includes origin + sha256) -> rc=1
 
-2026-10-23 03:23:03,809 INFO __main__: Starting feature extraction.
-2026-10-23 03:23:03,810 ERROR __main__: Feature extraction failed
+2026-10-23 04:09:13,926 INFO __main__: Starting feature extraction.
+2026-10-23 04:09:13,926 ERROR __main__: Feature extraction failed
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/features/extract.py", line 210, in <module>
     main()

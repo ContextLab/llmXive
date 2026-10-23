@@ -5,12 +5,12 @@ This module downloads the verified TIDE evaluation dataset (a Parquet file),
 verifies its SHA‑256 checksum, converts it to CSV, and writes accompanying
 checksum and log files. It aborts on any checksum mismatch.
 
-The original implementation failed because the Parquet file did not contain
-a column named ``instance_id``.  The dataset uses the column name ``id`` for
-the unique identifier.  The acquisition script now maps both possible
-identifier columns (``instance_id`` or ``id``) to the required schema name
-``instance_id``.  It also retains the existing robust handling for the
-ground‑truth label column.
+The implementation now robustly maps identifier and label columns to the
+required schema names ``instance_id`` and ``ground_truth_label``. It
+searches a wide set of possible alternative column names and, if necessary,
+falls back to the first column that appears to contain an identifier or a
+label. This ensures the script succeeds even if the upstream dataset changes
+column naming conventions.
 """
 
 import hashlib
@@ -108,6 +108,42 @@ def _verify_checksums(file_path: Path, manifest_path: Path) -> None:
         )
 
 # ----------------------------------------------------------------------
+# Column‑mapping utilities
+# ----------------------------------------------------------------------
+def _infer_instance_id_column(df: pd.DataFrame) -> str | None:
+    """
+    Heuristically locate a column that can serve as the instance identifier.
+    Preference order:
+    1. Exact match to 'instance_id'.
+    2. Any column containing 'id' (case‑insensitive) but not containing
+       'ground' or 'label'.
+    Returns the column name or None if not found.
+    """
+    if "instance_id" in df.columns:
+        return "instance_id"
+    for col in df.columns:
+        lowered = col.lower()
+        if "id" in lowered and "ground" not in lowered and "label" not in lowered:
+            return col
+    return None
+
+def _infer_label_column(df: pd.DataFrame) -> str | None:
+    """
+    Heuristically locate a column that holds the ground‑truth label.
+    Preference order:
+    1. Exact match to 'ground_truth_label'.
+    2. Any column containing 'label' or 'ground' (case‑insensitive).
+    Returns the column name or None if not found.
+    """
+    if "ground_truth_label" in df.columns:
+        return "ground_truth_label"
+    for col in df.columns:
+        lowered = col.lower()
+        if "label" in lowered or "ground" in lowered:
+            return col
+    return None
+
+# ----------------------------------------------------------------------
 # Main download / conversion routine
 # ----------------------------------------------------------------------
 def main() -> None:
@@ -175,31 +211,28 @@ def main() -> None:
         raise
 
     # ------------------------------------------------------------------
-    # 5. Normalise column names to the expected schema
+    # 5. Normalise column names to the required schema
     # ------------------------------------------------------------------
     required_cols = {"instance_id", "ground_truth_label"}
     missing = required_cols - set(df.columns)
 
-    # Map possible alternative column names for the identifier
-    col_renames = {}
+    # Build a rename map using the heuristic helpers
+    rename_map: dict[str, str] = {}
+
     if "instance_id" not in df.columns:
-        for alt in ["id", "instance", "example_id", "exampleId", "exampleid"]:
-            if alt in df.columns:
-                col_renames["instance_id"] = alt
-                break
+        id_col = _infer_instance_id_column(df)
+        if id_col:
+            rename_map["instance_id"] = id_col
 
-    # Map possible alternative column names for the ground‑truth label
     if "ground_truth_label" not in df.columns:
-        for alt in ["label", "ground_truth", "target"]:
-            if alt in df.columns:
-                col_renames["ground_truth_label"] = alt
-                break
+        label_col = _infer_label_column(df)
+        if label_col:
+            rename_map["ground_truth_label"] = label_col
 
-    if col_renames:
-        logger.info(
-            f"Renaming columns {col_renames} to match required schema."
-        )
-        df = df.rename(columns={v: k for k, v in col_renames.items()})
+    if rename_map:
+        logger.info(f"Renaming columns {rename_map} to match required schema.")
+        # pandas expects {old_name: new_name}
+        df = df.rename(columns={old: new for new, old in rename_map.items()})
 
     # Re‑check after renaming
     missing = required_cols - set(df.columns)
