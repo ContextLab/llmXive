@@ -1,9 +1,0 @@
-T018:
-  c: false
-  h: 23dca6c6af4ec25f3bb1de5fe35ccf39e0bf5f908e06e6ed0c211891ab4882f5
-  r: "The repository lacks the required input file `data/raw/gdelt_sentiment.csv`\
-    \ and the expected output `data/processed/aligned_monthly.csv`. Moreover, the\
-    \ macro\u2011data resampling uses forward\u2011fill instead of the specified linear\
-    \ interpolation, and there is no function that merges sentiment and macro series\
-    \ and writes the aligned CSV. These omissions mean the task\u2019s monthly alignment\
-    \ requirement is not fulfilled."
