@@ -11,7 +11,7 @@ properties:
         const: 42
       bonferroni_alpha:
         type: "number"
-        description: "Bonferroni‑adjusted alpha (0.05 / 32)."
+        description: "Bonferroni‑adjusted alpha (0.05 / 52)."
       permutation_count:
         type: "integer"
         minimum: 1000
@@ -62,7 +62,7 @@ properties:
           type: ["number", "null"]
           minimum: 0
           maximum: 1
-          description: "Permutation empirical p-value; null if test was skipped."
+          description: "Empirical p‑value from permutation test; null if test was skipped."
         skipped_reason:
           type: ["string", "null"]
           description: "e.g. \"insufficient variance\" when motif z‑vector constant."

@@ -17,7 +17,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** a list of 50 subject IDs, **When** the pipeline is invoked, **Then** the system downloads the diffusion tractography and resting‑state fMRI files, applies the Schaefer‑100 parcellation, and writes two NumPy `.npy` files per subject (`structural.npy`, `rsfc.npy`) without errors.
+1. **Given** a list of 50 subject IDs, **When** the pipeline is invoked, **Then** the system downloads the diffusion tractography and resting‑state fMRI files, applies the Schaefer parcellation, and writes two NumPy `.npy` files per subject (`structural.npy`, `rsfc.npy`) without errors.
 2. **Given** a subject whose diffusion data is missing, **When** the pipeline runs, **Then** the system logs a warning, skips the subject, and continues processing the remaining subjects.
 
 ---
@@ -68,7 +68,7 @@
 - **FR‑002**: The system MUST construct binary structural connectomes at a standard Schaefer parcellation (i.e., a chosen node resolution) using the downloaded diffusion data, treating the graph as undirected. (See US‑1)
 - **FR‑003**: The system MUST compute rsFC matrices (Pearson correlation of BOLD time‑series) and derive global efficiency for each subject. (See US‑1)
 - **FR‑004**: The system MUST enumerate all 3‑node **and** 4‑node subgraphs in each undirected structural connectome, generate degree‑preserving null networks (≥ 1000 iterations), **verify** that each null network preserves the original degree sequence (compare and log degree vectors), and output motif z‑score prevalence for each motif category. (See US‑2)
-- **FR‑005**: The system MUST perform partial Pearson **and** Spearman correlations between each motif's z‑score and each rsFC metric (strength and global efficiency) across subjects, controlling for structural global node degree, apply Bonferroni correction for the 32 primary tests (8 motifs × 2 metrics × 2 correlation types), and flag motifs with corrected p < 0.05. The system MUST also compute a Variance Inflation Factor (VIF) for the full set of motif predictors; if any predictor has VIF ≥ 5.0, a multicollinearity **warning** is logged, but all motifs are still tested and their p‑values reported. Additionally, the system MUST compute pairwise Pearson correlations among all motif predictors and flag any predictor pair with |r| ≥ 0.9 as a multicollinearity warning, but it MUST still report p‑values for **all** motifs. (See US‑3)
+- **FR‑005**: The system MUST perform partial Pearson **and** Spearman correlations between each motif's z‑score and each rsFC metric (strength and global efficiency) across subjects, controlling for structural global node degree, apply Bonferroni correction for the primary tests (8 motifs × 2 metrics × 2 correlation types), and flag motifs with corrected p < 0.05. The system MUST also compute a Variance Inflation Factor (VIF) for the full set of motif predictors; if any predictor has VIF ≥ 5.0, a multicollinearity **warning** is logged, but all motifs are still tested and their p‑values reported. Additionally, the system MUST compute pairwise Pearson correlations among all motif predictors and flag any predictor pair with |r| ≥ 0.9 as a multicollinearity warning, but it MUST still report p‑values for **all** motifs. (See US‑3)
 - **FR‑006**: The system MUST run a permutation test (≥ 1000 permutations, shuffling subject labels) for all tested motifs to obtain an empirical p‑value and report the result. (See US‑3)
 - **FR‑007**: The system MUST generate a PDF report containing, for every tested motif, a scatter plot with a confidence interval, the partial correlation coefficient, corrected p‑value, permutation‑test outcome, and multicollinearity diagnostics (pairwise predictor correlations). (See US‑3)
 - **FR‑008**: The system MUST log all processing steps, warnings, and errors to a machine‑readable `pipeline.log` file. (See US‑1)
@@ -84,7 +84,7 @@
 The analysis will use the **Human Connectome Project (HCP) 1200‑Subject Release**. The dataset is publicly available after free registration on ConnectomeDB. Required files (minimally pre‑processed diffusion tractography and resting‑state fMRI) can be retrieved via the HCP command‑line tools:
 
 ```bash
-# After registration, download a subset of 50 subjects
+# After registration, download a representative subset of subjects
 hcp_download --project HCP1200 --modality dwi --modality rest --subjects sub-01 sub-02 ... sub-50
 ```
 

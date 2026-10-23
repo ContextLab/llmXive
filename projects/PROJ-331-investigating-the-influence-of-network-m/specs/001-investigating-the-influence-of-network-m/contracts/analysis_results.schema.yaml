@@ -11,7 +11,7 @@ properties:
         const: 42
       bonferroni_alpha:
         type: "number"
-        description: "Bonferroni‑adjusted alpha (0.05 / 32)."
+        description: "Bonferroni‑adjusted alpha (0.05 / 52)."
       permutation_count:
         type: "integer"
         minimum: 1000
