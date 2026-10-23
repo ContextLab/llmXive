@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-23T19:23:52.142128+00:00",
+  "generated_at": "2026-10-23T19:31:12.749063+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -64047,7 +64047,7 @@
           ]
         },
         {
-          "contributions": 19,
+          "contributions": 26,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -64107,6 +64107,62 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 53.438835,
+          "ended_at": "2026-10-23T19:28:01.050386Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T19:27:07.611551Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 54.794307,
+          "ended_at": "2026-10-23T19:12:10.620804Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T19:11:15.826497Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 29.188652,
+          "ended_at": "2026-10-23T19:11:15.822704Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T19:10:46.634052Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 22.282306,
+          "ended_at": "2026-10-23T19:10:46.630119Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T19:10:24.347813Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 54.416945,
+          "ended_at": "2026-10-23T19:10:24.343992Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T19:09:29.927047Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 28.35946,
+          "ended_at": "2026-10-23T19:09:29.923203Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T19:09:01.563743Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 109.451761,
+          "ended_at": "2026-10-23T19:09:01.558737Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T19:07:12.106976Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 97.731254,
           "ended_at": "2026-10-23T12:10:32.016875Z",
           "model": "openai.gpt-oss-120b",
@@ -64128,62 +64184,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T08:54:16.922381Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 16.896072,
-          "ended_at": "2026-10-23T08:54:16.918446Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T08:54:00.022374Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 30.370151,
-          "ended_at": "2026-10-23T08:53:16.558906Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T08:52:46.188755Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 82.141561,
-          "ended_at": "2026-10-23T08:52:46.184986Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T08:51:24.043425Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 0.035067,
-          "ended_at": "2026-10-23T08:51:16.081923Z",
-          "model": "deterministic-no-llm",
-          "outcome": "skipped",
-          "started_at": "2026-10-23T08:51:16.046856Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 234.692355,
-          "ended_at": "2026-10-23T08:51:01.721452Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T08:47:07.029097Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 916.799471,
-          "ended_at": "2026-10-23T08:46:51.971293Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T08:31:35.171822Z"
-        },
-        {
-          "agent": "clarifier",
-          "duration_s": 879.960217,
-          "ended_at": "2026-10-23T08:31:18.858184Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T08:16:38.897967Z"
         }
       ],
       "paper_status": null,
@@ -71173,7 +71173,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-211-predicting-gene-expression-from-chromati.yaml",
         "code": "projects/PROJ-211-predicting-gene-expression-from-chromati/code",
-        "data": null,
+        "data": "projects/PROJ-211-predicting-gene-expression-from-chromati/data",
         "idea": "projects/PROJ-211-predicting-gene-expression-from-chromati/idea/predicting-gene-expression-from-chromati.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -71262,6 +71262,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "planner",
+          "duration_s": 859.691194,
+          "ended_at": "2026-10-23T19:30:21.152920Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-23T19:16:01.461726Z"
+        },
+        {
           "agent": "implementer",
           "duration_s": 463.301806,
           "ended_at": "2026-10-23T19:15:00.990715Z",
@@ -71332,14 +71340,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-21T20:43:52.330785Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 33.995209,
-          "ended_at": "2026-10-21T20:42:59.555728Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-21T20:42:25.560519Z"
         }
       ],
       "paper_status": null,
@@ -112338,7 +112338,7 @@
           ]
         },
         {
-          "contributions": 44,
+          "contributions": 45,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -112392,6 +112392,14 @@
       "id": "PROJ-444-predicting-molecular-properties-from-top",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 69.183289,
+          "ended_at": "2026-10-23T19:09:20.385574Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T19:08:11.202285Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 24.023787,
@@ -112463,14 +112471,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T17:07:15.065633Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 284.536284,
-          "ended_at": "2026-10-19T12:25:45.495423Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-19T12:21:00.959139Z"
         }
       ],
       "paper_status": null,
@@ -127666,6 +127666,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "tasker",
+          "duration_s": 983.88368,
+          "ended_at": "2026-10-23T19:25:13.162958Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-23T19:08:49.279278Z"
+        },
+        {
           "agent": "planner",
           "duration_s": 1686.702859,
           "ended_at": "2026-10-21T21:11:45.427330Z",
@@ -127736,14 +127744,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-21T06:09:24.923014Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 665.10939,
-          "ended_at": "2026-10-21T05:44:43.607860Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-21T05:33:38.498470Z"
         }
       ],
       "paper_status": null,
@@ -176062,6 +176062,42 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 859.691194,
+      "ended_at": "2026-10-23T19:30:21.152920Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-211-predicting-gene-expression-from-chromati",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-23T19:16:01.461726Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 53.438835,
+      "ended_at": "2026-10-23T19:28:01.050386Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-170-predicting-catalytic-activity-from-elect",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T19:27:07.611551Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 983.88368,
+      "ended_at": "2026-10-23T19:25:13.162958Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-533-evaluating-the-impact-of-data-transforma",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-23T19:08:49.279278Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 463.301806,
       "ended_at": "2026-10-23T19:15:00.990715Z",
@@ -176072,6 +176108,90 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-23T19:07:17.688909Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 54.794307,
+      "ended_at": "2026-10-23T19:12:10.620804Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-170-predicting-catalytic-activity-from-elect",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T19:11:15.826497Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 29.188652,
+      "ended_at": "2026-10-23T19:11:15.822704Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-170-predicting-catalytic-activity-from-elect",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T19:10:46.634052Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 22.282306,
+      "ended_at": "2026-10-23T19:10:46.630119Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-170-predicting-catalytic-activity-from-elect",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T19:10:24.347813Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 54.416945,
+      "ended_at": "2026-10-23T19:10:24.343992Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-170-predicting-catalytic-activity-from-elect",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T19:09:29.927047Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 28.35946,
+      "ended_at": "2026-10-23T19:09:29.923203Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-170-predicting-catalytic-activity-from-elect",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T19:09:01.563743Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 69.183289,
+      "ended_at": "2026-10-23T19:09:20.385574Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-444-predicting-molecular-properties-from-top",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T19:08:11.202285Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 109.451761,
+      "ended_at": "2026-10-23T19:09:01.558737Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-170-predicting-catalytic-activity-from-elect",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T19:07:12.106976Z"
     },
     {
       "agent": "planner",
@@ -181940,126 +182060,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-10-22T17:21:32.982365Z"
-    },
-    {
-      "agent": "clarifier",
-      "duration_s": 843.577024,
-      "ended_at": "2026-10-22T17:21:07.536041Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-830-llmxive-follow-up-extending-gatemem-benc",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-22T17:07:03.959017Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 788.579665,
-      "ended_at": "2026-10-22T17:20:09.897827Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-081-investigating-the-relationship-between-p",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-22T17:07:01.318162Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 264.916208,
-      "ended_at": "2026-10-22T17:18:46.690090Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-22T17:14:21.773882Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 499.442975,
-      "ended_at": "2026-10-22T17:16:36.754903Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-126-predicting-avian-migration-patterns-from",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-22T17:08:17.311928Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 418.952196,
-      "ended_at": "2026-10-22T17:14:21.769805Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-22T17:07:22.817609Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 112.852139,
-      "ended_at": "2026-10-22T17:10:06.089539Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-942-llmxive-follow-up-extending-bench-evalua",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-22T17:08:13.237400Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 498.191841,
-      "ended_at": "2026-10-22T16:50:01.496164Z",
-      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-10-22T16:41:43.304323Z"
-    },
-    {
-      "agent": "clarifier",
-      "duration_s": 109.238618,
-      "ended_at": "2026-10-22T16:41:28.797118Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-22T16:39:39.558500Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 14.111884,
-      "ended_at": "2026-10-22T16:41:07.661340Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-097-predicting-corrosion-rates-of-common-met",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-22T16:40:53.549456Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 32.131804,
-      "ended_at": "2026-10-22T16:40:53.547177Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-097-predicting-corrosion-rates-of-common-met",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-22T16:40:21.415373Z"
     }
   ],
   "reviewed_preprints": [
