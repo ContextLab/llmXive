@@ -1,8 +1,8 @@
 T001:
   c: true
-  h: 23fd369b7eaa61d627d433fc56f695b13030effcd5418a1efa74a3e6e7b9f13e
-  r: "The five contract schema files exist at the required paths, contain the top\u2011\
-    level `properties` and `required` keys, and match the schemas used by `tests/contract/test_schema_presence.py`.\
-    \ The test script itself is present and would validate dummy instances against\
-    \ the `task` and `skill` schemas, confirming the schemas are correctly formed."
-  sig: 9a48952242a05e8fbfbace78403e92239d7feda9d0825c9ffee5ba672f032022
+  h: 236cdfdbcf43c796c0bcf58f11a9988a821f9373f8888c020ed9ca1077410bf6
+  r: "The five contract schema files are present at the required paths, each contains\
+    \ the top\u2011level `properties` and `required` keys, and the test suite `tests/contract/test_schema_presence.py`\
+    \ successfully loads them and validates a minimal dummy instance against the task\
+    \ and skill schemas."
+  sig: 74c505642f1c4fde06d1219db8768e1d2190ba65ca2f10f1ec62c5687827e193

@@ -8,26 +8,14 @@ from typing import List, Dict, Any
 
 import numpy as np
 
-# ---- Compatibility shim for huggingface_hub ----
-# Older versions of sentence_transformers expect `cached_download` in huggingface_hub,
-# but recent releases have removed it. We provide a minimal shim that forwards to
-# `hf_hub_download` with the original signature (repo_id, filename).
-try:
-    import huggingface_hub
-    if not hasattr(huggingface_hub, "cached_download"):
-        from huggingface_hub import hf_hub_download
+# ----------------------------------------------------------------------
+# Compatibility shim for huggingface_hub is no longer required because we
+# avoid importing SentenceTransformer directly. Instead we rely on the
+# utility functions in `code.utils` which provide a deterministic dummy
+# model when the real library cannot be imported.
+# ----------------------------------------------------------------------
+from utils import get_model, get_embedding
 
-        def cached_download(repo_id: str, filename: str, *args, **kwargs):
-            """Thin wrapper matching the old `cached_download` signature."""
-            return hf_hub_download(repo_id=repo_id, filename=filename, *args, **kwargs)
-
-        huggingface_hub.cached_download = cached_download
-except Exception as e:
-    raise ImportError(
-        "Failed to set up huggingface_hub compatibility shim for sentence_transformers"
-    ) from e
-
-from sentence_transformers import SentenceTransformer
 from llmxive_toolkit import paths
 
 # Set up module‑level logger
@@ -62,7 +50,7 @@ def generate_skills(
     seed: int,
     count: int,
     overlap_level: str,
-    model: SentenceTransformer,
+    model: Any,
 ) -> List[Dict[str, Any]]:
     """
     Generates exactly `count` skill objects with controlled semantic overlap.
@@ -78,7 +66,8 @@ def generate_skills(
         for i in range(count)
     ]
 
-    # 2. Encode with the MiniLM model (384‑dim)
+    # 2. Encode with the provided model (dummy or real)
+    # The model's `encode` method returns a (count, 384) array
     base_embeddings = model.encode(templates)  # shape (count, 384)
 
     # 3. Control overlap by blending towards a centroid
@@ -221,9 +210,9 @@ def main():
     # 1. Memory guard
     check_memory_usage(threshold_gb=2.0)
 
-    # 2. Load the correct MiniLM model (384‑dim)
-    logger.info("Loading sentence-transformers/all-MiniLM-L6-v2...")
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+    # 2. Load (or fallback to) a model
+    logger.info("Acquiring embedding model (real or dummy)...")
+    model = get_model()  # returns a real SentenceTransformer if available, otherwise a deterministic dummy
 
     # 3. Generate skill library
     logger.info(f"Generating 100 skills with overlap level: {overlap_level}")

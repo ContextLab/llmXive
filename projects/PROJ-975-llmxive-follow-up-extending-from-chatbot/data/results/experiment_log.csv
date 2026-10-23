@@ -101,3 +101,4 @@ task_0100,none,false,0,0,0,0,0,50,false,error
 task_0074,none,false,0,0,0,0,0,50,false,error
 task_0022,none,false,0,0,0,0,0,50,false,error
 test_schema_001,skill_test,true,0.05,10,0.5,0.5,0,10,true,false
+test_schema_001,skill_test,true,0.05,10,0.5,0.5,0,10,true,false

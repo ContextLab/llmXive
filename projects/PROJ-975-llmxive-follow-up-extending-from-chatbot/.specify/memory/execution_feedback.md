@@ -1,55 +1,41 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap high  --pruning`
+  - script usage: `agent.py [-h] [--library-size LIBRARY_SIZE] [--pruning {on,off}]`
+  - argparse error: `agent.py: error: argument --overlap: invalid choice: 'high' (choose from 'LOW', 'MEDIUM', 'HIGH')`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --input data/results/metrics.csv; 3 command(s) failed: python code/generate_data.py --seed 42 --overlap high (rc=1); python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap high  --pruning (rc=1); python -m pytest tests/contract/ (rc=2); 2 declared deliverable(s) absent: data/raw/skills.json; data/raw/tasks.json
+**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --input data/results/metrics.csv; 2 command(s) failed: python code/generate_data.py --seed 42 --overlap high (rc=1); python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap high  --pruning (rc=2); 2 declared deliverable(s) absent: data/raw/skills.json; data/raw/tasks.json
 
 ## Failing / missing run-book commands
 
 - python code/generate_data.py --seed 42 --overlap high -> rc=1
--MiniLM-L6-v2...
-INFO:sentence_transformers.SentenceTransformer:Load pretrained SentenceTransformer: all-MiniLM-L6-v2
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 283, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 226, in main
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/SentenceTransformer.py", line 87, in __init__
-    snapshot_download(model_name_or_path,
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/util.py", line 491, in snapshot_download
-    path = cached_download(**cached_download_args)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: cached_download() missing 2 required positional arguments: 'repo_id' and 'filename'
 
-- python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap high  --pruning -> rc=1
-b/python3.11/site-packages/sentence_transformers/__init__.py", line 3, in <module>
-    from .datasets import SentencesDataset, ParallelSentencesDataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/datasets/__init__.py", line 3, in <module>
-    from .ParallelSentencesDataset import ParallelSentencesDataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/datasets/ParallelSentencesDataset.py", line 4, in <module>
-    from .. import SentenceTransformer
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/SentenceTransformer.py", line 12, in <module>
-    from huggingface_hub import HfApi, HfFolder, Repository, hf_hub_url, cached_download
-ImportError: cannot import name 'cached_download' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/huggingface_hub/__init__.py)
+INFO:__main__:Acquiring embedding model (real or dummy)...
+INFO:__main__:Generating 100 skills with overlap level: HIGH
+INFO:__main__:Achieved Mean Similarity: 0.3162
+INFO:__main__:Pct > 0.50: 0.00%, Pct > 0.80: 0.00%
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 272, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 241, in main
+    raise RuntimeError(
+RuntimeError: HIGH overlap failed: Mean 0.3162 <= 0.80 or Pct > 0.80 0.00% < 30%
+
+- python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap high  --pruning -> rc=2
+
+usage: agent.py [-h] [--library-size LIBRARY_SIZE] [--pruning {on,off}]
+                [--overlap {LOW,MEDIUM,HIGH}] [--task-sample TASK_SAMPLE]
+agent.py: error: argument --overlap: invalid choice: 'high' (choose from 'LOW', 'MEDIUM', 'HIGH')
 
 - python code/analysis.py --input data/results/metrics.csv -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/analysis.py': [Errno 2] No such file or directory
-
-- python -m pytest tests/contract/ -> rc=2
-./.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/datasets/__init__.py:3: in <module>
-    from .ParallelSentencesDataset import ParallelSentencesDataset
-../../.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/datasets/ParallelSentencesDataset.py:4: in <module>
-    from .. import SentenceTransformer
-../../.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/SentenceTransformer.py:12: in <module>
-    from huggingface_hub import HfApi, HfFolder, Repository, hf_hub_url, cached_download
-E   ImportError: cannot import name 'cached_download' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/huggingface_hub/__init__.py)
-=========================== short test summary info ============================
-ERROR tests/contract/test_schemas.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 2.81s ===============================
-
 
 
 ## Declared deliverables still missing
