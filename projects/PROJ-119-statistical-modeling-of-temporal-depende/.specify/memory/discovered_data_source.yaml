@@ -1,21 +1,30 @@
 status: verified
 kind: pypi_package
 ref: pycoingecko
-access_python: "from pycoingecko import CoinGeckoAPI\n\ncg = CoinGeckoAPI()\nohlc\
-  \ = cg.get_coin_ohlc_by_id(id=\"bitcoin\", vs_currency=\"usd\", days=30)\nif not\
-  \ ohlc:\n    raise ValueError(\"No OHLC data returned\")\n\nrecords = [\n    {\n\
-  \        \"timestamp\": entry[0],\n        \"open\": entry[1],\n        \"high\"\
-  : entry[2],\n        \"low\": entry[3],\n        \"close\": entry[4],\n    }\n \
-  \   for entry in ohlc\n]\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=timestamp,open,high,low,close\"\
-  )"
-record_count: 180
+access_python: "from pycoingecko import CoinGeckoAPI\nimport time, datetime\n\ncg\
+  \ = CoinGeckoAPI()\n# time range: last 30 days\nend_ts = int(time.time())\nstart_ts\
+  \ = end_ts - 30 * 24 * 60 * 60\n\ncoins = [\"bitcoin\", \"ethereum\"]\nrecords =\
+  \ []\nfor coin in coins:\n    # OHLC data (open, high, low, close) \u2013 returns\
+  \ list of [timestamp, o, h, l, c]\n    ohlc = cg.get_coin_ohlc_by_id(id=coin, vs_currency=\"\
+  usd\", days=30)\n    daily = {}\n    for ts, o, h, l, c in ohlc:\n        d = datetime.datetime.utcfromtimestamp(ts\
+  \ / 1000).date().isoformat()\n        daily[d] = {\"date\": d, \"open\": o, \"high\"\
+  : h, \"low\": l, \"close\": c}\n    # Volume data \u2013 list of [timestamp, volume]\n\
+  \    vol_data = cg.get_coin_market_chart_range_by_id(\n        id=coin, vs_currency=\"\
+  usd\", from_timestamp=start_ts, to_timestamp=end_ts\n    )\n    for ts, v in vol_data.get(\"\
+  total_volumes\", []):\n        d = datetime.datetime.utcfromtimestamp(ts / 1000).date().isoformat()\n\
+  \        if d in daily:\n            daily[d][\"volume\"] = v\n    # keep only days\
+  \ where volume was merged\n    for rec in daily.values():\n        if \"volume\"\
+  \ in rec:\n            records.append(rec)\n\nprint(f\"RECORDS={len(records)}\"\
+  )\nprint(\"FIELDS=date,open,high,low,close,volume\")"
+record_count: 62
 sample_fields:
-- timestamp
+- date
 - open
 - high
 - low
 - close
-field_coverage: 0.667
+- volume
+field_coverage: 1.0
 required_fields:
 - date
 - open
@@ -23,6 +32,6 @@ required_fields:
 - low
 - close
 - volume
-intent: pycoingecko python package for historical daily OHLCV Bitcoin Ethereum data
-  python package dataset
-cache_key: 8c513cd70d78354ef9580bcca105cc61fb2cd11aa8aa77eeac973277302bb9ff
+intent: download daily OHLCV Bitcoin Ethereum dataset from CoinGecko API python package
+  dataset
+cache_key: e442bffac1f4b6db0dac58c6e491c957f3b56eddc624d8ae18e70c421d04945f
