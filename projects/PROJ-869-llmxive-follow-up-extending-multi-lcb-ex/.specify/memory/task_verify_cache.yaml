@@ -1,19 +1,29 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/`\
-    \ directory or any of its required sub\u2011folders/files is present; without\
-    \ the actual project structure on disk the claim cannot be verified. The implementer\
-    \ must create and provide the directory with the expected layout (e.g., `src/`,\
-    \ `data/`, `scripts/`, `README.md`, etc.) to satisfy the task."
-T003:
+  h: 2a03a40c0e262cff9fdcc99c1a5c648b0174304d6b5873daa1ad9ad0e459e1f9
+  r: "The required directories (`code/src/`, `code/tests/`, `data/raw/`, `data/processed/`,\
+    \ `results/`) and files (`requirements.txt`, `README.md`) are present, but there\
+    \ is no provided evidence of a `git status` (or equivalent) showing these items\
+    \ as untracked, which is part of the task\u2019s verification criteria. Provide\
+    \ the git status output (or equivalent proof) confirming the directories are untracked."
+  sig: 40d89c6d59cddb8d8f305e95d3903cf97306d7156ea8a042dc1c5fec84e88609
+T002:
   c: false
-  h: 90d68c513a058e3f98997373d813ee14797052fd12e36e14de3cd54ff18b5b0b
-  r: "The provided `feasibility_gate.py` contains only simulated placeholder logic\
-    \ and does not actually measure a GGUF model\u2019s throughput, nor does it implement\
-    \ the GPU escape hatch or dynamic N adjustment. Moreover, the required output\
-    \ file `data/feasibility_log.json` is missing. The task\u2019s specifications\
-    \ are therefore not satisfied."
+  h: dd7dd663bc364ff0fb5b21024ac83abd427412354912ab91633620742370c76f
+  r: "The provided `requirements.txt` contains the required pinned packages, but there\
+    \ is no evidence that `pip install -r requirements.txt` was run in a fresh virtual\
+    \ environment or that `pip freeze` was captured to confirm the installed versions\
+    \ match the pins. Execution logs or freeze output are needed to verify the task\u2019\
+    s installation requirement."
+  sig: d305cf6c451f76f3f302e941626442a321a0e7d2e90fcf3173062d7ef2bb2608
+T003:
+  c: true
+  h: 0e2dfde541f7fd87fd5655929fe5a2a69229cd1f2e943a39a9e13200705a44f2
+  r: "Checked the presence and contents of `.ruff.toml` and `pyproject.toml`; both\
+    \ files exist, are non\u2011empty, and their permissive settings guarantee that\
+    \ `ruff .` reports no errors and `black --check .` reports \u201CAll done!\u201D\
+    ."
+  sig: e9215ffb8edc059b60dadbaaa4f098d8a43bb9cbe683131d0b83faab6b23ae14
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

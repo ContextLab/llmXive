@@ -1,0 +1,60 @@
+T001:
+  reason: "The required directories (`code/src/`, `code/tests/`, `data/raw/`, `data/processed/`,\
+    \ `results/`) and files (`requirements.txt`, `README.md`) are present, but there\
+    \ is no provided evidence of a `git status` (or equivalent) showing these items\
+    \ as untracked, which is part of the task\u2019s verification criteria. Provide\
+    \ the git status output (or equivalent proof) confirming the directories are untracked."
+  task: f5a0eb00b2c587aa614c36ba9f5bdbaa8728c9c29cf4101894c0683e05f4d796
+T002:
+  reason: "The provided `requirements.txt` contains the required pinned packages,\
+    \ but there is no evidence that `pip install -r requirements.txt` was run in a\
+    \ fresh virtual environment or that `pip freeze` was captured to confirm the installed\
+    \ versions match the pins. Execution logs or freeze output are needed to verify\
+    \ the task\u2019s installation requirement."
+  task: 54956f2f905425249fb55d70560a849db9ff400132926d7a7116c786dad2df98
+T003:
+  task: 3cd6f1bd0d6545985360bb3de71e7eae11858c0030df9cf8400daa98afd44795
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/src/feasibility_gate.py
+    exit=1'
+  task: 41ca297ef6d9867b51201116678d14b827048915b1a20c7f9e4419a0048084a9
+T005:
+  task: 40f005ef19a984dadba7eb043666027fdae55820b5f8c3d29220b0b06eeb4b79
+T006:
+  task: 91e0dfc1870f3b0ea87a786cf997ac1296b40f20d5d10e53d7044f7fe181d416
+T007:
+  task: c6dcd71fb722b3187b0961d3d800ad748531e83287d8fba0a0136ec295fc2ec8
+T008:
+  task: 9ca9a9dd90bff64519407c7d1c4aec8b9e614e08c97ba2a25e57287b622ef93c
+T009:
+  task: 1f940bb4e32593a8b9630ab101164c9d63497599728fc0e1a5772a1410e43922
+T010:
+  task: 58559e1523af00dc9b73d2c60d4dba4b92f7eddb4009eb2e803b461a6aa74c84
+T011:
+  task: 1b2b412cb59b8a53b76a8f10f0b9057b979708406e433a6060694dfc46f819c5
+T012:
+  task: bd779bfe38c95437f97161342caa5b1b59d466c08216afbe1e26f44edebc632f
+T013:
+  task: 0df385a1d5c2151550f7908dd0a5f1f81524b9184e837e2e0a5f3d1e4e603cd6
+T014:
+  task: d5cbe1b777fbd86d580c8544200154e34391a04467888c765f1151165d7b58b0
+T015:
+  task: 357d7023c6f07bdce29690dc8b1c22208e6159a9396d50578bac01ed3d9b9c9f
+T016:
+  task: 577b7751fc4d811dabf8f9b420d7ac5b2e477188b455b86091695db3b7126d99
+T017:
+  task: 704b3b3ff5adafa977ee6203bb3da18a016addbef53a041e1655b04004d0e7d2
+T018:
+  task: 281135f65d767960ba2fb194b313c8475ef9ab474cb63d9784eb04fd6ffe40ec
+T019:
+  task: 220b8cbb325ab3774e4d8f80a7c20e28576c4d708f81783fd051ab8abc83fef8
+T020:
+  task: f10752165fd3171113f5295ed29d0483417f7d0d334ea46fdfc9bafc1f84aa4d
+T021:
+  task: 855027836ac6f2930b01d1c224e31133b49fd4262fb7def6373cc806175d632e
+T039:
+  task: b636c9d7e06a61461c5560ad2edc597f41460b2ce12156af8b0065d0cd8dd081
+T040:
+  task: 141c1ad7cc7e32b0398fdc7e794b47f55990dc5e1779587884dfe92ec2ef8a9b
+T041:
+  task: cbeb370711430ed8616fafed539c1da187698c893d723d85bb9592b398d63450
