@@ -13,7 +13,7 @@ All tasks respect data‑flow dependencies and use the canonical checklist forma
   • Path: `quickstart.md`  
   • Verification: not required for functional compliance; serves as user guide.  
 
-- [ ] T002 **Implement linear‑time Möbius sieve** (`code/sieve.py`) that computes μ(n) for `1 ≤ n ≤ 10⁷` and writes an int8 array to `data/raw/mobius_array.npy`.  
+- [X] T002 **Implement linear‑time Möbius sieve** (`code/sieve.py`) that computes μ(n) for `1 ≤ n ≤ 10⁷` and writes an int8 array to `data/raw/mobius_array.npy`.  
   • Path: `code/sieve.py`, `data/raw/mobius_array.npy`  
   • Verification: unit tests `tests/unit/test_sieve.py` check known values (μ(1)=1, μ(2)=−1, μ(4)=0, μ(30)=−1, μ(3025)=0) and assert every entry lies in `{−1,0,1}`.  
 
