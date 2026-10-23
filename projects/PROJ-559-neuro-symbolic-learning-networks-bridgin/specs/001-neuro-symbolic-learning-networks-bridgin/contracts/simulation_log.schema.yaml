@@ -15,7 +15,7 @@ properties:
     enum:
       - "neural"
       - "symbolic"
-      - "neuro-symbolic"
+      - "neuro_symbolic"
     description: "The explanation condition."
   correct:
     type: "integer"
