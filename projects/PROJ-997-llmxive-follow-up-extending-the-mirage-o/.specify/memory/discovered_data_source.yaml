@@ -1,14 +1,12 @@
 status: none
-intent: GSM8K Llama-2-7B quantization gap gradient norms local curvature KL divergence
-  python package dataset
+intent: GSM8K quantization gap gradient norms curvature python package dataset
 required_fields:
-- prompt_id
 - prompt_text
 - gradient_norm
 - local_curvature
 - kl_divergence_int8
 - kl_divergence_int4
 - kl_divergence_fp8
-cache_key: 707a152382a36e6999443dfd04b31f121f6dd558a8a6cc89a284669d0cfd0585
-searched_at: '2026-10-23T14:11:20.104086+00:00'
+cache_key: 407b23be9acfc0f327d6b37fbf56f6ee8e97f31cd6f3a04ccf2168c0df60e155
+searched_at: '2026-10-23T16:13:15.284309+00:00'
 retry_count: 1

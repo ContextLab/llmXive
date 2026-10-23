@@ -1,34 +1,16 @@
 """
 generate_ground_truth.py (wrapper)
 
-This module provides a convenient programmatic wrapper around the CLI
-implementation of task **T015** (`code/cli/generate_ground_truth.py`).  The
-wrapper is used by the integration test
-`tests/cli/test_generate_ground_truth.py`.  It runs the CLI script,
-generates the Parquet dataset, computes a lightweight statistics JSON
-file, and writes both artifacts to the locations expected by the test
-suite.
+Provides a convenient ``run_wrapper`` function used by the integration tests.
+The wrapper invokes the CLI implementation in ``code/cli/generate_ground_truth.py``,
+then computes the dataset statistics required by the downstream validation step
+and writes them to ``data/processed/dataset_stats.json``.
 
-The CLI script already implements the full data‑generation pipeline –
-loading a GSM8K subset, extracting gradient norms, computing curvature,
-quantising the model, and writing a Parquet file that conforms to the
-schema in `specs/001-llmxive-follow-up-extending-the-mirage-o/contracts/dataset.schema.yaml`.
-
-The wrapper simply orchestrates the call and produces the additional
-`dataset_stats.json` file with the shape required by the test:
-
-  {
-    "per_level_statistics": {
-      "INT4": {"mean_kl": <float>},
-      "INT8": {"mean_kl": <float>},
-      "FP8": {"mean_kl": <float>}
-    },
-    "overall_non_zero_kl_significant": <bool>
-  }
-
-All paths are resolved relative to the project root using the
-``llmxive_toolkit.paths`` helpers, which automatically create any
-required parent directories.
+The function is deliberately lightweight and avoids any side‑effects other than
+the files it creates.  It can be called from test code or other Python scripts
+without needing to spawn a new Python interpreter for the CLI, but for maximum
+fidelity we invoke the CLI via ``subprocess`` so that argument parsing and logging
+behave exactly as in the documented quick‑start command.
 """
 
 import json
@@ -37,181 +19,107 @@ import sys
 from pathlib import Path
 from typing import List
 
-import pandas as pd
+# Import the validation helpers so we can compute the JSON stats after the
+# ground‑truth generation completes.
+from cli.validate_dataset_stats import (
+    load_parquet,
+    compute_statistics,
+    write_json,
+)
 
-from llmxive_toolkit import paths, get_logger
-
-log = get_logger(__name__)
-
-# --------------------------------------------------------------------------- #
-# Helper utilities
-# --------------------------------------------------------------------------- #
-def _run_cli(
+def run_wrapper(
+    *,
     model: str,
     levels: List[str],
-    sample_size: int,
-    output_path: Path,
+    output_path: str,
+    sample_size: int = 5,
+    seed: int = 42,
 ) -> None:
     """
-    Execute the CLI implementation of T015.
+    Execute the ground‑truth generation pipeline and write a statistics JSON.
 
     Parameters
     ----------
     model: str
-        Hugging‑Face identifier (e.g. ``distilgpt2`` or a larger model).
+        Hugging‑Face model identifier (e.g. ``distilgpt2`` for the fast test).
     levels: List[str]
         Quantisation levels – a subset of ``[\"INT4\", \"INT8\", \"FP8\"]``.
-    sample_size: int
-        Number of GSM8K prompts to process.
-    output_path: Path
-        Destination for the generated Parquet file.
+    output_path: str
+        Destination parquet file (e.g. ``data/processed/test_sample.parquet``).
+    sample_size: int, optional
+        Number of GSM8K prompts to process.  Defaults to ``5`` for quick tests.
+    seed: int, optional
+        Random seed for reproducibility.  Defaults to ``42``.
     """
-    cli_path = Path(__file__).parents[2] / "cli" / "generate_ground_truth.py"
+    # Resolve absolute paths – the CLI expects a path it can write to.
+    parquet_path = Path(output_path).expanduser().resolve()
+    parquet_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Build the CLI command.  We invoke the script via the current interpreter
+    # to avoid any environment‑specific shebang issues.
+    cli_script = (
+        Path(__file__).parents[2]  # <project>/code
+        / "cli"
+        / "generate_ground_truth.py"
+    )
     cmd = [
         sys.executable,
-        str(cli_path),
+        str(cli_script),
         "--model",
         model,
         "--quant_levels",
         *levels,
         "--prompt_source",
         "gsm8k",
+        "--output",
+        str(parquet_path),
         "--sample-size",
         str(sample_size),
-        "--output",
-        str(output_path),
+        "--seed",
+        str(seed),
     ]
 
-    log.info(f"Running CLI: {' '.join(cmd)}")
-    result = subprocess.run(
-        cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        check=False,
-    )
+    # Run the CLI.  ``check=True`` propagates any non‑zero exit status as an
+    # exception, which the test harness will surface as a failure.
+    subprocess.run(cmd, check=True)
 
-    if result.returncode != 0:
-        log.error("CLI failed")
-        log.error("STDOUT:\n%s", result.stdout)
-        log.error("STDERR:\n%s", result.stderr)
-        raise RuntimeError(f"generate_ground_truth CLI exited with code {result.returncode}")
+    # -----------------------------------------------------------------
+    # Compute and write the statistics JSON expected by the test suite.
+    # -----------------------------------------------------------------
+    stats_output_path = Path("data/processed/dataset_stats.json")
+    df = load_parquet(parquet_path)
+    stats = compute_statistics(df)
+    # The validation script also adds a SHA‑256 checksum – we reuse that
+    # implementation indirectly by calling ``write_json`` which will create
+    # the parent directory if needed.
+    write_json(stats, stats_output_path)
 
-def _compute_stats(df: pd.DataFrame, levels: List[str]) -> dict:
-    """
-    Compute the minimal statistics required by the test suite.
-
-    Returns a dictionary matching the expected JSON schema.
-    """
-    per_level = {}
-    for lvl in levels:
-        mask = df["quantization_level"] == lvl
-        if mask.any():
-            per_level[lvl] = {"mean_kl": float(df.loc[mask, "kl_divergence"].mean())}
-        else:
-            per_level[lvl] = {"mean_kl": 0.0}
-
-    nonzero_prop = float((df["kl_divergence"] != 0).mean())
-    overall_flag = nonzero_prop > 0.05
-
-    return {
-        "per_level_statistics": per_level,
-        "overall_non_zero_kl_significant": overall_flag,
-    }
-
-# --------------------------------------------------------------------------- #
-# Public API
-# --------------------------------------------------------------------------- #
-def run_wrapper(
-    model: str,
-    levels: List[str],
-    output_path: str,
-    sample_size: int = 300,
-) -> None:
-    """
-    Generate the ground‑truth dataset and accompanying statistics.
-
-    This function is deliberately lightweight – it invokes the existing
-    CLI script (which performs the heavy lifting) and then writes a JSON
-    file ``dataset_stats.json`` alongside the Parquet output.
-
-    Parameters
-    ----------
-    model: str
-        Hugging‑Face model identifier.  The CLI falls back to
-        ``distilgpt2`` if the requested model cannot be loaded, which
-        keeps the integration test fast.
-    levels: List[str]
-        Quantisation levels to generate (e.g. ``[\"INT8\"]`` for the test).
-    output_path: str
-        Destination path for the Parquet file (must be writable).
-    sample_size: int, optional
-        Number of GSM8K prompts to process.  The default (300) matches
-        the quick‑start documentation; the test passes a much smaller
-        value to keep runtime low.
-    """
-    parquet_path = Path(output_path).expanduser().resolve()
-    stats_path = parquet_path.parent / "dataset_stats.json"
-
-    # ------------------------------------------------------------------- #
-    # 1️⃣ Run the CLI to produce the Parquet dataset
-    # ------------------------------------------------------------------- #
-    _run_cli(
-        model=model,
-        levels=levels,
-        sample_size=sample_size,
-        output_path=parquet_path,
-    )
-
-    # ------------------------------------------------------------------- #
-    # 2️⃣ Load the generated dataset and compute statistics
-    # ------------------------------------------------------------------- #
-    df = pd.read_parquet(parquet_path, engine="fastparquet")
-    stats = _compute_stats(df, levels)
-
-    # ------------------------------------------------------------------- #
-    # 3️⃣ Write the statistics JSON to the expected location
-    # ------------------------------------------------------------------- #
-    stats_path.parent.mkdir(parents=True, exist_ok=True)
-    with stats_path.open("w", encoding="utf-8") as f:
-        json.dump(stats, f, indent=2, sort_keys=True)
-
-    log.info(f"Statistics written to {stats_path}")
-
-# --------------------------------------------------------------------------- #
-# CLI entry point – allows the wrapper to be executed directly if desired.
-# --------------------------------------------------------------------------- #
+# When the module is executed directly (e.g. ``python -m code.data.generate_ground_truth``)
+# we forward the arguments to ``run_wrapper`` for a convenient manual run.
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Wrapper for T015 – generate ground‑truth dataset and stats."
+        description="Wrapper for generate_ground_truth that also writes statistics."
     )
-    parser.add_argument(
-        "--model",
-        type=str,
-        required=True,
-        help="Hugging‑Face model identifier (e.g. distilgpt2).",
-    )
+    parser.add_argument("--model", required=True, help="HF model identifier")
     parser.add_argument(
         "--levels",
         nargs="+",
         required=True,
         choices=["INT4", "INT8", "FP8"],
-        help="Quantisation levels to generate.",
+        help="Quantisation levels",
     )
     parser.add_argument(
-        "--output",
-        type=str,
-        required=True,
-        help="Path for the output Parquet file.",
+        "--output", required=True, help="Path to the output Parquet file"
     )
     parser.add_argument(
         "--sample-size",
         type=int,
-        default=300,
-        help="Number of GSM8K prompts to process.",
+        default=5,
+        help="Number of GSM8K samples to process",
     )
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
     args = parser.parse_args()
 
     run_wrapper(
@@ -219,4 +127,5 @@ if __name__ == "__main__":
         levels=args.levels,
         output_path=args.output,
         sample_size=args.sample_size,
+        seed=args.seed,
     )

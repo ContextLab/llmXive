@@ -19,9 +19,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/cli/generate_ground_truth.py  --model meta-llama/Meta-Llama-2-7B-4bit  --quant_levels INT4 INT8 FP8  --prompt_source gsm8k  --output data/processed/training_sample.parquet  --seed 42 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 35, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 41, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-997-llmxive-follow-up-extending-the-mirage-o/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-997-llmxive-follow-up-extending-the-mirage-o/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-997-llmxive-follow-up-extending-the-mirage-o/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/cli/validate_dataset_stats.py  --input data/processed/training_sample.parquet  --output data/metrics/dataset_stats.json -> rc=1
 
@@ -44,7 +51,7 @@ Failed to read training data parquet: Parquet file not found: /home/runner/work/
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-997-llmxive-follow-up-extending-the-mirage-o/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/measure_runtime.py': [Errno 2] No such file or directory
 
 - python -m pytest -m contract -> rc=2
-xt.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+text.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
     ParserElement.enablePackrat()
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
@@ -58,15 +65,14 @@ ERROR tests/integration/test_validation.py
 ERROR tests/integration/test_verify_dataset_completeness.py
 ERROR tests/unit/test_audit_data_integrity.py
 ERROR tests/unit/test_bound_verifier.py
-ERROR tests/unit/test_extract_features.py
-ERROR tests/unit/test_gap_calculator.py
+ERROR tests/unit/test_gap_calculator.py - NameError: name 'List' is not defined
 ERROR tests/unit/test_generate_visualization_report.py
 ERROR tests/unit/test_latency_meter.py
 ERROR tests/unit/test_train_predictor.py
 ERROR tests/unit/test_verify_model_availability.py
 ERROR tests/unit/test_verify_model_robustness.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 16 errors during collection !!!!!!!!!!!!!!!!!!!
-================ 50 deselected, 13 warnings, 16 errors in 2.52s ================
+!!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
+================ 51 deselected, 13 warnings, 15 errors in 9.70s ================
 
 
 
