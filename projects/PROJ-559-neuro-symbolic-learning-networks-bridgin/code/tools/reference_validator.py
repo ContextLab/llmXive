@@ -66,11 +66,15 @@ def fetch_title(url: str) -> str | None:
 
 def compute_overlap(url: str, title: str) -> float:
     """
-    Compute a simple token‑overlap ratio between the URL and the page title.
+    Compute a token‑overlap ratio between the URL and the page title.
 
-    The overlap is defined as:
-        |tokens(url) ∩ tokens(title)| / |tokens(title)|
-    where tokens are alphanumeric words converted to lower‑case.
+    The overlap is defined as the proportion of *title* tokens that are
+    matched by at least one URL token. Matching is performed loosely:
+    a URL token and a title token are considered a match if they are
+    identical or if one is a substring of the other (e.g., ``huggingface``
+    in the title ``Hugging Face``).
+
+    Returns a float in the range [0, 1].
     """
     # Tokenise the full URL (remove scheme, keep domain and path)
     url_no_scheme = re.sub(r"https?://", "", url)
@@ -81,7 +85,14 @@ def compute_overlap(url: str, title: str) -> float:
     if not title_tokens:
         return 0.0
 
-    overlap = len(url_tokens & title_tokens) / len(title_tokens)
+    matched = 0
+    for t_tok in title_tokens:
+        for u_tok in url_tokens:
+            if u_tok == t_tok or u_tok in t_tok or t_tok in u_tok:
+                matched += 1
+                break
+
+    overlap = matched / len(title_tokens)
     log.debug(f"Overlap for {url!r}: {overlap:.3f}")
     return overlap
 

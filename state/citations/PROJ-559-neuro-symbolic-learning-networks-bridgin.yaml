@@ -41,7 +41,7 @@
   value: https://huggingface.co/datasets/assistments/2009-2010`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/assistments/2009-2010
-  verified_at: '2026-10-23T22:18:46.967536Z'
+  verified_at: '2026-10-23T23:22:35.132070Z'
 - artifact_hash: 3cc55a133674fc43ba057e161bca72627dc86d63657fa1ec495b4354136c7359
   artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
   cite_id: c-002
@@ -52,4 +52,4 @@
   value: https://huggingface.co/datasets/khanacademy/math`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/khanacademy/math
-  verified_at: '2026-10-23T22:18:46.967536Z'
+  verified_at: '2026-10-23T23:22:35.132070Z'

@@ -1,7 +1,7 @@
 {
   "task_id": "T001",
   "fingerprint": "530796559e4bb7ab9f08bd23f87126fb41487abc203c76ee6f8e41d44023cc26",
-  "count": 1,
+  "count": 2,
   "model": "openai.gpt-oss-120b",
   "reason": "[implementer] refused empty contents without execution: 'state/validation/citation_gate_passed.txt'"
 }
