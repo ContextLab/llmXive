@@ -8,7 +8,7 @@
 | Column | Type | Description |
 |--------|------|-------------|
 | `prompt_id` | string | Deterministic UUID for the prompt. |
-| `instruction_type` | enum(`conflicting`, `neutral`) | Ground‑truth label (balanced 500/500). |
+| `instruction_type` | enum(`conflicting`, `neutral`) | Ground‑truth label (balanced groups of equal size). |
 | `prompt_text` | string | Full natural‑language instruction. |
 | `synthetic_score` | number (0.0‑1.0) | Rule‑based feasibility heuristic (used only for conflict generation). |
 | `human_score` | number (0.0‑1.0) | Independent human‑annotated feasibility score (primary ground‑truth). |
@@ -55,7 +55,7 @@ Same columns as `baseline_scores.csv` plus:
 ## 7. Final Evaluation Report (`report.json`)
 ```yaml
 report_version: "1.0.0"
-generated_at: "2026-10-17T12:00:00Z"
+generated_at: "2026-10-22T12:00:00Z"
 runtime_seconds: integer
 memory_peak_gb: number
 tests:
@@ -104,5 +104,3 @@ definitions:
 ```
 
 All CSV files are UTF‑8 encoded, line‑terminated with `\n`. JSON files are pretty‑printed with 2‑space indentation.
-
----

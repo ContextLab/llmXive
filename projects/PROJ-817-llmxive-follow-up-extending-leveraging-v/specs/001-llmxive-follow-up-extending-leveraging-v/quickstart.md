@@ -5,7 +5,7 @@ A researcher can reproduce the entire study on a GitHub Actions free‑tier runn
 ## 1. Prerequisites
 - Python 3.11
 - Internet access (to download the InstructPix2Pix parquet files)
-- Optional: GPU access (Kaggle free GPU). The pipeline will automatically offload verifier inference if a CUDA device is unavailable.
+- Optional: GPU access (Kaggle free GPU). **The pipeline runs fully on CPU**, so a GPU is not required.
 
 ## 2. Setup
 ```bash
@@ -37,7 +37,7 @@ python -m src.data.curate
 ```bash
 python -m src.data.human_annotation
 ```
-- This script launches a lightweight web form (or MTurk batch) for **all 1 000 prompts**.  
+- This script launches a lightweight web form (or MTurk batch) for all prompts.  
 - Results are saved to `data/human_validation.csv` and merged into `data/curated_prompts.csv` as the `human_score` column.
 
 ## 5. Symbolic graph construction (CPU‑only)
@@ -51,8 +51,7 @@ python -m src.parser.graph_builder
 ```bash
 python -m src.verifier.baseline
 # Produces data/baseline_scores.csv
-# If no CUDA device is present, the script triggers the Kaggle GPU escape hatch automatically.
-# Baseline runtime must be ≤ 2 h (SC‑009) and will be logged.
+# Uses CPU‑only 8‑bit quantized inference, staying within ≤ 7 GB RAM and ≤ 2 h runtime (SC‑009).
 ```
 
 ## 7. Graph‑augmented verifier evaluation (with controls)
@@ -65,10 +64,10 @@ python -m src.verifier.augmented
 ```bash
 python -m src.analysis.stats
 python -m src.analysis.report
-# Generates:
-#   - data/report.json  (machine‑readable, conforms to contract)
-#   - data/report.csv   (human‑readable table for the paper)
 ```
+- Generates:
+  - `data/report.json`  (machine‑readable, conforms to contract)
+  - `data/report.csv`   (human‑readable table for the paper)
 
 ## 9. Verification
 ```bash
@@ -89,7 +88,5 @@ All contract tests must pass; otherwise the CI job fails.
 | `data/report.json` | Full statistical results, runtime, memory usage, correlation, correction method. |
 | `data/report.csv` | Human‑readable summary for inclusion in the manuscript. |
 
-## 11. GPU Escape Hatch Note
-If `torch.cuda.is_available()` returns `False`, the verifier scripts automatically re‑run on a free Kaggle GPU (the platform detects the CUDA error and performs the off‑load). No code changes are required; just ensure the `torch` and `transformers` versions support `device="cuda"`.
-
 ---
+
