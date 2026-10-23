@@ -1,48 +1,32 @@
 T001:
-  reason: The scaffold created the required files `requirements.txt`, `pyproject.toml`,
-    `quickstart.md` and a `.flake8` (found inside `code/`), and the directories `code/`,
-    `data/raw/`, `data/processed/`, `models/`, `reports/`, `tests/`, and `contracts/`
-    each contain a `.gitkeep`. However, there is no evidence of a `.gitkeep` in the
-    `metrics/` and `logs/` directories, and the `.flake8` file is not at the project
-    root as implied by the task description. Adding those missing `.gitkeep` files
-    (and placing `.flake8` at the root) is needed to satisfy T001.
-  task: f6f9ed9bdc36c0cf32b7ee2c66d20ddbd167cfb68de72f77d492cc17db9fc915
+  task: 26387793865012ada560937bf319560386b147e3cb7c4e985ebd64df12e886c7
 T002:
-  task: 268e6518d89a8bb43601414c10f8474a10d5ef2bfb3f737be3cdb3659fa17f35
+  task: aa7b20f20fbd9f138095b4e812247f5e322a2779ba7fb26415f518a69c85ec6a
 T003:
-  reason: The only artifact present is `logs/preprocess_counts.yaml`, which contains
-    an empty list and no schema definition, and there is no evidence of a logging
-    configuration (e.g., a Python logging setup or config file) that writes to `logs/`
-    with the required format. Both the logging initialization and the YAML schema
-    are missing.
-  task: 998d91bb7d88460ccbfdaba51c346946f170f95ad93a9221237849c5f812b7de
+  task: 08cd29aff1827c1f9312b91e50cd1377812437905c962f48bd9bda8d7d8517bb
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/download.py exit=-1
-    (TIMEOUT)'
-  task: 1f54af32dde7847ad61f16451db5c5375f02db2b74aa1be7c5f8fb7063d591a2
+  task: 842ef0b3020b8f62612f3fc2b9d9fbd3e207629973606b174c5db4436379d684
 T005:
-  task: 31acea2b89283c6222e777ea5ab6b1f81afe645b8d093f1807aed127b7e17a52
+  task: 9c7367baca73c4c9adf7fb7dacce3e7962978e771cc70779401916b0b7c3a6a9
 T006:
-  task: 1dc143a73f72fb6a0cc3c514095cfe9cf1d04e35e7be2536e02453f964b4b7a5
+  task: 0583a02c98d7af2547b703ad217ade9e101f3466a6c0c9436d4ba5916e43730f
 T007:
-  task: 6e9bd191f5e4dfd42e52e7c618f9d35b688f89576ffd23c3b1af15b69cfb5a94
+  task: db6bfbf7b157871d6919d28fb0c6174c650b2a679d2a611d2e4f473ef2cf9886
+T007.1:
+  task: 58dd330d0602ca973a3e237767c015c6945fa0f0f2d8676748fcf72db48d353d
 T008:
-  task: fa4553196c6af2690a95022c0f42500062f3f34fd7197b2d9166c4a842c12271
+  task: fb2ac0aaa00bc4fc2ee47c26e4d0e7f439fe6bdc09a500f8eab46e11e3f12b15
 T009:
-  task: 894692ddce9be1ae3e8a99350f1d2cd0d08973f76a3448553f7225a22560a42a
+  task: 901325813593fc0e7df34f089a59e6b7b43a4290cdb9a30f69a457ab2ff82486
 T010:
-  reason: "The `code/download.py` script streams raster downloads and records entries\
-    \ in `data/manifest.json`, satisfying the manifest\u2011update requirement. However,\
-    \ it never verifies the downloaded file\u2019s SHA\u2011256 against a known value\
-    \ (or file size) nor aborts on a mismatch, so the checksum\u2011validation step\
-    \ is missing. The next implementer must add post\u2011download checksum comparison\
-    \ and error handling."
-  task: 55fd7a6da6bad64bce896fe8daa84919c3bf8ee224d034a67b315c3781623e18
+  task: 1226c31c786cfa85d786b9cddbf281991262752501d85a9fd5f5a30b8713fffa
 T011:
-  task: 5a8939b258264238dbaa4b6c3b5a438e21028e8091b82e5012e648c8a83fbaad
+  task: c780e7a3a31bab5252018dfd0247f8d7b445cc7ef6a05f7592dc32499a8b8347
 T012:
-  task: a7d706e90ecc679417b762fc8228f23c4d8411418982821d553aa7604bb3b2aa
+  task: 95570a1dd510768a6ca022d7d36ca64c829bd964ecd3706c2d0a7f62961d2d87
 T015:
-  task: d098eb9b3be43b3b5912bf884406db647f6e0ad5c5c9a7d124ea10e85428ca92
+  task: d4b3d5102d1e4c859f5c1c4679476e0aabaf217fb29802eb359414362ce9869c
 T016:
-  task: 396bbecd5e3577e02a97c8a9e75906afaf9d92e5e4810e8bad8ad59d06344aa5
+  task: 8bc3bd6b6c985c5662ff86ab56381b29d15392e4761c5d3882d29704348e1cdf
+T018:
+  task: 8ba2b412b7d01d84a7117aab91161c256d9c5f6f9966890fc4ed3c0abd362464
