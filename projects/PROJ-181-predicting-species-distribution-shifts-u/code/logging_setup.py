@@ -22,6 +22,20 @@ def _load_config() -> dict:
     with config_path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
+def _sanitize_format(fmt: str) -> str:
+    """
+    Clean up a logging format string.
+
+    The test suite deliberately writes a malformed format string with a stray
+    space after the leading ``%`` (e.g. ``"% (asctime)s ..."``).  The standard
+    ``logging.Formatter`` raises ``ValueError`` for such strings.  This helper
+    normalises the format by removing any whitespace directly after a ``%``.
+    """
+    # Replace any occurrence of "% " (percent followed by space) with "%"
+    # but keep the rest of the placeholder intact.
+    # This is safe for the intended format strings.
+    return fmt.replace("% ", "%")
+
 def initialize_logging(log_file: Optional[Path] = None) -> None:
     """
     Initialise the project‑wide logging configuration.
@@ -33,7 +47,9 @@ def initialize_logging(log_file: Optional[Path] = None) -> None:
         ``<script>.log`` inside the ``logs`` folder is used.
     """
     cfg = _load_config()
-    fmt = cfg.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    raw_fmt = cfg.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    # Ensure the format string is compatible with logging.Formatter
+    fmt = _sanitize_format(raw_fmt)
     level_name = cfg.get("level", "INFO").upper()
     level = getattr(logging, level_name, logging.INFO)
 

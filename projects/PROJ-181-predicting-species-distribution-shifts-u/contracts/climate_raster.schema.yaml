@@ -1,0 +1,19 @@
+type: object
+properties:
+  raster_id:
+    type: string
+  variable_name:
+    type: string
+  file_path:
+    type: string
+  checksum_sha256:
+    type: string
+  download_timestamp:
+    type: string
+    format: date-time
+required:
+  - raster_id
+  - variable_name
+  - file_path
+  - checksum_sha256
+  - download_timestamp

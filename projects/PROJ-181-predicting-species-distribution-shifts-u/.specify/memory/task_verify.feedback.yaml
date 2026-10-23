@@ -1,20 +1,19 @@
 T001:
-  reason: "The root\u2011level `.flake8` file is absent (the only `.flake8` shown\
-    \ is inside `code/`), and the required top\u2011level `metrics/` and `logs/` directories\
-    \ (each containing a `.gitkeep`) are not present in the listed artifacts. Consequently\
-    \ the scaffold does not meet all specified requirements."
+  reason: "The scaffold includes `requirements.txt`, `pyproject.toml`, `quickstart.md`,\
+    \ and `.gitkeep` files in most top\u2011level folders, but the repository root\
+    \ lacks a `.flake8` file (the only `.flake8` shown is inside `code/`) and the\
+    \ `logs/` directory (with its required `.gitkeep`) is absent. These missing artifacts\
+    \ prevent the task from being fully satisfied."
   task: 26387793865012ada560937bf319560386b147e3cb7c4e985ebd64df12e886c7
 T002:
   task: aa7b20f20fbd9f138095b4e812247f5e322a2779ba7fb26415f518a69c85ec6a
 T003:
-  reason: "Checked `logs/logging_config.yaml` (correct format/level) and `code/logging_setup.py`\
-    \ (loads config and configures logging), but the pytest run (`tests/test_logging_setup.py`)\
-    \ failed because the logging formatter raised a `ValueError` (unsupported format\
-    \ character) and the generated log file was empty. Moreover `logs/preprocess_counts.yaml`\
-    \ is just an empty list (`[]`) instead of a non\u2011empty list of objects conforming\
-    \ to `contracts/log_counts.schema.yaml`, and no script evidence shows the required\
-    \ `setup_logger = get_logger(__name__)` import. The task\u2019s logging initialization\
-    \ and log\u2011counts ou"
+  reason: "The required `logs/logging_config.yaml` and `code/logging_setup.py` files\
+    \ exist, but the provided logging helper fails the verification test: initializing\
+    \ logging raises a `ValueError` (unsupported format character) and the expected\
+    \ log file is empty. Moreover, there is no evidence that any project scripts import\
+    \ `setup_logger = get_logger(__name__)` as required. The task\u2019s verification\
+    \ conditions are therefore not met."
   task: 08cd29aff1827c1f9312b91e50cd1377812437905c962f48bd9bda8d7d8517bb
 T004:
   reason: 'Requested task execution failed; rerun successfully: tests/unit/test_download.py
@@ -33,12 +32,22 @@ T008:
 T009:
   task: 901325813593fc0e7df34f089a59e6b7b43a4290cdb9a30f69a457ab2ff82486
 T010:
+  reason: "I examined `code/download.py` and `code/manifest_manager.py`. The script\
+    \ downloads rasters, fetches a companion `.sha256` file, compares the hash, deletes\
+    \ the file on mismatch, and records the checksum in `data/manifest.json` \u2013\
+    \ satisfying the raster part of T010. However, the occurrence\u2011CSV download\
+    \ (`fetch_gbif_occurrences`) never attempts to download or verify a `.sha256`\
+    \ file; it only records a checksum after writing the file, so the \u201Cany large\
+    \ CSV\u201D requirement is unmet. Moreover, there is no evidence (e.g., test logs\
+    \ or a run showing an abort with a clear error) that the script aborts on a"
   task: 1226c31c786cfa85d786b9cddbf281991262752501d85a9fd5f5a30b8713fffa
 T011:
   task: c780e7a3a31bab5252018dfd0247f8d7b445cc7ef6a05f7592dc32499a8b8347
 T012:
   task: 95570a1dd510768a6ca022d7d36ca64c829bd964ecd3706c2d0a7f62961d2d87
 T015:
+  reason: 'Requested task execution failed; rerun successfully: code/validate_contracts.py
+    exit=1'
   task: d4b3d5102d1e4c859f5c1c4679476e0aabaf217fb29802eb359414362ce9869c
 T016:
   task: 8bc3bd6b6c985c5662ff86ab56381b29d15392e4761c5d3882d29704348e1cdf

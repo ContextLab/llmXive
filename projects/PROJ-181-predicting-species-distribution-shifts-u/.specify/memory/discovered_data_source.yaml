@@ -1,103 +1,19 @@
-status: verified
-kind: pypi_package
-ref: pygbif
-access_python: "import sys\nfrom pygbif import occurrences\n\ndef main():\n    data\
-  \ = occurrences.search(limit=200)\n    results = data.get('results', [])\n    if\
-  \ not results:\n        raise RuntimeError(\"No records loaded\")\n    fields =\
-  \ list(results[0].keys())\n    print(f\"RECORDS={len(results)}\")\n    print(\"\
-  FIELDS=\" + \",\".join(fields))\n\nif __name__ == \"__main__\":\n    main()"
-record_count: 200
-sample_fields:
-- key
-- datasetKey
-- publishingOrgKey
-- datasetCategory
-- installationKey
-- hostingOrganizationKey
-- publishingCountry
-- protocol
-- lastCrawled
-- lastParsed
-- crawlId
-- extensions
-- basisOfRecord
-- occurrenceStatus
-- classifications
-- taxonKey
-- kingdomKey
-- phylumKey
-- classKey
-- orderKey
-- familyKey
-- genusKey
-- speciesKey
-- acceptedTaxonKey
-- scientificName
-- acceptedScientificName
-- kingdom
-- phylum
-- order
-- family
-- genus
-- species
-- genericName
-- specificEpithet
-- infraspecificEpithet
-- taxonRank
-- taxonomicStatus
-- decimalLatitude
-- decimalLongitude
-- continent
-- gadm
-- year
-- month
-- day
-- eventDate
-- startDayOfYear
-- endDayOfYear
-- issues
-- lastInterpreted
-- license
-- isSequenced
-- identifiers
-- media
-- facts
-- relations
-- isInCluster
-- recordedBy
-- dnaSequenceID
-- nucleotideSequence
-- geodeticDatum
-- class
-- countryCode
-- recordedByIDs
-- identifiedByIDs
-- gbifRegion
-- country
-- publishedByGbifRegion
-- http://unknown.org/download
-- datasetTitle
-- catalogNumber
-- http://unknown.org/crawl_attempt
-- http://unknown.org/orphanEndpoint
-- institutionCode
-- http://unknown.org/status
-- locality
-- http://unknown.org/griddedDataset
-- collectionCode
-- gbifID
-field_coverage: 0.7
+status: none
+intent: download North American bird occurrence dataset GBIF eBird WorldClim v2 climate
+  rasters python package dataset
 required_fields:
-- species
-- decimalLatitude
-- decimalLongitude
-- eventDate
+- species_name
+- observation_id
+- source_dataset
+- observation_date
 - year
 - month
-- coordinateUncertaintyInMeters
-- basisOfRecord
-- bio1_temperature_annual_mean
-- bio12_annual_precipitation
-intent: download North American bird occurrence GBIF eBird WorldClim v2 climate rasters
-  python package dataset
-cache_key: 1965ba901925d1f445aa80ad3aa22dc68c570a1bde2b8c4af1a29ae2d28e589f
+- decimal_latitude
+- decimal_longitude
+- climate_bio1_temperature_mean
+- climate_bio12_annual_precipitation
+- climate_bio2_mean_diurnal_range
+- climate_bio3_isothermality
+cache_key: c7e2403659eaa85f61418f6b86829706643cc034f2d6fabdf29e6ea09521a2a0
+searched_at: '2026-10-23T12:40:16.326790+00:00'
+retry_count: 1

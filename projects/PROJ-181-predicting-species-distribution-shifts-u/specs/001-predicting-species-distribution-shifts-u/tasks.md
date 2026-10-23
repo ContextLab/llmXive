@@ -40,7 +40,7 @@
   - Record the verified checksum in `data/manifest.json`.  
   - **Verification**: Running the script on a fresh runner with an intentionally corrupted file results in an abort and a clear error message; successful runs write matching `checksum_sha256` values to the manifest.
 
-- [ ] T015 [P] **Generate and validate data contracts**  
+- [ ] T015 [P] **Generate and validate data contracts**   <!-- FAILED-IN-EXECUTION: code/validate_contracts.py exit=1 -->
   - Write YAML schema files under `contracts/` for all core artifacts (`occurrence.schema.yaml`, `occurrence_record.schema.yaml`, `climate_raster.schema.yaml`, `climate_variable.schema.yaml`, `data_sufficiency.schema.yaml`, `model_artifact.schema.yaml`, `model_metrics.schema.yaml`, `log_counts.schema.yaml`).  
   - Add a validation utility `code/validate_contracts.py` that loads each artifact and validates against its schema, aborting on any violation.  
   - **Verification**: `python -m code.validate_contracts` exits with code 0 on a fresh download; any schema breach prints the offending file and line.

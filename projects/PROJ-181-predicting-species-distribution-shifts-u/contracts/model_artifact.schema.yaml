@@ -1,0 +1,27 @@
+type: object
+properties:
+  model_id:
+    type: string
+  species:
+    type: string
+  algorithm:
+    type: string
+  train_period:
+    type: string
+  test_period:
+    type: string
+  file_path:
+    type: string
+  checksum_sha256:
+    type: string
+  seed:
+    type: integer
+required:
+  - model_id
+  - species
+  - algorithm
+  - train_period
+  - test_period
+  - file_path
+  - checksum_sha256
+  - seed

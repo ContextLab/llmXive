@@ -1,11 +1,12 @@
 T001:
   c: false
-  h: 99cace20c5ea27851297699aab04ac7b90f237cbfb2128a4b27f314ae3a1338b
-  r: "The root\u2011level `.flake8` file is absent (the only `.flake8` shown is inside\
-    \ `code/`), and the required top\u2011level `metrics/` and `logs/` directories\
-    \ (each containing a `.gitkeep`) are not present in the listed artifacts. Consequently\
-    \ the scaffold does not meet all specified requirements."
-  sig: cbbcefd15c5dcc6a9db2d531459fe65bfb96adb53a634cbd936a5cbadfde9a07
+  h: 6e1c1dd4aabed698f37774a5cdcf08a6c4bff1cb1fc88aad489396951f57c138
+  r: "The scaffold includes `requirements.txt`, `pyproject.toml`, `quickstart.md`,\
+    \ and `.gitkeep` files in most top\u2011level folders, but the repository root\
+    \ lacks a `.flake8` file (the only `.flake8` shown is inside `code/`) and the\
+    \ `logs/` directory (with its required `.gitkeep`) is absent. These missing artifacts\
+    \ prevent the task from being fully satisfied."
+  sig: c8efac489f4ba78329a20b3684876b82b31d96058651aacf0735000a91e81059
 T002:
   c: true
   h: 6c94e87b850a9af970ce0fc8249b2b9f6834a26cfe3a10afe05c9101bd0bc688
@@ -15,13 +16,23 @@ T002:
   sig: b4912ff7562f12ca1fc4fdfbb716489318f0d39665b32d715924a3339f1ac252
 T003:
   c: false
-  h: 61143e53bbeecceea3a3eae341525e26d049d79890bf33f5e9615bdbe47f215c
-  r: "Checked `logs/logging_config.yaml` (correct format/level) and `code/logging_setup.py`\
-    \ (loads config and configures logging), but the pytest run (`tests/test_logging_setup.py`)\
-    \ failed because the logging formatter raised a `ValueError` (unsupported format\
-    \ character) and the generated log file was empty. Moreover `logs/preprocess_counts.yaml`\
-    \ is just an empty list (`[]`) instead of a non\u2011empty list of objects conforming\
-    \ to `contracts/log_counts.schema.yaml`, and no script evidence shows the required\
-    \ `setup_logger = get_logger(__name__)` import. The task\u2019s logging initialization\
-    \ and log\u2011counts ou"
-  sig: 6550e763b063f51f1ca122c02e881d1a4ac2c026232dc5cf204cafdf832c499a
+  h: 26230ad9e4fdf234eb69898f28552285cb6f14f16cf5bab68c14ee6fc5e1ca74
+  r: "The required `logs/logging_config.yaml` and `code/logging_setup.py` files exist,\
+    \ but the provided logging helper fails the verification test: initializing logging\
+    \ raises a `ValueError` (unsupported format character) and the expected log file\
+    \ is empty. Moreover, there is no evidence that any project scripts import `setup_logger\
+    \ = get_logger(__name__)` as required. The task\u2019s verification conditions\
+    \ are therefore not met."
+  sig: 1aa3903d4dbffc7618de080c8fb73069f833696f8689faafe48f8c965c357564
+T010:
+  c: false
+  h: 81db228ba4f619bb772e08e9ba1d964559d67174fd148c3644836be29c6f9322
+  r: "I examined `code/download.py` and `code/manifest_manager.py`. The script downloads\
+    \ rasters, fetches a companion `.sha256` file, compares the hash, deletes the\
+    \ file on mismatch, and records the checksum in `data/manifest.json` \u2013 satisfying\
+    \ the raster part of T010. However, the occurrence\u2011CSV download (`fetch_gbif_occurrences`)\
+    \ never attempts to download or verify a `.sha256` file; it only records a checksum\
+    \ after writing the file, so the \u201Cany large CSV\u201D requirement is unmet.\
+    \ Moreover, there is no evidence (e.g., test logs or a run showing an abort with\
+    \ a clear error) that the script aborts on a"
+  sig: e0cf10a567c5274f5edb743c3a575bae3854025229305eb9c1653c717ffcbc46

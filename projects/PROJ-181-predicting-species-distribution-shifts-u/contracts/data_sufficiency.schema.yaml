@@ -1,0 +1,16 @@
+type: object
+properties:
+  species:
+    type: string
+  thinned_records:
+    type: integer
+  power:
+    type: number
+  status:
+    type: string
+    enum: [SUFFICIENT, INSUFFICIENT]
+required:
+  - species
+  - thinned_records
+  - power
+  - status

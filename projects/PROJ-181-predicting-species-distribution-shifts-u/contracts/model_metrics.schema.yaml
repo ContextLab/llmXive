@@ -1,13 +1,39 @@
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "required": ["species", "algorithm", "auc", "tss", "threshold", "dataset_split"],
-  "properties": {
-    "species": {"type": "string"},
-    "algorithm": {"type": "string"},
-    "auc": {"type": "number"},
-    "tss": {"type": "number"},
-    "threshold": {"type": "number"},
-    "dataset_split": {"type": "string"}
-  }
-}
+type: object
+properties:
+  model_id:
+    type: string
+  species:
+    type: string
+  algorithm:
+    type: string
+  test_set_period:
+    type: string
+  auc:
+    type: number
+  tss:
+    type: number
+  delta_auc:
+    type: number
+  delta_tss:
+    type: number
+  mop_proportion:
+    type: number
+  composite_stability:
+    type: number
+  p_value:
+    type: number
+  corrected_p_value:
+    type: number
+required:
+  - model_id
+  - species
+  - algorithm
+  - test_set_period
+  - auc
+  - tss
+  - delta_auc
+  - delta_tss
+  - mop_proportion
+  - composite_stability
+  - p_value
+  - corrected_p_value

@@ -1,5 +1,16 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/processed/occurrence_placeholder.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
@@ -10,7 +21,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 command(s) failed: python code/main.py download (rc=2); python code/main.py preprocess (rc=1); python code/main.py train (rc=1)
+**Summary**: every produced artifact is gitignored (data/processed/occurrence_placeholder.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 command(s) failed: python code/main.py download (rc=2)
 
 ## Failing / missing run-book commands
 
@@ -21,30 +32,6 @@ usage: main.py [-h] [--species-list SPECIES_LIST] [--year-range YEAR_RANGE]
                [--climate {historical,recent,future}] [--scenario SCENARIO]
                [--year YEAR]
 main.py: error: unrecognized arguments: download
-
-- python code/main.py preprocess -> rc=1
-2026-10-23 12:37:00,032 - __main__ - ERROR - preprocess command not implemented yet.
-
-2026-10-23 12:37:00,032 ERROR __main__: preprocess command not implemented yet.
-preprocess command not implemented yet.
-
-- python code/main.py train -> rc=1
-2026-10-23 12:37:00,215 - __main__ - ERROR - train command not implemented yet.
-
-2026-10-23 12:37:00,215 ERROR __main__: train command not implemented yet.
-train command not implemented yet.
-
-- python code/main.py evaluate -> rc=1
-2026-10-23 12:37:00,392 - __main__ - ERROR - evaluate command not implemented yet.
-
-2026-10-23 12:37:00,392 ERROR __main__: evaluate command not implemented yet.
-evaluate command not implemented yet.
-
-- python code/main.py report -> rc=1
-2026-10-23 12:37:00,572 - __main__ - ERROR - report command not implemented yet.
-
-2026-10-23 12:37:00,572 ERROR __main__: report command not implemented yet.
-report command not implemented yet.
 
 ## Platform-owned paths written inside the project
 

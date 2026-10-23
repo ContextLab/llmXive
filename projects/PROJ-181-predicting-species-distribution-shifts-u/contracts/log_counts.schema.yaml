@@ -1,0 +1,12 @@
+type: object
+properties:
+  step:
+    type: string
+  before_count:
+    type: integer
+  after_count:
+    type: integer
+required:
+  - step
+  - before_count
+  - after_count
