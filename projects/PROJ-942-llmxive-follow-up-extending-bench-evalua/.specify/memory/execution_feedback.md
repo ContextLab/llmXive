@@ -15,21 +15,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/pipelines/download_pi_bench.py -> rc=1
-   runpy.run_path(str(impl_path), run_name="__main__")
+llow-up-extending-bench-evalua/src/pipelines/download_pi_bench.py", line 30, in _run_underlying
+    runpy.run_path(str(impl_path), run_name="__main__")
   File "<frozen runpy>", line 291, in run_path
   File "<frozen runpy>", line 98, in _run_module_code
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 154, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 174, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 122, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 142, in main
     checksums = _download_pi_bench(
                 ^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 61, in _download_pi_bench
-    dataset = datasets.load_dataset("pi_bench", streaming=True, split="train")
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/datasets.py", line 40, in load_dataset
-    raise ImportError(
-ImportError: The stubbed `datasets` library only supports the 'json' format. Requested dataset: pi_bench
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-942-llmxive-follow-up-extending-bench-evalua/code/pipelines/download_pi_bench.py", line 67, in _download_pi_bench
+    r.raise_for_status()
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/pi_bench/resolve/main/train.jsonl
 
 - python src/pipelines/parse_traces.py  --raw-dir data/raw  --out-csv data/derived/normalized_traces.csv -> rc=1
 

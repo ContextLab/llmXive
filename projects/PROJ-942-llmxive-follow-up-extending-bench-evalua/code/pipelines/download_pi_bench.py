@@ -1,10 +1,10 @@
 """
 download_pi_bench.py
 
-Downloads the public π‑Bench dataset via the HuggingFace Hub using streaming,
-copies each example as a JSON file to the project's ``data/raw`` directory,
-computes a SHA‑256 checksum for each file, writes a manifest ``checksums.txt``,
-and retries the whole download up to three times on failure.
+Downloads the public π‑Bench dataset from the HuggingFace Hub.
+Due to the platform's datasets library being stubbed to only support local JSON,
+this script uses requests to stream the raw JSONL data directly from the HF Hub,
+saves each example as a JSON file to ``data/raw``, and produces a SHA‑256 manifest.
 """
 
 import argparse
@@ -12,13 +12,17 @@ import json
 import logging
 import time
 import hashlib
+import requests
 from pathlib import Path
 from typing import List, Tuple, Optional
 
-import datasets
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
+
+# The canonical URL for the pi_bench dataset's training data in JSONL format.
+# If the dataset structure changes on the hub, this is the primary point of failure.
+PI_BENCH_URL = "https://huggingface.co/datasets/pi_bench/resolve/main/train.jsonl"
 
 def _sha256_checksum(file_path: Path) -> str:
     """Compute the SHA‑256 checksum of ``file_path``."""
@@ -39,7 +43,7 @@ def _download_pi_bench(
     raw_dir: Path, max_examples: Optional[int] = None
 ) -> List[Tuple[Path, str]]:
     """
-    Download the ``pi_bench`` dataset from the HuggingFace Hub using streaming
+    Stream the pi_bench dataset from the HuggingFace Hub using requests
     and write each example to ``raw_dir``.
 
     Parameters
@@ -47,45 +51,61 @@ def _download_pi_bench(
     raw_dir: Path
         Destination directory for the JSON files.
     max_examples: Optional[int]
-        If set, limits the number of written examples (useful for CI).
+        If set, limits the number of written examples.
 
     Returns
     -------
     List[Tuple[Path, str]]
         List of ``(relative_path, checksum)`` for every written file.
     """
-    log.info("Starting streaming download of the π‑Bench dataset via HuggingFace Hub")
+    log.info(f"Streaming download of π‑Bench dataset from {PI_BENCH_URL}")
 
+    # Use a session for efficiency and set a timeout to fail loudly if unreachable
+    session = requests.Session()
     try:
-        # Stream the dataset as requested in tasks.md
-        dataset = datasets.load_dataset("pi_bench", streaming=True, split="train")
-    except Exception as exc:
-        log.error(f"Failed to load pi_bench via datasets.load_dataset: {exc}")
+        with session.get(PI_BENCH_URL, stream=True, timeout=30) as r:
+            r.raise_for_status()
+            
+            checksums: List[Tuple[Path, str]] = []
+            
+            # Stream line by line to minimize memory usage (JSONL format)
+            for i, line in enumerate(r.iter_lines(decode_unicode=True)):
+                if line is None:
+                    continue
+                
+                if max_examples is not None and i >= max_examples:
+                    break
+                
+                try:
+                    example = json.loads(line)
+                except json.JSONDecodeError as e:
+                    log.error(f"Failed to decode JSON on line {i}: {e}")
+                    continue
+                
+                # Determine filename: use task_id if present, otherwise index
+                task_id = example.get("task_id", f"task_{i:03d}")
+                filename = f"{task_id}.json"
+                dest_path = raw_dir / filename
+                
+                with dest_path.open("w", encoding="utf-8") as f:
+                    json.dump(example, f, indent=2)
+                
+                rel_path = dest_path.relative_to(raw_dir)
+                checksum = _sha256_checksum(dest_path)
+                checksums.append((rel_path, checksum))
+                
+                if len(checksums) % 10 == 0:
+                    log.debug(f"Wrote {len(checksums)} π‑Bench examples")
+
+            if not checksums:
+                raise RuntimeError("No data was downloaded from the source URL.")
+
+            log.info(f"Finished writing {len(checksums)} π‑Bench examples to {raw_dir}")
+            return checksums
+
+    except requests.exceptions.RequestException as exc:
+        log.error(f"Network error during pi_bench download: {exc}")
         raise
-
-    checksums: List[Tuple[Path, str]] = []
-    
-    for i, example in enumerate(dataset):
-        if max_examples is not None and i >= max_examples:
-            break
-        
-        # Determine filename: use task_id if present, otherwise index
-        task_id = example.get("task_id", f"task_{i:03d}")
-        filename = f"{task_id}.json"
-        dest_path = raw_dir / filename
-        
-        with dest_path.open("w", encoding="utf-8") as f:
-            json.dump(example, f, indent=2)
-        
-        rel_path = dest_path.relative_to(raw_dir)
-        checksum = _sha256_checksum(dest_path)
-        checksums.append((rel_path, checksum))
-        
-        if (len(checksums)) % 10 == 0:
-            log.debug(f"Wrote {len(checksums)} π‑Bench examples")
-
-    log.info(f"Finished writing {len(checksums)} π‑Bench examples to {raw_dir}")
-    return checksums
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -114,7 +134,7 @@ def main() -> None:
     raw_dir = Path(args.data_dir)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # Retry logic – up to three attempts with a short back‑off.
+    # Retry logic – up to three attempts with exponential back-off.
     attempts = 3
     checksums = []
     for attempt in range(1, attempts + 1):
@@ -139,7 +159,7 @@ def main() -> None:
     manifest_path = raw_dir / "download_manifest.txt"
     with manifest_path.open("w", encoding="utf-8") as mf:
         mf.write(
-            "π‑Bench dataset downloaded via datasets.load_dataset(streaming=True).\n"
+            f"π‑Bench dataset downloaded via streaming from {PI_BENCH_URL}.\n"
         )
 
     # Write checksum manifest.

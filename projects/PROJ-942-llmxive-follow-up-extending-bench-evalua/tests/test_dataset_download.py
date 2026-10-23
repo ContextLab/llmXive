@@ -41,8 +41,8 @@ def test_pi_bench_downloaded():
                 pytest.fail(f"Malformed line in checksum manifest: {line}")
 
     # Verify loadable via datasets
+    # Note: The stubbed datasets library supports the 'json' format for local files.
     try:
-        # Load from the local JSON files we just wrote
         dataset = load_dataset("json", data_files=str(raw_dir / "*.json"), trust_remote_code=True)
         assert dataset is not None
     except Exception as e:
