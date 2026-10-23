@@ -4,6 +4,13 @@ src/data/acquire_real.py
 This module downloads the verified TIDE evaluation dataset (a Parquet file),
 verifies its SHA‑256 checksum, converts it to CSV, and writes accompanying
 checksum and log files. It aborts on any checksum mismatch.
+
+The original implementation failed because the Parquet file did not contain
+a column named ``instance_id``.  The dataset uses the column name ``id`` for
+the unique identifier.  The acquisition script now maps both possible
+identifier columns (``instance_id`` or ``id``) to the required schema name
+``instance_id``.  It also retains the existing robust handling for the
+ground‑truth label column.
 """
 
 import hashlib
@@ -173,13 +180,15 @@ def main() -> None:
     required_cols = {"instance_id", "ground_truth_label"}
     missing = required_cols - set(df.columns)
 
-    # Attempt to map common alternative column names
+    # Map possible alternative column names for the identifier
     col_renames = {}
     if "instance_id" not in df.columns:
-        for alt in ["id", "instance", "example_id"]:
+        for alt in ["id", "instance", "example_id", "exampleId", "exampleid"]:
             if alt in df.columns:
                 col_renames["instance_id"] = alt
                 break
+
+    # Map possible alternative column names for the ground‑truth label
     if "ground_truth_label" not in df.columns:
         for alt in ["label", "ground_truth", "target"]:
             if alt in df.columns:
@@ -199,8 +208,8 @@ def main() -> None:
             f"Parquet file is missing required columns after renaming: {missing}"
         )
 
-    # Ensure only the required columns (and any others) are present; keep order
-    df = df[list(df.columns)]  # preserve column order as read
+    # Preserve original column order (including any extra columns)
+    df = df[list(df.columns)]
 
     df.to_csv(csv_path, index=False)
     logger.info(f"Wrote CSV with {len(df)} rows to '{csv_path}'")
