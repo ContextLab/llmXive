@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-081-investigating-the-relationship-between-p",
-  "stage": "in_progress",
+  "stage": "clarified",
   "class": "transient",
   "fingerprint": "unknown",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-23T03:23:59.799212+00:00",
-  "last_seen": "2026-10-23T04:20:37.040550+00:00",
-  "retry_after": null,
-  "last_error": "no implementation progress: no stage change or verified task completion",
-  "evidence": "no implementation progress: no stage change or verified task completion",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-23T04:29:37.641148+00:00",
+  "last_seen": "2026-10-23T04:29:37.641148+00:00",
+  "retry_after": "2026-10-23T04:39:37.641148+00:00",
+  "last_error": "data-model.md <-> contracts/ inconsistency (FR-007): one or more contracts/ schemas are empty or not valid schemas: ['contracts/model_output.schema.yaml (invalid YAML: expected a single document in the stream\\n  in \"<unicode string>\", line 1, column 1:\\n    $schema: \"http://json-schema.org ... \\n    ^\\nbut found another document\\n  in \"<unicode string>\", line 152, column 1:\\n    ---\\n    ^)']",
+  "evidence": "data-model.md <-> contracts/ inconsistency (FR-007): one or more contracts/ schemas are empty or not valid schemas: ['contracts/model_output.schema.yaml (invalid YAML: expected a single document in the stream\\n in \"<unicode string>\", line 1, column 1:\\n $schema: \"http://json-schema.org ... \\n ^\\nbut found another document\\n in \"<unicode string>\", line 152, column 1:\\n ---\\n ^)']",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }
