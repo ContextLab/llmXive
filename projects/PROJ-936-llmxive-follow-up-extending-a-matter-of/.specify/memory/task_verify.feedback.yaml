@@ -1,8 +1,6 @@
 T001:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/...yaml`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: src/pipelines/run_all.py
+    exit=1'
   task: a464f0a53097debb8c3d6812b13266e1694a4f2408ab813e042b3a08190d4d5e
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/parse_task_definitions.py
