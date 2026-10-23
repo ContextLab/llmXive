@@ -1,13 +1,15 @@
 status: none
-intent: download Visual Genome image dataset with annotations Python package dataset
+intent: download Visual Genome image dataset with object annotations and complexity
+  scores python package dataset
 required_fields:
 - image_id
 - image_url
-- image_width
-- image_height
+- width
+- height
 - objects
 - object_bboxes
 - region_descriptions
-cache_key: 414c677c7f6c25ac855ba106e1accf40b77dddfe452b430b172fd83cd768a8c3
-searched_at: '2026-10-13T17:26:57.942477+00:00'
+- complexity_score
+cache_key: 61d202e4b448a1b38c3e562c130b463c58005bb232c3f4240b0825b95493088a
+searched_at: '2026-10-23T16:26:15.864059+00:00'
 retry_count: 1

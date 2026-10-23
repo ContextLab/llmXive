@@ -37,13 +37,14 @@
 | `response_timestamp` | `string` (ISO‑8601) | When the answer was recorded. |
 | `latency_ms` | `integer` | Time taken to answer, in milliseconds. |
 | `semantic_plausibility` | `number` (0 – 1) | WordNet‑based plausibility score for the lure (0 = implausible, 1 = highly plausible). |
+| `trial_position` | `integer` | Ordinal position of the trial within the condition block (used to model fatigue effects). |
 | `trial_type` | `string` (`true`, `lure`) | Indicates true‑detail vs. lure question (ensures balanced representation across conditions). |
 
 ## Data Flow
 1. **Acquisition** – `utils/data_loader.py` streams Visual Genome (or loads pre‑bundled subset) → creates `Stimulus` records in `data/stimuli/`.  
 2. **Manipulation** – `stimuli/generator.py` produces enhanced/reduced images and writes `metadata.yaml` per stimulus.  
 3. **Collection** – `participants/interface.py` runs sessions, writes `Response` rows to `data/responses/{participant_id}.jsonl`.  
-4. **Analysis** – `analysis/anova.py` (primary) and `analysis/glmm.py` (secondary) aggregate responses, fit models, output `data/analysis/glmm_results.json` and `false_memory_rates.png`.  
+4. **Analysis** – `analysis/glmm.py` (primary) and `analysis/anova.py` (secondary) aggregate responses, fit models, output `data/analysis/glmm_results.json` and `false_memory_rates.png`.  
 
 ## Constraints
 - **No PII** in any `data/responses/` file.  
@@ -52,3 +53,5 @@
 - **Versioning**: All generated files include a SHA‑256 checksum recorded in the project state YAML.  
 
 ---
+
+
