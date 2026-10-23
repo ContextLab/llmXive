@@ -1,20 +1,11 @@
-status: verified
-kind: pypi_package
-ref: scanpy
-access_python: "import scanpy as sc\nadata = sc.datasets.pbmc3k()\nif adata.X is None:\n\
-  \    raise ValueError(\"No count matrix loaded\")\nRECORDS = adata.n_obs\nprint(f\"\
-  RECORDS={RECORDS}\")\nFIELDS = \"cell_barcode,gene_symbol,raw_counts\"\nprint(f\"\
-  FIELDS={FIELDS}\")"
-record_count: 2700
-sample_fields:
-- cell_barcode
-- gene_symbol
-- raw_counts
-field_coverage: 1.0
+status: none
+intent: download GEO single cell RNA-seq count matrices GSE13 GSE111322 GSE150728
+  python package dataset
 required_fields:
+- gene_id
+- gene_name
 - cell_barcode
-- gene_symbol
 - raw_counts
-intent: GEOparse python package dataset for GSE111322 GSE150728 GSE13 series python
-  package dataset
-cache_key: ab97510777df161dd1574f7181e6f5bb6bee36fb2768ae4d79fecca81f1ad843
+cache_key: a68ec2039a5d39836e8acdd0283de7cc6bc7b3b117643c52381a406c0decddfe
+searched_at: '2026-10-23T22:11:31.785947+00:00'
+retry_count: 1

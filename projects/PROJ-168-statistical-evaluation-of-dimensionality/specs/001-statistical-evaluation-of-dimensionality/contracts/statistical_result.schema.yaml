@@ -8,7 +8,7 @@ properties:
     properties:
       formula:
         type: string
-        description: "The model formula used (e.g., 'fidelity_logit ~ method + (1|dataset)')"
+        description: "The model formula used (e.g., 'logit_fidelity ~ method + intrinsic_dimensionality + local_density + (1|dataset)')"
       fixed_effects:
         type: array
         items:

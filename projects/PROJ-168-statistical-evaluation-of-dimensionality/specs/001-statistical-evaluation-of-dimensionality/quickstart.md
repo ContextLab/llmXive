@@ -26,17 +26,18 @@ psutil==6.0.0
 statsmodels==0.14.2
 pingouin==0.5.4
 pyyaml==6.0.1
+datasets==2.20.0
 ```
 
 ## 3. Verify Data Availability (Phase 0)
-Run the verification script to ensure each dataset contains a raw `counts` matrix.
+Run the verification script to ensure each dataset contains a raw `counts` matrix **and** to download the open substitute datasets (pbmc3k, GSE130148, GSE13904) if not already cached.
 
 ```bash
 python code/phase0_verify_raw_counts.py
 ```
 
 - **Exit 0** → `data/manifest.json` created, pipeline can proceed.  
-- **Exit 1** → Missing raw counts; the script logs the offending dataset and aborts (Constitution I).
+- **Exit 1** → Missing raw counts; the script logs the offending dataset and aborts (Constitution I).  
 
 ## 4. Execute the Full Pipeline
 The recommended entry point is the Snakemake workflow.
@@ -50,9 +51,9 @@ Snakemake will sequentially run the phases:
 1. `phase1_preprocess.py` – checksum, sampling, log‑CPM, HVG selection.  
 2. `phase2_geometry.py` – intrinsic dimensionality & local density.  
 3. `phase3_embeddings.py` – PCA, t‑SNE, UMAP generation.  
-4. `phase4_fidelity_fixed.py` – Leiden clustering, ARI/NMI computation.  
-5. `phase5_sensitivity.py` – silhouette‑threshold sweep, variance check.  
-6. `phase6_mixed_effects.py` – mixed‑effects model (with permutation fallback).  
+4. `phase4_fidelity_fixed.py` – Leiden clustering (resolution 0.5), ARI/NMI computation (with ARI shift‑and‑logit).  
+5. `phase5_sensitivity.py` – silhouette‑threshold sweep, variance + 95 % CI reporting (no binary pass/fail).  
+6. `phase6_mixed_effects.py` – mixed‑effects model (with power disclaimer) **plus** permutation ANOVA, VIF check, BH correction.  
 7. `phase7_reporting.py` – aggregate tables, generate plots, validate contracts.
 
 ### Output Locations
@@ -84,9 +85,12 @@ pytest -v tests/
 | **No raw counts found** | Check internet connectivity; the verifier logs the missing accession. |
 | **Leiden fails to converge** | The pipeline retries once; if still “Unavailable”, inspect `logs/phase4_fidelity_fixed.log`. |
 | **Runtime > 6 h** | Verify that sampling is applied; large datasets should be down‑sampled to ≤ 5 000 cells. |
-| **VIF infinite** | The VIF step drops one dummy level before calculation (handled automatically). |
-| **Shapiro‑Wilk p < 0.05** | The pipeline automatically switches to permutation ANOVA; no manual action needed. |
+| **VIF ≥ 5** | The VIF step drops one dummy level before calculation (handled automatically). |
+| **Shapiro‑Wilk p < 0.05** | The pipeline automatically uses the permutation p‑value; no manual action needed. |
 | **Benjamini‑Hochberg adjusted p ≥ 0.05** | The result is reported as non‑significant; interpret accordingly. |
 | **Missing ARI/NMI entries** | Ensure that ground‑truth labels are present; datasets lacking labels are marked “Unavailable”. |
 
 ---
+
+
+
