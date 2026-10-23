@@ -2,7 +2,7 @@
 
 **Inputs**: `spec.md`, `plan.md`, contracts in `specs/001-llmxive-follow-up-extending-the-mirage-o/contracts/`, and any existing verified artifacts.
 
-The study is organized into two research phases. All tasks are expressed as canonical checklist items of the form  
+The study is organized into three research phases. All tasks are expressed as canonical checklist items of the form  
 
 ```
 - [ ] T### [USx?] description … with file path(s)
@@ -15,77 +15,51 @@ Only scientific‑level actions appear; generic scaffolding (directory creation,
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T015 [US001] Generate Ground Truth Data `code/cli/generate_ground_truth.py`   <!-- FAILED-IN-EXECUTION: code/cli/generate_ground_truth.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=1; code/cli/validate_dataset_stats.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=1; code/cli/validate_dataset_stats.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/cli/generate_ground_truth.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/generate_ground_truth.py exit=2; code/cli/validate_dataset_stats.py exit=1; code/cli/generate_ground_truth.py exit=2; code/cli/generate_ground_truth.py exit=2 -->
-    • verification: script completes without error; Parquet file contains ≥ 100 successful samples per quantization level; `data/processed/dataset_stats.json` reports a statistically significant non‑zero KL portion (p < 0.05).
+| ID | Description | File(s) |
+|----|-------------|---------|
+- [ ] T015 [US001] Generate the hardware‑ground‑truth dataset by (1) extracting `gradient_norm` and `local_curvature` from the full‑precision Llama‑3‑8B model, (2) running **CPU‑only** `llama.cpp` quantized inference for INT4, INT8, and FP8 on each GSM8K prompt, (3) computing KL divergence against the full‑precision logits, and (4) writing a Parquet file `data/processed/training_sample.parquet` that conforms to `dataset.schema.yaml`.  
+    • verification: script exits with status 0; the Parquet file contains ≥ 100 rows for **each** quantization level; a downstream check confirms that the `kl_div_*` column is non‑zero for > 5 % of rows (p < 0.05); **all rows have `hardware_source` == "CPU".**  
 
-- [ ] T016 [US001] Validate Dataset Statistics `code/cli/validate_dataset_stats.py`   <!-- FAILED-IN-EXECUTION: code/cli/validate_dataset_stats.py exit=1 -->
-    • verification: `dataset_stats.json` exists and contains the required statistics with p < 0.05.
+- [ ] T016 [US001] Validate dataset statistics and write `data/metrics/dataset_stats.json`. The script loads `training_sample.parquet`, computes descriptive statistics (means, stds, proportion of non‑zero KL), checks that the non‑zero KL proportion exceeds the 5 % threshold, and records a SHA‑256 checksum of the dataset.  
+    • verification: JSON file exists, contains fields `nonzero_kl_proportion`, `mean_kl_int4`, `mean_kl_int8`, `mean_kl_fp8`; the `nonzero_kl_proportion` value is ≥ 0.05 and the script exits with status 0.  
 
-- [ ] T019 [US001] Feature Extraction & Optional PCA `code/services/feature_extractor.py`  
-    • verification: unit tests confirm correct numeric shapes and reproducibility across runs.
+- [ ] T019 [US001] Extract training‑side features only (gradient norms, local curvature) and optionally apply PCA. Implemented in `code/data/extract_features.py`. The script reads the raw prompts, runs a single forward‑backward pass on the full‑precision model, and writes `data/processed/features.parquet`.  
+    • verification: unit tests confirm that the output has columns `gradient_norm` and `local_curvature` with numeric types; a deterministic seed yields identical values across runs.  
 
-- [ ] T021 [US002] Load Training Data and Train Kernel Ridge Regression `code/cli/train_predictor.py`  
-    • verification: `gap_predictor.pkl` loads; `data/processed/krr_sweep_results.json` records grid and chosen hyper‑parameters.
-
-- [ ] T022 [US002] Evaluate Predictor Model `code/cli/evaluate_predictor.py`  
-    • verification: `test_metrics.json` reports Pearson r ≥ 0.8 and MAE < 0.1 (or records the actual values).
-
-- [ ] T023 [US002] Stratify Training Data `code/cli/prepare_splits.py`  
-    • verification: split files exist; chi‑square p > 0.05 indicating balanced splits.
-
-- [ ] T029 [US003] Implement Full Hardware‑Sync Baseline `code/cli/run_full_hardware_sync.py`  
-    • verification: JSON file contains per‑prompt metrics and total runtime log.
-
-## Phase 2 – Complete the study and validate its evidence  
-
-- [ ] T009 [US003] Paired‑MIPU Benchmark `code/cli/run_paired_mipu.py`  
-    • verification: both JSON files exist; t‑test fields (`statistic`, `p_value`, `bonferroni_corrected_p`, `conclusion`) are present.
-
-- [ ] T010 [US003] Bound‑Consistency Verification `code/cli/verify_bound_consistency.py`  
-    • verification: JSON includes all three levels; satisfaction ≥ 95 % for ε = 0.1 (or documents actual rates).
-
-- [ ] T011 [US003] Latency Breakdown & Power Analysis `code/cli/latency_breakdown_analyzer.py`  
-    • verification: both JSON files exist; `reduction_percentage` ≥ 90 % flagged, `power` ≥ 0.8 or a warning logged.
-
-- [ ] T027 [US003] Verify Bound Consistency Across Levels `code/cli/verify_bound_consistency_across_levels.py`  
-    • verification: JSON reports per‑level satisfaction ≥ 95 % for ε = 0.1.
-
-- [ ] T028 [US003] Simulate MIPU Loop and Define Baseline Policy `code/cli/simulate_mipu_loop.py`  
-    • verification: script runs end‑to‑end, produces `data/processed/mipu_simulation_results.json` containing per‑prompt decisions, predicted gaps, and baseline metrics; downstream tasks (e.g., T009) can consume this file.
-
-- [ ] T030 [SC‑005] End‑to‑End Runtime Verification `code/cli/runtime_audit.py`  
-    • verification: JSON contains `total_seconds` ≤ 21600 and `sample_count` ≥ 300.
-
-- [ ] T031 [US003] Generalizability & Domain Sensitivity Check `code/cli/check_generalizability.py`  
-    • verification: JSON fields are numeric and show no catastrophic drop in performance across difficulty bins.
-
-- [ ] T032 [US003] Aggregate Bound Consistency Results `code/cli/aggregate_results.py`  
-    • verification: `metrics.json` validates against the schema and includes all required sections (correlation_results, statistical_tests, latency_reduction, collinearity_check, etc.).
-
-- [ ] T013 [US003] Write Final Research Report `docs/reports/001-llmxive-mipu-gap-bounds.md` and update `quickstart.md`  
-    • verification: every figure referenced in the markdown exists; re‑running the command chain from a clean checkout reproduces all downstream artifacts.
+- [ ] T023 [US001] Preprocess the dataset: perform a stratified train/validation split by quantization level and prompt‑length bin, compute Variance Inflation Factors (VIF) for `gradient_norm` and `local_curvature`, and store split indices in `data/processed/train_split.parquet` and `data/processed/val_split.parquet`. Implemented in `code/data/preprocess.py`.  
+    • verification: split files exist; chi‑square test on quantization‑level counts yields p > 0.05 (balanced); VIF values for both features are ≤ 10.  
 
 ---
 
-## Dependencies & requirement coverage  
+## Phase 2 – Model training, evaluation, and bound verification  
 
-| Spec requirement | Satisfying task(s) |
-|------------------|--------------------|
-| FR‑001 (feature extraction) | T019 |
-| FR‑002 (CPU quantized inference) | T015 |
-| FR‑003 (exact KL) | T015 |
-| FR‑004 (joint KRR) | T021 |
-| FR‑005 (Pearson r on held‑out) | T022 |
-| FR‑006 (paired t‑test) | T009, T029, T028 |
-| FR‑007 (bound consistency) | T010, T027, T032 |
-| SC‑001 (r > 0.8) | T022 |
-| SC‑002 (≥ 90 % latency reduction) | T011 |
-| SC‑003 (p > 0.05) | T009 |
-| SC‑004 (bound consistency across levels) | T010, T027 |
-| SC‑005 (≤ 6 h, n ≥ 300) | T030 |
-| Edge‑case handling | T015 (zero KL), T019 (flat gradients), T015 (engine load errors) |
+- [ ] T021 [US002] Train a Kernel Ridge Regression predictor on the training split, using the PCA‑reduced features if PCA was applied. The script `code/models/train_predictor.py` saves the serialized model to `model/gap_predictor.pkl` and writes training hyper‑parameters to `data/metrics/krr_hyperparams.json`.  
+    • verification: the model file loads without error; the JSON contains `alpha` and `kernel` fields; training runtime is logged.  
 
-**Execution order**:  
-T015 → T016 → T019 → T023 → T021 → T022 → T029 → T028 → T009 → T010 → T027 → T011 → T030 → T031 → T032 → T013.
+- [ ] T022 [US002] Evaluate the trained predictor on the held‑out validation set. `code/models/evaluate_predictor.py` writes per‑sample predictions to `data/processed/gap_predictions.parquet` (conforming to `gap_prediction_result.schema.yaml`) and a summary metrics file `data/metrics/evaluation.json` containing Pearson r, MAE, and the bound‑consistency flag (`|predicted‑actual| < 0.1`).  
+    • verification: **overall** Pearson r ≥ 0.8, MAE < 0.1, and `bound_consistency` is `true`; **per‑quantization‑level** Pearson r values (`pearson_r_int4`, `pearson_r_int8`, `pearson_r_fp8`) are each ≥ 0.8.  
 
-All tasks are unchecked (`- [ ]`) pending implementation; completed work from prior runs is preserved via the artifact paths indicated above.  
+- [ ] T027 [US003] Benchmark the proxy MIPU loop against the full‑hardware‑sync baseline on a small RL reasoning task. Implemented in `code/validation/mipu_benchmark.py`; the script produces `data/processed/mipu_proxy_results.parquet`, `data/processed/mipu_baseline_results.parquet`, and a latency log `data/metrics/latency.json`.  
+    • verification: both result files contain the same set of `input_id`s; latency JSON records `proxy_latency_ms`, `baseline_latency_ms`, and `reduction_percentage`; **`reduction_percentage` must be ≥ 90 %**.  
+
+- [ ] T028 [US003] Perform statistical comparison of the proxy vs. baseline. The same `mipu_benchmark.py` script (or a helper `code/validation/statistical_test.py`) computes a paired t‑test on the final reasoning scores, applies a Bonferroni correction for the three quantization levels, and writes `data/metrics/statistical_tests.json` with fields `t_statistic`, `p_value`, `bonferroni_corrected_p`, and `conclusion`. If normality fails, it falls back to a Wilcoxon signed‑rank test.  
+    • verification: `p_value` > 0.05 **and** `bonferroni_corrected_p` > 0.05; `conclusion` reads “No significant degradation (p > 0.05)”.  
+
+- [ ] T029 [US003] Verify bound consistency across all three quantization levels. A dedicated script `code/validation/verify_bound_consistency.py` reads `gap_predictions.parquet` and checks the proportion of samples where `|predicted‑actual| < 0.1` for INT4, INT8, and FP8 separately, writing `data/metrics/bound_consistency.json`.  
+    • verification: each level reports a `satisfaction_rate` ≥ 0.95 **and** a boolean `bound_consistency` = true for that level, matching the `correlation_results[LEVEL].bound_consistency` field in the schema.  
+
+- [ ] T031 [SC‑005] End‑to‑end runtime audit. `code/cli/measure_runtime.py` wraps the full pipeline (T015 → T029) and records total wall‑clock seconds in `data/metrics/runtime.json`.  
+    • verification: `total_seconds` ≤ 21600 (6 h) and `sample_count` ≥ 300 **and** `sample_count` equals the number of rows in the validation split generated by T023.  
+
+---
+
+## Phase 3 – Reproducibility, reporting, and handoff  
+
+- [ ] T032 [SC‑005] Aggregate all metrics into a single `metrics.json` that validates against `metrics.schema.yaml`. Implemented in `code/cli/aggregate_results.py`; the script merges correlation results, statistical tests, latency, and collinearity diagnostics into `data/metrics/metrics.json`.  
+    • verification: JSON validates against `metrics.schema.yaml` (no additional properties, all required fields present) and contains the four top‑level sections: `correlation_results`, `statistical_tests`, `latency_reduction`, `collinearity_check`.  
+
+- [ ] T013 [US003] Write the final research report. Create `docs/reports/001-llmxive-mipu-gap-bounds.md` that (a) describes methods, (b) embeds tables/figures generated directly from the metric files, (c) discusses edge‑case handling (zero KL, flat gradients, engine load failures), and (d) updates `quickstart.md` with the reproducible command chain.  
+    • verification: the markdown references existing figure files under `figures/`; a CI step runs the command documented in `quickstart.md` and asserts successful generation of all downstream artifacts without manual intervention.  
+
+- [ ] T034 [SC‑005] Archive immutable hashes for provenance. `code/cli/archive_hashes.py` computes SHA‑256 hashes for every artifact under `data/` and `model/`, writes `state/artifact_hashes.yaml`.  
+    • verification: the YAML file lists a hash entry for **every** file under `data/` and `model/`; CI verifier confirms the manifest matches the actual filesystem contents.  
