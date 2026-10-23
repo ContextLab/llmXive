@@ -29,10 +29,7 @@ T014:
 T015:
   task: 4d9e25dcdd59740df2374cc4d10ef76a1abfcb7c65954405025fcd9a0ca77dfe
 T016:
-  reason: The quickstart.md file exists and contains the required `python -m code.main
-    --pilot` command, but there is no evidence (e.g., logs, test output, or execution
-    trace) showing that this command runs successfully on a clean repository. Execution
-    proof is missing.
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: b46893981ffdc3a4d6c1c062b3e4b3db40d2c40f4a64de516b4b5ed4bf351423
 T017:
   task: 669a5b250f4915e56a64fb4acc047eb8e4912380f2eb0e16e92e3b9f57407e85

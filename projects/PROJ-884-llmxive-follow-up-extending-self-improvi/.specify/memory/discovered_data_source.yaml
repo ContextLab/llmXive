@@ -1,29 +1,16 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: "import sys\nfrom datasets import load_dataset\n# Load the Sudoku dataset\
-  \ from Hugging Face Hub\nds = load_dataset(\"Ritvik19/Sudoku-Dataset\", split=\"\
-  train\")\nrecords = len(ds)\nprint(f\"RECORDS={records}\")\n# List the fields (column\
-  \ names) present in the dataset\nif records:\n    first = ds[0]\n    fields = list(first.keys())\n\
-  \    print(\"FIELDS=\" + \",\".join(fields))\nelse:\n    print(\"FIELDS=\")"
-record_count: 16951130
-sample_fields:
-- puzzle
-- solution
-- missing
-- difficulty
-- set
-- solving_time
-field_coverage: 0.625
+status: none
+intent: logic and arithmetic puzzles CSPLib Sudoku verification scripts Kaggle dataset
+  python package dataset
 required_fields:
 - puzzle_id
 - puzzle_type
-- puzzle_description
-- constraints_formal
-- verifier_script
-- example_solution
-- difficulty_level
-- source_url
-intent: Kaggle Sudoku Dataset and PuzzleDB logic puzzles with Python verification
-  scripts python package dataset
-cache_key: f8099bec26aa8c65b9a0a124c360b8650cf97aa233c2fd6a9c89db9d8f83c8e1
+- puzzle_definition
+- constraints_language
+- verification_script
+- solution_example
+- solution_format
+- error_codes
+- metadata_source
+cache_key: 44c46327a5fbbacc37c7c52fc314c36dac967ba0fb1ea18a76c5f97815f9b36e
+searched_at: '2026-10-23T05:21:35.370258+00:00'
+retry_count: 1

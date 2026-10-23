@@ -17,7 +17,7 @@
 - [X] T015 [US4] Validate Contracts – generate and place the contract schemas `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` (already present) and ensure they are syntactically valid.  
   Observable check: `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` runs without error.
 
-- [ ] T016 [US5] Create Quickstart Documentation – author `specs/001-llmxive-follow-up-extending-self-improvi/quickstart.md` with a reproducible command chain that runs the pilot end‑to‑end experiment and points to the expected output locations.  
+- [ ] T016 [US5] Create Quickstart Documentation – author `specs/001-llmxive-follow-up-extending-self-improvi/quickstart.md` with a reproducible command chain that runs the pilot end‑to‑end experiment and points to the expected output locations.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   Observable check: quickstart.md exists and the command `python -m code.main --pilot` executes without error on a clean repo.
 
 ## Phase 1: Setup and first end‑to‑end analysis

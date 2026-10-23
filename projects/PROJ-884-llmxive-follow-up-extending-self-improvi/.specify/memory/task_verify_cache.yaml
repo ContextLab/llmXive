@@ -14,40 +14,38 @@ T004:
     the task requirement is not satisfied.
 T012:
   c: true
-  h: 3f9902e7fe8038f010130449a989117c979c39b10cfbf007e07762fde42f08d5
-  r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md`,\
-    \ which exists and contains the required \u201CPuzzle Types\u201D, \u201CScaling\
-    \ Plan\u201D, and \u201CSeed Management\u201D sections (along with provenance\
-    \ metadata)."
-  sig: 07a66c80dc75d7991f8d9fb2af1e660bedf236f1f0e858b76f49a96c01695997
+  h: 83f999c8cb5685c846c6344498b18a9d2fae4388fefb4631769d1b66a17c530f
+  r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md`;\
+    \ it exists, is non\u2011empty, and contains the required \u201CPuzzle Types\u201D\
+    , \u201CScaling Plan\u201D, and \u201CSeed Management\u201D sections."
+  sig: 8e090405eea4e157d281675d48a6df840649cccf0eb332fccc45fb19d50cd82f
 T013:
   c: true
-  h: 5fa00e8550257f6d7898adeb371b70e167aa806ef247c40d196c7b4c8760164c
+  h: 4e5a5b2d14b1120440616735c879ca93f7f348b231a665e3e5b02818a653cf38
   r: "The `specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md`\
-    \ file (6735\u202Fbytes) exists and includes concrete numeric entries for the\
-    \ TOST equivalence margin (delta\u202F=\u202F0.05), significance level (alpha\u202F\
-    =\u202F0.05), power target (0.80), effect\u2011size target (Cohen\u2019s h\u202F\
-    =\u202F0.20), and the required sample size per group (n\u202F=\u202F393) together\
-    \ with a detailed power\u2011analysis calculation. The document also outlines\
-    \ the TOST procedure, power analysis, and effect\u2011size specifications as required."
-  sig: 0f006f6121f6ac896cbcc3043b3954b67588b98f921b83442b27f3586e80ff45
+    \ file is present (6.7\u202FKB) and includes the numeric specifications: equivalence\
+    \ margin delta\u202F=\u202F0.05, significance level alpha\u202F=\u202F0.05, and\
+    \ required sample size per group n\u202F=\u202F393 (plus related power analysis\
+    \ details). These values satisfy the task\u2019s requirement."
+  sig: 6af6c00bf251941cf07a36c93c5a4a2a514dbe3235dc47b0b5572c53f2ff24bb
 T014:
   c: true
-  h: b46225bf4d9f35503c3f364cf4c62d056773f1c7298f4c17b31665fb7203b6bf
-  r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`\
-    \ which lists the primary model `distilbert-base-uncased` with its exact commit\
-    \ hash, CPU\u2011only device settings, and a ranked table of fallback models with\
-    \ their own commit hashes; also verified the execution log `code/.tasks/T014.code_utils_select_baseline_architecture.py.log`\
-    \ confirming the script generated the file."
-  sig: 5cae69af06551a8ef5f4616f08a1dde140da029e69e06f64c2e0c32d755f946d
+  h: 3f9be7ace0a649fcc095b33c9c50f5ac360958a78c6141f26e717b4b4b854042
+  r: "The `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`\
+    \ file (3640\u202Fbytes) contains the required model identifier `distilbert-base-uncased`,\
+    \ the exact HuggingFace commit hash `12040accade4e8a0f71eabdb258fecc2e7e948be`,\
+    \ explicit CPU\u2011only device settings, and a ranked list of fallback models\
+    \ with their own pinned commit hashes. All required information is present and\
+    \ not a placeholder."
+  sig: 250debc7ad62707435ff5043c4b73961c48cf8c143ed6c1fd1bad4526294764b
 T015:
   c: true
-  h: 657be93f691533768ad0fe117ffcb57f14b5bb5838c1cdc618bd6c30e1c38bf5
-  r: "Checked the presence and non\u2011empty content of `contracts/dataset.schema.yaml`\
-    \ and `contracts/output.schema.yaml`, and the successful run of `code/validate_contracts.py`\
-    \ (log shows \u201COK \u2026 valid YAML and draft\u201107 JSON Schema\u201D with\
-    \ exit code\u202F0), confirming the schemas are syntactically valid."
-  sig: 8d578cfa0d836495cb726c8033dc9da60e4be17d05292f9f93f7c528575b3b4b
+  h: ea0ededd3830ea3688217a2eeb179e8c6f6b3d1377040af157ced56dfdc276c3
+  r: "The `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` files\
+    \ are present at the reported paths, are non\u2011empty, and their YAML contents\
+    \ (as shown) parse correctly with `yaml.safe_load`, satisfying the required syntactic\
+    \ validation."
+  sig: 8cf992a5c33c1e10fd10e9d9cd71f2142f548891a320515d04eecd0569f89797
 T016:
   c: false
   h: 0a4bb64691632ce0e1431b828457266a88b171b8a2f49d04f90bda9ce54859d2

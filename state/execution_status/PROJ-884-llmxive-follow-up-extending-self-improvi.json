@@ -9,11 +9,11 @@
     "python code/main.py --method neural --pop-size 50 --generations 20 --output data/processed/neural_run.jsonl -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/main.py\", line 18, in <module>\n    from config import load_config, get_experiment_id, initialize_experiment\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/config.py\", line 8, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
     "python code/analysis/stats.py --symbolic data/processed/symbolic_run.jsonl --neural data/processed/neural_run.jsonl --output data/processed/results.json -> rc=1\n    Error: [Errno 2] No such file or directory: '--symbolic'"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-20T07:23:02Z"
+  "updated_at": "2026-10-23T05:21:45Z"
 }
