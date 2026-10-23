@@ -1,13 +1,15 @@
 status: none
-intent: TIDE code evaluation parquet dataset download Zenodo synthetic code generator
-  pip package dataset
+intent: download TIDE code evaluation dataset and synthetic generator python package
+  dataset
 required_fields:
-- code
+- code_id
 - ast_depth
 - import_count
 - cyclomatic_complexity
+- dependency_depth
+- semantic_scope
+- syntactic_complexity
 - ground_truth_label
-- dataset_id
-cache_key: ee45a8ba78b70d4be3abec5a6b6c840b01ef1df7665c65e5a41df6b6d6e5d1cc
-searched_at: '2026-10-23T08:12:53.064571+00:00'
+cache_key: a003ce1d1ea0a25962374453a6c330bb6bbf14c4b7e605d087d028490486da1e
+searched_at: '2026-10-23T08:17:20.401131+00:00'
 retry_count: 1

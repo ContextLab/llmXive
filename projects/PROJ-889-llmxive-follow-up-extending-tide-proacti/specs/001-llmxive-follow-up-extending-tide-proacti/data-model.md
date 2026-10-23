@@ -13,17 +13,18 @@
 
 | File | Format | Schema Reference |
 |------|--------|------------------|
-| `data/features.csv` | CSV (UTF‑8) | `contracts/detection_results.schema.yaml` (subset of required fields) |
+| `data/features.csv` | CSV (UTF‑8) | *Not validated against detection_results.schema.yaml* (contains only feature columns). |
 | `data/tide_lite_enriched.csv` | CSV | `contracts/detection_results.schema.yaml` |
 | `data/tide_original_enriched.csv` | CSV | `contracts/detection_results.schema.yaml` |
-| `data/merged_results.csv` | CSV (joined FeatureRecord + both DetectionResult rows) | `contracts/detection_results.schema.yaml` |
+| `data/merged_results.csv` | CSV (joined FeatureRecord + both DetectionResult rows, **long‑format**) | `contracts/detection_results.schema.yaml` |
 | `analysis/logistic_summary.json` | JSON (human‑readable) | N/A |
 | `analysis/mcnemar_results.csv` | CSV | N/A |
 | `analysis/sensitivity_summary.csv` | CSV | N/A |
 | `analysis/efficiency_report.json` | JSON | N/A |
 
-All CSVs include a `sha2` column containing a SHA‑2 checksum of the concatenated row values (ensuring Principle III compliance). The `origin` field is retained throughout to allow separate reporting for real vs. synthetic instances and is used as a covariate in the logistic model.
+All CSVs include a `sha256` column containing a SHA‑256 checksum of the concatenated row values (ensuring Principle III compliance). The `origin` field is retained throughout to allow separate reporting for real vs. synthetic instances and is used as a covariate in the logistic model.
 
 ---
+
 
 

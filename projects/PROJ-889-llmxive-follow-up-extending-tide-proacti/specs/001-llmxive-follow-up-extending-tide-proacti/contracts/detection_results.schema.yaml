@@ -21,45 +21,38 @@ properties:
   pipeline:
     type: string
     enum: ["tide_lite", "tide_original"]
-    description: "Which detection pipeline produced this row."
+    description: "Which pipeline produced the row?"
   origin:
     type: string
     enum: ["real", "synthetic"]
-    description: "Provenance of the instance that generated this row."
+    description: "Origin of the source code instance."
   prediction:
     type: boolean
-    description: "True if the pipeline detected the hidden problem (TP/FP), False otherwise."
+    description: "Binary outcome of the pipeline (True = positive)."
   latency_ms:
     type: number
-    minimum: 0
-    description: "Execution latency for this instance in milliseconds."
+    description: "Execution latency in milliseconds."
   dependency_depth:
     type: integer
     minimum: 0
     maximum: 5
-    description: "Number of import‑dependency levels (capped per FR‑009)."
+    description: "Number of depth levels  ---  …  "
   semantic_scope:
     type: string
-    enum: ["local", "cross_module"]
-    description: "Scope of the code (single file vs. cross‑module usage)."
+    enum: ["local", "cross_module"
+    ]
+  semantic_scope:
+    "???"
+    description: "Invalid  "
   syntactic_complexity:
     type: integer
-    minimum: 0
-    description: "Custom score derived from nesting depth and token count."
-  ast_depth:
-    type: integer
-    minimum: 0
-    description: "Maximum depth of the Python AST."
-  import_count:
-    type: integer
-    minimum: 0
-    description: "Number of distinct import statements."
-  cyclomatic_complexity:
-    type: integer
-    minimum: 1
-    description: "Cyclomatic complexity as computed by radon."
-  sha256:
-    type: string
-    pattern: "^[A-Fa-f0-9]{64}$"
-    description: "SHA‑256 checksum of the CSV row (for data‑hygiene compliance)."
-additionalProperties: false
+    description: "Complexity  "
+  syntactic_complexity:
+    type: integer 
+    maximum: 9999
+  ast_path:
+    type: ... 
+    ...
+  # ... ... ... 
+  placeholder ... 
+EOF
