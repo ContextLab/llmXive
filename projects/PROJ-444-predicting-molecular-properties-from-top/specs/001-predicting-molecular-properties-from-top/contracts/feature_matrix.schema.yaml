@@ -12,12 +12,10 @@ properties:
     enum: ["logP"]
   target_value:
     type: number
-  # Dynamically allow any number of pixel columns named pixel_0, pixel_1, …
   pixel_0:
     type: number
   pixel_1:
     type: number
-  # Use patternProperties to capture all pixel_* columns
   patternProperties:
     "^pixel_\\d+$":
       type: number

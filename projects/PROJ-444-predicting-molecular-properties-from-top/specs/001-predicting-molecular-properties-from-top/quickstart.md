@@ -23,14 +23,15 @@ pip install -r code/requirements.txt
 ## Data Preparation
 
 ```bash
-# Download the ESOL dataset from the verified DeepChem S3 URL
-python code/01_data_ingestion.py --source esol --url https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv
+# Download the Lipophilicity dataset from the official MoleculeNet repository
+# (no direct verified URL; obtain the CSV manually or via the MoleculeNet API)
+python code/01_data_ingestion.py --source lipophilicity
 ```
 
-- The script downloads from the verified S3 URL **only** (never from alternative sources like skfp).
-- Writes `data/raw/esol.csv`, computes cryptographic checksums (`data/checksums.txt`).
-- Validates that `smiles` and `logP` columns exist (renaming the original column if necessary).
-- Logs any invalid SMILES using idempotent append logic (no duplicates).
+- The script downloads from the official MoleculeNet source **only** (no alternative sources).  
+- Writes `data/raw/lipophilicity.csv`, computes cryptographic checksums (`data/checksums.txt`).  
+- Validates that `smiles` and `logP` columns exist (renaming if necessary).  
+- Logs any invalid SMILES using idempotent append logic (no duplicates).  
 - Aborts with **Data Gap** error if required columns are missing.
 
 ## Running the Full Pipeline
@@ -44,7 +45,7 @@ python code/00_checksum_verify.py
 python code/02_tda_computation.py --grid 10
 
 # 2. Compute traditional descriptors and merge
-# molecule_id is cast to string before merge to prevent type errors
+# molecule_id is cast to string before merge; target column is dropped before training
 python code/03_feature_engineering.py
 
 # 3. Train and evaluate models (5‑fold scaffold CV)
@@ -84,8 +85,9 @@ pytest tests/unit/
 
 Re‑running the pipeline should produce identical numeric results (within floating‑point tolerance) because:
 - Seeds are fixed (`random.seed(42)`, `np.random.seed(42)`, `torch.manual_seed(42)` where applicable).
-- Dataset is downloaded from a single verified S3 URL.
+- Dataset is obtained from a single, consistent source (official MoleculeNet repository).
 - All molecule_id fields are cast to string consistently.
 - Checksums prevent re-processing of unchanged data.
 
 ---
+

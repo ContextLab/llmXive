@@ -28,7 +28,8 @@
 ### CombinedFeatureMatrix (derived)
 - **molecule_id**: `string` – canonical SMILES (**must be string type**).  
 - **features**: `array<float>` – concatenation of Traditional + Topological vectors.  
-- **target**: `float` – `logP`.
+- **target**: `float` – `logP`.  
+- **NOTE**: The `target` column is **removed** from the predictor matrix before model training to avoid circular prediction.
 
 ### ModelPerformance (per model configuration)
 - **feature_set**: `enum["traditional","topological","combined"]`.  
@@ -53,21 +54,22 @@
 - **resource_usage**: `object` – peak RAM (GB), CPU time (seconds).
 
 ## Data Flow
-1. `01_data_ingestion.py` → `Molecule` (validated; downloaded from verified S3 URL).  
-2. `02_tda_computation.py` → `TopologicalDescriptor` (with target_property & target_value per contract).  
-3. `03_feature_engineering.py` → `TraditionalDescriptor` + `CombinedFeatureMatrix` (molecule_id cast to string before merge).  
+1. `data_ingestion.py` → `Molecule` (validated; downloaded from official MoleculeNet repository).  
+2. `02_tda_computation.py` → `TopologicalDescriptor` (with `target_property` & `target_value` per contract).  
+3. `03_feature_engineering.py` → `TraditionalDescriptor` + `CombinedFeatureMatrix` (molecule_id cast to string before merge; **target column dropped before training**).  
 4. `04_model_training.py` → `ModelPerformance`.  
 5. `06_feature_importance.py` → `FeatureImportance` (per model_type).  
 6. `06_diagnostics.py` → `DiagnosticsReport`.  
 7. `07_resource_monitor.py` → `resource_usage` stored in `reports/metrics/resource_usage.json`.
 
 ## Storage Conventions
-- Raw CSV: `data/raw/esol.csv` (immutable; downloaded from verified S3 URL).  
+- Raw CSV: `data/raw/lipophilicity.csv` (immutable; obtained from MoleculeNet repository).  
 - Processed features: `data/processed/topological_features_{grid}.csv`, `data/processed/traditional_features.csv`, `data/processed/combined_features.csv`.  
 - Checksums: `data/checksums.txt` (idempotent append).  
-- Model metrics: `reports/metrics/model_metrics.json`.  
+- Model metrics: `reports/metrics/model_metrics.json` (conforms to `model_metrics.schema.yaml`).  
 - Feature importance: `reports/metrics/feature_importance.json`.  
 - Diagnostics: `reports/diagnostics/vif_report.json`, `reports/diagnostics/mi_report.json`, `reports/diagnostics/sensitivity_report.json`.  
 - Resource log: `reports/metrics/resource_usage.json`.
 
 ---
+

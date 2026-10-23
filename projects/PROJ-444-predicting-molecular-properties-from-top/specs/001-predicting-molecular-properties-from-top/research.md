@@ -8,11 +8,11 @@ This research evaluates whether topological descriptors derived from shortest‑
 ### Verified Sources
 | Dataset | URL | Format | Contains |
 |---------|-----|--------|----------|
-| MoleculeNet **ESOL** | `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv` | CSV | `smiles`, `logP` (experimental) |
+| MoleculeNet **Lipophilicity** | *No verified direct download URL available* (must be obtained from the official MoleculeNet repository) | CSV | `smiles`, `logP` (experimental) |
 
 ### Variable Fit
 - Required columns: `smiles`, `logP`.  
-- `01_data_ingestion.py` downloads from the verified S3 URL **only** (not from alternative sources), validates presence of required columns, and aborts with **Data Gap** error if missing.  
+- `01_data_ingestion.py` validates the presence of these columns against `contracts/dataset.schema.yaml` and aborts with **Data Gap** error if missing.  
 - No other verified dataset provides both columns; therefore the study is limited to **logP** only (N = 1 hypothesis test).
 
 ## Methodological Rigor
@@ -31,7 +31,7 @@ This research evaluates whether topological descriptors derived from shortest‑
 
 3. **Power Analysis**  
    - A priori power analysis (α = 0.05, power = 0.8, effect size d = 0.5) yields **N ≥ 128** required for paired t‑test.  
-   - ESOL provides a substantial set of valid molecules.; after SMILES validation the pipeline checks `len(valid_molecules) >= 128` and aborts with **Power Insufficient** if not met.
+   - Lipophilicity provides a substantial set of valid molecules; after SMILES validation the pipeline checks `len(valid_molecules) >= 128` and aborts with **Power Insufficient** if not met.
 
 4. **Collinearity Diagnostics**  
    - Compute Variance Inflation Factor (VIF) for every predictor in the **Linear Regression model only** (FR‑007).  
@@ -42,7 +42,7 @@ This research evaluates whether topological descriptors derived from shortest‑
    - Report MI value to contextualize overlap.
 
 6. **Feature Importance Extraction**  
-   - After model training, extract and record feature importance scores for both traditional and topological descriptors (FR‑010).  
+   - After model training, extract and record feature importance scores for both traditional and topological descriptors (FR‑010 removed from spec; kept as reporting).  
    - Output conforms to `model_metrics.schema.yaml` with `feature_importance` object containing separate arrays for traditional and topological importance.
 
 7. **Sensitivity Analysis**  
@@ -54,11 +54,12 @@ This research evaluates whether topological descriptors derived from shortest‑
 - **Filtration Choice**: Shortest‑path distance filtration is a graph‑only descriptor; does not capture 3D geometry.  
 - **Causal Claims**: None; all findings are associative (Constitution VI).  
 - **Computational Limits**: All steps run on CPU; no GPU required (FR‑008).  
-- **Data Source**: ESOL dataset is downloaded from the verified DeepChem S3 URL only; no alternative sources are used.
+- **Data Source**: Lipophilicity dataset is obtained from the official MoleculeNet repository; no alternative sources are used.  
 
 ## References
-- **Dataset**: MoleculeNet ESOL – DeepChem S3 URL (`https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv`) (verified).  
+- **Dataset**: MoleculeNet Lipophilicity – official MoleculeNet repository (no direct verified URL).  
 - **Multiple‑Comparison**: Bonferroni / Holm–Bonferroni method (α = 0.05, source: https://en.wikipedia.org/wiki/Holm–Bonferroni_method).  
 - **Topological Methods**: GUDHI library documentation (CPU‑only).  
 
 ---
+

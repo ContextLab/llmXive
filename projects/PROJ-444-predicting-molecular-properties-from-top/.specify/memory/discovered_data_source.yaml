@@ -1,18 +1,9 @@
-status: verified
-kind: pypi_package
-ref: deepchem
-access_python: "import os, urllib.request, pandas as pd, deepchem as dc\nurl = \"\
-  https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv\"\
-  \ncache_dir = dc.utils.data_utils.get_data_dir()\ncsv_path = os.path.join(cache_dir,\
-  \ \"delaney-processed.csv\")\nif not os.path.exists(csv_path):\n    urllib.request.urlretrieve(url,\
-  \ csv_path)\ndf = pd.read_csv(csv_path)\nprint(f\"RECORDS={len(df)}\")\nprint(\"\
-  FIELDS=\" + \",\".join([c for c in [\"smiles\", \"logP\"] if c in df.columns]))"
-record_count: 1128
-sample_fields:
-- smiles
-field_coverage: 0.5
+status: none
+intent: MoleculeNet Lipophilicity dataset download python package SMILES logP python
+  package dataset
 required_fields:
 - smiles
 - logP
-intent: DeepChem MoleculeNet ESOL logP SMILES download python package dataset
-cache_key: 7fbcc31281e9b0774246ba47efea19b410d9ecf3fd1e25d9cca2ff4ff103f0e0
+cache_key: 47f0195ab52142c6fd17b1991f997c1e2de21b713e7d7581658b6ea45d76dff1
+searched_at: '2026-10-23T17:09:38.122386+00:00'
+retry_count: 1
