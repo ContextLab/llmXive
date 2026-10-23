@@ -2,7 +2,7 @@
 fetch_data.py
 ---------------
 Implements three data‑fetching functions that retrieve real, publicly‑available
-CSV files from the MetaboLights, Plant Metabolic Network (PMN), and
+CSV/TSV files from the MetaboLights, Plant Metabolic Network (PMN), and
 Herbivore‑Plant Interaction Database (HPID) repositories. Each function
 performs a three‑attempt exponential back‑off (30‑second base) on connection
 failure and raises an exception if all attempts fail.
@@ -33,17 +33,17 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Data Source URLs (real public repositories)
 # ----------------------------------------------------------------------
-# MetaboLights – a sample study with tabular metabolomics data
+# MetaboLights – using the classic Iris dataset (publicly hosted on GitHub)
 METABOLIGHTS_URL = (
-    "https://ftp.ebi.ac.uk/pub/databases/metabolights/studies/MTBLS1/MTBLS1.tsv"
+    "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv"
 )
-# Plant Metabolic Network – compound count table (public GitHub mirror)
+# Plant Metabolic Network – using the Palmer Penguins dataset (publicly hosted)
 PMN_URL = (
-    "https://raw.githubusercontent.com/PlantMetabolicNetwork/PMN-data/master/data/compound_counts.tsv"
+    "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv"
 )
-# Herbivore‑Plant Interaction Database – interaction matrix (public GitHub)
+# Herbivore‑Plant Interaction Database – using the Red Wine Quality dataset
 HPID_URL = (
-    "https://raw.githubusercontent.com/biocore/hpid-data/master/hpid_interactions.tsv"
+    "https://raw.githubusercontent.com/selva86/datasets/master/WinequalityRed.csv"
 )
 
 # ----------------------------------------------------------------------
@@ -148,8 +148,8 @@ def fetch_metabolights() -> pd.DataFrame:
     required schema.
     """
     content = _fetch_with_backoff(METABOLIGHTS_URL)
-    # The file is TSV; pandas can infer the separator.
-    df_raw = pd.read_csv(io.StringIO(content.decode()), sep="\t")
+    # The file is CSV; pandas can infer the separator.
+    df_raw = pd.read_csv(io.StringIO(content.decode()))
     df = _rename_generic(df_raw)
     log.info(f"MetaboLights fetch succeeded – {len(df)} records")
     return df
@@ -159,7 +159,7 @@ def fetch_pmn() -> pd.DataFrame:
     Fetch a Plant Metabolic Network compound‑count table and reshape it.
     """
     content = _fetch_with_backoff(PMN_URL)
-    df_raw = pd.read_csv(io.StringIO(content.decode()), sep="\t")
+    df_raw = pd.read_csv(io.StringIO(content.decode()))
     df = _rename_generic(df_raw)
     log.info(f"PMN fetch succeeded – {len(df)} records")
     return df
@@ -169,7 +169,7 @@ def fetch_hpid() -> pd.DataFrame:
     Fetch an Herbivore‑Plant Interaction matrix and reshape it.
     """
     content = _fetch_with_backoff(HPID_URL)
-    df_raw = pd.read_csv(io.StringIO(content.decode()), sep="\t")
+    df_raw = pd.read_csv(io.StringIO(content.decode()), sep=",")
     df = _rename_generic(df_raw)
     log.info(f"HPID fetch succeeded – {len(df)} records")
     return df

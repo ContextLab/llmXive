@@ -1,9 +1,6 @@
 T001:
-  reason: "The repository contains the required directories, `requirements.txt`, `config.py`,\
-    \ `fetch_data.py`, and the unit\u2011test file, and `outputs/fetch_log.txt` shows\
-    \ sample IDs, but there is no evidence that `pytest code/tests/test_fetch_data.py\
-    \ -v` was actually executed and passed, nor any artifact proving that the combined\
-    \ fetched species count meets the \u2265\u202F50 requirement."
+  reason: 'Requested task execution failed; rerun successfully: outputs/fetch_log.txt
+    exit=-1'
   task: 5ccd8c76f8d1cade2c0caf8aa26ebb58d213a2274e59365a23d29590402060f2
 T002:
   reason: "The provided `code/src/preprocess.py` does not satisfy the task: the pytest\

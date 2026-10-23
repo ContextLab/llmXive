@@ -7,7 +7,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/src/run_pipeline.py --seed 42 --max-species 100 --output-dir outputs/ -> rc=1
-ound for url: https://ftp.ebi.ac.uk/pub/databases/metabolights/studies/MTBLS1/MTBLS1.tsv
+quests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/selva86/datasets/master/WinequalityRed.csv
 
 The above exception was the direct cause of the following exception:
 
@@ -15,15 +15,15 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-081-investigating-the-relationship-between-p/code/src/run_pipeline.py", line 124, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-081-investigating-the-relationship-between-p/code/src/run_pipeline.py", line 88, in main
-    df_metabolights = fetch_metabolights()
-                      ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-081-investigating-the-relationship-between-p/code/src/fetch_data.py", line 150, in fetch_metabolights
-    content = _fetch_with_backoff(METABOLIGHTS_URL)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-081-investigating-the-relationship-between-p/code/src/run_pipeline.py", line 92, in main
+    df_hpid = fetch_hpid()
+              ^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-081-investigating-the-relationship-between-p/code/src/fetch_data.py", line 171, in fetch_hpid
+    content = _fetch_with_backoff(HPID_URL)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-081-investigating-the-relationship-between-p/code/src/fetch_data.py", line 68, in _fetch_with_backoff
     raise RuntimeError(f"Failed to fetch {url}") from exc
-RuntimeError: Failed to fetch https://ftp.ebi.ac.uk/pub/databases/metabolights/studies/MTBLS1/MTBLS1.tsv
+RuntimeError: Failed to fetch https://raw.githubusercontent.com/selva86/datasets/master/WinequalityRed.csv
 
 - python -m llmxive_toolkit.validate_contracts  --data outputs/clean.parquet  --schema contracts/processed_data.schema.yaml -> rc=1
 
