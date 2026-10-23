@@ -32,7 +32,7 @@ The script executes the steps in order:
 2. Compute exact partition counts `p_P_n` (DP).  
 3. Compute the calibrated **numerical saddle‑point** asymptotic `Q_as_n`.  
 4. Engineer density features and log‑residuals, producing `data/processed/features.csv`.  
-5. Fit the regression model (OLS with optional ridge, null model, BH correction, HAC SE).  
+5. Fit the regression model (OLS with optional ridge, null model, BH correction, HAC SE, power analysis).  
 6. Save `model_results.json` and the diagnostic plot `residuals_plot.png`.
 
 All intermediate artifacts are written under `data/processed/`.
@@ -69,4 +69,4 @@ Key tests:
 
 All files are checksum‑tracked for reproducibility.
 
-
+---

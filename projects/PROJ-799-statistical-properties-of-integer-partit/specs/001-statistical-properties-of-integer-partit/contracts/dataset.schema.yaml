@@ -16,10 +16,8 @@ properties:
     description: "Asymptotic baseline prediction from Meinardus' theorem."
     exclusiveMinimum: 0
   R_n:
-    type:
-      - "number"
-      - "null"
-    description: "Log-residual: log(p_P_n) - log(Q_as_n). Null if either input is non‑positive."
+    type: "number"
+    description: "Log‑residual: log(p_P_n) - log(Q_as_n). Set to -9999 when inputs are non‑positive."
   pi_n:
     type: "integer"
     description: "Prime‑counting function pi(n)."

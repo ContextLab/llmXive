@@ -8,20 +8,20 @@
 | `n` | integer (≥ 1) | Integer being partitioned |
 | `p_P_n` | integer (≥ 0) | Exact count of partitions of `n` into distinct primes |
 | `Q_as_n` | number (> 0) | Asymptotic baseline prediction from Meinardus' theorem |
-| `R_n` | number or null | Log‑residual \(\log(p_P_n) - \log(Q_as_n)\). Null if either input is non‑positive. |
-| `pi_n` | integer (≥ 0) | Prime‑counting function \(\pi(n)\) |
+| `R_n` | number | Log‑residual: log(p_P_n) - log(Q_as_n). Set to **‑9999** when either input is non‑positive. |
+| `pi_n` | integer (≥ 0) | Prime‑counting function π(n) |
 | `inv_log_n` | number (> 0) | Inverse natural log \(1/\ln(n)\) |
-| `cum_density` | number (> 0) | Cumulative sum of \(1/p\) for \(p \le n\) |
+| `cum_density` | number (≥ 0) | Cumulative sum of \(1/p\) for p ≤ n |
 | `gap_n` | integer (≥ 0) | Length of the prime gap that contains `n` |
 
 ### 1.2. DensityFeatureSet
 | Field | Type | Description |
 |-------|------|-------------|
 | `n` | integer (≥ 1) | Same as above |
-| `pi_n` | integer (≥ 0) | Prime‑counting function \(\pi(n)\) |
+| `pi_n` | integer (≥ 0) | Prime‑counting function π(n) |
 | `inv_log_n` | number (> 0) | Inverse natural log \(1/\ln(n)\) |
-| `cum_density` | number (> 0) | Cumulative sum of \(1/p\) for \(p \le n\) |
-| `R_n` | number or null | Target variable: log‑residual (may be null for zero counts) |
+| `cum_density` | number (≥ 0) | Cumulative sum of \(1/p\) for p ≤ n |
+| `R_n` | number | Target variable: log‑residual (sentinel ‑9999 if undefined) |
 | `gap_n` | integer (≥ 0) | Prime‑gap control variable |
 
 ### 1.3. RegressionModel
@@ -46,7 +46,7 @@
 
 1. **Raw primes** (`primes_up_to_50000.csv`) → `generate_partitions.py` → `partition_counts.csv`.  
 2. `compute_baseline.py` → `baseline_values.csv`.  
-3. `feature_engineering.py` merges the two, computes `R_n` and density features **plus** `gap_n`, and writes `features.csv` with columns:  
+3. `feature_engineering.py` merges the two, computes `R_n` (sentinel ‑9999 for non‑positive cases) and density features **plus** `gap_n`, and writes `features.csv` with columns:  
    `n,p_P_n,Q_as_n,R_n,pi_n,inv_log_n,cum_density,gap_n`.  
 4. `fit_model.py` reads `features.csv` → `model_results.json` (conforms to `RegressionModel` schema).  
 5. `visualize.py` consumes `features.csv` and model predictions → `residuals_plot.png`.
@@ -57,7 +57,7 @@
 - `partition_counts.csv`: columns `n,p_P_n`.  
 - `baseline_values.csv`: columns `n,Q_as_n`.  
 - `features.csv`: columns `n,p_P_n,Q_as_n,R_n,pi_n,inv_log_n,cum_density,gap_n`.  
-  - `R_n` is **null** for rows where `p_P_n=0` or `Q_as_n≤0`.  
+  - `R_n` is **always a numeric value**; rows where `p_P_n=0` or `Q_as_n≤0` contain the sentinel **‑9999**.  
 - `model_results.json`: JSON object matching `RegressionModel` schema.  
 - **Checksums**: All files under `data/` have a SHA‑2 hash recorded in the project state file.
 
@@ -65,11 +65,9 @@
 
 - `p_P_n` must be integer ≥ 0; for \(n\le100\) it must match `reference_data.csv` exactly (SC‑003).  
 - `Q_as_n` must be > 0; values < \(10^{-10}\) are clamped before logging.  
-- `R_n` is computed only when both inputs are positive; otherwise set to `null`.  
+- `R_n` is computed only when both inputs are positive; otherwise set to **‑9999** (numeric sentinel).  
 - Density features must be consistent with the prime list (`pi_n` equals the count of primes ≤ `n`).  
 - No missing values are allowed in `features.csv` for rows used in regression (enforced by `test_features_non_null.py`).  
 
 ---
-
-
 

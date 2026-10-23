@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 22e9dad65492b5fb17abcad8a8328217c185d9cb00126059752a195e015b878a
+  artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-23T04:49:18.817831Z'

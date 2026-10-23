@@ -1,9 +1,10 @@
 status: none
-intent: OEIS A000607 partitions into distinct primes python package dataset
+intent: OEIS distinct prime partitions dataset and SC-003 reference python package
+  dataset
 required_fields:
-- n (integer)
-- p_P(n) (exact count, integer)
-- Q_as(n) (asymptotic value, float)
-cache_key: b1c627bb2f75c659031bee25a0057677dc05dc764fd32e16ceefd3de96b21eee
-searched_at: '2026-10-23T04:25:02.864182+00:00'
+- n
+- p_P_n
+- Q_as_n
+cache_key: 5a3564ebc87b4ee70624ff8e112825b8711209b2c9a710d58f06939a9622760b
+searched_at: '2026-10-23T04:41:48.269040+00:00'
 retry_count: 1

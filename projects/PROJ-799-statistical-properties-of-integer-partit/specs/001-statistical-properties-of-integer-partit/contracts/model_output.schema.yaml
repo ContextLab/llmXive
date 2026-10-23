@@ -35,7 +35,7 @@ properties:
       maximum: 1
   mse_cv:
     type: "number"
-    description: "Mean Squared Error averaged over 10‑fold time‑series cross‑validation."
+    description: "Mean Squared Error averaged over 10‑fold time‑series CV."
     minimum: 0
   null_model_R2:
     type: "number"

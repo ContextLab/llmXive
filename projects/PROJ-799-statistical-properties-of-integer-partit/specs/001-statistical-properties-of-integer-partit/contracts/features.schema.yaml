@@ -8,14 +8,12 @@ properties:
     minimum: 1
     description: "The integer"
   R_n:
-    type:
-      - "number"
-      - "null"
-    description: "Log-residual (must not be null)"
+    type: "number"
+    description: "Log‑residual (must not be null; sentinel -9999 indicates undefined)."
   pi_n:
     type: "integer"
     minimum: 0
-    description: "Prime-counting function π(n)"
+    description: "Prime‑counting function π(n)"
   inv_log_n:
     type: "number"
     exclusiveMinimum: 0

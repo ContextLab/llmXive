@@ -50,7 +50,7 @@ As a researcher, I need to perform k‑fold cross‑validation on the regression
 
 **Acceptance Scenarios**:
 
-1. **Given** the fitted regression model, **When** cross‑validation is executed, **Then** the output reports the Mean Squared Error (MSE) for each of the 10 folds and the mean MSE across all folds.
+1. **Given** the fitted regression model, **When** cross‑validation is executed, **Then** the output reports the Mean Squared Error (MSE) for each cross‑validation fold and the mean MSE across all folds.
 2. **Given** the model results, **When** the visualization script runs, **Then** it produces a plot with $n$ on the x‑axis, showing both the raw residuals **R_n** and the predicted correction term, allowing visual identification of periodic anomalies.
 
 ---

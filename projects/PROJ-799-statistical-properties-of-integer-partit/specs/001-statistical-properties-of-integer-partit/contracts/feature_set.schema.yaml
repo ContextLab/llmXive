@@ -8,7 +8,7 @@ properties:
     description: "The integer being partitioned."
   pi_n:
     type: "integer"
-    description: "Prime-counting function pi(n)."
+    description: "Prime‑counting function pi(n)."
   inv_log_n:
     type: "number"
     description: "Inverse natural log of n (1/ln(n))."
@@ -16,10 +16,11 @@ properties:
     type: "number"
     description: "Cumulative sum of 1/p for p <= n."
   R_n:
-    type:
-      - "number"
-      - "null"
-    description: "Target variable: log-residual."
+    type: "number"
+    description: "Target variable: log‑residual (sentinel -9999 if undefined)."
+  gap_n:
+    type: "integer"
+    description: "Prime‑gap control variable."
 required:
   - n
   - pi_n
