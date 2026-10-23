@@ -1,9 +1,10 @@
 T000:
   c: true
-  h: 5c78918e0c6d42a847f3839135dfee557ae626fdef1716182e183cbb196afea4
-  r: The `code/pipelines/install_dependencies.py` script is present and implements
-    pip installation plus seed initialization, the `code/utils/seed.py` module provides
-    a deterministic `set_seeds` function matching the reference value, and `tests/test_setup.py`
-    validates both the `datasets` importability and seed determinism. The supporting
-    wrapper `utils/seed.py` ensures the test can import `utils.seed` correctly.
-  sig: 0876da8d4511a0b0e393b533d1febabb8b465c4b1dd0f58a3593cf5ddc7f2611
+  h: d7f54569bc2f65f3c3cb3cce7c84c7ebd091220c41d6ad97e71415c21f9e1b66
+  r: Checked `code/pipelines/install_dependencies.py` (installs requirements and calls
+    `utils.seed.set_seeds`) and `code/utils/seed.py` (sets NumPy seed 42 yielding
+    the expected first random value). The accompanying `tests/test_setup.py` correctly
+    verifies that the `datasets` package can be imported and that the seeded NumPy
+    value matches the reference. All required artifacts exist and contain the proper
+    functionality.
+  sig: 535390971b60899fc9ea9362f7556b0049187475d35e17d2d7ee9173de4bdf98

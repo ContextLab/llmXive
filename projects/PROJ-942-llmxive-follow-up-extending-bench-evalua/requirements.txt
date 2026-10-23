@@ -1,16 +1,13 @@
-# Existing dependencies (pre‑installed in the environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependency required for real π‑Bench download
-huggingface_hub>=0.23
+datasets>=2.14
+huggingface_hub>=0.20.0
+transformers>=4.40
+torch>=2.2
+networkx>=3.2
+scikit-learn>=1.4
+pandas>=2.2
+numpy>=1.26
+matplotlib>=3.8
+pyyaml>=6.0
+statsmodels>=0.14
+scipy>=1.12
+jsonschema>=4.22
