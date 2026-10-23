@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T15:44:45.738882Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-318-evaluating-the-impact-of-code-generation
-last_run_id: 75081765-c585-4c8b-a7f1-38e90b2e9ff1
+last_run_id: b9804ad3-6644-45fc-9f63-e593c4e8ede7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation Models on Code Documentation Completeness
-updated_at: '2026-10-13T14:05:37.369535Z'
+updated_at: '2026-10-23T14:26:22.277651Z'
