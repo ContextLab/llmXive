@@ -1,13 +1,11 @@
 status: none
-intent: OpenML UCI Machine Learning Repository downloadable python package dataset
+intent: UCI OpenML Wine Quality Breast Cancer Iris Adult Income Statlog Heart Vehicle
+  Silhouettes python package dataset
 required_fields:
-- dataset_id
-- name
-- source_url
-- continuous_features
-- group_label_column
-- n_samples
-- metadata_json
-cache_key: e2881f6f460cafd1542a4c2269cf16e2e9f83676600c4dfd498f76f39da69b27
-searched_at: '2026-10-21T20:55:40.631329+00:00'
+- continuous_numeric_columns
+- categorical_group_label_column
+- row_count
+- missing_percentage
+cache_key: 798cac1c692c4fb4e8d14d52f75847cea86867e4fe20e7b48d10008ece90bc68
+searched_at: '2026-10-23T20:28:23.885667+00:00'
 retry_count: 1

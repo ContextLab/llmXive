@@ -1,12 +1,9 @@
-# Sensitivity‑result schema – extended to include the baseline transformation.
-#
-# The rest of the schema is unchanged; only the enum list is updated.
 type: object
 properties:
   transformation:
     type: string
     enum:
-      - baseline          # <--- added to satisfy T001 requirements
+      - baseline
       - box_cox
       - yeo_johnson
       - rank_inverse_normal
@@ -18,3 +15,4 @@ required:
   - transformation
   - alpha
   - error_rate
+additionalProperties: false

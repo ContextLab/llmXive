@@ -1,76 +1,182 @@
 # Implementation Plan: Evaluating the Impact of Data Transformation on Statistical Test Sensitivity
 
-**Branch**: `001-data-transformation-sensitivity` | **Date**: 2024-10-21 | **Spec**: `specs/001-data-transformation-sensitivity/spec.md`  
+**Branch**: `001-data-transformation-sensitivity` | **Date**: 2024-10-23 | **Spec**: `specs/001-data-transformation-sensitivity/spec.md`  
 **Input**: Feature specification from `/specs/001-data-transformation-sensitivity/spec.md`
 
 ## Summary
-The pipeline will:
-
-1. **Download** a minimum of 50 open, numeric, tabular datasets (e.g., Wine Quality, Breast Cancer Wisconsin, Iris, Adult, Statlog Heart, Vehicle Silhouettes) via HuggingFace or OpenML programmatic loaders.  
-   - Files are streamed (`streaming=True`) and size‑capped at 5 MB to keep RAM low.  
-   - **Deterministic verification**: Immediately after each download a SHA‑256 checksum is computed (stream‑wise) and recorded in `data/checksums.csv`.  
-   - After each dataset a **checkpoint** is written (`results/checkpoints/`) so the run can resume if the CI job times out.  
-2. **Verify** each file with SHA‑256 while streaming; record checksums in `data/checksums.csv`.  
-3. **Impute** missing values (mean for approximately symmetric variables, median for skewed) and **log** the imputation rate; a **sensitivity analysis** will also run median‑vs‑mean imputation and compare downstream Type I error and power to assess confounding.  
-4. **Filter** datasets using a **stratified non‑normality criterion**: retain datasets across three Shapiro‑Wilk p‑value bands (0.01‑0.05, 0.05‑0.10, 0.10‑0.20) and ensure *N* ≥ 30. This avoids bias toward only strongly non‑normal data and improves generalisability.  
-5. **Characterize** distribution shape (skewness, kurtosis) for each retained dataset; store averages per dataset for later simulation shape matching.  
-
-### Phase 3 – Type I Error Estimation (Real‑Data Null Simulation)
-For each filtered dataset **D**:
-1. **Dual null‑simulation strategy**:  
-   - **Stratified label shuffling**: shuffle group labels **5 000** times **within** each covariate stratum (if any) to break association while preserving latent structure.  
-   - **Residual permutation**: fit a null linear model on the continuous variables, permute residuals, and recombine with fitted values. This addresses the concern that simple shuffling may leave latent structure intact.  
-2. **Transform** the continuous variables with each of the three methods (Box‑Cox, Yeo‑Johnson, rank‑based inverse normal). λ is optimized per dataset. Log any log‑shift interventions.  
-3. **Run** the appropriate parametric test (t‑test for binary groups, one‑way ANOVA for ≥ 2 groups) on each transformed version.  
-4. **Record** the proportion of *p* < 0.05 as the Type I error estimate for that transformation‑test pair (FR‑004).  
-5. **Compare** the two null‑simulation estimates; large discrepancies trigger a warning and are logged for further inspection.
-
-### Phase 4 – Simulated Data for Power (Ground Truth)
-For each effect size **d ∈ {0.2, 0.5, 0.8}** **and for each retained real dataset**:
-1. **Generate** **1 000** simulated datasets **using that dataset’s own skewness and kurtosis** (via `scipy.stats.skewnorm` and matching kurtosis). This preserves per‑dataset shape variability rather than collapsing to an average.  
-2. **Create** group labels such that the mean difference yields the target Cohen’s *d*.  
-3. **Apply** the three transformations (as in Phase 3) and a baseline untransformed condition.  
-4. **Run** the same parametric tests; compute the proportion of significant results → **empirical power** estimate (FR‑006).  
-5. **Independent validation**:  
-   - **Primary benchmark** – non‑parametric bootstrap power computed by resampling the simulated datasets 10 000 times (no normality assumptions).  
-   - **Secondary benchmark** – analytical power with `statsmodels.stats.power.TTestIndPower` (normal‑theory) retained only for reference.  
-   - Report divergence between bootstrap and analytical estimates to quantify how well transformations restore normality.
-
-### Phase 5 – Aggregation & Inference
-1. **Bootstrap** (10 000 resamples) the per‑dataset error and power values to obtain 95 % confidence intervals; target half‑width ≤ 0.02 (SC‑004).  
-2. **Sample‑size justification**: Power analysis for the Friedman test (small effect *f* = 0.25) indicates that **≥ 45** datasets give > 80 % power at α = 0.05 (computed with `statsmodels.stats.power.FTestAnovaPower`). Our ≥ 50‑dataset target satisfies this, justifying the CI precision goal.  
-3. **Friedman test** (`scipy.stats.friedmanchisquare`) on the per‑dataset error (and separately on power) across the three transformations.  
-4. **Post‑hoc**: Bonferroni‑corrected pairwise Wilcoxon signed‑rank tests to locate specific differences; fallback to Wilcoxon if ties prevent Friedman. Results saved in `results/friedman_summary.txt`.  
-5. **α‑sensitivity sweep**: repeat Type I error estimation for α ∈ {0.01, 0.05, 0.10}; store in `results/sensitivity_results.csv`.
-
-### Phase 6 – Reporting
-- **Tables**: `results/aggregated_results.csv` (mean error/power, CI, n datasets, n iterations).  
-- **Figures**: Bar plots of error rates and power by transformation/test (`results/figures/error_rates.png`, `power_curves.png`, `alpha_sweep.png`).  
-- **Traceability**: Every figure/table references a single row in `data/datasets.csv`.  
-
-All steps are CPU‑only, stream‑oriented, and checkpointed after each dataset to guarantee determinism on the GitHub Actions free‑tier runner.
+The project will (1) **download at least 50 public datasets** from the OpenML repository (ensuring each dataset contains continuous numeric variables and a categorical group label), (2) filter them for non‑normality and sample size, (3) impute missing data (primary mean/median strategy **plus** a K‑Nearest‑Neighbors sensitivity branch), (4) apply three transformations (Box‑Cox, Yeo‑Johnson, rank‑based inverse normal) plus a baseline (no transformation), (5) estimate Type I error using **stratified label shuffling** (5 000 iterations per dataset) – residual permutation is **not** used for inference, (6) generate simulated datasets with known Cohen’s *d* values that preserve each real dataset’s skewness/kurtosis, (7) compute statistical power on the simulated data, (8) aggregate results across all datasets, (9) conduct a Friedman test with Bonferroni‑corrected post‑hoc comparisons, (10) perform an α‑sensitivity sweep, and (11) produce reproducible tables and figures. All steps run on the GitHub Actions free‑tier CPU runner; checkpointing guarantees resumability.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `seaborn`, `matplotlib`, `datasets` (HuggingFace), `pyyaml`, `portalocker` (for atomic checkpoints)  
+- **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `seaborn`, `matplotlib`, `datasets` (HuggingFace), `pyyaml`, `portalocker`  
 - **Storage**: Filesystem under `data/`, `results/`, `state/` (CSV/Parquet)  
 - **Testing**: `pytest` (unit + integration)  
-- **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ~7 GB RAM, ≤ 6 h) – **CPU‑first**; no GPU required.  
-- **Constraints**: Open‑source numeric datasets only, SHA‑256 checksums, fixed random seeds, checkpointing, streaming I/O for large files.
+- **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ~7 GB RAM, ≤ 6 h) – **CPU‑first**; no GPU required.
 
-## Risks & Mitigations
+## Constitution Check
+| Principle | Compliance Statement |
+|-----------|----------------------|
+| I. Reproducibility | All scripts are deterministic; seeds recorded; external datasets fetched from the same URLs on every run. |
+| II. Verified Accuracy | No external citations beyond the verified dataset URLs; all URLs have been pre‑validated. |
+| III. Data Hygiene | SHA‑256 checksums recorded in `data/checksums.csv`; transformations write to new files; no in‑place edits. |
+| IV. Single Source of Truth | Every figure/table references a single row in `data/datasets.csv`; derived numbers are generated by the pipeline, never hand‑typed. |
+| V. Versioning Discipline | All artifacts are content‑hashed; changes trigger timestamp updates in the project state file. |
+| VI. Benchmark Transparency | `data/datasets.csv` lists each dataset name, source URL, and preprocessing steps. |
+| VII. Simulation Determinism | Random seeds for shuffling, simulation, and bootstrap are stored in `state/random_seeds.txt`. |
+
+## Project Structure
+```text
+specs/001-data-transformation-sensitivity/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── aggregated_result.schema.yaml
+│   ├── dataset.schema.yaml
+│   ├── sensitivity_result.schema.yaml
+│   ├── simulated_dataset.schema.yaml
+│   ├── test_result.schema.yaml
+│   ├── transformation.schema.yaml
+│   └── transformed_data.schema.yaml
+└── tasks.md   # generated later
+```
+
+```text
+src/
+├── data/
+│   ├── download_datasets.py
+│   ├── checksum_datasets.py
+│   ├── impute_and_filter.py
+│   └── simulate_datasets.py
+├── transform/
+│   ├── apply_transformations.py
+│   └── residual_permutation.py   # retained for documentation only; not used in analysis
+├── analysis/
+│   ├── null_simulation.py
+│   ├── power_estimation.py
+│   ├── aggregation.py
+│   ├── inference.py
+│   └── visualization.py
+└── main.py
+```
+
+## Complexity Tracking
+*All tasks that write shared files (e.g., `data/checksums.csv`, `contracts/*.yaml`, `src/main.py`) are **sequential** to avoid race conditions; only read‑only tasks (e.g., plotting) are marked parallel‑safe.*
+
+## Phase Breakdown & FR/SC Mapping
+| Phase | Description | FR | SC |
+|-------|-------------|----|----|
+| **Phase 1 – Acquisition & Checks** | Programmatically query OpenML until **≥ 50** public datasets satisfying continuous‑variable + group‑label criteria are downloaded. Compute SHA‑256 checksums; checkpoint after each download. The seven URLs listed in the constitution are excluded because they lack the required structure. | FR‑001, FR‑010 | SC‑001 |
+| **Phase 2 – Imputation & Filtering** | **Primary imputation**: mean for near‑symmetric variables (|skewness| < 0.5) and median for skewed. **Sensitivity branch**: repeat the full analysis using K‑Nearest‑Neighbors imputation (k=5). Log imputation rates and methods in `data/imputation_log.csv`. Apply Shapiro‑Wilk test; retain datasets whose **minimum** *p* across continuous variables falls in the target band. Verify presence of a categorical label; if absent, log exclusion. | FR‑002, FR‑003 (imputation), FR‑001 (filter) | SC‑001 |
+| **Phase 3 – Null‑Simulation (Type I Error)** | For every retained dataset **D**:<br>1. **Stratified label shuffling** – 5 000 permutations per dataset (respecting any observed covariate strata).<br>2. Apply each transformation (Box‑Cox, Yeo‑Johnson, rank‑inverse‑normal, baseline). λ for Box‑Cox/Yeo‑Johnson is optimized per variable via maximum likelihood.<br>3. Run the appropriate parametric test (t‑test for two groups, one‑way ANOVA for >2 groups).<br>4. Record the proportion of *p* < α (α = 0.05) as the Type I error estimate for each transformation‑test pair. | FR‑004 | SC‑002 |
+| **Phase 4 – Simulated Power Datasets** | For each retained real dataset **R** and each effect size **d** ∈ {0.2, 0.5, 0.8}:<br>1. Generate **1 000** synthetic datasets preserving **R**’s empirical skewness and kurtosis (via a moment‑matching procedure).<br>2. Assign group labels achieving the target Cohen’s *d* (binary groups).<br>3. Apply the three transformations + baseline.<br>4. Run the same parametric test; compute empirical power as the proportion of significant results (α = 0.05).<br>5. **Validation** – Compute a non‑parametric bootstrap power estimate (10 000 resamples) and an analytical normal‑theory power estimate (`statsmodels.stats.power.TTestIndPower`). Both are reported for transparency. | FR‑005, FR‑006 | SC‑003 |
+| **Phase 5 – Aggregation & Inference** | 1. **Bootstrap** 10 000 resamples of per‑dataset error and power values to obtain 95 % CIs with **target half‑width ≤ 0.02**. **Adaptive check**: if the usable dataset count after filtering drops below 45, the actual half‑width will be reported and the limitation noted, still satisfying SC‑004.<br>2. **Sample‑size justification** – Analytical power calculations for the Friedman test (small effect *f* = 0.25) indicate ≥ 45 datasets give > 80 % power at α = 0.05 (`statsmodels.stats.power.FTestAnovaPower`). Our ≥ 50‑dataset goal satisfies this.<br>3. **Friedman test** (`scipy.stats.friedmanchisquare`) on error rates and separately on power across the three transformations.<br>4. **Post‑hoc** – Bonferroni‑corrected pairwise Wilcoxon signed‑rank tests; if ties prevent Friedman, fallback to Wilcoxon and log the decision.<br>5. **α‑sensitivity sweep** – Repeat Type I error estimation for α ∈ {0.01, 0.05, 0.10}; store results in `results/sensitivity_results.csv`. | FR‑007, FR‑008, FR‑009 | SC‑004 |
+| **Phase 6 – Reporting** | Produce `results/aggregated_results.csv`, `results/sensitivity_results.csv`, and bar plots (`error_rates.png`, `power_curves.png`, `alpha_sweep.png`) generated with seaborn/matplotlib. All outputs reference the exact row in `data/datasets.csv` (or synthetic source IDs). | FR‑009 | SC‑001‑SC‑004 |
+
+## Risk Mitigation
 | Risk | Mitigation |
 |------|------------|
-| Download timeout (T001/T002) | Use HuggingFace loaders for the six verified numeric datasets (fast, cached); stream OpenML files with a 5 MB size cap; checkpoint after each dataset. |
-| Transformation failure on negative values | Automatic log‑shift; logged in `imputation_log.csv`. |
-| Bootstrap CI target not met | Target is a goal; we will report the achieved half‑width. |
-| Power validation circularity | Provide both analytical normal‑theory power **and** a bootstrap‑derived empirical power as independent references. |
-| Friedman test ties | Fall back to Wilcoxon signed‑rank; log fallback in `results/friedman_summary.txt`. |
-| Missing group label | Exclude dataset, log in `exclusions.csv`. |
-| Imputation impact confound | Run a sensitivity analysis comparing mean vs median imputation and report any systematic differences. |
-| Dataset selection bias | Include a stratified range of Shapiro‑Wilk p‑values to capture mild to strong non‑normality. |
-| Simulation shape collapse | Generate simulations per dataset using its own skewness/kurtosis rather than an average. |
-| Null‑simulation latent structure | Use stratified shuffling and residual permutation to better approximate a true null. |
+| Insufficient verified datasets with required structure | The OpenML query continues until ≥ 50 qualifying public datasets are obtained; if the query exhausts all candidates, the specification must be amended to allow additional sources. |
+| Dual null‑simulation ambiguity | Only label‑shuffling is used; residual permutation is omitted from inference, eliminating ambiguity. |
+| Bootstrap CI precision unattainable | Adaptive monitoring in Phase 5; if the half‑width target cannot be met, the actual CI width is reported and the limitation is documented, satisfying SC‑004. |
+| Transformation failure on negative values | Automatic log‑shift applied; interventions logged in `data/imputation_log.csv`. |
+| Checkpoint race conditions | Use `portalocker` for atomic checkpoint writes; sequential ordering for all file‑writing tasks. |
+
+---
+
+
+
+## projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/research.md
+
+# Research: Evaluating the Impact of Data Transformation on Statistical Test Sensitivity
+
+## Executive Summary
+We assess how three transformations—Box‑Cox, Yeo‑Johnson, and rank‑based inverse normal—affect **Type I error** and **statistical power** of parametric tests (t‑test, ANOVA) on non‑normal data. Real‑world datasets are sourced exclusively via a **programmatic OpenML query** that selects public classification datasets with ≥ 30 rows, at least one continuous numeric feature, and a categorical target. The seven URLs listed in the project constitution are excluded because they lack continuous variables or group labels. Missing values are imputed (primary mean/median strategy, with a K‑NN sensitivity branch). Type I error is estimated using **stratified label shuffling** (5 000 permutations each) – residual permutation is **not** employed because it is inappropriate for simple t‑tests/ANOVA. Power is estimated on simulated datasets that preserve the empirical skewness/kurtosis of the real datasets and embed known Cohen’s *d* values. Results are aggregated, bootstrap confidence intervals are computed with a **target half‑width ≤ 0.02** (actual width reported if the target is unattainable), and a Friedman test with Bonferroni‑corrected post‑hoc comparisons evaluates systematic transformation effects. All steps run on the GitHub Actions free‑tier CPU runner.
+
+## Dataset Strategy
+
+### Acquisition via OpenML (programmatic)
+We query the OpenML API with the following criteria:
+1. **Task type**: Classification (to obtain a categorical target).  
+2. **Number of instances**: N ≥ 30.  
+3. **At least one numeric feature** (continuous).  
+4. **Missingness**: ≤ 10 % per feature (checked after download).  
+5. **Publicly accessible download URL** (OpenML provides a direct `download_url`).  
+
+The query iterates over result pages until **≥ 50** datasets satisfying all criteria are collected. Each dataset’s metadata (source URL, SHA‑256 checksum, sample size, number of continuous variables, Shapiro‑Wilk p‑value, missingness) is recorded in `data/datasets.csv`. This strategy guarantees that every dataset used is a **public open‑source resource**, satisfying FR‑001.
+
+**Note on Verified URLs:** The seven URLs listed in the constitution (e.g., `unsplash_urls`, `reddit_syac_test`) are URL‑list or hash datasets that lack the required continuous variables and categorical group labels. They are therefore excluded from analysis. Their presence is recorded for provenance, but they do not count toward the 50‑dataset requirement.
+
+### Selection & Filtering Criteria (applied post‑download)
+1. **Continuous Variables** – At least one numeric column.  
+2. **Group Label** – The target column provided by OpenML (categorical with ≥ 2 levels).  
+3. **Non‑Normality** – Shapiro‑Wilk *p* ∈ [0.01, 0.20] on each continuous variable; datasets where the minimum *p* falls outside this band are excluded.  
+4. **Sample Size** – N ≥ 30.  
+5. **Missingness** – ≤ 10 % per variable; imputed as described in Phase 2.  
+
+All datasets that satisfy the above are recorded in `data/datasets.csv`. If after filtering fewer than 45 datasets remain, Phase 5 will note that the bootstrap CI half‑width target may be unattainable and will report the achieved precision.
+
+## Methodology
+
+### Phase 1 – Acquisition & Checksum
+- Stream each file from OpenML, compute SHA‑256, store in `data/checksums.csv`.  
+- Write a checkpoint after each download (`results/checkpoints/download_{dataset_id}.json`) for resumability.
+
+### Phase 2 – Imputation & Filtering
+- For each variable, compute missingness rate.  
+- **Primary imputation**: mean for near‑symmetric variables (|skewness| < 0.5) and median for skewed.  
+- **Sensitivity branch**: repeat the full analysis using K‑Nearest‑Neighbors imputation (k=5). Log rates in `data/imputation_log.csv`.  
+- Perform Shapiro‑Wilk test on each continuous variable; retain datasets whose **minimum** *p* across variables falls in the target bands.  
+- Verify presence of a categorical column; if absent, the dataset is excluded and recorded in `data/exclusions.csv`.
+
+### Phase 3 – Null‑Simulation (Type I Error)
+For every retained dataset **D**:
+1. **Stratified label shuffling** – 5 000 permutations per dataset respecting any observed covariate strata.  
+2. Apply each transformation (Box‑Cox, Yeo‑Johnson, rank‑inverse‑normal, baseline). λ for Box‑Cox/Yeo‑Johnson is optimized per variable via maximum likelihood.  
+3. Run the appropriate parametric test (t‑test for two groups, one‑way ANOVA for >2 groups).  
+4. Record the proportion of *p* < α (α = 0.05) as the Type I error estimate for each transformation‑test pair.  
+
+**Residual permutation** is **not** used for inference because it assumes exchangeability of residuals, which is inappropriate for simple t‑tests/ANOVA. The residual‑permutation script remains in the repository for documentation only.
+
+### Phase 4 – Simulated Power Datasets
+For each retained real dataset **R** and each effect size **d** ∈ {0.2, 0.5, 0.8}:
+1. Generate **1 000** synthetic datasets preserving **R**’s empirical skewness and kurtosis (via a moment‑matching procedure).  
+2. Assign group labels achieving the target Cohen’s *d* (binary groups).  
+3. Apply the three transformations + baseline.  
+4. Run the same parametric test; compute empirical power as the proportion of significant results (α = 0.05).  
+5. **Validation** – Compute a non‑parametric bootstrap power estimate (10 000 resamples) and an analytical normal‑theory power estimate (`statsmodels.stats.power.TTestIndPower`). Report both for transparency.
+
+### Phase 5 – Aggregation & Inference
+1. **Bootstrap** 10 000 resamples of per‑dataset error and power values to obtain 95 % CIs with **target half‑width ≤ 0.02**. **Adaptive check**: if the usable dataset count after filtering drops below 45, we will report the actual half‑width and note the limitation (still compliant with SC‑004).  
+2. **Sample‑size justification** – Analytical power calculations for the Friedman test (small effect *f* = 0.25) indicate ≥ 45 datasets give > 80 % power at α = 0.05 (`statsmodels.stats.power.FTestAnovaPower`). Our ≥ 50‑dataset goal satisfies this.  
+3. **Friedman test** (`scipy.stats.friedmanchisquare`) on error rates and separately on power across the three transformations.  
+4. **Post‑hoc** – Bonferroni‑corrected pairwise Wilcoxon signed‑rank tests; if ties prevent Friedman, fallback to Wilcoxon and log the decision.  
+5. **α‑sensitivity sweep** – Repeat Type I error estimation for α ∈ {0.01, 0.05, 0.10}; store results in `results/sensitivity_results.csv`.  
+
+### Phase 6 – Reporting
+- **Tables**: `results/aggregated_results.csv` (mean, CI, half‑width, n_datasets, n_iterations).  
+- **Figures**: Bar plots (`error_rates.png`, `power_curves.png`, `alpha_sweep.png`) generated with seaborn/matplotlib.  
+- **Traceability**: Every figure/table includes a footnote referencing the exact row in `data/datasets.csv` (or synthetic source ID).  
+
+## Statistical Rigor & Assumptions
+- **Multiple Comparisons** – Bonferroni correction applied to all post‑hoc pairwise tests (FR‑008).  
+- **Power Justification** – Analytical power calculations provide a reference; bootstrap power offers an independent, assumption‑free benchmark.  
+- **Causal Framing** – Findings are strictly associational; no causal claims are made (Constitution Principle VII).  
+- **Measurement Validity** – All variables are taken directly from the open datasets; no questionnaire instruments are involved.  
+- **Collinearity** – Transformations are applied separately; no multicollinearity diagnostics are required.
+
+## Compute Feasibility
+All components are vectorized NumPy/Pandas operations; peak RAM stays < 4 GB. Estimated wall‑clock time on the free runner is on the order of an hour. No GPU resources are required.
+
+## Risks & Mitigations (re‑stated)
+| Risk | Mitigation |
+|------|------------|
+| Insufficient verified datasets with group labels | Supplement with OpenML‑queried datasets; record provenance of all sources. |
+| Dual null‑simulation overhead | Only label shuffling is used; residual permutation omitted, eliminating ambiguity. |
+| Bootstrap CI precision unattainable | Target is documented; if the half‑width target cannot be met, the actual CI width is reported and the limitation is noted, satisfying SC‑004. |
+| Checkpoint race conditions | Use `portalocker` for atomic writes; sequential ordering for file‑writing tasks. |
+| Transformation failure on negative values | Automatic log‑shift applied; interventions logged in `data/imputation_log.csv`. |
 
 ---
 

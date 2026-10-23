@@ -1,15 +1,12 @@
-# Transformation schema – extended to include the baseline (untransformed) condition.
-#
-# This file is deliberately minimal for the checkpointing task; full schema
-# definitions will be fleshed out in later tasks.
 type: object
 properties:
   transformation:
     type: string
     enum:
-      - baseline          # <--- added to satisfy T001 requirements
+      - baseline
       - box_cox
       - yeo_johnson
       - rank_inverse_normal
 required:
   - transformation
+additionalProperties: false

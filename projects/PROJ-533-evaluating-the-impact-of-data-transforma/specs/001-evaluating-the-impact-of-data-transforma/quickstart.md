@@ -3,13 +3,13 @@
 ## Prerequisites
 - Python 3.11+  
 - `pip` (standard Python package manager)  
-- Internet access (to download datasets)  
-- At least 5 GB free disk space  
+- Internet access (to download the verified datasets)  
+- At least **5 GB** free disk space  
 
 ## Installation
 ```bash
-# 1. Clone the repository (or navigate to the project root)
-git clone 
+# 1. Clone the repository
+git clone https://github.com/your-org/PROJ-533-evaluating-the-impact-of-data-transforma.git
 cd PROJ-533-evaluating-the-impact-of-data-transforma
 
 # 2. Create and activate a virtual environment
@@ -22,42 +22,43 @@ pip install -r requirements.txt
 
 ## Running the Full Pipeline
 ```bash
-python -m code.main --stage all
+python -m src.main --stage all
 ```
 
 ### What the command does
-1. **Downloads** the six verified numeric datasets (Wine Quality, Breast Cancer, Iris, Adult, Statlog Heart, Vehicle Silhouettes) via HuggingFace/OpenML loaders and streams additional OpenML datasets (size‑capped at 5 MB) until a total of ≥ 50 are collected.  
-2. **Computes SHA‑256** checksums while streaming each file chunk (no full load into memory).  
-3. **Imputes** missing values (≤ 10 % missing) using mean for symmetric variables and median for skewed variables; a **sensitivity analysis** can be toggled with `--impute-method median` to compare median vs mean imputation impact.  
-4. **Filters** for non‑normality across three Shapiro‑Wilk p‑value bands (0.01‑0.05, 0.05‑0.10, 0.10‑0.20) and ensures *N* ≥ 30.  
-5. **Estimates Type I error** by **dual null‑simulation**: (i) stratified label shuffling, (ii) residual permutation, each with several thousand iterations per dataset, using a fixed random seed.  
-6. **Generates** simulated datasets with known effect sizes (Cohen’s *d* ∈ {0.2, 0.5, 0.8}) **per real dataset**, preserving each dataset’s own skewness/kurtosis.  
-7. **Applies** Box‑Cox, Yeo‑Johnson, rank‑based inverse normal, and baseline transformations.  
-8. **Runs** t‑tests / ANOVAs on both real (null) and simulated (alternative) data.  
-9. **Aggregates** results, computes 95 % bootstrap CIs (target half‑width ≤ 0.02).  
-10. **Performs** a Friedman test with Bonferroni‑corrected post‑hoc comparisons.  
-11. **Sweeps** α ∈ {0.01, 0.05, 0.10} for sensitivity analysis.  
-12. **Produces** summary tables (`results/aggregated_results.csv`) and figures (`results/figures/`).  
+1. **Download & checksum** the datasets by issuing a programmatic OpenML query that selects public classification datasets with ≥ 30 rows, at least one continuous feature, and a categorical target (the seven URLs listed in the constitution are excluded because they lack the required structure).  
+2. **Impute missing values** (mean for near‑symmetric variables, median for skewed) and also run a K‑NN‑imputation sensitivity branch.  
+3. **Filter** for non‑normality (Shapiro‑Wilk *p* ∈ [0.01, 0.20]) and *N* ≥ 30.  
+4. **If < 50 datasets survive**, the pipeline continues querying OpenML until the ≥ 50‑dataset goal is reached.  
+5. **Apply transformations** (Box‑Cox, Yeo‑Johnson, rank‑inverse‑normal, baseline).  
+6. **Estimate Type I error** using stratified label shuffling (5 000 iterations each).  
+7. **Generate simulated power datasets** for Cohen’s *d* = 0.2, 0.5, 0.8 (1 000 per effect size per real dataset).  
+8. **Run t‑tests / ANOVAs** on all transformed versions.  
+9. **Bootstrap** (10 000 resamples) to obtain 95 % CIs with **target half‑width ≤ 0.02**; if the target cannot be met, the actual half‑width is reported.  
+10. **Friedman test** with Bonferroni‑corrected post‑hoc comparisons.  
+11. **α‑sensitivity sweep** (α = 0.01, 0.05, 0.10).  
+12. **Produce** `results/aggregated_results.csv` and figures in `results/figures/`.  
 
 ### Step‑by‑step (optional)
 | Step | Command |
 |------|---------|
-| Download & checksum | `python code/data/download_datasets.py && python code/data/checksum_datasets.py` |
-| Impute & filter | `python code/data/filters.py` |
-| Simulate data | `python code/data/simulations.py` |
-| Transform & test | `python code/data/transformations.py && python code/utils/statistical_tests.py` |
-| Aggregate & infer | `python code/analysis/aggregation.py && python code/analysis/inference.py` |
-| Visualize | `python code/analysis/visualization.py` |
+| Download & checksum | `python src/data/download_datasets.py` |
+| Impute & filter | `python src/data/impute_and_filter.py` |
+| Simulate null & power datasets | `python src/data/simulate_datasets.py` |
+| Transform & test (null) | `python src/analysis/null_simulation.py` |
+| Transform & test (power) | `python src/analysis/power_estimation.py` |
+| Aggregate & infer | `python src/analysis/aggregation.py && python src/analysis/inference.py` |
+| Visualize | `python src/analysis/visualization.py` |
 
 ## Checkpointing & Resumption
-If the run is interrupted (e.g., CI timeout), a checkpoint is written to `results/checkpoints/`. To resume:
+If the run is interrupted (e.g., CI timeout), a checkpoint is written after each dataset in `results/checkpoints/`. To resume:
 ```bash
-python -m code.main --stage all --resume
+python -m src.main --stage all --resume
 ```
 
 ## Verifying Outputs
 ```bash
-# Log file
+# Log
 cat results/pipeline.log
 
 # Aggregated statistics (first few rows)
@@ -66,15 +67,16 @@ head -n 20 results/aggregated_results.csv
 # Figures
 display results/figures/error_rates.png
 display results/figures/power_curves.png
+display results/figures/alpha_sweep.png
 ```
 
 ## Troubleshooting
-- **Download failures** – Verify network connectivity; loaders are listed in `data/datasets.csv`.  
-- **Transformation errors** – Check `data/imputation_log.csv` for log‑shift interventions.  
-- **Memory errors** – The pipeline streams files; ensure at least 4 GB RAM is available.  
-- **Friedman test issues** – See `results/friedman_summary.txt`; if ties prevent the Friedman test, a fallback Wilcoxon signed‑rank analysis is used automatically.  
+- **Download failures** – Verify network connectivity; the OpenML query is deterministic and does not rely on hard‑coded URLs.  
+- **Transformation errors** – Check `data/imputation_log.csv` for any log‑shift interventions.  
+- **Memory errors** – The pipeline streams files; ensure at least 4 GB RAM is free.  
+- **Friedman test ties** – See `results/friedman_summary.txt`; the fallback Wilcoxon analysis runs automatically.  
 - **Missing group label** – Dataset will be excluded and recorded in `data/exclusions.csv`.  
-- **Imputation impact** – Review `data/imputation_log.csv` and the optional median‑vs‑mean sensitivity run (use `--impute-method median` to toggle).  
+- **Imputation impact** – Review `data/imputation_log.csv`; you can rerun with `--impute-method median` to compare.  
 
 ---
 

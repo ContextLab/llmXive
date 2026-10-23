@@ -1,35 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: "Transformed Data Schema"
+description: "Schema for transformed variable files."
 type: object
 properties:
   dataset_id:
     type: string
-    description: "Foreign key to the original dataset"
+    description: "Foreign key to the original dataset."
   variable_name:
     type: string
-    description: "Name of the transformed variable"
+    description: "Name of the transformed variable."
   method:
     type: string
     enum:
       - "box_cox"
       - "yeo_johnson"
-      - "rank_based"
-    description: "Transformation method applied"
+      - "rank_inverse_normal"
+      - "baseline"
+    description: "Transformation method applied."
   lambda_param:
     type: number
     nullable: true
-    description: "Optimized λ parameter (null for rank-based)"
+    description: "Optimized λ parameter (null for rank‑inverse‑normal and baseline)."
   transformed_values:
     type: array
     items:
       type: number
-    description: "Array of transformed values"
+    description: "Array of transformed values."
   success:
     type: boolean
-    description: "Whether the transformation succeeded"
+    description: "Whether the transformation succeeded."
   log_message:
     type: string
     nullable: true
-    description: "Intervention log (e.g., 'log‑shift applied for negative values')"
+    description: "Intervention log (e.g., 'log‑shift applied for negative values')."
 required:
   - dataset_id
   - variable_name
