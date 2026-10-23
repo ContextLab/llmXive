@@ -1,7 +1,7 @@
 {
   "task_id": "T001",
   "fingerprint": "a3a99c7a94814d2e46f5ecbe42a761ae821f9bb13b77e8f7acdf8e6c429ce7dc",
-  "count": 2,
+  "count": 3,
   "model": "google.gemma-4-31B-it",
   "reason": "[implementer] refused pipeline control evidence or reviewed requirements: 'specs/001-estimating-causal-effects-with-doubly-ro/spec.md'"
 }
