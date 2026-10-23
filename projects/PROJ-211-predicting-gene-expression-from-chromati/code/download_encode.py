@@ -96,7 +96,7 @@ def _query_encode_file(
         "biosample_ontology.term_name": cell_line_term,
         "status": "released",
         "assembly": "GRCh38",
-        "format": "json",
+        "format": "json",          # ENCODE expects 'format=json'
         "limit": "1",
         "field": "href",
     }
@@ -135,7 +135,7 @@ def fetch_encode_metadata(cell_lines: List[str], session: requests.Session) -> L
                 rna_uri = _query_encode_file(
                     session,
                     cell_line_term=term,
-                    assay="RNA-seq",                     # <-- added assay filter
+                    assay="RNA-seq",
                     output_type="gene quantifications",
                     file_format="tsv"
                 )
