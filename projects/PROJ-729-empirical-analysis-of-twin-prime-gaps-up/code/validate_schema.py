@@ -36,9 +36,6 @@ def validate_field(value: Any, field_def: Dict[str, Any]) -> List[str]:
     if field_type == 'integer':
         try:
             int_val = int(value)
-            # Ensure it's not a float string like "3.0" if strict integer is required
-            # But typically CSV reads strings, so int("3") is fine.
-            # We just need to ensure it parses as an integer.
         except (ValueError, TypeError):
             errors.append(f"{field_name}: Expected integer, got {type(value).__name__} (value: {value})")
             return errors
@@ -60,7 +57,6 @@ def validate_field(value: Any, field_def: Dict[str, Any]) -> List[str]:
             if num_val < constraints['minimum']:
                 errors.append(f"{field_name}: Value {num_val} is less than minimum {constraints['minimum']}")
         except (ValueError, TypeError):
-            # Already handled by type check, but safety net
             pass
 
     if 'maximum' in constraints:
@@ -95,7 +91,7 @@ def validate_csv(data_path: Path, schema: Dict[str, Any]) -> bool:
     try:
         with open(data_path, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
-            
+
             # Check header
             if reader.fieldnames != field_names:
                 errors.append(f"CSV header mismatch. Expected: {field_names}, Got: {reader.fieldnames}")
@@ -135,23 +131,23 @@ def validate_csv(data_path: Path, schema: Dict[str, Any]) -> bool:
 def main():
     """Main entry point for schema validation."""
     logger = setup_logging("validate_schema")
-    
+
     config = get_config()
-    schema_path = get_schema_path(config)
-    
+    schema_path = Path(get_schema_path())
+
     if not schema_path or not schema_path.exists():
         exit_with_error(f"Schema file not found: {schema_path}")
-    
-    data_path = Path(config['data_raw']) / "twin_primes.csv"
-    
+
+    data_path = Path(config['paths']['raw']) / "twin_primes.csv"
+
     if not data_path.exists():
         exit_with_error(f"Data file not found: {data_path}")
-    
+
     logger.info(f"Validating {data_path} against {schema_path}")
-    
+
     schema = load_schema(schema_path)
     is_valid = validate_csv(data_path, schema)
-    
+
     if is_valid:
         logger.info("Schema validation PASSED")
         sys.exit(0)

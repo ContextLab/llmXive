@@ -4,8 +4,7 @@ Generates all twin prime pairs (p, p+2) with p <= 10^9, writes
 data/raw/twin_primes.csv with columns p, p_next, delta, normalized_gap,
 verifies the actual count against the Hardy-Littlewood expectation
 (read from data/results/expected_count.json when available), and records
-performance metrics (execution time and peak memory, SC-004/SC-005) in
-data/results/performance_gen.json.
+performance metrics (SC-004/SC-005) in data/results/performance_gen.json.
 
 Prime generation strategy (real computation, no synthetic data):
   1. Prefer the `primesieve` library (FR-001) when importable.
@@ -215,6 +214,18 @@ def generate_twin_primes(limit: int = MAX_PRIME_LIMIT) -> Tuple[List[int], List[
     # Fallback: real numpy segmented sieve over the full range.
     logging.info("Generating all primes up to %d with numpy segmented sieve...", limit)
     return _numpy_segmented_sieve_twins(limit)
+
+def normalized_gap(p: int, p_next: int) -> float:
+    """
+    Compute the normalized twin‑prime gap for a pair (p, p_next).
+
+    The gap ``delta`` is ``p_next - p`` (always 2 for twin primes).
+    The normalized gap is ``delta / log(p)``.
+    """
+    delta = p_next - p
+    if p <= 1:
+        raise ValueError("p must be greater than 1 for logarithm.")
+    return delta / math.log(p)
 
 def write_csv_output(p_list, p_next_list, output_path: Path) -> None:
     """Write twin prime data to CSV with columns p, p_next, delta, normalized_gap.

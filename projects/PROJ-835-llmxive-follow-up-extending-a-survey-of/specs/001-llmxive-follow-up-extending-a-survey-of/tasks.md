@@ -60,8 +60,8 @@
 - [ ] T006 [P] Create `state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml` with initial `artifact_hashes` map
 - [X] T007a [P] Implement `src/utils/stats.py` Mahalanobis distance calculation logic using `LedoitWolf` covariance estimator (FR-006)
 - [X] T007b [P] Save the implemented Mahalanobis utility to `src/utils/stats.py` with proper documentation
-- [~] T008 Configure error handling and logging infrastructure (global logger with file and console handlers)
-- [~] T009 Setup environment configuration to enforce CPU-only execution (`os.environ["CUDA_VISIBLE_DEVICES"]=""`)
+- [ ] T008 Configure error handling and logging infrastructure (global logger with file and console handlers)
+- [ ] T009 Setup environment configuration to enforce CPU-only execution (`os.environ["CUDA_VISIBLE_DEVICES"]=""`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,7 +71,7 @@
 
 **Goal**: Extract fixed-dimensional latent embeddings from audio samples using a frozen, lightweight encoder on CPU-only environment.
 
-- [~] T011b [US1] Implement `src/data/verify_labels.py` to perform an automated check for the *absence* of latent-space correlation in dataset metadata; fail the pipeline if such correlation is detected (FR-007) <!-- FAILED: unspecified -->
+- [X] T011b [US1] Implement `src/data/verify_labels.py` to perform an automated check for the *absence* of latent-space correlation in dataset metadata; fail the pipeline if such correlation is detected (FR-007) <!-- FAILED: unspecified -->
 
 **Checkpoint**: Label independence verified - safe to proceed with embedding extraction
 
@@ -85,13 +85,13 @@
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [~] T010 [P] [US1] Contract test for embedding output schema in `tests/contract/test_embedding_schema.py`
-- [~] T011 [P] [US1] Integration test for error handling (corrupted files) in `tests/integration/test_error_handling.py`
+- [X] T010 [P] [US1] Contract test for embedding output schema in `tests/contract/test_embedding_schema.py`
+- [ ] T011 [P] [US1] Integration test for error handling (corrupted files) in `tests/integration/test_error_handling.py`
 
 ### Implementation for User Story 1
 
 - [ ] T012 [P] [US1] Implement `src/data/download.py` to fetch verified datasets (LALM subsets); if unavailable, implement fallback logic to generate 'verified benign TTS + random noise' data (FR-007, FR-005) <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
-- [~] T013 [P] [US1] Implement `src/data/preprocess.py` to load audio, skip corrupted files gracefully, and validate label independence (FR-005)
+- [X] T013 [P] [US1] Implement `src/data/preprocess.py` to load audio, skip corrupted files gracefully, and validate label independence (FR-005)
 - [ ] T014 [US1] Implement `src/data/embed.py` to load `distil-whisper-base` (CPU-only), extract embeddings in batches (size=32), and save to `data/embeddings.parquet` (Parquet format) (FR-001)
 - [ ] T015 [US1] Add dimensionality validation logic to ensure encoder output matches expected `AudioEmbedding` shape before saving
 - [ ] T016 [US1] Implement resource logging for embedding extraction phase (time per batch, peak RAM)

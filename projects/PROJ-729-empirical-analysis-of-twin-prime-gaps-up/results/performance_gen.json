@@ -1,6 +1,6 @@
 {
-  "execution_time_seconds": 5.239,
-  "peak_memory_mb": 423.56,
+  "execution_time_seconds": 4.823,
+  "peak_memory_mb": 335.5,
   "total_pairs": 3424506,
   "gaps_calculated": 3424506,
   "expected_count": 3074425.688620905,

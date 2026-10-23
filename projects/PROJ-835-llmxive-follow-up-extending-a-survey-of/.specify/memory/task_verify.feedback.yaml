@@ -38,12 +38,26 @@ T007a:
 T007b:
   task: df3153f2a340ebfee50b117330055ce0df0be752b31becad1b733fa0edc56359
 T008:
+  reason: No artifact containing a global logger setup (e.g., a Python module that
+    creates a logger with both file and console handlers, or a configuration file
+    such as `logging.conf`) was found in the provided project tree. Consequently the
+    requirement to configure error handling and logging infrastructure is not satisfied.
   task: 1944cc9e67a722f363fdae15302b90c14b2e761a3c0230e522d801bded374059
 T009:
+  reason: "The evidence contains no file, script, or configuration that actually sets\
+    \ `os.environ[\"CUDA_VISIBLE_DEVICES\"] = \"\"` (or an equivalent environment\u2011\
+    variable setting) in the project. Without a concrete artifact demonstrating this\
+    \ CPU\u2011only enforcement, the task requirement is not satisfied."
   task: 713dcf7a4adf5d7679cab419301a05e15c7efcc7aadfba26e47efb9de8b2fcc6
 T010:
   task: 43c9bf22d645f235faaadec3326523d3438736a0b3bb1a9f83a2576ce83bb5ad
 T011:
+  reason: The `tests/integration/test_error_handling.py` file is present, but it imports
+    `load_audio` and `process_audio_batch` from `src.data.preprocess`, neither of
+    which are defined in the provided `src/data/preprocess.py` (or the alternate `code/src/data/preprocess.py`).
+    Consequently the test cannot be collected or executed, so the integration test
+    does not actually verify error handling as required. The missing/incorrect function
+    definitions must be added or the test adjusted to match the existing API.
   task: 30f0e0441904d655b2310b40df50758be419e3264605c4df0e573f8798a0906f
 T011b:
   task: 59fb5a61c1821fb350540729bb20b8d83c71c2a5f2be65763770475819389e33

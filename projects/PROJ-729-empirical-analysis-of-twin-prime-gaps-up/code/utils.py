@@ -9,18 +9,38 @@ import logging
 import resource
 import time
 from contextlib import contextmanager
-from typing import Optional
+from typing import Optional, Union
 
-def setup_logging(level=logging.INFO) -> logging.Logger:
+def setup_logging(level: Union[int, str] = logging.INFO) -> logging.Logger:
     """
-    Configure and return the root logger.
+    Configure and return a logger.
+
+    Parameters
+    ----------
+    level : int or str, optional
+        If an integer, it is interpreted as a logging level (e.g., logging.INFO).
+        If a string, it is interpreted as the logger name; the logging level
+        defaults to INFO. This flexibility allows callers such as
+        ``setup_logging("validate_schema")`` (which passes a name) to work
+        without raising ``ValueError: Unknown level``.
     """
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    return logging.getLogger()
+    # Determine if ``level`` is a logger name or a logging level.
+    if isinstance(level, str):
+        logger_name = level
+        log_level = logging.INFO
+    else:
+        logger_name = None
+        log_level = level
+
+    # Configure the root logger only once.
+    if not logging.getLogger().hasHandlers():
+        logging.basicConfig(
+            level=log_level,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+    # Return the requested logger (named or root).
+    return logging.getLogger(logger_name) if logger_name else logging.getLogger()
 
 def get_memory_usage_mb() -> float:
     """

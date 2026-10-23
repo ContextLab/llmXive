@@ -1,10 +1,11 @@
 status: none
-intent: The Pile dataset EleutherAI HuggingFace python package dataset
+intent: download OpenWebText and The Pile datasets pip install python package dataset
 required_fields:
 - text
-- source
-- timestamp
+- source_url
 - metadata
-cache_key: eb4d8171ff1cc05e607ea7dd654730eeb605283cdb2ee0acae57042df963a079
-searched_at: '2026-10-20T09:40:30.121092+00:00'
+- timestamp
+- document_id
+cache_key: c25357ba9989ede4ae4c2b0434f0510d3fd6883112097be4453d7dc6b4a59ebf
+searched_at: '2026-10-23T03:46:23.041746+00:00'
 retry_count: 1

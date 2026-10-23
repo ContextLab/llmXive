@@ -1,13 +1,14 @@
 T001:
-  c: true
-  h: 901afd03a1bfcfad6a3145d7d1f47db958358bad2dfc7cb096cb9ac85bfde3b8
-  r: The T001 log (exit 0) shows `setup_project.py` created all required directories
-    (code, data/raw, data/results, data/figures, tests/unit, tests/integration, contracts,
-    paper) plus package `__init__.py` files, and the collector's directory listing
-    confirms these exist in the project root. This matches the task's scope of creating
-    the project structure per the implementation plan; the data/analysis artifacts
-    (CSV, stats, figures) belong to later tasks and are not required here.
-  sig: 38c03f21dcb8f50c06d7c0d6a3fe77d8ce38c6e6dca0716089f4a0ad05551b74
+  c: false
+  h: 6eb94039a1ef43b84e336390dee2b0fb7ac11c76d9996289b1bb94c80daf36fa
+  r: "I inspected the project root and found the large `data/raw/twin_primes.csv`\
+    \ and the JSON performance reports, but the `performance_gen.json` explicitly\
+    \ records `within_5_percent_of_expected: false`, violating US1\u2019s row\u2011\
+    count criterion. Moreover, the required artifacts for US2 and US3 (`data/results/stats.json`,\
+    \ `data/figures/qq_plot.png`, `data/results/local_stats.json`, `data/figures/local_deviation.png`)\
+    \ and the final Markdown report are absent. The project therefore does not satisfy\
+    \ the specified acceptance criteria."
+  sig: 2136fd8fab660d63a25359b317c84a9af4e2aa9d9022c757db2cd424be154157
 T002:
   c: true
   h: 3b217c5b81e10113bd7fec5fdec5c3f65266a02c35ec603e3a57f2f698b6557f
@@ -26,14 +27,11 @@ T003:
   sig: e5e638d49ceb26f7ad9c6ad1485ebbb51396d01e35102c8ad86a38a34a097752
 T004:
   c: true
-  h: 886df3de5a4f5aff89052bc296730544eca7f77c7924f49c9a2e7e90243a0bc8
-  r: "The task T004 only required setting up the directory structure `data/raw/`,\
-    \ `data/results/`, and `data/figures/`, and all three directories exist (confirmed\
-    \ by the collector with non-empty listings including `.gitkeep` files). The directories\
-    \ even contain downstream artifacts (twin_primes.csv, expected_count.json, performance_gen.json),\
-    \ which is beyond the task's scope; the \xB15% Hardy-Littlewood criterion in performance_gen.json\
-    \ belongs to US1 validation, not this setup task."
-  sig: f32a67e22cd32c57b84977f58209fa428e2d79349cafc1fc737f78ce47d66ff7
+  h: 9003eeef273ff3f85a9997de8c542e6d080fc7bbba9c9e92802f94c41b22e4d6
+  r: Checked that the three required directories `data/raw/`, `data/results/`, and
+    `data/figures/` exist in the project root (each contains a `.gitkeep` placeholder),
+    satisfying the setup task.
+  sig: 586b46ca11ee96fe1f73fbf70c2d2305c1579abf2f6c47b9f44d5ec890351887
 T005:
   c: true
   h: 03385d5724748009bf7ff32f698214a17d05c13f71fe3603afca3f3eec05ad9c
@@ -65,33 +63,27 @@ T007:
   sig: fb8ff44b91374825f9d0a5ff136e288ef5c0ea01dc7ce968a48ae8f2a9ad6323
 T008:
   c: true
-  h: 5a7ddb7150a8893f780ff93a09b90e0ab67694e42f49db84fd0ee8aec6f4b60c
-  r: '`code/utils.py` exists (1536 bytes) and contains real, working implementations
-    of logging setup (`setup_logging`), memory monitoring (`get_memory_usage_mb`,
-    `track_resources`), and error handling with exit codes (`exit_with_error` with
-    configurable code and `sys.exit`), matching the task''s stated scope. No stubs,
-    TODOs, or placeholders are present.'
-  sig: 90d4be97cf440e02f680db201a39dd33327055591cf6a5ec640c00b28144cb40
+  h: 02da73ab3642a8b871a6c876f27fffad505107ba2f388be2a4bd86cc6c9367f4
+  r: "Checked `code/utils.py` (2411\u202Fbytes) which defines `setup_logging` for\
+    \ configurable logging and `exit_with_error` that logs an error message and exits\
+    \ with a supplied exit code, fulfilling the required error\u2011handling and logging\
+    \ infrastructure."
+  sig: 5f97a8cbc149d798690767b12f5ec817f44b7781c315dfb576d22d7bb7f25f45
 T010:
-  c: false
-  h: b62ca710967ded70ba7533cbaba7325905e4910f36a942d3db46cf8bf2f23f03
-  r: 'The file `tests/unit/test_gap_calc.py` exists and `test_normalized_gap_formula`
-    does use p=3, delta=2, and the 1e-4 tolerance, but it computes `expected_normalized`
-    and `actual_normalized` with the identical expression (`delta / math.log(p)`),
-    making the assertion tautological rather than checking against an independently
-    derived expected value. More critically, the module-level `from generate_primes
-    import compute_hardy_littlewood_expected_count` will fail: the test inserts `tests/`
-    (the parent of `tests/unit`) into `sys.path`, but `generate_primes.py` lives in
-    `code/`, so the entire test mod'
-  sig: 1e6caad66d9799d61f5395992e0f395ff4cf137bc27ce33f4166b2e2d290d457
+  c: true
+  h: 684a714e89a1dacbfa487f57747d57dadda10daf64c4cb0d2b5a548a77c123fd
+  r: Checked `tests/unit/test_gap_calc.py` which contains the required `test_normalized_gap_formula`
+    asserting the normalized gap equals `(5-3)/log(3)` within `1e-4`, and the pytest
+    log shows the test passes.
+  sig: 59af9242fcd5061810b947d942cc6abc7199f57988e3981c3d636609cc2015b3
 T011:
   c: true
-  h: c1a1a7884ed4e9bdb7764542a2bb16b9c340ef5975b132492156af6b410ae079
-  r: "Checked `tests/integration/test_generation.py`, which exists and contains assertions\
-    \ that the `twin_primes.csv` file is created, has the correct columns, contains\
-    \ no NaNs, and that its row count lies within \xB15\u202F% of the expected Hardy\u2011\
-    Littlewood count. This fulfills the integration\u2011test requirement."
-  sig: b8ad28b450dcd8fb195a0cde02b3ac06987fea75597f34f254e375ca52887ed1
+  h: 2212fb292600aabf237dce94f3b3d7f60dee67d7e6ae6f28f95aa0832b080c98
+  r: "Checked the presence and content of `tests/integration/test_generation.py`;\
+    \ the file exists, is non\u2011empty, and its code explicitly verifies creation\
+    \ of `data/raw/twin_primes.csv` and asserts the row count lies within the required\
+    \ \xB15% tolerance, fulfilling the integration\u2011test requirement."
+  sig: 5233b71796e3ce05f7f08d7c4ec3264c7ac1bc7422fe127507a9c8718961d94f
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -101,12 +93,12 @@ T012:
     \ be confirmed as completed."
 T013b-a:
   c: true
-  h: df593d787e5f76b5dff62d5f3c88a15b60b707d2f43b9b6f749f42ed23865359
-  r: "The `code/generate_primes.py` file (8464\u202Fbytes) contains a fully implemented\
-    \ `calculate_hardy_littlewood_expected_count(x)` function that uses the constant\u202F\
-    0.660161815846869573927812110014 and computes `C\u2082 * x / (ln(x))**2` as required.\
-    \ The function is present, non\u2011empty, and matches the specification."
-  sig: 3a2833888dd073aa1206478a4c347c86861ce91218e9c55cbe7916768c4940fe
+  h: 437fb3a3b131c81d4de4652ae655a92a1b9dacda945f48a01c9ecbf1e5467ee5
+  r: "The file `code/generate_primes.py` exists and defines `calculate_hardy_littlewood_expected_count(x)`\
+    \ with the correct constant and formula\u202F$C_2 \\frac{x}{(\\ln x)^2}$, including\
+    \ proper input validation. The implementation is non\u2011empty and matches the\
+    \ task\u2019s specification."
+  sig: 0600c99890d89a868e7baa02db8762461ca6baa549f03adca99313ba66ef0567
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

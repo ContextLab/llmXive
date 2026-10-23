@@ -1,8 +1,17 @@
 T001:
+  reason: "I inspected the project root and found the large `data/raw/twin_primes.csv`\
+    \ and the JSON performance reports, but the `performance_gen.json` explicitly\
+    \ records `within_5_percent_of_expected: false`, violating US1\u2019s row\u2011\
+    count criterion. Moreover, the required artifacts for US2 and US3 (`data/results/stats.json`,\
+    \ `data/figures/qq_plot.png`, `data/results/local_stats.json`, `data/figures/local_deviation.png`)\
+    \ and the final Markdown report are absent. The project therefore does not satisfy\
+    \ the specified acceptance criteria."
   task: 56c3cafd48301be7e14725647e98ac0ad186c8ac63c31ce1c55d6c76c03a8e2a
 T002:
+  reason: 'declared artifact(s) missing/empty/invalid: requirements.txt'
   task: 1a1540e6f9d2efb762fd7cfb81f6cdafdb6a4b07f83521e762a2108d3c691761
 T003:
+  reason: 'declared artifact(s) missing/empty/invalid: .pre-commit-config.yaml'
   task: 6dba72a9b2fcfe4d5e11415665bf2b2dcfe6a0d39ee968d6158f132c51d1edc5
 T004:
   task: 7804e3a6434c92c0906487ac419c99bf1d7f32108c178e061f62bfdddb889e97
@@ -15,14 +24,6 @@ T007:
 T008:
   task: 372f75d504061f2809fa063e998a28b458e431a71dab959fba1870aa2b1d5d55
 T010:
-  reason: 'The file `tests/unit/test_gap_calc.py` exists and `test_normalized_gap_formula`
-    does use p=3, delta=2, and the 1e-4 tolerance, but it computes `expected_normalized`
-    and `actual_normalized` with the identical expression (`delta / math.log(p)`),
-    making the assertion tautological rather than checking against an independently
-    derived expected value. More critically, the module-level `from generate_primes
-    import compute_hardy_littlewood_expected_count` will fail: the test inserts `tests/`
-    (the parent of `tests/unit`) into `sys.path`, but `generate_primes.py` lives in
-    `code/`, so the entire test mod'
   task: b33ef227a28f98ddf89e1d3c46caa88c2395e40a9605d7f8755a426bce8e45a7
 T011:
   task: 0f0626c1aabcc90ff6326f95eb2c08f771ea53e431daa172b96f152a24c3932e
@@ -51,6 +52,8 @@ T019:
 T020:
   task: 156a8c55736cc9cae174e3b607119140aa958e6bbb1c898438c0ce83fd58d092
 T021:
+  reason: 'Requested task execution failed; rerun successfully: code/analyze_gaps.py
+    exit=1'
   task: b926dc5ace0035a15feafff9d6ba2c5fe732fcab3fb92be3d7b4d263e684da85
 T021b:
   task: 36dce6c3a7838c3a262d71f7dc45019abbf333175d00de2ce9b51fdb8a146942

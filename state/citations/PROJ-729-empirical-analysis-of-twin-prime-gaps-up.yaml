@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/math/0506067
   verified_at: '2026-07-03T05:54:47.337308Z'
-- artifact_hash: 0420276b55857a1c7148a60564b3c30059bdc74ae4421026f9c41eccd1f2c505
+- artifact_hash: ef1ef0617c16ffb15c19fa4be4492ff98bc3e1346ee66b546e1fa6a5a7c06663
   artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://oeis.org/A002386
   verification_status: pending
   verified_against_url: https://oeis.org/A002386
-  verified_at: '2026-10-21T04:07:41.769667Z'
+  verified_at: '2026-10-23T03:40:57.689017Z'

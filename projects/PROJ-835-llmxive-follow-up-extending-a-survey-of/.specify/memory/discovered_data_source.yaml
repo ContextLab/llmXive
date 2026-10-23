@@ -1,10 +1,33 @@
-status: none
-intent: AudioBench jailbreak benign audio dataset download huggingface python package
-  dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import datasets\n\n# Load the dataset with a specific configuration\n\
+  ds = datasets.load_dataset(\"MBZUAI/AudioJailbreak\", name=\"Origin\")\n\n# Determine\
+  \ total number of records across all splits\nif isinstance(ds, dict):\n    total_records\
+  \ = sum(len(split) for split in ds.values())\n    # Use a sample from the first\
+  \ available split\n    first_split = next(iter(ds.values()))\n    sample = first_split[0]\n\
+  else:\n    total_records = len(ds)\n    sample = ds[0]\n\n# Extract field names\
+  \ from the sample record\nfields = list(sample.keys())\n\nprint(f\"RECORDS={total_records}\"\
+  )\nprint(\"FIELDS=\" + \",\".join(fields))"
+record_count: 1495
+sample_fields:
+- index
+- goal
+- category
+- prompt
+- response
+- speech_path
+- response_audio_path
+- attack_type
+- target_model
+- platform
+- source
+- behavior
+field_coverage: 0.5
 required_fields:
 - audio_filepath
-- audio
+- audio_array
+- sample_rate
 - label
-cache_key: f0c63c16c57ca6d7062810e4b1654f9e2f9a419c101567ce611cbcc9c344477c
-searched_at: '2026-10-17T07:23:09.140721+00:00'
-retry_count: 1
+intent: AudioBench jailbreak benign audio dataset huggingface python package dataset
+cache_key: abf2e437da06c5178140e48f2a65b25e01107dbee11778c6e392541c01d9bce7

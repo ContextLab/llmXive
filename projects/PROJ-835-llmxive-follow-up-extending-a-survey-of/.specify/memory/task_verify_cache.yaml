@@ -52,20 +52,57 @@ T007b:
   sig: a1e0f2bd6b023845d460ae9a0b2de5e8b3bca2b33b6b72d47da8f33b5304052b
 T008:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration file, or documentation for a global logger with both file
-    and console handlers was provided; the evidence consists only of the task description
-    and project spec, which do not demonstrate that the required logging infrastructure
-    has been implemented. The implementer must supply the actual logger setup (e.g.,
-    a Python module configuring `logging`, a config file, or similar) to satisfy T008.
+  h: 6e84e60c9f3c145abc9ccc33709ab9ee109f5aa7f0856df70b9e087574b6b69d
+  r: No artifact containing a global logger setup (e.g., a Python module that creates
+    a logger with both file and console handlers, or a configuration file such as
+    `logging.conf`) was found in the provided project tree. Consequently the requirement
+    to configure error handling and logging infrastructure is not satisfied.
+  sig: b83975ecab109f2f08335a8bf75e02fa5f9e45f7bc6518197aabaa0bdf07dd01
 T009:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a script, notebook, Dockerfile, or documentation) was provided\
-    \ that actually sets `os.environ[\"CUDA_VISIBLE_DEVICES\"] = \"\"` or otherwise\
-    \ enforces CPU\u2011only execution. Without such evidence the requirement is not\
-    \ demonstrated. The implementer must add a concrete file or code snippet showing\
-    \ the environment variable being set."
+  h: 6645d9aaef6670c9b66a35860754d4462d771505e052857eae6d0e51a79b25d8
+  r: "The evidence contains no file, script, or configuration that actually sets `os.environ[\"\
+    CUDA_VISIBLE_DEVICES\"] = \"\"` (or an equivalent environment\u2011variable setting)\
+    \ in the project. Without a concrete artifact demonstrating this CPU\u2011only\
+    \ enforcement, the task requirement is not satisfied."
+  sig: 724114829fda329fc915789b9223875ab07b867dcc954d93279ea59cdf8312b1
+T010:
+  c: true
+  h: 0f8ddd404350fa611c0ec57a0d6e7e9b04b8438561045044ebd9b0e21bb4a4a0
+  r: "Checked `tests/contract/test_embedding_schema.py` (3661\u202Fbytes) which defines\
+    \ a full suite of pytest contract tests using the `validate_json_schema` utility\
+    \ and the `EMBEDDING_SCHEMA` defined in `tests/contract/schema_validator.py`.\
+    \ The file exists, is non\u2011empty, and implements the required schema\u2011\
+    validation tests."
+  sig: 2003c5fd1dda3389259915dd54b5d578313d180c2ce91917534968d09db41d89
+T011:
+  c: false
+  h: 623966d1c477a3b97523bef7637215473ce844c360cbddf1d6ced3a5a51287b7
+  r: The `tests/integration/test_error_handling.py` file is present, but it imports
+    `load_audio` and `process_audio_batch` from `src.data.preprocess`, neither of
+    which are defined in the provided `src/data/preprocess.py` (or the alternate `code/src/data/preprocess.py`).
+    Consequently the test cannot be collected or executed, so the integration test
+    does not actually verify error handling as required. The missing/incorrect function
+    definitions must be added or the test adjusted to match the existing API.
+  sig: 14b5fe1b24a606e37e37d7002d7e15c64a9d05c660b819def8e657d642f8df13
+T011b:
+  c: true
+  h: b2caae819e5389480ee800883810576d0ab4f3415544cd3a11e8642fc9677941
+  r: "The file `src/data/verify_labels.py` (12598\u202Fbytes) implements loading of\
+    \ a dataset, schema validation, Pearson correlation checks between labels and\
+    \ embedding norms or metadata, and raises `SystemExit(1)` when significant correlation\
+    \ is found, fulfilling FR\u2011007. The script includes a CLI, logging, and optional\
+    \ JSON report generation, matching the task\u2019s requirement to automatically\
+    \ verify absence of latent\u2011space correlation and halt the pipeline on detection."
+  sig: f3dff741ef7642b5bca6c175bdf60f9a7d07211c4631794ad23434c0e7e2e2ad
+T013:
+  c: true
+  h: ef59b9b09d7359548b9d0f777bd80452b58ba9fd0fb507dd81be9b62e596b978
+  r: "Checked `src/data/preprocess.py`: it loads audio via `librosa.load`, validates\
+    \ files and skips corrupted ones in `preprocess_audio_batch`, and implements `validate_label_independence`\
+    \ that computes Pearson correlations on metadata and reports pass/fail, fulfilling\
+    \ FR\u2011005."
+  sig: a1cf3a95b8a2a4645138d3308863dcb0a23a6931d938576583b8f7207bf68dc4
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
