@@ -2,10 +2,24 @@
 src/data/acquire_real.py
 
 This module downloads the verified TIDE evaluation dataset (a Parquet file),
-verifies its SHA‑256 checksum, converts it to CSV using the HuggingFace
-`datasets` library (streaming, avoiding heavy dependencies), and writes
-accompanying checksum and log files. It aborts on any checksum mismatch or
-if the resulting CSV has fewer than 200 rows.
+verifies its SHA‑256 checksum, and obtains a CSV representation of the data.
+The original implementation relied on the ``datasets`` library, which pulls
+in ``pyarrow`` – a heavy optional dependency that is not available in the
+execution environment (it requires NumPy 2.0).  To keep the script runnable
+on the CI runner we fall back to a direct CSV download from the HuggingFace
+hub when possible.  If a CSV is not hosted, the script aborts with a clear
+error explaining the missing conversion path.
+
+The script writes three artefacts in ``data/raw``:
+
+* ``tide.parquet`` – the raw Parquet file.
+* ``tide.sha256``   – a one‑line checksum manifest for the Parquet file.
+* ``tide.csv``      – a CSV version of the dataset.
+* ``tide_csv.sha256`` – checksum manifest for the CSV file.
+
+It also records a log at ``data/logs/download_real.log``.  The script exits
+with status 0 on success and a non‑zero status on any failure, matching the
+expectations of ``src/data/test_acquire_real.py``.
 """
 
 import hashlib
@@ -15,7 +29,6 @@ import logging
 import csv
 import requests
 
-from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 # ----------------------------------------------------------------------
@@ -25,6 +38,13 @@ from llmxive_toolkit import paths, get_logger
 _DATA_URL = (
     "https://huggingface.co/datasets/deeplearning-tide/actresses/resolve/main/"
     "data/test-00000-of-00001-9189dc62872204f7.parquet"
+)
+# Direct CSV URL – many HuggingFace datasets publish a CSV alongside the
+# Parquet.  If this endpoint returns 200 we can avoid the ``datasets``
+# library (and its heavy ``pyarrow`` dependency) entirely.
+_CSV_URL = (
+    "https://huggingface.co/datasets/deeplearning-tide/actresses/resolve/main/"
+    "data/test.csv"
 )
 # Expected filename components
 _PARQUET_NAME = "tide.parquet"
@@ -72,15 +92,22 @@ def _verify_checksums(file_path: Path, manifest_path: Path) -> None:
         )
 
 # ----------------------------------------------------------------------
-# Column‑mapping utilities (kept for potential future use)
+# Download helpers
 # ----------------------------------------------------------------------
-def _infer_instance_id_column(df):
-    """Placeholder retained for compatibility; not used in the streaming path."""
-    raise NotImplementedError
-
-def _infer_label_column(df):
-    """Placeholder retained for compatibility; not used in the streaming path."""
-    raise NotImplementedError
+def _download_file(url: str, dest_path: Path) -> None:
+    """Download *url* to *dest_path* using a streaming request."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Downloading from {url}")
+    try:
+        with requests.get(url, stream=True, timeout=120) as r:
+            r.raise_for_status()
+            with dest_path.open("wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+    except Exception as e:
+        logger.error(f"Failed to download {url!r}: {e}")
+        raise
 
 # ----------------------------------------------------------------------
 # Main download / conversion routine
@@ -94,67 +121,97 @@ def main() -> None:
     raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Download Parquet (kept for verification purposes)
+    # --------------------------------------------------------------
+    # 1. Download the Parquet file (required for checksum verification)
+    # --------------------------------------------------------------
     parquet_path = raw_dir / _PARQUET_NAME
     if not parquet_path.is_file():
         logger.info(f"Downloading Parquet from {_DATA_URL}")
-        try:
-            with requests.get(_DATA_URL, stream=True, timeout=120) as r:
-                r.raise_for_status()
-                with parquet_path.open("wb") as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
-        except Exception as e:
-            logger.error(f"Failed to download dataset: {e}")
-            raise
+        _download_file(_DATA_URL, parquet_path)
 
-    # 2. Write checksum for Parquet
+    # 2. Write and verify checksum for the Parquet file
     parquet_checksum_path = raw_dir / _SHA256_NAME
     _write_checksum_manifest(parquet_path, parquet_checksum_path)
     logger.info(f"Wrote Parquet checksum to '{parquet_checksum_path}'")
-
-    # 3. Verify checksum (self‑check)
     try:
         _verify_checksums(parquet_path, parquet_checksum_path)
     except RuntimeError as e:
         logger.error(str(e))
         raise
 
-    # 4. Stream the dataset via `datasets` and write CSV
+    # --------------------------------------------------------------
+    # 3. Obtain CSV representation
+    # --------------------------------------------------------------
     csv_path = raw_dir / _CSV_NAME
-    logger.info(f"Streaming dataset and writing CSV to '{csv_path}'")
-    try:
-        # The dataset identifier on HuggingFace Hub
-        ds = load_dataset(
-            "deeplearning-tide/actresses",
-            split="test",
-            streaming=True,
-        )
-    except Exception as e:
-        logger.error(f"Failed to load dataset via `datasets`: {e}")
-        raise
+    if csv_path.is_file():
+        logger.info(f"CSV already present at '{csv_path}' – skipping download.")
+    else:
+        # Try direct CSV download first (no pyarrow needed)
+        logger.info(f"Attempting direct CSV download from {_CSV_URL}")
+        try:
+            _download_file(_CSV_URL, csv_path)
+            logger.info(f"Successfully downloaded CSV to '{csv_path}'")
+        except Exception as csv_err:
+            logger.warning(
+                f"Direct CSV download failed ({csv_err}); attempting fallback via "
+                "`datasets` streaming (may require pyarrow)."
+            )
+            # ------------------------------------------------------------------
+            # Fallback: stream via `datasets`.  This path is kept for completeness
+            # but will raise a clear ImportError if pyarrow is unavailable.
+            # ------------------------------------------------------------------
+            try:
+                from datasets import load_dataset
+            except Exception as e:
+                logger.error(
+                    "The `datasets` library could not be imported. This fallback "
+                    "requires the optional `pyarrow` dependency, which is not "
+                    "available in the execution environment."
+                )
+                raise RuntimeError(
+                    "Unable to obtain CSV representation of the TIDE dataset: "
+                    "no direct CSV URL and `datasets` fallback failed."
+                ) from e
 
-    row_count = 0
-    with csv_path.open("w", newline="", encoding="utf-8") as csv_file:
-        writer = None
-        for record in ds:
-            # Ensure deterministic ordering of columns
-            if writer is None:
-                header = list(record.keys())
-                writer = csv.DictWriter(csv_file, fieldnames=header)
-                writer.writeheader()
-            writer.writerow(record)
-            row_count += 1
+            try:
+                ds = load_dataset(
+                    "deeplearning-tide/actresses",
+                    split="test",
+                    streaming=True,
+                )
+            except Exception as e:
+                logger.error(f"Failed to load dataset via `datasets`: {e}")
+                raise RuntimeError(
+                    "Failed to stream the TIDE dataset using the `datasets` library."
+                ) from e
 
-    logger.info(f"Wrote CSV with {row_count} rows to '{csv_path}'")
+            row_count = 0
+            with csv_path.open("w", newline="", encoding="utf-8") as csv_file:
+                writer = None
+                for record in ds:
+                    if writer is None:
+                        header = list(record.keys())
+                        writer = csv.DictWriter(csv_file, fieldnames=header)
+                        writer.writeheader()
+                    writer.writerow(record)
+                    row_count += 1
+            logger.info(f"Wrote CSV with {row_count} rows to '{csv_path}'")
 
-    # 5. Write checksum for CSV
+    # --------------------------------------------------------------
+    # 4. Write checksum for the CSV
+    # --------------------------------------------------------------
     csv_checksum_path = raw_dir / "tide_csv.sha256"
     _write_checksum_manifest(csv_path, csv_checksum_path)
     logger.info(f"Wrote CSV checksum to '{csv_checksum_path}'")
 
-    # 6. Final verification of row count (T001 requires >= 200)
+    # --------------------------------------------------------------
+    # 5. Verify row count (T001 requires >= 200)
+    # --------------------------------------------------------------
+    with csv_path.open(newline="", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        row_count = sum(1 for _ in reader) - 1  # subtract header
+    logger.info(f"CSV row count (excluding header): {row_count}")
+
     if row_count < 200:
         raise RuntimeError(
             f"Dataset contains insufficient rows ({row_count}). Expected at least 200."
