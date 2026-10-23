@@ -1,13 +1,10 @@
 T000:
-  c: false
-  h: ba60a6e58429b90435f6b1aab1c3e78d6c83ca816fb5a1ab6982989974ae1770
-  r: The `code/setup_skeleton.py` script exists, and `data/raw/` and `outputs/` directories
-    are present, but the required `data/processed/` directory is missing (marked MISSING),
-    so the skeleton hierarchy is incomplete. The task also expects a `README.txt`
-    in each created folder; without the `data/processed/` folder (and its README)
-    the requirement is not satisfied. Create the `data/processed/` directory (with
-    a README.txt) and ensure it is writable.
-  sig: ed4082895950341216df465b89e0bb9f93ea137c5617f91569b344d18cfec8d8
+  c: true
+  h: 2df1a8e38515274add1944887d615d8981f486bbe674fd12b1c960cf235ace5b
+  r: "Checked `code/setup_skeleton.py` execution log (exit\u202F0) and the presence\
+    \ of `data/raw/README.txt`, `data/processed/README.txt`, and `outputs/README.txt`\
+    \ confirming the three required directories were created and writable."
+  sig: fa5159931b0c495fa2e0661a3c7915e23bdcf38e160adf2a4768e829724600a0
 T002:
   c: false
   h: f5eec701d7d0c7faa041eb5d60fc44c9048e2a3137cf2d5acc40d95152e05e62

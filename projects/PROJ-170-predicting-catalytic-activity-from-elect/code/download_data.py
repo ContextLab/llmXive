@@ -9,7 +9,7 @@ This script downloads:
 3. A JSON file describing the mandatory columns for the unified DataFrame.
 
 For each generated file the SHA-256 checksum is recorded in
-`data/raw/checksums.txt`. All failures raise exceptions; there is no
+`data/checksums.txt`. All failures raise exceptions; there is no
 silent fallback to fabricated data.
 """
 import os
@@ -49,7 +49,8 @@ RAW_DIR = get_data_path() / "raw"
 PARQUET_FILE = RAW_DIR / "oc20_sample.parquet"
 MP_DESCRIPTORS_FILE = RAW_DIR / "mp_descriptors.json"
 REQUIRED_COLUMNS_FILE = RAW_DIR / "required_columns.json"
-CHECKSUM_FILE = RAW_DIR / "checksums.txt"
+# Checksums are recorded in data/checksums.txt as per task verification
+CHECKSUM_FILE = get_data_path() / "checksums.txt"
 
 # ----------------------------------------------------------------------
 # Helper functions (checksum handling)
@@ -78,7 +79,6 @@ def save_checksum(filename: str, checksum: str) -> None:
     checksums[filename] = checksum
     CHECKSUM_FILE.parent.mkdir(parents=True, exist_ok=True)
     # Join with newlines and ensure no trailing newline at the very end of the file
-    # to satisfy strict verifiers.
     lines = [f"{name} {val}" for name, val in checksums.items()]
     with open(CHECKSUM_FILE, "w") as f:
         f.write("\n".join(lines))
@@ -199,7 +199,7 @@ def download_stratified_sample() -> Path:
         )
         sampled_df = pd.concat([sampled_df, extra]).reset_index(drop=True)
 
-    PARQUET_FILE.parent.mkdir(parents=True, exist_ok=True)
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
     sampled_df.drop(columns=["_family"]).to_parquet(PARQUET_FILE, index=False)
     
     save_checksum(PARQUET_FILE.name, compute_file_hash(PARQUET_FILE))
@@ -251,7 +251,7 @@ def download_mp_descriptors(compositions: List[str]) -> Path:
                 logger.error(f"Failed to retrieve MP data for composition '{comp}': {e}")
                 raise RuntimeError(f"MP descriptor fetch failed for composition {comp}") from e
 
-    MP_DESCRIPTORS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
     with open(MP_DESCRIPTORS_FILE, "w") as f:
         json.dump(descriptors, f, indent=2)
 
@@ -268,7 +268,7 @@ def write_required_columns() -> Path:
         "d_band_center", "p_band_center", "bader_charges", "activation_barrier",
         "reaction_energy", "experimental_tof", "temperature", "pressure",
     ]
-    REQUIRED_COLUMNS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
     with open(REQUIRED_COLUMNS_FILE, "w") as f:
         json.dump(required_columns, f, indent=2)
 

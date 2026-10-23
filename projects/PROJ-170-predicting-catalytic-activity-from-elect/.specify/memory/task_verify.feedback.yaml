@@ -1,10 +1,4 @@
 T000:
-  reason: The `code/setup_skeleton.py` script exists, and `data/raw/` and `outputs/`
-    directories are present, but the required `data/processed/` directory is missing
-    (marked MISSING), so the skeleton hierarchy is incomplete. The task also expects
-    a `README.txt` in each created folder; without the `data/processed/` folder (and
-    its README) the requirement is not satisfied. Create the `data/processed/` directory
-    (with a README.txt) and ensure it is writable.
   task: 3eb6d02c0dd35b97957828408f38b549860b0af575245b69aa1f2261785746b4
 T001:
   reason: 'Requested task execution failed; rerun successfully: code/download_data.py
