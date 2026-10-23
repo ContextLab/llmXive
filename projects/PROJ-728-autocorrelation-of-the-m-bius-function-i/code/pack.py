@@ -64,12 +64,7 @@ def _encode_mu(values: np.ndarray) -> np.ndarray:
     np.ndarray
         1‑D ``uint8`` array of the same shape containing the 2‑bit codes.
     """
-    # Use fancy indexing with a list‑like map for speed.
-    # ``np.vectorize`` would be slower; we take advantage of the small
-    # integer domain.
-    # Create an array of possible inputs [-1,0,1] and map to codes.
     lookup = np.array([_ENCODE_MAP[-1], _ENCODE_MAP[0], _ENCODE_MAP[1]], dtype=np.uint8)
-    # Shift values by +1 to obtain indices 0,1,2.
     indices = values.astype(np.int8) + 1
     return lookup[indices]
 
@@ -120,7 +115,6 @@ def _decode_mu(packed: np.ndarray) -> np.ndarray:
     Vectorised decoding of a packed ``uint8`` array back to the 2‑bit
     codes (still in the range {0,1,2}).
     """
-    # Extract the four 2‑bit fields.
     b0 = packed & 0b11
     b1 = (packed >> 2) & 0b11
     b2 = (packed >> 4) & 0b11
@@ -157,9 +151,7 @@ def unpack_mu(packed: np.ndarray, original_length: int) -> np.ndarray:
     codes = codes[:original_length]
 
     # Map back to {-1,0,1}.
-    # We can use a vectorised lookup similar to the encoding step.
     lookup = np.array([_DECODE_MAP[0], _DECODE_MAP[1], _DECODE_MAP[2]], dtype=np.int8)
-    # Codes are 0,1,2 → use directly as indices.
     decoded = lookup[codes]
     return decoded
 

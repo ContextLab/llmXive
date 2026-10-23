@@ -12,8 +12,6 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-# Import the functions under test from the code package.
-# Fixed import to resolve the ModuleNotFoundError reported by the verifier.
 from code.pack import pack_mu, unpack_mu
 
 # Path helpers.
@@ -49,8 +47,7 @@ def test_random_slices(mobius_array: np.ndarray) -> None:
         length = rng.integers(5, 100)  # reasonable slice length
         slice_original = mobius_array[start : start + length]
 
-        # Pack the *entire* array (as the real pipeline does), then
-        # unpack only the slice we care about.
+        # Pack the *entire* array, then unpack only the slice we care about.
         packed = pack_mu(mobius_array)
         slice_unpacked = unpack_mu(packed, original_length=len(mobius_array))[start : start + length]
 
