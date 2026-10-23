@@ -10,57 +10,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 no tests ran in 0.00s
 
-ERROR: file or directory not found: tests/contract/
+ERROR: file or directory not found: #
 
 
 
 ## Declared deliverables still missing
 
 - data/checksums.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `pycoingecko` to the project's `requirements.txt` and `pip install pycoingecko`.
-- **Verified**: this loads **732** real records with fields: date, open, high, low, close, volume, symbol.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import datetime
-from pycoingecko import CoinGeckoAPI
-
-cg = CoinGeckoAPI()
-
-def fetch(symbol, coin_id):
-    market = cg.get_coin_market_chart_by_id(id=coin_id, vs_currency='usd', days='365', interval='daily')
-    records = []
-    for price_entry, vol_entry in zip(market['prices'], market['total_volumes']):
-        ts = price_entry[0]  # timestamp in ms
-        price = price_entry[1]
-        volume = vol_entry[1]
-        date = datetime.datetime.utcfromtimestamp(ts / 1000).date()
-        records.append({
-            'date': str(date),
-            'open': price,
-            'high': price,
-            'low': price,
-            'close': price,
-            'volume': volume,
-            'symbol': symbol.upper()
-        })
-    return records
-
-btc = fetch('btc', 'bitcoin')
-eth = fetch('eth', 'ethereum')
-combined = btc + eth
-
-print(f"RECORDS={len(combined)}")
-if combined:
-    print("FIELDS=" + ",".join(combined[0].keys()))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

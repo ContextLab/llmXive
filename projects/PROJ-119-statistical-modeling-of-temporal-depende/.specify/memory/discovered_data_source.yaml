@@ -1,28 +1,5 @@
-status: verified
-kind: pypi_package
-ref: pycoingecko
-access_python: "import datetime\nfrom pycoingecko import CoinGeckoAPI\n\ncg = CoinGeckoAPI()\n\
-  \ndef fetch(symbol, coin_id):\n    market = cg.get_coin_market_chart_by_id(id=coin_id,\
-  \ vs_currency='usd', days='365', interval='daily')\n    records = []\n    for price_entry,\
-  \ vol_entry in zip(market['prices'], market['total_volumes']):\n        ts = price_entry[0]\
-  \  # timestamp in ms\n        price = price_entry[1]\n        volume = vol_entry[1]\n\
-  \        date = datetime.datetime.utcfromtimestamp(ts / 1000).date()\n        records.append({\n\
-  \            'date': str(date),\n            'open': price,\n            'high':\
-  \ price,\n            'low': price,\n            'close': price,\n            'volume':\
-  \ volume,\n            'symbol': symbol.upper()\n        })\n    return records\n\
-  \nbtc = fetch('btc', 'bitcoin')\neth = fetch('eth', 'ethereum')\ncombined = btc\
-  \ + eth\n\nprint(f\"RECORDS={len(combined)}\")\nif combined:\n    print(\"FIELDS=\"\
-  \ + \",\".join(combined[0].keys()))"
-record_count: 732
-sample_fields:
-- date
-- open
-- high
-- low
-- close
-- volume
-- symbol
-field_coverage: 1.0
+status: none
+intent: Python package to download 5-year daily OHLCV data for BTC and ETH from CoinGecko
 required_fields:
 - date
 - open
@@ -31,6 +8,6 @@ required_fields:
 - close
 - volume
 - symbol
-intent: CoinGecko API historical daily OHLCV Bitcoin Ethereum 5 years python package
-  dataset
-cache_key: a9b6c80085537e60663c96892c9b5b80f47b592ef782aba3126da50a9c1de52c
+cache_key: 1917e2c55c5baf5e65a01a1d46f5745ff4e6933a502b88680083db380dfe7080
+searched_at: '2026-10-23T15:35:26.253042+00:00'
+retry_count: 1

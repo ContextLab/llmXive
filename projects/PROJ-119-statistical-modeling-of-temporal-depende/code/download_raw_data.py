@@ -17,7 +17,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import requests
+import yaml
+import jsonschema
+from pycoingecko import CoinGeckoAPI
 
 from llmxive_toolkit import paths, get_logger
 
@@ -29,11 +31,8 @@ ASSETS = {
     "eth": {"id": "ethereum", "filename": "eth_ohlcv.parquet"},
 }
 # Number of days to request – 5 years ≈ 5 * 365 = 1825 days.
-# Using ``max`` would return the entire available history; we limit to
-# 1825 days to stay within the 5‑year window.
 DAYS = 1825
 VS_CURRENCY = "usd"
-COINGECKO_API = "https://api.coingecko.com/api/v3"
 
 # ----------------------------------------------------------------------
 # Initialise logger and reproducibility seed
@@ -47,7 +46,7 @@ log.info(f"Reproducibility seed set to {SEED}")
 # Helper functions
 # ----------------------------------------------------------------------
 def _fetch_market_chart(coin_id: str, days: int) -> dict:
-    """Fetch ``prices`` and ``total_volumes`` from CoinGecko.
+    """Fetch ``prices`` and ``total_volumes`` from CoinGecko using pycoingecko.
 
     Parameters
     ----------
@@ -67,16 +66,17 @@ def _fetch_market_chart(coin_id: str, days: int) -> dict:
         If the HTTP request fails or the response does not contain the
         expected keys.
     """
-    url = f"{COINGECKO_API}/coins/{coin_id}/market_chart"
-    params = {"vs_currency": VS_CURRENCY, "days": days}
+    cg = CoinGeckoAPI()
     log.info(f"Requesting market chart for {coin_id} ({days} days) …")
-    response = requests.get(url, params=params, timeout=30)
-    if response.status_code != 200:
-        raise RuntimeError(
-            f"CoinGecko API request failed for {coin_id}: "
-            f"status {response.status_code}"
+    try:
+        data = cg.get_coin_market_chart_by_id(
+            id=coin_id, vs_currency=VS_CURRENCY, days=days, interval="daily"
         )
-    data = response.json()
+    except Exception as exc:
+        raise RuntimeError(
+            f"CoinGecko API request failed for {coin_id}: {exc}"
+        ) from exc
+
     if not {"prices", "total_volumes"} <= data.keys():
         raise RuntimeError(
             f"Unexpected response structure for {coin_id}: missing keys."
@@ -150,6 +150,7 @@ def _compute_sha256(file_path: Path) -> str:
 # Main workflow
 # ----------------------------------------------------------------------
 def main() -> None:
+    """Download data, write Parquet files, and record checksums."""
     checksums = {}
 
     for symbol, meta in ASSETS.items():

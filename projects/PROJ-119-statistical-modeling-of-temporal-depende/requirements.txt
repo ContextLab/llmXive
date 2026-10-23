@@ -12,4 +12,5 @@ matplotlib
 seaborn
 tqdm
 joblib
+pycoingecko
 # End of requirements.
