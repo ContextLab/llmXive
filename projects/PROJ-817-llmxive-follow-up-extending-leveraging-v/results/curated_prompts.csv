@@ -1,0 +1,1001 @@
+prompt_id,instruction_type,prompt_text,synthetic_score,human_score,checksum
+34415aa6-5872-5d5a-b6ad-b9bd49593125,neutral,as a black and white photograph,0.5,,7f3d929a3aea4c651de307b5e32c1caa9bb26d72b4be28c6406e43ee4cacaf61
+12435fda-e62c-5aef-91ad-62123b9216ff,neutral,have the river be made of lava,0.5,,9bf619a8d6856687843b24a1974d0f52755c88df6494a59c56e3c551171830ed
+c1badbf9-6a11-55c8-b417-6d1a639d8c97,neutral,make it a bus,0.5,,28d569f196b84f6c5b271a3e723c11d0ca517b2c62061c4d64a74d59d44602b3
+05489d39-6c61-5fe5-92a8-40b45a955341,neutral,Turn into a painting by Henri Matisse,0.5,,3aa7fd3532de5ab4cbbf2bbf8b64e19d20cea9e846fa19580a811f1950a95d56
+94683221-3e28-5f08-9ccf-47b90cf3df1b,neutral,make her look sickly,0.5,,a063c53d089defaa8ffa3eb32e36c9c7e08446715c93b8492e5f30c9c8ccccea
+8b1544d7-bf84-52e0-9c21-bc2214d6213b,neutral,have the girl be wearing a tuxedo,0.5,,0af799b015542a69d8d408e34e81409b44d2518b127b6a83f28e4c517c6bcad5
+d4da7d09-f497-51d8-9094-a9d0adc9f0b5,neutral,Add a castle.,0.5,,c5b71fd003077c6cbd838e947d46e1d2ef05f7be9ce2eb7c5275540d0339590e
+fa3105a6-6e16-5ce5-839f-c721c8c3c08c,neutral,Make the photograph in black and white,0.5,,4df097cb3e382c0e4280de165be2f967ddc284224acfcfdb7e690aa5da9456d4
+59beca46-b3b7-5a6f-8dea-2113800c2fe2,neutral,Make the paintings of buildings,0.5,,12deb05520baa8e07dc03c7424216189e35dc9223665faa72dc39bd0f302e899
+b6d97eb4-9b48-5e99-9244-4c9e36c825e8,neutral,Talented musician,0.5,,f0068f03ed618a9175df55f0d65bcfc64d9e4b19dd39feb8db8871499be42eb6
+befe1e11-fe2a-5a4f-b1e0-0464a5d10a2a,neutral,have it be Christmas,0.5,,8f07653c57c88c0cf83a5376ea083ffa7195545b699a3f36851d13767988bf86
+a5e10462-9d0f-57f5-af6d-ec80782baa60,neutral,make it a street,0.5,,015fa84da50e3dedfa1dc1dd7fb8fb7dec7de5bd42da5b5788046cd4ebe6100e
+b5ccad3e-58be-5841-bda1-5f6a2a9b3b22,neutral,make it look like a video game,0.5,,d2f1bd306c6f4a636997277078bbf612163f853e065bd1b4f032949b5da3349d
+86bfa9b4-2ebf-5444-bf68-737a5db4581d,neutral,make him a zombie,0.5,,ee56893680156a8db2cdac33b28203e2ea21225bb1e0970f7c10bcf2042adb7f
+7c49ece7-0bad-51a2-b217-ec4934da0fab,neutral,make it a foggy night,0.5,,3bdfe845e03a64c54c0137e28ed9794261833ed9133964468adeb4749d0dab8c
+a73839b6-b19f-5f3c-8a6c-a17c612b90a4,neutral,It's in the style of Edward Gorey.,0.5,,197081101c674bd431bdc632f8d64e3e8547253ff43b2ccd6a8b655617718f89
+442dc69c-b4ec-5aac-8c58-aff9bf597ed0,neutral,Make it more like King Kong,0.5,,4a0e04605e38c54b75a515ef213a49ed2872de21845a00a7ca9bde2747c1e8ac
+24d93df3-ca6d-53d9-943e-ffe914b685b6,neutral,Make it a puzzle about the moon,0.5,,804ee755673cea36107077f0f92fe4405ebd948a5f33f800ce16ae4a5769b8db
+2d299a11-e504-584e-873b-378f285e4917,neutral,make it look like it is made of metal,0.5,,d9ec6938e7ce3edf472b45885a0a7fbdadd1933600c71aa6475a3d28533437d7
+7687fe31-c134-50bc-87fa-4bb716ea16ea,neutral,make it look like an old book cover,0.5,,d8e71452df1e901aa96f14c41194a43812313b978d46fa43db85131bb708124f
+126e9cc7-76d6-5f80-86d9-3f9456061a32,neutral,Add a storm,0.5,,545991cdbb8e8852ad41a5bc1ea03294f6edcdd80eb3b34d30d0c2296e328d11
+3fd54e2b-b756-5852-a2d2-cab6e38efe9e,neutral,It is a cabin.,0.5,,d1b8b85d3631b8e942e910df4fcce5aaf488a938bac19b5a6befb5292c6397c7
+15821d0d-ecc5-5fd2-af5c-15f98c8a7bc1,neutral,the photo is a selfie,0.5,,eebc73e1500c9024afbaaf37ee36febc4927e0a816fdeef32fb94b373098d294
+170ed94b-39c4-5b18-934e-9faea92b616e,neutral,make the car a motorcycle,0.5,,2e7a6441eb88729f058d2b3361c8223805273b6cae76fd7db06fa1d787c6fcd4
+3ba5e9b8-78cc-54e0-8cea-4b0e1f4d40dd,neutral,make it into a poster,0.5,,58dfe7441e9627772a4c719284033b09669478f87c63fbcb8b65465b958742fa
+0cd3568d-aff9-5d21-bb4a-5e600295faff,neutral,have her holding a sword,0.5,,8c9ff8f21ddc3446bd53d4300f45da1c55ca011a15531a5f49f7900fdce3a22a
+d7071b2d-b91f-5a4d-9ab5-76e19b0fed08,neutral,make the president black,0.5,,29bd5338c552cb3529f554a1f212bee45a9da314f43d3b28fd985b2208cd0985
+090a4e19-e0ea-5329-b3ba-da93fc4767bd,neutral,make it a black and white photo,0.5,,f3e1485078c5ae32b79f37ff322b071b2d95807fa49927dc4df6f88aa1d3dc0f
+876d6367-1fea-51c4-bb4b-27c9c0bf442a,neutral,Make the flower a sunflower,0.5,,b5b38597dce306a10779c6141ea5585640011c7d49d66e6b188ab94d7da0645b
+bf1ccff0-e1d0-5d28-a00a-eded9cb795fd,neutral,make it a nighttime photograph,0.5,,21da871974d541a3d42ff196baa088e476df4f9bb9a70beeec872ba83d934dfd
+3d1fc696-c785-5444-9633-f9d2108f03e3,neutral,put them in a forest,0.5,,6ca10e8eed135b6c459d5a18e349d52bee49648d32baf388f9977bd8bc484be1
+f75bf5cc-4470-51fe-bebf-352bcaff5b78,neutral,make the sky dark with storm clouds,0.5,,97272d3db1244a278686b0e7ad2f051676e2cd16a9f1a3be957a0c70d0b4f2e9
+73ea199a-db09-575d-85cc-b827dc9c9d68,neutral,have it be in the desert,0.5,,35648db1ea1b764dd462664701d54608fac455747d04af089536a4ec86f1b3c8
+35d49507-1470-51a7-afb4-4c2f33dee96f,neutral,have the woman be wearing a motorcycle helmet,0.5,,f3894eb0fae7bd0d36253563ef7e097b5b53068e8a8d5675f555479ee5d2d28a
+3c7e6e6f-9c45-5fce-bc51-dced942e1833,neutral,Turn it into a 1950's car,0.5,,4e1dbdacddf8c7089029b19639c7c8e64488ec3d7a394e05e774e4ec9c481536
+8f623bb2-61f6-593d-a778-2ccef6936b09,neutral,monochrome.,0.5,,1538c97b86937b73c89f3ca154c2894182bd3e26f0b567231ae6f2881b9aadad
+a3c85a32-9ccf-5c2b-9665-90689c8b016b,neutral,make the city of Paris look like a cartoon,0.5,,0f2b336d59f9cc973674c8d84082e7c84fc94486e5ea5d0c5a9a69abc13870c3
+67838082-a78b-5876-b2de-36f40a843d1e,neutral,have all the flowers be roses,0.5,,681d20ccd9478a4055ab7fd87864d5ba916658b131ef4492548b97fa3af37c1d
+f33ba9e1-1fec-5a43-a993-9fe175601af8,neutral,turn it into a high school yearbook photo,0.5,,8bb091f36500937e9aa71958e807cd71ae803ed5459346aa745b6afd1a7b34c0
+e9375325-1e9f-5c13-80c9-9f22b341f3f6,neutral,add a skull,0.5,,69fa48a433cbd0a3b805be7938dd4a18d0ad9c64990b70b9b7ef1027fbb2c56c
+3d21819f-fa15-5572-ad91-4005bc16366a,neutral,have the kaiju be a pterodactyl,0.5,,6ad98cdb65d8af041c9843ee1460f0de11605a06cdcef8e4118d7206239ae0bd
+ca87443f-5b0f-53c4-8bbf-1cc55cc86bdf,neutral,make it a photo taken by a drone,0.5,,8ed97c462d5a74c45ab6ef3aaf72c7c626389088083e957957201c10d027fb95
+38330d9b-3887-5e28-833f-070cf07dff92,neutral,Replace the snow with rain,0.5,,e9cc32ef8cb688ad329eeec438de37fbc99f8ffefec3c54996dff30ce5db857f
+7b26cc31-5018-55d7-8329-f327a83f51bb,neutral,make it a drawing,0.5,,ddec59e6ef1e9b1f16ab250bcfdc50c2ac84014b523127f12e5e028eb95a6349
+0b659d80-944d-57fd-b10f-9d245ad9a7a1,neutral,As a statue,0.5,,b5e7b0ad266f95d018ba59ed46776f4671026e058b6497fbd9e56c291a82ce6e
+77cd9630-387d-594c-8e46-6e021e7ec559,neutral,Make it daytime,0.5,,d2a7dfb4e57685c2f6b525363ed716a86fd9e19f9cc612194a6390df8393c5c5
+4f2fb13e-3260-52d9-bf88-37c2ffe16366,neutral,Have a huge thunderstorm instead,0.5,,32aadd4d115313470b973f17728bb61e47c001518099bdd8f22063f1ea0427ff
+3c5a1193-196e-594c-83fc-baa39af90190,neutral,have the head be made of grapefruit,0.5,,43d250792e728b5a6d8319983b262af39aecdc309667d84b343b53333480c4e3
+4be2fd47-ca82-5e5b-96b9-8aa66b66177a,neutral,Make it a winter scene.,0.5,,12bab6d7458c1ab5b78574bc00729a483f50655493e69a50f7703d6936dbe97e
+56cc9b67-be0a-5390-92c1-e9d405da4c66,neutral,turn into a watercolor painting,0.5,,497ae6334e11cd0be828a3b966ccd330da758d6db8771a5bfe5d19935d8d0b68
+16f2ff86-3499-5a98-a0e9-9a07f8b4387d,neutral,I'm feeling a bit more artsy,0.5,,0b36299923af50fda475baa91bd41279de0d0198a4d4261c238e45d8e8535ad7
+e3490e33-f57f-5d5f-aca7-633f085aeeed,neutral,make the painting abstract,0.5,,6c498b52d20020bec4d331b9492d32b764750c5a1c9e083494682e496a38e391
+b3afef38-8ece-596c-ab30-8ad3de8f6cb6,neutral,Add a polar bear,0.5,,93502e7ed87d820ac5c9da0ccfc00ec4f7b4b985e221656e3f0a511bdc696c9a
+e8a2031c-3e9c-50b3-a277-663a3090d182,neutral,by Salvador Dali,0.5,,1fe85decbeb723d46a432f6cb077fabd1b6511032bc2f2c7fd683ad755777627
+ddf24cf7-aa46-5f2e-8824-5ad5e6784167,neutral,Add a lightning bolt,0.5,,afbe178e4d10d0c12a1f4a64e7b5ebaeb3e24a8c9b734a346e206b18d6ab6eca
+c28f0ee4-d0d9-5fb0-b689-83bfe19e98b9,neutral,turn it into a cabin,0.5,,2c32976e8fd577bc1c3fbb2ac5b8c4f46e863d3241ed320ea3fab4683f149be0
+24166aa9-46b9-58af-9ab7-00cbacae5549,neutral,make the sunrise pink,0.5,,2b86c11fd57bbbab3e1ec54e5970a9d780192076095b4348ac293eb0b836a76f
+58516f9c-cb4b-55d9-8f32-d36fb1d43c71,neutral,make it a cubist painting,0.5,,fc3e4f9aad610e8311d8859be1cceb170705662ae2375b9f72d49f356b1b2b3c
+25aa3bfc-bc77-5d76-9a40-f8e2486967b3,neutral,make the cathedral look like a castle,0.5,,7416806a5adb01878cd076b21710309cf56f474f5d286c8f1f80ac339dcb382e
+f9606238-d511-5050-bf2c-2d7ba8806441,neutral,Add a crown,0.5,,d0f3f7f86d0ac989e94d4943e8631e1bd954efd178ae035ee5997fa6450d38a5
+cc99aeae-15f7-5c3c-bc88-3a366bb90754,neutral,make it a night time photo,0.5,,2998535dc72a35766c4a19ee256fcd4ae11629739ff9151796fe579452a7a616
+76430c7b-c6f4-551c-9db9-7e0e241ded74,neutral,change the setting to a prehistoric era,0.5,,c465ee16be2f564e5d2e4f5a0a5ceca3fca5e57d1a3a22c5f9e572462626d489
+9b31d502-2df9-568a-b2a7-632df8af0239,neutral,with sunken eyes,0.5,,acffad2097ddf30d85f1ff8494a2552e7f084762f06031f667fe7ef4d5e337ba
+20ed33a5-b1de-5c5c-b608-f51f65df3386,neutral,make the landscape tropical,0.5,,fb6602de595bb0d0b5f1dd65646da36483920ba4ce0f3a67651c54dbc21e0762
+222b48c4-5339-5fe4-af78-2d7ba0aefae3,neutral,make the room a circus tent,0.5,,51c36de4cd5e3e685ce4f284748a8e0c6caf9c81ab4b0f0b4b3ab34dc98b1d9f
+a8d036e9-ba35-529b-a93b-83c47d16678c,neutral,Make it a castle,0.5,,1494d4542023fcf43bbdb523e3f7aef0bf3c876527ad77b514ab83ba64f8db82
+2ca6519c-e7bb-54f5-992c-3fb6787a9841,neutral,make the character look like a hobbit,0.5,,ae4ae1605bd4297b8fa00c412a876972ea85a3ac00eb128915a553aa607f8bc3
+cc06e119-2682-50c6-820d-02f63008462b,neutral,Add a moose to the farm,0.5,,bc1ddba1ed6576b712a5f851b337afc3114d9e21ca295515cd654473afae2915
+ad937cac-cef4-5f7b-a155-fbcb9c9ebe0e,neutral,make it a modern barn,0.5,,14d6f4ef7e19ee540d843296010b65a8609bb48996adb52e423173999cb4e5d0
+02c45c0d-dbab-56ca-b432-516f9dea510a,neutral,turn the landscape into a desert,0.5,,b779789b0b3dd421fb0f1b451461519e7d6a8991c1df46a3876cbe7317658e14
+2fe7af96-b879-55a9-bd1b-0401ff4dfae1,neutral,make the owl purple,0.5,,de6f2eff2aa7d95de6af7676c1dcef05b30a0414c090a214d1853bc601e93de6
+197592ce-649d-5fea-a4e3-437907f2d9a7,neutral,as a monster movie,0.5,,5c4bd57d0d8e47c3104109b281a55c64aadecd84e96cba43afcbf0191628bc8e
+91c4d185-ab39-56fc-a5f0-82a01c70f2ad,neutral,move it to the moon,0.5,,d1ca96c9eacbe44900ce3f5b604bcd0007a478bad558c698a2b840f65470c808
+1079f98a-49ba-5e10-88ae-bc894c183787,neutral,turn into an oil painting,0.5,,a662ab2179b7924e3432e77c4d686b3f0b725776138cb675e45893c43c1b73a5
+3239887d-174e-5ae0-9a12-f0cbdc6b3dcd,neutral,Change the background to space,0.5,,2c18408246e252e1e85c98391325aac3a1fe83b62f00e6b8024aa23f8b9cf55a
+8c8de10e-2c0f-5636-a9c5-7b6597f46ce6,neutral,add a rainbow,0.5,,f5e7c256276c96ba65947e6e5863f0d167fa8b5c227b85ef8c04e581455729d8
+7a1781c9-c355-5172-9f3a-2a499cc4d8f3,neutral,Make the painting by a child,0.5,,518623b1a5c4e58f95e717bf4f45997a61710085dccf7ae297d39da597d7a4d3
+d865f9dc-d264-50ed-be0d-f98cb38fae2c,neutral,Add a cat to the photograph,0.5,,cc417a12b6739ecda2b226e8f6514954f63c1ad4ef70a0adc439bbf22a7648bb
+1dec3bdc-ad9d-5320-bbd5-f1993383e133,neutral,The photo is taken with a big camera,0.5,,0b0380d5ea5ba40581d07c7fa471b36ce6c2543b03c6796cd09d27d445237920
+75bc5d3c-138a-56cc-a3cb-f598c8824883,neutral,have the squirrel be a cat,0.5,,9772d0e325dddaf36d37c09be9780a86c2160451d053889f05100770f584433c
+4753d176-e0ad-508b-b606-5a82974c827a,neutral,Make it look like a woodcut,0.5,,f4a1edd31e5db84c9d241e30c0f4a38a956234d658eeb511495f710d4d4c8715
+43efcefe-fe51-5f2a-93c1-7a7b0bf1de97,neutral,Add a rainbow,0.5,,5feb4956d958c3701ceceeec7d6a90be4cb5c631824203d017b82b73f907bbd5
+ca9b00db-fef8-5001-ab1b-0d63509a9d37,neutral,make the room dark,0.5,,b5f314c53bc2a7aeb80834770dae7e4fc742eee7710de35f625d45d2094a4069
+ff38bec2-11d9-5ecd-8026-08f8df532a99,neutral,Add a castle,0.5,,dca7f019d8f1d53df5e2e82d3368cd596dac17c54b968958e2f30b5597eab65e
+29cc9069-0ae5-5527-810f-9a1d60fcd778,neutral,have the laundry be for a bear,0.5,,d9318db362dff14c15d1579cbfe6b678dfc3a9e6967a72866ee38188c94be392
+bad75880-c76f-5340-bd55-b179a67fc256,neutral,make the sisters gothic,0.5,,a291e7712bd277fb3af9b4bae90f3ecad2e376e5bb767b5f1e6b22e63a011e86
+d57741af-571c-5f5e-bb4e-72777f224347,neutral,turn the workers into zombies,0.5,,4337c2cebb39f1731ea4926d0ff69d83fcbc2679d900ec542e7ec3fe0f7f723f
+2b167e11-1e4d-52ff-a4e8-198ed2f30540,neutral,Make the girls ghosts.,0.5,,00d57c0a31b1fed234b92cce3750db03eb93b7d25cd6ca69bedf989b55777c0e
+3d915376-92a0-5338-907f-7f8b1b48a854,neutral,make the shore an island,0.5,,5ed85c7e1090d8857873f674aa01ec344682c81e1682e9ab736e63d70a06d853
+3d1762a2-62d8-5b5f-8ef2-04ea0152f4e5,neutral,make it look like a still from a film,0.5,,4b90b28ccf3051355471b5d8ad29851ad177a68342f02b76aca9a93f24bd51f1
+bb1d5ba6-41ba-5799-a35a-fd28dec91e1e,neutral,make it a swamp,0.5,,b3d01cd7d0e9f742586e0bfd7e544a47dbb376f32852e6796810f0adf65e13fd
+d276570b-7c43-5243-b091-e3fa8724bedf,neutral,Make them by Jackson Pollock,0.5,,0a5a1edccf8c5712740e3ddff3bbeb0c0f478e18dbb10df9573f92a334563f27
+67169468-54eb-534e-9515-cc362988bc67,neutral,The street is made of gold.,0.5,,8acbc76132cab93affa3c5fdd1b0ec68fe1e5f89799cbd87838d2d2f138067fa
+996b9641-3aa5-5801-a00e-1ff42e9488c4,neutral,make it a desert,0.5,,434a236cac5e827357a5e81b1d032613475bd403b5d5b6b72d04efd886382d7c
+6f2832b8-2d37-5e41-98d6-adbce69b2b82,neutral,make it a city street,0.5,,5d41fd76c5da4afb155ad59c78cf6dfcba560d3e86584c59c91ae29b9bdc4d0e
+1494ebc6-0c01-58f4-b334-102f6469d576,neutral,As a J.R.R. Tolkien illustration,0.5,,44e1422bd793747c5fa8a4eeeda9fcf4b8b51e289f0f710a07a48eec28f16334
+f6528657-63fd-5cad-9f8f-7ddea1b75ddd,neutral,make him a gangster,0.5,,3b4d3589dec9f66fca19a63c1cc54e99b9c97899a481a4ea412f19a2b918f55b
+cc7a3adf-360e-5717-847d-9420dd1eb7d0,neutral,make it snow,0.5,,8cf8920f92ba3b5af653750c6cabf59ae929bd812ae9ca713594b092a15e29f5
+14b416f6-9176-5457-a095-48b6acdbd553,neutral,Put it in a lava lamp,0.5,,aa990113a025aa913fae4aed4e6008b90e8b2b929dec3087f91424735e5c7cdc
+a7f0fa16-ee93-5c17-8186-905e5d1cb20e,neutral,change the lake to a forest,0.5,,001b58780d934c28a1d0bd1642e965c3229966c992be71fd696e899b7e385d2d
+38471380-35b1-5550-8bfb-828a2f69144f,neutral,Instead of an angel make it a cat,0.5,,2c4865a8c89c2bbe5d3a56fd2d658f7dabd7ac0d006782ec96b6f560e7eb5d7e
+495fe259-6dff-5eb5-a2c8-9ea0b3e03a08,neutral,make the violin a guitar,0.5,,ed0ade8a630428c1aa383c4cf0909a106c9f783fd6eae6c082f0e9c44a494640
+2d5004d1-9f2f-55b8-a9ed-faf1b76cbdd3,neutral,make it a rainy day,0.5,,395448331c789072ba48fdf4f08424d7a27e9e8c432ab678b8d22098c061ebe6
+bfbcec67-00ee-5fe7-931f-dd4a25fd14c5,neutral,make her look like a clown,0.5,,70a472dd8d0f0a56ed56b63c986e501141d6c71e27571fa29d857547c257070b
+8e7dd6c5-8295-5c70-b0ed-ef6a4474b4b8,neutral,Make it a night scene.,0.5,,aafce83c711eebd84a5a659cb47c23ba404d8b3705eaada8f0521feb72833b93
+3bc90cf4-7141-5aa4-b7a9-ccded01ca5fe,neutral,Turn the dogs into a herd of llamas,0.5,,a7ada1d91d38ded6cf8cd23a4aacb14959c214e6472fa4b2854b012a682a4955
+c3d4487a-2250-58e2-9659-72fe6c696d72,neutral,turn it into a movie poster,0.5,,051d8880cb0f5f96451889f78d283476a3ff699e9e8813019ec51cf6cfb2eff7
+91d8d7ac-65dd-5cf8-a12d-cfea3cc6f635,neutral,Replace with a Snowy Parrot,0.5,,d854956ca9d23c635a109249ef3908b853dd7a20e03d0d3e0e1e1eb09b7f4ea3
+c2eeb77b-b669-5676-b8a3-88c5e164ad09,neutral,Put Liu Wen on a beach.,0.5,,14521765bd9b9026bd2dccaa802de8ac110269f2532cd9b29813d641599246a6
+b0d1a603-2c4f-5039-9b0c-edf8a09f6fd2,neutral,make the forest a jungle,0.5,,f6bdfbde550bd44d22eb5a802da764950fc6174623e7824424e6e88e4439ebd4
+e5fefa17-6f7a-5838-82fe-565382ece449,neutral,Make it a selfie,0.5,,318b1e44a13f46b73dc33b300e19f02c7ad7102e0e83eaea50f7eafd6daa5f96
+22b93b66-9d6f-58ca-b55f-9817bb0b0900,neutral,as a pen and ink drawing,0.5,,4f25aafe5ca43b330e9836fe723bbcfa789ed735946e6b6438055e58b52649f0
+18f7b34f-b33f-53c9-ae69-495ebe0eea14,neutral,The painting is a photograph.,0.5,,1d2b36c3ed29cbd801830f8430657db5c0e500ec16a70bfe58a8cde79e51f24b
+c5e977d4-70a3-5444-ba2a-2eb1c104a486,neutral,make the chair more of a chaise lounge,0.5,,7a1b47d4314445a6acf0138cc085fcf14efd2a14c62af0b379ed94dca5b8d82e
+a7d5262b-faf9-56a3-8610-1c385204084a,neutral,make it night,0.5,,8f1f1c4f1c81423dd0c04feee5a53cf3f713e8cdb97c04115c5bb8e0b732af7b
+0c542284-670c-5c96-ac8c-34330e658372,neutral,make the day not spring,0.5,,f647c07c3ccd83a3a8e0bcb440c4875d614453f86235c9a781bd342fcdd2827f
+9e867934-a0a1-5aba-a0ea-351600cc1be7,neutral,turn the outfit into a swimsuit,0.5,,62b50421e7eeeebd8c8284d4dce3d9cf1939824e0c574ec9604eaf4f863fc5d7
+aa763ce3-7750-543d-ab18-4bce68e06078,neutral,change it to a cartoon,0.5,,203c230bdc7e3d4189f91e0555f758a6a0c9bba94091fc47c4875dfc451046f9
+def136ff-14e3-5baf-88e3-f2f4c043fc85,neutral,Make it a stormy night,0.5,,d535f69d0892e8f7264dc46bfc6dbea8038835ee178523aa5dce1d1a5c45b572
+61184a3b-63a1-5913-98c9-aee2c0677a28,neutral,turn the umbrella into a shield,0.5,,28e0f816bc5cd9b07ce5639510d0cd78fabc6e4ad9fbd5dcec16e294bae319ec
+40ca137e-f81f-56cb-bd20-9ea683117553,neutral,swap Dubai for Doha,0.5,,22ce87c2d8ad5161dc0321b4962eb52c3a87e33013aaa11b9eddf9c6a5f4e600
+7df2fbaf-a3df-518a-89d1-e7f687d74430,neutral,make the sky pilot a caveman,0.5,,7fb6c78da6cf82f707f36fc7ce02ec3247620a714c6ec283468299d80f2a205f
+38d0483d-de8f-5025-83c6-fae32b1a6878,neutral,"Arifin and his father, Ah Kim, at the mall.",0.5,,6e9158ea5f7e6da81c7d171666c232841dea093ee27b7a468ad473f0230b9b9f
+40dceb43-1c14-5328-a962-a1f5fceabcf9,neutral,Add a dog,0.5,,69939e970b9abfb2a3ca7ce6d4d3f1719a9801a9ff46bbb3e64d44de2e94f9e1
+09783efc-1a5c-5d7f-8ae8-529a3e1f4bbe,neutral,make the mist a fire,0.5,,53976e60028b9483d0b5a2cfb37a211d70f2267424d2859351947b0419511ba3
+e3d21598-3cb8-5ffc-b674-f4db4a18896c,neutral,make it a photo,0.5,,358d6a109dc7991f5ed65442890d12706fe87ea9525d86fe5e3e45ab5c80b0d8
+73dc22cc-ff1f-5ea1-b69d-ecbaafa8ae4b,neutral,turn the lake into a river,0.5,,3557304686f8e6e0cc4c32ad250b48f65eee5ffb3c4e524b766131fcb4f3722f
+74d763f1-fb27-556b-b7f7-b01720d12d8e,neutral,Add a bus,0.5,,baea110c9aa54d630a2a9c91cb7897919939b6af553a497a85315cd23c9e1b34
+11f1a7a9-52ef-5ff4-b61f-7fbff8f94b45,neutral,have it be a rain of goldfish,0.5,,221bd39b3f2375afd72cac9fd5d656df24d07ad3d227f69174d995bfe5184480
+c1ed9a54-c77d-5f10-8fc9-390a5535dafb,neutral,make it a painting,0.5,,40ccdbf71a43083590edadb5205a9c17081ac660096bf9f4c5d9a965ccaa1697
+b8e0f034-a092-57c5-8b8a-97820c1ed13d,neutral,make it a misty morning,0.5,,2b9666dfcf94295ef31c102f9232be4049ad5b6f113a4017c6a2f6b2330d7f80
+5f1a1891-d618-5a54-8b67-8a04a0243291,neutral,Switch the market to a party,0.5,,d9c2309b9d9a42458f5de60de9dbbdd7b7bc908e8b14efe7162b5372c792eed1
+8b537091-020c-57e5-9d09-19ce79f06b87,neutral,have them be rabbis,0.5,,bfbee05ede69122a8bbababfb55cb67900a1607d6005940360068ba651300b16
+5003b52d-b615-5340-a2ed-fc335b104687,neutral,make it a lake,0.5,,bbafb1c5770e46e78ad431e18df5483e636d28afc47c0a93bb076e90adbe3596
+138b34e2-47db-5e84-befd-1fd583563c0a,neutral,make the birds ravens,0.5,,3b46aab7ebe8b22c7e31b436d0213c54658710f59329bfc2b1acf6f91b98bb6b
+10d7f7f0-20a8-5b56-88d1-7634d26d5a8b,neutral,make it a fisherman,0.5,,5de469efb35b4465657bc2ebbd6d7598f16793620cf2d28dcbc8ffb5bb07d8df
+3df63936-1331-560d-aaff-9381772c4cdb,neutral,make it an illustration,0.5,,e8dbf8aaf5942706169b063cbc02c80991a6a1a9f1562ef41eb1cfc998bc683b
+7083fb2f-aef0-579b-b928-61bfceec2d4f,neutral,turn into a bronze statue,0.5,,a36acca5d0649017e779380a96251706883c04c0690df3aec34989b027e7e012
+ca6d8697-d4bb-561b-a483-4ecab57461c9,neutral,make the frogs blue,0.5,,af25cd7d191d7b22b6fbc5eaa3a6c02cccbdbd2de9ba9bf13505121baf6c1479
+11ce1beb-0693-5c14-a56b-8d604e9e8e72,neutral,Make the dancer a viking.,0.5,,625f99298f6690ced18ca1b559cf601632a1f06d77680a89f98d284f53f9bd62
+12b6be3d-bc37-54e6-bdd3-4b2450b320d0,neutral,make it a sunset,0.5,,41b5d23834b6f51d72d6d2fe1f6390d2b01c0dcf903dbf6c050f6414d3ffdbcf
+3f89aa01-01d3-5a93-a64c-b7b55aec71a5,neutral,make Hough a handsome guy,0.5,,6cb72aa7e6eb1eb7e3798a7cf6d982794ba55b048e1a8d57b724b70d9bdae90e
+677f3959-fd6c-562b-a3d9-eddcbcef58ad,neutral,make it a foulard,0.5,,a49f56c0b2980c240a874ffbd895ad10867ef80cac6557e59b0335bbf075aaed
+d14142b0-a8bc-59d1-aeba-969baa34698d,neutral,make it a cartoons,0.5,,7a67c60fedd0d5cb798c2883e28fe8295f6532bbb91a8a8655cb7c3aa4c89b7e
+6380bb26-179e-55af-a2d5-4afa5ca7cd09,neutral,replace the skyscrapers with trees,0.5,,bdf1db0c53f121b848447d553dd018457000e30ca42d238893783d3fb8bb2d3b
+4981c546-8714-5001-b5b5-97bc049b143d,neutral,As a Marc Chagall painting,0.5,,786d938237737975a29e7cba5f254f21ea84bdde44cec16aae1d29ac0415ac3d
+7d47522e-bf47-573a-886f-d2b6fb6f7a26,neutral,make the photograph depict a ghetto,0.5,,504c46bb92fe12d8282219fa973644854ae1f900a2b4763836259ce94eec38e1
+342c2398-ea95-57c4-8ffa-53c89daa928c,neutral,make it a photograph,0.5,,20955c0bcc98cd8c02a335b8f5084d0d8c418fe7a134c08db9dbbf944c15cdc4
+083b2be1-e39e-52ac-ac02-767b55476f69,neutral,change it to a watercolor painting,0.5,,47fc484e4510a583aba812b37dc1dfc0c53a791ab1a134adb1fed9dce526ffa2
+22e81a99-4f63-5010-8bc1-9a37ebd146ff,neutral,make the flowers golden,0.5,,cd4a0f3f134874fdf96f0de112c290bdb9b2a981b63451d6c625bfbe4556c491
+a7d5262b-faf9-56a3-8610-1c385204084a,neutral,make it night,0.5,,8f1f1c4f1c81423dd0c04feee5a53cf3f713e8cdb97c04115c5bb8e0b732af7b
+5cbf69b2-657d-5baa-a81a-0e713d124d05,neutral,Make her wear a kimono,0.5,,f617a8271d15dc6e1912836e7801bf1814aa5e833ab6da2f3d4d4ca081008bc4
+dbc73130-f338-5fae-8043-66cc2225f147,neutral,make the barge a canoe,0.5,,1bf14796fd4423291b5ecf20014459e2c045905681ae2c60fe2c0ca43e3cdd02
+818a1263-d611-5de6-8dbb-7ad258a9ffc3,neutral,Make it a moon,0.5,,f0cc94bcceff88714e5d349163ceeecd3f6185fa279ebefd9cdcb10e7bfa17e3
+3dcbeb14-839c-508f-b7fa-095b2f1b358c,neutral,Change to a farm,0.5,,51e0659f18b4cb3623c69d5449367b77a5f578919f3dbc01bce734420132a378
+7f11ca2a-1318-5bd7-bfa1-9522417c8727,neutral,add a blue background,0.5,,c7ec9b3f05b48fa362a81a04999a042553ffcf7e3e080511bb7cc1baa04b4936
+09ae391a-7a48-54e4-a054-ebc8b8b7e0f3,neutral,make the umbrella orange,0.5,,85bb4500130a9fa2190624e80fc87df340c9459d000011616250643b01a65eef
+e3f1bfb1-7493-5c30-998e-91febfc375b7,neutral,make them look like the Beatles,0.5,,81e2a52d54d81a4ed3ba74157d8b63c2d0d2af9543c808a9244ffe9ebd8c0d0d
+43efcefe-fe51-5f2a-93c1-7a7b0bf1de97,neutral,Add a rainbow,0.5,,5feb4956d958c3701ceceeec7d6a90be4cb5c631824203d017b82b73f907bbd5
+9dc397d5-7262-5d4a-8fbc-cc11c5cb20b0,neutral,make the mountain bike a tricycle,0.5,,23ca2cdf51339a59b89fb4151d5dd1cebe94bb5f45d33b7a3e121f4324645840
+bd7e5443-abbe-548c-bddc-58a46293f035,neutral,make the balloons purple,0.5,,8e3ede1be4cdad2818544320426ede1b5d89d9ec7ac407c80d7500e6901d4912
+ba16347a-7682-518c-ad34-63dd2022a450,neutral,make the son a girl,0.5,,ad8bc5679907e5fa5ce30b5b8b11ed10a9b005da32053459b224251aadb1f5c2
+cd9b07f2-def7-589d-a8e2-51ad6c0fc7b6,neutral,Make it 1940s,0.5,,d721c28c5de5ebd2560308a4782c14e2845f77c0a611cae9888d3d54a12aec89
+1f3320d1-817e-5e41-8a2e-18ebb41adedd,neutral,make it a spacious cave,0.5,,125e49ecdf44cab03cb9f2848fb1999da22584fb9243b246489b3a7ce174564a
+ea462737-bde5-5ae2-a5b1-c7c896df74e1,neutral,make it a convertible.,0.5,,79e4f0cc623cdc1b76e772cbde346b3aaeec388a941ce5c8c0341baf13e27887
+4bfe0650-1325-52c8-a978-391327195a15,neutral,Make it a winter morning.,0.5,,e619822e14a8d5de5ba94f8bd3313b66d2eabb7632b12e73f804c3bf9dd424fd
+0e299d8a-1a46-5015-9bcb-5eab3311ecd4,neutral,have it be a photograph,0.5,,017e2dcccacdcfb812ae5cfb4d9c27b90f18ce7eb47eae57432fd1bfaf445381
+478d1ef8-2101-592d-bc02-f599ef7f5298,neutral,change to a sci-fi setting,0.5,,68881eab489fe295d1794cfd19bc21f46352b9cc5e5f6160cf437f43deb71bfa
+de3e64be-1d2a-5f93-884d-acd0eafb2c4e,neutral,in a snow storm,0.5,,f30cf49e99d9817139aef348da2823597fa0b61b379b3d6109a9392b2e64efa0
+723a077d-67f7-5c01-9ef4-38d37cb8d39c,neutral,make the wheat a golden harvest,0.5,,bd0b6e89c28392cebf713ccb28c88306e9d93865a898153bc26b6ae666425aa4
+c1ed9a54-c77d-5f10-8fc9-390a5535dafb,neutral,make it a painting,0.5,,40ccdbf71a43083590edadb5205a9c17081ac660096bf9f4c5d9a965ccaa1697
+a9ae32db-564e-582e-9207-b20c0c0dabba,neutral,make it a river of lava,0.5,,15f46a839b673a5535d0f42a2aefd6fd956cf2d77b933dba31a310d2e8fba1c3
+e0209b7f-f089-54df-ac26-26bde6ea7363,neutral,put the samurai in the jungle,0.5,,d230d2d9ee56a2201d19fb4db648a522dc2c4ebbbb857638f30879c9e9c1c820
+321b891a-2a8a-5358-ae03-febc7ba7f899,neutral,make the school a university,0.5,,e85e85fa810db15163e549892b38f1336420074cdd3a20e3a7c4570afa8fd0be
+61e86b78-3e58-5833-90f3-d982e3f6794a,neutral,make the mountaineers wear animal costumes,0.5,,bf08c47d51377f77b5c73a70e804fd06629a98d4d7e1ffe5a4a8fcb24513e612
+94ff4042-2b9f-5494-8e05-bc88ee9d330d,neutral,make it more sci-fi,0.5,,102626a6083cfc60bc7b783f1eafa51c0dee6749839064b13fc9e3afc6409157
+accc7203-b612-5713-b142-04cc0ec51828,neutral,make it a winter evening,0.5,,6375d9a1cf20a6dd40fb2c21446629be0a82d65a5e9b6707a8bb1a13284002c1
+cdce88e0-5bef-5289-b57a-99f25452860b,neutral,make it a spring,0.5,,6fae07beae09eb70ab01c2c05006db9b215ff75db1ebd162ac453c88246a43cf
+e6b1e23c-0759-54e8-8bb9-5c8bc3d32ee2,neutral,have the coffee be from Starbucks,0.5,,6279fb18722d01509372037e58d86b152ac1f2cda51dbe74fb3238673626dd1c
+58516f9c-cb4b-55d9-8f32-d36fb1d43c71,neutral,make it a cubist painting,0.5,,fc3e4f9aad610e8311d8859be1cceb170705662ae2375b9f72d49f356b1b2b3c
+a738160c-8ced-5e6e-ab00-e0a77acc4f66,neutral,turn into a photo,0.5,,a4aec500a9b5879f931815b26a8986590ac701b0e24097068fc8b3487c87d66a
+ce081706-2843-5b70-bdd7-8dfa0fcb897f,neutral,have the woman be an ogress.,0.5,,1e162d4da9bd1cb5d18d06cd7f272e4faf838ae671e165c69877f8ba1de89dfe
+3522b94f-255e-545d-90a9-6950019b616c,neutral,change to a map of the solar system,0.5,,9984d75385933fe4f9024ce7c988a388568c2a69f44218e5475672c35b0c4260
+3574893e-da41-59eb-8be3-77ad7d06eaa9,neutral,make it a modern painting,0.5,,e60fec52ca3217fe0625deb0568f81d39cc7ce4f8132d54ae194c3819153a2f1
+fd447268-0cc3-5bab-8148-42c922713fb3,neutral,make it a panorama,0.5,,737820402b67bfcb8f5b2d5b0bf99792dcbb09adf6c5bcac93a115583e3a6094
+7b26cc31-5018-55d7-8329-f327a83f51bb,neutral,make it a drawing,0.5,,ddec59e6ef1e9b1f16ab250bcfdc50c2ac84014b523127f12e5e028eb95a6349
+99167f7a-8151-5d90-a885-7631a362716d,neutral,make the snow blood,0.5,,2767acc6653617b4f5d26f2a7d43dfaf98b745d2a6549348419d5cc9cd2cdec0
+3843d061-39d0-5e35-a16e-e8f8fb0c6e2d,neutral,make the fort a castle,0.5,,2a14153011949ef972cfebc42edcc57bdf1d47367c30451c0476ecfe7d488533
+c721e5cc-a980-5e9b-9c89-1a74ee53a1e3,neutral,make her a mermaid,0.5,,3c14d333b6427611ebdd4438963ea2bc925f02ca1e2e5a016d077d87b70a115b
+0cc9fb07-200f-5df9-94c2-fc84748f40be,neutral,Change the pagoda to a lighthouse,0.5,,5bec81a9aa76c52a585be1b6a5b79111244fdaca0af5203d78ab1bef4460b8c6
+d4bdadab-280c-5088-91c9-84e89df32342,neutral,Make the frog look like a duck,0.5,,8c607b35b0aa5bd33d676b8875183d8daccb1bede1ff57f7d3c360b05b256b38
+2e819f7f-4e27-5591-a015-9eab374af7cf,neutral,make it a church,0.5,,0acf225ee88ff8b74a359dc59cbc32c9b614481ce5d410a66c473c3cdcfdbfa5
+0d39e740-a1a3-55fa-a914-19344afa119e,neutral,make it a Disney animation,0.5,,61c0c7bb35c3c0a51656b312d9033bd8b7f566c1111a5889b8dc5dd2a3435e9e
+e1d06fb7-9469-51b3-bfba-13a9c9443933,neutral,make it into a real photo,0.5,,d56ecaac3277b390add7627454ca78d421bc4c06b220376a3735de05716c2914
+3f3c3da8-6331-5f67-b2c5-05287337ab24,neutral,make it a perfume ad,0.5,,f7dccbcf2b9d4c4e78395d9bd3417495e6a7384e811027c6db2f64758703b25c
+6077b58b-0481-58c9-acc0-8476ca4cc4a3,neutral,have the snow be made of sand.,0.5,,3aaad546404011f4b2f8b3ec36a601d0ebb86b2b5fabf275915b8851759cce1c
+4e94ea9c-2c89-53fa-8a12-8ed59a8b46a7,neutral,make it a medieval painting,0.5,,7ee9ab8f2fbe40fce77e0c5f292613c83aa8b6182c919eeb5db8d38db71dd219
+0372bf5a-63ef-5515-84f4-109e7e275ca9,neutral,add a halo around the dancer,0.5,,d4134f44999a8aece5c6f4a0ce313ae5627be723ff9a97267837ab1fd9c4d4df
+bd59e59d-f300-5c6d-960e-1f888a6556b3,neutral,have him wearing an eyepatch,0.5,,fa99eedcea41f594585208acde28be6b74b76e25690edcb6cdb02e6c49c7b8a2
+4388444c-71bb-529c-bb7a-dd2698fd130d,neutral,have it be in the style of Edward Hopper,0.5,,8675b2e8b85f664ffd02cad54c725dbab7661b9ac3ff4392156b7e8ed2aa499e
+0c9036e6-37bb-5e76-8a23-28829874205b,neutral,Change her to a cat,0.5,,0a20fd1f7f89e9a207f6514ab4931d577004edf2407085df09080e9ae7551b4e
+064ca2fc-32ae-52aa-94d8-0de89a02c78e,neutral,make him a ninja,0.5,,9d0e3131b3bf2bda17ef5ac90d495eb920cd120a26d344fed76ce8379a4dd350
+8c8de10e-2c0f-5636-a9c5-7b6597f46ce6,neutral,add a rainbow,0.5,,f5e7c256276c96ba65947e6e5863f0d167fa8b5c227b85ef8c04e581455729d8
+0f1097f8-1696-58ea-a058-99a014fe2c30,neutral,change to an ancient Egyptian tomb,0.5,,5f193fca790c726640c2e69ef1dd4f53a54f311bcf4a3f08911bff8277b57020
+1e79fade-d4b0-528e-864e-0ad8e1b6a6f4,neutral,make the subject a cat,0.5,,6e2204b9c064eb2470187a2a38d40a18d6455e6bcc88998e6835fcc7d3a0e106
+2691dc93-d7ee-5060-b0a0-e823c03bef07,neutral,change to Venice,0.5,,e046df4125e64c9e0247b9c86c764a68944875da302c41b56f87402d63015e20
+c6552b32-2d40-59d4-a381-0a694916629d,neutral,"Instead of a flower, make the flower a rose.",0.5,,e0f84b4f8b93738dfba446550563cb32edeb842dc8c6596268067bd1044820a1
+f0ba416a-887a-5dea-92d7-13a9b6989778,neutral,make the picture more colorful,0.5,,c7fefddec1b8937cc011a90ac45470189d79dd84d2b3dce5e9f2ff4e606c7af6
+47c4c066-0c44-5517-8a13-08bff2182344,neutral,change the painting to a photo,0.5,,04e6861df39f21f3babaaa32733f130987fd443f4d9fb4de1802281b97d4b956
+fc060f13-c3ca-5d1a-8278-8bdd64a9ef8f,neutral,make it in Japan,0.5,,cf5b1a5187ea3b1c70578402efde6e340b86163d7f09c139e921fee364adf511
+843c5c86-0524-5065-9de7-2bff11fd8f41,neutral,have her wearing a suit,0.5,,df7f6852668e4bbe0bf56c3cf617e03022f6cfa3dcd8e04207e555c6d4dde361
+2bd25c85-a661-57cc-a434-80f73849c4ba,neutral,Make her a farmer,0.5,,565d34388fdc2549212076872df25554d656bdc19024432d4c4953befe5a2721
+faf5d359-7e4e-5d50-ada6-d4c942568261,neutral,have the picture be in black and white,0.5,,a6690e0b5be0b8d51545097351d1c8d9249410fdc2f3e63ba47dd9c2119e4f51
+ef5f2f49-3cc7-5e01-a92e-c96c91420957,neutral,add a green tinge,0.5,,cd0f83fc3cc62dcb4101b95d1c239aa1e1ad1a869002bb85be5e76371eaee6b0
+28313f89-a081-5285-a91a-08f412e9185c,neutral,swap the railing for a fence,0.5,,28da03b93fe08d0a2a7c1304612c83e1a9a86af006b9b15e148e1549d189ba18
+4b8a1d7b-c4e1-590b-9041-59caacb1c328,neutral,swap out the buffalo for sheep,0.5,,c60b2566e85868d6286e6e8c5caeb286af0fd13a88f4000c4334f745f16fc701
+8950e252-525e-5f0b-afb6-9a7404e81c70,neutral,have the oil painting be a watercolor,0.5,,b76c321b190c0eaed716240553dfa8a1aabc1ecbd53be4b5e8f0d81d85021000
+88fba2a0-bbbd-5f33-8b99-65696ff0db1e,neutral,Into a movie.,0.5,,14e379a3b1cf91493c4b307d33127b71bb0b72de553d29932d659fa59b2055b5
+ecbca167-cacb-56b5-840d-adda4c8f542e,neutral,make the cities in South America,0.5,,c5f8972d06c581acae1372233531dd4f2ebd74d36f40130f44d80fa90bd30227
+050edc18-d43c-59f5-bc75-1711877083a9,neutral,make it the cultural center of Naples,0.5,,ab1b817ba4ec52621d26a53d163bc9c35ca742a7c2e904ea6eda1415e3a34d6f
+4b55e2a1-1823-5016-989e-b851decd66f7,neutral,change the garden to the forest,0.5,,2d61d228f37a97a1aa6c29775a54407613e296a86820455ad18229eea07cb406
+072e27c8-db91-57cd-b69c-d98f6e59019e,neutral,make it a giant lava tube,0.5,,ed6096bc1352142fa8f0c556b1e5cfdc85301d2fa7fe54bf482b6076f8ae76fd
+5b952f05-88ea-55a7-b7a6-52654130eef1,neutral,Make it a comic book,0.5,,317a24b59287397f2bf04092f4e3be0b6e4cc0208c79912f1d11ca54700237ef
+efdb713d-9013-5c9d-b5a3-5e0a4be624bf,neutral,Make it more like a fairy tale.,0.5,,48bda8d5f7e598aa03d9b08f4fdb5f67af3d1088fa138096a75020e956b54a55
+d43890f7-6dd3-5fe3-94dc-33928be9b327,neutral,Remove the dress.,0.5,,6190a1084a03b8250fe087ac888f078fe3014738c4eefc73f0770e0d8072c60a
+4fe284b7-ee51-5b61-baee-f7562bd07d63,neutral,make it an Academy Awards ceremony,0.5,,abda019dbe27d55a630504d8bbde64da65a8fc6a0e7e8bc62af9e6d3878b5a9d
+3bb13f4d-2933-5ff3-bb9c-6a3abdf9bb72,neutral,Remove the cabin,0.5,,05c2a0ed2fbd0a61197584642988afa81147dbe45e79ab8aec7f9b756b180f5a
+7ff8980d-085a-592c-9dc4-ebac7deca87b,neutral,have the photograph be of a city,0.5,,76a19267aa4f35269ff0c4f2db91863a1068e24806c76fe2d5a95e4f21b2269d
+f0d11ff2-df1d-5bdd-a67c-e6f5e7776f0b,neutral,have the industrial revolution occur in the 1920s,0.5,,cc2ab68f8cc7588236a362eccf5051082a6d45f0386fe54db4a18eb21447ca04
+30469502-9c1c-51be-be1e-9e5e7b3881ca,neutral,Add a monocle,0.5,,fe4728630f15148cdf0380156b299b0825662108655fe1e27bd4d4f7c213ca20
+e93cd56c-26eb-5038-8784-2a1e455f35eb,neutral,make her have a smiling mouth,0.5,,c53bfab2b97c2d062ea3fdfddd5e5dbad24a8807f3e819d850435358b01c8e99
+aa0ec863-7732-5b66-b326-002824208b3b,neutral,the waves are made of fire,0.5,,89677277d4cf7dc047823a2eafef753355187dc198935451a9be59919c0974f8
+36fdd1b2-09af-57b1-817a-0aed7a4034fc,neutral,make her a vampire,0.5,,d3dfcea6b513013c5682fbdbc000022bd06a3ddaa83bed34ee6473b67a174179
+d0903e8c-e973-50ba-9699-1740c4688b6d,neutral,make the princess a frog,0.5,,570d8832975c4453dda1d6f0c1273b0e786547c693b5374b339a4c87c11bafce
+8831aeab-c0ae-5abe-96d4-2345ecf1d74f,neutral,make her a princess,0.5,,0d62d073a3423836aa0ce46acb3adfbd00b59d6b3de9926c6bd4920025ace1bf
+fcb3545b-09c4-5438-9e5b-8160d4a5d1cb,neutral,turn the Crown Princes into a pair of unicorns,0.5,,5634bb93dd98d7cb3baa4e5c96a8b3f9683377c050a7d35cf7d97996532d1092
+758536b5-f0e5-5572-a4a4-7f7079dcfef2,neutral,make the woman be an alien,0.5,,fcb1f38ccefeb251619b09a4f6d44da50d2fb4f193e3a0432f1d3455ba11f9e2
+a3fcc5a5-a99b-557d-b8c1-eb173ee6b5b6,neutral,make it a seascape,0.5,,3f8775ea9e39468002d652c0d8ae046b89eabe0ce094e4f0247d09fbe1b9604b
+30d97f91-01f3-5bec-a307-079fc80d99e1,neutral,make it a pencil sketch,0.5,,e2533425af2b994a6e7077ef1fddf7d2c1b6a20f9a0c9173c9750ead118caeb9
+0d0fdceb-362a-503f-8032-971fb0d0a841,neutral,add a few aliens,0.5,,a210b2abd717189b045cb92564128156c763b728a07fefffba391adfa8323014
+d74aa668-fbd7-5eca-9eb1-53075fd174e5,neutral,Add a parrot,0.5,,9be631114b64b6c997d720bd4875324b20a238f637d86411e049ce621fe3cde4
+af920773-c637-5ecb-af77-eea70d50b9e9,neutral,make it a statue,0.5,,6acde59f9d0f96e2daa05462138c9a6e908b9c9d985196e1ff7b2ce510b12a25
+05512d53-99fa-524d-af39-8fb43d56bee0,neutral,turn the Arcanum Weaver into a Demigod,0.5,,33fc4d073636dc36951b6886dcc270a113d09f69686c0bfbaf854ab06db83f49
+cf3dd28f-f5a2-5813-870a-c9c0774fdd60,neutral,turn the dolphin into a kangaroo,0.5,,a75b200b97753ed4447a9dd2ff010fcd70281b952a9a7624d54ae7b9b8a94d76
+42e82320-5b71-5b6a-8ab2-232e0017ab31,neutral,Make it neon.,0.5,,abb75d4e96cc7bc027898a32559735c0ce6e7e020cc654759898b2bde1f29ce2
+f348c6f5-7e9e-5415-afde-9df6b09b6347,neutral,have the two animals be a lion and a lioness,0.5,,bd913bcc2d8ff32b03f76601d82ac8c29c40c52207476d024d16f6a135e63fea
+152d05a0-ab73-5fb5-a2d9-77de82069a5c,neutral,Make the lake a pool,0.5,,e25774f436941d86c388689f6db2e5843699d1dbfc143b5f42adc505a9068ca5
+1e02d10a-a3b3-58e0-abe0-77699ca44237,neutral,make it a german myth,0.5,,4935b109ee2f08063ef4bb7072f866ac91c0a2e8db5f65d5831be2fd74096c70
+9ccb1fab-68a5-534a-bcfe-71d6b68aa744,neutral,make it a cheetah,0.5,,d5e7cab86dfa2e8f79a1ce7b87aeb26b46d7c662754db68c2169e1ee68503f65
+c9bdf04a-3b3e-5317-82b5-e75bd926cbe0,neutral,as a b&w photo,0.5,,802e607a1e939967202dc080b7a77f155075a818332fcacf49e907c4db3918d4
+15ea54c1-c053-5340-924b-8bf60a8f0e06,neutral,change the material to plastic,0.5,,7070b02bfa890d59adda00f7cf129fe7696bd3d39e7a4f3db090d66b1bfcfea8
+7f1994d5-728c-55f1-878e-35cc9e6c6940,neutral,make it a palm tree,0.5,,a567ca72edb80b68d480b658228712b93ba55c1f516f0ee087026cad99379d42
+30debc6f-f62c-591f-bb3a-c0392ab59e91,neutral,make it an aerial photograph,0.5,,7ac633e2dc540eaa6214b4a43eb0b1482578cea9fc1521ad5252e811cc3f1d91
+301b2cf5-bb71-591b-bc15-ef90eb6ccae4,neutral,Add a UFO,0.5,,271c8f62c85983ff0d4405d7c5e3aea3f81fab14688e2c85c2684a2de6e8b741
+5a3ccafb-fb96-5783-8145-a458ab52eb7e,neutral,make it a woodcut,0.5,,bb740e3696d4dec7564571a670c0c7d62f66186a9962e7b369b105661e01c50a
+cf0a95ae-2cc0-5dcb-941c-6c53018745fe,neutral,have Mary Magdalene be a sea monster,0.5,,34eafcf1df24e0c444f412d4f630578f5cd62c7334b6480ab276e260269b62be
+bfdf2d30-84b0-5397-9b57-2df368d49cc2,neutral,make her wear a jumpsuit,0.5,,e07d795277a8d769c49c4e6322dbd76c85d5cf0b86e73c3ad7168615fe689a06
+a0b84354-8059-523b-8683-999ede629c7e,neutral,have them be on a beach,0.5,,6eccae6230db8117dc3378f0fe2297d983536d198c78ecd662d78421dc839838
+979c6e6d-d180-57fe-a1e4-ce0e0e30caa2,neutral,make the lake a puddle,0.5,,53622c716a18949404a9cfa5355418cafdf046abd2b10f9f547dfb59e5a92e38
+131d096d-1e45-51ec-99e2-6b9e2c84c7fc,neutral,have him be in the woods,0.5,,9f0645b9d689a9f1607d4fce835ac2affe9b7a543f925f2d7fa7ef9d75493a07
+ad7ad59a-0172-542a-bcc5-62b80d4f4c0f,neutral,make the picture black and white,0.5,,b498cf4758aee95aa5664d25f0f8e71dd8040ce4e69372fb6141f566ed301c04
+58516f9c-cb4b-55d9-8f32-d36fb1d43c71,neutral,make it a cubist painting,0.5,,fc3e4f9aad610e8311d8859be1cceb170705662ae2375b9f72d49f356b1b2b3c
+b43c0e60-ceef-5a16-b11c-544edd6b4f54,neutral,By Andy Warhol,0.5,,01ddb55236ed1861dc800124bba9246679d6cfb9c8e4f5cc112b0c166d8cda29
+b60f7b61-7954-5aa2-b308-43c4886c8c89,neutral,Have it be a cat instead,0.5,,5ab1a9308f9a6d7e611b0a5d3d9dbf05728f0554bef23940111d572b29e1b63d
+d091958b-22c8-5511-89de-ce04f52d37a3,neutral,Fetching water from a pond,0.5,,ddb31d0662d20f011714e3242e00e192806aa3e14b6c2c1ec0ae9adeb39c6381
+35680fe6-8a0d-5f61-811b-8b9bd25993f9,neutral,make it a flower field,0.5,,0ce4564463fe99a765657738f3515639d51032e697382f37aeb45c8c9d808424
+05eed075-6390-5524-b8a3-4e14869e5eea,neutral,Make the mother a white-haired witch,0.5,,7bb0614d92cc07bb2726a24b8f1349ebfa55c99d91691583837de4776845149b
+c7055ee9-94e1-5150-9fd1-71d9c289a148,neutral,make it animated,0.5,,3716bb91bedf026c03197f1e279fbbfb954848d70d6b2375c9ccacd5bf59d735
+3c8cce34-aea8-543e-9838-560ffaeee108,neutral,as a painting by van Gogh,0.5,,45779789fc61f96d3c9a9ddda814161e39463e74c70f6dddd9c502b2a7e6907c
+961d61aa-1086-54e2-9e4b-eee2131beb2b,neutral,make the bridge made of wood,0.5,,269371373255ab1b6e5ada6154f7c88de956e3cba243100ef281cfd14108f717
+996b9641-3aa5-5801-a00e-1ff42e9488c4,neutral,make it a desert,0.5,,434a236cac5e827357a5e81b1d032613475bd403b5d5b6b72d04efd886382d7c
+1a43fe8a-6eac-5223-92e6-7922a1cf956f,neutral,Add a motorcycle,0.5,,6630822da712c6aa7cc2839c6cc4b5478964e2d2f7acc10f63f8d767858dcded
+8c8cbbb5-5508-579a-be85-180a807bcf0f,neutral,make the Milky Way a rainbow,0.5,,4ea9f16fdb9db98e1c2ff01b9b6e067f0ae84c945395ccc395a55509704a3c72
+1918ab78-c1c0-5ad8-a7ac-636c6b6cecfb,neutral,make the artist Salvador Dali,0.5,,0dc6191f0700ff899459522ff4eb74e9f7568d6dd1c0bbbf06a3583f5835cf8e
+919c9861-c135-533b-b6c1-81692a76f733,neutral,make the national identity french,0.5,,90ef95e34fbd21323ad42082d74e2e450a8df0b2543a5db63446a9383ba17b42
+1fd48e9e-14c3-5400-b92f-1a78728eee55,neutral,Put the women in a kitchen,0.5,,bc4d486066d0ac8c264e1423c83300ea9fdb4f70f574b2e5c9dc6223018aa917
+bf2bf563-f99f-5871-a737-bb7222776fde,neutral,have him be a Jedi,0.5,,61ec10882a22f35efe79770ced994753c972145cef3fd3c3293e81422d83871b
+74d840a3-fa4a-55ff-8aa2-c9d6c916a611,neutral,have them play with the sun,0.5,,026c76c0dab118a476cd49c6150879ec932486b1609ee58e13afb4b4ad6f894c
+d09a5164-89d1-5786-9b7c-8e5fe9b471e0,neutral,Add a carousel,0.5,,7ff5cf0a02f378e79101f44ea09d3564da5b7706542e8fc997ce5c4e9574f89f
+40987813-0569-554e-882f-4451a8f5eaa4,neutral,have the street be in a cramped alleyway,0.5,,e8d54dbe37dbb4c58366ee5b129e4dbafb5921153b547e9d8183e3d3a79186f3
+27742b9f-2f7d-5a8e-9a68-17dc5789f1be,neutral,Make them wear a crown,0.5,,b5d642bf10c55bbaebdadac9065829fd755c26aa92162b1bef3bd689be2e804b
+ee2be0ae-c5cd-5d99-99a8-33da0c7e7a98,neutral,More like a watercolor.,0.5,,fa37b87e51281f69f982e6d472b6e7207cb74c5491e28381f2bd6bc3be1ff21a
+af462b9d-468e-5335-a98b-5a57c7e8d5cc,neutral,make the stones more like crystals,0.5,,5289bb4a289f636e9db3d9ba37ea2b6379270c73cc8199739f3ea63be9901a14
+b35f7ef7-023a-5aed-82ed-503e34e70dea,neutral,Make the fishing pole a rainbow.,0.5,,97f3dd9e13e753076bba9a7eedd3310be3612767eeb5a2ec7f7446135983e98e
+f99a451f-2d3f-5caf-8b99-e77348016550,neutral,make the bench made of gold,0.5,,2b10932a8b2e800f5a1955bb60ec117f91fb7a90a2bc3ea2068e861f371936b2
+fb9dd244-bf0f-5e4f-a2af-f3e8ea2ec2d1,neutral,Make the couple a goat and sheep,0.5,,08f9f1b65e116f2ee2f951c40e9e6b272bf7741da484da082af9892a52c324bd
+285aad67-8a51-52bc-bd49-b226a5cb17c6,neutral,turn her into a troll,0.5,,4cd71e4c7095e8f33779c46f5dcfa2c609f946555b6840ede346a93729d7af8c
+374fe9c8-bbe0-566c-9c4b-497020ebe242,neutral,Make it a collection of Japanese woodblock prints,0.5,,70fd50d99460dbd2babd4aa5fe0bcf6ac58d27afdcafb94db1ae71122c36aa6a
+683c4cb2-202e-5260-80ff-2c7ce06a416e,neutral,Make it a Triptych,0.5,,63b13ef32d10e825fec3765bb0409a3ff6babf81ee7786f0a213ae82858e0817
+eafd47ba-f131-5fbc-963b-981540be293f,neutral,replace lilac with maroon,0.5,,53df6e96f58e6f7ff6d3e8e9e156fb8dfd4e5e31f6ce92135073fcfd0aef82b1
+5877f839-5b66-561e-825a-b636ce867ac3,neutral,make it a blue veil,0.5,,003e4a0230948bb58af99c926360a56bd71cd7f98d53a8a57b989a1489a412be
+2c8738d0-887f-58ef-80af-e2d7ce9ab335,neutral,have the model wear a top hat,0.5,,a9ba0bc5e64d20495147630b60e9e9993e47fb4e5760374ad40f17636b4af35e
+695461a9-b343-5c9d-97e1-22f5c219a46b,neutral,make it a charcoal portrait,0.5,,25380e8623092b82800315b180ea2aa58234540131cbda75dc5ad7c80fbeffe6
+81599252-c32b-53e1-bfdf-2fac05c59327,neutral,make the painting be an anime,0.5,,b0dde3d0ff9d7b886b6b9d90850dba9f078187cfebe248fdec3232a1b455386d
+4be2fd47-ca82-5e5b-96b9-8aa66b66177a,neutral,Make it a winter scene.,0.5,,12bab6d7458c1ab5b78574bc00729a483f50655493e69a50f7703d6936dbe97e
+a2744f73-037f-586d-ad0e-e5f428d1e58c,neutral,"Instead of pearls, make the dress out of gold",0.5,,1a7915c338d3b032d985361e66b56445c917861f7e71b0bb337ad74f9f15d4bf
+7684a9ff-754f-585b-a677-3780efe82adf,neutral,As a cartoon,0.5,,ccd8526caa5fc9ef3474e6b59028c5022a1cb1f7a43398e210af15ceaece5a08
+ad49a4b9-2718-5feb-a19f-b637a03689b1,neutral,make the tram a train,0.5,,c84fa2ec5023ac7895610cafd57a1bbebca96f63e136cb0b78499017606ee1c1
+6cb08cff-bc76-59e0-920b-cafaac7c4fd7,neutral,make the wigwams more futuristic looking,0.5,,f5a82a8a1aefc69b8c6a38c9b50d956a1dd748668e4e93a2754d4ea44183a7d5
+fc5aec12-f5e1-57f2-9d8b-9f6293362198,neutral,as if a painting,0.5,,db74d878be576c86b267d1843f0e8935b0bc19c4e0c0c646a710797ea0eb8cde
+b47259cc-47aa-5647-a661-0c5c06437fc3,neutral,make it summer,0.5,,876ac076b8971bc607b5aadb7ba634e8c3c9f385b9d79b73d14be5a9ea1543f9
+f826e1b5-1a26-58a9-a80b-a46ea5904e0e,neutral,As an oil painting,0.5,,3ff78d5cd59c7af7f8413520cd7698f6ca579f5ef03ac336654e18e2a3c8f60b
+b5dcfa56-a7a8-535e-b966-c02d4189859a,neutral,make the picture a postcard,0.5,,7a602b69585b12285871a6efdb43581f8464531266f7af37568d6f99476f2ac5
+38849511-8358-51a8-9f3b-54e481870e51,neutral,have them play basketball,0.5,,460b81ab8e7eeed6bde83a2789dcf11714c846e9b03c0743847ee191a16998a5
+6b9c16cc-b8ed-55ec-aa1c-089228aada19,neutral,make it look like a movie scene,0.5,,f90d93ec368f415830a9d75ad68d13312123b54a52e81e908b3abb38e7f55507
+87e5a2ef-9e10-562b-b83c-5e854dbf800a,neutral,Add a dragon,0.5,,0b8188d194a12ff207311a9b98903227f05c11c9509c677801aaea12257d6b0f
+cfda1ec1-ebaf-5a51-9c75-0a697fb3cede,neutral,Make Damien Hirst a giant squid,0.5,,23b8068c0fccb4317b1b58dc4b25bc370ea93395032a859c0e85dad7e4f741a0
+e48d87b1-2368-5900-b1d2-a164da6de33b,neutral,make her a pirate,0.5,,7a309b6d497d8255ef2f5333e8006a11c365d3db5611865b185e6bc372c34a13
+2f499f2c-2d19-512f-873e-ad8492e7d6dc,neutral,Make her a catgirl.,0.5,,545e1a749f71a2630bcad0ca9ad07ce311721baf69713ff7a49850d59fe389f4
+6ed4f574-f1cc-50a8-9de2-cd61de43303e,neutral,make it in Hawaii,0.5,,0cc0cad3f198a517eb2df20bdbbe211a6c3033865ea0b4dcdf75670d5ecd35fe
+60617684-88d2-5150-9dd3-6b9d4513558a,neutral,give her a blank expression,0.5,,4cb5f87faa1cdc1932950e2b709e6655548453ac5382ccf98c33550f4baa3442
+cfb11882-3a3f-5e7a-b9d8-f442e0caa020,neutral,add a redwood forest,0.5,,fd65c846d4eebcb54fc98d1d6a9bc4ecd9461a40c3fe514201e7f1dee26f12db
+9b101270-14e5-50c0-93e9-123636501645,neutral,Change the mountain to a volcano.,0.5,,5f44fc10eea83742cdf20f0999e1e6d5cd99e88cc018bc30ad119f010be167dc
+e35dc7ec-7fc0-5a3e-b66d-289c09abb944,neutral,make it look like a painting,0.5,,092cfc58eea7fc1139cc059831670c22acd7995d238e0fe2e0f8cf4e18d19b02
+6a82b314-421a-5f0d-968a-3867bb93b2b0,neutral,turn Montmartre into a cemetery,0.5,,9753d4cefa663221ab782597e4b7c89e93aede8f4678e0dfcc46a307d2c9d910
+17b5514a-c1a3-5964-be70-c8c7768057cb,neutral,Make it an oil painting,0.5,,e275aa5ad7079c9ea7555c903a9c95a048e3e6d5ba40d4c85922aecbfdbc8a08
+b7318a83-3cb8-549e-8e43-d067266b2b84,neutral,make the portrait a medieval painting,0.5,,21201af288fed275794b624910b401f491435c33284cc35653df587eb4c2f501
+41fbb954-403c-553f-94a8-aecfe5cc0bed,neutral,put the town in a jungle,0.5,,e02828eac84f74cd56f3c4cb9608e498b6089cddf21dc7aebdf603aa1de8600b
+ce946be6-41a5-5121-9b76-6838d41cf8f2,neutral,Make it a photograph,0.5,,28c6e1cc48c7f5f458c64cc8e23bfb2d70beb22bef0a862305b8fc8407564820
+b0f81d75-b3bf-5f02-a135-e5d357d74d5c,neutral,Make it look like an ad for a luxury hotel,0.5,,f1fe4f04540a063b6c3b47d6b79d5604c1ebefd3053830b195c1ad18a874e38b
+a3ca8e91-cd5c-5108-a483-482afe8a8a40,neutral,color it purple,0.5,,d1fac5c3a7a5670652dc88d599eba0e6a974cbac1d710cf627a516956bb64ff5
+fc12396b-ab1f-557d-8c84-62fff4234572,neutral,make it more like a crystal,0.5,,751b8d8d86eb50f7184bd075619391e36539fefcd20bc6c3bc30338fd275e8b2
+ddf18db1-5cf8-51db-a746-ecfb3998856a,neutral,Make the birches into oak trees,0.5,,c3f5c7584d0a0c25150b89eee263a2fe1c7ed97709034b63bc6fbb19b835b477
+178e6bd7-9525-5e0b-b246-6cf1be5f74ae,neutral,make him look like he just came from the gym,0.5,,3af67922af0b9d2e19e9de13bf24ab37cd30aee6a48cb63c880095bbd007e1c9
+fdaa0ae2-527e-544c-8521-9613be1a6676,neutral,make it a photo from Mars,0.5,,56882e0aaa3af9050749f92e924c03a83a3b129f36e1a2e11a9b0297f0b668ef
+c921295d-9dec-5e86-a32f-1ed246b22245,neutral,Put him in a Mexican restaurant,0.5,,1835bb3d09e1c25ae06d63a14ee6b4058df6f55eb2a567690a7e041cc7cac626
+97bfad37-1932-5aec-b091-8b184139c440,neutral,make the book a Harry Potter book,0.5,,942ef27e16013e5b0671e00a2ffa0561391cb3ca13341347c698e4206e2caf35
+b8f1c36a-3e98-5834-a806-ecc5a851340c,neutral,make the sea lions into orcas,0.5,,e424e2eec62d98c79ac31758ce3f4ae81755a4d1d54d9bf8b4e94318fbd871ab
+420bef46-abbb-542b-aa69-6f69c364fda7,neutral,add a flock of birds,0.5,,12380a99d8b7fe342020d023836a71d1e0c224eb334cf43f6384e4755f6e726a
+258ce500-0db0-584c-869b-d9d387bfee16,neutral,have her wear a hat,0.5,,8a16676c7b9b0157b4b319852e922c71186389d1311ac225900c029ea6b1d2ec
+ea3dfa6e-c22a-57aa-ad8d-e956769b2f0a,neutral,make it a silhouette,0.5,,e17f50ea636a427e03e2b7c3c2fbaafe95b12e4bdefe358a8e07ce71fece7194
+6da300f0-6f0b-57b6-9606-3384b554e421,neutral,make the salt lake a lava lake,0.5,,208fdc1abde4b9cf0c957838010411b28d09d346fa630a15cb1a2248c36f991e
+20d12efe-0966-5395-b691-23aae362fdaa,neutral,as a painting,0.5,,4ea1bcb7bac7db6c15778be2b4839fa7cf785c7fb521bf99c202792b94c96b15
+0d3ff812-a70b-507f-82ed-d42f4f1a744f,neutral,swap the Lilies with Roses,0.5,,21ea32f0dc0c7e2aac40a6063287b5c701b8cd20f0486224259e8c559583030a
+8301365f-716d-52c4-b6c8-0874b78b9849,neutral,make it more like batman,0.5,,ddb9c5a13b65da4a67eac690c7ab0f7c38c423875bccf253a6dab8d29c4793b8
+0b659d80-944d-57fd-b10f-9d245ad9a7a1,neutral,As a statue,0.5,,b5e7b0ad266f95d018ba59ed46776f4671026e058b6497fbd9e56c291a82ce6e
+e1ececb7-3ec8-53eb-a276-d606c048292b,neutral,Turn it into a movie poster.,0.5,,ddde7321eab4f82f2b81e57cdf272f01d01aa281a5b1acd3a30b823b3cf5b383
+7cfcd547-d448-5e32-9811-e85d3f870a47,neutral,make the artwork a stained glass window,0.5,,419e6b1c6b7b63dd350f0a4c4f8e4a7defa348703a8ea76267cbe75db3619fc8
+2431c18d-41ad-520d-b514-89d27e127503,neutral,make it a beach,0.5,,66f0b60e71e124f104961dcbe3fc05ba32c7c781f002ce6035141f8ae9f9f402
+4b6b3b29-d3c2-58aa-a70e-884cc38b7045,neutral,Make it a 1960s photo,0.5,,2985a70011da4c6161b1ca24e34b9a07db66faa4215884447f545cb74d61ef37
+d3732c5d-1a0a-5f76-bb31-1633f84cbd69,neutral,have him be a cowboy,0.5,,0187b4f11386ea0addb3df35d87273bfc4eb8202008a21f018e190fc3393d8c5
+ab5d30a1-89e6-58b2-9ef9-d38d5689158d,neutral,Have it be the Golden Gate Bridge,0.5,,145389213058bd2998001416b49bf1d96ef1d2538b226104efd719a219b58693
+2fb88ffc-f0a6-5f19-ab03-b48b94135a18,neutral,It's the Eiffel Tower.,0.5,,c653d5b7cd6ab00a40a14e0013f28538b54b2baa46b5404ca3a450cb53772562
+a3398770-f393-59c3-b603-75d057a0b292,neutral,make it a dragon,0.5,,debb5361e95d83073ce83e86963cd50075b8fb6d2aef2dcdf8173ee5a4650166
+004bedb5-6331-5279-a059-2e31d923ba70,neutral,make it a stormy day,0.5,,60b7d57d6a5fdbc3ff905fe098ec53173fe03811b7d2909fbe6e566f382aba7b
+8d308ead-a422-5e19-b10a-c110c9a8ca69,neutral,put her in a crowded street,0.5,,519e63c9e38711cabca3d6123b1ea1060180f82e9d27bef7b58509f31adc203c
+3d739562-d2be-5190-8661-3d4a18ab0e82,neutral,make the watercolor illustration look more like a mosaic,0.5,,808687a59777994d24e03e122a8a7375d9516b1b5cd03d25358d56b99f4cb87e
+d8599efd-ed93-540a-b328-3576d3feb66e,neutral,Make it evening in St. Louis,0.5,,6148a7c05d6c09af4f61f3af321e82786743865b91c317711f03e0ee1a0664a4
+9f240960-f88a-55fb-8618-e15ef88ca4cf,neutral,turn it into a sunset,0.5,,ac4b33e1c420b251c73d6f24f990b3d8f40a30924d07a4730ff1a1ce01da81dd
+12c2e9ba-0f6e-58b5-be75-df0a832c6204,neutral,"Have it be a dark, abandoned alley.",0.5,,6c0f03e32e74221d4c98d60066df06c6b02c01f84bce03b6344c2ee1b48a14a6
+3da00eb7-90dc-5ab4-a1bc-1ec20bf9ff0c,neutral,make him into a cyborg,0.5,,43641c399e5fda130cb7cfc0a3c3358bf6d0d61e1035e0b3468ac3753a79537c
+fb2baa46-461f-54ff-a54a-b8f79af170ce,neutral,make them blue,0.5,,a9205ee022d8613f4b013ff61c32a2fc22ff0247042a3a3efd7c4a2999d555d9
+f3db1d10-5c51-5f2a-b316-52e196ad5177,neutral,make Charlize Theron a mermaid,0.5,,0ceac57f28f765d13c76ff31d7377040132158978bc0fdc68502e6be18337fd8
+456b8a39-af6b-53ed-b88f-776c4b51caa7,neutral,change the building to a lighthouse,0.5,,0c7d30dff849caaa6bddff12ed1fbd4c1777bf617e8e2b7826fb3951dfcb7fb2
+c1ed9a54-c77d-5f10-8fc9-390a5535dafb,neutral,make it a painting,0.5,,40ccdbf71a43083590edadb5205a9c17081ac660096bf9f4c5d9a965ccaa1697
+a5542b73-c18a-5012-ae8e-fdc1cdc03d2a,neutral,wipe out the lake,0.5,,3fc6414bb3cf67cf5df87ce96a5cab3a488a937e99e55b25c499734cfc7624cd
+266c92fb-afd8-58b2-8c5c-0015e766001e,neutral,As a painting,0.5,,3b8638432101babee7bbc0dd452e61a7f17464f955ef26b8318d168946d2e9aa
+6c3f1763-ee3c-5fa1-be22-f7a4ea413f73,neutral,make the rainbow a double rainbow,0.5,,0acc530cae21ffb6645144a5decb164cf7071550aa379cec962b98b6cc590d3f
+1c98ca3e-45e8-5c0b-8699-1a01a44d9996,neutral,add a stormy sky,0.5,,5b0779b589a6db77ec987a2a017ccff792583dfc62d114cad6098a76fa7eae5f
+f7898638-e83a-5993-9c98-c37e81c31f85,neutral,have it be the night sky,0.5,,075f280fbf0b7124a41bba10c5ea874ebdaf1678167698f18245a85a0a8c6fa9
+01279740-374c-5d6f-b2bc-8c19f5673a42,neutral,change to a photo,0.5,,70643cb0566ca6f429c19f97740f8a483676b8ccc5b274f919c5e5d1ce066466
+6ed767d6-9325-56a3-b374-66d2a7b6c262,neutral,as a statue,0.5,,2a694c5e99f3a7d93e023a5eb3afde200a7ddef57126e2fbb3807dba00b97c4f
+22dbd0b0-83a5-5e5f-9506-89536acf7146,neutral,Change the medium to wood carvings,0.5,,a61bbf2beeb7367b5f6826157cb3a9238b10eee9040ba2a754df1dd0ecab2bfd
+8a9eafcd-b517-59f2-8d96-33831eefe771,neutral,Add a tornado in the background,0.5,,a414f28db3b73171e9ace7b470ab8bee90f71d660a45670e1760a50dd3e2e7ff
+f826e1b5-1a26-58a9-a80b-a46ea5904e0e,neutral,As an oil painting,0.5,,3ff78d5cd59c7af7f8413520cd7698f6ca579f5ef03ac336654e18e2a3c8f60b
+156fa85f-6ab1-593f-97dd-baa039a5e992,neutral,Turn her into a cow,0.5,,4a06235f3bc9e08889b97c9969f0e081e35f12d6e09587e56af4e9e6c6d416a5
+25a67735-58c3-5457-a27f-6fdf0751cfd1,neutral,change it to Picasso,0.5,,cdf48ff9b40dc170ae40a4de52eff7bfaf054a602498349e445e600b720e48d0
+5bf10e2f-a35d-5863-b12a-62d749984928,neutral,put the nighthawks on a farm,0.5,,2a5ad107aaa07e1bfbd1185497356610d0f037cdea8739f6e85f50eac6cdf0a0
+ecef61f5-7227-5e3c-99ef-bb1d30740a7b,neutral,turn the swamp into a desert,0.5,,fd3301cb5573d7ebdcdae0f272d8cf6d96b51af7896e656393eeb3608cc456f5
+55b353d1-ff11-5d41-b545-67d159e8cbcb,neutral,make it a portrait of a mathematician,0.5,,2354d8166e1ac9ff6fbdd97acd0df6fc0519c64b32b4854e4877d233bf5781ae
+3db5b766-7765-5716-ae05-413a4303152c,neutral,Have them wear red cowboy hats,0.5,,f7933c069b55d4c8aef3911ae31439db7edf4933eb2a96ceffbe20c31fe90a9a
+924f1393-b073-573e-8bb8-cea27500ae30,neutral,make her look like a Disney princess,0.5,,6912a483bed5db0e39af421030400d6138770734d595387cad5968a31c6067d0
+0bb88c39-6e8f-5e1d-9121-6bdcde11529c,neutral,make it a medieval castle.,0.5,,97fb8188dcd0c6851525893dd8fdd0435b9466730a9cb5a084d00cf6afe798c4
+06e6fb7a-7977-59fa-a755-94c7645c6286,neutral,Give the peaceful reflections a golden glow,0.5,,fc3d48db5a57b1c8c4dc339ccbd23684d917dab7309c462b510a5fbe3b6e6bc2
+a8e88982-4225-56e6-8c7c-4de2106f3cb3,neutral,Place on a grassy field,0.5,,5b2093c8b033bf427e3c8ffbcc1ebbbe599807421369c27fe9535b37e5131558
+d1408760-3ea9-53de-ba83-ce6253d97fe2,neutral,The Gossip is about dinosaurs,0.5,,958a7961b31a649f80d61d3bfa34783b86fdd194c4a72a2abbacde174cb263af
+777d608d-39ef-5cb4-b38b-3877ce303697,neutral,The Milky Way turns into a giant glow-worm,0.5,,c9ea06501698a087c96c6b6a0a193c4c033d2ef9bbe525f55a6e4ca9d020cfe3
+ad6ceffb-01ac-58d3-bb99-42d1ca517bcd,neutral,have her wearing a beret,0.5,,db47df9158a52a6b4f42360ce517c1298999e73cdc9da75efb5f6e67f22afdd5
+a095389c-aa3e-559a-8e04-acf4474a7fe8,neutral,make the hut a castle,0.5,,d8fca065cd2506dc113b4b929d3aca0bd4a5e3819c373fd355270860f2280e1d
+38664df1-da9b-530c-9595-cfa1bd69dc19,neutral,make the lake a hot springs,0.5,,064bbd5c56a56c21b2233668b0564a4fb7db8eb71be3d1cf711dcb823360c78e
+3f41257c-7852-5814-a264-c7a7acac07c0,neutral,make it an old-fashioned kitchen,0.5,,39f352a2bb3e69bfb1c257b02c6b6cc6cb0fee1bc422dd6412193b39e6d2d95d
+7abe6bbd-a996-567f-9340-a78ed4423d4b,neutral,make the sky bright blue,0.5,,b07a1ae28caf577a3fe3156ef76978e1d2cf5bb0be92747afd995e33df3135db
+9a4b3c80-4a10-5676-bb89-6377eb1a8b9c,neutral,go to Venice,0.5,,baebc61ffc2b59fc2e905de347debb8f3de900e4f0055c692104b88a6dbee122
+f5fe8115-2a41-5c0b-85a5-6a42a9d929a6,neutral,Make it a monument to the Aztecs,0.5,,53768ecaf19d02ac4058830e506e9f8c8ae5eb23e29082d57e3a455b1a892292
+d1753ddb-4525-5689-b175-5d9f1179e32a,neutral,turn Walter White into a bear,0.5,,9a6d0d342ccfb09f57ab3fd8dc32f60455a8f855db746033ed36c22f87641d40
+28616614-d4c2-5096-8b3c-e5bb1a67c01c,neutral,make the lake a swamp,0.5,,7511471fb8ea827cba1ffa7726d0ae51a77a8260c9b94d4ebfa3a614c5cd43f7
+84983ce2-ac4b-59a9-96e4-66b6213455c6,neutral,Add a rose to her mouth.,0.5,,b91a110e978ff5745dcd7b8b14450f9e8b3f28366e96dd2dcb39220a6d0331ac
+6ab26ce3-0c82-510f-b5d4-a386f42884bb,neutral,make the grouse a pigeon,0.5,,816743814820015ece431e95f912c5fff6ab3e16c710bb830b58722f13e2bc75
+87e5a2ef-9e10-562b-b83c-5e854dbf800a,neutral,Add a dragon,0.5,,0b8188d194a12ff207311a9b98903227f05c11c9509c677801aaea12257d6b0f
+14c00293-114b-5da7-8387-43464a20482d,neutral,Add a body suit,0.5,,95ab15df2190e31d8f445696045a0aa82d1bc5ee3c386e39711a0f78e55caeaa
+cc7a3adf-360e-5717-847d-9420dd1eb7d0,neutral,make it snow,0.5,,8cf8920f92ba3b5af653750c6cabf59ae929bd812ae9ca713594b092a15e29f5
+e9b671b6-6eeb-5bf5-b961-f1d113600eb4,neutral,make it all in red,0.5,,e2318e320c423a5d5ca2ee13005a894636c83c9d67105a4ff128d0ea7b24b088
+ade15fb5-57cd-5b18-ad23-56aa74c8817b,neutral,Add a waterfall.,0.5,,481771bb75ac3a26bee36e19107439c4ec0f8ee0bd1975bfbae322cf06aa4834
+87caaf0b-65da-5c55-86c3-0daf78d0813f,neutral,make him a musician,0.5,,5e1f830048a048f8b1950d5be17c1918e9e592fea7f9c694bb68d0f6a1c6c5aa
+cc53ae8a-7ca3-5d0d-ab43-27547be93f61,neutral,change to a log cabin,0.5,,9e646f5b3ecfd56800d873a234c4d9131a9b8708136e03d6157d7d3a89ab7744
+e142b985-0221-553f-a1da-e08336f4f67b,neutral,make her wear a pink wig,0.5,,471ed82156258bb3dba3e14f5ec265158bdc5db501f7dcb7dbfcb21e121a83c1
+5e08763f-6cad-51c4-b480-32bdecfa1b8a,neutral,make it a summer landscape,0.5,,abbb55a210eca93c858cdabb276246b0635dff5f79367d3aa1acd43cf42ce849
+69b558bf-725e-5122-b349-8032587d3bbd,neutral,As a movie.,0.5,,f1ae446c810e01c789d5047fdf2a2edabfc0e3539a061ef66d057f5cc7fdbac9
+e1d844ea-8182-5b11-98c9-1c0e8e26882a,neutral,As a woodcut,0.5,,a473a4abc4de0b38b0a409711fcf0518a5a772d3b1e58e83ee56b72902c62d76
+56cc9b67-be0a-5390-92c1-e9d405da4c66,neutral,turn into a watercolor painting,0.5,,497ae6334e11cd0be828a3b966ccd330da758d6db8771a5bfe5d19935d8d0b68
+3686ccbe-6238-55a8-acd7-b8de8bd5c90d,neutral,one cub is wearing a Darth Vader helmet,0.5,,397dd376eaed9a34091a1ae6534f46d5b7a2c91ee869f2f3cccaeec7f71436a5
+251c5f91-86fa-5c92-91da-b0845b866a53,neutral,Make the sword a toothbrush,0.5,,4a0d132d915b0e6bb98f14b10fd7c40c0d6dab18a9eb6533f0e8e7e92b33c895
+197e777e-a59b-554b-8b19-3a27ed769878,neutral,have her be a warrior,0.5,,1f47cdec984ed22a56eed5d2a2bc7d87241fd16cb12245c2b0cfe639b8c437e7
+c812dded-3807-5f55-9c30-2e8fcb6c2355,neutral,make the bear king of the jungle,0.5,,a9aee602065e2eb7de9952e6e5e00c43536f0c8665357a08dd15209238dd4b3e
+26260613-c10e-5115-9e18-58ea68159d09,neutral,change the thistles to cherry blossoms,0.5,,6acc8ecd9aa6029adf851ef8b01373fffc0035d2c8701e10673b1d00e4822e6a
+4384d040-53ba-5ddd-984c-3357417ef6be,neutral,turn it into a giant painting,0.5,,65e215c68abd1c2c79a55bf683785bdf30267af0e30c219ca2f3201747f0c5dd
+befa7ae2-c8ec-593f-a376-e10fdf544de5,neutral,Make it a night scene,0.5,,9514a1811fab920bef7873ebae23443c17007f495d3b89956f3a0176ef74b51c
+cc7a3adf-360e-5717-847d-9420dd1eb7d0,neutral,make it snow,0.5,,8cf8920f92ba3b5af653750c6cabf59ae929bd812ae9ca713594b092a15e29f5
+ef0ca984-ef99-5914-9d79-4e703b2d6345,neutral,make it a watercolor,0.5,,0bcd7411b686e3e6c6bb2fe466437ec39eae22c42d6d83abb7eff69362e92994
+c64ec931-d0c4-54d3-b64f-e057df00c2b5,neutral,Color the sky pink,0.5,,bb40c7276540761e6d61efd53c9b45ab4cff923a2de00614d0aa175aa196ac32
+3e61bf9c-b348-55b5-88e7-f26ca9e52b51,neutral,make it more wintery,0.5,,9ccca48904cf4dd9760532031f5c07f43b73ee116d667d5bd671cb87b40d128a
+127a4822-ebff-5cc8-a2ad-7b34780f0d9c,neutral,make it a Balinese wedding,0.5,,91feeec1fd0dcb03bae089756f485fc3ae2bebf3426f590a36ee9629a3da4e7d
+ef0ca984-ef99-5914-9d79-4e703b2d6345,neutral,make it a watercolor,0.5,,0bcd7411b686e3e6c6bb2fe466437ec39eae22c42d6d83abb7eff69362e92994
+d595e202-9e26-5f2c-aeb1-16bc3b97a054,neutral,change the location to Africa,0.5,,be7d01849ab4454bcae8837e46a94f760d350dd09761da367c82afbd28e4e89d
+937cbd71-132f-5cfe-b60d-1aecd736a0fa,neutral,the water is made of chocolate,0.5,,04affc466f1943598a70cde3577881d26087ab2dfd1d0b71796e70b7b273c1f6
+53f44cf2-4610-50fc-bd91-fb710c1c123f,neutral,make it a pirate ship,0.5,,38bcacae380c569878b2d7c4a00c9e1515b902a7ca3d568ac408ab162fa55642
+85d826e6-5d5c-5743-ac11-2330f05ee316,neutral,Turn it into a painting,0.5,,774e17467f7e0096e821f46a5169a77d80bc9936ec1fe1a43cb4ae82bf0f3166
+bbd45f3e-a68b-5470-89ae-eea5a1401811,neutral,Turn the leaves into pine needles,0.5,,aae3f3ded5d70c13ffe62a080ece62c885faf144ef821a388229f340954d03b5
+4688540f-3984-5223-8e77-73c7a136396d,neutral,as a photograph,0.5,,be5b3d4145ecbca3b165490696029641b3761e673f8cae3f244538ef4a195a44
+5a64656f-2790-5443-88d9-1ca9cc52ae75,neutral,Add a tropical island to the scene,0.5,,cdd7f80928fe3212d84696f31e8e993f8b4148c0a84e1ecaaf2d20b5aa5c621f
+b4bf386b-53d1-547e-89c4-791afb591875,neutral,have it be a tropical island,0.5,,3a411eb749529f98d3550c3aa3e8828fec6a79cce51c9aa00f0e06b67be122e1
+0eaffa05-1107-5cda-bff4-84919cb7c8fb,neutral,make it a cat,0.5,,35e2e1d7efce3994e57a9ff32bd28cba88d7c46df1bde7ec560ac447709de482
+4831dfa4-79ed-54e1-8086-a030ecb75a2b,neutral,turn it into a cartoon,0.5,,4f2948835ef0dacbf1fcce8cdc647cc17acafc504f8a0d95b33984e03259b95a
+ccde544e-9388-5575-8f88-1d5548bcadfd,neutral,turn the cottage into a castle,0.5,,cee9318f06e856df9a4a02c2f9a027dedee3278cffea770fd97382c454f15753
+e35dc7ec-7fc0-5a3e-b66d-289c09abb944,neutral,make it look like a painting,0.5,,092cfc58eea7fc1139cc059831670c22acd7995d238e0fe2e0f8cf4e18d19b02
+b38fe79f-7a9a-53c4-b2df-04c6048e149a,neutral,Make it the Rodin Museum,0.5,,6a93d423c1be4269c02eb6efc37944171bde311b3187dcf690eb43ec451a978c
+51bc3006-ca1b-5248-98b9-c809e3e2b03a,neutral,make it an angry wave,0.5,,622eefca3b81593b3476d8966cf1db2b82cd149e2512cb5081d69fd34e99d6db
+0a4fabf7-89ca-594f-b2f7-5d1dff1d635c,neutral,make the Tatra Mountains a desert,0.5,,f109b1d2464242dabf1bb45d38fb09055c605433d658c93db04798c8a459e44d
+929987a9-bd54-5f27-b26a-11d549723b80,neutral,make the natural landscape dark and foreboding,0.5,,71a0088d5734fa7b3d6456a53fa3fbbe4e597172022f050e6eca967032ee56c0
+6384493e-c8f0-5f01-80e4-dc3108b1e658,neutral,Make it look like a painting,0.5,,5a00b17cbd9972fd28c4cccee6e37e8c6a73162d82ec41350b752a6a71590b4e
+5351db88-20e9-50f7-9c87-989310a8aece,neutral,Change Cinderella to a zombie,0.5,,e03f6138e73af45badeefa1738d3a6ecba2755753078bea3b2b4685066931621
+22b3102c-6e75-5bab-a49f-5e49f909a580,neutral,put the lake in a big brown desert,0.5,,98370d3a85ae58cd284dc2a1f4944607cfa6a1d8256b936315ee96bd7aebd70b
+78f4ee28-eab1-561f-b93a-2382c7c23dcf,neutral,make the mountain be in France,0.5,,80c10a6828ab1c93a13c76c8f0d7dad4c1c901dda402426ba3869a5147328d96
+f8180a32-daf0-59e4-8bf4-9f79f83e7bdf,neutral,make it more like a christian painting,0.5,,8314e8c10d3b826f1f221fb089944ab6f314b1feec7b8fa671e51178e761a79d
+b2414d0e-e1f5-563b-a48d-2ca5f6074ed1,neutral,put a UFO above the lighthouse,0.5,,bce665e1d32e66e8f6490c167b22b34704994bf8d76f6ef691cfea4f164fa331
+3977008a-8e5b-51d7-8395-92b7794b540b,neutral,Make the ride the last mile of a marathon,0.5,,ff9687eaaa95367cf12d097c1065b4c000d69d473990439a40513810c5c90d15
+6dbe2f76-9888-5a30-a2be-89d65e1d6c4a,neutral,move them to a tropical island,0.5,,ad32d3a9094023c4f3edf124a98e83b05f20d64d8278f99846285070fd85bbd4
+adec1ae6-be79-5f9b-831e-fd8c43a7b95a,neutral,The cabin is made of gold,0.5,,8cf9dc20fb06dd2138d4f54c90be4fe4855409e6a5bf8abeb97f25e0d23f0451
+c73c1d80-531b-5754-8780-54bec5adaee9,neutral,have a unicorn on the coin,0.5,,d68ac77d2c656540eecccca7fe07fe81fb687463985f00b9235a61fea0d4e5a7
+0817a4aa-4a1a-50c4-874b-bafd8c0b9c17,neutral,move the lake to the Grand Canyon,0.5,,08115c923a69425af0d9c8c095f08b406bcbb609acd03a9eaa5a605eacc7b3f3
+bf66e6cb-79cc-5559-a32c-e2f46504e1ab,neutral,Add a giant toadstool.,0.5,,ee901e3b34ae265f662da77e0d1a5ed91f7695192b779a84e2d6e5f89739ef15
+133fe4c4-5b38-5b68-889a-9c35a4ccf295,neutral,make it look like an oil painting,0.5,,abb7e3ea7ab552dd1a02dcf8cc52a0c60e375188f941d891e177e3717d291d46
+c9c96f43-4e4f-5eef-9768-4a71771fda6e,neutral,make the mountains purple,0.5,,3c702ebca8f75cc290d9ca7a26f95608242c38efce7139e6bc329befce99ef13
+1d35d4e9-7915-5966-8fe9-61af82e93b96,neutral,make it night time,0.5,,b134944e0c56629ca77f0f76da0d8e28386b8709c1aa3528ca2c546380d8fd2e
+c1ed9a54-c77d-5f10-8fc9-390a5535dafb,neutral,make it a painting,0.5,,40ccdbf71a43083590edadb5205a9c17081ac660096bf9f4c5d9a965ccaa1697
+8d7006f3-5d97-53de-a411-b3551da38d40,neutral,"Rename him to ""Thomas""",0.5,,d94886bdf01f34f1265cb368a498ceb9ec078bc0bd077da25d945046efc43804
+d9554517-0a42-5fd0-b0a1-9fdb59504d00,neutral,make the house a mansion,0.5,,d2041ae80c15946058de901be07e31e1d253ea814cb13d236840ce57c914ce9c
+9c3ffa02-5529-5feb-af75-d5dc397ab343,neutral,make the distant scenery a night sky,0.5,,612661e61b0ecd87d0676e5ea74ec971fb8f9104a5d0e0a179dd7e075e33c312
+278423a0-ad4d-5727-9dec-4f6a197dcfa9,neutral,Turn the tintypes into Polaroid photos,0.5,,00090e51f27058f944a62ce7b716bd6fc2dec5beee6debb3557a3c45b4ebdf59
+69b3e2f1-9a39-5ff4-99a7-e823e1b994e9,neutral,have it take place in Venice,0.5,,d513301ce0aea29acf25218ab1cb49971b6761701be048cbe3c9a2716e3c61a8
+dbed1393-3a8f-5c33-8309-54fd7e61cf48,neutral,add a castle,0.5,,8e3f6d14518f95ad72a1b0018e41f1734f627e2d2a874ed49e8bc611a3de0bab
+4304daaa-2b04-5151-8884-f894e5738642,neutral,Make it look like an oil painting,0.5,,f205df44f0ba01be23e2f35c4df19896d9176bdd1916fb48bedb0ea1e7254fc4
+59dde7cf-93a7-5ffc-bd63-91f5831659ae,neutral,put her in a windmill,0.5,,e52328ab8e845fd9404f92ae888b6d23cdaf16c1d190aa347a7776056c9129c5
+43efcefe-fe51-5f2a-93c1-7a7b0bf1de97,neutral,Add a rainbow,0.5,,5feb4956d958c3701ceceeec7d6a90be4cb5c631824203d017b82b73f907bbd5
+4d5c69a5-eb57-56e4-8bb1-1ec8d7e79f2c,neutral,Make it evening,0.5,,d7c039a8f1ea8081519a0f2e0a3df2c59523ef72cf4498c438c0e20f061ca314
+869b33f1-676b-5f1d-b8d5-6625de798347,neutral,Turn the lion cub into a giraffe,0.5,,0c9bcae84fd4b68b7ea78f0359ced4c0864b2cc60e6832d8e29da466701382c1
+67af494e-d282-5553-ae7d-83058b6ef182,neutral,make the mountains look like the Rocky Mountains,0.5,,2dc7b2a7faaf3bc1ff5e5494089bdfa089737eaec699b27e0a090e4f6869d488
+5e715ee6-5695-5040-91fb-2b2a152c7eab,neutral,have the women be in a horror movie,0.5,,0544c54c96eeaea9607f3b9feecb30df61c2234c5915c9226075baecc8f5e96c
+d43be3d9-a756-5a68-b447-1f1fd424650f,neutral,change the scenery to a jungle,0.5,,b84228f465d48c22c6373f84b0e4d56a531da37f663a7a1bba93106ac7abb75c
+20c47a79-2077-5057-a627-baaf3b23e7c8,neutral,make the documentary about a football team,0.5,,7781bcc67d6e180fcf9feb3014f07cd1e6942b3a57b62f198342c1aa9fa4234b
+a11178ed-c453-56d0-bb39-181347a5e1a6,neutral,make the dog a robot,0.5,,34a64c20aa943eb4ead5e2548c3ac074961daf587c4f096ded3fe392b4ec69a9
+93f1045c-5cbc-51e8-9ab5-8a9fe19be3a4,neutral,have it be a fashion show,0.5,,b78963bab2c0e0f9f8d0522a219309261e02dbc750ea6a5ad4318979e5b375bf
+cc7a3adf-360e-5717-847d-9420dd1eb7d0,neutral,make it snow,0.5,,8cf8920f92ba3b5af653750c6cabf59ae929bd812ae9ca713594b092a15e29f5
+bdf2bc16-f1db-5d25-9775-90b4f7ff7d66,neutral,Make the stairs a bridge,0.5,,d48234b38580bba734d38408ac1e9a993629de99b80e55d6fbb760c72b3013cf
+eb666497-b17b-53e1-aca7-260ef9bf85d8,neutral,have it be a cave,0.5,,ad0c8a4760c1f5606763368005f12428962e943a3ce7e818566848699d852c3a
+51747f48-c10f-53c7-8003-a65c68951743,neutral,turn into a desert,0.5,,a182152be898fc379b94aee8e8c065dcadf26768b6b28a161243cacb6bac2546
+b3dd7375-2881-549e-9852-1ded9036f817,neutral,make the lightning green,0.5,,e770be43a4a1a7e22834e7faf2f677bc6089e15b8c67d533bfbf548b6af088fa
+1b85648b-b523-5e95-a330-32f0acfae5d8,neutral,have the tunnels be made of candy,0.5,,1c4b503aca9f497e2454abc0ecd830f34f2783551ac2566f2c0ee7a3a458bb3c
+17ba33c9-4100-558d-a3d4-f808712664f3,neutral,have the people be skeletons,0.5,,4c82ef87c3adcf6f5bb68be10dec9c1df21bd9ff27ae45b68bec743b3e3e11b3
+4062c49d-7186-59fd-af07-aeb9eb7a583b,neutral,Make him an alien,0.5,,e32a99b023723e9a8314a7b5842b028a61df06812c98568eb89dbd215daed4c2
+95e5d860-b7ae-5204-bc03-e5b616d55bd0,neutral,make it a magic trick,0.5,,5e7013d1a518c4be197ca5f781b893726b81c11fef757e7d6cf43e1107eddd34
+c635aebb-1baf-5959-8dea-329bfacaf6d0,neutral,As a photo by Henri Cartier-Bresson,0.5,,885d34e9a6a534e19fca5e0e9597d8c8a099c689533e94d4b842f6457613fc57
+df98d321-9f2b-55c3-817b-988699d3024d,neutral,add a mustache,0.5,,c066fc686ddbf04cd973766a6fd183ae1cf9f6a30a0d78065246cacca2c4bc3e
+baa01c75-ae73-5122-ba02-79a98454775d,neutral,change the night to a day,0.5,,2b811c2c3424562b262366a646634f984d6326a791cae0fd87c58f505044e740
+649b7aea-99b2-5afd-97b6-a6153b87ab64,neutral,make the body suit of a shark,0.5,,a39c28cf8e1fd8f9e420556d25cde376049078821dbb87116354e6c261a7b98c
+61ffc05b-fde7-5517-bd52-c187bae79d85,neutral,Like it's by a horror movie director,0.5,,4a37083b7fd29722a9c8ad616c73b874e84ba740f2de0f2b06f42b629b776c86
+7f464f0e-32a4-5011-87d8-dd98e3f4ae45,neutral,make the hiker into a police officer,0.5,,216dc90023c64d9cafd828c7ff27052b12d0af7341cc7152d569d665563d94c0
+afe134b2-61b6-5cd3-8c12-bac7e3b8a93f,neutral,make the countess a pixie,0.5,,7c61a563476a6c2dc4fa52083f291012e23a0f35646fd1d8da174f3c1a6ffdfa
+961989bc-852c-51f8-875b-74238833e7c5,neutral,make it a steel mill,0.5,,23580029f68ac15e8b8e1d9fd3206ad6846bfcec1e9a732ddb9cb6f21a23c565
+27703080-12fa-5d43-8dc9-b0de692caf9f,neutral,swap out the world for the moon,0.5,,12210fc1413e07aa4788c39214ad5ce50a2f08727ccf00cfe76c78734b757ec8
+90aba90b-5fa0-5837-99ca-07bc0e982270,neutral,make the woman a zombie,0.5,,7b2bc66ab9708c6aa7df5238cb4c2b8c95c77e3a7987dccc8a32200bdee44ec1
+c3a1ae8e-1f8f-5674-9e9d-4ca4ec4b170f,neutral,make the hair auburn,0.5,,5259cf7e43b47213a444788d3897b063f74315ed5e7f249f870d7d8b8844deb1
+a83b0961-713f-5e2b-9a39-57e647645ab8,neutral,Add some graffiti,0.5,,cade3c986d37333cd60f00ca9d8487d67d4b76c81fe019f0721292f9de97059c
+1b709a3e-b92c-581c-b536-d0c298cc9e94,neutral,make it a hologram,0.5,,fcdd0954033a6ce9a344f0880fd77a619db83cdac33abbbdc0fdb61dc899d2dc
+2d6a70d0-7434-56b1-b800-f2698ae500e0,neutral,turn her face into a pig's face,0.5,,195e84fd8011b1c5d7e43172375a3464dcb63dfe9c7a60e073f79d7fb8083e8e
+cff0f7f1-fb94-58a3-97e9-514a9fab4215,neutral,as a black and white photo,0.5,,2538836c9319e4142dd78a756ff3526f2ad54ef9d57bd40a003dc0d174cef8f9
+1e8facbd-b085-5be9-8e8f-0a9d85aa6afa,neutral,Make it a photo by Ansel Adams,0.5,,906f9728c4d3a9ec8986547a4c928da5f90344a2fa92fe54a9729bcfb8a1b132
+724eac06-6c86-5b81-9a62-03843e9db2e9,neutral,make the giant new West Elm a giant new Target,0.5,,27acbf60d3e8d4b7f4c04351037ce4eb6f88e7d7df0e504d9bcbc525e4d70e50
+f8015e10-6c31-5d1f-a379-aaf3719dd0c3,neutral,make the mist a kaleidoscope of colors,0.5,,072dde5a391558f3da0c0df8793378a163bdfc3faae87f0fc8673131d1a93545
+3a33aa86-fb4f-5573-870a-88e50818bd44,neutral,Show the people with red hair,0.5,,cd2849fdec76e35d5fbdcb193875434356a552d81dc47f9482cecdb37bf46e36
+f23218c7-a861-58a4-b209-8f5d9ab1927f,neutral,have it as a painting by Georges Seurat,0.5,,67210b13d11e7a90e808f7c2572cbdeade622859ece3ec5d711cd634e04ed2a4
+cc2ae0fe-fd68-5f84-a489-4f5599c6d65d,neutral,make it a painting of a swamp,0.5,,9703794c1ee507dcc22852da8e25ff28c3ae38d0f94015fea39fe06ef84b4119
+010a0469-187e-5644-abca-ce97b5b809da,neutral,give it a red background,0.5,,eea679f6c236db57bfe57b110ed0c57f0c0ba3b762b925de9b9e1661842616b6
+8a19e97f-08fb-5c24-b0d9-63eb133cad6a,neutral,make it a Parisian clocktower,0.5,,e308a1d5da1c6933be6abce8debdf3372c0ef65cac923640d20767f79cd53e9d
+1e94a238-3ad9-58d9-bcb3-f5cc7c92d116,neutral,make the tree purple,0.5,,9e5384033b6855627e9d3919322507be6b585bd13abeccf6f7429fe7754b8015
+570f5c14-d858-5d88-8633-4cea8df23c3a,neutral,make it a children's book,0.5,,3ca697ad1edc9f18b87b47c40434c2cc28ef112f48c5e2071f8fa841765d108a
+76f9cc4e-4961-5e82-ba8b-5a8922d668bf,neutral,As watercolor,0.5,,d59fbd757814799ea912d46a35117d60afa179b583ba96bd0e5955698850a59a
+8b1e6699-70f2-5d8a-a060-a986e7b8c8ac,neutral,make her look like a celebrity,0.5,,9b643dc8d4897e9b20fab5f8c62c6fe98eae59dfff895926f7dfaeb3774e9634
+632ea60e-d3a0-52a1-9b20-0fce34838197,neutral,Change to a photograph.,0.5,,5fdb3a489158f8e8f8cf1b2d2cad5dac3500882ef4ceca5b11b20b4da86f02c7
+c074886f-c9ab-5118-a8dc-4403a4c78323,neutral,Make the game an NHL game,0.5,,2840915756c04f0566a8b11008be58a7146ccd80ca9408e8e3363ad377bb85f2
+6b1b83f8-0a45-584c-826f-0e8685445f40,conflict,"First, make it a wooden boat. Then, make the male house finch green.",0.5,,a953daf080947e925af3c4bae51b77670eaeb9f8f8f743df9e5ee039d24e2156
+bb8ff705-cd02-5838-b22c-6033bdb02acb,conflict,"First, Make the castle a mansion. Then, make it a snow scene.",0.5,,dd7ce9f766e201f938d1b868e330f17a5035de86c5d51c0c4193a5400b147af7
+2e0ab05b-729f-564f-a88e-0b1bce3ceebd,conflict,"First, swap the oil painting for a watercolor. Then, have it be a castle.",0.5,,8731c06752694901741194f63185c5884f52a90d73ba6b4fadf07eace1b3d8a7
+5b04fa2a-61bf-54a4-a855-06420a062ec6,conflict,"First, Add a white dog. Then, Turn the orange into a grapefruit.",0.5,,0cf7359a2ed9745c5d148b8545ef2cd795b9dfd5fe03f53182f368f620400ab6
+a3f8e9ef-6db8-5deb-9f38-eb4eb6c4f4bd,conflict,"First, make the umbrella orange. Then, Add a sunset to the sky.",0.5,,129104ee73867159cfca2c59e67c1dc9195d21b75595ccb3ce271340f60c4353
+dbc8ba0d-1507-5d42-b1bb-50210f382f13,conflict,"First, Make the sea lion the queen of England.. Then, Make it morning.",0.5,,c9ad255c0b2d77fc9009e0fbe0ef7e4c14a0d70c35f88564bb533fb497a6ce42
+1c66df6c-1ae7-5324-a210-9c9493aaf532,conflict,"First, make the giant new West Elm a giant new Target. Then, Remove the cabin.",0.5,,f66fdbf3aa5bf1b6e2d04f2448b1779d6ec245a58a3967a62aa9c124a84838dc
+e6163072-27de-565d-a9d8-05ca80e84be6,conflict,"First, make Hough a handsome guy. Then, have a dragon fly over the crowd.",0.5,,3927c6ebbe6de9d7dc8ce221bc1197255ac2880284b8832510e42ab3111b474a
+15ef7aa3-9cd1-5036-b416-f6b04ad335e3,conflict,"First, have the woman be an ogress.. Then, make it look like a painting.",0.5,,b5b6dfe162c3c78749735ccc8c428cf6d96f9afe29419bec22edd8d71a17293a
+bb70cd62-dd6b-5b3e-bab9-f343dee0368b,conflict,"First, make it a summer landscape. Then, make them angels.",0.5,,ba2ae5306680b9bd625d2c9f4d12769305680a6ed1a4b40824229c06e907251d
+ed30d56a-2a67-5ec4-a145-2144a0bfd0d1,conflict,"First, add a horse. Then, Add a rainbow.",0.5,,9ec6b143a0a202b354d41131c0ed9620e454330d5160b19e0e11dd08b1714a03
+63532a99-4601-523e-a995-6461c975af83,conflict,"First, Make it a japanese woodblock print. Then, Turn the plane into a dragon.",0.5,,2c0ffc0a0ea9b5bd8406d5e99dc82ed810d8bab79253eaffe750e10e4f701145
+fd01e50d-d1fd-5a80-a1d2-7d7584b0d006,conflict,"First, make the clouds into a storm. Then, As an oil painting.",0.5,,3a94d381f4c9fdff443884f359d2dad631f4a578170f4605c63f32a009eb370e
+85703fa8-1266-5128-b222-4bb477d8f122,conflict,"First, make it a watercolor. Then, make the villa near china instead.",0.5,,c6b71004eddeb193f780758b84aaf5245bf3512f834b17dfe40a6acff4d965c6
+d2e3ea77-d54f-5cf4-9194-f09ef4e6fa1e,conflict,"First, make the moon a cartoon sun. Then, make it a stormy day.",0.5,,62a08b64cb28c810cd22ac81f5a290b014b59134d53fe7584680c3394686bc86
+59a21cde-ef0d-5aaa-bb37-979e100a1750,conflict,"First, Add a rainbow. Then, make her wear a crown.",0.5,,678744be95a37ebe2c80d0c4b7b60fa0991cd5d0e8a313e892f578d6749a094a
+22f850c0-c51b-5ebf-92d4-c189095705d5,conflict,"First, turn into a photo. Then, Add a ghost..",0.5,,bcc39d9ff0890d3ce693582200593174c20f654d22614c8ac1905cd7582b7057
+076dd0d9-9c0d-5f8d-9b97-1e5f7cbd55ef,conflict,"First, have it be a tropical island. Then, turn it into a painting.",0.5,,666cd992c38b25fbe636c572fea73b2bf66d35d329cfe6d7479eaaad5c4ec8f8
+fec613d0-0f92-59b6-9b3a-739299ea82c6,conflict,"First, add a mustache. Then, make it in the style of a children's book.",0.5,,b5ff7deca476ff4341ad912f808190e8f2d5c8b8d66c3f86b383fbba13cf3f0d
+be387df5-b451-581c-b81e-8a0eac84907e,conflict,"First, make it the Taj Mahal. Then, have him wearing a diving helmet.",0.5,,8e6efa845304f58507812c34ab0fbf16370220474e77d1d462acff18c9a45ac7
+646f347d-41fb-5770-aeb6-66af4b2c0c59,conflict,"First, change to a perfume ad. Then, have the lake be a crater.",0.5,,648162557f03153227ed2868220a403f6547f99adfdaec89e6a39cff91cd44e1
+6097ab64-ad5f-596d-a9fe-85279ef6455d,conflict,"First, the innocent criminals are all children. Then, make it less pink.",0.5,,39ae7733bd7f694807e7668d8092568c9fdcfeb6253bbf514afb8e4c2f79b2cc
+e079ab68-b766-546b-a20a-ed40b656f0c7,conflict,"First, turn it into a photo. Then, as an illustration.",0.5,,19d9683f11e6f03036a94360767184a5fe51d8b4ef3182e3cb238bf77ce3d545
+005d3fc6-3471-5993-a1fe-338479ae10a0,conflict,"First, make it look like a still from a film. Then, Make it an illustration for a children's book..",0.5,,bec68bc976d4b6ea82fa4eaffd0969ca5de357aacc8f665211f55718c3b9ec01
+73904d62-3090-5294-acc7-d68250f16789,conflict,"First, turn into a watercolor painting. Then, make it a rainy day.",0.5,,e247088bc7e08a0ab4207ba55f16fa540af77d9a26cf1863d670dac6d7e9f516
+0ac2a72c-ea51-50d1-9fb9-80df38169c94,conflict,"First, make it in the rain. Then, have the shrine be in a forest.",0.5,,9910cfd00094e248f1c4739598789fc9ac2f38149a7889b7282c8202e9bd4b6b
+f562aa1c-252e-54cf-a495-6273b5dee663,conflict,"First, make the empire state building a skyscraper. Then, make it a bus.",0.5,,a1a5ee6196387464baa38535f66589d918eab22985f0eac73a737902ec2f0a78
+3c1441bc-a73b-590f-bd02-cdf9c9a2a8e8,conflict,"First, have the picture be from a movie. Then, Add a giant squid to the painting.",0.5,,7dd8814012823f3d25ea73b1d90ddf1d5900f7cced128301259d5c63dba4af61
+e3402cf6-2201-54c8-9e2a-8846753ce622,conflict,"First, as a painting by Frida Kahlo. Then, as a SNL skit.",0.5,,dc543507b2eb56bb4201fc85246eba411a211009f049f40917457756c994f141
+b6ed54a3-9714-56a2-91ca-dfc06fc36d79,conflict,"First, Make it a stormy sky.. Then, make her look like an elf.",0.5,,f9f3353632c29aaebdd4d9b6a0c386921abbfc6845f960b4c6abe828fe2ace4d
+07cc70d8-d100-5bb1-915c-0217b6d6bcd6,conflict,"First, change the subject to a horse. Then, put the characters in a desert.",0.5,,5711121be2ebac793dfb72e74b726ceb888fcf4ac84349c37bcca6cbd5bcb8c2
+eaddaf49-8117-50ba-bb99-05e29516bf30,conflict,"First, make it a flower field. Then, have the wife morph into a horse.",0.5,,87e2730ec469d01b2d41d36d2e66dd546292988835309c5179a4de36709828bb
+0b1ae0e5-a7fe-56db-886c-44cb8bc1f328,conflict,"First, Make the jetty colorful. Then, make the car a motorcycle.",0.5,,4ea59953a6fe60df22faad2a8525309f7a97213583996951616e777ce32baca5
+de5f5064-b6d4-5e7c-8453-229e0d23e28c,conflict,"First, move the painting to a cave. Then, As a Pablo Picasso painting..",0.5,,f27c64acbb5840a72b3d7a7fa36604e474dd97cf56339632d95f2c746d7b37ca
+4d04aaf3-76d3-512d-a015-60f46d45acfb,conflict,"First, Clean the bob. Then, make it a cartoon.",0.5,,83c317e51a81bdd0c0e9347654c96b176b25b0bebbb7df756f1638ff88c8c1c6
+a1a73295-dc98-51ea-bf06-89f72b6e1619,conflict,"First, make it a statue. Then, make it a Chinese painting.",0.5,,0c835bb9d67229d69094c64ffc54a00943ef6a01ff2e5408ebb930f623399b24
+054bcf42-7190-5292-aeea-35295a8e351f,conflict,"First, make her look like a clown. Then, Make it a subway station..",0.5,,bf235b7735a87591cdfa6bec78a7b966ce9f7748ec06d916f4468129d350e915
+42172e24-15e6-570e-987a-8a109d4243de,conflict,"First, replace the library with a bank. Then, there is a dragon attacking the footbridge.",0.5,,83d2d936ebcedeaf3fb3724f4383e9d4709424689d7fe6d1c1b1f87112034d44
+470478c3-4b8c-5f33-a9a6-7e177d1640ec,conflict,"First, Make it look like an ad for a luxury hotel. Then, make it a watercolor.",0.5,,8b445e7ec5d61885c15c5525af6de04a03e050baf3a81d20cf3849d401870ba5
+da771a55-5935-5a83-8075-b29357ef6892,conflict,"First, Make the painting by a child. Then, change the pier to a pool.",0.5,,9d367e7ae978b957f1190b2bba2bdee41621c4803a02b10f212565c5bec83045
+939e41cc-4ede-5124-9031-5b83ef3b60e6,conflict,"First, as a pen and ink drawing. Then, make the snow blood.",0.5,,4753f0bf69f8e59f5efd75ccd460291171c715b5a9881b8b844cd5828596e696
+47f30eb2-c0e2-5a5d-bb03-5d203c3ae6fe,conflict,"First, make it more Hawaiian. Then, make it a woodcut.",0.5,,bed300b38518316b9ff2eee8b9f949957d6142396c7335057d03a813d2f431ce
+c0a9d41c-8d16-5738-9002-ad5dee3a593f,conflict,"First, make the spider purple. Then, Add a Persian carpet..",0.5,,f0794d60c7509dd04b137cd5516cd194c0930cee1a6454633e3667abbf925dd5
+c8383f24-156c-5ed2-a693-56816f64835b,conflict,"First, make it a 3D rendering. Then, make the salt lake a lava lake.",0.5,,7b005569c76cd3b5cccdbc33729563908795592112dface8a5630f48b561c8f9
+6bc330cf-de4a-51a1-a77b-04af344547a6,conflict,"First, Make the sylph a vampire. Then, make the moon bigger.",0.5,,36b9dca6b6e2522a1369f6d4952a6718c5e3ce7ad8106d69e004234a480e6acd
+45115656-91e0-5219-adc3-16099580750f,conflict,"First, make the farm animals giant. Then, Make the flower a sunflower.",0.5,,0bbd847f9c1fd4caed83f7b65dd2ea72bd762081d6dfe91bd031188bcc8cfad8
+53ef781e-377f-5bbc-9b07-c8c3425517d4,conflict,"First, as a watercolor painting. Then, Turn it into a painting.",0.5,,ebc9e14dbe8b43b456cebbdab456569d88d8275894819b61a990d68a9f8a6803
+724f93dc-453f-5ee5-915d-f1c8a6d6bed4,conflict,"First, make the documentary about a football team. Then, Make it a night scene..",0.5,,48c97d32fb9b7b7a3c2755b370fb19b69ae9b2161990e5b4a19c718fde743b9a
+2d31ef1c-4cd9-52e5-9063-92431b96e893,conflict,"First, turn the hills into mountains. Then, Make the moraines into boulders.",0.5,,5ea9f0a8582fd12978cd8d55e0456ebf7331a3edcaee9cdd16bba323432fab78
+2172817b-043a-5ba3-915c-042ab676b8f8,conflict,"First, turn the shipwreck into an iceberg. Then, make the shoreline a beach.",0.5,,fd3c626dc1962890abf753ee75927aa4ad3ecc2d58233a2ce58e0ad79e8fa1af
+5f6d7c8c-39bb-5404-bca1-50bb5d0085fa,conflict,"First, make it a black and white photo. Then, make him a woman.",0.5,,0112c2fe52cb5ba94e50e5b31b9dd3dc72b1a824deb14ad73c31648bb412f215
+6db2aab1-ae42-5ba9-821d-82d870fb26d3,conflict,"First, Make it a monument to the Aztecs. Then, have her have a muscular physique.",0.5,,2aed42bde566f1d571e4ff3abdff1b436707b9a05b76de52e0625deaec199496
+7e763292-2425-5d1b-9954-8d51dc1cc0ed,conflict,"First, make the self-portrait look like a prison mug shot. Then, Make the painting by Edward Hopper.",0.5,,da80e6bdaf6077815f5ca573c85e8bf4ffaf7934afbf397863a83ed1ef884545
+531be18b-fa75-5d17-9cf7-83320f029205,conflict,"First, make the hiker into a police officer. Then, make the frog be in a giant plant pot.",0.5,,38019e012cddfb7acbd87feba0289d9b3e09b6748410ab606304b13c52f89901
+ae7474e4-be39-5479-9538-1006f604fb94,conflict,"First, replace the suit with a red cape. Then, I'm feeling a bit more artsy.",0.5,,b91801004f4b9b8cf620f72c64aa57c916ef37275c3d57560ff695c229023351
+429745f6-9061-5f75-bfa5-5dc8cd58ce06,conflict,"First, have it be in the middle of a forest. Then, make the path into a boat.",0.5,,f5a38277a041640668b1b1ebdedb2736118753c8b33ecd2dad8a75adc123870a
+48318b43-5685-5d0e-aee8-52cf166399a9,conflict,"First, change to a beach. Then, add an eye patch.",0.5,,6e47643a51cbba251b988390126de9e7e303041e0b1369d5015e08f308b06e3a
+31efb963-f166-5214-9c1f-8a6fbbf0e88a,conflict,"First, make it a desert. Then, as if a painting.",0.5,,8b3f2e80f5d2b20507d7f8020072d0462c29f711d8ed609c0ae23f23d7f6dbc4
+2f0c50df-c7c1-5106-b9c6-b2842c98f580,conflict,"First, turn into a Monet painting. Then, Make it look like a woodcut..",0.5,,865450c1e695fe309975372cddcf05489ce624fb0deb947497c2cc3ed3295c74
+e7258d64-09d1-591a-929f-9386d3bd9a87,conflict,"First, make the woman be an alien. Then, add a dragon to the scene.",0.5,,6d59a62c003529deaaef3d0b8d276c0c1133733e06934ee9c5700fd34e86edcf
+3aba2dbc-4a87-5f37-8e26-8bac4e1a60c5,conflict,"First, make her a dark elf. Then, make the sky purple.",0.5,,2050f6789bcfad6152b0ba21a6b1e62436908fe1f73918fce0297092fbf8b6de
+61e3f2b0-816a-5924-82fb-270575b34356,conflict,"First, Add a cat to the photograph. Then, have it be in a jungle.",0.5,,143acfde3a06e0eb42d0136565ed0a045816e0e16d1a3a23adeb79030a46a766
+d3219aae-4c06-5570-b9a3-136b4c031265,conflict,"First, make it an empty parking lot. Then, Add a cat..",0.5,,c07e9ddea42a1550e1b3605df55075cff15b2015ab042a8bcd38fbb1abc609bb
+47c8e9cb-5ec4-579e-8d70-f968b74a8f21,conflict,"First, make it a desert. Then, turn it into a painting.",0.5,,0a30f2923edcd064b0e765e452a5b5d3be34167243df76ab4fa4c08708e5a70e
+d8e6f3f0-149c-5538-9f34-55ec7e0ccdab,conflict,"First, make the art realistic. Then, make it a photo from Mars.",0.5,,86de3901cf6f006e620a01bae4a2228248b7627470f776f7280955842af7dc94
+dd9b5260-e4ad-5c7e-9ec2-57e5639de086,conflict,"First, It is an evening hour.. Then, turn it into a cartoon.",0.5,,6601d14d6e67b304a05c5b9290729877917a9e3a6b40ce6eedbf9ed212a2126b
+44558c2f-5049-5f55-a13d-f0d1ed37210d,conflict,"First, make it a pharmacy. Then, make it a piano in a forest.",0.5,,4f33cf3c8ec95ffe6a23afc8766c9669afc5fb7f767f62432f4de79f12202727
+589ed5eb-ddf2-5a7c-8637-d738dcc87091,conflict,"First, have the lady wear a cowboy hat. Then, remove the boy.",0.5,,57f819c310f5b42459887af79ea506db0ddbd6e011be98b805629e5d07837a12
+4a0a1c45-de54-5420-8831-6c765a81856e,conflict,"First, make the reader a dwarf. Then, Add a large eagle flying in the sky..",0.5,,58b0898de4f62ad3c80dae0a9e50bc24d74f25ca5475185590a5adb80e8d959b
+3c378666-0bf4-5943-9d2b-42db8a466ed5,conflict,"First, Talented musician. Then, Change the room to a garden.",0.5,,d26c11b305eb9667d3f1f09997d757c7c539060c7ab3b99f7915e5937dd66bc4
+a710abb0-4741-54a1-aa23-b237dff51ad7,conflict,"First, Make the aurora orange. Then, The horse is a unicorn..",0.5,,f53cc0de00bccfe158e83b8e9cf4a214abf15bc91824efe7fb269f6431913396
+2d749604-f4fa-577d-bf05-60f2293ba07b,conflict,"First, replace live action with CGI. Then, make it a steel mill.",0.5,,b3c48cf09a8bf857485f91bd269e03fcc613208a6d05d035775b51d60dc8cc73
+cc20024e-0b8b-5dd4-88b6-6856559df951,conflict,"First, put the sun in a galaxy. Then, The setting is a tropical island.",0.5,,0b4771f824fcc936daca67498a36dd1ea97facec2c1332cf5eaaba30d7a6d194
+d873357e-6e52-5a6a-a2b8-0aaa651b645f,conflict,"First, Have the rainbow be a waterfall. Then, Add a garden gnome to the side.",0.5,,e6818e448fe6c749b48798bb190047556a6a263070f5d98ef2f185c66d395b6d
+f490088a-ab4e-56fc-9811-a12a943cbc8f,conflict,"First, put them in a forest. Then, turn the background into a beach.",0.5,,fc301582f8c52641c1c218d606a513bcbefd45af09d700defd73d601fcad2f4b
+1920b1f6-970a-57b4-b1cb-9672bb572272,conflict,"First, as if it were burned by fire. Then, have it be in the desert.",0.5,,ded3596361ba52e2c88df58fd99a2a2f698053d51c0fc9d84cf9f8fff633d590
+32e0fe35-1717-5d34-908d-1e8395c276b7,conflict,"First, Make them wear lab coats. Then, Make Mount Rainier look like a cartoon drawing.",0.5,,b6c602994a5362213104e9df9fb0cc3e39a49a6e8ec85470cf2e39e78951ab34
+0b9e6a10-dc77-52f4-bbdb-19693e314304,conflict,"First, make her scientist a fireman. Then, have the lake be lava.",0.5,,e345a9bbf1e4a56c830d0c1d8934e57dbaea0c38231c40429cd4a38423ff50c3
+6a82db6c-3ffa-50a1-9d12-67e26ca99115,conflict,"First, make it a sunset. Then, have the zen sitting meditation be in a garden.",0.5,,844b7d7f3b6c4a7f2f070bc32146578dab11ff194bf44d475c57ffd58cf64d49
+bf8284b6-3596-514d-9861-62568232c61a,conflict,"First, have the woman be wearing a motorcycle helmet. Then, As a drawing..",0.5,,e1cafd56af7b099547809f48b8d52d42de30acd89706d86cc548f15b7043cca5
+6ad1828b-a600-536c-9d34-78c274391b7a,conflict,"First, make it a modern art museum. Then, make the forest a volcano.",0.5,,a2dd080d52e45d5678f272900db376cb21078013d60f28ff9001b82d9afe873d
+f8503bc1-b410-5c70-8454-bdf9a4c34a2a,conflict,"First, make it a Disney animation. Then, make the lake full of lava.",0.5,,1899e8bd17b639f10ec51e20e141dad648aed438b513c3b0130f5590f8e7bc67
+1e5f979b-3fc8-5257-a405-51169caabee2,conflict,"First, Add a monocle. Then, turn the sky green.",0.5,,0ab04cb0fc31627b8925961b9fbfdf776f551a59906ac6248beefd4a38e90828
+3acb2434-9c79-57b5-aa4f-5d7928d0e896,conflict,"First, make it a drawing. Then, Shyvana, in a desert.",0.5,,344ecdb19ab9b679da5d098e3d0173fb48d9cfc74a5f37fb2f0864c60aee88c6
+6dcc904e-f071-5b9f-b354-081556dea4fa,conflict,"First, Make her look like a catgirl. Then, make the woman have an afro.",0.5,,63679b822c9fce82c88d9d6737ba6ef7630e0cec30cdb82392a8f806258e130e
+2ed20e2b-16a1-5bee-bb64-ea075c0d05b5,conflict,"First, Put the barn in the woods in Iceland.. Then, make her a zombie.",0.5,,4583ada72a86526728d5a33d69b9f23f3114231411ebcb63e476193f12be8f49
+c210df41-961c-5cfc-af02-e2ce11c81413,conflict,"First, Combine with a volcano. Then, Change to a winter setting.",0.5,,259f3d9574802d89f47789440bab5169832768c358c62d4f1785e84349bc1de8
+3e5126fd-aad0-53a0-9d85-2f274246ae10,conflict,"First, make it look like a book cover. Then, turn the road into a river.",0.5,,5fd02f28d36fafe889ad4692a57fc22a485168fb5b30bbe2f6d9134101d8e8bc
+fb51d3d6-7678-5cb2-8423-7cb06a74e9e4,conflict,"First, Make the dancer a viking.. Then, Add a dragon.",0.5,,a8adedadcaaa63d2098c7b7d6ab145d58119d729b5391a8b8093aa614a48ab42
+aabee0cb-f2e1-50bb-9739-cee70eb31125,conflict,"First, make her look like her younger self. Then, have them be in the Serengeti.",0.5,,3c9f7a15d62ef26030cc20bd99a7316437dab209806bc9d8061dc32bf3858ce2
+f127c73b-069b-5360-be99-2ec580daf65e,conflict,"First, Give the peaceful reflections a golden glow. Then, make it more like a crystal.",0.5,,fdf00c0913209fb1c13c1875535cf3050f3b7ba9576759a3f9fea5d3d2aa5729
+4f9b9d0f-efec-54fd-a8ce-cf89bee095f0,conflict,"First, have it be a black and white photograph. Then, make the photo a painting.",0.5,,8ba239c80216805c284f75a28d5f7dfb68f26fc62f2cfd00e771d048af0fab97
+5e6589e3-804e-5c9d-9919-92db01f2abf5,conflict,"First, add a giant octopus. Then, make it an oil painting.",0.5,,7a4d521410be3d6fef8579721a8a132602682ba77a29aeb93493d29752f12db5
+92960188-51fb-5a1f-98a5-8cf8b3a566e4,conflict,"First, change to a grungy urban landscape. Then, Add a tropical island to the scene.",0.5,,db83753b3acd07207ef8423d7bc4a0b044cf8492abac2b6673db99bb4e383b01
+cd964b94-2967-557c-abef-26d7f4e1d527,conflict,"First, change the lake to a volcano. Then, make the girls have heads of broccoli.",0.5,,b363c12929b0c0a03cda3a3652f99686091188c85efae2326a0a35efebba7534
+ea811d7e-6cdf-5f75-a24c-4b0c49506d58,conflict,"First, make it a city wall. Then, Make it a castle from the 1920's.",0.5,,4c82432b5f1f190af20992c13ff88fda948092fc4b53cb1d5625ac2ed9e33a21
+6b6e1d68-8745-5ecf-a88e-ebff9b57b0fe,conflict,"First, add a blue sky. Then, have her wear a cape.",0.5,,5743ca24eddb1834f17d75f5725a68e74b9806e4edec768b6724207e19c87d39
+c2195492-90cf-50f6-adc2-0cc36b74e40a,conflict,"First, change the style to grunge. Then, add a cat.",0.5,,3a8315a93b6b45d9002e21f97b6dcfdf7e09b035625f44054c49514b1f0b53cd
+c67138d5-e5d6-5c85-8b49-9fc62bb90d8a,conflict,"First, make it a woodcut. Then, Add a helicopter.",0.5,,06976b073bd067dad8e9cf283a8fd3f0b36ca72e1c0975b5052cfd58aa290683
+8630bbf9-1b24-5342-8f29-44c91e5730c6,conflict,"First, turn the frog into a lizard. Then, Make it a B/W photo.",0.5,,0ec19997d123824de0b7bfc4274690ad687baf21bcd67dbd33f9c1d66bd25364
+7599eb71-ae0b-5804-988d-6d43461b33ff,conflict,"First, have the oil painting be a watercolor. Then, make it look like it is made of metal.",0.5,,ca936ff80d62031fbcce5e2673df9ddcc91e4963bef2d54a3ce3a76b65a58d7b
+4d7069b0-90f1-5f3a-8bd7-2c52e90b9c18,conflict,"First, Make it a photograph. Then, make it a portrait of a mathematician.",0.5,,c412a469433b46938851f8cd69fa6d819217a1c63cb076e6b4b693f6c6b53ba3
+ac6d5bb8-c922-543f-86b5-a4be2a94e471,conflict,"First, make it midday. Then, with sunken eyes.",0.5,,e3a37519d821f5e24325e1af51f739efb2ebe1fe6ff1fea0536bcc8d089da9b0
+d8169b35-eafc-5ed5-9d54-3e97e2fe6fd7,conflict,"First, make it in the 1920s. Then, change the background color from white to blue.",0.5,,8218da2d6ab4c834f64ba47f37af391e4877d7756a07cd5112f35a8d7a57f62c
+c59ec580-4c04-5ae8-8ba0-b890c6ee3f52,conflict,"First, make the lake a swamp. Then, have them be at an art museum.",0.5,,15b42498535e5af1fab78c4c6620fd6d5f704c9791de641261f920628e387f30
+a9118df8-8599-5cc9-9ccf-1078ddc491b3,conflict,"First, change the object to a cat. Then, Add a castle..",0.5,,9b1802c4bc434c4778277c0fa92ba8742f6281df2d942cd95dc0838d8de2220d
+213f70af-eabc-545f-9a9e-69b201aa36f5,conflict,"First, Make the trees more like ferns. Then, swap Dubai for Doha.",0.5,,5734e375e755d4332477a45d7271ab7c89b6f98e56071de445af66efccd7ef29
+08f6f98f-12b9-5a2e-9fd1-9e912fbd1766,conflict,"First, make the painting look like a photo. Then, make him an alien.",0.5,,0ffd5518c4d09d764af8de02807cdcad58670a98b5a29cbc81c7f5c552a01132
+c0fa6f4a-0c16-59a9-99c1-55131df5a75b,conflict,"First, Replace with a Snowy Parrot. Then, make the girl a cat.",0.5,,c7c92c034cf18934c38f937b59723ed96fce18b05b7ca591b450d3827399c2b3
+fa9d4fed-f628-51e9-b5cb-3561fa690191,conflict,"First, flip the hamlet with a castle. Then, make it a comic book cover.",0.5,,c58b45b8f2325cb4a6c01a8f43be3facc1ed8506bfc99175806d626b3f908329
+9a57e054-53f6-59fb-87be-1cbd8d61155b,conflict,"First, make it a cubist painting. Then, make her look sickly.",0.5,,12fd8e7b915431c5c27c3c32fc7e1e08824b6afb5165f413e6bbf51a3e348fc2
+fc86cebf-90eb-5421-a713-0d6e09a5366e,conflict,"First, take it to the desert. Then, make the day not spring.",0.5,,16ba479d1b9a03b05b72cc35c49281668406db7a8e0a8360138019682fd6d840
+1bc264bc-0b33-5425-947a-fc817eaa09eb,conflict,"First, Add a dragon. Then, make it look like it's from the 1980s.",0.5,,cc371d7db47966a2cfe99567da21d7dc369c2eb7ab7a786f1aa694fd0c330624
+2b57ad02-8e3d-5272-930a-e753e40b6f09,conflict,"First, make it a panorama. Then, turn the sky orange.",0.5,,9e6482c0b16d45fba461f910660afdc9cbd8bc15a8fc672f2cc61725641b675b
+cd289049-77f9-547e-9e13-cfdf77a881b5,conflict,"First, Add a turban. Then, Make the palms cypress..",0.5,,0b614ed307ab478d99aadf50219a3b396f29e03172c08c4e3013cf8c0de2a30f
+e4f6b20a-002d-56b9-a70f-c0fea1098386,conflict,"First, As a painting. Then, make it more dramatic.",0.5,,17777d991f083bb0e3652385871c334fb924c73df2e97841651fb87ad750e770
+f5c8479c-180a-5477-b289-e0ad6ff02796,conflict,"First, make it look like a movie scene. Then, make the lakes firey.",0.5,,1d8d0409dd20b7f1a6767d445673ec14dbaf1b31b2fdf9da4c3d30f1b1d63ed7
+3d8402ca-c8a4-54f1-8dbf-a494e86e00bd,conflict,"First, have it be a poster for a movie. Then, Make it a Dutch painting.",0.5,,7993952291dea7d8eee938d01c1496a8812256bb394bbae843905eedf4ee6e6d
+6dfec645-d59c-50ad-b8da-473c90f7bc85,conflict,"First, turn the woman into a man. Then, make it a foulard.",0.5,,6f2efdf1425dd517bf895609bf4c47925002396fde468c74d319414bb66e2ea7
+7ceb92ec-18ff-5654-a323-701803e5de02,conflict,"First, make the ballerina have dragon wings. Then, change the district to a stadium.",0.5,,1f17817af060d5108e0dd90c89c5d211ac71e67de00e8cd31c0853c7fcba12e5
+bc313ea8-c2f5-5a6b-8851-c8b0f9ff22a1,conflict,"First, the lighthouse of heaven is a spiral. Then, change it to a cartoon.",0.5,,1228443b60563158be0a73e4def7e0ea3222c190cd4dd9aaf9ae98b391dce55a
+f97840db-a754-5eda-b410-e6b408d92d42,conflict,"First, Make the mother a white-haired witch. Then, make the sky blue.",0.5,,bf0e4eb874b15d4f53f7dbd6e6a30bbc6111620cd75e089fe00eff9ce72c3901
+61e11ad4-4b03-5326-b5a6-2d326eb73a5b,conflict,"First, Make her a farmer. Then, make the Milky Way green.",0.5,,c0be74f6d5268880a8d45911bc3d8a9ea05509518f549ac33702819510d88e5b
+407507f0-86b5-5378-bd6a-80e8d00c0f29,conflict,"First, Make it abstract.. Then, as an oil painting.",0.5,,c6e9fccefecd4ca44d7e5f2a0e70dd232610b737154cdac6e27857ca3046f63f
+ae8b6425-6cf6-5238-afc9-a9df59dbac48,conflict,"First, Make it daytime. Then, make the president black.",0.5,,586afa7b2d389d5513333261a2036eccd9a7b49b5027f42e2aa2359cba660306
+430653d9-9106-5a31-aea7-2e36981110ef,conflict,"First, Add a UFO to the image. Then, have the street be in a cramped alleyway.",0.5,,3f57ff086f9676d3a7decadf015f7600b5d8b490e0ec37c995c8cd10bd8203be
+30f5d116-9a0c-5dc5-944f-69d2281020a2,conflict,"First, make the wife a robot. Then, Add a samurai sword..",0.5,,ddf3d3ae41eca7d969f665f44e09e976ddb92cf812bdc7fd2e269b77bc5fdc25
+e3ce6f8f-dbb1-56eb-a552-451f4ebc05c7,conflict,"First, make it a gift shop. Then, make it a photo.",0.5,,a546a7bc1d0dd03eaf8e98573b7e0255786673438c36a7da4e3d4b35d72cb7fe
+67d9587e-171d-5698-bef4-1c595e436790,conflict,"First, As if the shoe maker was a wizard. Then, make it a cartoon.",0.5,,93b808e7138cb884f5fddd96315ab51cb455d18ae632f3c56733c14ebf59884b
+77799899-0245-52ac-92c4-60b952aab0a2,conflict,"First, turn into a polar bear. Then, have the swans be geese.",0.5,,00586d35e0a40195c896a21397f181a6801bcc3ec1628ba1a911edcdbd13407c
+38ef19a0-a0d8-57c9-bd9b-71efb81d30fd,conflict,"First, change the building to a lighthouse. Then, have it as a painting by Georges Seurat.",0.5,,feb14c08f0ae418e86add6d3b429a785d319f8eda6a4adf0d90ad7baf773f1aa
+eb9eef1f-5693-5d93-a66d-104811500951,conflict,"First, It's the gunsmith shop of a nuclear submarine. Then, have the photograph be a painted portrait.",0.5,,628b82223dec4e4ef753a00635cf4bac5e5e1eb9e89f3d69cd937d76ac0d53e9
+ac372fb5-b69a-5653-a8ac-aaec5b45263f,conflict,"First, make them dinosaurs. Then, Make Shaw a Chihuahua..",0.5,,dc560b06bdd2fd5c17a81ece00c0da41672a64e4ff76e7d8fdee9c0ad7f7546b
+914eb303-ec90-58b1-8a02-383ee32142d1,conflict,"First, swap the boat for a car. Then, make her a panda.",0.5,,9e1213866444837d0d020fa1101b9c60414089e3065446f9ffad2c1290fb1dda
+69c29e65-f17a-51f1-9721-92c3f00e95b4,conflict,"First, make the festal preparations a giant pyramid. Then, put it in a swamp.",0.5,,63cd9765965453200e0544c6ada39c3b378cf07a1e4c8b1cc23dfe96a01e00f5
+d5e54aba-35b8-5e5c-8bba-92c5bf0cd44a,conflict,"First, make the forest a desert. Then, The pioneers are now dinosaurs..",0.5,,18e55f9221820392e3d5520e7bd57bb5a0085d669dbaa1d09c3f9d323e90be6f
+a118e620-e9cd-5362-9d03-cd3f858025ba,conflict,"First, make it a cartoon. Then, make her a vampire.",0.5,,e0c68c87a066474a7ae874937db09f49ccfb58fd40c71513c5f9b6c5e16f5d6b
+91892fc2-0f8d-513d-9ee6-1047ae0a62f2,conflict,"First, add a waterfall. Then, make the door neon pink.",0.5,,23b39a3fb54b053f1a3d23f52a81b10bb0c175bc21d53bcb14736726cb0f3056
+4ff27600-5b90-5744-a548-6a0d5cd6bc3d,conflict,"First, Make it look like an oil painting. Then, change the material to plastic.",0.5,,4a989e34fe611f1b2349229530e1d6a0b6b0762d2fdbcac98b4354f5f0633b14
+543f23b4-0e78-5fd8-8a3e-746fc68e9b31,conflict,"First, Make them wear a crown. Then, have the photo be a passport photo.",0.5,,526ecfba54d020bce8187aa9a27e21442fd4488203c123377dff61c7c2a71ef8
+aae694d9-f16b-5282-91a1-6aa6e5672e07,conflict,"First, Make the girls ghosts.. Then, change the style to cubism.",0.5,,68c0a7e1ef57e13f88616848f874a1d6106a84f373c439401d9bf80ed7ef0551
+38162ec6-0589-5f86-bfc2-c72fe04f8511,conflict,"First, Make the snowblower a UFO.. Then, in a Harry Potter world.",0.5,,4674219524305fbab77d47434b1cb947fe369fef3f10021b90cd383bafc161f7
+cef304fc-53d3-59ab-931a-a3cde5d234cc,conflict,"First, swap the fishing nets with a kite. Then, As a woodcut.",0.5,,ac46225c7f66c5a3e74a8e174ed3742d59ca89d1636355c3ed7e00055bfe0d8b
+d4b11b64-662e-5a43-98d1-748b6aff306b,conflict,"First, make it a night-time scene. Then, have it be a children's book.",0.5,,e6b87096bd6d23f71dc3e2e3df7b20948b1503e9aba044823aae89aed3c31309
+85c9cc84-0bad-5053-ae46-8c579ec5ea0d,conflict,"First, make the wallpaper a movie poster. Then, turn it into a subway station.",0.5,,08c54149477d6fb32a0e8b6deb0b613060d76a8ffa8de380ca09425425321267
+7ca1377e-2a97-5d02-ae2e-150c73e877fe,conflict,"First, make it a german myth. Then, in a haunted house.",0.5,,7a40ba0a43551fed63d67b1988f4b13b4e96f7be97a09e0dc12247b2ca6d48ba
+0ac0da60-4f8f-54b3-bd20-2ad75ac32475,conflict,"First, make it a spacious cave. Then, make it a woodcut.",0.5,,1ac24bd5a951bee679a08d0f1686814d23e35ddf5419a6f15884135515ea94fb
+9174ec8e-1bd6-5be8-805e-937789cac8e1,conflict,"First, one cub is wearing a Darth Vader helmet. Then, change the bathers to marathon runners.",0.5,,e0d3e8a69478263cce8dbac9935ef8b4f1884c36e94c0df0a9fd52c1e7ee7aa1
+e0958663-777f-50f6-97e6-fb5d71bbdfe0,conflict,"First, make the picture more colorful. Then, change the lake to a forest.",0.5,,15f03605ad39190302e7c0dc8577ce5a159c15755dfcc7c1f817054a40308b61
+35727a3e-5aad-5062-af70-24ab959ea88a,conflict,"First, make him a gangster. Then, make it a toy car.",0.5,,01356240c889378721ffc913d7f47324e80b489b054512f9ec9668e9fdc75297
+17e83101-1041-59a9-831d-78afe640bbdb,conflict,"First, have the battle take place in the desert. Then, put her in a crowded street.",0.5,,ccde180010d84c9d56de2972df8d63c04884f0d2b251ae420ef7d3bec756352e
+c9b112eb-e635-52c8-b6c5-a4908e89f3cb,conflict,"First, put a bird on the gondola. Then, Add a giant squid to the city.",0.5,,f510e4e06d1e7fc12a099e0dd62d12b3adc327ec0fdd7a908afc8903152f6871
+433565eb-a04a-540f-9cfb-72ced7b4f55d,conflict,"First, Make it a 1960s photo. Then, make him a fireman.",0.5,,723204715a1dd2d01d99390205dc3ca91c3f672f8008d606ca25e8fbed5a7253
+b0a89c4f-badf-5e09-90e0-6192f39d905e,conflict,"First, have the two animals be a lion and a lioness. Then, The city is on fire..",0.5,,41d45a274271623d0e77b92e7116d1f95956da66338fac5f76ff477cb59779c5
+fa5080b7-53fe-5c70-8f9e-f892e8a26958,conflict,"First, change the dog to a cat. Then, make her more like a fairy tale princess.",0.5,,5c1c4489c60ca5d5b8abb645090d33d5c4eb785d471174e422debfb86974773e
+f974a5cc-4c81-599a-bc33-f5f16777076f,conflict,"First, make her a pirate. Then, turn into a bronze statue.",0.5,,bc08b26606167c5102cdceeceaedc511de31aba8d347ff95d34075310aa6dfc9
+9f6dcb0c-4226-561f-9465-b8046ea3827b,conflict,"First, make it a rainy day. Then, Make it a lava flow.",0.5,,02eb8c6474980a5019e1780a035d7ee1c0921e960dd054556ca0022d6c98bcdd
+0be0f28a-b8dd-508d-a4fb-1335f3726070,conflict,"First, make the flowers golden. Then, make the art abstract.",0.5,,a63d6a75f83b235509c04eeae7f11cec517257cd7341192d7f06c4a9d8a36cad
+f693d40a-8536-5a09-8e1e-fbb68642290e,conflict,"First, The couple is dressed in a business suit. Then, turn into an oil painting.",0.5,,a1bed421018d751a72229b63371fdd3716c3c1055d3bd1297234124b9394a10e
+dc17ea7e-02a6-5891-91a7-5953c9dea347,conflict,"First, add a lighthouse. Then, as a city street.",0.5,,e007d1b04b37d248ad9bc8d9c101f30135082cae6c29c3be1491f0749f101044
+1ba1b812-a116-521b-bdfd-2f338382571b,conflict,"First, make the bear a dromedary camel. Then, Make it in the style of Edward Hopper.",0.5,,2dfee4f8633e04cf377be150f8283cb8843da76a747f269337f25479bcec0d1d
+004edbb6-a704-58da-958e-677855dc08c4,conflict,"First, make the hair curly. Then, turn it into a photograph.",0.5,,d5becd320ded80bfc593544799c515e36458d76f758e6c5c7344fa54b04474ff
+b81d6184-0645-56ae-9a5b-4695258e7308,conflict,"First, make the street look like a Minecraft world. Then, Turn it into a photo.",0.5,,f2e9b0c02ef4c13d1d878a084d04c77275f1c2e50d8de51b731360f5751afa87
+2419204d-b05b-5e78-9cc2-59182347969c,conflict,"First, In a Steampunk setting. Then, Make it a pencil sketch..",0.5,,ffa1dd5701a59f62244a141765a8772dae33645108a5fcd5cc3244a19bfcb513
+c4d11364-47c3-57d1-bec0-4720998b802f,conflict,"First, make it a willow tree. Then, make it a beach.",0.5,,2bb606ed47a16b537d0982372701faa3ccca589d482bf56d91c2659cfaf65d84
+54687d5c-d8b8-5f62-875b-687c9a9e5d1e,conflict,"First, As an oil painting by Leonardo da Vinci. Then, Remove the helmet.",0.5,,70f07d9cae74ef2b43d887407e119adc61a019064d2edd198cef4a148e36a755
+af90f59e-35af-57fb-bfea-8fcdc3597723,conflict,"First, make the man have a beak. Then, make the sky stormy.",0.5,,a32945edce7822d05702d05d754f06a46e48ab3b0775154eaadab1258d12dc9d
+784cf7df-4dd8-589d-b061-a008c4da1d0f,conflict,"First, add a mohawk. Then, Turn the snow into leaves.",0.5,,eea802654070fecb141842394323a3c4ba0925f0c3032566dc2c108a4bb118a5
+33d6e565-78a0-501f-8fe6-9752c0d44daf,conflict,"First, as if they were Scottish Highland dancers. Then, make the mountain be in France.",0.5,,62a98516b78d5f7ac64aa2f6cf0ce4aab50b0c3e956815aefb4febe165c3aa9c
+3fd48ec8-be68-5373-95c3-cad2e0553446,conflict,"First, Turn the cows into zebras. Then, have the cat be a monkey.",0.5,,b6b2095d7530ee955639e9ec8efdd43b5251c18d50bfdb5e6922c2b2f045ed13
+70b2b51d-dc82-58e8-afdc-0afb489c7467,conflict,"First, have the image be a photograph. Then, make her look like a queen bee.",0.5,,b4c83dde50ffd276b54ff5ba246604b3cc77be6fa37c8744b7535ec9b54b5d11
+6cb46877-e687-5dd3-90de-66fb97aafa58,conflict,"First, make it a movie poster. Then, make the lightning green.",0.5,,9e82eff3c5a680ac0d3dce92d07f434aedbe3321140f24cde7ec1400f13e85fc
+2c8629c2-d702-5d0c-9bba-f75294e0fb1e,conflict,"First, As a movie.. Then, Make the lake full of sharks.",0.5,,d7ab3bd0fcf1ca6d6354df0839dbceb679de0579f54f3c70259ead86136a026c
+1693f892-3374-5e11-94e5-5e688b10be92,conflict,"First, Make the mountain a volcano. Then, make it a photograph.",0.5,,cf5e806eccaaa5c999ad627ad4cbea50bd853aec415c45103f475603e8719f4f
+6a10661a-5bc0-56d3-878d-76f53d900e23,conflict,"First, add an alien spaceship. Then, Get rid of the fog..",0.5,,a16c6f02c0575b07c1199d8492bca9e160ff0bbc976936f3bb5d1eb581ea972c
+381cbb6a-8eb4-5a15-b28f-9a077e9a0dcc,conflict,"First, make the cub a tiger. Then, make them in a haunted house.",0.5,,b072cf7224cabd6ca2589284854ce00f4c54fe18f8f5c14e08d992d2f5ce310d
+84c32a49-8406-5aca-a842-35573317fb93,conflict,"First, Make it a photograph. Then, change the night to a day.",0.5,,9e599e71cb9469dc912a974779c5f3bf225fae8a117e1f87f40b35f42eb77679
+85754cb6-6c44-5589-977f-58294f384b44,conflict,"First, turn the scene into a painting. Then, Add a rainbow.",0.5,,909e8fda1f36cd87d42e60c305388941b12d330bb72aa3b3263413dc4f98df62
+b8851007-c0dc-5b60-a3e6-76b6c8ccf90a,conflict,"First, Add some bangs. Then, Add a clock tower.",0.5,,48542b00f519f51f996104bb28c80893d1b07e78fb64694220fdd4d3e35df187
+2f18c035-c300-5eb0-b184-d937300ea984,conflict,"First, make the violin a guitar. Then, make the painting a photograph.",0.5,,59a2df1d4257be139233983fef2d631c78342b09a17c0ee5110a114d0780c372
+b7c701a2-6643-5171-8c58-4ecc24c66649,conflict,"First, Remove the houses.. Then, make the balloons purple.",0.5,,163bf90384933da991801dfd3af3034bd6d0c975ba4c7adb7f3d780472f49384
+c9c5cc8a-d046-51c7-b15b-b25fadd490cb,conflict,"First, make it a classic cartoon. Then, make the tulips be purple.",0.5,,125a4d608372b77798dd340b3a6821fe85a224c9116f0cf5a801530b5fc6bae2
+c520eb95-38e0-5f2e-bade-a284e9327cc3,conflict,"First, add a crown. Then, Add a moose.",0.5,,25792f140639403fc5a72e19be65ab211a84afeb7168f01994cf7d7bd887f54b
+d0a3bb9c-f68a-5d55-bbf3-083418fd31d3,conflict,"First, Show the people with red hair. Then, make it a cartoon.",0.5,,cefa8c9de18d1b3ebe7776a1cc229368d243cab0b9daed9bc1f973e3d0777f63
+c9b4de18-6364-5a27-8596-2e1fa50708b5,conflict,"First, Show the dresses on the red carpet. Then, make it a thesaurus library.",0.5,,e4d444e4bb139b3d6760c7c3e6ec9ebb0cd1e9580d3f54efb582968557062eaa
+6b3262db-9ab4-559b-91e0-197bd5e9295e,conflict,"First, make it a church. Then, turn the person into a dog.",0.5,,090d4dbebb91d1a8090b7717920e3a6312a98079a86fa624013e5fa0a451f9de
+01b66487-9a83-55f4-8946-bb3440f53414,conflict,"First, make the skater a penguin. Then, put the lake in a big brown desert.",0.5,,f4e543a203fc258be3915e0bc97fc4226d929ed5c030708f37ce1e833179c2e7
+b3584222-3dab-5c30-9d89-10f336a43de0,conflict,"First, have the starry sky be full of purple rainbows. Then, add a rainbow.",0.5,,af54b3404eb51a66521462fabe41ea1406c77d21b1ce1dc54b56892360b224c1
+3eb0383f-7bf1-5c3e-9021-f9b4392393f0,conflict,"First, Move to an airport. Then, make the sky red.",0.5,,3f380bf92a7c4c40461471031104012cdf3b7d62744474a840f509cd93842083
+e6c8dd21-3f6c-5f30-9464-6431e6682c32,conflict,"First, Make it a horror movie.. Then, have the squirrel be a cat.",0.5,,75e5e781529921e742cfa2d747153411c12923e18fe25504cc9446761c1852a0
+5ffc6dca-2bbc-59cd-ac66-2cd52f6fa7b6,conflict,"First, As a pencil drawing. Then, make the character look like a cat.",0.5,,dc9813025a9bc97abe854705cb4d8c8560a1c28c91b4c2bd57069bbf37f37727
+92ead6de-d353-5652-b04f-6ef2f4a40fb6,conflict,"First, make the fish into a koi. Then, have it be a light painting.",0.5,,07172578da46bb73b837af44e4be64425cc3619fe6b971e0e1741b4abee43f53
+225b4b11-9802-5f5b-b6da-b8e939434365,conflict,"First, make the painting a photograph. Then, Instead of a flower, make the flower a rose..",0.5,,950fcd0f1b940d8fa5a4a39c43d5bae54f5d34d6a808443c830c34d17834fd7b
+23ff353b-3b86-5c3d-bad8-373b8112b10a,conflict,"First, make them blue. Then, as a painting.",0.5,,3a8c1dca293eff4cfc330013607acd07c13ab32d4b0417d58f2ea3fd839bcd0a
+a04f6715-b558-5309-a0b6-94c69fef6be1,conflict,"First, make it look like it's in the 1960s. Then, The church is a mosque.",0.5,,04080639b5c5c8d7c6425e85b93b8a9a1d787125e853bfca0de75684e44c9ed8
+ceaee25b-0784-5896-aedb-9d48c806edb9,conflict,"First, make the sky orange. Then, monochrome..",0.5,,f3aab9b63c496c95027f5fd26515fa773d26cc0ddc8a34fe8afb2a9a01ad9c21
+f6a309fe-8b65-5c8a-9c19-17604ef9e853,conflict,"First, Make the painting a photo. Then, convert to a pencil sketch.",0.5,,2337a46f28ee05db960c520a72a2ccf7531c8da12464ba2198f334d9f56fc314
+e2b94f63-a0b0-5113-9c4f-7367dbb17eff,conflict,"First, Make it a watercolor painting. Then, make the cardinal a flamingo.",0.5,,196b8662cc4d32a4bc5b07ea05ab68a629f62b32fc2dd77711d26f0e7c49543e
+40367de8-7ad2-5d68-a8ba-a1e499f88bcc,conflict,"First, give her a cat. Then, make him a magician.",0.5,,1ec728c1532491733032ec2f000ae45c4c10a91d5e3ec672a2a5adfff83a29f5
+1a149755-ca9b-57b4-9200-da88ce7a2ed5,conflict,"First, Have it be a watercolor painting. Then, in a meadow instead of a garden.",0.5,,2ead3391266de45b9118d40f82b077372dec72e56922a78d17f9a810d9612a03
+c4a72db5-6a81-5db9-9c28-b4be0b4bc1f3,conflict,"First, Make it a watercolor. Then, The Milky Way is visible in the daytime..",0.5,,f2b0ead3f7d9f629714277ee3be2256f40bed56be0c2e672d5a9ff3543bb69ee
+b88f9ad6-e34f-595b-969d-c936e2ac8dfc,conflict,"First, The street is made of gold.. Then, make it a photograph.",0.5,,97cd963d692075922ec2a4af531fd973d085e448c3cd5f7c26ff1c82de373069
+26f56831-dcde-51a3-96a1-c6964efdf6c0,conflict,"First, make it a desert. Then, Add a meteor shower.",0.5,,d12bf3ab36231478ada4284be3be329680f77c713fc1ea439f10ed17c874475f
+06c30f4d-2278-566e-9442-854a4677eaa7,conflict,"First, make it a beach. Then, make it night.",0.5,,ac4f01285d0e35f04909008508e3206fa210e3decfcba78445a2d98b68570444
+744e4ff8-a904-58fd-a59d-07f543abe5f8,conflict,"First, make the photograph depict a ghetto. Then, make the photograph a painting.",0.5,,d92a96c725d29350076c6bcdb6e2661592c3e6373b9cd76d4d832f4314c58a15
+34c66547-2598-530c-bb3b-dacc911798a1,conflict,"First, Make it look like a fashion editorial. Then, more like a fairytale.",0.5,,df7388c0393311ae3f04c31309b670f9c03750ec48c8ec7ff923cfcdeb8cf40a
+7d4c6b06-d907-5406-b95e-84a6c9d1d423,conflict,"First, Add a portrait of Marie Antoinette. Then, make the flock of birds a herd of zebras.",0.5,,799e559509c728af7d70023f1ed82a341b206e31f56221a3cb067218320d8125
+7aab2505-3468-5a94-9df5-b1325c9eb358,conflict,"First, make it a galaxy. Then, make it a foggy night.",0.5,,82f4a76d20d73acd5b0e04c9be2000bca88af74a1641a34f95077edb263d9eda
+7a16e059-7362-51df-9373-28d22b455534,conflict,"First, make her a scientist. Then, Make the art look like a children's book..",0.5,,0c7872e21d33e3cbd6737eef1a008a305114af9032106c90856de5ff1c6a16bb
+14000aca-b6d1-5afb-8ba3-f50d8350818f,conflict,"First, Make Beatrice a ghost. Then, change the background to a photo.",0.5,,64009138fb779cbdbfc2c0e0c379d1d17ab8ca01469d80029863198d3c4b7bbc
+f9e0e49d-c47c-5028-855b-fb1fd2981e6f,conflict,"First, As a landscape painting. Then, Add a crystal ball.",0.5,,b22ab837f6d2e191f819d1b2d66c548d3bf4401f18de5322c69c1b9db1e173bc
+b91d4463-ba59-5fbd-83b6-30967245aa8f,conflict,"First, make the picture a painting. Then, As a black and white photo.",0.5,,f9dff2c541d5cd0a89bcd1abf9d432e0da220241091b0ec9488f06f8e5a67cf9
+b552c95a-bc27-51bd-9019-68c28c158816,conflict,"First, make it night time. Then, make it more modern.",0.5,,721856c272832c74f2f987c41aca423aeb931ba8cf0d62b2c4f30e6429b7dc98
+4b15c95c-6f3d-5e59-b19c-e7b51c2fd139,conflict,"First, make it a golden retriever. Then, turn into a fantasy drawing.",0.5,,5755a125343aa4786aaed7f788d7d5281379d8dbaf5c7ef15581d20f7d094588
+e6045d9b-0357-554b-90f1-b18f7291fc7c,conflict,"First, Add more monkeys. Then, make it look like a cartoon.",0.5,,dbc3a347420a56ff309179154f371ddae356e3b8357ee729d384aecc89f0304a
+fab9708d-0690-5412-b2e7-d278eb6d4762,conflict,"First, Make the road lead to the zoo. Then, as a watercolor painting.",0.5,,c749e3392dfada422dd8f100405e7f0e771352da37b94eee3caa1229ef66b38c
+56fd6a18-9b30-5f05-afc0-4d4454d6d841,conflict,"First, make the cabin have a tiki roof. Then, make the city a rural town.",0.5,,02e4869b210ff5d5b5e83aeca9f3152edd23842d9d6446cc6d68397ca9197864
+cfc4ac63-5cf1-54b0-8487-1b7ba9e0a498,conflict,"First, Make Damien Hirst a giant squid. Then, have the powerful woman holding a flaming torch.",0.5,,fbbb09d322e0e01cd5441edd52567acd7e8eac917ec09382255e69aafa9c9540
+e5cab22a-f764-5dc5-87eb-b58e73ef9865,conflict,"First, The photo is taken with a big camera. Then, have the shop be an antique store.",0.5,,db19272f281a37971037c67e313829ed15d13b920d3526fa502cce7ab210b9da
+07f19cef-3a66-54a1-a55c-e64f083a265a,conflict,"First, Add a dinosaur. Then, Make the landscape more surreal..",0.5,,e4a60395797876aa9c72bbdfc2be3e8c59c295a799f5c8404dfb1293c1b42926
+1bf68034-08e9-5575-bb3e-516f381cedab,conflict,"First, Add a polar bear. Then, make her look like a Disney princess.",0.5,,5b9e45da712b21a4055b728ed4fd9c12236725c4cdb255af43f14e31014f31f9
+3dfdb60d-1f15-5d07-a188-9cf4b351ea3d,conflict,"First, Remove the lake. Then, make it a colored pencil sketch.",0.5,,2c4f199784ffdf9c044559ae395b2c277eaaee004b3be1031b422720cde6fb18
+1ba823c8-a713-5e45-8c0a-21a6fe1d4e59,conflict,"First, make the painting be an anime. Then, Add purple leaves to the aspen trees..",0.5,,f22b18a3084f4c2f593457d63edfd6b503a1fb81c3f39341dc34b2583d4d91eb
+daef76ed-6150-5be7-ae9b-55a67fcc6dcd,conflict,"First, make the distant scenery a night sky. Then, make her a zombie.",0.5,,071b8daff8f4dfc2d0b039b788d1b158685503f858f10fe94eb9f19ca57a75fd
+e53dbf5f-c172-5959-b1e0-0641a8f904b1,conflict,"First, as a painting by Gustav Klimt. Then, have the model wear a turtleneck sweater.",0.5,,58a74a6b824ff5e26c55c5ac5a977abd366f669b26e02849235766b226aeb17e
+06ea46bc-0612-5de0-a102-95e90817760d,conflict,"First, turn it into a watercolor painting. Then, change the lighthouse to a castle.",0.5,,5d3da8f3f89c227ffa9bea278dcc3c02c7837b59c73ee250fac2e3ed2f2864fe
+61e69445-3736-5a98-a5a2-0a18d665ebb5,conflict,"First, make the rivers glow. Then, make the grouse a pigeon.",0.5,,7f9c7e10ab73d928d0786bf4cc313161cbcff91463ae6dd2fb2892bd2d74d88f
+5602df7d-457e-5647-98fb-ba86685cd7e7,conflict,"First, make the son a baby. Then, make it into a painting by Leonardo da Vinci.",0.5,,68b42a0a3a1c0d967856f723d6ea6925c46007ef7ba760932071ce3e44bc39f0
+d9edebac-0878-592c-96bd-028852b27b7f,conflict,"First, Add a swimming pool. Then, make it a gothic church.",0.5,,98bb8e4324146c24e661f1d9f89572ab4ee3c9725bec5deb09b61fae4d962991
+7575b1ab-a5b6-52b2-8ce6-0066000f7da0,conflict,"First, Make the picture blurry.. Then, have it be a mosaic.",0.5,,c8900d77fdee17cd314ea2cc5fc5ada59731d732a779078620ebdc2d906c7e92
+015bf518-973b-5468-bfec-ef647d794129,conflict,"First, The view is from on top of a skyscraper.. Then, make the crowd in chains a line of ants.",0.5,,4be3b36d4f401f584ec85b6bda00a7b9017339c7e019a4198e24f35933dddad4
+ac151726-ccb7-552a-9dba-6c10f43208b0,conflict,"First, make it a painting. Then, Put Liu Wen on a beach..",0.5,,8956e1ce4b4d724cbfaf5222d1b95c208936575ca99b0cc00ad02b2a1c65fd3f
+cdd8af12-b350-50d6-afe6-2232f7a51e20,conflict,"First, make her a skeleton. Then, make the picture a photograph.",0.5,,abd146b31d2bf7ba45b230fd31f954e591e5fca7c1d94b589c8a0194eb4b640b
+242d3dae-7976-583e-9ebd-c7b5f68de92f,conflict,"First, As a photograph. Then, turn it into a factory.",0.5,,da40d59a552f9e9e0760a5a4c9443796912876d3b6b01190b9c800c06cadcaa2
+2480c85a-31ee-5f26-848e-ffac3897f545,conflict,"First, Add a balloon. Then, have it be a rain of goldfish.",0.5,,389f2315378c2a2bc51cbbaafc1d31054146d84543329ced0a521c034a999b53
+fb31c7ad-dfc5-58bf-8240-2a4637a4c091,conflict,"First, make it a giant lava tube. Then, have her sitting on a horse.",0.5,,5c356a2780e0c9ccad8fc4501476b8d0247580060613b09cadd81672f72d7660
+5f4946ed-a15a-5d25-80f5-df4b1da6de4a,conflict,"First, Make it a photo by Ansel Adams. Then, make the farmer a firefighter.",0.5,,fe9e84fcdfeda16eaca04ef4207c4c62ab87833bc337c6fbe9d0da9ea6d88e87
+87705010-516f-5b7f-9955-1bd4362fe8e2,conflict,"First, make her a sci-fi movie star. Then, Make it a poster.",0.5,,e15dce8efa3125af190c359e17152ba2499d5ef0aa4d3198a4993b09f077d48f
+6e24ef27-b4f9-544c-9064-edcc597b7959,conflict,"First, make it a chinese painting. Then, make it night.",0.5,,e2b36cee60fe6a10af8175af8661a572a3a844a45b3f692d082f4dca8d4cde0d
+506e5453-b377-53bf-9fd0-dfc653418055,conflict,"First, make it a pencil drawing. Then, change it to a watercolor painting.",0.5,,8c3d60d845bf54987be9d025cacf4f41b864923d106dbd94b81941e7d30387e7
+0b91a67f-f707-5dad-ae83-e344a7bf5346,conflict,"First, make the water red. Then, make the sky dark with storm clouds.",0.5,,8e2742c06a8af1a804cfc237e697d3842858de6507277f98b94a7f4740f30f0a
+a17802f3-6dfa-5ab4-bbf6-cae30f482258,conflict,"First, Turn the dogs into a herd of llamas. Then, Add a Superhero.",0.5,,993a052d21f5a3a45435fc7d63bcb3692c9311560112efc3f82dcce827561d92
+8c6c62b0-6f6e-52aa-80ec-3351f18edc38,conflict,"First, as a painting by van Gogh. Then, have it be a hand painted oil painting.",0.5,,f4c60a23b13fc1b41f67ef0e3a0af79d9e07eb0320d903c0a0d11c258b356a74
+6863c1f8-bbb7-5fb2-9005-863c0fa01e49,conflict,"First, make the gem a ruby. Then, make him a zombie.",0.5,,ca279b883ef57b7fc3f52597e442c9a8f9b99c75a1f3c2ca572fb048c235f93a
+1841c33d-62df-501a-b685-b35b15c51976,conflict,"First, Make it the Rodin Museum. Then, make it snow.",0.5,,21cf39401a04cf56e6d35117bf74dadbbeb015f4cfc6f1fccebbb4afd0f85105
+a9fa5328-c636-5e53-8d18-b16485830499,conflict,"First, make it a watercolor. Then, Add a storm to the picture..",0.5,,18d74970b96acf3e60285103a8122128fd0da2a41c81ace0d7665b6c53dd65d6
+b7494493-9533-5f38-ae66-8fded9b5de3e,conflict,"First, make the painting black and white. Then, make the stones more like crystals.",0.5,,da94d75733a09719b1a657a25304d65a171d2d2e3bfdc3b8fc71ba6ab14882b1
+164a1ced-85f8-5119-b0b7-1172e7ac3dc9,conflict,"First, Make it snow. Then, As a statue.",0.5,,5789c9c12e724e6719a569185947c1af5125e3d2b9638dcfdba53c59db7da1f6
+b9be6e85-baba-591f-a4a8-5819baa41444,conflict,"First, Make it a landscape photograph instead. Then, change the setting to a prehistoric era.",0.5,,78f1c834de2d165b56e9bbb2f0860360709b5ebd1c106b0850ff8924a68acf7a
+bd326c47-58ad-5e8a-be54-bb0689859d53,conflict,"First, Make it a desert. Then, Instead of pearls, make the dress out of gold.",0.5,,4a689be423d52a1383066f807bee0f80d8cf3fa5bc80f5cec674543c6ce2222f
+ad06fefb-8043-5980-8bf0-b3758a8495e4,conflict,"First, Make it a graphic novel. Then, make the landscape a desert.",0.5,,ed9b0a5c8ebd3205644a4c2c400a44ecd35b74baf476b0969d5a4c53b4ad3408
+ee6b6de3-6575-5021-8ef5-c96739d9cb28,conflict,"First, Make Zenobia look more like a gargoyle. Then, Add a photo of her playing the guitar.",0.5,,896faba1e9a06f0a3e75f839e293d089ed26958c326702c67801e2448bd3b5bf
+ab6c86e7-11a7-5662-99fa-9ba0f4af9ebd,conflict,"First, make it a river of lava. Then, make the tree an apple tree.",0.5,,a56e7b82fe93374ce5bd3dacb6b211fc41028194cfcef79faa3b86c1781232c5
+8323ba2a-e235-537c-9b73-6db085d6c4d8,conflict,"First, Make the frog look like a duck. Then, Turn the subject into a dog.",0.5,,4407dd571404abe75e2e9d714f171359ad287b4705614e226d07082b2120a366
+dabd7a21-9ab8-5710-96c3-485ee6dac40c,conflict,"First, Change the fan to a leaf blower.. Then, Turn Fuenffingerspitze into a mountain lion..",0.5,,95c0a1be48ee572c1514a86b5149dcebb459de5102536f07d9524377b2f64a59
+6caf7ef0-4f47-5aa1-bf26-3e90eae44680,conflict,"First, Make it a drama. Then, make it more like a christian painting.",0.5,,65a7597ed70c66ec1289666e20d496c278c5e6b4f495cf7ca9ce3e461fb237fc
+dbdaa5fb-4820-5603-a861-f6bd627f5aa0,conflict,"First, add a Tyrannosaurus rex. Then, the fishermen are wearing helmets.",0.5,,442d7d73c1c6c9a80caa883d70217af2eec0ceb230b82fcfb4d98adb112b1b98
+53ad4f89-83d6-593e-834d-ad555136b979,conflict,"First, make it a desert. Then, make it a painting.",0.5,,25b405d159f75ca8ed1a7bee0ca5e6e1fddd1f72fb88be918831b45445684bbd
+5593f315-8441-5c98-a91f-bf5ec91eed72,conflict,"First, have him wearing a Captain's hat. Then, turn the outfit into a swimsuit.",0.5,,a1823c263efa00e85ee0ce3167533da060c3b9aea14c264b9d901ade8e482f55
+8d1befae-8dda-521a-a6cc-da8aec8095ff,conflict,"First, Make it look like a woodcut. Then, make the tiger purple.",0.5,,77a743e7aa161d914eaaca8c4ae4763e174817cf5b8fd363664e37cba6139271
+2830e587-49e3-526a-9e4e-9be76811e2f0,conflict,"First, increase the population of grizzly bears. Then, have them play basketball.",0.5,,d24d9325b07763fd065a816dbc01927d9c0248770ab0e68e4c0b885ed5783fee
+0c900e0c-5ee3-5ddc-b4c2-d181e907ee28,conflict,"First, the photo is a selfie. Then, make it a night time photo.",0.5,,fbc6b57d51e348745bf04011dc2dd7cd18884ade0e6a3829c815d0a1421c8076
+0076a9f3-99a7-5dcb-9acf-f96c4351a13a,conflict,"First, turn the sky to a sunny sky. Then, Toss in some gators.",0.5,,965876717c090fed57ced4ffd0a2dbc94f00ddca7fee971cd08758db211b6ce2
+3c7dd325-262e-5d1d-91a9-92ec7aef1e05,conflict,"First, As a painting. Then, Make it morning..",0.5,,d01da71d00cb32ddbbc242941c8050da629ea5df8d285776d65e1c753135c9e5
+e0e0b3f8-0814-5970-b8a8-4be29da0e988,conflict,"First, make it a fairy tale. Then, let it be night.",0.5,,808f3c97b6bb1b7aaf5d288f2b56b6364e453f3543fd6009c751e66713834b7a
+1778fe22-238a-5be6-a051-18375eefa914,conflict,"First, make the dog a pit bull. Then, It's in the style of Edward Gorey..",0.5,,d9318cf9c7fd5fb9b554d5caa3e1634385bca7b7d6b034741e13af089a4e3856
+203822c3-0cf3-58eb-b363-34a70b148395,conflict,"First, Turn the brown bear sow into a black bear sow. Then, have them be a ranger.",0.5,,4c9e872c5758c4a2d1618292d9fe8c85e5119c7960e3936c23b753a4bcf08670
+5bde5d14-453a-57c2-a5b4-8260a9221c7c,conflict,"First, Make it look like a woodcut. Then, have them be in a desert.",0.5,,ceb285749587909a2d272314c666bbecd291cfcf4096124e76ca006e6c75f365
+c5efff87-62ca-5e42-9c0e-5084c502e36d,conflict,"First, make it a cat. Then, make the castle look like a giant dandelion.",0.5,,684308f3ef91a3f14c64307d12429f2c8d1772930eba8e3d3d5fd60a4fea0efb
+47a17f1b-ef51-5bf2-8917-d69bf454e8bd,conflict,"First, Add a dragon in the doorway. Then, make him a robot.",0.5,,ce7025f9cdf9ca7446772a847fc9b469830928d9c65b668453aca67d859cb026
+bcb799b6-4ed2-51e1-92a3-cf8fec9ecf2e,conflict,"First, Remove the dress.. Then, As an oil painting.",0.5,,31e75ba088e88189d5266d78d78a63630eb5cf016c2d4b2284c290a61c6e4db4
+73f3e2c2-8ef5-5bbb-94f2-a695b207ec38,conflict,"First, make it a castle. Then, Make it a collection of Japanese woodblock prints.",0.5,,9072c2618e385fee4d6800633de3fca421ad8926c4d49b8c6128b571d8db1610
+98eeda05-a38f-5035-953f-d8e1e8d482ed,conflict,"First, have the garden be a swamp. Then, have it be a young girl.",0.5,,396b96db1788d567612d34419b72f5d63b595e7e8093f28ff72e8fd19b26731e
+3d4bca54-8e97-5626-9359-471979744027,conflict,"First, Add a carrot. Then, make it in the style of a movie poster.",0.5,,934ff4942c7614b5206603837d88e44332a6c8ebc27d744854b565b35a3d0146
+6da40556-3c0d-5a78-8583-a1375233175e,conflict,"First, replace the skyscrapers with trees. Then, make the artwork a stained glass window.",0.5,,2f8fbed51686d09e74fcf190010857ce6c05a45c012a079b141095bc40190ade
+f08f8227-30e3-5a06-bc5c-d4f71b10e9da,conflict,"First, Make the paintings of buildings. Then, make her look like a hobo.",0.5,,78d7da541fcbc09f61f7c10c5a557988b6afb9423b92068e05ebe9e530cb7858
+7f8a3e62-f5a8-5faa-aa8f-e61c560b3b7b,conflict,"First, make the painting in watercolor. Then, make it a crocodile.",0.5,,3ff393f151054e2add06e5765e88423a403c0f4a9c13e80e0f0a57e2aff5e771
+3687fe7c-a008-531f-a7c6-b10f48e12c8c,conflict,"First, add a hurricane. Then, Make the man a cat.",0.5,,70290c3c1231fbb395f6158052565ae9bb1273388fbd3966b9c9405d0d6779c3
+f0f1d32e-5c0d-5e1c-84df-7a8dc32868b5,conflict,"First, make the painting of a spider. Then, have the painting be an abstract..",0.5,,6be9a9f1cc2d9096856bfcafefeb5013ed786cd3c46f9c20f2b2c8c1a806306f
+e3fb636b-0b03-5edf-97a9-e60dc16fc933,conflict,"First, Add a storm.. Then, make the photo look like a painting.",0.5,,ccd3e4d94c5542b47a1cf8475bd73a9bc285f00f3c3b2f68fb9da1052dcf8767
+05d5335c-aeac-53b6-8fd3-83c817b47308,conflict,"First, make it blurry. Then, make it a cartoon.",0.5,,cf10aeb68c8683ad6a119710dff4f977ba86494a10f852ff65b31cf032216d07
+edf0e013-2ca5-5e08-9920-f21d50e62189,conflict,"First, Add a herd of elephants. Then, make the storm a tsunami.",0.5,,1cbc716d57c2155ece48e6f45d02cd47a98371a0ee862d99c658f0a3a9e96948
+6fdada62-0182-515e-abb5-f8df477a5342,conflict,"First, It is haunted by a ghost.. Then, As a daguerrotype..",0.5,,4db5a3f94a545c006beb9468d5a75bd262dabedeb91a49bc279e34ea8f623f7e
+ae05b57c-deb5-573e-8e76-21c6a93d2380,conflict,"First, Make it a comedy. Then, Make it more like a fairy tale..",0.5,,dbfc60858cd3365d5814d3d2e1b4ac272b0b0c992f56d6b981ecce044483e20a
+1b2cdccd-3bef-53f9-97a4-78c8439be96c,conflict,"First, move the school dresses to a deep gold color. Then, add a rainbow.",0.5,,c4e80fca17d335b1b769236fe5084fd4057282d9fbf906e463d0ee281cefaa88
+1f671d17-b92c-5481-af66-6d54773c5cf5,conflict,"First, Make the train a subway. Then, Turn into a painting by Henri Matisse.",0.5,,569646c1825ebd09e42ee03dfd6a2ac4bfe4f3528e7298676e6def14d06ca71c
+251a8a42-3420-503b-8509-6599ef27c411,conflict,"First, make it a digital photograph. Then, Add a moon.",0.5,,996e3c39acc6a01d0be499dc27daa2b9a4f194a52886a801e3a29c72e6496163
+ed17d31e-b0ee-5b28-8c16-5b4a872f2046,conflict,"First, make it a waterfall of liquid fire. Then, make it snowing.",0.5,,6e0cf7172e5a10f6803482a91e31c76a630b8ed041837c8a686c83e7e10b10e1
+795e43d0-85b1-5929-88b2-5d9d231fe509,conflict,"First, Change the Grand Canyon to the Grand Canyon of the Himalayas. Then, make the son a girl.",0.5,,522c31a31df20f6a2d344523ea5ec9cf9e426a122309e14e15ddd80921a84704
+982edaa8-1296-56fd-b94d-d6b2d664f3b6,conflict,"First, turn into a watercolor. Then, Make it more like King Kong.",0.5,,01474d96b32ecb2269d88e780c4a4cb80f60ab912b3b0b10a12225232eb6dc27
+2dfad62a-72dc-567a-b27a-6f966d96caa3,conflict,"First, Make her an astronaut. Then, make it a wood bridge.",0.5,,6bcca7aae254e56245263b1579e6e17e66fcb01c4aeb8ff7f890e49927acdb8a
+8930146c-25ee-52dc-900c-c6686a212425,conflict,"First, turn into a painting. Then, make it a haunted house.",0.5,,c9a43907ad83e5cb0c7027055f6b39ee5e7b532da0cf0e181f67cea447cdbc9d
+0f983185-6642-5270-b8ea-3d94ec681b37,conflict,"First, The cabin is made of gold. Then, make it a horror book.",0.5,,ec4a2468b037f064f9808f0deaa101d1557cc99ae80731725e3151748200f70c
+0e423419-c446-5549-90b3-7986097ba095,conflict,"First, make it more Charcoal-y. Then, move her to an outdoor scene.",0.5,,8142bf26b9786585eec77a9f215deccc50fff96a7b47ac40c82f5a0f69b9553a
+6448dab1-015c-5f62-9e68-d62f57fc3439,conflict,"First, Add a dragon. Then, The painting has been transformed into a photograph..",0.5,,48051cb60d68e44ba587fcf13cac96a0fe824b020d3c7aea99825cb1f8af0274
+ec0c6a09-a809-5d56-bd76-ccf7ad1e26e3,conflict,"First, as a painting. Then, have her wear a ski suit.",0.5,,88def574aabed45040784d5a300bf73b1cdc422ddf21182760e7b34dae2ff8c9
+30b3d444-f341-5949-bbea-dda73162e536,conflict,"First, have the painting be a 3D model. Then, make it a sports stadium.",0.5,,5ea9bbf0b2c57bb536d0fb388130cb65141668bbf0be4ab477ae4758f066f9cc
+7f2e0499-a93a-5292-a73e-afba65e121b3,conflict,"First, make the storm a tornado. Then, Make the sky purple.",0.5,,6470d64dae7554b43f1f87531414ed68fb48498cafe6921a4e81f0ce6aef6862
+05a48609-379a-59d0-9d59-901ef4a0c298,conflict,"First, have the girl be a ghost. Then, make it look like it was drawn by a child.",0.5,,e243bc184a7a39bcc14700f35f824c86f4704d70ac0d964b22223d82eb29de30
+6aab9616-ab36-57ee-8b94-99c72f2c8af2,conflict,"First, Add a sword. Then, make her a granny.",0.5,,a6b187df3ff79cd5629b144f43e706fe5421844cb2b2b48f735ac98890f41c2f
+552c6850-8190-5cfa-ac6e-0b408905b986,conflict,"First, change the artist to John Lennon. Then, make it an art museum.",0.5,,d159714ca326ead16e27add6ae08f847a9b6142c443e6076c301437a0b337c7e
+554fafea-6d28-58d8-b39a-eb17b2afe23b,conflict,"First, make it a drawing. Then, Make it a big city.",0.5,,65f140bcc50b66f3a486cac1e9d608b2fb38f4bdac196927256087cf012594b8
+d605b402-8062-5afc-8870-e85b4eb7b688,conflict,"First, put the photograph under water. Then, make the hair auburn.",0.5,,edab7bc7e97b6cd85f6849736e68c3a1098f5324ca4ccb5d92b63eeb6f996562
+d4daa5f1-0470-5b13-a08d-80038e1c7435,conflict,"First, make it a city of the future, like Zion. Then, change the watermill to a windmill..",0.5,,8403b8308ec279a1cb0af3e256a51723c1f57d9ad4a0a3de3b6d4fd51ae8e48d
+31d4982f-41c1-5076-a36b-4b3ecaf0a360,conflict,"First, Make it on the moon. Then, Make the walkers zombies.",0.5,,af7426b70813b744bc0dccdda9d2e40e7d84f261d92a20b3f1cea146b062df90
+b36314e3-6b84-55a5-a007-d9c428eaad5f,conflict,"First, make him a pirate. Then, swap out Star Wars theme with Toy Story theme.",0.5,,f22c12b9aa567a26c28ef7603e389e6a9ff033462941a46d49fc078464962f65
+b48d8cac-9baf-57b5-800a-e1e42a113cfb,conflict,"First, make the man a cow. Then, make it appear in a woodcut.",0.5,,c51b938a8b8b68b9d2403686911ec91bbcbbe37138755f7538fa6dc4c77d9787
+23146388-62a0-5ca6-97c6-3c1b369c70a2,conflict,"First, Replace them with french actresses. Then, make it a daydream.",0.5,,035b0d36c7d375492193a06d55c2e4111c44419bcb8ba1d2fe38905c75536020
+7a6841ce-2aac-5a68-a282-0a2af84e9567,conflict,"First, make it an oil painting. Then, make the canyon look like a castle.",0.5,,2ccfa5fb6b49932b785b8308b0780a5e7cc4f3ed2f08af49e07ff75b6a78de0c
+5d62e18f-725a-5e21-962a-8c889363351d,conflict,"First, make them in a boxing match. Then, make it a snowstorm.",0.5,,c0f4a4ebcfb7cfb5fc13d9be28464005aa993fa51392a1656aa3cbbebd101564
+4df5c6f6-a5d3-5d57-89a7-efd50b176429,conflict,"First, have Mary Magdalene be a sea monster. Then, have it be a starry night.",0.5,,6d923cf0de78ade9e6a55911c3818c96d61582d0e46b014683d2e3be23b00a0c
+d9284f9c-cbaf-5adc-9c21-5b1d5f95e1a1,conflict,"First, make the grass purple. Then, add a lightning bolt.",0.5,,26976fbd9ddeb23ce97d8d1862faad8e88da176b6ee5f483d59f211e11dc07c4
+bae44b3b-51c6-5557-b3ae-5670d52c7deb,conflict,"First, Make it a hologram. Then, make it look like a painting.",0.5,,c618bb7770a054296e565b5ad1def1e5acc8092b0b2573beab29c68480a8fa32
+af4ee06b-b80f-539a-baac-e36057f76ff8,conflict,"First, make it more somber. Then, At night.",0.5,,8ef0293865d5597b398fc95eca3ebf8f52986b2db949d7bb60b2f020c39eea69
+c0696160-480f-5eac-a997-3e02cfea956a,conflict,"First, In the style of Salvador Dali. Then, Add a tiger face with a purple muzzle.",0.5,,581533f1de03f2ee4d6e00a7d9f1bd2e8effc5786952fe8e35766222596d6f20
+3332e406-e7f5-53c5-a2e5-7b46307ab898,conflict,"First, add a green tinge. Then, Make her a catgirl..",0.5,,6c4c81e1545e59a9be87b1eedc86ce34bb98ba859acda331ed511888735e06b6
+13d0b2a2-e43e-58e6-a06b-942b16761b15,conflict,"First, make the stairs more neon. Then, make the girl a lion.",0.5,,77e62fb9f637f9a59f1b02631ba7e1a6d8c8e3a0187d94bb8e4c4be50ec2f380
+40deeccb-b58e-5cb7-b633-126e9828e242,conflict,"First, Make the place a museum. Then, Add a layer of snow.",0.5,,d00bf2807097762004585593e19a6dcefca675d3bd16e30a5104108c3fb83fa5
+5d6ddc36-650b-52f1-984c-e9cf6ad3aa6e,conflict,"First, make her a demon. Then, make the girl a giant dragon.",0.5,,1ac6a21b94574babffe05a62fb326f20dc59df944ae2fccca702d7055b322560
+59d368f6-c5e1-5467-b933-04cf341cb2fb,conflict,"First, Change to a farm. Then, photograph a quilt.",0.5,,df11b27588f4bc9bbffb4604654f7046107091110851d3464d3d1fe0d7207e60
+dffae9f5-b8c9-5082-8631-5c2eea23bcc7,conflict,"First, make it a painting. Then, The photo is of a giant squid..",0.5,,c0306699995a16748ed5782ddfbdbb8b95b386dc57459810fc64e52fe7bb8fdf
+fe3f1ac8-0869-5e73-8e49-5d26aa46a9ef,conflict,"First, Turn the cruise ship into a space ship. Then, give the tangerines a black color.",0.5,,bcfd6b1524268a584b1ac93c23d0f37d480273486005794dd3660792922f0c09
+2e36405f-d4d6-5bfe-b7bf-c989be640f10,conflict,"First, make the lady a Native American. Then, Make her wear a kimono.",0.5,,372750b975b4247a55524fa1d2098f77fb2c9516efe1cd7cffa47978a027345b
+1b0726e4-6e6d-5171-b7be-62e954dc27a1,conflict,"First, Make the couple holding hands.. Then, swap the wife for a cute kitten.",0.5,,5abc097ea7f51b92c03d5889e4e5210794da5edffbdbdd4f6dbac62a6b294063
+9b85e946-3ddb-5e0c-af3b-abde1c0542fe,conflict,"First, add a castle. Then, make her look like a celebrity.",0.5,,12a7023444fdec6a4e96bf86bd565b07b7d4cc60d64093fb771634ff920837f3
+27c7baf0-a8e0-5989-9d76-42d969d25507,conflict,"First, move the jade dragon to the top of the Eiffel tower. Then, have his hair be white.",0.5,,e826c88c5ccc821a1bdb0114274054394b8794eda2db646a6ade721c4c9a366f
+8ea8ddb3-6964-5a69-8dfa-0efcf8487d7d,conflict,"First, as if they were made of marble. Then, make the geisha a nun.",0.5,,092b24b76acc09c3ee4c2a9814a00239735cc4bfff99670b24cbaa0ef4cfadce
+744a037f-987d-577f-ab70-3e8a14755865,conflict,"First, Make his sisters be dragons. Then, make it a black and white photo.",0.5,,194fcb97dcc65f4878f01b74e084f527e6aa785840c9b0c0b0098c9cb89d4389
+42e5b581-c381-56be-8ff5-4f6f95196c4d,conflict,"First, make it a desert. Then, It's a rainy day.",0.5,,8e62fa94950c1425fb78c7c7126a8bb1cfaae405ddaf614fd33bc6be7e58bbc9
+948218d5-b188-55c0-9cb8-77737b38dc20,conflict,"First, make her a mermaid. Then, put the person in a cave.",0.5,,0f9eda7bb56386faff96d5541478f1309a1c30ed1b7c1196d4f601c88557d045
+67a3516d-1add-5997-a1a7-b1a81269726a,conflict,"First, make it more like a fantasy painting. Then, have the summer be a spring.",0.5,,b54d92b412653aa3f627c913d64ee92be325af6db4e32811dad0926cb486d27d
+b72cba4d-dc8b-56c4-b3db-290564fa6928,conflict,"First, make the artist a man. Then, swap the railing for a fence.",0.5,,bac5f3546e62a2365b49055d063aecde37066d298e774dce2f9f5e902306cd34
+b6d4366a-e05b-5522-bf03-d27d694ea20b,conflict,"First, Turn the lion cub into a giraffe. Then, Add a dragon.",0.5,,023e2877938aaf1be352368dc6635850d6168d2804b1019510d18fa4151aa71e
+bb671d92-26d8-51fe-8339-aa7a4cd78125,conflict,"First, Replace the portrait with a landscape.. Then, Make the sky green.",0.5,,93e27acac8510c39b5fc436318d134f3ea0c67ccc492b2c816d647029c1360e7
+139e8886-a026-5ea5-969a-7e1abbf9f991,conflict,"First, have the cubs be koalas. Then, make it a photograph.",0.5,,8fe1938bd7576d45753bc4cc40ffe588a8bb9ccdda844e6c5a61537bcae4e7a1
+0127077e-a661-53b4-be63-313915b01a09,conflict,"First, Fetching water from a pond. Then, make them into a children's book.",0.5,,09fd2c66da540011adb4a6f274caf0b321348de73f557540660b4751221c45ff
+2c07a1e7-1310-505a-8971-f3232eb1e4fa,conflict,"First, Make it evening. Then, Make them by Jackson Pollock.",0.5,,e69d2c1cd42b0fbee0c84a6a3c9a3b9968afa843d58bd1edbe1482cadb9368f2
+cd2d2a7a-d428-5eb4-8800-7753b30c03b4,conflict,"First, Add a stormy sky. Then, Instead of a B'z album, it is a G'n'R song.",0.5,,d0272cbdd001accd2dbe2e69d0e41a8c8b193d4a75aceb3ae61dc8503fd67757
+ce58d6ba-00eb-5f0d-a7b5-635aa1ffefd7,conflict,"First, Add a car. Then, make the ocean a swamp.",0.5,,b325210e249e331c5a8e81406e531c217311541f6014731ce037cf9801576592
+974c671f-cd96-512e-a7ee-422dba93bacd,conflict,"First, make it a misty morning. Then, have them be dressed for a formal ball.",0.5,,bc2276c1fe0bcaa48b4a275fc4c0b48a5249d123353056b986dacf228fce1789
+4e7988e2-9dda-57e5-bfe6-fcd95c89eb0c,conflict,"First, At sunset. Then, Add some graffiti.",0.5,,dfe1324bb1249698864cbb498b7d1def3c935914b5479d9d17fbd3b147509a40
+7c24ee6e-da21-554b-a8f3-51695aae07bb,conflict,"First, as a seascape. Then, turn the meadow into a forest.",0.5,,94114fd0503aff8081dedb6fe9d1b3b3754e50646b5089c2fce49b75e15abba2
+97b0271b-aac9-5ca7-926d-3db9102d1b70,conflict,"First, make the horse be a zebra. Then, replace lilac with maroon.",0.5,,0dc5926e9a1bdd8f224a3e3c820cd5d1c74f7b8613d070fdc4dc59fe230c8c24
+2573bec1-d7e5-542d-a3c4-65e3301769d7,conflict,"First, put the town in a jungle. Then, Add a lion to the scene..",0.5,,fecbfeae4d643771cb5f1713153b5daa8f612dc60e2257a114b80904fd0d4173
+a9314f91-2b68-5893-9a28-d8a6158ef218,conflict,"First, make it a watercolor painting. Then, put a dragon in the empty kingdom.",0.5,,a03f878b6948e34d118e0ab13e854aaf6cb72fff1e5bc512ee03629773f03784
+f4161741-f23a-582a-93aa-f6b0d59670a5,conflict,"First, Set it in the desert of the Sahara. Then, As watercolor.",0.5,,d4ba55dc8d5a96eeae73dc2dec233c6b4428121fd4e928f9472f7030bc30d9cf
+c0c59938-37fc-558e-80f2-059b6137f145,conflict,"First, Add a lion. Then, have the river be made of lava.",0.5,,f49d955e4887af687703d3b203b3f5db6f5253c73ea766a2796e0331de7864d8
+b26dc309-c7f8-5f4a-a7d4-5366f32a2d91,conflict,"First, place it in the snow. Then, make it night.",0.5,,91d89a637cca05cfd5ec4331df80f7daf3efcaa14c6b3e0385f36bb4b538ddc3
+fcb2819a-bbb9-59e1-be3f-ea7d2ed92c27,conflict,"First, Make it a comic book. Then, make the city look like Dubai.",0.5,,0d587bff7015f0d3295d6466e597a558cabae3878ecde56aa302b09d2ac7baf8
+55e43c1e-d72c-5ed9-9994-ce9695941aab,conflict,"First, Add a waterfall.. Then, make it a bronze pavilion.",0.5,,09f5edcb39a099f41263a1fe2cd6c9e22204eca5741d295a311df281dc804723
+60928683-f686-5d4f-a0fe-d45662cb7db3,conflict,"First, make the meatballs green. Then, Add a storm.",0.5,,a978b4870eae0dede2793f3800c510891b9a8c59c677ba7555aff8d8e4470516
+48de7d33-042d-582c-bf50-62053e8024fb,conflict,"First, As a cartoon. Then, Add a pirate ship.",0.5,,f96e89ace4b95991da94b01109c7191d2d65271fba6367f6675875df1a003e11
+caccd7e5-7217-54ea-81af-dddea452f549,conflict,"First, make the room a circus tent. Then, Make the ghost a candy corn ghost.",0.5,,26a813893cdfc4dbd975453ed78ed22ceb06b8ce93860beaabc7736f5faeff06
+c136f17e-5c4d-5c96-bff4-7451a1630a39,conflict,"First, add a warlock hat. Then, turn the dolphin into a kangaroo.",0.5,,b79114cec1faf9517d6e5e3895e816d2f32e54ba98bdcaad03e53041d1e282ce
+dc48138d-2bd3-5011-b6f5-e4d1e33331ac,conflict,"First, have the hill be made of macaroni. Then, make the demo at Walmart.",0.5,,a7d04c3fd623d400be1a09c4ff9ceb66e321a4332a1c740e08403c9d1d85eb3a
+a9273319-4a4b-5aa6-a998-e0b3ebd88cbb,conflict,"First, have the woman be holding a banana. Then, Make it a nightmare..",0.5,,931c71b687eeeb9636c8f7c8f86388502ff12b013296612a9542fe841daf57a8
+2c2953cc-44e7-5f8e-b201-a70396e44ee6,conflict,"First, change to Cuyahoga Falls. Then, turn it into a watercolor painting.",0.5,,a9d28aa2d7fe21316e058773f260c500d2824ec584626e7e3018f4104a791a53
+089d58f7-2a29-548e-a4e3-bf09ac48e43f,conflict,"First, Make it a photograph. Then, turn Walter White into a bear.",0.5,,27bd0ad4fb107da32766de8d3de61beb8940681b6867956c000c8d58b27e80e7
+92c207c6-301b-589f-bf68-3a6babb62153,conflict,"First, The mountains are made of cheese.. Then, turn the bridge into a rainbow.",0.5,,751229c202deedb209a6e41f119c1c75f18385bb9904b056c1dc02152b8ff0fb
+64cbcbca-a9cb-5ef9-b08e-02c4d98881c5,conflict,"First, Morph into a butterfly. Then, Remove the windows..",0.5,,204a2ba61f691461aff55e3217abdb4397f7c7319ab8e54efea926734bda667a
+80aa2e28-d4f9-5715-8ae8-b7ca8fc47d9e,conflict,"First, Turn it into a watercolor. Then, make it a stormy day.",0.5,,6472c0bbbb3d465337c07bbc3b108a411f09d3078cf9fc3b8e72156e329e1632
+7974feae-17a3-58c7-a89c-3026c438c89b,conflict,"First, turn it into a children's book. Then, make her have a smiling mouth.",0.5,,d67534413ebba551f2d929e01ebf013bf6883da110a6f40a6dacfef5a5aad7f6
+373ff8f6-8c75-536c-afe6-03af14305681,conflict,"First, make it animated. Then, have it be a Japanese advertisement.",0.5,,89d064abb3d1f2c0d91f49ef5d727cc3982b505095ec856db87fbf5a8075fc61
+f66d4ba2-ae8f-5490-bd9b-47d4e650564f,conflict,"First, Add a rainbow.. Then, bring it to a cemetery.",0.5,,b9d53157ead20877a74a2a9d2e6ded9b972b9a7c32567d5a34369727fcf6e523
+e6590a05-7827-5a8d-acaf-a934ac0f5544,conflict,"First, make the woman wear a silver dress. Then, As a painting.",0.5,,55dfc205f176e29d8a31d0898261ddbadce73f1bf372f684e7bb3190e949a2d3
+3cac4f8a-2096-5c16-9b5c-c11db5296d44,conflict,"First, move it to the moon. Then, Make it a dragon.",0.5,,6cb02af5f61c42c00d896316522ab4299b2ccce7bf643fceecf459cb3097ed44
+db7f5297-e046-532c-9126-8788aac05475,conflict,"First, Make it an ink drawing. Then, turn the boat into a hovercraft.",0.5,,323ea2506bc14c256915960602ba095ef3efe1a5472f06cfa27fe1a34a36b855
+8508368d-6904-51cf-810b-7736d9e76755,conflict,"First, turn Lake Como into a swamp. Then, turn the fruit into olives.",0.5,,0281f626253fed3ec6866ad16bf47a1171200b69df5fea7c7a5da8e25a980a3e
+ad71009b-601f-5dd2-9340-bc7a8c980942,conflict,"First, get rid of the castle. Then, make the lake a hot springs.",0.5,,f855917961d048ac3774f63a5b252af1fc68e07516d228b06580f88706fe40ce
+e1ef6f93-2237-5a78-af1e-e3a552a730b1,conflict,"First, wipe out the lake. Then, Make the landscape into a desert.",0.5,,26a5ca45cecd643f72a0408c85f76dae8e3c59ab788e1d2c3ea67167e24ad526
+22644c0b-bde9-5dbd-80a0-caf20c05f930,conflict,"First, change to Venice. Then, Make it a stained glass mural.",0.5,,7f45abeecd786f20df944f5beb8dcc53a8f83ae51f41ab8a87ec477adc791fb4
+a42b34ba-4098-549b-92e7-75a83ca779ae,conflict,"First, Move the Grand Tetons to the Sahara Desert.. Then, Turn the deer into an elephant.",0.5,,8c0488bb16d8b7e8dbf31fc0ddcd8b0bdc8937f7597e93f7fe0952ed89c4b537
+3e2ec830-c707-5d96-a4f3-ca1db8e02e37,conflict,"First, make it an aquarelle. Then, give her red hair.",0.5,,ee2aaee91010c2d663bd06400c3355a0348ecb47bcf209d52dabc8b806c43358
+41a3e4d3-9b04-55c6-811d-bc321bf17c44,conflict,"First, have it be a lighthouse. Then, make it a painting.",0.5,,025f603b456af1746c07f1a6412f212bff48ca2388568f0e373cfb24012031ac
+155bb55a-3ce8-5d89-9f78-da69f837b464,conflict,"First, make the church a mosque. Then, set it in the wilderness of Colorado.",0.5,,78b04ecd7a2453db2636c98e5e0aeec9b07ed794acc73f219ef2be4d2b42c0bb
+930f3c2f-c04d-5973-bd30-c1eca2b04ac2,conflict,"First, Add a wolf. Then, make the picture black and white.",0.5,,4f90dcfbb8252f4837cea252f3bab58e6eb8f4fe59e90d647eca704d82db6f30
+e4164180-b62f-58ab-81b6-5d0bac4afb70,conflict,"First, turn the swamp into a desert. Then, As a painting by Rene Magritte.",0.5,,b06e3cda0baec99331ce0f11ff01f02cd0e7bbdfc1baa964b9824c51212df710
+d5f5c6ae-6510-5d0d-b2ed-ae2fb3078632,conflict,"First, One by Picasso. Then, have the snow be made of sand..",0.5,,9348219bd27d38edee26108bf0f48c73c20a5d5ed45dbb6bdc0fcdf14ac2ea89
+b4d2f1f4-3c23-5744-9c07-14a09e42b8c8,conflict,"First, swap out the ski resorts for a beach. Then, make it a seascape.",0.5,,4a2c824864ca7caab9c1b1d2a9319efb9813841c9e34513f77e5ce281d16c556
+2e4bd02c-fa99-57e7-b290-5cb81bc28a16,conflict,"First, put in a dragon. Then, make it summer.",0.5,,590d9385f4090431acbacfcddb869d2cb58908d035fdd28bc6291120e7861b97
+a1f3511d-12b2-5d06-8c1d-a583b64edf04,conflict,"First, Move the market to a forest. Then, make the mist a fire.",0.5,,1a0d14b62e6fca08caf3b5aeaa568eb01d8906fca8dc39df9de21094be28fb27
+66d90488-d3b4-571b-869c-e93681ef55fa,conflict,"First, As a painting. Then, have it be a snow scene.",0.5,,67278aa613bb1d4cb07b2f954fbc817b8004658352aa53d3fed6f164e8d0df93
+e7fdcd19-3a1e-5d08-8fdc-e393fb388b73,conflict,"First, take it out of the canvas. Then, have it be a fashion show.",0.5,,82abd6c781da7bedce4df0a91e8f4f3476f6486dd676ba918af748224dff9fd8
+c8855d56-194a-50e0-bee4-e1f228bb9f61,conflict,"First, make him a vampire. Then, make Kim Bum a golden retriever.",0.5,,84d8f44fe3cb843b892923cb27a87e76e2aa4d6b23df83bee381e6a115fb4c0d
+63038470-038f-5cad-9a37-89ff1fd59517,conflict,"First, more cartoony. Then, make the castle ancient.",0.5,,f3257d69afa08508ad4cc00f4a74bb605d75aa435219b66945ddcdd8e118a86d
+c2a92b30-3b7b-5bd6-8c7e-1232dcde3407,conflict,"First, In a different medium.. Then, Make it a stormy night.",0.5,,f361e3f9efcb1b059e12e3fe7b6b0e57c1af62602c1e213162a7d3382a92b839
+81fd5301-8a19-5e24-b27e-36df965c941c,conflict,"First, Turn the hut into a castle.. Then, have it appear in a medieval castle.",0.5,,f88672dd1fcf90b813db5ffdc4fd9531afedb2e242c32399595ceedf5bb5b952
+35dee692-e11e-551c-94b1-fe5d00008552,conflict,"First, put a UFO above the lighthouse. Then, Add a forest.",0.5,,55c198f088032b2e341ad8a46a2b6ace375d5b68b3b3eddb15c18636f47bc042
+8366d126-200a-5577-a57f-3465c03373a2,conflict,"First, as a black and white photograph. Then, make it a giant toy bridge.",0.5,,0e03788e9c6ed944c488f2c58a97a5e58aae1c4c8850c0452628d1543728513f
+9e047bd7-1107-573b-a4bb-a37e01cda8d2,conflict,"First, as a black and white photo. Then, Turn into a watercolor painting.",0.5,,aea42c96549c721bf932ca33c0021f47e870fcd0620ef4554a6565156a8be74e
+d0cfa2bc-4e60-57ff-a980-9e44f3ab0672,conflict,"First, Have her wear a crown. Then, make the book a Harry Potter book.",0.5,,e107c6df9de943cdeb4d7a165483eb40712251389e9e0b041b4a14f3c438100d
+ce28d0f9-7987-548b-9f6b-1b4fb1252c78,conflict,"First, Add a tornado. Then, make it winter.",0.5,,6de87040ab516e4698aac145be09f039f78292a93e8d0936ac00b5c1de182e59
+4aca1bdd-4999-53a6-a0aa-ee4fd826cde5,conflict,"First, Make it a poster. Then, change the lighting to flash photography.",0.5,,1d62a232c9f66d09662994815c090865fe02aeb3d7b52166d5250cd3d5add4d8
+246d89c5-51cf-524c-8c94-9fd76cf0db15,conflict,"First, make it a space suit. Then, change it to Picasso.",0.5,,9ef3fb3c9861f4eeb2606d925920a056b36017d84a6359b433d8f6c904f77f33
+4e3bb623-3780-57c9-a7f9-be9aa587a992,conflict,"First, make him a zombie. Then, make the illustrations look like they were created by a child.",0.5,,aeb109c0f922a84fabe466bf6eb6de5924ff40bd74270f1064b5c5487f517191
+e8431d88-8d4d-5e11-b8c3-6878f0e84a30,conflict,"First, make the world a grainy postcard. Then, have her ride a motorcycle.",0.5,,3f4e526e37b5a4b617e716b1d2a78cfd9e3b2d874ad7cceac6a4b8eda84aaaf2
+570873fa-549c-5cee-a78a-784d1d8326c3,conflict,"First, have it be a watercolor painting. Then, make him look like he just came from the gym.",0.5,,97f41a1a7b6f9d88218bc9008ba7cc6dbccbd64c0f1049711bebc5d4399ccc38
+43e34c06-2109-5a75-ba9d-1b39b388e7ef,conflict,"First, change to the Italian Alps. Then, Make the landscape more futuristic.",0.5,,2c53edd0354e9eeb57064981bee3218c1e1905271458f40af47327f922e2fe6d
+7e615fa1-2133-5815-be2b-643780840060,conflict,"First, have it be more like a children's book. Then, Make the island made of gold.",0.5,,0609fed3bdad8392eceb6954c4850b094aba9ed3299c03b8a84b7455eefebe83
+4279e4e1-92b3-5ae6-ae9b-488ed882a383,conflict,"First, make the colors blue. Then, make it a photograph.",0.5,,af796188a1994f2f9f15c8f5958ffa34d22dd05156afc0e1c70ec495370adfb7
+b5f14849-5970-5695-a43a-e779bea7c526,conflict,"First, swap the d'Orcia for a d'Alba. Then, Make it more like Switzerland..",0.5,,ab306c4ec749399a4c6f327fc92d0debc3bcbb506e55f7573fb92c78ed95bdf2
+bba83f16-175d-5252-bc93-ec4c273cb277,conflict,"First, have the mist be smoke.. Then, turn the painting into a movie.",0.5,,7d5e2a1c381b5cef869a629daafbcb8d6b20d7a1abe33b029fa38b16352637f8
+150e1f82-e7a9-5d01-b841-068c369e322c,conflict,"First, Add a dragon. Then, make the watercolor a watercolor pencil.",0.5,,ebc64a4c35b610f3b22b5b3f32a7048d46f1cec568c1dba7879749c9b0625177
+ba78c0da-956d-5375-8794-fa7b56ecd0a9,conflict,"First, make it a coffee shop. Then, make the field covered in snow.",0.5,,161688e1422d2634a47e66c4585e1390322aae026aae3ae5d30677dd39b28b52
+29173d6e-d1b6-5a53-b2a9-2d6812ea0e7f,conflict,"First, Add a volcano. Then, make the street a beach.",0.5,,8ad5d106d9e11f114af04277ff7eef9b35a15186513ec9f6b4336d2ae66045e5
+cedaded1-0b0a-56dc-a436-1a0423ade659,conflict,"First, make the game about pandas. Then, make the sheep white.",0.5,,f51334f5fc7adcfb75d1858ee1d7745da8987a3198cd48098d2f7c72efa2a8d2
+464a5171-382c-58bc-90d6-b6f6572aeb38,conflict,"First, add a fireman. Then, make the storm clouds into a tornado.",0.5,,a6a8c72eae7c46102437d0dd0594893f81a48e1bab56f7088691c81e626f42f1
+89bc7a2c-3d36-50f9-8f42-36147a0cc626,conflict,"First, make it a landscape photograph. Then, Make more of the man's body pink..",0.5,,399939df41a9f104354f6aa748cb5675e021a53a20c898643db0d7b99e3aa042
+2e35ec71-1e12-5c30-9ad4-99cd4b3dd1b8,conflict,"First, make it an old English castle. Then, Put it in a lava lamp.",0.5,,3fd177c63b5b142c65f109416720d6467d61f7730f26ee05b0ba7af8f8683ba9
+4b9430af-79ad-5fa1-8c81-413910f6c235,conflict,"First, Make the alley more of a plaza.. Then, have the people be skeletons.",0.5,,9225f6932e31ee76f0d1a3b0b411d847d19a7af8bca0c37375e17fa350848c2e
+1b5b1060-28e6-568e-9951-71bdde1fcbc7,conflict,"First, make it a cemetary. Then, Change the beach to a ski resort.",0.5,,fae5834adc354cce978e0b2987e016f13616a0f07816d91f648f87dfdb3602b6
+bdc0cc9c-94cd-5510-814f-e63196411f64,conflict,"First, change the painting medium to water color. Then, transport them to the old west.",0.5,,863452598596f6585920ba7a0d791389518f7c41fbc534433a19884071d6dd20
+bf878cc0-810e-5fee-81b0-4833c77fbb9e,conflict,"First, have it be the night sky. Then, Make the sword a toothbrush.",0.5,,68b65c226534514f176008735889f1c12b8a3733598be5299b7d22c578e9746e
+d448f00e-7665-5c5a-8c2c-67fbd128e1ed,conflict,"First, make it more sci-fi. Then, make it a cave.",0.5,,2dedfa8a253cd6449b82634ceba39db3ee1153fa31a5417b0aff1ee8cf1cd034
+ffd62e54-21f9-5a3a-b726-0b1ae69fce35,conflict,"First, make Lar Gand a zombie. Then, make the church a mosque.",0.5,,4030d030ab04e065e5e66a626732eb8aaacefea9a1e80e8c3a97284fd28185b9
+78d04c35-f651-51e2-a82c-07e262106a8c,conflict,"First, make her a princess. Then, make them look like alien homes.",0.5,,e3e9e1936624a5e3a6f4f9c1d5acdb0834c7779b7faf62008bf83668ae914235
+53d00a58-3dc6-5996-8cf4-92419649a55f,conflict,"First, turn the Crown Princes into a pair of unicorns. Then, make it look like a movie poster.",0.5,,98f8d6e261f00c271c32b92a011c930a27fb5cb65824fbddd962337c1aa75485
+29a0cc32-f572-57c6-b496-30e0206cbaa9,conflict,"First, make it a city school. Then, have him be a Zombie.",0.5,,87c6f09b261382b459c372e4d105bbc049cc57c3207abe31d42f6b51385e4f9b
+9a1b7eb5-7072-5ca5-bc1f-851b5ccb66aa,conflict,"First, With more horses. Then, Make the woman blonde.",0.5,,3faa63ea8626951a110460cd45a5f1d2843ead92593712dc5edd63764e4de7f8
+49fe1fc4-fa94-5025-8297-d296a26fd564,conflict,"First, Move it to a snow storm. Then, make the sunrise pink.",0.5,,cfc84f0eb16a9670e737e4cf04001659f515fa36c807baeea9dcc18b69e2d96e
+f3efd129-3c68-5899-84f2-999c5e16c712,conflict,"First, Change the season to spring. Then, make it in 3D.",0.5,,4d951f4686258ff488b166d4e388cd4bc3ae09e2cb07b29d1218856d98eafb69
+b2ff006f-dbcd-56d0-9e44-142cbb84ec47,conflict,"First, make the ghost a pirate. Then, make the bear king of the jungle.",0.5,,b7d99817c92ab896ed21c4328746c887173e2ae1d11c9448f380b5efb03a8f13
+1adb0503-ace9-5d9b-b159-829edb8a46bf,conflict,"First, make it a medieval castle.. Then, make it a business meeting.",0.5,,b11291cedb8f68e9def546d5fd361970159892acd1feb2f2bef52014cd3d5b7c
+0ca9b9c5-b071-5d8a-a765-dffcedef42c4,conflict,"First, make her look like a Greek goddess. Then, as a painting.",0.5,,a93c2dbf399813a99a8ebb6134d5dc1ecf6b23a27480aab330d9491046fe171d
+56e38252-c406-5438-aa2a-6a97cb67c7b7,conflict,"First, turn the bay into a lake. Then, swap out the world for the moon.",0.5,,5322f66f06c522f64778b4aa03ca141062886f9fbd8b108fdebb7ffba6dc6ebe
+64ad8f80-ade1-50dd-9943-4a4464b8be95,conflict,"First, make the women wear colorful saris. Then, make the rainbow a double rainbow.",0.5,,7369eedd125d6d3ebf5a5691b95e31acf5952a402c7f6371e5725c9ef2444acc
+2cd8d2ce-f27c-5060-b89a-212a41b5dd47,conflict,"First, make him look like a vile pirate. Then, make it a photograph.",0.5,,3660d5484d567cc09df2f82faa5373aa0e7eb14da5919799ac4abf3c914f77c7
+3b8d8102-6f81-5acb-b470-c80dde59b4bd,conflict,"First, give her a halberd. Then, make it a drawing.",0.5,,848f0ac29927aab88e82e4982b6f9d9482eb28afc3572585bf2e91b115c437fe
+522c2bcb-e290-53ab-b73a-087a00f1bf0d,conflict,"First, make the princess a man. Then, make it a black and white photo.",0.5,,c7c0b5316038e3660efba0a520502e0cedcc4a364269053c0acd0d3d08f7630e
+6df2d9d9-f8ad-5831-bf73-565eb446940a,conflict,"First, make it snow. Then, have Zidane wear a headband.",0.5,,c1bedd9825b08dbd3a2fb4d71ab940588aa79963f4be4ba7852ab95e97374b6d
+7b306e85-bfbf-5dfb-ab39-e45866935262,conflict,"First, make the ice a beach. Then, make it a cartoon drawing.",0.5,,7978849662e272039cfe1513224a6f06871c64694e3c3c2adb9b84f9a1b71ab9
+86801002-176d-541b-a1e4-a5adb786204a,conflict,"First, It's a vast desert.. Then, make it an Academy Awards ceremony.",0.5,,069a6ec1ea2036277d05912652076d2b4e3de5de8c582e8c5c92b5a34ada8d5b
+048196c7-1d98-577b-a0c9-cd3c3cd2b168,conflict,"First, make the crampon scars more like tiger stripes. Then, give it a watercolor painting style.",0.5,,16cbd75142abb4aee3f7a1663f1ed05f287e3fb517ba21ff3f0d7edc517753c9
+58ee8a89-b4ca-51c1-9040-fbd6c524e033,conflict,"First, Make it a western. Then, make it a blue veil.",0.5,,e026af310f2ad75fdefc9db701348270f645ea0b13d3dc82a197fe1a40933a94
+baffc894-c8cd-5f4b-aeaf-2b48ada36fa8,conflict,"First, make it night time. Then, make it a palm tree.",0.5,,ac42edd0b9c8b0100b4cc100969a701450108a23aa11677b63047df5ffbaa2ef
+c45db803-65e6-52b0-a27e-a49589945e67,conflict,"First, make it a woman. Then, have him be a Jedi.",0.5,,b8a0318e5cf70e85a0637e2eda70ccb1efd2f1ff0540a2d3860f1da7e7ba4154
+838d6229-d171-5df5-944f-021f7d0b90a2,conflict,"First, make it an old-timey hotel. Then, replace the swamp with a dark forest..",0.5,,7b2e94354b936afc648d92ebdf76bafd8b7c8b4e0cf668251bf9fee23b368014
+c9ac4a8c-e37e-53f4-aec8-980e0ee5a107,conflict,"First, make it a modern painting. Then, Make it a sunset.",0.5,,945142a988abb42baab9b4168ab8fe83ea674147d0ff4c25c7ea7394f1117dde
+84da717a-ffbb-54c0-bd35-6890bdc1eb8a,conflict,"First, as a watercolor. Then, swap out the umbrellas with penguins.",0.5,,7f2218e57bb66e9f74cccadd5c841bde65a22c19349a413994eaf279533813a8
+a26db53f-af76-5425-bf9c-7e41d51c314a,conflict,"First, make it a science fiction painting. Then, have the girl be wearing a tuxedo.",0.5,,15cad3aafc231ad3f7a955cfa22485e3c50503a95f5345725ea549f46da75ec8
+921cf60f-415a-5e3a-9bce-2322d34b7a18,conflict,"First, have the bicycle be a unicycle. Then, make the vines snake like.",0.5,,50dc45dbc17aba239dccc4708c0287f89f0ad40f7c056ba0903fe47ca52d4c4f
+9208d1f0-9124-5997-a63a-93ee15a716fd,conflict,"First, make the girl a koala. Then, Turn it into a movie poster..",0.5,,cca64a0516b8e90180bf0cad6d8817efe142a919c4ef9d7285f60787629580a3
+c8b43100-e557-5db8-8a31-4b729a93dc05,conflict,"First, make the countess a pixie. Then, have the buttes be made of gold.",0.5,,bb43a2820acb97411740464c6b55d9ed3ad9023adfa028691f8cc3eae38f594a
+dfeda5bf-388f-5b5b-ab98-f874c95db63d,conflict,"First, Replace the scenery with a Martian landscape. Then, add a dragon.",0.5,,6d2639ca496eaafdbb8c2e2533aed78fc8d458ce0cfbec9a46dca4927ee9d94e
+fa8bd8fb-477c-5c37-abc8-59c4ed89fea3,conflict,"First, have it be a video. Then, change the hair color to red.",0.5,,2552151c646d6238f5e80bc5a5cf7427f052111bfa624b919388490b8ff67ff1
+f5a1a07d-c945-5f7a-9c5e-6962ad34ecbf,conflict,"First, Make it a watercolor. Then, make it a newspaper route.",0.5,,df078bcbedaf3e919314e2e34e4639bc21944dd9ea9fb933977ecd9722fcbd53
+def061db-6ae2-5ce6-ab46-f4ee46f44ccc,conflict,"First, make it snow. Then, Add a motorcycle.",0.5,,51153c6d8f930308b9d64e0866748b677e6db5b69889c655aaa811486fe85229
+3c48029a-bcdb-5e62-858d-0bb06cbbe849,conflict,"First, turn it into a cartoon. Then, as a painting.",0.5,,f6c72604c155060ecc5bf722be23e78eb85cf7599eac47403a21c6c2a8ef2016
+386583d2-9072-5930-8c2f-09ce8adbb0a7,conflict,"First, Make it look like a Disney cartoon. Then, Make it a street scene in Rome.",0.5,,2772a739d92da6333c7de7d1d85cce098d1aa7b3b0ea1696d3f7f91030b5512e
+f91a0c70-f05c-595e-9e49-1c6a53acdca6,conflict,"First, make the princess a frog. Then, Add a flower crown..",0.5,,09f8cf0865442968081514ff0eddf55ae9805f8029814475e549191e1987e28c
+5eda2962-8a63-51de-b328-807e01a6009f,conflict,"First, If it were a purple bench. Then, make her wear a pink wig.",0.5,,dc8f31777a3e5e34ba1d2a87290d4708a637cd4b9d9409bba9abc9755ec6dddb
+5ad014f0-5dd1-5f59-bc56-bfc03a57cf85,conflict,"First, turn the road into a river. Then, make it a self-portrait.",0.5,,cee8b59b8d74b713e26d55b126c19820bbaf51bfb313946a0c158ba1379963a8
+45717c73-94fa-5cd4-83d7-943f8540d175,conflict,"First, the puzzle is made out of wood. Then, have the photograph be black and white.",0.5,,f8e637b5aa2696268ccaf3b6b579f00c961c4bebce725607fce9615ba1f4a3d5
+40c20797-7d1d-5d02-9154-5e30ea24e222,conflict,"First, make the house look haunted. Then, make the trees look like trees from a Tim Burton movie.",0.5,,6ed026d4b7e99512413cb99459c29145588866029c81650ed2577525183138c1
+9a0ccbce-d23b-5c61-b6db-ef95d88854d4,conflict,"First, make it a digital photo. Then, make it a sunset.",0.5,,8df9afead4bc7362cf7d7c4a5502616e8085a1690cb16e83c2ec1aadb1f7f50c
+1bb47185-df3a-5708-9c32-6ca48eb50528,conflict,"First, make it a street. Then, Turn the tintypes into Polaroid photos.",0.5,,530554b96060edf4917e90f0760d31cf0f9dcb42a739769c30991e4cc090f383
+c1a43166-bf56-5d79-9713-606b27f71ec1,conflict,"First, Like it's by a horror movie director. Then, turn into a magic duel.",0.5,,e4f1818ddba358081a2a6c63c27af859e44b9bf0ea7112e36f94080216c69cbc
+47ed29a9-7ad3-53fe-aa08-1e1d213b54c8,conflict,"First, have the kaiju be a pterodactyl. Then, make the falling snow.",0.5,,cd4fb872b6d4276ad8da69a0d5b8aa89c523cd120a8ff0279e93e4e017f40019
+2fd009d8-34d7-50f5-827f-d0b0489c2f8a,conflict,"First, Add a lightning bolt. Then, make it a lake.",0.5,,e46a8516b44b42f978b9adbee0bd696520681fb8b71e3f54b41a688a6597bc0f
+38dea73f-54d4-5553-9a6a-639b5a2c5e0a,conflict,"First, Add a crowd watching. Then, make it an arena for a gladiator fight.",0.5,,4e11addc168268710db3d2431932e0776e78cdc19ee199298cb4662b6fee35ea
+65c36c56-9934-5ae3-a52d-e3b0889bb693,conflict,"First, make the city of Paris look like a cartoon. Then, make him a famous singer.",0.5,,9deb62e7fa442f418180623d5d96905a282b7cff17d5dfdfc5c5f16c86622e95
+fa04d395-7d40-5a01-98d5-0b2ccf137503,conflict,"First, as a cubist painting. Then, Charge it with lightning.",0.5,,a9a9eac6ddf9613b140c9503a8097550ef83cd0964825d5236688c772b37edd1
+49053ec7-34e0-5edd-a7b1-b59eccfdf410,conflict,"First, Replace Lady of the Lake with a lake monster.. Then, change the color to red.",0.5,,9de1da9e7b503a48fadd7320a07f3446b0a0213bbbfdb62f2b30dc6f35cba22f
+4a9d9013-27bc-5af7-bcb2-19777f4b8c1d,conflict,"First, move the lake to the Grand Canyon. Then, Turn the lion into a wolf.",0.5,,3120865901a5a3d92370063048a9b1fdc96a66ea5017506d437931215b02598a
+9ce46477-a56f-5a75-9cd4-84768dbbe33f,conflict,"First, turn the rotonda into a giant snail. Then, make it in Hawaii.",0.5,,8944cce0e7b4ca31f64e9519dab351af59a42569545a3f80cec86c13ce8d531a
+f88cfadb-4b1e-5be9-b3fc-d97cd9fa1460,conflict,"First, make the white dove black. Then, Make the lupins red.",0.5,,554d51b88c3875bd465c1fb04640149b3d1424bc1fbff3d17afd09e1252a0de2
+5ff56d68-f494-5a25-a3c2-ebcb30b29397,conflict,"First, replace the DC-4 with a Boeing 737. Then, Make the stairway have a slanted grade.",0.5,,f2f8aba8413f7fa2c6be3fefb829f705484f6c08cd03c69689851887a47b3a5d
+bfec4b5c-15f1-5bd9-8df2-8f1d060590b0,conflict,"First, have the hills be made of cheese. Then, make the sheep into a chihuahua.",0.5,,f7ec93738e48cca9514c098961368f2ebb8691b3c9c7ee57f95d290ab7c1ae59
+d4d7eb75-e5c3-56a2-a56d-c9bb7c982955,conflict,"First, make it night. Then, make the barge a canoe.",0.5,,17fcfa353b5bf9515b836d46562fdc861449ad67f64dfc404808e6a957538342
+da519d20-cd7b-5a3f-989d-a32edaa07364,conflict,"First, make it jeans and a t-shirt. Then, as a 3-D sculpture.",0.5,,b4962b9411a0d5ac8948f3a9846c5e780a2325c2f467dcce26b9ee5a4961b528
+8c38ac34-1a2e-55dd-bc67-051c93a85b9d,conflict,"First, make the subject a cat. Then, make it an action movie.",0.5,,83fcabb0cda6bc0a3a52806b202b3e38f277cd80b9bb3450e6043d2dbecee8a2
+b6171845-8eeb-52a0-90f8-7aa1dea6bbdd,conflict,"First, Add a giant alien. Then, Add a herd of buffalo.",0.5,,7b5c48f6b6f925fe50d99076046bdc3d6638f918bd73b858a8e81e9d71468fa5
+4ff3c400-8d4a-5996-bbc0-3cf7bb0b81ab,conflict,"First, A cowboy hat. Then, make the houses more massive.",0.5,,25eccf21e2f2cafe2468c2a0bb3080731be1bb8606e6be225202cba2522583e4
+bc84b436-bc8c-56c7-ab73-5a5f51183674,conflict,"First, make it a photograph. Then, make the taxis yellow.",0.5,,c3709d5c3cad2da9d285965da6c044800be950c3d2883d4491535220be3e9546
+25910cb0-7476-5d63-bc63-c6f5ecc0f679,conflict,"First, Make it a winter scene.. Then, As a movie..",0.5,,9fadcf845ae6af68c2786a31cc0c9d7b916f39aa4a0cb57e9fca940437cf625d
+d7f6d557-0d0d-594f-afb5-8c35531de916,conflict,"First, as a painting. Then, make the sheep a dog.",0.5,,15bcb1749f7a506e4579e6717709d474194e66e588fefd26386d0e9d2037512c
+2c38aaf6-25ee-5cd7-a065-b4d19a2fc2f0,conflict,"First, make the mother a horse. Then, Add a tiger.",0.5,,66c1f523db112b9082f814f1db08b703a8a0c4f8dbf74684da472a5f969828b2
+c9c01cfc-e987-52e1-8818-6c197f73af61,conflict,"First, turn her into a zombie. Then, make the girl look like a zombie.",0.5,,2eca551a3dae67a4911c241a8948bbcf093bb7f2019d1238c3f51ca3367ebc7d
+33c1d38f-dbb8-564a-bc86-9ed546848b65,conflict,"First, As a painting. Then, Add a tornado..",0.5,,42314afdae549d27410f53f7b863569fd29b7b84ba23a2b33e0b4e800e21ed11
+d7933b48-8bc4-54a3-85b8-feb42f5dfde2,conflict,"First, add a leprechaun. Then, make it a library.",0.5,,b651362175c3e1a2ece7983576dddf005bc6e8715809140a7916fc038be7e79b
+b479fb9e-ff2d-55b7-8450-4649a6a285e1,conflict,"First, make the lady look like a cat. Then, have a rainbow in the background.",0.5,,fff673214117d48fef03f4a026bd6a7e3c4af47db0db6a8e1792c7206428dc40
+09aaa8fc-5735-5fb4-be33-15581401f94e,conflict,"First, make it look like a painting. Then, make it night-time.",0.5,,13188cde295942a08344ab08094c4ada7869aeada4cf912dd20a38c8a14d6819
+429f1433-8d29-56d8-ab7e-4fad5166cf5a,conflict,"First, change the painting to a watercolor. Then, add a tornado.",0.5,,4981c74df72eeb9a4b2a07ed9a1394256c242dbcb9cc8205a943dd797a417f2d
+b0cd91d7-0dc8-504f-b586-a74a1721ee70,conflict,"First, make the flowers purple. Then, turn the dancer into a guitar player.",0.5,,da01c5e06f4e90708aaf8ce00c8b07c0f265983fcfb5c7194b50fe683f31d667
+451ab6b0-32c1-5525-9618-6d08538376d1,conflict,"First, make the scene in a redwood forest. Then, make him look like a middle school student.",0.5,,a796ed5664ff96a6eadaa624e42b0c5319b18a5b43ec8bb2ae65b0065f86ba95
+71d22238-7838-56e9-931d-80c6d1dbd350,conflict,"First, Add a deep blue sky.. Then, make the store a women's clothing store.",0.5,,6ac87eb63208c4738a07fa678ae6d2c205276205365656961cf7bb0f6f820387
+bc4ef9a4-efc9-5bd3-b6f2-be71d77ece8f,conflict,"First, make it stormy. Then, make the pansies blue.",0.5,,966a2237d27de936924dec6fd053bec24420990c9b24dd5aa7cd79c1427024bf
+04a01ae0-097f-5c6e-9937-19f11e0a26cf,conflict,"First, turn it into a painting by Monet. Then, Change the route to a boat.",0.5,,c9715b45e7ac107a167f9d650300adb379d26ac4c00e111440881e97d218d5e7
+004fa79f-4d63-5154-940e-67ca1378569d,conflict,"First, Replace the snow with rain. Then, Make the game an NHL game.",0.5,,047f59d9cd5bc636cffbb24933a9dcb399e800164d8dbd846cbc38e2cc1fab0e
+bc807007-a21e-5964-bd1f-a677ae8036d1,conflict,"First, Change the farm to a castle. Then, replace the metal print with a woodcut.",0.5,,b1e5f97c552036ba6e730ae53b34d32624f63ce63c29cc567acf2fa45b5b5390
+b051d425-c8ca-5af6-875a-77c37aa226c0,conflict,"First, It's the Eiffel Tower.. Then, make the painting a photograph.",0.5,,7ea7608a188fe4fb99d02fb8a610668290eb2acee78f194e67a18e10b11c39e6
+b90b7480-4449-5511-887c-f7c312f36fc3,conflict,"First, Add a hot air balloon. Then, as a photograph.",0.5,,3e94e53947554262d8c758900cbb6c12a815fe5af291b6c6786e1cb27f53da20
+696c5bd1-8b42-5168-936b-17a2daf1b6b1,conflict,"First, as a stained glass window. Then, change to a grizzly bear.",0.5,,aa70d96794f77667adf960d23e42f0a60b73694774038d34911ce7761b90e241
+2541a514-290b-5f1b-8afc-c8dbb935e248,conflict,"First, remove the locally crafted parasol. Then, make the sky bright blue.",0.5,,761559dd0e6b080fc9769be61d30cfeff3f0be4e63b42038269b82775314c9d4
+f631825a-e103-5bae-ade1-245ab0f5f73f,conflict,"First, Add a tornado in the background. Then, As an illustration.",0.5,,6576d32005e807960bc7401e6526451b094ca456a00ee8724befc8e8abf14129
+f6b8baf3-4f3a-521d-86ec-01042eedf741,conflict,"First, As a cartoony drawing. Then, have the picture be in black and white.",0.5,,aa16fb7317a25c32ffada1030a03e50bbce5225c2a826745e3cff873fe046287
+bb723956-11dc-5959-a902-e95d3420a3e0,conflict,"First, as a painting. Then, color it purple.",0.5,,81192bbe12a3eced7a413435672f6eaed5deb78cb76fdad0a9bfc61272ca02ea
+53d5fc8b-19e6-5726-b4a0-9abfcebb140e,conflict,"First, turn it into a painting. Then, by Salvador Dali.",0.5,,39b934590096582a2f0875f4d14c18ce62f4dc34c36d784650592f77c57054ca
+8aeb69a5-5ed3-5040-aabc-435ae2d3dbf6,conflict,"First, make her a mermaid. Then, turn it into a painting by Picasso.",0.5,,7a7273e877c129126187f08e8863dfcb16069880fb937f2ac0df928f5187c331
+532423f5-3b26-5305-9653-a82940a156a3,conflict,"First, Make it a puzzle about the moon. Then, make the valley a desert.",0.5,,e6e5a63250e63d89c1a53d00e630e759b8ca50cb3f59ae1c873b43ae3dd05c40

@@ -1,9 +1,10 @@
 """Download a real sample of InstructPix2Pix prompts (T001).
 
-This script streams the public ``timbrooks/instructpix2pix`` training split
-via ``datasets.load_dataset(..., streaming=True)``. It extracts the first
-``N_PROMPTS`` rows that contain a non‑empty ``edit_prompt``. For each row a
-stable SHA‑256 checksum over the identifying fields is computed.
+This script streams the public ``timbrooks/instructpix2pix-clip-filtered`` 
+training split via ``datasets.load_dataset(..., streaming=True)``. 
+It extracts the first ``N_PROMPTS`` rows that contain a non‑empty 
+``edit_prompt``. For each row a stable SHA‑256 checksum over the 
+identifying fields is computed.
 
 The loader **fails loudly** (raises ``RuntimeError``) if fewer than the
 requested number of prompts can be collected – there is no synthetic or
@@ -31,8 +32,8 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Correct dataset identifier on Hugging Face Hub
-DATASET_ID = "timbrooks/instructpix2pix"
+# Verified dataset identifier on Hugging Face Hub
+DATASET_ID = "timbrooks/instructpix2pix-clip-filtered"
 SPLIT = "train"
 N_PROMPTS = 2000  # target number of prompts to collect
 
@@ -47,11 +48,11 @@ def _row_checksum(row: Mapping[str, object]) -> str:
     The checksum is over the JSON serialisation of the fields that
     uniquely identify a prompt in the original dataset.
     """
+    # Only use fields verified to exist in the 'clip-filtered' dataset
     payload = json.dumps(
         {
             "edit_prompt": row.get("edit_prompt"),
             "original_prompt": row.get("original_prompt"),
-            "edit_type": row.get("edit_type"),
         },
         sort_keys=True,
         ensure_ascii=False,
@@ -59,14 +60,19 @@ def _row_checksum(row: Mapping[str, object]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 def _iter_stream_hf() -> Iterator[Mapping[str, object]]:
-    """Yield rows from the HF streaming loader.
-
-    Primary method uses the ``datasets`` library.
+    """Yield rows from the HF streaming loader using the verified recipe.
     """
     try:
-        from datasets import load_dataset
+        from datasets import load_dataset, Image
         log.info("Streaming load via datasets.load_dataset for %s/%s", DATASET_ID, SPLIT)
+        
         ds = load_dataset(DATASET_ID, split=SPLIT, streaming=True)
+        
+        # Disable image decoding to avoid Pillow requirement and speed up streaming
+        for col, feat in ds.features.items():
+            if isinstance(feat, Image):
+                ds = ds.cast_column(col, Image(decode=False))
+                
         for row in ds:
             yield row
     except Exception as exc:
@@ -94,7 +100,6 @@ def collect_prompt_sample(n_prompts: int = N_PROMPTS) -> pd.DataFrame:
                 "row_id": len(records),
                 "edit_prompt": str(prompt).strip(),
                 "original_prompt": row.get("original_prompt"),
-                "edit_type": row.get("edit_type"),
                 "checksum": _row_checksum(row),
             }
         )

@@ -1,8 +1,16 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/src/data/download.py
-    exit=1'
+  reason: The provided `code/src/data/download.py` streams **timbrooks/instructpix2pix-clip-filtered**
+    instead of the required **timbrooks/instructpix2pix**, and writes rows with an
+    `edit_prompt` field rather than a `prompt` field as the task specifies. Consequently
+    the script does not fulfill the exact dataset and column requirements of T001.
   task: e0b9d4a7ff639d238250ebbf9de3f18077f4cae5fa412ea017110cef615935f9
 T002:
+  reason: The script writes the CSV to `results/curated_prompts.csv` (as shown by
+    the execution log) while the task requires the file at `data/results/curated_prompts.csv`,
+    which is missing. Moreover, the conflict generator merely concatenates two prompts
+    with temporal phrasing and does not enforce antonymic attribute targets as the
+    specification demands. Both issues must be fixed for the task to be considered
+    complete.
   task: dd8b0b45dc971e9f8c1040e9345ba6576981df9f5dc29efba26878695c3945f8
 T003:
   task: a7ab5834cb38c211160246dac4df3fbc6cc66aa18ce342a613c54f8080b77e90

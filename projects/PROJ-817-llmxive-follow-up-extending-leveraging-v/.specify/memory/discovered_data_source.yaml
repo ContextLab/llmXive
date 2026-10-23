@@ -1,26 +1,11 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: "import datasets\nfrom datasets import Image\n\nds = datasets.load_dataset(\n\
-  \    \"timbrooks/instructpix2pix-clip-filtered\",\n    split=\"train\",\n    streaming=True,\n\
-  )\n\n# Disable image decoding to avoid Pillow requirement\nfor col, feat in ds.features.items():\n\
-  \    if isinstance(feat, Image):\n        ds = ds.cast_column(col, Image(decode=False))\n\
-  \ntotal = ds.info.splits[\"train\"].num_examples\nprint(f\"RECORDS={total}\")\n\n\
-  sample = next(iter(ds))\nprint(\"FIELDS=\" + \",\".join(sample.keys()))"
-record_count: 313010
-sample_fields:
-- original_prompt
-- original_image
-- edit_prompt
-- edited_prompt
-- edited_image
-field_coverage: 0.6
+status: none
+intent: InstructPix2Pix image editing prompts with human feasibility scores LAION-5B
+  reference python package dataset
 required_fields:
 - prompt_id
 - prompt_text
 - instruction_type
 - human_feasibility_score
-- image_reference_id
-intent: download InstructPix2Pix image editing prompts dataset with feasibility scores
-  python package dataset
-cache_key: c0872de71180abc00dca6951ea76d8e3c55b9e0cf178ae3c03be3568b4047936
+cache_key: cf54612b532e6a7a4bfdf49bb1199f02bef90466d269c53a640044c381e9fdcd
+searched_at: '2026-10-23T16:28:00.437853+00:00'
+retry_count: 1
