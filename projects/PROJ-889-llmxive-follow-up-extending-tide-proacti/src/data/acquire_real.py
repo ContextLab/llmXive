@@ -6,9 +6,9 @@ verifies its SHA‑256 checksum, and obtains a CSV representation of the data.
 The original implementation relied on the ``datasets`` library, which pulls
 in ``pyarrow`` – a heavy optional dependency that is not available in the
 execution environment (it requires NumPy 2.0).  To keep the script runnable
-on the CI runner we fall back to a direct CSV download from the HuggingFace
-hub when possible.  If a CSV is not hosted, the script aborts with a clear
-error explaining the missing conversion path.
+on the CI runner we use direct downloads from the HuggingFace hub.
+If a CSV is not hosted, the script aborts with a clear error explaining the
+missing conversion path.
 
 The script writes three artefacts in ``data/raw``:
 
@@ -36,14 +36,14 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Verified URL for the TIDE evaluation dataset (Parquet format)
 _DATA_URL = (
-    "https://huggingface.co/datasets/deeplearning-tide/actresses/resolve/main/"
+    "https://huggingface.co/datasets/deeplearning-tide/tide/resolve/main/"
     "data/test-00000-of-00001-9189dc62872204f7.parquet"
 )
 # Direct CSV URL – many HuggingFace datasets publish a CSV alongside the
 # Parquet.  If this endpoint returns 200 we can avoid the ``datasets``
 # library (and its heavy ``pyarrow`` dependency) entirely.
 _CSV_URL = (
-    "https://huggingface.co/datasets/deeplearning-tide/actresses/resolve/main/"
+    "https://huggingface.co/datasets/deeplearning-tide/tide/resolve/main/"
     "data/test.csv"
 )
 # Expected filename components
@@ -152,50 +152,13 @@ def main() -> None:
             _download_file(_CSV_URL, csv_path)
             logger.info(f"Successfully downloaded CSV to '{csv_path}'")
         except Exception as csv_err:
-            logger.warning(
-                f"Direct CSV download failed ({csv_err}); attempting fallback via "
-                "`datasets` streaming (may require pyarrow)."
+            logger.error(
+                f"Direct CSV download failed ({csv_err}); cannot proceed without CSV."
             )
-            # ------------------------------------------------------------------
-            # Fallback: stream via `datasets`.  This path is kept for completeness
-            # but will raise a clear ImportError if pyarrow is unavailable.
-            # ------------------------------------------------------------------
-            try:
-                from datasets import load_dataset
-            except Exception as e:
-                logger.error(
-                    "The `datasets` library could not be imported. This fallback "
-                    "requires the optional `pyarrow` dependency, which is not "
-                    "available in the execution environment."
-                )
-                raise RuntimeError(
-                    "Unable to obtain CSV representation of the TIDE dataset: "
-                    "no direct CSV URL and `datasets` fallback failed."
-                ) from e
-
-            try:
-                ds = load_dataset(
-                    "deeplearning-tide/actresses",
-                    split="test",
-                    streaming=True,
-                )
-            except Exception as e:
-                logger.error(f"Failed to load dataset via `datasets`: {e}")
-                raise RuntimeError(
-                    "Failed to stream the TIDE dataset using the `datasets` library."
-                ) from e
-
-            row_count = 0
-            with csv_path.open("w", newline="", encoding="utf-8") as csv_file:
-                writer = None
-                for record in ds:
-                    if writer is None:
-                        header = list(record.keys())
-                        writer = csv.DictWriter(csv_file, fieldnames=header)
-                        writer.writeheader()
-                    writer.writerow(record)
-                    row_count += 1
-            logger.info(f"Wrote CSV with {row_count} rows to '{csv_path}'")
+            raise RuntimeError(
+                "Unable to obtain CSV representation of the TIDE dataset: "
+                "direct CSV download failed."
+            ) from csv_err
 
     # --------------------------------------------------------------
     # 4. Write checksum for the CSV

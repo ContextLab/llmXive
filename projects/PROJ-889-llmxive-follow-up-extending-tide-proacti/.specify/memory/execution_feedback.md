@@ -18,23 +18,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.acquire_real   # creates data/raw/tide.parquet, verifies SHA‑256, writes data/raw/tide.csv and data/raw/tide.sha256 -> rc=1
-odule>
-    from .arrow_dataset import Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-
-The above exception was the direct cause of the following exception:
-
+ve/main/data/test-00000-of-00001-9189dc62872204f7.parquet': 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/deeplearning-tide/tide/resolve/main/data/test-00000-of-00001-9189dc62872204f7.parquet
+2026-10-23 09:21:56,255 ERROR __main__: Acquisition failed
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 224, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 187, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 171, in main
-    raise RuntimeError(
-RuntimeError: Unable to obtain CSV representation of the TIDE dataset: no direct CSV URL and `datasets` fallback failed.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 130, in main
+    _download_file(_DATA_URL, parquet_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 103, in _download_file
+    r.raise_for_status()
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/deeplearning-tide/tide/resolve/main/data/test-00000-of-00001-9189dc62872204f7.parquet
 
 - python -m pytest -q src/data/test_acquire_real.py   # asserts exit code 0 and checksum match -> rc=4
 
@@ -52,14 +47,12 @@ ERROR: file or directory not found: src/data/test_generate_synthetic.py
 
 - python -m src.features.extract   # reads all .py files, writes data/features.csv (includes origin + sha256) -> rc=1
 
-2026-10-23 08:47:49,379 INFO __main__: Starting feature extraction.
-2026-10-23 08:47:49,380 ERROR __main__: Feature extraction failed
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/features/extract.py", line 210, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/features/extract.py", line 155, in main
-    raise FileNotFoundError(f"Real TIDE CSV not found at {tide_csv}")
-FileNotFoundError: Real TIDE CSV not found at /home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/data/raw/tide.csv
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/features/extract.py", line 21, in <module>
+    from radon.complexity import cc_visit
+ModuleNotFoundError: No module named 'radon'
 
 - python -m src.pipelines.tide_lite   # outputs data/tide_lite_enriched.csv (includes origin) -> rc=1
 
