@@ -1,0 +1,9 @@
+{
+  "intrinsic_dimensionality": 90.52707561659538,
+  "local_density": 5.89706141361265,
+  "params": {
+    "k": 15,
+    "pair_count": 2700,
+    "seed": 42
+  }
+}

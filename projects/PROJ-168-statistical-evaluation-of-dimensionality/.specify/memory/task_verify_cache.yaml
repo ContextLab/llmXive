@@ -1,43 +1,52 @@
 T001:
   c: true
-  h: 8da5ef1cdb6b0db8111751f6f6df79b1391ed6961bda7a99ea6e8fade41aadcd
-  r: The directory structure is present (data/raw, data/processed, data/embeddings,
-    data/clustering, data/metrics, data/results, figures, code, code/tests, paper)
-    and the generated `results/dir_listing.txt` exists with all required paths listed,
-    as shown in the file content and the creation logs.
-  sig: cd42641abd4f92773ab9b620fa4dafafebd7529a2e60def4cad6aeb2d5793d2e
+  h: 2f936f03930d801ac099c461ac6ebc2b53f3208b26446f8fd561c0ff219b1554
+  r: "The directory tree shows all required folders (`data/raw`, `data/processed`,\
+    \ `data/embeddings`, `data/clustering`, `data/metrics`, `data/results`, `figures`,\
+    \ `code`, `code/tests`, `paper`) and the `results/dir_listing.txt` file exists\
+    \ (186\u202Fbytes) and lists each of those directories. Test logs confirm the\
+    \ creation script ran and the listing was written."
+  sig: 6ccef98bec4ff26fe02b57e8a8c7e96687cdc623e6f2f4c8792363aff2897366
 T003:
   c: true
-  h: 3dfe48cdec8b810f31d720aed7f8004d2d3a4f3112c6af985be5f1785ddc419d
-  r: Checked `code/ci_workflow_doc.md` (contains reference to `ci_limits.py`), `README.md`
-    (references `ci_workflow_doc.md`), and `results/dir_listing.txt` (lists both files).
-    All required artifacts exist and meet the verification criteria.
-  sig: c64878d044264513e9b94e0b3e91347549d371ae53360de46037921743d97f48
+  h: 72d004448f52906f11e5769163418cc05bb34a14faf65f61ac6e63f09ad444ca
+  r: Checked `code/ci_workflow_doc.md` (contains reference to `code/ci_limits.py`),
+    `README.md` (references `ci_workflow_doc.md`), and `results/dir_listing.txt` (lists
+    both files). All verification conditions are met.
+  sig: d2d9428ac719a7b3eb980e282d004de390917df57b174f7ecfd70f27bfa4c4af
 T004:
   c: false
-  h: a40c4ae351b1a138e9c1e2497d8eae30942e3e06630a69424283e63c9f237d32
-  r: "The provided `code/ci_limits.py` correctly implements the limits check and passes\
-    \ on the supplied compliant `results/monitoring.csv` (as shown by the execution\
-    \ log). However, there is no evidence that the script exits with code\u202F1 on\
-    \ a deliberately violating CSV, which is required for verification. A test run\
-    \ (or log) with a CSV exceeding the RAM or time thresholds must be added."
-  sig: 58a73987dd942c1b010f9d39d75984d71939878a6f184c585bd07f4fbc1f784b
+  h: debcb66ed85e97ede80b67dbddf9a570b2ab42b25adbfc23e432941cab5dd7db
+  r: "The `code/ci_limits.py` script always reads the fixed `results/monitoring.csv`\
+    \ and never accepts a custom CSV, so the test that supplies a deliberately violating\
+    \ CSV gets a compliant file and the script exits 0. The recorded test failure\
+    \ shows the script does not return exit\u202F1 on violations, violating the task\u2019\
+    s verification requirement."
+  sig: f887b2152645fd6fb0a3a0dabbc069f33538ae5a2db7060d915670f9b7cbb059
 T006:
   c: false
-  h: b066c08be38d7eeda7e809602b7183fcc5e15461a4d5d9cb04a2917deca8427f
-  r: "The required `code/Snakefile` is not present in the provided artifact list,\
-    \ and there is no evidence of the specified rules, the abort\u2011message behavior,\
-    \ or the generated DAG image (`dag.png`). Without the Snakefile and execution\
-    \ logs, the task\u2019s core deliverable is missing."
-  sig: 3118217fcbf5ae3b9fe8c0ffa98ac5829aefdccca69f9ae2ebfae24e3fa7453c
+  h: bca5db07155fba9e5ab395bd9ed27a87836704f385a4b36956848f4fca849675
+  r: "The required `code/Snakefile` (defining all listed rules and the abort behavior\
+    \ for `verify_data_availability`) is not present in the provided evidence, nor\
+    \ is any execution output showing the expected abort message or DAG generation.\
+    \ Without this file, the task\u2019s core deliverable is missing."
+  sig: 4df0434fddedb3dfe87908dff318655ecfc6ba6407f83b5161ae0ad74295fd06
 T007:
   c: false
-  h: a1df42b66c5142e0a5e65f0f5d18a2cd9910cd24f970c411faadf627c693bbb9
-  r: "The resolver script creates the three H5AD files and a manifest with the required\
-    \ fields, but the required JSON\u2011schema file (`specs/001\u2011statistical\u2011\
-    evaluation\u2011of\u2011dimensionality/contracts/dataset.schema.yaml`) is missing,\
-    \ so the verification step cannot succeed. Moreover, a stale `results/data_gap_summary.txt`\
-    \ claiming \u201Conly 0 dataset(s) available\u201D remains even though the manifest\
-    \ shows three available datasets, violating the conditional\u2011summary requirement.\
-    \ The missing schema and incorrect summary file must be added/fixed."
-  sig: c6e19bdf52cb4d98ca1861c39a8e92dcf30c35d3fc138c1588cd32f56d7c6c21
+  h: ef0629743a3c573902f36479d82b0cbd4d62aa5777408e812ed9b96d2c7d324e
+  r: "The `data/manifest.json` present does not contain entries for the three required\
+    \ GEO accessions (it only lists a dummy \u201CTEST001\u201D record), so the required\
+    \ fields (`dataset_id`, `source_url`, `status`, `checksum`, `raw_file_path`, `processed_file_path`)\
+    \ are not recorded as specified. Additionally, the schema file `dimensionality/contracts/dataset.schema.yaml`\
+    \ needed for the jsonschema validation is missing. These issues prevent the task\
+    \ from being considered genuinely completed."
+  sig: 815e8bf5ac76583bdc0a2846245bcffa53f1d1a95698a8dc17d52dfa62dece52
+T008:
+  c: false
+  h: ee5f224d8dbb45a3b3060f8b4eacae6749e4189561d65fe6aeff3271c280be51
+  r: "The `data/processed/` directory contains only `TEST001_matrix.parquet`; the\
+    \ required label CSV (`*_labels.csv`), HVG count file (`*_hvg.txt`), and geometry\
+    \ JSON (`*_geometric.json`) are absent, so steps\u202F2,\u202F4,\u202F8\u2011\
+    9 of the task are not satisfied. The pipeline therefore does not fully meet the\
+    \ specification."
+  sig: 34f451d8a81a88640e25c956ce78020ba37af587104b79f9299fb28be68efd6c

@@ -33,7 +33,7 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
   - If fewer than three datasets are `"Available"`, write `results/data_gap_summary.txt` and exit 1.  
   - **Verification**: `python -m jsonschema -i data/manifest.json specs/001‑statistical‑evaluation‑of‑dimensionality/contracts/dataset.schema.yaml` exits 0; when < 3 available, `cat results/data_gap_summary.txt` contains “abort”.  
 
-- [ ] T008 **[FR‑002 FR‑003 US1]** Pre‑process each available dataset and compute geometry (`code/preprocess_and_geometry.py`).   <!-- FAILED-IN-EXECUTION: code/preprocess_and_geometry.py exit=1 -->
+- [ ] T008 **[FR‑002 FR‑003 US1]** Pre‑process each available dataset and compute geometry (`code/preprocess_and_geometry.py`).
   - For each `"Available"` entry in `data/manifest.json`:  
     1. Load raw matrix with Scanpy (`sc.read_h5ad`).  
     2. Export ground‑truth labels to `data/processed/<dataset_id>_labels.csv`.  
@@ -49,7 +49,7 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
         - Fails loudly if any parameter deviates.  
     10. Wrap the routine with `ResourceMonitor.run(f"preprocess_{dataset_id}", ...)`.  
 
-- [ ] T009 **[FR‑004 US1]** Generate PCA, t‑SNE, and UMAP embeddings (`code/generate_embeddings.py`).  
+- [ ] T009 **[FR‑004 US1]** Generate PCA, t‑SNE, and UMAP embeddings (`code/generate_embeddings.py`).   <!-- FAILED-IN-EXECUTION: code/generate_embeddings.py exit=1 -->
   - Load `data/processed/<dataset_id>_matrix.parquet`.  
   - **PCA**: `sklearn.decomposition.PCA(n_components=30, random_state=42)` → save `data/embeddings/<dataset_id>_PCA.csv` (columns: `cell_id,PC1,…,PC30`).  
   - **t‑SNE**: `sklearn.manifold.TSNE(n_components=2, perplexity=30, n_iter=1000, random_state=42)` → save `data/embeddings/<dataset_id>_tSNE.csv`.  

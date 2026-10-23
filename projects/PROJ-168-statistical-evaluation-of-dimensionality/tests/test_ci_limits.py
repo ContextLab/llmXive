@@ -1,65 +1,90 @@
 """
-Test for the CI limits checker script (code/ci_limits.py).
+Test for the CI limits checker (code/ci_limits.py).
 
-This test creates a deliberately violating monitoring CSV file,
-runs the script, and verifies that it exits with status code 1
-and prints an appropriate violation message to stderr.
+This test verifies that the script exits with a non‑zero status code when
+the monitoring CSV violates the defined resource limits.
 """
-
 import subprocess
 import sys
-import shutil
 from pathlib import Path
 
-# Import the project-specific path utilities
-from llmxive_toolkit import paths
+import pytest
 
-def test_ci_limits_violations(tmp_path):
+# The llmxive_toolkit.paths module provides the `results` helper used by
+# `ci_limits.py`. We monkey‑patch it so the script reads a temporary CSV
+# that we control.
+import llmxive_toolkit
+
+
+@pytest.fixture
+def violating_monitoring_csv(tmp_path):
+    """Create a temporary monitoring CSV that exceeds both limits."""
+    csv_path = tmp_path / "monitoring.csv"
+    # Exceed RAM (>7 GB) and wall‑time (>21 600 s)
+    csv_path.write_text(
+        "step,wall_time_s,peak_ram_bytes\\n"
+        "violation,30000,8000000000\\n"
+    )
+    return csv_path
+
+
+def test_ci_limits_violations(monkeypatch, violating_monitoring_csv):
     """
-    Overwrite the project's results/monitoring.csv with a CSV that
-    exceeds both RAM and time limits, then invoke the CI limits
-    script and check that it fails as expected.
+    Run `code/ci_limits.py` with a violating CSV and assert exit code 1.
     """
-    # Resolve the monitoring CSV path used by the script
-    monitoring_path = paths.results("monitoring.csv")
+    # Monkey‑patch llmxive_toolkit.paths.results to return our temp CSV.
+    monkeypatch.setattr(
+        llmxive_toolkit.paths,
+        "results",
+        lambda *args, **kwargs: violating_monitoring_csv,
+    )
 
-    # Backup the original monitoring file if it exists
-    backup_path = None
-    if monitoring_path.exists():
-        backup_path = monitoring_path.with_suffix(".bak")
-        shutil.copy2(monitoring_path, backup_path)
+    script_path = Path(__file__).parents[1] / "code" / "ci_limits.py"
 
-    try:
-        # Write a violating CSV: one step exceeding RAM and total time
-        violating_content = (
-            "step,wall_time_s,peak_ram_bytes\n"
-            "violating_step,30000,8000000000\n"
-        )
-        monitoring_path.write_text(violating_content)
+    # Execute the script as a subprocess using the same interpreter.
+    result = subprocess.run(
+        [sys.executable, str(script_path)],
+        capture_output=True,
+        text=True,
+    )
 
-        # Run the ci_limits script using the same Python interpreter
-        result = subprocess.run(
-            [sys.executable, "code/ci_limits.py"],
-            cwd=Path(__file__).parents[1],  # project root
-            capture_output=True,
-            text=True,
-        )
+    # The script should detect the violations and exit with code 1.
+    assert result.returncode == 1, (
+        f"Expected exit code 1 for violating CSV, got {result.returncode}. "
+        f"Stdout: {result.stdout}\\nStderr: {result.stderr}"
+    )
 
-        # The script should exit with code 1 due to violations
-        assert result.returncode == 1, (
-            f"Expected exit code 1, got {result.returncode}. "
-            f"Stderr: {result.stderr}"
-        )
+    # The error messages should mention both SC‑003 and SC‑004.
+    assert "SC-003 violation" in result.stderr
+    assert "SC-004 violation" in result.stderr
 
-        # Verify that the expected violation messages appear in stderr
-        assert "SC-003 violation" in result.stderr, "Missing SC-003 violation message"
-        assert "SC-004 violation" in result.stderr, "Missing SC-004 violation message"
 
-    finally:
-        # Restore the original monitoring file if we backed it up
-        if backup_path and backup_path.exists():
-            shutil.move(str(backup_path), str(monitoring_path))
-        else:
-            # If there was no original file, remove the temporary one
-            if monitoring_path.exists():
-                monitoring_path.unlink()
+def test_ci_limits_compliant(monkeypatch, tmp_path):
+    """
+    Ensure the script returns 0 when the CSV is within limits.
+    """
+    csv_path = tmp_path / "monitoring.csv"
+    csv_path.write_text(
+        "step,wall_time_s,peak_ram_bytes\\n"
+        "ok_step,10,1000000\\n"
+    )
+
+    monkeypatch.setattr(
+        llmxive_toolkit.paths,
+        "results",
+        lambda *args, **kwargs: csv_path,
+    )
+
+    script_path = Path(__file__).parents[1] / "code" / "ci_limits.py"
+
+    result = subprocess.run(
+        [sys.executable, str(script_path)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, (
+        f"Expected exit code 0 for compliant CSV, got {result.returncode}. "
+        f"Stdout: {result.stdout}\\nStderr: {result.stderr}"
+    )
+    assert "CI limits check passed" in result.stdout

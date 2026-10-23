@@ -1,15 +1,9 @@
 status: none
-intent: GEO scRNAseq count matrices GSE13 series GSE111322 GSE150728 download python
-  package dataset
+intent: download GEO scRNA-seq datasets GSE13 GSE111322 GSE150728 python package dataset
 required_fields:
 - cell_barcode
 - gene_symbol
-- gene_id
 - raw_count
-- log_cpm
-- sample_id
-- condition
-- batch
-cache_key: 82ae2ba2d1309f37d440f634f31d5d1498a02937ec8963ffe79526f40570be92
-searched_at: '2026-10-23T22:43:32.985375+00:00'
+cache_key: 83ea71f7f1fb451f00d7aff60e2b25c10d1a61e66524021fcc7eabc13fd199d6
+searched_at: '2026-10-23T22:48:37.914931+00:00'
 retry_count: 1

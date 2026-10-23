@@ -27,6 +27,10 @@ class Config:
         ACCESSIONS (list): List of GEO accession IDs to resolve.
         N_CORES (int): Number of CPU cores to allocate to Snakemake.
         SEED (int): Global random seed for reproducibility.
+        SAMPLE_CELLS_THRESHOLD (int): Cell count above which deterministic
+            subsampling is performed (FR‑002 / FR‑003 requirement).
+        SAMPLE_SIZE (int): Number of cells to retain when subsampling
+            (deterministic, seed‑controlled).
     """
 
     # Base project root – the toolkit provides helpers to build paths.
@@ -50,6 +54,10 @@ class Config:
 
     # Global random seed for reproducibility.
     SEED: int = int(os.getenv("GLOBAL_SEED", "42"))
+
+    # Deterministic subsampling parameters (FR‑002, FR‑003)
+    SAMPLE_CELLS_THRESHOLD: int = 10000   # if >10 000 cells, subsample
+    SAMPLE_SIZE: int = 5000               # number of cells to keep
 
     # Logging configuration (optional, can be overridden elsewhere)
     LOG_LEVEL = logging.INFO

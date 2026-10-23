@@ -3,32 +3,37 @@ T001:
 T003:
   task: 7ecf287aa0512e08b458080465b233c998bd912716e43fb5b87993b0f106c34f
 T004:
-  reason: "The provided `code/ci_limits.py` correctly implements the limits check\
-    \ and passes on the supplied compliant `results/monitoring.csv` (as shown by the\
-    \ execution log). However, there is no evidence that the script exits with code\u202F\
-    1 on a deliberately violating CSV, which is required for verification. A test\
-    \ run (or log) with a CSV exceeding the RAM or time thresholds must be added."
+  reason: "The `code/ci_limits.py` script always reads the fixed `results/monitoring.csv`\
+    \ and never accepts a custom CSV, so the test that supplies a deliberately violating\
+    \ CSV gets a compliant file and the script exits 0. The recorded test failure\
+    \ shows the script does not return exit\u202F1 on violations, violating the task\u2019\
+    s verification requirement."
   task: 1078c4c265ad231eeaa514a1197d0ea5c144f470c12c436841610323e8c36f93
 T006:
-  reason: "The required `code/Snakefile` is not present in the provided artifact list,\
-    \ and there is no evidence of the specified rules, the abort\u2011message behavior,\
-    \ or the generated DAG image (`dag.png`). Without the Snakefile and execution\
-    \ logs, the task\u2019s core deliverable is missing."
+  reason: "The required `code/Snakefile` (defining all listed rules and the abort\
+    \ behavior for `verify_data_availability`) is not present in the provided evidence,\
+    \ nor is any execution output showing the expected abort message or DAG generation.\
+    \ Without this file, the task\u2019s core deliverable is missing."
   task: 799ac7fb946d6a60d850cf0300111daec3222f4ef1b2cb92c7fe1a6f9a9ff71f
 T007:
-  reason: "The resolver script creates the three H5AD files and a manifest with the\
-    \ required fields, but the required JSON\u2011schema file (`specs/001\u2011statistical\u2011\
-    evaluation\u2011of\u2011dimensionality/contracts/dataset.schema.yaml`) is missing,\
-    \ so the verification step cannot succeed. Moreover, a stale `results/data_gap_summary.txt`\
-    \ claiming \u201Conly 0 dataset(s) available\u201D remains even though the manifest\
-    \ shows three available datasets, violating the conditional\u2011summary requirement.\
-    \ The missing schema and incorrect summary file must be added/fixed."
+  reason: "The `data/manifest.json` present does not contain entries for the three\
+    \ required GEO accessions (it only lists a dummy \u201CTEST001\u201D record),\
+    \ so the required fields (`dataset_id`, `source_url`, `status`, `checksum`, `raw_file_path`,\
+    \ `processed_file_path`) are not recorded as specified. Additionally, the schema\
+    \ file `dimensionality/contracts/dataset.schema.yaml` needed for the jsonschema\
+    \ validation is missing. These issues prevent the task from being considered genuinely\
+    \ completed."
   task: 1b6fba68ec28caaf55b21e9fa16bafebc2b2d92eb2e407e3fc784d0b3778b4d0
 T008:
-  reason: 'Requested task execution failed; rerun successfully: code/preprocess_and_geometry.py
-    exit=1'
+  reason: "The `data/processed/` directory contains only `TEST001_matrix.parquet`;\
+    \ the required label CSV (`*_labels.csv`), HVG count file (`*_hvg.txt`), and geometry\
+    \ JSON (`*_geometric.json`) are absent, so steps\u202F2,\u202F4,\u202F8\u2011\
+    9 of the task are not satisfied. The pipeline therefore does not fully meet the\
+    \ specification."
   task: a1e6f67ea7723284c6a4c1d8d76bd3ac84d36dd3bcef05b99ced4d9e3f6c13f7
 T009:
+  reason: 'Requested task execution failed; rerun successfully: code/generate_embeddings.py
+    exit=1'
   task: b236c4a4398cad202e61f856285c811da618f00dde845e94f0d0cbd8046304cc
 T010:
   task: eebdb4fe9cec41ebbb3926ba0f61f41215a326202ddfc42006f89b3b55e9a59b
