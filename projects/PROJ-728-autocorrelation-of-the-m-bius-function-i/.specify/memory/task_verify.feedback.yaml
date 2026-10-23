@@ -1,11 +1,14 @@
 T001:
   task: d3c4c44fd2dd95c87706d6394ff367153119976d58cf83385f98ffe95105210f
 T002:
-  reason: "The repository contains a full `code/sieve.py` implementation, but the\
-    \ required output file `data/raw/mobius_array.npy` (and the corresponding packed\
-    \ file) is missing, so the unit tests in `tests/unit/test_sieve.py` that load\
-    \ these files cannot succeed. The absence of these artifacts means the task\u2019\
-    s core deliverable is not present."
+  reason: "The `code/sieve.py` and `data/raw/mobius_array.npy` artifacts exist and\
+    \ compute the M\xF6bius array, but the required supporting files for the unit\
+    \ tests are missing: the packed array `data/raw/mobius_2bit.npy` is not present\
+    \ in the evidence, and the checksum manifest `data/checksums/manifest.sha256`\
+    \ (which must contain an entry for the packed file) is also absent. Without these\
+    \ files the tests `test_pack_unpack_full_array` and `test_checksum_manifest_contains_packed_file`\
+    \ cannot succeed. Adding the packed file and a correct manifest will satisfy the\
+    \ task."
   task: 2396c7098f8b72c6063a30418165d8d985528a1190b1c485d9076c2c827bac9a
 T003:
   reason: "The repository contains `code/pack.py` and the test suite, but the required\
