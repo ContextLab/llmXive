@@ -10,6 +10,7 @@ empty marker file at ``state/validation/citation_gate_passed.txt``.
 import sys
 import re
 import logging
+import argparse
 
 import requests
 from llmxive_toolkit import paths, get_logger
@@ -65,15 +66,15 @@ def fetch_title(url: str) -> str | None:
 
 def compute_overlap(url: str, title: str) -> float:
     """
-    Compute a simple token‑overlap ratio between the URL domain and the page title.
+    Compute a simple token‑overlap ratio between the URL and the page title.
 
     The overlap is defined as:
         |tokens(url) ∩ tokens(title)| / |tokens(title)|
     where tokens are alphanumeric words converted to lower‑case.
     """
-    # Tokenise the domain part of the URL (e.g. ``huggingface.co``)
-    domain = re.sub(r"https?://", "", url).split("/")[0]
-    url_tokens = set(re.findall(r"\w+", domain.lower()))
+    # Tokenise the full URL (remove scheme, keep domain and path)
+    url_no_scheme = re.sub(r"https?://", "", url)
+    url_tokens = set(re.findall(r"\w+", url_no_scheme.lower()))
 
     # Tokenise the title
     title_tokens = set(re.findall(r"\w+", title.lower()))
@@ -93,6 +94,16 @@ def main() -> int:
     logs an error and returns a non‑zero exit code. If all URLs pass, an empty
     marker file is created to signal success to downstream CI steps.
     """
+    parser = argparse.ArgumentParser(description="Validate external URLs against title overlap.")
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=TITLE_OVERLAP_THRESHOLD,
+        help="Minimum title‑overlap required for a URL to pass validation."
+    )
+    args = parser.parse_args()
+    threshold = args.threshold
+
     for url in URLS_TO_VALIDATE:
         title = fetch_title(url)
         if title is None:
@@ -100,7 +111,7 @@ def main() -> int:
             return 1
 
         overlap = compute_overlap(url, title)
-        if overlap < TITLE_OVERLAP_THRESHOLD:
+        if overlap < threshold:
             log.error(f"ERROR: URL validation failed for {url}")
             return 1
 
