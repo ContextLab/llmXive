@@ -1,6 +1,6 @@
 # Feature Specification: Statistical Properties of Integer Partitions Into Distinct Prime Summands
 
-**Feature Branch**: `001-statistical-properties-of-integer-partitions-into-distinct-prime-summands`  
+**Feature Branch**: `001-statistical-properties-of-integer-partit-into-distinct-prime-summands`  
 **Created**: 2026-06-30  
 **Status**: Draft  
 **Input**: User description: "How does the asymptotic growth rate of the partition function $p_{\mathcal{P}}(n)$ (counting partitions of $n$ into distinct primes) deviate from the predictions of Meinardus' theorem when applied to the prime set, and can these deviations be modeled as a systematic correction term dependent on the prime density?"
@@ -8,6 +8,7 @@
 ## User Scenarios & Testing
 
 ### User Story 1 - Compute Exact Partition Values and Asymptotic Baseline (Priority: P1)
+(ID: US-1)
 
 As a researcher, I need to compute the exact values of $p_{\mathcal{P}}(n)$ for all integers $n$ from 1 to [deferred] and generate the corresponding theoretical asymptotic values $Q_{as}(n)$ derived from the distinct-partition variant of Meinardus' theorem, so that I can establish the ground truth and the baseline prediction for the error analysis.
 
@@ -23,6 +24,7 @@ As a researcher, I need to compute the exact values of $p_{\mathcal{P}}(n)$ for 
 ---
 
 ### User Story 2 - Calculate and Model Residual Error with Density Features (Priority: P2)
+(ID: US-2)
 
 As a researcher, I need to calculate the log-residuals $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ and fit a statistical model (linear regression or GAM) using global prime density features ($\pi(n)$, $1/\ln(n)$, and cumulative prime density weighted by partition weight) as predictors, so that I can quantify the systematic bias and determine if prime density explains the deviation. This tests for higher-order correction terms not captured by the leading-order density dependence of the baseline.
 
@@ -38,6 +40,7 @@ As a researcher, I need to calculate the log-residuals $R(n) = \log(p_{\mathcal{
 ---
 
 ### User Story 3 - Validate Model Robustness and Visualize Convergence (Priority: P3)
+(ID: US-3)
 
 As a researcher, I need to perform cross-validation (k‑fold) on the regression model and generate visualizations comparing the raw residuals against the fitted correction term, so that I can assess the model's generalizability and visually inspect the convergence behavior for anomalies.
 
@@ -62,14 +65,15 @@ As a researcher, I need to perform cross-validation (k‑fold) on the regression
 
 ### Functional Requirements
 
-- **FR-001**: System MUST compute the exact count of partitions of $n$ into distinct primes, $p_{\mathcal{P}}(n)$, for all integers $1 \le n \le [deferred]$ using a dynamic programming approach with memory optimization to fit within ~7 GB RAM. (See US-1)
-- **FR-002**: System MUST implement the asymptotic formula $Q_{as}(n)$ based on the distinct-partition variant of Meinardus' theorem (using the generating function $\prod_{p \in \mathbb{P}} (1+q^p)$). The system MUST explicitly validate the applicability of Meinardus' theorem conditions (pole structure of the prime zeta function) and, if conditions are not met, fall back to a truncated Dirichlet series approximation for the baseline $Q_{as}(n)$ and document the deviation. (See US-1)
+- **FR-001**: System MUST compute the exact count of partitions of $n$ into distinct primes, $p_{\mathcal{P}}(n)$, for all integers $1 \le n \le [deferred]$ using a dynamic programming approach with memory optimization to fit within a modest amount of RAM. (See US-1)
+- **FR-002**: System MUST implement the asymptotic formula $Q_{as}(n)$ based on the distinct-partition variant of Meinardus' theorem (using the generating function $\prod_{p \in \mathbb{P}} (1+q^p)$). The system MUST explicitly validate the applicability of Meinardus' theorem conditions (pole structure of the prime zeta function) and, if conditions are not met, fall back to a truncated Dirichlet series approximation for the baseline $Q_{as}(n)$ and document the deviation. **The baseline computation uses the full prime‑zeta saddle‑point method and does not directly employ the individual density metrics $\pi(n)$, $1/\ln(n)$, or $\sum_{p\le n}1/p$ that are later used as predictors.** (See US-1)
 - **FR-003**: System MUST calculate the log-residual $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ for all $n$ where $p_{\mathcal{P}}(n) > 0$ and $Q_{as}(n) > 0$, handling edge cases where values are zero or non-positive. (See US-2)
-- **FR-004**: System MUST generate predictor variables including the prime-counting function $\pi(n)$, the prime density $1/\ln(n)$, and the cumulative prime density weighted by partition weight (defined as $\sum_{p \le n} \frac{1}{p}$), ensuring these are derived independently of the partition calculation. This feature is essential to distinguish local fluctuations from global trends. (See US-2)
+- **FR-004**: System MUST generate predictor variables including the prime-counting function $\pi(n)$, the prime density $1/\ln(n)$, and the cumulative prime density weighted by partition weight (defined as $\sum_{p \le n} \frac{1}{p}$), ensuring these are derived independently of the partition calculation **and** of the asymptotic baseline $Q_{as}(n)$ computation. This feature is essential to distinguish local fluctuations from global trends. (See US-2)
 - **FR-005**: System MUST fit a linear regression or Generalized Additive Model (GAM) where $R(n)$ is the dependent variable and the density metrics are independent variables, including only theoretically motivated terms (excluding arbitrary sine/cosine terms based on $\log n$), and outputting coefficients, p-values, and $R^2$. (See US-2)
 - **FR-006**: System MUST perform k-fold cross-validation on the regression model to estimate the Mean Squared Error (MSE) on held-out data, ensuring the model generalizes beyond the training set. (See US-3)
 - **FR-007**: System MUST generate a visualization plotting $n$ against the raw residuals $R(n)$ and the fitted correction term to visually inspect convergence and identify periodic anomalies. (See US-3)
 - **FR-008**: System MUST include a null model (intercept-only) in the regression analysis to verify that the observed correlation is not an artifact of the baseline's density dependence. (See US-2)
+- **FR-009**: System MUST produce `model_results.json` that conforms to `regression_output.schema.yaml`, containing the fields `mse` and `cv_mse` (mean cross‑validated MSE). (See US-3)
 
 ### Key Entities
 
@@ -86,7 +90,7 @@ As a researcher, I need to perform cross-validation (k‑fold) on the regression
 - **SC-003**: The computed values $p_{\mathcal{P}}(n)$ must match known small-case enumerations (e.g., $n=5, 6, 10$) with exact integer match, measured against pre-computed reference values for $n \le 100$. (See US-1)
 - **SC-004**: The entire data generation and analysis pipeline must complete within 6 hours on a standard GitHub Actions free-tier runner (ubuntu-latest with 2 vCPU, 7GB RAM), measured against the job timeout limit. (See US-1, US-2, US-3)
 - **SC-005**: If multiple hypothesis tests are performed (e.g., testing multiple density predictors), the system MUST apply a Bonferroni or Benjamini-Hochberg correction to the p-values, measured against the standard false discovery rate control methods. (See US-2)
-- **SC-006**: Peak memory usage of the dynamic programming algorithm must be within acceptable system limits, measured against the system resource monitor. (See US-1)
+- **SC-006**: Peak memory usage of the dynamic programming algorithm must be ≤ 6 GB, measured against the system resource monitor on the GitHub Actions runner. (See US-1)
 
 ## Assumptions
 
