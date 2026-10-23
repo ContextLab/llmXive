@@ -119,3 +119,25 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXXXX
   verified_at: '2026-10-23T20:32:49.154498Z'
+- artifact_hash: 701f47c52e9ecf8b58c5e481759356de5017ee7881d4f617f61049caf773adcd
+  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://zenodo.org/record/1234567/files/hea_dataset.csv`
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/1234567/files/hea_dataset.csv
+  verified_at: '2026-10-23T20:36:10.092960Z'
+- artifact_hash: 701f47c52e9ecf8b58c5e481759356de5017ee7881d4f617f61049caf773adcd
+  artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://zenodo.org/record/7654321/files/hea_external.csv`
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/7654321/files/hea_external.csv
+  verified_at: '2026-10-23T20:36:10.092960Z'
