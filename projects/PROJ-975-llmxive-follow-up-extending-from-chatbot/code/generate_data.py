@@ -8,17 +8,10 @@ from typing import List, Dict, Any
 
 import numpy as np
 
-# ----------------------------------------------------------------------
-# Compatibility shim for huggingface_hub is no longer required because we
-# avoid importing SentenceTransformer directly. Instead we rely on the
-# utility functions in `code.utils` which provide a deterministic dummy
-# model when the real library cannot be imported.
-# ----------------------------------------------------------------------
 from utils import get_model, get_embedding
-
 from llmxive_toolkit import paths
 
-# Set up module‑level logger
+# Set up module-level logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -32,14 +25,14 @@ def check_memory_usage(threshold_gb: float = 2.0) -> bool:
         process = psutil.Process(os.getpid())
         current_rss_gb = process.memory_info().rss / (1024 ** 3)
 
-        # Projection: Model (~150 MB) + 100 skills * 768 * 8 bytes + 500 tasks * 768 * 8 bytes
+        # Projection: Model (~150 MB) + 100 skills * 384 * 8 bytes + 500 tasks * 384 * 8 bytes
         projected_model_gb = 0.15
-        projected_data_gb = (100 * 768 * 8 + 500 * 768 * 8) / (1024 ** 3)
+        projected_data_gb = (100 * 384 * 8 + 500 * 384 * 8) / (1024 ** 3)
         total_projected = current_rss_gb + projected_model_gb + projected_data_gb
 
         if total_projected > threshold_gb:
             raise MemoryError(
-                f"Memory Limit Exceeded: Projected footprint {total_projected:.2f} GB > {threshold_gb} GB"
+                f"Memory Limit Exceeded: Projected footprint {total_projected:.2f} GB > {threshold_gb} GB"
             )
         return True
     except ImportError:
@@ -54,8 +47,7 @@ def generate_skills(
 ) -> List[Dict[str, Any]]:
     """
     Generates exactly `count` skill objects with controlled semantic overlap.
-    Embeddings are 384‑dim (all‑MiniLM‑L6‑v2) but are padded to 768 dimensions
-    to satisfy downstream schema expectations.
+    Embeddings are 384-dim (all-MiniLM-L6-v2).
     """
     random.seed(seed)
     np.random.seed(seed)
@@ -66,35 +58,30 @@ def generate_skills(
         for i in range(count)
     ]
 
-    # 2. Encode with the provided model (dummy or real)
-    # The model's `encode` method returns a (count, 384) array
+    # 2. Encode with the provided model
     base_embeddings = model.encode(templates)  # shape (count, 384)
+    
+    # Normalize base embeddings to unit length for consistent blending
+    norms = np.linalg.norm(base_embeddings, axis=1, keepdims=True)
+    normalized_base = base_embeddings / (norms + 1e-8)
 
     # 3. Control overlap by blending towards a centroid
-    centroid = np.mean(base_embeddings, axis=0)
+    centroid = np.mean(normalized_base, axis=0)
     centroid /= (np.linalg.norm(centroid) + 1e-8)
 
     if overlap_level == "HIGH":
-        alpha = 0.92   # strong blend → >0.80 mean similarity
+        alpha = 0.90   # strong blend -> high mean similarity
     elif overlap_level == "MEDIUM":
-        alpha = 0.65   # moderate blend → >0.50 mean similarity
+        alpha = 0.60   # moderate blend -> medium mean similarity
     else:  # LOW
         alpha = 0.0    # no blending
 
-    adjusted_embeddings = alpha * centroid + (1 - alpha) * base_embeddings
+    # Blend: S = alpha * C + (1 - alpha) * V
+    adjusted_embeddings = alpha * centroid + (1 - alpha) * normalized_base
 
-    # Normalize vectors for cosine similarity
-    norms = np.linalg.norm(adjusted_embeddings, axis=1, keepdims=True)
-    normalized_embeddings = adjusted_embeddings / (norms + 1e-8)
-
-    # Pad to 768 dimensions (required by contract tests)
-    if normalized_embeddings.shape[1] < 768:
-        pad_width = 768 - normalized_embeddings.shape[1]
-        padded_embeddings = np.pad(
-            normalized_embeddings, ((0, 0), (0, pad_width)), "constant"
-        )
-    else:
-        padded_embeddings = normalized_embeddings
+    # Final normalization to ensure cosine similarity is valid
+    final_norms = np.linalg.norm(adjusted_embeddings, axis=1, keepdims=True)
+    normalized_embeddings = adjusted_embeddings / (final_norms + 1e-8)
 
     skills = []
     for i in range(count):
@@ -102,14 +89,14 @@ def generate_skills(
             {
                 "skill_id": f"skill_{i:03d}",
                 "function_code": templates[i],
-                "embedding_vector": padded_embeddings[i].tolist(),
+                "embedding_vector": normalized_embeddings[i].tolist(),
                 "usage_count": 0,
-                "mean_cosine_similarity": 0.0,  # will be filled later
+                "mean_cosine_similarity": 0.0,  # will be filled later,
             }
         )
 
-    # 4. Compute mean cosine similarity for each skill (using padded vectors)
-    sim_matrix = np.dot(padded_embeddings, padded_embeddings.T)
+    # 4. Compute mean cosine similarity for each skill
+    sim_matrix = np.dot(normalized_embeddings, normalized_embeddings.T)
     for i in range(count):
         others = np.delete(sim_matrix[i], i)
         skills[i]["mean_cosine_similarity"] = float(np.mean(others))
@@ -123,7 +110,7 @@ def generate_tasks(
 ) -> List[Dict[str, Any]]:
     """
     Generates exactly `count` task objects conforming to the task schema.
-    Each task's embedding is the mean of its ground‑truth skill embeddings.
+    Each task's embedding is the mean of its ground-truth skill embeddings.
     """
     random.seed(seed)
     np.random.seed(seed)
@@ -156,7 +143,7 @@ def generate_tasks(
 def calculate_overlap_stats(skills: List[Dict[str, Any]]) -> Dict[str, float]:
     """Computes mean and distribution of pairwise similarities."""
     embs = np.array([s["embedding_vector"] for s in skills])
-    # Normalize just in case (they are already normalized)
+    # Ensure normalized
     norms = np.linalg.norm(embs, axis=1, keepdims=True)
     norms[norms == 0] = 1
     normalized = embs / norms
@@ -189,7 +176,7 @@ def main():
     parser.add_argument(
         "--seed",
         type=int,
-        default=12345,
+        default=42,
         help="Random seed for reproducibility",
     )
     args = parser.parse_args()
@@ -210,9 +197,9 @@ def main():
     # 1. Memory guard
     check_memory_usage(threshold_gb=2.0)
 
-    # 2. Load (or fallback to) a model
+    # 2. Load model
     logger.info("Acquiring embedding model (real or dummy)...")
-    model = get_model()  # returns a real SentenceTransformer if available, otherwise a deterministic dummy
+    model = get_model()
 
     # 3. Generate skill library
     logger.info(f"Generating 100 skills with overlap level: {overlap_level}")

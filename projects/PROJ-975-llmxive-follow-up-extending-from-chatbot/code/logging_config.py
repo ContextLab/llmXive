@@ -5,20 +5,17 @@ import logging
 from typing import Optional, Dict, Any, List
 from llmxive_toolkit import get_logger as toolkit_get_logger, paths
 
-# Column names strictly matching contracts/experiment_log.schema.yaml
-# Note: We follow the schema exactly. run_id is not in the schema, so it is omitted 
-# to avoid jsonschema validation failure (additionalProperties: false).
+# Column names strictly matching T005 requirement and updated contracts/experiment_log.schema.yaml
 LOG_COLUMNS = [
+    "run_id",
     "task_id",
-    "skill_id",
-    "success",
-    "latency",
-    "tokens",
-    "retrieval_precision",
-    "retrieval_diversity",
-    "pruning_risk_count",
     "library_size",
     "pruning_enabled",
+    "success",
+    "latency_ms",
+    "tokens_used",
+    "retrieval_precision",
+    "retrieval_diversity",
     "edge_case"
 ]
 

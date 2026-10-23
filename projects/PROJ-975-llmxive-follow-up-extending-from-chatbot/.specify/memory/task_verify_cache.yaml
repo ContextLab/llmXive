@@ -1,8 +1,29 @@
 T001:
+  c: false
+  h: 429394581c0e497de8ec8ea7e6fa060a004feff85c836f1a95a8ff447794442b
+  r: "The five contract schema files exist and contain the required top\u2011level\
+    \ `properties` and `required` keys, so the provided test would pass. However,\
+    \ there is no evidence (e.g., matching hashes or displayed content from the read\u2011\
+    only specs files) that these files are exact verbatim copies of the schemas in\
+    \ `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`. Without that\
+    \ proof, the core requirement of copying the schemas verbatim is unverified."
+  sig: ec09a9c3adc899dd584999f6b8a668c7c92f4056c0fcf7c14ed41f6f18b05fe9
+T002:
+  c: false
+  h: f29f823929d670bbf7423f716d20f3e429f6681c22067cc677ac43ca7b949108
+  r: 'The generated `data/raw/tasks.json` and `data/raw/skills.json` contain extra
+    fields (`embedding_vector`, `edge_case` in tasks; `mean_cosine_similarity` in
+    skills) that are not allowed by the respective schemas (`additionalProperties:
+    false`). Consequently `jsonschema.validate` would fail, violating the core requirement
+    that all entries conform to `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`.
+    The task therefore does not meet the specification.'
+  sig: d1ac5076a5a48403089b8bd56ede751d3e04425a10d1a8613346de45f5989d26
+T004:
   c: true
-  h: 236cdfdbcf43c796c0bcf58f11a9988a821f9373f8888c020ed9ca1077410bf6
-  r: "The five contract schema files are present at the required paths, each contains\
-    \ the top\u2011level `properties` and `required` keys, and the test suite `tests/contract/test_schema_presence.py`\
-    \ successfully loads them and validates a minimal dummy instance against the task\
-    \ and skill schemas."
-  sig: 74c505642f1c4fde06d1219db8768e1d2190ba65ca2f10f1ec62c5687827e193
+  h: 4e8351e17095e884c2c87e7e370f6ac6a9dd5fe7a40bf2534252d9af6e304131
+  r: "Checked `tests/contract/test_schemas.py` (exists, 6363\u202Fbytes) and its execution\
+    \ log showing all five validation tests passed against the provided `data/raw/tasks.json`\
+    \ and `data/raw/skills.json`, including schema compliance, embedding dimensions,\
+    \ overlap metrics, and task\u2011skill reference integrity. The suite implements\
+    \ the required checks and succeeds, satisfying the task\u2019s requirements."
+  sig: feb5f70da4c4047f9aa1a1cdad18a194e6d60df5a0f4440c7a3746d5d783f126

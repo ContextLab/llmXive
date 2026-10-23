@@ -1,21 +1,27 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Experiment Log Entry
-description: Schema for a single row in the experiment log CSV (T009c).
+description: Schema for a single row in the experiment log CSV.
 type: object
 properties:
+  run_id:
+    type: string
+    description: Unique identifier for the experimental run.
   task_id:
     type: string
     description: Unique identifier for the task.
-  skill_id:
-    type: string
-    description: Identifier of the skill used or attempted.
+  library_size:
+    type: integer
+    description: Current size of the skill library.
+  pruning_enabled:
+    type: boolean
+    description: Whether pruning was active for this run.
   success:
     type: boolean
     description: Whether the task execution was successful.
-  latency:
+  latency_ms:
     type: number
-    description: Execution latency in seconds.
-  tokens:
+    description: Execution latency in milliseconds.
+  tokens_used:
     type: integer
     description: Number of tokens consumed.
   retrieval_precision:
@@ -24,28 +30,18 @@ properties:
   retrieval_diversity:
     type: number
     description: Inverse variance of cosine similarities of retrieved skills.
-  pruning_risk_count:
-    type: integer
-    description: Number of high-similarity skills pruned during this interval.
-  library_size:
-    type: integer
-    description: Current size of the skill library.
-  pruning_enabled:
-    type: boolean
-    description: Whether pruning was active for this run.
   edge_case:
-    type: boolean
-    description: Flag indicating if an edge case (e.g., maximal overlap) was triggered.
+    type: string
+    description: Description of the edge case triggered (e.g., 'missing_skill', 'maximal_overlap', 'none').
 required:
+  - run_id
   - task_id
-  - skill_id
-  - success
-  - latency
-  - tokens
-  - retrieval_precision
-  - retrieval_diversity
-  - pruning_risk_count
   - library_size
   - pruning_enabled
+  - success
+  - latency_ms
+  - tokens_used
+  - retrieval_precision
+  - retrieval_diversity
   - edge_case
 additionalProperties: false

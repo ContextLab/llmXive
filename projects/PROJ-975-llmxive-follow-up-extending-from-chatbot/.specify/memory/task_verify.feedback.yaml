@@ -1,14 +1,30 @@
 T001:
+  reason: "The five contract schema files exist and contain the required top\u2011\
+    level `properties` and `required` keys, so the provided test would pass. However,\
+    \ there is no evidence (e.g., matching hashes or displayed content from the read\u2011\
+    only specs files) that these files are exact verbatim copies of the schemas in\
+    \ `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`. Without that\
+    \ proof, the core requirement of copying the schemas verbatim is unverified."
   task: 75e517b6e8a2dc97fe0d873887f8740d274daec65427bbcc36c80370df9fa5c6
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/generate_data.py
-    exit=1'
+  reason: 'The generated `data/raw/tasks.json` and `data/raw/skills.json` contain
+    extra fields (`embedding_vector`, `edge_case` in tasks; `mean_cosine_similarity`
+    in skills) that are not allowed by the respective schemas (`additionalProperties:
+    false`). Consequently `jsonschema.validate` would fail, violating the core requirement
+    that all entries conform to `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`.
+    The task therefore does not meet the specification.'
   task: b49fbd775f29794697c67ccb18ebf0450c273a45959c4c84e69a082d48ed72a3
 T003:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
   task: 665dad7bfde997215de2afdd36a637fc833075e980754b1acd6b76dfbfdc47b1
 T004:
   task: 049939511d3fbcbe4e54e3aecf1fbe27f24cd2b73b897679636f5b0b0a083a3a
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/smoke_logging.py
+    exit=1'
   task: e8279dcb2db08ab3f3211ce6622d320faced4b974812d2d5655cd7b5e0822fa4
 T006:
   task: 023664e19477b92fb14e44339419d563d9f7a6f5dd1066487a7062f588622be1

@@ -80,14 +80,14 @@ def test_real_skills_schema_compliance():
 
 def test_skills_embedding_dimension():
     """
-    Verify that skill embeddings have the required 768-item length (per T004 scope).
+    Verify that skill embeddings have the required 384-item length (all-MiniLM-L6-v2).
     """
     data = load_json_data(SKILLS_DATA_PATH)
     skills_list = data['skills'] if isinstance(data, dict) and 'skills' in data else data
     
     for skill in skills_list:
         embedding = skill.get('embedding_vector', [])
-        assert len(embedding) == 768, f"Skill {skill.get('skill_id')} embedding length is {len(embedding)}, expected 768."
+        assert len(embedding) == 384, f"Skill {skill.get('skill_id')} embedding length is {len(embedding)}, expected 384."
 
 def test_real_skills_overlap_metrics():
     """
@@ -99,12 +99,12 @@ def test_real_skills_overlap_metrics():
     # Extract embeddings as a numpy array
     embeddings = np.array([s['embedding_vector'] for s in skills_list])
     
-    # Compute mean pairwise cosine similarity
+    # Compute mean pairwise cosine similarity using the utility
     mean_score = mean_pairwise_similarity(embeddings)
     
     # Get active overlap level from config
     config = get_experiment_config()
-    overlap_level = config.get('overlap_level', 'medium').lower()
+    overlap_level = config.get('overlap_level', os.environ.get('OVERLAP_LEVEL', 'MEDIUM')).upper()
     
     # Calculate distribution for threshold checks
     # We compute the actual pairwise matrix to check the "at least 30% > X" requirement
@@ -117,13 +117,13 @@ def test_real_skills_overlap_metrics():
     mask = ~np.eye(sim_matrix.shape[0], dtype=bool)
     all_pairs = sim_matrix[mask]
     
-    if overlap_level == 'low':
+    if overlap_level == 'LOW':
         assert mean_score < 0.30, f"Low overlap expected mean < 0.30, got {mean_score:.4f}"
-    elif overlap_level == 'medium':
+    elif overlap_level == 'MEDIUM':
         assert mean_score > 0.50, f"Medium overlap expected mean > 0.50, got {mean_score:.4f}"
         perc_above_50 = np.mean(all_pairs > 0.50)
         assert perc_above_50 >= 0.30, f"Medium overlap requires >= 30% pairs > 0.50, got {perc_above_50:.2%}"
-    elif overlap_level == 'high':
+    elif overlap_level == 'HIGH':
         assert mean_score > 0.80, f"High overlap expected mean > 0.80, got {mean_score:.4f}"
         perc_above_80 = np.mean(all_pairs > 0.80)
         assert perc_above_80 >= 0.30, f"High overlap requires >= 30% pairs > 0.80, got {perc_above_80:.2%}"
@@ -144,6 +144,7 @@ def test_task_skill_reference_integrity():
     
     errors = []
     for i, task in enumerate(tasks_list):
+        # Use ground_truth_path as defined in generate_data.py and agent.py
         gt_path = task.get('ground_truth_path', [])
         for sid in gt_path:
             if sid not in valid_skill_ids:

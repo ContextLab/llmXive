@@ -2,4 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T002** — Requested task execution failed; rerun successfully: code/generate_data.py exit=1
+- **T001** — The five contract schema files exist and contain the required top‑level `properties` and `required` keys, so the provided test would pass. However, there is no evidence (e.g., matching hashes or displayed content from the read‑only specs files) that these files are exact verbatim copies of the schemas in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`. Without that proof, the core requirement of copying the schemas verbatim is unverified.
+- **T002** — The generated `data/raw/tasks.json` and `data/raw/skills.json` contain extra fields (`embedding_vector`, `edge_case` in tasks; `mean_cosine_similarity` in skills) that are not allowed by the respective schemas (`additionalProperties: false`). Consequently `jsonschema.validate` would fail, violating the core requirement that all entries conform to `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`. The task therefore does not meet the specification.
+- **T003** — the task writes platform-owned path(s) inside the project: `state/` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T005** — Requested task execution failed; rerun successfully: code/smoke_logging.py exit=1
