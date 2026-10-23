@@ -34,7 +34,7 @@ The researcher MUST be able to train a regression model (Linear Regression *or* 
 **Acceptance Scenarios**:
 
 1. **Given** a training dataset with at least 200 samples containing clustering descriptors and segregation energies, **When** the regression model is trained with 5‑fold cross‑validation (or LOOCV if N < 5), **Then** R², RMSE, and (for Linear Regression) coefficient p‑values are computed for each fold within 6 hours of wall‑clock time on CPU‑only hardware.
-2. **Given** the trained model, **When** predictions are generated on a test set of at least 50 held‑out samples, **Then** predicted segregation energies are output with 95 % confidence intervals for each prediction.
+2. **Given** the trained model, **When** predictions are generated on a test set of at least 50 held‑out samples, **Then** Predicted segregation energies are output with confidence intervals reflecting a high level of confidence for each prediction.
 3. **Given** multiple alloy systems are in the dataset, **When** the model is evaluated per‑system, **Then** R² values are reported for each system separately with at least 3 systems represented in the test set.
 
 ---

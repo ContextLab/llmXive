@@ -32,51 +32,6 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2005.02245
   verified_at: '2026-10-17T13:30:53.046296Z'
-- artifact_hash: b5d174bcaaac5a710c82f2deeb6277a9a977c6306e07b00ad9e1d77914048429
-  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: test-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/jablonkagroup/oqmd/resolve/main/completion_0/test-00000-of-00001.parquet
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67b8f82ec5bec6590088e490/a60b3fadabff97c60496921272ca5ea55198226db599578e2447128b97c855ad?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&xip=1N25s85j_MU&user_id=public&Expires=1792248892&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdiOGY4MmVjNWJlYzY1OTAwODhlNDkwL2E2MGIzZmFkYWJmZjk3YzYwNDk2OTIxMjcyY2E1ZWE1NTE5ODIyNmRiNTk5NTc4ZTI0NDcxMjhiOTdjODU1YWRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnhpcD0xTjI1czg1al9NVSZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMjQ4ODkyfX19XX0_&Signature=MEQCIBCd-YzzFDwCuOv%7EzfTmTLtz3NABJoDGFpJjvQGKGuS5AiAxjFUcxvderaTbk28TeuO-aVMEGcVk4lxX9SiWsl8ysg__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-17T13:54:52.676499Z'
-- artifact_hash: b5d174bcaaac5a710c82f2deeb6277a9a977c6306e07b00ad9e1d77914048429
-  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: targets.csv
-  kind: url
-  value: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&user_id=public&X-Xet-Cas-Uid=public&xip=1N25s85j_MU&Expires=1792248893&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGFyZ2V0cy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0YXJnZXRzLmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmeGlwPTFOMjVzODVqX01VIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTIyNDg4OTN9fX1dfQ__&Signature=MEQCICobU3YnOUVuUUVI%7EUbFH7cCaAEL6iewuB3vcpG6wzC%7EAiA%7EChgDNP9cAV-6mRSIt-7%7EZGet-PQM8qG7kQYgNdifLQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-17T13:54:52.676499Z'
-- artifact_hash: b5d174bcaaac5a710c82f2deeb6277a9a977c6306e07b00ad9e1d77914048429
-  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: all_index.parquet
-  kind: url
-  value: https://huggingface.co/datasets/materials-toolkits/oqmd/resolve/main/all_index.parquet
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/654cfce223281492f2c82e4b/b15b92b8483cc6e3a9e478775ca0a9dcb28a83c20b9f84874d040026cf8edbee?X-Xet-Cas-Uid=public&user_id=public&xip=1N25s85j_MU&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27all_index.parquet%3B+filename%3D%22all_index.parquet%22%3B&Expires=1792248895&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU0Y2ZjZTIyMzI4MTQ5MmYyYzgyZTRiL2IxNWI5MmI4NDgzY2M2ZTNhOWU0Nzg3NzVjYTBhOWRjYjI4YTgzYzIwYjlmODQ4NzRkMDQwMDI2Y2Y4ZWRiZWVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZ4aXA9MU4yNXM4NWpfTVUmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2FsbF9pbmRleC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyYWxsX2luZGV4LnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MjI0ODg5NX19fV19&Signature=MEUCIE-076sInNfjd%7EuL-7hhW8l9Rh-7TZ4OD-11VNqXs8zzAiEArW8HtOauHwqbM7StLQI18tvEfjj7NZzSEuMTRqe6V5M_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-17T13:54:52.676499Z'
-- artifact_hash: b5d174bcaaac5a710c82f2deeb6277a9a977c6306e07b00ad9e1d77914048429
-  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2005.02245] Overcoming the inconsistences of the variance inflation
-    factor: a redefined VIF and a test to detect statistical troubling multicollinearity'
-  kind: url
-  value: https://arxiv.org/abs/2005.02245
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2005.02245
-  verified_at: '2026-10-17T13:54:52.676499Z'
 - artifact_hash: 5fce7e8b8efb2b3f94940b878c3821e41922bb5697f1005422e8d0119a4efa27
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-001
@@ -110,3 +65,36 @@
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/materials-data/dfte-benchmarks/main/dfte_segregation.csv
   verified_at: '2026-10-20T23:26:19.369970Z'
+- artifact_hash: d01a278a61376979e834dfcc5dacbe56345a6c6cad1cb5ab1db81ca5cc21faef
+  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/jablonkagroup/oqmd/resolve/main/completion_0/test-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67b8f82ec5bec6590088e490/a60b3fadabff97c60496921272ca5ea55198226db599578e2447128b97c855ad?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&xip=r-4W7kPHzbk&user_id=public&X-Xet-Cas-Uid=public&Expires=1792750042&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdiOGY4MmVjNWJlYzY1OTAwODhlNDkwL2E2MGIzZmFkYWJmZjk3YzYwNDk2OTIxMjcyY2E1ZWE1NTE5ODIyNmRiNTk5NTc4ZTI0NDcxMjhiOTdjODU1YWRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnhpcD1yLTRXN2tQSHpiayZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNzUwMDQyfX19XX0_&Signature=MEUCIQD-DrecMkCCubTEud1%7E2wSBHnGbs2WzThfuK9fP5V0G0AIgIIrnEhj7lXi26kukVUy1C%7EbfAh17H-ey7ZB2zc%7Eqibs_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-23T09:07:22.541480Z'
+- artifact_hash: d01a278a61376979e834dfcc5dacbe56345a6c6cad1cb5ab1db81ca5cc21faef
+  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: targets.csv
+  kind: url
+  value: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?user_id=public&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&xip=r-4W7kPHzbk&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&Expires=1792750043&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmeGlwPXItNFc3a1BIemJrJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0YXJnZXRzLmNzdiUzQitmaWxlbmFtZSUzRCUyMnRhcmdldHMuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI3NTAwNDN9fX1dfQ__&Signature=MEQCICmqXy-axk9r40xBWi2bmBZ%7EWjzYF0oGQlMIX3ZlCO5DAiAJtC8R2eutKCzssmxs-PmnuYJfeWl%7EWzn0S6jzxZG4-w__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-23T09:07:22.541480Z'
+- artifact_hash: d01a278a61376979e834dfcc5dacbe56345a6c6cad1cb5ab1db81ca5cc21faef
+  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: all_index.parquet
+  kind: url
+  value: https://huggingface.co/datasets/materials-toolkits/oqmd/resolve/main/all_index.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/654cfce223281492f2c82e4b/b15b92b8483cc6e3a9e478775ca0a9dcb28a83c20b9f84874d040026cf8edbee?xip=r-4W7kPHzbk&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27all_index.parquet%3B+filename%3D%22all_index.parquet%22%3B&user_id=public&Expires=1792750045&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU0Y2ZjZTIyMzI4MTQ5MmYyYzgyZTRiL2IxNWI5MmI4NDgzY2M2ZTNhOWU0Nzg3NzVjYTBhOWRjYjI4YTgzYzIwYjlmODQ4NzRkMDQwMDI2Y2Y4ZWRiZWVcXD94aXA9ci00VzdrUEh6YmsmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2FsbF9pbmRleC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyYWxsX2luZGV4LnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5Mjc1MDA0NX19fV19&Signature=MEYCIQCxKCR%7EU-U7vWVuCfswOlL7U-oduP2OvlcVdrYETccXJwIhAPtO6SCsNvGKoQ9ECPl8oc4loO-R-ToA1yMI0R2jkC-X&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-23T09:07:22.541480Z'

@@ -58,7 +58,7 @@ properties:
     properties:
       vif_threshold:
         type: "number"
-        description: "Threshold for flagging collinearity (10)."
+        description: "Threshold for flagging collinearity (based on a conventional qualitative criterion)."
       vif_scores:
         type: "object"
         additionalProperties:

@@ -151,7 +151,7 @@ properties:
         description: "FR-011 result; DATA_UNAVAILABLE records the missing verified DFT benchmark."
       n_benchmark:
         type: integer
-        description: "Number of DFT benchmark samples used (0 when unavailable)."
+        description: "Number of DFT benchmark samples used (marked as unavailable when not provided)."
       mae_eV:
         type: number
         description: "Mean absolute error vs DFT benchmark in eV."

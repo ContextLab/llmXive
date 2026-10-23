@@ -1,45 +1,19 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets
-
-
-  ds_dict = datasets.load_dataset("jablonkagroup/oqmd", name="raw_data")
-
-  record_count = sum(len(split) for split in ds_dict.values())
-
-  print(f"RECORDS={record_count}")
-
-
-  first_split = next(iter(ds_dict.values()))
-
-  print("FIELDS=" + ",".join(first_split.column_names))'
-record_count: 561881
-sample_fields:
-- name
-- formula
-- spacegroup
-- nelements
-- nsites
-- energy_per_atom
-- formation_energy_per_atom
-- band_gap
-- volume_per_atom
-- magnetization_per_atom
-- atomic_volume_per_atom
-- volume_deviation
-- split
-- __index_level_0__
-field_coverage: 0.5
+status: none
+intent: OQMD ICSD database bulk alloy composition spacegroup volume python package
+  dataset
 required_fields:
 - material_id
-- composition
-- lattice_parameters
-- lattice_vectors
-- atomic_positions
+- formula
+- spacegroup
 - spacegroup_number
-- formation_energy_per_atom
-- segregation_energy
-intent: OQMD bulk crystal structures parquet dataset Materials Project HuggingFace
-  mirror python package dataset
-cache_key: 22f29de8454c78a346da0b708aa47ddaec51bd1a9b51e80c77f08c44213d8b16
+- volume_per_atom
+- lattice_parameter_a
+- lattice_parameter_b
+- lattice_parameter_c
+- lattice_angle_alpha
+- lattice_angle_beta
+- lattice_angle_gamma
+- crystal_system
+cache_key: 45a9a31d0f1fd13650ef0175685da3e38fc40e358c46d002429ba3ced44a5efa
+searched_at: '2026-10-23T08:54:19.645928+00:00'
+retry_count: 1

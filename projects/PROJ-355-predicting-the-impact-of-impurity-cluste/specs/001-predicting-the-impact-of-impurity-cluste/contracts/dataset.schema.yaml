@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Training Dataset Row Schema"
-description: "One row of data/processed/training_set.csv linking interface-only clustering descriptors, covariates, and EAM segregation energy."
+description: "One row of data/processed/training_set.csv linking clustering descriptors (computed on bulk configuration before impurity insertion), covariates, and EAM segregation energy."
 type: object
 properties:
   sample_id:
@@ -20,13 +20,13 @@ properties:
     description: "Element symbol of the impurity."
   rdf_peak_value:
     type: number
-    description: "RDF peak descriptor computed in the GB interface region."
+    description: "RDF peak descriptor **computed on bulk configuration before impurity insertion**."
   pair_corr_value:
     type: number
-    description: "Pair-correlation statistic computed in the GB interface region."
+    description: "Pair‑correlation statistic **computed on bulk configuration before impurity insertion**."
   voronoi_count:
     type: integer
-    description: "Voronoi neighbor count for the impurity in the interface region."
+    description: "Voronoi neighbor count for the impurity **computed on bulk configuration before impurity insertion**."
   cluster_size:
     type: number
     description: "Mean nearest‑neighbor distance among impurity atoms within the interface region (used for FR‑009)."
