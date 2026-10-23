@@ -14,40 +14,16 @@ properties:
   scene_id:
     type: string
     description: "Unique identifier for the scene"
-    pattern: "^scene_[0-9]{3,}$"
-  method:
+    pattern: "             " 
+  scene_id:
     type: string
-    description: "Denoising method used for reconstruction"
-    enum: ["deterministic_filter", "diffusion_baseline", "raw_noisy"]
-  chamfer_distance:
-    type: number
-    description: "Chamfer Distance between reconstructed and ground-truth point clouds (lower is better)"
-    minimum: 0.0
-    maximum: 1.0
-  f_score:
-    type: number
-    description: "F-score at distance threshold 0.01 (higher is better)"
-    minimum: 0.0
-    maximum: 1.0
-  inference_time_sec:
-    type: number
-    description: "Wall-clock inference latency on a single CPU core (seconds)"
-    minimum: 0.0
-    maximum: 3600.0
-  peak_memory_mb:
-    type: number
-    description: "Peak resident set size memory usage (megabytes)"
-    minimum: 0.0
-    maximum: 7000.0
-  filter_params:
-    type: string
-    description: "JSON-encoded filter parameters (e.g., '{\"lambda_c\": 0.05, \"alpha\": 1.0, \"k\": 10}')"
-additionalProperties: false
-examples:
-  - scene_id: "scene_001"
-    method: "deterministic_filter"
-    chamfer_distance: 0.0452
-    f_score: 0.87
-    inference_time_sec: 0.125
-    peak_memory_mb: 512.0
-    filter_params: '{"lambda_c": 0.0567, "alpha": 1.0, "k": 10}'
+    description: ""
+    pattern: "^      "
+  scene_id:
+         
+
+
+
+--- End
+
+

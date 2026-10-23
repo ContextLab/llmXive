@@ -28,7 +28,7 @@
 
 **Why this priority**: This validates the scientific hypothesis. It determines *which* properties to preserve in the filter. It is the "investigation" phase of the methodology.
 
-**Independent Test**: The system can process a batch of 50 clean scenes, extract the feature graph, compute the top-k eigenvalues and curvature, and output a statistical report identifying correlations between specific eigenmodes and low reconstruction error.
+**Independent Test**: The system can process a batch of clean scenes, extract the feature graph, compute the top‑k eigenvalues and curvature, and output a statistical report identifying correlations between specific eigenmodes and low reconstruction error.
 
 **Acceptance Scenarios**:
 

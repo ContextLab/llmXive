@@ -1,16 +1,13 @@
 status: none
-intent: download ShapeNet Core ModelNet40 ScanNet multi-view dataset python package
+intent: ShapeNetCore ModelNet40 multi-view images point cloud download python package
   dataset
 required_fields:
-- image_id
+- scene_id
+- view_id
 - image_path
 - camera_intrinsics
 - camera_extrinsics
-- point_cloud
-- mesh_vertices
-- mesh_faces
-- category
-- scene_id
-cache_key: a36758fe0b1b0b973ec1577f683b1ff389e5bad061e9540f50e5d038544a8d7b
-searched_at: '2026-10-22T15:22:52.913748+00:00'
+- ground_truth_point_cloud
+cache_key: 97f798c4d101984f3c22da47246d5f0db2ae90efee7c0f3da011e9885f54765a
+searched_at: '2026-10-23T06:10:50.152979+00:00'
 retry_count: 1

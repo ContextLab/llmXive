@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Feature Graph Schema"
-description: "Specification for feature graph structures (k-NN graphs constructed from GARD feature maps)"
+description: "Specification for feature graph structures (k‑NN graphs constructed from GARD feature maps)"
 type: object
 required:
   - scene_id
@@ -23,7 +23,7 @@ properties:
     maximum: 10000
   num_edges:
     type: integer
-    description: "Number of edges in the k-NN graph (should be ≈ k × num_nodes for connected graphs)"
+    description: "Number of edges in the k‑NN graph (≈ k × num_nodes for connected graphs)"
     minimum: 100
   k:
     type: integer
@@ -42,12 +42,12 @@ properties:
     description: "Whether the graph is a single connected component (true) or has multiple components (false)"
   fallback_applied:
     type: boolean
-    description: "Whether a fallback strategy (smoothing or k-increase) was applied to handle disconnected graphs"
+    description: "Whether a fallback strategy (smoothing or k‑increase) was applied to handle disconnected graphs"
 additionalProperties: false
 examples:
   - scene_id: "scene_001"
-    num_nodes: 1024
-    num_edges: 10240
+    num_nodes: [appropriate number of nodes]
+    num_edges: a substantial number of edges appropriate for the study
     k: 10
     adjacency_matrix_path: "data/processed/feature_graphs/adjacency_scene_001.npz"
     node_features_path: "data/processed/feature_graphs/node_features_scene_001.npy"

@@ -1,0 +1,16 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 8 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- The recovery formula `CD_det ≤ CD_noisy + 0.85 × (CD_diffusion − CD_noisy)` is mathematically incorrect when the diffusion baseline improves over the noisy input (i.e., CD_diffusion < CD_noisy). The term `(CD_diffusion − CD_noisy)` becomes negative, making the bound tighter than the noisy baseline and contradicting the intended “85 % gap‑closing” claim. The correct expression should subtract the recovered portion: `CD_det ≤ CD_noisy - 0.85 × (CD_noisy − CD_diffusion)`.
+- Wilcoxon signed‑rank test is planned on only the 20 test scenes. With such a small paired sample the test has limited statistical power, especially for detecting modest effect sizes. The plan should either increase the test set size or perform a power analysis to justify that 20 pairs are sufficient for α = 0.05.
+- The diffusion baseline is computed on a 10‑scene subset using a Kaggle GPU and then extrapolated to the full 20‑scene test set. This introduces a confound because GPU‑accelerated runs may have different runtime characteristics and stochastic behavior than the CPU‑only runs, making the speed‑up comparison unreliable. The baseline should be evaluated on the same full set (or a statistically comparable subset) under consistent conditions.
+- The hypothesis that low‑frequency eigenmodes *cause* robustness is supported only by Pearson correlation between eigenmode energy and Chamfer Distance. Correlation does not establish causality; without an ablation or intervention (e.g., explicitly removing specific eigenmodes and measuring the impact) the claim remains unsupported.
+- Eigenmode energy is summed over all nodes (`∑_node (v_i·f)^2`) without normalizing for graph size or feature magnitude, which may bias the correlation with Chamfer Distance across scenes of varying complexity. The construct validity of this metric should be clarified or a normalized energy measure should be used.
+- The plan references FR‑009 (handling disconnected graphs and fallback) but FR‑009 is not defined in the specification (spec.md). This creates a missing functional requirement.
+- The Constitution Check table marks all principles as ✅ without providing the required evidence (e.g., a “Verified datasets” block for Principle II). This makes the claim unverifiable and violates the spirit of Principle II.
+- The plan never explicitly mentions the contract files (feature-graph.schema.yaml, reconstruction-output.schema.yaml, spectral-analysis.schema.yaml). According to the cross‑doc rule, every contract must be exercised by at least one plan element, and every plan element that calls an API should match a defined contract.

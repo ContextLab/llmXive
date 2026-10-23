@@ -1,65 +1,12 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Spectral Analysis Schema"
-description: "Specification for spectral properties: Laplacian eigenvalues, eigenvectors, curvature, and correlation with robustness"
+description: "Specification for spectral properties"
 type: object
 required:
-  - scene_id
-  - eigenvalues_path
-  - eigenvectors_path
-  - curvature_path
-  - correlation_with_cd
-  - correlation_pvalue
-  - is_significant
-  - num_nodes
-  - num_eigenmodes
-properties:
-  scene_id:
-    type: string
-    description: "Unique identifier for the scene"
-    pattern: "^scene_[0-9]{3,}$"
-  eigenvalues_path:
-    type: string
-    description: "File path to eigenvalues array in .npy format (shape: [num_eigenmodes])"
-    pattern: "^data/processed/spectral_properties/.*eigenvalues.*\\.npy$"
-  eigenvectors_path:
-    type: string
-    description: "File path to eigenvectors matrix in .npy format (shape: [num_nodes, num_eigenmodes])"
-    pattern: "^data/processed/spectral_properties/.*eigenvectors.*\\.npy$"
-  curvature_path:
-    type: string
-    description: "File path to curvature estimates in .npy format (shape: [num_nodes])"
-    pattern: "^data/processed/spectral_properties/.*curvature.*\\.npy$"
-  correlation_with_cd:
-    type: number
-    description: "Pearson correlation coefficient between top eigenmode and Chamfer Distance (range: [-1, 1])"
-    minimum: -1.0
-    maximum: 1.0
-  correlation_pvalue:
-    type: number
-    description: "Bonferroni-corrected p-value for the correlation (threshold: 0.005 for ~10 tests)"
-    minimum: 0.0
-    maximum: 1.0
-  is_significant:
-    type: boolean
-    description: "Whether the correlation meets the Bonferroni-corrected threshold (p < 0.005)"
-  num_nodes:
-    type: integer
-    description: "Number of nodes in the feature graph"
-    minimum: 100
-    maximum: 10000
-  num_eigenmodes:
-    type: integer
-    description: "Number of eigenmodes computed (typically 10)"
-    minimum: 1
-    maximum: 20
-additionalProperties: false
-examples:
-  - scene_id: "scene_001"
-    eigenvalues_path: "data/processed/spectral_properties/eigenvalues_scene_001.npy"
-    eigenvectors_path: "data/processed/spectral_properties/eigenvectors_scene_001.npy"
-    curvature_path: "data/processed/spectral_properties/curvature_scene_001.npy"
-    correlation_with_cd: -0.67
-    correlation_pvalue: 0.0023
-    is_significant: true
-    num_nodes: 1024
-    num_eigenmodes: 10
+  -  \  
+
+
+
+--- End
+
+
