@@ -1,14 +1,10 @@
 status: none
-intent: download High Entropy Alloy yield strength dataset from Materials Project
-  and Zenodo python package dataset
+intent: download HEA yield strength dataset Zenodo Materials Project API periodic
+  table python package dataset
 required_fields:
-- sample_id
-- composition
-- element_fractions
+- material_id
+- element_fractions (per element columns)
 - yield_strength
-- measurement_temperature
-- processing_route
-- source_reference
-cache_key: 5cee03ffc037fc6912cb97b3eae7875576e200766812696d9d4b9b52705cabf4
-searched_at: '2026-10-19T13:21:59.619209+00:00'
+cache_key: ca1638bd3038f40dea64a2071ea8a51c02f12a261abf128a22d9d73b840db10c
+searched_at: '2026-10-23T20:13:13.145052+00:00'
 retry_count: 1
