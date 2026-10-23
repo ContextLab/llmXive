@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T09:58:37.107439Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-247-evaluating-the-impact-of-code-generation
-last_run_id: 5941b3bd-cf94-453f-a72c-4ed665428a9f
+last_run_id: aa362e56-4c13-42cb-bda2-8ee472ee3d2a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-247-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation on Long-Term Code Maintainability
-updated_at: '2026-10-23T10:26:18.957547Z'
+updated_at: '2026-10-23T10:45:03.452718Z'

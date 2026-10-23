@@ -1,19 +1,19 @@
 status: none
-intent: GHTorrent Python JavaScript active repo metadata with LLM code labels python
-  package dataset
+intent: download active Python JavaScript GitHub repos with LLM human code labels
+  python package dataset
 required_fields:
-- repository_id
 - repository_name
-- owner
+- repository_url
 - primary_language
-- stars
-- forks
-- watchers
+- star_count
 - last_commit_date
-- commits_last_90_days
 - code_block_id
-- file_path
-- start_line
-cache_key: 6ab588ce48c61c3256f8ea14371b12f0afd290af67b989d668392596fd81612b
-searched_at: '2026-10-13T00:38:33.573004+00:00'
+- code_block_source_file
+- code_block_start_line
+- code_block_end_line
+- code_block_text
+- origin_label
+- origin_confidence_score
+cache_key: fca4274fddf4d4bdefdea3bba2eace5feb307025ac195d9b05ca51cd38a78a50
+searched_at: '2026-10-23T10:33:32.243353+00:00'
 retry_count: 1

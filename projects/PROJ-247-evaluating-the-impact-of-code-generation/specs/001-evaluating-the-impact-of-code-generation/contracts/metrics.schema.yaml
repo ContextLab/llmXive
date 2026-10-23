@@ -18,16 +18,22 @@ properties:
   human_churn_lines:
     type: number
     description: "Total lines added + deleted for the Human block in the 6‑month window."
+  llm_churn_rate:
+    type: number
+    description: "Normalized churn: llm_churn_lines divided by block LOC."
+  human_churn_rate:
+    type: number
+    description: "Normalized churn: human_churn_lines divided by block LOC."
   llm_latency_days:
     type:
       - "number"
       - "null"
-    description: "Bug‑fix latency (days) for the LLM block; null if no linked issue."
+    description: "Bug‑fix latency (days) for the LLM block; null if no linked issue (right-censored)."
   human_latency_days:
     type:
       - "number"
       - "null"
-    description: "Bug‑fix latency (days) for the Human block; null if no linked issue."
+    description: "Bug‑fix latency (days) for the Human block; null if no linked issue (right-censored)."
   repo_stars:
     type: integer
     description: "Star count of the parent repository."
@@ -46,6 +52,8 @@ required:
   - human_block_id
   - llm_churn_lines
   - human_churn_lines
+  - llm_churn_rate
+  - human_churn_rate
   - repo_stars
   - repo_age_days
   - repo_total_loc
