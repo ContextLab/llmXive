@@ -1,288 +1,110 @@
-# Tasks: Neuro‑Symbolic Learning Networks: Bridging Neural and Symbolic Reasoning in Education
-
-**Input**: Design documents from `/specs/PROJ-559-neuro-symbolic/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per implementation plan (`code/`, `data/`, `contracts/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` and `python -m venv venv`. **Deliverable**: `code/requirements.txt` containing `torch==2.1.0`, `transformers==4.36.0`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `statsmodels==0.14.1`, `pyyaml==6.0.1`, `datasets==2.15.0`, `pytest==7.4.3`, `ruff==0.1.6`, `black==23.12.1`, `bitsandbytes==0.41.0`. **Note**: Install CPU-only torch via `pip install torch --index-url https://download.pytorch.org/whl/cpu` if `+cpu` suffix is not supported by the environment. **Command**: `python -m venv code/venv && source code/venv/bin/activate && pip install -r code/requirements.txt`.
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [X] T004 Setup CI workflow for GitHub Actions with resource constraints (limited CPU, constrained RAM, bounded timeout)
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure, schema definitions, mandatory calibration logic, and data ingestion.
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. Calibration logic (T030a-T033b) is implemented here to enforce FR-010, but the blocking check is executed by the simulation runner (T021) in Phase 4.
-
-- [X] T005 Implement `code/utils/config.py` for random seeds, timeouts, and resource limits
-- [X] T006 [P] Implement `code/utils/logging.py` for SC-005/SC-006 (resource monitoring, structured logging)
-- [X] T007 Create base entity schemas in `contracts/` (problem.schema.yaml, explanation.schema.yaml, simulation_log.schema.yaml)
-- [X] T007b [P] Create `contracts/pilot_data.schema.yaml` for human pilot data validation. **Deliverable**: `contracts/pilot_data.schema.yaml` with fields `problem_id`, `condition`, `correct`, `rt_seconds`, `comprehension_rating`. **Dependency**: T007.
-- [X] T007c [P] Create `contracts/real_data.schema.yaml` for real student data validation. **Deliverable**: `contracts/real_data.schema.yaml` with fields `problem_id`, `condition`, `correct`, `rt_seconds`, `comprehension_rating`, `data_source`. **Dependency**: T007.
-- [X] T008 Implement schema validation utilities in `code/utils/validation.py`
-- [X] T009 Setup `code/download/` directory structure and placeholder for dataset fetch logic
-- [X] T012 [US1] [BLOCKER] Implement `code/download/fetch_assistments.py` to fetch the ASSISTments dataset from `huggingface.co/datasets/assistments/2009-2010` using `datasets.load_dataset` with `streaming=True`. **Requirement**: Must exit with code 1 and log "ERROR: Failed to download [dataset name] within 300 seconds – aborting pipeline." if timeout occurs. **Deliverable**: `data/raw/assistments.csv` and corresponding checksum file. **Dependency**: T009.
-- [X] T012c [US1] [BLOCKER] Implement `code/download/fetch_khan_academy.py` to fetch the Khan Academy dataset from `huggingface.co/datasets/khanacademy/math` using `datasets.load_dataset` with `streaming=True`. **Requirement**: Must exit with code 1 and log "ERROR: Failed to download [dataset name] within 300 seconds – aborting pipeline." if timeout occurs. **Deliverable**: `data/raw/khan_academy.csv` and corresponding checksum file. **Dependency**: T009.
-- [X] T051a [US1] [BLOCKER] Create `code/download/fetch_datasets.py` as an orchestrator script that calls `fetch_assistments.py` and `fetch_khan_academy.py`. **Deliverable**: `code/download/fetch_datasets.py`. **Requirement**: Must handle the timeout and error logging for both datasets. **Dependency**: T012, T012c.
-- [X] T012e [US1] [BLOCKER] Implement `code/download/unify_datasets.py` to merge `data/raw/assistments.csv` and `data/raw/khan_academy.csv` into a single unified schema `data/raw/unified_problems.csv`. **Requirement**: Must validate that both source files exist and contain required fields (`problem_id`, `prompt_text`, `difficulty`, `skill`) before merging. **Schema Mapping**: Map `assistments_id` -> `problem_id`, `skill` -> `skill_name`. **Deliverable**: `data/raw/unified_problems.csv` with checksum. **Dependency**: T051a, T012, T012c.
-- [X] T012a [US1] [BLOCKER] Implement `code/download/validate_unified_schema.py` to verify the schema of the merged `data/raw/unified_problems.csv` against `contracts/problem.schema.yaml`. **Deliverable**: Exit code 0 if valid, or exit code 1 with error message "ERROR: Invalid unified schema: [list of invalid rows]". **Dependency**: T012e.
-- [X] T012b [US1] [BLOCKER] Implement `code/download/verify_timeout_handling.py` to simulate a network timeout during dataset fetch and verify that the system exits with code 1 and logs the exact message "ERROR: Failed to download [dataset name] within 300 seconds – aborting pipeline." as required by FR-007. **Strategy**: Use `unittest.mock.patch` on `datasets.load_dataset` to raise a `TimeoutError` after 1s. **Deliverable**: Test log confirming exit code and message. **Dependency**: T012.
-- [X] T012d [US1] [BLOCKER] Implement `code/download/verify_timeout_handling_khan.py` to simulate a network timeout during Khan Academy dataset fetch and verify that the system exits with code 1 and logs the exact message "ERROR: Failed to download [dataset name] within 300 seconds – aborting pipeline." as required by FR-007. **Strategy**: Use `unittest.mock.patch` on `datasets.load_dataset` to raise a `TimeoutError` after 1s. **Deliverable**: Test log confirming exit code and message. **Dependency**: T012c.
-- [X] T030a [US5] [BLOCKER] Implement `code/pilot/synthetic_pilot_generator.py` to generate a deterministic synthetic pilot dataset (≥50 records) **for calibration logic testing and CI reproducibility**. **Requirement**: Must use fixed random seeds. **Distribution**: `rt_seconds` ~ LogNormal(mean=15, std=5) to ensure non-negative values; `correct` ~ Bernoulli(p=0.7); `comprehension` ~ Uniform(1, 5). **Deliverable**: `data/pilot/real_pilot_data.csv` (named to match the expected artifact for T031b). **Dependency**: T009, T007b.
-- [X] T030b [US5] [BLOCKER] Manual task to replace `data/pilot/real_pilot_data.csv` with actual human pilot data if available. **Requirement**: This task is for production validation; the pipeline proceeds with T030a output if this is not done. **Dependency**: T030a.
-- [X] T030c [US5] [BLOCKER] Implement `code/pilot/ingest_human_pilot.py` to ingest and validate the real human pilot dataset from `data/pilot/real_pilot_data.csv`. **Requirement**: Must exit with code 1 and log "ERROR: Human pilot data missing or invalid (<50 records). Calibration cannot proceed." if data is missing or < 50 records. **Deliverable**: Validated `data/pilot/real_pilot_data.csv` with checksum. **Dependency**: T030b.
-- [X] T031b [US5] [BLOCKER] Implement `code/download/check_pilot_data.py` to check for the existence and validity of the **pilot** dataset at `data/pilot/real_pilot_data.csv`. **Deliverable**: Exit code 0 with a JSON status flag `has_human_data=true` if valid (≥50 records per `contracts/pilot_data.schema.yaml`), OR exit code 1 with error message. **Requirement**: Must accept the synthetic artifact from T030a as valid for CI execution if `CI_MODE=true`. If `CI_MODE=true` and T030a output exists, pass. If `CI_MODE=false`, require T030c output (real human data). **Error Messages**: If `CI_MODE=true` and data missing, log "ERROR: Synthetic pilot data (T030a) missing. CI pipeline aborted." If `CI_MODE=false` and real data missing, log "ERROR: Real human pilot data missing (<50 records). Calibration cannot proceed." **Dependency**: T030a, T030c.
-- [X] T031 [BLOCKER] [US5] Implement `code/simulate/calibration.py` to compare BKT predictions against human pilot data (from T030c) or synthetic proxy (from T030a). **Deliverable**: `data/pilot/calibration_report.json` and updated `code/simulate/bkt_params.yaml`. **Logic**: Execute ONLY if T031b passes (valid data exists). Read thresholds from `config/calibration_thresholds.yaml` (RMSE <= 0.15, diff <= 0.02). If calibration thresholds fail, exit with code 1. **Dependency**: T031b.
-- [X] T032 [BLOCKER] [US5] Implement `code/simulate/calculate_calibration_metrics.py` to calculate RMSE difference and absolute RMSE against human pilot data. **Deliverable**: `data/pilot/calibration_metrics.json`. **Requirement**: Must exit with code 1 if RMSE difference > 0.02 or absolute RMSE > 0.15. If thresholds met, pass metrics to T033. **Dependency**: T031.
-- [X] T033 [BLOCKER] [US5] Implement `code/simulate/update_bkt_params.py` to update `bkt_params.yaml` based on calibration metrics from T032. **Deliverable**: Updated `code/simulate/bkt_params.yaml`. **Logic**: Read `calibration_metrics.json`, perform grid search or gradient descent to optimize BKT parameters, write new `bkt_params.yaml`. **Dependency**: T032.
-- [X] T033b [BLOCKER] [US5] Implement `code/simulate/check_calibration_valid.py` to enforce that simulation cannot proceed without valid calibration parameters. **Deliverable**: Returns boolean flag `calibration_valid` for the simulation runner. **Dependency**: T033.
-- [X] T034a-Protocol [US7] [BLOCKER] Define protocol for acquiring real student data (≥200 participants) for final analysis. **Deliverable**: `docs/real_data_collection_protocol.md`. **Dependency**: T009, T007c.
-- [X] T034a-Check-Real [US7] Implement `code/download/check_real_data.py` to verify the existence and validity of the **real** student dataset at `data/real/raw_real_data.csv` before processing. **Requirement**: Must exit with code 1 and log "ERROR: Real student data file missing or invalid (<200 records)" if data is not found or < 200 records. **Deliverable**: Exit code 0 if valid. **Dependency**: T034a-Protocol.
-- [X] T034a-Wait [US7] [BLOCKER] Manual task to wait for real student data to be collected and placed in `data/real/raw_real_data.csv`. **Requirement**: This task blocks the pipeline until real data is present. **Dependency**: T034a-Check-Real.
-- [X] T034a-Abort [US7] [BLOCKER] Implement `code/download/abort_if_real_data_missing.py` to check if real data is missing after a defined wait period (e.g., 24h) and explicitly abort the pipeline with a clear message "ERROR: Real student data not collected. Final analysis aborted per FR-011." **Deliverable**: Exit code 1 with message. **Dependency**: T034a-Wait.
-- [X] T034a-Validate [US7] Implement `code/download/validate_real_data_schema.py` to ingest and validate the real student dataset (≥200 participants) from `data/real/raw_real_data.csv`. **Input Schema**: CSV with columns `problem_id`, `condition`, `correct`, `rt_seconds`, `comprehension_rating`, `data_source`. **Requirement**: Must validate schema against `contracts/real_data.schema.yaml` and count records. **Deliverable**: `data/derived/real_student_data_validated.csv` with checksum and validation log (≥200 records). **Requirement**: Must fail loudly if data is missing, < 200 records, or schema invalid. **Dependency**: T034a-Wait.
-- [X] T034a [US7] Implement `code/download/fetch_real_student_data.py` to move validated real data to `data/derived/real_student_data_validated.csv`. **Deliverable**: `data/derived/real_student_data_validated.csv`. **Dependency**: T034a-Validate.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Generate and Deliver Explanations (Priority: P1) 🎯 MVP
-
-**Goal**: Generate three distinct explanation artifacts (neural, symbolic, neuro-symbolic) for problems and store them.
-
-**Independent Test**: Run generator on a single problem ID and verify `explanation_neural.txt`, `explanation_symbolic.txt`, and `explanation_neuro_symbolic.txt` are created with valid content.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
-
-- [X] T010 [P] [US1] Contract test for explanation schema validation in `code/tests/contract/test_schemas.py`
-- [X] T011 [P] [US1] Integration test for explanation generation pipeline in `code/tests/integration/test_pipeline.py`
-
-### Implementation for User Story 1
-
-- [X] T013 [US1] Implement `code/generate/symbolic_explanation.py` using a fixed rule-based engine to solve arithmetic/logic problems. **Scope**: Support problem types found in ASSISTments 'algebra' and 'geometry' subsets. **Rules**: Implement commutativity, associativity, distributive property, and identity element for supported problem types. Output a JSON trace of rule applications. **Dependency**: T012a.
-- [X] T014 [US1] Implement `code/generate/neural_explanation.py` using a distilled LLM (e.g., TinyLlama or similar <1B params) with **8-bit quantization** (`load_in_8bit=True`, `bitsandbytes`) to ensure CPU feasibility. **Parameters**: `temperature=0.7`, `max_new_tokens=256`, `do_sample=True`, `device="cpu"`, `device_map="cpu"`. **Requirement**: Must complete inference in ≤2s per problem on the free-tier runner. **Dependency**: T012a.
-- [X] T015 [US1] Implement `code/generate/neuro_symbolic_explanation.py` to combine neural narrative with symbolic trace, ensuring symbolic rules govern the structure (Addressing Turing's "post-hoc rationalization" concern). **Dependency**: T012a, T013, T014.
-- [X] T016 [US1] Implement `code/generate/explanation_generator.py` orchestrator logic to call generators and handle error states. **Requirement**: Must include a validation step that checks if files are created successfully. Distinctness is validated by T017. **File I/O**: Save artifacts as `explanation_neural.txt`, `explanation_symbolic.txt`, `explanation_neuro_symbolic.txt`. **Dependency**: T013, T014, T015.
-- [X] T017 [P] [US1] Implement `code/tests/contract/test_explanation_distinctness.py` to run a dedicated test verifying that neural and symbolic outputs are distinct for a sample of problems. **Algorithm**: Compute cosine similarity between embeddings of neural and symbolic explanations; fail if similarity > 0.95. **Dependency**: T016.
-- [X] T038 [US1] [P] Implement `code/generate/symbolic_trace_validator.py` to explicitly verify that the symbolic engine applies deterministic, hand-coded rules (not learned weights) to generate the trace. **Rationale**: Addresses Ada Lovelace's concern that the symbolic layer must "govern the developments" and not be a "veneer" or statistical mimicry. **Dependency**: T013.
-- [X] T039 [US1] [P] Implement `code/generate/neural_symbolic_interface.py` to define a hard thresholding function (minimax or probabilistic expectation) that converts neural analog outputs to discrete symbolic inputs. **Rationale**: Addresses von Neumann's concern regarding the "boundary condition" and "logical fragility" when crossing from continuous weights to discrete operators. **Deliverable**: Must persist the thresholding parameters and resulting trace artifacts to `data/derived/neuro_symbolic_traces/` with metadata linking to `problem_id`, `model_version`, and `condition` (Constitution Principle VII). **Dependency**: T013, T014.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Simulate Student Interaction (Priority: P2)
-
-**Goal**: Simulate student responses (correctness, time, comprehension) using a BKT model.
-
-**Independent Test**: Execute simulation on one problem-explanation pair and verify logs contain correct fields.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T018 [P] [US2] Contract test for SimulationLog schema in `code/tests/contract/test_schemas.py`
-- [X] T019 [P] [US2] Unit test for BKT state transitions in `code/tests/unit/test_bkt.py`
-
-### Implementation for User Story 2
-
-- [X] T020 [P] [US2] Implement `code/simulate/bkt_simulator.py` with deterministic seed support (Addressing Von Neumann's "stability under perturbation" concern). **Dependency**: T007, T005.
-- [X] T021b [US2] Implement configuration logic to define the list of three conditions (neural, symbolic, neuro-symbolic) and a sufficient sample size per condition. **Deliverable**: `code/simulate/simulation_config.yaml` located in `code/simulate/`. This file is read by T021 to define the simulation loop parameters. **Schema**: Must include keys `sample_size` (sufficiently large for statistical power), `conditions` (list), `seed` (int), and `calibration_status` (bool). **Dependency**: T033b (calibration check).
-- [X] T021a [US2] Implement `code/simulate/run_simulation_dryrun.py` to run a small subset (N=50) of the simulation to generate logs for validation (T023). **Deliverable**: `data/derived/dryrun_logs.csv`. **Requirement**: Must run before T021 (full run) to validate response time distribution. **Dependency**: T020, T021b, T033b.
-- [X] T023 [US2] [BLOCKER] Implement `code/simulate/validate_rt_distribution.py` to check the "no gaps larger than a specified duration" constraint for response times (SC-005) using the dry-run logs. **Algorithm**: Bin response times into **fixed 1-second intervals**. Count the number of **consecutive empty bins**. If any sequence of empty bins exceeds **6** (representing a gap > 5s), the validation FAILS. **Requirement**: Must check for the existence of `data/derived/dryrun_logs.csv` produced by T021a. If missing, exit with code 1 and log "ERROR: Dry-run logs missing. Cannot validate RT distribution." **Deliverable**: `data/derived/rt_distribution_validation.json` with pass/fail flag. **Requirement**: If validation fails, the script MUST exit with code 1 and log "ERROR: Response time distribution invalid (gap > 5s in histogram). Simulation aborted." **Dependency**: T021a.
-- [X] T021 [US2] Implement `code/simulate/run_simulation.py` loop logic to iterate over all conditions defined in T021b and process at least 2,000 students per condition (FR-009). **Requirement**: Must depend on T023 passing to ensure data quality. **Requirement**: Must explicitly count the resulting records in `data/derived/simulation_logs.csv` and **exit with code 1 if total count < 6,000 **. This check is a **hard blocker** for the analysis phase (T034/T035). **Deliverable**: `data/derived/simulation_logs.csv` with ≥6,000 records. **Dependency**: T020, T021b, T021a, T023, T033b.
-- [X] T022 [US2] Implement logging to aggregate `data/derived/simulation_logs.csv` with required fields (FR-004, FR-005). **Dependency**: T021.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Run Comparative Analysis (Priority: P3)
-
-**Goal**: Run mixed-effects regression and effect size analysis on simulation + real data.
-
-**Independent Test**: Trigger analysis on a pre-populated CSV and verify regression table and effect sizes.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T024 [P] [US3] Contract test for analysis output schema in `code/tests/contract/test_schemas.py`
-- [X] T025 [P] [US3] Integration test for full analysis pipeline in `code/tests/integration/test_pipeline.py`
-
-### Implementation for User Story 3
-
-- [X] T034 [US7] Implement `code/analyze/merge_real_data.py` to merge simulated logs with validated real student data from T034a. **Input**: `data/derived/simulation_logs.csv` and `data/derived/real_student_data_validated.csv`. **Deliverable**: Merged CSV `data/derived/combined_logs.csv`. **Dependency**: T034a, T022.
-- [X] T035 [US7] [BLOCKER] Implement `code/analyze/validate_real_data_threshold.py` to enforce the ≥200 real-student record requirement for the final analysis. **Deliverable**: If <200 real records exist, exit with code 1 and log "ERROR: Real student data insufficient (<200 records). Final analysis cannot proceed per FR-011." **Requirement**: Must NOT proceed with simulated-only analysis. **Dependency**: T034a-Check-Real.
-- [X] T026 [P] [US3] Implement `code/analyze/mixed_effects.py` using `statsmodels` (CPU-only) with fixed effects for condition, prior knowledge, difficulty, and `data_source` (simulated vs real), and random intercepts for `problem_id` and `student_id` (FR-006, FR-011). **Requirement**: Must log convergence status for random intercepts and exit with code 1 if convergence fails. **Validation**: Check random intercepts are correctly specified and converging. **Dependency**: T034, T035, T007.
-- [X] T027 [US3] Implement `code/analyze/effect_sizes.py` to compute Cohen's d with a confidence interval for pairwise comparisons and validate CI width ≤0.20 (FR-006, SC-003). **Dependency**: T026.
-- [X] T029 [US3] Generate results markdown with significance testing (p < 0.05) and CI width validation (SC-003). **Dependency**: T027, T034.
-- [X] T030 [US3] Implement logic to detect and report "neural succeeds, symbolic fails" discrepancies (Addressing Turing's operational test concern). **Dependency**: T022.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [X] T043 [P] Documentation updates in `docs/` including explanation of symbolic vs. neural boundaries. **Deliverable**: `docs/symbolic_neural_boundary.md`.
-- [X] T044 Code cleanup and refactoring.
-- [X] T045 Performance optimization across all stories to ensure ≤7GB RAM usage. **Deliverable**: Resource usage logs in `data/derived/resource_logs.json`.
-- [X] T046 [P] Additional unit tests in `code/tests/unit/`.
-- [X] T047 Run `quickstart.md` validation. **Deliverable**: `data/derived/quickstart_validation.json`.
-- [X] T048 [P] Verify CI resource monitoring reports (SC-006). **Requirement**: Must depend on T045 and T047 completion and verify their artifacts. **Dependency**: T045, T047.
-- [X] T051b [P] Update `docs/quickstart.md` to invoke `code/download/fetch_datasets.py` instead of the non-existent script. **Deliverable**: Updated `docs/quickstart.md`. **Dependency**: T051a.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for explanation artifacts AND T033b (calibration check)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 and US2 for data
-- **Calibration (Phase 2)**: Must complete BEFORE US2 full simulation run (FR-010)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T005, T006, T007, T008, T012b, T034b) can run in parallel. **Note**: T031b and T031 depend on T009 and are NOT parallel-safe relative to T009.
-- Once Foundational phase completes:
- - User Story 1 can start immediately.
- - User Story 2 can start ONLY after T033 (calibration) completes (not immediately in parallel with US1 if T033 is still running).
- - User Story 3 can start after US2 (T022) is complete. T034a (fetch real data) can start independently, but T034 (merge) requires T022.
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members (subject to the dependencies above)
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for explanation schema validation in code/tests/contract/test_schemas.py"
-Task: "Integration test for explanation generation pipeline in code/tests/integration/test_pipeline.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/download/fetch_assistments.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Explanations)
- - Developer B: User Story 2 (Simulation) - *Must wait for T033*
- - Developer C: User Story 3 (Analysis) - *Must wait for US2*
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All model inference tasks must use CPU-only, small models (≤1B params) and **8-bit quantization** (`load_in_8bit=True`) to meet FR-008.
-- **Symbolic Integrity**: Tasks T013, T015, T038, T039 specifically address the requirement that the symbolic layer must be a distinct, rule-based engine, not a neural approximation, and must govern the logical flow.
-- **Dataset Scope**: T012, T012c, and T012e implement ingestion for BOTH ASSISTments and Khan Academy datasets into a unified artifact.
-- **Calibration**: T030a generates a deterministic synthetic pilot dataset to satisfy the "real data" schema and volume constraints (≥50 records) required by T031b to unblock the pipeline, ensuring reproducibility. T030b is a manual task to replace this with actual human data for production use. **NO SILENT SYNTHETIC FALLBACK**: If human data is missing in production, T031b exits 1, halting the pipeline to enforce FR-010. **FALLBACK**: T030a generates synthetic data for CI only.
-- **Derived Metrics**: T023 computes the histogram bin check as a derived metric for SC-005 validation, placed in Phase 4 (Simulation) after log generation. It now exits with code 1 on invalid data, blocking the pipeline.
-- **Human Data**: T034a-Protocol, T034a-Check-Real, T034a-Wait, T034a-Abort and T034a ensure ingestion and merging of real student data (≥200 records) as required by FR-011. T035 enforces this with a hard stop if data is missing.
-- **Scope**: Tasks T060-T067 were removed as they lacked specific FR anchors and were not present in the final artifact to avoid contradiction.
-- **Review Concerns Addressed**:
- - **Calibration Deadlock**: Resolved by adding T030a (executable synthetic generation) to produce the required artifact. T031b now accepts this synthetic proxy for CI execution.
- - **Unified Dataset**: Added T051a (orchestrator) and T012e to merge ASSISTments and Khan Academy data.
- - **RT Validation**: Updated T023 to use histogram binning (1s bins, max 6 empty bins for >5s gap).
- - **Quantization**: Updated T014 to require `load_in_8bit=True` and `bitsandbytes`.
- - **Sample Size**: Updated T021 to explicitly count records and fail if <6,000.
- - **Real Data Validation**: Added T034a-Validate to explicitly check schema and count before merging.
- - **Ada Lovelace (Symbolic Governance)**: T038 measures symbolic governance.
- - **Alan Turing (Operational Test)**: T039 operationalizes the boundary condition.
- - **Real Data**: Added T034a-Abort to handle missing real data.
+# Tasks: Neuro‑Symbolic Learning Networks: Bridging Neural and Symbolic Reasoning in Education  
+
+**Inputs**: `spec.md`, `plan.md`, data‑model, contracts, and reviewer feedback.  
+
+The following checklist implements the full end‑to‑end study while respecting all functional requirements (FR‑001 – FR‑022) and success criteria (SC‑001 – SC‑012). Tasks are ordered to respect data flow; tasks marked **[P]** can run in parallel because they operate on independent files.
+
+---  
+
+- [ ] **T001** [P] **Citation‑gate validation** – Run `tools/reference_validator.py` on all external URLs (ASSISTments, Khan Academy, BKT repo, etc.) using the Constitution‑mandated title‑overlap threshold 0.8.  
+  - **Artifact**: `state/validation/citation_gate_passed.txt` (empty file indicates success).  
+  - **Verification**: CI aborts with exit 1 and logs “ERROR: URL validation failed for <URL>” if any URL falls below the threshold.  
+
+- [ ] **T002** **Dataset download, unification, checksum generation & validation** (covers FR‑001, FR‑007, FR‑008, FR‑012, FR‑021).  
+  1. **Download** `ASSISTments` (`https://huggingface.co/datasets/assistments/2009-2010`) and `Khan Academy` (`https://huggingface.co/datasets/khanacademy/math`) with `datasets.load_dataset(..., streaming=True)`. Abort with exit 1 and log `ERROR: Failed to download ASSISTments after 300 seconds – aborting pipeline.` (or analogous for Khan) if the configurable timeout (default 300 s) is exceeded.  
+  2. **Write** raw CSVs to `data/raw/assistments.csv` and `data/raw/khan_academy.csv`.  
+  3. **Generate SHA‑256 checksum files** `data/raw/assistments.sha256` and `data/raw/khan_academy.sha256`.  
+  4. **Unify** the two sources into `data/processed/unified_problems.csv`, preserving the original rows, adding a `dataset_source` column, and **recording** the actual source proportions in `results/dataset_balance.csv`. No hard minimum per source is enforced (FR‑021 is deferred).  
+  5. **Validate** `unified_problems.csv` against `contracts/problem.schema.yaml`. On any violation, exit 1 and log `ERROR: Invalid unified schema: <details>`.  
+  - **Artifacts**: `data/raw/assistments.csv`, `data/raw/assistments.sha256`, `data/raw/khan_academy.csv`, `data/raw/khan_academy.sha256`, `data/processed/unified_problems.csv`, `results/dataset_balance.csv`.  
+  - **Verification**: CI checks that the files exist, checksums match, and schema validation passes.  
+
+- [ ] **T003** **Explanation generation, distinctness, and problem‑record robustness** (covers FR‑002, FR‑017, FR‑018, SC‑001, SC‑010‑12).  
+  1. **Neural**: For each `problem_id` in `unified_problems.csv`, run `code/generate/neural_explanation.py` using a 4‑bit quantized TinyLlama‑1.1B‑Chat (`load_in_8bit=True`, `device="cpu"`). Enforce per‑problem timeout (default 180 s). Output `data/traces/{problem_id}_neural.txt` and accompanying JSON metadata `data/traces/{problem_id}_neural.json` conforming to `contracts/explanation.schema.yaml`.  
+  2. **Symbolic**: Run `code/generate/symbolic_explanation.py` (rule‑based engine) producing `*_symbolic.txt` + metadata.  
+  3. **Neuro‑symbolic**: Run `code/generate/neuro_symbolic_explanation.py` which merges the neural narrative with the symbolic trace, producing `*_neuro_symbolic.txt` + metadata.  
+  4. **Missing/Corrupt problem handling**: If a problem cannot be parsed, log a warning and skip it. After processing, compute the proportion of skipped records; abort with exit 1 if **> 1 %** (SC‑011).  
+  5. **Distinctness verification**: `code/generate/verify_distinctness.py` computes cosine similarity between neural and symbolic texts (via sentence‑transformers). Fail the pipeline if similarity > 0.95 for **> 2 %** of problems (SC‑010).  
+  6. **Success‑rate summary**: Produce `results/explanation_generation_summary.csv` containing counts of successful generations per condition and percentages of timeouts, missing/corrupt records, and non‑distinct pairs.  
+  - **Artifacts**: Explanation `.txt` and `.json` files under `data/traces/`, plus the summary CSV.  
+  - **Verification**: CI aborts if overall success < 95 % (SC‑001) or if distinctness or missing‑record thresholds are exceeded.  
+
+- [ ] **T004** **Human pilot ingestion & BKT calibration** (covers FR‑010, SC‑007).  
+  1. **Ingest** `data/pilot/real_pilot_data.csv` (provided by the research team) and validate against `contracts/pilot_data.schema.yaml`. Exit 1 with `ERROR: Human pilot data missing or <50 records` if validation fails.  
+  2. **Compute calibration metrics** (`RMSE`, `RMSE diff`, and a TOST equivalence test) using `code/simulate/calibrate_bkt.py`.  
+  3. **Pass/fail**: Abort with exit 1 and log `ERROR: Calibration thresholds not met (RMSE = …, diff = …)` if any of the three thresholds (RMSE ≤ 0.15, diff ≤ 0.02, TOST p ≥ 0.10) are violated (FR‑010).  
+  4. **Write** calibrated parameters to `code/simulate/bkt_params.yaml` and a human‑readable report to `results/calibration_report.json`.  
+  - **Artifacts**: `code/simulate/bkt_params.yaml`, `results/calibration_report.json`.  
+  - **Verification**: CI checks that the report exists and that all thresholds are satisfied.  
+
+- [ ] **T005** **Full simulation run** (covers FR‑009, FR‑004, FR‑005, FR‑019, SC‑005‑6, SC‑012).  
+  1. Using the calibrated BKT (`bkt_params.yaml`), simulate **≥ 2 000** students per explanation condition (`neural`, `symbolic`, `neuro_symbolic`).  
+  2. For each simulated interaction, record fields required by `contracts/interaction_log.schema.yaml` (including `prior_knowledge_score` and `difficulty` drawn from the problem metadata). Store rows in `data/processed/simulation_logs.csv`.  
+  3. **Validate** the CSV against the schema; abort on any schema violation.  
+  4. **Response‑time distribution check** (`code/simulate/validate_rt_distribution.py`): bin `rt_seconds` into 1‑second bins, ensure no more than two consecutive empty bins (i.e., no gaps > 5 s). Abort with `ERROR: Response time distribution invalid` if violated (SC‑005).  
+  5. **Comprehension‑rating validation**: compute the proportion of out‑of‑range or non‑numeric ratings; abort with `ERROR: Excess invalid comprehension ratings` if **> 0.5 %** (SC‑012).  
+  6. **Summary**: `results/simulation_summary.yaml` reports total rows (must be ≥ 6 000), percentage of valid records (≥ 99 % required by SC‑005), and any rows dropped.  
+  - **Artifacts**: `data/processed/simulation_logs.csv`, `results/simulation_summary.yaml`.  
+  - **Verification**: CI enforces the thresholds above.  
+
+- [ ] **T006** **Real‑student data ingestion** (covers FR‑011, SC‑004, SC‑007).  
+  1. Ingest `data/real/real_student_data.csv` (≥ 200 participants) and validate against `contracts/interaction_log.schema.yaml` with `data_source = "real"`.  
+  2. Produce a checksum file `data/real/real_student_data.sha256`.  
+  3. On missing file, insufficient rows, or schema failure, abort with `ERROR: Real student data missing or <200 records`.  
+  - **Artifacts**: `data/real/real_student_data.csv`, checksum, validation log.  
+
+- [ ] **T007** **Merge datasets** (covers FR‑006, FR‑011, SC‑002).  
+  1. Merge `simulation_logs.csv` (data_source = “simulated”) with `real_student_data.csv` (data_source = “real”) into `data/processed/combined_logs.csv`.  
+  2. **Verify combined row count** ≥ 5 000; abort with `ERROR: Combined dataset below required size` if not (SC‑002).  
+  - **Artifacts**: `data/processed/combined_logs.csv`.  
+  - **Verification**: CI checks row count.  
+
+- [ ] **T008** **Exploratory mixed‑effects regression on combined data** (covers FR‑020, SC‑009‑12, SC‑004).  
+  1. Run `code/analyze/mixed_effects_exploratory.py` on `combined_logs.csv` including the `data_source` fixed effect.  
+  2. Produce `results/exploratory_output.yaml` validated against `contracts/analysis_output.schema.yaml`. This file must contain **p‑values** and **Cohen's d effect sizes with 95 % confidence intervals** for each pairwise condition comparison (fulfilling SC‑004).  
+  3. Include diagnostics for timeout counts, missing‑record percentages, and invalid‑rating rates (must be ≤ 2 %, ≤ 1 %, ≤ 0.5 % respectively).  
+  - **Artifacts**: `results/exploratory_output.yaml`.  
+  - **Verification**: CI validates schema and that the diagnostic thresholds are met.  
+
+- [ ] **T009** **Primary mixed‑effects regression on real‑only data** (covers FR‑006, FR‑011, SC‑003).  
+  1. Run `code/analyze/mixed_effects_primary.py` on `real_student_data.csv` (real‑only) with fixed effects `condition`, `prior_knowledge_score`, `difficulty`; random intercepts for `problem_id` and `student_id`.  
+  2. Compute Cohen's d effect sizes with 95 % CI; enforce CI width for neuro‑symbolic vs neural ≤ 0.20 (SC‑003).  
+  3. Output `results/analysis_output.yaml` validated against `contracts/analysis_output.schema.yaml`.  
+  - **Artifacts**: `results/analysis_output.yaml`.  
+  - **Verification**: CI checks CI‑width constraint.  
+
+- [ ] **T010** **Deterministic API delivery of explanations to BKT simulator** (covers FR‑003).  
+  1. For each explanation file produced in T003, invoke the deterministic API `simulator.present_explanation(explanation_path)` and log success.  
+  2. Verify that the API call returns a success code for every explanation; abort if any call fails.  
+  - **Artifacts**: log file `results/api_delivery_log.txt`.  
+  - **Verification**: CI parses the log to ensure all calls succeeded.  
+
+- [ ] **T011** **Reporting & CI resource monitoring** (covers FR‑008, SC‑006, SC‑009‑12).  
+  1. `tools/resource_monitor.py` wraps the entire pipeline, records peak CPU cores and RAM usage, writes `results/resource_usage.json`. Abort with exit 1 and log `ERROR: Resource limits exceeded (CPU > 2 cores or RAM > 7 GB)` if limits are breached (FR‑008).  
+  2. `code/report/generate_report.py` compiles a human‑readable markdown `results/report.md` containing:  
+     - Explanation‑generation success rates and distinctness metrics (SC‑001, SC‑010‑12).  
+     - Simulation validation summary (SC‑005, SC‑006).  
+     - Calibration statistics (RMSE, TOST).  
+     - Primary regression table and effect sizes (including CI widths).  
+     - Exploratory diagnostics (data‑source effect, timeout/invalid‑rating percentages).  
+     - Resource usage summary.  
+  - **Artifacts**: `results/resource_usage.json`, `results/report.md`.  
+  - **Verification**: CI checks resource usage limits and that the report file exists.  
+
+---  
+
+### Dependency Summary
+
+| Task | Depends on |
+|------|------------|
+| T001 | – |
+| T002 | T001 |
+| T003 | T002 |
+| T004 | T003 |
+| T005 | T004, T003 |
+| T006 | – |
+| T007 | T005, T006 |
+| T008 | T007 |
+| T009 | T007 |
+| T010 | T003 |
+| T011 | T008, T009, T010 |
