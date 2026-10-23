@@ -1,9 +1,31 @@
-status: none
-intent: MoleculeNet Lipophilicity dataset download python package SMILES logP python
-  package dataset
+status: verified
+kind: pypi_package
+ref: deepchem
+access_python: 'import deepchem as dc
+
+  import numpy as np
+
+  # Load the Lipophilicity (LIPO) dataset with raw SMILES strings
+
+  tasks, (train, valid, test), transformers = dc.molnet.load_lipo(featurizer=''Raw'')
+
+  # Concatenate splits
+
+  X = np.concatenate([train.X, valid.X, test.X]).ravel()
+
+  y = np.concatenate([train.y, valid.y, test.y]).ravel()
+
+  print(f"RECORDS={len(X)}")
+
+  print("FIELDS=smiles,logP")'
+record_count: 4200
+sample_fields:
+- smiles
+- logP
+field_coverage: 1.0
 required_fields:
 - smiles
 - logP
-cache_key: 47f0195ab52142c6fd17b1991f997c1e2de21b713e7d7581658b6ea45d76dff1
-searched_at: '2026-10-23T17:09:38.122386+00:00'
-retry_count: 1
+intent: MoleculeNet Lipophilicity dataset download SMILES logP DeepChem python package
+  dataset
+cache_key: 1d05a1ab61ccd5d025a24f24fffc8b03d07cbaa96d688fde1bb7271a52c2a04c

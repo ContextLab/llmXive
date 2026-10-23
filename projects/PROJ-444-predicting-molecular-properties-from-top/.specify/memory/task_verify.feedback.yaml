@@ -1,84 +1,38 @@
 T001:
-  reason: "The repository contains the ingestion script, checksum file, power\u2011\
-    analysis report, scaffold count, and exclusion log, all of which appear correct.\
-    \ However, the required schema file `dataset.schema.yaml` is missing, so the script\
-    \ cannot perform the mandated column validation against the schema and will raise\
-    \ a file\u2011not\u2011found error. Adding the missing `dataset.schema.yaml` (defining\
-    \ at least the required `smiles` and `logP` columns) is needed for the task to\
-    \ be truly complete."
-  task: 496f3ab1178c311a70018388ff750ebf54f3faa7eb9a1b552d0f1f1ac7fc82dd
+  task: c235237d3e82721fb106baa8f66f8cd8b4da7ef0b7e58d7436481922f0e736bb
 T001a:
-  reason: "The script `code/00_checksum_verify.py` is present and correctly implements\
-    \ checksum verification, but the file it is supposed to check \u2013 `data/raw/esol.csv`\
-    \ (referenced in `data/checksums.txt`) \u2013 is not provided in the evidence,\
-    \ so the verification cannot succeed. Add the missing `data/raw/esol.csv` (with\
-    \ a matching SHA\u2011256 hash) to satisfy the task."
-  task: 11e7aa709c71d191684aeba17863cb9ee2b6d75f611ba94b223c92f6328c8d2e
-T002:
-  reason: 'Requested task execution failed; rerun successfully: code/02_tda_computation.py
+  reason: 'Requested task execution failed; rerun successfully: code/01_download_lipophilicity.py
     exit=1'
-  task: 47d418c4356f9320a43da6b0433855dd9f05120dcb7c1e43708dbff1344b2536
+  task: d566784c468ff0d7741427bb337d40f12c931d720bb3eee01c7e33b48194abdf
+T001b:
+  task: f25938982c6fa292f8da77ad4ad8d5f4de0997b5f75022c1360d6a1b7399eeb0
+T001c:
+  task: 3ea6d151f2e82138d8aeed8165a925e19e86f29d2c306b0ba4493a54289a9ca8
+T001d:
+  task: 358fed64f8707a7db5238f84a8b26b8802010728018cd5fed6f8801a5e6c6b0c
+T002:
+  task: a459f62774d615ad909434fd22d9c7ac3740f3239797ac393512eb6e92125959
 T003:
-  reason: "The required contract file `feature_matrix.schema.yaml` is reported MISSING\
-    \ on disk, yet the test hard-codes `SCHEMA_PATH = specs/001-predicting-molecular-properties-from-top/contracts/feature_matrix.schema.yaml`\
-    \ and would `pytest.fail` if it were absent \u2014 so the historical exit-0 log\
-    \ cannot reflect the current state, and the schema-validation requirement has\
-    \ no artifact behind it. Additionally, `_build_record` fabricates records (falling\
-    \ back to `logP`/`\"logP\"` and pixel columns) rather than validating the CSV's\
-    \ actual contents, weakening the contract test. The implementer must add the actual"
-  task: 0aaf2c411477df4bbb5a97d28ebcf491a716baab7f878970972cc932e048d413
+  task: 83929e8c3b76b9b80a583839b2b2be4c67133bd39911c5a325141101566b6f63
 T004:
-  reason: "The script `code/03_feature_engineering.py` exists and looks correct, but\
-    \ both required output artifacts \u2014 `data/processed/traditional_features.csv`\
-    \ and `data/processed/combined_features.csv` \u2014 are MISSING, and there is\
-    \ no execution evidence (no log, no summary JSON, no durable copies under `data/results/`)\
-    \ that the script was ever run successfully. The next implementer must execute\
-    \ the script (after confirming its inputs `filtered_esol.csv` and `topological_features_10x10.csv`\
-    \ exist) and verify row counts match and NaN count is 0."
-  task: 95e4d61e3c6a2f77de87ca95871376e4d580a2647375c3e01ca383486b22834f
+  task: 3af135319a23c6c54e616dbfdfd6fab910f5e08a0c941b92ee26a97e15e307fc
 T005:
-  reason: "The training log itself shows the pipeline failed with `FileNotFoundError:\
-    \ Missing .../data/processed/combined_features.csv \u2013 run T004 first`, so\
-    \ no models were trained. The required deliverables `reports/metrics/model_metrics.json`,\
-    \ `model_metrics.schema.yaml`, `code/tests/validate_model_performance.py`, and\
-    \ `data/processed/splits.json` are all missing, and the only artifact present\
-    \ (`data/logs/training.log`) contains only the error traceback."
-  task: f5e5ea64448897afb2ebe7afa84ac63b584d2cb4c72f71b986b19908a269992d
+  task: 52d5ab8f87f9c7a493c725e9e22d3b725825620574092b37dd43ef2af8ccbabd
 T006:
-  reason: "The test file `code/tests/test_metrics_schema.py` exists and is substantive,\
-    \ but both artifacts it validates are missing: `reports/metrics/model_metrics.json`\
-    \ and `model_metrics.schema.yaml` (the latter at `specs/001-.../contracts/`).\
-    \ The test itself calls `pytest.fail` when either file is absent, so `pytest code/tests/test_metrics_schema.py`\
-    \ cannot exit 0 \u2014 the stated verification criterion is unmet. The implementer\
-    \ must produce (or locate) the schema contract and the metrics JSON from T005\
-    \ so the contract test actually passes."
-  task: d145237ccb8421c114ed3d1c2676b4059fe5777c2c6343789366f3da5dd68501
+  task: 606f7bd8e0f2fd9702ad45ca143c89a12cfe95b5105897ec2086fa9ebd3fa18d
 T007:
-  reason: "The required deliverable `reports/metrics/sensitivity_report.json` is MISSING\
-    \ \u2014 the collector confirmed it does not exist, and there is no evidence (logs,\
-    \ durable copies in `data/results/`, or generated CSVs like `topological_features_20x20.csv`/`30x30.csv`)\
-    \ that `05_sensitivity_analysis.py` was ever executed. The scripts themselves\
-    \ look correctly implemented (`--grid` CLI, sweep logic, report writing), but\
-    \ the task requires the actual run and its output JSON with three entries for\
-    \ grids 10/20/30, which is absent."
-  task: d2dd9112693182a52945d9fc9c13cc429b59c4eb237f04f28e131b9fd9fe9556
+  task: 7da021ebce4ca164d57dec67f16e4c7454bdee3b909f49f8480b55a1fa5ef76d
 T008:
-  task: 828f2ee9ff6572bf7a3e0ea1859bafe614b0551342e63eff1a73e495090b02dc
+  task: f9ee7dfec7e209a7b9bcf130b994f7875ec5bcc83c3266f2d2f617f504260592
 T009:
-  task: 82cfe927dc023ce8810ab936914986d76c0c108cab108dc99edd160c90211897
+  task: 2945ed32bd6286135651163ad3cdef8b78db2c7aff683e0bcbb0606be1f1912f
 T010:
-  task: 1c402be83f6105a239ceb26c57d9e1c0a340661b0eb5e8e7b708d1028183b94d
+  task: 7ef6e7b127066b0514f509f915a4330a8ecdbbee4058205c6f7294ab4cc6bcbf
 T011:
-  task: 232bbe8d105ac9e43d871871d9bd1dc2707ccc09862ccee4a7c23e8ca1a31bb6
+  task: 1e653a4c52662f704b54e7095b8117a303f5b28729b6f1f5a3c1377c30a6014b
 T012:
-  task: 6427c207de3ea4ccca4d6b81d3295b144b8ea3cb137e96b09b818a7bca0667c8
+  task: 71119608c28170c0bedaff9f713f356f8e57ab6b914e42244af761306d6d684a
 T013:
-  task: 6e4cf62a90ede17b92214dd4a79448e89d6edaa424fbb06d6d3dd01dcc3af058
+  task: f32d5afa759f3f709d6ee4ed4ee9598568a848bb59a73f42dba2d37f7bc4076d
 T014:
-  reason: The test script `code/tests/test_dataset_schema.py` is present and the raw
-    CSV `data/raw/esol.csv` exists, but the required schema file `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`
-    is missing, causing the contract test to fail. The missing schema must be added
-    for the task to be complete.
-  task: dbea2243c05a199a8f63e9a0c196ab67abb1ae40c87c19db947eb6b8cc3d058f
-T015:
-  task: ed4c4e73904edc44b820a9129e2d3de331f115c59949fc079272c68b67820141
+  task: ab70375d7a5fbae059a92380b1051801b5373775431c9245fb9507fb31a7f5ce
