@@ -8,23 +8,11 @@ significant proportion of non‑zero KL divergence and computes descriptive
 statistics required by downstream steps.  It also records a SHA‑256
 checksum of the dataset file for provenance.
 
-Quick‑start usage (as documented in ``quickstart.md``)::
+Usage (as documented in ``quickstart.md``)::
 
-    python code/cli/validate_dataset_stats.py \
-      --input data/processed/training_sample.parquet \
-      --output data/metrics/dataset_stats.json
-
-The script also supports the legacy ``--data``/``--stats`` flags used by
-earlier versions of the pipeline.
-
-If the output JSON file already exists, the script loads it and checks
-whether the non‑zero KL proportion meets the required threshold (default
-0.05).  If the file does not exist, the script computes the statistics
-from the parquet file, writes the JSON, and then performs the same check.
-
-Exit status:
-  0 – validation passed (non‑zero KL proportion ≥ threshold)
-  1 – validation failed or required files missing
+    python code/cli/validate_dataset_stats.py \\
+        --input data/processed/training_sample.parquet \\
+        --output data/metrics/dataset_stats.json
 """
 
 import argparse
@@ -34,7 +22,6 @@ import hashlib
 from pathlib import Path
 from typing import List, Dict, Any
 
-import numpy as np
 import pandas as pd
 
 DEFAULT_INPUT_PATH = Path("data/processed/training_sample.parquet")
@@ -53,7 +40,8 @@ def load_parquet(parquet_path: Path) -> pd.DataFrame:
     """Load the training sample parquet file."""
     if not parquet_path.is_file():
         raise FileNotFoundError(f"Parquet file not found: {parquet_path}")
-    return pd.read_parquet(parquet_path)
+    # Explicitly request the fastparquet engine to avoid pyarrow.
+    return pd.read_parquet(parquet_path, engine="fastparquet")
 
 def compute_statistics(df: pd.DataFrame) -> Dict[str, Any]:
     """
@@ -68,10 +56,8 @@ def compute_statistics(df: pd.DataFrame) -> Dict[str, Any]:
     if "quantization_level" not in df.columns:
         raise KeyError("Column 'quantization_level' missing from dataset.")
 
-    # Overall non‑zero proportion
     nonzero_kl_proportion = float((df["kl_divergence"] != 0).mean())
 
-    # Mean KL per quantisation level (return None if a level is absent)
     def mean_kl_for(level: str) -> float | None:
         mask = df["quantization_level"] == level
         if mask.any():
@@ -121,7 +107,6 @@ def main() -> None:
             "from the parquet file, writes the JSON, and then validates."
         )
     )
-    # Compatibility with both the new quick‑start flags and the legacy ones.
     parser.add_argument(
         "--input",
         type=str,
@@ -150,7 +135,6 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    # Resolve input and output paths, preferring the new flag names.
     input_path = (
         Path(args.input) if args.input
         else Path(args.data) if args.data

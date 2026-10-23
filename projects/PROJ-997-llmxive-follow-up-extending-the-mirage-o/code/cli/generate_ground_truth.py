@@ -3,13 +3,17 @@ generate_ground_truth.py
 
 This script implements task **T015** – Generate Ground Truth Data.
 
-It downloads a subset of the GSM8K dataset using the Hugging Face `datasets` library,
-runs full‑precision inference with a Hugging‑Face Transformers model,
-creates quantized versions of the same model, computes KL divergence between the
+It downloads a subset of the GSM8K dataset using a direct HTTP request
+(avoiding the `datasets` library which requires `pyarrow`), runs
+full‑precision inference with a Hugging‑Face Transformers model, creates
+quantized variants of the same model, computes KL divergence between the
 full‑precision and quantized logits, extracts simple training‑side signals
 (gradient norm and a curvature proxy), and stores the results in a Parquet
-file.  The script records the hardware source (CPU) for each row to satisfy
-verification requirements.
+file.  The script records the hardware source (`CPU`) for each row to
+satisfy verification requirements.
+
+The script can be invoked directly (as shown in `quickstart.md`) or via the
+wrapper in `code/data/generate_ground_truth.py`.
 
 Usage example (mirrors the quick‑start documentation)::
 
@@ -19,25 +23,23 @@ Usage example (mirrors the quick‑start documentation)::
         --prompt_source gsm8k \\
         --output data/processed/training_sample.parquet \\
         --seed 42
-
-The script writes its output using `pathlib.Path` handling; the provided
-paths are created if they do not already exist.
 """
 
 import argparse
 import json
 import logging
 import math
+import os
 from pathlib import Path
 from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
+import requests
 import torch
 import torch.nn.functional as F
 from tqdm.auto import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from datasets import load_dataset
 
 from llmxive_toolkit import get_logger
 
@@ -151,21 +153,26 @@ def compute_gradient_norm(
 
 def download_gsm8k_subset(sample_size: int) -> List[dict]:
     """
-    Load the GSM8K training split via the `datasets` library and return the
-    first ``sample_size`` records as a list of dictionaries.
+    Download the GSM8K training split as a JSON‑Lines file and return the
+    first ``sample_size`` records.
     """
-    log.info(f"Loading GSM8K dataset (first {sample_size} samples).")
-    ds = load_dataset("gsm8k", split="train")
-    records = []
-    for i, record in enumerate(ds):
-        records.append(record)
-        if len(records) >= sample_size:
-            break
+    url = "https://huggingface.co/datasets/gsm8k/resolve/main/train.jsonl"
+    log.info(f"Downloading GSM8K dataset (first {sample_size} samples) from {url}")
+    response = requests.get(url, stream=True, timeout=30)
+    response.raise_for_status()
+
+    records: List[dict] = []
+    for line in response.iter_lines(decode_unicode=True):
+        if line:
+            record = json.loads(line)
+            records.append(record)
+            if len(records) >= sample_size:
+                break
     log.info(f"Retrieved {len(records)} samples from GSM8K.")
     return records
 
 # --------------------------------------------------------------------------- #
-# Main pipeline
+# Main pipeline (CLI entry point)
 # --------------------------------------------------------------------------- #
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -177,7 +184,6 @@ def main() -> None:
         required=True,
         help="Hugging‑Face identifier of the base model (e.g., meta-llama/Meta-Llama-3-8B).",
     )
-    # Accept both the original '--levels' name and the quick‑start '--quant_levels' name.
     parser.add_argument(
         "--levels",
         nargs="+",
@@ -224,7 +230,6 @@ def main() -> None:
     else:
         parser.error("At least one of '--quant_levels' or '--levels' must be provided.")
 
-    # Resolve output path.
     parquet_path = Path(args.output).expanduser().resolve()
 
     # ------------------------------------------------------------------- #
@@ -261,6 +266,7 @@ def main() -> None:
     log.info("Processing prompts and computing statistics.")
     for idx, sample in tqdm(enumerate(subset), total=len(subset)):
         prompt = sample["question"]
+        # The GSM8K dataset stores the answer as a string; we take the first line.
         target = sample["answer"].split("\n")[0]
 
         # Full‑precision logits & probability distribution
@@ -293,8 +299,8 @@ def main() -> None:
     df = pd.DataFrame.from_records(records)
     log.info(f"Saving dataset with {len(df)} rows to {parquet_path}.")
     parquet_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(parquet_path, index=False)
-
+    # Use fastparquet engine to avoid the pyarrow dependency.
+    df.to_parquet(parquet_path, index=False, engine="fastparquet")
     log.info("Ground‑truth generation completed successfully.")
 
 if __name__ == "__main__":
