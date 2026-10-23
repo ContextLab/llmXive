@@ -1,0 +1,14 @@
+status: none
+intent: CoinGecko daily OHLCV cryptocurrency price data BTC ETH last 5 years python
+  package dataset
+required_fields:
+- date
+- open
+- high
+- low
+- close
+- volume
+- symbol
+cache_key: 436d09820254b4e51034c54d9e34004cfac918a344ec0e6ca2edb0093887173d
+searched_at: '2026-10-23T15:23:28.773396+00:00'
+retry_count: 1

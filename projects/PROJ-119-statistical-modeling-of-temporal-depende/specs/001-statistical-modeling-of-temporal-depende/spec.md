@@ -17,7 +17,7 @@ A researcher wants a reproducible analysis that identifies low‑volatility and 
 
 **Acceptance Scenarios**  
 
-1. **Given** a clean daily OHLCV dataset for BTC and ETH covering the last 5 years, **when** the notebook is run end‑to‑end, **then** it produces (a) a 2‑state regime label series, (b) regime‑specific VAR coefficient tables, and (c) a cross‑asset correlation matrix for each regime.  
+1. **Given** a clean daily OHLCV dataset for BTC and ETH covering the past several years, **when** the notebook is run end‑to‑end, **then** it produces (a) a 2‑state regime label series, (b) regime‑specific VAR coefficient tables, and (c) a cross‑asset correlation matrix for each regime.  
 2. **Given** the output from (1), **when** the likelihood‑ratio test is consulted, **then** the p‑value is reported and, if p < 0.05, the notebook declares the RS‑VAR model statistically preferred over a single‑regime VAR.
 
 ### User Story 2 – Baseline comparison and robustness (US-2) (Priority: P2)

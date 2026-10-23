@@ -1,0 +1,20 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw OHLCV price record"
+type: object
+required: [date, open, high, low, close, volume]
+properties:
+  date:
+    type: string
+    format: date
+    description: "Trading day in ISO‑8601 format."
+  open:
+    type: number
+  high:
+    type: number
+  low:
+    type: number
+  close:
+    type: number
+  volume:
+    type: number
+additionalProperties: false
