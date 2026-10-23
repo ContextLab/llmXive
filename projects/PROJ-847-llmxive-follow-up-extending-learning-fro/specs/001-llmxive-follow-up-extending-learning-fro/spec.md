@@ -7,7 +7,7 @@
 
 ## User Scenarios & Testing
 
-### User Story 1 - Fixed-Density Baseline Convergence (Priority: P1)
+### User Story 1 - Fixed-Density Baseline Convergence (Priority: P1) (See US-1)
 
 The research team must be able to execute a controlled training simulation using the d-OPSD framework with fixed retaining ratios ($\rho_{\text{teacher}}$) to establish a performance baseline and observe the effect of static supervision density on logical reasoning convergence.
 
@@ -23,11 +23,11 @@ The research team must be able to execute a controlled training simulation using
 
 ---
 
-### User Story 2 - Adaptive Density Scheduler Implementation (Priority: P2)
+### User Story 2 - Adaptive Density Scheduler Implementation (Priority: P2) (See US-2)
 
 The system must implement a heuristic scheduler that dynamically adjusts the retaining ratio $\rho_{\text{teacher}}$ during training based on the model's prediction entropy, aiming to maintain supervision density near the hypothesized critical threshold.
 
-**Why this priority**: This addresses the core research hypothesis regarding the “inverted‑U” relationship. It moves beyond static baselines to test if an adaptive strategy can outperform the best fixed baseline by tracking the optimal density in real‑time. Note: The adaptive run demonstrates the *utility* of tracking the peak; the *existence* of the peak (inverted‑U shape) is validated exclusively by the fixed‑density baselines in User Story 1 to avoid circular reasoning.
+**Why this priority**: This addresses the core research hypothesis regarding the “inverted‑U” relationship. It moves beyond static baselines to test if an adaptive strategy can outperform the best fixed baseline by tracking the optimal density in real‑time. Note: The adaptive run demonstrates the *utility* of tracking the peak; the *existence* of the peak (inverted‑U shape) is validated exclusively by the fixed‑baseline baselines in User Story 1 to avoid circular reasoning.
 
 **Independent Test**: The system runs a single training job where $\rho_{\text{teacher}}$ changes every step based on calculated entropy. The test passes if the scheduler logic executes without crashing, the density values vary over time, and the final test accuracies (both metrics) are recorded in a results file distinct from the fixed‑baseline results.
 
@@ -39,7 +39,7 @@ The system must implement a heuristic scheduler that dynamically adjusts the ret
 
 ---
 
-### User Story 3 - Statistical Validation and Threshold Analysis (Priority: P3)
+### User Story 3 - Statistical Validation and Threshold Analysis (Priority: P3) (See US-3)
 
 The system must perform statistical analysis to determine if the adaptive strategy shows a statistically significant performance difference relative to the pre‑specified fixed baseline (ρ = 0.5) and to characterize the “inverted‑U” shape of the density‑performance relationship using the full set of fixed baselines.
 
@@ -83,15 +83,13 @@ The system must perform statistical analysis to determine if the adaptive strate
 
 - **FR-007**: System MUST execute a sensitivity analysis sweeping the optimal density threshold by ±0.05 and ±0.1 to report the accuracy degradation (slope of the performance curve) (See US‑3).
 
-- **FR-008**: System MUST fit a quadratic regression model to the accuracy values of the five fixed ratios **using leave‑one‑out cross‑validation** and output the regression coefficients, the cross‑validated peak density, and a 95 % confidence interval (See US‑3, FR‑011).
+- **FR-008**: System MUST fit a quadratic regression model to the accuracy values of the five fixed ratios **using leave‑one‑out cross‑validation** and output the regression coefficients, the cross‑validated peak density, and a 95 % confidence interval (See US‑3).
 
 - **FR-009**: System MUST run **at least five** independent random seeds per experimental condition (each fixed ratio and the adaptive run) to enable paired statistical analysis and to satisfy power considerations (See US‑3).
 
 - **FR-010**: System MUST compute prediction entropy for each inference step and report its Pearson correlation with per‑example error on a held‑out validation subset, providing empirical justification that higher entropy reflects higher uncertainty (See US‑2).
 
-- **FR-011**: System MUST perform leave‑one‑out cross‑validation of the density‑performance curve when fitting the quadratic model and report the cross‑validated peak density together with its confidence interval (See US‑3).
-
-- **FR-012**: System MUST compute an auxiliary graded accuracy metric (e.g., token‑level F1) alongside exact‑match logical accuracy and include both in all result artifacts (See US‑1).
+- **FR-013**: System MUST include a fixed‑median baseline using a pre‑specified retaining ratio ρ = 0.5 (determined prior to any adaptive runs) and report its performance alongside adaptive results to avoid circularity (See US‑1).
 
 ### Key Entities
 
@@ -107,7 +105,7 @@ The system must perform statistical analysis to determine if the adaptive strate
 
 - **SC-001**: Final logical accuracy (exact‑match) is measured against the held‑out test set ground truth to determine the peak performance point across the density spectrum (See US‑1, US‑2).
 
-- **SC-002**: The functional shape of the relationship between density and performance is measured by fitting a leave‑one‑out cross‑validated quadratic curve to the five fixed‑ratio accuracies to confirm the “inverted‑U” hypothesis (See US‑3, FR‑011).
+- **SC-002**: The functional shape of the relationship between density and performance is measured by fitting a leave‑one‑out cross‑validated quadratic curve to the five fixed‑ratio accuracies to confirm the “inverted‑U” hypothesis (See US‑3, FR‑008).
 
 - **SC-003**: Statistical significance of the adaptive strategy is measured by the p‑value from the paired t‑test comparing it to the pre‑specified fixed baseline (ρ = 0.5) across matched seeds (See US‑3, FR‑006).
 
