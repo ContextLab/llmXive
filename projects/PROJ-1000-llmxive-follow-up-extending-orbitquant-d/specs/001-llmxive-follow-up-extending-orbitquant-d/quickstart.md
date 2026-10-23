@@ -1,7 +1,6 @@
 # Quickstart: Project Skeleton Initialization
 
-This guide explains how to set up the project skeleton and verify that the
-basic configuration is working.
+This guide explains how to set up the project skeleton and verify that the basic configuration is working.
 
 ## Prerequisites
 - Python 3.11 or newer
@@ -38,9 +37,7 @@ Initialization complete
 ```
 
 This indicates that:
-- All required sub‑directories under `code/` (analysis, models, quantization,
-  evaluation, utils, runners, data, validation) have been created, each with
-  an `__init__.py` package marker.
+- All required sub‑directories under `code/` (analysis, models, quantization, evaluation, utils, runners, data, validation) have been created, each with an `__init__.py` package marker.
 - The `tests/` directory is in place (with a placeholder test).
 - The `requirements.txt` file lists `torch` among its dependencies.
 
@@ -73,3 +70,5 @@ Later pipeline stages (data download, correlation analysis, clustering,
 router inference, evaluation) are invoked by their own scripts and are
 documented in the respective task specifications; run them after this
 initialization step.
+
+---

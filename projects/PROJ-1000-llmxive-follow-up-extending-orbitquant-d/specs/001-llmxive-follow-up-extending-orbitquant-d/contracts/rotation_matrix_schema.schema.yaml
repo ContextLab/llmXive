@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Rotation Matrix Definition"
-description: "Schema for a single pre-optimized rotation matrix derived from clustering."
+description: "Schema for a single pre‑optimized rotation matrix derived from clustering."
 type: "object"
 properties:
   cluster_id:

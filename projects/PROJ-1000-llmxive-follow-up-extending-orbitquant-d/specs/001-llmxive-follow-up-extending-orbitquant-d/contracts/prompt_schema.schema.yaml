@@ -1,0 +1,19 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prompt Metadata"
+description: "Schema for a single prompt entry."
+type: "object"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Unique identifier for the prompt (matches COCO image_id)."
+  image_id:
+    type: "string"
+    description: "Identifier of the associated COCO image."
+  caption:
+    type: "string"
+    description: "Original caption text."
+required:
+  - prompt_id
+  - image_id
+  - caption
+additionalProperties: false

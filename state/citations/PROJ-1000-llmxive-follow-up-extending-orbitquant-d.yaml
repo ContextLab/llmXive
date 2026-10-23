@@ -1,4 +1,4 @@
-- artifact_hash: 6df428552486d50c2fba5bcb70c550c4454ebe904988e3e98cd689b3fd021aa0
+- artifact_hash: 83da906e3a64fda0fd1b40a9af799fd02b27ca9b16674f76e602042b14afa353
   artifact_path: projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/specs/001-llmxive-follow-up-extending-orbitquant-d/plan.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://huggingface.co/google/t5-v1_1-small
   verification_status: pending
   verified_against_url: https://huggingface.co/google/t5-v1_1-small
-  verified_at: '2026-10-19T04:01:41.920641Z'
-- artifact_hash: 6df428552486d50c2fba5bcb70c550c4454ebe904988e3e98cd689b3fd021aa0
+  verified_at: '2026-10-23T11:35:36.453830Z'
+- artifact_hash: 83da906e3a64fda0fd1b40a9af799fd02b27ca9b16674f76e602042b14afa353
   artifact_path: projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/specs/001-llmxive-follow-up-extending-orbitquant-d/plan.md
   cite_id: c-002
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://huggingface.co/google/bert-base-uncased
   verification_status: pending
   verified_against_url: https://huggingface.co/google/bert-base-uncased
-  verified_at: '2026-10-19T04:01:41.920641Z'
-- artifact_hash: 6df428552486d50c2fba5bcb70c550c4454ebe904988e3e98cd689b3fd021aa0
+  verified_at: '2026-10-23T11:35:36.453830Z'
+- artifact_hash: 83da906e3a64fda0fd1b40a9af799fd02b27ca9b16674f76e602042b14afa353
   artifact_path: projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/specs/001-llmxive-follow-up-extending-orbitquant-d/plan.md
   cite_id: c-003
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://huggingface.co/stabilityai/stable-diffusion-2-1
   verification_status: pending
   verified_against_url: https://huggingface.co/stabilityai/stable-diffusion-2-1
-  verified_at: '2026-10-19T04:01:41.920641Z'
-- artifact_hash: 6df428552486d50c2fba5bcb70c550c4454ebe904988e3e98cd689b3fd021aa0
+  verified_at: '2026-10-23T11:35:36.453830Z'
+- artifact_hash: 83da906e3a64fda0fd1b40a9af799fd02b27ca9b16674f76e602042b14afa353
   artifact_path: projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/specs/001-llmxive-follow-up-extending-orbitquant-d/plan.md
   cite_id: c-004
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://huggingface.co/black-forest-labs/flux-dev
   verification_status: pending
   verified_against_url: https://huggingface.co/black-forest-labs/flux-dev
-  verified_at: '2026-10-19T04:01:41.920641Z'
-- artifact_hash: ed6d5c1329ca6d713f4b0e13db1e1c8e63c2976cc6e047a4f111bfe0fa001fff
+  verified_at: '2026-10-23T11:35:36.453830Z'
+- artifact_hash: 6a6f699036268e0ac7141765920498dc681528cf8a3130d55bbd14a69433627e
   artifact_path: projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/specs/001-llmxive-follow-up-extending-orbitquant-d/research.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://huggingface.co/datasets/coco2017
   verification_status: pending
   verified_against_url: https://huggingface.co/coco2017/datasets
-  verified_at: '2026-10-19T04:01:55.405244Z'
+  verified_at: '2026-10-23T11:36:07.487366Z'

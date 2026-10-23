@@ -11,8 +11,8 @@ All project artifacts reside under `data/`. Schemas in `contracts/` validate eac
 | Semantic Entropy Scores | `data/processed/entropy_scores.csv` | `contracts/entropy_schema.schema.yaml` |
 | Activation Variance Record | `data/processed/activation_stats/*.json` | `contracts/activation_schema.schema.yaml` |
 | Rotation Matrix Definition | `data/processed/rotation_matrices/matrix_{i}.npy` + `data/processed/rotation_matrices/metadata_{i}.json` | `contracts/rotation_matrix_schema.schema.yaml` |
-| Evaluation Result | `data/processed/results.csv` | `contracts/results_schema.schema.yaml` (includes `rotation_index` for dynamic rows) |
-| Clustering Report (gate) | `data/processed/clustering_report.json` | `contracts/clustering_report_schema.schema.yaml` |
+| Evaluation Result | `data/processed/results.csv` | `contracts/results_schema.schema.yaml` |
+| Clustering Report (router lookup) | `data/processed/clustering_report.json` | `contracts/clustering_report_schema.schema.yaml` |
 | Logs | `data/processed/logs/*.json` | (no schema – free‑form logs) |
 
 ## Storage Formats
@@ -27,8 +27,5 @@ All project artifacts reside under `data/`. Schemas in `contracts/` validate eac
 4. **PII** – Captions contain no personal identifiers; a simple regex filter removes any token matching email/phone patterns.  
 
 ## Validation Steps (new)
-- **Prompt & Entropy CSV Validation**: Before any analysis, `code/analysis/correlation.py` will validate `prompts.csv` and `entropy_scores.csv` against `prompt_schema.schema.yaml` and `entropy_schema.schema.yaml` using `jsonschema`. Failures abort the pipeline.  
+- **Prompt & Entropy CSV Validation**: Before any analysis, `code/analysis/correlation.py` validates `prompts.csv` and `entropy_scores.csv` against `prompt_schema.schema.yaml` and `entropy_schema.schema.yaml` using `jsonschema`. Failures abort the pipeline.  
 - **Rotation Matrix Metadata Validation**: After matrix generation, `code/analysis/clustering.py` validates each `metadata_{i}.json` against `rotation_matrix_schema.schema.yaml`. Invalid metadata triggers a re‑run of the clustering step.
-
----
-
