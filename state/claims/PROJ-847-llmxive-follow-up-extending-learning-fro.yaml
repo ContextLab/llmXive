@@ -575,3 +575,53 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-23T07:18:14Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: Thin run wall-clock time is under 10 minutes
+  claim_id: c_7b8bc76e
+  context: "On success the command prints Pipeline initialized, creates the outputs/\
+    \ directory tree, writes outputs/run_config.json with the effective configuration,\
+    \ and creates the data/results/ folder. Expected wall\u2011clock time is under\
+    \ 10 minutes depending on the model download speed."
+  evidence:
+    artifact_sha256: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+    note: no relevant passages
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: "Expected wall\u2011clock time is under 10 minutes depending on the model\
+    \ download speed."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T18:21:16Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: Thin run generates one baseline result
+  claim_id: c_34079641
+  context: "Expected wall\u2011clock time is under 10 minutes depending on the model\
+    \ download speed. This run generates a single baseline result for $\rho=0.5$,\
+    \ seed 42."
+  evidence:
+    artifact_sha256: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+    note: The provided passage does not mention rho, seed 42, or baseline results.
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: "This run generates a single baseline result for $\rho=0.5$, seed 42."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T18:21:20Z'

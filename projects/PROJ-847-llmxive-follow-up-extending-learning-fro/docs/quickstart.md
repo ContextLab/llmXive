@@ -35,7 +35,7 @@ python -m code.run_experiments --config configs/full_suite.yaml
 
 This runs the complete suite: data loading, model initialization, and
 the full grid of fixed-density baseline runs (5 ratios $\times$ 5 seeds).
-The full suite is expected to take several hours but remains well within
+The full suite is expected to take several hours but remain well within
 the 6‑hour per‑job limit. This is the primary path for regenerating
 all baseline artifacts.
 

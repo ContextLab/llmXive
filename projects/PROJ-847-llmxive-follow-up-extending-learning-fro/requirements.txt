@@ -1,4 +1,4 @@
-datasets
+torch==2.3.0
 transformers
-torch
-tqdm
+datasets==2.19.0
+pyarrow
