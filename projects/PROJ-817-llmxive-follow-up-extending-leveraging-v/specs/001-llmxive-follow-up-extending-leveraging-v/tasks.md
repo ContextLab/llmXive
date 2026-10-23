@@ -10,7 +10,7 @@ This research implementation plan follows the specification and addresses all fu
 
 *Goal*: Verify that a thin pipeline runs on real data (download → curation → human annotation → parser → verifier → statistics) before scaling.
 
-- [ ] T001 [US‑1] **Download raw instruction data** – implement `code/src/data/download.py` that streams the verified InstructPix2Pix dataset via   <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 -->
+- [ ] T001 [US‑1] **Download raw instruction data** – implement `code/src/data/download.py` that streams the verified InstructPix2Pix dataset via   <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 -->
   ```python
   from datasets import load_dataset
   ds = load_dataset("timbrooks/instructpix2pix", split="train", streaming=True)

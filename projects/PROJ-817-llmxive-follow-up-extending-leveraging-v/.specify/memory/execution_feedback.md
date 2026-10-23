@@ -2,13 +2,18 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 9 command(s) failed: python -m code.src.data.download (rc=1); python -m src.data.curate (rc=1); python -m src.data.human_annotation (rc=1); 1 declared deliverable(s) absent: data/raw/prompts_sample.parquet
+**Summary**: 10 command(s) failed: python -m spacy download en_core_web_sm (rc=1); python -m code.src.data.download (rc=1); python -m src.data.curate (rc=1); 1 declared deliverable(s) absent: data/raw/prompts_sample.parquet
 
 ## Failing / missing run-book commands
 
+- python -m spacy download en_core_web_sm -> rc=1
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-817-llmxive-follow-up-extending-leveraging-v/bin/python: No module named spacy
+
 - python -m code.src.data.download -> rc=1
- FileNotFoundError(msg) from err
-FileNotFoundError: timbrooks/instructpix2pix-clip-filtered/train (repository not found)
+ound
+    raise FileNotFoundError(msg) from err
+FileNotFoundError: timbrooks/instructpix2pix/train (repository not found)
 
 The above exception was the direct cause of the following exception:
 
@@ -60,6 +65,7 @@ RuntimeError: Unable to stream dataset from Hugging Face (both primary and fallb
 platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
+plugins: anyio-4.15.1
 collected 0 items
 
 ============================ no tests ran in 0.00s =============================
