@@ -20,11 +20,11 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/raw/puzzles_20261023_061440.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/raw/puzzles_20261023_072558.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/bes/population.py: function `_roulette_selection` returns a bare RNG draw (line 305) — a reported value computed from no real input; code/config.py: self-declared fabricated metric — “…# The task T007b requires a placeholder value that warns if not overwritten…”; every produced artifact is gitignored (data/raw/puzzles_20261023_061440.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python -m code.main --method symbolic --pop-size 50 --generations 20 --output data/processed/symbolic_run.jsonl (rc=1); python -m code.main --method neural --pop-size 50 --generations 20 --output data/processed/neural_run.jsonl (rc=1); python -m code.analysis.stats --symbolic data/processed/symbolic_run.jsonl --neural data/processed/neural_run.jsonl --output data/processed/results.json (rc=1); 2 declared deliverable(s) absent: data/processed/bes_results.json; data/processed/exclusions.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/bes/population.py: function `_roulette_selection` returns a bare RNG draw (line 305) — a reported value computed from no real input; code/config.py: self-declared fabricated metric — “…# The task T007b requires a placeholder value that warns if not overwritten…”; every produced artifact is gitignored (data/raw/puzzles_20261023_072558.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python -m code.main --method symbolic --pop-size 50 --generations 20 --output data/processed/symbolic_run.jsonl (rc=1); python -m code.main --method neural --pop-size 50 --generations 20 --output data/processed/neural_run.jsonl (rc=1); python -m code.analysis.stats --symbolic data/processed/symbolic_run.jsonl --neural data/processed/neural_run.jsonl --output data/processed/results.json (rc=1); 2 declared deliverable(s) absent: data/processed/bes_results.json; data/processed/exclusions.json
 
 ## Failing / missing run-book commands
 
@@ -37,28 +37,32 @@ Usage: python -m code.main --pilot
 
 
 - python -m code.analysis.stats --symbolic data/processed/symbolic_run.jsonl --neural data/processed/neural_run.jsonl --output data/processed/results.json -> rc=1
-2026-10-23 06:14:40,309 - __main__ - ERROR - Analysis failed: Log file not found: data/processed/symbolic_run.jsonl
+2026-10-23 07:25:58,242 - __main__ - ERROR - Analysis failed: Log file not found: data/processed/symbolic_run.jsonl
 
 
 - python -m pytest tests/unit/ -> rc=4
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-884-llmxive-follow-up-extending-self-improvi/lib/python3.11/site-packages/_pytest/config/__init__.py:328: PluggyTeardownRaisedWarning: A plugin raised an exception during an old-style hookwrapper teardown.
 Plugin: helpconfig, Hook: pytest_cmdline_parse
-UsageError: /home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/pyproject.toml: Invalid value (at line 3, column 18)
+ConftestImportFailure: NameError: name 'pytest' is not defined (from /home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/tests/conftest.py)
 For more information see https://pluggy.readthedocs.io/en/stable/api_reference.html#pluggy.PluggyTeardownRaisedWarning
   config = pluginmanager.hook.pytest_cmdline_parse(
-ERROR: /home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/pyproject.toml: Invalid value (at line 3, column 18)
-
+ImportError while loading conftest '/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/tests/conftest.py'.
+tests/conftest.py:9: in <module>
+    @pytest.fixture(autouse=True)
+E   NameError: name 'pytest' is not defined
 
 - python -m pytest tests/integration/ -> rc=4
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-884-llmxive-follow-up-extending-self-improvi/lib/python3.11/site-packages/_pytest/config/__init__.py:328: PluggyTeardownRaisedWarning: A plugin raised an exception during an old-style hookwrapper teardown.
 Plugin: helpconfig, Hook: pytest_cmdline_parse
-UsageError: /home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/pyproject.toml: Invalid value (at line 3, column 18)
+ConftestImportFailure: NameError: name 'pytest' is not defined (from /home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/tests/conftest.py)
 For more information see https://pluggy.readthedocs.io/en/stable/api_reference.html#pluggy.PluggyTeardownRaisedWarning
   config = pluginmanager.hook.pytest_cmdline_parse(
-ERROR: /home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/pyproject.toml: Invalid value (at line 3, column 18)
-
+ImportError while loading conftest '/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/tests/conftest.py'.
+tests/conftest.py:9: in <module>
+    @pytest.fixture(autouse=True)
+E   NameError: name 'pytest' is not defined
 
 
 ## Declared deliverables still missing

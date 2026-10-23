@@ -1,10 +1,11 @@
 T001:
-  reason: "The pytest run fails (exit\u202F4) because `pyproject.toml` is invalid,\
-    \ so the required tests never pass. Moreover, the generated puzzle JSON lacks\
-    \ the required `verifier_output` field defined in `contracts/dataset.schema.yaml`,\
-    \ causing schema validation to fail. The benchmark test also does not explicitly\
-    \ assert the <\u202F100\u202Fms limit. These issues must be fixed for the task\
-    \ to be considered complete."
+  reason: 'The generated puzzles do not conform to `contracts/dataset.schema.yaml`:
+    the `verifier_output` object uses the key `"is_valid"` (and returns error codes
+    like `"VALID"`), whereas the schema requires a boolean field `"valid"` and error
+    codes limited to the enum values listed. Consequently `code/tests/test_generator.py`
+    will raise a `jsonschema.ValidationError`, so the required tests do not all pass.
+    The verifier output format must be corrected to match the schema (e.g., `{"valid":
+    is_valid, "error_code": err_code}` with allowed error codes).'
   task: 9cc76c156b336145c9d8302690031c9cb0ca0a0afc3d4594f09719e026c6c318
 T002:
   reason: The required test suite `code/tests/test_symbolic_planner.py` is missing,
@@ -41,7 +42,6 @@ T014:
 T015:
   task: 4d9e25dcdd59740df2374cc4d10ef76a1abfcb7c65954405025fcd9a0ca77dfe
 T016:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: b46893981ffdc3a4d6c1c062b3e4b3db40d2c40f4a64de516b4b5ed4bf351423
 T017:
   task: 669a5b250f4915e56a64fb4acc047eb8e4912380f2eb0e16e92e3b9f57407e85

@@ -23,25 +23,25 @@
 
 3. **Install dependencies**:
    ```bash
-   pip install -r code/requirements.txt
+   pip install -r requirements.txt
    ```
    *Note: This installs CPU‑only versions of `transformers`, `torch`, `optimum`, etc. No CUDA dependencies.*
 
-## Dataset Curation (Phase 0)
+## Dataset Curation & Pilot (Phase 0)
 
 The dataset is generated programmatically to ensure deterministic verification and includes a scaling subset for complexity analysis.
 
-1. **Generate the puzzle dataset**:
+1. **Run the pilot experiment**:
    ```bash
    python -m code.main --pilot
    ```
-   - This creates a single pilot puzzle (complexity N=10) and runs a minimal BES run using the default symbolic method.
+   - This generates a minimal dataset (e.g., 4x4 Sudoku and 4x4 grid pathfinding) and runs a deterministic verification pass.
    - The pilot writes its result to `data/processed/pilot_result.jsonl`.
    - **Verification**: Run `pytest tests/unit/` to ensure the generator and verifier work correctly.
 
-## Running the Full Experiment (Phase 1)
+## Running the Full Experiment (Phase 1)
 
-The scripts below execute the full symbolic‑guided and neural‑baseline experiments.
+*Note: These commands require the completion of Phase 1 implementation tasks (T001-T003).*
 
 1. **Symbolic‑guided BES**:
    ```bash
@@ -55,7 +55,9 @@ The scripts below execute the full symbolic‑guided and neural‑baseline exper
    ```
    - Uses the same forward LLM but a learned verifier (DistilBERT) for the backward step.
 
-## Analysis (Phase 2)
+## Analysis (Phase 2)
+
+*Note: These commands require the completion of Phase 2 implementation tasks (T004-T009).*
 
 1. **Statistical analysis**:
    ```bash
@@ -79,12 +81,12 @@ The scripts below execute the full symbolic‑guided and neural‑baseline exper
 
 ## Reproducibility
 
-- **Seeds**: The pilot and full runs use a deterministic seed (default = 42). You can override with `--seed`.
+- **Seeds**: The pilot and full runs use a deterministic seed (default = 42). You can override with `--seed`.
 - **Checksums**: Verify `data/raw/` and `data/processed/` against the SHA‑256 hashes recorded in `state/...yaml`.
-- **Environment**: Re‑run on a fresh GitHub Actions runner to confirm results.
+- **Environment**: Re-run on a fresh GitHub Actions runner to confirm results.
 
 ## Troubleshooting
 
 - **Memory error**: Reduce `--pop-size` or `--generations`.
-- **Verifier timeout**: Ensure `code/dataset/verifier.py` runs in < 100 ms.
+- **Verifier timeout**: Ensure `code/dataset/verifier.py` runs in < 100 ms.
 - **LLM slow**: The script will automatically fall back to a smaller model (TinyBERT) if needed.

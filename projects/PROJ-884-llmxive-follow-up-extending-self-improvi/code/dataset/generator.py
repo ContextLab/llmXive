@@ -3,6 +3,7 @@ Puzzle Generator Module for llmXive
 Generates logic/arithmetic puzzles with deterministic Python verifiers.
 Implements Data Provenance metadata injection as per T066.
 Updated to support 4x4 Sudoku and flexible grid sizes for pathfinding.
+Added verifier output field to conform to dataset schema.
 """
 
 import json
@@ -53,7 +54,8 @@ class PuzzleInstance:
         initial_state: Dict[str, Any],
         target_state: Dict[str, Any],
         solution: Optional[Dict[str, Any]] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
+        verifier_output: Optional[Dict[str, Any]] = None,
     ):
         self.puzzle_type = puzzle_type
         self.constraints = constraints
@@ -61,17 +63,21 @@ class PuzzleInstance:
         self.target_state = target_state
         self.solution = solution
         self.metadata = metadata or {}
+        self.verifier_output = verifier_output
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation"""
-        return {
+        base = {
             "puzzle_type": self.puzzle_type.value,
             "constraints": self.constraints,
             "initial_state": self.initial_state,
             "target_state": self.target_state,
             "solution": self.solution,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
+        if self.verifier_output is not None:
+            base["verifier_output"] = self.verifier_output
+        return base
 
 class PuzzleGenerator:
     """
@@ -83,7 +89,7 @@ class PuzzleGenerator:
         self,
         source_id: str = DEFAULT_SOURCE_ID,
         seed: int = DEFAULT_SEED,
-        version: str = GENERATOR_VERSION
+        version: str = GENERATOR_VERSION,
     ):
         self.source_id = source_id
         self.seed = seed
@@ -99,7 +105,7 @@ class PuzzleGenerator:
         puzzle_type: PuzzleType,
         n: int,
         constraint_count: int,
-        variable_domain_size: int
+        variable_domain_size: int,
     ) -> Dict[str, Any]:
         """
         Generate provenance metadata for a puzzle instance.
@@ -117,10 +123,10 @@ class PuzzleGenerator:
             "generator_version": self.version,
             "complexity_metric": {
                 "constraint_count": constraint_count,
-                "variable_domain_size": variable_domain_size
+                "variable_domain_size": variable_domain_size,
             },
             "puzzle_type": puzzle_type.value,
-            "complexity_n": n
+            "complexity_n": n,
         }
 
     # ------------------------------------------------------------------
@@ -130,7 +136,7 @@ class PuzzleGenerator:
         self,
         n: int,
         count: int,
-        difficulty: str = "medium"
+        difficulty: str = "medium",
     ) -> List[PuzzleInstance]:
         """
         Generate Sudoku variant puzzles.
@@ -153,7 +159,7 @@ class PuzzleGenerator:
                 f"Grid must be {grid_size}x{grid_size}",
                 f"Each row must contain digits 1-{grid_size} exactly once",
                 f"Each column must contain digits 1-{grid_size} exactly once",
-                f"Each {int(grid_size**0.5)}x{int(grid_size**0.5)} box must contain digits 1-{grid_size} exactly once"
+                f"Each {int(grid_size**0.5)}x{int(grid_size**0.5)} box must contain digits 1-{grid_size} exactly once",
             ]
 
             constraint_count = len(constraints)
@@ -169,8 +175,8 @@ class PuzzleGenerator:
                     PuzzleType.SUDOKU,
                     n,
                     constraint_count,
-                    variable_domain_size
-                )
+                    variable_domain_size,
+                ),
             )
             puzzles.append(instance)
 
@@ -183,7 +189,7 @@ class PuzzleGenerator:
         self,
         n: int,
         count: int,
-        difficulty: str = "medium"
+        difficulty: str = "medium",
     ) -> List[PuzzleInstance]:
         """
         Generate constrained pathfinding puzzles.
@@ -203,7 +209,7 @@ class PuzzleGenerator:
                 f"End position: {end}",
                 f"Obstacles at: {obstacles[:5]}...",
                 "Path must not pass through obstacles",
-                "Path must be shortest possible"
+                "Path must be shortest possible",
             ]
 
             constraint_count = len(constraints)
@@ -221,7 +227,7 @@ class PuzzleGenerator:
                     "start": start,
                     "end": end,
                     "obstacles": obstacles,
-                    "size": grid_size
+                    "size": grid_size,
                 },
                 target_state={"path": solution_path},
                 solution={"path": solution_path},
@@ -229,8 +235,8 @@ class PuzzleGenerator:
                     PuzzleType.PATHFINDING,
                     n,
                     constraint_count,
-                    variable_domain_size
-                )
+                    variable_domain_size,
+                ),
             )
             puzzles.append(instance)
 
@@ -243,7 +249,7 @@ class PuzzleGenerator:
         self,
         n: int,
         count: int,
-        difficulty: str = "medium"
+        difficulty: str = "medium",
     ) -> List[PuzzleInstance]:
         """
         Generate logic grid puzzles (Einstein's riddle style).
@@ -260,7 +266,7 @@ class PuzzleGenerator:
             constraints = [
                 f"Number of items per category: {num_items}",
                 "Each item must be uniquely assigned across categories",
-                "All clues must be satisfied"
+                "All clues must be satisfied",
             ] + clues[:10]
 
             constraint_count = len(constraints)
@@ -272,7 +278,7 @@ class PuzzleGenerator:
                 initial_state={
                     "categories": categories,
                     "clues": clues,
-                    "num_items": num_items
+                    "num_items": num_items,
                 },
                 target_state={"solution": solution},
                 solution={"solution": solution},
@@ -280,8 +286,8 @@ class PuzzleGenerator:
                     PuzzleType.LOGIC_GRID,
                     n,
                     constraint_count,
-                    variable_domain_size
-                )
+                    variable_domain_size,
+                ),
             )
             puzzles.append(instance)
 
@@ -294,7 +300,7 @@ class PuzzleGenerator:
         self,
         n: int,
         count: int,
-        difficulty: str = "medium"
+        difficulty: str = "medium",
     ) -> List[PuzzleInstance]:
         """
         Generate arithmetic puzzles (e.g., 24 game variants).
@@ -313,7 +319,7 @@ class PuzzleGenerator:
                 f"Target value: {target}",
                 "Use each operand exactly once",
                 "Only use +, -, *, / operators",
-                "Parentheses are allowed"
+                "Parentheses are allowed",
             ]
 
             constraint_count = len(constraints)
@@ -325,7 +331,7 @@ class PuzzleGenerator:
                 initial_state={
                     "operands": operands,
                     "target": target,
-                    "num_operands": num_operands
+                    "num_operands": num_operands,
                 },
                 target_state={"solution": solution},
                 solution={"solution": solution},
@@ -333,8 +339,8 @@ class PuzzleGenerator:
                     PuzzleType.ARITHMETIC,
                     n,
                     constraint_count,
-                    variable_domain_size
-                )
+                    variable_domain_size,
+                ),
             )
             puzzles.append(instance)
 
@@ -348,7 +354,7 @@ class PuzzleGenerator:
         n_values: List[int],
         count: int,
         puzzle_types: List[PuzzleType],
-        output_dir: str = DEFAULT_OUTPUT_DIR
+        output_dir: str = DEFAULT_OUTPUT_DIR,
     ) -> str:
         """
         Generate puzzles for multiple N values and types.
@@ -360,6 +366,11 @@ class PuzzleGenerator:
 
         timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
         output_file = output_dir / f"puzzles_{timestamp}.json"
+
+        # Import verifier lazily to avoid circular import issues
+        from code.dataset.verifier import PuzzleVerifier
+
+        verifier = PuzzleVerifier()
 
         for n in n_values:
             for p_type in puzzle_types:
@@ -377,6 +388,16 @@ class PuzzleGenerator:
                 else:
                     raise DataGenerationError(f"Unknown puzzle type: {p_type}")
 
+                # Run deterministic verifier on each puzzle to produce verifier_output
+                for puzzle in puzzles:
+                    # Convert to dict without verifier_output to avoid recursion
+                    puzzle_dict = puzzle.to_dict()
+                    is_valid, err_code = verifier.verify(puzzle_dict)
+                    puzzle.verifier_output = {
+                        "is_valid": is_valid,
+                        "error_code": err_code,
+                    }
+
                 all_puzzles.extend(puzzles)
 
         # Assemble final JSON with provenance header
@@ -389,9 +410,9 @@ class PuzzleGenerator:
                 "total_instances": len(all_puzzles),
                 "n_values": n_values,
                 "puzzle_types": [pt.value for pt in puzzle_types],
-                "count_per_type": count
+                "count_per_type": count,
             },
-            "puzzles": [p.to_dict() for p in all_puzzles]
+            "puzzles": [p.to_dict() for p in all_puzzles],
         }
 
         with open(output_file, "w", encoding="utf-8") as f:
@@ -437,7 +458,7 @@ class PuzzleGenerator:
         grid: List[List[int]],
         row: int,
         col: int,
-        num: int
+        num: int,
     ) -> bool:
         """Check Sudoku move validity."""
         size = len(grid)
@@ -466,7 +487,7 @@ class PuzzleGenerator:
     def _create_puzzle_from_grid(
         self,
         grid: List[List[int]],
-        difficulty: str
+        difficulty: str,
     ) -> Tuple[List[List[int]], List[List[int]]]:
         """Create puzzle by removing cells based on difficulty."""
         size = len(grid)
@@ -492,7 +513,7 @@ class PuzzleGenerator:
     def _generate_pathfinding_grid(
         self,
         size: int,
-        difficulty: str
+        difficulty: str,
     ) -> Tuple[List[List[int]], Tuple[int, int], Tuple[int, int], List[Tuple[int, int]]]:
         """Generate a grid with obstacles, start and end."""
         grid = [[0] * size for _ in range(size)]
@@ -519,12 +540,12 @@ class PuzzleGenerator:
         while start in obstacles:
             start = (
                 self.random.randint(0, size - 1),
-                self.random.randint(0, size - 1)
+                self.random.randint(0, size - 1),
             )
         while end in obstacles:
             end = (
                 self.random.randint(0, size - 1),
-                self.random.randint(0, size - 1)
+                self.random.randint(0, size - 1),
             )
 
         return grid, start, end, obstacles
@@ -534,7 +555,7 @@ class PuzzleGenerator:
         grid: List[List[int]],
         start: Tuple[int, int],
         end: Tuple[int, int],
-        obstacles: List[Tuple[int, int]]
+        obstacles: List[Tuple[int, int]],
     ) -> List[Tuple[int, int]]:
         """Simple BFS to find shortest path."""
         from collections import deque
@@ -559,7 +580,7 @@ class PuzzleGenerator:
 
     def _generate_logic_grid_puzzle(
         self,
-        num_items: int
+        num_items: int,
     ) -> Tuple[List[str], List[str], Dict[str, Any]]:
         """Generate a simple logic grid puzzle."""
         categories = ["Person", "Color", "Animal", "Drink"]
@@ -567,7 +588,7 @@ class PuzzleGenerator:
             [f"Person{i}" for i in range(num_items)],
             [f"Color{i}" for i in range(num_items)],
             [f"Animal{i}" for i in range(num_items)],
-            [f"Drink{i}" for i in range(num_items)]
+            [f"Drink{i}" for i in range(num_items)],
         ]
 
         # Random valid assignment (placeholder)
@@ -584,7 +605,7 @@ class PuzzleGenerator:
 
     def _generate_arithmetic_puzzle(
         self,
-        num_operands: int
+        num_operands: int,
     ) -> Tuple[List[int], int, str]:
         """Generate a simple arithmetic puzzle."""
         operands = [self.random.randint(1, 10) for _ in range(num_operands)]
@@ -608,13 +629,13 @@ def main():
         type=int,
         nargs="+",
         required=True,
-        help="List of N values for complexity scaling (e.g., 4 10 20)"
+        help="List of N values for complexity scaling (e.g., 4 10 20)",
     )
     parser.add_argument(
         "--count",
         type=int,
         default=DEFAULT_COUNT,
-        help=f"Number of puzzles per type per N value (default: {DEFAULT_COUNT})"
+        help=f"Number of puzzles per type per N value (default: {DEFAULT_COUNT})",
     )
     parser.add_argument(
         "--types",
@@ -623,27 +644,27 @@ def main():
         choices=[pt.value for pt in PuzzleType],
         default=[
             PuzzleType.SUDOKU.value,
-            PuzzleType.PATHFINDING.value
+            PuzzleType.PATHFINDING.value,
         ],
-        help="Puzzle types to generate"
+        help="Puzzle types to generate",
     )
     parser.add_argument(
         "--output-dir",
         type=str,
         default=DEFAULT_OUTPUT_DIR,
-        help=f"Output directory (default: {DEFAULT_OUTPUT_DIR})"
+        help=f"Output directory (default: {DEFAULT_OUTPUT_DIR})",
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=DEFAULT_SEED,
-        help=f"Random seed (default: {DEFAULT_SEED})"
+        help=f"Random seed (default: {DEFAULT_SEED})",
     )
     parser.add_argument(
         "--source-id",
         type=str,
         default=DEFAULT_SOURCE_ID,
-        help=f"Source identifier (default: {DEFAULT_SOURCE_ID})"
+        help=f"Source identifier (default: {DEFAULT_SOURCE_ID})",
     )
 
     args = parser.parse_args()
@@ -651,13 +672,13 @@ def main():
 
     generator = PuzzleGenerator(
         source_id=args.source_id,
-        seed=args.seed
+        seed=args.seed,
     )
     output_file = generator.generate_puzzles(
         n_values=args.n,
         count=args.count,
         puzzle_types=puzzle_types,
-        output_dir=args.output_dir
+        output_dir=args.output_dir,
     )
     print(f"Puzzles written to {output_file}")
 
