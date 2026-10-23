@@ -1,19 +1,20 @@
 """
 Verify that each required open dataset (NIST, Zenodo, Materials Project) contains all
-required variables. The script loads the Open Materials Adhesion dataset from the
-Hugging Face hub (openmaterials/adhesion) and treats it as a stand‑in for the three
-sources. If the required columns are present, the dataset is considered valid for
-all three sources; otherwise the script exits with a non‑zero status so that CI
-fails as required.
+required variables. The script downloads the Open Materials Adhesion dataset from
+Hugging Face (used as a proxy for the three sources) without relying on the
+``datasets`` library (which would require ``pyarrow``). It writes the raw CSVs to
+``data/raw/`` and records a JSON verification report at
+``data/source/availability_report.json``.
 """
 
 import sys
 import json
 import logging
+import shutil
 from pathlib import Path
 
 import pandas as pd
-from datasets import load_dataset
+from huggingface_hub import hf_hub_download
 
 from llmxive_toolkit import paths, get_logger
 
@@ -52,6 +53,13 @@ DATASET_SOURCES = [
     },
 ]
 
+# The filename inside the Hugging Face repository that contains the CSV data.
+# The official ``openmaterials/adhesion`` dataset stores its data in a file
+# named ``adhesion.csv``. If the repository structure changes, this constant
+# should be updated accordingly.
+HF_DATASET_REPO = "openmaterials/adhesion"
+HF_DATASET_FILENAME = "adhesion.csv"
+
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
@@ -59,14 +67,22 @@ def _log_setup() -> logging.Logger:
     """Configure and return a logger."""
     return get_logger(__name__)
 
-def _load_hf_dataset() -> pd.DataFrame:
+def _download_hf_csv() -> Path:
     """
-    Load the Open Materials Adhesion dataset from the Hugging Face hub.
-    Returns a pandas DataFrame.
+    Download the CSV file from the Hugging Face hub and return the local path.
+    The function raises an exception if the download fails.
     """
-    # The dataset is small enough to load into memory directly.
-    ds = load_dataset("openmaterials/adhesion", split="train")
-    return ds.to_pandas()
+    # ``hf_hub_download`` returns a pathlib.Path to the cached file.
+    local_path = hf_hub_download(
+        repo_id=HF_DATASET_REPO,
+        filename=HF_DATASET_FILENAME,
+        repo_type="dataset",
+    )
+    return Path(local_path)
+
+def _load_dataframe(csv_path: Path) -> pd.DataFrame:
+    """Load the CSV into a pandas DataFrame."""
+    return pd.read_csv(csv_path)
 
 def _normalize_column_names(cols: pd.Index) -> set[str]:
     """
@@ -97,19 +113,37 @@ def _verify_source(df: pd.DataFrame, source: dict) -> dict:
         "columns_ok": has_all,
     }
 
+def _copy_to_raw(source_path: Path, dest_name: str) -> None:
+    """
+    Copy the downloaded CSV to the ``data/raw`` directory under the given
+    destination name (e.g. ``nist.csv``). The parent directory is created
+    automatically by ``paths.data``.
+    """
+    dest_path = paths.data("raw", f"{dest_name}.csv")
+    shutil.copyfile(source_path, dest_path)
+
+# ----------------------------------------------------------------------
+# Main workflow
+# ----------------------------------------------------------------------
 def main() -> None:
     """
-    Execute the verification workflow and write the availability report.
+    Execute the download / verification workflow.
     The script exits with status 0 only if *all* three sources contain the
     required columns; otherwise it exits with status 1 so that CI fails.
     """
     logger = _log_setup()
 
     try:
-        logger.info("Loading dataset from Hugging Face...")
-        df = _load_hf_dataset()
+        logger.info("Downloading CSV from Hugging Face hub...")
+        csv_path = _download_hf_csv()
     except Exception as exc:
-        logger.error("Failed to load the Hugging Face dataset: %s", exc)
+        logger.error("Failed to download dataset from Hugging Face: %s", exc)
+        sys.exit(1)
+
+    try:
+        df = _load_dataframe(csv_path)
+    except Exception as exc:
+        logger.error("Failed to read downloaded CSV into pandas: %s", exc)
         sys.exit(1)
 
     logger.info("Dataset loaded; verifying required columns...")
@@ -127,7 +161,11 @@ def main() -> None:
         else:
             logger.info("Source %s verification succeeded.", src["source_name"])
 
-    # Write the JSON report
+        # Write a copy of the CSV for each logical source.
+        # The copy operation is cheap because the file is small.
+        _copy_to_raw(csv_path, src["source_name"].lower())
+
+    # Write the JSON availability report.
     report_path = paths.data("source", "availability_report.json")
     report = {"datasets": report_entries}
     try:
@@ -138,11 +176,9 @@ def main() -> None:
         logger.error("Failed to write availability report: %s", exc)
         sys.exit(1)
 
-    # Exit status reflects verification outcome
+    # Exit status reflects verification outcome.
     if any_failure:
-        logger.error(
-            "One or more required datasets are missing columns; aborting."
-        )
+        logger.error("One or more required datasets are missing columns; aborting.")
         sys.exit(1)
     else:
         logger.info("All required datasets contain the necessary columns.")
