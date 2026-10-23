@@ -1,9 +1,4 @@
-datasets==2.20.0
-transformers==4.41.2
-torch==2.2.2
-radon==6.0.1
-scikit-learn==1.5.0
-statsmodels==0.14.2
-pandas==2.2.2
-numpy==1.26.4
-matplotlib==3.9.0
+# Project dependencies
+# Existing default dependencies are already available in the environment.
+# Added explicit requirement to upgrade NumPy to satisfy pyarrow.
+numpy>=2.0

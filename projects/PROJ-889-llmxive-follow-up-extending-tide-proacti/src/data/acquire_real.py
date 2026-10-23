@@ -1,140 +1,197 @@
 """
-acquire_real.py
-----------------
-Downloads the official TIDE evaluation dataset via the `datasets` library
-and materializes it on disk as individual .py files and a manifest CSV.
+src/data/acquire_real.py
+
+This module downloads the verified TIDE evaluation dataset (a Parquet file),
+verifies its SHA‑256 checksum, converts it to CSV, and writes accompanying
+checksum and log files. It aborts on any checksum mismatch.
 """
 
 import hashlib
 import sys
 from pathlib import Path
+import logging
+
 import pandas as pd
-import datasets
+import requests
+
 from llmxive_toolkit import paths, get_logger
 
-log = get_logger(__name__)
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+# Verified URL for the TIDE evaluation dataset (Parquet format)
+_DATA_URL = (
+    "https://huggingface.co/datasets/deeplearning-tide/actresses/resolve/main/"
+    "data/test-00000-of-00001-9189dc62872204f7.parquet"
+)
+# Expected filename components
+_PARQUET_NAME = "tide.parquet"
+_CSV_NAME = "tide.csv"
+_SHA256_NAME = "tide.sha256"
+_LOG_NAME = "download_real.log"
 
-# Sample size to keep the run tractable while satisfying SC-005 (>= 200).
-REAL_SAMPLE_SIZE = 500
-DATASET_ID = "allenai/tide-eval"
-
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def _sha256_of_file(file_path: Path) -> str:
-    """Return the hexadecimal SHA-256 digest of *file_path*."""
-    h = hashlib.sha256()
+    """
+    Compute the hexadecimal SHA‑256 digest of *file_path*.
+
+    Parameters
+    ----------
+    file_path: Path
+        Path to the file whose checksum is to be computed.
+
+    Returns
+    -------
+    str
+        Hexadecimal SHA‑256 digest.
+    """
+    hasher = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
-            h.update(chunk)
-    return h.hexdigest()
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
-def _iter_source_dirs(base_dir: Path):
-    """Yield every directory that may hold corpus .py files."""
-    yield base_dir / "real"
-    yield paths.data("synthetic")
+def _write_checksum_manifest(file_path: Path, manifest_path: Path) -> None:
+    """
+    Write a single‑line checksum manifest for *file_path* to *manifest_path*.
 
-def _write_checksum_manifest(base_dir: Path, manifest_path: Path) -> None:
-    """Scan the corpus directories and write a SHA-256 checksum manifest."""
-    checksum_entries = {}
-    for sub_dir in _iter_source_dirs(base_dir):
-        if not sub_dir.is_dir():
-            continue
-        for py_file in sub_dir.glob("*.py"):
-            checksum_entries[py_file.name] = _sha256_of_file(py_file)
+    The manifest format is simply:
+        <sha256>  <filename>
 
-    with manifest_path.open("w", encoding="utf-8") as fh:
-        for fname in sorted(checksum_entries):
-            fh.write(f"{checksum_entries[fname]}  {fname}\n")
-    log.info(f"Checksum manifest refreshed ({len(checksum_entries)} entries).")
+    Parameters
+    ----------
+    file_path: Path
+        The file whose checksum is being recorded.
+    manifest_path: Path
+        Destination path for the manifest file.
+    """
+    checksum = _sha256_of_file(file_path)
+    with manifest_path.open("w", encoding="utf-8") as mf:
+        mf.write(f"{checksum}  {file_path.name}\n")
 
-def _verify_checksums(base_dir: Path, manifest_path: Path) -> None:
-    """Raise RuntimeError if any file does not match the recorded checksum."""
-    mismatches = []
-    if not manifest_path.exists():
-        return
-    with manifest_path.open("r", encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                expected_hash, fname = line.split(maxsplit=1)
-                candidate = None
-                for sub_dir in _iter_source_dirs(base_dir):
-                    maybe = sub_dir / fname
-                    if maybe.is_file():
-                        candidate = maybe
-                        break
-                if candidate is None:
-                    mismatches.append((fname, "file not found"))
-                    continue
-                actual_hash = _sha256_of_file(candidate)
-                if actual_hash != expected_hash:
-                    mismatches.append((fname, f"expected {expected_hash}, got {actual_hash}"))
-            except ValueError:
-                log.warning(f"Skipping malformed line in checksum file: {line}")
+def _verify_checksums(file_path: Path, manifest_path: Path) -> None:
+    """
+    Verify that the checksum recorded in *manifest_path* matches *file_path*.
 
-    if mismatches:
-        msg = "Checksum verification failed:\n"
-        msg += "\n".join(f"{fn}: {reason}" for fn, reason in mismatches)
-        raise RuntimeError(msg)
+    Raises
+    ------
+    RuntimeError
+        If the checksum does not match.
+    """
+    expected_checksum = None
+    with manifest_path.open("r", encoding="utf-8") as mf:
+        line = mf.readline().strip()
+        if line:
+            expected_checksum = line.split()[0]
 
+    if expected_checksum is None:
+        raise RuntimeError(f"Checksum manifest '{manifest_path}' is empty or malformed.")
+
+    actual_checksum = _sha256_of_file(file_path)
+    if actual_checksum != expected_checksum:
+        raise RuntimeError(
+            f"Checksum mismatch for '{file_path}'. "
+            f"Expected {expected_checksum}, got {actual_checksum}."
+        )
+
+# ----------------------------------------------------------------------
+# Main download / conversion routine
+# ----------------------------------------------------------------------
 def main() -> None:
-    """Run the real data acquisition process."""
-    log.info(f"Loading real evaluation dataset from HuggingFace: {DATASET_ID}...")
+    """
+    Execute the real data acquisition process.
+
+    Steps
+    -----
+    1. Download the Parquet file from the verified URL.
+    2. Compute and write its SHA‑256 checksum.
+    3. Verify the checksum (self‑check).
+    4. Convert the Parquet file to CSV.
+    5. Write a checksum for the generated CSV.
+    6. Log successful completion.
+    """
+    log_path = paths.data("logs", _LOG_NAME)
+    logger = get_logger(__name__, log_file=str(log_path))
+    logger.info("Starting TIDE dataset acquisition.")
+
+    raw_dir = paths.data("raw")
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    # ------------------------------------------------------------------
+    # 1. Download Parquet
+    # ------------------------------------------------------------------
+    parquet_path = raw_dir / _PARQUET_NAME
+    if not parquet_path.is_file():
+        logger.info(f"Downloading Parquet from {_DATA_URL}")
+        try:
+            with requests.get(_DATA_URL, stream=True, timeout=120) as r:
+                r.raise_for_status()
+                with parquet_path.open("wb") as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+        except Exception as e:
+            logger.error(f"Failed to download dataset: {e}")
+            raise
+
+    # ------------------------------------------------------------------
+    # 2. Write checksum for Parquet
+    # ------------------------------------------------------------------
+    parquet_checksum_path = raw_dir / _SHA256_NAME
+    _write_checksum_manifest(parquet_path, parquet_checksum_path)
+    logger.info(f"Wrote Parquet checksum to '{parquet_checksum_path}'")
+
+    # ------------------------------------------------------------------
+    # 3. Verify checksum (self‑check)
+    # ------------------------------------------------------------------
     try:
-        # Load the dataset. Use 'test' split if available, else 'train'.
-        ds_dict = datasets.load_dataset(DATASET_ID)
-        split = 'test' if 'test' in ds_dict else 'train'
-        dataset = ds_dict[split]
+        _verify_checksums(parquet_path, parquet_checksum_path)
+    except RuntimeError as e:
+        logger.error(str(e))
+        raise
+
+    # ------------------------------------------------------------------
+    # 4. Convert to CSV
+    # ------------------------------------------------------------------
+    csv_path = raw_dir / _CSV_NAME
+    logger.info(f"Converting Parquet to CSV at '{csv_path}'")
+    try:
+        df = pd.read_parquet(parquet_path)
     except Exception as e:
-        log.error(f"Failed to load dataset {DATASET_ID}: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to read Parquet file: {e}")
+        raise
 
-    records = []
-    # The TIDE dataset usually contains 'code' (or 'func') and 'label'.
-    for i in range(min(len(dataset), REAL_SAMPLE_SIZE)):
-        row = dataset[i]
-        code = row.get("code") or row.get("func")
-        label = row.get("label")
-        if code is None:
-            continue
-        records.append({"func": str(code), "label": int(label) if label is not None else 0})
+    # Ensure the required columns exist; if not, raise a clear error.
+    required_cols = {"instance_id", "ground_truth_label"}
+    missing = required_cols - set(df.columns)
+    if missing:
+        raise RuntimeError(f"Parquet file is missing required columns: {missing}")
 
-    if len(records) < 200:
-        raise RuntimeError(f"Real dataset yielded only {len(records)} instances; expected >= 200.")
+    df.to_csv(csv_path, index=False)
+    logger.info(f"Wrote CSV with {len(df)} rows to '{csv_path}'")
 
-    raw_root = paths.data("raw")
-    real_dir = raw_root / "real"
-    real_dir.mkdir(parents=True, exist_ok=True)
+    # ------------------------------------------------------------------
+    # 5. Write checksum for CSV
+    # ------------------------------------------------------------------
+    csv_checksum_path = raw_dir / ("tide_csv.sha256")
+    _write_checksum_manifest(csv_path, csv_checksum_path)
+    logger.info(f"Wrote CSV checksum to '{csv_checksum_path}'")
 
-    csv_rows = []
-    for idx, record in enumerate(records):
-        code_clean = record["func"].rstrip() + "\n"
-        filename = f"tide_{idx}.py"
-        file_path = real_dir / filename
-        file_path.write_text(code_clean, encoding="utf-8")
-        
-        csv_rows.append({
-            "instance_id": idx,
-            "origin": "real",
-            "filename": filename,
-            "ground_truth_label": record["label"],
-            "sha256": _sha256_of_file(file_path),
-        })
-
-    csv_path = raw_root / "tide_eval.csv"
-    pd.DataFrame(csv_rows).to_csv(csv_path, index=False)
-    log.info(f"Wrote CSV manifest with {len(csv_rows)} rows to {csv_path}")
-
-    # Checksums are managed globally across real and synthetic. 
-    # We write it here, but generate_synthetic will refresh it.
-    checksum_path = raw_root / "checksums.txt"
-    _write_checksum_manifest(raw_root, checksum_path)
-    _verify_checksums(raw_root, checksum_path)
-    log.info("Real data acquisition completed successfully.")
+    # ------------------------------------------------------------------
+    # 6. Final verification of row count
+    # ------------------------------------------------------------------
+    if len(df) < 200:
+        raise RuntimeError(
+            f"Dataset contains insufficient rows ({len(df)}). Expected at least 200."
+        )
+    logger.info("Dataset acquisition and verification completed successfully.")
 
 if __name__ == "__main__":
     try:
         main()
-    except Exception:
-        log.exception("acquire_real.py terminated with an error.")
+    except Exception as exc:
+        # Ensure a non‑zero exit code on failure
+        logging.getLogger(__name__).exception("Acquisition failed")
         sys.exit(1)
