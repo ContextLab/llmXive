@@ -129,6 +129,7 @@ def update_checksum(csv_path: Path, checksum_path: Path, logger: logging.Logger)
     update the entry for that file in *checksum_path*.
     """
     checksum = compute_sha256(csv_path)
+    # Store path relative to the project root (POSIX style)
     rel_path = csv_path.as_posix()
     logger.info(f"Computed SHA‑256 checksum: {checksum}")
 

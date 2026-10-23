@@ -1,61 +1,28 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/processed/persistence_images_10x10.csv, data/processed/power_analysis_report.json, data/processed/scaffold_counts.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/processed/persistence_images_10x10.csv, data/processed/power_analysis_report.json, data/processed/scaffold_counts.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 run-book script(s) missing (plan/impl path mismatch): python code/06_feature_importance.py; python code/06_diagnostics.py; 7 command(s) failed: python code/01_data_ingestion.py --source lipophilicity (rc=1); python code/03_feature_engineering.py (rc=1); python code/04_model_training.py (rc=1); 3 declared deliverable(s) absent: data/processed/combined_features.csv; data/processed/filtered_lipophilicity.csv; data/processed/traditional_features.csv
+**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python code/06_feature_importance.py; python code/06_diagnostics.py; 9 command(s) failed: python code/01_data_ingestion.py --source lipophilicity (rc=1); python code/00_checksum_verify.py (rc=1); python code/02_tda_computation.py --grid 10 (rc=1); 7 declared deliverable(s) absent: data/processed/combined_features.csv; data/processed/filtered_lipophilicity.csv; data/processed/power_analysis_report.json
 
 ## Failing / missing run-book commands
 
 - python code/01_data_ingestion.py --source lipophilicity -> rc=1
-e parsing: <rdkit.Chem.rdchem.Mol
-[17:33:20] SMILES Parse Error: check for mistakes around position 1:
-[17:33:20] <rdkit.Chem.rdchem.Mol
-[17:33:20] ^
-[17:33:20] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
-[17:33:20] SMILES Parse Error: syntax error while parsing: <rdkit.Chem.rdchem.Mol
-[17:33:20] SMILES Parse Error: check for mistakes around position 1:
-[17:33:20] <rdkit.Chem.rdchem.Mol
-[17:33:20] ^
-[17:33:20] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
-[17:33:20] SMILES Parse Error: syntax error while parsing: <rdkit.Chem.rdchem.Mol
-[17:33:20] SMILES Parse Error: check for mistakes around position 1:
-[17:33:20] <rdkit.Chem.rdchem.Mol
-[17:33:20] ^
-[17:33:20] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
-[17:33:20] SMILES Parse Error: syntax error while parsing: <rdkit.Chem.rdchem.Mol
-[17:33:20] SMILES Parse Error: check for mistakes around position 1:
-[17:33:20] <rdkit.Chem.rdchem.Mol
-[17:33:20] ^
-[17:33:20] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
+2026-10-23 19:09:21,252 - data_ingestion - ERROR - Raw Lipophilicity file not found at data/raw/lipophilicity.csv. Run 01_download_lipophilicity.py first.
+
+
+- python code/00_checksum_verify.py -> rc=1
+
+Missing file for checksum verification: data/raw/esol.csv
+Missing file for checksum verification: data/raw/lipophilicity.csv
+Checksum verification failed.
+
+- python code/02_tda_computation.py --grid 10 -> rc=1
+2026-10-23 19:09:21,933 - ERROR - Input file not found: data/processed/filtered_esol.csv
+
 
 - python code/03_feature_engineering.py -> rc=1
-led: 'molecule_id'
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/03_feature_engineering.py", line 291, in main
-    run_feature_engineering()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/03_feature_engineering.py", line 221, in run_feature_engineering
-    df_trad = compute_traditional_descriptors(df_filtered, valid_ids, logger)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/03_feature_engineering.py", line 122, in compute_traditional_descriptors
-    out["molecule_id"] = out["molecule_id"].astype(str)
-                         ~~~^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 4102, in __getitem__
-    indexer = self.columns.get_loc(key)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/indexes/range.py", line 417, in get_loc
-    raise KeyError(key)
-KeyError: 'molecule_id'
+2026-10-23 19:09:22,464 - feature_engineering - INFO - Starting Feature Engineering (T004)...
+2026-10-23 19:09:22,465 - feature_engineering - ERROR - Filtered dataset missing at /home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/data/processed/filtered_esol.csv. Run 01_data_ingestion.py first.
 
 
 - python code/04_model_training.py -> rc=1
@@ -82,8 +49,8 @@ FileNotFoundError: Missing /home/runner/work/llmXive/llmXive/projects/PROJ-444-p
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-444-predicting-molecular-properties-from-top/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/06_diagnostics.py': [Errno 2] No such file or directory
 
 - python code/05_sensitivity_analysis.py --grids 10 20 30 -> rc=1
-2026-10-23 17:33:25,007 - INFO - === Sensitivity Analysis (Task T007, FR-006) ===
-2026-10-23 17:33:25,007 - INFO - Grid resolutions: [10, 20, 30]
+2026-10-23 19:09:24,297 - INFO - === Sensitivity Analysis (Task T007, FR-006) ===
+2026-10-23 19:09:24,297 - INFO - Grid resolutions: [10, 20, 30]
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/05_sensitivity_analysis.py", line 293, in <module>
@@ -96,26 +63,25 @@ Traceback (most recent call last):
 FileNotFoundError: Missing /home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/data/processed/combined_features.csv - run T004 first.
 
 - python code/07_resource_monitor.py -> rc=1
-2026-10-23 17:33:25,167 - ERROR - No command provided to monitor.
+2026-10-23 19:09:24,486 - ERROR - No command provided to monitor.
 
 
 - python -m pytest tests/contract/ -> rc=1
-t_persistence_images_10x10_non_negative __________________
-tests/contract/test_tda_10x10.py:65: in test_persistence_images_10x10_non_negative
-    pytest.fail("No image columns found.")
-E   Failed: No image columns found.
-=========================== short test summary info ============================
-FAILED tests/contract/test_metrics_schema.py::test_metrics_schema_compliance
-FAILED tests/contract/test_t009_schemas.py::test_dataset_schema_exists_and_valid
+_t009_schemas.py::test_dataset_schema_exists_and_valid
 FAILED tests/contract/test_t009_schemas.py::test_feature_matrix_schema_exists_and_valid
 FAILED tests/contract/test_t009_schemas.py::test_model_metrics_schema_exists_and_valid
 FAILED tests/contract/test_t009_schemas.py::test_all_schemas_are_valid_yaml
 FAILED tests/contract/test_t016_features.py::test_tda_features_file_exists - ...
 FAILED tests/contract/test_t016_features.py::test_traditional_descriptors_file_exists
-FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_schema
-FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_no_nan
-FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_non_negative
-=================== 10 failed, 12 passed, 6 skipped in 1.17s ===================
+FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_exists
+FAILED tests/contract/test_tda_10x10_schema.py::test_file_exists - AssertionE...
+FAILED tests/contract/test_tda_10x10_schema.py::test_schema_compliance - File...
+FAILED tests/contract/test_tda_10x10_schema.py::test_no_nan_values - FileNotF...
+FAILED tests/contract/test_tda_10x10_schema.py::test_image_vector_length - Fi...
+FAILED tests/contract/test_tda_10x10_schema.py::test_molecule_id_is_string - ...
+FAILED tests/contract/test_tda_10x10_schema.py::test_valid_molecules_count - ...
+FAILED tests/contract/test_tda_schema.py::test_tda_schema_compliance - FileNo...
+======================== 18 failed, 10 skipped in 1.00s ========================
 
 
 - python -m pytest tests/unit/ -> rc=2
@@ -133,7 +99,7 @@ E   ImportError: cannot import name 'check_memory_requirement' from 'utils.persi
 ERROR tests/unit/test_data_ingestion.py
 ERROR tests/unit/test_persistence_utils_sparse.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.63s ===============================
+============================== 2 errors in 0.73s ===============================
 
 
 
@@ -141,36 +107,30 @@ ERROR tests/unit/test_persistence_utils_sparse.py
 
 - data/processed/combined_features.csv
 - data/processed/filtered_lipophilicity.csv
+- data/processed/power_analysis_report.json
+- data/processed/splits.json
+- data/processed/topological_features_10x10.csv
 - data/processed/traditional_features.csv
+- data/raw/lipophilicity.csv
 
 ## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
 
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `deepchem` to the project's `requirements.txt` and `pip install deepchem`.
-- **Verified**: this loads **1128** real records with fields: smiles, exp.
+- **Verified**: this loads **4200** real records with fields: smiles, logP.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
 import deepchem as dc
-
-tasks, datasets, transformers = dc.molnet.load_delaney(featurizer='ECFP', split='random')
-train, valid, test = datasets
-
-def _count(ds):
-    if hasattr(ds, 'X') and hasattr(ds.X, 'shape'):
-        return ds.X.shape[0]
-    return len(ds)
-
-total = sum(_count(ds) for ds in (train, valid, test))
+# Load the Lipophilicity (Lipo) dataset with a simple featurizer
+tasks, (train, valid, test), transformers = dc.molnet.load_lipo(featurizer='ECFP')
+# Count total records across all splits
+total = len(train) + len(valid) + len(test)
 print(f"RECORDS={total}")
-
-fields = []
-if any(hasattr(ds, 'ids') and ds.ids is not None for ds in (train, valid, test)):
-    fields.append('smiles')
-if tasks:
-    fields.append('exp')
-print(f"FIELDS={','.join(fields)}")
+# The dataset provides SMILES strings as ids and experimental logP values as targets
+fields = ['smiles', 'logP']
+print('FIELDS=' + ','.join(fields))
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
@@ -187,7 +147,26 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/filtered_lipophilicity.csv` is declared but was NOT written. Scripts referencing it:
     - `code/01_data_ingestion.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/filtered_lipophilicity.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/power_analysis_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/power_analysis_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/splits.json` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
+    - `code/01_download_lipophilicity.py` — NOT invoked by the run-book
+    - `code/04_model_training.py` — IS a run-book command
+    - `code/05_sensitivity_analysis.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/splits.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/topological_features_10x10.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/03_feature_engineering.py` — IS a run-book command
+    - `code/tests/test_feature_matrix.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/topological_features_10x10.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/traditional_features.csv` is declared but was NOT written. Scripts referencing it:
     - `code/03_feature_engineering.py` — IS a run-book command
     - `code/04_model_training.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/traditional_features.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/lipophilicity.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_data_ingestion.py` — IS a run-book command
+    - `code/01_download_lipophilicity.py` — NOT invoked by the run-book
+    - `code/generate_esol_raw.py` — NOT invoked by the run-book
+    - `code/tests/test_dataset_schema.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/lipophilicity.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

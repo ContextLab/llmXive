@@ -7,9 +7,10 @@ T001:
     \ structure."
   sig: b5c06606ce9acc950c963fb793d4c6b17d56c42294ecd85c192f4548c9c8f278
 T001b:
-  c: true
-  h: 34f3a01724bd9a0ffdd1d151b42525d7a899d6ecda55bcdc6b6f5f1cbcb53e82
-  r: "Checked `code/00_checksum_verify.py` (implementation matches spec) and its execution\
-    \ log `code/.tasks/T001b.code_00_checksum_verify.py.log`, which shows the script\
-    \ printed \u201CAll checksums verified\u201D and exited with status\u202F0."
-  sig: 873b78703d2e623953be4d7396af992f8176029e378cfc7b74192f886668c133
+  c: false
+  h: 96a641cf26ef2c851e5c75ff445f54559d39dd8d3d9f4c20d1c6f9916397d313
+  r: "The manifest `data/checksums.txt` lists `data/raw/esol.csv` and `data/raw/lipophilicity.csv`,\
+    \ but these files are not present in the provided artifact list, so the script\
+    \ cannot verify all checksums and would exit with a non\u2011zero status. The\
+    \ required data files must be added for the checksum verification to succeed."
+  sig: 3ee884571edf591667ff2686ae63518d7d06967a797f5580f000dca2d8e24603
