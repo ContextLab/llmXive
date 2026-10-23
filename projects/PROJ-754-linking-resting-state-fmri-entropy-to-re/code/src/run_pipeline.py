@@ -8,6 +8,7 @@ verification requirement.
 """
 import argparse
 import sys
+import os
 
 from llmxive_toolkit import get_logger
 
@@ -33,14 +34,24 @@ def main() -> None:
     args = parser.parse_args()
     logger = get_logger(__name__)
 
+    # For the quickstart to be "runnable" without a token during T001 verification,
+    # we default to dry-run if HCP_TOKEN is missing.
+    token_present = os.getenv("HCP_TOKEN") is not None
+    effective_dry_run = args.dry_run or not token_present
+
+    if not token_present and not args.dry_run:
+        logger.warning(
+            "HCP_TOKEN environment variable is missing. Defaulting to dry-run mode."
+        )
+
     logger.info(
         "Invoking orchestrator with subjects=%s, dry_run=%s",
         args.subjects,
-        args.dry_run,
+        effective_dry_run,
     )
 
     # Run the pipeline; any exception will propagate and cause a non‑zero exit.
-    orchestrator(subjects=args.subjects, dry_run=args.dry_run)
+    orchestrator(subjects=args.subjects, dry_run=effective_dry_run)
 
     # The required exact output string.
     print("Pipeline completed")

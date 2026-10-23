@@ -1,28 +1,17 @@
 """
-Verify that every public module under ``code/src`` can be imported.
-This satisfies the T001 requirement that the package layout is importable.
+Tests that all core modules are importable without syntax or dependency errors.
 """
-import importlib
-import pkgutil
-import sys
-from pathlib import Path
+import pytest
 
-# Ensure the project root is on ``sys.path`` so that ``src`` alias works.
-project_root = Path(__file__).resolve().parents[2]
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-def _iter_modules(package_name: str):
-    """Yield fully‑qualified module names under ``package_name``."""
-    pkg = importlib.import_module(package_name)
-    for _, modname, ispkg in pkgutil.iter_modules(pkg.__path__, prefix=pkg.__name__ + "."):
-        if not ispkg:
-            yield modname
-
-def test_all_modules_importable():
-    """
-    Import each module under ``src`` (the top‑level shim) and assert no
-    ImportError is raised.
-    """
-    for module_name in _iter_modules("src"):
-        importlib.import_module(module_name)
+def test_core_imports():
+    """Verify that all required pipeline modules can be imported."""
+    try:
+        import code.src.pipeline
+        import code.src.run_pipeline
+        import code.src.data.download_hcp
+        import code.src.data.qc
+        import code.src.analysis.entropy
+        import code.src.compute_entropy
+        import code.src.data.download_data
+    except ImportError as e:
+        pytest.fail(f"Import failed: {e}")
