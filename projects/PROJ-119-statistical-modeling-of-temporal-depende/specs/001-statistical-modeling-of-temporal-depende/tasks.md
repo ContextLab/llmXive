@@ -6,7 +6,7 @@ The tasks below implement the full end‑to‑end pipeline, respect the data‑f
 
 ---
 
-- [ ] T001 [US-1] Download daily OHLCV data for Bitcoin and Ethereum (last 5 years) from the CoinGecko public API and store the raw files under `data/raw/`.  
+- [ ] T001 [US-1] Download daily OHLCV data for Bitcoin and Ethereum (last 5 years) from the CoinGecko public API and store the raw files under `data/raw/`.   <!-- FAILED-IN-EXECUTION: code/download_raw_data.py exit=1 -->
   - **Path**: `data/raw/btc_ohlcv.parquet`, `data/raw/eth_ohlcv.parquet`  
   - **Verification**: Each file validates against `contracts/raw_price.schema.yaml`; compute SHA‑256 checksums and record them in `data/checksums.json`.  
   - **Reproducibility**: Set a fixed random seed (`np.random.seed(42)`) before any stochastic operation and log the seed value in `analysis.log`.  

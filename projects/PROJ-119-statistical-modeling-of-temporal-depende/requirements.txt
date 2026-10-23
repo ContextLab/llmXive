@@ -1,0 +1,15 @@
+pandas
+numpy
+requests
+pyarrow
+llmxive_toolkit
+# The following are already provided in the base environment but are listed
+# for completeness in case the execution environment changes.
+scipy
+statsmodels
+scikit-learn
+matplotlib
+seaborn
+tqdm
+joblib
+# End of requirements.
