@@ -22,6 +22,7 @@ from typing import Optional, List
 
 __all__ = [
     "generate_zero_preserving_permutations",
+    "generate_permutations",   # Compatibility alias for legacy imports
     "compute_batched_autocorrelations",
     "main",
 ]
@@ -53,6 +54,24 @@ def generate_zero_preserving_permutations(
         perms[i] = new_win
 
     return perms
+
+# ----------------------------------------------------------------------
+# Compatibility layer
+# ----------------------------------------------------------------------
+def generate_permutations(
+    window: np.ndarray, n_permutations: int, seed: int
+) -> np.ndarray:
+    """
+    Legacy wrapper retained for backward‑compatibility.
+
+    Earlier versions of the pipeline imported a function named
+    ``generate_permutations`` from this module.  The implementation was
+    later renamed to :func:`generate_zero_preserving_permutations` to
+    better reflect its behaviour.  The null‑distribution module still
+    expects the old name, so we provide this thin wrapper that forwards
+    the call.
+    """
+    return generate_zero_preserving_permutations(window, n_permutations, seed)
 
 def compute_batched_autocorrelations(sequences: np.ndarray, L: int) -> np.ndarray:
     """

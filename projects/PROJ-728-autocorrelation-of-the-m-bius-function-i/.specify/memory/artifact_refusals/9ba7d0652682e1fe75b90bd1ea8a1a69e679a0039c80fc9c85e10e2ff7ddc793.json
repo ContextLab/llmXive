@@ -1,0 +1,7 @@
+{
+  "task_id": "T002",
+  "fingerprint": "ebaed8d5d312dfc740fda34af031c2d5a347059741aa0665e42dca6763b60ea7",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'permutation.py': `code/permutation.py` already exists. Edit that file; do not add a second copy or a re-exporting wrapper at the project root."
+}

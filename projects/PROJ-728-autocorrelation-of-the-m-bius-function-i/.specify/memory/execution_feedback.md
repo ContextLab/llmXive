@@ -13,7 +13,7 @@ Traceback (most recent call last):
     from null_distribution import main as null_dist_main
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/null_distribution.py", line 39, in <module>
     from permutation import (
-ImportError: cannot import name 'generate_permutations' from 'permutation' (/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/permutation.py)
+ImportError: cannot import name '_load_mobius_array' from 'permutation' (/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/permutation.py)
 
 
 ## Declared deliverables still missing

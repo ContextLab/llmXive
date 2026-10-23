@@ -1,0 +1,8 @@
+T001:
+  c: true
+  h: 6af4855908b699e9093bc849a74836b34e2b9762785cfad78f5ee77e7cb18d61
+  r: "Checked the `quickstart.md` file (2600\u202Fbytes) which includes the project\
+    \ layout, specifies Python\u202F3.11, lists a fully\u2011pinned `requirements.txt`,\
+    \ and documents the demo command `python -m code.main --demo`. The required optional\
+    \ guide is present and non\u2011empty."
+  sig: 8de98d6cefba8f62a10a324eb5d33d2f0cd93d6549e3aa7a47ef6d1fcabcc5ac

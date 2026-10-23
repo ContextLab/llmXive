@@ -9,7 +9,7 @@ All tasks respect data‑flow dependencies and use the canonical checklist forma
 
 ## Phase 1 – Setup & first end‑to‑end demo  
 
-- [ ] T001 **(optional) Create `quickstart.md`** – document project layout, Python 3.11 version, pinned `requirements.txt`, and the demo command `python -m code.main --demo`.  
+- [X] T001 **(optional) Create `quickstart.md`** – document project layout, Python 3.11 version, pinned `requirements.txt`, and the demo command `python -m code.main --demo`.  
   • Path: `quickstart.md`  
   • Verification: not required for functional compliance; serves as user guide.  
 
