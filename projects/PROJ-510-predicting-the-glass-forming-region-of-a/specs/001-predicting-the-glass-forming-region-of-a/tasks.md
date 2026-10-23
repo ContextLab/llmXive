@@ -8,7 +8,7 @@ The study must deliver a fully reproducible end‑to‑end pipeline that ingests
 
 ## Phase 0 – Project scaffolding & validation utilities  
 
-- [ ] T001 [P] Create a **quickstart guide** (`specs/001-predict-glass-forming-region/quickstart.md`) that lists the exact command chain to run the whole pipeline from a fresh checkout.  
+- [ ] T001 [P] Create a **quickstart guide** (`specs/001-predict-glass-forming-region/quickstart.md`) that lists the exact command chain to run the whole pipeline from a fresh checkout.   <!-- FAILED-IN-EXECUTION: code/run_all.py exit=1 -->
     - *Verification*: `cat quickstart.md` shows the command `python -m code.run_all` and matches the ordering of tasks below.  
 
 - [ ] T002 [P] Implement **schema‑validation script** `code/validate_schemas.py`.  

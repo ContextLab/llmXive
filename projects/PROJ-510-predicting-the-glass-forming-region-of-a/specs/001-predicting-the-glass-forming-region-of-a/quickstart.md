@@ -1,56 +1,54 @@
-# Quickstart: Predicting Glass Forming Regions
+# Quickstart Guide for Glass Forming Region Prediction Pipeline
 
-This guide describes how to execute the research pipeline to predict the critical cooling rate (CCR) of ternary alloys.
+This guide shows how to run the entire research pipeline from a fresh checkout.
 
-## Environment Setup
+## Prerequisites
+
+- Python 3.9+
+- Git
+- Internet access (to download the experimental CCR dataset and OQMD elemental properties)
+
+## Setup
+
+1. **Clone the repository**  
+   ```bash
+   git clone <repo-url>
+   cd PROJ-510-predicting-the-glass-forming-region-of-a
+   ```
+
+2. **Create a virtual environment and install dependencies**  
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate   # On Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+## Run the full pipeline
+
+The pipeline can be executed with a single command:
+
 ```bash
-# Clone and enter project
-git clone <repo_url>
-cd predict-glass-forming-region
-
-# Setup virtualenv
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+python -m code.run_all
 ```
 
-## Execution Pipeline
+This command runs the following steps in order:
 
-### 1. Data Ingestion & Engineering
-Downloads OQMD properties and the CCR dataset, computes descriptors, and filters for valid entries.
-```bash
-python src/data_pipeline/ingestion.py
-```
-- **Check**: Ensure `data/processed/processed_alloys.csv` contains $\ge 500$ rows.
-- **Logs**: Check `data/logs/exclusion_log.txt` for filtered entries.
+1. **Data ingestion & cleaning** – `code/ingestion.py`  
+   Downloads the CCR dataset, streams OQMD elemental properties, filters invalid rows, and writes the cleaned CSV to `data/processed/processed_alloys_raw.csv`.
 
-### 2. Model Training
-Trains the Random Forest regressor and performs 5-fold cross-validation.
-```bash
-python src/models/trainer.py
-```
-- **Output**: `data/models/random_forest_model.pkl` and `data/models/cv_metrics.json`.
+2. **Feature engineering** – `code/features.py`  
+   Computes `mixing_enthalpy`, `atomic_size_mismatch`, and `electronegativity_variance`, producing `data/processed/processed_alloys.csv`.
 
-### 3. Analysis & Sensitivity
-Calculates permutation importance and tests the model against different binary thresholds.
-```bash
-python src/models/evaluator.py
-```
-- **Output**: `data/reports/feature_importance.csv` and `data/reports/sensitivity_report.json`.
+3. **Model training & cross‑validation** – `code/train.py`  
+   Performs a stratified 80/20 split, trains a Random Forest regressor, runs 5‑fold CV, and saves the model and metrics.
 
-### 4. Validation
-Validates all generated artifacts against their formal YAML contracts.
-```bash
-python src/data_pipeline/validation.py
-```
-- **Requirement**: Must output "All schemas validated - 0 errors."
+4. **Analysis & importance** – `code/analyze.py`  
+   Generates permutation importance, collinearity checks, and sensitivity analysis, writing reports to `data/reports/`.
 
-## Reproducibility
-To reset the pipeline and re-run from scratch:
-```bash
-rm -rf data/processed/* data/models/* data/reports/*
-python src/data_pipeline/ingestion.py
-python src/models/trainer.py
-python src/models/evaluator.py
-python src/data_pipeline/validation.py
-```
+5. **Report generation** – `code/generate_report.py`  
+   Compiles a markdown report (`REPORT.md`) summarizing data, model performance, feature importance, and sensitivity results.
+
+6. **Schema validation** – `code/validate_schemas.py`  
+   Validates all generated artifacts against their YAML contracts; the script prints “All schemas validated - 0 errors.” when successful.
+
+After the command finishes, you should see the artifacts listed above in the `data/` directory and a `REPORT.md` file at the project root.
