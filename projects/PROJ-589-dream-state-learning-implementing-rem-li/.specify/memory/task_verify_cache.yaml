@@ -1,18 +1,36 @@
 T001:
-  c: true
-  h: c25032d97fab4ab74af137f1fb673d67845ab121771ec5c2af12ed2c6a4efee1
-  r: "Checked `code/requirements.txt` (pinned dependency versions, non\u2011empty)\
-    \ and `code/config.py` (defines `MAX_MEMORY_MB = 6300` and enforces CPU\u2011\
-    only execution). Both artifacts exist and meet the task\u2019s specifications."
-  sig: ed95dc337def18cc2ddc95ac11827c991bca98f02d09545f02a924aaad094073
+  c: false
+  h: 4f57d2a2ff79cba4861de56738b8caeba235972494728b72039cac9be75ea898
+  r: "The `code/requirements.txt` and `code/config.py` files exist and `config.py`\
+    \ defines `MAX_MEMORY_MB = 6300`, but there is no provided evidence (e.g., install\
+    \ logs, a lock file, or a test run) showing that `pip install -r code/requirements.txt`\
+    \ actually succeeded. Without that verification artifact, the task\u2019s requirement\
+    \ is not fully satisfied."
+  sig: 4db8d14791df46a439985d218006c7e8d493fac432d609c6e5e1081a1118dd43
+T002:
+  c: false
+  h: a7aeace6e6459f4f861531e5a29e7ee6f0732eae652ccd4dc79986725e4432fb
+  r: "The provided `trainer.py` and `augment.py` exist, but the unit tests in `tests/unit/test_trainer.py`\
+    \ do not correctly verify the required behavior: (b) low\u2011entropy retries\
+    \ are never exercised (the test calls `train_step_dream` directly, bypassing the\
+    \ retry loop), (c) the high\u2011perplexity test expects a `\"DUMMY_WAKE\"` phase\
+    \ from `train_step_dream`, but the method returns `\"DREAM_SKIPPED\"` (the dummy\u2011\
+    wake conversion only happens in `run_training_loop`), and (d) the token\u2011\
+    parity test miscalculates real\u2011token counts and would fail with the current\
+    \ scheduler logic. Consequently the task\u2019s verificati"
+  sig: 471b9e7dbf5b4c05155eceb8c2f11fe4ae87113d2a971ef422a969f93b62c0d5
 T004:
-  c: true
-  h: c3dd17b5ce997e46d523387be8511dcd8cf575414405bd08df7ce4d8f2a441a7
-  r: "Checked `code/eval.py` which runs evaluation and writes `data/results/evaluation_result_debug_seed0.json`\
-    \ containing all required fields with correct types, and the execution log shows\
-    \ the script succeeded and produced the JSON file that conforms to `contracts/evaluation_result.schema.yaml`.\
-    \ The required `code/eval/metrics.py` file is present (non\u2011empty)."
-  sig: fc3b29c1253c4b468ece3e314ca0e058a30256b09e49f1914ed7d408647a5f14
+  c: false
+  h: 2e730e56cd9692edc8dd8452edf7cb19e3d45b5c8d2d74609aba7768bfca751a
+  r: The repository contains `code/eval.py` that writes a JSON result matching the
+    schema, and the sample `data/results/evaluation_result_debug_seed0.json` conforms
+    to the contract. However, the required checkpoint file (`checkpoints/debug_seed0.pt`)
+    is missing, so the script cannot be demonstrated to run successfully, and there
+    is no execution evidence. Additionally, `code/eval/metrics.py` is only a stub
+    and is not used by `eval.py`, leaving the metric implementation incomplete. Provide
+    the missing checkpoint (or a mock that the script can load) and implement or integrate
+    the metrics module to sat
+  sig: 4cf2e63b07da8ca9c8a0d516d49e2c58bb9e95b65fa73599f610cf771cf99341
 T005:
   c: false
   h: 06153775f307a7b1173578748ab99326379c906d8c83fc6919446b4cd6448a14

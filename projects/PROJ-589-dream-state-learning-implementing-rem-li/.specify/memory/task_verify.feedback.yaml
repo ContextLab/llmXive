@@ -1,18 +1,32 @@
 T001:
+  reason: "The `code/requirements.txt` and `code/config.py` files exist and `config.py`\
+    \ defines `MAX_MEMORY_MB = 6300`, but there is no provided evidence (e.g., install\
+    \ logs, a lock file, or a test run) showing that `pip install -r code/requirements.txt`\
+    \ actually succeeded. Without that verification artifact, the task\u2019s requirement\
+    \ is not fully satisfied."
   task: 53056bd4b5e9e7ad5defc4b987d876312b0716e2edd2f53e4fb3c3af882dfa7d
 T002:
-  reason: "The `tests/unit/test_trainer.py` suite fails with an `AttributeError` because\
-    \ the `config` object passed to `Trainer` lacks the required `memory_limit_bytes`\
-    \ attribute, causing the trainer initialization to abort. Consequently the warm\u2011\
-    up, dream\u2011phase triggering, perplexity\u2011skip, and entropy\u2011retry\
-    \ checks are never exercised, so the core Wake/Dream training loop does not meet\
-    \ the task\u2019s verification requirements. Fix the configuration (ensure `memory_limit_bytes`\
-    \ is present) and re\u2011run the unit tests."
+  reason: "The provided `trainer.py` and `augment.py` exist, but the unit tests in\
+    \ `tests/unit/test_trainer.py` do not correctly verify the required behavior:\
+    \ (b) low\u2011entropy retries are never exercised (the test calls `train_step_dream`\
+    \ directly, bypassing the retry loop), (c) the high\u2011perplexity test expects\
+    \ a `\"DUMMY_WAKE\"` phase from `train_step_dream`, but the method returns `\"\
+    DREAM_SKIPPED\"` (the dummy\u2011wake conversion only happens in `run_training_loop`),\
+    \ and (d) the token\u2011parity test miscalculates real\u2011token counts and\
+    \ would fail with the current scheduler logic. Consequently the task\u2019s verificati"
   task: 4250ae96cbee8a5e44e0febe33dea94d002d9bb9b20d448f05e711f5b9adf6fb
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/train.py exit=1'
   task: a88d68629e6b1567babfe2208c4e1b73132e53d9f2f5389cb3f0332f30878fd7
 T004:
+  reason: The repository contains `code/eval.py` that writes a JSON result matching
+    the schema, and the sample `data/results/evaluation_result_debug_seed0.json` conforms
+    to the contract. However, the required checkpoint file (`checkpoints/debug_seed0.pt`)
+    is missing, so the script cannot be demonstrated to run successfully, and there
+    is no execution evidence. Additionally, `code/eval/metrics.py` is only a stub
+    and is not used by `eval.py`, leaving the metric implementation incomplete. Provide
+    the missing checkpoint (or a mock that the script can load) and implement or integrate
+    the metrics module to sat
   task: 9893cae91034be6803949523fc422d0f38c52e6b0da58c8c64a4638a825b34ca
 T005:
   reason: The quickstart.md file exists and contains a runnable command, and the expected

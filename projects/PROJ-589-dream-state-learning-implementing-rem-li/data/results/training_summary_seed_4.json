@@ -1,6 +1,6 @@
 {
   "seed": 4,
-  "steps_completed": 15,
-  "final_loss": 0.6868883371353149,
-  "checkpoint": "data/checkpoints/checkpoint_seed_4_step_15.pt"
+  "steps_completed": 50,
+  "final_loss": 0.14657241106033325,
+  "checkpoint": "checkpoints/checkpoint_seed_4_step_100.pt"
 }

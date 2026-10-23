@@ -20,21 +20,10 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/eval.py: self-declared fabricated metric — “…oss on the QNLI inputs)   * a dummy accuracy metric (token‑level match rat…”; 2 command(s) failed: python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline (rc=-1); python code/eval.py --results_dir data/results/ (rc=2)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/eval.py: self-declared fabricated metric — “…oss on the QNLI inputs)   * a dummy accuracy metric (token‑level match rat…”; 1 command(s) failed: python code/eval.py --results_dir data/results/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline -> rc=-1
-32, "phase": "WAKE", "loss": 0.2242031991481781, "entropy": 1.3416154384613037}
-2026-10-22 21:47:27,816 - models.trainer - INFO - [training_step] {"step": 32, "phase": "WAKE", "loss": 0.2242031991481781, "entropy": 1.3416154384613037}
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
-  warnings.warn(
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
-  warnings.warn(
-We strongly recommend passing in an `attention_mask` since your input_ids may be padded. See https://huggingface.co/docs/transformers/troubleshooting#incorrect-output-when-padding-tokens-arent-masked.
-
-[TIMEOUT after 120s]
 - python code/eval.py --results_dir data/results/ -> rc=2
 
 usage: eval.py [-h] [--checkpoint CHECKPOINT] [--output-dir OUTPUT_DIR]

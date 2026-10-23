@@ -5,6 +5,7 @@ Updated to meet T003 requirements:
   - Writes a structured JSON log containing a non‑zero peak RSS value.
   - Handles OOM aborts by saving a checkpoint before exiting.
   - CLI arguments now match the quick‑start documentation.
+  - Emits a training summary JSON compatible with existing result files.
 """
 
 import argparse
@@ -98,6 +99,12 @@ def write_log(log_path: Path, log_data: dict):
     with open(log_path, "w", encoding="utf-8") as f:
         json.dump(log_data, f, indent=2)
 
+def write_training_summary(summary_path: Path, summary: dict):
+    """Write the training summary JSON used by downstream steps."""
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(summary_path, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2)
+
 def run_one(
     seed: int,
     total_steps: int,
@@ -108,12 +115,12 @@ def run_one(
     temp: Optional[float] = None,
     baseline: bool = False,
     temp_sweep: Optional[List[float]] = None,
-) -> Tuple[int, Path, Path]:
+) -> Tuple[int, Path, Path, Path]:
     """
-    Train a single seed and write out checkpoint + structured log.
+    Train a single seed and write out checkpoint + structured log + summary.
 
     Returns:
-        (steps_completed, checkpoint_path, log_path)
+        (steps_completed, checkpoint_path, log_path, summary_path)
     """
     torch.manual_seed(seed)
     cfg = Config()
@@ -166,7 +173,7 @@ def run_one(
         # OOM triggered – save checkpoint via explicit call and re‑raise
         logger.critical(f"Memory limit exceeded for seed {seed}; aborting and saving checkpoint.")
         save_checkpoint(model, ckpt_path)
-        # Ensure we capture the peak RSS before exiting
+        # Capture the peak RSS before exiting
         monitor.get_current_rss_kb()
         raise
 
@@ -190,7 +197,17 @@ def run_one(
     }
     write_log(log_path, log_data)
 
-    return len(metrics), ckpt_path, log_path
+    # Write the training summary JSON (mirrors existing artifacts)
+    summary_path = Path("data") / "results" / f"training_summary_seed_{seed}.json"
+    summary_data = {
+        "seed": seed,
+        "steps_completed": len(metrics),
+        "final_loss": metrics[-1]["loss"] if metrics else None,
+        "checkpoint": str(ckpt_path),
+    }
+    write_training_summary(summary_path, summary_data)
+
+    return len(metrics), ckpt_path, log_path, summary_path
 
 def main():
     parser = argparse.ArgumentParser(description="Run the Wake/Dream training loop.")
@@ -212,9 +229,7 @@ def main():
     # Resolve warm‑up precedence (explicit alias takes priority)
     warmup_val = args.warmup_steps if args.warmup_steps is not None else args.warmup
 
-    # ------------------------------------------------------------------
     # Resolve seed list
-    # ------------------------------------------------------------------
     if args.seeds:
         seed_list = [int(s) for s in args.seeds.split(",") if s.strip()]
     else:

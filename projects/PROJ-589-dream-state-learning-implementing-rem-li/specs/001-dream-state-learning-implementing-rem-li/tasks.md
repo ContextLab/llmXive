@@ -12,7 +12,7 @@ Each task lists the primary artifact(s) it creates or modifies and the concrete 
 | Goal | Run a thin, reproducible wake/dream training‑evaluation cycle on real GLUE data to prove that the pipeline works on the CPU‑only GitHub‑Actions tier. |
 |------|----------------------------------------------------------------------------------------------------------------------------------------------------|
 
-- [X] T001 [US1] **Create project layout, pin exact dependencies, and add a CPU‑only config with a hard RSS cap (6.3 GB).**  
+- [ ] T001 [US1] **Create project layout, pin exact dependencies, and add a CPU‑only config with a hard RSS cap (6.3 GB).**  
   - Files: `code/requirements.txt`, `code/config.py`  
   - Verification: `pip install -r code/requirements.txt` succeeds; `python -c "import code.config; assert code.config.MAX_MEMORY_MB == 6300"` runs without error.
 
@@ -20,11 +20,11 @@ Each task lists the primary artifact(s) it creates or modifies and the concrete 
   - Files: `code/models/trainer.py`, `code/data/augment.py`  
   - Verification: Unit tests in `tests/unit/test_trainer.py` assert (a) warm‑up length, (b) low‑entropy batches trigger retries, (c) high‑perplexity batches cause dream‑step skip and dummy wake, (d) total real‑token count matches the baseline for a fixed seed.
 
-- [ ] T003 [US1] **Add a CLI entry point (`code/train.py`) that wires the config, trainer, and memory monitor; on OOM abort it saves a checkpoint and logs peak RSS.**   <!-- FAILED-IN-EXECUTION: code/train.py exit=1 -->
+- [ ] T003 [US1] **Add a CLI entry point (`code/train.py`) that wires the config, trainer, and memory monitor; on OOM abort it saves a checkpoint and logs peak RSS.**   <!-- FAILED-IN-EXECUTION: code/train.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/train.py exit=1 -->
   - Files: `code/train.py`, `code/utils/memory_monitor.py`  
   - Verification: Running `python code/train.py --seed 0 --total_steps 20 --mode debug` finishes within 5 min, writes `checkpoints/debug_seed0.pt` and a structured log `logs/debug_seed0.json` containing a `"peak_rss_mb"` field ≤ 6300.
 
-- [X] T004 [US2] **Implement few‑shot QNLI evaluation and result logging** (accuracy, loss, peak memory, duration, reconstruction‑difficulty average).  
+- [ ] T004 [US2] **Implement few‑shot QNLI evaluation and result logging** (accuracy, loss, peak memory, duration, reconstruction‑difficulty average).  
   - Files: `code/eval.py`, `code/eval/metrics.py`  
   - Verification: `python code/eval.py --checkpoint checkpoints/debug_seed0.pt` produces `data/results/evaluation_result_debug_seed0.json` that validates against `contracts/evaluation_result.schema.yaml`.
 

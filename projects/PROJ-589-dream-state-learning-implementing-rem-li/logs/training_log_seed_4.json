@@ -2,7 +2,7 @@
   "seed": 4,
   "mode": "run",
   "steps_completed": 50,
-  "final_loss": 0.18439842760562897,
+  "final_loss": 0.14657241106033325,
   "checkpoint": "checkpoints/checkpoint_seed_4_step_100.pt",
-  "peak_rss_mb": 1892
+  "peak_rss_mb": 1924
 }
