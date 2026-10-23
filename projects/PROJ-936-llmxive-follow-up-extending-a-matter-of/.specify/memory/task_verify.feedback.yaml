@@ -1,32 +1,40 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/download_tau_c_bench.py
-    exit=1'
-  task: 11ae25ebbfd1afe49ac1f3edf0217db4f8ae91a52bf03c5c3cbf212a2fc2f4dc
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/...yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: a464f0a53097debb8c3d6812b13266e1694a4f2408ab813e042b3a08190d4d5e
 T002:
-  task: ba0a643d77e0d8860f7696947c5fa9fbac254a8c556edb56aec214720413876b
+  reason: 'Requested task execution failed; rerun successfully: code/parse_task_definitions.py
+    exit=1'
+  task: 0fc0b779f02967735b018546e2d1254a103f00f272291dd661133c35b2e82a40
 T003:
-  task: 5185089ebf77371e0a6bdde072739c5473d271aa1ae7031d1159fb9a9cdc5a67
+  task: 0701457ff5c1e58b791f34588d7245aec567dd7584f17117819c75152ea0b8d8
 T004:
-  task: 9d7945fd7c4eeabb52c051d00c90b40e7dc6c1786c604c4212af2d290827ac12
+  task: 15ceb92a2d37b6eb141ab93c0f80fc5f5e1f4cf812bd42a91f40c736652f4846
 T005:
-  task: 6d02af8d6cd43954fbe81658d184aeac7537a84f981603bd4fe29b6dfb36c6d3
+  task: f93db01513a907abd75056da5de8d16746162e44024d11f225f93bdc9d0ff868
 T006:
-  task: ef2782a59813d261ccc6aca2c45ef265b73493f2919e364953b8eb8386afbd53
+  task: ee5fd8ddc6b02374cd9fb34cc1f96ac151bddc050d8386903d642f43225a340e
 T007:
-  task: 8c2bec60d5b5092d738f3e99b1c343cc980620457c5e56e0fdce66a1af64d2c5
+  task: 235e17fdd65344e5d0088cb7934c034394a07984b7800cf632d5059489a9f6b4
 T008:
-  task: 64cd76a537589204c8f967c382fa65147b9bcd53e0de49225ea62038a0930220
+  task: 67a8e0e80e7a619ddc87f693f1a33d009d66cac6e38ad7bedab59a66770a5e2c
 T009:
-  task: 9e555bef227c2fb26360d860069fb194e88a8c2549005d042105bde9fb2d63be
+  task: a0701aaabf9ef898fadfc8a29435d8c5e003a00e682aadcf1a2934fa03b83cfe
 T010:
-  task: 63b7bb246cfe20f7ef6d5099e152b17398784188019539af8fcb475cb4a3b75e
+  task: fbe4ad2ef9fa1da10a310c4b0020ff947daa68617094f6ab1bdac2202dc2029f
 T011:
-  task: e34cd36d977074f4c645b0d208d4fa6529439ac4180a489ee2601684349f2d2f
-T012:
-  task: bf23e9dff6d0d5c3fc7b12e7bfa3affb92dd7c7b92340da0045519e20ebfc734
+  task: bbbadbbd880375ffeb09db0f18982aa1bf61130658bbae6adb53fcab1c86fc81
 T013:
-  task: e85540086441fba8ce1f0bc655eda72a59f85a6069c9ec8693fa18b4f0c813a3
+  task: c9b488808ab4e6aef4510f54a729a8a08fdd73a1173e1fba8e06ba6bbbe6fb1b
 T014:
-  task: 51d7cb437aca047bbc00f108e3beceeb2263448c322a6d2091fd4e5f10fa8722
+  task: 1662cbedd9c797052161044bf4d23a96a9078a0b326f3af601c992306b125d71
 T015:
-  task: 53d8e0bd226504cd4eb911fbf02f90751e8d9b21a894a61a82703d183319f58e
+  task: acc055cea9194d156de95092ddbbd2c18db77ced926088431d2468dfe18e8238
+T016:
+  task: 979196f48c62c9dcd37b0f2a2ebd3548551d7c95dbc9d2bf202cd8596e2cfc42
+T017:
+  task: 0d7e26897ef2a5ba723ab5cb706ac5425cdcff01012eea868f0b1205a574715d
+T018:
+  task: 42d394da4728dd064becb29506efd491139157eb2e04d838cbd5ab8c1e98e0ca
