@@ -1,1 +1,4 @@
-pyarrow
+datasets
+transformers
+torch
+tqdm
