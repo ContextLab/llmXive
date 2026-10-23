@@ -1,4 +1,4 @@
-- artifact_hash: 9254b58ff1ab2d7cd0d85de40d0fbf23b3f80ed3c93023a8d3ecd7e14331323b
+- artifact_hash: bbf093cc57de74369a8b026ab1282add4212eb59e66cdf832096b9906ab81ba6
   artifact_path: projects/PROJ-246-estimating-causal-effects-with-doubly-ro/specs/001-estimating-causal-effects-with-doubly-ro/data-model.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-22T02:20:59.718295Z'
+  verified_at: '2026-10-23T18:39:17.633843Z'

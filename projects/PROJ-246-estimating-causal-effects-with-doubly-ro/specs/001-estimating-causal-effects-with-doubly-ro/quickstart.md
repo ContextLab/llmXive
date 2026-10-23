@@ -22,20 +22,22 @@ seed: 12345
 sample_size: 1000
 dgp_params:
   beta: [0.2, -0.1, 0.05, 0.0, 0.0]   # logistic coefficients for X1‑X5
+  beta_interaction: 0.03               # coefficient for X1·X2 interaction in propensity
   sigma: 1.0
-outcome_model: nonlinear_correct          # options: nonlinear_correct, quadratic, interaction_omitted
+outcome_model: nonlinear_correct          # options: nonlinear_correct, quadratic_missing_sine, interaction_omitted
 propensity_model: logistic_misspecified   # options: logistic_correct, logistic_misspecified, logistic_interaction_heavy
 ```
 
 ## 4. Run the Full Grid (CPU‑only)
 ```bash
-python -m src.cli --config config.yaml \
-    --grid-outcome nonlinear_correct quadratic interaction_omitted \
+python -m src.cli \
+    --config config.yaml \
+    --grid-outcome nonlinear_correct quadratic_missing_sine interaction_omitted \
     --grid-propensity logistic_correct logistic_misspecified logistic_interaction_heavy \
     --sample-sizes 500 1000 2000 \
     --replications 1000
 ```
-- The command streams results to `data/interim/` and writes aggregated metrics to `data/processed/`.
+- The command streams results to `data/interim/` and writes aggregated metrics to `data/processed/`.  
 - Progress is logged to `logs/run_{timestamp}.log`.
 
 ## 5. Post‑Processing

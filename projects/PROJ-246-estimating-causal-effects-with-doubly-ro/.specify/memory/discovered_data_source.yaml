@@ -1,12 +1,17 @@
 status: none
-intent: DoubleML synthetic causal inference dataset known average treatment effect
-  python package dataset
+intent: CausalML synthetic data generator known average treatment effect python package
+  dataset
 required_fields:
-- covariates
-- treatment
-- outcome
+- X1
+- X2
+- X3
+- X4
+- X5
+- T
+- Y
 - propensity_score
 - true_ATE
-cache_key: f04b310dd123cc3272c963d1970031aa30e52c2eec9ebf9480fdc49d798dd526
-searched_at: '2026-10-22T02:11:23.924441+00:00'
+- random_seed
+cache_key: 57edfdf21e5ca4320e7c49b779f0ab2ba7260ab58251e2e72816842fb10331bc
+searched_at: '2026-10-23T18:18:41.948922+00:00'
 retry_count: 1

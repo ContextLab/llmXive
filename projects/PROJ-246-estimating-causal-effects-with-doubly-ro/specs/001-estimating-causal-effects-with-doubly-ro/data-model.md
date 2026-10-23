@@ -28,19 +28,22 @@ properties:
     description: "Number of observations (N)."
   dgp_params:
     type: object
-    required: [beta, sigma]
+    required: [beta, beta_interaction, sigma]
     properties:
       beta:
         type: array
         items:
           type: number
-        description: "Coefficients for the propensity logistic function."
+        description: "Coefficients for the propensity logistic function (excluding interaction)."
+      beta_interaction:
+        type: number
+        description: "Coefficient for the X₁·X₂ interaction term in the propensity model."
       sigma:
         type: number
         description: "Standard deviation of outcome noise ε."
   outcome_model:
     type: string
-    enum: [nonlinear_correct, quadratic, interaction_omitted]
+    enum: [nonlinear_correct, quadratic_missing_sine, interaction_omitted]
     description: "Outcome model family to be fitted."
   propensity_model:
     type: string
@@ -95,7 +98,7 @@ properties:
     type: string
     enum:
       - nonlinear_correct
-      - quadratic
+      - quadratic_missing_sine
       - interaction_omitted
     description: "Outcome model family used in this replication."
   propensity_model:
@@ -108,7 +111,7 @@ properties:
 ```
 
 ### 3. `AggregatedMetrics` (YAML)
-Aggregates results across replications for a given grid cell and sample size.
+Aggregates results across replications for a specific grid configuration.
 
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
@@ -125,7 +128,7 @@ required:
 properties:
   outcome_model:
     type: string
-    enum: [nonlinear_correct, quadratic, interaction_omitted]
+    enum: [nonlinear_correct, quadratic_missing_sine, interaction_omitted]
   propensity_model:
     type: string
     enum: [logistic_correct, logistic_misspecified, logistic_interaction_heavy]
@@ -153,9 +156,9 @@ properties:
 ```
 
 ## Storage Conventions
-- Raw synthetic draws → `data/raw/dgp_seed{seed}_N{sample_size}.csv`
-- Per‑replication results → `data/interim/estimation_results_{hash}.parquet`
-- Aggregated metrics → `data/processed/aggregated_metrics.parquet`
+- Raw synthetic draws → `data/raw/dgp_seed{seed}_N{sample_size}.csv`  
+- Per‑replication results → `data/interim/estimation_results_{hash}.parquet` (validated against `contracts/estimation_result.schema.yaml`)  
+- Aggregated metrics → `data/processed/aggregated_metrics.parquet` (conforms to `contracts/aggregated_metrics.schema.yaml`)  
 - Checksums → `state/project_artifacts.yaml`
 
 All files are version‑controlled via content hashes; the `state/...yaml` file records the hash and timestamp.
