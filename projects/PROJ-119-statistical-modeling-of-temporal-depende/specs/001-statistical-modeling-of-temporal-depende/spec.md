@@ -7,7 +7,7 @@
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 – Quantify regime‑dependent dependence (Priority: P1)
+### User Story 1 – Quantify regime‑dependent dependence (US-1) (Priority: P1)
 
 A researcher wants a reproducible analysis that identifies low‑volatility and high‑volatility regimes in BTC‑ETH returns and reports the serial‑correlation coefficients and cross‑asset correlation matrices for each regime.
 
@@ -20,7 +20,7 @@ A researcher wants a reproducible analysis that identifies low‑volatility and 
 1. **Given** a clean daily OHLCV dataset for BTC and ETH covering the last 5 years, **when** the notebook is run end‑to‑end, **then** it produces (a) a 2‑state regime label series, (b) regime‑specific VAR coefficient tables, and (c) a cross‑asset correlation matrix for each regime.  
 2. **Given** the output from (1), **when** the likelihood‑ratio test is consulted, **then** the p‑value is reported and, if p < 0.05, the notebook declares the RS‑VAR model statistically preferred over a single‑regime VAR.
 
-### User Story 2 – Baseline comparison and robustness (Priority: P2)
+### User Story 2 – Baseline comparison and robustness (US-2) (Priority: P2)
 
 A researcher wants to confirm that the regime‑switching model provides a genuine improvement over a stationary VAR and that results are not sensitive to the choice of regime number or volatility proxy.
 
@@ -33,7 +33,7 @@ A researcher wants to confirm that the regime‑switching model provides a genui
 1. **Given** the default 2‑state analysis, **when** a stationary VAR is fitted on the same data, **then** the notebook reports a likelihood‑ratio test p‑value < 0.05 (or notes failure to reject).  
 2. **Given** the 2‑state and 3‑state RS‑VAR fits, **when** the Bayesian Information Criterion (BIC) is computed, **then** the ΔBIC ≤ 2, indicating that adding a third regime does not meaningfully improve fit.
 
-### User Story 3 – Failure handling (Priority: P3)
+### User Story 3 – Failure handling (US-3) (Priority: P3)
 
 A researcher needs clear diagnostics when data acquisition or model estimation fails, so the study can be rerun after remedial action.
 
@@ -60,11 +60,12 @@ A researcher needs clear diagnostics when data acquisition or model estimation f
 - **FR-002**: The system MUST compute log‑returns for each asset and construct a realized‑volatility proxy (e.g., squared returns) for every day. *(See US-1)*  
 - **FR-003**: The system MUST fit a 2‑state Hidden Markov Model (HMM) to the joint return series using the volatility proxy as the emission feature, and assign a regime label to each observation. *(See US-1)*  
 - **FR-004**: The system MUST fit a Regime‑Switching Vector Autoregression (RS‑VAR) where both the autoregressive coefficient matrices and the error‑covariance matrices are allowed to differ between the HMM‑derived regimes. *(See US-1)*  
-- **FR-005**: The system MUST perform a likelihood‑ratio test (LRT) comparing the RS‑VAR to a stationary VAR (single regime) and output the test statistic and p‑value. *(See US-1)*  
+- **FR-005**: The system MUST compare the RS‑VAR to a stationary VAR using (a) Bayesian Information Criterion (BIC) and (b) a parametric bootstrap likelihood‑ratio test (10 000 resamples) to assess statistical significance at α = 0.05. *(See US-1)*  
 - **FR-006**: The system MUST extract and report, for each regime, (a) the lag‑1 autocorrelation coefficients for BTC and ETH, and (b) the cross‑asset correlation (Pearson) between BTC and ETH residuals. *(See US-1)*  
 - **FR-007**: The system MUST fit alternative RS‑VAR models with 3 regimes and with an alternative volatility proxy (e.g., 10‑day rolling standard deviation), compute Bayesian Information Criterion (BIC) for each, and report ΔBIC relative to the baseline 2‑regime model. *(See US-2)*  
-- **FR-008**: The system MUST generate a single Jupyter notebook that executes the entire pipeline from data acquisition to final tables/figures, and the notebook MUST run on a CPU‑only GitHub Actions free‑tier runner within 2 hours, using ≤ 2 CPU cores and ≤ 6 GB RAM. *(See US-1)*  
-- **FR-009**: The system MUST log all major steps (data download, preprocessing, HMM convergence, VAR fitting, statistical tests) with timestamps to a plain‑text log file for auditability. *(See US-3)*  
+- **FR-008**: The system MUST generate a single Jupyter notebook that executes the entire pipeline from data acquisition to final tables/figures, and the notebook MUST run end‑to‑end on a standard CI runner without errors. *(See US-1)*  
+- **FR-009**: The system SHOULD log all major steps (data download, preprocessing, HMM convergence, VAR fitting, statistical tests) with timestamps to a plain‑text log file for auditability. *(See US-3)*  
+- **FR-010**: The system MUST validate that the identified regimes correspond to statistically distinct volatility levels by performing a bootstrap likelihood‑ratio test between a 1‑state and 2‑state HMM (5 000 resamples) at α = 0.05. *(See US-1)*  
 
 ### Key Entities
 
@@ -77,13 +78,14 @@ A researcher needs clear diagnostics when data acquisition or model estimation f
 ### Measurable Outcomes
 
 - **SC-001**: Data acquisition yields ≥ 1 800 daily observations for each asset with no missing dates. *(See US-1)*  
-- **SC-002**: The HMM converges (log‑likelihood change < 1e‑4) within 100 EM iterations and improves log‑likelihood by at least 10 points over a single‑state baseline. *(See US-1)*  
-- **SC-003**: The likelihood‑ratio test rejects the single‑regime VAR in favor of the RS‑VAR at α = 0.05 (p < 0.05). *(See US-1)*  
-- **SC-004**: 95 % confidence intervals for the lag‑1 autocorrelation of BTC (and ETH) in the two regimes do not overlap, indicating a statistically significant shift in serial correlation. *(See US-1)*  
-- **SC-005**: The cross‑asset correlation in the high‑volatility regime differs from that in the low‑volatility regime by at least 0.20 points **or** is statistically different (two‑sample Fisher‑z test, p < 0.05). *(See US-1)*  
+- **SC-002**: The HMM converges (log‑likelihood change < 1e‑4) within 100 EM iterations, improves log‑likelihood by at least 10 points over a single‑state baseline, **and** a bootstrap likelihood‑ratio test (5 000 resamples) rejects the 1‑state model at α = 0.05, confirming distinct regimes. *(See US-1)*  
+- **SC-003**: The bootstrap LRT (10 000 resamples) for the RS‑VAR versus stationary VAR yields p < 0.05, indicating the RS‑VAR provides a statistically significant improvement. *(See US-1)*  
+- **SC-004**: A Wald test (or bootstrap difference test with 2000 resamples) shows that the lag‑1 autocorrelation coefficients for BTC (and ETH) differ between regimes at α = 0.05. *(See US-1)*  
+- **SC-005**: A permutation‑based Fisher‑z test that accounts for regime‑classification uncertainty indicates that the cross‑asset correlation in the high‑volatility regime differs from that in the low‑volatility regime at α = 0.05 **or** the absolute difference ≥ 0.20. *(See US-1)*  
 - **SC-006**: Adding a third regime does not improve BIC by more than 2 points (ΔBIC ≤ 2), supporting the parsimonious 2‑regime specification. *(See US-2)*  
-- **SC-007**: The notebook completes on the GitHub Actions free‑tier runner within 2 hours, consumes ≤ 2 CPU cores, ≤ 6 GB RAM, and produces the expected output files (log, parameter tables, figures). *(See US-1)*  
+- **SC-007**: The notebook completes on the GitHub Actions free‑tier runner within the typical execution window ([deferred]) and produces the expected output files (log, parameter tables, figures). *(See US-1)*
 - **SC-008**: All log messages are written to `analysis.log` and include timestamps for each major step. *(See US-3)*  
+- **SC-009**: The bootstrap likelihood‑ratio test for regime distinctness (FR‑010) reports p < 0.05, satisfying Constitution Principle VI. *(See US-1)*  
 
 ## Assumptions
 
@@ -95,5 +97,4 @@ A researcher needs clear diagnostics when data acquisition or model estimation f
 - Significance thresholds are fixed at α = 0.05 for all hypothesis tests, a conventional choice in econometrics.  
 - No GPU or specialized hardware is required; all computations rely on CPU‑only libraries (`pandas`, `numpy`, `statsmodels`, `hmmlearn`).  
 - The free‑tier GitHub Actions environment provides at least 2 CPU cores, 7 GB RAM, and 14 GB of disk space, matching the resource budget stated in the methodology sketch.  
-
----
+- Resource usage (CPU time, memory) will be measured via the Unix `time -v` command within the CI job; the CI script will fail if the notebook exceeds the typical free‑tier limits ([deferred], ≤ 2 CPU cores, ≤ 6 GB RAM).
