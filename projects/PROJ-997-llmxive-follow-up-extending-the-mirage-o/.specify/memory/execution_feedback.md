@@ -10,23 +10,15 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/src/cli/run_proxy_loop.py: self-declared fabricated metric — “…on't have logits here,     we simulate the score based on the correctness of t…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/cli/validate_dataset_stats.py  --input data/processed/training_sample.parquet  --output data/metrics/dataset_stats.json`
-  - script usage: `validate_dataset_stats.py [-h] [--stats STATS] [--data DATA]`
-  - argparse error: `validate_dataset_stats.py: error: unrecognized arguments: --input data/processed/training_sample.parquet --output data/metrics/dataset_stats.json`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/cli/run_proxy_loop.py: self-declared fabricated metric — “…on't have logits here,     we simulate the score based on the correctness of t…”; 4 run-book script(s) missing (plan/impl path mismatch): python code/models/train_predictor.py  --data data/processed/training_sample.parquet  --model_out data/models/gap_predictor.pkl  --seed 42; python code/models/evaluate_predictor.py  --model data/models/gap_predictor.pkl  --data data/processed/training_sample.parquet  --metrics_out data/metrics/metrics.json  --predictions_out data/metrics/gap_predictions.parquet; python code/validation/mipu_benchmark.py  --model data/models/gap_predictor.pkl  --data data/processed/training_sample.parquet  --output data/metrics/benchmark_report.json; 3 command(s) failed: python code/cli/generate_ground_truth.py  --model meta-llama/Meta-Llama-2-7B-4bit  --quant_levels INT4 INT8 FP8  --prompt_source gsm8k  --output data/processed/training_sample.parquet  --seed 42 (rc=1); python code/cli/validate_dataset_stats.py  --input data/processed/training_sample.parquet  --output data/metrics/dataset_stats.json (rc=2); python -m pytest -m contract (rc=2); 1 declared deliverable(s) absent: data/processed/training_sample.parquet
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/cli/run_proxy_loop.py: self-declared fabricated metric — “…on't have logits here,     we simulate the score based on the correctness of t…”; 4 run-book script(s) missing (plan/impl path mismatch): python code/models/train_predictor.py  --data data/processed/training_sample.parquet  --model_out data/models/gap_predictor.pkl  --seed 42; python code/models/evaluate_predictor.py  --model data/models/gap_predictor.pkl  --data data/processed/training_sample.parquet  --metrics_out data/metrics/metrics.json  --predictions_out data/metrics/gap_predictions.parquet; python code/validation/mipu_benchmark.py  --model data/models/gap_predictor.pkl  --data data/processed/training_sample.parquet  --output data/metrics/benchmark_report.json; 3 command(s) failed: python code/cli/generate_ground_truth.py  --model meta-llama/Meta-Llama-2-7B-4bit  --quant_levels INT4 INT8 FP8  --prompt_source gsm8k  --output data/processed/training_sample.parquet  --seed 42 (rc=1); python code/cli/validate_dataset_stats.py  --input data/processed/training_sample.parquet  --output data/metrics/dataset_stats.json (rc=1); python -m pytest -m contract (rc=2); 2 declared deliverable(s) absent: data/metrics/dataset_stats.json; data/processed/training_sample.parquet
 
 ## Failing / missing run-book commands
 
 - python code/cli/generate_ground_truth.py  --model meta-llama/Meta-Llama-2-7B-4bit  --quant_levels INT4 INT8 FP8  --prompt_source gsm8k  --output data/processed/training_sample.parquet  --seed 42 -> rc=1
 
-2026-10-23 11:34:41,677 INFO __main__: Downloading GSM8K dataset from https://huggingface.co/datasets/gsm8k/resolve/main/train.jsonl
+2026-10-23 11:38:23,360 INFO __main__: Downloading GSM8K dataset from https://huggingface.co/datasets/gsm8k/resolve/main/train.jsonl
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 305, in <module>
     main()
@@ -39,11 +31,9 @@ Traceback (most recent call last):
     raise HTTPError(http_error_msg, response=self)
 requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/train.jsonl
 
-- python code/cli/validate_dataset_stats.py  --input data/processed/training_sample.parquet  --output data/metrics/dataset_stats.json -> rc=2
+- python code/cli/validate_dataset_stats.py  --input data/processed/training_sample.parquet  --output data/metrics/dataset_stats.json -> rc=1
 
-usage: validate_dataset_stats.py [-h] [--stats STATS] [--data DATA]
-                                 [--alpha ALPHA]
-validate_dataset_stats.py: error: unrecognized arguments: --input data/processed/training_sample.parquet --output data/metrics/dataset_stats.json
+Failed to read training data parquet: Parquet file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/data/processed/training_sample.parquet
 
 - python code/models/train_predictor.py  --data data/processed/training_sample.parquet  --model_out data/models/gap_predictor.pkl  --seed 42 -> rc=2
 
@@ -84,18 +74,23 @@ ERROR tests/unit/test_train_predictor.py
 ERROR tests/unit/test_verify_model_availability.py
 ERROR tests/unit/test_verify_model_robustness.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 16 errors during collection !!!!!!!!!!!!!!!!!!!
-================ 49 deselected, 13 warnings, 16 errors in 6.57s ================
+================ 50 deselected, 13 warnings, 16 errors in 5.94s ================
 
 
 
 ## Declared deliverables still missing
 
+- data/metrics/dataset_stats.json
 - data/processed/training_sample.parquet
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/metrics/dataset_stats.json` is declared but was NOT written. Scripts referencing it:
+    - `code/cli/validate_dataset_stats.py` — IS a run-book command
+    - `code/data/generate_ground_truth.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/metrics/dataset_stats.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/training_sample.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/cli/audit_data_integrity.py` — NOT invoked by the run-book
     - `code/cli/generate_ground_truth.py` — IS a run-book command

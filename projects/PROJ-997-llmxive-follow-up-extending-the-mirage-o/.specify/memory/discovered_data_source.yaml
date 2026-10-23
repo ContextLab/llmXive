@@ -1,6 +1,6 @@
 status: none
-intent: HardwareQuantizedLLMDivergence GSM8K prompts gradient norms curvature quantization
-  KL divergence dataset python package dataset
+intent: Quantization Gap Benchmark dataset GSM8K Hugging Face Hub ONNX Runtime python
+  package dataset
 required_fields:
 - prompt_text
 - gradient_norm
@@ -10,6 +10,6 @@ required_fields:
 - kl_divergence_fp8
 - model_name
 - quantization_bitwidth
-cache_key: fc063bd265ce5ee5cb08e8805749b1ace4a0c3e2de5d13c4a2d8827c4a089650
-searched_at: '2026-10-23T11:35:56.508643+00:00'
+cache_key: 4b56e8661815db195d26d34ac9831e0c9d0b89ec09aad3de3e8104489132ce56
+searched_at: '2026-10-23T11:39:26.986007+00:00'
 retry_count: 1

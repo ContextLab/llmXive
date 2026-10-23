@@ -1,7 +1,0 @@
-{
-  "task_id": "T019",
-  "fingerprint": "aca653303268df4e705bfdb4e19a59d033f24ee4222ca72d55518215c0edea7c",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'tests/unit/test_feature_extractor.py': imports nonexistent names from sibling files: `from src.services.feature_extractor import apply_pca, extract_features, fit_pca` (available: Any, AutoModelForCausalLM, AutoTokenizer, Dict, F, FeatureResult, List, Optional...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

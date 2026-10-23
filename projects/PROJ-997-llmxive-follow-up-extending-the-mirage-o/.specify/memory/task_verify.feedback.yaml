@@ -5,8 +5,11 @@ T015:
     exit=1'
   task: b87c89ca665ceade1f36d76781a299ca3d7dbcbd022646a05c98fa7898469176
 T016:
+  reason: 'declared artifact(s) missing/empty/invalid: data/metrics/dataset_stats.json'
   task: a2a072cedc68bf0eef8232b383074775ee95985bdea3bb66a69f849078effc2f
 T019:
+  reason: 'Requested task execution failed; rerun successfully: code/data/extract_features.py
+    exit=1'
   task: 896923ec221401ab36bc1aaeff436ab1e36c0c4f8d331829740af97cf6d6c9de
 T021:
   task: f6d05e48623911818e9624e24f82e689cb83da15c78f9c2579c8e46b0fae6676
