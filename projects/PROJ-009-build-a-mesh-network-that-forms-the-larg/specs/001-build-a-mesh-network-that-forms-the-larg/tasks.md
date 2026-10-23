@@ -1,154 +1,131 @@
 # Tasks: Mesh Network Supercomputer Using Pooled Idle Computing Resources  
 
 **Inputs**: `specs/001-build-a-mesh-network-that-forms-the-larg/spec.md`, `plan.md`, data‑model contracts, and reviewer feedback.  
-The checklist below implements the smallest complete study that satisfies all functional requirements (FR‑001 – FR‑007) and success criteria (SC‑001 – SC‑006). Tasks are ordered to respect data flow and to repair the failures reported by the independent verifier.
+The checklist below implements the smallest complete study that satisfies every functional requirement (FR‑001 – FR‑007) and success criterion (SC‑001 – SC‑006). Tasks are ordered to respect data flow and to repair the failures reported by the independent verifier.
 
 ---
 
 ## Phase 1 – Project setup, instrumentation, and first end‑to‑end run  
 
-- [ ] **T001** Create a reproducible project configuration and quick‑start guide.  
+- [ ] **T001** Create a reproducible configuration, quick‑start guide, and contract‑test harness.  
   *Artifacts*  
-  - `config.yaml` – default configuration (random_seed, timeout limits, sweep parameters).  
-  - `quickstart.md` – usage examples for every CLI sub‑command (`help`, `calibrate`, `run-single`, `sweep`).  
-  - `code/orchestrator/cli.py` – must expose `--help` and exit 0.  
-  - `code/tests/contract/test_contracts.py` – runs `pytest` against all contract schemas.  
-  *Verification* – `python -m code.orchestrator.cli --help` returns exit 0; `pytest code/tests/contract/ -q` exits 0; `test_random_seed_is_integer_and_matches_sweep_config` passes (seed integer and matches `config.yaml`).
+  - `config.yaml` – default config (random_seed, timeout = 21600 s, sweep defaults).  
+  - `quickstart.md` – usage examples for `calibrate`, `run-single`, `sweep`, `aggregate`, `regression`, `theoretical-bound`, `sweet-spot`.  
+  - `code/orchestrator/cli.py` – exposes `--help` and sub‑commands; `get_config()` loads `config.yaml`.  
+  - `code/tests/contract/test_contracts.py` – runs `jsonschema.validate` against all schema files in `specs/**/contracts/`.  
+  *Verification* – `python -m code.orchestrator.cli --help` exits 0; `pytest code/tests/contract/ -q` exits 0; `test_random_seed_is_integer_and_matches_sweep_config` passes (seed integer and matches `config.yaml`).
 
-- [ ] **T002** Provide the PhysicalNode contract and generate real node metadata.  
+- [ ] **T002** Provide the PhysicalNode schema and generate real node metadata.  
   *Artifacts*  
-  - `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/physical-node.schema.yaml` (full schema as defined in the spec).  
-  - `code/orchestrator/node_manager.py` – discovers reachable SSH nodes, measures baseline bandwidth/SNR, records `cpu_utilization`, `packet_loss_rate`, writes `data/raw/physical_node_<ip>.json`.  
-  - `code/tests/unit/test_node_manager.py` – uses mock‑node fixtures, checks that each JSON file validates against the schema and that missing tools raise an exception (no synthetic fallback).  
-  *Verification* – after running the node‑manager test suite, a set of `physical_node_*.json` files exist and each `jsonschema.validate` call succeeds.
+  - `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/physical-node.schema.yaml` (as defined in the spec).  
+  - `code/orchestrator/node_manager.py` – discovers reachable SSH nodes, runs `lscpu`, `free`, `iperf3`, `iwconfig`, `mpstat`, `sensors`; writes `data/raw/physical_node_<ip>.json`.  
+  - `code/tests/unit/test_node_manager.py` – uses mock‑node fixtures, asserts each JSON file validates against the schema and that missing tools raise `RuntimeError` (no synthetic fallback).  
+  *Verification* – after test run, a set of `physical_node_*.json` files exist and each passes schema validation.
 
-- [ ] **T003** Supply realistic instrumentor log fixtures and parsing utilities.  
+- [ ] **T003** Create realistic instrumentor log fixtures and parsing utilities.  
   *Artifacts*  
-  - Sample logs under `data/raw/`:  
+  - Sample logs under `data/raw/` :  
     - `sample_tcpdump.log` (e.g., “123 packets captured”).  
     - `sample_mpstat.log` (CPU % lines).  
     - `sample_iwconfig.log` (Signal level=-40 dBm, SNR=50).  
-    - `sample_sensors.log` (CPU temp +42.0 °C).  
+    - `sample_sensors.log` (CPU Temp +42.0 °C).  
     - `sample_ping.log` (rtt avg 0.030 ms).  
-  - `code/orchestrator/instrumentor.py` – wrappers for `tcpdump`, `mpstat`, `iwconfig`, `sensors`, `ping`; parsers return numeric metrics.  
-  - `code/tests/unit/test_instrumentor.py` – parses the above fixtures and asserts correct numeric values; missing tools raise `RuntimeError`.  
-  *Verification* – `pytest code/tests/unit/test_instrumentor.py -q` exits 0; each parser returns the expected numbers.
+  - `code/orchestrator/instrumentor.py` – thin wrappers for `tcpdump`, `mpstat`, `iwconfig`, `sensors`, `ping`; each returns a numeric metric.  
+  - `code/tests/unit/test_instrumentor.py` – parses the above fixtures and asserts the expected numbers; missing tools raise `RuntimeError`.  
+  *Verification* – `pytest code/tests/unit/test_instrumentor.py -q` exits 0; each parser returns the documented numeric value.
 
-- [ ] **T004** Implement the dynamic scheduler with dropout handling and coordination‑overhead tracking.  
+- [ ] **T004** Implement the dynamic scheduler with dropout handling and coordination‑overhead timestamps.  
   *Artifacts*  
-  - `code/orchestrator/scheduler.py` – assigns `TaskChunk`s, monitors heartbeats, detects dropout reasons (`heartbeat_loss`, `oom`, `sleep_mode`, `network_saturation`), re‑assigns tasks, records handshake timestamps and compute timestamps per task.  
-  - `code/tests/unit/test_scheduler.py` – mock nodes trigger each dropout scenario; asserts that a `dropout_events.json` entry is written and conforms to `dropout-event.schema.yaml`.  
+  - `code/orchestrator/scheduler.py` – assigns `TaskChunk`s, monitors heartbeats, detects dropout reasons (`heartbeat_loss`, `oom`, `sleep_mode`, `network_saturation`), re‑assigns tasks, records `handshake_start`, `handshake_end`, `compute_start`, `compute_end` per chunk.  
+  - `code/tests/unit/test_scheduler.py` – mock nodes trigger each dropout scenario; asserts a `dropout_events.json` entry is written and conforms to `dropout-event.schema.yaml`.  
   - `data/raw/dropout_events.json` – generated by the test suite.  
-  *Verification* – scheduler unit tests pass; `dropout_events.json` validates against its contract; coordination‑overhead timestamps are present in each task record.
+  *Verification* – scheduler unit tests pass; `dropout_events.json` validates; each task record contains the four timestamps enabling coordination‑overhead calculation.
 
-- [ ] **T005** Add TaskChunk persistence and schema validation.  
+- [ ] **T005** Persist TaskChunk records and validate against the schema.  
   *Artifacts*  
-  - `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/task-chunk.schema.yaml` (as defined in the spec).  
-  - `code/orchestrator/task_chunk_store.py` – JSONL writer (`data/raw/task_chunks/<run_id>.jsonl`) and per‑line validation against the schema.  
-  - `code/tests/contract/test_task_chunk_schema.py` – writes a valid and an invalid chunk, expects the invalid one to raise `jsonschema.ValidationError`.  
+  - `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/task-chunk.schema.yaml` (as defined).  
+  - `code/orchestrator/task_chunk_store.py` – writes one JSON line per chunk to `data/raw/task_chunks/<run_id>.jsonl` and validates each line with `jsonschema`.  
+  - `code/tests/contract/test_task_chunk_schema.py` – writes a valid and an invalid chunk; expects the invalid one to raise `jsonschema.ValidationError`.  
   *Verification* – all contract tests pass; scheduler writes chunks through `TaskChunkStore`; a sample `run_001.jsonl` validates completely.
 
 - [ ] **T006** Enforce a hard pipeline timeout and record runtime metrics.  
   *Artifacts*  
-  - `code/orchestrator/runtime_tracker.py` – `enforce_pipeline_timeout` decorator, writes `data/runtime/pipeline_runtime.json` (`total_seconds`, `within_limit`).  
-  - `data/runtime/timeout_enforced.log` – human‑readable log when the timeout fires.  
-  - `code/tests/integration/test_watchdog_overrun.py` – forces a long‑running dummy command, asserts non‑zero exit and presence of the log file.  
-  *Verification* – integration test passes; when the timeout is exceeded the runner aborts with exit 1 and the JSON shows `within_limit: false`.
+  - `code/orchestrator/runtime_tracker.py` – `@enforce_pipeline_timeout` decorator; writes `data/runtime/pipeline_runtime.json` (`total_seconds`, `within_limit`) and `data/runtime/timeout_enforced.log` when the limit is exceeded.  
+  - `code/tests/integration/test_watchdog_overrun.py` – runs a dummy long‑running command, expects non‑zero exit and the presence of the JSON and log files.  
+  *Verification* – integration test passes; when the timeout fires the runner aborts with exit 1 and the JSON shows `within_limit: false`.
 
-- [ ] **T007** Implement calibration sub‑command and produce conversion factors.  
+- [ ] **T007** Add a calibration sub‑command and produce conversion factors with quality checks.  
   *Artifacts*  
-  - `code/orchestrator/calibration.py` – `calibrate_network()` runs `iperf3` between two locally spawned endpoints (using `iperf3 -s` in a background thread) three times, averages throughput, maps `tcpdump` packet counts to Mbps; `calibrate_cpu()` runs `sysbench cpu --threads=1 run` and fits a linear model between `mpstat` %util and known CPU load.  
-  - `data/raw/network_calibration.json` (fields: `packet_to_mbps_factor`, `r_squared`).  
-  - `data/raw/cpu_calibration.json` (fields: `percent_to_ops_factor`, `r_squared`).  
+  - `code/orchestrator/calibration.py` – `calibrate_network()` runs a local `iperf3` server/client pair three times, maps `tcpdump` packet counts to Mbps; `calibrate_cpu()` runs `sysbench cpu --threads=1 run` and fits a linear model between `mpstat` % util and known CPU load.  
+  - `data/raw/network_calibration.json` (`packet_to_mbps_factor`, `r_squared`).  
+  - `data/raw/cpu_calibration.json` (`percent_to_ops_factor`, `r_squared`).  
   - `code/tests/unit/test_calibration.py` – asserts both JSON files exist, contain numeric factors, and have `r_squared ≥ 0.9`.  
-  *Verification* – running `python -m code.orchestrator.cli calibrate` creates both JSON files; unit tests pass; the sweep runner aborts if either file is missing.
+  *Verification* – `python -m code.orchestrator.cli calibrate` creates both JSON files; unit tests pass; the sweep runner aborts if either file is missing or has low R².
 
-- [ ] **T008** Run a minimal single‑node benchmark end‑to‑end.  
+- [ ] **T008** Run a minimal single‑node benchmark end‑to‑end (the “first‑run” sanity check).  
   *Artifacts*  
-  - `code/orchestrator/cli.py` – sub‑command `run-single` that (a) loads `config.yaml`, (b) discovers nodes, (c) runs a tiny Monte‑Carlo integration task on 4 mock nodes, (d) instruments each node via `instrumentor`, (e) stores `TaskChunk`s, (f) writes `data/raw/run_001.csv` (columns: `node_id`, `wall_clock_time`, `cpu_utilization_pct`, `packet_count` plus `task_id`, `status`), (g) writes `data/raw/task_chunks/run_001.jsonl`, (h) writes `data/raw/validation_status.json` (run passes variable‑fit check).  
+  - `code/orchestrator/cli.py` – sub‑command `run-single` that (a) loads `config.yaml`, (b) discovers nodes via `node_manager`, (c) runs a tiny Monte‑Carlo integration task on 4 mock nodes, (d) instruments each node via `instrumentor`, (e) stores `TaskChunk`s, (f) writes `data/raw/run_001.csv` (columns: `node_id`, `wall_clock_time`, `cpu_utilization_pct`, `packet_count`, `task_id`, `status`), (g) writes `data/raw/task_chunks/run_001.jsonl`, (h) writes `data/raw/validation_status.json` (run passes variable‑fit check).  
   - `code/tests/integration/test_full_workflow.py` – invokes `run-single` and asserts exit 0 and presence/validity of the three output files.  
   *Verification* – integration test passes; `run_001.csv` contains a non‑zero packet count for every node; `validation_status.json` marks the run as “included”.
 
 ---
 
-## Phase 2 – Complete parameter sweep, aggregation, and statistical analysis  
+## Phase 2 – Complete parameter sweep, aggregation, validation, and statistical analysis  
 
-- [ ] **T009** Amend the ExecutionRun contract to capture heterogeneity covariates.  
+- [ ] **T009** Extend the ExecutionRun schema to capture heterogeneity covariates and add corresponding contract tests.  
   *Artifacts*  
   - Updated `specs/001-build-a-mesh-network-that-forms-the-larg/contracts/execution-run.schema.yaml` – adds required `cpu_variance` (number) and `dropout_rate` (number 0‑1).  
   - Updated `specs/001-build-a-mesh-network-that-forms-the-larg/data-model.md` – adds the two fields to the ExecutionRun table definition.  
   - `code/tests/contract/test_execution_run_schema.py` – validates a sample record with the new fields and rejects a record missing them.  
-  *Verification* – all contract tests pass; SC‑006 (variable‑fit) now includes the new fields.
+  *Verification* – all contract tests pass; the schema now enforces SC‑006 (variable‑fit) for these fields.
 
 - [ ] **T010** Execute the full parameter sweep on the CI‑friendly mock testbed.  
   *Artifacts*  
-  - `config/sweep_config.yaml` – fixed grid: granularity {fine, medium, coarse} × node_count {10,15,20} × injected_latency {0,50,100,150 ms} × replicates = 4 (total 144 runs) plus 6 reserved dropout‑recovery runs (150 total). Includes `random_seed` (mirrors `config.yaml`) and `sweet_spot_threshold`.  
-  - `code/orchestrator/network_impairment.py` – applies latency via `tc netem` (or a pure‑Python shim when `tc` unavailable) and aborts runs with packet‑loss > 20 % (logs reason `NETWORK_SATURATION`).  
-  - `code/orchestrator/sweep_runner.py` – orchestrates the grid, checks that calibration artifacts exist, wraps each run with the timeout watchdog, writes `data/raw/run_<run_id>.csv` and `data/raw/task_chunks/<run_id>.jsonl`.  
-  *Verification* – after execution, exactly 150 CSV files exist (or aborted runs are recorded in `validation_status.json` with reason `NETWORK_SATURATION`); each CSV validates against a minimal per‑run schema; the total wall‑clock time recorded in `pipeline_runtime.json` is ≤ 6 h.
+  - `config/sweep_config.yaml` – grid: granularity {fine,medium,coarse} × node_count {10,15,20} × injected_latency {0,50,100,150 ms} × replicates = 4 (total 144 runs) plus 6 reserved dropout‑recovery runs (150 runs total). Includes `random_seed`, `sweet_spot_threshold`, and the global timeout.  
+  - `code/orchestrator/network_impairment.py` – applies latency and packet‑loss via `tc netem`; aborts runs with packet‑loss > 20 % and logs reason `NETWORK_SATURATION`.  
+  - `code/orchestrator/sweep_runner.py` – orchestrates the grid, checks that `network_calibration.json` and `cpu_calibration.json` exist, wraps each run with the `@enforce_pipeline_timeout` decorator, writes `data/raw/run_<run_id>.csv` and `data/raw/task_chunks/<run_id>.jsonl`.  
+  *Verification* – after execution, exactly 150 CSV files (or aborted‑run entries in `validation_status.json`) exist; each CSV validates against a minimal per‑run schema; total wall‑clock time recorded in `pipeline_runtime.json` ≤ 6 h.
 
-- [ ] **T011** Aggregate raw logs into a schema‑conforming ExecutionRun table.  
+- [ ] **T011** Aggregate raw logs into a schema‑conforming ExecutionRun table and produce a run‑inclusion report.  
   *Artifacts*  
   - `code/analysis/aggregate.py` – reads all `run_*.csv`, merges node metadata, dropout events, computes per‑run metrics (throughput, coordination‑overhead ratio, straggler count, baseline/runtime bandwidth & SNR, `cpu_variance`, `dropout_rate`, optional temperature/os‑noise).  
   - `data/processed/execution_runs.csv` – one row per successful run, conforms to the amended `execution-run.schema.yaml`.  
-  *Verification* – `python -m code.analysis.aggregate` finishes without error; a schema validator script confirms every row passes; the file shows distinct `coordination_overhead_ratio` distributions across granularity settings.
+  - `code/analysis/data_validator.py` – scans `execution_runs.csv` for missing required columns; produces `data/raw/validation_status.json` mapping each `run_id` to `included`/`excluded` with reason (critical variable missing).  
+  *Verification* – `python -m code.analysis.aggregate` finishes without error; a schema validator confirms every row passes; `validation_status.json` correctly flags any excluded runs.
 
-- [ ] **T012** Validate variable completeness and produce inclusion/exclusion flags.  
+- [ ] **T012** Fit the regression model, run ANOVA, and apply statistical safeguards.  
   *Artifacts*  
-  - `code/analysis/data_validator.py` – scans `execution_runs.csv` for missing required columns; excludes runs only when a **critical** variable (`total_throughput` or `injected_latency`) is absent; otherwise marks run as “included‑reduced”.  
-  - `data/raw/validation_status.json` – maps each `run_id` to `included`/`excluded` with reason.  
-  *Verification* – unit tests (`code/tests/unit/test_data_validator.py`) cover both exclusion and reduced‑model paths; the JSON reflects the correct status for every run.
+  - `code/analysis/regression.py` – loads only “included” rows from `execution_runs.csv`, fits an OLS model with interaction terms (`granularity × cpu_variance`, `granularity × dropout_rate`, `injected_latency × node_count`), optionally adds quadratic terms, selects best model by AIC/BIC, computes VIF (reports any > 5), applies Benjamini‑Hochberg FDR to all p‑values, runs `anova_lm` for `throughput ~ C(granularity)`.  
+  - `data/processed/regression_model.json` – conforms to `regression-model.schema.yaml` (coefficients, p_values, r_squared, residuals, placeholder `theoretical_bound_deviation` = 0.0).  
+  - `data/processed/anova.json` – contains the granularity ANOVA table; p‑value must be < 0.05 to satisfy SC‑005.  
+  *Verification* – both JSON files validate; `regression_model.json` includes `r_squared ≥ 0.0`; `anova.json` reports granularity p‑value < 0.05; any VIF > 5 appears in a logged warning but does not cause failure.
 
-- [ ] **T013** Fit the regression model, run ANOVA, and apply statistical safeguards.  
-  *Artifacts*  
-  - `code/analysis/regression.py` – loads `execution_runs.csv` (only “included” rows), fits an OLS model with interaction terms (`granularity × cpu_variance`, `granularity × dropout_rate`, `injected_latency × node_count`), optionally adds quadratic terms and a GAM if `pygam` is available, selects the best model by AIC/BIC, computes VIF (reports any > 5), applies Benjamini‑Hochberg FDR to all p‑values, runs `anova_lm` for `throughput ~ C(granularity)`.  
-  - `data/processed/regression_model.json` – conforms to `regression-model.schema.yaml` (coefficients, p‑values, `r_squared`, residuals, placeholder `theoretical_bound_deviation` = 0.0).  
-  - `data/processed/anova.json` – contains the granularity ANOVA table and the p‑value (must be < 0.05 to satisfy SC‑005).  
-  *Verification* – both JSON files validate; `regression_model.json` includes `r_squared ≥ 0.0`; `anova.json` reports granularity p‑value < 0.05; VIF warnings are logged but do not cause failure.
-
-- [ ] **T014** Compute the Ong & Motani wireless capacity bound and back‑fill deviation.  
+- [ ] **T013** Compute the Ong & Motani wireless capacity bound and integrate the deviation into the regression output.  
   *Artifacts*  
   - `code/analysis/theoretical_bound.py` – for each run, uses measured `baseline_bandwidth_Mbps` and `baseline_snr_db` to compute Shannon capacity, derives `normalized_efficiency = throughput / capacity`, stores `theoretical_bound_deviation = throughput / capacity`. Flags any run with efficiency > 1.0 as a measurement‑error warning.  
-  - `data/processed/theoretical_bound_validation.json` – per‑run capacity, efficiency, and deviation.  
+  - `data/processed/theoretical_bound_validation.json` – per‑run capacity, efficiency, deviation, and any warnings.  
   - Updated `data/processed/regression_model.json` – `theoretical_bound_deviation` field filled with the mean deviation across runs.  
-  *Verification* – JSON parses; at least one run shows efficiency ≤ 1.0; any efficiency > 1.0 is listed under a `warnings` array.
+  *Verification* – JSON parses; at least one run shows efficiency ≤ 1.0; any efficiency > 1.0 appears under a `warnings` array.
 
-- [ ] **T015** Detect the granularity “sweet spot” where marginal throughput gain falls below the configured threshold.  
+- [ ] **T014** Detect the granularity “sweet spot” and generate the study figures.  
   *Artifacts*  
-  - `code/analysis/sweet_spot.py` – reads `execution_runs.csv`, computes marginal gain between successive granularity settings, compares to `sweet_spot_threshold` from `sweep_config.yaml`.  
-  - `data/processed/sweet_spot.json` – fields `optimal_granularity`, `marginal_gain_curve` (list of gains), `threshold` (value from config), `threshold_source` (path).  
-  *Verification* – script runs without error; the JSON records a granularity present in the data and the threshold matches the config file.
-
-- [ ] **T016** Build and validate a SimPy discrete‑event simulation of the mesh.  
-  *Artifacts*  
-  - `code/simulation/des_model.py` – SimPy model of heterogeneous CPUs, latency, dropout, and granularity‑dependent coordination overhead; seeded by `random_seed`.  
-  - `data/raw/golden_dataset.json` – checksum‑verified subset of `execution_runs.csv` plus node metadata used for calibration.  
-  - `code/analysis/des_validation.py` – runs the DES model on the golden dataset, compares simulated vs. measured throughput and coordination‑overhead ratios, writes `data/processed/des_validation.json` (RMSE, pass/fail flag).  
-  - `code/tests/unit/test_des_model.py` – verifies deterministic output under the pinned seed.  
-  *Verification* – DES validation JSON reports RMSE < 5 % (or passes the defined fidelity threshold); unit test passes; the model is never used as a substitute for real data (only as a validation instrument).
-
----
-
-## Phase 3 – Reproducible results, figures, and paper handoff  
-
-- [ ] **T017** Generate all study figures directly from processed data.  
-  *Artifacts*  
-  - `code/analysis/figures.py` – creates PNGs:  
-    - `figures/throughput_vs_nodes.png` (throughput curves per granularity).  
-    - `figures/coordination_overhead.png` (overhead ratio vs. granularity).  
-    - `figures/bound_comparison.png` (empirical throughput vs. theoretical capacity).  
+  - `code/analysis/sweet_spot.py` – reads `execution_runs.csv`, computes marginal throughput gain between successive granularity settings, compares to `sweet_spot_threshold` from `sweep_config.yaml`, writes `data/processed/sweet_spot.json` (`optimal_granularity`, `marginal_gain_curve`, `threshold`, `threshold_source`).  
+  - `code/analysis/figures.py` – creates PNGs in `figures/`:  
+    - `throughput_vs_nodes.png` (throughput curves per granularity).  
+    - `coordination_overhead.png` (overhead ratio vs. granularity).  
+    - `bound_comparison.png` (empirical throughput vs. theoretical capacity).  
   - `data/figures_manifest.yaml` – maps each figure file to the source CSV/JSON rows that produced it.  
   *Verification* – each PNG exists; the manifest references existing data rows; `pytest code/tests/test_figure_manifest.py` passes.
 
-- [ ] **T018** Write a concise methods & results summary and verify full reproducibility.  
+- [ ] **T015** Write a concise methods & results summary and verify full reproducibility of the pipeline.  
   *Artifacts*  
-  - `data/processed/methods_summary.md` – links to all primary artifacts, describes test‑bed size, hardware heterogeneity, regression equation, R², ANOVA significance, sweet‑spot granularity, bound deviation, DES validation outcome, excluded runs and reasons, and honest limitations (e.g., mock‑node environment, unmodelled confounders).  
-  - `data/processed/reproducibility_log.txt` – output of a fresh `./quickstart.md` run (executing `calibrate`, `run-single`, `sweep`, `aggregate`, `regression`, `theoretical_bound`, `sweet_spot`, `figures`) showing that all steps complete and all artifacts are regenerated with identical hashes.  
-  *Verification* – re‑run the workflow exactly as described in `quickstart.md`; all `pytest` suites pass; the reproducibility log records successful completion and the generated artifact hashes match those committed to the repo.
+  - `data/processed/methods_summary.md` – links to all primary artifacts, describes test‑bed size, hardware heterogeneity, calibration factors, regression equation, R², ANOVA significance, sweet‑spot granularity, bound deviation, DES validation outcome (if performed), excluded runs and reasons, and honest limitations (e.g., mock‑node environment, unmodeled confounders).  
+  - `data/processed/reproducibility_log.txt` – output of a fresh run of the workflow exactly as described in `quickstart.md` (steps: `calibrate`, `run-single`, `sweep`, `aggregate`, `regression`, `theoretical-bound`, `sweet-spot`, `figures`). Shows that all steps complete, all `pytest` suites pass, and that SHA‑256 hashes of generated artifacts match those committed to the repository.  
+  *Verification* – re‑run the workflow from a clean checkout; all tests pass; the reproducibility log records successful completion and the artifact hashes are identical to the repository versions.
 
 ---
 
-## Dependency matrix (for quick reference)
+## Dependency matrix (quick reference)
 
 | Spec requirement | Tasks that satisfy it | Key artifact |
 |------------------|-----------------------|--------------|
@@ -156,17 +133,17 @@ The checklist below implements the smallest complete study that satisfies all fu
 | FR‑002 (tcpdump & mpstat instrumentation) | T003, T004, T008 | `instrumentor.py`, `run_*.csv` |
 | FR‑003 (parameter sweep, injected latency) | T010 | `sweep_runner.py`, `run_*.csv` |
 | FR‑004 (coordination‑overhead metric) | T004, T010, T011 | timestamps in task records, `execution_runs.csv` |
-| FR‑005 (regression & ANOVA) | T013, T014, T015 | `regression_model.json`, `anova.json` |
-| FR‑006 (theoretical bound) | T014 | `theoretical_bound_validation.json` |
-| FR‑007 (hard CI timeout) | T001, T006, T010 | `pipeline_runtime.json`, `timeout_enforced.log` |
-| SC‑001 (R²) | T013 | `regression_model.json.r_squared` |
-| SC‑002 (bound deviation) | T014 | `theoretical_bound_validation.json` |
-| SC‑03 (sweet‑spot detection) | T015 | `sweet_spot.json` |
+| FR‑005 (regression & ANOVA) | T012, T013, T014 | `regression_model.json`, `anova.json` |
+| FR‑006 (theoretical bound) | T013 | `theoretical_bound_validation.json` |
+| FR‑007 (hard CI timeout) | T006, T010 | `pipeline_runtime.json`, `timeout_enforced.log` |
+| SC‑001 (R²) | T012 | `regression_model.json.r_squared` |
+| SC‑002 (bound deviation) | T013 | `theoretical_bound_validation.json` |
+| SC‑003 (sweet‑spot detection) | T014 | `sweet_spot.json` |
 | SC‑004 (pipeline wall‑clock) | T006 | `pipeline_runtime.json` |
-| SC‑005 (ANOVA significance) | T013 | `anova.json` |
-| SC‑006 (variable completeness) | T012 | `validation_status.json` |
+| SC‑005 (ANOVA significance) | T012 | `anova.json` |
+| SC‑006 (variable completeness) | T011, T012 | `validation_status.json` |
 
 **Execution order** (respecting data flow):  
-T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → T015 → T016 → T017 → T018.  
+T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → T015.  
 
-All tasks are unchecked (`[ ]`). Once a task is completed and its verification passes, the checkbox can be ticked in the CI run. This plan satisfies every functional requirement, success criterion, and reviewer concern while remaining executable within the free‑tier CI budget.
+All tasks are unchecked (`[ ]`). Once a task is completed and its verification passes, the CI run can tick the box. This plan satisfies every functional requirement, success criterion, and reviewer concern while remaining executable within the free‑tier CI budget.
