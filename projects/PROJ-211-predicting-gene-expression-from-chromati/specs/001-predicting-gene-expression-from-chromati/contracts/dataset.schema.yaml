@@ -21,7 +21,7 @@ properties:
         description: Gene symbol.
       sample_id:
         type: string
-        description: ENCODE sample ID.
+        description: ENCODE sample identifier.
       cell_line:
         type: string
         enum:
@@ -37,7 +37,7 @@ properties:
         description: Raw read count.
   raw_peaks:
     type: object
-    description: Raw DNase/ATAC‑seq peak calls from ENCODE.
+    description: Raw ATAC/DNase‑seq peak calls from ENCODE.
     required:
       - chrom
       - start
@@ -47,28 +47,28 @@ properties:
     properties:
       chrom:
         type: string
-        description: Chromosome (e.g., chr1).
+        description: Chromosome (e.g., "chr1").
       start:
         type: integer
         minimum: 0
-        description: 0‑based start position.
+        description: 0‑based start coordinate.
       end:
         type: integer
         minimum: 0
-        description: 0‑based end position.
+        description: 0‑based end coordinate.
       score:
         type: number
-        description: Peak score (e.g., -log10 p‑value).
+        description: Signal intensity (e.g., -log10 p‑value).
       strand:
         type: string
         enum:
           - "+"
           - "-"
           - "."
-        description: Strand.
+        description: Strand information.
   processed_feature_matrix:
     type: object
-    description: Aggregated accessibility signal matrix (a fine‑grained binning per gene).
+    description: Aggregated accessibility signal matrix (200 fixed‑width bins per gene).
     required:
       - gene_id
       - cell_line
@@ -88,7 +88,7 @@ properties:
         description: Cell line name.
       features:
         type: array
-        description: List of aggregated bin scores for this gene.
+        description: List of 200 aggregated bin scores for the gene.
         items:
           type: number
         minItems: 200
@@ -109,17 +109,17 @@ properties:
         enum:
           - GM12878
           - K562
-          - HMEC
+          - HMEMC
           - IMR90
           - HepG2
         description: Cell line name.
       log_count:
         type: number
         minimum: 0
-        description: log(count + 1).
+        description: log(count + 1) value.
   housekeeping_genes:
     type: object
-    description: Genes with CV < 0.2.
+    description: Genes with coefficient of variation < 0.2 across cell lines.
     required:
       - gene_id
       - gene_name
@@ -138,7 +138,7 @@ properties:
         description: Coefficient of variation.
   cell_type_specific_genes:
     type: object
-    description: Genes with CV > 0.5.
+    description: Genes with coefficient of variation > 0.5 in at least one cell line.
     required:
       - gene_id
       - gene_name
@@ -163,5 +163,5 @@ properties:
           - HMEC
           - IMR90
           - HepG2
-        description: Cell line with max CV.
+        description: Cell line exhibiting the max CV.
 additionalProperties: false
