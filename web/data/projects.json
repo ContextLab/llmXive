@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-23T17:16:09.786600+00:00",
+  "generated_at": "2026-10-23T17:22:52.519292+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -55343,7 +55343,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-119-statistical-modeling-of-temporal-depende.yaml",
         "code": "projects/PROJ-119-statistical-modeling-of-temporal-depende/code",
-        "data": "projects/PROJ-119-statistical-modeling-of-temporal-depende/data",
+        "data": null,
         "idea": "projects/PROJ-119-statistical-modeling-of-temporal-depende/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
