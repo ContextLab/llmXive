@@ -1,12 +1,11 @@
 status: none
-intent: human annotated image editing prompts dataset with feasibility scores python
-  package dataset
+intent: image editing prompts dataset with human feasibility scores python package
+  dataset
 required_fields:
 - prompt_id
-- prompt_text
 - instruction_type
+- prompt_text
 - human_feasibility_score
-- source_image_id
-cache_key: d785e8ee99a690a73f62b5d0da3b2b2932e82596fa6024ce760213f12702561c
-searched_at: '2026-10-23T01:54:43.423753+00:00'
+cache_key: b7685287986037f8bdaa080d50acfedf7adb6775e4b1c8b98d2cc69c376e922f
+searched_at: '2026-10-23T01:56:21.766955+00:00'
 retry_count: 1

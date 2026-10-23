@@ -26,7 +26,7 @@ python -m spacy download en_core_web_sm
 ## 3. Data download & curation
 ```bash
 # Stream the three verified parquet shards and write them to data/raw/
-python -m src.data.download
+python -m code.src.data.download
 
 # Build the balanced CSV, add synthetic scores, and assign UUIDs
 python -m src.data.curate
@@ -87,6 +87,3 @@ All contract tests must pass; otherwise the CI job fails.
 | `data/augmented_scores.csv` | Verifier scores with graph context and two control conditions. |
 | `data/report.json` | Full statistical results, runtime, memory usage, correlation, correction method. |
 | `data/report.csv` | Human‑readable summary for inclusion in the manuscript. |
-
----
-

@@ -1,12 +1,21 @@
-# Project dependencies
-# Core libraries already provided by the environment:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-#
-# Additional third‑party packages required for this project:
+# Core dependencies (already available in the environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for this project
 datasets==2.21.0
+huggingface_hub
+fastparquet
 spacy==3.7.4
-fastparquet==2024.5.0
-tqdm==4.66.5
-# Note: The spaCy English model is installed at runtime via:
-#   python -m spacy download en_core_web_sm
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.4/en_core_web_sm-3.7.4.tar.gz
+# Note: the spaCy model is installed via the quickstart command above.

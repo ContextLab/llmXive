@@ -2,7 +2,7 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 10 command(s) failed: python -m spacy download en_core_web_sm (rc=1); python -m src.data.download (rc=1); python -m src.data.curate (rc=1); 1 declared deliverable(s) absent: data/raw/prompts_sample.parquet
+**Summary**: 10 command(s) failed: python -m spacy download en_core_web_sm (rc=1); python -m code.src.data.download (rc=1); python -m src.data.curate (rc=1); 1 declared deliverable(s) absent: data/raw/prompts_sample.parquet
 
 ## Failing / missing run-book commands
 
@@ -15,26 +15,27 @@ ERROR: Could not install requirement https://github.com/explosion/spacy-models/r
 [notice] A new release of pip is available: 24.0 -> 26.2.2
 [notice] To update, run: pip install --upgrade pip
 
-- python -m src.data.download -> rc=1
-, line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+- python -m code.src.data.download -> rc=1
+ound
+    raise FileNotFoundError(msg) from err
+FileNotFoundError: timbrooks/instructpix2pix/train (repository not found)
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 200, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 226, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 158, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 185, in main
     df = collect_prompt_sample()
          ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 118, in collect_prompt_sample
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 145, in collect_prompt_sample
     for row in row_iter:
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 97, in _iter_stream_hf
-    raise RuntimeError("Unable to stream dataset from Hugging Face") from fallback_exc
-RuntimeError: Unable to stream dataset from Hugging Face
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 122, in _iter_stream_hf
+    raise RuntimeError(
+RuntimeError: Unable to stream dataset from Hugging Face (both primary and fallback failed)
 
 - python -m src.data.curate -> rc=1
 
@@ -87,6 +88,6 @@ ERROR: file or directory not found: tests/contract/test_evaluation_report.py
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/raw/prompts_sample.parquet` is declared but was NOT written. Scripts referencing it:
-    - `code/src/data/download.py` — NOT invoked by the run-book
+    - `code/src/data/download.py` — IS a run-book command
     - `code/tests/test_download.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/prompts_sample.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
