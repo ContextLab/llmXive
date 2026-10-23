@@ -17,8 +17,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import yaml
-import jsonschema
 from pycoingecko import CoinGeckoAPI
 
 from llmxive_toolkit import paths, get_logger

@@ -1,5 +1,21 @@
-status: none
-intent: Python package to download 5-year daily OHLCV data for BTC and ETH from CoinGecko
+status: verified
+kind: pypi_package
+ref: pycoingecko
+access_python: "from pycoingecko import CoinGeckoAPI\n\ncg = CoinGeckoAPI()\nohlc\
+  \ = cg.get_coin_ohlc_by_id(id=\"bitcoin\", vs_currency=\"usd\", days=30)\nif not\
+  \ ohlc:\n    raise ValueError(\"No OHLC data returned\")\n\nrecords = [\n    {\n\
+  \        \"timestamp\": entry[0],\n        \"open\": entry[1],\n        \"high\"\
+  : entry[2],\n        \"low\": entry[3],\n        \"close\": entry[4],\n    }\n \
+  \   for entry in ohlc\n]\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=timestamp,open,high,low,close\"\
+  )"
+record_count: 180
+sample_fields:
+- timestamp
+- open
+- high
+- low
+- close
+field_coverage: 0.667
 required_fields:
 - date
 - open
@@ -7,7 +23,6 @@ required_fields:
 - low
 - close
 - volume
-- symbol
-cache_key: 1917e2c55c5baf5e65a01a1d46f5745ff4e6933a502b88680083db380dfe7080
-searched_at: '2026-10-23T15:35:26.253042+00:00'
-retry_count: 1
+intent: pycoingecko python package for historical daily OHLCV Bitcoin Ethereum data
+  python package dataset
+cache_key: 8c513cd70d78354ef9580bcca105cc61fb2cd11aa8aa77eeac973277302bb9ff
