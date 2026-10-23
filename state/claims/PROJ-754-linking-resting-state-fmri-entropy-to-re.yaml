@@ -2864,3 +2864,101 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-15T03:17:24Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: test suite confirms modules import correctly and pipeline dry-run exits
+    cleanly
+  claim_id: c_6c969e56
+  context: "Run the test suite - Confirms that all modules import correctly and that\
+    \ a dry\u2011run of the pipeline exits cleanly."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Confirms that all modules import correctly and that a dry\u2011run of\
+    \ the pipeline exits cleanly."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T12:26:08Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: download and quality control completes within 30 minutes
+  claim_id: c_d6d2a9ff
+  context: "Table row indicating Download & QC stage approximate time \u2264\u202F\
+    30\u202Fmin."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Download & QC \u2264\u202F30\u202Fmin"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T12:26:08Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: entropy computation for 5 subjects completes within 15 minutes
+  claim_id: c_bfaa299a
+  context: "Table row indicating Entropy (5 subjects) stage approximate time \u2264\
+    \u202F15\u202Fmin."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Entropy (5 subjects) \u2264\u202F15\u202Fmin"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T12:26:09Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: total pipeline runtime is at most 45 minutes
+  claim_id: c_0521ad14
+  context: "Table row indicating total runtime \u2264\u202F45\u202Fmin."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total \u2264\u202F45\u202Fmin"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T12:26:09Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: peak memory usage does not exceed 2 gigabytes
+  claim_id: c_d9eb2e78
+  context: "Table rows show peak RAM \u2264\u202F2\u202FGB for stages."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Peak RAM \u2264\u202F2\u202FGB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T12:26:09Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: pipeline respects CPU-only constraint and stays within free-tier GitHub
+    Actions limits
+  claim_id: c_cb63de4f
+  context: "Statement after resource table noting that all steps respect the CPU\u2011\
+    only constraint and stay within free\u2011tier GitHub Actions limits."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All steps respect the CPU\u2011only constraint (GC\u2011001) and stay\
+    \ within the free\u2011tier GitHub Actions limits."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T12:26:10Z'

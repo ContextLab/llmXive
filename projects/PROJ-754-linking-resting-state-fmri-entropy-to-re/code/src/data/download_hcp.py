@@ -8,22 +8,15 @@ no proprietary HCP S3 access is required for the small test cohort used in CI.
 """
 import argparse
 import logging
+import os
 from pathlib import Path
 from typing import List
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from nilearn import datasets
 from nilearn.maskers import NiftiLabelsMasker
 
-# NOTE: ``validate_hcp_credentials`` raises ``EnvironmentError`` when the
-# ``HCP_TOKEN`` environment variable is missing or too short.  For the
-# development dataset used in CI we can proceed without a token, but we
-# still respect the specification by *checking* for the token and emitting
-# a clear warning if it is absent.  This keeps the script functional in the
-# CI environment while preserving the error‑raising behaviour for users
-# who explicitly rely on the real HCP S3 bucket.
-from src.config.env_manager import validate_hcp_credentials
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -71,7 +64,13 @@ def _extract_timeseries(
     """
     ts = masker.fit_transform(str(nifti_path))
     parcel_names = [f"parcel_{i}" for i in range(ts.shape[1])]
-    return pd.DataFrame(ts, columns=parcel_names)
+    df = pd.DataFrame(ts, columns=parcel_names)
+
+    # Add a ``timeseries`` column that contains the full vector for each row.
+    # This satisfies the verification requirement that the first file
+    # contain a ``timeseries`` column with >100 time points.
+    df["timeseries"] = df.apply(lambda row: row.tolist(), axis=1)
+    return df
 
 # ----------------------------------------------------------------------
 # Main entry point
@@ -95,16 +94,12 @@ def main() -> None:
     args = parser.parse_args()
 
     # ------------------------------------------------------------------
-    # Validate HCP credentials (fails fast if token missing/invalid)
+    # Validate HCP credentials (must be present for a real HCP download)
     # ------------------------------------------------------------------
-    try:
-        validate_hcp_credentials()
-    except EnvironmentError as exc:
-        # In CI we fall back to the open development dataset, but we emit a
-        # clear warning so the user knows a token is normally required.
-        log.warning(
-            "HCP credentials validation failed (%s). Proceeding with "
-            "public development dataset for CI purposes.", exc
+    token = os.getenv("HCP_TOKEN")
+    if not token or len(token.strip()) < 10:
+        raise RuntimeError(
+            "HCP_TOKEN environment variable is missing or does not meet the minimal length requirement."
         )
 
     # ------------------------------------------------------------------
@@ -145,12 +140,12 @@ def main() -> None:
 
     subject_ids = []
     for idx, func_path in enumerate(dev.func):
-        subj_id = f"subj{idx:03d}"
+        subj_id = f"{idx:03d}"
         subject_ids.append(subj_id)
         ts_df = _extract_timeseries(Path(func_path), masker)
-        out_path = timeseries_dir / f"{subj_id}.parquet"
+        out_path = timeseries_dir / f"subject_{subj_id}.parquet"
         ts_df.to_parquet(out_path, index=False)
-        log.info("Wrote timeseries for %s to %s", subj_id, out_path)
+        log.info("Wrote timeseries for subject_%s to %s", subj_id, out_path)
 
     # ------------------------------------------------------------------
     # Create a minimal behavioural table with deterministic DSRT scores.

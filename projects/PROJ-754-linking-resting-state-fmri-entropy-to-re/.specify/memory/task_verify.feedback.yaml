@@ -1,56 +1,33 @@
 T001:
-  reason: "The directory tree exists with Python files, and the requirements files\
-    \ and quickstart.md are present, but quickstart.md points to a non\u2011existent\
-    \ module (`python -m src.run_pipeline`) and there is no evidence that `pytest\
-    \ code/tests/` actually runs and passes. The implementer must add a runnable `src/run_pipeline.py`\
-    \ (or adjust the command) and provide test execution logs showing all tests succeed."
-  task: 948be6d16247bbf819931a67279132505982da9fc6ffd5b1b90d282e30cc8d2c
+  reason: "The project lacks the required `code/src/pipeline.py` (the orchestrator\
+    \ function `run_pipeline` is never imported) and the `src` shim does not expose\
+    \ `run_pipeline`, causing the integration test `test_run_pipeline.py` to error.\
+    \ The pytest suite therefore does not finish with \u201C0 failed, X passed\u201D\
+    . Additionally, the quick\u2011start command prints \u201CPipeline completed successfully\u2026\
+    \u201D instead of the exact required \u201CPipeline completed\u201D. These missing/incorrect\
+    \ artifacts must be added and corrected for the task to be complete."
+  task: a0c36d11149a7d73bcaa80f7ec07d4a0302af726a7568af6fb68e056f75d16ac
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/src/data/download_hcp.py
-    exit=1'
-  task: bfe0198ab2a362808a135648820171e98659925d6ab0eb5270371a274d242920
+  task: 0476c35a3458bbdf095c53ec74414d13047dd5718ab86090cbddbee4a0437471
 T003:
-  reason: "The implementation `code/src/data/qc.py` and its unit test `code/tests/unit/test_qc.py`\
-    \ are present and correctly handle required\u2011column checks, motion and DSRT\
-    \ exclusions, and write the expected files to a temporary location. However, the\
-    \ required output artifacts `data/derived/clean_subjects.parquet` and `data/derived/subject_qc.csv`\
-    \ are missing from the repository, so the task\u2019s output files do not actually\
-    \ exist. These files must be generated (or committed) at the specified paths for\
-    \ the task to be complete."
-  task: 7d9d47bc53805078924a5481ad533b21b39efd8ad1b75ae926aea3f0156e0e07
+  task: c813ac33e41a92839da11350099c5a879c55589d6ab34eda37778b88ad14377b
 T004:
-  reason: "The task explicitly requires the **pyentropy library (pyentropy==0.4.\\\
-    *)** and its `sample_entropy` function, but the implementer instead created a\
-    \ local project-level stub package `pyentropy/__init__.py` self-described as a\
-    \ \"Minimal stub of the pyentropy package\" \u2014 a stand-in for the required\
-    \ real dependency, not the library itself. Additionally, there is no execution\
-    \ evidence (pytest output) that the unit tests pass or that the low-vs-high complexity\
-    \ validation held, and `data/derived/invalid_parcels.csv` was never produced (no\
-    \ test exercises the insufficient-timepoints/NaN flagging path, so"
-  task: ccab806b339a9eb341131bf139c8e1f8e565552bab3bd54fef75c85d814ee5f7
+  task: 92607ab5636da82b75a1836003fe4cef22bb13177933524845a400f4b8fec55d
 T005:
-  reason: 'Requested task execution failed; rerun successfully: code/src/run_pipeline.py
-    exit=1'
-  task: bb6f282a4be2fe3ba11742b685e61b43315c295ffea619ee26ba8f67ace81d6b
+  task: 501680e761aff2c623482e3dc2349da80beea5515dc79d7b1de13e765e300371
 T006:
-  task: 5e3b18ea7e8c9b12dd3b275192fa9af94250e1bfddaf6e657a40e19307a10241
+  task: 1b7dccd514647ed9f0397cc66022a15d1d6a2787c896b5099f9a88351404d060
 T007:
-  task: de9d43158640705e8b68d4d21c136e29aa3387b48d3d28ca7ab91b7f2ed3362e
+  task: 2aac6208034e68dd76d8ac2154af824533dcd0a1e345af935208f78f29fe0e8e
 T008:
-  task: 32401157ef55ea0de57677a8fef9f702290974827a8d9c6b30cd636953664e1f
+  task: 8e205281ae7f602010d18500aef8ef5cb1e6679e68c03a825b08301d039d4f53
 T009:
-  task: c00d2edb4db29edf506f9a592bad0ea148602737c498e9f2147f95718c2150a0
+  task: c54c956d4736a3cbd1a52ac8ffcb10f64c80ebfd66c44ee1e5b2ece3e9db05fe
 T010:
-  task: 3470d4d30bebead08eddbc35c5f14086943f2d25cfc5880cc49e41d6c2483dcb
+  task: 5d563777ba8e0a7a1e5a7ad4030361162338a89d7fb14e2a51c927052902d449
 T011:
-  task: 31f9fb90e541e72139b7ff9791af75f11933bacf17755993800e34f6a0392914
+  task: 21b39cbb58f3e604efd8c057d5c3a8e0e25f9e18ed0d1b81834663496386c440
 T012:
-  task: 3745fb242fb8dd8694728ee046c7a2aadb07e3e0cc6b1a718cdc752ac1b1d555
+  task: a2e14e10774ad35ec3061dcad8e1a02cd8b5256343f374b23a0d26dc2dfb16b9
 T013:
-  task: f60fadcbc035419244f8d0187f6d130d3d023e93206e90928ad9c316a4ef590f
-T014:
-  task: 275ac3daedba7eb350ed9096dc738bb8a2a335071bece8db14bc845673b2b2b1
-T015:
-  task: a310d0beb63101c8ba5a4904b935df2c5d7bf2a979eda911a0358375787464ea
-T016:
-  task: 07dd400818c6f563a8226f78318732abe4ef1b0c397e81872293c16ad881bc84
+  task: 3b0ced45161d79f92f4c9f6b3ef206b4ede18c87289eb680d08dd80ada10f768

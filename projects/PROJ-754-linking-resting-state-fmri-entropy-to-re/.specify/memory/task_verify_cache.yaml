@@ -1,23 +1,11 @@
-T003:
+T001:
   c: false
-  h: 996d31dd19f577473b53a839b1d18626fbd6df539672934fd9391368b39ab311
-  r: "The implementation `code/src/data/qc.py` and its unit test `code/tests/unit/test_qc.py`\
-    \ are present and correctly handle required\u2011column checks, motion and DSRT\
-    \ exclusions, and write the expected files to a temporary location. However, the\
-    \ required output artifacts `data/derived/clean_subjects.parquet` and `data/derived/subject_qc.csv`\
-    \ are missing from the repository, so the task\u2019s output files do not actually\
-    \ exist. These files must be generated (or committed) at the specified paths for\
-    \ the task to be complete."
-  sig: 1820aa692a644edabe0de2f24d403a5a3697c327d8f6f62042397560ed8aa4fc
-T004:
-  c: false
-  h: c60dc391f9eb89aaf1c89587bf3f980efafd56611bd73cd37eb204899bf60d05
-  r: "The task explicitly requires the **pyentropy library (pyentropy==0.4.\\*)**\
-    \ and its `sample_entropy` function, but the implementer instead created a local\
-    \ project-level stub package `pyentropy/__init__.py` self-described as a \"Minimal\
-    \ stub of the pyentropy package\" \u2014 a stand-in for the required real dependency,\
-    \ not the library itself. Additionally, there is no execution evidence (pytest\
-    \ output) that the unit tests pass or that the low-vs-high complexity validation\
-    \ held, and `data/derived/invalid_parcels.csv` was never produced (no test exercises\
-    \ the insufficient-timepoints/NaN flagging path, so"
-  sig: 8e9300460d6a9fd7e065769e53e58cc52eb178c7945a421314fc1baa23006141
+  h: b76ee77e0a4703dd1d839db9407e76ce86f233431119847adae96714502a81c0
+  r: "The project lacks the required `code/src/pipeline.py` (the orchestrator function\
+    \ `run_pipeline` is never imported) and the `src` shim does not expose `run_pipeline`,\
+    \ causing the integration test `test_run_pipeline.py` to error. The pytest suite\
+    \ therefore does not finish with \u201C0 failed, X passed\u201D. Additionally,\
+    \ the quick\u2011start command prints \u201CPipeline completed successfully\u2026\
+    \u201D instead of the exact required \u201CPipeline completed\u201D. These missing/incorrect\
+    \ artifacts must be added and corrected for the task to be complete."
+  sig: 3b32b2eedc448da4939cc4b6b1e4d1b4c2e031849514bc93b6b029013eea6c53

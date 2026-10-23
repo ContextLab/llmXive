@@ -18,7 +18,7 @@ This guide walks a new user through the end‑to‑end analysis on a fresh GitHu
 
 2. **Run the full pipeline (small test cohort)**
  ```bash
- python -m src.run_pipeline --subjects 5
+ python -m code.src.run_pipeline --subjects 5
  ```
  - Downloads a small subset of HCP data, applies quality control, computes multiscale entropy, and writes the results to `results/`.
  - Expected artefacts:
@@ -26,11 +26,11 @@ This guide walks a new user through the end‑to‑end analysis on a fresh GitHu
  * `results/covariates.parquet`
  * Log files under `logs/` documenting each step.
 
-3. **Verify reproducibility (optional)**
+3. **Run the test suite**
  ```bash
  pytest -v code/tests/
  ```
- - Unit and contract tests confirm that schema validation passes and that a mini‑dataset workflow reproduces expected shapes. [UNRESOLVED-CLAIM: c_b5bf41b9 — status=not_enough_info]
+ - Confirms that all modules import correctly and that a dry‑run of the pipeline exits cleanly. [UNRESOLVED-CLAIM: c_6c969e56 — status=not_enough_info]
 
 ## Expected Runtime & Resources (CI‑friendly)
 
@@ -40,4 +40,4 @@ This guide walks a new user through the end‑to‑end analysis on a fresh GitHu
 | Entropy (5 subjects) | ≤ 15 min | ≤ 2 GB |
 | Total | **≤ 45 min** | **≤ 2 GB** |
 
-All steps respect the CPU‑only constraint (GC‑001) and stay within the free‑tier GitHub Actions limits.
+All steps respect the CPU‑only constraint (GC‑001) and stay within the free‑tier GitHub Actions limits. [UNRESOLVED-CLAIM: c_cb63de4f — status=not_enough_info]

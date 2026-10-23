@@ -1,16 +1,15 @@
 """
-src package initializer.
-This file ensures that the project's internal `code/src` directory is added to
-Python's module search path, allowing imports such as `import src.analysis.entropy`
-to resolve to the implementation located under `code/src/`.
+Top‑level ``src`` package that re‑exports the actual source tree located at
+``code/src``.  This shim enables imports such as ``import src.data.qc`` that
+the existing test suite expects.
 """
 import sys
 from pathlib import Path
 
-# Resolve the path to the internal source directory (project_root/code/src)
-_project_root = Path(__file__).resolve().parent
-_internal_src = _project_root / "code" / "src"
+# Resolve the path to the real implementation package.
+_real_src_path = Path(__file__).resolve().parent / "code" / "src"
+if str(_real_src_path) not in sys.path:
+    sys.path.insert(0, str(_real_src_path))
 
-if _internal_src.is_dir():
-    # Insert at the front of sys.path so it takes precedence
-    sys.path.insert(0, str(_internal_src))
+# After adjusting ``sys.path`` the sub‑modules can be imported normally.
+# No further symbols are defined here.

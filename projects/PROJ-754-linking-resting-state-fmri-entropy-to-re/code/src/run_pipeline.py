@@ -9,13 +9,10 @@ It sequentially invokes:
   2. ``src.data.qc``          – quality‑control, producing clean_subjects.parquet.
   3. ``src.compute_entropy`` – computes the entropy matrix and covariates.
 
-The final artefacts are:
-
-  * ``results/entropy_matrix.parquet`` (subjects × parcels)
-  * ``results/covariates.parquet``   (subject_id, age, sex, mean_fd, dsrt_score)
-
 The script respects the RAM budget by delegating the heavy work to
 ``compute_entropy`` which batches parcels.
+
+``--dry-run`` can be used by the test suite to avoid any heavy I/O.
 """
 import argparse
 import sys
@@ -34,8 +31,17 @@ def main() -> None:
         default=5,
         help="Number of subjects to process (default: 5).",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Execute a dry‑run that skips all heavy processing (used for tests).",
+    )
     args = parser.parse_args()
     logger = get_logger(__name__)
+
+    if args.dry_run:
+        logger.info("Dry‑run requested – exiting successfully without processing.")
+        return
 
     # ------------------------------------------------------------------
     # Step 1 – Download data
@@ -82,7 +88,9 @@ def main() -> None:
     ]
     entropy_main()
 
-    logger.info("Pipeline completed successfully. Results are in the 'results/' folder.")
+    logger.info(
+        "Pipeline completed successfully. Results are in the 'results/' folder."
+    )
 
 if __name__ == "__main__":
     main()

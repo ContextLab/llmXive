@@ -2,32 +2,20 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 command(s) failed: python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/ (rc=1); python -m src.compute_entropy  --input data/derived/clean_subjects.parquet  --output data/derived/entropy_matrix.parquet  --scales 1 2 3 4 5  --average  --r 0.15  --m 2 (rc=1); python -m src.run_stats  --entropy data/derived/entropy_matrix.parquet  --covariates data/derived/clean_subjects.parquet  --n-permutations 5000  --max-runtime 10800  --output-dir results/ (rc=1); 4 declared deliverable(s) absent: data/derived/clean_subjects.parquet; data/derived/invalid_parcels.csv; data/derived/subject_qc.csv
+**Summary**: 2 command(s) failed: python -m src.run_pipeline  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --entropy-r 0.15  --entropy-m 2  --scales 1 2 3 4 5  --n-permutations 1000  --seed 42 (rc=1); python -m pytest -v tests/ (rc=2); 4 declared deliverable(s) absent: data/derived/clean_subjects.parquet; data/derived/invalid_parcels.csv; data/derived/subject_qc.csv
 
 ## Failing / missing run-book commands
 
-- python -m src.download_data  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --output-dir data/ -> rc=1
+- python -m src.run_pipeline  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --entropy-r 0.15  --entropy-m 2  --scales 1 2 3 4 5  --n-permutations 1000  --seed 42 -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/bin/python: No module named src.download_data
-
-- python -m src.compute_entropy  --input data/derived/clean_subjects.parquet  --output data/derived/entropy_matrix.parquet  --scales 1 2 3 4 5  --average  --r 0.15  --m 2 -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/bin/python: No module named src.compute_entropy
-
-- python -m src.run_stats  --entropy data/derived/entropy_matrix.parquet  --covariates data/derived/clean_subjects.parquet  --n-permutations 5000  --max-runtime 10800  --output-dir results/ -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/bin/python: No module named src.run_stats
-
-- python -m src.generate_report  --coeffs results/model_coefficients.csv  --nii results/significant_parcels.nii.gz  --sensitivity data/derived/sensitivity.parquet  --power-output results/power_analysis.csv  --output reports/link_entropy_risk.pdf -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/bin/python: No module named src.generate_report
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/bin/python: No module named src.run_pipeline
 
 - python -m pytest -v tests/ -> rc=2
 
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re
 configfile: pyproject.toml
-plugins: platformdirs-4.13.0
+plugins: platformdirs-4.13.5
 collecting ... collected 27 items / 1 error
 
 ==================================== ERRORS ====================================
@@ -43,7 +31,7 @@ E   ModuleNotFoundError: No module named 'src.entities'
 =========================== short test summary info ============================
 ERROR tests/unit/test_qc.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.47s ===============================
+=============================== 1 error in 0.30s ===============================
 
 
 
