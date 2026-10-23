@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import List
 
 import pandas as pd
-from datasets import load_dataset
+from huggingface_hub import hf_hub_download, list_repo_files
 
 from code.config import (
     DATA_RAW,
@@ -94,6 +94,28 @@ def _record_passes_filters(record: dict) -> bool:
 # ----------------------------------------------------------------------
 # Core loader
 # ----------------------------------------------------------------------
+def _find_ebd_file() -> Path:
+    """
+    Locate a suitable eBird data file in the HuggingFace repository.
+    The function prefers CSV or plain‑text files.
+    """
+    repo_id = "vvud/eb-data"
+    # Retrieve the list of files in the repo
+    files = list_repo_files(repo_id)
+    # Choose the first file that looks like a data dump
+    candidates = [
+        f for f in files
+        if f.lower().endswith((".csv", ".txt", ".csv.gz", ".txt.gz"))
+    ]
+    if not candidates:
+        raise FileNotFoundError(
+            f"No CSV/TXT data file found in repository '{repo_id}'."
+        )
+    # Download the first candidate
+    return Path(
+        hf_hub_download(repo_id=repo_id, filename=candidates[0])
+    )
+
 def load_ebird_data() -> pd.DataFrame:
     """
     Streams the eBird Basic Dataset from HuggingFace, filters for
@@ -120,38 +142,54 @@ def load_ebird_data() -> pd.DataFrame:
         except Exception as e:
             logger.warning(f"Checksum verification failed: {e}")
 
-    logger.info("Opening streaming dataset from HuggingFace...")
+    logger.info("Downloading eBird dataset file from HuggingFace...")
     # This will raise if the dataset cannot be accessed – we let it propagate.
-    dataset = load_dataset("vvud/eb-data", split="train", streaming=True)
+    data_file_path = _find_ebd_file()
 
     rows_written = 0
     header_written = False
-    buffer: List[dict] = []
 
-    for record in dataset:
-        if not _record_passes_filters(record):
+    # Stream the file in pandas chunks; this works for CSV or TSV files.
+    # The eBird dataset uses a comma separator, but we also allow tab‑separated
+    # files by letting pandas infer the delimiter.
+    for chunk in pd.read_csv(
+        data_file_path,
+        chunksize=CHUNK_SIZE,
+        low_memory=False,
+        dtype=str,  # read everything as string initially to avoid dtype issues
+    ):
+        # Convert the relevant columns to the appropriate types for filtering
+        # We use pandas to_numeric / to_datetime with errors='coerce' to safely handle bad rows.
+        # Create a mask according to the same logic as _record_passes_filters.
+        # Note: many columns may be missing; we treat missing values as failing the filter.
+        mask = (
+            (chunk["species_code"] == SPECIES_CODE) &
+            (pd.to_numeric(chunk.get("duration_min", pd.Series()), errors="coerce") >= MIN_DURATION) &
+            (pd.to_numeric(chunk.get("num_observers", pd.Series()), errors="coerce") >= MIN_OBSERVERS) &
+            (pd.to_numeric(chunk.get("distance_km", pd.Series()), errors="coerce") <= MAX_DISTANCE) &
+            (pd.to_numeric(chunk.get("latitude", pd.Series()), errors="coerce").between(LAT_MIN, LAT_MAX)) &
+            (pd.to_numeric(chunk.get("longitude", pd.Series()), errors="coerce").between(LON_MIN, LON_MAX)) &
+            (pd.to_numeric(chunk.get("year", pd.Series()), errors="coerce").between(YEAR_START, YEAR_END))
+        )
+        filtered = chunk.loc[mask]
+
+        if filtered.empty:
             continue
 
-        buffer.append(record)
-
-        if len(buffer) >= CHUNK_SIZE:
-            df_chunk = pd.DataFrame(buffer)
-            mode = "w" if not header_written else "a"
-            df_chunk.to_csv(output_path, index=False, mode=mode, header=not header_written)
-            header_written = True
-            rows_written += len(buffer)
-            buffer.clear()
-            logger.debug(f"Wrote {rows_written} rows to {output_path}")
-
-    # Write any remaining rows
-    if buffer:
-        df_chunk = pd.DataFrame(buffer)
         mode = "w" if not header_written else "a"
-        df_chunk.to_csv(output_path, index=False, mode=mode, header=not header_written)
-        rows_written += len(buffer)
+        filtered.to_csv(
+            output_path,
+            index=False,
+            mode=mode,
+            header=not header_written,
+        )
+        header_written = True
+        rows_written += len(filtered)
 
     if rows_written == 0:
-        raise RuntimeError("No records matched the filtering criteria; output file is empty.")
+        raise RuntimeError(
+            "No records matched the filtering criteria; output file is empty."
+        )
 
     logger.info(f"Successfully wrote {rows_written} rows to {output_path}")
 
