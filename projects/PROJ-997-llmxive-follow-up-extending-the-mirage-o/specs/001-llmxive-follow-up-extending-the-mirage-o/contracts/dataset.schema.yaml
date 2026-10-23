@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "TrainingSample Dataset Schema"
-description: "Schema for the ground-truth dataset containing training features and quantized divergence targets."
+description: "Schema for the ground‑truth dataset containing training features and quantized divergence targets."
 type: "object"
 properties:
   input_id:
@@ -11,7 +11,7 @@ properties:
     description: "The input text (e.g., GSM8K question)."
   gradient_norm:
     type: "number"
-    description: "L2 norm of the gradient vector from full-precision training step."
+    description: "L2 norm of the gradient vector from full‑precision training step."
   local_curvature:
     type: "number"
     description: "Approximation of local curvature (e.g., Hessian trace diagonal)."
@@ -35,6 +35,13 @@ properties:
     type: "string"
     format: "date-time"
     description: "Generation timestamp."
+  hardware_source:
+    type: "string"
+    enum:
+      - "CPU"
+      - "GPU"
+    description: "Hardware device used for quantized inference."
+    nullable: true
 required:
   - "input_id"
   - "prompt"

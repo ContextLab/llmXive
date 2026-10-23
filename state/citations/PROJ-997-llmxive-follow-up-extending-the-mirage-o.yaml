@@ -1,11 +1,11 @@
-- artifact_hash: bd221955bf2e095f6a954c8cc108f546ed0da807ac390c7e9f5fdba2cfbad065
+- artifact_hash: 8637180f25f819b905e082487d55ea661f50abdcf782625bb8178acc63e93b37
   artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://github.com/your-org/llmxive-follow-up.git
+  value: https://github.com/your-org/PROJ-997-llmxive-follow-up-extending-the-mirage-o.git
   verification_status: mismatch
-  verified_against_url: https://github.com/your-org/llmxive-follow-up
-  verified_at: '2026-08-12T16:41:07.807506Z'
+  verified_against_url: https://github.com/your-org/PROJ-997-llmxive-follow-up-extending-the-mirage-o
+  verified_at: '2026-10-23T11:29:40.892800Z'

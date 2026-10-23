@@ -1,9 +1,16 @@
 status: none
-intent: '### User Story 1 - Hardware-Validated Gap Dataset Generation (Priority: P1)
-  As a researcher, I need to generate a dataset pairing full-precision training signals
-  (gradient norms, local curvature) with ground-truth policy divergence measured by
-  a CPU-based quantized inference engine, so that I can tr'
-required_fields: []
-cache_key: f8d6a09ccc6c7d15cc35c449d627fc8dc1fc693c7457c508a58c7c50a40c497e
-searched_at: '2026-10-18T21:25:43.435561+00:00'
+intent: GSM8K Hugging Face dataset Llama-3-8B model weights python package dataset
+required_fields:
+- prompt_text
+- full_precision_output_distribution
+- int8_output_distribution
+- int4_output_distribution
+- fp8_output_distribution
+- kl_divergence_int8
+- kl_divergence_int4
+- kl_divergence_fp8
+- gradient_norm
+- local_curvature
+cache_key: 34af557b5c2e75455797c4b38742afc6fc6903c94f67c88a95d2ab0e01c0d2ac
+searched_at: '2026-10-23T11:11:43.560029+00:00'
 retry_count: 1

@@ -11,14 +11,19 @@ properties:
     description: "The input text (e.g., GSM8K question)."
   gradient_norm:
     type: "number"
-    description: "L2 norm of the gradient vector from full-precision training step."
+    description: "L2 norm of the gradient vector from full‑precision training step."
   local_curvature:
     type: "number"
     description: "Approximation of local curvature (e.g., Hessian trace diagonal)."
-  logits_magnitude:
+  kl_div_int4:
     type: "number"
-    description: "The L2 norm of the output logits vector (deprecated)."
-    nullable: true
+    description: "KL divergence between FP16 and INT4 quantized logits."
+  kl_div_int8:
+    type: "number"
+    description: "KL divergence between FP16 and INT8 quantized logits."
+  kl_div_fp8:
+    type: "number"
+    description: "KL divergence between FP16 and FP8 quantized logits."
   quantization_level:
     type: "string"
     enum:
@@ -26,47 +31,25 @@ properties:
       - "INT8"
       - "FP8"
     description: "Quantization level for the sample."
-  quantized_logits:
-    type: "array"
-    items:
-      type: "number"
-    description: "The logits output from the quantized engine."
-  full_precision_logits:
-    type: "array"
-    items:
-      type: "number"
-    description: "The logits output from the full-precision engine."
-  kl_divergence:
-    type: "number"
-    description: "The calculated KL divergence between full-precision and quantized logits."
-    minimum: 0
-  ground_truth_answer:
+  timestamp:
     type: "string"
-    nullable: true
-    description: "The ground-truth answer for the prompt (only for GSM8K subset)."
-  is_reasoning_task:
-    type: "boolean"
-    description: "Indicates if the sample is from the GSM8K reasoning subset."
-  processing_status:
+    format: "date-time"
+    description: "Generation timestamp."
+  hardware_source:
     type: "string"
     enum:
-      - "success"
-      - "skipped"
-      - "error"
-    description: "Status of the sample processing."
-  error_message:
-    type: "string"
+      - "CPU"
+      - "GPU"
+    description: "Hardware device used for quantized inference."
     nullable: true
-    description: "Error message if processing failed."
 required:
-  - input_id
-  - prompt
-  - gradient_norm
-  - local_curvature
-  - kl_div_int4
-  - kl_div_int8
-  - kl_div_fp8
-  - quantization_level
-  - timestamp
-  - is_reasoning_task
+  - "input_id"
+  - "prompt"
+  - "gradient_norm"
+  - "local_curvature"
+  - "kl_div_int4"
+  - "kl_div_int8"
+  - "kl_div_fp8"
+  - "quantization_level"
+  - "timestamp"
 additionalProperties: false

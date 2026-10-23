@@ -44,7 +44,7 @@ properties:
       - "FP8"
   statistical_tests:
     type: "object"
-    description: "Results of the paired t-test comparing proxy vs. baseline."
+    description: "Results of the paired t‑test comparing proxy vs. baseline."
     properties:
       t_statistic:
         type: "number"
@@ -54,7 +54,7 @@ properties:
         type: "number"
       conclusion:
         type: "string"
-        description: "e.g., 'No significant degradation (p > 0.05)'"
+        description: "e.g., 'No significant degradation (p > 0.05)'."
     required:
       - "t_statistic"
       - "p_value"
