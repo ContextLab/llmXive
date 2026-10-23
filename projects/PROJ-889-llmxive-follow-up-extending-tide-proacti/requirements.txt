@@ -1,6 +1,6 @@
-pyarrow
+# Project dependencies
 datasets==2.20.0
 huggingface_hub==0.23.0
-torch==2.2.2
-transformers==4.41.2
-radon==6.0.1
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
+# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil)
+# are provided by the base environment and need not be listed here.
