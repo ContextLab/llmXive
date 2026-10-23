@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — The root‑level `.flake8` file is absent (the only `.flake8` shown is inside `code/`), and the required top‑level `metrics/` and `logs/` directories (each containing a `.gitkeep`) are not present in the listed artifacts. Consequently the scaffold does not meet all specified requirements.
+- **T003** — Checked `logs/logging_config.yaml` (correct format/level) and `code/logging_setup.py` (loads config and configures logging), but the pytest run (`tests/test_logging_setup.py`) failed because the logging formatter raised a `ValueError` (unsupported format character) and the generated log file was empty. Moreover `logs/preprocess_counts.yaml` is just an empty list (`[]`) instead of a non‑empty list of objects conforming to `contracts/log_counts.schema.yaml`, and no script evidence shows the required `setup_logger = get_logger(__name__)` import. The task’s logging initialization and log‑counts ou
+- **T004** — Requested task execution failed; rerun successfully: tests/unit/test_download.py exit=1

@@ -13,7 +13,7 @@
   - Populate each top‑level directory (`code/`, `data/raw/`, `data/processed/`, `models/`, `metrics/`, `logs/`, `reports/`, `tests/`, `contracts/`) with a `.gitkeep` file **including `metrics/` and `logs/`**.  
   - **Verification**: `git ls-files` shows the `.gitkeep` files in **all** directories and `.flake8` resides at the repository root.
 
-- [ ] T002 [P] **Add global configuration** – `code/config.py` with constants (species list, paths, `THINNING_DISTANCE_KM`, random seeds, `n_jobs=2`). *(Already completed and verified.)*
+- [X] T002 [P] **Add global configuration** – `code/config.py` with constants (species list, paths, `THINNING_DISTANCE_KM`, random seeds, `n_jobs=2`). *(Already completed and verified.)*
 
 - [ ] T003 [P] **Initialize structured logging**  
   - Create `logs/logging_config.yaml` defining format `%(asctime)s - %(name)s - %(levelname)s - %(message)s` and level INFO.  
@@ -25,7 +25,7 @@
 
 ## Phase 1 – Data acquisition (User Story 1)
 
-- [ ] T004 [US1] **Implement robust download script** – `code/download.py` must:  
+- [ ] T004 [US1] **Implement robust download script** – `code/download.py` must:   <!-- FAILED-IN-EXECUTION: tests/unit/test_download.py exit=1 -->
   1. Stream historical occurrence records (1970‑2000) from GBIF/eBird via `pygbif`, write to `data/raw/occurrence_historic.csv` **including columns** `gbif_key`, `source`, `download_timestamp`, `dataset_name`.  
   2. Stream recent occurrence records (2005‑2020) to `data/raw/occurrence_recent.csv` with the same provenance columns.  
   3. Stream WorldClim v2 historical rasters (bio1‑bio19) to `data/raw/climate_historic/`.  

@@ -1,0 +1,27 @@
+T001:
+  c: false
+  h: 99cace20c5ea27851297699aab04ac7b90f237cbfb2128a4b27f314ae3a1338b
+  r: "The root\u2011level `.flake8` file is absent (the only `.flake8` shown is inside\
+    \ `code/`), and the required top\u2011level `metrics/` and `logs/` directories\
+    \ (each containing a `.gitkeep`) are not present in the listed artifacts. Consequently\
+    \ the scaffold does not meet all specified requirements."
+  sig: cbbcefd15c5dcc6a9db2d531459fe65bfb96adb53a634cbd936a5cbadfde9a07
+T002:
+  c: true
+  h: 6c94e87b850a9af970ce0fc8249b2b9f6834a26cfe3a10afe05c9101bd0bc688
+  r: "Checked `code/config.py` (3188\u202Fbytes) which defines the required paths,\
+    \ `SPECIES_LIST`, `THINNING_DISTANCE_KM`, `RND_SEED`, and `N_JOBS = 2` as specified.\
+    \ The file is fully populated and not a placeholder."
+  sig: b4912ff7562f12ca1fc4fdfbb716489318f0d39665b32d715924a3339f1ac252
+T003:
+  c: false
+  h: 61143e53bbeecceea3a3eae341525e26d049d79890bf33f5e9615bdbe47f215c
+  r: "Checked `logs/logging_config.yaml` (correct format/level) and `code/logging_setup.py`\
+    \ (loads config and configures logging), but the pytest run (`tests/test_logging_setup.py`)\
+    \ failed because the logging formatter raised a `ValueError` (unsupported format\
+    \ character) and the generated log file was empty. Moreover `logs/preprocess_counts.yaml`\
+    \ is just an empty list (`[]`) instead of a non\u2011empty list of objects conforming\
+    \ to `contracts/log_counts.schema.yaml`, and no script evidence shows the required\
+    \ `setup_logger = get_logger(__name__)` import. The task\u2019s logging initialization\
+    \ and log\u2011counts ou"
+  sig: 6550e763b063f51f1ca122c02e881d1a4ac2c026232dc5cf204cafdf832c499a

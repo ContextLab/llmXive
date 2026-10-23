@@ -1,10 +1,24 @@
 T001:
+  reason: "The root\u2011level `.flake8` file is absent (the only `.flake8` shown\
+    \ is inside `code/`), and the required top\u2011level `metrics/` and `logs/` directories\
+    \ (each containing a `.gitkeep`) are not present in the listed artifacts. Consequently\
+    \ the scaffold does not meet all specified requirements."
   task: 26387793865012ada560937bf319560386b147e3cb7c4e985ebd64df12e886c7
 T002:
   task: aa7b20f20fbd9f138095b4e812247f5e322a2779ba7fb26415f518a69c85ec6a
 T003:
+  reason: "Checked `logs/logging_config.yaml` (correct format/level) and `code/logging_setup.py`\
+    \ (loads config and configures logging), but the pytest run (`tests/test_logging_setup.py`)\
+    \ failed because the logging formatter raised a `ValueError` (unsupported format\
+    \ character) and the generated log file was empty. Moreover `logs/preprocess_counts.yaml`\
+    \ is just an empty list (`[]`) instead of a non\u2011empty list of objects conforming\
+    \ to `contracts/log_counts.schema.yaml`, and no script evidence shows the required\
+    \ `setup_logger = get_logger(__name__)` import. The task\u2019s logging initialization\
+    \ and log\u2011counts ou"
   task: 08cd29aff1827c1f9312b91e50cd1377812437905c962f48bd9bda8d7d8517bb
 T004:
+  reason: 'Requested task execution failed; rerun successfully: tests/unit/test_download.py
+    exit=1'
   task: 842ef0b3020b8f62612f3fc2b9d9fbd3e207629973606b174c5db4436379d684
 T005:
   task: 9c7367baca73c4c9adf7fb7dacce3e7962978e771cc70779401916b0b7c3a6a9

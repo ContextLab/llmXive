@@ -1,34 +1,50 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/main.py download`
+  - script usage: `main.py [-h] [--species-list SPECIES_LIST] [--year-range YEAR_RANGE]`
+  - argparse error: `main.py: error: unrecognized arguments: download`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 run-book script(s) missing (plan/impl path mismatch): python code/main.py scaffold; python code/main.py download; python code/main.py preprocess
+**Summary**: 5 command(s) failed: python code/main.py download (rc=2); python code/main.py preprocess (rc=1); python code/main.py train (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/main.py scaffold -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-181-predicting-species-distribution-shifts-u/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
-
 - python code/main.py download -> rc=2
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-181-predicting-species-distribution-shifts-u/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
+usage: main.py [-h] [--species-list SPECIES_LIST] [--year-range YEAR_RANGE]
+               [--target {historical,recent}]
+               [--climate {historical,recent,future}] [--scenario SCENARIO]
+               [--year YEAR]
+main.py: error: unrecognized arguments: download
 
-- python code/main.py preprocess -> rc=2
+- python code/main.py preprocess -> rc=1
+2026-10-23 12:37:00,032 - __main__ - ERROR - preprocess command not implemented yet.
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-181-predicting-species-distribution-shifts-u/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
+2026-10-23 12:37:00,032 ERROR __main__: preprocess command not implemented yet.
+preprocess command not implemented yet.
 
-- python code/main.py train -> rc=2
+- python code/main.py train -> rc=1
+2026-10-23 12:37:00,215 - __main__ - ERROR - train command not implemented yet.
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-181-predicting-species-distribution-shifts-u/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
+2026-10-23 12:37:00,215 ERROR __main__: train command not implemented yet.
+train command not implemented yet.
 
-- python code/main.py evaluate -> rc=2
+- python code/main.py evaluate -> rc=1
+2026-10-23 12:37:00,392 - __main__ - ERROR - evaluate command not implemented yet.
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-181-predicting-species-distribution-shifts-u/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
+2026-10-23 12:37:00,392 ERROR __main__: evaluate command not implemented yet.
+evaluate command not implemented yet.
 
-- python code/main.py report -> rc=2
+- python code/main.py report -> rc=1
+2026-10-23 12:37:00,572 - __main__ - ERROR - report command not implemented yet.
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-181-predicting-species-distribution-shifts-u/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/main.py': [Errno 2] No such file or directory
+2026-10-23 12:37:00,572 ERROR __main__: report command not implemented yet.
+report command not implemented yet.
 
 ## Platform-owned paths written inside the project
 
