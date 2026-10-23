@@ -20,6 +20,7 @@ The researcher needs to ingest a public dataset of molecular structures (SMILES)
 1. **Given** a raw dataset file containing SMILES strings and FQY values, **When** the preprocessing script is executed, **Then** the output includes a training set, validation set, and test set where the test set scaffolds are disjoint from the training set.
 2. **Given** a SMILES string with invalid syntax, **When** the preprocessing script processes it, **Then** the molecule is **excluded** from the dataset, and a **log entry records the exclusion reason** without crashing the pipeline.
 3. **Given** the preprocessed data, **When** the feature extraction runs, **Then** every node in the molecular graph includes atom type, hybridization, and formal charge, and every edge includes bond type and conjugation status.
+4. **Given** a synthetic test file that contains a molecule with a novel atom type (e.g., a lanthanide element not present in the training set), **When** the preprocessing script encounters it, **Then** the molecule is logged as “unseen atom type” and is **skipped** for inference but retained for evaluation, with a summary warning emitted at the end of the run (see FR-012).
 
 ---
 
@@ -49,7 +50,7 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained GNN model and a test molecule, **When** the Integrated Gradients method is applied, **Then** the system outputs a ranked list of the **most influential substructures**, where substructures are defined as contiguous aromatic or conjugated fragments obtained by grouping atom‑level attributions (see FR‑006 aggregation rule).
+1. **Given** a trained GNN model and a test molecule, **When** the Integrated Gradients method is applied, **Then** the system outputs a ranked list of the **most influential substructures**, where substructures are defined as chemically meaningful fragments (e.g., aromatic rings, conjugated systems, heteroatom‑containing functional groups) obtained by grouping atom‑level attributions (see FR‑006 aggregation rule).
 2. **Given** the feature importance data, **When** the visualization script runs, **Then** it generates a parity plot (predicted vs. experimental FQY) and a feature importance bar chart that can be saved as an image file.
 3. **Given** a molecule with a known high FQY (selected as one of the top‑5 highest FQY values (i.e., the five molecules with the highest experimental FQY in the test set)), **When** the attribution analysis is performed, **Then** at least **3 of the top 5 substructures** must match entries in the curated reference set of fluorophore motifs (see Supplementary Table S1). This constitutes a pass of the interpretability validation.
 
@@ -64,6 +65,12 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 - **What happens when** the scaffold-based split results in a test set with fewer than 20 molecules, potentially making statistical significance impossible to determine?  
   *Handled by FR‑013 (log a warning; split ratios remain 80/10/10).*
 
+## User Story ID Glossary
+
+- **US-1** – Data Curation and Preprocessing Pipeline (User Story 1)  
+- **US-2** – GNN Model Training and Baseline Comparison (User Story 2)  
+- **US-3** – Feature Attribution and Interpretability Analysis (User Story 3)
+
 ## Requirements
 
 ### Functional Requirements
@@ -73,18 +80,17 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 - **FR-003**: System MUST implement a message‑passing GNN with <5 million parameters using PyTorch Geometric, operating in default precision on CPU only (See US-2).
 - **FR-004**: System MUST train the model for a maximum of 50 epochs with early stopping (patience=10) based on validation loss, using the Adam optimizer and MSE loss (See US-2).
 - **FR-005**: System MUST evaluate both the GNN and a linear regression baseline (using ECFP4 fingerprints) on the test set, reporting R², RMSE, and MAE (See US-2).
-- **FR-006**: System MUST apply Integrated Gradients or SHAP to the trained GNN to compute feature importance scores. Atom‑level attributions are **aggregated into substructures** by grouping atoms that belong to the same contiguous aromatic or conjugated fragment (detected via RDKit). The system then reports the **top 20 substructures** ranked by summed absolute attribution (See US-3).
+- **FR-006**: System MUST apply Integrated Gradients or SHAP to the trained GNN to compute feature importance scores. Atom‑level attributions are **aggregated into chemically meaningful substructures** (e.g., aromatic rings, conjugated fragments, heteroatom‑containing functional groups) detected via RDKit. The system then reports the **top 20 substructures** ranked by summed absolute attribution (See US-3).
 - **FR-007**: System MUST generate visualization artifacts including a training convergence plot, a parity plot (predicted vs. experimental), and feature importance charts (See US-3).
 - **FR-008**: System MUST execute the entire pipeline (data loading, training, evaluation, interpretation) within a single GitHub Actions job constrained to 2 CPU cores, ~7 GB RAM, and ≤6 hours duration (See US-2).
 - **FR-009**: System MUST detect invalid SMILES strings, **exclude** the corresponding molecules from all downstream datasets, and **log** the SMILES and reason for exclusion without terminating the pipeline (See US-1).
 - **FR-010**: System MUST use the raw experimental FQY values as regression targets, applying ε‑clipping to the interval [ε, 1‑ε] with ε = 1e‑6 to avoid exact 0/1 instability. No min‑max scaling is performed. (See US-1).
 - **FR-011**: System MUST log any occurrences of boundary FQY values (exactly 0 or 1) that are clipped, and include a summary in the final report. (See US-1).
-- **FR-012**: System MUST detect atom types or bond configurations not present in the training set; for **new inference inputs** the system logs a warning and **skips** the molecule rather than causing a crash. During evaluation on the held‑out test set, such molecules are retained; a summary report of any test molecules that would be skipped is logged for transparency (See US-1).
+- **FR-012**: System MUST detect atom types or bond configurations not present in the training set; for **new inference inputs** the system logs a warning and **skips** the molecule rather than causing a crash. During evaluation on the held‑out test set, such molecules are retained; a summary report of any test molecules that would be skipped is logged for transparency (See US-1). **Test Scenario**: a synthetic validation set containing a molecule with a lanthanide atom is processed to verify logging and skipping behavior (see FR‑012).
 - **FR-013**: System MUST verify the size of the scaffold‑based test set after split; if the test set contains fewer than 20 molecules, the system **logs a warning** indicating limited statistical power but **does not alter** the 80/10/10 split ratios (See US-1).
 - **FR-014**: System MUST log the absolute counts of molecules in the training, validation, and test splits, as well as the scaffold overlap statistics, to ensure reproducibility of the data partitioning (See US-1).
 - **FR-015**: System MUST record, when available, solvent, temperature, and measurement‑method metadata associated with each experimental FQY value, storing this information alongside the normalized target and using it to assess condition heterogeneity (See US-1).
-- **FR-016**: System MUST use a curated reference set of fluorophore motifs (Supplementary Table S1) that is constructed from peer‑reviewed literature sources independent of the training data. The reference set is stored as `data/reference/fluorophore_motifs.csv` in the repository; its provenance (source articles, DOI list) and selection criteria are documented in `docs/reference_set_readme.md`. **Justification**: an external motif library enables quantitative validation of attribution relevance, which is essential for demonstrating scientific interpretability. This library is justified as essential because the study aims to link model attributions to known fluorophore substructures, requiring an external curated reference. (See US-3).
-- **FR-017**: System MUST stratify performance reporting by solvent/temperature/measurement method when multiple conditions are present, providing condition‑specific R², RMSE, and MAE alongside the overall metrics (See US-1).
+- **FR-016**: System MUST use a curated reference set of fluorophore motifs (Supplementary Table S1) that is constructed from peer‑reviewed literature sources independent of the training data. The reference set includes diverse motifs, encompassing both aromatic/conjugated fragments **and** non‑conjugated functional groups (e.g., carbonyls, nitro groups). It is stored as `data/reference/fluorophore_motifs.csv` in the repository; its provenance (source articles, DOI list) and selection criteria are documented in `docs/reference_set_readme.md`. **Justification**: an external motif library enables quantitative validation of attribution relevance, which is essential for demonstrating scientific interpretability. (See US-3).
 - **FR-018**: System MUST obtain a verified open dataset that contains both SMILES strings and experimental FQY values (FluorDB v1.0,) from a trusted source (`https://huggingface.co/datasets/fluordb/v1`). The dataset files are checksum‑verified before use, ensuring that the data are jointly verified and no separate joining of SMILES‑only and FQY‑only sources is required. **Justification**: using a verified joint dataset satisfies the data‑resource feasibility requirement and ensures reproducibility. (See US-1).
 
 ### Key Entities
@@ -100,12 +106,17 @@ The researcher needs to apply Integrated Gradients or SHAP to the trained GNN to
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The predictive R² score of the GNN model on the scaffold‑disjoint test set is measured against the linear regression baseline and must be **≥ 0.7** and must exceed the baseline R² by at least **0.05** to demonstrate a meaningful improvement (See FR-005).
-- **SC-002**: The total execution time of the end‑to‑end pipeline is measured against the 6‑hour free‑tier CI limit to ensure compute feasibility (See FR-008).
+- **SC-001**: The predictive R² score of the GNN model on the scaffold‑disjoint test set will be **measured** and reported alongside the baseline linear regression R². The magnitude of improvement over baseline will be **described** (e.g., “ΔR² = 0.07”) but no hard pass/fail threshold is imposed (see FR‑005).  
+  *Justification*: This aligns with the project's principle of deferring empirical thresholds while still providing a clear hypothesis‑testing framework.
+- **SC-002**: The total execution time of the end‑to‑end pipeline is measured against the 6‑hour free‑tier CI limit to ensure compute feasibility (See FR‑008).
 - **SC-003**: The memory usage peak during model training is measured against the **7 GB RAM limit** to verify the hardware constraint.
-- **SC-004**: The consistency of the scaffold split is measured by verifying that the intersection of scaffold identifiers between the training and test sets is exactly zero (See FR-002).
-- **SC-005**: Interpretability is validated by (a) mapping the top‑20 substructures to the curated reference set of fluorophore motifs (Supplementary Table S1) and (b) requiring **≥ 60 % overlap** (i.e., at least 12 of the 20 substructures match known motifs), **and** the observed overlap must be at least **1.5×** the mean overlap obtained from 100 random draws of 20 substructures (random baseline). Both the aggregate enrichment (≥12 of 20) and the random‑baseline comparison must be satisfied. **Justification**: quantitative enrichment against an external reference is required to confirm that the model’s attributions correspond to chemically meaningful fluorophore motifs, aligning with the scientific goal of interpretable design rules. This validation is essential because the core research objective is to discover chemically interpretable structure‑property relationships, which demands external verification against known motifs. (See FR-006 and FR-016).
-- **Note**: The per‑molecule spot‑check (≥3 of the top‑5 substructures matching the reference set for a high‑FQY test molecule, see US‑3 Scenario 3) is an additional requirement separate from the aggregate enrichment evaluated in SC‑005.
+- **SC-004**: The consistency of the scaffold split is measured by verifying that the intersection of scaffold identifiers between the training and test sets is exactly zero (See FR‑002).
+- **SC-005**: Interpretability is validated by (a) reporting the overlap between the top‑20 substructures (as defined in FR‑006) and the curated reference set of fluorophore motifs (Supplementary Table S1), and (b) comparing this overlap to a random‑baseline distribution generated from 100 draws of 20 substructures. Both the absolute overlap value and the enrichment factor relative to the random baseline will be reported; no fixed numeric gate is imposed.  
+  *Justification*: Reporting the overlap provides scientific insight without imposing an arbitrary success threshold that would extend the project scope.
+- **SC-006**: Attribution‑method consistency is assessed by computing the Pearson correlation between Integrated Gradients and SHAP importance scores on **at least 30** randomly selected test molecules. The correlation coefficient will be reported, and a discussion will note whether the two methods agree qualitatively; no hard threshold is required.  
+  *Justification*: A larger sample size yields a more reliable estimate of method agreement while remaining exploratory rather than a binary pass/fail test.
+- **SC-007**: The pipeline will produce a final report compiling all metrics, logs, and visualizations, and will be archived as an artifact of the GitHub Actions run.
+- **SC-008**: The pipeline must log and skip any inference‑time molecule containing atom or bond types unseen during training, and the test scenario described in FR‑012 (processing a synthetic validation set with a lanthanide atom) must be executed to confirm correct logging and skipping behavior. **Ensures robustness of the inference pipeline to out‑of‑distribution chemical space.**
 
 ## Assumptions
 
