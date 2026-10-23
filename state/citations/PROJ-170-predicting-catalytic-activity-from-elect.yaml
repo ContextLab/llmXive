@@ -20,14 +20,3 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/Open-Catalyst/oc20-experimental
   verified_at: '2026-08-04T00:26:33.509077Z'
-- artifact_hash: a0a9303c54e3cb0f08cc34c78400471a84d9cb5510444ee9f5a44045069fbd4b
-  artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1234/co2_hydrogenation_2025
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1234/co2_hydrogenation_2025
-  verified_at: '2026-10-12T23:37:25.750804Z'
