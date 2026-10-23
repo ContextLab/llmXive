@@ -31,29 +31,6 @@
   verification_status: pending
   verified_against_url: http://api.gdeltproject.org/api/v2/doc/doc
   verified_at: '2026-10-05T15:56:18.451771Z'
-- artifact_hash: 91f9eecff86c413c547b01538da511a65c9148b70a57ed8d4f7b4bbaf606263b
-  artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2502.18978] Low-Confidence Gold: Refining Low-Confidence Samples
-    for Efficient Instruction Tuning'
-  kind: url
-  value: https://arxiv.org/abs/2502.18978
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2502.18978
-  verified_at: '2026-10-05T16:06:56.805919Z'
-- artifact_hash: 91f9eecff86c413c547b01538da511a65c9148b70a57ed8d4f7b4bbaf606263b
-  artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Vif - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q113106917
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-10-05T16:06:56.805919Z'
 - artifact_hash: 224b101dc68c34b890949a34a03df29ba90c871ee9ceb1d27d10b77ade56e3c3
   artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/spec.md
   cite_id: c-001
@@ -186,3 +163,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/sentiment-drift
   verified_at: '2026-10-22T03:55:12.896873Z'
+- artifact_hash: 44beac7aa058879f2420a3894f84490a78cbd8f725aa2b99c953b376b084141f
+  artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/datasets/nber-business-cycle-dating/master/data/nber-cycles.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/datasets/nber-business-cycle-dating/master/data/nber-cycles.csv
+  verified_at: '2026-10-23T23:27:13.477482Z'

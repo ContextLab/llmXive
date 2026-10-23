@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T01:06:19.152232Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-069-statistical-analysis-of-sentiment-drift-
-last_run_id: 85d06b56-be2a-4acf-be7d-6ff9ec350b82
+last_run_id: c5a5663a-962e-4f7a-9991-47c550506f8e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift
 title: Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions
-updated_at: '2026-10-22T03:55:15.126838Z'
+updated_at: '2026-10-23T23:27:13.646758Z'
