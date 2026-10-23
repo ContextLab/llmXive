@@ -53,6 +53,7 @@ def _sha256_of_file(file_path: Path) -> str:
             hasher.update(chunk)
     return hasher.hexdigest()
 
+
 def _write_checksum_manifest(file_path: Path, manifest_path: Path) -> None:
     """
     Write a single‑line checksum manifest for *file_path* to *manifest_path*.
@@ -71,6 +72,7 @@ def _write_checksum_manifest(file_path: Path, manifest_path: Path) -> None:
     with manifest_path.open("w", encoding="utf-8") as mf:
         mf.write(f"{checksum}  {file_path.name}\n")
 
+
 def _verify_checksums(file_path: Path, manifest_path: Path) -> None:
     """
     Verify that the checksum recorded in *manifest_path* matches *file_path*.
@@ -87,7 +89,9 @@ def _verify_checksums(file_path: Path, manifest_path: Path) -> None:
             expected_checksum = line.split()[0]
 
     if expected_checksum is None:
-        raise RuntimeError(f"Checksum manifest '{manifest_path}' is empty or malformed.")
+        raise RuntimeError(
+            f"Checksum manifest '{manifest_path}' is empty or malformed."
+        )
 
     actual_checksum = _sha256_of_file(file_path)
     if actual_checksum != expected_checksum:
@@ -163,24 +167,53 @@ def main() -> None:
         logger.error(f"Failed to read Parquet file: {e}")
         raise
 
-    # Ensure the required columns exist; if not, raise a clear error.
+    # ------------------------------------------------------------------
+    # 5. Normalise column names to the expected schema
+    # ------------------------------------------------------------------
     required_cols = {"instance_id", "ground_truth_label"}
     missing = required_cols - set(df.columns)
+
+    # Attempt to map common alternative column names
+    col_renames = {}
+    if "instance_id" not in df.columns:
+        for alt in ["id", "instance", "example_id"]:
+            if alt in df.columns:
+                col_renames["instance_id"] = alt
+                break
+    if "ground_truth_label" not in df.columns:
+        for alt in ["label", "ground_truth", "target"]:
+            if alt in df.columns:
+                col_renames["ground_truth_label"] = alt
+                break
+
+    if col_renames:
+        logger.info(
+            f"Renaming columns {col_renames} to match required schema."
+        )
+        df = df.rename(columns={v: k for k, v in col_renames.items()})
+
+    # Re‑check after renaming
+    missing = required_cols - set(df.columns)
     if missing:
-        raise RuntimeError(f"Parquet file is missing required columns: {missing}")
+        raise RuntimeError(
+            f"Parquet file is missing required columns after renaming: {missing}"
+        )
+
+    # Ensure only the required columns (and any others) are present; keep order
+    df = df[list(df.columns)]  # preserve column order as read
 
     df.to_csv(csv_path, index=False)
     logger.info(f"Wrote CSV with {len(df)} rows to '{csv_path}'")
 
     # ------------------------------------------------------------------
-    # 5. Write checksum for CSV
+    # 6. Write checksum for CSV
     # ------------------------------------------------------------------
-    csv_checksum_path = raw_dir / ("tide_csv.sha256")
+    csv_checksum_path = raw_dir / "tide_csv.sha256"
     _write_checksum_manifest(csv_path, csv_checksum_path)
     logger.info(f"Wrote CSV checksum to '{csv_checksum_path}'")
 
     # ------------------------------------------------------------------
-    # 6. Final verification of row count
+    # 7. Final verification of row count
     # ------------------------------------------------------------------
     if len(df) < 200:
         raise RuntimeError(

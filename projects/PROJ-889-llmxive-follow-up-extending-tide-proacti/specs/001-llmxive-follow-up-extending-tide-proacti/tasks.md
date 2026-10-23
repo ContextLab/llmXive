@@ -8,7 +8,7 @@ The checklist implements the smallest complete study that satisfies every functi
 
 ## Phase 1 – Data acquisition & feature extraction  
 
-- [ ] T001 [US-1] **Download the verified TIDE evaluation dataset and verify its integrity**.   <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1; code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1 -->
+- [ ] T001 [US-1] **Download the verified TIDE evaluation dataset and verify its integrity**.   <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1; code/data/download_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/acquire_real.py exit=1 -->
   **Path**: `src/data/download_real.py` (script downloads from the verified URL, computes SHA‑256 checksum, aborts on mismatch, and writes `data/raw/tide.csv`).  
   **Verification**:  
   • Running `python -m src.data.download_real` exits with status 0.  
