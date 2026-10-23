@@ -1,12 +1,9 @@
 status: none
-intent: FluorDB fluorescence quantum yield SMILES molecules dataset python package
+intent: FluorDB fluorescence quantum yield dataset download Hugging Face python package
+  dataset
 required_fields:
-- SMILES
+- smiles
 - fluorescence_quantum_yield
-- experimental_FQY_value
-- molecule_identifier
-- InChIKey
-- scaffold_identifier
-cache_key: 0ea537af99e2637b18fcd5983b2a0ac0537461fdcc13c88944ad75fbcf0e4e74
-searched_at: '2026-10-20T09:38:22.385774+00:00'
+cache_key: 432299480e79fa6c13567d67904f0ae9606a85b1e47e4f987bc46294ea1af433
+searched_at: '2026-10-23T03:27:13.537492+00:00'
 retry_count: 1

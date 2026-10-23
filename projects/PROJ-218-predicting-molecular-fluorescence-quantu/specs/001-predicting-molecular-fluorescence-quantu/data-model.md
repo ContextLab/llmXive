@@ -43,5 +43,6 @@ properties:
 
 *Only this schema is currently present in the `contracts/` directory, matching the plan’s contract references.*
 
+---
 
 
