@@ -1,13 +1,13 @@
 """
 validate_schemas.py
 
-Validates all generated JSON/CSV artifacts in data/ and data/models/
-against the contracts defined in contracts/dataset.schema.yaml and
-contracts/model_output.schema.yaml.
+Validates all generated JSON/CSV artifacts in the data directory against
+the YAML contracts defined in specs/001-predicting-the-glass-forming-region-of-a/contracts/.
 
+The script scans for specific expected artifacts and validates their structure.
 Exit codes:
-  0: All artifacts match schemas.
-  1: Validation failed or schema loading error.
+  0: All found artifacts match schemas (or no artifacts found).
+  1: One or more validation errors encountered.
 """
 
 import os
@@ -16,198 +16,136 @@ import json
 import yaml
 import csv
 import logging
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Tuple
+import jsonschema
+from llmxive_toolkit import paths, get_logger
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Configure logging to write to the specific log file required by T002
+LOG_FILE = paths.data("logs", "schema_validation.log")
+log = get_logger(__name__, log_file=str(LOG_FILE))
 
-# Paths
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONTRACTS_DIR = os.path.join(PROJECT_ROOT, "contracts")
-DATA_DIR = os.path.join(PROJECT_ROOT, "data")
-MODELS_DIR = os.path.join(PROJECT_ROOT, "data", "models")
+# Path to the contracts directory
+CONTRACTS_DIR = paths.path("specs/001-predicting-the-glass-forming-region-of-a/contracts")
 
-DATASET_SCHEMA_PATH = os.path.join(CONTRACTS_DIR, "dataset.schema.yaml")
-MODEL_OUTPUT_SCHEMA_PATH = os.path.join(CONTRACTS_DIR, "model_output.schema.yaml")
+# Mapping of artifact filename to its corresponding schema file
+# Based on plan.md and specs/
+ARTIFACT_MAP = {
+    "processed_alloys.csv": "processed_alloys.schema.yaml",
+    "cv_metrics.json": "metrics.schema.yaml",
+    "feature_importance.csv": "feature_importance.schema.yaml",
+    "sensitivity_report.json": "sensitivity.schema.yaml",
+    "model_output.json": "model_output.schema.yaml",
+}
 
-def load_schema(schema_path: str) -> Optional[Dict[str, Any]]:
-    """Load a YAML schema file."""
-    if not os.path.exists(schema_path):
-        logger.error(f"Schema file not found: {schema_path}")
-        return None
+def load_yaml(path: os.PathLike) -> Dict[str, Any]:
+    """Load a YAML file into a dictionary."""
     try:
-        with open(schema_path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
     except Exception as e:
-        logger.error(f"Error loading schema {schema_path}: {e}")
-        return None
+        log.error(f"Could not load YAML file {path}: {e}")
+        return {}
 
-def validate_json_against_schema(json_path: str, schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """Validate a JSON file against a JSON-compatible schema (basic structure)."""
+def validate_json(file_path: os.PathLike, schema_path: os.PathLike) -> Tuple[bool, List[str]]:
+    """Validate a JSON file against a YAML-defined JSON schema."""
     errors = []
-    if not os.path.exists(json_path):
-        return False, [f"File not found: {json_path}"]
-
     try:
-        with open(json_path, 'r') as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        return False, [f"Invalid JSON in {json_path}: {e}"]
-
-    # Basic schema validation logic (since jsonschema might not be strictly required for all simple checks,
-    # but we assume the schema defines required keys/structure)
-    if not isinstance(schema, dict):
-        return False, ["Invalid schema format"]
-
-    required_keys = schema.get("required", [])
-    properties = schema.get("properties", {})
-
-    if isinstance(data, dict):
-        for key in required_keys:
-            if key not in data:
-                errors.append(f"Missing required key: '{key}'")
+        schema = load_yaml(schema_path)
+        if not schema:
+            return False, [f"Schema {schema_path} is empty or missing"]
         
-        # Type checking for known properties if schema defines types
-        for key, value in data.items():
-            if key in properties:
-                prop_schema = properties[key]
-                expected_type = prop_schema.get("type")
-                
-                type_map = {
-                    "string": str,
-                    "number": (int, float),
-                    "integer": int,
-                    "boolean": bool,
-                    "array": list,
-                    "object": dict
-                }
-                
-                if expected_type and expected_type in type_map:
-                    expected_python_type = type_map[expected_type]
-                    if not isinstance(value, expected_python_type):
-                        errors.append(f"Type mismatch for key '{key}': expected {expected_type}, got {type(value).__name__}")
-    elif isinstance(data, list):
-        # For list schemas, check if schema expects a list
-        if schema.get("type") != "array":
-             errors.append(f"Expected array but got {type(data).__name__} in {json_path}")
-        else:
-            # Optional: check items schema if defined
-            pass
-
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        jsonschema.validate(instance=data, schema=schema)
+    except jsonschema.exceptions.ValidationError as e:
+        errors.append(f"JSON Schema Error: {e.message}")
+    except json.JSONDecodeError as e:
+        errors.append(f"Invalid JSON format: {e}")
+    except Exception as e:
+        errors.append(f"Unexpected error during JSON validation: {e}")
+    
     return len(errors) == 0, errors
 
-def validate_csv_against_schema(csv_path: str, schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """Validate a CSV file against a schema (checks columns)."""
+def validate_csv(file_path: os.PathLike, schema_path: os.PathLike) -> Tuple[bool, List[str]]:
+    """Validate a CSV file's columns against the 'required' list in a YAML schema."""
     errors = []
-    if not os.path.exists(csv_path):
-        return False, [f"File not found: {csv_path}"]
-
     try:
-        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+        schema = load_yaml(schema_path)
+        if not schema:
+            return False, [f"Schema {schema_path} is empty or missing"]
+        
+        required_cols = schema.get("required", [])
+        if not required_cols:
+            return True, [] # No requirements defined
+
+        with open(file_path, 'r', encoding='utf-8', newline='') as f:
             reader = csv.DictReader(f)
             if reader.fieldnames is None:
-                return False, ["Empty CSV file or no header"]
+                return False, ["CSV file is empty or missing header"]
             
-            columns = set(reader.fieldnames)
-            required_columns = schema.get("required", [])
-            
-            for col in required_columns:
-                if col not in columns:
+            actual_cols = set(reader.fieldnames)
+            for col in required_cols:
+                if col not in actual_cols:
                     errors.append(f"Missing required column: '{col}'")
     except Exception as e:
-        return False, [f"Error reading CSV {csv_path}: {e}"]
-
+        errors.append(f"Unexpected error during CSV validation: {e}")
+    
     return len(errors) == 0, errors
 
-def get_all_artifacts(data_dir: str, models_dir: str) -> List[str]:
-    """Recursively find all JSON and CSV files in data/ and data/models/."""
-    artifacts = []
-    for directory in [data_dir, models_dir]:
-        if not os.path.exists(directory):
-            continue
-        for root, _, files in os.walk(directory):
-            for file in files:
-                if file.endswith(('.json', '.csv')):
-                    artifacts.append(os.path.join(root, file))
-    return artifacts
-
-def validate_schemas() -> bool:
-    """Main validation logic."""
-    logger.info("Starting schema validation...")
-
-    # Load schemas
-    dataset_schema = load_schema(DATASET_SCHEMA_PATH)
-    model_schema = load_schema(MODEL_OUTPUT_SCHEMA_PATH)
-
-    if not dataset_schema:
-        logger.error("Failed to load dataset schema. Aborting.")
-        return False
-    if not model_schema:
-        # Some files might be model outputs, some dataset. If model schema missing, we can't validate those.
-        logger.warning("Model output schema not found. Only dataset schema will be used if applicable.")
-
-    artifacts = get_all_artifacts(DATA_DIR, MODELS_DIR)
-    
-    if not artifacts:
-        logger.warning("No JSON or CSV artifacts found in data/ or data/models/ to validate.")
-        return True # Nothing to fail
-
-    all_passed = True
-    total_errors = []
-
-    for artifact_path in artifacts:
-        filename = os.path.basename(artifact_path)
-        logger.info(f"Validating: {artifact_path}")
-        
-        is_valid = True
-        errors = []
-
-        # Determine which schema to use based on filename or path heuristic
-        # Heuristic: If it's in data/models/ or named with 'model', 'metric', 'report', use model_schema
-        # Otherwise, try dataset_schema. If both exist, we might need a mapping, but for now:
-        
-        use_model_schema = False
-        if MODELS_DIR in artifact_path:
-            use_model_schema = True
-        elif any(kw in filename.lower() for kw in ['model', 'metric', 'report', 'cv_', 'null_', 'statistical', 'sensitivity', 'feature_importance', 'collinearity', 'sc00', 'split_', 'train_', 'test_', 'dummy_']):
-             use_model_schema = True
-
-        current_schema = model_schema if use_model_schema else dataset_schema
-
-        if artifact_path.endswith('.json'):
-            if current_schema:
-                is_valid, errors = validate_json_against_schema(artifact_path, current_schema)
-            else:
-                logger.warning(f"No schema available for JSON: {artifact_path}")
-        elif artifact_path.endswith('.csv'):
-            if current_schema:
-                is_valid, errors = validate_csv_against_schema(artifact_path, current_schema)
-            else:
-                logger.warning(f"No schema available for CSV: {artifact_path}")
-
-        if not is_valid:
-            all_passed = False
-            for err in errors:
-                total_errors.append(f"{artifact_path}: {err}")
-                logger.error(f"  ERROR: {err}")
-        else:
-            logger.info(f"  OK")
-
-    if all_passed:
-        logger.info("Validation Passed")
-        return True
-    else:
-        logger.error("Validation Failed")
-        logger.error(f"Total errors found: {len(total_errors)}")
-        return False
+def find_artifact(filename: str) -> Tuple[bool, os.PathLike]:
+    """Recursively search for an artifact filename under the data directory."""
+    data_root = paths.data()
+    for root, _, files in os.walk(data_root):
+        if filename in files:
+            return True, os.path.join(root, filename)
+    return False, None
 
 def main():
-    success = validate_schemas()
-    sys.exit(0 if success else 1)
+    log.info("Starting schema validation process...")
+    
+    total_errors = 0
+    artifacts_found = 0
+
+    for artifact_name, schema_name in ARTIFACT_MAP.items():
+        found, artifact_path = find_artifact(artifact_name)
+        if not found:
+            log.warning(f"Artifact {artifact_name} not found. Skipping.")
+            continue
+        
+        artifacts_found += 1
+        schema_path = CONTRACTS_DIR / schema_name
+        
+        if not schema_path.exists():
+            log.error(f"ERROR: Schema file {schema_name} missing for {artifact_name}")
+            total_errors += 1
+            continue
+
+        log.info(f"Validating {artifact_name} against {schema_name}...")
+        
+        if artifact_name.endswith('.json'):
+            success, errors = validate_json(artifact_path, schema_path)
+        elif artifact_name.endswith('.csv'):
+            success, errors = validate_csv(artifact_path, schema_path)
+        else:
+            log.warning(f"Unsupported file extension for {artifact_name}. Skipping.")
+            continue
+
+        if not success:
+            for err in errors:
+                log.error(f"ERROR in {artifact_name}: {err}")
+            total_errors += len(errors)
+        else:
+            log.info(f"Successfully validated {artifact_name}")
+
+    log.info(f"Schema validation complete. Artifacts checked: {artifacts_found}. Total errors: {total_errors}")
+    
+    if total_errors == 0:
+        log.info("All schemas validated - 0 errors.")
+        sys.exit(0)
+    else:
+        log.error(f"Schema validation failed with {total_errors} errors.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

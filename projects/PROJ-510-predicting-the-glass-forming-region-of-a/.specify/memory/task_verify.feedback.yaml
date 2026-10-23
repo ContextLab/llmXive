@@ -2,8 +2,15 @@ T001:
   reason: 'Requested task execution failed; rerun successfully: code/run_all.py exit=1'
   task: 7eebbf7e83cc143818060b766c53a8cbd683abf77fde6f203a90f931ef410850
 T002:
+  reason: "The required log file `data/logs/schema_validation.log` does not exist,\
+    \ and the script points to a non\u2011existent contracts directory (`specs/001-predicting-the-glass-forming-region-of-a/contracts/`\
+    \ instead of the actual `specs/001-predict-glass-forming-region/contracts/`).\
+    \ Consequently there is no evidence that the script runs without \u201CERROR\u201D\
+    \ entries, so the task\u2019s verification condition is not satisfied."
   task: f3fb77b4fcdf26e8ccce0e735b63a45ca8199c12068aae6403d9236bd8d00b80
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion.py
+    exit=1'
   task: 78f17abca4504adc7f088a676cddd16e6a5057460d75ed7373ae41a239022594
 T004:
   task: f9d3596e43317ea1514801b3bb56c28f043a02dab000029f2cb3bfbf5058af85

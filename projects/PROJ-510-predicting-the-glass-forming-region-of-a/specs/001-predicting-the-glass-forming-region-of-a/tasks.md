@@ -8,7 +8,7 @@ The study must deliver a fully reproducible end‑to‑end pipeline that ingests
 
 ## Phase 0 – Project scaffolding & validation utilities  
 
-- [ ] T001 [P] Create a **quickstart guide** (`specs/001-predict-glass-forming-region/quickstart.md`) that lists the exact command chain to run the whole pipeline from a fresh checkout.   <!-- FAILED-IN-EXECUTION: code/run_all.py exit=1 -->
+- [ ] T001 [P] Create a **quickstart guide** (`specs/001-predict-glass-forming-region/quickstart.md`) that lists the exact command chain to run the whole pipeline from a fresh checkout.   <!-- FAILED-IN-EXECUTION: code/run_all.py exit=1 --> <!-- FAILED: unspecified -->
     - *Verification*: `cat quickstart.md` shows the command `python -m code.run_all` and matches the ordering of tasks below.  
 
 - [ ] T002 [P] Implement **schema‑validation script** `code/validate_schemas.py`.  
@@ -20,7 +20,7 @@ The study must deliver a fully reproducible end‑to‑end pipeline that ingests
 
 ## Phase 1 – Data ingestion, cleaning, and provenance  
 
-- [ ] T003 [US-1] Write `code/ingestion.py` to **download** the experimental CCR dataset from the verified URL `[UNRESOLVED-CLAIM: https://example.com/experimental_ccr_dataset.csv` — HTTP 404] (to be replaced with the actual curated source) and stream OQMD elemental properties via `datasets.load_dataset(..., streaming=True)`.  
+- [ ] T003 [US-1] Write `code/ingestion.py` to **download** the experimental CCR dataset from the verified URL `[UNRESOLVED-CLAIM: https://example.com/experimental_ccr_dataset.csv` — HTTP 404] (to be replaced with the actual curated source) and stream OQMD elemental properties via `datasets.load_dataset(..., streaming=True)`.   <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 -->
     - Logs download status to `data/logs/download.log`.  
     - On any network failure, catches the exception **and writes** a concise entry to `data/logs/fetch_error.log`.  
     - *Verification*: Simulate a failed URL (e.g., `[UNRESOLVED-CLAIM: http://invalid` — ConnectionError: HTTPConnectionPool(host='invalid%60', port=80): Max retries exceeded with url: / (Caused by NameResolutionError("HTTPConnection(host='invalid%60', port=80): Failed to resolve 'invalid%60' ([Errno -2] Name or service not known)"))]) and confirm the file `data/logs/fetch_error.log` is created with the exception message.  

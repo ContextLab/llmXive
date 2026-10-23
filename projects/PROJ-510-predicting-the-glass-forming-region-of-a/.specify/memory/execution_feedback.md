@@ -11,6 +11,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec — “…"""Check for absence of synthetic data indicators."""         d…”
 - code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec — “…eturn False, f"Potential synthetic data indicators found: {synth…”
 - code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec — “…se, f"Error checking for synthetic data: {e}"      def _check_sc…”
+- code/ingestion.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data. """  import os import s…”
 
 ## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
 
@@ -25,23 +26,24 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec — “…"""Check for absence of synthetic data indicators."""         d…”; code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec — “…eturn False, f"Potential synthetic data indicators found: {synth…”; code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec — “…se, f"Error checking for synthetic data: {e}"      def _check_sc…”; 1 command(s) failed: python -m code.run_all (rc=1); 2 declared deliverable(s) absent: data/models/cv_metrics.json; data/processed/processed_alloys.csv
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec — “…"""Check for absence of synthetic data indicators."""         d…”; code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec — “…eturn False, f"Potential synthetic data indicators found: {synth…”; code/constitutional_compliance_audit.py: synthetic/fake INPUT data not authorized by the spec — “…se, f"Error checking for synthetic data: {e}"      def _check_sc…”; 1 command(s) failed: python -m code.run_all (rc=1); 3 declared deliverable(s) absent: data/logs/label_filtering_status.json; data/models/cv_metrics.json; data/processed/processed_alloys.csv
 
 ## Failing / missing run-book commands
 
 - python -m code.run_all -> rc=1
 
-2026-10-23 13:28:25,483 INFO __main__: Running: /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-510-predicting-the-glass-forming-region-of-a/bin/python code/ingestion.py
-2026-10-23 13:28:26,910 INFO __main__: 2026-10-23 13:28:26,565 - __main__ - INFO - Starting ingestion pipeline
-2026-10-23 13:28:26,566 - __main__ - INFO - Loading dataset: matsci/glass-forming-ability
-2026-10-23 13:28:26,679 - __main__ - ERROR - Failed to fetch dataset: Dataset 'matsci/glass-forming-ability' doesn't exist on the Hub or cannot be accessed.
-2026-10-23 13:28:26,679 - __main__ - CRITICAL - Data loading failed: Dataset fetch failed: Dataset 'matsci/glass-forming-ability' doesn't exist on the Hub or cannot be accessed.
+2026-10-23 13:37:20,428 INFO __main__: Running: /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-510-predicting-the-glass-forming-region-of-a/bin/python code/ingestion.py
+2026-10-23 13:37:21,881 INFO __main__: 2026-10-23 13:37:21,553 - __main__ - INFO - === Starting ingestion pipeline ===
+2026-10-23 13:37:21,553 - __main__ - INFO - Attempting to download CCR dataset from https://raw.githubusercontent.com/Materials-Data-Science-and-Informatics/Glass-Forming-Ability/master/data/experimental_ccr_dataset.csv
+2026-10-23 13:37:21,639 - __main__ - ERROR - Failed to download CCR dataset: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/Materials-Data-Science-and-Informatics/Glass-Forming-Ability/master/data/experimental_ccr_dataset.csv
+2026-10-23 13:37:21,639 - __main__ - CRITICAL - Aborting ingestion due to download failure.
 
-2026-10-23 13:28:26,910 ERROR __main__: Script code/ingestion.py exited with code 1
+2026-10-23 13:37:21,881 ERROR __main__: Script code/ingestion.py exited with code 1
 
 
 ## Declared deliverables still missing
 
+- data/logs/label_filtering_status.json
 - data/models/cv_metrics.json
 - data/processed/processed_alloys.csv
 
@@ -49,11 +51,15 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/logs/label_filtering_status.json` is declared but was NOT written. Scripts referencing it:
+    - `code/ingestion.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/logs/label_filtering_status.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/models/cv_metrics.json` is declared but was NOT written. Scripts referencing it:
     - `code/constitutional_compliance_audit.py` — NOT invoked by the run-book
     - `code/generate_report.py` — NOT invoked by the run-book
     - `code/statistical_test.py` — NOT invoked by the run-book
     - `code/train.py` — NOT invoked by the run-book
+    - `code/validate_schemas.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/models/cv_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/processed_alloys.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analyze.py` — NOT invoked by the run-book

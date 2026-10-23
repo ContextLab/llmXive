@@ -1,3 +1,12 @@
+T002:
+  c: false
+  h: f565749657164e9369b7d724c62337171d36701db09647cf1d02558a812fef5a
+  r: "The required log file `data/logs/schema_validation.log` does not exist, and\
+    \ the script points to a non\u2011existent contracts directory (`specs/001-predicting-the-glass-forming-region-of-a/contracts/`\
+    \ instead of the actual `specs/001-predict-glass-forming-region/contracts/`).\
+    \ Consequently there is no evidence that the script runs without \u201CERROR\u201D\
+    \ entries, so the task\u2019s verification condition is not satisfied."
+  sig: b3b7055d2c41feca2f1fb79c3bbd29eb4a953ebda9f173fb1623cad0f13e7136
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

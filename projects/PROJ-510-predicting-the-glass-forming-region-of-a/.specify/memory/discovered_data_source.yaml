@@ -1,19 +1,15 @@
 status: none
-intent: Python package containing experimental ternary alloy composition dataset python
-  package dataset
+intent: download ternary alloy CCR experimental dataset and OQMD elemental properties
+  python package dataset
 required_fields:
-- composition
-- measured_ccr
-- element1
-- element1_fraction
-- element1_atomic_radius
-- element1_electronegativity
-- element1_formation_enthalpy
-- element2
-- element2_fraction
-- element2_atomic_radius
-- element2_electronegativity
-- element2_formation_enthalpy
-cache_key: 4f9508dc4d2a824532d4e84ebb8c289bf047ecb296bb3916e57deb3c79bad682
-searched_at: '2026-10-23T13:29:24.390529+00:00'
+- alloy_composition
+- measured_critical_cooling_rate
+- temperature_of_measurement
+- source_reference
+- element
+- atomic_radius_OQMD
+- electronegativity_OQMD
+- formation_enthalpy_OQMD
+cache_key: b2de610342041d66fdaaa7c219bb01a868c90571f29cca79ef93fb61ede81a4b
+searched_at: '2026-10-23T13:39:00.405158+00:00'
 retry_count: 1
