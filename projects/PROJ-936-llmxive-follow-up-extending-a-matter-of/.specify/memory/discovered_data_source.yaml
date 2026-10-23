@@ -1,11 +1,11 @@
 status: none
-intent: pip install tau-c-bench official huggingface python package dataset
+intent: "download \u03C4c\u2011Bench dataset from HuggingFace datasets python package"
 required_fields:
 - task_id
-- task_definition
-- success_status
-- total_api_calls
-- total_tokens_consumed
-cache_key: 68496c3475b2e6accb06aaa4fd8295011ff2dfd441f65b1a98b697912fc9b809
-searched_at: '2026-10-23T07:46:10.537183+00:00'
+- task_description
+- success (bool)
+- api_calls (int)
+- token_consumption (int)
+cache_key: 80de31398239694e22a213a1c490397985cc5ee8a5c44356db3e41b24ab5f461
+searched_at: '2026-10-23T21:29:36.709335+00:00'
 retry_count: 1

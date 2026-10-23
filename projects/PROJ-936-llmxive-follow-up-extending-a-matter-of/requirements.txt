@@ -1,1 +1,6 @@
+# Core scientific Python stack (already provided by the platform)
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+
+# Additional packages required for this project
 datasets>=2.14

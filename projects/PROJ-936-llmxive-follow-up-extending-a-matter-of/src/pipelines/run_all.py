@@ -1,12 +1,13 @@
 """Entry point for the end‑to‑end efficiency‑reasoning pipeline.
 
-For the purpose of the current task (T001) this script only ensures that
-the τ‑bench dataset is downloaded.  All other pipeline stages are
-placeholders; they accept the same CLI arguments as documented in the
-quickstart guide but simply ignore them.
+For the purpose of the current task (T001) this script ensures that the
+τ‑bench dataset is downloaded and that the raw task definitions are
+parsed into the canonical CSV required by downstream contract tests.
 
 The script respects a ``--skip-download`` flag so that downstream runs can
-reuse a cached dataset.
+reuse a cached dataset.  When the dataset is present (or successfully
+downloaded) the script also invokes the ``parse_task_definitions`` module
+to produce ``data/derived/task_definitions.csv``.
 """
 
 import argparse
@@ -16,6 +17,11 @@ import sys
 # Importing it via the module name works because the project root is on
 # ``PYTHONPATH`` when the runner executes ``python -m src.pipelines.run_all``.
 from download_tau_c_bench import main as download_main
+
+# The parser for the raw JSON → CSV conversion.
+from parse_task_definitions import parse_and_write
+
+from llmxive_toolkit import paths
 
 
 def _parse_args(argv):
@@ -40,7 +46,7 @@ def _parse_args(argv):
 
 
 def main(argv=None):
-    """Run the pipeline (currently only the download step)."""
+    """Run the pipeline (download + parsing)."""
     if argv is None:
         argv = sys.argv[1:]
 
@@ -51,19 +57,21 @@ def main(argv=None):
         # pipeline run with a clear error message.
         download_main()
     else:
-        # When skipping, we still verify that the expected file exists.
-        # This mirrors the behaviour of the full pipeline which would
-        # assume a cached dataset.
-        from llmxive_toolkit import paths
-
+        # When skipping, verify that the expected file exists.
         expected = paths.data("raw", "τc_bench", "tasks.json")
         if not expected.is_file():
             raise FileNotFoundError(
                 f"Dataset was skipped but {expected} does not exist."
             )
 
-    # Placeholder for future stages – they will be added in later tasks.
-    print("Pipeline step completed (download only).")
+    # ------------------------------------------------------------------
+    # Parse the raw JSON into the canonical CSV required by the contract
+    # test ``tests/contract/test_task_schema.py``.
+    # ------------------------------------------------------------------
+    csv_path = paths.data("derived", "task_definitions.csv")
+    parse_and_write(csv_path)
+
+    print("Pipeline step completed (download + parse).")
 
 
 if __name__ == "__main__":

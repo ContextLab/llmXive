@@ -10,9 +10,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/src/pipelines/run_all.py", line 70, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/src/pipelines/run_all.py", line 78, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/src/pipelines/run_all.py", line 52, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/src/pipelines/run_all.py", line 58, in main
     download_main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 136, in main
     dest_file = download_tasks_json()
@@ -36,7 +36,7 @@ tests/contract/test_task_schema.py:15
 =========================== short test summary info ============================
 ERROR tests/contract/test_task_schema.py - AssertionError: Schema file not fo...
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-2 warnings, 1 error in 0.18s
+2 warnings, 1 error in 0.28s
 
 
 
@@ -51,6 +51,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/derived/task_definitions.csv` is declared but was NOT written. Scripts referencing it:
     - `code/parse_task_definitions.py` — NOT invoked by the run-book
+    - `src/pipelines/run_all.py` — IS a run-book command
   Make ONE of these WRITE `data/derived/task_definitions.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/τc_bench/tasks.json` is declared but was NOT written. Scripts referencing it:
     - `code/download_tau_c_bench.py` — NOT invoked by the run-book
