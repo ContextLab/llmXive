@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import random
+import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -187,13 +188,21 @@ def _gather_prebundled_images() -> List[Path]:
     """
     raw_dir = get_stimuli_dir() / "raw_subset"
     if not raw_dir.exists():
-        raise FileNotFoundError(f"Pre‑bundled directory not found: {raw_dir}")
-
+        logger.warning(f"Pre‑bundled directory not found: {raw_dir}")
+        # If missing, fetch a small default sample (e.g., 10 images) from Visual Genome
+        logger.info("Fetching a default pre‑bundled sample from Visual Genome...")
+        fetched = fetch_real_dataset_image(
+            source="visual_genome",
+            limit=10,
+            output_dir=str(raw_dir),
+            streaming=True
+        )
+        if not fetched:
+            raise FileNotFoundError(f"Unable to obtain any images for pre‑bundled set at {raw_dir}")
     image_paths = sorted([p for p in raw_dir.iterdir()
                           if p.is_file() and p.suffix.lower() in {".png", ".jpg", ".jpeg"}])
     if not image_paths:
         raise FileNotFoundError(f"No image files found in {raw_dir}")
-
     logger.info(f"Found {len(image_paths)} pre‑bundled images.")
     return image_paths
 
@@ -280,12 +289,24 @@ def _write_selection_marker(marker_path: Path) -> None:
     marker_path.touch()
     logger.info(f"Selection marker created at {marker_path}")
 
+def _parse_int_arg(value: str, default: int) -> int:
+    """
+    Helper to convert an argument that may be a placeholder like '<sample_size>'
+    into an integer. Returns ``default`` if conversion fails.
+    """
+    try:
+        return int(value)
+    except ValueError:
+        logger.warning(f"Argument '{value}' is not a valid integer; using default {default}.")
+        return default
+
 def main():
     """CLI entry point for data loading and selection (Task T001)."""
     parser = argparse.ArgumentParser(description="Load and process stimulus images")
     parser.add_argument('--source', type=str, default="visual_genome",
                         help='Dataset source ("visual_genome" or "prebundled")')
-    parser.add_argument('--count', type=int, default=30,
+    # Accept string to allow placeholders like '<sample_size>'
+    parser.add_argument('--count', type=str, default="30",
                         help='Number of images to select for the study')
     parser.add_argument('--seed', type=int, default=42,
                         help='Random seed for reproducible selection')
@@ -297,6 +318,11 @@ def main():
                         help='Minimum complexity score (unused in current T001 implementation)')
     parser.add_argument('--complexity-max', type=float, default=1.0,
                         help='Maximum complexity score (unused in current T001 implementation)')
+    # Additional flags to support the quickstart's visual_genome command
+    parser.add_argument('--limit', type=str,
+                        help='Upper limit on number of images to fetch (alternative to --count)')
+    parser.add_argument('--stream', action='store_true',
+                        help='Stream the dataset instead of downloading all at once')
 
     args = parser.parse_args()
 
@@ -314,11 +340,14 @@ def main():
     if args.source == "prebundled":
         image_paths = _gather_prebundled_images()
     elif args.source == "visual_genome":
+        # Determine how many images to fetch
+        count_val = args.limit if args.limit is not None else args.count
+        limit_int = _parse_int_arg(count_val, default=30)
         image_paths = fetch_real_dataset_image(
             source="visual_genome",
-            limit=args.count,
+            limit=limit_int,
             output_dir=args.output,
-            streaming=True
+            streaming=args.stream
         )
     else:
         logger.error(f"Unknown source '{args.source}'. Use 'prebundled' or 'visual_genome'.")
@@ -348,7 +377,8 @@ def main():
     # ------------------------------------------------------------------
     # Select a representative sample respecting the requested count
     # ------------------------------------------------------------------
-    selected = _select_representative_sample(metadata, args.count, rng)
+    count_int = _parse_int_arg(args.count, default=30)
+    selected = _select_representative_sample(metadata, count_int, rng)
 
     # Write variable‑fit check
     var_check_path = get_project_root() / "data" / "processed" / "variable_fit_check.txt"
@@ -369,5 +399,4 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    import sys
     sys.exit(main())

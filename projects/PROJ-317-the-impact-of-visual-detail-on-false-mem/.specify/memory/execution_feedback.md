@@ -16,55 +16,58 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-- run-book command: `python code/utils/data_loader.py --source prebundled --count <sample_size> --seed 42`
-  - script usage: `data_loader.py [-h] [--source SOURCE] [--count COUNT] [--seed SEED]`
-  - argparse error: `data_loader.py: error: argument --count: invalid int value: '<sample_size>'`
 - run-book command: `python code/data/ethics_generator.py --mode all --seed 42`
   - script usage: `ethics_generator.py [-h] [--mode {pre-bundled,mock}] [--count COUNT]`
   - argparse error: `ethics_generator.py: error: argument --mode: invalid choice: 'all' (choose from 'pre-bundled', 'mock')`
 - run-book command: `python code/analysis/anova.py         # secondary descriptive ANOVA (run after assumption checks)`
   - script usage: `anova.py [-h] [--input INPUT] [--output OUTPUT] [--alpha ALPHA]`
   - argparse error: `anova.py: error: unrecognized arguments: # secondary descriptive ANOVA (run after assumption checks)`
-- run-book command: `python code/utils/data_loader.py --source visual_genome --limit <reasonable_limit> --stream`
-  - script usage: `data_loader.py [-h] [--source SOURCE] [--count COUNT] [--seed SEED]`
-  - argparse error: `data_loader.py: error: unrecognized arguments: --limit <reasonable_limit> --stream`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data. """  import json import…”; code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…aLoadError(             "Mock data generation is disabled.…”; code/validation/validate_quickstart.py: synthetic/fake INPUT data not authorized by the spec — “…"name": "Generate Mock Data",             "cmd": [sy…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis/glmm.py          # primary binomial mixed‑effects model; 6 command(s) failed: python code/utils/data_loader.py --source prebundled --count <sample_size> --seed 42 (rc=2); python code/data/ethics_generator.py --mode all --seed 42 (rc=2); python code/analysis/power.py (rc=1)
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…silently falling back to synthetic data. """  import json import…”; code/data/loader.py: synthetic/fake INPUT data not authorized by the spec — “…aLoadError(             "Mock data generation is disabled.…”; code/validation/validate_quickstart.py: synthetic/fake INPUT data not authorized by the spec — “…"name": "Generate Mock Data",             "cmd": [sy…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis/glmm.py          # primary binomial mixed‑effects model; 6 command(s) failed: python code/utils/data_loader.py --source prebundled --count <sample_size> --seed 42 (rc=1); python code/data/ethics_generator.py --mode all --seed 42 (rc=2); python code/analysis/power.py (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/utils/data_loader.py --source prebundled --count <sample_size> --seed 42 -> rc=2
+- python code/utils/data_loader.py --source prebundled --count <sample_size> --seed 42 -> rc=1
+le "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-2026-10-23 16:40:32 - llmXive - INFO - Logging system initialized with PII sanitization enabled
-2026-10-23 16:40:32 - llmXive - INFO - Log file: /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/logs/app.log
-2026-10-23 16:40:32 - llmXive - INFO - Log level: INFO
-usage: data_loader.py [-h] [--source SOURCE] [--count COUNT] [--seed SEED]
-                      [--output OUTPUT] [--validate]
-                      [--complexity-min COMPLEXITY_MIN]
-                      [--complexity-max COMPLEXITY_MAX]
-data_loader.py: error: argument --count: invalid int value: '<sample_size>'
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/utils/data_loader.py", line 402, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/utils/data_loader.py", line 341, in main
+    image_paths = _gather_prebundled_images()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/utils/data_loader.py", line 194, in _gather_prebundled_images
+    fetched = fetch_real_dataset_image(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/utils/data_loader.py", line 45, in fetch_real_dataset_image
+    raise ImportError("datasets and PIL are required for data fetching.")
+ImportError: datasets and PIL are required for data fetching.
 
 - python code/data/ethics_generator.py --mode all --seed 42 -> rc=2
 
-2026-10-23 16:40:32 - llmXive - INFO - Logging system initialized with PII sanitization enabled
-2026-10-23 16:40:32 - llmXive - INFO - Log file: /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/logs/app.log
-2026-10-23 16:40:32 - llmXive - INFO - Log level: INFO
+2026-10-23 16:42:35 - llmXive - INFO - Logging system initialized with PII sanitization enabled
+2026-10-23 16:42:35 - llmXive - INFO - Log file: /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/logs/app.log
+2026-10-23 16:42:35 - llmXive - INFO - Log level: INFO
 usage: ethics_generator.py [-h] [--mode {pre-bundled,mock}] [--count COUNT]
                            [--seed SEED]
 ethics_generator.py: error: argument --mode: invalid choice: 'all' (choose from 'pre-bundled', 'mock')
 
 - python code/analysis/power.py -> rc=1
 in__ - WARNING - Could not compute power for effect_size=0.3: FTestAnovaPower.solve_power() got an unexpected keyword argument 'n_groups'
-2026-10-23 16:40:33 - __main__ - INFO - Effect size 0.30: N=None, Power=0.000
-2026-10-23 16:40:33 - __main__ - WARNING - Could not compute power for effect_size=0.35: FTestAnovaPower.solve_power() got an unexpected keyword argument 'n_groups'
-2026-10-23 16:40:33 - __main__ - INFO - Effect size 0.35: N=None, Power=0.000
-2026-10-23 16:40:33 - __main__ - WARNING - Could not compute power for effect_size=0.4: FTestAnovaPower.solve_power() got an unexpected keyword argument 'n_groups'
-2026-10-23 16:40:33 - __main__ - INFO - Effect size 0.40: N=None, Power=0.000
-2026-10-23 16:40:33 - __main__ - INFO - Sensitivity analysis saved to /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/analysis/sensitivity_analysis.json
-2026-10-23 16:40:33 - __main__ - INFO - Power report saved to /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/analysis/power_report.json
-2026-10-23 16:40:33 - __main__ - ERROR - Power analysis indicates insufficient power. Consider increasing N.
+2026-10-23 16:42:35 - __main__ - INFO - Effect size 0.30: N=None, Power=0.000
+2026-10-23 16:42:35 - __main__ - WARNING - Could not compute power for effect_size=0.35: FTestAnovaPower.solve_power() got an unexpected keyword argument 'n_groups'
+2026-10-23 16:42:35 - __main__ - INFO - Effect size 0.35: N=None, Power=0.000
+2026-10-23 16:42:35 - __main__ - WARNING - Could not compute power for effect_size=0.4: FTestAnovaPower.solve_power() got an unexpected keyword argument 'n_groups'
+2026-10-23 16:42:35 - __main__ - INFO - Effect size 0.40: N=None, Power=0.000
+2026-10-23 16:42:35 - __main__ - INFO - Sensitivity analysis saved to /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/analysis/sensitivity_analysis.json
+2026-10-23 16:42:35 - __main__ - INFO - Power report saved to /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/analysis/power_report.json
+2026-10-23 16:42:35 - __main__ - ERROR - Power analysis indicates insufficient power. Consider increasing N.
 
 - python code/analysis/glmm.py          # primary binomial mixed‑effects model -> rc=2
 
@@ -72,32 +75,40 @@ in__ - WARNING - Could not compute power for effect_size=0.3: FTestAnovaPower.so
 
 - python code/analysis/anova.py         # secondary descriptive ANOVA (run after assumption checks) -> rc=2
 
-2026-10-23 16:40:33 - llmXive - INFO - Logging system initialized with PII sanitization enabled
-2026-10-23 16:40:33 - llmXive - INFO - Log file: /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/logs/app.log
-2026-10-23 16:40:33 - llmXive - INFO - Log level: INFO
+2026-10-23 16:42:36 - llmXive - INFO - Logging system initialized with PII sanitization enabled
+2026-10-23 16:42:36 - llmXive - INFO - Log file: /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/logs/app.log
+2026-10-23 16:42:36 - llmXive - INFO - Log level: INFO
 usage: anova.py [-h] [--input INPUT] [--output OUTPUT] [--alpha ALPHA]
 anova.py: error: unrecognized arguments: # secondary descriptive ANOVA (run after assumption checks)
 
 - python code/analysis/power.py --report data/analysis/power_analysis_report.txt -> rc=1
  - __main__ - INFO - Effect size 0.25: N=None, Power=0.000
-2026-10-23 16:40:35 - __main__ - WARNING - Could not compute power for effect_size=0.3: FTestAnovaPower.solve_power() got an unexpected keyword argument 'n_groups'
-2026-10-23 16:40:35 - __main__ - INFO - Effect size 0.30: N=None, Power=0.000
-2026-10-23 16:40:35 - __main__ - WARNING - Could not compute power for effect_size=0.35: FTestAnovaPower.solve_power() got an unexpected keyword argument 'n_groups'
-2026-10-23 16:40:35 - __main__ - INFO - Effect size 0.35: N=None, Power=0.000
-2026-10-23 16:40:35 - __main__ - WARNING - Could not compute power for effect_size=0.4: FTestAnovaPower.solve_power() got an unexpected keyword argument 'n_groups'
-2026-10-23 16:40:35 - __main__ - INFO - Effect size 0.40: N=None, Power=0.000
-2026-10-23 16:40:35 - __main__ - INFO - Sensitivity analysis saved to /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/analysis/sensitivity_analysis.json
-2026-10-23 16:40:35 - __main__ - INFO - Power report saved to data/analysis/power_analysis_report.txt
-2026-10-23 16:40:35 - __main__ - ERROR - Power analysis indicates insufficient power. Consider increasing N.
+2026-10-23 16:42:37 - __main__ - WARNING - Could not compute power for effect_size=0.3: FTestAnovaPower.solve_power() got an unexpected keyword argument 'n_groups'
+2026-10-23 16:42:37 - __main__ - INFO - Effect size 0.30: N=None, Power=0.000
+2026-10-23 16:42:37 - __main__ - WARNING - Could not compute power for effect_size=0.35: FTestAnovaPower.solve_power() got an unexpected keyword argument 'n_groups'
+2026-10-23 16:42:37 - __main__ - INFO - Effect size 0.35: N=None, Power=0.000
+2026-10-23 16:42:37 - __main__ - WARNING - Could not compute power for effect_size=0.4: FTestAnovaPower.solve_power() got an unexpected keyword argument 'n_groups'
+2026-10-23 16:42:37 - __main__ - INFO - Effect size 0.40: N=None, Power=0.000
+2026-10-23 16:42:37 - __main__ - INFO - Sensitivity analysis saved to /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/analysis/sensitivity_analysis.json
+2026-10-23 16:42:37 - __main__ - INFO - Power report saved to data/analysis/power_analysis_report.txt
+2026-10-23 16:42:37 - __main__ - ERROR - Power analysis indicates insufficient power. Consider increasing N.
 
-- python code/utils/data_loader.py --source visual_genome --limit <reasonable_limit> --stream -> rc=2
+- python code/utils/data_loader.py --source visual_genome --limit <reasonable_limit> --stream -> rc=1
+/work/llmXive/llmXive/.llmxive-venvs/PROJ-317-the-impact-of-visual-detail-on-false-mem/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-2026-10-23 16:40:36 - llmXive - INFO - Logging system initialized with PII sanitization enabled
-2026-10-23 16:40:36 - llmXive - INFO - Log file: /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/logs/app.log
-2026-10-23 16:40:36 - llmXive - INFO - Log level: INFO
-usage: data_loader.py [-h] [--source SOURCE] [--count COUNT] [--seed SEED]
-                      [--output OUTPUT] [--validate]
-                      [--complexity-min COMPLEXITY_MIN]
-                      [--complexity-max COMPLEXITY_MAX]
-data_loader.py: error: unrecognized arguments: --limit <reasonable_limit> --stream
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/utils/data_loader.py", line 402, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/utils/data_loader.py", line 346, in main
+    image_paths = fetch_real_dataset_image(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/utils/data_loader.py", line 45, in fetch_real_dataset_image
+    raise ImportError("datasets and PIL are required for data fetching.")
+ImportError: datasets and PIL are required for data fetching.
 

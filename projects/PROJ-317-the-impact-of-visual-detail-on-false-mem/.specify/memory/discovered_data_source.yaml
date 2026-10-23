@@ -1,15 +1,16 @@
 status: none
-intent: download Visual Genome image dataset with object annotations and region descriptions
-  python package dataset
+intent: "download Visual Genome pre\u2011bundled subset as pip installable python\
+  \ package dataset"
 required_fields:
 - image_id
-- image_url
-- width
-- height
+- image_url_or_path
+- image_width
+- image_height
 - objects
 - object_bboxes
 - region_descriptions
+- region_boxes
 - complexity_score
-cache_key: 3c7ee26dc36ec811f5fb839bf283aff73b7737f6ccdc6a471226e5a82323ad18
-searched_at: '2026-10-23T16:41:30.687386+00:00'
+cache_key: 26d12c11931ff2883d6f44e6566d0d00b655ba428000de5d08aea04943281020
+searched_at: '2026-10-23T16:43:19.835722+00:00'
 retry_count: 1

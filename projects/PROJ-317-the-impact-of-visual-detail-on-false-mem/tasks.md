@@ -8,14 +8,14 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
 
 ## Phase 0 – Design Alignment (must be completed before any research work)
 
-- [ ] T000  Design‑Sync  Update **plan.md** so that the Summary and Technical Context explicitly state **“Repeated‑Measures (Within‑Subjects) design”** and **“Repeated‑Measures ANOVA**”.
+- [ ] T000  Design‑Sync  Update **plan.md** so that the Summary and Technical Context explicitly state **“Repeated‑Measures (Within‑Subjects) design”** and **“Repeated‑Measures ANOVA”**. Remove every occurrence of “Between‑Subjects” or “One‑Way ANOVA” throughout the repository.  
   *Verification*: `plan.md` contains the exact phrases “Repeated‑Measures (Within‑Subjects) design” and “Repeated‑Measures ANOVA”; a repository‑wide grep for “Between‑Subjects” and “One‑Way ANOVA” returns no matches.
 
 ---
 
 ## Phase 1 – Data Acquisition & Power Analysis
 
-- [ ] T001  P  Load Visual Genome subset, compute baseline complexity scores, and select a representative sample satisfying **FR‑001** (≥ 3 quantile bins, spread ≥ 0.3). Verify that required dataset variables (`complexity_score`, false‑memory outcomes) are present (**SC‑004**).  
+- [ ] T001  P  Load Visual Genome subset, compute baseline complexity scores, and select a representative sample satisfying **FR‑001** (≥ 3 quantile bins, spread ≥ 0.3). Verify that required dataset variables (`complexity_score`, false‑memory outcomes) are present (**SC‑004**).   <!-- FAILED-IN-EXECUTION: code/utils/data_loader.py exit=1 -->
   *File paths*: `code/utils/data_loader.py`, `data/stimuli/raw_subset/`, `data/processed/complexity_stats.json`, `data/processed/variable_fit_check.txt`.  
   *Verification*: `complexity_stats.json` lists Q1‑Q3 values and confirms the spread; `variable_fit_check.txt` reports all required variables present; marker file `data/stimuli/selection_complete.txt` is created.
 
@@ -43,6 +43,8 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
   *File paths*: `code/ethics/irb_check.py`.  
   *Verification*: Running the check on CI with mock data passes; with a real response file and no IRB file raises `SystemExit`.
 
+---
+
 ## Phase 2 – Participant Testing Interface (User Story 2)
 
 - [ ] T006  P  Implement the full session flow in `code/participants/interface.py`:  
@@ -65,6 +67,8 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
   *File paths*: `code/participants/network_retry.py`, `data/logs/network_retry.log`.  
   *Verification*: Unit test `tests/integration/test_network_retry.py` simulates a timeout and asserts the back‑off schedule, the presence of three timestamped log entries, and cached file creation.
 
+---
+
 ## Phase 3 – Statistical Analysis & Results (User Story 3)
 
 - [ ] T010  P  **Primary GLMM + Corrections + Fatigue Test + Effect‑size & Runtime** – fit a binomial mixed‑effects model with random intercepts for participants and items, fixed effect for visual‑detail condition, covariates `condition_order` and `trial_position` (**FR‑009**, **FR‑015**). Compute **Cohen’s h** for condition contrasts and record it (**SC‑001**). Apply Bonferroni (or Holm) correction to all pairwise contrasts (**FR‑006**). Measure total analysis runtime and verify it does not exceed 30 minutes (**SC‑003**). Save coefficients, SEs, p‑values, adjusted p‑values, Cohen’s h, and runtime to `data/analysis/glmm_results.json`.  
@@ -78,6 +82,8 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
 - [ ] T013  P  **Visualization** – produce a figure `figures/false_memory_rates.png` showing mean false‑memory rates per condition with 95 % confidence intervals (**FR‑007**). Include a caption referencing the GLMM table.  
   *File paths*: `code/analysis/viz.py`, `figures/false_memory_rates.png`.  
   *Verification*: The PNG file exists; a thumbnail check confirms non‑zero dimensions.
+
+---
 
 ## Dependency Summary
 
@@ -101,10 +107,4 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
 
 All tasks remain unchecked; none have been completed yet. The list now contains **15** substantive tasks, satisfying the required range while covering every functional requirement and success criterion.  
 
-# next task line
-
-- [ ] T000  Design‑Sync  Update **plan.md** so that the Summary and Technical Context explicitly state **“Repeated‑Measures (Within‑Subjects) design”** and **“Repeated‑Measures ANOVA**”.  
-  *Verification*: `plan.md` contains the exact phrases “Repeated‑Measures (Within‑Subjects) design” and “Repeated‑Measures ANOVA”; a repository‑wide grep for “Between‑Subjects” and “One‑Way ANOVA” returns no matches.
-
-# completed task ids
-[]
+---

@@ -15,7 +15,7 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
 
 ## Phase 1 – Data Acquisition & Power Analysis
 
-- [ ] T001  P  Load Visual Genome subset, compute baseline complexity scores, and select a representative sample satisfying **FR‑001** (≥ 3 quantile bins, spread ≥ 0.3). Verify that required dataset variables (`complexity_score`, false‑memory outcomes) are present (**SC‑004**).   <!-- FAILED-IN-EXECUTION: code/utils/data_loader.py exit=1 -->
+- [ ] T001  P  Load Visual Genome subset, compute baseline complexity scores, and select a representative sample satisfying **FR‑001** (≥ 3 quantile bins, spread ≥ 0.3). Verify that required dataset variables (`complexity_score`, false‑memory outcomes) are present (**SC‑004**).   <!-- FAILED-IN-EXECUTION: code/utils/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/data_loader.py exit=1 -->
   *File paths*: `code/utils/data_loader.py`, `data/stimuli/raw_subset/`, `data/processed/complexity_stats.json`, `data/processed/variable_fit_check.txt`.  
   *Verification*: `complexity_stats.json` lists Q1‑Q3 values and confirms the spread; `variable_fit_check.txt` reports all required variables present; marker file `data/stimuli/selection_complete.txt` is created.
 

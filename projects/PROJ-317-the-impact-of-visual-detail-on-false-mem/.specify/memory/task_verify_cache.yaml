@@ -1,10 +1,10 @@
 T000:
   c: false
-  h: 3f6b22a4bc34520fc7bc83bc40a376a0e3dbbcdce03e3e41ec38e498433bedd5
-  r: "The provided `plan.md` does contain the required phrases and does not include\
-    \ \u201CBetween\u2011Subjects\u201D or \u201COne\u2011Way ANOVA\u201D, but there\
-    \ is no artifact (e.g., grep output or a scan of all repository files) demonstrating\
-    \ that those terms have been removed from every other file in the repository.\
-    \ Without explicit evidence of a repository\u2011wide check, the task cannot be\
-    \ confirmed as fully completed."
-  sig: 52f37620d28c25399cf98ae1d3e10b23a31049a89518e8257be5971a83ea5b28
+  h: 74e638d23bc7d6f7225dde77851d715aa29cf7676b5a0a33c2d51c8eacb620bc
+  r: "plan.md includes the required \u201CRepeated\u2011Measures (Within\u2011Subjects)\
+    \ design\u201D and \u201CRepeated\u2011Measures ANOVA\u201D, but the test log\
+    \ `code/.tasks/T000.tests_test_design_sync.py.log` shows a failing grep: a file\
+    \ elsewhere in the repository still contains the prohibited term \u201CBetween\u2011\
+    Subjects\u201D. All occurrences of \u201CBetween\u2011Subjects\u201D (and \u201C\
+    One\u2011Way ANOVA\u201D) must be removed repository\u2011wide."
+  sig: 846a81b4f4d634e4deb3ab1bd45c3567c51dd9ef3102054c1bd8c77adc9e92f0
