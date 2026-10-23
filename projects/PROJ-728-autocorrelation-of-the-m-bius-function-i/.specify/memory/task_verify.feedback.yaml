@@ -5,10 +5,12 @@ T002:
 T003:
   task: b2dbc8aa54e9239d2666b5d8fcad079be0370e99329e638bb1218e1ef9f555fb
 T004:
-  reason: "The required file `data/processed/window_index.csv` does not exist (the\
-    \ script writes to `processed/window_index.csv` instead), and no evidence is provided\
-    \ that the CSV\u2019s SHA\u2011256 hash is reproducible across runs. Consequently\
-    \ the task\u2019s core deliverable is missing."
+  reason: "The `data/processed/window_index.csv` file has the correct number of rows\
+    \ and passes the non\u2011overlap test, but the unit test for SHA\u2011256 reproducibility\
+    \ fails (the generated hash does not match the expected deterministic hash). Therefore\
+    \ the output is not reliably deterministic as required. Fix the window generation\
+    \ to produce a reproducible CSV (e.g., ensure the same RNG sequence and ordering)\
+    \ so the SHA\u2011256 hash matches on repeated runs."
   task: 183b5bfd1fd30b73b67f562c552a64e947378e5ec8c8ef90efefd5f48daf67b4
 T005:
   reason: 'Requested task execution failed; rerun successfully: code/demo_autocorr.py

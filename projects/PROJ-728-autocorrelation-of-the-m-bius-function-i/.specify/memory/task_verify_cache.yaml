@@ -1,11 +1,12 @@
 T001:
   c: true
-  h: 6af4855908b699e9093bc849a74836b34e2b9762785cfad78f5ee77e7cb18d61
-  r: "Checked the `quickstart.md` file (2600\u202Fbytes) which includes the project\
-    \ layout, specifies Python\u202F3.11, lists a fully\u2011pinned `requirements.txt`,\
-    \ and documents the demo command `python -m code.main --demo`. The required optional\
-    \ guide is present and non\u2011empty."
-  sig: 8de98d6cefba8f62a10a324eb5d33d2f0cd93d6549e3aa7a47ef6d1fcabcc5ac
+  h: beb9e4bbc54ce536d733b128e9e8eda5ed0fa99022ed507fd1552f9d5cbbb302
+  r: "The `quickstart.md` file (2600\u202Fbytes) is present and includes the required\
+    \ sections: it specifies Python\u202F3.11, lists a pinned `requirements.txt`,\
+    \ documents the demo command `python -m code.main --demo`, and outlines the project\
+    \ layout. The content directly fulfills the optional quickstart documentation\
+    \ task."
+  sig: 4ffaf189acb007d433b1ef6ffaed51549a4cf64c5c870f4d828aabb49058f17c
 T002:
   c: true
   h: 692baa5f77977551da0952f50f6fd8c27b42e0eea220036bcfb374a1ded88093
@@ -27,11 +28,3 @@ T003:
     \ lists the hashes of both the raw and packed M\xF6bius arrays). All required\
     \ artifacts exist, contain correct content, and the tests pass."
   sig: 561287812b97808104e659693e9fdafc94ee558c5b4aa23c9c243c1968b38116
-T004:
-  c: false
-  h: 5d32bbcbedc89cd85fa4d95a6432ccad4cc11339bad0a05cd51e06613c1f8642
-  r: "The required file `data/processed/window_index.csv` does not exist (the script\
-    \ writes to `processed/window_index.csv` instead), and no evidence is provided\
-    \ that the CSV\u2019s SHA\u2011256 hash is reproducible across runs. Consequently\
-    \ the task\u2019s core deliverable is missing."
-  sig: 1bd976eda1d256dccb44f14c20a104fb4143f139eb5c8228da55d484bf4e9a36

@@ -10,13 +10,15 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
+import json
 
 import numpy as np
 
 # Paths to required data files
 MOBIUS_PATH = Path("data/raw/mobius_array.npy")
-# The window starts are stored by `generate_mobius.py` in the raw folder.
-WINDOW_STARTS_JSON = Path("data/raw/window_starts.json")
+# The window starts are stored by `generate_mobius.py` in the project root.
+# The correct location is `data/window_starts.json`.
+WINDOW_STARTS_JSON = Path("data/window_starts.json")
 # Output path required by task T005
 OUTPUT_CSV = Path("data/processed/demo_autocorr.csv")
 
@@ -35,16 +37,18 @@ def load_mobius_array() -> np.ndarray:
 
 def load_window_starts() -> dict[int, list[int]]:
     """Load the JSON mapping ``{L: [start, …]}``."""
-    import json
-
     if not WINDOW_STARTS_JSON.is_file():
-        raise FileNotFoundError(f"Window starts file not found at {WINDOW_STARTS_JSON}")
+        raise FileNotFoundError(
+            f"Window starts file not found at {WINDOW_STARTS_JSON}"
+        )
     with WINDOW_STARTS_JSON.open("r", encoding="utf-8") as f:
         raw = json.load(f)
     # Keys are strings in the JSON; convert to ints for convenience.
     return {int(k): v for k, v in raw.items()}
 
-def compute_autocorrelation(mobius: np.ndarray, start: int, L: int, h: int) -> float:
+def compute_autocorrelation(
+    mobius: np.ndarray, start: int, L: int, h: int
+) -> float:
     """
     Compute the normalized autocorrelation for a single window.
 
@@ -106,8 +110,12 @@ def main() -> None:
     _ensure_parent_dir(OUTPUT_CSV)
     with OUTPUT_CSV.open("w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["interval_start", "interval_length", "lag", "autocorrelation"])
-        writer.writerow([demo_start, demo_L, demo_h, f"{autocorr_val:.12f}"])
+        writer.writerow(
+            ["interval_start", "interval_length", "lag", "autocorrelation"]
+        )
+        writer.writerow(
+            [demo_start, demo_L, demo_h, f"{autocorr_val:.12f}"]
+        )
 
     print(f"Demo autocorrelation written to {OUTPUT_CSV}")
 

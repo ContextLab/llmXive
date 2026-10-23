@@ -25,7 +25,7 @@ All tasks respect data‑flow dependencies and use the canonical checklist forma
   • Path: `code/window.py`, `data/processed/window_index.csv` (columns `interval_start`, `interval_length`, `window_id`)  
   • Verification: `wc -l data/processed/window_index.csv` returns 300; a script asserts no windows overlap, the file is non‑empty, and its SHA‑256 hash is reproducible on repeated runs.  
 
-- [ ] T005 **Demo autocorrelation on a single window** – extract the first window (`L=1000`, start = first `interval_start` in `window_index.csv`), compute the normalized autocorrelation for lag = 1, and write a single‑row CSV `data/processed/demo_autocorr.csv`.   <!-- FAILED-IN-EXECUTION: code/demo_autocorr.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/demo_autocorr.py exit=1 -->
+- [ ] T005 **Demo autocorrelation on a single window** – extract the first window (`L=1000`, start = first `interval_start` in `window_index.csv`), compute the normalized autocorrelation for lag = 1, and write a single‑row CSV `data/processed/demo_autocorr.csv`.   <!-- FAILED-IN-EXECUTION: code/demo_autocorr.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/demo_autocorr.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/demo_autocorr.py exit=1 -->
   • Path: `code/demo_autocorr.py`, `data/processed/demo_autocorr.csv`  
   • Verification: the CSV contains exactly one row with columns `interval_start,interval_length,lag,autocorrelation`; the `autocorrelation` value has ≥ 6 decimal places and matches the hand‑computed reference (−0.047047047047) within absolute tolerance 1e‑9.  
 
