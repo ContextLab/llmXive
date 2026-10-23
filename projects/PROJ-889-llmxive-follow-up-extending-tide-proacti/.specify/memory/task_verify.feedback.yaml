@@ -7,6 +7,8 @@ T002:
 T003:
   task: 76a10105b5da0f46d8fdd22ecad63e784ae38c0d4cb7d54cf157d7da94ad354e
 T004:
+  reason: 'Requested task execution failed; rerun successfully: src/features/extract.py
+    exit=1'
   task: 0cda53b4df70c32a940fa2fd549e78d9818d55c2902480dd1c37b0008f86e162
 T005:
   task: 018266589fd4afecc9b06d74fc2d42813038e42e64e843c727f14c5567f20a7c

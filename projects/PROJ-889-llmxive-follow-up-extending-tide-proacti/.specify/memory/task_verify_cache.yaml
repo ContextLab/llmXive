@@ -1,0 +1,18 @@
+T002:
+  c: true
+  h: e8d978798c886a1bc3d98c8d239ecf88ce1a304e9f76b691d072c5a3fa299ccf
+  r: "Checked `src/data/generate_synthetic.py` (accepts `--seed`, caps depth at 5,\
+    \ writes files to `data/synthetic/` and manifest to `data/raw/synthetic_meta.csv`),\
+    \ verified that `data/raw/synthetic_meta.csv` contains 200 rows with `dependency_depth`\
+    \ 1\u20115, `semantic_scope` in {local, cross_module}, and non\u2011negative `syntactic_complexity`,\
+    \ and confirmed that `data/logs/cap_warnings.log` records warnings for all capped\
+    \ instances."
+  sig: ee989388a37954eeaf3c4e14a2a08fbaddc3f270a3e267b6e09ff177b070caea
+T003:
+  c: true
+  h: aa4c67f675311504efb20ae965436842c18a5c22d8fa015f7a9f36c126231ebf
+  r: "Checked `src/data/cap_properties.py` implementation, the execution log showing\
+    \ the script ran with exit\u202F0, the generated `data/logs/cap_warnings.log`\
+    \ containing warning lines for each capped instance, and the final `data/raw/synthetic_meta.csv`\
+    \ confirming all `dependency_depth` values are \u2264\u202F5."
+  sig: 6d67dfab78717b3bc7365419cd845771b48e1d64bae12594f96e4ca45ae0742f

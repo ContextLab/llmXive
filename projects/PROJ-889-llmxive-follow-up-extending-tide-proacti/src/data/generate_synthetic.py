@@ -1,7 +1,7 @@
 """
 generate_synthetic.py
 ----------------------
-Deterministically generates a synthetic edge-case code corpus.
+Deterministically generates a synthetic edge‑case code corpus.
 """
 
 import argparse
@@ -15,10 +15,14 @@ from llmxive_toolkit import paths, get_logger
 log = get_logger(__name__)
 
 NUM_INSTANCES = 200
+# The maximum allowed dependency depth per FR‑009
 MAX_DEPENDENCY_DEPTH = 5
+# For deterministic generation we deliberately allow a raw depth that can exceed the cap
+# to demonstrate the capping logic and warning logging.
+RAW_MAX_DEPTH = 7  # generate depths in 1‑7 range, then cap to 5
 
 def _sha256_of_file(file_path: Path) -> str:
-    """Return the hexadecimal SHA-256 digest of *file_path*."""
+    """Return the hexadecimal SHA‑256 digest of *file_path*."""
     h = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -31,7 +35,7 @@ def _iter_source_dirs(base_dir: Path):
     yield paths.data("synthetic")
 
 def _write_checksum_manifest(base_dir: Path, manifest_path: Path) -> None:
-    """Scan the corpus directories and write a SHA-256 checksum manifest."""
+    """Scan the corpus directories and write a SHA‑256 checksum manifest."""
     checksum_entries = {}
     for sub_dir in _iter_source_dirs(base_dir):
         if not sub_dir.is_dir():
@@ -81,7 +85,7 @@ _BUG_TEMPLATES = [
     ("if value == None:", "equality comparison with None"),
     ("result = total / count", "unchecked division"),
     ("except:", "bare except"),
-    ("password = 'admin123'", "hard-coded credential"),
+    ("password = 'admin123'", "hard‑coded credential"),
     ("cursor.execute(query % user_input)", "SQL injection"),
     ("eval(user_expr)", "use of eval"),
     ("f = open(path)", "file handle never closed"),
@@ -89,13 +93,15 @@ _BUG_TEMPLATES = [
 
 def _generate_source(idx: int, depth: int, scope: str, complexity: int, label: int, rng: random.Random) -> str:
     """Create the source text of one synthetic instance."""
-    lines = [f'"""Synthetic edge-case instance {idx}."""']
+    lines = [f'"""Synthetic edge‑case instance {idx}."""']
+    # import chain reflecting the *actual* (capped) depth
     for k in range(depth):
         lines.append(f"import dep_{idx}_{k}")
     if scope == "cross_module":
         lines.append(f"from pkg_{idx} import helper_{idx}")
     lines.append("")
 
+    # helper functions – depth many of them
     lines.append(f"def helper_{idx}_0(x): return x + 1\n")
     for k in range(1, depth):
         lines.append(f"def helper_{idx}_{k}(x): return helper_{idx}_{k-1}(x) * 2\n")
@@ -125,8 +131,8 @@ def _generate_source(idx: int, depth: int, scope: str, complexity: int, label: i
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--count", type=int, default=NUM_INSTANCES)
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for deterministic generation")
+    parser.add_argument("--count", type=int, default=NUM_INSTANCES, help="Number of synthetic instances to generate")
     args, _ = parser.parse_known_args()
 
     rng = random.Random(args.seed)
@@ -134,10 +140,25 @@ def main() -> None:
     synth_dir.mkdir(parents=True, exist_ok=True)
     raw_root = paths.data("raw")
     raw_root.mkdir(parents=True, exist_ok=True)
+    logs_dir = paths.data("logs")
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    cap_warnings_path = logs_dir / "cap_warnings.log"
+
+    cap_warnings = []
 
     meta_rows = []
     for idx in range(args.count):
-        depth = (idx % MAX_DEPENDENCY_DEPTH) + 1
+        # Determine a *raw* depth that may exceed the allowed maximum.
+        raw_depth = (idx % RAW_MAX_DEPTH) + 1  # yields values 1‑7
+        depth = min(raw_depth, MAX_DEPENDENCY_DEPTH)
+        if raw_depth > MAX_DEPENDENCY_DEPTH:
+            warning_msg = (
+                f"Instance {idx}: requested dependency_depth {raw_depth} exceeds cap "
+                f"{MAX_DEPENDENCY_DEPTH}; capping to {MAX_DEPENDENCY_DEPTH}."
+            )
+            cap_warnings.append(warning_msg)
+            log.warning(warning_msg)
+
         complexity = (rng.randint(1, 5) if idx % 2 == 0 else (idx % 5) + 1)
         scope = "cross_module" if idx % 3 == 0 else "local"
         label = idx % 2
@@ -158,13 +179,22 @@ def main() -> None:
             "sha256": _sha256_of_file(file_path),
         })
 
+    # Write the manifest CSV
     pd.DataFrame(meta_rows).to_csv(raw_root / "synthetic_meta.csv", index=False)
-    log.info(f"Wrote {len(meta_rows)} synthetic instances.")
+    log.info(f"Wrote {len(meta_rows)} synthetic instances to {raw_root / 'synthetic_meta.csv'}.")
 
+    # Write the checksum manifest for the raw directory (includes the CSV itself)
     checksum_path = raw_root / "checksums.txt"
     _write_checksum_manifest(raw_root, checksum_path)
     _verify_checksums(raw_root, checksum_path)
     log.info("Synthetic generation completed and verified.")
+
+    # Persist any cap warnings
+    if cap_warnings:
+        with cap_warnings_path.open("w", encoding="utf-8") as fh:
+            for line in cap_warnings:
+                fh.write(line + "\n")
+        log.info(f"Capped {len(cap_warnings)} instances; warnings written to {cap_warnings_path}.")
 
 if __name__ == "__main__":
     try:

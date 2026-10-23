@@ -1,4 +1,4 @@
-"""Synthetic edge-case instance 35."""
+"""Synthetic edge‑case instance 35."""
 import dep_35_0
 
 def helper_35_0(x): return x + 1

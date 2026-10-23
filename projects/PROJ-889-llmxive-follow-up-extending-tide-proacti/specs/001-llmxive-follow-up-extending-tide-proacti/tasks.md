@@ -15,20 +15,20 @@ The checklist implements the smallest complete study that satisfies every functi
   • `data/raw/tide.csv` contains ≥ 200 rows and the checksum file `data/raw/tide.sha256` matches the downloaded file.  
   • A log entry `data/logs/download_real.log` records successful download and checksum validation.  
 
-- [ ] T002 [US-1] **Generate a deterministic synthetic code corpus (≥ 200 instances) with systematic variation of intrinsic properties**.  
+- [X] T002 [US-1] **Generate a deterministic synthetic code corpus (≥ 200 instances) with systematic variation of intrinsic properties**.  
   **Path**: `src/data/generate_synthetic.py` (accepts `--seed 42`, respects FR‑009 caps, writes `.py` files under `data/synthetic/` and a manifest `data/raw/synthetic_meta.csv`).  
   **Verification**:  
   • Running `python -m src.data.generate_synthetic --seed 42` exits with status 0.  
   • `synthetic_meta.csv` has exactly 200 rows, each with `dependency_depth` ∈ {1,…,5}, `semantic_scope` ∈ {local,cross_module}, and `syntactic_complexity` ≥ 0.  
   • Any instance where the generator would exceed `dependency_depth` 5 is capped and a warning line appears in `data/logs/cap_warnings.log`.
 
-- [ ] T003 [US-1] **Enforce FR‑009 caps and log warnings for out‑of‑range property values**.  
+- [X] T003 [US-1] **Enforce FR‑009 caps and log warnings for out‑of‑range property values**.  
   **Path**: `src/data/cap_properties.py` (imported by the synthetic generator; also usable as a post‑hoc validator).  
   **Verification**:  
   • After generation, `python -m src.data.cap_properties data/raw/synthetic_meta.csv` exits with status 0 and produces `data/logs/cap_warnings.log`.  
   • The log contains one line per capped instance; the final `synthetic_meta.csv` shows all `dependency_depth` ≤ 5.
 
-- [ ] T004 [US-1] **Extract quantitative structural features and ground‑truth labels from every code instance (real + synthetic) and produce a unified feature matrix**.  
+- [ ] T004 [US-1] **Extract quantitative structural features and ground‑truth labels from every code instance (real + synthetic) and produce a unified feature matrix**.   <!-- FAILED-IN-EXECUTION: src/features/extract.py exit=1 -->
   **Path**: `src/features/extract.py` (parses `.py` files, computes AST depth, import count, cyclomatic complexity via `radon`, reads `ground_truth_label` from the TIDE CSV, and records the intrinsic properties).  
   **Verification**:  
   • Running `python -m src.features.extract` writes `data/interim/features.csv`.  

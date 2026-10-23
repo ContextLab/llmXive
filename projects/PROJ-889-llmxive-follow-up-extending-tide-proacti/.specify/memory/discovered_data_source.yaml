@@ -1,12 +1,16 @@
 status: none
-intent: TIDE evaluation dataset synthetic edge case code download python package dataset
+intent: download TIDE evaluation dataset python package and synthetic code generator
+  dataset
 required_fields:
-- source_code
+- code_id
+- code_text
 - ast_depth
 - import_count
 - cyclomatic_complexity
+- dependency_depth
+- semantic_scope
+- syntactic_complexity
 - ground_truth_label
-- dataset_origin
-cache_key: 21de3d4ee0e338e82b902b64791ccd39875a15af1230a12d9796b2a167439388
-searched_at: '2026-10-23T02:24:57.101353+00:00'
+cache_key: 685680f9cee5f72b72eb3460549b8ae39505363f21461f2adfee2b79922ef37a
+searched_at: '2026-10-23T03:10:17.737321+00:00'
 retry_count: 1

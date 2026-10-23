@@ -1,4 +1,4 @@
-"""Synthetic edge-case instance 141."""
+"""Synthetic edge‑case instance 141."""
 import dep_141_0
 import dep_141_1
 from pkg_141 import helper_141

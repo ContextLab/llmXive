@@ -1,4 +1,4 @@
-"""Synthetic edge-case instance 177."""
+"""Synthetic edge‑case instance 177."""
 import dep_177_0
 import dep_177_1
 import dep_177_2

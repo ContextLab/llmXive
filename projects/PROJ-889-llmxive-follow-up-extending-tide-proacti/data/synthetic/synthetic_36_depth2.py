@@ -1,4 +1,4 @@
-"""Synthetic edge-case instance 36."""
+"""Synthetic edge‑case instance 36."""
 import dep_36_0
 import dep_36_1
 from pkg_36 import helper_36
