@@ -4,6 +4,7 @@ type: object
 required:
   - instance_id
   - pipeline
+  - origin
   - prediction
   - latency_ms
   - dependency_depth
@@ -21,6 +22,10 @@ properties:
     type: string
     enum: ["tide_lite", "tide_original"]
     description: "Which detection pipeline produced this row."
+  origin:
+    type: string
+    enum: ["real", "synthetic"]
+    description: "Provenance of the instance that generated this row."
   prediction:
     type: boolean
     description: "True if the pipeline detected the hidden problem (TP/FP), False otherwise."

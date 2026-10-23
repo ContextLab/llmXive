@@ -1,11 +1,22 @@
-- artifact_hash: a31bffbac951f88069c8ca38d28ee99fd493e0c56294f2ef9fe218c55464ff68
+- artifact_hash: ff5e9c7a1ba7d2c00886a1b14270ccbbc9bbfcc30b32f27f45ea7ee5b33bfe74
   artifact_path: projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/specs/001-llmxive-follow-up-extending-tide-proacti/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Team10_chat_anonymized.csv
+  fetched_title: test-00000-of-00001-9189dc62872204f7.parquet
   kind: url
-  value: https://huggingface.co/datasets/hclee99/TIDES/resolve/main/Team_10/chat/Team10_chat_anonymized.csv`
+  value: https://huggingface.co/datasets/deeplearning-tide/actresses/resolve/main/data/test-00000-of-00001-9189dc62872204f7.parquet
   verification_status: pending
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/hclee99/TIDES/2057219b353a9e179bad5a75902d196ba9021f67/Team_10%2Fchat%2FTeam10_chat_anonymized.csv?%2Fdatasets%2Fhclee99%2FTIDES%2Fresolve%2Fmain%2FTeam_10%2Fchat%2FTeam10_chat_anonymized.csv=&etag=%22accc65bedac10670e4ac2f869a1333e7e9d89ad6%22
-  verified_at: '2026-10-16T20:27:54.980913Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64e07f1cb08f69ae0884f6b0/ee8f0f76ad84f3190b87ad7b2e3bad53e109d7df1ebc416a7016db82260ec461?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-9189dc62872204f7.parquet%3B+filename%3D%22test-00000-of-00001-9189dc62872204f7.parquet%22%3B&xip=8rRCkORLL6k&X-Xet-Cas-Uid=public&user_id=public&Expires=1792719253&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRlMDdmMWNiMDhmNjlhZTA4ODRmNmIwL2VlOGYwZjc2YWQ4NGYzMTkwYjg3YWQ3YjJlM2JhZDUzZTEwOWQ3ZGYxZWJjNDE2YTcwMTZkYjgyMjYwZWM0NjFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS05MTg5ZGM2Mjg3MjIwNGY3LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLTkxODlkYzYyODcyMjA0ZjcucGFycXVldCUyMiUzQiZ4aXA9OHJSQ2tPUkxMNmsmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MjcxOTI1M319fV19&Signature=MEUCIQDfo3UZMe-xnv0oGd89W%7EsR3ETZRDLjeewhuQQGGzWrzQIgfMkMmd9f2jhUezxIHZnw1qiH6Drk2PbJCzurZdrAUHM_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-23T00:34:13.054069Z'
+- artifact_hash: bbb2596eac036ff5cd69c905626c820e64c8be6115b9ac9dd01e42a4ef56b9a8
+  artifact_path: projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/specs/001-llmxive-follow-up-extending-tide-proacti/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001-9189dc62872204f7.parquet
+  kind: url
+  value: https://huggingface.co/datasets/deeplearning-tide/actresses/resolve/main/data/test-00000-of-00001-9189dc62872204f7.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64e07f1cb08f69ae0884f6b0/ee8f0f76ad84f3190b87ad7b2e3bad53e109d7df1ebc416a7016db82260ec461?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-9189dc62872204f7.parquet%3B+filename%3D%22test-00000-of-00001-9189dc62872204f7.parquet%22%3B&xip=8rRCkORLL6k&Expires=1792719268&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRlMDdmMWNiMDhmNjlhZTA4ODRmNmIwL2VlOGYwZjc2YWQ4NGYzMTkwYjg3YWQ3YjJlM2JhZDUzZTEwOWQ3ZGYxZWJjNDE2YTcwMTZkYjgyMjYwZWM0NjFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS05MTg5ZGM2Mjg3MjIwNGY3LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLTkxODlkYzYyODcyMjA0ZjcucGFycXVldCUyMiUzQiZ4aXA9OHJSQ2tPUkxMNmsiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MjcxOTI2OH19fV19&Signature=MEQCICM-dAjQ9h9gX3kMHiHJLWis8lRKA3mAHiEhxX-Z%7EPT%7EAiBaNkwdnNsiSfJzz1WvjPh0t%7EAQ3La3vpoW1NMyIyCWdw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-23T00:34:28.567383Z'
