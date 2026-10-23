@@ -18,7 +18,7 @@ properties:
     description: "Start time of the analysis window."
   pressure_anomaly:
     type: "number"
-    description: "Calculated pressure anomaly (deviation from a 30‑day left‑censored moving average)."
+    description: "Calculated pressure anomaly (deviation from a multi‑day left‑censored moving average)."
   magnitude:
     type: "number"
     description: "Magnitude of the associated earthquake (if event)."

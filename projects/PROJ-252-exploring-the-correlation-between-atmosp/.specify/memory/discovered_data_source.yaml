@@ -1,43 +1,52 @@
 status: verified
-kind: pypi_package
-ref: obspy
-access_python: 'import obspy
-
-  from obspy.clients.fdsn import Client
-
-  client = Client("USGS")
-
-  cat = client.get_events(starttime=obspy.UTCDateTime("2020-01-01"), endtime=obspy.UTCDateTime("2020-01-31"))
-
-  records = len(cat)
-
-  print(f"RECORDS={records}")
-
-  fields = ["event_id","time","magnitude","depth_km","latitude","longitude"]
-
-  print("FIELDS=" + ",".join(fields))'
-record_count: 16975
+kind: data_url
+ref: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.csv
+access_python: "import pandas as pd\nurl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.csv'\n\
+  # Load the USGS earthquake catalog (CSV) into a DataFrame\ndf = pd.read_csv(url)\n\
+  # Rename columns to align with requested field names where possible\nrename_map\
+  \ = {\n    'id': 'event_id',\n    'time': 'origin_time',\n    'latitude': 'latitude',\n\
+  \    'longitude': 'longitude',\n    'mag': 'magnitude',\n    'depth': 'depth_km'\n\
+  }\ndf = df.rename(columns=rename_map)\nprint(f\"RECORDS={len(df)}\")\nprint(f\"\
+  FIELDS={','.join([c for c in df.columns if c in ['event_id','origin_time','latitude','longitude','magnitude','depth_km','pressure_value_hPa','pressure_anomaly_hPa','grid_latitude','grid_longitude','pressure_date','control_window_label']])}\"\
+  )"
+record_count: 1296
 sample_fields:
-- event_id
 - time
-- magnitude
-- depth_km
 - latitude
 - longitude
+- depth
+- mag
+- magType
+- nst
+- gap
+- dmin
+- rms
+- net
+- id
+- updated
+- place
+- type
+- horizontalError
+- depthError
+- magError
+- magNst
+- status
+- locationSource
+- magSource
 field_coverage: 0.5
 required_fields:
 - event_id
-- time
-- magnitude
-- depth_km
+- origin_time
 - latitude
 - longitude
-- pressure_grid_lat
-- pressure_grid_lon
+- magnitude
+- depth_km
 - pressure_value_hPa
 - pressure_anomaly_hPa
-- pressure_window_hours
-- enso_phase
-intent: download NOAA NCEP/NCAR reanalysis surface pressure python package and USGS
-  ANSS earthquake catalog dataset
-cache_key: dc70ee9b77e3fcf926615d1e24da2a96daa12947eb8d85a1f76c901f1e62de18
+- grid_latitude
+- grid_longitude
+- pressure_date
+- control_window_label
+intent: download NOAA NCEP/NCAR pressure and USGS earthquake catalog python package
+  dataset
+cache_key: 59b4c96390f7ba5a074f6c9e8dc7653cac02d1eb12f7dc11987ae8895480301b

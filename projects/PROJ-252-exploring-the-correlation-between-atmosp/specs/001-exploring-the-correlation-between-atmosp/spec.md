@@ -34,7 +34,7 @@ The research system MUST perform statistical tests (block‑permutation testing)
 **Acceptance Scenarios**:
 
 1. **Given** the prepared dataset with event and control windows, **When** the permutation test runs (10,000 iterations, 7‑day block‑permutation preserving temporal autocorrelation), **Then** the system outputs a p‑value and a bootstrap confidence interval for the effect size.
-2. **Given** the event labels, **When** the bootstrap resampling runs (1,000 resamples), **Then** the system reports the median Cohen’s d and its 95 % confidence interval.
+2. **Given** the event labels, **When** the bootstrap resampling runs (a sufficiently large number of resamples), **Then** the system reports the median Cohen’s d and its 95 % confidence interval.
 3. **Given** the statistical results, **When** the report is generated, **Then** the findings are explicitly framed as "associational" rather than "causal," and any significance (p < 0.05) is accompanied by the calculated effect size (Cohen’s d) and its confidence interval.
 4. **Given** the control‑window generation step, **When** the stratification routine runs, **Then** each control window row in the output CSV includes non‑null ENSO, PDO, local temperature, and humidity values, verified by a validation script that checks for missing entries. (Addresses FR‑011 verification.)
 
