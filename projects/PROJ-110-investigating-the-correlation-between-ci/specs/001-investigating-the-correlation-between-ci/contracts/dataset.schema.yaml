@@ -7,7 +7,7 @@ properties:
     description: "Unique identifier for each donor."
   tissue:
     type: string
-    description: "GTEx tissue name (e.g., 'Muscle_Skeletal')."
+    description: "GTEx tissue name."
   age:
     type: integer
     minimum: 0
@@ -19,11 +19,11 @@ properties:
   PMI:
     type: number
     minimum: 0
-    description: "Post‑mortem interval in hours; may be null."
+    description: "Post‑mortem interval in hours."
   time_of_death:
     type: number
     minimum: 0
-    description: "Time of death (24‑hour clock); may be null."
+    description: "Time of death (24‑hour clock)."
   BMI:
     type: number
     description: "Body Mass Index (kg/m²)."
@@ -44,7 +44,7 @@ properties:
     description: "High‑density lipoprotein (mg/dL)."
   gene_symbol:
     type: string
-    description: "HGNC gene symbol (core circadian list only)."
+    description: "HGNC gene symbol."
   tpm:
     type: number
     minimum: 0

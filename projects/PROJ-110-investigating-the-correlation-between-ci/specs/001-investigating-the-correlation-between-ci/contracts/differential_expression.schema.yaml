@@ -18,7 +18,7 @@ properties:
   n_control:
     type: integer
     minimum: 0
-    description: "Number of Control donors in this tissue"
+    description: "Number of Control donors"
   wilcoxon_stat:
     type: number
     description: "Mann‑Whitney U statistic"

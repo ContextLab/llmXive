@@ -10,7 +10,7 @@ properties:
     description: "GTEx tissue name."
   beta:
     type: number
-    description: "ANCOVA coefficient for risk_score effect."
+    description: "ANCOVA coefficient for MetS effect."
   ci_lower:
     type: number
     description: "Lower bound of 95 % confidence interval."

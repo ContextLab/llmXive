@@ -35,7 +35,7 @@ properties:
   Model_Type:
     type: "string"
     enum: ["BinaryMetS", "SeverityScore", "TraitSpecific"]
-    description: "Type of model this result belongs to."
+    description: "Type of model that belongs to."
 required:
   - Predictor
   - Coefficient
