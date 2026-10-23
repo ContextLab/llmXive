@@ -1,12 +1,8 @@
 T001:
   task: c235237d3e82721fb106baa8f66f8cd8b4da7ef0b7e58d7436481922f0e736bb
 T001a:
-  reason: "Checked `data/raw/lipophilicity.csv` and `data/checksums.txt`. The CSV\
-    \ exists and its SHA\u2011256 matches the entry in `checksums.txt`, but the file\
-    \ does not contain the original MoleculeNet Lipophilicity data \u2013 the \u201C\
-    smiles\u201D column holds stringified RDKit Mol objects instead of raw SMILES\
-    \ strings, indicating it is not the canonical dataset that should be downloaded.\
-    \ The task therefore lacks a correct raw dataset file."
+  reason: 'Requested task execution failed; rerun successfully: code/01_download_lipophilicity.py
+    exit=1'
   task: d566784c468ff0d7741427bb337d40f12c931d720bb3eee01c7e33b48194abdf
 T001b:
   task: f25938982c6fa292f8da77ad4ad8d5f4de0997b5f75022c1360d6a1b7399eeb0

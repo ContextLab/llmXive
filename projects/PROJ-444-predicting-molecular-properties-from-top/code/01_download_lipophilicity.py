@@ -1,105 +1,180 @@
 """
-Download the MoleculeNet Lipophilicity dataset using DeepChem.
+Download the MoleculeNet Lipophilicity dataset (raw SMILES + logP) and
+register its SHA‑256 checksum.
 
-This script follows the **verified real data source** specification:
-it loads the Lipophilicity (LIPO) dataset via DeepChem's `load_lipo`
-function with the 'Raw' featurizer, concatenates the train/valid/test
-splits, and writes a CSV containing the canonical ``smiles`` strings
-and the experimental ``logP`` values.
+This script is the implementation of task **T001a**. It uses DeepChem's
+``load_lipophilicity`` helper with the ``Raw`` featurizer to obtain the
+canonical CSV containing two columns:
 
-The resulting file is stored at ``data/raw/lipophilicity.csv``.
-A SHA‑256 checksum of the file is recorded (idempotently) in
-``data/checksums.txt`` using the same manifest format expected by the
-checksum‑verification script.
+  * ``smiles`` – the raw SMILES string for each molecule
+  * ``logP``   – the experimental LogP value
+
+The resulting file is written to ``data/raw/lipophilicity.csv``.  A SHA‑256
+checksum of the file is (idempotently) added to ``data/checksums.txt`` in
+the standard ``<hash>  <relative_path>`` format.
+
+The script is safe to re‑run: it will not duplicate checksum entries and
+will overwrite the CSV only if the download succeeds.
 """
 
+import argparse
 import hashlib
 import json
+import logging
+import os
 import sys
 from pathlib import Path
 
-import deepchem as dc
-import numpy as np
 import pandas as pd
+import deepchem as dc
+from deepchem.molnet import load_lipophilicity
 
 # ----------------------------------------------------------------------
-# Helper: compute SHA‑256 hash of a file
+# Helper utilities
 # ----------------------------------------------------------------------
 def compute_sha256(file_path: Path) -> str:
-    """Return the hex SHA‑256 hash of ``file_path``."""
+    """Return the hex SHA‑256 hash of *file_path*."""
     sha256 = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
 
-# ----------------------------------------------------------------------
-# Helper: read an existing checksum manifest (if any)
-# ----------------------------------------------------------------------
+
 def read_checksums(path: Path) -> dict:
-    """Parse a ``checksums.txt`` file into ``{relative_path: hash}``."""
+    """
+    Parse a ``checksums.txt`` file into a ``{relative_path: hash}`` dict.
+    Supports the two canonical line formats:
+
+        <hash>  <relative_path>
+        <relative_path>: <hash>
+    """
     checksums = {}
-    if path.is_file():
-        with path.open("r") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                # Support both "<hash>  <path>" and "<path>: <hash>"
-                if "  " in line:
-                    h, p = line.split("  ", 1)
-                    checksums[p] = h
-                elif ":" in line:
-                    p, h = [seg.strip() for seg in line.split(":", 1)]
-                    checksums[p] = h
+    if not path.is_file():
+        return checksums
+    with path.open("r") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "  " in line:
+                h, p = line.split("  ", 1)
+                checksums[p.strip()] = h.strip()
+            elif ":" in line:
+                p, h = line.split(":", 1)
+                checksums[p.strip()] = h.strip()
     return checksums
 
-# ----------------------------------------------------------------------
-# Helper: write a clean checksum manifest (idempotent)
-# ----------------------------------------------------------------------
+
 def write_checksums(path: Path, checksums: dict) -> None:
-    """Write ``checksums`` to ``path`` using the canonical format."""
+    """Write *checksums* to *path* using the canonical two‑space format."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as f:
         for rel_path, h in sorted(checksums.items()):
             f.write(f"{h}  {rel_path}\n")
 
-# ----------------------------------------------------------------------
-# Main workflow
-# ----------------------------------------------------------------------
-def main() -> None:
-    # 1. Load the Lipophilicity dataset via DeepChem
-    try:
-        tasks, (train, valid, test), transformers = dc.molnet.load_lipo(
-            featurizer="Raw"
+
+def setup_logger(log_file: str | None = None) -> logging.Logger:
+    logger = logging.getLogger("download_lipophilicity")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
-    except Exception as exc:
-        print(f"Failed to load Lipophilicity dataset via DeepChem: {exc}", file=sys.stderr)
-        sys.exit(1)
+        stream = logging.StreamHandler(sys.stdout)
+        stream.setFormatter(formatter)
+        logger.addHandler(stream)
+        if log_file:
+            os.makedirs(os.path.dirname(log_file), exist_ok=True)
+            fh = logging.FileHandler(log_file)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+    return logger
 
-    # 2. Concatenate the three splits (they are already flat arrays)
-    X = np.concatenate([train.X, valid.X, test.X]).ravel()
-    y = np.concatenate([train.y, valid.y, test.y]).ravel()
 
-    # 3. Build a DataFrame with the required columns
-    df = pd.DataFrame({"smiles": X, "logP": y})
-    # Ensure there are no NaNs in the target; drop rows where logP is missing
-    df = df.dropna(subset=["logP"]).reset_index(drop=True)
+# ----------------------------------------------------------------------
+# Main download routine
+# ----------------------------------------------------------------------
+def download_lipophilicity(csv_path: Path, logger: logging.Logger) -> None:
+    """
+    Download the Lipophilicity dataset using DeepChem's ``load_lipophilicity``
+    with the ``Raw`` featurizer, write it to *csv_path*, and return.
+    """
+    logger.info("Loading Lipophilicity dataset via DeepChem (Raw featurizer)…")
+    # ``load_lipophilicity`` returns (tasks, (train, valid, test), transformers)
+    tasks, (train, valid, test), _ = load_lipophilicity(featurizer="Raw")
+    logger.info(f"Dataset tasks: {tasks}")
 
-    # 4. Write the raw CSV
-    raw_dir = Path("data/raw")
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    raw_path = raw_dir / "lipophilicity.csv"
-    df.to_csv(raw_path, index=False)
+    # Concatenate the three splits
+    splits = [train, valid, test]
+    records = []
+    for split in splits:
+        # ``split`` is a DiskDataset; ``X`` holds SMILES strings,
+        # ``y`` holds the logP values.
+        smiles = split.X.squeeze()  # shape (N,) array of strings
+        logp = split.y.squeeze()    # shape (N,) array of floats
+        for smi, lp in zip(smiles, logp):
+            records.append({"smiles": smi, "logP": float(lp)})
 
-    # 5. Record the checksum in the manifest
-    checksums_path = Path("data/checksums.txt")
-    current = read_checksums(checksums_path)
-    current[raw_path.as_posix()] = compute_sha256(raw_path)
-    write_checksums(checksums_path, current)
+    df = pd.DataFrame.from_records(records)
+    logger.info(f"Total records downloaded: {len(df)}")
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(csv_path, index=False)
+    logger.info(f"Wrote raw Lipophilicity CSV to {csv_path}")
 
-    print(f"Lipophilicity dataset written to {raw_path}")
-    print(f"Checksum recorded in {checksums_path}")
+
+def update_checksum(csv_path: Path, checksum_path: Path, logger: logging.Logger) -> None:
+    """
+    Compute the SHA‑256 checksum of *csv_path* and (idempotently) add or
+    update the entry for that file in *checksum_path*.
+    """
+    checksum = compute_sha256(csv_path)
+    rel_path = csv_path.as_posix()
+    logger.info(f"Computed SHA‑256 checksum: {checksum}")
+
+    checksums = read_checksums(checksum_path)
+    checksums[rel_path] = checksum
+    write_checksums(checksum_path, checksums)
+    logger.info(f"Updated checksum manifest at {checksum_path}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Download the MoleculeNet Lipophilicity dataset (raw SMILES + logP)."
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data/raw",
+        help="Directory where ``lipophilicity.csv`` will be written.",
+    )
+    parser.add_argument(
+        "--checksum-file",
+        type=str,
+        default="data/checksums.txt",
+        help="Path to the checksum manifest to update.",
+    )
+    parser.add_argument(
+        "--log-file",
+        type=str,
+        default=None,
+        help="Optional log file path.",
+    )
+    args = parser.parse_args()
+
+    logger = setup_logger(args.log_file)
+
+    csv_path = Path(args.output_dir) / "lipophilicity.csv"
+    checksum_path = Path(args.checksum_file)
+
+    # 1. Download (or re‑download) the dataset
+    download_lipophilicity(csv_path, logger)
+
+    # 2. Compute and record checksum
+    update_checksum(csv_path, checksum_path, logger)
+
+    logger.info("Task T001a completed successfully.")
+
 
 if __name__ == "__main__":
     main()

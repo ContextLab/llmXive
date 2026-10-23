@@ -19,25 +19,25 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/01_data_ingestion.py --source lipophilicity -> rc=1
 e parsing: <rdkit.Chem.rdchem.Mol
-[17:31:29] SMILES Parse Error: check for mistakes around position 1:
-[17:31:29] <rdkit.Chem.rdchem.Mol
-[17:31:29] ^
-[17:31:29] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
-[17:31:29] SMILES Parse Error: syntax error while parsing: <rdkit.Chem.rdchem.Mol
-[17:31:29] SMILES Parse Error: check for mistakes around position 1:
-[17:31:29] <rdkit.Chem.rdchem.Mol
-[17:31:29] ^
-[17:31:29] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
-[17:31:29] SMILES Parse Error: syntax error while parsing: <rdkit.Chem.rdchem.Mol
-[17:31:29] SMILES Parse Error: check for mistakes around position 1:
-[17:31:29] <rdkit.Chem.rdchem.Mol
-[17:31:29] ^
-[17:31:29] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
-[17:31:29] SMILES Parse Error: syntax error while parsing: <rdkit.Chem.rdchem.Mol
-[17:31:29] SMILES Parse Error: check for mistakes around position 1:
-[17:31:29] <rdkit.Chem.rdchem.Mol
-[17:31:29] ^
-[17:31:29] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
+[17:33:20] SMILES Parse Error: check for mistakes around position 1:
+[17:33:20] <rdkit.Chem.rdchem.Mol
+[17:33:20] ^
+[17:33:20] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
+[17:33:20] SMILES Parse Error: syntax error while parsing: <rdkit.Chem.rdchem.Mol
+[17:33:20] SMILES Parse Error: check for mistakes around position 1:
+[17:33:20] <rdkit.Chem.rdchem.Mol
+[17:33:20] ^
+[17:33:20] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
+[17:33:20] SMILES Parse Error: syntax error while parsing: <rdkit.Chem.rdchem.Mol
+[17:33:20] SMILES Parse Error: check for mistakes around position 1:
+[17:33:20] <rdkit.Chem.rdchem.Mol
+[17:33:20] ^
+[17:33:20] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
+[17:33:20] SMILES Parse Error: syntax error while parsing: <rdkit.Chem.rdchem.Mol
+[17:33:20] SMILES Parse Error: check for mistakes around position 1:
+[17:33:20] <rdkit.Chem.rdchem.Mol
+[17:33:20] ^
+[17:33:20] SMILES Parse Error: Failed parsing SMILES '<rdkit.Chem.rdchem.Mol' for input: '<rdkit.Chem.rdchem.Mol'
 
 - python code/03_feature_engineering.py -> rc=1
 led: 'molecule_id'
@@ -82,8 +82,8 @@ FileNotFoundError: Missing /home/runner/work/llmXive/llmXive/projects/PROJ-444-p
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-444-predicting-molecular-properties-from-top/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/06_diagnostics.py': [Errno 2] No such file or directory
 
 - python code/05_sensitivity_analysis.py --grids 10 20 30 -> rc=1
-2026-10-23 17:31:33,474 - INFO - === Sensitivity Analysis (Task T007, FR-006) ===
-2026-10-23 17:31:33,474 - INFO - Grid resolutions: [10, 20, 30]
+2026-10-23 17:33:25,007 - INFO - === Sensitivity Analysis (Task T007, FR-006) ===
+2026-10-23 17:33:25,007 - INFO - Grid resolutions: [10, 20, 30]
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/05_sensitivity_analysis.py", line 293, in <module>
@@ -96,7 +96,7 @@ Traceback (most recent call last):
 FileNotFoundError: Missing /home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/data/processed/combined_features.csv - run T004 first.
 
 - python code/07_resource_monitor.py -> rc=1
-2026-10-23 17:31:33,642 - ERROR - No command provided to monitor.
+2026-10-23 17:33:25,167 - ERROR - No command provided to monitor.
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -115,7 +115,7 @@ FAILED tests/contract/test_t016_features.py::test_traditional_descriptors_file_e
 FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_schema
 FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_no_nan
 FAILED tests/contract/test_tda_10x10.py::test_persistence_images_10x10_non_negative
-=================== 10 failed, 12 passed, 6 skipped in 1.19s ===================
+=================== 10 failed, 12 passed, 6 skipped in 1.17s ===================
 
 
 - python -m pytest tests/unit/ -> rc=2
@@ -133,7 +133,7 @@ E   ImportError: cannot import name 'check_memory_requirement' from 'utils.persi
 ERROR tests/unit/test_data_ingestion.py
 ERROR tests/unit/test_persistence_utils_sparse.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.65s ===============================
+============================== 2 errors in 0.63s ===============================
 
 
 
@@ -148,18 +148,29 @@ ERROR tests/unit/test_persistence_utils_sparse.py
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `deepchem` to the project's `requirements.txt` and `pip install deepchem`.
-- **Verified**: this loads **1128** real records with fields: smiles, measured_value.
+- **Verified**: this loads **1128** real records with fields: smiles, exp.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
 import deepchem as dc
-from deepchem.molnet import load_delaney
 
-tasks, datasets, transformers = load_delaney(featurizer='Raw')
+tasks, datasets, transformers = dc.molnet.load_delaney(featurizer='ECFP', split='random')
 train, valid, test = datasets
-record_count = sum(len(ds) for ds in (train, valid, test))
-print(f"RECORDS={record_count}")
-print("FIELDS=smiles,measured_value")
+
+def _count(ds):
+    if hasattr(ds, 'X') and hasattr(ds.X, 'shape'):
+        return ds.X.shape[0]
+    return len(ds)
+
+total = sum(_count(ds) for ds in (train, valid, test))
+print(f"RECORDS={total}")
+
+fields = []
+if any(hasattr(ds, 'ids') and ds.ids is not None for ds in (train, valid, test)):
+    fields.append('smiles')
+if tasks:
+    fields.append('exp')
+print(f"FIELDS={','.join(fields)}")
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

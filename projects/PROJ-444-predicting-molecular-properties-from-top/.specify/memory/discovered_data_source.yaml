@@ -1,27 +1,20 @@
 status: verified
 kind: pypi_package
 ref: deepchem
-access_python: 'import deepchem as dc
-
-  from deepchem.molnet import load_delaney
-
-
-  tasks, datasets, transformers = load_delaney(featurizer=''Raw'')
-
-  train, valid, test = datasets
-
-  record_count = sum(len(ds) for ds in (train, valid, test))
-
-  print(f"RECORDS={record_count}")
-
-  print("FIELDS=smiles,measured_value")'
+access_python: "import deepchem as dc\n\ntasks, datasets, transformers = dc.molnet.load_delaney(featurizer='ECFP',\
+  \ split='random')\ntrain, valid, test = datasets\n\ndef _count(ds):\n    if hasattr(ds,\
+  \ 'X') and hasattr(ds.X, 'shape'):\n        return ds.X.shape[0]\n    return len(ds)\n\
+  \ntotal = sum(_count(ds) for ds in (train, valid, test))\nprint(f\"RECORDS={total}\"\
+  )\n\nfields = []\nif any(hasattr(ds, 'ids') and ds.ids is not None for ds in (train,\
+  \ valid, test)):\n    fields.append('smiles')\nif tasks:\n    fields.append('exp')\n\
+  print(f\"FIELDS={','.join(fields)}\")"
 record_count: 1128
 sample_fields:
 - smiles
-- measured_value
-field_coverage: 0.5
+- exp
+field_coverage: 1.0
 required_fields:
 - smiles
-- logP
-intent: real downloadable MoleculeNet Lipophilicity dataset via DeepChem python package
-cache_key: 1d9287142431ffd7c9f2d937dcb9bc886f472b517eb0d13f2ef8f96b0aee073d
+- exp
+intent: download MoleculeNet Lipophilicity dataset via DeepChem python package dataset
+cache_key: 57e4ab7bb5a4c3c70eaf18d6aa9934e88d76ffd7aa491c03800e063b537a3657
