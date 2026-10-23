@@ -1,11 +1,13 @@
 """Download the τ‑bench task data from its official HuggingFace repository.
 
 This script attempts to fetch the official τ‑bench dataset (`tau_c_bench`) from
-HuggingFace.  The primary implementation uses the `datasets` library, but a
-fallback that streams the raw `tasks.json` file via HTTP is provided to avoid
-the heavy `pyarrow` dependency (which requires NumPy 2.0).  The script writes
-the merged task list to ``data/raw/τc_bench/tasks.json`` and creates a
-``README.md`` containing the SHA‑256 checksum of that file.
+HuggingFace.  The primary implementation uses the `datasets` library.  If that
+fails (e.g. due to missing optional dependencies), a fallback HTTP download is
+performed, trying two possible locations for the raw ``tasks.json`` file.
+If both of those fail, we finally attempt to download the file via the
+`huggingface_hub` utilities.  The script writes the merged task list to
+``data/raw/τc_bench/tasks.json`` and creates a ``README.md`` containing the
+SHA‑256 checksum of that file.
 
 The script aborts with a clear error if the download cannot be performed.
 """
@@ -19,6 +21,18 @@ from typing import List
 import requests
 from llmxive_toolkit import paths, get_logger
 
+# Optional imports that may not be present in the base environment.
+# They are imported lazily inside the helper functions.
+try:
+    from datasets import load_dataset  # type: ignore
+except Exception:  # pragma: no cover
+    load_dataset = None  # type: ignore
+
+try:
+    from huggingface_hub import hf_hub_download  # type: ignore
+except Exception:  # pragma: no cover
+    hf_hub_download = None  # type: ignore
+
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
@@ -26,11 +40,14 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # The HuggingFace dataset identifier.
 HF_DATASET = "sierra-research/tau_c_bench"
-# Direct URL to the raw ``tasks.json`` file in the repository.  This URL
-# follows the standard pattern used by the HuggingFace hub for datasets.
-RAW_JSON_URL = (
-    f"https://huggingface.co/datasets/{HF_DATASET}/resolve/main/tasks.json"
-)
+
+# Possible URLs for the raw ``tasks.json`` file in the repository.
+# The dataset may store the file at the repository root or under a
+# ``data/`` sub‑directory.  Both are tried in order.
+RAW_JSON_URLS = [
+    f"https://huggingface.co/datasets/{HF_DATASET}/resolve/main/tasks.json",
+    f"https://huggingface.co/datasets/{HF_DATASET}/resolve/main/data/tasks.json",
+]
 # ----------------------------------------------------------------------
 
 
@@ -42,11 +59,8 @@ def _load_tasks_via_datasets() -> List[dict]:
     list[dict]
         A list of task dictionaries.
     """
-    try:
-        from datasets import load_dataset  # Imported lazily to avoid import‑time errors
-    except Exception as exc:
-        log.debug(f"datasets import failed ({exc}); falling back to HTTP download.")
-        raise RuntimeError("datasets library unavailable") from exc
+    if load_dataset is None:
+        raise RuntimeError("datasets library unavailable")
 
     try:
         ds = load_dataset(HF_DATASET)
@@ -72,30 +86,74 @@ def _load_tasks_via_datasets() -> List[dict]:
 def _load_tasks_via_http() -> List[dict]:
     """Download the raw ``tasks.json`` file directly from the hub.
 
+    Tries each URL in ``RAW_JSON_URLS`` until one succeeds.
+
     Returns
     -------
     list[dict]
         A list of task dictionaries.
     """
-    log.info(f"Downloading tasks.json from {RAW_JSON_URL}")
-    try:
-        response = requests.get(RAW_JSON_URL, timeout=30)
-        response.raise_for_status()
-    except Exception as exc:
-        log.error(f"Failed to download tasks.json via HTTP: {exc}")
-        raise RuntimeError("HTTP download of tasks.json failed") from exc
+    for url in RAW_JSON_URLS:
+        log.info(f"Attempting to download tasks.json from {url}")
+        try:
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+        except Exception as exc:
+            log.warning(f"Download from {url} failed: {exc}")
+            continue  # try the next URL
 
-    try:
-        data = response.json()
-    except json.JSONDecodeError as exc:
-        log.error(f"Downloaded tasks.json is not valid JSON: {exc}")
-        raise RuntimeError("Downloaded tasks.json is not valid JSON") from exc
+        try:
+            data = response.json()
+        except json.JSONDecodeError as exc:
+            log.error(f"Downloaded content from {url} is not valid JSON: {exc}")
+            continue
 
-    if not isinstance(data, list):
-        raise RuntimeError("tasks.json does not contain a JSON array.")
-    if not data:
-        raise RuntimeError("tasks.json is empty.")
-    return data
+        if not isinstance(data, list):
+            log.error(f"Data from {url} is not a JSON array.")
+            continue
+        if not data:
+            log.error(f"Data from {url} is empty.")
+            continue
+
+        log.info(f"Successfully downloaded tasks.json from {url}")
+        return data
+
+    # If we exit the loop, all attempts failed.
+    raise RuntimeError("HTTP download of tasks.json failed for all known URLs")
+
+
+def _load_tasks_via_hf_hub() -> List[dict]:
+    """Download ``tasks.json`` using ``huggingface_hub`` utilities.
+
+    This is a last‑resort method that works even when the ``datasets``
+    package is unavailable and the direct HTTP URLs are blocked.
+
+    Returns
+    -------
+    list[dict]
+        A list of task dictionaries.
+    """
+    if hf_hub_download is None:
+        raise RuntimeError("huggingface_hub library unavailable")
+
+    # Try both possible locations inside the repo.
+    possible_paths = ["tasks.json", "data/tasks.json"]
+    last_err = None
+    for repo_path in possible_paths:
+        try:
+            local_path = hf_hub_download(repo_id=HF_DATASET, filename=repo_path)
+            log.info(f"Downloaded {repo_path} via huggingface_hub to {local_path}")
+            with open(local_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if not isinstance(data, list):
+                raise ValueError("Downloaded JSON is not a list")
+            return data
+        except Exception as exc:  # pragma: no cover
+            log.warning(f"hf_hub_download failed for {repo_path}: {exc}")
+            last_err = exc
+            continue
+
+    raise RuntimeError("All huggingface_hub download attempts failed") from last_err
 
 
 def download_tasks_json() -> Path:
@@ -106,13 +164,16 @@ def download_tasks_json() -> Path:
     Path
         Path to the file containing the merged JSON array.
     """
-    # First try the high‑level ``datasets`` API.  If that fails (e.g. due to
-    # missing pyarrow), fall back to a simple HTTP fetch of the raw file.
+    # Try the high‑level ``datasets`` API first.
     try:
         merged_tasks = _load_tasks_via_datasets()
-    except Exception:
-        log.info("Falling back to HTTP download for tasks.json.")
-        merged_tasks = _load_tasks_via_http()
+    except Exception as exc:
+        log.info(f"datasets load failed ({exc}); falling back to HTTP download.")
+        try:
+            merged_tasks = _load_tasks_via_http()
+        except Exception as exc_http:
+            log.info(f"HTTP download failed ({exc_http}); trying huggingface_hub.")
+            merged_tasks = _load_tasks_via_hf_hub()
 
     dest_dir = paths.data("raw", "τc_bench")
     dest_dir.mkdir(parents=True, exist_ok=True)

@@ -1,6 +1,5 @@
-# Core scientific Python stack (already provided by the platform)
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-
-# Additional packages required for this project
+# Project dependencies
+# Core scientific stack (already provided by the environment) is omitted.
+# Additional packages required for data acquisition.
 datasets>=2.14
+huggingface_hub>=0.23

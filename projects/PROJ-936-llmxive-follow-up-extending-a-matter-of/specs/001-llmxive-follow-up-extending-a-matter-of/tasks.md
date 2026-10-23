@@ -12,7 +12,7 @@ The study must satisfy all functional requirements (FR‑001 – FR‑008) a
   - **Output**: `data/raw/τc_bench/tasks.json` (raw JSON) and `data/raw/τc_bench/README.md` (checksum).  
   - **Verification**: SHA‑256 checksum matches the value recorded in `state/projects/...yaml`; unit test `tests/integration/test_download.py` asserts the file exists, is non‑empty, and the checksum is correct.  
 
-- [ ] T002 [US-1] **Parse task definitions** from `data/raw/τc_bench/tasks.json` into a canonical CSV `data/derived/task_definitions.csv` containing the fields required by the `Task` schema (`task_id, goal, environment, optimal_path_length, tool_diversity_k, …`). Missing `optimal_path_length` values are left as `null`.   <!-- FAILED-IN-EXECUTION: code/parse_task_definitions.py exit=1 -->
+- [ ] T002 [US-1] **Parse task definitions** from `data/raw/τc_bench/tasks.json` into a canonical CSV `data/derived/task_definitions.csv` containing the fields required by the `Task` schema (`task_id, goal, environment, optimal_path_length, tool_diversity_k, …`). Missing `optimal_path_length` values are left as `null`.   <!-- FAILED-IN-EXECUTION: code/parse_task_definitions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/pipelines/run_all.py exit=1 -->
   - **Output**: `data/derived/task_definitions.csv`.  
   - **Verification**: `pytest tests/contract/test_task_schema.py` validates each row against the schema; the script logs any `null` `optimal_path_length` entries for later warning handling.  
 

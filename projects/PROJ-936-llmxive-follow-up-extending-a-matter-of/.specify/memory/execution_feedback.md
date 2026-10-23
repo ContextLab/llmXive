@@ -7,22 +7,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.pipelines.run_all  --max_tasks 150  --penalty_threshold 2.0  --seed 42 -> rc=1
-ent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
+runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/src/pipelines/run_all.py", line 78, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/src/pipelines/run_all.py", line 58, in main
     download_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 136, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 197, in main
     dest_file = download_tasks_json()
                 ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 115, in download_tasks_json
-    merged_tasks = _load_tasks_via_http()
-                   ^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 86, in _load_tasks_via_http
-    raise RuntimeError("HTTP download of tasks.json failed") from exc
-RuntimeError: HTTP download of tasks.json failed
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 176, in download_tasks_json
+    merged_tasks = _load_tasks_via_hf_hub()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 156, in _load_tasks_via_hf_hub
+    raise RuntimeError("All huggingface_hub download attempts failed") from last_err
+RuntimeError: All huggingface_hub download attempts failed
 
 - python -m pytest -q tests/contract -> rc=2
 llow-up-extending-a-matter-of/specs/001-llmxive-follow-up-extending-a-matter-of/task.schema.yaml').is_file
