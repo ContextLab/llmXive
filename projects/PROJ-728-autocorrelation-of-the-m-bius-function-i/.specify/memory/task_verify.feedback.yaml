@@ -1,64 +1,28 @@
 T001:
-  task: 4820efbf2df2d5aa93ff5ea41263968211b5294df47382b175867c9a50f8215d
+  task: d3c4c44fd2dd95c87706d6394ff367153119976d58cf83385f98ffe95105210f
 T002:
-  task: 30705cd671dc2b489335d5f7c67ba3df67a17b977455fa2f5f837bd54b0a388d
+  task: 2396c7098f8b72c6063a30418165d8d985528a1190b1c485d9076c2c827bac9a
 T003:
-  reason: 'Requested task execution failed; rerun successfully: data/checksums/manifest.sha256
-    exit=-1'
-  task: 0b29ad57796f43a4f15f25206a9a3d6b9ab8cad599eda3884e12b16a8f8e16b6
+  task: b2dbc8aa54e9239d2666b5d8fcad079be0370e99329e638bb1218e1ef9f555fb
 T004:
-  reason: 'declared artifact(s) missing/empty/invalid: data/processed/window_index.csv'
-  task: 18744b444dbae16c030d57e9889926fbe5000c63dd967d806adbb544b5b6c241
+  task: 183b5bfd1fd30b73b67f562c552a64e947378e5ec8c8ef90efefd5f48daf67b4
 T005:
-  reason: "The required artifact `data/processed/demo_autocorr.csv` is MISSING on\
-    \ disk (the collector confirms it does not exist), and there is no execution evidence\
-    \ that `code/autocorrelation.py` was ever run. The script exists and looks capable\
-    \ of producing the CSV, but the task requires the actual output file with a single\
-    \ row at \u22656 decimal places matching a hand-computed reference within 1e-9\
-    \ \u2014 the hard-coded `REFERENCE_DEMO_AUTOCORR = -0.047047047047` is also unverified\
-    \ against any independent computation or underlying data. The implementer must\
-    \ execute the script (with the M\xF6bius array and window-s"
-  task: 5d603a18f34ea2abc8a5586e9342b75ac2ea231b47ad5a9bae30982f7a892529
+  task: be426812d4aaf58e6887b57fa955b6c1b039310fc961c0ccaaaff1aab087110f
 T006:
-  reason: "The required output artifact `data/processed/autocorrelation_raw.csv` is\
-    \ MISSING \u2014 the collector confirms it does not exist, so there is no evidence\
-    \ the script was ever run or produced the required rows (`interval_start, interval_length,\
-    \ lag, autocorrelation`). While `code/autocorrelation.py` contains a plausible\
-    \ FFT-based implementation for lags 1\u2026\u230AL/2\u230B, the task requires\
-    \ the computed buffer file, not just the code; the implementer must execute the\
-    \ script (with `data/raw/mobius_array.npy` and `data/processed/window_index.csv`\
-    \ present) and verify the CSV is written with all 300 windows' lags."
-  task: 3b740d21951c824c3fcc4ab0e207addc3a9ce468cbc1a75323d6b89de3d17889
+  task: b6a8b5455e7cde37b1be166f01eb4235ff756ef4e88ac0054e5295190669a973
 T007:
-  reason: 'Requested task execution failed; rerun successfully: code/permutation.py
-    exit=1'
-  task: 20fc499f7d6952bccaa228dc6e9d43f9be534b05d91c194cafc708b85207b745
+  task: 49d2456229a9858d7e9181ede8acab39479083bee9de4ded61c404f89c07d452
 T008:
-  reason: "The evidence does not include an `autocorrelation_stats.csv` file with\
-    \ an added `adjusted_p_value` column, nor any script or execution log showing\
-    \ `statsmodels.stats.multitest.multipletests` being applied to the raw p\u2011\
-    values. Without the CSV and proof of the Benjamini\u2013Hochberg correction, the\
-    \ task requirement is unmet."
-  task: b4b9cc1fe199ee687c48cd5c19179b3eca7feb5cd67b8b9e7f1a6e60ba3efa70
+  task: 1397a695b60353f548689db01168adc2dc924d36ae96a44da39621dc820d5369
 T009:
-  reason: 'Requested task execution failed; rerun successfully: code/cross_validate_autocorrelation.py
-    exit=1'
-  task: 0cc12337cc2309373a0f829bc246222ae2396cb29c61fdcab33d2d2a88eaaf31
+  task: 02b760ef4b2a9f561d2f56bd9a0b6229000c2c2a56a3e78be69b358583c056b1
 T010:
-  task: e5dddc7795e8515254a9ff93feaece129160bd073245251936fac52576c00a38
+  task: c6ffb9941fd85582a23592c15b030c1b68bdbc1dcb9a9fbfcb1f2875765602b4
 T011:
-  task: 1e5c9f8c8b5a393a04ad9dacb26a20a05fa83366deed707a17a6e7b6b730c13b
+  task: 7e748328698ce83b2afc3d42e30d828907b994651d3703d478d3dcd612cc1dc7
 T012:
-  task: 871bdd038325ca03f489112e2365aa6ccbd3c8e5a28d6123593da17c16eeab0e
+  task: 6b268be0fb6db9611a34dbbcff12663112c33353318a58784a0f403da2af89f0
 T013:
-  task: 9dd2f853b454069ca717914bbd7adc754d993edd693680c22c14855219a3c89e
+  task: 4074a417c27d552210eb0120848d59c2ba13c50fc029b8389a33ddbf31f745e2
 T014:
-  task: 8eb9c238b2e20f2e7dfcf876662d710d45feaef403f29bda351446b048597ee3
-T015:
-  task: e8372d0d9dc0513b544c95b368b7b5477bba69f674d553d001d6adf23143c979
-T016:
-  task: 471c9de7dd2af61dfb731f1981d83ec3a0822667b2c2c408fd5961f95687f7b9
-T017:
-  task: 9ea44ab18eae5ec0399617023a648ce7276564644fc51c09c7929e2906385c30
-T018:
-  task: 622c69eecf4611cc29a31bb581ceff27c3c383146d503ac3d51d78f59e0bdc86
+  task: fa2e17a66ab828881a55a8f34f1e53ccd79d68b366d62c4f1c49c81230878d23
