@@ -1,11 +1,11 @@
 status: none
-intent: download InstructPix2Pix PromptBench combined image editing prompts with feasibility
-  scores python package dataset
+intent: image editing prompt dataset feasibility scores conflicting neutral python
+  package dataset
 required_fields:
 - prompt_id
 - prompt_text
 - instruction_type
 - human_feasibility_score
-cache_key: c282b284830aa3a298bae066b5a639fcf3a048b0f1ac19afffdee92ab8a89830
-searched_at: '2026-10-23T04:09:39.174051+00:00'
+cache_key: cbef2c4c356b070e7fc2bd63276cd4358483c3a05ed6746799cc77930ef984cb
+searched_at: '2026-10-23T06:15:45.418923+00:00'
 retry_count: 1

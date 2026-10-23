@@ -1,11 +1,10 @@
 """Download a real sample of InstructPix2Pix prompts (T001).
 
-This script streams the public ``timbrooks/instructpix2pix`` training split
-via ``datasets.load_dataset(..., streaming=True)`` when possible and falls back
-to downloading the raw parquet shards via the Hugging Face Hub and reading them
-with ``fastparquet``. It extracts the first ``N_PROMPTS`` rows that contain a
-non‑empty ``edit_prompt``. For each row a stable SHA‑256 checksum over the
-identifying fields is computed and stored alongside the prompt text.
+This script streams the public ``timbrooks/instruct-pix2pix`` training split
+via ``datasets.load_dataset(..., streaming=True)``. It extracts the first
+``N_PROMPTS`` rows that contain a non‑empty ``edit_prompt``. For each row a
+stable SHA‑256 checksum over the identifying fields is computed and stored
+alongside the prompt text.
 
 The loader **fails loudly** (raises ``RuntimeError``) if fewer than the
 requested number of prompts can be collected – there is no synthetic or
@@ -33,8 +32,8 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Verified dataset identifier on Hugging Face Hub
-DATASET_ID = "timbrooks/instructpix2pix"
+# Verified dataset identifier on Hugging Face Hub (the correct repo name)
+DATASET_ID = "timbrooks/instruct-pix2pix"
 SPLIT = "train"
 N_PROMPTS = 2000  # target number of prompts to collect
 
@@ -69,7 +68,6 @@ def _iter_stream_hf() -> Iterator[Mapping[str, object]]:
     to missing ``pyarrow``), it falls back to downloading the raw parquet
     shards via the Hugging Face Hub and reading them with ``fastparquet``.
     """
-    # First attempt: datasets streaming (requires a working pyarrow install)
     try:
         from datasets import load_dataset
 
@@ -92,7 +90,6 @@ def _iter_stream_hf() -> Iterator[Mapping[str, object]]:
             import fastparquet
 
             fs = HfFileSystem()
-            # List files under the split directory inside the repo
             repo_path = f"{DATASET_ID}/{SPLIT}"
             files = fs.ls(repo_path)
             parquet_files = [
@@ -105,7 +102,6 @@ def _iter_stream_hf() -> Iterator[Mapping[str, object]]:
                     f"No parquet files found in {repo_path} on the HF hub."
                 )
             for hf_path in parquet_files:
-                # Download each shard locally
                 local_path = hf_hub_download(
                     repo_id=DATASET_ID,
                     filename=hf_path,
@@ -114,7 +110,6 @@ def _iter_stream_hf() -> Iterator[Mapping[str, object]]:
                 pf = fastparquet.ParquetFile(local_path)
                 for df in pf.iter_row_groups():
                     for _, row in df.iterrows():
-                        # fastparquet yields pandas Series; convert to dict
                         yield row.to_dict()
         except Exception as fallback_exc:  # pragma: no cover
             log.error("Fallback parquet‑shard loader also failed: %s", fallback_exc)

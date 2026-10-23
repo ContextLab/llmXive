@@ -7,28 +7,33 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m spacy download en_core_web_sm -> rc=1
+Collecting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-817-llmxive-follow-up-extending-leveraging-v/bin/python: No module named spacy
+  ERROR: HTTP error 404 while getting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
+ERROR: Could not install requirement https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz because of HTTP error 404 Client Error: Not Found for url: https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz for URL https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
+
+[notice] A new release of pip is available: 24.0 -> 26.2.2
+[notice] To update, run: pip install --upgrade pip
 
 - python -m code.src.data.download -> rc=1
-ound
+, in _raise_file_not_found
     raise FileNotFoundError(msg) from err
-FileNotFoundError: timbrooks/instructpix2pix/train (repository not found)
+FileNotFoundError: timbrooks/instruct-pix2pix/train
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 223, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 218, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 184, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 179, in main
     df = collect_prompt_sample()
          ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 144, in collect_prompt_sample
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 139, in collect_prompt_sample
     for row in row_iter:
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 121, in _iter_stream_hf
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 116, in _iter_stream_hf
     raise RuntimeError(
 RuntimeError: Unable to stream dataset from Hugging Face (both primary and fallback failed)
 
