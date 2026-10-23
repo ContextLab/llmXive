@@ -1,14 +1,15 @@
 status: none
-intent: TIDE code evaluation dataset AST import cyclomatic complexity python package
-  dataset
+intent: download TIDE code evaluation dataset and synthetic code generator python
+  package dataset
 required_fields:
+- source_code
 - ast_depth
 - import_count
 - cyclomatic_complexity
-- ground_truth_label
 - dependency_depth
 - semantic_scope
 - syntactic_complexity
-cache_key: eb7d94c4518e672a6ed1fb589f68f093271ba08438bee4d6e8a10e72a76a965c
-searched_at: '2026-10-23T16:15:29.595450+00:00'
+- ground_truth_label
+cache_key: aae0dc62ca9b7501df9b6db649d66ac4f7b818cc6e363e65fb462f3fb90353d9
+searched_at: '2026-10-23T22:27:08.001175+00:00'
 retry_count: 1

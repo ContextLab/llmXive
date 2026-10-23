@@ -2,13 +2,14 @@
 src/data/acquire_real.py
 
 Implementation for T001.
-This script downloads a verified real-world code defect dataset from the HuggingFace Hub
-(switching to 'code_xglue_eval' as 'deeplearning-tide/tide' is unreachable) to serve as 
-the TIDE evaluation baseline. It writes a CSV representation to 'data/raw/tide.csv' 
-and creates a SHA-256 checksum manifest 'data/raw/tide.sha256'.
+This script downloads the TIDE evaluation dataset from the HuggingFace Hub,
+writes it to 'data/raw/tide.csv', and creates a SHA-256 checksum manifest
+'data/raw/tide.sha256'.
 
-The script validates that the CSV contains at least 200 data rows and aborts if not.
-Logging is performed via 'llmxive_toolkit.get_logger' to 'data/logs/acquire_real.log'.
+Verification:
+- CSV contains >= 200 rows.
+- Checksum file matches the SHA-256 of tide.csv.
+- Log records successful download and validation.
 """
 
 import hashlib
@@ -24,12 +25,9 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Using code_xglue_eval (defect_detection) as the reachable real-world proxy 
-# for TIDE's hidden problem detection, as specified in the failure recovery 
-# guidelines (switching to a reachable public dataset with same metrics).
-REPO_ID = "code_xglue_eval"
-CONFIG = "defect_detection"
-SPLIT = "test" 
+# Per plan.md: use the verified TIDE dataset
+REPO_ID = "deeplearning-tide/tide"
+SPLIT = "test"
 CSV_NAME = "tide.csv"
 CSV_SHA_NAME = "tide.sha256"
 LOG_NAME = "acquire_real.log"
@@ -60,7 +58,7 @@ def main() -> None:
     """Execute the real data acquisition process."""
     log_path = paths.data("logs", LOG_NAME)
     logger = get_logger(__name__, log_file=str(log_path))
-    logger.info(f"Starting dataset acquisition using {REPO_ID} ({CONFIG}).")
+    logger.info(f"Starting dataset acquisition using {REPO_ID} (split={SPLIT}).")
 
     raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
@@ -69,34 +67,43 @@ def main() -> None:
     checksum_path = raw_dir / CSV_SHA_NAME
 
     # --------------------------------------------------------------
-    # 1. Load the dataset using the datasets library.
+    # 1. Load the dataset using the datasets library (streaming).
     # --------------------------------------------------------------
     try:
-        logger.info(f"Loading dataset '{REPO_ID}' config '{CONFIG}' split '{SPLIT}'.")
-        dataset = load_dataset(REPO_ID, CONFIG, split=SPLIT)
+        logger.info(f"Streaming dataset '{REPO_ID}' split '{SPLIT}'.")
+        # Use streaming=True as per plan.md to handle potentially large datasets
+        dataset = load_dataset(REPO_ID, split=SPLIT, streaming=True, trust_remote_code=True)
+        
+        # Convert the streamed dataset to a list of records
+        records = list(dataset)
+        df = pd.DataFrame(records)
     except Exception as e:
         logger.error(f"Failed to load dataset: {e}")
-        raise RuntimeError(f"Could not load dataset '{REPO_ID}'.") from e
+        # Fail loudly as per Core Constraint 9
+        raise RuntimeError(f"Could not load dataset '{REPO_ID}'. Ensure it is public and reachable.") from e
 
     # --------------------------------------------------------------
-    # 2. Convert to pandas and map to TIDE schema.
+    # 2. Map to TIDE schema and write CSV.
     # --------------------------------------------------------------
     try:
-        df = dataset.to_pandas()
+        # Expected schema: instance_id, code, ground_truth_label
+        # If 'instance_id' is missing, generate it.
+        if 'instance_id' not in df.columns:
+            df.insert(0, 'instance_id', range(len(df)))
         
-        # Map columns to the required schema for TIDE analysis:
-        # instance_id, code, ground_truth_label
-        # code_xglue_eval typically has 'code' and 'label'.
-        if 'code' not in df.columns or 'label' not in df.columns:
-            logger.error(f"Dataset columns missing. Found: {df.columns.tolist()}")
-            raise RuntimeError("Dataset does not contain required 'code' and 'label' columns.")
+        # Map labels if necessary (e.g., 'label' -> 'ground_truth_label')
+        if 'label' in df.columns and 'ground_truth_label' not in df.columns:
+            df = df.rename(columns={'label': 'ground_truth_label'})
 
-        processed_df = pd.DataFrame({
-            'instance_id': range(len(df)),
-            'code': df['code'],
-            'ground_truth_label': df['label']
-        })
-        
+        # Ensure required columns exist
+        required = {'instance_id', 'code', 'ground_truth_label'}
+        missing = required - set(df.columns)
+        if missing:
+            logger.error(f"Dataset missing required columns: {missing}. Found: {df.columns.tolist()}")
+            raise RuntimeError(f"Dataset does not contain required columns: {missing}")
+
+        # Keep only required columns for the raw CSV
+        processed_df = df[list(required)]
         processed_df.to_csv(csv_path, index=False)
         logger.info(f"Wrote CSV to '{csv_path}'.")
     except Exception as e:
@@ -112,6 +119,8 @@ def main() -> None:
     try:
         with checksum_path.open("r", encoding="utf-8") as mf:
             line = mf.readline().strip()
+        if not line:
+            raise RuntimeError("Checksum file is empty.")
         expected = line.split()[0]
         actual = _sha256_of_file(csv_path)
         if actual != expected:
