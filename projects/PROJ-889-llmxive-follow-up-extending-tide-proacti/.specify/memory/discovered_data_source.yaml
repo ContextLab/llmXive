@@ -1,6 +1,5 @@
 status: none
-intent: tide code evaluation dataset synthetic generator pip install python package
-  dataset
+intent: download TIDE evaluation code dataset python package dataset
 required_fields:
 - source_code
 - ast_depth
@@ -10,7 +9,6 @@ required_fields:
 - semantic_scope
 - syntactic_complexity
 - ground_truth_label
-- sha256_checksum
-cache_key: b1ffd000c90a7f6944fb2b711059a0d647d0a242c2627635f5ee2600a2d6cf1d
-searched_at: '2026-10-23T11:08:56.312001+00:00'
+cache_key: 9f3bc9e9892ae5f177e27825abedfeaf01f311545251845e5c3339d27305b85d
+searched_at: '2026-10-23T13:09:54.828378+00:00'
 retry_count: 1

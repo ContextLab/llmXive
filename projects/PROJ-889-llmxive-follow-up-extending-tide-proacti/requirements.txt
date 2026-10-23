@@ -1,5 +1,18 @@
+# Project dependencies
+# Core libraries (already in the environment) are listed for version control
+numpy>=2.0
+pandas==2.2.2
+scipy
+matplotlib==3.9.0
+scikit-learn==1.5.0
+statsmodels==0.14.2
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+# Additional libraries required for data acquisition and processing
 datasets==2.20.0
-# The following packages are already provided in the environment:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-# huggingface_hub is a dependency of datasets and will be installed automatically.
+huggingface_hub==0.23.0
+# Note: pyarrow is a transitive dependency of datasets; it will be installed automatically.
