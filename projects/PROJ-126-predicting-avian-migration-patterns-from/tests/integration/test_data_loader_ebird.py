@@ -19,7 +19,7 @@ class TestEBirdDataLoader:
         This test will fail loudly if the data source is unreachable or returns no data.
         """
         output_path = DATA_RAW / EBIRD_OUTPUT_FILE
-        
+
         # Ensure the file doesn't exist from a previous run to test the fetch logic
         if output_path.exists():
             # In CI we keep the file to avoid re-downloading; just ensure it is valid
@@ -32,7 +32,7 @@ class TestEBirdDataLoader:
         assert df is not None, "DataFrame should not be None"
         assert isinstance(df, pd.DataFrame), "Result should be a pandas DataFrame"
         assert df.shape[0] > 0, "DataFrame should not be empty (real data must be fetched)"
-        
+
         # Verify columns exist (at least some expected ones)
         expected_cols = ['species_common', 'year', 'duration_min', 'num_observers', 'distance_km']
         for col in expected_cols:
@@ -51,7 +51,7 @@ class TestEBirdDataLoader:
 
         # Verify file exists
         assert output_path.exists(), f"Output file {output_path} was not created"
-        
+
         # Verify checksum file exists
         assert checksum_path.exists(), f"Checksum file {checksum_path} was not created"
 

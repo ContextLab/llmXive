@@ -1,6 +1,6 @@
 """
 Data Loader Module for Avian Migration Pipeline.
-Handles downloading and processing of eBird data using the HuggingFace datasets library.
+Handles downloading and processing of eBird data using the HuggingFace hub.
 """
 import json
 import logging
@@ -8,7 +8,9 @@ import pandas as pd
 from pathlib import Path
 from typing import Iterator
 
-import datasets
+import requests
+from huggingface_hub import hf_hub_url, cached_download
+
 from code.config import DATA_RAW, REGIONAL_BBOX, get_logger, calculate_sha256
 
 logger = get_logger(__name__)
@@ -28,6 +30,11 @@ MAX_ROWS_TO_PROCESS = 500_000
 # Output filenames
 EBIRD_OUTPUT_FILE = "ebd_subset.csv"
 CHECKSUMS_FILE = "checksums.json"
+
+# URL of the raw eBird CSV on the HuggingFace hub.
+# The dataset "vvud/eb-data" provides a gzipped CSV named "ebd.csv.gz".
+# This URL follows the standard pattern for raw files in a repository.
+EBD_CSV_GZ_URL = hf_hub_url(repo_id="vvud/eb-data", filename="ebd.csv.gz")
 
 def _filter_record(record: dict) -> bool:
     """Return True if the record satisfies all required filters."""
@@ -71,6 +78,26 @@ def _filter_record(record: dict) -> bool:
 
     return True
 
+def _stream_csv_rows(file_path: Path) -> Iterator[dict]:
+    """
+    Yield each row of a (possibly gzipped) CSV as a dict.
+    Uses pandas.read_csv with chunks to keep memory usage low.
+    """
+    # pandas can read gzip automatically
+    for chunk in pd.read_csv(
+        file_path,
+        compression="gzip",
+        iterator=True,
+        chunksize=CHUNK_SIZE,
+        dtype=str,  # read everything as string to avoid dtype issues
+    ):
+        for _, row in chunk.iterrows():
+            # Convert the Series to a plain dict with native Python types
+            record = row.to_dict()
+            # Cast numeric fields that are needed for filtering
+            # (the _filter_record function will perform safe casts)
+            yield record
+
 def load_ebird_data() -> pd.DataFrame:
     """
     Streams the eBird Basic Dataset, filters for Setophaga ruticilla
@@ -84,7 +111,7 @@ def load_ebird_data() -> pd.DataFrame:
     # Ensure the raw data directory exists
     DATA_RAW.mkdir(parents=True, exist_ok=True)
 
-    # Check if already exists and verified
+    # If files already exist and checksum matches, reuse them
     if output_path.is_file() and checksum_path.is_file():
         try:
             with open(checksum_path, "r") as f:
@@ -95,19 +122,22 @@ def load_ebird_data() -> pd.DataFrame:
         except Exception as e:
             logger.warning(f"Checksum verification failed: {e}")
 
-    logger.info("Streaming eBird dataset from HuggingFace hub...")
+    logger.info("Downloading eBird CSV from HuggingFace hub...")
     try:
-        # Use the high‑level datasets API for streaming
-        ds = datasets.load_dataset("vvud/eb-data", split="train", streaming=True)
+        # cached_download will download the file once and reuse it on subsequent runs
+        local_csv_path = cached_download(EBD_CSV_GZ_URL)
     except Exception as e:
-        logger.critical(f"Failed to access eBird dataset on HuggingFace: {e}")
+        logger.critical(f"Failed to download eBird CSV: {e}")
         raise ConnectionError(f"Unable to fetch eBird dataset: {e}") from e
 
-    header_written = False
-    buffer = []
-    rows_written = 0
+    logger.info(f"Downloaded eBird CSV to temporary path {local_csv_path}")
 
-    for record in ds:
+    header_written = False
+    rows_written = 0
+    buffer = []
+
+    # Stream the CSV and apply filters
+    for record in _stream_csv_rows(Path(local_csv_path)):
         if not _filter_record(record):
             continue
 

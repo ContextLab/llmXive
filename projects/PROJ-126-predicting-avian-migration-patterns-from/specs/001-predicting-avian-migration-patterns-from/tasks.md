@@ -9,7 +9,7 @@ All tasks produce real artifacts under `code/`, `data/`, or `tests/` and must fa
   - **Paths**: `code/config.py`  
   - **Verification**: `python -c "import code.config"` exits 0; the module defines constants for FR‑001 and FR‑004.  
 
-- [ ] T002 [US1] Implement the eBird Basic Dataset loader in `code/data_loader.py`.   <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
+- [ ] T002 [US1] Implement the eBird Basic Dataset loader in `code/data_loader.py`.   <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
   - Stream `datasets.load_dataset("vvud/eb-data", split="train", streaming=True)`.  
   - Filter rows: `species_code == "SRUT"` and complete‑checklist criteria (`duration_min ≥ 1`, `num_observers ≥ 1`, `distance_km ≤ 10`).  
   - Keep records with latitude/longitude inside the full North American bbox (`LAT_MIN=15, LAT_MAX=75, LON_MIN=-170, LON_MAX=-50`) and years 2015‑2022.  

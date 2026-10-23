@@ -1,7 +1,5 @@
-# Project-specific dependencies
-# Core scientific stack is provided by the platform; only add packages not already present.
-# Pin a pyarrow version compatible with the platform's NumPy (1.26.x).
-pyarrow==11.0.0
-# The datasets library is already part of the environment, but we pin a compatible version.
-datasets==2.19.0
-# xgboost and other heavy dependencies are pinned elsewhere; they are not needed for this task.
+# Project requirements
+# Existing dependencies are provided by the base environment.
+# Additional packages required for the eBird loader:
+huggingface_hub==0.23.0
+requests>=2.31.0
