@@ -581,6 +581,8 @@ class ImplementerAgent(SlashCommandAgent):
                     script_args = [str(arg) if type(arg) is int or (
                         type(arg) is float and math.isfinite(arg)) else arg
                         for arg in script_args]
+                from llmxive.speckit import output_writers
+                files_before = output_writers.snapshot(project_root)
                 try:
                     if is_test:
                         tested.add(relpath)
@@ -613,6 +615,12 @@ class ImplementerAgent(SlashCommandAgent):
                 )
                 recovered = prepare_artifact_directory(project_root, log_path.parent)
                 written.extend(str(path.relative_to(repo)) for path in recovered)
+                # Name what the run wrote, and what it took over from another
+                # script: a rerun that regenerates a file erases whatever only
+                # the other script put there.
+                files_written = output_writers.changed(files_before, output_writers.snapshot(project_root))
+                taken_over = output_writers.record(
+                    log_path.parent, relpath, task_id, files_written, owns=not is_test)
                 log_path.write_text(
                     f"# {relpath} (exit {result.returncode}, "
                     f"{result.duration_s:.1f}s, ok={result.ok})\n\n"
@@ -620,10 +628,14 @@ class ImplementerAgent(SlashCommandAgent):
                        if is_test else "")
                     + f"Arguments: {script_args!r}\n\n"
                     f"## stdout\n\n```\n{result.stdout}\n```\n\n"
-                    f"## stderr\n\n```\n{result.stderr}\n```\n",
+                    f"## stderr\n\n```\n{result.stderr}\n```\n\n"
+                    + output_writers.log_section(relpath, files_written, taken_over),
                     encoding="utf-8",
                 )
                 written.append(str(log_path.relative_to(repo)))
+                registry = log_path.parent / output_writers.REGISTRY_NAME
+                if registry.is_file() and str(registry.relative_to(repo)) not in written:
+                    written.append(str(registry.relative_to(repo)))
                 execute_results.append((relpath, result))
 
             # Execution-result gating: if any execute:true script exited

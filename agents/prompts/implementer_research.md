@@ -43,6 +43,12 @@ are provided in the messages that follow.
    produces `data/<x>.csv` or `figures/<y>.png`, that exact file MUST exist on disk after
    the script runs — use the output paths from tasks.md / quickstart.md verbatim (do not
    invent a different path or directory).
+   **One script writes each output file.** Before writing a script that produces a file,
+   check the existing code shown to you: if another script already writes that file, change
+   THAT script so it writes the complete file (or have yours read the existing file and add
+   to it). Two scripts that each write the whole of `data/results.md` erase each other's
+   sections whenever the earlier one is run again, and the task whose section vanished is
+   rejected.
 9. **Real data only — obtain it from a real source.** When a task needs real external data
    that is not already on disk, get it from a REAL, programmatically-accessible source: a
    pip-installable dataset package, or a downloadable URL fetched at runtime. Add any new
