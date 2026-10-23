@@ -1,31 +1,11 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets
-
-
-  builder = datasets.load_dataset_builder("timbrooks/instructpix2pix-clip-filtered")
-
-  count = builder.info.splits["train"].num_examples
-
-  print(f"RECORDS={count}")
-
-
-  fields = list(builder.info.features.keys())
-
-  print("FIELDS=" + ",".join(fields))'
-record_count: 313010
-sample_fields:
-- original_prompt
-- original_image
-- edit_prompt
-- edited_prompt
-- edited_image
-field_coverage: 0.5
+status: none
+intent: InstructPix2Pix image editing prompts with human feasibility scores PromptBench
+  python package dataset
 required_fields:
 - prompt_id
 - prompt_text
 - instruction_type
 - human_feasibility_score
-intent: InstructPix2Pix dataset human feasibility scores download python package dataset
-cache_key: c2ec4d64797fa46ff2b3a1b0afe83685588ea38911a7a662862209e400a1abf8
+cache_key: 4cadc2958439895ddd3332bf1ed96beb5ce66b253a95e2f2456d35c4255e0a61
+searched_at: '2026-10-23T03:12:01.644628+00:00'
+retry_count: 1

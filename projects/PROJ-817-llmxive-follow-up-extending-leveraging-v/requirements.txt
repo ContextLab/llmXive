@@ -6,3 +6,5 @@ huggingface_hub==0.23.0
 fastparquet==2024.5.0
 # spaCy model for later stages (pre‑installed via this requirement)
 en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.0/en_core_web_sm-3.7.0.tar.gz
+# Required for the spaCy CLI (click is a lightweight dependency)
+click==8.1.7

@@ -1,6 +1,6 @@
 """Download a real sample of InstructPix2Pix prompts (T001).
 
-This script streams the public ``timbrooks/instruct-pix2pix`` training split
+This script streams the public ``timbrooks/instructpix2pix-clip-filtered`` training split
 via ``datasets.load_dataset(..., streaming=True)`` when possible and falls back
 to downloading the raw parquet shards via the Hugging Face Hub and reading them
 with ``fastparquet``. It extracts the first ``N_PROMPTS`` rows that contain a
@@ -33,8 +33,8 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Correct dataset identifier on Hugging Face Hub
-DATASET_ID = "timbrooks/instruct-pix2pix"
+# Verified dataset identifier on Hugging Face Hub
+DATASET_ID = "timbrooks/instructpix2pix-clip-filtered"
 SPLIT = "train"
 N_PROMPTS = 2000  # target number of prompts to collect
 
