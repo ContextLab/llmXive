@@ -18,51 +18,6 @@ ERROR: file or directory not found: #
 
 - data/checksums.json
 
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `pycoingecko` to the project's `requirements.txt` and `pip install pycoingecko`.
-- **Verified**: this loads **62** real records with fields: date, open, high, low, close, volume.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-from pycoingecko import CoinGeckoAPI
-import time, datetime
-
-cg = CoinGeckoAPI()
-# time range: last 30 days
-end_ts = int(time.time())
-start_ts = end_ts - 30 * 24 * 60 * 60
-
-coins = ["bitcoin", "ethereum"]
-records = []
-for coin in coins:
-    # OHLC data (open, high, low, close) – returns list of [timestamp, o, h, l, c]
-    ohlc = cg.get_coin_ohlc_by_id(id=coin, vs_currency="usd", days=30)
-    daily = {}
-    for ts, o, h, l, c in ohlc:
-        d = datetime.datetime.utcfromtimestamp(ts / 1000).date().isoformat()
-        daily[d] = {"date": d, "open": o, "high": h, "low": l, "close": c}
-    # Volume data – list of [timestamp, volume]
-    vol_data = cg.get_coin_market_chart_range_by_id(
-        id=coin, vs_currency="usd", from_timestamp=start_ts, to_timestamp=end_ts
-    )
-    for ts, v in vol_data.get("total_volumes", []):
-        d = datetime.datetime.utcfromtimestamp(ts / 1000).date().isoformat()
-        if d in daily:
-            daily[d]["volume"] = v
-    # keep only days where volume was merged
-    for rec in daily.values():
-        if "volume" in rec:
-            records.append(rec)
-
-print(f"RECORDS={len(records)}")
-print("FIELDS=date,open,high,low,close,volume")
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
-
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).

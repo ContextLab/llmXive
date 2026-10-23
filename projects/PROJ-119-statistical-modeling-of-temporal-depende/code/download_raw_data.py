@@ -32,10 +32,9 @@ ASSETS = {
 # Number of years to request – 5 years.
 YEARS = 5
 VS_CURRENCY = "usd"
-# Chunk size for range requests (days). CoinGecko returns up to ~90‑day
-# intervals reliably; we use 365‑day chunks to minimise calls while staying
-# within API limits.
-CHUNK_DAYS = 365
+# Chunk size for range requests (days). CoinGecko reliably returns up to ~90‑day
+# intervals; we use 90‑day chunks to stay within limits.
+CHUNK_DAYS = 90
 # Maximum retry attempts for each API call.
 MAX_RETRIES = 3
 # Base back‑off seconds.
@@ -177,7 +176,8 @@ def main() -> None:
         chunk_start = datetime.combine(start_date, datetime.min.time())
         while chunk_start.date() < end_date:
             chunk_end = min(
-                chunk_start + timedelta(days=CHUNK_DAYS), datetime.combine(end_date, datetime.min.time())
+                chunk_start + timedelta(days=CHUNK_DAYS),
+                datetime.combine(end_date, datetime.min.time()),
             )
             from_ts = int(chunk_start.timestamp())
             to_ts = int(chunk_end.timestamp())
