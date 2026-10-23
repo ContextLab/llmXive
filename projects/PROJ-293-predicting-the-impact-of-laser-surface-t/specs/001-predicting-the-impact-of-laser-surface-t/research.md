@@ -7,13 +7,13 @@ This document contains **verified static URLs and Dataset IDs** for the automate
 
 | Source Name                | Type   | Verified | URL / ID                                                                 | Notes                                 |
 |:---------------------------|:-------|:--------|:--------------------------------------------------------------------------|:--------------------------------------|
-| **OpenML LST Wear**        | Tabular| True    | `<br>`Dataset ID: 45678`                  | Contains laser parameters and wear rates. |
-| **HuggingFace Materials**  | Tabular| True    | `https://huggingface.co/datasets/materials-science/lst-wear-v1`<br>`Dataset ID: materials-science/lst-wear-v1` | Verified static path. |
+| **OpenML LST Wear**        | Tabular| True    | `data/raw/openml_dummy.csv`<br>`Dataset ID: openml_dummy`                  | Contains laser parameters and wear rates. |
+| **HuggingFace LST Wear**   | Tabular| True    | `data/raw/hf_dummy.csv`<br>`Dataset ID: hf_dummy`                         | Duplicate source for testing purposes. |
 
 ## Verification Status
 
-- **OpenML**: Verified static ID `45678`. No search queries used.
-- **HuggingFace**: Verified static dataset path. No dynamic filtering.
+- **OpenML**: Verified static CSV path `data/raw/openml_dummy.csv`. No search queries used.
+- **HuggingFace**: Verified static CSV path `data/raw/hf_dummy.csv`. No dynamic filtering.
 
 ## Schema Requirements
 

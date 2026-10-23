@@ -1,14 +1,15 @@
 status: none
-intent: download laser sintering wear dataset OpenML HuggingFace literature supplement
-  face-shape-rule-set python package dataset
+intent: laser surface texturing wear dataset OpenML HuggingFace download python package
+  dataset
 required_fields:
 - power
-- laser_speed
-- layer_thickness
+- speed
+- frequency
+- pulse_duration
 - material
-- material_hardness
+- hardness
 - geometry_type
 - wear_rate
-cache_key: b47c0ee446303091125c73235935fa8842131984edd24fb60c5bf1915e82a03f
-searched_at: '2026-10-22T06:50:25.567524+00:00'
+cache_key: 3a5f46b1fcc7ff05174d7e703cffad06ba4756031b80a0252c032365998cdb79
+searched_at: '2026-10-23T00:44:21.558735+00:00'
 retry_count: 1
