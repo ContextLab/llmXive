@@ -1,17 +1,15 @@
 status: none
-intent: Sudoku and logic puzzle dataset with deterministic Python verifier python
-  package dataset
+intent: logic arithmetic puzzles CSPLib constraint satisfaction problems python package
+  dataset
 required_fields:
 - puzzle_id
 - puzzle_type
-- formal_constraint_representation
-- initial_state
+- puzzle_definition
+- constraints_formal_language
 - solution_path
-- expected_solution
 - verification_script
 - difficulty_level
-- source_dataset_name
-- download_url
-cache_key: 434ffe7225c5831c2d95e36dcdfb924296a708c6efc75708c6f23242a1bc71fb
-searched_at: '2026-10-23T07:41:16.922381+00:00'
+- source_url
+cache_key: 844ab2fe72187213000da5a6ed83dc43895c697299e532a999d1bc4536d5e043
+searched_at: '2026-10-23T07:42:27.866024+00:00'
 retry_count: 1

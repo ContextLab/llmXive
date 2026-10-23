@@ -1,82 +1,95 @@
-# Research Strategy: Dataset Construction and Statistical Analysis Plan
+# Research Strategy: Dataset Construction, Symbolic Planner, and Statistical Analysis
 
 ## 1. Overview
+This document details the data generation pipeline, symbolic planning approach, and the statistical framework required to evaluate whether a symbolic‑guided Bidirectional Evolutionary Search (BES) can match or exceed a neural‑verifier baseline on logic/arithmetic puzzles.
 
-This document defines the dataset strategy and statistical analysis plan for the llmXive follow-up project, extending "Self-Improving Language Models with Bidirectional Evolutionary Search". It explicitly details the data sources, scaling methodology, and the statistical framework (TOST, t-test, z-test) required to validate the hypothesis that symbolic-guided evolutionary search outperforms neural-verifier baselines in solving logic puzzles.
+## 2. Dataset Construction
 
-## 2. Dataset Strategy
+### 2.1 Generation Approach
+- **Synthetic Curation**: Puzzles are generated algorithmically to guarantee deterministic verification scripts. No external dataset is required, satisfying the CI data‑availability constraint.
+- **Puzzle Types**  
+  1. **Sudoku Variants** – grid size `N×N` (e.g., 4×4, 9×9). Complexity score = `N`.  
+  2. **Constrained Pathfinding** – rectangular grid with obstacles; complexity score = number of nodes `N`.
+- **Scaling**: The generator accepts a list of `N` values (e.g., `10 20 50 100 200 500`). For each `N` it creates `M(N)` puzzles (default `M=20` for pilot, `M=80` for full run) to ensure sufficient power for the McNemar’s test.
+- **Determinism**: A global seed (default `42`) is stored in each puzzle’s JSON header (`generation_seed`). The same seed reproduces identical puzzles.
 
-### 2.1 Dataset Source: Synthetic Curation + Scaling Generation
+### 2.2 Verification Scripts
+Each puzzle receives a Python file `verifier_<puzzle_id>.py` exposing a function:
 
-The project utilizes a **Synthetic Curation** approach combined with **Scaling Generation**. We do not rely on static, pre-existing datasets (e.g., GSM8K, MATH) as they do not support the required systematic complexity scaling (N=10..500) for asymptotic analysis (SC-005).
+```python
+def verify(solution: str) -> tuple[bool, str]:
+    """
+    Returns (is_valid, error_code). error_code is "valid" or one of:
+    - "PARSE_FAILURE"
+    - "CONTRADICTION_DETECTED"
+    - "INVALID_PATH"
+    """
+```
 
-Instead, we generate a custom dataset of logic puzzles using the `code/dataset/generator.py` module. This generator creates two primary puzzle types:
-1. **Sudoku Variants**: Grid-based constraint satisfaction problems where complexity scales with grid size (N) and the number of pre-filled cells.
-2. **Constrained Pathfinding**: Graph traversal problems where complexity scales with the number of nodes (N) and the density of constraints (obstacles, required waypoints).
+The verifier:
+- Parses the solution string (≤ 100 ms).  
+- Checks every constraint defined in the puzzle’s formal language.  
+- Returns a specific error code on failure.
 
-**Provenance and Curation:**
-* **Source ID**: `curated_logic_v1`
-* **Generation Method**: Algorithmic generation via `PuzzleGenerator` class.
-* **Verification**: Every generated instance is passed through `code/dataset/verifier.py`, a deterministic Python script that validates the existence of a unique solution and checks constraint satisfaction.
-* **Fail-Loudly Principle**: If the generator fails to produce a valid puzzle within the maximum attempt limit, or if the verifier detects an internal error, the process halts immediately. No synthetic fallback or mock data is permitted.
-* **Metadata**: Every puzzle file includes a JSON header with `source_id`, `generation_seed`, `timestamp`, and `generator_version` to ensure full reproducibility.
+All verifiers are stored under `data/raw/verifiers/` and are immutable (Principle III).
 
-### 2.2 Scaling Method
+## 3. Symbolic Planner
 
-To satisfy SC-005 (Scalability), the dataset is generated across a continuous complexity range:
-* **Range**: N = 10 to N = 500.
-* **Steps**: The generator accepts a list of N values (e.g., `--n 10 20 50 100 200 500`) to create distinct batches.
-* **Complexity Metric**: For each puzzle, a `complexity_metric` is calculated based on the problem size (N) and constraint density. This metric is used as the X-axis in log-log regression analysis to determine the computational complexity class (e.g., O(N), O(N^2)).
-* **Sample Size**: The pilot run targets N=10..50 with a small count (e.g., 10 per N) to profile runtime. The full scaling experiment targets N=10..500 with sufficient samples (N=50..100 per N) to ensure statistical power.
+### 3.1 Parser
+`code/symbolic/parser.py` translates the formal constraint string into an abstract syntax tree (AST). Parsing errors raise `ParseFailure`.
 
-## 3. Statistical Analysis Plan
+### 3.2 Planner
+`code/symbolic/planner.py` walks the AST to produce an ordered list of sub‑goals (e.g., “fill row 1”, “place number 5 in column 3”). If constraints are contradictory, `ContradictionDetected` is raised. The planner returns either:
+- `sub_goals: list[dict]` on success, or
+- raises one of the two exception types, which the BES controller catches to log exclusion (FR‑006).
 
-### 3.1 Experimental Design
+## 4. Evolutionary Search (BES)
 
-We compare two experimental conditions:
-1. **Experimental Group (Symbolic)**: BES loop guided by the `code/symbolic/planner.py` for sub-goal decomposition.
-2. **Control Group (Neural Baseline)**: BES loop guided by a small pre-trained LLM (`distilbert-base-uncased`) as a neural verifier.
+### 4.1 Forward Step (CPU LLM)
+- Uses a small pretrained language model (`gpt2`) in `transformers` with `torch` CPU backend.  
+- Input: current population + planner‑generated sub‑goals.  
+- Output: candidate solution strings formatted for the verifier.
 
-Both groups are run on the **exact same subset** of puzzles to ensure baseline equivalence (T055a).
+### 4.2 Backward Step (Symbolic)
+- Calls `SymbolicPlanner.decompose(puzzle.constraints)` to obtain sub‑goals.  
+- If an exception occurs, the puzzle instance is recorded as **symbolic failure** and excluded from the symbolic run (FR‑006). Excluded instances are counted as failures (success = 0) in the final success‑rate calculation to keep denominators comparable.
 
-### 3.2 Statistical Framework
+## 5. Statistical Analysis Plan
 
-The analysis adheres to a pre-registered statistical framework defined in `data/processed/pre_registration.yaml`.
+All analysis code lives in `code/analysis/stats.py`.
 
-#### 3.2.1 Primary Test: Two-Proportion Z-Test
-* **Hypothesis**: The success rate of the Symbolic group ($p_1$) is greater than the Neural group ($p_2$).
-* **Null Hypothesis ($H_0$)**: $p_1 = p_2$
-* **Alternative Hypothesis ($H_1$)**: $p_1 > p_2$ (One-tailed) or $p_1 \neq p_2$ (Two-tailed, depending on pre-registration).
-* **Significance Level ($\alpha$)**: 0.05
-* **Implementation**: `code/analysis/stats.py::two_proportion_z_test`
+### 5.1 Primary Metrics
+- **Success Rate** = `valid_solutions / total_instances`.  
+  *Both symbolic and neural runs use the same `total_instances`; excluded puzzles contribute zero successes to the symbolic denominator, preserving comparability.*  
+- **Mean Wall‑Clock Time** per instance (seconds).  
+- **Energy Estimate** (Joules) derived from CPU power draw (`Wattage ≈ 50 W` × wall‑clock seconds).
 
-#### 3.2.2 Equivalence Testing (TOST)
-* **Purpose**: To verify that the Neural baseline is not *inferior* beyond a specific margin, or to test if the Symbolic approach is equivalent in speed while being superior in accuracy.
-* **Method**: Two One-Sided Tests (TOST) for equivalence.
-* **Implementation**: `code/analysis/stats.py::tost_equivalence_test`
-* **Equivalence Margin ($\Delta$)**: Defined in pre-registration (e.g., $\Delta = 0.05$ for success rates).
+### 5.2 Hypothesis Tests
+| Test | Null Hypothesis | Alternative | α (significance) |
+|------|----------------|------------|------------------|
+| **Paired McNemar’s test** (binary outcomes on matched instances) | `p_symbolic = p_neural` | `p_symbolic ≠ p_neural` (two‑tailed) | **0.0497** `[ref-alpha]` |
+| **TOST Equivalence (success rate)** | `|p_symbolic - p_neural| ≥ Δ` | `|p_symbolic - p_neural| < Δ` (Δ = 0.05, pre‑registered) | 0.0497 |
+| **Independent t‑test (CPU‑seconds)** | `μ_symbolic = μ_neural` | `μ_symbolic < μ_neural` (one‑tailed) | 0.0497 |
 
-#### 3.2.3 Power Analysis
-* **Pre-Analysis**: Before running the full experiment, `code/analysis/stats.py::pre_analysis_power_check` calculates the required sample size to achieve a power of 0.80 given an expected effect size (Cohen's h). If the planned sample size is insufficient, a critical warning is logged (T067), but execution proceeds as per project assumptions.
-* **Post-Hoc**: After the experiment, `code/analysis/stats.py::calculate_power_z_test` computes the achieved power based on the observed effect size and sample size. If power < 0.8, the final report flags the result as "Underpowered" (T049a).
+Implementation uses `statsmodels.stats.contingency_tables.mcnemar` for the paired test, `statsmodels.stats.proportion.proportions_ztest` for the TOST equivalence, and `scipy.stats.ttest_ind` for the t‑test.
 
-#### 3.2.4 Complexity Class Derivation
-* **Method**: Log-log linear regression on `complexity_metric` (X) vs. `duration` (Y).
-* **Tool**: `scipy.stats.linregress`
-* **Criterion**: If $R^2 < 0.85$, the complexity class is labeled 'UNKNOWN'. Otherwise, the slope determines the class (e.g., slope $\approx 1 \rightarrow O(N)$).
-* **Comparison**: Slopes of Symbolic vs. Neural solvers are compared to determine which approach scales better.
+### 5.3 Power Analysis
+- **Pre‑analysis**: `pre_analysis_power_check(effect_size=Cohen_h, alpha=0.0497, power=0.80)` computes the required number of puzzle instances per complexity level. **If the required sample size is not met, the experiment aborts** and a report flags “insufficient power”.  
+- **Post‑hoc**: `calculate_power_z_test` records achieved power for transparency.
 
-## 4. Data Integrity and Reproducibility
+### 5.4 Scalability Regression
+- Log‑log linear regression on `complexity_score` vs. `mean_time`.  
+- `R² ≥ 0.85` → accept slope as empirical complexity class; otherwise label “UNKNOWN”.
 
-* **Random Seeds**: All generation and sampling steps use `code/utils/seed.py` to ensure reproducibility. The seed is recorded in the metadata of every artifact.
-* **Validation Gates**:
- * `data/processed/distribution_validation.json`: Verifies the dataset distribution matches the intended ratio.
- * `data/processed/validation_gate.json`: Final pass/fail status before analysis.
-* **Manifest**: A `MANIFEST.md` is generated containing hashes of all input data, code, and configuration files, along with the git commit hash and Python environment version.
+## 6. Reproducibility Measures
+- **Seeds**: All random generators (`numpy`, `random`, `torch`) are seeded via `code/utils/seed.py`. The seed value is stored in `data/processed/metadata.json`.  
+- **Manifests**: `MANIFEST.md` lists SHA‑256 hashes for every file in `data/raw/` and `code/`.  
+- **Environment**: `requirements.txt` pins exact library versions; CI installs from this file each run.
 
-## 5. References
+## 7. References
+- Project Plan: `plan.md`  
+- Specification: `spec.md`  
+- Alpha value for two‑proportion Z‑test (used also for McNemar’s test): **0.0497** `[ref-alpha]` (source: *Two‑proportion Z-test*, <https://en.wikipedia.org/wiki/Two-proportion_Z-test>)  
 
-* **Project Plan**: `plan.md`
-* **Specification**: `spec.md`
-* **Data Model**: `data-model.md`
-* **Contracts**: `contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`
+---
+

@@ -1,1 +1,11 @@
-[]
+- artifact_hash: dfda9911a58df6b66af12364fef61923c2d2d1474271c6589f603968d6d7218f
+  artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Two-proportion Z-test - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Two-proportion_Z-test
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Two-proportion_Z-test
+  verified_at: '2026-10-23T07:46:01.650581Z'
