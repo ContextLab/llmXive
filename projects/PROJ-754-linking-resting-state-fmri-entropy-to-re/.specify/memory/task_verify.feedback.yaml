@@ -1,17 +1,28 @@
 T001:
-  reason: "The project lacks the required `code/src/pipeline.py` (the orchestrator\
-    \ function `run_pipeline` is never imported) and the `src` shim does not expose\
-    \ `run_pipeline`, causing the integration test `test_run_pipeline.py` to error.\
-    \ The pytest suite therefore does not finish with \u201C0 failed, X passed\u201D\
-    . Additionally, the quick\u2011start command prints \u201CPipeline completed successfully\u2026\
-    \u201D instead of the exact required \u201CPipeline completed\u201D. These missing/incorrect\
-    \ artifacts must be added and corrected for the task to be complete."
+  reason: "Checked `quickstart.md` (command is `python -m src.run_pipeline \u2026\
+    ` instead of the required `python -m code.src.run_pipeline \u2026`) and the integration\
+    \ test `code/tests/integration/test_run_pipeline.py` which fails with `ImportError:\
+    \ cannot import name 'run_pipeline' from 'src'`. The test suite does not pass,\
+    \ violating the task\u2019s verification requirement."
   task: a0c36d11149a7d73bcaa80f7ec07d4a0302af726a7568af6fb68e056f75d16ac
 T002:
+  reason: "The `download_hcp.py` script exists, but it does not accept the required\
+    \ `--subjects` flag (it uses `--subject-limit`), and no evidence shows that running\
+    \ it actually creates the expected Parquet files\u2014`data/raw/timeseries/subject_*.parquet`\
+    \ and `data/raw/dsrt_scores.parquet` are missing. The task\u2019s verification\
+    \ step therefore cannot be satisfied."
   task: 0476c35a3458bbdf095c53ec74414d13047dd5718ab86090cbddbee4a0437471
 T003:
+  reason: "The `code/src/data/qc.py` script is present and implements the required\
+    \ logic, but the essential input file `data/raw/dsrt_scores.parquet` is missing,\
+    \ and consequently the required output artifacts `data/derived/clean_subjects.parquet`\
+    \ and `data/derived/subject_qc.csv` were not generated or provided. Without the\
+    \ input data and the resulting QC files, the task\u2019s verification conditions\
+    \ cannot be satisfied."
   task: c813ac33e41a92839da11350099c5a879c55589d6ab34eda37778b88ad14377b
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/src/analysis/entropy.py
+    exit=1'
   task: 92607ab5636da82b75a1836003fe4cef22bb13177933524845a400f4b8fec55d
 T005:
   task: 501680e761aff2c623482e3dc2349da80beea5515dc79d7b1de13e765e300371

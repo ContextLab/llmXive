@@ -1,11 +1,28 @@
 T001:
   c: false
-  h: b76ee77e0a4703dd1d839db9407e76ce86f233431119847adae96714502a81c0
-  r: "The project lacks the required `code/src/pipeline.py` (the orchestrator function\
-    \ `run_pipeline` is never imported) and the `src` shim does not expose `run_pipeline`,\
-    \ causing the integration test `test_run_pipeline.py` to error. The pytest suite\
-    \ therefore does not finish with \u201C0 failed, X passed\u201D. Additionally,\
-    \ the quick\u2011start command prints \u201CPipeline completed successfully\u2026\
-    \u201D instead of the exact required \u201CPipeline completed\u201D. These missing/incorrect\
-    \ artifacts must be added and corrected for the task to be complete."
-  sig: 3b32b2eedc448da4939cc4b6b1e4d1b4c2e031849514bc93b6b029013eea6c53
+  h: 92f5e2d0c51c1d15efb9640c6b51578f944c1c935f94fdc3db807533be09d738
+  r: "Checked `quickstart.md` (command is `python -m src.run_pipeline \u2026` instead\
+    \ of the required `python -m code.src.run_pipeline \u2026`) and the integration\
+    \ test `code/tests/integration/test_run_pipeline.py` which fails with `ImportError:\
+    \ cannot import name 'run_pipeline' from 'src'`. The test suite does not pass,\
+    \ violating the task\u2019s verification requirement."
+  sig: 376ce73d22fdc558be28a62ea49d2c4f0c519388bcc71b3078641043ca453bcb
+T002:
+  c: false
+  h: 1f0e1159152f8a03fa685f556c5fec9957dd077df8cdea641a8d7b3653a44f21
+  r: "The `download_hcp.py` script exists, but it does not accept the required `--subjects`\
+    \ flag (it uses `--subject-limit`), and no evidence shows that running it actually\
+    \ creates the expected Parquet files\u2014`data/raw/timeseries/subject_*.parquet`\
+    \ and `data/raw/dsrt_scores.parquet` are missing. The task\u2019s verification\
+    \ step therefore cannot be satisfied."
+  sig: 403bfc65c7860d676d3428aa0b0ec9c521d270cad1f1886b5c7cf41efa01c85f
+T003:
+  c: false
+  h: eee2994a22280fb2c17d1f743c57b45067356edf063f1f9ef9ca500009e3a2d0
+  r: "The `code/src/data/qc.py` script is present and implements the required logic,\
+    \ but the essential input file `data/raw/dsrt_scores.parquet` is missing, and\
+    \ consequently the required output artifacts `data/derived/clean_subjects.parquet`\
+    \ and `data/derived/subject_qc.csv` were not generated or provided. Without the\
+    \ input data and the resulting QC files, the task\u2019s verification conditions\
+    \ cannot be satisfied."
+  sig: 77955c9821eeee9062c89aee9993efd8f1535aedcc3bac35689f1fcee2e473ba

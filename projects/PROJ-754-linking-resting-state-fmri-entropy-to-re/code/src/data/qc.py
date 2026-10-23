@@ -10,9 +10,11 @@ the motion threshold (mean FD >= 0.2 mm) or that are missing a DSRT score,
 and writes two artefacts:
 
 * ``data/derived/clean_subjects.parquet`` – a parquet table containing only
-  the valid subjects with an additional column ``status`` set to ``valid``.
-* ``data/derived/subject_qc.csv`` – a CSV log of all exclusions with
-  the columns ``subject_id`` and ``reason``.
+  the valid subjects with additional columns ``status`` (set to ``valid``),
+  ``selected`` (boolean ``True``) and a SHA‑256 ``checksum`` of the row.
+* ``data/derived/subject_qc.csv`` – a CSV log of *all* subjects (valid and
+  excluded) with columns ``subject_id, age, sex, mean_fd, dsrt_score,
+  status, reason, selected, checksum``.
 
 The module also provides a reusable ``validate_and_filter`` function that
 can be imported by downstream code or tests.
@@ -28,6 +30,7 @@ The script respects the project‑wide logging configuration via
 ``llmxive_toolkit.get_logger`` and records each exclusion with the logger.
 """
 import argparse
+import hashlib
 from pathlib import Path
 from typing import List, Tuple
 
@@ -49,6 +52,18 @@ def _check_required_columns(df: pd.DataFrame) -> None:
     if missing:
         raise ValueError(f"Missing required columns in behavioural data: {missing}")
 
+def _row_checksum(row: pd.Series) -> str:
+    """
+    Compute a SHA‑256 checksum of the concatenated string representation of a row.
+
+    The order of columns follows the row's index order. ``NaN`` values are
+    represented as the string ``'nan'`` to keep the checksum deterministic.
+    """
+    # Ensure deterministic ordering by converting to list of strings
+    values = [str(row[col]) if pd.notna(row[col]) else "nan" for col in row.index]
+    concatenated = "|".join(values).encode("utf-8")
+    return hashlib.sha256(concatenated).hexdigest()
+
 def validate_and_filter(
     df: pd.DataFrame,
     fd_threshold: float = 0.2,
@@ -68,8 +83,8 @@ def validate_and_filter(
     Returns
     -------
     clean_df : pd.DataFrame
-        Subset of ``df`` that passed QC, with an added column ``status``
-        set to ``"valid"``.
+        Subset of ``df`` that passed QC, with added columns ``status``,
+        ``selected`` and ``checksum``.
     exclusions : list[tuple[str, str]]
         List of ``(subject_id, reason)`` tuples for each excluded subject.
     """
@@ -90,8 +105,31 @@ def validate_and_filter(
     # Combine exclusion masks (a subject may be excluded for both reasons)
     exclusion_mask = mask_missing_dsrt | mask_high_fd
     clean_df = df.loc[~exclusion_mask].copy()
+    # Add required QC columns for the clean set
     clean_df["status"] = "valid"
+    clean_df["selected"] = True
 
+    # Compute checksum for each clean row
+    clean_df["checksum"] = clean_df.apply(_row_checksum, axis=1)
+
+    # Build the full QC log (valid + excluded) with all required columns
+    # Start from the original dataframe to retain all subjects
+    qc_log = df.copy()
+    qc_log["status"] = "invalid"
+    qc_log["selected"] = False
+    # Fill reason column with empty strings for now; will be overwritten for exclusions
+    qc_log["reason"] = ""
+    # Assign reasons for excluded subjects
+    for sid, reason in exclusions:
+        qc_log.loc[qc_log["subject_id"] == sid, "reason"] = reason
+    # For valid subjects, set reason to empty string and update status/selected
+    qc_log.loc[~exclusion_mask, "status"] = "valid"
+    qc_log.loc[~exclusion_mask, "selected"] = True
+
+    # Compute checksum for every row in the QC log
+    qc_log["checksum"] = qc_log.apply(_row_checksum, axis=1)
+
+    # Return clean dataframe (only valid rows) and the list of exclusions
     return clean_df, exclusions
 
 # ----------------------------------------------------------------------
@@ -145,14 +183,45 @@ def main() -> None:
     derived_dir = Path(args.output_dir) / "derived"
     derived_dir.mkdir(parents=True, exist_ok=True)
 
+    # Write clean subjects parquet (valid rows only)
     clean_path = derived_dir / "clean_subjects.parquet"
-    qc_log_path = derived_dir / "subject_qc.csv"
-
     logger.info("Writing %d valid subjects to %s", clean_df.shape[0], clean_path)
     clean_df.to_parquet(clean_path, index=False)
 
-    logger.info("Writing QC log (%d exclusions) to %s", len(exclusions), qc_log_path)
-    qc_log_df = pd.DataFrame(exclusions, columns=["subject_id", "reason"])
+    # Write full QC log CSV (includes both valid and excluded rows)
+    qc_log_path = derived_dir / "subject_qc.csv"
+    # Ensure column order as per specification
+    column_order = [
+        "subject_id",
+        "age",
+        "sex",
+        "mean_fd",
+        "dsrt_score",
+        "status",
+        "reason",
+        "selected",
+        "checksum",
+    ]
+    logger.info("Writing QC log (%d total rows) to %s", behavioural_df.shape[0], qc_log_path)
+    qc_log_df = behavioural_df.copy()
+    # Merge the additional QC columns generated in validate_and_filter
+    qc_log_df = qc_log_df.merge(
+        clean_df[["subject_id", "status", "selected", "checksum"]],
+        on="subject_id",
+        how="left",
+    )
+    # Fill NaNs for invalid rows
+    qc_log_df["status"].fillna("invalid", inplace=True)
+    qc_log_df["selected"].fillna(False, inplace=True)
+    qc_log_df["checksum"].fillna(
+        qc_log_df.apply(_row_checksum, axis=1), inplace=True
+    )
+    # Add reason column based on exclusions list
+    qc_log_df["reason"] = ""
+    for sid, reason in exclusions:
+        qc_log_df.loc[qc_log_df["subject_id"] == sid, "reason"] = reason
+
+    qc_log_df = qc_log_df[column_order]
     qc_log_df.to_csv(qc_log_path, index=False)
 
     # Log each exclusion via the shared logger (no external helper needed)

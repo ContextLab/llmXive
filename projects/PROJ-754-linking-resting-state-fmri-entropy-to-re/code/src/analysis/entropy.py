@@ -1,4 +1,5 @@
-"""entropy.py
+"""
+entropy.py
 -----------------
 Compute multiscale sample entropy (mSE) for fMRI parcel time series.
 
@@ -20,9 +21,18 @@ Parcels that become too short after coarse‑graining (i.e. length <
 ``data/derived/invalid_parcels.csv`` and their resulting entropy is set
 to ``np.nan``.
 
-The function returns a ``pandas.Series`` indexed by parcel name.
+The module also provides a CLI entry point that iterates over a cohort of
+subjects, computes the multiscale entropy for every parcel of every
+subject, and writes a long‑format parquet table
+``data/derived/entropy_matrix.parquet`` with columns
+``subject_id``, ``parcel_id``, ``entropy`` and ``checksum``.
 """
 from __future__ import annotations
+
+import argparse
+import hashlib
+from pathlib import Path
+from typing import List, Dict
 
 import numpy as np
 import pandas as pd
@@ -31,6 +41,9 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Helper functions for multiscale entropy
+# ----------------------------------------------------------------------
 def _coarse_grain(series: np.ndarray, scale: int) -> np.ndarray:
     """Return a coarse‑grained version of ``series`` at the given ``scale``.
 
@@ -47,6 +60,22 @@ def _coarse_grain(series: np.ndarray, scale: int) -> np.ndarray:
     trimmed = series[: n_windows * scale]
     reshaped = trimmed.reshape((n_windows, scale))
     return reshaped.mean(axis=1)
+
+
+def _row_checksum(row: pd.Series) -> str:
+    """Compute a deterministic SHA‑256 checksum for a row.
+
+    The checksum is calculated over the concatenated string
+    representation of the values in the order they appear in the row.
+    ``NaN`` values are represented by the literal string ``'nan'``.
+    """
+    values = [
+        str(row[col]) if pd.notna(row[col]) else "nan"
+        for col in row.index
+    ]
+    concatenated = "|".join(values).encode("utf-8")
+    return hashlib.sha256(concatenated).hexdigest()
+
 
 def multiscale_entropy(
     ts: pd.DataFrame,
@@ -77,25 +106,21 @@ def multiscale_entropy(
     if not isinstance(ts, pd.DataFrame):
         raise TypeError("ts must be a pandas DataFrame")
 
-    invalid_parcels: list[str] = []
-    entropy_results: dict[str, float] = {}
+    invalid_parcels: List[str] = []
+    entropy_results: Dict[str, float] = {}
 
     for parcel in ts.columns:
         series = ts[parcel].to_numpy(dtype=float)
 
-        per_scale_entropy: list[float] = []
+        per_scale_entropy: List[float] = []
         for scale in scales:
             cg_series = _coarse_grain(series, scale)
 
             # Need at least (m + 1) points to compute sample entropy
             if len(cg_series) < m + 1:
-                # Mark as invalid for this parcel and break out of the scale loop
                 per_scale_entropy = []
                 break
 
-            # pyentropy expects the tolerance as an absolute value; the common
-            # practice is to multiply ``r`` by the standard deviation of the
-            # series.
             tolerance = r * np.std(cg_series, ddof=0)
             try:
                 se = sample_entropy(cg_series, m=m, r=tolerance)
@@ -126,3 +151,128 @@ def multiscale_entropy(
         log.info("Invalid parcels written to %s", invalid_path)
 
     return pd.Series(entropy_results, name="entropy")
+
+
+# ----------------------------------------------------------------------
+# CLI for cohort‑wide entropy matrix generation (Task T004)
+# ----------------------------------------------------------------------
+def _batch_iter(seq: List[str], batch_size: int):
+    """Yield successive batches from *seq* of size *batch_size*."""
+    for i in range(0, len(seq), batch_size):
+        yield seq[i : i + batch_size]
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Compute multiscale entropy for all subjects in the cleaned "
+            "cohort and write a long‑format parquet matrix."
+        )
+    )
+    parser.add_argument(
+        "--clean-subjects",
+        type=str,
+        required=True,
+        help=(
+            "Path to the cleaned subjects parquet file "
+            "(data/derived/clean_subjects.parquet)."
+        ),
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(paths.data("derived", "entropy_matrix.parquet")),
+        help=(
+            "Path to write the entropy matrix parquet (default: "
+            "data/derived/entropy_matrix.parquet)."
+        ),
+    )
+    parser.add_argument(
+        "--scales",
+        nargs="+",
+        type=int,
+        default=[1, 2, 3, 4, 5],
+        help="Scale factors for multiscale entropy.",
+    )
+    parser.add_argument(
+        "--m",
+        type=int,
+        default=2,
+        help="Embedding dimension for sample entropy.",
+    )
+    parser.add_argument(
+        "--r",
+        type=float,
+        default=0.15,
+        help="Tolerance for sample entropy (fraction of std).",
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=50,
+        help="Maximum number of parcels processed simultaneously.",
+    )
+    args = parser.parse_args()
+
+    logger = get_logger(__name__)
+
+    # ------------------------------------------------------------------
+    # Load the list of valid subjects
+    # ------------------------------------------------------------------
+    clean_df = pd.read_parquet(args.clean_subjects)
+    subject_ids = clean_df["subject_id"].astype(str).tolist()
+    logger.info("Computing entropy for %d subjects.", len(subject_ids))
+
+    # ------------------------------------------------------------------
+    # Prepare parcel identifiers (assume Schaefer‑400)
+    # ------------------------------------------------------------------
+    parcel_ids = [f"parcel_{i}" for i in range(400)]
+
+    # ------------------------------------------------------------------
+    # Accumulate rows for the long‑format matrix
+    # ------------------------------------------------------------------
+    rows: List[Dict[str, object]] = []
+
+    for subj in subject_ids:
+        ts_path = paths.data("raw", "timeseries", f"subject_{subj}.parquet")
+        if not Path(ts_path).is_file():
+            logger.error("Timeseries file missing for subject %s: %s", subj, ts_path)
+            raise FileNotFoundError(f"Timeseries file not found for subject {subj}")
+
+        ts_df = pd.read_parquet(ts_path)
+
+        # Process parcels in batches to keep RAM low
+        for batch in _batch_iter(parcel_ids, args.batch_size):
+            batch_df = ts_df[batch]
+            ent_series = multiscale_entropy(
+                batch_df,
+                scales=tuple(args.scales),
+                m=args.m,
+                r=args.r,
+            )
+            for parcel, entropy_val in ent_series.items():
+                row = {
+                    "subject_id": subj,
+                    "parcel_id": parcel,
+                    "entropy": float(entropy_val) if not pd.isna(entropy_val) else np.nan,
+                }
+                # Compute checksum for the row (subject_id, parcel_id, entropy)
+                checksum_series = pd.Series(row)
+                row["checksum"] = _row_checksum(checksum_series)
+                rows.append(row)
+
+    # ------------------------------------------------------------------
+    # Write the long‑format matrix
+    # ------------------------------------------------------------------
+    out_path = Path(args.output)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    matrix_df = pd.DataFrame(rows, columns=["subject_id", "parcel_id", "entropy", "checksum"])
+    matrix_df.to_parquet(out_path, index=False)
+    logger.info("Entropy matrix written to %s", out_path)
+
+    # The multiscale_entropy function already writes invalid_parcels.csv
+    # (if any) to data/derived/invalid_parcels.csv, satisfying the task
+    # requirement.
+
+if __name__ == "__main__":
+    main()

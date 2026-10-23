@@ -40,7 +40,7 @@ The project layout follows the platform convention: source code under `code/`, d
   - Checksums are computed as SHA‑256 of the row contents and recorded in the `checksum` column.  
   - **Verification**: After running on the 5‑subject test set, `clean_subjects.parquet` must contain ≤ 5 rows, and `subject_qc.csv` must list every subject with an appropriate `status`, a non‑empty `checksum` column, and the correct `selected` flag.  
 
-- [ ] T004 **Compute multiscale sample entropy per parcel, flag invalid parcels, and store results with checksums.**  
+- [ ] T004 **Compute multiscale sample entropy per parcel, flag invalid parcels, and store results with checksums.**   <!-- FAILED-IN-EXECUTION: code/src/analysis/entropy.py exit=1 -->
   - File: `code/src/analysis/entropy.py`.  
   - Uses the real `pyentropy==0.4.*` library (`from pyentropy import sample_entropy`). Implements `multiscale_entropy(ts, scales=(1,2,3,4,5), m=2, r=0.15)` that coarse‑grains the time series, computes sample entropy for each scale, and returns the average across scales.  
   - For each subject‑parcel pair writes a row to `data/derived/entropy_matrix.parquet` adhering to `entropy.schema.yaml` (columns: `subject_id`, `parcel_id`, `entropy`, `checksum`).  

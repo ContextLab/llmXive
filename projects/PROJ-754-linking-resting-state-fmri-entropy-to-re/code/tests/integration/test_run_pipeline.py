@@ -5,6 +5,7 @@ import sys
 
 from src import run_pipeline
 
+
 def test_pipeline_dry_run(monkeypatch):
     """
     Run the pipeline with ``--dry-run``; it should exit without raising.
