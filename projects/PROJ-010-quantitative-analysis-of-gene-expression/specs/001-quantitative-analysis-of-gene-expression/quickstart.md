@@ -5,12 +5,12 @@
 # Create a clean Python 3.11 environment
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt   # includes scanpy, harmonypy, arboreto, pyscenic, scvelo, pandas, pyyaml, pytest, datasets, requests
+pip install -r requirements.txt   # includes scanpy, harmonypy, arboreto, pyscenic, scvelo, pandas, pyyaml, pytest, datasets, requests, tqdm
 ```
 
 ## Execution Workflow
 
-### 0. Project Initialization
+### 0. Project Initialization – Download Raw Data
 ```bash
 python src/data_pipeline/setup_data.py \
     --seed 42 \
