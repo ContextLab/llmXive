@@ -66,16 +66,16 @@ The scripts below execute the full symbolic‑guided and neural‑baseline exper
 ## Verification & Testing
 
 - **Unit tests**:
-  ```bash
-  pytest tests/unit/
-  ```
-  - Verifies puzzle generation, verifier correctness, and symbolic planner logic.
+   ```bash
+   pytest tests/unit/
+   ```
+   - Verifies puzzle generation, verifier correctness, and symbolic planner logic.
 
 - **Integration tests**:
-  ```bash
-  pytest tests/integration/
-  ```
-  - Runs a mini BES loop to ensure end‑to‑end flow.
+   ```bash
+   pytest tests/integration/
+   ```
+   - Runs a mini BES loop to ensure end‑to‑end flow.
 
 ## Reproducibility
 

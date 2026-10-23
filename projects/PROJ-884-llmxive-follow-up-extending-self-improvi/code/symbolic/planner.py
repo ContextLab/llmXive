@@ -1,18 +1,20 @@
 """
 Symbolic Planner for BES.
 
-Generates sub-goal decompositions for puzzle solving.
-Includes logic to detect and flag CONTRADICTION_DETECTED or PARSE_FAILURE.
-Integrates with the exclusion logger to record invalid instances.
+Generates sub‑goal decompositions for puzzle solving.
+Detects contradictory or unparsable constraints and logs exclusions.
 """
+
 import json
 import logging
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
+
 from dataclasses import dataclass, field
 from enum import Enum
 
-# Import from project API surface
+# Local project imports
 from code.exceptions import CONTRADICTION_DETECTED, PARSE_FAILURE, raise_contradiction, raise_parse_failure
 from code.symbolic.exclusion_logger import ExclusionEvent, ExclusionLogger
 from code.symbolic.parser import FormalConstraint, FormalConstraintType, PuzzleParser
@@ -28,7 +30,7 @@ class SubGoalStatus(Enum):
 
 @dataclass
 class SubGoal:
-    """Represents a single sub-goal in a decomposition."""
+    """Represents a single sub‑goal in a decomposition."""
     id: str
     description: str
     status: SubGoalStatus = SubGoalStatus.PENDING
@@ -48,20 +50,16 @@ class DecompositionResult:
 
 class SymbolicPlanner:
     """
-    Symbolic Planner that generates sub-goal decompositions.
-    
-    This planner parses puzzle constraints, validates them against the formal grammar,
-    and breaks down complex puzzles into a sequence of manageable sub-goals.
-    It integrates with the exclusion logger to flag instances that cannot be parsed
-    or contain contradictions.
+    Symbolic planner that parses puzzle constraints, checks for contradictions,
+    and produces a sequence of sub‑goals.
     """
 
     def __init__(self, exclusion_logger: Optional[ExclusionLogger] = None):
         """
-        Initialize the planner.
-        
+        Initialise the planner.
+
         Args:
-            exclusion_logger: Optional logger to record exclusion events.
+            exclusion_logger: Optional ``ExclusionLogger`` instance.
         """
         self.parser = PuzzleParser()
         self.exclusion_logger = exclusion_logger or ExclusionLogger()
@@ -69,307 +67,247 @@ class SymbolicPlanner:
 
     def decompose(self, puzzle_instance: Dict[str, Any]) -> DecompositionResult:
         """
-        Decompose a puzzle instance into sub-goals.
-        
+        Decompose a puzzle instance into sub‑goals.
+
         Args:
-            puzzle_instance: Dictionary containing puzzle constraints, initial state, target state.
-            
+            puzzle_instance: Dictionary containing at least ``metadata`` and ``constraints``.
+
         Returns:
-            DecompositionResult containing sub-goals or error information.
+            ``DecompositionResult`` describing the outcome.
         """
         import time
         start_time = time.time()
-        
+
         puzzle_id = puzzle_instance.get('metadata', {}).get('source_id', 'unknown')
         constraints_raw = puzzle_instance.get('constraints', [])
-        
+
         try:
-            # Step 1: Parse constraints into formal language
+            # 1️⃣ Parse constraints
             self.logger.debug(f"Parsing constraints for puzzle {puzzle_id}")
             formal_constraints = self.parser.parse_constraints(constraints_raw)
-            
+
             if not formal_constraints:
                 raise_parse_failure(f"No valid constraints parsed for puzzle {puzzle_id}")
-            
-            # Step 2: Detect contradictions in constraints
-            self.logger.debug(f"Checking for contradictions in puzzle {puzzle_id}")
-            contradiction_found = self._detect_contradictions(formal_constraints)
-            
-            if contradiction_found:
-                raise_contradiction(f"Contradictory constraints detected in puzzle {puzzle_id}")
-            
-            # Step 3: Generate sub-goal decomposition
-            self.logger.debug(f"Generating sub-goals for puzzle {puzzle_id}")
+
+            # 2️⃣ Detect contradictions
+            self.logger.debug(f"Checking contradictions for puzzle {puzzle_id}")
+            if self._detect_contradictions(formal_constraints):
+                raise_contradiction(f"Contradictory constraints in puzzle {puzzle_id}")
+
+            # 3️⃣ Generate sub‑goals
+            self.logger.debug(f"Generating sub‑goals for puzzle {puzzle_id}")
             sub_goals = self._generate_sub_goals(formal_constraints, puzzle_instance)
-            
-            execution_time = (time.time() - start_time) * 1000
-            
+
+            exec_ms = (time.time() - start_time) * 1000
             return DecompositionResult(
                 puzzle_id=puzzle_id,
                 sub_goals=sub_goals,
                 is_valid=True,
-                execution_time_ms=execution_time
+                execution_time_ms=exec_ms,
             )
-            
+
         except PARSE_FAILURE as e:
-            execution_time = (time.time() - start_time) * 1000
-            self._log_exclusion(
-                puzzle_id=puzzle_id,
-                reason="PARSE_FAILURE",
-                error_message=str(e),
-                constraints=constraints_raw
-            )
+            exec_ms = (time.time() - start_time) * 1000
+            self._log_exclusion(puzzle_id, "PARSE_FAILURE", str(e), constraints_raw)
             return DecompositionResult(
                 puzzle_id=puzzle_id,
                 sub_goals=[],
                 is_valid=False,
                 error_code="PARSE_FAILURE",
                 error_message=str(e),
-                execution_time_ms=execution_time
+                execution_time_ms=exec_ms,
             )
-            
+
         except CONTRADICTION_DETECTED as e:
-            execution_time = (time.time() - start_time) * 1000
-            self._log_exclusion(
-                puzzle_id=puzzle_id,
-                reason="CONTRADICTION_DETECTED",
-                error_message=str(e),
-                constraints=constraints_raw
-            )
+            exec_ms = (time.time() - start_time) * 1000
+            self._log_exclusion(puzzle_id, "CONTRADICTION_DETECTED", str(e), constraints_raw)
             return DecompositionResult(
                 puzzle_id=puzzle_id,
                 sub_goals=[],
                 is_valid=False,
                 error_code="CONTRADICTION_DETECTED",
                 error_message=str(e),
-                execution_time_ms=execution_time
+                execution_time_ms=exec_ms,
             )
-            
+
         except Exception as e:
-            execution_time = (time.time() - start_time) * 1000
-            self.logger.error(f"Unexpected error decomposing puzzle {puzzle_id}: {e}")
+            exec_ms = (time.time() - start_time) * 1000
+            self.logger.error(f"Unexpected error during decomposition of {puzzle_id}: {e}")
             return DecompositionResult(
                 puzzle_id=puzzle_id,
                 sub_goals=[],
                 is_valid=False,
                 error_code="INTERNAL_ERROR",
                 error_message=str(e),
-                execution_time_ms=execution_time
+                execution_time_ms=exec_ms,
             )
 
+    # ------------------------------------------------------------------
+    # Helper methods
+    # ------------------------------------------------------------------
     def _detect_contradictions(self, constraints: List[FormalConstraint]) -> bool:
         """
-        Detect logical contradictions in a set of formal constraints.
-        
-        Args:
-            constraints: List of parsed formal constraints.
-            
-        Returns:
-            True if a contradiction is detected, False otherwise.
+        Detect logical contradictions among a set of formal constraints.
+
+        Returns ``True`` if a contradiction is found.
         """
-        # Extract variable assignments and their domains
         assignments: Dict[str, Any] = {}
-        equalities: List[Tuple[str, str]] = []
-        inequalities: List[Tuple[str, str]] = []
-        
-        for constraint in constraints:
-            if constraint.constraint_type == FormalConstraintType.EQUALITY:
-                var1, var2 = constraint.variables[0], constraint.variables[1]
-                if var1 in assignments and var2 in assignments:
-                    if assignments[var1] != assignments[var2]:
-                        return True
-                if var1 in assignments:
-                    equalities.append((var1, var2))
-                elif var2 in assignments:
-                    equalities.append((var2, var1))
-                else:
-                    equalities.append((var1, var2))
-                    
-            elif constraint.constraint_type == FormalConstraintType.INEQUALITY:
-                var1, var2 = constraint.variables[0], constraint.variables[1]
-                if var1 in assignments and var2 in assignments:
-                    if assignments[var1] == assignments[var2]:
-                        return True
+        equalities: List[tuple] = []
+        inequalities: List[tuple] = []
+
+        for c in constraints:
+            ct = c.constraint_type
+            if ct == FormalConstraintType.EQUALITY:
+                var1, var2 = c.variables[0], c.variables[1]
+                equalities.append((var1, var2))
+
+            elif ct == FormalConstraintType.INEQUALITY:
+                var1, var2 = c.variables[0], c.variables[1]
                 inequalities.append((var1, var2))
-                
-            elif constraint.constraint_type == FormalConstraintType.VALUE_ASSIGNMENT:
-                var = constraint.variables[0]
-                value = constraint.value
-                if var in assignments:
-                    if assignments[var] != value:
-                        return True
-                assignments[var] = value
-                
-            elif constraint.constraint_type == FormalConstraintType.ALL_DIFFERENT:
-                # Check if any pair in the group is already assigned the same value
-                group_vars = constraint.variables
-                assigned_values = {}
-                for var in group_vars:
+
+            elif ct == FormalConstraintType.VALUE_ASSIGNMENT:
+                var = c.variables[0]
+                val = c.value
+                if var in assignments and assignments[var] != val:
+                    return True
+                assignments[var] = val
+
+            elif ct == FormalConstraintType.ALL_DIFFERENT:
+                # Ensure no two already‑assigned variables share the same value
+                seen_vals: Dict[Any, str] = {}
+                for var in c.variables:
                     if var in assignments:
                         val = assignments[var]
-                        if val in assigned_values:
+                        if val in seen_vals:
                             return True
-                        assigned_values[val] = var
-            
-        # Check for transitive contradictions in equalities
-        # Build a graph of equalities and check for conflicts with inequalities
-        from collections import defaultdict
-        equality_graph = defaultdict(set)
-        for var1, var2 in equalities:
-            equality_graph[var1].add(var2)
-            equality_graph[var2].add(var1)
-        
-        # Find connected components
+                        seen_vals[val] = var
+
+        # Check that equalities do not conflict with inequalities
+        # Build connected components of equal variables
+        from collections import defaultdict, deque
+
+        graph = defaultdict(set)
+        for a, b in equalities:
+            graph[a].add(b)
+            graph[b].add(a)
+
+        # Find components
         visited = set()
-        components = []
-        for var in equality_graph:
-            if var not in visited:
-                component = set()
-                stack = [var]
-                while stack:
-                    node = stack.pop()
-                    if node not in visited:
-                        visited.add(node)
-                        component.add(node)
-                        stack.extend(equality_graph[node] - visited)
-                components.append(component)
-        
-        # Check if any inequality connects two variables in the same component
-        for var1, var2 in inequalities:
-            for component in components:
-                if var1 in component and var2 in component:
+        components: List[set] = []
+        for node in graph:
+            if node not in visited:
+                comp = set()
+                dq = deque([node])
+                while dq:
+                    cur = dq.popleft()
+                    if cur in visited:
+                        continue
+                    visited.add(cur)
+                    comp.add(cur)
+                    dq.extend(graph[cur] - visited)
+                components.append(comp)
+
+        # Any inequality inside the same component is a contradiction
+        for a, b in inequalities:
+            for comp in components:
+                if a in comp and b in comp:
                     return True
-                    
+
         return False
 
-    def _generate_sub_goals(self, constraints: List[FormalConstraint], puzzle_instance: Dict[str, Any]) -> List[SubGoal]:
+    def _generate_sub_goals(self, constraints: List[FormalConstraint],
+                            puzzle_instance: Dict[str, Any]) -> List[SubGoal]:
         """
-        Generate a sequence of sub-goals from formal constraints.
-        
-        Args:
-            constraints: List of parsed formal constraints.
-            puzzle_instance: Original puzzle instance for context.
-            
-        Returns:
-            List of SubGoal objects.
+        Turn formal constraints into an ordered list of ``SubGoal`` objects.
+        The ordering is a simple heuristic: value assignments → equalities →
+        all‑different → inequalities.
         """
-        sub_goals = []
-        goal_counter = 1
-        
-        # Group constraints by type for logical ordering
-        value_assignments = [c for c in constraints if c.constraint_type == FormalConstraintType.VALUE_ASSIGNMENT]
-        equalities = [c for c in constraints if c.constraint_type == FormalConstraintType.EQUALITY]
-        inequalities = [c for c in constraints if c.constraint_type == FormalConstraintType.INEQUALITY]
-        all_different = [c for c in constraints if c.constraint_type == FormalConstraintType.ALL_DIFFERENT]
-        
-        # 1. Process value assignments first (base facts)
-        for constraint in value_assignments:
-            sub_goal = SubGoal(
-                id=f"SG_{goal_counter:03d}",
-                description=f"Set {constraint.variables[0]} = {constraint.value}",
-                status=SubGoalStatus.PENDING,
-                constraints=[self._constraint_to_dict(constraint)]
+        sub_goals: List[SubGoal] = []
+        counter = 1
+
+        # Helper to create a SubGoal and increment the counter
+        def add_goal(desc: str, cons: List[FormalConstraint]) -> None:
+            nonlocal counter
+            sg = SubGoal(
+                id=f"SG_{counter:03d}",
+                description=desc,
+                constraints=[self._constraint_to_dict(c) for c in cons],
             )
-            sub_goals.append(sub_goal)
-            goal_counter += 1
-            
-        # 2. Process equalities (propagate known values)
-        for constraint in equalities:
-            sub_goal = SubGoal(
-                id=f"SG_{goal_counter:03d}",
-                description=f"Ensure {constraint.variables[0]} == {constraint.variables[1]}",
-                status=SubGoalStatus.PENDING,
-                constraints=[self._constraint_to_dict(constraint)]
-            )
-            sub_goals.append(sub_goal)
-            goal_counter += 1
-            
-        # 3. Process all-different constraints (grouping)
-        for constraint in all_different:
-            sub_goal = SubGoal(
-                id=f"SG_{goal_counter:03d}",
-                description=f"Ensure all variables {constraint.variables} are different",
-                status=SubGoalStatus.PENDING,
-                constraints=[self._constraint_to_dict(constraint)]
-            )
-            sub_goals.append(sub_goal)
-            goal_counter += 1
-            
-        # 4. Process inequalities (final checks)
-        for constraint in inequalities:
-            sub_goal = SubGoal(
-                id=f"SG_{goal_counter:03d}",
-                description=f"Ensure {constraint.variables[0]} != {constraint.variables[1]}",
-                status=SubGoalStatus.PENDING,
-                constraints=[self._constraint_to_dict(constraint)]
-            )
-            sub_goals.append(sub_goal)
-            goal_counter += 1
-            
+            sub_goals.append(sg)
+            counter += 1
+
+        # Group constraints by type
+        value_assign = [c for c in constraints if c.constraint_type == FormalConstraintType.VALUE_ASSIGNMENT]
+        eqs = [c for c in constraints if c.constraint_type == FormalConstraintType.EQUALITY]
+        alldiff = [c for c in constraints if c.constraint_type == FormalConstraintType.ALL_DIFFERENT]
+        ineqs = [c for c in constraints if c.constraint_type == FormalConstraintType.INEQUALITY]
+
+        if value_assign:
+            add_goal("Assign constant values", value_assign)
+        if eqs:
+            add_goal("Enforce equalities", eqs)
+        if alldiff:
+            add_goal("Enforce all‑different constraint", alldiff)
+        if ineqs:
+            add_goal("Enforce inequalities", ineqs)
+
         return sub_goals
 
-    def _constraint_to_dict(self, constraint: FormalConstraint) -> Dict[str, Any]:
-        """Convert a FormalConstraint to a dictionary."""
+    @staticmethod
+    def _constraint_to_dict(constraint: FormalConstraint) -> Dict[str, Any]:
+        """Serialise a ``FormalConstraint`` to a plain dictionary."""
         return {
             "type": constraint.constraint_type.value,
             "variables": constraint.variables,
-            "value": constraint.value if hasattr(constraint, 'value') else None
+            "value": constraint.value if hasattr(constraint, "value") else None,
         }
 
-    def _log_exclusion(self, puzzle_id: str, reason: str, error_message: str, constraints: List[Any]):
+    def _log_exclusion(self, puzzle_id: str, reason: str,
+                       error_message: str, constraints: List[Any]) -> None:
         """
-        Log an exclusion event to the exclusion logger.
-        
-        Args:
-            puzzle_id: ID of the excluded puzzle.
-            reason: Reason for exclusion (e.g., PARSE_FAILURE, CONTRADICTION_DETECTED).
-            error_message: Detailed error message.
-            constraints: The constraints that caused the exclusion.
+        Record an exclusion event via the ``ExclusionLogger``.
         """
         event = ExclusionEvent(
             puzzle_id=puzzle_id,
             reason=reason,
             error_code=reason,
             error_message=error_message,
-            source_file=puzzle_id,  # Using puzzle_id as source identifier
-            timestamp=datetime.now().isoformat()
+            source_file=puzzle_id,  # using puzzle_id as a simple identifier
+            timestamp=datetime.now().isoformat(),
         )
         self.exclusion_logger.log_exclusion(event)
-        self.logger.warning(f"Excluded puzzle {puzzle_id}: {reason} - {error_message}")
+        self.logger.warning(f"Excluded puzzle {puzzle_id}: {reason} – {error_message}")
 
-def main():
-    """Main entry point for the planner."""
+def main() -> None:
+    """CLI entry point for manual testing of the planner."""
     import argparse
-    from datetime import datetime
-    
-    parser = argparse.ArgumentParser(description="Symbolic Planner for BES")
+
+    parser = argparse.ArgumentParser(description="Run Symbolic Planner on a JSON puzzle file")
     parser.add_argument("--input", type=str, required=True, help="Path to input puzzle JSON file")
-    parser.add_argument("--output", type=str, required=True, help="Path to output decomposition JSON file")
-    parser.add_argument("--exclusion-log", type=str, default="data/processed/exclusions.json", help="Path to exclusion log")
-    
+    parser.add_argument("--output", type=str, required=True, help="Path to write decomposition JSON")
+    parser.add_argument(
+        "--exclusion-log",
+        type=str,
+        default="data/processed/exclusions.json",
+        help="Path to exclusion log file",
+    )
     args = parser.parse_args()
-    
-    # Setup logging
+
     logging.basicConfig(level=logging.INFO)
-    
-    # Load puzzles
-    with open(args.input, 'r') as f:
+
+    # Load puzzles (expects a list of puzzle dicts)
+    with open(args.input, "r", encoding="utf-8") as f:
         puzzles = json.load(f)
-        
-    # Initialize planner
+
     exclusion_logger = ExclusionLogger(output_path=Path(args.exclusion_log))
     planner = SymbolicPlanner(exclusion_logger=exclusion_logger)
-    
-    results = []
-    for puzzle in puzzles:
-        result = planner.decompose(puzzle)
-        results.append(result)
-        
-    # Save results
-    with open(args.output, 'w') as f:
-        json.dump([r.__dict__ if hasattr(r, '__dict__') else r for r in results], f, indent=2)
-        
-    logger.info(f"Decomposition complete. Results saved to {args.output}")
+
+    results = [planner.decompose(p).__dict__ for p in puzzles]
+
+    with open(args.output, "w", encoding="utf-8") as out_f:
+        json.dump(results, out_f, indent=2)
+
+    logger.info(f"Decomposition finished. Results written to {args.output}")
 
 if __name__ == "__main__":
     main()

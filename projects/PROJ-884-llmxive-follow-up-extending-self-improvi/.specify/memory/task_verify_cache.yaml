@@ -1,3 +1,23 @@
+T001:
+  c: false
+  h: 411622133d67e1f525f82a9f57430ff31723d8fbcf80b561cedec21b0a83427f
+  r: "The pytest run fails (exit\u202F4) because `pyproject.toml` is invalid, so the\
+    \ required tests never pass. Moreover, the generated puzzle JSON lacks the required\
+    \ `verifier_output` field defined in `contracts/dataset.schema.yaml`, causing\
+    \ schema validation to fail. The benchmark test also does not explicitly assert\
+    \ the <\u202F100\u202Fms limit. These issues must be fixed for the task to be\
+    \ considered complete."
+  sig: eb5f26c1892a6aabd1c73b1aba32949f7bdd7a3b354e68ef16244b1906cdb183
+T002:
+  c: false
+  h: 67cd37ef809e0630051583daad862cdc2cd313b4eb7339a88d7e87bb6f800027
+  r: The required test suite `code/tests/test_symbolic_planner.py` is missing, so
+    the observable check cannot be performed. Additionally, `code/symbolic/parser.py`
+    calls `raise_parse_failure` without importing or defining it, causing a runtime
+    NameError. Consequently the parser does not correctly emit the required `PARSE_FAILURE`
+    code, and the exclusion log file is absent until a run creates it. These gaps
+    prevent the task from being fully satisfied.
+  sig: 8c626c67a24340aedefc414ee329feca8ba3a2a20da1ec5a88384da23b3a4104
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,30 +34,30 @@ T004:
     the task requirement is not satisfied.
 T012:
   c: true
-  h: 83f999c8cb5685c846c6344498b18a9d2fae4388fefb4631769d1b66a17c530f
-  r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md`;\
-    \ it exists, is non\u2011empty, and contains the required \u201CPuzzle Types\u201D\
-    , \u201CScaling Plan\u201D, and \u201CSeed Management\u201D sections."
-  sig: 8e090405eea4e157d281675d48a6df840649cccf0eb332fccc45fb19d50cd82f
+  h: 17eabc268a5b676ea76ead0794b113909d3f45275e44982a26461e126ec2b3e0
+  r: "The markdown file `specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md`\
+    \ is present (8959\u202Fbytes) and contains the required sections: \u201C## 1.\
+    \ Puzzle Types\u201D, \u201C## 3. Scaling Plan (Complexity)\u201D, and \u201C\
+    ## 4. Seed Management\u201D (as part of provenance metadata). Its content fully\
+    \ describes the generation methodology, scaling strategy, and seed/provenance\
+    \ details."
+  sig: 1594e1da46557415d2850b95be02e00e2f280eb8e63b1eab0fe7abfcd692768a
 T013:
   c: true
-  h: 4e5a5b2d14b1120440616735c879ca93f7f348b231a665e3e5b02818a653cf38
-  r: "The `specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md`\
-    \ file is present (6.7\u202FKB) and includes the numeric specifications: equivalence\
-    \ margin delta\u202F=\u202F0.05, significance level alpha\u202F=\u202F0.05, and\
-    \ required sample size per group n\u202F=\u202F393 (plus related power analysis\
-    \ details). These values satisfy the task\u2019s requirement."
-  sig: 6af6c00bf251941cf07a36c93c5a4a2a514dbe3235dc47b0b5572c53f2ff24bb
+  h: 5060b023aafb4ace8bd0d131c736397153b9e0dcfe17755a14421d9bc84d5813
+  r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md`;\
+    \ the file exists, is non\u2011empty, and includes numeric entries for the TOST\
+    \ equivalence margin (delta\u202F=\u202F0.05), the significance level (alpha\u202F\
+    =\u202F0.05), and the required sample size per group (n\u202F=\u202F393)."
+  sig: 8c93fa76d7e566689a1c94c534ff31bfcc001ae8cb8bb825ed7dc1bb9b79eed8
 T014:
   c: true
-  h: 3f9be7ace0a649fcc095b33c9c50f5ac360958a78c6141f26e717b4b4b854042
-  r: "The `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`\
-    \ file (3640\u202Fbytes) contains the required model identifier `distilbert-base-uncased`,\
-    \ the exact HuggingFace commit hash `12040accade4e8a0f71eabdb258fecc2e7e948be`,\
-    \ explicit CPU\u2011only device settings, and a ranked list of fallback models\
-    \ with their own pinned commit hashes. All required information is present and\
-    \ not a placeholder."
-  sig: 250debc7ad62707435ff5043c4b73961c48cf8c143ed6c1fd1bad4526294764b
+  h: 35a252166be944307f9e62860cc8f0a8463ab8e687eef330110ffb310ba12092
+  r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`,\
+    \ which lists the primary model `distilbert-base-uncased` with the exact HuggingFace\
+    \ commit hash, explicit CPU device settings, and a detailed fallback options table.\
+    \ The file is non\u2011empty and matches the task\u2019s specification."
+  sig: 338f78363171718eb0b22987346abcb4deb16685bbf1b8c79234d06c00050315
 T015:
   c: true
   h: ea0ededd3830ea3688217a2eeb179e8c6f6b3d1377040af157ced56dfdc276c3
@@ -46,11 +66,3 @@ T015:
     \ (as shown) parse correctly with `yaml.safe_load`, satisfying the required syntactic\
     \ validation."
   sig: 8cf992a5c33c1e10fd10e9d9cd71f2142f548891a320515d04eecd0569f89797
-T016:
-  c: false
-  h: 0a4bb64691632ce0e1431b828457266a88b171b8a2f49d04f90bda9ce54859d2
-  r: The quickstart.md file exists and contains the required `python -m code.main
-    --pilot` command, but there is no evidence (e.g., logs, test output, or execution
-    trace) showing that this command runs successfully on a clean repository. Execution
-    proof is missing.
-  sig: 9055a4adbe12785e6c1accacc16269dfe1c9a425307da5f28cc16638ddd8aeb3
