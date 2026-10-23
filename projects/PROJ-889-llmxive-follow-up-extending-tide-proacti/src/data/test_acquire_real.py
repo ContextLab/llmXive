@@ -2,9 +2,6 @@
 src/data/test_acquire_real.py
 
 Pytest integration test for the T001 data acquisition script.
-It runs the module as a subprocess, checks that it exits cleanly,
-and validates that the produced CSV contains at least 200 data rows
-(excluding the header) and that the checksum file exists.
 """
 
 import subprocess
@@ -38,3 +35,7 @@ def test_acquire_real():
     # Verify checksum manifest exists
     sha_path = paths.data("raw", "tide.sha256")
     assert sha_path.is_file(), f"Checksum file not found at {sha_path}"
+    
+    # Verify log exists
+    log_path = paths.data("logs", "acquire_real.log")
+    assert log_path.is_file(), f"Log file not found at {log_path}"

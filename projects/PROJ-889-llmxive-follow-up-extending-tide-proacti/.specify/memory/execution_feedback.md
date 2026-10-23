@@ -29,21 +29,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.acquire_real   # creates data/raw/tide.parquet, verifies SHA‑256, writes data/raw/tide.csv and data/raw/tide.sha256 -> rc=1
-^^^^^^^^^^^^^^^^^
+        ^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/datasets/load.py", line 1908, in dataset_module_factory
     raise e1 from None
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/datasets/load.py", line 1858, in dataset_module_factory
     raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'deeplearning-tide/tide' doesn't exist on the Hub or cannot be accessed.
+datasets.exceptions.DatasetNotFoundError: Dataset 'code_xglue_eval' doesn't exist on the Hub or cannot be accessed.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 132, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 142, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 77, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 79, in main
     raise RuntimeError(f"Could not load dataset '{REPO_ID}'.") from e
-RuntimeError: Could not load dataset 'deeplearning-tide/tide'.
+RuntimeError: Could not load dataset 'code_xglue_eval'.
 
 - python -m pytest -q src/data/test_acquire_real.py   # asserts exit code 0 and checksum match -> rc=4
 
