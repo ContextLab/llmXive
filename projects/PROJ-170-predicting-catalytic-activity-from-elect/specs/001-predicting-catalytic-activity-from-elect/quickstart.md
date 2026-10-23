@@ -2,16 +2,16 @@
 
 ## Prerequisites
 
-- Python 3.11 or newer
-- Internet access (for dataset streaming and MP API)
-- Materials Project API key set as environment variable `MP_API_KEY`
-- GitHub Actions‑compatible runner (2 CPU cores, ≤7 GB RAM, ≤14 GB disk)
+- Python 3.11 or newer  
+- Internet access (for dataset streaming and Materials Project API)  
+- Materials Project API key exported as `MP_API_KEY`  
+- GitHub Actions‑compatible runner (2 CPU cores, ≤7 GB RAM, ≤14 GB disk)
 
 ## Installation
 
 ```bash
-# Clone the repository (assume you are already in the project root)
-git clone https://github.com/your-org/PROJ-170-predicting-catalytic-activity.git
+# Clone the repository
+git clone 
 cd PROJ-170-predicting-catalytic-activity
 
 # Create and activate a virtual environment
@@ -41,83 +41,64 @@ tqdm==4.66.2
 
 ## Step‑by‑Step Execution
 
-1. **Create directory skeleton** (required for integration tests):
+1. **Create required directories** (the skeleton test expects these):
 
    ```bash
    python - <<'PY'
-import pathlib
+import pathlib, os
 for sub in ["data/raw", "data/processed", "outputs", "tests/unit", "tests/integration", "tests/contract"]:
     pathlib.Path(sub).mkdir(parents=True, exist_ok=True)
 PY
    ```
 
-2. **Download data** (raw OC20, MP descriptors) and verify columns:
+2. **Download raw data** (OC20 parquet shards and Materials Project descriptors) and verify expected columns:
 
    ```bash
    python code/download_data.py
    ```
 
-   *Outputs*: `data/raw/oc20_parquet/`, `data/raw/mp_cache.json`, `required_columns.json`
+   *Outputs*: `data/raw/oc20_parquet/`, `data/raw/mp_cache.json`, `required_columns.json`, `data/checksums.txt`
 
-3. **Extract electronic descriptors** (no intermediate persisted file):
+3. **Extract electronic descriptors** (no intermediate persisted file; processing is streamed):
 
    ```bash
    python code/extract_descriptors.py
    ```
 
-4. **Preprocess & align** (impute, scale, generate `aligned_dataset.csv` and related logs):
+4. **Preprocess & align** (impute missing values, scale, produce unified CSV). Because no experimental TOF dataset is currently available, the target column will be left null:
 
    ```bash
    python code/preprocess.py
    ```
 
-   *Outputs*: `data/processed/aligned_dataset.csv`, `outputs/alignment_metrics.json`, `outputs/alignment_failure.json`, `outputs/imputation_log.json`, `outputs/scaling_report.json`
+   *Outputs*: `data/processed/aligned_dataset.csv`, `outputs/alignment_metrics.json`, `outputs/scaling_report.json`, `outputs/imputation_log.json`
 
-5. **Train models & evaluate** (nested CV with outer hold‑out):
-
+5. **(Optional) Model training & evaluation**  
+   *Only run after an open experimental TOF dataset has been provided.*  
    ```bash
-   python code/train.py
-   ```
-
-   *Outputs*: `code/models/best_xgboost.json`, `outputs/best_params.json`, `outputs/metrics.json`, `outputs/normality_test.json`, `outputs/statistical_test.json`
-
-6. **Reduced‑model verification (SC‑003)**:
-
-   ```bash
-   python code/evaluate_reduced.py
-   ```
-
-   *Outputs*: `outputs/reduced_model_metrics.json`
-
-7. **Interpretability (SHAP)**:
-
-   ```bash
+   python code/train.py          # XGBoost
+   python code/train_baseline.py
+   python code/stat_test.py
    python code/interpret.py
-   ```
-
-   *Outputs*: `outputs/shap_rankings.csv`, `outputs/shap_barplot.png`
-
-8. **Generate final report**:
-
-   ```bash
+   python code/evaluate_reduced.py
    python code/report.py
    ```
 
-   *Output*: `outputs/final_report.md`
-
-9. **Run the test suite** (ensures directory existence, schema compliance, edge‑case handling):
+6. **Run the full test suite** (ensures reproducibility, schema compliance, edge‑case handling, runtime (`metrics.json.total_seconds`)):
 
    ```bash
    pytest -v
    ```
 
-   Expected outcome: all tests pass, confirming reproducibility and constitutional compliance.
+   Expected outcome: all tests pass, confirming that the pipeline up to alignment satisfies the constitution and all FR/SC that are currently realizable.
 
 ## Expected Runtime & Resource Usage
 
-- **Total wall‑clock time**: ≤ 3 hours on the standard GitHub Actions runner (SC‑004 limit: ≤ 6 h).  
-- **Peak RAM**: ≤ 5 GB (due to streaming and chunked descriptor extraction).  
-- **Disk consumption**: ≤ 12 GB (raw parquet shards are streamed; only processed CSV (a few hundred MB) remains).  
+- **Total wall‑clock time**: ≤ 2 hours for the alignment‑only pipeline on the standard GitHub Actions runner (SC‑004 limit: ≤ 6 h).  
+- **Peak RAM**: ≤ 5 GB (streaming + chunked descriptor extraction).  
+- **Disk consumption**: ≤ 12 GB (raw parquet streamed; final CSV a few hundred MB).  
 
-All steps are CPU‑only; no GPU resources are required.  
+All steps are CPU‑only; no GPU resources are required.
+
+---
 

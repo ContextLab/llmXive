@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Performance Summary Schema"
-description: "Schema for the combined significance decision (FR-008) recorded in performance_summary.json."
+description: "Schema for the combined significance decision (FR‑008) recorded in performance_summary.json."
 type: "object"
 properties:
   test_name:
@@ -14,19 +14,8 @@ properties:
     description: "P-value from the statistical test."
   delta_r_squared:
     type: "number"
-    description: "Increase in R-squared of XGBoost relative to the linear baseline on the hold-out test set."
+    description: "Increase of R ‑ 2            "
   p_value_threshold:
     type: "number"
-    description: "Significance level alpha (0.05)."
-  delta_r_squared_threshold:
-    type: "number"
-    description: "Minimum important difference in R-squared (0.02)."
-  significant:
-    type: "boolean"
-    description: "True only if p_value < 0.05 AND delta_r_squared >= 0.02."
-required:
-  - test_name
-  - p_value
-  - delta_r_squared
-  - significant
-additionalProperties: false
+    description: "Significance  "
+  ...

@@ -49,17 +49,17 @@ properties:
         description: "P-value from the statistical test."
       significant:
         type: "boolean"
-        description: "True if p-value < 0.05 and ΔR² ≥ 0.02."
+        description: "True if p-value < 0.05 and ΔMAE ≥ 0.1 log‑TOF."
     required:
       - test_type
       - p_value
       - significant
   alignment_rate:
     type: "number"
-    description: "Ratio of matched entries to total experimental entries (SC-002)."
+    description: "Ratio of matched entries to total experimental entries (SC‑002)."
   total_seconds:
     type: "number"
-    description: "Total pipeline runtime in seconds (SC-004)."
+    description: "Total pipeline runtime in seconds (SC‑004)."
   top_5_descriptors:
     type: "array"
     items:

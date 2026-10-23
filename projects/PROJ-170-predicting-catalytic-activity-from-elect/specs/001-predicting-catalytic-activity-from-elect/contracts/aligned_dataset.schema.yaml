@@ -55,7 +55,7 @@ properties:
     description: "Experimental turnover frequency (scaled). May be null if surrogate target is used."
   is_imputed:
     type: "boolean"
-    description: "True if any descriptor was imputed via k‑NN."
+    description: "True if any descriptor filled via k‑NN imputation."
   excluded_from_training:
     type: "boolean"
     description: "True if the entry is excluded from model training (e.g., insufficient neighbors, alignment failure)."

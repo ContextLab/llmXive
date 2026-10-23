@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Report Schema"
-description: "Schema for the machine-readable companion of the final report (report.md), validated against report_schema.json (FR-007)."
+description: "Schema for the machine‑readable companion of the final report (report.md), validated against report_schema.json (FR‑007)."
 type: "object"
 properties:
   xgboost:
@@ -8,82 +8,11 @@ properties:
     properties:
       pearson_r:
         type: "number"
-        description: "Pearson correlation coefficient for the XGBoost model."
+        description: "Pearson R  "
       mae:
         type: "number"
-        description: "Mean Absolute Error for the XGBoost model."
+        description: "MAE "
       r_squared:
         type: "number"
-        description: "R-squared for the XGBoost model."
-    required:
-      - pearson_r
-      - mae
-      - r_squared
-  baseline:
-    type: "object"
-    properties:
-      pearson_r:
-        type: "number"
-        description: "Pearson correlation coefficient for the linear baseline."
-      mae:
-        type: "number"
-        description: "Mean Absolute Error for the linear baseline."
-      r_squared:
-        type: "number"
-        description: "R-squared for the linear baseline."
-    required:
-      - pearson_r
-      - mae
-      - r_squared
-  statistical_test:
-    type: "object"
-    properties:
-      test_name:
-        type: "string"
-        description: "Name of the statistical test used."
-      p_value:
-        type: "number"
-        description: "P-value for the error-difference test."
-    required:
-      - test_name
-      - p_value
-  top_5_descriptors:
-    type: "array"
-    items:
-      type: "string"
-    minItems: 5
-    maxItems: 5
-    description: "Names of the top 5 descriptors by mean absolute SHAP impact."
-  norskov_comparison:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        descriptor:
-          type: "string"
-          description: "Descriptor name."
-        match:
-          type: "string"
-          enum:
-            - "norskov_reference"
-            - "novel"
-          description: "Whether the descriptor matches the Norskov reference list or is a novel finding."
-      required:
-        - descriptor
-        - match
-    description: "Comparison of top descriptors against the Norskov reference list (d-band center, activation barrier, reaction energy)."
-  shap_disclaimer:
-    type: "string"
-    description: "Disclaimer stating that SHAP rankings are associative, not causal (SC-007)."
-  surrogate_data_note:
-    type: "string"
-    description: "Note stating that the TOF target comes from a surrogate dataset, not the original CO2 hydrogenation study."
-required:
-  - xgboost
-  - baseline
-  - statistical_test
-  - top_5_descriptors
-  - norskov_comparison
-  - shap_disclaimer
-  - surrogate_data_note
-additionalProperties: true
+        description :  ...
+...

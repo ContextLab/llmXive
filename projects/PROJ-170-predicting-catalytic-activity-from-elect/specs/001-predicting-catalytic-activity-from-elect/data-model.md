@@ -3,38 +3,38 @@
 ## Entity Definitions
 
 ### CatalystEntry
-Represents a single catalyst after alignment and preprocessing. The target variable is a **proxy DFT activation barrier** (used when experimental TOF is unavailable).
+Represents a single catalyst after alignment and preprocessing. The target variable is **experimental TOF** (when available); a placeholder null is used until an open dataset is provided.
 
 | Attribute | Type | Description | Source |
 |-----------|------|-------------|--------|
 | `catalyst_id` | str | Hash of (`composition`, `surface_facet`) | Derived |
 | `composition` | str | Chemical formula (e.g., `"Pt"`) | OC20 / MP |
 | `surface_facet` | str | Surface facet index (e.g., `"111"`) | OC20 / MP |
-| `synthesis_condition` | str \| null | Exact synthesis description (optional; may be null) | Experimental TOF (if available) |
-| `temperature` | number \| null | Reaction temperature (K) extracted from `synthesis_condition` (optional) | Experimental TOF (if available) |
+| `synthesis_condition` | str \| null | Exact synthesis description (optional) | Experimental TOF (if available) |
+| `temperature` | number \| null | Reaction temperature (K) (optional) | Experimental TOF (if available) |
 | `pressure` | number \| null | Reaction pressure (atm) (optional) | Experimental TOF (if available) |
 | `d_band_center` | float | d‑band center (eV, scaled) | Derived (pymatgen) |
 | `p_band_center` | float | p‑band center (eV, scaled) | Derived (pymatgen) |
 | `bader_charges` | float | Bader charge (e, scaled) | Derived (pymatgen) |
-| `activation_barrier` | float | Activation energy (eV, scaled) – **used as proxy target** | Derived (pymatgen) |
+| `activation_barrier` | float | Activation energy (eV, scaled) | Derived (pymatgen) |
 | `reaction_energy` | float | Reaction energy (eV, scaled) | Derived (pymatgen) |
 | `coordination_number` | float | Avg. coordination number (scaled) | Derived (pymatgen) |
 | `surface_area` | float | Surface area (scaled) | Derived (pymatgen) |
-| `experimental_tof` | float \| null | Experimental TOF (if an open dataset becomes available) | – |
+| `experimental_tof` | float \| null | Experimental turnover frequency (scaled). **Will be populated when an open TOF dataset is supplied**. |
 | `is_imputed` | bool | True if any descriptor was imputed via k‑NN. | Derived |
-| `excluded_from_training` | bool | True if entry was dropped for insufficient neighbors, missing optional covariates, or alignment failure. | Derived |
+| `excluded_from_training` | bool | True if entry was dropped for insufficient neighbors, alignment failure, or missing mandatory covariates. | Derived |
 
 ### ModelMetrics
 Performance statistics for each trained model.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `model_type` | str | `"XGBoost"` or `"Linear"` or `"Reduced"` |
+| `model_type` | str | `"XGBoost"` / `"Linear"` / `"Reduced"` |
 | `r_squared` | float | R² on hold‑out test set |
 | `mean_absolute_error` | float | MAE on test set |
 | `pearson_r` | float | Pearson correlation coefficient |
 | `test_size` | int | Number of test samples |
-| `hyperparameters` | object | Hyperparameter dictionary (for XGBoost) |
+| `hyperparameters` | object | Hyperparameter dict (for XGBoost) |
 
 ### FeatureImportance
 SHAP‑based ranking entry.
@@ -53,15 +53,15 @@ SHAP‑based ranking entry.
 | `r_squared_full` | float | R² of the full XGBoost model |
 | `r_squared_reduced` | float | R² of the top‑5 descriptor model |
 | `ratio` | float | `r_squared_reduced / r_squared_full` |
-| `passes_sc003` | bool | True if `ratio ≥ 0.50` |
+| `passes_sc003` | bool | True if `ratio ≥ 0.50` |
 
 ### PerformanceSummary (FR‑008)
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `p_value` | float | p‑value from the paired t‑test or Wilcoxon signed‑rank test |
-| `delta_r_squared` | float | R²(XGBoost) − R²(baseline) on the hold‑out test set |
-| `significant` | bool | True only when `p_value < 0.05` **and** `delta_r_squared ≥ 0.02` |
+| `p_value` | float | P‑value from paired test |
+| `delta_mae` | float | Reduction in MAE on the log‑TOF scale (ΔMAE) |
+| `significant` | bool | True only when `p_value < 0.05` **and** `delta_mae ≥ 0.1` (log‑TOF units) |
 
 ## Data Flow Diagram
 
@@ -75,49 +75,43 @@ graph TD
     E -->|<5 neighbors| G[Excluded Log]
     F --> H[Scaling]
     H --> I[aligned_dataset.csv]
-    I --> J[XGBoost CV Grid]
-    I --> K[Linear Baseline]
-    J --> L[Best XGBoost Model]
-    K --> M[Baseline Metrics]
-    L --> N[SHAP Analysis]
-    N --> O[Feature Importance Ranking]
-    O --> P[Reduced Model Top‑5]
-    L --> Q[Metrics JSON]
-    P --> R[Reduced Model Metrics]
-    Q --> S[Performance Summary]
-    R --> S
-    S --> T[Final Report]
+    I --> J[Hold‑out Split (pending TOF)]
+    J --> K[Model Training (deferred)]
+    K --> L[SHAP Analysis (deferred)]
+    L --> M[Reduced Model (deferred)]
+    M --> N[Final Report (deferred)]
 ```
 
 ## Data Quality Rules
 
-1. **No NaN in `activation_barrier`** – This field is the proxy target and must be present for all entries.  
-2. **Exact Alignment** – `composition` and `surface_facet` must match exactly; optional fields `temperature`, `pressure`, `synthesis_condition` are matched when present.  
-3. **Imputation Flag** – `is_imputed=True` for any descriptor derived via k‑NN.  
-4. **Exclusion Log** – All rows with `<5` neighbors or alignment failures are recorded in `outputs/imputation_log.json` and `outputs/alignment_log.json`.  
-5. **Checksum** – SHA‑256 checksums for every raw and processed file stored in `data/checksums.txt` and the project state file.  
+1. **No NaN in required descriptors** – all numeric descriptor columns must be populated after imputation.  
+2. **Exact alignment** – `composition` and `surface_facet` must match exactly; optional fields matched when present.  
+3. **Imputation flag** – `is_imputed=True` if any descriptor was filled via k‑NN.  
+4. **Exclusion logging** – rows with `<5` neighbors or alignment failures are recorded in `outputs/imputation_log.json` and `outputs/alignment_log.json`.  
+5. **Checksum** – SHA‑256 hashes for every raw and processed file stored in `data/checksums.txt` and the project state file.  
 
 ## Storage Layout
 
 ```
 data/
 ├── raw/
-│   ├── oc20_parquet/                # streamed chunks
+│   ├── oc20_parquet/                # streamed shards
 │   └── mp_cache.json                # cached MP descriptors
 ├── processed/
-│   └── aligned_dataset.csv          # final cleaned, imputed, scaled table
+│   └── aligned_dataset.csv          # final cleaned, imputed, scaled table (experimental_tof may be null)
 └── checksums.txt                    # SHA‑256 hashes
+
 outputs/
 ├── alignment_metrics.json
 ├── alignment_failure.json
 ├── scaling_report.json
 ├── imputation_log.json
 ├── required_columns.json
-├── best_params.json
-├── best_xgboost.json
+├── best_params.json                # will be created after TOF data available
+├── best_xgboost.json               # will be created after TOF data available
 ├── normality_test.json
 ├── statistical_test.json
-├── shap_rankings.csv
+├── shap_rankings.csv               # validated against feature_importance.schema.yaml
 ├── shap_barplot.png
 ├── reduced_model_metrics.json
 ├── performance_summary.json
@@ -127,5 +121,8 @@ outputs/
 
 ## Versioning & Validation
 
-- All output files are validated against the corresponding JSON/YAML schemas in `contracts/`.  
+- All output files are validated against the JSON/YAML schemas in `contracts/`.  
 - Content hashes are recorded in `state/projects/PROJ-170-predicting-catalytic-activity.yaml` for reproducibility.  
+
+---
+
