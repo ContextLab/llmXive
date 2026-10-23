@@ -6,3 +6,21 @@ T001:
     \ and documents the demo command `python -m code.main --demo`. The required optional\
     \ guide is present and non\u2011empty."
   sig: 8de98d6cefba8f62a10a324eb5d33d2f0cd93d6549e3aa7a47ef6d1fcabcc5ac
+T002:
+  c: false
+  h: 51b4135c8c463fa65c31629170ac04721aa070de7088ca77e00a669b66fecc6a
+  r: "The repository contains a full `code/sieve.py` implementation, but the required\
+    \ output file `data/raw/mobius_array.npy` (and the corresponding packed file)\
+    \ is missing, so the unit tests in `tests/unit/test_sieve.py` that load these\
+    \ files cannot succeed. The absence of these artifacts means the task\u2019s core\
+    \ deliverable is not present."
+  sig: ee497922bcfd99e7a8690032cfae978574b663557680db220de89aee1551dbc0
+T003:
+  c: false
+  h: d95a1c682d335bc68c26c3c1cbc59dab47816dd7dd892809fd099b3d5a2fc581
+  r: "The repository contains `code/pack.py` and the test suite, but the required\
+    \ data files `data/raw/mobius_array.npy` and `data/raw/mobius_2bit.npy` are missing,\
+    \ causing the round\u2011trip tests to error. Consequently the checksum manifest\
+    \ cannot be verified against real files, so the task\u2019s core deliverables\
+    \ are not present."
+  sig: 923278ff90eea781471cd22f7d3f6bdbd57981ee02e265d76b9b28e157bf1706

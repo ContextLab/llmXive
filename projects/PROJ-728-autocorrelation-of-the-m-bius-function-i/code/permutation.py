@@ -3,46 +3,46 @@ permutation.py
 ---------------
 Implements the permutation engine to generate a null distribution for the
 Möbius autocorrelation. For each window, it preserves the zero positions
-and uniformly shuffles the signs of non-zero entries to test the
+and uniformly shuffles the signs of non‑zero entries to test the
 "random sign heuristic".
 
-The script computes two-sided p-values and 95% confidence intervals for
-all lags h = 1...floor(L/2) using batched FFTs.
+The script computes two‑sided p‑values and 95 % confidence intervals for
+all lags ``h = 1 … ⌊L/2⌋`` using batched FFTs.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
-import json
-import numpy as np
-import pandas as pd
 from pathlib import Path
-from typing import Optional, List
+from typing import List
+
+import numpy as np
 
 __all__ = [
     "generate_zero_preserving_permutations",
     "generate_permutations",   # Compatibility alias for legacy imports
     "compute_batched_autocorrelations",
     "main",
+    "_load_mobius_array",      # Exported for ``null_distribution`` compatibility
 ]
 
+
 def _ensure_parent_dir(p: Path) -> None:
-    """Create the parent directory of p if it does not exist."""
+    """Create the parent directory of ``p`` if it does not exist."""
     p.parent.mkdir(parents=True, exist_ok=True)
+
 
 def generate_zero_preserving_permutations(
     window: np.ndarray, n_permutations: int, seed: int
 ) -> np.ndarray:
     """
-    Generate n_permutations that keep zero positions fixed and uniformly
-    shuffle the signs of the non-zero entries.
+    Generate ``n_permutations`` windows that keep zero positions fixed and
+    uniformly shuffle the signs of the non‑zero entries.
     """
-    # Boolean mask of zero positions
     zero_mask = (window == 0)
-    # Extract the mutable sign entries (+1, -1)
     signs = window[~zero_mask]
-    
+
     rng = np.random.default_rng(seed)
     perms = np.empty((n_permutations, len(window)), dtype=window.dtype)
 
@@ -54,6 +54,7 @@ def generate_zero_preserving_permutations(
         perms[i] = new_win
 
     return perms
+
 
 # ----------------------------------------------------------------------
 # Compatibility layer
@@ -73,74 +74,124 @@ def generate_permutations(
     """
     return generate_zero_preserving_permutations(window, n_permutations, seed)
 
+
 def compute_batched_autocorrelations(sequences: np.ndarray, L: int) -> np.ndarray:
     """
-    Compute normalized autocorrelations for all lags h = 1...floor(L/2)
+    Compute normalized autocorrelations for all lags ``h = 1 … ⌊L/2⌋``
     for multiple sequences using batched FFT.
-    
-    Parameters:
-        sequences: 2D array of shape (n_seq, L)
-        L: Length of the window
-    Returns:
-        2D array of shape (n_seq, L//2)
+
+    Parameters
+    ----------
+    sequences : np.ndarray
+        2‑D array of shape ``(n_seq, L)``.
+    L : int
+        Length of the window.
+
+    Returns
+    -------
+    np.ndarray
+        2‑D array of shape ``(n_seq, L//2)`` containing the normalized
+        autocorrelations.
     """
     n_seq = sequences.shape[0]
-    # Padding to 2L to avoid circular correlation
-    n_fft = 2 * L
-    
+    n_fft = 2 * L  # Padding to avoid circular correlation
+
     # Real FFT across the last axis
     fft_vals = np.fft.rfft(sequences, n=n_fft, axis=-1)
     # Power spectrum
     power_spectrum = fft_vals * np.conj(fft_vals)
-    # Inverse FFT to get linear autocorrelation sums
+    # Inverse FFT to obtain linear autocorrelation sums
     autocorr_full = np.fft.irfft(power_spectrum, n=n_fft, axis=-1)
 
-    # Normalise each lag h = 1 .. L//2
+    # Normalise each lag ``h = 1 .. L//2``
     max_lag = L // 2
     lags = np.arange(1, max_lag + 1, dtype=np.int64)
-    # Extract the sums for the required lags
-    sums = autocorr_full[:, lags]
-    # Normalization factor (L - h)
-    normalisers = (L - lags).astype(np.float64)
-    
+    sums = autocorr_full[:, lags]               # shape (n_seq, max_lag)
+    normalisers = (L - lags).astype(np.float64)  # shape (max_lag,)
+
     return sums.astype(np.float64) / normalisers
 
+
 def _compute_single_window_obs(mobius: np.ndarray, start: int, L: int) -> np.ndarray:
-    """Compute observed autocorrelations for all lags h = 1...L//2."""
-    # Use the same FFT logic as the batched version but for one sequence
+    """
+    Compute observed autocorrelations for all lags ``h = 1 … L//2`` of a
+    single window using the same FFT logic as the batched version.
+    """
     window = mobius[start : start + L]
-    # Reshape to (1, L) to reuse compute_batched_autocorrelations
-    res = compute_batched_autocorrelations(window[np.newaxis, :], L)
-    return res[0]
+    # Re‑use the batched routine with a single‑row input.
+    return compute_batched_autocorrelations(window[np.newaxis, :], L)[0]
+
+
+# ----------------------------------------------------------------------
+# Helper added for ``null_distribution`` compatibility
+# ----------------------------------------------------------------------
+def _load_mobius_array() -> np.ndarray:
+    """
+    Load the Möbius array from the default location used by the pipeline
+    (``data/raw/mobius_array.npy``).
+
+    This function is required by ``code.null_distribution`` which imports
+    it at module import time.  It raises ``FileNotFoundError`` if the
+    expected file does not exist.
+    """
+    mobius_path = Path("data/raw/mobius_array.npy")
+    if not mobius_path.is_file():
+        raise FileNotFoundError(f"Möbius array not found at {mobius_path}")
+    # ``allow_pickle=False`` is the safe default for numeric arrays.
+    return np.load(mobius_path, allow_pickle=False)
+
 
 def main() -> None:
     """
     Pipeline entry point for T007: Permutation engine & null distribution.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--stats", type=Path, required=True, help="Output stats CSV")
-    parser.add_argument("--array", type=Path, required=True, help="Möbius array npy")
+    parser.add_argument(
+        "--stats",
+        type=Path,
+        required=True,
+        help="Output statistics CSV path",
+    )
+    parser.add_argument(
+        "--array",
+        type=Path,
+        required=True,
+        help="Path to the Möbius ``.npy`` array",
+    )
     args = parser.parse_args()
 
-    # Load data
+    # Load Möbius data
     if not args.array.is_file():
         raise FileNotFoundError(f"Möbius array not found: {args.array}")
     mobius = np.load(args.array)
 
+    # Load window index CSV
     window_index_path = Path("data/processed/window_index.csv")
     if not window_index_path.is_file():
         raise FileNotFoundError(f"Window index not found: {window_index_path}")
-    
+
+    # Import pandas lazily – this avoids import‑time failures that would
+    # prevent ``_load_mobius_array`` from being available to ``null_distribution``.
+    import pandas as pd  # pylint: disable=import-outside-toplevel
+
     windows_df = pd.read_csv(window_index_path)
 
-    # Setup CSV output
+    # Prepare CSV output
     header = [
-        "interval_start", "interval_length", "lag", "autocorrelation",
-        "p_value", "adjusted_p_value", "ci_lower", "ci_upper",
-        "zero_count", "sensitivity_flag", "theoretical_variance"
+        "interval_start",
+        "interval_length",
+        "lag",
+        "autocorrelation",
+        "p_value",
+        "adjusted_p_value",
+        "ci_lower",
+        "ci_upper",
+        "zero_count",
+        "sensitivity_flag",
+        "theoretical_variance",
     ]
     _ensure_parent_dir(args.stats)
-    
+
     # Constants
     N_PERMS = 1000
     BASE_SEED = 20231017
@@ -154,52 +205,60 @@ def main() -> None:
             start = int(row["interval_start"])
             L = int(row["interval_length"])
             window_id = int(row["window_id"])
-            
+
             window = mobius[start : start + L]
             zero_count = int(np.count_nonzero(window == 0))
 
             if zero_count == L:
-                # All zeros: undefined autocorrelation
+                # All zeros – undefined autocorrelation; write NaNs.
                 max_lag = L // 2
                 for lag in range(1, max_lag + 1):
                     writer.writerow([
-                        start, L, lag, np.nan, np.nan, np.nan, 
-                        np.nan, np.nan, zero_count, "not_applicable", SIGMA2 / L
+                        start, L, lag,
+                        np.nan, np.nan, np.nan,
+                        np.nan, np.nan,
+                        zero_count, "not_applicable",
+                        SIGMA2 / L,
                     ])
                 continue
 
-            # 1. Observed values
+            # 1. Observed autocorrelations for this window
             obs_vals = _compute_single_window_obs(mobius, start, L)
 
-            # 2. Null distribution
+            # 2. Generate permutations preserving zero positions
             seed = BASE_SEED + window_id
             perms = generate_zero_preserving_permutations(window, N_PERMS, seed)
+
+            # 3. Compute autocorrelations for all permutations (batched)
             null_matrix = compute_batched_autocorrelations(perms, L)
 
-            # 3. Process each lag
+            # 4. Process each lag
             max_lag = L // 2
             for lag_idx in range(max_lag):
                 lag = lag_idx + 1
                 obs = obs_vals[lag_idx]
                 null_vals = null_matrix[:, lag_idx]
 
-                # Two-sided p-value: (#{|r_perm| >= |r_obs|} + 1) / 1001
-                count_extreme = np.sum(np.abs(null_vals) >= np.abs(obs))
-                p_val = (count_extreme + 1) / (N_PERMS + 1)
-
-                # Clamp p-values
+                # Two‑sided p‑value with +1 smoothing (as required by the spec)
+                extreme = np.sum(np.abs(null_vals) >= np.abs(obs))
+                p_val = (extreme + 1) / (N_PERMS + 1)
+                # Clamp to avoid exact 0/1
                 p_val = max(0.001, min(0.999, p_val))
 
-                # Confidence Bounds
+                # Confidence interval (2.5 % / 97.5 %)
                 ci_lower = np.percentile(null_vals, 2.5)
                 ci_upper = np.percentile(null_vals, 97.5)
 
                 writer.writerow([
-                    start, L, lag, float(obs), float(p_val), np.nan,
-                    float(ci_lower), float(ci_upper), zero_count, "stable", SIGMA2 / L
+                    start, L, lag,
+                    float(obs), float(p_val), np.nan,
+                    float(ci_lower), float(ci_upper),
+                    zero_count, "stable",
+                    SIGMA2 / L,
                 ])
 
-    print(f"Successfully wrote permutation stats to {args.stats}")
+    print(f"Successfully wrote permutation statistics to {args.stats}")
+
 
 if __name__ == "__main__":
     main()
