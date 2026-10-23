@@ -7,26 +7,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_loader.py -> rc=1
- 4024, in _iter_repo_tree_pages
-    for page, finished in _paginate_pages(
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-126-predicting-avian-migration-patterns-from/lib/python3.11/site-packages/huggingface_hub/utils/_pagination.py", line 42, in _paginate_pages
-    hf_raise_for_status(r)
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-126-predicting-avian-migration-patterns-from/lib/python3.11/site-packages/huggingface_hub/utils/_http.py", line 953, in hf_raise_for_status
-    raise _format(RepositoryNotFoundError, message, response, repo_type=repo_type, repo_id=repo_id) from e
-huggingface_hub.errors.RepositoryNotFoundError: 401 Client Error. (Request ID: Root=1-6adb94aa-7f009d9d0a9e2660673f482e;25ba529f-f950-4ee3-8348-568c6c0f6888)
 
-Repository Not Found for url: https://huggingface.co/api/models/vvud/eb-data/tree/main?recursive=true&expand=false.
-Please make sure you specified the correct `repo_id` and `repo_type`.
-If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
-For more details, see https://huggingface.co/docs/huggingface_hub/authentication
-Invalid username or password.
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 13, in <module>
+    from datasets import load_dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-126-predicting-avian-migration-patterns-from/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-126-predicting-avian-migration-patterns-from/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-126-predicting-avian-migration-patterns-from/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - bash code/run_pipeline.sh -> rc=-1
 
 shell script must be an existing project-local .sh file
 - python -m pytest tests/ -v -> rc=2
-866971868/matplotlib/_fontconfig_pattern.py:92
-../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+y311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
   /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
@@ -37,11 +35,13 @@ shell script must be an existing project-local .sh file
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
+ERROR tests/integration/test_data_loader_ebird.py
+ERROR tests/unit/test_data_loader.py
 ERROR tests/unit/test_first_arrival_sweep.py
 ERROR tests/unit/test_grid_aggregation.py
 ERROR tests/unit/test_regional_map.py - NameError: name 'Optional' is not def...
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 23 warnings, 3 errors in 2.03s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 20 warnings, 5 errors in 3.19s ========================
 
 
 

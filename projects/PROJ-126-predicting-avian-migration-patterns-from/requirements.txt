@@ -1,1 +1,13 @@
-datasets==2.19.0
+datasets
+xgboost==2.0.3
+shap==0.45.0
+scikit-learn==1.4.2
+pandas==2.2.2
+dask[dataframe]==2024.5.0
+geopandas==0.14.4
+rasterio==1.3.10
+numpy==1.26.4
+statsmodels==0.14.2
+arch==6.0.0
+psutil==5.9.8
+sklearn-rbf==0.1.0
