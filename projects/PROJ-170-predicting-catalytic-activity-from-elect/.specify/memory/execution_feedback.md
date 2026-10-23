@@ -19,18 +19,32 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/processed/oc20_descriptors.parquet, data/raw/experimental_tof.csv, data/raw/mp_descriptors.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/processed/oc20_descriptors.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/extract_descriptors.py: self-declared fabricated metric — “…ion`` column (filled with the placeholder value ``Unknown``),     and write a…”; every produced artifact is gitignored (data/processed/oc20_descriptors.parquet, data/raw/experimental_tof.csv, data/raw/mp_descriptors.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 run-book script(s) missing (plan/impl path mismatch): python code/train_baseline.py; python code/stat_test.py; python code/evaluate_reduced.py; 5 command(s) failed: python code/preprocess.py (rc=1); python code/train.py          # XGBoost (rc=1); python code/interpret.py (rc=1); 1 declared deliverable(s) absent: data/processed/aligned_dataset.csv
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/extract_descriptors.py: self-declared fabricated metric — “…ion`` column (filled with the placeholder value ``Unknown``),     and write a…”; every produced artifact is gitignored (data/processed/oc20_descriptors.parquet) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 run-book script(s) missing (plan/impl path mismatch): python code/train_baseline.py; python code/stat_test.py; python code/evaluate_reduced.py; 6 command(s) failed: python code/download_data.py (rc=1); python code/preprocess.py (rc=1); python code/train.py          # XGBoost (rc=1); 1 declared deliverable(s) absent: data/processed/aligned_dataset.csv
 
 ## Failing / missing run-book commands
 
+- python code/download_data.py -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 31, in <module>
+    from mp_api.client import MPRester
+ModuleNotFoundError: No module named 'mp_api'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 33, in <module>
+    raise ImportError(
+ImportError: The `mp-api` package is required for Materials Project descriptor download. Install it via `pip install mp-api`.
+
 - python code/preprocess.py -> rc=1
- 19:12:27,983 - __main__ - INFO - Loading unified dataset from /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/data/processed/unified_dataset.parquet
-2026-10-23 19:12:28,013 - __main__ - INFO - Loaded dataset with shape (891, 22)
-2026-10-23 19:12:28,013 - __main__ - ERROR - Error in T104: name 'build_stoichiometry_vocabulary' is not defined
+ 19:28:03,487 - __main__ - INFO - Loading unified dataset from /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/data/processed/unified_dataset.parquet
+2026-10-23 19:28:03,515 - __main__ - INFO - Loaded dataset with shape (891, 22)
+2026-10-23 19:28:03,515 - __main__ - ERROR - Error in T104: name 'build_stoichiometry_vocabulary' is not defined
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py", line 75, in main
     vocab = build_stoichiometry_vocabulary(df)
@@ -67,10 +81,10 @@ FileNotFoundError: Aligned dataset not found at /home/runner/work/llmXive/llmXiv
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-170-predicting-catalytic-activity-from-elect/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/stat_test.py': [Errno 2] No such file or directory
 
 - python code/interpret.py -> rc=1
-026-10-23 19:12:30,714 INFO __main__: ================================================================================
-2026-10-23 19:12:30,714 INFO __main__: T106: SHAP Analysis and SC-003 Verification
-2026-10-23 19:12:30,714 INFO __main__: ================================================================================
-2026-10-23 19:12:30,714 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
+026-10-23 19:28:05,897 INFO __main__: ================================================================================
+2026-10-23 19:28:05,897 INFO __main__: T106: SHAP Analysis and SC-003 Verification
+2026-10-23 19:28:05,897 INFO __main__: ================================================================================
+2026-10-23 19:28:05,897 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/interpret.py", line 287, in main
     model_full = load_best_xgboost_model()
@@ -84,7 +98,7 @@ FileNotFoundError: Best XGBoost model not found at /home/runner/work/llmXive/llm
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-170-predicting-catalytic-activity-from-elect/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/evaluate_reduced.py': [Errno 2] No such file or directory
 
 - python code/report.py -> rc=1
-3 19:12:31,058 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
+3 19:28:06,237 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/report.py", line 247, in main
     output_file = run_report_generation()
@@ -99,8 +113,7 @@ Traceback (most recent call last):
 FileNotFoundError: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
 
 - python -m pytest -v -> rc=2
-m preprocess import (
-E   ImportError: cannot import name 'normalize_composition' from 'preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py)
+home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py)
 
 During handling of the above exception, another exception occurred:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
@@ -110,14 +123,17 @@ tests/unit/test_preprocess.py:17: in <module>
 E   ImportError: cannot import name 'normalize_composition' from 'code.preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py)
 =========================== short test summary info ============================
 ERROR tests/test_config.py
+ERROR tests/test_download.py
+ERROR tests/test_download_data.py
 ERROR tests/test_generate_aligned_dataset.py
 ERROR tests/test_hashing.py
 ERROR tests/test_preprocess.py
 ERROR tests/test_preprocess_scaling.py
 ERROR tests/test_report.py
+ERROR tests/unit/test_download_data.py
 ERROR tests/unit/test_preprocess.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.39s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 10 errors in 1.48s ==============================
 
 
 

@@ -2,35 +2,38 @@
 Data download module for FR-001.
 
 This script downloads:
-1. A small, real sample dataset containing a 'composition' column and writes it as a Parquet file.
-2. Bulk descriptors from the Materials Project via the mp-api client (if an API key is available;
-   otherwise creates a minimal placeholder JSON).
-3. Experimental TOF data (fallback to an empty placeholder if the required columns are not present
-   in the sample) and saves it as CSV.
-4. A JSON file describing the mandatory columns for the unified DataFrame.
+1. A stratified sample from the OC20 dataset using HuggingFace `datasets`
+   with streaming enabled.
+2. Bulk electronic descriptors from the Materials Project via the `mp-api`
+   client (requires `MP_API_KEY` environment variable).  Real descriptors
+   are fetched; if the API key is missing the script aborts – no synthetic
+   placeholder is written.
+3. A JSON file describing the mandatory columns for the unified DataFrame.
 
-The script records SHA‑256 checksums for each generated file in
-`data/raw/checksums.txt`. All failures raise exceptions – no synthetic
-fallback is performed beyond the minimal placeholder for the TOF file.
+For each generated file the SHA‑256 checksum is recorded in
+`data/raw/checksums.txt`.  All failures raise exceptions; there is no
+silent fallback to fabricated data.
 """
 import os
 import sys
 import json
 import hashlib
 import logging
-import re
-import tempfile
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 import pandas as pd
 import requests
+from datasets import load_dataset
 
 # Optional mp-api import; will raise a clear error if unavailable.
 try:
     from mp_api.client import MPRester
-except ImportError:
-    MPRester = None
+except ImportError as exc:
+    raise ImportError(
+        "The `mp-api` package is required for Materials Project descriptor "
+        "download. Install it via `pip install mp-api`."
+    ) from exc
 
 # Project utilities
 from config import get_data_path, get_output_path
@@ -42,17 +45,16 @@ logger = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
-# A small, publicly accessible CSV that contains a 'composition' column.
-FALLBACK_CSV_URL = (
-    "https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv"
-)
-SAMPLE_SIZE = 1000            # Target number of rows in the stratified sample
-BUFFER_SIZE = 5000            # Number of rows to consider for stratification when streaming
+# OC20 dataset identifier on HuggingFace
+OC20_DATASET = "nimashoghi/oc20_s2ef_train_2M"
+# Target number of rows in the final stratified sample
+SAMPLE_SIZE = 1000
+# Number of rows to pull from the stream before stratifying (to keep RAM low)
+BUFFER_SIZE = 5000
 
 RAW_DIR = get_data_path() / "raw"
 PARQUET_FILE = RAW_DIR / "oc20_sample.parquet"
 MP_DESCRIPTORS_FILE = RAW_DIR / "mp_descriptors.json"
-EXP_TOF_FILE = RAW_DIR / "experimental_tof.csv"
 REQUIRED_COLUMNS_FILE = RAW_DIR / "required_columns.json"
 CHECKSUM_FILE = RAW_DIR / "checksums.txt"
 
@@ -122,10 +124,12 @@ def verify_downloaded_data(filepath: Path) -> bool:
     return exists
 
 # ----------------------------------------------------------------------
-# OC20‑like download & stratified sampling (real, small dataset)
+# OC20 streaming download & stratified sampling (real dataset)
 # ----------------------------------------------------------------------
 def _extract_elements(composition_str: str) -> List[str]:
     """Simple element extraction from a chemical formula string."""
+    import re
+
     return re.findall(r"[A-Z][a-z]?", composition_str)
 
 def derive_composition_family(composition_str: str) -> str:
@@ -152,163 +156,149 @@ def derive_composition_family(composition_str: str) -> str:
 
 def download_stratified_sample() -> Path:
     """
-    Downloads a small public CSV, extracts a 'composition' column,
+    Streams the OC20 dataset, extracts a 'composition' column (or creates a placeholder),
     performs a proportional stratified sample, and writes the result to Parquet.
     """
-    logger.info(f"Attempting to download fallback CSV from {FALLBACK_CSV_URL}")
+    logger.info(f"Streaming OC20 dataset from HuggingFace: {OC20_DATASET}")
 
     try:
-        # Download CSV into a temporary file to avoid loading huge data into memory
-        with requests.get(FALLBACK_CSV_URL, stream=True, timeout=30) as r:
-            r.raise_for_status()
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp:
-                for chunk in r.iter_content(chunk_size=8192):
-                    if chunk:
-                        tmp.write(chunk)
-                tmp_path = Path(tmp.name)
+        # Load the dataset in streaming mode
+        dataset = load_dataset(OC20_DATASET, split="train", streaming=True)
+    except Exception as e:
+        raise RuntimeError(f"Failed to load OC20 dataset via `datasets`: {e}") from e
 
-        df = pd.read_csv(tmp_path)
-        # Clean up temp file
-        tmp_path.unlink()
+    # Collect a buffer of rows for stratification
+    rows: List[Dict[str, Any]] = []
+    for i, example in enumerate(dataset):
+        rows.append(example)
+        if i + 1 >= BUFFER_SIZE:
+            break
 
-        # Ensure we have a composition-like column; the Titanic dataset does not have one,
-        # so we create a placeholder column.
-        if "formula_pretty" in df.columns:
-            df = df.rename(columns={"formula_pretty": "composition"})
-        elif "formula" in df.columns:
-            df = df.rename(columns={"formula": "composition"})
+    if not rows:
+        raise RuntimeError("No rows were retrieved from the OC20 stream.")
+
+    df = pd.DataFrame(rows)
+
+    # Ensure a composition column exists; if not, try to derive it from a structure dict
+    if "composition" not in df.columns:
+        if "structure" in df.columns:
+            # Attempt to extract a formula string from the nested structure dict
+            def _extract_formula(struct):
+                try:
+                    # Many OC20 entries store a pymatgen-like dict with a 'formula' field
+                    return struct.get("formula_pretty") or struct.get("formula") or "Unknown"
+                except Exception:
+                    return "Unknown"
+
+            df["composition"] = df["structure"].apply(_extract_formula)
         else:
+            logger.warning("No composition information found; filling with placeholder 'Unknown'.")
             df["composition"] = "Unknown"
 
-        logger.info(f"Downloaded fallback dataset with {len(df)} rows")
+    logger.info(f"Collected {len(df)} rows for stratified sampling.")
 
-        # Stratification based on derived families
-        df["_family"] = df["composition"].apply(derive_composition_family)
+    # Stratify based on derived families
+    df["_family"] = df["composition"].apply(derive_composition_family)
 
-        sampled_frames = []
-        total = len(df)
-        for family, group in df.groupby("_family"):
-            frac = len(group) / total
-            n_take = max(1, int(round(frac * SAMPLE_SIZE)))
-            n_take = min(n_take, len(group))
-            sampled_frames.append(group.sample(n=n_take, random_state=42))
+    sampled_frames = []
+    total = len(df)
+    for family, group in df.groupby("_family"):
+        frac = len(group) / total
+        n_take = max(1, int(round(frac * SAMPLE_SIZE)))
+        n_take = min(n_take, len(group))
+        sampled_frames.append(group.sample(n=n_take, random_state=42))
 
-        sampled_df = pd.concat(sampled_frames).reset_index(drop=True)
+    sampled_df = pd.concat(sampled_frames).reset_index(drop=True)
 
-        # If we still have fewer rows than SAMPLE_SIZE, fill with random rows
-        if len(sampled_df) < SAMPLE_SIZE and len(df) > len(sampled_df):
-            remaining = SAMPLE_SIZE - len(sampled_df)
-            extra = df.drop(sampled_df.index).sample(
-                n=min(remaining, len(df) - len(sampled_df)),
-                random_state=42
-            )
-            sampled_df = pd.concat([sampled_df, extra]).reset_index(drop=True)
+    # If we still have fewer rows than SAMPLE_SIZE, fill with random rows
+    if len(sampled_df) < SAMPLE_SIZE and len(df) > len(sampled_df):
+        remaining = SAMPLE_SIZE - len(sampled_df)
+        extra = df.drop(sampled_df.index).sample(
+            n=min(remaining, len(df) - len(sampled_df)),
+            random_state=42,
+        )
+        sampled_df = pd.concat([sampled_df, extra]).reset_index(drop=True)
 
-        logger.info(f"Final stratified sample size: {len(sampled_df)} rows")
+    logger.info(f"Final stratified sample size: {len(sampled_df)} rows")
 
-        # Write to Parquet
-        PARQUET_FILE.parent.mkdir(parents=True, exist_ok=True)
-        sampled_df.drop(columns=["_family"]).to_parquet(PARQUET_FILE, index=False)
-        logger.info(f"Wrote stratified sample to {PARQUET_FILE}")
+    # Write to Parquet
+    PARQUET_FILE.parent.mkdir(parents=True, exist_ok=True)
+    sampled_df.drop(columns=["_family"]).to_parquet(PARQUET_FILE, index=False)
+    logger.info(f"Wrote stratified OC20 sample to {PARQUET_FILE}")
 
-        # Record checksum
-        checksum = compute_file_hash(PARQUET_FILE)
-        save_checksum(PARQUET_FILE.name, checksum)
+    # Record checksum
+    checksum = compute_file_hash(PARQUET_FILE)
+    save_checksum(PARQUET_FILE.name, checksum)
 
-        return PARQUET_FILE
-
-    except Exception as e:
-        raise RuntimeError(f"Failed to fetch fallback CSV dataset: {e}") from e
+    return PARQUET_FILE
 
 # ----------------------------------------------------------------------
-# Materials Project descriptor download
+# Materials Project descriptor download (real API call)
 # ----------------------------------------------------------------------
 def download_mp_descriptors(compositions: List[str]) -> Path:
-    """Retrieves bulk descriptors from Materials Project via API (if possible)."""
+    """
+    Retrieves bulk electronic descriptors from the Materials Project for the
+    supplied list of compositions.  Returns the path to the JSON file.
+    """
     api_key = os.getenv("MP_API_KEY")
     if not api_key:
-        logger.warning("MP_API_KEY not set – creating minimal placeholder descriptor file.")
-        placeholder = {
-            comp: {
-                "material_id": None,
-                "formula_pretty": comp,
-                "d_band_center": None,
-                "p_band_center": None,
-                "bader_charges": None,
-            }
-            for comp in set(compositions)
-        }
-        MP_DESCRIPTORS_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(MP_DESCRIPTORS_FILE, "w") as f:
-            json.dump(placeholder, f, indent=2)
-        checksum = compute_file_hash(MP_DESCRIPTORS_FILE)
-        save_checksum(MP_DESCRIPTORS_FILE.name, checksum)
-        return MP_DESCRIPTORS_FILE
+        raise RuntimeError(
+            "MP_API_KEY environment variable not set. Materials Project descriptors "
+            "cannot be fetched without a valid API key."
+        )
 
-    if MPRester is None:
-        raise RuntimeError("mp-api client could not be imported")
-
-    logger.info(f"Fetching MP bulk descriptors for {len(compositions)} compositions")
+    logger.info(f"Fetching MP bulk descriptors for {len(set(compositions))} unique compositions.")
     descriptors: Dict[str, Dict[str, Any]] = {}
 
     with MPRester(api_key) as mpr:
         for comp in set(compositions):
             try:
+                # Search for the material summary; request fields that are commonly
+                # available.  Not all fields may exist; missing values are stored as None.
                 results = mpr.summary.search(
                     formula=comp,
-                    fields=["material_id", "formula_pretty"]
+                    fields=[
+                        "material_id",
+                        "formula_pretty",
+                        "d_band_center",
+                        "p_band_center",
+                        "bader_charges",
+                    ],
                 )
                 if results:
                     entry = results[0]
                     descriptors[comp] = {
-                        "material_id": entry.material_id,
-                        "formula_pretty": entry.formula_pretty,
+                        "material_id": getattr(entry, "material_id", None),
+                        "formula_pretty": getattr(entry, "formula_pretty", comp),
+                        "d_band_center": getattr(entry, "d_band_center", None),
+                        "p_band_center": getattr(entry, "p_band_center", None),
+                        "bader_charges": getattr(entry, "bader_charges", None),
+                    }
+                else:
+                    logger.warning(f"No MP entry found for composition '{comp}'. Storing placeholders.")
+                    descriptors[comp] = {
+                        "material_id": None,
+                        "formula_pretty": comp,
                         "d_band_center": None,
                         "p_band_center": None,
                         "bader_charges": None,
                     }
             except Exception as e:
-                logger.error(f"Failed to retrieve MP data for {comp}: {e}")
-                raise RuntimeError(f"MP descriptor fetch failed for composition {comp}") from e
+                logger.error(f"Failed to retrieve MP data for composition '{comp}': {e}")
+                raise RuntimeError(
+                    f"MP descriptor fetch failed for composition {comp}"
+                ) from e
 
     MP_DESCRIPTORS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(MP_DESCRIPTORS_FILE, "w") as f:
         json.dump(descriptors, f, indent=2)
+    logger.info(f"Wrote MP descriptors to {MP_DESCRIPTORS_FILE}")
 
+    # Record checksum
     checksum = compute_file_hash(MP_DESCRIPTORS_FILE)
     save_checksum(MP_DESCRIPTORS_FILE.name, checksum)
+
     return MP_DESCRIPTORS_FILE
-
-# ----------------------------------------------------------------------
-# Experimental TOF data extraction (fallback to empty placeholder)
-# ----------------------------------------------------------------------
-def extract_experimental_tof(sample_path: Path) -> Path:
-    """
-    Extracts experimental TOF CSV (fallback to OC20). If the required
-    columns are missing, creates an empty CSV with the expected headers.
-    """
-    logger.info(f"Extracting experimental TOF from {sample_path}")
-    df = pd.read_parquet(sample_path)
-
-    required = ["composition", "surface_facet", "synthesis_condition", "experimental_tof"]
-    missing = [c for c in required if c not in df.columns]
-
-    if missing:
-        logger.warning(
-            f"Required columns for experimental TOF missing in sample: {missing}. "
-            "Creating empty placeholder CSV."
-        )
-        placeholder = pd.DataFrame(columns=required)
-        EXP_TOF_FILE.parent.mkdir(parents=True, exist_ok=True)
-        placeholder.to_csv(EXP_TOF_FILE, index=False)
-    else:
-        df_tof = df[required].copy()
-        EXP_TOF_FILE.parent.mkdir(parents=True, exist_ok=True)
-        df_tof.to_csv(EXP_TOF_FILE, index=False)
-
-    checksum = compute_file_hash(EXP_TOF_FILE)
-    save_checksum(EXP_TOF_FILE.name, checksum)
-    return EXP_TOF_FILE
 
 # ----------------------------------------------------------------------
 # Required columns description
@@ -329,14 +319,17 @@ def write_required_columns() -> Path:
         "reaction_energy",
         "experimental_tof",
         "temperature",
-        "pressure"
+        "pressure",
     ]
     REQUIRED_COLUMNS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(REQUIRED_COLUMNS_FILE, "w") as f:
         json.dump(required_columns, f, indent=2)
+    logger.info(f"Wrote required columns description to {REQUIRED_COLUMNS_FILE}")
 
+    # Record checksum
     checksum = compute_file_hash(REQUIRED_COLUMNS_FILE)
     save_checksum(REQUIRED_COLUMNS_FILE.name, checksum)
+
     return REQUIRED_COLUMNS_FILE
 
 # ----------------------------------------------------------------------
@@ -345,21 +338,22 @@ def write_required_columns() -> Path:
 def main() -> int:
     """Executes the full FR‑001 data acquisition pipeline."""
     try:
-        # 1. OC20‑like Stratified Sample
+        # 1. OC20 stratified sample (real streaming download)
         parquet_path = download_stratified_sample()
 
-        # 2. Experimental TOF (fallback logic)
-        extract_experimental_tof(parquet_path)
-
-        # 3. MP Descriptors (real if API key present, otherwise placeholder)
+        # 2. Extract composition list for MP descriptor fetch
         df_sample = pd.read_parquet(parquet_path)
         comps = df_sample["composition"].dropna().astype(str).tolist()
+        if not comps:
+            raise RuntimeError("No composition information found in OC20 sample; cannot fetch MP descriptors.")
+
+        # 3. Materials Project descriptors (real API call)
         download_mp_descriptors(comps)
 
         # 4. Required columns description
         write_required_columns()
 
-        logger.info("All data acquisition steps completed successfully")
+        logger.info("All data acquisition steps completed successfully.")
         return 0
     except Exception as exc:
         logger.error(f"Data acquisition failed: {exc}", exc_info=True)

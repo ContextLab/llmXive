@@ -1,13 +1,8 @@
 T000:
   task: 3eb6d02c0dd35b97957828408f38b549860b0af575245b69aa1f2261785746b4
 T001:
-  reason: "The pipeline does not stream the OC20 dataset (it downloads a fallback\
-    \ CSV instead of using `datasets.load_dataset(..., streaming=True)`), and it creates\
-    \ a placeholder MP descriptor file rather than retrieving real descriptors from\
-    \ the Materials Project API. Moreover, `data/checksums.txt` does not contain SHA\u2011\
-    256 entries for the three required output files, so the checksum verification\
-    \ requirement is unmet. The task needs a proper OC20 streaming download, real\
-    \ MP descriptor retrieval, and correct checksum entries."
+  reason: 'Requested task execution failed; rerun successfully: code/download_data.py
+    exit=1'
   task: bbc01cabdc6c4c756608db5a3c595ccdd1d3df3b7967591e3918492ee07177d0
 T002:
   reason: "The script `code/extract_descriptors.py` runs and produces `data/processed/oc20_descriptors.parquet`\

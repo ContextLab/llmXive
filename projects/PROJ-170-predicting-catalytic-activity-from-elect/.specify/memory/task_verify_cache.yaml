@@ -6,17 +6,6 @@ T000:
     containing a `README.txt` (confirmed by the execution log `T000.code_setup_skeleton.py.log`).
     The script ran without error, indicating the directories are writable.
   sig: cf3d525a0b04c2263da9f68d8edb7c6d8775b92c097c677326cb92e299e18781
-T001:
-  c: false
-  h: 43efec09390bcc547eb6519d4c1cd3740f0fc38c3885bfa875f39bda83d775a0
-  r: "The pipeline does not stream the OC20 dataset (it downloads a fallback CSV instead\
-    \ of using `datasets.load_dataset(..., streaming=True)`), and it creates a placeholder\
-    \ MP descriptor file rather than retrieving real descriptors from the Materials\
-    \ Project API. Moreover, `data/checksums.txt` does not contain SHA\u2011256 entries\
-    \ for the three required output files, so the checksum verification requirement\
-    \ is unmet. The task needs a proper OC20 streaming download, real MP descriptor\
-    \ retrieval, and correct checksum entries."
-  sig: 056e83dfa8d3e42320cb3e3e312f20ea91ab65cf1b086a34d7a38929ad04fe70
 T002:
   c: false
   h: f5eec701d7d0c7faa041eb5d60fc44c9048e2a3137cf2d5acc40d95152e05e62
