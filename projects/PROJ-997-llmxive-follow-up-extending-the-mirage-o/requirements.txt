@@ -1,7 +1,6 @@
-# Project‑specific dependencies (standard libraries are provided by the platform)
-transformers>=4.35.0
-torch>=2.1.0
-datasets>=2.14.0
-tqdm>=4.66.0
-# The following are already available in the execution environment and need not be listed:
-# numpy, pandas, scipy, scikit-learn, seaborn, matplotlib, pytest, PyYAML, requests, jsonschema, psutil
+# Project‑wide dependencies
+# (standard library packages such as numpy, pandas, torch, transformers,
+#  tqdm, requests, fastparquet, etc. are already available in the base
+#  environment; we only need to declare fastparquet because the
+#  ground‑truth script explicitly requests it.)
+fastparquet>=0.8.1

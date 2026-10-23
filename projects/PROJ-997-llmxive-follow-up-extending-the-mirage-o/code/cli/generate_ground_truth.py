@@ -3,14 +3,13 @@ generate_ground_truth.py
 
 This script implements task **T015** – Generate Ground Truth Data.
 
-It downloads a subset of the GSM8K dataset using a direct HTTP request
-(avoiding the `datasets` library which requires `pyarrow`), runs
-full‑precision inference with a Hugging‑Face Transformers model, creates
-quantized variants of the same model, computes KL divergence between the
-full‑precision and quantized logits, extracts simple training‑side signals
-(gradient norm and a curvature proxy), and stores the results in a Parquet
-file.  The script records the hardware source (`CPU`) for each row to
-satisfy verification requirements.
+It downloads a subset of the GSM8K dataset using the `datasets` library,
+runs full‑precision inference with a Hugging‑Face Transformers model,
+creates quantized variants of the same model, computes KL divergence
+between the full‑precision and quantized logits, extracts simple training‑side
+signals (gradient norm and a curvature proxy), and stores the results in a
+Parquet file.  The script records the hardware source (`CPU`) for each row
+to satisfy verification requirements.
 
 The script can be invoked directly (as shown in `quickstart.md`) or via the
 wrapper in `code/data/generate_ground_truth.py`.
@@ -26,20 +25,20 @@ Usage example (mirrors the quick‑start documentation)::
 """
 
 import argparse
-import json
 import logging
 import math
-import os
 from pathlib import Path
 from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
-import requests
 import torch
 import torch.nn.functional as F
 from tqdm.auto import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
+
+# The `datasets` library provides a reliable, versioned source for GSM8K.
+from datasets import load_dataset
 
 from llmxive_toolkit import get_logger
 
@@ -153,21 +152,14 @@ def compute_gradient_norm(
 
 def download_gsm8k_subset(sample_size: int) -> List[dict]:
     """
-    Download the GSM8K training split as a JSON‑Lines file and return the
-    first ``sample_size`` records.
+    Download the GSM8K training split via the `datasets` library and
+    return the first ``sample_size`` records.
     """
-    url = "https://huggingface.co/datasets/gsm8k/resolve/main/train.jsonl"
-    log.info(f"Downloading GSM8K dataset (first {sample_size} samples) from {url}")
-    response = requests.get(url, stream=True, timeout=30)
-    response.raise_for_status()
-
-    records: List[dict] = []
-    for line in response.iter_lines(decode_unicode=True):
-        if line:
-            record = json.loads(line)
-            records.append(record)
-            if len(records) >= sample_size:
-                break
+    log.info(f"Downloading GSM8K dataset (first {sample_size} samples) via `datasets`.")
+    dataset = load_dataset("gsm8k", split="train")
+    # Ensure deterministic ordering
+    dataset = dataset.shuffle(seed=42)
+    records = [dataset[i] for i in range(min(sample_size, len(dataset)))]
     log.info(f"Retrieved {len(records)} samples from GSM8K.")
     return records
 
