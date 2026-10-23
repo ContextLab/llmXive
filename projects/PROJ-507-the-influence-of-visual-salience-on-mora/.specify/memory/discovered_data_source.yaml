@@ -1,37 +1,17 @@
-status: verified
-kind: pypi_package
-ref: fiftyone
-access_python: "import fiftyone as fo, fiftyone.zoo as foz\n# Load a small sample\
-  \ of Open Images V6 to ensure quick execution\ndataset = foz.load_zoo_dataset(\"\
-  open-images-v6\", split=\"validation\", max_samples=100)\n# Number of records (samples)\
-  \ loaded\nprint(f\"RECORDS={len(dataset)}\")\n# Map FiftyOne fields to the requested\
-  \ benchmark fields where possible\nfield_map = {\n    \"id\": \"image_id\",\n  \
-  \  \"filepath\": \"image_url_or_path\",\n    \"metadata\": \"original_image\",\n\
-  \    \"tags\": \"moral_ambiguity_tags\",\n    # Bounding box information is stored\
-  \ per detection; we expose it as roi_bbox\n    \"detections\": \"roi_bbox\",\n}\n\
-  available = [v for k,v in field_map.items() if k in dataset.get_field_schema()]\n\
-  print(\"FIELDS=\" + \",\".join(available))"
-record_count: 100
-sample_fields:
-- image_id
-- image_url_or_path
-- original_image
-- moral_ambiguity_tags
-- roi_bbox
-field_coverage: 0.667
+status: none
+intent: Open Images V6 download python package with Visual Genome annotations dataset
+  python package dataset
 required_fields:
 - image_id
-- image_url_or_path
-- moral_ambiguity_tags
-- roi_bbox
-- original_image
-- low_salience_image
-- medium_salience_image
-- high_salience_image
-- clip_cosine_similarity
-- rms_contrast_change_percent
-- texture_change_metric
-- edge_density_change_metric
-intent: download Open Images V6 and Visual Genome datasets with MoralD and CLMM benchmark
-  python package dataset
-cache_key: b2e8f3b284c8df2b40830493fa3b2a03f2598b1f55b22038ab656fc1a8c215b4
+- image_url
+- width
+- height
+- bbox_xmin
+- bbox_ymin
+- bbox_xmax
+- bbox_ymax
+- tags
+- moral_ambiguity_label
+cache_key: d0ddacc26d90180cee7c93310338de982e9160e99af653e56b5d3d499c49b771
+searched_at: '2026-10-23T21:23:00.345421+00:00'
+retry_count: 1
