@@ -27,7 +27,7 @@
   - **Implementation**: `code/data/validate_user_composition.py`  
   - **Verification**: `code/tests/test_user_composition.py` asserts that missing fields raise `ValueError` with an informative message.
 
-- [ ] T016 **Verify dataset availability before proceeding** – confirm that `data/raw/heas_raw.csv` exists and contains at least the minimum number of records required by the power analysis (FR‑015). If the file is missing or insufficient, abort with a clear, spec‑compliant error message explaining that the required open Zenodo dataset is unavailable. This task enforces the scope assumption in the spec and removes the undocumented conditional in the original plan.  
+- [ ] T016 **Verify dataset availability before proceeding** – confirm that `data/raw/heas_raw.csv` exists and contains at least the minimum number of records required by the power analysis (FR‑015). If the file is missing or insufficient, abort with a clear, spec‑compliant error message explaining that the required open Zenodo dataset is unavailable. This task enforces the scope assumption in the spec and removes the undocumented conditional in the original plan.   <!-- FAILED-IN-EXECUTION: code/data/verify_dataset_presence.py exit=1 -->
   - **Implementation**: `code/data/verify_dataset_presence.py`  
   - **Verification**: `code/tests/test_verify_dataset_presence.py` checks that the task aborts when the file is absent or when record count < required N.
 

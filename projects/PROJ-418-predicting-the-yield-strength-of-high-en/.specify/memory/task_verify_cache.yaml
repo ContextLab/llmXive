@@ -5,3 +5,24 @@ T000:
     log `code/.tasks/T000.code_tests_test_setup_env.py.log` which shows the virtual
     environment creation, package installation, and schema validation all succeeded.
   sig: 7841a48f08ea5f743bdb3fce2ff5eb4c1b040f1ffdee57d6d712af66042a97f9
+T002:
+  c: false
+  h: 4a351862bc330bbc5c7b0043ce4ea5b28e7c0f7bbca217131e07e5655742bbfd
+  r: "The required input files `data/raw/heas_raw.csv` and `data/raw/elemental_properties.csv`\
+    \ are missing, and the unit\u2011test `code/tests/test_descriptors.py` is absent.\
+    \ Consequently the descriptor script cannot be exercised as specified, and the\
+    \ fallback to a hard\u2011coded property table violates the requirement to use\
+    \ the frozen CSV. The pipeline cannot produce the mandated `data/processed/hea_descriptors.csv`\
+    \ nor validate it against the contracts."
+  sig: 88da4d43e0fbc64cfc6c71f2bb478e1665fc3ec376ed4ea179dffcd5d5cec47c
+T003:
+  c: false
+  h: 36f35c29fb723daad36805b5baf864f6348ebd44ba01958d34da8c33d4409409
+  r: "The validator script cannot locate the required schema because it looks for\
+    \ `contracts/hea_composition.schema.yaml` at the project root, while the actual\
+    \ file resides under `specs/.../contracts/`. This causes a `FileNotFoundError`\
+    \ and all three unit tests fail. Additionally, the default CSV at `data/input/compositions.csv`\
+    \ is missing, so the script would abort with a file\u2011not\u2011found error\
+    \ instead of validating missing fields. Fix the schema path (or move the schema)\
+    \ and provide the expected default CSV."
+  sig: 79823224373920cec2f891f7cf842cb11b456a09e1a6f407b910c776d47c91ee

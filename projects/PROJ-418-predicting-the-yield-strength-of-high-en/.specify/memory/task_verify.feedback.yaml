@@ -5,8 +5,21 @@ T001:
     exit=1'
   task: 8157b400d97c1d8e9b465a09330219cc4173ce6c01883ecbcad72143c26363e4
 T002:
+  reason: "The required input files `data/raw/heas_raw.csv` and `data/raw/elemental_properties.csv`\
+    \ are missing, and the unit\u2011test `code/tests/test_descriptors.py` is absent.\
+    \ Consequently the descriptor script cannot be exercised as specified, and the\
+    \ fallback to a hard\u2011coded property table violates the requirement to use\
+    \ the frozen CSV. The pipeline cannot produce the mandated `data/processed/hea_descriptors.csv`\
+    \ nor validate it against the contracts."
   task: 6a45242c1c17862d73b4ade2c4414c418725feb4ae8b1d7ee4ebcfed646ffa5d
 T003:
+  reason: "The validator script cannot locate the required schema because it looks\
+    \ for `contracts/hea_composition.schema.yaml` at the project root, while the actual\
+    \ file resides under `specs/.../contracts/`. This causes a `FileNotFoundError`\
+    \ and all three unit tests fail. Additionally, the default CSV at `data/input/compositions.csv`\
+    \ is missing, so the script would abort with a file\u2011not\u2011found error\
+    \ instead of validating missing fields. Fix the schema path (or move the schema)\
+    \ and provide the expected default CSV."
   task: 3ddc5544e534360f3fec5053a32117de4db2d47863e77382a205c7375da5a672
 T004:
   task: 39d6eeba6e8090c0016e9cbc47c96df95ea68eff358e377912fb1f793c2448ec
@@ -33,4 +46,6 @@ T014:
 T015:
   task: 90389d078052f242eebe3d238aee78e5aaeb66d21f91ec785d4c31c7b29a4eae
 T016:
+  reason: 'Requested task execution failed; rerun successfully: code/data/verify_dataset_presence.py
+    exit=1'
   task: 4f8708fefa7eb67fc5cb3337201c927a5abb014865811a40e090b3cf60363111
