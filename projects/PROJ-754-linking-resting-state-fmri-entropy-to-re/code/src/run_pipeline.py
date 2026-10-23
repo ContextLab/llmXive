@@ -2,7 +2,7 @@
 run_pipeline.py
 ---------------
 CLI wrapper that delegates to the public ``run_pipeline`` orchestrator
-defined in ``src.pipeline``.  The script prints the exact phrase
+defined in ``code.src.pipeline``.  The script prints the exact phrase
 ``Pipeline completed`` on successful completion, satisfying the quick‑start
 verification requirement.
 """
@@ -11,8 +11,8 @@ import sys
 
 from llmxive_toolkit import get_logger
 
-# Import the orchestrator defined in ``pipeline.py``.
-from src.pipeline import run_pipeline as orchestrator
+# Import the orchestrator defined in ``code/src/pipeline.py``.
+from code.src.pipeline import run_pipeline as orchestrator
 
 
 def main() -> None:

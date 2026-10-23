@@ -1,1 +1,1 @@
-"""src.stats package – statistical modeling utilities."""
+"""Statistical modelling subpackage."""

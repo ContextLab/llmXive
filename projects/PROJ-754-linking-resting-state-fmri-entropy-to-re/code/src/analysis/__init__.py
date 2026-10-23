@@ -1,1 +1,1 @@
-"""src.analysis package – contains analysis utilities."""
+"""Analysis subpackage (entropy, etc.)."""

@@ -1,1 +1,1 @@
-"""src.data package – contains data acquisition utilities."""
+"""Data‑handling subpackage."""

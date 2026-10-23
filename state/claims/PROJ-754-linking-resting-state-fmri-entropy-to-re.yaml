@@ -2997,3 +2997,38 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-23T12:28:17Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline completed' upon successful completion
+  claim_id: c_2570e3e8
+  context: 'The script will download a tiny subset of HCP data, perform QC, compute
+    multiscale entropy and write the results to results/. On success you will see
+    the exact line: Pipeline completed'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'On success you will see the exact line: Pipeline completed'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T13:24:40Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "test suite confirms all modules import correctly and dry\u2011run exits\
+    \ cleanly"
+  claim_id: c_51458061
+  context: "Run the test suite. - Confirms that all modules import correctly and that\
+    \ a dry\u2011run of the pipeline exits cleanly."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Confirms that all modules import correctly and that a dry\u2011run of\
+    \ the pipeline exits cleanly."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T13:24:41Z'

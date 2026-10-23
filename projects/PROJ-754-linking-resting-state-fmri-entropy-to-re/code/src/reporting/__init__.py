@@ -1,1 +1,1 @@
-"""Reporting package for the llmxive‑fmri‑entropy project."""
+"""Reporting subpackage (figures, PDF generation)."""

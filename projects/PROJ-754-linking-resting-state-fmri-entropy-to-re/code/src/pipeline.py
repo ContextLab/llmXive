@@ -15,9 +15,9 @@ from typing import Any, Dict
 from llmxive_toolkit import get_logger
 
 # Import the CLI entry points of the individual stages.
-from src.download_data import main as download_main
-from src.data.qc import main as qc_main
-from src.compute_entropy import main as entropy_main
+from code.src.download_data import main as download_main
+from code.src.data.qc import main as qc_main
+from code.src.compute_entropy import main as entropy_main
 
 
 def _run_stage(main_func, argv: list[str]) -> None:
