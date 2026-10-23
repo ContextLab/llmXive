@@ -102,7 +102,7 @@ properties:
     type: array
     items:
       type: string
-    description: "Limitation notes, e.g. omitted baseline metrics or skipped training."
+    description: "Limitation notes; e.g., omitted baseline metrics or skipped training."
 required:
   - generated_at
   - random_seed

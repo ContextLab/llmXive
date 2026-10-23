@@ -1,14 +1,16 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Solar Irradiance Dataset Schema"
-description: "Row-level schema for all dataset files in the project."
+description: "Row‑level schema for all dataset files in the project."
 type: object
 properties:
   date:
     type: string
     format: date
-    description: "Observation date (YYYY-MM-DD)."
+    description: "Observation date (YYYY‑MM‑DD)."
   gsn:
-    type: number
+    type:
+      - number
+      - "null"
     description: "Group Sunspot Number (raw, interpolated, or proxy‑filled)."
   sunspot_number:
     type: number
@@ -31,13 +33,13 @@ properties:
     description: "CMIP6 solar forcing (TSI) value."
   tsi_value:
     type: number
-    description: "Total Solar Irradiance (W/m²) from verified satellite data."
+    description: "Total Solar Irradiance (W/m²) value."
   instrument:
     type: string
-    description: "Instrument name for TSI measurements."
+    description: "Instrument name for the TSI measurement."
   uncertainty:
     type: number
-    description: "Measurement uncertainty for TSI or baseline values."
+    description: "Measurement uncertainty (standard deviation)."
 required:
   - date
   - gsn

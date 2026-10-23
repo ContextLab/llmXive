@@ -16,8 +16,8 @@
 **Independent Test**: The model can be fully tested by running the training pipeline on the satellite-era data using a leave-one-cycle-out cross-validation scheme and verifying that it produces a valid reconstruction file with calculated RMSE and R² metrics against the held-out cycle, without requiring pre-satellite data.
 
 **Acceptance Scenarios**:
-1. **Given** GSN data (1610–present) and SORCE/TIM TSI data (2003–present) are loaded, **When** the pipeline executes a leave-one-cycle-out cross-validation (training on all cycles except one, e.g., Cycle 23, and validating on the held-out cycle), **Then** the system outputs a model artifact and a cross-validation report containing RMSE and R² values for the held-out cycle.
-2. **Given** a trained model artifact, **When** the pipeline evaluates the model on the held-out cycle data, **Then** the system generates a validation report comparing the predicted TSI against observed satellite measurements, calculating the error reduction relative to the 2007 baseline reconstruction.
+1. **Given** GSN data (from the early 1600s to the present) and SORCE/TIM TSI data (2003–present) are loaded., **When** the pipeline executes a leave-one-cycle-out cross-validation (training on all cycles except one, e.g., Cycle 23, and validating on the held-out cycle), **Then** the system outputs a model artifact and a cross-validation report containing RMSE and R² values for the held-out cycle.
+2. **Given** a trained model artifact, **When** the pipeline evaluates the model on the held-out cycle data, **Then** the system generates a validation report comparing the predicted TSI against observed satellite measurements, calculating the error reduction relative to the baseline reconstruction employed in previous work..
 
 ---
 
@@ -31,7 +31,7 @@
 
 **Acceptance Scenarios**:
 1. **Given** the trained model from User Story 1 and the GSN data for 1610–2002, **When** the reconstruction script is executed, **Then** the system outputs a CSV/NetCDF file containing the reconstructed TSI values with associated uncertainty bands for the entire pre-satellite period, using the Cycle-Agnostic fallback for any cycle IDs not seen in training.
-2. **Given** the reconstructed TSI time series, **When** the system performs a statistical comparison of variance across major minima (Maunder, Dalton, Modern), **Then** the output includes bootstrap resampling results (1000 iterations) quantifying the variance differences.
+2. **Given** the reconstructed TSI time series, **When** the system performs a statistical comparison of variance across major minima (Maunder, Dalton, Modern), **Then** the output includes bootstrap resampling results (performed over many iterations) quantifying the variance differences.
 
 ---
 
