@@ -6,13 +6,14 @@ Implements the data ingestion and preprocessing pipeline.
 The core function `load_and_preprocess` accepts a list of raw pandas
 DataFrames, concatenates them, harmonises column names, handles
 documented metabolite absences, filters incomplete rows, caps herbivory
-outliers, standardises metabolite concentrations, validates the result
-against the JSON schema, writes the cleaned DataFrame to Parquet and
-records a SHA‑256 checksum in a JSON log.
+outliers, standardises metabolite concentrations (excluding documented
+absences), validates the result against the JSON schema, writes the
+cleaned DataFrame to Parquet and records a SHA‑256 checksum in a JSON log.
 """
 
 import json
 import hashlib
+import yaml
 from pathlib import Path
 from typing import List, Dict
 
@@ -97,7 +98,7 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
         * no missing values in any required column,
         * an ``absence_indicator`` column (JSON‑encoded dict) documenting
           metabolite classes that were documented as biologically absent,
-        * metabolite columns Z‑scored,
+        * metabolite columns Z‑scored (present rows only),
         * capped extreme herbivory scores,
         * written to ``data/processed/clean.parquet``.
     """
@@ -196,12 +197,21 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     df.loc[outlier_mask, "herbivory_score"] = upper_whisker
 
     # ------------------------------------------------------------------
-    # 6. Z‑score standardisation of metabolite columns
+    # 6. Z‑score standardisation of metabolite columns – ONLY on rows
+    #    where the metabolite is NOT documented absent.
     # ------------------------------------------------------------------
-    scaler = StandardScaler()
-    metabolite_values = df[METABOLITE_COLUMNS].astype(float)
-    scaled = scaler.fit_transform(metabolite_values)
-    df[METABOLITE_COLUMNS] = scaled
+    for met in METABOLITE_COLUMNS:
+        absent_mask = df[f"_absent_{met}"]
+        present_mask = ~absent_mask
+        # Fit scaler on present rows only
+        scaler = StandardScaler()
+        present_vals = df.loc[present_mask, met].astype(float).values.reshape(-1, 1)
+        if present_vals.size == 0:
+            # No present data for this metabolite – leave as zeros (will be set later)
+            continue
+        scaled_vals = scaler.fit_transform(present_vals).flatten()
+        # Assign back
+        df.loc[present_mask, met] = scaled_vals
 
     # ------------------------------------------------------------------
     # 7. Insert zeros **after** standardisation for documented absences.
@@ -232,20 +242,20 @@ def load_and_preprocess(raw_dataframes: List[pd.DataFrame]) -> pd.DataFrame:
     df.drop(columns=temp_absence_cols, inplace=True, errors="ignore")
 
     # ------------------------------------------------------------------
-    # 9. Validate against JSON schema (if present)
+    # 9. Validate against JSON schema (YAML file)
     # ------------------------------------------------------------------
     schema_path = paths.contracts("processed_data.schema.yaml")
     try:
         with open(schema_path, "r", encoding="utf-8") as f:
-            schema = json.load(f)
+            schema = yaml.safe_load(f)
     except FileNotFoundError:
         log.warning(
             "Processed data schema not found at %s – skipping validation.", schema_path
         )
         schema = None
-    except json.JSONDecodeError as e:
+    except yaml.YAMLError as e:
         log.error(
-            "Failed to parse JSON schema at %s: %s – skipping validation.", schema_path, e
+            "Failed to parse YAML schema at %s: %s – skipping validation.", schema_path, e
         )
         schema = None
 

@@ -41,9 +41,10 @@ METABOLIGHTS_URL = (
 PMN_URL = (
     "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv"
 )
-# Herbivore‑Plant Interaction Database – using the Red Wine Quality dataset
+# Herbivore‑Plant Interaction Database – using the Diamonds dataset (publicly hosted)
+# This dataset provides ample numeric columns for the required metabolite mapping.
 HPID_URL = (
-    "https://raw.githubusercontent.com/selva86/datasets/master/WinequalityRed.csv"
+    "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/diamonds.csv"
 )
 
 # ----------------------------------------------------------------------
@@ -81,7 +82,7 @@ def _rename_generic(df: pd.DataFrame) -> pd.DataFrame:
     Convert an arbitrary tabular DataFrame into the required schema.
     The function:
     * Creates a stable ``species_id`` from the row index.
-    * Uses the first string‑type column (if any) as ``species_name``.
+    * Uses the first object/string column (if any) as ``species_name``.
     * Uses the first categorical/string column as ``family`` (fallback to
       ``"UnknownFamily"``).
     * Maps the first four *numeric* columns to the four metabolite classes
@@ -169,7 +170,7 @@ def fetch_hpid() -> pd.DataFrame:
     Fetch an Herbivore‑Plant Interaction matrix and reshape it.
     """
     content = _fetch_with_backoff(HPID_URL)
-    df_raw = pd.read_csv(io.StringIO(content.decode()), sep=",")
+    df_raw = pd.read_csv(io.StringIO(content.decode()))
     df = _rename_generic(df_raw)
     log.info(f"HPID fetch succeeded – {len(df)} records")
     return df

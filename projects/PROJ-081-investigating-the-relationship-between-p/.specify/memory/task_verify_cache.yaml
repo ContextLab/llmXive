@@ -1,11 +1,9 @@
 T002:
-  c: false
-  h: 14e565a4dbc70f66b2952faeb459e9c746a3dd5c193470548497a8bfbf295185
-  r: "The provided `code/src/preprocess.py` does not satisfy the task: the pytest\
-    \ suite (`code/tests/test_preprocess.py`) fails (benzoxazinoids mean \u2260\u202F\
-    0 after scaling and outlier capping test fails). Additionally, the schema file\
-    \ `contracts/processed_data.schema.yaml` is parsed with `json.load`, causing a\
-    \ JSON\u2011parse error and skipping validation, which violates the requirement\
-    \ to validate against the schema. The pipeline therefore does not meet the specified\
-    \ behavior or pass its own tests."
-  sig: 7f15f1f80a7096c0e263f2ea4765ea6eeccb671f96fece9a5938cdff4be91bbb
+  c: true
+  h: 1bc85b1defaa2d1e4eb3cf6518422683f62317077522861b0ec5a87d832018b5
+  r: "Checked `code/src/preprocess.py` \u2013 it concatenates, renames, filters, flags\
+    \ documented absences, caps herbivory outliers, Z\u2011scores metabolites, validates\
+    \ against the schema, writes the Parquet file and checksum log. Verified `code/tests/test_preprocess.py`\
+    \ runs these checks, and the generated `data/processed/clean.parquet` and `outputs/preprocessing_log.json`\
+    \ exist with correct contents."
+  sig: 37057dd7d7c6006db62aaea8934ac01449f911651187a07e0709892d97944724

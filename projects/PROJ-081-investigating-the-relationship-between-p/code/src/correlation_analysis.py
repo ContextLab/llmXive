@@ -1,3 +1,21 @@
+"""
+correlation_analysis.py
+-----------------------
+Computes Pearson correlations between each metabolite class and the herbivory score,
+applies Benjamini‑Hochberg FDR correction, enforces the required number of
+significant negative classes (3‑5), saves the results as JSON, and generates a
+heat‑map PNG visualisation.
+
+This script is intended to be run after the preprocessing step has produced
+``data/processed/clean.parquet``.  It can be executed directly:
+
+    python code/src/correlation_analysis.py
+
+The script writes its outputs to the ``outputs/`` directory using the
+``llmxive_toolkit.paths`` helpers, ensuring the directories are created
+automatically.
+"""
+
 import json
 from pathlib import Path
 from typing import Dict, List
@@ -11,6 +29,7 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
+# Expected column names in the processed DataFrame
 METABOLITE_COLUMNS = ["alkaloids", "terpenes", "phenolics", "benzoxazinoids"]
 OUTCOME_COLUMN = "herbivory_score"
 
@@ -18,7 +37,8 @@ OUTCOME_COLUMN = "herbivory_score"
 def compute_correlations(df: pd.DataFrame) -> Dict:
     """
     Compute Pearson correlations between each metabolite class and herbivory_score,
-    apply Benjamini‑Hochberg FDR correction, and return an AnalysisResult dict.
+    apply Benjamini‑Hochberg FDR correction, and enforce that the number of
+    significant negative classes is between 3 and 5 (inclusive).
 
     Parameters
     ----------
@@ -36,37 +56,36 @@ def compute_correlations(df: pd.DataFrame) -> Dict:
           - significant_negative_classes: list of metabolite names meeting q<0.05 and coeff<0
           - method: "Pearson"
     """
-    # Ensure required columns exist
+    # Verify required columns are present
     missing = [c for c in METABOLITE_COLUMNS + [OUTCOME_COLUMN] if c not in df.columns]
     if missing:
         raise ValueError(f"Missing required columns for correlation analysis: {missing}")
 
-    # Drop rows with NaNs in the columns of interest
+    # Drop rows with any missing values in the columns of interest
     data = df[METABOLITE_COLUMNS + [OUTCOME_COLUMN]].dropna()
     if data.empty:
-        raise ValueError("No data available after dropping missing values for correlation analysis.")
+        raise ValueError("No data left after dropping rows with missing values.")
 
+    # Compute Pearson r and p for each metabolite
     coeffs: Dict[str, float] = {}
     pvals: Dict[str, float] = {}
-
     for met in METABOLITE_COLUMNS:
         r, p = pearsonr(data[met], data[OUTCOME_COLUMN])
         coeffs[met] = r
         pvals[met] = p
-        log.debug(f"Metabolite {met}: r={r:.4f}, p={p:.4g}")
+        log.debug("Metabolite %s: r=%.4f, p=%.4g", met, r, p)
 
     # Benjamini‑Hochberg FDR correction
-    p_array = np.array([pvals[met] for met in METABOLITE_COLUMNS])
+    p_array = np.array([pvals[m] for m in METABOLITE_COLUMNS])
     _, q_array, _, _ = multipletests(p_array, alpha=0.05, method="fdr_bh")
-    qvals = {met: q for met, q in zip(METABOLITE_COLUMNS, q_array)}
+    qvals = {m: q for m, q in zip(METABOLITE_COLUMNS, q_array)}
 
     # Identify significant negative correlations
     significant_negative = [
-        met for met in METABOLITE_COLUMNS
-        if qvals[met] < 0.05 and coeffs[met] < 0
+        m for m in METABOLITE_COLUMNS if qvals[m] < 0.05 and coeffs[m] < 0
     ]
 
-    # Enforce FR‑003: exactly 3‑5 classes
+    # Enforce FR‑003: 3‑5 significant negative classes
     if not (3 <= len(significant_negative) <= 5):
         raise ValueError(
             f"Number of significant negative classes ({len(significant_negative)}) "
@@ -89,12 +108,19 @@ def _save_result(result: Dict, out_path: Path) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as f:
         json.dump(result, f, indent=2, sort_keys=True)
-    log.info(f"Correlation results saved to {out_path}")
+    log.info("Correlation results saved to %s", out_path)
 
 
-if __name__ == "__main__":
-    # Load the pre‑processed dataset
+def _run_pipeline() -> None:
+    """
+    Load the pre‑processed dataset, compute correlations, save the JSON
+    result, and generate the heat‑map figure.
+    """
+    # Load the cleaned Parquet file produced by the preprocessing step
     data_path = paths.data("processed", "clean.parquet")
+    if not data_path.is_file():
+        raise FileNotFoundError(f"Processed data not found at {data_path}")
+
     df = pd.read_parquet(data_path)
 
     # Compute correlations
@@ -104,7 +130,15 @@ if __name__ == "__main__":
     json_path = paths.outputs("correlation_results.json")
     _save_result(corr_result, json_path)
 
-    # Generate heatmap
+    # Generate heat‑map
     from src.visualization import plot_correlation_heatmap  # noqa: E402
     heatmap_path = paths.outputs("heatmap.png")
     plot_correlation_heatmap(corr_result, str(heatmap_path))
+
+
+if __name__ == "__main__":
+    try:
+        _run_pipeline()
+    except Exception as exc:
+        log.error("Correlation analysis failed: %s", exc)
+        raise  # Re‑raise to surface a non‑zero exit code

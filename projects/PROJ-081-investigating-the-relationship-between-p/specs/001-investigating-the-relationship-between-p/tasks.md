@@ -19,7 +19,7 @@ The study acquires paired metabolomics–herbivory data from public repositories
   - Verification: run `pytest code/tests/test_fetch_data.py -v`; ensure `outputs/fetch_log.txt` records a sample of fetched species IDs and that total paired species ≥ 50 (FR‑001).  
   - **Paths**: `code/src/config.py`, `code/src/fetch_data.py`, `code/tests/test_fetch_data.py`, `requirements.txt`, `outputs/fetch_log.txt`.
 
-- [ ] T002 [US‑1] **Data ingestion and preprocessing pipeline**  
+- [X] T002 [US‑1] **Data ingestion and preprocessing pipeline**  
   - Implement `code/src/preprocess.py` with function `load_and_preprocess(raw_dfs: List[pd.DataFrame]) -> pd.DataFrame` that:  
     1. Concatenates the raw DataFrames and harmonises column names.  
     2. Filters out rows missing any required predictor or outcome column.  
@@ -32,7 +32,7 @@ The study acquires paired metabolomics–herbivory data from public repositories
   - Verification: run `pytest code/tests/test_preprocess.py -v`; inspect `data/processed/clean.parquet` for correct schema, column names, and data types.  
   - **Paths**: `code/src/preprocess.py`, `code/tests/test_preprocess.py`, `data/processed/clean.parquet`, `outputs/preprocessing_log.json`.
 
-- [ ] T003 [US‑2] **Exploratory correlation analysis and heat‑map visualisation**   <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 -->
+- [ ] T003 [US‑2] **Exploratory correlation analysis and heat‑map visualisation**   <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 -->
   - Implement `code/src/correlation_analysis.py` with function `compute_correlations(df: pd.DataFrame) -> dict` that:  
     1. Computes Pearson r between each metabolite class (averaged across compounds) and `herbivory_score`.  
     2. Calculates two‑tailed p‑values via `scipy.stats.pearsonr`.  
