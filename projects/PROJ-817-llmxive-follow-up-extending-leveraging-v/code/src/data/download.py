@@ -1,6 +1,6 @@
 """Download a real sample of InstructPix2Pix prompts (T001).
 
-This script streams the public ``timbrooks/instructpix2pix`` training split
+This script streams the public ``timbrooks/instruct-pix2pix`` training split
 via ``datasets.load_dataset(..., streaming=True)`` when possible and falls back
 to downloading the raw parquet shards via the Hugging Face Hub and reading them
 with ``fastparquet``. It extracts the first ``N_PROMPTS`` rows that contain a
@@ -33,11 +33,12 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-DATASET_ID = "timbrooks/instructpix2pix"
+# Correct dataset identifier on Hugging Face Hub
+DATASET_ID = "timbrooks/instruct-pix2pix"
 SPLIT = "train"
 N_PROMPTS = 2000  # target number of prompts to collect
 
-# Exported paths for tests
+# Exported paths for tests and quick‑start
 OUTPUT_PATH = paths.data("raw", "prompts_sample.parquet")
 PROVENANCE_PATH = paths.data("raw", "prompts_sample_provenance.json")
 # ----------------------------------------------------------------------
@@ -91,7 +92,7 @@ def _iter_stream_hf() -> Iterator[Mapping[str, object]]:
             import fastparquet
 
             fs = HfFileSystem()
-            # List files under the split directory
+            # List files under the split directory inside the repo
             repo_path = f"{DATASET_ID}/{SPLIT}"
             files = fs.ls(repo_path)
             parquet_files = [
@@ -116,9 +117,7 @@ def _iter_stream_hf() -> Iterator[Mapping[str, object]]:
                         # fastparquet yields pandas Series; convert to dict
                         yield row.to_dict()
         except Exception as fallback_exc:  # pragma: no cover
-            log.error(
-                "Fallback parquet‑shard loader also failed: %s", fallback_exc
-            )
+            log.error("Fallback parquet‑shard loader also failed: %s", fallback_exc)
             raise RuntimeError(
                 "Unable to stream dataset from Hugging Face (both primary and fallback failed)"
             ) from fallback_exc
@@ -184,7 +183,7 @@ def main() -> int:
     """Entry point for ``python -m code.src.data.download``."""
     df = collect_prompt_sample()
 
-    # Write the parquet file using fastparquet (compatible with NumPy 1.26).
+    # Write the parquet file using fastparquet (engine chosen for compatibility)
     output_path = OUTPUT_PATH
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(output_path, index=False, engine="fastparquet")
@@ -201,9 +200,7 @@ def main() -> int:
         "rows_scanned": df.attrs["scanned_rows"],
         "n_rows_written": int(len(df)),
         "n_prompts_target": N_PROMPTS,
-        "checksum_algorithm": (
-            "sha256 over (edit_prompt, original_prompt, edit_type) JSON"
-        ),
+        "checksum_algorithm": "sha256 over (edit_prompt, original_prompt, edit_type) JSON",
         "output_file": str(output_path),
         "output_sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
     }

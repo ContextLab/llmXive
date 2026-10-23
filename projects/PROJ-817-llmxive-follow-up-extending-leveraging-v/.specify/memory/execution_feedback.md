@@ -7,33 +7,40 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m spacy download en_core_web_sm -> rc=1
-Collecting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
-
-  ERROR: HTTP error 404 while getting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
-ERROR: Could not install requirement https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz because of HTTP error 404 Client Error: Not Found for url: https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz for URL https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
-
-[notice] A new release of pip is available: 24.0 -> 26.2.2
-[notice] To update, run: pip install --upgrade pip
+unpy>", line 189, in _run_module_as_main
+  File "<frozen runpy>", line 148, in _get_module_details
+  File "<frozen runpy>", line 112, in _get_module_details
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-817-llmxive-follow-up-extending-leveraging-v/lib/python3.11/site-packages/spacy/__init__.py", line 16, in <module>
+    from .cli.info import info  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-817-llmxive-follow-up-extending-leveraging-v/lib/python3.11/site-packages/spacy/cli/__init__.py", line 4, in <module>
+    from . import download as download_module  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-817-llmxive-follow-up-extending-leveraging-v/lib/python3.11/site-packages/spacy/cli/download.py", line 19, in <module>
+    from ._util import SDIST_SUFFIX, WHEEL_SUFFIX, Arg, Opt, app
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-817-llmxive-follow-up-extending-leveraging-v/lib/python3.11/site-packages/spacy/cli/_util.py", line 22, in <module>
+    from click import NoSuchOption
+ModuleNotFoundError: No module named 'click'
 
 - python -m code.src.data.download -> rc=1
-ound
+, in _raise_file_not_found
     raise FileNotFoundError(msg) from err
-FileNotFoundError: timbrooks/instructpix2pix/train (repository not found)
+FileNotFoundError: timbrooks/instruct-pix2pix/train
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 226, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 223, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 185, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 184, in main
     df = collect_prompt_sample()
          ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 145, in collect_prompt_sample
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 144, in collect_prompt_sample
     for row in row_iter:
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 122, in _iter_stream_hf
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/code/src/data/download.py", line 121, in _iter_stream_hf
     raise RuntimeError(
 RuntimeError: Unable to stream dataset from Hugging Face (both primary and fallback failed)
 
@@ -70,7 +77,6 @@ RuntimeError: Unable to stream dataset from Hugging Face (both primary and fallb
 platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-plugins: anyio-4.15.1
 collected 0 items
 
 ============================ no tests ran in 0.00s =============================
@@ -82,6 +88,27 @@ ERROR: file or directory not found: tests/contract/test_evaluation_report.py
 ## Declared deliverables still missing
 
 - data/raw/prompts_sample.parquet
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
+- **Verified**: this loads **313010** real records with fields: original_prompt, original_image, edit_prompt, edited_prompt, edited_image.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import datasets
+
+builder = datasets.load_dataset_builder("timbrooks/instructpix2pix-clip-filtered")
+count = builder.info.splits["train"].num_examples
+print(f"RECORDS={count}")
+
+fields = list(builder.info.features.keys())
+print("FIELDS=" + ",".join(fields))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

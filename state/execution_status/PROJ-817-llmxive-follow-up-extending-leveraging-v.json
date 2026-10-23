@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-18T04:11:58Z",
+  "updated_at": "2026-10-23T02:26:23Z",
   "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
   "replan_rounds": 1
 }
