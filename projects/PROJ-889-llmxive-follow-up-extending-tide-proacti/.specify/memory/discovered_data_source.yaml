@@ -1,9 +1,7 @@
 status: none
-intent: download TIDE code evaluation parquet dataset python package synthetic code
-  generator
+intent: TIDE evaluation code dataset synthetic generator download python package dataset
 required_fields:
-- code_id
-- code_text
+- code
 - ast_depth
 - import_count
 - cyclomatic_complexity
@@ -11,6 +9,6 @@ required_fields:
 - semantic_scope
 - syntactic_complexity
 - ground_truth_label
-cache_key: 5681681960bd95a671052af094e319a9cebfccf3b312e26c464d7a4030c3e8a8
-searched_at: '2026-10-23T04:10:08.003169+00:00'
+cache_key: ceefeae542c5dbd6f97d926a7320c168b312b4e57c434741ef10cea6011880ea
+searched_at: '2026-10-23T06:14:17.895769+00:00'
 retry_count: 1
