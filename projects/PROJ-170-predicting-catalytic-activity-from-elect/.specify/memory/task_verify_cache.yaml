@@ -1,59 +1,8 @@
-T101:
+T000:
   c: false
-  h: f7bf67b2f9ea27e882f61b9629fa56055652c4a6f2e6962cf1ba64e9aeab9b24
-  r: "The task requires creating `data/raw/` and `data/processed/`, but the collector\
-    \ reports both as MISSING at the project root (only `outputs/`, `code/`, `tests/`\
-    \ exist), so `tests/integration/test_skeleton.py::test_dirs_exist` would fail\
-    \ on `paths.data(\"raw\")` and `paths.data(\"processed\")`. The `__init__.py`\
-    \ files and `.ruff.toml` (with E, F, W, I rules) are present and correct, but\
-    \ the directory skeleton is incomplete \u2014 create the two missing data directories\
-    \ (and confirm the tests/contract, tests/integration, tests/unit subdirs exist)\
-    \ so the skeleton test passes."
-  sig: 717bb376752f6f3842ce092e1c5c3e0deb5445a81dae4837992e3ec3198b22f0
-T103:
-  c: false
-  h: c5448939674c7d76a35b9c426e26d085f4d5165a5c5d568703bd193144dded17
-  r: "The required `data/processed/unified_dataset.parquet` file is missing, and `outputs/alignment_metrics.json`\
-    \ is a placeholder that lacks a proper `alignment_rate` field and is malformed\
-    \ (JSON decode error). Consequently the script does not generate the unified dataset\
-    \ with \u2265\u202F500 entries nor the correct alignment metrics."
-  sig: b1f5efbf3961dfdd278d653cf0416f7d2d8f1255dee86a387a6c15b074b0a3f3
-T104:
-  c: false
-  h: 7c3adc8b4f1da1cf599c52d3e17b62bc0537b5b34e5221978ee4d7f4fc9d7b9d
-  r: "The run produced no `data/processed/stoich_vocab.json` or `aligned_dataset.csv`,\
-    \ the schema file is missing, and the unit tests fail (k\u2011NN raises an error\
-    \ for insufficient neighbors and the scaling test does not achieve unit variance).\
-    \ These missing/incorrect artifacts mean the required vocabulary, imputation flagging,\
-    \ scaling, and schema\u2011compliant output were not produced."
-  sig: 3f50797be4f921268112d0560ef94968c4987f6a14643f17e62958955d3f48ba
-T105:
-  c: false
-  h: a7ad3ca562e9c1da43f296106ec284492c8a555046913179aceafe861045a6e4
-  r: The required artifacts `code/models/best_xgboost.json` and `outputs/metrics.json`
-    are missing, so the training pipeline has not produced the saved model or the
-    metrics file needed to satisfy the task.
-  sig: a1028e203df0283b94b170cc13bcce09a7d2017060e43cfb4143db125d32c0f8
-T106:
-  c: false
-  h: 7730fff93adbb5c99722365e0661c28d995d9ffe8d056d84d725b9cbcc96b603
-  r: "The required model file `code/models/best_xgboost.json` is missing, and consequently\
-    \ the script cannot run to produce `outputs/feature_importance.png` and `outputs/sc003_verification.json`.\
-    \ Both output artifacts are also absent, and a unit test (`test_sc003_ratio_fail`)\
-    \ fails due to a strict equality check on the ratio. The missing model and outputs\
-    \ must be added and the verification JSON must contain the `ratio` and `SC-003_status`\
-    \ fields (with a passing ratio \u2265\u202F0.50) for the task to be considered\
-    \ complete."
-  sig: 905a84ff02995a4a00639a5db861b9eb98ad8df6ea9fab3e954b3a1283169f53
-T107:
-  c: false
-  h: c8ac281759655b48b7b41bac1893960e50d5f5c6cbdbef765b23c86d1413e189
-  r: "The integration test file exists, and `outputs/feasibility_verification.json`\
-    \ meets the SC\u2011004 schema, but the pytest run logged in `code/.tasks/T107.tests_integration_test_sensitivity.py.log`\
-    \ shows three failures: (1) `code/train.py` aborts because `data/processed/aligned_dataset.csv`\
-    \ is missing, causing the seed\u2011stability test to fail; (2) the edge\u2011\
-    case test for missing\u2011neighbor exclusion also fails for the same missing\
-    \ dataset; (3) the non\u2011normal\u2011error test fails because `outputs/metrics.json`\
-    \ is not created. Since the full test suite does not pass, the task requirements\
-    \ are not satisfied."
-  sig: 07e2539423bc26e5b1648f8ef71ef06a2ee38afd1a32b6b24e4b5ebed4510b8e
+  h: 30c7b4089416fb36797af1b1b4e6b5e566d460ee476c0ff1280c491f71bbc620
+  r: The `data/raw/` and `data/processed/` directories contain the required `README.txt`
+    files, but the `outputs/` directory does not have a `README.txt` as the task specifies
+    a README in each of the three directories. Adding the missing README file to `outputs/`
+    (or updating the script to create it) is needed to satisfy the task.
+  sig: dcffe544207a7289bc12729b7f284a12e01faae4347ae6379911dfd0e1a9b2d2
