@@ -1,11 +1,15 @@
 status: none
-intent: download MS COCO 2017 captions dataset with pycocotools python package dataset
+intent: MS COCO 2017 validation captions pycocotools HuggingFace Diffusers Stable
+  Diffusion 2.1 python package dataset
 required_fields:
 - image_id
-- file_name
-- height
-- width
+- image_path
 - caption
-cache_key: 2d12f0608f735f645e44d80ab27d2c49de4cff7bf1b4d1152213b4de4110845b
-searched_at: '2026-10-23T11:45:20.414406+00:00'
+- prompt_text
+- semantic_entropy
+- activation_variance
+- model_name
+- split
+cache_key: 665aea91b2d1c40b12bdd9d87fb75e58bda2515b7c5aa64a1e517a96fc8d89e8
+searched_at: '2026-10-23T11:47:02.414831+00:00'
 retry_count: 1

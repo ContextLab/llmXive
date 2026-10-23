@@ -27,7 +27,7 @@ Indented continuation lines describe the required artifact(s), verification comm
 
 ## Phase 2 – Data acquisition & prompt preparation
 
-- [ ] T002 [P] Download MS‑COCO 2017 validation captions, stream images, and create curated prompt tables under `data/`   <!-- FAILED-IN-EXECUTION: code/data/download_diverse_prompts.py exit=1 -->
+- [ ] T002 [P] Download MS‑COCO 2017 validation captions, stream images, and create curated prompt tables under `data/`   <!-- FAILED-IN-EXECUTION: code/data/download_diverse_prompts.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_diverse_prompts.py exit=1 -->
   - **Steps**  
     1. `code/data/download_coco.py` → `data/raw/coco_captions.parquet` using the HuggingFace streaming API:  
        ```python
