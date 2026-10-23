@@ -1,25 +1,3 @@
-- artifact_hash: 1701cb078c71e7c4ad9d4bcd9a08e90d16ec6e80c3ce6537e70ae015dd9dff99
-  artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://pypi.org/pypi/{package}/json`
-  verification_status: mismatch
-  verified_against_url: https://pypi.org/pypi/%7Bpackage%7D/json
-  verified_at: '2026-08-25T21:28:53.246199Z'
-- artifact_hash: 1701cb078c71e7c4ad9d4bcd9a08e90d16ec6e80c3ce6537e70ae015dd9dff99
-  artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://pypistats.org/api/packages/top`
-  verification_status: mismatch
-  verified_against_url: https://pypistats.org/api/packages/top
-  verified_at: '2026-08-25T21:28:53.246199Z'
 - artifact_hash: b25cffa058aff830280e583b703ccc2b2e33a14fbf4f445c4cc3151ef66bf7e4
   artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-001
@@ -31,3 +9,25 @@
   verification_status: mismatch
   verified_against_url: https://pypi.org/pypi/%7Bpackage%7D/json
   verified_at: '2026-10-08T13:53:26.260761Z'
+- artifact_hash: 339e30eb61ff4e54f1480d64fd22dc3f2fe93ec264192572bdb782c86a223789
+  artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://pypi.org/pypi/{pkg}/json`
+  verification_status: mismatch
+  verified_against_url: https://pypi.org/pypi/%7Bpkg%7D/json
+  verified_at: '2026-10-23T14:37:35.032302Z'
+- artifact_hash: cd70834de4175176f652df8a9181d3abe6c8082d0ab0f698b7001ecf8130ae16
+  artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/PROJ-318-evaluating-the-impact-of-code-generation.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-318-evaluating-the-impact-of-code-generation
+  verified_at: '2026-10-23T14:38:02.718347Z'

@@ -1,49 +1,20 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "GlobalResults"
-description: "Schema for the final aggregated results of the study, including statistical test outcomes."
-type: object
-properties:
-  total_pairs:
-    type: integer
-    minimum: 0
-    description: "Number of paired human‑LLM docstring records used in the Wilcoxon test."
-  human_scores:
-    type: array
-    items:
-      type: number
-    description: "Parameter Coverage Scores for human docstrings."
-  llm_scores:
-    type: array
-    items:
-      type: number
-    description: "Parameter Coverage Scores for LLM‑generated docstrings."
-  baseline_scores:
-    type: array
-    items:
-      type: number
-    description: "Composite scores for the signature‑copy baseline."
-  wilcoxon_statistic:
-    type: number
-    description: "Wilcoxon signed‑rank test statistic."
-  wilcoxon_p_value:
-    type: number
-    description: "Two‑tailed p‑value from the Wilcoxon signed‑rank test."
-  effect_size:
-    type: number
-    description: "Effect size (Cliff’s delta for the primary test)."
-  significance:
-    type: boolean
-    description: "True if p‑value < 0.05 and effect size > 0.05."
-  execution_time_seconds:
-    type: number
-    description: "Total wall‑clock time taken by the statistical analysis step."
-required:
-  - total_pairs
-  - human_scores
-  - llm_scores
-  - baseline_scores
-  - wilcoxon_statistic
-  - wilcoxon_p_value
-  - effect_size
-  - significance
-  - execution_time_seconds
+description: "Schema                                                                              "
+title: "  "
+title: duplicate
+title: **  **  
+```
+
+
+```
+
+
+```
+
+
+This is     
+
+
+
+We need to replace with valid schema.

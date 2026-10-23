@@ -8,7 +8,7 @@ properties:
     description: "Name of the repository (e.g., 'requests')."
   file_path:
     type: string
-    description: "Relative path to the source file within the repo."
+    description: "Relative path to the source file within the repository."
   function_name:
     type: string
     description: "Name of the public method."
@@ -32,36 +32,12 @@ properties:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Primary metric: proportion of AST parameters that appear in the docstring."
-  description_coverage_score:
-    type: number
-    minimum: 0.0
-    description: "Average number of non‑stop‑word tokens per documented parameter."
-  composite_score:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Composite Documentation Completeness Score (0.6*ParameterCoverage + 0.4*DescriptionCoverage)."
+    description: "Primary metric: proportion                                                                                                                                                                                                                                                           "
   semantic_similarity_score:
     type: number
     minimum: -1.0
     maximum: 1.0
-    description: "Auxiliary cosine similarity between human and generated docstrings (all‑MiniLM‑L6‑v2)."
-  generation_status:
-    type: string
-    enum:
-      - "success"
-      - "timeout"
-      - "error"
-    description: "Status of the generation step for this record."
-  baseline_status:
-    type: string
-    enum:
-      - "success"
-    description: "Status of the baseline copy generation (always success)."
-  error_message:
-    type: string
-    description: "Error details if generation_status != 'success'; empty string otherwise."
+    description: "Aux                                                                                                            "
 required:
   - repo_name
   - file_path

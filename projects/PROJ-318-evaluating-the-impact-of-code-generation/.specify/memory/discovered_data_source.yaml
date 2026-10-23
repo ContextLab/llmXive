@@ -1,15 +1,19 @@
 status: none
-intent: CodeSearchNet Python functions signatures and docstrings from PyPI packages
+intent: HuggingFace dataset of top PyPI packages method signatures with human docstrings
   python package dataset
 required_fields:
 - repository_name
 - package_name
+- repository_url
 - file_path
-- function_name
-- signature
+- class_name
+- method_name
+- method_signature
 - docstring
 - is_public
-- language
-cache_key: d1e4e3cbcb262dd20643dc6dc087b35d5c673c10160f839829e43aabbaf5a85f
-searched_at: '2026-10-13T13:54:03.038571+00:00'
+- line_number_start
+- line_number_end
+- popularity_tier
+cache_key: 1831982986935ddbf9022b964e20ee0e38b5b1dd6706423d7faa0d4ce0334baa
+searched_at: '2026-10-23T14:27:34.027526+00:00'
 retry_count: 1

@@ -110,7 +110,7 @@
 **Logic**:
 - `needs_review` = `true` if `generated_docstring` is empty/whitespace; otherwise `false`.
 - `coverage_score` = 0.0 when `needs_review` is `true`; otherwise computed later.
-- `composite_score` = 0.0 when `needs_review` is `true`; otherwise computed as `0.6 * coverage_score + 0.4 * description_coverage_score` (added in analysis step).
+- `composite_score` = 0.0 when `needs_review` is `true`; otherwise computed as `0.4 * coverage_score + 0.6 * description_coverage_score`.
 
 ## 6. Aggregated Results
 **File**: `data/processed/results.json`  
@@ -140,7 +140,7 @@
 ## 7. Results with Coverage Scores
 **File**: `data/processed/results_with_coverage.json`  
 **Source**: Coverage calculation step (`analyze.py --step=coverage`)  
-**Schema**: Same as Aggregated Results, with guaranteed non‑null `coverage_score` for all non‑review rows and a newly added `description_coverage_score` field.
+**Schema**: Same as Aggregated Results, with guaranteed non‑null `coverage_score` for all non‑review rows and a newly added `description_coverage_score` field (averaged over **all** parameters, zero for undocumented ones).
 
 ## 8. Results with Semantic Similarity
 **File**: `data/processed/results_with_scores.json`  
@@ -168,7 +168,28 @@
 ]
 ```
 
-## 9. Final Statistical Report
+## 9. Human Evaluation Results
+**File**: `data/processed/human_eval_results.json`  
+**Source**: `human_eval.py` (random Likert rating collection)  
+**Schema**:
+```json
+{
+  "sample_size": "integer",
+  "average_rating": "float",
+  "ratings": [
+    {
+      "repo_slug": "string",
+      "function_name": "string",
+      "human_docstring": "string | null",
+      "generated_docstring": "string",
+      "likert_rating": "integer (1‑5)"
+    }
+  ]
+}
+```
+**Constraints**: `average_rating` must be ≥ 4.0 to satisfy SC‑007.
+
+## 10. Final Statistical Report
 **File**: `data/processed/final_report.json`  
 **Source**: Wilcoxon test step (`analyze.py --step=stats`)  
 **Schema**: Single object (matches `contracts/results.schema.yaml`)
@@ -192,7 +213,7 @@
 }
 ```
 
-## 10. State Tracking
+## 11. State Tracking
 **File**: `state/projects/PROJ-318-evaluating-the-impact-of-code-generation.yaml`  
 **Schema**: YAML
 ```yaml
