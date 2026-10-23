@@ -73,7 +73,7 @@ ERROR tests/unit/test_security_scan.py
 ERROR tests/unit/test_train_model.py
 ERROR tests/unit/test_validate_quickstart.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 14 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 14 errors in 1.16s ==============================
+============================== 14 errors in 1.57s ==============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -92,7 +92,7 @@ ERROR tests/integration/test_filtering.py
 ERROR tests/integration/test_graph_metrics_pipeline.py
 ERROR tests/integration/test_model_training.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.38s ===============================
+============================== 4 errors in 0.50s ===============================
 
 
 

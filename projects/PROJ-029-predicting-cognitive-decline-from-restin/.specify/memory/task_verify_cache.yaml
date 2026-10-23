@@ -1,24 +1,24 @@
 T001a:
-  c: false
-  h: 4be3ae379cd48a138249e0b9c624f12b43a05d1b1ebe070e50bc9553a62bf90a
-  r: "The evidence only shows a `code/` directory inside the project sub\u2011folder\
-    \ `projects/PROJ-029\u2011predicting\u2011cognitive\u2011decline\u2011from\u2011\
-    restin/`; there is no artifact confirming a `code/` directory at the repository\
-    \ root as the task requires. The task remains unfulfilled."
-  sig: f9357e8ac4a87804c651d581359961c0e60d26b2cf704798c42be1deddfc1754
-T001b:
   c: true
-  h: 07268a7f03240626954f99998065aee36e65a3ff5b04cc341927c096946835f5
-  r: "The `tests/` directory exists at the repository root (7 entries) and contains\
-    \ a passing pytest suite (`tests/test_directory_structure.py`) confirming the\
-    \ directory\u2019s presence and population."
-  sig: 1173a18c69d369c13ba8e4ed960cd15b9b4228e043d12694b4873aaada6507f1
+  h: 5425f02d56fcfbd8dd03d1ba2e7fd2b0ec13906339796ca9020133552c9a45c0
+  r: The evidence shows a `code/` directory present at the repository root (39 entries)
+    and a successful execution log of `create_code_dir.py` confirming its creation.
+  sig: 7faa8487997867ac6dd11ae4ef97b121a13da05949a50007cb508fd1a818cfa1
+T001b:
+  c: false
+  h: 74fffad6f6b626a6bea4b77121a76467f3d09061349d7f34d599120161fee1e7
+  r: "The evidence shows a `tests/` directory (7 entries) exists, but it is located\
+    \ under the project subdirectory `projects/PROJ-029-predicting-cognitive-decline-from-restin/`,\
+    \ not at the repository\u2019s top\u2011level root as the task requires. A repository\u2011\
+    root `tests/` folder is missing."
+  sig: 6ed41838bf5b96a47b01f28d2c858a1f41fcc63224129e5fa0b411bc8b3f9b76
 T001c:
   c: true
-  h: 9879ba2624b50eeafd8f466c71d33268990fe9a0c9760d97abe11de4c75ab1c4
-  r: The `docs/` directory exists (with `index.md` and `quickstart.md`) at the project
-    root, and the execution log confirms it was created successfully.
-  sig: 9b7b503a26fa5c4bfc858dbd85e8ed3d79ba7b6dcb0a1afa7ce0b22e6381f2e4
+  h: 0743eab2be80ed0cde242ab35095fb4e07ac79e4410fb68312b208d904cdcc1e
+  r: "The evidence shows a `docs/` directory at the repository root containing `index.md`\
+    \ and `quickstart.md` (sha256\u202F16850d4f\u2026). This satisfies the sole requirement\
+    \ of creating the `docs/` directory."
+  sig: f8d5db3bf1786cb4c5234ff2c23e016cae0b50356e9ea59cb23c71f05b3865f6
 T002a:
   c: false
   h: 1989d0801f6930d6199b6aed8f0971104d5f4a8a6865b7a66d0fc381ba8c0e5e
@@ -29,19 +29,25 @@ T002a:
   sig: 85ddb776c81e0cb99e15b69f5badab99bd3c8f2828a209487a4c85a76062b20b
 T002b:
   c: true
-  h: 0f400ca7313106dda58afcc3328775401042c17eafbc0767c6812a25093ef833
-  r: The `data/processed/` directory exists (contains a `.gitkeep` file) at the project
-    root, and the unit test `test_data_processed_dir_exists` passed, confirming its
-    presence.
-  sig: 51b77541c16ae8bdb5284baa362debceca6c2c7d3defa11cf0b69f4dca6710cd
+  h: d29d8e8a02d3e40095c7a0be1c2fc5f26f8ef26421aa93bb8754a3eaf1d3498b
+  r: "The evidence shows a `data/processed/` directory (containing a `.gitkeep` file)\
+    \ exists at the repository root, fulfilling the task\u2019s sole requirement to\
+    \ create that directory."
+  sig: 1e03181bebfb14139760f73583b029088958fd9724aca122ea20de8a7bf68e85
 T002c:
   c: true
-  h: c3581c96367e96e81d07a17526f5cef58caa923fdcd9fa17ddaf071dd4dcd964
-  r: "The `data/artifacts/` directory is present at the repository root (confirmed\
-    \ by the collector\u2019s directory listing with 9 entries) and its existence\
-    \ is verified by the passing unit test `test_data_artifacts_dir_exists` and the\
-    \ setup script log confirming \u201COK: data/artifacts/ exists\u201D."
-  sig: 23594fe8f9169ec33ef8c4b51775967fe4431e7cde5450bea04c435c10d0399c
+  h: 0ef193e21979cedae11b40ff240b29d23ef3a4a5f51eb9e0d84f7d7fa65b5871
+  r: "The evidence shows a non\u2011empty `data/artifacts/` directory (9 entries)\
+    \ present at the repository root, satisfying the requirement to create that directory."
+  sig: 525901f01844beb1255f7cf08f733e70f296c7d9a09645d4ea0a8b08c1d3d924
+T003a:
+  c: false
+  h: fca16b34fff6ad518ebc7973dae3c00a2bd59940a3e7147b6a1bf999bcac3cee
+  r: "The evidence shows a `tests/unit/` directory with many test files, but it resides\
+    \ under the project subdirectory (`projects/PROJ-029-predicting-cognitive-decline-from-restin/tests/unit/`)\
+    \ rather than at the repository root as required. The task\u2019s requirement\
+    \ to create the directory at the repository root is not met."
+  sig: df6b23b5bd6b2c27c2512e10bbf23b2fe619d15e8333f17e2bd26f4a8430cc53
 T017a:
   c: false
   h: ba95e905208ed9b5d76e0510f1a447e829b58516cf3217196eb8fe05ae0b51f0

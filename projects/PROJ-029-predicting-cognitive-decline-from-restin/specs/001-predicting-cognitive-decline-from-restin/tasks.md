@@ -42,13 +42,13 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory `code/` at repository root
-- [X] T001b [P] Create directory `tests/` at repository root
+- [X] T001a [P] Create directory `code/` at repository root
+- [ ] T001b [P] Create directory `tests/` at repository root
 - [X] T001c [P] Create directory `docs/` at repository root
 - [ ] T002a [P] Create directory `data/raw/` at repository root
 - [X] T002b [P] Create directory `data/processed/` at repository root
 - [X] T002c [P] Create directory `data/artifacts/` at repository root
-- [~] T003a [P] Create directory `tests/unit/` at repository root
+- [ ] T003a [P] Create directory `tests/unit/` at repository root
 - [~] T003b [P] Create directory `tests/integration/` at repository root
 - [~] T003c [P] Create directory `tests/contract/` at repository root
 - [~] T004a [P] Initialize Python 3.11 project structure in `code/`

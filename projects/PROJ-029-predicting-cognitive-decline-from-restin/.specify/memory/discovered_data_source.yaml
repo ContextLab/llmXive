@@ -2,17 +2,17 @@ status: none
 intent: OpenNeuro ds000246 ADNI rs-fMRI BIDS download AAL atlas python package dataset
 required_fields:
 - subject_id
-- session_id
-- timepoint
-- MMSE_baseline
-- MMSE_followup
-- MOCA_baseline
-- MOCA_followup
-- age
-- sex
+- session
+- mmse_baseline
+- mmse_followup
+- moCA_baseline
+- moCA_followup
+- connectivity_matrix
 - adjacency_matrix
 - node_degree
 - global_efficiency
-cache_key: e9919450f9bed4434786c631b3ab25ced3b2469581235201847144e1984b1e04
-searched_at: '2026-10-20T00:55:03.536315+00:00'
+- clustering_coefficient
+- characteristic_path_length
+cache_key: c35077106b881a2cfbfa45b19cb39ef561eb6781497baf6d1ff67dfc6d6400b9
+searched_at: '2026-10-23T12:37:48.471715+00:00'
 retry_count: 1

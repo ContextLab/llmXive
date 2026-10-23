@@ -1,10 +1,10 @@
 T001a:
-  reason: "The evidence only shows a `code/` directory inside the project sub\u2011\
-    folder `projects/PROJ-029\u2011predicting\u2011cognitive\u2011decline\u2011from\u2011\
-    restin/`; there is no artifact confirming a `code/` directory at the repository\
-    \ root as the task requires. The task remains unfulfilled."
   task: a1b6c406871a466371d106ab1fc39208a6053d3ac802d3cd042714f867e08103
 T001b:
+  reason: "The evidence shows a `tests/` directory (7 entries) exists, but it is located\
+    \ under the project subdirectory `projects/PROJ-029-predicting-cognitive-decline-from-restin/`,\
+    \ not at the repository\u2019s top\u2011level root as the task requires. A repository\u2011\
+    root `tests/` folder is missing."
   task: 7f6c69ce55d72fa8a282fef8def283fd599c474caeadecb28fafc7ffdae4abb6
 T001c:
   task: 4d2c255ffbd4578300a196b828669035de9aba12d5a386ae190d8ba0589ab8cc
@@ -19,6 +19,10 @@ T002b:
 T002c:
   task: eae3813bbfafef8869aeef81ce4fbf265e23bf397f3e18716069c72b167e3d1e
 T003a:
+  reason: "The evidence shows a `tests/unit/` directory with many test files, but\
+    \ it resides under the project subdirectory (`projects/PROJ-029-predicting-cognitive-decline-from-restin/tests/unit/`)\
+    \ rather than at the repository root as required. The task\u2019s requirement\
+    \ to create the directory at the repository root is not met."
   task: eea3fbd7cc9d28e38b2cf8de3f6c101be8a8548b2dc46822734ae3a8ddb399e4
 T003b:
   task: a4abdaefb51b7e4596ae471caa32e250512a639b4bd5dda87aac322335e25b4e
