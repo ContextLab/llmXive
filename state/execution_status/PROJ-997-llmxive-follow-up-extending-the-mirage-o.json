@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-18T21:18:02Z",
+  "updated_at": "2026-10-23T12:24:12Z",
   "project_id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
   "replan_rounds": 1
 }

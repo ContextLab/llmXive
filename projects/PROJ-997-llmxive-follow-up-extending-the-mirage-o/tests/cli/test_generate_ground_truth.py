@@ -50,7 +50,7 @@ def test_generate_ground_truth(tmp_path):
         "local_curvature",
         "kl_divergence",
     }
-    assert required_columns.issubset(df.columns), "Missing expected columns in dataset"
+    assert required_columns.subset(df.columns), "Missing expected columns in dataset"
 
     # -----------------------------------------------------------------
     # Verify that the statistics JSON file exists and contains the expected

@@ -3,9 +3,9 @@ generate_ground_truth.py
 
 This script implements task **T015** – Generate Ground Truth Data.
 
-It downloads a subset of the GSM8K dataset directly from the Hugging Face Hub,
-runs full‑precision inference with a Hugging‑Face Transformers model, creates
-quantized versions of the same model, computes KL divergence between the
+It downloads a subset of the GSM8K dataset using the Hugging Face `datasets` library,
+runs full‑precision inference with a Hugging‑Face Transformers model,
+creates quantized versions of the same model, computes KL divergence between the
 full‑precision and quantized logits, extracts simple training‑side signals
 (gradient norm and a curvature proxy), and stores the results in a Parquet
 file.  The script records the hardware source (CPU) for each row to satisfy
@@ -33,11 +33,11 @@ from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
-import requests
 import torch
 import torch.nn.functional as F
 from tqdm.auto import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from datasets import load_dataset
 
 from llmxive_toolkit import get_logger
 
@@ -151,20 +151,16 @@ def compute_gradient_norm(
 
 def download_gsm8k_subset(sample_size: int) -> List[dict]:
     """
-    Stream the GSM8K training split from the Hugging Face Hub and return
-    the first ``sample_size`` records as a list of dictionaries.
+    Load the GSM8K training split via the `datasets` library and return the
+    first ``sample_size`` records as a list of dictionaries.
     """
-    url = "https://huggingface.co/datasets/gsm8k/resolve/main/train.jsonl"
-    log.info(f"Downloading GSM8K dataset from {url}")
-    response = requests.get(url, stream=True, timeout=60)
-    response.raise_for_status()
+    log.info(f"Loading GSM8K dataset (first {sample_size} samples).")
+    ds = load_dataset("gsm8k", split="train")
     records = []
-    for line in response.iter_lines(decode_unicode=True):
-        if line:
-            record = json.loads(line)
-            records.append(record)
-            if len(records) >= sample_size:
-                break
+    for i, record in enumerate(ds):
+        records.append(record)
+        if len(records) >= sample_size:
+            break
     log.info(f"Retrieved {len(records)} samples from GSM8K.")
     return records
 
