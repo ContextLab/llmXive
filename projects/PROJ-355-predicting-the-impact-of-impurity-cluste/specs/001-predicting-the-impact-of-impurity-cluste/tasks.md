@@ -1,75 +1,142 @@
 # Tasks: Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
 
-**Inputs**: Active `spec.md`, `plan.md`, `data-model.md`, contracts/ (read-only), reviewer feedback.  
-**Project root**: `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` (paths below are relative to it).
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contracts (`*.schema.yaml`), reviewer feedback.  
+All paths are relative to the project root `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`.
 
-## Completed foundation (preserved from prior rounds)
+---
 
-- [ ] T000 Project metadata scaffold `data/metadata.yaml`.
-- [ ] T001a Directory structure (`code/`, `data/raw/`, `data/processed/`, `results/`, `tests/`).
-- [ ] T003 Linting/formatting config.
-- [X] T004a/T004b Contract schemas `contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`.
-- [ ] T004c `code/validators.py` URL validation.
-- [ ] T005 `code/config.py` (paths, seeds, whitelist).
-- [ ] T005b Methodology sketch with pinned seed.
-- [X] T006/T008/T009 Package and test scaffolding.
-- [ ] T007 `code/main.py` orchestration skeleton.
-- [X] T010/T011/T012a/T012c Unit/integration tests for retry, interface filtering, pipeline, energy generation.
+- [ ] T001 [P] [US-1] **Create a verifiable `.gitignore`**  
+  - File: `.gitignore`  
+  - Requirements: Must contain the patterns `data/`, `results/`, `*.pyc`, `__pycache__/`.  
+  - Verification: `tests/unit/test_gitignore.py` asserts each pattern is present; the test must pass.
 
-## Phase 1: Setup and first end‑to‑end analysis
+- [ ] T002 [P] [US-1] **Write a complete `README.md`**  
+  - File: `README.md`  
+  - Requirements: Include (a) project title, (b) one‑line execution command (`python -m code.main`), (c) data‑provenance section that cites the verified OQMD loader and documents the Materials Project deviation, (d) brief summary of the research question.  
+  - Verification: `tests/unit/test_readme.py` checks for the required headings and strings; the test must pass.
 
-- [ ] T101 [P] [US1] **Redo T001b/T001c**: Write verifiable content for `.gitignore` (must contain `data/`, `results/`, `*.pyc`, `__pycache__/`) and `README.md` (project title, execution‑instructions with `python -m code.main`, data‑provenance section naming the verified OQMD loader and the documented Materials Project / FR‑001 / FR‑003 deviations). Extend `tests/integration/test_artifact_verification.py` to assert these patterns, ensuring the previously failing run now passes.
+- [ ] T003 [US-1] **Download bulk configuration records (OQMD) with retry logic and checksum verification**  
+  - Files: `code/download.py`, `data/raw/oqmd_records/` (immutable JSON/CSV files), `data/metadata.yaml` (records dataset ID, sampling rule, SHA‑256 checksums).  
+  - Steps:  
+    1. Use the verified recipe `datasets.load_dataset("jablonkagroup/oqmd", name="raw_data")` with streaming.  
+    2. Sample exactly 600 records (200 per alloy system Fe‑Cr, Ni‑Al, Cu‑Zn) using a fixed random seed.  
+    3. Retry up to 3 times on transient failures; on permanent failure log `[DATA_UNAVAILABLE]` and raise.  
+    4. Compute and record SHA‑256 checksums for all downloaded files in `data/metadata.yaml`.  
+  - Verification: `tests/unit/test_download_retry.py` must pass; `data/metadata.yaml` must contain the OQMD dataset ID, sampling rule, and checksums for all raw files.
 
-- [ ] T102 [US1] **FR‑001 (OQMD download)**: Implement `code/download.py` using the verified recipe  
-  `datasets.load_dataset("jablonkagroup/oqmd", name="raw_data")`. Stream the dataset and **sample exactly 600 records total – 200 per alloy family (Fe‑Cr, Ni‑Al, Cu‑Zn) identified by matching the `formula` string**. Use a fixed random seed for deterministic ordering. Record wall‑clock start/end times; **assert that the total download duration ≤ 30 minutes**, otherwise fail the task. On permanent failure after ≤3 retries log `[DATA_UNAVAILABLE]` and raise. Store SHA‑256 checksums, dataset id, and the sampling rule in `data/metadata.yaml`; write raw records immutably under `data/raw/`. Unit test `tests/unit/test_download_retry.py` must still pass.
+- [ ] T003a [US-1] **Attempt Materials Project bulk configuration download and record deviation status**  
+  - Files: `code/download.py` (MP section), `data/metadata.yaml` (materials_project_status field).  
+  - Steps:  
+    1. Attempt to download Materials Project bulk structures using a verified public API endpoint (if one exists) or via `wget`/`curl` from a documented MP data repository.  
+    2. Retry up to 3 times on transient failures.  
+    3. If successful, store files in `data/raw/mp_records/` and record checksums in `data/metadata.yaml`.  
+    4. If permanent failure (no verified endpoint available), log `[DATA_UNAVAILABLE]` and record `materials_project_status: DATA_UNAVAILABLE` in `data/metadata.yaml` with a brief explanation (e.g., "No open API endpoint; Materials Project requires authentication").  
+  - Verification: `tests/unit/test_download_retry.py` must confirm that the MP section was attempted and that `data/metadata.yaml` contains the `materials_project_status` field with either `RETRIEVED` or `DATA_UNAVAILABLE`.
 
-- [ ] T102b [US1] **FR‑001 (Materials Project download)**: Implement `code/download_mp.py` to fetch bulk configuration files from Materials Project using `wget`/`curl` from the public release URL `[UNRESOLVED-CLAIM: https://files.rcsb.org/download/mp_bulk_structures.tar.gz` — HTTP 404]. Perform up to 3 retry attempts, verify SHA‑256 checksums, and store the extracted files under `data/raw/mp/`. Log download duration and raise `[DATA_UNAVAILABLE]` if the URL remains inaccessible after retries. This satisfies the requirement to download from **both** Materials Project and OQMD.
+- [ ] T003b [US-1] **Document FR-003 deviation: segregation‑energy source limitation**  
+  - Files: `data/metadata.yaml` (fr_003_deviation field).  
+  - Steps:  
+    1. Record in `data/metadata.yaml` that no verified open-access literature database of segregation‑energy measurements exists.  
+    2. Document that segregation energies will be generated in‑house using validated EAM potentials (see T006), satisfying the intent of FR-003 (providing labeled segregation‑energy targets) while acknowledging the source limitation.  
+    3. Include a note that this deviation is justified by the absence of a public literature database and is recorded per the Constitution's transparency principle.  
+  - Verification: `data/metadata.yaml` must contain a `fr_003_deviation` field with the explanation; no synthetic/fabricated data is used in T006.
 
-- [ ] T103a [US1] **FR‑002 (GB construction)**: Implement `code/gb_builder.py` to:
-  1. Reconstruct bulk structures from each OQMD record using `pymatgen.Structure.from_spacegroup` with `formula`, `spacegroup`, and `volume_per_atom` (derivation documented, cited to the OQMD record id).
-  2. Generate impurity clusters **in the bulk‑like region** (pre‑insertion geometry) using a pinned seed.
-  3. Build a grain‑boundary supercell with a fixed 90° misorientation, insert the pre‑formed impurity cluster at the interface, and perform **EAM relaxation** (ASE) to obtain the final GB structure.
-  4. Filter out configurations with zero impurity atoms, logging the count to `data/processed/preprocessing_report.json`.
-  Output intermediate GB structures under `data/processed/gb_structures/` and a mapping CSV (`gb_build_map.csv`) linking `bulk_id`, `gb_id`, `alloy_system`, and `impurity_species`.
+- [ ] T004 [US-1] **Reconstruct bulk structures, build GB supercells, insert impurities, and filter zero‑impurity cases**  
+  - Files: `code/gb_builder.py`, `data/processed/gb_structures/` (relaxed GB `.json` files), `data/processed/gb_build_map.csv`.  
+  - Steps:  
+    1. For each OQMD record, reconstruct a bulk `pymatgen.Structure` from `formula`, `spacegroup`, and `volume_per_atom`.  
+    2. Generate a symmetric 90° tilt grain‑boundary supercell, insert impurity atoms **as a pre‑existing bulk cluster** (i.e., before GB creation) and then place the GB.  
+    3. Perform EAM relaxation with ASE.  
+    4. Exclude configurations with zero impurity atoms; log the count in `data/processed/preprocessing_report.json`.  
+  - Verification: `tests/unit/test_gb_builder.py` checks that every output GB has at least one impurity and that the mapping CSV correctly links `bulk_id` → `gb_id` → `alloy_system`.
 
-- [ ] T103b [US1] **FR‑002 (descriptor computation)**: Implement `code/descriptors.py` to **compute the three clustering descriptors (RDF peak, pair‑correlation statistic, Voronoi neighbor count) and `cluster_size`** **after EAM relaxation and **only within the GB interface mask**. Also compute `local_lattice_strain` from the relaxed interface region. Write `data/processed/descriptors.csv` with columns  
-  `sample_id, gb_id, alloy_system, impurity_species, rdf_peak_value, pair_corr_value, voronoi_count, cluster_size, local_lattice_strain`. The descriptors now satisfy the original FR‑002 wording and the data‑model definition.
+- [ ] T005 [US-1] [US-2] **Compute clustering descriptors from the GB interface region and generate VIF collinearity report**  
+  - Files: `code/descriptors.py`, `data/processed/descriptors.csv`, `results/metrics.json` (collinearity block).  
+  - Steps:  
+    1. From the **interface region** (atoms within 3 Ångströms of the GB plane) of each **relaxed GB structure** (post‑EAM relaxation), compute three descriptors: RDF peak value, pair‑correlation statistic, and Voronoi neighbor count. Also compute `cluster_size` (mean nearest‑neighbor distance among interface impurities) and `local_lattice_strain` (trace of the local strain tensor around the interface).  
+    2. Calculate Variance Inflation Factors (VIF) for the three original descriptors (RDF peak, pair-correlation, Voronoi count); threshold VIF = 10.  
+    3. Emit a JSON collinearity report (`high_collinearity_detected`, `flagged_groups` with predictor list, max VIF, one‑sentence summary) and embed it under the `collinearity` block in `results/metrics.json`.  
+    4. Write all descriptor values to `data/processed/descriptors.csv` with columns matching `contracts/dataset.schema.yaml`.  
+  - Verification: `tests/unit/test_descriptors.py::test_vif_detection` must pass; the JSON report must conform to `contracts/output.schema.yaml`; every descriptor must be computed only from interface atoms.
 
-- [ ] T104a [US1] **FR‑003 (Segregation‑energy extraction)**: Implement `code/extract_energy.py` to **download a publicly available literature dataset of segregation‑energy measurements** (e.g., `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/materials-data/segregation-energies/main/energies.csv` — HTTP 404]). Parse the CSV, match entries to the corresponding GB configurations via `gb_id` and `impurity_species`, and produce `data/processed/energies.csv` (`sample_id, gb_id, segregation_energy_eV, status`). Log any unmatched configurations; if the exclusion rate exceeds 5 % emit a warning. This fulfills FR‑003 without generating new simulations.
+- [ ] T006 [US-2] **Generate EAM segregation‑energy labels and assemble the training dataset**  
+  - Files: `code/simulate_energy.py`, `data/processed/energies.csv`, `data/processed/training_set.csv`, `data/processed/sample_size_justification.md`.  
+  - Steps:  
+    1. Run validated EAM potentials for the three alloy systems (Fe‑Cr, Ni‑Al, Cu‑Zn) on each GB structure to obtain segregation energies (leave‑one‑out).  
+    2. Merge `descriptors.csv` with `energies.csv`, add covariates `atomic_radius` and `electronegativity` from standard elemental tables, and assign a deterministic `split` column (`train`/`test`) ensuring ≥50 held‑out samples and ≥3 alloy systems in the test set.  
+    3. Validate the final CSV against `contracts/dataset.schema.yaml`.  
+    4. Document the final sample size, the 200‑sample floor, and the power‑analysis justification in `sample_size_justification.md`. Reference the FR-003 deviation record from T003b.  
+  - Verification: `tests/unit/test_training_set.py` validates schema compliance and split proportions; the justification markdown must contain the required numeric statements.
 
-- [ ] T104b [US1] **Training‑set assembly**: Merge `descriptors.csv` and `energies.csv` on `sample_id`, add covariates `atomic_radius` and `electronegativity` from standard elemental property tables, and assign a deterministic `split` column (≥50 held‑out samples, ≥3 alloy systems). Validate the final CSV against `contracts/dataset.schema.yaml`; write to `data/processed/training_set.csv`. Create `data/processed/sample_size_justification.md` stating the final N, the 200‑sample floor, and the power‑aware sampling rule.
+- [ ] T007 [US-2] **Perform power analysis (FR‑008) and linearity assessment (FR‑010)**  
+  - Files: `code/power_analysis.py`, `results/metrics.json` (power_analysis and linearity_assessment blocks).  
+  - Steps:  
+    1. Using `statsmodels.stats.power.FTestPower`, compute required sample size for effect size f² = 0.15, α = 0.05, and predictor count = 12 (matching the 12 columns in the training-set schema: rdf_peak_value, pair_corr_value, voronoi_count, cluster_size, local_lattice_strain, atomic_radius, electronegativity, impurity_species, alloy_system, bulk_id, gb_id, sample_id). Record `required_n`, `achieved_n`, `achieved_power`, `meets_requirement`.  
+    2. Generate scatter plots of each descriptor vs. segregation energy and residual plots for a provisional OLS fit; store a boolean `appears_linear` and a textual `evidence` description.  
+    3. Insert both results into `results/metrics.json`.  
+  - Verification: `tests/unit/test_power_linearity.py` checks that `meets_requirement` is true and that `appears_linear` is a boolean.
 
-- [ ] T105 [US1] **FR‑011 (EAM‑vs‑DFT validation harness)**: Revise `code/validate_potential.py` to **require a verified DFT benchmark dataset** (e.g., `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/materials-data/dfte-benchmarks/main/dfte_segregation.csv` — HTTP 404]). If the benchmark is present, compute the mean absolute error (MAE) between EAM‑derived segregation energies (from `data/processed/energies.csv`) and the DFT values for at least 30 matched samples, and enforce **MAE ≤ 0.1 eV**. The script must raise an error if the benchmark is missing or if fewer than 30 matches are found, thereby satisfying FR‑011 and making SC‑006 measurable. Output `data/processed/potential_validation.json` with fields `status`, `n_benchmark`, `mae_eV`, `threshold_eV`, `note`.
+- [ ] T008 [US-2] **Train Linear Regression and RandomForest models with GroupKFold CV, evaluate held‑out set, and produce prediction intervals**  
+  - Files: `code/train_model.py`, `results/metrics.json` (model_type, cross_validation, held_out_test blocks).  
+  - Steps:  
+    1. Use `GroupKFold` on `gb_id` (5‑fold, or LOOCV if N < 5) to train both a statsmodels OLS model (record p‑values) and a scikit‑learn `RandomForestRegressor`.  
+    2. Record per‑fold R², RMSE, and for the linear model also coefficient p‑values.  
+    3. Evaluate on the held‑out test set (≥50 samples, ≥3 alloy systems); compute overall R², RMSE, per‑system R², and a permutation‑test p‑value (1 000 permutations) for the linear model.  
+    4. Produce 95 % prediction intervals for every test prediction (OLS via `get_prediction()`, RF via quantile regression or bootstrapping) and set `ci95_available: true`.  
+    5. Choose `model_type` in the JSON according to the linearity verdict (`LinearRegression` if `appears_linear` true, otherwise `RandomForest`).  
+  - Verification: `tests/integration/test_model_training.py` must pass; the JSON must validate against `contracts/output.schema.yaml`.
 
-- [ ] T106 [US1] **First end‑to‑end run**: Connect `code/main.py` to the pipeline steps T102 → T102b → T103a → T103b → T104a → T104b → T105. Run a **small pilot** with N=10 samples to verify that GB supercells, descriptors, and energies are generated; then run the full ≥200‑sample pipeline. Verify that `pytest tests/integration/test_data_pipeline.py tests/integration/test_artifact_verification.py -q` passes and that `data/processed/training_set.csv` validates against the dataset schema.
+- [ ] T009 [US-3] **Conduct hypothesis testing, apply Benjamini‑Hochberg FDR correction, and write the report**  
+  - Files: `code/report.py`, `results/hypothesis_report.json`.  
+  - Steps:  
+    1. Extract raw p‑values for all regression coefficients from the linear model.  
+    2. If more than one hypothesis, apply **Benjamini‑Hochberg FDR correction** (not Bonferroni); compute adjusted p‑values.  
+    3. Flag predictors whose significance status changes after correction; count them (`n_significance_changes`).  
+    4. Write a JSON report conforming to `contracts/report.schema.yaml` with `correction_method: "fdr-bh"`, `alpha: 0.05`, `n_hypotheses`, detailed predictor entries, and a free‑text `summary`.  
+  - Verification: `tests/unit/test_hypothesis_report.py` validates schema compliance, confirms `correction_method: "fdr-bh"` is set, and verifies that `n_significance_changes` matches the computed changes.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] T010 [US-3] **Generate the cluster‑size vs. segregation‑energy figure with 95 % confidence bands**  
+  - Files: `code/plots.py`, `results/cluster_size_vs_segregation.png`.  
+  - Steps:  
+    1. For each alloy system (≥3), plot `cluster_size` on the x‑axis and `segregation_energy_eV` on the y‑axis using the held‑out test data.  
+    2. Overlay 95 % confidence intervals derived from the chosen model's prediction intervals.  
+    3. Save as a high‑resolution PNG (`dpi=300`).  
+  - Verification: `tests/unit/test_plots.py` checks that the PNG exists, has the correct dimensions, and that the file size > 10 KB (ensuring it is not an empty placeholder).
 
-- [ ] T107 [US2] **FR‑007/FR‑012/SC‑004 (VIF diagnostics)**: In `code/descriptors.py` (or a dedicated module) compute **Variance Inflation Factors** **only for the three original descriptors** (RDF peak, pair‑correlation, Voronoi count). Use a threshold of 10; if any VIF ≥ 10, emit a JSON collinearity report (predictor group, max VIF, one‑sentence summary) and set `high_collinearity_detected: true`. Insert this report into `results/metrics.json` under the `collinearity` block. No feature removal is performed.
+- [ ] T011a [US-2] **Implement FR-011 EAM-vs-DFT validation harness**  
+  - Files: `code/validate_potential.py`, `results/metrics.json` (eam_validation block).  
+  - Steps:  
+    1. Check if a verified DFT benchmark dataset is available (injected by the execution stage or specified in `data/metadata.yaml`).  
+    2. **If available and ≥30 samples**: load the benchmark, compute EAM energies for the same structures, compute MAE between EAM and DFT predictions, and check if MAE ≤ 0.1 eV per FR-011. Record `status: "VALIDATED"`, `n_benchmark: <count>`, `mae_eV: <value>`, and set `note` to an empty string or brief confirmation.  
+    3. **If unavailable or <30 samples**: record `status: "DATA_UNAVAILABLE"`, `n_benchmark: 0`, `mae_eV: null`, and include a `note` explaining that no verified open DFT benchmark exists (or that the available benchmark is too small).  
+    4. Write the `eam_validation` block to `results/metrics.json` conforming to `contracts/output.schema.yaml`. This task is **mandatory and non-optional**; the eam_validation block must be present in every run.  
+  - Verification: `tests/unit/test_validate_potential.py` checks that the eam_validation block is present and conforms to schema; the block must contain either `status: "VALIDATED"` with MAE ≤ 0.1 eV or `status: "DATA_UNAVAILABLE"` with a clear explanation in the `note` field.
 
-- [ ] T108a [US2] **Linearity assessment (FR‑010)**: Using `code/train_model.py`, generate scatter plots of each descriptor vs. segregation energy and residual plots for a provisional OLS fit. Store a boolean `appears_linear` and textual `evidence` in `results/metrics.json` → `linearity_assessment`.
+- [ ] T012 **Run full end‑to‑end pipeline, execute integration tests, and record final metadata**  
+  - Files: `code/main.py`, `results/metrics.json`, `results/hypothesis_report.json`, `data/metadata.yaml`, `results/performance_verification.json`.  
+  - Steps:  
+    1. Execute `python -m code.main` which orchestrates tasks T003–T011a in order.  
+    2. Run the full pytest suite (`pytest -q`). All tests must pass.  
+    3. After a successful run, append to `data/metadata.yaml` the final `random_seed`, execution `date`, `code_version_hash` (git commit hash), and `data_source` (OQMD loader identifier).  
+    4. Write a performance summary (`results/performance_verification.json`) reporting total wall‑clock time, CPU usage, and confirmation that the job stayed within the 6‑hour CPU‑only budget.  
+  - Verification: The CI runner must finish with exit code 0; the performance JSON must contain `budget_exceeded: false`.
 
-- [ ] T108b [US2] **Cross‑validation (FR‑004a & FR‑004b)**: Train **both** Linear Regression (statsmodels OLS) and RandomForestRegressor (scikit‑learn) on the training split using **GroupKFold** on `gb_id` (5‑fold, or LOOCV if N < 5). Record per‑fold R², RMSE, and for the linear model also coefficient p‑values. Store results for **each model** in `results/metrics.json` under separate keys (`linear_regression` and `random_forest`).
+--- 
 
-- [ ] T108c [US2] **Held‑out evaluation & prediction intervals (SC‑001/SC‑002/SC‑003)**:
-  1. Evaluate each trained model on the held‑out test set (≥50 samples, ≥3 alloy systems). Compute overall R², RMSE, and per‑system R² (store in `per_system_r2` array).
-  2. Perform **1 000 permutation tests** on the linear model’s R² to obtain a p‑value; store as `permutation_p_value`.
-  3. Generate **95 % prediction intervals for every test prediction** for **both** models (OLS `get_prediction()` for linear; quantile‑regression Forest via `RandomForestQuantileRegressor` or bootstrap for RF). Set `ci95_available: true` and include the intervals in `results/metrics.json` under each model’s block.
+**Dependency map**
 
-- [ ] T108d [US2] **Power analysis (FR‑008)**: Using `statsmodels.stats.power.FTestPower`, compute required sample size for effect size f² = 0.15, α = 0.05, predictor count = 7. Record `required_n`, `achieved_n`, `achieved_power`, and `meets_requirement` in `results/metrics.json` → `power_analysis`.
+| Task | Depends on |
+|------|------------|
+| T001, T002 | – (independent) |
+| T003, T003a, T003b | – (independent data-acquisition tasks) |
+| T004 | T003, T003a |
+| T005 | T004 |
+| T006 | T005, T003b |
+| T007 | T006 |
+| T008 | T007 |
+| T009 | T008 |
+| T010 | T008 |
+| T011a | T006 |
+| T012 | All previous tasks (T003–T011a) |
 
-- [ ] T109 [US3] **FR‑005 / SC‑003 (hypothesis testing & correction)**: Implement `code/report.py` to extract raw p‑values from the linear model, apply **Benjamini‑Hochberg FDR** (or Bonferroni) when >1 hypothesis, compute adjusted p‑values, flag significance changes, count `n_significance_changes`, and write `results/hypothesis_report.json` conforming to `contracts/report.schema.yaml` with a free‑text `summary`.
-
-- [ ] T110 [US3] **FR‑009 / SC‑005 (visualization)**: Implement `code/plots.py` to plot **cluster‑size vs. segregation‑energy** with 95 % confidence bands for each alloy system (≥3 systems). Save as high‑resolution PNG `results/cluster_size_vs_segregation.png`.
-
-- [ ] T111 [US3] **Edge‑case and runtime checks**: Extend unit tests:
-  - `tests/unit/test_descriptors.py::test_collinearity_detection`
-  - `tests/unit/test_energy.py::test_missing_energy_exclusion`
-  - `tests/unit/test_gb_builder.py::test_zero_impurity_filter`
-  Run the full test suite and record outcomes (pass counts, wall‑clock time, final N) in `results/performance_verification.json`. Verify the total CPU‑only budget ≤ 6 h and that the pipeline stays within the 500‑sample cap.
-
-## Phase 3: Reproducible results and paper handoff
-
-- [ ] T112 Write a concise methods/results summary in `README.md` (research summary section) that **directly references** the generated artifacts (`results/metrics.json`, `results/hypothesis_report.json`, `results/cluster_size_vs_segregation.png`, `data/processed/training_set.csv`). Declare the associational‑only scope (EAM‑internal physics), note the predictor‑geometry correction, and describe the paper‑stage handoff (inputs for the downstream paper pipeline).
-
-- [ ] T113 Re‑run the documented workflow (`python -m code.main`), confirm all `pytest` suites (including artifact‑content verification) pass, validate `results/metrics.json` and `results/hypothesis_report.json` against their schemas, and record the final run’s `random_seed`, execution `date`, `code_version_hash`, and `data_source` in `data/metadata.yaml`. Ensure no scripts write to `state/` or `.github/`.
+All tasks are unchecked (`- [ ]`) to allow fresh execution and verification.

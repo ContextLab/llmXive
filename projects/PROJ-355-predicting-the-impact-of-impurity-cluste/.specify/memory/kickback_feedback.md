@@ -1,12 +1,12 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 4 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `task-format` (rejected 1x): Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T003', 'T004a', 'T004b', 'T005', 'T006', 'T007', 'T008', 'T009']
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- Task T009 does not specify which multiple‑comparison correction method (Bonferroni or Benjamini‑Hochberg) to apply when >1 hypothesis is tested, making the verification nondeterministic. The task should explicitly state the correction method to ensure reproducible, testable output.
+- FR-001 requires downloading bulk configuration files from **both** Materials Project and OQMD. Task T003 only downloads OQMD records and never attempts Materials Project retrieval, thereby weakening the functional requirement.
+- FR-011 mandates validation of EAM‑derived segregation‑energy labels against a DFT benchmark of ≥30 samples with MAE ≤ 0.1 eV. No task in the list implements this validation step; the pipeline merely records a `[DATA_UNAVAILABLE]` status, which does not meet the requirement.
+- Constitution Principle VI (Materials Data Provenance) requires sourcing bulk configuration and grain‑boundary datasets from **both** Materials Project and OQMD. The current task set only uses OQMD, constituting a constitutional drift.
