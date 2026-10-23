@@ -1,8 +1,8 @@
 T000:
-  c: false
-  h: 30c7b4089416fb36797af1b1b4e6b5e566d460ee476c0ff1280c491f71bbc620
-  r: The `data/raw/` and `data/processed/` directories contain the required `README.txt`
-    files, but the `outputs/` directory does not have a `README.txt` as the task specifies
-    a README in each of the three directories. Adding the missing README file to `outputs/`
-    (or updating the script to create it) is needed to satisfy the task.
-  sig: dcffe544207a7289bc12729b7f284a12e01faae4347ae6379911dfd0e1a9b2d2
+  c: true
+  h: 53b31746af804265e74c290487b3669f2ac7afaf3965b95807437643097ac5f0
+  r: "Checked `code/setup_skeleton.py` (which creates the hierarchy), the existence\
+    \ of `data/raw/`, `data/processed/`, and `outputs/` directories with their `README.txt`\
+    \ files, and the execution log confirming successful creation and write\u2011\
+    access. All required directories are present and writable."
+  sig: e0bfee85adf3f16e6c075afaa352f17e00232521b9e46614e6a00264cda7b599

@@ -1,8 +1,4 @@
 T000:
-  reason: The `data/raw/` and `data/processed/` directories contain the required `README.txt`
-    files, but the `outputs/` directory does not have a `README.txt` as the task specifies
-    a README in each of the three directories. Adding the missing README file to `outputs/`
-    (or updating the script to create it) is needed to satisfy the task.
   task: 3eb6d02c0dd35b97957828408f38b549860b0af575245b69aa1f2261785746b4
 T001:
   reason: 'Requested task execution failed; rerun successfully: code/download_data.py

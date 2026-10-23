@@ -23,10 +23,10 @@ oject/oc20' doesn't exist on the Hub. If the repo is private or gated, make sure
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 311, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 328, in main
     parquet_path = download_oc20_stratified_sample()
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 210, in download_oc20_stratified_sample
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 217, in download_oc20_stratified_sample
     raise RuntimeError(f"Failed to fetch OC20 dataset: {e}") from e
 RuntimeError: Failed to fetch OC20 dataset: Couldn't find a dataset script at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/open-catalyst-project/oc20/oc20.py or any data file in the same directory. Couldn't find 'open-catalyst-project/oc20' on the Hugging Face Hub either: FileNotFoundError: Dataset 'open-catalyst-project/oc20' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.
 
@@ -83,10 +83,10 @@ FileNotFoundError: Aligned dataset not found at /home/runner/work/llmXive/llmXiv
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-170-predicting-catalytic-activity-from-elect/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/stat_test.py': [Errno 2] No such file or directory
 
 - python code/interpret.py -> rc=1
-026-10-23 08:53:21,760 INFO __main__: ================================================================================
-2026-10-23 08:53:21,760 INFO __main__: T106: SHAP Analysis and SC-003 Verification
-2026-10-23 08:53:21,760 INFO __main__: ================================================================================
-2026-10-23 08:53:21,761 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
+026-10-23 08:54:51,726 INFO __main__: ================================================================================
+2026-10-23 08:54:51,726 INFO __main__: T106: SHAP Analysis and SC-003 Verification
+2026-10-23 08:54:51,726 INFO __main__: ================================================================================
+2026-10-23 08:54:51,727 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/interpret.py", line 287, in main
     model_full = load_best_xgboost_model()
@@ -100,7 +100,7 @@ FileNotFoundError: Best XGBoost model not found at /home/runner/work/llmXive/llm
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-170-predicting-catalytic-activity-from-elect/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/evaluate_reduced.py': [Errno 2] No such file or directory
 
 - python code/report.py -> rc=1
-3 08:53:22,185 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
+3 08:54:52,127 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/report.py", line 247, in main
     output_file = run_report_generation()
@@ -133,7 +133,7 @@ ERROR tests/test_hashing.py
 ERROR tests/test_preprocess.py
 ERROR tests/test_report.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 1.80s ===============================
+============================== 6 errors in 1.50s ===============================
 
 
 

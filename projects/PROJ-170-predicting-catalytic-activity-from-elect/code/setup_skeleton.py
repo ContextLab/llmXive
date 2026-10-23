@@ -21,8 +21,8 @@ Required directories:
 
 Verification (used by the integration test suite):
   * All directories exist.
-  * ``README.txt`` exists inside ``data/raw`` and ``data/processed`` and
-    contains a short confirmation message.
+  * ``README.txt`` exists inside ``data/raw``, ``data/processed`` and
+    ``outputs`` and contains a short confirmation message.
 """
 
 from llmxive_toolkit import paths
@@ -58,9 +58,10 @@ def main():
         d.mkdir(parents=True, exist_ok=True)
         print(f"Verified directory: {d}")
 
-    # Write README files in the two data directories.
+    # Write README files in the three top-level data directories.
     _write_readme(paths.data("raw"))
     _write_readme(paths.data("processed"))
+    _write_readme(paths.path("outputs"))
 
     # No return value needed; exit code 0 indicates success.
 
