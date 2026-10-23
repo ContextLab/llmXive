@@ -1,0 +1,119 @@
+T001:
+  reason: "The only evidence is a log stating that a manifest was written, but the\
+    \ manifest\u2019s contents (or a directory listing) are not provided, so we cannot\
+    \ confirm that the required directories (`src/features`, `src/modeling`, `src/intervention`,\
+    \ `src/eval`, `src/utils`, `data/raw`, `data/processed`, `data/results`, `data/models`,\
+    \ `tests/unit`, `tests/integration`, `tests/contract`) actually exist. The implementer\
+    \ must supply concrete proof that these folders were created (e.g., the manifest\
+    \ file showing the paths or a filesystem snapshot)."
+  task: b5396069303e30412418b7f2ff59abd5d3680ddd4a0b94a32e6d4689ec4a7d4b
+T002:
+  task: 14a5ed285918161786715b245c58fb4d408ab03fa002b6b7dd802ac310d6266a
+T003:
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T003b:
+  task: 0ec73b19a39f50125966c55fde3879a6a5c83091a29e6aa28d7d7c3ef233cbd0
+T004a:
+  task: 0519f2090bbd37e49cf7ad286e990170999d97486b037e066bbca558b2c73910
+T005:
+  task: f88d3a5fbec1c4254edb3593f368ae28227f75e450fa0d4c3a5558bac52106e2
+T006:
+  task: 802dc503d0118c271f0ba2198d1aa651af6243433eb0ef25d1b927e6a7139d9c
+T007:
+  task: b6bf099936bc67715df3a152c47beb0079c0f853663765cc8f2b1929db1a3050
+T008:
+  task: 0fb77217e0b165c51e359b8510791e724b75f38fa31638bf71672d0d22421d74
+T009-unit:
+  task: c0e5d512fdc54a38d6a7a6a45f46c1194705bd2c7618a35eba2206788bf2e7e2
+T010-int:
+  task: adeb6b5c78eb922edcb284cd9a34f46e7d00c7747e9f0beb918acfa2cb722a25
+T011:
+  reason: "Checked `src/utils/data_loader.py` \u2013 it contains placeholder URLs\
+    \ and a `EXPECTED_CHECKSUM = None`, so it does not actually download from a real\
+    \ canonical source nor enforce checksum verification as required. The `data/raw/`\
+    \ directory is empty, providing no evidence that a valid dataset was fetched.\
+    \ The implementation needs a concrete, verified download URL and a defined checksum\
+    \ to satisfy the task."
+  task: de25cebd33bb7510c6b836506e96ae5bc60df315666b4aa3c580bcbb0236e153
+T012:
+  task: a86f08baa3c027dcc81246da059338624d76e3b098170ee62e3aa493093d28d0
+T013:
+  reason: "The `src/features/extract.py` file does contain a `calculate_syntax_tree_depth`\
+    \ function, but it computes depth by counting indentation and bracket nesting\
+    \ and never imports or uses the `networkx` library as required. Consequently,\
+    \ the task\u2019s core requirement\u2014implementing the syntax\u2011tree depth\
+    \ calculator with `networkx`\u2014is not satisfied. The implementer must add a\
+    \ `networkx`\u2011based implementation (e.g., parsing the content into a graph\
+    \ and using `networkx` functions to compute the maximum path length) and import\
+    \ `networkx` in the module."
+  task: e3c4b78c0e280f8a60835869016e6b359825e778bb476d7035d4c5b5efc21896
+T014:
+  task: c15a5690cb9cb7ecdd0e6614ac77a73ec2e23d3bc2ef23d051ef718007f25893
+T015:
+  task: e5683e4f32cb894f59e7d7a72d67f5f8ed7b9cfe9f29200100aff29971f8cd16
+T016:
+  task: 88db7a766648ed3626130ab491372fd79e9361404231c8ba821759065296b91f
+T016b:
+  task: 1cb0062276aebd1e4b0d81d3e38c9bc6b604dc6ebb1d0183598c74dc71960c4a
+T017:
+  task: 3371c6f2bc9f82f6be2bae477222f9aec0d5babed374cfeb67ad07d038b2b248
+T018:
+  task: 26222b94f21492cab489c2fe76a04eb44197ef72e9d03a338f9395dbc89ff7a9
+T018b:
+  task: a0dea3d54687df1c133880f28016bdb0e0a3761aa1180d627d67328cbdcb4092
+T021a:
+  task: 38953f90ef3d897f68164f75c0c2cbf895baa5e96f614e7d132cb545985f8d79
+T021a-1:
+  task: e9b7a83cb19551a28b9687687b624c14a40eeded906aadeb8dbbaa0216283b76
+T021b:
+  task: 65cac909525cca1d49ad74c4a3a1db174602eabfc0d3e19f4bc5cd3c8b624d9f
+T021d:
+  task: 03d74a75f3aa5c31cecb4793ba7cc15cfad6560d4946645cb028fa07e1bc2313
+T021e:
+  task: 2214234410b15fae2f25d99423ee54db090bd30cd517f33571a902ef8605eac6
+T022:
+  task: c71caddbb439606f1b938f00ef72ed4fee297b24611015c6beb2ba3f2fb23214
+T023-classifier:
+  task: 84f21fc0c02fe76c696dc4380f56d1f586a3fb6dfd85aa1fea8467ed0001a741
+T024:
+  task: e587a5527ea0ce3f12e6cc5eafe76779a01221865b9f93f32c30abd81ace69c3
+T025:
+  task: 25b11198b2d0ba96b527eb6bdda3e19b952a414d7c8e71b895e39f58ea9493f4
+T025a:
+  task: c906be9c16e85cb77e9688cc0af80f9dab6c813cb51f92c3740804faa71e506e
+T026:
+  task: 735b5f09ac9058a63038a339773c104a4ed02363e9793e1f54c12211aa78db84
+T028:
+  task: 89bff623b55f71d4ee9e6223ec427639bd07e7bdad3956e3075ac905c08ac9bc
+T028b:
+  task: e1b0c564df0c809baef1a422f6daaa4843c0b39f259abe50859b129fe50e384a
+T029:
+  task: 3c6735de3f22a442e29c4ca2b922260f67ffb3b4993e9925a3ea6add1d0dc4a1
+T029-model:
+  task: 1f13357423e25065259596bce351dfaf0ac1a47f697b6842fed1837cc0ea650f
+T029b:
+  task: 3ecd6132f6d061320af50cd59eaa72f250dbaade15c3e3eaad2014f12436dd41
+T030-eval:
+  task: 86fc8a429b3daf491d31c57ffc7d89ce11f0b4f89f5a5f7ec1653aa19122d3fd
+T031:
+  task: be2b3f8ec39306320c59d927b467439cb809031771006c1038c120c1d4573640
+T032:
+  task: 58ca90520ef5fe2afbd5ef51f78bc1e32e52d80c4872a8cd16358a27a0e88600
+T033:
+  task: 23cad4387d4f90da1395247c3a2fdff0010307e8c22cffba3d08c13b37989329
+T034:
+  task: 77cf078bfce8bf749c80b25e37285a875b04364abc2ee077dd9faa9b734e98cf
+T035:
+  task: bc46a3e9f20a639848ab0f62f704a390d71e8ba8fd7dd69ad96d7defef442268
+T036:
+  task: ed6119033dbf5b25ad243031ac4fab67429ae84ddbb5dc6de32f61e8a3846613
+T037:
+  task: c30d58fd673f6f755b2d0b95c9b0d15cf167a574d432b05941b60b893ddd31d2
+T038:
+  task: d00d5d8a5c58b5a131eb8fe1609b5000b16644a5ee6b3e88d87185e26c6a8155
+T040:
+  task: cdcfb6e798ca38063325ac10eb7e8b2b628e40a85ce93f32906f49da5f6f482b
+T041:
+  task: e2fd5231ba45decb4872acde598cee322bbe310a7dc98f0d958ea758847a8284
+T042:
+  task: 4afe18f645201dff72449fe2c9066ccb52374395bebb69a3ed3bb3218d724a6b

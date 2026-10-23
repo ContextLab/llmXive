@@ -37,7 +37,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T011 [P] Implement dataset fetcher in `src/utils/data_loader.py` to download EnterpriseClawBench from canonical source (NAB/UCI/GitHub) with checksum verification; save to `data/raw/`; **MUST raise exception on failure, no synthetic fallback** <!-- FAILED: unspecified -->
+- [ ] T011 [P] Implement dataset fetcher in `src/utils/data_loader.py` to download EnterpriseClawBench from canonical source (NAB/UCI/GitHub) with checksum verification; save to `data/raw/`; **MUST raise exception on failure, no synthetic fallback** <!-- FAILED: unspecified -->
 - [ ] T004a [US1] [FR-001] Verify existence and integrity of initial success/failure ground truth labels in raw dataset (after T011); Write validation report to `data/results/ground_truth_validation.json` with schema: `{ 'status': 'pass|fail', 'issues': [], 'sample_size': int, 'pass_criteria': 'pass if >95% labels exist' }`
 - [ ] T005 [P] Implement citation verification script in `src/utils/verify_citations.py` (Read citations from spec.md using regex for '## References' block, query primary sources via DOI, write pass/fail status to `data/results/citation_report.json` as a list of objects with 'source', 'status', 'error_message')
 - [X] T006 [P] Create base configuration loader for paths and seeds in `src/config.py`
@@ -57,10 +57,10 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] Implement log parser in `src/features/extract.py` to read raw logs from `data/raw/`
-- [X] T013 [US1] Implement syntax tree depth calculator using `networkx` in `src/features/extract.py`
-- [X] T014 [US1] Implement token frequency distribution counter in `src/features/extract.py`
-- [X] T015 [US1] Implement pragmatic marker detector (error recovery, state transitions) in `src/features/extract.py`
-- [X] T016 [US1] Implement generator-based log parser in `src/features/extract.py` that yields chunks of substantial size to prevent memory overflow; verify peak RSS < 7GB in full pipeline
+- [ ] T013 [US1] Implement syntax tree depth calculator using `networkx` in `src/features/extract.py`
+- [~] T014 [US1] Implement token frequency distribution counter in `src/features/extract.py`
+- [~] T015 [US1] Implement pragmatic marker detector (error recovery, state transitions) in `src/features/extract.py`
+- [~] T016 [US1] Implement generator-based log parser in `src/features/extract.py` that yields chunks of substantial size to prevent memory overflow; verify peak RSS < 7GB in full pipeline
 - [ ] T016b [US1] [FR-007] Invoke `resource_monitor.py` (T007) during T016 execution to explicitly log peak memory usage and verify streaming compliance; save log to `data/results/extraction_memory_log.json`; **Pass if peak RSS < 7GB, else FAIL**
 - [ ] T017 [US1] Generate `data/processed/features.jsonl` with labeled status (success/failure) and feature vectors
 - [ ] T018 [US1] Perform Mann-Whitney U test on feature distributions (failed vs success) AND apply FDR correction: **Use Benjamini-Hochberg if features > 10, else Bonferroni**; log results to `data/results/distinctiveness_stats.csv` with columns: 'feature', 'p_value', 'corrected_p_value', 'significant'
@@ -81,7 +81,7 @@
 ### Implementation for User Story 2
 
 - [ ] T021a-1 [US2] [FR-002] [P] Derive error schema from raw logs in `data/raw/` to identify available error type fields; save schema to `data/processed/error_schema.json` <!-- FAILED: unspecified -->
-- [X] T021a [US2] [FR-002] Implement Semantic Outcome Oracle logic in `src/modeling/oracle.py` using the derived schema (T021a-1) to derive "correctable" labels via rule-based logic: `correctable = (error_type in ['syntax', 'token_mismatch'] AND error_type not in ['semantic_error', 'reasoning_gap'])`; **DO NOT use hardcoded HTTP codes**; ensure logic excludes all US1 features to maintain independence
+- [~] T021a [US2] [FR-002] Implement Semantic Outcome Oracle logic in `src/modeling/oracle.py` using the derived schema (T021a-1) to derive "correctable" labels via rule-based logic: `correctable = (error_type in ['syntax', 'token_mismatch'] AND error_type not in ['semantic_error', 'reasoning_gap'])`; **DO NOT use hardcoded HTTP codes**; ensure logic excludes all US1 features to maintain independence
 - [ ] T021b [US2] [FR-002] Implement Oracle Validation script in `src/modeling/oracle.py` to verify rule-based labels are deterministic and consistent on a small random sample (seeded) of the dataset; save validation report to `data/results/oracle_validation.json`
 - [~] T021d [US2] [FR-002] Verify Oracle Independence: run **Spearman** correlation check between US1 features and oracle labels **per-feature**; fail if correlation > 0.1 (p-value < 0.05); log results to `data/results/oracle_independence.json` with schema: `{ 'feature': str, 'correlation': float, 'p_value': float, 'independent': bool }`
 - [~] T021e [US2] [FR-002] Enforce Rule-Based Only: Assert that no manual labels exist in the dataset; if manual labels are found, raise an error and halt; log assertion to `data/results/rule_based_enforcement.json`
