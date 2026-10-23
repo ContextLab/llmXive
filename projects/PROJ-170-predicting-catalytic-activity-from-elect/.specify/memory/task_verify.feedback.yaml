@@ -1,14 +1,22 @@
 T000:
-  reason: The evidence shows that `outputs/` exists with its README, but the required
-    `data/raw/` and `data/processed/` directories (and their README.txt files) are
-    missing, so the skeleton setup is not fully realized. The implementer must ensure
-    the script creates those two directories and places a README.txt in each.
   task: 3eb6d02c0dd35b97957828408f38b549860b0af575245b69aa1f2261785746b4
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/download_data.py
-    exit=1'
+  reason: "The pipeline does not stream the OC20 dataset (it downloads a fallback\
+    \ CSV instead of using `datasets.load_dataset(..., streaming=True)`), and it creates\
+    \ a placeholder MP descriptor file rather than retrieving real descriptors from\
+    \ the Materials Project API. Moreover, `data/checksums.txt` does not contain SHA\u2011\
+    256 entries for the three required output files, so the checksum verification\
+    \ requirement is unmet. The task needs a proper OC20 streaming download, real\
+    \ MP descriptor retrieval, and correct checksum entries."
   task: bbc01cabdc6c4c756608db5a3c595ccdd1d3df3b7967591e3918492ee07177d0
 T002:
+  reason: "The script `code/extract_descriptors.py` runs and produces `data/processed/oc20_descriptors.parquet`\
+    \ with the required columns and no NaNs, but it never actually computes the DFT\u2011\
+    derived descriptors \u2013 it falls back to a public Iris CSV, creates missing\
+    \ columns as NaN and then replaces them with a constant\u202F0.0. No real `pymatgen`/`numpy`\
+    \ calculations on OC20 data are performed, and the MP descriptor file contains\
+    \ only a single composition, indicating the core scientific requirement is unmet.\
+    \ The task therefore remains incomplete."
   task: b85c53c842a330da8778a80ae840738b73927b736dc4b290f936a0e1d00e130e
 T003:
   task: 49b5b741717df838f6d4c780be9a306e53245b103aeddd657bd8e6e0b3b8d73f
@@ -33,6 +41,18 @@ T012:
 T013:
   task: bab7f6cddad82adfe534872e13a0a0242757b795a10afeb9803df876c5a4a2c4
 T014:
+  reason: "The repository contains `data/raw/experimental_tof.csv`, but it is an empty\
+    \ placeholder CSV (only headers) and `data/checksums.txt` does not record a checksum\
+    \ for this file (it only lists `scope_revision_request.json`). No evidence that\
+    \ task\u202FT015 was run. The script therefore did not acquire a real open experimental\
+    \ TOF dataset nor provide the required checksum, violating the task\u2019s acceptance\
+    \ criteria."
   task: 214b530e417d7013643033faf2ffb554e46a1f641ec8528ac128691d9a3e7463
 T015:
+  reason: "Checked `code/request_scope_revision.py`, `outputs/scope_revision_request.json`,\
+    \ and `data/checksums.txt`. The JSON file has all required fields, but the checksum\
+    \ entry in `data/checksums.txt` includes a trailing newline (`\u2026f9927d\\n`),\
+    \ causing the verification test for a 64\u2011character SHA\u2011256 hash to fail.\
+    \ The checksum must be recorded without the extra newline (or otherwise stripped)\
+    \ to satisfy the task\u2019s verification requirement."
   task: ffb227c0da8bafcc278ba7a9bf0d4af1d6fb8fa4acd20e0f0975482297cd406e

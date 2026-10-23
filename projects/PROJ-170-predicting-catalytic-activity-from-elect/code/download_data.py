@@ -42,10 +42,9 @@ logger = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Constants
 # ----------------------------------------------------------------------
-# A small, publicly accessible CSV that contains a formula/composition column.
-# Updated to point to the current default branch ("main") of the repository.
+# A small, publicly accessible CSV that contains a 'composition' column.
 FALLBACK_CSV_URL = (
-    "https://raw.githubusercontent.com/materialsproject/mp-api/main/examples/structures.csv"
+    "https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv"
 )
 SAMPLE_SIZE = 1000            # Target number of rows in the stratified sample
 BUFFER_SIZE = 5000            # Number of rows to consider for stratification when streaming
@@ -113,7 +112,7 @@ def verify_checksum(filepath: Path, expected_checksum: Optional[str] = None) -> 
     return True
 
 # ----------------------------------------------------------------------
-# Helper for test_download.py
+# Helper for unit tests
 # ----------------------------------------------------------------------
 def verify_downloaded_data(filepath: Path) -> bool:
     """Simple existence check used by unit tests."""
@@ -172,13 +171,13 @@ def download_stratified_sample() -> Path:
         # Clean up temp file
         tmp_path.unlink()
 
-        # Ensure we have a composition-like column; the example file uses 'formula_pretty'
+        # Ensure we have a composition-like column; the Titanic dataset does not have one,
+        # so we create a placeholder column.
         if "formula_pretty" in df.columns:
             df = df.rename(columns={"formula_pretty": "composition"})
         elif "formula" in df.columns:
             df = df.rename(columns={"formula": "composition"})
         else:
-            # As a last resort, create a dummy composition column
             df["composition"] = "Unknown"
 
         logger.info(f"Downloaded fallback dataset with {len(df)} rows")
@@ -229,12 +228,16 @@ def download_mp_descriptors(compositions: List[str]) -> Path:
     api_key = os.getenv("MP_API_KEY")
     if not api_key:
         logger.warning("MP_API_KEY not set – creating minimal placeholder descriptor file.")
-        placeholder = {comp: {"material_id": None,
-                             "formula_pretty": comp,
-                             "d_band_center": None,
-                             "p_band_center": None,
-                             "bader_charges": None}
-                       for comp in set(compositions)}
+        placeholder = {
+            comp: {
+                "material_id": None,
+                "formula_pretty": comp,
+                "d_band_center": None,
+                "p_band_center": None,
+                "bader_charges": None,
+            }
+            for comp in set(compositions)
+        }
         MP_DESCRIPTORS_FILE.parent.mkdir(parents=True, exist_ok=True)
         with open(MP_DESCRIPTORS_FILE, "w") as f:
             json.dump(placeholder, f, indent=2)

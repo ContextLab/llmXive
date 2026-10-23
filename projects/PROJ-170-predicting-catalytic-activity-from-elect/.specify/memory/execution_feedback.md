@@ -1,58 +1,49 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
+
+The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
+
+1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
+2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
+3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
+
+- code/extract_descriptors.py: self-declared fabricated metric — “…ion`` column (filled with the placeholder value ``Unknown``),     and write a…”
+
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- every produced artifact is gitignored (data/processed/oc20_descriptors.parquet, data/raw/experimental_tof.csv, data/raw/mp_descriptors.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 run-book script(s) missing (plan/impl path mismatch): python code/train_baseline.py; python code/stat_test.py; python code/evaluate_reduced.py; 7 command(s) failed: python code/download_data.py (rc=1); python code/extract_descriptors.py (rc=1); python code/preprocess.py (rc=1); 1 declared deliverable(s) absent: data/processed/aligned_dataset.csv
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/extract_descriptors.py: self-declared fabricated metric — “…ion`` column (filled with the placeholder value ``Unknown``),     and write a…”; every produced artifact is gitignored (data/processed/oc20_descriptors.parquet, data/raw/experimental_tof.csv, data/raw/mp_descriptors.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 run-book script(s) missing (plan/impl path mismatch): python code/train_baseline.py; python code/stat_test.py; python code/evaluate_reduced.py; 5 command(s) failed: python code/preprocess.py (rc=1); python code/train.py          # XGBoost (rc=1); python code/interpret.py (rc=1); 1 declared deliverable(s) absent: data/processed/aligned_dataset.csv
 
 ## Failing / missing run-book commands
 
-- python code/download_data.py -> rc=1
-alytic-activity-from-elect/code/download_data.py", line 164, in download_stratified_sample
-    r.raise_for_status()
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/materialsproject/mp-api/main/examples/structures.csv
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 346, in main
-    parquet_path = download_stratified_sample()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 222, in download_stratified_sample
-    raise RuntimeError(f"Failed to fetch fallback CSV dataset: {e}") from e
-RuntimeError: Failed to fetch fallback CSV dataset: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/materialsproject/mp-api/main/examples/structures.csv
-
-- python code/extract_descriptors.py -> rc=1
-^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/extract_descriptors.py", line 31, in load_oc20_sample
-    raise FileNotFoundError(f"OC20 sample not found at {path}")
-FileNotFoundError: OC20 sample not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/data/raw/oc20_sample.parquet
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/extract_descriptors.py", line 189, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/extract_descriptors.py", line 161, in main
-    oc20_df = load_oc20_sample()
-              ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/extract_descriptors.py", line 31, in load_oc20_sample
-    raise FileNotFoundError(f"OC20 sample not found at {path}")
-FileNotFoundError: OC20 sample not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/data/raw/oc20_sample.parquet
-
 - python code/preprocess.py -> rc=1
-/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py", line 45, in load_extracted_descriptors
-    raise FileNotFoundError(f"Unified dataset not found at {path}")
-FileNotFoundError: Unified dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/data/processed/unified_dataset.parquet
+ 19:12:27,983 - __main__ - INFO - Loading unified dataset from /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/data/processed/unified_dataset.parquet
+2026-10-23 19:12:28,013 - __main__ - INFO - Loaded dataset with shape (891, 22)
+2026-10-23 19:12:28,013 - __main__ - ERROR - Error in T104: name 'build_stoichiometry_vocabulary' is not defined
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py", line 75, in main
+    vocab = build_stoichiometry_vocabulary(df)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'build_stoichiometry_vocabulary' is not defined
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py", line 482, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py", line 136, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py", line 418, in main
-    df = load_extracted_descriptors()
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py", line 45, in load_extracted_descriptors
-    raise FileNotFoundError(f"Unified dataset not found at {path}")
-FileNotFoundError: Unified dataset not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/data/processed/unified_dataset.parquet
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py", line 75, in main
+    vocab = build_stoichiometry_vocabulary(df)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'build_stoichiometry_vocabulary' is not defined
 
 - python code/train.py          # XGBoost -> rc=1
 
@@ -76,10 +67,10 @@ FileNotFoundError: Aligned dataset not found at /home/runner/work/llmXive/llmXiv
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-170-predicting-catalytic-activity-from-elect/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/stat_test.py': [Errno 2] No such file or directory
 
 - python code/interpret.py -> rc=1
-026-10-23 12:10:36,718 INFO __main__: ================================================================================
-2026-10-23 12:10:36,718 INFO __main__: T106: SHAP Analysis and SC-003 Verification
-2026-10-23 12:10:36,718 INFO __main__: ================================================================================
-2026-10-23 12:10:36,718 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
+026-10-23 19:12:30,714 INFO __main__: ================================================================================
+2026-10-23 19:12:30,714 INFO __main__: T106: SHAP Analysis and SC-003 Verification
+2026-10-23 19:12:30,714 INFO __main__: ================================================================================
+2026-10-23 19:12:30,714 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/interpret.py", line 287, in main
     model_full = load_best_xgboost_model()
@@ -93,7 +84,7 @@ FileNotFoundError: Best XGBoost model not found at /home/runner/work/llmXive/llm
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-170-predicting-catalytic-activity-from-elect/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/evaluate_reduced.py': [Errno 2] No such file or directory
 
 - python code/report.py -> rc=1
-3 12:10:37,066 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
+3 19:12:31,058 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/report.py", line 247, in main
     output_file = run_report_generation()
@@ -108,24 +99,25 @@ Traceback (most recent call last):
 FileNotFoundError: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
 
 - python -m pytest -v -> rc=2
-70-predicting-catalytic-activity-from-elect/code/preprocess.py)
-____________________ ERROR collecting tests/test_report.py _____________________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/tests/test_report.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
+m preprocess import (
+E   ImportError: cannot import name 'normalize_composition' from 'preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py)
+
+During handling of the above exception, another exception occurred:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/test_report.py:17: in <module>
-    from report import (
-E   ImportError: cannot import name 'NORSKOV_REFERENCE_DESCRIPTORS' from 'report' (/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/report.py)
+tests/unit/test_preprocess.py:17: in <module>
+    from code.preprocess import (
+E   ImportError: cannot import name 'normalize_composition' from 'code.preprocess' (/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/preprocess.py)
 =========================== short test summary info ============================
 ERROR tests/test_config.py
 ERROR tests/test_generate_aligned_dataset.py
 ERROR tests/test_hashing.py
 ERROR tests/test_preprocess.py
+ERROR tests/test_preprocess_scaling.py
 ERROR tests/test_report.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 1.34s ===============================
+ERROR tests/unit/test_preprocess.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 7 errors in 1.39s ===============================
 
 
 

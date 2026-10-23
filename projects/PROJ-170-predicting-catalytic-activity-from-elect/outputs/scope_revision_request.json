@@ -1,0 +1,6 @@
+{
+  "impact": "FR\u2011001 cannot be satisfied without an open experimental TOF dataset. The downstream modeling pipeline (training, evaluation, SHAP analysis) is halted.",
+  "missing_dataset": "Experimental TOF dataset for the 2025 CO\u2082 hydrogenation study (Doe et al., 2025).",
+  "proposed_action": "Provide a publicly accessible CSV file containing the experimental TOF values, or make the dataset available via a stable DOI/URL. Once the data are available, re\u2011run the acquisition step (T014) and continue the pipeline.",
+  "request_id": "6965ad50-f9d5-4622-b028-343eee207ed3"
+}
