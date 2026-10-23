@@ -32,7 +32,7 @@ The data model defines the shape of raw, intermediate, and final artifacts used 
 | Field | Type | Description |
 |-------|------|-------------|
 | `SOC_CODE` | string | MedDRA SOC code. |
-| `SOC_NAME` | string | SOC name. |
+| `SOC_NAME` | string | Human‑readable SOC name. |
 | `ROR` | number | Reporting Odds Ratio. |
 | `ROR_CI_lower` | number | Lower 95 % CI for ROR. |
 | `ROR_CI_upper` | number | Upper 95 % CI for ROR. |
@@ -44,7 +44,7 @@ The data model defines the shape of raw, intermediate, and final artifacts used 
 | `IC_CI_upper` | number | Upper 95 % CI for IC. |
 | `p_value_raw` | number | Fisher exact test p‑value. |
 | `p_value_adj` | number | Benjamini‑Hochberg adjusted p‑value. |
-| `is_signal` | boolean | True if ≥ 2 of 3 metric thresholds satisfied **and** bootstrap‑estimated FDR ≤ 0.05. |
+| `is_signal` | boolean | True if the SOC meets the signal criteria (≥ 2 metrics exceed thresholds, BH‑adjusted p‑value < 0.05, and hold‑out validation passes). |
 | `signal_metrics` | string (JSON array) | List of metrics that passed thresholds (`["ROR","PRR"]`, etc.). |
 
 ### 4. Temporal Profile Record (`output/temporal_profiles/<SOC>.csv`)
@@ -75,3 +75,4 @@ The data model defines the shape of raw, intermediate, and final artifacts used 
 - **Schema validation**: `src/data/validate_raw.py` validates against `contracts/raw_dataset.schema.yaml`; `src/data/validate_clean.py` validates against `contracts/cleaned_dataset.schema.yaml`.  
 
 ---
+

@@ -44,12 +44,12 @@ properties:
     description: "Benjamini‑Hochberg adjusted p-value."
   is_signal:
     type: boolean
-    description: "True if the SOC meets the signal criteria (2/3 metrics and bootstrap FDR ≤ 0.05)."
+    description: "True if the SOC meets the signal criteria (≥ 2 metrics exceed thresholds, BH‑adjusted p‑value < 0.05, and hold‑out validation passes)."
   signal_metrics:
     type: array
     items:
       type: string
-      enum: ["ROR", "PRR", "IC"]
+      enum: ["ROR","PRR","IC"]
     description: "List of metrics that met the threshold criteria."
 required:
   - SOC_CODE

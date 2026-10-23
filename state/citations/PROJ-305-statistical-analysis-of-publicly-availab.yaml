@@ -1,33 +1,44 @@
-- artifact_hash: 8c6dec527df841e34093d6e0d88ee9782e0a768a7a07184e48f18e0154183662
+- artifact_hash: a043d12d8384c356a4faef1e255003c9468320def4be29725103a2574a8e5d51
   artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/chrisvoncsefalvay/vaers-outcomes/resolve/main/data/vaers_2020_2023.parquet`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/chrisvoncsefalvay/vaers-outcomes/resolve/main/data/vaers_2020_2023.parquet
-  verified_at: '2026-10-19T02:44:19.229568Z'
-- artifact_hash: 7280566304b03c9a4c17a2a6d8f3a12846f82b7b1fabdb0a7f5989934f3dc599
+  value: https://huggingface.co/datasets/vaers/vaers2020_2023/resolve/main/vaers_2020_2023.parquet`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/vaers/vaers2020_2023/resolve/main/vaers_2020_2023.parquet
+  verified_at: '2026-10-23T15:35:56.187696Z'
+- artifact_hash: 8aa4c9435243a80294be1cfbcdb1f1496a627db50e38fd63c669361a41eca4a2
   artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/chrisvoncsefalvay/vaers-outcomes/resolve/main/data/vaers_2020_2023.parquet
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/chrisvoncsefalvay/vaers-outcomes/resolve/main/data/vaers_2020_2023.parquet
-  verified_at: '2026-10-19T02:44:48.203592Z'
-- artifact_hash: d6d238a160e3ac1a35e29d5367dd75298430fd0808cae2ef1d265a43abef2630
+  value: https://huggingface.co/datasets/vaers/vaers2020_2023/resolve/main/vaers_2020_2023.parquet
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/vaers/vaers2020_2023/resolve/main/vaers_2020_2023.parquet
+  verified_at: '2026-10-23T15:36:14.110241Z'
+- artifact_hash: 8aa4c9435243a80294be1cfbcdb1f1496a627db50e38fd63c669361a41eca4a2
+  artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/vaers/vaers2020_2023/resolve/main/vaers_2020_2023.parquet`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/vaers/vaers2020_2023/resolve/main/vaers_2020_2023.parquet
+  verified_at: '2026-10-23T15:36:14.110241Z'
+- artifact_hash: 8b758f57b78fb77c320a5d3b48d668ba3603ad8de05bc4ef000bc8dc5f8b7a44
   artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/chrisvoncsefalvay/vaers-outcomes/resolve/main/data/vaers_2020_2023.parquet`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/chrisvoncsefalvay/vaers-outcomes/resolve/main/data/vaers_2020_2023.parquet
-  verified_at: '2026-10-19T02:45:12.027880Z'
+  value: https://huggingface.co/datasets/vaers/vaers2020_2023/resolve/main/vaers_2020_2023.parquet`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/vaers/vaers2020_2023/resolve/main/vaers_2020_2023.parquet
+  verified_at: '2026-10-23T15:36:31.750563Z'
