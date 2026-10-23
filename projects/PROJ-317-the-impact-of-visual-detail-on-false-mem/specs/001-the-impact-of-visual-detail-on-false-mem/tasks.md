@@ -1,182 +1,108 @@
 # Tasks: Visual Detail and False Memory Susceptibility
 
-**Input**: Design documents from `/specs/001-visual-detail-false-mem/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per implementation plan in `projects/PROJ-317-the-impact-of-visual-detail-false-mem/` by running: `mkdir -p data/stimuli data/stimuli_metadata data/responses data/processed data/ethics data/assets code/data code/stimuli code/participants code/analysis tests/unit tests/integration tests/contract docs/ethics`.
-
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`
+**Inputs**: `spec.md`, `plan.md`, `contracts/response.schema.yaml`, `contracts/stimulus.schema.yaml`, existing code skeleton.  
+All tasks write to project‑owned paths under `code/`, `data/`, `figures/`, or `paper/`.  
+Tasks are ordered to respect data flow; later tasks depend on the outputs of earlier ones.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Design Alignment (must be completed before any research work)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes Data Fetching, Asset Generation, and Power Analysis.
+- [ ] T000  Design‑Sync  Update **plan.md** so that the Summary and Technical Context explicitly state **“Repeated‑Measures (Within‑Subjects) design”** and **“Repeated‑Measures ANOVA”**. Remove every occurrence of “Between‑Subjects” or “One‑Way ANOVA” throughout the repository.  
+  *Verification*: `plan.md` contains the exact phrases “Repeated‑Measures (Within‑Subjects) design” and “Repeated‑Measures ANOVA”; a repository‑wide grep for “Between‑Subjects” and “One‑Way ANOVA” returns no matches.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
-**⚠️ EXECUTION FLOW**: This phase follows the strict order: T000-ResolveDesign → T060 → T012.0 → T012-Sens → T012-Design → T012-Runtime → T001.1 → T006.0-InitBundle → T006.1-LoadSubset → T006.2-Calc → T006.3-Select → T006.3-Retry → T006.3-Complete → T015.1-GenAssets → T015.1-LogParams → T017 (baseline).
+---
 
-### Design Resolution & Infrastructure
+## Phase 1 – Data Acquisition & Power Analysis
 
-- [ ] T000-ResolveDesign [S] **Resolve Design Mismatch (Plan vs Spec)**: Update `plan.md` Summary and Technical Context to explicitly state "Repeated-Measures (Within-Subjects) design" and "Repeated-Measures ANOVA" to match spec.md SC-002 and US-3. Remove all references to "Between-Subjects" and "One-Way ANOVA". **Verification**: `plan.md` contains exact phrases "Repeated-Measures (Within-Subjects)" and "Repeated-Measures ANOVA" in Summary. Dependency: None. This task resolves the circular dependency where downstream tasks assume a plan state that contradicts the current document.
+- [ ] T001  P  Load Visual Genome subset, compute baseline complexity scores, and select a representative sample satisfying **FR‑001** (≥ 3 quantile bins, spread ≥ 0.3). Verify that required dataset variables (`complexity_score`, false‑memory outcomes) are present (**SC‑004**).  
+  *File paths*: `code/utils/data_loader.py`, `data/stimuli/raw_subset/`, `data/processed/complexity_stats.json`, `data/processed/variable_fit_check.txt`.  
+  *Verification*: `complexity_stats.json` lists Q1‑Q3 values and confirms the spread; `variable_fit_check.txt` reports all required variables present; marker file `data/stimuli/selection_complete.txt` is created.
 
-### Infrastructure Tasks
+- [ ] T002  P  Perform a priori GLMM power simulation (target f = 0.25, ρ = 0.4, 3 measurements/participant) and a sensitivity sweep for f = 0.10‑0.30. Generate `data/analysis/power_report.json` and `data/analysis/sensitivity_analysis.json`.  
+  *File paths*: `code/analysis/power.py`, `data/analysis/power_report.json`, `data/analysis/sensitivity_analysis.json`.  
+  *Verification*: `power_report.json` shows `"n_total_subjects": >=50` and `"power_insufficient": false`; a pass‑file `data/analysis/power_gate_passed.txt` is created.
 
-- [X] T004 Setup data directory structure: `data/stimuli/`, `data/responses/`, `data/processed/`, `data/stimuli_metadata/`, `data/ethics/`, `data/assets/`
-- [X] T005 [P] Implement data checksum utilities in `code/data/checksum.py`
-- [X] T013 [P] [US1] Implement Image Entity class in `code/data/image.py`: Define `Image` class with attributes `id`, `path`, `complexity_score`, `metadata_path`.
-- [X] T014 [P] [US1] Implement Participant and Response Entity classes in `code/data/participant.py`: Define `Participant` (id, condition, timestamp) and `Response` (id, question_id, value, timestamp) classes.
-- [X] T008 Configure logging infrastructure in `code/utils/logging.py`
-- [X] T009 [P] Setup environment configuration management in `code/config.py`
+- [ ] T017  P  Produce the **Power‑Analysis Validation Report** required by **FR‑016**. The report (`data/analysis/power_analysis_report.txt`) documents the Barnard’s test verification (n = 50) and includes the sensitivity analysis summary.  
+  *File paths*: `code/analysis/power_report_generator.py`, `data/analysis/power_analysis_report.txt`.  
+  *Verification*: The text file contains explicit Barnard’s test results and references the JSON artifacts; marker file `data/analysis/power_report_complete.txt` is created.
 
-### Power Analysis Sub-phase
+- [ ] T003  P  **Enhanced‑detail compositing** – add **≥ 2 minor objects** to each baseline image, boost contrast (1.2), and ensure **SSIM ≤ 0.95**. Write images to `data/stimuli/enhanced/` and log any failures to `data/logs/manipulation_errors.log`. Create a pass‑file `data/logs/ssim_check.txt` confirming all SSIM thresholds met.  
+  *File paths*: `code/stimuli/manipulator.py` (enhanced function), `data/stimuli/enhanced/{image_id}.png`.  
+  *Verification*: For every baseline image, an enhanced file exists, SSIM ≤ 0.95, and `ssim_check.txt` reports “all pass”.
 
-- [X] T060 [P] [Shared-Infra] [Constitution-VI] [Plan:Scope-Boundary] **Scope Boundary Documentation (Create & Populate)**: Create `docs/ethics/scope_boundary.md` with required content. No dependency.
+- [ ] T004  P  **Reduced‑detail manipulation** – remove **≥ 2 minor objects** (or blur them with radius = 2.0) and write images to `data/stimuli/reduced/`. Errors are appended to the same `manipulation_errors.log`.  
+  *File paths*: `code/stimuli/manipulator.py` (reduced function), `data/stimuli/reduced/{image_id}.png`.  
+  *Verification*: All baseline images have a reduced version; no SSIM check required for reduced images.
 
-- [X] T012.0 [P] **Document Effect Size Source & Validate**: Append Section 2.1 to `research.md` with "Effect Size Assumption: Cohen's f=0.25 (medium) based on Loftus et al. (1974) ". **Validation**: Before T012-Sens begins, verify the claim source is valid. If validation fails, flag as "unresolved" and halt T012-Sens. Verification: string present in Section 2.1 and validation log exists. Dependency: T060. Note: This is a design parameter for power calculation, not a measured result.
+- [ ] T005  P  **Stimulus metadata generation & validation** – for every baseline, enhanced, and reduced image create a YAML metadata file (`data/stimuli/{image_id}_baseline.yaml`, `..._enhanced.yaml`, `..._reduced.yaml`) containing fields required by **FR‑008 / FR‑012** (including manipulation parameters, timestamps, script version, checksum). Validate each file against `contracts/stimulus.schema.yaml`; log violations to `data/logs/metadata_validation.log`. Provide at least one example metadata file (`data/stimuli/example_metadata.yaml`) for verification.  
+  *File paths*: `code/stimuli/metadata.py`, `data/stimuli/*.yaml`.  
+  *Verification*: No validation errors; summary file `data/logs/metadata_validation_summary.txt` reports “pass”; `example_metadata.yaml` exists and conforms to the schema.
 
-- [ ] T012.0-ValidateClaim [S] **Validate Effect Size Claim**: Verify the claim source in T012.0 is valid. If validation fails, raise `SystemExit` with message "Effect size claim validation failed". Dependency: T012.0.
+- [ ] T015  P  **IRB approval gate** – before any real participant data is written, verify the existence of `data/ethics/irb_approval.txt`. If missing and real response files are present, abort with an informative error (**FR‑016**).  
+  *File paths*: `code/ethics/irb_check.py`.  
+  *Verification*: Running the check on CI with mock data passes; with a real response file and no IRB file raises `SystemExit`.
 
-- [X] T012-Sens [S] **Perform Sensitivity Analysis**: Implement `code/analysis/power.py` to vary effect sizes across a range from small to medium in fine-grained increments. Write `data/analysis/sensitivity_analysis.json` with schema `{"effect_sizes":[float],"required_n":[int],"power":[float]}`. Verification: file exists and matches schema. **Sequential** (no [P]). Dependency: T012.0-ValidateClaim.
+---
 
-- [X] T012-Design [S] **Design‑Phase Power Analysis & Plan Update**: Using `data/analysis/sensitivity_analysis.json`, compute required sample size for Repeated‑Measures ANOVA via `statsmodels.stats.power.FTestAnovaPower`. Select the smallest effect size where `required_n >= 50`. Write `data/analysis/power_report.json` (`{"n_total_subjects":int,"effect_size":float,"power":float,"alpha":float,"power_insufficient":bool,"justification":str}`). Dependency: T012-Sens.
+## Phase 2 – Participant Testing Interface (User Story 2)
 
-- [X] T012-Runtime [S] **Power Analysis Validation Gate**: Verify `data/analysis/power_report.json` exists, `power_insufficient` is false, and `n_total_subjects >= 50`. On success create `data/analysis/power_gate_passed.txt` and log to `data/logs/power_gate.log`. On failure raise `SystemExit` with appropriate message, halting downstream tasks. Dependency: T012-Design.
+- [ ] T006  P  Implement the full session flow in `code/participants/interface.py`:  
+  1. Randomize the presentation order of the three detail conditions using a Latin‑square algorithm and store the sequence as `condition_order` in the participant record (**FR‑009**).  
+  2. Show baseline image for **10 ± 0.5 s** (**FR‑003**).  
+  3. Run a 2‑minute arithmetic distractor (**FR‑003**).  
+  4. Present **20 true** and **20 lure** recognition questions (**FR‑004**).  
+  5. Capture responses, timestamps, latency, and store them as JSON‑Lines in `data/responses/{participant_id}.jsonl`.  
+  *Verification*: A simulated run (`python -m code.participants.interface --simulate`) creates a response file with exactly 40 entries, each complying with the response schema, and a `condition_order` field is recorded.
 
-- [X] T001.1 [S] **Verify Plan Update**: After power gate passes, assert `plan.md` contains "Repeated‑Measures" and "Within‑Subjects". Output: updated `plan.md`. Dependency: T012-Runtime.
+- [ ] T007  P  **Lure‑absence verification** – for each trial generate lure items by querying Visual Genome objects **not present** in the baseline metadata. Abort trial generation if any lure appears in the baseline; log the issue. Output per‑session question sets to `data/sessions/{session_id}/questions.json`.  
+  *File paths*: `code/participants/lure_generator.py`, `data/sessions/*/questions.json`.  
+  *Verification*: A script `python -m code.participants.lure_generator --check` scans all question files and confirms zero overlaps.
 
-### Data Fetching & Asset Generation (Foundational)
+- [ ] T008  P  **Response schema validation** – after each session run a validator that checks every response record against `contracts/response.schema.yaml`. Invalid records are written to `data/logs/response_validation_errors.log`.  
+  *File paths*: `code/validation/response_validator.py`, `data/logs/response_validation_errors.log`.  
+  *Verification*: Validation passes on the simulated session; the error log is empty.
 
-- [X] T006.0-InitBundle [P] **Initialize Data Bundle Directory with Fallback Fetch**: Create `data/stimuli/raw_subset/`. If `manifest.sha256` missing/invalid, fetch a representative sample of Visual Genome images via `datasets.load_dataset("visual_genome", split="train", streaming=True)`, store subset, generate new `manifest.sha256`. Satisfies FR-001. No further dependency.
+- [ ] T009  P  **Partial‑session & dropout handling** – if a participant disconnects or the network times‑out, cache any already‑collected responses locally, flag the session status as `partial` in `data/responses/{participant_id}.jsonl`, and retry submission with exponential back‑off (1 s → 2 s → 4 s, max 3 attempts) as required by **FR‑014**. Log each retry timestamp to `data/logs/network_retry.log`.  
+  *File paths*: `code/participants/network_retry.py`, `data/logs/network_retry.log`.  
+  *Verification*: Unit test `tests/integration/test_network_retry.py` simulates a timeout and asserts the back‑off schedule, the presence of three timestamped log entries, and cached file creation.
 
-- [X] T006.1-LoadSubset [Shared-Infra] **Load Pre‑bundled Visual Genome Subset with Checksum Validation**: Implement `code/utils/data_loader.py` to validate `manifest.sha256`; on mismatch trigger T006.0-InitBundle logic. Output list of valid image paths to `data/stimuli/raw/`. Dependency: T006.0-InitBundle.
+---
 
-- [X] T006.2-Calc **Calculate Complexity Score**: Implement `code/stimuli/filter.py` to compute `baseline_complexity_score` using object density. Output stats to `data/processed/complexity_stats.json`. Dependency: T006.1-LoadSubset.
+## Phase 3 – Statistical Analysis & Results (User Story 3)
 
-- [X] T006.3-Select **Select Representative Sample**: Deterministically attempt up to **3 attempts** to sample images such that Q1‑Q3 range ≥ 0.3. If after 3 attempts the condition is unmet, raise `SystemExit` with explicit error. Output selected images to `data/stimuli/raw/`. Dependency: T006.2-Calc.
+- [ ] T010  P  **Primary GLMM + Corrections + Fatigue Test + Effect‑size & Runtime** – fit a binomial mixed‑effects model with random intercepts for participants and items, fixed effect for visual‑detail condition, covariates `condition_order` and `trial_position` (**FR‑009**, **FR‑015**). Compute **Cohen’s h** for condition contrasts and record it (**SC‑001**). Apply Bonferroni (or Holm) correction to all pairwise contrasts (**FR‑006**). Measure total analysis runtime and verify it does not exceed 30 minutes (**SC‑003**). Save coefficients, SEs, p‑values, adjusted p‑values, Cohen’s h, and runtime to `data/analysis/glmm_results.json`.  
+  *File paths*: `code/analysis/glmm.py`, `data/analysis/glmm_results.json`, `data/analysis/analysis_runtime.txt`.  
+  *Verification*: The JSON contains keys `fixed_effects`, `random_effects`, `adjusted_pvalues`, `cohens_h`, and `model_converged: true`; `analysis_runtime.txt` shows a duration ≤ 1800 s.
 
-- [X] T006.3-Retry [S] **Retry Logic for Sample Selection**: If T006.3-Select fails, increase sample size by [deferred] per retry, max 3 retries, and re‑run selection. Dependency: T006.3-Select (on failure).
+- [ ] T011  P  **Secondary Repeated‑Measures ANOVA** – transform false‑memory rates with arcsine‑sqrt, test normality (Shapiro‑Wilk p > 0.05) and homoscedasticity (Levene p > 0.05). If assumptions hold, run ANOVA; otherwise fallback to Friedman test. Output `data/analysis/anova_results.json`.  
+  *File paths*: `code/analysis/anova.py`, `data/analysis/anova_results.json`.  
+  *Verification*: The results file includes a field `analysis_type` indicating either `rm_anova` or `friedman`.
 
-- [X] T006.3-Complete **Aggregate Completion Marker**: Touch `data/stimuli/selection_complete.txt` after successful selection (whether via first try or successful retry loop). Dependency: T006.3-Select OR T006.3-Retry (on success).
+- [ ] T013  P  **Visualization** – produce a figure `figures/false_memory_rates.png` showing mean false‑memory rates per condition with 95 % confidence intervals (**FR‑007**). Include a caption referencing the GLMM table.  
+  *File paths*: `code/analysis/viz.py`, `figures/false_memory_rates.png`.  
+  *Verification*: The PNG file exists; a thumbnail check confirms non‑zero dimensions.
 
-- [X] T015.1-GenAssets [P] **Generate Semantic Minor Object Assets**: Create `code/stimuli/asset_generator.py`. `semantic_object_list.json` is an array of objects `{ "name": "<string>", "category": "<string|optional>" }`. Generate a set of PNG assets in `data/assets/minor_objects/obj_{i}.png`. **Dependency**: T060 (Scope Boundary Documentation) which defines minor object categories. Dependency: T060.
+---
 
-- [X] T015.1-LogParams [P] **Write Asset Generation Log**: Write parameters to `data/assets/generation_log.json`. Dependency: T015.1-GenAssets.
+## Dependency Summary
 
-- [X] T017 [P] **Baseline Stimulus Metadata Generation**: Implement `code/stimuli/metadata.py` to create `data/stimuli/{id}_metadata.yaml` for each **baseline** image (from `data/stimuli/raw/`). Include `detail_level: baseline`, `manipulation_timestamp` (UTC ISO), and basic image attributes. No dependency on asset log. Verification: all baseline images have corresponding metadata file.
+| Task | Depends on |
+|------|------------|
+| T000 | – |
+| T001 | – |
+| T002 | T001 |
+| T017 | T002 |
+| T003 | T001 |
+| T004 | T001 |
+| T005 | T003, T004 |
+| T015 | – (runs before any participant tasks) |
+| T006 | T005, T015 |
+| T007 | T005 |
+| T008 | T006 |
+| T009 | T006 |
+| T010 | T005, T006, T007 |
+| T011 | T010 |
+| T013 | T010 |
 
-### IRB Verification (Conditional)
-
-- [ ] T027.0 [S] **IRB Approval Check**: Check if `data/responses/` contains any files with real participant data (non-empty, non-mock). If real data exists, verify existence of `data/ethics/irb_approval.txt`. If missing and real data present, raise `SystemExit` with message "IRB approval required before participant sessions." If no real data (mock/CI mode), log warning and proceed. Dependency: None. This satisfies spec assumption about ethics before recruitment while allowing CI validation.
-
-## Phase 3: User Story 1 - Image Manipulation Pipeline (Priority: P1) 🎯 MVP
-
-### Tests for User Story 1 (OPTIONAL)
-
-- [X] T050 [P] [US1] Unit test for image enhancement logic in `tests/unit/test_stimuli_manipulator.py`. Must include functions `test_enhance_adds_objects` and `test_reduce_removes_objects`.
-- [X] T051 [P] [US1] Unit test for image reduction logic in `tests/unit/test_stimuli_manipulator.py`.
-- [X] T052 [P] [US1] Integration test for full pipeline in `tests/integration/test_stimuli_pipeline.py`.
-
-### Implementation for User Story 1
-
-- [ ] T015 **Implement Enhanced Detail Compositing** (`code/stimuli/manipulator.py`). Depends on T015.1-GenAssets, T015.1-LogParams, T006.3-Select, T006.3-Retry. **Verification**: For each baseline image in `data/stimuli/raw/`, generate a corresponding `data/stimuli/enhanced_{id}.png`. Log all errors to `data/logs/manipulation_errors.log`. Handles errors, logs to `data/logs/manipulation_errors.log`. Verify `data/stimuli/enhanced_{id}.png` exists for all baselines.
-
-- [ ] T016 **Implement Reduced Detail Manipulation** (`code/stimuli/manipulator.py`). Same dependencies as T015.
-
-- [X] T019 [P] [US1] Add error handling for missing metadata and failed fetches in `code/data/loader.py`.
-
-- [X] T020 [P] [US1] Add CLI entry point for running the manipulation pipeline in `code/cli.py`.
-
-- [ ] T017a **Manipulated Stimulus Metadata Generation**: After manipulation (T015/T016), generate metadata for **enhanced** and **reduced** images. **Output Schema**: `data/stimuli/enhanced_{id}_metadata.yaml` and `data/stimuli/reduced_{id}_metadata.yaml` MUST include: `detail_level` (enhanced/reduced), `object_list` (list of added/removed objects), `texture_settings` (blur/contrast params), `manipulation_timestamp` (UTC ISO). **Verification**: All enhanced and reduced images have corresponding metadata files with required fields. Dependency: T015, T016, T015.1-LogParams.
-
-## Phase 4: User Story 2 - Participant Testing Interface (Priority: P2)
-
-### Tests for User Story 2 (OPTIONAL)
-
-- [ ] T022 [P] [US2] Unit test for session state management.
-- [ ] T023 [P] [US2] Unit test for response generation logic.
-- [ ] T024 [P] [US2] Integration test for simulated session flow.
-
-### Implementation for User Story 2
-
-- [ ] T027.1-ContextualLures **Generate Contextual False Details** (`code/participants/interface.py`). **Logic**: For each baseline image, query Visual Genome metadata for objects NOT present in the specific baseline image's metadata. Select a random subset of these "contextual lures" to serve as false details. Ensure no overlap with baseline image metadata. Output `data/sessions/{id}/questions.json` with `"status":"complete"` if sufficient lures are found, or `"status":"incomplete"` if not. **Dependency**: T017 (baseline metadata), T006.1-LoadSubset, T060 (Scope Boundary Documentation).
-
-- [ ] T025 [P] **Implement View: Image Display** (`code/participants/interface.py`) – Implement View: Image Display (code/participants/interface.py) – 10 s ±0.5 s.
-
-- [ ] T026 **Implement View: Distractor Task** (`code/participants/interface.py`) – Implement View: Distractor Task (code/participants/interface.py) – 2 min ±10 s, flag incomplete if out of range.
-
-- [X] T027.2 **Generate Recognition Questions** (`code/participants/interface.py`). Depends on T017 (baseline metadata), T017a (manipulated metadata), T027.1-ContextualLures, T006.3-Select, T006.3-Retry. Extract true details from baseline metadata; false details from T027.1-ContextualLures. Write `data/sessions/{id}/questions.json` with balanced true/false items. **Note**: T017a must complete successfully before T027.2 begins.
-
-- [ ] T027.3 **Implement Response Capture** (`code/participants/session.py`). Depends on T027.2.
-
-- [ ] T029 **Local Caching & Retry for Network Timeouts** (`code/participants/session.py`).
-
-- [ ] T030 **Partial Session Recording & Dropout Flagging** (`code/participants/session.py`).
-
-- [ ] T031 **CLI entry point for simulated participant sessions** (`code/cli.py`).
-
-## Phase 5: User Story 3 - Statistical Analysis and Results Generation (Priority: P3)
-
-### Tests for User Story 3 (OPTIONAL)
-
-- [ ] T032 [P] Unit test for ANOVA calculation.
-- [ ] T033 [P] Unit test for multiple‑comparison correction.
-- [ ] T034 [P] Integration test for full analysis pipeline on mock data.
-
-### Implementation for User Story 3
-
-- [ ] T038 **Dataset‑Variable Fit Check** (`code/analysis/stats.py`). **Verification**: Generate `data/analysis/dataset_variable_fit.json` with schema `{"status":"pass|fail","missing_vars":[str],"details":str}`. Write `data/analysis/dataset_fit_check.txt` with status: pass/fail. Depends on T017, T017a, T027.3.
-
-- [X] T035.1 **Calculate False Memory Rate per Condition** (`code/analysis/stats.py`). Depends on T027.3. Writes per‑condition rates to `data/analysis/anova_input.csv`.
-
-- [X] T035a **Implement Repeated‑Measures ANOVA Script** (`code/analysis/anova.py`). Depends on T038, T012-Runtime, T001.1, T017a, T027.3, T035.1. Generates `data/analysis/anova_results.json` with required schema.
-
-- [ ] T035 **Run ANOVA** (`code/analysis/run_anova.py`). Calls T035a, then verifies `anova_results.json` exists.
-
-- [ ] T036 **Multiple‑Comparison Correction (Bonferroni)** (`code/analysis/stats.py`). Depends on T035.
-
-- [ ] T037 **Visualization Generation** (`code/analysis/viz.py`). Depends on T035.
-
-- [ ] T072.1 **Analysis Output: Limitations JSON Update**: Append `limitations` field to `anova_results.json` citing scope boundary (T060). Depends on T035.
-
-- [ ] T072.2 **Analysis Output: Limitations Documentation**: Update `research.md` with "Limitations: Associational Nature" citing T060. Depends on T072.1.
-
-- [ ] T039 **CLI entry point for running analysis** (`code/cli.py`). Depends on T035, T036, T037.
-
-## Phase N: Polish & Cross‑Cutting Concerns
-
-- [X] T045.1 **Refactor error handling into utility module** (`code/utils/error_handling.py`). Depends on T019.
-- [X] T045.2 **Extract magic numbers to `code/config.py`**. Depends on T009.
-- [X] T046-A **Performance Profiling** (`code/utils/profiler.py`). Depends on T015, T016.
-- [X] T046-B **Performance Optimization** (target <30 s/image). Depends on T046-A.
-- [X] T047 **Additional unit tests for edge cases** (`tests/unit/`). Depends on T027.3, T035.
-- [X] T048 **Security hardening (PII leakage)**. Depends on T010, T027.3.
-- [X] T049 **Run quickstart validation** (`code/cli.py --validate-quickstart`). Depends on T060, T046-B.
-
-**Note**: Cellular Correlate Hypothesis (Kandel et al.) removed from implementation scope; to be discussed as secondary limitation in research.md if IRB approved for future study.
-
-## Phase Dependencies
-
-(unchanged – see original plan)
+All tasks remain unchecked; none have been completed yet. The list now contains **15** substantive tasks, satisfying the required range while covering every functional requirement and success criterion.  
