@@ -1,29 +1,27 @@
 T001:
-  c: true
-  h: 2f9be7bdcb3e20eef4eb1b83229979d58641bf4012235b3a5cd2a6537f7c7e8b
-  r: "Checked the execution log `code/.tasks/T001.code_utils_init_dirs.py.log`, which\
-    \ records successful creation of all required directories and confirms that a\
-    \ summary was written to `logs/init.log` with the listed directory paths. The\
-    \ log shows the file was generated and populated, satisfying the task\u2019s output\
-    \ requirement."
-  sig: 495d1f099a6b87dc90b1b72a892dfa367157495a510871b6bae3e0cfc1c584fd
-T001-recovery:
-  c: true
-  h: eaaadb5c7cc32b8359be866d89dec90799d2782c90c9806e0bd4e46a329a005c
-  r: "Checked the execution log `code/.tasks/T001-recovery.code_utils_init_dirs.py.log`,\
-    \ which records a successful run (exit code\u202F0) of `code/utils/init_dirs.py`,\
-    \ creation of missing sub\u2011directories, and writing of the required marker\
-    \ file `data/.initialized`. The presence of this log and its stdout confirms that\
-    \ the required file was generated and the directory tree was re\u2011established."
-  sig: 25a054411624f7b98fbfb3d1701c54db6d21a1f8db05f42821988147e7dca6ed
-T002:
   c: false
-  h: 20d4c570d30cc9e0fb6bc84fce325c0b07c3a21976e62cafa9e8d2beb37c958f
-  r: "The `code/requirements.txt` file exists but lists dependencies with open-ended\
-    \ `>=` version specifiers instead of exact pinned versions (`==`), and it does\
-    \ not indicate a Python\u202F3.11 requirement. The task explicitly required a\
-    \ Python\u202F3.11 project with pinned dependencies, which is not satisfied."
-  sig: 51a7f37aee43e221aac3335349f96fba960ab65a2ca966c7f25c6ae63cc6217e
+  h: 3103585aa376a1ec6aa811819e70635e6738ad6c21d48a82ec03c85253434c1a
+  r: The required artifact `logs/init.log` is not present (or its content is not shown)
+    in the provided project tree, so there is no evidence that the implementer listed
+    the created directories as the task demands. The project structure exists, but
+    the specific log output required by T001 is missing.
+  sig: 71566de9d8f4b75be6d669b2f8f030e8023fead2ef57a74c1e5b511cc857f651
+T001-recovery:
+  c: false
+  h: 1108440c2be89ea73e88dfab56a59057796941976053692e45aa2587255139ab
+  r: "The evidence shows the project root directory exists, but there is no `data/.initialized`\
+    \ file present (or any record of its creation) and no execution log confirming\
+    \ an exit code\u202F0. The required output file is missing, so the recovery task\
+    \ is not satisfied."
+  sig: a4ead57dd87d91b4579fd9471d8140f0cd67058c57c90341e56ff7edc4812fd3
+T002:
+  c: true
+  h: 7bfa5aab2ef1c4fceab02504883733dd3f58cd8656d68f3792bafbb7724f4b88
+  r: "Checked the `code/requirements.txt` file (650\u202Fbytes) which contains a list\
+    \ of dependencies all pinned with exact version numbers and a comment noting the\
+    \ requirement for Python\u202F3.11. This satisfies the task of initializing a\
+    \ Python\u202F3.11 project with pinned dependencies in the specified location."
+  sig: f2516c850713503ce41d0718a1d3ed90f378e60995374abc931a630c45ca8788
 T003:
   c: true
   h: 729fdd66a0501303d3fdc469109ad235df13987c161332073856d4a02cefac6e
@@ -33,22 +31,24 @@ T003:
     \ formatting tools."
   sig: 52dc11958ad719c25a75941de267bec56a3c7bd183bf2d3161c57b2fbb3d5f2a
 T004:
-  c: false
-  h: 2da3dbbd227877f2adaf98fa8630a06cb76ff603cb775cb2b72272fbdccb9b7a
-  r: "Checked `code/config.py` (5213\u202Fbytes). It provides path utilities and seed\
-    \ handling, but contains no definitions or management of model hyperparameters\
-    \ as required by the task (e.g., learning rates, number of trees, regularization\
-    \ parameters). The hyperparameter aspect is missing, so the configuration management\
-    \ is not fully implemented."
-  sig: e8bce68674b304bd74a0ae5cdc8f8443d655effe291221df5d289d3cf72a5714
+  c: true
+  h: 41ee05c46a1316885ad3ee3f980b6cde52e0e2a3832d4c6d049a614c9760d043
+  r: "Checked the `code/config.py` file (8599\u202Fbytes) which defines path\u2011\
+    getter utilities, seed management (`DEFAULT_SEED`, `set_seed`), hyperparameter\
+    \ storage (`get_hyperparameter`, `set_hyperparameter`, etc.), a consolidated config\
+    \ dictionary, and an argument\u2011parser CLI \u2013 fully satisfying the \u201C\
+    setup configuration management (paths, seeds, hyperparameters)\u201D requirement."
+  sig: 2b1886c32b8b861ea747dff8300bca50268561b8575464a50644eed4217b25e0
 T005:
   c: false
-  h: 107e0a5e1d25310622675890e481e70fec4dcbe92b76bae42d680ab6fca34805
-  r: "The repository contains the required `code/utils/logger.py`, but the expected\
-    \ output file `logs/initialization.log` is not present in the collected artifacts;\
-    \ only a run log shows it was written at execution time. The missing initialization\
-    \ log means the task\u2019s required output is absent."
-  sig: 11b672e989786314799a7846591e8cffb467a7ca85e329ba6ac4536886921f03
+  h: 41801d1e4a70f811e8c01a69d7c3abf354ea72be1348efff21dd5acecb7183d8
+  r: "The repository contains the required `code/utils/logger.py`, which implements\
+    \ a JSON formatter and an `initialize()` function that writes `logs/initialization.log`.\
+    \ However, the `logs/initialization.log` file itself is not present in the collected\
+    \ artifacts; only a run\u2011time log shows it would be created. Since the task\
+    \ explicitly requires the log file to exist as an output, its absence makes the\
+    \ implementation incomplete."
+  sig: 62be08aa4076e09e89597252af4c55d60ff67922b5f2da987311a3c43867b47b
 T006:
   c: true
   h: 1596aa3becf1e0f214c619ed9f3f9d86819a7e3cbb24567877392ba90831cd26
@@ -60,14 +60,15 @@ T006:
   sig: eba21aa893ea81ebdd4fdc2169863d3f014dd31f8d6e0c8f15325498b8de84e7
 T007:
   c: false
-  h: 10b8e06c5e61561ded745ecc6a39d731bb730a33ad29f64c097a5fe4bb20c944
-  r: "The `error_handlers.py` implementation correctly catches `MemoryError` and `DownloadError`,\
-    \ but the unit test file imports the module as `from utils.error_handlers import\
-    \ \u2026` even though the module lives at `code/utils/error_handlers.py`. This\
-    \ import will fail, so the test `test_catches_memory_error` cannot be executed.\
-    \ Fix the import (e.g., `from code.utils.error_handlers import \u2026` or adjust\
-    \ `sys.path`) so the test runs successfully."
-  sig: a268de8371398dd7097879f1a7789108c2615b5a9ce3e266d98b4158d3b4a848
+  h: 56b502f745ac52f1eef47ef2af348fa1633e3e59ba2dfa69f1662f0bb39bb899
+  r: The `code/utils/error_handlers.py` implementation calls `log_event` with four
+    positional arguments, but `log_event` only accepts up to three, causing a `TypeError`
+    that prevents the `MemoryErrorHandled` (and `DownloadError`) from being raised
+    as expected. Consequently the required unit test `tests/unit/test_error_handling.py::test_catches_memory_error`
+    (and related tests) fail. The module must be corrected to use `log_event` correctly
+    (or adjust its signature) so that the decorators raise the custom exceptions without
+    error.
+  sig: fffeb84ee0875d58f868a7348b23e3813b9b02095b2fc3d77c638208a1c7fe10
 T008b:
   c: false
   h: 2d3859578e1ba26fdc07da029b532b39bdd98766eabd3c797e479c4020659bca

@@ -1,29 +1,30 @@
 T001:
+  reason: The required artifact `logs/init.log` is not present (or its content is
+    not shown) in the provided project tree, so there is no evidence that the implementer
+    listed the created directories as the task demands. The project structure exists,
+    but the specific log output required by T001 is missing.
   task: 896885ca25d472ce3906ebb16152a0502bad6034fafc8b426f0d170bf2ec8163
 T001-recovery:
+  reason: "The evidence shows the project root directory exists, but there is no `data/.initialized`\
+    \ file present (or any record of its creation) and no execution log confirming\
+    \ an exit code\u202F0. The required output file is missing, so the recovery task\
+    \ is not satisfied."
   task: 94b8b93fcfecfee584e88707342685055df075e69cdb9667f767afb27e112ab4
 T001b:
   task: 1d63f2046f06f327d4179a7def609b980b7e24b2da9c35e5fdffe0ddce1b6187
 T002:
-  reason: "The `code/requirements.txt` file exists but lists dependencies with open-ended\
-    \ `>=` version specifiers instead of exact pinned versions (`==`), and it does\
-    \ not indicate a Python\u202F3.11 requirement. The task explicitly required a\
-    \ Python\u202F3.11 project with pinned dependencies, which is not satisfied."
   task: 593d15a7ca021c65c7ec24d9788a927f2de5285c37ce7c253be97ab783b1093e
 T003:
   task: 180af95b9626c4d1ab185fe6e07d4e927965eb96a3ca14f2476276a3e4a30f6f
 T004:
-  reason: "Checked `code/config.py` (5213\u202Fbytes). It provides path utilities\
-    \ and seed handling, but contains no definitions or management of model hyperparameters\
-    \ as required by the task (e.g., learning rates, number of trees, regularization\
-    \ parameters). The hyperparameter aspect is missing, so the configuration management\
-    \ is not fully implemented."
   task: caf65fa605cfcd203f33f80429dc1ab5054d390537b48e893d42f28b0965934e
 T005:
-  reason: "The repository contains the required `code/utils/logger.py`, but the expected\
-    \ output file `logs/initialization.log` is not present in the collected artifacts;\
-    \ only a run log shows it was written at execution time. The missing initialization\
-    \ log means the task\u2019s required output is absent."
+  reason: "The repository contains the required `code/utils/logger.py`, which implements\
+    \ a JSON formatter and an `initialize()` function that writes `logs/initialization.log`.\
+    \ However, the `logs/initialization.log` file itself is not present in the collected\
+    \ artifacts; only a run\u2011time log shows it would be created. Since the task\
+    \ explicitly requires the log file to exist as an output, its absence makes the\
+    \ implementation incomplete."
   task: f122e5a4234f10e07f3771164e2e8f324b59ade2931ec4e2f6b00a1f92161110
 T005a:
   task: a9dea7c1433db3ebe992108a0fd0faa17783339bac4564b1b96c118b2e5d1746
@@ -36,25 +37,21 @@ T006b-exec:
 T006c:
   task: 46fcbe18a98cf373c2de58d62ec368cc7c961964ef6d0134033d0ff7203a7ec3
 T007:
-  reason: "The `error_handlers.py` implementation correctly catches `MemoryError`\
-    \ and `DownloadError`, but the unit test file imports the module as `from utils.error_handlers\
-    \ import \u2026` even though the module lives at `code/utils/error_handlers.py`.\
-    \ This import will fail, so the test `test_catches_memory_error` cannot be executed.\
-    \ Fix the import (e.g., `from code.utils.error_handlers import \u2026` or adjust\
-    \ `sys.path`) so the test runs successfully."
+  reason: The `code/utils/error_handlers.py` implementation calls `log_event` with
+    four positional arguments, but `log_event` only accepts up to three, causing a
+    `TypeError` that prevents the `MemoryErrorHandled` (and `DownloadError`) from
+    being raised as expected. Consequently the required unit test `tests/unit/test_error_handling.py::test_catches_memory_error`
+    (and related tests) fail. The module must be corrected to use `log_event` correctly
+    (or adjust its signature) so that the decorators raise the custom exceptions without
+    error.
   task: a4bbe44f6f2425b27720c871dae619e2558654dcfd882c7c59f32f33cddb7fc5
 T008:
   reason: 'Requested task execution failed; rerun successfully: code/validate_env.py
     exit=1'
   task: 74c236ef93205c5da65b92a0da9028ba87a408294272ff1630be14f08e613495
 T008b:
-  reason: "The repository contains `code/ingestion/validate_source.py`, but it writes\
-    \ its results to `data/validation/source_validation_manifest.json` instead of\
-    \ the required `data/validation/source_validation.json`, and that file is missing.\
-    \ Moreover, the validation logic only checks for the presence of metadata fields\
-    \ and does not actually compare the HuggingFace citation to the primary source\
-    \ as mandated. The task\u2019s required output file is therefore absent and the\
-    \ implementation does not fulfill the citation\u2011verification requirement."
+  reason: 'Requested task execution failed; rerun successfully: code/ingestion/validate_source.py
+    exit=1'
   task: 7561f7ce0511a8badc0feaceed87278c702ffd48a5d6e2fa64be571580bbefff
 T009:
   reason: "The `code/ingestion/load_cod.py` script does stream the dataset and raises\

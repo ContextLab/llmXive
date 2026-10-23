@@ -4,16 +4,24 @@ Module: code/ingestion/validate_source.py
 Purpose:
 Validate the HuggingFace dataset citation and accessibility before processing.
 Implements the Reference-Validator integration (Constitution Principle II).
+
+This script checks that the dataset metadata retrieved from HuggingFace
+contains an expected citation string that matches the primary source for the
+COD organic subset. The result of the validation is written to
+`data/validation/source_validation.json`.  If the validation fails or the
+dataset cannot be reached, the script exits with a non‑zero status and
+logs the error.
 """
 
+import argparse
 import json
-import os
-import sys
 import logging
+import sys
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Any, Dict, Tuple, Optional
 
-# Project root setup
+# Ensure the project root is on the import path so that sibling modules can be imported.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -23,23 +31,29 @@ from exceptions import CitationVerificationError, SourceUnreachableError
 
 logger = get_logger(__name__)
 
-# Constants
-VALIDATION_MANIFEST_PATH = PROJECT_ROOT / "data" / "validation" / "source_validation_manifest.json"
-EXPECTED_CITATION_KEY = "cod_organic" # Placeholder for actual expected citation key if known
-# In a real scenario, we might have a specific expected citation hash or DOI.
-# For this implementation, we verify that the dataset exists and has a valid metadata structure.
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+# Expected citation snippet – this is a minimal check that the dataset
+# metadata references the Crystallography Open Database.  In a full
+# implementation this would be a DOI or exact citation string.
+EXPECTED_CITATION_SNIPPET = "Crystallography Open Database"
+# Output file name (as required by the task specification)
+VALIDATION_OUTPUT_PATH = get_path_validation() / "source_validation.json"
 
-
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def get_dataset_metadata(dataset_name: str) -> Dict[str, Any]:
     """
     Fetches metadata for the dataset from HuggingFace.
-    
+
     Args:
         dataset_name (str): The name of the dataset on HuggingFace.
-        
+
     Returns:
-        Dict[str, Any]: The dataset metadata.
-        
+        Dict[str, Any]: A dictionary with selected metadata fields.
+
     Raises:
         SourceUnreachableError: If the dataset cannot be accessed.
     """
@@ -47,125 +61,159 @@ def get_dataset_metadata(dataset_name: str) -> Dict[str, Any]:
         from huggingface_hub import HfApi
         api = HfApi()
         info = api.dataset_info(dataset_name)
-        
+
+        # Extract a subset of fields that are useful for citation verification.
         metadata = {
             "id": info.id,
             "author": info.author,
             "description": info.description,
             "tags": info.tags,
             "last_modified": info.last_modified,
-            "cardData": info.cardData
+            "cardData": info.cardData,
+            "citation": getattr(info, "citation", None)  # Some datasets expose a citation field.
         }
         return metadata
-    except Exception as e:
-        logger.error(f"Failed to fetch metadata for {dataset_name}: {e}")
-        raise SourceUnreachableError(f"Failed to fetch metadata for {dataset_name}: {e}")
-
+    except Exception as exc:
+        logger.error(f"Unable to retrieve metadata for dataset '{dataset_name}': {exc}")
+        raise SourceUnreachableError(
+            f"Failed to fetch metadata for dataset '{dataset_name}'."
+        ) from exc
 
 def verify_citation(dataset_name: str, metadata: Dict[str, Any]) -> Tuple[bool, str]:
     """
-    Verifies the dataset citation against expected criteria.
-    
+    Verifies that the dataset citation matches the expected primary source.
+
+    The verification follows a simple heuristic:
+    * The metadata must contain a non‑empty ``id`` field.
+    * The ``citation`` field (if present) or the ``description`` must contain
+      the ``EXPECTED_CITATION_SNIPPET`` string (case‑insensitive).
+
     Args:
         dataset_name (str): The name of the dataset.
-        metadata (Dict[str, Any]): The dataset metadata.
-        
+        metadata (Dict[str, Any]): The metadata dictionary obtained from HuggingFace.
+
     Returns:
-        Tuple[bool, str]: (is_valid, message)
+        Tuple[bool, str]: ``(is_valid, message)`` where ``is_valid`` indicates
+        whether the citation check passed.
     """
-    # Basic verification: Check if metadata is populated
     if not metadata.get("id"):
-        return False, "Dataset ID is missing in metadata."
-    
-    # Check for specific tags or keywords if required by the project spec
-    # For COD Organic, we expect it to be related to crystallography
-    tags = metadata.get("tags", [])
-    if not any("crystal" in str(tag).lower() for tag in tags) and "crystallography" not in dataset_name.lower():
-        # This is a heuristic check. If the dataset name doesn't contain 'crystal', 
-        # and tags don't, it might be the wrong dataset.
-        # However, 'crystallography-open-database/organic' is specific enough.
-        pass
+        return False, "Dataset metadata missing required 'id' field."
 
-    # In a more strict implementation, we would compare a hash or DOI.
-    # Here we assume if we can fetch the metadata and it has an ID, it's valid.
-    return True, "Citation verified successfully."
+    # Prefer an explicit citation field; fall back to description.
+    citation_text: Optional[str] = metadata.get("citation") or metadata.get("description")
+    if not citation_text:
+        return False, "No citation or description found in dataset metadata."
 
+    if EXPECTED_CITATION_SNIPPET.lower() in citation_text.lower():
+        return True, "Citation verification succeeded."
+    else:
+        return (
+            False,
+            f"Citation does not contain expected reference to '{EXPECTED_CITATION_SNIPPET}'."
+        )
 
-def save_validation_manifest(dataset_name: str, is_valid: bool, message: str, metadata: Dict[str, Any]):
+def save_validation_result(
+    dataset_name: str,
+    is_valid: bool,
+    message: str,
+    metadata: Dict[str, Any],
+    output_path: Path
+) -> None:
     """
-    Saves the validation manifest to disk.
-    
+    Writes the validation result to ``output_path`` as JSON.
+
+    The JSON structure matches the task specification and includes a
+    timestamp for reproducibility.
+
     Args:
-        dataset_name (str): The name of the dataset.
-        is_valid (bool): Whether the validation passed.
-        message (str): The validation message.
-        metadata (Dict[str, Any]): The dataset metadata.
+        dataset_name (str): Dataset identifier.
+        is_valid (bool): Result of the validation.
+        message (str): Human‑readable message.
+        metadata (Dict[str, Any]): Full dataset metadata.
+        output_path (Path): Destination file path.
     """
-    ensure_directory(VALIDATION_MANIFEST_PATH)
-    manifest = {
+    ensure_directory(output_path.parent)
+
+    validation_record = {
         "dataset_name": dataset_name,
-        "timestamp": str(Path(__file__).parent.parent.parent / "logs" / "init.log"), # Placeholder for actual timestamp
+        "timestamp": datetime.utcnow().isoformat() + "Z",
         "is_valid": is_valid,
         "message": message,
         "metadata": metadata
     }
-    with open(VALIDATION_MANIFEST_PATH, 'w') as f:
-        json.dump(manifest, f, indent=2)
-    logger.info(f"Validation manifest saved to {VALIDATION_MANIFEST_PATH}")
 
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(validation_record, f, indent=2, ensure_ascii=False)
 
+    logger.info(f"Source validation record written to {output_path}")
+
+# ----------------------------------------------------------------------
+# Core validation routine
+# ----------------------------------------------------------------------
 def validate_source(dataset_name: str) -> Tuple[bool, Optional[Dict[str, Any]]]:
     """
-    Main validation function.
-    
-    Args:
-        dataset_name (str): The name of the dataset.
-        
+    Perform the full validation workflow.
+
     Returns:
-        Tuple[bool, Optional[Dict[str, Any]]]: (is_valid, metadata)
+        Tuple[bool, Optional[Dict[str, Any]]]: ``(is_valid, metadata)``.
+        ``metadata`` is ``None`` only when the dataset could not be reached.
     """
     try:
         metadata = get_dataset_metadata(dataset_name)
         is_valid, message = verify_citation(dataset_name, metadata)
-        
-        save_validation_manifest(dataset_name, is_valid, message, metadata)
-        
+
+        # Persist the result.
+        save_validation_result(
+            dataset_name,
+            is_valid,
+            message,
+            metadata,
+            VALIDATION_OUTPUT_PATH
+        )
+
+        # Log the event for downstream audit.
         if is_valid:
             log_event("source_validated", {"dataset": dataset_name, "message": message})
-            return True, metadata
         else:
             log_event("source_validation_failed", {"dataset": dataset_name, "message": message})
-            return False, metadata
-            
-    except SourceUnreachableError as e:
-        logger.error(f"Source unreachable: {e}")
-        raise e
-    except Exception as e:
-        logger.error(f"Unexpected error during validation: {e}")
-        raise CitationVerificationError(f"Unexpected error during validation: {e}")
 
+        return is_valid, metadata
 
-def main():
-    """
-    CLI entry point for validation.
-    """
-    import argparse
-    parser = argparse.ArgumentParser(description="Validate HuggingFace dataset source.")
-    parser.add_argument("--dataset", type=str, required=True, help="Dataset name on HuggingFace.")
+    except SourceUnreachableError as exc:
+        logger.error(f"Source unreachable: {exc}")
+        raise  # Propagate so the CLI can exit with a non‑zero status
+    except Exception as exc:
+        logger.error(f"Unexpected error during source validation: {exc}")
+        raise CitationVerificationError(
+            f"Unexpected error during validation of dataset '{dataset_name}': {exc}"
+        ) from exc
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Validate the HuggingFace COD organic dataset citation and accessibility."
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        required=True,
+        help="Full HuggingFace dataset identifier (e.g., 'crystallography-open-database/organic')."
+    )
     args = parser.parse_args()
-    
+
     try:
         is_valid, _ = validate_source(args.dataset)
         if is_valid:
-            print(f"Validation successful for {args.dataset}")
+            print(f"Validation successful for dataset '{args.dataset}'.")
             sys.exit(0)
         else:
-            print(f"Validation failed for {args.dataset}")
+            print(f"Validation failed for dataset '{args.dataset}'. See log for details.")
             sys.exit(1)
-    except Exception as e:
-        print(f"Validation error: {e}")
+    except Exception as exc:
+        print(f"Validation error: {exc}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

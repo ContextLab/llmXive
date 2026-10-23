@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001-recovery Re-establish the `projects/PROJ-030-predicting-crystal-structures-from-molec/` root directory structure if missing. **Constraint**: This task must create the full directory tree explicitly to ensure T001 and subsequent tasks have a valid working directory. **Output**: `data/.initialized` file and exit code 0.
-- [X] T001 [P] Create project structure per implementation plan (`projects/PROJ-030-predicting-crystal-structures-from-molec/`). **Output**: `logs/init.log` listing created directories. **Dependency**: T001-recovery.
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+- [ ] T001-recovery Re-establish the `projects/PROJ-030-predicting-crystal-structures-from-molec/` root directory structure if missing. **Constraint**: This task must create the full directory tree explicitly to ensure T001 and subsequent tasks have a valid working directory. **Output**: `data/.initialized` file and exit code 0.
+- [ ] T001 [P] Create project structure per implementation plan (`projects/PROJ-030-predicting-crystal-structures-from-molec/`). **Output**: `logs/init.log` listing created directories. **Dependency**: T001-recovery.
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/.pre-commit-config.yaml`
 
 ---
@@ -56,12 +56,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup configuration management in `code/config.py` (paths, seeds, hyperparameters)
+- [X] T004 Setup configuration management in `code/config.py` (paths, seeds, hyperparameters)
 - [ ] T005 [P] Implement logging infrastructure with structured JSON output to `logs/`. **Output**: `code/utils/logger.py` and `logs/initialization.log`. **Dependency**: T001.
 - [X] T006 Create base data models (`MoleculeRecord`, `ModelMetrics`, `FeatureImportance`) in `code/ingestion/models.py`
 - [ ] T007 [P] Implement `code/utils/error_handlers.py` to catch `MemoryError` and `DownloadError` explicitly (no synthetic fallbacks) and add unit test `tests/unit/test_error_handling.py::test_catches_memory_error`
-- [ ] T008 [P] [Dep: T008b] Implement `code/validate_env.py` to verify `HF_TOKEN`, cache paths, and enforce CPU-only execution (`training_device="cpu"`). **Output**: `data/results/runtime_config.json` with `training_device="cpu"`. **Constraint**: This task strictly enforces CPU-only execution as per Plan constraints; it does NOT enable GPU offloading or detect GPU drivers. **Dependency**: T008b (Reference-Validator integration) must complete first to ensure source validation before environment setup. <!-- FAILED-IN-EXECUTION: code/validate_env.py exit=1 -->
-- [ ] T008b [P] Implement Reference-Validator integration in `code/ingestion/validate_source.py` to verify the HuggingFace dataset citation against the primary source before processing (Constitution Principle II compliance). **Output**: `data/validation/source_validation.json`.
+- [~] T008 [P] [Dep: T008b] Implement `code/validate_env.py` to verify `HF_TOKEN`, cache paths, and enforce CPU-only execution (`training_device="cpu"`). **Output**: `data/results/runtime_config.json` with `training_device="cpu"`. **Constraint**: This task strictly enforces CPU-only execution as per Plan constraints; it does NOT enable GPU offloading or detect GPU drivers. **Dependency**: T008b (Reference-Validator integration) must complete first to ensure source validation before environment setup.
+- [ ] T008b [P] Implement Reference-Validator integration in `code/ingestion/validate_source.py` to verify the HuggingFace dataset citation against the primary source before processing (Constitution Principle II compliance). **Output**: `data/validation/source_validation.json`. <!-- FAILED-IN-EXECUTION: code/ingestion/validate_source.py exit=1 -->
 - [ ] T005a [P] [Dep: T004] Implement seed verification script `code/utils/verify_seeds.py` that re-runs a small subset twice and confirms identical hashes. **Output**: `data/validation/seed_verification.json`.
 - [ ] T001b [P] Implement directory creation script `code/utils/init_dirs.py` to create all required data directories (`data/processed`, `data/results`, `data/validation`, `data/models`, `logs`) and write a confirmation log to `data/.initialized`. **Dependency**: Must run after T001-recovery and before any task that writes to these directories (e.g., T036, T009). **Constraint**: Explicitly creates the full directory tree for a CPU-only environment; no CUDA-specific cache directories are created.
 
