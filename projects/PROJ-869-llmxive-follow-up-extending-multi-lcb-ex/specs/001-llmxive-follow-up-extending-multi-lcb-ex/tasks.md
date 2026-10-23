@@ -11,7 +11,7 @@
   `code/src/`, `code/tests/`, `data/raw/`, `data/processed/`, `results/`, `requirements.txt`, `README.md`.  
   **Verification**: `tree` output contains all directories; `git status` shows them as untracked.
 
-- [ ] **T002** [US0] Populate `requirements.txt` with exact, pinned versions of all scientific dependencies (`datasets`, `transformers`, `torch`, `scikit-learn`, `pandas`, `pytest`, `pyyaml`).  
+- [ ] **T002** [US0] Populate `requirements.txt` with exact, pinned versions of all scientific dependencies (`datasets`, `transformers`, `torch`, `scikit-learn`, `pandas`, `pytest`, `pyyaml`).   <!-- FAILED-IN-EXECUTION: code/src/verify_requirements.py exit=1 -->
   **Verification**: `pip install -r requirements.txt` succeeds in a fresh venv; `pip freeze` matches the pinned list.
 
 - [X] **T003** [US0] Add linting/formatting configuration files `.ruff.toml` and `pyproject.toml` (Black settings).  

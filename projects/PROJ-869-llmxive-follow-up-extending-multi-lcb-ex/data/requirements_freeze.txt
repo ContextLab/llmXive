@@ -21,7 +21,7 @@ h11==0.16.0
 hf-xet==1.7.0
 httpcore2==2.16.0
 httpx2==2.16.0
-huggingface_hub==0.36.2
+huggingface-hub==0.23.0
 idna==3.20
 iniconfig==2.3.1
 Jinja2==3.1.6
@@ -66,7 +66,7 @@ pytest==8.3.3
 python-dateutil==3.0.0
 pytokens==0.4.1
 pytz==2026.5
-PyYAML==6.0.2
+PyYAML==6.0.1
 referencing==0.37.0
 regex==2026.9.29
 requests==2.32.3
@@ -84,7 +84,7 @@ threadpoolctl==3.7.0
 tokenizers==0.19.1
 torch==2.4.0
 tqdm==4.70.1
-transformers==4.44.2
+transformers==4.41.2
 triton==3.0.0
 truststore==0.10.5
 typing_extensions==4.16.0

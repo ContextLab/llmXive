@@ -1,11 +1,8 @@
 T001:
   task: f5a0eb00b2c587aa614c36ba9f5bdbaa8728c9c29cf4101894c0683e05f4d796
 T002:
-  reason: "The `requirements.txt` file exists and lists pinned versions, but the execution\
-    \ logs show that a fresh install resolved to different versions (e.g., `datasets==2.19.0`\
-    \ vs `2.19.1` in the file) and no `pip freeze` output is provided to confirm the\
-    \ installed versions match the pins. The task\u2019s verification condition is\
-    \ therefore not met."
+  reason: 'Requested task execution failed; rerun successfully: code/src/verify_requirements.py
+    exit=1'
   task: 54956f2f905425249fb55d70560a849db9ff400132926d7a7116c786dad2df98
 T003:
   task: 3cd6f1bd0d6545985360bb3de71e7eae11858c0030df9cf8400daa98afd44795

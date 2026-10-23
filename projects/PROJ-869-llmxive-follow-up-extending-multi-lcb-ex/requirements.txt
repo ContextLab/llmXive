@@ -1,13 +1,11 @@
 # Core scientific dependencies (pinned)
-datasets==2.19.1
+datasets==2.19.0
 transformers==4.41.2
-torch==2.3.0
-scikit-learn==1.5.0
-pandas==2.2.2
-pytest==8.2.2
+torch==2.4.0
+scikit-learn==1.5.2
+pandas==2.2.3
+pytest==8.3.3
 pyyaml==6.0.1
 # Additional runtime dependencies for feasibility gate
 huggingface-hub==0.23.0
-llama-cpp-python==0.2.77
-# The following are already provided in the base environment:
-# numpy, scipy, matplotlib, seaborn, jsonschema, requests, psutil
+llama-cpp-python==0.2.71
