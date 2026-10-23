@@ -3,8 +3,7 @@ agp_loader.py
 ----------------
 This module implements Task T001: download the American Gut Project (AGP)
 raw 16S count table and associated metadata using the HuggingFace
-`datasets` library (or, more directly, the `huggingface_hub` utility).
-The script writes two TSV files to ``data/raw/agp/``:
+`huggingface_hub` utility. The script writes two TSV files to ``data/raw/agp/``:
 
 * ``agp_counts.tsv``   – taxon abundance matrix (samples × taxa)
 * ``agp_metadata.tsv`` – sample‑level metadata
@@ -14,7 +13,7 @@ It also creates a SHA‑256 checksum manifest at
 
 The script is executable via:
 
-``python -m code.src.ingestion.agp_loader``
+``python -m src.ingestion.agp_loader``
 
 It can also be imported and called programmatically via the
 ``download_agp_dataset`` function.
@@ -26,19 +25,16 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Tuple
 
 import pandas as pd
-from datasets import load_dataset
 from huggingface_hub import hf_hub_download
 
 # Project‑wide logger utility (already part of the repo)
 from src.utils.logger import get_logger
 
 # ----------------------------------------------------------------------
-# Helper utilities – these were already present in the original file.
-# They are retained for backwards compatibility but are not used by the
-# new download implementation.
+# Helper utilities – retained for backwards compatibility.
 # ----------------------------------------------------------------------
 def get_project_root() -> Path:
     """Return the repository root (the folder that contains the top‑level ``.git``)."""
@@ -90,7 +86,7 @@ def record_checksum(file_path: Path, checksum: str, state_file: Path) -> None:
         json.dump(data, f, indent=2, sort_keys=True)
 
 # ----------------------------------------------------------------------
-# New implementation – download the AGP dataset.
+# New implementation – download the AGP dataset via huggingface_hub.
 # ----------------------------------------------------------------------
 def _download_file_from_hub(repo_id: str, filename: str, dest: Path) -> Path:
     """

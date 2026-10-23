@@ -8,6 +8,17 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
   - script usage: `clr_transform.py [-h] [--input INPUT] [--output OUTPUT]`
   - argparse error: `clr_transform.py: error: unrecognized arguments: --method bayesian`
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python -m src.ingestion.agp_loader`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 14 command(s) failed: python -m src.ingestion.agp_loader (rc=1); python -m src.ingestion.user_loader (rc=1); python -m src.preprocessing.harmonize --input-dir data/raw/ (rc=1); 1 declared deliverable(s) absent: data/state/agp_checksums.json
@@ -15,20 +26,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.ingestion.agp_loader -> rc=1
+-23 05:27:13 - agp_loader - ERROR - Failed to download AGP dataset: 401 Client Error. (Request ID: Root=1-6adaf031-42a3880673ee4ca12a93090d;35e5bf1e-124c-4bc9-b6ac-bdb47dfd13d7)
 
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-112-investigating-the-correlation-between-di/code/src/ingestion/agp_loader.py", line 32, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-112-investigating-the-correlation-between-di/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-112-investigating-the-correlation-between-di/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-112-investigating-the-correlation-between-di/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.24.3
+Repository Not Found for url: https://huggingface.co/american_gut/agp_diet/resolve/main/agp_counts.tsv.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password.
+2026-10-23 05:27:13,282 - agp_loader - ERROR - Failed to download AGP dataset: 401 Client Error. (Request ID: Root=1-6adaf031-42a3880673ee4ca12a93090d;35e5bf1e-124c-4bc9-b6ac-bdb47dfd13d7)
+
+Repository Not Found for url: https://huggingface.co/american_gut/agp_diet/resolve/main/agp_counts.tsv.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password.
+
 
 - python -m src.ingestion.user_loader -> rc=1
 
@@ -98,7 +110,7 @@ FAILED tests/contract/test_maaslin2_schema.py::TestMaaslin2OutputSchema::test_p_
 FAILED tests/contract/test_maaslin2_schema.py::TestMaaslin2OutputSchema::test_spearman_rho_range
 FAILED tests/contract/test_maaslin2_schema.py::TestMaaslin2OutputSchema::test_se_positive
 FAILED tests/contract/test_maaslin2_schema.py::TestMaaslin2OutputSchema::test_file_is_tsv
-========================= 9 failed, 7 passed in 0.39s ==========================
+========================= 9 failed, 7 passed in 0.36s ==========================
 
 
 

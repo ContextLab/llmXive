@@ -1,16 +1,16 @@
 status: none
-intent: American Gut Project Open Diet release HuggingFace dataset download python
-  package dataset UK Biobank gut microbiome
+intent: American Gut Project Open Diet dataset HuggingFace download UK Biobank gut
+  microbiome reference python package dataset
 required_fields:
 - sample_id
 - subject_id
 - age
 - sex
-- bmi
+- BMI
 - diet
 - health_status
-- geographic_location
+- geography
 - taxon_counts
-cache_key: ac5ae52c063e685c6e7a87554845fe1e9baa8a538a2a39a93c40691f2ac29669
-searched_at: '2026-10-23T05:26:22.211624+00:00'
+cache_key: 0384c6cda525d5a0a791a4a250d46dbc3eebed57ee610f7126612fd0f9c91657
+searched_at: '2026-10-23T05:28:10.633623+00:00'
 retry_count: 1
