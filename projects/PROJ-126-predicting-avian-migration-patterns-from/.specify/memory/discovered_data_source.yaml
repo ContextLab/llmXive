@@ -1,19 +1,19 @@
 status: none
-intent: download Cornell eBird Basic Dataset and NASA MODIS temperature NDVI python
-  package dataset
+intent: download eBird Basic Dataset complete checklists Setophaga ruticilla 2015-2022
+  python package dataset MODIS weekly NDVI temperature
 required_fields:
-- species
+- species_scientific_name
 - observation_date
 - latitude
 - longitude
-- duration_minutes
-- observer_count
-- distance_km
+- checklist_duration_minutes
+- number_of_observers
+- distance_traveled_km
+- effort_distance_km
+- effort_duration_minutes
+- effort_observers
 - grid_cell_id
 - week_number
-- temperature
-- ndvi
-- first_arrival_week
-cache_key: 51b8d173cfb8f4a01a98f78363f9d1894ba36a1d9064f1632e11793c9850b66a
-searched_at: '2026-10-23T14:13:52.112762+00:00'
+cache_key: 90681e848647629ce3345dee19470e34ee9b26727f74d4988dab1fb410961029
+searched_at: '2026-10-23T15:09:33.443207+00:00'
 retry_count: 1

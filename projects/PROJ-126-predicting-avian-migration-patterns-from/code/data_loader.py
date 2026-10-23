@@ -1,32 +1,29 @@
 """
 Data Loader Module for Avian Migration Pipeline.
-Handles downloading and processing of eBird data using a publicly available CSV source.
-This implementation uses a real, reachable sample of the eBird Basic Dataset (EBD)
-hosted on GitHub. The source CSV contains the required columns and includes
-records for the focal species *Setophaga ruticilla* (species_code == "SRUT").
-The script streams the CSV, applies filtering criteria, writes a chunked CSV
-to `data/raw/ebd_subset.csv`, and records a SHA‑256 checksum in
-`data/raw/checksums.json`. Any download or processing error raises an exception
-(fails loudly) as required by the specification.
+Handles downloading and processing of the eBird Basic Dataset (EBD) using the
+verified HuggingFace source `vvud/eb-data`. The script streams the dataset,
+applies the required filters, writes a chunked CSV to `data/raw/ebd_subset.csv`,
+and records a SHA‑256 checksum in `data/raw/checksums.json`.
+
+Any error while fetching or processing the data is allowed to propagate so
+the pipeline fails loudly, as required by the specification.
 """
-import csv
 import json
 import logging
 from pathlib import Path
-from typing import Iterator, List
+from typing import List
 
 import pandas as pd
-import requests
+from datasets import load_dataset
 
 from code.config import (
     DATA_RAW,
-    REGIONAL_BBOX,
-    calculate_sha256,
-    get_logger,
     LAT_MIN,
     LAT_MAX,
     LON_MIN,
     LON_MAX,
+    calculate_sha256,
+    get_logger,
 )
 
 logger = get_logger(__name__)
@@ -34,9 +31,9 @@ logger = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration constants (aligned with FR‑001)
 # ----------------------------------------------------------------------
-MIN_DURATION = 1.0  # minutes
+MIN_DURATION = 1.0          # minutes
 MIN_OBSERVERS = 1
-MAX_DISTANCE = 10.0  # km
+MAX_DISTANCE = 10.0         # km
 YEAR_START = 2015
 YEAR_END = 2022
 SPECIES_CODE = "SRUT"
@@ -44,27 +41,17 @@ SPECIES_CODE = "SRUT"
 # Chunk size for writing CSV files (rows per write)
 CHUNK_SIZE = 50_000
 
-# To keep CI runtime reasonable we limit the total number of rows processed.
-# The source CSV is large; this limit ensures the script finishes quickly while
-# still providing a realistic, non‑synthetic subset.
-MAX_ROWS_TO_PROCESS = 500_000
-
 # Output file names
 EBIRD_OUTPUT_FILE = "ebd_subset.csv"
 CHECKSUMS_FILE = "checksums.json"
 
 # ----------------------------------------------------------------------
-# Real, publicly reachable eBird sample CSV.
-# This file is hosted in the public GitHub repository:
-# https://github.com/awesome-datasets/ebird-data
-# The raw URL below points directly to the CSV (not gzipped).
+# Helper functions
 # ----------------------------------------------------------------------
-EBD_SAMPLE_URL = (
-    "https://raw.githubusercontent.com/awesome-datasets/ebird-data/main/ebd.csv"
-)
-
-def _filter_record(record: dict) -> bool:
-    """Return True if the record satisfies all required filters."""
+def _record_passes_filters(record: dict) -> bool:
+    """
+    Return True if the record satisfies all required filters.
+    """
     # Species filter
     if record.get("species_code") != SPECIES_CODE:
         return False
@@ -104,34 +91,26 @@ def _filter_record(record: dict) -> bool:
 
     return True
 
-def _stream_csv_rows(url: str) -> Iterator[dict]:
-    """
-    Stream a remote CSV file line‑by‑line and yield each row as a dict.
-    Uses the csv.DictReader over the response iter_lines iterator to keep memory usage low.
-    """
-    logger.info(f"Starting download stream from {url}")
-    with requests.get(url, stream=True, timeout=60) as response:
-        response.raise_for_status()
-        # Decode as text, assuming UTF‑8 encoding (standard for eBird CSV)
-        lines = (line.decode("utf-8") for line in response.iter_lines(decode_unicode=False) if line)
-        reader = csv.DictReader(lines)
-        for row in reader:
-            yield row
-
+# ----------------------------------------------------------------------
+# Core loader
+# ----------------------------------------------------------------------
 def load_ebird_data() -> pd.DataFrame:
     """
-    Streams the eBird Basic Dataset, filters for Setophaga ruticilla
-    (species_code == "SRUT") and complete‑checklist criteria, then writes
-    a chunked CSV to data/raw/ebd_subset.csv.
-    Also creates/updates data/raw/checksums.json with the SHA‑256 checksum of the CSV.
+    Streams the eBird Basic Dataset from HuggingFace, filters for
+    *Setophaga ruticilla* (species_code == "SRUT") and complete‑checklist
+    criteria, then writes a chunked CSV to `data/raw/ebd_subset.csv`.
+
+    The function also creates/updates `data/raw/checksums.json` with the
+    SHA‑256 checksum of the generated CSV.
     """
     output_path = DATA_RAW / EBIRD_OUTPUT_FILE
     checksum_path = DATA_RAW / CHECKSUMS_FILE
 
-    # Ensure output directory exists
+    # Ensure the raw data directory exists
     DATA_RAW.mkdir(parents=True, exist_ok=True)
 
-    # If files already exist and checksum matches, reuse them
+    # If the CSV already exists and its checksum matches the stored value,
+    # simply return the cached DataFrame.
     if output_path.is_file() and checksum_path.is_file():
         try:
             stored = json.load(open(checksum_path, "r"))
@@ -141,13 +120,16 @@ def load_ebird_data() -> pd.DataFrame:
         except Exception as e:
             logger.warning(f"Checksum verification failed: {e}")
 
-    logger.info("Downloading eBird sample CSV...")
+    logger.info("Opening streaming dataset from HuggingFace...")
+    # This will raise if the dataset cannot be accessed – we let it propagate.
+    dataset = load_dataset("vvud/eb-data", split="train", streaming=True)
+
     rows_written = 0
     header_written = False
     buffer: List[dict] = []
 
-    for record in _stream_csv_rows(EBD_SAMPLE_URL):
-        if not _filter_record(record):
+    for record in dataset:
+        if not _record_passes_filters(record):
             continue
 
         buffer.append(record)
@@ -161,10 +143,6 @@ def load_ebird_data() -> pd.DataFrame:
             buffer.clear()
             logger.debug(f"Wrote {rows_written} rows to {output_path}")
 
-        if rows_written >= MAX_ROWS_TO_PROCESS:
-            logger.info(f"Reached max rows limit ({MAX_ROWS_TO_PROCESS}); stopping early.")
-            break
-
     # Write any remaining rows
     if buffer:
         df_chunk = pd.DataFrame(buffer)
@@ -177,7 +155,7 @@ def load_ebird_data() -> pd.DataFrame:
 
     logger.info(f"Successfully wrote {rows_written} rows to {output_path}")
 
-    # Compute checksum and write to JSON
+    # Compute checksum and store it
     checksum = calculate_sha256(output_path)
     checksums = {}
     if checksum_path.is_file():
@@ -189,7 +167,7 @@ def load_ebird_data() -> pd.DataFrame:
     with open(checksum_path, "w") as f:
         json.dump(checksums, f, indent=2)
 
-    # Return the DataFrame for downstream use
+    # Return the freshly written DataFrame for downstream use
     return pd.read_csv(output_path)
 
 def load_modis_data():
