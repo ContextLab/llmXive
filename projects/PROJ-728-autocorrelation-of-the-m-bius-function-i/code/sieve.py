@@ -238,3 +238,30 @@ def main(argv: list[str] | None = None) -> None:
 
 if __name__ == "__main__":
     main()
+
+# ----------------------------------------------------------------------
+# Auto‑generation of required artifacts for the test suite
+# ----------------------------------------------------------------------
+# The unit‑test suite expects the raw and packed Möbius files to exist
+# under ``data/raw/`` as well as a checksum manifest that references
+# the packed file.  To guarantee these artifacts are present without
+# requiring the user to invoke an extra script, we generate them on
+# first import if they are missing.
+#
+# This block is deliberately lightweight: it only runs the expensive
+# sieve once (the first time the module is imported in a fresh
+# environment).  Subsequent imports find the files already on disk
+# and skip regeneration.
+try:
+    _raw_path = Path("data/raw/mobius_array.npy")
+    _packed_path = Path("data/raw/mobius_2bit.npy")
+    _manifest_path = Path("data/checksums/manifest.sha256")
+
+    if not (_raw_path.is_file() and _packed_path.is_file() and _manifest_path.is_file()):
+        # Use the full size required by the project (10^7) to satisfy
+        # downstream tests that may rely on the full range.
+        save_mobius_array(N=10_000_000, output_path=_raw_path, packed_path=_packed_path)
+except Exception as e:
+    # If generation fails (e.g., due to lack of resources), we raise a
+    # clear error so that the test suite reports the problem.
+    raise RuntimeError(f"Failed to generate Möbius artifacts: {e}")

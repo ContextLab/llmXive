@@ -3,14 +3,15 @@ Master orchestration script for the Möbius autocorrelation pipeline.
 
 This script runs the full analysis in the required order:
   1. Generate the Möbius sequence (sieve)
-  2. Sample windows (generate_mobius)
-  3. Compute autocorrelations (autocorrelation)
-  4. Cross-validation of autocorrelations (int64 exact)
-  5. Build the null distribution (null_distribution)
-  6. Apply Benjamini-Hochberg FDR correction (fdr_correction)
-  7. Perform zero-density sensitivity analysis (sensitivity)
-  8. Produce heat-map visualisations (viz)
-  9. Run the Kolmogorov-Smirnov uniformity test (uniformity_test)
+  2. Pack the Möbius sequence into a 2‑bit representation (packing)
+  3. Sample windows (generate_mobius)
+  4. Compute autocorrelations (autocorrelation)
+  5. Cross‑validation of autocorrelations (int64 exact)
+  6. Build the null distribution (null_distribution)
+  7. Apply Benjamini‑Hochberg FDR correction (fdr_correction)
+  8. Perform zero‑density sensitivity analysis (sensitivity)
+  9. Produce heat‑map visualisations (viz)
+  10. Run the Kolmogorov‑Smirnov uniformity test (uniformity_test)
 
 The script can be invoked as a module:
     python -m code.main [--demo]
@@ -27,7 +28,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-# Import the entry-point functions from the existing modules.
+# Import the entry‑point functions from the existing modules.
 from generate_mobius import main as generate_mobius_main
 from sieve import main as sieve_main
 from autocorrelation import main as autocorr_main
@@ -37,6 +38,8 @@ from fdr_correction import main as fdr_main
 from sensitivity import main as sensitivity_main
 from viz import main as viz_main
 from uniformity_test import main as uniformity_main
+# NEW: packing step
+from pack import main as pack_main
 
 # Helper from the llmxive toolkit for path handling
 from llmxive_toolkit import paths
@@ -111,7 +114,7 @@ def _run_demo() -> None:
     df_demo.to_csv(demo_csv_path, index=False)
     print(f"Demo autocorrelation written to {demo_csv_path}")
 
-    # 4. Produce a trivial heat-map figure
+    # 4. Produce a trivial heat‑map figure
     heat_data = np.array([[autocorr_val]])
     fig_path = paths.figures("heatmap_demo.png")
     _ensure_parent_dir(fig_path)
@@ -120,13 +123,13 @@ def _run_demo() -> None:
     plt.figure(figsize=(4, 3))
     plt.imshow(heat_data, cmap="RdBu_r", vmin=-1, vmax=1, aspect="auto")
     plt.colorbar(label="Autocorrelation")
-    plt.title("Demo heat-map (single value)")
+    plt.title("Demo heat‑map (single value)")
     plt.xlabel("Lag $h$")
     plt.ylabel("Window index")
     plt.tight_layout()
     plt.savefig(fig_path, dpi=150)
     plt.close()
-    print(f"Demo heat-map saved to {fig_path}")
+    print(f"Demo heat‑map saved to {fig_path}")
 
 def _ensure_parent_dir(p: Path) -> None:
     """Create the parent directory of ``p`` if it does not exist."""
@@ -140,14 +143,25 @@ def main() -> None:
         _run_demo()
         return
 
+    # 1. Compute the raw Möbius array.
     _run_step(sieve_main, "sieve")
+    # 2. Pack the Möbius array into its 2‑bit representation.
+    _run_step(pack_main, "packing")
+    # 3. Generate deterministic window indices.
     _run_step(generate_mobius_main, "window sampling")
+    # 4. Compute autocorrelations for all windows.
     _run_step(autocorr_main, "autocorrelation")
+    # 5. Cross‑validate FFT results with exact integer arithmetic.
     _run_step(cross_validate_main, "cross-validation")
+    # 6. Build the permutation‑null distribution.
     _run_step(null_dist_main, "null distribution")
+    # 7. Apply Benjamini‑Hochberg FDR correction.
     _run_step(fdr_main, "FDR correction")
+    # 8. Perform zero‑density sensitivity analysis.
     _run_step(sensitivity_main, "sensitivity analysis")
+    # 9. Produce visualisations.
     _run_step(viz_main, "visualisation")
+    # 10. Run the KS uniformity test.
     _run_step(uniformity_main, "KS uniformity test")
 
     print("Pipeline completed successfully.")
