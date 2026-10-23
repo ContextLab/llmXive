@@ -7,12 +7,12 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
 
 ## Phase 0 – Project Foundations & Specification Alignment  
 
-- [ ] T001 **[US1]** Initialise project directory layout and produce a verifiable listing.  
+- [X] T001 **[US1]** Initialise project directory layout and produce a verifiable listing.  
   - Create directories: `data/raw/`, `data/processed/`, `data/embeddings/`, `data/clustering/`, `data/metrics/`, `data/results/`, `figures/`, `code/`, `code/tests/`, `paper/`.  
   - Generate `results/dir_listing.txt` via `find data code results figures paper -type d > results/dir_listing.txt`.  
   - **Verification**: `assert pathlib.Path('results/dir_listing.txt').exists()` and the file contains each of the directories listed above.  
 
-- [ ] T003 **[US1]** Provide utility documentation (`code/ci_workflow_doc.md`).  
+- [X] T003 **[US1]** Provide utility documentation (`code/ci_workflow_doc.md`).  
   - Write a markdown file describing the CI limits checker (`code/ci_limits.py`) and reference it from `README.md`.  
   - **Verification**: `grep -i "ci_limits.py" code/ci_workflow_doc.md` returns a match, `grep -i "ci_workflow_doc.md" README.md` returns a match, and both files appear in `results/dir_listing.txt`.  
   - *Note*: No files are written outside project‑owned directories (the previous .github path has been removed).  
@@ -33,7 +33,7 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
   - If fewer than three datasets are `"Available"`, write `results/data_gap_summary.txt` and exit 1.  
   - **Verification**: `python -m jsonschema -i data/manifest.json specs/001‑statistical‑evaluation‑of‑dimensionality/contracts/dataset.schema.yaml` exits 0; when < 3 available, `cat results/data_gap_summary.txt` contains “abort”.  
 
-- [ ] T008 **[FR‑002 FR‑003 US1]** Pre‑process each available dataset and compute geometry (`code/preprocess_and_geometry.py`).  
+- [ ] T008 **[FR‑002 FR‑003 US1]** Pre‑process each available dataset and compute geometry (`code/preprocess_and_geometry.py`).   <!-- FAILED-IN-EXECUTION: code/preprocess_and_geometry.py exit=1 -->
   - For each `"Available"` entry in `data/manifest.json`:  
     1. Load raw matrix with Scanpy (`sc.read_h5ad`).  
     2. Export ground‑truth labels to `data/processed/<dataset_id>_labels.csv`.  

@@ -1,43 +1,43 @@
 T001:
   c: true
-  h: 0e0b6acaea45600e4d8201be97891462dde8b9a39e75294a05952a5d7ae385f0
-  r: All 12 required directories exist on disk (confirmed by the collector's directory
-    listing), and `results/dir_listing.txt` (179 bytes, non-empty) contains every
-    required directory path (`data/raw`, `data/processed`, `data/embeddings`, `data/clustering`,
-    `data/metrics`, `data/results`, `figures`, `results`, `code`, `code/tests`, `paper`,
-    `.github/workflows`). The execution log shows `code/create_project_tree.py` ran
-    the exact `find` command and exited 0, matching the on-disk artifact.
-  sig: 897e86cd788f8d28cb237f8c0a3713be09712d50fc621c303496cb0226a1569a
+  h: 8da5ef1cdb6b0db8111751f6f6df79b1391ed6961bda7a99ea6e8fade41aadcd
+  r: The directory structure is present (data/raw, data/processed, data/embeddings,
+    data/clustering, data/metrics, data/results, figures, code, code/tests, paper)
+    and the generated `results/dir_listing.txt` exists with all required paths listed,
+    as shown in the file content and the creation logs.
+  sig: cd42641abd4f92773ab9b620fa4dafafebd7529a2e60def4cad6aeb2d5793d2e
+T003:
+  c: true
+  h: 3dfe48cdec8b810f31d720aed7f8004d2d3a4f3112c6af985be5f1785ddc419d
+  r: Checked `code/ci_workflow_doc.md` (contains reference to `ci_limits.py`), `README.md`
+    (references `ci_workflow_doc.md`), and `results/dir_listing.txt` (lists both files).
+    All required artifacts exist and meet the verification criteria.
+  sig: c64878d044264513e9b94e0b3e91347549d371ae53360de46037921743d97f48
 T004:
-  c: true
-  h: 77b475c1d7589685745769bb53b10c864a23bb514aa068263f3950050a2bfb1c
-  r: The script `code/ci_limits.py` exists, reads `results/monitoring.csv` (which
-    exists with the required `wall_time_s`/`peak_ram_bytes` columns), checks SC-003
-    (7 GB RAM) and SC-004 (6 h wall time), prints clear violation messages to stderr,
-    and exits 1 on violation or missing/invalid input. The pytest log shows `tests/test_ci_limits.py::test_ci_limits_violations`
-    passed (exit 0), demonstrating the violation-path exit-code behavior was actually
-    executed.
-  sig: ca462d7edd211f22e74d39aa4ef0f6b96c94f150afe3bb6052bbfa55380b8ace
-T005:
-  c: true
-  h: 426d52ff7300416b7e394c7acc1fe911e1cc84ab4ba9fc7473452ae8256a64b0
-  r: '`code/utils.py` implements all required elements (get_logger with INFO/file
-    handler to results/pipeline.log, MemoryLimitExceeded, ResourceMonitor.run with
-    0.5 s psutil RSS sampling, 7 GB limit check, CSV row `step,wall_time_s,peak_ram_bytes`,
-    and a `__main__` self-test), and the executed self-test artifact `results/monitoring.csv`
-    contains the exact required header plus a `selftest,0.001668,38686720` row, matching
-    the verification criteria. The empty `results/pipeline.log` is not a defect since
-    no INFO-level log records are emitted during the self-test.'
-  sig: b325ae549b26ae57f53c09d6d56515e134f2cf86b4463dab0795211f0c57b333
+  c: false
+  h: a40c4ae351b1a138e9c1e2497d8eae30942e3e06630a69424283e63c9f237d32
+  r: "The provided `code/ci_limits.py` correctly implements the limits check and passes\
+    \ on the supplied compliant `results/monitoring.csv` (as shown by the execution\
+    \ log). However, there is no evidence that the script exits with code\u202F1 on\
+    \ a deliberately violating CSV, which is required for verification. A test run\
+    \ (or log) with a CSV exceeding the RAM or time thresholds must be added."
+  sig: 58a73987dd942c1b010f9d39d75984d71939878a6f184c585bd07f4fbc1f784b
 T006:
   c: false
-  h: a567e13cff1f658476c79bd33d82b43386e217e3405a56244013438b2a5419b7
-  r: "The evidence contains `data/manifest.json`, `code/data_gap_resolver.py`, `code/config.py`,\
-    \ and `code/download.py`, but no `Snakefile` at all \u2014 the core deliverable\
-    \ of T006 is absent. Consequently there is no `verify_data_availability` rule,\
-    \ no `download: verify_data_availability` dependency, no `data_gap_resolver` Snakemake\
-    \ rule, and no evidence that `snakemake -n verify_data_availability` prints \"\
-    All datasets unavailable \u2013 aborting.\" (the manifest shows all three datasets\
-    \ Unavailable, so this abort path is exactly what should be demonstrable). The\
-    \ implementer must create the Snakefile with th"
-  sig: 9943f13b29186c1a446c47753c30281e49fcf45a4208138e8d3b43d5a9572dd0
+  h: b066c08be38d7eeda7e809602b7183fcc5e15461a4d5d9cb04a2917deca8427f
+  r: "The required `code/Snakefile` is not present in the provided artifact list,\
+    \ and there is no evidence of the specified rules, the abort\u2011message behavior,\
+    \ or the generated DAG image (`dag.png`). Without the Snakefile and execution\
+    \ logs, the task\u2019s core deliverable is missing."
+  sig: 3118217fcbf5ae3b9fe8c0ffa98ac5829aefdccca69f9ae2ebfae24e3fa7453c
+T007:
+  c: false
+  h: a1df42b66c5142e0a5e65f0f5d18a2cd9910cd24f970c411faadf627c693bbb9
+  r: "The resolver script creates the three H5AD files and a manifest with the required\
+    \ fields, but the required JSON\u2011schema file (`specs/001\u2011statistical\u2011\
+    evaluation\u2011of\u2011dimensionality/contracts/dataset.schema.yaml`) is missing,\
+    \ so the verification step cannot succeed. Moreover, a stale `results/data_gap_summary.txt`\
+    \ claiming \u201Conly 0 dataset(s) available\u201D remains even though the manifest\
+    \ shows three available datasets, violating the conditional\u2011summary requirement.\
+    \ The missing schema and incorrect summary file must be added/fixed."
+  sig: c6e19bdf52cb4d98ca1861c39a8e92dcf30c35d3fc138c1588cd32f56d7c6c21

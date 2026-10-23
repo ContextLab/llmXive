@@ -6,7 +6,7 @@ Reads `results/monitoring.csv`, checks the two SC limits:
   * SC-004: total wall‑clock time must not exceed 6 h (21 600 seconds)
 
 If any limit is violated the script prints a clear message to stderr and exits
-with status code 1; otherwise it exits with status code 0.
+with status code 1; otherwise it prints a success message and exits with status 0.
 """
 import sys
 import pandas as pd
@@ -62,7 +62,8 @@ def main():
             print(msg, file=sys.stderr)
         sys.exit(1)
 
-    # All good
+    # All good – print a success message
+    print("CI limits check passed: peak RAM and total wall‑time within limits.")
     sys.exit(0)
 
 if __name__ == "__main__":

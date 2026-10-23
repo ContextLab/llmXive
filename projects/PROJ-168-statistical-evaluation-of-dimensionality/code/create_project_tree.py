@@ -1,101 +1,96 @@
 """
-Script to create the required project directory tree and generate a
-plain‑text directory listing at ``results/dir_listing.txt``.
+create_project_tree.py
 
-The directories created are:
-  data/raw/
-  data/processed/
-  data/embeddings/
-  data/clustering/
-  data/metrics/
-  data/results/
-  figures/
-  results/
-  code/
-  code/tests/
-  paper/
-  .github/workflows/
+Script to initialise the project directory layout and generate a
+verifiable listing of the created directories.
 
-After creation, the script runs the equivalent of:
-    find data code results figures paper .github -type d > results/dir_listing.txt
+The required directories are:
+  - data/raw/
+  - data/processed/
+  - data/embeddings/
+  - data/clustering/
+  - data/metrics/
+  - data/results/
+  - figures/
+  - code/
+  - code/tests/
+  - paper/
 
-The script is idempotent – running it again will not raise errors.
+After creation, the script runs a ``find`` command to collect all
+directories under the top‑level folders and writes the result to
+``results/dir_listing.txt``.
 """
-
 import subprocess
 from pathlib import Path
 
-from llmxive_toolkit import paths, get_logger
+from llmxive_toolkit import get_logger
 
-# Initialise logger (INFO level, console + file handled by the toolkit)
 log = get_logger(__name__)
 
-# List of directories (relative to the project root) that must exist.
-REQUIRED_DIRS = [
-    Path("data/raw"),
-    Path("data/processed"),
-    Path("data/embeddings"),
-    Path("data/clustering"),
-    Path("data/metrics"),
-    Path("data/results"),
-    Path("figures"),
-    Path("results"),
-    Path("code"),
-    Path("code/tests"),
-    Path("paper"),
-    Path(".github/workflows"),
-]
-
-
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def _create_directories() -> None:
-    """Create all required directories (parents are created as needed)."""
-    for rel_dir in REQUIRED_DIRS:
-        abs_dir = paths.root / rel_dir
-        abs_dir.mkdir(parents=True, exist_ok=True)
-        log.info(f"Ensured directory exists: {abs_dir}")
+    """
+    Create all required project directories (parents are created as needed).
+    """
+    required_dirs = [
+        Path("data/raw"),
+        Path("data/processed"),
+        Path("data/embeddings"),
+        Path("data/clustering"),
+        Path("data/metrics"),
+        Path("data/results"),
+        Path("figures"),
+        Path("code"),
+        Path("code/tests"),
+        Path("paper"),
+    ]
 
+    for d in required_dirs:
+        d.mkdir(parents=True, exist_ok=True)
+        log.info(f"Created directory: {d}")
 
 def _write_listing_via_find() -> None:
     """
-    Run ``find`` to collect all directories under the top‑level folders and
-    write the result to ``results/dir_listing.txt``.
+    Run ``find`` to collect all directories under the specified top‑level
+    folders and write the result to ``results/dir_listing.txt``.
     """
-    # Ensure the results directory exists
-    listing_path = paths.results("dir_listing.txt")
-    listing_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure the results folder exists
+    results_dir = Path("results")
+    results_dir.mkdir(parents=True, exist_ok=True)
 
-    # ``find`` command arguments
-    find_cmd = [
+    output_file = results_dir / "dir_listing.txt"
+
+    # The ``find`` command works on Unix‑like environments (the runner uses Linux)
+    cmd = [
         "find",
         "data",
         "code",
         "results",
         "figures",
         "paper",
-        ".github",
         "-type",
         "d",
     ]
 
-    log.info(f"Running find command to generate directory listing: {' '.join(find_cmd)}")
-    completed = subprocess.run(
-        find_cmd,
-        cwd=paths.root,
-        capture_output=True,
-        text=True,
-        check=True,
-    )
+    log.info(f"Running command: {' '.join(cmd)}")
+    with output_file.open("w", encoding="utf-8") as f:
+        subprocess.run(cmd, stdout=f, check=True)
 
-    # Write the stdout (the list of directories) to the target file
-    listing_path.write_text(completed.stdout)
-    log.info(f"Directory listing written to {listing_path}")
+    log.info(f"Directory listing written to {output_file}")
 
-
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
 def main() -> None:
-    """Entry point – create directories then write the listing."""
+    """
+    Initialise the project layout and generate the directory listing.
+    """
     _create_directories()
     _write_listing_via_find()
-
+    log.info("Project initialisation complete.")
 
 if __name__ == "__main__":
+    # When executed as a script, run the main routine.
     main()

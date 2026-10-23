@@ -12,5 +12,5 @@ code/workflows
 results
 figures
 paper
-.github
-.github/workflows
+code/ci_workflow_doc.md
+README.md

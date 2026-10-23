@@ -1,8 +1,11 @@
 """
-Preprocess raw scRNA‑seq count matrices, compute HVGs, optional sampling,
-and calculate geometric diagnostics (trustworthiness and continuity).
-All per‑dataset work is wrapped with the ResourceMonitor to record runtime
-and peak memory usage in ``results/monitoring.csv``.
+Preprocess raw scRNA‑seq count matrices, compute highly‑variable genes,
+optional deterministic subsampling, and calculate geometric diagnostics
+(global intrinsic dimensionality and local density) for each available dataset.
+
+The script iterates over entries in ``data/manifest.json`` with status
+``Available`` and wraps each dataset's processing with ``ResourceMonitor``
+to record wall‑time and peak RAM in ``results/monitoring.csv``.
 """
 
 import json
@@ -12,15 +15,18 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import scanpy as sc
-from sklearn.manifold import trustworthiness
+from sklearn.neighbors import NearestNeighbors
 
 from llmxive_toolkit import paths, get_logger
 from config import Config
 from utils import ResourceMonitor
 
-log = get_logger(__name__)  # INFO level, file handler added by toolkit
+log = get_logger(__name__)  # standard logger from llmxive_toolkit
 
 
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def _load_manifest() -> list:
     """Load ``data/manifest.json`` and return the list of dataset entries."""
     manifest_path = paths.data("manifest.json")
@@ -28,36 +34,33 @@ def _load_manifest() -> list:
         return json.load(f)
 
 
-def _load_series_matrix_gz(path: Path) -> pd.DataFrame:
+def _load_raw_h5ad(path: Path) -> sc.AnnData:
     """
-    Load a GEO series matrix ``.txt.gz`` file.
-
-    The file contains comment lines starting with ``!``; they are skipped.
-    The first column holds gene identifiers, the remaining columns are cells.
+    Load a raw AnnData object stored as ``.h5ad``.
+    The function raises if the file cannot be read – we want a loud failure
+    if the expected real data are missing.
     """
-    return pd.read_csv(
-        path,
-        compression="gzip",
-        sep="\t",
-        comment="!",
-        header=0,
-        index_col=0,
-    )
+    if not path.is_file():
+        raise FileNotFoundError(f"Raw .h5ad file not found: {path}")
+    return sc.read_h5ad(path)
 
 
-def _extract_labels(df: pd.DataFrame) -> pd.DataFrame:
+def _export_labels(adata: sc.AnnData, dataset_id: str) -> None:
     """
-    Attempt to extract ground‑truth cell‑type labels from a series matrix.
-
-    GEO series matrices often embed phenotype information in the column
-    names (e.g. ``celltype:XYZ``) or in separate metadata columns.  For the
-    purpose of this task we fall back to an empty label file that contains
-    only the cell identifiers – downstream steps will handle missing labels
-    gracefully.
+    Export ground‑truth labels (if present) to ``data/processed/<id>_labels.csv``.
+    If no label column is found, we fall back to a file containing only the
+    cell identifiers; downstream steps handle the missing‑label case.
     """
-    cell_ids = df.columns.astype(str)
-    labels = pd.DataFrame({"cell_id": cell_ids})
-    return labels
+    label_columns = ["cell_type", "label", "group", "celltype"]
+    available = [c for c in label_columns if c in adata.obs.columns]
+    if available:
+        labels = adata.obs[[available[0]]].reset_index()
+        labels.columns = ["cell_id", "label"]
+    else:
+        # No explicit label column – create a placeholder with just the IDs
+        labels = pd.DataFrame({"cell_id": adata.obs_names.astype(str)})
+    out_path = paths.processed(f"{dataset_id}_labels.csv")
+    labels.to_csv(out_path, index=False)
 
 
 def _logcpm_transform(counts: np.ndarray) -> np.ndarray:
@@ -65,9 +68,8 @@ def _logcpm_transform(counts: np.ndarray) -> np.ndarray:
     Perform log‑CPM transformation:
     ``log2((counts / counts.sum(axis=1)[:, None]) * 1e6 + 1)``.
     """
-    # Avoid division by zero – rows with all zeros become zeros after the
-    # addition of 1 inside the log.
     row_sums = counts.sum(axis=1, keepdims=True)
+    # Avoid division by zero; rows of all zeros become zeros after log
     with np.errstate(divide="ignore", invalid="ignore"):
         cpm = np.where(row_sums == 0, 0, (counts / row_sums) * 1e6)
     return np.log2(cpm + 1)
@@ -75,23 +77,18 @@ def _logcpm_transform(counts: np.ndarray) -> np.ndarray:
 
 def _select_hvgs(adata: sc.AnnData) -> int:
     """
-    Run Scanpy's highly variable gene selection (Seurat flavor) and return
-    the number of genes flagged as highly variable.
-
-    The elbow point detection required by the specification is approximated
-    by simply counting the genes marked as ``highly_variable`` by Scanpy –
-    this yields a data‑driven N without arbitrary thresholds.
+    Run Scanpy's highly variable gene selection (Seurat flavour) and
+    return the number of genes flagged as highly variable.
     """
     sc.pp.highly_variable_genes(adata, flavor="seurat", inplace=True)
-    n_hvg = int(adata.var["highly_variable"].sum())
-    return n_hvg
+    return int(adata.var["highly_variable"].sum())
 
 
-def _sample_cells(adata: sc.AnnData) -> sc.AnnData:
+def _deterministic_subsample(adata: sc.AnnData) -> sc.AnnData:
     """
-    Deterministically sample ``Config.SAMPLE_SIZE`` cells when the dataset
-    exceeds ``Config.SAMPLE_CELLS_THRESHOLD``.  The RNG seed is fixed via
-    ``Config.SEED`` to guarantee reproducibility.
+    Deterministically subsample ``Config.SAMPLE_SIZE`` cells when the
+    dataset exceeds ``Config.SAMPLE_CELLS_THRESHOLD``.  The RNG seed is
+    fixed via ``Config.SEED``.
     """
     if adata.n_obs > Config.SAMPLE_CELLS_THRESHOLD:
         rng = np.random.default_rng(Config.SEED)
@@ -100,33 +97,86 @@ def _sample_cells(adata: sc.AnnData) -> sc.AnnData:
     return adata
 
 
-def _compute_geometry(adata: sc.AnnData) -> dict:
+def _compute_intrinsic_dimensionality(
+    data: np.ndarray, k: int = 15, pair_count: int = 10000, seed: int = 42
+) -> float:
     """
-    Compute global linearity (trustworthiness) and local continuity.
+    Levina‑Bickel maximum‑likelihood estimator of intrinsic dimensionality.
 
-    - Trustworthiness is computed from the high‑dimensional matrix to its
-      PCA‑30 projection.
-    - Continuity is approximated by the *reverse* trustworthiness
-      (embedding → high‑dimensional space).
+    Parameters
+    ----------
+    data : np.ndarray
+        Shape (n_samples, n_features) – the high‑dimensional data.
+    k : int
+        Number of nearest neighbours (default 15 as required).
+    pair_count : int
+        Number of cells to sample for the estimator.  If the total number
+        of cells is smaller, all cells are used.
+    seed : int
+        Random seed for reproducible sampling.
 
-    If the cell count is < 500 the metrics are set to ``None`` as required.
+    Returns
+    -------
+    float
+        Estimated intrinsic dimensionality.
     """
-    if adata.n_obs < 500:
-        return {"trustworthiness": None, "local_continuity": None}
+    n_cells = data.shape[0]
+    rng = np.random.default_rng(seed)
 
-    # 30‑component PCA for the reference embedding
-    sc.tl.pca(adata, n_comps=30, svd_solver="arpack")
-    X_high = adata.X
-    X_pca = adata.obsm["X_pca"]
+    # Determine which cells to use
+    if n_cells <= pair_count:
+        idx = np.arange(n_cells)
+    else:
+        idx = rng.choice(n_cells, size=pair_count, replace=False)
 
-    # k=15 as prescribed
-    trust = trustworthiness(X_high, X_pca, n_neighbors=15)
-    continuity = trustworthiness(X_pca, X_high, n_neighbors=15)
+    # Fit nearest‑neighbour model on the *full* dataset (so distances are correct)
+    nbrs = NearestNeighbors(n_neighbors=k + 1, algorithm="auto").fit(data)
+    distances, _ = nbrs.kneighbors(data[idx, :])  # includes self‑distance at 0
 
-    return {"trustworthiness": float(trust), "local_continuity": float(continuity)}
+    # Exclude the zero distance to self
+    distances = distances[:, 1:]  # shape (sampled, k)
+
+    # Levina‑Bickel estimator
+    # For each point i:
+    #   m_i = (1/(k-1)) * sum_{j=1}^{k-1} log( d_i(k) / d_i(j) )
+    # Intrinsic dimension = 1 / mean(m_i)
+    d_k = distances[:, -1]  # distance to k‑th neighbour
+    # Avoid division by zero
+    with np.errstate(divide="ignore", invalid="ignore"):
+        logs = np.log(d_k[:, None] / distances[:, :-1])
+    m_i = np.mean(logs, axis=1) / (k - 1)
+    # Guard against zeros / infinities
+    m_i = m_i[np.isfinite(m_i) & (m_i > 0)]
+    if len(m_i) == 0:
+        raise ValueError("Unable to compute intrinsic dimensionality – all distances zero.")
+    return float(1.0 / np.mean(m_i))
 
 
-def _write_parquet(adata: sc.AnnData, out_path: Path):
+def _compute_local_density(
+    data: np.ndarray, k: int = 15, pair_count: int = 10000, seed: int = 42
+) -> float:
+    """
+    Compute the average distance to the ``k``‑nearest neighbours,
+    using the same deterministic sampling as the intrinsic‑dimensionality
+    estimator.
+    """
+    n_cells = data.shape[0]
+    rng = np.random.default_rng(seed)
+
+    if n_cells <= pair_count:
+        idx = np.arange(n_cells)
+    else:
+        idx = rng.choice(n_cells, size=pair_count, replace=False)
+
+    nbrs = NearestNeighbors(n_neighbors=k + 1, algorithm="auto").fit(data)
+    distances, _ = nbrs.kneighbors(data[idx, :])
+    distances = distances[:, 1:]  # drop self‑distance
+
+    # Average distance over all sampled points and neighbours
+    return float(np.mean(distances))
+
+
+def _write_parquet(adata: sc.AnnData, out_path: Path) -> None:
     """Write the (potentially sampled) matrix to Parquet."""
     df = pd.DataFrame(
         adata.X,
@@ -136,64 +186,117 @@ def _write_parquet(adata: sc.AnnData, out_path: Path):
     df.to_parquet(out_path)
 
 
-def _process_one_dataset(entry: dict):
-    """Process a single dataset entry from the manifest."""
+# ----------------------------------------------------------------------
+# Main per‑dataset processing function
+# ----------------------------------------------------------------------
+def _process_one_dataset(entry: dict) -> None:
+    """
+    Process a single dataset entry from the manifest:
+    1. Load raw ``.h5ad``.
+    2. Export ground‑truth labels.
+    3. Log‑CPM transform.
+    4. HVG selection (Seurat flavour) and record count.
+    5. Deterministic subsampling if needed.
+    6. Compute intrinsic dimensionality (Levina‑Bickel) and local density.
+    7. Write processed matrix (Parquet) and geometry JSON.
+    """
     dataset_id = entry["dataset_id"]
     raw_path = Path(entry["raw_file_path"])
 
-    log.info(f"Processing dataset {dataset_id}")
+    log.info(f"Starting preprocessing for dataset {dataset_id}")
 
     # ------------------------------------------------------------------
     # 1. Load raw counts
     # ------------------------------------------------------------------
-    raw_df = _load_series_matrix_gz(raw_path)
+    adata_raw = _load_raw_h5ad(raw_path)
 
-    # 2. Extract and store ground‑truth labels
-    labels_df = _extract_labels(raw_df)
-    labels_path = paths.processed(f"{dataset_id}_labels.csv")
-    labels_df.to_csv(labels_path, index=False)
+    # ------------------------------------------------------------------
+    # 2. Export ground‑truth labels
+    # ------------------------------------------------------------------
+    _export_labels(adata_raw, dataset_id)
 
-    # 3. Build counts matrix (cells × genes)
-    counts = raw_df.T.values.astype(float)
+    # ------------------------------------------------------------------
+    # 3. Log‑CPM transformation
+    # ------------------------------------------------------------------
+    # Ensure counts are in dense format for the transformation
+    if isinstance(adata_raw.X, np.ndarray):
+        counts = adata_raw.X.astype(float)
+    else:
+        # Sparse matrix – convert to dense (datasets are modestly sized)
+        counts = adata_raw.X.toarray().astype(float)
 
-    # 4. Log‑CPM transformation
     logcpm = _logcpm_transform(counts)
-
-    # 5. Create AnnData object
     adata = sc.AnnData(X=logcpm)
-    adata.obs_names = raw_df.columns.astype(str)  # cell identifiers
-    adata.var_names = raw_df.index.astype(str)    # gene identifiers
+    adata.obs_names = adata_raw.obs_names.astype(str)
+    adata.var_names = adata_raw.var_names.astype(str)
 
-    # 6. HVG selection
+    # ------------------------------------------------------------------
+    # 4. HVG selection
+    # ------------------------------------------------------------------
     n_hvg = _select_hvgs(adata)
     hvg_path = paths.processed(f"{dataset_id}_hvg.txt")
     hvg_path.write_text(str(n_hvg))
 
-    # Keep only the HVGs
+    # Keep only HVGs for downstream steps
     adata = adata[:, adata.var["highly_variable"]].copy()
 
-    # 7. Optional deterministic sampling
-    adata = _sample_cells(adata)
+    # ------------------------------------------------------------------
+    # 5. Deterministic subsampling
+    # ------------------------------------------------------------------
+    adata = _deterministic_subsample(adata)
 
-    # 8. Geometry diagnostics
-    geom = _compute_geometry(adata)
+    # ------------------------------------------------------------------
+    # 6. Geometric diagnostics
+    # ------------------------------------------------------------------
+    # Use the dense matrix for nearest‑neighbour calculations
+    matrix = adata.X
+    if not isinstance(matrix, np.ndarray):
+        matrix = matrix.toarray()
+
+    intrinsic_dim = _compute_intrinsic_dimensionality(
+        matrix,
+        k=15,
+        pair_count=10000,
+        seed=42,
+    )
+    local_density = _compute_local_density(
+        matrix,
+        k=15,
+        pair_count=10000,
+        seed=42,
+    )
+    geom = {
+        "intrinsic_dimensionality": intrinsic_dim,
+        "local_density": local_density,
+        # Include parameters for verification purposes
+        "params": {
+            "k": 15,
+            "pair_count": min(10000, matrix.shape[0]),
+            "seed": 42,
+        },
+    }
     geom_path = paths.processed(f"{dataset_id}_geometric.json")
     geom_path.write_text(json.dumps(geom, indent=2))
 
-    # 9. Write processed matrix
+    # ------------------------------------------------------------------
+    # 7. Write processed matrix
+    # ------------------------------------------------------------------
     matrix_path = paths.processed(f"{dataset_id}_matrix.parquet")
     _write_parquet(adata, matrix_path)
 
     log.info(
         f"Finished dataset {dataset_id}: "
-        f"{adata.n_obs} cells, {adata.n_vars} genes (HVGs), "
-        f"trustworthiness={geom['trustworthiness']}, continuity={geom['local_continuity']}"
+        f"{adata.n_obs} cells, {adata.n_vars} HVGs, "
+        f"intrinsic_dim={intrinsic_dim:.3f}, local_density={local_density:.5f}"
     )
 
-def main():
+
+# ----------------------------------------------------------------------
+# Entry point
+# ----------------------------------------------------------------------
+def main() -> None:
     """
-    Entry point executed by ``python code/preprocess_and_geometry.py``.
-    Iterates over all ``Available`` datasets, wrapping each call with the
+    Iterate over all ``Available`` datasets, wrapping each call with the
     ``ResourceMonitor`` to record wall‑time and peak RAM.
     """
     manifest = _load_manifest()

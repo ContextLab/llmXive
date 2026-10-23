@@ -1,44 +1,56 @@
 T001:
-  task: e71ed789e3e90ccfcf8b19fce0677893f50c4ba2f4e3132a1571482b994ea842
+  task: 8068ae9ea79a5edddeb392a597db827e719f325f1533692f1dd7c252c0ff34f9
 T003:
-  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/research.yml`
-    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
-  task: f10eebd036af10f8808ab6a5f93e7f2d8235196f00281f6949b338afa09718f6
+  task: 7ecf287aa0512e08b458080465b233c998bd912716e43fb5b87993b0f106c34f
 T004:
-  task: 57e2366dfb256310a5da7b7fc23f2d634d6fad67914f0e674b27dbbb8b07165a
-T005:
-  task: 5e338ee5a51984bc4da15d982a811a1f887e54324dc797f10844bb03b4008a2a
+  reason: "The provided `code/ci_limits.py` correctly implements the limits check\
+    \ and passes on the supplied compliant `results/monitoring.csv` (as shown by the\
+    \ execution log). However, there is no evidence that the script exits with code\u202F\
+    1 on a deliberately violating CSV, which is required for verification. A test\
+    \ run (or log) with a CSV exceeding the RAM or time thresholds must be added."
+  task: 1078c4c265ad231eeaa514a1197d0ea5c144f470c12c436841610323e8c36f93
 T006:
-  reason: "The evidence contains `data/manifest.json`, `code/data_gap_resolver.py`,\
-    \ `code/config.py`, and `code/download.py`, but no `Snakefile` at all \u2014 the\
-    \ core deliverable of T006 is absent. Consequently there is no `verify_data_availability`\
-    \ rule, no `download: verify_data_availability` dependency, no `data_gap_resolver`\
-    \ Snakemake rule, and no evidence that `snakemake -n verify_data_availability`\
-    \ prints \"All datasets unavailable \u2013 aborting.\" (the manifest shows all\
-    \ three datasets Unavailable, so this abort path is exactly what should be demonstrable).\
-    \ The implementer must create the Snakefile with th"
-  task: 2d1197d3235a3786e9187652b73cca1ed39ecf3cf1288fbd958263f23fad6606
+  reason: "The required `code/Snakefile` is not present in the provided artifact list,\
+    \ and there is no evidence of the specified rules, the abort\u2011message behavior,\
+    \ or the generated DAG image (`dag.png`). Without the Snakefile and execution\
+    \ logs, the task\u2019s core deliverable is missing."
+  task: 799ac7fb946d6a60d850cf0300111daec3222f4ef1b2cb92c7fe1a6f9a9ff71f
 T007:
-  reason: 'Requested task execution failed; rerun successfully: code/data_gap_resolver.py
-    exit=1'
-  task: c1572f6b372c445f745e654ba7230e17783b6342c5f2459380cacf11bc8c3f81
+  reason: "The resolver script creates the three H5AD files and a manifest with the\
+    \ required fields, but the required JSON\u2011schema file (`specs/001\u2011statistical\u2011\
+    evaluation\u2011of\u2011dimensionality/contracts/dataset.schema.yaml`) is missing,\
+    \ so the verification step cannot succeed. Moreover, a stale `results/data_gap_summary.txt`\
+    \ claiming \u201Conly 0 dataset(s) available\u201D remains even though the manifest\
+    \ shows three available datasets, violating the conditional\u2011summary requirement.\
+    \ The missing schema and incorrect summary file must be added/fixed."
+  task: 1b6fba68ec28caaf55b21e9fa16bafebc2b2d92eb2e407e3fc784d0b3778b4d0
 T008:
   reason: 'Requested task execution failed; rerun successfully: code/preprocess_and_geometry.py
     exit=1'
-  task: a8b7634bafc0411e33bed3e2a453bbc145a16c5f98fc52c0233a5e87e102ccee
+  task: a1e6f67ea7723284c6a4c1d8d76bd3ac84d36dd3bcef05b99ced4d9e3f6c13f7
 T009:
-  task: 9d5e602dcd490e8ab6c461b1ab273a26d826310d45c4feba9a87691474c2de77
+  task: b236c4a4398cad202e61f856285c811da618f00dde845e94f0d0cbd8046304cc
 T010:
-  task: 089b11bc2ddeff957188503cce7bb7200ab20e1c121ea7f3c3e7dae5d2641eed
+  task: eebdb4fe9cec41ebbb3926ba0f61f41215a326202ddfc42006f89b3b55e9a59b
 T011:
-  task: 340b10e332b6d54b07fdee6b8531ea44d4cbcf686b4cf6eea64866827133f531
+  task: 54524bd24609540c266ab3a9fc49cf8ba692b5aed6f2466d6986bdd739a4c5fb
 T012:
-  task: a0ef43edce3a2fa5918bf9d5abe7654a3edef4e7dde9d413ecd1fc943646c4fd
+  task: 7b937328665d641bca75b9614f3cf3131c7d92a88a53572ff50ce9304267a72b
 T013:
-  task: 2953d686afa3a064c8a3d06fa89960bf2427370d3699c6a26e014f237f08014f
+  task: 2d8f3da0601c7ac69f829eee228ad33182eb359871354f88cca341a3d5fb2d48
 T014:
-  task: 3b1e8c44ea0186544bb7d78bdd41db7c7cd1d420e00a5e3c13899cdba9f0afd4
+  task: ca00c0d5cbe9c94db01bae0fc1f5e15d2c79788164d414abc5518228c16f6cfa
 T015:
-  task: 41d0a479aa3b491b9e150c00ffb321f1c01ddb06f77148a08314921f4aba4f03
+  task: c921a8370b0837bef6a3abe50f6e6297ddf43f456e3225a62e29dc4aea844e3c
+T016:
+  task: b4f74e9837f71f034e554630481a4c9bec3ba052cc4a296721af66917853a020
+T017:
+  task: 2a35542ae579c542ec2ae16e8e2d852a3fe4f0f5ef298d2986cf9069a1ea9863
+T018:
+  task: e229aa32edbefa0eb71256cdaebc1d38339386cee1504f7f85b8c9431e6c3d54
+T019:
+  task: fafed3fcba9494732f8afe6e92079f4c5a9b34c40bedba6e496395a58860e6a5
+T020:
+  task: 44271f1751119d0df9d53834fc5b773164535e548756822e368033f568960924
+T021:
+  task: d9e3808cb9fac3acb2bd15e0846daaef3b2477de94ae595fc82f44129c289f69
