@@ -30,25 +30,8 @@ from code.seed_config import PROJECT_SEED, pin_seeds
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# 1. Pin random seeds
+# Docker Image Configuration
 # ----------------------------------------------------------------------
-pin_seeds()
-
-# torch is optional
-try:
-    import torch
-    torch.manual_seed(PROJECT_SEED)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-    torch_available = True
-except Exception as exc:
-    log.warning("Torch not available; skipping torch seed configuration: %s", exc)
-    torch_available = False
-
-# ----------------------------------------------------------------------
-# 2. Retrieve Docker image digest
-# ----------------------------------------------------------------------
-# Using gcc:13.2 as it is the verified tag producing the current digests
 DOCKER_IMAGE = "gcc:13.2"
 
 def _fetch_docker_digest_via_docker(image: str) -> str:
@@ -110,39 +93,52 @@ def _fetch_docker_digest_via_registry(image: str) -> str:
         )
     return digest
 
-try:
-    docker_digest = _fetch_docker_digest_via_docker(DOCKER_IMAGE)
-    log.info("Docker image digest retrieved via local daemon: %s", docker_digest)
-except Exception as exc_docker:
-    log.warning("Docker SDK method failed (%s). Falling back to registry API.", exc_docker)
+def main():
+    # 1. Pin random seeds
+    pin_seeds()
+
+    # torch is optional
+    torch_available = False
     try:
-        docker_digest = _fetch_docker_digest_via_registry(DOCKER_IMAGE)
-        log.info("Docker image digest retrieved via registry API: %s", docker_digest)
-    except Exception as exc_registry:
-        log.error("Failed to obtain Docker image digest via both methods: %s", exc_registry)
-        raise RuntimeError("Cannot determine Docker image digest; aborting environment setup.") from exc_registry
+        import torch
+        torch.manual_seed(PROJECT_SEED)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+        torch_available = True
+    except Exception as exc:
+        log.warning("Torch not available; skipping torch seed configuration: %s", exc)
 
-# ----------------------------------------------------------------------
-# 3. Write environment configuration JSON
-# ----------------------------------------------------------------------
-env_config = {
-    "seed": PROJECT_SEED,
-    "libraries": {
-        "random": PROJECT_SEED,
-        "numpy": PROJECT_SEED,
-        "torch": PROJECT_SEED if torch_available else None,
-    },
-    "docker_image": DOCKER_IMAGE,
-    "docker_digest": docker_digest,
-}
+    # 2. Retrieve Docker image digest
+    try:
+        docker_digest = _fetch_docker_digest_via_docker(DOCKER_IMAGE)
+        log.info("Docker image digest retrieved via local daemon: %s", docker_digest)
+    except Exception as exc_docker:
+        log.warning("Docker SDK method failed (%s). Falling back to registry API.", exc_docker)
+        try:
+            docker_digest = _fetch_docker_digest_via_registry(DOCKER_IMAGE)
+            log.info("Docker image digest retrieved via registry API: %s", docker_digest)
+        except Exception as exc_registry:
+            log.error("Failed to obtain Docker image digest via both methods: %s", exc_registry)
+            raise RuntimeError("Cannot determine Docker image digest; aborting environment setup.") from exc_registry
 
-out_path = paths.data("env_config.json")
-out_path.parent.mkdir(parents=True, exist_ok=True)
-with out_path.open("w", encoding="utf-8") as fp:
-    json.dump(env_config, fp, indent=2, sort_keys=True)
+    # 3. Write environment configuration JSON
+    env_config = {
+        "seed": PROJECT_SEED,
+        "libraries": {
+            "random": PROJECT_SEED,
+            "numpy": PROJECT_SEED,
+            "torch": PROJECT_SEED if torch_available else None,
+        },
+        "docker_image": DOCKER_IMAGE,
+        "docker_digest": docker_digest,
+    }
 
-log.info("Wrote environment configuration to %s", out_path)
+    out_path = paths.data("env_config.json")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", encoding="utf-8") as fp:
+        json.dump(env_config, fp, indent=2, sort_keys=True)
+
+    log.info("Wrote environment configuration to %s", out_path)
 
 if __name__ == "__main__":
-    # This allows the script to be run directly
-    pass
+    main()

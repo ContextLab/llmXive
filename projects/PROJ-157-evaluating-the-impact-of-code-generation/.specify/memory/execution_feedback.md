@@ -55,6 +55,6 @@ rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
 collected 2 items / 2 deselected / 0 selected
 
-============================ 2 deselected in 0.17s =============================
+============================ 2 deselected in 0.15s =============================
 
 
