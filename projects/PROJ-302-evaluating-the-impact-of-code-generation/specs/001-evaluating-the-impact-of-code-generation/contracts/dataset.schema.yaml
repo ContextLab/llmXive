@@ -35,10 +35,10 @@ properties:
     description: "PR merge timestamp (used for outcome)"
   review_effort_duration:
     type: number
-    description: "Seconds between `first_comment_at` and `merge_at` (primary outcome)"
+    description: "Seconds between first reviewer comment and merge (primary outcome)"
   total_review_duration:
     type: number
-    description: "Seconds between `created_at` and `merge_at` (secondary outcome)"
+    description: "Seconds between PR creation and merge (secondary outcome)"
   file_size_loc:
     type: integer
     description: "Lines of code"
@@ -55,7 +55,16 @@ properties:
     type: number
     minimum: -1
     maximum: 1
-    description: "Cosine similarity between snippet embedding and **repository‑level centroid embedding**"
+    description: "Cosine similarity between snippet embedding and repository‑level centroid embedding"
+  source_code:
+    type: string
+    description: "Full code diff (human) or generated snippet (LLM)"
+  primary_language:
+    type: string
+    description: "Detected programming language"
+  commit_message_length:
+    type: integer
+    description: "Length of the commit message (pre‑treatment covariate)"
 required:
   - pr_id
   - repo_id
@@ -70,4 +79,7 @@ required:
   - repo_activity_level
   - ci_build_time
   - semantic_similarity
+  - source_code
+  - primary_language
+  - commit_message_length
 additionalProperties: false

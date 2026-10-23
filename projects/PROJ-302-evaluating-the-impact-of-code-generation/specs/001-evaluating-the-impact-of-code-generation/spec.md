@@ -49,7 +49,7 @@ The system must perform a sensitivity analysis by repeating the statistical test
 
 **Acceptance Scenarios**:
 
-1. **Given** the primary analysis results, **When** the sensitivity analysis runs, **Then** the system repeats the statistical test across the 4 quartile‑based subsets and reports if the p‑value remains < 0.05 in at least 80 % of subsets.  
+1. **Given** the primary analysis results, **When** the sensitivity analysis runs, **Then** the system repeats the statistical test across the quartile‑based subsets and reports if the p‑value remains < 0.05 in at least 80 % of subsets.  
 2. **Given** the full dataset, **When** the visualization module runs, **Then** it generates a box plot and a Cumulative Distribution Function (CDF) curve comparing the review time distributions of human vs. LLM code.  
 3. **Given** the analysis output, **When** the report generation runs, **Then** a summary PDF/HTML is produced containing the p‑value, effect size, and the generated visualizations.
 

@@ -7,28 +7,28 @@ properties:
     description: "Unique identifier for the matched pair"
   human_pr_ref:
     type: string
-    description: "Reference to the human PR"
+    description: "pr_id of the human PR"
   llm_pr_ref:
     type: string
-    description: "Reference to the LLM‑generated PR"
+    description: "pr_id of the LLM PR (prompt‑only or context‑based)"
   complexity_diff:
     type: number
-    description: "Difference in cyclomatic complexity (human – LLM)"
+    description: "Human complexity minus LLM complexity"
   size_diff:
     type: number
-    description: "Difference in LOC (human – LLM)"
+    description: "Human LOC minus LLM LOC"
   activity_diff:
     type: number
-    description: "Difference in repository activity level"
+    description: "Human repo activity level minus LLM repo activity level"
   ci_build_diff:
     type: number
-    description: "Difference in CI build time (human – LLM)"
+    description: "Human CI build time minus LLM CI build time"
   semantic_similarity_diff:
     type: number
-    description: "Difference in semantic similarity scores"
+    description: "Human semantic similarity minus LLM semantic similarity"
   balance_verified:
     type: boolean
-    description: "Indicates whether the pair meets the covariate balance criteria"
+    description: "True if this pair satisfied covariate balance criteria"
 required:
   - pair_id
   - human_pr_ref
