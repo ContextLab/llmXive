@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-364-exploring-the-impact-of-network-topology",
-  "stage": "clarified",
+  "stage": "planned",
   "class": "transient",
-  "fingerprint": "unknown",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-10T20:19:50.711986+00:00",
-  "last_seen": "2026-10-10T21:24:26.824306+00:00",
-  "retry_after": null,
-  "last_error": "incomplete plan artifact set: FILE-marker split failed \u2014 only a single plan.md was recovered (no `<!-- FILE: \u2026 -->` markers in the response). Missing/empty artifacts: ['contracts/*.yaml', 'data-model.md', 'quickstart.md', 'research.md']. Required: ['plan.md', 'research.md', 'data-model.md', 'quickstart.md'] + >=1 contracts/*.yaml.",
-  "evidence": "incomplete plan artifact set: FILE-marker split failed \u2014 only a single plan.md was recovered (no `<!-- FILE: \u2026 -->` markers in the response). Missing/empty artifacts: ['contracts/*.yaml', 'data-model.md', 'quickstart.md', 'research.md']. Required: ['plan.md', 'research.md', 'data-model.md', 'quickstart.md'] + >=1 contracts/*.yaml.",
+  "fingerprint": "model_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-23T19:36:37.851175+00:00",
+  "last_seen": "2026-10-23T19:36:37.851175+00:00",
+  "retry_after": "2026-10-23T19:46:37.851175+00:00",
+  "last_error": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
+  "evidence": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }
