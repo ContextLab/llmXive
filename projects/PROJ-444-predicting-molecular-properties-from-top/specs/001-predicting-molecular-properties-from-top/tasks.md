@@ -1,135 +1,152 @@
 # Tasks: Predicting Molecular Properties from Topological Data Analysis
 
-**Inputs**: Active `spec.md`, `plan.md`, original research idea, existing artifacts, reviewer/verifier feedback.
+**Inputs**: `spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer feedback.
 
-The goal is to deliver a complete, reproducible, CPU‑only study that satisfies every functional requirement (FR‑001…FR‑009) and success criterion (SC‑001…SC‑005) while respecting platform constraints (real data only, no synthetic fallbacks, no GPU). Tasks are ordered to respect data flow; later tasks depend on outputs of earlier ones.
-
----
-
-## Phase 1: Setup and first end‑to‑end analysis
-
-- [ ] T001 [US1] *Data ingestion, provenance, and scaffold split creation*
-  - In `code/01_data_ingestion.py`, download the **ESOL** dataset from the verified DeepChem S3 URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv` (the `--url` argument **must** be used).  
-  - Verify required columns `smiles` and `logP` (conforms to `dataset.schema.yaml`); abort with a clear Data Gap error if missing.  
-  - Compute SHA‑256 checksum of `data/raw/esol.csv` and **idempotently** append it to `data/checksums.txt`.  
-  - Perform a priori power analysis (paired t‑test, α = 0.05, power = 0.8, effect size = 0.5) and write `data/processed/power_analysis_report.json` (`min_n`, `actual_n`, `passes`).  
-  - Exclude molecules with molecular weight > 1000 Da; log each excluded SMILES to `data/logs/large_molecule_exclusions.log` using idempotent append.  
-  - Process remaining records with **chunked CSV iteration** (streaming) to stay within RAM limits.  
-  - Count unique Bemis‑Murcko scaffolds; abort if < 100, otherwise write `data/processed/scaffold_counts.json`.  
-  - Generate scaffold‑based 5‑fold split (seed 42) and store indices in `data/processed/splits.json`.  
-  - Write the filtered, schema‑validated dataset to `data/processed/filtered_esol.csv`.  
-  - **Verification**:  
-    1. `data/raw/esol.csv` row count ≈ 1128 and first SMILES matches the real ESOL file.  
-    2. `data/checksums.txt` contains a single line per checksummed file (no duplicates after re‑run).  
-    3. `jq .passes data/processed/power_analysis_report.json` returns `true`.  
-    4. `python -c "import pandas as pd; df=pd.read_csv('data/processed/filtered_esol.csv'); assert df.shape[0] >= 128"` succeeds.  
-    5. Scaffold exclusivity across folds is confirmed by a quick script.  
-    6. `data/logs/large_molecule_exclusions.log` has no duplicate entries after re‑run.
-
-- [ ] T001a *Checksum verification*  
-  - Run `code/00_checksum_verify.py` to recompute and compare checksums for all files listed in `data/checksums.txt`.  
-  - Abort if any mismatch is detected, ensuring downstream tasks operate on verified inputs.  
-  - **Verification**: Script exits with status 0 only when all checksums match; otherwise it prints mismatched paths.
-
-- [ ] T014 *Dataset schema contract test*  
-  - `code/tests/test_dataset_schema.py` loads `data/raw/esol.csv` and validates it against `dataset.schema.yaml`.  
-  - **Verification**: `pytest code/tests/test_dataset_schema.py` passes. *(Verified; reopens automatically if T001's data changes break it.)*
-
-- [ ] T002 [US1] *Baseline TDA feature computation (10 × 10 persistence images)*   <!-- FAILED-IN-EXECUTION: code/02_tda_computation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/02_tda_computation.py exit=1 -->
-  - Read `data/processed/filtered_esol.csv`. For each SMILES, build a molecular graph with RDKit and apply the **shortest‑path distance filtration** (FR‑001) via `code/utils/persistence_utils.py`.  
-  - Vectorize each persistence diagram to a **10 × 10 persistence image** using **kernel_bandwidth = 1.0** (σ = 1.0) – the default documented in `data-model.md`. Include `target_property` (`logP`) and `target_value` fields per `feature_matrix.schema.yaml`.  
-  - Write `data/processed/topological_features_10x10.csv` (columns: `molecule_id` as **string** + 100 float features).  
-  - Log invalid SMILES to `data/logs/invalid_smiles.log`; handle disconnected graphs and empty diagrams gracefully (zero‑vector fallback).  
-  - **Verification**: (1) CSV contains no NaN; (2) row count matches `filtered_esol.csv`.
-
-- [ ] T003 [P] *Feature‑matrix contract test*  
-  - `code/tests/test_feature_matrix.py` loads `topological_features_10x10.csv` and validates it against `feature_matrix.schema.yaml`, ensuring `target_property` and `target_value` are present.  
-  - Cast **both** `molecule_id` columns to `str` before any merge with `filtered_esol.csv`.  
-  - **Verification**: `pytest code/tests/test_feature_matrix.py` exits 0.
-
-- [ ] T004 [US1] *Traditional descriptors & combined feature matrix*  
-  - In `code/03_feature_engineering.py`, compute RDKit traditional descriptors (molecular weight, atom counts, 1024‑bit Morgan fingerprint, radius 2) and write `data/processed/traditional_features.csv`.  
-  - Merge the traditional matrix with `topological_features_10x10.csv` on `molecule_id` (both cast to string) → `data/processed/combined_features.csv`.  
-  - Ensure no missing values across the merged table.  
-  - **Verification**: Row counts of all three CSVs match; `pandas.isnull().sum().sum()` is `0`; script exits 0.
+The goal is to deliver a fully reproducible, CPU‑only study that satisfies every functional requirement (FR‑001 … FR‑009) and success criterion (SC‑001 … SC‑005) while respecting platform constraints (real data only, no synthetic fall‑backs, no GPU).  
+Tasks are ordered to respect data flow; later tasks depend on the outputs of earlier ones.
 
 ---
 
-## Phase 2: Complete the study and validate its evidence
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T005 [US2] *Baseline model training and evaluation (including feature importance)*
-  - Load `data/processed/splits.json`. Train **Ridge Regression (α = 1.0)** and **Random Forest (100 trees, max_depth = 10, seed = 42)** on three feature sets: `traditional`, `topological`, `combined`, using the 5‑fold scaffold‑based CV (FR‑003, FR‑004).  
-  - Enforce CPU‑only execution with a dependency‑free GPU guard (check for `/dev/nvidia*` or `nvidia-smi`; abort if present) (FR‑008).  
-  - Write `reports/metrics/model_metrics.json` conforming to `model_metrics.schema.yaml` (includes per‑fold R²/RMSE, means, and `feature_importance` arrays for traditional and topological descriptors).  
-  - Log the training run (seed, split details) to `data/logs/training.log`.  
-  - **Verification**: Run `code/tests/validate_model_performance.py` which checks the JSON against the schema and confirms required fields exist.
+| Goal | Run a minimal pipeline on real inputs and obtain the first set of validated artifacts. |
+|------|----------------------------------------------------------------------------------------|
 
-- [ ] T006 [P] *Model‑metrics contract test*  
-  - `code/tests/test_metrics_schema.py` validates `reports/metrics/model_metrics.json` against `model_metrics.schema.yaml`.  
-  - **Verification**: `pytest code/tests/test_metrics_schema.py` exits 0.
+- [ ] **T001** [US1] Create the **dataset schema** file.  
+  - Write `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml` containing the required properties `molecule_id` (string), `smiles` (string), and `logP` (number).  
+  - **Verification**: `python -c "import jsonschema, yaml, pathlib; schema=yaml.safe_load(pathlib.Path('specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml').read_text()); jsonschema.Draft7Validator.check_schema(schema)"` exits 0.
 
-- [ ] T007 [US3] *Sensitivity sweep of vectorization resolution*  
-  - Extend `code/02_tda_computation.py` with a `--grid` CLI argument to generate **20 × 20** and **30 × 30** persistence‑image CSVs (`topological_features_20x20.csv`, `topological_features_30x30.csv`).  
-  - Run `code/05_sensitivity_analysis.py` which (a) calls the TDA script for each grid size, (b) retrains the same models (Ridge & RF, three feature sets) on each resolution using the existing splits, and (c) aggregates mean R² and its std per resolution.  
-  - Write `reports/metrics/sensitivity_report.json` with entries `{ "grid_size": 10, "r2_mean": ..., "r2_std": ... }` for 10, 20, 30.  
-  - **Verification**: JSON contains three objects with numeric `grid_size`, `r2_mean`, and `r2_std`.
+- [ ] **T001a** [US1] Download the **MoleculeNet Lipophilicity** dataset (the canonical dataset required by FR‑001).  
+  - Use `deepchem.molnet.load_molnet_dataset('Lipophilicity')` or fetch from the official URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/lipophilicity.csv`.  
+  - Save the CSV as `data/raw/lipophilicity.csv`.  
+  - Compute its SHA‑256 checksum and append a line `lipophilicity.csv <checksum>` to `data/checksums.txt`.  
+  - **Verification**: `sha256sum data/raw/lipophilicity.csv` matches the hash recorded in `data/checksums.txt`.
 
-- [ ] T013 *Specification amendment — scope reduction to logP*  
-  - Create `specs/001-predicting-molecular-properties-from-top/spec_amendment_scope_reduction.md` documenting the decision to limit the study to the single property **logP** from ESOL, with resource and power‑analysis justification.  
-  - Update `spec.md` to state “logP only” and modify FR‑005/SC‑003 to reference **N = 1** hypothesis test.  
-  - **Verification**: (1) amendment file exists; (2) `code/tests/test_spec_update.py` asserts the presence of “logP only” and the updated N = 1 wording; (3) script exits 0.  
-  - **Note**: This task is now a **hard prerequisite** for T008.
+- [ ] **T001b** [US1] Run **checksum verification**.  
+  - Execute `python code/00_checksum_verify.py`. It reads `data/checksums.txt`, recomputes hashes, and exits 0 only if all match.  
+  - **Verification**: Script prints “All checksums verified” and returns status 0.
 
-- [ ] T008 [US3] *Statistical comparison & Bonferroni correction*  
+- [ ] **T001c** [US1] **Ingest and filter** the raw Lipophilicity CSV.  
+  - Run `python code/01_data_ingestion.py` which validates the CSV against the dataset schema, canonicalizes SMILES with RDKit, logs and skips invalid entries, and writes `data/processed/filtered_lipophilicity.csv`.  
+  - **Verification**: The output file exists, row count equals the number of valid SMILES, and `pytest code/tests/test_ingestion_schema.py` passes.
+
+- [ ] **T001d** [US1] Generate **scaffold‑based splits** and perform a power analysis.  
+  - After ingestion, compute Bemis‑Murcko scaffolds, ensure ≥ 100 distinct scaffolds, and write a 5‑fold scaffold split (seed 42) to `data/processed/splits.json`.  
+  - Perform an a‑priori power analysis (paired t‑test, α = 0.05, power = 0.8, effect size = 0.5) and write `data/processed/power_analysis_report.json` with fields `min_n`, `actual_n`, `passes`.  
+  - **Verification**: `jq .passes data/processed/power_analysis_report.json` returns `true`; `jq '.[] | length' data/processed/splits.json` yields five non‑overlapping groups.
+
+- [ ] **T002** [US1] Create the **feature‑matrix schema** file.  
+  - Write `specs/001-predicting-molecular-properties-from-top/contracts/feature_matrix.schema.yaml` exactly as defined in the spec (requires `molecule_id`, `target_property`, `target_value`, and `pixel_*` fields).  
+  - **Verification**: Loading the file with `jsonschema` succeeds.
+
+- [ ] **T003** [US1] Compute **baseline TDA features (10 × 10 persistence images)**.  
+  - Read `data/processed/filtered_lipophilicity.csv`. For each SMILES, build a molecular graph with RDKit, apply the shortest‑path distance filtration (FR‑001) via GUDHI, and vectorize to a 10 × 10 persistence image (kernel = 1.0).  
+  - Include `target_property = "logP"` and `target_value` (experimental logP) in every row.  
+  - Write `data/processed/topological_features_10x10.csv` (columns: `molecule_id` + 100 `pixel_n` values).  
+  - Log invalid SMILES to `data/logs/invalid_smiles.log`; handle disconnected graphs and empty diagrams by writing a zero‑vector.  
+  - **Verification**: No `NaN` values; row count equals that of `filtered_lipophilicity.csv`; `pytest code/tests/test_feature_matrix.py` passes.
+
+- [ ] **T004** [US1] Compute **traditional descriptors** and build the **combined feature matrix**.  
+  - `code/03_feature_engineering.py` reads `data/processed/filtered_lipophilicity.csv` and `data/processed/topological_features_10x10.csv`.  
+  - Compute RDKit descriptors: molecular weight, atom counts, and 1024‑bit Morgan fingerprint (radius 2). Write `data/processed/traditional_features.csv`.  
+  - Merge traditional and topological descriptors on `molecule_id` (cast to string) → `data/processed/combined_features.csv`. **Drop the `target` column before merging** to avoid circular prediction.  
+  - **Verification**: All three CSVs have identical row counts; `pandas.isnull().sum().sum()` returns `0`.
+
+- [ ] **T005** [US1] Create the **model‑metrics schema** file.  
+  - Write `specs/001-predicting-molecular-properties-from-top/contracts/model_metrics.schema.yaml` exactly as in the spec (requires `traditional`, `topological`, `combined`, `feature_importance`, `metadata`).  
+  - **Verification**: Loading with `jsonschema` succeeds.
+
+---
+
+## Phase 2 – Complete the study and validate its evidence  
+
+| Goal | Run the full analysis, perform statistical checks, and record diagnostics. |
+|------|-----------------------------------------------------------------------------|
+
+- [ ] **T006** [US2] **Train regression models** on the three feature sets with CPU‑only enforcement.  
+  - Load `data/processed/splits.json`.  
+  - Train Ridge Regression (`alpha=1.0`) and Random Forest (`n_estimators=100`, `max_depth=10`, `random_state=42`) for each feature set (traditional, topological, combined) using 5‑fold scaffold CV (FR‑003, FR‑004).  
+  - **CPU‑only guard**: script aborts with an error if `torch.cuda.is_available()` or any `/dev/nvidia*` device is present (FR‑008).  
+  - Write `reports/metrics/model_metrics.json` conforming to `model_metrics.schema.yaml`; include per‑fold R², RMSE, means, and feature‑importance arrays.  
+  - Log the run (seed, split details) to `data/logs/training.log`.  
+  - **Verification**: `pytest code/tests/validate_model_performance.py` exits 0 and the JSON validates; additionally, a test checks that the script exits with non‑zero status when a GPU is artificially detected.
+
+- [ ] **T007** [US2] **Validate the model‑metrics contract** and presence of sensitivity output.  
+  - Run `pytest code/tests/test_metrics_schema.py` which validates `reports/metrics/model_metrics.json` against the schema and also asserts that `reports/metrics/sensitivity_report.json` exists.  
+  - **Verification**: Test exits 0.
+
+- [ ] **T008** [US3] **Sensitivity sweep of vectorization resolution**.  
+  - Extend `code/02_tda_computation.py` with a `--grid` argument. Generate topological feature CSVs for grid sizes 20 × 20 and 30 × 30 (`topological_features_20x20.csv`, `topological_features_30x30.csv`).  
+  - Run `code/05_sensitivity_analysis.py` which, for each grid size (10, 20, 30), re‑trains the models (same hyper‑parameters, same splits) and records mean R² and its standard deviation.  
+  - Write `reports/metrics/sensitivity_report.json` containing a list of objects `{ "grid_size": <int>, "r2_mean": <float>, "r2_std": <float> }`.  
+  - **Verification**: JSON has three entries; `jq length reports/metrics/sensitivity_report.json` returns `3`.
+
+- [ ] **T009** [US3] **Statistical comparison & Bonferroni correction**.  
   - Using per‑fold R² from `model_metrics.json`, perform paired t‑tests (or Wilcoxon if non‑normal) comparing **combined** vs **traditional** models.  
-  - Apply the **plain Bonferroni** correction (as mandated by FR‑005) and write `reports/metrics/bonferroni_diagnostics.json`; also insert `bonferroni_adjusted_p` into this diagnostics file (not into `model_metrics.json`).  
-  - Write `reports/metrics/fwer_report.json` containing `alpha`, `rejections`, and `fwer_bound`.  
-  - **Verification**: Both JSONs exist; `pytest code/tests/test_correction.py` confirms correct Bonferroni logic; `bonferroni_diagnostics.json` contains the adjusted p‑value.
+  - Apply the plain Bonferroni correction (FR‑005) and write `reports/metrics/bonferroni_diagnostics.json` containing `raw_p_value`, `adjusted_p_value`, and `significant`.  
+  - Also write `reports/metrics/fwer_report.json` with `alpha`, `num_tests`, `rejections`, and `fwer_bound`.  
+  - **Verification**: Helper script checks that `adjusted_p_value = min(raw_p_value * num_tests, 1.0)`.
 
-- [ ] T009 [US3] *Collinearity and redundancy diagnostics*  
-  - Compute **VIF** for every predictor in `combined_features.csv` (no model restriction) and write `reports/diagnostics/vif_report.json` (include a `flagged` array for VIF > 5).  
-  - Compute **mutual information** between traditional and topological feature sets: for each traditional descriptor and each topological feature compute `mutual_info_regression`; report the **average MI** as `average_mi` in `reports/diagnostics/mi_report.json`.  
-  - **Verification**: Both JSONs present; VIF report includes `flagged`; MI report contains numeric `average_mi`.
+- [ ] **T010** [US3] **Collinearity (VIF) and redundancy (mutual information) diagnostics**.  
+  - Compute Variance Inflation Factor for every predictor **in the Linear Regression model only** (FR‑007). Write `reports/diagnostics/vif_report.json` with `{ "predictor": <str>, "vif": <float> }` and a `flagged` array for VIF > 5. Include a top‑level field `"model_type": "linear_l2"` to certify the source.  
+  - Compute average mutual information between the traditional descriptor matrix and the topological descriptor matrix (FR‑009) using `mutual_info_regression`. Write `reports/diagnostics/mi_report.json` with field `average_mi`.  
+  - **Verification**: Tests confirm the presence of `"model_type": "linear_l2"` and that no VIF entries exist for Random Forest; `mi_report.json` contains a numeric `average_mi`.
 
-- [ ] T015 [US3] *Redundancy significance reporting*  
-  - Parse `reports/diagnostics/mi_report.json` and **log** the reported `average_mi`. If it falls below 0.1, emit a warning (do **not** abort).  
-  - **Verification**: `pytest code/tests/test_mi_reporting.py` checks that the script runs without error and that a warning is logged when appropriate.
+- [ ] **T011** [US3] **Redundancy significance warning**.  
+  - Parse `reports/diagnostics/mi_report.json`; if `average_mi < 0.1` emit a warning to `data/logs/mi_warning.log` (do not abort).  
+  - **Verification**: Running the script creates the warning log when appropriate; `code/tests/test_mi_reporting.py` passes.
 
-- [ ] T010 *Resource‑monitor wrapper*  
-  - Run the entire pipeline (T001–T009) under `code/07_resource_monitor.py`; record peak RAM and total CPU time in `reports/metrics/resource_usage.json`.  
-  - Enforce RAM < 6.3 GB and runtime < 5.4 h (SC‑004).  
-  - **Verification**: JSON fields `peak_ram_gb` and `cpu_hours` satisfy the limits; `pytest code/tests/test_resource_limits.py` passes.
+- [ ] **T012** [US3] **Resource‑monitor wrapper for the full pipeline**.  
+  - Execute the entire sequence (T001 → T010) under `code/07_resource_monitor.py`. The wrapper records peak RAM (GB) and total CPU time (hours) to `reports/metrics/resource_usage.json`.  
+  - Enforce SC‑004 limits: `peak_ram_gb < 6.3` and `cpu_hours < 5.4`. If limits are exceeded, the wrapper exits with a non‑zero status.  
+  - **Verification**: After a successful run, `jq .peak_ram_gb reports/metrics/resource_usage.json` returns a value < 6.3 and `jq .cpu_hours …` < 5.4.
 
-- [ ] T011 [US3] *Figures, tables, and summary artifacts*  
-  - Generate figures under `reports/figures/`: (a) example Betti curves & persistence images, (b) per‑fold R²/RMSE boxplots per model, (c) sensitivity‑sweep performance curve.  
-  - Produce `reports/metrics/summary_table.csv` joining model performance, corrected p‑values, VIF flags, and average MI.  
-  - **Verification**: All figure files exist; the CSV reads without error and contains the expected columns.
-
-## Phase 3: Reproducible results and paper handoff
-
-- [ ] T012 [P] *Quickstart documentation & paper‑stage handoff*  
-  - Update `specs/001-predicting-molecular-properties-from-top/quickstart.md` with the exact command sequence (including the resource‑monitor wrapper), fixed seed 42, and references to every generated artifact (CSV, JSON, PNG).  
-  - Add a **“Paper‑stage handoff”** section listing the artifacts the downstream writing pipeline must consume (`model_metrics.json`, `bonferroni_diagnostics.json`, `fwer_report.json`, `summary_table.csv`, key figures, diagnostics JSONs), and describe negative findings/limitations honestly.  
-  - **Verification**: Quickstart renders without broken links; a dry‑run of the documented command sequence reproduces the pipeline from raw data to final artifacts with exit code 0.
+- [ ] **T013** [US3] **Generate figures, tables, and summary artifacts**.  
+  - Create figures in `reports/figures/`:  
+    1. Example Betti curves and persistence images for a representative molecule.  
+    2. Box‑plots of per‑fold R²/RMSE for each model‑feature set.  
+    3. Sensitivity‑sweep performance curve (grid size vs. R²).  
+  - Produce `reports/metrics/summary_table.csv` joining model performance, Bonferroni‑adjusted p‑values, VIF flags, and average MI.  
+  - **Verification**: All PNG/SVG files open without error; the CSV loads in pandas with expected columns (`model`, `feature_set`, `r2_mean`, `rmse_mean`, `adjusted_p`, `vif_flags`, `average_mi`).
 
 ---
 
-## Dependencies and requirement coverage
+## Phase 3 – Reproducible results and paper hand‑off  
 
-| Requirement | Task(s) | Demonstrating command |
-|---|---|---|
-| FR-001 (shortest‑path filtration) | T002 | `python code/02_tda_computation.py --grid 10` |
-| FR-002 (10×10 baseline + target fields) | T002, T003 | `pytest code/tests/test_feature_matrix.py` |
-| FR-003 (models & feature sets) | T004, T005 | `python code/04_model_training.py` |
-| FR-004 (scaffold 5‑fold CV, seed 42) | T001, T005 | scaffold‑exclusivity check in T001 |
-| FR-005 (Bonferroni) | T008, T013 | `pytest code/tests/test_correction.py` |
-| FR-006 (resolution sweep) | T007 | `python code/05_sensitivity_analysis.py` |
-| FR-007 (VIF diagnostics) | T009 | `reports/diagnostics/vif_report.json` |
-| FR-008 (CPU‑only) | T005 | GPU‑guard using `/dev/nvidia*` or `nvidia-smi` |
-| FR-009 (mutual information) | T009, T015 | `pytest code/tests/test_mi_reporting.py` |
-| SC‑001…SC‑005 | T005, T007, T008, T010, T009 | see per‑task verification |
+| Goal | Provide clear documentation and hand‑off artifacts for downstream writing. |
+|------|-----------------------------------------------------------------------------|
 
-**Execution order** (respecting dependencies):  
-T001 → T001a → T014 → T002 → T003 → T004 → T005 → T006 → T007 → T013 → T008 → T009 → T015 → T010 → T011 → T012.
+- [ ] **T014** [US3] **Quickstart documentation & paper‑stage handoff**.  
+  - Update `specs/001-predicting-molecular-properties-from-top/quickstart.md` with the exact command sequence (including the resource‑monitor wrapper) that reproduces the pipeline from raw data to final artifacts.  
+  - Add a “Paper‑stage handoff” section listing all artifacts the paper pipeline must consume (`model_metrics.json`, `bonferroni_diagnostics.json`, `fwer_report.json`, `summary_table.csv`, all figures, diagnostics JSONs) and a brief note on any negative findings or limitations (e.g., low mutual information, VIF flags).  
+  - **Verification**: Rendering the markdown shows no broken links; a dry‑run of the documented commands reproduces all final files with exit code 0.
 
-All tasks now satisfy the spec, data‑model, and constitutional constraints while remaining fully executable on the CPU‑only GitHub Actions tier.  
+---  
+
+### Dependencies & requirement coverage
+
+| Requirement | Task(s) |
+|-------------|---------|
+| FR‑001 (shortest‑path filtration) | T003 |
+| FR‑002 (10 × 10 baseline + target fields) | T003 |
+| FR‑003 (models & feature sets) | T006 |
+| FR‑004 (scaffold CV, seed 42) | T001d |
+| FR‑005 (Bonferroni) | T009 |
+| FR‑006 (resolution sweep) | T008 |
+| FR‑007 (VIF) | T010 |
+| FR‑008 (CPU‑only guard) | T006 |
+| FR‑009 (mutual information) | T010 |
+| SC‑001 (combined vs. traditional R²) | T006 → T009 |
+| SC‑002 (stability across resolutions) | T008 |
+| SC‑003 (FWER ≤ 0.05) | T009 |
+| SC‑004 (resource limits) | T012 |
+| SC‑005 (VIF > 5 flag) | T010 |
+
+**Execution order** (respecting data flow):  
+T001 → T001a → T001b → T001c → T001d → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014.  
+
+All tasks together constitute a complete, reproducible CPU‑only study that fulfills the specification, data model, and constitutional constraints.  
+
+---  
+
+# End of tasks.md
