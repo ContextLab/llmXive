@@ -3,15 +3,12 @@ T001:
 T002:
   task: 2396c7098f8b72c6063a30418165d8d985528a1190b1c485d9076c2c827bac9a
 T003:
-  reason: "The repository contains `code/pack.py` and the test suite, but the required\
-    \ data files `data/raw/mobius_array.npy` and `data/raw/mobius_2bit.npy` are missing,\
-    \ causing the round\u2011trip tests to error. Consequently the checksum manifest\
-    \ cannot be verified against real files, so the task\u2019s core deliverables\
-    \ are not present."
   task: b2dbc8aa54e9239d2666b5d8fcad079be0370e99329e638bb1218e1ef9f555fb
 T004:
-  reason: 'declared artifact(s) missing/empty/invalid: data/processed/window_index.csv,
-    code/window.py'
+  reason: "The required file `data/processed/window_index.csv` does not exist (the\
+    \ script writes to `processed/window_index.csv` instead), and no evidence is provided\
+    \ that the CSV\u2019s SHA\u2011256 hash is reproducible across runs. Consequently\
+    \ the task\u2019s core deliverable is missing."
   task: 183b5bfd1fd30b73b67f562c552a64e947378e5ec8c8ef90efefd5f48daf67b4
 T005:
   reason: 'Requested task execution failed; rerun successfully: code/demo_autocorr.py

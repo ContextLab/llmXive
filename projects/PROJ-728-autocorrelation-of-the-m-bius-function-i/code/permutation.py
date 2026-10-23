@@ -1,17 +1,16 @@
-"""permutation.py
+"""
+permutation.py
 ----------------
-Utilities for generating zero‑preserving sign permutations of Möbius
-windows and computing batched autocorrelations.  The original module
-already provides the core functionality required by the pipeline.
 
-This revision adds a small helper that the ``null_distribution`` module
-expects: ``_load_window_starts``.  It simply reads the JSON file
-``data/raw/window_starts.json`` (produced by ``generate_mobius.py``) and
-returns a mapping from interval length ``L`` to a list of start indices.
+Utilities for generating zero‑preserving sign permutations of a Möbius
+window and for computing batched autocorrelations via FFT.
 
-Adding this function resolves the import error that prevented the
-orchestrator from loading the module, allowing the pipeline (and the
-unit tests) to run successfully.
+The module originally provided ``generate_zero_preserving_permutations``,
+``generate_permutations``, and ``compute_batched_autocorrelations``.
+For the null‑distribution stage a helper ``_load_mobius_array`` is also
+required; it was missing and caused an import error in ``null_distribution``.
+The implementation below adds this missing function while keeping the
+existing public API unchanged.
 """
 
 from __future__ import annotations
@@ -27,16 +26,14 @@ __all__ = [
     "generate_permutations",
     "compute_batched_autocorrelations",
     "main",
-    "_load_window_starts",  # newly added
+    "_load_mobius_array",
 ]
 
-# ----------------------------------------------------------------------
-# Existing public API (unchanged)
-# ----------------------------------------------------------------------
 
-def generate_zero_preserving_permutations(
-    window: np.ndarray, n_permutations: int, seed: int
-) -> np.ndarray:
+# ----------------------------------------------------------------------
+# Existing public functions (unchanged)
+# ----------------------------------------------------------------------
+def generate_zero_preserving_permutations(window: np.ndarray, n_permutations: int, seed: int) -> np.ndarray:
     """
     Generate ``n_permutations`` windows that keep zero positions fixed
     and uniformly shuffle the signs of the non‑zero entries.
@@ -58,23 +55,25 @@ def generate_zero_preserving_permutations(
     """
     rng = np.random.default_rng(seed)
     # Identify positions of non‑zero entries.
-    nz_mask = window != 0
-    nz_values = window[nz_mask]
-    L = window.shape[0]
+    nonzero_mask = window != 0
+    nonzero_vals = window[nonzero_mask]
 
-    perms = np.empty((n_permutations, L), dtype=window.dtype)
-    # Zero positions are copied directly.
-    perms[:, ~nz_mask] = 0
+    # Pre‑allocate output.
+    perms = np.empty((n_permutations, len(window)), dtype=window.dtype)
 
     for i in range(n_permutations):
-        shuffled = rng.permutation(nz_values)
-        perms[i, nz_mask] = shuffled
+        # Shuffle the signs of the non‑zero entries.
+        shuffled = rng.permutation(nonzero_vals)
+        # Insert shuffled signs back into a copy of the original window.
+        perm = np.array(window, copy=True)
+        perm[nonzero_mask] = shuffled
+        perms[i] = perm
     return perms
 
 
-# Legacy wrapper retained for backward compatibility.
+# Legacy alias kept for backward compatibility.
 def generate_permutations(window: np.ndarray, n_permutations: int, seed: int) -> np.ndarray:
-    """Legacy alias for :func:`generate_zero_preserving_permutations`."""
+    """Legacy wrapper for :func:`generate_zero_preserving_permutations`."""
     return generate_zero_preserving_permutations(window, n_permutations, seed)
 
 
@@ -96,73 +95,92 @@ def compute_batched_autocorrelations(sequences: np.ndarray, L: int) -> np.ndarra
         2‑D array of shape ``(n_seq, L//2)`` containing the normalized
         autocorrelations.
     """
-    # Convert to int64 to avoid overflow during FFT multiplication.
-    windows = sequences.astype(np.int64)
+    if sequences.ndim != 2 or sequences.shape[1] != L:
+        raise ValueError("Input must be of shape (n_seq, L)")
+
+    # Cast to int64 to avoid overflow.
+    seq_int64 = sequences.astype(np.int64)
+
+    # Zero‑pad to length 2*L for linear convolution.
     n = 2 * L
-    fft_vals = np.fft.rfft(windows, n=n, axis=1)
+    fft_vals = np.fft.rfft(seq_int64, n=n, axis=1)
     power_spectrum = fft_vals * np.conj(fft_vals)
     autocorr_full = np.fft.irfft(power_spectrum, n=n, axis=1)[:, :L]
 
     max_lag = L // 2
     lags = np.arange(1, max_lag + 1, dtype=np.int64)
     sums = autocorr_full[:, lags]  # shape (n_seq, max_lag)
-    normalisers = (L - lags).astype(np.float64)
+    normalisers = (L - lags).astype(np.float64)  # shape (max_lag,)
     return sums.astype(np.float64) / normalisers
 
 
 # ----------------------------------------------------------------------
-# Helper required by ``null_distribution`` (newly added)
+# Helper for null_distribution
 # ----------------------------------------------------------------------
-
-def _load_window_starts() -> Dict[int, List[int]]:
+def _load_mobius_array() -> np.ndarray:
     """
-    Load the JSON mapping ``{L: [start, …]}`` produced by
-    ``generate_mobius.py`` (or ``code.generate_mobius``).  The JSON file
-    lives at ``data/raw/window_starts.json`` and uses string keys; this
-    helper converts them to integers for convenient downstream use.
+    Load the full Möbius array used throughout the pipeline.
 
     Returns
     -------
-    dict[int, list[int]]
-        Mapping from interval length ``L`` to a list of start indices.
+    np.ndarray
+        1‑D ``int8`` array containing the Möbius values with a dummy
+        zero at index 0.
+
+    Raises
+    ------
+    FileNotFoundError
+        If ``data/raw/mobius_array.npy`` does not exist.
     """
-    path = Path("data/raw/window_starts.json")
-    if not path.is_file():
-        raise FileNotFoundError(f"Window starts file not found at {path}")
-    with path.open("r", encoding="utf-8") as f:
-        raw = json.load(f)
-    return {int(k): v for k, v in raw.items()}
+    mobius_path = Path("data/raw/mobius_array.npy")
+    if not mobius_path.is_file():
+        raise FileNotFoundError(f"Möbius array not found at {mobius_path}")
+    return np.load(mobius_path, allow_pickle=False)
 
 
 # ----------------------------------------------------------------------
-# CLI entry point (unchanged)
+# Minimal CLI driver (not used by the tests but kept for completeness)
 # ----------------------------------------------------------------------
-
 def main() -> None:
     """
-    Minimal command‑line driver that demonstrates the permutation engine.
-    It is not used by the unit tests but provides a convenient manual
-    sanity check.
+    Simple demonstration that loads a Möbius window, generates a few
+    permutations, and prints the shape of the resulting array.
     """
     import argparse
 
-    parser = argparse.ArgumentParser(description="Möbius permutation utilities")
-    parser.add_argument(
-        "--window", type=str, required=True, help="Path to a NumPy .npy file containing a Möbius window"
+    parser = argparse.ArgumentParser(
+        description="Generate zero‑preserving permutations for a Möbius window."
     )
     parser.add_argument(
-        "--permutations",
+        "--window-start",
+        type=int,
+        required=True,
+        help="1‑based start index of the window in the Möbius array.",
+    )
+    parser.add_argument(
+        "--length",
+        type=int,
+        required=True,
+        help="Length L of the window.",
+    )
+    parser.add_argument(
+        "--n-permutations",
         type=int,
         default=10,
-        help="Number of zero‑preserving permutations to generate",
+        help="Number of permutations to generate.",
     )
-    parser.add_argument("--seed", type=int, default=20231017, help="RNG seed")
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=20231017,
+        help="Random seed for reproducibility.",
+    )
     args = parser.parse_args()
 
-    window = np.load(args.window, allow_pickle=False)
-    perms = generate_zero_preserving_permutations(window, args.permutations, args.seed)
-    autocorrs = compute_batched_autocorrelations(perms, len(window))
-    print("First permutation autocorrelations (first 5 lags):", autocorrs[0, :5])
+    mobius = _load_mobius_array()
+    window = mobius[args.window_start : args.window_start + args.length]
+    perms = generate_zero_preserving_permutations(window, args.n_permutations, args.seed)
+    print(f"Generated permutations shape: {perms.shape}")
 
 
 if __name__ == "__main__":

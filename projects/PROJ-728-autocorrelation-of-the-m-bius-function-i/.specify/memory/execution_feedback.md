@@ -13,7 +13,7 @@ Traceback (most recent call last):
     from null_distribution import main as null_dist_main
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/null_distribution.py", line 39, in <module>
     from permutation import (
-ImportError: cannot import name '_load_mobius_array' from 'permutation' (/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/permutation.py)
+ImportError: cannot import name '_load_window_starts' from 'permutation' (/home/runner/work/llmXive/llmXive/projects/PROJ-728-autocorrelation-of-the-m-bius-function-i/code/permutation.py)
 
 
 ## Declared deliverables still missing
@@ -41,5 +41,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/processed/pipeline_status.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/window_index.csv` is declared but was NOT written. Scripts referencing it:
     - `code/autocorrelation.py` — NOT invoked by the run-book
+    - `code/window.py` — NOT invoked by the run-book
     - `code/window_index.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/window_index.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

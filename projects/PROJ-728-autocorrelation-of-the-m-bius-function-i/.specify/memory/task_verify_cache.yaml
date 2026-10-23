@@ -18,11 +18,20 @@ T002:
     \ updated, confirming the required outputs exist and are correct."
   sig: 14893c2d7ee5255822a011398fc462e56fd7a56bda53218aecece3ade4c4ee11
 T003:
+  c: true
+  h: 0685ec2f660fc41d7a58d3f7cfc74032a8c07a1694e02d8e1396753598a06b55
+  r: "Checked `code/pack.py` (provides `pack_mu`/`unpack_mu` and writes `data/raw/mobius_2bit.npy`),\
+    \ the generated `data/raw/mobius_2bit.npy` file, the unit tests in `tests/unit/test_pack.py`\
+    \ (which confirm full\u2011array and 100 random slice round\u2011trips and that\
+    \ the manifest contains both files), and `data/checksums/manifest.sha256` (which\
+    \ lists the hashes of both the raw and packed M\xF6bius arrays). All required\
+    \ artifacts exist, contain correct content, and the tests pass."
+  sig: 561287812b97808104e659693e9fdafc94ee558c5b4aa23c9c243c1968b38116
+T004:
   c: false
-  h: d95a1c682d335bc68c26c3c1cbc59dab47816dd7dd892809fd099b3d5a2fc581
-  r: "The repository contains `code/pack.py` and the test suite, but the required\
-    \ data files `data/raw/mobius_array.npy` and `data/raw/mobius_2bit.npy` are missing,\
-    \ causing the round\u2011trip tests to error. Consequently the checksum manifest\
-    \ cannot be verified against real files, so the task\u2019s core deliverables\
-    \ are not present."
-  sig: 923278ff90eea781471cd22f7d3f6bdbd57981ee02e265d76b9b28e157bf1706
+  h: 5d32bbcbedc89cd85fa4d95a6432ccad4cc11339bad0a05cd51e06613c1f8642
+  r: "The required file `data/processed/window_index.csv` does not exist (the script\
+    \ writes to `processed/window_index.csv` instead), and no evidence is provided\
+    \ that the CSV\u2019s SHA\u2011256 hash is reproducible across runs. Consequently\
+    \ the task\u2019s core deliverable is missing."
+  sig: 1bd976eda1d256dccb44f14c20a104fb4143f139eb5c8228da55d484bf4e9a36

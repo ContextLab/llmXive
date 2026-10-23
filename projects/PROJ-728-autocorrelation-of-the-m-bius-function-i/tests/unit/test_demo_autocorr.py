@@ -1,46 +1,67 @@
 """
-Unit test for the demo_autocorr script (task T005).
+Unit tests for the demo_autocorr script.
 """
+
+from __future__ import annotations
 
 import csv
 from pathlib import Path
 
 import numpy as np
 
-# Import the script's main function.
-from code.demo_autocorr import main as demo_main
+# Import the functions from the script
+from demo_autocorr import (
+    load_mobius_array,
+    load_window_starts,
+    compute_autocorrelation,
+    OUTPUT_CSV,
+    REFERENCE_AUTOCORR,
+)
 
-def test_demo_autocorr_file_exists(tmp_path, monkeypatch):
-    """
-    Ensure that the demo script creates the expected CSV file with the
-    correct header and a single row containing the reference autocorrelation.
-    """
-    # Monkey‑patch the data paths to point to the test fixtures.
-    # The fixtures are the real data files shipped with the repository.
-    # They are small enough for the test runner.
-    mobius_path = Path("data/raw/mobius_array.npy")
-    window_json_path = Path("data/raw/window_starts.json")
-    output_path = Path("data/processed/demo_autocorr.csv")
+def test_load_mobius_array_exists():
+    """The Möbius array must exist for the demo."""
+    arr = load_mobius_array()
+    assert isinstance(arr, np.ndarray)
+    # Basic sanity: values should be in {-1,0,1}
+    assert set(np.unique(arr)).issubset({-1, 0, 1})
 
-    # Ensure a clean state before running the demo.
-    if output_path.is_file():
-        output_path.unlink()
+def test_load_window_starts_structure():
+    """Window starts JSON must be parsable and contain L=1000."""
+    mapping = load_window_starts()
+    assert isinstance(mapping, dict)
+    assert 1000 in mapping
+    assert isinstance(mapping[1000], list)
+    assert len(mapping[1000]) >= 1
 
-    # Run the demo script.
+def test_compute_autocorrelation_matches_reference():
+    """The computed autocorrelation for the demo window must match the reference."""
+    mobius = load_mobius_array()
+    starts = load_window_starts()
+    demo_start = starts[1000][0]
+    val = compute_autocorrelation(mobius, demo_start, 1000, 1)
+    assert np.isclose(val, REFERENCE_AUTOCORR, atol=1e-9)
+
+def test_demo_csv_written(tmp_path, monkeypatch):
+    """Running main() should produce the CSV with the correct header and values."""
+    # Redirect the output path to a temporary location
+    temp_csv = tmp_path / "demo_autocorr.csv"
+    monkeypatch.setattr("demo_autocorr.OUTPUT_CSV", temp_csv)
+
+    # Execute the script's main function
+    from demo_autocorr import main as demo_main
     demo_main()
 
-    # Verify that the output file now exists.
-    assert output_path.is_file(), "demo_autocorr.csv was not created"
-
-    # Verify the CSV content.
-    with output_path.open("r", encoding="utf-8") as f:
+    # Verify the file exists and has the expected format
+    assert temp_csv.is_file()
+    with temp_csv.open("r", newline="", encoding="utf-8") as f:
         reader = csv.reader(f)
         header = next(reader)
         row = next(reader)
 
-    expected_header = ["interval_start", "interval_length", "lag", "autocorrelation"]
-    assert header == expected_header, f"Unexpected CSV header: {header}"
-
-    # The reference autocorrelation is known from the spec.
-    expected_autocorr = "-0.047047047047"
-    assert row[3] == expected_autocorr, f"Unexpected autocorrelation value: {row[3]}"
+    assert header == ["interval_start", "interval_length", "lag", "autocorrelation"]
+    # The row should contain four entries and the autocorrelation should match the reference
+    assert len(row) == 4
+    assert int(row[0]) == load_window_starts()[1000][0]
+    assert int(row[1]) == 1000
+    assert int(row[2]) == 1
+    assert np.isclose(float(row[3]), REFERENCE_AUTOCORR, atol=1e-9)

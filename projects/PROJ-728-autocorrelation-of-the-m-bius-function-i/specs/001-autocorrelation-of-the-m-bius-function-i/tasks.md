@@ -17,7 +17,7 @@ All tasks respect data‑flow dependencies and use the canonical checklist forma
   • Path: `code/sieve.py`, `data/raw/mobius_array.npy`  
   • Verification: unit tests `tests/unit/test_sieve.py` check known values (μ(1)=1, μ(2)=−1, μ(4)=0, μ(30)=−1, μ(3025)=0) and assert every entry lies in `{−1,0,1}`.  
 
-- [ ] T003 **Add 2‑bit packing utilities** – create `code/pack.py` with `pack_mu` and `unpack_mu` that produce the packed ternary array `data/raw/mobius_2bit.npy`. Include a round‑trip test for the full array and for 100 random sub‑slices; after creation run `code/checksum.py` to record both `data/raw/mobius_array.npy` and `data/raw/mobius_2bit.npy` in `data/checksums/manifest.sha256`.  
+- [X] T003 **Add 2‑bit packing utilities** – create `code/pack.py` with `pack_mu` and `unpack_mu` that produce the packed ternary array `data/raw/mobius_2bit.npy`. Include a round‑trip test for the full array and for 100 random sub‑slices; after creation run `code/checksum.py` to record both `data/raw/mobius_array.npy` and `data/raw/mobius_2bit.npy` in `data/checksums/manifest.sha256`.  
   • Path: `code/pack.py`, `data/raw/mobius_2bit.npy`  
   • Verification: tests `tests/unit/test_pack.py` confirm `unpack_mu(pack_mu(arr)) == arr` for the whole dataset and for random slices; SHA‑256 hashes of both files appear in `manifest.sha256`.  
 
@@ -25,7 +25,7 @@ All tasks respect data‑flow dependencies and use the canonical checklist forma
   • Path: `code/window.py`, `data/processed/window_index.csv` (columns `interval_start`, `interval_length`, `window_id`)  
   • Verification: `wc -l data/processed/window_index.csv` returns 300; a script asserts no windows overlap, the file is non‑empty, and its SHA‑256 hash is reproducible on repeated runs.  
 
-- [ ] T005 **Demo autocorrelation on a single window** – extract the first window (`L=1000`, start = first `interval_start` in `window_index.csv`), compute the normalized autocorrelation for lag = 1, and write a single‑row CSV `data/processed/demo_autocorr.csv`.   <!-- FAILED-IN-EXECUTION: code/demo_autocorr.py exit=1 -->
+- [ ] T005 **Demo autocorrelation on a single window** – extract the first window (`L=1000`, start = first `interval_start` in `window_index.csv`), compute the normalized autocorrelation for lag = 1, and write a single‑row CSV `data/processed/demo_autocorr.csv`.   <!-- FAILED-IN-EXECUTION: code/demo_autocorr.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/demo_autocorr.py exit=1 -->
   • Path: `code/demo_autocorr.py`, `data/processed/demo_autocorr.csv`  
   • Verification: the CSV contains exactly one row with columns `interval_start,interval_length,lag,autocorrelation`; the `autocorrelation` value has ≥ 6 decimal places and matches the hand‑computed reference (−0.047047047047) within absolute tolerance 1e‑9.  
 
