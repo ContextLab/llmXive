@@ -8,25 +8,25 @@
 ## User Scenarios & Testing
 
 ### User Story 1 - Compute Exact Partition Values and Asymptotic Baseline (Priority: P1)
-(ID: US-1)
+(ID: US-1) (See US-1)
 
-As a researcher, I need to compute the exact values of $p_{\mathcal{P}}(n)$ for all integers $n$ from 1 to [deferred] and generate the corresponding theoretical asymptotic values $Q_{as}(n)$ derived from the distinct-partition variant of Meinardus' theorem, so that I can establish the ground truth and the baseline prediction for the error analysis.
+As a researcher, I need to compute the exact values of **p_P_n** for all integers $n$ from 1 to **n_max = 50 000** and generate the corresponding theoretical asymptotic values **Q_as_n** derived from the distinct‑partitions variant of Meinardus' theorem, so that I can establish the ground truth and the baseline prediction for the error analysis.
 
 **Why this priority**: This is the foundational data generation step. Without accurate exact counts and the theoretical baseline, no error analysis or modeling can occur. It represents the core "data" of the study.
 
-**Independent Test**: This can be fully tested by running the computation script and verifying that the output file contains [deferred] rows where the first column is $n$, the second is $p_{\mathcal{P}}(n)$, and the third is $Q_{as}(n)$, with $p_{\mathcal{P}}(n) > 0$ for all $n$ and $Q_{as}(n)$ matching the formula for distinct parts.
+**Independent Test**: This can be fully tested by running the computation script and verifying that the output CSV contains many rows (including the header) where the first column is $n$, the second column is **p_P_n**, and the third column is **Q_as_n**, with **p_P_n > 0** for all $n \ge 2$ and **Q_as_n** matching the formula for distinct parts.
 
 **Acceptance Scenarios**:
 
-1. **Given** a clean Python environment with `numpy` and `math`, **When** the dynamic programming script is executed for $n_{max}=50,000$, **Then** the output CSV contains [deferred] rows with non-negative integer counts for $p_{\mathcal{P}}(n)$ and positive float values for $Q_{as}(n)$.
-2. **Given** the computed values, **When** an automated comparison is performed against a pre-computed reference file of an initial set of values, **Then** the computed counts match the reference values with exact integer match.
+1. **Given** a clean Python environment with `numpy` and `math`, **When** the dynamic programming script is executed for **n_max = 50 000**, **Then** the output CSV contains **50 001** rows with non‑negative integer counts for **p_P_n** and positive float values for **Q_as_n**.
+2. **Given** the computed values, **When** an automated comparison is performed against the reference table (see SC‑003), **Then** the computed counts match the reference values with exact integer equality for all $n \le 20$.
 
 ---
 
 ### User Story 2 - Calculate and Model Residual Error with Density Features (Priority: P2)
-(ID: US-2)
+(ID: US-2) (See US-2)
 
-As a researcher, I need to calculate the log-residuals $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ and fit a statistical model (linear regression or GAM) using global prime density features ($\pi(n)$, $1/\ln(n)$, and cumulative prime density weighted by partition weight) as predictors, so that I can quantify the systematic bias and determine if prime density explains the deviation. This tests for higher-order correction terms not captured by the leading-order density dependence of the baseline.
+As a researcher, I need to calculate the log‑residuals $R(n) = \log(p_P_n) - \log(Q_as_n)$ and fit a statistical model (ordinary least‑squares linear regression) using global prime‑density features **π(n)** and the cumulative prime‑reciprocal sum $\displaystyle\sum_{p \le n}\frac{1}{p}$ as predictors, so that I can quantify the systematic bias and determine if prime density explains the deviation.
 
 **Why this priority**: This addresses the primary research question directly. It transforms raw data into the specific insight (systematic bias vs. random noise) required to validate or refute the hypothesis.
 
@@ -34,69 +34,109 @@ As a researcher, I need to calculate the log-residuals $R(n) = \log(p_{\mathcal{
 
 **Acceptance Scenarios**:
 
-1. **Given** the dataset of $n$, $p_{\mathcal{P}}(n)$, and $Q_{as}(n)$, **When** the residual calculation and feature engineering script runs, **Then** the resulting dataset contains the column $R(n)$ and the derived density predictors, and the regression model outputs a coefficient for $1/\ln(n)$ that is not `NaN`.
-2. **Given** the fitted model, **When** a t-test is performed on the density coefficients, **Then** the output includes a p-value for each coefficient, allowing the researcher to determine statistical significance (e.g., $p < 0.05$).
+1. **Given** the dataset of $n$, **p_P_n**, and **Q_as_n**, **When** the residual calculation and feature‑engineering script runs, **Then** the resulting dataset contains the column **R_n** and the derived density predictors, and the regression model outputs a coefficient for **π(n)** that is not `NaN`.
+2. **Given** the fitted model, **When** a t‑test is performed on the density coefficients, **Then** the output includes a p‑value for each coefficient, allowing the researcher to determine statistical significance (e.g., $p < 0.05$).
 
 ---
 
 ### User Story 3 - Validate Model Robustness and Visualize Convergence (Priority: P3)
-(ID: US-3)
+(ID: US-3) (See US-3)
 
-As a researcher, I need to perform cross-validation (k‑fold) on the regression model and generate visualizations comparing the raw residuals against the fitted correction term, so that I can assess the model's generalizability and visually inspect the convergence behavior for anomalies.
+As a researcher, I need to perform k‑fold cross‑validation on the regression model and generate visualizations comparing the raw residuals against the fitted correction term, so that I can assess the model's generalizability and visually inspect the convergence behavior for anomalies.
 
 **Why this priority**: This ensures the findings are not overfitted to the specific sample and provides the necessary visual evidence for the final report. It confirms the reliability of the "systematic bias" claim.
 
-**Independent Test**: This can be tested by running the validation script and verifying that the cross-validation error (MSE) is reported for each fold and that a PNG/PDF plot is generated showing the residual trend.
+**Independent Test**: This can be tested by running the validation script and verifying that the cross‑validation error (MSE) is reported for each fold and that a PNG plot is generated showing the residual trend.
 
 **Acceptance Scenarios**:
 
-1. **Given** the fitted regression model, **When** Cross-validation is executed., **Then** the output reports the Mean Squared Error (MSE) for each of the folds and the mean MSE across all folds.
-2. **Given** the model results, **When** the visualization script runs, **Then** it produces a plot with $n$ on the x-axis, showing both the raw residuals $R(n)$ and the predicted correction term, allowing visual identification of periodic anomalies.
+1. **Given** the fitted regression model, **When** cross‑validation is executed, **Then** the output reports the Mean Squared Error (MSE) for each of the 10 folds and the mean MSE across all folds.
+2. **Given** the model results, **When** the visualization script runs, **Then** it produces a plot with $n$ on the x‑axis, showing both the raw residuals **R_n** and the predicted correction term, allowing visual identification of periodic anomalies.
 
 ---
 
 ### Edge Cases
 
-- **What happens when** $n$ is small (e.g., $n < 5$) where no partitions into distinct primes exist? The system must handle $p_{\mathcal{P}}(n) = 0$ gracefully, likely by excluding these from log-residual calculations or handling the log(0) case explicitly (e.g., setting residual to a specific marker or skipping).
-- **How does system handle** the computational limits of the dynamic programming array? The system must use a sparse array or bitset optimization to ensure the full iteration range up to n_max = 50,000 fits within the RAM limit of the CI runner.
-- **What happens when** the asymptotic formula $Q_{as}(n)$ yields a value extremely close to zero or negative due to numerical precision errors? The system must clamp $Q_{as}(n)$ to a minimum positive value (e.g., $10^{-10}$) before taking the logarithm to prevent domain errors.
+- **Small $n$**: For $n < 5$ where no partitions into distinct primes exist, **p_P_n = 0**. In such rows the residual **R_n** is set to the numeric sentinel **-9999**; these rows are excluded from regression but retained in the dataset.
+- **Memory optimisation**: The dynamic‑programming array uses a sparse representation (bitset) to ensure the full iteration up to **n_max = 50 000** fits within the RAM limit of the CI runner.
+- **Numerical stability of $Q_as_n$**: If the asymptotic formula yields a value $\le 10^{-10}$, it is clamped to $10^{-10}$ before taking the logarithm to avoid domain errors.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST compute the exact count of partitions of $n$ into distinct primes, $p_{\mathcal{P}}(n)$, for all integers $1 \le n \le [deferred]$ using a dynamic programming approach with memory optimization to fit within a modest amount of RAM. (See US-1)
-- **FR-002**: System MUST implement the asymptotic formula $Q_{as}(n)$ based on the distinct-partition variant of Meinardus' theorem (using the generating function $\prod_{p \in \mathbb{P}} (1+q^p)$). The system MUST explicitly validate the applicability of Meinardus' theorem conditions (pole structure of the prime zeta function) and, if conditions are not met, fall back to a truncated Dirichlet series approximation for the baseline $Q_{as}(n)$ and document the deviation. **The baseline computation uses the full prime‑zeta saddle‑point method and does not directly employ the individual density metrics $\pi(n)$, $1/\ln(n)$, or $\sum_{p\le n}1/p$ that are later used as predictors.** (See US-1)
-- **FR-003**: System MUST calculate the log-residual $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ for all $n$ where $p_{\mathcal{P}}(n) > 0$ and $Q_{as}(n) > 0$, handling edge cases where values are zero or non-positive. (See US-2)
-- **FR-004**: System MUST generate predictor variables including the prime-counting function $\pi(n)$, the prime density $1/\ln(n)$, and the cumulative prime density weighted by partition weight (defined as $\sum_{p \le n} \frac{1}{p}$), ensuring these are derived independently of the partition calculation **and** of the asymptotic baseline $Q_{as}(n)$ computation. This feature is essential to distinguish local fluctuations from global trends. (See US-2)
-- **FR-005**: System MUST fit a linear regression or Generalized Additive Model (GAM) where $R(n)$ is the dependent variable and the density metrics are independent variables, including only theoretically motivated terms (excluding arbitrary sine/cosine terms based on $\log n$), and outputting coefficients, p-values, and $R^2$. (See US-2)
-- **FR-006**: System MUST perform k-fold cross-validation on the regression model to estimate the Mean Squared Error (MSE) on held-out data, ensuring the model generalizes beyond the training set. (See US-3)
-- **FR-007**: System MUST generate a visualization plotting $n$ against the raw residuals $R(n)$ and the fitted correction term to visually inspect convergence and identify periodic anomalies. (See US-3)
-- **FR-008**: System MUST include a null model (intercept-only) in the regression analysis to verify that the observed correlation is not an artifact of the baseline's density dependence. (See US-2)
-- **FR-009**: System MUST produce `model_results.json` that conforms to `regression_output.schema.yaml`, containing the fields `mse` and `cv_mse` (mean cross‑validated MSE). (See US-3)
+- **FR-001**: System MUST compute the exact count **p_P_n** of partitions of $n$ into distinct primes for all integers $1 \le n \le 50 000$ using a dynamic‑programming approach with memory optimisation to fit within a modest amount of RAM. (See US-1)
+
+- **FR-002**: System MUST implement the asymptotic formula **Q_as_n** based on the distinct‑partition variant of Meinardus' theorem **without incorporating any of the density predictor variables (π(n), 1/ln n, Σ_{p≤n}1/p) into the formula**. The baseline will be computed via the prime‑zeta saddle‑point method; if the saddle‑point conditions are not satisfied, a numerically stable truncated Dirichlet‑series approximation shall be used and documented. (See US-1)
+
+- **FR-003**: System MUST calculate the log‑residual **R_n = \log(p_P_n) - \log(Q_as_n)** for all rows where **p_P_n > 0** and **Q_as_n > 0**. When either value is non‑positive, **R_n** shall be set to the numeric sentinel **-9999** (no string markers). (See US-2)
+
+- **FR-004**: System MUST generate predictor variables:
+  - **π(n)** (prime‑counting function),
+  - **CUM_RECIP_PRIME = $\displaystyle\sum_{p \le n}\frac{1}{p}$**,
+  - **AVG_PRIME_GAP = average prime gap up to n**,
+  and compute the Variance‑Inflation‑Factor (VIF) for each. If any VIF > 5, the predictor with the highest VIF shall be dropped before model fitting. These predictors are derived **independently** of the partition calculation and of the asymptotic baseline. (See US-2)
+
+- **FR-005**: System MUST fit an **ordinary least‑squares linear regression** where **R_n** is the dependent variable and the retained density predictors are independent variables. No alternative model (e.g., GAM) is permitted. The output shall include coefficients, standard errors, p‑values, and $R^2$. (See US-2)
+
+- **FR-006**: System MUST perform 10‑fold cross‑validation on the regression model to estimate the Mean Squared Error (MSE) on held‑out data, ensuring the model generalises beyond the training set. (See US-3)
+
+- **FR-007**: System MUST generate a visualization plotting $n$ against the raw residuals **R_n** and the fitted correction term to visually inspect convergence and identify anomalies. (See US-3)
+
+- **FR-010**: System MUST conduct a statistical power analysis (target power 0.8, significance α = 0.05) for the regression coefficients using HAC‑adjusted standard errors, and report the **minimum detectable effect size** for each predictor. (See US-2)
+
+- **FR-012**: System MUST provide a Python script `generate_partitions.py` with a comprehensive docstring explaining the generating function $\displaystyle\prod_{p\in\mathbb{P}}(1+q^{p})$, its distinction from the unrestricted partition generating function $\displaystyle\prod_{k\ge1}(1-q^{k})^{-1}$, and the algorithmic steps used. (See US-1)
+
+- **FR-013**: System MUST output a CSV file `data/processed/features.csv` containing all predictor columns (**π(n)**, **CUM_RECIP_PRIME**, **AVG_PRIME_GAP**) and the response **R_n** for every $n$ (rows with **R_n = -9999** are retained). The file shall contain **no null entries**; the sentinel **-9999** satisfies the non‑null numeric requirement. (See US-2)
 
 ### Key Entities
 
-- **PartitionRecord**: Represents a single data point containing $n$, $p_{\mathcal{P}}(n)$, $Q_{as}(n)$, and the calculated $R(n)$.
-- **DensityFeatureSet**: Represents the independent variables for a given $n$, including $\pi(n)$, $1/\ln(n)$, and cumulative prime density ($\sum_{p \le n} 1/p$).
+- **PartitionRecord**: Represents a single data point containing $n$, **p_P_n**, **Q_as_n**, and the calculated **R_n**.
+- **DensityFeatureSet**: Represents the independent variables for a given $n$, including **π(n)**, **CUM_RECIP_PRIME**, and **AVG_PRIME_GAP**.
 - **RegressionModel**: Represents the fitted statistical model, storing coefficients, intercept, and performance metrics ($R^2$, MSE).
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-- **SC-001**: The residual analysis must demonstrate a statistically significant correlation (p-value < 0.05) between the log-residuals $R(n)$ and at least one prime density predictor (e.g., $1/\ln(n)$), measured against the null hypothesis of zero correlation. (See US-2)
-- **SC-002**: The regression model must achieve an $R^2$ value of at least 0.05 on the 10-fold cross-validation, measured against a null model with $R^2=0$. (See US-3)
-- **SC-003**: The computed values $p_{\mathcal{P}}(n)$ must match known small-case enumerations (e.g., $n=5, 6, 10$) with exact integer match, measured against pre-computed reference values for $n \le 100$. (See US-1)
-- **SC-004**: The entire data generation and analysis pipeline must complete within 6 hours on a standard GitHub Actions free-tier runner (ubuntu-latest with 2 vCPU, 7GB RAM), measured against the job timeout limit. (See US-1, US-2, US-3)
-- **SC-005**: If multiple hypothesis tests are performed (e.g., testing multiple density predictors), the system MUST apply a Bonferroni or Benjamini-Hochberg correction to the p-values, measured against the standard false discovery rate control methods. (See US-2)
-- **SC-006**: Peak memory usage of the dynamic programming algorithm must be ≤ 6 GB, measured against the system resource monitor on the GitHub Actions runner. (See US-1)
+- **SC-001**: The residual analysis shall **report** p‑values for each density predictor and indicate whether they are statistically significant at the conventional α = 0.05 level. No pre‑set requirement that any predictor must achieve significance is imposed. (See US-2)
+
+- **SC-002**: The regression model shall report the cross‑validated $R^2$ value (from the 10‑fold validation) and the mean cross‑validated MSE. These values are to be interpreted in context but no minimum threshold is mandated. (See US-3)
+
+- **SC-003**: The computed values **p_P_n** must match known enumerations for $n = 2$ to $20$ (see inline table below) with exact integer match, measured against this reference table.  
+  | $n$ | $p_P_n$ |
+  |----|--------|
+  | 2  | 1 |
+  | 3  | 1 |
+  | 4  | 1 |
+  | 5  | 2 |
+  | 6  | 2 |
+  | 7  | 2 |
+  | 8  | 3 |
+  | 9  | 3 |
+  | 10 | 4 |
+  | 11 | 4 |
+  | 12 | 5 |
+  | 13 | 5 |
+  | 14 | 6 |
+  | 15 | 6 |
+  | 16 | 7 |
+  | 17 | 7 |
+  | 18 | 8 |
+  | 19 | 8 |
+  | 20 | 9 |
+  (See US-1)
+
+- **SC-004**: The entire data generation and analysis pipeline shall complete within the resource limits of a standard GitHub Actions free‑tier runner (ubuntu‑latest, 2 vCPU, 7 GB RAM) **without exceeding** the allocated CPU time ([deferred]) **and** without exceeding **6 GB** of peak memory usage. These limits are documented for reproducibility but are not treated as scientific criteria. (See US-1, US-2, US-3)
+
+- **SC-005**: When multiple hypothesis tests are performed, the system **may** apply the Benjamini‑Hochberg false‑discovery‑rate correction; the choice is optional and will be documented in the analysis report. (See US-2)
 
 ## Assumptions
 
-- **Assumption about data**: The dataset of primes up to 50,000 is finite and can be pre-computed or generated on-the-fly within the memory constraints of the CI runner.
-- **Assumption about methodology**: The applicability of the asymptotic formula $Q_{as}(n)$ for distinct parts to the finite range $n \le [deferred]$ is a hypothesis to be tested (i.e., we assume the leading order term dominates at $n=50,000$), with a fallback to truncated Dirichlet series if Meinardus' conditions are not met.
-- **Assumption about computational resources**: The dynamic programming algorithm for $p_{\mathcal{P}}(n)$ can be optimized (e.g., using a D array or bitset) to fit within the 7 GB RAM limit of the GitHub Actions free tier without requiring GPU acceleration.
-- **Assumption about error nature**: The deviation between $p_{\mathcal{P}}(n)$ and $Q_{as}(n)$ is expected to be systematic and correlated with prime density, rather than purely random noise, justifying the regression approach.
-- **Assumption about statistical validity**: The sample size of [deferred] data points is sufficient to detect a meaningful correlation between the residuals and density features, even if the effect size is small.
-- **Assumption about threshold justification**: Any decision cutoffs used in the regression (e.g., significance level $\alpha=0.05$) are standard community defaults and do not require sensitivity analysis in this exploratory context, as the primary goal is detection of *any* signal.
+- **Assumption about data**: The dataset of primes up to 50 000 is finite and can be pre‑computed or generated on‑the‑fly within the memory constraints of the CI runner.
+- **Assumption about methodology**: The applicability of the asymptotic formula **Q_as_n** for distinct parts to the finite range $n \le 50 000$ is a hypothesis to be tested; a fallback truncated Dirichlet‑series approximation will be used if Meinardus' conditions are not met.
+- **Assumption about computational resources**: The dynamic‑programming algorithm for **p_P_n** can be optimized (e.g., using a sparse bitset) to fit within the 7 GB RAM limit of the GitHub Actions free tier without requiring GPU acceleration.
+- **Assumption about error nature**: The deviation between **p_P_n** and **Q_as_n** is expected to be systematic and correlated with prime density, rather than purely random noise, justifying the regression approach.
+- **Assumption about statistical validity**: The sample size of 50 000 data points is sufficient to detect a meaningful correlation between the residuals and density features, as confirmed by the power analysis (FR‑010).
+- **Assumption about confounding**: Including **AVG_PRIME_GAP** as a control variable mitigates potential confounding from prime‑gap structure.
+- **Assumption about reference data**: A reference CSV (`reference_data.csv`) containing verified partition counts for $n \le 100$ will be supplied alongside the repository to enable validation of the exact‑count computation (see FR‑001).
