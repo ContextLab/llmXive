@@ -1,5 +1,4 @@
 # Project dependencies
-# Core scientific stack (already provided by the environment) is omitted.
-# Additional packages required for data acquisition.
+# Added for T001 to enable dataset download from HuggingFace
 datasets>=2.14
 huggingface_hub>=0.23
