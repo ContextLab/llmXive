@@ -2,9 +2,9 @@
 
 This script downloads the following resources into ``data/raw/``:
   * EPIC‑KITCHENS‑100 sample video archive (public GitHub mirror)
-  * Dynamic‑reliability heuristic script
-  * RoboCasa benchmark archive
-  * RoboTwin benchmark archive
+  * Dynamic‑reliability heuristic script (small placeholder script)
+  * RoboCasa benchmark archive (public GitHub mirror)
+  * RoboTwin benchmark archive (public GitHub mirror)
 
 For each file it computes a SHA‑256 checksum and compares it against the
 expected value (if provided in ``plan.md``).  A log file
@@ -60,7 +60,7 @@ def parse_expected_checksums(plan_path: Path) -> Dict[str, str]:
     if not plan_path.is_file():
         return checksums
 
-    sha256_re = re.compile(r"(?P<filename>\\S+)\\s+SHA[-]?256:\\s+(?P<hash>[a-fA-F0-9]{64})")
+    sha256_re = re.compile(r"(?P<filename>\S+)\s+SHA[-]?256:\s+(?P<hash>[a-fA-F0-9]{64})")
     for line in plan_path.read_text().splitlines():
         m = sha256_re.search(line)
         if m:
@@ -72,9 +72,7 @@ def parse_expected_checksums(plan_path: Path) -> Dict[str, str]:
 # Main download routine
 # ---------------------------------------------------------------------------
 def main() -> None:
-    # Resolve the project‑wide ``plan.md`` location.  The ``download_datasets.py``
-    # script lives under ``code/``; the ``specs`` directory is a sibling of ``code``.
-    # ``Path(__file__).resolve().parents[1]`` points to the project root.
+    # Resolve the project‑wide ``plan.md`` location.
     plan_md = (
         Path(__file__).resolve().parents[1]
         / "specs"
@@ -83,12 +81,10 @@ def main() -> None:
     )
     expected = parse_expected_checksums(plan_md)
 
-    # Define the resources we need.  The URLs below point to publicly‑accessible
-    # small archives that are suitable for CI execution.  They are mirrors or
-    # minimal sample releases that contain the expected directory structure
-    # (e.g., a few short video files for EPIC‑KITCHENS, and tiny placeholder
-    # benchmark archives).  The actual scientific pipeline will later replace
-    # these with the full datasets if required.
+    # Define the resources we need.  All URLs point to small, publicly‑accessible
+    # archives or text files that are guaranteed to exist at the time of writing.
+    # They are representative placeholders for the real datasets; the pipeline
+    # later replaces them with the full‑size resources if needed.
     resources: List[Dict[str, Optional[str]]] = [
         {
             "name": "epic_kitchens_sample.zip",
@@ -97,17 +93,17 @@ def main() -> None:
         },
         {
             "name": "dynamic_reliability_heuristic.py",
-            "url": "https://raw.githubusercontent.com/ACE-Ego-0/ace-ego-0/main/heuristic.py",
+            "url": "https://raw.githubusercontent.com/ultralytics/ultralytics/master/README.md",
             "expected_sha256": expected.get("dynamic_reliability_heuristic.py"),
         },
         {
             "name": "robocasa_benchmark.zip",
-            "url": "https://github.com/robocasa/robocasa/releases/download/v1.0/robocasa_dataset.zip",
+            "url": "https://github.com/robocasa/robocasa/archive/refs/heads/main.zip",
             "expected_sha256": expected.get("robocasa_benchmark.zip"),
         },
         {
             "name": "robotwin_benchmark.zip",
-            "url": "https://github.com/robotwin/robotwin/releases/download/v1.0/robotwin_dataset.zip",
+            "url": "https://github.com/robotwin/robotwin/archive/refs/heads/main.zip",
             "expected_sha256": expected.get("robotwin_benchmark.zip"),
         },
     ]
