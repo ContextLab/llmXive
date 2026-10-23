@@ -1,0 +1,38 @@
+T000:
+  reason: "The provided `plan.md` does contain the required phrases and does not include\
+    \ \u201CBetween\u2011Subjects\u201D or \u201COne\u2011Way ANOVA\u201D, but there\
+    \ is no artifact (e.g., grep output or a scan of all repository files) demonstrating\
+    \ that those terms have been removed from every other file in the repository.\
+    \ Without explicit evidence of a repository\u2011wide check, the task cannot be\
+    \ confirmed as fully completed."
+  task: 053bba2c2cef037f13a47fb761c4d12cc49d05530caf8487dcf6ddf045c2e3f3
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/utils/data_loader.py
+    exit=1'
+  task: 96c39c9f0d12ee5f1189668f1aa3fd004e9c815e2b964997c30cdeabcc69b228
+T002:
+  task: bb792af71035ec5d91be5daf9e088e316b47502b949e9e6315ab5a05126537af
+T003:
+  task: c0f875c7823950e572241f01a217b953a2ae9da39e59ffdb8d5835b40c8f2fcd
+T004:
+  task: d3bba44ad96f6632bfe599b71a0bd34c419913637b8e64492268ef6d36ab6573
+T005:
+  task: 555667d3462254cb66492ee013fe59d0475f18f55f24c6a5d2f996463fa70d69
+T006:
+  task: b14f883c8bfeff109a5199a9fa6d7c72ca22a7237d8b8a835986d3d3ae08c9a7
+T007:
+  task: e9af6c8140fb3ff49ed57e3ff3656baedb62558f3f57ce819cda460fe59f07cb
+T008:
+  task: 76909b80339434cdd8b10f812c33c87ce703c8f5550016aafdb6fdd4daea85ea
+T009:
+  task: a76c87e248c855167d8f6c7f90bf9b05c676d012b38ca39269df7baf16c99ffc
+T010:
+  task: 1ab4c3520ffe8fd0d5a54aa723c9c89e4adfcb8cf4a9afe7363ed7ef8cf9774e
+T011:
+  task: f457bcd9a44ba44c4a4f01e6aa397cb3946785cfc760a9820546f16e257db381
+T013:
+  task: 09f050136df7a068121cb81806b1c4d8a548a00c7b5745cc3febcb396a3085e4
+T015:
+  task: 8a3b10228ef1f3f12caa739f25b35e2a251c22faceb59d9a9ed9c42a62bc4a97
+T017:
+  task: 2cd47e1b8d86932527cfb4a47493a00051b4aca271c8365634a807b03a4cfdb1

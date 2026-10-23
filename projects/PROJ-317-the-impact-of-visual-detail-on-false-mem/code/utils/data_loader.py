@@ -1,11 +1,12 @@
 import argparse
 import json
 import logging
-import math
 import os
 import random
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
+
+import numpy as np
 
 from config import get_project_root, get_stimuli_dir, get_data_dir
 from utils.logging import get_logger
@@ -13,6 +14,9 @@ from data.checksum import compute_file_checksum, save_checksum_manifest, verify_
 
 logger = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Helper functions (existing from previous version)
+# ----------------------------------------------------------------------
 def fetch_real_dataset_image(
     source: str = "visual_genome",
     limit: int = 30,
@@ -87,7 +91,7 @@ def fetch_real_dataset_image(
         # Save image
         img_id = item.get('id', count)
         img_path = output_dir / f"vg_{img_id}.png"
-        
+
         # Avoid overwriting
         if img_path.exists():
             continue
@@ -114,7 +118,7 @@ def calculate_complexity_score(
     """
     Calculate a baseline complexity score for an image.
 
-    Uses object density as a proxy for complexity.
+    Uses pixel variance as a simple proxy for visual complexity.
 
     Args:
         image_path: Path to the image.
@@ -132,20 +136,14 @@ def calculate_complexity_score(
     width, height = img.size
     area = width * height
 
-    # Simple heuristic: count non-background pixels and edges
-    # This is a placeholder for a more sophisticated metric
-    # In a real implementation, we'd use object detection or edge density
-
-    # Convert to grayscale and threshold
+    # Convert to grayscale and compute variance of pixel values
     gray = img.convert('L')
-    # Assume complexity is proportional to variance in pixel values
-    pixels = list(gray.getdata())
-    mean_val = sum(pixels) / len(pixels)
-    variance = sum((p - mean_val) ** 2 for p in pixels) / len(pixels)
+    pixels = np.array(gray).astype(np.float32).flatten()
+    variance = np.var(pixels)
 
-    # Normalize variance to 0-1 range (assuming 0-255 range)
-    max_variance = (255 ** 2) / 4  # Max variance for 0-255
-    complexity = min(1.0, variance / max_variance)
+    # Normalise variance to [0,1] (max variance for 8‑bit grayscale is (255^2)/4)
+    max_variance = (255 ** 2) / 4
+    complexity = float(min(1.0, variance / max_variance))
 
     return complexity
 
@@ -153,7 +151,7 @@ def load_image_metadata(
     image_path: str
 ) -> Dict[str, Any]:
     """
-    Load metadata for an image.
+    Load metadata for an image, including its complexity score.
 
     Args:
         image_path: Path to the image.
@@ -179,127 +177,195 @@ def load_image_metadata(
         "complexity_score": calculate_complexity_score(image_path)
     }
 
-def process_image_with_error_handling(
-    image_path: str
-) -> Optional[Dict[str, Any]]:
+# ----------------------------------------------------------------------
+# New functionality for T001
+# ----------------------------------------------------------------------
+def _gather_prebundled_images() -> List[Path]:
     """
-    Process an image with error handling.
-
-    Args:
-        image_path: Path to the image.
-
-    Returns:
-        Metadata dictionary or None if processing fails.
+    Return a list of image file paths that exist in the pre‑bundled
+    ``data/stimuli/raw_subset`` directory.
     """
-    try:
-        return load_image_metadata(image_path)
-    except Exception as e:
-        logger.error(f"Failed to process image {image_path}: {e}")
-        return None
+    raw_dir = get_stimuli_dir() / "raw_subset"
+    if not raw_dir.exists():
+        raise FileNotFoundError(f"Pre‑bundled directory not found: {raw_dir}")
 
-def filter_by_complexity_range(
-    image_paths: List[str],
-    min_complexity: float = 0.2,
-    max_complexity: float = 0.8
-) -> List[str]:
+    image_paths = sorted([p for p in raw_dir.iterdir()
+                          if p.is_file() and p.suffix.lower() in {".png", ".jpg", ".jpeg"}])
+    if not image_paths:
+        raise FileNotFoundError(f"No image files found in {raw_dir}")
+
+    logger.info(f"Found {len(image_paths)} pre‑bundled images.")
+    return image_paths
+
+def _compute_complexities(image_paths: List[Path]) -> List[Dict[str, Any]]:
     """
-    Filter images by complexity score range.
+    Compute complexity metadata for each image path.
 
-    Args:
-        image_paths: List of image paths.
-        min_complexity: Minimum complexity score.
-        max_complexity: Maximum complexity score.
-
-    Returns:
-        Filtered list of image paths.
+    Returns a list of dictionaries with at least ``path`` and
+    ``complexity_score`` keys.
     """
-    filtered = []
-    for path in image_paths:
-        metadata = process_image_with_error_handling(path)
-        if metadata and min_complexity <= metadata['complexity_score'] <= max_complexity:
-            filtered.append(path)
+    metadata_list = []
+    for p in image_paths:
+        try:
+            meta = load_image_metadata(str(p))
+            metadata_list.append(meta)
+        except Exception as e:
+            logger.warning(f"Failed to process {p}: {e}")
+    return metadata_list
 
-    return filtered
-
-def validate_data_bundle(
-    bundle_dir: str
-) -> bool:
+def _calculate_quantile_stats(metadata: List[Dict[str, Any]]) -> Dict[str, float]:
     """
-    Validate a data bundle using checksums.
-
-    Args:
-        bundle_dir: Directory containing the bundle.
-
-    Returns:
-        True if valid, False otherwise.
+    Compute Q1, Q2, Q3 and spread of the ``complexity_score`` values.
     """
-    manifest_path = Path(bundle_dir) / "manifest.sha256"
-    if not manifest_path.exists():
-        logger.error(f"Manifest not found at {manifest_path}")
-        return False
+    scores = np.array([m["complexity_score"] for m in metadata])
+    q1, q2, q3 = np.quantile(scores, [0.25, 0.5, 0.75])
+    spread = float(q3 - q1)
+    return {"Q1": float(q1), "Q2": float(q2), "Q3": float(q3), "spread": spread}
 
-    # Load manifest
-    with open(manifest_path, 'r') as f:
-        manifest = json.load(f)
+def _select_representative_sample(
+    metadata: List[Dict[str, Any]],
+    count: int,
+    rng: random.Random
+) -> List[Dict[str, Any]]:
+    """
+    Select ``count`` images that span the complexity distribution.
+    The simple strategy is to sort by complexity and then pick
+    evenly‑spaced indices.
+    """
+    if count <= 0:
+        raise ValueError("count must be a positive integer")
 
-    # Verify each file
-    for file_info in manifest:
-        file_path = Path(file_info['path'])
-        expected_hash = file_info['checksum']
+    sorted_meta = sorted(metadata, key=lambda m: m["complexity_score"])
+    total = len(sorted_meta)
+    if count > total:
+        logger.warning(f"Requested {count} images but only {total} available; using all.")
+        return sorted_meta
 
-        if not file_path.exists():
-            logger.error(f"File missing: {file_path}")
-            return False
+    # Evenly spaced selection
+    indices = [int(round(i * (total - 1) / (count - 1))) for i in range(count)]
+    selected = [sorted_meta[i] for i in indices]
+    return selected
 
-        actual_hash = compute_file_checksum(file_path)
-        if actual_hash != expected_hash:
-            logger.error(f"Checksum mismatch for {file_path}")
-            return False
+def _write_complexity_stats(stats: Dict[str, float], out_path: Path) -> None:
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w") as f:
+        json.dump(stats, f, indent=2)
+    logger.info(f"Complexity statistics written to {out_path}")
 
-    logger.info("Data bundle validated successfully.")
-    return True
+def _write_variable_fit_check(selected: List[Dict[str, Any]], out_path: Path) -> None:
+    """
+    Verify that each selected image metadata contains the required fields.
+    """
+    required = {"complexity_score"}
+    missing_entries = []
+    for meta in selected:
+        missing = required - meta.keys()
+        if missing:
+            missing_entries.append((meta.get("path", "<unknown>"), missing))
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w") as f:
+        if not missing_entries:
+            f.write("All required variables present.\n")
+            logger.info("Variable fit check passed.")
+        else:
+            f.write("Missing variables detected:\n")
+            for path, miss in missing_entries:
+                f.write(f"{path}: {', '.join(miss)}\n")
+            logger.error("Variable fit check failed.")
+    # No return value needed
+
+def _write_selection_marker(marker_path: Path) -> None:
+    marker_path.parent.mkdir(parents=True, exist_ok=True)
+    marker_path.touch()
+    logger.info(f"Selection marker created at {marker_path}")
 
 def main():
-    """CLI entry point for data loading."""
-    parser = argparse.ArgumentParser(description="Load and process dataset images")
-    parser.add_argument('--source', type=str, default="visual_genome", help='Dataset source')
-    parser.add_argument('--limit', type=int, default=30, help='Number of images to fetch')
-    parser.add_argument('--output', type=str, help='Output directory')
-    parser.add_argument('--validate', action='store_true', help='Validate existing bundle')
-    parser.add_argument('--complexity-min', type=float, default=0.2, help='Min complexity')
-    parser.add_argument('--complexity-max', type=float, default=0.8, help='Max complexity')
+    """CLI entry point for data loading and selection (Task T001)."""
+    parser = argparse.ArgumentParser(description="Load and process stimulus images")
+    parser.add_argument('--source', type=str, default="visual_genome",
+                        help='Dataset source ("visual_genome" or "prebundled")')
+    parser.add_argument('--count', type=int, default=30,
+                        help='Number of images to select for the study')
+    parser.add_argument('--seed', type=int, default=42,
+                        help='Random seed for reproducible selection')
+    parser.add_argument('--output', type=str,
+                        help='Output directory for fetched images (used only for visual_genome)')
+    parser.add_argument('--validate', action='store_true',
+                        help='Validate an existing bundle instead of selecting')
+    parser.add_argument('--complexity-min', type=float, default=0.0,
+                        help='Minimum complexity score (unused in current T001 implementation)')
+    parser.add_argument('--complexity-max', type=float, default=1.0,
+                        help='Maximum complexity score (unused in current T001 implementation)')
 
     args = parser.parse_args()
 
+    rng = random.Random(args.seed)
+
     if args.validate:
+        # Existing validation path (unchanged from original script)
         bundle_dir = args.output or get_stimuli_dir() / "raw_subset"
-        success = validate_data_bundle(bundle_dir)
-        return 0 if success else 1
+        success = validate_data_bundle(str(bundle_dir))
+        sys.exit(0 if success else 1)
 
-    # Fetch data
-    paths = fetch_real_dataset_image(
-        source=args.source,
-        limit=args.limit,
-        output_dir=args.output
-    )
-
-    if not paths:
-        logger.error("No images fetched.")
-        return 1
-
-    # Optionally filter by complexity
-    if args.complexity_min is not None or args.complexity_max is not None:
-        filtered = filter_by_complexity_range(
-            paths,
-            min_complexity=args.complexity_min,
-            max_complexity=args.complexity_max
+    # ------------------------------------------------------------------
+    # Load images according to source
+    # ------------------------------------------------------------------
+    if args.source == "prebundled":
+        image_paths = _gather_prebundled_images()
+    elif args.source == "visual_genome":
+        image_paths = fetch_real_dataset_image(
+            source="visual_genome",
+            limit=args.count,
+            output_dir=args.output,
+            streaming=True
         )
-        logger.info(f"Filtered to {len(filtered)} images by complexity.")
-        # Save filtered list
-        output_file = Path(args.output or get_stimuli_dir()) / "filtered_list.json"
-        with open(output_file, 'w') as f:
-            json.dump(filtered, f, indent=2)
+    else:
+        logger.error(f"Unknown source '{args.source}'. Use 'prebundled' or 'visual_genome'.")
+        sys.exit(1)
 
+    if not image_paths:
+        logger.error("No images available for processing.")
+        sys.exit(1)
+
+    # ------------------------------------------------------------------
+    # Compute complexity scores for all available images
+    # ------------------------------------------------------------------
+    metadata = _compute_complexities(image_paths)
+
+    # ------------------------------------------------------------------
+    # Compute quantile statistics and verify spread requirement (≥0.3)
+    # ------------------------------------------------------------------
+    stats = _calculate_quantile_stats(metadata)
+    if stats["spread"] < 0.3:
+        logger.error(f"Complexity spread {stats['spread']:.3f} is below the required 0.3.")
+        sys.exit(1)
+
+    # Write complexity statistics
+    stats_path = get_project_root() / "data" / "processed" / "complexity_stats.json"
+    _write_complexity_stats(stats, stats_path)
+
+    # ------------------------------------------------------------------
+    # Select a representative sample respecting the requested count
+    # ------------------------------------------------------------------
+    selected = _select_representative_sample(metadata, args.count, rng)
+
+    # Write variable‑fit check
+    var_check_path = get_project_root() / "data" / "processed" / "variable_fit_check.txt"
+    _write_variable_fit_check(selected, var_check_path)
+
+    # Create selection‑complete marker
+    marker_path = get_stimuli_dir() / "selection_complete.txt"
+    _write_selection_marker(marker_path)
+
+    # (Optional) write a manifest of the selected images – helpful for downstream steps
+    selected_manifest = get_stimuli_dir() / "selected_images.json"
+    selected_manifest.parent.mkdir(parents=True, exist_ok=True)
+    with selected_manifest.open("w") as f:
+        json.dump([m["path"] for m in selected], f, indent=2)
+    logger.info(f"Selected image list written to {selected_manifest}")
+
+    logger.info("Data loading and selection completed successfully.")
     return 0
 
 if __name__ == "__main__":

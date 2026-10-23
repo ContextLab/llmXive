@@ -1,42 +1,10 @@
-T015#2:
+T000:
   c: false
-  h: 70defa1ca3ea3f4d7d924ee0dfe526fe90acb616d7c9ac1ac3abade3153e6cde
-  r: "The provided `code/stimuli/manipulator.py` is truncated and shows only a reduced\u2011\
-    detail function; there is no visible implementation of the required enhanced\u2011\
-    detail compositing, nor evidence of error handling that writes to `data/logs/manipulation_errors.log`.\
-    \ Additionally, the log file itself is missing. The task\u2019s core requirements\
-    \ are therefore not satisfied."
-T016:
-  c: false
-  h: e9e163a97d744bec54db7faae08a15c0d0286da805bfe84fdf870c72f5b23389
-  r: "The provided `manipulator.py` only contains code for validating assets and adding\
-    \ minor objects; there is no implementation of reduced\u2011detail manipulation\
-    \ (Gaussian blur or masking) nor any error\u2011handling that writes to `data/logs/manipulation_errors.log`.\
-    \ Additionally, the required log file does not exist. The task\u2019s core requirements\
-    \ are therefore unmet."
-T017a:
-  c: false
-  h: 0b2e26c380bae145a380c7cbbeb5a4f3b758ccd910148a83f459fc002e6aa95a
-  r: "The required output files `data/stimuli/enhanced_{id}_metadata.yaml` and `data/stimuli/reduced_{id}_metadata.yaml`\
-    \ are not present (the only artifact shown is the generation log JSON, and a placeholder\
-    \ `_metadata.yaml` is missing). Hence the task\u2019s core deliverable \u2013\
-    \ the generated metadata files \u2013 has not been produced."
-T032:
-  c: false
-  h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
-  r: "The required artifact `tests/unit/test_stats.py` does not exist on disk, so\
-    \ no unit test for the ANOVA calculation is present. The task\u2019s core deliverable\
-    \ is missing."
-T033:
-  c: false
-  h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
-  r: "The required artifact `tests/unit/test_stats.py` does not exist on disk, so\
-    \ no unit test for multiple-comparison correction is present. The task\u2019s\
-    \ primary deliverable is missing."
-T045:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no artifact (e.g., validation logs, pass/fail report,
-    or corrected quickstart.md) to demonstrate that the quickstart.md file was validated
-    successfully. Consequently, there is no evidence that the required validation
-    was performed.
+  h: 3f6b22a4bc34520fc7bc83bc40a376a0e3dbbcdce03e3e41ec38e498433bedd5
+  r: "The provided `plan.md` does contain the required phrases and does not include\
+    \ \u201CBetween\u2011Subjects\u201D or \u201COne\u2011Way ANOVA\u201D, but there\
+    \ is no artifact (e.g., grep output or a scan of all repository files) demonstrating\
+    \ that those terms have been removed from every other file in the repository.\
+    \ Without explicit evidence of a repository\u2011wide check, the task cannot be\
+    \ confirmed as fully completed."
+  sig: 52f37620d28c25399cf98ae1d3e10b23a31049a89518e8257be5971a83ea5b28
