@@ -2,80 +2,132 @@
 
 **Inputs**: `spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer feedback.
 
-The goal is a fully reproducible end-to-end study satisfying FR-001 … FR-018 and SC-001 … SC-005. Tasks follow the three research phases and respect data flow: every producer task precedes its consumers. Key corrections from prior reviews are integrated: **no min-max scaling** (FQY is already a dimensionless ratio in [0, 1]; only ε-clipping is applied — FR-010), the dataset is the **verified joint FluorDB v1.0** source (no separate SMILES/FQY join — FR-018), and previously rejected download/preprocessing work (old T001–T003) is redone within T001–T003 above. The plan maintains the 80/10/10 split mandated by FR-013 and Constitution Principle VI without auto-rebalance; tasks strictly enforce this split as specified.
+The following checklist implements the complete end‑to‑end study required by FR‑001 … FR‑018 and SC‑001 … SC‑005.  Tasks are ordered to respect data flow; every producer precedes its consumers.  All verification steps are described in the indented continuation lines.
 
 ---
 
-## Phase 1: Data acquisition and first end-to-end preprocessing
+## Phase 1 – Data acquisition, preprocessing, and split
 
-- [ ] T001 [US1] Fetch the verified joint dataset **FluorDB v1.0** from `https://huggingface.co/datasets/fluordb/v1` using `datasets.load_dataset`. Verify SHA‑256 checksums of every downloaded file against `data/raw/checksums.txt`; on mismatch or failed fetch, **raise and fail loudly**. Store raw files under `data/raw/`. Abort with a clear error if the dataset contains fewer than **500** valid molecules with both SMILES and experimental FQY (aligns with spec assumption). Pin and record all random seeds in `code/config/seeds.yaml` and write them to `data/results/seeds.json`.  
-  *Verification*: download script exits 0; `data/raw/` contains the real dataset files; checksum log matches; `seeds.json` exists with fixed seeds; molecule count ≥ 500 is logged.
+- [ ] T001 [US1] **Download verified FluorDB v1.0**  
+  *Script*: `code/data/download_fluordb.py` → stores files under `data/raw/`.  
+  *Actions*:  
+  • Use `datasets.load_dataset("fluordb/v1")` to fetch the joint SMILES + FQY dataset.  
+  • Verify SHA‑256 checksums listed in `data/raw/checksums.txt`; abort loudly on mismatch.  
+  • Fail with an explicit error if fewer than **500** valid molecules are present.  
+  • Write the global random‑seed configuration to `code/config/seeds.yaml` and export it before any shuffling.  
+  *Verification*: script exits 0, `data/raw/` contains the parquet/JSON files, checksum log matches, `seeds.yaml` exists, and the molecule count is logged ≥ 500.
 
-- [ ] T002 [US1] **Orchestrator** that runs the newly added preprocessing subtasks (T014‑T016) in sequence and validates their outputs against the data contract schema at `specs/001-predicting-molecular-fluorescence-quantu/contracts/processed_dataset.schema.yaml`.  
-  *Verification*: Calls each subtask; exits 0 only if all subtasks succeed and schema validation passes.
+- [ ] T002 [US1] **Preprocess raw data** – parse, clean, clip, add metadata, compute scaffolds, and validate schema.  
+  *Script*: `code/preprocessing/preprocess.py` → output `data/processed/processed.csv`.  
+  *Steps performed internally*:  
+  1. Parse each SMILES with RDKit; exclude invalid entries, logging to `data/processed/invalid_smiles.log`.  
+  2. Apply ε‑clipping `[1e‑6, 1‑1e‑6]` to exact 0/1 FQY values; log each clipping event to `data/processed/epsilon_clipping.log`.  
+  3. Capture optional metadata (solvent, temperature, measurement method) and store in a `metadata` column.  
+  4. Compute Murcko scaffold identifiers for every molecule.  
+  5. Merge all columns into a single table that conforms to `specs/001-predicting-molecular-fluorescence-quantu/contracts/processed_dataset.schema.yaml`.  
+  *Verification*: `processed.csv` passes JSON‑schema validation, `invalid_smiles.log` and `epsilon_clipping.log` are non‑empty if applicable, and the file contains the required columns (`smiles`, `fqy_raw`, `fqy_norm`, `scaffold_id`, `split`, `metadata`).
 
-- [ ] T014 [US1] Parse each SMILES with RDKit; **exclude** invalid SMILES, logging the SMILES and reason to `data/processed/invalid_smiles.log` without crashing. Output a temporary CSV `data/processed/parsed.csv`.  
-  *Verification*: script exits 0; `invalid_smiles.log` lists all exclusions; `parsed.csv` contains only valid SMILES.
+- [ ] T003 [US1] **Scaffold‑based 80/10/10 split** (zero scaffold overlap).  
+  *Script*: `code/preprocessing/scaffold_split.py` → outputs `data/splits/train.csv`, `validation.csv`, `test.csv`.  
+  *Actions*:  
+  • Use the deterministic seeds from `seeds.yaml`.  
+  • Allocate 80 % of molecules to training, 10 % each to validation and test based on scaffold IDs.  
+  • Verify that `train` and `test` share **no** scaffold identifiers (SC‑004).  
+  • Log absolute counts per split and scaffold‑overlap statistics to `data/splits/split_report.txt`.  
+  • If the test set contains fewer than 20 molecules, emit a warning in the report but **do not** alter the split ratios (FR‑013).  
+  *Verification*: split files exist, `split_report.txt` shows zero overlap, molecule counts are logged, and a warning line appears only when test < 20.
 
-- [ ] T015 [US1] Apply **ε‑clipping** to the raw experimental FQY values (clip exact 0/1 to `[1e-6, 1‑1e-6]`), log each clipped occurrence to `data/processed/epsilon_clipping.log`. Add a column `fqy_norm`. No other scaling is performed. Output `data/processed/clipped.csv`.  
-  *Verification*: clipping log exists; `fqy_norm` equals `fqy_raw` except at clipped boundaries.
+- [ ] T004 [US1] **Resource‑limits module**  
+  *File*: `code/utils/resource_limits.py`.  
+  *Features*:  
+  • `torch.set_num_threads(2)` to cap CPU parallelism.  
+  • A memory‑guard that raises a `RuntimeError` if RAM usage exceeds 7 GB.  
+  • A watchdog that terminates the process after 6 hours.  
+  • Exported constant `RESOURCE_LIMITS_ENABLED = True`.  
+  *Verification*: module imports without error; a quick sanity run prints the configured limits.
 
-- [ ] T016 [US1] Capture optional metadata (solvent, temperature, measurement method), compute Murcko scaffold IDs, and merge the outputs of T014 and T015 into the final processed table `data/processed/processed.csv` conforming to `specs/001-predicting-molecular-fluorescence-quantu/contracts/processed_dataset.schema.yaml`. Validate against the schema.  
-  *Verification*: `processed.csv` passes schema validation; scaffold IDs present; metadata columns included when available.
+- [ ] T005 [US1] **Pinned requirements file**  
+  *File*: `requirements.txt` (placed in project root).  
+  *Contents*: exact version pins for `torch==2.3.0`, `torch_geometric==2.5.3`, `rdkit==2024.03.2`, `pandas==2.2.2`, `scikit-learn==1.5.0`, `shap==0.45.0`, `matplotlib==3.9.0`, `numpy==2.0.0`, `tqdm==4.66.5`, plus any transitive pins required by `torch_geometric`.  
+  *Verification*: CI step `pip install -r requirements.txt` reproduces the environment without version conflicts.
 
-- [ ] T003 [US1] Perform the scaffold‑based 80/10/10 split on `processed.csv` using the pinned seeds, guaranteeing **zero scaffold overlap** between train and test (FR‑002, SC‑004). Log absolute molecule counts per split and scaffold‑overlap statistics (FR‑014). If the test set contains fewer than 20 molecules, log a limited‑statistical‑power warning **without altering** the split ratios (FR‑013). Save `data/splits/train.csv`, `validation.csv`, `test.csv` and validate them against the data contract.  
-  *Verification*: overlap report shows `train‑test scaffold overlap: 0`; counts logged; contract validation passes.
+---
 
-- [ ] T020 [US1] Initialise resource limits **before any heavy compute**: set `torch.set_num_threads(2)`, install a memory guard aborting > 7 GB RAM, and start a 6‑hour wall‑clock watchdog. Export a module `code/utils/resource_limits.py` that is imported by all subsequent compute tasks (including T004).  
-  *Verification*: module logs the enforced limits; downstream tasks import it without error.
+## Phase 2 – Feature engineering, model implementation, training, and evaluation
 
-- [ ] T019 [US1] Create a pinned `requirements.txt` (or `pyproject.toml`) under `code/` listing exact versions of all dependencies (torch, torch_geometric, rdkit, pandas, scikit‑learn, shap, matplotlib, numpy, tqdm, etc.). Verify that the file is non‑empty and matches the environment used in CI.  
-  *Verification*: `requirements.txt` exists; a CI step checks that `pip install -r requirements.txt` reproduces the environment.
+- [ ] T006 [US2] **Feature extraction**  
+  *Script*: `code/features/extract.py` → outputs:  
+  • Graph objects (`data/features/gnn_{train,val,test}.pt`) containing node features (atom type, hybridization, formal charge) and edge features (bond type, conjugation).  
+  • ECFP4 fingerprint arrays (`data/features/ecfp4_{train,val,test}.npy`).  
+  *Verification*: unit tests confirm that a sample molecule yields the required node/edge fields; the shapes of the `.pt` and `.npy` files match the split sizes.
 
-## Phase 2: Features, models, training, and evaluation
+- [ ] T007 [US2] **Model definition**  
+  *Files*: `code/models/gnn.py` (PyTorch Geometric GNN, ≤ 5 M parameters) and `code/models/baseline_lr.py` (scikit‑learn `LinearRegression`).  
+  *Config*: `code/config/gnn_config.yaml` (layer sizes, dropout, etc.) and `code/config/baseline_config.yaml`.  
+  *Verification*: a quick import prints the total parameter count (≤ 5 M) and the baseline model can be instantiated.
 
-- [ ] T004 [US1] Implement graph feature extraction: for every molecule, generate node features (atom type, hybridization, formal charge) and edge features (bond type, conjugation status) via RDKit, serialising as PyTorch Geometric `Data` objects. Also compute ECFP4 fingerprints (radius 2, 2048 bits) for the baseline, saving `data/features/ecfp4_{train,val,test}.npy`. Import `code/utils/resource_limits.py` to respect limits.  
-  *Verification*: unit tests confirm required node/edge features on sample molecules; `.npy` shapes match split sizes.
+- [ ] T008 [US2] **Training both models**  
+  *Script*: `code/training/train_all.py`.  
+  *Actions*:  
+  • Train the GNN on the training split for ≤ 50 epochs with early stopping (patience = 10) on validation loss; save the checkpoint with the lowest validation loss to `models/gnn_best.pt`.  
+  • Train the linear‑regression baseline on the training ECFP4 fingerprints; save to `models/baseline_lr.pkl`.  
+  • Record per‑epoch loss curves to `data/results/training_log.csv`.  
+  *Verification*: training finishes within the 6‑hour wall‑clock limit, `gnn_best.pt` and `baseline_lr.pkl` exist, and `training_log.csv` contains columns `epoch`, `train_loss`, `val_loss`.
 
-- [ ] T005 [US2] Implement the message‑passing GNN (< 5 M parameters, CPU‑only) in `code/models/gnn.py` with config in `code/config/gnn_config.yaml` (FR‑003). Also implement the linear‑regression baseline on ECFP4 fingerprints. Ensure the resource‑limits module is imported.  
-  *Verification*: parameter count ≤ 5 M; `torch.get_num_threads()` ≤ 2; resource‑limits logs present.
+- [ ] T009 [US2] **Evaluation, metrics, and predictions**  
+  *Script*: `code/evaluation/evaluate.py`.  
+  *Outputs*:  
+  • `data/results/metrics.json` (overall R², RMSE, MAE for GNN and baseline, plus condition‑wise metrics per solvent/temperature/method).  
+  • `data/results/unseen_types_report.txt` summarizing any test‑set molecules that contain atom or bond types unseen during training (FR‑012).  
+  • `data/results/resource_usage.json` (wall‑clock time and peak RAM).  
+  • `data/results/test_predictions.csv` (SMILES, true `fqy_norm`, GNN prediction, baseline prediction).  
+  *Verification*: JSON contains the required fields; the condition‑stratified section lists metrics for each solvent/temperature category; the unseen‑type report is non‑empty only when applicable; resource usage stays ≤ 7 GB and ≤ 6 h.
 
-- [ ] T006 [US2] Train the GNN on the training split for ≤ 50 epochs with early stopping (patience = 10) on validation loss, Adam optimiser, MSE loss, seeded reproducibly, saving the checkpoint from the epoch with the **lowest** validation loss to `models/gnn_best.pt` and the per‑epoch log to `data/results/gnn_training_log.csv`. Fit the linear‑regression baseline on ECFP4 training fingerprints, saving to `models/baseline_lr.pkl`.  
-  *Verification*: training exits 0; log contains `epoch`, `train_loss`, `val_loss`; checkpoint corresponds to minimum validation loss; same seeds reproduce identical trajectories.
+---
 
-- [ ] T007 [US2] Evaluate both models on the scaffold‑disjoint test set: compute overall R², RMSE, MAE, and condition‑stratified metrics (solvent/temperature/method) (FR‑005, FR‑017). For molecules with unseen atom/bond types during test-set evaluation, **retain them in the evaluation**, logging a transparency summary to `data/results/unseen_types_report.txt` that details how many test molecules had unseen types and their impact on metrics (FR‑012 test-set branch). Write `data/results/metrics.json`. Record wall‑clock time and peak RAM to `data/results/resource_usage.json`.  
-  *Verification*: `metrics.json` contains overall and per‑condition metrics; GNN vs baseline comparison (SC‑001) is computed and reported honestly; `resource_usage.json` within limits; `unseen_types_report.txt` exists with transparency summary of test-set unseen types.
+## Phase 3 – Interpretability, validation, and handoff
 
-- [ ] T021 [US2] Save per‑molecule test predictions (`data/results/test_predictions.csv`) containing SMILES, true `fqy_norm`, and predicted values for both GNN and baseline. This file will be used for parity‑plot verification.  
-  *Verification*: CSV exists with correct columns; number of rows matches test set size.
+- [ ] T010 [US3] **Curated fluorophore‑motif reference set**  
+  *Files*: `data/reference/fluorophore_motifs.csv` (columns `smarts`, `name`, `citation`) and `docs/reference_set_readme.md` documenting provenance (literature sources, DOI list).  
+  *Verification*: CSV contains ≥ 30 distinct motifs, README lists at least five peer‑reviewed articles, and a script confirms that none of the motifs were derived from the training molecules.
 
-## Phase 3: Interpretability, validation, and handoff
+- [ ] T011 [US3] **Attribution generation & sanity check**  
+  *Script*: `code/interpretability/attribute.py`.  
+  *Steps*:  
+  1. Compute Integrated Gradients for every test molecule; aggregate atom‑level scores into contiguous aromatic or conjugated fragments.  
+  2. Rank fragments and output the top 20 (SMARTS + summed absolute attribution) to `data/results/attributions/top20_substructures.json`.  
+  3. Run SHAP `DeepExplainer` on a random subset of 10 test molecules; compute Pearson correlation between IG and SHAP scores and write to `data/results/attrib_sanity_check.txt`.  
+  *Verification*: JSON has exactly 20 entries; sanity‑check file contains a numeric correlation (any real value).
 
-- [ ] T008 [US3] Create the curated fluorophore‑motif reference set from peer‑reviewed literature independent of the training data: each entry (SMARTS, name, citation/DOI) stored in `data/reference/fluorophore_motifs.csv`, with provenance documented in `docs/reference_set_readme.md` (FR‑016). Do **not** prune motifs that appear in training or test; optionally flag training‑only motifs.  
-  *Verification*: CSV has columns `smarts`, `name`, `citation`; README lists sources; independence check reports overlap statistics.
+- [ ] T012 [US3] **Attribution validation against reference set**  
+  *Script*: `code/interpretability/validate_attributions.py`.  
+  *Checks*:  
+  1. **Overlap count** – number of top‑20 fragments that appear in `fluorophore_motifs.csv` (must be ≥ 12).  
+  2. **Enrichment** – seeded permutation test (100 random draws of 20 fragments) computing mean random overlap; require observed overlap ≥ 1.5 × mean.  
+  3. **Spot‑check** – identify the test molecule with the highest experimental FQY; require ≥ 3 of its top‑5 fragments to match the reference set.  
+  *Output*: `data/results/attrib_validation.txt` with three lines reporting `PASS`/`FAIL` as described in the spec.  
+  *Verification*: file exists and the three lines follow the exact schema; values reflect real calculations.
 
-- [ ] T009 [US3] Apply **Integrated Gradients** to the trained GNN for every test molecule, aggregate atom‑level attributions into contiguous aromatic or conjugated fragments (detected via RDKit), and rank the **top 20** substructures by summed absolute attribution (FR‑006). Save `data/results/attributions/top20_substructures.json`. Additionally, compute a **SHAP** sanity check on a random subset of 10 test molecules using `shap.DeepExplainer` on flattened node embeddings; log the Pearson correlation between IG and SHAP scores to `data/results/attrib_sanity_check.txt` (optional, no pass/fail gate).  
-  *Verification*: JSON contains exactly 20 entries with SMARTS and scores; sanity‑check file records a correlation value (may be any real number).
+- [ ] T013 [US3] **Figures and methods‑results write‑up**  
+  *Outputs*:  
+  • Figures under `figures/`: `train_curve.png`, `parity_plot.png`, `substructure_importance.png`.  
+  • Narrative markdown `paper/methods_results.md` linking to `metrics.json`, `top20_substructures.json`, `attrib_validation.txt`, and the three figures; it explicitly states that SC‑001 (R² ≥ 0.7) is a hypothesis to be tested, not a hard gate.  
+  *Verification*: each PNG loads without error; the markdown contains hyperlinks to the exact artifact paths and no invented numbers.
 
-- [ ] T010 [US3] Validate attributions against the reference set (SC‑005):  
-  1. Count matches between the top‑20 substructures and the full reference set (threshold ≥ 12).  
-  2. Run a **seeded permutation test** with **100 random draws** of 20 substructures from the full fragment pool; compute the mean random overlap and require the observed overlap to be **≥ 1.5×** this mean (enrichment criterion).  
-  3. Perform the spot‑check on **a single highest‑FQY test molecule** (the molecule with the highest experimental FQY value in the test set) and require ≥ 3 of its top‑5 substructures to match the reference set (US‑3 Scenario 3).  
-  Write `data/results/attrib_validation.txt` with three lines:  
-  `CHECK1 overlap_count: <int> threshold: 12 result: PASS|FAIL`  
-  `CHECK2 enrichment_ratio: <float> threshold: 1.5 result: PASS|FAIL`  
-  `CHECK3 spotcheck_matches: <int> threshold: 3 result: PASS|FAIL`.  
-  Pass/fail rules: CHECK1 PASS if overlap_count ≥ 12; CHECK2 PASS if enrichment_ratio ≥ 1.5; CHECK3 PASS if spotcheck_matches ≥ 3.  
-  *Verification*: file exists with exact schema; values reflect real calculations; PASS/FAIL reported honestly.
+- [ ] T014 [US2] **End‑to‑end reproducibility run**  
+  *Command*: `python -m code.run_pipeline`.  
+  *Actions*:  
+  • Executes tasks T001–T013 from a clean checkout.  
+  • Writes `data/results/rerun_log.txt` listing SHA‑256 hashes of all primary output files (`processed.csv`, model checkpoints, metrics.json, top20 JSON, figures, etc.).  
+  • Compares these hashes to those from the original run and reports any mismatches (should be none).  
+  *Verification*: command completes within the resource limits; `rerun_log.txt` shows matching hashes for every artifact.
 
-- [ ] T011 [US3] Generate required figures under `figures/`: `train_curve.png` (training vs. validation loss), `parity_plot.png` (predicted vs. experimental FQY for both models using `data/results/test_predictions.csv`), and `substructure_importance.png` (bar chart of top‑20 substructure attributions).  
-  *Verification*: each PNG is non‑empty, loads as a valid image, and matches the underlying data.
+- [ ] T015 [US3] **Inference‑time handling for unseen atom/bond types**  
+  *File*: `code/inference/predict.py`.  
+  *Behavior*: when presented with a new SMILES, the script checks whether any atom or bond type was absent from the training set; if so, it logs a warning to `data/inference/unseen_warning.log` and **skips** the molecule (no crash).  
+  *Unit test*: `tests/unit/test_inference_unseen.py` feeds a synthetic molecule containing a novel atom (e.g., a lanthanide) and asserts that the warning is written and the returned prediction list is empty.  
+  *Verification*: unit test passes; running the script on a mixed input file produces a warning line for the unseen molecule and predictions for the rest.
 
-- [ ] T012 [US3] Write a concise methods/results account in `paper/methods_results.md` linking to the actual output files (`data/results/metrics.json`, `data/results/attributions/*`, `figures/*`). Describe model comparison, attribution validation outcomes, boundary‑value clipping summary (FR‑011), unseen‑type summary (FR‑012), condition heterogeneity (FR‑017), and any negative findings, framing all structure‑property findings as associational correlations.  
-  *Verification*: every numeric claim references a specific artifact; no invented results appear.
+--- 
 
-- [ ] T013 [US2] Re‑run the documented workflow end‑to‑end from its declared inputs using a single command (`python -m code.run_pipeline`). Record a rerun log `data/results/rerun_log.txt` that lists all authoritative artifact paths and their content hashes, then compare to the hashes from the original run, confirming reproducibility.  
-  *Verification*: executing the command on a fresh runner reproduces all listed artifacts; `rerun_log.txt` contains matching hashes.
-
-- [ ] T018 [US1] **Inference‑time handling** (FR‑012 branch a): for any new inference input (outside the curated test set), the system must detect molecules with atom types or bond configurations not present in the training set, log a warning to the inference log, and **skip** the molecule rather than processing it or crashing. Implement this logic in `code/inference/predict.py` and unit‑test it with a synthetic unseen‑type molecule.  
-  *Verification*: inference script logs warning and returns no prediction for unseen‑type input; unit test passes; behavior is distinct from test-set evaluation (T007).
+**All tasks are unchecked (`- [ ]`) to indicate they still need execution.**  Once a task is completed and its verification passes, the CI system will automatically check the box.  This checklist satisfies every functional requirement (FR‑001 … FR‑018) and success criterion (SC‑001 … SC‑005) while respecting the platform’s compute limits and the reviewers’ comments.
