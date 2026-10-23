@@ -8,7 +8,7 @@ The checklist below implements the smallest complete study that satisfies every 
 
 ## Phase 1 – Core infrastructure, instrumentation, and first end‑to‑end run  
 
-- [ ] **T001** Create reproducible configuration, quick‑start guide, contract‑test harness, and evidence of a passing test run  
+- [ ] **T001** Create reproducible configuration, quick‑start guide, contract‑test harness, and evidence of a passing test run   <!-- FAILED-IN-EXECUTION: code/run_contract_tests.sh exit=2 -->
   *Artifacts*  
   - `config.yaml` – default configuration (random_seed, global_timeout_seconds = 21600, sweep defaults).  
   - `quickstart.md` – usage examples for `calibrate`, `run-single`, `sweep`, `aggregate`, `regression`, `theoretical-bound`, `sweet-spot`.  

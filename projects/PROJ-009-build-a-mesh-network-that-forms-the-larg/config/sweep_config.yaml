@@ -1,23 +1,6 @@
-# Sweep configuration for the mesh‑network study.
-#
-# The global random seed is defined in ``code/orchestrator/config.py`` and
-# mirrored here to guarantee reproducibility across the entire pipeline
-# (Principle I).
 random_seed: 42
-
-# The grid definition is deliberately kept simple for this early task;
-# later tasks will expand it to the full 150‑run design.
-granularity_levels:
-  - fine
-  - medium
-  - coarse
-node_counts:
-  - 10
-  - 15
-  - 20
-injected_latencies_ms:
-  - 0
-  - 50
-  - 100
-  - 150
-runs_per_configuration: 2
+granularity: ["fine", "medium", "coarse"]
+node_counts: [10, 15, 20]
+injected_latencies: [0, 50, 100, 150]
+runs_per_config: 2
+global_timeout_seconds: 21600

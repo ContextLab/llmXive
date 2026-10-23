@@ -1,97 +1,44 @@
 T001:
-  reason: "The repository contains the required quickstart, config, contract validator,\
-    \ and test files, and the CLI code appears to support `--help` and a run sub\u2011\
-    command. However, there is no evidence that the test suite actually passes (no\
-    \ pytest run logs) and the default configuration file `config.yaml` that `get_config()`\
-    \ expects is not present in the listed artifacts, causing the `test_random_seed_is_integer_and_matches_sweep_config`\
-    \ test to fail. Without a confirmed `config.yaml` and proof that `pytest code/tests/contract/`\
-    \ exits with status\u202F0, the task cannot be considered fully completed."
-  task: e884b52214a5b7f5436a0114eb7824303a2913e5fba3d839d30ee0936138a5bc
+  reason: 'Requested task execution failed; rerun successfully: code/run_contract_tests.sh
+    exit=2'
+  task: c643ca8e2766e335be5718a5e1c2519d53dab6a30ffafacebd6908eea2a2951b
 T002:
-  reason: "The repository lacks the required `contracts/physical-node.schema.yaml`\
-    \ (it is marked MISSING), so schema validation cannot be performed. No `data/raw/physical_node_<ip>.json`\
-    \ files are present, indicating `collect_and_write_metadata` was never exercised,\
-    \ and the supplied unit tests only cover node discovery/factory\u2014not tool\u2011\
-    presence checks, CPU profiling, radio metrics, or thermal read\u2011outs as required.\
-    \ The task therefore remains incomplete."
-  task: 84a1cd9c624be555f7aba06b6ba0e64588518351f80f5e5995a05855f0fc2d2e
+  task: 6b17ae11951a0a6b6e9b506a3608020c488f4f95c113aca646e25c8149fb673f
 T003:
-  reason: "`data/raw/dropout_events.json` is MISSING \u2014 the task requires it to\
-    \ be created by a mock run in the test suite, but no test in `test_scheduler.py`\
-    \ writes it (no test calls `dump_events`, and the dropout paths for sleep mode\
-    \ and network saturation are not exercised at all, contrary to the artifact spec).\
-    \ Additionally, requirement (e) \u2014 recording coordination-overhead timestamps\
-    \ (handshake vs. compute) per task \u2014 is not implemented anywhere in `scheduler.py`,\
-    \ and there is no execution evidence that the tests or CLI run actually pass."
-  task: 3c604650a8548f24ca90fe9c8d37468d97edf3cbd4f6d0c5b18dec1f62c59c30
+  task: 8b5881782ee59d8de9ca88a3eca9f2f5194857ff762874585444c5ba9296d263
 T004:
-  reason: "The required output artifacts `data/raw/run_001.csv`, `data/raw/task_chunks/run_001.jsonl`,\
-    \ and `data/raw/validation_status.json` are all MISSING \u2014 the CLI was never\
-    \ successfully executed, so there is no evidence it exits 0 or produces real measured\
-    \ rows. Additionally, the CLI implements a `run` sub-command, not the required\
-    \ `run-single`, and its \"packet_count\" is just the iteration count (not a real\
-    \ per-node packet measurement), so even the code does not match the task's requirements."
-  task: 412ee364d49d1b521e29aaa0ac9d7b3d220bbf3eb487bfc427956b11dfebe35d
+  task: 4324bed6a9120195c34679911079a697ea4583404f2b24e1bef2aba315374a48
 T005:
-  task: caea2b8f775fbda88bbdee14abfe63da74b1d07ca807d00e53872afd3e01728b
+  task: 448b6f7c2a3d9a87da693ff003430dbf9deee88e90b7106345da1f9c8d55f725
 T006:
-  task: 704b9c17d90c5f025b1e01fb5d8968eb5b4f8a086884bc8edb1bf0e6e8c11879
+  task: a805c425edebec975a9018a27d40d8749d5c23d5d7b6a8c8f7382ec573ac1ef5
 T007:
-  task: 7df65a5ff65902bd5c7d47490418b4c33536d93b434b445820192e14e6031cc6
+  task: 08401e311f5c703dda928f399e5515ba3a51ac286605a906222f015529d542f8
 T008:
-  task: bd95139247f6dd9b43fb0255556e926ddd395776c220a67380bf8d92f398d6b7
+  task: 897f60e15e6fbded19adaf844adc266881ed3316ed5950a787b1d67fae0c12fe
 T009:
-  task: c1c20bcd57768a30dac885ca38a7a4d21ad6e4c67008760da48b063b68c85c00
+  task: d0b21571ce0c81498aef99d92ff52b8fba110a994074d034336248988b868ba6
 T010:
-  task: 7c339fcca49025eba1a80984359c21d32c0cfcf537b04069459d31f06423795e
-T011:
-  reason: "The required artifacts `data/runtime/pipeline_runtime.json` and `data/runtime/timeout_enforced.log`\
-    \ do not exist on disk, and the integration test `tests/integration/test_watchdog_overrun.py`\
-    \ FAILED (exit 1, `NameError: name 'sys' is not defined`), so the over-run/timeout-with-non-zero-exit\
-    \ behavior was never demonstrated. Additionally, there are two conflicting `runtime_tracker`\
-    \ implementations \u2014 `code/runtime/runtime_tracker.py` (which the CLI imports)\
-    \ does not write the JSON file at all, only the shadowing `runtime/runtime_tracker.py`\
-    \ does \u2014 and the `enforce_pipeline_timeout` decorator in `"
-  task: 3db1851d7745d123dbda2a02c10e5c5376d7aa66daf1b328e471bc02a9a23e77
+  task: 20c560e4644cdd823b5880bc2090f79421110efb9bf0bf7615f9e435bef5f932
+"T011\u2011a":
+  task: 244b81b79b8d195ce74c389394c2dc27682b304ef5db79f12f9bc5e4a3fa2137
+"T011\u2011b":
+  task: b888e97f0b4d9a125964076d04fffcfda3ed5e3c1ae60aff584432dc338261c3
+"T011\u2011c":
+  task: f3f2cacb46f9cd7a814e72d4f5a83f90a61ce4084be39e392425ff3ad15c144c
+"T011\u2011d":
+  task: b18c04f7cddb0bfd191f02fde773b9f452e5ed6c966c6440a665129f8e5b51f1
+"T011\u2011e":
+  task: 985ecd5539ac1be3a86cbe03877ce7e186707b830770092fc58cda3d11af8ddc
+"T011\u2011f":
+  task: 8683b7b828152ba04a5be0757b61561322388b17d70cef69d9c9d68ea9151cbf
 T012:
-  task: b5222f0ff94b4268f132b35dc53e8f6b8700f2be43d217402203c9368bf29702
+  task: 71b7d1dfcaeae60ff30b52ee825098bd32ff308e9cf1fd8c3f983bd9cb87c6af
 T013:
-  task: 7954e87fd3b4d9b18741b38efa7ca6b8d2d5e66542173836f7906602c2015427
-T014:
-  reason: "The required fixture logs `data/raw/sample_tcpdump.log`, `data/raw/sample_mpstat.log`,\
-    \ and `data/raw/sample_iwconfig.log` are all MISSING (as are the sensors/ping\
-    \ fixtures the tests reference), so `pytest code/tests/unit/test_instrumentor.py`\
-    \ cannot pass \u2014 every parser test reads one of these files and would raise\
-    \ FileNotFoundError. The implementer must create the real-format sample logs (tcpdump\
-    \ \"123 packets captured\", mpstat, iwconfig with Signal level=-40 dBm / SNR=50,\
-    \ sensors +42.0\xB0C, ping with avg 0.030 ms) and provide evidence of a passing\
-    \ pytest run."
-  task: 67be875fd782e152af56a288602ef73d5e703608ccbc1d32da689b24e4dc35a9
-T015:
-  reason: The required artifacts `data/raw/network_calibration.json`, `data/raw/cpu_calibration.json`,
-    and `code/tests/unit/test_calibration.py` are all MISSING from disk, so there
-    is no evidence of real measured calibration factors or a present test. Additionally,
-    `calibration.py` runs `iperf3 -c 127.0.0.1` without starting an iperf3 server,
-    so the network calibration as written would fail rather than measure, and the
-    historical test log references a file that no longer exists.
-  task: 9597f4d9e2ffcdec91fc93d9ca62fa51556ec7f3603321716a604fd999992803
-T016:
-  reason: 'The contract test run actually failed: `test_store_writes_and_validates`
-    raises `AttributeError: property ''root'' of ''ProjectPaths'' object has no setter`
-    (1 failed, 3 passed), so the test suite does not pass as required. Additionally,
-    there is no evidence that `scheduler.py` writes chunks through the `TaskChunkStore`
-    (no scheduler integration shown), and no post-run validation of `run_001.jsonl`
-    against the schema is evidenced beyond the file''s existence. Fix the tmp-path
-    patching in the test (e.g., monkeypatch `TaskChunkStore.base_dir` instead of `toolkit_paths.root`)
-    and demonstrate scheduler'
-  task: a281dee33d7bbb9a9128901e7edbf91dfe1700f3abbca915ff0129efe915a11a
-T017:
-  reason: "The schema and data\u2011model files correctly contain the `cpu_variance`\
-    \ and `dropout_rate` fields, but there is no evidence that the required verification\
-    \ succeeded: no pytest run output is provided, and the artifact showing SC\u2011\
-    006\u2019s updated variable\u2011presence list is absent. The next implementer\
-    \ must supply test execution logs (showing all contract tests passing) and the\
-    \ updated SC\u2011006 documentation."
-  task: 43c92dca2dd07bcb5b24b9aa5c51727299214b7515083a46c1e9319c73aa248d
+  task: a10ce5dbd4e90493fbcf7f08ce96f7f860e393f81c89382386855009acd26f71
 T018:
-  task: e80c4ccaf9899141d237b490ddf4a5362fd708eaf5c9725b82e854201f0dd006
+  task: f2dc2b6f114d0afc412790950d61e9b4a5dbd314bb4e103be678798d8c743269
+T019:
+  task: c871bf428c21cccd67f33679e515894b19167a2b6342ee03159ba6bf957d40fd
+T020:
+  task: 0e1da52b6674b80cba564bab88152eb779bc0813447eff4ee649eb3806972ef7

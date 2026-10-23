@@ -1,18 +1,17 @@
 status: none
-intent: Physical Testbed Execution Log dataset M-Lab CAIDA OpenML python package dataset
+intent: download ExecutionLog dataset with wall clock time packet count CPU utilization
+  python package dataset
 required_fields:
 - node_id
-- node_ip
-- node_type
 - task_id
-- task_chunk_id
-- timestamp
+- start_timestamp
+- end_timestamp
 - wall_clock_time
-- packet_count_sent
-- packet_count_received
+- packet_count
 - cpu_utilization_percent
 - memory_usage_mb
-- heartbeat_status
-cache_key: 87209fe179ab29a279a6485032b7eb78029d28de43ebb322147e0621bd0dd03c
-searched_at: '2026-10-21T07:31:46.817280+00:00'
+- heartbeat_timestamp
+- reassignment_flag
+cache_key: f251f62717495ad25d5536edff2f7d044f371bae8b626cb06245b4a4ec5fe92a
+searched_at: '2026-10-23T21:31:32.281492+00:00'
 retry_count: 1

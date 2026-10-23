@@ -1,7 +1,14 @@
 testbed:
-  nodes: []
+  nodes:
+    - ip: "127.0.0.1"
+      hardware: "MockNode"
+    - ip: "127.0.0.2"
+      hardware: "MockNode"
 benchmark:
-  granularity: []
+  granularity: ["fine", "medium", "coarse"]
+  node_counts: [10, 15, 20]
+  injected_latencies: [0, 50, 100, 150]
+  runs_per_config: 2
 analysis:
   max_runtime_hours: 6
 ci_timeout_seconds: 21600
