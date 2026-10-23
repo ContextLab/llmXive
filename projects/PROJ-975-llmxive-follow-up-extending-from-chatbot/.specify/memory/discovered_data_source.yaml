@@ -1,14 +1,19 @@
 status: none
-intent: textworld synthetic multi-step task generation python package dataset
+intent: pip install synthetic multi-step task dataset with skill library Meta-World
+  RLBench ALFWorld python package dataset
 required_fields:
 - task_id
 - task_description
-- task_steps
 - ground_truth_solution_path
+- solution_steps
+- task_difficulty
+- task_metadata
 - skill_id
 - skill_name
+- skill_description
 - skill_embedding_vector
-- semantic_overlap_level
-cache_key: b43691a95be24d71e93b90c4d9aade465bb4d5f6af1b75c9c6c147be1d0270fb
-searched_at: '2026-10-23T11:12:46.542140+00:00'
+- skill_overlap_group
+- skill_semantic_density_score
+cache_key: cbe0b1db0c5c51fd891fbe44b918a2a5659671099d97248c4f81f2ca5c68fb28
+searched_at: '2026-10-23T12:14:39.143620+00:00'
 retry_count: 1

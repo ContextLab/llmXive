@@ -1,12 +1,5 @@
+# Project dependencies
 sentence-transformers==2.2.2
-huggingface-hub>=0.20.0
 psutil
-numpy
-pandas
-scikit-learn
-pwlf
-statsmodels
-pyyaml
-jsonschema
-tqdm
-# other dependencies are already provided by the platform
+# The following are already provided by the platform and do not need to be listed:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema

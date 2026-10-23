@@ -7,20 +7,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/generate_data.py --seed 42 --overlap high -> rc=1
-2')
+-MiniLM-L6-v2...
+INFO:sentence_transformers.SentenceTransformer:Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 283, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 226, in main
+    model = SentenceTransformer("all-MiniLM-L6-v2")
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/SentenceTransformer.py", line 87, in __init__
     snapshot_download(model_name_or_path,
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/sentence_transformers/util.py", line 491, in snapshot_download
     path = cached_download(**cached_download_args)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 25, in _cached_download
-    return hf_hub_download(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
-    return fn(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^
-TypeError: hf_hub_download() missing 2 required positional arguments: 'repo_id' and 'filename'
+TypeError: cached_download() missing 2 required positional arguments: 'repo_id' and 'filename'
 
 - python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap high  --pruning -> rc=1
 b/python3.11/site-packages/sentence_transformers/__init__.py", line 3, in <module>

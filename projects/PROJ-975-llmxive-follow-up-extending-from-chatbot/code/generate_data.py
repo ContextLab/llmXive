@@ -10,29 +10,27 @@ import numpy as np
 
 # ---- Compatibility shim for huggingface_hub ----
 # Older versions of sentence_transformers expect `cached_download` in huggingface_hub,
-# but recent releases have renamed it to `hf_hub_download` with a different signature.
-# We provide a thin wrapper that drops unsupported kwargs (e.g., `url` and
-# `legacy_cache_layout`) and forwards the call to the modern function.
+# but recent releases have removed it. We provide a minimal shim that forwards to
+# `hf_hub_download` with the original signature (repo_id, filename).
 try:
     import huggingface_hub
-    from huggingface_hub import hf_hub_download
-
     if not hasattr(huggingface_hub, "cached_download"):
-        def _cached_download(*args, **kwargs):
-            # Remove arguments that older callers may pass but newer versions don't accept.
-            kwargs.pop("url", None)
-            kwargs.pop("legacy_cache_layout", None)
-            return hf_hub_download(*args, **kwargs)
+        from huggingface_hub import hf_hub_download
 
-        huggingface_hub.cached_download = _cached_download
+        def cached_download(repo_id: str, filename: str, *args, **kwargs):
+            """Thin wrapper matching the old `cached_download` signature."""
+            return hf_hub_download(repo_id=repo_id, filename=filename, *args, **kwargs)
+
+        huggingface_hub.cached_download = cached_download
 except Exception as e:
-    # If huggingface_hub is not available, let the import error surface – this script must fail loudly.
-    raise ImportError("Failed to import huggingface_hub for compatibility shim") from e
+    raise ImportError(
+        "Failed to set up huggingface_hub compatibility shim for sentence_transformers"
+    ) from e
 
 from sentence_transformers import SentenceTransformer
 from llmxive_toolkit import paths
 
-# Set up logging
+# Set up module‑level logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -46,21 +44,26 @@ def check_memory_usage(threshold_gb: float = 2.0) -> bool:
         process = psutil.Process(os.getpid())
         current_rss_gb = process.memory_info().rss / (1024 ** 3)
 
-        # Projection: Model (~150MB) + 100 skills * 768 * 8 + 500 tasks * 768 * 8
+        # Projection: Model (~150 MB) + 100 skills * 768 * 8 bytes + 500 tasks * 768 * 8 bytes
         projected_model_gb = 0.15
         projected_data_gb = (100 * 768 * 8 + 500 * 768 * 8) / (1024 ** 3)
         total_projected = current_rss_gb + projected_model_gb + projected_data_gb
 
         if total_projected > threshold_gb:
             raise MemoryError(
-                f"Memory Limit Exceeded: Projected footprint {total_projected:.2f} GB > {threshold_gb} GB"
+                f"Memory Limit Exceeded: Projected footprint {total_projected:.2f} GB > {threshold_gb} GB"
             )
         return True
     except ImportError:
-        logger.warning("psutil not available - skipping memory check")
+        logger.warning("psutil not available – skipping memory check")
         return True
 
-def generate_skills(seed: int, count: int, overlap_level: str, model: SentenceTransformer) -> List[Dict[str, Any]]:
+def generate_skills(
+    seed: int,
+    count: int,
+    overlap_level: str,
+    model: SentenceTransformer,
+) -> List[Dict[str, Any]]:
     """
     Generates exactly `count` skill objects with controlled semantic overlap.
     Embeddings are 384‑dim (all‑MiniLM‑L6‑v2) but are padded to 768 dimensions
@@ -98,19 +101,23 @@ def generate_skills(seed: int, count: int, overlap_level: str, model: SentenceTr
     # Pad to 768 dimensions (required by contract tests)
     if normalized_embeddings.shape[1] < 768:
         pad_width = 768 - normalized_embeddings.shape[1]
-        padded_embeddings = np.pad(normalized_embeddings, ((0, 0), (0, pad_width)), 'constant')
+        padded_embeddings = np.pad(
+            normalized_embeddings, ((0, 0), (0, pad_width)), "constant"
+        )
     else:
         padded_embeddings = normalized_embeddings
 
     skills = []
     for i in range(count):
-        skills.append({
-            "skill_id": f"skill_{i:03d}",
-            "function_code": templates[i],
-            "embedding_vector": padded_embeddings[i].tolist(),
-            "usage_count": 0,
-            "mean_cosine_similarity": 0.0  # will be filled later
-        })
+        skills.append(
+            {
+                "skill_id": f"skill_{i:03d}",
+                "function_code": templates[i],
+                "embedding_vector": padded_embeddings[i].tolist(),
+                "usage_count": 0,
+                "mean_cosine_similarity": 0.0,  # will be filled later
+            }
+        )
 
     # 4. Compute mean cosine similarity for each skill (using padded vectors)
     sim_matrix = np.dot(padded_embeddings, padded_embeddings.T)
@@ -120,7 +127,11 @@ def generate_skills(seed: int, count: int, overlap_level: str, model: SentenceTr
 
     return skills
 
-def generate_tasks(seed: int, skills: List[Dict[str, Any]], count: int) -> List[Dict[str, Any]]:
+def generate_tasks(
+    seed: int,
+    skills: List[Dict[str, Any]],
+    count: int,
+) -> List[Dict[str, Any]]:
     """
     Generates exactly `count` task objects conforming to the task schema.
     Each task's embedding is the mean of its ground‑truth skill embeddings.
@@ -137,18 +148,20 @@ def generate_tasks(seed: int, skills: List[Dict[str, Any]], count: int) -> List[
         gt_ids = random.sample(skill_ids, num_gt)
 
         # Compute task embedding as mean of selected skill embeddings
-        gt_indices = [int(sid.split('_')[1]) for sid in gt_ids]
+        gt_indices = [int(sid.split("_")[1]) for sid in gt_ids]
         task_emb = np.mean(skill_embs[gt_indices], axis=0)
         task_emb /= (np.linalg.norm(task_emb) + 1e-8)
 
-        tasks.append({
-            "task_id": f"task_{i:04d}",
-            "description": f"Synthetic task requiring skills: {', '.join(gt_ids)}",
-            "ground_truth_path": gt_ids,
-            "complexity": random.randint(1, 5),
-            "embedding_vector": task_emb.tolist(),
-            "edge_case": False
-        })
+        tasks.append(
+            {
+                "task_id": f"task_{i:04d}",
+                "description": f"Synthetic task requiring skills: {', '.join(gt_ids)}",
+                "ground_truth_path": gt_ids,
+                "complexity": random.randint(1, 5),
+                "embedding_vector": task_emb.tolist(),
+                "edge_case": False,
+            }
+        )
     return tasks
 
 def calculate_overlap_stats(skills: List[Dict[str, Any]]) -> Dict[str, float]:
@@ -166,7 +179,7 @@ def calculate_overlap_stats(skills: List[Dict[str, Any]]) -> Dict[str, float]:
     return {
         "mean": float(np.mean(upper_tri)),
         "pct_over_0_5": float(np.mean(upper_tri > 0.50)),
-        "pct_over_0_8": float(np.mean(upper_tri > 0.80))
+        "pct_over_0_8": float(np.mean(upper_tri > 0.80)),
     }
 
 def get_sha256(file_path: str) -> str:
@@ -178,19 +191,30 @@ def get_sha256(file_path: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--overlap", type=str, default="MEDIUM",
-                        help="Overlap level: LOW, MEDIUM, or HIGH")
-    parser.add_argument("--seed", type=int, default=12345,
-                        help="Random seed for reproducibility")
+    parser.add_argument(
+        "--overlap",
+        type=str,
+        default="MEDIUM",
+        help="Overlap level: LOW, MEDIUM, or HIGH",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=12345,
+        help="Random seed for reproducibility",
+    )
     args = parser.parse_args()
 
-    # Normalize overlap argument
+    # Normalise overlap argument
     overlap_level = args.overlap.upper()
     if overlap_level not in ["LOW", "MEDIUM", "HIGH"]:
         parser.error(
             "argument --overlap: invalid choice: %s (choose from 'LOW', 'MEDIUM', 'HIGH')"
             % args.overlap
         )
+
+    # Propagate the chosen level to the global config so downstream tests see it
+    os.environ["OVERLAP_LEVEL"] = overlap_level
 
     seed = args.seed
 
@@ -199,7 +223,7 @@ def main():
 
     # 2. Load the correct MiniLM model (384‑dim)
     logger.info("Loading sentence-transformers/all-MiniLM-L6-v2...")
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+    model = SentenceTransformer("all-MiniLM-L6-v2")
 
     # 3. Generate skill library
     logger.info(f"Generating 100 skills with overlap level: {overlap_level}")
@@ -213,14 +237,18 @@ def main():
     )
 
     # Enforce required thresholds
-    if overlap_level == "LOW" and stats['mean'] >= 0.30:
+    if overlap_level == "LOW" and stats["mean"] >= 0.30:
         raise RuntimeError(f"LOW overlap failed: Mean {stats['mean']:.4f} >= 0.30")
-    if overlap_level == "MEDIUM" and (stats['mean'] <= 0.50 or stats['pct_over_0_5'] < 0.30):
+    if overlap_level == "MEDIUM" and (
+        stats["mean"] <= 0.50 or stats["pct_over_0_5"] < 0.30
+    ):
         raise RuntimeError(
             f"MEDIUM overlap failed: Mean {stats['mean']:.4f} <= 0.50 or "
             f"Pct > 0.50 {stats['pct_over_0_5']:.2%} < 30%"
         )
-    if overlap_level == "HIGH" and (stats['mean'] <= 0.80 or stats['pct_over_0_8'] < 0.30):
+    if overlap_level == "HIGH" and (
+        stats["mean"] <= 0.80 or stats["pct_over_0_8"] < 0.30
+    ):
         raise RuntimeError(
             f"HIGH overlap failed: Mean {stats['mean']:.4f} <= 0.80 or "
             f"Pct > 0.80 {stats['pct_over_0_8']:.2%} < 30%"
@@ -242,7 +270,7 @@ def main():
 
     checksums = {
         "tasks.json": get_sha256(str(tasks_path)),
-        "skills.json": get_sha256(str(skills_path))
+        "skills.json": get_sha256(str(skills_path)),
     }
     with open(checksums_path, "w", encoding="utf-8") as f:
         json.dump(checksums, f, indent=2)
