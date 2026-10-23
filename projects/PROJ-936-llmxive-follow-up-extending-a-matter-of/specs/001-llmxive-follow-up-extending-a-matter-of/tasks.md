@@ -1,126 +1,113 @@
-# Tasks: LLM Agent Efficiency vs. Reasoning Trade‑off Analysis
+# Tasks: LLM Agent Efficiency vs. Reasoning Trade‑off Analysis  
 
-**Inputs**: `spec.md`, `plan.md`, the research idea, and the contracts in `specs/001-llmxive-follow-up-extending-a-matter-of/contracts/`.
+**Inputs**: `spec.md`, `plan.md`, the contracts in `specs/001-llmxive-follow-up-extending-a-matter-of/contracts/`.  
 
-The study must satisfy all functional requirements (FR‑001 – FR‑008) and success criteria (SC‑001 – SC‑005).  
-The tasks are ordered to respect data dependencies; each task’s output is a concrete artifact that can be validated by the schemas in `specs/.../`.  
+The study must satisfy all functional requirements (FR‑001 – FR‑008) and success criteria (SC‑001 – SC‑010). Tasks are ordered to respect data dependencies; each task’s output is a concrete artifact that can be validated by the schemas in `specs/.../`.  
 
 ---  
 
-## Phase 1: Setup and first end‑to‑end analysis  
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-| Goal | Run a minimal, fully‑reproducible pipeline on real inputs and produce the first set of logged results. |
-|------|-----------------------------------------------------------------------------------------------|
+- [ ] T001 [US-1] **Download τⁿ‑Bench dataset** from the official HuggingFace repository (`datasets.load_dataset("tau_c_bench")`) into `data/raw/τc_bench/`. Abort with a clear error if the repository cannot be reached.  
+  - **Output**: `data/raw/τc_bench/tasks.json` (raw JSON) and `data/raw/τc_bench/README.md` (checksum).  
+  - **Verification**: SHA‑256 checksum matches the value recorded in `state/projects/...yaml`; unit test `tests/integration/test_download.py` asserts the file exists, is non‑empty, and the checksum is correct.  
 
-- [ ] T001 [US1] Download the τⁿ‑Bench dataset from its official HuggingFace repository into `data/raw/τc_bench/` and abort with a clear error if the repository cannot be reached.   <!-- FAILED-IN-EXECUTION: code/download_tau_c_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_tau_c_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_tau_c_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/pipelines/run_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/pipelines/run_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/pipelines/run_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_tau_c_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_tau_c_bench.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_tau_c_bench.py exit=1 -->
-  - **Output**: `data/raw/τc_bench/tasks.json` (raw JSON) and `data/raw/τc_bench/README.md` (download checksum).  
-  - **Verification**: SHA‑256 checksum matches the value recorded in `state/projects/...yaml`; a unit test `tests/integration/test_download.py` asserts the file exists and is non‑empty.
-
-- [ ] T002 [US1] Parse the downloaded JSON into a canonical CSV `data/derived/task_definitions.csv` containing the fields required by the `Task` schema (`task_id, goal, environment, optimal_path_length, tool_diversity_k, …`).  
+- [ ] T002 [US-1] **Parse task definitions** from `data/raw/τc_bench/tasks.json` into a canonical CSV `data/derived/task_definitions.csv` containing the fields required by the `Task` schema (`task_id, goal, environment, optimal_path_length, tool_diversity_k, …`). Missing `optimal_path_length` values are left as `null`.  
   - **Output**: `data/derived/task_definitions.csv`.  
-  - **Verification**: `pytest tests/contract/test_task_schema.py` validates the CSV against the schema; missing `optimal_path_length` values are left as `null`.
+  - **Verification**: `pytest tests/contract/test_task_schema.py` validates each row against the schema; the script logs any `null` `optimal_path_length` entries for later warning handling.  
 
-- [ ] T003 [US1] Execute the baseline CPU‑tractable agent (Llama‑2‑7B 8‑bit via Ollama) on the first ≤ 200 tasks (sorted by `task_id`) and record an execution log for each run. The script must enforce a hard 6‑hour wall‑clock limit per task, marking overruns as `status="timeout"` and logging the partial resource usage.  
+- [ ] T003 [US-1] **Run baseline CPU‑tractable agent** (Llama‑2‑7B 8‑bit via Ollama) on the first ≤ 150 tasks (sorted by `task_id`). Enforce a hard 6‑hour wall‑clock limit per task; overruns are recorded as `status="timeout"` with partial resource usage.  
   - **Output**: `data/derived/baseline_execution.csv` (conforms to `execution_log.schema.yaml`).  
-  - **Verification**: `tests/contract/test_execution_log.py` checks schema compliance; a summary printed at the end of the run must show ≤ 200 rows.
+  - **Verification**: `tests/contract/test_execution_log.py` checks schema compliance; a summary printed at the end must show exactly the number of rows requested (≤ 150).  
 
-- [ ] T004 [US1] Run the contract test suite for the baseline execution log and fail loudly if any record violates the schema (e.g., missing `warning_codes`).  
-  - **Output**: Test report `tests/reports/baseline_log_report.txt`.  
-  - **Verification**: CI step succeeds only when the report contains “0 failures”.
+- [ ] T004 [US-1] **Validate baseline execution logs** by running the full contract test suite. Any record violating the schema (e.g., missing required fields) must cause the step to fail loudly.  
+  - **Output**: `tests/reports/baseline_log_report.txt`.  
+  - **Verification**: CI succeeds only when the report contains “0 failures”.  
 
-- [ ] T005 [US2] Compute the **efficiency penalty** for every task in `baseline_execution.csv` as  
-
-  `penalty = total_calls / optimal_path_length`  
-
-  If `optimal_path_length` is `null`, use `tool_diversity_k` and emit warning code `OPTIMAL_PATH_MISSING`. Produce a filtered CSV `data/derived/high_penalty_tasks.csv` that contains only rows with `penalty > 2.0`.  
-  - **Output**: `data/derived/high_penalty_tasks.csv` (adds columns `optimal_used`, `penalty`, `warning_codes`).  
-  - **Verification**: A sanity‑check script asserts that at least 10 tasks survive the filter and that every row with a warning includes `OPTIMAL_PATH_MISSING` in the `warning_codes` array.
-
----  
-
-## Phase 2: Complete the study and validate its evidence  
-
-| Goal | Build the difficulty predictor, evolve harder tasks, re‑run the agent, and perform statistical testing. |
-|------|----------------------------------------------------------------------------------------------|
-
-- [ ] T006 [US3] Train a lightweight `DecisionTreeRegressor` (max_depth = 5, `random_state=42`) on the feature set of `high_penalty_tasks.csv` to **predict the efficiency penalty** for each task. Split the data 80/20 (seed = 42) and require a hold‑out **R² ≥ 0.6** on the penalty prediction. Persist the model as a pickle.  
-  - **Output**: `data/derived/penalty_model.pkl`.  
-  - **Verification**: The training script prints the R²; a CI step parses the log and fails if R² < 0.6.
-
-- [ ] T007 [US3] Using the trained penalty model, generate **≥ 5 evolved variants** for each high‑penalty task. Each variant must modify the task description or tool list to **maximize the predicted efficiency‑penalty gap**, ensuring the predicted **penalty** increases by at least 10 % over the base task. Store all variants in `data/derived/evolved_tasks.csv` adhering to the `evolved_task.schema.yaml`.  
-  - **Output**: `data/derived/evolved_tasks.csv`.  
-  - **Verification**: A validation script checks (a) schema compliance, (b) that `predicted_penalty` ≥ 1.1 × base `penalty`, and (c) that each `base_task_id` appears at least five times.
-
-- [ ] T008 [US4] Re‑run the baseline agent on the **evolved task set** (`evolved_tasks.csv`) with the same timeout policy, producing a second execution log.  
-  - **Output**: `data/derived/evolved_execution.csv` (schema‑compliant).  
-  - **Verification**: Contract test `tests/contract/test_execution_log.py` is executed again; the report must show zero schema violations.
-
-- [ ] T009 [US4] Perform the **trade‑off evaluation**:  
-  1. Compute the **Spearman rank correlation** between the original baseline penalty (from `baseline_execution.csv`) and the change in success status (`success_baseline → success_evolved`).  
-  2. Run **McNemar’s test** on the paired success outcomes of baseline vs. evolved tasks.  
-  3. If the number of discordant pairs < 10, emit a power‑warning in the summary.  
-  4. Generate `data/outputs/summary.csv` (includes correlation coefficient, p‑value, power flag) and two figures (`correlation.png`, `mcnemar.png`).  
-  - **Output**: `data/outputs/summary.csv`, `data/outputs/figures/correlation.png`, `data/outputs/figures/mcnemar.png`.  
-  - **Verification**: A CI step parses `summary.csv`; it must contain a numeric `spearman_rho`, a `mcnemar_pvalue`, and a `power_warning` column (`true/false`). The step also asserts that both PNG files exist. The step fails if `mcnemar_pvalue` ≥ 0.05 **and** `power_warning` is `false`.
-
-- [ ] T010 [US4] **Sensitivity analysis**: repeat steps T005, T006, T007, T008, and T009 using an alternative optimal metric – the **minimum step count** (available in `task_definitions.csv` as `min_step_count`, or if absent, fallback to `tool_diversity_k`). Produce a second summary file `data/outputs/summary_sensitivity.csv` and accompanying figures prefixed with `sensitivity_`.  
-  - **Output**: `data/outputs/summary_sensitivity.csv`, `data/outputs/figures/sensitivity_correlation.png`, `data/outputs/figures/sensitivity_mcnemar.png`.  
-  - **Verification**: The same CI checks as T009 apply; additionally, a diff script asserts that the two summary files differ in at least one numeric column, confirming the analysis is not identical, and the step asserts that both sensitivity PNG files exist.
-
-- [ ] T011 [US4] Assemble the **final research report** (`paper/report.md`) that:  
-  1. Summarizes the methodology, cites the exact artifact paths, and includes the two figures (correlation & McNemar) for both primary and sensitivity runs.  
-  2. Lists all quantitative results from `summary.csv` and `summary_sensitivity.csv`.  
-  3. Discusses limitations (e.g., reliance on the tool‑diversity heuristic) and future work.  
-  - **Output**: `paper/report.md`.  
-  - **Verification**: A lightweight markdown linter (`markdownlint`) runs; the CI step also checks that every figure referenced exists in `data/outputs/figures/`.
-
-- [ ] T014 [US1 & US4] Measure the **total wall‑clock runtime** of the full end‑to‑end pipeline (download → baseline → penalty → model → evolution → re‑run → evaluation → sensitivity → report). The script must fail if the cumulative runtime exceeds **6 hours** on a 2‑core CPU runner.  
-  - **Output**: `data/derived/pipeline_runtime.txt` (contains total seconds).  
-  - **Verification**: CI step parses the file and asserts total ≤ 21600 seconds; otherwise the run is marked failed.
-
-- [ ] T015 [US4] Compute a **paired‑t‑test** on the paired success rates versus efficiency penalties (cost‑performance frontier) and record the test statistic and p‑value in `data/outputs/paired_t_test.csv`. The CI step must verify that the p‑value < 0.05 (or emit a power‑warning if sample size is insufficient).  
-  - **Output**: `data/outputs/paired_t_test.csv`.  
-  - **Verification**: CI parses the CSV; it fails if p‑value ≥ 0.05 **and** no power‑warning is present.
+- [ ] T005 [US-2] **Compute efficiency penalty** for every task in `baseline_execution.csv`. Use the **optimal path length** when the field `optimal_path_length` is present; otherwise fall back to the **tool‑diversity heuristic** (`tool_diversity_k`).  
+    - Formula: `penalty = total_calls / optimal_path_length` if `optimal_path_length` is not null, else `penalty = total_calls / tool_diversity_k`.  
+    - If **both** `optimal_path_length` **and** `tool_diversity_k` are missing, emit warning code `OPTIMAL_PATH_MISSING` and skip the task.  
+  Produce two derived files:  
+    1. `data/derived/penalty_metrics.csv` (adds columns `optimal_used`, `penalty`, `warning_codes`).  
+    2. `data/derived/high_penalty_tasks.csv` (rows with `penalty > 2.0`).  
+  - **Verification**: A sanity‑check script asserts that at least 30 % of tasks have `penalty > 2.0` (SC‑002) and that every row with a warning includes `OPTIMAL_PATH_MISSING` in the `warning_codes` array.  
 
 ---  
 
-## Phase 3: Reproducible results and paper handoff  
+## Phase 2 – Modeling, evolution, and trade‑off evaluation  
 
-| Goal | Ensure that an external reviewer can re‑run the entire pipeline from raw data to the final report. |
-|------|------------------------------------------------------------------------------------------|
+- [ ] T006 [US-4] **Point‑biserial correlation** between the continuous `penalty` (full task set) and binary `success`. Store results in `data/derived/correlation_results.json` (Pearson *r*, *p*‑value, 95 % CI). Verify that *p* < 0.05 and |*r*| ≥ 0.2 (SC‑009).  
+  - **Verification**: CI step parses the JSON and fails if the statistical thresholds are not met.  
 
-- [ ] T012 [US1 & US4] Create a **single entry‑point script** `src/__main__.py` that orchestrates the full workflow in the correct order (download → baseline → penalty → model → evolution → re‑run → evaluation → sensitivity → report). The script must accept a single optional argument `--skip‑download` for cached runs.  
-  - **Output**: `src/__main__.py`.  
-  - **Verification**: Running `python -m src --skip-download` on a fresh clone reproduces all artifacts; a CI step compares the newly generated SHA‑256 hashes against those recorded in `state/projects/...yaml`.
+- [ ] T007 [US-3] **Train regression tree** to predict the efficiency penalty from task features. Use `DecisionTreeRegressor(max_depth=5, random_state=42)` on the **full** task set (80/20 split, seed = 42). Persist the model as `data/derived/penalty_model.pkl`. Require hold‑out R² ≥ 0.6 (SC‑007).  
+  - **Verification**: Training script prints the R²; a CI step extracts the value and fails if it falls below 0.6.  
 
-- [ ] T013 [US1] Add a **quickstart guide** (`quickstart.md`) that documents the exact command to reproduce the study, the required Python version, and the environment variables for Ollama.  
-  - **Output**: `quickstart.md`.  
-  - **Verification**: The guide is parsed by a CI step that executes the command and checks that it exits with status 0.
+- [ ] T008 [US-3] **Generate evolved task variants** for each high‑penalty task (`high_penalty_tasks.csv`). For every base task, create **≥ 5** variations that maximize the predicted penalty gap, guaranteeing `predicted_penalty ≥ 1.10 × base_penalty`. Emit records conforming to `evolved_task.schema.yaml` in `data/derived/evolved_tasks.csv`.  
+  - **Verification**: Validation script checks (a) schema compliance, (b) the 10 % penalty increase, and (c) that each `base_task_id` appears at least five times.  
+
+- [ ] T009 [US-4] **Re‑run baseline agent on evolved tasks** with the same timeout policy. Produce `data/derived/evolved_execution.csv` (schema‑compliant).  
+  - **Verification**: Contract test `tests/contract/test_execution_log.py` runs again; the report must show zero violations.  
+
+- [ ] T010 [US-4] **Trade‑off evaluation (primary analysis)**:  
+    1. **McNemar’s test** on paired success outcomes (`baseline_success` vs. `evolved_success`).  
+    2. **Paired t‑test** on baseline vs. evolved success‑rate differences (new task T016 supplies the results).  
+    3. **Logistic regression** `evolved_success ~ baseline_penalty + difficulty_score` and record coefficients, odds ratios, *p*‑values, and 95 % CIs.  
+    4. **Cost‑performance frontier** quantified via the effect size from the paired t‑test (difference in success proportion per unit penalty) and stored in `data/outputs/cost_performance_frontier.csv`.  
+    5. Generate `data/outputs/summary.csv` (includes McNemar χ², *p*‑value, paired‑t *p*‑value, logistic coefficients, frontier effect size, and a `power_warning` flag if discordant pairs < 10).  
+    6. Produce figures `data/outputs/figures/mcnemar.png`, `data/outputs/figures/logistic_coefficients.png`, and `data/outputs/figures/cost_performance_frontier.png`.  
+  - **Verification**: CI parses `summary.csv`; it must contain a numeric `mcnemar_pvalue` < 0.05 **or** a `power_warning=true`. Logistic coefficient for `baseline_penalty` must be negative and *p* < 0.05. The cost‑performance frontier effect size must be reported and the corresponding PNG must exist.  
+
+- [ ] T011 [US-4] **Sensitivity analysis** using the alternative optimal metric **minimum step count** (if `minimum_step_count` exists in `task_definitions.csv`; otherwise fall back to `optimal_path_length` then to `tool_diversity_k`). Repeat steps T005‑T010 with this metric, producing a second set of artifacts prefixed with `sensitivity_` (e.g., `data/derived/sensitivity_penalty_metrics.csv`, `data/outputs/summary_sensitivity.csv`, `data/outputs/figures/sensitivity_mcnemar.png`). Verify that the logistic‑regression penalty coefficient retains the same sign and that the absolute difference between the two coefficients ≤ 0.05 (SC‑010).  
+  - **Verification**: Diff script asserts the sign match and effect‑size difference constraint; CI fails otherwise.  
+
+- [ ] T016 [US-4] **Paired t‑test on success‑rate differences** between baseline and evolved task runs. Compute mean difference, 95 % CI, t‑statistic, and *p*‑value; store results in `data/derived/paired_t_test_results.csv`.  
+  - **Verification**: CI ensures the CSV contains numeric `pvalue` and that either `pvalue < 0.05` or a `power_warning=true` flag is set.  
+
+- [ ] T017 [US-4] **Cost‑performance frontier (effect‑size) calculation** using the paired t‑test results. Derive the marginal change in success proportion per unit penalty increase, write to `data/outputs/cost_performance_frontier.csv`, and plot `data/outputs/figures/cost_performance_frontier.png`.  
+  - **Verification**: CI checks that the CSV contains a numeric `effect_size` column and that the PNG file exists.  
+
+- [ ] T018 [US-4] **SC‑001 compliance check**: Verify that the average success rate on evolved tasks is ≤ 0.90 × baseline success rate and that this drop is statistically significant (uses results from T016). Produce `data/outputs/sc001_report.txt` summarizing the observed drop and significance.  
+  - **Verification**: CI parses the report and fails if the drop is < 10 % or the paired‑t *p*‑value ≥ 0.05.  
 
 ---  
 
-### Dependency / Requirement Coverage
+## Phase 3 – Reproducibility, runtime budget, and hand‑off  
 
-| FR | Covered by Task(s) |
-|----|--------------------|
+- [ ] T013 [US-1 & US-4] **Measure total pipeline runtime**. Wrap the entire end‑to‑end execution (download → baseline → penalty → correlation → model → evolution → re‑run → evaluation → sensitivity → report) with a timer and write the total seconds to `data/derived/pipeline_runtime.txt`. CI fails if the total exceeds **6 hours** (21600 s) on a 2‑core CPU runner (SC‑005).  
+  - **Verification**: CI parses the file and asserts the limit.  
+
+- [ ] T014 [US-1] **Create entry‑point script** `src/__main__.py` that orchestrates the full workflow in the correct order, accepts `--skip-download` to reuse cached data, and logs each phase’s start/end timestamps.  
+  - **Verification**: Running `python -m src --skip-download` on a fresh clone reproduces all artifacts; a CI step compares the newly generated SHA‑256 hashes against those recorded in `state/projects/...yaml`.  
+
+- [ ] T015 [US-1] **Update quickstart guide** `quickstart.md` with the exact command to reproduce the study, required Python version, Ollama setup instructions, and the optional `--skip-download` flag.  
+  - **Verification**: CI parses the guide, executes the documented command, and checks for exit status 0.  
+
+---  
+
+### Requirement / Success‑Criterion Mapping  
+
+| FR | Covered by Tasks |
+|----|------------------|
 | FR‑001 | T001, T002 |
-| FR‑002 | T003, T008 |
+| FR‑002 | T003, T009 |
 | FR‑003 | T005 |
-| FR‑004 | T009, T010 |
-| FR‑005 | T009, T010 |
+| FR‑004 | T006, T010, T011 |
+| FR‑005 | T010 (paired t‑test via T016) |
 | FR‑006 | T005 (warning `OPTIMAL_PATH_MISSING`) |
-| FR‑007 | T006, T007 |
-| FR‑008 | T010 (alternative metric) |
+| FR‑007 | T007, T008 |
+| FR‑008 | T011 (alternative metric) |
 
-| SC | Covered by Task(s) |
-|----|--------------------|
-| SC‑001 | T003, T008 (runtime ≤ 6 h, ≤ 200 tasks) |
-| SC‑002 | T005 (penalty calculation) |
-| SC‑003 | T009, T010 (p‑value < 0.05 or power warning) |
-| SC‑004 | T006 (R² ≥ 0.6), T007 (penalty increase ≥ 10 %) |
-| SC‑005 | T014 (overall pipeline runtime) |
-| SC‑006 (Cost‑Performance Frontier) | T015 (paired‑t‑test) |
-
----  
+| SC | Covered by Tasks |
+|----|------------------|
+| SC‑001 | T018 (success‑rate drop) |
+| SC‑002 | T005 (≥ 30 % tasks with penalty > 2.0) |
+| SC‑003 | T010, T011 (p < 0.05 or power warning) |
+| SC‑004 | T007 (R² ≥ 0.6), T008 (penalty ≥ 10 % increase) |
+| SC‑005 | T013 (overall runtime ≤ 6 h) |
+| SC‑006 | T003, T009 (log completeness) |
+| SC‑007 | T007 (R² ≥ 0.6) |
+| SC‑008 | T008 (≥ 10 % penalty increase) |
+| SC‑009 | T006 (|r| ≥ 0.2, p < 0.05) |
+| SC‑010 | T011 (sign consistency, effect‑size Δ ≤ 0.05) |
 
 *All tasks remain unchecked (`[ ]`) until their implementation and verification succeed.*  
