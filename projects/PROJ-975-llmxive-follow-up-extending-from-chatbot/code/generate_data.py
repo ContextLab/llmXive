@@ -7,11 +7,26 @@ import logging
 from typing import List, Dict, Any
 
 import numpy as np
-import huggingface_hub
-# Compatibility shim: older sentence_transformers expects cached_download in huggingface_hub
-if not hasattr(huggingface_hub, "cached_download"):
+
+# ---- Compatibility shim for huggingface_hub ----
+# Older versions of sentence_transformers expect `cached_download` in huggingface_hub,
+# but recent releases have renamed it to `hf_hub_download` with a different signature.
+# We provide a thin wrapper that drops unsupported kwargs (e.g., `url`) and forwards
+# the call to the modern function.
+try:
+    import huggingface_hub
     from huggingface_hub import hf_hub_download
-    huggingface_hub.cached_download = hf_hub_download
+
+    if not hasattr(huggingface_hub, "cached_download"):
+        def _cached_download(*args, **kwargs):
+            # Remove arguments that older callers may pass but newer versions don't accept.
+            kwargs.pop("url", None)
+            return hf_hub_download(*args, **kwargs)
+
+        huggingface_hub.cached_download = _cached_download
+except Exception as e:
+    # If huggingface_hub is not available, let the import error surface – this script must fail loudly.
+    raise ImportError("Failed to import huggingface_hub for compatibility shim") from e
 
 from sentence_transformers import SentenceTransformer
 from llmxive_toolkit import paths
