@@ -13,7 +13,7 @@ required:
 properties:
   task_id:
     type: string
-    description: "Unique identifier of the task from the τ^c‑Bench dataset."
+    description: "Unique identifier of the task from the τⁿ‑Bench dataset."
   run_id:
     type: string
     description: "UUID for this specific agent execution."

@@ -1,14 +1,12 @@
 status: none
-intent: "download \u03C4c\u2011Bench dataset from HuggingFace using datasets python\
-  \ package dataset"
+intent: "download \u03C4c\u2011Bench dataset from HuggingFace hub as python package\
+  \ dataset"
 required_fields:
 - task_id
-- instruction
-- input
-- expected_output
-- success
-- api_calls
-- token_consumption
-cache_key: 177ae09402adfb99e617ed7a3b4a0c99f1a0661ef2bafc771e22e665b97badad
-searched_at: '2026-10-12T20:11:56.177290+00:00'
+- task_definition
+- success_status
+- total_api_calls
+- total_token_consumption
+cache_key: 757a8198392561b7d659170672347ea73151d17414c7c9a02166ca9177897635
+searched_at: '2026-10-23T07:29:29.409132+00:00'
 retry_count: 1

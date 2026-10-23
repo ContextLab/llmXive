@@ -64,4 +64,4 @@ properties:
   generation_timestamp:
     type: string
     format: date-time
-    description: "When the evolution script generated this task."
+    description: "When the evolution script generated this entry."

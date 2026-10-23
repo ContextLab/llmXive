@@ -13,7 +13,7 @@
 
 **Why this priority**: This is the foundational data acquisition step. Without accurate logs of both success/failure and resource expenditure (calls/tokens), no trade-off analysis can be performed. It delivers the raw dataset required for all subsequent modeling.
 
-**Independent Test**: The system can be tested by running the baseline agent on a small, fixed subset of 10 tasks and verifying that a CSV log is generated containing `task_id`, `success` (bool), `total_calls` (int), and `total_tokens` (int) for each run.
+**Independent Test**: The system can be tested by running the baseline agent on a small, fixed subset of tasks and verifying that a CSV log is generated containing `task_id`, `success` (bool), `total_calls` (int), and `total_tokens` (int) for each run.
 
 **Acceptance Scenarios**:
 

@@ -1,83 +1,98 @@
 # Research: LLM Agent Efficiency vs. Reasoning Trade-off Analysis
 
 **Feature**: LLM Agent Efficiency vs. Reasoning Trade-off  
-**Date**: 2026-10-12
+**Date**: 2026-10-23
 
 ## Objective
-Quantify how redundant tool‑call sequences (high **efficiency penalty**) impact success rates of a CPU‑tractable LLM agent on multi‑hop tasks, and verify the existence of a statistically significant trade‑off while controlling for intrinsic task difficulty. Validate that the trade‑off hypothesis holds across multiple definitions of "optimal path length" to ensure robustness against metric construction artifacts.
+Quantify how redundant tool‑call sequences (high **efficiency penalty**) impact success rates of a CPU‑tractable LLM agent on multi‑hop tasks, while controlling for intrinsic task difficulty. Validate that the trade‑off holds across two definitions of “optimal path”: (a) the **tool‑diversity** count k (primary metric), and (b) the pure tool‑diversity heuristic itself as a sensitivity check.
 
 ## Dataset Strategy
-| Role | Source | Access Method | Notes |
-|------|--------|---------------|-------|
-| Primary task set | *τ^c‑Bench* (HuggingFace repo) | `datasets.load_dataset("tau_c_bench", streaming=False)` | The pipeline **attempts** to download the official dataset. If the repository is unreachable or the dataset lacks `optimal_path_length`, the run aborts with a clear error. |
-| Model binaries | A quantized Llama model via Ollama (local Docker image) | `ollama run llama2:7b-q8_0` | CPU‑only; fits within the 6 h budget for ≤ 200 tasks. |
+| Role | Source | Access Method | Verified? | Notes |
+|------|--------|---------------|-----------|-------|
+| Primary task set | τⁿ‑Bench (HuggingFace repo `tau_c_bench`) | `datasets.load_dataset("tau_c_bench")` | **No verified URL** (per "# Verified datasets") – dataset name used for programmatic loading; abort if download fails. |
+| Model binaries | Llama‑2‑7B 8‑bit via Ollama (`ollama run llama2:7b-q8_0`) | Local Docker image | N/A | CPU‑only quantized model fits free‑tier budget. |
+
+If the τⁿ‑Bench repository is unreachable, the pipeline aborts with a clear error message; no synthetic stand‑in is used.
 
 ## Methodology Overview
 
 ### 1. Baseline Execution
-Run the baseline Llama‑2‑7B 8‑bit agent on every task, logging `task_id`, `success` (bool), `total_calls`, `total_tokens`, `duration_seconds`, and `status`. Timeouts > 6 h are recorded as `timeout`.
+Run the baseline Llama‑2‑7B 8‑bit agent on every task (≤ 150 tasks). Log per‑run: `task_id`, `run_id`, `success` (bool), `total_calls`, `total_tokens`, `duration_seconds`, `status` (`completed`, `failed`, `timeout`), `warning_codes`, `timestamp`. Timeouts > 6 h are recorded as `timeout`.
 
-### 2. Efficiency Penalty Calculation (Primary Metric: Tool Diversity Heuristic)
-Compute `penalty = total_calls / optimal_path_length`. When `optimal_path_length` is `null`, compute `optimal_path_length = tool_diversity_k` (minimum distinct tool types) and emit warning `OPTIMAL_PATH_MISSING`. 
+### 2. Efficiency Penalty Calculation (Primary Metric)
+- **Optimal denominator**: `tool_diversity_k` (minimum number of distinct tool types required).  
+- **Penalty**: `penalty = total_calls / tool_diversity_k`.  
+- If `tool_diversity_k` is missing (should not happen), log warning `OPTIMAL_PATH_MISSING` and skip the task.  
+- **Filtering**: Flag tasks with `penalty > 2.0` (high‑redundancy subset).
 
-**Critical Note on Metric Construction**: The tool‑diversity heuristic measures the minimum number of **distinct tool types** required to solve a task, not the minimum number of **steps**. This is a **constructed proxy metric** for reasoning breadth. When `tool_diversity_k` is used as the denominator in the penalty ratio, it may **deflate the denominator relative to a true minimal step count**, potentially **inflating the penalty**. This is acknowledged as a **heuristic fallback** mandated by the spec, not as a measure of absolute efficiency. To validate that the trade‑off is a genuine phenomenon and not merely a measurement artifact, a sensitivity analysis using an alternative optimal metric is required (see Step 8 below).
+### 3. Point‑Biserial Correlation (FR‑004)
+Calculate Pearson correlation between continuous `penalty` and binary `success` across the **full** task set. Record coefficient *r*, p‑value, 95 % CI, and verify that *p* < 0.05 (fulfilling SC‑009).
 
-### 3. Filtering
-Keep tasks with `penalty > 2.0` (high‑redundancy subset).
+### 4. Reward Modeling (Difficulty Prediction, FR‑007)
+Train a `DecisionTreeRegressor` (max_depth = 5, random_state = 42) on the **full** task set (80/20 train‑test split) to predict `difficulty_score`. Require hold‑out R² ≥ 0.6 (SC‑007).  
 
-### 4. Reward Modeling (Difficulty Prediction)
-Train a `DecisionTreeRegressor` (max_depth=5, random_state=42) on intrinsic task features to predict a **difficulty_score**. Require hold‑out R² ≥ 0.6.
+### 5. Cost‑Performance Frontier Quantification (SC‑005)
+Fit a regression of binary `success` on continuous `penalty` to obtain the marginal cost‑performance curve. Report the slope (cost per % success change) and plot the frontier. This directly satisfies the constitution’s cost‑performance requirement.
 
-### 5. Task Evolution
-For each high‑penalty task, generate ≥ 5 variations by perturbing the description and tool list to **maximize predicted difficulty**. Evolution is driven by difficulty, not by a target penalty increase, to avoid circularity in the trade-off analysis. Each evolved task record includes a full nested Task object with all required fields (`task_id`, `goal`, `environment`, `optimal_path_length`, `tool_diversity_k`, `features`).
+### 6. Task Evolution (FR‑007)
+For each high‑penalty task, generate **≥ 5** variations that maximize the predicted `difficulty_score`. Evolution modifies the task description and/or tool list while preserving feasibility. Each evolved record conforms to `evolved_task.schema.yaml` and includes the full nested Task object.
 
-### 6. Re-run Baseline on Evolved Set
-Execute the baseline agent on evolved tasks, logging the same metrics.
+### 7. Evolved‑Task Penalty Increase Check (SC‑008)
+Compute the average predicted penalty of evolved tasks versus their source tasks. Assert that the increase is ≥ 10 % (SC‑008). Log the actual percentage gain.
 
-### 7. Statistical Evaluation (Primary: Tool Diversity Heuristic)
-- **Logistic Regression**: Model the probability of success on evolved tasks (`evolved_success`) using `baseline_penalty` and `difficulty_score` as independent variables. This controls for the confound where higher difficulty drives both penalty and failure.  
-- **Power Analysis**: With N=200 tasks, the study is powered (≥80%) to detect a medium effect size (Odds Ratio ≥ 2.5) for the baseline penalty predictor at α=0.05.  
-- **Interpretation**: Report the coefficient, standard error, and p-value for the baseline penalty term. A significant negative coefficient indicates that higher efficiency penalties predict lower success rates on evolved tasks.
+### 8. Re‑run Baseline on Evolved Set
+Execute the baseline agent on all evolved tasks, logging with the same schema as in step 1.
 
-### 8. Sensitivity Analysis (Alternative Metric: Minimum Step Count)
-Repeat steps 2–7 using **minimum step count** (when available in the dataset) as an alternative optimal metric:
+### 9. Trade‑off Evaluation (FR‑005)
+- **Primary test**: **McNemar's test** on paired success outcomes (baseline vs. evolved) for each task pair; report χ², p‑value, and effect size.  
+- **Supplementary model**: **Logistic regression** `evolved_success ~ baseline_penalty + difficulty_score`. Report coefficients, standard errors, odds ratios, p‑values, and 95 % CIs.  
+- **Effect‑size check**: Verify that the penalty coefficient is negative and statistically significant (p < 0.05).  
+- **Power note**: With N ≤ 150, power ≥ 80 % to detect an odds ratio ≥ 2.5 at α = 0.05. If N < 100, issue a power‑limitation warning.
 
-- **Recompute penalty** as `agent_calls / minimum_step_count`.  
-- **Refilter** tasks with penalty > 2.0 (may result in a different subset).  
-- **Retrain difficulty model** on the new filtered set.  
-- **Re-evolve tasks** and re-run baseline on the new evolved set.  
-- **Refit Logistic Regression** with the new penalty metric and difficulty score.  
-- **Compare coefficients**: Report the baseline penalty coefficient (and p-value) from both metrics side-by-side.  
-- **Robustness conclusion**: If both metrics yield a significant negative coefficient for the baseline penalty term (i.e., higher penalty predicts lower success), conclude that the trade-off is robust to the definition of "optimal path length" and is not merely a measurement artifact.
+### 10. Sensitivity Analysis (FR‑008)
+Repeat steps 2‑9 using the **pure tool‑diversity heuristic** (`penalty_alt = total_calls / tool_diversity_k`). Compare the logistic‑regression penalty coefficients between the primary and alternative metrics:
+- Same sign (both negative).  
+- Absolute difference in effect size ≤ 0.05 (SC‑010).  
 
-If the dataset does not provide `minimum_step_count`, the sensitivity analysis will note this limitation and report results for the tool-diversity heuristic only.
+If the dataset lacks a secondary optimal metric, the analysis reports that only the primary metric is available.
+
+### 11. Reporting
+Produce:
+- `data/outputs/summary.csv` (coefficients, p‑values, effect sizes for both metrics).  
+- `data/outputs/figures/regression_coefficients.png` (forest plot of coefficients).  
+- `data/outputs/figures/cost_performance_frontier.png` (cost‑performance curve).  
+- `report/analysis.md` (narrative of findings, robustness conclusion, power discussion).
 
 ## Statistical Rigor Checklist
 | Requirement | Implementation |
 |-------------|----------------|
-| Multiple‑comparison correction | Not needed (single Logistic Regression model per metric). |
-| Sample‑size / power justification | Power analysis justifies N=200 for medium effect size (OR ≥ 2.5). If final N is smaller, power limitation is explicitly reported. |
-| Causal inference | Observational; claims limited to *associational* trade‑off. Difficulty is included as a covariate to reduce confounding. |
-| Measurement validity | Llama‑2‑7B token counts and Ollama call counters are logged directly. Tool‑diversity heuristic is documented as a spec‑mandated fallback and validated via sensitivity analysis. |
-| Predictor collinearity | Difficulty and penalty will be checked for collinearity (VIF); if high (VIF > 5), the model will report the most stable predictor and note the collinearity limitation. |
+| Multiple‑comparison correction | Not needed (single model per metric). |
+| Sample‑size / power justification | Power analysis documented in step 9; limitation flagged if N < 100. |
+| Causal inference | Observational; claims limited to *associational* trade‑off. Difficulty included as covariate. |
+| Measurement validity | Token and call counters come directly from Ollama; tool‑diversity heuristic validated via sensitivity analysis. |
+| Predictor collinearity | VIF computed for `baseline_penalty` and `difficulty_score`; if VIF > 5, the higher‑VIF predictor is dropped and limitation noted. |
 
 ## Decision / Rationale
-- **CPU‑first**: All components run on a modest‑core CPU runner. No GPU is required.  
-- **Dataset Availability**: The plan attempts to fetch the real τ^c‑Bench dataset. If unavailable, the run aborts.  
-- **Model Choice**: Llama‑2‑7B 8‑bit quantized via Ollama fits within the free‑tier compute budget.  
-- **Statistical Tests**: Logistic Regression is used instead of Spearman correlation or McNemar's test to allow for covariate control (difficulty) and to correctly handle binary outcomes for non-identical task instances.  
-- **Evolution Strategy**: Evolving for difficulty only (not penalty) ensures that the relationship between baseline penalty and evolved failure is not a tautology.  
-- **Sensitivity Analysis**: Two-metric approach (tool diversity vs. minimum step count) prevents the penalty from appearing inflated solely due to metric construction; instead, it validates that the trade-off is a genuine phenomenon.
+- **CPU‑first**: All components run on the free‑tier CPU runner; no GPU is required.  
+- **Dataset Availability**: Attempt to download the official τⁿ‑Bench dataset by name; abort if not fetchable (no verified URL).  
+- **Model Choice**: Quantized Llama‑2‑7B fits within the 6 h budget for ≤ 150 tasks.  
+- **Metric Adjustment**: Adopt `tool_diversity_k` as the optimal denominator to avoid the category‑error flagged by reviewers.  
+- **Statistical Tests**: Use McNemar's test as the primary evidence for paired binary outcomes; logistic regression provides covariate‑adjusted effect size.  
+- **Selection Bias**: Train difficulty model on the full dataset, not just the high‑penalty subset.  
+- **Sensitivity Analysis**: Guarantees robustness against the choice of optimal‑path proxy.  
 
 ## Expected Deliverables
-- `data/derived/baseline_execution.csv` – raw logs for original tasks.  
-- `data/derived/filtered_tasks.csv` – tasks with penalty > 2.0 (primary metric: tool diversity).  
-- `data/derived/difficulty_model.pkl` – trained regression tree for difficulty.  
-- `data/derived/evolved_tasks.csv` – generated task variations with nested Task objects.  
+- `data/derived/baseline_execution.csv` – conforms to `execution_log.schema.yaml`.  
+- `data/derived/filtered_tasks.csv` – tasks with `penalty > 2.0` (primary metric).  
+- `data/derived/correlation_results.json` – point‑biserial correlation output.  
+- `data/derived/difficulty_model.pkl` – trained regression tree.  
+- `data/derived/evolved_tasks.csv` – conforms to `evolved_task.schema.yaml`.  
 - `data/derived/evolved_execution.csv` – logs for evolved tasks.  
-- `data/derived/sensitivity_filtered_tasks.csv` – tasks with penalty > 2.0 (alternative metric: minimum step count).  
-- `data/derived/sensitivity_evolved_tasks.csv` – evolved tasks for sensitivity analysis.  
-- `data/derived/sensitivity_evolved_execution.csv` – logs for sensitivity-evolved tasks.  
-- `results/summary.csv` – final metrics (Logistic Regression coefficients, p-values, effect sizes for both metrics).  
-- `figures/regression_coefficients.png` – visualization of coefficients and confidence intervals for both metrics.  
-- `report/analysis.md` – concise narrative of findings, including robustness conclusion.
+- `data/derived/sensitivity_*` files – analogous artifacts for the alternative metric.  
+- `data/outputs/summary.csv` – final statistical table (both primary and sensitivity results).  
+- `data/outputs/figures/regression_coefficients.png` – coefficient forest plot.  
+- `data/outputs/figures/cost_performance_frontier.png` – cost‑performance curve.  
+- `report/analysis.md` – concise narrative of results and robustness conclusion.
+
+---
+
