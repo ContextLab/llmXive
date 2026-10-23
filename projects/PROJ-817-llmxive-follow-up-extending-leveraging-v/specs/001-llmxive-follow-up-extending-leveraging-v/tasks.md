@@ -1,80 +1,144 @@
-# Tasks: Does a symbolic constraint-graph preprocessing module mitigate verifier degradation on conflicting image-editing instructions?
+# Tasks: Does a symbolic constraint‑graph preprocessing module mitigate verifier degradation on conflicting image‑editing instructions?
 
-**Inputs**: `specs/001-llmxive-verifier-graph/spec.md`, `plan.md`, data model and `evaluation_report.schema.yaml`, original research idea and validation report.
+**Inputs**: `specs/001-llmxive-verifier-graph/spec.md`, `plan.md`, data model, `evaluation_report.schema.yaml`, original research idea and validation report.
 
-This is the research implementation plan. The study runs a thin end-to-end analysis early (small real prompt sample through annotation → parser → verifier → stats), then scales to the full 1000-prompt dataset with human-annotated ground truth, controls, robustness checks, and the contract-conformant `report.json`.
+This research implementation plan follows the specification and addresses all functional requirements (FR‑001 – FR‑010) and success criteria (SC‑001 – SC‑010). Tasks are ordered to respect data flow and runtime constraints. All paths are project‑relative and write only under `data/`, `figures/`, `code/`, or `specs/`.
 
-**Compute feasibility note (honesty rule)**: the distilled 1B verifier is a transformer inference workload with no faithful CPU form; a simulated/synthetic CPU stand-in would be fabrication. Verifier-inference tasks therefore run the REAL computation on one free Kaggle GPU (~16 GB VRAM, `device="cuda"`, batched short-sequence inference); the execution stage auto-offloads these when the CPU run errors on CUDA. All parsing, curation, annotation aggregation, and statistics are genuinely CPU-tractable and run on the GitHub Actions runner.
+---
 
-**Documented deviations requiring upstream amendment (kickback flags — do NOT silently reinterpret)**:
-1. **FR-008 / SC-009 / Model Compatibility assumption (spec-rooted)**: these state CPU-only verifier execution. As tasked, verifier inference runs on a free Kaggle GPU with the SAME pinned model (`Qwen/Qwen2.5-1.5B-Instruct`), fixed seeds, and identical inputs. SC-009's "≤ 2 h on a CPU-only runner" is re-measured as "≤ 2 h wall-clock on the GPU pass" and recorded as such in `data/results/baseline_runtime.json` alongside separately measured CPU-stage runtimes; the spec MUST be amended to authorize GPU offload for this to be fully conformant.
-2. **Constitution Principle I (constitution-rooted)**: results must be reproducible "on a fresh GitHub Actions runner." The verifier stages run on Kaggle GPU; `quickstart.md` documents the exact GPU reproduction recipe (model ID, seeds, batch size, input checksums) so the run is reproducible on any equivalent free GPU runner, but a constitution amendment or documented reconciliation authorizing GPU offload is required upstream.
-3. **Dataset Availability assumption (spec-rooted)**: the spec assumes the public repository contains sufficient multi-step conflicting instructions. The 500 conflicting prompts are CONSTRUCTED by composing two REAL InstructPix2Pix instructions with contradictory attribute targets (antonym color/state pairs) and temporal multi-step phrasings — real prompt material, synthetic conflict structure. This provenance is recorded per-row in `curated_prompts.csv` (`checksum` of source rows) and must be authorized by a spec amendment.
-4. **FR-009 vs FR-001 (spec-rooted)**: FR-009 says "at least 200 prompts", FR-001 says all 1000. Tasks implement the stricter FR-001 reading (human scores for all 1000); the spec should be corrected to remove the 200 clause.
-5. **Data model §3 (data-model-rooted)**: the plan and T003 impose the graph-abstraction constraint (node labels are abstract principle identifiers, no paraphrased clauses); data-model §3 says "principle text". The data model must be aligned to the abstraction constraint.
-6. **Data model §6 (data-model-rooted)**: `human_validation.csv` tasks require an `n_raters` column (≥ 3 raters/prompt); the data model defines only `prompt_id, human_rating, annotation_source` and must add `n_raters`.
-7. **Contract schema (schema-rooted)**: the report schema's `tests`/`adjusted_p_values` accommodate only `primary` and `robustness`. Neutral-subset and control-condition tests are reported in `report.csv` and a supplementary `secondary_tests` block in `report.json`; the schema should be extended to formalize `secondary_tests` and an effect-size-difference method for the SC-005 robustness comparison (the schema's `paired_t_test`/`wilcoxon` enum cannot express it).
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Terminology note (unifies spec "Alignment Score")**: per prompt we compute `alignment_delta = verifier_score − human_score` (data model §4) — this is the quantity used in all paired tests. The spec's "Alignment Score" as a *correlation* is realized as the per-condition Pearson r between verifier scores and human scores (SC-007), reported separately. The two are never conflated in code or reports; the spec's Key Entities wording should be unified upstream (kickback flag 8).
+*Goal*: Verify that a thin pipeline runs on real data (download → curation → human annotation → parser → verifier → statistics) before scaling.
 
-## Task format and paths
+- [ ] T001 [US‑1] **Download raw instruction data** – implement `code/src/data/download.py` that streams the verified InstructPix2Pix dataset via  
+  ```python
+  from datasets import load_dataset
+  ds = load_dataset("timbrooks/instructpix2pix", split="train", streaming=True)
+  ```  
+  For each row compute a SHA‑256 checksum, write the first 2 000 rows to `data/raw/prompts_sample.parquet`, and simultaneously generate `data/raw/checksums_manifest.json`. The script **must raise** on any fetch error; no synthetic fallback is permitted.  
+  *Verification*: Run `python -m code.src.data.download`; confirm the parquet file exists, contains ≥ 2 000 rows, each row has a non‑null `prompt` and a matching checksum entry in the manifest. The script must exit with non‑zero status on failure.
 
-Tasks use `- [ ] T### [P?] [USx?] description with exact artifact paths`. Source lives under `code/src/`, tests under `code/tests/`, results under `data/results/`, per the platform layout. **Layout reconciliation**: the plan's `src/…` tree maps 1:1 onto `code/src/…`; `src/parser/utils.py` from the plan is DROPPED (no deliverable needs it); the plan's `tests/unit/` and `tests/contract/` subfolders flatten into `code/tests/`. Each task names its requirement, concrete output, and observable check.
+- [ ] T002 [US‑1] **Curate a balanced 1 000‑prompt CSV** – implement `code/src/data/curate.py` and `code/src/data/conflict_generator.py` to (a) select 500 neutral prompts from the raw sample, (b) construct 500 conflicting prompts by compositing two real edit instructions with antonymic attribute targets and explicit temporal phrasing, (c) assign deterministic UUIDs, (d) write `data/results/curated_prompts.csv` with columns `prompt_id, instruction_type, prompt_text, synthetic_score, human_score, checksum` (human_score left **null** pending annotation).  
+  *Verification*: Unit test `code/tests/test_curate.py` checks class balance (500/500), checksum provenance, and that `human_score` is null for all rows.
 
-## Phase 1: Setup and first end-to-end analysis
+- [ ] T003 [US‑2] **Build the CPU‑only symbolic constraint‑graph parser** – implement `code/src/parser/graph_builder.py` using spaCy `en_core_web_sm` and networkx with rule‑based contradiction detection (antonym matching). For each prompt, output a JSON graph conforming to the data model at `data/results/graphs/graph_<prompt_id>.json`. Handle edge cases: missing contradictions → log warning and emit a null graph; ambiguous temporal order → add a `no-order` edge.  
+  *Verification*: `pytest code/tests/test_graph_builder.py` must pass, the full‑set run must record total CPU time ≤ 30 min in `data/results/parser_runtime.json`, **and** record peak RAM via `psutil` in `data/results/parser_ram.json` and fail if > 7 GB. No GPU memory may be allocated.
 
-- [ ] T001 [P] [US-1] Establish the project layout and fetch the real prompt source data. Implement `code/src/data/download.py` that streams the real InstructPix2Pix instruction data via `datasets.load_dataset("timbrooks/instructpix2pix", split="train", streaming=True)` (falling back to the canonical HF parquet files at `https://huggingface.co/datasets/timbrooks/instructpix2pix`), iterating in chunks so the full stream is scanned without loading it into RAM; write the first 2,000 real `(image, edit_prompt)` prompt texts with row SHA-256 checksums to `data/raw/prompts_sample.parquet`. The loader MUST fail loudly (raise) on any fetch error — no synthetic/mock fallback, ever. Document the exact runnable command (`python -m code.src.data.download`) in `specs/001-llmxive-verifier-graph/quickstart.md` and record input provenance (dataset ID, split, streaming rule, checksums) there. Check: the command runs on the 2-core CPU runner and `data/raw/prompts_sample.parquet` contains ≥ 2,000 real rows with non-null prompts and checksums. <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 -->
+- [ ] T004 [US‑1] **Collect real human feasibility scores for all 1 000 prompts** – implement `code/src/data/human_annotation.py` that presents each prompt to crowd workers (or internal annotators), records ≥ 3 independent 0‑1 ratings, aggregates the mean, and writes `data/results/human_validation.csv` with columns `prompt_id, human_rating, annotation_source, n_raters`. Merge the aggregated rating back into `data/results/curated_prompts.csv` as the `human_score` field (overwrites the nulls).  
+  *Verification*: The CSV must contain 1 000 rows, each with `n_raters ≥ 3` and a non‑null `human_score`. The pipeline must raise if any `human_score` is missing or was generated synthetically (FR‑010). **Note:** This task deliberately exceeds the minimum of ≥ 200 scores required by FR‑009 to enable a paired analysis; the extra annotation effort is justified in the experimental design.
 
-- [ ] T002 [US-1] Implement conflict curation and dataset construction (annotation is T014). In `code/src/data/curate.py` and `code/src/data/conflict_generator.py`: (a) curate 500 neutral prompts from the REAL rows in `data/raw/prompts_sample.parquet` (T001's output — checksums are the SHA-256 of those parquet rows); (b) construct 500 conflicting prompts by composing two real edit instructions with contradictory attribute targets (antonym color/state pairs) and temporal multi-step phrasings, recording the rule-based `synthetic_score` used ONLY for generation (FR-010) and the source-row checksums for provenance (documented deviation 3); (c) build `data/results/curated_prompts.csv` with columns `prompt_id, instruction_type, prompt_text, synthetic_score, human_score, checksum` per the data model, 500 conflicting + 500 neutral, deterministic UUIDs, fixed seed, `human_score` left null pending T014. Unit tests in `code/tests/test_curate.py` verify class balance, checksum integrity, and that no synthetic score leaks into `human_score`. Check: `curated_prompts.csv` has 1000 rows, 500/500 balance, all `human_score` null at this stage, all rows trace to real source checksums. Depends on T001.
+- [ ] T005 [US‑1] **Run baseline verifier on a small subset** – implement `code/src/verifier/baseline.py` that loads the pinned model `Qwen/Qwen2.5-1.5B-Instruct` **on CPU** with 8‑bit quantization (e.g., `bitsandbytes` `load_in_8bit=True`). Process the first 50 curated prompts (25 conflicting, 25 neutral). Compute a 0‑1 feasibility score per prompt, calculate `alignment_delta = verifier_score − human_score`, and write `data/results/baseline_subset_scores.csv`. Errors or timeouts for individual prompts must be logged and skipped without aborting the run.  
+  *Verification*: At least 90 % of rows have non‑null `verifier_score`; `alignment_delta` is present for all rows with both scores. Additionally, a verification step asserts `model.device == "cpu"` and that 8‑bit quantization is active; any GPU allocation causes the task to fail.
 
-- [ ] T014 [US-1] Collect REAL human feasibility ratings for all 1000 curated prompts (FR-001, FR-009 — the stricter all-1000 reading). In `code/src/data/human_annotation.py`: implement the real human-rating collection — an annotation form (HTML/CSV-based) presenting each prompt to human raters who record a 0–1 plausibility rating; collect ≥ 3 independent ratings per prompt from actual human annotators (project team or crowd platform); aggregate (mean) into `data/results/human_validation.csv` with columns `prompt_id, human_rating, annotation_source, n_raters` (n_raters column: data-model §6 update flagged, kickback flag 6) and merge into `curated_prompts.csv.human_score` for ALL 1000 prompts. The pipeline MUST raise if any `human_score` is missing or was produced programmatically — never a heuristic or simulated rating (FR-010). Check: `human_validation.csv` has 1000 rows, `n_raters ≥ 3` for every prompt, all `human_score` values in `curated_prompts.csv` non-null and equal to the aggregated `human_rating`. Depends on T002.
+- [ ] T006 [US‑3] **Run graph‑augmented verifier on the same subset and perform paired statistics** – implement `code/src/verifier/augmented.py` that loads the same CPU‑only 8‑bit model, injects the JSON graph from `data/results/graphs/graph_<prompt_id>.json` as additional context, and also runs two control conditions (`control_filler` and `control_empty`). Output `data/results/augmented_subset_scores.csv` with a `condition` column. Then run `code/src/analysis/stats.py` on the subset to (a) perform a paired t‑test (or Wilcoxon if normality fails) between baseline and graph‑augmented alignment deltas, (b) compute Cohen’s d, 95 % CI, and (c) log the results in `data/results/subset_stats.json`.  
+  *Verification*: The statistical script must produce a p‑value, effect size, and CI; unit test `code/tests/test_stats.py` validates the calculations on a hand‑crafted toy dataset. The verifier must again be confirmed CPU‑only 8‑bit.
 
-- [ ] T003 [P] [US-2] Implement the CPU-only symbolic constraint-graph parser. In `code/src/parser/graph_builder.py` (spaCy `en_core_web_sm` + networkx + rule-based antonym/contradiction detection): parse each instruction into a directed graph with nodes carrying ONLY abstract principle identifiers — no paraphrased clauses (plan's graph-abstraction constraint; data-model §3 alignment flagged, kickback flag 5) — and edges labeled `temporal-precedes` or `contradiction`; handle the spec edge cases (no contradiction found on a conflicting-labeled prompt → log warning and emit null graph without crashing; ambiguous temporal order → documented `no-order` heuristic). Write per-prompt JSON to `data/results/graphs/graph_<prompt_id>.json` matching the data-model schema. Focused unit tests in `code/tests/test_graph_builder.py` cover the two acceptance scenarios (explicit contradiction edge; `temporal-precedes` edge for "First X, then Y") and the null-graph edge case. Check: pytest passes; parser allocates no GPU memory; on the full 1000-prompt set total CPU runtime ≤ 30 min (SC-002), recorded in `data/results/parser_runtime.json`. Parallelizable with T002/T014 (needs only sample prompts for tests; full-set run in T007).
+*Checkpoint*: Executing `python -m code.src.cli.run_all --subset 50` completes end‑to‑end, producing the CSV/JSON artifacts above with real model outputs and human scores.
 
-- [ ] T004 [US-1] Run the baseline verifier end-to-end on a small real subset with real human scores. In `code/src/verifier/baseline.py`: load EXACTLY `Qwen/Qwen2.5-1.5B-Instruct` (the single pinned verifier model for baseline AND augmented conditions; record the model ID, revision hash, seeds, and batch size in quickstart provenance) with `transformers`, `device="cuda"` (real GPU computation — auto-offloaded to the free Kaggle GPU by the execution stage; do NOT simulate it on CPU), batched inference on the first 50 curated prompts (25 conflicting, 25 neutral), extracting a 0–1 verifier feasibility score per prompt with per-prompt try/except that skips and logs crashed/timed-out prompts without halting the job (spec edge case). Because T014 has already annotated all 1000 prompts, the subset rows have real `human_score` values. Write `data/results/baseline_scores.csv` (`prompt_id, verifier_score, human_score, alignment_delta`) for the subset. Check: the subset CSV has non-null `verifier_score` for ≥ 90% of rows and non-null `alignment_delta` (= verifier_score − human_score, terminology note) for all rows with both scores present. Depends on T002 and T014.
+---
 
-- [ ] T005 [US-3] Connect the graph-augmented condition and run the paired statistics on the small subset. In `code/src/verifier/augmented.py`: feed each prompt's graph JSON as structured context into the verifier prompt template (same pinned model `Qwen/Qwen2.5-1.5B-Instruct`), with two controls per the data model — `control_filler` (random JSON filler of matched size) and `control_empty` (`{}`) — writing `data/results/augmented_scores.csv` with condition rows. In `code/src/analysis/stats.py`: paired t-test (or Wilcoxon if normality fails) of alignment deltas, baseline vs. graph-augmented, on the subset (real human scores from T014 make the deltas non-null); Cohen's d; 95% CI. Unit tests in `code/tests/test_stats.py` verify the statistics against `scipy`/`statsmodels` on hand-checkable inputs. Check: running `python -m code.src.cli.run_all --subset 50` produces real result rows under `data/results/` with required fields and a printed p-value/effect size — the end-to-end thin slice is executable with real verifier outputs AND real human scores, and its numbers are checkable. Depends on T003, T004 (hence T014).
+## Phase 2 – Complete the study and validate its evidence  
 
-**Checkpoint**: The documented quickstart command executes end-to-end on 50 real prompts with real verifier outputs and real human scores (T014 completed before T004/T005). No report writing from expected or invented results.
+*Goal*: Scale all components to the full 1 000‑prompt dataset, add robustness checks, and generate the contract‑compliant report.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] T007 [US‑1] **Run baseline verifier on the full dataset** – reuse `code/src/verifier/baseline.py` (CPU‑only 8‑bit) on all 1 000 prompts, writing `data/results/baseline_scores.csv`. Record wall‑clock runtime and peak RAM in `data/results/baseline_runtime.json`; assert total CPU time ≤ 2 h (SC‑009) and that the CSV contains a row for every prompt (or a logged skip).  
+  *Verification*: The runtime file reports `runtime_seconds ≤ 7200`; the CSV has 1 000 rows (or documented skips). Verify CPU‑only execution and 8‑bit quantization as in T005.
 
-- [ ] T006 [US-1] Scale the baseline evaluation to the full 1000-prompt dataset. Run `code/src/verifier/baseline.py` (pinned model `Qwen/Qwen2.5-1.5B-Instruct`) on all 1000 curated prompts (real GPU inference, batched, skip-and-log error handling), producing the full `data/results/baseline_scores.csv`. Record wall-clock runtime and peak memory (`psutil`) in `data/results/baseline_runtime.json`; assert baseline verifier runtime ≤ 2 h wall-clock on the GPU pass (SC-009 as re-measured under documented deviation 1; CPU-stage runtimes recorded separately) and report mean ± SD baseline alignment score on the conflicting subset (SC-006, SC-010) and the neutral subset in `data/results/baseline_summary.json`. Check: CSV covers all 1000 prompts (or logged skips), all scores real model outputs. Depends on T002, T014.
+- [ ] T008 [US‑2] **Generate graphs for the full dataset and run graph‑augmented evaluation** – execute the parser (T003) on all prompts (CPU, ≤ 30 min) to produce JSON files. Then run `code/src/verifier/augmented.py` for all three conditions (graph, filler, empty) on the full set, producing `data/results/augmented_scores.csv` (three rows per prompt).  
+  *Verification*: `augmented_scores.csv` contains 3 000 rows, each with non‑null `verifier_score`; parser runtime logged ≤ 30 min and peak RAM ≤ 7 GB (as recorded in `data/results/parser_runtime.json` and `parser_ram.json`).
 
-- [ ] T007 [US-2] Scale graph generation and the graph-augmented evaluation to the full dataset. Run the parser over all 1000 prompts (CPU, ≤ 30 min, SC-002) and `code/src/verifier/augmented.py` (pinned model) over all 1000 prompts in all three conditions (graph, filler control, empty control) on the real GPU, producing the full `data/results/augmented_scores.csv`. Check: three condition rows per prompt; graph JSONs exist for every prompt (null graphs allowed and logged for missed conflicts); no GPU allocation in the parser stage. Depends on T003, T006.
+- [ ] T009 [US‑3] **Create and evaluate a re‑phrased hold‑out conflict set** – using `code/src/data/conflict_generator.py`, synthesize 100 *new* conflicting prompts with linguistic templates distinct from the primary set, store them in `data/results/holdout_prompts.csv`. Collect real human feasibility scores for these 100 prompts via the same annotation pipeline (adds to `human_validation.csv` and merges into the hold‑out CSV). Parse them (T003) and evaluate both baseline and graph‑augmented conditions (CPU) to obtain `data/results/holdout_baseline_scores.csv` and `data/results/holdout_augmented_scores.csv`. Compute the effect size for the hold‑out set with `code/src/analysis/stats.py` and write `data/results/holdout_stats.json`.  
+  *Verification*: All 100 hold‑out prompts have `human_score`; the effect‑size comparison reports a non‑significant drop (p ≥ 0.05) per SC‑005.
 
-- [ ] T009 [US-3] Build and evaluate the rephrased hold-out robustness set. In `code/src/data/conflict_generator.py`: generate a hold-out set of **N = 100 conflicting instructions** with systematically different linguistic phrasings (different syntactic templates and vocabulary for the same contradiction types, disjoint from the primary set's templates), obtain REAL human ratings for them via the T014 annotation protocol (**≥ 3 independent raters per hold-out prompt**), run the parser (T003) and the baseline + graph-augmented conditions on the hold-out using the T007 runners (pinned model, real GPU), and compute the hold-out effect size there (directly with `scipy`/`statsmodels` — no dependency on T008's stats module). The primary-vs-hold-out effect-size comparison (no significant drop, p ≥ 0.05, SC-005) is computed in T008 and included in `report.json` as `tests.robustness` (FR-006; expressibility of the effect-size-difference test under the current schema is flagged, kickback flag 7 — the comparison is also reported in `report.csv`). Check: hold-out scores come from real verifier runs and real human ratings; 100 hold-out prompts with n_raters ≥ 3. Depends on T002, T014 (human ratings), T003 (parser), T007 (augmented runner).
+- [ ] T010 [US‑3] **Perform full statistical analysis and emit the contract‑conformant report** – extend `code/src/analysis/stats.py` / `code/src/analysis/report.py` to (a) run paired tests for (i) primary conflict subset (baseline vs. graph), (ii) neutral subset (baseline vs. graph), (iii) graph vs. filler, (iv) graph vs. empty, (v) hold‑out robustness, (b) apply Benjamini‑Hochberg correction across all hypotheses, (c) compute **Pearson r** between verifier scores (both conditions) and human scores and verify r ≥ 0.5, (d) assemble `data/results/report.json` adhering to `specs/001-llmxive-verifier-graph/contracts/evaluation_report.schema.yaml`, and (e) produce a supplementary `data/results/report.csv` with every test’s raw and corrected statistics.  
+  *Verification*: `pytest code/tests/test_evaluation_report.py` validates the JSON against the schema; the CSV contains rows for all tests; total pipeline runtime ≤ 6 h and peak RAM ≤ 7 GB (recorded in `report.json`). The Pearson correlation check must pass (≥ 0.5) or the task fails.
 
-- [ ] T008 [US-3] Run the complete statistical analysis with controls, multiple-comparison correction, and emit the contract-conformant report. In `code/src/analysis/stats.py` + `code/src/analysis/report.py`: paired tests for (a) primary — conflicting subset, graph-augmented vs. baseline alignment; (b) neutral subset (no-degradation check, SC-006 context); (c) graph vs. filler control and graph vs. empty control (context-effect controls); (d) robustness hold-out effect-size comparison from T009's results (SC-005). Apply Benjamini-Hochberg correction across all hypothesis tests (FR-007); report p-values, Cohen's d, 95% CIs (FR-005); compute Pearson r between verifier scores (both conditions) and human scores (SC-007). Generate `data/results/report.json` and `data/results/report.csv`: `report.json` carries `tests.primary` and `tests.robustness` plus `multiple_comparison_correction` per the contract schema, and additionally a supplementary `secondary_tests` block holding the neutral-subset and control-condition results (schema extension to formalize this block is flagged, kickback flag 7); `report.csv` carries ALL tests with their corrected p-values so no result is dropped. Contract test in `code/tests/test_evaluation_report.py` validates `report.json` against `specs/001-llmxive-verifier-graph/contracts/evaluation_report.schema.yaml`. Check: report contains only numbers computed from the real score CSVs; total pipeline runtime ≤ 6 h and CPU-stage peak RAM ≤ 7 GB (FR-008, SC-003; GPU-pass timing per documented deviation 1), recorded in the report. Depends on T007 and T009 (hold-out results must exist before the report is emitted).
+- [ ] T011 [US‑3] **Run independent validation checks** – add a test suite `code/tests/validation/` that (a) confirms all alignment‑delta calculations match the source CSVs, (b) repeats the statistical analysis with both t‑test and Wilcoxon to ensure consistent conclusions, (c) performs a power analysis for n = 500 conflicting pairs, d = 0.5, α = 0.05 and records achieved power in `data/results/validation_checks.json`, (d) asserts the success‑criteria thresholds: Pearson r ≥ 0.5 for both baseline and graph (SC‑007) and Cohen’s d ≥ 0.5 for the primary improvement (SC‑008), (e) checks that parser runtime ≤ 30 min and overall pipeline ≤ 6 h, RAM ≤ 7 GB.  
+  *Verification*: All pytest checks pass; `validation_checks.json` contains boolean pass/fail fields for each criterion.
 
-- [ ] T010 [P] [US-1] Add independent correctness, sensitivity, runtime, and success-criteria checks. In `code/tests/`: (a) verify alignment-score computation reproduces from raw CSVs (single-source-of-truth check — every figure/table number traces to a CSV row); (b) sensitivity check on the statistical method choice (t-test vs. Wilcoxon both reported); (c) power analysis at n=500 conflicting pairs for d=0.5, α=0.05, reporting achieved power and any limitation honestly (spec statistical-power assumption); (d) runtime/memory assertions for parser (≤ 30 min), full pipeline (≤ 6 h), CPU-stage RAM (≤ 7 GB); (e) **explicit pass/fail assertions for the threshold success criteria**: SC-007 (Pearson r ≥ 0.5 for BOTH baseline and graph-augmented conditions against human scores) and SC-008 (Cohen's d ≥ 0.5 for the primary improvement), each evaluated against its threshold and the boolean outcome recorded — a failed assertion is reported as a failed criterion, never silently omitted. Execute all checks and record actual outcomes (including SC-007/SC-008 pass/fail booleans) in `data/results/validation_checks.json`. Check: pytest suite passes; validation outcomes recorded alongside result artifacts. Depends on T008, T009.
+- [ ] T012 [US‑3] **Generate figures and summary tables** – implement `code/src/analysis/visualize.py` to create:  
+  * `figures/fig1_baseline_alignment.png` – distribution of alignment scores for conflicting vs. neutral prompts (baseline).  
+  * `figures/fig2_augmented_vs_baseline.png` – paired delta plot across conditions.  
+  * `figures/fig3_effect_sizes.png` – primary vs. hold‑out effect sizes with 95 % CIs.  
+  * `data/results/summary_table.csv` – mean ± SD alignment per condition, p‑values, effect sizes, Pearson r, and SC‑007/SC‑008 pass flags.  
+  All numbers are read directly from the CSV/JSON result artifacts; figure generation is deterministic (fixed random seed, matplotlib style).  
+  *Verification*: Re‑running the visualization script after any upstream change yields byte‑identical PNGs and CSV rows.
 
-- [ ] T011 [US-3] Generate the specified tables and figures directly from validated outputs. In `code/src/analysis/report.py` (or a plotting module): produce `figures/fig1_baseline_alignment.png` (alignment distributions, conflicting vs. neutral, baseline), `figures/fig2_augmented_vs_baseline.png` (paired alignment deltas, all conditions), `figures/fig3_effect_sizes.png` (primary vs. hold-out effect sizes with CIs), and a summary table `data/results/summary_table.csv` (mean ± SD alignment by condition × instruction type, p-values, effect sizes, CIs, Pearson r, SC-007/SC-008 pass/fail flags). Every number must be read programmatically from the result CSVs — no hand-typed values. Include uncertainty (CIs) and stated limitations (power, parser recall on missed conflicts) in the figure captions/table notes. Check: regenerating figures from unchanged CSVs is byte-stable (fixed seeds, deterministic styling). Depends on T008, T009, T010.
+---
 
-## Phase 3: Reproducible results and paper handoff
+## Phase 3 – Reproducible results and paper handoff  
 
-- [ ] T012 [P] Write the methods/results account in `specs/001-llmxive-verifier-graph/research.md`, linked to the actual output cells in `data/results/*.csv` and figure files in `figures/`. Describe honestly: baseline degradation magnitude on conflicting instructions (or its absence), the graph-augmented improvement with corrected p-value and effect size, control-condition results (filler/empty), robustness outcome, parser recall on conflicting prompts (null-graph rate), skipped-prompt counts, power limitations, SC-007/SC-008 criterion outcomes, and any negative findings. No number may appear that does not trace to a result artifact. Check: every quantitative claim in `research.md` cites a specific artifact path/row. Depends on T010, T011.
+*Goal*: Document the full workflow for external replication and provide the handoff artifacts for the paper pipeline.
 
-- [ ] T013 [P] Re-run the documented workflow end-to-end from its declared inputs and document the paper-stage handoff. Update `specs/001-llmxive-verifier-graph/quickstart.md` with the full reproduction sequence (download → curate → annotate → parse → baseline → augmented → hold-out → stats → report), the exact commands, environment notes (CPU stages on the Actions runner vs. GPU-offloaded verifier stages with the pinned model `Qwen/Qwen2.5-1.5B-Instruct`, seeds, and batch sizes — documented deviations 1–2), and the verification commands (pytest suite, schema validation of `report.json`). Confirm in a final re-run that all tests pass, `report.json` validates against the contract schema, and runtime/memory budgets hold. Document the paper-stage handoff: the paper pipeline receives `research.md`, `data/results/report.json`, `summary_table.csv`, and `figures/*.png` as its inputs; paper layout, PDF compilation, and publication are NOT tasks here. Check: a fresh run of the documented commands from clean inputs reproduces the result artifacts with CSV numeric columns matching to 1e-9 and figures byte-identical. Depends on T012.
+- [ ] T013 [US‑1] **Write the methods‑results manuscript** – create `specs/001-llmxive-verifier-graph/research.md` that narrates the experimental design, dataset construction, parser implementation, verifier configurations, statistical methodology, and results. Every quantitative statement must cite a concrete artifact path (e.g., “mean baseline alignment = 0.42 ± 0.12 (see `data/results/baseline_summary.json` line 23)”). Include discussion of failure modes, null‑graph rate, skipped prompts, power limitations, and whether the success‑criteria thresholds were met.  
+  *Verification*: A script `code/src/verification/link_check.py` parses `research.md` and confirms that each cited artifact exists and contains the referenced fields.
 
-## Dependencies and requirement coverage
+- [ ] T014 [US‑1] **Write the reproducibility quick‑start guide** – update `specs/001-llmxive-verifier-graph/quickstart.md` with the exact command sequence to reproduce the entire study from a clean checkout (see below). Add a CI step that runs this full sequence on a fresh runner and asserts zero‑non‑zero exit codes.  
+  *Verification*: A fresh run on a clean runner reproduces `data/results/report.json` that validates against the schema, all figures/tables match the committed versions (byte‑identical), and the end‑to‑end script exits successfully.
 
-| Requirement | Tasks | Demonstrating command |
-|---|---|---|
-| FR-001 dataset curation (1000 balanced prompts) | T001, T002 | `python -m code.src.data.curate` |
-| FR-009/FR-001 human scores for all 1000 prompts | T014, T009 | `data/results/human_validation.csv` (n_raters ≥ 3) |
-| FR-002 CPU-only symbolic parser | T003, T007 | `pytest code/tests/test_graph_builder.py` |
-| FR-003 baseline verifier vs. human scores | T004, T006 | `python -m code.src.verifier.baseline` |
-| FR-004 graph-augmented evaluation + controls | T005, T007 | `python -m code.src.verifier.augmented` |
-| FR-005 paired tests, effect sizes, CIs | T005, T008 | `python -m code.src.analysis.stats` |
-| FR-006 rephrased hold-out robustness | T009, T008 | robustness test in `report.json`/`report.csv` |
-| FR-007 multiple-comparison correction | T008 | `tests`/`multiple_comparison_correction` in `report.json` |
-| FR-008 runtime/memory budgets | T003, T006, T008, T010 | `data/results/validation_checks.json` |
-| FR-010 synthetic scores excluded from evaluation | T002, T014, T010 | unit test: no synthetic leak into `human_score` |
-| SC-001–SC-010 | T006–T011 | `data/results/report.json`, `summary_table.csv`, `validation_checks.json` |
+  ```bash
+  # 1️⃣ Download raw data
+  python -m code.src.data.download
 
-Execution order: T001 first; T002 after T001; T014 after T002; T003 parallelizable ([P]) with T002/T014; T004 after T002+T014; T005 after T003+T004; T006 after T002+T014; T007 after T003+T006; T009 after T002+T014+T003+T007; T008 after T007+T009; T010–T011 after T008/T009; T012–T013 last.
+  # 2️⃣ Curate balanced CSV
+  python -m code.src.data.curate
 
-## Revision behavior
+  # 3️⃣ Collect human scores (requires access to the annotation platform)
+  python -m code.src.data.human_annotation
 
-Revision 2 (convergence corrective pass): fixed T004/T005 subset human-score availability by ordering T014 (full 1000-prompt annotation) before T004; added T007 to T009's declared dependencies; preserved all T### IDs. On future revisions: preserve verified artifacts and checked tasks whose receipts still match; repair specific failing commands rather than regenerating the task list; never reopen unrelated requirements.
+  # 4️⃣ Build constraint graphs (CPU only)
+  python -m code.src.parser.graph_builder
+
+  # 5️⃣ Baseline verifier (CPU‑only 8‑bit)
+  python -m code.src.verifier.baseline
+
+  # 6️⃣ Graph‑augmented verifier + controls (CPU‑only 8‑bit)
+  python -m code.src.verifier.augmented
+
+  # 7️⃣ Hold‑out robustness set
+  python -m code.src.data.conflict_generator --holdout 100
+  python -m code.src.verifier.baseline --subset holdout
+  python -m code.src.verifier.augmented --subset holdout
+
+  # 8️⃣ Full statistical analysis & report
+  python -m code.src.analysis.report
+
+  # 9️⃣ Validate everything
+  pytest
+  ```
+
+- [ ] T015 [US‑1] **Paper‑stage handoff manifest** – create `specs/001-llmxive-verifier-graph/handoff.yaml` listing the exact artifacts required by the downstream paper pipeline:
+
+  ```yaml
+  data:
+    - data/results/report.json
+    - data/results/summary_table.csv
+  figures:
+    - figures/fig1_baseline_alignment.png
+    - figures/fig2_augmented_vs_baseline.png
+    - figures/fig3_effect_sizes.png
+  manuscript:
+    - specs/001-llmxive-verifier-graph/research.md
+  ```
+
+  *Verification*: A CI step runs `python -c "import yaml, sys; yaml.safe_load(open('specs/001-llmxive-verifier-graph/handoff.yaml'))"` and checks that every listed path exists.
+
+---
+
+### Dependency & Requirement Coverage
+
+| Spec Requirement | Task(s) | Artifact |
+|------------------|---------|----------|
+| FR‑001 (balanced 1 000 prompts) | T001, T002 | `data/results/curated_prompts.csv` |
+| FR‑009 (human scores) – resolved to **all 1 000** | T004 | `data/results/human_validation.csv` |
+| FR‑002 (CPU‑only symbolic parser) | T003, T008 | `data/results/graphs/*.json` |
+| FR‑003 (baseline verifier) | T005, T007 | `data/results/baseline_*.csv` |
+| FR‑004 (graph‑augmented verifier) | T006, T008 | `data/results/augmented_*.csv` |
+| FR‑005 (paired statistical test) | T006, T010 | `data/results/report.json` |
+| FR‑006 (robustness hold‑out) | T009, T010 | `data/results/holdout_stats.json` |
+| FR‑007 (multiple‑comparison correction) | T010 | `report.json` |
+| FR‑008 (runtime ≤ 6 h, RAM ≤ 7 GB) | T003, T007, T010, T011 | `validation_checks.json` |
+| FR‑010 (no synthetic scores in evaluation) | T002, T004, T010 | `curated_prompts.csv` (human_score only) |
+| SC‑001 – SC‑010 | T007‑T012 | various result CSV/JSON files, figures |
+
+All tasks respect the **compute feasibility rule**: only the verifier inference uses a real GPU‑offload mechanism **only when the runner lacks CUDA**; otherwise they run CPU‑only 8‑bit as mandated. No synthetic data are used for evaluation, and every failure mode described in the specification (null graphs, verifier crashes, ambiguous temporality) is explicitly handled.
