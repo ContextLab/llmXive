@@ -1,8 +1,15 @@
 status: none
-intent: bigcode the-stack dataset huggingface datasets library python package dataset
+intent: Hugging Face LogHub safety logs and GitHub issues corpus with human annotated
+  categories python package dataset
 required_fields:
-- code
-- label
-cache_key: 437c757aeb26a35dc10df96bc94674d3df21bb09bf863cf1e21005f76707acbd
-searched_at: '2026-10-18T20:28:10.128259+00:00'
+- log_id
+- log_text
+- category_label
+- source
+- timestamp
+- embedding_vector
+- annotator_id
+- consensus_label
+cache_key: c1f98f3f4d774a18510e006d551d51d78c36b4282e31c50010a6ad792cd98f05
+searched_at: '2026-10-23T10:07:41.144743+00:00'
 retry_count: 1

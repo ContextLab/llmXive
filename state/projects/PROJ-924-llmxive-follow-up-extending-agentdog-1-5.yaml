@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T04:13:45.054830Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-924-llmxive-follow-up-extending-agentdog-1-5
-last_run_id: 96fc4e42-572a-49a0-b337-79177acb5a30
+last_run_id: 4066008a-3fa1-4fd4-8734-e82f63f231df
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5
 title: 'llmXive follow-up: extending "AgentDoG 1.5: A Lightweight and Scalable Alignment
   Framework for AI Ag"'
-updated_at: '2026-10-18T20:19:35.975295Z'
+updated_at: '2026-10-23T10:30:47.120583Z'

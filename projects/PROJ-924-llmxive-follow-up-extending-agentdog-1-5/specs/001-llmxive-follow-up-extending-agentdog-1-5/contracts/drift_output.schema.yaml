@@ -1,11 +1,12 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "DriftScoreRecord"
-description: "Per-log output of the zero-shot drift detector."
+description: "Per‑log output of the zero‑shot drift detector."
 type: "object"
 properties:
   log_id:
     type: "string"
     minLength: 1
+    description: "Unique identifier of the log."
   drift_score:
     type: "number"
     minimum: 0.0
@@ -14,9 +15,10 @@ properties:
   nearest_centroid:
     type: "string"
     enum: ["Safety", "Privacy", "Bias", "Jailbreak"]
+    description: "Category whose centroid is closest to the log embedding."
   review_flag:
     type: "boolean"
-    description: "True iff drift_score >= 0.5 (pre-registered operating point, FR-002)."
+    description: "True iff drift_score >= 0.5 (pre‑registered operating point, FR‑002)."
 required:
   - log_id
   - drift_score

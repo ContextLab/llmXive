@@ -1,47 +1,64 @@
-# Data Model: Zero-Shot Drift Detection
+# Data Model: Centroid‑Based Drift Detection
 
 ## Overview
+Definitions of all entities, their JSON‑Schema contracts, and the transformation pipeline that turns raw logs into drift scores, human annotations, and final metrics. Added fields for confound control (log length, source) and clarified the drift‑score record.
 
-Entities, schemas, and transformation logic for the drift detection pipeline.
+## Entities & Schemas
 
-## Entities
-
-### 1. LogEntry (`contracts/agent_log.schema.yaml`)
-- `log_id`: string, unique (hash of content + source).
-- `text`: string, raw log content (PII-scrubbed for GitHub-derived logs).
-- `source`: string — `"agentdog/safety-v1"` or `"github-issues"`.
-- `timestamp`: ISO 8601 string or null.
-- `label`: category ("Safety"|"Privacy"|"Bias"|"Jailbreak") or null (unlabeled/novel-corpus logs).
-
-### 2. TaxonomyCentroid (`contracts/taxonomy_centroid.schema.yaml`)
-- `category`: one of the four taxonomy categories.
-- `description`: category definition.
-- `embedding`: 384 floats (normalized mean of ≥100 member embeddings).
-- `n_samples`: int, ≥100 (FR-004).
-- `source_version`: dataset revision id.
-
-### 3. DriftScoreRecord (`contracts/drift_output.schema.yaml`)
-- `log_id`, `drift_score` (float, [0.0, 2.0]), `nearest_centroid` (category), `review_flag` (bool, `drift_score >= 0.5`).
-
-### 4. HumanAnnotation (`contracts/human_annotation.schema.yaml`)
-- `log_id`, `annotator_id` (exactly three distinct annotators), `label` ∈ {"novel attack", "known attack", "benign"}.
-- Derived gold standard: majority vote; "novel" iff majority label == "novel attack", else "benign".
-
-### 5. MetricsBundle (`data/processed/metrics.json`)
-- kappa_mean, mannwhitney_p, rank_biserial, logistic_coef_p, auc_drift, auc_flant5, latency ratios, chi2 stats, resource usage, holm-adjusted p-values.
+| Entity | Schema File | Key Fields |
+|--------|-------------|------------|
+| **LogEntry** | `contracts/agent_log.schema.yaml` | `log_id`, `text`, `source`, `timestamp`, `label`, **`log_length`** |
+| **TaxonomyCentroid** | `contracts/taxonomy_centroid.schema.yaml` | `category`, `description`, `embedding` (384‑dim), `n_samples` ≥ 100, `source_version` |
+| **DriftScoreRecord** | `contracts/drift_output.schema.yaml` | `log_id`, `drift_score` ∈ [0, 2], `nearest_centroid`, `review_flag`, **`log_length`**, **`source`** |
+| **HumanAnnotation** | `contracts/human_annotation.schema.yaml` | `log_id`, `annotator_id`, `label` ∈ {“novel attack”, “known attack”, “benign”} |
+| **MetricsBundle** (JSON) | N/A (generated) | `kappa_mean`, `mannwhitney_p`, `rank_biserial`, `logistic_coef_p`, `auc_drift`, `auc_flant5`, `latency_ratio`, `chi2_p`, `resource_usage`, `holm_adjusted_pvalues` |
 
 ## Transformation Logic
 
-1. **Load & scrub** (FR-004, FR-014): load `agentdog/safety-v1`; fetch ≥500 post-2025 GitHub issue logs; PII-scrub; checksum raw files (Principle III); write `data/raw/`.
-2. **Centroid generation** (FR-003, FR-004): group labeled logs by category; embed with MiniLM (batch 64); mean + renormalize; verify n ≥ 100 per category.
-3. **Drift scoring** (FR-001, FR-002): embed all logs; cosine distance to 4 centroids; min = `drift_score`; `review_flag = drift_score >= 0.5`.
-4. **Stratification & sampling** (FR-005, FR-017): high-drift = top [deferred] quantile, low-drift = bottom [deferred] quantile; seeded random sample of ≥100 logs across full drift range.
-5. **Blinded batches** (FR-006): annotation batch files contain only `log_id` + `text` (no scores, no bins).
-6. **Gold standard & validation** (FR-007–FR-009, FR-015, FR-017): majority vote; kappa; Mann-Whitney U + rank-biserial; logistic regression; chi-squared across bins; Holm correction; all on the FR-017 sample (bin test on binned logs).
-7. **Baseline & report** (FR-010–FR-013, FR-016): flan-t5-small AUC + latency; resource measurement; report generated from `metrics.json` only.
+1. **Load & Scrub** (`FR‑004`, `FR‑014`)  
+   - Load `agentdog/safety-v1` via HF loader.  
+   - Fetch ≥ 500 post‑2025 GitHub issue logs via the public API, store in `data/raw/novel_corpus.jsonl`.  
+   - Apply deterministic PII scrubbing; compute SHA‑256 checksums recorded in `data/raw/checksums.json`.  
+
+2. **Centroid Generation** (`FR‑003`, `FR‑004`)  
+   - Group labeled logs by category, embed with MiniLM (batch = 64).  
+   - Compute L2‑normalized mean vector → centroid; store in `data/processed/centroids.json` (validated against `taxonomy_centroid.schema.yaml`).  
+
+3. **Drift Scoring** (`FR‑001`, `FR‑002`)  
+   - Embed every log (both safety‑v1 and novel corpus).  
+   - Compute cosine distance to each centroid; keep minimum as `drift_score`.  
+   - Set `review_flag = drift_score >= DRIFT_THRESHOLD` (calibrated, default 0.5).  
+   - Record **`log_length`** (character count) and **`source`** for confound analysis.  
+   - Persist as Parquet `data/processed/drift_scores.parquet` (validated against `drift_output.schema.yaml`).  
+
+4. **Stratification & Sampling** (`FR‑005`, `FR‑017`)  
+   - Determine high‑drift (top quantile) and low‑drift (bottom quantile) bins **while controlling for log length and source** (quantiles resolved at runtime).  
+   - Seeded random sample of ≥ 100 logs uniformly across the full drift distribution; write IDs to `data/processed/full_range_sample.json`.  
+
+5. **Blinded Annotation Batches** (`FR‑006`)  
+   - For each sampled log, create JSONL files containing `log_id`, `text`, `log_length`, and `source` (no scores or bin labels).  
+   - Store under `data/processed/annotation_batches/`.  
+
+6. **Gold‑Standard Construction & Validation** (`FR‑007‑009`, `FR‑015`, `FR‑017`)  
+   - Ingest external `data/human_annotations.json`.  
+   - Verify exactly three distinct `annotator_id`s per `log_id`.  
+   - Compute majority‑vote binary “novel” label.  
+   - Run: mean pairwise Cohen’s κ, Mann‑Whitney U (with rank‑biserial), logistic regression `novel ~ drift_score + log_length + source`, chi‑squared test, Holm correction.  
+   - Store all results in `data/processed/metrics.json`.  
+
+7. **Baseline Comparison** (`FR‑010‑011`, `FR‑016`)  
+   - Run zero‑shot `google/flan‑t5‑small` on the same annotated set.  
+   - Compute AUC‑ROC; enforce baseline AUC ≥ 0.70.  
+   - Measure per‑log latency for both methods; compute ratio.  
+   - Perform **DeLong’s test** for paired AUCs; append baseline metrics to `metrics.json`.  
+
+8. **Final Report Generation** (`FR‑013`, `FR‑012`)  
+   - `code/report.py` reads `metrics.json`, creates `data/processed/report.md` with tables, ROC curves, latency plots.  
+   - Records peak RAM and wall‑clock time; asserts ≤ 7 GB and ≤ 6 h.  
+   - If human annotations missing or κ < 0.6, the script writes `status: Incomplete` and exits non‑zero (Principle VI).  
 
 ## Constraints
-
-- `RANDOM_SEED = 42`; `BATCH_SIZE = 64` (verified fact, arXiv:2410.21676); `MAX_RAM_GB = 7`; `DRIFT_THRESHOLD = 0.5` (pre-registered, FR-002 — not tunable at analysis time).
-- Raw data immutable; all derivations to new files; no PII in committed data.
-- Human annotations are external input; never generated by code.
+- `RANDOM_SEED = 42`; `BATCH_SIZE = 64`; `MAX_RAM_GB = 7`; `DRIFT_THRESHOLD = 0.5`.  
+- Raw data immutable; all transformations produce new files under `data/processed/`.  
+- No PII in committed data; any PII detected triggers scrubbing and re‑checksum.  
+- Human annotations are external; the pipeline never fabricates them.
