@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-23T17:09:56.679001+00:00",
+  "generated_at": "2026-10-23T17:16:09.786600+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -55343,7 +55343,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-119-statistical-modeling-of-temporal-depende.yaml",
         "code": "projects/PROJ-119-statistical-modeling-of-temporal-depende/code",
-        "data": null,
+        "data": "projects/PROJ-119-statistical-modeling-of-temporal-depende/data",
         "idea": "projects/PROJ-119-statistical-modeling-of-temporal-depende/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -55361,7 +55361,7 @@
       },
       "authors": [
         {
-          "contributions": 10,
+          "contributions": 11,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -55412,6 +55412,14 @@
       "id": "PROJ-119-statistical-modeling-of-temporal-depende",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 48.484744,
+          "ended_at": "2026-10-23T17:13:50.533513Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T17:13:02.048769Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 831.543665,
@@ -55483,14 +55491,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-13T15:19:59.813754Z"
-        },
-        {
-          "agent": "project_initializer",
-          "duration_s": 19.18572,
-          "ended_at": "2026-10-06T06:44:26.515281Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-06T06:44:07.329561Z"
         }
       ],
       "paper_status": null,
@@ -56607,7 +56607,7 @@
           ]
         },
         {
-          "contributions": 18,
+          "contributions": 19,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -56655,6 +56655,14 @@
       "id": "PROJ-126-predicting-avian-migration-patterns-from",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 111.161503,
+          "ended_at": "2026-10-23T17:08:57.464170Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T17:07:06.302667Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 50.158584,
@@ -56726,14 +56734,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T10:15:35.085559Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 199.267185,
-          "ended_at": "2026-10-23T10:10:34.422647Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-23T10:07:15.155462Z"
         }
       ],
       "paper_status": null,
@@ -176063,6 +176063,30 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 48.484744,
+      "ended_at": "2026-10-23T17:13:50.533513Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-119-statistical-modeling-of-temporal-depende",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T17:13:02.048769Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 111.161503,
+      "ended_at": "2026-10-23T17:08:57.464170Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-126-predicting-avian-migration-patterns-from",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T17:07:06.302667Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 24.825906,
       "ended_at": "2026-10-23T16:42:34.594357Z",
       "failure_reason": "",
@@ -182036,30 +182060,6 @@
       "project_stage": "specified",
       "severity": "ok",
       "started_at": "2026-10-22T16:10:40.307093Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 13.797405,
-      "ended_at": "2026-10-22T16:10:40.303399Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-22T16:10:26.505994Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 2187.276147,
-      "ended_at": "2026-10-22T16:10:34.702351Z",
-      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-204-quantifying-the-impact-of-spatial-correl",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-22T15:34:07.426204Z"
     }
   ],
   "reviewed_preprints": [
