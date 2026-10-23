@@ -2,7 +2,7 @@
 code/data/fetch_heas.py
 -----------------------
 
-This script downloads a real curated High-Entropy Alloy (HEA) yield‑strength
+This script downloads a real curated High‑Entropy Alloy (HEA) yield‑strength
 dataset from Zenodo, validates each row against the JSON‑schema contract
 `contracts/dataset.schema.yaml`, and writes a clean CSV to
 `data/raw/heas_raw.csv`.
@@ -14,8 +14,9 @@ The script aborts with a clear `ValueError` if any required field (e.g.
 import csv
 import json
 import re
+import io
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 import pandas as pd
 import requests
@@ -63,7 +64,7 @@ def _parse_composition(comp_str: str) -> Dict[str, float]:
         return {}
 
     # Regex matches an element symbol followed by a number (optionally in parentheses)
-    pattern = r"([A-Z][a-z]?)\(?([0-9]*\.?[0-9]+)\)?"
+    pattern = r"([A-Z][a-z]?)\\(?([0-9]*\\.?[0-9]+)\\)?"
     matches = re.findall(pattern, comp_str)
     if not matches:
         return {}
@@ -160,7 +161,7 @@ def fetch_heas() -> Path:
     try:
         resp = requests.get(ZENODO_DOWNLOAD_URL, timeout=30)
         if resp.status_code == 200:
-            df = pd.read_csv(pd.compat.StringIO(resp.text))
+            df = pd.read_csv(io.StringIO(resp.text))
         else:
             # Fallback to API lookup if direct URL fails
             api_resp = requests.get(ZENODO_API_URL, timeout=30)
@@ -172,7 +173,7 @@ def fetch_heas() -> Path:
             download_url = csv_meta["links"]["download"]
             csv_resp = requests.get(download_url, timeout=30)
             csv_resp.raise_for_status()
-            df = pd.read_csv(pd.compat.StringIO(csv_resp.text))
+            df = pd.read_csv(io.StringIO(csv_resp.text))
     except Exception as exc:
         raise RuntimeError(f"Failed to fetch HEA dataset from Zenodo: {exc}") from exc
 

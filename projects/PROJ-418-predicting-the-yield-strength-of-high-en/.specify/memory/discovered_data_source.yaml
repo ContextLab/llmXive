@@ -1,10 +1,11 @@
 status: none
-intent: download HEA yield strength dataset Zenodo Materials Project API periodic
-  table python package dataset
+intent: download HEA yield strength dataset Zenodo Materials Project periodic table
+  python package dataset
 required_fields:
-- material_id
-- element_fractions (per element columns)
-- yield_strength
-cache_key: ca1638bd3038f40dea64a2071ea8a51c02f12a261abf128a22d9d73b840db10c
-searched_at: '2026-10-23T20:13:13.145052+00:00'
+- AlloyID
+- "Element symbols as separate columns with atomic fraction values (e.g., Al, Cr,\
+  \ Fe, \u2026)"
+- YieldStrength (MPa)
+cache_key: c78bfa3429c17f200980a1923e616913c15fe049f7435cabc68b1710d5fc50a2
+searched_at: '2026-10-23T20:41:31.195264+00:00'
 retry_count: 1

@@ -7,8 +7,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.pipeline.run  --seed 42  --output-dir output/ -> rc=1
-2026-10-19 13:18:49 - __main__ - INFO - Starting pipeline with seed=42, output_dir=output/
-2026-10-19 13:18:49 - __main__ - ERROR - Pipeline execution failed: run_pipeline() got an unexpected keyword argument 'output_dir'
+2026-10-23 20:40:44 - __main__ - INFO - Starting pipeline with seed=42, output_dir=output/
+2026-10-23 20:40:44 - __main__ - ERROR - Pipeline execution failed: run_pipeline() got an unexpected keyword argument 'output_dir'
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-418-predicting-the-yield-strength-of-high-en/src/pipeline/run.py", line 63, in main
     run_pipeline(output_dir=args.output_dir)
@@ -39,7 +39,7 @@ ERROR tests/unit/test_logging_seed.py
 ERROR tests/unit/test_report_generator.py
 ERROR tests/unit/test_unit_utils.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-1 warning, 5 errors in 1.52s
+1 warning, 5 errors in 1.69s
 
 
 

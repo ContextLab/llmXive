@@ -1,15 +1,11 @@
 T000:
-  c: true
-  h: 1aecf080dadfdf1978c30d31ede1e7f42a01bf8d9d809d5032709d83dbc47a3e
-  r: I verified the presence and content of `code/setup/setup_env.py`, its supporting
-    files (`requirements.txt`, `contracts/requirements.schema.yaml`), and the pytest
-    suite `code/tests/test_setup_env.py`. The script creates a virtual environment,
-    installs the pinned packages, and validates the requirements file against the
-    schema, while the tests confirm each step succeeds.
-  sig: cbb6b064550ad243a6fbde7675da939047d016571b66e482b51f0734179c799f
-T008:
   c: false
-  h: ba385b9c938f7ab0fa7980527b157b3c7c09529e5e968f969bfd9f8bb9857a66
-  r: The required file `data/raw/heas_raw.csv` is missing, so the code cannot load
-    the primary HEA dataset nor abort with a clear error as specified. The artifact
-    needed to satisfy the task does not exist.
+  h: afb6eecebf5a0dc4eac268158f0212e4cb243d5048bc8e0f41ad16cad7301718
+  r: "The provided `setup_env.py` creates a virtual environment, validates `requirements.txt`\
+    \ against its schema, and the test suite checks that `pandas` can be imported,\
+    \ but the script never runs `pip install -r requirements.txt`; it only verifies\
+    \ that `pip` is available. Consequently the requirement \u201Cinstall pinned dependencies\
+    \ from `requirements.txt`\u201D is not fulfilled. Implement a real installation\
+    \ step (e.g., `subprocess.run([pip_path, \"install\", \"-r\", str(requirements_path)])`)\
+    \ and adjust the test to confirm that the packages were installed."
+  sig: 7916f97c0a6898f47313a7ed7c4636c94dfbb5694a900f77049295fe95dbc25e

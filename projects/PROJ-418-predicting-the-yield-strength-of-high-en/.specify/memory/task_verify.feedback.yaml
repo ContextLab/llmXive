@@ -1,30 +1,43 @@
 T000:
-  task: a798e05e887a53a2fabdeb332dc75a5c1c3abfd15e51bd450dcf16b96a99d362
+  reason: "The provided `setup_env.py` creates a virtual environment, validates `requirements.txt`\
+    \ against its schema, and the test suite checks that `pandas` can be imported,\
+    \ but the script never runs `pip install -r requirements.txt`; it only verifies\
+    \ that `pip` is available. Consequently the requirement \u201Cinstall pinned dependencies\
+    \ from `requirements.txt`\u201D is not fulfilled. Implement a real installation\
+    \ step (e.g., `subprocess.run([pip_path, \"install\", \"-r\", str(requirements_path)])`)\
+    \ and adjust the test to confirm that the packages were installed."
+  task: f3bf8f73868dda022709ba454b6943a68e0bda1fc909950a5ae8f966645c46fa
 T001:
   reason: 'Requested task execution failed; rerun successfully: code/data/fetch_heas.py
     exit=1'
-  task: eb8f8211bd04eb537ba91f8358867b475d5f7010902523f6943d161b3c12fbf5
+  task: 8157b400d97c1d8e9b465a09330219cc4173ce6c01883ecbcad72143c26363e4
 T002:
-  reason: 'Requested task execution failed; rerun successfully: generate_processed_descriptors.py
-    exit=1'
-  task: fe7e9f24c1c330679c7d1150e96c39218ed72568c10b0e309bc77281f89608c6
+  task: 6a45242c1c17862d73b4ade2c4414c418725feb4ae8b1d7ee4ebcfed646ffa5d
+T003:
+  task: 3ddc5544e534360f3fec5053a32117de4db2d47863e77382a205c7375da5a672
 T004:
-  task: db6e58f09605e86c436e391ba057c2912ab4b59d12057cc660910a279768c3a6
+  task: 39d6eeba6e8090c0016e9cbc47c96df95ea68eff358e377912fb1f793c2448ec
 T005:
-  task: 1f77ff6249e78d55c28c5b3f4847952ffa1a77a83f1c8f2dba3dd721799567c9
+  task: 4863a81c49b9adad9ff7ec34c16d71b4c5a11aadcdfd58e52e03a6b4b7ae8718
 T006:
-  task: 289d68e932f3d57c8252775db4f39aba4a46e39e2411c1a48ad23a67dc9865a8
+  task: 6c664a02e2c1f43d17092961752289da2a9799f8d4798bb423912bdedbb52bb3
 T007:
-  task: 850cf74acae6e9045102caf11960ca309589305fd4b76854f78773f1d2e1c9b1
+  task: 18c0948f2ae9bdd8b5fec4fee12db03bd42623f564e668b65e5dbcc26bfe70f2
 T008:
-  task: a4793cc0b1aae49fa53e09322c570b7ff3b7965d060e78422d7f7539875a1f7a
+  task: 87e917f9656b73cd4e69173fc80e09b506e106b7a40efed2dddfbb3397064a90
 T009:
-  task: 44c1e9a7546ab57ccfcba1e018d6ffe3c22119548c4d535a5c6ab8df3da70999
+  task: dcaa7e43cfb716de802a35eb51102908a4e54f4675bac89e41813050a67acd97
 T010:
-  task: 22bc92c027888188c3d220c471d0b408f506afaca2fa68072829a198f78b5ab2
+  task: ab85b880a9ae4d96bf0cdab276cc72a5e6b7693ac1c4ce923cf661590b953402
 T011:
-  task: 0c7e8fccbf797ecf28d10c9f0c370672c03bf77a078563f59d543230264026ec
+  task: 11bd9a12adf70b78c3b1cebb2dab374d96df5c826bae5217e5d869c691a65bba
 T012:
-  task: 89bce249194251c5da47f0b58275ddb9802f290657bce4bb7bcca9415de06bfa
+  task: a806de6a74ebbcdc14346600d79215ec26a95d2f0147167b4bacf645c6eab8d3
 T013:
-  task: 1b5e7aec30f556119f56b4a0c9512b88af671ef234f547aebe37685c9ecfe7e5
+  task: 9c4546fc06396869508ad94549f3def0e41b7c929da255a0a8291b88d5f633e6
+T014:
+  task: 59c59a0ad3221404ea0296147f673477801607321edcd31c2e2ef80eabac28fa
+T015:
+  task: 90389d078052f242eebe3d238aee78e5aaeb66d21f91ec785d4c31c7b29a4eae
+T016:
+  task: 4f8708fefa7eb67fc5cb3337201c927a5abb014865811a40e090b3cf60363111
