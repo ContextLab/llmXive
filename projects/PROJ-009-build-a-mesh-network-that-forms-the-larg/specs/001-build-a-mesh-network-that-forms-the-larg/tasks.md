@@ -55,7 +55,7 @@ The checklist below implements the smallest complete study that satisfies every 
   - `code/tests/unit/test_calibration.py` – asserts both JSON files exist, contain numeric factors, and that `r_squared ≥ 0.9`.  
   - `logs/pytest_calibration.log` – output of the calibration unit tests showing **0 failures**.  
 
-- [ ] **T008** Provide realistic instrument‑log fixtures and implement parsers with unit‑test verification  
+- [~] **T008** Provide realistic instrument‑log fixtures and implement parsers with unit‑test verification  
   *Artifacts*  
   - `data/raw/sample_tcpdump.log` – e.g. “123 packets captured”.  
   - `data/raw/sample_mpstat.log` – typical `mpstat` output containing a line with “CPU % = 42.3”.  
@@ -66,27 +66,27 @@ The checklist below implements the smallest complete study that satisfies every 
   - `code/tests/unit/test_instrumentor.py` – reads the fixture files and asserts the returned numbers match the known values.  
   - `logs/pytest_instrumentor.log` – output of the unit tests showing **0 failures**.  
 
-- [ ] **T009** Execute a full parameter sweep on the CI‑friendly mock testbed, respecting network impairments and the global timeout  
+- [~] **T009** Execute a full parameter sweep on the CI‑friendly mock testbed, respecting network impairments and the global timeout  
   *Artifacts*  
   - `config/sweep_config.yaml` – grid definition: `granularity` ∈ {fine,medium,coarse} × `node_count` ∈ {10,15,20} × `injected_latency_ms` ∈ {0,50,100,150} × `replicates` = 4 (144 runs) plus 6 reserved dropout‑recovery runs → **150 runs** total. Includes `random_seed`, `sweet_spot_threshold`, and `global_timeout_seconds`.  
   - `code/orchestrator/network_impairment.py` – applies latency and packet‑loss via `tc netem`; aborts a run if packet‑loss > 20 % and logs reason `"NETWORK_SATURATION"` in `dropout_events.json`.  
   - `code/orchestrator/sweep_runner.py` – iterates over the grid, validates that calibration files exist before each run, wraps each run with `@enforce_pipeline_timeout`, writes per‑run CSV `data/raw/run_<run_id>.csv` and `data/raw/task_chunks/<run_id>.jsonl`.  
   - `logs/pytest_sweep.log` – result of a quick sanity‑check that the sweep runner launches at least one run and respects the timeout (0 failures).  
 
-- [ ] **T010** Aggregate raw logs into a schema‑conforming `execution_runs.csv` and produce a run‑inclusion report  
+- [~] **T010** Aggregate raw logs into a schema‑conforming `execution_runs.csv` and produce a run‑inclusion report  
   *Artifacts*  
   - `code/analysis/aggregate.py` – reads all `run_*.csv`, merges node metadata, dropout events, calibration factors, and computes per‑run metrics required by `execution-run.schema.yaml`.  
   - `data/processed/execution_runs.csv` – one row per **included** run, validated against `execution-run.schema.yaml`.  
   - `code/analysis/data_validator.py` – scans `execution_runs.csv` for missing required columns; writes `data/raw/validation_status.json` mapping each `run_id` → `included` / `excluded` with a short reason.  
   - `logs/pytest_aggregate.log` – output of the aggregation script validation (0 failures).  
 
-- [ ] **T012** Variable‑Fit verification (must run before any regression)  
+- [~] **T012** Variable‑Fit verification (must run before any regression)  
   *Artifacts*  
   - `code/analysis/validation.py` – invoked by `aggregate.py`; confirms that every required predictor (`cpu_variance`, `dropout_rate`, `node_count`, `granularity_setting`, `injected_latency`) and outcome (`total_throughput`) is present for each run; writes an updated `data/raw/validation_status.json` with per‑run `included` / `excluded` flags and reasons.  
   - Updated `code/tests/integration/test_full_workflow.py` – asserts that after both `run-single` and the full sweep, `validation_status.json` exists and only runs with all critical variables are marked “included”.  
   - `logs/pytest_variable_fit.log` – result of the integration test (0 failures).  
 
-- [ ] **T018** Physical‑pilot validation of the mock testbed (Principle VI)  
+- [ ] **T018** Physical‑pilot validation of the mock testbed (Principle VI)   <!-- FAILED-IN-EXECUTION: code/orchestrator/pilot_validation.py exit=2 -->
   *Artifacts*  
   - `code/orchestrator/pilot_validation.py` – runs the full scheduler on a small real mesh of **12** heterogeneous devices, records the same metrics as the mock run, and compares key aggregates (throughput, coordination‑overhead) against the mock baseline.  
   - `data/raw/pilot_validation_report.json` – JSON summary of the comparison, must show ≤ 10 % deviation.  

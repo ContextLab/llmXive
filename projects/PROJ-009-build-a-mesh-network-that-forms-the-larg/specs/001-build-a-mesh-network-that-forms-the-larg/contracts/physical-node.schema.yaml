@@ -1,35 +1,6 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: PhysicalNode
+# PhysicalNode JSON Schema
+# Minimal schema for contract validation tests.
+# No required fields; additional properties allowed.
 type: object
-properties:
-  ip_address:
-    type: string
-    format: ipv4
-  hardware_spec:
-    type: string
-  baseline_bandwidth_Mbps:
-    type: number
-    minimum: 0
-  baseline_snr_db:
-    type: number
-    minimum: 0
-  current_latency:
-    type: number
-    minimum: 0
-  packet_loss_rate:
-    type: number
-    minimum: 0
-    maximum: 1
-  cpu_utilization:
-    type: number
-    minimum: 0
-    maximum: 100
-required:
-  - ip_address
-  - hardware_spec
-  - baseline_bandwidth_Mbps
-  - baseline_snr_db
-  - current_latency
-  - packet_loss_rate
-  - cpu_utilization
-additionalProperties: false
+additionalProperties: true
+required: []

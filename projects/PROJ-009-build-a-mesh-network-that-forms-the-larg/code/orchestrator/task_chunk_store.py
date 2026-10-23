@@ -1,19 +1,23 @@
 """
 Persistence helper for ``TaskChunk`` records.
 
-The store writes each ``TaskChunk`` as a JSON line into a file under
-``data/raw/task_chunks/<run_id>.jsonl``.  It also provides a simple
-validation function that checks a record against the JSON‑Schema
-defined in ``specs/001-build-a-mesh-network-that-forms-the-larg/contracts/task-chunk.schema.yaml``.
+This module has been refactored so that the storage location can be
+monkey‑patched by the test suite.  The mutable ``base_dir`` attribute is
+provided by ``runtime.paths.TaskChunkStore``.  All write operations now
+reference that attribute, allowing isolated tests to redirect output
+without touching the production directory.
 """
 
 import json
+import logging
 from pathlib import Path
 from typing import Dict
 
 import yaml
 import jsonschema
-from llmxive_toolkit import paths, get_logger
+
+from llmxive_toolkit import get_logger
+from runtime.paths import TaskChunkStore as RuntimeTaskChunkStore
 
 log = get_logger(__name__)
 
@@ -60,11 +64,6 @@ def validate_task_chunk(chunk_record: dict) -> bool:
     bool
         ``True`` if the record conforms to the schema.  If validation
         fails a ``jsonschema.exceptions.ValidationError`` is raised.
-
-    Raises
-    ------
-    jsonschema.exceptions.ValidationError
-        If the record does not satisfy the schema.
     """
     jsonschema.validate(instance=chunk_record, schema=_TASK_CHUNK_SCHEMA)
     return True
@@ -74,28 +73,24 @@ def validate_task_chunk(chunk_record: dict) -> bool:
 # Persistence
 # ----------------------------------------------------------------------
 class TaskChunkStore:
-    """Simple writer for TaskChunk JSON‑Lines."""
+    """
+    Simple writer for TaskChunk JSON‑Lines.
 
-    def __init__(self) -> None:
-        # Base directory for task‑chunk persistence.
-        # Use the mutable ``paths`` helper so tests can redirect the root.
-        self.base_dir = paths.data("raw", "task_chunks")
-        self.base_dir.mkdir(parents=True, exist_ok=True)
+    The class uses the mutable ``RuntimeTaskChunkStore.base_dir`` as the
+    destination directory.  Tests can monkey‑patch that attribute to a
+    temporary location, ensuring no side‑effects on the real data store.
+    """
 
-    def _chunk_path(self, run_id: str) -> Path:
+    @classmethod
+    def _chunk_path(cls, run_id: str) -> Path:
         """Return the Path for the given run's JSONL file."""
         filename = f"{run_id}.jsonl"
-        return self.base_dir / filename
+        return RuntimeTaskChunkStore.base_dir / filename
 
-    # Compatibility alias used by the test suite
-    def _jsonl_path(self, run_id: str) -> Path:
-        """Alias for ``_chunk_path`` to keep backward compatibility with tests."""
-        return self._chunk_path(run_id)
-
-    def write_chunk(self, run_id: str, chunk_record: dict) -> None:
+    @classmethod
+    def write_chunk(cls, run_id: str, chunk_record: dict) -> None:
         """
         Append a single ``chunk_record`` to the JSONL file for ``run_id``.
-        The record is written as a single line of JSON.
 
         Parameters
         ----------
@@ -108,7 +103,24 @@ class TaskChunkStore:
         """
         # Ensure the record is JSON‑serialisable
         line = json.dumps(chunk_record, ensure_ascii=False)
-        path = self._chunk_path(run_id)
+        path = cls._chunk_path(run_id)
+        path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as f:
             f.write(line + "\n")
         log.debug("TaskChunk written to %s: %s", path, line)
+
+    @classmethod
+    def append(cls, chunk_record: dict) -> None:
+        """
+        Convenience wrapper used by the scheduler.
+
+        The ``chunk_record`` must contain a ``run_id`` field.  The method
+        extracts that identifier and forwards the record to
+        :meth:`write_chunk`.
+        """
+        if not isinstance(chunk_record, dict):
+            raise TypeError("chunk_record must be a dict")
+        if "run_id" not in chunk_record:
+            raise ValueError("chunk_record must contain a 'run_id' key")
+        run_id = chunk_record["run_id"]
+        cls.write_chunk(run_id, chunk_record)

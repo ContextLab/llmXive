@@ -4,8 +4,8 @@ Orchestrator command‑line interface.
 This file implements the ``calibrate`` sub‑command using the real
 calibration logic from ``orchestrator.calibration``.  The rest of the CLI
 (verify, run, sweep) remains unchanged from the original stub, but the
-``_handle_run`` function now performs **real** measurements instead of
-fabricated random numbers.
+``run`` and ``run-single`` functions now perform **real** measurements
+instead of fabricated random numbers.
 """
 
 import argparse
@@ -38,7 +38,6 @@ from orchestrator.timeout_guard import enforce_pipeline_timeout, PipelineTimeout
 from orchestrator.calibration import perform_calibration
 
 log = get_logger(__name__)
-
 
 # ----------------------------------------------------------------------
 # Simple mock node representation
@@ -86,10 +85,15 @@ def _write_dropout_events() -> None:
 def _write_validation_status(valid: bool = True) -> None:
     """
     Write a minimal ``validation_status.json`` file.
+    The status string follows the terminology used by the contract tests:
+    ``included`` for a successful run, ``excluded`` otherwise.
     """
     status_path = paths.data("raw", "validation_status.json")
     status_path.parent.mkdir(parents=True, exist_ok=True)
-    payload = {"run_id": "run_001", "status": "valid" if valid else "invalid"}
+    payload = {
+        "run_id": "run_001",
+        "status": "included" if valid else "excluded"
+    }
     status_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     log.info("Created validation status at %s", status_path)
 
@@ -170,50 +174,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to a YAML configuration file (default: config.yaml)"
     )
 
-    # run sub‑command
+    # run sub‑command (legacy name kept for backward compatibility)
     run_parser = subparsers.add_parser(
         "run",
         help="Execute a single Monte‑Carlo benchmark run"
     )
-    run_parser.add_argument(
-        "--config",
-        type=str,
-        required=True,
-        help="Path to a YAML configuration file"
+    _add_common_run_arguments(run_parser)
+
+    # run-single sub‑command (preferred name used by integration tests)
+    run_single_parser = subparsers.add_parser(
+        "run-single",
+        help="Execute a single Monte‑Carlo benchmark run (alias of ``run``)"
     )
-    run_parser.add_argument(
-        "--granularity",
-        type=str,
-        required=True,
-        choices=["fine", "medium", "coarse"],
-        help="Granularity setting for the benchmark"
-    )
-    # Primary flag names – made optional; we enforce presence later
-    run_parser.add_argument(
-        "--nodes",
-        type=int,
-        required=False,
-        help="Number of nodes to involve in the run"
-    )
-    run_parser.add_argument(
-        "--latency",
-        type=int,
-        required=False,
-        help="Injected network latency in milliseconds"
-    )
-    # Back‑compatible aliases (used by older run‑book commands)
-    run_parser.add_argument(
-        "--node-count",
-        type=int,
-        dest="nodes",
-        help=argparse.SUPPRESS
-    )
-    run_parser.add_argument(
-        "--injected-latency",
-        type=int,
-        dest="latency",
-        help=argparse.SUPPRESS
-    )
+    _add_common_run_arguments(run_single_parser)
 
     # calibrate sub‑command (now performs real calibration)
     calibrate_parser = subparsers.add_parser(
@@ -242,6 +215,49 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _add_common_run_arguments(parser: argparse.ArgumentParser) -> None:
+    """Add the arguments shared by ``run`` and ``run-single``."""
+    parser.add_argument(
+        "--config",
+        type=str,
+        required=True,
+        help="Path to a YAML configuration file"
+    )
+    parser.add_argument(
+        "--granularity",
+        type=str,
+        required=True,
+        choices=["fine", "medium", "coarse"],
+        help="Granularity setting for the benchmark"
+    )
+    # Primary flag names – made optional; we enforce presence later
+    parser.add_argument(
+        "--nodes",
+        type=int,
+        required=False,
+        help="Number of nodes to involve in the run"
+    )
+    parser.add_argument(
+        "--latency",
+        type=int,
+        required=False,
+        help="Injected network latency in milliseconds"
+    )
+    # Back‑compatible aliases (used by older run‑book commands)
+    parser.add_argument(
+        "--node-count",
+        type=int,
+        dest="nodes",
+        help=argparse.SUPPRESS
+    )
+    parser.add_argument(
+        "--injected-latency",
+        type=int,
+        dest="latency",
+        help=argparse.SUPPRESS
+    )
+
+
 # ----------------------------------------------------------------------
 # Sub‑command handlers
 # ----------------------------------------------------------------------
@@ -263,7 +279,7 @@ def _handle_verify(args: argparse.Namespace) -> int:
 
 @enforce_pipeline_timeout(18000)  # 5 h default; hard CI cap enforced inside decorator
 def _handle_run(args: argparse.Namespace) -> int:
-    """Handle the ``run`` sub‑command."""
+    """Handle both ``run`` and ``run-single`` sub‑commands."""
     # Ensure required node/latency arguments are present (support aliases)
     if args.nodes is None or args.latency is None:
         log.error("Both --nodes (or --node-count) and --latency (or --injected-latency) must be provided")
@@ -290,7 +306,7 @@ def _handle_run(args: argparse.Namespace) -> int:
         args.latency,
     )
 
-    # Build mock node list
+    # Build mock node list (deterministic IPs)
     all_nodes = _build_mock_nodes(args.nodes)
     selected_nodes = all_nodes[: args.nodes]
 
@@ -422,7 +438,7 @@ def main(argv: List[str] | None = None) -> int:
 
     if args.command == "verify":
         return _handle_verify(args)
-    if args.command == "run":
+    if args.command in ("run", "run-single"):
         return _handle_run(args)
     if args.command == "calibrate":
         return _handle_calibrate(args)

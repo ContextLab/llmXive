@@ -15,11 +15,17 @@ writes a JSON file ``data/runtime/pipeline_runtime.json`` containing:
 If the elapsed time exceeds the supplied hard limit (in seconds) a
 ``RuntimeError`` is raised; the CLI catches this and exits with a
 non‑zero status.
+
+This module also provides the ``@enforce_pipeline_timeout`` decorator
+used by integration tests to verify watchdog behaviour.  When the
+timeout is exceeded the decorator writes a plain‑text log file
+``data/runtime/timeout_enforced.log`` containing the error message.
 """
 
 import json
 import time
 from pathlib import Path
+from functools import wraps
 
 from llmxive_toolkit import paths, get_logger
 
@@ -69,3 +75,60 @@ def stop(hard_limit_seconds: int) -> None:
             f"Pipeline exceeded hard timeout of {hard_limit_seconds}s "
             f"by {elapsed - hard_limit_seconds:.2f}s"
         )
+
+
+def enforce_pipeline_timeout(max_seconds: int):
+    """
+    Decorator that enforces a hard pipeline timeout.
+
+    The wrapped function is executed with runtime tracking started
+    before the call and stopped afterwards.  If the elapsed time
+    exceeds *max_seconds* a ``RuntimeError`` is raised (as per
+    ``stop``) and an additional log file ``timeout_enforced.log``
+    is written containing the error message.
+
+    Example
+    -------
+    >>> @enforce_pipeline_timeout(300)
+    ... def my_task():
+    ...     ...
+
+    Parameters
+    ----------
+    max_seconds: int
+        The hard timeout in seconds.
+
+    Returns
+    -------
+    Callable
+        The wrapped function.
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Start timing
+            start()
+            try:
+                result = func(*args, **kwargs)
+            except Exception:
+                # If the wrapped function itself raises, still stop timer
+                try:
+                    stop(max_seconds)
+                except RuntimeError:
+                    # Already handled below
+                    pass
+                raise
+            # Stop timing and enforce limit
+            try:
+                stop(max_seconds)
+            except RuntimeError as e:
+                # Write the timeout log as required by the spec
+                log_path = paths.data("runtime", "timeout_enforced.log")
+                log_path.parent.mkdir(parents=True, exist_ok=True)
+                log_path.write_text(str(e), encoding="utf-8")
+                _log.error("Pipeline timeout enforced: %s", e)
+                # Re‑raise so callers see a non‑zero exit
+                raise
+            return result
+        return wrapper
+    return decorator

@@ -65,16 +65,12 @@ This creates:
 
 ## Running the Pipeline
 
-### 1. Single Benchmark Run
+### 1. Single Benchmark Run (mock)
 ```bash
-python code/orchestrator/cli.py run \
- --config config.yaml \
- --granularity fine \
- --nodes 15 \
- --latency 100
+python -m code.orchestrator.mock_cli --config config.yaml --nodes 2
 ```
 This creates:
-- `data/raw/run_001.csv`
+- `data/raw/run_001.csv` (if you later run a real benchmark)
 - `data/raw/dropout_events.json`
 - `data/raw/validation_status.json`
 - `data/raw/task_chunks/run_001.jsonl`

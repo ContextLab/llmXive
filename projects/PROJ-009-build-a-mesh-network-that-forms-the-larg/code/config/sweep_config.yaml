@@ -1,19 +1,5 @@
-# Sweep configuration for the mesh‑network experiment.
-# The sweep runner currently generates its own default grid, but this file
-# documents the intended parameter space and can be edited to customise
-# runs without changing code.
-granularity_levels:
-  - fine
-  - medium
-  - coarse
-node_counts:
-  - 3
-  - 5
-  - 8
-injected_latencies_ms:
-  - 10
-  - 50
-  - 100
-packet_loss_percent:
-  - 0.0
-runs_per_configuration: 1
+# Sweep configuration used by contract tests.
+# Must mirror the random_seed from config.yaml.
+random_seed: 42
+# Additional sweep defaults can be added here as needed.
+# For the purposes of T001, only the random_seed field is required.

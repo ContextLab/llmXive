@@ -1,17 +1,15 @@
 status: none
-intent: download ExecutionLog dataset with wall clock time packet count CPU utilization
-  python package dataset
+intent: Distributed Execution Log Dataset OpenML CPU utilization packet counts per
+  node python package dataset
 required_fields:
 - node_id
-- task_id
-- start_timestamp
-- end_timestamp
+- task_chunk_id
 - wall_clock_time
 - packet_count
 - cpu_utilization_percent
 - memory_usage_mb
 - heartbeat_timestamp
-- reassignment_flag
-cache_key: f251f62717495ad25d5536edff2f7d044f371bae8b626cb06245b4a4ec5fe92a
-searched_at: '2026-10-23T21:31:32.281492+00:00'
+- status
+cache_key: 0287b5d87943990b54153340daefef2b6cf2a81ba0ded35d181248ebc7c1f3f1
+searched_at: '2026-10-23T21:40:33.008649+00:00'
 retry_count: 1
