@@ -1,3 +1,8 @@
 # Project dependencies
-pycoingecko>=3.1
-pyarrow>=15.0
+pandas==2.2.*
+numpy==1.26.*
+pycoingecko==3.1.0
+pyarrow==15.*
+# Existing dependencies from the environment are already available:
+# scipy, matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML,
+# requests, jsonschema, psutil
