@@ -1,62 +1,46 @@
 """
 src/data/acquire_real.py
 
-This module downloads the verified TIDE evaluation dataset (a Parquet file),
-verifies its SHA‑256 checksum, and obtains a CSV representation of the data.
-The original implementation relied on the ``datasets`` library, which pulls
-in ``pyarrow`` – a heavy optional dependency that is not available in the
-execution environment (it requires NumPy 2.0).  To keep the script runnable
-on the CI runner we use direct downloads from the HuggingFace hub.
-If a CSV is not hosted, the script aborts with a clear error explaining the
-missing conversion path.
+Revised implementation for T001.
 
-The script writes three artefacts in ``data/raw``:
-
-* ``tide.parquet`` – the raw Parquet file.
-* ``tide.sha256``   – a one‑line checksum manifest for the Parquet file.
-* ``tide.csv``      – a CSV version of the dataset.
-* ``tide_csv.sha256`` – checksum manifest for the CSV file.
-
-It also records a log at ``data/logs/download_real.log``.  The script exits
-with status 0 on success and a non‑zero status on any failure, matching the
-expectations of ``src/data/test_acquire_real.py``.
+This script downloads the verified TIDE evaluation dataset from the HuggingFace
+Hub using the ``huggingface_hub`` utility (which works for public datasets
+without requiring the heavy ``pyarrow`` dependency).  It fetches both the
+original Parquet file and the CSV representation, writes SHA‑256 checksum
+manifests for each, and validates that the CSV contains at least 200 data
+rows (excluding the header).  All artefacts are written under ``data/raw``.
+Logging is performed via ``llmxive_toolkit.get_logger`` and written to
+``data/logs/download_real.log``.
 """
 
 import hashlib
+import logging
 import sys
 from pathlib import Path
-import logging
-import csv
-import requests
+
+import pandas as pd
+from huggingface_hub import hf_hub_download, RepositoryNotFoundError
 
 from llmxive_toolkit import paths, get_logger
 
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Verified URL for the TIDE evaluation dataset (Parquet format)
-_DATA_URL = (
-    "https://huggingface.co/datasets/deeplearning-tide/tide/resolve/main/"
-    "data/test-00000-of-00001-9189dc62872204f7.parquet"
-)
-# Direct CSV URL – many HuggingFace datasets publish a CSV alongside the
-# Parquet.  If this endpoint returns 200 we can avoid the ``datasets``
-# library (and its heavy ``pyarrow`` dependency) entirely.
-_CSV_URL = (
-    "https://huggingface.co/datasets/deeplearning-tide/tide/resolve/main/"
-    "data/test.csv"
-)
-# Expected filename components
-_PARQUET_NAME = "tide.parquet"
-_CSV_NAME = "tide.csv"
-_SHA256_NAME = "tide.sha256"
-_LOG_NAME = "download_real.log"
+REPO_ID = "deeplearning-tide/tide"
+PARQUET_FILE = "data/test-00000-of-00001-9189dc62872204f7.parquet"
+CSV_FILE = "data/test.csv"
+
+PARQUET_NAME = "tide.parquet"
+CSV_NAME = "tide.csv"
+PARQUET_SHA_NAME = "tide.sha256"
+CSV_SHA_NAME = "tide_csv.sha256"
+LOG_NAME = "download_real.log"
 
 # ----------------------------------------------------------------------
-# Helper functions
+# Helper utilities
 # ----------------------------------------------------------------------
 def _sha256_of_file(file_path: Path) -> str:
-    """Compute the hexadecimal SHA‑256 digest of *file_path*."""
+    """Return the hex SHA‑256 digest of *file_path*."""
     hasher = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -64,121 +48,108 @@ def _sha256_of_file(file_path: Path) -> str:
     return hasher.hexdigest()
 
 
-def _write_checksum_manifest(file_path: Path, manifest_path: Path) -> None:
-    """Write a single‑line checksum manifest for *file_path* to *manifest_path*."""
+def _write_checksum(file_path: Path, manifest_path: Path) -> None:
+    """Write a single‑line checksum manifest for *file_path*."""
     checksum = _sha256_of_file(file_path)
     with manifest_path.open("w", encoding="utf-8") as mf:
         mf.write(f"{checksum}  {file_path.name}\\n")
 
 
-def _verify_checksums(file_path: Path, manifest_path: Path) -> None:
-    """Verify that the checksum recorded in *manifest_path* matches *file_path*."""
-    expected_checksum = None
+def _verify_checksum(file_path: Path, manifest_path: Path) -> None:
+    """Raise RuntimeError if the checksum in *manifest_path* does not match *file_path*."""
     with manifest_path.open("r", encoding="utf-8") as mf:
         line = mf.readline().strip()
-        if line:
-            expected_checksum = line.split()[0]
-
-    if expected_checksum is None:
+    if not line:
+        raise RuntimeError(f"Checksum manifest '{manifest_path}' is empty or malformed.")
+    expected = line.split()[0]
+    actual = _sha256_of_file(file_path)
+    if actual != expected:
         raise RuntimeError(
-            f"Checksum manifest '{manifest_path}' is empty or malformed."
+            f"Checksum mismatch for '{file_path}'. Expected {expected}, got {actual}."
         )
 
-    actual_checksum = _sha256_of_file(file_path)
-    if actual_checksum != expected_checksum:
-        raise RuntimeError(
-            f"Checksum mismatch for '{file_path}'. "
-            f"Expected {expected_checksum}, got {actual_checksum}."
-        )
 
 # ----------------------------------------------------------------------
-# Download helpers
+# Download routine using huggingface_hub
 # ----------------------------------------------------------------------
-def _download_file(url: str, dest_path: Path) -> None:
-    """Download *url* to *dest_path* using a streaming request."""
+def _download_from_hub(filename: str, dest_path: Path) -> None:
+    """
+    Download *filename* from the TIDE dataset repo to *dest_path*.
+
+    ``hf_hub_download`` raises ``RepositoryNotFoundError`` if the repository
+    or the file cannot be accessed (e.g., private repo).  Any other exception
+    is re‑raised after logging.
+    """
     logger = logging.getLogger(__name__)
-    logger.info(f"Downloading from {url}")
     try:
-        with requests.get(url, stream=True, timeout=120) as r:
-            r.raise_for_status()
-            with dest_path.open("wb") as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
+        logger.info(f"Downloading '{filename}' from HuggingFace Hub.")
+        cached_path = hf_hub_download(repo_id=REPO_ID, filename=filename, repo_type="dataset")
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        # Copy the cached file to the desired location
+        dest_path.write_bytes(Path(cached_path).read_bytes())
+    except RepositoryNotFoundError as e:
+        logger.error(f"Repository or file not found: {e}")
+        raise RuntimeError(f"Could not locate '{filename}' in repo '{REPO_ID}'.") from e
     except Exception as e:
-        logger.error(f"Failed to download {url!r}: {e}")
+        logger.error(f"Failed to download '{filename}': {e}")
         raise
 
+
 # ----------------------------------------------------------------------
-# Main download / conversion routine
+# Main entry point
 # ----------------------------------------------------------------------
 def main() -> None:
     """Execute the real data acquisition process."""
-    log_path = paths.data("logs", _LOG_NAME)
+    log_path = paths.data("logs", LOG_NAME)
     logger = get_logger(__name__, log_file=str(log_path))
-    logger.info("Starting TIDE dataset acquisition.")
+    logger.info("Starting TIDE dataset acquisition (via HuggingFace Hub).")
 
     raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     # --------------------------------------------------------------
-    # 1. Download the Parquet file (required for checksum verification)
+    # 1. Download Parquet and verify checksum
     # --------------------------------------------------------------
-    parquet_path = raw_dir / _PARQUET_NAME
+    parquet_path = raw_dir / PARQUET_NAME
     if not parquet_path.is_file():
-        logger.info(f"Downloading Parquet from {_DATA_URL}")
-        _download_file(_DATA_URL, parquet_path)
+        _download_from_hub(PARQUET_FILE, parquet_path)
 
-    # 2. Write and verify checksum for the Parquet file
-    parquet_checksum_path = raw_dir / _SHA256_NAME
-    _write_checksum_manifest(parquet_path, parquet_checksum_path)
-    logger.info(f"Wrote Parquet checksum to '{parquet_checksum_path}'")
+    parquet_checksum_path = raw_dir / PARQUET_SHA_NAME
+    _write_checksum(parquet_path, parquet_checksum_path)
+    logger.info(f"Wrote Parquet checksum to '{parquet_checksum_path}'.")
+    _verify_checksum(parquet_path, parquet_checksum_path)
+    logger.info("Parquet checksum verified.")
+
+    # --------------------------------------------------------------
+    # 2. Download CSV and verify checksum
+    # --------------------------------------------------------------
+    csv_path = raw_dir / CSV_NAME
+    if not csv_path.is_file():
+        _download_from_hub(CSV_FILE, csv_path)
+
+    csv_checksum_path = raw_dir / CSV_SHA_NAME
+    _write_checksum(csv_path, csv_checksum_path)
+    logger.info(f"Wrote CSV checksum to '{csv_checksum_path}'.")
+    _verify_checksum(csv_path, csv_checksum_path)
+    logger.info("CSV checksum verified.")
+
+    # --------------------------------------------------------------
+    # 3. Validate row count (must be >= 200)
+    # --------------------------------------------------------------
     try:
-        _verify_checksums(parquet_path, parquet_checksum_path)
-    except RuntimeError as e:
-        logger.error(str(e))
-        raise
+        df = pd.read_csv(csv_path)
+    except Exception as e:
+        logger.error(f"Failed to read CSV '{csv_path}': {e}")
+        raise RuntimeError(f"Unable to parse CSV at '{csv_path}'.") from e
 
-    # --------------------------------------------------------------
-    # 3. Obtain CSV representation
-    # --------------------------------------------------------------
-    csv_path = raw_dir / _CSV_NAME
-    if csv_path.is_file():
-        logger.info(f"CSV already present at '{csv_path}' – skipping download.")
-    else:
-        # Try direct CSV download first (no pyarrow needed)
-        logger.info(f"Attempting direct CSV download from {_CSV_URL}")
-        try:
-            _download_file(_CSV_URL, csv_path)
-            logger.info(f"Successfully downloaded CSV to '{csv_path}'")
-        except Exception as csv_err:
-            logger.error(
-                f"Direct CSV download failed ({csv_err}); cannot proceed without CSV."
-            )
-            raise RuntimeError(
-                "Unable to obtain CSV representation of the TIDE dataset: "
-                "direct CSV download failed."
-            ) from csv_err
-
-    # --------------------------------------------------------------
-    # 4. Write checksum for the CSV
-    # --------------------------------------------------------------
-    csv_checksum_path = raw_dir / "tide_csv.sha256"
-    _write_checksum_manifest(csv_path, csv_checksum_path)
-    logger.info(f"Wrote CSV checksum to '{csv_checksum_path}'")
-
-    # --------------------------------------------------------------
-    # 5. Verify row count (T001 requires >= 200)
-    # --------------------------------------------------------------
-    with csv_path.open(newline="", encoding="utf-8") as f:
-        reader = csv.reader(f)
-        row_count = sum(1 for _ in reader) - 1  # subtract header
+    row_count = len(df)
     logger.info(f"CSV row count (excluding header): {row_count}")
 
     if row_count < 200:
         raise RuntimeError(
             f"Dataset contains insufficient rows ({row_count}). Expected at least 200."
         )
+
     logger.info("Dataset acquisition and verification completed successfully.")
 
 

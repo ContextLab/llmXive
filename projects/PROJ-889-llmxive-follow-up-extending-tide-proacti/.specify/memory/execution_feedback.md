@@ -18,18 +18,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.acquire_real   # creates data/raw/tide.parquet, verifies SHA‑256, writes data/raw/tide.csv and data/raw/tide.sha256 -> rc=1
-ve/main/data/test-00000-of-00001-9189dc62872204f7.parquet': 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/deeplearning-tide/tide/resolve/main/data/test-00000-of-00001-9189dc62872204f7.parquet
-2026-10-23 09:21:56,255 ERROR __main__: Acquisition failed
+
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 187, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 130, in main
-    _download_file(_DATA_URL, parquet_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 103, in _download_file
-    r.raise_for_status()
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/deeplearning-tide/tide/resolve/main/data/test-00000-of-00001-9189dc62872204f7.parquet
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 22, in <module>
+    from huggingface_hub import hf_hub_download, RepositoryNotFoundError
+ImportError: cannot import name 'RepositoryNotFoundError' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-889-llmxive-follow-up-extending-tide-proacti/lib/python3.11/site-packages/huggingface_hub/__init__.py)
 
 - python -m pytest -q src/data/test_acquire_real.py   # asserts exit code 0 and checksum match -> rc=4
 
