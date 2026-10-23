@@ -24,27 +24,27 @@ def main():
         with tempfile.TemporaryDirectory() as tmp:
             zip_path = os.path.join(tmp, 'anno.zip')
             urllib.request.urlretrieve(url, zip_path)
-            
+
             with zipfile.ZipFile(zip_path, 'r') as z:
                 z.extractall(tmp)
-            
+
             ann_file = os.path.join(tmp, 'annotations', 'captions_val2017.json')
             if not os.path.exists(ann_file):
                 raise FileNotFoundError(f"Expected annotation file {ann_file} not found in zip.")
-            
+
             coco = COCO(ann_file)
             ids = coco.getAnnIds()
             anns = coco.loadAnns(ids)
-            
+
             log.info(f"Loaded {len(anns)} records from COCO validation set.")
-            
+
             # Convert to DataFrame and filter columns
             df = pd.DataFrame(anns)
             if 'image_id' not in df.columns or 'caption' not in df.columns:
                 raise KeyError("Expected columns 'image_id' and 'caption' not found in annotations.")
-            
+
             df = df[['image_id', 'caption']]
-            
+
             # Save to parquet
             output_path.parent.mkdir(parents=True, exist_ok=True)
             df.to_parquet(str(output_path), index=False)

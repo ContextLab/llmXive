@@ -1,13 +1,7 @@
-torch
-diffusers
-transformers
-datasets
-scikit-learn
-numpy
+# Project dependencies
+torch>=2.0
+pyarrow==14.0.1
 pandas
-matplotlib
-scipy
+datasets
 tqdm
-pyarrow
-pycocotools
-torchvision
+# other core dependencies are provided by the platform (numpy, scipy, scikit-learn, etc.)

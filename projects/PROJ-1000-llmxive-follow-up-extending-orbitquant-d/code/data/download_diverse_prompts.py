@@ -32,12 +32,12 @@ def main():
             urllib.request.urlretrieve(coco_url, zip_path)
             with zipfile.ZipFile(zip_path, 'r') as z:
                 z.extractall(tmp)
-            
+
             ann_file = os.path.join(tmp, 'annotations', 'captions_train2017.json')
             coco = COCO(ann_file)
             ids = coco.getAnnIds()
             anns = coco.loadAnns(ids)
-            
+
             # Sample 100
             sampled_coco = random.sample(anns, min(100, len(anns)))
             for i, ann in enumerate(sampled_coco):
@@ -50,7 +50,7 @@ def main():
         # Source 2: HuggingFace - pokemon-blip-captions (Real public dataset)
         log.info("Fetching prompts from HF pokemon-blip-captions...")
         ds = load_dataset("lambdalabs/pokemon-blip-captions", split="train", streaming=True)
-        
+
         count = 0
         for item in ds:
             if count >= 100:
@@ -74,7 +74,7 @@ def main():
             writer = csv.DictWriter(f, fieldnames=["prompt_id", "caption", "source"])
             writer.writeheader()
             writer.writerows(records)
-        
+
         log.info(f"Successfully wrote {len(records)} diverse prompts to {output_path}")
 
     except Exception as e:

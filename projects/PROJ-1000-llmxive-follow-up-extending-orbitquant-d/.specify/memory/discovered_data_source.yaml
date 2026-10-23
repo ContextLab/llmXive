@@ -1,10 +1,11 @@
 status: none
-intent: MS COCO 2017 validation captions dataset with diffusion transformer models
-  python package dataset
+intent: download MS COCO 2017 captions dataset with pycocotools python package dataset
 required_fields:
 - image_id
-- caption
 - file_name
-cache_key: 56502697307c5947a62a1412354454d245464f1a0b79c268fed40c2558a3c7c3
-searched_at: '2026-10-23T11:29:01.667307+00:00'
+- height
+- width
+- caption
+cache_key: 2d12f0608f735f645e44d80ab27d2c49de4cff7bf1b4d1152213b4de4110845b
+searched_at: '2026-10-23T11:45:20.414406+00:00'
 retry_count: 1

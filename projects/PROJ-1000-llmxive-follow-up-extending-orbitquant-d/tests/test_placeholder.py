@@ -1,5 +1,7 @@
 """
-Placeholder test to ensure the test suite runs.
+Placeholder test module for the project skeleton.
+Ensures that the test suite runs without errors.
 """
+
 def test_placeholder():
     assert True

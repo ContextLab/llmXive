@@ -13,7 +13,7 @@ Indented continuation lines describe the required artifact(s), verification comm
 
 ## Phase 1 – Project scaffolding & quick‑start
 
-- [ ] T001 [P] [Infrastructure] Establish project skeleton, list dependencies, and write a quick‑start guide  
+- [X] T001 [P] [Infrastructure] Establish project skeleton, list dependencies, and write a quick‑start guide  
   - **Artifacts**: `code/` (sub‑dirs `analysis/`, `models/`, `quantization/`, `evaluation/`, `utils/`), `tests/` (placeholder), `requirements.txt`, `code/config.py` (global seeds, path helpers via `llmxive_toolkit.paths`), `specs/001‑llmxive‑followup/quickstart.md` (command `python -m code.main --phase init`).  
   - **Verification**:  
     ```bash
@@ -27,7 +27,7 @@ Indented continuation lines describe the required artifact(s), verification comm
 
 ## Phase 2 – Data acquisition & prompt preparation
 
-- [ ] T002 [P] Download MS‑COCO 2017 validation captions, stream images, and create curated prompt tables under `data/`  
+- [ ] T002 [P] Download MS‑COCO 2017 validation captions, stream images, and create curated prompt tables under `data/`   <!-- FAILED-IN-EXECUTION: code/data/download_diverse_prompts.py exit=1 -->
   - **Steps**  
     1. `code/data/download_coco.py` → `data/raw/coco_captions.parquet` using the HuggingFace streaming API:  
        ```python

@@ -1,10 +1,9 @@
 T001:
   c: true
-  h: fc9014339498ec883072e4e0e8323e8d355890f1cf8d1c77e4311e7ed57dc568
-  r: "The `code/` directory contains the required sub\u2011folders (analysis, models,\
-    \ quantization, evaluation, utils) and the `tests/` placeholder directory; `requirements.txt`\
-    \ lists `torch`; `code/config.py` defines seeds and uses `llmxive_toolkit.paths`;\
-    \ `specs/.../quickstart.md` documents the init command; and the log `code/.tasks/T001.code_main.py.log`\
-    \ shows `python -m code.main --phase init` printing \u201CInitialization complete\u201D\
-    ."
-  sig: 9c74416b1c031f1516b0d98d356b8644be4e55cc797a07c3396d4587a8abf067
+  h: a631863381aef20c9c3e8d67cb2a9c285dd59885f73fbb3c4caab571480015c5
+  r: "Checked that `code/` contains the required sub\u2011directories (analysis, models,\
+    \ quantization, evaluation, utils) and totals \u2265\u202F8 dirs, `code/config.py`\
+    \ imports without error, `requirements.txt` lists torch, and `python -m code.main\
+    \ --phase init` outputs \u201CInitialization complete\u201D. The `tests/` placeholder,\
+    \ `requirements.txt`, and `quickstart.md` are present and non\u2011empty."
+  sig: 29b98dbf330ed04e678cd082d8a52c897e00631f389339e69ceeecbb896511a9
