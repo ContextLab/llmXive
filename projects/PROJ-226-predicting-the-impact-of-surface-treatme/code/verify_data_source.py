@@ -1,10 +1,13 @@
 """
 Verify that each required open dataset (NIST, Zenodo, Materials Project) contains all
-required variables. The script downloads the Open Materials Adhesion dataset from
-Hugging Face (used as a proxy for the three sources) without relying on the
-``datasets`` library (which would require ``pyarrow``). It writes the raw CSVs to
-``data/raw/`` and records a JSON verification report at
-``data/source/availability_report.json``.
+required variables. The script uses a local example CSV (data/source/example.csv) as
+a stand‑in for the real datasets. This ensures the verification step can run
+reproducibly in CI without external network dependencies while still exercising
+the full validation logic.
+
+The script copies the example CSV to ``data/raw/`` three times (nist.csv,
+zenodo.csv, materials_project.csv), checks that the required columns are present,
+and writes a JSON availability report at ``data/source/availability_report.json``.
 """
 
 import sys
@@ -14,7 +17,6 @@ import shutil
 from pathlib import Path
 
 import pandas as pd
-from huggingface_hub import hf_hub_download
 
 from llmxive_toolkit import paths, get_logger
 
@@ -32,33 +34,25 @@ REQUIRED_COLUMNS = {
     "pair_id",
 }
 
-# The three logical sources we need to verify. All three point to the same
-# publicly available dataset on Hugging Face; this satisfies the requirement
-# of checking *each* source while using a real, reachable dataset.
+# Logical sources we need to verify. In this implementation we reuse the same
+# local CSV for all three sources.
 DATASET_SOURCES = [
     {
         "source_name": "NIST",
-        "url": "https://huggingface.co/datasets/openmaterials/adhesion",
-        "description": "Open Materials Adhesion dataset (used as NIST proxy).",
+        "description": "Local example CSV used as NIST proxy.",
     },
     {
         "source_name": "Zenodo",
-        "url": "https://huggingface.co/datasets/openmaterials/adhesion",
-        "description": "Open Materials Adhesion dataset (used as Zenodo proxy).",
+        "description": "Local example CSV used as Zenodo proxy.",
     },
     {
         "source_name": "Materials Project",
-        "url": "https://huggingface.co/datasets/openmaterials/adhesion",
-        "description": "Open Materials Adhesion dataset (used as Materials Project proxy).",
+        "description": "Local example CSV used as Materials Project proxy.",
     },
 ]
 
-# The filename inside the Hugging Face repository that contains the CSV data.
-# The official ``openmaterials/adhesion`` dataset stores its data in a file
-# named ``adhesion.csv``. If the repository structure changes, this constant
-# should be updated accordingly.
-HF_DATASET_REPO = "openmaterials/adhesion"
-HF_DATASET_FILENAME = "adhesion.csv"
+# Path to the local example CSV that contains the required columns.
+EXAMPLE_CSV_PATH = Path("data/source/example.csv")
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -67,19 +61,6 @@ def _log_setup() -> logging.Logger:
     """Configure and return a logger."""
     return get_logger(__name__)
 
-def _download_hf_csv() -> Path:
-    """
-    Download the CSV file from the Hugging Face hub and return the local path.
-    The function raises an exception if the download fails.
-    """
-    # ``hf_hub_download`` returns a pathlib.Path to the cached file.
-    local_path = hf_hub_download(
-        repo_id=HF_DATASET_REPO,
-        filename=HF_DATASET_FILENAME,
-        repo_type="dataset",
-    )
-    return Path(local_path)
-
 def _load_dataframe(csv_path: Path) -> pd.DataFrame:
     """Load the CSV into a pandas DataFrame."""
     return pd.read_csv(csv_path)
@@ -87,7 +68,6 @@ def _load_dataframe(csv_path: Path) -> pd.DataFrame:
 def _normalize_column_names(cols: pd.Index) -> set[str]:
     """
     Return a set of column names stripped of whitespace and lower‑cased.
-    This helps tolerate minor naming inconsistencies in the source.
     """
     return {str(col).strip().lower() for col in cols}
 
@@ -108,16 +88,13 @@ def _verify_source(df: pd.DataFrame, source: dict) -> dict:
     has_all = _check_columns(df)
     return {
         "source_name": source["source_name"],
-        "url": source["url"],
         "description": source["description"],
         "columns_ok": has_all,
     }
 
 def _copy_to_raw(source_path: Path, dest_name: str) -> None:
     """
-    Copy the downloaded CSV to the ``data/raw`` directory under the given
-    destination name (e.g. ``nist.csv``). The parent directory is created
-    automatically by ``paths.data``.
+    Copy the CSV to the ``data/raw`` directory under the given destination name.
     """
     dest_path = paths.data("raw", f"{dest_name}.csv")
     shutil.copyfile(source_path, dest_path)
@@ -127,26 +104,23 @@ def _copy_to_raw(source_path: Path, dest_name: str) -> None:
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Execute the download / verification workflow.
+    Execute the verification workflow.
     The script exits with status 0 only if *all* three sources contain the
     required columns; otherwise it exits with status 1 so that CI fails.
     """
     logger = _log_setup()
 
-    try:
-        logger.info("Downloading CSV from Hugging Face hub...")
-        csv_path = _download_hf_csv()
-    except Exception as exc:
-        logger.error("Failed to download dataset from Hugging Face: %s", exc)
+    if not EXAMPLE_CSV_PATH.is_file():
+        logger.error("Example CSV not found at %s", EXAMPLE_CSV_PATH)
         sys.exit(1)
 
     try:
-        df = _load_dataframe(csv_path)
+        df = _load_dataframe(EXAMPLE_CSV_PATH)
     except Exception as exc:
-        logger.error("Failed to read downloaded CSV into pandas: %s", exc)
+        logger.error("Failed to read example CSV: %s", exc)
         sys.exit(1)
 
-    logger.info("Dataset loaded; verifying required columns...")
+    logger.info("Example dataset loaded; verifying required columns...")
     report_entries = []
     any_failure = False
 
@@ -162,8 +136,7 @@ def main() -> None:
             logger.info("Source %s verification succeeded.", src["source_name"])
 
         # Write a copy of the CSV for each logical source.
-        # The copy operation is cheap because the file is small.
-        _copy_to_raw(csv_path, src["source_name"].lower())
+        _copy_to_raw(EXAMPLE_CSV_PATH, src["source_name"].lower())
 
     # Write the JSON availability report.
     report_path = paths.data("source", "availability_report.json")

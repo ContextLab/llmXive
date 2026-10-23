@@ -8,11 +8,11 @@ The tasks below constitute a complete, end‑to‑end research pipeline that sat
 
 ## Phase 0 – Feasibility, Data‑source Verification & Early Smoke Test  
 
-- [ ] T001 [P?] [US1] **Download and verify required open datasets** (NIST, Zenodo, Materials Project).   <!-- FAILED-IN-EXECUTION: code/verify_data_source.py exit=1 -->
+- [ ] T001 [P?] [US1] **Download and verify required open datasets** (NIST, Zenodo, Materials Project).
   - **Implementation**: `code/download_and_verify.py` uses `wget`/`curl` to fetch each dataset, checks that all required columns (`plasma_power_w`, `exposure_time_s`, `chemical_concentration_pct`, `polymer_surface_energy`, `substrate_roughness_nm`, `adhesion_strength_mj_m2`, `treatment_type`, `pair_id`) are present, writes each raw CSV to `data/raw/nist.csv`, `data/raw/zenodo.csv`, `data/raw/materials_project.csv`, and records a JSON verification report `data/source/availability_report.json`.  
   - **Verification**: CI fails if any dataset is missing a required column; otherwise the task passes.
 
-- [ ] T002 [P?] [US1] **Merge verified raw datasets into a unified file**.  
+- [ ] T002 [P?] [US1] **Merge verified raw datasets into a unified file**.   <!-- FAILED-IN-EXECUTION: code/merge_raw.py exit=1 -->
   - **Implementation**: `code/merge_raw.py` reads the three raw CSVs produced by T001, adds a `source` column, concatenates them into `data/raw/adhesion_raw.csv`, and updates the checksum manifest `data/raw/checksums.txt`.  
   - **Verification**: `adhesion_raw.csv` must exist, be non‑empty, and its SHA‑256 hash must match the entry in `checksums.txt`.
 

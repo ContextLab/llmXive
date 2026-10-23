@@ -1,8 +1,10 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/verify_data_source.py
-    exit=1'
+  reason: 'declared artifact(s) missing/empty/invalid: code/download_and_verify.py,
+    data/raw/nist.csv, data/raw/zenodo.csv, data/raw/materials_project.csv, data/source/availability_report.json'
   task: 97934de6ff688eb9372b87871c72176ec3a225ba13b86fadd55f7414a283b62e
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/merge_raw.py
+    exit=1'
   task: a39ef93a3fb2e6a4d0e191cc5c5cf7ba17a5cf809df505393b46e858e2c0cf7b
 T003:
   task: d15129c205fb79c27d20ffde907366f031b7f4facbc68f8123bcbb8674cf49fd
