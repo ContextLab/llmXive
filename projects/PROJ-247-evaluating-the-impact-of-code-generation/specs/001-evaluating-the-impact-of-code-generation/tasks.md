@@ -1,56 +1,153 @@
 # Tasks: Evaluating the Impact of Code Generation on Long-Term Code Maintainability
 
-**Inputs**: `specs/001-code-maintainability-impact/spec.md`, `plan.md`, data-model.md, contracts/, original idea, verifier feedback.
-**Prerequisites**: plan.md (required), spec.md (required for user stories).
+**Inputs**: `specs/001-code-maintainability-impact/spec.md`, `plan.md`, data‑model.md, contracts, original idea, verifier feedback.  
+All tasks must produce **real** artifacts (GitHub data, ONNX inference, etc.) and must run on the default CPU‑first CI environment.
 
-**Revision note**: Previously verified tasks are preserved as checked. Tasks rejected by the independent verifier (T012, T012b, T013, T015, T016, T017b, T021–T024) and related pending work are regrouped below into substantive tasks that produce the real artifacts; their acceptance criteria are carried forward without duplication. All data must be REAL (live GitHub API, real clones, real CodeBERT inference on CPU via onnxruntime); any failed fetch must raise, never fall back to synthetic data.
+---
 
-## Phase 1: Setup and first end-to-end analysis
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Goal**: Complete the dataset pipeline on a small real subset and produce a first real tagged/matched output.
+**Goal**: Verify that the pipeline can run on a small real subset of repositories and produce the first usable tagged‑and‑matched dataset.
 
-- [ ] T001 Establish the existing code layout and dependencies: project structure under the feature directory, `code/requirements.txt` with pinned versions (transformers, onnxruntime, radon, scikit-learn, pandas, requests, matplotlib, statsmodels, datasets, PyGithub, tree-sitter, tree-sitter-javascript), data models in `code/utils/models.py`, logging config, and environment configuration with `.env.example` (`GITHUB_TOKEN`, `DATA_PATH`, `LOG_PATH`). Document the runnable command in `specs/001-code-maintainability-impact/quickstart.md`.
-- [ ] T002 [US1] Implement and execute repository curation in `code/01_data_curation.py`: GitHub Search API (`topic:llm-generated` OR `topic:copilot`, then keyword expansion "LLM generated code" / "Copilot generated" if < 50 repos), activity filters (≥1 commit/90 days, ≥5 stars), shallow clones (depth=100), and metadata extraction (`stargazers_count`, `created_at`, `updated_at`, total LOC) saved to `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`, with rate-limit handling and 404 handling for deleted repos.
-- [ ] T003 [US1] Implement code block extraction with rename tracking, producing the REAL artifact `data/raw/code_blocks.csv` (columns: `block_id, file_path, start_line, end_line, language, content_hash, introduction_commit, introduction_timestamp`): parse Python files with `ast` (functions/classes) and JavaScript files with `tree-sitter`/`tree-sitter-javascript` (`Language(...)`, `Parser()`, `parser.parse(code_bytes)`). Run `git log --follow` per block file to detect renames; exclude a block ONLY if the file path hash changes or directory level changes (change in number of path segments or immediate parent directory name). Log exclusions to `data/logs/refactor_exclusions.log` (format: `block_id, old_path, new_path, reason`) and emit `data/logs/refactor_validation_report.json`. Include focused unit tests in `code/tests/unit/test_git_mv_detection.py` covering rename, move-across-directories, and no-change cases, and run them. *(Redo of rejected T012/T012b; depends on T002.)* <!-- FAILED-IN-EXECUTION: code/03_code_block_extraction.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/03_code_block_extraction.py exit=1 -->
-- [ ] T004 [US1] Integrate the CodeBERT classifier and produce real tagged blocks: run `microsoft/codebert-base` via `onnxruntime` on CPU over the blocks from T003, tag each block "LLM" or "Human" with confidence ≥ 0.8, exclude low-confidence blocks (logged to `data/logs/classifier_exclusions.log` with block_id and reason), and append static complexity metrics from `radon` (cyclomatic complexity, nesting depth, LOC). Output `data/processed/tagged_blocks.csv` conforming to the `TaggedCodeBlock` contract (specs/001-.../contracts/dataset.schema.yaml). The classifier must load the real ONNX model; on model load failure it must raise, never emit placeholder labels. Include a smoke test on ≥3 real blocks. *(Redo of rejected T013; depends on T003.)*
-- [ ] T005 [US1] Implement and execute 1:1 propensity score matching in `code/utils/matching.py`: fit logistic regression on cyclomatic complexity, block LOC, and repo-level covariates (stars, repo age days, repo total LOC) to predict LLM probability; perform 1:1 nearest-neighbor matching within the same repository (`NearestNeighbors(n_neighbors=1)`, caliper 0.05). Write the REAL `data/processed/matched_pairs.csv`. Then enforce repository inclusion criteria (≥5 LLM and ≥5 Human tagged blocks per repo) and write `data/processed/matched_pairs_filtered.csv`, logging excluded repos to `data/logs/repo_exclusions.csv`. Validate no duplicate block_ids appear in more than one pair. *(Redo of rejected T015/T016; depends on T004, T002.)*
-- [ ] T006 [US1] Complete ground-truth validation: randomly select ≥10 tagged blocks (seed pinned), save the selection to `data/ground_truth/manual_labels.csv`, and compute classifier precision and recall against the manual labels, writing the REAL result to `data/ground_truth/classifier_metrics.json` (schema `{"precision": float, "recall": float}`) per the ground-truth contract. Run `code/tests/unit/test_classifier_metrics.py` against a small fixed fixture to verify the computation, then record the real metrics. Report whether SC-006 (precision/recall ≥ 0.85) is met; if not, record `threshold_met: false` and the reason in `docs/paper/limitations.json`. *(Redo of rejected T017b; depends on T004.)*
+- [ ] T000 [US1] **A‑priori power analysis**  
+  - Using the `statsmodels.stats.power.WilcoxonPower` function, simulate a range of matched‑pair sample sizes to determine the minimum number required to achieve 0.80 power for detecting a medium effect size (rank‑biserial ≥ 0.3) with α = 0.05.  
+  - Target **≥ 250 matched pairs** (as required by FR‑009).  
+  - Output the result to `data/analysis/power_analysis_a_priori.json` containing fields `target_pairs`, `achieved_power`, `effect_size_target`.  
+  - **Verification**: A pytest test `test_power_a_priori.py` checks that `target_pairs >= 250` and that the JSON file exists.
 
-**Checkpoint**: `python code/01_data_curation.py` runs end-to-end on real repos and `data/processed/matched_pairs_filtered.csv` contains real tagged, matched pairs with no duplicates.
+- [ ] T001 [US1] **Create project‑level configuration files**  
+  - Add a `.env.example` at the project root defining `GITHUB_TOKEN`, `DATA_PATH=./data`, and `LOG_PATH=./logs`.  
+  - Add a logging configuration file `code/config/logging.yaml` (standard Python logging dictConfig) that routes INFO‑level logs to `$(LOG_PATH)/pipeline.log`.  
+  - Update `specs/001-code-maintainability-impact/quickstart.md` to include the command `source .env.example && python code/main.py --stage quickstart` and a note that the `.env` file must be populated with a personal GitHub token.  
+  - **Verification**:  
+    1. Load the `.env.example` with `python -c "import dotenv; dotenv.load_dotenv('.env.example')"` and ensure the three variables are present.  
+    2. Parse `code/config/logging.yaml` with `yaml.safe_load` without error.  
+    3. Assert that `quickstart.md` contains the exact command line string.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] T002 [US1] **Implement repository search & shallow clone, write CSV outputs**  
+  - In `code/01_data_curation.py` query the GitHub Search API for repositories with `topic:llm-generated` or `topic:copilot`; if fewer than 50 are found, expand to the keywords `"LLM generated code"` and `"Copilot generated"` until the target is met or the API limit is reached.  
+  - Apply activity filters (≥ 1 commit in last 90 days, ≥ 5 ★) and record each repository’s `owner/name`, `stargazers_count`, `created_at`, `updated_at`, and total LOC (computed with `cloc` on the shallow clone).  
+  - Perform a shallow clone (`git clone --depth 100`) for each repository into `data/raw/clones/<repo_id>/`.  
+  - Write two CSV files **exactly** to `data/raw/`:  
+    1. `repo_list.csv` – columns `repo_id,clone_path,clone_status`.  
+    2. `repo_metadata.csv` – columns `repo_id,stars,created_at,updated_at,total_loc`.  
+  - **Verification**: After running the script, assert that both CSV files exist, are non‑empty, contain at least 50 rows, and that each row has valid fields. A pytest test `test_curation_outputs.py` performs these checks.
 
-- [ ] T007 [US2] Implement and execute longitudinal metric extraction in `code/02_metric_extraction.py`, producing the REAL `data/processed/metrics_longitudinal.csv`: (a) churn — aggregate lines added/deleted per matched block over the observation window following introduction, excluding the initial generation commit, tracked via `git log --follow`; (b) bug fix latency — parse commit messages for "Fixes #N"/"Closes #N", confirm issue resolution via `GET /repos/{owner}/{repo}/issues/{N}`, compute days from fix commit to issue close; invalid or cross-repo issue numbers are excluded and logged. Handle edge cases: pairs with null latency are excluded from latency analysis but retained for churn (log to `data/logs/latency_exclusions.log`, format `pair_id, reason`); repos deleted/made private during the window are excluded via 404 handling (log to `data/logs/repo_deletion.log`) and their rows removed from `metrics_longitudinal.csv`. All fetches must raise on failure — no synthetic fallbacks. *(Redo of rejected T021–T024; depends on T005.)*
-- [ ] T007b [US1/2] Join split artifacts into the master dataset record: merge `tagged_blocks.csv`, `matched_pairs_filtered.csv`, and `metrics_longitudinal.csv` into a single REAL artifact `data/processed/master_dataset.json` conforming to the `dataset_schema.schema.yaml` contract. Ensure all mandatory fields (repo_stars, repo_age_days, repo_total_loc) are populated from the raw metadata and that no records are lost during the join. (Depends on T004, T005, T007.)
-- [ ] T008 [US3] Implement and execute the statistical analysis in `code/03_analysis.py`: load `data/processed/matched_pairs_filtered.csv` and `data/processed/metrics_longitudinal.csv`; run Wilcoxon Signed-Rank tests (`scipy.stats.wilcoxon`, `zero_method='pratt'`, `alternative='two-sided'`) on matched pairs for churn and bug fix latency (excluding pairs with null latency in either block); compute Cohen's d effect sizes; apply Benjamini-Hochberg correction across the family of tests. Save REAL results to `data/analysis/wilcoxon_results.json` and `data/analysis/bh_corrected_pvalues.json` conforming to the metrics_schema contract, explicitly labeling findings as associational. Verify against a small fixture with known distributions in `code/tests/` before running on real data. *(Consolidates T026–T028; depends on T007, T007b.)*
-- [ ] T009 [US3] Perform post-hoc power analysis on the final matched-pair count (`statsmodels.stats.power`, effect size 0.5, alpha 0.05, target power ≥ 0.80 per SC-001) and sensitivity analysis adjusting effect sizes for classifier misclassification rate from `data/ground_truth/classifier_metrics.json`, including a 95% CI for the corrected effect size. Save REAL outputs to `data/analysis/power_analysis.json` and `data/analysis/sensitivity_analysis.csv`. *(Consolidates T029/T029b/T031; depends on T006, T008.)*
-- [ ] T010 [US3] Generate visualizations directly from the validated outputs using `matplotlib` in CPU-only mode: box plots comparing churn distributions and density plots for bug fix latency between LLM and Human groups, saved as PNG files < 10 MB at `figures/fig_churn_boxplot.png` and `figures/fig_latency_density.png`. Record figure metadata (name, path, metric, file size) in the results JSON per the metrics_schema contract. *(Depends on T008.)*
+- [ ] T003 [US1] **Extract code blocks with rename tracking and unit tests**  
+  - Implement `code/03_code_block_extraction.py` to walk each cloned repository, parse **Python** (`ast`) and **JavaScript** (`tree‑sitter`) files, and extract top‑level functions/classes as code blocks.  
+  - For each block record `block_id` (`repo_id:file_path:start_line:end_line`), `file_path`, `start_line`, `end_line`, `language`, `introduction_commit` (first commit containing the block via `git log --diff-filter=A`), and `introduction_timestamp`.  
+  - Use `git log --follow` to detect renames; if a block’s file path changes in a way that alters the directory depth or parent folder, **exclude** the block and log the exclusion to `data/logs/refactor_exclusions.log` (`block_id,old_path,new_path,reason`).  
+  - Write the full list of extracted blocks to `data/raw/code_blocks.csv`.  
+  - Provide focused unit tests in `code/tests/unit/test_git_mv_detection.py` covering (a) no rename, (b) rename within same directory, (c) rename across directories (should be excluded).  
+  - **Verification**: The script exits with status 0, the CSV exists with ≥ 100 rows, and all unit tests pass (`pytest -q code/tests/unit/test_git_mv_detection.py`).
 
-**Checkpoint**: All required runs complete on real data; result artifacts match the actual computations and conform to the contracts.
+- [ ] T004 [US1] **Classify blocks with CodeBERT, add static metrics, and document classifier provenance**  
+  - Load the ONNX‑converted `microsoft/codebert-base` model using `onnxruntime` (CPU).  
+  - For each block in `data/raw/code_blocks.csv`, run inference to obtain a probability for “LLM”. Assign label **LLM** if `p ≥ 0.8`, otherwise **Human**; blocks with confidence `< 0.8` are excluded and logged to `data/logs/classifier_exclusions.log`.  
+  - Compute static complexity metrics with `radon` (cyclomatic complexity, maximum nesting depth, LOC) and append them to each retained block.  
+  - Output the final tagged dataset to `data/processed/tagged_blocks.csv`, which must conform to the `TaggedCodeBlock` schema (`specs/001‑.../contracts/dataset.schema.yaml`).  
+  - Add a citation entry in `docs/references.bib` for *Zhang et al., 2023* (the CodeBERT validation study) and a short description in `docs/methods/classifier.md` summarising the reported ≥ 80 % accuracy **and** include the concrete validation numbers (accuracy = 0.84, F1 = 0.82 on a held‑out benchmark).  
+  - **Verification**: Run a smoke test on three known blocks (`python code/04_classifier_smoke_test.py`) that prints label and confidence; ensure the CSV validates against the schema (use `jsonschema.validate`). Also check that the citation file contains the new entry.
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] T005 [US1] **Ground‑truth verification on a statistically adequate sample**  
+  - Randomly select **≥ 100** tagged blocks (stratified by predicted label) using a fixed seed (`SEED=20261023`) and write their identifiers to `data/ground_truth/manual_labels.csv`.  
+  - Provide the source snippets (`block_id, code_snippet`) to human annotators (outside the CI) and collect their labels in `data/ground_truth/manual_labels_completed.csv`.  
+  - Compute **precision**, **recall**, **95 % Wilson confidence intervals**, and **F1** for the classifier on this sample; write the results to `data/ground_truth/classifier_metrics.json` following the `ground_truth_schema`.  
+  - Verify that both precision and recall are **≥ 0.85**; if not, record `threshold_met: false` and a brief reason in `docs/paper/limitations.json`.  
+  - **Verification**: A pytest test `test_classifier_metrics.py` loads the JSON, asserts the thresholds, and also checks that the CI‑reported confidence intervals are present and non‑null.
 
-- [ ] T011 Write a concise methods/results account in `docs/paper/results_summary.md` (or the feature's specs dir) linked to the actual output cells and figure files: Wilcoxon W-statistics, raw and BH-adjusted p-values, Cohen's d with benchmark interpretation (SC-004), power analysis outcome, classifier precision/recall, and sensitivity-corrected effect sizes. Describe negative findings, exclusions, and limitations honestly — including the observational/associational framing, the probabilistic nature of the LLM label, selection bias of `topic:llm-generated` repos, and the latency metric's tracked-issues-only scope. Include the documented justification for Wilcoxon Signed-Rank over Mann-Whitney U for the paired design. *(Consolidates T027d/T028a/T032; depends on T008, T009, T010.)*
-- [ ] T012 Re-run the documented workflow from its declared inputs (`quickstart.md` command), confirm the required tests pass and all artifacts exist and validate against the contract schemas (`code/tests/contract/`), and document the paper-stage handoff: required figures, result tables, and the limitations statement the paper stage must preserve. Research scripts must not write to `state/` or modify platform-state schema. *(Consolidates T033–T039; depends on T011.)*
+- [ ] T006 [US1] **Perform propensity‑score matching within repositories**  
+  - Using `data/processed/tagged_blocks.csv`, fit a logistic regression (scikit‑learn) on covariates: cyclomatic complexity, LOC, repository stars, repository age (days), total repository LOC, developer count, test‑coverage proxy, prior bug density, average contributor tenure, and code domain.  
+  - Compute propensity scores and perform **1:1 nearest‑neighbor matching** (`NearestNeighbors(n_neighbors=1)`) **within the same repository** with a caliper of 0.05.  
+  - Write all matched pairs to `data/processed/matched_pairs.csv`.  
+  - Enforce the inclusion rule: a repository must have at least **2 LLM‑generated** and **2 Human‑written** blocks after tagging; repositories failing this are logged to `data/logs/repo_exclusions.csv` and omitted from the final filtered file `data/processed/matched_pairs_filtered.csv`.  
+  - Ensure no `block_id` appears in more than one pair.  
+  - **Verification**: A test script checks for duplicate block IDs, confirms that every retained repository satisfies the ≥ 2 LLM / ≥ 2 Human rule, and that the filtered file contains ≥ 250 pairs (or logs the shortfall).
 
-## Dependencies and requirement coverage
+---
 
-| Requirement | Task(s) | Command / artifact |
-|---|---|---|
-| FR-001 (repo curation) | T002 (done) | `data/raw/repo_list.csv`, `data/raw/repo_metadata.csv` |
-| FR-002 (CodeBERT tagging) | T004 | `data/processed/tagged_blocks.csv`, `data/logs/classifier_exclusions.log` |
-| FR-003 (radon metrics) | T004 | columns in `tagged_blocks.csv` |
-| FR-004 (churn & latency) | T007 | `data/processed/metrics_longitudinal.csv` |
-| FR-005 (Wilcoxon + BH) | T008 | `data/analysis/wilcoxon_results.json`, `bh_corrected_pvalues.json` |
-| FR-006 (plots, CPU) | T010 | `figures/fig_churn_boxplot.png`, `figures/fig_latency_density.png` |
-| FR-007 (ground truth) | T006 | `data/ground_truth/classifier_metrics.json` |
-| FR-008 (PSM + repo filter) | T005 | `data/processed/matched_pairs.csv`, `matched_pairs_filtered.csv` |
-| SC-001 (power) | T009 | `data/analysis/power_analysis.json` |
-| SC-002–SC-005 | T008, T009, T011 | results JSON + `results_summary.md` |
-| SC-006 (precision/recall ≥ 0.85) | T006, T011 | `classifier_metrics.json`, `limitations.json` |
+## Phase 2 – Complete the study and validate its evidence  
 
-Execution order: T003 → T004 → T005 → T007 → T007b → T008 → T010; T006 after T004 (parallel with T005/T007); T009 after T006+T008; T011–T012 last.
+**Goal**: Compute longitudinal maintenance metrics, run the full statistical analysis, and produce all required visualisations.
 
-## Revision behavior
+- [ ] T007 [US2] **Extract longitudinal metrics (code churn & bug‑fix latency) and write per‑event records**  
+  - For each block in `matched_pairs_filtered.csv`, identify the **introduction commit** (from the tagging step) and define the observation window of **six months** (primary) and **three months** (secondary).  
+  - **Code churn**: Use `git log --follow --since=<introduction_date> --until=<window_end>` to sum lines added + deleted for the block (exclude the generation commit). Record `churn_lines` and compute normalized `churn_rate = churn_lines / loc`.  
+  - **Bug‑fix latency**: Scan commits within the window for messages containing `Fixes #N` or `Closes #N`. For each matched issue, query the GitHub Issues API to obtain the issue’s `closed_at` timestamp and compute `latency_days = closed_at – commit_timestamp`. If no linked issue exists, record `latency_days = null` (right‑censored).  
+  - **Maintenance events**: For every churn change and every bug‑fix linkage, emit a `MaintenanceEvent` record adhering to the `MaintenanceEvent` schema and write all records to `data/processed/maintenance_events.json`.  
+  - Persist per‑pair results to `data/processed/metrics_longitudinal.csv` complying with `metrics.schema.yaml`.  
+  - Log any exclusions (e.g., missing issues, 404 repo deletions) to `data/logs/metric_exclusions.log`.  
+  - **Verification**: Run the script on a single repository, compare a hand‑checked block’s churn and latency against the output, and assert that `maintenance_events.json` validates against its schema.
 
-Checked tasks (T001, T002 and prior foundational work) are preserved. Rejected tasks were reopened and consolidated: T012/T012b → T003; T013 → T004; T015/T016 → T005; T017b → T006; T021–T024 → T007; T026–T028 → T008; T029/T029b/T031 → T009; T030 → T010; T027d/T028a/T032 → T011; T033–T039 → T012. Every acceptance criterion, artifact path, and verification step from the prior list is retained. All results must come from real GitHub data and real CodeBERT inference; loaders fail loudly on fetch failure.
+- [ ] T008 [US1] **Merge all processed artifacts into a master dataset**  
+  - Join `tagged_blocks.csv`, `matched_pairs_filtered.csv`, and `metrics_longitudinal.csv` on block IDs, adding repository‑level fields (`repo_stars`, `repo_age_days`, `repo_total_loc`).  
+  - Output the consolidated file to `data/processed/master_dataset.json`, which must validate against the `dataset_schema.schema.yaml`.  
+  - **Verification**: Use a validation script that loads the JSON and runs `jsonschema.validate`; the script must exit with status 0.
+
+- [ ] T009 [US3] **Perform statistical analysis with cluster‑robust permutation and FDR control**  
+  - Load `master_dataset.json`.  
+  - For **code churn**, compute the paired differences (LLM – Human) and apply a **stratified within‑repo permutation test** (permute labels within each matched pair, aggregate across repos) to obtain a Wilcoxon W‑statistic and a permutation‑based p‑value.  
+  - For **bug‑fix latency**, first drop pairs where either latency is null, then run the same permutation‑based Wilcoxon test.  
+  - Compute **rank‑biserial correlation** and its 95 % CI for each outcome.  
+  - Apply the **Benjamini‑Yekutieli** procedure across the two tests; store adjusted p‑values.  
+  - Write results to `data/analysis/wilcoxon_results.json` following the `metrics_schema` contract, including `analysis_metadata`, `tests`, and `figures` placeholders.  
+  - **Verification**: Run the analysis on the **real** `master_dataset.json` produced by the pipeline and assert that the output file exists, validates against the schema, and contains non‑null statistics.
+
+- [ ] T010a [US3] **Coverage verification for paired metrics (SC‑007)**  
+  - Compute the proportion of matched pairs that have **both** non‑null churn **and** latency values.  
+  - Assert that this proportion is ≥ 0.90; if not, emit a warning and record the exact proportion in `data/analysis/metric_coverage_report.json`.  
+  - **Verification**: A pytest test loads the report and fails the CI if the threshold is not met.
+
+- [ ] T010b [US3] **Robustness of conclusions across observation windows**  
+  - Compare the effect sizes and significance from the 6‑month and 3‑month analyses (outputs from T007).  
+  - Assert that the direction (sign of rank‑biserial) and the BY‑adjusted significance (p < 0.05) are identical across windows; otherwise, log a discrepancy in `data/analysis/window_consistency.json` and fail the verification.  
+  - **Verification**: Test script checks the JSON flags and fails if inconsistency detected.
+
+- [ ] T011 [US3] **Post‑hoc power verification**  
+  - Using `statsmodels.stats.power.WilcoxonPower`, compute the achieved power given the observed sample size, effect size (rank‑biserial), and α = 0.05.  
+  - Write the output to `data/analysis/power_analysis_posthoc.json` (fields: `sample_size`, `achieved_power`, `target_power`, `effect_size_observed`).  
+  - **Verification**: The JSON must contain `achieved_power >= 0.80`; if not, the script logs a warning.
+
+- [ ] T012 [US3] **Generate final visualisations**  
+  - Create **box plots** for normalized churn rates (LLM vs Human) and **kernel density plots** for bug‑fix latency (excluding nulls) using `matplotlib` in CPU‑only mode.  
+  - Save PNG files (< 2 MB) to `figures/fig_churn_boxplot.png` and `figures/fig_latency_density.png`.  
+  - Populate the `figures` array in `wilcoxon_results.json` with `figure_name`, `file_path`, `metric`, and `file_size_bytes`.  
+  - **Verification**: A test checks that each PNG exists, is a valid image, and its size ≤ 2 MB.
+
+- [ ] T013 [US3] **Write methods & results summary for paper handoff**  
+  - Draft `docs/paper/results_summary.md` that:  
+    * Describes the dataset creation (repo search, block extraction, classifier, matching).  
+    * Reports classifier precision, recall, and 95 % CIs.  
+    * Presents the Wilcoxon W‑statistics, raw and BY‑adjusted p‑values, rank‑biserial effect sizes, and confidence intervals.  
+    * Summarises the power analysis, sensitivity analyses (window & bias), and any exclusions.  
+    * Discusses limitations (observational design, reliance on topic tags, confidence‑filter bias, 404 repo deletions).  
+  - Link directly to artifact files (e.g., `data/analysis/wilcoxon_results.json`, `figures/fig_churn_boxplot.png`).  
+  - **Verification**: A lint test ensures all referenced paths exist and that the markdown contains the required sections.
+
+- [ ] T014a [US3] **Re‑run the full pipeline from the quickstart command and verify reproducibility**  
+  - Execute `source .env.example && python code/main.py --stage quickstart` which orchestrates tasks T002–T013 in order.  
+  - Run the full test suite (`pytest -q`) and assert that all contract‑validation tests pass.  
+
+- [ ] T014b [US3] **Compute‑resource enforcement (FR‑016)**  
+  - Before the full pipeline runs, check that the execution environment reports at least 4 CPU cores and 16 GB of RAM (or that a self‑hosted runner is being used).  
+  - If the requirement is not met, abort with a clear error message.  
+  - **Verification**: A pytest test `test_compute_resources.py` reads `/proc/cpuinfo` and `/proc/meminfo` (or platform equivalents) and fails if the thresholds are not satisfied.
+
+- [ ] T015 [US3] **Archive raw GitHub API responses and clone snapshots for future reproducibility**  
+  - After a successful full run, copy the raw API JSON responses (`data/raw/github_api/*.json`) and the shallow clone directories (`data/raw/clones/`) into a compressed archive `data/archive/run_<timestamp>.tar.gz`.  
+  - Record the archive’s SHA‑256 checksum in `docs/paper/archive_checksum.txt`.  
+  - **Verification**: A checksum verification script confirms the archive integrity.
+
+- [ ] T016 [US3] **Document computational environment**  
+  - Export the exact Python environment (`pip freeze > requirements.txt`) and capture the OS details (`uname -a`) into `docs/environment.txt`.  
+  - Include these files in the handoff archive generated by T014.  
+  - **Verification**: The CI step checks that `requirements.txt` contains the pinned versions listed in the plan and that `environment.txt` is non‑empty.
+
+--- 
+
+## Phase 3 – Reproducible results and paper handoff  
+
+- [ ] T017 [US3] **Finalize handoff package**  
+  - Consolidate `master_dataset.json`, `wilcoxon_results.json`, the two PNG figures, `archive_checksum.txt`, `environment.txt`, and all provenance files into `docs/paper/handshake.yaml` listing each artifact’s SHA‑256 hash.  
+  - Ensure the handshake file is present and syntactically valid YAML.  
+  - **Verification**: A test parses the YAML and checks that each listed file exists and that the recorded hash matches the on‑disk hash.
