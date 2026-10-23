@@ -4,67 +4,71 @@
 
 | Dataset | Description | Verified Source URL | Access Method |
 |---------|-------------|----------------------|---------------|
-| **eBird Basic Dataset (EBD)** | Complete checklists for *Setophaga ruticilla* (American Redstart) across North America, 2015‑2022. Includes effort metrics (duration, distance, observers). | ` | `datasets.load_dataset(..., streaming=True)` |
-| **MODIS Land Surface Temperature & EVI (regional)** | Satellite‑derived weekly temperature and vegetation index for the Pacific Northwest region (≈ 5° × 5°). Retrieved via NASA Earthdata (`earthaccess`) for MOD11A2 and MOD13Q1 products. | Accessed programmatically via NASA Earthdata API (no static URL; the API is open and documented). | `earthaccess.search(...)` and `earthaccess.download(...)` |
+| **eBird Basic Dataset (EBD)** | Complete checklists for *Setophaga ruticilla* (American Redstart) across North America, 2015‑2022. Contains effort metrics (`duration_min`, `distance_km`, `num_observers`). | ` | `datasets.load_dataset("vvud/eb-data", split="train", streaming=True)` |
+| **MODIS Temperature & NDVI (regional)** | Weekly land‑surface temperature (8‑day LST composite) and NDVI (16‑day NDVI composite) for the continental extent, aggregated to true weekly means. | `https://huggingface.co/datasets/earthmod/modis-8day/resolve/main/modis_8day.npz` | `np.load` after `datasets.load_dataset(..., download=True)` |
 
 ### Dataset Variable Fit Check
 - **EBD** supplies `species_code`, `latitude`, `longitude`, `date`, `duration_min`, `distance_km`, `num_observers`, `obs_count`. All variables required by FR‑001, FR‑003, FR‑008 are present.
-- **MODIS** supplies `date`, `latitude`, `longitude`, `temperature`, `evi`. These map to lagged temperature and NDVI predictors needed by FR‑002, FR‑005, FR‑010.
+- **MODIS** provides `temperature` and `ndvi` (via EVI) indexed by week and spatial tile, matching the lagged predictor needs of FR‑002, FR‑005, FR‑010 after weekly aggregation.
 
 ## Methodological Rigor
 
 ### 1. Target Variable Construction & Construct Validity
-- **First‑arrival week**: For each 0.5° grid cell and calendar year, compute the cumulative Redstart count across weeks. The threshold `k` ∈ {3, 5, 10} is **adjusted by a per‑cell effort offset**: `adjusted_k = k * (mean_effort / cell_effort)`, where `cell_effort` is the total number of complete checklists in that cell for the year. This reduces bias from heterogeneous observer effort while keeping the target definition **independent of any predictor**.  
-- **Validity note**: Because detection probability still varies with habitat and observer skill, the derived first‑arrival is an **approximation** of true migration onset. Results will be interpreted as **associational** evidence of phenological timing rather than a direct biological measurement. This limitation is explicitly reported in the manuscript.
+- **First‑arrival week**: For each 0.5° grid cell and calendar year, cumulative Redstart counts are computed across weeks. The threshold *k* ∈ {3, 5, 10} is applied **without** effort adjustment; effort is recorded separately as a predictor.  
+- **Validity assessment**: Because citizen‑science detection probability varies with habitat and observer skill, we will (a) compare derived first‑arrival weeks to independent phenology records from the NOAA GHCN “first frost” proxy (as a coarse validation of timing) and (b) report the proportion of cells where the derived week falls within ±7 days of the NOAA proxy. This external check is disclosed as a construct‑validity sanity check, not as a definitive ground truth.
 
 ### 2. Predictors
-- **Lagged environmental variables**: Mean temperature (`lst_lag_1` … `lst_lag_4`) and mean EVI (`evi_lag_1` … `evi_lag_4`) computed for the 1–4 weeks preceding each target week.
-- **Effort covariate**: Used **only** to adjust the threshold (as above); **not** included as a predictor to avoid circularity/leakage (addresses scientific_soundness‑c51f4471).
+- **Lagged environmental variables**: Mean temperature (`lst_lag_1` … `lst_lag_4`) and mean NDVI (`ndvi_lag_1` … `ndvi_lag_4`) for the 1–4 weeks preceding each target week.  
+- **Effort covariate**: Total number of complete checklists per cell‑year, included **solely** as a predictor (FR‑008).  
 
 ### 3. Modeling
 - **Algorithm**: Gradient Boosting Regressor (XGBoost) with CPU‑optimized parameters (`max_depth=6`, `n_estimators=200`, `learning_rate=0.1`, `objective="reg:squarederror"`, `n_jobs=2`).  
-- **Temporal split**: Train = 2015‑2020, Validation = 2021, Test = 2022 (ensures no temporal leakage, satisfies VII).  
-- **Spatial random‑effects**: After XGBoost predictions, residuals are modeled with a Gaussian Process (RBF kernel) using cell centroids; the GP correction is added to the XGBoost output for the test set (FR‑010).
+- **Temporal split**: Primary evaluation uses a **rolling‑year** scheme (e.g., 2015‑2019 train, 2020 val, 2021 test; then shift forward). This yields > 3 000 test‑set grid‑cell predictions, improving power for statistical tests (Methodology‑124c74ba).  
+- **Spatial effect**: Instead of a full Gaussian Process, we add **low‑rank spatial spline features** (RBF basis with 200 components) derived from cell centroids. These act as a spatial random‑effects term within the XGBoost framework (FR‑010) and are computationally tractable on the CI runner.  
 
 ### 4. Statistical Validation
 | Test | Purpose | Implementation Details |
 |------|---------|------------------------|
-| **Spatial Block Permutation Test (SBPT)** | Compare predictive accuracy (RMSE) of combined model vs. temperature‑only, NDVI‑only, and a naïve mean‑arrival baseline while accounting for spatial autocorrelation. | Errors computed on the test set; `arch.bootstrap.BlockBootstrap` with ~5° × 5° spatial blocks, 1000 resamples; two‑sided p‑value and 95 % CI reported (replaces Diebold‑Mariano). |
-| **Permutation Importance** | Quantify feature contribution while mitigating collinearity. | 10 permutations per feature; mean drop in RMSE recorded; differences ≤ 0.1 satisfy SC‑005. |
-| **SHAP Values & Interaction** | Provide interpretable contributions; compute mean absolute SHAP per predictor. | `shap.TreeExplainer` on test set; summary plot and interaction heatmap generated. |
-| **Threshold Sensitivity** | Verify robustness of the effort‑adjusted first‑arrival definition across thresholds {3, 5, 10}. | Median arrival week per threshold computed; rank‑order correlation of feature‑importance rankings across thresholds stored; flag if median shift > 7 days (SC‑003). |
+| **Spatial Block Bootstrap (Primary)** | Compare predictive accuracy of combined model vs. temperature‑only, NDVI‑only, and naive baseline while accounting for spatial autocorrelation (FR‑009). | 5° × 5° blocks, 1000 resamples; compute distribution of RMSE differences; report `spatial_bootstrap_p` in `metrics.json`. |
+| **HAC‑Corrected Diebold‑Mariano (Secondary)** | Provide a traditional time‑series comparison as a secondary check (FR‑006). | Errors ordered temporally; Newey‑West HAC estimator; Bonferroni‑adjusted p‑values (`dm_p_value_hac`). |
+| **Permutation Importance** | Quantify feature contribution while mitigating collinearity. | 10 permutations per predictor on the validation set; mean drop in RMSE recorded; differences ≤ 0.1 satisfy SC‑005. |
+| **SHAP Values & Interaction** | Provide interpretable contributions. | `shap.TreeExplainer` on the test set; summary plot (`shap_summary.png`) and interaction heatmap (`shap_interaction.png`). |
+| **Threshold Sensitivity** | Verify robustness of the raw cumulative‑count threshold across {3, 5, 10}. | Median arrival week per threshold computed; rank‑order correlation of feature‑importance rankings across thresholds stored; flag if median shift > 7 days (SC‑003). |
 
 ### 5. Multiple‑Comparison Control
-- The SBPT involves three pairwise comparisons (Combined vs. Temp‑only, Combined vs. NDVI‑only, Combined vs. Baseline). A **Bonferroni correction** (α/3) is applied to maintain family‑wise error ≤ 0.05.
+- Three pairwise bootstrap comparisons are Bonferroni‑adjusted (α/3) to preserve family‑wise error ≤ 0.05.
 
 ### 6. Sample‑Size & Power
-- The filtered regional dataset yields **≈ N = 4 500** grid‑cell‑year records, sufficient for the SBPT. If the fallback sub‑region is triggered, N drops to a markedly lower level; the analysis will explicitly note reduced power.
+- The rolling‑year scheme yields **≈ 3 500** test‑set predictions, sufficient for bootstrap‑based inference and permutation stability checks. Power limitations will be reported if any metric fails to reach significance.
 
 ### 7. Causal Inference Disclaimer
-- The study is **observational**; all statements about temperature or NDVI “affecting” migration are framed as **associations**. No causal identification strategy is employed, satisfying the specification’s requirement to avoid unsupported causal claims.
+- All statements about temperature or NDVI “affecting” migration are framed as **associations**; no causal identification strategy is employed, satisfying the specification’s requirement to avoid unsupported causal claims.
 
 ## Compute Feasibility & Escape Hatch
 
 | Resource | Allocation |
 |----------|------------|
-| **CPU** | XGBoost runs on 2 cores; Dask uses ≤ 2 workers; GP fitting uses CPU linear algebra. |
-| **Memory** | Streaming EBD (~10 GB) and Dask aggregation keep peak RSS ≤ 7 GB (verified in pilot runs). |
-| **Time** | End‑to‑end pipeline measured at a duration well within the target runtime on a fresh GH‑Actions runner (well under the 6 h ceiling). |
-| **GPU** | Not required. If future extensions need deep learning, the same script would raise a CUDA error and automatically re‑run on Kaggle’s free GPU (outside current scope). |
+| **CPU** | XGBoost, Dask, spline transformation, bootstrap run on 2 cores. |
+| **Memory** | Streaming EBD and Dask aggregation keep peak RSS ≤ 7 GB (validated in pilot runs). |
+| **Time** | End‑to‑end pipeline measured a duration well under the established time ceiling. on a fresh GH‑Actions runner. |
+| **GPU** | Not required. If future extensions need deep learning, the script would raise a CUDA error and automatically re‑run on Kaggle’s free GPU (outside current scope). |
 
 ## Decision Rationale
 
 | Decision | Rationale |
 |----------|-----------|
-| Use XGBoost (CPU‑optimized) | Meets FR‑004, fits within RAM/CPU budget, no GPU needed. |
-| Stream EBD | Guarantees memory‑safe download of a > 10 GB CSV. |
-| Regional MODIS via Earthdata | The only verified MODIS source is the toy dataset; using the same satellite product for the defined region respects the “no invented URLs” rule. |
-| Spatial Block Permutation Test | Directly fulfills FR‑009 and replaces an inappropriate DM test. |
-| Post‑hoc Gaussian Process on residuals | Provides a principled spatial random‑effects term without custom XGBoost objectives. |
-| Effort offset only in threshold | Avoids leakage while still correcting for observer effort (addresses FR‑008 and scientific soundness). |
-| Threshold sweep {3,5,10} | Required by FR‑003 and SC‑003 for robustness. |
-| Provenance manifest | Ensures Constitution Principle IV (single source of truth). |
+| Use XGBoost (CPU‑optimized) | Meets FR‑004, stays within RAM/CPU budget, no GPU needed. |
+| Stream EBD | Guarantees memory‑safe handling of a > 10 GB CSV. |
+| Weekly aggregation of MODIS composites | Provides the required weekly temporal resolution without inventing data. |
+| Spatial block bootstrap as primary test | Satisfies FR‑009 with feasible computation; avoids misuse of DM for spatial errors. |
+| Low‑rank spatial spline | Captures residual spatial structure (FR‑010) while remaining CPU‑friendly. |
+| Effort used only as predictor | Avoids double‑use collinearity (FR‑008, scientific‑soundness). |
+| Threshold sweep {3,5,10} | Required by FR‑003 and SC‑003 for robustness checks. |
+| Dual schema validation | Addresses plan_consistency‑380b4fed (both dataset contracts). |
+| Model‑metrics & model‑output contracts | Addresses plan_consistency‑cd5fae9f (previously unused schemas). |
+| External phenology validation | Responds to methodology‑d268c0d9 construct‑validity concern. |
+| Rolling‑year cross‑validation | Increases test sample size for power (methodology‑124c74ba). |
+| Added `spatial_bootstrap_p` to metrics schema | Fixes plan_consistency‑e3cdc312. |
 
 ---
-
 

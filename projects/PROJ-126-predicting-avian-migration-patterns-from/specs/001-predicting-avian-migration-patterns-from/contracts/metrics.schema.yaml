@@ -20,6 +20,7 @@ properties:
       - "Permutation_Importance_Diff"
       - "Threshold_Sensitivity_Flag"
       - "Feasibility"
+      - "Spatial_Bootstrap_P"   # newly added for primary test
   value:
     type: "number"
     description: "Numeric value of the metric (e.g., RMSE value, p‑value, correlation)."

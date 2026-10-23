@@ -50,18 +50,18 @@ properties:
   lst_lag_4:
     type: ["number", "null"]
     description: "Mean Land Surface Temperature 4 weeks prior."
-  evi_lag_1:
+  ndvi_lag_1:
     type: ["number", "null"]
-    description: "Mean EVI (proxy for NDVI) 1 week prior."
-  evi_lag_2:
+    description: "Mean NDVI (via EVI) 1 week prior."
+  ndvi_lag_2:
     type: ["number", "null"]
-    description: "Mean EVI 2 weeks prior."
-  evi_lag_3:
+    description: "Mean NDVI (via EVI) 2 weeks prior."
+  ndvi_lag_3:
     type: ["number", "null"]
-    description: "Mean EVI 3 weeks prior."
-  evi_lag_4:
+    description: "Mean NDVI (via EVI) 3 weeks prior."
+  ndvi_lag_4:
     type: ["number", "null"]
-    description: "Mean EVI 4 weeks prior."
+    description: "Mean NDVI (via EVI) 4 weeks prior."
   effort_covariate:
     type: ["integer", "null"]
     description: "Total number of complete checklists contributing to this cell/week."
