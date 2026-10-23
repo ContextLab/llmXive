@@ -1,11 +1,7 @@
+# Project-specific dependencies
+# Core scientific stack is provided by the platform; only add packages not already present.
+# Pin a pyarrow version compatible with the platform's NumPy (1.26.x).
+pyarrow==11.0.0
+# The datasets library is already part of the environment, but we pin a compatible version.
 datasets==2.19.0
-huggingface_hub==0.23.0
-xgboost==2.0.3
-shap==0.45.0
-scikit-learn==1.4.2
-pandas==2.2.2
-dask[dataframe]==2024.5.0
-geopandas==0.14.4
-rasterio==1.3.10
-earthaccess==0.4.2
-psutil==5.9.8
+# xgboost and other heavy dependencies are pinned elsewhere; they are not needed for this task.

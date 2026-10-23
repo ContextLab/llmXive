@@ -154,3 +154,15 @@ MAX_GAP_DAYS = 7
 # Resource limits for the pipeline
 RAM_LIMIT_GB = 7
 TIME_LIMIT_HOURS = 6
+
+# ------------------------------------------------------------
+# Full‑continent bounding box (FR‑001)
+# ------------------------------------------------------------
+# North America bounding box covering the full study domain
+LAT_MIN = 15
+LAT_MAX = 75
+LON_MIN = -170
+LON_MAX = -50
+FULL_CONTINENT_BBOX = (LAT_MIN, LAT_MAX, LON_MIN, LON_MAX)  # (min_lat, max_lat, min_lon, max_lon)
+
+# Note: FR‑004 is satisfied by the XGB_PARAMS constant defined above.

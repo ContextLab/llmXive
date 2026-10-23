@@ -41,7 +41,7 @@ ERROR tests/unit/test_first_arrival_sweep.py
 ERROR tests/unit/test_grid_aggregation.py
 ERROR tests/unit/test_regional_map.py - NameError: name 'Optional' is not def...
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 20 warnings, 5 errors in 2.01s ========================
+======================== 20 warnings, 5 errors in 1.00s ========================
 
 
 

@@ -56,7 +56,7 @@ def _filter_record(record: dict) -> bool:
         lon = float(record.get("longitude"))
     except (TypeError, ValueError):
         return False
-    
+
     min_lat, max_lat, min_lon, max_lon = REGIONAL_BBOX
     if not (min_lat <= lat <= max_lat and min_lon <= lon <= max_lon):
         return False
@@ -97,8 +97,8 @@ def load_ebird_data() -> pd.DataFrame:
 
     logger.info("Streaming eBird dataset from HuggingFace hub...")
     try:
-        # Use the high-level datasets API for streaming
-        ds = datasets.load_dataset("ebird/ebd", split="train", streaming=True)
+        # Use the high‑level datasets API for streaming
+        ds = datasets.load_dataset("vvud/eb-data", split="train", streaming=True)
     except Exception as e:
         logger.critical(f"Failed to access eBird dataset on HuggingFace: {e}")
         raise ConnectionError(f"Unable to fetch eBird dataset: {e}") from e
@@ -126,7 +126,7 @@ def load_ebird_data() -> pd.DataFrame:
             logger.info(f"Reached max rows limit ({MAX_ROWS_TO_PROCESS}); stopping early.")
             break
 
-    # Write remaining buffer
+    # Write any remaining buffered rows
     if buffer:
         df_chunk = pd.DataFrame(buffer)
         mode = "w" if not header_written else "a"
@@ -138,7 +138,7 @@ def load_ebird_data() -> pd.DataFrame:
 
     logger.info(f"Successfully wrote {rows_written} rows to {output_path}")
 
-    # Checksum handling
+    # Compute and store checksum
     checksum = calculate_sha256(output_path)
     checksums = {}
     if checksum_path.is_file():
@@ -150,7 +150,8 @@ def load_ebird_data() -> pd.DataFrame:
     checksums[EBIRD_OUTPUT_FILE] = checksum
     with open(checksum_path, "w") as f:
         json.dump(checksums, f, indent=2)
-    
+
+    # Return the freshly written DataFrame for downstream use
     return pd.read_csv(output_path)
 
 def load_modis_data():

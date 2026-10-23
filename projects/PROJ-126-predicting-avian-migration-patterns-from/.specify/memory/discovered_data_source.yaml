@@ -1,19 +1,18 @@
 status: none
-intent: eBird Basic Dataset complete checklists 2015-2022 download and MODIS NDVI
-  LST python package dataset
+intent: download eBird Basic Dataset and MODIS Terra weekly EVI python package dataset
 required_fields:
-- species_code
-- common_name
-- scientific_name
+- species_common_name
+- species_scientific_name
+- observation_date
 - latitude
 - longitude
-- observation_date
-- week_of_year
-- duration_min
-- distance_km
-- num_observers
-- observation_count
+- effort_distance_km
+- effort_duration_min
+- observer_count
+- checklist_complete
 - grid_cell_id
-cache_key: 9a38065d6a5a491e994f59113526c65fb8cf7214e7c8091a38b3681feef28736
-searched_at: '2026-10-23T10:18:00.922676+00:00'
+- year
+- week
+cache_key: d7a6588ed71e12a8a8386a4a404fa68e16beb0ae39fe8afc530ce67e72af10ee
+searched_at: '2026-10-23T10:43:43.617948+00:00'
 retry_count: 1
