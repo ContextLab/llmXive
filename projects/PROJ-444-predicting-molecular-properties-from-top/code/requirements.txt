@@ -1,13 +1,1 @@
-# Project requirements
-# Core scientific stack (already provided in the environment):
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-#
-# Additional dependencies required for this project:
-deepchem>=2.7.0
-rdkit-pypi
-gudhi
-networkx
-# Note: rdkit-pypi provides the RDKit bindings on PyPI; gudhi provides
-# the persistent homology utilities used in later tasks. Both install
-# CPU‑only wheels compatible with the GitHub Actions runner.
+deepchem

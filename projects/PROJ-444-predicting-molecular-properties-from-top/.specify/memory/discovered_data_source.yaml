@@ -1,30 +1,23 @@
 status: verified
 kind: pypi_package
-ref: deepchem
-access_python: 'import deepchem as dc
+ref: datasets
+access_python: 'import datasets, sys
 
-  # Load the Lipophilicity (Lipo) dataset with a simple featurizer
 
-  tasks, (train, valid, test), transformers = dc.molnet.load_lipo(featurizer=''ECFP'')
+  ds = datasets.load_dataset("scikit-fingerprints/MoleculeNet_Lipophilicity", split="train")
 
-  # Count total records across all splits
+  records = len(ds)
 
-  total = len(train) + len(valid) + len(test)
+  print(f"RECORDS={records}")
 
-  print(f"RECORDS={total}")
-
-  # The dataset provides SMILES strings as ids and experimental logP values as targets
-
-  fields = [''smiles'', ''logP'']
-
-  print(''FIELDS='' + '',''.join(fields))'
+  print("FIELDS=" + ",".join(ds.column_names))'
 record_count: 4200
 sample_fields:
-- smiles
-- logP
-field_coverage: 1.0
+- SMILES
+- label
+field_coverage: 0.5
 required_fields:
-- smiles
+- SMILES
 - logP
-intent: download MoleculeNet Lipophilicity dataset via DeepChem python package dataset
-cache_key: f54887f62d3e90e3e33d1d11b262f6760c16de948e9f7ad14506025ce700dc9b
+intent: MoleculeNet Lipophilicity dataset download pip install python package dataset
+cache_key: 9f6a2cf1a4808386c875055fc560e0adad519484c8e8c0092f4c7c6847c5028d

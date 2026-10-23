@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method
   verified_at: '2026-10-23T17:25:08.102891Z'
-- artifact_hash: b2b6a48c3ceb037cbe159e870da1b04f20e345e5ae82a5fddd3de353e075bd5f
+- artifact_hash: 0317ecec5296eeca83298adaa4997803cdd198ed5fab9cd36dde85493b9f1973
   artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/lipophilicity.csv`
   verification_status: pending
   verified_against_url: https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/lipophilicity.csv
-  verified_at: '2026-10-23T19:09:20.181998Z'
+  verified_at: '2026-10-23T21:15:08.338086Z'
