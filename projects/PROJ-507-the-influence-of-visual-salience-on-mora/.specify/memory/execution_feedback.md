@@ -39,18 +39,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/00_pilot_power_analysis.py': [Errno 2] No such file or directory
 
 - python code/01_ingest_and_filter.py  --max-scenarios 30  --output data/processed/candidates_filtered.csv -> rc=1
- or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/coco_captions to ask for access.
+3.11/site-packages/datasets/load.py", line 1819, in dataset_module_factory
+    raise DatasetNotFoundError(
+datasets.exceptions.DatasetNotFoundError: Dataset 'open_images' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/open_images to ask for access.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 281, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 330, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 278, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 327, in main
     ingest_and_filter(num_samples=num_samples, tags=args.tags, output_csv=output_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 161, in ingest_and_filter
-    raise DataFetchError(
-data_prep.DataFetchError: Unable to load any dataset (Open Images and COCO fallback both failed): Dataset 'coco_captions' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/coco_captions to ask for access.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 169, in ingest_and_filter
+    raise DataFetchError("Unable to load Open Images dataset") from exc
+data_prep.DataFetchError: Unable to load Open Images dataset
 
 - python code/04_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv -> rc=2
 
@@ -85,31 +87,26 @@ data_prep.DataFetchError: Unable to load any dataset (Open Images and COCO fallb
 Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
 
 - **Install**: add `fiftyone` to the project's `requirements.txt` and `pip install fiftyone`.
-- **Verified**: this loads **10** real records with fields: image_id, image_url, label_name, label_description, bounding_box_xmin, bounding_box_ymin, bounding_box_xmax, bounding_box_ymax.
+- **Verified**: this loads **100** real records with fields: image_id, image_url_or_path, original_image, moral_ambiguity_tags, roi_bbox.
 - **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
 
 ```python
 import fiftyone as fo, fiftyone.zoo as foz
-# Load a small subset of Open Images V6 training split (avoid full download)
-dataset = foz.load_zoo_dataset("open-images-v6", split="train", max_samples=10)
+# Load a small sample of Open Images V6 to ensure quick execution
+dataset = foz.load_zoo_dataset("open-images-v6", split="validation", max_samples=100)
+# Number of records (samples) loaded
 print(f"RECORDS={len(dataset)}")
-# Inspect a sample to infer available fields
-sample = dataset.first()
-fields = []
-if hasattr(sample, "id"):
-    fields.append("image_id")
-if hasattr(sample, "filepath"):
-    fields.append("image_url")
-if hasattr(sample, "metadata"):
-    if hasattr(sample.metadata, "width"):
-        fields.append("image_width")
-    if hasattr(sample.metadata, "height"):
-        fields.append("image_height")
-if hasattr(sample, "detections"):
-    # detections contain label and bbox info
-    fields.extend(["label_name","label_description","bounding_box_xmin","bounding_box_ymin","bounding_box_xmax","bounding_box_ymax"])
-# tags are not provided by default in this dataset
-print("FIELDS=" + ",".join(fields))
+# Map FiftyOne fields to the requested benchmark fields where possible
+field_map = {
+    "id": "image_id",
+    "filepath": "image_url_or_path",
+    "metadata": "original_image",
+    "tags": "moral_ambiguity_tags",
+    # Bounding box information is stored per detection; we expose it as roi_bbox
+    "detections": "roi_bbox",
+}
+available = [v for k,v in field_map.items() if k in dataset.get_field_schema()]
+print("FIELDS=" + ",".join(available))
 ```
 
 Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

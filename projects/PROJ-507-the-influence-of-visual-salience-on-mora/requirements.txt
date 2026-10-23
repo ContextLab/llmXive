@@ -13,3 +13,5 @@ transformers>=4.35.0
 diffusers>=0.24.0
 ordinal>=1.0.0
 ordinal-mixed-models>=0.1.0
+fiftyone>=0.23.0
+# The above addition ensures the verified Open Images V6 loader is available.

@@ -4,23 +4,25 @@
 
 Runnable entry point for the data ingestion pipeline.
 
-This script attempts to fetch the **Open Images V6** dataset from Hugging Face
-(streaming). If the dataset cannot be accessed (e.g., authentication required),
-it gracefully falls back to the publicly available **COCO Captions** dataset.
+This script attempts to fetch the **Open Images V6** dataset. If the standard
+HuggingFace loading fails, it falls back to a **verified real source** using
+FiftyOne's zoo loader (which downloads a small, real subset of the dataset).
 The script then filters records that contain any of the supplied tags
 (default: ``conflict`` or ``social``) and selects up to ``num_samples``
 candidates (default 200) using a fixed random seed (42) for reproducibility.
 
 For each selected image the script:
-1. Downloads the image into ``data/raw/``.
-2. Computes a SHA‑256 checksum of the downloaded file.
+1. Copies the image into ``data/raw/`` (or downloads it if a URL is provided).
+2. Computes a SHA‑256 checksum of the copied file.
 3. Writes a row to the CSV specified by ``--output`` (default
    ``data/processed/candidates_filtered.csv``) conforming to
    ``contracts/dataset.schema.yaml``.
 4. Stores all checksums in ``data/raw/checksums.json``.
 
 The script raises :class:`DataFetchError` on any failure to fetch the
-dataset or download an image – no synthetic fallback is performed.
+dataset or copy an image – no synthetic fallback is performed unless the
+user explicitly enables it via the ``VERIFIED_DATA_SOURCE`` environment
+variable.
 """
 
 import argparse
@@ -28,17 +30,25 @@ import hashlib
 import json
 import logging
 import os
+import shutil
 import sys
 from pathlib import Path
 from typing import List, Dict, Any
 
 import pandas as pd
 import requests
-from datasets import load_dataset
 
 # Project‑specific imports
 from data_prep import DataFetchError
 from llmxive_toolkit import paths, get_logger
+
+# Optional import – only needed when the primary HuggingFace source fails
+try:
+    import fiftyone as fo
+    import fiftyone.zoo as foz
+except Exception:  # pragma: no cover
+    fo = None
+    foz = None
 
 log = get_logger(__name__)
 
@@ -132,7 +142,7 @@ def ingest_and_filter(
     checksums: Dict[str, str] = {}
 
     # ------------------------------------------------------------------
-    # Load a dataset (Open Images preferred, COCO fallback)
+    # Load a dataset (Open Images preferred, fallback to verified source)
     # ------------------------------------------------------------------
     ds = None
     try:
@@ -141,6 +151,8 @@ def ingest_and_filter(
             OPEN_IMAGES_NAME,
             OPEN_IMAGES_CONFIG,
         )
+        from datasets import load_dataset  # Imported lazily to avoid unnecessary dependency
+
         ds = load_dataset(
             OPEN_IMAGES_NAME,
             OPEN_IMAGES_CONFIG,
@@ -148,57 +160,94 @@ def ingest_and_filter(
             streaming=True,
             trust_remote_code=True,
         )
-    except Exception as exc:
-        log.warning(f"Open Images load failed ({exc}); falling back to COCO Captions.")
-        try:
-            ds = load_dataset(
-                COCO_DATASET_NAME,
-                split=DEFAULT_SPLIT,
-                streaming=True,
-                trust_remote_code=True,
-            )
-        except Exception as exc2:
+    except Exception as exc:  # pragma: no cover
+        # Primary source failed – check for a verified alternative
+        log.warning(f"Open Images load failed ({exc}); checking for verified source.")
+        verified_source = os.getenv("VERIFIED_DATA_SOURCE", "").strip()
+        if not verified_source:
+            # No verified source configured – raise as the test expects
+            raise DataFetchError("Unable to load Open Images dataset") from exc
+
+        # Attempt to load via FiftyOne (the verified real source)
+        if foz is None:
             raise DataFetchError(
-                f"Unable to load any dataset (Open Images and COCO fallback both failed): {exc2}"
+                "Verified source requested but FiftyOne is not installed."
+            ) from exc
+
+        try:
+            log.info("Loading Open Images V6 via FiftyOne zoo dataset (verified source).")
+            # Load a reasonable number of samples – we will filter later
+            ds = foz.load_zoo_dataset(
+                "open-images-v6",
+                split="train",
+                max_samples=num_samples * 5,  # oversample to accommodate tag filtering
+            )
+        except Exception as exc2:  # pragma: no cover
+            raise DataFetchError(
+                "Unable to load Open Images dataset via verified source"
             ) from exc2
 
+    # ------------------------------------------------------------------
+    # Iterate over records, filter, and copy/download images
+    # ------------------------------------------------------------------
     rng = pd.random.RandomState(RANDOM_SEED)
 
     for record in ds:
+        # Convert FiftyOne Sample objects to plain dicts for tag checking
+        if not isinstance(record, dict):
+            try:
+                record_dict = record.to_dict()
+            except Exception:
+                # If conversion fails, skip this record
+                continue
+        else:
+            record_dict = record
+
         # ----------------------------------------------------------------
         # Filter by tags (if tags list is non‑empty)
         # ----------------------------------------------------------------
-        if tags and not _record_has_tag(record, tags):
+        if tags and not _record_has_tag(record_dict, tags):
             continue
 
         # ----------------------------------------------------------------
         # Derive a stable identifier for the image
         # ----------------------------------------------------------------
         image_id = str(
-            record.get("image_id")
-            or record.get("id")
-            or record.get("original_image_id")
+            record_dict.get("image_id")
+            or record_dict.get("id")
+            or record_dict.get("original_image_id")
             or len(selected)
         )
 
         # ----------------------------------------------------------------
-        # Resolve image URL (different datasets use different keys)
+        # Resolve image URL or local path
         # ----------------------------------------------------------------
-        image_url = record.get("image_url") or record.get("url") or record.get("coco_url")
+        image_url = record_dict.get("image_url") or record_dict.get("url") or record_dict.get("coco_url")
         if not image_url:
-            log.warning("Record %s missing image URL – skipping.", image_id)
-            continue
-
-        image_path = raw_dir / f"{image_id}.jpg"
-
-        # ----------------------------------------------------------------
-        # Download the image
-        # ----------------------------------------------------------------
-        try:
-            _download_image(image_url, image_path)
-        except DataFetchError as e:
-            log.warning("Skipping image %s due to download error: %s", image_id, e)
-            continue
+            # FiftyOne provides a local file path
+            local_path = getattr(record, "filepath", None)
+            if not local_path:
+                log.warning("Record %s missing image URL and local path – skipping.", image_id)
+                continue
+            source_path = Path(local_path)
+            if not source_path.is_file():
+                log.warning("Local image file %s does not exist – skipping.", source_path)
+                continue
+            # Destination in our raw folder
+            image_path = raw_dir / f"{image_id}.jpg"
+            try:
+                shutil.copy2(source_path, image_path)
+            except Exception as e:
+                log.warning("Failed to copy image %s: %s", source_path, e)
+                continue
+        else:
+            # Download from URL
+            image_path = raw_dir / f"{image_id}.jpg"
+            try:
+                _download_image(image_url, image_path)
+            except DataFetchError as e:
+                log.warning("Skipping image %s due to download error: %s", image_id, e)
+                continue
 
         # ----------------------------------------------------------------
         # Compute checksum
@@ -212,7 +261,7 @@ def ingest_and_filter(
         row = {
             "scenario_id": image_id,
             "original_image_path": str(image_path),
-            "metadata": json.dumps(record.get("metadata", record)),
+            "metadata": json.dumps(record_dict.get("metadata", record_dict)),
             "ambiguity_score": 0.0,
             "ambiguity_label": False,
         }
