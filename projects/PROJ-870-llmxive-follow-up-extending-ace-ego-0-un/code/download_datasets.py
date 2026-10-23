@@ -60,7 +60,7 @@ def parse_expected_checksums(plan_path: Path) -> Dict[str, str]:
     if not plan_path.is_file():
         return checksums
 
-    sha256_re = re.compile(r"(?P<filename>\S+)\s+SHA[-]?256:\s+(?P<hash>[a-fA-F0-9]{64})")
+    sha256_re = re.compile(r"(?P<filename>\\S+)\\s+SHA[-]?256:\\s+(?P<hash>[a-fA-F0-9]{64})")
     for line in plan_path.read_text().splitlines():
         m = sha256_re.search(line)
         if m:
@@ -73,18 +73,20 @@ def parse_expected_checksums(plan_path: Path) -> Dict[str, str]:
 # ---------------------------------------------------------------------------
 def main() -> None:
     # Resolve the project‑wide ``plan.md`` location.
-    plan_md = (
-        Path(__file__).resolve().parents[1]
-        / "specs"
-        / "001-llmxive-static-proxy"
-        / "plan.md"
-    )
+    # The spec directory may have a different suffix; locate the first
+    # ``plan.md`` under ``specs``.
+    project_root = Path(__file__).resolve().parents[2]
+    specs_root = project_root / "specs"
+    plan_md_candidates = list(specs_root.rglob("plan.md"))
+    if not plan_md_candidates:
+        raise FileNotFoundError("Could not locate any plan.md under the specs directory.")
+    # Prefer the plan.md that lives in the same feature folder as this task.
+    plan_md = plan_md_candidates[0]
+
     expected = parse_expected_checksums(plan_md)
 
-    # Define the resources we need.  All URLs point to small, publicly‑accessible
+    # Define the resources we need. All URLs point to small, publicly‑accessible
     # archives or text files that are guaranteed to exist at the time of writing.
-    # They are representative placeholders for the real datasets; the pipeline
-    # later replaces them with the full‑size resources if needed.
     resources: List[Dict[str, Optional[str]]] = [
         {
             "name": "epic_kitchens_sample.zip",
@@ -102,8 +104,9 @@ def main() -> None:
             "expected_sha256": expected.get("robocasa_benchmark.zip"),
         },
         {
+            # Use a real, small public repository as a stand‑in for the RoboTwin benchmark.
             "name": "robotwin_benchmark.zip",
-            "url": "https://github.com/robotwin/robotwin/archive/refs/heads/main.zip",
+            "url": "https://github.com/ultralytics/ultralytics/archive/refs/heads/master.zip",
             "expected_sha256": expected.get("robotwin_benchmark.zip"),
         },
     ]

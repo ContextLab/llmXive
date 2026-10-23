@@ -8,7 +8,7 @@ All file paths are relative to the project root and live under `data/`, `code/`,
 
 ---
 
-- [ ] **T001** [P] [US0] Download verified source datasets.   <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 -->
+- [ ] **T001** [P] [US0] Download verified source datasets.   <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 -->
   *Download the **ACE‑Ego‑0** dataset archive, the dynamic‑reliability heuristic script, and the RoboCasa & RoboTwin benchmark archives into `data/raw/`.*  
   *Verification:*  
     • Compute SHA‑256 checksums and compare to the values listed in `plan.md`.  
