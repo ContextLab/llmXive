@@ -53,8 +53,8 @@ ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-collected 1 item / 1 deselected / 0 selected
+collected 2 items / 2 deselected / 0 selected
 
-============================ 1 deselected in 0.12s =============================
+============================ 2 deselected in 0.17s =============================
 
 
