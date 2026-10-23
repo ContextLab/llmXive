@@ -1,18 +1,18 @@
 status: none
-intent: eBird Basic Dataset complete checklists 2015 2022 python package dataset
+intent: download eBird Basic Dataset and MODIS NDVI temperature python package dataset
 required_fields:
-- species_common_name
 - species_scientific_name
 - observation_date
-- observation_time
+- week_of_year
 - latitude
 - longitude
 - checklist_id
-- duration_minutes
+- checklist_duration_minutes
 - number_of_observers
-- distance_km
-- protocol_type
-- complete_checklist_flag
-cache_key: 6af69b96e084378e8d2b393760cb8db572839b9bc3f20fa1ffcfb4f36dc8cec7
-searched_at: '2026-10-23T10:45:33.439316+00:00'
+- distance_traveled_km
+- species_observation_count
+- effort_duration_minutes
+- effort_distance_km
+cache_key: c2268566a45ea62d2f455b86186a2447e9f09ab422235d6cd9b2f900c92493ff
+searched_at: '2026-10-23T12:22:20.045393+00:00'
 retry_count: 1

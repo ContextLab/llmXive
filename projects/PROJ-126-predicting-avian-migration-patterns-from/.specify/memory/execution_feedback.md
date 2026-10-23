@@ -31,7 +31,7 @@ Traceback (most recent call last):
          ^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-126-predicting-avian-migration-patterns-from/code/data_loader.py", line 131, in load_ebird_data
     raise ConnectionError(f"Unable to fetch eBird dataset: {e}") from e
-ConnectionError: Unable to fetch eBird dataset: 401 Client Error. (Request ID: Root=1-6adb3a96-7bd69fb32616865d6a12c5d3;17ccc27a-d105-4da0-8403-142263f65095)
+ConnectionError: Unable to fetch eBird dataset: 401 Client Error. (Request ID: Root=1-6adb5157-47e5535a390e4eb10fd2fc81;4e909ee8-55c3-47af-8d90-78db0fb64b22)
 
 Repository Not Found for url: https://huggingface.co/vvud/eb-data/resolve/main/ebd.csv.gz.
 Please make sure you specified the correct `repo_id` and `repo_type`.
@@ -58,7 +58,7 @@ ERROR tests/unit/test_first_arrival_sweep.py
 ERROR tests/unit/test_grid_aggregation.py
 ERROR tests/unit/test_regional_map.py - NameError: name 'Optional' is not def...
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 23 warnings, 3 errors in 0.96s ========================
+======================== 23 warnings, 3 errors in 2.52s ========================
 
 
 
