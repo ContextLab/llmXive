@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-23T16:11:07.413423+00:00",
+  "generated_at": "2026-10-23T16:24:27.674205+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -55343,7 +55343,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-119-statistical-modeling-of-temporal-depende.yaml",
         "code": "projects/PROJ-119-statistical-modeling-of-temporal-depende/code",
-        "data": null,
+        "data": "projects/PROJ-119-statistical-modeling-of-temporal-depende/data",
         "idea": "projects/PROJ-119-statistical-modeling-of-temporal-depende/idea/research_question_validation.md",
         "paper_figures": null,
         "paper_pdf": null,
@@ -55361,7 +55361,7 @@
       },
       "authors": [
         {
-          "contributions": 9,
+          "contributions": 10,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -55412,6 +55412,14 @@
       "id": "PROJ-119-statistical-modeling-of-temporal-depende",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 831.543665,
+          "ended_at": "2026-10-23T16:23:04.432629Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T16:09:12.888964Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 52.320203,
@@ -55483,14 +55491,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-06T06:44:07.329561Z"
-        },
-        {
-          "agent": "research_question_validator",
-          "duration_s": 8.256251,
-          "ended_at": "2026-09-19T21:32:22.623411Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-19T21:32:14.367160Z"
         }
       ],
       "paper_status": null,
@@ -160172,6 +160172,14 @@
           ]
         },
         {
+          "contributions": 7,
+          "kind": "llm",
+          "name": "google.gemma-4-31B-it",
+          "roles": [
+            "implementer"
+          ]
+        },
+        {
           "contributions": 6,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
@@ -160180,14 +160188,6 @@
             "project_initializer",
             "research_question_validator",
             "specifier"
-          ]
-        },
-        {
-          "contributions": 6,
-          "kind": "llm",
-          "name": "google.gemma-4-31B-it",
-          "roles": [
-            "implementer"
           ]
         },
         {
@@ -160219,6 +160219,14 @@
       "id": "PROJ-889-llmxive-follow-up-extending-tide-proacti",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 175.372435,
+          "ended_at": "2026-10-23T16:14:13.427044Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "success",
+          "started_at": "2026-10-23T16:11:18.054609Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 48.979099,
@@ -160290,14 +160298,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T08:13:08.133574Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 214.16194,
-          "ended_at": "2026-10-23T08:12:05.426036Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-23T08:08:31.264096Z"
         }
       ],
       "paper_status": null,
@@ -175770,7 +175770,7 @@
           ]
         },
         {
-          "contributions": 24,
+          "contributions": 26,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -175799,6 +175799,22 @@
       "id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 112.392876,
+          "ended_at": "2026-10-23T16:12:07.342215Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T16:10:14.949339Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 31.015032,
+          "ended_at": "2026-10-23T16:10:14.946610Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-23T16:09:43.931578Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 61.180985,
@@ -175862,22 +175878,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T11:32:39.028284Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 0.035658,
-          "ended_at": "2026-10-23T11:32:30.425574Z",
-          "model": "deterministic-no-llm",
-          "outcome": "skipped",
-          "started_at": "2026-10-23T11:32:30.389916Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 134.912826,
-          "ended_at": "2026-10-23T11:32:20.155643Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T11:30:05.242817Z"
         }
       ],
       "paper_status": null,
@@ -176058,6 +176058,54 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "implementer",
+      "duration_s": 831.543665,
+      "ended_at": "2026-10-23T16:23:04.432629Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-119-statistical-modeling-of-temporal-depende",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T16:09:12.888964Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 175.372435,
+      "ended_at": "2026-10-23T16:14:13.427044Z",
+      "failure_reason": "",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "success",
+      "project_id": "PROJ-889-llmxive-follow-up-extending-tide-proacti",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T16:11:18.054609Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 112.392876,
+      "ended_at": "2026-10-23T16:12:07.342215Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T16:10:14.949339Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 31.015032,
+      "ended_at": "2026-10-23T16:10:14.946610Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-23T16:09:43.931578Z"
+    },
     {
       "agent": "tasker",
       "duration_s": 373.781854,
@@ -182009,54 +182057,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-22T15:09:23.303573Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 64.251919,
-      "ended_at": "2026-10-22T15:10:13.379926Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-22T15:09:09.128007Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 35.38021,
-      "ended_at": "2026-10-22T15:09:24.114861Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-969-llmxive-follow-up-extending-perception-o",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-22T15:08:48.734651Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 16.071447,
-      "ended_at": "2026-10-22T15:09:09.124678Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-542-predicting-defect-formation-energies-in-",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-22T15:08:53.053231Z"
-    },
-    {
-      "agent": "clarifier",
-      "duration_s": 223.501849,
-      "ended_at": "2026-10-22T14:59:42.263678Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-595-neural-narrative-networks-brain-inspired",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-22T14:55:58.761829Z"
     }
   ],
   "reviewed_preprints": [
