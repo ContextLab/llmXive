@@ -147,23 +147,33 @@ def generate_window_index(
         for idx, start in enumerate(starts):
             rows.append((start, L, idx))
 
-    # Verify non‑overlap across all rows (strictly for safety)
-    # Sort by start for easier checking
-    rows_sorted = sorted(rows, key=lambda r: r[0])
-    for i in range(1, len(rows_sorted)):
-        prev_start, prev_L, _ = rows_sorted[i - 1]
-        cur_start, cur_L, _ = rows_sorted[i]
-        # windows can only overlap if they belong to the same L,
-        # because different L have different step sizes.
-        if prev_L == cur_L:
-            if cur_start < prev_start + prev_L:
-                raise RuntimeError(
-                    f"Overlap detected for L={prev_L}: "
-                    f"window starting at {prev_start} overlaps with "
-                    f"window starting at {cur_start}."
-                )
+    # ------------------------------------------------------------------
+    # Deterministic ordering
+    # ------------------------------------------------------------------
+    # To guarantee reproducible SHA‑256 hashes across runs we sort the
+    # rows by the start index.  The ``window_id`` is kept as originally
+    # assigned (0‑based within each L) – the spec only requires the
+    # identifier to be unique; its relative order does not affect later
+    # analysis.
+    rows.sort(key=lambda r: r[0])
 
-    # Write CSV
+    # Verify non‑overlap across all rows (strictly for safety)
+    # After sorting, overlapping windows could only belong to the same L.
+    for i in range(1, len(rows)):
+        prev_start, prev_L, _ = rows[i - 1]
+        cur_start, cur_L, _ = rows[i]
+        if prev_L == cur_L and cur_start < prev_start + prev_L:
+            raise RuntimeError(
+                f"Overlap detected for L={prev_L}: "
+                f"window starting at {prev_start} overlaps with "
+                f"window starting at {cur_start}."
+            )
+
+    # Write CSV with explicit newline handling to ensure platform‑
+    # independent line endings (LF).  ``csv.writer`` with ``newline=''``
+    # already uses ``\r\n`` on Windows; we enforce ``\n`` by writing
+    # the file in text mode with ``newline=''`` and then normalising
+    # line endings.
     _ensure_parent_dir(output_path)
     with output_path.open("w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)

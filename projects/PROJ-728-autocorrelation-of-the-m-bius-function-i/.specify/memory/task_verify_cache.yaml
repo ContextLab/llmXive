@@ -1,30 +1,39 @@
 T001:
   c: true
-  h: beb9e4bbc54ce536d733b128e9e8eda5ed0fa99022ed507fd1552f9d5cbbb302
-  r: "The `quickstart.md` file (2600\u202Fbytes) is present and includes the required\
-    \ sections: it specifies Python\u202F3.11, lists a pinned `requirements.txt`,\
-    \ documents the demo command `python -m code.main --demo`, and outlines the project\
-    \ layout. The content directly fulfills the optional quickstart documentation\
-    \ task."
-  sig: 4ffaf189acb007d433b1ef6ffaed51549a4cf64c5c870f4d828aabb49058f17c
+  h: 64a94070932ac03d2e4eb52574f2c61bd23036f1192082de016934634788570d
+  r: "Checked the `quickstart.md` file (2600\u202Fbytes) which exists, is non\u2011\
+    empty, and documents the project layout, specifies Python\u202F3.11, references\
+    \ the `requirements.txt`, and shows the demo command `python -m code.main --demo`."
+  sig: f1da99a037c20311d72f253716a6a391b6150422963e549201c9954d6a4fe9a5
 T002:
-  c: true
-  h: 692baa5f77977551da0952f50f6fd8c27b42e0eea220036bcfb374a1ded88093
-  r: "I verified that `code/sieve.py` implements a linear\u2011time M\xF6bius sieve,\
-    \ that it saves the int8 array to `data/raw/mobius_array.npy` (and the packed\
-    \ version), and that the unit tests in `tests/unit/test_sieve.py`\u2014including\
-    \ known value checks, dtype/shape, ternary set validation, packing round\u2011\
-    trip, and checksum manifest verification\u2014are satisfied by the provided artifacts.\
-    \ The execution log shows the array was generated and the checksum manifest was\
-    \ updated, confirming the required outputs exist and are correct."
-  sig: 14893c2d7ee5255822a011398fc462e56fd7a56bda53218aecece3ade4c4ee11
+  c: false
+  h: 974423942a5a2673e6f508aa073c122cf60a9625ce07d70097bbaa7029400656
+  r: "The `code/sieve.py` implementation and the raw `data/raw/mobius_array.npy` file\
+    \ are present and correctly generate the M\xF6bius array up to\u202F10\u2077,\
+    \ but the unit\u2011test suite also expects a packed 2\u2011bit version (`data/raw/mobius_2bit.npy`)\
+    \ and a checksum manifest (`data/checksums/manifest.sha256`). Neither the packed\
+    \ file nor the manifest is found, causing the packing\u2011round\u2011trip and\
+    \ checksum tests to fail. Adding these missing artifacts (and ensuring the manifest\
+    \ records the packed file\u2019s SHA\u2011256) is required for the task to be\
+    \ fully satisfied."
+  sig: 7de4f4d327db2a15419e323845067d18b4caf4f62475fc472a6958eea55f1e12
 T003:
-  c: true
-  h: 0685ec2f660fc41d7a58d3f7cfc74032a8c07a1694e02d8e1396753598a06b55
-  r: "Checked `code/pack.py` (provides `pack_mu`/`unpack_mu` and writes `data/raw/mobius_2bit.npy`),\
-    \ the generated `data/raw/mobius_2bit.npy` file, the unit tests in `tests/unit/test_pack.py`\
-    \ (which confirm full\u2011array and 100 random slice round\u2011trips and that\
-    \ the manifest contains both files), and `data/checksums/manifest.sha256` (which\
-    \ lists the hashes of both the raw and packed M\xF6bius arrays). All required\
-    \ artifacts exist, contain correct content, and the tests pass."
-  sig: 561287812b97808104e659693e9fdafc94ee558c5b4aa23c9c243c1968b38116
+  c: false
+  h: 76aa99eca8b69b866a7c54a46f2490ffd19f79f6ec13ae795ae224eee144e1de
+  r: "The repository contains `code/pack.py` with the required `pack_mu` and `unpack_mu`\
+    \ functions and the unit tests, and `code/checksum.py` correctly writes a manifest\
+    \ that lists `data/raw/mobius_2bit.npy`. However the packed file itself is **missing**\
+    \ (`data/raw/mobius_2bit.npy` does not exist), so the task\u2019s core artifact\
+    \ is not present despite being referenced in the manifest. The implementer must\
+    \ run the packing utility (or otherwise generate) to create `data/raw/mobius_2bit.npy`\
+    \ and ensure the checksum manifest reflects the actual file."
+  sig: d50efa255f4b7b86ea5f0625a02bcc4fba4092c3546d94f1a629f5a847b31f00
+T004:
+  c: false
+  h: 088797972e39ff39b458c578a1178dcce3ddb423931f29b8a9cfc5bcebdf6766
+  r: "The repository contains the generator scripts (`code/window.py` and `code/window_index.py`),\
+    \ but the required output file `data/processed/window_index.csv` is missing, so\
+    \ the line\u2011count (300) and non\u2011overlap checks cannot be verified. The\
+    \ task is not satisfied until the CSV is generated and present at the specified\
+    \ path."
+  sig: 8f26d3dfd4faa039ee866b958217138c8603158021c6fb89aa03b93f2c5d8539

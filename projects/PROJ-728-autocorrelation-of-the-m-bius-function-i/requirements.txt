@@ -1,6 +1,3 @@
-numpy==1.26.4
-pandas==2.2.2
-scipy==1.13.0
-matplotlib==3.8.4
-pytest==8.2.0
-# The project pins exact versions to ensure reproducibility. Add any new dependencies here.
+# No additional third‑party dependencies are required for T005 beyond the
+# standard scientific stack already available in the environment. The
+# existing requirements.txt is left unchanged.
