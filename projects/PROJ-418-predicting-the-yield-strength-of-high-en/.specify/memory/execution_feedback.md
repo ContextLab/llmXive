@@ -7,8 +7,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.pipeline.run  --seed 42  --output-dir output/ -> rc=1
-2026-10-23 20:40:44 - __main__ - INFO - Starting pipeline with seed=42, output_dir=output/
-2026-10-23 20:40:44 - __main__ - ERROR - Pipeline execution failed: run_pipeline() got an unexpected keyword argument 'output_dir'
+2026-10-23 20:43:58 - __main__ - INFO - Starting pipeline with seed=42, output_dir=output/
+2026-10-23 20:43:58 - __main__ - ERROR - Pipeline execution failed: run_pipeline() got an unexpected keyword argument 'output_dir'
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-418-predicting-the-yield-strength-of-high-en/src/pipeline/run.py", line 63, in main
     run_pipeline(output_dir=args.output_dir)
@@ -24,8 +24,7 @@ Traceback (most recent call last):
 TypeError: run_pipeline() got an unexpected keyword argument 'output_dir'
 
 - python -m pytest -q -> rc=2
-alize_to_mpa, SUPPORTED_UNITS
-E   ImportError: cannot import name 'SUPPORTED_UNITS' from 'code.utils.unit_utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-418-predicting-the-yield-strength-of-high-en/code/utils/unit_utils.py)
+portError: cannot import name 'SUPPORTED_UNITS' from 'code.utils.unit_utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-418-predicting-the-yield-strength-of-high-en/code/utils/unit_utils.py)
 =============================== warnings summary ===============================
 tests/integration/test_T200_descriptor_generation.py:17
   /home/runner/work/llmXive/llmXive/projects/PROJ-418-predicting-the-yield-strength-of-high-en/tests/integration/test_T200_descriptor_generation.py:17: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
@@ -33,13 +32,14 @@ tests/integration/test_T200_descriptor_generation.py:17
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
+ERROR code/tests/test_setup_dirs.py
 ERROR tests/test_setup_dirs.py
 ERROR tests/unit/test_checksum_raw.py
 ERROR tests/unit/test_logging_seed.py
 ERROR tests/unit/test_report_generator.py
 ERROR tests/unit/test_unit_utils.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-1 warning, 5 errors in 1.69s
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+1 warning, 6 errors in 1.18s
 
 
 
@@ -69,5 +69,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/load_dataset.py` — NOT invoked by the run-book
     - `code/run_full_pipeline.py` — NOT invoked by the run-book
     - `code/run_pipeline_with_checksum.py` — NOT invoked by the run-book
+    - `code/tests/test_fetch_heas.py` — NOT invoked by the run-book
     - `code/validate_raw_dataset.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/heas_raw.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

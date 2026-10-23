@@ -1,11 +1,4 @@
 T000:
-  reason: "The provided `setup_env.py` creates a virtual environment, validates `requirements.txt`\
-    \ against its schema, and the test suite checks that `pandas` can be imported,\
-    \ but the script never runs `pip install -r requirements.txt`; it only verifies\
-    \ that `pip` is available. Consequently the requirement \u201Cinstall pinned dependencies\
-    \ from `requirements.txt`\u201D is not fulfilled. Implement a real installation\
-    \ step (e.g., `subprocess.run([pip_path, \"install\", \"-r\", str(requirements_path)])`)\
-    \ and adjust the test to confirm that the packages were installed."
   task: f3bf8f73868dda022709ba454b6943a68e0bda1fc909950a5ae8f966645c46fa
 T001:
   reason: 'Requested task execution failed; rerun successfully: code/data/fetch_heas.py

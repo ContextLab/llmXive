@@ -6,9 +6,7 @@ This script sets up a reproducible project environment:
 
 1. Creates a Python virtual environment (default location `.venv`) with `pip`.
 2. Installs the exact dependencies listed in `requirements.txt` into that
-   virtual environment **using the system‑site packages** so that the
-   test suite can import already‑installed libraries without needing network
-   access.
+   virtual environment.
 3. Validates `requirements.txt` against the JSON‑schema contract located at
    `contracts/requirements.schema.yaml` using `jsonschema`.
 
@@ -57,9 +55,9 @@ def create_virtualenv(venv_path: Path = DEFAULT_VENV_PATH) -> None:
     """
     Create a virtual environment at `venv_path` with `pip` included.
     The environment is created with ``system_site_packages=True`` so that
-    packages already present in the host interpreter (e.g. pandas, numpy)
-    are available without needing to download them from PyPI. This makes
-    the test suite fast and reliable in an offline CI environment.
+    packages already present in the host interpreter are available without
+    needing to download them from PyPI. This makes the test suite fast and
+    reliable in an offline CI environment.
     """
     if venv_path.exists():
         logger.info(f"Removing existing virtual environment at {venv_path}")
@@ -89,11 +87,12 @@ def install_requirements(
     Install the exact dependencies from `requirements_path` into the
     virtual environment located at `venv_path`.
 
-    In the offline test environment we rely on ``system_site_packages=True``
-    (see ``create_virtualenv``) which already makes the required packages
-    importable. To avoid unnecessary network traffic we simply invoke ``pip
-    --version`` as a sanity check; if this succeeds we consider the
-    installation step satisfied.
+    In CI we prefer to avoid network traffic when possible. Because the
+    virtual environment is created with ``system_site_packages=True``, the
+    required libraries are already importable. Nevertheless we invoke
+    ``pip install -r`` so that the step is explicit and the test suite can
+    verify that the command runs without error. ``pip`` will report
+    ``Requirement already satisfied`` for packages that are present.
     """
     pip_path = _pip_executable(venv_path)
 
@@ -101,22 +100,21 @@ def install_requirements(
         raise FileNotFoundError(f"pip executable not found at {pip_path}")
 
     logger.info(
-        f"Verifying pip availability in the virtual environment at {venv_path}"
+        f"Installing requirements from {requirements_path} into virtual environment at {venv_path}"
     )
-    # A lightweight command that never requires network access.
     result = subprocess.run(
-        [str(pip_path), "--version"],
+        [str(pip_path), "install", "-r", str(requirements_path)],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
         check=False,
     )
     if result.returncode != 0:
-        logger.error("pip verification failed")
+        logger.error("pip install failed")
         logger.error(result.stdout)
         logger.error(result.stderr)
-        raise RuntimeError("pip verification failed")
-    logger.info("pip is available; skipping network‑heavy install step")
+        raise RuntimeError("pip install failed")
+    logger.info("pip install completed successfully")
 
 def _load_requirements(requirements_path: Path = REQUIREMENTS_PATH) -> list:
     """
