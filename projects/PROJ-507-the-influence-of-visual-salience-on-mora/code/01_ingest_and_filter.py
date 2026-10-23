@@ -35,6 +35,7 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any
 
+import numpy as np
 import pandas as pd
 import requests
 
@@ -195,7 +196,7 @@ def ingest_and_filter(
     # ------------------------------------------------------------------
     # Iterate over records, filter, and copy/download images
     # ------------------------------------------------------------------
-    rng = pd.random.RandomState(RANDOM_SEED)
+    rng = np.random.RandomState(RANDOM_SEED)
 
     for record in ds:
         # Convert FiftyOne Sample objects to plain dicts for tag checking

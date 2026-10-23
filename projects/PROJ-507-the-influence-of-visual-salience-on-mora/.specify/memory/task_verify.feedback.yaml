@@ -1,6 +1,11 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/01_ingest_and_filter.py
-    exit=1'
+  reason: "The unit test `tests/unit/test_data_loader.py` fails with a `FileNotFoundError`\
+    \ because it looks for the script at `tests/code/01_ingest_and_filter.py` instead\
+    \ of the actual location `code/01_ingest_and_filter.py`; consequently the test\
+    \ never reaches the intended `DataFetchError` assertion. This means the required\
+    \ verification that a simulated fetch failure raises `DataFetchError` is not satisfied.\
+    \ Fix the test\u2019s path (or adjust the import logic) so it correctly loads\
+    \ the script and the test can pass."
   task: aa58665ffecc4b99c068e6170c3f165766f2c8d4ad3ff83ba3ec8abb7f209dbe
 T002:
   task: 1054e2c2fdd578723cafba0f1738d030076c727ea6ded7ac3e2eb527059ef488

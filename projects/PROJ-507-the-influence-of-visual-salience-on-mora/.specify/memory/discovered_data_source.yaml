@@ -1,6 +1,6 @@
 status: none
-intent: Open Images V6 download python package with Visual Genome annotations dataset
-  python package dataset
+intent: download Open Images V6 Visual Genome MoralD CLMM Benchmark python package
+  dataset
 required_fields:
 - image_id
 - image_url
@@ -12,6 +12,6 @@ required_fields:
 - bbox_ymax
 - tags
 - moral_ambiguity_label
-cache_key: d0ddacc26d90180cee7c93310338de982e9160e99af653e56b5d3d499c49b771
-searched_at: '2026-10-23T21:23:00.345421+00:00'
+cache_key: 97521897922a766e3d812541e43bb707840a4197a4f277af25bfe0cbfb73fa88
+searched_at: '2026-10-23T22:18:54.137520+00:00'
 retry_count: 1

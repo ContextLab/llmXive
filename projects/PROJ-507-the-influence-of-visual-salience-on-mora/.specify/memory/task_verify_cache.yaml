@@ -1,0 +1,11 @@
+T001:
+  c: false
+  h: 3dec40d9c97121898a0740a364928a9233fc9539afa0b2bad8847e0742d15965
+  r: "The unit test `tests/unit/test_data_loader.py` fails with a `FileNotFoundError`\
+    \ because it looks for the script at `tests/code/01_ingest_and_filter.py` instead\
+    \ of the actual location `code/01_ingest_and_filter.py`; consequently the test\
+    \ never reaches the intended `DataFetchError` assertion. This means the required\
+    \ verification that a simulated fetch failure raises `DataFetchError` is not satisfied.\
+    \ Fix the test\u2019s path (or adjust the import logic) so it correctly loads\
+    \ the script and the test can pass."
+  sig: ced8ab17abf6376643cb730cf531dcf795659e4d2074d96b8a55615369f3191e
