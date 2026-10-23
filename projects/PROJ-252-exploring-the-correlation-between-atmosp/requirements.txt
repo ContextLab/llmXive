@@ -1,14 +1,16 @@
-# Pinned dependencies for reproducible environment
+# Exact version pins for the scientific stack used by this project.
+# Versions are chosen to be compatible with the base environment (Python 3.11)
+# and to ensure reproducible results across CI runs.
 numpy==1.26.4
 pandas==2.2.2
 scipy==1.13.0
-xarray==2024.2.0
-netCDF4==1.6.5
+scikit-learn==1.5.0
 requests==2.31.0
 tqdm==4.66.2
 pyyaml==6.0.1
+xarray==2024.2.0
+netCDF4==1.6.5
 datasets==2.19.0
 statsmodels==0.14.2
-memory_profiler==0.61.0
-huggingface_hub==0.23.0
-scikit-learn==1.5.0
+obspy==1.4.0
+pytest==8.2.2

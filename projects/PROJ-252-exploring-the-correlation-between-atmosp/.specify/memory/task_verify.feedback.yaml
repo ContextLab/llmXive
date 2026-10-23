@@ -1,28 +1,31 @@
 T001:
-  reason: "Checked `requirements.txt`, `code/seed_init.py`, and `docs/quickstart.md`\
-    \ \u2013 they exist and contain the required pins, seed\u2011setting code, and\
-    \ command. However, there is no evidence that `pip install -r requirements.txt`\
-    \ was run successfully, no proof that the quick\u2011start command exits with\
-    \ code\u202F0, and the required `logs/seed_initialization.log` file is not present\
-    \ in the artifact list. These missing execution artifacts prevent confirming the\
-    \ task\u2019s verification criteria."
-  task: 3af5d3362ff3d56ec1abffd3ad8bbf90febd26802fa80b24b683d52deaf90e24
+  reason: "Checked `requirements.txt`, `code/seed_init.py`, and `docs/quickstart.md`.\
+    \ The quick\u2011start markdown does not contain the required single\u2011line\
+    \ command, and there is no `logs/seed_initialization.log` artifact showing the\
+    \ \u201CSeeds set to 42\u201D line. Both are needed to satisfy T001."
+  task: eb4c30dda10b647eb717126964d6b429d510b155109b140bef6ee17b84b8729b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
-  task: 22c9bccdde4d324abf5f1d521648e043763f9cf63294abe076e314e5ed91f531
+  task: b40c676761d4d10acbccc1038c129be31272e4a0d5e69cae243963971d35d792
 T003:
-  task: 794d623508de178c69c7ea0808c28508375f22f590b11e67dcdbdb5cfac068e7
+  task: acb30775e93472c47c50a66a91e7525eda683504d75d0ab816ee758ae6501fb2
 T004:
-  task: 9f54c53b8b8e9694443b0cf16741d4ce13601460ac412f671845907165dbbb25
+  task: a9ec07dd8b98b4477f970ff4633581d2d3c51e01b9cfee7fda72e154a6b72b05
 T005:
-  task: 629623ebcc54bf5ebaacce514d01b1f01c78f36f0ff90c967245d1f2e3f572b8
+  task: 309f87b0817ca7f0423ee9d635048b8373a7560e5d931fd97dc1f3d622da1d15
 T006:
-  task: 16703211517951f40da681ab96d0988bb1308b8c7523200e1e80f001b59d9154
-T007:
-  task: 7ddbf7b4644246f9c8d7e89ccbdca432a12d9d6bfda3dea7644961e17c888079
+  task: ae895e8bf3b821e5b94752f797b87d496e2b2508296dfd5b5a44d7dcfee85fe1
 T008:
-  task: 8b145d3a838e7543c87c7339c32dc17fb2d79b08b8cbe6a82d120e8f8af085ae
+  task: 22f8ac17be000f49e869e59c3b374f15d7be5bad41df3cb86d06f385b7d664e9
 T009:
-  task: a96b38eab97585dd9e8caa108ce390dd2b4f038e8c47e6c844fae794a8b66ecb
+  task: 1bc5ea5d3d2515d35cd5309c62bcd337b1fc49d529411571d08933eb191c9c0a
 T010:
-  task: e78c2cc95eb349d3edde75456a7bae6f697bc11f025e861a35755515b8aba0f3
+  task: 1297e900aa48df5290f5d98fa97a9eb164dd231ef2b9f770b523f241e0e7e4c6
+T011:
+  task: 57ef81e74ef988f59df8fe54027f8f2d4cea657eeb8baa18903fdff038e5aa99
+T012:
+  task: ed2c48b959bfd1d1b963d5388cbc031bf086c673668de8b50998de7b6d8a0905
+T013:
+  task: edf3ea6fdfcf0cf46a6cd376698bfb1d3c845ff1e8971744f2b8a8aeaa5595fd
+T014:
+  task: 330e62e0e58336fc180e73c24e2479700ed4034173ebcabd556e297ca3c91dda

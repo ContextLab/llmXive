@@ -1,0 +1,8 @@
+T001:
+  c: false
+  h: 36fc158005d5bf1f1d3385160accd8d1d0ab4ec25875c6068b81126ab377be86
+  r: "Checked `requirements.txt`, `code/seed_init.py`, and `docs/quickstart.md`. The\
+    \ quick\u2011start markdown does not contain the required single\u2011line command,\
+    \ and there is no `logs/seed_initialization.log` artifact showing the \u201CSeeds\
+    \ set to 42\u201D line. Both are needed to satisfy T001."
+  sig: 820b53f927d7456a27ee52012a94cce71614e0a6fec6a030c23d1e2a0890dff6

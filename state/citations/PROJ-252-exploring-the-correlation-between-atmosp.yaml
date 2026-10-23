@@ -53,7 +53,7 @@
   verification_status: pending
   verified_against_url: https://psl.noaa.gov/data/gridded/data.ncep.reanalysis.html
   verified_at: '2026-10-23T07:40:50.582443Z'
-- artifact_hash: 05f4e33e47e7e79ca4d42d1bebcee912ab1d4f19c29bd07a1c5ee8969b054cd8
+- artifact_hash: 8f157736de1b2aefdcd28188f005cf11a9078d2bc262ff7764703aec4bf066df
   artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,8 +63,8 @@
   value: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc
-  verified_at: '2026-10-23T07:45:00.562533Z'
-- artifact_hash: 05f4e33e47e7e79ca4d42d1bebcee912ab1d4f19c29bd07a1c5ee8969b054cd8
+  verified_at: '2026-10-23T07:46:56.759978Z'
+- artifact_hash: 8f157736de1b2aefdcd28188f005cf11a9078d2bc262ff7764703aec4bf066df
   artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -74,8 +74,8 @@
   value: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.0_month.csv`
   verification_status: pending
   verified_against_url: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.0_month.csv
-  verified_at: '2026-10-23T07:45:00.562533Z'
-- artifact_hash: 05f4e33e47e7e79ca4d42d1bebcee912ab1d4f19c29bd07a1c5ee8969b054cd8
+  verified_at: '2026-10-23T07:46:56.759978Z'
+- artifact_hash: 8f157736de1b2aefdcd28188f005cf11a9078d2bc262ff7764703aec4bf066df
   artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -85,4 +85,4 @@
   value: https://huggingface.co/datasets/noaa/enso-pdo-indices/resolve/main/enso_pdo.csv`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/noaa/enso-pdo-indices/resolve/main/enso_pdo.csv
-  verified_at: '2026-10-23T07:45:00.562533Z'
+  verified_at: '2026-10-23T07:46:56.759978Z'

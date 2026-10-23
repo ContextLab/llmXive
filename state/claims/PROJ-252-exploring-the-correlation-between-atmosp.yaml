@@ -4372,3 +4372,19 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-18T11:07:19Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: pressure data downloaded 4010 days
+  claim_id: c_81961b68
+  context: "logs/download_success.log \u2013 confirms successful acquisition with\
+    \ lines like: `Pressure data downloaded: 4010 days`."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Pressure data downloaded: 4010 days'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T07:46:56Z'

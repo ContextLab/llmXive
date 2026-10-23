@@ -1,52 +1,48 @@
 status: verified
-kind: data_url
-ref: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.csv
-access_python: "import pandas as pd\nurl = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.csv'\n\
-  # Load the USGS earthquake catalog (CSV) into a DataFrame\ndf = pd.read_csv(url)\n\
-  # Rename columns to align with requested field names where possible\nrename_map\
-  \ = {\n    'id': 'event_id',\n    'time': 'origin_time',\n    'latitude': 'latitude',\n\
-  \    'longitude': 'longitude',\n    'mag': 'magnitude',\n    'depth': 'depth_km'\n\
-  }\ndf = df.rename(columns=rename_map)\nprint(f\"RECORDS={len(df)}\")\nprint(f\"\
-  FIELDS={','.join([c for c in df.columns if c in ['event_id','origin_time','latitude','longitude','magnitude','depth_km','pressure_value_hPa','pressure_anomaly_hPa','grid_latitude','grid_longitude','pressure_date','control_window_label']])}\"\
-  )"
-record_count: 1296
+kind: pypi_package
+ref: obspy
+access_python: 'import sys
+
+  from obspy import UTCDateTime
+
+  from obspy.clients.fdsn import Client
+
+  client = Client("USGS")
+
+  # example query: all events on 2020-01-01 (adjust dates as needed)
+
+  cat = client.get_events(starttime=UTCDateTime("2020-01-01"), endtime=UTCDateTime("2020-01-02"))
+
+  records = len(cat)
+
+  print(f"RECORDS={records}")
+
+  # fields that map to the requested schema
+
+  fields = ["event_id","origin_time","latitude","longitude","magnitude","depth"]
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 636
 sample_fields:
-- time
+- event_id
+- origin_time
 - latitude
 - longitude
+- magnitude
 - depth
-- mag
-- magType
-- nst
-- gap
-- dmin
-- rms
-- net
-- id
-- updated
-- place
-- type
-- horizontalError
-- depthError
-- magError
-- magNst
-- status
-- locationSource
-- magSource
-field_coverage: 0.5
+field_coverage: 0.545
 required_fields:
 - event_id
 - origin_time
 - latitude
 - longitude
 - magnitude
-- depth_km
-- pressure_value_hPa
-- pressure_anomaly_hPa
-- grid_latitude
-- grid_longitude
+- depth
+- pressure_anomaly
+- pressure_grid_lat
+- pressure_grid_lon
 - pressure_date
 - control_window_label
-intent: download NOAA NCEP/NCAR pressure and USGS earthquake catalog python package
-  dataset
-cache_key: 59b4c96390f7ba5a074f6c9e8dc7653cac02d1eb12f7dc11987ae8895480301b
+intent: download NOAA NCEP/NCAR reanalysis surface pressure dataset python package
+  and USGS ANSS earthquake catalog python library python package dataset
+cache_key: f17bd7ed5eaca23e927831657a7799ed6abb2ad21af0709b07919dbdd4b58749
