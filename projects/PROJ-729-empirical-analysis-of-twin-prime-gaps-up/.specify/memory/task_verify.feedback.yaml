@@ -1,11 +1,4 @@
 T001:
-  reason: "I inspected the project root and found the large `data/raw/twin_primes.csv`\
-    \ and the JSON performance reports, but the `performance_gen.json` explicitly\
-    \ records `within_5_percent_of_expected: false`, violating US1\u2019s row\u2011\
-    count criterion. Moreover, the required artifacts for US2 and US3 (`data/results/stats.json`,\
-    \ `data/figures/qq_plot.png`, `data/results/local_stats.json`, `data/figures/local_deviation.png`)\
-    \ and the final Markdown report are absent. The project therefore does not satisfy\
-    \ the specified acceptance criteria."
   task: 56c3cafd48301be7e14725647e98ac0ad186c8ac63c31ce1c55d6c76c03a8e2a
 T002:
   reason: 'declared artifact(s) missing/empty/invalid: requirements.txt'
@@ -28,16 +21,28 @@ T010:
 T011:
   task: 0f0626c1aabcc90ff6326f95eb2c08f771ea53e431daa172b96f152a24c3932e
 T012:
-  reason: 'Requested task execution failed; rerun successfully: code/generate_primes.py
-    exit=1'
+  reason: "The provided `data/raw/twin_primes.csv` exists and has the required columns,\
+    \ but there is no artifact showing that the implementer actually counted the rows,\
+    \ compared the count to the `expected_count` (3074425.688620905) within \xB15%,\
+    \ or recorded the verification result. Likewise, there is no evidence that the\
+    \ file covers twin primes up to 1\u202F000\u202F000\u202F000 or that a full NaN\u2011\
+    check on `normalized_gap` was performed. These verification steps are required\
+    \ by the task and are missing."
   task: 08ea146cf51b6b1b3e91e061996123ba599882c07ed4692a34661b414efd9da0
 T013b-a:
   task: fc92dd8655bd36dc6d536857a088ca07da5d917c1f4eb0ae7f75089314e5df9c
 T013b-b:
-  reason: 'Requested task execution failed; rerun successfully: code/compute_expected_count.py
-    exit=1'
+  reason: The `data/results/expected_count.json` file exists and contains the required
+    JSON key with a float value, but there is no evidence that `calculate_hardy_littlewood_expected_count(10**9)`
+    was actually invoked or that its result was logged to the console as required
+    by the task. A console log or execution transcript is needed to satisfy the full
+    requirement.
   task: 03ca0ead95175dbb5fe4fe3d82344cd8e2c8246defe6d3f26b4d123b92e45a32
 T014:
+  reason: "The evidence does not include a CSV file (e.g.,\u202F`data/raw/twin_primes.csv`)\
+    \ containing the required columns nor any logs or measurements showing RAM usage\u202F\
+    <\u202F2\u202FGiB and execution time\u202F<\u202F45\u202Fminutes. Without these\
+    \ artifacts, the task\u2019s core deliverables cannot be verified."
   task: 1fee8a67f89fa6228fc8e6403502b978d4f284383972e08ab698818490fd6e9c
 T014b:
   task: 9c386fd1c5867de025603d014bbdc8925daa606a721afe9a91dff963255434ec

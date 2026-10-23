@@ -1,3 +1,54 @@
+T001:
+  c: true
+  h: 6c635fbbea0bbfb53d7e1fd05c36890683808c9bb0b38051cb3cdaa86e3896c0
+  r: "The collector shows that the project root contains the five required directories\
+    \ (`code/`, `data/`, `results/`, `tests/`, `contracts/`), each with files (e.g.,\
+    \ `.gitkeep`, scripts, schemas) confirming they are present and non\u2011empty.\
+    \ This fulfills the task\u2019s sole requirement of creating the specified directory\
+    \ structure."
+  sig: 7cc4520ae85efea7867aaa8f6e81e7473b9c9c7ee9dcfe1f505dfa90813ab348
+T002:
+  c: true
+  h: 740f4d3b709f08c2adce3fbf013390d4add875d5b0c12f37ccc9236c04fb3442
+  r: "The `code/__init__.py` file is present at the expected location (`code/__init__.py`),\
+    \ is non\u2011empty (365\u202Fbytes), and contains a proper module docstring,\
+    \ version, and author metadata, thereby establishing the package structure as\
+    \ required."
+  sig: d18b01596bf4dd27943e927814e80239236514f7b1f8d75099dd0ee693a1dc17
+T003:
+  c: false
+  h: e671fbdf544c90774df789af2889f5f6bfbca320902ff545b47634d0432904c5
+  r: The provided `code/requirements.txt` exists but lists the required packages without
+    version pins and adds extra packages (`jsonschema`, `pyyaml`) that were not requested.
+    The task explicitly required *pinned* dependencies, which is not satisfied. The
+    file must include exact version specifications for each listed package and omit
+    unrelated entries.
+  sig: 061231ab68d5bb07e357e873b336e9f30fd84f38b286366de7ab0f24ec1dd2dd
+T004:
+  c: true
+  h: ec4e2c5a68650eedb1efd3ddabdfeae7761811959bdcd5eba7db9294898be9f1
+  r: "Checked `code/.pre-commit-config.yaml` (756\u202Fbytes) which includes a Black\
+    \ hook and both Ruff linting (`ruff`) and formatting (`ruff-format`) hooks, satisfying\
+    \ the requested configuration."
+  sig: db3eedf562ae4aa8ea7d7c190545bf61d7f686eeb23e239f90a97a26b0396649
+T005:
+  c: true
+  h: 59471feecb37a36df9308e2a27dc034254cc63a6147912cb2d0475330a12eaa0
+  r: "The `docs/deviation_log.md` file (3249\u202Fbytes) was found and its contents\
+    \ explicitly document the Schaefer\u2011400 vs Schaefer\u2011100 conflict, the\
+    \ decision to adopt Schaefer\u2011100 for statistical validity, and reference\
+    \ the RCR (`docs/requirement_change_record_Schaefer100.md`). This satisfies the\
+    \ task\u2019s documentation requirements."
+  sig: b8ab264a74fd23e44ca13bbb4036cad94d1aadec565b215c98df6420a83eb265
+T005b:
+  c: true
+  h: 702d30b02fc4f7b375a2500a3f11d112c5ada8b67f0bcd1a46c79604ecd90e03
+  r: "Checked the `docs/requirement_change_record_Schaefer100.md` file (3681\u202F\
+    bytes) which exists and explicitly amends FR\u2011004 from \u201CSchaefer\u2011\
+    400\u201D to \u201CSchaefer\u2011100\u201D citing rank\u2011deficiency, and references\
+    \ the plan\u2019s deviation log (`docs/deviation_log.md`). The artifact satisfies\
+    \ all stated requirements."
+  sig: 3db4171588531017fe921ed29c9f55fee5f37669dfa12e2c9fa941294f35533c
 T015:
   c: false
   h: c5862e0ac436bbfd414ee49ae43c9011605a077fb3b428aebbe307278af889e5

@@ -47,7 +47,7 @@ description: "Task list for Twin Prime Gap Analysis implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
+- [X] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
 - [ ] T002 Initialize Python 3.11 project with `primesieve`, `numpy`, `pandas`, `scipy`, `matplotlib` dependencies in `requirements.txt`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
 
@@ -88,14 +88,14 @@ description: "Task list for Twin Prime Gap Analysis implementation"
  - **Step 1**: Implement `calculate_hardy_littlewood_expected_count(x)` in `code/generate_primes.py` using the formula $ C_2 \frac{x}{(\ln x)^2} $ where $ C_ \approx 0.660161815846869573927812110014 $.
  - **Output**: A reusable function in `code/generate_primes.py`.
 
-- [~] T013b-b [US1] [FR-002] [SC-001] **Compute and Save Expected Count**.
+- [ ] T013b-b [US1] [FR-002] [SC-001] **Compute and Save Expected Count**.
  - **Step 1**: Call `calculate_hardy_littlewood_expected_count(10**9)`.
  - **Step 2**: Log the calculated expected count to the console.
  - **Step 3**: Save the expected count to `data/results/expected_count.json` with key `expected_count`.
  - **Output**: `data/results/expected_count.json` containing `{"expected_count": <float>}`.
  - **Dependency**: **Must run after T013b-a** (implementation of the function).
 
-- [~] T012 [US1] [FR-001] [FR-002] [SC-001] **Generate Twin Primes and Verify Count**.
+- [ ] T012 [US1] [FR-001] [FR-002] [SC-001] **Generate Twin Primes and Verify Count**.
  - **Implementation**: Use `primesieve` to find twin primes up to 1,000,000,000.
  - **Verification**:
  1. Read `expected_count` from `data/results/expected_count.json` (produced by T013b-b).
@@ -105,7 +105,7 @@ description: "Task list for Twin Prime Gap Analysis implementation"
  - **Dependency**: **Must run after T013b-b** to ensure the theoretical expectation is available for verification.
  - **Output**: `data/raw/twin_primes.csv` with columns `p`, `p_next`, `delta`, `normalized_gap`.
 
-- [~] T014 [US1] [FR-007] [SC-004] [SC-005] **Implement CSV output and memory monitoring**.
+- [ ] T014 [US1] [FR-007] [SC-004] [SC-005] **Implement CSV output and memory monitoring**.
  - Ensure RAM usage < 2 GiB and execution time < 45 mins.
  - Output columns: `p`, `p_next`, `delta`, `normalized_gap`.
  - **Dependency**: Must run after T012 (generation logic).

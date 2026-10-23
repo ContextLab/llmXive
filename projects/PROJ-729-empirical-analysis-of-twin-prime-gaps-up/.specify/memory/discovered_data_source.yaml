@@ -1,11 +1,12 @@
 status: none
-intent: download OpenWebText and The Pile datasets pip install python package dataset
+intent: OpenWebText The Pile Common Crawl text corpus for language model generation
+  python package dataset
 required_fields:
-- text
-- source_url
-- metadata
-- timestamp
-- document_id
-cache_key: c25357ba9989ede4ae4c2b0434f0510d3fd6883112097be4453d7dc6b4a59ebf
-searched_at: '2026-10-23T03:46:23.041746+00:00'
+- document_text
+- url
+- date_published
+- language
+- source_dataset
+cache_key: f7b64363e76c8a80358824d796541d09e8dcb015329ac8ccc45b34a3bc170012
+searched_at: '2026-10-23T09:37:16.191999+00:00'
 retry_count: 1

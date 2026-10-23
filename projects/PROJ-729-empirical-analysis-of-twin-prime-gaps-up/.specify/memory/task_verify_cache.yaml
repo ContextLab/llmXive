@@ -1,14 +1,11 @@
 T001:
-  c: false
-  h: 6eb94039a1ef43b84e336390dee2b0fb7ac11c76d9996289b1bb94c80daf36fa
-  r: "I inspected the project root and found the large `data/raw/twin_primes.csv`\
-    \ and the JSON performance reports, but the `performance_gen.json` explicitly\
-    \ records `within_5_percent_of_expected: false`, violating US1\u2019s row\u2011\
-    count criterion. Moreover, the required artifacts for US2 and US3 (`data/results/stats.json`,\
-    \ `data/figures/qq_plot.png`, `data/results/local_stats.json`, `data/figures/local_deviation.png`)\
-    \ and the final Markdown report are absent. The project therefore does not satisfy\
-    \ the specified acceptance criteria."
-  sig: 2136fd8fab660d63a25359b317c84a9af4e2aa9d9022c757db2cd424be154157
+  c: true
+  h: cef332d6ea2966e8d7ff2c5763ee3fe0040a1cace8ec38aac59a3ad81369710f
+  r: "Checked the existence of the project root `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`\
+    \ with its full directory tree (code, data, results, specs, etc.) and the `artifact_hashes.json`\
+    \ confirming key files (e.g., `data/raw/twin_primes.csv`) are present; also verified\
+    \ `create_structure.py` ran successfully (log shows exit\u202F0)."
+  sig: f6f17067d7f7382f25f715d1126480df91201ef2e030e48a0e230d7448c3ee64
 T002:
   c: true
   h: 3b217c5b81e10113bd7fec5fdec5c3f65266a02c35ec603e3a57f2f698b6557f
@@ -27,11 +24,12 @@ T003:
   sig: e5e638d49ceb26f7ad9c6ad1485ebbb51396d01e35102c8ad86a38a34a097752
 T004:
   c: true
-  h: 9003eeef273ff3f85a9997de8c542e6d080fc7bbba9c9e92802f94c41b22e4d6
-  r: Checked that the three required directories `data/raw/`, `data/results/`, and
-    `data/figures/` exist in the project root (each contains a `.gitkeep` placeholder),
-    satisfying the setup task.
-  sig: 586b46ca11ee96fe1f73fbf70c2d2305c1579abf2f6c47b9f44d5ec890351887
+  h: 28c9900cc2f64cd88fab9ea0f4684348c1d7a4677fb54107b956c90fb4d9e3e9
+  r: "The evidence shows that the project root contains the three required directories\
+    \ \u2013 `data/raw/`, `data/results/`, and `data/figures/` \u2013 each present\
+    \ with a `.gitkeep` placeholder (and additional files). This satisfies the sole\
+    \ requirement of task T004 to set up the specified data directory structure."
+  sig: 99f62a8fefcc2af70d9ec24eb7e9853b4889c17e5287ffc413ae04b78a99d5a2
 T005:
   c: true
   h: 03385d5724748009bf7ff32f698214a17d05c13f71fe3603afca3f3eec05ad9c
@@ -71,11 +69,12 @@ T008:
   sig: 5f97a8cbc149d798690767b12f5ec817f44b7781c315dfb576d22d7bb7f25f45
 T010:
   c: true
-  h: 684a714e89a1dacbfa487f57747d57dadda10daf64c4cb0d2b5a548a77c123fd
-  r: Checked `tests/unit/test_gap_calc.py` which contains the required `test_normalized_gap_formula`
-    asserting the normalized gap equals `(5-3)/log(3)` within `1e-4`, and the pytest
-    log shows the test passes.
-  sig: 59af9242fcd5061810b947d942cc6abc7199f57988e3981c3d636609cc2015b3
+  h: 18f287b997b30cad110914c84c50d21cbe989bb6f2d0b30c32c36879d774cf9e
+  r: "Checked `tests/unit/test_gap_calc.py` (1257\u202Fbytes) which defines `test_normalized_gap_formula`\
+    \ computing the expected value `(5-3)/log(3)` and asserting `abs(actual\u2011\
+    expected) < 1e-4` (plus positivity and finiteness checks). The test matches the\
+    \ task\u2019s specification."
+  sig: 66d5706e56c38ae9458f9cbb069bbe405e6d8a6f8c5a3671f360901597369f47
 T011:
   c: true
   h: 2212fb292600aabf237dce94f3b3d7f60dee67d7e6ae6f28f95aa0832b080c98
@@ -84,13 +83,6 @@ T011:
     \ of `data/raw/twin_primes.csv` and asserts the row count lies within the required\
     \ \xB15% tolerance, fulfilling the integration\u2011test requirement."
   sig: 5233b71796e3ce05f7f08d7c4ec3264c7ac1bc7422fe127507a9c8718961d94f
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required files (e.g., `data/raw/twin_primes.csv`, `data/results/stats.json`,\
-    \ `data/figures/qq_plot.png`, `data/results/local_stats.json`, `data/figures/local_deviation.png`,\
-    \ final Markdown report) was presented, so the task\u2019s deliverables cannot\
-    \ be confirmed as completed."
 T013b-a:
   c: true
   h: 437fb3a3b131c81d4de4652ae655a92a1b9dacda945f48a01c9ecbf1e5467ee5
@@ -99,13 +91,23 @@ T013b-a:
     \ proper input validation. The implementation is non\u2011empty and matches the\
     \ task\u2019s specification."
   sig: 0600c99890d89a868e7baa02db8762461ca6baa549f03adca99313ba66ef0567
+T013b-b:
+  c: false
+  h: 42ebb2120cd2722d91fdd8108565b01c87d2bbf5c7d14738641296d744440dae
+  r: The `data/results/expected_count.json` file exists and contains the required
+    JSON key with a float value, but there is no evidence that `calculate_hardy_littlewood_expected_count(10**9)`
+    was actually invoked or that its result was logged to the console as required
+    by the task. A console log or execution transcript is needed to satisfy the full
+    requirement.
+  sig: 205defa4f7c9f02e4b963f5b597398c8345370032a99cab5e59fe690faa380ff
 T014:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CSV file `data/raw/twin_primes.csv` or any evidence of its creation is present,\
-    \ and there is no indication that RAM usage is monitored or constrained to <\u202F\
-    2\u202FGiB as required by FR\u2011007. The implementer provided no artifacts or\
-    \ code demonstrating CSV output or memory\u2011monitoring functionality."
+  h: a7109498986acef9e504acd465579a5730a62686e2d950998627d1b021c36dce
+  r: "The evidence does not include a CSV file (e.g.,\u202F`data/raw/twin_primes.csv`)\
+    \ containing the required columns nor any logs or measurements showing RAM usage\u202F\
+    <\u202F2\u202FGiB and execution time\u202F<\u202F45\u202Fminutes. Without these\
+    \ artifacts, the task\u2019s core deliverables cannot be verified."
+  sig: 2e63322f7b3cef7307e2331f29c3d1368824f3d4a5390e187757e2c422c1cb37
 T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
