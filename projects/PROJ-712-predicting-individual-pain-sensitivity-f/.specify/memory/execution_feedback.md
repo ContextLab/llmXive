@@ -59,9 +59,9 @@ datasets.exceptions.DatasetNotFoundError: Dataset 'openneuro/ds003542' doesn't e
 === Pre-run Validation ===
 Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-712-predicting-individual-pain-sensitivity-f
 
-2026-10-14 03:19:08,051 - __main__ - ERROR - Missing required citations:
-2026-10-14 03:19:08,052 - __main__ - ERROR -   - doi:10.1234/example1
-2026-10-14 03:19:08,052 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-23 06:24:19,261 - __main__ - ERROR - Missing required citations:
+2026-10-23 06:24:19,261 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-23 06:24:19,261 - __main__ - ERROR -   - doi:10.5678/example2
 
 - python code/main.py -> rc=1
 
@@ -144,7 +144,7 @@ HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test
 ERROR tests/unit/test_checksum_manager.py
 ERROR tests/unit/test_data_loader.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 2.07s ===============================
+============================== 2 errors in 1.33s ===============================
 
 
 

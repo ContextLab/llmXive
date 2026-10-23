@@ -32,3 +32,6 @@
 2026-10-14 03:19:08,051 - __main__ - ERROR - Missing required citations:
 2026-10-14 03:19:08,052 - __main__ - ERROR -   - doi:10.1234/example1
 2026-10-14 03:19:08,052 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-23 06:24:19,261 - __main__ - ERROR - Missing required citations:
+2026-10-23 06:24:19,261 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-23 06:24:19,261 - __main__ - ERROR -   - doi:10.5678/example2

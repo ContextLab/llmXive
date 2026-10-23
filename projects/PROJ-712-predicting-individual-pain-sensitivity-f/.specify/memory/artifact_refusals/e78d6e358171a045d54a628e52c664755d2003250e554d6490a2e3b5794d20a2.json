@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "ca31b1ad39b25fd149ae37b647521b075968c923a490b01c26d23d1d5ff23d53",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused empty contents without execution: 'artifacts/test_structure.xml'"
+}

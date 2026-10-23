@@ -1,69 +1,36 @@
 T001:
-  reason: "The script `scripts/create_dirs.sh` and the six required directories are\
-    \ present, and the integration test file exists, but there is no execution evidence\
-    \ (e.g., test run log or CI output) showing that `test_structure.py` was actually\
-    \ run and that the script exited with code\u202F0 and all directories were verified.\
-    \ Without proof that the test passed, the task\u2019s verification requirement\
-    \ is not satisfied."
-  task: 273d42044ca31b8595b46dd028eba2362aa3c3401e6abaf9e9dd256a56bf92a4
+  task: 139203cd11fff55fb1c81476f49441bdeed4a5dcd4c6b063d6150cf9a1357e70
 T002:
-  task: 361bd0847a716514924fa0baa1024ae3bf4109aa77c64d22007fe23f0e8f288e
+  task: be74ce12c71d2d48f7ee2014f95a1341e7e2d0c403398d76b259a5e87bfdf4b1
 T003:
-  task: 5b283e33a31125fd29132972ba3339c65dea6379be91e133a4589b2200494e8f
+  task: 56b99e3897241c1ec6da12fceb52f39912d2f8f46b9600c8122abd8678e52901
 T004:
-  task: c93643631e064438d0d9cb0f590950506ea5aa0aae21a8d458f82048ebd53381
+  task: 6283a321bdb2ff99441e726d79831910d1d281d137ef1a75e6c05422164076b7
 T005:
-  task: a50ec9cda9ef833b88ac8f33054d9b03ed3a83b8e28eb0d7bcaa75e39e7d2082
+  task: b2f6ec685c99a5988961c83a8aab3f146967c03d0d2e5fb8cbf5a0005797e6b8
 T006:
-  task: 2ee75bf50af4432c71210c77b57ba1187b94c123492ba221dc8020550e4896d3
+  task: 992cddeb2366a0be2d4ccf8acc093615f5de6ff6cdb7395f6113dfd86749f8ac
 T007:
-  task: 4920bb068637f0677080503775255f0cbbe75a85492856ce6325b89e0c093b96
+  task: d5c047a6d3cd88a34c369e22d0ab9f55bf4dba24d1f52fa99839f4e3e03b13ee
 T008:
-  reason: 'Requested task execution failed; rerun successfully: code/preprocess_execution.yaml
-    exit=-1'
-  task: 4d9e307a5628ed47f1bdc08a1b27e98cd8c09ab328d77f34d09089d92d89b8b7
+  task: e79356922beca67b6c0fb3ffb6d35a80b2ed06a6d64e2623ae280a2eb23233fe
 T009:
-  reason: Checked for `data/processed/feature_matrix.csv` (missing) and the required
-    test `tests/unit/test_feature_matrix_schema.py` (missing); without the CSV and
-    the validation test, the schema validation task cannot be performed.
-  task: d15acfb92518449388d9be5127799de8585d5d70f0439206ec2e318047b8323a
+  task: 4a32acd867016702e836d49654d9d1688d3cc232283b9978c2c5cbe934b966fa
 T010:
-  task: aa80bdba5fbd5e3ac2239c782d7476dd9535ab189e3b54107bc5fc3ea4943e92
+  task: 578f4f8522ec4acc36ae5eeab523e47222db3b1ae1627949ad5ea4d312d1c520
 T011:
-  reason: "Checked `code/modeling.py` \u2013 it defines `run_global_permutation_test`\
-    \ (with correct logic and guard) but the task required a function named `global_permutation_test`.\
-    \ The required symbol is missing, so the implementation does not exactly satisfy\
-    \ the specification. Adding an alias or renaming the function to `global_permutation_test`\
-    \ is needed."
-  task: bf19ecd804153b8d501d2b7d7e44cb576ce4f0805614b034155f4fe37d8d87d3
+  task: 43fb0b379eddd91d21ede866f946bc2cf4d26daa734468005aa6794b40d41855
 T012:
-  reason: "The repository contains a `bootstrap_ci` function, but the required unit\
-    \ test `tests/unit/test_bootstrap.py` is missing, and the generated artifact `artifacts/bootstrap_ci.json`\
-    \ holds `null` values instead of numeric `ci_lower` and `ci_upper`. Consequently\
-    \ the task\u2019s verification steps are not satisfied."
-  task: 28ac8dd32532418c08120318d7b5e3fc9ada16e79900595b708dc7264c1ac109
+  task: 3538845ee285ece33e10fd53f8d3ba70992658972d07e5815b3f0c3af6b87b8a
 T013:
-  reason: The required function `compute_empirical_pvalue` is present and correctly
-    writes a JSON with the needed fields, but the verification test `tests/unit/test_pvalue.py`
-    is missing, so we cannot confirm that the implementation meets the asserted test
-    criteria. Adding the missing test file (or evidence of its successful execution)
-    is needed to complete the task.
-  task: cdcaf3515292027b4d84af2eae77b3d4acf6937fd576e0663feeb594e7995915
+  task: 45d92f609084ac613345a28df3ff8611dbf4fc2c1045e77a12b013a269ba7c01
 T014:
-  task: 7119e9a939e84fbecba5c14b2401614e618a63b828889405404daf6f443fd16e
+  task: f82c978879ce140a4e77f6ce56a1ae4ef904a7049fe69f67e1027badfbcca3e1
 T015:
-  task: f577104283919b2de059404369041b16651e4286d1fe36eb621f18f3f71cac30
+  task: cd0149e1535166769a4d0f07ce94bb766aeb52fb94f4a1bc5d9caac4f5e042e0
 T016:
-  task: 34d5cdd9a15b379b90797c97418798cc86e71439e07411202e42b5d0ce9e9244
+  task: 868d5a41c4dbdd6fa6b40d8768f8a94eed8bfc94aa0e77a8893d4808a929ebb2
 T017:
-  task: 8f7a75c5b2dd0109317b3f3da71e7cdeca78ab8b1ce3607a7f57c03558e7d2fd
+  task: bac62304a23a7cc12b1891e85e208f0967c8b9b730ef3b9cb9bc1a955e6dc4da
 T018:
-  task: d312c38b8ab1dbb293978ff89dd52dd0e5f57de470ff8f66ab4b72c1a3877138
-T020:
-  task: 0e3ca3bc49a295ac137049d7c55afca3290a3f0bf489d78bb883e13bae74e85b
-T021:
-  task: 7c8ec4061cff8d6c655ffe2e606cf031d1b6635f9438415f4d953992f249ddca
-T022:
-  task: 9da8436b85d25facba0d4aeb2e4ef50968c59a180b55f2e5e93290b374e5d693
-T023:
-  task: 2c3c0fd6de559dfdc1c20120210b43b1b5dd356ecd15db27394276178d54fab2
+  task: 49182eb21f288534062204139def622e916857399f5f9b8b574982db498eb50a
