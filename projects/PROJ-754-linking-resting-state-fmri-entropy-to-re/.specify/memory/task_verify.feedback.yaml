@@ -1,16 +1,16 @@
 T001:
-  reason: "Checked `quickstart.md` (command is `python -m src.run_pipeline \u2026\
-    ` instead of the required `python -m code.src.run_pipeline \u2026`) and the integration\
-    \ test `code/tests/integration/test_run_pipeline.py` which fails with `ImportError:\
-    \ cannot import name 'run_pipeline' from 'src'`. The test suite does not pass,\
-    \ violating the task\u2019s verification requirement."
+  reason: "The project has the required directories and a `run_pipeline.py` that prints\
+    \ \u201CPipeline completed\u201D, and `quickstart.md` and `requirements.txt` are\
+    \ present. However, the evidence does not show a minimal `__init__.py` in each\
+    \ of the sub\u2011packages (`analysis/`, `stats/`, `reporting/`, `utils/`), the\
+    \ pytest suite files are not shown nor is there any captured pytest output confirming\
+    \ \u201C0 failed, X passed\u201D. Likewise, there is no execution log proving\
+    \ that `python -m code.src.run_pipeline --subjects 5` terminates with exit code\u202F\
+    0 and prints the required line. These missing artifacts and verification log"
   task: a0c36d11149a7d73bcaa80f7ec07d4a0302af726a7568af6fb68e056f75d16ac
 T002:
-  reason: "The `download_hcp.py` script exists, but it does not accept the required\
-    \ `--subjects` flag (it uses `--subject-limit`), and no evidence shows that running\
-    \ it actually creates the expected Parquet files\u2014`data/raw/timeseries/subject_*.parquet`\
-    \ and `data/raw/dsrt_scores.parquet` are missing. The task\u2019s verification\
-    \ step therefore cannot be satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/src/data/download_hcp.py
+    exit=1'
   task: 0476c35a3458bbdf095c53ec74414d13047dd5718ab86090cbddbee4a0437471
 T003:
   reason: "The `code/src/data/qc.py` script is present and implements the required\

@@ -23,7 +23,7 @@ The project layout follows the platform convention: source code under `code/`, d
   - Add a basic pytest suite under `code/tests/` that checks importability of all modules and that `run_pipeline` exits with status 0 on a dry‑run.  
   - **Verification**: Run `pytest code/tests/` and capture the terminal log; the log must end with “=== 0 failed, X passed …”. Execute the quick‑start command; it must terminate with exit code 0 and print “Pipeline completed”.  
 
-- [ ] T002 **Implement HCP data download script with credential handling.**  
+- [ ] T002 **Implement HCP data download script with credential handling.**   <!-- FAILED-IN-EXECUTION: code/src/data/download_hcp.py exit=1 -->
   - File: `code/src/data/download_hcp.py`.  
   - The script checks for the environment variable `HCP_TOKEN`; if missing or invalid it raises `RuntimeError` with a clear message.  
   - Deterministically select the first 200 subject IDs (sorted, seed 42).  

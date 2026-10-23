@@ -36,7 +36,7 @@ def main() -> None:
     # Translate to the flag set expected by the original script.
     argv = [
         "download_hcp",
-        "--subject-limit",
+        "--subjects",
         str(args.subjects),
         "--output-dir",
         args.output_dir,

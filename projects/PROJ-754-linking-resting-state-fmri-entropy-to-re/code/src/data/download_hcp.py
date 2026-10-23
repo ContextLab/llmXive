@@ -9,6 +9,7 @@ DSRT scores. The implementation uses the verified Hugging Face dataset
 import argparse
 import logging
 import os
+import random
 from pathlib import Path
 from typing import List
 
@@ -30,8 +31,6 @@ def _select_subjects(phenotypic_df: pd.DataFrame, limit: int) -> List[str]:
     with ``42`` and the first ``limit`` IDs are returned.
     """
     ids = sorted(phenotypic_df["subject_id"].unique())
-    import random
-
     random.seed(42)
     return ids[:limit]
 
@@ -42,11 +41,17 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Download HCP resting‑state data and behavioural scores."
     )
+    # Accept both the historic ``--subject-limit`` flag and the newer
+    # ``--subjects`` flag for backward compatibility.
+    parser.add_argument(
+        "--subjects",
+        type=int,
+        help="Number of subjects to download (new flag).",
+    )
     parser.add_argument(
         "--subject-limit",
         type=int,
-        default=5,
-        help="Number of subjects to download (default: 5).",
+        help="Number of subjects to download (legacy flag).",
     )
     parser.add_argument(
         "--output-dir",
@@ -55,6 +60,15 @@ def main() -> None:
         help="Base output directory (default: 'data').",
     )
     args = parser.parse_args()
+
+    # Resolve the number of subjects, preferring the new flag.
+    if args.subjects is not None:
+        subject_limit_requested = args.subjects
+    elif args.subject_limit is not None:
+        subject_limit_requested = args.subject_limit
+    else:
+        # Default to a tiny test cohort when nothing is supplied.
+        subject_limit_requested = 5
 
     # ------------------------------------------------------------------
     # Validate HCP credentials (must be present for a real HCP download)
@@ -69,15 +83,15 @@ def main() -> None:
     # Guard against excessively large requests in CI environments.
     # ------------------------------------------------------------------
     max_ci_subjects = 10
-    if args.subject_limit > max_ci_subjects:
+    if subject_limit_requested > max_ci_subjects:
         log.warning(
             "Requested %d subjects – capping to %d for CI execution.",
-            args.subject_limit,
+            subject_limit_requested,
             max_ci_subjects,
         )
         subject_limit = max_ci_subjects
     else:
-        subject_limit = args.subject_limit
+        subject_limit = subject_limit_requested
 
     # ------------------------------------------------------------------
     # Load the verified HCP‑flat dataset from Hugging Face.

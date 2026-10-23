@@ -7,45 +7,38 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.run_pipeline  --hcp-token $HCP_TOKEN  --subject-limit 200  --fd-threshold 0.2  --entropy-r 0.15  --entropy-m 2  --scales 1 2 3 4 5  --n-permutations 1000  --seed 42 -> rc=1
-import main  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/__init__.py", line 11, in <module>
-    from . import run_pipeline as run_pipeline  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/run_pipeline.py", line 15, in <module>
-    from code.src.pipeline import run_pipeline as orchestrator
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/pipeline.py", line 18, in <module>
-    from code.src.download_data import main as download_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/download_data.py", line 12, in <module>
+lmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/download_data.py", line 12, in <module>
     from code.src.data.download_hcp import main as _download_hcp_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/data/download_hcp.py", line 17, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/code/src/data/download_hcp.py", line 18, in <module>
     from datasets import load_dataset
-ModuleNotFoundError: No module named 'datasets'
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
+    from .arrow_dataset import Dataset
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
+    import pyarrow as pa
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
+ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python -m pytest -v tests/ -> rc=2
-ython3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_qc.py:17: in <module>
-    from src.entities.models import Subject
-src/__init__.py:8: in <module>
-    from .run_pipeline import run_pipeline  # noqa: F401
-src/run_pipeline.py:9: in <module>
-    from code.src.run_pipeline import main  # noqa: F401
-code/src/__init__.py:11: in <module>
-    from . import run_pipeline as run_pipeline  # noqa: F401
-code/src/run_pipeline.py:15: in <module>
-    from code.src.pipeline import run_pipeline as orchestrator
-code/src/pipeline.py:18: in <module>
-    from code.src.download_data import main as download_main
+e.src.download_data import main as download_main
 code/src/download_data.py:12: in <module>
     from code.src.data.download_hcp import main as _download_hcp_main
-code/src/data/download_hcp.py:17: in <module>
+code/src/data/download_hcp.py:18: in <module>
     from datasets import load_dataset
-E   ModuleNotFoundError: No module named 'datasets'
+../../.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/lib/python3.11/site-packages/datasets/__init__.py:18: in <module>
+    from .arrow_dataset import Dataset
+../../.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/lib/python3.11/site-packages/datasets/arrow_dataset.py:60: in <module>
+    import pyarrow as pa
+../../.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/lib/python3.11/site-packages/pyarrow/__init__.py:59: in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+pyarrow/lib.pyx:42: in init pyarrow.lib
+    ???
+E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 =========================== short test summary info ============================
 ERROR tests/unit/test_qc.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.44s ===============================
+=============================== 1 error in 0.60s ===============================
 
 
 
