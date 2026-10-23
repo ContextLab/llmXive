@@ -1,5 +1,6 @@
 status: none
-intent: eBird Basic Dataset MODIS download via earthaccess python package dataset
+intent: download eBird Basic Dataset and MODIS NDVI raster via earthaccess python
+  package dataset
 required_fields:
 - species_code
 - observation_date
@@ -9,9 +10,10 @@ required_fields:
 - distance_km
 - num_observers
 - observation_count
-- land_surface_temperature
-- ndvi
-- evi
-cache_key: 438c603f6dbf2fdeece3f7b6105d0dc51f73f43de16bd10378b7465867a22785
-searched_at: '2026-10-22T23:16:03.795491+00:00'
+- grid_cell_id
+- year
+- week_of_year
+- first_arrival_week
+cache_key: 3191269ba8ec24e01186fea41b454ae7f686726f99f2f2124f7632caa534f385
+searched_at: '2026-10-23T10:15:19.245497+00:00'
 retry_count: 1

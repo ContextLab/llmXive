@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-22T14:13:22Z",
-  "project_id": "PROJ-126-predicting-avian-migration-patterns-from"
+  "updated_at": "2026-10-23T10:15:19Z",
+  "project_id": "PROJ-126-predicting-avian-migration-patterns-from",
+  "replan_rounds": 1
 }
