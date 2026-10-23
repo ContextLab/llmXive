@@ -42,7 +42,7 @@ python code/utils/checksum.py data/raw/synthetic_defects.csv
 
 ```yaml
 # Proximity threshold handling
-proximity_threshold: 2.0          # nm, baseline physical value
+proximity_threshold: 2.5          # nm, baseline physical value (FR‑008)
 statistical_override: false       # set true to use multiplier mode
 threshold_multiplier: 2.0         # used only when override is true
 
@@ -80,6 +80,8 @@ pytest tests/integration/
 
 - **Memory errors**: Ensure streaming ingestion is active (`chunksize` in `pandas.read_csv` or `streaming=True` for HuggingFace datasets).  
 - **No real data**: Check `logs/pipeline.log` for the fallback message; synthetic data will be used automatically.  
-- **Disconnected graph warnings**: Appear in the log; metrics are still computed on the LCC and flagged.  
+- **Disconnected graph warnings**: Appear in the log; metrics are still computed on the LCC and flagged.
 
 ---
+
+

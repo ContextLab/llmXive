@@ -16,7 +16,7 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "Bonferroni or FDR corrected p-value"
+    description: "Bonferroni‑adjusted p‑value (raw p × 20, fixed family size m=20)"
   confidence_interval:
     type: array
     items:
@@ -36,7 +36,7 @@ properties:
         type: array
         items:
           type: number
-        description: "Multipliers tested (e.g., [1.0, 2.0, 2.5])"
+        description: "Multipliers tested (e.g., [1.0, 1.5, 2.0, 2.5])"
       correlation_sd:
         type: number
         description: "Standard deviation of correlation across thresholds"

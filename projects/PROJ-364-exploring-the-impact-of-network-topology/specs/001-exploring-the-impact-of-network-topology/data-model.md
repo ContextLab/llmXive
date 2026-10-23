@@ -59,10 +59,8 @@ sensitivity_analysis:
 4. **Statistical Analysis** (`TopologyGraph` collection) → `results/analysis_results.json` (`AnalysisResult`).  
 
 ## Hygiene Rules
-- **Checksums**: SHA‑256 recorded in `state/` for every raw file.
-- **Immutability**: Raw files never overwritten; derived files receive timestamped names.
+- **Checksums**: SHA‑256 recorded in `state/` for every raw file.  
+- **Immutability**: Raw files never overwritten; derived files receive timestamped names.  
 - **Versioning**: Content hash of each artifact stored in `state/`; any change updates the hash entry.
 
 ---
-
-
