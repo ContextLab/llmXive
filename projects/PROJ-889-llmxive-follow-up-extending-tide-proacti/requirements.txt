@@ -1,5 +1,5 @@
-# Existing dependencies are provided by the platform.
-# Additional third‑party packages required for T001:
-huggingface_hub==0.23.0
-pandas==2.2.2
-# Note: ``requests`` and ``numpy`` are already available in the base env.
+datasets==2.20.0
+# The following packages are already provided in the environment:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+# huggingface_hub is a dependency of datasets and will be installed automatically.
