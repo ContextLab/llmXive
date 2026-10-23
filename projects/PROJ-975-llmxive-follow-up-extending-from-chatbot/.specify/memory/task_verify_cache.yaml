@@ -1,70 +1,8 @@
 T001:
   c: true
-  h: 3ab1c823ef9fa72cb6b733cce2ecaa0a04e52b162f7bc1f6e56aafc651789de5
-  r: All five contract schema files exist at `contracts/` with substantive, well-formed
-    JSON Schema content (properties, required, types, constraints), matching the read-only
-    source set in `specs/.../contracts/` (same five filenames). The verification test
-    `tests/contract/test_schema_presence.py` exists, loads each schema via `yaml.safe_load`,
-    asserts the `properties`/`required` keys, and validates minimal dummy task/skill
-    instances with `jsonschema.validate`, exactly as specified.
-  sig: c24f721518a0e75e11993bd642215c4821f1c1dda2543398d6e03c52e285ab45
-T004:
-  c: true
-  h: 08b0255ae054f8e75eb3678cabd755e1730482aa7cbf166d417e3e8b5ac8a881
-  r: 'The test suite at `tests/contract/test_schemas.py` exists and implements all
-    four required checks: schema validation of real `tasks.json` and `skills.json`
-    against the YAML schemas, 768-dim embedding length assertion, mean pairwise cosine
-    similarity with OVERLAP_LEVEL thresholds from `code/config.py`, and ground-truth
-    skill reference integrity. The historical execution log shows `pytest tests/contract/test_schemas.py`
-    ran with exit 0 and all 5 tests passed against the actual data files (both present
-    and non-empty), and the referenced helpers (`mean_pairwise_similarity`, `get_experiment_config`'
-  sig: a702a814d5b43388abcfc913ce3999e11c3e6b5a50a425f057aa9b445dac689a
-T005:
-  c: false
-  h: 2b6888b5a233a696c144f8d8fbb8ef439bb611d389cf50c6f4ce4a8a90a2cf77
-  r: "The task explicitly requires the CSV header to include `run_id,task_id,library_size,pruning_enabled,success,latency_ms,tokens_used,retrieval_precision,retrieval_diversity,edge_case`,\
-    \ but `code/logging_config.py` defines `LOG_COLUMNS` as `task_id,skill_id,success,latency,tokens,retrieval_precision,retrieval_diversity,pruning_risk_count,library_size,pruning_enabled,edge_case`\
-    \ \u2014 `run_id`, `latency_ms`, and `tokens_used` are absent, and extra columns\
-    \ (`skill_id`, `pruning_risk_count`) were substituted. The implementer followed\
-    \ the on-disk schema file instead of the task's stated column list, which"
-  sig: f103fbcfca67a5f6c2763cb5df5b9beb7218209ceba00b4de5ef5c7332bf9cbb
-T006:
-  c: false
-  h: c87f5b65b70b73f7ce721429475ef9d3a63277d0837312c877af8471f88efb18
-  r: "The end-to-end run failed: every one of the 100 tasks errored with \"shapes\
-    \ (384,) and (768,) not aligned\" (embedding dimension mismatch between the model's\
-    \ 384-dim output and the 768-dim pre-computed skill embeddings), so all JSON-L\
-    \ entries and CSV rows record `success=false`, `retrieved_skill_ids=[]`, `edge_case=\"\
-    error\"` \u2014 no retrieval, execution, or success measurement actually occurred,\
-    \ and the required spot-check for `edge_case=\"missing_skill\"` is impossible\
-    \ since every entry is \"error\". Additionally, the integration test `tests/integration/test_agent_e2e.py`\
-    \ fails (exit 1) due to a malfor"
-  sig: 03b3b73a476f9a95120976c8fae1d7a47bfc4d9f1b00b3d27befcad63dd05f05
-T007:
-  c: true
-  h: c8142496b4c71c16994136e86d992165027c879b5e8927d219c3ca1b3a247360
-  r: '`code/pruning.py` implements `prune_fr04` exactly per FR-004 (prune only if
-    `usage_count == 0` and min cosine similarity to all other skills > 0.70, returning
-    `(pruned_library, false_prune_count)` counting pruned skills in any task''s ground
-    truth), with a real `cosine_similarity` in `code/utils.py`. The deterministic
-    unit tests in `tests/unit/test_pruning.py` cover removal, preservation, used-skill,
-    false-prune-count, and edge cases, and the recorded pytest run shows all 5 tests
-    passing (exit 0).'
-  sig: 341836e2ecde25654187ce26236edef76e56069d07792e1d01e2cc27917b13f6
-T011:
-  c: false
-  h: 062da73576d9ef9a4e89733292a954725f72b782cf2bf082cc98fe48e30705e1
-  r: "The `tests/contract/test_schemas.py` file exists, but it only validates hard\u2011\
-    coded sample task objects and never loads or checks the actual `tasks.json` data\
-    \ file. Moreover, the required schema file `contracts/task.schema.yaml` (and the\
-    \ generic `schema.yaml` mentioned) is missing, so the test cannot even locate\
-    \ the schema it is supposed to validate against. The task\u2019s contract\u2011\
-    validation requirement is therefore not satisfied."
-T012:
-  c: false
-  h: 062da73576d9ef9a4e89733292a954725f72b782cf2bf082cc98fe48e30705e1
-  r: "The provided `tests/contract/test_schemas.py` file is truncated and does not\
-    \ contain a complete set of tests for the skill schema\u2014there is no test that\
-    \ loads `data/raw/skills.json` and validates it against `contracts/skill.schema.yaml`,\
-    \ nor any test that checks overlap metrics. Consequently, the required contract\
-    \ test is missing/incomplete."
+  h: 23fd369b7eaa61d627d433fc56f695b13030effcd5418a1efa74a3e6e7b9f13e
+  r: "The five contract schema files exist at the required paths, contain the top\u2011\
+    level `properties` and `required` keys, and match the schemas used by `tests/contract/test_schema_presence.py`.\
+    \ The test script itself is present and would validate dummy instances against\
+    \ the `task` and `skill` schemas, confirming the schemas are correctly formed."
+  sig: 9a48952242a05e8fbfbace78403e92239d7feda9d0825c9ffee5ba672f032022

@@ -8,11 +8,11 @@ The list below follows the three research phases (setup → full experiment�
 
 ## Phase 1 – Contracts, synthetic data, and first end‑to‑end run  
 
-- [ ] T001 [P] [US1] [DM-Task] [DM-Skill] **Create root‑level contract schema files**  
+- [X] T001 [P] [US1] [DM-Task] [DM-Skill] **Create root‑level contract schema files**  
   *Paths*: `contracts/task.schema.yaml`, `contracts/skill.schema.yaml`, `contracts/experiment_log.schema.yaml`, `contracts/execution_log.schema.yaml`, `contracts/metrics.schema.yaml` – each copied verbatim from the read‑only schemas in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`.  
   *Verification*: `tests/contract/test_schema_presence.py` loads each file with `yaml.safe_load` and asserts the presence of top‑level keys `properties` and `required`; a minimal dummy instance validates via `jsonschema.validate`.  
 
-- [ ] T002 [P] [US1] **Implement `code/generate_data.py` to produce the synthetic environment**  
+- [ ] T002 [P] [US1] **Implement `code/generate_data.py` to produce the synthetic environment**   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 -->
   *Behavior*:  
   • Generates **exactly 500** task objects (`data/raw/tasks.json`) conforming to `contracts/task.schema.yaml`.  
   • Generates **exactly 100** skill objects (`data/raw/skills.json`) conforming to `contracts/skill.schema.yaml`.  

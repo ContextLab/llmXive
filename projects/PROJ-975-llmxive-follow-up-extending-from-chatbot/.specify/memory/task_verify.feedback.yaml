@@ -1,47 +1,30 @@
 T001:
-  task: 88f99ee1a044e59cb81303b300b40a2d39922defd6fcaea60a4de0cf5531fbea
+  task: 75e517b6e8a2dc97fe0d873887f8740d274daec65427bbcc36c80370df9fa5c6
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/run_generate_data.sh
-    exit=-1 (TIMEOUT)'
-  task: adce33071953bada9fa036a3fd40945c95c86f98e8aa2102d557d57440d19522
+  reason: 'Requested task execution failed; rerun successfully: code/generate_data.py
+    exit=1'
+  task: b49fbd775f29794697c67ccb18ebf0450c273a45959c4c84e69a082d48ed72a3
 T003:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot.yaml`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
-  task: 9e224cd9bfb4becbe2267eba7f9a2dd3664a8646b033cc120e7418605a85e524
+  task: 665dad7bfde997215de2afdd36a637fc833075e980754b1acd6b76dfbfdc47b1
 T004:
-  task: 5b1558822bd27468ffae105f291df456c916adad7dd6db8f7b4de95c03c39218
+  task: 049939511d3fbcbe4e54e3aecf1fbe27f24cd2b73b897679636f5b0b0a083a3a
 T005:
-  reason: "The task explicitly requires the CSV header to include `run_id,task_id,library_size,pruning_enabled,success,latency_ms,tokens_used,retrieval_precision,retrieval_diversity,edge_case`,\
-    \ but `code/logging_config.py` defines `LOG_COLUMNS` as `task_id,skill_id,success,latency,tokens,retrieval_precision,retrieval_diversity,pruning_risk_count,library_size,pruning_enabled,edge_case`\
-    \ \u2014 `run_id`, `latency_ms`, and `tokens_used` are absent, and extra columns\
-    \ (`skill_id`, `pruning_risk_count`) were substituted. The implementer followed\
-    \ the on-disk schema file instead of the task's stated column list, which"
-  task: 75ccbbcfdbfe38c550102e462f991906bf9948a8949e50e89a67c51fc5b26360
+  task: e8279dcb2db08ab3f3211ce6622d320faced4b974812d2d5655cd7b5e0822fa4
 T006:
-  reason: "The end-to-end run failed: every one of the 100 tasks errored with \"shapes\
-    \ (384,) and (768,) not aligned\" (embedding dimension mismatch between the model's\
-    \ 384-dim output and the 768-dim pre-computed skill embeddings), so all JSON-L\
-    \ entries and CSV rows record `success=false`, `retrieved_skill_ids=[]`, `edge_case=\"\
-    error\"` \u2014 no retrieval, execution, or success measurement actually occurred,\
-    \ and the required spot-check for `edge_case=\"missing_skill\"` is impossible\
-    \ since every entry is \"error\". Additionally, the integration test `tests/integration/test_agent_e2e.py`\
-    \ fails (exit 1) due to a malfor"
-  task: 3274f3f0c5a1fad743fff1c91fe314f9dff14407307fc2b7e48d22f0bd361f84
+  task: 023664e19477b92fb14e44339419d563d9f7a6f5dd1066487a7062f588622be1
 T007:
-  task: 0693b879b875aa71df57968ef21f0729979d4790fb93c457277a1d7c8ea33aca
+  task: ad84f97ca4b9d433ab138e7878840d411d29275567f38dcc6f83f2f9c38608d8
 T008:
-  task: 9a28e1e3dffc2a8559f0a691bfcffe9a26b7304880129cd64f1a14283d93ec4f
+  task: b90d162d69fc17337990c6a7f7bf15250cd402fc357775172c517e47b57c317c
 T009:
-  task: f159a029fcbf8d139bcef2f14e8d537fe0ea8e259a9ac95140c2740cff275e37
+  task: 6d732547c154006093085974cff2332cc2cdd28bf09d942dc2cc0cc9916e8d9b
 T010:
-  task: 55c379a22dd6f20a0eef48f1121a2c8d2918101d55a9d359580c9072523e0931
+  task: ce32229a00248f2bba6d839e54beb0cfa796951f5738130c580da0c43aca9cf3
 T011:
-  task: df4f8ff80ad2270cb498a697bcedc1559a34205debff850d7257bb1d7d7a2231
+  task: 191570552d2d1e809acd1fb8d1777c41289463867c84c3fd018151110fa32d76
 T012:
-  task: a9510f8ae87b50f4f3e53beddc9f3add360734bfe1fa3ee3d659be8302a3095c
+  task: 300ee70e1da69100a5422d994eebb3b8d1318e2b5c83431d3758370605986f1f
 T013:
-  task: fb27033794ab3b0568fe1e0bea15bf2c6c2450be263e08cb32b8b6598b5141d0
+  task: 0171e9204cb8c5b328a79c6de91da03d59617f8c707a8462d9baa118e7504c50
 T014:
-  task: e2866f97b6fb39537a26927edc402f454d3c413f050b6b3e38b0052b212c59ac
+  task: 66ee0453ff8e4c23f8c0e9c2233246e8deca10e06da7b3c0df6a27300896c1f8
