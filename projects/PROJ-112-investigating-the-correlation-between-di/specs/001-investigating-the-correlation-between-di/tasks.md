@@ -8,7 +8,7 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
 
 ## Phase 1 – Data acquisition & harmonisation (US‑1, priority P1)
 
-- [ ] **T001** `[US-1]` **Download American Gut Project (AGP) raw 16S tables & metadata**  
+- [ ] **T001** `[US-1]` **Download American Gut Project (AGP) raw 16S tables & metadata**   <!-- FAILED-IN-EXECUTION: code/src/ingestion/agp_loader.py exit=1 -->
   *File*: `code/src/ingestion/agp_loader.py`  
   *Action*: Use `datasets.load_dataset("american_gut/agp_diet", streaming=True)` to stream the data, write the raw files to `data/raw/agp/` (e.g., `agp_counts.tsv`, `agp_metadata.tsv`). Generate SHA‑256 checksums stored in `data/state/agp_checksums.json`.  
   *Verification*: Run `python -m code.src.ingestion.agp_loader` and confirm both files exist, are non‑empty, and the checksum file contains two entries.

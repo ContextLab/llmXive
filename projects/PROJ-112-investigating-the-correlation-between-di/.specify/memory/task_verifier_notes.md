@@ -2,5 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T012a** — declared artifact(s) missing/empty/invalid: src/ingestion/agp_loader.py
-- **T013a** — declared artifact(s) missing/empty/invalid: src/ingestion/ukbb_loader.py
+- **T001** — Requested task execution failed; rerun successfully: code/src/ingestion/agp_loader.py exit=1
