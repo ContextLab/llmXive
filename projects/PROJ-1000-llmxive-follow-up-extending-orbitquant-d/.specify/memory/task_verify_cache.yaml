@@ -1,8 +1,10 @@
 T001:
-  c: false
-  h: 0969b664ab2d42258ffdaadb309c27d45decff3139b7d4836907fdfb26471566
-  r: "The `code/` skeleton is present and most verification steps succeed, but the\
-    \ required sub\u2011directory `code/models/` is missing, violating the task\u2019\
-    s specification that the project skeleton include a `models` folder. Adding this\
-    \ directory (with an `__init__.py` marker) is needed to complete the task."
-  sig: c13d2ef1220d48450f4c19c6fd2dd25643f3412ce1a388ea2bdc50f7ab821d3e
+  c: true
+  h: fc9014339498ec883072e4e0e8323e8d355890f1cf8d1c77e4311e7ed57dc568
+  r: "The `code/` directory contains the required sub\u2011folders (analysis, models,\
+    \ quantization, evaluation, utils) and the `tests/` placeholder directory; `requirements.txt`\
+    \ lists `torch`; `code/config.py` defines seeds and uses `llmxive_toolkit.paths`;\
+    \ `specs/.../quickstart.md` documents the init command; and the log `code/.tasks/T001.code_main.py.log`\
+    \ shows `python -m code.main --phase init` printing \u201CInitialization complete\u201D\
+    ."
+  sig: 9c74416b1c031f1516b0d98d356b8644be4e55cc797a07c3396d4587a8abf067

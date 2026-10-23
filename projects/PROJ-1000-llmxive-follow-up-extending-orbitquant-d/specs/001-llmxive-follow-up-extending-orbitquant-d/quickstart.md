@@ -39,8 +39,8 @@ Initialization complete
 
 This indicates that:
 - All required sub‑directories under `code/` (analysis, models, quantization,
-  evaluation, utils, runners, data, validation) have been created, each with an
-  `__init__.py` package marker.
+  evaluation, utils, runners, data, validation) have been created, each with
+  an `__init__.py` package marker.
 - The `tests/` directory is in place (with a placeholder test).
 - The `requirements.txt` file lists `torch` among its dependencies.
 
