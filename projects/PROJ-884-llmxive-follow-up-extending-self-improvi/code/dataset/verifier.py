@@ -2,7 +2,7 @@
 Puzzle Verifier Module for llmXive
 Validates puzzle instances and solutions with deterministic logic.
 Implements T066: Data Provenance metadata validation.
-Updated to expose a simple tuple‑based API as required by FR‑001.
+Updated to expose a tuple‑based API that conforms to the dataset schema.
 """
 
 import json
@@ -22,7 +22,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class ErrorCodes(Enum):
-    """Error codes for verification failures"""
+    """Error codes for verification failures (internal representation)."""
     VALID = "VALID"
     INVALID_SOLUTION = "INVALID_SOLUTION"
     CONSTRAINT_VIOLATION = "CONSTRAINT_VIOLATION"
@@ -32,6 +32,7 @@ class ErrorCodes(Enum):
     PARSE_FAILURE = "PARSE_FAILURE"
     VERIFIER_ERROR = "VERIFIER_ERROR"
     TIMEOUT = "TIMEOUT"
+    CONTRADICTION_DETECTED = "CONTRADICTION_DETECTED"
 
 class VerifierError(Exception):
     """Raised for unexpected internal verification failures."""
@@ -39,7 +40,7 @@ class VerifierError(Exception):
 
 @dataclass
 class SolutionResult:
-    """Result of solution verification"""
+    """Result of solution verification."""
     is_valid: bool
     error_code: Optional[ErrorCodes] = None
     error_message: Optional[str] = None
@@ -50,6 +51,17 @@ class PuzzleVerifier:
     Validates puzzle instances and solutions.
     Implements T066: Validates provenance metadata before processing.
     """
+
+    # Schema‑compatible error codes (the allowed enum in contracts/dataset.schema.yaml)
+    _SCHEMA_ERROR_CODES = {
+        "NONE",
+        "DUPLICATE_ROW",
+        "INVALID_PATH",
+        "CONSTRAINT_VIOLATION",
+        "PARSE_FAILURE",
+        "CONTRADICTION_DETECTED",
+        "VERIFIER_ERROR",
+    }
 
     def __init__(self, timeout_ms: int = 100):
         self.timeout_ms = timeout_ms
@@ -92,6 +104,31 @@ class PuzzleVerifier:
         return True, None
 
     # ------------------------------------------------------------------
+    # Helper: map internal ErrorCodes to schema‑compatible strings
+    # ------------------------------------------------------------------
+    def _map_error_code(self, code: Optional[ErrorCodes]) -> str:
+        """
+        Convert an internal ErrorCodes value to a string that is allowed by the
+        dataset schema. Unknown or None values become 'VERIFIER_ERROR'.
+        """
+        if code is None:
+            return "NONE"
+        if code == ErrorCodes.VALID:
+            return "NONE"
+        # Direct mapping for codes that already match the schema
+        if code.value in self._SCHEMA_ERROR_CODES:
+            return code.value
+        # Map internal codes that are not part of the schema to a generic one
+        if code in {
+            ErrorCodes.INVALID_SOLUTION,
+            ErrorCodes.MISSING_METADATA,
+            ErrorCodes.TIMEOUT,
+        }:
+            return "VERIFIER_ERROR"
+        # Fallback – should never happen but keeps the function total
+        return "VERIFIER_ERROR"
+
+    # ------------------------------------------------------------------
     # Sudoku verification
     # ------------------------------------------------------------------
     def verify_sudoku(
@@ -102,12 +139,12 @@ class PuzzleVerifier:
         start_time = time.time()
         try:
             # Metadata check
-            is_valid, err = self.validate_metadata(puzzle_instance)
+            is_valid, err_msg = self.validate_metadata(puzzle_instance)
             if not is_valid:
                 return SolutionResult(
                     is_valid=False,
                     error_code=ErrorCodes.MISSING_METADATA,
-                    error_message=err,
+                    error_message=err_msg,
                     verification_time_ms=(time.time() - start_time) * 1000
                 )
 
@@ -128,7 +165,7 @@ class PuzzleVerifier:
                 if len(row) != grid_size:
                     return SolutionResult(
                         is_valid=False,
-                        error_code=ErrorCodes.DUPLICATE_ROW,
+                        error_code=ErrorCodes.INVALID_SOLUTION,
                         error_message=f"Row {row_idx} length mismatch",
                         verification_time_ms=(time.time() - start_time) * 1000
                     )
@@ -162,7 +199,7 @@ class PuzzleVerifier:
                     if sorted(box_vals) != list(range(1, grid_size + 1)):
                         return SolutionResult(
                             is_valid=False,
-                            error_code=ErrorCodes.DUPLICATE_ROW,
+                            error_code=ErrorCodes.CONSTRAINT_VIOLATION,
                             error_message=f"Box ({box_row},{box_col}) invalid",
                             verification_time_ms=(time.time() - start_time) * 1000
                         )
@@ -185,12 +222,12 @@ class PuzzleVerifier:
     ) -> SolutionResult:
         start_time = time.time()
         try:
-            is_valid, err = self.validate_metadata(puzzle_instance)
+            is_valid, err_msg = self.validate_metadata(puzzle_instance)
             if not is_valid:
                 return SolutionResult(
                     is_valid=False,
                     error_code=ErrorCodes.MISSING_METADATA,
-                    error_message=err,
+                    error_message=err_msg,
                     verification_time_ms=(time.time() - start_time) * 1000
                 )
 
@@ -267,12 +304,12 @@ class PuzzleVerifier:
     ) -> SolutionResult:
         start_time = time.time()
         try:
-            is_valid, err = self.validate_metadata(puzzle_instance)
+            is_valid, err_msg = self.validate_metadata(puzzle_instance)
             if not is_valid:
                 return SolutionResult(
                     is_valid=False,
                     error_code=ErrorCodes.MISSING_METADATA,
-                    error_message=err,
+                    error_message=err_msg,
                     verification_time_ms=(time.time() - start_time) * 1000
                 )
 
@@ -313,12 +350,12 @@ class PuzzleVerifier:
     ) -> SolutionResult:
         start_time = time.time()
         try:
-            is_valid, err = self.validate_metadata(puzzle_instance)
+            is_valid, err_msg = self.validate_metadata(puzzle_instance)
             if not is_valid:
                 return SolutionResult(
                     is_valid=False,
                     error_code=ErrorCodes.MISSING_METADATA,
-                    error_message=err,
+                    error_message=err_msg,
                     verification_time_ms=(time.time() - start_time) * 1000
                 )
 
@@ -390,7 +427,7 @@ class PuzzleVerifier:
             )
 
     # ------------------------------------------------------------------
-    # Simple tuple‑based API required by the task spec
+    # Simple tuple‑based API required by the task spec (schema‑compatible)
     # ------------------------------------------------------------------
     def verify(
         self,
@@ -398,15 +435,12 @@ class PuzzleVerifier:
         solution: Optional[Dict[str, Any]] = None
     ) -> Tuple[bool, str]:
         """
-        Returns (is_valid, error_code_str). Raises VerifierError on
-        unexpected internal failures.
+        Returns (is_valid, error_code_str) where error_code_str conforms to the
+        dataset schema enum. Raises VerifierError on unexpected internal failures.
         """
         result = self.verify_solution(puzzle_instance, solution)
-        if result.error_code is None:
-            code_str = ErrorCodes.VALID.value
-        else:
-            code_str = result.error_code.value
-        return result.is_valid, code_str
+        mapped_code = self._map_error_code(result.error_code)
+        return result.is_valid, mapped_code
 
 def main():
     """CLI entry point for batch verification."""

@@ -1,2 +1,2 @@
-{"puzzle_type": "sudoku", "is_valid": true, "error_code": "VALID"}
-{"puzzle_type": "pathfinding", "is_valid": true, "error_code": "VALID"}
+{"puzzle_type": "sudoku", "is_valid": true, "error_code": "NONE"}
+{"puzzle_type": "pathfinding", "is_valid": true, "error_code": "NONE"}

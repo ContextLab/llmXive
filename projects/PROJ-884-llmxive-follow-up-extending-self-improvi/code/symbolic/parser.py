@@ -19,6 +19,9 @@ from typing import Any, Dict, List, Optional
 
 from llmxive_toolkit import get_logger
 
+# Import the custom exception raising helper
+from code.exceptions import raise_parse_failure
+
 log = get_logger(__name__)
 
 class FormalConstraintType(Enum):

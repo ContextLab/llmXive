@@ -1,19 +1,17 @@
 T001:
-  reason: 'The generated puzzles do not conform to `contracts/dataset.schema.yaml`:
-    the `verifier_output` object uses the key `"is_valid"` (and returns error codes
-    like `"VALID"`), whereas the schema requires a boolean field `"valid"` and error
-    codes limited to the enum values listed. Consequently `code/tests/test_generator.py`
-    will raise a `jsonschema.ValidationError`, so the required tests do not all pass.
-    The verifier output format must be corrected to match the schema (e.g., `{"valid":
-    is_valid, "error_code": err_code}` with allowed error codes).'
+  reason: The `code/tests/test_generator.py` references `DataGenerationError` without
+    importing it, causing a NameError and making the test suite fail. Consequently
+    the required observable check (`pytest code/tests/test_*.py` passes) is not satisfied.
+    Fix the missing import (or adjust the test) to allow the tests to run successfully.
   task: 9cc76c156b336145c9d8302690031c9cb0ca0a0afc3d4594f09719e026c6c318
 T002:
-  reason: The required test suite `code/tests/test_symbolic_planner.py` is missing,
-    so the observable check cannot be performed. Additionally, `code/symbolic/parser.py`
-    calls `raise_parse_failure` without importing or defining it, causing a runtime
-    NameError. Consequently the parser does not correctly emit the required `PARSE_FAILURE`
-    code, and the exclusion log file is absent until a run creates it. These gaps
-    prevent the task from being fully satisfied.
+  reason: The test suite `code/tests/test_symbolic_planner.py` fails (2 of 3 tests
+    error) because `SymbolicPlanner.decompose` incorrectly catches the string constants
+    `PARSE_FAILURE` and `CONTRADICTION_DETECTED` instead of the actual exception classes
+    `ParseFailure` and `ContradictionDetected`. This prevents proper handling of parse
+    and contradiction errors and stops the exclusion logger from being invoked. Fix
+    the `except` clauses to catch the real exception types (or adjust the constants
+    to be exception classes) so that all tests pass.
   task: 463649f468922757615a5af58e32fc9c4d8b1ee10dabb111db2fc4f2c7f7ca93
 T003:
   task: ad394fc93017184958857f7aa7cf207a33e43e141b279d83ee2ab522e493d3b4

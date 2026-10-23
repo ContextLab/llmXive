@@ -1,24 +1,14 @@
-T001:
-  c: false
-  h: 4a42eedca0134b6a3f2618f57eed704ba788b76cb5d953b0ad11db7a6a66adc6
-  r: 'The generated puzzles do not conform to `contracts/dataset.schema.yaml`: the
-    `verifier_output` object uses the key `"is_valid"` (and returns error codes like
-    `"VALID"`), whereas the schema requires a boolean field `"valid"` and error codes
-    limited to the enum values listed. Consequently `code/tests/test_generator.py`
-    will raise a `jsonschema.ValidationError`, so the required tests do not all pass.
-    The verifier output format must be corrected to match the schema (e.g., `{"valid":
-    is_valid, "error_code": err_code}` with allowed error codes).'
-  sig: 539b8eeaee020aefb533bc4598f392b148e355e170efb4970dddcc6b0067f9b9
 T002:
   c: false
-  h: 67cd37ef809e0630051583daad862cdc2cd313b4eb7339a88d7e87bb6f800027
-  r: The required test suite `code/tests/test_symbolic_planner.py` is missing, so
-    the observable check cannot be performed. Additionally, `code/symbolic/parser.py`
-    calls `raise_parse_failure` without importing or defining it, causing a runtime
-    NameError. Consequently the parser does not correctly emit the required `PARSE_FAILURE`
-    code, and the exclusion log file is absent until a run creates it. These gaps
-    prevent the task from being fully satisfied.
-  sig: 8c626c67a24340aedefc414ee329feca8ba3a2a20da1ec5a88384da23b3a4104
+  h: 299e15bc46e425cc927f6cb10a8e5b311b6940f595af87ebb464ef13a72fa84a
+  r: The test suite `code/tests/test_symbolic_planner.py` fails (2 of 3 tests error)
+    because `SymbolicPlanner.decompose` incorrectly catches the string constants `PARSE_FAILURE`
+    and `CONTRADICTION_DETECTED` instead of the actual exception classes `ParseFailure`
+    and `ContradictionDetected`. This prevents proper handling of parse and contradiction
+    errors and stops the exclusion logger from being invoked. Fix the `except` clauses
+    to catch the real exception types (or adjust the constants to be exception classes)
+    so that all tests pass.
+  sig: debdc2483b7d615b2e45f2c12ad725074ef17aa1a1c210b6460d1878bf0355db
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,28 +25,28 @@ T004:
     the task requirement is not satisfied.
 T012:
   c: true
-  h: fb5f34860a39b1d9d0eae2d091efb70019757395e4c6b27932288f4e1b6f31d6
-  r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md`\
-    \ \u2013 it exists, is non\u2011empty, and contains the required \u201CPuzzle\
-    \ Types\u201D, \u201CScaling Plan\u201D, and \u201CSeed Management\u201D sections\
+  h: 93b42951657607df7b2392f6f68b110b8d7f7216d778df2aaaf759fbb71526a3
+  r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md`;\
+    \ the file exists, is non\u2011empty, and contains the required sections \u201C\
+    Puzzle Types\u201D, \u201CScaling Plan\u201D (Complexity), and \u201CSeed Management\u201D\
     \ (plus provenance metadata)."
-  sig: 6a90a6fdac8d06d810ec1f9f9a0c75b609d82a0eb59cfa0fabfae279ea007634
+  sig: cc63b8f145fac49190925ff6ff0b4c2b08913234f21ca27345963266596c01ea
 T013:
   c: true
-  h: 2290529821f05260ab0e1c06c928b750ecd166d7f0a84c4f2c9d048fee8be371
+  h: 40a66158ae5071fbf39dbaa65a2eae638d066e49901cfd98c3161dbd6309c45a
   r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md`;\
-    \ it exists and includes numeric values for delta\u202F=\u202F0.05, alpha\u202F\
-    =\u202F0.05, required sample size\u202F=\u202F393, plus power analysis and effect\u2011\
-    size targets."
-  sig: 8b0a5fa2f5d79ad1ab9205876a5a6d934470bbad8b3de10e8cc1c62668f513c3
+    \ it exists, is non\u2011empty, and includes numeric values for the TOST equivalence\
+    \ margin (delta\u202F=\u202F0.05), the significance level (alpha\u202F=\u202F\
+    0.05), and the required sample size per group (n\u202F=\u202F393)."
+  sig: 34b48d1db231da4a72338f710a38abf53043127c26128eb5e6cb7814bd2bfdd7
 T014:
   c: true
-  h: b964be4da29b07fc4420a2a0f64386d99cc77e4d682e80678b42d6fde164d76e
+  h: d5faef779b75bb17357fd9d3c4700a7a96220400e852261e8e887181f094c3eb
   r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`;\
-    \ it contains the CPU\u2011only model identifier `distilbert-base-uncased`, the\
-    \ exact HuggingFace commit hash, explicit device settings, and a ranked list of\
-    \ fallback models with their own commit hashes."
-  sig: 45822c3c724ed6fe5c410b8dfa8a807ccbe43c5786ce9da33b8e838fb05dd74c
+    \ it exists, is non\u2011empty, and lists the CPU\u2011only model `distilbert-base-uncased`\
+    \ with its exact HuggingFace commit hash, explicit device settings, and a ranked\
+    \ list of fallback models."
+  sig: fadea494db912b7bc436c5f30de94009bba139833ca158a89074c06e76927c5d
 T015:
   c: true
   h: ea0ededd3830ea3688217a2eeb179e8c6f6b3d1377040af157ced56dfdc276c3
@@ -67,9 +57,9 @@ T015:
   sig: 8cf992a5c33c1e10fd10e9d9cd71f2142f548891a320515d04eecd0569f89797
 T016:
   c: true
-  h: b31a297e2189347aee41365e8aa5983d8218504d8e9b3458a673c4b772e9bcd7
-  r: "Checked the presence and content of `specs/001-llmxive-follow-up-extending-self-improvi/quickstart.md`\
-    \ (non\u2011empty, includes the `python -m code.main --pilot` command and expected\
-    \ output path) and the execution log `code/.tasks/T016.code_main.py.log` confirming\
-    \ the command runs exit\u2011code\u202F0 on a clean repository."
-  sig: 570b81b831a95a3c9f480435e3d110bce32c17c7476646e5fc7ecf3536c93404
+  h: 779f5ef960ee5b6fd828118ef2bae6a838505f3fa04b78fdb2b26a3b05716bdc
+  r: "Checked the `specs/001-llmxive-follow-up-extending-self-improvi/quickstart.md`\
+    \ file (3353\u202Fbytes) which contains the required `python -m code.main --pilot`\
+    \ command, and the execution log `code/.tasks/T016.code_main.py.log` showing the\
+    \ command ran with exit\u202F0 and wrote the pilot results to `data/processed/pilot_result.jsonl`."
+  sig: efaf0e2eabc51ee8d47ea63ed66c13d2b859c14cf0bd41559fd80a524cc2a90b

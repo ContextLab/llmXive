@@ -20,11 +20,11 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/raw/puzzles_20261023_072558.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/raw/puzzles_20261023_074051.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/bes/population.py: function `_roulette_selection` returns a bare RNG draw (line 305) — a reported value computed from no real input; code/config.py: self-declared fabricated metric — “…# The task T007b requires a placeholder value that warns if not overwritten…”; every produced artifact is gitignored (data/raw/puzzles_20261023_072558.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python -m code.main --method symbolic --pop-size 50 --generations 20 --output data/processed/symbolic_run.jsonl (rc=1); python -m code.main --method neural --pop-size 50 --generations 20 --output data/processed/neural_run.jsonl (rc=1); python -m code.analysis.stats --symbolic data/processed/symbolic_run.jsonl --neural data/processed/neural_run.jsonl --output data/processed/results.json (rc=1); 2 declared deliverable(s) absent: data/processed/bes_results.json; data/processed/exclusions.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/bes/population.py: function `_roulette_selection` returns a bare RNG draw (line 305) — a reported value computed from no real input; code/config.py: self-declared fabricated metric — “…# The task T007b requires a placeholder value that warns if not overwritten…”; every produced artifact is gitignored (data/raw/puzzles_20261023_074051.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 command(s) failed: python -m code.main --method symbolic --pop-size 50 --generations 20 --output data/processed/symbolic_run.jsonl (rc=1); python -m code.main --method neural --pop-size 50 --generations 20 --output data/processed/neural_run.jsonl (rc=1); python -m code.analysis.stats --symbolic data/processed/symbolic_run.jsonl --neural data/processed/neural_run.jsonl --output data/processed/results.json (rc=1); 2 declared deliverable(s) absent: data/processed/bes_results.json; data/processed/exclusions.json
 
 ## Failing / missing run-book commands
 
@@ -37,32 +37,51 @@ Usage: python -m code.main --pilot
 
 
 - python -m code.analysis.stats --symbolic data/processed/symbolic_run.jsonl --neural data/processed/neural_run.jsonl --output data/processed/results.json -> rc=1
-2026-10-23 07:25:58,242 - __main__ - ERROR - Analysis failed: Log file not found: data/processed/symbolic_run.jsonl
+2026-10-23 07:40:51,672 - __main__ - ERROR - Analysis failed: Log file not found: data/processed/symbolic_run.jsonl
 
 
-- python -m pytest tests/unit/ -> rc=4
+- python -m pytest tests/unit/ -> rc=2
+nding-self-improvi/tests/unit/test_verifier.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_verifier.py:14: in <module>
+    from code.dataset.verifier import PuzzleVerifier, ErrorCodes, SolutionResult, DataVerificationError
+E   ImportError: cannot import name 'DataVerificationError' from 'code.dataset.verifier' (/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/dataset/verifier.py)
+=========================== short test summary info ============================
+ERROR tests/unit/test_calibrate_tdp.py
+ERROR tests/unit/test_generate_tdp_constant.py
+ERROR tests/unit/test_generator.py
+ERROR tests/unit/test_logging.py
+ERROR tests/unit/test_population.py
+ERROR tests/unit/test_result_aggregator.py
+ERROR tests/unit/test_symbolic_parser.py
+ERROR tests/unit/test_verifier.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 8 errors in 0.64s ===============================
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-884-llmxive-follow-up-extending-self-improvi/lib/python3.11/site-packages/_pytest/config/__init__.py:328: PluggyTeardownRaisedWarning: A plugin raised an exception during an old-style hookwrapper teardown.
-Plugin: helpconfig, Hook: pytest_cmdline_parse
-ConftestImportFailure: NameError: name 'pytest' is not defined (from /home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/tests/conftest.py)
-For more information see https://pluggy.readthedocs.io/en/stable/api_reference.html#pluggy.PluggyTeardownRaisedWarning
-  config = pluginmanager.hook.pytest_cmdline_parse(
-ImportError while loading conftest '/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/tests/conftest.py'.
-tests/conftest.py:9: in <module>
-    @pytest.fixture(autouse=True)
-E   NameError: name 'pytest' is not defined
 
-- python -m pytest tests/integration/ -> rc=4
+- python -m pytest tests/integration/ -> rc=2
+t_bes_loop.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/integration/test_bes_loop.py:26: in <module>
+    from code.bes.backward_step import BackwardStep, BackwardStepResult
+code/bes/__init__.py:10: in <module>
+    from .population import Population, Individual, SelectionMethod
+code/bes/population.py:22: in <module>
+    from code.bes.backward_step import BackwardStep, BackwardStepResult
+code/bes/backward_step.py:17: in <module>
+    from code.exceptions import PARSE_FAILURE, CONTRADICTION_DETECTED, VERIFIER_ERROR
+E   ImportError: cannot import name 'VERIFIER_ERROR' from 'code.exceptions' (/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/exceptions.py)
+=========================== short test summary info ============================
+ERROR tests/integration/test_bes_loop.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.11s ===============================
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-884-llmxive-follow-up-extending-self-improvi/lib/python3.11/site-packages/_pytest/config/__init__.py:328: PluggyTeardownRaisedWarning: A plugin raised an exception during an old-style hookwrapper teardown.
-Plugin: helpconfig, Hook: pytest_cmdline_parse
-ConftestImportFailure: NameError: name 'pytest' is not defined (from /home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/tests/conftest.py)
-For more information see https://pluggy.readthedocs.io/en/stable/api_reference.html#pluggy.PluggyTeardownRaisedWarning
-  config = pluginmanager.hook.pytest_cmdline_parse(
-ImportError while loading conftest '/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/tests/conftest.py'.
-tests/conftest.py:9: in <module>
-    @pytest.fixture(autouse=True)
-E   NameError: name 'pytest' is not defined
 
 
 ## Declared deliverables still missing
@@ -83,5 +102,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/bes/result_aggregator.py` — NOT invoked by the run-book
     - `code/symbolic/exclusion_logger.py` — NOT invoked by the run-book
     - `code/symbolic/planner.py` — NOT invoked by the run-book
+    - `code/tests/test_symbolic_planner.py` — NOT invoked by the run-book
     - `code/verification/final_artifact_verification.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/exclusions.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

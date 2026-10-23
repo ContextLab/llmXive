@@ -3,7 +3,7 @@ Puzzle Generator Module for llmXive
 Generates logic/arithmetic puzzles with deterministic Python verifiers.
 Implements Data Provenance metadata injection as per T066.
 Updated to support 4x4 Sudoku and flexible grid sizes for pathfinding.
-Added verifier output field to conform to dataset schema.
+Adjusted verifier output to conform to `contracts/dataset.schema.yaml`.
 """
 
 import json
@@ -393,8 +393,9 @@ class PuzzleGenerator:
                     # Convert to dict without verifier_output to avoid recursion
                     puzzle_dict = puzzle.to_dict()
                     is_valid, err_code = verifier.verify(puzzle_dict)
+                    # Store output using schema‑compatible field names
                     puzzle.verifier_output = {
-                        "is_valid": is_valid,
+                        "valid": is_valid,
                         "error_code": err_code,
                     }
 

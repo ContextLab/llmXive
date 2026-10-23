@@ -1,36 +1,33 @@
 """
-Exception definitions for the llmXive project.
+Exception definitions and helper functions for the llmXive project.
 
-This module centralizes custom exception classes and helper functions
-used across the codebase, particularly by the symbolic planner and
-exclusion logging components.
+This module provides a minimal set of custom exception classes and
+utility functions used across the codebase, particularly by the
+symbolic planner and related components.
 """
 
 class BaseResearchException(Exception):
-    """Base class for all custom exceptions in the research code."""
+    """Base class for all custom research exceptions."""
     pass
 
-
+# Specific exception classes
 class ContradictionDetected(BaseResearchException):
-    """Raised when contradictory constraints are detected during planning."""
+    """Raised when contradictory constraints are detected."""
     pass
-
 
 class ParseFailure(BaseResearchException):
     """Raised when constraint parsing fails."""
     pass
 
+# Error code constants (used for logging and result objects)
+CONTRADICTION_DETECTED = "CONTRADICTION_DETECTED"
+PARSE_FAILURE = "PARSE_FAILURE"
 
-# Exported constants matching the names expected by other modules
-CONTRADICTION_DETECTED = ContradictionDetected
-PARSE_FAILURE = ParseFailure
-
-
+# Helper functions to raise the above exceptions with a message
 def raise_contradiction(message: str) -> None:
-    """Helper to raise a CONTRADICTION_DETECTED exception."""
-    raise CONTRADICTION_DETECTED(message)
-
+    """Raise a ContradictionDetected exception with the given message."""
+    raise ContradictionDetected(message)
 
 def raise_parse_failure(message: str) -> None:
-    """Helper to raise a PARSE_FAILURE exception."""
-    raise PARSE_FAILURE(message)
+    """Raise a ParseFailure exception with the given message."""
+    raise ParseFailure(message)

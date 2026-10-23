@@ -1,15 +1,17 @@
 status: none
-intent: downloadable Python package dataset logic arithmetic puzzles with verification
-  scripts Sudoku Kaggle python package dataset
+intent: Sudoku and logic puzzle dataset with deterministic Python verifier python
+  package dataset
 required_fields:
 - puzzle_id
 - puzzle_type
-- puzzle_definition
-- constraints
-- solution
-- verifier_script
-- difficulty_rating
-- source_url
-cache_key: a4b77360a48df7908c11f73f5aea974776b92cf0713eb1189bc0e0f01d43ba6f
-searched_at: '2026-10-23T07:26:41.219958+00:00'
+- formal_constraint_representation
+- initial_state
+- solution_path
+- expected_solution
+- verification_script
+- difficulty_level
+- source_dataset_name
+- download_url
+cache_key: 434ffe7225c5831c2d95e36dcdfb924296a708c6efc75708c6f23242a1bc71fb
+searched_at: '2026-10-23T07:41:16.922381+00:00'
 retry_count: 1
