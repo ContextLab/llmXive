@@ -31,3 +31,25 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
   verified_at: '2026-10-21T18:27:55.530584Z'
+- artifact_hash: 50d4a566f0a59916920a703cef239743c9c4514cb25626f606d7c06f60cb7305
+  artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://example.com/experimental_ccr_dataset.csv`
+  verification_status: mismatch
+  verified_against_url: https://example.com/experimental_ccr_dataset.csv
+  verified_at: '2026-10-23T13:27:01.025600Z'
+- artifact_hash: 50d4a566f0a59916920a703cef239743c9c4514cb25626f606d7c06f60cb7305
+  artifact_path: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: http://invalid`
+  verification_status: unreachable
+  verified_against_url: http://invalid
+  verified_at: '2026-10-23T13:27:01.025600Z'
