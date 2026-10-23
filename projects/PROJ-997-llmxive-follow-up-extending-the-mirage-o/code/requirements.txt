@@ -1,20 +1,2 @@
-# Project dependencies
-# Core scientific stack (provided by the platform)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependencies required for dataset generation and validation
-torch>=2.0.0
-transformers>=4.30.0
-datasets>=2.14.0
-fastparquet>=2023.8.0
+fastparquet>=0.8.0
+# Existing dependencies are provided by the platform; only fastparquet is added for Parquet I/O without pyarrow.

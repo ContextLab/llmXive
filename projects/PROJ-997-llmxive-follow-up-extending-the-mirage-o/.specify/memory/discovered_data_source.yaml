@@ -1,12 +1,14 @@
 status: none
-intent: GSM8K quantization gap gradient norms curvature python package dataset
+intent: hardware quantization gap dataset gradient norms curvature GSM8K python package
+  dataset
 required_fields:
-- prompt_text
+- prompt
 - gradient_norm
 - local_curvature
 - kl_divergence_int8
 - kl_divergence_int4
 - kl_divergence_fp8
-cache_key: 407b23be9acfc0f327d6b37fbf56f6ee8e97f31cd6f3a04ccf2168c0df60e155
-searched_at: '2026-10-23T16:13:15.284309+00:00'
+- model_name
+cache_key: 4bf5df6ff32764389d99a274cc40b5f821ee93c29020d5af7aa406763400571b
+searched_at: '2026-10-23T19:37:07.052519+00:00'
 retry_count: 1
