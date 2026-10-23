@@ -1,0 +1,14 @@
+# Core scientific dependencies (pinned versions where applicable)
+datasets==2.19.0
+transformers==4.44.2
+torch==2.4.0
+scikit-learn==1.5.2
+pandas==2.2.3
+pytest==8.3.3
+pyyaml==6.0.2
+
+# Additional dependency required for the feasibility gate
+llama-cpp-python==0.2.71
+
+# The environment already provides the following packages; they are not listed here:
+# numpy, scipy, matplotlib, statsmodels, seaborn, requests, jsonschema, psutil.

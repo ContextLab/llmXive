@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project scaffolding & feasibility
 
-- [ ] **T001** [US0] Create the project root `projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/` with the canonical layout  
+- [X] **T001** [US0] Create the project root `projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/` with the canonical layout  
   `code/src/`, `code/tests/`, `data/raw/`, `data/processed/`, `results/`, `requirements.txt`, `README.md`.  
   **Verification**: `tree` output contains all directories; `git status` shows them as untracked.
 
@@ -17,7 +17,7 @@
 - [X] **T003** [US0] Add linting/formatting configuration files `.ruff.toml` and `pyproject.toml` (Black settings).  
   **Verification**: `ruff .` returns no errors; `black --check .` returns “All done!”.
 
-- [ ] **T004** [US0] Implement `code/src/feasibility_gate.py`   <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 -->
+- [ ] **T004** [US0] Implement `code/src/feasibility_gate.py`   <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 -->
   * Loads a small GGUF model with `llama_cpp` (CPU‑only).  
   * Runs a 10‑token sample prompt 5 times, measures average tokens‑per‑second.  
   * Writes `data/feasibility_log.json` containing `{ "throughput_tps": <float>, "decision": "proceed" | "gpu_offload", "adjusted_N": <int|null> }`.  
