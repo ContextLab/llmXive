@@ -1,0 +1,15 @@
+# Downstream review concerns (address in this revision)
+
+A downstream convergence panel kicked this project back to the idea stage. You MUST revise the idea — especially the `Methodology sketch` — to RESOLVE each concern below, not merely re-state the idea.
+
+**Why it was kicked back**: 7 concern(s) remained unresolved after 3 round(s) at stage 'clarified'; worst unresolved severity = 'methodology'. Routing to 'flesh_out_in_progress' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- FR-030 is defined twice – once as a functional requirement about PMI sensitivity (see the Functional Requirements list) and again in the Constitution section titled “Constitution (FR-030)”. Re‑using the same identifier for two distinct items violates the unique‑ID rule and creates ambiguity for traceability.
+- FR-031 mandates linear‑regression residualization of expression for PMI when PMI is a significant confounder, while FR-030 (PMI sensitivity) expects the analysis to *include* PMI as a covariate and compare results with/without it. Applying both residualization and then also modeling PMI as a covariate would double‑correct PMI, which is statistically unsound and contradictory.
+- FR-003 requires applying a hierarchical mixed‑effects ANCOVA that pools 'biologically similar tissues' when a tissue has <20 samples per group, but the spec does not define how tissue similarity is quantified or selected, making the requirement unverifiable and untestable.
+- FR-020 repeats the undefined pooling criterion ('biologically similar tissues') without providing a measurable procedure or decision rule, rendering the requirement untestable.
+- FR-008 mandates generation of diagnostic plots (heatmap, ROC, scatter) but does not specify any measurable verification criteria such as file naming conventions, image format, resolution, or schema validation, so compliance cannot be objectively confirmed.
+- FR-030 asks for a PMI sensitivity analysis reporting effect‑size changes, while FR-031 requires residualizing expression for PMI when significant. Applying both residualization and then also including PMI as a covariate creates contradictory analysis steps, leading to ambiguous verification procedures.
+- FR-007 states: "System MUST compute tissue‑specific correlations between each core circadian gene and continuous metabolic traits ... Correlations are modeled with a mixed‑effects linear model with a random intercept for tissue." Computing a correlation coefficient (Spearman’s ρ or Pearson’s r) first and then fitting a mixed‑effects model to those coefficients is a category error: correlation coefficients are summary statistics, not raw observations, and cannot be treated as independent data points in a mixed‑effects regression. The appropriate approach is either (a) fit a mixed‑effects model directly to the raw gene‑expression vs trait data with tissue as a random effect, or (b) report the per‑tissue correlations without a subsequent mixed‑effects aggregation. As written, the validation of the correlation hypothesis is methodologically unsound.
