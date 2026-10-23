@@ -1,18 +1,16 @@
 status: none
-intent: download OC20 dataset Materials Project bulk descriptors CO2 hydrogenation
-  2025 python package dataset
+intent: OC20 dataset Materials Project bulk descriptors CO2 hydrogenation Doe 2025
+  python package dataset
 required_fields:
 - structure
-- composition
-- adsorbate
 - energy
+- forces
 - d_band_center
 - p_band_center
 - bader_charge
-- experimental_TOF
-- temperature
-- pressure
-- site
-cache_key: 9bd0630f92d0e6a7d21db83b7c50cce4136f13d377370639d4c542673858a29d
-searched_at: '2026-10-23T21:16:52.036990+00:00'
+- catalyst_composition
+- reaction_conditions
+- TOF
+cache_key: e601a21d3ee8c1800d5f6645f72bfc68fc92be5f77b4ff229178f5cdcbfb46a3
+searched_at: '2026-10-23T21:33:00.217593+00:00'
 retry_count: 1

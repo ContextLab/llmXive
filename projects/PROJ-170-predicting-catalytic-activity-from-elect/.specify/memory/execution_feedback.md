@@ -30,14 +30,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/download_data.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 27, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 28, in <module>
     from mp_api.client import MPRester
 ModuleNotFoundError: No module named 'mp_api'
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 29, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/download_data.py", line 31, in <module>
     raise ImportError(
 ImportError: The `mp-api` package is required for Materials Project descriptor download. Install it via `pip install mp-api`.
 
@@ -97,10 +97,10 @@ FileNotFoundError: Aligned dataset not found at /home/runner/work/llmXive/llmXiv
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-170-predicting-catalytic-activity-from-elect/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/stat_test.py': [Errno 2] No such file or directory
 
 - python code/interpret.py -> rc=1
-026-10-23 21:16:24,754 INFO __main__: ================================================================================
-2026-10-23 21:16:24,754 INFO __main__: T106: SHAP Analysis and SC-003 Verification
-2026-10-23 21:16:24,754 INFO __main__: ================================================================================
-2026-10-23 21:16:24,754 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
+026-10-23 21:31:12,368 INFO __main__: ================================================================================
+2026-10-23 21:31:12,368 INFO __main__: T106: SHAP Analysis and SC-003 Verification
+2026-10-23 21:31:12,368 INFO __main__: ================================================================================
+2026-10-23 21:31:12,368 ERROR __main__: Error in T106: Best XGBoost model not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/models/best_xgboost.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/interpret.py", line 287, in main
     model_full = load_best_xgboost_model()
@@ -114,7 +114,7 @@ FileNotFoundError: Best XGBoost model not found at /home/runner/work/llmXive/llm
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-170-predicting-catalytic-activity-from-elect/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/evaluate_reduced.py': [Errno 2] No such file or directory
 
 - python code/report.py -> rc=1
-3 21:16:25,199 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
+3 21:31:12,690 - __main__ - ERROR - Report generation failed: Metrics file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/results/metrics.json
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-170-predicting-catalytic-activity-from-elect/code/report.py", line 247, in main
     output_file = run_report_generation()
@@ -149,7 +149,7 @@ ERROR tests/test_report.py
 ERROR tests/unit/test_download_data.py
 ERROR tests/unit/test_preprocess.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 10 errors in 1.33s ==============================
+============================== 10 errors in 1.00s ==============================
 
 
 

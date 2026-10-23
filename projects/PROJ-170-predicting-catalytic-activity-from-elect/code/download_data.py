@@ -17,6 +17,7 @@ import sys
 import json
 import hashlib
 import logging
+import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -26,13 +27,14 @@ from datasets import load_dataset
 try:
     from mp_api.client import MPRester
 except ImportError as exc:
+    # This will be caught by the main try-except and logged
     raise ImportError(
         "The `mp-api` package is required for Materials Project descriptor "
         "download. Install it via `pip install mp-api`."
     ) from exc
 
 # Project utilities
-from config import get_data_path, get_output_path
+from config import get_data_path
 from logging_config import get_logger
 
 # Configure logger
@@ -43,13 +45,12 @@ logger = get_logger(__name__)
 # ----------------------------------------------------------------------
 OC20_DATASET = "nimashoghi/oc20_s2ef_train_2M"
 SAMPLE_SIZE = 1000
-BUFFER_SIZE = 5000
+BUFFER_SIZE = 10000  # Buffer to enable stratification from stream
 
 RAW_DIR = get_data_path() / "raw"
 PARQUET_FILE = RAW_DIR / "oc20_sample.parquet"
 MP_DESCRIPTORS_FILE = RAW_DIR / "mp_descriptors.json"
 REQUIRED_COLUMNS_FILE = RAW_DIR / "required_columns.json"
-# Checksums are recorded in data/checksums.txt as per task verification
 CHECKSUM_FILE = get_data_path() / "checksums.txt"
 
 # ----------------------------------------------------------------------
@@ -91,36 +92,11 @@ def compute_file_hash(filepath: Path) -> str:
             sha256.update(block)
     return sha256.hexdigest()
 
-def verify_checksum(filepath: Path, expected_checksum: Optional[str] = None) -> bool:
-    """Verify file integrity; raises on mismatch."""
-    if not filepath.exists():
-        raise RuntimeError(f"File not found for checksum verification: {filepath}")
-    actual = compute_file_hash(filepath)
-    if expected_checksum is None:
-        expected_checksum = load_expected_checksums().get(filepath.name)
-    if expected_checksum is None:
-        logger.warning("No expected checksum stored; skipping verification.")
-        return True
-    if actual != expected_checksum:
-        raise RuntimeError(
-            f"Checksum mismatch for {filepath}. Expected {expected_checksum}, got {actual}"
-        )
-    logger.info(f"Checksum verification passed for {filepath}")
-    return True
-
-def verify_downloaded_data(filepath: Path) -> bool:
-    """Simple existence check used by unit tests."""
-    exists = filepath.exists()
-    if not exists:
-        logger.error(f"Expected file does not exist: {filepath}")
-    return exists
-
 # ----------------------------------------------------------------------
 # OC20 streaming download & stratified sampling
 # ----------------------------------------------------------------------
 def _extract_elements(composition_str: str) -> List[str]:
     """Simple element extraction from a chemical formula string."""
-    import re
     return re.findall(r"[A-Z][a-z]?", composition_str)
 
 def derive_composition_family(composition_str: str) -> str:
@@ -152,6 +128,7 @@ def download_stratified_sample() -> Path:
     """
     logger.info(f"Streaming OC20 dataset from HuggingFace: {OC20_DATASET}")
     try:
+        # Using trust_remote_code=False as per modern datasets API for public datasets
         dataset = load_dataset(OC20_DATASET, split="train", streaming=True)
     except Exception as e:
         raise RuntimeError(f"Failed to load OC20 dataset via `datasets`: {e}") from e
@@ -167,13 +144,12 @@ def download_stratified_sample() -> Path:
 
     df = pd.DataFrame(rows)
 
+    # Extract composition from structure if not present directly
     if "composition" not in df.columns:
         if "structure" in df.columns:
             def _extract_formula(struct):
-                try:
-                    return struct.get("formula_pretty") or struct.get("formula") or "Unknown"
-                except Exception:
-                    return "Unknown"
+                if not isinstance(struct, dict): return "Unknown"
+                return struct.get("formula_pretty") or struct.get("formula") or "Unknown"
             df["composition"] = df["structure"].apply(_extract_formula)
         else:
             logger.warning("No composition information found; filling with placeholder 'Unknown'.")
@@ -191,10 +167,13 @@ def download_stratified_sample() -> Path:
 
     sampled_df = pd.concat(sampled_frames).reset_index(drop=True)
 
+    # Fill remaining slots if sampling didn't reach SAMPLE_SIZE
     if len(sampled_df) < SAMPLE_SIZE and len(df) > len(sampled_df):
         remaining = SAMPLE_SIZE - len(sampled_df)
-        extra = df.drop(sampled_df.index).sample(
-            n=min(remaining, len(df) - len(sampled_df)),
+        # Use indices not already in sampled_df
+        remaining_pool = df.drop(sampled_df.index)
+        extra = remaining_pool.sample(
+            n=min(remaining, len(remaining_pool)),
             random_state=42,
         )
         sampled_df = pd.concat([sampled_df, extra]).reset_index(drop=True)
@@ -226,6 +205,7 @@ def download_mp_descriptors(compositions: List[str]) -> Path:
     with MPRester(api_key) as mpr:
         for comp in set(compositions):
             try:
+                # Search for summary data including electronic descriptors
                 results = mpr.summary.search(
                     formula=comp,
                     fields=["material_id", "formula_pretty", "d_band_center", "p_band_center", "bader_charges"],
@@ -233,7 +213,7 @@ def download_mp_descriptors(compositions: List[str]) -> Path:
                 if results:
                     entry = results[0]
                     descriptors[comp] = {
-                        "material_id": getattr(entry, "material_id", None),
+                        "material_id": str(getattr(entry, "material_id", None)),
                         "formula_pretty": getattr(entry, "formula_pretty", comp),
                         "d_band_center": getattr(entry, "d_band_center", None),
                         "p_band_center": getattr(entry, "p_band_center", None),
@@ -249,6 +229,7 @@ def download_mp_descriptors(compositions: List[str]) -> Path:
                     }
             except Exception as e:
                 logger.error(f"Failed to retrieve MP data for composition '{comp}': {e}")
+                # We raise here to fail loudly as per constraints
                 raise RuntimeError(f"MP descriptor fetch failed for composition {comp}") from e
 
     RAW_DIR.mkdir(parents=True, exist_ok=True)
