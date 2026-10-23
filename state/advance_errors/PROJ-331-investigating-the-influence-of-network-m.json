@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-331-investigating-the-influence-of-network-m",
   "stage": "clarified",
-  "class": "transient",
-  "fingerprint": "model_chain_failed",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-10T08:11:42.964092+00:00",
-  "last_seen": "2026-10-18T05:30:36.250945+00:00",
+  "class": "permanent",
+  "fingerprint": "unreachable_reference",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-23T02:42:17.430757+00:00",
+  "last_seen": "2026-10-23T02:42:17.430757+00:00",
   "retry_after": null,
-  "last_error": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(model-down attempt 1): Dartmouth model 'openai.gpt-oss-120b' hung past 360s deadline (no response received) | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received) | anthropic.claude-haiku-4-5-20251001(model-down attempt 1): Dartmouth model 'anthropic.claude-haiku-4-5-20251001' hung past 180s deadline (no response received)",
-  "evidence": "every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min | openai.gpt-oss-120b(model-down attempt 1): Dartmouth model 'openai.gpt-oss-120b' hung past 360s deadline ",
-  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "last_error": "research.md reference is unreachable: 'https://en.wikipedia.org/wiki/Power_(statistics' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "evidence": "research.md reference is unreachable: 'https://en.wikipedia.org/wiki/Power_(statistics' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
+  "status": "rerouted"
 }

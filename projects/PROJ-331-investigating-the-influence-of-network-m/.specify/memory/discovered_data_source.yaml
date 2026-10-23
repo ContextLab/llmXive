@@ -1,13 +1,12 @@
 status: none
-intent: Human Connectome Project diffusion tractography and rs-fMRI dataset with Schaefer
-  100 atlas python package dataset
+intent: Human Connectome Project diffusion tractography resting state fMRI python
+  package dataset
 required_fields:
 - subject_id
-- diffusion_tractography_file_path
-- resting_state_fmri_file_path
-- "structural_connectome_matrix (binary Schaefer\u2011100)"
-- "resting_state_functional_connectivity_matrix (Schaefer\u2011100)"
-- "parcellation_name (Schaefer\u2011100)"
-cache_key: 643cc3b942183f096ca97873dfd6142c11402bd920a9d6a319db568a4418ba69
-searched_at: '2026-10-23T02:12:32.048873+00:00'
+- structural_connectome_binary
+- rsfc_matrix
+- schaefer_parcellation_name
+- schaefer_parcel_count
+cache_key: eb3bd84902a3bd1c766fcbfbc662fc4c66a70c0e8083b74164947a909f3b7ca4
+searched_at: '2026-10-23T02:39:30.406580+00:00'
 retry_count: 1
