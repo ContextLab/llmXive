@@ -14,11 +14,11 @@ import json
 import hashlib
 import time
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import numpy as np
 import pandas as pd
-from pycoingecko import CoinGeckoAPI
+import requests
 
 from llmxive_toolkit import paths, get_logger
 
@@ -38,7 +38,7 @@ CHUNK_DAYS = 90
 # Maximum retry attempts for each API call.
 MAX_RETRIES = 3
 # Base back‑off seconds.
-BACKOFF_BASE = 1
+BACKOFF_BASE = 2
 
 # ----------------------------------------------------------------------
 # Initialise logger and reproducibility seed
@@ -52,7 +52,7 @@ log.info(f"Reproducibility seed set to {SEED}")
 # Helper functions
 # ----------------------------------------------------------------------
 def _fetch_market_chart_range(coin_id: str, from_ts: int, to_ts: int) -> dict:
-    """Fetch ``prices`` and ``total_volumes`` for a time range using CoinGecko.
+    """Fetch ``prices`` and ``total_volumes`` for a time range using CoinGecko API.
 
     Parameters
     ----------
@@ -74,32 +74,47 @@ def _fetch_market_chart_range(coin_id: str, from_ts: int, to_ts: int) -> dict:
         If the HTTP request fails or the response does not contain the
         expected keys after all retry attempts.
     """
-    cg = CoinGeckoAPI()
+    url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart/range"
+    params = {
+        "vs_currency": VS_CURRENCY,
+        "from": from_ts,
+        "to": to_ts,
+    }
+    
     attempt = 0
     while attempt < MAX_RETRIES:
         try:
             log.info(
                 f"Requesting market chart range for {coin_id}: "
-                f"{datetime.utcfromtimestamp(from_ts).date()} → "
-                f"{datetime.utcfromtimestamp(to_ts).date()} (attempt {attempt+1})"
+                f"{datetime.fromtimestamp(from_ts, tz=timezone.utc).date()} → "
+                f"{datetime.fromtimestamp(to_ts, tz=timezone.utc).date()} (attempt {attempt+1})"
             )
-            data = cg.get_coin_market_chart_range_by_id(
-                id=coin_id,
-                vs_currency=VS_CURRENCY,
-                from_timestamp=from_ts,
-                to_timestamp=to_ts,
-            )
+            response = requests.get(url, params=params, timeout=30)
+            
+            if response.status_code == 429:
+                log.warning(f"CoinGecko rate limit hit (429) for {coin_id}. Retrying...")
+                raise requests.exceptions.HTTPError("429 Too Many Requests")
+            
+            response.raise_for_status()
+            data = response.json()
+            
             if not {"prices", "total_volumes"} <= data.keys():
                 raise ValueError("Missing expected keys in response")
             return data
-        except Exception as exc:  # pragma: no cover – exercised in CI when API fails
+            
+        except (requests.exceptions.RequestException, ValueError) as exc:
             attempt += 1
+            if attempt >= MAX_RETRIES:
+                log.error(f"Final attempt failed for {coin_id}: {exc}")
+                break
+            
             wait = BACKOFF_BASE * (2 ** (attempt - 1))
             log.warning(
                 f"CoinGecko request failed for {coin_id} (attempt {attempt}): {exc}. "
                 f"Retrying in {wait}s..."
             )
             time.sleep(wait)
+            
     raise RuntimeError(
         f"CoinGecko API request failed for {coin_id} after {MAX_RETRIES} attempts."
     )
@@ -160,7 +175,7 @@ def main() -> None:
     checksums = {}
 
     # Define the overall date range: today back to (today - YEARS years)
-    end_date = datetime.utcnow().date()
+    end_date = datetime.now(timezone.utc).date()
     start_date = end_date - timedelta(days=YEARS * 365)
 
     for symbol, meta in ASSETS.items():
@@ -173,11 +188,11 @@ def main() -> None:
         all_volumes = []
 
         # Iterate in CHUNK_DAYS‑sized windows.
-        chunk_start = datetime.combine(start_date, datetime.min.time())
+        chunk_start = datetime.combine(start_date, datetime.min.time(), tzinfo=timezone.utc)
         while chunk_start.date() < end_date:
             chunk_end = min(
                 chunk_start + timedelta(days=CHUNK_DAYS),
-                datetime.combine(end_date, datetime.min.time()),
+                datetime.combine(end_date, datetime.min.time(), tzinfo=timezone.utc),
             )
             from_ts = int(chunk_start.timestamp())
             to_ts = int(chunk_end.timestamp())
