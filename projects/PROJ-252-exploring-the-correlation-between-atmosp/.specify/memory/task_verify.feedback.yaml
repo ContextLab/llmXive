@@ -1,8 +1,10 @@
 T001:
-  reason: "Checked `requirements.txt`, `code/seed_init.py`, and `docs/quickstart.md`.\
-    \ The quick\u2011start markdown does not contain the required single\u2011line\
-    \ command, and there is no `logs/seed_initialization.log` artifact showing the\
-    \ \u201CSeeds set to 42\u201D line. Both are needed to satisfy T001."
+  reason: "Checked `requirements.txt` (present and pinned), `code/seed_init.py` (sets\
+    \ both seeds and writes the log), and `docs/quickstart.md` (does not contain the\
+    \ required single\u2011line command). The log file `logs/seed_initialization.log`\
+    \ is never listed as an artifact, so there is no evidence it was created, and\
+    \ the quick\u2011start documentation does not match the specified command. These\
+    \ missing pieces prevent the task from being fully satisfied."
   task: eb4c30dda10b647eb717126964d6b429d510b155109b140bef6ee17b84b8729b
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'

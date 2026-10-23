@@ -1,48 +1,19 @@
-status: verified
-kind: pypi_package
-ref: obspy
-access_python: 'import sys
-
-  from obspy import UTCDateTime
-
-  from obspy.clients.fdsn import Client
-
-  client = Client("USGS")
-
-  # example query: all events on 2020-01-01 (adjust dates as needed)
-
-  cat = client.get_events(starttime=UTCDateTime("2020-01-01"), endtime=UTCDateTime("2020-01-02"))
-
-  records = len(cat)
-
-  print(f"RECORDS={records}")
-
-  # fields that map to the requested schema
-
-  fields = ["event_id","origin_time","latitude","longitude","magnitude","depth"]
-
-  print("FIELDS=" + ",".join(fields))'
-record_count: 636
-sample_fields:
-- event_id
-- origin_time
-- latitude
-- longitude
-- magnitude
-- depth
-field_coverage: 0.545
+status: none
+intent: download NCEP/NCAR sea level pressure and USGS earthquake catalog python package
+  dataset
 required_fields:
 - event_id
 - origin_time
 - latitude
 - longitude
 - magnitude
-- depth
-- pressure_anomaly
-- pressure_grid_lat
-- pressure_grid_lon
-- pressure_date
+- depth_km
+- nearest_grid_lat
+- nearest_grid_lon
+- pressure_value_hpa
+- pressure_anomaly_hpa
+- anomaly_window_hours
 - control_window_label
-intent: download NOAA NCEP/NCAR reanalysis surface pressure dataset python package
-  and USGS ANSS earthquake catalog python library python package dataset
-cache_key: f17bd7ed5eaca23e927831657a7799ed6abb2ad21af0709b07919dbdd4b58749
+cache_key: 2a28f070e02da8c5d6b3b95b97a589e0101311b91ccf17fae40dfb8b3436dcf9
+searched_at: '2026-10-23T07:50:05.208275+00:00'
+retry_count: 1

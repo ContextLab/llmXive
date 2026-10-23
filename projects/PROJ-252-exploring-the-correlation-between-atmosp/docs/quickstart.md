@@ -4,7 +4,7 @@
 - Python 3.11+
 - Git
 - Internet access (for data download)
-- Sufficient free disk space (≈ 5 GB) for the streamed pressure dataset.
+- ~Adequate free disk space (on the order of gigabytes) is required for streaming pressure data.
 
 ## Setup
 ```bash
@@ -34,34 +34,27 @@ if [ ! -f logs/seed_initialization.log ]; then
  exit 1
 fi
 
-# Step 1 – Download required datasets (pressure + USGS catalog)
-python -m code.download # performs both downloads and writes logs
+# Step 1 – Download the verified USGS earthquake catalog
+python -m code.download_usgs
 
-# Step 2 – Preprocess the data
+# Step 2 – Stream and download NOAA pressure reanalysis (verified URL)
+python -m code.download_pressure # streams data, no large disk footprint
+
+# Step 3 – Preprocess: clean earthquakes, apply ocean mask, interpolate pressure,
+# compute anomalies, generate simple random control windows
 python -m code.preprocess
 
-# Step 3 – Primary statistical analysis
+# Step 4 – Primary statistical analysis (block‑permutation test, bootstrap CI, power analysis)
 python -m code.analysis
 
-# Step 4 – Generate the short Markdown report
+# Step 5 – Generate the short Markdown report
 python -m code.report
 ```
 
 ### Expected Outputs
-- `data/raw/pressure.nc` – streamed NOAA NCEP/NCAR sea‑level pressure NetCDF file.
-- `data/raw/usgs_2013_2023.csv` – filtered USGS earthquake catalog (M ≥ 4.0, depth ≤ 70 km, 2013‑2023).
-- `data/processed/config.yaml` – records SHA‑256 digests, record counts, and other metadata.
-- `logs/download_success.log` – confirms successful acquisition with lines like:
- ```
- Pressure data downloaded: 4010 days [UNRESOLVED-CLAIM: c_81961b68 — status=not_enough_info]
- USGS catalog rows: <row‑count>
- ```
-- Subsequent pipeline stages (preprocess, analysis, report) will generate additional
- artifacts under `data/interim/`, `data/processed/`, `logs/`, and `docs/`.
-
-## Validation
-Run the contract tests to ensure schema compliance:
-```bash
-pytest tests/contract/
-```
-All tests must pass (exit code 0) before proceeding to manuscript preparation.
+- `data/raw/usgs_2013_2023.csv` – raw USGS catalog.
+- `data/raw/pressure.nc` – streamed NOAA pressure dataset (NetCDF).
+- `logs/download_success.log` – contains download confirmation lines.
+- `data/processed/config.yaml` – records checksums and expected counts.
+- `logs/seed_initialization.log` – records the fixed random seed (required by Constitution I).
+- `docs/report.md` – report summarizing data validation, pressure‑anomaly statistics, primary permutation‑test results (p‑value, Cohen’s d, 95 % CI), power analysis outcome, hierarchical FDR‑adjusted secondary results, and limitations.

@@ -1,4 +1,3 @@
-import os
 import sys
 import json
 import hashlib
@@ -12,6 +11,9 @@ from urllib3.util.retry import Retry
 import yaml
 import pandas as pd
 import netCDF4  # used to read the NetCDF file for record count
+import xarray as xr
+from obspy import UTCDateTime
+from obspy.clients.fdsn import Client
 
 # Configure logger
 logging.basicConfig(
@@ -104,25 +106,22 @@ def _count_pressure_records(path: Path) -> int:
 
 def download_noaa_pressure() -> None:
     """
-    Download the full NOAA NCEP/NCAR sea‑level pressure dataset via the
-    verified HuggingFace URL and write it to the expected raw data location.
+    Stream the NOAA NCEP/NCAR sea‑level pressure dataset via OPeNDAP and write it
+    locally as a NetCDF file.
     """
     RAW_PRESSURE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    # Verified URL for the NCEP/NCAR reanalysis mean sea‑level pressure
+    # Verified OPeNDAP URL for the full daily mean sea‑level pressure reanalysis
     url = (
-        "https://huggingface.co/datasets/noaa/ncep-reanalysis-pressures/resolve/main/mslp_daily.nc"
+        "https://psl.noaa.gov/thredds/dodsC/Datasets/ncep.reanalysis.dailyavgs/pressure/mslp.daily.nc"
     )
     logger.info(f"Downloading NOAA pressure dataset from {url}")
 
-    session = get_robust_session()
     try:
-        with session.get(url, stream=True, timeout=180) as resp:
-            resp.raise_for_status()
-            with open(RAW_PRESSURE_PATH, "wb") as f:
-                for chunk in resp.iter_content(chunk_size=1024 * 1024):
-                    if chunk:
-                        f.write(chunk)
+        # Open remote dataset lazily with dask chunks
+        ds = xr.open_dataset(url, chunks={"time": 30})
+        # Write to local NetCDF – this will stream the data chunk‑by‑chunk
+        ds.to_netcdf(RAW_PRESSURE_PATH, compute=True)
     except Exception as e:
         logger.error(f"Failed to download NOAA pressure dataset: {e}")
         raise RuntimeError(f"Critical failure downloading NOAA dataset: {e}")
@@ -131,29 +130,49 @@ def download_noaa_pressure() -> None:
 
 def fetch_usgs_data() -> int:
     """
-    Retrieve the USGS earthquake catalog (M ≥ 4.0, depth ≤ 70 km) for 2013‑2023.
-    Writes CSV to RAW_USGS_PATH and returns the number of rows written.
+    Retrieve the USGS earthquake catalog (M ≥ 4.0, depth ≤ 70 km) for 2013‑2023
+    using the verified ObsPy client. Writes CSV to RAW_USGS_PATH and returns
+    the number of rows written.
     """
     RAW_USGS_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    # The specification gives a simple CSV feed URL; using that avoids complex query building.
-    url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.0_month.csv"
-    logger.info(f"Fetching USGS earthquake catalog from {url}")
+    client = Client("USGS")
+    starttime = UTCDateTime("2013-01-01")
+    endtime = UTCDateTime("2023-12-31")
+    logger.info(
+        f"Fetching USGS earthquake catalog from {starttime.isoformat()} to {endtime.isoformat()}"
+    )
 
-    session = get_robust_session()
     try:
-        with session.get(url, stream=True, timeout=180) as resp:
-            resp.raise_for_status()
-            with open(RAW_USGS_PATH, "wb") as f:
-                for chunk in resp.iter_content(chunk_size=1024 * 1024):
-                    if chunk:
-                        f.write(chunk)
+        cat = client.get_events(
+            starttime=starttime,
+            endtime=endtime,
+            minmagnitude=4.0,
+            maxdepth=70,
+            includearrivals=False,
+            limit=None,
+        )
     except Exception as e:
-        logger.error(f"Failed to fetch USGS data: {e}")
+        logger.error(f"Failed to fetch USGS data via ObsPy: {e}")
         raise RuntimeError(f"Critical failure fetching USGS data: {e}")
 
-    # Verify CSV and count rows (excluding header)
-    df = pd.read_csv(RAW_USGS_PATH)
+    records = []
+    for ev in cat:
+        # Extract primary origin
+        origin = ev.preferred_origin() or ev.origins[0]
+        magnitude = ev.preferred_magnitude() or ev.magnitudes[0]
+        event_id = ev.resource_id.id.split("/")[-1]  # e.g., "us7000abcd"
+        records.append({
+            "event_id": event_id,
+            "timestamp": origin.time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "latitude": origin.latitude,
+            "longitude": origin.longitude,
+            "magnitude": magnitude.mag,
+            "depth": origin.depth / 1000.0,  # convert meters to km
+        })
+
+    df = pd.DataFrame(records)
+    df.to_csv(RAW_USGS_PATH, index=False)
     logger.info(f"USGS catalog download complete, rows: {len(df)}")
     return len(df)
 
