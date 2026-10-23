@@ -75,7 +75,7 @@ def main() -> None:
     # Resolve the project‑wide ``plan.md`` location.
     # The spec directory may have a different suffix; locate the first
     # ``plan.md`` under ``specs``.
-    project_root = Path(__file__).resolve().parents[2]
+    project_root = Path(__file__).resolve().parents[1]  # fixed to point to the project root
     specs_root = project_root / "specs"
     plan_md_candidates = list(specs_root.rglob("plan.md"))
     if not plan_md_candidates:
