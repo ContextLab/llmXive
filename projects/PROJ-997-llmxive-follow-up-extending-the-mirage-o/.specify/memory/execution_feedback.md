@@ -14,46 +14,98 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-- run-book command: `python code/data/generate_ground_truth.py --model meta-llama/Meta-Llama-3-8B --levels INT4 INT8 FP8 --output data/processed/training_sample.parquet`
-  - script usage: `generate_ground_truth.py [-h] --model MODEL --levels {INT4,INT8,FP8}`
-  - argparse error: `generate_ground_truth.py: error: the following arguments are required: --stats-output`
+- run-book command: `python code/cli/validate_dataset_stats.py  --input data/processed/training_sample.parquet  --output data/metrics/dataset_stats.json`
+  - script usage: `validate_dataset_stats.py [-h] [--stats STATS] [--data DATA]`
+  - argparse error: `validate_dataset_stats.py: error: unrecognized arguments: --input data/processed/training_sample.parquet --output data/metrics/dataset_stats.json`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/cli/run_proxy_loop.py: self-declared fabricated metric — “…on't have logits here,     we simulate the score based on the correctness of t…”; 2 run-book script(s) missing (plan/impl path mismatch): python code/models/train_predictor.py --input data/processed/training_sample.parquet --output data/models/gap_predictor.pkl; python code/models/evaluate_predictor.py --model data/models/gap_predictor.pkl --data data/processed/training_sample.parquet --output data/metrics/metrics.json; 1 command(s) failed: python code/data/generate_ground_truth.py --model meta-llama/Meta-Llama-3-8B --levels INT4 INT8 FP8 --output data/processed/training_sample.parquet (rc=2); 1 declared deliverable(s) absent: data/processed/dataset_stats.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/cli/run_proxy_loop.py: self-declared fabricated metric — “…on't have logits here,     we simulate the score based on the correctness of t…”; 4 run-book script(s) missing (plan/impl path mismatch): python code/models/train_predictor.py  --data data/processed/training_sample.parquet  --model_out data/models/gap_predictor.pkl  --seed 42; python code/models/evaluate_predictor.py  --model data/models/gap_predictor.pkl  --data data/processed/training_sample.parquet  --metrics_out data/metrics/metrics.json  --predictions_out data/metrics/gap_predictions.parquet; python code/validation/mipu_benchmark.py  --model data/models/gap_predictor.pkl  --data data/processed/training_sample.parquet  --output data/metrics/benchmark_report.json; 3 command(s) failed: python code/cli/generate_ground_truth.py  --model meta-llama/Meta-Llama-2-7B-4bit  --quant_levels INT4 INT8 FP8  --prompt_source gsm8k  --output data/processed/training_sample.parquet  --seed 42 (rc=1); python code/cli/validate_dataset_stats.py  --input data/processed/training_sample.parquet  --output data/metrics/dataset_stats.json (rc=2); python -m pytest -m contract (rc=2); 1 declared deliverable(s) absent: data/processed/training_sample.parquet
 
 ## Failing / missing run-book commands
 
-- python code/data/generate_ground_truth.py --model meta-llama/Meta-Llama-3-8B --levels INT4 INT8 FP8 --output data/processed/training_sample.parquet -> rc=2
+- python code/cli/generate_ground_truth.py  --model meta-llama/Meta-Llama-2-7B-4bit  --quant_levels INT4 INT8 FP8  --prompt_source gsm8k  --output data/processed/training_sample.parquet  --seed 42 -> rc=1
 
-usage: generate_ground_truth.py [-h] --model MODEL --levels {INT4,INT8,FP8}
-                                [{INT4,INT8,FP8} ...]
-                                [--sample-size SAMPLE_SIZE] --output OUTPUT
-                                --stats-output STATS_OUTPUT
-generate_ground_truth.py: error: the following arguments are required: --stats-output
+2026-10-23 11:34:41,677 INFO __main__: Downloading GSM8K dataset from https://huggingface.co/datasets/gsm8k/resolve/main/train.jsonl
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 305, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 237, in main
+    subset = download_gsm8k_subset(args.sample_size)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 160, in download_gsm8k_subset
+    response.raise_for_status()
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/train.jsonl
 
-- python code/models/train_predictor.py --input data/processed/training_sample.parquet --output data/models/gap_predictor.pkl -> rc=2
+- python code/cli/validate_dataset_stats.py  --input data/processed/training_sample.parquet  --output data/metrics/dataset_stats.json -> rc=2
+
+usage: validate_dataset_stats.py [-h] [--stats STATS] [--data DATA]
+                                 [--alpha ALPHA]
+validate_dataset_stats.py: error: unrecognized arguments: --input data/processed/training_sample.parquet --output data/metrics/dataset_stats.json
+
+- python code/models/train_predictor.py  --data data/processed/training_sample.parquet  --model_out data/models/gap_predictor.pkl  --seed 42 -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-997-llmxive-follow-up-extending-the-mirage-o/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/models/train_predictor.py': [Errno 2] No such file or directory
 
-- python code/models/evaluate_predictor.py --model data/models/gap_predictor.pkl --data data/processed/training_sample.parquet --output data/metrics/metrics.json -> rc=2
+- python code/models/evaluate_predictor.py  --model data/models/gap_predictor.pkl  --data data/processed/training_sample.parquet  --metrics_out data/metrics/metrics.json  --predictions_out data/metrics/gap_predictions.parquet -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-997-llmxive-follow-up-extending-the-mirage-o/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/models/evaluate_predictor.py': [Errno 2] No such file or directory
+
+- python code/validation/mipu_benchmark.py  --model data/models/gap_predictor.pkl  --data data/processed/training_sample.parquet  --output data/metrics/benchmark_report.json -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-997-llmxive-follow-up-extending-the-mirage-o/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/validation/mipu_benchmark.py': [Errno 2] No such file or directory
+
+- python code/cli/measure_runtime.py  --pipeline "full"  --output data/metrics/runtime.json -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-997-llmxive-follow-up-extending-the-mirage-o/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/measure_runtime.py': [Errno 2] No such file or directory
+
+- python -m pytest -m contract -> rc=2
+lePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/cli/test_generate_ground_truth.py
+ERROR tests/integration/test_data_generation.py
+ERROR tests/integration/test_generate_dataset.py
+ERROR tests/integration/test_generate_dataset_core.py
+ERROR tests/integration/test_generate_dataset_stream.py
+ERROR tests/integration/test_model_training.py
+ERROR tests/integration/test_validation.py
+ERROR tests/integration/test_verify_dataset_completeness.py
+ERROR tests/unit/test_audit_data_integrity.py
+ERROR tests/unit/test_bound_verifier.py
+ERROR tests/unit/test_gap_calculator.py - NameError: name 'List' is not defined
+ERROR tests/unit/test_generate_visualization_report.py
+ERROR tests/unit/test_latency_meter.py
+ERROR tests/unit/test_train_predictor.py
+ERROR tests/unit/test_verify_model_availability.py
+ERROR tests/unit/test_verify_model_robustness.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 16 errors during collection !!!!!!!!!!!!!!!!!!!
+================ 49 deselected, 13 warnings, 16 errors in 6.57s ================
+
 
 
 ## Declared deliverables still missing
 
-- data/processed/dataset_stats.json
+- data/processed/training_sample.parquet
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/dataset_stats.json` is declared but was NOT written. Scripts referencing it:
-    - `code/cli/generate_ground_truth.py` — NOT invoked by the run-book
-    - `code/cli/validate_dataset_stats.py` — NOT invoked by the run-book
-    - `code/data/generate_ground_truth.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/dataset_stats.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/training_sample.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/cli/audit_data_integrity.py` — NOT invoked by the run-book
+    - `code/cli/generate_ground_truth.py` — IS a run-book command
+    - `code/cli/generate_visualization_report.py` — NOT invoked by the run-book
+    - `code/cli/validate_dataset_stats.py` — IS a run-book command
+    - `code/data/generate_ground_truth.py` — NOT invoked by the run-book
+    - `code/src/cli/generate_dataset.py` — NOT invoked by the run-book
+    - `code/src/cli/run_proxy_loop.py` — NOT invoked by the run-book
+    - `code/src/cli/validate_features_diagnostic.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/training_sample.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
 A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.

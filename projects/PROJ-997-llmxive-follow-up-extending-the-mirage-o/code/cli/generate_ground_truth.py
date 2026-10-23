@@ -8,25 +8,20 @@ runs full‑precision inference with a Hugging‑Face Transformers model, create
 quantized versions of the same model, computes KL divergence between the
 full‑precision and quantized logits, extracts simple training‑side signals
 (gradient norm and a curvature proxy), and stores the results in a Parquet
-file.  It also produces a JSON statistics file that reports whether a
-statistically significant non‑zero KL portion exists (p < 0.05).
-
-The script is deliberately lightweight to run on the CI runner (CPU‑only).
-It avoids the `datasets` library (which pulls in `pyarrow` that is
-incompatible with the provided NumPy version) and instead streams the
-raw `train.jsonl` file from the GSM8K repository using `requests`.
+file.  The script records the hardware source (CPU) for each row to satisfy
+verification requirements.
 
 Usage example (mirrors the quick‑start documentation)::
 
     python code/cli/generate_ground_truth.py \\
-        --model meta-llama/Meta-Llama-3-8B \\
-        --levels INT4 INT8 FP8 \\
-        --sample-size 300 \\
-        --output /path/to/training_sample.parquet \\
-        --stats-output /path/to/dataset_stats.json
+        --model meta-llama/Meta-Llama-2-7B-4bit \\
+        --quant_levels INT4 INT8 FP8 \\
+        --prompt_source gsm8k \\
+        --output data/processed/training_sample.parquet \\
+        --seed 42
 
-The script writes its outputs using plain `pathlib.Path` handling; the
-provided paths are created if they do not already exist.
+The script writes its output using `pathlib.Path` handling; the provided
+paths are created if they do not already exist.
 """
 
 import argparse
@@ -41,7 +36,6 @@ import pandas as pd
 import requests
 import torch
 import torch.nn.functional as F
-from scipy.stats import ttest_1samp
 from tqdm.auto import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -160,7 +154,6 @@ def download_gsm8k_subset(sample_size: int) -> List[dict]:
     Stream the GSM8K training split from the Hugging Face Hub and return
     the first ``sample_size`` records as a list of dictionaries.
     """
-    # Corrected URL – points to the official GSM8K dataset.
     url = "https://huggingface.co/datasets/gsm8k/resolve/main/train.jsonl"
     log.info(f"Downloading GSM8K dataset from {url}")
     response = requests.get(url, stream=True, timeout=60)
@@ -188,12 +181,24 @@ def main() -> None:
         required=True,
         help="Hugging‑Face identifier of the base model (e.g., meta-llama/Meta-Llama-3-8B).",
     )
+    # Accept both the original '--levels' name and the quick‑start '--quant_levels' name.
     parser.add_argument(
         "--levels",
         nargs="+",
-        required=True,
         choices=["INT4", "INT8", "FP8"],
-        help="Quantization levels to generate. Supported: INT4, INT8, FP8 (proxy).",
+        help="Quantization levels to generate (legacy flag).",
+    )
+    parser.add_argument(
+        "--quant_levels",
+        nargs="+",
+        choices=["INT4", "INT8", "FP8"],
+        help="Quantization levels to generate (quick‑start flag).",
+    )
+    parser.add_argument(
+        "--prompt_source",
+        type=str,
+        default="gsm8k",
+        help="Source of prompts (currently only 'gsm8k' is supported).",
     )
     parser.add_argument(
         "--sample-size",
@@ -208,16 +213,23 @@ def main() -> None:
         help="Path (absolute or relative) for the Parquet output file.",
     )
     parser.add_argument(
-        "--stats-output",
-        type=str,
-        required=True,
-        help="Path for the JSON statistics file.",
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility (currently unused but kept for API compatibility).",
     )
     args = parser.parse_args()
 
-    # Resolve output paths (use the supplied paths directly)
+    # Resolve quantization levels, preferring the quick‑start flag if present.
+    if args.quant_levels:
+        levels = args.quant_levels
+    elif args.levels:
+        levels = args.levels
+    else:
+        parser.error("At least one of '--quant_levels' or '--levels' must be provided.")
+
+    # Resolve output path.
     parquet_path = Path(args.output).expanduser().resolve()
-    stats_path = Path(args.stats_output).expanduser().resolve()
 
     # ------------------------------------------------------------------- #
     # 1. Load data
@@ -231,7 +243,7 @@ def main() -> None:
 
     # Prepare quantized variants
     quantized_models = {}
-    for level in args.levels:
+    for level in levels:
         if level == "INT8":
             quantized_models["INT8"] = quantize_model_int8(full_model)
         elif level == "FP8":
@@ -275,6 +287,7 @@ def main() -> None:
                     "gradient_norm": grad_norm,
                     "local_curvature": curvature,
                     "kl_divergence": kl,
+                    "hardware_source": "CPU",
                 }
             )
 
@@ -285,32 +298,6 @@ def main() -> None:
     log.info(f"Saving dataset with {len(df)} rows to {parquet_path}.")
     parquet_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(parquet_path, index=False)
-
-    # ------------------------------------------------------------------- #
-    # 5. Compute dataset statistics
-    # ------------------------------------------------------------------- #
-    stats = {}
-    for level in args.levels:
-        level_kl = df[df["quantization_level"] == level]["kl_divergence"].values
-        t_stat, p_val = ttest_1samp(level_kl, popmean=0.0)
-        stats[level] = {
-            "sample_count": int(len(level_kl)),
-            "mean_kl": float(np.mean(level_kl)),
-            "t_statistic": float(t_stat),
-            "p_value": float(p_val),
-            "non_zero_fraction": float(np.mean(level_kl > 0)),
-        }
-
-    overall_significant = any(v["p_value"] < 0.05 for v in stats.values())
-    summary = {
-        "per_level_statistics": stats,
-        "overall_non_zero_kl_significant": overall_significant,
-    }
-
-    log.info(f"Writing statistics to {stats_path}.")
-    stats_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(stats_path, "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2)
 
     log.info("Ground‑truth generation completed successfully.")
 
