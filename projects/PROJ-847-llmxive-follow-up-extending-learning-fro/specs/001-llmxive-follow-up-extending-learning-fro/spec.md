@@ -13,7 +13,7 @@ The research team must be able to execute a controlled training simulation using
 
 **Why this priority**: This is the foundational experiment. Without establishing how fixed densities behave (linear improvement, plateau, or degradation), the adaptive hypothesis cannot be contextualized. It validates the core pipeline (data loading, diffusion model inference on CPU, loss tracking) before introducing dynamic logic.
 
-**Independent Test**: The system runs five distinct training jobs (one for each $\rho \in \{0.1, 0.3, 0.5, 0.7, 0.9\}$) on a subset of GSM8K. The test passes if all five jobs complete within the 6‑hour CPU limit and the system successfully writes a structured results file (JSON) containing the loss trajectory, final accuracy metrics, and both exact‑match and graded accuracy scores for each ratio.
+**Independent Test**: The system runs five distinct training jobs (one for each $\rho \in \{0.1, 0.3, 0.5, 0.7, 0.9\}$) on a subset of GSM8K. The test passes if all five jobs complete within the allocated CPU time limit and the system successfully writes a structured results file (JSON) containing the loss trajectory, final accuracy metrics, and both exact‑match and graded accuracy scores for each ratio.
 
 **Acceptance Scenarios**:
 

@@ -40,4 +40,3 @@
 All entities are JSON‑serializable and validated against the schemas in `contracts/`.
 
 ---
-
