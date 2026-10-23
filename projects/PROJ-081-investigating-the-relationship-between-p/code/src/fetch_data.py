@@ -77,6 +77,17 @@ def _fetch_with_backoff(url: str, max_attempts: int = 3, base_delay: int = 30) -
 # ----------------------------------------------------------------------
 # Helper: generic column‑renaming to the required schema
 # ----------------------------------------------------------------------
+REQUIRED_COLUMNS = [
+    "species_id",
+    "species_name",
+    "family",
+    "alkaloids",
+    "terpenes",
+    "phenolics",
+    "benzoxazinoids",
+    "herbivory_score",
+]
+
 def _rename_generic(df: pd.DataFrame) -> pd.DataFrame:
     """
     Convert an arbitrary tabular DataFrame into the required schema.
@@ -90,10 +101,12 @@ def _rename_generic(df: pd.DataFrame) -> pd.DataFrame:
     * Uses the first numeric column again as ``herbivory_score`` (a proxy
       for a damage index). All values are real measurements from the source
       file – no synthetic data are introduced.
+    * Drops any rows that contain NaN in any of the required columns,
+      guaranteeing clean data for downstream steps.
     """
     df = df.copy()
 
-    # Ensure we have at least one numeric column for metabolites / score
+    # Ensure we have at least four numeric columns for metabolites / score
     numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
     if len(numeric_cols) < 4:
         raise RuntimeError(
@@ -127,18 +140,13 @@ def _rename_generic(df: pd.DataFrame) -> pd.DataFrame:
     # herbivory_score – reuse the first numeric column as a proxy
     df["herbivory_score"] = df[numeric_cols[0]]
 
-    # Return only the required columns in the correct order
-    required = [
-        "species_id",
-        "species_name",
-        "family",
-        "alkaloids",
-        "terpenes",
-        "phenolics",
-        "benzoxazinoids",
-        "herbivory_score",
-    ]
-    return df[required]
+    # Keep only the required columns in the correct order
+    df = df[REQUIRED_COLUMNS]
+
+    # Drop rows with any missing values in the required schema
+    df = df.dropna(subset=REQUIRED_COLUMNS)
+
+    return df
 
 # ----------------------------------------------------------------------
 # Public fetch functions
@@ -149,7 +157,6 @@ def fetch_metabolights() -> pd.DataFrame:
     required schema.
     """
     content = _fetch_with_backoff(METABOLIGHTS_URL)
-    # The file is CSV; pandas can infer the separator.
     df_raw = pd.read_csv(io.StringIO(content.decode()))
     df = _rename_generic(df_raw)
     log.info(f"MetaboLights fetch succeeded – {len(df)} records")
@@ -176,6 +183,7 @@ def fetch_hpid() -> pd.DataFrame:
     return df
 
 if __name__ == "__main__":
+    # Execute the three fetches and write a concise log.
     dfs = {
         "metabolights": fetch_metabolights(),
         "pmn": fetch_pmn(),

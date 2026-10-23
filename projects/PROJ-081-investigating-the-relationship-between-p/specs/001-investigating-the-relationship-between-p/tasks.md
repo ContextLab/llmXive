@@ -32,7 +32,7 @@ The study acquires paired metabolomics–herbivory data from public repositories
   - Verification: run `pytest code/tests/test_preprocess.py -v`; inspect `data/processed/clean.parquet` for correct schema, column names, and data types.  
   - **Paths**: `code/src/preprocess.py`, `code/tests/test_preprocess.py`, `data/processed/clean.parquet`, `outputs/preprocessing_log.json`.
 
-- [ ] T003 [US‑2] **Exploratory correlation analysis and heat‑map visualisation**   <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 -->
+- [ ] T003 [US‑2] **Exploratory correlation analysis and heat‑map visualisation**   <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/correlation_analysis.py exit=1 -->
   - Implement `code/src/correlation_analysis.py` with function `compute_correlations(df: pd.DataFrame) -> dict` that:  
     1. Computes Pearson r between each metabolite class (averaged across compounds) and `herbivory_score`.  
     2. Calculates two‑tailed p‑values via `scipy.stats.pearsonr`.  
