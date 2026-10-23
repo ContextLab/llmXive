@@ -1,118 +1,105 @@
 """
-T001a – Download the MoleculeNet Lipophilicity dataset.
+Download the MoleculeNet Lipophilicity dataset using DeepChem.
 
-This script fetches the canonical Lipophilicity CSV from the official
-MoleculeNet S3 bucket, writes it to ``data/raw/lipophilicity.csv`` and
-records a SHA‑256 checksum in ``data/checksums.txt``.
+This script follows the **verified real data source** specification:
+it loads the Lipophilicity (LIPO) dataset via DeepChem's `load_lipo`
+function with the 'Raw' featurizer, concatenates the train/valid/test
+splits, and writes a CSV containing the canonical ``smiles`` strings
+and the experimental ``logP`` values.
 
-The script is idempotent:
-  * If the target file already exists and its checksum matches the
-    recorded value, the download is skipped.
-  * If the checksum file already contains an entry for the dataset,
-    that entry is updated (the file is rewritten with a single line
-    for the Lipophilicity CSV to avoid duplicate entries).
-
-Usage (run from the project root):
-    python code/01_download_lipophilicity.py
+The resulting file is stored at ``data/raw/lipophilicity.csv``.
+A SHA‑256 checksum of the file is recorded (idempotently) in
+``data/checksums.txt`` using the same manifest format expected by the
+checksum‑verification script.
 """
+
 import hashlib
-import logging
+import json
 import sys
 from pathlib import Path
 
-import requests
-from llmxive_toolkit import paths, get_logger
+import deepchem as dc
+import numpy as np
+import pandas as pd
 
 # ----------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------
-URL = (
-    "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/lipophilicity.csv"
-)
-RAW_CSV_PATH = paths.data("raw", "lipophilicity.csv")
-CHECKSUMS_PATH = paths.data("checksums.txt")
-LOG_FILE = paths.data("logs", "download_lipophilicity.log")
-
-# ----------------------------------------------------------------------
-# Logging setup
-# ----------------------------------------------------------------------
-logger = get_logger(__name__, log_file=LOG_FILE)
-
-# ----------------------------------------------------------------------
-# Helper functions
+# Helper: compute SHA‑256 hash of a file
 # ----------------------------------------------------------------------
 def compute_sha256(file_path: Path) -> str:
     """Return the hex SHA‑256 hash of ``file_path``."""
-    h = hashlib.sha256()
+    sha256 = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
-            h.update(chunk)
-    return h.hexdigest()
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-def download_file(url: str, dest: Path) -> None:
-    """Stream ``url`` to ``dest``."""
-    logger.info(f"Downloading Lipophilicity dataset from {url}")
-    response = requests.get(url, stream=True, timeout=30)
-    response.raise_for_status()
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    with dest.open("wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
-    logger.info(f"Saved dataset to {dest}")
-
+# ----------------------------------------------------------------------
+# Helper: read an existing checksum manifest (if any)
+# ----------------------------------------------------------------------
 def read_checksums(path: Path) -> dict:
-    """Parse a ``checksums.txt`` file into a dict {relative_path: hash}."""
+    """Parse a ``checksums.txt`` file into ``{relative_path: hash}``."""
     checksums = {}
-    if not path.is_file():
-        return checksums
-    for line in path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        # Accept both "<hash>  <rel_path>" and "<rel_path>: <hash>"
-        if "  " in line:
-            hash_part, rel_path = line.split("  ", 1)
-        elif ": " in line:
-            rel_path, hash_part = line.split(": ", 1)
-        else:
-            continue
-        checksums[rel_path.strip()] = hash_part.strip()
+    if path.is_file():
+        with path.open("r") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                # Support both "<hash>  <path>" and "<path>: <hash>"
+                if "  " in line:
+                    h, p = line.split("  ", 1)
+                    checksums[p] = h
+                elif ":" in line:
+                    p, h = [seg.strip() for seg in line.split(":", 1)]
+                    checksums[p] = h
     return checksums
 
+# ----------------------------------------------------------------------
+# Helper: write a clean checksum manifest (idempotent)
+# ----------------------------------------------------------------------
 def write_checksums(path: Path, checksums: dict) -> None:
-    """Write the ``checksums`` dict back to ``path`` using the canonical format."""
-    lines = [f"{h}  {p}" for p, h in sorted(checksums.items())]
+    """Write ``checksums`` to ``path`` using the canonical format."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines) + "\n")
-    logger.info(f"Updated checksum manifest at {path}")
+    with path.open("w") as f:
+        for rel_path, h in sorted(checksums.items()):
+            f.write(f"{h}  {rel_path}\n")
 
 # ----------------------------------------------------------------------
 # Main workflow
 # ----------------------------------------------------------------------
 def main() -> None:
-    # Step 1 – download if needed
-    if RAW_CSV_PATH.is_file():
-        logger.info(f"Dataset already present at {RAW_CSV_PATH}")
-    else:
-        download_file(URL, RAW_CSV_PATH)
+    # 1. Load the Lipophilicity dataset via DeepChem
+    try:
+        tasks, (train, valid, test), transformers = dc.molnet.load_lipo(
+            featurizer="Raw"
+        )
+    except Exception as exc:
+        print(f"Failed to load Lipophilicity dataset via DeepChem: {exc}", file=sys.stderr)
+        sys.exit(1)
 
-    # Step 2 – compute checksum
-    checksum = compute_sha256(RAW_CSV_PATH)
-    logger.info(f"SHA‑256 checksum: {checksum}")
+    # 2. Concatenate the three splits (they are already flat arrays)
+    X = np.concatenate([train.X, valid.X, test.X]).ravel()
+    y = np.concatenate([train.y, valid.y, test.y]).ravel()
 
-    # Step 3 – update checksums.txt
-    rel_path = RAW_CSV_PATH.relative_to(paths.root).as_posix()
-    # The manifest stores paths relative to the project root
-    checksums = read_checksums(CHECKSUMS_PATH)
-    checksums[rel_path] = checksum
-    write_checksums(CHECKSUMS_PATH, checksums)
+    # 3. Build a DataFrame with the required columns
+    df = pd.DataFrame({"smiles": X, "logP": y})
+    # Ensure there are no NaNs in the target; drop rows where logP is missing
+    df = df.dropna(subset=["logP"]).reset_index(drop=True)
 
-    logger.info("Download and checksum registration completed successfully.")
+    # 4. Write the raw CSV
+    raw_dir = Path("data/raw")
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    raw_path = raw_dir / "lipophilicity.csv"
+    df.to_csv(raw_path, index=False)
+
+    # 5. Record the checksum in the manifest
+    checksums_path = Path("data/checksums.txt")
+    current = read_checksums(checksums_path)
+    current[raw_path.as_posix()] = compute_sha256(raw_path)
+    write_checksums(checksums_path, current)
+
+    print(f"Lipophilicity dataset written to {raw_path}")
+    print(f"Checksum recorded in {checksums_path}")
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as exc:
-        logger.exception(f"Failed to download Lipophilicity dataset: {exc}")
-        sys.exit(1)
+    main()

@@ -6,3 +6,20 @@ T001:
     \ `smiles` (string), and `logP` (number) properties with a valid JSON\u2011Schema\
     \ structure."
   sig: b5c06606ce9acc950c963fb793d4c6b17d56c42294ecd85c192f4548c9c8f278
+T001a:
+  c: false
+  h: 4f273e657924b871e1733392347b1127e1e8339cd5a56da60862cf4812baddc8
+  r: "Checked `data/raw/lipophilicity.csv` and `data/checksums.txt`. The CSV exists\
+    \ and its SHA\u2011256 matches the entry in `checksums.txt`, but the file does\
+    \ not contain the original MoleculeNet Lipophilicity data \u2013 the \u201Csmiles\u201D\
+    \ column holds stringified RDKit Mol objects instead of raw SMILES strings, indicating\
+    \ it is not the canonical dataset that should be downloaded. The task therefore\
+    \ lacks a correct raw dataset file."
+  sig: f5b93538a36bbc78a988ea68b9d32dc6f457435e7f86a2a016141e47a10b53a8
+T001b:
+  c: true
+  h: 34f3a01724bd9a0ffdd1d151b42525d7a899d6ecda55bcdc6b6f5f1cbcb53e82
+  r: "Checked `code/00_checksum_verify.py` (implementation matches spec) and its execution\
+    \ log `code/.tasks/T001b.code_00_checksum_verify.py.log`, which shows the script\
+    \ printed \u201CAll checksums verified\u201D and exited with status\u202F0."
+  sig: 873b78703d2e623953be4d7396af992f8176029e378cfc7b74192f886668c133

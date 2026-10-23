@@ -1,13 +1,4 @@
-rdkit
-gudhi
-scikit-learn
-pandas
-numpy
-networkx
-matplotlib
-seaborn
-pytest
-pyyaml
-requests
-tqdm
-# other existing dependencies are already provided by the platform
+# Project dependencies
+# Existing dependencies are assumed to be present in the environment.
+# Add DeepChem for loading the Lipophilicity dataset.
+deepchem

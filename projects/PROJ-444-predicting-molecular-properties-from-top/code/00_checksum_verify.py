@@ -1,12 +1,10 @@
 """
-Checksum verification utility (Task T001a)
+Checksum verification utility (Task T001b)
 
 This script reads the manifest ``data/checksums.txt`` and verifies that each
-recorded file matches its stored SHA‑256 hash.  The original implementation
-only understood lines of the form ``<hash>  <relative_path>``.  In practice
-the manifest may also contain lines using the ``<path>: <hash>`` convention.
-The parser has been hardened to recognise both formats, ensuring that the
-verification step succeeds for the current project state.
+recorded file matches its stored SHA‑256 hash.  It prints a concise success
+message ``All checksums verified`` when every file matches, otherwise it
+reports mismatches and exits with a non‑zero status.
 """
 
 import hashlib
@@ -61,7 +59,7 @@ def load_recorded_checksums() -> Dict[Path, str]:
                     checksums[Path(rel_path.strip())] = hash_val.strip()
                     continue
 
-            # Fallback – treat the whole line as hash (unlikely)
+            # Fallback – unrecognised line
             print(f"Unrecognised checksum line format: {line}", file=sys.stderr)
 
     return checksums
@@ -92,7 +90,8 @@ def verify_checksums() -> bool:
             all_match = False
 
     if all_match:
-        print("All checksums verified successfully.")
+        # Exact message required by the task description
+        print("All checksums verified")
     else:
         print("Checksum verification failed.", file=sys.stderr)
 

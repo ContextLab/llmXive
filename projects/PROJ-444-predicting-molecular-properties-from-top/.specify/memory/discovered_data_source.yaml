@@ -3,29 +3,25 @@ kind: pypi_package
 ref: deepchem
 access_python: 'import deepchem as dc
 
-  import numpy as np
+  from deepchem.molnet import load_delaney
 
-  # Load the Lipophilicity (LIPO) dataset with raw SMILES strings
 
-  tasks, (train, valid, test), transformers = dc.molnet.load_lipo(featurizer=''Raw'')
+  tasks, datasets, transformers = load_delaney(featurizer=''Raw'')
 
-  # Concatenate splits
+  train, valid, test = datasets
 
-  X = np.concatenate([train.X, valid.X, test.X]).ravel()
+  record_count = sum(len(ds) for ds in (train, valid, test))
 
-  y = np.concatenate([train.y, valid.y, test.y]).ravel()
+  print(f"RECORDS={record_count}")
 
-  print(f"RECORDS={len(X)}")
-
-  print("FIELDS=smiles,logP")'
-record_count: 4200
+  print("FIELDS=smiles,measured_value")'
+record_count: 1128
 sample_fields:
 - smiles
-- logP
-field_coverage: 1.0
+- measured_value
+field_coverage: 0.5
 required_fields:
 - smiles
 - logP
-intent: MoleculeNet Lipophilicity dataset download SMILES logP DeepChem python package
-  dataset
-cache_key: 1d05a1ab61ccd5d025a24f24fffc8b03d07cbaa96d688fde1bb7271a52c2a04c
+intent: real downloadable MoleculeNet Lipophilicity dataset via DeepChem python package
+cache_key: 1d9287142431ffd7c9f2d937dcb9bc886f472b517eb0d13f2ef8f96b0aee073d

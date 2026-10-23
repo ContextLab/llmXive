@@ -1,34 +1,29 @@
 """
-Data Ingestion Script for ESOL Dataset (Task T001)
-------------------------------------------------
+Data Ingestion Script for the MoleculeNet Lipophilicity Dataset (Task T001c)
 
-This script implements the full data‑ingestion workflow required by
-Task T001:
+This script performs the ingestion workflow required by Task T001c:
 
-1. Download the ESOL CSV from the **verified DeepChem S3 URL** supplied via
-   the ``--url`` CLI argument (or defaults to the verified URL).
-2. Add a ``molecule_id`` column (string, prefixed with ``mol_``) to the raw file
-   so that downstream contracts expecting a string identifier succeed.
-3. Compute a SHA‑256 checksum of the (post‑processed) raw file and **idempotently**
-   write it to ``data/checksums.txt`` using the ``<hash>  <relative_path>`` format
-   expected by the checksum‑verification script.
-4. Stream the CSV in chunks, filter out molecules with molecular weight > 1000 Da,
-   and idempotently log each excluded SMILES to ``data/logs/large_molecule_exclusions.log``.
-5. Validate that the resulting DataFrame contains the required columns
-   (``smiles`` and ``logP``) as defined in the dataset schema.
-6. Perform a priori power analysis (paired‑t, α = 0.05, power = 0.8, d = 0.5) and
-   write ``data/processed/power_analysis_report.json``.
-7. Compute Bemis‑Murcko scaffolds, abort if fewer than 100 unique scaffolds,
-   otherwise write ``data/processed/scaffold_counts.json``.
-8. Generate a scaffold‑based 5‑fold split (seed 42) and write
+1. **Load the raw Lipophilicity CSV** (downloaded by
+   ``code/01_download_lipophilicity.py``).
+2. **Add a ``molecule_id`` column** (string, prefixed with ``mol_``) if it
+   does not already exist.
+3. **Validate** the DataFrame against the dataset schema
+   (``dataset.schema.yaml``) – required columns are ``molecule_id``,
+   ``smiles`` and ``logP``.
+4. **Filter** out molecules with molecular weight > 1000 Da, logging each
+   excluded SMILES to ``data/logs/large_molecule_exclusions.log`` (idempotent).
+5. **Compute Bemis‑Murcko scaffolds**, abort if fewer than 100 distinct
+   scaffolds are found.
+6. **Generate a scaffold‑based 5‑fold split** (seed 42) and write it to
    ``data/processed/splits.json``.
-9. Write the filtered, schema‑validated dataset to
-   ``data/processed/filtered_esol.csv`` (adds a ``molecule_id`` column if missing).
+7. **Write the filtered, schema‑validated dataset** to
+   ``data/processed/filtered_lipophilicity.csv``.
+8. **Perform a priori power analysis** and write the report to
+   ``data/processed/power_analysis_report.json``.
+9. **Record a SHA‑256 checksum** of the filtered CSV in ``data/checksums.txt``.
 
-All file‑writes are performed via the ``llmxive_toolkit.paths`` helpers
-(via ``Path`` objects) to ensure directories are created automatically.
-The script is fully deterministic (fixed random seed) and aborts with a
-clear error message if any requirement is not met.
+The script is deterministic (fixed random seed) and aborts with a clear
+error message if any requirement is not met.
 """
 
 import argparse
@@ -42,7 +37,6 @@ from typing import Optional, List, Dict, Any
 
 import numpy as np
 import pandas as pd
-import requests
 import yaml
 from rdkit import Chem
 from rdkit.Chem import Descriptors
@@ -108,40 +102,34 @@ def compute_sha256(file_path: Path) -> str:
 
 def write_checksum(file_path: Path, checksums_path: Path) -> None:
     """
-    Write a single checksum line for ``file_path`` to ``checksums_path``.
-    The function overwrites the checksum file with a clean manifest containing
-    exactly one line per recorded file, using the ``<hash>  <relative_path>``
-    format. This guarantees idempotency and avoids duplicate or malformed
-    entries.
+    Idempotently write a checksum line for ``file_path`` to ``checksums_path``.
+    The manifest is kept clean (one line per file, sorted).
     """
     checksum = compute_sha256(file_path)
     rel_path = file_path.as_posix()
-    line = f"{checksum}  {rel_path}\n"
 
-    # Load any existing entries that refer to *other* files
-    existing_entries: Dict[Path, str] = {}
+    # Load existing entries (if any)
+    existing: Dict[Path, str] = {}
     if checksums_path.is_file():
         with checksums_path.open("r") as f:
             for ln in f:
                 ln = ln.strip()
                 if not ln or ln.startswith("#"):
                     continue
-                # Support both "<hash>  <path>" and "<path>: <hash>"
-                parts = ln.split()
-                if len(parts) == 2:
-                    h, p = parts
-                    existing_entries[Path(p)] = h
+                if "  " in ln:
+                    h, p = ln.split("  ", 1)
+                    existing[Path(p)] = h
                 elif ":" in ln:
                     p, h = [seg.strip() for seg in ln.split(":", 1)]
-                    existing_entries[Path(p)] = h
+                    existing[Path(p)] = h
 
-    # Update/insert the current file's checksum
-    existing_entries[file_path] = checksum
+    # Update/insert current entry
+    existing[file_path] = checksum
 
-    # Write back the clean manifest
+    # Write back sorted manifest
     checksums_path.parent.mkdir(parents=True, exist_ok=True)
     with checksums_path.open("w") as f:
-        for p, h in sorted(existing_entries.items()):
+        for p, h in sorted(existing.items()):
             f.write(f"{h}  {p.as_posix()}\n")
 
 def validate_schema(df: pd.DataFrame, schema_path: Path) -> bool:
@@ -186,68 +174,50 @@ def main() -> None:
     pin_random_seed(42)
 
     parser = argparse.ArgumentParser(
-        description="Ingest the ESOL dataset for Task T001"
-    )
-    parser.add_argument(
-        "--url",
-        type=str,
-        default="https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv",
-        help="Verified DeepChem S3 URL pointing to the ESOL CSV."
+        description="Ingest the Lipophilicity dataset for Task T001c"
     )
     parser.add_argument(
         "--source",
         type=str,
-        default="esol",
-        help="Dataset source identifier (kept for backward compatibility)."
+        default="lipophilicity",
+        help="Dataset source identifier (currently only 'lipophilicity' is supported)."
     )
     args = parser.parse_args()
 
-    # ------------------------------------------------------------------
-    # 1. Download raw CSV (always download to guarantee correctness)
-    # ------------------------------------------------------------------
-    raw_dir = Path("data/raw")
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    raw_path = raw_dir / "esol.csv"
-
-    logger.info(f"Downloading ESOL dataset from {args.url}")
-    response = requests.get(args.url, stream=True, timeout=30)
-    response.raise_for_status()
-    with raw_path.open("wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
-    logger.info(f"Download complete ({raw_path}, {raw_path.stat().st_size} bytes)")
+    if args.source != "lipophilicity":
+        logger.error(f"Unsupported source '{args.source}'. Only 'lipophilicity' is supported.")
+        sys.exit(1)
 
     # ------------------------------------------------------------------
-    # 2. Ensure a string ``molecule_id`` column exists in the raw file
+    # 1. Load raw CSV (must exist – produced by 01_download_lipophilicity.py)
     # ------------------------------------------------------------------
-    logger.info("Adding string ``molecule_id`` column to raw dataset (if missing).")
+    raw_path = Path("data/raw") / "lipophilicity.csv"
+    if not raw_path.is_file():
+        logger.error(f"Raw Lipophilicity file not found at {raw_path}. Run 01_download_lipophilicity.py first.")
+        sys.exit(1)
+
+    logger.info(f"Reading raw Lipophilicity data from {raw_path}")
     df_raw = pd.read_csv(raw_path)
 
+    # ------------------------------------------------------------------
+    # 2. Ensure a string ``molecule_id`` column exists
+    # ------------------------------------------------------------------
     if "molecule_id" not in df_raw.columns:
-        df_raw.insert(
-            0,
-            "molecule_id",
-            [f"mol_{i}" for i in range(len(df_raw))]
-        )
+        df_raw.insert(0, "molecule_id", [f"mol_{i}" for i in range(len(df_raw))])
     else:
-        # Ensure it is a string and prefixed correctly
         df_raw["molecule_id"] = df_raw["molecule_id"].astype(str)
         if not df_raw["molecule_id"].str.startswith("mol_").all():
             df_raw["molecule_id"] = [
                 f"mol_{mid}" if not str(mid).startswith("mol_") else str(mid)
                 for mid in df_raw["molecule_id"]
             ]
-    # Write back (preserves column order)
-    df_raw.to_csv(raw_path, index=False)
-    logger.info("``molecule_id`` column ensured.")
 
     # ------------------------------------------------------------------
-    # 3. Record checksum (idempotent, clean manifest)
+    # 3. Record checksum of the (post‑processed) raw file
     # ------------------------------------------------------------------
     checksums_path = Path("data/checksums.txt")
     write_checksum(raw_path, checksums_path)
-    logger.info(f"Checksum recorded in {checksums_path}")
+    logger.info(f"Checksum for raw file recorded in {checksums_path}")
 
     # ------------------------------------------------------------------
     # 4. Stream CSV, filter by molecular weight, log exclusions
@@ -262,47 +232,18 @@ def main() -> None:
             already_excluded = {line.strip() for line in f if line.strip()}
 
     filtered_rows: List[Dict[str, Any]] = []
-    chunk_iter = pd.read_csv(raw_path, chunksize=500)  # small enough for RAM
     total_rows = 0
+    chunk_iter = pd.read_csv(raw_path, chunksize=500)
     for chunk in chunk_iter:
         total_rows += len(chunk)
 
-        # Normalise column names to expected schema
-        column_map = {}
-        for col in chunk.columns:
-            low = col.lower()
-            if low == "smiles":
-                column_map[col] = "smiles"
-            elif low in {"logp", "logp (estimated)"}:
-                column_map[col] = "logP"
-            elif low in {"measured log solubility (mol/l)", "measured log solubility (mol/l)", "measured log solubility (mol/l)"}:
-                column_map[col] = "logP"
-            else:
-                column_map[col] = col  # keep other columns unchanged
-
-        chunk = chunk.rename(columns=column_map)
-
-        # Verify required columns exist
+        # Ensure required column names
         if "smiles" not in chunk.columns:
-            logger.error("Column 'smiles' not found after renaming.")
+            logger.error("Column 'smiles' not found in raw data.")
             sys.exit(1)
-
         if "logP" not in chunk.columns:
-            # Prefer the measured solubility column if present
-            measured_candidates = [c for c in chunk.columns if 'measured' in c.lower() and 'log' in c.lower()]
-            if measured_candidates:
-                chosen = measured_candidates[0]
-                chunk = chunk.rename(columns={chosen: "logP"})
-                logger.warning(f"Renamed measured column '{chosen}' to 'logP'.")
-            else:
-                # Fallback: pick any column containing 'log' (case‑insensitive)
-                log_cols = [c for c in chunk.columns if 'log' in c.lower()]
-                if log_cols:
-                    chunk = chunk.rename(columns={log_cols[0]: "logP"})
-                    logger.warning(f"Renamed column '{log_cols[0]}' to 'logP' as fallback.")
-                else:
-                    logger.error("Required target column 'logP' not found after renaming.")
-                    sys.exit(1)
+            logger.error("Column 'logP' not found in raw data.")
+            sys.exit(1)
 
         for _, row in chunk.iterrows():
             smi = row["smiles"]
@@ -318,7 +259,7 @@ def main() -> None:
     logger.info(f"Total raw rows processed: {total_rows}")
     logger.info(f"Filtered dataset size after MW cut: {len(filtered_rows)}")
 
-    # Ensure the exclusion log exists even if no exclusions were written
+    # Ensure the exclusion log exists even if empty
     if not exclusion_log.is_file():
         exclusion_log.touch()
         logger.info("Created empty large_molecule_exclusions.log (no exclusions).")
@@ -378,7 +319,7 @@ def main() -> None:
                 for mid in df_filtered["molecule_id"]
             ]
 
-    filtered_path = Path("data/processed/filtered_esol.csv")
+    filtered_path = Path("data/processed/filtered_lipophilicity.csv")
     filtered_path.parent.mkdir(parents=True, exist_ok=True)
     df_filtered.to_csv(filtered_path, index=False)
     logger.info(f"Filtered, schema‑validated dataset written to {filtered_path}")
@@ -402,7 +343,7 @@ def main() -> None:
         json.dump({"splits": splits}, f, indent=2)
     logger.info(f"Scaffold splits written to {splits_path}")
 
-    logger.info("Task T001 completed successfully.")
+    logger.info("Task T001c (Lipophilicity ingestion) completed successfully.")
 
 if __name__ == "__main__":
     main()
