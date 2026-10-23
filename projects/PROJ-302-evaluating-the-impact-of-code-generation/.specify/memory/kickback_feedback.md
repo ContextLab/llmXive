@@ -1,12 +1,10 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T002` (rejected 1x): Requested task execution failed; rerun successfully: code/data_acquisition.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan relies on a *synthetic review timestamp simulation* (Section 1.1 of research.md) to assign `review_effort_duration` to LLM‑generated PRs. This creates a construct validity problem: the primary outcome for the LLM cohort is not observed but generated from a KDE conditioned on the same covariates used for matching, which can artificially enforce balance and bias the effect estimate toward null. Consequently, the study cannot validly test the causal claim that LLM‑generated code incurs longer review effort than human code.
+- The primary outcome `review_effort_duration` for LLM‑generated PRs is *synthetically simulated* (Section 1.1) by sampling from a KDE built on human PRs conditioned on the same five covariates that are later used for propensity‑score matching. This makes the validation target (synthetic review time) a deterministic function of the predictors, creating a circular/tautological validation: the metric being tested is constructed from the very variables used to control for confounding, so any statistical test will at best reflect the simulation procedure rather than real reviewer effort. Consequently the analysis cannot answer the research question “do LLM‑generated code require longer review time?” and violates independence of outcome from predictors.

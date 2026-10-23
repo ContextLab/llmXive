@@ -1,19 +1,18 @@
 status: none
-intent: GHTorrent pull request dataset with commit metadata download python package
-  dataset
+intent: GHTorrent GitHub pull request metadata dataset python package dataset
 required_fields:
 - repository_id
 - repository_name
-- stars_count
-- repository_url
+- repository_stars
 - pull_request_id
 - pull_request_number
 - pull_request_created_at
 - pull_request_merged_at
 - pull_request_closed_at
 - pull_request_author
-- commit_sha
-- commit_message
-cache_key: 214fe452fff576bdf1f2cc0d5fe25e2119a93c0c3a18fa98b4aee894ec4ddcb1
-searched_at: '2026-10-18T11:26:49.655512+00:00'
+- pull_request_state
+- pull_request_files_changed
+- pull_request_additions
+cache_key: 1efcb53e858507d7c89bada9822edcab410d98456fa273c3e4b846923e2e8412
+searched_at: '2026-10-23T05:11:06.270486+00:00'
 retry_count: 1

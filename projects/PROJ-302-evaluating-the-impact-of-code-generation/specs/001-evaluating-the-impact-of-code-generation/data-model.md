@@ -59,3 +59,5 @@ All artifacts live under `data/` and are immutable once written. Checksums (SHA�
 - `data/reports/` – `covariate_balance.json`, `statistical_results.json`, `sensitivity_summary.json`, visualisations (`*.png`), `analysis_report.pdf`, `runtime_report.json`.
 
 All files are versioned via SHA‑256 checksums stored in `state/projects/PROJ-302-evaluating-the-impact-of-code-generation.yaml`.
+
+---

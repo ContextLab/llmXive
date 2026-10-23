@@ -28,15 +28,15 @@ python -c "import pandas, datasets, torch, transformers, radon; print('All deps 
 python code/main.py --full-run
 ```
 The script performs the following ordered stages (each writes a deterministic artifact):
-1. **Data Acquisition** (`data_acquisition.py`) – streams the three verified PR parquet files, filters by stars ≥ 1 000 and PR count ≥ 100, writes `data/raw/*.parquet`.  
+1. **Data Acquisition** (`data_acquisition.py`) – streams the three verified PR parquet files, filters by stars ≥ 1 000 and PR count ≥ 100, writes `data/raw/*.parquet` and records SHA‑256 checksums.  
 2. **Prompt Engineering** (`prompt_engineering.py`) – extracts NL prompts from commit messages, writes `data/processed/intent_prompts.json`.  
-3. **Synthetic Generation** (`synthetic_generation.py`) – creates *prompt‑only* and *context‑based* cohorts with CodeLlama‑7B‑4bit‑GGUF; writes `data/synthetic/llm_snippets.jsonl`.  
-4. **Feature Extraction** (`feature_extraction.py`) – computes LOC, radon complexity, CI build time, and CodeBERT‑based semantic similarity; writes `data/processed/features.parquet`.  
-5. **Power Analysis** (`power_analysis.py`) – ensures enough matched pairs for a medium effect (d = 0.3); may fetch additional repos if needed.  
-6. **Propensity‑Score Matching** (`matching.py`) – matches LLM to human PRs on the five covariates, produces `matched_pairs.parquet` and `covariate_balance.json`.  
-7. **Statistical Analysis** (`analysis.py`) – Shapiro‑Wilk, test selection, effect size; outputs `statistical_results.json` (validated against `contracts/test_result.schema.yaml`).  
+3. **Synthetic Generation** (`synthetic_generation.py`) – creates *prompt‑only* and *context‑based* cohorts with CodeLlama‑7B‑4bit‑GGUF; enforces ≤ 30 s per snippet, 3 retries, AST validity ≥ 95 %; writes `data/synthetic/llm_snippets.jsonl`.  
+4. **Feature Extraction** (`feature_extraction.py`) – computes LOC, radon cyclomatic complexity, CI build time, and all‑MiniLM‑L6‑v2 embeddings + cosine similarity; writes `features.parquet`.  
+5. **Outcome Prediction** (`outcome_prediction.py`) – trains a regression model on human PRs and predicts `review_effort_duration` for LLM‑generated PRs, writing predictions back to the merged dataset.  
+6. **Propensity‑Score Matching** (`matching.py`) – matches human and LLM PRs on the five covariates, generates `matched_pairs.parquet` and `covariate_balance.json`.  
+7. **Statistical Analysis** (`analysis.py`) – Shapiro‑Wilk, test selection, compute p‑value, effect size, `passed` flag; validates against `contracts/test_result.schema.yaml`.  
 8. **Sensitivity Analysis** (`sensitivity.py`) – quartile sweeps, writes `sensitivity_summary.json`.  
-9. **Visualization** (`visualization.py`) – box plot & CDF PNGs.  
+9. **Visualization** (`visualization.py`) – box plot & CDF PNGs for `total_review_duration`.  
 10. **Report Generation** (`report_generator.py`) – assembles HTML and PDF (`reports/analysis_report.pdf`).  
 11. **Runtime Measurement** (`runtime.py`) – records stage timings, fails if total > 6 h, writes `runtime_report.json`.
 
@@ -66,3 +66,8 @@ The script performs the following ordered stages (each writes a deterministic ar
 - Every figure and statistic in the PDF can be traced back to a single row in a Parquet/JSON artifact.
 
 Enjoy your reproducible study!
+
+---
+
+
+

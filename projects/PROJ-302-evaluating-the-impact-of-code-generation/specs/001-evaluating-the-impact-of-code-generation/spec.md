@@ -13,7 +13,7 @@ The system must successfully acquire a stratified sample of high-quality GitHub 
 
 **Why this priority**: Without a clean, matched dataset containing both human and synthetic code with accurate review timestamps, no statistical analysis can be performed. This is the foundational step.
 
-**Independent Test**: The pipeline can be executed end-to-end on a single small repository (e.g., < 500 PRs) to verify that synthetic code is generated, metadata is extracted correctly, and the dataset fits within the 7GB RAM limit.
+**Independent Test**: The pipeline can be executed end-to-end on a single small repository (e.g., < 500 PRs) to verify that synthetic code is generated, metadata is extracted correctly, and the dataset fits within the available RAM limit.
 
 **Acceptance Scenarios**:
 
