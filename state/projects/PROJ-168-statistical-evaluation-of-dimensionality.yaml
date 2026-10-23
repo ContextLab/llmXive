@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T20:19:42.214324Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-168-statistical-evaluation-of-dimensionality
-last_run_id: 3640f421-9474-4f42-8ae3-ddd65c0855a5
+last_run_id: 1799f340-9e9e-4865-b9f7-1cef3b1c0ccf
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-168-statistical-evaluation-of-dimensionality/specs/001-statistical-evaluation-of-dimensionality
 title: Statistical Evaluation of Dimensionality Reduction Techniques on Gene Expression
   Data
-updated_at: '2026-10-23T22:37:41.527262Z'
+updated_at: '2026-10-23T22:37:51.451741Z'
