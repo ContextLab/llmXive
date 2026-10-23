@@ -31,6 +31,33 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - data/processed/logs/model_load_log.json
 - data/processed/prompts.csv
 
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `pycocotools` to the project's `requirements.txt` and `pip install pycocotools`.
+- **Verified**: this loads **25014** real records with fields: image_id, caption.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import os, urllib.request, zipfile, tempfile
+from pycocotools.coco import COCO
+url='http://images.cocodataset.org/annotations/annotations_trainval2017.zip'
+with tempfile.TemporaryDirectory() as tmp:
+    zip_path=os.path.join(tmp,'anno.zip')
+    urllib.request.urlretrieve(url,zip_path)
+    with zipfile.ZipFile(zip_path,'r') as z:
+        z.extractall(tmp)
+    ann_file=os.path.join(tmp,'annotations','captions_val2017.json')
+    coco=COCO(ann_file)
+    ids=coco.getAnnIds()
+    anns=coco.loadAnns(ids)
+    print(f'RECORDS={len(anns)}')
+    print('FIELDS=image_id,caption')
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).

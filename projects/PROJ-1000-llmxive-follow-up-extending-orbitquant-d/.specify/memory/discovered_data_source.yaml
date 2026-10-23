@@ -1,9 +1,20 @@
-status: none
-intent: MS COCO 2017 validation captions dataset download via HuggingFace datasets
-  python package
+status: verified
+kind: pypi_package
+ref: pycocotools
+access_python: "import os, urllib.request, zipfile, tempfile\nfrom pycocotools.coco\
+  \ import COCO\nurl='http://images.cocodataset.org/annotations/annotations_trainval2017.zip'\n\
+  with tempfile.TemporaryDirectory() as tmp:\n    zip_path=os.path.join(tmp,'anno.zip')\n\
+  \    urllib.request.urlretrieve(url,zip_path)\n    with zipfile.ZipFile(zip_path,'r')\
+  \ as z:\n        z.extractall(tmp)\n    ann_file=os.path.join(tmp,'annotations','captions_val2017.json')\n\
+  \    coco=COCO(ann_file)\n    ids=coco.getAnnIds()\n    anns=coco.loadAnns(ids)\n\
+  \    print(f'RECORDS={len(anns)}')\n    print('FIELDS=image_id,caption')"
+record_count: 25014
+sample_fields:
+- image_id
+- caption
+field_coverage: 1.0
 required_fields:
 - image_id
 - caption
-cache_key: 89e30465c4f46ac6bcd0b3dd0639b6d75913030397a54c63611b20fffcdf27d1
-searched_at: '2026-10-22T18:10:20.519601+00:00'
-retry_count: 1
+intent: MS COCO 2017 validation captions python package dataset
+cache_key: 8c1c46205f8da81951a220188822b16040cdab41f95adf3dc95f31d57ccab30e

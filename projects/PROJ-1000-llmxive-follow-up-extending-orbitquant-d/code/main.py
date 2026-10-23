@@ -1,24 +1,23 @@
 """
-code/main.py
-Entry point for project initialization.
+Main entry point for the llmXive follow‑up project.
 
-This script creates the required project skeleton under the `code/` directory,
-adds `__init__.py` markers to make each sub‑package importable, and prints a
-confirmation message. It is invoked by the quick‑start guide:
+Provides a simple command‑line interface with a single ``--phase`` argument.
+The ``init`` phase creates the required project skeleton under the ``code/``
+package (sub‑directories and ``__init__.py`` markers) and prints a
+confirmation message.
 
-    python -m code.main --phase init
-
-The script is deliberately lightweight and runs on CPU‑only environments.
+The script is safe to run multiple times; existing directories and files
+are left untouched.
 """
 import argparse
 import sys
 from pathlib import Path
 from llmxive_toolkit import paths, get_logger
 
+# Configure a module‑level logger (optional)
 log = get_logger(__name__)
 
-# List of sub‑directories that constitute the project skeleton.
-# The quick‑start verification expects at least eight directories.
+# List of sub‑directories that must exist under ``code/``
 SUBDIRS = [
     "analysis",
     "models",
@@ -26,68 +25,70 @@ SUBDIRS = [
     "evaluation",
     "utils",
     "runners",
-    "validation",
     "data",
+    "validation",
 ]
 
-def create_package_dir(dir_path: Path) -> None:
-    """
-    Ensure a directory exists and contains an ``__init__.py`` file so that it
-    is recognised as a Python package.
 
-    Parameters
-    ----------
-    dir_path: Path
-        The absolute path of the directory to create.
+def _ensure_package_dir(dir_path: Path) -> None:
+    """
+    Ensure that ``dir_path`` exists and contains an ``__init__.py`` file
+    so that it is recognised as a Python package.
     """
     dir_path.mkdir(parents=True, exist_ok=True)
     init_file = dir_path / "__init__.py"
     if not init_file.exists():
         init_file.touch()
-    log.debug(f"Created package directory: {dir_path}")
+        log.info(f"Created package marker: {init_file}")
+
 
 def init_skeleton() -> None:
     """
-    Create the required ``code/`` sub‑directories and ``tests/`` placeholder.
+    Create the required directory hierarchy under ``code/``.
     """
-    # Create sub‑packages under ``code/``.
     for sub in SUBDIRS:
-        create_package_dir(paths.code(sub))
+        pkg_path = paths.code(sub)
+        _ensure_package_dir(pkg_path)
+    # Also ensure the top‑level ``code`` package has an ``__init__.py``
+    root_init = paths.code("__init__.py")
+    if not root_init.exists():
+        root_init.touch()
+        log.info(f"Created top‑level package marker: {root_init}")
 
-    # Ensure the top‑level ``tests/`` directory exists with a placeholder test.
-    tests_dir = paths.tests("")
-    tests_dir.mkdir(parents=True, exist_ok=True)
-    (tests_dir / "__init__.py").touch(exist_ok=True)
+    # Create a placeholder ``tests`` package if it does not already exist
+    tests_path = paths.tests("")
+    tests_path.mkdir(parents=True, exist_ok=True)
+    tests_init = tests_path / "__init__.py"
+    if not tests_init.exists():
+        tests_init.touch()
+        log.info(f"Created tests package marker: {tests_init}")
 
-    placeholder_test = tests_dir / "test_placeholder.py"
-    if not placeholder_test.exists():
-        placeholder_test.write_text(
-            "# placeholder test – always passes\\n"
-            "def test_placeholder():\\n"
-            "    assert True\\n"
-        )
-    log.debug("Created placeholder test in tests/")
+    print("Initialization complete")
 
-def main(argv: list | None = None) -> int:
+
+def parse_args(argv: list | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Project skeleton initialisation for the OrbitQuant follow‑up."
+        description="Project skeleton initialisation for llmXive follow‑up."
     )
     parser.add_argument(
         "--phase",
+        type=str,
         required=True,
-        choices=["init"],
-        help="Initialisation phase to run."
+        help="Execution phase (currently only 'init' is supported).",
     )
-    args = parser.parse_args(argv)
+    return parser.parse_args(argv)
 
+
+def main(argv: list | None = None) -> int:
+    args = parse_args(argv)
     if args.phase == "init":
         init_skeleton()
-        print("Initialization complete")
-        return 0
+    else:
+        log.error(f"Unsupported phase: {args.phase}")
+        print(f"Error: unsupported phase '{args.phase}'", file=sys.stderr)
+        return 1
+    return 0
 
-    # Should never reach here because argparse restricts choices.
-    parser.error(f"Unsupported phase: {args.phase}")
-    return 1
 
 if __name__ == "__main__":
     sys.exit(main())
