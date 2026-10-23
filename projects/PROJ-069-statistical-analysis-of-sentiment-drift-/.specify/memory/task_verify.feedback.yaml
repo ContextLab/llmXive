@@ -1,6 +1,14 @@
 T001:
+  reason: "The required directories are present and `scripts/check_env.py` is correctly\
+    \ implemented, but the repository lacks the `.env.example` (with the placeholder\
+    \ keys) and the copied `.env` file, and there is no evidence that the script was\
+    \ run successfully (i.e., that both variables are set and the script exits with\
+    \ status\u202F0 printing the two names). These missing files and execution proof\
+    \ prevent the task from being considered complete."
   task: ba3a285f4068f0b1a5cf6039c1b91dd37e2125b95dffa5c6a529c8c1a2645429
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/ingest/fetch_fred.py
+    exit=1'
   task: 6fd690fb1b05ef4a608ae9ef05e5cdf7e5da33ec3db0fbb078a911c733a9c756
 T003:
   task: 050b1862a2e6c4f66e398d5a3beeff1bbf65baadb014b4699c78631f303104da

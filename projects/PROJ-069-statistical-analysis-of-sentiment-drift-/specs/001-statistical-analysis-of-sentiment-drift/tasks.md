@@ -19,7 +19,7 @@ Unchecked boxes (`- [ ]`) indicate work that still needs to be performed; once a
 
 ## Phase 2 – Data acquisition  
 
-- [ ] T002 [P1] [US-1] **Download macro‑economic series from the official FRED API**  
+- [ ] T002 [P1] [US-1] **Download macro‑economic series from the official FRED API**   <!-- FAILED-IN-EXECUTION: code/ingest/fetch_fred.py exit=1 -->
   - Use `fredapi` to fetch quarterly GDP (`GDP`), unemployment rate (`UNRATE`), and consumer confidence (`CSCICP03`).  
   - Save as `data/raw/fred/fred_gdp.csv`, `data/raw/fred/fred_unrate.csv`, `data/raw/fred/fred_consumer_confidence.csv`.  
   - Compute SHA‑256 checksums for each CSV and record them in `data/checksums.json`.  

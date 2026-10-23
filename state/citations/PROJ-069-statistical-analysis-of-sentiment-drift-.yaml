@@ -163,7 +163,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/sentiment-drift
   verified_at: '2026-10-22T03:55:12.896873Z'
-- artifact_hash: 6d5ffc18edcce1647c81e4ca8cf67ce056d80ec992ee2cc3c2f11862a253521b
+- artifact_hash: 66b9d48211490b4eeab16c324845ae4dbaa6b2e6f98c029515b3f7b936dc8a97
   artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -173,4 +173,4 @@
   value: https://raw.githubusercontent.com/datasets/nber-business-cycle-dating/master/data/nber-cycles.csv`
   verification_status: mismatch
   verified_against_url: https://raw.githubusercontent.com/datasets/nber-business-cycle-dating/master/data/nber-cycles.csv
-  verified_at: '2026-10-23T23:30:14.383840Z'
+  verified_at: '2026-10-23T23:32:18.018452Z'
