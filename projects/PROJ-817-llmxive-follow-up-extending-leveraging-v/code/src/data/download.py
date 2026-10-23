@@ -40,6 +40,7 @@ OUTPUT_PATH = paths.data("raw", "prompts_sample.parquet")
 PROVENANCE_PATH = paths.data("raw", "prompts_sample_provenance.json")
 # ----------------------------------------------------------------------
 
+
 def _row_checksum(row: dict) -> str:
     """Compute a stable SHA‑256 checksum for a source row.
 
@@ -57,6 +58,7 @@ def _row_checksum(row: dict) -> str:
     )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
+
 def _iter_stream_hf():
     """Yield rows from the HF streaming loader.
 
@@ -66,6 +68,7 @@ def _iter_stream_hf():
     """
     try:
         from datasets import load_dataset
+
         log.info(
             "Streaming %s split=%s via datasets.load_dataset (primary source)",
             DATASET_ID,
@@ -74,25 +77,25 @@ def _iter_stream_hf():
         ds = load_dataset(DATASET_ID, split=SPLIT, streaming=True)
         for row in ds:
             yield row
-    except Exception as exc:
+    except Exception as exc:  # pragma: no cover – exercised only on failure
         log.warning(
             "Primary HF streaming loader failed (%s); falling back to hf:// parquet shards",
             exc,
         )
         try:
             from datasets import load_dataset
-            # Fallback to canonical parquet shards using the hf:// protocol
-            # This is the robust way to access public shards without the REST API.
+
             ds = load_dataset(
-                "parquet", 
-                data_files=f"hf://datasets/{DATASET_ID}/{SPLIT}/*.parquet", 
-                streaming=True
+                "parquet",
+                data_files=f"hf://datasets/{DATASET_ID}/{SPLIT}/*.parquet",
+                streaming=True,
             )
             for row in ds:
                 yield row
-        except Exception as fallback_exc:
+        except Exception as fallback_exc:  # pragma: no cover
             log.error("Fallback loader also failed: %s", fallback_exc)
             raise RuntimeError("Unable to stream dataset from Hugging Face") from fallback_exc
+
 
 def collect_prompt_sample(
     n_prompts: int = N_PROMPTS,
@@ -149,14 +152,15 @@ def collect_prompt_sample(
     df.attrs["scanned_rows"] = scanned
     return df
 
+
 def main() -> int:
     """Entry point for ``python -m code.src.data.download``."""
     df = collect_prompt_sample()
-    
-    # Write the parquet file.
+
+    # Write the parquet file using fastparquet (compatible with NumPy 1.26).
     output_path = OUTPUT_PATH
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(output_path, index=False)
+    df.to_parquet(output_path, index=False, engine="fastparquet")
     log.info("Wrote %d rows to %s", len(df), output_path)
 
     # Write provenance information.
@@ -180,8 +184,8 @@ def main() -> int:
     PROVENANCE_PATH.write_text(json.dumps(provenance, indent=2))
     log.info("Wrote provenance to %s", PROVENANCE_PATH)
 
-    # Observable check
-    check = pd.read_parquet(output_path)
+    # Observable check – read back using fastparquet.
+    check = pd.read_parquet(output_path, engine="fastparquet")
     assert len(check) >= N_PROMPTS, "fewer than required prompts"
     assert check["edit_prompt"].notna().all(), "null prompts present"
     assert check["checksum"].notna().all(), "null checksums present"
@@ -190,6 +194,7 @@ def main() -> int:
         len(check),
     )
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
