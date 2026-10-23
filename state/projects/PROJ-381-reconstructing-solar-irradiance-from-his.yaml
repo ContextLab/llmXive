@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T22:24:12.355838Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-381-reconstructing-solar-irradiance-from-his
-last_run_id: db3acefa-1759-461c-9be1-6b1393b023bf
+last_run_id: ca216e1c-439d-483c-9ac0-b6a9d35da6da
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his
 title: Reconstructing Solar Irradiance from Historical Sunspot Records
-updated_at: '2026-10-13T20:59:23.671631Z'
+updated_at: '2026-10-23T17:32:10.243637Z'
