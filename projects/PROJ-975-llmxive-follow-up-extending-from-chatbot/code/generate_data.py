@@ -11,8 +11,8 @@ import numpy as np
 # ---- Compatibility shim for huggingface_hub ----
 # Older versions of sentence_transformers expect `cached_download` in huggingface_hub,
 # but recent releases have renamed it to `hf_hub_download` with a different signature.
-# We provide a thin wrapper that drops unsupported kwargs (e.g., `url`) and forwards
-# the call to the modern function.
+# We provide a thin wrapper that drops unsupported kwargs (e.g., `url` and
+# `legacy_cache_layout`) and forwards the call to the modern function.
 try:
     import huggingface_hub
     from huggingface_hub import hf_hub_download
@@ -21,6 +21,7 @@ try:
         def _cached_download(*args, **kwargs):
             # Remove arguments that older callers may pass but newer versions don't accept.
             kwargs.pop("url", None)
+            kwargs.pop("legacy_cache_layout", None)
             return hf_hub_download(*args, **kwargs)
 
         huggingface_hub.cached_download = _cached_download
