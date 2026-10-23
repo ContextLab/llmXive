@@ -18,23 +18,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.acquire_real   # creates data/raw/tide.parquet, verifies SHA‑256, writes data/raw/tide.csv and data/raw/tide.sha256 -> rc=1
-failed
+
+2026-10-23 00:41:46,003 INFO __main__: Starting TIDE dataset acquisition.
+2026-10-23 00:41:46,052 INFO __main__: Wrote Parquet checksum to '/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/data/raw/tide.sha256'
+2026-10-23 00:41:46,099 INFO __main__: Converting Parquet to CSV at '/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/data/raw/tide.csv'
+2026-10-23 00:41:46,173 ERROR __main__: Acquisition failed
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 193, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 161, in main
-    df = pd.read_parquet(parquet_path)
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 651, in read_parquet
-    impl = get_engine(engine)
-           ^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
-    raise ImportError(
-ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
-A suitable version of pyarrow or fastparquet is required for parquet support.
-Trying to import the above resulted in these errors:
- - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
- - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/src/data/acquire_real.py", line 170, in main
+    raise RuntimeError(f"Parquet file is missing required columns: {missing}")
+RuntimeError: Parquet file is missing required columns: {'instance_id', 'ground_truth_label'}
 
 - python -m src.features.extract   # reads all .py files, writes data/features.csv (includes origin + sha256) -> rc=1
 

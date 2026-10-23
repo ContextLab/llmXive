@@ -1,4 +1,2 @@
-# Project dependencies
-# Existing default dependencies are already available in the environment.
-# Added explicit requirement to upgrade NumPy to satisfy pyarrow.
-numpy>=2.0
+# Added pyarrow for Parquet support
+pyarrow>=12.0.0
