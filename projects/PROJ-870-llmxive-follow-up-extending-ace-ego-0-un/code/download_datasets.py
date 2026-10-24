@@ -8,16 +8,18 @@ This script downloads the following resources into ``data/raw/``:
 
 For each file it computes a SHA‑256 checksum and compares it against the
 expected value (if provided in ``plan.md``). A log file
-``data/raw/download_log.txt`` is written with timestamps and any mismatches.
+``data/raw/download_log.txt`` is written with timestamps and any checksum mismatches.
 """
 
 import hashlib
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from llmxive_toolkit import paths, get_logger
 
@@ -36,11 +38,22 @@ def compute_sha256(file_path: Path) -> str:
 
 
 def download_file(url: str, dest: Path) -> None:
-    """Stream‑download *url* into *dest* with a User-Agent to avoid blocks."""
+    """Stream‑download *url* into *dest* with a User-Agent and retries to avoid blocks."""
     dest.parent.mkdir(parents=True, exist_ok=True)
     log.info(f"Downloading {url} → {dest}")
+    
+    # Setup robust session with retries
+    session = requests.Session()
+    retries = Retry(
+        total=5,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"]
+    )
+    session.mount("https://", HTTPAdapter(max_retries=retries))
+    
     headers = {"User-Agent": "llmXive-Research-Agent/1.0"}
-    with requests.get(url, stream=True, timeout=120, headers=headers) as r:
+    with session.get(url, stream=True, timeout=120, headers=headers) as r:
         r.raise_for_status()
         with dest.open("wb") as f:
             for chunk in r.iter_content(chunk_size=8192):
@@ -56,6 +69,7 @@ def parse_expected_checksums(plan_path: Path) -> Dict[str, str]:
     """
     checksums: Dict[str, str] = {}
     if not plan_path.is_file():
+        log.warning(f"Plan file not found at {plan_path}; skipping checksum verification.")
         return checksums
 
     sha256_re = re.compile(r"(?P<filename>\S+)\s+SHA[-]?256:\s+(?P<hash>[a-fA-F0-9]{64})")
@@ -72,15 +86,25 @@ def parse_expected_checksums(plan_path: Path) -> Dict[str, str]:
 def main() -> None:
     # Use the toolkit's root path to find specs consistently.
     project_root = paths.root
+    
+    # Search for plan.md in the specs directory
     specs_root = project_root / "specs"
     plan_md_candidates = list(specs_root.rglob("plan.md"))
     
     if not plan_md_candidates:
-        raise FileNotFoundError("Could not locate any plan.md under the specs directory.")
+        log.error(f"Could not locate any plan.md under {specs_root}")
+        # Fallback: check project root just in case
+        plan_md_candidates = list(project_root.rglob("plan.md"))
     
-    # Use the first plan.md found.
-    plan_md = plan_md_candidates[0]
-    expected = parse_expected_checksums(plan_md)
+    if not plan_md_candidates:
+        # If we absolutely can't find it, we continue without checksums rather than failing
+        # so the data is at least downloaded, but we log a warning.
+        log.warning("No plan.md found. Checksum verification will be skipped.")
+        expected = {}
+    else:
+        plan_md = plan_md_candidates[0]
+        log.info(f"Using plan file: {plan_md}")
+        expected = parse_expected_checksums(plan_md)
 
     # Define the resources.
     # Note: dynamic_reliability_heuristic.py uses a real raw file as a placeholder 
@@ -113,7 +137,7 @@ def main() -> None:
     log_file = raw_dir / "download_log.txt"
 
     with log_file.open("a", encoding="utf-8") as log_f:
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now(timezone.utc).isoformat()
         log_f.write(f"=== Download run @ {timestamp} UTC ===\n")
 
         for res in resources:
@@ -124,6 +148,7 @@ def main() -> None:
                 err_msg = f"FAILED to download {res['url']}: {exc}"
                 log.error(err_msg)
                 log_f.write(err_msg + "\n")
+                # We raise here to ensure the task fails if the real data cannot be fetched
                 raise
 
             # Compute checksum
