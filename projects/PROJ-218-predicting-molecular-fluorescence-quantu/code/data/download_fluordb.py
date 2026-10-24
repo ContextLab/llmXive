@@ -39,7 +39,7 @@ def main(argv=None) -> int:
         description="Download FluorDB v1.0 and verify its integrity."
     )
     # The URL argument is kept for backward compatibility but is ignored;
-    # the dataset is fetched via the HuggingFace `datasets` library.
+    # the dataset is fetched via the HF identifier.
     parser.add_argument(
         "--url",
         help="(ignored) URL of the dataset – the script uses the HF identifier.",

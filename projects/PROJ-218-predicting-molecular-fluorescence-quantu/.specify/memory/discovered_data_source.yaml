@@ -1,8 +1,15 @@
 status: none
-intent: FluorDB v1.0 SMILES fluorescence quantum yield download python package dataset
+intent: download fluorescence quantum yield SMILES dataset fpbase csv python package
+  dataset
 required_fields:
 - SMILES
 - fluorescence_quantum_yield
-cache_key: a36d5f47cf54df943a87df00f0f3e994f5f29a84d778718ef0ab970bcb6639b1
-searched_at: '2026-10-23T03:47:27.839393+00:00'
+- excitation_wavelength_nm
+- emission_wavelength_nm
+- temperature_K
+- solvent
+- experimental_error
+- reference_doi
+cache_key: c9f89685e13e53d4a016e59fb8bc54ab49d4fff19ac083853b35c2d997a829f9
+searched_at: '2026-10-24T21:24:01.398275+00:00'
 retry_count: 1

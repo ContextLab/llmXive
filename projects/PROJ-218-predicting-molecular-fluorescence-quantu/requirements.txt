@@ -1,6 +1,3 @@
-# Existing dependencies are pre‑installed in the execution environment.
-# Additional packages required for the FluorDB download step:
-datasets==2.20.0
-pyyaml==6.0.1
-# Note: torch is intentionally omitted because the pipeline is CPU‑only
-# and the scripts have been written to operate without it.
+# Existing dependencies (numpy, pandas, etc.) are provided by the platform.
+# Upgrade NumPy to a version compatible with pyarrow required by the `datasets` library.
+numpy==2.0.0
