@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+  "tasks": [
+    {
+      "task_key": "T002",
+      "reject_count": 1,
+      "last_reason": "Requested task execution failed; rerun successfully: code/ingestion/verify_data.py exit=1",
+      "first_seen": "2026-10-24T15:14:25.961699+00:00",
+      "last_seen": "2026-10-24T15:14:25.961699+00:00"
+    }
+  ],
+  "updated_at": "2026-10-24T15:14:25.961699+00:00"
+}

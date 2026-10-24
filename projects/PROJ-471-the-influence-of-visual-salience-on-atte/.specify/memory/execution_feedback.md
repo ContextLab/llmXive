@@ -43,7 +43,7 @@ ERROR tests/unit/test_salience_batcher.py
 ERROR tests/unit/test_salience_gen.py
 ERROR tests/unit/test_update_spec_governance.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-1 warning, 8 errors in 4.96s
+1 warning, 8 errors in 4.76s
 
 
 

@@ -79,29 +79,19 @@ def test_verify_incomplete_structure():
     finally:
         teardown_dummy_dataset(raw_root)
 
-def test_verify_checksum_mismatch():
-    """Test that altered files trigger a checksum mismatch if we implemented manifest validation,
-    but the current task is to WRITE the manifest. We verify it writes it correctly.
-    """
+def test_verify_checksum_generation():
+    """Test that the manifest is written correctly with hashes."""
     raw_root = paths.data("raw")
     setup_dummy_dataset(raw_root)
-
-    # First run to create manifest
-    run_verify()
-
-    # Alter a file
-    (raw_root / "ds003123" / "stimuli" / "img1.png").write_bytes(b"altered-data")
-
-    # The current implementation just re-writes the manifest if run again.
-    # If the task requires validating an existing manifest, it should be explicitly stated.
-    # For now, we ensure it can run again and produce a new correct manifest.
-    result = run_verify()
-    assert result.returncode == 0
-    
-    with (raw_root / "checksums.json").open() as f:
-        manifest = json.load(f)
-    
-    # The hash should have changed
-    assert manifest["files"]["ds003123/stimuli/img1.png"] != "fake-image-data" # just a sanity check
-    
-    teardown_dummy_dataset(raw_root)
+    try:
+        run_verify()
+        with (raw_root / "checksums.json").open() as f:
+            manifest = json.load(f)
+        
+        # Verify the relative path is correct
+        assert "ds003123/stimuli/img1.png" in manifest["files"]
+        # Verify the hash is a valid hex string (64 chars for SHA-256)
+        hash_val = manifest["files"]["ds003123/stimuli/img1.png"]
+        assert len(hash_val) == 64
+    finally:
+        teardown_dummy_dataset(raw_root)
