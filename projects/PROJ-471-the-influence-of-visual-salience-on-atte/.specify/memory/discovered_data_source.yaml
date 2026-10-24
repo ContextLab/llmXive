@@ -1,17 +1,17 @@
 status: none
-intent: download Moral Foundations Eye-Tracking Dataset OpenNeuro and DeepGaze II
+intent: Moral Foundations Eye-Tracking OpenNeuro dataset download DeepGaze II model
   python package dataset
 required_fields:
-- image_id
-- image_path
-- image_width
-- image_height
+- stimulus_image_id
+- stimulus_image_file_path
+- stimulus_image_width
+- stimulus_image_height
 - participant_id
 - trial_id
 - fixation_x
 - fixation_y
 - fixation_duration
 - timestamp
-cache_key: f1de4fe59bebca9fc35f22f25c0c7530cb2eb10ccea034a5090708f6092217ea
-searched_at: '2026-10-20T02:25:37.414410+00:00'
+cache_key: 5e5aa53bb1d84fa61197d2fc9b3c48af1fac0eef669f1d58f34d502dccf59a05
+searched_at: '2026-10-24T06:13:59.145239+00:00'
 retry_count: 1

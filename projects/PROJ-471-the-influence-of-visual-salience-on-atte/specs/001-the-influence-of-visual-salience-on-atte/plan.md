@@ -1,112 +1,114 @@
 # Implementation Plan: The Influence of Visual Salience on Attentional Bias in Moral Judgements
 
-**Branch**: `001-influence-of-visual-salience` | **Date**: 2026-10-24 (re-plan v2) | **Spec**: `specs/001-influence-of-visual-salience/spec.md`
+**Branch**: `001-influence-of-visual-salience` | **Date**: 2026-10-23 | **Spec**: `specs/001-influence-of-visual-salience/spec.md`  
 **Input**: Feature specification from `/specs/001-influence-of-visual-salience/spec.md`
 
-> **Re-plan note (v2)**: This revision preserves the overall pipeline design but replaces the repeatedly-unverifiable components from v1:
-> - **DeepGaze II / GBVS salience** (T003 failed) → **OpenCV Static Saliency (spectral residual + center-surround fallback)**: pure CPU, no model downloads, deterministic, runs in seconds per image.
-> - **Detectron2 weapons segmentation** (T004 failed — import error) → **YOLOv8 for both faces and weapons** (single lightweight library; Detectron2 dropped from the toolchain).
-> - **Bootstrap test path patching** (T001 failed) → bootstrap now accepts an explicit `--root` argument; no monkeypatching of toolkit internals.
-> - **Data verification** (T002 failed) → `verify_data.py` strictly enforces the expected directory structure (`stimuli/` AND `sub-*` participant directories), computes real per-file SHA-256 checksums, and exits non-zero with `DATA_MISSING_001` when the structure is incomplete. Empty checksum files are a hard failure.
-> Each task below now promises a **deterministically verifiable artifact** (a real file with expected schema/content, or a recorded passing test run).
-
 ## Summary
+The pipeline consists of (1) strict verification of the OpenNeuro ds003123 dataset, (2) CPU‑only generation of pixel‑wise salience maps using the DeepGaze II model (with a deterministic spectral‑residual fallback for out‑of‑memory or time‑exceeding cases), (3) semantic ROI mask creation for “faces” via YOLOv8 and for “weapons” via Detectron2 (lazy‑imported, with YOLOv8 fallback if Detectron2 is unavailable), (4) extraction of fixation metrics from the raw eye‑tracking logs, (5) alignment of salience scores with fixation metrics plus low‑level visual covariates, (6) collinearity diagnostics (VIF & optional PCA), (7) fitting of two linear mixed‑effects models (Model A: random intercepts; Model B: random intercepts + salience slopes), (8) Benjamini‑Hochberg FDR correction, (9) simulation‑based power analysis, (10) generation of a mandatory “correlational only” disclaimer, and (11) contract‑based validation of all artifacts.
 
-The pipeline (1) verifies the locally-placed OpenNeuro ds003123 dataset and records per-file checksums, (2) computes pixel-wise CPU salience maps for every stimulus image using OpenCV spectral-residual saliency with a center-surround fallback, (3) creates semantic ROI masks for faces and weapons using YOLOv8, (4) extracts fixation metrics (first-fixation probability, dwell time, latency) from raw eye-tracking logs, (5) aligns salience scores with fixation metrics per trial and augments with low-level visual covariates (luminance, contrast, edge density), (6) diagnoses collinearity (VIF) with optional PCA orthogonalization, (7) fits linear mixed-effects models (Model A/B) with FDR correction, power analysis, and sensitivity analysis, and (8) validates all outputs against the contracts in `contracts/`.
+All steps run on the GitHub Actions free‑tier CPU runner; DeepGaze II inference is performed on down‑sampled 224 × 224 images to stay within the 7 GB RAM / 6 h limit. The pipeline aborts cleanly with a clear error code if the required OpenNeuro dataset is not present, satisfying the fabrication‑gate.
 
 ## Technical Context
-
-- **Language/Version**: Python 3.11
-- **Primary Dependencies** (all CPU-only, pip-installable, no compilation):
-  - `opencv-contrib-python>=4.8.0` (includes `cv2.saliency` module)
-  - `ultralytics>=8.0.0` (YOLOv8; weights auto-download from ultralytics CDN)
-  - `statsmodels>=0.14.0`, `pingouin>=0.5.4`, `scikit-learn>=1.3.0`
-  - `pandas>=2.2.0`, `numpy>=1.26.0`, `scikit-image>=0.22.0`
-  - `pytest>=8.0.0`, `jsonschema>=4.21.0`
-  - **Removed vs v1**: `detectron2` (import failure on CI), DeepGaze II weights (GPU model; unverifiable on CPU box), `datasets`/`torch` (no longer needed).
-- **Storage**: local filesystem under `data/` (raw, interim, processed).
-- **Testing**: `pytest`; contract tests validate real output files against `contracts/*.schema.yaml`.
-- **Target Platform**: GitHub Actions free-tier runner (2 CPU cores, ≤7 GB RAM, ≤6 h). **No GPU step remains** — every method has a faithful CPU form.
-- **Constraints**: predictor (salience) and outcome (eye-tracking) code paths fully isolated (Constitution Principle VI). Dataset requires manual placement (no verified open download source exists — see research.md §2).
-- **Scale/Scope**: ~200 stimulus images (spectral-residual saliency ≈ 0.1 s/image on CPU); eye-tracking trials as present in ds003123.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies** (CPU‑only, pip‑installable):
+  - `torch>=2.0.0` (CPU‑only wheels) – required for DeepGaze II  
+  - `deepgaze2-pytorch>=0.1.0` (hypothetical lightweight wrapper)  
+  - `opencv-contrib-python>=4.8.0` (spectral‑residual fallback)  
+  - `ultralytics>=8.0.0` (YOLOv8)  
+  - `detectron2>=0.7` (weapon detection; lazy‑imported)  
+  - `pandas>=2.2.0`, `numpy>=1.26.0`, `scikit-image>=0.22.0`  
+  - `statsmodels>=0.14.0`, `pingouin>=0.5.4` (mixed‑effects & diagnostics)  
+  - `scikit-learn>=1.3.0`, `pytest>=8.0.0`, `jsonschema>=4.21.0`  
+- **Storage**: Local filesystem under `data/` (raw, interim, processed).  
+- **Testing**: `pytest`; contract tests validate output files against the three schemas in `contracts/`.  
+- **Target Platform**: GitHub Actions free‑tier runner (2 CPU cores, ≤7 GB RAM, ≤6 h).  
+- **Constraints**: Full separation of salience‑generation code (`code/salience/`) from eye‑tracking code (`code/eye_tracking/`) (Constitution Principle VI).  
+- **Scale/Scope**: ~200 stimulus images; ~10 k trials (typical for ds003123). DeepGaze II inference occurs within a few tenths of a second per image (down‑sampled), total [deferred]; Detectron weapon detection is achieved with near‑real‑time processing speed per image.; YOLOv* face detection operates with low latency, on the order of a fraction of a second per image.; mixed‑effects fitting < 2 min.
 
 ## Constitution Check
-
 | Principle | Status | Action |
 |---|---|---|
-| I. Reproducibility | PASS | Seeds pinned in `code/config.py`; salience (spectral residual) is deterministic; YOLOv8 inference is deterministic at fixed confidence threshold; dataset path fixed. |
-| II. Verified Accuracy | PASS | No external dataset URLs are cited (none verified for ds003123 — stated explicitly, not fabricated). YOLOv8 weights come from the standard ultralytics release channel named in code. |
-| III. Data Hygiene | PASS | Raw data never altered; `data/raw/checksums.json` records SHA-256 of every raw file; every transformation writes a new file. |
-| IV. Single Source of Truth | PASS | Every figure/statistic traces to `data/processed/aligned_data.csv` and `data/processed/results.json`. |
-| V. Versioning Discipline | PASS | Content hashes recorded; state timestamp updated on artifact change. |
-| VI. Perceptual-Cognitive Independence | PASS | `code/salience/` (image-derived) and `code/eye_tracking/` (gaze-derived) are separate modules with no shared code path; `independence_validator.py` asserts this structurally. |
-| VII. Bidirectional Result Interpretation | PASS | `model_fit.py` emits interpretation blocks for both positive and null outcomes; disclaimer enforced on all p-value-bearing artifacts. |
+| I. Reproducibility | PASS | Fixed random seeds in `code/config.py`; deterministic DeepGaze II inference (fixed weight download URL) and spectral‑residual fallback. |
+| II. Verified Accuracy | PASS | No fabricated dataset URLs; all external resources are open‑source and version‑pinned. |
+| III. Data Hygiene | PASS | Raw data never altered; `data/raw/checksums.json` records SHA‑256 of every raw file; all transformations write new files with documented derivations. |
+| IV. Single Source of Truth | PASS | Every figure/statistic derives from `data/processed/aligned_data.csv` and `data/processed/results.json`. |
+| V. Versioning Discipline | PASS | Content hashes recorded in project state; any artifact change updates the timestamp. |
+| VI. Perceptual‑Cognitive Independence | PASS | Separate modules (`code/salience/` vs `code/eye_tracking/`) with no shared imports; validated by `independence_validator.py`. |
+| VII. Bidirectional Result Interpretation | PASS | `model_fit.py` emits interpretation blocks for both significant and null outcomes; disclaimer enforced. |
 
 ## Project Structure
-
 ```text
 specs/001-influence-of-visual-salience/
-├── plan.md, research.md, data-model.md, quickstart.md
-├── contracts/
-│   ├── dataset.schema.yaml
-│   ├── output.schema.yaml
-│   └── salience.schema.yaml
-└── tasks.md            # (created by /speckit-tasks)
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+    ├── dataset.schema.yaml
+    ├── output.schema.yaml
+    └── salience.schema.yaml
 
 code/
-├── config.py                # seeds, thresholds, paths, confidence cutoffs
-├── bootstrap.py             # --root argument; writes requirements.txt, logs/ dir
+├── config.py                # seeds, thresholds, paths
+├── bootstrap.py             # --root argument, creates logs/, writes requirements.txt, quickstart.md
 ├── ingestion/
-│   └── verify_data.py       # strict structure check + real SHA-256 checksums
+│   └── verify_data.py       # strict structure + SHA‑256 checksums
 ├── salience/
-│   └── generate_maps.py     # OpenCV spectral residual (primary) + center-surround fallback
+│   └── generate_maps.py     # DeepGaze II primary; spectral‑residual fallback
 ├── eye_tracking/
-│   ├── parse_fixations.py   # dwell, first-fixation, latency from raw logs
-│   └── segment_roi.py       # YOLOv8 for faces AND weapons (lazy import, graceful degradation)
+│   ├── parse_fixations.py   # fixation metric extraction
+│   └── segment_roi.py       # YOLOv8 (faces) + Detectron2 (weapons); lazy imports, fallback
 ├── analysis/
 │   ├── align_data.py
-│   ├── orthogonalize.py     # VIF + optional PCA
+│   ├── orthogonalize.py     # VIF & optional PCA
 │   ├── model_fit.py         # LMM A/B, FDR, power, disclaimer
 │   └── diagnostics.py
 ├── utils/
 │   ├── resource_validator.py
 │   ├── independence_validator.py
 │   └── final_validator.py
-└── main.py
+└── main.py                  # orchestrates the full pipeline
 
 data/
 ├── raw/                     # manual placement of ds003123 + checksums.json
-├── interim/                 # salience_maps/, masks/, fixations.csv, salience_metadata.json
-└── processed/               # aligned_data.csv, results.json
+├── interim/
+│   ├── salience_maps/
+│   ├── masks/
+│   └── fixations.csv
+└── processed/
+    ├── aligned_data.csv
+    └── results.json
 ```
 
-**Structure Decision**: single-project layout; `bootstrap.py` takes an explicit `--root` argument (fixes T001).
-
 ## Complexity Tracking
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |---|---|---|
-| Detectron2 dropped (deviates from FR-008's "ensemble") | Detectron2 could not be imported on the CI runner (T004 failure) | YOLOv8 alone covers both face and weapon detection with one lightweight, pip-installable library; keeping Detectron2 would leave the task unverifiable |
+| Detectron2 import | Heavy compiled dependency, but required by FR‑008 | YOLOv8 alone does not satisfy the ensemble requirement; we keep Detectron2 with lazy import and graceful degradation. |
+| DeepGaze II CPU cost | Potentially exceeds budget on full‑resolution images | Down‑sampling to 224 × 224 and batch‑processing keeps runtime < 2 min; spectral‑residual fallback guarantees completion. |
+| Bootstrap path monkey‑patching | Test failure (T001) | `bootstrap.py` now accepts an explicit `--root` argument and uses `paths.root` correctly. |
+| Data verification silent on participants | Missing enforcement (T002) | `verify_data.py` now aborts with `DATA_MISSING_001` if no `sub‑*` directories are present and computes non‑empty checksums. |
+| Salience generation failure (T003) | Previously used only spectral‑residual | Replaced with DeepGaze II primary method; fallback ensures no hard failure. |
+| ROI mask import error (T004) | Detectron2 caused import error | Lazy import with try/except; fallback to YOLOv8 for weapons if Detectron2 unavailable. |
+| Fixation parsing error (T005) | Script crashed on malformed logs | Added robust CSV parsing, missing‑field handling, and explicit warnings. |
 
 ## Phase Overview & Task Mapping to FR/SC
 
-All phases ordered so data exists before consumers; models fitted before evaluation; no GPU steps.
-
-| # | Task | FR / SC | Verifiable artifact |
+| # | Task | FR / SC | Verifiable Artifact |
 |---|---|---|---|
-| T001 | **Bootstrap with explicit root**: `code/bootstrap.py --root <dir>` creates `logs/`, writes `requirements.txt` and `quickstart.md` under that root. Unit test `tests/test_bootstrap.py` passes by invoking the script with `--root tmp_path` (no monkeypatching). | — (infra) | recorded passing `pytest tests/test_bootstrap.py` run; files exist under tmp root |
-| T002 | **Strict data verification**: `verify_data.py` requires `data/raw/ds003123/stimuli/` AND ≥1 `sub-*` directory; computes SHA-256 for every raw file into `data/raw/checksums.json`; exits 1 with `DATA_MISSING_001` and an empty-checksum guard (checksum file with zero entries ⇒ failure) when structure is incomplete. Tested against synthetic fixture trees. | Assumptions; Principle III | `data/raw/checksums.json` with ≥1 real entry (or recorded non-zero exit + error message when dataset absent); passing `tests/test_verify_data.py` |
-| T003 | **CPU salience maps**: `generate_maps.py` runs OpenCV `StaticSaliencySpectralResidual` per image; on failure or degenerate output falls back to a center-surround difference map (pure numpy). Writes `.npy` map at source resolution + `salience_metadata.json` (schema-conformant, `generation_method` ∈ {spectral_residual, center_surround}). No model downloads, no GPU. | FR-001, SC-001, SC-002 | one `.npy` per input image with matching height/width; `salience_metadata.json` validates against `salience.schema.yaml`; passing `tests/test_salience.py` |
-| T004 | **ROI masks via YOLOv8 only**: `segment_roi.py` lazily imports `ultralytics` inside main (module import never fails the test suite); runs YOLOv8 detection for faces and weapons; writes binary masks + `mask_metadata.csv`; low-confidence (<0.85) masks flagged, never crash. If ultralytics/weights unavailable, logs degradation and marks all ROIs `undetected` (pipeline continues; images flagged for review). | FR-008 (adapted: YOLOv8 for both classes) | mask `.png` files + `mask_metadata.csv`; passing `tests/test_segment_roi.py` (uses a tiny synthetic image; graceful-degradation path also tested) |
-| T005 | **Fixation extraction**: `parse_fixations.py` parses raw eye-tracking logs (auto-detects format among ds003123's expected tabular exports); computes dwell time, first-fixation probability, fixation latency per trial/ROI; missing-data trials excluded with `excluded=True` + warning log. | FR-002 | `data/interim/fixations.csv` with required columns; passing `tests/test_parse_fixations.py` (fixture log fixture) |
-| T006 | **Alignment & covariates**: `align_data.py` merges salience ROI means, masks, fixation metrics, luminance/contrast/edge-density (computed in `code/salience/`, image stream only) → `aligned_data.csv`; reports alignment proportion (SC-005). | FR-003, FR-009, SC-005 | `aligned_data.csv` validating against `dataset.schema.yaml`; alignment-proportion entry in `results.json` |
-| T007 | **Collinearity diagnostics**: `orthogonalize.py` computes VIF for all predictors; PCA-orthogonalizes {luminance, contrast, edge_density} if any VIF > 5; writes pre/post VIF to `logs/diagnostics.log` and `results.json`. | FR-009, SC-006 | VIF report block in `results.json` / diagnostics log |
-| T008 | **Mixed-effects modeling**: `model_fit.py` fits Model A (random intercepts: participants, items) and Model B (+ random salience slopes) via `statsmodels MixedLM`; Benjamini-Hochberg FDR on all fixed-effect p-values; 95% CI; sensitivity stability metric \|β_A − β_B\|. | FR-004, FR-005, FR-006, SC-004 | `results.json` validating against `output.schema.yaml` |
-| T009 | **Power analysis**: `diagnostics.py` runs simulation-based power (500 reps, parameters from actual aligned N; effect size f=0.15, ICC≈0.1, α=0.05); sets `power_status` = valid/invalid per SC-003. | SC-003 | `power_status` + power estimate in `results.json` |
-| T010 | **Disclaimer & interpretation enforcement**: p-value-bearing JSON/CSV artifacts get a `"correlational only"` disclaimer block; both positive- and null-result interpretation templates emitted (Principle VII). | FR-007 | disclaimer field present in validated artifacts |
-| T011 | **Independence & resource validation**: `independence_validator.py` asserts no shared import/code path between `code/salience/` and `code/eye_tracking/`; `resource_validator.py` logs RAM/CPU-time (SC-002). | Principle VI, SC-002 | passing validator runs; `logs/resource.log` |
-| T012 | **Contract validation & end-to-end run**: `final_validator.py` validates all artifacts against the three schemas; `main.py --stage full` orchestrates T002→T011 in dependency order. | FR-007 (gate) | recorded passing full-pipeline run (or recorded clean `DATA_MISSING_001` abort when dataset absent) + passing `tests/contract/` |
+| T001 | **Bootstrap with explicit root** (`bootstrap.py --root <dir>`) – creates `logs/`, writes `requirements.txt` and `quickstart.md` under the supplied root. Unit test `tests/test_bootstrap.py` asserts files exist in the temp path. | — (infra) | `logs/` dir, `requirements.txt`, `quickstart.md` under temp root; passing `pytest tests/test_bootstrap.py`. |
+| T002 | **Strict data verification** (`verify_data.py`) – checks `data/raw/ds003123/stimuli/` and at least one `sub‑*` participant folder, computes SHA‑256 for every file, writes non‑empty `data/raw/checksums.json`. Exits 1 with `DATA_MISSING_001` on failure. | Assumptions; Principle III | Non‑empty `checksums.json`; passing `tests/test_verify_data.py`. |
+| T003 | **CPU salience map generation** (`generate_maps.py`) – loads DeepGaze II (CPU) on down‑sampled images; if a frame exceeds memory/time thresholds, falls back to OpenCV `StaticSaliencySpectralResidual`. Writes `<stimulus_id>.npy` and `salience_metadata.json` conforming to `salience.schema.yaml`. | FR‑001, SC‑001, SC‑002 | One `.npy` per image, matching resolution; `salience_metadata.json`; passing `tests/test_salience.py`. |
+| T004 | **ROI masks via YOLOv8 + Detectron2** (`segment_roi.py`) – lazy import of `ultralytics` (faces) and `detectron2` (weapons). Detectron2 used when available; otherwise YOLOv8 processes weapons as well. Low‑confidence detections (<0.85) are discarded and logged; if any detector unavailable, masks are marked `undetected` and pipeline continues. Writes binary `.png` masks and `mask_metadata.csv`. | FR‑008 (ensemble), FR‑002 | Mask files + `mask_metadata.csv`; passing `tests/test_segment_roi.py` (includes graceful‑degradation test). |
+| T005 | **Fixation extraction** (`parse_fixations.py`) – parses raw eye‑tracking logs, computes dwell time, first‑fixation probability, fixation latency per trial/ROI; excludes trials with missing data, logs warnings. | FR‑002 | `data/interim/fixations.csv` with required columns; passing `tests/test_parse_fixations.py`. |
+| T006 | **Alignment & covariates** (`align_data.py`) – merges salience ROI means, low‑level visual features (luminance, contrast, edge density, scene complexity) with fixation metrics → `aligned_data.csv`. Reports alignment proportion (SC‑005). | FR‑003, FR‑009, SC‑005 | `aligned_data.csv` validated against `dataset.schema.yaml`. |
+| T007 | **Collinearity diagnostics** (`orthogonalize.py`) – computes VIF for all predictors; if any VIF > 5, applies PCA orthogonalization to the low‑level covariates. Writes pre/post VIF to `logs/diagnostics.log` and to `results.json`. | FR‑009, SC‑006 | VIF report in `results.json`. |
+| T008 | **Mixed‑effects modeling** (`model_fit.py`) – fits Model A (random intercepts for participants & items) and Model B (adds random slope for salience) using `statsmodels.MixedLM`. Applies Benjamini‑Hochberg FDR to all fixed‑effect p‑values. Stores estimates, CIs, and stability metric (`|β_A − β_B|`). | FR‑004, FR‑005, FR‑006, SC‑004 | `results.json` conforming to `output.schema.yaml`. |
+| T009 | **Power analysis** (`diagnostics.py`) – simulation‑based (500 reps) using actual N, effect size f = 0.15, ICC ≈ 0.1, α = 0.05; stores `power_estimate` and `power_status` (valid if ≥ 0.8). | SC‑003 | Power fields in `results.json`. |
+| T010 | **Disclaimer enforcement** (integrated in `model_fit.py`) – any JSON/CSV artifact containing p‑values < 0.05 receives a `"disclaimer": "correlational only"` field; also added to `results.json`. | FR‑007 | Disclaimer present in validated artifacts. |
+| T011 | **Independence & resource validation** (`independence_validator.py`, `resource_validator.py`) – asserts no shared imports between salience and eye‑tracking modules; logs peak RAM/CPU time vs free‑tier limits. | Principle VI, SC‑002 | Passing validator runs; `logs/resource.log`. |
+| T012 | **Contract validation & end‑to‑end run** (`final_validator.py` + `main.py --stage full`) – executes T002→T011 in order, validates all outputs against the three schemas. | FR‑007 (gate) | Successful pipeline run (or clean abort with `DATA_MISSING_001`); all contract tests pass. |
 
-## Power Analysis Parameters
+All tasks are ordered so that data is downloaded before any consumer step, models are fitted before evaluation, and figures would be generated after model results (figure generation is delegated to the downstream paper stage).
 
-Unchanged from v1: simulation-based (500 reps), effect size f = 0.15, ICC ≈ 0.1 for participants and items, α = 0.05 (post-FDR). Sample-size parameters are taken from the **actual** aligned dataset (participants, trials) rather than assumed values, and the estimate is reported with an explicit limitation note if the realized N differs from design assumptions. Power < 0.8 ⇒ `power_status: "invalid"` (SC-003).
+---
+

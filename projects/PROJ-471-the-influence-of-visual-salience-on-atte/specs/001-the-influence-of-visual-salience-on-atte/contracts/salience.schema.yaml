@@ -26,6 +26,7 @@ properties:
   generation_method:
     type: "string"
     enum:
+      - "deepgaze_ii"
       - "spectral_residual"
       - "center_surround"
     description: "Method used to generate the salience map"
