@@ -1,3 +1,4 @@
-# Existing dependencies are provided by the platform.
-# Add OpenML for dataset retrieval.
-openml==0.14.2
+# Project requirements
+# Core scientific stack is already provided by the platform.
+# Additional third‑party dependency required for data loading:
+datasets>=2.0.0

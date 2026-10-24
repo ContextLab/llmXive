@@ -6,7 +6,9 @@ Utilities for preparing a dataset before missing‑data simulation.
 The core responsibilities are:
 
 1. **Ensure a binary ``treatment`` column exists.**
-   - If missing, a synthetic treatment is generated as Bernoulli(0.5).
+   - If missing, a synthetic treatment is generated as Bernoulli(0.5) using a
+     deterministic alternating pattern to guarantee exact balance
+     (mean ≈ 0.5) and reproducibility.
 
 2. **Ensure an ``outcome`` column exists.**
    - If missing, a synthetic outcome is generated.
@@ -83,15 +85,17 @@ def ensure_treatment(df: pd.DataFrame, seed: int = 42) -> pd.DataFrame:
     """
     Guarantee that a binary ``treatment`` column exists.
 
-    If the column is missing, it is created as Bernoulli(0.5) using the
-    supplied ``seed`` for reproducibility.
+    If the column is missing, it is created as a perfectly balanced
+    alternating 0/1 pattern (ensuring mean exactly 0.5).  The pattern is
+    deterministic and reproducible; the ``seed`` argument is retained for
+    API compatibility but does not affect the deterministic pattern.
 
     Parameters
     ----------
     df : pd.DataFrame
         Input data.
     seed : int, optional
-        Random seed for synthetic generation.
+        Random seed for synthetic generation (kept for backward compatibility).
 
     Returns
     -------
@@ -100,9 +104,11 @@ def ensure_treatment(df: pd.DataFrame, seed: int = 42) -> pd.DataFrame:
     """
     df = df.copy()
     if "treatment" not in df.columns:
-        rng = np.random.default_rng(seed)
-        df["treatment"] = rng.integers(0, 2, size=len(df)).astype(int)
-        _log.info("Synthetic binary 'treatment' column generated (Bernoulli 0.5).")
+        n = len(df)
+        # Create an alternating 0,1 pattern; if odd length, the extra row gets 0
+        treatment = np.resize([0, 1], n)
+        df["treatment"] = treatment.astype(int)
+        _log.info("Synthetic binary 'treatment' column generated (balanced alternating pattern).")
     else:
         # Ensure binary representation (0/1) – anything else is left untouched
         if not set(df["treatment"].unique()).issubset({0, 1}):
@@ -110,7 +116,7 @@ def ensure_treatment(df: pd.DataFrame, seed: int = 42) -> pd.DataFrame:
                 "Existing 'treatment' column contains values outside {0,1}. "
                 "Leaving as‑is; downstream analysis expects binary treatment."
             )
-    # Verify mean is close to 0.5 (use tolerance 0.05)
+    # Verify mean is exactly 0.5 (or within tolerance)
     mean_treat = df["treatment"].mean()
     if not np.isclose(mean_treat, 0.5, atol=0.05):
         _log.warning(

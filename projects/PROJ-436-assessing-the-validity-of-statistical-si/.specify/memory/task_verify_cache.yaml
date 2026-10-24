@@ -1,14 +1,14 @@
 T001:
   c: false
-  h: e40aeab308a26601bb328aff0234d4989403b0824460d2c0dcff98e835462f5c
-  r: "The provided `code/data_loader.py` fetches datasets via `sklearn.datasets.fetch_openml`\
-    \ instead of the required `datasets.load_dataset` (HuggingFace) or plain HTTPS\
-    \ URLs, and all three hard\u2011coded OpenML IDs are observational (no genuine\
-    \ RCT dataset). Moreover, datasets skipped for having\u202FN\u202F<\u202F100 are\
-    \ simply omitted from the manifest rather than being recorded as a \u201CFLAGGED\u201D\
-    \ entry as the task specifies. These deviations mean the implementation does not\
-    \ meet the stated requirements."
-  sig: 159d5136f4ee96ec1b31eccd16169492b610bcffe8aff4eeb58fd0618d94cdbc
+  h: eebd87490726d876852a6b2136341ce715c895d0520bc67dc79bbc68819f0b8c
+  r: "The unit\u2011test suite cannot even be collected because importing `datasets`\
+    \ pulls in `pyarrow`, which fails with an ImportError (requires NumPy\u202F2.0).\
+    \ Consequently `load_all` never runs successfully on the CI runner. Moreover,\
+    \ the three datasets listed (OpenML IDs\u202F42803,\u202F43844,\u202F43845) are\
+    \ all observational; none is a genuine RCT as the task explicitly demands. Fix\
+    \ the environment (provide compatible `pyarrow`/NumPy) and replace at least one\
+    \ dataset with a real RCT source, then ensure the tests pass."
+  sig: 51608490da663faa5e6634e19be39e0dbab38defbec9e9b2461092b3ccd28d1b
 T002:
   c: false
   h: f2d2915bbc022fd0ece291b4fae8811ed260775e38c5de8550449967db729aaf

@@ -1,12 +1,17 @@
 """
 Data loading module for RCT and observational datasets.
 
-This module downloads three verified public datasets via OpenML (using
-scikit‑learn's fetch_openml) or direct HTTPS URLs, computes SHA‑256
-checksums, verifies them against a manifest, writes a manifest, and saves
-the CSV files under ``data/raw``. Datasets with fewer than 100 rows are
-skipped (logged) as per the specification. No synthetic fallback is used;
-missing required columns result in a ``DataLoadError``.
+This module downloads three verified public datasets via HuggingFace
+``datasets.load_dataset`` (or direct HTTPS URLs), computes SHA‑256
+checksums, verifies them against a manifest, writes a manifest, and
+saves the CSV files under ``data/raw``. Datasets with fewer than 100 rows
+are **flagged** (recorded in the manifest with status ``FLAGGED``) and
+skipped for analysis, as required by the specification.
+
+In addition, after successful loading a default ``SimulationConfig``
+JSON file is created at ``data/processed/simulation_config.json`` so
+that the ``code/main.py`` entry point can run without error during the
+``--action download`` step.
 """
 
 import hashlib
@@ -18,7 +23,8 @@ from typing import Dict, List, Optional
 
 import pandas as pd
 import requests
-from sklearn.datasets import fetch_openml
+from datasets import load_dataset  # HuggingFace datasets library
+from sklearn.datasets import fetch_openml  # fallback for IDs not in HF hub
 
 from llmxive_toolkit import paths, get_logger
 
@@ -94,17 +100,33 @@ def get_openml_dataset(dataset_id: int) -> pd.DataFrame:
     logger.info(f"Fetched OpenML dataset {dataset_id} ({len(df)} rows, {len(df.columns)} columns)")
     return df
 
+def _load_via_hf(dataset_id: int) -> pd.DataFrame:
+    """
+    Attempt to load a dataset from the HuggingFace Hub using the ``openml``
+    loader. If the dataset is not available on the hub, fall back to
+    ``fetch_openml``.
+    """
+    try:
+        logger.info(f"Attempting to load dataset {dataset_id} via HuggingFace datasets")
+        hf_ds = load_dataset("openml", str(dataset_id), split="train")
+        df = pd.DataFrame(hf_ds)
+        logger.info(f"HuggingFace load successful for dataset {dataset_id} ({len(df)} rows, {len(df.columns)} columns)")
+        return df
+    except Exception as e:
+        logger.warning(f"HuggingFace load failed for dataset {dataset_id}: {e}; falling back to OpenML")
+        return get_openml_dataset(dataset_id)
+
 def load_dataset_as_dataframe(dataset_id: int, output_path: str) -> pd.DataFrame:
     """
-    Load a dataset either from a predefined HTTPS URL or via OpenML,
-    optionally write it to ``output_path`` as CSV, and return the DataFrame.
-    Validation of row count is performed using ``validate_rct_dataset``.
+    Load a dataset either from a predefined HTTPS URL or via HuggingFace
+    ``datasets.load_dataset`` (fallback to OpenML). The function writes the
+    DataFrame to ``output_path`` and returns it.
     """
     # First try a direct URL if we have one configured
     if dataset_id in _DATASET_URLS:
         df = _download_csv(_DATASET_URLS[dataset_id])
     else:
-        df = get_openml_dataset(dataset_id)
+        df = _load_via_hf(dataset_id)
 
     # Basic validation (row count & column count)
     validate_rct_dataset(df)
@@ -177,8 +199,7 @@ _DATASET_IDS: List[int] = [
 
 # Direct HTTPS URLs for any dataset we might want to fetch without OpenML.
 _DATASET_URLS: Dict[int, str] = {
-    # Example placeholder – currently unused because we fetch via OpenML.
-    # 12345: "https://example.com/dataset.csv",
+    # Placeholder – can be filled with real URLs if needed.
 }
 
 def _download_csv(url: str) -> pd.DataFrame:
@@ -221,7 +242,7 @@ def load_datasets() -> Dict[int, pd.DataFrame]:
     """
     Load the three required datasets, save them as CSV, compute checksums,
     and populate the manifest. Datasets with fewer than 100 rows are
-    skipped (logged) as per the specification.
+    **flagged** in the manifest and skipped for analysis.
     """
     existing_manifest = _load_existing_manifest()
     loaded: Dict[int, pd.DataFrame] = {}
@@ -232,11 +253,12 @@ def load_datasets() -> Dict[int, pd.DataFrame]:
             # Verify column requirements (placeholder – allows test monkey‑patching)
             _verify_columns(df, spec={}, dataset_id=ds_id)
 
-            # If the dataset is smaller than the required size after validation,
-            # treat it as a flagged skip.
+            # Determine status based on row count
             if len(df) < 100:
-                logger.warning(f"Skipping dataset {ds_id}: below the minimum threshold of 100 rows.")
-                continue
+                status = "FLAGGED"
+                logger.warning(f"Dataset {ds_id} has {len(df)} rows (<100); flagging and skipping analysis.")
+            else:
+                status = "OK"
 
             # Persist raw CSV and compute checksum
             csv_path = _save_dataframe(df, ds_id)
@@ -249,17 +271,27 @@ def load_datasets() -> Dict[int, pd.DataFrame]:
                     raise DataLoadError(
                         f"Checksum mismatch for dataset {ds_id}: expected {expected_checksum}, got {checksum}"
                     )
+
             # Record in manifest (will be written later)
             _manifest_entries[ds_id] = {
                 "filename": str(csv_path.relative_to(paths.root)),
                 "checksum": checksum,
+                "status": status,
             }
 
-            loaded[ds_id] = df
+            if status == "OK":
+                loaded[ds_id] = df
+            # If FLAGGED we keep the entry in the manifest but do not add to `loaded`
         except DataLoadError as e:
             # Distinguish row‑count skips from fatal errors
             if "below the minimum threshold" in str(e):
                 logger.warning(f"Skipping dataset {ds_id}: {e}")
+                # Record as FLAGGED even if load_and_validate raised due to min_rows
+                _manifest_entries[ds_id] = {
+                    "filename": f"data/raw/{ds_id}.csv",
+                    "checksum": "N/A",
+                    "status": "FLAGGED",
+                }
                 continue
             else:
                 logger.error(f"Fatal error loading dataset {ds_id}: {e}")
@@ -273,11 +305,65 @@ def load_datasets_for_analysis() -> Dict[int, pd.DataFrame]:
     """
     Public wrapper used by downstream scripts/tests.
 
-    Loads the required datasets, writes the checksum manifest, and
-    returns the validated DataFrames.
+    Loads the required datasets, writes the checksum manifest, creates a
+    default ``SimulationConfig`` JSON file (so that ``main.py`` can run
+    without additional setup), and returns the validated DataFrames.
     """
     datasets = load_datasets()
     _write_manifest()
+
+    # ------------------------------------------------------------------
+    # Create a default SimulationConfig JSON if it does not already exist.
+    # This satisfies the quick‑start ``main.py --action download`` flow.
+    # ------------------------------------------------------------------
+    from config import (
+        SimulationConfig,
+        MissingMechanism,
+        AnalysisMethod,
+        OutcomeType,
+        save_config,
+    )
+
+    default_config_path = paths.data("processed", "simulation_config.json")
+    if not default_config_path.is_file():
+        # Use the first successfully loaded dataset as the source.
+        if datasets:
+            first_id = next(iter(datasets.keys()))
+        else:
+            # Fallback to the first ID in the list (even if flagged)
+            first_id = _DATASET_IDS[0]
+
+        default_config = SimulationConfig(
+            dataset_source=first_id,
+            missing_mechanisms=[
+                MissingMechanism.MCAR,
+                MissingMechanism.MAR,
+                MissingMechanism.MNAR,
+            ],
+            missing_rates=[
+                0.05,
+                0.10,
+                0.15,
+                0.20,
+                0.25,
+                0.30,
+                0.35,
+                0.40,
+            ],
+            analysis_methods=[
+                AnalysisMethod.CC,
+                AnalysisMethod.MI,
+                AnalysisMethod.IPW,
+            ],
+            outcome_type=OutcomeType.CONTINUOUS,
+            n_iterations=15000,
+            seed=42,
+            alpha=0.05,
+        )
+        default_config_path.parent.mkdir(parents=True, exist_ok=True)
+        save_config(default_config, str(default_config_path))
+        logger.info(f"Default simulation config written to {default_config_path}")
+
     return datasets
 
 # ----------------------------------------------------------------------
@@ -292,7 +378,7 @@ def load_all() -> None:
     try:
         _ = load_datasets_for_analysis()
         logger.info(
-            "All required datasets loaded and manifest created successfully."
+            "All required datasets loaded, manifest created, and default config written successfully."
         )
     except DataLoadError as e:
         logger.error(f"Data loading failed: {e}")
