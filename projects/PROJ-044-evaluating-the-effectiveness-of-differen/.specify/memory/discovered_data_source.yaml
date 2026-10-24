@@ -1,10 +1,10 @@
 status: none
-intent: Federated EMNIST FEMNIST train test Shakespeare image classification python
-  package dataset
+intent: FEMNIST LEAF benchmark parquet download python package dataset
 required_fields:
-- image
+- pixel_values
 - label
 - client_id
-cache_key: c853b9a089c0c1d64d9fe3db0ecdce1fa365842caab67b2aab4571e3616167b9
-searched_at: '2026-10-24T17:38:20.219977+00:00'
+- split
+cache_key: 3052d6542ca36fe1229f50b63e1e96907d0bd10450fdf3d8053681493e1a3849
+searched_at: '2026-10-24T17:39:43.069371+00:00'
 retry_count: 1

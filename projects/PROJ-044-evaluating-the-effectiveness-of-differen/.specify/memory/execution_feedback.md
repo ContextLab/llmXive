@@ -34,7 +34,7 @@ _dataset_builder
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-044-evaluating-the-effectiveness-of-differen/lib/python3.11/site-packages/datasets/load.py", line 1850, in dataset_module_factory
     raise DatasetNotFoundError(
 datasets.exceptions.DatasetNotFoundError: Dataset 'federated/femnist' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/federated/femnist to ask for access.
-2026-10-24 17:37:25,401 ERROR __main__: Data fetch error: Failed to load FEMNIST train split: Dataset 'federated/femnist' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/federated/femnist to ask for access.
+2026-10-24 17:39:00,190 ERROR __main__: Data fetch error: Failed to load FEMNIST train split: Dataset 'federated/femnist' doesn't exist on the Hub or cannot be accessed. If the dataset is private or gated, make sure to log in with `huggingface-cli login` or visit the dataset page at https://huggingface.co/datasets/federated/femnist to ask for access.
 
 - python -c " -> rc=-1
 unparseable command (shlex)
@@ -62,8 +62,8 @@ FileNotFoundError: Metrics file not found: results/raw_logs.csv
 
 - python code/analysis/plots.py -> rc=1
 
-2026-10-24 17:37:27,187 - __main__ - ERROR - Data file not found: results/filtered_data.csv
-2026-10-24 17:37:27,187 - __main__ - ERROR - Please run T035 (filter_utility_collapse) first to generate results/filtered_data.csv
+2026-10-24 17:39:01,450 - __main__ - ERROR - Data file not found: results/filtered_data.csv
+2026-10-24 17:39:01,450 - __main__ - ERROR - Please run T035 (filter_utility_collapse) first to generate results/filtered_data.csv
 
 - python code/analysis/generate_summary.py -> rc=1
 

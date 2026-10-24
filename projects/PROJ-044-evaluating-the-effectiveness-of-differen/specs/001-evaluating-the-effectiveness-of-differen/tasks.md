@@ -7,7 +7,7 @@ All tasks are written as canonical checklist items; unchecked boxes indicate wor
 
 ---
 
-- [ ] **T001** [P] Download FEMNIST (stream → parquet) and enforce Shakespeare exclusion   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
+- [ ] **T001** [P] Download FEMNIST (stream → parquet) and enforce Shakespeare exclusion   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   *File*: `code/data/download.py`  
   *Description*: Stream the FEMNIST training and test splits via `datasets.load_dataset(..., streaming=True)`, write `data/raw/femnist_train.parquet` and `data/raw/femnist_test.parquet`, compute a SHA‑256 checksum of the concatenated parquet files and store it as `data/raw/femnist.sha256`. If the script is invoked with `--dataset shakespeare` it must raise `ValueError("Shakespeare excluded per plan.md Gap Analysis")`. **Note**: the correct exception behavior is ensured by task **T015**.  
   *Verification*:  
