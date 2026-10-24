@@ -1,0 +1,59 @@
+T000:
+  c: true
+  h: e25d491ed644ca97bfa66b4e91a7ba9a98b4f27ae49fdcd0527787fcae844124
+  r: Checked `code/data/check_permeability.py` for correct logic and exit codes, and
+    verified that `tests/unit/test_check_permeability.py` runs successfully (both
+    success and failure cases) as shown in the execution log, confirming the script
+    creates `config/selected_dataset.yaml` only when a permeability column is present.
+  sig: 4f735cb2bf7d7b448a0bbe3e7d7035717281452d810cf3a71acc5da8f896e28b
+T001:
+  c: false
+  h: d50aa80b63c0d37ced1e040a3f520975fc70b31ab077260224bd019bc4f9f610
+  r: "The repository lacks `config/selected_dataset.yaml`, the `download.py` script\
+    \ does not use `streaming=True` nor read the selected dataset from that config,\
+    \ and it downloads the Delaney solubility dataset instead of a permeability dataset\
+    \ (no `permeability` column). Consequently the required raw CSV and checksum files\
+    \ are never produced as specified, and the test expectations do not match the\
+    \ task\u2019s stated requirements."
+  sig: 4770c5c611c6e1843c3922da59e40e0dba67a7f9c382c699dabb2757d4741fc7
+T002:
+  c: false
+  h: 6daa16206dd066f97e3a1bf9c26809c8a2dc11b1936740903462ca224cd4e57e
+  r: "The `process` method writes the CSV/Parquet files, but the repository shows\
+    \ both `data/processed/processed_data.csv` and `data/processed/processed_data.parquet`\
+    \ are missing, so the unit test cannot find the outputs. Additionally, invalid\
+    \ SMILES are excluded without any logging, contrary to the FR\u2011011 requirement.\
+    \ The next implementer should ensure the script actually creates the two output\
+    \ files in the expected location and logs a warning for each invalid SMILES entry."
+  sig: 5ba0ed903acff8277d4cb4506dd5caf6331ba2e50b4467d9049c1414c219a5af
+T003:
+  c: false
+  h: 0039c25d3ef611ab75b48748fd6be749d1fb434a59e7bc39ea9a3972206aca09
+  r: "The provided `code/data/split.py` reads a CSV input, not the required `data/processed/processed_data.parquet`,\
+    \ and its CLI does not default to that file. It writes both CSV and Parquet splits,\
+    \ but the expected output files `data/processed/train.parquet` and `data/processed/test.parquet`\
+    \ are missing, and no evidence shows the 80/20 stratified split with \u22645\u202F\
+    pp difference is performed on the actual parquet source. The required input parquet\
+    \ file itself is absent, so the task\u2019s core functionality is not satisfied."
+  sig: ea2d04d8be98988e4ce892aaa025ca040fee7a2e53f9aedb0c9469155d717782
+T004:
+  c: false
+  h: ed5da7dd93ed0de422ef23f1306313819a2691e76f09eb2b3f20579554623ceb
+  r: "Checked `code/models/gnn.py` and `tests/unit/test_models.py`. The model defined\
+    \ is a two\u2011layer MPNN (uses both mean and max pooling) and the training script\
+    \ saves a checkpoint to `data/interim/gnn_best.pt` instead of the required `code/models/gnn.pt`.\
+    \ Moreover, the unit test expects `create_mpnn_model` to return an instance of\
+    \ `MPNN` with three layers, but the factory returns `SimpleMPNN`, causing the\
+    \ `isinstance(..., MPNN)` assertion to fail. Consequently the required 3\u2011\
+    layer CPU\u2011only GNN, correct pooling, early\u2011stopping behavior, and checkpoint\
+    \ file are not present."
+  sig: 2abbe1a806d3aa3e3ffd1cfc986aa81512ab82c569a000aee0fbf3dcaa4887f5
+T005:
+  c: false
+  h: 2382275336c69a4ae0384abd153a71a5763c841dd8c30d84a19ed24e59050955
+  r: "Checked `code/models/rf.py` \u2013 it defines the correct RandomForestRegressor\
+    \ and a CLI that would save `code/models/rf.pkl`, but the pickle file is missing.\
+    \ Moreover, the provided `tests/unit/test_models.py` does not contain the expected\
+    \ `test_rf_training` that checks for the pickle file and that `feature_importances_`\
+    \ has length\u202F6. The required artifact and verification test are absent."
+  sig: c95187fc5be66cbc0e7f556b62d316d0db23dd18f4dc86f046a7888b593af244

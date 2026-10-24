@@ -8,7 +8,7 @@ The tasks are ordered to respect data flow and to satisfy every functional requi
 
 ## Phase 0 – Conditional dataset validation  
 
-- [ ] **T000** [Phase 0] Implement `code/data/check_permeability.py` – scans candidate verified datasets (listed in `config/verified_datasets.yaml`) for the presence of a `permeability` column.
+- [X] **T000** [Phase 0] Implement `code/data/check_permeability.py` – scans candidate verified datasets (listed in `config/verified_datasets.yaml`) for the presence of a `permeability` column.
   - If a dataset with the required column is found, writes its identifier to `config/selected_dataset.yaml` and exits with status 0.  
   - If no such dataset exists, logs an informative error and exits with non‑zero status, halting the entire pipeline.  
   - **Verification**: unit test `tests/unit/test_check_permeability.py` asserts that the script exits 0 only when the column is present and that the config file is created.
@@ -46,7 +46,7 @@ The tasks are ordered to respect data flow and to satisfy every functional requi
   - Saves the model with `joblib.dump` to `code/models/rf.pkl`.  
   - **Verification**: `tests/unit/test_models.py::test_rf_training` checks that the pickle file exists and that `feature_importances_` has length = 6.
 
-- [ ] **T007** [US‑2] Implement `code/analysis/train.py` – orchestrates training of the two models:  
+- [ ] **T007** [US‑2] Implement `code/analysis/train.py` – orchestrates training of the two models:   <!-- FAILED-IN-EXECUTION: code/analysis/train.py exit=1 -->
   1. Loads `data/processed/train.parquet`.  
   2. Trains GNN and RF, recording **total training time (hours)** and **peak memory (GB)** in `results/training_log.json`.  
   3. Writes a flag `no_significant_improvement: true` if the GNN’s test RMSE is not lower than the RF baseline.  

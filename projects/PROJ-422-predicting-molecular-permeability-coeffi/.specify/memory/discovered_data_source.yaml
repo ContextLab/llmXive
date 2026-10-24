@@ -1,16 +1,16 @@
 status: none
-intent: polymer membrane gas permeability Robeson Upper Bound dataset Materials Project
-  python package dataset
+intent: download polymer membrane permeability coefficients dataset NIST Polymer Permeability
+  Database Polymer Property Database python package dataset
 required_fields:
 - polymer_name
-- membrane_thickness
-- temperature_K
-- pressure_bar
+- membrane_type
 - gas_species
-- permeability_Barrer
-- selectivity
+- temperature_K
+- pressure_atm
+- permeability_coefficient_Barrer
 - measurement_method
-- reference
-cache_key: 76c0065725562d2b7458104746469316febd10f827eba2f1ba0371b4864ec93c
-searched_at: '2026-10-24T17:21:30.155277+00:00'
+- membrane_thickness_um
+- reference_citation
+cache_key: 2b3d544c81feac7e070e83fc16b38f9e6d67414c506b97a85ef13e81908369cd
+searched_at: '2026-10-24T18:13:54.716852+00:00'
 retry_count: 1

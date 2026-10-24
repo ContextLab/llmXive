@@ -195,7 +195,7 @@ class MoleculeProcessor:
           4. Exclude rows where the target column is missing or NaN (with a warning).
           5. Median‑impute any missing descriptor values.
           6. Perform the FR‑011 retention check and FR‑013 bias check.
-          7. Write the final CSV to ``data/processed/processed_data.csv``.
+          7. Write both ``processed_data.csv`` and ``processed_data.parquet`` before any guard.
           8. Return the processed ``pd.DataFrame``.
         """
         self.logger.info(f"Starting preprocessing of {len(df)} records...")
@@ -260,14 +260,6 @@ class MoleculeProcessor:
         self.logger.info(f"Invalid SMILES count: {invalid_smiles}")
         self.logger.info(f"Retention rate: {retention_rate:.2%}")
 
-        # FR‑011 retention check
-        if retention_rate < self.config.get('retention_threshold', 0.95):
-            self.logger.error(
-                f"Retention rate {retention_rate:.2%} below threshold "
-                f"{self.config['retention_threshold']:.2%}. Aborting."
-            )
-            raise SystemExit(1)
-
         # Create DataFrame
         processed_df = pd.DataFrame(processed_rows)
 
@@ -280,9 +272,28 @@ class MoleculeProcessor:
         # Bias check (FR‑013)
         self._check_bias(processed_df, target_col='target')
 
-        # Write to CSV (ensuring the output directory exists)
-        output_path = paths.data('processed', 'processed_data.csv')
-        processed_df.to_csv(output_path, index=False)
-        self.logger.info(f"Processed dataset written to {output_path}")
+        # ------------------------------------------------------------------
+        # Write outputs BEFORE any retention guard (per specification)
+        # ------------------------------------------------------------------
+        csv_path = paths.data('processed', 'processed_data.csv')
+        parquet_path = paths.data('processed', 'processed_data.parquet')
+
+        # Ensure directories exist (paths.* does this)
+        processed_df.to_csv(csv_path, index=False)
+        self.logger.info(f"Processed CSV written to {csv_path}")
+
+        # Write Parquet; requires pyarrow (declared in requirements.txt)
+        processed_df.to_parquet(parquet_path, index=False)
+        self.logger.info(f"Processed Parquet written to {parquet_path}")
+
+        # ------------------------------------------------------------------
+        # Retention guard (FR‑012)
+        # ------------------------------------------------------------------
+        if retention_rate < self.config.get('retention_threshold', 0.95):
+            self.logger.error(
+                f"Retention rate {retention_rate:.2%} below threshold "
+                f"{self.config['retention_threshold']:.2%}. Aborting."
+            )
+            raise SystemExit(1)
 
         return processed_df

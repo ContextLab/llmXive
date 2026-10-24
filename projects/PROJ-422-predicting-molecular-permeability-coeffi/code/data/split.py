@@ -4,7 +4,11 @@ Data splitting utilities for molecular permeability datasets.
 Implements stratified and random splitting strategies with strict validation
 for polymer type stratification as required by FR-003. Adds retention
 (FR-011) and bias (FR-013) checks, writes detailed reports and a metrics
-JSON file.
+JSON file. Writes both CSV and Parquet versions of the splits to satisfy
+downstream expectations.
+
+The script can be invoked via the CLI:
+    python code/data/split.py --input data/processed/processed_data.csv
 """
 
 import json
@@ -23,6 +27,7 @@ from llmxive_toolkit import paths, get_logger
 # Set up logger
 log = get_logger(__name__)
 
+
 def _load_config() -> dict:
     """Load configuration from config.yaml in the project root."""
     config_path = Path(__file__).resolve().parent.parent.parent / "config.yaml"
@@ -36,6 +41,7 @@ def _load_config() -> dict:
 
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
+
 
 # ----------------------------------------------------------------------
 # Retention check (FR-011)
@@ -67,6 +73,7 @@ def _retention_check(df: pd.DataFrame, target_col: str) -> float:
         raise SystemExit(1)
 
     return retention
+
 
 # ----------------------------------------------------------------------
 # Bias check (FR-013)
@@ -131,6 +138,7 @@ def _bias_check(
         log.info("Bias check passed – no descriptor exceeds the correlation threshold.")
 
     return bias_violation, bias_violations
+
 
 # ----------------------------------------------------------------------
 # Existing random / stratified split helpers (unchanged)
@@ -291,6 +299,7 @@ def stratified_split(
     )
     return train_df, test_df
 
+
 # ----------------------------------------------------------------------
 # Report & metrics generation
 # ----------------------------------------------------------------------
@@ -352,6 +361,7 @@ def _write_stratification_report(
     report_path.write_text("\n".join(lines))
     log.info(f"Stratification report written to {report_path}")
 
+
 def _write_metrics_json(
     metrics_path: Path,
     retention_rate: float,
@@ -377,6 +387,7 @@ def _write_metrics_json(
         json.dump(metrics, f, indent=2)
     log.info(f"Split metrics written to {metrics_path}")
 
+
 # ----------------------------------------------------------------------
 # Main orchestration
 # ----------------------------------------------------------------------
@@ -397,6 +408,14 @@ def execute_split(
     """
     config = _load_config()
     target_col = config.get("target_column", "target")
+
+    # ------------------------------------------------------------------
+    # 0️⃣ Filter to rows with a non‑null target (as required by the spec)
+    # ------------------------------------------------------------------
+    df = df.dropna(subset=[target_col])
+    if df.empty:
+        log.error("No rows with a non‑null target after filtering.")
+        raise SystemExit(1)
 
     # ------------------------------------------------------------------
     # 1️⃣ Retention check
@@ -448,18 +467,24 @@ def execute_split(
         split_strategy = "random (fallback)"
 
     # ------------------------------------------------------------------
-    # 4️⃣ Persist splits
+    # 4️⃣ Persist splits (both CSV and Parquet)
     # ------------------------------------------------------------------
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    train_path = output_path / "train.csv"
-    test_path = output_path / "test.csv"
+    train_csv_path = output_path / "train.csv"
+    test_csv_path = output_path / "test.csv"
+    train_parquet_path = output_path / "train.parquet"
+    test_parquet_path = output_path / "test.parquet"
 
-    train_df.to_csv(train_path, index=False)
-    test_df.to_csv(test_path, index=False)
+    train_df.to_csv(train_csv_path, index=False)
+    test_df.to_csv(test_csv_path, index=False)
+    # Parquet writing – relies on pandas' default engine (pyarrow or fastparquet)
+    train_df.to_parquet(train_parquet_path, index=False)
+    test_df.to_parquet(test_parquet_path, index=False)
 
-    log.info(f"Split saved to: {train_path} and {test_path}")
+    log.info(f"Split saved to CSV: {train_csv_path} and {test_csv_path}")
+    log.info(f"Split saved to Parquet: {train_parquet_path} and {test_parquet_path}")
     log.info(
         f"Strategy used: {split_strategy} – Train size: {len(train_df)}, Test size: {len(test_df)}"
     )
@@ -511,7 +536,8 @@ def execute_split(
         max_diff,
     )
 
-    return str(train_path), str(test_path)
+    return str(train_csv_path), str(test_csv_path)
+
 
 # ----------------------------------------------------------------------
 # CLI entry point
