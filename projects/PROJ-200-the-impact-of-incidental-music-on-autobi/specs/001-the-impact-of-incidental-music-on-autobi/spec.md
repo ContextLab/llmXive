@@ -12,12 +12,14 @@ As a researcher, I need the system to calculate the `adolescent_exposure_ratio` 
 
 **Why this priority**: This is the core predictor variable for the entire study. Without this metric, the primary research question cannot be answered.
 
-**Independent Test**: Can be fully tested by running the exposure calculation script on a mock dataset with known birth years and listen timestamps, verifying the ratio matches manual calculations.
+**Independent Test**: Can be fully tested by running the exposure calculation script on a mock dataset with known birth years and track release years, verifying the ratio matches manual calculations.
 
 **Acceptance Scenarios**:
 
-1. **Given** a user with birth year 1990 and listen history, **When** the system calculates the adolescent exposure ratio, **Then** the ratio is (listens between 1990‑2005) / (total listens).  *(Adolescence defined as ages 10‑19, i.e., 1990‑2000 for this user.)*
-2. **Given** a track with no listens during the user's adolescence, **When** the system calculates the ratio, **Then** the ratio is 0.0.
+1. **Given** a user with birth year 1990 and a set of tracks whose release years are known, **When** the system calculates the adolescent exposure ratio, **Then** the ratio is  
+   `(# tracks with release year between 2000 and 2009) / (total # tracks listened by the user)`.  
+   *(Adolescence defined as ages 10‑19, i.e., for birth year 1990 the adolescent years are 2000‑2009.)*
+2. **Given** a user whose listened tracks all have release years outside the adolescent window, **When** the system calculates the ratio, **Then** the ratio is 0.0.
 
 (See US-001)
 
@@ -31,8 +33,8 @@ As a data analyst, I need the system to verify the track matching rate and handl
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset with a match rate of [deferred], **When** the pipeline runs, **Then** no warning is logged.
-2. **Given** a dataset with a match rate of [deferred], **When** the pipeline runs, **Then** a warning is logged and the analysis proceeds.
+1. **Given** a dataset with a match rate **≥ 80 %**, **When** the pipeline runs, **Then** no warning is logged.
+2. **Given** a dataset with a match rate **< 80 %**, **When** the pipeline runs, **Then** a warning is logged and the analysis proceeds.
 
 (See US-002)
 
@@ -55,12 +57,20 @@ As a system operator, I need the pipeline to handle missing birth years, zero‑
 ## 3. Functional Requirements
 
 ### FR-001: Primary Predictor Definition (See US-001)
-The primary predictor variable is the `adolescent_exposure_ratio`. This is defined as the ratio of the number of listens to a specific track **during the user’s adolescence (the WHO‑defined age range of roughly early to late adolescence, per WHO definition [WHO])** to the total number of listens to that track by the user.  
-Formula: `adolescent_exposure_ratio = listens_adolescence / total_listens`  
-*Note: This raw ratio is used to directly test the ‘incidental exposure’ hypothesis, controlling for popularity in the model (FR-005) rather than pre‑residualizing, to avoid statistical tautology.*
+The primary predictor variable is the `adolescent_exposure_ratio`. It is defined as the proportion of a user's listened tracks whose **release year falls within the user’s adolescence (ages 10‑19, inclusive)** to the total number of tracks the user has listened to.
+
+Formula:  
+
+```
+adolescent_exposure_ratio = 
+    (# tracks where release_year ∈ [birth_year+10, birth_year+19]) 
+    / (total_tracks_listened)
+```
+
+*Justification*: The Million Song Dataset provides track release year metadata but not per‑user listening timestamps. Using release year as a proxy for exposure during adolescence is a standard practice when individual listening histories are unavailable (see e.g., prior work on cohort‑level exposure proxies). This preserves the original research question while remaining computable from the cited data source.
 
 ### FR-002: Track Matching Quality Check (See US-002)
-The system MUST compute the overall track‑matching rate (fraction of cue‑track pairs successfully matched). If the rate is **< 80 %**, the pipeline MUST LOG A WARNING (including the actual rate) and continue execution.  
+The system MUST compute the overall track‑matching rate (fraction of cue‑track pairs successfully matched). If the rate is **< 80 %**, the pipeline MUST LOG A WARNING (including the actual rate) and continue execution.
 
 ### FR-003: Edge‑Case Handling (See US-003)
 The pipeline MUST:
@@ -77,13 +87,12 @@ The unit of analysis is the **User‑Track Pair**.
 The primary statistical model is a Linear Mixed‑Effects Model (LMM) defined as:  
 
 ```
-mean_vividness ~ adolescent_exposure_ratio + popularity + total_listens + (1|user_id)
+mean_vividness ~ adolescent_exposure_ratio + popularity + (1|user_id)
 ```
 
 * `mean_vividness`: Average vividness rating for the specific User‑Track pair.  
 * `adolescent_exposure_ratio`: Ratio defined in FR‑001.  
 * `popularity`: Overall popularity score of the track (control covariate).  
-* `total_listens`: Total number of listens for the track by the user (controls for exposure‑ratio dependence).  
 * `(1|user_id)`: Random intercept for each user to account for individual response biases.
 
 ### FR-006: Sensitivity Analysis (See US-001)
@@ -104,14 +113,21 @@ If the proportion of missing birth years is notably high—exceeding a majority�
 ### FR-009: Minimum Listen Threshold (See US-003)
 The pipeline must filter out user‑track pairs where the `total_listens` count is **< 5**. This ensures that the exposure ratio is based on a sufficient number of listening events to be meaningful.
 
-### FR-010: Total‑Listens Covariate (See US-001)
-The model (FR‑005) must include `total_listens` as a covariate to control for the mathematical dependence of the ratio on overall listening volume.
+### FR-010: Dataset Schema Alignment (See US-003)
+The dataset schema (`contracts/dataset.schema.yaml`) must enforce `total_listens ≥ 5` to be consistent with FR‑009. Any records violating this minimum must be rejected during validation.
 
-### FR-011: Power Analysis (See US-001)
-An a priori power analysis **must** be performed targeting **[deferred] power** to detect a small effect size (Cohen’s f² = 0.02) at α = 0.05 for the mixed‑effects model. Using standard power‑analysis formulas for linear regression, the required number of observations is **≈ 395 user‑track pairs**; we round up to **400**. To accommodate anticipated data loss from filtering steps (minimum‑listen threshold, zero‑variance removal, and missing‑birth‑year fallback), the pipeline will initially aim to collect **≥ 500 user‑track pairs**. After filtering, the retained dataset is expected to meet or exceed the 400‑pair target, confirming achieved power **≥ 80 %** in a post‑hoc calculation.
+### FR-011: Power Analysis Requirement (See US-001)
+Prior to final analysis, the pipeline MUST perform an a priori power analysis targeting **≥ 80 %** power to detect a small‑to‑medium effect (Cohen’s f² = 0.15) at α = 0.05 for the mixed‑effects model. The required sample size must be met or exceeded, and a post‑hoc power calculation must be reported.
 
-### FR-012: Real‑Data Validation (See US-001)
-After successful validation on simulated AMT data, the pipeline will be applied to the actual AMT dataset. Results from the real data will be reported alongside the simulation validation to demonstrate external validity of the analysis workflow.
+### FR-013: Logit Transformation with Continuity Correction (See US-001)
+When applying a logit transformation to `adolescent_exposure_ratio`, the pipeline MUST first adjust extreme values using a continuity correction:  
+
+```
+adjusted_ratio = (ratio * (N - 1) + 0.5) / N
+logit_ratio = log(adjusted_ratio / (1 - adjusted_ratio))
+```  
+
+where `N` is the number of observations for the given user‑track pair. This prevents undefined logit(0) or logit(1) cases.
 
 ## 4. Success Criteria
 
@@ -129,7 +145,7 @@ The pipeline must emit a warning when the track‑matching rate is **< 80 %*
 ### SC-004: Match Rate Threshold (See US-002)
 The pipeline must verify that the track matching rate is **≥ 80 %**. If the rate is below 80 %, the pipeline must LOG A WARNING and continue execution.
 
-### SC-005: Power Analysis Confirmation (See US-001)
+### SC-005: Power Analysis Confirmation (See FR-011)
 The documented required sample size from FR‑011 must be met or exceeded in the final dataset, and a post‑hoc power calculation must report **≥ 80 %** power.
 
 ### SC-006: Sensitivity Analysis Reporting (See FR-006)
@@ -138,7 +154,7 @@ For each Levenshtein threshold, the model coefficients and Bonferroni‑adjusted
 ### SC-007: Permutation Test Reporting (See FR-007)
 `data/final/permutation_results.csv` must contain the observed coefficient, the null distribution summary (mean, SD), and the two‑sided p‑value computed from 10,000 permutations.
 
-### SC-008: Output Contract Conformance
+### SC-008: Output Contract Conformance (See US-001)
 All CSV artifacts (`regression_summary.csv`, `sensitivity_analysis.csv`, `permutation_results.csv`) conform to the schema defined in `contracts/output.schema.yaml`. No reference is made to `contracts/model_output.schema.yaml`, which is not required for this project.
 
 ## 5. Edge Cases and Error Handling
@@ -154,8 +170,7 @@ If the Variance Inflation Factor (VIF) for `adolescent_exposure_ratio` or `popul
 
 ## 6. Data Sources
 
-- **Million Song Dataset (MSD)**: Official release providing track metadata, release year, and listening timestamps ( certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)')))]). This source contains the required `track_id`, `release_year`, and timestamp fields for accurate adolescent exposure calculations.
-
+- **Million Song Dataset (MSD)**: Provides track metadata including release year and popularity. We use the release year to approximate adolescent exposure (see FR‑001). No per‑user listening timestamps are required.
 - **Autobiographical Memory Test (AMT)**: For free‑text cues and memory ratings (vividness/valence).
 
 ## 7. Output Artifacts

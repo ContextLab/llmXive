@@ -9,14 +9,3 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/MSD-Team/msd-10k
   verified_at: '2026-08-09T08:32:35.679161Z'
-- artifact_hash: 4be6f98385a19dbf8e67e1a7210930e4d12c01df124be7816fa6abaad59d2afa
-  artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://labrosa.ee.columbia.edu/millionsong/
-  verification_status: unreachable
-  verified_against_url: https://labrosa.ee.columbia.edu/millionsong/
-  verified_at: '2026-10-15T21:43:15.120417Z'
