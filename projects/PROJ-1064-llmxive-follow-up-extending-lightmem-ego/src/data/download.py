@@ -57,8 +57,8 @@ def _parse_args():
     parser.add_argument(
         "--output-dir",
         type=str,
-        required=True,
-        help="Directory where raw files will be stored.",
+        default="data/raw",
+        help="Directory where raw files will be stored. Defaults to 'data/raw'.",
     )
     return parser.parse_args()
 
