@@ -70,6 +70,10 @@ def verify_checksums() -> bool:
     Returns ``True`` if all match; otherwise prints mismatches and returns ``False``.
     """
     manifest = load_recorded_checksums()
+    if not manifest:
+        print("No checksums found in manifest.", file=sys.stderr)
+        return False
+
     all_match = True
 
     for rel_path, recorded_hash in manifest.items():

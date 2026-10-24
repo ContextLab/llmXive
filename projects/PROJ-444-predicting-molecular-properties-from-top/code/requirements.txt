@@ -1,4 +1,12 @@
+scikit-fingerprints
 rdkit
 gudhi
+scikit-learn
+pandas
+numpy
+matplotlib
+seaborn
+pyyaml
 deepchem
-datasets
+pytest
+statsmodels

@@ -1,42 +1,37 @@
 """
 Download the MoleculeNet Lipophilicity dataset (raw SMILES + logP) and
-register its SHA‑256 checksum.
+register its SHA-256 checksum.
 
-This script implements task **T001a**. It fetches the dataset from the
-official MoleculeNet S3 URL to ensure the canonical version is obtained,
-saves it to ``data/raw/lipophilicity.csv``, and updates the checksum
-manifest ``data/checksums.txt``.
+This script implements task T001a. It uses the verified scikit-fingerprints
+loader to obtain the canonical Lipophilicity dataset, saves it to
+data/raw/lipophilicity.csv, and updates the checksum manifest.
 """
 
-import argparse
 import hashlib
 import logging
-import os
 import sys
 from pathlib import Path
+from typing import Dict
 
-import requests
 import pandas as pd
+from skfp.datasets.moleculenet import load_lipophilicity
+from llmxive_toolkit import paths, get_logger
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
+# Setup logger
+log = get_logger(__name__)
+
 def compute_sha256(file_path: Path) -> str:
-    """Return the hex SHA‑256 hash of *file_path*."""
+    """Return the hex SHA-256 hash of *file_path*."""
     sha256 = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
 
-
-def read_checksums(path: Path) -> dict:
+def read_checksums(path: Path) -> Dict[str, str]:
     """
-    Parse a ``checksums.txt`` file into a ``{relative_path: hash}`` dict.
-    Supports the two canonical line formats:
-
-        <hash>  <relative_path>
-        <relative_path>: <hash>
+    Parse a checksums.txt file into a {relative_path: hash} dict.
+    Supports the canonical <hash>  <path> format.
     """
     checksums = {}
     if not path.is_file():
@@ -54,127 +49,50 @@ def read_checksums(path: Path) -> dict:
                 checksums[p.strip()] = h.strip()
     return checksums
 
-
-def write_checksums(path: Path, checksums: dict) -> None:
-    """Write *checksums* to *path* using the canonical two‑space format."""
+def write_checksums(path: Path, checksums: Dict[str, str]) -> None:
+    """Write checksums to path using the canonical two-space format."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as f:
         for rel_path, h in sorted(checksums.items()):
             f.write(f"{h}  {rel_path}\n")
 
+def main() -> None:
+    # 1. Define paths
+    raw_csv_path = paths.data("raw", "lipophilicity.csv")
+    checksum_path = paths.path("data", "checksums.txt")
 
-def setup_logger(log_file: str | None = None) -> logging.Logger:
-    logger = logging.getLogger("download_lipophilicity")
-    logger.setLevel(logging.INFO)
-    if not logger.handlers:
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        stream = logging.StreamHandler(sys.stdout)
-        stream.setFormatter(formatter)
-        logger.addHandler(stream)
-        if log_file:
-            os.makedirs(os.path.dirname(log_file), exist_ok=True)
-            fh = logging.FileHandler(log_file)
-            fh.setFormatter(formatter)
-            logger.addHandler(fh)
-    return logger
-
-
-# ----------------------------------------------------------------------
-# Main download routine
-# ----------------------------------------------------------------------
-def download_lipophilicity(csv_path: Path, logger: logging.Logger) -> None:
-    """
-    Download the Lipophilicity dataset from the official S3 URL,
-    ensure it contains the required columns, and write it to *csv_path*.
-    """
-    url = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/lipophilicity.csv"
-    logger.info(f"Downloading Lipophilicity dataset from {url}...")
+    log.info("Downloading Lipophilicity dataset using scikit-fingerprints...")
     
     try:
-        response = requests.get(url, timeout=60)
-        response.raise_for_status()
+        # Use the VERIFIED REAL DATA SOURCE recipe
+        X, y = load_lipophilicity()
+        
+        # Create DataFrame
+        # The schema (T001) requires 'logP', while skfp returns target as 'exp'
+        df = pd.DataFrame({"smiles": X, "logP": y})
+        
+        log.info(f"Successfully loaded {len(df)} records.")
+        
+        # Save to CSV
+        raw_csv_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(raw_csv_path, index=False)
+        log.info(f"Wrote raw dataset to {raw_csv_path}")
+        
     except Exception as e:
-        logger.error(f"Failed to download dataset: {e}")
-        raise
+        log.error(f"Failed to obtain dataset: {e}")
+        sys.exit(1)
 
-    # Load into pandas to ensure we have the correct canonical columns (smiles, logP)
-    # The S3 file typically has 'smiles' and 'logP'
-    from io import StringIO
-    df = pd.read_csv(StringIO(response.text))
-    
-    if "smiles" not in df.columns:
-        logger.error("Downloaded CSV missing 'smiles' column.")
-        raise ValueError("Dataset missing required columns")
-    
-    # The S3 file may use 'logP' or 'label'. Ensure it is 'logP' for the schema.
-    if "logP" not in df.columns and "label" in df.columns:
-        df = df.rename(columns={"label": "logP"})
-    elif "logP" not in df.columns:
-        logger.error("Downloaded CSV missing 'logP' or 'label' column.")
-        raise ValueError("Dataset missing target column")
-
-    logger.info(f"Total records downloaded: {len(df)}")
-
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(csv_path, index=False)
-    logger.info(f"Wrote raw Lipophilicity CSV to {csv_path}")
-
-
-def update_checksum(csv_path: Path, checksum_path: Path, logger: logging.Logger) -> None:
-    """
-    Compute the SHA‑256 checksum of *csv_path* and (idempotently) add or
-    update the entry for that file in *checksum_path*.
-    """
-    checksum = compute_sha256(csv_path)
-    # Store path relative to the project root (POSIX style)
-    rel_path = csv_path.as_posix()
-    logger.info(f"Computed SHA‑256 checksum: {checksum}")
+    # 2. Compute and record checksum
+    checksum = compute_sha256(raw_csv_path)
+    rel_path = raw_csv_path.as_posix()
+    log.info(f"Computed SHA-256 checksum: {checksum}")
 
     checksums = read_checksums(checksum_path)
     checksums[rel_path] = checksum
     write_checksums(checksum_path, checksums)
-    logger.info(f"Updated checksum manifest at {checksum_path}")
+    log.info(f"Updated checksum manifest at {checksum_path}")
 
-
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Download the MoleculeNet Lipophilicity dataset (raw SMILES + logP)."
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/raw",
-        help="Directory where ``lipophilicity.csv`` will be written.",
-    )
-    parser.add_argument(
-        "--checksum-file",
-        type=str,
-        default="data/checksums.txt",
-        help="Path to the checksum manifest to update.",
-    )
-    parser.add_argument(
-        "--log-file",
-        type=str,
-        default=None,
-        help="Optional log file path.",
-    )
-    args = parser.parse_args()
-
-    logger = setup_logger(args.log_file)
-
-    csv_path = Path(args.output_dir) / "lipophilicity.csv"
-    checksum_path = Path(args.checksum_file)
-
-    # 1. Download the dataset
-    download_lipophilicity(csv_path, logger)
-
-    # 2. Compute and record checksum
-    update_checksum(csv_path, checksum_path, logger)
-
-    logger.info("Task T001a completed successfully.")
-
+    log.info("Task T001a completed successfully.")
 
 if __name__ == "__main__":
     main()

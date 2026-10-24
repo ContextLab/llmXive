@@ -1,14 +1,16 @@
 T001:
   task: c235237d3e82721fb106baa8f66f8cd8b4da7ef0b7e58d7436481922f0e736bb
 T001a:
-  reason: 'Requested task execution failed; rerun successfully: code/01_download_lipophilicity.py
-    exit=1'
+  reason: "The CSV file `data/raw/lipophilicity.csv` exists and its SHA\u2011256 hash\
+    \ matches the value recorded, and the download script ran successfully. However,\
+    \ `data/checksums.txt` does not follow the required format \u2013 it contains\
+    \ a line `a7c1b1800dd4673dd264410d814bc952ae14d94b114f85047f09fb2a1603232c  data/raw/lipophilicity.csv`\
+    \ instead of the specified `lipophilicity.csv <checksum>` (filename first, no\
+    \ path). The checksum manifest must be corrected to meet the task specification."
   task: d566784c468ff0d7741427bb337d40f12c931d720bb3eee01c7e33b48194abdf
 T001b:
-  reason: "The manifest `data/checksums.txt` lists `data/raw/esol.csv` and `data/raw/lipophilicity.csv`,\
-    \ but these files are not present in the provided artifact list, so the script\
-    \ cannot verify all checksums and would exit with a non\u2011zero status. The\
-    \ required data files must be added for the checksum verification to succeed."
+  reason: 'Requested task execution failed; rerun successfully: code/00_checksum_verify.py
+    exit=1'
   task: f25938982c6fa292f8da77ad4ad8d5f4de0997b5f75022c1360d6a1b7399eeb0
 T001c:
   task: 3ea6d151f2e82138d8aeed8165a925e19e86f29d2c306b0ba4493a54289a9ca8

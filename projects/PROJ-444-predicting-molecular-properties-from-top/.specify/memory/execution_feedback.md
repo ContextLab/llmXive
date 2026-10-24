@@ -2,27 +2,25 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python code/06_feature_importance.py; python code/06_diagnostics.py; 9 command(s) failed: python code/01_data_ingestion.py --source lipophilicity (rc=1); python code/00_checksum_verify.py (rc=1); python code/02_tda_computation.py --grid 10 (rc=1); 7 declared deliverable(s) absent: data/processed/combined_features.csv; data/processed/filtered_lipophilicity.csv; data/processed/power_analysis_report.json
+**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python code/06_feature_importance.py; python code/06_diagnostics.py; 8 command(s) failed: python code/01_data_ingestion.py --source lipophilicity (rc=1); python code/02_tda_computation.py --grid 10 (rc=1); python code/03_feature_engineering.py (rc=1); 6 declared deliverable(s) absent: data/processed/combined_features.csv; data/processed/filtered_lipophilicity.csv; data/processed/power_analysis_report.json
 
 ## Failing / missing run-book commands
 
 - python code/01_data_ingestion.py --source lipophilicity -> rc=1
-2026-10-24 08:11:15,732 - data_ingestion - ERROR - Raw Lipophilicity file not found at data/raw/lipophilicity.csv. Run 01_download_lipophilicity.py first.
+2026-10-24 11:09:10,670 - data_ingestion - INFO - Reading raw Lipophilicity data from data/raw/lipophilicity.csv
+2026-10-24 11:09:10,674 - data_ingestion - INFO - Checksum for raw file recorded in data/checksums.txt
+2026-10-24 11:09:11,095 - data_ingestion - INFO - Total raw rows processed: 4200
+2026-10-24 11:09:11,095 - data_ingestion - INFO - Filtered dataset size after MW cut: 4197
+2026-10-24 11:09:11,111 - data_ingestion - ERROR - Schema validation failed: Missing required columns in dataframe: {'molecule_id'}
 
-
-- python code/00_checksum_verify.py -> rc=1
-
-Missing file for checksum verification: data/raw/esol.csv
-Missing file for checksum verification: data/raw/lipophilicity.csv
-Checksum verification failed.
 
 - python code/02_tda_computation.py --grid 10 -> rc=1
-2026-10-24 08:11:16,347 - ERROR - Input file not found: data/processed/filtered_esol.csv
+2026-10-24 11:09:11,539 - ERROR - Input file not found: data/processed/filtered_esol.csv
 
 
 - python code/03_feature_engineering.py -> rc=1
-2026-10-24 08:11:16,762 - feature_engineering - INFO - Starting Feature Engineering (T004)...
-2026-10-24 08:11:16,762 - feature_engineering - ERROR - Filtered dataset missing at /home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/data/processed/filtered_esol.csv. Run 01_data_ingestion.py first.
+2026-10-24 11:09:11,810 - feature_engineering - INFO - Starting Feature Engineering (T004)...
+2026-10-24 11:09:11,811 - feature_engineering - ERROR - Filtered dataset missing at /home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/data/processed/filtered_esol.csv. Run 01_data_ingestion.py first.
 
 
 - python code/04_model_training.py -> rc=1
@@ -49,8 +47,8 @@ FileNotFoundError: Missing /home/runner/work/llmXive/llmXive/projects/PROJ-444-p
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-444-predicting-molecular-properties-from-top/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/06_diagnostics.py': [Errno 2] No such file or directory
 
 - python code/05_sensitivity_analysis.py --grids 10 20 30 -> rc=1
-2026-10-24 08:11:18,248 - INFO - === Sensitivity Analysis (Task T007, FR-006) ===
-2026-10-24 08:11:18,248 - INFO - Grid resolutions: [10, 20, 30]
+2026-10-24 11:09:12,925 - INFO - === Sensitivity Analysis (Task T007, FR-006) ===
+2026-10-24 11:09:12,925 - INFO - Grid resolutions: [10, 20, 30]
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/code/05_sensitivity_analysis.py", line 293, in <module>
@@ -63,7 +61,7 @@ Traceback (most recent call last):
 FileNotFoundError: Missing /home/runner/work/llmXive/llmXive/projects/PROJ-444-predicting-molecular-properties-from-top/data/processed/combined_features.csv - run T004 first.
 
 - python code/07_resource_monitor.py -> rc=1
-2026-10-24 08:11:18,405 - ERROR - No command provided to monitor.
+2026-10-24 11:09:13,068 - ERROR - No command provided to monitor.
 
 
 - python -m pytest tests/contract/ -> rc=1
@@ -81,7 +79,7 @@ FAILED tests/contract/test_tda_10x10_schema.py::test_image_vector_length - Fi...
 FAILED tests/contract/test_tda_10x10_schema.py::test_molecule_id_is_string - ...
 FAILED tests/contract/test_tda_10x10_schema.py::test_valid_molecules_count - ...
 FAILED tests/contract/test_tda_schema.py::test_tda_schema_compliance - FileNo...
-======================== 18 failed, 10 skipped in 0.81s ========================
+======================== 18 failed, 10 skipped in 0.56s ========================
 
 
 - python -m pytest tests/unit/ -> rc=2
@@ -99,7 +97,7 @@ E   ImportError: cannot import name 'check_memory_requirement' from 'utils.persi
 ERROR tests/unit/test_data_ingestion.py
 ERROR tests/unit/test_persistence_utils_sparse.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.71s ===============================
+============================== 2 errors in 0.45s ===============================
 
 
 
@@ -111,30 +109,6 @@ ERROR tests/unit/test_persistence_utils_sparse.py
 - data/processed/splits.json
 - data/processed/topological_features_10x10.csv
 - data/processed/traditional_features.csv
-- data/raw/lipophilicity.csv
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `scikit-fingerprints` to the project's `requirements.txt` and `pip install scikit-fingerprints`.
-- **Verified**: this loads **4200** real records with fields: smiles, exp.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import pandas as pd
-from skfp.datasets.moleculenet import load_lipophilicity
-
-data = load_lipophilicity()
-X = data[0]  # SMILES strings
-y = data[1]  # target values
-
-df = pd.DataFrame({"smiles": X, "exp": y})
-print(f"RECORDS={len(df)}")
-print("FIELDS=smiles,exp")
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -164,9 +138,3 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/03_feature_engineering.py` — IS a run-book command
     - `code/04_model_training.py` — IS a run-book command
   Make ONE of these WRITE `data/processed/traditional_features.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/lipophilicity.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/01_data_ingestion.py` — IS a run-book command
-    - `code/01_download_lipophilicity.py` — NOT invoked by the run-book
-    - `code/generate_esol_raw.py` — NOT invoked by the run-book
-    - `code/tests/test_dataset_schema.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/lipophilicity.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
