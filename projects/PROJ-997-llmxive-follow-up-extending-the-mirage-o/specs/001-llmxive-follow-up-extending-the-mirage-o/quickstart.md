@@ -3,7 +3,7 @@
 ## Prerequisites
 * Python 3.11+  
 * Git  
-* ≈ several GB RAM (CPU) – optional Kaggle account for automatic GPU offload.  
+* ≈ 6 GB RAM (CPU). No GPU required; the pipeline is CPU‑only.  
 
 ## Installation
 
@@ -33,13 +33,14 @@ python code/cli/generate_ground_truth.py \
   --quant_levels INT4 INT8 \
   --prompt_source gsm8k \
   --output data/processed/training_sample.parquet \
+  --max_samples 350 \
   --seed 42
 ```
 
-*If the CPU cannot finish within 5 h or runs out of memory, the script automatically re‑executes on a free Kaggle GPU (no code change required).*
+*If the CPU runs out of memory, the script aborts with an informative error; reduce `--max_samples` or switch to a smaller model.*  
 
 ```bash
-# Optional FP8 generation (may be a no‑op if ONNX Runtime lacks float‑8 support)
+# Optional FP8 generation (CPU only; may be a no‑op if float‑8 unsupported)
 python code/cli/generate_fp8_ground_truth.py \
   --model_hf_id meta-llama/Meta-Llama-2-3B-4bit-gguf \
   --prompt_source gsm8k \
@@ -55,7 +56,7 @@ python code/cli/validate_dataset_stats.py \
   --output data/metrics/dataset_stats.json
 ```
 
-*Fails the pipeline if < 5 % of KL values are non‑zero for any quantization level.*
+*Fails the pipeline if < 5 % of KL values are non‑zero for any present quantization level.*
 
 ### Step 3 – Train the Gap Predictor (T021)
 
@@ -76,12 +77,13 @@ python code/models/evaluate_predictor.py \
   --predictions_out data/metrics/gap_predictions.parquet
 ```
 
-### Step 5 – Run the MIPU Benchmark (T027‑T029)
+### Step 5 – Run the MIPU Benchmark (T027‑T029 + T033)
 
 ```bash
 python code/validation/mipu_benchmark.py \
   --model data/models/gap_predictor.pkl \
   --data data/processed/training_sample.parquet \
+  --num_prompts 100 \
   --output data/metrics/benchmark_report.json
 ```
 
@@ -113,16 +115,16 @@ All tests should pass; failures indicate a schema mismatch.
 
 | Symptom | Likely Cause | Fix |
 |---------|--------------|-----|
-| `llama_engine` OOM on CPU | Model too large for available RAM | Reduce `--max_batch_size` or let the script auto‑offload to Kaggle GPU (handled automatically). |
-| Many KL values are zero | Prompt set too trivial | Use the “reasoning” subset of GSM8K (`filter(lambda x: len(x["question"].split()) > 20, ...)`). |
-| FP8 generation fails | ONNX Runtime without float‑8 support | The script will log a warning and set `kl_div_fp8 = 0.0`; the bound verification still proceeds for INT4/INT8. |
+| `llama_engine` OOM on CPU | Model too large for available RAM | Reduce `--max_samples` or switch to a smaller checkpoint (e.g., 1.7 B). |
+| Many KL values are zero | Prompt set too trivial | Use the “reasoning” subset of GSM8K (`len(question.split()) > 20`). |
+| FP8 generation logs “unsupported” | ONNX Runtime lacks float‑8 support | No action needed; FP8 rows are simply omitted. |
 | Contract test failure | Schema version mismatch | Re‑install dependencies (`pip install -r code/requirements.txt`). |
-| Runtime exceeds 6 h | Dataset size too large | Reduce the number of prompts (e.g., `--max_samples 350`) and re‑run; the power analysis still holds for ≥ 300 samples. |
+| Runtime exceeds 6 h | Dataset size too large | Reduce `--max_samples`; power analysis still holds for ≥ 300 samples. |
 
 ## Reproducibility Checklist
-* Seed fixed (e.g., using a constant seed value).  
-* All downloads performed via Hugging Face `datasets` / `huggingface_hub`.  
-* SHA‑based checksums recorded in `state/`.  
-* No manual edits to CSV/Parquet files after generation.  
+- Seed fixed (`--seed 42`).  
+- All downloads performed via Hugging Face `datasets` / `huggingface_hub`.  
+- SHA‑based checksums recorded in `state/`.  
+- No manual edits to CSV/Parquet files after generation.  
 
 ---

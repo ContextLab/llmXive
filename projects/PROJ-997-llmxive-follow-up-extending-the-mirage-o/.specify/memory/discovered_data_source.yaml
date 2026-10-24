@@ -1,13 +1,17 @@
 status: none
-intent: GSM8K prompts and Llama-2-7B-4bit model quantization data python package dataset
+intent: GSM8K ONNX Runtime quantization divergence dataset python package
 required_fields:
-- prompt_id
 - prompt_text
+- full_precision_logits
+- int8_logits
+- int4_logits
+- fp8_logits
+- kl_divergence_int8
+- kl_divergence_int4
+- kl_divergence_fp8
 - gradient_norm
 - local_curvature
-- kl_div_int8
-- kl_div_int4
-- kl_div_fp8
-cache_key: 085a92d31073ab9ff5f30a93dd8e2f33903677a6b08e828dc8af10f783ab256b
-searched_at: '2026-10-24T13:14:29.740492+00:00'
+- model_identifier
+cache_key: dacab95e7db35dd365f56bc5ef2c25da3b1e274f254cb9cea023b45bf5d9f9f0
+searched_at: '2026-10-24T13:39:02.790415+00:00'
 retry_count: 1

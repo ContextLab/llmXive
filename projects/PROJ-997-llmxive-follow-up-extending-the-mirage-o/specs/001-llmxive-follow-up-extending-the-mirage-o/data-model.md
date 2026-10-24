@@ -14,13 +14,13 @@ Defines the schemas for the core artifacts produced by the pipeline: the ground�
 | `local_curvature` | number | Approximation of Hessian trace (full‑precision). |
 | `kl_div_int4` | number | KL divergence FP16 ↔ INT4. |
 | `kl_div_int8` | number | KL divergence FP16 ↔ INT8. |
-| `kl_div_fp8` | number | KL divergence FP16 ↔ FP8 (0.0 if FP8 not supported). |
+| `kl_div_fp8` | number or null | KL divergence FP16 ↔ FP8 (null if FP8 not generated). |
 | `quantization_level` | string (`"INT4"`, `"INT8"` or `"FP8"`) | Level used for this row (for stratified analysis). |
 | `timestamp` | string (date‑time) | Generation timestamp (UTC). |
-| `hardware_source` | string (`"CPU"` or `"GPU"`, nullable) | Device that performed the quantized inference. |
+| `hardware_source` | string (`"CPU"`) | Device that performed the quantized inference (always CPU). |
 | `prompt_length_bin` | string (`"short"`, `"medium"`, `"long"`, nullable) | Binned token length for difficulty stratification. |
 
-*All fields required except the optional `hardware_source` and `prompt_length_bin`.*
+*All fields are required except `kl_div_fp8` and `prompt_length_bin` (which may be null).*
 
 ### GapPredictor (model artifact)
 
@@ -47,7 +47,7 @@ Defines the schemas for the core artifacts produced by the pipeline: the ground�
 | Section | Contents |
 |---------|----------|
 | `correlation_results` | Pearson r per quantization level; boolean `bound_consistency` for each ε (0.05, 0.1, 0.15). |
-| `statistical_tests` | Paired t‑statistic, raw p‑value, Bonferroni‑adjusted p, optional Wilcoxon results, textual `conclusion`. |
+| `statistical_tests` | Paired t‑statistic, raw p‑value, Bonferroni‑adjusted p, optional permutation p‑value, textual `conclusion`. |
 | `latency_reduction` | `proxy_latency_ms`, `baseline_latency_ms`, `reduction_percentage`. |
 | `collinearity_check` | VIF for `gradient_norm` and `local_curvature`. |
 | `runtime` | Total wall‑clock time (seconds); must be ≤ 21600 s (6 h). |

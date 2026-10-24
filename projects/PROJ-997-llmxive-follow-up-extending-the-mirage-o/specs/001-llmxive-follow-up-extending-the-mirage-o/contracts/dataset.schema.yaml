@@ -22,8 +22,10 @@ properties:
     type: "number"
     description: "KL divergence between FP16 and INT8 quantized logits."
   kl_div_fp8:
-    type: "number"
-    description: "KL divergence between FP16 and FP8 quantized logits."
+    type:
+      - "number"
+      - "null"
+    description: "KL divergence between FP16 and FP8 quantized logits (null if FP8 not generated)."
   quantization_level:
     type: "string"
     enum:
@@ -39,17 +41,16 @@ properties:
     type: "string"
     enum:
       - "CPU"
-      - "GPU"
-    description: "Hardware device used for quantized inference."
-    nullable: true
+    description: "Hardware device used for quantized inference (always CPU)."
   prompt_length_bin:
-    type: "string"
+    type:
+      - "string"
+      - "null"
     enum:
       - "short"
       - "medium"
       - "long"
     description: "Binned token length for difficulty stratification."
-    nullable: true
 required:
   - "input_id"
   - "prompt"
@@ -60,4 +61,5 @@ required:
   - "kl_div_fp8"
   - "quantization_level"
   - "timestamp"
+  - "hardware_source"
 additionalProperties: false

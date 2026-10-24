@@ -52,7 +52,7 @@ properties:
         type: "number"
       bonferroni_corrected_p:
         type: "number"
-      wilcoxon_p_value:
+      permutation_p_value:
         type: "number"
         nullable: true
       conclusion:
