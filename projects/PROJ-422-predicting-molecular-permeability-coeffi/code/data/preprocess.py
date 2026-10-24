@@ -200,25 +200,25 @@ class MoleculeProcessor:
 
         return processed_df
 
-def run_from_cli(self) -> None:
-    """CLI entry point to process raw data."""
-    raw_dir = paths.data('raw')
-    csv_files = list(raw_dir.glob('*.csv'))
-    
-    if not csv_files:
-        # Fallback to sample
-        sample_path = paths.root / "data" / "sample_permeability.csv"
-        if not sample_path.exists():
-            self.logger.error("No raw data found.")
-            sys.exit(1)
-        df = pd.read_csv(sample_path)
-    else:
-        df = pd.read_csv(csv_files[0])
+    def run_from_cli(self) -> None:
+        """CLI entry point to process raw data."""
+        raw_dir = paths.data('raw')
+        csv_files = list(raw_dir.glob('*.csv'))
+        
+        if not csv_files:
+            # Fallback to sample
+            sample_path = paths.root / "data" / "sample_permeability.csv"
+            if not sample_path.exists():
+                self.logger.error("No raw data found.")
+                sys.exit(1)
+            df = pd.read_csv(sample_path)
+        else:
+            df = pd.read_csv(csv_files[0])
 
-    try:
-        self.process(df)
-    except SystemExit as e:
-        sys.exit(e.code if isinstance(e.code, int) else 1)
+        try:
+            self.process(df)
+        except SystemExit as e:
+            sys.exit(e.code if isinstance(e.code, int) else 1)
 
 if __name__ == "__main__":
     processor = MoleculeProcessor()

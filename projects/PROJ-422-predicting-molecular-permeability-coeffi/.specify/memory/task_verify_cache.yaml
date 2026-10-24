@@ -9,32 +9,35 @@ T000:
     \ they pass given the provided implementation."
   sig: 111b3f86e1449dc69f2281e7359a632d392ef76a74d4da52764e25f70ed93346
 T001:
-  c: false
-  h: 6b6522950bed5632ee250a418dde5733e7bff8c6cf7350d37c0f6642bfb59bfa
-  r: The `code/data/download.py` script is present and attempts streaming, but the
-    required output artifacts (`data/raw/` directory with the CSV file and `data/raw/checksums.json`)
-    are missing, and there is no evidence that `tests/unit/test_download.py` was executed
-    successfully. The task is incomplete until the script is run to produce those
-    files and the test passes.
-  sig: fece2d07856b20c8904e1cc97df2c450a2f0ac8a5f8d3592d876663bff846f28
+  c: true
+  h: 1962e2c8296b58af9bc13dc701697c0279e5c6e8efd99511902f57a17f6931bc
+  r: "Checked `code/data/download.py`, its execution log, the generated `data/raw/permeability_data.csv`\
+    \ and `data/raw/checksums.json`, and the passing `tests/unit/test_download.py`.\
+    \ All required files are created, contain the required columns, and the test confirms\
+    \ non\u2011empty output."
+  sig: e9126befbc576817521da69283fe4ea3c10cc831cf069b1cc64a4613a56932b0
 T002:
+  c: true
+  h: ae3dd7a136f1da37297454e4e8fdaac9341a3074b95c491c78319cc36c37d725
+  r: "I verified `code/data/preprocess.py` implements SMILES parsing, descriptor calculation,\
+    \ graph JSON creation, writes both CSV and Parquet files before the retention\
+    \ guard, excludes rows with missing permeability, and raises `SystemExit` when\
+    \ the valid\u2011molecule rate falls below 95\u202F%. The generated `processed_data.csv`\
+    \ and `processed_data.parquet` exist, contain the required columns with a boolean\
+    \ `mol_valid`, and the unit tests in `tests/unit/test_preprocess.py` pass."
+  sig: 354e7bb73e70d40f18697512b7aa1a4a47abfd08cfcc21ea198faf7e0b4eee30
+T004:
   c: false
-  h: e511016fc685aa3fa4d62260a219c8143a5a9d5d085cc87f954d5d5fd59de234
-  r: "The `MoleculeProcessor.process` method writes the output files but then applies\
-    \ the retention guard using the raw input row count, causing a `SystemExit` for\
-    \ the provided sample dataframe (3 valid SMILES out of 5 \u2192 60\u202F%\u202F\
-    <\u202F95\u202F%). The unit test expects the method to complete without raising,\
-    \ so the guard logic does not meet the test\u2019s requirements. Adjust the retention\
-    \ calculation or threshold to satisfy the test."
-  sig: 826fbff4c7b6cc141473bdbfc94fa16af1b23f3cd27fae05d2b402e3dc450f18
-T003:
-  c: false
-  h: 7dbf8a3945d6d184ef17df813c4efb569c4f42efc6f099705f7ad3db9161a3de
-  r: "Checked `code/data/split.py` (implements the required split logic) and the presence\
-    \ of the expected output files. While the script contains the correct functionality,\
-    \ the required output artifacts `data/processed/train.parquet` and `data/processed/test.parquet`\
-    \ are missing from the repository, so the task\u2019s deliverable is not satisfied."
-  sig: 87aed971f59d1f74deb9a598d461783c9e8934782bc3f2e3b28645fd5be8023c
+  h: 7156c3418d26b397000d918d97579c19797ec79f59d5d54f1d296883eca06ffd
+  r: "Checked `code/models/gnn.py`, its checkpoint `code/models/gnn.pt`, and the unit\u2011\
+    test file `tests/unit/test_models.py`. The GNN script enforces CPU, defines a\
+    \ 3\u2011layer MPNN with hidden\u202F=\u202F64 and early\u2011stopping, and writes\
+    \ a checkpoint, but the script aborts (no processed data) and saves a dummy model.\
+    \ Moreover, the required unit test `test_gnn_training` is absent from `test_models.py`;\
+    \ the provided tests only cover forward passes and helper functions, not full\
+    \ training execution or wall\u2011time limits. Consequently the task\u2019s verification\
+    \ criteria are not met."
+  sig: aaa2e21399f9895208bb8ac162eaa5e86a4080dabc6f2acdeeceb570a5acefec
 T005:
   c: false
   h: 33fbcada2d9c9185e9f6b92a7995cd771956af3a7835657e7392c244a364ad1c

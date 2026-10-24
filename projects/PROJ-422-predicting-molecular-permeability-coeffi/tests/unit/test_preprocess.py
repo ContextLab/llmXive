@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import pytest
 from pathlib import Path
 from llmxive_toolkit import paths

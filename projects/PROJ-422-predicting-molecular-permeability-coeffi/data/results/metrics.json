@@ -1,9 +1,8 @@
 {
-  "retention_rate": 1.0,
-  "bias_violation": false,
-  "bias_details": {},
-  "split_strategy": "stratified",
-  "stratify_column": "polymer_type",
-  "max_distribution_diff": 0.0,
-  "cpu_feasibility_check": "passed"
+  "split_strategy": "random",
+  "stratify_column": null,
+  "train_size": 1,
+  "test_size": 0,
+  "max_distribution_diff": null,
+  "retention_rate": 1.0
 }
