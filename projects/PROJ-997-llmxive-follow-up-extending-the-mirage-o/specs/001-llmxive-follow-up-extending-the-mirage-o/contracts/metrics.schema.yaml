@@ -52,6 +52,9 @@ properties:
         type: "number"
       bonferroni_corrected_p:
         type: "number"
+      wilcoxon_p_value:
+        type: "number"
+        nullable: true
       conclusion:
         type: "string"
         description: "e.g., 'No significant degradation (p > 0.05)'."
@@ -86,9 +89,19 @@ properties:
     required:
       - "gradient_norm_vif"
       - "curvature_vif"
+  runtime:
+    type: "object"
+    description: "Total wall‑clock time."
+    properties:
+      total_seconds:
+        type: "number"
+        description: "Must be ≤ 21600 (6 h)."
+    required:
+      - "total_seconds"
 required:
   - "correlation_results"
   - "statistical_tests"
   - "latency_reduction"
   - "collinearity_check"
+  - "runtime"
 additionalProperties: false

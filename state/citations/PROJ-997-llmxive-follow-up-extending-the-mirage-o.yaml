@@ -1,11 +1,11 @@
-- artifact_hash: 8637180f25f819b905e082487d55ea661f50abdcf782625bb8178acc63e93b37
-  artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/quickstart.md
+- artifact_hash: efe9dde230a483a1bdb8cff43c172919bb7fd8896362c1ad361decc893cc546a
+  artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: schema#
   kind: url
-  value: https://github.com/your-org/PROJ-997-llmxive-follow-up-extending-the-mirage-o.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/PROJ-997-llmxive-follow-up-extending-the-mirage-o
-  verified_at: '2026-10-23T11:29:40.892800Z'
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-24T13:31:52.088888Z'

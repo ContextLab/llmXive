@@ -42,6 +42,14 @@ properties:
       - "GPU"
     description: "Hardware device used for quantized inference."
     nullable: true
+  prompt_length_bin:
+    type: "string"
+    enum:
+      - "short"
+      - "medium"
+      - "long"
+    description: "Binned token length for difficulty stratification."
+    nullable: true
 required:
   - "input_id"
   - "prompt"
