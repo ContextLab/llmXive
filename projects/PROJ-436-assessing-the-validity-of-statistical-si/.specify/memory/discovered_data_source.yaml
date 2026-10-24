@@ -1,11 +1,11 @@
 status: none
-intent: OpenML diabetes heart disease datasets treatment outcome covariates download
-  python package dataset
+intent: download python package MCAR-0 MCAR-1 MAR-0 MAR-1 MAR-2 datasets OpenML python
+  package dataset
 required_fields:
-- treatment
-- outcome
-- covariate1
-- covariate2
-cache_key: c59e4c4fe3d43a209847cdbdacc254a72cecbba008193914d472881b9292114c
-searched_at: '2026-10-14T08:28:22.256706+00:00'
+- id
+- covariate_1
+- covariate_2
+- covariate_3
+cache_key: a28c8aa6bd81745a30f7c815d6044fd71fe90a43a9e496cbbf8b2810fe2d5777
+searched_at: '2026-10-24T03:34:03.021054+00:00'
 retry_count: 1

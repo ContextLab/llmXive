@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ComparisonResult"
+description: "Aggregated metrics for a specific simulation condition."
+type: "object"
+properties:
+  config_hash:
+    type: "string"
+    description: "SHA‑256 hash of the SimulationConfig."
+  mechanism:
+    type: "string"
+    enum:
+      - "MCAR"
+      - "MAR"
+      - "MNAR"
+    description: "Missing data mechanism."
+  missingness_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Missingness proportion."
+  method:
+    type: "string"
+    enum:
+      - "CC"
+      - "MI"
+      - "IPW"
+    description: "Analysis method."
+  empirical_type1_error:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of rejections across iterations."
+  ks_p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Kolmogorov‑Smirnov test p‑value against Uniform(0,1)."
+  tipping_point_flag:
+    type: "boolean"
+    description: "True if empirical_type1_error > 0.055 (no binomial test)."
+  cc_mi_ratio:
+    type: "number"
+    minimum: 0.0
+    description: "Ratio of CC error to MI error (only for CC rows)."
+  mcnemar_p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "McNemar’s test p‑value comparing CC vs. MI/IPW."
+  ratio_bootstrap_ci:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95 % confidence interval (lower, upper) for the error‑rate ratio."
+  validated_tipping_point:
+    type: "boolean"
+    description: "True if lower CI > 2 and mcnemar_p_value < 0.05."
+required:
+  - config_hash
+  - mechanism
+  - missingness_rate
+  - method
+  - empirical_type1_error
+  - ks_p_value
+  - tipping_point_flag
+additionalProperties: false

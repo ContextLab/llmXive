@@ -15,9 +15,6 @@ properties:
       - "MCAR"
       - "MAR"
       - "MNAR"
-      - "TD-MCAR"
-      - "TD-MAR"
-      - "TD-MNAR"
     description: "Missing data mechanism."
   missing_rate:
     type: "number"
@@ -26,13 +23,13 @@ properties:
     description: "Proportion of missing data."
   n_iterations:
     type: "integer"
-    minimum: 1
+    minimum: 15000
     description: "Number of Monte Carlo iterations."
   error_rate_CC:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Empirical Type I error rate for Complete-Case analysis."
+    description: "Empirical Type I error rate for Complete‑Case analysis."
   error_rate_MI:
     type: "number"
     minimum: 0.0
@@ -43,26 +40,21 @@ properties:
     minimum: 0.0
     maximum: 1.0
     description: "Empirical Type I error rate for Inverse Probability Weighting."
-  binomial_p_CC:
+  ks_p_value_CC:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "P-value from Binomial test for CC method."
-  adjusted_p_CC:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Benjamini-Hochberg adjusted p-value for CC method."
+    description: "Kolmogorov‑Smirnov test p‑value for CC p‑value distribution."
   tipping_point_flag:
     type: "boolean"
-    description: "True if CC error rate exceeds 5.5% and adjusted p-value < 0.05."
+    description: "True if CC error > 0.055."
   cc_mi_ratio:
     type: "number"
     minimum: 0.0
     description: "Ratio of CC error rate to MI error rate."
   validated_tipping_point:
     type: "boolean"
-    description: "True if cc_mi_ratio > 2.0."
+    description: "True if lower bootstrap CI > 2 and McNemar’s test p < 0.05."
   validation_status:
     type: "string"
     enum:
@@ -79,8 +71,7 @@ required:
   - error_rate_CC
   - error_rate_MI
   - error_rate_IPW
-  - binomial_p_CC
-  - adjusted_p_CC
+  - ks_p_value_CC
   - tipping_point_flag
   - cc_mi_ratio
   - validated_tipping_point

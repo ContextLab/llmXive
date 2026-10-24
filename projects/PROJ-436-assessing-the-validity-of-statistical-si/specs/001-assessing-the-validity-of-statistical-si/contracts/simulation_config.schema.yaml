@@ -5,16 +5,13 @@ type: "object"
 properties:
   dataset_id:
     type: "string"
-    description: "Identifier for the source dataset (e.g., \"openml_42803\")."
+    description: "Identifier for the source dataset (e.g., \"rct_1\")."
   missingness_mechanism:
     type: "string"
     enum:
       - "MCAR"
       - "MAR"
       - "MNAR"
-      - "TD-MCAR"
-      - "TD-MAR"
-      - "TD-MNAR"
     description: "The mechanism of missingness to simulate."
   missingness_rate:
     type: "number"
@@ -32,8 +29,8 @@ properties:
     description: "Random seed for reproducibility."
   n_iterations:
     type: "integer"
-    minimum: 1
-    description: "Number of Monte Carlo iterations."
+    minimum: 15000
+    description: "Number of Monte Carlo iterations (≥ 15000)."
   analysis_methods:
     type: "array"
     items:
@@ -44,10 +41,11 @@ properties:
         - "IPW"
     description: "List of analysis methods to run."
 required:
-  - "dataset_id"
-  - "missingness_mechanism"
-  - "missingness_rate"
-  - "outcome_type"
-  - "seed"
-  - "n_iterations"
-  - "analysis_methods"
+  - dataset_id
+  - missingness_mechanism
+  - missingness_rate
+  - outcome_type
+  - seed
+  - n_iterations
+  - analysis_methods
+additionalProperties: false
