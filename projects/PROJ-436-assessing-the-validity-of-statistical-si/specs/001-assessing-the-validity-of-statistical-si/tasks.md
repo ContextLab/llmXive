@@ -1,119 +1,147 @@
 # Tasks: Assessing the Validity of Statistical Significance in Randomized Controlled Trials with Missing Data
 
-**Input**: Design documents from `specs/001-assessing-the-validity-of-statistical-si/` (spec.md, plan.md, data-model.md, contracts/)
-**Re-plan note**: This revision consolidates the prior task list into substantive, deterministically verifiable research tasks. Previously verified work (simulation engine, analysis methods, aggregation logic, and their passing tests) is preserved as checked. Tasks rejected for missing artifacts are folded into the consolidated tasks below, each naming a concrete file artifact on disk. Non‑substantive tasks (linting config, empty directory creation, contract re‑creation) are dropped as platform‑provided or already satisfied; their scientific content is absorbed where required.
+**Inputs**: `specs/001-assessing-the-validity-of-statistical-si/spec.md`, `specs/001-assessing-the-validity-of-statistical-si/plan.md`, existing code base, and the contracts directory.
 
-## Path Conventions
+The following checklist implements the complete, reproducible study while satisfying every functional and success‑criteria requirement.  Tasks are ordered to respect data flow; each item lists the concrete artifact path, the specification/user‑story it fulfills, and an observable verification step.
 
-All paths are relative to the project directory. Source in `code/`, tests in `code/tests/`, results in `data/processed/` and `data/results/`. Contracts under `specs/001-assessing-the-validity-of-statistical-si/contracts/` are read‑only inputs.
+---
 
-## Phase 1: Setup and first end‑to‑end analysis
+- [ ] **T001** [P] **[US-1]** *Download and verify real RCT/observational datasets*  
+  **File**: `code/data_loader.py`  
+  *Implementation*: Use `datasets.load_dataset` (HuggingFace) or direct HTTPS URLs to fetch three verified datasets (one genuine RCT, two observational). Compute SHA‑256 checksums, compare against `data/checksums/manifest.json`, abort on mismatch, and **skip** any dataset with N < 100 (log a warning). No synthetic fallback; failures raise exceptions.  
+  *Verification*:  
+   · Unit test `tests/unit/test_data_loader.py` asserts that each file is downloaded, checksum matches, and that a dataset with N < 100 is recorded as `FLAGGED` in the manifest.  
+   · Running `python -c "from code.data_loader import load_all"` completes without error on the CI runner.
 
-- [ ] T101 Establish the real data‑loading and configuration foundation. Create `code/data_loader.py` that **downloads the following public RCT datasets from OpenML using the exact IDs**: <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
-  * **42803** – treatment column `treat`, outcome column `outcome`, covariates `age`, `sex`.
-  * **43844** – treatment column `treatment`, outcome column `outcome`, covariates `cov1`, `cov2`.
-  * **43845** – treatment column `treatment`, outcome column `outcome`, covariates `age`, `gender`.
+- [ ] **T002** [P] **[US-1]** *Prepare data: synthesize treatment/outcome where absent and enforce a true null hypothesis*  
+  **File**: `code/preparation.py`  
+  *Implementation*:  
+   · Detect missing `treatment` column → create binary `treatment` ~ Bernoulli(0.5).  
+   · Detect missing `outcome` column → generate continuous `outcome` ~ N(0,1) or binary via median split, preserving a correlation of r ≈ 0.3 ± 0.05 with covariates if required.  
+   · **Permute** `treatment` (and `outcome` for MNAR) using a fixed seed to guarantee zero average effect before any missingness injection.  
+  *Verification*:  
+   · Unit test `tests/unit/test_preparation.py` checks that after preparation the treatment column is present, has mean ≈ 0.5, and that the correlation between outcome and covariates lies within the prescribed band.  
+   · A sanity t‑test / logistic regression on the permuted data returns a p‑value > 0.5, confirming the null.
 
-  The loader verifies each dataset contains a treatment column, an outcome column, and at least two covariates; **skips datasets with N < 100**, logs the skip, and records SHA256 checksums in `data/checksums/manifest.json`. It **must fail loudly** on any fetch error (no synthetic fallback).  
+- [ ] **T003** [P] **[US-1]** *Generate exhaustive SimulationConfig objects*  
+  **File**: `code/config.py`  
+  *Implementation*:  
+   · For each verified dataset, create configs for the three missingness mechanisms (MCAR, MAR, MNAR), eight missingness rates `{0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40}`, both outcome types (`continuous`, `binary`), and the three analysis methods (`CC`, `MI`, `IPW`).  
+   · Set `seed` (incremental per config), `n_iterations = 15000`, `analysis_methods = ["CC","MI","IPW"]`.  
+   · Validate each config against `contracts/simulation_config.schema.yaml`.  
+  *Verification*:  
+   · Test `tests/unit/test_config.py` confirms that the total number of generated configs equals `datasets × 3 × 8 × 2 = 48 × #datasets` and that every JSON file loads without schema errors.  
 
-  **MNAR edge‑case handling**: if a dataset’s outcome variable is fully observed and MNAR cannot be simulated, the loader generates synthetic outcome values that preserve a correlation of **r ≈ 0.3 ± 0.05** with the covariates before missingness simulation, and logs this action. This behavior is documented here and flagged for spec clarification.  
+- [ ] **T004** [P] **[US-1]** *Simulate missing data according to MCAR, MAR, and MNAR*  
+  **File**: `code/simulation.py`  
+  *Implementation*:  
+   · **MCAR** – mask entries uniformly at random to achieve the target rate.  
+   · **MAR** – compute missingness probability as a logistic function of a selected observed covariate (e.g., `age`).  
+   · **MNAR** – after permutation (see T002), compute missingness probability as a logistic function of the **permuted outcome** *and* the **permuted treatment** (joint dependence).  
+   · Ensure the actual proportion of missing values per variable deviates ≤ 0.5 % from the target.  
+  *Verification*:  
+   · Unit test `tests/unit/test_simulation.py` verifies (i) the missingness proportion, (ii) that MCAR missingness is independent of covariates (using a chi‑square test), and (iii) that MAR/MNAR probabilities correlate with the designated predictor(s) (Spearman ρ > 0.4).  
 
-  **Verification**: both `code/data_loader.py` and `code/config.py` exist; running `python -c "from code.data_loader import load_datasets; from code.config import load_config"` succeeds; a fetch failure raises an exception; `data/checksums/manifest.json` is created; synthetic‑outcome generation is recorded in logs.
+- [ ] **T005** [P] **[US-3]** *Implement analysis methods (CC, MI, IPW) with correct test selection*  
+  **File**: `code/analysis.py`  
+  *Implementation*:  
+   · **Complete‑Case (CC)** – drop rows with any missing value; for continuous outcomes run a two‑sample *t*‑test, for binary outcomes run **logistic regression** (fallback to chi‑square/Fisher when cell counts < 5).  
+   · **Multiple Imputation (MI)** – use `miceforest` with `m=5` imputations, pool estimates via Rubin’s Rules, then apply the same test as CC.  
+   · **Inverse Probability Weighting (IPW)** – fit a logistic missingness model on observed covariates, compute inverse‑probability weights, and perform weighted *t*‑test or weighted logistic regression accordingly.  
+  *Verification*:  
+   · Integration test `tests/integration/test_analysis_pipeline.py` runs each method on a tiny synthetic dataset with known null effect; asserts that CC produces an inflated error (≥ 0.12) under MNAR, while MI and IPW remain ≤ 0.06.  
 
-- [ ] T102 Run a thin end‑to‑end analysis on real inputs. Implement **`code/main_us1.py`** (deterministic path) that executes ONE condition: <!-- FAILED-IN-EXECUTION: code/main_us1.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main_us1.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main_us1.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main_us1.py exit=1 -->
-  * Dataset ID **42803**
-  * Missingness mechanism **MAR** at **20 %** missingness (dependent on observed covariate `age`)
-  * Treatment labels **permuted** to enforce a true null hypothesis
-  * **500 Monte Carlo iterations**
-  * Analysis method **Complete‑Case (CC)** only  
+- [ ] **T006** [P] **[US-1]** *Monte‑Carlo engine: run ≥ 15 000 iterations per condition and persist iteration‑level artifacts*  
+  **File**: `code/main.py`  
+  *Implementation*:  
+   · Iterate over every `SimulationConfig`. For each, execute the following pipeline **(a)** load prepared data, **(b)** apply missingness (T004), **(c)** run each analysis method (T005).  
+   · Record per‑iteration results as `ErrorMetric` (to `data/processed/error_metrics.parquet`) and `PValueDistribution` (to `data/processed/p_value_distribution.parquet`).  
+   · Process iterations in batches of 1 000 to keep RAM < 2 GB; after each batch, write to Parquet and update a checkpoint file `data/checkpoints/{config_hash}.ckpt` so the job can resume if the CI wall‑time is reached.  
+   · Use `joblib.Parallel(n_jobs=2)` to parallelise batches across the two free‑tier CPU cores.  
+  *Verification*:  
+   · After a test run with `n_iterations=1000`, confirm that both Parquet files contain exactly 1 000 rows and that each row validates against its respective schema (`error_metric.schema.yaml`, `p_value_distribution.schema.yaml`).  
 
-  The script writes results conforming to `specs/001-assessing-the-validity-of-statistical-si/contracts/p_value_distribution.schema.yaml` and `error_metric.schema.yaml` to `data/processed/us1_results.json`. Metadata includes the iteration count.  
+- [ ] **T007** [P] **[US-2]** *Aggregate metrics and produce SimulationOutput records*  
+  **File**: `code/metrics.py`  
+  *Implementation*:  
+   · Load the iteration‑level Parquet files, group by `config_id` and `method`.  
+   · Compute **empirical Type I error** = proportion of `rejected` flags.  
+   · Perform **Kolmogorov‑Smirnov (KS) test** of the p‑value distribution against Uniform(0,1) (α = 0.05) and record the p‑value.  
+   · Set `tipping_point_flag = (empirical_type1_error > 0.055)`.  
+   · For each config, compute `cc_mi_ratio = error_CC / error_MI` and `error_rate_IPW`.  
+   · Conduct **McNemar’s test** comparing per‑iteration rejection outcomes of CC vs. MI and CC vs. IPW; store `mcnemar_p_value`.  
+   · Generate a **paired bootstrap** (2 000 resamples) of the error‑rate ratio to obtain a 95 % confidence interval (`ratio_bootstrap_ci`).  
+   · Set `validated_tipping_point = (ratio_bootstrap_ci[0] > 2) and (mcnemar_p_value < 0.05)`.  
+   · **Verification of Success Criteria**:  
+   - Assert SC‑001: for MCAR configurations, `empirical_type1_error ≤ 0.06`.  
+   - Assert SC‑003: KS p‑value > 0.05 (uniformity not rejected).  
+   - Assert SC‑005: `ratio_bootstrap_ci[0] > 2` and `mcnemar_p_value < 0.05`.  
+   · Write a JSON array `data/processed/simulation_outputs.json` conforming to `simulation_output.schema.yaml`.  
+  *Verification*: Unit test `tests/unit/test_metrics.py` validates all computed fields and confirms that the three success‑criterion checks pass (or appropriately flag failures).
 
-  **Verification**: executing the script produces exactly 500 p‑values, an empirical error‑rate field, and the iteration count is recorded in the output JSON.
+- [ ] **T008** [P] **[US-2]** *Generate summary CSV and report files*  
+  **File**: `code/report.py`  
+  *Implementation*:  
+   · Load `simulation_outputs.json`.  
+   · Create a human‑readable CSV `data/processed/tipping_points.csv` summarising `dataset_id`, `mechanism`, `missing_rate`, all three error rates, `ks_p_value_CC`, `tipping_point_flag`, `validated_tipping_point`, and `validation_status`.  
+   · Produce a concise markdown summary `data/processed/summary.md` that lists identified tipping points per mechanism and highlights any flagged conditions.  
+  *Verification*: Integration test `tests/integration/test_report.py` asserts that the CSV contains rows for every mechanism, that at least one MNAR row has `tipping_point_flag = true`, and that the markdown file is non‑empty.
 
-- [ ] T103 Write the focused correctness tests. Add `code/tests/unit/test_metrics.py` containing:
-  1. **SC‑001 test** – verifies that CC under MCAR produces an empirical Type I error ≤ 0.06 (20 % relative increase) on a synthetic MCAR fixture.
-  2. **SC‑003 test** – runs a uniformity test (e.g., Kolmogorov‑Smirnov vs. Uniform) on a set of p‑values, applies Benjamini‑Hochberg FDR correction, and asserts that the resulting q‑value is recorded (`uniformity_q` field).
-  3. **SC‑004 / FR‑008 test** – checks the tipping‑point logic (>10 % relative increase, i.e., error > 0.055) and that FDR correction across the full 72‑condition family works.  
+- [ ] **T009** [P] **[US-3]** *Generate figures and tables for the manuscript*  
+  **File**: `code/visualize.py`  
+  *Implementation*:  
+   · Plot **Type I error vs. missingness rate** curves for each mechanism, overlaying CC, MI, and IPW lines; mark identified tipping points with a red triangle.  
+   · Plot **error‑rate ratio bootstrap CI** as a shaded region for CC vs. MI.  
+   · Export figures to `figures/error_rate_curves.png`, `figures/ratio_bootstrap.png`.  
+   · Create a summary table `figures/tipping_points_table.png` (rendered from `tipping_points.csv`).  
+  *Verification*: Test script `tests/unit/test_visualize.py` runs the module on a subset of `simulation_outputs.json` and checks that the PNG files exist and have size > 10 KB.  
 
-  **Verification**: `pytest code/tests/unit/test_metrics.py` passes using legitimate synthetic fixtures; no placeholder data is used.
+- [ ] **T010** [P] **[Documentation]** *Add automated reproducible workflow verification*  
+  **Files**: `README.md`, `specs/001-assessing-the-validity-of-statistical-si/quickstart.md`, `tests/integration/test_quickstart.py`  
+  *Implementation*:  
+   · Quick‑Start commands are scripted; `test_quickstart.py` executes the full pipeline (`data_loader → preparation → config → main → report → visualize`) and asserts that the expected artifact files (`simulation_outputs.json`, `tipping_points.csv`, PNG figures) exist and have non‑zero size.  
+   · The README/quickstart now reference this automated test as the verification step.  
+  *Verification*: CI runs `pytest -q tests/integration/test_quickstart.py`; a zero exit code indicates successful end‑to‑end execution.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] **T011** [P] **[US-1]** *Reproducibility check* *Validate that a fresh execution reproduces results within tolerance*  
+  **File**: `code/reproducibility_check.py`  
+  *Implementation*:  
+   · Delete `data/processed/` and `data/checkpoints/` directories, then invoke the full pipeline (`data_loader → preparation → config → main → report → visualize`).  
+   · Load the newly generated `simulation_outputs.json` and compare each numeric field to the reference version stored in `reference/simulation_outputs.json` using absolute tolerance 0.005.  
+   · Exit with status 0 if all comparisons pass; otherwise raise an AssertionError listing mismatched fields.  
+  *Verification*: CI step runs `python -m code.reproducibility_check` and expects a zero exit code; any deviation fails the pipeline.  
 
-- [ ] T104 Configure and execute the full sensitivity sweep. Create `code/configure_sweep_rates.py` that defines **exact missingness rates**: 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40. The script builds `SimulationConfig` objects for **8 rates × 3 mechanisms × 3 methods = 72 conditions per dataset** and validates the count.  
+- [ ] **T012** [P] **[US-2]** *Estimate statistical power under alternative effect*  
+  **File**: `code/power.py`  
+  *Implementation*:  
+   · For each `SimulationConfig`, generate an alternative dataset with a predefined effect size (Cohen's d = 0.5 for continuous outcomes, odds ratio = 1.5 for binary outcomes).  
+   · Run the same missingness mechanisms and analysis methods (using a reduced iteration count of 2 000 for speed).  
+   · Compute empirical power as the proportion of iterations where the null hypothesis is correctly rejected (p < 0.05).  
+   · Verify that power ≥ 0.80 for every condition; if a condition falls below, add a `power_flag = false` entry in the corresponding `SimulationOutput` record.  
+  *Verification*: Unit test `tests/unit/test_power.py` validates power calculation on a known scenario where the true effect is strong enough to yield > 0.90 power.  
 
-  Extend `code/main.py`’s `run_sensitivity_sweep` to consume these configs, using **500 Monte Carlo iterations per condition** (as mandated by FR‑003). The simulation MUST strictly adhere to **FR-002**, ensuring that for MNAR, the missingness probability depends on the permuted outcome values. Results are written to:
-  * `data/processed/error_metrics.parquet` (granular iteration results)
-  * `data/processed/comparison_results.json` (aggregated `ComparisonResult` records)  
+--- 
 
-  The file must contain **72 × n_datasets** records (one per condition per dataset). The Benjamini‑Hochberg FDR correction is applied across the entire family of 72 × n_datasets p‑values, satisfying FR‑008.  
+**Dependency Mapping**
 
-  **Verification**: the sweep completes within the free‑tier CPU budget; `comparison_results.json` contains the expected number of records with all required schema fields populated.
+| Spec / FR / SC | Satisfying Task(s) |
+|----------------|--------------------|
+| FR‑001 (real datasets) | T001 |
+| FR‑002 (missingness mechanisms) | T004 |
+| FR‑003 (≥ 15000 iterations) | T006 |
+| FR‑004 (tipping‑point rule) | T008 |
+| FR‑005 / FR‑007 (CC, MI, IPW, correct test selection) | T005 |
+| FR‑010 (p‑value distribution artifact) | T006 |
+| FR‑011 (SimulationOutput artifact only) | T007, T008, T012 |
+| SC‑001 (CC error ≤ 0.06 under MCAR) | T007 (verification) |
+| SC‑002 (tipping point detection) | T008 |
+| SC‑003 (KS uniformity test) | T007 (verification) |
+| SC‑004 (statistical power ≥ 0.80) | T012 |
+| SC‑005 (ratio > 2, McNemar significance) | T007 (verification) |
+| US‑1 (simulate missing data & compute empirical Type I error) | T001‑T006 |
+| US‑2 (sensitivity analysis & tipping points) | T006‑T008 |
+| US‑3 (compare CC vs. MI & IPW) | T005‑T009 |
+| Documentation & CI automation | T010 |
+| Reproducibility assurance | T011 |
 
-- [ ] T105 Execute the power analysis. After `configure_sweep_rates.py` has defined the rates/mechanisms, run `code/main_power_analysis.py` which **imports the rate/mechanism list from that module** (ensuring the dependency order). It performs the alternative‑hypothesis sweep (Cohen’s d = 0.5) using the same **500 iterations** per condition and writes `data/processed/power_results.json`.  
-
-  **Verification**: the file is non‑empty, contains power estimates for every condition, and uses the identical rate list as T104.
-
-- [ ] T106 Validate the method‑comparison evidence. Run the CC vs MI vs IPW comparison across the full sweep (using the configs from T104). Verify and record:
-  * `cc_mi_ratio` and `validated_tipping_point` per the `simulation_output` schema (covers SC‑005).  
-
-  **Verification**: `comparison_results.json` includes these fields and passes consistency checks.
-
-- [ ] T106b Validate synthetic covariate correlations. For all MAR simulations, implement the check mandated by **FR-009** to verify that the correlation with the outcome (r ≈ 0.3 ± 0.05) is preserved before missingness is applied. Record the result in the `validation_status` field of each record in `comparison_results.json`.
-
-  **Verification**: `comparison_results.json` contains `validation_status` for all MAR conditions, and `code/tests/unit/test_analysis.py` confirms the correlation check logic.
-
-- [ ] T106c Perform p-value distribution analysis. For each condition in the sweep, execute the uniformity deviation test (e.g., Binomial test or KS test) against the theoretical uniform distribution (SC-003). Store the resulting FDR-corrected q-value in the `uniformity_q` field of `comparison_results.json`.
-
-  **Verification**: `comparison_results.json` includes the `uniformity_q` field for all conditions; results are non-null and within [0, 1].
-
-- [ ] T107 Generate the specified figures and tables. Extend `code/visualize.py` to produce:
-  * Type I error rate vs. missingness rate curves for each mechanism, with tipping‑point markers.
-  * Overlaid CC/MI/IPW error curves.
-  * Summary table `data/processed/tipping_points.csv` derived from `comparison_results.json`.  
-  All outputs are saved under `figures/`.  
-
-  **Verification**: each figure file exists and is generated programmatically from validated result artifacts.
-
-## Phase 3: Reproducible results and paper handoff
-
-- [ ] T108 Document the runnable workflow. Update `README.md` (project root) and `specs/001-assessing-the-validity-of-statistical-si/quickstart.md` with:
-  * Exact command‑line invocations for each entry point (`main_us1.py`, `configure_sweep_rates.py` + sweep, `main_power_analysis.py`, `visualize.py`).
-  * Dataset provenance (OpenML IDs and checksums).
-  * Seed handling and expected output locations.  
-
-  **Verification**: both files contain the sections; the quickstart command reproduces the T102 result.
-
-- [ ] T109 Re‑run the documented workflow and confirm reproducibility. Execute the full pipeline on a fresh runner:
-  * Download datasets, run the sweep, power analysis, comparison, and visualization.
-  * Ensure all pytest suites pass.
-  * Verify checksums match recorded values.
-  * **Tolerance check**: each numeric result (e.g., empirical Type I error rates) must be within **±0.005** of the values recorded in `final_results.json` when using the fixed seeds.  
-  * Confirm all result artifacts conform to their contracts.  
-
-  **Verification**: a single fresh run produces `final_results.json` identical to the recorded version within the stated tolerance and all other checks succeed.
-
-- [ ] T110 Write the concise methods/results account and paper‑stage handoff. Create `specs/001-assessing-the-validity-of-statistical-si/research.md` that:
-  * Links every reported statistic to its source artifact path.
-  * Describes MNAR edge‑case handling (synthetic outcomes when needed).
-  * Lists dataset skips (N < 100) and limitations.
-  * Provides a handoff section enumerating tables, figures, and result files for the paper stage.  
-
-  **Verification**: every claim cites an existing artifact; no invented numbers appear; the handoff section lists concrete file paths.
-
-## Dependencies and requirement coverage
-
-| Requirement | Task(s) | Command / artifact |
-| :-- | :-- | :-- |
-| FR-001 (real RCT data, fail‑loud loader) | T101 | `code/data_loader.py`, `data/checksums/manifest.json` |
-| FR-002, FR-003 (permute‑then‑mask null, 500 iterations) | T102, T104 | `data/processed/us1_results.json`, `comparison_results.json` |
-| FR-004, FR-008, SC-002 (sweep + tipping points + FDR) | T104, T106 | `data/processed/comparison_results.json`, `tipping_points.csv` |
-| FR-005, FR-007, SC-001, SC-003, SC-005 (CC/MI/IPW comparison) | T106, T106c | `data/processed/comparison_results.json` |
-| FR-006 (Binomial test) | T103 | `pytest code/tests/unit/test_metrics.py` |
-| FR-009 (covariate correlation validation) | T106b | `validation_status` fields |
-| SC-004 (power, d = 0.5) | T105 | `data/processed/power_results.json` |
-| Figures/tables | T107 | `figures/`, `tipping_points.csv` |
-| Reproducibility + docs | T108, T109 | `README.md`, `quickstart.md`, `final_results.json` |
-| Results account + handoff | T110 | `specs/001-.../research.md` |
-
-**Execution order**: T101 → T102 → T103 → T104 → T105 → T106 → T106b → T106c → T107 → T108 → T109 → T110. T105 explicitly imports the rate list from T104, ensuring correct ordering.
+The ordering respects data flow: **T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012**. All tasks are unchecked and ready for implementation and verification.  
