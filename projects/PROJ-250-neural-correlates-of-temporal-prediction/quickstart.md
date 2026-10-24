@@ -30,7 +30,7 @@ python code/verify_references.py --stage citations
 python code/download.py --subjects 2
 ```
 
-*If the dataset lacks the required “complex” condition the script aborts with the FR‑008 error message. [UNRESOLVED-CLAIM: c_627124f2 — status=not_enough_info]*
+*If the dataset lacks the required “complex” condition the script aborts with the FR‑008 error message.*
 
 ### 2️⃣ Preprocessing
 ```bash

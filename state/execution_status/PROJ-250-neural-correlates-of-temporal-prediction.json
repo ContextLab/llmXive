@@ -1,7 +1,7 @@
 {
-  "model_tier": 1,
+  "model_tier": 2,
   "fix_rounds": 0,
-  "updated_at": "2026-10-24T08:23:27Z",
+  "updated_at": "2026-10-24T12:12:39Z",
   "project_id": "PROJ-250-neural-correlates-of-temporal-prediction",
   "replan_rounds": 1
 }

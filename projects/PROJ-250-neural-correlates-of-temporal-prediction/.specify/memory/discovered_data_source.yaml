@@ -1,17 +1,19 @@
 status: none
-intent: OpenNeuro ds004510 EEG dataset download via MNE-Python from Hugging Face python
-  package dataset
+intent: OpenNeuro ds004510 EEG BIDS dataset download via MNE-Python python package
+  dataset
 required_fields:
 - subject_id
 - session_id
 - run_id
-- task_name
-- event_id
-- epoch_start
-- epoch_end
+- eeg_signal_matrix (channels x time)
 - sampling_rate
+- event_onsets
+- event_types
+- stimulus_condition (oddball or complex auditory scene)
 - channel_names
-- data_array
-cache_key: 90889a9c7a4a5e17320344f8b4691deb69992006fcf9a91232f2906d2750f449
-searched_at: '2026-10-24T10:12:03.544335+00:00'
+- channel_locations (montage)
+- metadata (age, sex, handedness)
+- raw_data_file_path
+cache_key: 6fec0e120df6c28f4d157dc6f80a5603a42415113088ea485cfa184de8e6f6ba
+searched_at: '2026-10-24T12:12:38.978655+00:00'
 retry_count: 1
