@@ -1,4 +1,14 @@
-# Project-specific dependencies
-python-levenshtein==0.25.1
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
 statsmodels
-pyarrow
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+python-levenshtein==0.12.2
+pyarrow>=12.0.0

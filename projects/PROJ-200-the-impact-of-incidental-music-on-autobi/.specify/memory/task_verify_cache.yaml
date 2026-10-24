@@ -1,27 +1,32 @@
 T000:
   c: false
-  h: 9d154d6f119db49a48dd25e0862781e5d32eca4eebacaf383d0a4f4f82320b6d
-  r: "The repository does not contain a `state.yaml` file (it is listed as MISSING),\
-    \ and the `state_manager` implementation creates a default state with top\u2011\
-    level keys `metadata` and `files`, not the required `artifact_hashes`, `updated_at`,\
-    \ and `config`. Consequently the task\u2019s requirement to initialise `state.yaml`\
-    \ with those specific keys is not met."
-  sig: 3c62bf41a326d93855653b0711f07f6a7409c551277a182b2b35718e3f51da4f
+  h: 8df359f3ee86279aaa60b7ced2c7e1c6f429baefdf8ce26ef6cd25c7e897dede
+  r: "The provided `state.yaml` exists and contains the three required top\u2011level\
+    \ keys, but it is written in YAML syntax (unquoted keys) and therefore is **not\
+    \ valid JSON** as the task specifies. Moreover, `tests/unit/test_state_manager.py`\
+    \ never checks that the on\u2011disk `state.yaml` file is valid JSON or that it\
+    \ contains those keys; the tests only exercise the `state_manager` functions.\
+    \ To satisfy the task, the file must be formatted as valid JSON (e.g., `{\"artifact_hashes\"\
+    :{}, \"updated_at\":\"2024-01-01T00:00:00\", \"config\":{}}`) and a test should\
+    \ verify this."
+  sig: 0bea2a2a5642c0060240a611e2fb7a1407dbe2e18997439353bfb4caea459577
 T001:
   c: false
-  h: 1faadebd87fdc53ee6e975f19ff869a373f7e03abaf13f8bec49ffe34e7dad4d
-  r: "The `quickstart.md` does contain the required `python -m code.main --demo` command,\
-    \ but `requirements.txt` does not pin all dependencies (only `python-levenshtein`\
-    \ is version\u2011pinned) and the required test file `tests/unit/test_quickstart.py`\
-    \ is missing, so the CI checks cannot be satisfied."
-  sig: 4fb951d211e13324ea1bd4a7e914280c880ee681fefd4382286d881d3881b83a
+  h: cdc7b97089f787d6633b5286c873caf8cee53510315bd3bc31b3620d23fdb3f4
+  r: The `quickstart.md` does contain the required `python -m code.main --demo` line,
+    but the CI test `tests/unit/test_quickstart.py` fails (see the log showing an
+    INTERNALERROR caused by a `pyarrow` import error), so the required CI check does
+    not succeed. The task therefore lacks a passing CI verification of the quickstart
+    command. Fix the import/requirements issue (e.g., pin a compatible `pyarrow` version)
+    so that `pip install -r requirements.txt` works and the test runs and passes.
+  sig: 41159880264b0096262787e347b3baeb312e189a37acf0821b1d182aedd8742d
 T002:
   c: false
-  h: ee2522c8e62455c1ae09bf3930f08110f7a65b79bac69a45b35f95e3db3be803
+  h: 93c1c54878e4bed250dd517dbf616df1850b2f342843d77baabc4b89ee115dde
   r: "The two schema files (`contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`)\
     \ are present and contain plausible JSON\u2011Schema definitions, but there is\
-    \ no evidence that `jsonschema` validation was actually run against the generated\
-    \ parquet/CSV files nor that all such files passed validation. Provide validation\
-    \ logs or test results confirming the schemas successfully validate the produced\
-    \ data."
-  sig: 013930a9d1254bbe0be7fc959ba7923865f273df87d3f784d29b347c54e4b581
+    \ no evidence that they were actually used to validate the generated parquet/CSV\
+    \ files. The only test log shows a pytest run that crashes before any validation\
+    \ occurs, so the required \u201Cjsonschema validation passes for every generated\
+    \ file\u201D requirement is not demonstrated."
+  sig: 309b093a16b211765ba00419fe3f82608da39b2a195b2d02a1702508f74af084

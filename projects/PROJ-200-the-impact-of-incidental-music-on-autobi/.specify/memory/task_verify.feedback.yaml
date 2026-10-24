@@ -1,23 +1,28 @@
 T000:
-  reason: "The repository does not contain a `state.yaml` file (it is listed as MISSING),\
-    \ and the `state_manager` implementation creates a default state with top\u2011\
-    level keys `metadata` and `files`, not the required `artifact_hashes`, `updated_at`,\
-    \ and `config`. Consequently the task\u2019s requirement to initialise `state.yaml`\
-    \ with those specific keys is not met."
+  reason: "The provided `state.yaml` exists and contains the three required top\u2011\
+    level keys, but it is written in YAML syntax (unquoted keys) and therefore is\
+    \ **not valid JSON** as the task specifies. Moreover, `tests/unit/test_state_manager.py`\
+    \ never checks that the on\u2011disk `state.yaml` file is valid JSON or that it\
+    \ contains those keys; the tests only exercise the `state_manager` functions.\
+    \ To satisfy the task, the file must be formatted as valid JSON (e.g., `{\"artifact_hashes\"\
+    :{}, \"updated_at\":\"2024-01-01T00:00:00\", \"config\":{}}`) and a test should\
+    \ verify this."
   task: 667ad150128be2bd543adfe2b1e10139349bcaec8db0f33f55963949472f8525
 T001:
-  reason: "The `quickstart.md` does contain the required `python -m code.main --demo`\
-    \ command, but `requirements.txt` does not pin all dependencies (only `python-levenshtein`\
-    \ is version\u2011pinned) and the required test file `tests/unit/test_quickstart.py`\
-    \ is missing, so the CI checks cannot be satisfied."
+  reason: The `quickstart.md` does contain the required `python -m code.main --demo`
+    line, but the CI test `tests/unit/test_quickstart.py` fails (see the log showing
+    an INTERNALERROR caused by a `pyarrow` import error), so the required CI check
+    does not succeed. The task therefore lacks a passing CI verification of the quickstart
+    command. Fix the import/requirements issue (e.g., pin a compatible `pyarrow` version)
+    so that `pip install -r requirements.txt` works and the test runs and passes.
   task: c6d23c0e3b96240b9e0ba39926bb704ab4b9a58e488506e4ccebf23ad30b5762
 T002:
   reason: "The two schema files (`contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`)\
     \ are present and contain plausible JSON\u2011Schema definitions, but there is\
-    \ no evidence that `jsonschema` validation was actually run against the generated\
-    \ parquet/CSV files nor that all such files passed validation. Provide validation\
-    \ logs or test results confirming the schemas successfully validate the produced\
-    \ data."
+    \ no evidence that they were actually used to validate the generated parquet/CSV\
+    \ files. The only test log shows a pytest run that crashes before any validation\
+    \ occurs, so the required \u201Cjsonschema validation passes for every generated\
+    \ file\u201D requirement is not demonstrated."
   task: c3da8e4dd9572ee7c420f289241f4e54dd94180a25e8b54425db80f8735b54f6
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/simulate_demo.py

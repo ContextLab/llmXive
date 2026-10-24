@@ -1,11 +1,12 @@
 status: none
-intent: LFM-1b user demographics music listening dataset python package dataset
+intent: download Last.fm user listening dataset with Million Song Dataset track metadata
+  python package dataset
 required_fields:
 - user_id
-- birth_year
 - track_id
+- listening_timestamp
+- user_birth_year
 - track_release_year
-- listen_count
-cache_key: 91df6e390657ea9643dcb27bacbabbdf7cc3b40b596ef6f6eab033f4c059d733
-searched_at: '2026-10-24T15:41:42.959466+00:00'
+cache_key: 075500da9452134a4638553f0791a204bd25375a2ee9d093cc099571b162b60e
+searched_at: '2026-10-24T15:44:46.726938+00:00'
 retry_count: 1

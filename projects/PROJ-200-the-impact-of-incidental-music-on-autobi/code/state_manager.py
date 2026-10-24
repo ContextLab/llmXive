@@ -1,273 +1,254 @@
 """
-State manager for tracking artifact checksums and metadata.
+State manager for the project.
 
-Provides utilities to compute SHA-256 checksums, load and save a YAML
-state file, register new artifacts, verify integrity, and clean up
+Provides utilities to compute file checksums, load and save a central
+``state.yaml`` file, register new artifacts, verify integrity, and clean
 stale entries.
 
-The implementation follows the expectations of
-`tests/unit/test_state_manager.py`.
+The ``state.yaml`` file lives at the project root (``paths.root``) and
+contains three top‑level keys required by the specification:
+
+- ``artifact_hashes`` – a mapping from relative file paths to metadata
+  (checksum, size, registration timestamp, optional description).
+- ``updated_at`` – ISO‑8601 timestamp of the last modification of the
+  state file.
+- ``config`` – a placeholder for any future configuration values.
+
+All helper functions operate on relative POSIX paths (e.g. ``data/processed/file.parquet``)
+and raise clear errors when expectations are not met.
 """
 
 import hashlib
 import yaml
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-from config import get_project_root
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper functions
+# Internal helpers
 # ----------------------------------------------------------------------
+
+
+def _state_path() -> Path:
+    """Return the absolute Path to ``state.yaml`` at the project root."""
+    return paths.root / "state.yaml"
 
 
 def _compute_file_checksum(file_path: Path) -> str:
     """
-    Compute the SHA-256 checksum of a file.
+    Compute the SHA‑256 checksum of the file at ``file_path``.
 
     Parameters
     ----------
     file_path: Path
-        Absolute path to the file.
+        Path to the file whose checksum should be calculated.
 
     Returns
     -------
     str
-        Hexadecimal SHA-256 digest (64 characters).
+        64‑character hexadecimal SHA‑256 digest.
     """
     if not file_path.is_file():
-        raise FileNotFoundError(f"File not found for checksum: {file_path}")
+        raise FileNotFoundError(f"Cannot compute checksum – file does not exist: {file_path}")
 
-    hasher = hashlib.sha256()
+    sha256 = hashlib.sha256()
     # Read in chunks to avoid loading huge files into memory
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
-            hasher.update(chunk)
-    return hasher.hexdigest()
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
 
 # ----------------------------------------------------------------------
-# Core state handling
+# Public API
 # ----------------------------------------------------------------------
-
-
-def _default_state() -> Dict[str, Any]:
-    """
-    Create a brand‑new state dictionary with required top‑level keys.
-    """
-    now_iso = datetime.now(timezone.utc).isoformat()
-    return {
-        "metadata": {
-            "version": "1.0",
-            "created_at": now_iso,
-            "last_updated": now_iso,
-        },
-        "files": {},  # mapping of relative_path -> info dict
-    }
-
-
-def _state_file_path() -> Path:
-    """
-    Resolve the absolute path to ``state.yaml`` in the project root.
-    """
-    root = get_project_root()
-    return root / "state.yaml"
 
 
 def load_state() -> Dict[str, Any]:
     """
-    Load the state file if it exists; otherwise return a fresh state.
+    Load the ``state.yaml`` file.
+
+    If the file does not exist, a default state with the required top‑level
+    keys is returned.
 
     Returns
     -------
     dict
-        The parsed state dictionary.
+        The parsed YAML content.
     """
-    state_path = _state_file_path()
-    if state_path.is_file():
-        with state_path.open("r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
-        # Ensure required top‑level structure even if the file is malformed
-        if not isinstance(data, dict):
-            data = {}
-        data.setdefault("metadata", {})
-        data["metadata"].setdefault("version", "1.0")
-        data["metadata"].setdefault(
-            "created_at", datetime.now(timezone.utc).isoformat()
-        )
-        data["metadata"].setdefault(
-            "last_updated", datetime.now(timezone.utc).isoformat()
-        )
-        data.setdefault("files", {})
-        return data
-    else:
-        return _default_state()
+    state_file = _state_path()
+    if not state_file.exists():
+        log.info("State file not found – creating a default empty state.")
+        return {
+            "artifact_hashes": {},
+            "updated_at": datetime.utcnow().isoformat(),
+            "config": {}
+        }
+
+    with state_file.open("r", encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+
+    # Ensure the required top‑level keys exist (backwards compatibility)
+    for key in ("artifact_hashes", "updated_at", "config"):
+        if key not in data:
+            if key == "artifact_hashes":
+                data[key] = {}
+            elif key == "updated_at":
+                data[key] = datetime.utcnow().isoformat()
+            else:  # config
+                data[key] = {}
+    return data
 
 
 def save_state(state: Optional[Dict[str, Any]] = None) -> None:
     """
-    Write the provided state dictionary to ``state.yaml``.
-    If ``state`` is ``None`` the current state on disk is loaded,
-    refreshed (updates ``last_updated``) and written back.
+    Persist the current state to ``state.yaml``.
+
+    Parameters
+    ----------
+    state: dict | None
+        If provided, this dictionary is written; otherwise the current
+        state on disk is re‑loaded, updated with a fresh ``updated_at``
+        timestamp and written back.
     """
     if state is None:
         state = load_state()
-    # Update the ``last_updated`` timestamp
-    state.setdefault("metadata", {})
-    state["metadata"]["last_updated"] = datetime.now(timezone.utc).isoformat()
-
-    state_path = _state_file_path()
-    # Ensure the parent directory exists (project root always exists)
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    with state_path.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(state, f, sort_keys=False)
-
-
-# ----------------------------------------------------------------------
-# Public API used by the test suite
-# ----------------------------------------------------------------------
+    state["updated_at"] = datetime.utcnow().isoformat()
+    state_file = _state_path()
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    with state_file.open("w", encoding="utf-8") as f:
+        yaml.dump(state, f, sort_keys=False)
+    log.info(f"State saved to {state_file}")
 
 
 def register_file(
     file_path: str,
     state: Optional[Dict[str, Any]] = None,
     checksum: Optional[str] = None,
-    description: str = "",
+    description: str = ""
 ) -> Dict[str, Any]:
     """
-    Register a file in the state tracking system.
+    Register a file in the state manifest.
 
     Parameters
     ----------
     file_path: str
-        Relative path (from the project root) of the file to register.
+        Relative POSIX path (e.g. ``data/processed/file.parquet``).
     state: dict | None
-        Existing state dictionary; if ``None`` the state is loaded from
-        disk.
+        Existing state dictionary to update; if ``None`` the state is
+        loaded from disk.
     checksum: str | None
-        Pre‑computed checksum; if omitted the checksum is calculated.
+        If supplied, the checksum is used directly; otherwise it is
+        computed from the file contents.
     description: str
-        Optional human‑readable description of the artifact.
+        Optional free‑form description stored alongside the entry.
 
     Returns
     -------
     dict
-        Updated state dictionary (also persisted to disk).
+        The updated state dictionary.
     """
-    root = get_project_root()
-    abs_path = root / file_path
-
-    if not abs_path.is_file():
-        raise FileNotFoundError(f"Cannot register non‑existent file: {file_path}")
-
     if state is None:
         state = load_state()
+
+    rel_path = Path(file_path).as_posix()
+    abs_path = paths.root / rel_path
+
+    if not abs_path.is_file():
+        raise FileNotFoundError(f"Cannot register non‑existent file: {abs_path}")
 
     if checksum is None:
         checksum = _compute_file_checksum(abs_path)
 
-    file_info = {
-        "path": file_path,
+    size_bytes = abs_path.stat().st_size
+    entry = {
         "checksum": checksum,
-        "size_bytes": abs_path.stat().st_size,
-        "registered_at": datetime.now(timezone.utc).isoformat(),
+        "size_bytes": size_bytes,
+        "registered_at": datetime.utcnow().isoformat(),
         "description": description,
     }
 
-    state.setdefault("files", {})
-    state["files"][file_path] = file_info
-
-    save_state(state)
+    state.setdefault("artifact_hashes", {})[rel_path] = entry
+    log.debug(f"Registered file {rel_path} with checksum {checksum[:8]}...")
     return state
-
-
-def verify_file(file_path: str) -> bool:
-    """
-    Verify that a registered file's checksum matches the current file
-    on disk.
-
-    Parameters
-    ----------
-    file_path: str
-        Relative path (from the project root) of the file to verify.
-
-    Returns
-    -------
-    bool
-        ``True`` if the checksum matches, ``False`` otherwise.
-    """
-    root = get_project_root()
-    abs_path = root / file_path
-    state = load_state()
-    info = state.get("files", {}).get(file_path)
-
-    if info is None:
-        # Not registered – treat as invalid
-        return False
-
-    try:
-        current_checksum = _compute_file_checksum(abs_path)
-    except FileNotFoundError:
-        return False
-
-    return current_checksum == info.get("checksum")
-
-
-def verify_all() -> Dict[str, bool]:
-    """
-    Verify every file recorded in the state.
-
-    Returns
-    -------
-    dict
-        Mapping of relative file path -> verification result (True/False).
-    """
-    state = load_state()
-    results: Dict[str, bool] = {}
-    for rel_path in state.get("files", {}):
-        results[rel_path] = verify_file(rel_path)
-    return results
 
 
 def get_file_info(file_path: str, state: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
     """
-    Retrieve the stored metadata for a given file.
+    Retrieve the stored metadata for ``file_path`` from the state.
 
-    Parameters
-    ----------
-    file_path: str
-        Relative path (from the project root) of the file.
-    state: dict | None
-        Optional pre‑loaded state dictionary.
-
-    Returns
-    -------
-    dict | None
-        The file's metadata dictionary if present, else ``None``.
+    Returns ``None`` if the file has not been registered.
     """
     if state is None:
         state = load_state()
-    return state.get("files", {}).get(file_path)
+    return state.get("artifact_hashes", {}).get(Path(file_path).as_posix())
 
 
-def clear_stale_entries() -> Dict[str, Any]:
+def verify_file(file_path: str, state: Optional[Dict[str, Any]] = None) -> bool:
     """
-    Remove entries for files that no longer exist on disk.
+    Verify that the stored checksum matches the current file contents.
+
+    Returns ``True`` if the file exists and the checksum matches,
+    otherwise ``False``.
+    """
+    if state is None:
+        state = load_state()
+    info = get_file_info(file_path, state)
+    if info is None:
+        log.warning(f"No state entry for {file_path}; cannot verify.")
+        return False
+
+    abs_path = paths.root / Path(file_path).as_posix()
+    if not abs_path.is_file():
+        log.warning(f"File missing on disk: {abs_path}")
+        return False
+
+    current_checksum = _compute_file_checksum(abs_path)
+    match = current_checksum == info["checksum"]
+    if not match:
+        log.warning(f"Checksum mismatch for {file_path}: expected {info['checksum']}, got {current_checksum}")
+    return match
+
+
+def verify_all() -> Dict[str, bool]:
+    """
+    Verify every registered artifact.
 
     Returns
     -------
     dict
-        The cleaned state dictionary (also persisted to disk).
+        Mapping from relative file path to boolean indicating verification
+        success.
     """
-    root = get_project_root()
     state = load_state()
-    files_dict = state.get("files", {})
-    stale_keys = [p for p in files_dict if not (root / p).is_file()]
+    results = {}
+    for rel_path in state.get("artifact_hashes", {}):
+        results[rel_path] = verify_file(rel_path, state)
+    return results
 
-    for key in stale_keys:
-        del files_dict[key]
 
-    state["files"] = files_dict
-    save_state(state)
+def clear_stale_entries(state: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Remove entries for files that no longer exist on disk.
+
+    Returns the cleaned state dictionary.
+    """
+    if state is None:
+        state = load_state()
+    artifact_hashes = state.get("artifact_hashes", {})
+    to_remove = [p for p in artifact_hashes if not (paths.root / p).exists()]
+    for p in to_remove:
+        log.info(f"Removing stale state entry for missing file: {p}")
+        del artifact_hashes[p]
+    state["artifact_hashes"] = artifact_hashes
     return state
+
+
+# Backwards‑compatible alias used by existing tests (they import the
+# private helper directly).  The leading underscore is retained to avoid
+# breaking import statements.
+_compute_file_checksum = _compute_file_checksum

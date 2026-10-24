@@ -17,7 +17,7 @@
   - **Artifact**: schema files (unchanged)  
   - **Verification**: `jsonschema` validation passes for every generated parquet/CSV file.
 
-- [ ] T003 Implement a **thin end‑to‑end pipeline** that uses a synthetic validation dataset (10 users × 5 tracks) with hand‑crafted birth years and release years so that the true `adolescent_exposure_ratio` is known.   <!-- FAILED-IN-EXECUTION: code/simulate_demo.py exit=1 -->
+- [ ] T003 Implement a **thin end‑to‑end pipeline** that uses a synthetic validation dataset (10 users × 5 tracks) with hand‑crafted birth years and release years so that the true `adolescent_exposure_ratio` is known.   <!-- FAILED-IN-EXECUTION: code/simulate_demo.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/simulate_demo.py exit=1 -->
   - **Code**: `code/main.py` (demo mode) → `code/simulate_demo.py` → `code/ingest.py` → `code/aggregate.py` → `code/model.py`.  
   - **Outputs**: `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`, `data/final/regression_summary.csv`.  
   - **Verification**: Unit test `tests/unit/test_exposure_accuracy.py` asserts that the computed ratio matches the expected value within 1e‑6 (SC‑001) and that `regression_summary.csv` contains the required columns.
