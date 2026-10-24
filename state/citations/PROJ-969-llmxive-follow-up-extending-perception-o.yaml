@@ -1,14 +1,3 @@
-- artifact_hash: 132710e9a8fba159294d862918c08d08aa2ebac6d60176755fdf68c141413e5a
-  artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: arxiv
-  value: '2605.22109'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-10-20T12:32:05.419635Z'
 - artifact_hash: 428596ec087987aa0efa569a127e9b96934add1a1442bc019f744982725ecf3a
   artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o/plan.md
   cite_id: c-001
@@ -97,3 +86,14 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-10-24T07:16:55.456244Z'
+- artifact_hash: ef624c338d0a18427df7091d60bc75a68b3d68c8b06f89e405b50b62f5934ca6
+  artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2605.22109'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-24T07:38:24.999718Z'
