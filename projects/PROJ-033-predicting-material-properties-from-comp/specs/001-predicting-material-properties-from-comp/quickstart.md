@@ -70,4 +70,4 @@ pytest tests/ -q --junitxml=outputs/test_logs/full_suite.xml 2>&1 | tee outputs/
 - `outputs/gnn_checkpoint_<hash>.pt`, `outputs/structure_gnn_checkpoint_<hash>.pt`, `outputs/node_embeddings.npy` – model checkpoints and embeddings  
 - `outputs/test_logs/` – pytest JUnit XML and tee‑ed logs evidencing every run  
 
-**Known limitations**: (1) a verified open dataset with the required hardness column is missing; hardness values are `null` and will be added once such a dataset becomes available. (2) The structure‑aware baseline uses Matbench‑provided structures, satisfying Principle VI for band‑gap; full information‑loss quantification for hardness awaits data.  
+**Known limitations**: (1) a verified open dataset with the required hardness column is missing; hardness values are `null` and will be added once such a dataset becomes available. (2) The structure‑aware baseline uses Matbench‑provided structures, satisfying Principle VI for band‑gap; full information‑loss quantification for hardness awaits data.

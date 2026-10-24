@@ -1,13 +1,11 @@
 status: none
-intent: Materials Project composition data with band gap and hardness Matbench python
-  package dataset
+intent: Materials Project Matbench Expt Gap band gap hardness dataset python package
+  dataset
 required_fields:
 - material_id
 - formula
 - band_gap
 - hardness
-- elements
-- element_fractions
-cache_key: a3a3813cececa3e9d9066bc9a5586c71523a030e89676f78b0bd89f132f45e60
-searched_at: '2026-10-24T13:37:15.010019+00:00'
+cache_key: f439e46a493b166d71ef06b42ca93808baba236cf603e0a3546ab1998918fde7
+searched_at: '2026-10-24T13:38:54.199775+00:00'
 retry_count: 1

@@ -3,6 +3,8 @@ T001:
     exit=1'
   task: 2c9986c7d24e5a5c1202875e64426da25ac9fcb09fc574073aac5d2b4132e9ef
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/verify_dataset.py
+    exit=1'
   task: bc38062aa001749030a217742dffc0de377e4cbb6b167681f95ce2f7350bc977
 T003:
   task: b3966b845ff541a730788ee9bfc09bd3151305964d9487be5ca5cc076cf62549

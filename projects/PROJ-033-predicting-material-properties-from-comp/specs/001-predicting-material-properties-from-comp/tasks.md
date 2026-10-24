@@ -16,7 +16,7 @@ The aim is a reproducible, CPU‑only research pipeline that satisfies every fun
     2. Confirm `quickstart.md` exists and contains the expected command strings (`python -m src.training.train_gnn ...`).  
     3. Both the JUnit XML and the log must end with `=== 0 passed in ...s ===`.  
 
-- [ ] **T002** [P] **Validate presence and integrity of the open Materials dataset (including hardness column)**  
+- [ ] **T002** [P] **Validate presence and integrity of the open Materials dataset (including hardness column)**   <!-- FAILED-IN-EXECUTION: code/verify_dataset.py exit=1 -->
   - Ensure `data/raw/materials.csv` exists and contains the required columns `material_id, formula, band_gap, hardness, crystal_system`.  
   - Compute SHA‑256 checksum of the file and record it in `data/raw/README.md`.  
   - Execute schema validation: `pytest tests/contract/test_dataset_schema.py -q --junitxml=outputs/test_logs/dataset_schema.xml 2>&1 | tee outputs/test_logs/dataset_schema.log`.  

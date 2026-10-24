@@ -38,9 +38,40 @@ required:
   - crystal_system
 additionalProperties: false
 items:
+  type: object
+  properties:
+    material_id:
+      type: string
+      minLength: 1
+      description: Unique identifier for the material (e.g., Materials Project ID).
+    formula:
+      type: string
+      minLength: 2
+      pattern: "^[A-Za-z][A-Za-z0-9]*$"
+      description: Chemical formula of the material (e.g., Fe2O3).
+    band_gap:
+      type: number
+      minimum: 0
+      description: Band gap in electronvolts (eV). Non‑negative.
+    hardness:
+      type: number
+      minimum: 0
+      description: Hardness in gigapascals (GPa). Non‑negative.
+    crystal_system:
+      type: string
+      enum:
+        - triclinic
+        - monoclinic
+        - orthorhombic
+        - tetragonal
+        - trigonal
+        - hexagonal
+        - cubic
+      description: Crystal system classification.
   required:
     - material_id
     - formula
     - band_gap
     - hardness
     - crystal_system
+  additionalProperties: false
