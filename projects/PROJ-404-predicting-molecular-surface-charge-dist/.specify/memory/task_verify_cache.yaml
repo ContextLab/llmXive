@@ -1,10 +1,54 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listings were provided, so we cannot verify that the
-    `projects/PROJ-404-predicting-molecular-surface-charge-dist/` hierarchy was created
-    nor that `__init__.py` files exist in each `code/` subdirectory. The required
-    artifacts are missing from the evidence.
+  h: f9050b0b6a7355a7aef8d881d67d41ce1a1acae4117c4ff4cf9490a1de1dbb61
+  r: The `tests/test_structure.py` test failed because it tries to run `projects/code/setup_structure.py`,
+    which does not exist (the script is at `projects/PROJ-404-predicting-molecular-surface-charge-dist/code/setup_structure.py`).
+    Consequently the verification step that should confirm all required directories
+    and `__init__.py` files is not passing. The project must either place the `setup_structure.py`
+    script at the expected path or adjust the test, and provide concrete evidence
+    (e.g., file listings) that each `code/` subdirectory (`data`, `models`, `utils`)
+    actually contains an `__init__.py`.
+  sig: cfa2760e5d218090bfdbfdcec4144000a68f78bf6a61cd468d1c9a4423024f9b
+T002:
+  c: true
+  h: 9228b440dc4e3872303770237af20e00b0256157ecf44dc9f6fe52cce62e02fa
+  r: "Checked `code/requirements.txt`, which exists and contains the exact pinned\
+    \ versions for all required packages (torch, torch\u2011geometric, rdkit, datasets,\
+    \ pandas, numpy, scikit\u2011learn) as specified. The extra `huggingface_hub`\
+    \ line does not contradict the requirement."
+  sig: bb2683421eaa519face8935d6defa5a1f30535e2069b52daed90210caaaa8c08
+T003:
+  c: true
+  h: 7502140a29b8f906c4c1fcaf2bb5763b14d24e2233c4fbe280c623f7afe7c2db
+  r: The `code/pyproject.toml` file exists and contains both a `[tool.ruff]` section
+    with `line-length = 100` and a `[tool.black]` section with `line-length = 100`,
+    exactly as the task specifies.
+  sig: 3407a0583d0733579ca1bcbfd92e2ce4270ce788a33f1846bb63fcb8cb86f09a
+T004:
+  c: true
+  h: 4c0d0c564b10e24c43f35d28faf496d32862a2f2a5cce75bc4376428bab69948
+  r: 'Checked `projects/PROJ-404-predicting-molecular-surface-charge-dist/code/utils.py`,
+    which defines `set_seed(seed: int)` that sets seeds for `random`, `numpy`, and
+    `torch` (including CUDA when available) and `get_logger(name: str)` that returns
+    a logger with the exact format `''%(asctime)s - %(name)s - %(levelname)s - %(message)s''`.
+    The file is present and implements the required functionality.'
+  sig: 53ccabb8f380afec1dc4727149faf05247877e6efb66d10ed2f4f6cd246a5402
+T004a:
+  c: false
+  h: 4e0581aab16e6b40d4f5252194290848dd7b914acd2d33b4f61b76cb0ebb5f24
+  r: "The provided `code/utils.py` (955\u202Fbytes) contains utility functions but\
+    \ does not define the required module\u2011level constants `EXIT_CODE_BASELINE_LOSS\
+    \ = 2`, `EXIT_CODE_THRESHOLD_FAIL = 3`, and `EXIT_CODE_SUCCESS = 0`. Adding these\
+    \ constants to the file is needed to satisfy the task."
+  sig: 6368ba10ea8f241f2fdd6ece1d88e56a8212557d68ee623be1c326787fb14a59
+T005:
+  c: true
+  h: c9958f6ccdd8910b00d019703229c435257fa54acd00e9ebd05006d15a87e008
+  r: "Checked `code/data/dataset.py` (881\u202Fbytes) which defines `class MoleculeData(Data)`\
+    \ with `x`, `pos`, `y`, and `scaffold_id` attributes and a proper `__init__` forwarding\
+    \ to the base class. The file is present, non\u2011empty, and implements the required\
+    \ data model."
+  sig: f575f1d0be8bcfe87b2b1b7c0ffce32c7c07d2041b57df9931aac520391eb3ed
 T056a:
   c: false
   h: a73cfa4e1466da22042fceec42d411bc92175da89af27cc23780ae239e5c6d7d

@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T05:18:02.599992Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-237-predicting-molecular-interactions-in-pol
-last_run_id: e3a4f8e1-4535-468e-b3f1-a95f0ccc9fd6
+last_run_id: 8a5753c1-94ee-469d-b065-6783667a6e8d
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-237-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol
 title: Predicting Molecular Interactions in Polymer Blends Using Machine Learning
-updated_at: '2026-10-23T03:39:31.710121Z'
+updated_at: '2026-10-24T15:27:58.772250Z'
