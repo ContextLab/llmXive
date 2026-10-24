@@ -1,12 +1,6 @@
 T001:
-  reason: "The project has the required directories and a `run_pipeline.py` that prints\
-    \ \u201CPipeline completed\u201D, and `quickstart.md` and `requirements.txt` are\
-    \ present. However, the evidence does not show a minimal `__init__.py` in each\
-    \ of the sub\u2011packages (`analysis/`, `stats/`, `reporting/`, `utils/`), the\
-    \ pytest suite files are not shown nor is there any captured pytest output confirming\
-    \ \u201C0 failed, X passed\u201D. Likewise, there is no execution log proving\
-    \ that `python -m code.src.run_pipeline --subjects 5` terminates with exit code\u202F\
-    0 and prints the required line. These missing artifacts and verification log"
+  reason: 'Requested task execution failed; rerun successfully: code/src/run_pipeline.py
+    exit=1'
   task: a0c36d11149a7d73bcaa80f7ec07d4a0302af726a7568af6fb68e056f75d16ac
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/src/data/download_hcp.py

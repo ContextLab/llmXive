@@ -1,4 +1,4 @@
-# Core scientific stack (already available in the runner)
+# Core scientific stack
 numpy>=2.0.0
 pandas==2.2.*
 scipy==1.12.*

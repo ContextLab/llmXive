@@ -14,7 +14,7 @@ The project layout follows the platform convention: source code under `code/`, d
 
 ## Phase 1 – Project scaffolding, data acquisition & quality control  
 
-- [ ] T001 **Create the project code layout, a runnable quick‑start command, and confirm the test suite passes.**  
+- [ ] T001 **Create the project code layout, a runnable quick‑start command, and confirm the test suite passes.**   <!-- FAILED-IN-EXECUTION: code/src/run_pipeline.py exit=1 -->
   - Create the source tree under `code/src/` with sub‑modules `data/`, `analysis/`, `stats/`, `reporting/`, and `utils/`.  
   - Add a minimal `__init__.py` in each package.  
   - Implement `code/src/run_pipeline.py` that imports the orchestrator function `run_pipeline` from `code/src/pipeline.py` (to be created later).  
