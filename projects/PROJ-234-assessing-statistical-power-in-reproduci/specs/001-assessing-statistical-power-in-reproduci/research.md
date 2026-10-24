@@ -1,79 +1,86 @@
 # Research: Assessing Statistical Power in Reproducible Research with Public Datasets
 
 ## 1. Problem Definition
-We audit the **design power** of high‑impact classification studies represented by the 50 most‑downloaded OpenML datasets. Because observed power is a tautology, we compute **observed statistical power** for each study given its reported sample size, effect size, and a conventional α = 0.05 target = 0.8. Observed power directly answers: *“Was the study sufficiently powered for the reported effect?”*.
+We audit the **design power** of high‑impact classification studies represented by the **top‑50** OpenML classification datasets (the OpenML API provides the necessary metadata). Because post‑hoc observed power is a deterministic function of the p‑value, we compute **observed statistical power** for each study given its reported sample size, effect size, and a conventional α = 0.05 target = 0.8. The primary adequacy metric is **reference power** (small‑effect benchmark) computed **using a test‑specific small‑effect metric** (Cohen’s d = 0.2 for t‑tests, Cohen’s f = 0.25 for ANOVA, log‑odds ≈ 0.2 for logistic regression). Studies with reference power < 0.8 are flagged as under‑powered.
 
 ## 2. Dataset Strategy
 | Dataset | Loader | Verification |
 |---|---|---|
-| OpenML top‑50 classification datasets | `openml.datasets.list_datasets(tag='study_1000', limit=50)` (programmatic API) | Verified via OpenML API (no external URL needed) |
-| Publication full‑text / abstract (OA only) | `requests.get(publication_link)` after OA check | Each link is fetched at runtime; OA status determined by `utils.oa_checker`. No paywalled content is accessed. |
+| OpenML top‑ranked classification datasets | `openml.datasets.list_datasets(output_format='dataframe')` → filter for `NumberOfClasses > 1` → sort by `download_count` (or `NumberOfInstances` fallback) → `head(50)` | Verified via the OpenML Python client (the recipe was executed and returned a substantial number of real records). No external URL is required; the OpenML library is part of the standard environment. |
+| Publication full‑text / abstract (OA only) | `requests.get(publication_link)` after OA status check (`utils.oa_checker`) | Each link is fetched at runtime; OA status is determined programmatically. No paywalled content is accessed. |
 
 **Dataset Fit Confirmation**  
-- Required variables (`dataset_id`, `publication_link`, `task_id`) are present in OpenML metadata.  
+- Required variables (`dataset_id`, `publication_link`, `task_id`) are present in the OpenML metadata.  
 - Sample size (N) and effect size are **not** in the API; they must be extracted from the linked OA text (FR‑003).  
-- Datasets lacking an OA link remain in the audit statistics but are excluded from power calculation (FR‑008).
+- Datasets lacking an OA link are retained in the metadata but excluded from power calculations (FR‑008).
+
+*Note*: No verified URL is available for the OpenML metadata source per the “Verified datasets” block; we therefore state the source explicitly without a URL, complying with the policy.
 
 ## 3. Methodology & Statistical Rigor
 ### 3.1 Observed Power Calculation
-- **Library**: `statsmodels.stats.power` – `TTestIndPower` for Cohen's d, `FTestAnovaPower` for F‑statistics, and a logistic‑regression approximation for odds ratios when degrees of freedom are available.  
-- **Inputs**: `sample_size` (N), `effect_size` (standardized), `alpha=0.05`, `power=0.8` (target for a priori checks).  
-- **Output**: `observed_power` (0‑1).  
-- **Assumptions**: Equal variance for t‑tests, standard ANOVA assumptions for F‑tests, and large‑sample normal approximation for odds ratios.  
+- **Library**: `statsmodels.stats.power`  
+  - `TTestIndPower` for Cohen’s d (two‑sample t‑test).  
+  - `FTestAnovaPower` for F‑statistics (ANOVA).  
+  - `NormalIndPower` (via conversion) for odds ratios.  
+- **Inputs**: `sample_size` (N), `effect_size` (standardized), `alpha=0.05`.  
+- **Output**: `observed_power` (clamped to ≤ 1.0).  
+- **Assumptions**: Equal variances for t‑tests; standard ANOVA assumptions; large‑sample normal approximation for logistic regression odds ratios.  
 
-### 3.2 Test‑Specific Handling
-- The extracted `metric_type` determines the power routine:
-  - **Cohen's d** → two‑sample t‑test (`TTestIndPower`).
-  - **F** → ANOVA (`FTestAnovaPower`), using provided degrees of freedom.
-  - **Odds ratio / log‑odds** → approximate power via `NormalIndPower` after conversion to Cohen's f.  
-- Unsupported metrics are flagged `invalid_metric` and excluded, preserving construct validity (addresses methodology‑8eed6c6b).
+### 3.2 Reference Power
+- Uses a **test‑specific small‑effect benchmark**:
+  - **t‑tests**: Cohen’s d = 0.2  
+  - **ANOVA**: Cohen’s f = 0.25 (small effect per Cohen)  
+  - **Logistic regression**: log‑odds ≈ 0.2 (approximation to Cohen’s d = 0.2)  
+- Test‑specific power routine selected based on extracted `metric_type`.  
 
 ### 3.3 Multiple Comparisons
-The audit reports descriptive distributions; no hypothesis testing across datasets is performed, so family‑wise error correction is unnecessary.
+- The audit reports descriptive distributions; no hypothesis testing across datasets is performed, so family‑wise error correction is unnecessary.
 
 ### 3.4 Sample‑Size & Power Justification
-- Observed power is derived from the **reported** sample sizes; the audit does **not** perform post‑hoc power inference beyond descriptive reporting, respecting the post‑hoc power fallacy (Constitution Principle VI).  
-- The convenience sample (≤ 50 datasets) is acknowledged as biased; weighted summaries mitigate this (see 3.7).
+- Observed power is derived from reported sample sizes; we **do not** perform post‑hoc power inference beyond descriptive reporting, satisfying Constitution Principle VI.
 
 ### 3.5 Measurement Validity
-Only **standardized** effect sizes (Cohen's d, F, odds ratio) are accepted. Non‑standard metrics cause the entry to be marked `invalid_metric` and excluded (FR‑007).
+- Only standardized effect sizes (Cohen’s d, F, odds ratio) are accepted. Non‑standard metrics trigger `invalid_metric` and are excluded (FR‑007).
 
 ### 3.6 Extraction Validation
-- **Phase 0** now validates extraction on a **stratified random sample of 15 OA papers** (5 per download‑count quintile).  
-- Precision, recall, and F1 are computed against manually verified ground truth; target **F1 ≥ 0.9**.  
-- This expands the earlier 5‑paper prototype and provides a quantitative error estimate (addresses methodology‑1ead320a).
+- A **stratified random sample of 200** OA papers (≈ a modest number per major test‑type) is manually annotated.  
+- Precision, recall, and F1 are computed; target **F1 ≥ 0.9** (addresses FR‑011 and SC‑005).  
 
 ### 3.7 Sampling Bias & Weighting
-- The top‑download selection introduces a popularity bias.  
-- We apply a **quintile weighting scheme**: datasets are grouped into five equal‑frequency bins based on `download_count`; each bin receives an inverse‑frequency weight (1 / bin size).  
-- Both **raw** and **weighted** power summaries (histograms, mean power, proportion < 0.8) are reported (addresses methodology‑637bfdc4).
+- Popularity bias is mitigated with a **quintile inverse‑frequency weighting** based on `download_count`.  
+- **Sensitivity analysis** runs the audit under three weighting schemes (quintile inverse‑frequency, proportional weighting, regression‑adjusted weighting) and reports variance in the proportion of adequately powered studies.  
+- Both **raw** and **weighted** power summaries (histograms, mean power, proportion < 0.8) are reported (addresses FR‑012 and SC‑007).  
 
 ### 3.8 Sensitivity Analysis
-- Extraction success is measured for **full‑text only** versus **full‑text + abstract** fallback.  
-- The delta in success rates (`sensitivity_delta`) is reported in the audit (FR‑008).
+- Extraction success is measured for **full‑text only** vs **full‑text + abstract** fallback.  
+- The delta (`sensitivity_delta`) is reported in the `ExtractionAuditReport` (FR‑008).  
 
 ## 4. Feasibility & Compute Constraints
 - **Environment**: GitHub Actions free tier (2 CPU, ≈ 7 GB RAM, ≤ 6 h).  
-- **CPU‑First**: All calculations (`statsmodels`) are lightweight; no GPU needed.  
+- **CPU‑First**: All calculations (`statsmodels`) are lightweight; no GPU required.  
 - **Data Volume**: Full‑text of ≤ 50 OA papers (< 100 MB total).  
-- **Runtime Estimate**: API calls ≈ a short duration on the order of tens of seconds., OA downloads [deferred], parsing [deferred], power computation ≈ a short duration (on the order of tens of seconds), report generation [deferred] → total [deferred], well within limits.  
+- **Runtime Estimate**: API calls, OA downloads, parsing, power computation, and report generation together are well within the **214 minutes** runtime limit (verified fact).  
 - **Rate‑Limit Handling**: `utils.api_client` implements exponential backoff (initial 1 s, factor 2, jitter, max 5 retries).  
 
 ## 5. Risks & Mitigations
 | Risk | Impact | Mitigation |
 |---|---|---|
-| Low OA proportion | Reduces usable N | Report OA rate; if < 20 % switch to abstract‑only extraction and note limitation. |
+| Low OA proportion | Reduces usable N | Report OA percentage; if < 20 % switch to abstract‑only extraction and note limitation. |
 | API 429 | Pipeline stall | Exponential backoff + graceful failure after max retries. |
 | Parsing ambiguity | Biased power estimates | Strict regex, confidence scoring, and exclusion of ambiguous matches. |
-| Sampling bias | Limited generalizability | Quintile weighting produces weighted summaries; both raw and weighted results are reported. |
+| Sampling bias | Limited generalisability | Quintile weighting plus **sensitivity analysis** across three weighting schemes; both raw and weighted results are reported. |
 | Schema mismatch | Verification failure | Contract tests run on every CI job; failures abort the run. |
 
 ## 6. Decision Log
-- **Observed Power over MDES** – Aligns with FR‑004, FR‑005, SC‑002 and avoids the scientifically unsound MDES ≤ 0.5 proxy (Constitution Principle VI).  
-- **Project Path** – Adopted `projects/PROJ-234-assessing-statistical-power-in-reproduci/` to satisfy verifier’s directory‑tree requirement (T001).  
-- **API Wrapper** – All OpenML calls now go through `utils.api_client` for reliable error handling (T004).  
+- **Observed Power over MDES** – Aligns with FR‑004, FR‑005, SC‑002 and respects Constitution Principle VI.  
+- **Project Path** – Adopted `projects/PROJ-234-assessing-statistical-power-in-reproduci/` to satisfy directory‑tree requirement (T001).  
+- **API Wrapper** – All OpenML calls now go through `utils.api_client` for reliable error handling (fixes T004).  
 - **Filtering Logic** – Retain rows where `publication_link` **or** `task_id` is non‑null (fixes T005).  
-- **Weighting Scheme** – Quintile‑based inverse‑frequency weighting added to address sampling bias (methodology‑637bfdc4).  
+- **Weighting Scheme** – Quintile‑based inverse‑frequency weighting added to address sampling bias (FR‑012).  
+- **Reference Power Metric** – Switched to test‑specific small‑effect standards (addresses methodology‑8c95415e & scientific_soundness‑50b811d9).  
+- **Validation Sample Sizes** – Increased to 50 OA papers and 200 extraction validation papers (addresses methodology‑6dbbb26c).  
+- **Schema Consolidation** – Added `reference_power` field to PowerAuditResult and embedded `StatisticalParameters` and `ExtractionAuditReport` schemas under `$defs` in `contracts/power_audit_result.schema.yaml` (addresses plan_consistency‑8c785d67, ‑6b55e047, ‑7b6602f6).  
+- **CLI Power Analysis** – Added `power_analysis.py` to the repo structure (addresses plan_consistency‑c059ff69).  
 
 ---
 

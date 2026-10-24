@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PowerAuditResult"
-description: "Schema for the final calculated observed power audit results."
+description: "Schema for the final calculated observed power audit results, including reference power and embedded definitions for related entities."
 type: "object"
 properties:
   dataset_id:
@@ -10,13 +10,18 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Observed statistical power calculated from extracted parameters."
+    description: "Observed statistical power calculated from reported effect size."
+  reference_power:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Power computed with the test‑specific small‑effect benchmark (d = 0.2, f = 0.25, log‑odds ≈ 0.2)."
   target_power:
     type: "number"
     description: "Power level used for a priori checks (default 0.8)."
   threshold_met:
     type: "boolean"
-    description: "True if observed power ≥ target_power (adequate power)."
+    description: "True if reference_power ≥ 0.8 (primary adequacy criterion)."
   status:
     type: "string"
     enum:
@@ -39,13 +44,128 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Power value after applying quintile weighting (optional)."
+    description: "Power after applying quintile weighting (optional)."
 required:
   - "dataset_id"
   - "observed_power"
+  - "reference_power"
   - "target_power"
   - "threshold_met"
   - "status"
   - "alpha"
   - "test_type"
 additionalProperties: false
+
+$defs:
+  StatisticalParameters:
+    title: "StatisticalParameters"
+    description: "Schema for extracted statistical parameters from publications."
+    type: "object"
+    properties:
+      dataset_id:
+        type: "integer"
+        description: "FK to DatasetMetadata."
+      sample_size:
+        type: "integer"
+        description: "Total N reported in the paper."
+      effect_size:
+        type: "number"
+        description: "Cohen's d, F, or odds ratio (standardized)."
+      metric_type:
+        type: "string"
+        enum:
+          - "Cohen's d"
+          - "F"
+          - "odds_ratio"
+        description: "Type of effect size."
+      degrees_of_freedom:
+        type: "object"
+        nullable: true
+        properties:
+          num:
+            type: "integer"
+          den:
+            type: "integer"
+        required:
+          - "num"
+          - "den"
+        description: "Degrees of freedom for F‑statistics."
+      validation_status:
+        type: "string"
+        enum:
+          - "valid"
+          - "invalid_metric"
+          - "ambiguous"
+        description: "Extraction quality flag."
+      extraction_pass:
+        type: "string"
+        enum:
+          - "full_text"
+          - "abstract"
+        description: "Which source yielded the match."
+      extraction_confidence:
+        type: "string"
+        enum:
+          - "high"
+          - "medium"
+          - "low"
+        description: "Confidence based on match length."
+      source_text_snippet:
+        type: "string"
+        description: "Raw snippet that triggered extraction."
+    required:
+      - "dataset_id"
+      - "sample_size"
+      - "effect_size"
+      - "metric_type"
+    additionalProperties: false
+
+  ExtractionAuditReport:
+    title: "ExtractionAuditReport"
+    description: "Schema for the JSON audit report summarising extraction performance and dataset characteristics."
+    type: "object"
+    properties:
+      total_datasets:
+        type: "integer"
+      oa_count:
+        type: "integer"
+      paywalled_count:
+        type: "integer"
+      extraction_success_full_text:
+        type: "integer"
+      extraction_success_abstract:
+        type: "integer"
+      sensitivity_delta:
+        type: "number"
+      extraction_success_rate:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+      dataset_type_distribution:
+        type: "object"
+      source_category_distribution:
+        type: "object"
+      precision:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+      recall:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+      f1_score:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+    required:
+      - "total_datasets"
+      - "oa_count"
+      - "paywalled_count"
+      - "extraction_success_full_text"
+      - "extraction_success_abstract"
+      - "sensitivity_delta"
+      - "extraction_success_rate"
+      - "precision"
+      - "recall"
+      - "f1_score"
+    additionalProperties: false
