@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-19T08:10:53.195720Z'
-current_stage: clarified
+current_stage: specified
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-735-transferability-of-dft-d3-dispersion-to-
-last_run_id: 224a78c2-980b-416c-aa87-b011da6fe5c8
+last_run_id: d06e74e7-70c4-46d1-bb9b-e2cc5c256c6a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to
 title: "Transferability of DFT\u2011D3 Dispersion to Ionic Liquids"
-updated_at: '2026-10-24T12:22:17.072952Z'
+updated_at: '2026-10-24T12:47:05.700166Z'

@@ -21,14 +21,17 @@ properties:
     description: "Counterpoise BSSE correction in kcal/mol."
   calculation_status:
     type: "string"
-    enum: ["success", "failed", "skipped"]
+    enum:
+      - "success"
+      - "failed"
+      - "skipped"
     description: "Status of the Psi4 calculation."
   error_signed:
     type: "number"
     description: "Signed error (DFT – Reference) in kcal/mol."
   dispersion_only_error:
     type: "number"
-    description: "Dispersion‑only error component (D3 – scaled_D3) in kcal/mol."
+    description: "Dispersion‑only error component (D3 – reference dispersion) in kcal/mol."
 required:
   - pair_id
   - reference_energy
