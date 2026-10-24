@@ -23,13 +23,13 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 
 ### FR-002: Linguistic Feature Extraction, Covariate Adjustment, and Statistical Testing (See US2)
 
-**Requirement**: The system MUST extract the lexical, syntactic, and semantic features listed in US2 and perform **ANCOVA** between groups (Control vs AD, Control vs MCI) for each feature, **including age and education as covariates directly in the ANCOVA model (no prior residualization)**. Results shall include **Bonferroni‑corrected p‑values** and **Cohen's d** effect sizes with 95 % confidence intervals.
+**Requirement**: The system MUST extract the lexical, syntactic, and semantic features listed in US2 and perform **ANCOVA** between groups (Control vs AD, Control vs MCI) for each feature, **including age and education as covariates directly in the ANCOVA model (no prior residualization)**. Results shall include **Bonferroni‑corrected p‑values** and **partial eta‑squared (η²)** effect sizes with 95 % confidence intervals.
 
 ### FR-003: Statistical Reporting (See US3)
 
 **Requirement**: The system MUST generate a comprehensive report containing:
 - Corrected p‑values (Bonferroni) for each feature comparison.
-- Parametric effect sizes (Cohen's d) with 95 % confidence intervals.
+- Effect sizes reported as **partial eta‑squared (η²)** with 95 % confidence intervals.
 - Summary tables and visualizations suitable for manuscript inclusion.
 
 ### FR-004: Covariate Adjustment
@@ -81,7 +81,7 @@ Diagnostics and any violations shall be reported in the final statistical report
 3. Extract semantic features (Sentence Embedding Cosine Similarity) using the `all‑MiniLM‑L6‑v2` model (or loaded embeddings) and adjust for age and education **via ANCOVA covariates**.
 4. Perform **ANCOVA** between Control vs. AD and Control vs. MCI for each feature.
 5. Verify ANCOVA assumptions as specified in FR‑008; report diagnostics.
-6. Report effect sizes using **Cohen's d** with 95 % confidence intervals, applying Bonferroni correction for multiple comparisons.
+6. Report effect sizes using **partial eta‑squared (η²)** with 95 % confidence intervals, applying Bonferroni correction for multiple comparisons.
 7. Conduct the a priori power analysis defined in FR‑007 and record the outcome.
 
 ### US3: Statistical Reporting and Interpretation
@@ -91,7 +91,7 @@ Diagnostics and any violations shall be reported in the final statistical report
 **So that** I can interpret the significance and effect magnitude of linguistic markers across groups.
 
 **Acceptance Criteria**:
-1. Generate a PDF/HTML report summarizing all statistical test results, corrected p‑values, and Cohen's d effect sizes.
+1. Generate a PDF/HTML report summarizing all statistical test results, corrected p‑values, and η² effect sizes.
 2. Provide visualizations (boxplots) for each feature.
 3. Archive the report at `data/results/statistical_report.pdf`.
 
@@ -136,6 +136,12 @@ The project follows a phased approach:
 ## 8. Success Criteria
 
 - **SC-001**: At least one linguistic feature shows a statistically significant difference (Bonferroni‑adjusted *p* ≤ 0.05) **(See US2)**.
-- **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains **≥ 150 records** after exclusions, and the metadata report lists exact counts per group (Justified by the known size of the ADReSS/ADReSSo datasets) **(See US1)**.
-- **SC-003**: The final statistical report (`data/results/statistical_report.pdf`) is generated without errors, includes all required visualizations, and passes the automated PII audit (US4).
-- **SC-009**: The a priori power analysis (FR‑007) confirms **≥ 80 % power** to detect a medium effect size (Cohen’s d = 0.5) given the available sample size (See US2).
+- **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains **≥ 120 records** after exclusions, and the metadata report lists exact counts per group (Justified by the sizable ADReSS dataset.) **(See US1)**.
+- **SC-003**: The final statistical report (`data/results/statistical_report.pdf`) is generated without errors, includes all required visualizations, and passes the automated PII audit **(See US3 & US4)**.
+- **SC-004**: Privacy audit reports **zero** PII detections; any detection aborts the pipeline as specified in US4.
+- **SC-009**: The a priori power analysis (FR‑007) confirms **≥ 80 % power** to detect a medium effect size (Cohen’s d = 0.5) given the available sample size **(See US2)**.
+
+## Requirements *(mandatory)*
+
+Functional requirements are defined in the “Functional Requirements” section above. Please refer to those definitions for the authoritative specifications.
+
