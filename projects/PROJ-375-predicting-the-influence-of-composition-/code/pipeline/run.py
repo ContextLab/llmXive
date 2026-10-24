@@ -74,6 +74,24 @@ def _add_descriptors(df: pd.DataFrame) -> pd.DataFrame:
             raise
         descriptor_rows.append(desc)
     desc_df = pd.DataFrame(descriptor_rows)
+
+    # Align column names with both quick‑start and full‑pipeline schemas
+    # Quick‑start schema uses the verbose names; the full schema expects the
+    # original short names. We add aliases so that ``validate_dataframe_schema``
+    # (which checks for both sets) succeeds.
+    desc_df.rename(
+        columns={
+            "weighted_mean_atomic_radius": "mean_atomic_radius",
+            "electronegativity_variance": "electronegativity_var",
+            "atomic_size_coefficient_of_variation": "size_mismatch",
+        },
+        inplace=True,
+    )
+    # Ensure the original short‑name columns are present alongside the verbose ones
+    desc_df["weighted_mean_atomic_radius"] = desc_df["mean_atomic_radius"]
+    desc_df["electronegativity_variance"] = desc_df["electronegativity_var"]
+    desc_df["atomic_size_coefficient_of_variation"] = desc_df["size_mismatch"]
+
     df = pd.concat([df.reset_index(drop=True), desc_df], axis=1)
     return df
 
