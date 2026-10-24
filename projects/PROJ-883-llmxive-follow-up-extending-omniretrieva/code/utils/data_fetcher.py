@@ -15,7 +15,7 @@ complying with the task specification.
 from __future__ import annotations
 
 import pathlib
-from typing import Any, Iterable
+from typing import Iterable
 
 from llmxive_toolkit import get_logger, paths
 
@@ -23,6 +23,7 @@ log = get_logger(__name__)
 
 class DataFetchError(RuntimeError):
     """Raised when a dataset cannot be fetched."""
+
 
 # ----------------------------------------------------------------------
 # Public loader functions
@@ -57,6 +58,7 @@ def load_ms_marco() -> Iterable[dict]:
         log.error("Failed to stream MS MARCO test split: %s", exc)
         raise DataFetchError("Unable to load MS MARCO test split") from exc
 
+
 def load_spider() -> Iterable[dict]:
     """Stream the Spider *tables* split.
 
@@ -72,18 +74,21 @@ def load_spider() -> Iterable[dict]:
         raise DataFetchError("datasets library not installed") from exc
 
     try:
+        # The Spider dataset does not provide a dedicated "tables" config
+        # in the public hub; the standard "train" split contains the
+        # required table information. We stream that split directly.
         ds = load_dataset(
             "spider",
-            "tables",
             split="train",
             streaming=True,
             download_mode="force_redownload",
         )
-        log.info("Spider tables split streamed successfully")
+        log.info("Spider tables streamed successfully (using train split)")
         return ds
     except Exception as exc:
         log.error("Failed to stream Spider tables split: %s", exc)
         raise DataFetchError("Unable to load Spider tables split") from exc
+
 
 def load_dbpedia() -> pathlib.Path:
     """Download the DBpedia 2023 triples parquet file.
@@ -107,8 +112,12 @@ def load_dbpedia() -> pathlib.Path:
         repo_id = "allenai/dbpedia-2023-triples"
         filename = "dbpedia_triples.parquet"
 
-        # ``hf_hub_download`` returns a local file path.
-        local_path = hf_hub_download(repo_id=repo_id, filename=filename)
+        # Specify that we are downloading from a dataset repository.
+        local_path = hf_hub_download(
+            repo_id=repo_id,
+            filename=filename,
+            repo_type="dataset",
+        )
         dest_path = paths.data("raw", "dbpedia_triples.parquet")
         dest_path.parent.mkdir(parents=True, exist_ok=True)
 

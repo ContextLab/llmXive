@@ -1,32 +1,31 @@
-import os
-from pathlib import Path
-from llmxive_toolkit import get_logger
+"""
+Cleanup utility for contract schema directory.
+Removes stray duplicate schema files that may have been left over from earlier
+iterations of the project (e.g., hyphenated versions).
+"""
+import pathlib
+from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
 
-def main():
-    contracts_dir = Path("specs/001-llmxive-follow-up-extending-omniretrieva/contracts")
-    if not contracts_dir.exists():
-        log.warning("Contracts directory %s does not exist. Skipping cleanup.", contracts_dir)
-        return
-
-    # Comprehensive list of files to remove as per T002 and verifier feedback
-    forbidden = [
-        "analysis_result.schema.yaml",
-        "gam_results.schema.yaml",
-        "execution_log.schema.yaml_",
-        "execution_metrics.schema.yaml",
-        "execution-log.schema.yaml",
-        "query_result.schema.yaml",
+def main() -> None:
+    """
+    Delete known duplicate schema files in the contracts directory.
+    Currently removes:
+      - statistics-result.schema.yaml
+    """
+    contracts_dir = pathlib.Path(__file__).resolve().parents[2] / "specs" / "001-structural-mismatch-cost" / "contracts"
+    duplicates = [
+        "statistics-result.schema.yaml",
     ]
-
-    for fname in forbidden:
-        path = contracts_dir / fname
-        if path.exists():
-            log.info("Deleting deprecated schema: %s", path)
-            path.unlink()
-
-    log.info("Cleanup of contracts directory completed.")
+    for fname in duplicates:
+        target = contracts_dir / fname
+        if target.exists():
+            try:
+                target.unlink()
+                log.info(f"Removed duplicate schema file: {target}")
+            except Exception as e:
+                log.error(f"Failed to remove {target}: {e}")
 
 if __name__ == "__main__":
     main()

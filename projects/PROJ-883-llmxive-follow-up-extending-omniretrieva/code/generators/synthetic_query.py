@@ -9,17 +9,22 @@ from __future__ import annotations
 import json
 import random
 import logging
+import uuid
 from pathlib import Path
 from typing import List, Dict, Any
 
 from llmxive_toolkit import get_logger, paths
+# ReferenceEngine is kept for compatibility with later tasks but is not
+# used here because T004 must leave ``ground_truth_plan`` as a null/empty
+# placeholder.
 from .reference_engine import ReferenceEngine
 from utils.data_fetcher import load_ms_marco, load_spider, load_dbpedia
 
 log = get_logger(__name__)
 
 # The maximum depth we support for synthetic generation.  If a caller
-# requests a larger depth we cap it and emit a warning.
+# requests a larger depth we cap it and emit a warning in the required
+# format.
 MAX_DEPTH = 4
 
 class SyntheticQueryGenerator:
@@ -48,6 +53,7 @@ class SyntheticQueryGenerator:
         self.complexity_levels = levels if levels is not None else [1, 2, 3, 4]
         self.count_per_level = count_per_level
         self.rng = random.Random(seed)
+        # ReferenceEngine is instantiated for later tasks but not used here.
         self.engine = ReferenceEngine()
         log.debug(
             "SyntheticQueryGenerator initialized with seed=%s, levels=%s",
@@ -94,16 +100,12 @@ class SyntheticQueryGenerator:
     # Helper methods
     # ------------------------------------------------------------------
     def _effective_level(self, level: int) -> int:
-        """Return a depth that does not exceed ``MAX_DEPTH``; log if capped."""
-        if level > MAX_DEPTH:
-            log.warning(
-                "Requested depth %d exceeds maximum %d – capping to %d",
-                level,
-                MAX_DEPTH,
-                MAX_DEPTH,
-            )
-            return MAX_DEPTH
-        return level
+        """Return a depth that does not exceed ``MAX_DEPTH``."""
+        return min(level, MAX_DEPTH)
+
+    def _log_depth_overflow(self, query_id: str) -> None:
+        """Log depth overflow in the exact required format."""
+        log.warning("DEPTH_OVERFLOW: query_id=%s", query_id)
 
     def _generate_query_structure(self, level: int) -> Dict[str, Any]:
         """Create a minimal structure describing a synthetic query."""
@@ -169,8 +171,14 @@ class SyntheticQueryGenerator:
         source_type: str | None
             If provided, forces the query to use that source type.
         """
+        # Generate a proper UUID4 for the query identifier.
+        qid = str(uuid.uuid4())
+
+        # Determine if we need to cap the depth and log overflow.
+        if level > MAX_DEPTH:
+            self._log_depth_overflow(qid)
+
         eff_level = self._effective_level(level)
-        qid = f"q_{eff_level}_{self.rng.randint(0, 1_000_000)}"
 
         # Choose source type – allow override for high‑complexity graph seeding.
         if source_type is None:
@@ -192,20 +200,13 @@ class SyntheticQueryGenerator:
         for _ in range(eff_level):
             steps.append(str(self.rng.choice(pool)))
 
-        # Build step objects expected by ReferenceEngine.
-        step_objs = [{"step_id": s, "estimated_cost": 1.0} for s in steps]
-
-        # Generate deterministic ground‑truth plan identifier.
-        gt_plan = self.engine.generate_plan(
-            {"query_id": qid, "steps": step_objs}
-        )
-
         query: Dict[str, Any] = {
             "query_id": qid,
             "source_type": source,
             "complexity_level": int(eff_level),
             "logical_plan": {"steps": steps},
-            "ground_truth_plan": gt_plan,
+            # According to T004 the ground‑truth plan is a null placeholder.
+            "ground_truth_plan": "",
             "synthetic_flag": True,
         }
         return query

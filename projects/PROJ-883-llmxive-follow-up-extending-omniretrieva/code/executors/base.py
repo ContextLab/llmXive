@@ -15,7 +15,7 @@ the timeout, and returns an :class:`ExecutionResult` instance.
 import abc
 import signal
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 from llmxive_toolkit import get_logger
@@ -36,7 +36,6 @@ class ExecutionResult:
     executed_plan: Optional[str] = None
     success: bool = False
     timeout: bool = False
-    # Additional fields can be added later (e.g., error messages)
 
 class BaseExecutor(abc.ABC):
     """Abstract executor with built‑in timeout handling.
@@ -75,7 +74,6 @@ class BaseExecutor(abc.ABC):
             Populated with latency, success flag and timeout flag.
         """
         start = time.time()
-        # Register alarm signal for timeout enforcement.
         previous_handler = signal.getsignal(signal.SIGALRM)
         signal.signal(signal.SIGALRM, self._alarm_handler)
         signal.alarm(self.timeout_seconds)
@@ -107,11 +105,9 @@ class BaseExecutor(abc.ABC):
                 timeout=False,
             )
         finally:
-            # Cancel any pending alarm and restore previous handler.
             signal.alarm(0)
             signal.signal(signal.SIGALRM, previous_handler)
 
-        # Populate latency (measured in all branches).
         if result.latency_ms == 0.0:
             result.latency_ms = (time.time() - start) * 1000.0
         return result
@@ -134,20 +130,18 @@ def create_executor(executor_type: str, timeout_seconds: Optional[int] = None) -
     Returns
     -------
     BaseExecutor
-        An instantiated concrete executor.
+        An instantiated concrete executor class (not an instance). The
+        caller can instantiate it with the desired ``timeout_seconds``.
     """
     executor_type = executor_type.lower()
     if executor_type == "text":
         from .text_executor import TextExecutor
-
-        return TextExecutor(timeout_seconds=timeout_seconds)
+        return TextExecutor
     if executor_type == "relational":
         from .relational_executor import RelationalExecutor
-
-        return RelationalExecutor(timeout_seconds=timeout_seconds)
+        return RelationalExecutor
     if executor_type == "graph":
         from .graph_executor import GraphExecutor
-
-        return GraphExecutor(timeout_seconds=timeout_seconds)
+        return GraphExecutor
 
     raise ValueError(f"Unsupported executor type: {executor_type}")

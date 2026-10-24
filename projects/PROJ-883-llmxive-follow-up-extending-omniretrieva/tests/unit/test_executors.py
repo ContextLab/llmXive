@@ -12,7 +12,8 @@ from executors.base import create_executor, ExecutionResult, TimeoutException
     ],
 )
 def test_executor_runs_successfully(etype, expected_prefix):
-    executor = create_executor(etype, timeout_seconds=5)
+    ExecutorClass = create_executor(etype)
+    executor = ExecutorClass(timeout_seconds=5)
     # Minimal query dict – only the fields required by the executors.
     query = {
         "query_id": f"test_{etype}",

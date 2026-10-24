@@ -76,7 +76,7 @@ All research scripts write only under `code/`, `data/`, or `specs/`. No state fi
   - Add `tests/integration/test_cpu_throttle.py` that (a) mocks a failure environment and asserts exit 99, and (b) runs in the CI environment and asserts `THROTTLE_MODE=="cgroups"` is recorded in produced metrics.  
   - **Verification**: Test suite must pass both scenarios.
 
-- [ ] **T008** [P] [US‑1] **Implement native executors respecting timeout and no artificial sleeps**  
+- [~] **T008** [P] [US‑1] **Implement native executors respecting timeout and no artificial sleeps**  
   *Create* the executor package `code/executors/` with:  
   - `base.py` – abstract class defining `run(query) → dict` with required fields.  
   - `text_executor.py` – BM25 over MS MARCO passages (uses `rank_bm25`).  
@@ -90,7 +90,7 @@ All research scripts write only under `code/`, `data/`, or `specs/`. No state fi
 
 ## Phase 4 – End‑to‑end runs (small‑scale & baseline)  
 
-- [ ] **T009** [P] [US‑1] **Compute baseline overhead per engine**  
+- [ ] **T009** [P] [US‑1] **Compute baseline overhead per engine**   <!-- FAILED-IN-EXECUTION: code/baseline_overhead.py exit=1 -->
   *Run* five trivial (single‑hop) queries on each engine under the same cgroup settings, record wall‑clock latencies, compute the median per engine, and write to `data/processed/baseline_overhead.json` (`{ "bm25": <ms>, "sqlite": <ms>, "rdflib": <ms> }`).  
   - Add `tests/unit/test_baseline.py` that checks the JSON exists, contains three keys, and that each median is a positive number.  
   - **Verification**: Baseline file must be present before any full benchmark.

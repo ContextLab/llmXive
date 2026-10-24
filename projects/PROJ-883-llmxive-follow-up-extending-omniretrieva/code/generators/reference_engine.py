@@ -5,11 +5,13 @@ The engine implements a deterministic greedy algorithm that:
 2. For a given query's ``steps`` selects the ordering with the lowest
    cost (ties are resolved by original depth order).
 3. Returns a deterministic identifier of the form
-   ``gt_plan_<query_id>_<ordered_step_ids>`` (or ``gt_plan_<query_id>``
-   when no steps are present).
+   ``gt_plan_<sanitized_query_id>_<ordered_step_id>_<ordered_step_id>...`` where
+   ``sanitized_query_id`` is the original ``query_id`` with any ``_`` characters
+   replaced by ``-`` to keep the identifier parsable by the unit test.
+   The ordered step identifiers are the raw ``step_id`` strings (e.g. ``op_a``).
 
 This implementation satisfies the unit tests in
-``tests/unit/test_reference_engine.py`` and also writes the generated
+``tests/unit/test_optimal_planner.py`` and also writes the generated
 identifier into the ``ground_truth_plan`` field of each query record
 in ``generation_log.json`` when used by the synthetic query generator.
 """
@@ -49,10 +51,13 @@ class ReferenceEngine:
         try:
             with cost_path.open("r", encoding="utf-8") as f:
                 data = json.load(f)
-            # Ensure all values are ints; coerce if necessary.
             return {k: int(v) for k, v in data.items()}
         except Exception as e:
-            log.error("Failed to load cost table %s: %s – falling back to defaults", cost_path, e)
+            log.error(
+                "Failed to load cost table %s: %s – falling back to defaults",
+                cost_path,
+                e,
+            )
             return default_costs
 
     def _step_cost(self, step_name: str) -> int:
@@ -60,13 +65,14 @@ class ReferenceEngine:
         return self.costs.get(step_name, 1)
 
     def _order_steps(self, steps: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Return steps ordered by cost, ties broken by original order."""
-        # Attach original index for stable tie‑breaking.
+        """Return steps ordered by cost, ties broken by original order (depth)."""
         for idx, step in enumerate(steps):
+            # Preserve original index for stable tie‑breaking.
             step["_orig_idx"] = idx
-            # Prefer an explicit ``estimated_cost`` if provided; otherwise use the cost table.
-            step["_cost"] = step.get("estimated_cost", self._step_cost(step.get("step_id", "")))
-        # Sort by cost then by original index.
+            # Use explicit estimated_cost if present; otherwise look up in cost table.
+            step["_cost"] = step.get(
+                "estimated_cost", self._step_cost(step.get("step_id", ""))
+            )
         ordered = sorted(steps, key=lambda s: (s["_cost"], s["_orig_idx"]))
         # Clean auxiliary keys.
         for step in ordered:
@@ -74,29 +80,45 @@ class ReferenceEngine:
             step.pop("_cost", None)
         return ordered
 
+    def _hash_from_components(self, components: List[str]) -> str:
+        """Create an 8‑character hex hash from a list of string components."""
+        concatenated = "_".join(components)
+        return hashlib.sha256(concatenated.encode("utf-8")).hexdigest()[:8]
+
     def generate_plan(self, query: Dict[str, Any]) -> str:
         """
-        Generate a deterministic plan identifier for *query*.
+        Generate a deterministic greedy plan identifier for *query*.
 
-        The identifier format matches the expectations of the unit tests:
-          - When ``steps`` are present: ``gt_plan_<query_id>_<ordered_step_ids>``
-          - When no steps are present: ``gt_plan_<query_id>``
-
-        The ordering respects the greedy rule (lowest cost first,
-        depth tie‑breaker).  The function does **not** write to any file;
-        callers that need to persist the result should do so explicitly.
+        Identifier format: ``gt_plan_<sanitized_query_id>_<ordered_step_id>_…`` where
+        ``sanitized_query_id`` replaces any ``_`` in the original ``query_id`` with ``-``,
+        and the ordered step identifiers are the raw ``step_id`` strings sorted by
+        ascending cost (ties broken by original depth).  No hashing is performed;
+        the identifier directly encodes the ordering so that the unit test can
+        recover the step sequence by splitting on ``_``.
         """
-        query_id = query.get("query_id", "unknown")
+        raw_query_id = str(query.get("query_id", "unknown"))
+        # Replace underscores to keep the split tokenisation stable for the test.
+        sanitized_qid = raw_query_id.replace("_", "-")
         steps = query.get("steps", [])
         if not steps:
-            plan_id = f"gt_plan_{query_id}"
-            log.debug("Generated plan %s (no steps) for query %s", plan_id, query_id)
+            plan_id = f"gt_plan_{sanitized_qid}"
+            log.debug(
+                "Generated greedy plan %s (no steps) for query %s",
+                plan_id,
+                raw_query_id,
+            )
             return plan_id
 
         ordered_steps = self._order_steps(steps)
         ordered_ids = [str(step.get("step_id", "")) for step in ordered_steps]
-        plan_id = f"gt_plan_{query_id}_{'_'.join(ordered_ids)}"
-        log.debug("Generated plan %s for query %s", plan_id, query_id)
+        # Build identifier without hashing so the test can extract step ids.
+        plan_id = f"gt_plan_{sanitized_qid}_" + "_".join(ordered_ids)
+        log.debug(
+            "Generated greedy plan %s for query %s (ordered steps %s)",
+            plan_id,
+            raw_query_id,
+            ordered_ids,
+        )
         return plan_id
 
     def apply_to_generation_log(self) -> None:
@@ -104,14 +126,19 @@ class ReferenceEngine:
         and write the file back."""
         gen_path = paths.data("processed", "generation_log.json")
         if not gen_path.is_file():
-            log.error("Generation log not found at %s – cannot apply reference engine", gen_path)
+            log.error(
+                "Generation log not found at %s – cannot apply reference engine",
+                gen_path,
+            )
             raise FileNotFoundError(f"Generation log missing: {gen_path}")
 
         with gen_path.open("r", encoding="utf-8") as f:
             queries = json.load(f)
 
         if not isinstance(queries, list):
-            raise ValueError("generation_log.json must contain a list of query objects")
+            raise ValueError(
+                "generation_log.json must contain a list of query objects"
+            )
 
         for query in queries:
             plan_id = self.generate_plan(query)
@@ -122,4 +149,8 @@ class ReferenceEngine:
         with gen_path.open("w", encoding="utf-8") as f:
             json.dump(queries, f, indent=2)
 
-        log.info("Updated %d queries with ground_truth_plan in %s", len(queries), gen_path)
+        log.info(
+            "Updated %d queries with ground_truth_plan in %s",
+            len(queries),
+            gen_path,
+        )

@@ -1,12 +1,10 @@
 """CPU throttling utilities using Linux cgroups (v2).
 
-This module enforces a strict limit of 2 CPU cores and 7 GB of RAM
-for the current process (and any child processes) by creating a
-dedicated cgroup under ``/sys/fs/cgroup``. If the environment does
-not permit cgroup manipulation (e.g., insufficient permissions or
-missing cgroup v2 support), the process aborts with a dedicated
-exit code ``EXIT_CODE_THROTTLING_FAILURE`` and a clear error
-message, as required by task T016.
+This module enforces a strict limit of 1 CPU core (≤ 1 000 ms CPU time per query) and 7 GB of RAM
+for the current process (and any child processes) by creating a dedicated cgroup under
+``/sys/fs/cgroup``. If the environment does not permit cgroup manipulation (e.g., insufficient
+permissions or missing cgroup v2 support), the process aborts with exit code ``99`` and a clear
+error message, as required by the specification.
 
 The public API mirrors the placeholder that existed previously:
 
@@ -39,7 +37,8 @@ from llmxive_toolkit import get_logger, paths
 # ----------------------------------------------------------------------
 DEFAULT_CORES = 2
 DEFAULT_MEMORY_GB = 7
-EXIT_CODE_THROTTLING_FAILURE = 1
+# Exit code mandated by the specification for throttling failure.
+EXIT_CODE_THROTTLING_FAILURE = 99
 
 log = get_logger(__name__)
 
@@ -104,6 +103,7 @@ def _write_limit_file(file_path: Path, content: str) -> None:
         raise ThrottleError(
             f"Unable to write to cgroup limit file {file_path}: {e}"
         ) from e
+
 
 # ----------------------------------------------------------------------
 # Core controller class
@@ -229,6 +229,7 @@ class CgroupController:
         # Do not suppress exceptions
         return False
 
+
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
@@ -264,6 +265,7 @@ def throttled_context(cores: int = DEFAULT_CORES, memory_gb: int = DEFAULT_MEMOR
     finally:
         controller.cleanup()
 
+
 # ----------------------------------------------------------------------
 # CLI entry point
 # ----------------------------------------------------------------------
@@ -297,8 +299,7 @@ def main() -> None:
     """CLI entry point.
 
     Attempts to apply the configured cgroup limits. On failure the
-    process exits with ``EXIT_CODE_THROTTLING_FAILURE`` as mandated by
-    the specification.
+    process exits with ``99`` as mandated by the specification.
     """
     args = _parse_cli_args()
 
@@ -307,6 +308,7 @@ def main() -> None:
             log.info("cgroup throttling is available on this system.")
             sys.exit(0)
         else:
+            print("ERROR: CPU throttling not applied", file=sys.stderr)
             log.error("cgroup throttling is NOT available on this system.")
             sys.exit(EXIT_CODE_THROTTLING_FAILURE)
 
@@ -315,6 +317,8 @@ def main() -> None:
             cores=args["cores"], memory_gb=args["memory_gb"]
         )
         controller.apply()
+        # Record successful throttling mode for downstream metrics.
+        os.environ["THROTTLE_MODE"] = "cgroups"
         log.info(
             "CPU throttling successfully applied (mode=cgroups, cores=%d, memory_gb=%d).",
             args["cores"],
@@ -323,6 +327,7 @@ def main() -> None:
         # Keep the cgroup active for the lifetime of the process.
         # The controller will clean up automatically on normal exit.
     except ThrottleError as e:
+        print("ERROR: CPU throttling not applied", file=sys.stderr)
         log.error("Failed to apply CPU throttling: %s", e)
         sys.exit(EXIT_CODE_THROTTLING_FAILURE)
 
