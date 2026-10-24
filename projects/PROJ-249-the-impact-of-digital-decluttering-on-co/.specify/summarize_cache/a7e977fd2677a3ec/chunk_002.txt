@@ -1,0 +1,133 @@
+| **Effect Size** | **If normality holds**: Cohen’s d with bias‑corrected 95 % CI (FR‑007). **If normality fails**: rank‑biserial correlation (non‑parametric effect size). | Provides a meaningful magnitude measure appropriate to the distributional assumptions. |
+| **Multiple‑Comparison Control** | Holm‑Bonferroni step‑down across the four outcomes (FR‑008) | Controls family‑wise error (α = 0.05). |
+| **Success Criteria** | Holm‑Bonferroni‑corrected p < 0.05 **and** effect size (Cohen’s d ≥ 0.2 **or** rank‑biserial ≥ 0.2) (SC‑001 – SC‑004) | Matches spec thresholds while respecting distributional constraints. |
+
+### Confound Control Strategies
+| Confound | Control Measure |
+|----------|-----------------|
+| Practice / test‑retest learning | Randomize order of baseline vs. post cognitive tasks per participant; where possible use alternate forms of SART/Ospan; record timestamps and include baseline performance as a covariate in exploratory analyses. |
+| Time‑of‑day effects | Store exact administration timestamps; include time‑of‑day as a covariate in exploratory analyses. |
+| Attrition | Retain baseline data for descriptive stats; exclude participants with missing post data from paired tests (per FR‑009). |
+| Low‑attention participants | Flag SART accuracy < 50 % (`quality_flag = "low_attention"`); exclude from primary analysis. |
+
+### Compliance Measurement & Bias Mitigation
+- **Self‑Report Logs** (FR‑004) are collected daily; entries are validated for plausibility (0 ≤ minutes ≤ 1440) (FR‑010).  
+- **Sensitivity Analysis** (FR‑011) will compare self‑report compliance against objective screen‑time data for a subset of participants (if available) and explicitly document the limitation in the final report.  
+- **Extreme Cases** (e.g., 0 min all 7 days) are logged but retained to avoid selection bias, as required by the spec.
+
+### Risk Mitigation
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Practice effects on SART/Ospan | May inflate apparent improvement | Discuss explicitly in the final report; treat observed changes as within‑subject differences, not causal proof. |
+| Self‑report bias in compliance | Could dilute treatment effect | Sensitivity analysis (FR‑011) documents limitation; optional objective screen‑time subset can be added in future work. |
+| Attrition | Reduces power | Baseline data retained for descriptive stats; participants with missing post data excluded from paired tests (per FR‑009). |
+| Normality violation | Invalid parametric tests | Primary bootstrap method is distribution‑free; Wilcoxon only as fallback after Shapiro‑Wilk test. |
+| Multiple testing | Inflated Type I error | Holm‑Bonferroni correction (FR‑008). |
+| Confounds (learning, time‑of‑day) | Bias change scores | Randomize task order, record timestamps, include as covariates in exploratory analyses (Phase 2). |
+| Underpowered pilot | May yield non‑significant results | Target sample size is on the order of several dozen participants to achieve ~0.80 power for d=0.5; report effect sizes with CIs and power simulation results. |
+| Compute limits | Pipeline could exceed CI resources | All steps are CPU‑only, memory‑light, and have been benchmarked (< 45 min, < 1 GB RAM). |
+
+### Compute Feasibility (re‑stated)
+- **Runtime**: ≤ 45 min on 2‑core runner (bootstrap dominates).  
+- **RAM**: ≤ 1 GB.  
+- **Disk**: < 200 MB total.  
+- **GPU**: Not required; all libraries are pure‑CPU.  
+
+## Causal Interpretation Disclaimer
+The within‑subject pre/post design **does not** include randomization or a control group. Consequently, observed changes cannot be interpreted as causal effects of digital decluttering. Findings are presented as **associational** differences over time, and all causal language is avoided per the Scientific Soundness Disclaimer (see `plan.md`).  
+
+---
+
+
+
+## projects/PROJ-249-the-impact-of-digital-decluttering-on-co/specs/001-the-impact-of-digital-decluttering-on-co/data-model.md
+# Data Model: The Impact of Digital Decluttering on Cognitive Performance and Well‑being
+
+## Overview
+Defines the entities that store participant identifiers, cognitive/affective measurements, and daily compliance logs. Supports a within‑subject design with two phases: `baseline` and `post`.
+
+## Entities
+
+### 1. Participant
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `participant_id` | string | Pseudonymous ID (e.g., `P001`) | Primary key, pattern `^P\\d{3}$` |
+| `demographics` | object | Optional age, gender, etc. | Nullable |
+| `enrollment_date` | string | ISO‑8601 date | Required |
+
+### 2. MeasurementRecord
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `id` | string | Unique record ID | Primary key |
+| `participant_id` | string | FK → Participant | Required |
+| `phase` | string | `baseline` or `post` | Enum |
+| `metric_type` | string | `SART`, `Ospan`, `PSS-10`, `PANAS-PA`, `PANAS-NA` | Enum |
+| `value` | float | Raw score | Required |
+| `timestamp` | string | ISO‑8601 datetime | Required |
+| `quality_flag` | string | `valid`, `low_attention`, `missing` | Default `valid` |
+
+### 3. ComplianceLog
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `id` | string | Unique log ID | Primary key |
+| `participant_id` | string | FK → Participant | Required |
+| `date` | string | ISO‑8601 date (YYYY‑MM‑DD) | Required |
+| `social_media_minutes` | integer | Self‑reported minutes of social media use | 0 ≤ ≤ 1440 |
+| `news_consumption` | boolean | `true` if news was consumed | Required |
+| `notifications_off` | boolean | `true` if notifications were off | Required |
+| `is_compliant` | boolean | Derived: `social_media_minutes` ≤ 30 && !`news_consumption` && `notifications_off` | Derived |
+| `notes` | string | Optional free‑text | Optional |
+
+## Data Flow
+1. **Ingestion** – Raw JSON/CSV files deposited by participants land in `data/raw/`.  
+2. **Validation** – `code/validation/` checks ranges, schema conformity, and generates `data/checksums.sha256`.  
+3. **Processing** – Scoring functions produce `data/processed/measurement_records.csv` and `data/processed/compliance_summary.csv`.  
+4. **Analysis** – `code/analysis/` consumes processed CSVs, outputs `results/statistical_summary.json`.  
+5. **Visualization** – `code/viz/` reads the JSON summary to create plots in `results/plots/`.
+
+## File Formats
+- **Raw**: JSON lines or CSV (one file per participant).  
+- **Processed**: Long‑format CSV (one row per measurement).  
+- **Compliance**: CSV (one row per participant per day).  
+- **Checksums**: SHA‑256 digests, one line per file (`<hash>  <relative_path>`).
+
+
+## projects/PROJ-249-the-impact-of-digital-decluttering-on-co/specs/001-the-impact-of-digital-decluttering-on-co/quickstart.md
+# Quickstart: The Impact of Digital Decluttering on Cognitive Performance and Well‑being
+
+## Prerequisites
+- Python 3.11 or newer
+- `pip` (or a virtual‑environment manager)
+- Git
+
+## Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-249-the-impact-of-digital-decluttering-on-co
+   ```
+
+2. **Create a virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Running the Full Pipeline
+
+The entry point orchestrates every step, writes checksums, validates schemas, runs the analysis, and produces plots **and** a deterministic verification log.
+
+```bash
+python -m code.pipeline.run_all --config code/config/study_config.yaml
+```
+
+### What the command does
+1. **Download & verify** SART/Ospan task code from the OSF URLs (verified dataset block).  
+2. **Validate** raw participant files against `contracts/dataset.schema.yaml` and `contracts/compliance.schema.yaml`.  
+3. **Generate** `data/checksums.sha256` for all raw files.  
