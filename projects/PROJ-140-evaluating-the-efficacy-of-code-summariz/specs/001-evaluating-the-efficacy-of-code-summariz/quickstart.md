@@ -86,8 +86,4 @@ The pipeline automatically detects the presence of `summaries_llm.csv`; if missi
 - All random seeds are fixed (`42`).  
 - Defects4J version is pinned (`2.0`).  
 - The same `requirements.txt` reproduces the environment on any machine with Python 3.11+.  
-- Contract validation (`pytest -q tests/contract`) ensures every output file conforms to the declared schema.  
-
----
-
-
+- Contract validation (`pytest -q tests/contract`) ensures every output file conforms to the declared schema.

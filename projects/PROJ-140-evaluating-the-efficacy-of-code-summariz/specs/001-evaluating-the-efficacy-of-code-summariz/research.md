@@ -74,7 +74,7 @@ The script writes the recommended sample size to `data/power_analysis/report.txt
 | **McNemar’s test** for accuracy | Matches the specification (User Story 2) and is appropriate for paired binary outcomes across conditions. |
 | Log‑transform LME for speed | Addresses right‑skewness of response times. |
 | Cluster bootstrap | Preserves within‑subject correlation; necessary for correct CIs with N = 12/24. |
-| Holm‑Bonferroni (α = 0.05) | More powerful than simple Bonferroni while controlling family‑wise error (verified fact). |
+| **Holm‑Bonferroni** (α = 0.05) | More powerful than simple Bonferroni while controlling family‑wise error (verified fact). |
 | **A‑priori power analysis** (T‑012) | Guarantees the study is not under‑powered for realistic moderate effects. |
 | Simulated data for CI | Real human data cannot be generated in CI; simulation enables full‑pipeline verification. |
 | GPU escape hatch for LLM | CodeLlama‑7B cannot meet the 30 s timeout on CPU; using a real GPU respects methodological integrity. |
@@ -86,5 +86,3 @@ The script writes the recommended sample size to `data/power_analysis/report.txt
 - **Bootstrap with 12/24 clusters** may produce unstable CIs; parametric CIs are provided as a supplement.  
 
 ---
-
-

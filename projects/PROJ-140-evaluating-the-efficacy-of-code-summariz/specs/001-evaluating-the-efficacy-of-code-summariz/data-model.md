@@ -9,7 +9,7 @@
 | **Interaction** | `interaction_id` | `participant_id` (FK), `task_id`, `condition`, `timestamp_ms`, `selected_line`, `ground_truth_line`, `is_correct` (derived), **`fallback_status`** |
 
 ## 2. Data Flow
-1. **Ingestion** – `download_defects4j.py` streams the verified Parquet dataset → `data/raw/defects4j.parquet`.  
+1. **Ingestion** – `download_defectsj.py` streams the verified Parquet dataset → `data/raw/defects4j.parquet`.  
 2. **Method Extraction** – `generate_summaries.py` extracts methods → `data/processed/methods.csv`.  
 3. **Summarization** –  
    - Baseline: `summary_text = null`.  
@@ -32,7 +32,4 @@ All intermediate files are validated against the JSON‑Schema contracts in `con
 ## 4. Anonymization Strategy
 - Participant IDs are hashed with SHA‑256 + a secret salt (`data/.salt`, excluded from VCS).  
 - No raw identifiers (names, emails, IPs) appear in any committed file.  
-- Consent documents remain in `data/consent/` and are listed in `.gitignore`.  
-
----
-
+- Consent documents remain in `data/consent/` and are listed in `.gitignore`.

@@ -48,7 +48,7 @@ code/
 ├── config.py
 ├── data_prep/
 │   ├── download_defectsj.py      # T-002 (see corrected path)
-│   └── generate_summaries.py      # T-003 (includes rule‑based & LLM stubs)
+│   └── generate_summaries.py     # T-003 (includes rule‑based & LLM stubs)
 ├── simulation/
 │   └── simulate_study.py
 ├── analysis/
@@ -103,7 +103,7 @@ tests/
 | **T-002** | `code/data_prep/download_defectsj.py` – stream the verified Parquet dataset from HuggingFace, compute SHA‑256 checksums, verify against `data/checksums.txt`, write combined Parquet to `data/raw/defects4j.parquet`, and write version tag to `data/defects4j_version.txt`. | FR‑001 | I, III, VII |
 | **T-003** | `code/data_prep/generate_summaries.py` – (a) extract methods → `data/processed/methods.csv`; (b) rule‑based summaries via srcML → `data/processed/summaries_rule.csv`; (c) **GPU‑only stub** that raises an error if `--mode=real` without GPU. | FR‑002, FR‑003 | I, III |
 | **T-004** | `code/utils/timing.py` – perform a loopback latency test, assert median ≤ 100 ms, abort pipeline if not met. | FR‑003 | I |
-| **T-005** | `code/simulation/simulate_study.py` – generate Latin‑square design for Several participants × 10 tasks/condition, simulate timestamps and random line selections, write `data/interaction_logs/simulated_logs.csv`. | FR‑003 | I |
+| **T-005** | `code/simulation/simulate_study.py` – generate Latin‑square design for several participants × 10 tasks/condition, simulate timestamps and random line selections, write `data/interaction_logs/simulated_logs.csv`. | FR‑003 | I |
 | **T-006** | `code/utils/pii.py` – hash raw participant IDs with SHA‑256 + secret salt, drop PII columns, write `data/interaction_logs/anonymized_logs.csv`. | FR‑003, VI | III, VI |
 | **T-007** | `code/analysis/run_statistics.py` – (a) **McNemar’s test** for accuracy (binary outcome) comparing each pair of conditions; (b) Linear Mixed‑Effects model for speed (log‑transformed time) with random intercept for participant; (c) compute Odds Ratio (McNemar) and Cohen’s d (LME); (d) cluster bootstrap (12 participants, 2000 resamples, seed = 42) for 95 % CI; (e) **Primary analysis MUST exclude trials where `fallback_status != none`**; (f) Holm‑Bonferroni correction across the four primary tests (α = 0.05). | FR‑004, FR‑005, FR‑006 | III, IV, V |
 | **T-008** | `code/main.py` – orchestrates steps: download → method extraction → rule summaries → latency test → (simulated or real) interaction log → analysis → writes `data/analysis_results/results.json`. | FR‑001‑FR‑007 | I |
