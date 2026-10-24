@@ -1,19 +1,16 @@
 T001:
-  reason: "Checked `data/validated_snippets.jsonl` (contains a single record) against\
-    \ the requirement that it hold \u2265\u202F150 valid snippets; the file only has\
-    \ one entry despite the log claiming 180 valid snippets. The validated snippets\
-    \ artifact is therefore missing the required content."
   task: 50c62fa0a2585fa3e973f7f9d998d7a9cb775fd0166118c6cdf5aaf1128db9da
 T001b:
   task: 94275c2fb1bade4b8bcdc619a561399a108b8b349c457b0a06dcf16f2290918b
 T002:
-  reason: "The script `src/data/generate_comments.py` exists, but the latest execution\
-    \ logged \u201C0 succeeded, 0 failed\u201D and the output file `data/llm_comments.jsonl`\
-    \ contains a record for `test-001` that is not present in `data/validated_snippets.jsonl`.\
-    \ The required snippet `tiny-001` has no entry in `llm_comments.jsonl`, violating\
-    \ the rule that every successfully processed snippet must appear exactly once\
-    \ and that failures be listed in `excluded_llm_generation.json`. Consequently\
-    \ the task\u2019s core output is missing."
+  reason: The `src/data/generate_comments.py` script exists and implements truncation,
+    deterministic HF calls, retries, exclusion logging, checkpointing, and logging
+    as specified. However, `data/llm_comments.jsonl` contains a placeholder record
+    (`test-001`) that does not correspond to any snippet in `validated_snippets.jsonl`,
+    violating the requirement that the file only hold records for successfully generated
+    snippets (and none succeeded in the run). The file should be empty or contain
+    only genuine successful records, and the extraneous test entry must be removed.
+    Additionally, ensure that all failed s
   task: cdeed5ef9b6f7f5e18e0bbd065e5b101b7a2a9b61b6450f55753468c2c4622bb
 T003:
   reason: 'Requested task execution failed; rerun successfully: tests/run_metrics_test.sh

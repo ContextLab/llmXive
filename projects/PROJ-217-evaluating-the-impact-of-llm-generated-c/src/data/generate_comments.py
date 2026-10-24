@@ -21,6 +21,7 @@ HF_TOKEN_ENV = "HF_TOKEN"
 RETRY_LIMIT = 3
 BACKOFF_BASE_SECONDS = 60  # exponential back‑off base
 PROJECT_SEED = 42
+BATCH_SIZE = 10
 
 # -------------------------------------------------------------------------
 # Helper functions
@@ -45,8 +46,6 @@ def _load_validated_snippets() -> List[Dict]:
 
 def _tokenizer():
     """Return a tiktoken tokenizer for code."""
-    # The cl100k_base encoding is used for OpenAI‑compatible models and works well for Python code.
-    # If for any reason it is unavailable we fall back to a generic model encoding.
     try:
         return tiktoken.get_encoding("cl100k_base")
     except Exception:
@@ -119,7 +118,6 @@ def _generate_llm_comment(code: str) -> str:
                 do_sample=False,
                 seed=PROJECT_SEED,
             )
-            # The endpoint may return a plain string or a dict with a ``generated_text`` key
             if isinstance(generated, dict) and "generated_text" in generated:
                 comment = generated["generated_text"]
             else:
@@ -142,7 +140,6 @@ def _generate_llm_comment(code: str) -> str:
             )
             time.sleep(backoff)
 
-    # Should never reach here
     raise RuntimeError("Unexpected exit from retry loop")
 
 def _load_checkpoint() -> Set[str]:
@@ -167,14 +164,13 @@ def _save_checkpoint(processed_ids: Set[str]) -> None:
 def _append_excluded(snippet_id: str) -> None:
     """Record a snippet that could not be generated."""
     excluded_path = paths.data("excluded_llm_generation.json")
+    excluded = []
     if excluded_path.exists():
         try:
             with excluded_path.open("r", encoding="utf-8") as f:
                 excluded = json.load(f)
         except Exception:
             excluded = []
-    else:
-        excluded = []
 
     if snippet_id not in excluded:
         excluded.append(snippet_id)
@@ -194,20 +190,35 @@ def main() -> None:
     snippets = _load_validated_snippets()
     enc = _tokenizer()
 
-    # Output file – if we are starting from scratch (no checkpoint) we truncate it
     llm_out_path = paths.data("llm_comments.jsonl")
     llm_out_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Load checkpoint and reconcile with actual output file to prevent "0 succeeded" bugs
     processed_ids = _load_checkpoint()
-    if not processed_ids and llm_out_path.exists():
-        # Fresh run – clear any stale data (e.g., placeholder records from previous attempts)
-        llm_out_path.unlink()
+    actual_ids = set()
+    if llm_out_path.exists():
+        with llm_out_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    actual_ids.add(json.loads(line)["snippet_id"])
+                except (json.JSONDecodeError, KeyError):
+                    continue
+    
+    # If output file was deleted but checkpoint remains, we must restart
+    if not actual_ids and processed_ids:
+        log.warning("Output file missing but checkpoint exists. Resetting processed IDs.")
+        processed_ids = set()
+    else:
+        # Sync: only consider IDs that are actually present in the output file
+        processed_ids = processed_ids.intersection(actual_ids)
+    
+    _save_checkpoint(processed_ids)
 
     total = len(snippets)
     successful = 0
     failed = 0
+    batch_buffer = []
 
-    # Open the output file in append mode – if we are resuming we keep existing lines.
     with llm_out_path.open("a", encoding="utf-8") as out_f:
         for snippet in snippets:
             snippet_id = snippet.get("snippet_id") or snippet.get("id")
@@ -215,7 +226,6 @@ def main() -> None:
                 log.error(f"Snippet missing ID: {snippet}")
                 continue
 
-            # Skip already processed snippets
             if snippet_id in processed_ids:
                 continue
 
@@ -244,35 +254,43 @@ def main() -> None:
             # Attempt generation
             try:
                 llm_comment = _generate_llm_comment(truncated_code)
+                record = {
+                    "snippet_id": snippet_id,
+                    "code": code,
+                    "human_comment": human_comment,
+                    "llm_comment": llm_comment,
+                    "no_comment": "",
+                }
+                batch_buffer.append(record)
+                successful += 1
             except Exception:
-                # Record exclusion and move on
                 _append_excluded(snippet_id)
                 failed += 1
                 processed_ids.add(snippet_id)
+
+            # Process batch
+            if len(batch_buffer) >= BATCH_SIZE:
+                for rec in batch_buffer:
+                    out_f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                    processed_ids.add(rec["snippet_id"])
+                
                 _save_checkpoint(processed_ids)
-                continue
+                batch_buffer = []
 
-            record = {
-                "snippet_id": snippet_id,
-                "code": code,
-                "human_comment": human_comment,
-                "llm_comment": llm_comment,
-                "no_comment": "",
-            }
-            out_f.write(json.dumps(record, ensure_ascii=False) + "\n")
-            successful += 1
-            processed_ids.add(snippet_id)
-
-            # Persist checkpoint after each successful snippet
+        # Final flush
+        if batch_buffer:
+            for rec in batch_buffer:
+                out_f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                processed_ids.add(rec["snippet_id"])
             _save_checkpoint(processed_ids)
 
     end_time = datetime.utcnow().isoformat()
     with log_path.open("a", encoding="utf-8") as log_f:
         log_f.write(
             f"=== Generation finished at {end_time} UTC ===\n"
-            f"Total snippets: {total}\\n"
-            f"Successfully generated: {successful}\\n"
-            f"Failed (excluded): {failed}\\n"
+            f"Total snippets: {total}\n"
+            f"Successfully generated: {successful}\n"
+            f"Failed (excluded): {failed}\n"
         )
 
     log.info(

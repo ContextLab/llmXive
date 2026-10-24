@@ -26,8 +26,6 @@ from typing import Dict, List
 
 import pandas as pd
 import yaml
-# NOTE: huggingface_hub is imported lazily inside _download_parquet to avoid
-# import errors during test collection when the package is not installed.
 
 from llmxive_toolkit import paths, get_logger
 
@@ -46,7 +44,7 @@ MAX_RETRIES = 3
 RETRY_BACKOFF = 30  # seconds (base)
 
 PROJECT_SEED = int(os.environ.get("PROJECT_SEED", "42"))
-# The task specification requires exactly 200 snippets (≥ 150 valid).
+# The task specification requires exactly 200 snippets (>= 150 valid).
 N_SNIPPETS = 200
 MIN_VALID_SNIPPETS = 150
 
@@ -122,10 +120,10 @@ def _download_parquet() -> Path:
 def _map_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
     Tolerant column mapping:
-    - Prefer columns ``code`` / ``docstring``.
-    - Fallback to ``func_code_string`` / ``func_documentation_string``.
+    - Prefer columns `code` / `docstring`.
+    - Fallback to `func_code_string` / `func_documentation_string`.
     - If neither pair is present, raise a clear error listing the columns.
-    Returns a DataFrame with exactly ``code`` and ``docstring`` columns.
+    Returns a DataFrame with exactly `code` and `docstring` columns.
     """
     cols = set(df.columns)
     if {"code", "docstring"}.issubset(cols):
@@ -148,9 +146,9 @@ def _is_valid_docstring(doc) -> bool:
     """
     Validation rules for a docstring:
     - Must be a string.
-    - After stripping whitespace and surrounding quotes, it must be non‑empty.
-    - Must contain at least 5 whitespace‑separated tokens.
-    - Must not be a known boiler‑plate like ``TODO`` or ``FIXME`` (case‑insensitive).
+    - After stripping whitespace and surrounding quotes, it must be non-empty.
+    - Must contain at least 5 whitespace-separated tokens.
+    - Must not be a known boiler-plate like `TODO` or `FIXME` (case-insensitive).
     - Must not look like a bare type signature (heuristic: contains only
       a type name and optional brackets/commas).
     """
@@ -161,16 +159,16 @@ def _is_valid_docstring(doc) -> bool:
     stripped = doc.strip().strip('"').strip("'").strip()
     if not stripped:
         return False
-    # Token count rule (≥ 5 tokens)
+    # Token count rule (>= 5 tokens)
     if len(stripped.split()) < 5:
         return False
     lowered = stripped.lower()
     if lowered in {"todo", "todo:", "fixme", "fixme:", "none", "pass", "n/a"}:
         return False
-    # Heuristic for a bare type signature: e.g. ``int`` or ``List[int]``
+    # Heuristic for a bare type signature: e.g. `int` or `List[int]`
     if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(\[[^\]]+\])?", stripped):
         return False
-    # Bare signature with commas, e.g. ``int, str`` or ``Dict[str, int]``
+    # Bare signature with commas, e.g. `int, str` or `Dict[str, int]`
     if re.fullmatch(
         r"[A-Za-z_][A-Za-z0-9_]*(\[[^\]]+\])?"
         r"(\s*,\s*[A-Za-z_][A-Za-z0-9_]*(\[[^\]]+\])?)*",
@@ -180,7 +178,7 @@ def _is_valid_docstring(doc) -> bool:
     return True
 
 def _code_parses(code: str) -> bool:
-    """Return True if ``code`` can be parsed by ``ast.parse`` without error."""
+    """Return True if `code` can be parsed by `ast.parse` without error."""
     try:
         ast.parse(code)
         return True
@@ -224,18 +222,11 @@ def main() -> None:
     # 2. Load parquet with tolerant column mapping
     log.info("Loading parquet file %s", parquet_path)
 
-    # Try fastparquet first; fall back to pyarrow if needed.
     try:
-        df_raw = pd.read_parquet(parquet_path, engine="fastparquet")
-    except Exception as e_fast:
-        log.warning("fastparquet failed (%s); trying pyarrow.", e_fast)
-        try:
-            df_raw = pd.read_parquet(parquet_path, engine="pyarrow")
-        except Exception as e_py:
-            log.error("Both fastparquet and pyarrow failed: %s", e_py)
-            raise RuntimeError(
-                "Unable to read parquet file. Ensure either 'fastparquet' or 'pyarrow' is installed."
-            ) from e_py
+        df_raw = pd.read_parquet(parquet_path, engine="pyarrow")
+    except Exception as e:
+        log.error("Unable to read parquet file with pyarrow: %s", e)
+        raise RuntimeError("Unable to read parquet file. Ensure 'pyarrow' is installed.") from e
 
     df_mapped = _map_columns(df_raw)
 

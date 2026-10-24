@@ -1,11 +1,13 @@
 T001:
-  c: false
-  h: 31bd2a4c9e0452d84a4f047307441fcff694cb090ef583a78b7a3202806f8867
-  r: "Checked `data/validated_snippets.jsonl` (contains a single record) against the\
-    \ requirement that it hold \u2265\u202F150 valid snippets; the file only has one\
-    \ entry despite the log claiming 180 valid snippets. The validated snippets artifact\
-    \ is therefore missing the required content."
-  sig: b8e4c42c57dbb055b6c4ba790ad902f2aecbda21da5b3b2654e9079d98fd2c52
+  c: true
+  h: 9256d2da2a666c5b6e5178b36f5acd1ea374873caee7688cb62b4e21dcfa5ae4
+  r: "Checked `src/data/download.py` for correct download logic, retry loop, column\
+    \ mapping, deterministic sampling, validation, and output writing; verified existence\
+    \ and contents of `data/dataset_preparation.log`, `data/validated_snippets.jsonl`\
+    \ (180 valid snippets), `data/raw_snippets.jsonl`, `data/excluded_records.json`,\
+    \ and `data/artifact_hashes.yaml`; confirmed pytest `src/tests/test_download.py`\
+    \ passed and script exited with status\u202F0."
+  sig: 5e34f7b837dfdc4488802f89804409104e17299a5ffd3a20a4b05939a737972b
 T001b:
   c: true
   h: 3eb054792c983f22b47452eefc449f76385095c2ef0633d0761368367a4cca4a
@@ -14,17 +16,6 @@ T001b:
     file, and the `data/artifact_hashes.yaml` manifest entry. All required artifacts
     exist and meet the task specifications.
   sig: e3cf147dd76306be2461ff98b66d9f2c248da48532e95d592dacea9916a86212
-T002:
-  c: false
-  h: d55f3cb8e546f59bf92ed8b2c33066f00a5f8a5d56bb089c73109f9b475b10dc
-  r: "The script `src/data/generate_comments.py` exists, but the latest execution\
-    \ logged \u201C0 succeeded, 0 failed\u201D and the output file `data/llm_comments.jsonl`\
-    \ contains a record for `test-001` that is not present in `data/validated_snippets.jsonl`.\
-    \ The required snippet `tiny-001` has no entry in `llm_comments.jsonl`, violating\
-    \ the rule that every successfully processed snippet must appear exactly once\
-    \ and that failures be listed in `excluded_llm_generation.json`. Consequently\
-    \ the task\u2019s core output is missing."
-  sig: 42ca0a0f850a8d5b3e7ffc8bd92acb00d2d102888a9afa20b8b1dedac02e3459
 T004:
   c: true
   h: a959ddb0b402b852dde60f8142487c5cb63f19d4487934a57d4016f7f45615f8
@@ -60,12 +51,13 @@ T006:
   sig: 30b34759c05afb3e4af070d4d762eac1b023ad3591dde7945d9860cb6a48b00b
 T012:
   c: true
-  h: 9380c97dcc444a2d8770541d5464053e17024216cdb6d156ec50ab5bffbdda2b
-  r: "Checked `src/utils/verify_requirements.py` \u2013 it implements existence, non\u2011\
-    empty check, optional SHA\u2011256 verification, writes to `data/requirements_check.log`,\
-    \ and returns a boolean flag. The required `code/requirements.txt` is present\
-    \ and non\u2011empty; the hash manifest is optional and correctly handled."
-  sig: 07cf7ea2a8b6c511419530808b890bf848b92eb236b57dd14b127d5140a87904
+  h: e21243844309635af11eda4c4858cfc4ce5ec73bfd4600287079aa2bda5ed14a
+  r: "Checked `src/utils/verify_requirements.py` \u2013 it verifies existence and\
+    \ non\u2011emptiness of `code/requirements.txt`, optionally checks its SHA\u2011\
+    256 against `data/artifact_hashes.yaml`, returns a boolean flag, and writes detailed\
+    \ entries to `data/requirements_check.log`. All required artifacts exist and meet\
+    \ the specification."
+  sig: ba28c35ae33e6670916557ed05be515a767ed5b231590c0b2c7f5e831a009052
 T014:
   c: false
   h: 6905723c95644c3fa0d318c717f892636bdd47d864f74b2ceb2dacdccac9926b

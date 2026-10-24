@@ -16,7 +16,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
   *Verification*:
   – Pipeline aborts if the requirements file is missing or empty, ensuring compliance with Constitution Principle I.
 
-- [ ] **T001** [US-1] **Download & validate CodeSearchNet Python snippets (REDO: previous execution failed with exit=1)**
+- [X] **T001** [US-1] **Download & validate CodeSearchNet Python snippets (REDO: previous execution failed with exit=1)**
   *Implement/repair* `src/data/download.py` that:
   - Downloads the verified CodeSearchNet Python **train** parquet via `hf_hub_download` (repo `kejian/codesearchnet-python-raw`, file `data/train-00000-of-00002-022fcdc5658ecd68.parquet`) with a 3‑attempt retry loop that **raises** on final failure — no synthetic or bundled fallback data.
   - Parses columns tolerant to naming (`code`/`docstring` or `func_code_string`/`func_documentation_string`). Abort with a clear error if neither schema is present.
