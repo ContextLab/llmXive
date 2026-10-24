@@ -31,7 +31,7 @@ class TestEBirdDataLoader:
         # Assertions
         assert df is not None, "DataFrame should not be None"
         assert isinstance(df, pd.DataFrame), "Result should be a pandas DataFrame"
-        assert df.shape[0] > 0, "DataFrame should not be empty (real data must be fetched)"
+        assert df.shape[0] > 0, "DataFrame should be empty (real data must be fetched)"
 
         # Verify columns exist (at least some expected ones)
         expected_cols = ['species_common', 'year', 'duration_min', 'num_observers', 'distance_km']

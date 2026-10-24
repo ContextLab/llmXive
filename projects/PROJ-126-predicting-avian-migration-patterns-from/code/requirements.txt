@@ -1,17 +1,6 @@
-# Core scientific dependencies (pinned versions from the project plan)
-xgboost==2.0.3
-shap==0.45.0
-scikit-learn==1.4.2
-pandas==2.2.2
-dask[dataframe]==2024.5.0
-geopandas==0.14.4
-rasterio==1.3.10
-datasets==2.19.0
-numpy>=2.0
-statsmodels==0.14.2
-arch==6.0.0
-psutil==5.9.8
-sklearn-rbf==0.1.0
-huggingface_hub>=0.23.0
-# The base environment already provides: numpy (overridden here), pandas, scipy,
-# matplotlib, seaborn, pytest, PyYAML, requests, jsonschema, psutil.  */
+# Project‑specific dependencies (beyond the base environment)
+# The base environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema,
+# psutil.
+# Additional packages required for this task:
+huggingface_hub==0.23.0

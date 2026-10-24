@@ -1,16 +1,19 @@
 """
 Data Loader Module for Avian Migration Pipeline.
 Implements T002: Streams the eBird Basic Dataset (EBD) from HuggingFace,
-filters for the focal species (Setophaga ruticilla) and complete-checklist
+filters for the focal species (Setophaga ruticilla) and complete‑checklist
 criteria, and writes the result to a chunked CSV.
 """
+import csv
+import gzip
+import io
 import json
 import logging
 from pathlib import Path
 from typing import List
 
+import requests
 import pandas as pd
-from datasets import load_dataset
 
 from code.config import (
     DATA_RAW,
@@ -41,6 +44,11 @@ CHUNK_SIZE = 50_000
 EBIRD_OUTPUT_FILE = "ebd_subset.csv"
 CHECKSUMS_FILE = "checksums.json"
 
+# URL of the eBird Basic Dataset on HuggingFace (gzipped CSV)
+EBIRD_DATA_URL = (
+    "https://huggingface.co/datasets/vvud/eb-data/resolve/main/ebd.csv.gz"
+)
+
 def _record_passes_filters(record: dict) -> bool:
     """
     Return True if the record satisfies all required filters.
@@ -50,7 +58,7 @@ def _record_passes_filters(record: dict) -> bool:
         if record.get("species_code") != SPECIES_CODE:
             return False
 
-        # Complete-checklist criteria
+        # Complete‑checklist criteria
         duration = float(record.get("duration_min", 0))
         observers = int(record.get("num_observers", 0))
         distance = float(record.get("distance_km", float("inf")))
@@ -75,17 +83,39 @@ def _record_passes_filters(record: dict) -> bool:
 
         return True
     except (TypeError, ValueError):
-        # If any required field is missing or non-numeric, it fails the filter
+        # If any required field is missing or non‑numeric, it fails the filter
         return False
+
+def _stream_ebird_records() -> List[dict]:
+    """
+    Stream the eBird CSV from HuggingFace and yield each record as a dict.
+    This function uses HTTP streaming and gzip decompression to avoid loading
+    the entire file into memory.
+    """
+    logger.info(f"Downloading eBird data from {EBIRD_DATA_URL}")
+    try:
+        response = requests.get(EBIRD_DATA_URL, stream=True, timeout=120)
+        response.raise_for_status()
+    except Exception as e:
+        logger.critical(f"Failed to download eBird dataset: {e}")
+        raise
+
+    # Wrap the raw response stream with a GzipFile and a TextIOWrapper
+    gzip_file = gzip.GzipFile(fileobj=response.raw)
+    text_stream = io.TextIOWrapper(gzip_file, encoding="utf-8")
+    csv_reader = csv.DictReader(text_stream)
+
+    for row in csv_reader:
+        yield row
 
 def load_ebird_data() -> pd.DataFrame:
     """
     Streams the eBird Basic Dataset from HuggingFace, filters for
-    *Setophaga ruticilla* (species_code == "SRUT") and complete-checklist
+    *Setophaga ruticilla* (species_code == "SRUT") and complete‑checklist
     criteria, then writes a chunked CSV to `data/raw/ebd_subset.csv`.
 
     The function also creates/updates `data/raw/checksums.json` with the
-    SHA-256 checksum of the generated CSV.
+    SHA‑256 checksum of the generated CSV.
     """
     output_path = DATA_RAW / EBIRD_OUTPUT_FILE
     checksum_path = DATA_RAW / CHECKSUMS_FILE
@@ -93,7 +123,7 @@ def load_ebird_data() -> pd.DataFrame:
     # Ensure the raw data directory exists
     DATA_RAW.mkdir(parents=True, exist_ok=True)
 
-    # Check for existing cached file
+    # If a verified file already exists, reuse it
     if output_path.is_file() and checksum_path.is_file():
         try:
             with open(checksum_path, "r") as f:
@@ -104,25 +134,16 @@ def load_ebird_data() -> pd.DataFrame:
         except Exception as e:
             logger.warning(f"Checksum verification failed: {e}")
 
-    logger.info("Streaming eBird dataset from HuggingFace (vvud/eb-data)...")
-    
-    # Load dataset in streaming mode to avoid OOM
-    try:
-        dataset = load_dataset("vvud/eb-data", split="train", streaming=True)
-    except Exception as e:
-        logger.critical(f"Failed to connect to HuggingFace dataset: {e}")
-        raise
-
+    logger.info("Starting streaming, filtering, and chunked write process...")
     rows_written = 0
     header_written = False
-    chunk = []
+    chunk: List[dict] = []
 
-    for record in dataset:
+    for record in _stream_ebird_records():
         if _record_passes_filters(record):
             chunk.append(record)
 
         if len(chunk) >= CHUNK_SIZE:
-            # Convert chunk to DataFrame and write to CSV
             df_chunk = pd.DataFrame(chunk)
             mode = "w" if not header_written else "a"
             df_chunk.to_csv(
@@ -133,9 +154,9 @@ def load_ebird_data() -> pd.DataFrame:
             )
             header_written = True
             rows_written += len(chunk)
-            chunk = []
+            chunk.clear()
 
-    # Write remaining records
+    # Write any remaining records
     if chunk:
         df_chunk = pd.DataFrame(chunk)
         mode = "w" if not header_written else "a"
@@ -168,6 +189,7 @@ def load_ebird_data() -> pd.DataFrame:
     with open(checksum_path, "w") as f:
         json.dump(checksums, f, indent=2)
 
+    # Return the DataFrame for immediate downstream use
     return pd.read_csv(output_path)
 
 def load_modis_data():
@@ -178,7 +200,7 @@ def load_modis_data():
     raise ConnectionError("MODIS data loading not implemented in this module.")
 
 def main() -> None:
-    """Entry point for the data-loading stage."""
+    """Entry point for the data‑loading stage."""
     logger.info("Running eBird data loader...")
     try:
         df = load_ebird_data()

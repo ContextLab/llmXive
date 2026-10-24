@@ -22,7 +22,7 @@ def test_ebird_output_exists(tmp_path, monkeypatch):
 
     monkeypatch.setattr(config, "DATA_RAW", tmp_path, raising=False)
 
-    # Run the loader (this will download the real sample CSV)
+    # Run the loader (this will download the real dataset)
     df = load_ebird_data()
 
     # Verify CSV exists
