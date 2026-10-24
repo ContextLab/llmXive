@@ -12,7 +12,7 @@ export MP_API_KEY="YOUR_API_KEY_HERE"
 
 ## Installation
 ```bash
-git clone https://github.com/your-org/metallic-glass-cte.git
+git clone 
 cd metallic-glass-cte
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
@@ -25,10 +25,10 @@ ruff check .   # optional lint
 | Step | Command | Description |
 |------|---------|-------------|
 | 0 | `pip install -r requirements.txt` | Install pinned dependencies. |
-| 1 | `python -m code.ingestion.fetch_data` | Load the user‑provided CSV, augment with MP/AFLOW entries, filter for metallic‑glass, compute coverage & power analysis, and write `data/processed/clean_alloy_data.parquet`. |
-| 2 | `python -m code.features.compute_descriptors` | Generate the four compositional descriptors, compute VIF, apply PCA‑Ridge fallback if needed, and write the cleaned parquet file. |
+| 1 | `python -m code.ingestion.fetch_data` | Load the curated CSV, augment with MP/AFLOW entries, filter for metallic‑glass, compute coverage & power analysis, write `data/processed/clean_alloy_data.parquet`. |
+| 2 | `python -m code.features.compute_descriptors` | Generate the four compositional descriptors, compute VIF, apply PCA‑Ridge fallback if needed, write the cleaned parquet file. |
 | 3 | `python -m code.modeling.split_data` | Perform GroupKFold stratified split (fallback to random 80/20); outputs `train.parquet` and `test.parquet`. |
-| 4 | `python -m code.modeling.train` | Run 5‑fold CV, hyper‑parameter grid search for Linear Regression & Random Forest, fit final models, and save `models/*.pkl`. |
+| 4 | `python -m code.modeling.train` | Run 5‑fold CV, grid‑search for Linear Regression & Random Forest, fit final models, save `models/*.pkl`. |
 | 5 | `python -m code.modeling.baseline` | Train the baseline weighted‑average elemental CTE model; save metrics to `results/baseline_metrics.json`. |
 | 6 | `python -m code.modeling.evaluate` | Evaluate test‑set performance for all models; write `results/model_performance.json`. |
 | 7 | `python -m code.modeling.permutation_test` | Execute ≥ 1 000‑iteration permutation test; output `results/permutation_null_distribution.npy` and p‑value. |
@@ -62,7 +62,7 @@ PY
 - **Total wall‑clock time**: ≈ 2 h (including API download).  
 - **Peak RAM**: ≈ 3 GB (well under the 7 GB limit).  
 
-If any step exceeds the allocated resources, the pipeline aborts and `results/computational_efficiency.json` will contain `"pass": false`.
+If any step exceeds the allocated resources, the pipeline aborts and `results/computational_efficiency.json` will contain `"limits_passed": false`.
 
 ## Early‑Termination Notice
 If Phase 0 determines that **≥ 95 %** of metallic‑glass entries cannot be retrieved **or** that fewer than **500** usable samples are available, the pipeline will **stop after ingestion** and output `results/ingestion_coverage.json` together with a clear “Specification Amendment Required” flag. No modeling or downstream analysis will be performed in that case.

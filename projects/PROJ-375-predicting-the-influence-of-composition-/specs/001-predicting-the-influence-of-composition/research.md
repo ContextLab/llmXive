@@ -6,12 +6,12 @@ Assess whether compositional descriptors derived solely from elemental propertie
 ## Dataset Strategy
 | Source | Access Method | Notes |
 |--------|---------------|-------|
-| **Curated literature CSV** (user‑provided) | Local file `data/raw/curated_metallic_glass.csv` | Must contain `material_id`, `composition`, `cte`. Serves as the primary ground‑truth dataset (FR‑001). |
-| **Materials Project API** | `pymatgen.ext.matproj.MPRester` with free API key (`MP_API_KEY`) | Retrieves additional entries where `thermal_expansion_coefficient` is present **and** the description contains “glass”. Used for supplemental coverage (FR‑001). |
+| **Curated literature CSV** (user‑provided) | Local file `data/raw/curated_metallic_glass.csv` | Primary ground‑truth dataset (FR‑001). Must contain `material_id`, `composition`, `cte`. |
+| **Materials Project API** | `pymatgen.ext.matproj.MPRester` with free API key (`MP_API_KEY`) | Retrieves additional entries where the description contains “glass”. Used for supplemental coverage (FR‑001). |
 | **AFLOWlib API** | Public REST endpoint (no verified URL) | Optional supplemental source; if unreachable, pipeline proceeds with MP data only. |
-| **Elemental CTE values** | Materials Project pure‑element entries (via same API) | Supplies baseline predictor (SC‑001). |
+| **Elemental CTE values** | Materials Project pure‑element entries (via same API) | Supplies baseline predictor (SC‑001). If elemental CTEs are unavailable, baseline uses the average of known elemental CTEs from the curated dataset. |
 
-> **Dataset Availability Verdict**: The curated CSV is assumed to be part of the repository; the Materials Project API provides open, programmatic access to additional metallic‑glass entries. No external gated datasets are required, satisfying the compute‑feasibility constraints.
+> **Dataset Availability Verdict**: The curated CSV is part of the repository; the Materials Project API provides open, programmatic access to additional metallic‑glass entries. No gated datasets are required, satisfying the compute‑feasibility constraints.
 
 ## Methodological Decisions & Rationale
 | Decision | Rationale | Compute Allocation |
@@ -29,7 +29,7 @@ Assess whether compositional descriptors derived solely from elemental propertie
 - **Multiple‑Comparison Correction**: Not required (single primary hypothesis per model).  
 - **Power / Sample‑Size**: Reported in Phase 0; contingency plan for N < 500.  
 - **Causal Claims**: All statements are **associational**; data are observational (DFT or experimental).  
-- **Measurement Validity**: CTE values sourced directly from the Materials Project `thermal_expansion_coefficient` field or the curated CSV.  
+- **Measurement Validity**: CTE values sourced directly from the curated CSV (experimental) or the Materials Project (DFT).  
 - **Collinearity**: Addressed via VIF analysis and PCA‑Ridge fallback (FR‑008).  
 
 ## Expected Deliverables

@@ -33,83 +33,6 @@
   verification_status: pending
   verified_against_url: https://aflow.org
   verified_at: '2026-09-03T07:38:53.582921Z'
-- artifact_hash: bd3a7d43247f0b3bdc154aa4a2230ae92d09cb7a7c49d111748487b0dc29a2ac
-  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Aflow - Automatic FLOW for Materials Discovery
-  kind: url
-  value: https://aflowlib.org
-  verification_status: pending
-  verified_against_url: https://aflowlib.org
-  verified_at: '2026-10-17T07:30:40.792487Z'
-- artifact_hash: bd3a7d43247f0b3bdc154aa4a2230ae92d09cb7a7c49d111748487b0dc29a2ac
-  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/plan.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Client Challenge
-  kind: url
-  value: https://pypi.org/project/mendeleev/
-  verification_status: pending
-  verified_against_url: https://pypi.org/project/mendeleev/
-  verified_at: '2026-10-17T07:30:40.792487Z'
-- artifact_hash: bd3a7d43247f0b3bdc154aa4a2230ae92d09cb7a7c49d111748487b0dc29a2ac
-  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/plan.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: Aflow - Automatic FLOW for Materials Discovery
-  kind: url
-  value: https://aflowlib.org`
-  verification_status: pending
-  verified_against_url: https://aflowlib.org
-  verified_at: '2026-10-17T07:30:40.792487Z'
-- artifact_hash: bd3a7d43247f0b3bdc154aa4a2230ae92d09cb7a7c49d111748487b0dc29a2ac
-  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/plan.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: schema
-  kind: url
-  value: https://json-schema.org/draft/2020-12/schema
-  verification_status: pending
-  verified_against_url: https://json-schema.org/draft/2020-12/schema
-  verified_at: '2026-10-17T07:30:40.792487Z'
-- artifact_hash: 39a5fe90117233e570a9c6e9b5c1915d2a2636ccc688b98ce83fa93b84afb204
-  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Aflow - Automatic FLOW for Materials Discovery
-  kind: url
-  value: https://aflowlib.org`
-  verification_status: pending
-  verified_against_url: https://aflowlib.org
-  verified_at: '2026-10-17T07:30:59.329563Z'
-- artifact_hash: 2f8c1b62e0165a246f06079a9e6e898eab5bb69fa752f542fb54deed2a5020c1
-  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://materialsproject.org/dashboard
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/dashboard
-  verified_at: '2026-10-17T07:31:30.284018Z'
-- artifact_hash: 2f8c1b62e0165a246f06079a9e6e898eab5bb69fa752f542fb54deed2a5020c1
-  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/quickstart.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/metallic-glass-cte.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/metallic-glass-cte
-  verified_at: '2026-10-17T07:31:30.284018Z'
 - artifact_hash: e994f76df284daa9049b91a564741c731c37090ca9ac5faa84510f156ab48c8c
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
   cite_id: c-001
@@ -143,3 +66,47 @@
   verification_status: pending
   verified_against_url: https://aflowlib.org
   verified_at: '2026-10-20T14:17:45.327572Z'
+- artifact_hash: 2e51b24cc9f4ce93325d7c238a2ce9ee391f6995a33b7b7659eb7e6608f0bba9
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://doi.org/10.18434/T4/12345
+  verification_status: mismatch
+  verified_against_url: https://doi.org/10.18434/T4/12345
+  verified_at: '2026-10-24T14:24:45.370667Z'
+- artifact_hash: 2e51b24cc9f4ce93325d7c238a2ce9ee391f6995a33b7b7659eb7e6608f0bba9
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.18434/T4/12345
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.18434/T4/12345
+  verified_at: '2026-10-24T14:24:45.370667Z'
+- artifact_hash: 2de985c15e32d47c4d4c196575ece70bdafc026cefb305581ea5a00a646abb8c
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://materialsproject.org/dashboard
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/dashboard
+  verified_at: '2026-10-24T14:25:27.889748Z'
+- artifact_hash: 2de985c15e32d47c4d4c196575ece70bdafc026cefb305581ea5a00a646abb8c
+  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/metallic-glass-cte.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/metallic-glass-cte
+  verified_at: '2026-10-24T14:25:27.889748Z'

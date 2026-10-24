@@ -8,8 +8,8 @@ The pipeline operates on a single canonical table of processed alloy entries (me
 ### AlloyEntry
 | Field | Type | Description |
 |-------|------|-------------|
-| `material_id` | string | Unique Materials Project identifier (e.g., `"mp-12345"`). |
-| `composition` | string | Stoichiometric formula (e.g., `"Zr50Cu40Al10"`). |
+| `material_id` | string | Unique Materials Project identifier, e.g., `"mp-12345"`. |
+| `composition` | string | Stoichiometric formula, e.g., `"Zr50Cu40Al10"`. |
 | `cte` | number | Coefficient of thermal expansion (1/K). |
 | `weighted_mean_atomic_radius` | number | Σ fraction × atomic radius (pm). |
 | `electronegativity_variance` | number | Weighted variance of Pauling electronegativity. |
@@ -19,7 +19,7 @@ The pipeline operates on a single canonical table of processed alloy entries (me
 | `checksum` | string | SHA‑256 checksum of the raw JSON record. |
 | `vif_score` | number | optional | VIF computed for each descriptor (if computed). |
 | `thermal_history_flag` | boolean | optional | True if non‑standard thermal‑history metadata is present. |
-| `alloy_family` | string | Sorted, comma‑separated list of constituent element symbols (e.g., `"Al,Cu,Zr"`); used for GroupKFold stratification. |
+| `alloy_family` | string | Sorted, comma‑separated list of constituent element symbols; used for GroupKFold stratification. |
 
 ### ModelPerformance
 | Field | Type | Description |
@@ -29,7 +29,7 @@ The pipeline operates on a single canonical table of processed alloy entries (me
 | `mae_test` | number | Mean Absolute Error (K⁻¹) on the test set. |
 | `rmse_test` | number | Root Mean Squared Error (K⁻¹) on the test set. |
 | `p_value` | number | nullable | Permutation‑test p‑value; `null` if observed R² < 0.3. |
-| `null_result_flag` | boolean | `True` if the observed R² is below the significance threshold (R² < 0.3). |
+| `null_result_flag` | boolean | True if the observed R² is below the significance threshold (R² < 0.3). |
 | `runtime_seconds` | number | Wall‑clock time spent during training and evaluation. |
 | `memory_peak_mb` | number | Peak RAM usage (MB). |
 
