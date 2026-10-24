@@ -45,7 +45,8 @@ MAX_RETRIES = 3
 RETRY_BACKOFF = 30  # seconds (base)
 
 PROJECT_SEED = int(os.environ.get("PROJECT_SEED", "42"))
-N_SNIPPETS = 500
+# The task specification requires exactly 200 snippets (≥ 150 valid).
+N_SNIPPETS = 200
 MIN_VALID_SNIPPETS = 150
 
 RAW_OUTPUT = paths.data("raw_snippets.jsonl")

@@ -1,9 +1,9 @@
 """
 verify_requirements.py
 
-This script verifies that a pinned ``requirements.txt`` file exists at the repository
-root, is non‑empty, and (optionally) matches the SHA‑256 hash recorded in
-``data/artifact_hashes.yaml``.  It writes a concise log to
+This script verifies that a pinned ``requirements.txt`` file exists within the
+``code/`` directory of the repository, is non‑empty, and (optionally) matches the
+SHA‑256 hash recorded in ``data/artifact_hashes.yaml``.  It writes a concise log to
 ``data/requirements_check.log`` and exits with a non‑zero status if any check fails.
 
 The script is intended to be run as a module:
@@ -61,7 +61,8 @@ def check_requirements() -> bool:
         ``True`` if all checks pass, ``False`` otherwise.
     """
     repo_root = paths.root
-    req_path = repo_root / "requirements.txt"
+    # The requirements file must reside under the ``code`` subdirectory.
+    req_path = repo_root / "code" / "requirements.txt"
     log_path = paths.data("requirements_check.log")
 
     # Start with a fresh log file for this run
@@ -71,7 +72,10 @@ def check_requirements() -> bool:
 
     # 1. Existence
     if not req_path.is_file():
-        _append_log(log_path, "FAILURE: requirements.txt not found at repository root.")
+        _append_log(
+            log_path,
+            f"FAILURE: requirements.txt not found at expected location: {req_path}"
+        )
         return False
 
     # 2. Non‑empty

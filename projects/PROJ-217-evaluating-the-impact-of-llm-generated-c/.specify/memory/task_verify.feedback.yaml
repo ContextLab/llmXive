@@ -1,4 +1,6 @@
 T001:
+  reason: 'Requested task execution failed; rerun successfully: src/data/download.py
+    exit=1'
   task: 50c62fa0a2585fa3e973f7f9d998d7a9cb775fd0166118c6cdf5aaf1128db9da
 T001b:
   task: 94275c2fb1bade4b8bcdc619a561399a108b8b349c457b0a06dcf16f2290918b
@@ -23,12 +25,6 @@ T010:
 T011:
   task: ee780e5284898c41a1d66d1ffa78d4d4e4c95fec1eb7189c0a62547d2fba4623
 T012:
-  reason: "The provided `src/utils/verify_requirements.py` checks for a top\u2011\
-    level `requirements.txt` instead of the required `code/requirements.txt`, so it\
-    \ does not fulfill the core requirement of verifying the pinned requirements file\
-    \ in the `code/` directory. The script must be updated to reference `repo_root\
-    \ / \"code\" / \"requirements.txt\"` (and optionally handle its hash) to satisfy\
-    \ the task."
   task: 6cf9cf6efea28b74542af3bb8a1c515139748e27532be42c5faa3c168a9a97b2
 T014:
   task: 4b4c89364a000bb11f39b4def267e1afd87f1a4b41341c817435cc471f19e622

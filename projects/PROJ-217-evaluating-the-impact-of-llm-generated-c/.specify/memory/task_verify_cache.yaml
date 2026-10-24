@@ -1,10 +1,10 @@
 T012:
-  c: false
-  h: aeaad06d43bb517b48cefc4012cd74706d57f774b1dd517b4e42cfd4aee34f64
-  r: "The provided `src/utils/verify_requirements.py` checks for a top\u2011level\
-    \ `requirements.txt` instead of the required `code/requirements.txt`, so it does\
-    \ not fulfill the core requirement of verifying the pinned requirements file in\
-    \ the `code/` directory. The script must be updated to reference `repo_root /\
-    \ \"code\" / \"requirements.txt\"` (and optionally handle its hash) to satisfy\
-    \ the task."
-  sig: e9f2b6380db37c04baa5e7a0ffb72611604e27a33346782721754880f8e5ba18
+  c: true
+  h: 99b2ad602f3eda90d80f5fea0470f1f92ad890f2ef5ec9690c256d74460a57f3
+  r: "The `src/utils/verify_requirements.py` script (3947\u202Fbytes) correctly checks\
+    \ for the presence and non\u2011emptiness of `code/requirements.txt`, optionally\
+    \ validates its SHA\u2011256 against `data/artifact_hashes.yaml`, and writes status\
+    \ messages to `data/requirements_check.log` while returning a boolean flag. The\
+    \ required `code/requirements.txt` file exists and is non\u2011empty, and the\
+    \ optional hash entry is absent as allowed."
+  sig: 7daaa407ab9b423bbed76ff683741b05741b6078194bca25d6d8958d746a6faf
