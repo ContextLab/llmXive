@@ -52,7 +52,9 @@ def _load_raw_csv(csv_path: Path) -> pd.DataFrame:
             _download_curated_csv(csv_path)
         except Exception as exc:
             logger.error(f"Failed to download curated CSV: {exc}")
-            raise FileNotFoundError(f"Unable to obtain curated CSV at {csv_path}") from exc
+            raise FileNotFoundError(
+                f"Unable to obtain curated CSV at {csv_path}"
+            ) from exc
     df = pd.read_csv(csv_path)
     logger.info(f"Loaded raw CSV with {len(df)} rows from {csv_path}")
     return df
@@ -110,6 +112,13 @@ def main() -> int:
         raw_df = _load_raw_csv(raw_csv_path)
     except Exception:
         logger.critical("Unable to load the curated CSV. Aborting.")
+        return 1
+
+    # Verify required columns exist
+    required_columns = {"composition", "cte"}
+    if not required_columns.issubset(set(raw_df.columns)):
+        missing = required_columns - set(raw_df.columns)
+        logger.error(f"Input CSV is missing required columns: {missing}")
         return 1
 
     # 2️⃣ Take the first N rows

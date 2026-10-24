@@ -11,7 +11,7 @@ The goal is to implement a fully reproducible, CPU‑only pipeline that ingests 
   - **File**: `docs/phase0_overview.md` – outlines ingestion, metadata capture, power analysis, and coverage checks.  
   - **Verification**: The markdown exists and contains headings for each sub‑step; CI checks its presence.
 
-- [ ] T001 [US1] Create a quick‑start guide and runnable command that executes a minimal end‑to‑end run on the first 100 rows of the curated CSV.   <!-- FAILED-IN-EXECUTION: code/pipeline/run.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipeline/run.py exit=2 -->
+- [ ] T001 [US1] Create a quick‑start guide and runnable command that executes a minimal end‑to‑end run on the first 100 rows of the curated CSV.   <!-- FAILED-IN-EXECUTION: code/pipeline/run.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/pipeline/run.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/pipeline/run.py exit=1 -->
   - **File**: `docs/quickstart.md` – includes the command `python -m pipeline.run --sample 100`.  
   - **Verification**: Running the command creates `results/sample_output.parquet` containing the columns required by `mg_dataset.schema.yaml` and passes JSON‑Schema validation; the command exits with status 0.
 
