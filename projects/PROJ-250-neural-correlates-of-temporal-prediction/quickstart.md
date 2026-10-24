@@ -21,20 +21,20 @@ The pipeline is orchestrated via the scripts in `code/`. Each script writes its 
 
 ### 0️⃣ Reference‑Validator Gates
 ```bash
-python code/verify_references.py --stage dataset # checks ds004510 URL (FR‑012‑1)
-python code/verify_references.py --stage citations # checks bibliography (FR‑012‑3)
+python code/verify_references.py --stage dataset
+python code/verify_references.py --stage citations
 ```
 
 ### 1️⃣ Data Acquisition
 ```bash
-python code/download.py --subjects 2 # minimal end‑to‑end run (change to 0 for all subjects)
+python code/download.py --subjects 2
 ```
 
 *If the dataset lacks the required “complex” condition the script aborts with the FR‑008 error message.*
 
 ### 2️⃣ Preprocessing
 ```bash
-python code/preprocess.py # band‑pass, ICA, mastoid re‑reference, baseline correction, epoching (FR‑002‑FR‑003)
+python code/preprocess.py
 ```
 
 ### 3️⃣ Analysis
