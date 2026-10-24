@@ -1,0 +1,3 @@
+participant_id,snippet_id,condition,completion_time_sec,accuracy,subjective_helpfulness
+p1,s001,llm,10,1,4
+p1,s001,human,12,1,5

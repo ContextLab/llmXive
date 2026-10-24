@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List, Dict, Set
 
 import tiktoken
-from huggingface_hub import InferenceClient, InferenceError
+from huggingface_hub import InferenceClient
 
 from llmxive_toolkit import paths, get_logger
 
@@ -93,7 +93,7 @@ def _generate_llm_comment(code: str) -> str:
     """
     Call the HuggingFace Inference API to generate a comment for ``code``.
     Deterministic decoding is enforced via temperature=0.0, top_p=1.0,
-    seed=42, and do_sample=False.
+    seed=PROJECT_SEED, and do_sample=False.
     """
     token = os.getenv(HF_TOKEN_ENV)
     if not token:
@@ -103,7 +103,7 @@ def _generate_llm_comment(code: str) -> str:
 
     client = InferenceClient(model=MODEL_ID, token=token)
 
-    # CodeLlama‑Instruct format
+    # Prompt follows the CodeLlama‑Instruct convention
     prompt = (
         f"[INST] Generate a concise, helpful, and professional docstring‑style comment "
         f"for the following Python code. Provide only the comment text, no conversational filler.\n\n"
@@ -118,17 +118,20 @@ def _generate_llm_comment(code: str) -> str:
                 top_p=1.0,
                 max_new_tokens=256,
                 do_sample=False,
+                # ``seed`` is accepted by the HF inference endpoint for deterministic output
                 seed=PROJECT_SEED,
             )
-            comment = (
-                generated.strip()
-                if isinstance(generated, str)
-                else str(generated).strip()
-            )
+            # The endpoint may return a plain string or a dict with a ``generated_text`` key
+            if isinstance(generated, dict) and "generated_text" in generated:
+                comment = generated["generated_text"]
+            else:
+                comment = str(generated)
+
+            comment = comment.strip()
             if not comment:
-                raise ValueError("API returned an empty string")
+                raise ValueError("API returned an empty comment")
             return comment
-        except (InferenceError, Exception) as e:
+        except Exception as e:
             if attempt == RETRY_LIMIT:
                 log.error(
                     f"Failed to generate comment after {RETRY_LIMIT} attempts for snippet: {e}"
@@ -245,7 +248,6 @@ def main() -> None:
                 _append_excluded(snippet_id)
                 failed += 1
                 processed_ids.add(snippet_id)
-                # Update checkpoint after each attempt (even failures) so we don't retry forever
                 _save_checkpoint(processed_ids)
                 continue
 

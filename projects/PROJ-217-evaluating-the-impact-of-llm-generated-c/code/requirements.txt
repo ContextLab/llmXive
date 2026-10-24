@@ -1,6 +1,22 @@
-# Additional dependencies required for the LLM comment generation task
-huggingface-hub>=0.23.0
-tiktoken>=0.7.0
-# The base environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil. No further packages are needed here.
+# Project requirements for the readability‑metrics pipeline
+# Core scientific stack (already available in the CI image)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional packages required by T003
+nltk==3.8.1
+rouge-score==0.1.2
+sentence-transformers==2.7.0
+textstat==0.7.3
+# tiktoken is used in generate_comments (already present elsewhere) but listed for completeness
+tiktoken==0.7.0

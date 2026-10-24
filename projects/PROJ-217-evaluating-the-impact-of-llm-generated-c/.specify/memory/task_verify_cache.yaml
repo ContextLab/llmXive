@@ -17,26 +17,18 @@ T001b:
     \ the test parquet checksum). Execution log shows the script ran successfully,\
     \ downloaded the parquet, recorded the checksum, and wrote the raw records."
   sig: 7fa349e03f0652588e1c5ab20c385099faff8972359151243e8955564f8fb648
-T002:
-  c: false
-  h: 37c7a6cc537bacacf819152868d397fd2f35e8e7c9e796201571aed60c666785
-  r: "The generated `llm_comments.jsonl` contains only a single test record and does\
-    \ not include the many snippet IDs from `validated_snippets.jsonl`; the required\
-    \ `data/truncation_warnings.log`, `data/excluded_llm_generation.json`, `data/generation_checkpoint.json`,\
-    \ and `data/generation.log` are all missing. Consequently the script\u2019s checkpointing,\
-    \ exclusion logging, and full dataset creation are not demonstrated."
-  sig: 7bc9a01816c44c724cfe77d8eba6d8e112c588b513e6e914136303574a6a3944
 T003:
   c: false
-  h: 1721a3ecdcdd008cb4bab6abdf58bd6c879f89c7f9b12aaae13df6233bf7da11
-  r: "The provided `src/data/metrics.py` writes the CSV and computes the required\
-    \ scores, but it loads the entire JSONL file into memory (no streaming) and, more\
-    \ critically, the test suite fails: `test_metrics_produce_expected_values` expects\
-    \ BLEU, ROUGE\u2011L and semantic similarity of 1.0 for the `*_vs_source` columns,\
-    \ yet the generated CSV contains `0.0` for those fields (the comment is not identical\
-    \ to the source code). Consequently the verification tests do not pass, and the\
-    \ streaming\u2011batch requirement is not satisfied."
-  sig: 8cc491d0472e5b1cb21d1f5b246df580ed1a88774f683af58308b42757f44f11
+  h: 8577369c3446e8e0905ceb2d2fb4acfbd93ba8cfb1a195d11fb168280904a2e3
+  r: "I examined `src/data/metrics.py` and the test suite `src/tests/test_metrics.py`.\
+    \ The script runs and creates the CSV, but the computed BLEU, ROUGE\u2011L and\
+    \ semantic\u2011similarity scores for the `llm` and `human` rows are `0.0` instead\
+    \ of the expected `1.0` when the comment equals the reference (the test asserts\
+    \ they be within\u202F0.001 of\u202F1.0). Consequently `test_metrics_produce_expected_values`\
+    \ fails. The CSV also lacks the correct three rows for the fixture (the provided\
+    \ `readability_metrics.csv` shows only two rows and empty metric fields). Therefore\
+    \ the implementation does not satisfy the required m"
+  sig: abef1ba714b7f5cd7b2d97b6e2456a2669e2658ce4f6b7fb823c4f912549840c
 T004:
   c: true
   h: a959ddb0b402b852dde60f8142487c5cb63f19d4487934a57d4016f7f45615f8
@@ -47,11 +39,46 @@ T004:
     \ with status\u202F0/1 as specified. The needed `data/consent_form.pdf` is present,\
     \ and the log file will be created at runtime."
   sig: d3253fc1794abd07321474b023b8c2bb6834ac3f2468c51ccdef81058be10c97
+T005:
+  c: false
+  h: 341dcacbb456ae8fb4719c1f8b6a50b1d33c891b72079ad4f1875e7e7595415e
+  r: "The `data/results/smoke_analysis.json` file and a runnable `python -m scripts.run_smoke`\
+    \ command exist, but there is no evidence that the smoke run processes only the\
+    \ first\u202F10 validated snippets as required (the logs show the full dataset\
+    \ of 180 snippets). Additionally, the expected `scripts/run_smoke.sh` script is\
+    \ missing, and the test for the smoke run fails, indicating the implementation\
+    \ does not fully satisfy the task\u2019s specifications. The implementer must\
+    \ ensure the smoke mode limits execution to the first\u202F10 snippets and provide\
+    \ the corresponding script or flag implementation."
+  sig: 35df168e359d1858b198b5c84d3c62491d03ff0617172cfb263728955011241e
+T006:
+  c: false
+  h: 701c44f964cc87d21a9249ccffc0280e23f304e70ca7cade6470b209594b6334
+  r: "The repository contains `src/data/conduct_user_study.py`, but it never creates\
+    \ the required `data/task_answer_keys.json` (the file is missing) and it only\
+    \ writes an empty header to `data/human_study_responses.csv` \u2013 it does not\
+    \ generate rows for every participant\u2011snippet\u2011condition triple, nor\
+    \ does it implement the Latin\u2011Square randomization or ensure each participant\
+    \ sees all three comment conditions. Consequently the core requirements of T006\
+    \ are not met."
+  sig: 30b34759c05afb3e4af070d4d762eac1b023ad3591dde7945d9860cb6a48b00b
 T012:
   c: true
-  h: ad97b26068e263fa0d4af00261fe12cb3cb1f45c4a1c8ba9ead80fecf0649151
-  r: "Checked `src/utils/verify_requirements.py` which implements the required existence,\
-    \ non\u2011empty check, optional SHA\u2011256 verification, returns a boolean\
-    \ flag, and writes to `data/requirements_check.log`; also confirmed that `code/requirements.txt`\
-    \ exists and is non\u2011empty."
-  sig: 7e921ed4bc8fdd5660a4166bb79ca659e3076bd194f04e7bdca3d39ed6e39606
+  h: 7547f38d65791c1bb8a464f28c448c8fba3f2411c9c7dcc7d71b1e5052dc7118
+  r: "Checked `src/utils/verify_requirements.py` \u2013 it implements the required\
+    \ existence/non\u2011empty check, optional SHA\u2011256 verification, returns\
+    \ a boolean flag, and writes to `data/requirements_check.log`. Also confirmed\
+    \ that `code/requirements.txt` exists and is non\u2011empty."
+  sig: cae528c75b915113cee37af773d760177687ad0f9df26da30adff0b40d782d6a
+T014:
+  c: false
+  h: 6905723c95644c3fa0d318c717f892636bdd47d864f74b2ceb2dacdccac9926b
+  r: "The `src/data/prepare.py` script does not import `yaml` before calling `yaml.safe_load`,\
+    \ causing a `NameError` and failing schema validation (as shown by the failing\
+    \ test). It also never loads `data/llm_comments.jsonl`, violating the requirement\
+    \ to ingest that file. Consequently no `data/merged_dataset.csv` is produced,\
+    \ and the provided `human_study_responses.csv` lacks the required three conditions\
+    \ per participant, so the within\u2011subject design check would raise an error.\
+    \ These defects must be fixed and the merged CSV generated for the task to be\
+    \ complete."
+  sig: 853128715601f6f0b512bffc73ada7c57f0f68cdd639eaa779f5dc11a8e5e99d

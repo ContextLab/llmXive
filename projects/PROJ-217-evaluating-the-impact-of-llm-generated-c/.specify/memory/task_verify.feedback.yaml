@@ -7,23 +7,39 @@ T002:
     exit=1'
   task: cdeed5ef9b6f7f5e18e0bbd065e5b101b7a2a9b61b6450f55753468c2c4622bb
 T003:
-  reason: "The provided `src/data/metrics.py` writes the CSV and computes the required\
-    \ scores, but it loads the entire JSONL file into memory (no streaming) and, more\
-    \ critically, the test suite fails: `test_metrics_produce_expected_values` expects\
-    \ BLEU, ROUGE\u2011L and semantic similarity of 1.0 for the `*_vs_source` columns,\
-    \ yet the generated CSV contains `0.0` for those fields (the comment is not identical\
-    \ to the source code). Consequently the verification tests do not pass, and the\
-    \ streaming\u2011batch requirement is not satisfied."
+  reason: "I examined `src/data/metrics.py` and the test suite `src/tests/test_metrics.py`.\
+    \ The script runs and creates the CSV, but the computed BLEU, ROUGE\u2011L and\
+    \ semantic\u2011similarity scores for the `llm` and `human` rows are `0.0` instead\
+    \ of the expected `1.0` when the comment equals the reference (the test asserts\
+    \ they be within\u202F0.001 of\u202F1.0). Consequently `test_metrics_produce_expected_values`\
+    \ fails. The CSV also lacks the correct three rows for the fixture (the provided\
+    \ `readability_metrics.csv` shows only two rows and empty metric fields). Therefore\
+    \ the implementation does not satisfy the required m"
   task: d940ea93ab03baaea1c86d24873f006f0d3eccc609fddb4569e3dadafb4b6c45
 T004:
   task: 19a59bd978269cfc34c781b794c6b874bd12d9f5246e792743d8e60c58df14c0
 T005:
-  reason: 'Requested task execution failed; rerun successfully: scripts/run_smoke.py
-    exit=1'
+  reason: "The `data/results/smoke_analysis.json` file and a runnable `python -m scripts.run_smoke`\
+    \ command exist, but there is no evidence that the smoke run processes only the\
+    \ first\u202F10 validated snippets as required (the logs show the full dataset\
+    \ of 180 snippets). Additionally, the expected `scripts/run_smoke.sh` script is\
+    \ missing, and the test for the smoke run fails, indicating the implementation\
+    \ does not fully satisfy the task\u2019s specifications. The implementer must\
+    \ ensure the smoke mode limits execution to the first\u202F10 snippets and provide\
+    \ the corresponding script or flag implementation."
   task: fe614b4f728eea84211f5c8f8af4c230e16d4ad7b9695c92f7bf39d9318dd755
 T006:
+  reason: "The repository contains `src/data/conduct_user_study.py`, but it never\
+    \ creates the required `data/task_answer_keys.json` (the file is missing) and\
+    \ it only writes an empty header to `data/human_study_responses.csv` \u2013 it\
+    \ does not generate rows for every participant\u2011snippet\u2011condition triple,\
+    \ nor does it implement the Latin\u2011Square randomization or ensure each participant\
+    \ sees all three comment conditions. Consequently the core requirements of T006\
+    \ are not met."
   task: c77f2fad24d2dba35f1d04677c7afd5c4c205e6acfdc259a9d7f2669bc96bb8f
 T007:
+  reason: 'Requested task execution failed; rerun successfully: src/data/analysis.py
+    exit=1'
   task: 5e8add15b83a0f1fbe9621c2249c8d7137acd7939d627aa33d44951b03f80df1
 T008:
   task: 0c3152cf121a6f5f1ae46666110ba55e09a9634b95b13208e50599b39ee1c6e9
@@ -36,6 +52,14 @@ T011:
 T012:
   task: 6cf9cf6efea28b74542af3bb8a1c515139748e27532be42c5faa3c168a9a97b2
 T014:
+  reason: "The `src/data/prepare.py` script does not import `yaml` before calling\
+    \ `yaml.safe_load`, causing a `NameError` and failing schema validation (as shown\
+    \ by the failing test). It also never loads `data/llm_comments.jsonl`, violating\
+    \ the requirement to ingest that file. Consequently no `data/merged_dataset.csv`\
+    \ is produced, and the provided `human_study_responses.csv` lacks the required\
+    \ three conditions per participant, so the within\u2011subject design check would\
+    \ raise an error. These defects must be fixed and the merged CSV generated for\
+    \ the task to be complete."
   task: 4b4c89364a000bb11f39b4def267e1afd87f1a4b41341c817435cc471f19e622
 T015:
   task: 0dcc6e66e6483e16378490d4ea8393de9b06bca8bead78f0a8d9b23e4585820d

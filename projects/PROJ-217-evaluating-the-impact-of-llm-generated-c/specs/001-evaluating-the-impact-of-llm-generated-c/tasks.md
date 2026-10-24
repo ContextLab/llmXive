@@ -78,7 +78,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
   – Metric columns are floats in [0, 1] or `null` for `none`.
   – `src/tests/test_metrics.py` validates metric values on fixed fixtures (tolerance 0.001) and that identical strings yield a score of 1.0.
 
-- [ ] **T005** [US-3] **Run a miniature end‑to‑end pipeline on 10 snippets** <!-- FAILED-IN-EXECUTION: scripts/run_smoke.py exit=1 -->
+- [ ] **T005** [US-3] **Run a miniature end‑to‑end pipeline on 10 snippets**
   *Implement* a `--smoke` mode (or `scripts/run_smoke.sh`) that executes T001–T003 stages on the first 10 validated snippets **and** runs a minimal analysis stub producing `data/results/smoke_analysis.json` with the required `anova_time` fields (F, p_value, df_between, df_within, reject_null). This validates the data flow download → generation → metrics → analysis before the full run.
   *Verification*:
   – The documented smoke command in `quickstart.md` executes with exit 0 and produces non‑empty, real (non‑placeholder) outputs, including `smoke_analysis.json`.
@@ -103,7 +103,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
   *Verification*:
   – `merged_dataset.csv` conforms to the schema and contains the required fields; `null` appears only in metric columns for the `none` condition.
 
-- [ ] **T007** [US-3] **Power analysis and sample‑size justification**
+- [ ] **T007** [US-3] **Power analysis and sample‑size justification** <!-- FAILED-IN-EXECUTION: src/data/analysis.py exit=1 -->
   *Implement* in `src/data/analysis.py` a power analysis using `statsmodels.stats.power.FTestAnovaPower` with:
   - Effect size f = 0.25, α = 0.05, within‑subject correlation ρ = 0.5.
   - Required per‑group sample size compared with the actual number of participants recruited.
