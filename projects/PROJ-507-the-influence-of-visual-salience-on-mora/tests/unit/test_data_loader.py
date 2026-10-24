@@ -12,22 +12,21 @@ spec.loader.exec_module(ingest_module)
 
 def test_fetch_failure_raises_datafetcherror():
     """
-    Simulate a failure to load the dataset using FiftyOne and assert that 
+    Simulate a failure to load the dataset using HF datasets and assert that 
     DataFetchError is raised.
     """
-    # Mock foz.load_zoo_dataset to raise an exception
-    with mock.patch("fiftyone.zoo.load_zoo_dataset", side_effect=Exception("Zoo Load Error")):
+    # Mock load_dataset to raise an exception
+    with mock.patch("ingest_and_filter.load_dataset", side_effect=Exception("HF Load Error")):
         with pytest.raises(DataFetchError) as excinfo:
             ingest_module.ingest_and_filter(num_samples=1, tags=["social"])
-        assert "Unable to load Open Images dataset via FiftyOne" in str(excinfo.value)
+        assert "Unable to load Open Images dataset" in str(excinfo.value)
 
-def test_missing_fiftyone_raises_datafetcherror(monkeypatch):
+def test_no_matches_raises_datafetcherror():
     """
-    Simulate FiftyOne not being imported/installed.
+    Simulate a case where the dataset loads but no images match the tags.
     """
-    # We can't easily 'un-import' fiftyone, but we can mock the module 
-    # in the ingest_module's namespace.
-    ingest_module.foz = None
-    with pytest.raises(DataFetchError) as excinfo:
-        ingest_module.ingest_and_filter(num_samples=1, tags=["social"])
-    assert "FiftyOne is not installed" in str(excinfo.value)
+    # Mock load_dataset to return an empty generator
+    with mock.patch("ingest_and_filter.load_dataset", return_value=iter([])):
+        with pytest.raises(DataFetchError) as excinfo:
+            ingest_module.ingest_and_filter(num_samples=1, tags=["nonexistent_tag"])
+        assert "No candidate images matched the filtering criteria" in str(excinfo.value)

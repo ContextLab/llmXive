@@ -1,5 +1,5 @@
 status: none
-intent: download Open Images V6 dataset and Visual Genome annotations python package
+intent: tensorflow_datasets Open Images V6 Visual Genome CLIP BERT CLMM python package
   dataset
 required_fields:
 - image_id
@@ -7,8 +7,8 @@ required_fields:
 - width
 - height
 - bounding_boxes
-- tags
-- source
-cache_key: 6ec79b3a4edd515fbf091ebe19d8bde95d5c01bb8fe572903a2b3d87bce73759
-searched_at: '2026-10-24T11:12:12.839985+00:00'
+- image_labels
+- license
+cache_key: 551963fc0910a282e41e62dffa121127e2ea51df23aad62ffd240b9ae7eedff8
+searched_at: '2026-10-24T23:11:28.875558+00:00'
 retry_count: 1

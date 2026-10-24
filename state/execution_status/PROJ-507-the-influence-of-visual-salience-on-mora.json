@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-24T00:31:46Z",
+  "updated_at": "2026-10-24T23:11:28Z",
   "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-  "replan_rounds": 1
+  "replan_rounds": 2
 }
