@@ -1,1 +1,4 @@
-mp-api
+# Existing pinned dependencies (standard library & common scientific stack) are
+# already provided by the platform.  We only need to add the HuggingFace
+# ``datasets`` library, which is required for the feasibility probe.
+datasets>=2.0.0

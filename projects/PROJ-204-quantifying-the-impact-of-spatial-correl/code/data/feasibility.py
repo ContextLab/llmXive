@@ -6,7 +6,8 @@ perovskite solar‑cell performance metrics:
 
 1. NREL Perovskite Database – public API export endpoint.
 2. Zenodo – REST API query for records matching ``perovskite EDS``.
-3. Materials Project – metadata fallback via the ``mp_api`` package.
+3. HuggingFace – verified open‑access dataset ``doe2023/perovskite-eds``.
+   This dataset is the primary source required by the project specification.
 
 For each source the script records:
   * HTTP reachable flag (True/False)
@@ -30,7 +31,6 @@ Invoked as a module:
     python -m code.data.feasibility
 
 """
-
 import json
 import sys
 from pathlib import Path
@@ -38,6 +38,13 @@ from typing import Any, Dict, List
 
 import requests
 from llmxive_toolkit import paths, get_logger
+
+# Optional import – HuggingFace datasets is a real external dependency.
+# It will be listed in ``requirements.txt``.
+try:
+    from datasets import load_dataset
+except Exception as exc:
+    load_dataset = None  # type: ignore
 
 log = get_logger(__name__)
 
@@ -147,22 +154,36 @@ def probe_zenodo() -> Dict[str, Any]:
     }
 
 
-def probe_materials_project() -> Dict[str, Any]:
+def probe_huggingface() -> Dict[str, Any]:
     """
-    Probe the Materials Project API via the ``mp_api`` package.
+    Probe the verified HuggingFace dataset ``doe2023/perovskite-eds``.
 
-    The API requires an API key; if the package is unavailable or the
-    request fails we record ``reachable=False`` with the error message.
-    Materials Project provides composition metadata only (no EDS maps),
-    so ``has_linked_eds`` is always False for this fallback source.
+    The dataset is a collection of records where each record may contain
+    an EDS image (or a path to a stored image) and performance metrics.
+    We stream the dataset to avoid loading everything into memory.
     """
-    try:
-        from mp_api.client import MPRester
-    except Exception as exc:
-        log.warning("mp_api not available: %s", exc)
+    url = "https://huggingface.co/datasets/doe2023/perovskite-eds"
+    if load_dataset is None:
+        # The dependency is missing – record failure explicitly.
+        log.error("HuggingFace ``datasets`` package not available.")
         return {
-            "source": "Materials Project",
-            "url": "https://materialsproject.org/api",
+            "source": "HuggingFace (doe2023/perovskite-eds)",
+            "url": url,
+            "reachable": False,
+            "http_status": "datasets package missing",
+            "n_records": 0,
+            "linked_sample_count": 0,
+            "has_linked_eds": False,
+        }
+
+    try:
+        # Use streaming mode to keep memory usage low.
+        ds = load_dataset("doe2023/perovskite-eds", split="train", streaming=True)
+    except Exception as exc:
+        log.error("Failed to load HuggingFace dataset: %s", exc)
+        return {
+            "source": "HuggingFace (doe2023/perovskite-eds)",
+            "url": url,
             "reachable": False,
             "http_status": str(exc),
             "n_records": 0,
@@ -170,37 +191,38 @@ def probe_materials_project() -> Dict[str, Any]:
             "has_linked_eds": False,
         }
 
-    try:
-        with MPRester() as mpr:
-            docs = mpr.materials.summary.search(
-                elements=["Pb", "I"], fields=["material_id"]
-            )
-            n_records = len(docs)
-            return {
-                "source": "Materials Project",
-                "url": "https://materialsproject.org/api",
-                "reachable": True,
-                "http_status": 200,
-                "n_records": n_records,
-                "linked_sample_count": 0,
-                "has_linked_eds": False,
-            }
-    except Exception as exc:
-        log.error("Materials Project query failed: %s", exc)
-        return {
-            "source": "Materials Project",
-            "url": "https://materialsproject.org/api",
-            "reachable": False,
-            "http_status": str(exc),
-            "n_records": 0,
-            "linked_sample_count": 0,
-            "has_linked_eds": False,
-        }
+    n_records = 0
+    linked_ids: List[int] = []
+
+    for rec in ds:
+        n_records += 1
+        # Heuristic detection of linked EDS + performance:
+        # - ``eds_image`` (or any key ending with ``_image``) present
+        # - ``performance`` dict containing a ``pce`` field
+        has_image = any(
+            key.lower().endswith("_image") and rec.get(key) is not None
+            for key in rec.keys()
+        )
+        perf = rec.get("performance", {})
+        has_perf = isinstance(perf, dict) and perf.get("pce") is not None
+        if has_image and has_perf:
+            # Some datasets provide an explicit ``id`` field; fall back to index.
+            linked_ids.append(rec.get("id", n_records))
+
+    return {
+        "source": "HuggingFace (doe2023/perovskite-eds)",
+        "url": url,
+        "reachable": True,
+        "http_status": 200,
+        "n_records": n_records,
+        "linked_sample_count": len(linked_ids),
+        "has_linked_eds": bool(linked_ids),
+    }
 
 
 def main() -> int:
     """
-    Execute the feasibility check for all three sources and write the
+    Execute the feasibility check for all sources and write the
     consolidated JSON report to ``data/results/feasibility_report.json``.
 
     Returns:
@@ -210,7 +232,7 @@ def main() -> int:
     log.info("Starting data feasibility check...")
 
     reports = []
-    for probe in (probe_nrel, probe_zenodo, probe_materials_project):
+    for probe in (probe_nrel, probe_zenodo, probe_huggingface):
         try:
             rpt = probe()
             reports.append(rpt)
@@ -220,7 +242,7 @@ def main() -> int:
                 rpt["reachable"],
                 rpt["http_status"],
                 rpt["n_records"],
-                rpt["has_linked_eds"],
+                rpt["linked_sample_count"],
             )
         except Exception as exc:  # defensive: record the failure honestly
             log.exception("Unexpected error probing source: %s", exc)

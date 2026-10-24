@@ -19,10 +19,10 @@
       "has_linked_eds": false
     },
     {
-      "source": "Materials Project",
-      "url": "https://materialsproject.org/api",
+      "source": "HuggingFace (doe2023/perovskite-eds)",
+      "url": "https://huggingface.co/datasets/doe2023/perovskite-eds",
       "reachable": false,
-      "http_status": "pyarrow requires NumPy 2.0 or newer, found 1.26.4",
+      "http_status": "datasets package missing",
       "n_records": 0,
       "linked_sample_count": 0,
       "has_linked_eds": false
