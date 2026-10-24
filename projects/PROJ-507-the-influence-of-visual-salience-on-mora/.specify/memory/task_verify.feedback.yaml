@@ -1,42 +1,36 @@
 T001:
   reason: 'Requested task execution failed; rerun successfully: code/01_ingest_and_filter.py
     exit=1'
-  task: aa58665ffecc4b99c068e6170c3f165766f2c8d4ad3ff83ba3ec8abb7f209dbe
+  task: 3121ac8fc33861e82b0390431c5d6f93420e757b972d8dfff2d91166ece8db59
 T002:
-  reason: The repository lacks the required `data/raw/human_coding/` directory (marked
-    MISSING), which the task explicitly demanded to be created. All other artifacts
-    (the CLI script and passing unit tests) are present, but the missing folder means
-    the requirement is not fully satisfied.
-  task: 1054e2c2fdd578723cafba0f1738d030076c727ea6ded7ac3e2eb527059ef488
+  task: a9f00d956e18cc57140b7c57a5a8e68a1f4ead12eeaf2e16ab04597125d3f2db
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/03_process_human_coding.py
-    exit=1'
-  task: 51842331f2cae65c375a100dec6e27bea46c83e7be3e2aae3392afd0776399a2
+  task: 96dd6c8e384ef5769e367eebbd8ee1eda1ed0bf57fbf51e700fbb8870d590a30
 T004:
-  task: 6a301d220da4d3db0726a08df235105bc8bd8ff1911f99600ffe91c6f8e11159
+  task: ccc7af953ce079493e1889762183187826c41f5ae51eb16a7697066e48073b60
 T005:
-  task: 5cbbac7fd66f39e09345e2cc2f3c748c7371f7e446e247981d6c7718ebe7f6d2
+  task: f795b05a9a1843d0fb73c1a92c864370794ee08ced48deb84ff1f7dd5df2bf3f
 T006:
-  task: 32f908a664a2248c1c39451fe5d9244089ac577b8ce63c8da9ac4128dab71522
+  task: c68353ddd44ccc77e98cebc25ea5596ec2cb00c0d433efa716bdb94c594d2c57
 T007:
-  task: 123f914a56cd665c5b0f0e2fa02db3e7b8bb208de9710677b0baa57a630288ec
+  task: f869ba421e3287aa6ed4001ffb6644bd2f87c7a8738857038cccc9f8dc3bbc28
 T008:
-  task: 7637783946d9f9581c843d268ed2b1b8b4bf8b23399d9bd3b00f346824730484
+  task: f759fccabfd9f1aedd56d71fb838b190f703da20b09782ffd2e569071f6c4262
 T009:
-  task: 8925c4411b19057964f4839b0c9afa564e5230ac5eb7e9c22083f2bfd989802f
+  task: 139dc189c97b7988eb00caa2784a4101cda57e2784d63efd33a2ba49475d839e
 T010:
-  task: e9af49d104b9c65c11c445767b0dad5ba657c7eb02b979e3c55d854a82ef44b9
+  task: 57fc20bcb6325315ff1aeea70637dde65cd28529fc18f62b01fca39c9c6585be
 T011:
-  task: 2e9423b3a9093d43a4e99e7745626287fc8ebbe52a57ce9a1f9d496056a0888d
+  task: 18c362f400be632ed2d37aed318dc573d2fc58b8382c3e40d507351ea6faf851
 T012:
-  task: c3b75a2db100fc3d7c24741bffa029c47cb60322dfb8188e3a0b94ed79e4bf2a
+  task: bbf05130c015806c41587b5f4e6edd255a7a5c2040ea3409a338b51695f17007
 T013:
-  task: 0bcbc277e2ba7826fdcf99072e1571ba6f8d00f59f6cde89cfc6f94ce94c6aa3
+  task: bfbac8f93d55fe8c0e26c13e428e7f571a82035c97a42cebc819a309175707d7
 T014:
-  task: 383c31803926d49a50e9a5da2b4290e757856bd435a0f218b4d963b14b2f3aea
+  task: 23ce7bea9e4d97ee3cc6c53c0a1ae55c62942a7cee943333464804797ac16461
 T015:
-  task: 71ef6da6de3a6dccd51d126a75fcecf76f5ef8734b7964b80b4472bbea484f1a
+  task: 11a003c2ff4d02cf1b4b8c8aff98e96f75b78e1fbf4c06e83d3f08d60db534e8
 T016:
-  task: a917e6b53e6df10d4dd798a3387db878e4460d1b4ecb002495305adfd2e19bd4
+  task: 6522baa4fe6af9da5263fbb1102404783ca93d1d3221a17724bf7d848ac3370a
 T017:
-  task: 46cc48011d95f04d6291c2b721483e229600b40bbfb88202b7b79ba3052fb3d8
+  task: 741e1e88b29eda6df7dc91eb6002c9f7827b33986c1bf2710eec4b1d9cc867c3

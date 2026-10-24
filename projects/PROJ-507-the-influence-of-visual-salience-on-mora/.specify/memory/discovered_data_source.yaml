@@ -1,18 +1,17 @@
 status: none
-intent: Open Images V6 Visual Genome CLIP BERT MoralD CLMM python package dataset
+intent: download CodedotAI code_clippy_github Visual Genome MoralD dataset python
+  package dataset
 required_fields:
 - image_id
 - image_url
-- image_file_path
-- bounding_box_x_min
-- bounding_box_y_min
-- bounding_box_x_max
-- bounding_box_y_max
-- region_label
-- original_image_path
-- low_salience_variant_path
-- medium_salience_variant_path
-- high_salience_variant_path
-cache_key: 41d903b9a2df26704beb66f1489638bfe41fb27c688b3cbb4ee09cb97082da33
-searched_at: '2026-10-24T23:17:15.064602+00:00'
+- width
+- height
+- bounding_box_xmin
+- bounding_box_ymin
+- bounding_box_xmax
+- bounding_box_ymax
+- moral_ambiguity_label
+- source_dataset
+cache_key: 2c753d36a6b7d07ecf9b184d9eb27df3fc7f0b7c4d13522f6f4e8c44f994113d
+searched_at: '2026-10-24T23:46:22.184428+00:00'
 retry_count: 1

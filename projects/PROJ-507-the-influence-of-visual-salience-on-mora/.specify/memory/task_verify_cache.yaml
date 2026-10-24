@@ -1,8 +1,0 @@
-T002:
-  c: false
-  h: ee756b9b4f63184d278030fde037b660efcdb9e62696d38f7d3a4bd22aa67dbe
-  r: The repository lacks the required `data/raw/human_coding/` directory (marked
-    MISSING), which the task explicitly demanded to be created. All other artifacts
-    (the CLI script and passing unit tests) are present, but the missing folder means
-    the requirement is not fully satisfied.
-  sig: 506d6b5ae41e73e2e9811f228a6037da0b1aa032a18deb3b802cfced5cb27f75
