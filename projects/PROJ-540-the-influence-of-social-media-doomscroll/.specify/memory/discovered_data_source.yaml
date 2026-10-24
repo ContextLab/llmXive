@@ -1,12 +1,13 @@
 status: none
-intent: General Social Survey Pew Research Center YouGov news consumption anxiety
-  variables python package dataset
+intent: download General Social Survey Pew Research Center YouGov mini-xlsum python
+  package dataset
 required_fields:
-- negative_news_consumption_frequency
+- news_exposure_freq
 - anxiety_score
 - baseline_anxiety
 - age
 - gender
-cache_key: 8979c2896eb38e10e6fd8a66557073ee299b0d093fe0417aca858989e110edee
-searched_at: '2026-10-24T05:24:16.349596+00:00'
+- social_media_engagement
+cache_key: ae8dd43f3f5e8e81227aeabcc00b1b3a824a43b2163a3ea8007252fd8534d4c8
+searched_at: '2026-10-24T05:32:06.978650+00:00'
 retry_count: 1

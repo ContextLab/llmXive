@@ -14,7 +14,9 @@ properties:
     description: "Outcome anxiety score (validated scale or flagged proxy)."
     minimum: 0
   baseline_anxiety:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Baseline or trait anxiety score; dropped if coupled with outcome."
     minimum: 0
   age:
@@ -26,8 +28,10 @@ properties:
     type: "string"
     description: "Gender category."
   social_media_engagement:
-    type: ["number", "null"]
-    description: "Overall social-media engagement; required only for the robustness check."
+    type:
+      - "number"
+      - "null"
+    description: "Overall social-media engagement; required only for robustness check."
     minimum: 0
   instrument_source:
     type: "string"
@@ -41,6 +45,9 @@ properties:
   coupling_risk:
     type: "boolean"
     description: "True if baseline and outcome anxiety may be mathematically coupled."
+  proxy_validated:
+    type: "boolean"
+    description: "True if the proxy anxiety instrument is on the validated whitelist."
 required:
   - participant_id
   - news_exposure_freq
@@ -51,4 +58,5 @@ required:
   - measurement_timepoint
   - proxy_flag
   - coupling_risk
+  - proxy_validated
 additionalProperties: false

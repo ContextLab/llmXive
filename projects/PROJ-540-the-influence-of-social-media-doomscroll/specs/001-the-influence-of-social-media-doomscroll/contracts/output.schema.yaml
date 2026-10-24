@@ -7,7 +7,9 @@ properties:
     const: "OLS"
   data_status:
     type: "string"
-    enum: ["OK", "HALTED_NO_VALID_DATASET"]
+    enum:
+      - "OK"
+      - "HALTED_NO_VALID_DATASET"
     description: "OK when a verified dataset passed schema validation; HALTED_NO_VALID_DATASET when the pipeline halted at ingestion (statistical fields then omitted, never fabricated)."
   n_samples:
     type: "integer"
@@ -45,13 +47,22 @@ properties:
     properties:
       linearity:
         type: "string"
-        enum: ["PASS", "FAIL", "WARNING"]
+        enum:
+          - "PASS"
+          - "FAIL"
+          - "WARNING"
       homoscedasticity:
         type: "string"
-        enum: ["PASS", "FAIL", "WARNING"]
+        enum:
+          - "PASS"
+          - "FAIL"
+          - "WARNING"
       normality:
         type: "string"
-        enum: ["PASS", "FAIL", "WARNING"]
+        enum:
+          - "PASS"
+          - "FAIL"
+          - "WARNING"
       shapiro_wilk_p_value:
         type: "number"
     required:
@@ -60,7 +71,9 @@ properties:
       - normality
       - shapiro_wilk_p_value
   robustness_result:
-    type: ["object", "null"]
+    type:
+      - "object"
+      - "null"
     properties:
       subset_n:
         type: "integer"
@@ -70,23 +83,42 @@ properties:
         type: "number"
       status:
         type: "string"
-        enum: ["RUN", "SKIPPED_LOW_N", "SKIPPED_NO_DATA", "SKIPPED_R_LOW"]
+        enum:
+          - "RUN"
+          - "SKIPPED_LOW_N"
+          - "SKIPPED_NO_DATA"
+          - "SKIPPED_R_LOW"
+      bootstrap:
+        type: "array"
+        description: "Bootstrap coefficient estimates (optional)."
+        items:
+          type: "number"
     required:
       - status
   flags:
     type: "array"
     items:
       type: "string"
-    description: "Warnings such as Low Power, Proxy Used, High VIF, Robustness Skipped (r <= 0.3), Associational Only."
+    description: "Warnings such as Low Power, Proxy Used (unvalidated), Proxy Used (validated), High VIF, Robustness Skipped (r <= 0.3), Associational Only."
   runtime:
     type: "number"
     description: "Measured execution time in seconds (SC-005)."
   halt_report:
-    type: ["object", "null"]
+    type:
+      - "object"
+      - "null"
     description: "Present only when data_status is HALTED_NO_VALID_DATASET; records sources checked, checksums, real column inventories, and missing variables."
+  proxy_validated:
+    type: "boolean"
+    description: "True if a proxy anxiety instrument was used and it is on the validated whitelist."
+  associational_only:
+    type: "boolean"
+    description: "Always true for observational data."
 required:
   - model_type
   - data_status
   - flags
   - runtime
+  - proxy_validated
+  - associational_only
 additionalProperties: false
