@@ -23,7 +23,7 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 
 ### FR-002: Linguistic Feature Extraction, Covariate Adjustment, and Statistical Testing (See US2)
 
-**Requirement**: The system MUST extract the lexical, syntactic, and semantic features listed in US2, adjust each for known confounding variables (age, education) via regression‑based residualization, and perform **ANCOVA** (analysis of covariance) between groups (Control vs AD, Control vs MCI) for each feature. Results shall include **Bonferroni‑corrected p‑values** and **Cohen's d** effect sizes with 95 % confidence intervals.
+**Requirement**: The system MUST extract the lexical, syntactic, and semantic features listed in US2 and perform **ANCOVA** between groups (Control vs AD, Control vs MCI) for each feature, **including age and education as covariates directly in the ANCOVA model (no prior residualization)**. Results shall include **Bonferroni‑corrected p‑values** and **Cohen's d** effect sizes with 95 % confidence intervals.
 
 ### FR-003: Statistical Reporting (See US3)
 
@@ -34,7 +34,7 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 
 ### FR-004: Covariate Adjustment
 
-**Requirement**: When testing group differences, the system MUST adjust for age and education level by **regression‑based residualization** of each feature prior to the ANCOVA, thereby controlling for confounding while using a parametric testing framework.
+**Requirement**: When testing group differences, the system MUST adjust for age and education level by **including them as covariates in the ANCOVA model**, thereby controlling for confounding while using a parametric testing framework.
 
 ### FR-005: Privacy & Data Anonymization (See Non‑Functional Requirements, See US4)
 
@@ -43,6 +43,14 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 ### FR-007: Power Analysis (See US2)
 
 **Requirement**: Prior to analysis, the system MUST perform an a priori power analysis targeting **≥ 80 % power** to detect a **medium effect size (Cohen’s d = 0.5)** for each feature after Bonferroni correction. The analysis shall determine the minimum detectable effect and confirm that the available sample size meets this criterion; results are recorded in `data/results/power_analysis.txt`.
+
+### FR-008: ANCOVA Assumption Verification (See US2)
+
+**Requirement**: The system MUST verify key ANCOVA assumptions for each feature:
+- Normality of residuals (e.g., Shapiro‑Wilk test, α = 0.05).
+- Homogeneity of regression slopes across groups.
+- Linearity between covariates and the dependent variable.  
+Diagnostics and any violations shall be reported in the final statistical report.
 
 ## 3. User Stories
 
@@ -68,12 +76,13 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 **So that** I can identify significant differences between cognitive groups.
 
 **Acceptance Criteria**:
-1. Extract lexical features (Type‑Token Ratio, MTLD, Noun/Verb ratio) and adjust each for age and education.
-2. Extract syntactic features (Mean Clause Length, T‑unit Count) and adjust for age and education.
-3. Extract semantic features (Sentence Embedding Cosine Similarity) using the `all‑MiniLM‑L6‑v2` model (or loaded embeddings) and adjust for age and education.
+1. Extract lexical features (Type‑Token Ratio, MTLD, Noun/Verb ratio) and adjust for age and education **via ANCOVA covariates**.
+2. Extract syntactic features (Mean Clause Length, T‑unit Count) and adjust for age and education **via ANCOVA covariates**.
+3. Extract semantic features (Sentence Embedding Cosine Similarity) using the `all‑MiniLM‑L6‑v2` model (or loaded embeddings) and adjust for age and education **via ANCOVA covariates**.
 4. Perform **ANCOVA** between Control vs. AD and Control vs. MCI for each feature.
-5. Report effect sizes using **Cohen's d** with 95 % confidence intervals, applying Bonferroni correction for multiple comparisons.
-6. Conduct the a priori power analysis defined in FR‑007 and record the outcome.
+5. Verify ANCOVA assumptions as specified in FR‑008; report diagnostics.
+6. Report effect sizes using **Cohen's d** with 95 % confidence intervals, applying Bonferroni correction for multiple comparisons.
+7. Conduct the a priori power analysis defined in FR‑007 and record the outcome.
 
 ### US3: Statistical Reporting and Interpretation
 
@@ -126,6 +135,7 @@ The project follows a phased approach:
 
 ## 8. Success Criteria
 
-- **SC-001**: At least one linguistic feature shows a statistically significant difference (Bonferroni‑adjusted *p* ≤ 0.05) **and** the a priori power analysis (FR‑007) confirms ≥ 80 % power to detect a medium effect size (Cohen’s d = 0.5) for the dataset size.
-- **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains **≥ 300 records** after exclusions, and the metadata report lists exact counts per group.
+- **SC-001**: At least one linguistic feature shows a statistically significant difference (Bonferroni‑adjusted *p* ≤ 0.05) **(See US2)**.
+- **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains **≥ 150 records** after exclusions, and the metadata report lists exact counts per group (Justified by the known size of the ADReSS/ADReSSo datasets) **(See US1)**.
 - **SC-003**: The final statistical report (`data/results/statistical_report.pdf`) is generated without errors, includes all required visualizations, and passes the automated PII audit (US4).
+- **SC-009**: The a priori power analysis (FR‑007) confirms **≥ 80 % power** to detect a medium effect size (Cohen’s d = 0.5) given the available sample size (See US2).

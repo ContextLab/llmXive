@@ -6,5 +6,5 @@ The convergence panel for this stage could not resolve the concerns below within
 
 ## Unresolved concerns
 
-- Duplicate functional requirement identifier FR-001 appears twice – once in the Functional Requirements section (the concrete definition for data ingestion) and again in the Spec Template placeholder section (as a generic template entry). This creates ambiguity about which FR-001 is authoritative.
-- The Spec Template section contains placeholder functional requirements (e.g., FR-001‑006) that are not removed from the finalized specification. Their presence introduces redundant IDs and conflicts with the concrete FR list, violating the single‑source‑of‑truth principle.
+- Duplicate functional requirement identifier FR-001 appears in the Spec Template placeholder section, conflicting with the concrete FR-001 defined earlier. This creates ambiguity about which definition is authoritative.
+- Duplicate functional requirement identifier **FR-001** is defined both in the Functional Requirements section (data ingestion) and again in the Spec Template placeholder list, creating ambiguity about which definition is authoritative.
