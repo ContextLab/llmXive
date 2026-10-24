@@ -1,31 +1,17 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "AM Process‑Property Dataset Schema (Proxy)"
-description: "Schema for the preprocessed dataset used in GPR training. This is a proxy dataset derived from the verified RBF‑Morph 'doe.csv'."
-type: "object"
-properties:
-  x1_norm:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Normalized predictor 1."
-  x2_norm:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Normalized predictor 2."
-  x3_norm:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Normalized predictor 3."
-  response_norm:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Normalized continuous response (proxy for a mechanical property)."
-required:
-  - "x1_norm"
-  - "x2_norm"
-  - "x3_norm"
-  - "response_norm"
-additionalProperties: false
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AM Process‑Property Dataset Schema (Proxy)",
+  "description": "Schema for each row of the **preprocessed CSV** dataset used in GPR training. The CSV rows are validated by converting each row to a JSON object and applying this schema.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "x1_norm": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Normalized predictor 1." },
+      "x2_norm": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Normalized predictor 2." },
+      "x3_norm": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Normalized predictor 3." },
+      "response_norm": { "type": "number", "minimum": 0.0, "maximum": 1.0, "description": "Normalized continuous response (proxy for a mechanical property)." }
+    },
+    "required": ["x1_norm", "x2_norm", "x3_norm", "response_norm"],
+    "additionalProperties": false
+  }
+}

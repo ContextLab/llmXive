@@ -33,8 +33,8 @@ A researcher trains a Gaussian Process Regression model to predict mechanical pr
 
 **Acceptance Scenarios**:
 
-1. **Given** a preprocessed dataset with 50 samples, **When** the GPR training script executes with 5-fold cross-validation, **Then** the output JSON contains an `r2_score` value (regardless of magnitude) to document the relationship strength.
-2. **Given** a target property range of 0-1000 MPa for Yield Strength, **When** the model predicts on the test set, **Then** the `rmse` value in the results JSON is reported as a percentage of the observed range in the test set.
+1. **Given** a preprocessed dataset with a substantial number of samples, **When** the GPR training script executes with 5-fold cross-validation, **Then** the output JSON contains an `r2_score` value (regardless of magnitude) to document the relationship strength.
+2. **Given** a target property range spanning the lower end up to 1000 MPa for Yield Strength, **When** the model predicts on the test set, **Then** the `rmse` value in the results JSON is reported as a percentage of the observed range in the test set.
 3. **Given** a random seed of 42, **When** the training is repeated, **Then** the resulting model artifacts and performance metrics are identical, ensuring reproducibility.
 
 ---
@@ -51,7 +51,7 @@ A researcher views contour plots of predicted mechanical properties overlaid wit
 
 1. **Given** a trained GPR model and test data, **When** the visualization script runs, **Then** a contour plot of predicted Yield Strength vs. Laser Power and Scan Speed is generated as a PNG file ≤5MB.
 2. **Given** a test point with a predicted standard deviation (σ) greater than 2× the median σ, **When** the uncertainty heatmap is generated, **Then** that region is colored red to indicate high uncertainty.
-3. **Given** the top 3 most influential parameters identified by permutation importance, **When** partial dependence plots are generated, **Then** three separate PNG files are produced, each showing the relationship between one parameter and the predicted property.
+3. **Given** the top few most influential parameters identified by permutation importance, **When** partial dependence plots are generated, **Then** three separate PNG files are produced, each showing the relationship between one parameter and the predicted property.
 
 ### Edge Cases
 
