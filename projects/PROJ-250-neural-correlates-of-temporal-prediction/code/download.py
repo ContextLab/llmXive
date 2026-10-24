@@ -2,27 +2,30 @@
 
 Pipeline:
   1. verify_dataset_id() -- FR-012(1) gate runs BEFORE any download; halts on mismatch.
-  2. Fetch ds004510 from the OpenNeuro HTTP endpoint via curl (fallback wget),
-     download a full zip archive, extract it, and keep only the requested number of subjects.
-  3. Record SHA-256 checksums of every extracted file in data/raw/checksums.json.
+  2. Fetch minimal set of BIDS files (participants.tsv and each subject's events.tsv) from the OpenNeuro S3 bucket.
+  3. Record SHA-256 checksums of every downloaded file in data/raw/checksums.json.
   4. verify_conditions() -- FR-012(2)/FR-008 gate after metadata is available.
   5. Validate dataset metadata against contracts/dataset.schema.yaml and write
      data/results/dataset_metadata.json.
+  6. Update project state file with artifact hashes and timestamp (FR-013).
 
 Usage: python code/download.py --subjects 2
 """
 
 import argparse
+import csv
+import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
 import yaml
-from jsonschema import validate
 from llmxive_toolkit import paths, get_logger
 
 from verify_references import (
@@ -41,6 +44,12 @@ SCHEMA_PATH = (
     / "001-neural-correlates-of-temporal-prediction"
     / "contracts"
     / "dataset.schema.yaml"
+)
+STATE_PATH = (
+    paths.root
+    / "state"
+    / "projects"
+    / "PROJ-250-neural-correlates-of-temporal-prediction.yaml"
 )
 
 # ----------------------------------------------------------------------
@@ -71,8 +80,6 @@ def _download_file(url, dest):
 
 def _record_checksums(root_dir):
     """Record SHA-256 checksums of all files under root_dir into checksums.json."""
-    import hashlib
-
     checksums = {}
     for f in sorted(Path(root_dir).rglob("*")):
         if f.is_file():
@@ -89,8 +96,25 @@ def _record_checksums(root_dir):
     log.info("Checksums written to %s", out_path)
     return checksums
 
+def _update_state(root_dir, checksums):
+    """Write artifact hashes and an updated timestamp to the project state YAML."""
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    state = {}
+    if STATE_PATH.is_file():
+        try:
+            state = yaml.safe_load(STATE_PATH.read_text(encoding="utf-8")) or {}
+        except Exception:
+            log.warning("Failed to parse existing state file; starting fresh.")
+    state["artifact_hashes"] = {str(Path(root_dir) / p): h for p, h in checksums.items()}
+    state["updated_at"] = datetime.now(timezone.utc).isoformat()
+    STATE_PATH.write_text(yaml.safe_dump(state, sort_keys=False), encoding="utf-8")
+    log.info("Project state updated at %s", STATE_PATH)
+
 def _validate_metadata(raw_dir):
     """Validate dataset metadata against contracts/dataset.schema.yaml (FR-014)."""
+    # Import inside function to avoid circular import issues
+    from verify_references import collect_events, CONDITION_ALIASES, STIMULUS_ALIASES
+
     labels, stimulus_types, per_file = collect_events(raw_dir)
     if not stimulus_types:
         raise RuntimeError(
@@ -143,46 +167,82 @@ def _validate_metadata(raw_dir):
                 "is_valid": True,
                 "artifact_rejection_rate": 0.0,
             }
+            # Validate against the schema; will raise if invalid
+            from jsonschema import validate  # Imported here to avoid top‑level dependency loop
             validate(row, schema)
             if row not in rows:
                 rows.append(row)
 
     out = paths.results("dataset_metadata.json")
     out.write_text(json.dumps(rows, indent=2), encoding="utf-8")
-    log.info("Validated %d metadata rows against %s; written to %s", len(rows), SCHEMA_PATH, out)
+    log.info(
+        "Validated %d metadata rows against %s; written to %s",
+        len(rows),
+        SCHEMA_PATH,
+        out,
+    )
     return rows
 
 # ----------------------------------------------------------------------
-# Core download logic (downloads whole dataset zip, extracts subset)
+# Core download logic (minimal BIDS files)
 # ----------------------------------------------------------------------
+def _download_participants(raw_dir):
+    """Download participants.tsv to discover subject IDs."""
+    participants_path = raw_dir / "participants.tsv"
+    if participants_path.is_file():
+        log.info("participants.tsv already present at %s", participants_path)
+        return participants_path
+    url = f"{S3_BASE}/{CANONICAL_DATASET_ID}/participants.tsv"
+    log.info("Downloading participants.tsv from %s", url)
+    _download_file(url, participants_path)
+    return participants_path
+
+def _download_subject_events(raw_dir, subject_id):
+    """Download the events.tsv file for a given subject."""
+    # Guess typical BIDS location: sub-XX/eeg/sub-XX_task-auditory_events.tsv
+    sub_dir = raw_dir / subject_id / "eeg"
+    sub_dir.mkdir(parents=True, exist_ok=True)
+    events_path = sub_dir / f"{subject_id}_task-auditory_events.tsv"
+    if events_path.is_file():
+        log.info("events.tsv already present for %s", subject_id)
+        return events_path
+    url = f"{S3_BASE}/{CANONICAL_DATASET_ID}/{subject_id}/eeg/{subject_id}_task-auditory_events.tsv"
+    log.info("Downloading events.tsv for %s from %s", subject_id, url)
+    _download_file(url, events_path)
+    return events_path
+
 def download_dataset_zip(raw_dir):
-    """Download the full dataset zip from OpenNeuro and extract it."""
+    """Download a minimal set of BIDS files (participants + events) for the dataset."""
     raw_dir = Path(raw_dir)
     raw_dir.mkdir(parents=True, exist_ok=True)
 
-    zip_path = raw_dir / f"{CANONICAL_DATASET_ID}.zip"
-    if not zip_path.is_file():
-        # Construct a download URL. OpenNeuro provides a direct zip download at:
-        # https://openneuro.org/crn/datasets/{dataset_id}/download
-        url = f"https://openneuro.org/crn/datasets/{CANONICAL_DATASET_ID}/download"
-        log.info("Downloading dataset zip from %s to %s", url, zip_path)
-        _download_file(url, zip_path)
-    else:
-        log.info("Zip already present at %s", zip_path)
+    # 1. Download participants.tsv to discover subjects
+    participants_path = _download_participants(raw_dir)
 
-    # Extract zip (if not already extracted)
-    extract_marker = raw_dir / ".extracted"
-    if not extract_marker.is_file():
-        log.info("Extracting %s", zip_path)
-        shutil.unpack_archive(str(zip_path), str(raw_dir))
-        extract_marker.touch()
-    else:
-        log.info("Dataset already extracted.")
+    # 2. Parse subject IDs
+    subject_ids = []
+    with open(participants_path, newline="", encoding="utf-8") as fh:
+        reader = csv.DictReader(fh, delimiter="\t")
+        for row in reader:
+            subj = row.get("participant_id") or row.get("subject_id")
+            if subj:
+                subject_ids.append(subj.strip())
+    if not subject_ids:
+        raise RuntimeError("No subject IDs found in participants.tsv")
+
+    # 3. Download events.tsv for each subject
+    for subj in sorted(subject_ids):
+        _download_subject_events(raw_dir, subj)
+
+    log.info("Downloaded events.tsv for %d subjects.", len(subject_ids))
     return raw_dir
 
 def prune_subjects(raw_dir, n_subjects):
     """Keep only the first n_subjects (sorted) under raw_dir; delete others."""
-    subject_dirs = sorted([p for p in raw_dir.iterdir() if p.is_dir() and p.name.startswith("sub-")])
+    raw_dir = Path(raw_dir)
+    subject_dirs = sorted(
+        [p for p in raw_dir.iterdir() if p.is_dir() and p.name.startswith("sub-")]
+    )
     if n_subjects == 0:
         log.info("Keeping all %d subjects.", len(subject_dirs))
         return
@@ -212,14 +272,17 @@ def main():
     verify_dataset_id(args.dataset_id)
 
     raw_dir = paths.data("raw")
-    # Download and extract the full dataset zip
+    # Download minimal BIDS files
     download_dataset_zip(raw_dir)
 
     # Prune to the requested number of subjects
     prune_subjects(raw_dir, args.subjects)
 
     # Record checksums for all extracted files
-    _record_checksums(raw_dir)
+    checksums = _record_checksums(raw_dir)
+
+    # Update project state with hashes and timestamp (FR-013)
+    _update_state(raw_dir, checksums)
 
     # FR-012(2) / FR-008: condition gate.
     verify_conditions(raw_dir)
@@ -227,7 +290,11 @@ def main():
     # Validate metadata and write dataset_metadata.json
     _validate_metadata(raw_dir)
 
-    log.info("Download stage complete for %d subjects under %s", args.subjects, raw_dir)
+    log.info(
+        "Download stage complete for %d subjects under %s",
+        args.subjects,
+        raw_dir,
+    )
 
 if __name__ == "__main__":
     main()

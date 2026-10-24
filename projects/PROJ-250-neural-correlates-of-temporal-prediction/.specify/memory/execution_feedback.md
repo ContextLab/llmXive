@@ -1,28 +1,43 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/verify_references.py --stage dataset   # checks ds004510 URL (FR‑012‑1)`
+  - script usage: `verify_references.py [-h] --stage {dataset,conditions,citations,all}`
+  - argparse error: `verify_references.py: error: unrecognized arguments: # checks ds004510 URL (FR‑012‑1)`
+- run-book command: `python code/verify_references.py --stage citations # checks bibliography (FR‑012‑3)`
+  - script usage: `verify_references.py [-h] --stage {dataset,conditions,citations,all}`
+  - argparse error: `verify_references.py: error: unrecognized arguments: # checks bibliography (FR‑012‑3)`
+- run-book command: `python code/download.py   # downloads OpenNeuro‑fslr64k, verifies checksum, records hash (FR‑001, FR‑013)`
+  - script usage: `download.py [-h] [--subjects SUBJECTS] [--dataset-id DATASET_ID]`
+  - argparse error: `download.py: error: unrecognized arguments: # downloads OpenNeuro‑fslr64k, verifies checksum, records hash (FR‑001, FR‑013)`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 run-book script(s) missing (plan/impl path mismatch): python code/preprocess.py; python code/analysis.py; python code/visualize.py; 1 command(s) failed: python code/download.py --subjects 2 (rc=1); 2 declared deliverable(s) absent: data/raw/checksums.json; data/results/citation_verification.json
+**Summary**: 3 run-book script(s) missing (plan/impl path mismatch): python code/preprocess.py   # band‑pass, ICA, mastoid re‑reference, baseline correction, epoching (FR‑002‑FR‑003); python code/analysis.py; python code/visualize.py; 3 command(s) failed: python code/verify_references.py --stage dataset   # checks ds004510 URL (FR‑012‑1) (rc=2); python code/verify_references.py --stage citations # checks bibliography (FR‑012‑3) (rc=2); python code/download.py   # downloads OpenNeuro‑fslr64k, verifies checksum, records hash (FR‑001, FR‑013) (rc=2); 2 declared deliverable(s) absent: data/raw/checksums.json; data/results/citation_verification.json
 
 ## Failing / missing run-book commands
 
-- python code/download.py --subjects 2 -> rc=1
-4510.zip
-2026-10-20 05:17:54,695 INFO __main__: Extracting /home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/data/raw/ds004510.zip
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 233, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 216, in main
-    download_dataset_zip(raw_dir)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/download.py", line 177, in download_dataset_zip
-    shutil.unpack_archive(str(zip_path), str(raw_dir))
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/shutil.py", line 1337, in unpack_archive
-    func(filename, extract_dir, **kwargs)
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/shutil.py", line 1242, in _unpack_zipfile
-    raise ReadError("%s is not a zip file" % filename)
-shutil.ReadError: /home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/data/raw/ds004510.zip is not a zip file
+- python code/verify_references.py --stage dataset   # checks ds004510 URL (FR‑012‑1) -> rc=2
 
-- python code/preprocess.py -> rc=2
+usage: verify_references.py [-h] --stage {dataset,conditions,citations,all}
+                            [--dataset-id DATASET_ID] [--data-dir DATA_DIR]
+verify_references.py: error: unrecognized arguments: # checks ds004510 URL (FR‑012‑1)
+
+- python code/verify_references.py --stage citations # checks bibliography (FR‑012‑3) -> rc=2
+
+usage: verify_references.py [-h] --stage {dataset,conditions,citations,all}
+                            [--dataset-id DATASET_ID] [--data-dir DATA_DIR]
+verify_references.py: error: unrecognized arguments: # checks bibliography (FR‑012‑3)
+
+- python code/download.py   # downloads OpenNeuro‑fslr64k, verifies checksum, records hash (FR‑001, FR‑013) -> rc=2
+
+usage: download.py [-h] [--subjects SUBJECTS] [--dataset-id DATASET_ID]
+download.py: error: unrecognized arguments: # downloads OpenNeuro‑fslr64k, verifies checksum, records hash (FR‑001, FR‑013)
+
+- python code/preprocess.py   # band‑pass, ICA, mastoid re‑reference, baseline correction, epoching (FR‑002‑FR‑003) -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-250-neural-correlates-of-temporal-prediction/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/preprocess.py': [Errno 2] No such file or directory
 
