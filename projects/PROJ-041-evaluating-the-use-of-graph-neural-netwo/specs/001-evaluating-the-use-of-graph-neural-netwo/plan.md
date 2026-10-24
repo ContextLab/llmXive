@@ -1,29 +1,29 @@
 # Implementation Plan: Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic
 
-**Branch**: `001-evaluating-gnn-anomaly-detection` | **Date**: 2026-10-20 | **Spec**: `specs/001-evaluating-gnn-anomaly-detection/spec.md`  
+**Branch**: `001-evaluating-gnn-anomaly-detection` | **Date**: 2026-10-24 | **Spec**: `specs/001-evaluating-gnn-anomaly-detection/spec.md`  
 **Input**: Feature specification from `specs/001-evaluating-gnn-anomaly-detection/spec.md`
 
 ## Summary
-The project will (1) ingest a verified open‑source NetFlow dataset (keys‑i/netFlow) as a substitute for CTU‑13, (2) construct directed communication graphs under a hard 7 GB RAM limit and a deterministic ≤5 000‑node subsampling rule, (3) train a 2‑layer CPU‑only Graph Convolutional Network (GCN) together with Random Forest and XGBoost baselines on the same structural node features, (4) evaluate all models on Precision, Recall, F1‑Score, and AUC‑ROC using a temporal hold‑out split, (5) perform Wilcoxon signed‑rank tests on F1‑scores across the required 5 random seeds for the seven prescribed comparisons and apply Benjamini‑Hochberg correction, (6) generate a ranked list of predictive structural patterns via Integrated Gradients, and (7) produce fully‑validated artifacts that satisfy the `graph.schema.yaml` contract. All steps respect the 7 GB RAM and 6‑hour runtime limits of the GitHub Actions free‑tier runner.
+The project will **(pending a specification amendment to FR‑001)** ingest NetFlow records from the **CTU‑13 dataset** (the dataset required by the specification). At present no open, programmatically downloadable mirror of CTU‑13 is available; therefore the pipeline cannot be executed until the spec is updated to accept an openly available dataset or a verified CTU‑13 source is provided. Once the dataset issue is resolved, the plan proceeds to (1) construct deterministic directed communication graphs under a hard 7 GB RAM limit and a ≤5 000‑node subsampling rule, (2) train a 2‑layer CPU‑only Graph Convolutional Network (GCN) together with Random Forest and XGBoost baselines on identical structural node features, (3) evaluate all models on Precision, Recall, F1‑Score, and AUC‑ROC using a temporal hold‑out split, (4) perform Wilcoxon signed‑rank tests on F1‑scores across **10 random seeds** for the seven prescribed comparisons and apply Benjamini‑Hochberg correction (allowing significance under the FDR < 0.05 threshold), (5) generate a ranked list of predictive structural patterns via Integrated Gradients, (6) compare the GCN’s AUC‑ROC against the benchmark defined in SC‑005, and (7) produce fully‑validated artifacts that satisfy the `graph.schema.yaml` and `dataset.schema.yaml` contracts. All steps respect the 7 GB RAM and 214‑minute (≈ 3.6 h) runtime limits of the GitHub Actions free‑tier runner.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `torch==2.3.0` (CPU), `torch-geometric==2.5.0`, `networkx==3.2`, `scikit-learn==1.5.0`, `xgboost==2.0.3`, `pandas==2.2.2`, `numpy==1.26.4`, `captum==0.7.0`, `datasets==2.19.0`, `tracemalloc` (stdlib), `matplotlib==3.8.4`, `seaborn==0.13.2`, `pyarrow==15.0.0`  
-- **Storage**: Local filesystem under `data/` (raw NetFlow parquet, processed GraphML .gz, Parquet feature tables, CSV result tables).  
+- **Primary Dependencies**: `torch==2.3.0+cpu`, `torch-geometric==2.5.0`, `networkx==3.2`, `scikit-learn==1.5.0`, `xgboost==2.0.3`, `pandas==2.2.2`, `numpy==1.26.4`, `captum==0.7.0`, `datasets==2.19.0`, `tracemalloc` (stdlib), `matplotlib==3.8.4`, `seaborn==0.13.2`, `pyarrow==15.0.0`  
+- **Storage**: Local filesystem under `data/` (raw CTU‑13 NetFlow parquet, processed GraphML .gz, Parquet feature tables, CSV result tables).  
 - **Testing**: `pytest` (unit & integration), `pytest-memprof` for memory‑limit verification.  
 - **Target Platform**: Linux GitHub Actions free tier (2 vCPU, ~7 GB RAM, ≤6 h runtime).  
 - **Constraints**: CPU‑only training, peak memory < 7 GB, deterministic subsampling, reproducible random seeds, no GPU usage.  
 
 ## Constitution Check
-| Principle | Compliance | Mapping / Action |
-|-----------|------------|------------------|
-| **I. Reproducibility** | ✅ | `requirements.txt` pins exact versions; seeds fixed in `code/utils/seed.py`; data fetched from a single HuggingFace URL (`keys-i/netFlow`). |
-| **II. Verified Accuracy** | ✅ | All citations reference the verified NetFlow dataset URL. |
-| **III. Data Hygiene** | ✅ | Raw NetFlow file checksum recorded; IPs hashed before storage; transformations write new files with timestamps. |
+| Principle | Compliance | Action / Mapping |
+|-----------|------------|-------------------|
+| **I. Reproducibility** | ✅ | `requirements.txt` pins exact versions; seeds fixed in `code/utils/seed.py`; data fetched from a single canonical source once a CTU‑13 mirror is provided. |
+| **II. Verified Accuracy** | ✅ | All citations reference the (to‑be‑provided) CTU‑13 source; once available it will be verified by the Reference‑Validator. |
+| **III. Data Hygiene** | ✅ | Raw CTU‑13 file checksum recorded; IPs hashed before storage; every transformation writes a new file with a timestamped name. |
 | **IV. Single Source of Truth** | ✅ | Every figure/metric traces back to a row in `data/results/` generated by scripts in `code/`. |
 | **V. Versioning Discipline** | ✅ | Content hashes stored in `state/projects/PROJ-041‑…yaml`. |
-| **VI. Graph Construction Fidelity** | ✅ | Deterministic graph building from NetFlow records; unbiased stratified subsampling to ≤5 000 nodes is logged as a distinct artifact (`graph_{scenario}_subsampled.graphml.gz`). |
-| **VII. Computational Resource Bounding** | ✅ | `tracemalloc` logs peak memory; early‑stop limits epochs; any run exceeding 7 GB or 6 h is flagged and excluded from final analysis. |
+| **VI. Graph Construction Fidelity** | ✅ | Deterministic graph building from CTU‑13 NetFlow records; unbiased stratified subsampling to ≤5 000 nodes is logged as a distinct artifact (`graph_{scenario}_subsampled.graphml.gz`). |
+| **VII. Computational Resource Bounding** | ✅ | `tracemalloc` logs peak memory; early‑stop limits epochs; any run exceeding 7 GB or 214 min is flagged and excluded from final comparative analysis. |
 
 ## Project Structure
 ```text
@@ -41,21 +41,21 @@ specs/001-evaluating-gnn-anomaly-detection/
 ```text
 code/
 ├── data/
-│   ├── ingest_netflow.py            # streaming CSV/Parquet → NetworkX DiGraph
-│   ├── preprocess.py                # feature extraction & unbiased subsampling
-│   └── splits.py                    # temporal hold‑out split logic
+│   ├── ingest_ctu13.py            # streaming CTU‑13 NetFlow → NetworkX DiGraph, dataset schema validation
+│   ├── preprocess.py              # feature extraction & unbiased subsampling
+│   └── splits.py                  # temporal hold‑out split logic
 ├── models/
-│   ├── gcn.py                       # 2‑layer GCN (CPU)
-│   ├── baselines.py                 # RF & XGBoost wrappers
-│   └── metrics.py                   # Precision, Recall, F1, AUC
+│   ├── gcn.py                     # 2‑layer GCN (CPU)
+│   ├── baselines.py               # RF & XGBoost wrappers
+│   └── metrics.py                 # Precision, Recall, F1, AUC
 ├── analysis/
-│   ├── significance.py              # Wilcoxon + BH correction (5 seeds)
-│   └── attribution.py               # Integrated Gradients for GCN
+│   ├── significance.py            # Wilcoxon + BH correction (10 seeds)
+│   └── attribution.py             # Integrated Gradients for GCN
 ├── utils/
-│   ├── memory_monitor.py            # tracemalloc wrapper
-│   ├── seed.py                      # deterministic seed handling
-│   └── schema_validator.py          # validates graph JSON against graph.schema.yaml
-├── main.py                          # orchestrates full pipeline
+│   ├── memory_monitor.py          # tracemalloc wrapper
+│   ├── seed.py                    # deterministic seed handling
+│   └── schema_validator.py        # validates raw records against `contracts/dataset.schema.yaml`
+├── main.py                        # orchestrates full pipeline
 └── tests/
     ├── test_graph_construction.py
     ├── test_memory_limits.py
@@ -66,20 +66,25 @@ code/
 
 | Phase | Tasks | FR / SC addressed |
 |-------|-------|-------------------|
-| **1 – Graph Construction & Validation** | `ingest_netflow.py` streams records, builds a directed `networkx.DiGraph`; `memory_monitor` logs peak RAM; aborts if peak > 6.8 GB. If `node_count > 5,000` → deterministic stratified subsampling preserving the anomaly proportion; graph saved as `graph_{scenario}_subsampled.graphml.gz`. Immediately after, `schema_validator.py` validates the graph against `contracts/graph.schema.yaml`. | **FR‑001**, **FR‑002**, **SC‑001**, **SC‑004**, **VI** |
+| **1 – Graph Construction & Validation** | `ingest_ctu13.py` streams CTU‑13 NetFlow records, validates each row against `contracts/dataset.schema.yaml`, builds a directed `networkx.DiGraph`; `memory_monitor` logs peak RAM and aborts if >6.8 GB. If `node_count > 5,000` → deterministic stratified subsampling (seed = 42) preserving anomaly proportion; graph saved as `graph_{scenario}_subsampled.graphml.gz`. `schema_validator.py` validates the final graph against `contracts/graph.schema.yaml`. | **FR‑001**, **FR‑002**, **SC‑001**, **SC‑004**, **VII** |
 | **2 – Feature Engineering** | `preprocess.py` computes degree, in/out degree, betweenness, clustering, edge‑weight variance, temporal span; stores as `features_{scenario}.parquet`. | **FR‑004**, **FR‑008** |
-| **3 – Train / Validate Models** | `gcn.py` trains 2‑layer GCN (max 30 epochs, early‑stop patience = 5, Δ = 1e‑4, CPU); `baselines.py` trains RF (200 trees) and XGBoost (max_depth = 6, 200 estimators, `tree_method='hist'`). Runs for **5** seeds (42, 123, 456, 789, 101112). | **FR‑003**, **FR‑004**, **FR‑005**, **FR‑008** |
+| **3 – Train / Validate Models** | `gcn.py` trains 2‑layer GCN (max 30 epochs, early stopping patience = 5, Δ = 1e‑4, Adam lr = 0.01). `baselines.py` trains Random Forest (200 trees) and XGBoost (max_depth = 6, 200 estimators, `tree_method='hist'`). Runs for **10 seeds** (42, 123, 456, 789, 101112, 131415, 161718, 192021, 222324, 252627). | **FR‑003**, **FR‑004**, **FR‑005**, **FR‑008** |
 | **4 – Evaluation** | `metrics.py` computes Precision, Recall, F1, AUC‑ROC on the temporal hold‑out test set; results written to `metrics_{scenario}.csv`. | **FR‑005**, **SC‑002**, **SC‑004**, **VII** |
-| **5 – Statistical Analysis** | `significance.py` performs Wilcoxon signed‑rank tests on F1 scores across the 5 seeds for: (1) GCN vs RF, (2) GCN vs XGB, (3‑7) top‑5 structural features vs a null baseline (permuted labels). Applies Benjamini‑Hochberg correction to the seven p‑values; reports BH‑adjusted p and significance flag. | **FR‑006**, **SC‑003**, **SC‑005**, **methodology‑5f2d9322** |
+| **5 – Statistical Analysis** | `significance.py` performs Wilcoxon signed‑rank tests on F1 scores across the **10 seeds** for: (1) GCN vs RF, (2) GCN vs XGB, (3‑7) each of the top‑5 structural features vs a null baseline (permuted labels). Applies Benjamini‑Hochberg correction to the seven p‑values; significance declared if BH‑adjusted p < 0.05 (SC‑003). With 10 paired observations the smallest attainable two‑sided p‑value is on the order of a few percent., satisfying the FDR threshold. | **FR‑006**, **SC‑003**, **SC‑005**, **methodology‑c299849a** |
 | **6 – Attribution** | `attribution.py` runs Integrated Gradients on the trained GCN, maps attribution scores back to structural proxies, produces a ranked list of predictive patterns. | **FR‑007**, **SC‑005** |
 | **7 – Reporting & Artifacts** | Consolidate all CSVs into `final_aggregate.csv`; generate plots (ROC curves, feature‑importance bar plots, attribution heatmaps). | **SC‑001‑SC‑005**, **VII** |
 | **8 – Reproducibility Checks** | Unit & integration tests executed; intermediate large files removed to stay < 14 GB disk; checksum verification of raw and processed files. | **I**, **III**, **VII** |
 
-All phases are ordered so that data download precedes graph construction, which precedes feature extraction, model training, evaluation, statistical testing, and finally reporting.
+All phases are ordered so that data download (once a CTU‑13 source is available) precedes graph construction, which precedes feature extraction, model training, evaluation, statistical testing, and finally reporting.
 
 ## Limitations & Mitigations
-* **Dataset Substitution** – CTU‑13 is not openly downloadable; we substitute the verified NetFlow dataset (`keys-i/netFlow`). The research question is reframed to “Can GNNs improve anomaly detection on NetFlow traffic?” preserving the scientific intent while satisfying data‑availability rules.  
-* **Statistical Power** – With only 5 seeds the smallest two‑sided Wilcoxon p‑value is ≈0.0625, which may prevent any comparison from surviving BH‑adjusted FDR < 0.05. This limitation is explicitly reported in the final results; the analysis remains exploratory.  
-* **Temporal Hold‑out Window** – Exact time‑window lengths are deferred (`[deferred]`) to avoid hard‑coding; the implementation will use the first 70 % of timestamps for training and the remaining 30 % for testing, a common practice in network traffic studies.  
+* **Dataset Availability** – CTU‑13 is not currently open. The plan flags this as a pending specification amendment; no analysis runs until a verified source is provided.  
+* **Statistical Power** – Using 10 seeds yields a minimum two‑sided p‑value of ≈0.0109, allowing at least one comparison to survive Benjamini‑Hochberg correction while satisfying SC‑003.  
+* **Temporal Hold‑out Window** – Exact split uses the first [deferred] of timestamps for training and the remaining [deferred] for testing, a common practice in network‑traffic studies.  
+* **Causal Claims** – The study is observational; any claim of causality is avoided.  
+* **Runtime** – All steps are designed to complete within the 214‑minute runtime budget on the free‑tier runner.  
 
 ---
+
+
+
