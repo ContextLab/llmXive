@@ -18,10 +18,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/cli/generate_ground_truth.py  --model meta-llama/Meta-Llama-2-7B-4bit  --quant_levels INT4 INT8 FP8  --prompt_source gsm8k  --output data/processed/training_sample.parquet  --seed 42 -> rc=1
 
+2026-10-24 01:23:56,404 INFO __main__: Downloading GSM8K dataset (first 300 samples) from https://huggingface.co/datasets/gsm8k/resolve/main/train.jsonl.
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 37, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 286, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 229, in main
+    subset = download_gsm8k_subset(args.sample_size)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/generate_ground_truth.py", line 156, in download_gsm8k_subset
+    response.raise_for_status()
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/train.jsonl
 
 - python code/cli/validate_dataset_stats.py  --input data/processed/training_sample.parquet  --output data/metrics/dataset_stats.json -> rc=1
 
@@ -44,7 +52,7 @@ Failed to read training data parquet: Parquet file not found: /home/runner/work/
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-997-llmxive-follow-up-extending-the-mirage-o/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/code/cli/measure_runtime.py': [Errno 2] No such file or directory
 
 - python -m pytest -m contract -> rc=2
-xt.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+text.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
     ParserElement.enablePackrat()
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
@@ -58,15 +66,14 @@ ERROR tests/integration/test_validation.py
 ERROR tests/integration/test_verify_dataset_completeness.py
 ERROR tests/unit/test_audit_data_integrity.py
 ERROR tests/unit/test_bound_verifier.py
-ERROR tests/unit/test_extract_features.py
-ERROR tests/unit/test_gap_calculator.py
+ERROR tests/unit/test_gap_calculator.py - NameError: name 'List' is not defined
 ERROR tests/unit/test_generate_visualization_report.py
 ERROR tests/unit/test_latency_meter.py
 ERROR tests/unit/test_train_predictor.py
 ERROR tests/unit/test_verify_model_availability.py
 ERROR tests/unit/test_verify_model_robustness.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 16 errors during collection !!!!!!!!!!!!!!!!!!!
-================ 50 deselected, 13 warnings, 16 errors in 2.11s ================
+!!!!!!!!!!!!!!!!!!! Interrupted: 15 errors during collection !!!!!!!!!!!!!!!!!!!
+================ 51 deselected, 13 warnings, 15 errors in 3.85s ================
 
 
 
@@ -85,13 +92,13 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/metrics/dataset_stats.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/training_sample.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/cli/audit_data_integrity.py` — NOT invoked by the run-book
-    - `code/cli/generate_ground_truth.py` — IS a run-book command
     - `code/cli/generate_visualization_report.py` — NOT invoked by the run-book
     - `code/cli/validate_dataset_stats.py` — IS a run-book command
     - `code/src/cli/generate_dataset.py` — NOT invoked by the run-book
     - `code/src/cli/run_proxy_loop.py` — NOT invoked by the run-book
     - `code/src/cli/validate_features_diagnostic.py` — NOT invoked by the run-book
     - `code/src/services/latency_meter.py` — NOT invoked by the run-book
+    - `code/src/services/vif_checker.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/training_sample.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 

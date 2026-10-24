@@ -1,6 +1,4 @@
-# Project‑wide dependencies
-# (standard library packages such as numpy, pandas, torch, transformers,
-#  tqdm, requests, fastparquet, etc. are already available in the base
-#  environment; we only need to declare fastparquet because the
-#  ground‑truth script explicitly requests it.)
-fastparquet>=0.8.1
+torch
+transformers
+tqdm
+fastparquet
