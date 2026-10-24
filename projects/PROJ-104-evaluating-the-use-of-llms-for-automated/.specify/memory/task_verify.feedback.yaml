@@ -1,22 +1,10 @@
 T001:
-  reason: "The quick\u2011start markdown is present and correct, but `code/run_pipeline.py`\
-    \ raises a `NameError: name 'json' is not defined` during the smoke\u2011test\
-    \ (see the test log), causing the command to exit with code\u202F1 and the `pytest\
-    \ tests/test_quickstart.py` suite to fail. The missing `import json` (and the\
-    \ broken `_write_dummy_intent_json` helper) prevents the required intent\u2011\
-    entity JSON file from being written and makes the verification step fail. Fix\
-    \ the import and ensure the smoke\u2011test runs successfully within 30\u202F\
-    s."
   task: 7f3f924cb1e80f425a7fe363f56fcd146eb6dd4bf05f339acb5c536bf9d85ee5
 T002:
   task: cecc03d00aa9eeed68fadbcd623d9e9808aa9b5726f7eb14bedaec2c2c5cf5bc
 T003:
-  reason: "The `data/raw/commit_pairs.csv` contains only 5 dummy rows (far below the\
-    \ required\u202F\u2265\u202F500) and the `commitpair.schema.yaml` file is missing,\
-    \ so the schema validation test cannot run. Moreover, `code/data_extraction.py`\
-    \ no longer aborts when `GITHUB_TOKEN` is absent, contrary to the specification.\
-    \ These missing/incorrect artifacts must be fixed for the task to be considered\
-    \ complete."
+  reason: 'Requested task execution failed; rerun successfully: code/data_extraction.py
+    exit=1'
   task: e45cd58dfb2deb37015d910c48f98763df52968b3578974b6c8c76f568a25193
 T004:
   reason: "Checked `code/gold_annotation.py`, `data/gold/annotations.json`, `data/gold/sample_for_annotation.csv`,\
@@ -62,10 +50,25 @@ T008:
     \ and evaluation artifacts."
   task: 3f1ea1fcbe47d199b34511144c21c984cf03f4b1a501e21922e0bfa0eb21b3ba
 T009:
+  reason: "The required output `data/processed/fidelity_metrics.csv` is missing, the\
+    \ schema file `fidelity.schema.yaml` (and its test) are absent, and `code/fidelity_scoring.py`\
+    \ contains only placeholder logic that never loads EntitySets or computes real\
+    \ precision/recall or hallucination rates. These gaps prevent the task\u2019s\
+    \ specifications from being satisfied."
   task: aa3d382e985f5bcd8d229c6fc5549fb3dfc5f2c0c41a4fb8c413fc015027d555
 T010:
+  reason: "The script `code/statistical_analysis.py` exists, but it relies on `data/processed/fidelity_metrics.csv`,\
+    \ which is not present in the evidence, so no real Shapiro\u2011Wilk, Friedman/ANOVA,\
+    \ or effect\u2011size calculations could be performed. Consequently `results/statistics.json`\
+    \ contains only `null` p\u2011values and effect sizes, indicating placeholder\
+    \ output rather than the required statistical results. The exploratory flag is\
+    \ correctly propagated, but the core analysis is missing."
   task: f3eb4ed3a6a7c4d9df27d4ad54ffff45f2df37740fe82abdba9b59504c07fa52
 T011:
+  reason: "The `results/figures/intent_precision_bar.png` and `results/figures/surface_confusion_matrix.png`\
+    \ files are missing, so the required PNG artifacts do not exist or have non\u2011\
+    zero size. The `summary.md` file is present, but without the accompanying figure\
+    \ files the task\u2019s verification criteria are not met."
   task: 57a2efed4e38228c4e0335448d4ab957dcf0e636598b98136c74463b61f0e504
 T012:
   reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/research.yml`
@@ -75,11 +78,11 @@ T012:
   task: 9b900171c3c3d6ede9e74b140eaba6329ad95f41e7687ca7322a352daa2a46f3
 T013:
   reason: "Checked `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`,\
-    \ `docs/quickstart.md`, and `tests/test_hygiene_and_seeds.py`. The checksum utility\
-    \ writes a mapping but lacks provenance notes and does not enforce or verify that\
-    \ raw files are never overwritten or that their original checksums persist across\
-    \ runs. The seed file is present and documented, but there is no test confirming\
-    \ that every stochastic script imports `SEED` nor that re\u2011running T002 yields\
-    \ identical power estimates. These missing checks mean the task\u2019s full requirements\
-    \ are not satisfied."
+    \ `docs/quickstart.md` and the test suite `tests/test_hygiene_and_seeds.py`. While\
+    \ the checksum computation, metadata recording, raw\u2011file immutability, SEED\
+    \ definition, documentation, and all tests pass, `data_hygiene.py` does **not**\
+    \ enforce the requirement that each transformation writes a new file with a distinct\
+    \ name (i.e., it allows overwriting non\u2011raw files). Implement a check that\
+    \ prevents overwriting existing files outside `data/raw/` or otherwise guarantees\
+    \ distinct filenames for transformed artifacts."
   task: bf8e80e7fe8781f06e510ac045ae6f6d5214bfff3e6067021e4a481b89dd24a0

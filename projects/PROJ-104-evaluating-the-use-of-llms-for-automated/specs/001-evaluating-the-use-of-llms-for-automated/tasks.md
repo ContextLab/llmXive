@@ -8,7 +8,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 0 – Project scaffolding & sanity check
 
-- [ ] T001 [US1] **Create quick‑start documentation and a minimal runnable entry point** – `docs/quickstart.md`, `code/run_pipeline.py`  
+- [X] T001 [US1] **Create quick‑start documentation and a minimal runnable entry point** – `docs/quickstart.md`, `code/run_pipeline.py`  
   - Write a “Getting started” guide that lists required Python 3.11 packages, how to install `bitsandbytes` and `transformers`, and the command `python -m code.run_pipeline --sample 5`.  
   - Implement `run_pipeline` to load a tiny hard‑coded commit pair (synthetic smoke‑test only) and invoke the generation module (CPU‑only) to produce a single output file under `data/generated/phi3-mini/sample_test.txt`.  
   - **Verification**: Running the command completes in < 30 s, creates the output file, and `pytest tests/test_quickstart.py` passes.
@@ -28,7 +28,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 1 – Data acquisition & pairing (User Story 1)
 
-- [ ] T003 [P1] [US1] **Extract ≥ 500 (commit_message, documentation_diff) pairs from the five target repositories** – `code/data_extraction.py`, `data/raw/commit_pairs.csv`  
+- [ ] T003 [P1] [US1] **Extract ≥ 500 (commit_message, documentation_diff) pairs from the five target repositories** – `code/data_extraction.py`, `data/raw/commit_pairs.csv`   <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=1 -->
   - Clone the repositories `pandas`, `requests`, `scikit-learn`, `flask`, `django` into `data/tmp/repos/`.  
   - Use the GitHub REST API (`GET /repos/{owner}/{repo}/commits`) with `since=2 years ago`, handling pagination and rate‑limit retries, and a personal‑access‑token supplied via `GITHUB_TOKEN` (fails loudly if missing).  
   - For each commit, fetch the full diff with `git show <sha>` and retain only commits that modify files ending in `.md` or `.rst`.  
@@ -94,7 +94,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 5 – Fidelity scoring (User Story 3)
 
-- [~] T009 [P3] [US3] **Compute precision/recall and hallucination rate per sample** – `code/fidelity_scoring.py`, `data/processed/fidelity_metrics.csv`  
+- [ ] T009 [P3] [US3] **Compute precision/recall and hallucination rate per sample** – `code/fidelity_scoring.py`, `data/processed/fidelity_metrics.csv`  
   - Load the human `EntitySet` (surface + intent) and the generated `EntitySet` for each `(commit_hash, model_id)` pair.  
   - Calculate `precision_intent`, `recall_intent`, `precision_surface`, `recall_surface`.  
   - Hallucination rate = (number of generated entities with `verified: false`) / (total generated entities).  
@@ -106,7 +106,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 6 – Statistical analysis (User Story 3)
 
-- [~] T010 [P3] [US3] **Normality testing, Friedman/ANOVA, Holm‑Bonferroni correction, and exploratory flag handling** – `code/statistical_analysis.py`, `results/statistics.json`  
+- [ ] T010 [P3] [US3] **Normality testing, Friedman/ANOVA, Holm‑Bonferroni correction, and exploratory flag handling** – `code/statistical_analysis.py`, `results/statistics.json`  
   - Perform Shapiro‑Wilk tests on the paired differences of each metric. If any p < 0.05, use the Friedman chi‑square test; otherwise run repeated‑measures ANOVA.  
   - Apply Holm‑Bonferroni correction across the three primary metrics (intent precision, surface precision, hallucination rate).  
   - Include effect‑size reporting (Kendall’s W for Friedman, η² for ANOVA).  
@@ -117,7 +117,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 7 – Visualization & reporting (User Story 3)
 
-- [~] T011 [P3] [US3] **Generate figures and a markdown summary** – `code/visualization.py`, `results/figures/intent_precision_bar.png`, `results/figures/surface_confusion_matrix.png`, `results/summary.md`  
+- [ ] T011 [P3] [US3] **Generate figures and a markdown summary** – `code/visualization.py`, `results/figures/intent_precision_bar.png`, `results/figures/surface_confusion_matrix.png`, `results/summary.md`  
   - Bar chart of mean intent precision per model (95 % CI).  
   - Heatmap confusion matrix for surface‑entity preservation vs. hallucination per model.  
   - Assemble `results/summary.md` that references the figure files, includes a concise table of key metrics, and states the exploratory status when applicable.  

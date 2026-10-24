@@ -394,3 +394,53 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-24T19:32:54Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: Smoke test completes in under 30 seconds
+  claim_id: c_1f84e20e
+  context: Quick smoke test (Phase 0)... It completes in well under 30 seconds and
+    requires no model downloads.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds and requires no model downloads.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:11:47Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: re-running pipeline stages produces identical results
+  claim_id: c_8eaf98c7
+  context: To ensure scientific reproducibility, all stochastic components of the
+    pipeline are pinned to a single global seed defined in code/seeds.py... Re-running
+    any stage will produce identical results.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Re-running any stage will produce identical results.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:16:15Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: Phase 0 smoke test completes in under 30 seconds
+  claim_id: c_045c75b4
+  context: This loads one tiny hard-coded commit pair (a plumbing smoke test only),
+    invokes the CPU-only generation module, and writes data/generated/phi3-mini/sample_test.txt.
+    It completes in well under 30 seconds and requires no model downloads.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:16:15Z'

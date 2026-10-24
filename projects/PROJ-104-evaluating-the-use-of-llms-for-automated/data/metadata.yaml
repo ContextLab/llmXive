@@ -1,6 +1,165 @@
-data/metadata.yaml: 60ed8a27504e7abd9bc0c63fd8284d85ce7c16cfe29cf6b691d6ad1318e5d557
-data/generated/phi3-mini/sample_test.txt: 9fafa1b567793f217d59d39067202be5034b6d6c5e553e92173cc034466a961a
-data/raw/commit_pairs.csv: 6cb2d6644caadcb9619d88aeb86d87fa06e2ec74f7a4c9b4a8822548c4369540
-data/raw/dummy_raw.txt: 46e945ca9d856f683b5b4e57c11625ae10c2f8b9f0fa31ed1d42a0afceb56ee7
-data/processed/fidelity_metrics.csv: 07c31710b6bd66aa6b73fab2c42ee5e8feecc6541a3318714a48384d56ca381e
-data/generated/generation_success_rates.csv: f43b769e41d61e0824026eecd92494778be2f6859034809a45af5118c52128f6
+data/metadata.yaml:
+  checksum: e8c987a6173009d10d6e00674911e1b44327627306c0586faa63eab5c5c9d9bb
+  provenance: Pipeline artifact
+data/generated/generation_success_rates.csv:
+  checksum: f43b769e41d61e0824026eecd92494778be2f6859034809a45af5118c52128f6
+  provenance: LLM generation
+data/generated/gemma2-2b/d38495c90653496c3c81f31e8f9bef162b400b44_gemma2-2b.txt:
+  checksum: 39bd2b82a76d7d3092c80465981e02e606a900b605f6eab433bf9bae49791291
+  provenance: LLM generation
+data/generated/gemma2-2b/0b401c76b6e80a4eecf3c690085b2553f6e261ca_gemma2-2b.txt:
+  checksum: f87b59daa58b41aa2fa9e0ebdf5e727350d4222f979870bf707803899c730326
+  provenance: LLM generation
+data/generated/gemma2-2b/0000000000000000000000000000000000000000_gemma2-2b.txt:
+  checksum: 48cf5e873239fc8159bce8e667aac0020012c705d2962e91a99cfaec27fa60d8
+  provenance: LLM generation
+data/generated/gemma2-2b/0000000000000000000000000000000000000005_gemma2-2b.txt:
+  checksum: 0bc8bad4adc26b82113a3a8fbb158d9e7cd2b817beb770cb7cfecd57909640af
+  provenance: LLM generation
+data/generated/gemma2-2b/6e83187b8feb273ed4c6cdab5efd8d54901dfab3_gemma2-2b.txt:
+  checksum: 22a922671196bc6374d4acf6cb8019e94f202bd710d334a9b51081bc52f31129
+  provenance: LLM generation
+data/generated/gemma2-2b/0000000000000000000000000000000000000004_gemma2-2b.txt:
+  checksum: ccdc74c9864450e436042f46dbe4cb1fe920ad69bdeb1be39d67075b3c8b7e2b
+  provenance: LLM generation
+data/generated/gemma2-2b/f7822f7c4185b45527f171095c4edf8777efe51b_gemma2-2b.txt:
+  checksum: 75882e9305da765831ad9d0ccfeabdf549853325fec650e0c13fde29dc2a1e49
+  provenance: LLM generation
+data/generated/gemma2-2b/b7b549b54571d03950b16afd2d01bc6ff0348224_gemma2-2b.txt:
+  checksum: 888d0b728c1213d5b5524ec89fcffe95eb301b09e448ca335853b35419277aff
+  provenance: LLM generation
+data/generated/gemma2-2b/f64a0d782b2a9310340aba929f44bb887d2f27e0_gemma2-2b.txt:
+  checksum: d1c4e13cb557cbecf9831d597d20d3d6fe2f90712539fefa548b8d3921003928
+  provenance: LLM generation
+data/generated/gemma2-2b/c4367f231b5dc54f23f2983828562ce3a7555a8a_gemma2-2b.txt:
+  checksum: a852b4c63d83223847748424891ba90987b23f289c28ba8a9054d1c7d2f323f7
+  provenance: LLM generation
+data/generated/gemma2-2b/0000000000000000000000000000000000000002_gemma2-2b.txt:
+  checksum: 6b167f232cb23561fa3f422d4740ccf8ec77a08415cddab0a036ba42d019d5a9
+  provenance: LLM generation
+data/generated/gemma2-2b/e8d2c015eecda8273612dd4562425e00cd164ba5_gemma2-2b.txt:
+  checksum: 86c97ed4a8ced89fa3dae6418a9a04afa4d6b0f422556702d53a20e8c3e6f456
+  provenance: LLM generation
+data/generated/gemma2-2b/93bf5331a70cd2c77ac3ba43f85c918cae67c69f_gemma2-2b.txt:
+  checksum: bd4633abc2705978c900ce4ea648ca455435c6aea0d69f5c6dc1d3fc909a8cc7
+  provenance: LLM generation
+data/generated/gemma2-2b/d60f4773b1f5932e2715b2c64b333649edbb405b_gemma2-2b.txt:
+  checksum: 64f688b80bdcd883e87343f3fc3804c4591369d555f416278d4a9ecb8468fd36
+  provenance: LLM generation
+data/generated/gemma2-2b/0000000000000000000000000000000000000001_gemma2-2b.txt:
+  checksum: 1b39039cb0e4fa210c7b8d8ec53cf9a9d1d6900239d6ce4c7f071c8c08f01037
+  provenance: LLM generation
+data/generated/gemma2-2b/0000000000000000000000000000000000000003_gemma2-2b.txt:
+  checksum: 3d1b42e45824a0809b67974949e6950ebeabda105f15394f3f71ecebe09fec42
+  provenance: LLM generation
+data/generated/llama3.2-3b/0000000000000000000000000000000000000002_llama3.2-3b.txt:
+  checksum: 338f50924d7f45fbdfc07fa02f0e149e6b1b477534d084513e80cfdf4deb7a0e
+  provenance: LLM generation
+data/generated/llama3.2-3b/0000000000000000000000000000000000000003_llama3.2-3b.txt:
+  checksum: ad35ff622e35c2b2159b0513f99ddb8888957e599368f0cea98825f975c5a9b3
+  provenance: LLM generation
+data/generated/llama3.2-3b/0b401c76b6e80a4eecf3c690085b2553f6e261ca_llama3.2-3b.txt:
+  checksum: a8ab54fd5f9dc6e77020ce1fee453ba9b5064d3dc206642bf2adc51d73b11fe3
+  provenance: LLM generation
+data/generated/llama3.2-3b/d38495c90653496c3c81f31e8f9bef162b400b44_llama3.2-3b.txt:
+  checksum: d4310abe96bb7b9f02c866e5a90f2b11f1893ff60e4985be0defdefbef12246d
+  provenance: LLM generation
+data/generated/llama3.2-3b/0000000000000000000000000000000000000004_llama3.2-3b.txt:
+  checksum: ccafa9505c96d81babd84bed36f6c159c48dc5369290a284340e465975e720a2
+  provenance: LLM generation
+data/generated/llama3.2-3b/f7822f7c4185b45527f171095c4edf8777efe51b_llama3.2-3b.txt:
+  checksum: 3d9cf62c73c593150b3d03f9e6a8e76920d17d119f2c6c972e1f1d1bb02c5c6d
+  provenance: LLM generation
+data/generated/llama3.2-3b/0000000000000000000000000000000000000001_llama3.2-3b.txt:
+  checksum: fdf5b30d9c6163fbb3ff3476325e3f2c31f40ef651ff71a5ee1438132c523761
+  provenance: LLM generation
+data/generated/llama3.2-3b/e8d2c015eecda8273612dd4562425e00cd164ba5_llama3.2-3b.txt:
+  checksum: 22c82d00569b4d754f4ce55dc72345e454113b1f08332f20b6c5a18719c3fdd7
+  provenance: LLM generation
+data/generated/llama3.2-3b/93bf5331a70cd2c77ac3ba43f85c918cae67c69f_llama3.2-3b.txt:
+  checksum: 56ca9482e0b1fac4a613f85d5ee349c93dddb294253978fd884f25e2254d11f9
+  provenance: LLM generation
+data/generated/llama3.2-3b/6e83187b8feb273ed4c6cdab5efd8d54901dfab3_llama3.2-3b.txt:
+  checksum: 683a0ab613d58fa1ce7527354e255deda33768516a8ab06596cd67afbf1b8e92
+  provenance: LLM generation
+data/generated/llama3.2-3b/0000000000000000000000000000000000000005_llama3.2-3b.txt:
+  checksum: ddfda78463870a30c5c04092a1eee04d88a42796c06617cf538519d03abd8c55
+  provenance: LLM generation
+data/generated/llama3.2-3b/0000000000000000000000000000000000000000_llama3.2-3b.txt:
+  checksum: 90874d7660b0e8d0a72b02866894588a6f2ab0a5761e57f117441a6ae1d332e4
+  provenance: LLM generation
+data/generated/llama3.2-3b/f64a0d782b2a9310340aba929f44bb887d2f27e0_llama3.2-3b.txt:
+  checksum: 2ce0409852db957c8947b6c36c22d493cb393b7cca48b1ae14e801404147a281
+  provenance: LLM generation
+data/generated/llama3.2-3b/b7b549b54571d03950b16afd2d01bc6ff0348224_llama3.2-3b.txt:
+  checksum: c8433dda1f42e5f27ebff11914034a5afcb99d65522cb7e5788b01ec2106dd64
+  provenance: LLM generation
+data/generated/llama3.2-3b/d60f4773b1f5932e2715b2c64b333649edbb405b_llama3.2-3b.txt:
+  checksum: 78e6d0c073950b9e276381645d67f3ad59af16e774f552898c0ff788f83c0299
+  provenance: LLM generation
+data/generated/llama3.2-3b/c4367f231b5dc54f23f2983828562ce3a7555a8a_llama3.2-3b.txt:
+  checksum: 39dee4bea747e6e362b99467b5e5aaf6ceb55687da3387915384c13a016c1611
+  provenance: LLM generation
+data/generated/phi3-mini/c4367f231b5dc54f23f2983828562ce3a7555a8a_phi3-mini.txt:
+  checksum: 1a801c047d67718c1319dcd573828efc132f0f37536b24733b757552c3b1ade3
+  provenance: LLM generation
+data/generated/phi3-mini/6e83187b8feb273ed4c6cdab5efd8d54901dfab3_phi3-mini.txt:
+  checksum: 7d60336f338b3304154389798272169a77c3b9a3b7a2118324181c3b6de5c1b8
+  provenance: LLM generation
+data/generated/phi3-mini/0000000000000000000000000000000000000000_phi3-mini.txt:
+  checksum: 403c906f402515d18a547c803b57a67891fcf31575eed0ef3a3ffbb65a86677c
+  provenance: LLM generation
+data/generated/phi3-mini/sample_test.txt:
+  checksum: 949f2bda0d115c1e609b4263016571695c4a58a1f1aa8ce5f357f84507a6e538
+  provenance: LLM generation
+data/generated/phi3-mini/d38495c90653496c3c81f31e8f9bef162b400b44_phi3-mini.txt:
+  checksum: 3f6e68c68568e82ddd5de1ed30aabe4de7f02bab6ba07d61b0f83162c949280e
+  provenance: LLM generation
+data/generated/phi3-mini/b7b549b54571d03950b16afd2d01bc6ff0348224_phi3-mini.txt:
+  checksum: cef7e35d676758485549cf363115821f86b030c90ed83bcf460667d4fddbe32e
+  provenance: LLM generation
+data/generated/phi3-mini/f64a0d782b2a9310340aba929f44bb887d2f27e0_phi3-mini.txt:
+  checksum: 3d26c3b979a1932d0f902a54a5102bcf2b58a29b06fa87d0f5d2bca55fa7239c
+  provenance: LLM generation
+data/generated/phi3-mini/0000000000000000000000000000000000000003_phi3-mini.txt:
+  checksum: 3931c5dcc277956294f68f67ae23d54ab77726cf4b0ed30fa3195aa27b727444
+  provenance: LLM generation
+data/generated/phi3-mini/0000000000000000000000000000000000000002_phi3-mini.txt:
+  checksum: e21c42d45f282c9f3ef9646071c6b02c3d5f12b5283c745f1af85d7fd6b3140a
+  provenance: LLM generation
+data/generated/phi3-mini/d60f4773b1f5932e2715b2c64b333649edbb405b_phi3-mini.txt:
+  checksum: 69155cd8e31286886b69e6fa2d5ade77ddff715f43b83ed04416ebce904fade7
+  provenance: LLM generation
+data/generated/phi3-mini/e8d2c015eecda8273612dd4562425e00cd164ba5_phi3-mini.txt:
+  checksum: 11cf08cd560fcede7f290247bd8ac2f71c5627899429d1ee1fe1597215274263
+  provenance: LLM generation
+data/generated/phi3-mini/0000000000000000000000000000000000000004_phi3-mini.txt:
+  checksum: 347923db91dab35d6a37951b08d367bc6ce170f222e4726d7ba885eb73b7f25a
+  provenance: LLM generation
+data/generated/phi3-mini/93bf5331a70cd2c77ac3ba43f85c918cae67c69f_phi3-mini.txt:
+  checksum: e73bf3f265a15a2c04abc29df06647d43766b676be394870dbba7b253873e72d
+  provenance: LLM generation
+data/generated/phi3-mini/0000000000000000000000000000000000000005_phi3-mini.txt:
+  checksum: 5e826be1044c56c1f56e842e45754798c6face3784136a7df2c4610f28beffaf
+  provenance: LLM generation
+data/generated/phi3-mini/0b401c76b6e80a4eecf3c690085b2553f6e261ca_phi3-mini.txt:
+  checksum: 948e30cdafad5f9cb37473c6a91dd433f27a27b54c21e3d3357b45637549e041
+  provenance: LLM generation
+data/generated/phi3-mini/0000000000000000000000000000000000000001_phi3-mini.txt:
+  checksum: d24c9a9f4c634dc2773f5013d66f8d536fb0eeedde6bfa5b35e4711090843115
+  provenance: LLM generation
+data/generated/phi3-mini/f7822f7c4185b45527f171095c4edf8777efe51b_phi3-mini.txt:
+  checksum: 0ad9097fb76cffa780dd6ec0953068f0e4301e80cc39bece77b3d745bfa7a026
+  provenance: LLM generation
+data/raw/immutability_test.txt:
+  checksum: bf573149b23303cac63c2a359b53760d919770c5d070047e76de42e2184f1046
+  provenance: Raw data extraction
+data/raw/commit_pairs.csv:
+  checksum: 61ef6af5e8159e83edbe846c3271a87e04fa342de75d27f18f79231148e29a9d
+  provenance: Raw data extraction
+data/intermediate/intent_entities/sample_test.json:
+  checksum: b2c40766d4e0a8fa8e8111b60d82d5467e66ccd32d8f8855da071e3dfb046d1b
+  provenance: Entity extraction
+data/intermediate/intent_entities/dummy_intent.json:
+  checksum: a626d06a6e24be6222339b9c5344428f1001e62b8264f0c774d164b2fe626fa4
+  provenance: Entity extraction

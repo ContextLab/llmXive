@@ -1,24 +1,20 @@
 T001:
-  c: false
-  h: aca2dbf975796052126fb1e490593ec8d0bb4300fb7b44af29987a97c979d73f
-  r: "The quick\u2011start markdown is present and correct, but `code/run_pipeline.py`\
-    \ raises a `NameError: name 'json' is not defined` during the smoke\u2011test\
-    \ (see the test log), causing the command to exit with code\u202F1 and the `pytest\
-    \ tests/test_quickstart.py` suite to fail. The missing `import json` (and the\
-    \ broken `_write_dummy_intent_json` helper) prevents the required intent\u2011\
-    entity JSON file from being written and makes the verification step fail. Fix\
-    \ the import and ensure the smoke\u2011test runs successfully within 30\u202F\
-    s."
-  sig: f2c3e9b12253fe8165f4387412323202185ca63a3b70fae363a79ba78597fe98
+  c: true
+  h: 2a13a12f6e4a18e9ceae4000f425faeada72dbb140f50c5ba9ac05c9c95c0666
+  r: "Checked `docs/quickstart.md` for the required package list and install instructions,\
+    \ `code/run_pipeline.py` for the smoke\u2011test generation of `data/generated/phi3-mini/sample_test.txt`,\
+    \ and the execution log plus `tests/test_quickstart.py` confirming the command\
+    \ runs, exits zero, creates the output file, CSV with all three model IDs, and\
+    \ an intent JSON. All required artifacts exist and meet the task specifications."
+  sig: 2ca4a49b03c465e416b41244e45b51cb0132d8ab6fe612c36d6324436991aa94
 T002:
   c: true
-  h: 0de49338aea0cfd9acebbe7002f8052720fea440d1594609a418e745c2d1c3c0
-  r: "Checked `code/power_analysis.py` (implements seeded Monte\u2011Carlo simulation,\
-    \ estimates power for n\u202F=\u202F500, f\u202F=\u202F0.25, writes the markdown)\
-    \ and the generated `results/power_report.md` (contains a numeric power estimate\
-    \ and the correct `exploratory` flag). All required artifacts exist and match\
-    \ the task specifications."
-  sig: f97f06ee8a7ecba63b8a47a137053d0a8048a16fa275d6aedda65e1981abaa3b
+  h: e68c0a66ed6fee7be53f5308872e1362bea488eca8b8c22c712a527e88956d87
+  r: "Checked `code/power_analysis.py` (implements seeded Monte\u2011Carlo simulation\
+    \ for n\u202F=\u202F500, Cohen\u2019s\u202Ff\u202F=\u202F0.25) and the generated\
+    \ `results/power_report.md`, which contains a numeric power estimate (1.0000)\
+    \ and the correct `exploratory: false` flag matching the computed power."
+  sig: cc95c278ab60f63485c6797d32d3e4aef41f0705e65cb866c41f477ec881a0d4
 T003:
   c: false
   h: e64d50de7a494f14f5979762865d9de764ac141cb4596ec44315035665e80df1
@@ -81,3 +77,42 @@ T008:
     \ contains only null placeholders. The task therefore lacks the required execution\
     \ and evaluation artifacts."
   sig: a3a0c45d093417add23581b8c8d477db0151e49a88c52045728174043ad60fab
+T009:
+  c: false
+  h: 6cd2fd3d34b0fe52bde21eda963b0fa8d0c110d7cb3b2a393aaf9ad641177cd3
+  r: "The required output `data/processed/fidelity_metrics.csv` is missing, the schema\
+    \ file `fidelity.schema.yaml` (and its test) are absent, and `code/fidelity_scoring.py`\
+    \ contains only placeholder logic that never loads EntitySets or computes real\
+    \ precision/recall or hallucination rates. These gaps prevent the task\u2019s\
+    \ specifications from being satisfied."
+  sig: de94e68e91824c10cd1354d50c756b0e618f1ac18b3dcd90e745ce572a5f5814
+T010:
+  c: false
+  h: 604687bf04864bf20e8a64a99f4a89240f80f041c89f6f066b52c29d4154a74e
+  r: "The script `code/statistical_analysis.py` exists, but it relies on `data/processed/fidelity_metrics.csv`,\
+    \ which is not present in the evidence, so no real Shapiro\u2011Wilk, Friedman/ANOVA,\
+    \ or effect\u2011size calculations could be performed. Consequently `results/statistics.json`\
+    \ contains only `null` p\u2011values and effect sizes, indicating placeholder\
+    \ output rather than the required statistical results. The exploratory flag is\
+    \ correctly propagated, but the core analysis is missing."
+  sig: 03622aed91eec7ae6d9db326d40e1620fe270e8a80673e42cc65dbe86c8c54c9
+T011:
+  c: false
+  h: d8bf682368b625877e126488ce755c813d14a94852d5b29e0da7761d7cf5f8ba
+  r: "The `results/figures/intent_precision_bar.png` and `results/figures/surface_confusion_matrix.png`\
+    \ files are missing, so the required PNG artifacts do not exist or have non\u2011\
+    zero size. The `summary.md` file is present, but without the accompanying figure\
+    \ files the task\u2019s verification criteria are not met."
+  sig: e2e2391e78ea691268ed3c0a0d0f9f109004abfea71af6cc44484e6afe4feb5c
+T013:
+  c: false
+  h: 011de250a656432f2280ad51d42f8e40e82f6b1fac4afaeae18301b0a069ceab
+  r: "Checked `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, `docs/quickstart.md`\
+    \ and the test suite `tests/test_hygiene_and_seeds.py`. While the checksum computation,\
+    \ metadata recording, raw\u2011file immutability, SEED definition, documentation,\
+    \ and all tests pass, `data_hygiene.py` does **not** enforce the requirement that\
+    \ each transformation writes a new file with a distinct name (i.e., it allows\
+    \ overwriting non\u2011raw files). Implement a check that prevents overwriting\
+    \ existing files outside `data/raw/` or otherwise guarantees distinct filenames\
+    \ for transformed artifacts."
+  sig: fb0c108f2fa95b3657ee225bda9ead37e23ea3a4adf4de59ca66370cb5cdffcf
