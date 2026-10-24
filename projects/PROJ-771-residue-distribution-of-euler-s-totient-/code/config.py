@@ -16,6 +16,9 @@ from typing import Dict, Any, List, Optional
 
 import yaml
 
+# Import the custom exception for invalid primes.
+from code.exceptions import InvalidPrimeError
+
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
@@ -29,6 +32,11 @@ _DEFAULTS: Dict[str, Any] = {
     "seed": 42,
     "memory_check_interval": 10_000,
 }
+
+# ----------------------------------------------------------------------
+# Allowed prime moduli
+# ----------------------------------------------------------------------
+_ALLOWED_PRIMES = {3, 5, 7, 11}
 
 # ----------------------------------------------------------------------
 # Public API
@@ -55,6 +63,12 @@ def load_config(cli_args: Optional[argparse.Namespace] = None) -> Dict[str, Any]
     dict
         Configuration dictionary ready for consumption by the rest of the
         pipeline.
+
+    Raises
+    ------
+    InvalidPrimeError
+        If any prime in the final ``primes`` list is not one of the
+        supported primes {3, 5, 7, 11}.
     """
     # 1️⃣ Load defaults
     config: Dict[str, Any] = _DEFAULTS.copy()
@@ -102,6 +116,18 @@ def load_config(cli_args: Optional[argparse.Namespace] = None) -> Dict[str, Any]
     if os.getenv("LLMXIVE_MEMORY_CHECK_INTERVAL"):
         config["memory_check_interval"] = int(os.getenv("LLMXIVE_MEMORY_CHECK_INTERVAL"))
 
+    # ------------------------------------------------------------------
+    # Validate prime list
+    # ------------------------------------------------------------------
+    primes = config.get("primes", [])
+    # Ensure we have a list of ints
+    primes = [int(p) for p in primes]
+    config["primes"] = primes
+    for p in primes:
+        if p not in _ALLOWED_PRIMES:
+            # Raise the domain‑specific exception as required by the spec.
+            raise InvalidPrimeError(p)
+
     return config
 
 def create_argument_parser() -> argparse.ArgumentParser:
@@ -110,7 +136,7 @@ def create_argument_parser() -> argparse.ArgumentParser:
 
     The parser defines the same options that the original ``load_config``
     function understood, allowing downstream scripts to continue using the
-    familiar ``--N``, ``--primes`` etc. flags.
+    familiar ``--N``, ``--primes`` etc.
     """
     parser = argparse.ArgumentParser(
         description="Euler Totient Residue Distribution Analysis"

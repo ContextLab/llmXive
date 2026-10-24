@@ -3,6 +3,7 @@ Statistics module for the Euler Totient residue‑distribution pipeline.
 
 This module implements the public API required by the test‑suite:
 - calculate_chi_squared_statistic
+- calculate_chi_squared_statistic_dataset
 - check_bin_counts_and_fallback
 - run_chi_squared_test
 - run_chi_squared_goodness_of_fit (wrapper returning an object)
@@ -28,7 +29,7 @@ from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-from scipy.stats import chi2, chisquare
+from scipy.stats import chi2, chisquare, multinomial_test
 
 # SciPy versions prior to 1.9 may not provide multinomial_test.
 # We fall back to a chi‑square approximation for the “exact” path.
@@ -82,6 +83,37 @@ def calculate_chi_squared_statistic(
     p_val = 1.0 - chi2.cdf(chi_sq, df=prime - 1)
     return chi_sq, p_val
 
+def calculate_chi_squared_statistic_dataset(
+    dataset: Dict[str, Any]
+) -> float:
+    """
+    Compute the chi‑squared statistic for a ``ResidueDataset``.
+
+    The dataset may follow either the legacy schema
+    (keys ``counts``, ``prime``, ``N``) or the newer schema
+    (keys ``frequency_map``, ``prime_modulus``, ``total_count``).
+
+    Returns
+    -------
+    float
+        The chi‑squared statistic (without the p‑value).
+    """
+    # Extract the frequency map and meta‑information.
+    if "frequency_map" in dataset:
+        freq_map = dataset["frequency_map"]
+        prime = int(dataset["prime_modulus"])
+        N = int(dataset["total_count"])
+    elif "counts" in dataset:
+        freq_map = dataset["counts"]
+        prime = int(dataset["prime"])
+        N = int(dataset["N"])
+    else:
+        raise ValueError("Dataset missing required frequency map")
+
+    residue_counts = {int(k): int(v) for k, v in freq_map.items()}
+    chi_sq, _ = calculate_chi_squared_statistic(residue_counts, prime, N)
+    return chi_sq
+
 def check_bin_counts_and_fallback(
     residue_counts: Dict[int, int], prime: int, N: int
 ) -> Tuple[bool, str]:
@@ -112,11 +144,13 @@ def exact_multinomial_test(residue_counts: Dict[int, int], prime: int) -> float:
     ``[0, 1]`` which satisfies the test‑suite expectations.
     """
     counts = [residue_counts.get(r, 0) for r in range(prime)]
+    N = sum(counts)
     prob = [1 / prime] * prime
     if _has_multinomial_test:
+        # SciPy's multinomial_test returns a p‑value.
         return float(multinomial_test(counts, p=prob))
-    # Fallback – chi‑square approximation (acceptable for the tests)
-    chi_sq, p_val = chisquare(f_obs=counts, f_exp=[N / prime for N in counts])
+    # Fallback – chi‑square approximation.
+    chi_sq, p_val = chisquare(f_obs=counts, f_exp=[N / prime for _ in range(prime)])
     return float(p_val)
 
 def run_chi_squared_test(

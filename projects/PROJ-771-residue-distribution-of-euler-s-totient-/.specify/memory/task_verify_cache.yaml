@@ -1,105 +1,57 @@
 T001:
   c: true
-  h: a95589461c323b61b0da8f63671115621d392b88e577da5f5ab77eabfddebffa
-  r: "The `code/config.py` file implements a `load_config` function that reads `code/config.yaml`\
-    \ and returns a dictionary containing `N`, `primes`, `seed`, and `memory_limit_mb`.\
-    \ The accompanying `tests/unit/test_config.py` successfully loads the sample YAML\
-    \ and asserts that the returned values match those defined in `config.yaml`. All\
-    \ required artifacts are present, non\u2011empty, and behave as specified."
-  sig: d1ec9a6797a6489ee967e25a12065d0851edc256d80738a332317e8cf6721f80
+  h: 5fa05ed8d7928230180c9a7e81de70b497e5d2fe72a754f7d9040ff906f00c0a
+  r: Checked `code/config.py` (loads YAML, validates primes, raises `InvalidPrimeError`)
+    and `code/exceptions.py` (defines required exceptions with correct messages);
+    the unit tests `tests/unit/test_config.py` and `tests/unit/test_exceptions.py`
+    exercise these artifacts and should pass.
+  sig: c13e27e189dc0ffe73756073eaaa12fcbe7fb6077f2a22fed23ed40eadc48082
 T002:
-  c: true
-  h: 44444b0656c05245e7c0a19a581fe051605f77c4b8656bf08aae89cdc93f8153
-  r: Checked `code/exceptions.py` for the required exception classes and their messages,
-    and verified that `tests/unit/test_exceptions.py` imports the module and asserts
-    the exact message strings expected by the task. All required classes are present
-    with correct messages, and the unit tests would pass.
-  sig: 0b048d7fb7dbf4962fba70f42ec49779923d39591768a982d95e29ca0caad234
+  c: false
+  h: 80d90d5a99cb9ce3bc20462914e56c33025519bc7a773f153095331537709eae
+  r: "The `code/seed.py` and `code/memory_guard.py` files exist, but the required\
+    \ test `tests/unit/test_seed_consistency.py` is missing, and no `data/raw/residues_*.json`\
+    \ files are present, so the deterministic seeding verification cannot be performed.\
+    \ The memory\u2011guard implementation itself looks correct, but the overall task\
+    \ is incomplete without the seed\u2011consistency test and generated data."
+  sig: 637b6d1cd2b61a7806d8430ba7fd50223f323e045a23fce7242f828087198166
 T003:
   c: true
-  h: 13b0f61d311079c01eb653aabce21f8215e1f1f63539797cf2c75cae5dfa1856
-  r: "Checked `code/memory_guard.py` for the required `MemoryGuard` class with a default\
-    \ 10\u202F000\u2011iteration check interval, 90\u202F% limit logic, and proper\
-    \ raising of `MemoryLimitExceeded`; and verified that `tests/unit/test_memory_guard.py`\
-    \ exercises the class and confirms the exception behavior at the correct thresholds."
-  sig: 5c354f9f5afad582f374e11f77bcc05eac96cdf25dc0c18972c6df82e7e4602f
+  h: 22a53004885339fd73aa98d050a98ce097052421f9837be79fa52857e37d818b
+  r: Checked `code/benchmark.py` implements the required context manager, `scripts/run_dummy.py`
+    runs it, and `results/reports/benchmark_dummy.json` exists with numeric `wall_time_sec`
+    and `peak_memory_mb` fields. The integration test file is not required as an artifact
+    for the task.
+  sig: 4ee949274517fc0b4f2feb6def0a8568145443fb00ee76eef7d6b247e1698ea1
 T004:
+  c: false
+  h: 33dabe70d4af305d9dc845fd7df6a4a296bfa20627fa69146b8f2028a03f11f3
+  r: "The `code/sieve.py` file provides correct \u03C6 values, residue aggregation,\
+    \ and uses `MemoryGuard` as required, and the unit tests pass. However, it does\
+    \ **not** implement the required overflow/logic\u2011error detection that halts\
+    \ execution and logs the offending `n`; no such logging occurs in `compute_phi_linear_sieve`.\
+    \ This missing behavior means the task\u2019s specification is not fully satisfied."
+  sig: cc77205b5b23193628feb58c989fa97b6027b16a99586ecf68a8b6dc93bd470b
+T005:
   c: true
-  h: 51a68f8ca78c8c4dcaff8124a4368964f95e556e0aae3ff9a654b1af50affed7
-  r: "Checked `code/seed.py` for the required `pin_seeds` and `get_seed` functions,\
-    \ proper setting of `random.seed` and `numpy.random.seed`, and persistence of\
-    \ the seed to `code/config.yaml`. Verified that `tests/integration/test_seed_consistency.py`\
-    \ imports these functions, confirms deterministic RNG streams, asserts the config\
-    \ file contains the seed, and validates byte\u2011identical residue JSON outputs\
-    \ across two runs. All required artifacts exist, are non\u2011empty, and behave\
-    \ as specified."
-  sig: 8d02c43ab60c655b7d11634e625a85f9d96f8318d604052ca3d11f9a7071ac9e
+  h: 4e76a07612190f8508ef3f067a1d58f318d7748488a7d9f174d524cce41da221
+  r: "Checked `code/sieve.py` for docstrings and type hints on all public callables,\
+    \ and verified the presence and content of `tests/unit/test_phi_correctness.py`\
+    \ and `tests/unit/test_sieve_mypy.py`, which run the \u03C6\u2011value correctness\
+    \ test up to\u202F100 and invoke `mypy` on the `code/` package with a zero\u2011\
+    exit\u2011code assertion. Both test files exist, are non\u2011empty, and the implementation\
+    \ of `compute_phi_linear_sieve` matches the reference table, satisfying the task\
+    \ requirements."
+  sig: b3cecb9bf9b1f934d2b654a639636e5bce057c91c2186a7bad54d38e36022848
 T006:
-  c: true
-  h: 1f0255bf92ed542d6d42904546e2218d07c4a5c4cf3521863c6ff49a94b560f3
-  r: "The `code/sieve.py` file defines the required `compute_phi_linear_sieve` and\
-    \ `compute_residues` functions, imports and polls `MemoryGuard` every\u202F10\u202F\
-    000 iterations, and raises `MemoryLimitExceeded` on limit breach. The accompanying\
-    \ `tests/unit/test_sieve.py` validates exact \u03C6 values for 1\u201110, correct\
-    \ residue counts for primes 3,\u202F5,\u202F7,\u202F11, and proper memory\u2011\
-    limit exception behavior. All artifacts are present, non\u2011empty, and meet\
-    \ the task specifications."
-  sig: 67f231647a0190dd41783186ade7659e8b77fbc2b35f4788d7c2097e0488beb2
-T007:
-  c: true
-  h: ef4926554387597b419f950e3bc1c0b1318bae6da92ac9ef32bbe61737202a4d
-  r: "Checked `code/sieve.py` for docstrings on all public functions and classes (including\
-    \ re\u2011exported `MemoryGuard` and exception classes) and verified they are\
-    \ present, and inspected the type annotations on every public callable. Ran the\
-    \ provided `tests/unit/test_sieve_mypy.py` which executes `mypy code` and confirms\
-    \ a zero exit code, indicating no type\u2011checking errors."
-  sig: 69bbaf8734c342e7798236ab98112815b7e0d518c7733ebbb00de8d3c920912e
-T008:
   c: false
-  h: b5573c91fc26366ee430bc29977170caac8ed3b650b7d6b4453f39032045fc7d
-  r: "The `code/stats.py` file does not provide the required `calculate_chi_squared_statistic(dataset:\
-    \ ResidueDataset) -> float` (it expects separate counts, prime, N and returns\
-    \ a tuple) and its `run_chi_squared_test` signature and logic differ from the\
-    \ specification (default `M` is 1000, Monte\u2011Carlo is always used instead\
-    \ of optional, and method strings do not match the required schema). Consequently\
-    \ the three required sub\u2011tests (uniform, biased, and small\u2011N exact case)\
-    \ are not exercised, so the task is not fully satisfied."
-  sig: 0581af997c18c7f6692c7919c990616fd747601b250fbaff2f806e54f0748bf3
-T009:
-  c: false
-  h: 0a97626768179cac6518a5ecd4b78191d1172f190fe992d22439d2707678c312
-  r: '`code/flags.py` exists and its logic (alpha_pass p>0.05, bonferroni_pass p>0.05/4,
-    overall_pass conjunction, output to `results/reports/flag_{prime}_{N}.json`) matches
-    the spec, but the required verification artifact `tests/unit/test_flags.py` is
-    MISSING, and no `results/reports/flag_*.json` output or any execution evidence
-    exists to confirm the module actually runs (e.g., that `paths.results` resolves
-    correctly). The next implementer must add the unit test feeding high-p and low-p
-    results and demonstrate it passes.'
-  sig: 4354c2bea95088f27f8ff2b81a25e1d06d83f111beff002f801e748f5d20dc8a
-T010:
-  c: false
-  h: 0ae48f38b2041126c00a67e77601f052dccef2ce556f16caceec51979972c958
-  r: The integration test `tests/integration/test_visualization.py` is missing, and
-    no PNG files matching `results/plots/bar_*_*.png` or `results/plots/qq_*_*.png`
-    are present, so the required verification cannot be satisfied. The visualizer
-    code exists, but without the test and generated outputs the task is not complete.
-  sig: b028523dd427e8369da09f9198b8f3e8ff1647c0aa31ecc690a924510fce81bb
-T016:
-  c: true
-  h: a81fb03d5e4ea971dce2d300878e657fc16faa2e348dc67509366ba715b9e8c7
-  r: "Checked the presence and content of `tests/unit/test_phi_correctness.py`, which\
-    \ implements parametrized unit tests that compare `compute_phi_linear_sieve` results\
-    \ for all\u202Fn\u202F\u2264\u202F100 against a hard\u2011coded reference table,\
-    \ causing a test (and thus CI) failure on any mismatch."
-  sig: a6273dc710617de4bf949fc522c3cc40f5c9b16f09258953f309123933272306
-T019:
-  c: false
-  h: 67a7c26dc718c131714dd0c5af3960ae9c3f7890932a90a1cafffe032f1a3591
-  r: "The unit test `tests/unit/test_contracts.py` tries to import `validate_all`\
-    \ with `from validate_contracts import validate_all`, but the implementation lives\
-    \ in `code/validate_contracts.py`. Since `validate_contracts.py` is not a top\u2011\
-    level module nor a package, the import will raise `ImportError`, so the test cannot\
-    \ run and cannot verify the contract validation behavior. The utility must be\
-    \ importable as the test expects (e.g., moved to the project root or made a package)\
-    \ for the task to be considered complete."
-  sig: e209fc497b6df09a5b0f3659c4b2e90f9a7f2f6563f43fa814e7f4ee00bcc0d3
+  h: 22c8ca0c155c6d19c7bde4d3744c0059316113c5d83e4c65414cffd870c5e7b2
+  r: "The provided `code/stats.py` does not implement the required `calculate_chi_squared_statistic(dataset:\
+    \ ResidueDataset) -> float` (it uses a three\u2011argument version returning a\
+    \ tuple) and its `run_chi_squared_test` never sets `test_type` to `\"exact_multinomial\"\
+    ` nor respects a `method=\"monte_carlo\"` argument as the specification demands.\
+    \ Moreover, the `tests/unit/test_stats.py` file lacks the three sub\u2011tests\
+    \ described in the task (uniform, biased, and small\u2011N exact\u2011test cases).\
+    \ These mismatches mean the task\u2019s functional and verification requirements\
+    \ are not met."
+  sig: 2830fed75be1bd89ce3e24554ca07abe8b2838329e642d05eb53a7e94b7dd0b3

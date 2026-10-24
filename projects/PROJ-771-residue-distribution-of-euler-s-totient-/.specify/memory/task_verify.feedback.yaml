@@ -1,69 +1,44 @@
 T001:
-  task: 05344b60c9d5469ebee7f71117fba20f954dadae853562f10b0f88e99633880b
+  task: bae565be800ad3f3cfd022405598f00c6d6656decb6faf77cfd4e157f3d4c8e5
 T002:
-  task: 7898493db932b2a1accb27a71b03ebd634c636411a56ed2a1822354eba6db83d
+  reason: "The `code/seed.py` and `code/memory_guard.py` files exist, but the required\
+    \ test `tests/unit/test_seed_consistency.py` is missing, and no `data/raw/residues_*.json`\
+    \ files are present, so the deterministic seeding verification cannot be performed.\
+    \ The memory\u2011guard implementation itself looks correct, but the overall task\
+    \ is incomplete without the seed\u2011consistency test and generated data."
+  task: 6ee8c9cee32f6a0f23ff9ca74d3ef4de289619ae973997b084120e65a4852ef2
 T003:
-  task: dff34484f1d1114492ab8d40786197593ee0ffc1639401119034830117e5d1e6
+  task: 4a89124ad7415f1773c49c355f03a2554e1e4d39da44fb7d3dc592a665aaa625
 T004:
-  task: 2fd98537532ad7a6417db9f8575e3c720f174821d66330fda0c50564167a22b5
+  reason: "The `code/sieve.py` file provides correct \u03C6 values, residue aggregation,\
+    \ and uses `MemoryGuard` as required, and the unit tests pass. However, it does\
+    \ **not** implement the required overflow/logic\u2011error detection that halts\
+    \ execution and logs the offending `n`; no such logging occurs in `compute_phi_linear_sieve`.\
+    \ This missing behavior means the task\u2019s specification is not fully satisfied."
+  task: a6003aa77176355bb4577f89c8758a4e79e600bb9da41df3275e5eb430a4501d
 T005:
-  reason: The `code/benchmark.py` and `scripts/run_dummy.py` files are present and
-    implement the required context manager, but the expected output file `results/reports/benchmark_dummy.json`
-    is missing, so the verification step (existence of a JSON report with numeric
-    `wall_time_sec` and `peak_memory_mb` fields) is not satisfied. The missing benchmark
-    report must be generated and committed.
-  task: e4b96a0d295d3367b45505c9dbd59a9b20d7586a197e32fd904bb9c3a116c6ae
+  task: 199498aef5e7dafb54914a3c56b86079d57ed45d844ff1063210b24e717de6e8
 T006:
-  task: f928cf98dc1d7c59e59806cba5bef7afb742ddae4ca6df3f19c72d3b15225a1a
+  reason: "The provided `code/stats.py` does not implement the required `calculate_chi_squared_statistic(dataset:\
+    \ ResidueDataset) -> float` (it uses a three\u2011argument version returning a\
+    \ tuple) and its `run_chi_squared_test` never sets `test_type` to `\"exact_multinomial\"\
+    ` nor respects a `method=\"monte_carlo\"` argument as the specification demands.\
+    \ Moreover, the `tests/unit/test_stats.py` file lacks the three sub\u2011tests\
+    \ described in the task (uniform, biased, and small\u2011N exact\u2011test cases).\
+    \ These mismatches mean the task\u2019s functional and verification requirements\
+    \ are not met."
+  task: 4499cab26fa8ad876e631d8e222273ff416f14da002fc25f07d3c836a563487f
 T007:
-  task: 31f438ff950fd7c9ce8091228b4a2e1f4c1a2109e37b183e67dad6ca06ceabed
+  task: 999033d7396970010e41d40ea156f029907e1db3ca1bacb3806bc5ad8e205611
 T008:
-  reason: "The `code/stats.py` file does not provide the required `calculate_chi_squared_statistic(dataset:\
-    \ ResidueDataset) -> float` (it expects separate counts, prime, N and returns\
-    \ a tuple) and its `run_chi_squared_test` signature and logic differ from the\
-    \ specification (default `M` is 1000, Monte\u2011Carlo is always used instead\
-    \ of optional, and method strings do not match the required schema). Consequently\
-    \ the three required sub\u2011tests (uniform, biased, and small\u2011N exact case)\
-    \ are not exercised, so the task is not fully satisfied."
-  task: 8ec341a5413163acafaaaa908dae02e01bcaabd9d0d2fd746f43c40db3206732
+  task: 14f5b436972880d2683c83140d3f4caf29857dd43da7bec939c98b1e357a05f9
 T009:
-  reason: '`code/flags.py` exists and its logic (alpha_pass p>0.05, bonferroni_pass
-    p>0.05/4, overall_pass conjunction, output to `results/reports/flag_{prime}_{N}.json`)
-    matches the spec, but the required verification artifact `tests/unit/test_flags.py`
-    is MISSING, and no `results/reports/flag_*.json` output or any execution evidence
-    exists to confirm the module actually runs (e.g., that `paths.results` resolves
-    correctly). The next implementer must add the unit test feeding high-p and low-p
-    results and demonstrate it passes.'
-  task: 8a7d97a06630fc5a7773fcbe8e0abea967b83db45d9c16e2606e30270c3c94c2
+  task: b292e8fd0e37f3fb3f5f8c630e032c39ba357ac3fce4f7bc4a22d74577d35fa1
 T010:
-  reason: The integration test `tests/integration/test_visualization.py` is missing,
-    and no PNG files matching `results/plots/bar_*_*.png` or `results/plots/qq_*_*.png`
-    are present, so the required verification cannot be satisfied. The visualizer
-    code exists, but without the test and generated outputs the task is not complete.
-  task: ae6bcec230fe47c4ca6f90fefb540dc2d27cebfd0bbdd65890e83900d0e0898b
+  task: 590c1521529396536667ac1c3f636586a6fd1a9cf8bf335ad034e0e95d4e491b
 T011:
-  reason: 'Requested task execution failed; rerun successfully: code/run_analysis.py
-    exit=1'
-  task: ed9ab55cbcc485a0c7dcb01341222307fdae64d11aa2fb08bc3cf95dede1d8c0
+  task: f034466affe612f0d29ad70838f5d80d785b3b1f79767d4e81e14b38e4a83259
 T012:
-  task: 9f89bd0dadfb62d51fc9844eea2f14f18b222d7bcf3589bf8d4814d85781c96f
+  task: 5183a0e080e04d8d58ac084c34b0f937b9ba831b78e94994b57054437fcaec6a
 T013:
-  task: b83d6ef4b6fb21372b9a9173dc7c1b9a321e13f536d64637477dc9f3dfa67640
-T014:
-  task: df6cd8d5aed09e611d5d643f98d45e4ffc535662ba2f33a11f1111b102f4e9f4
-T016:
-  task: 7bfb68808712c096fd623fd4f661b7418b93dad857be2222823ebc75c3169d8c
-T017:
-  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_synthetic_stats.py'
-  task: a9b921428e74012cf5d5435f1a48dfd6152cc493609a45d14ed6bde7e33b7ce5
-T018:
-  task: 7ba4f04b6009d60940afaf64bfbc369c6be080b5a60a1d0dc018aa4599d90a39
-T019:
-  reason: "The unit test `tests/unit/test_contracts.py` tries to import `validate_all`\
-    \ with `from validate_contracts import validate_all`, but the implementation lives\
-    \ in `code/validate_contracts.py`. Since `validate_contracts.py` is not a top\u2011\
-    level module nor a package, the import will raise `ImportError`, so the test cannot\
-    \ run and cannot verify the contract validation behavior. The utility must be\
-    \ importable as the test expects (e.g., moved to the project root or made a package)\
-    \ for the task to be considered complete."
-  task: 5d27586543f96cf8a5cc9158bdf59863ef1dc8b1a057037d11383508c37d761b
+  task: e16db47c3271f59d5c68e5b477675cbc066b76e455676c988d7eda208d197b15

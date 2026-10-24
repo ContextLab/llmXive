@@ -6,13 +6,13 @@
 
 ## Phase 0 – Project‑wide infrastructure (setup, reproducibility, resource guards)
 
-- [ ] T001 Create core configuration and exception modules – implement `code/config.py` (loads `code/config.yaml` exposing `N`, `primes`, `seed`, `memory_limit_mb`) and `code/exceptions.py` defining `TotientError`, `MemoryLimitExceeded`, `InvalidPrimeError`. The configuration loader MUST reject any prime $p \notin \{3, 5, 7, 11\}$ with a clear error message as per the Spec Edge Cases.  
+- [X] T001 Create core configuration and exception modules – implement `code/config.py` (loads `code/config.yaml` exposing `N`, `primes`, `seed`, `memory_limit_mb`) and `code/exceptions.py` defining `TotientError`, `MemoryLimitExceeded`, `InvalidPrimeError`. The configuration loader MUST reject any prime $p \notin \{3, 5, 7, 11\}$ with a clear error message as per the Spec Edge Cases.  
   *Verification*: `tests/unit/test_config.py` loads the sample config and asserts the parsed values; it also asserts that an `InvalidPrimeError` is raised when an unsupported prime is provided. `tests/unit/test_exceptions.py` raises each exception and checks the message string.
 
 - [ ] T002 Implement deterministic seeding and memory guard – add `code/seed.py` (sets `random.seed`, `numpy.random.seed`, exposes `get_seed()`) and `code/memory_guard.py` (class `MemoryGuard` polls `psutil` every 10 000 sieve iterations and raises `MemoryLimitExceeded` if RSS ≥ 90 % of `memory_limit_mb`).  
   *Verification*: `tests/unit/test_seed_consistency.py` runs the full pipeline twice with identical config and confirms the generated `data/raw/residues_*.json` files are byte‑identical; `tests/unit/test_memory_guard.py` simulates rising memory usage and asserts the exception fires at the correct threshold.
 
-- [ ] T003 Benchmark instrumentation and dummy run – create `code/benchmark.py` providing a context manager `benchmark(name: str)` that records wall‑clock time, peak memory (via `MemoryGuard`), and writes a JSON report to `results/reports/benchmark_{name}.json`. Add `scripts/run_dummy.py` that executes `benchmark("dummy")` around a trivial loop to explicitly produce `results/reports/benchmark_dummy.json`.  
+- [X] T003 Benchmark instrumentation and dummy run – create `code/benchmark.py` providing a context manager `benchmark(name: str)` that records wall‑clock time, peak memory (via `MemoryGuard`), and writes a JSON report to `results/reports/benchmark_{name}.json`. Add `scripts/run_dummy.py` that executes `benchmark("dummy")` around a trivial loop to explicitly produce `results/reports/benchmark_dummy.json`.  
   *Verification*: After running `python scripts/run_dummy.py`, `results/reports/benchmark_dummy.json` must exist and contain numeric `wall_time_sec` and `peak_memory_mb` fields; `tests/integration/test_benchmark_dummy.py` checks for the file and validates its schema.
 
 ---  
@@ -25,7 +25,7 @@
   The module must import and use `MemoryGuard` (poll every 10 000 iterations).  
   *Verification*: `tests/unit/test_sieve.py` checks exact φ values for `n=1…10`, correct residue counts for primes `3,5,7,11`, and proper exception raising/logging under a forced low memory limit.
 
-- [ ] T005 Documentation, static typing, and φ‑value correctness suite – add comprehensive docstrings and full type hints to all public callables in `code/sieve.py`; run `mypy` over the `code/` package with zero errors. Write `tests/unit/test_phi_correctness.py` that compares `compute_phi_linear_sieve` outputs for `n ≤ 100` against known tables.  
+- [X] T005 Documentation, static typing, and φ‑value correctness suite – add comprehensive docstrings and full type hints to all public callables in `code/sieve.py`; run `mypy` over the `code/` package with zero errors. Write `tests/unit/test_phi_correctness.py` that compares `compute_phi_linear_sieve` outputs for `n ≤ 100` against known tables.  
   *Verification*: `tests/unit/test_sieve_mypy.py` invokes `mypy` and asserts exit code 0; `tests/unit/test_phi_correctness.py` asserts exact matches for all reference values.
 
 ---  
