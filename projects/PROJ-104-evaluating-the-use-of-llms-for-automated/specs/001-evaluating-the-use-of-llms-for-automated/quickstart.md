@@ -1,77 +1,116 @@
 # Quickstart: Running the LLM Fidelity Evaluation Pipeline
 
 ## Prerequisites
-- Python 3.11 installed.  
-- Internet access (required for cloning repositories and downloading model weights).  
-- CPU‑only runner (2 CPU cores, ~7 GB RAM is sufficient; no GPU is required for the default run).  
+- **Python** 3.11 (exact version required for reproducibility).  
+- Internet access (to clone repositories and download model weights).  
+- A GitHub personal access token (optional but recommended to increase API rate limits).  
+- CPU‑only environment (2 CPU cores, ~7 GB RAM; no GPU needed).
 
-## Setup
+## Required Packages
+```text
+requests==2.32.3
+gitpython==3.1.43
+datasets==2.20.0
+transformers==4.44.2
+bitsandbytes==0.44.1
+torch==2.4.0
+scikit-learn==1.5.2
+scipy==1.14.1
+statsmodels==0.15.0
+matplotlib==3.9.2
+seaborn==0.13.2
+pandas==2.2.3
+pyyaml==6.0.2
+tqdm==4.66.5
+regex==2024.9.11
+astor==0.8.1
+```
+Save the above list to `requirements.txt` (already present) and install with:
+
 ```bash
-# 1. Clone the project
-git clone <repository-url>
-cd PROJ-104-evaluating-the-use-of-llms-for-automated
-
-# 2. Create a virtual environment and install dependencies
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-
-# 3. Install model‑inference extras (CPU‑only, 4‑bit quantization)
-pip install transformers bitsandbytes
 ```
 
-## Seed Policy (Constitution I)
-All stochastic components use the single pinned seed `SEED = 42` defined in `src/utils.py`. This seed governs:
-- Monte‑Carlo power analysis,
+## Seed Policy (Constitution I)
+All stochastic operations use the single global seed defined in `src/utils.py`:
+
+```python
+SEED = 42
+```
+
+This seed controls:
 - Random sampling of commits,
-- LLM generation (`do_sample=False` for deterministic output),
-- Zero‑shot classifier (deterministic inference),
-- Bootstrap resampling for confidence intervals.
+- Monte‑Carlo power analysis,
+- Bootstrap resampling for confidence intervals,
+- Zero‑shot classifier deterministic inference (`do_sample=False`).
 
-Re‑running any stage reproduces identical results.
+Re‑running any stage with the same seed yields identical results.
 
-## Smoke Test (Phase 0)
+## Step‑by‑Step Execution
+
+### 1. Smoke Test (Phase 0)
+Runs a minimal end‑to‑end pass on a small set of synthetic commit pairs to verify the pipeline wiring.
+
 ```bash
 python -m src.run_pipeline --sample 5
 ```
-Runs a minimal end‑to‑end pass on five synthetic commit pairs (hard‑coded in `src/utils.py`). Verifies that:
-- Data extraction produces a CSV adhering to the `CommitPair` definition,
-- Generation produces JSON adhering to `GeneratedOutput`,
-- Entity extraction produces `EntitySet`‑compliant output.
 
-## Power Analysis (Phase 1)
+Expected outcome:
+- `data/raw/commit_pairs.csv` with a modest number of rows,
+- `data/processed/fidelity_metrics.csv` with several rows,
+- All contract tests pass (`pytest tests/contract/`).
+
+### 2. Power Analysis (Phase 0)
 ```bash
 python -m src.analysis.power_analysis
 ```
-Outputs `results/power_report.md` with the estimated power for `n = 500` given α = 0.05, effect size f = 0.25, and the variance estimated from pilot data. Flags the run as exploratory if power < 0.8.
+Creates `results/power_report.md` with the estimated power for a representative sample size. The report is automatically included in the final summary.
 
-## Full Pipeline (CPU‑only)
+### 3. Full Pipeline (CPU‑only)
 ```bash
 python -m src.run_pipeline --full
 ```
 What happens:
-1. Power analysis runs and writes `results/power_report.md`.  
-2. Repositories are cloned (cached on subsequent runs).  
-3. Commits from the last two years that touch `.md`/`.rst` are extracted via the GitHub API → `data/raw/commit_pairs.csv` using **stratified sampling** across the five repos.  
-4. A **human‑annotated gold‑standard** of 50 samples is created (`data/gold/annotations.csv`) by two independent annotators; κ ≥ 0.6 is required.  
-5. Each LLM generates a documentation update per commit on CPU (4‑bit, 60 s timeout, up to 2 retries). If a model exceeds the timeout, the pipeline **reduces the per‑model sample size** to stay within the 6 h CI limit.  
-6. Entities are extracted, verified (regex + AST + `git grep`) and fidelity metrics are computed → `data/processed/fidelity_metrics.csv`.  
-7. Statistical tests (normality, Friedman/ANOVA, Holm‑Bonferroni) and visualizations are saved under `results/figures/`.  
-8. Contract validation runs automatically via the test suite; artifacts are checksummed and uploaded as CI artifacts.
 
-## Inspecting Results
-- **Power analysis**: `results/power_report.md`.  
-- **Dataset**: `data/raw/commit_pairs.csv` (validated against `CommitPair` definition).  
-- **Generated outputs**: `data/generated/<model_id>/`.  
-- **Metrics**: `data/processed/fidelity_metrics.csv` (validated against `FidelityMetric` definition).  
-- **Figures**: `results/figures/intent_precision_bar.png`, `results/figures/surface_confusion_matrix.png`.  
-- **Summary report**: `results/summary.md`.
+1. **Power analysis** (writes `results/power_report.md`).  
+2. **Data extraction** – clones the five repos (cached) and pulls commit/diff pairs via the GitHub API; writes `data/raw/commit_pairs.csv`.  
+3. **Gold annotation** – samples a representative set of commits, expects two CSV files `data/gold/annotator_A.csv` and `data/gold/annotator_B.csv`; computes κ and writes `data/gold/annotations.csv`.  
+4. **Model inference** – loads each model in 4‑bit CPU mode, generates docs for a stratified subset (default a representative sample size per model), respects the 60 s timeout, retries up to 2×, logs outcomes in `data/generated/<model_id>/generation_log.txt`. Each generated file is validated against the `GeneratedOutput` schema.  
+5. **Entity extraction** – writes JSON files under `data/intermediate/surface_entities/` and `data/intermediate/intent_entities/`. All JSON conforms to the `EntitySet` schema.  
+6. **Scoring** – aggregates metrics into `data/processed/fidelity_metrics.csv` (validated against `FidelityMetric` schema).  
+7. **Statistical analysis** – writes `results/statistics.json` and a human‑readable `results/statistics.md`.  
+8. **Visualization** – creates PNGs `results/figures/intent_precision_bar.png` and `results/figures/surface_confusion_matrix.png`.  
+9. **Summary** – assembles `results/summary.md` linking to figures and tables.  
+10. **Verification** – runs `pytest` (unit + contract tests); computes SHA‑256 checksums for all files under `data/` and records them in `data/metadata.yaml`.
 
-## Running Tests
+### 4. Running the Test Suite
 ```bash
 pytest tests/contract/
 pytest tests/unit/
 ```
+All tests must pass before committing. The contract tests ensure every output file conforms to the JSON/YAML schemas in `contracts/`.
+
+### 5. Inspecting Results
+- **Power analysis**: `results/power_report.md`  
+- **Dataset**: `data/raw/commit_pairs.csv` (validated against `CommitPair`)  
+- **Generated docs**: `data/generated/<model_id>/`  
+- **Metrics**: `data/processed/fidelity_metrics.csv` (validated against `FidelityMetric`)  
+- **Figures**: `results/figures/intent_precision_bar.png`, `results/figures/surface_confusion_matrix.png`  
+- **Summary**: `results/summary.md`
+
+## Optional: Full‑Scale Run
+If you have more compute time, process the entire sample set:
+
+```bash
+python -m src.run_pipeline --full --samples 500
+```
+
+The pipeline will automatically adjust the CI timeout handling; the same artifacts will be produced but may require more wall‑clock time.
+
+## Quickstart Test Verification
+A dedicated pytest file `tests/test_quickstart.py` runs the above commands in a temporary environment and asserts successful exit codes and the existence of all expected output files. The CI logs the test run; a passing test confirms the quickstart guide is functional.
 
 ---
 

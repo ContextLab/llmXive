@@ -1,13 +1,13 @@
 status: none
-intent: GitHub public commit_message documentation_diff dataset data gold annotations
-  csv python package dataset
+intent: Software Heritage and GitHub paired commit messages documentation diffs python
+  package dataset
 required_fields:
 - commit_hash
 - commit_message
 - repository_name
-- doc_diff
-- timestamp
-- file_path
-cache_key: d8f985eb27a5afc706e70153317d790253f112778f2037b0709c6b635000b9b5
-searched_at: '2026-10-24T21:43:09.324163+00:00'
+- documentation_file_path
+- documentation_diff
+- commit_timestamp
+cache_key: 5a4c8e85b40f46bfd44af7f6af6ffae4adae6ef7447859fb0c7aa3fc4355b5d7
+searched_at: '2026-10-24T21:44:22.505380+00:00'
 retry_count: 1

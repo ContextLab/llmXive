@@ -5,7 +5,7 @@ properties:
   commit_hash:
     type: string
     pattern: "^[0-9a-f]{40}$"
-    description: "The 40-character SHA-1 hash of the commit."
+    description: "The SHA-1 hash of the commit, expressed as a fixed‑length character string."
   commit_message:
     type: string
     description: "The full commit message."

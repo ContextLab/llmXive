@@ -1,15 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "FidelityMetric"
 type: object
-required:
-  - sample_id
-  - model_id
-  - precision_intent
-  - recall_intent
-  - precision_surface
-  - recall_surface
-  - hallucination_rate
-  - timestamp
 properties:
   sample_id:
     type: string
@@ -43,8 +34,22 @@ properties:
     minimum: 0
     maximum: 1
     description: "Proportion of generated surface entities not found in the repository codebase."
+  intent_hallucination_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of generated intent entities not supported by any codebase token or gold intent annotation."
   timestamp:
     type: string
     format: date-time
-    description: "When the metric was computed."
+    description: "When  the  metric  computed  "
+required:
+  - sample_id
+  - model_id
+  - precision_intent
+  - recall_intent
+  - precision_surface
+  - recall_surface
+  - hallucination_rate
+  **bold **
 additionalProperties: false

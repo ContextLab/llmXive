@@ -1,13 +1,11 @@
-- artifact_hash: b7cfe0ce765ec221c9cb96ba81c244d5d0aeca6b18489b729695a681bd1d5529
+- artifact_hash: d14b3118c6cf96b541bd5e56615bb81c4daca35fab1eb6835ed0e0ff9c3453e0
   artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/specs/001-evaluating-the-use-of-llms-for-automated/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "GitHub - pandas-dev/pandas: Flexible and powerful data analysis\
-    \ / manipulation library for Python, providing labeled data structures similar\
-    \ to R data.frame objects, statistical functions, and much more \xB7 GitHub"
+  fetched_title: null
   kind: url
-  value: https://github.com/pandas-dev/pandas.git`
+  value: https://api.github.com/...`
   verification_status: pending
-  verified_against_url: https://github.com/pandas-dev/pandas
-  verified_at: '2026-10-22T20:29:42.036044Z'
+  verified_against_url: https://api.github.com/
+  verified_at: '2026-10-24T21:49:51.940286Z'

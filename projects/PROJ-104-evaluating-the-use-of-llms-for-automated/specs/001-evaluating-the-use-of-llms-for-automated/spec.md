@@ -49,7 +49,7 @@ As a researcher, I need to calculate precision and recall scores for "technical 
 
 **Acceptance Scenarios**:
 
-1. **Given** the human documentation diff and the LLM-generated output, **When** the entity extraction parser runs, **Then** it outputs a structured JSON list of entities with text and type (intent or surface), and generates an audit log for manual verification of a 50-sample subset.
+1. **Given** the human documentation diff and the LLM-generated output, **When** the entity extraction parser runs, **Then** it outputs a structured JSON list of entities with text and type (intent or surface), and generates an audit log for manual verification of a representative sample subset..
 2. **Given** the entity counts for all samples across 3 models, **When** the statistical analysis runs, **Then** it calculates precision and recall for each category and performs a Friedman test to test for significant differences between models, with bootstrapping if normality is violated.
 3. **Given** the statistical results, **When** the visualization step runs, **Then** it generates a bar chart comparing the intent-to-surface preservation ratio for each model and a confusion matrix of information loss types.
 

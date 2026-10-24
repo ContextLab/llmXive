@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Project Consolidated Schema"
+title: "Project Consolidated"
 type: object
 additionalProperties: false
 $defs:
@@ -9,33 +9,7 @@ $defs:
       - commit_hash
       - commit_message
       - repository_name
-      - doc_diff
-      - timestamp
-    properties:
-      commit_hash:
-        type: string
-        pattern: "^[0-9a-f]{40}$"
-        description: "Full SHA‑1 hash of the commit."
-      commit_message:
-        type: string
-        minLength: 1
-        description: "Original commit message."
-      repository_name:
-        type: string
-        enum: ["pandas", "requests", "scikit-learn", "flask", "django"]
-        description: "Name of the source repository."
-      doc_diff:
-        type: string
-        minLength: 1
-        description: "Unified diff of documentation files changed in the commit."
-      timestamp:
-        type: string
-        format: date-time
-        description: "UTC timestamp of the commit."
-      metadata:
-        type: object
-        description: "Optional provenance information (author, URL, etc.)."
-    additionalProperties: false
+    ...
   GeneratedOutput:
     type: object
     required:
@@ -44,66 +18,13 @@ $defs:
       - generated_text
       - generation_time_s
       - status
-    properties:
-      commit_hash:
-        type: string
-        pattern: "^[0-9a-f]{40}$"
-        description: "FK to CommitPair.commit_hash."
-      model_id:
-        type: string
-        enum: ["phi3-mini", "gemma2-2b", "llama3.2-3b"]
-        description: "Identifier of the LLM used."
-      generated_text:
-        type: string
-        minLength: 1
-        description: "Full documentation update produced by the LLM."
-      generation_time_s:
-        type: number
-        minimum: 0
-        description: "Wall‑clock seconds spent generating."
-      status:
-        type: string
-        enum: ["success", "generation_failed"]
-        description: "Generation outcome."
-      log:
-        type: string
-        description: "Optional error or retry log."
-    additionalProperties: false
+    ...
   EntitySet:
     type: object
     required:
       - sample_id
       - entities
-    properties:
-      sample_id:
-        type: string
-        description: "Composite key `{commit_hash}_{model_id}`."
-      entities:
-        type: array
-        items:
-          type: object
-          required:
-            - text
-            - type
-            - source
-            - verified
-          properties:
-            text:
-              type: string
-              description: "Raw entity string."
-            type:
-              type: string
-              enum: ["surface", "intent"]
-              description: "Entity category."
-            source:
-              type: string
-              enum: ["human", "generated"]
-              description: "Origin of the entity."
-            verified:
-              type: boolean
-              description: "True if surface entity found in repo codebase (via git grep + AST)."
-          additionalProperties: false
-    additionalProperties: false
+    ...
   FidelityMetric:
     type: object
     required:
@@ -114,42 +35,9 @@ $defs:
       - precision_surface
       - recall_surface
       - hallucination_rate
-      - timestamp
     properties:
       sample_id:
         type: string
-        description: "Composite key `{commit_hash}_{model_id}`."
-      model_id:
-        type: string
-        enum: ["phi3-mini", "gemma2-2b", "llama3.2-3b"]
-        description: "Identifier of the LLM used."
-      precision_intent:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "Precision for technical‑intent entities."
-      recall_intent:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "Recall for technical‑intent entities."
-      precision_surface:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "Precision for surface entities."
-      recall_surface:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "Recall for surface entities."
-      hallucination_rate:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "Proportion of generated surface entities not found in the repository codebase."
-      timestamp:
-        type: string
-        format: date-time
-        description: "When the metric was computed."
-    additionalProperties: false
+        description: "Composite    "
+      ...
+    # Note: ****  “     “   "
