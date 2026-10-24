@@ -1,12 +1,11 @@
 status: none
-intent: download clinical trial RCT-1 MCAR-0 MAR-0 datasets python package dataset
+intent: OpenML clinical trial RCT-1 JSONL MCAR-0 Parquet MAR-0 CSV python package
 required_fields:
-- subject_id
 - treatment
 - outcome
-- covariate_1
-- covariate_2
-- covariate_3
-cache_key: 3648d34d34d1e833c50ea2d9ebd38c8fdcdfe67561700eaa62c6b12bf4d27a07
-searched_at: '2026-10-24T05:26:19.147153+00:00'
+- feature_1
+- feature_2
+- feature_3
+cache_key: af76d491b5a8b42bcc251c5a01e1940b848931d8fe5ef3e27079ae2d18c55a4c
+searched_at: '2026-10-24T06:11:25.231303+00:00'
 retry_count: 1
