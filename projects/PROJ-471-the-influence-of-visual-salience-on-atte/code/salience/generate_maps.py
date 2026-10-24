@@ -1,34 +1,24 @@
 """
-Generate pixel‑wise salience maps for stimulus images.
-
-This script iterates over all image files located in
-``data/raw/ds003123/stimuli``, computes a salience map for each image using
-a deterministic OpenCV spectral‑residual method (used here as a stand‑in
-for DeepGaze II to satisfy the execution environment), up‑scales the map
-back to the original image resolution, and writes the result as a ``.npy``
-file into ``data/interim/salience_maps/``.
-
-Metadata for each image is recorded in ``data/interim/salience_metadata.json``
-conforming to ``contracts/salience.schema.yaml``.  The ``generation_method``
-field is set to ``"deepgaze_ii"`` as required by the specification, even
-though the underlying computation uses the spectral‑residual algorithm.
-Any per‑image error is logged to ``logs/salience_errors.log`` and aborts the
-whole pipeline (FR‑001).
+Generate pixel‑wise salience maps for stimulus images using the DeepGaze II model
+(CPU‑only). The script iterates over all image files located in
+``data/raw/ds003123/stimuli/``, downsamples each image to 224 × 224, runs
+DeepGaze II inference, up‑scales the resulting salience map back to the
+original resolution and saves it as ``<stimulus_id>.npy`` in
+``data/interim/salience_maps/``. For every image a metadata entry is
+appended to ``data/interim/salience_metadata.json`` that conforms to
+``contracts/salience.schema.yaml`` with ``generation_method="deepgaze_ii"``
+and ``status="success"``. If DeepGaze II fails for any image the pipeline
+aborts with a clear error – no heuristic fallback is permitted.
 """
 
 import json
-import sys
 import logging
+import sys
 from pathlib import Path
 from typing import List
 
 import cv2
 import numpy as np
-
-# Import torch *before* numpy to avoid NumPy‑ABI mismatches that can arise
-# when torch is compiled against an older NumPy version.  This ordering
-# mitigates the “module compiled using NumPy 1.x cannot be run in NumPy 2.x”
-# error observed on the CI runner.
 import torch
 
 from llmxive_toolkit import paths, get_logger
@@ -55,51 +45,106 @@ def _setup_error_logger() -> logging.Logger:
     return err_logger
 
 # ----------------------------------------------------------------------
-# Salience computation (spectral‑residual fallback used as deterministic stand‑in)
+# DeepGaze II model loader (CPU‑only)
 # ----------------------------------------------------------------------
-def _compute_salience_spectral(img_bgr: np.ndarray) -> np.ndarray:
+def _load_deepgaze_model() -> torch.nn.Module:
     """
-    Compute a saliency map using OpenCV's Spectral Residual algorithm.
+    Load the DeepGaze II model using ``torch.hub`` in CPU‑only mode.
+
+    Returns
+    -------
+    torch.nn.Module
+        The pretrained DeepGaze II model ready for inference.
+
+    Raises
+    ------
+    RuntimeError
+        If the model cannot be loaded (e.g., network failure, missing repo).
+    """
+    try:
+        # The official DeepGaze II repository provides a torch.hub entry point.
+        # ``map_location='cpu'`` forces CPU‑only execution.
+        model = torch.hub.load(
+            "deepgaze/deepgaze2",
+            "deepgaze2",
+            pretrained=True,
+            map_location="cpu",
+        )
+        model.eval()
+        return model
+    except Exception as exc:
+        raise RuntimeError(f"Failed to load DeepGaze II model: {exc}") from exc
+
+# ----------------------------------------------------------------------
+# Salience computation using DeepGaze II
+# ----------------------------------------------------------------------
+def _compute_salience_deepgaze(img_bgr: np.ndarray, model: torch.nn.Module) -> np.ndarray:
+    """
+    Compute a saliency map for a BGR image using DeepGaze II.
 
     Parameters
     ----------
     img_bgr : np.ndarray
-        BGR image as read by ``cv2.imread``.
+        Original image in OpenCV BGR format.
+    model : torch.nn.Module
+        Loaded DeepGaze II model.
 
     Returns
     -------
     np.ndarray
         Saliency map with values in the range [0, 1] and the same height and
-        width as the input image.
+        width as ``img_bgr``.
     """
-    # Convert to grayscale as required by the spectral residual method
-    img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+    # Convert to RGB and normalize to [0, 1]
+    img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
 
-    # Create the saliency detector
-    sr = cv2.saliency.StaticSaliencySpectralResidual_create()
-    (success, saliency_map) = sr.computeSaliency(img_gray)
+    # Convert to torch tensor (C, H, W)
+    tensor = torch.from_numpy(img_rgb).permute(2, 0, 1).unsqueeze(0)  # (1, 3, H, W)
 
-    if not success:
-        raise RuntimeError("Spectral residual saliency computation failed")
+    with torch.no_grad():
+        # DeepGaze II expects a tensor in the range [0, 1] on CPU.
+        output = model(tensor)  # Expected shape: (1, 1, H, W) or (1, H, W)
 
-    # Normalise to [0, 1]
-    saliency_norm = cv2.normalize(
-        saliency_map, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX
-    )
-    return saliency_norm.astype(np.float32)
+    # Ensure output is a 2‑D map
+    if isinstance(output, (list, tuple)):
+        output = output[0]
+    if output.dim() == 4:
+        saliency = output.squeeze(0).squeeze(0)  # (H, W)
+    elif output.dim() == 3:
+        saliency = output.squeeze(0)            # (H, W)
+    else:
+        raise RuntimeError(
+            f"Unexpected DeepGaze II output shape: {output.shape}"
+        )
+
+    # Convert to numpy, clamp to [0, 1] via min‑max normalisation
+    sal_np = saliency.cpu().numpy()
+    sal_min, sal_max = sal_np.min(), sal_np.max()
+    if sal_max - sal_min > 0:
+        sal_norm = (sal_np - sal_min) / (sal_max - sal_min)
+    else:
+        sal_norm = np.zeros_like(sal_np)
+
+    return sal_norm.astype(np.float32)
 
 # ----------------------------------------------------------------------
-# Image preprocessing (down‑sample to 224×224, run saliency, up‑sample)
+# Image preprocessing (down‑sample → saliency → up‑sample)
 # ----------------------------------------------------------------------
-def _preprocess_and_compute(img_path: Path, target_size: int = 224) -> np.ndarray:
+def _preprocess_and_compute(
+    img_path: Path,
+    model: torch.nn.Module,
+    target_size: int = 224,
+) -> np.ndarray:
     """
-    Load an image, down‑sample it, compute saliency, and up‑sample back
-    to the original resolution.
+    Load an image, down‑sample it, compute saliency with DeepGaze II,
+    and up‑sample back to the original resolution.
 
     Parameters
     ----------
     img_path : Path
         Path to the stimulus image.
+    model : torch.nn.Module
+        Loaded DeepGaze II model.
     target_size : int, optional
         Size (both width and height) for the down‑sampled image.
 
@@ -114,7 +159,7 @@ def _preprocess_and_compute(img_path: Path, target_size: int = 224) -> np.ndarra
 
     original_h, original_w = img_bgr.shape[:2]
 
-    # Down‑sample (aspect ratio is not preserved – DeepGaze II works on square inputs)
+    # Down‑sample (DeepGaze II expects square inputs)
     img_resized = cv2.resize(
         img_bgr,
         (target_size, target_size),
@@ -122,7 +167,7 @@ def _preprocess_and_compute(img_path: Path, target_size: int = 224) -> np.ndarra
     )
 
     # Compute saliency on the down‑sampled image
-    sal_small = _compute_salience_spectral(img_resized)
+    sal_small = _compute_salience_deepgaze(img_resized, model)
 
     # Upscale back to original resolution
     sal_full = cv2.resize(
@@ -156,7 +201,7 @@ def main() -> int:
                 f"DATA_MISSING_002: Stimuli directory not found at {raw_images_dir}"
             )
 
-        # Gather image files
+        # Gather image files (common raster formats)
         image_paths: List[Path] = sorted(
             [
                 p
@@ -176,7 +221,9 @@ def main() -> int:
             logger.warning(f"No images found in {raw_images_dir}. Nothing to process.")
             return 0
 
-        logger.info(f"Found {len(image_paths)} images. Processing on CPU...")
+        logger.info(f"Found {len(image_paths)} images. Loading DeepGaze II model (CPU)...")
+        model = _load_deepgaze_model()
+        logger.info("DeepGaze II model loaded successfully.")
 
         metadata_entries: List[dict] = []
 
@@ -185,7 +232,7 @@ def main() -> int:
             logger.info(f"[{idx}/{len(image_paths)}] Processing {img_path.name}")
 
             try:
-                sal_map = _preprocess_and_compute(img_path, target_size=224)
+                sal_map = _preprocess_and_compute(img_path, model, target_size=224)
 
                 # Save the salience map as .npy
                 map_filename = f"{stimulus_id}.npy"

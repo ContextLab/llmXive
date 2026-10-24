@@ -12,7 +12,8 @@ The script follows the specification for task T004:
   ``<stimulus_id>_face.png`` and ``<stimulus_id>_weapon.png``.
 - Images with no detections or low‑confidence detections are logged to
   ``data/interim/flagged_images.csv`` and also recorded in
-  ``data/interim/detection_metadata.json``.
+  ``data/interim/detection_metadata.json``. Each metadata entry now includes
+  a ``detector_used`` field indicating which detector produced the mask.
 - All provenance (copied masks) is saved to ``data/interim/mask_provenance.json``.
 - The script exits with status 0 on success; any unexpected exception aborts
   with a clear error (no silent fall‑backs or synthetic data).
@@ -71,7 +72,6 @@ def _load_detectron2_predictor() -> Any:
         from detectron2.engine import DefaultPredictor
         from detectron2.config import get_cfg
         from detectron2 import model_zoo
-        from detectron2.data import MetadataCatalog
     except Exception as exc:
         logger.error(f"Failed to import Detectron2 library: {exc}")
         raise RuntimeError("Detectron2 library is not available.") from exc
@@ -115,13 +115,15 @@ def _record_detection(
     roi_type: str,
     num_detections: int,
     mean_confidence: Optional[float],
+    detector_used: str,
 ) -> None:
-    """Append a detection‑metadata entry."""
+    """Append a detection‑metadata entry, now including the detector name."""
     entry = {
         "stimulus_id": stimulus_id,
         "roi_type": roi_type,
         "num_detections": num_detections,
         "mean_confidence": mean_confidence,
+        "detector_used": detector_used,
     }
     metadata.append(entry)
 
@@ -316,6 +318,7 @@ def main() -> int:
                 "face",
                 face_cnt,
                 face_conf,
+                detector_used="yolov8",
             )
             if face_cnt == 0:
                 flagged_rows.append(
@@ -340,6 +343,7 @@ def main() -> int:
                 "weapon",
                 weapon_cnt,
                 weapon_conf,
+                detector_used="detectron2",
             )
             if weapon_cnt == 0:
                 flagged_rows.append(

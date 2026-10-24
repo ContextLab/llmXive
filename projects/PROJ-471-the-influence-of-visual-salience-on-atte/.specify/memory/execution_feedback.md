@@ -23,27 +23,27 @@ Traceback (most recent call last):
   File "<frozen runpy>", line 88, in _run_code
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 157, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 91, in main
-    raise RuntimeError(
-RuntimeError: DATA_MISSING_001: ds003123 incomplete (no sub‑* participant folders)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 78, in main
+    raise RuntimeError("DATA_MISSING_001: ds003123 not found")
+RuntimeError: DATA_MISSING_001: ds003123 not found
 
 - python -m pytest tests/ -q -> rc=2
-/code/scr/update_spec_governance.py)
-=============================== warnings summary ===============================
-../../.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/torch/nn/modules/transformer.py:20
+1/site-packages/torch/nn/modules/transformer.py:20
   /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/torch/nn/modules/transformer.py:20: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)
     device: torch.device = torch.device(torch._C._get_default_device()),  # torch.device('cpu'),
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR tests/integration/test_pipeline.py
+ERROR tests/integration/test_pipeline.py - RuntimeError: The `huggingface_hub...
 ERROR tests/test_alignment.py - json.decoder.JSONDecodeError: Expecting value...
+ERROR tests/test_download_success.py - RuntimeError: The `huggingface_hub` li...
 ERROR tests/unit/test_add_disclaimer.py
+ERROR tests/unit/test_download_data.py - RuntimeError: The `huggingface_hub` ...
 ERROR tests/unit/test_salience_batcher.py
 ERROR tests/unit/test_salience_gen.py
 ERROR tests/unit/test_update_spec_governance.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-1 warning, 6 errors in 3.44s
+!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
+1 warning, 8 errors in 3.93s
 
 
 
@@ -87,6 +87,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/interim/salience_metadata.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/aligned_data.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/align_data.py` — NOT invoked by the run-book
+    - `code/analysis/collinearity_and_modeling.py` — NOT invoked by the run-book
     - `code/analysis/lmm_fit.py` — NOT invoked by the run-book
     - `code/processing/alignment.py` — NOT invoked by the run-book
     - `code/processing/alignment_validator.py` — NOT invoked by the run-book
@@ -95,6 +96,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/align_data.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/alignment_stats.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/results.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/collinearity_and_modeling.py` — NOT invoked by the run-book
     - `code/analysis/feature_gen.py` — NOT invoked by the run-book
     - `code/analysis/lmm_fit.py` — NOT invoked by the run-book
     - `code/analysis/null_result_logger.py` — NOT invoked by the run-book
@@ -102,7 +104,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/robustness.py` — NOT invoked by the run-book
     - `code/analysis/vif_calc.py` — NOT invoked by the run-book
     - `code/analysis/vif_interpretation.py` — NOT invoked by the run-book
-    - `code/analysis/write_final_results.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/checksums.json` is declared but was NOT written. Scripts referencing it:
     - `code/ingestion/download_data.py` — NOT invoked by the run-book

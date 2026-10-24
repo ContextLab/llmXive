@@ -49,7 +49,7 @@ def compute_edge_density(image: np.ndarray, low_threshold: int = 100, high_thres
     Args:
         image: BGR image loaded by OpenCV.
         low_threshold: Lower threshold for Canny edge detection.
-        high_threshold: Upper threshold for Canny edge detection.
+        high_threshold: Higher threshold for Canny edge detection.
 
     Returns:
         Ratio of edge pixels (float).
@@ -217,12 +217,29 @@ def main() -> None:
     3. Computes luminance, contrast, edge density, and scene complexity for each image.
     4. Writes the results to both CSV and JSON files in `data/interim/`.
     """
+    # Load configuration and path helpers
     config = load_config()
     paths = get_paths()
 
-    raw_dir = paths.raw_data
-    csv_path = paths.interim / "low_level_features.csv"
-    json_path = paths.interim / "low_level_features.json"
+    # Resolve raw data directory (where stimulus images reside)
+    raw_dir = getattr(paths, "raw_data", None)
+    if raw_dir is None:
+        # Fallback: expect a callable `raw` that returns the base raw folder
+        if callable(getattr(paths, "raw", None)):
+            raw_dir = paths.raw()
+        else:
+            raise RuntimeError("Unable to determine raw data directory from get_paths().")
+
+    # Resolve the base interim directory (may be a callable)
+    if callable(getattr(paths, "interim", None)):
+        interim_base = paths.interim()
+    else:
+        interim_base = getattr(paths, "interim", None)
+        if interim_base is None:
+            raise RuntimeError("Unable to determine interim directory from get_paths().")
+
+    csv_path = interim_base / "low_level_features.csv"
+    json_path = interim_base / "low_level_features.json"
 
     # Ensure output directory exists
     csv_path.parent.mkdir(parents=True, exist_ok=True)
@@ -241,8 +258,6 @@ def main() -> None:
         return
 
     features = []
-    failed_images = []
-
     for image_path in image_paths:
         try:
             logger.debug(f"Processing {image_path.name}")
@@ -257,8 +272,7 @@ def main() -> None:
         except Exception as e:
             error_msg = f"Failed to process {image_path.name}: {str(e)}"
             logger.error(error_msg)
-            failed_images.append({"image_id": image_path.stem, "error": str(e)})
-            # Fail loudly as required by the contract
+            # Abort loudly as required by the contract
             raise RuntimeError(error_msg) from e
 
     # Write both CSV and JSON representations

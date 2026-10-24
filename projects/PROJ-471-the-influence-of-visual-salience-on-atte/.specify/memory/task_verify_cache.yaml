@@ -1,41 +1,53 @@
+T001:
+  c: true
+  h: 6207e32ad0b3b014a1954225f713d9e92bb7939b67380fef238b6cc995ca7156
+  r: "Checked `code/bootstrap.py` for the required `--root` argument handling, path\
+    \ patching, directory creation, requirements.txt generation, and quickstart.md\
+    \ content; verified that `tests/test_bootstrap.py` exists and matches the expected\
+    \ assertions, and that the script\u2019s logic satisfies all those checks."
+  sig: 2a3f991aa3b25ad4faa62111b77a737a01cf379698b9f2f7d9ad652403dfad9b
 T002:
   c: true
-  h: 34987c3fcc1344c64711e22dc39ba62fcc8771af753a62a659b9bd3c06dd6d50
-  r: "Checked `code/ingestion/verify_data.py` \u2013 it verifies the dataset directory,\
-    \ requires a participant folder, hashes all files under `stimuli/` and participant\
-    \ folders, and writes a non\u2011empty `data/raw/checksums.json` with the required\
-    \ `{ \"files\": { \u2026 } }` structure, raising `RuntimeError(\"DATA_MISSING_001:\
-    \ ds003123 \u2026\")` on any failure. The accompanying `tests/test_verify_data.py`\
-    \ validates these behaviours. No required files are missing or empty."
-  sig: 3e23e28abe80360c49ae5d4155fa2b0a5f4ca95619ff7381b9f796e5313dd1a5
+  h: bfd1acbe4dad2abd49359aa851831a11650f7c515652e688bf0bdc1b9e069c23
+  r: "Checked `code/ingestion/verify_data.py` implementation and `tests/test_verify_data.py`;\
+    \ the script performs all required existence checks, hashes every file under `stimuli/`\
+    \ and participant folders, writes a non\u2011empty `data/raw/checksums.json` with\
+    \ the correct structure, and raises the exact `RuntimeError` messages expected\
+    \ by the test suite."
+  sig: 89b56916a3e8ba89f7ce871471cd6815b632c48ff93b4fa44d567fee838828d7
+T003:
+  c: false
+  h: 84685574ac82ccee049a97a0eae4bcbcbd25676fb74a7b13bed3371a418bad10
+  r: The script `code/salience/generate_maps.py` exists, but the required input directory
+    `data/raw/ds003123/stimuli/` (and the image files it must process) are missing,
+    causing the script to abort with a runtime error and the test suite to fail (it
+    expects a zero exit code and generated `.npy` maps). Without the stimulus images
+    the task cannot be verified as completed.
+  sig: 3b569814db1603e603c207d5662a5821a7ca03b8e1923e4b36d1a06c66389cf5
 T004:
-  c: false
-  h: b8d022ba12956b262fac4f5d69e1fcc420c71fd4e2dc5b97e76529c71386585b
-  r: "The `segment_roi.py` script implements lazy imports and the copy\u2011or\u2011\
-    run logic, but its detection metadata JSON entries lack the required `detector_used`\
-    \ field (e.g., `\"detector_used\": \"detectron2\"` for weapon masks). Consequently\
-    \ the `tests/test_roi_segmentation.py` check for this field will fail. Add the\
-    \ `detector_used` information to each metadata record (and ensure low\u2011confidence\
-    \ cases are logged accordingly)."
-  sig: 0564655f399e41192fed2d5ff148e60f953a9c952feeda2ee1116007392220ce
+  c: true
+  h: eec87f172b513cfd998b0e52a5186ec39602d3819ff11c42977c65704ea06955
+  r: Checked `code/eye_tracking/segment_roi.py` for lazy imports, mask handling, provenance,
+    metadata, and error abort behavior, and verified that `tests/test_roi_segmentation.py`
+    aligns with these expectations. All required artifacts exist and meet the specification.
+  sig: a3e0b9a3521a8fb06445099daf778af222278995347306ea36c05bc72f5ca5f9
 T005:
-  c: false
-  h: 89f0e1859e6172d3c6133e454dafab942d58f438c6e318774a03eec0534e6afb
-  r: "The `parse_fixations.py` script creates the required CSV and passes the provided\
-    \ test, but it does **not** implement robust row\u2011level CSV handling nor does\
-    \ it log warnings for individual trials with malformed or missing gaze data as\
-    \ the task specification demands. It only logs file\u2011level errors, so the\
-    \ requirement to skip malformed rows with warnings and record per\u2011trial exclusions\
-    \ is unmet."
-  sig: f36d15a19a8f876f7bc8d90ee9130296b959a10cb8ae4e61beb50bff1772035c
+  c: true
+  h: bf2f6a99151aab4d364d75dcc1711d84e4d915dff45b20c13be1348441c2014c
+  r: Checked `code/eye_tracking/parse_fixations.py` for required parsing, ROI assignment,
+    metric computation, CSV output and warning logging, and verified that `tests/test_fixation_extraction.py`
+    exercises the script with a temporary dataset and asserts the correct columns,
+    row counts, and metric values. The implementation satisfies all task specifications.
+  sig: 463ffbe3926232d9aa46ee27b7203d705870776289104e13e2b89a7d1a260a4b
 T006:
   c: false
-  h: e4b9463ab9ec4bde77ba60745514162cdc680e055bc20dc5bdba69300dd35ac6
-  r: "The repository contains a full implementation of `code/analysis/feature_gen.py`,\
-    \ but the required output file `data/interim/low_level_features.json` is missing,\
-    \ and the verification test `tests/test_feature_computation.py` is also absent.\
-    \ Without the JSON results and the test suite, the task\u2019s acceptance criteria\
-    \ cannot be satisfied. The next implementer should run the script to generate\
-    \ the JSON (or include a pre\u2011computed version) and add the missing test file\
-    \ that checks the entries, value ranges, and JSON parsability."
-  sig: 2a077180e09ac49f81ed329ffc6a68b6a6054df54f68c3fc214e15ccf88656ee
+  h: 3696d4507586a9dd5e0737f10e13a0b237cb1c2f370bd12650597926288d4d11
+  r: "The `code/analysis/feature_gen.py` script exists, but the required output file\
+    \ `data/interim/low_level_features.json` is missing, and the provided test suite\
+    \ fails during setup because `get_paths()` does not expose a `raw_data` attribute\
+    \ or a callable `raw` as the test expects. Moreover, the script\u2019s scene\u2011\
+    complexity step unconditionally imports Detectron2, which is not guaranteed to\
+    \ be installed in the test environment, causing a runtime error before any JSON\
+    \ can be written. The implementation must (1) expose the raw\u2011data location\
+    \ in a way the test can discover, (2) handle missing Detectron2 "
+  sig: febd861718870636cedbd3decf8d80015c8650784aa749c1f82840eee3e3ffae

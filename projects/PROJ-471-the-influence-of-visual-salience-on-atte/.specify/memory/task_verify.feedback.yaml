@@ -1,52 +1,35 @@
 T001:
-  reason: "The `code/bootstrap.py` script still calls `parser.parse_args()`, causing\
-    \ a `SystemExit` when pytest injects its own command\u2011line arguments (see\
-    \ the test failure log). Because of this the unit test `tests/test_bootstrap.py`\
-    \ aborts before any directories, `requirements.txt`, or `quickstart.md` are created,\
-    \ so the required behavior is not verified. The script must be changed to use\
-    \ `parse_known_args()` (or otherwise ignore unknown arguments) so that it returns\
-    \ 0 and the test can pass."
   task: da69c9ca510538a2821773caaa56a95b15e4bda208dce679ad2941dece860c5c
 T002:
   task: d757de5d2df72f124cfe1d0c7fb7754353c097a9898dd12c06f48885e71273a5
 T003:
-  reason: "The script uses a spectral\u2011residual OpenCV method as a \u201Cstand\u2011\
-    in\u201D for DeepGaze\u202FII (a prohibited heuristic fallback) and never loads\
-    \ DeepGaze\u202FII weights. The raw stimuli directory is empty, so no `.npy` maps\
-    \ or `salience_metadata.json` are created, and the required `data/interim/salience_maps/`\
-    \ and metadata file are missing. The implementation therefore does not meet the\
-    \ task\u2019s core requirements."
+  reason: The script `code/salience/generate_maps.py` exists, but the required input
+    directory `data/raw/ds003123/stimuli/` (and the image files it must process) are
+    missing, causing the script to abort with a runtime error and the test suite to
+    fail (it expects a zero exit code and generated `.npy` maps). Without the stimulus
+    images the task cannot be verified as completed.
   task: e8ca765809c22560286ef9a711376c7dda2ed5bf1150c159cfafbb24b5424dfb
 T004:
-  reason: "The `segment_roi.py` script implements lazy imports and the copy\u2011\
-    or\u2011run logic, but its detection metadata JSON entries lack the required `detector_used`\
-    \ field (e.g., `\"detector_used\": \"detectron2\"` for weapon masks). Consequently\
-    \ the `tests/test_roi_segmentation.py` check for this field will fail. Add the\
-    \ `detector_used` information to each metadata record (and ensure low\u2011confidence\
-    \ cases are logged accordingly)."
   task: 88708ed8fe879e75382443f4a16c02c0097c05bb17496202ea860f2c97d9ac40
 T005:
-  reason: "The `parse_fixations.py` script creates the required CSV and passes the\
-    \ provided test, but it does **not** implement robust row\u2011level CSV handling\
-    \ nor does it log warnings for individual trials with malformed or missing gaze\
-    \ data as the task specification demands. It only logs file\u2011level errors,\
-    \ so the requirement to skip malformed rows with warnings and record per\u2011\
-    trial exclusions is unmet."
   task: 10b0f1883ddaee21fc300ad181591e664208f035e9fc2bc053c81eaa470f1567
 T006:
-  reason: "The repository contains a full implementation of `code/analysis/feature_gen.py`,\
-    \ but the required output file `data/interim/low_level_features.json` is missing,\
-    \ and the verification test `tests/test_feature_computation.py` is also absent.\
-    \ Without the JSON results and the test suite, the task\u2019s acceptance criteria\
-    \ cannot be satisfied. The next implementer should run the script to generate\
-    \ the JSON (or include a pre\u2011computed version) and add the missing test file\
-    \ that checks the entries, value ranges, and JSON parsability."
+  reason: "The `code/analysis/feature_gen.py` script exists, but the required output\
+    \ file `data/interim/low_level_features.json` is missing, and the provided test\
+    \ suite fails during setup because `get_paths()` does not expose a `raw_data`\
+    \ attribute or a callable `raw` as the test expects. Moreover, the script\u2019\
+    s scene\u2011complexity step unconditionally imports Detectron2, which is not\
+    \ guaranteed to be installed in the test environment, causing a runtime error\
+    \ before any JSON can be written. The implementation must (1) expose the raw\u2011\
+    data location in a way the test can discover, (2) handle missing Detectron2"
   task: e35e7a9580e438a9fcddd9fbc1fa223413e028399367a664476fdc81c1bb0156
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/analysis/align_data.py
     exit=1'
   task: 95b7736f094bab45a50fc18894787ce1785e0d2ebd99b3a568f90e93c1d441f7
 T008:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/collinearity_and_modeling.py
+    exit=1'
   task: 54380949a88351115a77f5ece26b554f7d90f2fa0d62f9deed94b3635a5997d2
 T009:
   task: 63f7cf757bbf4216876127e352d8a2da19acc59064d9e9d7847cd17e08f58d98

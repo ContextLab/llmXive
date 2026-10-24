@@ -21,14 +21,17 @@ The script produces a single CSV file:
   first_fixation_prob,fixation_latency_ms``
 
 Trials with missing or malformed gaze data are excluded and a warning is
-written to ``logs/fixation_warnings.log``.
+written to ``logs/fixation_warnings.log``.  The parser is robust to
+malformed rows: any trial that contains NaN or non‑numeric values in the
+required columns is skipped, a per‑trial warning is logged, and processing
+continues.
 """
 
 import csv
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 
 import cv2
 import numpy as np
@@ -126,20 +129,21 @@ def _assign_fixation_to_roi(
 def _process_eye_tracking_file(
     file_path: Path,
     masks_dir: Path,
+    warning_log: Path,
 ) -> Tuple[
-    List[Dict[str, any]],
+    List[Dict[str, Any]],
     Dict[str, int],
     int,
 ]:
     """
-    Parse a single eye‑tracking CSV file.
+    Parse a single eye‑tracking CSV/TSV/TXT file.
 
     Returns
     -------
     - rows: list of dicts ready for CSV output (one per trial‑ROI)
-    - first_fix_counts: dict counting how many trials had the first
+    - first_fix_counts: dict counting how many *valid* trials had the first
       fixation in each ROI
-    - total_trials: total number of trials processed from this file
+    - total_trials: total number of *valid* trials processed from this file
     """
     required_cols = {
         "trial_id",
@@ -166,7 +170,7 @@ def _process_eye_tracking_file(
             f"Eye‑tracking file {file_path} missing required columns: {missing}"
         )
 
-    rows_out: List[Dict[str, any]] = []
+    rows_out: List[Dict[str, Any]] = []
     first_fix_counts: Dict[str, int] = {"face": 0, "weapon": 0, "background": 0}
     total_trials = 0
 
@@ -174,6 +178,16 @@ def _process_eye_tracking_file(
     for (trial_id, participant_id, stimulus_id), trial_df in df.groupby(
         ["trial_id", "participant_id", "stimulus_id"]
     ):
+        # Detect malformed trial: any NaN in required columns
+        if trial_df[required_cols].isnull().any().any():
+            warning_msg = (
+                f"{file_path.name}: trial {trial_id} excluded due to missing or NaN values"
+            )
+            LOG.warning(warning_msg)
+            with warning_log.open("a", encoding="utf-8") as wlog:
+                wlog.write(warning_msg + "\n")
+            continue  # skip this trial entirely
+
         total_trials += 1
         trial_df = trial_df.sort_values("timestamp_ms")
         masks = _collect_masks(stimulus_id, masks_dir)
@@ -233,11 +247,11 @@ def main() -> int:
         output_path = paths.interim("fixations.csv")
         warning_log = paths.logs("fixation_warnings.log")
 
-        # Ensure output directory exists
+        # Ensure output directories exist
         output_path.parent.mkdir(parents=True, exist_ok=True)
         warning_log.parent.mkdir(parents=True, exist_ok=True)
 
-        all_rows: List[Dict[str, any]] = []
+        all_rows: List[Dict[str, Any]] = []
         aggregate_first_fix: Dict[str, int] = {"face": 0, "weapon": 0, "background": 0}
         total_trials = 0
 
@@ -254,7 +268,7 @@ def main() -> int:
             LOG.info(f"Processing eye‑tracking file {ef.name}")
             try:
                 rows, first_counts, trials = _process_eye_tracking_file(
-                    ef, masks_dir
+                    ef, masks_dir, warning_log
                 )
                 all_rows.extend(rows)
                 for roi in aggregate_first_fix:
@@ -263,9 +277,7 @@ def main() -> int:
             except Exception as exc:
                 LOG.error(f"Skipping file {ef.name} due to error: {exc}")
                 with warning_log.open("a", encoding="utf-8") as wlog:
-                    wlog.write(
-                        f"{ef.name}: {exc}\n"
-                    )
+                    wlog.write(f"{ef.name}: {exc}\n")
                 continue
 
         if total_trials == 0:
@@ -301,7 +313,7 @@ def main() -> int:
             f"Fixation extraction completed. CSV written to {output_path}"
         )
         LOG.info(
-            f"Processed {total_trials} trials across {len(eye_files)} files."
+            f"Processed {total_trials} valid trials across {len(eye_files)} files."
         )
         return 0
 
