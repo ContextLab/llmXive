@@ -25,15 +25,15 @@ The system MUST acquire time-resolved human single-cell RNA-seq datasets from pu
 
 ### User Story 2 - Dynamic Network Inference and Rewiring Detection (Priority: P2)
 
-The system MUST infer gene regulatory networks (GRNs) within sliding windows of pseudotime and quantify topological changes (rewiring) between adjacent developmental windows to identify specific transcription factor hubs that change connectivity.
+The system MUST infer gene regulatory networks (GRNs) separately for each predefined **DevelopmentalStage** window (calendar age) and quantify topological changes (rewiring) between adjacent developmental windows to identify specific transcription factor hubs that change connectivity.
 
-**Why this priority**: This is the core analytical engine that transforms static data into dynamic biological insights, directly addressing the research question about "stage-specific rewiring."
+**Why this priority**: This is the core analytical engine that transforms static data into dynamic biological insights, directly addressing the research question about "stage-specific rewiring" while avoiding circular inference that would arise from using pseudotime‑derived windows.
 
-**Independent Test**: Can be fully tested by running the inference on a subset of cells from a single lineage (e.g., excitatory neurons), generating two network graphs for adjacent time windows, and verifying that the edge overlap is < 90% (indicating change) and that specific TFs are identified as "rewired hubs."
+**Independent Test**: Can be fully tested by running the inference on a subset of cells from a single lineage (e.g., excitatory neurons), generating network graphs for two adjacent DevelopmentalStage windows, and verifying that the edge overlap is < 90% (indicating change) and that specific TFs are identified as "rewired hubs."
 
 **Acceptance Scenarios**:
 
-1. **Given** a unified expression matrix and pseudotime ordering, **When** the sliding window GRN inference (e.g., SCENIC/GRNBoost2) runs, **Then** it produces a distinct network graph for each window containing active TFs and their target genes with edge weights.
+1. **Given** a unified expression matrix and cell‑stage annotations, **When** the per‑stage GRN inference (e.g., SCENIC/GRNBoost2) runs, **Then** it produces a distinct network graph for each DevelopmentalStage containing active TFs and their target genes with edge weights.
 2. **Given** two adjacent network graphs, **When** the rewiring detection algorithm executes, **Then** it outputs a list of "rewiring events" with metrics such as edge weight difference and hub stability scores, identifying at least 5 TFs with significant topological shifts.
 3. **Given** the detected rewiring events, **When** the results are visualized, **Then** the user can see a clear transition in network topology between the defined developmental windows (e.g., cortical layer formation).
 
@@ -45,19 +45,19 @@ The system MUST map known neurological disorder risk genes onto the dynamic netw
 
 **Why this priority**: This connects the mechanistic findings (rewiring) to the clinical relevance (disorder vulnerability), completing the research loop and providing the "so what?" for the biological community.
 
-**Independent Test**: Can be fully tested by running the enrichment analysis on a mock dataset where risk genes are randomly assigned; the system must report non-significant p-values, and conversely, when applied to the real data, report significant enrichment for specific disorders.
+**Independent Test**: Can be fully tested by running the enrichment analysis on a mock dataset where risk genes are randomly assigned; the system must report non‑significant p‑values, and conversely, when applied to the real data, report significant enrichment for specific disorders.
 
 **Acceptance Scenarios**:
 
-1. **Given** a list of disorder risk genes (e.g., from GWAS catalogs) and the set of rewired network hubs, **When** the hypergeometric enrichment test runs, **Then** it outputs p-values and odds ratios indicating significant overlap for at least one neurological disorder.
-2. **Given** the observed enrichment statistics, **When** the permutation test (sufficient iterations for robust inference) executes, **Then** the empirical p-value is ≤ 0.05, confirming the result is not due to random chance.
+1. **Given** a list of disorder risk genes (e.g., from GWAS catalogs) and the set of rewired network hubs, **When** the hypergeometric enrichment test runs, **Then** it outputs p‑values and odds ratios indicating significant overlap for at least one neurological disorder.
+2. **Given** the observed enrichment statistics, **When** the permutation test (≥ 500 iterations for robust inference) executes, **Then** the empirical p‑value is ≤ 0.05, confirming the result is not due to random chance.
 3. **Given** the final results, **When** the report is generated, **Then** it explicitly states the correlation between specific rewiring events (e.g., at "Fetal 20w") and the onset window of a specific disorder (e.g., Schizophrenia).
 
 ### Edge Cases
 
 - What happens if the selected dataset lacks sufficient coverage for a specific developmental window (e.g., no samples between 12-16 weeks)? The system must flag this gap and either interpolate using adjacent windows or halt with a clear error indicating insufficient data density for that stage.
 - How does the system handle datasets with high batch effects that prevent integration? The system must detect when integration metrics (e.g., kBET or LISI scores) fall below an acceptable threshold and abort the pipeline, logging the specific batch effect source.
-- What if the permutation test yields an empirical p-value of 0 (no random permutation was as extreme)? The system must report p < 1/N (where N is the number of permutations) rather than 0 to avoid statistical misinterpretation.
+- What if the permutation test yields an empirical p‑value of 0 (no random permutation was as extreme)? The system must report p < 1/N (where N is the number of permutations) rather than 0 to avoid statistical misinterpretation.
 
 ## Requirements *(mandatory)*
 
@@ -65,25 +65,34 @@ The system MUST map known neurological disorder risk genes onto the dynamic netw
 
 - **FR-001**: System MUST download and parse metadata from GEO and BrainSpan to filter for human samples with explicit developmental staging (See US-1).
 - **FR-002**: System MUST normalize count data and apply batch correction (e.g., Harmony) to ensure cell types cluster by biology rather than donor (See US-1).
-- **FR-003**: System MUST infer GRNs using a sliding window approach over pseudotime to capture dynamic changes (See US-2).
+- **FR-003**: System MUST infer GRNs separately for each predefined DevelopmentalStage window (calendar age) to capture dynamic changes (See US-2).
 - **FR-004**: System MUST calculate edge weight differences and hub stability metrics to identify "rewiring events" between adjacent windows (See US-2).
 - **FR-005**: System MUST perform hypergeometric enrichment tests linking rewired hubs to external GWAS risk gene lists (See US-3).
-- **FR-006**: System MUST execute permutation tests (≥1,000 iterations) to validate the statistical significance of enrichment findings (See US-3).
+- **FR-006**: System MUST execute permutation tests (≥ 500 iterations) to validate the statistical significance of enrichment findings (See US-3).
 - **FR-007**: System MUST output results in a format compatible with standard visualization tools (e.g., Cytoscape, Plotly) showing network topology changes (See US-2).
+- **FR-008**: System MUST frame all correlation results between network topology and disorder windows as ASSOCIATIONAL only, avoiding causal language, as the study is observational (See US-3).
+- **FR-009**: System MUST apply a multiple‑comparison correction (e.g., Benjamini‑Hochberg) to all enrichment p‑values to control family‑wise error rate (See US-3).
+- **FR-010**: System MUST include a sensitivity analysis for the "rewiring" threshold, sweeping the edge weight difference cutoff over the set {0.05, 0.1} and applying it to the top 5 most variable DevelopmentalStage windows; it MUST report how the number of identified rewiring events varies (See US-2).
+- **FR-011**: System MUST detect gaps in developmental window coverage and either interpolate using adjacent windows or halt with a clear error if data density is insufficient for the defined window (See US-1).
+- **FR-012**: System MUST evaluate integration quality using kBET or LISI scores and abort the pipeline if the Local Inverse Simpson's Index (LISI) falls below 1.2 **or** if the proportion of variance explained by developmental stage in the top 10 PCs is < 10%, indicating loss of biological signal (see FR-015) (See US-1).
+- **FR-013**: System MUST report permutation p‑values as p < 1/N (where N is the number of iterations) when zero random permutations are as extreme as the observed statistic (See US-3).
+- **FR-014**: System MUST validate the identified disorder‑correlation signals against an independent bulk RNA‑seq time‑course dataset. Bulk time points are mapped to the same DevelopmentalStage windows using calendar age alignment, and rank‑based gene‑set enrichment is performed to account for modality differences; replication must meet the same odds‑ratio and significance criteria as the primary single‑cell analysis (See US-3).
+- **FR-015**: System MUST assess preservation of biological variance after batch correction by computing the proportion of variance explained by developmental stage in the top 10 principal components; this proportion MUST be ≥ 10% (See US-1). This assessment is used by FR-012 to decide whether to abort due to loss of true age‑related signal.
 
 *Note on Methodological Soundness:*
 - **FR-008**: System MUST frame all correlation results between network topology and disorder windows as ASSOCIATIONAL only, avoiding causal language, as the study is observational (See US-3).
-- **FR-009**: System MUST apply a multiple-comparison correction (e.g., Benjamini-Hochberg) to all enrichment p-values to control family-wise error rate (See US-3).
-- **FR-010**: System MUST include a sensitivity analysis for the "rewiring" threshold (sweeping the edge weight difference cutoff over the set {0.01, 0.05, 0.1}) and report how the number of identified rewiring events varies (See US-2).
+- **FR-009**: System MUST apply a multiple‑comparison correction (e.g., Benjamini‑Hochberg) to all enrichment p‑values to control family‑wise error rate (See US-3).
+- **FR-010**: System MUST include a sensitivity analysis for the "rewiring" threshold (sweeping the edge weight difference cutoff over the set {0.05, 0.1}) and report how the number of identified rewiring events varies across the top 5 most variable windows (See US-2).
 - **FR-011**: System MUST detect gaps in developmental window coverage and either interpolate using adjacent windows or halt with a clear error if data density is insufficient for the defined window (See US-1).
-- **FR-012**: System MUST evaluate integration quality using kBET or LISI scores and abort the pipeline if the Local Inverse Simpson's Index (LISI) falls below 1.2, indicating insufficient batch mixing (See US-1).
-- **FR-013**: System MUST report permutation p-values as p < 1/N (where N is the number of iterations) when zero random permutations are as extreme as the observed statistic (See US-3).
-- **FR-014**: System MUST validate the identified disorder-correlation signals against an independent dataset (e.g., bulk RNA-seq time courses from different cohorts) to confirm the enrichment is not a dataset-specific artifact, as mandated by Constitution Principle VII; this is essential to ensure signals are biologically robust (See US-3).
+- **FR-012**: System MUST evaluate integration quality using kBET or LISI scores and abort the pipeline if the Local Inverse Simpson's Index (LISI) falls below 1.2 **or** if variance‑preservation (see FR‑015) falls below 10% (See US-1).
+- **FR-013**: System MUST report permutation p‑values as p < 1/N (where N is the number of iterations) when zero random permutations are as extreme as the observed statistic (See US-3).
+- **FR-014**: System MUST validate the identified disorder‑correlation signals against an independent bulk RNA‑seq time‑course, aligning bulk ages to DevelopmentalStage windows and using rank‑based enrichment to handle modality differences (See US-3).
+- **FR-015**: System MUST assess preservation of biological variance after batch correction; the proportion of variance explained by developmental stage in the top 10 PCs must be ≥ 10% (See US-1).
 
 ### Key Entities
 
 - **DevelopmentalStage**: Represents a specific time window in human brain development (e.g., "Fetal 12-16w"), with attributes for start/end age and sample count.
-- **RegulatoryNetwork**: A graph structure representing TF-target interactions for a specific developmental stage, with attributes for edge weights and hub nodes.
+- **RegulatoryNetwork**: A graph structure representing TF‑target interactions for a specific developmental stage, with attributes for edge weights and hub nodes.
 - **RewiringEvent**: A record of a topological change between two networks, containing the TF involved, the magnitude of change, and the associated developmental windows.
 - **DisorderRiskProfile**: A set of genes associated with a specific neurological disorder, used as the reference for enrichment analysis.
 
@@ -96,20 +105,25 @@ The system MUST map known neurological disorder risk genes onto the dynamic netw
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: The number of successfully integrated cells is measured against the total input cells from the source datasets, targeting ≥ 80% retention after QC (See US-1).
-- **SC-002**: The proportion of variance explained by developmental stage (vs. batch) in the PCA embedding is measured against the pre-integration baseline, targeting an increase of ≥ 20% (See US-1).
-- **SC-003**: The number of identified "rewiring events" is measured against the null distribution generated by the permutation test, requiring an empirical p-value ≤ 0.05 (See US-2).
-- **SC-004**: The enrichment odds ratio for disorder risk genes in rewired hubs is measured against a random gene set of equal size, requiring an odds ratio ≥ 1.5 with FDR-corrected p ≤ 0.05 (See US-3).
+- **SC-002**: The proportion of variance explained by developmental stage (vs. batch) in the PCA embedding is measured against the pre‑integration baseline, targeting an increase of ≥ 20% (See US-1).
+- **SC-003**: The number of identified "rewiring events" is measured against the null distribution generated by the permutation test, requiring an empirical p‑value ≤ 0.05 (See US-2).
+- **SC-004**: The enrichment odds ratio for disorder risk genes in rewired hubs is measured against a random gene set of equal size, requiring an odds ratio ≥ 1.5 with FDR‑corrected p ≤ 0.05 (See US-3).
 - **SC-005**: The stability of the rewiring detection is measured against the sensitivity analysis threshold sweep, requiring that the top 20 identified rewiring events (by edge weight difference) have a Jaccard similarity index ≥ 0.8 across the tested cutoff range (See US-2).
-- **SC-006**: The replication of the enrichment signal in the independent dataset is measured against the primary dataset's effect size, requiring a consistent direction of effect (Odds Ratio ≥ 1.1) and a nominal p-value ≤ 0.1 (See US-3).
-- **SC-007**: The system's ability to detect gaps in developmental window coverage is measured against a known gap-set, requiring [deferred] detection of windows with < 10 cells (See US-1).
-- **SC-008**: The pipeline's robustness to batch effects is measured by the abort rate, requiring [deferred] abort rate when the Local Inverse Simpson's Index (LISI) falls below 1.2 (See US-1).
-- **SC-009**: The statistical reporting of permutation tests is measured against cases where zero permutations are extreme, requiring [deferred] adherence to the 'p < 1/N' reporting format (See US-3).
+- **SC-006**: The replication of the enrichment signal in the independent dataset is measured against the primary dataset's effect size, requiring a consistent direction of effect (Odds Ratio ≥ 1.1) and a nominal p‑value ≤ 0.1 (See US-3).
+- **SC-007**: The system's ability to detect gaps in developmental window coverage is measured against a known gap‑set, requiring detection of windows with < 10 cells (See US-1).
+- **SC-008**: The pipeline's robustness to batch effects is measured by the abort rate, requiring an abort rate ≤ 5% when the Local Inverse Simpson's Index (LISI) falls below 1.2 (See US-1).
+- **SC-009**: The statistical reporting of permutation tests is measured against cases where zero permutations are extreme, requiring adherence to the 'p < 1/N' reporting format (See US-3).
 
 ## Assumptions
 
 - **Data Availability**: It is assumed that the BrainSpan and GEO datasets contain sufficient cell counts (≥ 50,000 total) and explicit developmental staging metadata to support pseudotime inference and windowed analysis.
-- **Compute Constraints**: The analysis assumes the entire pipeline (including 1,000+ permutation iterations) can complete within 6 hours on a CPU-only environment with sufficient RAM, necessitating the use of efficient algorithms (e.g., GRNBoost2) and potential subsampling if data volume exceeds limits.
-- **Algorithm Validity**: It is assumed that SCENIC/GRNBoost2 and Monocle3/Slingshot are appropriate and robust for human single-cell data without requiring GPU acceleration.
-- **GWAS Data Quality**: The external GWAS catalogs used for risk genes are assumed to be curated, high-confidence lists that accurately represent the genetic liability for the selected neurological disorders.
-- **No Causal Claims**: The research design assumes that all findings will be reported as associations, acknowledging that the observational nature of single-cell atlases precludes causal inference without randomization.
-- **Threshold Justification**: The "rewiring" threshold (edge weight difference) is assumed to be initially set at a standard significance threshold based on community standards, but the sensitivity analysis (FR-010) will validate this choice.
+- **Compute Constraints**: The analysis assumes the entire pipeline (including ≥ 500 permutation iterations and the reduced sensitivity sweep) can complete within 6 hours on a CPU‑only environment with sufficient RAM, necessitating the use of efficient algorithms (e.g., GRNBoost2) and potential subsampling if data volume exceeds limits.
+- **Algorithm Validity**: It is assumed that SCENIC/GRNBoost2 and Monocle3/Slingshot are appropriate and robust for human single‑cell data without requiring GPU acceleration.
+- **GWAS Data Quality**: The external GWAS catalogs used for risk genes are assumed to be curated, high‑confidence lists that accurately represent the genetic liability for the selected neurological disorders.
+- **No Causal Claims**: The research design assumes that all findings will be reported as associations, acknowledging that the observational nature of single‑cell atlases precludes causal inference without randomization.
+- **Threshold Justification**: The "rewiring" threshold (edge weight difference) is initially set based on community standards; the sensitivity analysis (FR‑010) will validate this choice.
+- **Permutation Iterations**: Permutation tests are limited to ≥ 500 iterations to stay within the 6‑hour CPU budget while providing robust statistical inference.
+
+# Remaining `[NEEDS CLARIFICATION]` markers
+
+(no `[NEEDS CLARIFICATION]` markers remain)
