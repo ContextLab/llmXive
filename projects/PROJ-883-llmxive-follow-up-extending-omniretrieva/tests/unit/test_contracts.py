@@ -41,7 +41,7 @@ SCHEMAS = {
         "engine_version": "sqlite-3.41",
         "throttle_config": "2 cores, 7 GB",
     },
-    "statistics-result.schema.yaml": {
+    "statistics_result.schema.yaml": {
         "cutoff": 3,
         "spike_point": 2.0,
         "slope_change": 1.5,

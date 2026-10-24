@@ -1,6 +1,13 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: ExecutionMetric
 type: object
+required:
+  - query_id
+  - latency_ms
+  - mismatch_flag
+  - delta_latency
+  - engine_version
+  - throttle_config
 properties:
   query_id:
     type: string
@@ -14,11 +21,4 @@ properties:
     type: string
   throttle_config:
     type: string
-required:
-  - query_id
-  - latency_ms
-  - mismatch_flag
-  - delta_latency
-  - engine_version
-  - throttle_config
-additionalProperties: true
+additionalProperties: false

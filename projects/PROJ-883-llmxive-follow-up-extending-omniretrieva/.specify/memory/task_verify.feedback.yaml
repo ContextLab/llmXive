@@ -1,29 +1,49 @@
 T001:
-  reason: "The repository contains `quickstart.md` and a `tests/integration/test_skeleton.py`,\
-    \ but the test writes its outputs to a temporary directory rather than the required\
-    \ `artifacts/ruff_output.txt` and `artifacts/help_output.txt` paths, and no such\
-    \ artifact files exist in the repo. Consequently the CI verification step cannot\
-    \ confirm the presence of non\u2011empty output files as the task demands."
+  reason: "The `quickstart.md` and `tests/integration/test_skeleton.py` files exist\
+    \ and the help test passes, but the `ruff check code/` test fails (see `code/.tasks/T001.tests_integration_test_skeleton.py.log`),\
+    \ because the project\u2019s `.ruff.toml` is malformed (`[tool.ruff]` is not a\
+    \ valid top\u2011level table). Consequently `artifacts/ruff_output.txt` is not\
+    \ created/non\u2011empty, so the CI verification step is not satisfied. Fix the\
+    \ `.ruff.toml` (or adjust the test) so that `ruff check` exits\u202F0 and produces\
+    \ a non\u2011empty output file."
   task: 9f9c0b4560206240b1373cb3d5fdfe2a7f4ea54abc610a9a571c5df47b8aca9b
 T002:
-  reason: The required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,
-    `execution_metric.schema.yaml`, `statistics_result.schema.yaml`) are reported
-    as missing, causing the unit test `test_schema_validation` to fail, and the duplicate
-    `statistics-result.schema.yaml` has not been removed. The task therefore does
-    not meet the specification.
+  reason: "The required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,\
+    \ `execution_metric.schema.yaml`, `statistics_result.schema.yaml`) are reported\
+    \ as missing, causing the unit test to fail, and the stray duplicate `statistics-result.schema.yaml`\
+    \ has not been removed. The task\u2019s verification conditions are not met."
   task: aaee1af098b65fff093d7bf964cbfe6cf2c8add7984ce40c85c991c5447d6a3c
 T003:
-  reason: "The three loader functions in `code/utils/data_fetcher.py` raise `DataFetchError`\
-    \ because the requested dataset configurations do not exist (`'test'` for MS\u202F\
-    MARCO and `'tables'` for Spider) and the DBpedia download returns a 401 Unauthorized\
-    \ error. Consequently, all three unit tests in `tests/unit/test_data_fetcher.py`\
-    \ fail. The required functionality and passing tests are therefore missing."
+  reason: "The `tests/unit/test_data_fetcher.py` execution log shows failures for\
+    \ both `load_spider` (BuilderConfig\u202F'tables' not found) and `load_dbpedia`\
+    \ (401 Unauthorized when downloading the parquet file). Consequently, the required\
+    \ three loader functions do not all work and the verification tests do not all\
+    \ pass. The `requirements.txt` is correctly pinned, but the data\u2011fetch utilities\
+    \ need fixing so that the Spider tables stream correctly and the DBpedia file\
+    \ can be downloaded without authentication."
   task: c16828ba900b0640760cb90ad5b27d17811b5c9a7e6770e890fae2dcd346e59f
 T004:
+  reason: "The generated queries do not meet the specification: `query_id` is not\
+    \ a UUID4, `ground_truth_plan` is populated instead of `null`, and depth overflow\
+    \ is logged with a generic warning rather than the required `DEPTH_OVERFLOW: query_id=<id>`\
+    \ message. Moreover, the unit test `test_generation_log_exists_and_valid` fails\
+    \ because `data/processed/generation_log.json` is not found at test time, so the\
+    \ required record count and high\u2011complexity graph quota are never verified.\
+    \ Fix the generator to use UUID4 IDs, leave `ground_truth_plan` as `null`, emit\
+    \ the exact overflow log format, and ensure the gene"
   task: cb288a327de842f63ecff2b0a4665ddad2b6051e844e0bd2ff8e37ff3213e8b5
 T005:
+  reason: "The provided `code/generators/reference_engine.py` generates identifiers\
+    \ of the form `gt_plan_<query_id>\u2026` instead of the required `greedy_plan_<8\u2011\
+    hex\u2011hash>` and the unit test checks this wrong format. The test does not\
+    \ verify the hash pattern mandated by the task, and there is no execution evidence\
+    \ that `generation_log.json` is actually updated with a non\u2011null `ground_truth_plan`\
+    \ for every query. The implementation therefore fails to meet the identifier specification\
+    \ and lacks proof of the required log\u2011file update."
   task: 9c4ff8af6d98b8cd1f5f7033a8f85fa7aeb13fc773a7cd451eda9f36e7759d08
 T006:
+  reason: 'Requested task execution failed; rerun successfully: code/planners/optimal_planner.py
+    exit=1'
   task: 2d4012c1fa6d4babe11e70fbdef6792f78c7155442644115a3d019375f1ca3f9
 T007:
   task: 3ace9e1f5c7d3a98727b7797d6417e0f73629d89a219c90f45bcd4f98530757d

@@ -58,7 +58,7 @@ All research scripts write only under `code/`, `data/`, or `specs/`. No state fi
   - Add `tests/unit/test_reference_engine.py` that supplies a three‑step plan with known costs and asserts the returned ordering matches the greedy rule and that the identifier format is `greedy_plan_[0-9a-f]{8}`.  
   - **Verification**: Unit test passes; `generation_log.json` is updated with non‑null `ground_truth_plan` for every query.
 
-- [ ] **T006** [P] [US‑2] **Run exhaustive optimal planner on a stratified sample**  
+- [ ] **T006** [P] [US‑2] **Run exhaustive optimal planner on a stratified sample**   <!-- FAILED-IN-EXECUTION: code/planners/optimal_planner.py exit=1 -->
   *Implement* `code/planners/optimal_planner.py` that:  
   1. Samples a balanced subset of queries (e.g., 5 % of the total, preserving source‑type and depth distribution).  
   2. Performs a brute‑force search over all possible step orderings to find the true minimal‑cost plan (using the same cost table as the greedy engine).  

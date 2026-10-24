@@ -1,0 +1,6 @@
+usage: code.main [-h]
+
+Benchmark pipeline entry point (skeleton).
+
+options:
+  -h, --help  show this help message and exit

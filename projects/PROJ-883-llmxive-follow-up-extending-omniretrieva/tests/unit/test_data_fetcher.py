@@ -5,7 +5,6 @@ asserting that the result is non‑empty. The tests rely on real network
 access; failures indicate a problem with the loader implementation.
 """
 
-import os
 import pathlib
 
 import pytest

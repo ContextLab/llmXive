@@ -2,8 +2,8 @@
 Integration test that validates the project skeleton.
 
 The test runs three commands, captures their stdout, and writes the
-outputs to ``artifacts/`` so that CI can verify the files exist and are
-non‑empty.
+outputs to ``artifacts/`` in the repository root so that CI can verify
+the files exist and are non‑empty.
 """
 import subprocess
 import sys
@@ -21,28 +21,29 @@ def _run_cmd(cmd: list[str]) -> subprocess.CompletedProcess:
         check=False,
     )
 
-@pytest.fixture(scope="session")
-def artifacts_dir(tmp_path_factory):
-    """Create a persistent ``artifacts`` directory for the session."""
-    base = tmp_path_factory.getbasetemp() / "artifacts"
-    base.mkdir(parents=True, exist_ok=True)
-    return base
+# Fixed artifacts directory under the repository root.
+_ARTIFACTS_DIR = Path(__file__).resolve().parents[2] / "artifacts"
 
-def test_ruff_check(artifacts_dir):
+@pytest.fixture(scope="session", autouse=True)
+def ensure_artifacts_dir():
+    """Create the artifacts directory once per test session."""
+    _ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+
+def test_ruff_check():
     """Run ``ruff check code/`` and ensure exit code 0."""
     result = _run_cmd([sys.executable, "-m", "ruff", "check", "code/"])
     assert result.returncode == 0, f"ruff failed: {result.stderr}"
-    out_path = artifacts_dir / "ruff_output.txt"
+    out_path = _ARTIFACTS_DIR / "ruff_output.txt"
     out_path.write_text(result.stdout, encoding="utf-8")
-    assert out_path.stat().st_size > 0
+    assert out_path.stat().st_size > 0, "ruff output file is empty"
 
-def test_main_help(artifacts_dir):
+def test_main_help():
     """Run ``python -m code.main --help`` and verify usage output."""
     result = _run_cmd([sys.executable, "-m", "code.main", "--help"])
     assert result.returncode == 0, f"help failed: {result.stderr}"
-    out_path = artifacts_dir / "help_output.txt"
+    out_path = _ARTIFACTS_DIR / "help_output.txt"
     out_path.write_text(result.stdout, encoding="utf-8")
-    assert out_path.stat().st_size > 0
+    assert out_path.stat().st_size > 0, "help output file is empty"
     # The default help text from argparse contains the word “usage”.
     assert "usage" in result.stdout.lower()
 

@@ -1,30 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: QueryInstance
 type: object
-properties:
-  query_id:
-    type: string
-  source_type:
-    type: string
-    enum: [text, relational, graph]
-  complexity_level:
-    type: integer
-    minimum: 1
-  logical_plan:
-    type: object
-    properties:
-      steps:
-        type: array
-        items:
-          type: string
-    required: [steps]
-    additionalProperties: true
-  ground_truth_plan:
-    type: string
 required:
   - query_id
   - source_type
   - complexity_level
   - logical_plan
   - ground_truth_plan
-additionalProperties: true
+properties:
+  query_id:
+    type: string
+  source_type:
+    type: string
+    enum:
+      - text
+      - relational
+      - graph
+  complexity_level:
+    type: integer
+    minimum: 1
+  logical_plan:
+    type: object
+    required:
+      - steps
+    properties:
+      steps:
+        type: array
+        items:
+          type: string
+  ground_truth_plan:
+    type: string
+  synthetic_flag:
+    type: boolean
+additionalProperties: false

@@ -1,8 +1,8 @@
 """Synthetic query generator.
 
 Generates queries with integer plan depths and attaches a deterministic
-ground‑truth plan using :class:`ReferenceEngine`.  The public API matches
-the expectations of the unit tests in ``tests/unit/test_synthetic_query.py``.
+ground‑truth plan placeholder.  The public API matches the expectations of
+the unit tests in ``tests/unit/test_query_generation.py``.
 """
 from __future__ import annotations
 
@@ -77,11 +77,15 @@ class SyntheticQueryGenerator:
         # Graph metadata – predicates from the DBpedia parquet file.
         try:
             dbpedia_path = load_dbpedia()
-            # Load only the predicate column to keep memory low.
             import pandas as pd
 
             df = pd.read_parquet(dbpedia_path, columns=["predicate"])
-            self.graph_predicates = df["predicate"].dropna().unique().tolist()
+            self.graph_predicates = (
+                df["predicate"]
+                .dropna()
+                .unique()
+                .tolist()
+            )
         except Exception as e:
             log.error("Failed to load DBpedia metadata: %s", e)
             self.graph_predicates = []
@@ -115,7 +119,9 @@ class SyntheticQueryGenerator:
             "nodes": [{"id": i} for i in range(eff + 1)],
             "edges": [{"source": i, "target": i + 1} for i in range(eff)],
         }
-        log.debug("Generated query structure for level %d: %s", level, structure)
+        log.debug(
+            "Generated query structure for level %d: %s", level, structure
+        )
         return structure
 
     # ------------------------------------------------------------------
@@ -173,9 +179,6 @@ class SyntheticQueryGenerator:
             source = source_type
 
         # Build a realistic logical plan based on the source metadata.
-        # We create a list of operation strings whose length matches the
-        # complexity level.  The actual strings are drawn from the real
-        # metadata when available; otherwise we fall back to generic names.
         steps: List[str] = []
         if source == "text" and self.text_fields:
             pool = self.text_fields
@@ -186,17 +189,14 @@ class SyntheticQueryGenerator:
         else:
             pool = [f"op_{i}" for i in range(10)]
 
-        for i in range(eff_level):
-            # Use random.choice with replacement to guarantee enough items.
+        for _ in range(eff_level):
             steps.append(str(self.rng.choice(pool)))
 
-        # Build step objects for the reference engine.
-        step_objs = [
-            {"step_id": s, "estimated_cost": 1.0} for s in steps
-        ]
+        # Build step objects expected by ReferenceEngine.
+        step_objs = [{"step_id": s, "estimated_cost": 1.0} for s in steps]
 
-        # Generate a deterministic plan identifier.
-        plan_id = self.engine.generate_plan(
+        # Generate deterministic ground‑truth plan identifier.
+        gt_plan = self.engine.generate_plan(
             {"query_id": qid, "steps": step_objs}
         )
 
@@ -205,13 +205,7 @@ class SyntheticQueryGenerator:
             "source_type": source,
             "complexity_level": int(eff_level),
             "logical_plan": {"steps": steps},
-            "ground_truth_plan": {
-                "steps": steps,
-                "plan_id": plan_id,
-                "estimated_depth": int(eff_level),
-            },
-            # Preserve the raw identifier for downstream components.
-            "ground_truth_plan_id": plan_id,
+            "ground_truth_plan": gt_plan,
             "synthetic_flag": True,
         }
         return query
@@ -238,7 +232,8 @@ class SyntheticQueryGenerator:
             [
                 q
                 for q in queries
-                if q["source_type"] == "graph" and q["complexity_level"] >= 3
+                if q["source_type"] == "graph"
+                and q["complexity_level"] >= 3
             ]
         ) < min_high_complexity_graph:
             # Prefer depth 3 or 4 for graph queries.
@@ -257,7 +252,8 @@ class SyntheticQueryGenerator:
                 [
                     q
                     for q in queries
-                    if q["source_type"] == "graph" and q["complexity_level"] >= 3
+                    if q["source_type"] == "graph"
+                    and q["complexity_level"] >= 3
                 ]
             ),
         )

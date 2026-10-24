@@ -34,7 +34,8 @@ def load_ms_marco() -> Iterable[dict]:
     -------
     Iterable[dict]
         A streaming ``datasets`` object yielding examples from the
-        ``microsoft/ms_marco`` repository, ``test`` configuration.
+        ``microsoft/ms_marco`` repository, ``v1.1`` configuration,
+        ``test`` split.
     """
     try:
         from datasets import load_dataset  # type: ignore
@@ -45,7 +46,7 @@ def load_ms_marco() -> Iterable[dict]:
     try:
         ds = load_dataset(
             "microsoft/ms_marco",
-            "test",
+            "v1.1",
             split="test",
             streaming=True,
             download_mode="force_redownload",
@@ -111,8 +112,7 @@ def load_dbpedia() -> pathlib.Path:
         dest_path = paths.data("raw", "dbpedia_triples.parquet")
         dest_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Copy the file into the project's data folder to keep all
-        # artifacts under the expected directory hierarchy.
+        # Move the file into the project's data folder.
         pathlib.Path(local_path).replace(dest_path)
 
         log.info("DBpedia triples parquet downloaded to %s", dest_path)
