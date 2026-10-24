@@ -1,15 +1,19 @@
 T001:
-  reason: "The unit test `tests/unit/test_data_loader.py` fails with a `FileNotFoundError`\
-    \ because it looks for the script at `tests/code/01_ingest_and_filter.py` instead\
-    \ of the actual location `code/01_ingest_and_filter.py`; consequently the test\
-    \ never reaches the intended `DataFetchError` assertion. This means the required\
-    \ verification that a simulated fetch failure raises `DataFetchError` is not satisfied.\
-    \ Fix the test\u2019s path (or adjust the import logic) so it correctly loads\
-    \ the script and the test can pass."
+  reason: 'The required output files are absent: `data/raw/checksums.json` and `data/processed/candidates_filtered.csv`
+    do not exist, and `data/raw/` is empty, so there is no evidence that `code/01_ingest_and_filter.py`
+    was run successfully or produced the mandated CSV rows and checksums. The unit
+    test only checks a failure path and does not verify successful ingestion. The
+    task therefore lacks the essential artifacts.'
   task: aa58665ffecc4b99c068e6170c3f165766f2c8d4ad3ff83ba3ec8abb7f209dbe
 T002:
+  reason: The repository lacks the required `data/raw/human_coding/` directory (marked
+    MISSING), which the task explicitly demanded to be created. All other artifacts
+    (the CLI script and passing unit tests) are present, but the missing folder means
+    the requirement is not fully satisfied.
   task: 1054e2c2fdd578723cafba0f1738d030076c727ea6ded7ac3e2eb527059ef488
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/03_process_human_coding.py
+    exit=1'
   task: 51842331f2cae65c375a100dec6e27bea46c83e7be3e2aae3392afd0776399a2
 T004:
   task: 6a301d220da4d3db0726a08df235105bc8bd8ff1911f99600ffe91c6f8e11159

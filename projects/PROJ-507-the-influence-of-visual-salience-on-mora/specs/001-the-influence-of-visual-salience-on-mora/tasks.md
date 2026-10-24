@@ -23,7 +23,7 @@
   - After manual collection, the script validates that **≥ 3** annotation files exist and that each scenario has **≥ 3** ratings; otherwise it raises `InsufficientAnnotatorsError`.  
   - **Verification**: unit test `tests/unit/test_annotation_acquisition.py` checks file count and per‑scenario rating counts.
 
-- [ ] **T003** [US‑001] **Process human coding and select ambiguous scenarios** – `code/03_process_human_coding.py`  
+- [ ] **T003** [US‑001] **Process human coding and select ambiguous scenarios** – `code/03_process_human_coding.py`   <!-- FAILED-IN-EXECUTION: code/03_process_human_coding.py exit=1 -->
   - Load all annotation CSVs produced by **T002**.  
   - Compute per‑scenario mean ambiguity score (1‑5 Likert) and Cohen’s κ.  
   - Retain scenarios with mean ≥ 3.5 **and** κ ≥ 0.6.  

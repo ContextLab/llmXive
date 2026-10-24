@@ -7,7 +7,8 @@ import importlib.util
 from data_prep import DataFetchError
 
 # Dynamically load the script to test its internal function
-SCRIPT_PATH = Path(__file__).parent.parent / "code" / "01_ingest_and_filter.py"
+# Resolve the correct path to the script located at the project root /code/
+SCRIPT_PATH = Path(__file__).parents[2] / "code" / "01_ingest_and_filter.py"
 spec = importlib.util.spec_from_file_location("ingest_and_filter", SCRIPT_PATH)
 ingest_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(ingest_module)
