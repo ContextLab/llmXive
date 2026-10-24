@@ -25,7 +25,6 @@ from llmxive_toolkit import paths, get_logger
 # Set up logger
 log = get_logger(__name__)
 
-
 def _load_config() -> dict:
     """Load configuration from config.yaml in the project root."""
     config_path = Path(__file__).resolve().parent.parent.parent / "config.yaml"

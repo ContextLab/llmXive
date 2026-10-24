@@ -1,18 +1,17 @@
 status: none
-intent: Polymer Membrane Permeability experimental dataset python package dataset
+intent: polymer membrane permeability coefficients dataset Polymer Membrane Database
+  NIST Chemistry WebBook Materials Project python package dataset
 required_fields:
 - polymer_name
-- polymer_structure_smiles
 - membrane_type
-- membrane_thickness
+- gas_species
+- permeability_coefficient
 - temperature_K
 - pressure_bar
-- gas_or_solute
-- permeability_coefficient_Barrer
+- units
 - measurement_method
-- reference_citation
-- simulation_method
-- simulation_parameters
-cache_key: 4634b9f0426e3c007f9d2c48aa55272a828fe2b23b890c6df15037aca7773e06
-searched_at: '2026-10-24T18:38:00.755840+00:00'
+- thickness_microns
+- source_reference
+cache_key: 7b9e7577371f0b38d63f0e4d89ed722e4cec7dc6114c2113fdfbb2709ce67541
+searched_at: '2026-10-24T19:19:07.480964+00:00'
 retry_count: 1

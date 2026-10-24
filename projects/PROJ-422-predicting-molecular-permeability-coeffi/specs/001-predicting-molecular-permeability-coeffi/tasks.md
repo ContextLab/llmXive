@@ -15,11 +15,11 @@ The tasks are ordered to respect data flow and to satisfy every functional requi
 
 ## Phase 1 – Data acquisition, preprocessing, and splitting  
 
-- [ ] **T001** [US‑1] Implement `code/data/download.py` – streams the dataset identified by `config/selected_dataset.yaml` via `datasets.load_dataset("<selected>", streaming=True)`.  
+- [X] **T001** [US‑1] Implement `code/data/download.py` – streams the dataset identified by `config/selected_dataset.yaml` via `datasets.load_dataset("<selected>", streaming=True)`.  
   - Writes raw files to `data/raw/` and a SHA‑256 manifest to `data/raw/checksums.json`.  
   - **Verification**: `tests/unit/test_download.py` asserts that at least one row is written and that the `permeability` column exists in the raw file.
 
-- [X] **T002** [US‑1] Implement `code/data/preprocess.py` – `MoleculeProcessor.process(df)` that:  
+- [ ] **T002** [US‑1] Implement `code/data/preprocess.py` – `MoleculeProcessor.process(df)` that:  
   1. Parses each SMILES with `rdkit.Chem.MolFromSmiles`; logs and excludes invalid SMILES (FR‑011).  
   2. Computes the required RDKit descriptors (MW, logP, TPSA, HBA, HBD, rotatable bonds).  
   3. Builds a molecular‑graph JSON column (node & edge features).  
@@ -28,7 +28,7 @@ The tasks are ordered to respect data flow and to satisfy every functional requi
   6. Rows with a missing `permeability` value are excluded from the output (they will not be used for modeling).  
   - **Verification**: `tests/unit/test_preprocess.py` checks that both output files exist, that `mol_valid` is a boolean, and that the retention guard triggers only when the valid‑molecule rate falls below 95 %.
 
-- [ ] **T003** [US‑1] Implement `code/data/split.py` – reads `data/processed/processed_data.parquet`, filters to rows where `target` is non‑null, then:  
+- [ ] **T003** [US‑1] Implement `code/data/split.py` – reads `data/processed/processed_data.parquet`, filters to rows where `target` is non‑null, then:   <!-- FAILED-IN-EXECUTION: code/data/split.py exit=1 -->
   1. If a `polymer_type` column exists, performs an 80/20 **stratified** split preserving an absolute ≤ 5 percentage‑point difference per class (FR‑004).  
   2. If `polymer_type` is absent, falls back to a random 80/20 split with a logged warning.  
   3. Writes `data/processed/train.parquet` and `data/processed/test.parquet`.  

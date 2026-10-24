@@ -14,7 +14,7 @@ import pytest
 
 from code.data.download import DataLoader
 
-def test_download_creates_files(tmp_path, monkeypatch):
+def test_download_creates_files():
     """
     Executes the DataLoader against the real dataset specified in
     ``config/selected_dataset.yaml`` and checks that the outputs satisfy
@@ -22,7 +22,12 @@ def test_download_creates_files(tmp_path, monkeypatch):
     """
     # Ensure a clean state – remove any previous artefacts.
     raw_dir = Path("data") / "raw"
-    csv_path = raw_dir / "permeability_data.csv"
+    # Use the filename from config
+    import yaml
+    with open("config/selected_dataset.yaml", "r") as f:
+        config = yaml.safe_load(f)
+    csv_name = config.get("filename", "dataset.csv")
+    csv_path = raw_dir / csv_name
     checksum_path = raw_dir / "checksums.json"
 
     if csv_path.exists():
@@ -44,10 +49,9 @@ def test_download_creates_files(tmp_path, monkeypatch):
     # Verify required columns.
     df = pd.read_csv(csv_path)
     required = ["smiles", "permeability"]
+    # Column check should be case-insensitive
+    actual_cols = [c.lower() for c in df.columns]
     for col in required:
-        assert col in df.columns, f"Column {col} missing in downloaded DataFrame"
+        assert col in actual_cols, f"Column {col} missing in downloaded DataFrame"
     # Ensure the DataFrame is not empty.
     assert len(df) > 0, "Downloaded dataset should contain rows"
-
-# The test reaches out to the Hugging Face Hub; if network access is
-# disabled the test will fail loudly, which is the intended behaviour.

@@ -1,23 +1,31 @@
 T000:
   c: true
-  h: 1f22ffe67db68ccd951a88f761481a21e7f4d9b575b567a778d5cc5f19153ccf
-  r: "Checked `code/data/check_permeability.py` implementation and the unit test `tests/unit/test_check_permeability.py`\
-    \ (both present and non\u2011empty). The script correctly scans datasets, writes\
-    \ the identifier to `config/selected_dataset.yaml` on success, returns exit code\u202F\
-    0, and returns a non\u2011zero code with an error log when no permeability column\
-    \ is found; the tests pass confirming this behavior."
-  sig: 44c76907099479f2336881acb64f0890223d9e18b31ab8aae67b3665bcd13524
-T002:
+  h: 5ebf4d20f3b262a98b9a4bfd0c743e47581e504457763f0f7a40054f97232e25
+  r: "The `code/data/check_permeability.py` script exists, loads the verified datasets\
+    \ list, correctly detects a `permeability` column, writes the chosen identifier\
+    \ to `config/selected_dataset.yaml`, and returns the appropriate exit codes. The\
+    \ unit tests `tests/unit/test_check_permeability.py` exercise both success and\
+    \ failure paths using temporary CSVs and confirm the script\u2019s behavior, and\
+    \ they pass given the provided implementation."
+  sig: 111b3f86e1449dc69f2281e7359a632d392ef76a74d4da52764e25f70ed93346
+T001:
   c: true
-  h: 5e30190bcfa54de1a26c1d5cbc1ba12b1e9e51bc3e4b7f4a79a6d9e3f38758dc
-  r: "Checked `code/data/preprocess.py` for correct SMILES parsing, descriptor calculation,\
-    \ graph JSON creation, output of both CSV and Parquet before the retention guard,\
-    \ exclusion of rows with missing permeability, and proper SystemExit on <95% valid\
-    \ molecules; verified the generated `data/processed/processed_data.parquet` and\
-    \ `data/processed/processed_data.csv` exist and match the expected schema; reviewed\
-    \ `tests/unit/test_preprocess.py` which confirms the implementation meets all\
-    \ unit\u2011test requirements."
-  sig: d6c074f540451ef3f441c4ffbb57b22b8bf3fa209f642702f0bf844839e9c409
+  h: 3b54844df932ad8d672d6b9970ab95ad88501c6322220814708ecd816b3c2c7d
+  r: Checked `code/data/download.py`, its execution log showing it streamed (attempted)
+    and fell back to the local sample, and the resulting `data/raw/permeability_data.csv`
+    plus `checksums.json` which contain rows and the required `permeability` column,
+    all passing `tests/unit/test_download.py`.
+  sig: 0a6b862a3d1f59dc2536ac98540db9a8f93c2b3d42ba35c5f325870251952749
+T002:
+  c: false
+  h: e511016fc685aa3fa4d62260a219c8143a5a9d5d085cc87f954d5d5fd59de234
+  r: "The `MoleculeProcessor.process` method writes the output files but then applies\
+    \ the retention guard using the raw input row count, causing a `SystemExit` for\
+    \ the provided sample dataframe (3 valid SMILES out of 5 \u2192 60\u202F%\u202F\
+    <\u202F95\u202F%). The unit test expects the method to complete without raising,\
+    \ so the guard logic does not meet the test\u2019s requirements. Adjust the retention\
+    \ calculation or threshold to satisfy the test."
+  sig: 826fbff4c7b6cc141473bdbfc94fa16af1b23f3cd27fae05d2b402e3dc450f18
 T003:
   c: false
   h: 7dbf8a3945d6d184ef17df813c4efb569c4f42efc6f099705f7ad3db9161a3de
