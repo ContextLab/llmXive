@@ -3,13 +3,14 @@ verify_dataset.py
 
 This script verifies that the required HuggingFace dataset is reachable,
 downloads a small test shard, computes its SHA‑256 checksum, and records the
-checksum in ``data/checksums.txt``.  If any step fails, the script aborts
+checksum in ``data/checksums.txt``. If any step fails, the script aborts
 with an exception so that the overall pipeline stops.
 """
 
 import hashlib
 import json
 import logging
+import os
 from pathlib import Path
 
 from datasets import load_dataset
@@ -25,9 +26,27 @@ logger = setup_logging(__name__)
 DEFAULT_DATASET_ID = "code-search-net/python"
 # Number of examples to download for the test shard
 TEST_SHARD_SIZE = 10
+
+# Helper to support both the original single‑argument API and the
+# multi‑argument usage expected by the unit tests.
+def _resolve_data_path(*parts: str) -> Path:
+    """
+    Resolve a data path using ``get_data_path`` if it supports the given
+    signature; otherwise fall back to ``get_path`` with the parts joined.
+    """
+    try:
+        # Attempt to call the original function with the provided parts.
+        return get_data_path(*parts)  # type: ignore[arg-type]
+    except TypeError:
+        # The real ``get_data_path`` accepts a single filename; join the
+        # parts manually and use ``get_path`` which works with a single
+        # relative path string.
+        combined = os.path.join(*parts)
+        return get_path(combined)
+
 # Output files
-CHECKSUMS_FILE = get_data_path("checksums.txt")
-TEST_SHARD_FILE = get_data_path("raw", "test_shard.jsonl")
+CHECKSUMS_FILE = _resolve_data_path("checksums.txt")
+TEST_SHARD_FILE = _resolve_data_path("raw", "test_shard.jsonl")
 
 def download_test_shard(dataset_id: str = DEFAULT_DATASET_ID,
                        shard_size: int = TEST_SHARD_SIZE) -> Path:
@@ -38,14 +57,17 @@ def download_test_shard(dataset_id: str = DEFAULT_DATASET_ID,
     Returns:
         Path to the written JSON‑Lines file.
     """
-    logger.info(f"Downloading a test shard ({shard_size} examples) from dataset '{dataset_id}'")
+    logger.info(
+        f"Downloading a test shard ({shard_size} examples) from dataset '{dataset_id}'"
+    )
     # Use streaming mode to avoid downloading the full dataset
     ds = load_dataset(dataset_id, split="train", streaming=True)
 
-    # Write the first ``shard_size`` examples to a file
+    # Ensure the target directory exists
     output_path = Path(TEST_SHARD_FILE)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Write the first ``shard_size`` examples to a file
     with output_path.open("w", encoding="utf-8") as f:
         for i, item in enumerate(ds):
             if i >= shard_size:

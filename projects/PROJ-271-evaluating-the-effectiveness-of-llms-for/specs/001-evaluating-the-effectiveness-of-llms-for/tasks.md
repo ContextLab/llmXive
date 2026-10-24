@@ -37,7 +37,7 @@
 
 ## Phase 2 – Core Foundations (must be complete before any user‑story work)  
 
-- [ ] T003 [P] Verify the HuggingFace dataset URL for `codeparrot/github-code` is reachable, download a small test shard, compute its checksum, and record it in `data/checksums.txt`. Abort if verification fails.   <!-- FAILED-IN-EXECUTION: code/verify_dataset.py exit=1 -->
+- [ ] T003 [P] Verify the HuggingFace dataset URL for `codeparrot/github-code` is reachable, download a small test shard, compute its checksum, and record it in `data/checksums.txt`. Abort if verification fails.   <!-- FAILED-IN-EXECUTION: code/verify_dataset.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_dataset.py exit=1 -->
   *Verification*: Log entry confirms successful URL check, checksum matches, and `data/checksums.txt` is written.  
 
 - [ ] T004 [P] Create `code/config.py` defining paths (`data/`, `results/`), random seed (`42`), and batch‑size constants (`LLM_BATCH_SIZE = 10`).  
