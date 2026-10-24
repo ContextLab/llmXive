@@ -10,25 +10,40 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/runtime_validator.py: synthetic/fake INPUT data not authorized by the spec — “…> list:     """Generates mock data for a dry run."""     re…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
 
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
 
-- run-book command: `python code/data_pipeline.py --sample-size --seed 42`
-  - script usage: `data_pipeline.py [-h] [--sample-size SAMPLE_SIZE] [--seed SEED]`
-  - argparse error: `data_pipeline.py: error: argument --sample-size: expected one argument`
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python code/data_pipeline.py --sample-size 800 --seed 42`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/runtime_validator.py: synthetic/fake INPUT data not authorized by the spec — “…> list:     """Generates mock data for a dry run."""     re…”; 3 command(s) failed: python code/data_pipeline.py --sample-size --seed 42 (rc=2); python code/statistical_analysis.py (rc=1); python -m pytest tests/ (rc=2)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/runtime_validator.py: synthetic/fake INPUT data not authorized by the spec — “…> list:     """Generates mock data for a dry run."""     re…”; 3 command(s) failed: python code/data_pipeline.py --sample-size 800 --seed 42 (rc=1); python code/statistical_analysis.py (rc=1); python -m pytest tests/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/data_pipeline.py --sample-size --seed 42 -> rc=2
+- python code/data_pipeline.py --sample-size 800 --seed 42 -> rc=1
+n occurred:
 
-usage: data_pipeline.py [-h] [--sample-size SAMPLE_SIZE] [--seed SEED]
-                        [--dataset DATASET]
-data_pipeline.py: error: argument --sample-size: expected one argument
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 319, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 304, in main
+    df = run_pipeline(
+         ^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 242, in run_pipeline
+    sampled_functions = load_sampled_functions_stratified(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 173, in load_sampled_functions_stratified
+    verify_dataset_source(dataset_id)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 44, in verify_dataset_source
+    raise ConnectionError(error_msg)
+ConnectionError: Dataset codeparrot/github-code is unreachable: Dataset scripts are no longer supported, but found github-code.py
 
 - python code/statistical_analysis.py -> rc=1
 -271-evaluating-the-effectiveness-of-llms-for/data/static_baseline.csv
@@ -61,6 +76,6 @@ ERROR tests/unit/test_data_pipeline_stratified.py
 ERROR tests/unit/test_quickstart_validation.py
 ERROR tests/unit/test_statistical_analysis.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 4.72s ===============================
+============================== 4 errors in 4.58s ===============================
 
 
