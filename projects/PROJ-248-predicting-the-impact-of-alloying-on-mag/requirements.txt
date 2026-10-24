@@ -1,6 +1,4 @@
 # Project dependencies
-# (standard libraries already available are omitted)
-datasets>=2.0.0
-# Other dependencies are already provided by the environment:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil, llmxive_toolkit
+# Existing base packages (numpy, pandas, scikit-learn, etc.) are provided by the runner.
+datasets>=2.18.0
+# ``datasets`` pulls in ``pyarrow`` and other heavy deps; version pinned for reproducibility.
