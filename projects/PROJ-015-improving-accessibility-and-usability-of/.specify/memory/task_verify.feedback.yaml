@@ -1,8 +1,11 @@
 T001:
-  reason: "The required directories `data/results/`, `data/external/`, and `figures/`\
-    \ are missing from the project layout. Consequently the task\u2019s specification\
-    \ to create those folders is not satisfied. (Requirements.txt and quickstart.md\
-    \ are present, but the missing directories cause the overall task to be incomplete.)"
+  reason: "The `requirements.txt` file exists and lists the correct pinned packages,\
+    \ and `quickstart.md` documents both required commands with the exact relative\
+    \ paths. However, there is no evidence that `pip install -r requirements.txt`\
+    \ actually succeeds (no install logs or test run), and the referenced `code/app.py`\
+    \ file is missing, so the documented Streamlit command cannot be run. Provide\
+    \ a successful pip\u2011install execution record and add the missing `code/app.py`\
+    \ (or adjust the command) to satisfy the task."
   task: 8c30c5762b5ef8d39faaf9c529207c862a40b6355a72ed340d42ad192de55fbf
 T002:
   reason: "The validator imports a relaxed schema at `specs/001-improving-accessibility-and-usability-of/contracts/session_relaxed.schema.yaml`,\

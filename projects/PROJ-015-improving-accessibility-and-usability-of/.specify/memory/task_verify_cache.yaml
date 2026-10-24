@@ -1,11 +1,14 @@
 T001:
   c: false
-  h: 9acd7f7a530dd9e97fccb73846f062a54299e17061ec6e59ef5028f76d1f158a
-  r: "The required directories `data/results/`, `data/external/`, and `figures/` are\
-    \ missing from the project layout. Consequently the task\u2019s specification\
-    \ to create those folders is not satisfied. (Requirements.txt and quickstart.md\
-    \ are present, but the missing directories cause the overall task to be incomplete.)"
-  sig: 0ed43b830d17898bfa2acc00209f1c6097a81ad807c17140ed5e22bbe867b373
+  h: 8e33e4916b9987c7f08d9ba18221265bc512e60ba3c6f070be8114a7c41d0013
+  r: "The `requirements.txt` file exists and lists the correct pinned packages, and\
+    \ `quickstart.md` documents both required commands with the exact relative paths.\
+    \ However, there is no evidence that `pip install -r requirements.txt` actually\
+    \ succeeds (no install logs or test run), and the referenced `code/app.py` file\
+    \ is missing, so the documented Streamlit command cannot be run. Provide a successful\
+    \ pip\u2011install execution record and add the missing `code/app.py` (or adjust\
+    \ the command) to satisfy the task."
+  sig: 4e22431d9f63be44b6c59dc941165b5f4972a3572c783c4302a49c12b60d0874
 T002:
   c: false
   h: 69a587fd8a783e3424ca9195fb99575fa0aa34a1ad61499d334bdfb787f90f9a

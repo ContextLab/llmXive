@@ -53,7 +53,7 @@ ERROR tests/unit/test_visualizer_completion_time.py
 ERROR tests/unit/test_xai_wrapper.py - NameError: name 'Dict' is not defined
 ERROR tests/utils/test_seed.py - NameError: name 'Dict' is not defined
 !!!!!!!!!!!!!!!!!!! Interrupted: 39 errors during collection !!!!!!!!!!!!!!!!!!!
-======================= 12 warnings, 39 errors in 2.99s ========================
+======================= 12 warnings, 39 errors in 2.74s ========================
 
 
 
