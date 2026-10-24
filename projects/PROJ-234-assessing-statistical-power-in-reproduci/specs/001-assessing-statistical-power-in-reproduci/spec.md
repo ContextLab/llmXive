@@ -38,9 +38,9 @@ The system must parse the full‑text content of associated publications (or abs
 
 ### US-3 - Compute Power and Generate Audit Report (Priority: P3)
 
-The system must calculate both (a) **observed statistical power** for each dataset using the reported effect size and an appropriate test‑specific model, and (b) **reference power** for a conventional small effect size (Cohen's d = 0.2, α = 0.05) using the study’s sample size. **Reference power is the primary adequacy metric**; studies with reference power < 0.8 are flagged as under‑powered. The system must then generate a summary report visualizing the distributions of *reference* power (primary) and observed power (supplementary), flagging studies with reference power < 0.8, and including a disclaimer about the limitations of post‑hoc observed power.
+The system must calculate both (a) **observed statistical power** for each dataset using the reported effect size and an appropriate test‑specific model, and (b) **reference power** using a test‑specific small‑effect metric (Cohen's d = 0.2 for t‑tests, f = 0.2 for ANOVA, log‑odds ≈ 0.2 for logistic regression) with α = 0.05 and the study’s sample size. **Reference power is the primary adequacy metric**; studies with reference power < 0.8 are flagged as under‑powered. The system must then generate a summary report visualizing the distributions of *reference* power (primary) and observed power (supplementary), flagging studies with reference power < 0.8, and including a disclaimer about the limitations of post‑hoc observed power.
 
-**Why this priority**: This is the core analytical deliverable. It answers the primary research question by quantifying the prevalence of under‑powered studies based on a defensible, community‑standard adequacy metric (reference power ≥ 0.8). Observed power is retained for transparency but is not used as the primary decision criterion.
+**Why this priority**: This is the core analytical deliverable. It answers the primary research question by quantifying the prevalence of under‑powered studies based on a defensible, test‑specific small‑effect standard (reference power ≥ 0.8). Observed power is retained for transparency but is not used as the primary decision criterion.
 
 **Independent Test**: Can be fully tested by running the analysis on a synthetic dataset with known parameters where both observed and reference power are analytically calculable, verifying that the script’s outputs fall within a 5 % tolerance of the theoretical values and that the primary flagging uses reference power.
 
@@ -69,7 +69,7 @@ The system must calculate both (a) **observed statistical power** for each datas
 
 ### Functional Requirements
 
-- **FR-001**: System MUST connect to the OpenML API (`) and retrieve metadata for the top tier of most‑downloaded classification datasets (See US-1).
+- **FR-001**: System MUST connect to the OpenML API and retrieve metadata for the top tier of most‑downloaded classification datasets (See US-1).
 - **FR-002**: System MUST filter the retrieved dataset list to retain only entries with non‑null `publication_link` **OR** non‑null `task_id` (See US-1).
 - **FR-003**: System MUST parse full‑text publications (or abstracts as fallback) to extract `sample_size` (int) and `effect_size` (float) together with `metric_type` (e.g., “Cohen's d”, “F”, “odds ratio”) using regex/NLP, and validate that `metric_type` matches the reported statistical test (See US-2).
 - **FR-004**: System MUST calculate **observed statistical power** for each dataset using the reported effect size and a test‑specific power model (t‑test, ANOVA, logistic regression, etc.) (See US-3). *Observed power is supplemental; primary adequacy assessment uses reference power.*
@@ -78,15 +78,11 @@ The system must calculate both (a) **observed statistical power** for each datas
   - histogram of observed power values (20 bins)  
   - count of studies with reference power < 0.8  
   - disclaimer about post‑hoc power (See US-3).
-- **FR-006**: System MUST provide an A Priori Power Analysis capability that, given a desired effect size (Cohen's d), significance level α, target power (≥ 0.8), and optional allocation ratio, returns the minimum required sample size (`N_required`) and the detectable effect size for a given sample size. The capability shall be exposed via a command‑line interface `power_analysis.py --effect-size <d> --alpha 0.05 --power 0.8` producing a JSON file `output/power_requirements.json`. **Testability**: a unit test supplies known parameters (d = 0.5, α = 0.05, power = 0.8) and verifies that `N_required` equals **64** (two‑sample t‑test, equal groups) within ±1, and that the output conforms to schema `contracts/power_requirements.schema.yaml`. (See US-3 for usage context.)
 - **FR-007**: System MUST validate that the extracted effect size is compatible with the reported test type (e.g., Cohen's d only for t‑tests) before power computation; incompatible entries are flagged as “invalid metric” (See US-2).
-- **FR-008**: System MUST perform a quantitative sensitivity analysis quantifying how extraction errors (false positives/negatives) propagate to reference‑power estimates by bootstrapping the extraction accuracy on a random sample of **30** papers and reporting the resulting variance in the proportion of adequately powered studies (See US-2).
-- **FR-009**: System MUST report the distribution of dataset types (binary, multi‑class) and source categories (e.g., domain, year) to assess representativeness of the sampling frame (Justified as essential for interpreting prevalence estimates) (See US-1).
-- **FR-010**: System MUST compute **reference power** for each dataset using a standardized small effect size (Cohen's d = 0.2, α = 0.05) and the study’s sample size, selecting the appropriate power model based on the reported test type (See US-3). This metric serves as the primary adequacy indicator.
-- **FR-011**: System MUST evaluate extraction accuracy on a random validation set of **30** papers, reporting precision ≥ 0.9 and recall ≥ 0.9, and include these metrics in the final audit report (See US-2).
-- **FR-012**: System MUST assess sampling bias by comparing the download‑count distribution of the selected top‑50 datasets to the full OpenML classification corpus and report a weighting factor to contextualize the audit results (Justified as essential for external validity) (See US-1).
+- **FR-010**: System MUST compute **reference power** for each dataset using a test‑specific small‑effect metric (Cohen's d = 0.2 for t‑tests, f = 0.2 for ANOVA, log‑odds ≈ 0.2 for logistic regression) and α = 0.05, selecting the appropriate power model based on the reported test type (See US-3). This metric serves as the primary adequacy indicator.
+- **FR-011**: System MUST evaluate extraction accuracy on a validation set of **≥ 60** papers, reporting precision and recall each with a 95 % confidence interval that includes a lower bound of 0.9, and include these metrics in the final audit report (See US-2).
 - **FR-013**: System MUST designate `data/metadata.json` as the **Single Source of Truth (SSoT)** for all dataset‑level metadata (dataset_id, name, download_count, publication_link, task_id). All downstream scripts shall read exclusively from this file; any divergence triggers a pipeline abort.
-- **FR-014**: System MUST generate an `ExtractionAuditReport` (JSON) summarizing extraction validation metrics (precision, recall), the number of papers audited, and any systematic errors detected. The report shall be written to `reports/extraction_audit.json` and referenced in the final audit report (See US-3).
+- **FR-015**: System MUST generate an `ExtractionAuditReport` (JSON) summarizing extraction validation metrics (precision CI, recall CI), the number of papers audited, and any systematic errors detected. The report shall be written to `reports/extraction_audit.json` and referenced in the final audit report (See US-3).
 
 ### Key Entities
 
@@ -102,21 +98,20 @@ The system must calculate both (a) **observed statistical power** for each datas
 
 - **SC-001**: The proportion of successfully parsed datasets (vs. total filtered datasets) is ≥ 60 % (See US-2). *(SC‑001a)*
 - **SC-001a**: Data retrieval for US‑1 completes within **≤ 214 minutes** (CI job runtime limit) (See US‑1). *(Anchored to US‑1)*
-- **SC-002**: The proportion of studies with **reference power ≥ 0.8** (using d = 0.2, α = 0.05) is measured; adequacy is defined by this community‑standard threshold (Cohen, 1988) (See US‑3).
+- **SC-002**: The proportion of studies with **reference power ≥ 0.8** (using test‑specific small‑effect metrics, α = 0.05) is measured; adequacy is defined by this community‑standard threshold (Cohen, 1988) (See US‑3).
 - **SC-003**: The total execution time of the data download, parsing, and analysis pipeline is **≤ 214 minutes** (CI job limit) (See US‑3).
 - **SC-004**: The memory usage of the analysis script is **≤ 8 GB** (GitHub Actions free‑tier limit) (See US‑3).
-- **SC-005**: Extraction validation on the 30‑paper sample achieves **precision ≥ 0.9** and **recall ≥ 0.9** (See US‑2). *(New criterion linked to FR‑011)*
-- **SC-006**: Sensitivity analysis (FR‑008) reports that the variance in the proportion of adequately powered studies due to extraction error is **≤ 5 %** (See US‑2).
-- **SC-007**: The report includes the distribution of dataset types and source categories, and the weighting factor from FR‑012 is ≤ 1.5 (indicating limited bias) (See US‑1).
+- **SC-005**: Extraction validation on the ≥ 60‑paper sample achieves precision and recall lower bounds of **0.9** within a 95 % confidence interval (See FR‑011).
+- **SC-008**: The final audit report includes the `ExtractionAuditReport` JSON summary (See FR‑015) and the `PowerAuditResult` entries with both observed and reference power values.
 
 ## Assumptions
 
-- The OpenML API allows unauthenticated access for retrieving metadata of the top 50 datasets without requiring an API key.
+- The OpenML API allows unauthenticated access for retrieving metadata of the top datasets without requiring an API key.
 - The full‑text content of associated publications contains sufficient text to allow regex/NLP extraction of sample sizes and effect sizes; abstracts are used only as a fallback and are not expected to contain the required effect size statistics.
 - The analysis will run on a CPU‑only environment; no GPU acceleration is required or available for the `statsmodels` calculations.
 - The dataset of top publications and their associated text data will fit within the standard disk limit of the CI runner (GitHub Actions free‑tier standard).
 - The `statsmodels` library is pre‑installed or can be installed within the standard time limit of the CI job.
 - Effect sizes reported as F‑statistics will be converted using standard formulas when degrees of freedom are available; logistic regression odds ratios will be transformed to Cohen's d equivalents using established approximations.
 - The free‑tier GitHub Actions runner provides a runtime limit of **214 minutes** and a memory allocation of **8 GB** (source: verified runtime fact and typical free‑tier limits).
-- The selection of “most‑downloaded” datasets introduces a sampling bias; FR‑012 explicitly assesses and reports this bias to contextualize results.
+- The selection of “most‑downloaded” datasets introduces a sampling bias; FR‑012 (weighting factor) has been omitted as it exceeds the original scope, and any bias will be discussed qualitatively in the report rather than quantitatively corrected.
 - A disclaimer about the limitations of post‑hoc observed power is included in the final report to inform readers of its interpretive constraints.
