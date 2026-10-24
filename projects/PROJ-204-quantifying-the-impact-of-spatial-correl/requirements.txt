@@ -1,6 +1,14 @@
-# Project dependencies
-# Existing environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema,
-# psutil.
-# Additional required packages:
-datasets>=2.0.0
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+datasets
+scikit-image

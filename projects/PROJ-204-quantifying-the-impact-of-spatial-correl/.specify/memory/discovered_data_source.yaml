@@ -1,19 +1,19 @@
 status: none
-intent: download NREL Perovskite Database EDS maps and performance metrics with Materials
-  Project metadata python package dataset
+intent: NREL Perovskite Database Materials Project API Open Perovskite EDS Repository
+  HuggingFace python package dataset
 required_fields:
 - sample_id
-- pb_map_path
-- i_map_path
-- ma_map_path
+- element_pb_map_path
+- element_i_map_path
+- element_ma_map_path
 - pce
 - j_sc
 - v_oc
 - pixel_grid_x
 - pixel_grid_y
 - source_database
-- download_timestamp
+- metadata_timestamp
 - completeness_flag
-cache_key: 76eccd908c6a4207705f6b5b7993d39d06882e0c4e0d365d03044ab09db50429
-searched_at: '2026-10-24T19:08:18.120574+00:00'
+cache_key: f6f770eb1b3c73fa8908d0c8697e78d477f9d8c2e8ef636f103a54e25c90be5c
+searched_at: '2026-10-24T22:12:45.846375+00:00'
 retry_count: 1

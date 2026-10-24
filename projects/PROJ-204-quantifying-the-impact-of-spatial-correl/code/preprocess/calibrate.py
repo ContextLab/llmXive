@@ -1,140 +1,77 @@
+"""
+code/preprocess/calibrate.py
+----------------------------
+Implements the masking and calibration logic for EDS maps.
+Detects dead pixels and outliers (artifacts) to ensure spatial
+metrics are computed on valid data.
+"""
 import numpy as np
 import logging
-from typing import Dict, List, Tuple, Optional, Union, Any
+from typing import Tuple, Dict
 from pathlib import Path
-from scipy import ndimage
-import json
 
-__all__ = [
-    "detect_dead_pixels",
-    "detect_artifacts",
-    "mask_defective_regions",
-    "calibrate_and_log",
-    "apply_mask_to_dataset",
-]
-
-def detect_dead_pixels(image: np.ndarray, threshold: float = 0.0) -> np.ndarray:
-    """
-    Detect dead pixels (intensity <= threshold) in an image.
-
-    Parameters
-    ----------
-    image: np.ndarray
-        Input image.
-    threshold: float, optional
-        Intensity threshold (default 0.0).
-
-    Returns
-    -------
-    np.ndarray
-        Boolean mask where ``True`` indicates a dead pixel.
-    """
-    return image <= threshold
-
-def detect_artifacts(image: np.ndarray, sigma: float = 3.0) -> np.ndarray:
-    """
-    Detect bright artifacts using a sigma‑clipped threshold.
-
-    Parameters
-    ----------
-    image: np.ndarray
-        Input image.
-    sigma: float, optional
-        Number of standard deviations above the mean to flag as artifact.
-
-    Returns
-    -------
-    np.ndarray
-        Boolean mask where ``True`` indicates an artifact pixel.
-    """
-    mean = np.mean(image)
-    std = np.std(image)
-    return image > (mean + sigma * std)
-
-def mask_defective_regions(
-    image: np.ndarray,
-    dead_mask: np.ndarray,
-    artifact_mask: np.ndarray,
-) -> np.ndarray:
-    """
-    Combine dead pixel and artifact masks and apply to the image.
-
-    Parameters
-    ----------
-    image: np.ndarray
-        Original image.
-    dead_mask: np.ndarray
-        Boolean mask of dead pixels.
-    artifact_mask: np.ndarray
-        Boolean mask of artifacts.
-
-    Returns
-    -------
-    np.ndarray
-        Masked image where defective regions are set to zero.
-    """
-    combined = dead_mask | artifact_mask
-    masked = np.where(combined, 0, image)
-    return masked
+log = logging.getLogger(__name__)
 
 def calibrate_and_log(
-    image: np.ndarray,
-    dead_threshold: float = 0.0,
-    artifact_sigma: float = 3.0,
-    log_path: Optional[Path] = None,
-) -> Tuple[np.ndarray, Dict[str, Any]]:
+    image: np.ndarray, 
+    dead_threshold: float = 0.0, 
+    artifact_sigma: float = 3.0, 
+    log_path: Path = None
+) -> Tuple[np.ndarray, Dict[str, float]]:
     """
-    Detect defects, mask them, and optionally log statistics.
+    Masks defective pixels (dead pixels and outliers) in an EDS map.
 
     Parameters
     ----------
     image: np.ndarray
-        Input image.
-    dead_threshold: float, optional
-        Threshold for dead pixel detection.
-    artifact_sigma: float, optional
-        Sigma level for artifact detection.
+        2-D elemental map.
+    dead_threshold: float
+        Values at or below this threshold are considered dead pixels.
+    artifact_sigma: float
+        Values more than this many standard deviations from the mean 
+        are considered artifacts.
     log_path: Path, optional
-        Path to a JSON file where defect statistics will be saved.
+        Path to write a detailed log of masked pixels.
 
     Returns
     -------
-    Tuple[np.ndarray, Dict[str, Any]]
-        (masked_image, statistics_dict)
+    Tuple[np.ndarray, Dict[str, float]]
+        A tuple containing the masked image (with NaNs) and a dictionary 
+        of masking statistics.
     """
-    dead = detect_dead_pixels(image, dead_threshold)
-    artifact = detect_artifacts(image, artifact_sigma)
-    masked = mask_defective_regions(image, dead, artifact)
-
+    # 1. Detect dead pixels (values <= threshold or NaN)
+    dead_mask = (image <= dead_threshold) | np.isnan(image)
+    
+    # 2. Detect artifacts (outliers)
+    # Use nanmean/nanstd to ignore existing NaNs
+    mean_val = np.nanmean(image)
+    std_val = np.nanstd(image)
+    
+    if std_val == 0:
+        artifact_mask = np.zeros_like(dead_mask, dtype=bool)
+    else:
+        artifact_mask = np.abs(image - mean_val) > (artifact_sigma * std_val)
+    
+    # Combine masks
+    full_mask = dead_mask | artifact_mask
+    
+    # Apply mask: replace defective pixels with NaN
+    masked_image = image.copy().astype(float)
+    masked_image[full_mask] = np.nan
+    
+    # Calculate statistics
+    total_pixels = image.size
+    dead_fraction = np.sum(dead_mask) / total_pixels
+    artifact_fraction = np.sum(artifact_mask & ~dead_mask) / total_pixels
+    
     stats = {
-        "dead_pixel_fraction": dead.mean(),
-        "artifact_fraction": artifact.mean(),
+        "dead_pixel_fraction": float(dead_fraction),
+        "artifact_fraction": float(artifact_fraction),
+        "total_mask_fraction": float(np.sum(full_mask) / total_pixels)
     }
-
+    
     if log_path:
-        with open(log_path, "w") as f:
-            json.dump(stats, f, indent=2)
-        logging.info("Defect statistics written to %s", log_path)
-
-    return masked, stats
-
-def apply_mask_to_dataset(
-    dataset: Dict[str, np.ndarray],
-    mask: np.ndarray,
-) -> Dict[str, np.ndarray]:
-    """
-    Apply a common mask to all images in a dataset.
-
-    Parameters
-    ----------
-    dataset: Dict[str, np.ndarray]
-        Mapping from element name to image array.
-    mask: np.ndarray
-        Boolean mask where ``True`` indicates a valid pixel.
-
-    Returns
-    -------
-    Dict[str, np.ndarray]
-        New dataset with masked images.
-    """
-    return {k: np.where(mask, v, 0) for k, v in dataset.items()}
+        with open(log_path, "a") as f:
+            f.write(f"Masking stats: {stats}\n")
+            
+    return masked_image, stats

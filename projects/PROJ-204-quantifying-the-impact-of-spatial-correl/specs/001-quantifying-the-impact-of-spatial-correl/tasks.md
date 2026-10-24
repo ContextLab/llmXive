@@ -11,14 +11,14 @@ Indented continuation lines list the concrete output, verification steps, and an
 | Goal | Run a minimal, fully‑real pipeline on a genuine subset of the public EDS + performance data, producing a verifiable end‑to‑end result. |
 |------|------------------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T001 [P] [US1] **Data‑availability feasibility check** – implement `code/data/feasibility.py` that programmatically probes the verified “Doe et al., 2023, Open Perovskite EDS Repository” (HuggingFace dataset `doe2023/perovskite-eds`) and the NREL Perovskite Database for linked performance metrics. <!-- FAILED-IN-EXECUTION: code/data/feasibility.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/run_feasibility.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/run_feasibility.py exit=1 -->
+- [ ] T001 [P] [US1] **Data‑availability feasibility check** – implement `code/data/feasibility.py` that programmatically probes the verified “Doe et al., 2023, Open Perovskite EDS Repository” (HuggingFace dataset `doe2023/perovskite-eds`) and the NREL Perovskite Database for linked performance metrics. <!-- FAILED-IN-EXECUTION: code/data/run_feasibility.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/run_feasibility.py exit=1 -->
   - **Outputs**: `data/results/feasibility_report.json` containing, for each source, URL, HTTP status, number of records found, count of samples with both EDS map and performance record, and a boolean `has_linked_eds`.  
   - **Verification**:  
     1. File exists and is valid JSON.  
     2. All `url` fields point to reachable HTTPS resources (no `synthetic`/`mock` strings).  
     3. `grep -r "synthetic\|mock\|random.rand" code/data/feasibility.py` returns no matches.  
 
-- [ ] T002 [P] [US1] **Real‑data ingestion & unified dataset creation** – complete the ingestion pipeline (`code/data/download.py`, `code/data/ingest.py`, `code/data/align.py`, `code/data/preprocess.py`). The pipeline must:  
+- [ ] T002 [P] [US1] **Real‑data ingestion & unified dataset creation** – complete the ingestion pipeline (`code/data/download.py`, `code/data/ingest.py`, `code/data/align.py`, `code/data/preprocess.py`). The pipeline must:   <!-- FAILED-IN-EXECUTION: code/data/ingest.py exit=1 -->
   1. Download every EDS map referenced in the feasibility report **and store the raw files under `data/raw/`**.  
   2. Download the matching device‑performance CSV/JSON.  
   3. Align each map to a common 512 × 512 px grid.  

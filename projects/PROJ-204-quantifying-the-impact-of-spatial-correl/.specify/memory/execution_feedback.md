@@ -12,7 +12,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/data/models.py: synthetic/fake INPUT data not authorized by the spec — “…erformance]:     """     Generate synthetic performance records for…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/data/download_feasibility.py; 5 command(s) failed: python code/main_pipeline.py (rc=1); python -m pytest tests/unit/test_spatial_metrics.py -v (rc=2); python -m pytest tests/unit/test_diffusion_length.py -v (rc=4); 4 declared deliverable(s) absent: data/processed/spatial_metrics.csv; data/processed/unified_dataset.csv; data/results/feasibility_report.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/data/models.py: synthetic/fake INPUT data not authorized by the spec — “…erformance]:     """     Generate synthetic performance records for…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/data/download_feasibility.py; 5 command(s) failed: python code/main_pipeline.py (rc=1); python -m pytest tests/unit/test_spatial_metrics.py -v (rc=2); python -m pytest tests/unit/test_diffusion_length.py -v (rc=4); 3 declared deliverable(s) absent: data/processed/spatial_metrics.csv; data/processed/unified_dataset.csv; data/results/ingestion_stats.json
 
 ## Failing / missing run-book commands
 
@@ -47,7 +47,7 @@ E   ImportError: cannot import name 'compute_autocorrelation' from partially ini
 =========================== short test summary info ============================
 ERROR tests/unit/test_spatial_metrics.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.54s ===============================
+=============================== 1 error in 0.39s ===============================
 
 
 - python -m pytest tests/unit/test_diffusion_length.py -v -> rc=4
@@ -75,7 +75,7 @@ FAILED tests/unit/test_robustness.py::TestPerformLeaveOneOutCV::test_loo_cv_retu
 FAILED tests/unit/test_robustness.py::TestPerformLeaveOneOutCV::test_loo_cv_delta_r_positive - TypeError: 'builtin_function_or_method' object is not iterable
 FAILED tests/unit/test_robustness.py::TestPerformLeaveOneOutCV::test_loo_cv_max_delta_r - TypeError: 'builtin_function_or_method' object is not iterable
 FAILED tests/unit/test_robustness.py::TestPerformLeaveOneOutCV::test_loo_cv_small_dataset - TypeError: 'builtin_function_or_method' object is not iterable
-============================== 6 failed in 0.52s ===============================
+============================== 6 failed in 0.44s ===============================
 
 
 - python -m pytest tests/integration/test_pipeline.py -v -> rc=4
@@ -97,7 +97,6 @@ ERROR: file or directory not found: tests/integration/test_pipeline.py
 
 - data/processed/spatial_metrics.csv
 - data/processed/unified_dataset.csv
-- data/results/feasibility_report.json
 - data/results/ingestion_stats.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
@@ -116,9 +115,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/quickstart_validator.py` — NOT invoked by the run-book
     - `code/validation/co_location.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/unified_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/results/feasibility_report.json` is declared but was NOT written. Scripts referencing it:
-    - `code/data/feasibility.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/results/feasibility_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/ingestion_stats.json` is declared but was NOT written. Scripts referencing it:
     - `code/data/ingest.py` — NOT invoked by the run-book
     - `code/main_pipeline.py` — IS a run-book command
