@@ -25,9 +25,9 @@ pip install -r requirements.txt
    ```bash
    python code/data/preprocess.py
    ```
-   - Streams the verified datasets from Hugging Face, computes SHA‑256 checksums on the fly, parses SMILES, and writes **both** `data/processed/processed_data.parquet` **and** `data/processed/processed_data.csv`.  
+   - Streams the verified datasets from Hugging Face, computes SHA‑256 checksums, parses SMILES, and writes **both** `data/processed/processed_data.parquet` **and** `data/processed/processed_data.csv`.  
    - If the valid‑molecule retention rate falls below 95 %, the script logs a warning and **exits with a non‑zero code after the files are written** (so they are available for inspection).  
-   - If no `permeability` column is found, the script stops after this step with an informative message (see Phase 0 of the plan).  
+   - If no `permeability` column is found, the script stops after this step with an informative message and prompts the user to approve a surrogate target via the spec‑amendment workflow (see Phase 0 of the plan).  
 
 2. **Train & Evaluate** *(only runs when a true permeability target is present or an approved surrogate is used)*
    ```bash
@@ -59,3 +59,8 @@ pip install -r requirements.txt
 - Random seeds are fixed (`seed=42`) inside the code base.  
 - All dataset URLs are hard‑coded; rerunning the pipeline will fetch identical data.  
 - The CI runner uses the same `requirements.txt`; no hidden dependencies.
+
+## What Happens When No Permeability Data Is Available?
+The pipeline will stop after the preprocessing step and emit a clear message indicating that **FR‑001 cannot be satisfied with the current open datasets**. At that point, a spec‑amendment request can be submitted (see Phase 0) to permit a surrogate target. Until such an amendment is approved, no modeling or downstream analysis will be performed, preserving scientific rigor.  
+
+---

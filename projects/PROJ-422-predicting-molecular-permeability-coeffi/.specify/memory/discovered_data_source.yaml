@@ -1,16 +1,14 @@
 status: none
-intent: NIST PolyInfo polymer membrane permeability coefficients download python package
-  dataset
+intent: download polymer membrane permeability dataset Polymer Membrane Database Robeson
+  upper bound python package dataset
 required_fields:
 - polymer_name
-- membrane_type
-- gas_species
+- gas
 - temperature_K
 - pressure_atm
-- permeability_coefficient
-- units
+- permeability_Barrer
 - measurement_method
-- reference_citation
-cache_key: d0a8594cb8afe69ef29b5f4ecefb0a75cbd5218d08141f90bb1fdbd2c9aa2813
-searched_at: '2026-10-24T15:11:54.003658+00:00'
+- reference
+cache_key: 06845df189839716ba5b1b25aa21ce6b8f15a208a23109fee1082cbd5585516c
+searched_at: '2026-10-24T15:39:13.637639+00:00'
 retry_count: 1

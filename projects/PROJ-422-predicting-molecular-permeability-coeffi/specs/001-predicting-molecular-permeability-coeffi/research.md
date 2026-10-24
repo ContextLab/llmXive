@@ -1,7 +1,7 @@
 # Research: Predicting Molecular Permeability Coefficients Using Graph Neural Networks
 
 ## 1. Problem Definition
-We evaluate whether a graph‑based Message Passing Neural Network (MPNN) can outperform a descriptor‑based Random Forest (RF) in predicting **experimental permeability coefficients** of polymeric membranes. The target must be an independent experimental measurement; no surrogate (e.g., logP) will be used **unless** the specification is amended to permit a justified surrogate (see Phase 0 of the plan).
+We evaluate whether a graph‑based Message Passing Neural Network (MPNN) can outperform a descriptor‑based Random Forest (RF) in predicting **experimental permeability coefficients** of polymeric membranes. The target must be an independent experimental measurement; no surrogate (e.g., logP) will be used **unless** the specification is amended to permit a justified surrogate (see Phase 0 of the implementation plan).
 
 ## 2. Dataset Strategy
 
@@ -10,12 +10,12 @@ Only the following open datasets (verified URLs) are available for download via 
 
 | Dataset | URL | Format | Variables |
 |---------|-----|--------|-----------|
-| **ChEMBL‑derived RDKit descriptors** | `https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet` | Parquet | `smiles`, `mw`, `logp`, `tpsa`, `hba`, `hbd`, `rotatable_bonds` |
-| **Half‑ChEMBL RDKit descriptors** | `https://huggingface.co/datasets/fabikru/half-of-chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet` | Parquet | Same as above |
-| **SMILES‑Transformers** | `https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet` | Parquet | `smiles` only |
-| **SELFormer SMILES** | `https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv` | CSV | `smiles` only |
-| **TPSA / GRAPO** | `https://huggingface.co/datasets/Alan123/hba_hbd_tpsa_grpo/resolve/main/data/train-00000-of-00001.parquet` | Parquet | `smiles`, `tpsa`, `hba`, `hbd` |
-| **RDKit (generic)** | `https://huggingface.co/datasets/nglebm19/rdkit_chemical/resolve/main/data/train-00000-of-00001.parquet` | Parquet | `smiles` + a set of RDKit descriptors |
+| **ChEMBL‑derived RDKit descriptors** | ` | Parquet | `smiles`, `mw`, `logp`, `tpsa`, `hba`, `hbd`, `rotatable_bonds` |
+| **Half‑ChEMBL RDKit descriptors** | ` | Parquet | Same as above |
+| **SMILES‑Transformers** | ` | Parquet | `smiles` only |
+| **SELFormer SMILES** | ` | CSV | `smiles` only |
+| **TPSA / GRAPO** | ` | Parquet | `smiles`, `tpsa`, `hba`, `hbd` |
+| **RDKit (generic)** | ` | Parquet | `smiles` + a set of RDKit descriptors |
 
 **No verified source contains experimental permeability measurements.** Consequently, FR‑001 (acquire a permeability dataset) cannot be satisfied with the current open data. The pipeline therefore **halts after preprocessing** if no `permeability` column is detected, emitting a clear limitation warning (Constitution VII).  
 
@@ -58,7 +58,7 @@ All transformations output a Parquet file `data/processed/processed_data.parquet
 ### 3.4 Interpretability
 - **SHAP (RF)**: KernelSHAP on the descriptor baseline (and on the ablation model); mean absolute SHAP values are ranked and plotted.  
 - **GNNExplainer**: Run on a representative set of random test molecules; aggregate subgraph masks to a global importance ranking of functional groups/substructures; visualized as heatmaps.  
-- **Cross‑Model Comparison**: Instead of a cross‑feature Spearman correlation, we compute an **overlap‑count metric**: each top‑5 GNN‑identified substructure is mapped to the most chemically related standard descriptor (e.g., aromatic ring → logP, H‑bond donor groups → HBD). We then count how many of the top‑5 mapped descriptors overlap with the top‑5 SHAP‑ranked descriptors. The metric reports the integer overlap (0–5) and a boolean flag `overlap_meets_threshold` (true if overlap ≥ 3), satisfying SC‑003.  
+- **Cross‑Model Comparison**: Instead of a Spearman correlation, we compute an **overlap‑count metric**: each top‑5 GNN‑identified substructure is mapped to the most chemically related standard descriptor (e.g., aromatic ring → logP, H‑bond donor groups → HBD). We then count how many of the top‑5 mapped descriptors overlap with the top‑5 SHAP‑ranked descriptors. The metric reports the integer overlap (0–5) and a boolean flag `overlap_meets_threshold` (true if overlap ≥ 3), satisfying SC‑003.  
 
 All outputs are saved under `results/interpretability/`.
 
@@ -72,4 +72,3 @@ All outputs are saved under `results/interpretability/`.
 | CPU memory overflow | Streaming load, batch size = 32, fallback to random subset if needed. |
 
 ---
-

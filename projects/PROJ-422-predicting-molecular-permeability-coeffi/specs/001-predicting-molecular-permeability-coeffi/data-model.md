@@ -43,7 +43,7 @@ Defines JSON‑Schema contracts for raw ingestion, processed intermediate repres
 2. **Preprocess** (`code/data/preprocess.py`):  
    - Parse SMILES → graph; compute descriptors.  
    - Set `mol_valid`; drop rows where `mol_valid=False`.  
- - Write `data/processed/processed_data.parquet` **before** applying the [deferred] retention guard.
+   - Write `data/processed/processed_data.parquet` **before** applying the deferred retention guard.  
    - If the guard fails, the script exits with a non‑zero code **after** the file exists, satisfying the unit test.  
    - Rows with `target` = null are excluded from modeling later.  
 3. **Split** (`code/data/split.py`): produce `train.parquet` and `test.parquet` under `data/processed/` (only rows with non‑null `target`).  
