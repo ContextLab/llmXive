@@ -63,16 +63,16 @@ The system must compute weekly migration centroids for each species‑year, repr
 
 ### Functional Requirements  
 
-- **FR-001**: The system MUST acquire eBird observations for North America (2020‑2022) **by streaming** the eBird Basic Dataset (EBD) through the eBird API and applying a species‑level filter, such that the total on‑disk footprint never exceeds **5 GB** at any point.  
-- **FR-002**: The system MUST download NOAA GHCN‑Daily temperature & precipitation files and PRISM extreme‑weather rasters for the same period, **ensuring the combined climate data on‑disk ≤ 2 GB**.  
-- **FR-003**: The system MUST filter eBird records to a curated list of 20 long‑distance migratory species, aggregate observations to weekly counts per 0.5° × 0.5° grid cell, and compute the three phenology metrics (first arrival, median arrival, stopover duration) **using only observed dates** (no synthetic imputation of phenology).  
-- **FR-004**: The system MUST compute seasonal climate averages (mean March‑May temperature, total precipitation, extreme‑weather index) for each grid‑cell‑week.  
-- **FR-005**: The system MUST fit GAMMs with phenology metrics as responses, climate variables as smooth fixed effects, and species‑year random intercepts/slopes; spatial autocorrelation is diagnosed with Moran’s I and, if needed, mitigated with a Gaussian Process random effect (Matérn covariance).  
-- **FR-006**: The system MUST perform 10 000 permutation shuffles for each smooth term, derive empirical p‑values, and apply the Benjamini–Hochberg FDR correction across all species‑climate tests.  
-- **FR-007**: The system MUST represent weekly migration centroids as trajectories on a Riemannian manifold using the `geomstats` library, compute shift vectors (magnitude, bearing, confidence angle), and obtain permutation‑based significance.  
-- **FR-008**: The system MUST generate 95 % confidence intervals for phenology‑shift predictions via bootstrap resampling (≥ 1000 resamples).  
-- **FR-009**: The system MUST **deliver** (a) all preprocessing, modeling, and trajectory scripts; (b) intermediate CSVs; (c) fitted model objects; (d) figures and maps; and (e) a concise HTML report, packaged in a reproducible repository.  
-- **FR-010**: The system MUST ensure that **no fabricated or placeholder values** are used in any reported metric; all numbers must originate from observed eBird or NOAA/PRISM data or from formally defined statistical procedures (e.g., permutations, bootstraps).  
+- **FR-001**: The system MUST acquire eBird observations for North America (2020‑2022) **by streaming** the eBird Basic Dataset (EBD) through the eBird API and applying a species‑level filter, such that the total on‑disk footprint never exceeds **5 GB** at any point. Temporary raw files are deleted immediately after filtering. (See US-1)  
+- **FR-002**: The system MUST download NOAA GHCN‑Daily temperature & precipitation files and PRISM extreme‑weather rasters for the same period, **ensuring the combined climate data on‑disk ≤ 2 GB**. (See US-1)  
+- **FR-003**: The system MUST filter eBird records to a curated list of 20 long‑distance migratory species, aggregate observations to weekly counts per 0.5° × 0.5° grid cell, and compute the three phenology metrics (first arrival, median arrival, stopover duration) **using only observed dates** (no synthetic imputation of phenology). (See US-1)  
+- **FR-004**: The system MUST compute seasonal climate averages (mean March‑May temperature, total precipitation, extreme‑weather index) for each grid‑cell‑week. (See US-2)  
+- **FR-005**: The system MUST fit GAMMs with phenology metrics as responses, climate variables as smooth fixed effects, and species‑year random intercepts/slopes; spatial autocorrelation is diagnosed with Moran’s I and, if needed, mitigated with a Gaussian Process random effect (Matérn covariance). (See US-2)  
+- **FR-006**: The system MUST perform 10 000 permutation shuffles for each smooth term, derive empirical p‑values, and apply the Benjamini–Hochberg FDR correction across all species‑climate tests. (See US-2)  
+- **FR-007**: The system MUST represent weekly migration centroids as trajectories on a Riemannian manifold using the `geomstats` library, compute shift vectors (magnitude, bearing, confidence angle), and obtain permutation‑based significance. (See US-3)  
+- **FR-008**: The system MUST generate 95 % confidence intervals for phenology‑shift predictions via bootstrap resampling (≥ 1000 resamples). (See US-3)  
+- **FR-009**: The system MUST **deliver** (a) all preprocessing, modeling, and trajectory scripts; (b) intermediate CSVs; (c) fitted model objects; (d) figures and maps; and (e) a concise HTML report, packaged in a reproducible repository. (See US-3)  
+- **FR-010**: The system MUST ensure that **no fabricated or placeholder values** are used in any reported metric; all numbers must originate from observed eBird or NOAA/PRISM data or from formally defined statistical procedures (e.g., permutations, bootstraps). **Verification:** For every numeric field the pipeline writes a provenance log entry (source file, record identifier, SHA‑256 checksum). An automated audit script parses all output CSVs and asserts that each value appears in the provenance log and that no sentinel placeholders (e.g., `-9999`, `NaN`) exist. (See US-3)  
 
 ### Key Entities  
 
@@ -85,10 +85,10 @@ The system must compute weekly migration centroids for each species‑year, repr
 
 ### Measurable Outcomes  
 
-- **SC-001**: Statistical power for detecting a minimum standardized effect size of **Cohen’s d ≥ 0.10** is **≥ 0.80** across species (estimated via post‑hoc power analysis).  
-- **SC-002**: The proportion of grid cells flagged “insufficient data” after preprocessing is **≤ 10 %** of total cells.  
-- **SC-003**: GAMM convergence rate (successful fits / total attempted fits) is **≥ 90 %**.  
-- **SC-004**: Width of bootstrapped 95 % confidence intervals for phenology‑shift predictions is **≤ 3 days**.  
+- **SC-001**: Statistical power to detect a smooth‑term effect explaining at least **R² ≥ 0.02** ([deferred] of variance) is **≥ 0.80**. Power is estimated **a priori** via 1 000 simulated datasets per species using the `simr` (or `powerSim`) R package, specifying the intended sample size (number of species‑year‑grid cells) and the target variance‑explained effect. (See US-2)
+- **SC-002**: The proportion of grid cells flagged “insufficient data” after preprocessing is **≤ 10 %** of total cells. (See US-1)  
+- **SC-003**: GAMM convergence rate (successful fits / total attempted fits) is **≥ 90 %**. (See US-2)  
+- **SC-004**: Width of bootstrapped 95 % confidence intervals for phenology‑shift predictions is **≤ 3 days**. (See US-3)  
 - **SC-005**: Total runtime of the end‑to‑end pipeline on a GitHub Actions free‑tier runner is **≤ 7200 seconds** (2 hours), staying within the CI time limit.  
 - **SC-006**: All generated figures, tables, and CSVs are reproducibly recreated by re‑running the pipeline on the same streamed data without manual intervention.  
 
