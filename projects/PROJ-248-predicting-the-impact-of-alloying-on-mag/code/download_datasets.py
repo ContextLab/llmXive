@@ -1,9 +1,9 @@
 """
 download_datasets.py
 
-Script to download the Materials Project magnetic dataset (via the HuggingFace
-Hub) and the OQMD magnetic CSV release (via a direct HTTP request).  The script
-writes three artefacts:
+Script to download the Materials Project magnetic dataset (via a direct HTTP request
+to the HuggingFace repository) and the OQMD magnetic CSV release (via a direct
+HTTP request).  The script writes three artefacts:
 
 * ``data/raw_mp.jsonl`` – filtered JSON‑lines from the Materials Project
   (only entries where ``magnetic_type`` is not ``NM``).
@@ -24,11 +24,6 @@ import os
 import requests
 import yaml
 
-# The `datasets` library provides a streaming interface to the Materials
-# Project dataset hosted on the HuggingFace Hub.  It is listed as a required
-# dependency in ``requirements.txt``.
-import datasets
-
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -44,59 +39,61 @@ def _sha256_of_path(file_path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
+
 def _write_yaml(manifest: dict, out_path: Path) -> None:
     """Write a dictionary to a YAML file (ensuring parent dirs exist)."""
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as f:
         yaml.safe_dump(manifest, f, sort_keys=False)
 
+
 # ----------------------------------------------------------------------
 # Phase 0 – Materials Project magnetic entries
 # ----------------------------------------------------------------------
 def download_materials_project(raw_mp_path: Path) -> dict:
     """
-    Download the Materials Project dataset using the ``datasets`` library,
+    Download the Materials Project dataset from the HuggingFace repository,
     filter out non‑magnetic entries (``magnetic_type`` == ``NM``), and write
     each remaining record as a JSON line.
 
-    Returns a manifest dictionary containing the dataset version (the
-    git‑commit hash of the snapshot) and the SHA‑256 checksum of the written
-    file.
+    Returns a manifest dictionary containing a simple version identifier
+    (the HTTP ``ETag`` header, if present) and the SHA‑256 checksum of the
+    written file.
     """
-    log.info("Downloading Materials Project dataset via the HuggingFace `datasets` library.")
-    # The dataset identifier on the Hub.
-    dataset_name = "materialsproject"
-    try:
-        # ``load_dataset`` with ``streaming=True`` avoids downloading the
-        # entire archive to disk and yields records lazily.
-        ds = datasets.load_dataset(
-            path=dataset_name,
-            split="train",          # the default split for this dataset
-            streaming=True,
-        )
-    except Exception as exc:
-        raise RuntimeError(
-            f"Failed to load the Materials Project dataset '{dataset_name}' via the `datasets` library: {exc}"
-        ) from exc
+    # This URL points to a public JSON‑Lines dump of the Materials Project
+    # dataset.  It is hosted on HuggingFace and does not require the
+    # ``datasets`` library (which depends on ``pyarrow``).
+    url = (
+        "https://huggingface.co/datasets/materialsproject/materialsproject/"
+        "resolve/main/materialsproject.jsonl"
+    )
 
-    # Retrieve the snapshot version (commit hash) from the dataset info.
-    try:
-        version = ds._fingerprint  # fingerprint is a hash of the underlying files
-    except Exception:
-        version = "unknown"
+    log.info("Downloading Materials Project dataset from %s", url)
+    resp = requests.get(url, stream=True, timeout=300)
+    resp.raise_for_status()
+
+    # Try to obtain a lightweight version identifier from the HTTP headers.
+    version = resp.headers.get("ETag", "unknown")
 
     raw_mp_path.parent.mkdir(parents=True, exist_ok=True)
 
     sha256 = hashlib.sha256()
     count = 0
     with raw_mp_path.open("w", encoding="utf-8") as dst:
-        for record in ds:
-            # Defensive: ensure we have a mapping.
-            if not isinstance(record, dict):
+        for line_bytes in resp.iter_lines(chunk_size=8192, decode_unicode=False):
+            if not line_bytes:
                 continue
+            try:
+                record = json.loads(line_bytes.decode("utf-8"))
+            except json.JSONDecodeError:
+                # Skip malformed lines but continue processing.
+                log.warning("Skipping malformed JSON line in Materials Project dump.")
+                continue
+
             # Keep only magnetic entries (magnetic_type != "NM").
             if record.get("magnetic_type") == "NM":
                 continue
+
             out_line = json.dumps(record, ensure_ascii=False)
             dst.write(out_line + "\n")
             sha256.update(out_line.encode("utf-8"))
@@ -117,6 +114,7 @@ def download_materials_project(raw_mp_path: Path) -> dict:
     )
 
     return {"version": version, "sha256": checksum, "records": count}
+
 
 # ----------------------------------------------------------------------
 # Phase 0 – OQMD magnetic CSV
@@ -155,6 +153,7 @@ def download_oqmd(raw_oqmd_path: Path) -> dict:
 
     return {"url": url, "sha256": checksum, "bytes": total_bytes}
 
+
 # ----------------------------------------------------------------------
 # Main entry point
 # ----------------------------------------------------------------------
@@ -176,6 +175,7 @@ def main() -> None:
 
     _write_yaml(manifest, manifest_path)
     log.info("Data sources manifest written to %s", manifest_path)
+
 
 if __name__ == "__main__":
     try:
