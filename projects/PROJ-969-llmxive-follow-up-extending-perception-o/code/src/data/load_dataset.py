@@ -350,6 +350,9 @@ def main() -> None:
     schema = load_schema()
     validator = jsonschema.Draft7Validator(schema)
 
+    # Ensure the output directory exists
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+
     out_path = RAW_DIR / "video_metadata.jsonl"
     n_records = 0
     field_nonnull = {f: 0 for f in ("video_url", "transcript", "setting", "culture")}

@@ -75,7 +75,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-10-20T12:43:26.458958Z'
-- artifact_hash: 55710d8111274b250ad88cfcbbf696541cc35d2da3a0547f1e92569f61ed21bc
+- artifact_hash: d5eb9bcfc20a57570c500155741a744074fa413537bbacc0f0d05d8ad15fe08b
   artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,8 +85,8 @@
   value: https://huggingface.co/datasets/mmbench/ocean
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/mmbench/ocean
-  verified_at: '2026-10-23T09:15:25.861195Z'
-- artifact_hash: 55710d8111274b250ad88cfcbbf696541cc35d2da3a0547f1e92569f61ed21bc
+  verified_at: '2026-10-24T07:16:55.456244Z'
+- artifact_hash: d5eb9bcfc20a57570c500155741a744074fa413537bbacc0f0d05d8ad15fe08b
   artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -96,4 +96,4 @@
   value: '2605.22109'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-10-23T09:15:25.861195Z'
+  verified_at: '2026-10-24T07:16:55.456244Z'

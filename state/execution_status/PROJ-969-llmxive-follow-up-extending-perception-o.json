@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-22T15:09:24Z",
-  "project_id": "PROJ-969-llmxive-follow-up-extending-perception-o"
+  "updated_at": "2026-10-24T07:16:55Z",
+  "project_id": "PROJ-969-llmxive-follow-up-extending-perception-o",
+  "replan_rounds": 1
 }
