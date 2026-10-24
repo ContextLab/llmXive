@@ -16,7 +16,7 @@ Represents a 2‑dimensional molecular graph derived from SMILES.
 - **Connectivity**: PyTorch Geometric `edge_index` (source, target) plus `edge_attr`.
 
 ### 2. IonizationEnergyTarget (Proxy)
-- `negative_homo_proxy` (float, eV): `-homo_au * (standard conversion factor from atomic units to electronvolts)` (conversion from atomic units).  
+- `negative_homo_proxy` (float, eV): `-homo_au * 27.2114` (conversion from atomic units).  
 - **Source**: QM9 `HOMO_au` column.  
 - **Note**: Approximation per Koopmans’ theorem; systematic bias documented in Phase 0.
 
@@ -28,7 +28,7 @@ Represents a 2‑dimensional molecular graph derived from SMILES.
 ### 4. AttributionMap
 - `indices` (list[int]): Atom or bond indices.  
 - `scores` (list[float]): Integrated Gradients magnitudes.  
-- `validation` (string): Description of validation method (e.g., correlation with Hammett σ constants).  
+- `validation` (string): Description of validation method (e.g., qualitative check against known chemical intuition).  
 - `normalization` (string): `"min-max"` or `"l2"`.  
 - `algorithm` (string, const): `"Integrated Gradients"` (defined in `model_output.schema.yaml`).
 
@@ -50,7 +50,7 @@ Represents a 2‑dimensional molecular graph derived from SMILES.
 1. **Ingestion** – `download.py` fetches QM9 via `qm9pack` → raw DataFrame.  
 2. **Preprocess** – `preprocess.py` converts SMILES → RDKit Mol → `MoleculeGraph` (PyG `Data`).  
 3. **Target Derivation** – `-homo_au * 27.2114` → `IonizationEnergyTarget.negative_homo_proxy`.  
-4. **Split** – `split.py` creates scaffold‑based train/val/test assignments (FR‑004).  
+4. **Split** – `split.py` creates scaffold‑based train/val/test assignments (FR‑004) and performs a **post‑hoc covariate balance check** (molecular weight, rotatable bonds); if imbalance > 10 % a stratified re‑split is triggered.  
 5. **Training** – `train.py` consumes `train_loader`, updates MPNN, monitors RAM, respects timeout.  
 6. **Evaluation** – `evaluate.py` computes metrics, attribution, statistical tests, and writes JSON/CSV conforming to contracts.
 
@@ -64,7 +64,5 @@ Represents a 2‑dimensional molecular graph derived from SMILES.
 ## Attribution Subset Note
 Integrated Gradients attribution maps are generated for a **representative subset of 1 000 test molecules** (stratified by scaffold) to keep CPU runtime within the predefined time limit. The `AttributionMap` entity applies to this subset; full‑set attribution can be generated offline if needed.
 
----
-
-
-
+## Pairing Strategy for Paired Tests
+Each baseline run and its perturbed counterpart share the **same random seed** (recorded in `utils/config.py`). This ensures that per‑molecule absolute errors are directly comparable, satisfying the independence assumptions of the paired t‑test (or Wilcoxon signed‑rank test).

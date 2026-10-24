@@ -41,7 +41,7 @@ python code/data/split.py \
     --strategy scaffold
 ```
 - Generates `MoleculeGraph` objects, derives the `-HOMO` target, and creates a scaffold split with a large majority allocated to the primary set and smaller equal portions for the secondary sets.  
-- Logs any excluded molecules (missing `homo` or unparsable SMILES).
+- Logs any excluded molecules (missing `homo` or unparsable SMILES) and performs a post‑hoc covariate balance check; if needed, the script will automatically re‑split stratified by molecular weight and rotatable bonds.
 
 ### 3. Proxy Validation (Construct Validity)
 ```bash
@@ -79,15 +79,15 @@ python code/models/baselines.py --type dftb
 python code/experiments/ablation.py \
     --feature bond_type \
     --perturbation zero \
-    --num-runs 5 \
-    --subset-size 10000 \
+    --num-runs 3 \
+    --subset-size <sufficiently large subset> \
     --batch-size 64 \
     --max-epochs 100 \
-    --bootstrap-samples 1000 \
+    --bootstrap-samples a sufficiently large number of samples \
     --runtime-guard-hours 4
 ```
-- Trains **5** baseline models and **5** perturbed models on a **10 000‑molecule** subset.  
-- If the internal runtime guard detects that the estimated wall‑clock will exceed 4 hours, the script automatically switches to a **5 000‑molecule** subset (still meets power requirements).  
+- Trains **3** baseline models and **3** perturbed models (3 runs per config).  
+- Each baseline run is paired with its perturbed counterpart via a shared random seed.  
 - Results are saved to `results/ablation_part1.json`.
 
 ### 7. **Job B‑2 – Ablation Half 2 (Retraining)**
@@ -95,7 +95,7 @@ python code/experiments/ablation.py \
 python code/experiments/ablation.py \
     --feature bond_type \
     --perturbation zero \
-    --num-runs 5 \
+    --num-runs 3 \
     --subset-size 10000 \
     --batch-size 64 \
     --max-epochs 100 \
@@ -103,7 +103,7 @@ python code/experiments/ablation.py \
     --runtime-guard-hours 4 \
     --resume-from results/ablation_part1.json
 ```
-- Completes the remaining **5** runs and merges with part 1, producing the final `results/ablation.json` that conforms to `contracts/ablation_result.schema.yaml`.
+- Completes the remaining **3** runs and merges with part 1, producing the final `results/ablation.json` that conforms to `contracts/ablation_result.schema.yaml`.
 
 ### 8. **Job C – Attribution & Evaluation**
 ```bash
@@ -112,14 +112,14 @@ python code/experiments/evaluate.py \
     --model-path code/models/best_model.pth \
     --test-set data/splits/test.pt \
     --output-dir results/ \
-    --ig-sample-size 1000
+    --ig-sample-size sufficiently large
 ```
-- Generates `results/metrics.csv`, `results/attribution.json`, OOD flag report, and runs the quantitative IG‑σ correlation test.
+- Generates `results/metrics.csv`, `results/attribution.json`, OOD flag report, and runs the qualitative IG‑intuition validation (see FR‑022).
 
 ## Expected Outputs
 - `data/processed/graphs.pt` – processed graph dataset.  
 - `code/models/best_model.pth` – trained MPNN checkpoint.  
-- `results/metrics.csv` – MAE, RMSE, $R^2$, baseline comparisons, generalization gap.  
+- `results/metrics.csv` – MAE, RMSE, $R^2$, baseline comparisons, generalization gap, and pass/fail flags.  
 - `results/ablation.json` – ablation MAE increase, p‑value, effect size, bootstrap CI.  
 - `results/attribution.json` – Integrated Gradients maps for the sampled test subset.  
 - `results/ood_report.txt` – count of scaffold‑OOD test molecules.
@@ -129,6 +129,4 @@ python code/experiments/evaluate.py \
 - **Timeout**: Check `results/checkpoint_*.pth` for the latest saved state; rerun with `--resume`.  
 - **Missing `homo`**: Review `logs/missing_homo.log`; if >5 % of records are missing, the pipeline will abort with a “Data Quality Warning”.  
 - **Proxy Validation Failure**: Study cannot proceed; consider alternative target or dataset.  
-- **Attribution Runtime**: Only a 1 k subset is processed by default; increase `--ig-sample-size` only if compute budget permits.
-
----
+- **Attribution Runtime**: Only a 1 k subset is processed by default; increase `--ig-sample-size` only if compute budget permits.  

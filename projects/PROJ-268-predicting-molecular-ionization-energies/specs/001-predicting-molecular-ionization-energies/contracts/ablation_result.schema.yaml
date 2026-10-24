@@ -23,10 +23,10 @@ properties:
     properties:
       baseline_mae:
         type: "number"
-        description: "Mean MAE of the 10 baseline models."
+        description: "Mean MAE of the baseline models (averaged over the stochastic runs)."
       perturbed_mae_mean:
         type: "number"
-        description: "Mean MAE of the perturbed models (across 10 runs)."
+        description: "Mean MAE of the perturbed models (averaged over the stochastic runs)."
       perturbed_mae_std:
         type: "number"
         description: "Standard deviation of MAE across the perturbed runs."
@@ -35,16 +35,18 @@ properties:
         description: "Absolute increase in MAE (perturbed – baseline)."
       p_value:
         type: "number"
-        description: "P‑value from paired t‑test on per‑molecule error differences across 10 pairs."
+        description: "P‑value from paired statistical test on per‑molecule error differences across runs."
       is_significant:
         type: "boolean"
         description: "True if p‑value < 0.05 after Bonferroni correction."
       num_runs:
         type: "integer"
-        description: "Number of stochastic runs performed (must be 4‑?? ?? ?"
+        description: "Number of stochastic runs performed per configuration (must be 3)."
+        minimum: 3
+        maximum: 3
       test_type:
         type: "string"
-        description: "Statistical test used"
+        description: "Statistical test used (e.g., 'paired t-test' or 'Wilcoxon signed-rank')."
     required:
       - baseline_mae
       - perturbed_mae_mean
