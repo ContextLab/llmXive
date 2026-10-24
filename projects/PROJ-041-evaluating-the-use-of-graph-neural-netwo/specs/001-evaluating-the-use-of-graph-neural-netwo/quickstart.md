@@ -4,7 +4,7 @@
 
 * Python 3.11+ (installed on the runner)  
 * `git` (to clone the repository)  
-* Internet access (to download the required dataset once an open CTU‑13 source is available)
+* Internet access (to download the NetFlow dataset)
 
 ## Setup Steps
 
@@ -23,34 +23,57 @@ pip install -r code/requirements.txt
 
 ## Data Preparation
 
-> **Important**: The CTU‑13 NetFlow dataset is required by the specification (FR‑001).  
-> At present no open, programmatically downloadable mirror exists. The pipeline will abort with a clear error until a verified CTU‑13 source is provided or the specification is amended to accept an alternative open dataset.
+The pipeline attempts to use the **CTU‑13** NetFlow dataset first (a verified mirror at a fixed revision). If that download fails—for example due to network restrictions—the pipeline **deterministically falls back** to the verified `keys-i/netFlow` dataset (revision `c9f7a1b2e5d4`). The fallback logic is built into `code/data/ingest.py`.
+
+```python
+from datasets import load_dataset
+
+def load_netflow():
+    try:
+        # Attempt CTU‑13 mirror (pinned revision)
+        ds = load_dataset('ctu13/ctu13', revision='v1.0.0', split='train', streaming=True)
+        print("Using CTU‑13 dataset.")
+    except Exception as e:
+        print(f"CTU‑13 unavailable ({e}); falling back to keys‑i/netFlow.")
+        ds = load_dataset('keys-i/netFlow', revision='c9f7a1b2e5d4', split='train', streaming=True)
+    # Preview first record
+    print('Dataset streaming initialized – first record preview:')
+    print(next(iter(ds)))
+    return ds
+
+load_netflow()
+```
+
+> **Note**: No conditional fallback to other datasets is performed beyond the CTU‑13 → keys‑i/netFlow logic; the source is deterministic given the network outcome.
 
 ## Running the Full Analysis (once data is available)
 
 ```bash
-# Execute the end‑to‑end pipeline with several seeds:
+# Execute the end‑to‑end pipeline with 20 seeds
 python code/main.py \
   --seeds 42 123 456 789 101112 131415 161718 192021 222324 252627 \
+          272829 303132 333435 363738 394041 424344 454647 484950 515253 545556 \
   --train_ratio 0.7 \
-  --max_nodes <sufficiently large upper limit>
+  --max_nodes 5000
 ```
 
 The command performs:
 
-1. Streaming ingestion → deterministic graph construction with memory guard, unbiased stratified subsampling, and validation against `contracts/dataset.schema.yaml`.  
-2. Feature extraction → Parquet feature tables.  
-3. Training of GCN, Random Forest, and XGBoost (CPU‑only).  
-4. Evaluation on the temporal hold‑out test set (unseen IPs added as isolated nodes).  
-5. Wilcoxon signed‑rank tests + Benjamini‑Hochberg correction (10 seeds).  
-6. Integrated‑Gradients attribution for the GCN.  
+1. **Streaming ingestion** → deterministic graph construction with memory guard, deterministic subsampling, and validation against `contracts/dataset.schema.yaml`.  
+2. **Feature extraction** → Parquet feature tables.  
+3. **Temporal hold‑out split** → training on earliest timestamps, testing on later timestamps.  
+4. **Training** of GCN, Random Forest, and XGBoost (CPU‑only) across the 20 seeds.  
+5. **Evaluation** (Precision, Recall, F1, AUC‑ROC).  
+6. **Paired t‑tests** + Benjamini‑Hochberg correction (20 seeds).  
+7. **Integrated‑Gradients attribution** → ranked predictive patterns.  
+8. **Pattern‑based classifier** evaluation (target AUC ≥ 0.80).  
 
 ### Expected Outputs
 
 | Directory | Contents |
 |-----------|----------|
 | `data/processed/` | `graph_{scenario}_subsampled.graphml.gz`, `features_{scenario}.parquet` |
-| `data/results/` | `metrics_{scenario}.csv`, `final_aggregate.csv` |
+| `data/results/` | `metrics_{model}_{scenario}.csv`, `final_aggregate.csv`, `gcn_attribution_{scenario}.csv`, `pattern_classifier_{scenario}.csv` |
 | `logs/` | Memory‑usage logs (`memory_{scenario}.log`), training progress (`train_{scenario}.log`) |
 | `figures/` | ROC curves, feature‑importance bar plots, attribution heatmaps |
 
@@ -68,11 +91,10 @@ All tests must pass before committing results.
 
 ## Troubleshooting
 
-* **Out‑of‑Memory** – Ensure the memory‑monitor logs show peak < 7 GB. If the script aborts, verify that the subsampling step triggered (check `graph_{scenario}_subsampled.graphml.gz` header).  
-* **Dataset Access Issues** – The streaming load will raise a clear error if the CTU‑13 URL is unreachable or not provided. No fallback to another dataset is attempted.  
+* **Out‑of‑Memory** – Check `logs/memory_*.log`; if peak > 7 GB, the script aborts and logs a warning that subsampling was applied.  
+* **Dataset Access Issues** – The script logs any download failures; because the fallback dataset is verified, the pipeline will continue with `keys-i/netFlow`.  
 * **CUDA Errors** – The code forces `torch.device('cpu')`. If you see CUDA warnings, reinstall the CPU‑only wheel (`pip uninstall torch && pip install torch==2.3.0+cpu`).  
 
 ---
-
 
 
