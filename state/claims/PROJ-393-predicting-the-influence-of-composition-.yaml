@@ -1878,7 +1878,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-22T09:22:58Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 1
@@ -2867,7 +2867,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-24T22:50:35Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 1
@@ -3041,7 +3041,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-07-24T22:54:52Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 1
@@ -4283,7 +4283,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-07T15:29:51Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 1
@@ -4902,7 +4902,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-09T14:37:44Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 1
@@ -6026,7 +6026,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-16T12:38:17Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 0
@@ -6229,7 +6229,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-16T12:43:46Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 1
@@ -6561,7 +6561,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-02T01:13:46Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 1
@@ -6578,7 +6578,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-02T01:13:49Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 1
@@ -6625,7 +6625,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-02T01:17:03Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 1
@@ -6793,7 +6793,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-02T01:19:51Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 0
@@ -7061,7 +7061,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-22T21:27:56Z'
 - artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   attempts: 0
@@ -7436,3 +7436,22 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-22T21:38:53Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/quickstart.md
+  attempts: 1
+  canonical: pipeline generates output files after successful execution
+  claim_id: c_35f481a4
+  context: 'After successful execution, the following files will be generated: - data/raw/manual_curated.csv
+    - data/processed/alloys_raw.csv - data/processed/alloys_features.csv - data/results/demo_metrics.json
+    (demo only) - data/processed/model_metrics.json (full run) - docs/reports/final_report.md
+    - docs/reports/statistical_limitations.md - docs/reports/microstructure_note.md
+    - docs/reports/data_scarcity_warning.md'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: After successful execution, the following files will be generated
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T16:27:10Z'

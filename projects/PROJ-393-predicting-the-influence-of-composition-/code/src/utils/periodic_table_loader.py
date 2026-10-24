@@ -1,80 +1,80 @@
-import csv
-import logging
-import hashlib
-from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
-from src.utils.logging_config import setup_logging, log_checksum
-import sys
+"""
+Utility module for loading the verified elemental properties CSV.
 
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+The module provides a single public function ``load_elemental_properties`` that
+reads ``data/raw/elemental_properties.csv`` into a ``pandas.DataFrame`` and
+caches the result for subsequent calls.
+
+This helper is used by the descriptor‑calculation code (see
+``src.features.descriptor_calculator``) and by any downstream analysis that
+requires elemental reference data.
+"""
+
+from __future__ import annotations
+
+import logging
+from pathlib import Path
+from functools import lru_cache
+
+import pandas as pd
+
+from llmxive_toolkit import paths
 
 logger = logging.getLogger(__name__)
-DATA_FILE = project_root / "data" / "raw" / "elemental_properties.csv"
 
+
+@lru_cache(maxsize=1)
 def load_elemental_properties() -> pd.DataFrame:
     """
-    Load elemental properties from CSV.
-    Returns an empty DataFrame if file is missing or invalid.
+    Load the elemental properties CSV produced by ``generate_elemental_properties.py``.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with columns ``element``, ``electronegativity``,
+        ``atomic_radii``, and ``valence_electrons``.
     """
-    import pandas as pd
-    
-    if not DATA_FILE.exists():
-        logger.error(f"Elemental properties file not found: {DATA_FILE}")
-        return pd.DataFrame()
-    
-    try:
-        df = pd.read_csv(DATA_FILE)
-        # Validate columns
-        required = ['element', 'electronegativity', 'atomic_radii', 'valence_electrons']
-        missing = [col for col in required if col not in df.columns]
-        if missing:
-            logger.error(f"Missing required columns in elemental properties: {missing}")
-            return pd.DataFrame()
-        
-        # Convert numeric columns, coercing errors to NaN
-        numeric_cols = ['electronegativity', 'atomic_radii', 'valence_electrons']
-        for col in numeric_cols:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-        
-        logger.info(f"Loaded {len(df)} elements from {DATA_FILE}")
-        return df
-    except Exception as e:
-        logger.error(f"Error loading elemental properties: {e}")
-        return pd.DataFrame()
+    csv_path = paths.data("raw", "elemental_properties.csv")
+    if not csv_path.is_file():
+        logger.error(f"Elemental properties file not found at {csv_path}")
+        raise FileNotFoundError(f"Missing elemental properties CSV: {csv_path}")
 
-def get_element_property(element: str, property_name: str) -> Optional[Any]:
-    """Get a specific property for an element."""
+    df = pd.read_csv(csv_path, dtype={
+        "element": str,
+        "electronegativity": float,
+        "atomic_radii": float,
+        "valence_electrons": int,
+    })
+    logger.debug(f"Loaded {len(df)} elemental property rows")
+    return df
+
+
+def get_element_property(element: str, property_name: str):
+    """
+    Retrieve a single property for a given element.
+
+    Parameters
+    ----------
+    element : str
+        Chemical symbol (e.g., ``'Fe'``).
+    property_name : str
+        One of ``'electronegativity'``, ``'atomic_radii'``,
+        ``'valence_electrons'``.
+
+    Returns
+    -------
+    float or int
+        The requested property value.
+
+    Raises
+    ------
+    KeyError
+        If the element or property is not present in the reference table.
+    """
     df = load_elemental_properties()
-    if df.empty:
-        return None
-    row = df[df['element'] == element]
+    row = df.loc[df["element"] == element]
     if row.empty:
-        return None
-    val = row[property_name].values[0]
-    return val if not pd.isna(val) else None
-
-def get_all_elements() -> List[str]:
-    df = load_elemental_properties()
-    if df.empty:
-        return []
-    return df['element'].tolist()
-
-def validate_elements_in_dataset(elements: List[str]) -> Tuple[List[str], List[str]]:
-    """Returns (known, unknown) elements."""
-    all_known = set(get_all_elements())
-    known = [e for e in elements if e in all_known]
-    unknown = [e for e in elements if e not in all_known]
-    return known, unknown
-
-def main():
-    setup_logging()
-    logger.info("Periodic Table Loader Main Entry")
-    df = load_elemental_properties()
-    if not df.empty:
-        logger.info(f"Periodic table loaded with {len(df)} entries.")
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
+        raise KeyError(f"Element '{element}' not found in elemental properties table")
+    if property_name not in df.columns:
+        raise KeyError(f"Property '{property_name}' not available")
+    return row.iloc[0][property_name]

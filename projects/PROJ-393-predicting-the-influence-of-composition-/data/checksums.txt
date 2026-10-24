@@ -1,0 +1,3 @@
+# SHA-256 checksums for data artifacts
+# Format: <sha256>  <relative_path>
+# This file will be updated automatically by the data generation scripts.

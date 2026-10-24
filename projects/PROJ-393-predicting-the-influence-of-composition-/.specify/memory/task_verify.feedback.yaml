@@ -1,0 +1,49 @@
+T001:
+  reason: "The `docs/reports/` directory is missing, the `requirements.txt` uses loose\
+    \ \u201C>=\u201D version specifiers instead of exact pins, and there is no execution\
+    \ evidence that `python -m src.main --help` produces the required \u201CSetup\
+    \ OK\u201D help message."
+  task: cea52f12cf0f20c82b88823fc6e42983d113f11968aa4f15b288c3e4806972f3
+T002:
+  reason: The required file `data/raw/elemental_properties_v1.csv` is missing, `src/features/descriptors.py`
+    is absent, and `data/checksums.txt` contains no checksum entry for the CSV. Additionally,
+    the provided test script looks for `data/raw/elemental_properties.csv` with a
+    different column set, so it does not verify the required schema.
+  task: bcdaf5821daaf2133ec89a33fcb14a2665c94c6210d66691302f8d39f2c0cd38
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  task: 9c3ff05298c37a8e92003356ce59e96d98dac8f354418ee8c587aaf96492a882
+T004:
+  task: c1ba2818b6ffd1971b663b69020275929f1fc7e4dd2715a2c56a71a414fa8c54
+T005:
+  task: 9a82d6e378d987a1e9426c58836bc4fec0e15cf77b68d3f16f323bf305d7d583
+T006:
+  task: f2b186193fd197565f678c37a3d29ec0b8d69bee279cacdd71087fcf51f498e4
+T006a:
+  task: b5f9f36e24de06275f218e59f988b1c7ee55feb4042910f6ce07a84e858426dc
+T007:
+  task: 49acbbc5468cf2d528947e0dfe15ed027834066aebefa3909b0c5c5eb6c95468
+T008:
+  task: 35341725b71bf31d7e53e62979d2087d0a2eb8f42ada6a3ee8b5952705a9d926
+T009:
+  task: 88174fb686deeb95e83c6f496be214604b2d9c4d8ecf1ab50a40c654084ec88c
+T010:
+  task: 68b989645c8a00048d0fac696f28aaaa5139ad8095cca6a88ce2c0280f12c9e4
+T011:
+  task: d23551c9c0a42eac1eedd6ebdba6d95c8fcb9e63836b6de37dfd30e6fb75c969
+T011a:
+  task: 1653d4ffedd769a4aa21282fdd95498753cff18f1e2ee107925a2b6fdc81d48c
+T011b:
+  task: e1e97f38a0c01da1fb2585578efeec26f3a0dfafe09f54da6a81d3b08c4ce062
+T011c:
+  task: 5c399a20ba1fd70796bb32111f5f0f26fda53c55ed756f66c9f1904e9941c627
+T011d:
+  task: 7411e6727e7ca49867bd62b41e0a145ee381c0eaa23bbb167273580e609748c4
+T012:
+  task: 55a505c60db2fd0590e258409c57b1fc1289ff3c25f707ce0c88addfe2d61812
+T013:
+  task: 075fafcf209278e18b970d2d267c7d4207881fada788f56765769c14c138ac0d
+T014:
+  task: 098d85f66b332145bdbf61369934895c99b832c64e448e7bbb08dc217fd4f626
+T015:
+  task: 371092fd0e54eb43930c7875d1ad9c5b7bcf2a874595dac39883f527bc684bef

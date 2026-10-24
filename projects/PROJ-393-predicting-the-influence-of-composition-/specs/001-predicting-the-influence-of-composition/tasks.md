@@ -18,7 +18,7 @@ This research implements a reproducible CPU‑only pipeline that (1) aggregates 
   *Place `data/raw/elemental_properties_v1.csv` (sourced from the NIST Chemistry WebBook) containing electronegativity, atomic radii, valence‑electron count, d‑electron count, atomic mass, electron affinity, and Pettifor scale for all elements appearing in Heusler alloys (Co, Mn, Fe, Ga, Al, etc.).*  
   **Verification**: The CSV header matches the schema expected by `src/features/descriptors.py`; a SHA‑256 checksum entry is added to `data/checksums.txt` and the checksum file is validated by a test in `tests/unit/test_elemental_properties.py`.
 
-- [ ] T003 [P1] Implement a minimal ingestion‑preprocess‑model sanity‑check pipeline on a tiny manual file.  
+- [ ] T003 [P1] Implement a minimal ingestion‑preprocess‑model sanity‑check pipeline on a tiny manual file.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Create `code/src/ingestion/manual_curator.py` that reads `data/raw/manual_curated.csv` (provided by the spec), and `code/src/preprocessing/preprocess_pipeline.py` that normalizes units (Oe, emu/g) and drops any DFT rows. Add `code/src/models/linear_regressor.py` that fits a scikit‑learn `LinearRegression` on the processed data.*  
   **Verification**: Executing `python -m src.main --demo` produces `data/results/demo_metrics.json` containing numeric `r2` and `mae` fields; the JSON schema is validated by `tests/integration/test_demo_pipeline.py`.
 
