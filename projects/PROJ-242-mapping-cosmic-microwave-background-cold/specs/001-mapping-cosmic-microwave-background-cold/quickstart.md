@@ -26,12 +26,13 @@ The quickstart guides a new researcher through a complete run of the analysis pi
 
 4. **Monitor execution**  
    The job logs will display the major phases:
-   * `Data Ingestion` – downloads the **Planck 2018 SMICA** CMB map and the **SDSS‑DR16** galaxy catalog, converts them to HEALPix nside = 64.
-   * `Cold‑Spot Detection`
-   * `Cross‑Correlation`
-   * `Monte‑Carlo Simulations`
-   * `Sensitivity Sweep`
-   * `Memory‑Pressure Test (FR‑016)` – attempts to process a temporary `nside = 256` map and aborts with a clear log message if RAM would exceed 7 GB.
+   * `Data Ingestion` – downloads the **verified Planck SMICA CMB map** from the PLA and the **SDSS‑DR16 galaxy‑density HEALPix map** from Zenodo, converts to FITS, and downsamples to `nside=64`.  
+   * `Cold‑Spot Detection` – applies the top‑hat filter and writes `cold_spots.csv`.  
+   * `Cross‑Correlation` – computes ξ(θ) per redshift bin and overlays the theoretical ISW curve.  
+   * `Monte‑Carlo Simulations` – runs **1 000** ΛCDM realizations with CLASS and synthetic galaxy maps.  
+   * `Sensitivity Sweep` – evaluates a set of threshold/radius combos with FDR correction.  
+   * `Power Analysis` – reports detectable ISW amplitude and power (limited to 1 000 realizations).  
+   * `Memory‑Pressure Test (FR‑016)` – attempts to process a temporary `nside = 256` map and aborts with a clear log message if RAM would exceed 7 GB.  
    Each phase prints progress counters and memory‑usage checkpoints. If memory exceeds 7 GB, the job aborts with the prescribed message (FR‑009).
 
 5. **Retrieve results**  
@@ -39,7 +40,9 @@ The quickstart guides a new researcher through a complete run of the analysis pi
    * `cold_spots.csv`
    * `xi_theta.npy`
    * `correlation_results.yaml`
+   * `correlation_results.json`
    * `pvalue_table.csv`
+   * `power_analysis.txt`
    * PNG plots (`xi_theta.png`, `pvalue_heatmap.png`)
    * `analysis.ipynb` (full reproducible notebook)
 
@@ -60,4 +63,7 @@ The quickstart guides a new researcher through a complete run of the analysis pi
 * **Peak RAM**: ≤ 6.8 GB (verified on runner).  
 * **Disk usage**: < 10 GB (all intermediate FITS files are compressed).
 
-If the job exceeds the memory limit, it will abort with the logged message defined in FR‑009, and you can re‑run on a smaller sky fraction by adjusting `data.subset_fraction` in `config.yaml`.  
+If the job exceeds the memory limit, it will abort with the logged message defined in FR‑009, and you can re‑run on a smaller sky fraction by adjusting `data.subset_fraction` in `config.yaml`.
+
+## CI Status Check
+The GitHub Actions workflow runs all contract‑validation tests (Phase 11), the memory‑pressure automated test (Phase 14), and reports a **green** status badge on the PR if all steps succeed, satisfying FR‑020 and SC‑008. 

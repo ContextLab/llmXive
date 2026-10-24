@@ -41,6 +41,8 @@ properties:
           description: "Radius of the top‑hat filter applied (degrees)."
 ```
 
+
+
 ## 2. Cross‑Correlation Results (`correlation_results.schema.yaml`)
 
 ```yaml
@@ -81,4 +83,6 @@ properties:
       type: "number"
 ```
 
-These schemas are deliberately minimal yet fully capture the required fields for downstream validation and reproducibility.  
+
+
+These schemas are deliberately minimal yet fully capture the required fields for downstream validation and reproducibility.
