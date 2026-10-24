@@ -36,6 +36,17 @@ properties:
       - string
       - "null"
     description: "Polymer type for stratification (optional)"
+  polymer_type_onehot:
+    type: object
+    description: "One‑hot encoding of polymer type (key = type, value = 0 or 1)"
+    additionalProperties:
+      type: integer
+      enum: [0,1]
+  target_surrogate:
+    type:
+      - string
+      - "null"
+    description: "Name of surrogate target column if a spec amendment approves it"
 required:
   - smiles
   - mol_valid
@@ -46,4 +57,6 @@ required:
   - hbd
   - rotatable_bonds
   - target
+  - polymer_type_onehot
+  - target_surrogate
 additionalProperties: false
