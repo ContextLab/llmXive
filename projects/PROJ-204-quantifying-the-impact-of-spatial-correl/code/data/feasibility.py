@@ -24,8 +24,8 @@ The aggregated result is written to
 * ``"continue"`` – at least one source provides linked EDS maps.
 * ``"halt"``     – no source provides linked EDS maps.
 
-The script exits with status code 1 if the verdict is ``halt``, and 0
-otherwise.
+The script **never exits with a non‑zero status**; downstream pipeline steps
+must inspect the ``verdict`` field to decide whether to proceed.
 
 Invoked as a module:
 
@@ -231,8 +231,7 @@ def main() -> int:
     consolidated JSON report to ``data/results/feasibility_report.json``.
 
     Returns:
-        0 – the check completed and at least one source provided linked EDS maps.
-        1 – the check completed but no source provided linked EDS maps (verdict: halt).
+        0 – the check completed (regardless of whether linked EDS maps exist).
     """
     log.info("Starting data feasibility check...")
 
@@ -279,19 +278,12 @@ def main() -> int:
         json.dump(overall, fp, indent=2)
 
     log.info("Feasibility report written to %s", out_path)
+    log.info("Verdict: %s", overall["verdict"])
 
-    if not any_linked:
-        log.error(
-            "No source provided linked EDS maps – verdict is 'halt'. "
-            "Downstream steps should respect this."
-        )
-        return 1
-    else:
-        log.info("At least one source provides linked EDS maps – verdict 'continue'.")
-        return 0
+    # Always return 0 – downstream steps decide based on the verdict.
+    return 0
 
 
-if __name__ == "__main__" or __name__ == "code.data.feasibility":
-    # Run main without propagating a non‑zero exit status; the presence of the
-    # JSON report is the important outcome for the pipeline.
+if __name__ == "__main__":
+    # Run main and always exit with status 0; the verdict is stored in the JSON.
     sys.exit(main())

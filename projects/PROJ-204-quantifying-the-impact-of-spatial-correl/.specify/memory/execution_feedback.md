@@ -47,7 +47,7 @@ E   ImportError: cannot import name 'compute_autocorrelation' from partially ini
 =========================== short test summary info ============================
 ERROR tests/unit/test_spatial_metrics.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.57s ===============================
+=============================== 1 error in 0.48s ===============================
 
 
 - python -m pytest tests/unit/test_diffusion_length.py -v -> rc=4
@@ -59,7 +59,7 @@ configfile: pyproject.toml
 plugins: platformdirs-4.13.5, anyio-4.15.1
 collecting ... collected 0 items
 
-============================ no tests ran in 0.00s =============================
+============================ no tests ran in 0.02s =============================
 
 ERROR: file or directory not found: tests/unit/test_diffusion_length.py
 
@@ -75,7 +75,7 @@ FAILED tests/unit/test_robustness.py::TestPerformLeaveOneOutCV::test_loo_cv_retu
 FAILED tests/unit/test_robustness.py::TestPerformLeaveOneOutCV::test_loo_cv_delta_r_positive - TypeError: 'builtin_function_or_method' object is not iterable
 FAILED tests/unit/test_robustness.py::TestPerformLeaveOneOutCV::test_loo_cv_max_delta_r - TypeError: 'builtin_function_or_method' object is not iterable
 FAILED tests/unit/test_robustness.py::TestPerformLeaveOneOutCV::test_loo_cv_small_dataset - TypeError: 'builtin_function_or_method' object is not iterable
-============================== 6 failed in 0.69s ===============================
+============================== 6 failed in 0.60s ===============================
 
 
 - python -m pytest tests/integration/test_pipeline.py -v -> rc=4

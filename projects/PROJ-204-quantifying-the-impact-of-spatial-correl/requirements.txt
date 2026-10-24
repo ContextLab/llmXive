@@ -1,5 +1,12 @@
-# Core dependencies are provided by the platform (numpy, pandas, scipy, etc.)
-# Add the HuggingFace datasets package required for the feasibility probe.
-datasets>=2.0.0
-# Pin a version that is compatible with the platform's numpy version.
-# The platform currently provides numpy 1.26.x, which works with datasets 2.x.
+# Project dependencies
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+seaborn
+matplotlib
+requests
+pyyaml
+# Additional required package for probing the HuggingFace dataset
+datasets

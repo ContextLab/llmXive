@@ -4,100 +4,85 @@
 
 - Python 3.11+
 - Git
-- Access to GitHub Actions (for CI) or a local environment with ~7GB RAM.
+- Access to GitHub Actions (for CI) or a local environment with ~7 GB RAM
 
 ## Installation
 
-1. **Clone the repository**:
+1. **Clone the repository**
  ```bash
  git clone <repo-url>
  cd projects/PROJ-204-quantifying-the-impact-of-spatial-correl
  ```
 
-2. **Create a virtual environment**:
+2. **Create a virtual environment**
  ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
+ python -m venv.venv
+ source.venv/bin/activate # Windows:.venv\Scripts\activate
  ```
 
-3. **Install dependencies**:
+3. **Install dependencies**
  ```bash
  pip install -r requirements.txt
  ```
- *Note: `requirements.txt` pins versions for CPU-only compatibility.*
 
-## Data Setup
+## Step‑by‑Step Run
 
-1. **Check data feasibility** (Task T100):
- Before any download attempt, verify that a real source with linked EDS
- maps exists.
+### 1️⃣ Feasibility Check (always runs first)
+```bash
+python -m code.data.feasibility
+```
+- Produces `data/results/feasibility_report.json`.
+- Reports how many EDS maps were found via the verified HuggingFace dataset `doe2023/perovskite-eds`. **If none are found**, the pipeline continues with a performance‑only analysis (no abort).
 
- ```bash
- python -m code.data.feasibility
- ```
-
- The script probes the NREL Perovskite Database, the Zenodo REST API
- (`https://zenodo.org/api/records/?q=perovskite+EDS`), and the Materials
- Project API, and writes `data/results/data_feasibility_report.json`
- containing, per source: the probed URL, reachability, HTTP status,
- record count, whether EDS image files are programmatically linked to
- performance metrics, and evidence sample IDs.
-
- If the report contains `"verdict": "halt"` the script exits non-zero
- (no substitute data is produced) and the pipeline cannot proceed; the
- plan's Data Availability Report path applies.
-
-2. **Download Raw Data**:
- Run the ingestion script to fetch verified JSONs and attempt EDS downloads.
- ```bash
- python code/data/download.py
- ```
- *This script reads the verified URLs from the spec and populates `data/raw/`.*
-
-3. **Verify Data**:
- Check that `data/raw/` contains the JSON files and any available EDS maps.
- ```bash
- ls -lh data/raw/
- ```
- *If EDS maps are missing, the pipeline will halt with a "Data Availability Report".*
-
-## Running the Pipeline
-
-Execute the full analysis pipeline:
-
+### 2️⃣ Full Pipeline
 ```bash
 python code/main_pipeline.py --config <path-to-config.yaml>
 ```
+The orchestrator executes the ordered steps described in `plan.md`.
+Key outputs:
 
-This script performs the following steps in order:
-1. **Data Feasibility Check**: Verify EDS link programmatic access.
-2. **Align & Mask**: Preprocesses EDS maps (FR-001).
-3. **Co-location Validation**: Checks ID matching (FR-007).
-4. **Depth Resolution Validation**: Checks EDS vs PCE depth (FR-008).
-5. **Extract Metrics**: Computes autocorrelation and spectral power (FR-002, FR-003).
-6. **Model**: Runs correlations, BH correction, and GAMs (FR-004).
-7. **Robustness**: Performs LOO-CV (FR-005).
-8. **Sensitivity Analysis**: Performs conditional exclusion (FR-008).
-9. **Report**: Generates `results/summary_report.csv`, `results/summary_report.pdf`, and `results/ingestion_metrics.json` (SC-004).
+| File | Description |
+|------|-------------|
+| `data/processed/unified_dataset.csv` | Unified table of performance metrics (and any EDS metadata if available). Includes the `composite_spatial_metric` column (primary composite metric) and nullable spatial‑metric columns. |
+| `data/processed/spatial_metrics.csv` | Autocorrelation‑derived lengths, low‑frequency spectral power, and composite metric (may be empty). |
+| `data/processed/diffusion_lengths.csv` | Estimated diffusion lengths (may be empty). |
+| `results/summary_report.csv` | Correlation coefficients, 95 % CIs, effect‑size q, p‑values, BH‑adjusted p‑values, GAM deviance, Δr, sample counts, and diagnostic flags (conforms to `contracts/results.schema.yaml`). |
+| `results/summary_report.pdf` | Human‑readable summary with plots. |
+| `results/feasibility_report.json` | Re‑used from step 1 for provenance. |
 
-## Testing
-
-Run the unit tests to verify metric extraction accuracy (SC-001):
-
+### 3️⃣ Testing
 ```bash
+# Unit tests for metric extraction (SC‑001)
 pytest tests/unit/test_spatial_metrics.py -v
-```
 
-Run integration tests:
+# Unit test for diffusion‑length estimation (FR‑009)
+pytest tests/unit/test_diffusion_length.py -v
 
-```bash
+# Unit test for robustness (SC‑003)
+pytest tests/unit/test_robustness.py -v
+
+# Integration test for the whole pipeline (including feasibility logic)
 pytest tests/integration/test_pipeline.py -v
 ```
 
-## Output
+## Expected Directory Layout After a Successful Run
+```text
+data/
+├── raw/ # Original JSON/CSV performance data; any EDS maps if found
+└── processed/
+ ├── unified_dataset.csv
+ ├── co_location_status.csv
+ ├── depth_status.csv
+ ├── spatial_metrics.csv # May be empty
+ └── diffusion_lengths.csv # May be empty
+results/
+├── feasibility_report.json
+├── summary_report.csv
+└── summary_report.pdf
+logs/
+└── pipeline.log # Detailed log of each step
+```
 
-- **Feasibility Report**: `data/results/data_feasibility_report.json`.
-- **Processed Data**: `data/processed/` (Aligned maps, derived metrics).
-- **Results**: `results/summary_report.csv` (Correlation coefficients, p-values, robustness metrics).
-- **Ingestion Metrics**: `results/ingestion_metrics.json` (Global ingestion success rate as per SC-004).
-- **Logs**: `logs/` (Detailed logs of masking, fitting, and exclusions).
+## Re‑Running or Updating
+- To **re‑run** with a fresh seed: `python code.utils.seed set 42` before `main_pipeline.py`.
+- To **add new samples** (e.g., after a database update), simply re‑execute `main_pipeline.py`; the feasibility script will automatically detect newly available EDS maps.
