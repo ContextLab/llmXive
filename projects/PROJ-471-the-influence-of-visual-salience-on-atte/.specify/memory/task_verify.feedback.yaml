@@ -1,17 +1,13 @@
 T001:
-  reason: The `code/bootstrap.py` script parses `sys.argv` directly, causing a `SystemExit`
-    when the test suite runs (pytest injects its own arguments). Consequently `tests/test_bootstrap.py`
-    fails, so the required directories, `requirements.txt`, and `quickstart.md` are
-    never created under the temporary root. The script must ignore or strip external
-    arguments (e.g., use `parse_known_args()` or `parser.parse_args([])`) to let the
-    test pass.
+  reason: "The `code/bootstrap.py` script still calls `parser.parse_args()`, causing\
+    \ a `SystemExit` when pytest injects its own command\u2011line arguments (see\
+    \ the test failure log). Because of this the unit test `tests/test_bootstrap.py`\
+    \ aborts before any directories, `requirements.txt`, or `quickstart.md` are created,\
+    \ so the required behavior is not verified. The script must be changed to use\
+    \ `parse_known_args()` (or otherwise ignore unknown arguments) so that it returns\
+    \ 0 and the test can pass."
   task: da69c9ca510538a2821773caaa56a95b15e4bda208dce679ad2941dece860c5c
 T002:
-  reason: "The `tests/test_verify_data.py` suite fails the `test_verify_missing_dir`\
-    \ case because the script raises `RuntimeError(\"DATA_MISSING_001: ds003123 incomplete\"\
-    )` but does not include the required substring \u201Cds003123 not found\u201D\
-    \ in its error output. This mismatch means the implementation does not meet the\
-    \ specified verification behavior."
   task: d757de5d2df72f124cfe1d0c7fb7754353c097a9898dd12c06f48885e71273a5
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/salience/generate_maps.py

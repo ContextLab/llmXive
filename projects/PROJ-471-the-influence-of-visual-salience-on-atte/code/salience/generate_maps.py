@@ -22,8 +22,14 @@ from pathlib import Path
 from typing import List
 
 import cv2
-import numpy as np
+
+# Import torch *before* numpy to avoid NumPy‑ABI mismatches that can arise
+# when torch is compiled against an older NumPy version.  This ordering
+# mitigates the “module compiled using NumPy 1.x cannot be run in NumPy 2.x”
+# error observed on the CI runner.
 import torch
+
+import numpy as np
 
 from llmxive_toolkit import paths, get_logger
 
@@ -69,16 +75,24 @@ def _load_deepgaze_model() -> torch.nn.Module:
         # Restrict Torch to a single thread on the limited CI runner
         torch.set_num_threads(1)
 
-        # Load via torch hub – the repository provides a CPU‑compatible model.
-        model = torch.hub.load(
-            "deepgaze/deepgaze-ii",
-            "deepgaze_ii",
-            pretrained=True,
-            source="github",
-        )
+        # Prefer the pip‑installed wrapper if available
+        try:
+            from deepgaze2_pytorch import DeepGazeII  # type: ignore
+            model = DeepGazeII(pretrained=True)
+            logger.info("DeepGaze II model loaded via deepgaze2_pytorch package.")
+        except Exception as inner_exc:
+            # Fallback to torch.hub (may require internet)
+            logger.info("deepgaze2_pytorch not available, trying torch.hub.")
+            model = torch.hub.load(
+                "deepgaze/deepgaze-ii",
+                "deepgaze_ii",
+                pretrained=True,
+                source="github",
+            )
+            logger.info("DeepGaze II model loaded via torch.hub.")
+
         model.eval()
         model.to(torch.device("cpu"))
-        logger.info("DeepGaze II model loaded successfully (CPU).")
         return model
     except Exception as exc:
         logger.error(f"Failed to load DeepGaze II model: {exc}")
@@ -109,8 +123,10 @@ def _preprocess_image(image_path: Path, target_size: int = 224) -> torch.Tensor:
     if img_bgr is None:
         raise ValueError(f"Unable to read image file: {image_path}")
 
-    # Resize to target size (maintaining aspect ratio is not required for DeepGaze II)
-    img_resized = cv2.resize(img_bgr, (target_size, target_size), interpolation=cv2.INTER_AREA)
+    # Resize to target size (aspect ratio not required for DeepGaze II)
+    img_resized = cv2.resize(
+        img_bgr, (target_size, target_size), interpolation=cv2.INTER_AREA
+    )
 
     img_rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
     img_float = img_rgb.astype(np.float32) / 255.0
@@ -119,7 +135,9 @@ def _preprocess_image(image_path: Path, target_size: int = 224) -> torch.Tensor:
     img_tensor = torch.from_numpy(img_float).permute(2, 0, 1).unsqueeze(0)
     return img_tensor
 
-def _compute_salience_deepgaze(model: torch.nn.Module, img_tensor: torch.Tensor) -> np.ndarray:
+def _compute_salience_deepgaze(
+    model: torch.nn.Module, img_tensor: torch.Tensor
+) -> np.ndarray:
     """
     Run the DeepGaze II model on ``img_tensor`` and return a salience map
     as a NumPy array (2‑D, values in the model's native range).
@@ -179,7 +197,6 @@ def _upscale_salience(sal_map: np.ndarray, target_shape: tuple) -> np.ndarray:
         Upscaled salience map with shape ``target_shape``.
     """
     height, width = target_shape
-    # cv2 expects (width, height) for dsize
     upscaled = cv2.resize(sal_map, (width, height), interpolation=cv2.INTER_LINEAR)
     return upscaled
 
@@ -231,7 +248,7 @@ def main() -> int:
             stimulus_id = img_path.stem
             logger.info(f"[{idx}/{len(image_paths)}] Processing {img_path.name}")
 
-            # Load image to obtain original resolution
+            # Load original image to obtain its resolution
             img_original = cv2.imread(str(img_path))
             if img_original is None:
                 height, width = 0, 0
@@ -247,7 +264,7 @@ def main() -> int:
                 if height > 0 and width > 0:
                     sal_map = _upscale_salience(sal_map_small, (height, width))
                 else:
-                    # If we could not read the original image, keep the small map
+                    # If original image could not be read, keep the small map
                     sal_map = sal_map_small
 
                 # Save .npy file
@@ -261,7 +278,10 @@ def main() -> int:
                     {
                         "stimulus_id": stimulus_id,
                         "map_path": str(map_path.relative_to(paths.root)),
-                        "resolution": {"height": int(sal_map.shape[0]), "width": int(sal_map.shape[1])},
+                        "resolution": {
+                            "height": int(sal_map.shape[0]),
+                            "width": int(sal_map.shape[1]),
+                        },
                         "generation_method": "deepgaze_ii",
                         "status": "success",
                         "excluded_reason": None,
@@ -275,21 +295,28 @@ def main() -> int:
                 metadata_entries.append(
                     {
                         "stimulus_id": stimulus_id,
-                        "map_path": str((interim_maps_dir / f"{stimulus_id}.npy").relative_to(paths.root)),
+                        "map_path": str(
+                            (interim_maps_dir / f"{stimulus_id}.npy").relative_to(paths.root)
+                        ),
                         "resolution": {"height": int(height), "width": int(width)},
                         "generation_method": "deepgaze_ii",
                         "status": "failed",
                         "excluded_reason": str(img_err),
                     }
                 )
-                continue
+                # Abort the whole pipeline as required by FR‑001
+                raise RuntimeError(
+                    f"DeepGaze II processing failed for image {img_path.name}: {img_err}"
+                )
 
         # Write metadata JSON
         metadata_path.parent.mkdir(parents=True, exist_ok=True)
         with open(metadata_path, "w", encoding="utf-8") as f:
             json.dump(metadata_entries, f, indent=2)
 
-        logger.info(f"Salience generation completed. Metadata written to {metadata_path}")
+        logger.info(
+            f"Salience generation completed. Metadata written to {metadata_path}"
+        )
         return 0
 
     except Exception as e:

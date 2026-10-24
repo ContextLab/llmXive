@@ -108,9 +108,6 @@ def _patch_paths_root(new_root: Path) -> None:
     (paths.code, paths.data, etc.) resolve relative to ``new_root``.
     This is required for the unit test which monkey‑patches ``paths.root``.
     """
-    # ``paths`` is a module; we replace its ``root`` attribute.
-    # Some implementations expose ``root`` as a property; assigning works
-    # for the typical mutable attribute used by the toolkit.
     paths.root = new_root
     log.debug(f"Patched paths.root to {new_root}")
 
@@ -125,7 +122,8 @@ def main() -> int:
         default=None,
         help="Root directory for the project layout (default: current paths.root).",
     )
-    args = parser.parse_args()
+    # Use parse_known_args to ignore any extraneous arguments injected by pytest or other callers.
+    args, _ = parser.parse_known_args()
 
     # If a root is supplied, patch the toolkit's root variable.
     if args.root is not None:

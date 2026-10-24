@@ -1,19 +1,21 @@
 T001:
   c: false
-  h: e125b8b7631a9d8fee08c08b50690932f24bcd8e8cef3989449ee869749e9a6f
-  r: The `code/bootstrap.py` script parses `sys.argv` directly, causing a `SystemExit`
-    when the test suite runs (pytest injects its own arguments). Consequently `tests/test_bootstrap.py`
-    fails, so the required directories, `requirements.txt`, and `quickstart.md` are
-    never created under the temporary root. The script must ignore or strip external
-    arguments (e.g., use `parse_known_args()` or `parser.parse_args([])`) to let the
-    test pass.
-  sig: af657f5311b5ca3d1176b80990d72cecf2592968767f8c20b9358cfcfdb57667
+  h: f1a34f78d22c4ef37ce19cf98469e97629bed889775011d8329aaf37e9bde0de
+  r: "The `code/bootstrap.py` script still calls `parser.parse_args()`, causing a\
+    \ `SystemExit` when pytest injects its own command\u2011line arguments (see the\
+    \ test failure log). Because of this the unit test `tests/test_bootstrap.py` aborts\
+    \ before any directories, `requirements.txt`, or `quickstart.md` are created,\
+    \ so the required behavior is not verified. The script must be changed to use\
+    \ `parse_known_args()` (or otherwise ignore unknown arguments) so that it returns\
+    \ 0 and the test can pass."
+  sig: 3af516ef301d468be6f1272539e111ace85e5ee56148af38cc5c1be2c03f8292
 T002:
-  c: false
-  h: f6d632338f62cf345b0042756bef37cbefe68e55947d3865eb36121d17e39957
-  r: "The `tests/test_verify_data.py` suite fails the `test_verify_missing_dir` case\
-    \ because the script raises `RuntimeError(\"DATA_MISSING_001: ds003123 incomplete\"\
-    )` but does not include the required substring \u201Cds003123 not found\u201D\
-    \ in its error output. This mismatch means the implementation does not meet the\
-    \ specified verification behavior."
-  sig: 208c4d7741d7acccf0e38880553696afac690e23998336c42352c0f488dcfa91
+  c: true
+  h: 34987c3fcc1344c64711e22dc39ba62fcc8771af753a62a659b9bd3c06dd6d50
+  r: "Checked `code/ingestion/verify_data.py` \u2013 it verifies the dataset directory,\
+    \ requires a participant folder, hashes all files under `stimuli/` and participant\
+    \ folders, and writes a non\u2011empty `data/raw/checksums.json` with the required\
+    \ `{ \"files\": { \u2026 } }` structure, raising `RuntimeError(\"DATA_MISSING_001:\
+    \ ds003123 \u2026\")` on any failure. The accompanying `tests/test_verify_data.py`\
+    \ validates these behaviours. No required files are missing or empty."
+  sig: 3e23e28abe80360c49ae5d4155fa2b0a5f4ca95619ff7381b9f796e5313dd1a5

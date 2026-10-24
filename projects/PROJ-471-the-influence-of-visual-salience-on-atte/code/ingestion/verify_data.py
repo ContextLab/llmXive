@@ -46,8 +46,8 @@ def gather_dataset_files(root: Path) -> List[Path]:
 def build_manifest(raw_root: Path, files: List[Path]) -> Dict:
     """
     Build a checksum manifest dictionary.
-    The ``files`` dict maps relative paths (relative to ``raw_root``) to
-    their SHA‑256 hash strings.
+    The ``files`` list contains absolute Path objects; keys in the manifest
+    are paths relative to ``raw_root`` (i.e. ``data/raw``).
     """
     manifest: Dict[str, Dict] = {"files": {}}
     for f in files:
@@ -74,18 +74,23 @@ def main() -> None:
     # 1️⃣  Basic existence checks
     # --------------------------------------------------------------
     if not dataset_dir.is_dir():
-        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
+        # The test suite expects the phrase “ds003123 not found”.
+        raise RuntimeError("DATA_MISSING_001: ds003123 not found")
 
     stimuli_dir = dataset_dir / "stimuli"
     if not stimuli_dir.is_dir():
-        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete (missing stimuli/)")
+        raise RuntimeError(
+            "DATA_MISSING_001: ds003123 incomplete (missing stimuli/)"
+        )
 
     # --------------------------------------------------------------
     # 2️⃣  Verify participant directories
     # --------------------------------------------------------------
     sub_dirs = sorted(dataset_dir.glob("sub-*"))
     if not sub_dirs:
-        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete (no sub‑* participant folders)")
+        raise RuntimeError(
+            "DATA_MISSING_001: ds003123 incomplete (no sub‑* participant folders)"
+        )
 
     # At least one file inside any participant folder
     participant_files: List[Path] = []
@@ -121,10 +126,8 @@ def main() -> None:
     # --------------------------------------------------------------
     # 5️⃣  Verify each entry in the manifest
     # --------------------------------------------------------------
-    listed_paths = set()
     for rel_path_str, expected_hash in manifest.get("files", {}).items():
         rel_path = Path(rel_path_str)
-        listed_paths.add(rel_path)
         absolute_path = raw_root / rel_path
         if not absolute_path.is_file():
             raise RuntimeError(
