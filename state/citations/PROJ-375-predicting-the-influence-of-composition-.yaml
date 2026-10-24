@@ -33,28 +33,6 @@
   verification_status: pending
   verified_against_url: https://aflow.org
   verified_at: '2026-09-03T07:38:53.582921Z'
-- artifact_hash: e994f76df284daa9049b91a564741c731c37090ca9ac5faa84510f156ab48c8c
-  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://next-gen.materialsproject.org/api
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/api
-  verified_at: '2026-10-19T18:09:02.109933Z'
-- artifact_hash: e994f76df284daa9049b91a564741c731c37090ca9ac5faa84510f156ab48c8c
-  artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://aflowlib.org/rest/search`
-  verification_status: mismatch
-  verified_against_url: https://aflowlib.org/rest/search
-  verified_at: '2026-10-19T18:09:02.109933Z'
 - artifact_hash: 2e51b24cc9f4ce93325d7c238a2ce9ee391f6995a33b7b7659eb7e6608f0bba9
   artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/plan.md
   cite_id: c-001

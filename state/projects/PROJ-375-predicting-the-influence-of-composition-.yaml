@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T20:38:24.447102Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-375-predicting-the-influence-of-composition-
-last_run_id: 18984a8d-d805-444f-9a06-7ae1a7ba52bb
+last_run_id: 8f94da42-2e26-492a-9a66-a21b806f414d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-375-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition
 title: Predicting the Influence of Composition on the Thermal Expansion of Metallic
   Glasses
-updated_at: '2026-10-24T14:31:42.445010Z'
+updated_at: '2026-10-24T14:34:15.998212Z'

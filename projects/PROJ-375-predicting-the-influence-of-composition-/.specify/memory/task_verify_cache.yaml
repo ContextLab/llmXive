@@ -1,15 +1,8 @@
-T003:
-  c: false
-  h: 435a7289d5cb3fee6627c5475dd9a2c9decab9d53ec99c8a95e17425b15f7b77
-  r: "The `code/.ruff.toml` file exists and contains the correct linting rules and\
-    \ line\u2011length setting, but there is no evidence that the `ruff` package was\
-    \ installed (e.g., no entry in `requirements.txt`, `pyproject.toml`, or a lock\
-    \ file). The installation requirement is therefore unmet."
-T012:
-  c: false
-  h: 4bffe84250e2e8b508d82d03ccbabb289fec7f819a6754e50c2f3266446d9175
-  r: "The integration test file exists but is truncated (the `test_schema_validation`\
-    \ function ends abruptly and never creates or checks a real DataFrame). Moreover,\
-    \ the required schema file `contracts/mg_dataset.schema.yaml` is missing, so the\
-    \ test cannot load or validate against the contract. Both the artifact and its\
-    \ content fail to meet the task\u2019s requirement."
+T000:
+  c: true
+  h: b590a55a6c61710e146bd2d534a411f237cae1266c08865c992136de3efdef65
+  r: "Checked the `docs/phase0_overview.md` file (resolved path `docs/phase0_overview.md`,\
+    \ 3485\u202Fbytes) \u2013 it exists, contains the required headings for each Phase\u202F\
+    0 sub\u2011step and notes its reference in `tasks.md`, fulfilling the documentation\
+    \ requirement."
+  sig: 6868564d9217972f9a35f999a189542e83d442b6a3b1d84d113faff9e492ec99

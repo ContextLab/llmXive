@@ -3,12 +3,12 @@ intent: metallic glass composition thermal expansion coefficient dataset Materia
   Project AFLOWlib python package dataset
 required_fields:
 - composition
-- thermal_expansion_coefficient
+- CTE
 - weighted_mean_atomic_radius
 - electronegativity_variance
 - valence_electron_concentration
 - atomic_size_coefficient_of_variation
 - amorphous_state_flag
-cache_key: e14da46d33f68a48ecf2f9d484acf5ea7beb9803b64313266b8666b55ec306f0
-searched_at: '2026-10-24T14:09:48.945772+00:00'
+cache_key: dd6bf04001a96d190b382d90ab6ef7623e7dbaa2447939500ba652cd2182ef96
+searched_at: '2026-10-24T14:34:13.964657+00:00'
 retry_count: 1

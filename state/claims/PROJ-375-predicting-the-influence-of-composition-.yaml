@@ -654,3 +654,137 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-19T18:09:43Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/phase0_overview.md
+  attempts: 1
+  canonical: enriched table written to data/processed/clean_alloy_data.parquet
+  claim_id: c_28fef220
+  context: The enriched table is written to data/processed/clean_alloy_data.parquet.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The enriched table is written to data/processed/clean_alloy_data.parquet.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:32:11Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/phase0_overview.md
+  attempts: 1
+  canonical: logs written to logs/ingestion.log via project logger
+  claim_id: c_f5c5ffd5
+  context: All progress, warnings, and errors are logged to logs/ingestion.log via
+    the project logger (get_logger(__name__)).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All progress, warnings, and errors are logged to logs/ingestion.log via
+    the project logger (get_logger(__name__)).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:32:11Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/phase0_overview.md
+  attempts: 1
+  canonical: markdown file and headings verified in CI pipeline
+  claim_id: c_45fa6136
+  context: 'CI checks: Presence of this markdown file and its headings are verified
+    as part of the CI pipeline.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Presence of this markdown file and its headings are verified as part of
+    the CI pipeline.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:32:11Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: "results/sample_output.parquet contains all required columns and passes\
+    \ JSON\u2011Schema validation"
+  claim_id: c_cca549d5
+  context: "The script will: ... Write the enriched table to results/sample_output.parquet.\
+    \ Validate the table against the JSON\u2011Schema contract; the script exits with\
+    \ status\u202F0 only if validation succeeds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command produces results/sample_output.parquet, which contains all\
+    \ columns required by the mg_dataset.schema.yaml contract and passes JSON\u2011\
+    Schema validation."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:33:50Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: script exits with status 0 only when validation succeeds
+  claim_id: c_3c8a834e
+  context: "Validate the table against the JSON\u2011Schema contract; the script exits\
+    \ with status\u202F0 only if validation succeeds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The script exits with status\u202F0 only if validation succeeds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:33:50Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: "wall\u2011clock time less than 30 seconds for 100 rows"
+  claim_id: c_3979eaba
+  context: "Expected runtime & resources: Wall\u2011clock time: <\u202F30\u202Fseconds\
+    \ (100 rows). Peak RAM: <\u202F200\u202FMB. CPU cores: 1."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Wall\u2011clock time: <\u202F30\u202Fseconds (100 rows)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:33:50Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM less than 200 MB
+  claim_id: c_8b66b48d
+  context: "Expected runtime & resources: Wall\u2011clock time: <\u202F30\u202Fseconds\
+    \ (100 rows). Peak RAM: <\u202F200\u202FMB. CPU cores: 1."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Peak RAM: <\u202F200\u202FMB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:33:50Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: uses 1 CPU core and does not spawn parallel workers
+  claim_id: c_7fbc308e
+  context: "Expected runtime & resources: Wall\u2011clock time: <\u202F30\u202Fseconds\
+    \ (100 rows). Peak RAM: <\u202F200\u202FMB. CPU cores: 1 (the script does not\
+    \ spawn parallel workers)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'CPU cores: 1 (the script does not spawn parallel workers).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:33:50Z'
