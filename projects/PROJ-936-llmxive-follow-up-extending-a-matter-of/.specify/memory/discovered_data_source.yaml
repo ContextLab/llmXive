@@ -1,12 +1,10 @@
 status: none
-intent: download tau c bench dataset from HuggingFace Hub python package dataset
+intent: tau c bench tau n bench HuggingFace python package dataset
 required_fields:
 - task_id
-- task_description
-- step_number
-- success_status
+- success
 - api_calls
-- token_consumption
-cache_key: bbf9d927b7f503f4630ee9f13e6815a5b5285a3722d449c474a5b34dfdca8637
-searched_at: '2026-10-23T23:10:55.710768+00:00'
+- tokens_used
+cache_key: 1825d1cad361d5c15c883d7f34db451220de63b00895808fe02dbfa374952718
+searched_at: '2026-10-24T01:23:42.673609+00:00'
 retry_count: 1

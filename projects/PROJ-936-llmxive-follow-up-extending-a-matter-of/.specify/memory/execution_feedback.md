@@ -13,13 +13,13 @@ runpy>", line 198, in _run_module_as_main
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/src/pipelines/run_all.py", line 58, in main
     download_main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 197, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 200, in main
     dest_file = download_tasks_json()
                 ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 176, in download_tasks_json
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 179, in download_tasks_json
     merged_tasks = _load_tasks_via_hf_hub()
                    ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 156, in _load_tasks_via_hf_hub
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/code/download_tau_c_bench.py", line 159, in _load_tasks_via_hf_hub
     raise RuntimeError("All huggingface_hub download attempts failed") from last_err
 RuntimeError: All huggingface_hub download attempts failed
 
@@ -37,7 +37,7 @@ tests/contract/test_task_schema.py:15
 =========================== short test summary info ============================
 FAILED tests/contract/test_task_schema.py::test_csv_exists - AssertionError: ...
 ERROR tests/contract/test_task_schema.py::test_rows_conform_to_schema - json....
-1 failed, 1 passed, 2 warnings, 1 error in 0.12s
+1 failed, 1 passed, 2 warnings, 1 error in 0.23s
 
 
 

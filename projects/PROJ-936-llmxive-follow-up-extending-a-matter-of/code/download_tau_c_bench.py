@@ -3,8 +3,8 @@
 This script attempts to fetch the official τ‑bench dataset (`tau_c_bench`) from
 HuggingFace.  The primary implementation uses the `datasets` library.  If that
 fails (e.g. due to missing optional dependencies), a fallback HTTP download is
-performed, trying two possible locations for the raw ``tasks.json`` file.
-If both of those fail, we finally attempt to download the file via the
+performed, trying several possible locations for the raw ``tasks.json`` file.
+If all of those fail, we finally attempt to download the file via the
 `huggingface_hub` utilities.  The script writes the merged task list to
 ``data/raw/τc_bench/tasks.json`` and creates a ``README.md`` containing the
 SHA‑256 checksum of that file.
@@ -47,6 +47,9 @@ HF_DATASET = "sierra-research/tau_c_bench"
 RAW_JSON_URLS = [
     f"https://huggingface.co/datasets/{HF_DATASET}/resolve/main/tasks.json",
     f"https://huggingface.co/datasets/{HF_DATASET}/resolve/main/data/tasks.json",
+    # GitHub raw fallback – often more reliable for raw file access.
+    f"https://raw.githubusercontent.com/sierra-research/tau_c_bench/main/tasks.json",
+    f"https://raw.githubusercontent.com/sierra-research/tau_c_bench/main/data/tasks.json",
 ]
 # ----------------------------------------------------------------------
 
