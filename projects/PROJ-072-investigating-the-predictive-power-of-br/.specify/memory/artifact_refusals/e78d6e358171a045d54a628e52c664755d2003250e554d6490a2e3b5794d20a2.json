@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "31e86761614e311a5e02240190dbede5407f92a02d802f8b496ddd39b29287c1",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'tests/__init__.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`."
+}

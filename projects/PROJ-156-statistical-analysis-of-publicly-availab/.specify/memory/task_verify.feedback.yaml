@@ -1,4 +1,9 @@
 T001:
+  reason: "The repository contains `code/scripts/fetch_data.py`, but `config.yaml`\
+    \ is missing, and no `data/raw/` directory or JSON files were produced. Without\
+    \ a config file the script cannot run, and there is no evidence that a non\u2011\
+    empty raw JSON file was written as required. Add a valid `config.yaml` listing\
+    \ game IDs and ensure the script creates/writes to `data/raw/{game_id}.json`."
   task: 88935aad767cc2a2b025c84e512a279e29d4778dedcefa2b09414fd7de4ae50e
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/scripts/preprocess.py
@@ -7,6 +12,7 @@ T002:
 T006a:
   task: b3195e2b81de0c3733c6a71a103e7aa8ed6306eab78ad7c82e0da405fdb58f0a
 T006b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/config.yaml'
   task: 0bbe7bbf29abe4a38def9f1d27c9556014e127236d80b9e1312f1a18bfa48e1c
 T007a:
   reason: 'the task writes platform-owned path(s) inside the project: `state/artifact_hashes.json`
@@ -28,12 +34,7 @@ T014:
     \ match a manual lagged-pressure calculation, the claim cannot be verified."
   task: e2d5bbbd8998a7cae5dc7b1f3b42fe94353d6c32d9abf8403e717a9f6c9ea9fb
 T015a:
-  reason: "Checked the `data/checkpoints/fetch_checkpoint.json` file (present) and\
-    \ the pytest log `code/.tasks/T015a.code_tests_test_fetch_checkpoint.py.log`,\
-    \ which shows both checkpoint\u2011creation and resumption tests failing because\
-    \ the script aborts with \u201CNo games specified in config.yaml\u201D and never\
-    \ writes a checkpoint file. The required integration and resume behavior are not\
-    \ demonstrated."
+  reason: 'declared artifact(s) missing/empty/invalid: data/checkpoints/fetch_checkpoint.json'
   task: 9ff15f6f93bd20596ec57fc9e0eca41073173c7283ccc5407b5b24bf08c98d40
 T015b:
   reason: 'Requested task execution failed; rerun successfully: code/scripts/preprocess.py
@@ -58,8 +59,19 @@ T030:
 T032:
   task: a1e4817529006300883e2a15aa4a11e01794664c00ea93236a983b3c8d43e97e
 T033a:
+  reason: The pagination helper `code/scripts/utils/pagination.py` and its unit tests
+    are present, but there is no evidence of a `fetch_data.py` script (or any other
+    module) that imports and uses `paginate_api` as required by the task. Without
+    that calling code, the refactor is not fully realized. Adding a `fetch_data.py`
+    (or updating an existing script) that imports `paginate_api` and uses it to fetch
+    API pages will satisfy the requirement.
   task: bc9195dc6d244946d11b8113dce33f5e9428f24d8e03d3d26f6f6bc2dd077795
 T033b:
+  reason: The file `code/scripts/utils/pressure.py` exists and the unit tests pass,
+    but the function `calculate_lagged_pressure` accepts a list of dictionaries (`run_records`)
+    instead of a pandas DataFrame (`df`) as required by the task specification, and
+    its signature and return type do not match the requested `calculate_lagged_pressure(df,
+    window_days)`. The implementation therefore does not satisfy the stated requirement.
   task: f53a295446e0df0b4764eab4d36e3e365267a4d94874d9ac9a4b4a14cbfb81c1
 T034a:
   task: 90fbaeb801969970feab3f70af8e515d9a619f857e5bea4249f794489c0f4cd3

@@ -2,15 +2,13 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python -m pytest code/tests/ (rc=1); 2 declared deliverable(s) absent: data/processed/distribution_fits.csv; data/processed/run_records.csv
+**Summary**: 1 command(s) failed: python -m pytest code/tests/ (rc=1); 3 declared deliverable(s) absent: data/checkpoints/fetch_checkpoint.json; data/processed/distribution_fits.csv; data/processed/run_records.csv
 
 ## Failing / missing run-book commands
 
 - python -m pytest code/tests/ -> rc=1
-ode/tests/test_fetch.py::TestFetchData::test_fetch_game_runs_success
-FAILED code/tests/test_fetch.py::TestFetchData::test_fetch_game_runs_with_pagination
-FAILED code/tests/test_fetch.py::TestFetchData::test_incomplete_run_filtering
-FAILED code/tests/test_fetch.py::TestFetchData::test_save_raw_data - Attribut...
+/tests/test_fetch_checkpoint.py::TestFetchCheckpoint::test_checkpoint_creation_and_resumption
+FAILED code/tests/test_fetch_checkpoint.py::TestFetchCheckpoint::test_no_checkpoint_when_all_games_succeed
 FAILED code/tests/test_models.py::TestMixedEffectsModel::test_integration_convergence_and_vif
 FAILED code/tests/test_models.py::TestMixedEffectsModel::test_model_output_structure
 FAILED code/tests/test_preprocess.py::TestPreprocess::test_data_file_exists
@@ -20,12 +18,14 @@ FAILED code/tests/test_preprocess.py::TestPreprocess::test_run_records_conform_t
 FAILED code/tests/test_preprocess.py::TestPreprocess::test_schema_file_exists
 FAILED code/tests/test_preprocess_checkpoint.py::TestPreprocessCheckpoint::test_checkpoint_creation_after_first_game
 FAILED code/tests/test_preprocess_checkpoint.py::TestPreprocessCheckpoint::test_checkpoint_resumption
-=================== 20 failed, 25 passed, 1 skipped in 1.62s ===================
+FAILED code/tests/test_preprocess_checkpoint.py::TestPreprocessCheckpoint::test_no_checkpoint_on_successful_run
+=================== 23 failed, 22 passed, 1 skipped in 0.95s ===================
 
 
 
 ## Declared deliverables still missing
 
+- data/checkpoints/fetch_checkpoint.json
 - data/processed/distribution_fits.csv
 - data/processed/run_records.csv
 
@@ -33,6 +33,11 @@ FAILED code/tests/test_preprocess_checkpoint.py::TestPreprocessCheckpoint::test_
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/checkpoints/fetch_checkpoint.json` is declared but was NOT written. Scripts referencing it:
+    - `code/scripts/fetch_data.py` — NOT invoked by the run-book
+    - `code/scripts/utils/checkpoint.py` — NOT invoked by the run-book
+    - `code/tests/test_fetch_checkpoint.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/checkpoints/fetch_checkpoint.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/distribution_fits.csv` is declared but was NOT written. Scripts referencing it:
     - `code/scripts/fit_distributions.py` — NOT invoked by the run-book
     - `code/scripts/generate_report.py` — NOT invoked by the run-book

@@ -136,7 +136,7 @@ def load_raw_data(source: str) -> List[Dict[str, Any]]:
 
     ``source`` can be either:
     * a game identifier (e.g. ``'super-mario-64'``) – the function will look for
-      ``data/raw/<game_id>_raw.json``;
+      ``data/raw/<game_id>.json`` *or* ``data/raw/<game_id>_raw.json``;
     * an explicit file path ending with ``.json`` – the file is loaded directly.
 
     The function returns the list stored under the top‑level ``'runs'`` key if
@@ -146,16 +146,24 @@ def load_raw_data(source: str) -> List[Dict[str, Any]]:
     if source.endswith(".json"):
         raw_path = Path(source)
     else:
-        raw_path = Path("data") / "raw" / f"{source}_raw.json"
+        # Try the two naming conventions used in the project
+        candidate1 = Path("data") / "raw" / f"{source}.json"
+        candidate2 = Path("data") / "raw" / f"{source}_raw.json"
+        if candidate1.is_file():
+            raw_path = candidate1
+        elif candidate2.is_file():
+            raw_path = candidate2
+        else:
+            raise FileNotFoundError(f"Raw data not found for game '{source}'. Tried {candidate1} and {candidate2}")
 
     if not raw_path.is_file():
-        raise FileNotFoundError(f"Raw data not found: {raw_path}")
+        raise FileNotFoundError(f"Raw data file not found: {raw_path}")
 
     with raw_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
 
-    # The API dumps used in the repository store the list under a top‑level
-    # ``'runs'`` key.  Some unit tests construct a plain list, so we support both.
+    # The API dumps store the list under a top‑level ``'runs'`` key.
+    # Some unit tests construct a plain list, so we support both.
     if isinstance(data, dict) and "runs" in data:
         return data["runs"]
     return data
@@ -259,7 +267,7 @@ def generate_runner_profiles(
     expectations.
     """
     # Build a temporary mapping using the same logic as ``compute_runner_metrics``
-    # (the runner IDs in the test data are already hashed, so we do not re‑hash)
+    # The runner IDs in the test data are already hashed, so we do not re‑hash
     runner_groups: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
     for rec in records:
         runner_groups[rec["runner_id"]].append(rec)
@@ -312,14 +320,16 @@ def main() -> None:
 
     config = load_config()
     games: List[str] = config.get("games", [])
+    if not games:
+        raise ValueError("No games specified in config.yaml")
     salt: str = config.get("salt", "default_salt")
-    # ``min_sample_size`` is part of the schema but not used here
-    _ = config.get("min_sample_size", 100)
+    _ = config.get("min_sample_size", 100)  # retained for compatibility
 
-    # Resolve checkpoint location (default location lives under ``data/checkpoints``)
-    checkpoint_path = get_checkpoint_path("preprocess")
+    # Resolve checkpoint location (use explicit filename as required by spec)
+    checkpoint_path = get_checkpoint_path("preprocess_checkpoint.json")
     checkpoint_data = load_checkpoint(checkpoint_path) or {}
 
+    # Determine where to resume from
     start_idx = checkpoint_data.get("last_game_idx", 0)
     processed_runs: List[Dict[str, Any]] = checkpoint_data.get("processed_runs", [])
     all_runner_profiles: Dict[str, Dict[str, Any]] = checkpoint_data.get("runner_profiles", {})
@@ -371,7 +381,7 @@ def main() -> None:
                     run["time_since_first_run_days"] = profiles[rid]["time_since_first_run_days"]
 
             # ------------------------------------------------------------------
-            # Checkpoint **before** pressure calculation (so we can resume if this step fails)
+            # Checkpoint before pressure calculation (so we can resume if this step fails)
             # ------------------------------------------------------------------
             checkpoint_data = {
                 "last_game_idx": idx + 1,
@@ -388,13 +398,11 @@ def main() -> None:
             # ------------------------------------------------------------------
             valid_runs = calculate_lagged_pressure(valid_runs)
 
-            # Ensure the pressure column is an integer and named 'competitive_pressure'
+            # Ensure the pressure column is a non‑negative integer named 'competitive_pressure'
             for run in valid_runs:
                 if "competitive_pressure" in run:
-                    # Cast to int (non‑negative)
                     run["competitive_pressure"] = int(max(run["competitive_pressure"], 0))
                 elif "lagged_competitive_pressure" in run:
-                    # Fallback for older helper implementations
                     run["competitive_pressure"] = int(max(run["lagged_competitive_pressure"], 0))
                     del run["lagged_competitive_pressure"]
 

@@ -10,7 +10,7 @@
 - [X] T006a [P] Define the configuration schema (keys: `games`, `min_sample_size`, `random_seed`, `lagged_pressure_window_days`, `effect_size_assumptions`).  
   – **Verification**: `code/config_schema.yaml` is present and `yamllint` passes.  
 
-- [X] T006b    Create `code/config.yaml` according to the schema defined in T006a.  
+- [ ] T006b    Create `code/config.yaml` according to the schema defined in T006a.  
   – **Verification**: File exists, is valid YAML, and contains numeric values for `min_sample_size`, `random_seed`, `effect_size_assumptions`.  
 
 - [ ] T007a    Implement `code/scripts/hash_artifacts.py` (SHA‑256 checksums for all files under `data/`).  
@@ -23,10 +23,10 @@
 
 ## Phase 1 – Data acquisition (User Story 1, P1)
 
-- [X] T033a [P] Refactor pagination logic into reusable helper `code/scripts/utils/pagination.py::paginate_api`.  
+- [ ] T033a [P] Refactor pagination logic into reusable helper `code/scripts/utils/pagination.py::paginate_api`.  
   – **Verification**: Helper file exists; `fetch_data.py` calls `paginate_api`; unit test `tests/test_pagination.py` validates full page list.  
 
-- [X] T001    Create `code/scripts/fetch_data.py` that iterates over `config.yaml`’s `games`, calls the speedrun.com API, respects rate‑limits, uses `paginate_api`, and writes raw JSON to `data/raw/{game_id}.json`.
+- [ ] T001    Create `code/scripts/fetch_data.py` that iterates over `config.yaml`’s `games`, calls the speedrun.com API, respects rate‑limits, uses `paginate_api`, and writes raw JSON to `data/raw/{game_id}.json`.
   – **Verification**: After running on a test game, a non‑empty file appears under `data/raw/`.  
 
 - [ ] T015a    Add checkpoint integration to `fetch_data.py` (FR‑012). After each game download, call `save_checkpoint({"completed_games": [...]}, "data/checkpoints/fetch_checkpoint.json")`.  
@@ -39,10 +39,10 @@
 - [X] T010    Create the **RunRecord** JSON‑Schema file `contracts/run_record.schema.yaml` (matches spec).  
   – **Verification**: `jsonschema.validate` against a sample row succeeds; unit test `tests/test_run_record_schema.py` passes.  
 
-- [X] T033b [P] Extract competitive‑pressure calculation into reusable function `code/scripts/utils/pressure.py::calculate_lagged_pressure(df, window_days)`.  
+- [ ] T033b [P] Extract competitive‑pressure calculation into reusable function `code/scripts/utils/pressure.py::calculate_lagged_pressure(df, window_days)`.  
   – **Verification**: Function file exists; unit test `tests/test_pressure.py` validates expected counts.  
 
-- [ ] T002    Create `code/scripts/preprocess.py` that reads each `data/raw/*.json`, removes duplicates, filters out records with missing `run_time_seconds`, computes `total_prior_runs`, `time_since_first_run_days`, merges difficulty labels, calls `calculate_lagged_pressure`, and writes `data/processed/run_records.csv`.   <!-- FAILED-IN-EXECUTION: code/scripts/preprocess.py exit=1 -->
+- [ ] T002    Create `code/scripts/preprocess.py` that reads each `data/raw/*.json`, removes duplicates, filters out records with missing `run_time_seconds`, computes `total_prior_runs`, `time_since_first_run_days`, merges difficulty labels, calls `calculate_lagged_pressure`, and writes `data/processed/run_records.csv`.   <!-- FAILED-IN-EXECUTION: code/scripts/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/scripts/preprocess.py exit=1 -->
   – **Verification**: `run_records.csv` retains ≥ 95 % of raw rows and validates against `run_record.schema.yaml`.  
 
 - [ ] T014    Compute lagged competitive pressure for each run (FR‑006) using the helper from T033b and write column `competitive_pressure` to `run_records.csv`.  

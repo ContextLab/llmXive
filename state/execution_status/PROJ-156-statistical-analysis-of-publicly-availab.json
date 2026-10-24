@@ -12,10 +12,10 @@
     "python -c \"import pandas as pd; df = pd.read_csv('data/processed/run_records.csv'); print(f'Completeness: {df.notna().mean().mean():.2%}')\" -> rc=1\n    ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py\", line 300, in _read\n    parser = TextFileReader(filepath_or_buffer, **kwds)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-156-statistical-analysis-of-publicly-availab/code/.venv/lib/python3."
   ],
   "fix_rounds": 0,
-  "model_tier": 2,
+  "model_tier": 0,
   "total_attempts": 2,
-  "replan_rounds": 0,
+  "replan_rounds": 1,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-19T23:38:13Z"
+  "updated_at": "2026-10-24T03:44:45Z"
 }

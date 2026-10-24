@@ -4,25 +4,12 @@ hash_artifacts.py
 Compute SHA‑256 checksums for every file under the project's ``data/`` directory
 and write a manifest JSON file to ``data/artifact_hashes.json``.
 
-This script satisfies **Task T007a** and respects the platform constraint that
-only project‑owned directories (``data/``, ``figures/``, ``code/``, ``paper/``)
-may be written to.
+This script satisfies **Task T007a**. Per platform constraints, it writes 
+only to project-owned directories (``data/``) and avoids the platform-owned 
+``state/`` directory to prevent shadowing.
 
 The script can be invoked as a module:
-
     python -m code.scripts.hash_artifacts
-
-It will:
-
-1. Locate the project root (two directories up from this file).
-2. Recursively collect all files under ``<project_root>/data``.
-3. Compute a SHA‑256 hash for each file (reading in 4 KB blocks).
-4. Skip the manifest file itself to avoid a circular dependency.
-5. Write a JSON manifest containing:
-   - ``status`` (``empty`` if no files, otherwise ``success``),
-   - ``total_files`` (number of hashed files),
-   - ``checksum_file`` (absolute path to the manifest),
-   - ``files`` (mapping of relative file paths to their hex digests).
 """
 
 import hashlib
@@ -85,7 +72,8 @@ def main() -> None:
     """
     # Resolve the project root: <project_root>/code/scripts/hash_artifacts.py
     script_path = Path(__file__).resolve()
-    project_root = script_path.parents[2]   # <project_root>/code/scripts -> <project_root>
+    # Path parents: [0] is code/scripts, [1] is code, [2] is <project_root>
+    project_root = script_path.parents[2]
 
     data_dir = project_root / "data"
     manifest_path = data_dir / "artifact_hashes.json"

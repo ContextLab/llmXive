@@ -22,39 +22,39 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-072-investigating-the-predictive-power-of-br/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-072-investigating-the-predictive-power-of-br/code/preprocessing/download_check.py': [Errno 2] No such file or directory
 
 - python code/main.py --mode preprocess --subset 5 -> rc=1
-2026-10-11 05:13:27,054 - INFO - Pipeline Orchestrator started at 2026-10-11T05:13:27.054525
-2026-10-11 05:13:27,054 - INFO - Maximum runtime limit: 21600 seconds (6 hours)
-2026-10-11 05:13:27,054 - INFO - Checking for data gaps...
-2026-10-11 05:13:27,054 - WARNING - DATA_GAP: Raw data directory 'data/raw/ds000030' not found.
-2026-10-11 05:13:27,054 - WARNING - Please run the download task (T011) before proceeding.
-2026-10-11 05:13:27,054 - CRITICAL - Stopping due to DATA_GAP condition.
+2026-10-24 03:32:05,038 - INFO - Pipeline Orchestrator started at 2026-10-24T03:32:05.038254
+2026-10-24 03:32:05,038 - INFO - Maximum runtime limit: 21600 seconds (6 hours)
+2026-10-24 03:32:05,038 - INFO - Checking for data gaps...
+2026-10-24 03:32:05,038 - WARNING - DATA_GAP: Raw data directory 'data/raw/ds000030' not found.
+2026-10-24 03:32:05,038 - WARNING - Please run the download task (T011) before proceeding.
+2026-10-24 03:32:05,038 - CRITICAL - Stopping due to DATA_GAP condition.
 
 
 - python code/main.py --mode extract_features -> rc=1
-2026-10-11 05:13:27,091 - INFO - Pipeline Orchestrator started at 2026-10-11T05:13:27.091300
-2026-10-11 05:13:27,091 - INFO - Maximum runtime limit: 21600 seconds (6 hours)
-2026-10-11 05:13:27,091 - INFO - Checking for data gaps...
-2026-10-11 05:13:27,091 - WARNING - DATA_GAP: Raw data directory 'data/raw/ds000030' not found.
-2026-10-11 05:13:27,091 - WARNING - Please run the download task (T011) before proceeding.
-2026-10-11 05:13:27,091 - CRITICAL - Stopping due to DATA_GAP condition.
+2026-10-24 03:32:05,062 - INFO - Pipeline Orchestrator started at 2026-10-24T03:32:05.062511
+2026-10-24 03:32:05,062 - INFO - Maximum runtime limit: 21600 seconds (6 hours)
+2026-10-24 03:32:05,062 - INFO - Checking for data gaps...
+2026-10-24 03:32:05,062 - WARNING - DATA_GAP: Raw data directory 'data/raw/ds000030' not found.
+2026-10-24 03:32:05,062 - WARNING - Please run the download task (T011) before proceeding.
+2026-10-24 03:32:05,062 - CRITICAL - Stopping due to DATA_GAP condition.
 
 
 - python code/main.py --mode classify --permutations 1000 -> rc=1
-2026-10-11 05:13:27,127 - INFO - Pipeline Orchestrator started at 2026-10-11T05:13:27.127552
-2026-10-11 05:13:27,127 - INFO - Maximum runtime limit: 21600 seconds (6 hours)
-2026-10-11 05:13:27,127 - INFO - Checking for data gaps...
-2026-10-11 05:13:27,127 - WARNING - DATA_GAP: Raw data directory 'data/raw/ds000030' not found.
-2026-10-11 05:13:27,127 - WARNING - Please run the download task (T011) before proceeding.
-2026-10-11 05:13:27,127 - CRITICAL - Stopping due to DATA_GAP condition.
+2026-10-24 03:32:05,088 - INFO - Pipeline Orchestrator started at 2026-10-24T03:32:05.088158
+2026-10-24 03:32:05,088 - INFO - Maximum runtime limit: 21600 seconds (6 hours)
+2026-10-24 03:32:05,088 - INFO - Checking for data gaps...
+2026-10-24 03:32:05,088 - WARNING - DATA_GAP: Raw data directory 'data/raw/ds000030' not found.
+2026-10-24 03:32:05,088 - WARNING - Please run the download task (T011) before proceeding.
+2026-10-24 03:32:05,088 - CRITICAL - Stopping due to DATA_GAP condition.
 
 
 - python code/main.py --mode classify --random_labels -> rc=1
-2026-10-11 05:13:27,163 - INFO - Pipeline Orchestrator started at 2026-10-11T05:13:27.163546
-2026-10-11 05:13:27,163 - INFO - Maximum runtime limit: 21600 seconds (6 hours)
-2026-10-11 05:13:27,163 - INFO - Checking for data gaps...
-2026-10-11 05:13:27,163 - WARNING - DATA_GAP: Raw data directory 'data/raw/ds000030' not found.
-2026-10-11 05:13:27,163 - WARNING - Please run the download task (T011) before proceeding.
-2026-10-11 05:13:27,163 - CRITICAL - Stopping due to DATA_GAP condition.
+2026-10-24 03:32:05,113 - INFO - Pipeline Orchestrator started at 2026-10-24T03:32:05.113348
+2026-10-24 03:32:05,113 - INFO - Maximum runtime limit: 21600 seconds (6 hours)
+2026-10-24 03:32:05,113 - INFO - Checking for data gaps...
+2026-10-24 03:32:05,113 - WARNING - DATA_GAP: Raw data directory 'data/raw/ds000030' not found.
+2026-10-24 03:32:05,113 - WARNING - Please run the download task (T011) before proceeding.
+2026-10-24 03:32:05,113 - CRITICAL - Stopping due to DATA_GAP condition.
 
 
 

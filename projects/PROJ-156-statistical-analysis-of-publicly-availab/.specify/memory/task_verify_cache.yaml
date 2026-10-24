@@ -1,12 +1,12 @@
 T001:
-  c: true
-  h: 3f71c5c694b291d03d37a2504740d13a7379c9b950e6e56e1379ea30b55b61f4
-  r: "Checked `code/scripts/fetch_data.py` (uses `load_config`, calls `paginate_api`,\
-    \ handles 429 responses and sleeps, writes JSON to `data/raw/{game_id}.json`),\
-    \ the populated `data/raw/` directory with 15 non\u2011empty JSON files, and the\
-    \ task execution log showing the script ran and recognized the fetched games.\
-    \ All required behavior and artifacts are present."
-  sig: 93befe0ee117b398c1f8e3c1700c8a57e4959a14771b4c8e80adfbfc4cb02f8f
+  c: false
+  h: ea2d6ffd5197b3588b40c89b68ffcdf18e6c682c1312bf832be6964febc5471c
+  r: "The repository contains `code/scripts/fetch_data.py`, but `config.yaml` is missing,\
+    \ and no `data/raw/` directory or JSON files were produced. Without a config file\
+    \ the script cannot run, and there is no evidence that a non\u2011empty raw JSON\
+    \ file was written as required. Add a valid `config.yaml` listing game IDs and\
+    \ ensure the script creates/writes to `data/raw/{game_id}.json`."
+  sig: 0dd4f652f715458aafca8ed2dcfc145dd09aa87be66de13887cbca363d5b949e
 T006a:
   c: true
   h: 9207aa92dd058365890ba2195455e570953740b24ac4821149e3a3a97dd86af2
@@ -24,20 +24,22 @@ T006b:
   sig: 11a285f1744cddae1ccbb71c4cf8e466918c9850887c37d71b068e0abce555c8
 T008a:
   c: true
-  h: 4138f0592a6847e5aa38125f35482e462ca9209620dffbdeb2b3c574761bb69e
-  r: "Checked `code/scripts/utils/checkpoint.py` \u2013 it defines `save_checkpoint(state,\
-    \ path)` and `load_checkpoint(path)` (with flexible signatures) and the accompanying\
-    \ `tests/test_checkpoint.py` runs successfully (4 passed)."
-  sig: 9b1b95cd7eaa6d875b6b4ed7ca3f9e99d05ffe8f3919115caed9171df8b33f7e
+  h: 7d004f38ea47c2e8b6db3da9f6cdd2c567ce7cfc6485f597dd7ca9fc967c3488
+  r: Checked `code/scripts/utils/checkpoint.py` which defines `save_checkpoint(state,
+    path)` and `load_checkpoint(path)` (with correct signatures and behavior) and
+    verified that the accompanying `tests/test_checkpoint.py` exercises these functions
+    and would pass.
+  sig: 9afe8c9efe6ef0d298a93b37081d4ac3227f81848493bdb47b8d9485371e72f0
 T010:
   c: true
-  h: edf2d6581143a455ff6ebb9f80544521a637a88e98af9d040907b8590e472635
-  r: The schema file `contracts/run_record.schema.yaml` exists with all required fields
-    (run_time_seconds, runner_id, attempt_number, category, submission_date, game_id)
-    plus optional derived fields matching the spec, and the test file `tests/test_run_record_schema.py`
-    performs `jsonschema.validate` on a sample row and a negative case. The execution
-    log shows both tests passing (exit 0, 2 passed) via pytest from the project root.
-  sig: 1dcbb11afb4f79d5df51ee2a0c9947607f652c2715a769cb72eea46bcacd0ef1
+  h: 556b8390d6b8014fc5276ead924350c0adc2f781db4ab545e64f5f9c169f861a
+  r: "The `contracts/run_record.schema.yaml` file exists and defines the required\
+    \ fields and property constraints as specified, and the `tests/test_run_record_schema.py`\
+    \ unit test loads this schema and validates a minimal correct record (which passes)\
+    \ and a record missing a required field (which raises a ValidationError). Both\
+    \ artifacts are present, non\u2011empty, and correctly implement the requested\
+    \ JSON\u2011Schema and its verification."
+  sig: 62fea46b095cf21660a0b6ca7802d9409734ecebaed89dbe1affe63b94434dce
 T014:
   c: false
   h: ee2f79baa68f40f325064c1562601b56ccf06bf1486c51fd99e66ae3ee3324f5
@@ -65,18 +67,21 @@ T024:
     of its operation, but the provided artifacts contain only the original specification
     without any new files or modifications. Consequently, the requirement is not satisfied.
 T033a:
-  c: true
-  h: a9a4446be676781d970214d0659079363d22989f48ea662c1fa4d14c3615c8d0
-  r: "Checked `code/scripts/utils/pagination.py` (contains the required `paginate_api`\
-    \ function), `code/tests/test_pagination.py` (unit tests that pass and confirm\
-    \ full\u2011page collection), and the execution log of `code/scripts/fetch_data.py`\
-    \ which shows the expected \u201CFetching page \u2026\u201D messages indicating\
-    \ that `fetch_data.py` is invoking the pagination helper. All required artifacts\
-    \ exist and behave as specified."
-  sig: 2ca31e0054ab023b1a7b86fd85dc48fec0998909d06cef0e7314262ef3765c87
+  c: false
+  h: 070a94e46b4d2c0346c2d1de92b611656684b2b8e7855494e0c9560364d393a4
+  r: The pagination helper `code/scripts/utils/pagination.py` and its unit tests are
+    present, but there is no evidence of a `fetch_data.py` script (or any other module)
+    that imports and uses `paginate_api` as required by the task. Without that calling
+    code, the refactor is not fully realized. Adding a `fetch_data.py` (or updating
+    an existing script) that imports `paginate_api` and uses it to fetch API pages
+    will satisfy the requirement.
+  sig: 6853e2bfd81eb79645fead5fbe3723871456a9e251e6f1560cd30ac0d6ec323a
 T033b:
-  c: true
-  h: b12d1bf556c73a4253c2ebb572870435385e6ad4aedb426a6bae033590a05723
-  r: Checked `code/scripts/utils/pressure.py` for the required function and `tests/test_pressure.py`
-    which runs and passes all assertions confirming correct lagged pressure calculation.
-  sig: 053a130d8b8f8eb5c32746c8ddd9d29c559f62d9038258d0a2643aa44e1a766d
+  c: false
+  h: 2fa385394e7a97a67f605c68bf6bb019dd5b777d31b5e90297c2bdc02df366bb
+  r: The file `code/scripts/utils/pressure.py` exists and the unit tests pass, but
+    the function `calculate_lagged_pressure` accepts a list of dictionaries (`run_records`)
+    instead of a pandas DataFrame (`df`) as required by the task specification, and
+    its signature and return type do not match the requested `calculate_lagged_pressure(df,
+    window_days)`. The implementation therefore does not satisfy the stated requirement.
+  sig: 3dfdf33b122f97cd2a1ab7cbf9fbd79f3310362f8eea5124af638d850707aa09

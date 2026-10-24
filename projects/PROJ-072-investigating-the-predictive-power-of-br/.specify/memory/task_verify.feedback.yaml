@@ -45,20 +45,42 @@ T009:
     \ a real or mock dataset file for checksum verification)."
   task: 4f10194151c88aa8eb135c8bb22c76d20e34add1d36ce76a50ff567176f569b4
 T010:
+  reason: "The integration test file exists but it checks for a `.npy` matrix (`sub-001_matrix.npy`)\
+    \ and also expects a range check, while the task requires a `data/processed/test_subject_matrix.csv`\
+    \ 90\xD790 matrix with no NaNs. The required CSV file is missing, and the preprocessing\
+    \ code only saves a preprocessed NIfTI image, not a connectivity matrix CSV. Consequently\
+    \ the specified artifact and verification criteria are not satisfied."
   task: 8ba37c1bcdda383079f9cbe3e2d30d1c9d6e40d913cb2de3012a78e1cf8b135a
 T011:
   task: bc1c77c19e8a365039c6f53244b67a6704175d625b217a84ff836e2afcd5b17b
 T012:
   task: 1401f711952595cf1a76c909ca6437cba17708dd5223e7843ed375c3589660c8
 T013:
+  reason: "The provided `code/preprocessing/parcellate.py` exists but contains critical\
+    \ bugs: it calls `validate_and_regularize_matrix` with the wrong signature and\
+    \ assigns its tuple return value to `corr_matrix`, causing later shape accesses\
+    \ to fail. Consequently it cannot reliably generate valid 90\u202F\xD7\u202F90\
+    \ connectivity matrices, and no evidence of successful runs (e.g., saved `.npy`\
+    \ files without NaNs) is supplied. The implementation must be fixed to correctly\
+    \ validate/regularize the matrix and produce proper output files."
   task: f8b4d10bd434167baba80b28c369b2f558acd021056a5f1624eb77a8e978dc8b
 T014:
   task: 4d6c53fe2afacd1588199d91fa61c6b00f5253fc60acd4a163efdfef2e4ef549
 T014b:
   task: 06b80610f32cfc20ab69463ef2b685bee685b374d0704eb7534c8d4afa24bfbd
 T015:
+  reason: "Checked `code/preprocessing/metadata.py` (exists and contains logic to\
+    \ write `data/metadata/subject_labels.csv`) but the required output file `data/metadata/subject_labels.csv`\
+    \ is missing, so the task\u2019s verification conditions (file existence, correct\
+    \ schema, no NaNs) are not satisfied."
   task: 6d25bb7f8904eabe4ddbbd4cae1fae0e83da6306cd578665b8f1914e84f028d1
 T015.5:
+  reason: The provided `metadata.py` writes `analysis_config.json` with the correct
+    key, but it detects medication status by scanning `participants.tsv` columns rather
+    than looking for a `medication_status` field in OpenNeuro JSON sidecar files as
+    the task specifies. Moreover, there is no evidence that the JSON file was actually
+    created on disk. The implementation therefore does not meet the required detection
+    logic or produce the verified output.
   task: f754213899cf0654ff524f06d0772ea4f71be8f14b2a72e5dd96f46f5c844207
 T016:
   reason: 'declared artifact(s) missing/empty/invalid: code/preprocessing/validate.py,
