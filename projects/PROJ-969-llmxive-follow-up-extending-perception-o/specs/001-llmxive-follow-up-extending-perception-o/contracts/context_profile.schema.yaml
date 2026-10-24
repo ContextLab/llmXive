@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ContextProfile
+type: object
+required:
+  - profile_id
+  - setting
+  - culture
+  - norms
+  - scripts
+properties:
+  profile_id:
+    type: string
+    description: "Identifier linking to a video metadata entry."
+  setting:
+    type: string
+    description: "Situational tag (e.g., \"job interview\")."
+  culture:
+    type: string
+    description: "Cultural context (e.g., \"East Asian\")."
+  norms:
+    type: array
+    items:
+      type: string
+    description: "List of social norms relevant to the setting/culture."
+  scripts:
+    type: array
+    items:
+      type: string
+    description: "Short situational scripts (e.g., \"maintain eye contact\")."

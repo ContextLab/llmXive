@@ -1,6 +1,5 @@
-# Contract: normalized per-video metadata record (FR-001 via verified open
-# substitute dataset mmbench/ocean). JSON-Schema dialect (validated with
-# jsonschema). Every line of data/raw/video_metadata.jsonl MUST conform.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: VideoMetadata
 type: object
 required:
   - video_id
@@ -9,33 +8,31 @@ properties:
   video_id:
     type: string
     minLength: 1
-    description: Stable identifier of the video sample.
+    description: "Stable identifier of the video sample."
   video_url:
     type: [string, "null"]
-    description: URL or hub path of the source video, if provided by the dataset.
+    description: "URL or hub path of the source video, if provided."
   transcript:
     type: [string, "null"]
-    description: Verbal transcript / caption text, if available.
+    description: "Verbal transcript / caption text, if available."
   setting:
     type: [string, "null"]
-    description: Situational setting tag (e.g. job interview), if available.
+    description: "Situational setting tag (e.g., \"job interview\"), if available."
   culture:
     type: [string, "null"]
-    description: Cultural background tag, if available.
+    description: "Cultural background tag, if available."
   behavior_tags:
     type: array
     items:
       type: string
-    description: Ground-truth behavioral evidence tags (may be empty when absent).
+    description: "Ground-truth behavioral evidence tags (may be empty)."
   expert_labels:
     type: object
-    description: >
-      Expert ground-truth trait labels. Keys are trait names (OCEAN traits
-      when present, otherwise any label/answer field provided by the dataset).
+    description: "Expert ground-truth trait labels; keys are trait names."
     additionalProperties:
       type: [string, number, "null"]
   extra:
     type: object
-    description: Additional unmapped source columns preserved verbatim.
+    description: "Any additional source columns preserved verbatim."
     additionalProperties: true
 additionalProperties: false

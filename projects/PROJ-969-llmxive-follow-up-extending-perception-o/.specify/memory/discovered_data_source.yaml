@@ -1,14 +1,14 @@
 status: none
-intent: MM-OCEAN validation subset open substitute HuggingFace download python package
-  dataset
+intent: MM-OCEAN dataset validation split download HuggingFace python package dataset
 required_fields:
 - video_id
-- video_file_path_or_url
+- video_url
 - transcript
 - setting
 - culture
 - behavior_tags
-- personality_trait_ratings
-cache_key: 423b2b4fe8e731acc1251c22651b561a1cd2dd33dc8ee2a26b75594833972f3b
-searched_at: '2026-10-20T12:33:37.607384+00:00'
+- ground_truth_trait
+- ground_truth_grounding
+cache_key: 01164966bce295c23fcec279e73534e8c8853102d2451f00c883786d4819077c
+searched_at: '2026-10-24T07:17:47.341422+00:00'
 retry_count: 1

@@ -22,31 +22,31 @@ properties:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Primary PR per spec FR-018: #(correct rating with invalid grounding) / #(correct rating)."
+    description: "Primary PR: #(grounding invalid) / #(all predictions)."
   prejudice_rate_all:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Supplementary selection-bias check: #(invalid grounding) / #(valid predictions), denominator includes all valid predictions regardless of rating correctness."
+    description: "Supplementary PR across all predictions (used for sanity checks)."
   rating_accuracy:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Proportion of valid predictions whose rating exactly matches the expert label (context for interpreting the PR denominator)."
+    description: "Proportion of valid predictions whose rating exactly matches the expert label."
   holistic_grounding_rate:
     type: number
     minimum: 0.0
     maximum: 1.0
     description: "Proportion of correct ratings with valid grounding (HR)."
   integration_failure_rate:
-    type: number
+    type: [number, "null"]
     minimum: 0.0
     maximum: 1.0
-    description: "Proportion of outputs that did not cite any injected context phrase (IR)."
+    description: "Proportion of outputs that did not cite any injected context phrase; **only applicable for context and noise conditions** (baseline IR is null)."
   n_valid:
     type: integer
     minimum: 0
-    description: "Number of samples included after excluding invalid JSON or timeouts (FR-010)."
+    description: "Samples retained after excluding invalid JSON or timeouts (FR‑010)."
   n_invalid:
     type: integer
     minimum: 0
@@ -54,11 +54,11 @@ properties:
   n_ambiguous:
     type: integer
     minimum: 0
-    description: "Number of samples flagged with grounding-uncertainty (FR-011)."
+    description: "Number of samples flagged with grounding‑uncertainty (FR‑011)."
   n_correct:
     type: integer
     minimum: 0
-    description: "Number of valid samples with a correct (exact-match) rating; the PR denominator (FR-018)."
+    description: "Number of valid samples with a correct (exact‑match) rating; denominator for HR."
   grounding_assessment_method:
     type: string
-    description: "Method used to assess grounding validity; always 'semantic_similarity' (calibrated, threshold swept per SC-005); no external LLM judge is used."
+    description: "Hybrid method: semantic similarity (≥ 0.70) + keyword checklist; calibrated on a pilot and validated on a held‑out set (methodology‑431136ee)."
