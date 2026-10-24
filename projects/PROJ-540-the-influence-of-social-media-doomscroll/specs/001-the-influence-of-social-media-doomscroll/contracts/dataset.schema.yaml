@@ -33,15 +33,32 @@ properties:
       - "null"
     description: "Overall social-media engagement; required only for robustness check."
     minimum: 0
+  SES:
+    type:
+      - "string"
+      - "null"
+    description: "Socio‑economic status category (optional confounder)."
+    enum: ["low", "medium", "high"]
+  total_media_use:
+    type:
+      - "number"
+      - "null"
+    description: "Total media consumption time (minutes per day)."
+    minimum: 0
+  prior_mental_health_history:
+    type:
+      - "string"
+      - "null"
+    description: "Self‑report of prior mental‑health diagnosis (optional confounder)."
   instrument_source:
     type: "string"
-    description: "Name of the anxiety instrument (e.g., GAD-7 or documented proxy)."
+    description: "Name of the anxiety instrument (e.g., GAD‑7 or documented proxy)."
   measurement_timepoint:
     type: "string"
     description: "Timepoint of measurement (pre, post, or trait)."
   proxy_flag:
     type: "boolean"
-    description: "True if the anxiety score is a proxy for anticipatory anxiety (FR-008)."
+    description: "True if the anxiety score is a proxy for anticipatory anxiety (FR‑008)."
   coupling_risk:
     type: "boolean"
     description: "True if baseline and outcome anxiety may be mathematically coupled."

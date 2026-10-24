@@ -1,6 +1,6 @@
 status: none
-intent: download General Social Survey Pew Research Center YouGov mini-xlsum python
-  package dataset
+intent: download General Social Survey 2022 dataset with anxiety and news exposure
+  python package dataset
 required_fields:
 - news_exposure_freq
 - anxiety_score
@@ -8,6 +8,6 @@ required_fields:
 - age
 - gender
 - social_media_engagement
-cache_key: ae8dd43f3f5e8e81227aeabcc00b1b3a824a43b2163a3ea8007252fd8534d4c8
-searched_at: '2026-10-24T05:32:06.978650+00:00'
+cache_key: 55540e49116fc75ce6689c9959e64768d2cc659956ee194f660c0805ca3b0a84
+searched_at: '2026-10-24T05:42:25.206091+00:00'
 retry_count: 1
