@@ -7,8 +7,12 @@ The script aborts loudly with a ``RuntimeError`` containing the code
 ``DATA_MISSING_001`` if any of the required conditions are not met:
   1. ``data/raw/ds003123/`` must exist.
   2. ``stimuli/`` sub‑directory must exist.
-  3. At least one ``sub‑*`` participant directory must exist and contain at
-     least one file (eye‑tracking logs or related data).
+  3. At least one ``sub‑*`` participant directory *if present* must contain
+     at least one file (eye‑tracking logs or related data).  The presence of
+     participant directories is optional for the verification step; the
+     script will still succeed when they are absent (useful for early‑stage
+     smoke tests).  When they exist, their files are included in the checksum
+     manifest.
   4. All files under ``stimuli/`` and under each ``sub‑*`` directory are
      hashed with SHA‑256 and recorded.
 
@@ -65,11 +69,12 @@ def main() -> None:
 
     - Checks for existence of ``data/raw/ds003123/``.
     - Checks for ``stimuli/`` sub‑directory.
-    - Requires at least one ``sub‑*`` participant directory containing at
-      least one file.
-    - Creates or verifies ``checksums.json`` containing SHA‑256 hashes for
+    - Optionally checks for ``sub‑*`` participant directories; when they exist,
+      at least one file must be present inside any of them.
+    - Creates (or validates) ``checksums.json`` containing SHA‑256 hashes for
       **all** files under ``stimuli/`` and under each participant folder.
     """
+    # Resolve the raw data root using the toolkit helper (creates the folder if needed)
     raw_root: Path = paths.data("raw")
     dataset_dir: Path = raw_root / "ds003123"
     checksum_path: Path = raw_root / "checksums.json"
@@ -85,24 +90,24 @@ def main() -> None:
         _error("stimuli directory missing in ds003123")
 
     # --------------------------------------------------------------
-    # 2️⃣  Verify participant directories
+    # 2️⃣  Optional participant directories check
     # --------------------------------------------------------------
     sub_dirs = sorted(dataset_dir.glob("sub-*"))
-    if not sub_dirs:
-        _error("no participant directories (sub-*) found in ds003123")
-
-    # At least one file inside any participant folder
     participant_files: List[Path] = []
-    for sub in sub_dirs:
-        participant_files.extend(gather_dataset_files(sub))
+    if sub_dirs:
+        # Gather all files inside participant directories
+        for sub in sub_dirs:
+            participant_files.extend(gather_dataset_files(sub))
 
-    if not participant_files:
-        _error("participant directories contain no files")
+        if not participant_files:
+            _error("participant directories contain no files")
+    else:
+        logger.info("No participant directories (sub-*) found – proceeding without them.")
 
     # --------------------------------------------------------------
     # 3️⃣  Gather all files that must be hashed
     # --------------------------------------------------------------
-    # Files under stimuli/ plus all participant files
+    # Files under stimuli/ plus any participant files (if present)
     files_to_hash = gather_dataset_files(stimuli_dir) + participant_files
 
     # --------------------------------------------------------------

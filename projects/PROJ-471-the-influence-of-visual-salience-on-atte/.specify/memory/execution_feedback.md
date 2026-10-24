@@ -21,13 +21,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 148, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 153, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 92, in main
-    _error("no participant directories (sub-*) found in ds003123")
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 60, in _error
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 86, in main
+    _error("ds003123 not found")
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 64, in _error
     raise RuntimeError(f"DATA_MISSING_001: {msg}")
-RuntimeError: DATA_MISSING_001: no participant directories (sub-*) found in ds003123
+RuntimeError: DATA_MISSING_001: ds003123 not found
 
 - python -m pytest tests/ -q -> rc=2
 1/site-packages/torch/nn/modules/transformer.py:20
@@ -45,7 +45,7 @@ ERROR tests/unit/test_salience_batcher.py
 ERROR tests/unit/test_salience_gen.py
 ERROR tests/unit/test_update_spec_governance.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-1 warning, 8 errors in 3.75s
+1 warning, 8 errors in 5.33s
 
 
 
