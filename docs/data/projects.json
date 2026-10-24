@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 18719,
+    "total_contributions": 18720,
     "total_contributors": 3443
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 2524,
+      "contribution_count": 2525,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-24T06:35:29.183843+00:00",
+  "generated_at": "2026-10-24T06:52:21.685336+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29165,6 +29165,11 @@
       "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-471-the-influence-of-visual-salience-on-atte",
+          "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+          "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "title": "llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning in Image Editing\""
@@ -29183,11 +29188,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-302-evaluating-the-impact-of-code-generation",
           "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
           "title": "Evaluating the Impact of Code Generation on Code Review Time: A Large-Scale Study"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-217-evaluating-the-impact-of-llm-generated-c",
-          "project_id": "PROJ-217-evaluating-the-impact-of-llm-generated-c",
-          "title": "Evaluating the Impact of LLM-Generated Code Comments on Code Readability"
         }
       ],
       "inputs": [
@@ -29211,6 +29211,11 @@
       "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-471-the-influence-of-visual-salience-on-atte",
+          "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+          "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements"
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
           "title": "llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning in Image Editing\""
@@ -29229,11 +29234,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-217-evaluating-the-impact-of-llm-generated-c",
           "project_id": "PROJ-217-evaluating-the-impact-of-llm-generated-c",
           "title": "Evaluating the Impact of LLM-Generated Code Comments on Code Readability"
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-883-llmxive-follow-up-extending-omniretrieva",
-          "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
-          "title": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\""
         }
       ],
       "inputs": [
@@ -52533,6 +52533,14 @@
       "id": "PROJ-1064-llmxive-follow-up-extending-lightmem-ego",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "tasker",
+          "duration_s": 1027.691009,
+          "ended_at": "2026-10-24T06:30:52.447542Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-24T06:13:44.756533Z"
+        },
         {
           "agent": "tasker",
           "duration_s": 993.174559,
@@ -97003,11 +97011,12 @@
           ]
         },
         {
-          "contributions": 2,
+          "contributions": 3,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
             "albert-einstein-simulated",
+            "implementer",
             "personality"
           ]
         }
@@ -97031,6 +97040,14 @@
       "id": "PROJ-352-statistical-analysis-of-early-universe-c",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 693.062611,
+          "ended_at": "2026-10-24T06:37:48.168224Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-24T06:26:15.105613Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 90.368076,
@@ -97102,14 +97119,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-02T21:11:35.785978Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 5.605182,
-          "ended_at": "2026-10-02T21:11:35.784316Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-02T21:11:30.179134Z"
         }
       ],
       "paper_status": null,
@@ -117039,7 +117048,7 @@
           ]
         },
         {
-          "contributions": 41,
+          "contributions": 48,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -117088,12 +117097,76 @@
         "repo_path": "projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "planned",
+      "current_stage": "in_progress",
       "description": "Verdict: pass The question asks about a relationship between low-level perceptual salience and high-level attentional allocation during moral reasoning, which is a substantive domain question about how visual prominence influences cognitive processing. The computational salience maps and eye-tracking are measurement\u2026",
       "field": "psychology",
       "id": "PROJ-471-the-influence-of-visual-salience-on-atte",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 80.674467,
+          "ended_at": "2026-10-24T06:41:37.672685Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-24T06:40:16.998218Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 20.905706,
+          "ended_at": "2026-10-24T06:40:16.994730Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-24T06:39:56.089024Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 20.656858,
+          "ended_at": "2026-10-24T06:39:56.085548Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-24T06:39:35.428690Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 29.231225,
+          "ended_at": "2026-10-24T06:37:48.405131Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-24T06:37:19.173906Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 27.138828,
+          "ended_at": "2026-10-24T06:37:19.170184Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-24T06:36:52.031356Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 239.386062,
+          "ended_at": "2026-10-24T06:36:52.027823Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-24T06:32:52.641761Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 0.034282,
+          "ended_at": "2026-10-24T06:32:44.610045Z",
+          "model": "deterministic-no-llm",
+          "outcome": "skipped",
+          "started_at": "2026-10-24T06:32:44.575763Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 153.005399,
+          "ended_at": "2026-10-24T06:32:30.943390Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-24T06:29:57.937991Z"
+        },
         {
           "agent": "planner",
           "duration_s": 1099.228229,
@@ -117109,70 +117182,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-20T02:22:36.547205Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 232.778654,
-          "ended_at": "2026-10-20T02:20:27.699818Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-20T02:16:34.921164Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 402.896649,
-          "ended_at": "2026-10-20T02:16:34.917077Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-20T02:09:52.020428Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 810.067169,
-          "ended_at": "2026-10-20T00:25:04.225707Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T00:11:34.158538Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 236.024755,
-          "ended_at": "2026-10-19T23:17:43.427358Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-19T23:13:47.402603Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 447.61164,
-          "ended_at": "2026-10-19T23:13:47.398530Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-19T23:06:19.786890Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 358.351127,
-          "ended_at": "2026-10-19T22:12:18.054493Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-19T22:06:19.703366Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 47.114873,
-          "ended_at": "2026-10-19T21:26:37.483555Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-19T21:25:50.368682Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 46.705676,
-          "ended_at": "2026-10-19T21:25:50.365938Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-19T21:25:03.660262Z"
         }
       ],
       "paper_status": null,
@@ -117186,7 +117195,7 @@
       "speckit_research_dir": "projects/PROJ-471-the-influence-of-visual-salience-on-atte/specs/001-the-influence-of-visual-salience-on-atte",
       "submitter": null,
       "title": "The Influence of Visual Salience on Attentional Bias in Moral Judgements",
-      "updated_at": "2026-10-24T06:29:40.498984+00:00",
+      "updated_at": "2026-10-24T06:39:22.523731+00:00",
       "upstream_feedback": null
     },
     {
@@ -176184,6 +176193,126 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 80.674467,
+      "ended_at": "2026-10-24T06:41:37.672685Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-24T06:40:16.998218Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 20.905706,
+      "ended_at": "2026-10-24T06:40:16.994730Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-24T06:39:56.089024Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 20.656858,
+      "ended_at": "2026-10-24T06:39:56.085548Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-24T06:39:35.428690Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 29.231225,
+      "ended_at": "2026-10-24T06:37:48.405131Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-24T06:37:19.173906Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 693.062611,
+      "ended_at": "2026-10-24T06:37:48.168224Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-352-statistical-analysis-of-early-universe-c",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-24T06:26:15.105613Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 27.138828,
+      "ended_at": "2026-10-24T06:37:19.170184Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-24T06:36:52.031356Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 239.386062,
+      "ended_at": "2026-10-24T06:36:52.027823Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-24T06:32:52.641761Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 0.034282,
+      "ended_at": "2026-10-24T06:32:44.610045Z",
+      "failure_reason": "",
+      "model": "deterministic-no-llm",
+      "outcome": "skipped",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "soft",
+      "started_at": "2026-10-24T06:32:44.575763Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 153.005399,
+      "ended_at": "2026-10-24T06:32:30.943390Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-24T06:29:57.937991Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 1027.691009,
+      "ended_at": "2026-10-24T06:30:52.447542Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-1064-llmxive-follow-up-extending-lightmem-ego",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-24T06:13:44.756533Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 1099.228229,
       "ended_at": "2026-10-24T06:29:40.495919Z",
@@ -176191,7 +176320,7 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-471-the-influence-of-visual-salience-on-atte",
-      "project_stage": "planned",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-24T06:11:21.267690Z"
     },
@@ -182062,126 +182191,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-23T03:08:55.879780Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 71.920067,
-      "ended_at": "2026-10-23T03:09:16.716610Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-23T03:08:04.796543Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 14.937058,
-      "ended_at": "2026-10-23T03:08:55.877831Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-889-llmxive-follow-up-extending-tide-proacti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-23T03:08:40.940773Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 21.489191,
-      "ended_at": "2026-10-23T03:08:54.143258Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-081-investigating-the-relationship-between-p",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-23T03:08:32.654067Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 34.88329,
-      "ended_at": "2026-10-23T03:08:40.938788Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-889-llmxive-follow-up-extending-tide-proacti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-23T03:08:06.055498Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 9.6412,
-      "ended_at": "2026-10-23T03:08:06.053040Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-889-llmxive-follow-up-extending-tide-proacti",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-23T03:07:56.411840Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 584.98408,
-      "ended_at": "2026-10-23T02:42:17.430153Z",
-      "failure_reason": "UnreachableReference: research.md reference is unreachable: 'https://en.wikipedia.org/wiki/Power_(statistics' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-331-investigating-the-influence-of-network-m",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-10-23T02:32:32.446073Z"
-    },
-    {
-      "agent": "clarifier",
-      "duration_s": 250.480838,
-      "ended_at": "2026-10-23T02:32:19.645958Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-influence-of-network-m",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-23T02:28:09.165120Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 17.707903,
-      "ended_at": "2026-10-23T02:29:00.992676Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-728-autocorrelation-of-the-m-bius-function-i",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-23T02:28:43.284773Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 19.494947,
-      "ended_at": "2026-10-23T02:28:43.281303Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-728-autocorrelation-of-the-m-bius-function-i",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-23T02:28:23.786356Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 19.746651,
-      "ended_at": "2026-10-23T02:27:52.164753Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-728-autocorrelation-of-the-m-bius-function-i",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-23T02:27:32.418102Z"
     }
   ],
   "reviewed_preprints": [
