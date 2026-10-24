@@ -152,7 +152,7 @@ properties:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Primary PR: #(grounding invalid) / #(all predictions)."
+    description: "Primary PR: #(correct rating ∧ grounding_invalid) / #(correct rating)."
   prejudice_rate_all:
     type: number
     minimum: 0.0
@@ -191,7 +191,7 @@ properties:
     description: "Number of valid samples with a correct (exact‑match) rating; denominator for HR."
   grounding_assessment_method:
     type: string
-    description: "Hybrid method: semantic similarity (≥ 0.70) + keyword checklist; calibrated on a pilot and validated on a held‑out set (methodology‑431136ee)."
+    description: "Semantic similarity (cosine ≥ 0.70) between model reasoning and ground‑truth behavioral evidence, calibrated on a pilot and validated on a held‑out set."
 ```
 
 ## Data Flow Diagram (conceptual)
@@ -214,7 +214,4 @@ raw video metadata ──► video_metadata.schema.yaml
    analysis.py → results.md / figures
 ```
 
-Each stage reads the previous artifact, validates against its schema, and writes the next artifact to `data/derived/`. Contract tests enforce schema compliance before downstream stages run.
-
----
-
+Each stage reads the previous artifact, validates against its schema, and writes the next artifact to `data/derived/`. Contract tests enforce schema compliance before downstream stages run.  

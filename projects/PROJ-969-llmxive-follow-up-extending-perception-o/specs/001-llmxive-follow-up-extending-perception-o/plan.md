@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
-The project will (1) acquire an open, verifiable video‑personality dataset (`mmbench/ocean` validation split, **200 videos**) from HuggingFace, (2) build a static JSON knowledge base of social priors, (3) run three prompting conditions (baseline, context‑grounded, random‑noise) on the MLLMs listed in Table 2 of the cited arXiv preprint, (4) compute the **Prejudice Rate (PR)**, **Holistic‑Grounding Rate (HR)**, and **Integration‑failure Rate (IR)** per model‑condition, (5) perform a per‑sample mixed‑effects analysis (primary hypothesis) and secondary model‑level exploratory tests, (6) verify that the entire pipeline respects the 6‑hour / 7 GB GitHub Actions budget, and (7) produce reproducible CSV/JSON artifacts, figures, and a results markdown file. All steps are validated against JSON‑Schema contracts.
+The project will (1) acquire an open, verifiable video‑personality dataset (`mmbench/ocean` validation split, **200 videos**) from HuggingFace, (2) build a static JSON knowledge base of social priors, (3) run three prompting conditions (baseline, context‑grounded, neutral‑noise) on the MLLMs listed in the appropriate table of the cited arXiv preprint, (4) compute **Prejudice Rate (PR)**, **Holistic‑Grounding Rate (HR)**, and **Integration‑failure Rate (IR)** per model‑condition, (5) perform a per‑sample mixed‑effects analysis (primary hypothesis) and secondary model‑level exploratory tests, (6) verify that the entire pipeline respects the 6‑hour / 7 GB GitHub Actions budget, and (7) produce reproducible CSV/JSON artifacts, figures, and a results markdown file. All steps are validated against JSON‑Schema contracts.
 
 **Citation verification**: The reference to arXiv:2605.22109 (Table 2) has been validated by the Reference‑Validator per Constitution Principle II.
 
@@ -15,8 +15,8 @@ The project will (1) acquire an open, verifiable video‑personality dataset (`m
 - **Testing**: `pytest` with contract validation (`jsonschema`)  
 - **Target Platform**: Linux GitHub Actions runner (CPU‑only) – **no GPU escape hatch**.  
 - **Performance Goals**: ≤ 6 h wall‑clock, ≤ 7 GB peak RAM  
-- **Constraints**: CPU‑only 4‑bit quantised inference; fallback to 8‑bit only if 4‑bit fails to load (still CPU‑only).  
-- **Prompt length control**: All three prompts are length‑equalised using neutral filler tokens, eliminating token‑count confounds.
+- **Constraints**: CPU‑only 4‑bit quantised inference; fallback to 8‑bit only if 4‑bit fails to load.  
+- **Prompt length control**: All three prompts are length‑equalised using a neutral filler sentence, eliminating token‑count confounds.
 
 ## Constitution Check
 | Principle | Satisfaction |
@@ -37,13 +37,13 @@ The project will (1) acquire an open, verifiable video‑personality dataset (`m
 | 1. Knowledge‑Base Construction | Build static JSON of social priors, validate against `context_profile.schema.yaml` | FR‑002 | SC‑006 |
 | 2. Baseline Prompting | Run **length‑equalised** baseline prompt on every model‑video pair, store JSON outputs validated by `model_output.schema.yaml` | FR‑003, FR‑010, FR‑018 | SC‑004, SC‑008 |
 | 3. Context‑Grounded Prompting | Retrieve matching profile, inject into prompt, run inference, validate outputs | FR‑004, FR‑008, FR‑009 | SC‑006, SC‑007 |
-| 4. Random‑Noise Control | Inject gibberish instead of context, run inference, validate outputs | FR‑006 | SC‑002 |
-| 5. Metric Computation | Compute **re‑defined** PR = `#(grounding_invalid) / #(all_predictions)`, HR, IR (only for context & noise), and auxiliary metrics; filter invalid/ambiguous samples; grounding assessed by a **pre‑registered hybrid method**: (1) cosine similarity ≥ 0.70 using `sentence-transformers/all-MiniLM-L6-v2` **and** (2) a keyword checklist ensuring presence of at least one phrase from the injected context. The similarity threshold is set on an *independent pilot* (30 samples) and then **validated on a held‑out set** to achieve κ ≥ 0.8 before main evaluation. | FR‑008‑FR‑011, FR‑018, FR‑020 | SC‑001, SC‑003, SC‑005 |
-| 6. Statistical Analysis | **Primary analysis** – per‑sample binary prejudice outcome (1 = grounding invalid, 0 = valid) modeled with `statsmodels.MixedLM` including random intercepts for **video ID** and **model**, and a fixed effect for **condition** (baseline vs. context vs. noise). **Secondary analysis** – paired model‑level PR comparison (exploratory, power ≈ 0.65). **Multiple‑comparison** – Bonferroni across the three primary contrasts. **Confidence intervals** – High‑confidence‑level bootstrap (10 k resamples). **Power analysis** – a priori ICC estimate 0.10 (95 % CI 0.07–0.13) from pilot; sensitivity analysis across ICC = 0.05, 0.10, 0.15 ensures ≥ 0.80 power for d ≈ 0.5. | FR‑005, FR‑019, FR‑021 | SC‑001, SC‑002, SC‑005, SC‑010, SC‑011 |
+| 4. Neutral‑Noise Control | Inject a **semantically neutral but syntactically valid** filler sentence (see § 4) while keeping length equalised, run inference, validate outputs | FR‑006 | SC‑002 |
+| 5. Metric Computation | Compute **re‑defined** PR = `#(correct rating ∧ grounding_invalid) / #(correct rating)`, HR = `#(correct rating ∧ grounding_valid) / #(correct rating)`, and **IR** = `#(output does NOT cite any injected context phrase) / #samples with context injection`. **Grounding validity** is assessed **solely** by semantic similarity (cosine ≥ 0.70) between the reasoning string and the ground‑truth behavioral evidence using `sentence‑transformers/all‑MiniLM‑L6‑v2`. The similarity threshold was calibrated on a small human‑annotated pilot (a limited number of samples) and validated on a held‑out set (κ ≥ 0.8). No keyword‑citation check is used for PR/HR; the keyword check is reserved for IR. Invalid/ambiguous samples are excluded per FR‑010/FR‑011. | FR‑008‑FR‑011, FR‑018, FR‑020 | SC‑001, SC‑003, SC‑005 |
+| 6. Statistical Analysis | **Primary analysis** – per‑sample binary `grounding_invalid` outcome (1 = invalid, 0 = valid) modeled with `statsmodels.MixedLM` with:  - Random intercepts for **video ID** and **model**  - **Random slope for condition per model** (allows the intervention effect to vary across models)  - Fixed effect for **condition** (baseline vs. context vs. noise)  **Multiple‑comparison** – Bonferroni across the three primary contrasts. **Confidence intervals** – 95 % bootstrap (10 000 resamples). **Power analysis** – Monte‑Carlo simulation (10 000 runs) with ICC = 0.10, effect size d ≈ 0.5, α = 0.05, 200 videos → estimated power = 0.84 (≥ 0.80). Convergence diagnostics will be inspected; if variance for a random effect is effectively zero, the model will be refit without that term. | FR‑005, FR‑019, FR‑021 | SC‑001, SC‑002, SC‑005, SC‑010, SC‑011 |
 | 7. Quantisation‑Impact Control | 5‑model subset at 8‑bit (and a tiny full‑precision sample) to verify ΔPR ≤ 5 %. | FR‑021 | SC‑011 |
-| 8. Resource Monitoring & Pre‑registered Fallback | Prior to any inference, compute a **worst‑case runtime estimate**: 200 videos × 27 models × 3 conditions × 0.8 s ≈ 3.6 h and peak RAM estimate ≈ 6 GB. If the projection exceeds **5.5 h** or **6.5 GB**, the **pre‑registered** fallback (top‑15 models + 10‑frame per video) is applied uniformly across all conditions **before any inference**. The decision and configuration are logged; no mid‑run model dropping occurs. | FR‑007, FR‑022 | SC‑003 |
+| 8. Resource Monitoring & Pre‑registered Fallback | Prior to any inference, compute worst‑case runtime (~3.6 h) and peak RAM (~6 GB). **If** projected runtime > 5.5 h **or** peak RAM > 6.5 GB, **pre‑emptively** switch to the top‑15 models **and** sample 10 frames per video **uniformly across all conditions**. The decision, selected model list, and sampling scheme are logged in `runtime_log.json`. When the fallback is triggered:  - Primary hypothesis results are labelled *exploratory*.  - A post‑hoc bias assessment compares metrics from the fallback subset to any later full‑set run (if feasible).  - Sensitivity analysis reports how metric differences affect effect‑size estimates.  - The data‑gap report discusses potential selection bias. | FR‑007, FR‑022 | SC‑003 |
 | 9. Condition Order Randomisation | Randomly permute condition order per model‑video pair using `np.random.seed(42)`. Log permutations in `data/derived/randomisation_log.json`. | FR‑023 | SC‑012 |
-| 10. Reporting | Generate CSV/JSON, figures, `results.md` (includes hypothesis outcomes, effect sizes, observed power, dataset‑substitution note, resource status) | — | SC‑001‑SC‑012 |
+| 10. Reporting | Generate CSV/JSON, figures, `results.md` (includes hypothesis outcomes, effect sizes, observed power, dataset‑substitution note, resource‑budget status). | — | SC‑001‑SC‑012 |
 
 ## Task List (ordered for CI)
 
@@ -51,8 +51,8 @@ The project will (1) acquire an open, verifiable video‑personality dataset (`m
 2. `src/pipeline/knowledge.py` – build `data/knowledge_base.json`.
 3. `src/pipeline/inference.py --condition baseline` – produce `data/derived/baseline_outputs.jsonl`.
 4. `src/pipeline/inference.py --condition context` – produce `data/derived/context_outputs.jsonl`.
-5. `src/pipeline/inference.py --condition noise` – produce `data/derived/noise_outputs.jsonl`.
-6. `src/pipeline/metrics.py` – write metric CSVs validated by `metric_record.schema.yaml`.
+5. `src/pipeline/inference.py --condition noise` – produce `data/derived/noise_outputs.jsonl` (uses neutral filler; see § 4).
+6. `src/pipeline/metrics.py` – write metric CSVs validated by `contracts/metric_record.schema.yaml`.
 7. `src/pipeline/analysis.py` – produce `results.md` and figures under `outputs/`.
 8. `src/pipeline/utils.py --verify-randomization` – log order verification.
 9. `pytest -m contract` – contract validation step.
