@@ -1,9 +1,6 @@
 T001:
-  reason: 'The required output files are absent: `data/raw/checksums.json` and `data/processed/candidates_filtered.csv`
-    do not exist, and `data/raw/` is empty, so there is no evidence that `code/01_ingest_and_filter.py`
-    was run successfully or produced the mandated CSV rows and checksums. The unit
-    test only checks a failure path and does not verify successful ingestion. The
-    task therefore lacks the essential artifacts.'
+  reason: 'Requested task execution failed; rerun successfully: code/01_ingest_and_filter.py
+    exit=1'
   task: aa58665ffecc4b99c068e6170c3f165766f2c8d4ad3ff83ba3ec8abb7f209dbe
 T002:
   reason: The repository lacks the required `data/raw/human_coding/` directory (marked
