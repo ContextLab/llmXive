@@ -1,11 +1,11 @@
 status: none
-intent: InstructPix2Pix and DiffusionDB image editing prompts with human feasibility
-  scores python package dataset
+intent: image editing prompts dataset with human feasibility scores DiffusionDB PromptBench
+  python package dataset
 required_fields:
 - prompt_id
 - instruction_type
 - prompt_text
 - human_feasibility_score
-cache_key: c334bb4bdf590acd15082cc87e1570c072e2ca08e1c7a4347f00a51de5347ad8
-searched_at: '2026-10-24T06:11:57.305390+00:00'
+cache_key: 1446876779d15649b729c934ab1f5504c817e0b8916cd7d10a27fe05226f80e2
+searched_at: '2026-10-24T07:13:40.918120+00:00'
 retry_count: 1

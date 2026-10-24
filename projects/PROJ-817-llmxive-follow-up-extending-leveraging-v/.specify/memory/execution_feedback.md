@@ -11,6 +11,17 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/src/data/curate.py: self-declared fabricated metric — “…rompt_text - synthetic_score (placeholder value 0.5) - human_score (null/NaN)…”
 - code/src/data/curate.py: self-declared fabricated metric — “…3️⃣ Combine, assign UUIDs and placeholder scores         # ------------------…”
 
+## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+
+These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+
+1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
+2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
+3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
+4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+
+- `python -m code.src.data.download`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/src/data/curate.py: self-declared fabricated metric — “…rompt_text - synthetic_score (placeholder value 0.5) - human_score (null/NaN)…”; code/src/data/curate.py: self-declared fabricated metric — “…3️⃣ Combine, assign UUIDs and placeholder scores         # ------------------…”; 11 command(s) failed: python -m spacy download en_core_web_sm (rc=1); python -m code.src.data.download (rc=1); python -m code.src.data.curate (rc=1); 3 declared deliverable(s) absent: data/raw/checksums_manifest.json; data/raw/prompts_sample.parquet; data/results/curated_prompts.csv
@@ -18,24 +29,28 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m spacy download en_core_web_sm -> rc=1
+Collecting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-817-llmxive-follow-up-extending-leveraging-v/bin/python: No module named spacy
+  ERROR: HTTP error 404 while getting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
+ERROR: Could not install requirement https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz because of HTTP error 404 Client Error: Not Found for url: https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz for URL https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
+
+[notice] A new release of pip is available: 24.0 -> 26.2.2
+[notice] To update, run: pip install --upgrade pip
 
 - python -m code.src.data.download -> rc=1
 
-2026-10-24 06:11:09,607 ERROR __main__: HF streaming loader failed for timbrooks/instruct-pix2pix: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-2026-10-24 06:11:09,607 WARNING __main__: Primary dataset failed: Unable to stream dataset timbrooks/instruct-pix2pix from Hugging Face
-2026-10-24 06:11:09,607 INFO __main__: Attempting fallback dataset timbrooks/instruct_pix2pix
-2026-10-24 06:11:09,611 ERROR __main__: HF streaming loader failed for timbrooks/instruct_pix2pix: pyarrow requires NumPy 2.0 or newer, found 1.26.4
-2026-10-24 06:11:09,611 ERROR __main__: Data collection failed: Unable to stream dataset timbrooks/instruct_pix2pix from Hugging Face
+2026-10-24 07:11:00,234 INFO datasets: PyTorch version 2.3.0 available.
+2026-10-24 07:11:00,449 INFO __main__: Streaming load via datasets.load_dataset for timbrooks/instruct-pix2pix/train
+2026-10-24 07:11:00,487 ERROR __main__: HF streaming loader failed for timbrooks/instruct-pix2pix: Dataset 'timbrooks/instruct-pix2pix' doesn't exist on the Hub or cannot be accessed.
+2026-10-24 07:11:00,487 WARNING __main__: Primary dataset failed: Unable to stream dataset timbrooks/instruct-pix2pix from Hugging Face
+2026-10-24 07:11:00,487 INFO __main__: Attempting fallback dataset timbrooks/instruct_pix2pix
+2026-10-24 07:11:00,488 INFO __main__: Streaming load via datasets.load_dataset for timbrooks/instruct_pix2pix/train
+2026-10-24 07:11:00,503 ERROR __main__: HF streaming loader failed for timbrooks/instruct_pix2pix: Dataset 'timbrooks/instruct_pix2pix' doesn't exist on the Hub or cannot be accessed.
+2026-10-24 07:11:00,503 ERROR __main__: Data collection failed: Unable to stream dataset timbrooks/instruct_pix2pix from Hugging Face
 
 - python -m code.src.data.curate -> rc=1
 
-2026-10-24 06:11:09,981 ERROR __main__: Curate step failed: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
-A suitable version of pyarrow or fastparquet is required for parquet support.
-Trying to import the above resulted in these errors:
- - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
- - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
+2026-10-24 07:11:01,025 ERROR __main__: Curate step failed: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/data/raw/prompts_sample.parquet'
 
 - python -m src.data.filter_conflicts -> rc=1
 

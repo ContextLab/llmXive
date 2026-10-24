@@ -1,7 +1,16 @@
-# Core dependencies (standard library packages are pre‑installed)
-datasets>=2.0.0
-pyarrow>=12.0.0
-# Existing dependencies are already available in the base environment:
+# Project dependencies
+# Core libraries already provided by the environment:
 # numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
 # seaborn, pytest, PyYAML, requests, jsonschema, psutil
-# llmxive_toolkit is provided by the platform and not listed here.
+#
+# Additional dependencies required for this project:
+datasets==2.21.0
+transformers==4.44.0
+spacy==3.7.4
+en_core_web_sm==3.7.0
+torch==2.3.0
+bitsandbytes==0.43.1
+networkx==3.3
+tqdm==4.66.5
+# Pin an older pyarrow version that is compatible with the pre‑installed NumPy 1.26.x
+pyarrow==14.0.2
