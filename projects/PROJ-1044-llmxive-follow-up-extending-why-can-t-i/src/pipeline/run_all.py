@@ -47,7 +47,7 @@ def _write_manifest(manifest_path: Path, root: Path) -> None:
         for npy_path in _gather_npy_files(root):
             rel = npy_path.relative_to(Path.cwd())
             sha = _sha256_of_file(npy_path)
-            f.write(f"{rel},{sha}\n")
+            f.write(f"{rel},{sha}\\n")
 
 def _load_config(config_path: Path) -> Dict[str, Any]:
     """Load a YAML config file; returns an empty dict if unreadable."""
@@ -91,9 +91,13 @@ def parse_cli_args(argv: List[str] | None = None) -> argparse.Namespace:
     )
 
     # Historic flags – they are kept for backward compatibility.
+    # ``--num_videos`` is deliberately typed as ``str`` so that placeholder
+    # values like ``<sufficient number of videos>`` do not cause an argparse
+    # type error.  The value is coerced to ``int`` later; if conversion fails
+    # we fall back to the config/default.
     parser.add_argument(
         "--num_videos",
-        type=int,
+        type=str,
         default=None,
         help="(legacy) Number of synthetic videos to generate.",
     )
@@ -136,14 +140,14 @@ def _run_stage(module: str, args: List[str]) -> int:
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         log.error(
-            "Stage %s failed (exit %d). stdout:\n%s\nstderr:\n%s",
+            "Stage %s failed (exit %d). stdout:\\n%s\\nstderr:\\n%s",
             module,
             result.returncode,
             result.stdout,
             result.stderr,
         )
     else:
-        log.debug("Stage %s succeeded. stdout:\n%s", module, result.stdout)
+        log.debug("Stage %s succeeded. stdout:\\n%s", module, result.stdout)
     return result.returncode
 
 def main(argv: List[str] | None = None) -> int:
@@ -163,7 +167,13 @@ def main(argv: List[str] | None = None) -> int:
     # Override config with any legacy flags that were supplied.
     # This mirrors the behaviour of the original quickstart command.
     if args.num_videos is not None:
-        config["num_videos"] = args.num_videos
+        try:
+            config["num_videos"] = int(args.num_videos)
+        except ValueError:
+            log.warning(
+                "Invalid --num_videos value '%s'; ignoring and falling back to config/default.",
+                args.num_videos,
+            )
     if args.lambda_values is not None:
         config["lambda_values"] = args.lambda_values
     if args.seeds is not None:
@@ -183,7 +193,7 @@ def main(argv: List[str] | None = None) -> int:
     # ------------------------------------------------------------------
     # Stage 1 – Synthetic video generation
     # ------------------------------------------------------------------
-    synth_args = []
+    synth_args: List[str] = []
     if "num_videos" in config:
         synth_args += ["--num_videos", str(config["num_videos"])]
     # The synthetic generator writes directly into the project data tree,
@@ -195,7 +205,7 @@ def main(argv: List[str] | None = None) -> int:
     # ------------------------------------------------------------------
     # Stage 2 – Optical flow pre‑compute for originals
     # ------------------------------------------------------------------
-    flow_pre_args = []
+    flow_pre_args: List[str] = []
     if "subset_size" in config:
         flow_pre_args += ["--subset_size", str(config["subset_size"])]
     rc = _run_stage("src.data.optical_flow_precompute", flow_pre_args)
@@ -205,7 +215,7 @@ def main(argv: List[str] | None = None) -> int:
     # ------------------------------------------------------------------
     # Stage 3 – Counterfactual generation (original → counterfactual)
     # ------------------------------------------------------------------
-    cf_args = []
+    cf_args: List[str] = []
     if "flow_divergence_thresh" in config:
         cf_args += ["--flow_divergence_thresh", str(config["flow_divergence_thresh"])]
     if "feature_sim_thresh" in config:
@@ -224,7 +234,7 @@ def main(argv: List[str] | None = None) -> int:
     # ------------------------------------------------------------------
     # Stage 5 – Model training sweep
     # ------------------------------------------------------------------
-    train_args = []
+    train_args: List[str] = []
     if "lambda_values" in config:
         train_args += ["--lambda_values"] + [str(v) for v in config["lambda_values"]]
     if "seeds" in config:

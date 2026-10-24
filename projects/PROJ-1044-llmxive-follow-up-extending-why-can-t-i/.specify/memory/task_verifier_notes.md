@@ -2,4 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T000** — Requested task execution failed; rerun successfully: src/data/synthetic_generator.py exit=1
+- **T001** — The required files `quickstart.md` and `configs/run.yaml` exist and contain the expected content, but there is no evidence that the command `python -m src.pipeline.run_all --config configs/run.yaml` actually runs, prints a concise summary, and exits with status 0 (e.g., no captured stdout, exit‑code log, or test output). Add execution verification artifacts.
+- **T016** — Requested task execution failed; rerun successfully: src/data/patches_download.py exit=-1 (TIMEOUT)

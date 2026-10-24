@@ -1,0 +1,25 @@
+T000:
+  c: true
+  h: f77a065597bb8b97add1dee0a2048c4056fef9c9822986beab0f86acdb5b802a
+  r: "Checked `src/data/synthetic_generator.py`, the populated `data/videos/orig/`\
+    \ directory (200 MP4 files) and its `manifest.csv` (200 rows matching the videos).\
+    \ The script ran successfully (exit\u202F0) and the manifest row count equals\
+    \ the video count, exceeding the required 150 videos."
+  sig: e0f59b2534b5410f9c634b528ec9c7f2f5d068299a57afadb78d904134f72a09
+T001:
+  c: false
+  h: 4e7818281a7330999fdce2c3d8251866721552b7d1708d24bc27ab37d3fcdd4d
+  r: "The required files `quickstart.md` and `configs/run.yaml` exist and contain\
+    \ the expected content, but there is no evidence that the command `python -m src.pipeline.run_all\
+    \ --config configs/run.yaml` actually runs, prints a concise summary, and exits\
+    \ with status\u202F0 (e.g., no captured stdout, exit\u2011code log, or test output).\
+    \ Add execution verification artifacts."
+  sig: ce3c3a00cdb5daace6b07ca8de4dbfdf8543c73ac7d180cf1414563514ce542a
+T002:
+  c: true
+  h: c3ba392f9a5674cd7849c6abd5e1340006ae39db7440e675fa62d304b617c7ab
+  r: "Checked `src/data/something_loader.py` for proper streaming load, deterministic\
+    \ seed handling, and exception raising; `requirements.txt` pins `torchvision==0.17.2`;\
+    \ and `tests/test_something_loader.py` implements the required five\u2011video\
+    \ OpenCV decoding checks. All required files exist and contain the specified functionality."
+  sig: 916ec7205e46a886f58077aefbcce9d1d9a8758af6a1038fece04053d61c571b

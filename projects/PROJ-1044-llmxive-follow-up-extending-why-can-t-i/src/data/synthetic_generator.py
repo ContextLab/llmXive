@@ -4,8 +4,8 @@ This script creates a deterministic set of short MP4 videos (5 s,
 64×64 pixels, 5 frames) under ``data/videos/orig/`` and records a
 manifest CSV mapping each video filename to a UUID.
 
-The generation is fully deterministic: the colour of each frame is a
-pure function of the video index, ensuring reproducibility across
+The generation is fully deterministic: the colour of each frame is
+a pure function of the video index, ensuring reproducibility across
 runs and platforms (provided the same OpenCV build).
 
 Usage (as invoked by the pipeline driver):
@@ -20,6 +20,7 @@ import argparse
 import csv
 import pathlib
 import uuid
+import sys
 
 import cv2
 import numpy as np
@@ -28,8 +29,14 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-def _create_video(video_path: pathlib.Path, idx: int, num_frames: int = 5,
-                  width: int = 64, height: int = 64, fps: int = 1) -> None:
+def _create_video(
+    video_path: pathlib.Path,
+    idx: int,
+    num_frames: int = 5,
+    width: int = 64,
+    height: int = 64,
+    fps: int = 1,
+) -> None:
     """
     Create a deterministic synthetic MP4 video.
 
@@ -64,7 +71,9 @@ def _create_video(video_path: pathlib.Path, idx: int, num_frames: int = 5,
     writer.release()
     log.debug("Generated video %s (idx=%d)", video_path, idx)
 
-def _write_manifest(manifest_path: pathlib.Path, records: list[tuple[str, str]]) -> None:
+def _write_manifest(
+    manifest_path: pathlib.Path, records: list[tuple[str, str]]
+) -> None:
     """
     Write ``manifest.csv`` with columns ``filename,uuid``.
 
@@ -80,7 +89,9 @@ def _write_manifest(manifest_path: pathlib.Path, records: list[tuple[str, str]])
         writer.writerow(["filename", "uuid"])
         for filename, uid in records:
             writer.writerow([filename, uid])
-    log.info("Wrote manifest with %d rows to %s", len(records), manifest_path)
+    log.info(
+        "Wrote manifest with %d rows to %s", len(records), manifest_path
+    )
 
 def parse_cli_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -109,10 +120,20 @@ def main(argv: list[str] | None = None) -> int:
     out_dir = pathlib.Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    # Clean any pre‑existing videos to guarantee a deterministic count.
+    for existing in out_dir.glob("*.mp4"):
+        try:
+            existing.unlink()
+        except Exception as exc:
+            log.error("Failed to delete existing video %s: %s", existing, exc)
+            return 1
+
     manifest_path = out_dir / "manifest.csv"
     records: list[tuple[str, str]] = []
 
-    log.info("Generating %d synthetic videos in %s", args.num_videos, out_dir)
+    log.info(
+        "Generating %d synthetic videos in %s", args.num_videos, out_dir
+    )
 
     for i in range(args.num_videos):
         filename = f"video_{i:04d}.mp4"
@@ -127,7 +148,9 @@ def main(argv: list[str] | None = None) -> int:
     # Verification step – ensure we have at least 150 videos and matching rows.
     video_files = list(out_dir.glob("*.mp4"))
     if len(video_files) < 150:
-        log.error("Expected at least 150 videos, found %d", len(video_files))
+        log.error(
+            "Expected at least 150 videos, found %d", len(video_files)
+        )
         return 1
     if len(video_files) != len(records):
         log.error(

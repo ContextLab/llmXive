@@ -1,3 +1,1 @@
-# Project dependencies
-# OpenCV is required for video generation and decoding in the Something‑Something loader.
-opencv-python>=4.5.0
+torchvision==0.17.2

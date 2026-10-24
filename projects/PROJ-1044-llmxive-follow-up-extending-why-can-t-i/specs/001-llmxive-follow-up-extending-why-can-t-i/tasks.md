@@ -8,7 +8,7 @@ The following checklist implements the smallest complete study that satisfies ev
 
 ## Phase 0 – Core data creation (new)
 
-- [ ] **T000** [ ] **Generate deterministic synthetic original videos**   <!-- FAILED-IN-EXECUTION: src/data/synthetic_generator.py exit=1 -->
+- [X] **T000** [ ] **Generate deterministic synthetic original videos**
   - Run `src/data/synthetic_generator.py` to create `N=200` short videos (5 s, 64×64) in `data/videos/orig/`.  
   - Record each video filename and a UUID in `data/videos/orig/manifest.csv`.  
   - Verification: at least 150 videos exist and manifest rows equal file count.  
@@ -20,7 +20,7 @@ The following checklist implements the smallest complete study that satisfies ev
   - Verify that the command prints a concise summary of generated artifacts and exits with status 0.  
   - **Files**: `quickstart.md`, `configs/run.yaml`.
 
-- [ ] **T002** [ ] **Implement a robust streaming loader for Something‑Something V2**  
+- [X] **T002** [ ] **Implement a robust streaming loader for Something‑Something V2**  
   - Write `src/data/something_loader.py` that streams the dataset via `datasets.load_dataset("something-something-v2", split="train", streaming=True)`.  
   - Raise any download exception (no synthetic fallback).  
   - Add deterministic shuffling with `--seed` (default 42).  
@@ -28,7 +28,7 @@ The following checklist implements the smallest complete study that satisfies ev
   - Unit test `tests/test_something_loader.py` must load at least five videos, decode each frame with OpenCV, and assert non‑zero dimensions.  
   - **Files**: `src/data/something_loader.py`, `tests/test_something_loader.py`.
 
-- [ ] **T016** [ ] **Populate `data/patches/` with real object patches**  
+- [ ] **T016** [ ] **Populate `data/patches/` with real object patches**   <!-- FAILED-IN-EXECUTION: src/data/patches_download.py exit=-1 (TIMEOUT) -->
   - Download a small, license‑compatible image patch library (e.g., Open Images “Object” subset) and extract one patch per target class into `data/patches/`.  
   - Record a `patches/manifest.csv` mapping `patch_source_id` to source URL and class label.  
   - Verification: at least 20 distinct patches exist and manifest entries match file count.  

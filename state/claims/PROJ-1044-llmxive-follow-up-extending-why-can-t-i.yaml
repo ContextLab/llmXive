@@ -106,3 +106,144 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-22T04:14:56Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline exits with status 0 on success
+  claim_id: c_738bd9c3
+  context: "The command reads default paths and hyper\u2011parameters from `configs/run.yaml`\
+    \ ..., executes the pipeline stages in order, prints a `=== Pipeline Summary ===`\
+    \ block listing the generated artifacts, and exits with status 0 on success."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: exits with status 0 on success
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:27:28Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline generates 200 deterministic synthetic videos by default
+  claim_id: c_100081a8
+  context: 'Artifact table entry: `data/videos/orig/*.mp4` | Deterministic synthetic
+    videos (200 by default)'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Deterministic synthetic videos (200 by default)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:27:28Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline run is deterministic for a fixed configuration
+  claim_id: c_f9eac59c
+  context: "All hyper\u2011parameters live in `configs/run.yaml`; the run is deterministic\
+    \ for a fixed config."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the run is deterministic for a fixed config
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:27:28Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: pipeline exits with status 0 on success
+  claim_id: c_df422c0e
+  context: "The command runs the pipeline and reports a summary before exiting with\
+    \ status\u202F0 on success."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This command reads default paths and hyper\u2011parameters from configs/run.yaml\
+    \ (subset size, \u03BB sweep values, seeds, thresholds, output directory), executes\
+    \ the pipeline stages in order, prints a === Pipeline Summary === block listing\
+    \ the generated artifacts, and exits with status\u202F0 on success."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:28:09Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "flag\u2011based form is equivalent to config file form"
+  claim_id: c_5ef94915
+  context: The documentation states that using explicit flags or the default config
+    yields the same result.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Both forms are equivalent \u2013 the flag\u2011based form overrides the\
+    \ values in configs/run.yaml where supplied."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:28:09Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "changes preserve reproducibility by recording seeds and hyper\u2011\
+    parameters"
+  claim_id: c_47e69077
+  context: "The pipeline records seeds and hyper\u2011parameters to ensure reproducibility\
+    \ after any modification."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All changes preserve reproducibility because seeds and hyper\u2011parameters\
+    \ are recorded in output/config.yaml."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:28:09Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "pipeline auto\u2011generates placeholder patches if missing, preventing\
+    \ script failure"
+  claim_id: c_f76ac64b
+  context: Missing patch data triggers automatic generation of placeholder patches
+    to avoid failure.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If the data/patches/ directory is missing, the pipeline will automatically
+    generate a minimal set of placeholder patches before counterfactual generation,
+    ensuring no script failure.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:28:09Z'
+- artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/quickstart.md
+  attempts: 1
+  canonical: "optical flow computed after generation, cached, validates motion preservation\
+    \ and satisfies FR\u2011006"
+  claim_id: c_9679dbf6
+  context: "The pipeline computes and caches optical flow after generating counterfactual\
+    \ videos, meeting the FR\u2011006 requirement."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Optical flow for counterfactual videos is computed after generation (still\
+    \ CPU\u2011only) and cached for downstream steps, satisfying FR\u2011006 while\
+    \ validating motion preservation."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T08:28:09Z'

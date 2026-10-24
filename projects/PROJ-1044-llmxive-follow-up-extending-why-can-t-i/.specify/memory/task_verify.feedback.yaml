@@ -1,8 +1,11 @@
 T000:
-  reason: 'Requested task execution failed; rerun successfully: src/data/synthetic_generator.py
-    exit=1'
   task: 97dba22a9eb111d8f51683cb0f5fcba49aa786659e160994d7dd88d08bc8f972
 T001:
+  reason: "The required files `quickstart.md` and `configs/run.yaml` exist and contain\
+    \ the expected content, but there is no evidence that the command `python -m src.pipeline.run_all\
+    \ --config configs/run.yaml` actually runs, prints a concise summary, and exits\
+    \ with status\u202F0 (e.g., no captured stdout, exit\u2011code log, or test output).\
+    \ Add execution verification artifacts."
   task: 4b4ef855ac93c2b9ea8b825a9494e0aab768534336e157eaaec607230fd87a78
 T002:
   task: 980323bc4c883c01eed25d6ec646efc9e6a1a59d9131779ba3d99b9707260a1c
@@ -33,6 +36,8 @@ T014:
 T015:
   task: 8a210363e9819078407615312281c20a140d1bb71c13fb6d094752327658beca
 T016:
+  reason: 'Requested task execution failed; rerun successfully: src/data/patches_download.py
+    exit=-1 (TIMEOUT)'
   task: d77cc43e7aa5e13a9ffc266deb3dfee0b95c53c022f8f486b5ee32d1aa16888b
 T017:
   task: 3b80b95070cb65d022163c4a636a9483ff871abc536ccc1beab410f76c5279ca

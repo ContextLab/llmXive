@@ -6,7 +6,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 - run-book command: `python -m src.pipeline.run_all  --num_videos <sufficient number of videos>  --lambda_values 0.1 0.5 1.0  --seeds $SEED_LIST  --flow_divergence_thresh 0.15  --feature_sim_thresh 0.9  --output_dir ./output`
   - script usage: `run_all.py [-h] [--config CONFIG] [--output_dir OUTPUT_DIR]`
-  - argparse error: `run_all.py: error: argument --num_videos: invalid int value: '<sufficient'`
+  - argparse error: `run_all.py: error: unrecognized arguments: number of videos>`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
@@ -22,7 +22,7 @@ usage: run_all.py [-h] [--config CONFIG] [--output_dir OUTPUT_DIR]
                   [--seeds SEEDS [SEEDS ...]]
                   [--flow_divergence_thresh FLOW_DIVERGENCE_THRESH]
                   [--feature_sim_thresh FEATURE_SIM_THRESH]
-run_all.py: error: argument --num_videos: invalid int value: '<sufficient'
+run_all.py: error: unrecognized arguments: number of videos>
 
 
 ## Declared deliverables still missing
@@ -39,6 +39,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/patches/manifest.csv` is declared but was NOT written. Scripts referencing it:
     - `src/data/optical_flow_loader.py` — NOT invoked by the run-book
     - `src/data/optical_flow_precompute.py` — NOT invoked by the run-book
+    - `src/data/patches_download.py` — NOT invoked by the run-book
     - `src/data/synthetic_generator.py` — NOT invoked by the run-book
     - `src/pipeline/run_all.py` — IS a run-book command
   Make ONE of these WRITE `data/patches/manifest.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
