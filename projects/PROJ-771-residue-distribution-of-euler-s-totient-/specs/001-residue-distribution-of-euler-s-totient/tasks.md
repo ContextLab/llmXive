@@ -6,7 +6,7 @@
 
 ## Phase 0 – Project‑wide infrastructure (setup, reproducibility, resource guards)
 
-- [X] T001 Create core configuration and exception modules – implement `code/config.py` (loads `code/config.yaml` exposing `N`, `primes`, `seed`, `memory_limit_mb`) and `code/exceptions.py` defining `TotientError`, `MemoryLimitExceeded`, `InvalidPrimeError`. The configuration loader MUST reject any prime $p \notin \{3, 5, 7, 11\}$ with a clear error message as per the Spec Edge Cases.  
+- [ ] T001 Create core configuration and exception modules – implement `code/config.py` (loads `code/config.yaml` exposing `N`, `primes`, `seed`, `memory_limit_mb`) and `code/exceptions.py` defining `TotientError`, `MemoryLimitExceeded`, `InvalidPrimeError`. The configuration loader MUST reject any prime $p \notin \{3, 5, 7, 11\}$ with a clear error message as per the Spec Edge Cases.  
   *Verification*: `tests/unit/test_config.py` loads the sample config and asserts the parsed values; it also asserts that an `InvalidPrimeError` is raised when an unsupported prime is provided. `tests/unit/test_exceptions.py` raises each exception and checks the message string.
 
 - [ ] T002 Implement deterministic seeding and memory guard – add `code/seed.py` (sets `random.seed`, `numpy.random.seed`, exposes `get_seed()`) and `code/memory_guard.py` (class `MemoryGuard` polls `psutil` every 10 000 sieve iterations and raises `MemoryLimitExceeded` if RSS ≥ 90 % of `memory_limit_mb`).  
@@ -19,13 +19,13 @@
 
 ## Phase 1 – Core computation (totient generation and residue aggregation)
 
-- [ ] T004 Linear sieve and residue aggregation – implement `code/sieve.py` with two public functions:  
+- [X] T004 Linear sieve and residue aggregation – implement `code/sieve.py` with two public functions:  
   1. `compute_phi_linear_sieve(N: int) -> List[int]` (returns φ values for `1…N` using Python’s arbitrary‑precision `int`). This function MUST halt execution and log the specific $n$ where any overflow or logic error occurs.  
   2. `compute_residues(phi_vals: List[int], prime: int) -> Dict[int, int]` (returns a frequency map `{residue: count}`).  
   The module must import and use `MemoryGuard` (poll every 10 000 iterations).  
   *Verification*: `tests/unit/test_sieve.py` checks exact φ values for `n=1…10`, correct residue counts for primes `3,5,7,11`, and proper exception raising/logging under a forced low memory limit.
 
-- [X] T005 Documentation, static typing, and φ‑value correctness suite – add comprehensive docstrings and full type hints to all public callables in `code/sieve.py`; run `mypy` over the `code/` package with zero errors. Write `tests/unit/test_phi_correctness.py` that compares `compute_phi_linear_sieve` outputs for `n ≤ 100` against known tables.  
+- [ ] T005 Documentation, static typing, and φ‑value correctness suite – add comprehensive docstrings and full type hints to all public callables in `code/sieve.py`; run `mypy` over the `code/` package with zero errors. Write `tests/unit/test_phi_correctness.py` that compares `compute_phi_linear_sieve` outputs for `n ≤ 100` against known tables.  
   *Verification*: `tests/unit/test_sieve_mypy.py` invokes `mypy` and asserts exit code 0; `tests/unit/test_phi_correctness.py` asserts exact matches for all reference values.
 
 ---  
@@ -39,10 +39,10 @@
     - Otherwise compute the asymptotic χ² p‑value; if `method="monte_carlo"`, draw `M` multinomial samples with uniform probabilities and estimate the p‑value.  
   *Verification*: `tests/unit/test_stats.py` contains three sub‑tests: (a) uniform synthetic dataset → `p > 0.05`; (b) biased synthetic dataset → `p < 0.05`; (c) small‑N case with an expected count < 5 → exact test returns a valid p‑value and `test_type` = `"exact_multinomial"`.
 
-- [ ] T007 Pass/Fail flag generation and unit test – add `code/flags.py` that reads a `StatisticalResult` JSON file and writes `results/reports/flag_{prime}_{N}.json` containing a boolean `alpha_pass` (`p > 0.05`) and `overall_pass` (matching `alpha_pass`). Implement `tests/unit/test_flags.py` that feeds the module high‑p and low‑p results and asserts the generated JSON flag file reflects the correct booleans.  
+- [X] T007 Pass/Fail flag generation and unit test – add `code/flags.py` that reads a `StatisticalResult` JSON file and writes `results/reports/flag_{prime}_{N}.json` containing a boolean `alpha_pass` (`p > 0.05`) and `overall_pass` (matching `alpha_pass`). Implement `tests/unit/test_flags.py` that feeds the module high‑p and low‑p results and asserts the generated JSON flag file reflects the correct booleans.  
   *Verification*: Running the unit test must produce the flag files and verify their contents.
 
-- [ ] T008 Synthetic dataset integration test – create `tests/integration/test_synthetic_stats.py` that:  
+- [~] T008 Synthetic dataset integration test – create `tests/integration/test_synthetic_stats.py` that:  
   1. Generates synthetic uniform and deliberately biased residue datasets for each supported prime.  
   2. Executes the full statistical pipeline (`stats.run_chi_squared_test` → `flags.generate_pass_fail`).  
   3. Asserts `alpha_pass` is `True` for uniform data and `False` for biased data.  

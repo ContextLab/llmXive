@@ -13,23 +13,48 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *biased* residue frequen…”
 - code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…tatistical analysis on a synthetic dataset and generate     the cor…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/run_analysis.py --primes 3,5,7,11 --n 5000000`
+  - script usage: `run_analysis.py [-h] [--N N] [--primes PRIMES [PRIMES ...]]`
+  - argparse error: `run_analysis.py: error: argument --primes: invalid int value: '3,5,7,11'`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…ides helper functions to generate synthetic uniform and biased resid…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *uniform* residue freque…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *biased* residue frequen…”; 3 command(s) failed: python code/run_analysis.py --primes 3,5,7,11 --n 5000000 (rc=1); python -m pytest tests/unit/ (rc=2); python -m pytest tests/integration/ (rc=2)
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…ides helper functions to generate synthetic uniform and biased resid…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *uniform* residue freque…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *biased* residue frequen…”; 3 command(s) failed: python code/run_analysis.py --primes 3,5,7,11 --n 5000000 (rc=2); python -m pytest tests/unit/ (rc=1); python -m pytest tests/integration/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/run_analysis.py --primes 3,5,7,11 --n 5000000 -> rc=1
+- python code/run_analysis.py --primes 3,5,7,11 --n 5000000 -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/code/run_analysis.py", line 30, in <module>
-    from stats import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/code/stats.py", line 32, in <module>
-    from scipy.stats import chi2, chisquare, multinomial_test
-ImportError: cannot import name 'multinomial_test' from 'scipy.stats' (/home/runner/.cache/llmxive/base-env/py311-6f1866971868/scipy/stats/__init__.py)
+usage: run_analysis.py [-h] [--N N] [--primes PRIMES [PRIMES ...]]
+                       [--memory_limit_mb MEMORY_LIMIT_MB] [--seed SEED]
+                       [--memory_check_interval MEMORY_CHECK_INTERVAL]
+run_analysis.py: error: argument --primes: invalid int value: '3,5,7,11'
 
-- python -m pytest tests/unit/ -> rc=2
-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+- python -m pytest tests/unit/ -> rc=1
+sts/unit/test_stats_fallback.py::test_chi2_fallback_execution - Asse...
+FAILED tests/unit/test_stats_fallback.py::test_chi2_exact_execution - Asserti...
+FAILED tests/unit/test_stats_method.py::test_full_statistical_result_includes_method
+FAILED tests/unit/test_stats_save.py::test_save_statistical_result - TypeErro...
+FAILED tests/unit/test_stats_save.py::test_load_statistical_result - TypeErro...
+FAILED tests/unit/test_stats_save.py::test_run_sieve_analysis_integration - F...
+FAILED tests/unit/test_stats_t022.py::TestT022PrimaryPassFail::test_integration_with_statistical_result
+FAILED tests/unit/test_stats_t022.py::TestT022PrimaryPassFail::test_integration_with_biased_distribution
+FAILED tests/unit/test_stats_t022.py::TestT022bBonferroniCorrection::test_bonferroni_stricter_threshold
+FAILED tests/unit/test_stats_t022.py::TestT022EdgeCases::test_custom_alpha - ...
+FAILED tests/unit/test_visualize.py::test_plot_residual_qq_creates_file - Att...
+FAILED tests/unit/test_visualize.py::test_plot_residual_qq_empty_residuals - ...
+FAILED tests/unit/test_visualize.py::test_plot_residual_qq_single_value - Att...
+================= 32 failed, 159 passed, 13 warnings in 7.53s ==================
+
+
+- python -m pytest tests/integration/ -> rc=2
+lmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
   /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
     parser.resetCache()
@@ -40,32 +65,8 @@ ImportError: cannot import name 'multinomial_test' from 'scipy.stats' (/home/run
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR tests/unit/test_run_analysis.py
-ERROR tests/unit/test_stats.py
-ERROR tests/unit/test_stats_bootstrap.py
-ERROR tests/unit/test_stats_fallback.py
-ERROR tests/unit/test_stats_method.py
-ERROR tests/unit/test_stats_save.py
-ERROR tests/unit/test_stats_t022.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 7 errors in 1.71s ========================
-
-
-- python -m pytest tests/integration/ -> rc=2
-rror while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/tests/integration/test_t020_integration.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/integration/test_t020_integration.py:11: in <module>
-    from stats import run_block_bootstrap_deviation_test, run_full_statistical_analysis, save_statistical_result, StatisticalResult
-code/stats.py:32: in <module>
-    from scipy.stats import chi2, chisquare, multinomial_test
-E   ImportError: cannot import name 'multinomial_test' from 'scipy.stats' (/home/runner/.cache/llmxive/base-env/py311-6f1866971868/scipy/stats/__init__.py)
-=========================== short test summary info ============================
-ERROR tests/integration/test_quickstart_validation.py
-ERROR tests/integration/test_t020_integration.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.71s ===============================
+ERROR tests/integration/test_synthetic_stats.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+======================== 13 warnings, 1 error in 0.96s =========================
 
 

@@ -74,12 +74,8 @@ def test_generate_flag_low_p_value(tmp_path):
 
     assert flags["alpha_pass"] is False
     # Bonferroni threshold is 0.05 / 4 = 0.0125, so low_p > threshold
-    # leads to bonferroni_pass == False because alpha_pass is False.
-    # The implementation defines bonferroni_pass purely on the p‑value,
-    # so it should be False as low_p < 0.0125? Actually low_p=0.03 > 0.0125,
-    # bonferroni_pass = p_val > 0.0125 => True, but overall_pass requires both.
-    # The spec expects both booleans to be evaluated independently.
-    # We therefore assert the exact behaviour of the current implementation.
+    # leads to bonferroni_pass == True because the implementation
+    # defines bonferroni_pass purely on the p‑value.
     assert flags["bonferroni_pass"] is True
     assert flags["overall_pass"] is False
 

@@ -1,20 +1,24 @@
 T001:
-  c: true
-  h: 5fa05ed8d7928230180c9a7e81de70b497e5d2fe72a754f7d9040ff906f00c0a
-  r: Checked `code/config.py` (loads YAML, validates primes, raises `InvalidPrimeError`)
-    and `code/exceptions.py` (defines required exceptions with correct messages);
-    the unit tests `tests/unit/test_config.py` and `tests/unit/test_exceptions.py`
-    exercise these artifacts and should pass.
-  sig: c13e27e189dc0ffe73756073eaaa12fcbe7fb6077f2a22fed23ed40eadc48082
+  c: false
+  h: 8b755406486971c7ffb47f9622e8166ca03fe4f159d8d479313d59d5d503b9eb
+  r: "Checked `code/config.py`, `code/config.yaml`, and `tests/unit/test_config.py`.\
+    \ The loader correctly validates primes and returns the required keys, but the\
+    \ unit test expects `seed`\u202F=\u202F12345 while the YAML file provides `seed`\u202F\
+    =\u202F999 (and the default is 42), so the test will fail. The seed value must\
+    \ match the test\u2019s expectation for the task to be complete."
+  sig: 44202c9a163c0f3fb255fe00df83257daf8ae5e56cda0e4fbc6aa3ef474108e5
 T002:
   c: false
-  h: 80d90d5a99cb9ce3bc20462914e56c33025519bc7a773f153095331537709eae
-  r: "The `code/seed.py` and `code/memory_guard.py` files exist, but the required\
-    \ test `tests/unit/test_seed_consistency.py` is missing, and no `data/raw/residues_*.json`\
-    \ files are present, so the deterministic seeding verification cannot be performed.\
-    \ The memory\u2011guard implementation itself looks correct, but the overall task\
-    \ is incomplete without the seed\u2011consistency test and generated data."
-  sig: 637b6d1cd2b61a7806d8430ba7fd50223f323e045a23fce7242f828087198166
+  h: a48e5dfc5d7937bb1300e38fb38af1bdcfe9189c33df8d2514f7a47f45e4c61a
+  r: "The `code/seed.py` and `code/memory_guard.py` files exist and implement the\
+    \ required functionality, and the memory\u2011guard unit tests would pass. However,\
+    \ `tests/unit/test_seed_consistency.py` cannot be collected because `run_analysis`\
+    \ imports `stats`, which tries to import `multinomial_test` from `scipy.stats`\
+    \ (not available), causing an ImportError. Consequently the pipeline never runs\
+    \ and the expected residue JSON files are not generated. Fix the import error\
+    \ (or adjust `stats.py`) and ensure the pipeline creates the `data/raw/residues_*.json`\
+    \ files for the test configuration."
+  sig: 4fe23561163923a4211a8d7345f33edd18300f7789a94186146ce6fb775fb5f7
 T003:
   c: true
   h: 22a53004885339fd73aa98d050a98ce097052421f9837be79fa52857e37d818b
@@ -24,34 +28,40 @@ T003:
     for the task.
   sig: 4ee949274517fc0b4f2feb6def0a8568145443fb00ee76eef7d6b247e1698ea1
 T004:
-  c: false
-  h: 33dabe70d4af305d9dc845fd7df6a4a296bfa20627fa69146b8f2028a03f11f3
-  r: "The `code/sieve.py` file provides correct \u03C6 values, residue aggregation,\
-    \ and uses `MemoryGuard` as required, and the unit tests pass. However, it does\
-    \ **not** implement the required overflow/logic\u2011error detection that halts\
-    \ execution and logs the offending `n`; no such logging occurs in `compute_phi_linear_sieve`.\
-    \ This missing behavior means the task\u2019s specification is not fully satisfied."
-  sig: cc77205b5b23193628feb58c989fa97b6027b16a99586ecf68a8b6dc93bd470b
-T005:
   c: true
-  h: 4e76a07612190f8508ef3f067a1d58f318d7748488a7d9f174d524cce41da221
-  r: "Checked `code/sieve.py` for docstrings and type hints on all public callables,\
-    \ and verified the presence and content of `tests/unit/test_phi_correctness.py`\
-    \ and `tests/unit/test_sieve_mypy.py`, which run the \u03C6\u2011value correctness\
-    \ test up to\u202F100 and invoke `mypy` on the `code/` package with a zero\u2011\
-    exit\u2011code assertion. Both test files exist, are non\u2011empty, and the implementation\
-    \ of `compute_phi_linear_sieve` matches the reference table, satisfying the task\
-    \ requirements."
-  sig: b3cecb9bf9b1f934d2b654a639636e5bce057c91c2186a7bad54d38e36022848
+  h: 154a4c8931b8c400d51a973a26e73103b3207dfe9eb4ed12c36312f0d5f73ad0
+  r: "Checked `code/sieve.py` for the two required functions, proper MemoryGuard usage,\
+    \ error logging, and verified that `tests/unit/test_sieve.py` exercises exact\
+    \ \u03C6 values, residue counts for primes 3,5,7,11, and memory\u2011limit exception\
+    \ handling\u2014all present and correctly implemented."
+  sig: 31aff10ec62ba2af7f793e750d4d5dcccdca7096701a3a9e408be24fcfcc1ac2
+T005:
+  c: false
+  h: 78809bc4142f36603fbc1333367f0479f9afd73d0f527f2082562c7e67d9bc1e
+  r: "The `code/sieve.py` file does contain docstrings and full type hints, and the\
+    \ required test files are present. However, there is no evidence that `mypy code`\
+    \ actually runs without errors across the entire `code/` package, and the contents\
+    \ of the many other modules in `code/` (e.g., `benchmark.py`, `stats.py`, etc.)\
+    \ are not shown; they likely lack the required type annotations. Without proof\
+    \ of a zero\u2011error mypy run, the task\u2019s full requirement is not satisfied."
+  sig: 7c383c327507bcf00af29a48187c591d4ae254aa44f1aafa76de3c5523771cf0
 T006:
   c: false
-  h: 22c8ca0c155c6d19c7bde4d3744c0059316113c5d83e4c65414cffd870c5e7b2
-  r: "The provided `code/stats.py` does not implement the required `calculate_chi_squared_statistic(dataset:\
-    \ ResidueDataset) -> float` (it uses a three\u2011argument version returning a\
-    \ tuple) and its `run_chi_squared_test` never sets `test_type` to `\"exact_multinomial\"\
-    ` nor respects a `method=\"monte_carlo\"` argument as the specification demands.\
-    \ Moreover, the `tests/unit/test_stats.py` file lacks the three sub\u2011tests\
-    \ described in the task (uniform, biased, and small\u2011N exact\u2011test cases).\
-    \ These mismatches mean the task\u2019s functional and verification requirements\
-    \ are not met."
-  sig: 2830fed75be1bd89ce3e24554ca07abe8b2838329e642d05eb53a7e94b7dd0b3
+  h: d881435a4b89ffcc6946c7d7e749d30dcc095ff754f3792d58b0da526dd460fa
+  r: "The repository contains a `code/stats.py` with a flexible `calculate_chi_squared_statistic`\
+    \ and a `run_chi_squared_test` that returns a dict matching the required schema,\
+    \ but the implementation always uses Monte\u2011Carlo estimation and never returns\
+    \ the asymptotic \u03C7\xB2 p\u2011value as the specification demands. Moreover,\
+    \ the supplied `tests/unit/test_stats.py` does not include the three chi\u2011\
+    squared sub\u2011tests described in the task (uniform, biased, and small\u2011\
+    N exact cases), so there is no evidence that the required behavior is verified.\
+    \ The missing asymptotic path and absent verification tests mean the t"
+  sig: df16478e220fdb6dc5b1eadf8a924212554fc230469addce00e2e1c4b24e0a41
+T007:
+  c: true
+  h: 1313ad26ba0cb1a193a9d8ba68bddeaf11339a8ad9296af8056c8322ec0e7c8b
+  r: Checked `code/flags.py` for correct flag generation logic and required fields,
+    `tests/unit/test_flags.py` for proper unit tests, and the produced `results/reports/flag_3_100.json`
+    and `flag_5_200.json` files which contain the expected boolean values and were
+    verified by the passing pytest run.
+  sig: 357e44b1cc3a11e9bc99ec5d6e4b2258cc4a66167cae4fce245bb3d90fd93207

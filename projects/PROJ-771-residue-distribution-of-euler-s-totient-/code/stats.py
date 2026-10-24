@@ -29,10 +29,16 @@ from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-from scipy.stats import chi2, chisquare, multinomial_test
 
-# SciPy versions prior to 1.9 may not provide multinomial_test.
-# We fall back to a chi‑square approximation for the “exact” path.
+# ----------------------------------------------------------------------
+# SciPy imports – handle optional availability of multinomial_test
+# ----------------------------------------------------------------------
+try:
+    from scipy.stats import chi2, chisquare
+except Exception as exc:  # pragma: no cover
+    raise ImportError("Required SciPy statistical functions are unavailable") from exc
+
+# multinomial_test is optional in older SciPy versions
 try:
     from scipy.stats import multinomial_test  # type: ignore
     _has_multinomial_test = True
@@ -52,28 +58,13 @@ def _pin_random_seed(seed: int) -> None:
     np.random.seed(seed)
 
 # ----------------------------------------------------------------------
-# Core statistical calculations
+# Core chi‑squared calculation (internal)
 # ----------------------------------------------------------------------
-def calculate_chi_squared_statistic(
+def _calc_chi_sq(
     residue_counts: Dict[int, int], prime: int, N: int
 ) -> Tuple[float, float]:
     """
-    Compute the chi‑squared statistic and its asymptotic p‑value.
-
-    Parameters
-    ----------
-    residue_counts : dict[int, int]
-        Observed frequencies for each residue class.
-    prime : int
-        Modulus (must be one of the supported small primes).
-    N : int
-        Total number of observations (sum of all counts).
-
-    Returns
-    -------
-    tuple[float, float]
-        (chi_sq, p_value) where ``p_value`` is based on the chi‑squared
-        distribution with ``prime‑1`` degrees of freedom.
+    Internal helper that returns (chi_sq, asymptotic_p_value).
     """
     expected = N / prime
     chi_sq = sum(
@@ -83,37 +74,78 @@ def calculate_chi_squared_statistic(
     p_val = 1.0 - chi2.cdf(chi_sq, df=prime - 1)
     return chi_sq, p_val
 
+# ----------------------------------------------------------------------
+# Public API – flexible calculate_chi_squared_statistic
+# ----------------------------------------------------------------------
+def calculate_chi_squared_statistic(*args, **kwargs) -> Any:
+    """
+    Compute the chi‑squared statistic.
+
+    This function supports two calling conventions:
+
+    1. ``calculate_chi_squared_statistic(residue_counts, prime, N)`` → returns
+       ``(chi_sq, p_value)`` (the historic API used throughout the codebase).
+
+    2. ``calculate_chi_squared_statistic(dataset)`` → returns the **chi‑squared
+       statistic only** as a ``float``.  The ``dataset`` may follow either the
+       legacy schema (keys ``counts``, ``prime``, ``N``) or the newer schema
+       (keys ``frequency_map``, ``prime_modulus``, ``total_count``).
+
+    Parameters
+    ----------
+    args :
+        Either ``(residue_counts, prime, N)`` or a single ``dataset`` dict.
+    kwargs :
+        Unused; present for forward compatibility.
+
+    Returns
+    -------
+    tuple[float, float] | float
+        - With three positional arguments: ``(chi_sq, p_value)``.
+        - With a single dataset argument: ``chi_sq`` (float).
+    """
+    # Dataset‑first mode
+    if len(args) == 1 and isinstance(args[0], dict):
+        dataset = args[0]
+        if "frequency_map" in dataset:
+            freq_map = dataset["frequency_map"]
+            prime = int(dataset["prime_modulus"])
+            N = int(dataset["total_count"])
+        elif "counts" in dataset:
+            freq_map = dataset["counts"]
+            prime = int(dataset["prime"])
+            N = int(dataset["N"])
+        else:
+            raise ValueError("Dataset missing required frequency map")
+        residue_counts = {int(k): int(v) for k, v in freq_map.items()}
+        chi_sq, _ = _calc_chi_sq(residue_counts, prime, N)
+        return chi_sq
+
+    # Legacy three‑argument mode
+    if len(args) != 3:
+        raise TypeError(
+            "calculate_chi_squared_statistic expects either a single "
+            "dataset dict or three arguments (residue_counts, prime, N)."
+        )
+    residue_counts, prime, N = args
+    return _calc_chi_sq(residue_counts, prime, N)
+
+# ----------------------------------------------------------------------
+# Compatibility wrapper used by older code paths
+# ----------------------------------------------------------------------
 def calculate_chi_squared_statistic_dataset(
     dataset: Dict[str, Any]
 ) -> float:
     """
     Compute the chi‑squared statistic for a ``ResidueDataset``.
-
-    The dataset may follow either the legacy schema
-    (keys ``counts``, ``prime``, ``N``) or the newer schema
-    (keys ``frequency_map``, ``prime_modulus``, ``total_count``).
-
-    Returns
-    -------
-    float
-        The chi‑squared statistic (without the p‑value).
+    Returns only the statistic (no p‑value), matching legacy expectations.
     """
-    # Extract the frequency map and meta‑information.
-    if "frequency_map" in dataset:
-        freq_map = dataset["frequency_map"]
-        prime = int(dataset["prime_modulus"])
-        N = int(dataset["total_count"])
-    elif "counts" in dataset:
-        freq_map = dataset["counts"]
-        prime = int(dataset["prime"])
-        N = int(dataset["N"])
-    else:
-        raise ValueError("Dataset missing required frequency map")
+    # Re‑use the flexible public function
+    return float(calculate_chi_squared_statistic(dataset))
 
-    residue_counts = {int(k): int(v) for k, v in freq_map.items()}
-    chi_sq, _ = calculate_chi_squared_statistic(residue_counts, prime, N)
-    return chi_sq
-
+# ----------------------------------------------------------------------
+# Bin‑count fallback logic
+# ----------------------------------------------------------------------
 def check_bin_counts_and_fallback(
     residue_counts: Dict[int, int], prime: int, N: int
 ) -> Tuple[bool, str]:
@@ -134,6 +166,9 @@ def check_bin_counts_and_fallback(
     else:
         return False, "exact"
 
+# ----------------------------------------------------------------------
+# Exact multinomial test (fallback when expected counts are low)
+# ----------------------------------------------------------------------
 def exact_multinomial_test(residue_counts: Dict[int, int], prime: int) -> float:
     """
     Perform an “exact” goodness‑of‑fit test.
@@ -153,6 +188,9 @@ def exact_multinomial_test(residue_counts: Dict[int, int], prime: int) -> float:
     chi_sq, p_val = chisquare(f_obs=counts, f_exp=[N / prime for _ in range(prime)])
     return float(p_val)
 
+# ----------------------------------------------------------------------
+# Main chi‑squared test entry point
+# ----------------------------------------------------------------------
 def run_chi_squared_test(
     observed_counts_or_dataset: Any,
     prime: Optional[int] = None,
@@ -190,7 +228,7 @@ def run_chi_squared_test(
     -------
     tuple[float, str] | dict
         Legacy mode: ``(p_value, method)``.
-        Dataset mode: dictionary with keys ``test_type``, ``test_statistic``,
+        Dataset mode: dictionary with fields ``test_type``, ``test_statistic``,
         ``p_value``, ``degrees_of_freedom``, ``method``, ``expected_counts``,
         ``observed_counts``, ``uniformity_hypothesis`` and ``metadata``.
     """
@@ -213,12 +251,14 @@ def run_chi_squared_test(
         N = int(N_val)
         # Use a larger default for Monte‑Carlo as per the spec.
         M = max(M, 10_000)
+        dataset_mode = True
     else:
         # Legacy counts‑first API
         if prime is None:
             raise ValueError("Prime must be supplied for legacy call")
         observed_counts = observed_counts_or_dataset
         N = sum(observed_counts.values())
+        dataset_mode = False
 
     # ------------------------------------------------------------------
     # Core chi‑squared computation (shared between both modes)
@@ -226,7 +266,7 @@ def run_chi_squared_test(
     if seed is not None:
         _pin_random_seed(seed)
 
-    chi_sq, asymp_p = calculate_chi_squared_statistic(observed_counts, int(prime), N)
+    chi_sq, asymp_p = _calc_chi_sq(observed_counts, int(prime), N)
 
     fallback, _ = check_bin_counts_and_fallback(observed_counts, int(prime), N)
 
@@ -245,24 +285,26 @@ def run_chi_squared_test(
     # ------------------------------------------------------------------
     # Return format selection
     # ------------------------------------------------------------------
-    if isinstance(observed_counts_or_dataset, dict) and (
-        "frequency_map" in observed_counts_or_dataset
-        or "counts" in observed_counts_or_dataset
-    ):
+    if dataset_mode:
         # Dataset‑first: build the full result dict
         expected_counts = [N / int(prime) for _ in range(int(prime))]
         observed_counts_list = [observed_counts.get(i, 0) for i in range(int(prime))]
         uniformity = p_val > 0.05
         metadata = {
-            "timestamp": datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
+            "timestamp": datetime.datetime.utcnow()
+            .replace(microsecond=0)
+            .isoformat()
+            + "Z",
             "python_version": sys.version.split()[0],
             "n_processed": N,
             "peak_memory_mb": None,
             "wall_time_sec": None,
             "limit_reached": False,
         }
+        # Choose appropriate test_type
+        test_type = "exact_multinomial" if fallback else "chi_squared"
         return {
-            "test_type": "chi_squared",
+            "test_type": test_type,
             "test_statistic": chi_sq,
             "p_value": p_val,
             "degrees_of_freedom": int(prime) - 1,
@@ -549,7 +591,7 @@ def run_full_statistical_analysis(
     chi_p, chi_method = run_chi_squared_test(
         observed_counts, prime, M=chi2_mc_samples, seed=seed
     )
-    chi_sq, _ = calculate_chi_squared_statistic(observed_counts, prime, N)
+    chi_sq, _ = _calc_chi_sq(observed_counts, prime, N)
 
     # ------------------------------------------------------------------
     # Assemble result
