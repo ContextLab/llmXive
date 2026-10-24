@@ -11,7 +11,7 @@ This module implements the project‑wide checksum policy:
 * Individual scripts (e.g. ``code/data_extraction.py`` and
   ``code/gold_annotation.py``) may still call their own ``update_metadata``
   helper for immediate provenance; ``update_all_metadata`` simply ensures
-  that the final state of the ``data/`` tree is fully recorded.
+  that the final state of the ``data`` tree is fully recorded.
 """
 from __future__ import annotations
 

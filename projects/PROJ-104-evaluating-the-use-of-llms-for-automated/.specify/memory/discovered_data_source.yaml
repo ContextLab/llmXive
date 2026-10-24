@@ -1,5 +1,5 @@
 status: none
-intent: HuggingFace datasets GitHub commit documentation diff dataset python package
+intent: GitHub documentation change dataset commit messages diff download python package
   dataset
 required_fields:
 - commit_hash
@@ -8,8 +8,7 @@ required_fields:
 - repository_name
 - timestamp
 - file_path
-- author_name
-- author_email
-cache_key: ce10eef7ea5d59e0177a7485f2972ce0e3242b1ffa9efa5da9a7f7c00d714f5d
-searched_at: '2026-10-24T19:25:16.535512+00:00'
+- language
+cache_key: 49b349d16f501b47928ac9be183743c0e004f147758354c70e5dddb35a0b9f1d
+searched_at: '2026-10-24T19:29:00.187897+00:00'
 retry_count: 1

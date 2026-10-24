@@ -1,19 +1,31 @@
 T001:
   c: false
-  h: a91cbc0aabe2757ffea8509eb5c5fdbe8ad2c629ebc54332c4c036be2456dc1f
-  r: "The quick\u2011start guide and `run_pipeline.py` correctly implement the smoke\u2011\
-    test and produce `data/generated/phi3-mini/sample_test.txt`, but the required\
-    \ test suite (`tests/test_quickstart.py` or equivalent) is missing, so there is\
-    \ no evidence that the command runs under\u202F30\u202Fs or that the pytest verification\
-    \ passes. Adding the missing test file and execution timing evidence is needed."
-  sig: 320d4730e4b61aa5c522d59c7a983eea60bb2ad6161e50b56c97db5871e916d5
+  h: 3944248aa26620660e7ac0ed915ce13b1e254ce905063be564dca6a07f909131
+  r: "The quick\u2011start guide (`docs/quickstart.md`) is present and correct, but\
+    \ `code/run_pipeline.py` imports `code.data_extraction` at module load time, and\
+    \ `code/data_extraction.py` raises a `RuntimeError` if `GITHUB_TOKEN` is not set.\
+    \ This causes `python -m code.run_pipeline --sample 5` to exit with code\u202F\
+    1, so the smoke\u2011test does not run and the required output file is not produced.\
+    \ Additionally, the expected test file `tests/test_quickstart.py` is missing (the\
+    \ repository only contains `tests/quickstart_test.py`). Both issues must be fixed\
+    \ for the task to be considered complete."
+  sig: c4817b5ea725855dffbb33e3841dc6b0d7cf83cf0eda03a1cce042a96601fc93
 T002:
+  c: true
+  h: 48e284426ad8acbd74cb04d5437090d15fa66f6bb8ff2603e4bca901f596f900
+  r: "Checked `code/power_analysis.py` and the generated `results/power_report.md`;\
+    \ the script runs a Monte\u2011Carlo simulation seeded with `code/seeds.py`, writes\
+    \ a markdown report containing a numeric power estimate (1.0000) and the correct\
+    \ `exploratory` flag (`false`), satisfying the task\u2019s specifications."
+  sig: 5632c782a8d042f3146c7e0b4bcc53412604f91fd0036a1ee3e898a4bf5b21ba
+T013:
   c: false
-  h: 32b214cebf0792000f8db5eb0edbf8307870955427c346f4cdaf5d8fc602e8de
-  r: "The `code/power_analysis.py` script exists and writes a markdown report, but\
-    \ it only simulates a single medium effect using Cohen\u2019s\u202Fd\u202F=\u202F\
-    0.5 (not the required Cohen\u2019s\u202Ff\u202F=\u202F0.25) and does not vary\
-    \ effect sizes as the task specifies. Consequently the core requirement of \u201C\
-    simulate paired precision scores \u2026 under varying effect sizes\u201D is not\
-    \ fulfilled."
-  sig: f2f77a1aaf631746c08000eb9c1a96f3d2fa402811d54656a293ec54d6850324
+  h: 384ed273b9fcc1047223ed30f252cfb5a11566b7cfc5fab7866c403345920540
+  r: "Checked `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, and `tests/test_hygiene_and_seeds.py`.\
+    \ The test suite only verifies that a checksum file is created and that `SEED`\
+    \ equals 42; it does **not** confirm that raw files keep the same checksum across\
+    \ runs, that every stochastic script imports `SEED`, or that re\u2011running T002\
+    \ yields identical power estimates as the task specification requires. Additional\
+    \ tests (or code) are needed to enforce raw\u2011file immutability and to verify\
+    \ seed import and reproducibility."
+  sig: ef84fe5ae0f824069a1832b124a5a11c89e196ada3c9afe0089defed01b92711

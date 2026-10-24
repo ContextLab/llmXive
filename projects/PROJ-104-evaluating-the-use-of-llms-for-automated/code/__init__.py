@@ -1,1 +1,1 @@
-"""llmXive research pipeline package for PROJ-104."""
+"""Package marker for the `code` module."""

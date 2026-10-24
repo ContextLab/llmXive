@@ -13,7 +13,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
   - Implement `run_pipeline` to load a tiny hard‑coded commit pair (synthetic smoke‑test only) and invoke the generation module (CPU‑only) to produce a single output file under `data/generated/phi3-mini/sample_test.txt`.  
   - **Verification**: Running the command completes in < 30 s, creates the output file, and `pytest tests/test_quickstart.py` passes.
 
-- [ ] T002 [P] [US1] **Monte‑Carlo power analysis for the Friedman test** – `code/power_analysis.py`, `results/power_report.md`  
+- [X] T002 [P] [US1] **Monte‑Carlo power analysis for the Friedman test** – `code/power_analysis.py`, `results/power_report.md`  
   - Simulate paired precision scores for three models under varying effect sizes (seeded with `code/seeds.py`).  
   - Estimate power for n = 500 with a medium effect (Cohen’s f = 0.25).  
   - Write `results/power_report.md` containing the numeric power estimate and an `exploratory: true` flag if power < 0.8.  

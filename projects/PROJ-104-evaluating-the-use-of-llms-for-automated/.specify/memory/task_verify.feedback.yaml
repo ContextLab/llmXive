@@ -1,18 +1,14 @@
 T001:
-  reason: "The quick\u2011start guide and `run_pipeline.py` correctly implement the\
-    \ smoke\u2011test and produce `data/generated/phi3-mini/sample_test.txt`, but\
-    \ the required test suite (`tests/test_quickstart.py` or equivalent) is missing,\
-    \ so there is no evidence that the command runs under\u202F30\u202Fs or that the\
-    \ pytest verification passes. Adding the missing test file and execution timing\
-    \ evidence is needed."
+  reason: "The quick\u2011start guide (`docs/quickstart.md`) is present and correct,\
+    \ but `code/run_pipeline.py` imports `code.data_extraction` at module load time,\
+    \ and `code/data_extraction.py` raises a `RuntimeError` if `GITHUB_TOKEN` is not\
+    \ set. This causes `python -m code.run_pipeline --sample 5` to exit with code\u202F\
+    1, so the smoke\u2011test does not run and the required output file is not produced.\
+    \ Additionally, the expected test file `tests/test_quickstart.py` is missing (the\
+    \ repository only contains `tests/quickstart_test.py`). Both issues must be fixed\
+    \ for the task to be considered complete."
   task: 7f3f924cb1e80f425a7fe363f56fcd146eb6dd4bf05f339acb5c536bf9d85ee5
 T002:
-  reason: "The `code/power_analysis.py` script exists and writes a markdown report,\
-    \ but it only simulates a single medium effect using Cohen\u2019s\u202Fd\u202F\
-    =\u202F0.5 (not the required Cohen\u2019s\u202Ff\u202F=\u202F0.25) and does not\
-    \ vary effect sizes as the task specifies. Consequently the core requirement of\
-    \ \u201Csimulate paired precision scores \u2026 under varying effect sizes\u201D\
-    \ is not fulfilled."
   task: cecc03d00aa9eeed68fadbcd623d9e9808aa9b5726f7eb14bedaec2c2c5cf5bc
 T003:
   task: e45cd58dfb2deb37015d910c48f98763df52968b3578974b6c8c76f568a25193
@@ -35,4 +31,11 @@ T011:
 T012:
   task: 9b900171c3c3d6ede9e74b140eaba6329ad95f41e7687ca7322a352daa2a46f3
 T013:
+  reason: "Checked `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`,\
+    \ and `tests/test_hygiene_and_seeds.py`. The test suite only verifies that a checksum\
+    \ file is created and that `SEED` equals 42; it does **not** confirm that raw\
+    \ files keep the same checksum across runs, that every stochastic script imports\
+    \ `SEED`, or that re\u2011running T002 yields identical power estimates as the\
+    \ task specification requires. Additional tests (or code) are needed to enforce\
+    \ raw\u2011file immutability and to verify seed import and reproducibility."
   task: bf8e80e7fe8781f06e510ac045ae6f6d5214bfff3e6067021e4a481b89dd24a0

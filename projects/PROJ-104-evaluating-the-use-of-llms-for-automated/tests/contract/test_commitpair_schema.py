@@ -1,14 +1,11 @@
-"""Contract test for the commitpair CSV schema.
+"""Contract test for the commit‑pair CSV schema.
 
-The schema is defined in `specs/001-evaluating-the-use-of-llms-for-automated/contracts/commitpair.schema.yaml`.
-This test loads the CSV produced by `code/data_extraction.py` and
-validates each row against the schema using jsonschema.
+Validates that ``data/raw/commit_pairs.csv`` exists and conforms to the
+JSON‑Schema definition in ``specs/001-evaluating-the-use-of-llms-for-automated/contracts/commitpair.schema.yaml``.
 """
-
 from __future__ import annotations
 
 import csv
-import json
 import pathlib
 
 import jsonschema
@@ -32,7 +29,6 @@ def test_commitpair_csv_schema():
     with csv_path.open(newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for i, row in enumerate(reader, start=1):
-            # jsonschema expects proper JSON types; ensure fields are strings.
             instance = {
                 "commit_hash": row["commit_hash"],
                 "commit_message": row["commit_message"],
