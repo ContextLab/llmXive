@@ -1,12 +1,24 @@
 T001a:
   task: 3d42df1dcb230004dbb061f05e96bc8af50d146911e9da8a371a3594863f2262
 T001b:
+  reason: "The evidence shows a `.flake8` file exists in `code/`, but its contents\
+    \ are not provided, so we cannot verify that it contains the exact required settings\
+    \ (`max-line-length = 88` and `ignore = E203,W503`). The implementer must supply\
+    \ the file\u2019s content to confirm compliance."
   task: 53b83fdf6c347150d9d32071ec002a61c3fd6f9bcdca17291e783d0ab152b8f4
 T001c:
+  reason: "The evidence shows a top\u2011level `pyproject.toml` with the correct Black\
+    \ settings, and that a `pyproject.toml` file exists inside `code/`, but the content\
+    \ of `code/pyproject.toml` is not provided. Without confirming that the `code/pyproject.toml`\
+    \ contains the required `[tool.black]` section with `line-length = 88` and `target-version\
+    \ = ['py311']`, the task requirement is not satisfied. Provide the contents of\
+    \ `code/pyproject.toml` (or ensure it matches the specification)."
   task: adba7b53f0434d566425274e6026f726d61fecd403061e57241c4e1989c27bc8
 T002:
   task: b34ff65268cbbf53b422a5f58f607dea5b3fef466b67e8880dcfa223c71a6cb8
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/verify_dataset.py
+    exit=1'
   task: f7fd07db01da1049de03139358207824f8b11c80afe4e9568733c828dfc5506c
 T004:
   task: 6ff5643886e865e51d020130cffe42306fd12f5dc331aa1464c016c530e4f525

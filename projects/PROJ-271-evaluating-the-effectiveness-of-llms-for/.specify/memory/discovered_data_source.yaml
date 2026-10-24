@@ -1,11 +1,11 @@
 status: none
-intent: download python functions dataset for static analysis CodeSearchNet HuggingFace
+intent: download HuggingFace Python code dataset with functions for static analysis
   python package dataset
 required_fields:
 - function_code
 - loc
 - cyclomatic_complexity
 - pylint_error_codes
-cache_key: 453afb9dcc37feb2076b4e09f4629be880f36ce817dcb1e6434d7298c9003d8a
-searched_at: '2026-10-24T20:43:01.538077+00:00'
+cache_key: b0e9c01503a5bef31de4a22428a3c586d8b4b62bc91a2c291c3eb0c530c08851
+searched_at: '2026-10-24T20:45:33.845495+00:00'
 retry_count: 1

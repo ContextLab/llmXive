@@ -8,7 +8,7 @@
 
 *These tasks must be completed before any scientific work begins.*
 
-- [ ] T001a [P] Initialize project directory structure (`projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/contract/`).  
+- [X] T001a [P] Initialize project directory structure (`projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/contract/`).  
   *Verification*: After execution, each listed directory exists and is writable.  
 
 - [ ] T001b Create a `.flake8` configuration file in `code/` with the exact required settings:  
@@ -31,13 +31,13 @@
 
   *Verification*: The file exists and includes the `[tool.black]` section with the exact `line-length` value.  
 
-- [ ] T002 Add `requirements.txt` containing `datasets pandas radon pylint sentence-transformers llama-cpp-python scikit-learn statsmodels numpy psutil`.  
+- [X] T002 Add `requirements.txt` containing `datasets pandas radon pylint sentence-transformers llama-cpp-python scikit-learn statsmodels numpy psutil`.  
 
   *Verification*: The file exists and each dependency appears on its own line matching the list above.  
 
 ## Phase 2 – Core Foundations (must be complete before any user‑story work)  
 
-- [ ] T003 [P] Verify the HuggingFace dataset URL for `codeparrot/github-code` is reachable, download a small test shard, compute its checksum, and record it in `data/checksums.txt`. Abort if verification fails.  
+- [ ] T003 [P] Verify the HuggingFace dataset URL for `codeparrot/github-code` is reachable, download a small test shard, compute its checksum, and record it in `data/checksums.txt`. Abort if verification fails.   <!-- FAILED-IN-EXECUTION: code/verify_dataset.py exit=1 -->
   *Verification*: Log entry confirms successful URL check, checksum matches, and `data/checksums.txt` is written.  
 
 - [ ] T004 [P] Create `code/config.py` defining paths (`data/`, `results/`), random seed (`42`), and batch‑size constants (`LLM_BATCH_SIZE = 10`).  

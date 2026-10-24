@@ -28,22 +28,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_pipeline.py --sample-size 800 --seed 42 -> rc=1
-n occurred:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 319, in <module>
+aceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 325, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 304, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 310, in main
     df = run_pipeline(
          ^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 242, in run_pipeline
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 248, in run_pipeline
     sampled_functions = load_sampled_functions_stratified(
                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 173, in load_sampled_functions_stratified
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 179, in load_sampled_functions_stratified
     verify_dataset_source(dataset_id)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 44, in verify_dataset_source
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/data_pipeline.py", line 50, in verify_dataset_source
     raise ConnectionError(error_msg)
-ConnectionError: Dataset codeparrot/github-code is unreachable: Dataset scripts are no longer supported, but found github-code.py
+ConnectionError: Dataset code-search-net/python is unreachable: Dataset 'code-search-net/python' doesn't exist on the Hub or cannot be accessed.
 
 - python code/statistical_analysis.py -> rc=1
 -271-evaluating-the-effectiveness-of-llms-for/data/static_baseline.csv
@@ -61,21 +59,23 @@ Traceback (most recent call last):
 FileNotFoundError: Static baseline file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/static_baseline.csv
 
 - python -m pytest tests/ -> rc=2
-test_statistical_analysis.py ___________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit/test_statistical_analysis.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
+(name[level:], package, level)
 tests/unit/test_statistical_analysis.py:9: in <module>
     from code.statistical_analysis import (
 E   ImportError: cannot import name 'generate_sensitivity_report' from 'code.statistical_analysis' (/home/runner/work/llmXive/llmXive/projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/statistical_analysis.py)
+______________ ERROR collecting tests/unit/test_verify_dataset.py ______________
+tests/unit/test_verify_dataset.py:13: in <module>
+    from code.verify_dataset import (
+code/verify_dataset.py:30: in <module>
+    TEST_SHARD_FILE = get_data_path("raw", "test_shard.jsonl")
+E   TypeError: get_data_path() takes 1 positional argument but 2 were given
 =========================== short test summary info ============================
 ERROR tests/unit/test_config.py
 ERROR tests/unit/test_data_pipeline_stratified.py
 ERROR tests/unit/test_quickstart_validation.py
 ERROR tests/unit/test_statistical_analysis.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 4.58s ===============================
+ERROR tests/unit/test_verify_dataset.py - TypeError: get_data_path() takes 1 ...
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 5 errors in 4.54s ===============================
 
 

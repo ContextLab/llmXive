@@ -1,0 +1,31 @@
+T001a:
+  c: true
+  h: 12353d96e4c000d93b12a305182bdc32632212354be37178e6e4fafc12790352
+  r: Checked `results/layout_verification.json` confirming all required directories
+    exist, and the unit test `test_project_initialization.py` passed, verifying they
+    are writable. The initialization script log also reports successful project initialization.
+  sig: cd3e004a2ffb32a38eb737583456883f891c566ed86035f30a1db7997f1414ba
+T001b:
+  c: false
+  h: 0d390441be81e5702f37e96b43a6d4117ca98530406546ee8653994a9e4aa4b7
+  r: "The evidence shows a `.flake8` file exists in `code/`, but its contents are\
+    \ not provided, so we cannot verify that it contains the exact required settings\
+    \ (`max-line-length = 88` and `ignore = E203,W503`). The implementer must supply\
+    \ the file\u2019s content to confirm compliance."
+  sig: 5c1d61223e634757d2561dc87c4b72055d3bfb607d636522fa46c257ff6b3b4f
+T001c:
+  c: false
+  h: 7407e806980ced6ab8fab26a1d0984cd0d1a0d8078a16d0ff322324c586d9719
+  r: "The evidence shows a top\u2011level `pyproject.toml` with the correct Black\
+    \ settings, and that a `pyproject.toml` file exists inside `code/`, but the content\
+    \ of `code/pyproject.toml` is not provided. Without confirming that the `code/pyproject.toml`\
+    \ contains the required `[tool.black]` section with `line-length = 88` and `target-version\
+    \ = ['py311']`, the task requirement is not satisfied. Provide the contents of\
+    \ `code/pyproject.toml` (or ensure it matches the specification)."
+  sig: 905b652be146d12750f0e14040c83d1831af339bdc00ec08e6abed4d0fd88f7d
+T002:
+  c: true
+  h: 0ef613298cd94675a75170f97860968cc5f5659885b1da1b151382cf31d45ce4
+  r: "Checked the `requirements.txt` file (105\u202Fbytes) at `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/requirements.txt`;\
+    \ it contains each of the required packages on its own line exactly as specified."
+  sig: 71c3fda983a7144a453c9daf801d7c155c95184c619827fe3a912b0fd2ac2cd1
