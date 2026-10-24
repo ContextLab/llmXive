@@ -4,30 +4,39 @@ type: "object"
 properties:
   response_id:
     type: "string"
-    description: "Unique identifier for the response"
+    description: "Unique UUID for each survey entry"
   participant_id:
     type: "string"
-    description: "Anonymized participant identifier"
+    description: "Identifier for the participant"
   variant_id:
     type: "string"
-    description: "Foreign key to the stimulus variant"
+    description: "Identifier for the stimulus variant"
+  salience_level:
+    type: "string"
+    enum: ["low", "medium", "high"]
+    description: "Salience level of the presented stimulus"
   blame_rating:
     type: "integer"
     minimum: 1
     maximum: 7
-    description: "Blame rating on a 1‑7 Likert scale"
+    description: "1‑7 Likert blame rating"
   timestamp:
     type: "string"
     format: "date-time"
-    description: "ISO 8601 timestamp of response"
+    description: "ISO‑8601 timestamp of the response"
+  order_index:
+    type: "integer"
+    description: "Presentation order index for this response (used to control order effects)"
   valid:
     type: "boolean"
-    description: "Whether the response passed data‑cleaning criteria"
+    description: "TRUE if the response passed cleaning; FALSE otherwise"
 required:
   - response_id
   - participant_id
   - variant_id
+  - salience_level
   - blame_rating
   - timestamp
+  - order_index
   - valid
 additionalProperties: false

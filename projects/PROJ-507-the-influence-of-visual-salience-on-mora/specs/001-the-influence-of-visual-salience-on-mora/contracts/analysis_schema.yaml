@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for statistical analysis outputs (CLMM) – Visual Salience Study"
+description: "Schema for statistical analysis outputs (CLMM) for the visual salience study."
 type: "object"
 properties:
   analysis_id:
@@ -12,5 +12,131 @@ properties:
       - "Cumulative_Link_Mixed_Model"
       - "Linear_Mixed_Effects_Model"
       - "Wilcoxon_Signed_Rank_Test"
-    description: "Type FR‑001 ​  …  ??"
-  **???**
+    description: "Statistical model employed"
+  fixed_effects:
+    type: "object"
+    description: "Dictionary of fixed‑effect coefficients (log‑odds)"
+    additionalProperties:
+      type: "number"
+  random_effects_variance:
+    type: "object"
+    description: "Dictionary of random‑effect variance components"
+    additionalProperties:
+      type: "number"
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p‑value for the main salience effect"
+  p_value_corrected:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni‑corrected p‑value"
+  effect_size:
+    type: "object"
+    description: "Odds ratio and 95 % confidence interval for the main effect"
+    properties:
+      odds_ratio:
+        type: "number"
+        description: "Odds ratio for the main effect"
+      ci_lower:
+        type: "number"
+        description: "Lower bound of the 95 % CI"
+      ci_upper:
+        type: "number"
+        description: "Upper bound of the 95 % CI"
+    required:
+      - odds_ratio
+      - ci_lower
+      - ci_upper
+  convergence_status:
+    type: "string"
+    enum:
+      - "converged"
+      - "warning"
+      - "failed"
+    description: "Convergence status of the model"
+  post_hoc_tests:
+    type: "array"
+    description: "Results of pairwise post‑hoc contrasts"
+    items:
+      type: "object"
+      properties:
+        comparison:
+          type: "string"
+          description: "Contrast description (e.g., low_vs_medium)"
+        odds_ratio:
+          type: "number"
+          description: "Odds ratio for the contrast"
+        p_value_uncorrected:
+          type: "number"
+          description: "Uncorrected p‑value"
+        p_value_bonferroni:
+          type: "number"
+          description: "Bonferroni‑adjusted p‑value"
+      required:
+        - comparison
+        - odds_ratio
+        - p_value_uncorrected
+        - p_value_bonferroni
+  exclusion_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Proportion of participants excluded"
+  sample_size:
+    type: "integer"
+    minimum: 1
+    description: "Number of valid responses"
+  order_covariate_included:
+    type: "boolean"
+    description: "True if order_index was included as a covariate"
+  power_analysis:
+    type: "object"
+    description: "Observed power and precision checks"
+    properties:
+      observed_power:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Observed statistical power"
+      power_flag:
+        type: "boolean"
+        description: "True if observed_power < 0.80"
+      precision_check:
+        type: "object"
+        description: "CI width vs. pre‑registered threshold"
+        properties:
+          ci_width:
+            type: "number"
+            description: "Width of the 95 % CI for the odds ratio"
+          threshold:
+            type: "number"
+            description: "Pre‑registered CI width threshold (0.30)"
+          flag:
+            type: "boolean"
+            description: "True if ci_width > threshold"
+        required:
+          - ci_width
+          - threshold
+          - flag
+    required:
+      - observed_power
+      - power_flag
+      - precision_check
+required:
+  - analysis_id
+  - model_type
+  - fixed_effects
+  - random_effects_variance
+  - p_value
+  - p_value_corrected
+  - effect_size
+  - convergence_status
+  - post_hoc_tests
+  - exclusion_rate
+  - sample_size
+  - order_covariate_included
+  - power_analysis
+additionalProperties: false

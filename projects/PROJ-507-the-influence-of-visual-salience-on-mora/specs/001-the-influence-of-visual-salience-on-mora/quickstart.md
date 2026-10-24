@@ -21,55 +21,58 @@ pip install -r code/requirements.txt
 ## End‑to‑End Run (CPU‑first)
 
 ```bash
-# 0. Pilot power analysis (determines required N)
+# Phase 0 – Pilot power analysis
 python code/00_pilot_power_analysis.py --config config/pilot.yaml
 
-# 1. Ingest and filter (Phase 1)
+# Phase 1 – Data preparation
 python code/01_ingest_and_filter.py \
     --max-scenarios 30 \
     --output data/processed/candidates_filtered.csv
 
-# 2. Simulated human coding (Phase 1)
-python code/04_human_coding.py \
+python code/02_prepare_human_coding_dir.py   # creates data/raw/human_coding/
+
+python code/03_process_human_coding.py \
     --input data/processed/candidates_filtered.csv \
     --output data/processed/scenarios.csv
 
-# 3. Generate salience variants (Phase 1)
-python code/03_manipulate_stimuli.py \
+python code/04_manipulate_stimuli.py \
     --input data/processed/scenarios.csv \
     --output data/processed/stimuli_manifest.csv
 
-# 4. Deploy pilot survey (Phase 2)
-python code/04_survey_deployment.py \
+# Phase 2 – Survey deployment (pilot with a limited number of participants)
+python code/05_survey_deployment.py \
     --mode pilot \
     --participants 10 \
     --output data/processed/responses_raw.csv
 
-# 5. Clean data (Phase 3)
-python code/05_data_cleaning.py \
+# Phase 3 – Data cleaning
+python code/06_data_cleaning.py \
     --input data/processed/responses_raw.csv \
     --output data/processed/responses_cleaned.csv
 
-# 6. Run analysis (Phase 4)
-python code/06_analysis_clmm.py \
+# Phase 4 – Statistical analysis
+python code/07_analysis_clmm.py \
     --input data/processed/responses_cleaned.csv \
     --output data/processed/analysis_results.json
 ```
 
-### GPU Off‑load (if needed)
-The scripts automatically check `torch.cuda.is_available()`. If a timeout occurs, the CI runner will re‑execute the same command on a free Kaggle GPU (no code changes required).
+### GPU Off‑load (if required)
+The scripts automatically check `torch.cuda.is_available()`. If a heavy model (CLIP/BERT) times out on CPU, the CI runner will re‑run the same command on a free Kaggle GPU (`device="cuda"`). No code changes are needed.
 
 ## Validation Checklist
-- **Stimulus Manifest**: `data/processed/stimuli_manifest.csv` must pass `contracts/stimulus.schema.yaml`.  
-- **Responses**: `data/processed/responses_cleaned.csv` must pass `contracts/response.schema.yaml`.  
-- **Analysis Output**: `data/processed/analysis_results.json` must pass `contracts/analysis_schema.yaml`.  
+| Artifact | Contract Schema | Validation Command |
+|----------|----------------|--------------------|
+| `data/processed/stimuli_manifest.csv` | `contracts/stimulus.schema.yaml` | `python -m jsonschema -i data/processed/stimuli_manifest.csv contracts/stimulus.schema.yaml` |
+| `data/processed/responses_cleaned.csv` | `contracts/response.schema.yaml` | `python -m jsonschema -i data/processed/responses_cleaned.csv contracts/response.schema.yaml` |
+| `data/processed/analysis_results.json` | `contracts/analysis_schema.yaml` | `python -m jsonschema -i data/processed/analysis_results.json contracts/analysis_schema.yaml` |
 
-If any validation fails, re‑run the corresponding step; detailed logs are written to `logs/` (created automatically by the scripts).
+If any validation fails, re‑run the corresponding phase; detailed logs are written to `logs/`.
 
 ## Troubleshooting
-- **Memory errors**: Reduce `--max-scenarios` or the number of participants.  
+- **MemoryError**: Reduce `--max-scenarios` or the number of participants.  
 - **CLIP/BERT timeout**: Add `--device cpu` to force CPU; the next CI run will automatically switch to Kaggle GPU.  
-- **Model convergence warnings**: Check `analysis_results.json` for `fallback_method`; the script will have already applied the robust ordinal‑regression fallback.  
+- **Model convergence warnings**: Check `analysis_results.json` for `fallback_method`; the script already applied the robust ordinal fallback.  
 
 ---
+
 

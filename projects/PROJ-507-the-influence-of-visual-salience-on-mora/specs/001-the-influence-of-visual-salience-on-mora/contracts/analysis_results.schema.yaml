@@ -71,6 +71,7 @@ properties:
   sample_size:
     type: "integer"
     minimum: 1
+    description: "Number of valid responses after cleaning"
   convergence_status:
     type: "string"
     enum:
@@ -79,9 +80,12 @@ properties:
       - "failed"
   power_analysis:
     type: "object"
+    description: "Observed power and precision checks"
     properties:
       observed_power:
         type: "number"
+        minimum: 0
+        maximum: 1
       power_flag:
         type: "boolean"
         description: "True if observed_power < 0.80."

@@ -1,49 +1,62 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for statistical analysis outputs (CLMM) - Visual Salience Study"
+description: "Schema for statistical analysis outputs (CLMM) for the visual salience study."
 type: "object"
 properties:
+  analysis_id:
+    type: "string"
+    description: "Unique identifier for the analysis run"
   model_type:
     type: "string"
     enum:
       - "Cumulative_Link_Mixed_Model"
       - "Linear_Mixed_Effects_Model"
       - "Wilcoxon_Signed_Rank_Test"
-    description: "Type of model used."
+    description: "Statistical model employed"
   fixed_effects:
     type: "object"
-    description: "Fixed effect coefficients."
+    description: "Dictionary of fixed‑effect coefficients (log‑odds)"
     additionalProperties:
       type: "number"
   random_effects_variance:
     type: "object"
-    description: "Random effect variances."
+    description: "Dictionary of random‑effect variance components"
     additionalProperties:
       type: "number"
   p_value:
     type: "number"
-    description: "Raw p-value for salience effect."
     minimum: 0
     maximum: 1
+    description: "Raw p‑value for the main salience effect"
   p_value_corrected:
     type: "number"
-    description: "Bonferroni-corrected p-value."
     minimum: 0
     maximum: 1
+    description: "Bonferroni‑corrected p‑value"
   effect_size:
     type: "object"
+    description: "Odds ratio and 95 % confidence interval for the main effect"
     properties:
       odds_ratio:
         type: "number"
-        description: "Odds ratio for the main effect."
-      ci_95_lower:
+        description: "Odds ratio for the main effect"
+      ci_lower:
         type: "number"
-      ci_95_upper:
-        "number"
+        description: "Lower bound of the 95 % CI"
+      ci_upper:
+        type: "number"
+        description: "Upper bound of the 95 % CI"
     required:
-      - "odds_ratio"
-      - "ci_95_lower"
-      - "ci_95_upper"
+      - odds_ratio
+      - ci_lower
+      - ci_upper
+  convergence_status:
+    type: "string"
+    enum:
+      - "converged"
+      - "warning"
+      - "failed"
+    description: "Convergence status of the model"
   post_hoc_tests:
     type: "array"
     items:
@@ -56,17 +69,59 @@ properties:
         p_value_uncorrected:
           type: "number"
         p_value_bonferroni:
-          "number"
+          type: "number"
       required:
-        - "comparison"
-        - "odds_ratio"
-        - "p_value_uncorrected"
-        - "p_value_bonferroni"
+        - comparison
+        - odds_ratio
+        - p_value_uncorrected
+        - p_value_bonferroni
   exclusion_rate:
     type: "number"
     minimum: 0
     maximum: 1
   sample_size:
-    type: "number"
-    minimum: 0
-  "..." ... 
+    type: "integer"
+    minimum: 1
+  order_covariate_included:
+    type: "boolean"
+  power_analysis:
+    type: "object"
+    properties:
+      observed_power:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      power_flag:
+        type: "boolean"
+      precision_check:
+        type: "object"
+        properties:
+          ci_width:
+            type: "number"
+          threshold:
+            type: "number"
+          flag:
+            type: "boolean"
+        required:
+          - ci_width
+          - threshold
+          - flag
+    required:
+      - observed_power
+      - power_flag
+      - precision_check
+required:
+  - analysis_id
+  - model_type
+  - fixed_effects
+  - random_effects_variance
+  - p_value
+  - p_value_corrected
+  - effect_size
+  - convergence_status
+  - post_hoc_tests
+  - exclusion_rate
+  - sample_size
+  - order_covariate_included
+  - power_analysis
+additionalProperties: false

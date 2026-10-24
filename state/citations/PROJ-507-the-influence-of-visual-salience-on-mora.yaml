@@ -9,18 +9,73 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/visual_genome/datasets
   verified_at: '2026-08-17T09:06:39.334463Z'
-- artifact_hash: ad60947caffe1af19e7ec3e0c9057a2c6d2de39b29c7a4cd4abfa74661faa48a
-  artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/research.md
+- artifact_hash: 193385234af5e679add1a0a225afc05294755310cd6b64cdc67e9d1cbe320cf2
+  artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/openimages
+  value: https://huggingface.co/datasets/visual_genome
   verification_status: mismatch
-  verified_against_url: https://huggingface.co/openimages/datasets
-  verified_at: '2026-10-15T19:49:46.058297Z'
-- artifact_hash: ad60947caffe1af19e7ec3e0c9057a2c6d2de39b29c7a4cd4abfa74661faa48a
+  verified_against_url: https://huggingface.co/visual_genome/datasets
+  verified_at: '2026-10-24T23:41:02.134890Z'
+- artifact_hash: 193385234af5e679add1a0a225afc05294755310cd6b64cdc67e9d1cbe320cf2
+  artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "openai/clip-vit-base-patch32 \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/openai/clip-vit-base-patch32
+  verification_status: pending
+  verified_against_url: https://huggingface.co/openai/clip-vit-base-patch32
+  verified_at: '2026-10-24T23:41:02.134890Z'
+- artifact_hash: 193385234af5e679add1a0a225afc05294755310cd6b64cdc67e9d1cbe320cf2
+  artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/plan.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "google-bert/bert-base-uncased \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/bert-base-uncased
+  verification_status: pending
+  verified_against_url: https://huggingface.co/google-bert/bert-base-uncased
+  verified_at: '2026-10-24T23:41:02.134890Z'
+- artifact_hash: 193385234af5e679add1a0a225afc05294755310cd6b64cdc67e9d1cbe320cf2
+  artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/plan.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: "yueluoshuangtian/clmm-benchmark \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/yueluoshuangtian/clmm-benchmark
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/yueluoshuangtian/clmm-benchmark
+  verified_at: '2026-10-24T23:41:02.134890Z'
+- artifact_hash: 193385234af5e679add1a0a225afc05294755310cd6b64cdc67e9d1cbe320cf2
+  artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/plan.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: dataset_info.json
+  kind: url
+  value: https://huggingface.co/datasets/yueluoshuangtian/clmm-benchmark/resolve/main/MathDataset/dataset_info.json
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/yueluoshuangtian/clmm-benchmark/631ac27ba4581cf38dc1669d81bf085959da76fb/MathDataset%2Fdataset_info.json?%2Fdatasets%2Fyueluoshuangtian%2Fclmm-benchmark%2Fresolve%2Fmain%2FMathDataset%2Fdataset_info.json=&etag=%22323984db1a63328273260576965670968b062d0e%22
+  verified_at: '2026-10-24T23:41:02.134890Z'
+- artifact_hash: d070a3db95b6ba693ce930848ad5e947856fb9f738a7c44c058a7287641fe66c
+  artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: github-dedup-000000000000.json.gz
+  kind: url
+  value: https://huggingface.co/datasets/CodedotAI/code_clippy_github/resolve/main/github-dedup-000000000000.json.gz
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f182239/a824831cf2bdab4be0edbc836e8222b951356f9d75063a4d90d0149837facfc5?X-Xet-Cas-Uid=public&xip=1qG64enFhX8&response-content-type=application%2Fgzip&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27github-dedup-000000000000.json.gz%3B+filename%3D%22github-dedup-000000000000.json.gz%22%3B&Expires=1792888879&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgyMjM5L2E4MjQ4MzFjZjJiZGFiNGJlMGVkYmM4MzZlODIyMmI5NTEzNTZmOWQ3NTA2M2E0ZDkwZDAxNDk4MzdmYWNmYzVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9MXFHNjRlbkZoWDgmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGZ3ppcCZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Z2l0aHViLWRlZHVwLTAwMDAwMDAwMDAwMC5qc29uLmd6JTNCK2ZpbGVuYW1lJTNEJTIyZ2l0aHViLWRlZHVwLTAwMDAwMDAwMDAwMC5qc29uLmd6JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI4ODg4Nzl9fX1dfQ__&Signature=MEQCIGOp9ZCBbZ-V7SKUxoPJuLFg9LoF5CSSeWOY4P%7EnM4UVAiBaNvvRVANm5zWwuFhUDMWX8GhauYx%7E9Cons9xFjkwVXA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-24T23:41:19.131589Z'
+- artifact_hash: d070a3db95b6ba693ce930848ad5e947856fb9f738a7c44c058a7287641fe66c
   artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/research.md
   cite_id: c-002
   cited_authors: []
@@ -30,8 +85,8 @@
   value: https://huggingface.co/openai/clip-vit-base-patch32
   verification_status: pending
   verified_against_url: https://huggingface.co/openai/clip-vit-base-patch32
-  verified_at: '2026-10-15T19:49:46.058297Z'
-- artifact_hash: ad60947caffe1af19e7ec3e0c9057a2c6d2de39b29c7a4cd4abfa74661faa48a
+  verified_at: '2026-10-24T23:41:19.131589Z'
+- artifact_hash: d070a3db95b6ba693ce930848ad5e947856fb9f738a7c44c058a7287641fe66c
   artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/research.md
   cite_id: c-003
   cited_authors: []
@@ -41,8 +96,8 @@
   value: https://huggingface.co/bert-base-uncased
   verification_status: pending
   verified_against_url: https://huggingface.co/google-bert/bert-base-uncased
-  verified_at: '2026-10-15T19:49:46.058297Z'
-- artifact_hash: ad60947caffe1af19e7ec3e0c9057a2c6d2de39b29c7a4cd4abfa74661faa48a
+  verified_at: '2026-10-24T23:41:19.131589Z'
+- artifact_hash: d070a3db95b6ba693ce930848ad5e947856fb9f738a7c44c058a7287641fe66c
   artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/research.md
   cite_id: c-004
   cited_authors: []
@@ -52,4 +107,4 @@
   value: https://huggingface.co/datasets/yueluoshuangtian/clmm-benchmark/resolve/main/MathDataset/dataset_info.json
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/yueluoshuangtian/clmm-benchmark/631ac27ba4581cf38dc1669d81bf085959da76fb/MathDataset%2Fdataset_info.json?%2Fdatasets%2Fyueluoshuangtian%2Fclmm-benchmark%2Fresolve%2Fmain%2FMathDataset%2Fdataset_info.json=&etag=%22323984db1a63328273260576965670968b062d0e%22
-  verified_at: '2026-10-15T19:49:46.058297Z'
+  verified_at: '2026-10-24T23:41:19.131589Z'

@@ -1,14 +1,18 @@
 status: none
-intent: tensorflow_datasets Open Images V6 Visual Genome CLIP BERT CLMM python package
-  dataset
+intent: Open Images V6 Visual Genome CLIP BERT MoralD CLMM python package dataset
 required_fields:
 - image_id
 - image_url
-- width
-- height
-- bounding_boxes
-- image_labels
-- license
-cache_key: 551963fc0910a282e41e62dffa121127e2ea51df23aad62ffd240b9ae7eedff8
-searched_at: '2026-10-24T23:11:28.875558+00:00'
+- image_file_path
+- bounding_box_x_min
+- bounding_box_y_min
+- bounding_box_x_max
+- bounding_box_y_max
+- region_label
+- original_image_path
+- low_salience_variant_path
+- medium_salience_variant_path
+- high_salience_variant_path
+cache_key: 41d903b9a2df26704beb66f1489638bfe41fb27c688b3cbb4ee09cb97082da33
+searched_at: '2026-10-24T23:17:15.064602+00:00'
 retry_count: 1
