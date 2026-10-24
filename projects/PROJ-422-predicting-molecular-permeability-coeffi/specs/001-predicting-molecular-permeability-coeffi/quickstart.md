@@ -25,17 +25,17 @@ pip install -r requirements.txt
    ```bash
    python code/data/preprocess.py
    ```
-   - Streams the verified datasets from Hugging Face, computes SHA‑256 checksums on the fly, parses SMILES, and writes `data/processed/processed_data.parquet`.  
-   - If the valid‑molecule retention rate falls below 95 %, the script logs a warning and **exits with a non‑zero code after the file is written** (so the file is still present for inspection).  
-   - If no `permeability` column is found, the script stops after this step with an informative message (see research plan).
+   - Streams the verified datasets from Hugging Face, computes SHA‑256 checksums on the fly, parses SMILES, and writes **both** `data/processed/processed_data.parquet` **and** `data/processed/processed_data.csv`.  
+   - If the valid‑molecule retention rate falls below 95 %, the script logs a warning and **exits with a non‑zero code after the files are written** (so they are available for inspection).  
+   - If no `permeability` column is found, the script stops after this step with an informative message (see Phase 0 of the plan).  
 
-2. **Train & Evaluate** *(only runs when a true permeability target is present)*
+2. **Train & Evaluate** *(only runs when a true permeability target is present or an approved surrogate is used)*
    ```bash
    # Train all models, perform power analysis, and evaluate
    python code/analysis/train.py --config config.yaml
    ```
    - Handles train/validation split, early stopping, power analysis, and writes `results/metrics.json`.  
-   - If the required target column is missing, the script terminates gracefully after reporting the limitation.
+   - If the required target column is missing and no surrogate is approved, the script terminates gracefully after reporting the limitation.
 
 3. **Interpretability**
    ```bash
@@ -51,13 +51,11 @@ pip install -r requirements.txt
    *`run_all.sh`* simply chains the three commands above and exits with a non‑zero code if any step fails.
 
 ## Expected Outputs
-- `data/processed/processed_data.parquet` – cleaned feature table (or a warning if retention < 95 %).  
-- `results/metrics.json` – RMSE, MAE, R² for GNN, RF, RF‑ablation; paired test result; normality test outcome; power‑analysis summary; bias‑check flag.  
+- `data/processed/processed_data.parquet` and `processed_data.csv` – cleaned feature tables (or a warning if retention < 95 %).  
+- `results/metrics.json` – RMSE, MAE, R² for GNN, RF, RF‑ablation; paired test result; normality test outcome; power‑analysis summary; bias‑check flag; **interpretability overlap** metric.  
 - `results/interpretability/` – PNG/HTML files for SHAP bar charts and GNNExplainer substructure heatmaps.  
 
 ## Reproducibility Tips
 - Random seeds are fixed (`seed=42`) inside the code base.  
 - All dataset URLs are hard‑coded; rerunning the pipeline will fetch identical data.  
 - The CI runner uses the same `requirements.txt`; no hidden dependencies.
-
----

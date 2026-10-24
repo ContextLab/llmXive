@@ -96,10 +96,25 @@ properties:
       - correlation_coefficient
       - is_confounded
       - bias_warning
+  interpretability_overlap:
+    type: object
+    properties:
+      overlap_top5:
+        type: integer
+        description: "Number of overlapping features between GNN substructure mapping and SHAP descriptor ranking (0–5)."
+      overlap_meets_threshold:
+        type: boolean
+        description: "True if overlap_top5 ≥ 3, satisfying SC‑003."
+    required:
+      - overlap_top5
+      - overlap_meets_threshold
 required:
   - gnn_metrics
   - rf_metrics
   - rf_ablation_metrics
   - statistical_test
+  - normality_test
+  - power_analysis
   - bias_check
+  - interpretability_overlap
 additionalProperties: false

@@ -1,18 +1,16 @@
 status: none
-intent: NIST Polymer Database PolyInfo membrane permeability coefficients python package
+intent: NIST PolyInfo polymer membrane permeability coefficients download python package
   dataset
 required_fields:
 - polymer_name
-- polymer_id
-- cas_number
-- membrane_thickness_mm
+- membrane_type
+- gas_species
 - temperature_K
 - pressure_atm
-- gas_species
-- permeability_coefficient_Barrer
+- permeability_coefficient
+- units
 - measurement_method
-- literature_reference
-- measurement_year
-cache_key: 8ce0971608ed942ede6dd849615019774c609cf25eff936a86c388b8297aafbe
-searched_at: '2026-10-20T21:30:06.864766+00:00'
+- reference_citation
+cache_key: d0a8594cb8afe69ef29b5f4ecefb0a75cbd5218d08141f90bb1fdbd2c9aa2813
+searched_at: '2026-10-24T15:11:54.003658+00:00'
 retry_count: 1
