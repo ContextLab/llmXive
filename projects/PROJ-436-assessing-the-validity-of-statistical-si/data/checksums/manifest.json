@@ -1,3 +1,16 @@
 {
-  "datasets": {}
+  "datasets": {
+    "42803": {
+      "filename": "data/raw/42803.csv",
+      "checksum": "32bbc48a5355ed093b324d8749bec2d9646066ad4772b959fe7246567b949dae"
+    },
+    "43844": {
+      "filename": "data/raw/43844.csv",
+      "checksum": "703c91d241b7fb8ca0e9f3677987836cec6d30e50b2224394b4c8db8b1dd5897"
+    },
+    "43845": {
+      "filename": "data/raw/43845.csv",
+      "checksum": "78f5c5e1f16d668d5e6639befea6e4024f2d2e5285ce278f213b622e5ff9503c"
+    }
+  }
 }

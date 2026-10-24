@@ -1,0 +1,56 @@
+T001:
+  c: false
+  h: 6931beae7ac55e5b77f1d6482d8834b98a95bb96573f929c8f1198719a512f09
+  r: "The `code/data_loader.py` only downloads a single Plotly diabetes CSV and synthesises\
+    \ the three required datasets, rather than fetching three real RCT/observational\
+    \ datasets (one genuine RCT, two observational) as mandated. It never compares\
+    \ computed checksums to the pre\u2011existing `data/checksums/manifest.json` nor\
+    \ records a \u201CFLAGGED\u201D entry for a dataset with\u202FN\u202F<\u202F100;\
+    \ it simply skips such datasets without updating the manifest. Consequently the\
+    \ implementation and the provided tests do not meet the task\u2019s core requirements."
+  sig: e77a2f750f404feea9c4ed8a51b43fb1e2e6883be700aea06fa2a384cdf6b135
+T002:
+  c: false
+  h: f2d2915bbc022fd0ece291b4fae8811ed260775e38c5de8550449967db729aaf
+  r: "The core implementation `code/preparation.py` exists and provides the required\
+    \ functions (detecting missing columns, synthesizing treatment/outcome, and permuting\
+    \ with a fixed seed). However, the promised verification artifact `tests/unit/test_preparation.py`\
+    \ is missing, so there is no evidence that the preparation pipeline is actually\
+    \ tested for mean\u202F\u2248\u202F0.5, the required correlation band, or a null\u2011\
+    effect t\u2011test with p\u202F>\u202F0.5. Adding the unit test (and ensuring\
+    \ it passes) is needed to satisfy the task."
+  sig: 850d2e14366de34d07c73252098e713d85cac662164076faa41a8e4cfaa2688c
+T003:
+  c: false
+  h: b4dc4be4587681b58083c155c34b41701359957fe09b1c8913231e7118d53ecd
+  r: "The repository contains only a `code/config.py` module that defines enums and\
+    \ a `SimulationConfig` dataclass, but it does not generate the exhaustive set\
+    \ of JSON configuration files, uses a default `n_iterations` of\u202F1000 (instead\
+    \ of the required\u202F15000), and its `to_dict` output uses field names (`mechanism`,\
+    \ `missing_rate`) that do not match the schema (`missingness_mechanism`, `missingness_rate`).\
+    \ Moreover, the required test `tests/unit/test_config.py` is missing, so there\
+    \ is no evidence that the correct number of configs is produced or that they validate\
+    \ against the schema. The task\u2019s core r"
+  sig: fd11b491bde2bf4f852ee61b7e3f6e4d6abf20981cbd2964a5e5219b128e9bcb
+T004:
+  c: false
+  h: 4c0cae629299b68a3a728c11c817f4d924e5f708642083b9fad895d3b7da883f
+  r: "I examined `code/simulation.py` and the unit tests in `tests/unit/test_simulation.py`.\
+    \ While MCAR and MAR are implemented as required and the mask\u2011adjustment\
+    \ keeps missingness within\u202F0.5\u202F%, the MNAR implementation only uses\
+    \ the (optionally permuted) treatment and the original outcome\u2014there is no\
+    \ permutation of the outcome as the task specifies. Moreover, the provided unit\
+    \ tests check only a Pearson correlation\u202F>\u202F0.1 for MAR/MNAR, not the\
+    \ required Spearman\u202F\u03C1\u202F>\u202F0.4, and they do not verify joint\
+    \ dependence on permuted outcome\u202F+\u202Ftreatment. Consequently the simulation\
+    \ does not fully satisfy the MNA"
+  sig: 162d3e94b6bc87f0efb579d1b5af8cd827eb8f2b20003a1c888dfdb2ac246f0d
+T005:
+  c: false
+  h: d011753e330fb33a88dec872e6747245debfb94845c25488831af52b40556085
+  r: "Checked `code/analysis.py` \u2013 it implements CC, MI, and IPW with appropriate\
+    \ test selection. However the required integration test `tests/integration/test_analysis_pipeline.py`\
+    \ is missing, so the verification step stipulated by the task is not present.\
+    \ The task remains incomplete until the test file is added and demonstrates the\
+    \ specified error\u2011rate assertions."
+  sig: 0af4e94fcb6598ace716be756951f1c120947df304d49a8b99d9b73163192e8c

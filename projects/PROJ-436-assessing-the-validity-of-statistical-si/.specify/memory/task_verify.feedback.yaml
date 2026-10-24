@@ -1,27 +1,60 @@
-T101:
-  reason: 'Requested task execution failed; rerun successfully: code/data_loader.py
-    exit=1'
-  task: a5d9546775e0744d7bf5d9e25673cd96cc645541e9ef62d4bf5f5cea33a06330
-T102:
-  reason: 'Requested task execution failed; rerun successfully: code/main_us1.py exit=1'
-  task: b0c6fea7015ee527c5143561a00b4a2a1d97b3ce2193d621e45b8dd7d6d670c2
-T103:
-  task: 6db36e83dedef6af2e9bbb2af84572d3ea6f8d7e12f00f485d6f065872568cb8
-T104:
-  task: 6ca592a983e8de10c629a0fa368a83b5fc910a8bec3729ab2c4e81d15f2d8dc2
-T105:
-  task: d4fdae4413e444b7b185b27893a43d36f8f9fafc4e91e2c162e5410132d10b41
-T106:
-  task: 8e5bea88a17dfc997b5335523a11518413abef6df554ea89b7303dacd2b5b158
-T106b:
-  task: 79c18ccf45dd58a03b75338f97459e37b1ff7d6cb0ff1319d36a3be1eb4e579c
-T106c:
-  task: e25d2e7bd0891ddb92b6ebd8bbb4d822daaea0e032d12fd36ac9d678c0b352df
-T107:
-  task: b39f888e25f2d0a6f09655d2e89128634fba56628281bd0ad2bc604a45165957
-T108:
-  task: b16255b822728b015ced139e47d376fa96614bd9165409a3bc96e069b8996f85
-T109:
-  task: 0c692ad4b7b609fdf55a4e06d759fa6748adf4f770a0d27abec1c36a3f884f22
-T110:
-  task: 3f67b33c44b4073a630d056886fd80d31ca52365f1d182aac2fe9db7cfb9d4a9
+T001:
+  reason: "The `code/data_loader.py` only downloads a single Plotly diabetes CSV and\
+    \ synthesises the three required datasets, rather than fetching three real RCT/observational\
+    \ datasets (one genuine RCT, two observational) as mandated. It never compares\
+    \ computed checksums to the pre\u2011existing `data/checksums/manifest.json` nor\
+    \ records a \u201CFLAGGED\u201D entry for a dataset with\u202FN\u202F<\u202F100;\
+    \ it simply skips such datasets without updating the manifest. Consequently the\
+    \ implementation and the provided tests do not meet the task\u2019s core requirements."
+  task: fad2fc2c4737475c736a0342c397dcb1c15470c245d9d3f705dc3d270d18f247
+T002:
+  reason: "The core implementation `code/preparation.py` exists and provides the required\
+    \ functions (detecting missing columns, synthesizing treatment/outcome, and permuting\
+    \ with a fixed seed). However, the promised verification artifact `tests/unit/test_preparation.py`\
+    \ is missing, so there is no evidence that the preparation pipeline is actually\
+    \ tested for mean\u202F\u2248\u202F0.5, the required correlation band, or a null\u2011\
+    effect t\u2011test with p\u202F>\u202F0.5. Adding the unit test (and ensuring\
+    \ it passes) is needed to satisfy the task."
+  task: c575e11914c30e37391f0cce33c0db6a45dc6d804d6cf9e8aad130e58b5e273a
+T003:
+  reason: "The repository contains only a `code/config.py` module that defines enums\
+    \ and a `SimulationConfig` dataclass, but it does not generate the exhaustive\
+    \ set of JSON configuration files, uses a default `n_iterations` of\u202F1000\
+    \ (instead of the required\u202F15000), and its `to_dict` output uses field names\
+    \ (`mechanism`, `missing_rate`) that do not match the schema (`missingness_mechanism`,\
+    \ `missingness_rate`). Moreover, the required test `tests/unit/test_config.py`\
+    \ is missing, so there is no evidence that the correct number of configs is produced\
+    \ or that they validate against the schema. The task\u2019s core r"
+  task: a4e2ecfc9cb4c2dd255b62e925e5e990f688d6fb0bcbd974e189b7c48e9c8b29
+T004:
+  reason: "I examined `code/simulation.py` and the unit tests in `tests/unit/test_simulation.py`.\
+    \ While MCAR and MAR are implemented as required and the mask\u2011adjustment\
+    \ keeps missingness within\u202F0.5\u202F%, the MNAR implementation only uses\
+    \ the (optionally permuted) treatment and the original outcome\u2014there is no\
+    \ permutation of the outcome as the task specifies. Moreover, the provided unit\
+    \ tests check only a Pearson correlation\u202F>\u202F0.1 for MAR/MNAR, not the\
+    \ required Spearman\u202F\u03C1\u202F>\u202F0.4, and they do not verify joint\
+    \ dependence on permuted outcome\u202F+\u202Ftreatment. Consequently the simulation\
+    \ does not fully satisfy the MNA"
+  task: 0055667d3fc2f413dde216696171a167f3f7b6111386640216cf8e8e96cb25ad
+T005:
+  reason: "Checked `code/analysis.py` \u2013 it implements CC, MI, and IPW with appropriate\
+    \ test selection. However the required integration test `tests/integration/test_analysis_pipeline.py`\
+    \ is missing, so the verification step stipulated by the task is not present.\
+    \ The task remains incomplete until the test file is added and demonstrates the\
+    \ specified error\u2011rate assertions."
+  task: ea176bc35ba0b0a1f2cbf223733f812f9f852021109e2fbd27abd52346cddc49
+T006:
+  task: c9df7a7ef603c8e9c78275249cc037a95ad4c163275f1d031dc5578e61e236ae
+T007:
+  task: 027d1a5d5ec3887b15be8d6c6dd698beda5af2c156bfc0b0a0d4bcddaefeb8a5
+T008:
+  task: aa41dd26461a4ef1a83fba6a3e05bf9b6bab7be419f7a3e6088a83c70c323bbd
+T009:
+  task: 36d63e8fb51ca8490613a20f7a21952028d2a758964c63b63635f92fdc8ce9e2
+T010:
+  task: e9ce35db1610deff0ae4bc0f761c931b3c6937d1e3e99bd317436a7f3ca171e3
+T011:
+  task: eec44a59f663e61f0203ad3b6a780ca616754f3280e4690ef57e05806359924d
+T012:
+  task: cde14f3d6969a3017ee452d15663f327fde928ff1b0a91d8668384932e498c24

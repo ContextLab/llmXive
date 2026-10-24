@@ -1,0 +1,7 @@
+{
+  "task_id": "T006",
+  "fingerprint": "e47156524b08ec4a41fc41af10a59199e4d5a4605cb87782009d5a293870876f",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/main.py': imports nonexistent names from sibling files: `from config import config_to_dict` (available: AnalysisMethod, Any, Dict, Enum, List, MissingMechanism, Optional, OutcomeType...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}
