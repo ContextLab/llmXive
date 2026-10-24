@@ -6,7 +6,7 @@ The aim is a reproducible, CPU‑only research pipeline that satisfies every fun
 
 ---  
 
-- [ ] **T001** [P] **Create contracts, pin dependencies, and seed utility**  
+- [ ] **T001** [P] **Create contracts, pin dependencies, and seed utility**   <!-- FAILED-IN-EXECUTION: code/run_contract_tests.py exit=1 -->
   - Add `contracts/materials_dataset.schema.yaml` and `contracts/model_metrics.schema.yaml` exactly as defined in the active data model.  
   - Create `requirements.txt` with pinned versions: `torch==2.3.0`, `torch-geometric==2.5.3`, `pandas==2.2.2`, `numpy==1.26.4`, `scikit-learn==1.5.0`, `pymatgen==2024.7.0`, `matplotlib==3.9.0`, `psutil==5.9.8`, `pytest==8.3.2`, `jsonschema==4.23.0`.  
   - Add `src/utils/seeds.py` that sets `torch.manual_seed(42)`, `np.random.seed(42)`, and `random.seed(42)`.  

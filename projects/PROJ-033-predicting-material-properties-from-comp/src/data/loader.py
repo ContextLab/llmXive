@@ -28,6 +28,7 @@ from typing import Optional
 import pandas as pd
 import psutil
 import yaml
+import numpy as np
 from jsonschema import Draft7Validator, ValidationError
 
 try:

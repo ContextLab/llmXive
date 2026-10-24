@@ -1,50 +1,40 @@
 T001:
-  reason: "The required contracts, requirements.txt, seeds utility, and quickstart.md\
-    \ are present and correctly populated, but there is no evidence that `pytest tests/contract/`\
-    \ was executed and passed as the task demands. Without test\u2011run output confirming\
-    \ the contract tests succeed, the verification step is incomplete."
-  task: 5157fbcf4d9066d1d00398cf3b061bce5f328217d646925316e089695aa93097
+  reason: 'Requested task execution failed; rerun successfully: code/run_contract_tests.py
+    exit=1'
+  task: 2c9986c7d24e5a5c1202875e64426da25ac9fcb09fc574073aac5d2b4132e9ef
 T002:
-  reason: Checked `data/raw/materials.csv` (columns present, checksum recorded in
-    README) and the schema test file, but there is no evidence that `pytest tests/contract/test_dataset_schema.py`
-    was actually executed and passed; only a custom script log is provided. The required
-    pytest validation step is missing.
-  task: e1a44bbbbfb115a83f06ef86404d909e1fe5956df3f3892903e773066c0ba943
+  task: bc38062aa001749030a217742dffc0de377e4cbb6b167681f95ce2f7350bc977
 T003:
-  reason: "The `src/data/loader.py` implementation fails several required unit\u2011\
-    test checks: the zero\u2011band\u2011gap metal (`m09`) is dropped, the outlier\u2011\
-    removal log reports \u201Cdropped 2\u201D rows instead of the expected \u201C\
-    dropped 1\u201D, and the summary shows only 8 rows kept rather than the 9 valid\
-    \ rows. Consequently the loader does not meet the specification for outlier handling\
-    \ and logging."
-  task: a1f31cfc33e1a4f0fb5730a6a99a5e2f0645cbaba76af0a96da0212c3260f8c8
+  task: b3966b845ff541a730788ee9bfc09bd3151305964d9487be5ca5cc076cf62549
 T004:
-  task: f801d299e72c09831ef813933880d4c74983ba115b14314ccca14779483a1a38
+  task: 3c5be22176ec1f12f85856a18d9cd3a823359a8193fd553b62d2f03807cb15f4
 T005:
-  task: a2d44584a978546a52fc34108caff3ebade3ab660fd806af94dbb8be3a27a999
+  task: 7d56c69ae97181d8d804365c63400b72a8109b04b33af821ba125904dd1c75cb
 T006:
-  reason: 'Requested task execution failed; rerun successfully: src/training/train_gnn.py
-    exit=1; src/training/evaluate.py exit=1'
-  task: baf6aa1d2441aef55844c002c3fc68c5a00335dfac9e3c2817c7fbd2fde62012
+  task: 69cf5f4b1081c97f063f8d49bbee300e46f3f39a6e65dce8506c36a8bff87e6e
+T006a:
+  task: 70d0476c87d8941314ef1f4454121ef32c8c507f0dd211ba819278622f87b92d
 T007:
-  task: bab871ad065bd5e5d936cde9d47e530a7c066a33a239960c2e0b30cc82902200
+  task: 2719b3e5d78c2081aaeca63fa9ae2ccd1536f3bdfdb7e9c4349a0f922d7d6c33
 T008:
-  task: d7032e86df2b566404f0ec8243ccf9865ae3e2b5b5c0fb53310a58d1db2b3ab7
+  task: 12aac9443492e5784a2fb3e7323f58c1c6374560de5b147c15d508dfa3119e38
 T009:
-  task: c968cefab3032e720b71be7f7dde6df0dc85e0713e4ac874b15ded6fe610fdb8
+  task: 326d3fb6e8bf2ef182f5df134f7d9b1bb4b115afe7c14f913cccca60d669d985
 T010:
-  task: f0b5be5fb818a80e85911de36d2df0f497890abe60ec4589368f42697c0bbf70
+  task: 23d130f5d7b85783ed9af936c99128b9a5ab42896b5e9a95aaf473c819d2bf85
 T011:
-  task: a8c85b70883208a1ebe56460a00137cce0d65f6ea5d98840e07ed267daf6fdaf
+  task: 43a90e17f2b54f1526f3a86c7f36dabc04712cb5421713eb5f37a86766275b58
 T012:
-  task: f1577cae77947664d34c703d26a46ffede14c29c9820aaac8104408932f3895d
+  task: 1121ac3a849afc7848f01e8319027b2e9b8ad8b80ad6763e1c613ef091e944c0
+T012a:
+  task: c2958a6eacfcfebb678c7daa1467e3c5df5676240dba30a7a3569df097e116ab
 T013:
-  task: 213ec05c8055181c7d47b6226374585d1070724469a68ba1cd8b4821279e285d
+  task: 757b4ba65b036b7ff80c1c3119b2a73070b06521e3f29cd8c642a0b69224d9de
 T014:
-  task: 781dbaf1363e9200be757937f9586e0cd5d730c57c93c196ffb1eefa351da80b
+  task: 1289772d64d9b2c555bb325d076de116c1b5cc9b3acdf67dd56e435d2a2e814c
 T015:
-  task: 41a836cd4b0197adbb722b2a924315a3db7ef3785b63e1088665e4124b7b4afd
+  task: a3508bb19fa380cadbd78a5c8104c216201629182bd3a2ecca0e362493472f65
 T016:
-  task: f85b3d4e8645fd0730f7206d698abe5858a691dcd8a0040cdaae88fd2f3a1f9e
+  task: 8620c58cb42053f7fcb4df0739e839cf0eee9b70738039be5c75082b6220e39a
 T017:
-  task: b29ee2e83bec7f36a8796467338409170f51bf907abf113cb01780f10d1c8dfc
+  task: 07c80ad919a628596a7a089106def883adef773f03be8ac9118d06e58f14acc6

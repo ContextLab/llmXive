@@ -1,46 +1,13 @@
-status: verified
-kind: pypi_package
-ref: matminer
-access_python: 'import pandas as pd
-
-  from matminer.datasets import load_dataset
-
-
-  df = load_dataset(''elastic_tensor_2015'')
-
-  # Expected columns include material_id, pretty_formula, k_VRH, G_VRH, etc.
-
-  print(f''RECORDS={len(df)}'')
-
-  print(''FIELDS='' + '',''.join(df.columns.tolist()))'
-record_count: 1181
-sample_fields:
-- material_id
-- formula
-- nsites
-- space_group
-- volume
-- structure
-- elastic_anisotropy
-- G_Reuss
-- G_VRH
-- G_Voigt
-- K_Reuss
-- K_VRH
-- K_Voigt
-- poisson_ratio
-- compliance_tensor
-- elastic_tensor
-- elastic_tensor_original
-- cif
-- kpoint_density
-- poscar
-field_coverage: 0.5
+status: none
+intent: Materials Project composition data with band gap and hardness Matbench python
+  package dataset
 required_fields:
 - material_id
 - formula
 - band_gap
 - hardness
-intent: Materials Project composition dataset download python package matminer pymatgen
-  python package dataset
-cache_key: a78fed7d7b5d09771454a445c28db3eaf7984b5cb00144645f52e842bbdbfab3
+- elements
+- element_fractions
+cache_key: a3a3813cececa3e9d9066bc9a5586c71523a030e89676f78b0bd89f132f45e60
+searched_at: '2026-10-24T13:37:15.010019+00:00'
+retry_count: 1

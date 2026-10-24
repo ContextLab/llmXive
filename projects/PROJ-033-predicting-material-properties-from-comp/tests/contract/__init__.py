@@ -1,1 +1,1 @@
-# This file ensures the ``tests.contract`` package is importable.
+# This file ensures the contract tests package is importable.
