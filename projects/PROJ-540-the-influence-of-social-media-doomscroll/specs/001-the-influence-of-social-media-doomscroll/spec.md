@@ -9,6 +9,8 @@
 
 ### User Story 1 - Data Ingestion and Variable Extraction (Priority: P1)
 
+**User Story ID**: US-1
+
 The system MUST download a specified public survey dataset (e.g., General Social Survey, Pew Research, or YouGov) that contains the required variables and extract the specific variables needed for the analysis: negative news consumption frequency, anxiety scores (anticipatory or general), baseline anxiety, and demographic covariates.
 
 **Why this priority**: Without successfully ingesting and correctly mapping the raw data to the required analytical variables, no statistical modeling or hypothesis testing can occur. This is the foundational step for the entire research pipeline.
@@ -24,6 +26,8 @@ The system MUST download a specified public survey dataset (e.g., General Social
 
 ### User Story 2 - Statistical Modeling and Association Estimation (Priority: P2)
 
+**User Story ID**: US-2
+
 The system MUST fit a multiple linear regression model to estimate the association between negative news exposure and anxiety scores, controlling for baseline anxiety and demographics, and calculate the correlation coefficient. The system MUST ensure that baseline and outcome anxiety measures are distinct constructs (e.g., trait vs. state or pre-test vs. post-test) to avoid mathematical coupling.
 
 **Why this priority**: This is the core research activity. It directly answers the research question by quantifying the relationship while controlling for confounders.
@@ -38,6 +42,8 @@ The system MUST fit a multiple linear regression model to estimate the associati
 ---
 
 ### User Story 3 - Robustness Check and Visualization (Priority: P3)
+
+**User Story ID**: US-3
 
 The system MUST generate a scatter plot with a regression line and confidence interval, and perform a robustness check by re-running the analysis on a subset of users with high social media engagement (top percentile), provided engagement correlates with news exposure (r > 0.3).
 
