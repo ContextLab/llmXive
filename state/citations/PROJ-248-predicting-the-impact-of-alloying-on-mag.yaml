@@ -31,25 +31,3 @@
   verification_status: mismatch
   verified_against_url: https://zenodo.org/records/XXXXX/files/mp_bulk_2026.09.zip
   verified_at: '2026-10-22T12:57:06.125694Z'
-- artifact_hash: 3947f1ae3759173ff361083f396ab6a4f166da849c22187148d44f5a9bfd5922
-  artifact_path: projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/specs/001-predicting-the-impact-of-alloying-on-mag/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/PROJ-248-predicting-the-impact-of-alloying-on-mag.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/PROJ-248-predicting-the-impact-of-alloying-on-mag
-  verified_at: '2026-10-22T12:57:33.757050Z'
-- artifact_hash: 3947f1ae3759173ff361083f396ab6a4f166da849c22187148d44f5a9bfd5922
-  artifact_path: projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/specs/001-predicting-the-impact-of-alloying-on-mag/quickstart.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.XXXXX
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXX
-  verified_at: '2026-10-22T12:57:33.757050Z'

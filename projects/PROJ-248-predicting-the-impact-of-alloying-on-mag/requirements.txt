@@ -1,3 +1,2 @@
-huggingface_hub>=0.20.0
-# Existing dependencies (numpy, pandas, scikit-learn, matplotlib, etc.) are
-# provided by the base environment and do not need to be listed here.
+huggingface_hub>=0.23.0
+# Existing dependencies are provided by the base environment (numpy, pandas, scikit-learn, matplotlib, seaborn, scipy, joblib, pymatgen, matminer, datasets, yaml) and do not need to be listed here.

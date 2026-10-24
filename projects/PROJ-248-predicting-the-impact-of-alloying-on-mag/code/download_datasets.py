@@ -110,10 +110,10 @@ def download_materials_project(raw_mp_path: Path) -> dict:
     )
 
     # Use the Git commit hash of the snapshot as a version identifier.
-    version = Path(repo_path) / ".git" / "HEAD"
-    if version.is_file():
+    version_file = Path(repo_path) / ".git" / "HEAD"
+    if version_file.is_file():
         try:
-            with version.open() as f:
+            with version_file.open() as f:
                 version_str = f.read().strip()
         except Exception:
             version_str = "unknown"

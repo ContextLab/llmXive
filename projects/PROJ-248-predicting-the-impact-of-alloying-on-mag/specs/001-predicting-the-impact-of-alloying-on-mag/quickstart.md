@@ -15,7 +15,17 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 2. Run the End‑to‑End Pipeline
+## 2. Download the Raw Datasets
+```bash
+python code/download_datasets.py
+```
+
+This step creates the following files under `data/`:
+- `raw_mp.jsonl` – filtered Materials Project magnetic entries
+- `raw_oqmd.csv` – OQMD magnetic CSV
+- `data_sources.yaml` – manifest with version identifiers and SHA‑256 checksums
+
+## 3. Run the End‑to‑End Pipeline
 ```bash
 python -m src.models.train \
     --targets saturation_magnetization curie_temperature \
@@ -35,7 +45,7 @@ python -m src.models.train \
 9. Conducts paired Wilcoxon signed‑rank tests for both targets and logs Bonferroni‑corrected p‑values.  
 10. Uploads all artifacts as GitHub Actions artifacts.
 
-## 3. Inspect Results
+## 4. Inspect Results
 ```bash
 # Metrics
 cat metrics/metrics_saturation.json
@@ -46,7 +56,7 @@ display reports/feature_importance_saturation.png
 display reports/feature_importance_curie.png
 ```
 
-## 4. Single‑Alloy Prediction (CLI)
+## 5. Single‑Alloy Prediction (CLI)
 Create a JSON file `example_alloy.json`:
 ```json
 {
@@ -85,7 +95,7 @@ The output `prediction.json` will contain:
 ```
 This conforms to `contracts/prediction.schema.yaml` and is produced in **≤ 2 seconds** on the CI runner.
 
-## 5. Artifact Publishing (GitHub Actions)
+## 6. Artifact Publishing (GitHub Actions)
 The workflow `ci.yml` automatically uploads the following as artifacts:
 - `data/cleaned_oqmd.csv`
 - `data/cleaned_mp.csv`
@@ -100,8 +110,5 @@ The workflow `ci.yml` automatically uploads the following as artifacts:
 
 These artifacts enable reproducibility checks by downstream reviewers.
 
-## 6. Extending to New Targets
+## 7. Extending to New Targets
 If additional magnetic properties become available in future releases (e.g., anisotropy), simply add them to the `--targets` argument; the pipeline will automatically handle feature generation and model training.
-
----
-
