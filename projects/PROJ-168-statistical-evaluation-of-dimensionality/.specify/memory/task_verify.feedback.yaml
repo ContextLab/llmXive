@@ -1,13 +1,16 @@
 T001:
+  reason: The required directories `data/results/` and `paper/` are missing from the
+    project layout, even though they appear in `results/dir_listing.txt`. The task
+    explicitly demands these directories be created, so the implementation is incomplete.
   task: 8068ae9ea79a5edddeb392a597db827e719f325f1533692f1dd7c252c0ff34f9
 T003:
   task: 7ecf287aa0512e08b458080465b233c998bd912716e43fb5b87993b0f106c34f
 T004:
-  reason: "The `code/ci_limits.py` script always reads the fixed `results/monitoring.csv`\
-    \ and never accepts a custom CSV, so the test that supplies a deliberately violating\
-    \ CSV gets a compliant file and the script exits 0. The recorded test failure\
-    \ shows the script does not return exit\u202F1 on violations, violating the task\u2019\
-    s verification requirement."
+  reason: "The `code/ci_limits.py` file exists and correctly implements the required\
+    \ checks, but there is no provided evidence (e.g., test runs, logs, or a deliberately\
+    \ violating `monitoring.csv`) showing that the script exits with code\u202F1 on\
+    \ a violating CSV and with code\u202F0 on a compliant one. Adding execution evidence\
+    \ or a failing CSV test is needed."
   task: 1078c4c265ad231eeaa514a1197d0ea5c144f470c12c436841610323e8c36f93
 T006:
   reason: "The required `code/Snakefile` (defining all listed rules and the abort\

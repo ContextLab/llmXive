@@ -7,7 +7,7 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
 
 ## Phase 0 – Project Foundations & Specification Alignment  
 
-- [X] T001 **[US1]** Initialise project directory layout and produce a verifiable listing.  
+- [ ] T001 **[US1]** Initialise project directory layout and produce a verifiable listing.  
   - Create directories: `data/raw/`, `data/processed/`, `data/embeddings/`, `data/clustering/`, `data/metrics/`, `data/results/`, `figures/`, `code/`, `code/tests/`, `paper/`.  
   - Generate `results/dir_listing.txt` via `find data code results figures paper -type d > results/dir_listing.txt`.  
   - **Verification**: `assert pathlib.Path('results/dir_listing.txt').exists()` and the file contains each of the directories listed above.  

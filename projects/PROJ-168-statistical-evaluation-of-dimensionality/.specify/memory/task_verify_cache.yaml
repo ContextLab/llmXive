@@ -1,28 +1,17 @@
 T001:
-  c: true
-  h: 2f936f03930d801ac099c461ac6ebc2b53f3208b26446f8fd561c0ff219b1554
-  r: "The directory tree shows all required folders (`data/raw`, `data/processed`,\
-    \ `data/embeddings`, `data/clustering`, `data/metrics`, `data/results`, `figures`,\
-    \ `code`, `code/tests`, `paper`) and the `results/dir_listing.txt` file exists\
-    \ (186\u202Fbytes) and lists each of those directories. Test logs confirm the\
-    \ creation script ran and the listing was written."
-  sig: 6ccef98bec4ff26fe02b57e8a8c7e96687cdc623e6f2f4c8792363aff2897366
+  c: false
+  h: d8278354164a806e054b805a0af8df9f4320eb9d2f43c32b84c520ad2aed11da
+  r: The required directories `data/results/` and `paper/` are missing from the project
+    layout, even though they appear in `results/dir_listing.txt`. The task explicitly
+    demands these directories be created, so the implementation is incomplete.
+  sig: f83d1742687e69373fa30cf74c62404e670ede9589077867967cd09302d84f10
 T003:
   c: true
-  h: 72d004448f52906f11e5769163418cc05bb34a14faf65f61ac6e63f09ad444ca
-  r: Checked `code/ci_workflow_doc.md` (contains reference to `code/ci_limits.py`),
-    `README.md` (references `ci_workflow_doc.md`), and `results/dir_listing.txt` (lists
-    both files). All verification conditions are met.
-  sig: d2d9428ac719a7b3eb980e282d004de390917df57b174f7ecfd70f27bfa4c4af
-T004:
-  c: false
-  h: debcb66ed85e97ede80b67dbddf9a570b2ab42b25adbfc23e432941cab5dd7db
-  r: "The `code/ci_limits.py` script always reads the fixed `results/monitoring.csv`\
-    \ and never accepts a custom CSV, so the test that supplies a deliberately violating\
-    \ CSV gets a compliant file and the script exits 0. The recorded test failure\
-    \ shows the script does not return exit\u202F1 on violations, violating the task\u2019\
-    s verification requirement."
-  sig: f887b2152645fd6fb0a3a0dabbc069f33538ae5a2db7060d915670f9b7cbb059
+  h: 190aca7581f5291e3ae967d97170cb0c8469fcc9ab5f756eb034fd9480237f5c
+  r: "Checked `code/ci_workflow_doc.md` (contains \u201Cci_limits.py\u201D), `README.md`\
+    \ (references \u201Cci_workflow_doc.md\u201D), and both appear in `results/dir_listing.txt`.\
+    \ All required links and file presence are verified."
+  sig: 968c4a41acb1c83d5b3d943fc348768b2ff4f8abd4cbf9dbc2d270f14863ee2f
 T006:
   c: false
   h: bca5db07155fba9e5ab395bd9ed27a87836704f385a4b36956848f4fca849675
