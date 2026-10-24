@@ -40,7 +40,7 @@ The goal is to implement a reproducible, end‑to‑end pipeline that evaluates 
   **File path(s)**: `code/web/questionnaires/pss_panas.py`, `data/raw/questionnaire_responses.csv`  
   **Verification**: `tests/integration/test_questionnaire.py` validates the CSV against `contracts/dataset.schema.yaml`.
 
-- [ ] T001e **Develop daily compliance‑logging UI (FR‑004).**  
+- [X] T001e **Develop daily compliance‑logging UI (FR‑004).**  
   *Provide `code/web/compliance/compliance_ui.py` where participants submit daily logs (social media minutes, news consumption, notifications off). Logs are stored as one CSV per participant per day under `data/raw/compliance_logs/`.*  
   **File path(s)**: `code/web/compliance/compliance_ui.py`, `data/raw/compliance_logs/`  
   **Verification**: `tests/integration/test_compliance_ui.py` checks that submitted logs validate against `contracts/compliance.schema.yaml`.
@@ -68,12 +68,12 @@ The goal is to implement a reproducible, end‑to‑end pipeline that evaluates 
   **File path(s)**: `code/validation/validate_schema.py` (shared validator)  
   **Verification**: `pytest code/tests/test_simulated_schema.py` asserts successful validation.
 
-- [ ] T003c **Generate SHA‑256 checksums for all simulated raw artifacts and verify inclusion.**  
+- [~] T003c **Generate SHA‑256 checksums for all simulated raw artifacts and verify inclusion.**  
   *Run `code/validation/generate_checksums.py` targeting `data/raw/` (including simulated files). The script writes `data/checksums.sha256` with a line `<hash>  <relative_path>` for every file.*  
   **File path(s)**: `code/validation/generate_checksums.py`, `data/checksums.sha256`  
   **Verification**: `sha256sum -c data/checksums.sha256` exits with all OK; `tests/integration/test_checksum.py` checks that the manifest contains entries for at least five simulated files.
 
-- [ ] T003d **Produce a smoke‑analysis result on the simulated dataset and confirm values.**  
+- [ ] T003d **Produce a smoke‑analysis result on the simulated dataset and confirm values.**   <!-- FAILED-IN-EXECUTION: code/validation/produce_smoke_results.py exit=1 -->
   *Run `code/validation/produce_smoke_results.py` which invokes the full analysis pipeline on the simulated data and writes `data/results/smoke_results.json`.*  
   *After generation, a quick sanity check confirms that each metric’s `mean_change` is a finite number and that `method_used` is either `"bootstrap"` or `"wilcoxon"`.*  
   **File path(s)**: `code/validation/produce_smoke_results.py`, `data/results/smoke_results.json`  

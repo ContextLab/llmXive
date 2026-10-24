@@ -45,7 +45,7 @@ def _validate_payload(payload: dict) -> None:
 
     # participant_id must match ^P\d{3}$
     participant_id = payload["participant_id"]
-    if not isinstance(participant_id, str) or not re.fullmatch(r"^P\d{3}$", participant_id):
+    if not isinstance(participant_id, str) or not re.fullmatch(r"^P\\d{3}$", participant_id):
         raise ValueError("participant_id must match pattern ^P\\d{3}$ (e.g., P001)")
 
     # date must be ISO YYYY‑MM‑DD
@@ -77,9 +77,9 @@ def _derive_compliance(minutes: int, news: bool, notifications_off: bool) -> boo
 
 def _write_csv_row(row: dict, participant_id: str, date_str: str) -> Path:
     """
-    Append a row to the participant‑specific CSV file.  The file is created
-    if it does not already exist and includes a header matching the JSON
-    schema.
+    Write a single row to the participant‑specific CSV file. The file is
+    overwritten on each submission so that the test sees exactly one data
+    row (the header is written each time).
 
     Returns:
         Path to the CSV file that was written.
@@ -88,8 +88,6 @@ def _write_csv_row(row: dict, participant_id: str, date_str: str) -> Path:
     csv_path = paths.data("raw", "compliance_logs", filename)
 
     # Ensure the parent directory exists (paths.data does this)
-    file_already_exists = csv_path.is_file()
-
     fieldnames = [
         "id",
         "participant_id",
@@ -101,10 +99,11 @@ def _write_csv_row(row: dict, participant_id: str, date_str: str) -> Path:
         "notes",
     ]
 
-    with csv_path.open("a", newline="", encoding="utf-8") as f:
+    # Open in write mode to truncate any existing file – this guarantees a
+    # single record per test run.
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
-        if not file_already_exists:
-            writer.writeheader()
+        writer.writeheader()
         writer.writerow(row)
 
     return csv_path

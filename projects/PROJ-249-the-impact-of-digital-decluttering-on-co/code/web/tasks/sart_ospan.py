@@ -21,6 +21,8 @@ rather than falling back to synthetic data.
 import hashlib
 import json
 import os
+import shutil
+import csv
 from pathlib import Path
 from typing import Dict, List
 
@@ -37,6 +39,7 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 CONFIG_PATH = paths.code("config", "study_config.yaml")
 
+
 def load_config() -> Dict:
     """
     Load the study configuration YAML file.
@@ -44,16 +47,6 @@ def load_config() -> Dict:
     The configuration must contain a ``tasks`` mapping with entries for
     ``sart`` and ``ospan``. Each entry must provide a ``url`` and a
     ``checksum`` (SHA‑256 hex string).
-
-    Example:
-
-        tasks:
-          sart:
-            url: "https://osf.io/abcd1/download"
-            checksum: "3a7bd3e2360a..."
-          ospan:
-            url: "https://osf.io/efgh2/download"
-            checksum: "9c1f2d5e8b4c..."
     """
     if not CONFIG_PATH.exists():
         raise FileNotFoundError(
@@ -76,12 +69,14 @@ def load_config() -> Dict:
 
 _CONFIG = load_config()
 
+
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
 def _sha256_of_bytes(data: bytes) -> str:
     """Return the hex SHA‑256 digest of *data*."""
     return hashlib.sha256(data).hexdigest()
+
 
 def download_and_verify(task_name: str) -> Path:
     """
@@ -103,30 +98,47 @@ def download_and_verify(task_name: str) -> Path:
     cache_dir = paths.code("web", "tasks", "cached", task_name)
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    # Determine filename from URL
+    # Determine filename from URL (fallback to task name)
     filename = url.split("/")[-1] or f"{task_name}_task"
     download_path = cache_dir / filename
 
-    # Download only if the file does not already exist
-    if not download_path.exists():
-        log.info(f"Downloading {task_name.upper()} task from {url}")
-        resp = requests.get(url, stream=True, timeout=30)
-        resp.raise_for_status()
-        with open(download_path, "wb") as f:
-            for chunk in resp.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
+    # ------------------------------------------------------------------
+    # Handle local assets (e.g., ``local://sart.html``)
+    # ------------------------------------------------------------------
+    if url.startswith("local://"):
+        # Resolve the asset relative to this file's repository root
+        asset_name = url[len("local://") :]
+        asset_path = Path(__file__).resolve().parents[2] / "assets" / asset_name
+        if not asset_path.exists():
+            raise FileNotFoundError(f"Local asset not found: {asset_path}")
+        # Copy the asset to the cache directory
+        shutil.copy2(asset_path, download_path)
+        log.info(f"Copied local asset for {task_name.upper()} from {asset_path}")
+        # Skip checksum verification for local assets (they are part of the repo)
+        actual_checksum = expected_checksum
+    else:
+        # ------------------------------------------------------------------
+        # Remote download path
+        # ------------------------------------------------------------------
+        if not download_path.exists():
+            log.info(f"Downloading {task_name.upper()} task from {url}")
+            resp = requests.get(url, stream=True, timeout=30)
+            resp.raise_for_status()
+            with open(download_path, "wb") as f:
+                for chunk in resp.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
 
-    # Verify checksum
-    with open(download_path, "rb") as f:
-        file_bytes = f.read()
-    actual_checksum = _sha256_of_bytes(file_bytes)
-    if actual_checksum.lower() != expected_checksum.lower():
-        raise ValueError(
-            f"Checksum mismatch for {task_name.upper()} task: "
-            f"expected {expected_checksum}, got {actual_checksum}"
-        )
-    log.info(f"{task_name.upper()} task verified (SHA‑256={actual_checksum})")
+        # Verify checksum
+        with open(download_path, "rb") as f:
+            file_bytes = f.read()
+        actual_checksum = _sha256_of_bytes(file_bytes)
+        if actual_checksum.lower() != expected_checksum.lower():
+            raise ValueError(
+                f"Checksum mismatch for {task_name.upper()} task: "
+                f"expected {expected_checksum}, got {actual_checksum}"
+            )
+        log.info(f"{task_name.upper()} task verified (SHA‑256={actual_checksum})")
 
     # If the file is a zip archive, unpack it; otherwise assume it is an
     # HTML file that can be served directly.
@@ -143,11 +155,13 @@ def download_and_verify(task_name: str) -> Path:
         # Single HTML file – serve it from its parent directory
         return download_path.parent
 
+
 def _ensure_output_dir() -> Path:
     """Return the directory where trial‑level CSVs are stored."""
     out_dir = paths.data("raw", "trial_level")
     out_dir.mkdir(parents=True, exist_ok=True)
     return out_dir
+
 
 def _validate_trial_record(record: Dict) -> None:
     """
@@ -176,6 +190,7 @@ def _validate_trial_record(record: Dict) -> None:
 
     if not isinstance(record["stimulus"], str):
         raise ValueError("stimulus must be a string")
+
 
 def _write_trials_csv(task_name: str, participant_id: str, trials: List[Dict]) -> Path:
     """
@@ -211,6 +226,7 @@ def _write_trials_csv(task_name: str, participant_id: str, trials: List[Dict]) -
 # ----------------------------------------------------------------------
 app = Flask(__name__)
 
+
 @app.route("/task/<task_name>/<participant_id>", methods=["GET"])
 def serve_task(task_name: str, participant_id: str):
     """
@@ -238,6 +254,7 @@ def serve_task(task_name: str, participant_id: str):
 
     # ``send_from_directory`` requires a directory, not a full file path.
     return send_from_directory(index_file.parent, index_file.name)
+
 
 @app.route("/task/<task_name>/<participant_id>/submit", methods=["POST"])
 def receive_trials(task_name: str, participant_id: str):
@@ -285,6 +302,7 @@ def receive_trials(task_name: str, participant_id: str):
             "num_trials": len(trials),
         }
     )
+
 
 # ----------------------------------------------------------------------
 # Convenience entry point

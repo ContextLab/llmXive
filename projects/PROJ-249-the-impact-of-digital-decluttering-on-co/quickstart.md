@@ -20,13 +20,15 @@ python -m code.pipeline.run_all --config code/config/study_config.yaml
 
 This command:
 
-1. Validates `code/config/study_config.yaml`.
+1. Validates `code/config/study_config.yaml`. [UNRESOLVED-CLAIM: c_51f961ad — status=not_enough_info]
 2. Creates the required project layout
  (`code/scoring/`, `code/analysis/`, `code/compliance/`,
  `code/viz/`, `code/validation/`, `code/pipeline/`,
  `code/tests/`, `data/raw/`, `data/processed/`,
  `data/results/`, `figures/`).
-3. Writes `results/pipeline.log` that ends with `STATUS: SUCCESS`. [UNRESOLVED-CLAIM: c_65ededf0 — status=not_enough_info]
+3. Writes `results/pipeline.log` that ends with `STATUS: SUCCESS`. [UNRESOLVED-CLAIM: c_d19ca79d — status=not_enough_info]
+4. Writes `data/results/pipeline_status.json`. [UNRESOLVED-CLAIM: c_b68c431f — status=not_enough_info]
+5. Generates a SHA‑256 manifest `data/checksums.sha256` that includes the status file. [UNRESOLVED-CLAIM: c_0a003d5b — status=not_enough_info]
 
 ## Verification
 

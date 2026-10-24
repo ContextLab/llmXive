@@ -1,50 +1,50 @@
 T000:
-  reason: "The `pytest code/tests/test_pilot.py` run failed (see the log showing a\
-    \ ValidationError for missing required property\u202F`phase` and `quality_flag`).\
-    \ The pilot CSV does not contain these fields, so it does not validate against\
-    \ the schema used by the test, and the test suite does not pass. The task therefore\
-    \ is not completed."
+  reason: "The pilot CSV exists and its response times/accuracies meet the numeric\
+    \ bounds, but `pytest code/tests/test_pilot.py` fails (see the execution log)\
+    \ because the rows do not satisfy the JSON schema loaded by the test \u2013 the\
+    \ schema expects fields like `phase` and `quality_flag` (and a different `metric_type`\
+    \ enum) that are absent, and the CSV\u2019s `metric_type` values (`sart_mean_rt`)\
+    \ are not allowed by the provided `contracts/dataset.schema.yaml`. Consequently\
+    \ the pilot data does not validate against the required schema, and the test suite\
+    \ does not pass. The task therefore remains incomplete."
   task: 76215164a8c4b09e3329e0a78037a8b0c5e20e86c9da8478114e3afe9ab8643a
 T001:
-  reason: "Checked the presence of all required directories (all exist) and the required\
-    \ files `code/requirements.txt`, `code/config/study_config.yaml`, and `quickstart.md`\
-    \ (all present and populated). However, the integration test `tests/integration/test_layout.py`\
-    \ that is supposed to verify the layout is missing, so the task\u2019s verification\
-    \ step cannot be satisfied. The missing test file must be added (and runnable)\
-    \ to complete the task."
+  reason: "The required directories and files (requirements.txt, study_config.yaml,\
+    \ quickstart.md) exist, but the integration test `tests/integration/test_layout.py`\u2014\
+    the stipulated verification for T001\u2014fails because it cannot locate the configuration\
+    \ file at the expected path, so the test does not confirm the layout creation\
+    \ as required. The task\u2019s verification step is therefore not satisfied."
   task: b56a62abf1e3355317248265a0e984a04e1b2d69f5a5203c563496d0b007af4d
 T001a:
   task: 2b2980e7634d4e80a25e071238a217acfb437493c8c2f3bb3b16b9d7cec66ac3
 T001b:
-  reason: The Flask app `code/recruitment/app.py` is present, but it raises a `NameError`
-    because `json` is not imported, causing the integration test to return a 500 error
-    instead of the required 201. Consequently the endpoint does not successfully write
-    a participant row, and the test verification fails. Adding `import json` (and
-    any other needed fixes) is required for the task to be satisfied.
+  reason: "The Flask app `code/recruitment/app.py` raises a **NameError** (`json`\
+    \ is not defined) when handling a registration request, causing the integration\
+    \ test to fail (expected 201 but got 500). Because the endpoint does not successfully\
+    \ generate an ID and write a CSV row, the task\u2019s core requirement is not\
+    \ met. Fix the import/bug so the `/register` endpoint works and the test passes."
   task: 658ba6fbdf7ab1b7b5f849b7287af21c5b4521bcfc02eaf6805eccc7de8d6601
 T001c:
-  reason: Checked `code/web/tasks/sart_ospan.py` and the integration test `tests/integration/test_task_delivery.py`.
-    The module raises a `ValueError` on import because the required configuration
-    file (`code/config/study_config.yaml`) is missing or lacks the required `tasks`
-    mapping, causing the test suite to error out before any CSV files are created.
-    Adding a proper config (or handling its absence) is needed for the task to be
-    considered complete.
+  reason: "The module `code/web/tasks/sart_ospan.py` exists, but it aborts on import\
+    \ because `load_config()` cannot find a valid `study_config.yaml` with a top\u2011\
+    level `tasks` mapping (see the pytest error). Consequently the integration test\
+    \ `tests/integration/test_task_delivery.py` fails to run, and the CSVs the module\
+    \ writes (`participant_id,trial_index,response_time,correct,stimulus`) do not\
+    \ match the required `contracts/dataset.schema.yaml` fields. The task therefore\
+    \ does not meet the delivery, checksum verification, or schema\u2011conformance\
+    \ requirements."
   task: 72e2de429065c3ee0b255718131ff84bcd9a18e834d43cac69b58741df5f0944
 T001d:
-  reason: "The `pss_panas.py` module exists, but it writes to `paths.data(\"questionnaire_responses.csv\"\
-    )` rather than the required `data/raw/questionnaire_responses.csv`, and the expected\
-    \ CSV file is missing. Moreover, the integration test crashes while loading `contracts/dataset.schema.yaml`\
-    \ as JSON (the file is YAML), so no validation of the CSV against the schema is\
-    \ performed. These issues mean the task\u2019s requirements are not met."
+  reason: "The `code/web/questionnaires/pss_panas.py` file exists and implements the\
+    \ required Flask endpoints, but the integration test `tests/integration/test_questionnaire.py`\
+    \ crashes during collection because it tries to read `contracts/dataset.schema.yaml`\
+    \ with `json.load`, which fails on a YAML file. Consequently the test never validates\
+    \ that the CSV is written correctly, so the task\u2019s verification is not satisfied.\
+    \ The test (or the schema file) must be corrected to load the schema properly\
+    \ (e.g., using `yaml.safe_load` or providing a valid JSON schema) for the task\
+    \ to be considered complete."
   task: 2931eb3b2b2f90d703a59ddb4c9b752b845b0e644d894fa7e48056b93080d258
 T001e:
-  reason: "The `contracts/compliance.schema.yaml` file is located under `specs/.../contracts/`\
-    \ instead of the expected `contracts/` directory, causing the integration test\
-    \ to raise a `FileNotFoundError`. Additionally, the `data/raw/compliance_logs/`\
-    \ directory already contains a CSV (`compliance_P001_2024-10-01.csv`) so the test\u2019\
-    s \u201Cexactly one record should be written\u201D assertion would fail even if\
-    \ the schema path were corrected. Both issues must be fixed for the test to pass\
-    \ and the task to be considered complete."
   task: d49cb84d61fc490e2fb61be5e8240e2c0d788c81b0440b25007ee080302666c4
 T002:
   task: a923d8252625af6d6d9dcaeeae8a4b859b7ccd4ebe65c302ff345dab1b0eaf09
@@ -57,6 +57,8 @@ T003b:
 T003c:
   task: a9f7b3312924a5fd4b2e5a270b6963600bacbfd7ab4ef95a8d4a6e51319d8b05
 T003d:
+  reason: 'Requested task execution failed; rerun successfully: code/validation/produce_smoke_results.py
+    exit=1'
   task: f10f14969b4742fb3379500dd11699fb5edee2dddc96b7dddd250d2dc93b3805
 T004:
   task: 8954630b89f3677b8e80c0f727fd5f950c57cd4a987a26c65b79ea196a863722

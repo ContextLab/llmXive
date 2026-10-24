@@ -38,7 +38,8 @@ app = Flask(__name__)
 # ----------------------------------------------------------------------
 def _csv_path() -> Path:
     """Return the Path object for the questionnaire responses CSV."""
-    return paths.data("questionnaire_responses.csv")
+    # The specification requires the file to live under ``data/raw``.
+    return paths.data("raw", "questionnaire_responses.csv")
 
 def _ensure_csv():
     """Create the CSV file with a header if it does not exist."""

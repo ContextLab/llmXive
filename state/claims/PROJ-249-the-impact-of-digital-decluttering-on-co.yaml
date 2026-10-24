@@ -309,3 +309,86 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-24T11:30:10Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/quickstart.md
+  attempts: 1
+  canonical: 'pipeline log ends with STATUS: SUCCESS'
+  claim_id: c_d19ca79d
+  context: 'The command creates the required project layout and writes results/pipeline.log
+    that ends with STATUS: SUCCESS.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Writes `results/pipeline.log` that ends with `STATUS: SUCCESS`.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T11:37:32Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/quickstart.md
+  attempts: 1
+  canonical: pipeline writes data/results/pipeline_status.json
+  claim_id: c_b68c431f
+  context: The command writes data/results/pipeline_status.json as part of its output.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Writes `data/results/pipeline_status.json`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T11:37:32Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/quickstart.md
+  attempts: 1
+  canonical: generates SHA-256 manifest data/checksums.sha256 including status file
+  claim_id: c_0a003d5b
+  context: "The command generates a SHA\u2011256 manifest data/checksums.sha256 that\
+    \ includes the status file."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Generates a SHA\u2011256 manifest `data/checksums.sha256` that includes\
+    \ the status file."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T11:37:32Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/quickstart.md
+  attempts: 1
+  canonical: validates code/config/study_config.yaml
+  claim_id: c_51f961ad
+  context: The command validates code/config/study_config.yaml before running the
+    pipeline.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Validates `code/config/study_config.yaml`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T11:37:32Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/quickstart.md
+  attempts: 1
+  canonical: creates required project layout directories
+  claim_id: c_d16a7af1
+  context: The command creates the required project layout including code/scoring/,
+    code/analysis/, code/compliance/, code/viz/, code/validation/, code/pipeline/,
+    code/tests/, data/raw/, data/processed/, data/results/, and figures/.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Creates the required project layout (`code/scoring/`, `code/analysis/`,
+    `code/compliance/`, `code/viz/`, `code/validation/`, `code/pipeline/`, `code/tests/`,
+    `data/raw/`, `data/processed/`, `data/results/`, `figures/`).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T11:37:32Z'

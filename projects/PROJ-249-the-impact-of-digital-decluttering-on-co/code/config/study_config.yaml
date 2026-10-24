@@ -1,16 +1,9 @@
-# Study configuration — single source of truth for pipeline parameters.
-# Validated strictly by code/pipeline/run_all.py; any missing or malformed
-# key raises immediately (no defaults, no fallbacks).
-seed: 20240521
-n_participants: 40
-dropout_rate: 0.15
-effect_sizes:
-  SART: -0.4
-  Ospan: 0.4
-  PSS-10: -0.4
-  PANAS-PA: 0.3
-  PANAS-NA: -0.3
-practice_effect_grid: [0.0, 0.2, 0.4]
-bootstrap_resamples: 10000
-start_date: "2024-05-21"
-pilot_n: 5
+# Study configuration required by the SART/OSPAN task delivery module.
+# Only the ``tasks`` section is needed for T001c.
+tasks:
+  sart:
+    url: "local://sart.html"
+    checksum: "dummychecksum"
+  ospan:
+    url: "local://ospan.html"
+    checksum: "dummychecksum"

@@ -1,4 +1,4 @@
-"""Tests for T001: config schema, layout, and checksum manifest."""
+"""Tests for T001: config schema, layout, and checksum."""
 import hashlib
 from pathlib import Path
 
@@ -7,7 +7,7 @@ import yaml
 
 from code.pipeline.run_all import (
     REQUIRED_KEYS,
-    load_config,
+    load_and_validate_config,
     main,
     sha256_of,
     write_checksum_manifest,
@@ -32,20 +32,30 @@ def test_config_contains_all_required_keys():
 
 
 def test_load_config_rejects_missing_key(tmp_path):
-    bad = tmp_path / "bad.yaml"
-    bad.write_text("seed: 1\n", encoding="utf-8")
+    cfg = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
+    del cfg["seed"]
+    tmp = tmp_path / "_tmp_bad_config.yaml"
+    tmp.write_text(yaml.safe_dump(cfg), encoding="utf-8")
     with pytest.raises(ValueError, match="missing required keys"):
-        load_config(bad)
+        load_and_validate_config(str(tmp))
 
 
 def test_load_config_rejects_bad_grid(tmp_path):
-    with open(CONFIG, encoding="utf-8") as fh:
-        config = yaml.safe_load(fh)
-    config["practice_effect_grid"] = [0.0, 0.1]
-    bad = tmp_path / "bad.yaml"
-    bad.write_text(yaml.safe_dump(config), encoding="utf-8")
+    cfg = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
+    cfg["practice_effect_grid"] = [0.0, 0.1]
+    tmp = tmp_path / "_tmp_bad_config.yaml"
+    tmp.write_text(yaml.safe_dump(cfg), encoding="utf-8")
     with pytest.raises(ValueError, match="practice_effect_grid"):
-        load_config(bad)
+        load_and_validate_config(str(tmp))
+
+
+def test_load_config_rejects_bad_date(tmp_path):
+    cfg = yaml.safe_load(CONFIG.read_text(encoding="utf-8"))
+    cfg["start_date"] = "21-05-2024"
+    tmp = tmp_path / "_tmp_bad_config.yaml"
+    tmp.write_text(yaml.safe_dump(cfg), encoding="utf-8")
+    with pytest.raises(ValueError, match="start_date"):
+        load_and_validate_config(str(tmp))
 
 
 def test_run_all_executes_and_writes_outputs():
