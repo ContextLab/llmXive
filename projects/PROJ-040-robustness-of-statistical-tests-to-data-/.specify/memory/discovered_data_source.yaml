@@ -1,0 +1,25 @@
+status: verified
+kind: pypi_package
+ref: scikit-learn
+access_python: "import numpy as np\nfrom sklearn.datasets import load_iris, load_wine,\
+  \ load_breast_cancer\n\ndef load_and_report(loader, name):\n    data = loader()\n\
+  \    n_records = data.data.shape[0]\n    fields = [\"sample_id\"] + list(data.feature_names)\
+  \ + [\"target\"]\n    print(f\"RECORDS={n_records}\")\n    print(\"FIELDS=\" + \"\
+  ,\".join(fields))\n\n# Example: Iris dataset\nload_and_report(load_iris, \"iris\"\
+  )"
+record_count: 150
+sample_fields:
+- sample_id
+- sepal length (cm)
+- sepal width (cm)
+- petal length (cm)
+- petal width (cm)
+- target
+field_coverage: 0.667
+required_fields:
+- numeric_feature_columns
+- target_column
+- sample_id
+intent: download UCI Machine Learning Repository and OpenML datasets Iris Wine Breast
+  Cancer HAR python package dataset
+cache_key: 5283cb27de2e8ad1db7fb035f405aa61832e9a037a7495d84830962c997a8033

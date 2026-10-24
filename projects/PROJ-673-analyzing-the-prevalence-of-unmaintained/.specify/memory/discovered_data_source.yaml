@@ -1,15 +1,14 @@
 status: none
-intent: libraries.io npm packages download count dataset with dependencies and vulnerability
-  data python package dataset
+intent: npm registry download counts dependencies GitHub metadata npm audit vulnerability
+  national vulnerability database python package dataset
 required_fields:
 - package_name
-- weekly_downloads
+- download_count
 - dependency_name
 - dependency_version_constraint
 - dependency_type
-- last_release_date
+- last_release_timestamp
 - unpatched_cve_count
-- repository_url
-cache_key: 152dd8235fd79bba4960f517c530143d496c2a2213a62137f282d703f162362d
-searched_at: '2026-10-10T18:31:41.659732+00:00'
+cache_key: 9a958b5445118710bf85d3d3468c33b2d4b3f654596dc05e2ed5f26549fd8c18
+searched_at: '2026-10-24T09:18:14.552297+00:00'
 retry_count: 1

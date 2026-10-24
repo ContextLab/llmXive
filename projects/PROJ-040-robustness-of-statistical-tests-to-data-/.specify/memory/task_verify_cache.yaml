@@ -1,3 +1,52 @@
+T001:
+  c: false
+  h: 9b1be57888c7bf8cb8ff4bc3b262d39bd1fe727f00140678d3b4e2397316015f
+  r: "The evidence only confirms the existence of the project root `projects/PROJ-040-robustness-of-statistical-tests-to-data-`;\
+    \ it does not show that the required sub\u2011directories (`code/data`, `code/utils`,\
+    \ `code/viz`, `tests`, `data/raw`, `data/processed`, `data/results`, `docs`) were\
+    \ actually created. These directories must be present (and non\u2011empty where\
+    \ appropriate) to satisfy the task."
+  sig: 30fa495fdfc2f2ea2e3b78b5315c3b0405290f029d35d91b39e7f99f2617e934
+T002:
+  c: true
+  h: a6f6539c70b2a9a1a3f69506e1e83bf6663f14e168ac99c48e6e283f9d16747c
+  r: "Checked `code/requirements.txt` (resolved path `code/requirements.txt`) \u2013\
+    \ the file exists, is non\u2011empty, and contains exactly the six pinned dependencies\
+    \ specified in the task."
+  sig: 981bb7b34ae37b05c86033af72bc3a784a7b785457baaa32dfcfd3c66801631a
+T003:
+  c: true
+  h: 30be70c9abd30169c93adbf3e8e130a244ad29d58a5cbbf754d2b68f8e1dbde8
+  r: "The `pyproject.toml` file at `code/pyproject.toml` exists (747\u202Fbytes) and\
+    \ contains a `[tool.black]` section with `line-length = 88` and a `[tool.ruff]`\
+    \ section with `target-version = \"py311\"` (as well as matching line\u2011length).\
+    \ These configurations fulfill the task\u2019s requirement to set up Black and\
+    \ Ruff."
+  sig: f65e1a2644bb9298d6a23b733ff30619c1e2dc52b258cc76870d2f73da011755
+T004:
+  c: true
+  h: 62da2b8863408f1eaf321da68f16dd25b70ecf1e44bda406506665b186f738eb
+  r: "Checked `code/validation/validate_citations.py` (5779\u202Fbytes) which parses\
+    \ the \u201C# Verified datasets\u201D block in `plan.md`, downloads each URL,\
+    \ computes SHA\u2011256 hashes, compares them to the expected values, and records\
+    \ results; the file is present, non\u2011empty, and implements the required verification\
+    \ logic."
+  sig: 766dc404cabfe78aefe7983db082dcef25c3023647fbf7a145ff03da67f22eea
+T006:
+  c: false
+  h: f99fba4df2f8769a66a6c30e3f40cf6788b4c355f5de3ed3797479657d1b05cf
+  r: The collector shows `code/viz/` is missing, while all other required directories
+    exist. The task demands the full directory structure, so the absent `code/viz/`
+    directory makes the implementation incomplete.
+  sig: a8fafe04fc09494affaef90eec7f054bdd09443ce5c8df7ffab29a0822781d7d
+T007:
+  c: true
+  h: d5001eb1cecefd87467940913798eddf98c8123ec98119e9bdf62e30fc595fae
+  r: "The `code/utils/config.py` file exists (1812\u202Fbytes) and defines both required\
+    \ functions `get_seed() -> int` (returning a fixed seed value) and `check_memory_limit()\
+    \ -> bool` (returning a boolean based on current RAM usage). The implementations\
+    \ are concrete, non\u2011stub, and meet the specified API."
+  sig: f3335fed432167913e025d9df5a985cbe8a92b2b6a70b928e46475efbfa07519
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

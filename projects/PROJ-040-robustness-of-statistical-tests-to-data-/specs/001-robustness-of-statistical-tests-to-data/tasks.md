@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan: `mkdir -p projects/PROJ-040-robustness-of-statistical-tests-to-data-/code/data projects/PROJ-040-robustness-of-statistical-tests-to-data-/code/utils projects/PROJ-040-robustness-of-statistical-tests-to-data-/code/viz projects/PROJ-040-robustness-of-statistical-tests-to-data-/tests projects/PROJ-040-robustness-of-statistical-tests-to-data-/data/raw projects/PROJ-040-robustness-of-statistical-tests-to-data-/data/processed projects/PROJ-040-robustness-of-statistical-tests-to-data-/data/results projects/PROJ-040-robustness-of-statistical-tests-to-data-/docs` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001 Create project structure per implementation plan: `mkdir -p projects/PROJ-040-robustness-of-statistical-tests-to-data-/code/data projects/PROJ-040-robustness-of-statistical-tests-to-data-/code/utils projects/PROJ-040-robustness-of-statistical-tests-to-data-/code/viz projects/PROJ-040-robustness-of-statistical-tests-to-data-/tests projects/PROJ-040-robustness-of-statistical-tests-to-data-/data/raw projects/PROJ-040-robustness-of-statistical-tests-to-data-/data/processed projects/PROJ-040-robustness-of-statistical-tests-to-data-/data/results projects/PROJ-040-robustness-of-statistical-tests-to-data-/docs` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T002 Initialize Python 3.11 project with `code/requirements.txt` containing pinned dependencies: numpy==1.26.4, scipy==1.12.0, pandas==2.2.0, matplotlib==3.8.0, requests==2.31.0, pytest==7.4.0
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml` with black (line-length=88) and ruff (target-version=py311) configuration
 
@@ -56,8 +56,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `code/validation/validate_citations.py` to verify dataset URLs against the "# Verified datasets" block in `plan.md`
-- [X] T005 [P] Implement `code/validation/checksum_artifacts.py` to generate content hashes (SHA-256 hex) for scripts (created in T002) and directory structure (created in T006), explicitly updating the YAML state file `state/projects/PROJ-040-robustness-of-statistical-tests-to-data-.yaml` with an `artifact_hashes` map (YAML format, not JSON). Note: This task runs after T006 to ensure directory structure exists.
-- [X] T006 [P] Setup directory structure: `data/raw/`, `data/processed/`, `data/results/`, `code/data/`, `code/utils/`, `code/viz/`, `tests/`
+- [ ] T005 [P] Implement `code/validation/checksum_artifacts.py` to generate content hashes (SHA-256 hex) for scripts (created in T002) and directory structure (created in T006), explicitly updating the YAML state file `state/projects/PROJ-040-robustness-of-statistical-tests-to-data-.yaml` with an `artifact_hashes` map (YAML format, not JSON). Note: This task runs after T006 to ensure directory structure exists.
+- [ ] T006 [P] Setup directory structure: `data/raw/`, `data/processed/`, `data/results/`, `code/data/`, `code/utils/`, `code/viz/`, `tests/`
 - [X] T007 Create base configuration module for random seed (fixed) and memory constraints (RAM check) in `code/utils/config.py` with API: `get_seed() -> int`, `check_memory_limit() -> bool`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -74,7 +74,7 @@
 - [ ] T008.2 [P] Update spec.md User Story 2 acceptance criteria to require 'resampling from a single homogeneous population' instead of 'shuffling labels', aligning with the plan.
 - [~]T008.2.1 [P] Update the 'Independent Test' section of User Story 2 in spec.md to replace 'shuffling labels' with 'resampling from a single homogeneous population', ensuring full alignment with the plan.
 - [ ] T008.3 [P] Update spec.md FR-007 to mandate 'associational observations' instead of 'causal findings', resolving the internal contradiction.
-- [X] T008.3.1 [P] Correct the contradictory phrasing in spec.md FR-007 by changing 'report causal findings' to 'report associational observations', ensuring the spec artifact itself is logically consistent.
+- [~] T008.3.1 [P] Correct the contradictory phrasing in spec.md FR-007 by changing 'report causal findings' to 'report associational observations', ensuring the spec artifact itself is logically consistent.
 
 ---
 
@@ -88,16 +88,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T008 [P] [US1] Write failing unit tests for contamination injection logic in `tests/unit/test_contamination.py` (verify outlier count = `round(* total_rows)`) for T011
-- [X] T009 [P] [US1] Write failing unit tests for Gaussian noise distribution in `tests/unit/test_contamination.py` (verify mean/std match spec) for T011
+- [~] T008 [P] [US1] Write failing unit tests for contamination injection logic in `tests/unit/test_contamination.py` (verify outlier count = `round(* total_rows)`) for T011
+- [~] T009 [P] [US1] Write failing unit tests for Gaussian noise distribution in `tests/unit/test_contamination.py` (verify mean/std match spec) for T011
 
 ### Implementation for User Story 1
 
-- [X] T010 [P] [US1] Implement `code/data/download_datasets.py` to fetch UCI HAR and UCI Wine via `wget`/`requests` and validate numeric columns
-- [X] T011 [US1] Implement `code/data/generate_contamination.py` to inject Gaussian noise and extreme outliers at rates defined in `config.py` (which is populated by `research.md` or defaults) using `numpy`. Do NOT read rates directly from spec.md.
-- [X] T012 [US1] Add logic to handle missing values (impute or log warning) and skip non-numeric columns in `code/data/generate_contamination.py`
+- [~] T010 [P] [US1] Implement `code/data/download_datasets.py` to fetch UCI HAR and UCI Wine via `wget`/`requests` and validate numeric columns
+- [~] T011 [US1] Implement `code/data/generate_contamination.py` to inject Gaussian noise and extreme outliers at rates defined in `config.py` (which is populated by `research.md` or defaults) using `numpy`. Do NOT read rates directly from spec.md.
+- [~] T012 [US1] Add logic to handle missing values (impute or log warning) and skip non-numeric columns in `code/data/generate_contamination.py`
 - [ ] T013 [US1] Save contaminated datasets to `data/processed/` with derivation logs and checksums
-- [X] T014 [US1] Implement sensitivity analysis sweep for contamination magnitude thresholds (σ to 10σ, step 1σ) [UNRESOLVED-CLAIM: c_b51a3225 — status=not_enough_info] in `code/data/generate_contamination.py`, outputting to `data/results/sensitivity.csv` with columns [threshold, false_positive_rate, variation_in_fpr]. Explicitly map 'variation_in_fpr' to SC-005's requirement for 'variation in false-positive rates'.
+- [~] T014 [US1] Implement sensitivity analysis sweep for contamination magnitude thresholds (σ to 10σ, step 1σ) [UNRESOLVED-CLAIM: c_b51a3225 — status=not_enough_info] in `code/data/generate_contamination.py`, outputting to `data/results/sensitivity.csv` with columns [threshold, false_positive_rate, variation_in_fpr]. Explicitly map 'variation_in_fpr' to SC-005's requirement for 'variation in false-positive rates'.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,16 +107,16 @@
 
 **Goal**: Run Monte Carlo simulations (n=1000 per condition) of standard t-tests and ANOVA [UNRESOLVED-CLAIM: c_40c84363 — status=not_enough_info] on clean and contaminated data to estimate Type I error and power to estimate Type I error and power
 
-**Independent Test**: {{claim:c_6130269b}}
+**Independent Test**: Run simulation on a resampled dataset (true null) and verify empirical Type I error ≈ 0.05 (within CI width < 0.02).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T015 [P] [US2] Unit test for Monte Carlo loop logic in `tests/unit/test_simulation.py` (verify seed 42 reproducibility)
-- [X] T016 [P] [US2] Integration test for Type I error calculation on clean data in `tests/integration/test_simulation_pipeline.py`
+- [~] T015 [P] [US2] Unit test for Monte Carlo loop logic in `tests/unit/test_simulation.py` (verify seed 42 reproducibility)
+- [~] T016 [P] [US2] Integration test for Type I error calculation on clean data in `tests/integration/test_simulation_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [X] T017 [P] [US2] Implement `code/utils/stats_helpers.py` with functions for standard t-test, ANOVA, and Bonferroni correction
+- [~] T017 [P] [US2] Implement `code/utils/stats_helpers.py` with functions for standard t-test, ANOVA, and Bonferroni correction
 - [ ] T018 [US2] Implement `code/data/run_simulation.py` to execute multiple iterations per condition (dataset x contamination rate x magnitude) for UCI HAR and UCI Wine, saving results to `data/results/simulation_results.csv` with columns [dataset, rate, error_rate, power]. Explicitly depend on T014's output (`sensitivity.csv`) for the magnitude parameter sweep.
 - [ ] T019 [US2] Implement logic to resample from a single homogeneous population for Type I error (null hypothesis) instead of label shuffling, per spec.md User Story 2. Algorithm: sample with replacement from the pooled data of both groups to ensure a true null hypothesis.
 - [ ] T019.1 [US2] Update the 'Independent Test' section of User Story 2 in spec.md to replace 'shuffling labels' with 'resampling from a single homogeneous population', ensuring traceability between spec and code.
