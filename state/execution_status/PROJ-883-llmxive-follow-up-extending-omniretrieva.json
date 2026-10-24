@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-24T18:27:24Z",
+  "updated_at": "2026-10-24T23:29:11Z",
   "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
-  "replan_rounds": 2
+  "replan_rounds": 3
 }

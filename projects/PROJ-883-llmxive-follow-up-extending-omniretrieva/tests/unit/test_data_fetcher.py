@@ -18,7 +18,7 @@ from code.utils.data_fetcher import (
 
 
 def test_load_ms_marco():
-    """Iterate a single record from the streamed MS MARCO test split."""
+    """Iterate a single record from the streamed MS MARCO test split."""
     try:
         ds = load_ms_marco()
     except DataFetchError as exc:
@@ -26,7 +26,7 @@ def test_load_ms_marco():
 
     # The streaming dataset is an iterable; fetch the first element.
     first = next(iter(ds), None)
-    assert first is not None, "MS MARCO stream yielded no records"
+    assert first is not None, "MS MARCO stream yielded no records"
 
 
 def test_load_spider():

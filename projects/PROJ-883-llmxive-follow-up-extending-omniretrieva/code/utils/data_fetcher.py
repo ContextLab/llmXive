@@ -3,7 +3,7 @@
 This module provides three primary loader functions that return
 streaming datasets or downloaded files for the benchmark:
 
-* ``load_ms_marco`` – streams the MS MARCO test split.
+* ``load_ms_marco`` – streams the MS MARCO test split.
 * ``load_spider`` – streams the Spider tables split.
 * ``load_dbpedia`` – downloads the DBpedia triples parquet file.
 
@@ -29,34 +29,34 @@ class DataFetchError(RuntimeError):
 # Public loader functions
 # ----------------------------------------------------------------------
 def load_ms_marco() -> Iterable[dict]:
-    """Stream the MS MARCO *test* split.
+    """Stream the MS MARCO *test* split.
 
     Returns
     -------
     Iterable[dict]
         A streaming ``datasets`` object yielding examples from the
-        ``microsoft/ms_marco`` repository, ``v1.1`` configuration,
+        ``microsoft/ms_marco`` repository, ``test`` configuration,
         ``test`` split.
     """
     try:
         from datasets import load_dataset  # type: ignore
     except Exception as exc:
-        log.error("datasets library is required for MS MARCO loading: %s", exc)
+        log.error("datasets library is required for MS MARCO loading: %s", exc)
         raise DataFetchError("datasets library not installed") from exc
 
     try:
+        # Using the specific config "test" as mandated by the task description.
         ds = load_dataset(
             "microsoft/ms_marco",
-            "v1.1",
+            "test",
             split="test",
             streaming=True,
-            download_mode="force_redownload",
         )
-        log.info("MS MARCO test split streamed successfully")
+        log.info("MS MARCO test split streamed successfully")
         return ds
     except Exception as exc:
-        log.error("Failed to stream MS MARCO test split: %s", exc)
-        raise DataFetchError("Unable to load MS MARCO test split") from exc
+        log.error("Failed to stream MS MARCO test split: %s", exc)
+        raise DataFetchError("Unable to load MS MARCO test split") from exc
 
 
 def load_spider() -> Iterable[dict]:
@@ -74,16 +74,14 @@ def load_spider() -> Iterable[dict]:
         raise DataFetchError("datasets library not installed") from exc
 
     try:
-        # The Spider dataset does not provide a dedicated "tables" config
-        # in the public hub; the standard "train" split contains the
-        # required table information. We stream that split directly.
+        # Using the "tables" configuration as mandated by the task description.
         ds = load_dataset(
             "spider",
+            "tables",
             split="train",
             streaming=True,
-            download_mode="force_redownload",
         )
-        log.info("Spider tables streamed successfully (using train split)")
+        log.info("Spider tables streamed successfully")
         return ds
     except Exception as exc:
         log.error("Failed to stream Spider tables split: %s", exc)

@@ -5,7 +5,7 @@
 # Ruff linter for code quality checks (used in test_skeleton)
 ruff==0.4.5
 
-# Pin versions for reproducibility (optional, can be extended by later tasks)
+# Pin versions for reproducibility
 numpy==1.26.4
 pandas==2.2.2
 pyarrow==15.0.0
@@ -15,5 +15,3 @@ statsmodels==0.14.2
 scipy==1.13.0
 networkx==3.3
 rdflib==7.0.0
-# The above versions are compatible with the rest of the project.  Additional
-# dependencies required by later phases will be added in their respective tasks.

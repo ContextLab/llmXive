@@ -17,8 +17,8 @@ properties:
         items:
           type: string
     required: [steps]
-    additionalProperties: false
   ground_truth_plan:
-    type: string
-required: [query_id, source_type, complexity_level, logical_plan, ground_truth_plan]
-additionalProperties: false
+    type: ["string", "null"]
+  synthetic_flag:
+    type: boolean
+required: [query_id, source_type, complexity_level, logical_plan]

@@ -56,6 +56,7 @@ DEPRECATED = [
     "execution_metrics.schema.yaml",
     "execution-log.schema.yaml",
     "query_result.schema.yaml",
+    "statistics-result.schema.yaml",
 ]
 
 def test_deprecated_schemas_absent():

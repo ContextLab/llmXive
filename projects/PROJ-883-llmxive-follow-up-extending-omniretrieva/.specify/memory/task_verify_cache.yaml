@@ -1,25 +1,22 @@
-T001:
+T002:
   c: false
-  h: ba64af1e66f95cdee3339c01d34e2eed1cb2d6785552edd09fc08ac3ea79e76d
-  r: "The `quickstart.md` and `tests/integration/test_skeleton.py` files are present\
-    \ and correctly implement the described checks, and `artifacts/help_output.txt`\
-    \ exists and is non\u2011empty. However, there is no evidence that `artifacts/ruff_output.txt`\
-    \ was created (the file is missing from the listed artifacts), so the integration\
-    \ test\u2019s requirement to store the ruff output and verify its non\u2011emptiness\
-    \ is not satisfied. Adding the missing `ruff_output.txt` (or evidence of its generation)\
-    \ is needed to complete the task."
-  sig: f68db30e571a8eefc0c4dd51db73626f997a942ed56d3c07f4bfc82977f2c6c2
-T004:
+  h: da650dc1289df10e1b0b5996ab494256aea2efe5bdaa0a058bab03ccdba901d5
+  r: "The contracts directory is empty \u2013 all four required schema files (`query_instance.schema.yaml`,\
+    \ `execution_log.schema.yaml`, `execution_metric.schema.yaml`, `statistics_result.schema.yaml`)\
+    \ are missing, and the duplicate `statistics-result.schema.yaml` is also absent.\
+    \ Consequently the provided `tests/unit/test_contracts.py` fails because it cannot\
+    \ find the schema files. The task requires the schemas to exist and the test to\
+    \ pass, which is not satisfied."
+  sig: 3e1e262170507532fc5a9ba40ec374cb290390e860b0d05187584ba2be2c2e10
+T003:
   c: false
-  h: 86aa8bfded1afea1daea88c58c53921868f07640dee53ffa1261510bd200afc1
-  r: "The generated `generation_log.json` contains an extra field `synthetic_flag`\
-    \ that is not allowed by the schema, causing the unit test `test_generation_log_exists_and_valid`\
-    \ to fail. Moreover, because the DBpedia download failed, the graph queries use\
-    \ placeholder operations (`op_0`, `op_1`, \u2026) instead of real predicates,\
-    \ violating the requirement that logical\u2011plan steps be derived from real\
-    \ metadata, and `ground_truth_plan` is set to an empty string rather than a null\
-    \ placeholder. The test suite therefore does not pass."
-  sig: 01e9da5c615db199b86143d79599f075f5ffe606d4371da2d00034234c204759
+  h: 6b81f8a6dc3cae29acc1421155f591461a56a087451f6366d4382065e1a7748b
+  r: "The three loader functions exist, but at runtime they raise errors: `load_ms_marco`\
+    \ cannot find the \u201Ctest\u201D config, `load_spider` cannot find the \u201C\
+    tables\u201D config, and `load_dbpedia` receives a 401 Unauthorized error, causing\
+    \ all unit tests to fail. The required behavior of successfully streaming the\
+    \ datasets and downloading the parquet file is therefore not met."
+  sig: fc1a892aaa2e65169531327429c5d73d0eb0a4243e2083bc3e54f987a2efc0f1
 T005:
   c: false
   h: 89a9ac9a301b6112a9c0fbd5246f8f2f504aed1a516a56378331e00d1f0dc042
@@ -42,3 +39,14 @@ T007:
     \ to 2 CPU cores, which does not enforce the \u2264\u202F1\u202F000\u202Fms CPU\u2011\
     time limit specified. The task therefore remains incomplete."
   sig: 9c664f370a6ef9123f9a9e9137bd4a67071acf1c9c0db7f5aca746aafbbda402
+T008:
+  c: false
+  h: 5362d2907146faf957edf97936fd340d013f6c12a0450c29fead3ea729070fb4
+  r: "The executor package exists but each executor is only a stub that returns a\
+    \ placeholder plan identifier; none perform BM25 over MS\u202FMARCO, SQLite over\
+    \ Spider tables, or RDFLib SPARQL over DBpedia as required.\u202F`BaseExecutor`\
+    \ enforces timeouts via `signal.alarm` instead of the mandated `concurrent.futures.ThreadPoolExecutor`\
+    \ with a 60\u202Fs wall\u2011clock limit, and the test suite does not check `latency_ms\
+    \ > 0` nor validate results against the missing `execution_log.schema.yaml`.\u202F\
+    Consequently the task\u2019s functional and testing requirements are not satisfied."
+  sig: e41626b9c252e9df85782fb6063272b1bc4fcec4c519a6f13ecfdb222434512e

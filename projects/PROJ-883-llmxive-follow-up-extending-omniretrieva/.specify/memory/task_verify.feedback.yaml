@@ -1,33 +1,29 @@
 T001:
-  reason: "The `quickstart.md` and `tests/integration/test_skeleton.py` files are\
-    \ present and correctly implement the described checks, and `artifacts/help_output.txt`\
-    \ exists and is non\u2011empty. However, there is no evidence that `artifacts/ruff_output.txt`\
-    \ was created (the file is missing from the listed artifacts), so the integration\
-    \ test\u2019s requirement to store the ruff output and verify its non\u2011emptiness\
-    \ is not satisfied. Adding the missing `ruff_output.txt` (or evidence of its generation)\
-    \ is needed to complete the task."
+  reason: "The `quickstart.md` and `tests/integration/test_skeleton.py` exist, and\
+    \ `artifacts/help_output.txt` is present and non\u2011empty, but the `ruff check\
+    \ code/` step fails (see the logged test failure) because `.ruff.toml` is malformed,\
+    \ causing the test to abort and no valid `artifacts/ruff_output.txt` to be produced.\
+    \ The required linting command must exit\u202F0 and generate a non\u2011empty\
+    \ artifact for the task to be complete."
   task: 9f9c0b4560206240b1373cb3d5fdfe2a7f4ea54abc610a9a571c5df47b8aca9b
 T002:
-  reason: "The contracts directory lacks the required schema files \u2013 the test\
-    \ `test_schema_validation` fails because `query_instance.schema.yaml` (and the\
-    \ other three) are reported as missing, and a stray duplicate `statistics-result.schema.yaml`\
-    \ is still present. The four YAML schemas must be added (with valid content) and\
-    \ the duplicate removed for the test to pass."
+  reason: "The contracts directory is empty \u2013 all four required schema files\
+    \ (`query_instance.schema.yaml`, `execution_log.schema.yaml`, `execution_metric.schema.yaml`,\
+    \ `statistics_result.schema.yaml`) are missing, and the duplicate `statistics-result.schema.yaml`\
+    \ is also absent. Consequently the provided `tests/unit/test_contracts.py` fails\
+    \ because it cannot find the schema files. The task requires the schemas to exist\
+    \ and the test to pass, which is not satisfied."
   task: aaee1af098b65fff093d7bf964cbfe6cf2c8add7984ce40c85c991c5447d6a3c
 T003:
-  reason: "The `tests/unit/test_data_fetcher.py` suite fails on `test_load_dbpedia`\
-    \ (HTTP\u202F401 error), so the DBpedia download does not succeed, and `load_spider`\
-    \ does not use the required `\"tables\"` config as specified. Both issues must\
-    \ be fixed for the task to be considered complete."
+  reason: "The three loader functions exist, but at runtime they raise errors: `load_ms_marco`\
+    \ cannot find the \u201Ctest\u201D config, `load_spider` cannot find the \u201C\
+    tables\u201D config, and `load_dbpedia` receives a 401 Unauthorized error, causing\
+    \ all unit tests to fail. The required behavior of successfully streaming the\
+    \ datasets and downloading the parquet file is therefore not met."
   task: c16828ba900b0640760cb90ad5b27d17811b5c9a7e6770e890fae2dcd346e59f
 T004:
-  reason: "The generated `generation_log.json` contains an extra field `synthetic_flag`\
-    \ that is not allowed by the schema, causing the unit test `test_generation_log_exists_and_valid`\
-    \ to fail. Moreover, because the DBpedia download failed, the graph queries use\
-    \ placeholder operations (`op_0`, `op_1`, \u2026) instead of real predicates,\
-    \ violating the requirement that logical\u2011plan steps be derived from real\
-    \ metadata, and `ground_truth_plan` is set to an empty string rather than a null\
-    \ placeholder. The test suite therefore does not pass."
+  reason: 'Requested task execution failed; rerun successfully: code/generators/synthetic_query.py
+    exit=1'
   task: cb288a327de842f63ecff2b0a4665ddad2b6051e844e0bd2ff8e37ff3213e8b5
 T005:
   reason: "The provided `code/generators/reference_engine.py` does not meet the spec:\
@@ -52,6 +48,13 @@ T007:
     time limit specified. The task therefore remains incomplete."
   task: 3ace9e1f5c7d3a98727b7797d6417e0f73629d89a219c90f45bcd4f98530757d
 T008:
+  reason: "The executor package exists but each executor is only a stub that returns\
+    \ a placeholder plan identifier; none perform BM25 over MS\u202FMARCO, SQLite\
+    \ over Spider tables, or RDFLib SPARQL over DBpedia as required.\u202F`BaseExecutor`\
+    \ enforces timeouts via `signal.alarm` instead of the mandated `concurrent.futures.ThreadPoolExecutor`\
+    \ with a 60\u202Fs wall\u2011clock limit, and the test suite does not check `latency_ms\
+    \ > 0` nor validate results against the missing `execution_log.schema.yaml`.\u202F\
+    Consequently the task\u2019s functional and testing requirements are not satisfied."
   task: d23c1de4f52e0994b5cc69665dab547af52b3c83fa02c4352596fecef834e700
 T009:
   reason: 'Requested task execution failed; rerun successfully: code/baseline_overhead.py

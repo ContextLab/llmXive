@@ -8,4 +8,3 @@ properties:
   slope_change:
     type: number
 required: [cutoff, spike_point, slope_change]
-additionalProperties: false

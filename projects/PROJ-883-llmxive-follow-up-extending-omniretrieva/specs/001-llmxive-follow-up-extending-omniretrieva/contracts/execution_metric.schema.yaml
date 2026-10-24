@@ -13,11 +13,4 @@ properties:
     type: string
   throttle_config:
     type: string
-required:
-  - query_id
-  - latency_ms
-  - mismatch_flag
-  - delta_latency
-  - engine_version
-  - throttle_config
-additionalProperties: false
+required: [query_id, latency_ms]

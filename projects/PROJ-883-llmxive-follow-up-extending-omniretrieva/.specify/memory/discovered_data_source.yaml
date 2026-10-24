@@ -1,12 +1,42 @@
-status: none
-intent: download MS MARCO parquet and DBpedia triples dataset for query latency analysis
-  python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'from datasets import load_dataset
+
+
+  # Load the full dataset (use a valid config name)
+
+  dataset_dict = load_dataset("microsoft/ms_marco", name="v1.1")
+
+
+  # Count total records across all splits
+
+  total_records = sum(len(split) for split in dataset_dict.values())
+
+  print(f"RECORDS={total_records}")
+
+
+  # Show field names from a sample record
+
+  first_split = next(iter(dataset_dict.values()))
+
+  sample_record = first_split[0]
+
+  print(f"FIELDS={'',''.join(sample_record.keys())}")'
+record_count: 102023
+sample_fields:
+- answers
+- passages
+- query
+- query_id
+- query_type
+- wellFormedAnswers
+field_coverage: 0.6
 required_fields:
 - query_id
-- query_text
-- plan_depth
 - source_type
+- plan_depth
 - latency_ms
-cache_key: d663017683c156e394588bd6720892ffcec78b9805fe29921bf6c79451cac2a5
-searched_at: '2026-10-24T18:14:05.124883+00:00'
-retry_count: 1
+- query_text
+intent: download MS MARCO parquet dataset and DBpedia triples python package dataset
+cache_key: f188ffaec2c9f312fe3fbc26810d413b02740785f1f569359f0990ada2fd7488

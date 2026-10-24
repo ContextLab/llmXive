@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.11+
 - Linux environment (GitHub Actions or local)
-- Internet access for dataset download (optional – synthetic fallback is used)
+- Internet access for dataset download
 
 ## Verification Commands (required for T001)
 
@@ -27,12 +27,6 @@ them and stores the outputs under ``artifacts/``.
 
  ```bash
  python -m code.main
- ```
-
-4. **Generate the synthetic query dataset**
-
- ```bash
- python -m code.query_generator --count 500
  ```
 
 ## Installation

@@ -5,10 +5,8 @@ properties:
     type: string
   source_type:
     type: string
-    enum: [text, relational, graph]
   complexity_level:
     type: integer
-    minimum: 1
   latency_ms:
     type: number
   timestamp:
@@ -21,19 +19,7 @@ properties:
   timeout_flag:
     type: boolean
   synthetic_flag:
-    type: integer
-    enum: [0, 1]
+    type: ["integer", "boolean"]
   throttling_mode:
     type: string
-required:
-  - query_id
-  - source_type
-  - complexity_level
-  - latency_ms
-  - timestamp
-  - translation_error
-  - success_flag
-  - timeout_flag
-  - synthetic_flag
-  - throttling_mode
-additionalProperties: false
+required: [query_id, latency_ms, success_flag]

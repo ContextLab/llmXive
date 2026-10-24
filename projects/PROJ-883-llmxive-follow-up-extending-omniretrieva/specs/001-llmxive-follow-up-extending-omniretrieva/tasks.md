@@ -39,7 +39,7 @@ All research scripts write only under `code/`, `data/`, or `specs/`. No state fi
 
 ## Phase 2 – Query generation & deterministic reference plan  
 
-- [ ] **T004** [US‑1] **Generate synthetic query set using real metadata**  
+- [ ] **T004** [US‑1] **Generate synthetic query set using real metadata**   <!-- FAILED-IN-EXECUTION: code/generators/synthetic_query.py exit=1 -->
   *Implement* `code/generators/synthetic_query.py` that:  
   1. Calls the three data‑fetch functions to obtain real field/column names, entity types, and graph predicates.  
   2. Constructs **≥ 500** query instances, with **≥ 100** high‑complexity (depth ≥ 3) graph queries. Each instance contains `query_id` (UUID4), `source_type` (`text|relational|graph`), `complexity_level` (int ≥ 1), `logical_plan.steps` (real operation strings derived from the source schema), `ground_truth_plan` set to `null` (to be filled by T005), `synthetic_flag=true`.  
@@ -76,7 +76,7 @@ All research scripts write only under `code/`, `data/`, or `specs/`. No state fi
   - Add `tests/integration/test_cpu_throttle.py` that (a) mocks a failure environment and asserts exit 99, and (b) runs in the CI environment and asserts `THROTTLE_MODE=="cgroups"` is recorded in produced metrics.  
   - **Verification**: Test suite must pass both scenarios.
 
-- [~] **T008** [P] [US‑1] **Implement native executors respecting timeout and no artificial sleeps**  
+- [ ] **T008** [P] [US‑1] **Implement native executors respecting timeout and no artificial sleeps**  
   *Create* the executor package `code/executors/` with:  
   - `base.py` – abstract class defining `run(query) → dict` with required fields.  
   - `text_executor.py` – BM25 over MS MARCO passages (uses `rank_bm25`).  
