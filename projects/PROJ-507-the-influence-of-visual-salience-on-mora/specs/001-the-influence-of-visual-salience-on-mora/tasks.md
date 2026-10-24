@@ -9,7 +9,7 @@
 | Goal | Run a minimal, fully‑executable pipeline on a small real subset to prove that all downstream steps can be triggered without error. |
 |------|-----------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] **T001** [US‑001] **Ingest and filter raw images** – `code/01_ingest_and_filter.py` <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 -->
+- [ ] **T001** [US‑001] **Ingest and filter raw images** – `code/01_ingest_and_filter.py` <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 -->
   - Stream the **Open Images V6** dataset (`datasets.load_dataset("open_images", "v6", split="train", streaming=True)`).  
   - Filter records that contain the tags `conflict` **or** `social` and have a downloadable image URL.  
   - Limit to the first **200** matching records (fixed seed 42) so RAM < 2 GB.  
