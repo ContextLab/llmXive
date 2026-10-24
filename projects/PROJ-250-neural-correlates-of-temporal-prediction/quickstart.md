@@ -19,7 +19,7 @@ pip install -r code/requirements.txt
 
 The pipeline is orchestrated via the scripts in `code/`. Each script writes its output to the `data/` or `results/` folder and updates the contract state.
 
-### 0️⃣ Reference-Validator Gates
+### 0️⃣ Reference‑Validator Gates
 ```bash
 python code/verify_references.py --stage dataset
 python code/verify_references.py --stage citations
@@ -30,7 +30,7 @@ python code/verify_references.py --stage citations
 python code/download.py --subjects 2
 ```
 
-*If the dataset lacks the required “complex” condition the script aborts with the FR-008 error message.*
+*If the dataset lacks the required “complex” condition the script aborts with the FR‑008 error message. [UNRESOLVED-CLAIM: c_ce53861e — status=not_enough_info]*
 
 ### 2️⃣ Preprocessing
 ```bash
@@ -52,4 +52,4 @@ python code/visualize.py
 pytest code/tests/
 ```
 
-All tests must pass before the pipeline is considered research-ready.
+All tests must pass before the pipeline is considered research‑ready.

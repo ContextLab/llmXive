@@ -1,18 +1,17 @@
 status: none
-intent: OpenNeuro ds004510 EEG BIDS download MNE-Python python package dataset
+intent: OpenNeuro ds004510 EEG dataset download via openneuro-py Python package dataset
 required_fields:
 - subject_id
 - session_id
 - run_id
-- condition
-- raw_eeg_file_path
+- eeg_channels
 - sampling_rate
-- channel_names
-- events_tsv
-- participants_tsv
-- electrodes_tsv
-- epoch_time_window_start
-- epoch_time_window_end
-cache_key: 58cad1e032e559ed0705958507686c58309a71969d042f3f8454aa3ba873338d
-searched_at: '2026-10-24T15:13:17.465176+00:00'
+- raw_signal
+- event_id
+- epoch_start
+- epoch_end
+- condition
+- metadata
+cache_key: ed661010df4496eb7f6c34390d88f9745516322d74f035658dc32cbb3b3ff217
+searched_at: '2026-10-24T21:20:03.382742+00:00'
 retry_count: 1

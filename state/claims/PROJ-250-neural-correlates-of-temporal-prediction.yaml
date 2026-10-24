@@ -16,3 +16,20 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-24T10:09:11Z'
+- artifact_path: projects/PROJ-250-neural-correlates-of-temporal-prediction/quickstart.md
+  attempts: 1
+  canonical: script aborts with FR-008 error if dataset lacks complex condition
+  claim_id: c_ce53861e
+  context: "The download script includes a check: If the dataset lacks the required\
+    \ \u201Ccomplex\u201D condition the script aborts with the FR\u2011008 error message."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "If the dataset lacks the required \u201Ccomplex\u201D condition the script\
+    \ aborts with the FR\u2011008 error message."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:18:30Z'
