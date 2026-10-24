@@ -1,15 +1,18 @@
 status: none
-intent: recount3 brainspan GEO GWAS Catalog LISI PsychENCODE scRNAseq python package
-  dataset
+intent: Human brain single-cell RNA-seq development dataset GEO BrainSpan Recount3
+  GWAS Catalog LISI python package dataset
 required_fields:
-- cell_barcode
+- cell_id
 - gene_symbol
 - raw_counts
-- donor_id
+- normalized_counts
 - developmental_stage
-- batch_id
-- tissue_region
-- cell_type_annotation
-cache_key: a113c03584ac0695a40663e600ac1666ad763abf978679afa33c1f01d85ac62a
-searched_at: '2026-10-23T23:12:48.484233+00:00'
+- donor_id
+- tissue
+- batch
+- cell_type
+- age_weeks
+- metadata
+cache_key: 551bf7892cf17389e3a06f534b7c882f0c9200216abf1436774963237eefdb46
+searched_at: '2026-10-24T00:16:25.000915+00:00'
 retry_count: 1
