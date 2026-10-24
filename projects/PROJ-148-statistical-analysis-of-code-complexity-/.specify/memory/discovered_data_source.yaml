@@ -1,10 +1,19 @@
 status: none
-intent: download GHTorrent Java projects, also GitHub Archive or CodeSearchNet python
-  package dataset
+intent: download GHTorrent Java projects and GitHub Archive dataset python package
+  dataset
 required_fields:
-- source_code_files
-- commit_history
-- issue_tracker_data
-cache_key: 3c5a931e00f9800bdaf5921be38694a006bb58dcb7a9d0027bbcf05db5ce1063
-searched_at: '2026-10-22T05:24:12.242329+00:00'
+- project_id
+- repository_name
+- file_path
+- function_name
+- start_line
+- end_line
+- cyclomatic_complexity
+- halstead_metrics
+- maintainability_index
+- commit_hash
+- commit_message
+- commit_timestamp
+cache_key: deee8b0afe480520471a8a9d65a11a9250f38e183342d564f86df22592a474a0
+searched_at: '2026-10-24T04:28:31.431051+00:00'
 retry_count: 1

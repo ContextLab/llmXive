@@ -1,62 +1,8 @@
 T001:
   c: true
-  h: 512ed3f58a72b12d246dfa57d41b4eefcb7851086d83fa91ab613333ed7820f2
-  r: The required directories `code/`, `data/`, `tests/` all exist with substantive
-    contents, and `requirements.txt` (186 bytes, listing pandas, scikit-learn, lizard,
-    etc.) and `README.md` (5253 bytes, with project overview, quick start, and task
-    mapping) are non-empty and appropriate. The task only asked for the directory
-    layout and these files, which is satisfied.
-  sig: b60c11f8c3f56d9163299651db670b2f923a51b501fb934518d9260ab097db36
-T040:
-  c: true
-  h: ccb6769e176e7df7ed64a9339f7876e00b9f1ad6a1eb115bdbbe1e740c69bc36
-  r: The file `contracts/dataset.schema.yaml` exists (3508 bytes) and is a well-formed
-    JSON Schema (draft-07) in YAML that covers all 11 required dataset columns (file_path,
-    function_name, start_line/end_line via the column-definition structure, cyclomatic_complexity,
-    loc, token_count, nesting depth, halstead_volume, bug_label, project_id) with
-    types, descriptions, nullability, row-count/train/test fields, and metadata (source,
-    extraction date, version, split strategy). Minor naming deviations in the example
-    (e.g., `max_nesting_depth` vs `nesting_depth`, `bug_label` typed boolean vs integer)
-    are co
-  sig: 673937f45f1f73f4969bf803ee9584ba131fabcb8dde01a4288c9d1d364d7d4b
-T042:
-  c: false
-  h: 8571b03cad7fce6c9343fecc81968639787a47c202c450ee87a5f27b262d05bc
-  r: 'The document exists (5,959 bytes) but contradicts the spec''s Section 4 data
-    model: the spec mandates a function-level CSV (`data/processed/bug_complexity_dataset.csv`)
-    with columns `function_name`, `start_line`, `end_line`, integer `cyclomatic_complexity`,
-    etc., whereas the document designs a file-level Parquet (`dataset.parquet`) with
-    a different schema (no function-level keys, CC as a float average, extra columns
-    like `num_functions`, `is_test_file`). It also contains unresolved placeholder
-    markers (`{{claim:c_85e95373}}`, `[UNRESOLVED-CLAIM: ...]`) left in the text,
-    indicating an unfinished'
-  sig: 727df2adbb18371f18fd5a281c1358ae8bb41204ba398371bc29534d5cc8330a
-T043:
-  c: true
-  h: e6e9a63493c9c9095389198fc710f946da496cae7775e2c436b25596021fbb8c
-  r: The `quickstart.md` file exists (4758 bytes) and contains a substantive, well-structured
-    guide covering prerequisites, setup, the full data pipeline, modeling pipeline,
-    and end-to-end run instructions, with concrete commands matching the project's
-    script layout. No stubs, placeholders, or fabricated claims are present.
-  sig: 8ec821bea65d0e3c680243441b6df1a1f6f93bb0093575b04d61a7c998313f61
-T044:
-  c: true
-  h: 49e0bd0ac211a6f171d2f607c92faf5a3f4285073fcc9d8bf2dbe1b60ed5b8a1
-  r: "Both `docs/implementation_strategy.md` (6710 bytes) and the README's \"Implementation\
-    \ Strategy\" section exist and are non-empty, and both map high-level project\
-    \ phases/steps to concrete task IDs (T001\u2013T060) in structured tables/lists,\
-    \ which is exactly what T044 asked for. The mappings are consistent across the\
-    \ two artifacts and cover the full workflow from setup through reporting and polish."
-  sig: 53d5ddd7ad93d81698e7e74486daf863503aeba59d092769e03f4fb83bb0d469
-T045:
-  c: false
-  h: 99c65de205a5ca6abcf69caf412213a0f0290f9b10259b847f50f6e5a56885c2
-  r: "The test file exists, but the contract it tests is not satisfied by the implementation:\
-    \ `code/data/validate_bug_labels.py` defines `validate_bug_labels(csv_path: str)`\
-    \ that reads a CSV with columns `bug_label`/`predicted_label` and returns only\
-    \ `{precision, recall, f1_score}`, whereas the tests call `validate_bug_labels(df,\
-    \ precision_threshold=0.85)` with a DataFrame using columns `predicted_bug`/`actual_bug`\
-    \ and expect a `passed` key \u2014 every test would fail (e.g., `pd.read_csv(df)`\
-    \ would raise, and `result[\"passed\"]` would KeyError). No execution evidence\
-    \ (e.g., pytest output) was provided ei"
-  sig: 6cd263c1f69cd6eec2d2286723145430c444fe5be3d5ffa0c1bac9096698b931
+  h: 21fc3d74e84b3a7744f1841c4e3a1b0df1b6dd55fb7b942ec279cb58ee87625c
+  r: "Checked `specs/001-statistical-analysis-of-code-complexity/data-model.md` against\
+    \ Section\u202F4 of `specs/001-statistical-analysis-of-code-complexity/spec.md`;\
+    \ the table lists exactly the required columns in the correct order and contains\
+    \ no placeholder markers."
+  sig: 7d555a1b698dda123a626de23982e0951e5383f3bcebe0e12b90c35099f5fc67

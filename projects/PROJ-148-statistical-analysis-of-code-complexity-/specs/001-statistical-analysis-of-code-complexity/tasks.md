@@ -12,12 +12,12 @@ Tasks are grouped by research phase; each task is a single unchecked checkbox th
 | Goal | Run a minimal, real‑data pipeline that produces a valid `bug_complexity_dataset.csv` (including a `split` column) and demonstrates that the modeling code works on a realistic subset. |
 |------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T001 [US1] **Align the data‑model design document** (`specs/001-statistical-analysis-of-code-complexity/data-model.md`) with Section 4 of `spec.md`.  
+- [X] T001 [US1] **Align the data‑model design document** (`specs/001-statistical-analysis-of-code-complexity/data-model.md`) with Section 4 of `spec.md`.  
   - Ensure the column list exactly matches the specification (function‑level keys, integer `cyclomatic_complexity`, `loc`, `token_count`, `nesting_depth`, `halstead_volume`, `bug_label`, `project_id`, `file_path`, `function_name`, `start_line`, `end_line`).  
   - Remove every placeholder marker (`{{claim:…}}`, `[UNRESOLVED‑CLAIM: …]`).  
   - **Verification**: The file contains no placeholder text and its table of fields matches the spec line‑for‑line.
 
-- [ ] T002 [US1] **Implement real data acquisition** in `code/data/download_gh.py`:  
+- [ ] T002 [US1] **Implement real data acquisition** in `code/data/download_gh.py`:   <!-- FAILED-IN-EXECUTION: code/data/download_gh.py exit=1 -->
   - Download the **GHTorrent Java dataset** (verified AWS mirror URL) as a compressed archive.  
   - Verify the SHA‑256 checksum recorded in `data/raw/ghtorrent_checksum.txt`.  
   - Extract Java source files (`*.java`) from the archive into `data/raw/<project_id>/`.  

@@ -7,9 +7,8 @@ import os
 import shutil
 import sys
 import tarfile
-import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 import requests
 from utils.logging import get_logger
@@ -17,12 +16,11 @@ from utils.config import get_config
 
 # Constants
 GHTONENT_MANIFEST_URL = "https://storage.googleapis.com/gh-projects/manifests/java-projects.json"
-DEFAULT_OUTPUT_DIR = "data/raw/gh_projects"
+DEFAULT_OUTPUT_DIR = "data/raw"
 DEFAULT_PROJECT_COUNT = 10
 CHECKSUM_ALGORITHM = "sha256"
 
 logger = get_logger(__name__)
-
 
 def compute_sha256(file_path: Path) -> str:
     """
@@ -132,7 +130,7 @@ def download_archive(url: str, dest_path: Path, checksum: str) -> Tuple[bool, Pa
                 if chunk:
                     f.write(chunk)
 
-        # Security Hardening: Verify checksum BEFORE extraction
+        # Verify checksum BEFORE extraction
         if verify_checksum(dest_path, checksum):
             return True, dest_path
         else:
@@ -165,7 +163,7 @@ def extract_archive(archive_path: Path, extract_to: Path) -> bool:
     try:
         extract_to.mkdir(parents=True, exist_ok=True)
         with tarfile.open(archive_path, "r:gz") as tar:
-            # Security check: prevent path traversal (basic)
+            # Security check: prevent path traversal
             for member in tar.getmembers():
                 member_path = extract_to / member.name
                 if not member_path.resolve().is_relative_to(extract_to.resolve()):
@@ -176,6 +174,26 @@ def extract_archive(archive_path: Path, extract_to: Path) -> bool:
     except Exception as e:
         logger.error(f"Extraction failed for {archive_path}: {e}")
         return False
+
+
+def write_checksum_record(project_name: str, checksum: str, output_dir: Path) -> None:
+    """
+    Append a checksum record for a downloaded project to a central file.
+
+    This creates/updates ``data/raw/ghtorrent_checksum.txt`` with lines of the form:
+    ``<project_name>.tar.gz  <checksum>``.
+
+    Args:
+        project_name: Name of the project (used to form the archive filename).
+        checksum: The verified SHA256 checksum.
+        output_dir: The root ``data/raw`` directory where the record file lives.
+    """
+    record_path = output_dir / "ghtorrent_checksum.txt"
+    line = f"{project_name}.tar.gz  {checksum}\n"
+    # Ensure the parent directory exists (output_dir is already created by caller)
+    with open(record_path, "a", encoding="utf-8") as f:
+        f.write(line)
+    logger.info(f"Wrote checksum record for {project_name} to {record_path}")
 
 
 def run_download_pipeline(
@@ -201,7 +219,7 @@ def run_download_pipeline(
         manifest = fetch_manifest()
     except Exception as e:
         logger.critical(f"Pipeline failed at manifest fetch: {e}")
-        return {"success": 0, "failed": 0}
+        raise
 
     # 2. Select Projects
     projects = get_java_project_files(manifest, project_count)
@@ -225,27 +243,33 @@ def run_download_pipeline(
         # 3. Download
         success, path = download_archive(url, archive_path, checksum)
         if not success:
-            stats["failed"] += 1
-            continue
+            logger.error(f"Checksum verification failed for {proj_name}. Aborting.")
+            stats["checksum_failed"] += 1
+            raise RuntimeError(f"Checksum verification failed for {proj_name}")
 
-        # 4. Checksum Verified -> Extract
-        # The download_archive function already verified the checksum.
-        # We only proceed if it returned True.
-        if extract_archive(archive_path, extract_path):
-            stats["success"] += 1
-            # Optional: Cleanup archive after successful extract to save space
-            # archive_path.unlink(missing_ok=True)
-        else:
+        # 4. Extract (only if checksum succeeded)
+        if not extract_archive(archive_path, extract_path):
+            logger.error(f"Extraction failed for {proj_name}. Aborting.")
             stats["failed"] += 1
-            # Clean up failed extraction
+            # Clean up partially extracted directory
             shutil.rmtree(extract_path, ignore_errors=True)
+            raise RuntimeError(f"Extraction failed for {proj_name}")
 
-    logger.info(f"Pipeline completed. Success: {stats['success']}, Failed: {stats['failed']}")
+        # Record the verified checksum
+        write_checksum_record(proj_name, checksum, output_dir)
+
+        stats["success"] += 1
+        # Optional: cleanup archive to save space
+        # archive_path.unlink(missing_ok=True)
+
+    logger.info(f"Pipeline completed. Success: {stats['success']}, Failed: {stats['failed']}, Checksum failures: {stats['checksum_failed']}")
     return stats
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Download Java projects from GHTorrent with checksum verification.")
+    parser = argparse.ArgumentParser(
+        description="Download Java projects from GHTorrent with checksum verification."
+    )
     parser.add_argument(
         "--output-dir",
         type=str,
@@ -253,7 +277,7 @@ def main():
         help=f"Directory to store downloads (default: {DEFAULT_OUTPUT_DIR})"
     )
     parser.add_argument(
-        "--count",
+        "--project-count",
         type=int,
         default=DEFAULT_PROJECT_COUNT,
         help=f"Number of projects to download (default: {DEFAULT_PROJECT_COUNT})"
@@ -271,10 +295,13 @@ def main():
     numeric_level = getattr(logging, args.log_level.upper(), None)
     if not isinstance(numeric_level, int):
         raise ValueError(f"Invalid log level: {args.log_level}")
-    logging.basicConfig(level=numeric_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logging.basicConfig(
+        level=numeric_level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
 
     output_path = Path(args.output_dir)
-    run_download_pipeline(output_dir=output_path, project_count=args.count)
+    run_download_pipeline(output_dir=output_path, project_count=args.project_count)
 
 
 if __name__ == "__main__":

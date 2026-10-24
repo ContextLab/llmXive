@@ -1,139 +1,56 @@
 T001:
-  task: c9a3c04e367e13b978ef0b4b9ac5f2457bd61728a9c5d7d363b3d9e851f5ac57
+  task: 243049479a0f67c65757398117c25bb8dbd09c7d79314ec5d1126dae92226318
 T002:
-  task: 70a62e85bcff8138ea49f3d6a221165bc8817f059ae711661574c227e7a47f17
+  reason: 'Requested task execution failed; rerun successfully: code/data/download_gh.py
+    exit=1'
+  task: 1837918ac53390b63a732775c61613a4d44a627ceaa372f51445b9e4d5377eeb
 T003:
-  task: 13d8057b2cf7ba9454950d9284b4b5e82536d543bfe806402ceeee3003df981d
+  task: 89bae9ff2216e27fff1a7002a57310acbdf716f0798654a2a05117b4fe4e81b4
 T004:
-  task: 651e069170c6c5f488550b6eb089bcab61c1ea55fcf6cfa62b004f055599d2e9
+  task: b6b49630d41f725e2c49dbf574d973e25faf9380117bf3337729bfef5a501fc4
 T005:
-  task: c9a7e68519af93d7b3ab0af88a031421eb792aaf5d45998cf7f9b0c13057c776
+  task: 59a916397274024121c5e6724f535fc0f27270e75ae550ad90e3d7b14e19a3e0
 T006:
-  task: 349b3b2a2f193f6a4cad29ce3117280fd2c34a5945d4d8e58bb43c50cdf31d3c
+  task: 0b255599438134c13a3b0bd10bff90174214310f532af92105472c2925c6be39
+T007:
+  task: 2caa83ba82c2a26f7c0a42a6c8649214eb523dfdf9c2ba92f346109fd8cab4d4
 T008:
-  task: 4602fb1a35b5d86ba8b32fdf3f10eed8afe9b7c57e0c34dcfec68ad6cdf95aa5
+  task: 2a1f19d8e5e3162fdac46edbaa352d66e7386b52b02d9370197ab5a14999cf5d
 T009:
-  task: c944d74965b9d36d4c4e4380cd91bcd6f8eb3ca09f325d6fe785e7b6780521fa
+  task: 0937e77b8930c042b318a286b2a4814aed716cca438b4c480a748e6155b5c409
 T010:
-  task: 0502da8c0b5f968d69b8bf99704ac38917ca99f4f86c3dbad1729627f895eea9
+  task: 30a6aa1aca056547a231022569c4499056b29129a2ace7dfc5b58d52bd5cbb09
 T011:
-  task: 36f43e2ddca846df3c5e59949831c6d25008b395861cb1a6329ea2f587fd00fd
+  task: be89dd340631fa7ecac1427ab35eba3e365f183f3e450fb61187f96bc5f09546
 T012:
-  task: 1a4986bc0a90350637eac3538cb084079d4e5f153ac407dd23acff5ded39dc73
+  task: 9c6e729938f68ce5e2ad5c85c4640cd4f48a2a269f2ad8af7f798f72755b955d
 T013:
-  task: 3cc38fe76ab44db149b0bf91719a858314d7b556d9975e63d21c72068c85df0c
+  task: 9c110fb675e90cf9329230ee257492bbf08e62e1ef615d78fd3f041ed32b9749
 T014:
-  task: 8a3446d5c622dd3e4e9d46ffa938b8751e4beb010712b725a1ab6f5aed7b0d7f
+  task: b17ab84e8ee0fe41a651b6a0f1a60f4b14d5f36101d4a61ae1c4a93c85ea0406
 T015:
-  task: bd86175c8462221cc78023b61af448ec921cc5cab27fb3eb7c0d503a7aca67d7
+  task: 41dad8a0f3761686c623fab1a13b7753646bcc24bcfa0c69ab57561e98f171d8
 T016:
-  task: d3e7bfea8acab33472bf33b59f197f1549d3f5c537ad375c2cb856661e4a96d3
+  task: 74e3d414e1176bc64b39284ad8ad61d871e8d61a0d8137846f55294352d4d03e
 T017:
-  task: 28ee0cb86bd659e0b5dfc3008bf4cd6dd1c731944d7390dac2ad6a75fb765220
+  task: 006fcab19d25368944b09d0e0df06333708da0813d8c816dddaa0558297394bd
 T018:
-  task: bd29b5be44082f8b2be25d67936d3801a55767b0252f739c4248cf4e6b0b1c46
+  task: 3812254fcec3aa761c03d96ce0a07b034bd2f048951ce89fa74d1ef9d1218bc5
 T019:
-  task: f27d32394cc7c55a3b38eeed0a8c9216cd9e87dc5a5b522bed47395532c7fbf1
+  task: f3a45d2d37da646203c0a2d42fb07d5a955d9c76b65698a5b18ee60ba5d35538
 T020:
-  task: 7f1e7576f9a9babf878afb201c43df73217bb4b66612373b5de6fabe1e91608c
+  task: 76b7fe7691ce74cc1b3e11286c4c133d2f22a733ceec418b2002e429ac60e8e7
 T021:
-  task: 9960e0c36adf9e018aa59189ac7c72e25401d9c91354fdf2618a4822353c22dc
+  task: 2e6bf338a00834636290c4ef2b2b508d961580546e63fe29a4f81d826924c2d7
 T022:
-  task: f8b268405760ee0dd076213514250112a59c39121248ce6ed311ca37c07a41df
+  task: eeab9ba2547eb8906bb43a9c4850b5a27056961e2d3dcad5d3f1bb6e69320079
 T023:
-  task: a5ffabd6b6232bb6b173b506b071ab1430670ff9545d78b24aa7d613bfab5d82
+  task: 143c15772be66a0e1b28266ab57380d9b4fe7ade63e21843ef13c14d5b8146e7
 T024:
-  task: 3334c2352d824cb95715113f1349adb071d1f5da12c33d073268c9e535e78104
+  task: 39b20a8b7041ae0b5dba2693478ac279c9de642a024d31490c98560cb1e298d6
 T025:
-  task: ce9ff106c6b8fa0eb49cb969c054637b2653dd0e124233c039e9f55fe0b7c920
+  task: e9c79628fb794df8f8df6c8ffd4413bfeab91b1c68a0ec46b813dd1dc1b46dd0
 T026:
-  task: aa769bd7ecd3f5890fc4eca681f88baae48982da4cfe180032c98b330b05bd2b
+  task: 2b15be794cae774e08cfda6455587995c864c74cad1fc24ec1756062bc4af2f0
 T027:
-  task: 61f61386aba913110fcd814f26d60291de71afff2fb614a3f8085a44c40d5ade
-T028:
-  task: 6131fb9067b2aa865590eb42278ac72e267fa7f58f33b7c9eda95a9c4cb865af
-T029:
-  task: 20eeb25faa1e5474bd04c4caffb7f8d7ff611b7602d0ddb15866c76f54783b58
-T030:
-  task: 431b8bc313a92cb974c3fdcfa7e06469ad1f2dc264f47b7953ff21ee6dc0813e
-T031:
-  task: 3eb99fed53767988920ba96b83990f0f19822f7b4baad41736f8ac97fe2805d6
-T032:
-  task: 70b371a99a477da67248005df476f3a8d91285ab5b3f2d6ae267363e1f5ae069
-T033:
-  task: de4a0f8748ed9f81f47cbfdda1a267021fef0f2b1c524e8376360da74c623eb1
-T034:
-  task: c17a720ebea7c1ce2aec29d3f40f2351c014c3cc2cc85040d643bcf06dcbd667
-T035:
-  task: f7009f16f9ad538703cac94b31872666a67ad5f14244d1b56588cf3c4d202fb5
-T036:
-  task: 3ab274672259b017305368feadd16a7120c2ebd10bfd1e9cecd4528baadf0ce8
-T037:
-  task: 9a16aa2133590bd5e88fd03af3373ca03e63fd426251d31b7b6c2d7898e248c9
-T038:
-  task: 736fded15283b132beb9e34a28f631c0428c578055f1f81ad67b5e0a99c73ca0
-T039:
-  task: c63668cbf741b9324a7fc5fedae9b51ba75c608f7fffe25d0b04788a42d2af91
-T040:
-  task: f8547d8c41f9ec646b74db6168942e4944350c1a2a9e933f79e29b482bbc03c1
-T040#1:
-  task: a709c98aafdb2f979df6afca13ab9ca8515ed77721ed167f8a390ad794985f98
-T041:
-  reason: 'declared artifact(s) missing/empty/invalid: contracts/model_output.schema.yaml'
-  task: 2ce8e36743f59db217ef563f55273612342374ad4a9d3f8c6ee495ed508970f0
-T041#1:
-  task: a627625c09711d0eb3e8d2879421a51bef1c3a8188ffaad2b912702a93f2b740
-T042:
-  reason: 'The document exists (5,959 bytes) but contradicts the spec''s Section 4
-    data model: the spec mandates a function-level CSV (`data/processed/bug_complexity_dataset.csv`)
-    with columns `function_name`, `start_line`, `end_line`, integer `cyclomatic_complexity`,
-    etc., whereas the document designs a file-level Parquet (`dataset.parquet`) with
-    a different schema (no function-level keys, CC as a float average, extra columns
-    like `num_functions`, `is_test_file`). It also contains unresolved placeholder
-    markers (`{{claim:c_85e95373}}`, `[UNRESOLVED-CLAIM: ...]`) left in the text,
-    indicating an unfinished'
-  task: b09f4e8e5f5155e52146256c1eb474f768d7d1ea566c979e3eb70ddf66205a7f
-T042#1:
-  task: 9102466898bce31e39d10c8e42e653dd295dfe994105f0bdff0e0150e66b3497
-T043:
-  task: df7331e4ecdcfa796a0b550c72da1218da5dc2a038936f5aea82fef199319f23
-T043#1:
-  task: 33f9231eeb4945152483fc4ae2c5dbd62ec62a0ecd1f263ac89401a4ec1ede01
-T044:
-  task: dee86afc18005432b68ab7df77ae560e7e3df00c1cfde2768d85a2fb37137f3c
-T044#1:
-  task: eebd980138e55fdd2f93aa165dc92a6a529d9c5f04bf6798b4879f915d94604c
-T045:
-  reason: "The test file exists, but the contract it tests is not satisfied by the\
-    \ implementation: `code/data/validate_bug_labels.py` defines `validate_bug_labels(csv_path:\
-    \ str)` that reads a CSV with columns `bug_label`/`predicted_label` and returns\
-    \ only `{precision, recall, f1_score}`, whereas the tests call `validate_bug_labels(df,\
-    \ precision_threshold=0.85)` with a DataFrame using columns `predicted_bug`/`actual_bug`\
-    \ and expect a `passed` key \u2014 every test would fail (e.g., `pd.read_csv(df)`\
-    \ would raise, and `result[\"passed\"]` would KeyError). No execution evidence\
-    \ (e.g., pytest output) was provided ei"
-  task: 837378054fb371dbbd262a4d9c984f38c9f83753233580596e6b408e369958f8
-T045#1:
-  task: ae07307fa0bf8706e259c76dbdaf793777bfae160eb7733dd0c9acba9386ce90
-T049:
-  task: 234260fd052b07e1f9e09f1ad1fd1293a81b789b1d558ba1dd8a7563daba8798
-T050:
-  task: 279ddb0eabefb58e8bd23b50802e13ef068d7d3a0ea93ce178d45c7411c9bc12
-T051:
-  task: 59e68555e89c61a15c2f74b7205f247636584ff542cb173ab50995dbdd3e1b37
-T052:
-  task: fc3b7f5f89329f3d3926f22366c407888b9ad229b8845686f168ba8140412172
-T053:
-  task: c5678b64190956b765b01ef7310f42334847bd9e0f16b21363aefbe05464812a
-T054:
-  task: ebacd82789c6f537a8f6ce73f4448dd5f1f36a40caa50e047bb29f21f36e8b29
-T055:
-  task: 843fe51e916fae8d9be4d346296d01c6ee7e01a53d7697cb30dd3925bf95687d
-T056:
-  task: 7bf136d6d09fe6dfbe0f95eb2c112e93d3476443a1c3057e7bfe368211112917
-T057:
-  task: e0a19cdbab0c847e8fa6229f9c17044c34f1a679eecd5e77c4769d0744ef4f84
-T060:
-  task: f44b28952f4af3113cb5bd1525369b8c3c17afdf4119f026d60a036df7801e1c
-T061:
-  task: 66b73975c8f7038f66c38a1f59711192cc75e6ac9e7fcee705b88ad7f83c97c0
+  task: 3dcb436bb0d661b0bce9c1025b0cdca6b530fd7b433cd5f0fea8ba9aa5546655
