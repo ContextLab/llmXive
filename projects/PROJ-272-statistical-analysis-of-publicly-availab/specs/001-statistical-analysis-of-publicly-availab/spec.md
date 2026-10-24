@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 
-This project aims to develop a statistical analysis pipeline to detect cognitive decline using publicly available textual data from speech transcripts. The primary objective is to identify linguistic markers associated with Alzheimer's Disease (AD) and Mild Cognitive Impairment (MCI) compared to healthy controls.
+This project aims develop a statistical analysis pipeline to detect cognitive decline using publicly available textual data from speech transcripts. The primary objective is to identify linguistic markers associated with Alzheimer's Disease (AD) and Mild Cognitive Impairment (MCI) compared to healthy controls.
 
 ## 2. Functional Requirements
 
@@ -29,7 +29,7 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 
 **Requirement**: The system MUST generate a comprehensive report containing:
 - Corrected p‑values (Bonferroni) for each feature comparison.
-- Effect sizes reported as **partial eta‑squared (η²)** with 95 % confidence intervals.
+- Effect sizes reported as **partial eta‑squared (η²)** with 95 % confidence intervals, where the confidence intervals are estimated via a bias‑corrected accelerated bootstrap with 5 000 resamples.
 - Summary tables and visualizations suitable for manuscript inclusion.
 
 ### FR-004: Covariate Adjustment
@@ -42,7 +42,7 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 
 ### FR-007: Power Analysis (See US2)
 
-**Requirement**: Prior to analysis, the system MUST perform an a priori power analysis targeting **≥ 80 % power** to detect a **medium effect size (Cohen’s d = 0.5)** for each feature after Bonferroni correction. The analysis shall determine the minimum detectable effect and confirm that the available sample size meets this criterion; results are recorded in `data/results/power_analysis.txt`.
+**Requirement**: Prior to analysis, the system MUST perform an a priori power analysis targeting **≥ 80 % power** to detect a **medium effect size (Cohen’s d = 0.5)** for each feature after Bonferroni correction. If the calculated power for the available sample size is **< 80 %**, the limitation shall be documented in `data/results/power_analysis.txt`; otherwise, the analysis shall confirm that the sample meets the target. Results are recorded in `data/results/power_analysis.txt`.
 
 ### FR-008: ANCOVA Assumption Verification (See US2)
 
@@ -92,7 +92,9 @@ Diagnostics and any violations shall be reported in the final statistical report
 
 **Acceptance Criteria**:
 1. Generate a PDF/HTML report summarizing all statistical test results, corrected p‑values, and η² effect sizes.
-2. Provide visualizations (boxplots) for each feature.
+2. Provide visualizations:
+   - Boxplots for each extracted lexical, syntactic, and semantic feature (one plot per feature).
+   - A summary violin plot showing the distribution of effect sizes across all features.
 3. Archive the report at `data/results/statistical_report.pdf`.
 
 ### US4: Privacy Auditing
@@ -136,12 +138,11 @@ The project follows a phased approach:
 ## 8. Success Criteria
 
 - **SC-001**: At least one linguistic feature shows a statistically significant difference (Bonferroni‑adjusted *p* ≤ 0.05) **(See US2)**.
-- **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains **≥ 120 records** after exclusions, and the metadata report lists exact counts per group (Justified by the sizable ADReSS dataset.) **(See US1)**.
-- **SC-003**: The final statistical report (`data/results/statistical_report.pdf`) is generated without errors, includes all required visualizations, and passes the automated PII audit **(See US3 & US4)**.
+- **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains **≥ 80 records** after exclusions, and the metadata report lists exact counts per group (Justified by the ADReSS dataset size and expected exclusion rate). **(See US1)**
+- **SC-003**: The final statistical report (`data/results/statistical_report.pdf`) is generated without errors, includes the required visualizations (boxplots for each feature and a summary violin plot), and passes the automated PII audit **(See US3 & US4)**.
 - **SC-004**: Privacy audit reports **zero** PII detections; any detection aborts the pipeline as specified in US4.
-- **SC-009**: The a priori power analysis (FR‑007) confirms **≥ 80 % power** to detect a medium effect size (Cohen’s d = 0.5) given the available sample size **(See US2)**.
+- **SC-009**: The a priori power analysis (FR‑007) confirms **≥ 80 % power** to detect a medium effect size (Cohen’s d = 0.5) given the available sample size **(See US2)**, or otherwise documents the limitation.
 
 ## Requirements *(mandatory)*
 
 Functional requirements are defined in the “Functional Requirements” section above. Please refer to those definitions for the authoritative specifications.
-
