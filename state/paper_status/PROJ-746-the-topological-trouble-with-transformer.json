@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-10-24T20:47:52.685112+00:00"
+    "audited_at": "2026-10-24T21:19:28.777680+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-746-the-topological-trouble-with-transformer",
-  "updated_at": "2026-10-24T20:47:52.685125+00:00"
+  "updated_at": "2026-10-24T21:19:28.777691+00:00"
 }
