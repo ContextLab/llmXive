@@ -8,7 +8,7 @@ The tasks are ordered to respect data flow and to satisfy every functional requi
 
 ## Phase 0 – Conditional dataset validation  
 
-- [ ] **T000** [Phase 0] Implement `code/data/check_permeability.py` – scans candidate verified datasets (listed in `config/verified_datasets.yaml`) for the presence of a `permeability` column.   <!-- FAILED-IN-EXECUTION: code/data/check_permeability.py exit=1 -->
+- [ ] **T000** [Phase 0] Implement `code/data/check_permeability.py` – scans candidate verified datasets (listed in `config/verified_datasets.yaml`) for the presence of a `permeability` column.
   - If a dataset with the required column is found, writes its identifier to `config/selected_dataset.yaml` and exits with status 0.  
   - If no such dataset exists, logs an informative error and exits with non‑zero status, halting the entire pipeline.  
   - **Verification**: unit test `tests/unit/test_check_permeability.py` asserts that the script exits 0 only when the column is present and that the config file is created.

@@ -1,6 +1,8 @@
 T000:
-  reason: 'Requested task execution failed; rerun successfully: code/data/check_permeability.py
-    exit=1'
+  reason: The implementation `code/data/check_permeability.py` and its supporting
+    config files are present and appear to work, but the required unit test `tests/unit/test_check_permeability.py`
+    is missing, so the verification step cannot be performed. Add the missing test
+    file (and ensure it passes) to satisfy the task.
   task: ea2c45cc858183830149c8940f1ebe5b18b3c0f5911fb5170b70a35a13973a24
 T001:
   task: bde1a247186dfeaa5f1d6774448d378a0bd1c3f45400af7e97b56af0ae7b6ccd

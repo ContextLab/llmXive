@@ -1,0 +1,5 @@
+# Verified datasets list for the permeability pipeline.
+# Each entry may reference a HuggingFace dataset (via ``hf_path``) or a
+# local CSV file (via ``local_path``).  The first dataset that contains a
+# ``permeability`` column will be selected.
+- local_path: "data/sample_permeability.csv"

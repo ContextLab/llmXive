@@ -1,17 +1,16 @@
 status: none
-intent: download membrane permeability coefficients from Polymer Membrane Permeability
-  Database NIST MPDB and MoleculeNet python package dataset
+intent: polymer membrane gas permeability Robeson Upper Bound dataset Materials Project
+  python package dataset
 required_fields:
 - polymer_name
-- polymer_structure_SMILES_or_InChI
 - membrane_thickness
 - temperature_K
-- pressure_atm
+- pressure_bar
 - gas_species
-- permeability_coefficient_units
-- permeability_value
-- experimental_method
-- reference_DOI
-cache_key: b3fc460dacefb9549d323e3a324066ad814379a23b6313bcbc9825aa48a8fada
-searched_at: '2026-10-24T16:20:31.750919+00:00'
+- permeability_Barrer
+- selectivity
+- measurement_method
+- reference
+cache_key: 76c0065725562d2b7458104746469316febd10f827eba2f1ba0371b4864ec93c
+searched_at: '2026-10-24T17:21:30.155277+00:00'
 retry_count: 1

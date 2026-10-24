@@ -35,23 +35,17 @@ def _load_verified_datasets() -> List[Dict[str, Any]]:
     """
     Load ``config/verified_datasets.yaml`` which must contain a list of
     dataset specifications.  Each specification is a mapping with at least
-    the key ``hf_path`` (the HuggingFace identifier) and optionally a
-    ``split`` name (default ``train``).
+    one of the following keys:
 
-    Example YAML structure:
+    - ``hf_path``: a HuggingFace dataset identifier (e.g. ``deepchem/lipophilicity``)
+    - ``local_path``: a path to a local CSV file relative to the project root
 
-    .. code-block:: yaml
+    Optional keys:
 
-        - hf_path: deepchem/lipophilicity
-          split: train
-        - hf_path: myorg/my_permeability_dataset
-          split: train
+    - ``split``: name of the split to load (default ``train``)
     """
     cfg_path = _project_root() / "config" / "verified_datasets.yaml"
     if not cfg_path.is_file():
-        # Gracefully handle a missing configuration – the pipeline cannot
-        # continue without a list of candidates, but we should not raise
-        # an unhandled exception (which would be interpreted as a crash).
         logging.error(f"Verified datasets config not found at {cfg_path}")
         return []  # Caller will treat this as a failure condition.
 
@@ -66,41 +60,66 @@ def _has_permeability_column(dataset: Dataset) -> bool:
     """
     Return ``True`` if the supplied HuggingFace ``Dataset`` contains a column
     named ``permeability`` (case‑insensitive).  The check is performed on the
-    first row to avoid loading the entire dataset into memory.
+    column names without loading the entire dataset into memory.
     """
     column_names = [c.lower() for c in dataset.column_names]
     return "permeability" in column_names
 
+def _load_dataset_from_spec(spec: Dict[str, Any]) -> Dataset:
+    """
+    Load a dataset according to a specification dictionary.
+
+    Supported spec formats:
+    1. HuggingFace dataset:
+           {"hf_path": "deepchem/lipophilicity", "split": "train"}
+    2. Local CSV file:
+           {"local_path": "data/sample_permeability.csv", "split": "train"}
+
+    The function returns a ``datasets.Dataset`` object.
+    """
+    split = spec.get("split", "train")
+
+    if "hf_path" in spec:
+        hf_path = spec["hf_path"]
+        logging.info(f"Attempting to load HF dataset '{hf_path}' (split='{split}')")
+        return load_dataset(hf_path, split=split, streaming=False)
+
+    if "local_path" in spec:
+        local_path = _project_root() / spec["local_path"]
+        if not local_path.is_file():
+            raise FileNotFoundError(f"Local dataset file not found: {local_path}")
+        logging.info(f"Attempting to load local CSV dataset from '{local_path}' (split='{split}')")
+        # ``load_dataset`` can read a CSV via the ``csv`` loader.
+        return load_dataset("csv", data_files=str(local_path), split=split, streaming=False)
+
+    raise ValueError("Dataset spec must contain either 'hf_path' or 'local_path'")
+
 def _select_dataset(candidates: List[Dict[str, Any]]) -> str:
     """
     Iterate over candidate dataset specifications, load the minimal split,
-    and return the identifier (``hf_path``) of the first dataset that
-    contains a ``permeability`` column.
+    and return the identifier (``hf_path`` or ``local_path``) of the first
+    dataset that contains a ``permeability`` column.
 
     Raises ``RuntimeError`` if no candidate satisfies the requirement.
     """
     for spec in candidates:
-        hf_path = spec.get("hf_path")
-        split = spec.get("split", "train")
-        if not hf_path:
+        identifier = spec.get("hf_path") or spec.get("local_path")
+        if not identifier:
             continue  # malformed entry – skip
 
-        logging.info(f"Inspecting dataset '{hf_path}' (split='{split}') for permeability column")
         try:
-            # ``load_dataset`` lazily streams the data; we request a single example
-            # to keep memory usage low.
-            ds: Dataset = load_dataset(hf_path, split=split, streaming=False)
+            ds: Dataset = _load_dataset_from_spec(spec)
         except Exception as exc:
-            logging.error(f"Failed to load dataset '{hf_path}': {exc}")
+            logging.error(f"Failed to load dataset '{identifier}': {exc}")
             continue  # move on to the next candidate
 
         if _has_permeability_column(ds):
-            logging.info(f"Dataset '{hf_path}' contains a permeability column.")
-            return hf_path
+            logging.info(f"Dataset '{identifier}' contains a permeability column.")
+            return identifier
 
     raise RuntimeError("No verified dataset contains a 'permeability' column")
 
-def _write_selected_dataset(selected_hf_path: str) -> None:
+def _write_selected_dataset(selected_identifier: str) -> None:
     """
     Write the chosen dataset identifier to ``config/selected_dataset.yaml``.
     The file will contain a single top‑level key ``selected_dataset``.
@@ -108,7 +127,7 @@ def _write_selected_dataset(selected_hf_path: str) -> None:
     out_path = _project_root() / "config" / "selected_dataset.yaml"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as f:
-        yaml.safe_dump({"selected_dataset": selected_hf_path}, f)
+        yaml.safe_dump({"selected_dataset": selected_identifier}, f)
     logging.info(f"Selected dataset written to {out_path}")
 
 # ----------------------------------------------------------------------
