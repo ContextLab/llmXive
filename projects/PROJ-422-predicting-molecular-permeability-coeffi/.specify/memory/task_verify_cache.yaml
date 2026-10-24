@@ -1,59 +1,56 @@
 T000:
   c: true
-  h: e25d491ed644ca97bfa66b4e91a7ba9a98b4f27ae49fdcd0527787fcae844124
-  r: Checked `code/data/check_permeability.py` for correct logic and exit codes, and
-    verified that `tests/unit/test_check_permeability.py` runs successfully (both
-    success and failure cases) as shown in the execution log, confirming the script
-    creates `config/selected_dataset.yaml` only when a permeability column is present.
-  sig: 4f735cb2bf7d7b448a0bbe3e7d7035717281452d810cf3a71acc5da8f896e28b
+  h: 1f22ffe67db68ccd951a88f761481a21e7f4d9b575b567a778d5cc5f19153ccf
+  r: "Checked `code/data/check_permeability.py` implementation and the unit test `tests/unit/test_check_permeability.py`\
+    \ (both present and non\u2011empty). The script correctly scans datasets, writes\
+    \ the identifier to `config/selected_dataset.yaml` on success, returns exit code\u202F\
+    0, and returns a non\u2011zero code with an error log when no permeability column\
+    \ is found; the tests pass confirming this behavior."
+  sig: 44c76907099479f2336881acb64f0890223d9e18b31ab8aae67b3665bcd13524
 T001:
   c: false
-  h: d50aa80b63c0d37ced1e040a3f520975fc70b31ab077260224bd019bc4f9f610
-  r: "The repository lacks `config/selected_dataset.yaml`, the `download.py` script\
-    \ does not use `streaming=True` nor read the selected dataset from that config,\
-    \ and it downloads the Delaney solubility dataset instead of a permeability dataset\
-    \ (no `permeability` column). Consequently the required raw CSV and checksum files\
-    \ are never produced as specified, and the test expectations do not match the\
-    \ task\u2019s stated requirements."
-  sig: 4770c5c611c6e1843c3922da59e40e0dba67a7f9c382c699dabb2757d4741fc7
+  h: c77f3d2c69cf7099a87b9107f268de90cfef21ff3acb88ccd499c85c28c93e2a
+  r: "The `code/data/download.py` script runs but fails to fetch the dataset (the\
+    \ Hugging\u202FFace identifier `deepchem/permeability` does not exist), so no\
+    \ CSV is written to `data/raw/` and the required `data/raw/checksums.json` file\
+    \ is missing. Consequently the unit test `tests/unit/test_download.py` fails,\
+    \ indicating the task\u2019s core requirements are not met. The implementation\
+    \ must point to a valid, publicly accessible dataset (or provide a mock/local\
+    \ fallback) and ensure both the raw CSV and checksum manifest are created."
+  sig: c36222dd38af824c31a19b0893ad0574f54e9377811c7ce2e41548dac94a9a72
 T002:
   c: false
-  h: 6daa16206dd066f97e3a1bf9c26809c8a2dc11b1936740903462ca224cd4e57e
-  r: "The `process` method writes the CSV/Parquet files, but the repository shows\
-    \ both `data/processed/processed_data.csv` and `data/processed/processed_data.parquet`\
-    \ are missing, so the unit test cannot find the outputs. Additionally, invalid\
-    \ SMILES are excluded without any logging, contrary to the FR\u2011011 requirement.\
-    \ The next implementer should ensure the script actually creates the two output\
-    \ files in the expected location and logs a warning for each invalid SMILES entry."
-  sig: 5ba0ed903acff8277d4cb4506dd5caf6331ba2e50b4467d9049c1414c219a5af
+  h: 5369e210761424960eba2497e8d16eff8e210a1aa4c26223050d5ed64f78a67a
+  r: The `process` method writes CSV and Parquet files, but the expected artifacts
+    `data/processed/processed_data.csv` and `data/processed/processed_data.parquet`
+    are missing from the project repository, so the unit test that checks for their
+    existence would fail. The implementation must ensure these files are actually
+    created at the specified paths.
+  sig: 9c15f5d9d6a70afcd67164a4c391df64516a511e17286d7c2d5ad3a80e6d5958
 T003:
-  c: false
-  h: 0039c25d3ef611ab75b48748fd6be749d1fb434a59e7bc39ea9a3972206aca09
-  r: "The provided `code/data/split.py` reads a CSV input, not the required `data/processed/processed_data.parquet`,\
-    \ and its CLI does not default to that file. It writes both CSV and Parquet splits,\
-    \ but the expected output files `data/processed/train.parquet` and `data/processed/test.parquet`\
-    \ are missing, and no evidence shows the 80/20 stratified split with \u22645\u202F\
-    pp difference is performed on the actual parquet source. The required input parquet\
-    \ file itself is absent, so the task\u2019s core functionality is not satisfied."
-  sig: ea2d04d8be98988e4ce892aaa025ca040fee7a2e53f9aedb0c9469155d717782
+  c: true
+  h: 37e0663e72518723e6a3eb6bd5c9815d75859353ae6796b97783d8988120a46c
+  r: "Checked `code/data/split.py`, which reads `data/processed/processed_data.parquet`,\
+    \ filters rows with a non\u2011null target, performs an 80/20 stratified split\
+    \ when a `polymer_type` column exists (enforcing \u2264\u202F5\u202Fpp difference)\
+    \ or falls back to a random split with a warning, and writes `data/processed/train.parquet`\
+    \ and `data/processed/test.parquet` (as well as CSV equivalents). The script\u2019\
+    s logic and default paths satisfy all stated requirements."
+  sig: 19c76fb38b5a323379954928dc0068dae6171292b5080d63495d6a2a88d81c1e
 T004:
   c: false
-  h: ed5da7dd93ed0de422ef23f1306313819a2691e76f09eb2b3f20579554623ceb
-  r: "Checked `code/models/gnn.py` and `tests/unit/test_models.py`. The model defined\
-    \ is a two\u2011layer MPNN (uses both mean and max pooling) and the training script\
-    \ saves a checkpoint to `data/interim/gnn_best.pt` instead of the required `code/models/gnn.pt`.\
-    \ Moreover, the unit test expects `create_mpnn_model` to return an instance of\
-    \ `MPNN` with three layers, but the factory returns `SimpleMPNN`, causing the\
-    \ `isinstance(..., MPNN)` assertion to fail. Consequently the required 3\u2011\
-    layer CPU\u2011only GNN, correct pooling, early\u2011stopping behavior, and checkpoint\
-    \ file are not present."
-  sig: 2abbe1a806d3aa3e3ffd1cfc986aa81512ab82c569a000aee0fbf3dcaa4887f5
+  h: 7bc2bdbbeafba323eba211d137d36f6515b41c2dea39c0675d0ed379eab1e533
+  r: "The provided `code/models/gnn.py` implements a CPU\u2011only 3\u2011layer MPNN\
+    \ with early stopping and saves a checkpoint to `code/models/gnn.pt`, but the\
+    \ checkpoint file is absent and the unit test suite (`tests/unit/test_models.py`)\
+    \ does not contain the required training\u2011time/ checkpoint verification test.\
+    \ Consequently the verification step is not satisfied."
+  sig: 319bb1075dcf20fccc830f8352d346afa7c90a7295c91314af01e510b5d5f90d
 T005:
-  c: false
-  h: 2382275336c69a4ae0384abd153a71a5763c841dd8c30d84a19ed24e59050955
-  r: "Checked `code/models/rf.py` \u2013 it defines the correct RandomForestRegressor\
-    \ and a CLI that would save `code/models/rf.pkl`, but the pickle file is missing.\
-    \ Moreover, the provided `tests/unit/test_models.py` does not contain the expected\
-    \ `test_rf_training` that checks for the pickle file and that `feature_importances_`\
-    \ has length\u202F6. The required artifact and verification test are absent."
-  sig: c95187fc5be66cbc0e7f556b62d316d0db23dd18f4dc86f046a7888b593af244
+  c: true
+  h: f03d019871e1123725db6160ede657c191d15077ed8f3af115b133dcc8a668c1
+  r: "Checked `code/models/rf.py` (implements the required RandomForestRegressor with\
+    \ the correct hyper\u2011parameters, saves to `code/models/rf.pkl`) and the test\
+    \ run `tests/unit/test_rf_training.py` (passed, confirming the pickle file is\
+    \ created and that `feature_importances_` has length\u202F6)."
+  sig: f2da65da8a574c400c7bf2a84a20210aed575fd63bc4ae00cb2642c3b656e62d

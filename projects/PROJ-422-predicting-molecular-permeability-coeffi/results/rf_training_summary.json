@@ -1,0 +1,10 @@
+descriptor_columns:
+- mw
+- logp
+- tpsa
+- hba
+- hbd
+- rotatable_bonds
+max_features: sqrt
+model_path: /home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/models/rf.pkl
+n_estimators: 200

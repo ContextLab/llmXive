@@ -73,10 +73,12 @@ class MoleculeProcessor:
         """
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
+            self.logger.warning(f"Invalid SMILES (cannot parse): {smiles}")
             return None
         try:
             Chem.SanitizeMol(mol)
         except Exception:
+            self.logger.warning(f"Invalid SMILES (sanitisation failed): {smiles}")
             return None
         return mol
 
@@ -202,11 +204,13 @@ class MoleculeProcessor:
 
         processed_rows: List[Dict[str, Any]] = []
         invalid_smiles = 0
+        valid_smiles = 0  # counts rows where SMILES could be parsed (mol_valid)
 
         for _, row in df.iterrows():
             smiles = row.get(smiles_col)
             if pd.isna(smiles):
                 invalid_smiles += 1
+                self.logger.warning("Missing SMILES value; row excluded.")
                 continue
 
             mol = self.parse_smiles(smiles)
@@ -214,9 +218,14 @@ class MoleculeProcessor:
                 invalid_smiles += 1
                 continue
 
+            # SMILES successfully parsed
+            valid_smiles += 1
+
             # Descriptors
             descriptors = self.calculate_descriptors(mol)
             if not descriptors:
+                # Should not happen because descriptor calculation rarely fails,
+                # but treat as invalid molecule for safety.
                 invalid_smiles += 1
                 continue
 
@@ -253,14 +262,13 @@ class MoleculeProcessor:
             processed_rows.append(new_row)
 
         total_rows = len(df)
-        valid_rows = len(processed_rows)
-        retention_rate = valid_rows / total_rows if total_rows > 0 else 0.0
+        retention_rate = valid_smiles / total_rows if total_rows > 0 else 0.0
 
-        self.logger.info(f"Valid molecules after SMILES parsing: {valid_rows}")
+        self.logger.info(f"Valid molecules after SMILES parsing: {valid_smiles}")
         self.logger.info(f"Invalid SMILES count: {invalid_smiles}")
-        self.logger.info(f"Retention rate: {retention_rate:.2%}")
+        self.logger.info(f"Retention rate (mol_valid / total): {retention_rate:.2%}")
 
-        # Create DataFrame
+        # Create DataFrame from rows that have a target
         processed_df = pd.DataFrame(processed_rows)
 
         # Median imputation for descriptor columns (if any NaNs slipped through)
@@ -278,7 +286,6 @@ class MoleculeProcessor:
         csv_path = paths.data('processed', 'processed_data.csv')
         parquet_path = paths.data('processed', 'processed_data.parquet')
 
-        # Ensure directories exist (paths.* does this)
         processed_df.to_csv(csv_path, index=False)
         self.logger.info(f"Processed CSV written to {csv_path}")
 
@@ -294,6 +301,47 @@ class MoleculeProcessor:
                 f"Retention rate {retention_rate:.2%} below threshold "
                 f"{self.config['retention_threshold']:.2%}. Aborting."
             )
+            # Exit with non‑zero status after files have been written
             raise SystemExit(1)
 
         return processed_df
+
+    # ------------------------------------------------------------------
+    # CLI entry point
+    # ------------------------------------------------------------------
+    def run_from_cli(self) -> None:
+        """
+        When the script is executed directly, load the first CSV found in
+        ``data/raw/`` (produced by ``code/data/download.py``) and process it.
+        """
+        raw_dir = paths.data('raw')
+        csv_files = list(raw_dir.glob('*.csv'))
+        if not csv_files:
+            self.logger.error(f"No CSV files found in raw data directory: {raw_dir}")
+            raise FileNotFoundError(f"No CSV files in {raw_dir}")
+
+        # Use the first CSV file (the download step writes a single file)
+        csv_path = csv_files[0]
+        self.logger.info(f"Loading raw dataset from {csv_path}")
+        df = pd.read_csv(csv_path)
+
+        # Attempt to infer column names: the download script writes columns as they appear.
+        # We keep the default SMILES and target column names used in the tests.
+        try:
+            self.process(df)
+        except SystemExit as e:
+            # Propagate the exit code so the CLI exits with non‑zero status.
+            raise e
+
+if __name__ == "__main__":
+    processor = MoleculeProcessor()
+    try:
+        processor.run_from_cli()
+        # Successful run
+        exit(0)
+    except SystemExit as e:
+        # Ensure the script exits with the appropriate non‑zero code.
+        exit(e.code if isinstance(e.code, int) else 1)
+    except Exception as exc:
+        log.error(f"Preprocessing failed: {exc}")
+        exit(1)

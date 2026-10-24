@@ -1,115 +1,100 @@
 """
 Data download script for the Molecular Permeability project.
 
-This script fetches a verified public dataset from Hugging Face,
-validates that the required SMILES and target columns are present,
-writes the raw CSV file to `data/raw/` and records a SHA-256 checksum
-in `data/raw/checksums.json`.
-
-The dataset used is the **Delaney** solubility dataset, which provides
-SMILES strings and a numeric target column. Although the target is
-solubility rather than permeability, this dataset serves as a real
-example for the download step and satisfies the unit test expectations.
+This script reads the dataset identifier from ``config/selected_dataset.yaml``,
+streams the dataset from Hugging Face, validates that the required columns
+(SMILES and permeability) are present, writes the raw CSV file to
+``data/raw/`` and records a SHA‑256 checksum in ``data/raw/checksums.json``.
 """
+import csv
 import hashlib
 import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Tuple
 
-import pandas as pd
+import yaml
 from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
-
-# ----------------------------------------------------------------------
-# Configuration for the verified dataset
-# ----------------------------------------------------------------------
-# We use the Delaney solubility dataset from Hugging Face.
-# It contains SMILES strings and a numeric target column.
-VERIFIED_DATASET_CONFIG = {
-    "hf_path": "deepchem/delaney",
-    "split": "train",
-    "smiles_keyword": "smiles",
-    "target_keyword": "measured log solubility in mols per litre",
-    "filename": "permeability_data.csv",
-    # Expected columns for the unit test verification
-    "expected_columns": ["smiles", "measured log solubility in mols per litre"],
-}
 
 logger = get_logger(__name__)
 
 class DataLoader:
     """
     Fetches a verified molecular dataset, validates required columns,
-    writes the raw CSV to `data/raw/` and records a SHA-256 checksum.
+    writes the raw CSV to ``data/raw/`` and records a SHA‑256 checksum.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self.config = config or VERIFIED_DATASET_CONFIG
+    def __init__(self, config_path: Path = None):
+        """
+        Parameters
+        ----------
+        config_path: Path, optional
+            Path to the YAML configuration file that specifies the dataset.
+            If omitted, defaults to ``config/selected_dataset.yaml``.
+        """
+        if config_path is None:
+            config_path = Path("config") / "selected_dataset.yaml"
+        if not config_path.is_file():
+            raise FileNotFoundError(f"Dataset config not found at {config_path}")
+        with config_path.open("r", encoding="utf-8") as f:
+            self.config: Dict[str, Any] = yaml.safe_load(f)
+
+        # Normalise expected columns to lower‑case for case‑insensitive checks
+        self.expected_columns = [c.lower() for c in self.config.get("expected_columns", [])]
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def fetch_dataset(self) -> pd.DataFrame:
+    def fetch_dataset(self):
         """
-        Load the dataset from Hugging Face using the datasets library.
+        Load the dataset from Hugging Face using the ``datasets`` library in
+        streaming mode.
         """
         self.logger.info(
-            f"Fetching dataset {self.config['hf_path']} from Hugging Face..."
+            f"Fetching dataset {self.config['hf_path']} (split={self.config['split']}) "
+            f"from Hugging Face with streaming..."
         )
         try:
-            # Load the specified split; the Delaney dataset is small.
-            dataset = load_dataset(self.config["hf_path"], split=self.config["split"])
-            df = dataset.to_pandas()
-            self.logger.info(f"Successfully loaded {len(df)} rows.")
-            return df
-        except Exception as exc:
-            self.logger.error(
-                f"Failed to load dataset from Hugging Face: {exc}"
+            dataset = load_dataset(
+                self.config["hf_path"],
+                split=self.config["split"],
+                streaming=True,
             )
+            self.logger.info("Streaming dataset iterator obtained.")
+            return dataset
+        except Exception as exc:
+            self.logger.error(f"Failed to load dataset: {exc}")
             raise RuntimeError(
                 f"Unable to fetch dataset from {self.config['hf_path']}."
             ) from exc
 
-    def validate_columns(self, df: pd.DataFrame) -> Tuple[str, str]:
+    def validate_columns(self, first_record: Dict[str, Any]) -> Tuple[str, str]:
         """
-        Ensure that the SMILES and target columns exist (case‑insensitive).
-        Fails loudly if the configured target column is missing.
+        Ensure that the required SMILES and target columns exist (case‑insensitive).
+        Raises if any required column is missing.
         """
-        cols = df.columns.tolist()
+        cols = [c.lower() for c in first_record.keys()]
 
-        # Case‑insensitive search for the required columns
+        # Required columns are defined in the YAML config
+        required = self.expected_columns
+        missing = [c for c in required if c not in cols]
+        if missing:
+            raise RuntimeError(
+                f"Missing required columns: {missing}. "
+                f"Found columns: {list(first_record.keys())}"
+            )
+
+        # Return the *original* column names as they appear in the data
         smiles_col = next(
-            (c for c in cols if c.lower() == self.config["smiles_keyword"].lower()),
-            None,
+            (c for c in first_record.keys() if c.lower() == required[0]), None
         )
         target_col = next(
-            (
-                c
-                for c in cols
-                if c.lower() == self.config["target_keyword"].lower()
-            ),
-            None,
-        )
-
-        if not smiles_col or not target_col:
-            raise RuntimeError(
-                f"Missing required columns. Found: {cols}. "
-                f"Required: {self.config['smiles_keyword']} and {self.config['target_keyword']}."
-            )
-
-        if not pd.api.types.is_numeric_dtype(df[target_col]):
-            raise RuntimeError(
-                f"Target column '{target_col}' is not numeric "
-                f"(detected type: {df[target_col].dtype})"
-            )
-
-        self.logger.info(
-            f"Required columns present: SMILES='{smiles_col}', Target='{target_col}'."
+            (c for c in first_record.keys() if c.lower() == required[1]), None
         )
         return smiles_col, target_col
 
     def compute_checksum(self, file_path: Path) -> str:
-        """Compute SHA‑256 checksum of `file_path`."""
+        """Compute SHA‑256 checksum of ``file_path``."""
         sha256 = hashlib.sha256()
         with file_path.open("rb") as f:
             for block in iter(lambda: f.read(4096), b""):
@@ -119,37 +104,60 @@ class DataLoader:
     def write_checksum_file(
         self, checksums: Dict[str, str], checksum_path: Path
     ) -> None:
-        """Write `checksums` dictionary as JSON."""
+        """Write ``checksums`` dictionary as JSON."""
         checksum_path.parent.mkdir(parents=True, exist_ok=True)
         with checksum_path.open("w", encoding="utf-8") as f:
             json.dump(checksums, f, indent=2)
         self.logger.info(f"Wrote checksum file to {checksum_path}")
 
-    def process(self, save_path: Optional[Path] = None) -> pd.DataFrame:
+    def process(self, save_path: Path = None):
         """
-        Execute the full data‑download pipeline.
+        Execute the full data‑download pipeline:
+        * stream the dataset,
+        * validate column presence,
+        * write a CSV file to ``data/raw/``,
+        * compute and store a SHA‑256 checksum.
         """
-        df = self.fetch_dataset()
-        # Validation will raise if required columns are absent.
-        self.validate_columns(df)
+        dataset = self.fetch_dataset()
 
+        # Stream the first record to obtain column names and perform validation
+        try:
+            first_record = next(iter(dataset))
+        except StopIteration:
+            raise RuntimeError("The streamed dataset is empty.")
+
+        smiles_col, target_col = self.validate_columns(first_record)
+
+        # Determine output CSV path
         if save_path is None:
             save_path = paths.data("raw", self.config["filename"])
         else:
             save_path = Path(save_path)
 
         save_path.parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(save_path, index=False)
+
+        # Write CSV header and rows (including the first record)
+        fieldnames = list(first_record.keys())
+        with save_path.open("w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow(first_record)
+
+            for record in dataset:
+                # ``record`` is a dict‑like object; convert to plain dict
+                writer.writerow(dict(record))
+
         self.logger.info(f"Saved raw dataset to {save_path}")
 
+        # Compute checksum and write manifest
         checksum = self.compute_checksum(save_path)
         checksum_path = save_path.parent / "checksums.json"
         self.write_checksum_file({save_path.name: checksum}, checksum_path)
 
         self.logger.info(
-            f"Data download completed successfully (rows={len(df)})"
+            f"Data download completed successfully (rows written)."
         )
-        return df
+        return save_path
 
 def main() -> None:
     """

@@ -28,7 +28,7 @@ The tasks are ordered to respect data flow and to satisfy every functional requi
   6. Rows with a missing `permeability` value are excluded from the output (they will not be used for modeling).  
   - **Verification**: `tests/unit/test_preprocess.py` checks that both output files exist, that `mol_valid` is a boolean, and that the retention guard triggers only when the valid‑molecule rate falls below 95 %.
 
-- [ ] **T003** [US‑1] Implement `code/data/split.py` – reads `data/processed/processed_data.parquet`, filters to rows where `target` is non‑null, then:  
+- [X] **T003** [US‑1] Implement `code/data/split.py` – reads `data/processed/processed_data.parquet`, filters to rows where `target` is non‑null, then:  
   1. If a `polymer_type` column exists, performs an 80/20 **stratified** split preserving an absolute ≤ 5 percentage‑point difference per class (FR‑004).  
   2. If `polymer_type` is absent, falls back to a random 80/20 split with a logged warning.  
   3. Writes `data/processed/train.parquet` and `data/processed/test.parquet`.  
@@ -42,11 +42,11 @@ The tasks are ordered to respect data flow and to satisfy every functional requi
   - Saves the trained model via `torch.save` to `code/models/gnn.pt`.  
   - **Verification**: unit test `tests/unit/test_models.py::test_gnn_training` confirms that training finishes within the 6‑hour wall‑time budget on the CI runner and that a checkpoint file is produced.
 
-- [ ] **T005** [US‑2] Implement `code/models/rf.py` – a `RandomForestRegressor` (n_estimators = 200, max_features=`'sqrt'`) trained on the **full descriptor vector** (MW, logP, TPSA, HBA, HBD, rotatable bonds).  
+- [X] **T005** [US‑2] Implement `code/models/rf.py` – a `RandomForestRegressor` (n_estimators = 200, max_features=`'sqrt'`) trained on the **full descriptor vector** (MW, logP, TPSA, HBA, HBD, rotatable bonds).  
   - Saves the model with `joblib.dump` to `code/models/rf.pkl`.  
   - **Verification**: `tests/unit/test_models.py::test_rf_training` checks that the pickle file exists and that `feature_importances_` has length = 6.
 
-- [ ] **T007** [US‑2] Implement `code/analysis/train.py` – orchestrates training of the two models:   <!-- FAILED-IN-EXECUTION: code/analysis/train.py exit=1 -->
+- [ ] **T007** [US‑2] Implement `code/analysis/train.py` – orchestrates training of the two models:   <!-- FAILED-IN-EXECUTION: code/analysis/train.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/analysis/train.py exit=1 -->
   1. Loads `data/processed/train.parquet`.  
   2. Trains GNN and RF, recording **total training time (hours)** and **peak memory (GB)** in `results/training_log.json`.  
   3. Writes a flag `no_significant_improvement: true` if the GNN’s test RMSE is not lower than the RF baseline.  

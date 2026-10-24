@@ -26,6 +26,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 
+# Import the GNN model class and RF utilities from sibling modules
 from models.gnn import MPNN  # The GNN model class
 from models.rf import train_random_forest, predict  # RF utilities
 from utils.logging import setup_logging, log_result_artifact
@@ -90,27 +91,37 @@ def load_data(
 
     return df, feature_cols, X, y
 
-def create_dummy_graphs(features: np.ndarray) -> List[torch_geometric.data.Data]:
+def create_dummy_graphs(features: np.ndarray) -> List[Any]:
     """
     Convert each feature vector into a single‑node graph with a self‑loop.
     This mirrors the behaviour of the original (now‑removed) dummy graph
-    creator but avoids the missing ``create_mpnn_model`` import.
+    creator but avoids importing ``torch_geometric`` at module import time,
+    which would raise a ``NameError`` because the type hint referenced the
+    library before it was imported.
     """
-    from torch_geometric.data import Data  # Imported lazily to keep the module optional
+    # Import lazily so the script can run even if torch_geometric is not
+    # installed (the unit tests only require the function to return a list
+    # of objects with ``x`` and ``edge_index`` attributes).
+    try:
+        from torch_geometric.data import Data  # type: ignore
+    except ImportError as exc:
+        raise RuntimeError(
+            "torch_geometric is required for GNN training but is not installed."
+        ) from exc
 
     graphs = []
     for feat in features:
         # Feature vector becomes the node attribute matrix (1 node, D features)
-        x = torch.tensor(feat.reshape(-1, 1), dtype=torch.float)  # shape (D,1)
+        x = torch.tensor(feat, dtype=torch.float).unsqueeze(0)  # shape (1, D)
         edge_index = torch.tensor([[0], [0]], dtype=torch.long)   # self‑loop
         data = Data(x=x, edge_index=edge_index)
         graphs.append(data)
     return graphs
 
 def train_gnn(
-    train_graphs: List[torch_geometric.data.Data],
+    train_graphs: List[Any],
     train_targets: np.ndarray,
-    test_graphs: List[torch_geometric.data.Data],
+    test_graphs: List[Any],
     test_targets: np.ndarray,
     checkpoint_path: Path
 ) -> Dict[str, Any]:
@@ -141,7 +152,7 @@ def train_gnn(
     )
 
     # Model instantiation – MPNN expects (input_dim, hidden_dim, output_dim)
-    input_dim = train_graphs[0].x.shape[0]  # number of features per node
+    input_dim = train_graphs[0].x.shape[1]  # number of features per node
     model = MPNN(input_dim=input_dim, hidden_dim=HIDDEN_DIM, output_dim=OUTPUT_DIM)
     model.to(device)
 
@@ -220,6 +231,12 @@ def train_gnn(
             "best_val_loss": best_val_loss,
             "training_duration": duration,
             "peak_memory_gb": peak_mem,
+            "model_config": {
+                "input_dim": input_dim,
+                "hidden_dim": HIDDEN_DIM,
+                "output_dim": OUTPUT_DIM,
+                "num_layers": 3,
+            },
         },
         checkpoint_path,
     )

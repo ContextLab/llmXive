@@ -1,1 +1,6 @@
-pyarrow>=12.0.0
+# Existing dependencies are already provided by the platform:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+# Additional third‑party packages needed for the GNN implementation:
+torch==2.2.0
+torch-geometric

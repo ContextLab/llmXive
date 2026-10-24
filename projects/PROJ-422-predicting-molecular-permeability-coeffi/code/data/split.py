@@ -2,13 +2,11 @@
 Data splitting utilities for molecular permeability datasets.
 
 Implements stratified and random splitting strategies with strict validation
-for polymer type stratification as required by FR-003. Adds retention
-(FR-011) and bias (FR-013) checks, writes detailed reports and a metrics
-JSON file. Writes both CSV and Parquet versions of the splits to satisfy
-downstream expectations.
+for polymer type stratification as required by FR‑003. Writes both CSV and
+Parquet versions of the splits to satisfy downstream expectations.
 
 The script can be invoked via the CLI:
-    python code/data/split.py --input data/processed/processed_data.csv
+    python code/data/split.py
 """
 
 import json
@@ -44,7 +42,7 @@ def _load_config() -> dict:
 
 
 # ----------------------------------------------------------------------
-# Retention check (FR-011)
+# Retention check (FR‑011)
 # ----------------------------------------------------------------------
 def _retention_check(df: pd.DataFrame, target_col: str) -> float:
     """
@@ -76,7 +74,7 @@ def _retention_check(df: pd.DataFrame, target_col: str) -> float:
 
 
 # ----------------------------------------------------------------------
-# Bias check (FR-013)
+# Bias check (FR‑013)
 # ----------------------------------------------------------------------
 def _bias_check(
     df: pd.DataFrame, target_col: str, corr_threshold: float = 0.85
@@ -150,20 +148,6 @@ def random_split(
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Perform a simple random split of the dataframe.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Input dataframe containing molecular data.
-    test_size : float, optional
-        Proportion of the dataset to include in the test split.
-    random_state : int, optional
-        Seed for reproducibility.
-
-    Returns
-    -------
-    Tuple[pd.DataFrame, pd.DataFrame]
-        (train_df, test_df)
     """
     if not 0 < test_size < 1:
         raise ValueError("test_size must be between 0 and 1 (exclusive).")
@@ -189,34 +173,6 @@ def stratified_split(
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Perform a stratified split ensuring distribution difference < threshold.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Input dataframe.
-    stratify_col : str
-        Column name to stratify by (e.g., 'polymer_type').
-    test_size : float, optional
-        Proportion of the dataset for the test split.
-    random_state : int, optional
-        Random seed for reproducibility.
-    max_distribution_diff : float, optional
-        Maximum allowed absolute percentage‑point difference in class
-        distribution between train and test sets. If ``None`` the value is
-        read from ``config.yaml`` (default 0.05).
-
-    Returns
-    -------
-    Tuple[pd.DataFrame, pd.DataFrame]
-        (train_df, test_df)
-
-    Raises
-    ------
-    SystemExit
-        If the stratification column is missing or the distribution
-        difference exceeds the threshold.
-    ValueError
-        If the stratification column has insufficient unique values.
     """
     config = _load_config()
     if max_distribution_diff is None:
@@ -230,7 +186,7 @@ def stratified_split(
             f"Available columns: {list(df.columns)}"
         )
         raise SystemExit(
-            f"Stratification by {stratify_col} required by FR-003. "
+            f"Stratification by {stratify_col} required by FR‑003. "
             f"Dataset lacks this metadata."
         )
 
@@ -479,7 +435,6 @@ def execute_split(
 
     train_df.to_csv(train_csv_path, index=False)
     test_df.to_csv(test_csv_path, index=False)
-    # Parquet writing – relies on pandas' default engine (pyarrow or fastparquet)
     train_df.to_parquet(train_parquet_path, index=False)
     test_df.to_parquet(test_parquet_path, index=False)
 
@@ -492,7 +447,6 @@ def execute_split(
     # ------------------------------------------------------------------
     # 5️⃣ Generate report & metrics JSON
     # ------------------------------------------------------------------
-    # Distribution stats for the report (only when stratified)
     distribution_stats = None
     max_diff = None
     if split_strategy == "stratified":
@@ -545,7 +499,8 @@ def execute_split(
 def main():
     """
     CLI entry point for the split stage.
-    Expects a preprocessed CSV file path as argument.
+    By default reads the processed parquet file produced by the
+    preprocessing step.
     """
     import argparse
     import sys
@@ -556,8 +511,9 @@ def main():
     parser.add_argument(
         "--input",
         type=str,
-        required=True,
-        help="Path to preprocessed CSV (e.g., data/processed/processed_data.csv)",
+        required=False,
+        help="Path to preprocessed data (CSV or Parquet). "
+             "Defaults to data/processed/processed_data.parquet",
     )
     parser.add_argument(
         "--output",
@@ -591,13 +547,23 @@ def main():
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
-    input_path = Path(args.input)
+    # Determine input path
+    if args.input:
+        input_path = Path(args.input)
+    else:
+        # Default to the parquet file created by preprocess.py
+        input_path = paths.data("processed", "processed_data.parquet")
+
     if not input_path.exists():
         log.error(f"Input file not found: {input_path}")
         sys.exit(1)
 
     log.info(f"Loading data from {input_path}...")
-    df = pd.read_csv(input_path)
+    # Load based on file extension
+    if input_path.suffix.lower() == ".parquet":
+        df = pd.read_parquet(input_path)
+    else:
+        df = pd.read_csv(input_path)
 
     if df.empty:
         log.error("Input dataframe is empty.")
