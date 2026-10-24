@@ -1,34 +1,28 @@
+T000:
+  reason: 'Requested task execution failed; rerun successfully: code/data/check_permeability.py
+    exit=1'
+  task: ea2c45cc858183830149c8940f1ebe5b18b3c0f5911fb5170b70a35a13973a24
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
-    exit=1'
-  task: dd6d473f868259e51c03a6f05e81bf433ff4bdeb0e30ea612215772a4b7eec79
+  task: bde1a247186dfeaa5f1d6774448d378a0bd1c3f45400af7e97b56af0ae7b6ccd
 T002:
-  reason: "Checked `code/data/preprocess.py` \u2013 it implements `MoleculeProcessor.process`\
-    \ but aborts with `SystemExit` when the retention rate is below the hard\u2011\
-    coded 95\u202F% threshold, causing the unit test `test_preprocess_writes_output`\
-    \ to fail and leaving `data/processed/processed_data.csv` absent. The required\
-    \ output file is missing and the processing routine does not reliably produce\
-    \ it as specified."
-  task: 5e82f27dfa2b5a464107e51f3f08dbc38218053ffe8b8a4147b7f195d02aa117
+  task: 67d7b1a4658038e6589b0fc24aba7777954fc0c6bdb406fc4e9f72649a881ce6
 T003:
-  task: 1002b266e8cccf6afe2c21ab1109044c8ad331b4a51f94aaf9f07af1155c05fb
+  task: 7fd726fc2a27f0f6a65ef4cce1825d14d0dfe7303ebd282bb2a27ec6c677c5cf
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/models/rf_ablation.py
-    exit=1'
-  task: 3aa5c97b97a47e80b3a91b0c932a0b2fcec978272bc1a6be96759c9754da301c
+  task: 1f159edc78f70bf5b5a77ef47454b7775fdeb6445548a972227d3f6257e926f2
 T005:
-  task: 219548a5bc0f4ba0aed169115680dad52747085158c115885ef47ca95bbd7ce4
-T006:
-  task: efbf4ff97ac993afffd0c71203c468452ec8318bde97c9a9b244d307e393eabb
+  task: 24abc3260275764fab6a1119da493d93c503d7b5a5e9c20b03d8bd83966c2a1a
 T007:
-  task: 66b1a02f16e77155b8a8ae204196006599ebcdaebd93e29793ee798d59a1d34f
+  task: 4e3687365478f5e2a89b491dfd352cd7d074f771a091216e150425163c20dc29
 T008:
-  task: f4b544d965545e0864b05f2a8c7e84b54312e9b6809ee2026691d815771161ce
+  task: 488db42f4f8a7acdf05788e0768d36af156340ff86dfb1bd81da571762d2457a
 T009:
-  task: 5745efd7b78ad69023e31c34ec1d5e8ec043d604cf3971c5b8cd589a33f889c3
+  task: a0cbed5f1456d1a7458c8f928c84913ee71fa60a53ad2f3bc3481f28baaba912
 T010:
-  task: 0f0d120ddc5ba03b1900f8524b46df0a55202c36f37bd48e35542286a90e96b8
+  task: fc16cf3dcbb8db8c7df63172be92fd666b85e90c4d22050164bd82702d9b291c
 T011:
-  task: 73823aec0fac68d688af000b2590c10cb2a837981f619843105f1421afe5f448
+  task: 6ac06df0f17a19d482c47e1dc3916475654ceffe60232a23a796eb1c00759733
 T012:
-  task: eaecc6f5718d117b0f5ee4177903782a12b1c9e7b222fbae5134d8340b445c63
+  task: 6fea83664d677ed1d2ddc535c9a012ae245c80aeb35cd1ec58ba6da5e1a2fa8a
+T013:
+  task: 79523ae8a20848abf0c8666e7792d5cd5e5bba37adf46f464d8645f9e5e1634a
