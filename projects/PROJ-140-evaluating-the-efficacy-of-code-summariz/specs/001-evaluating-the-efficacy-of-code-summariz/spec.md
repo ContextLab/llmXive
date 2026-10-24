@@ -17,8 +17,8 @@ As a researcher, I need to collect participant interaction data (timestamps, lin
 
 **Acceptance Scenarios**:
 
-1. **Given** a participant has been assigned 10 tasks per condition via Latin-square design, **When** they complete all 30 tasks (clicking on suspected buggy lines), **Then** a CSV file records timestamps, selected line numbers, and participant IDs for each task.
-2. **Given** the Defects4J v2.0 dataset has been downloaded and 60 buggy methods have been extracted, **When** a participant completes a task, **Then** the ground-truth buggy line from Defects4J is stored alongside the participant's selection for later accuracy comparison.
+1. **Given** a participant has been assigned a consistent number of tasks per condition via Latin-square design, **When** they complete all tasks (clicking on suspected buggy lines), **Then** a CSV file records timestamps, selected line numbers, and participant IDs for each task.
+2. **Given** the DefectsJ v2.0 dataset has been downloaded and 60 buggy methods have been extracted, **When** a participant completes a task, **Then** the ground-truth buggy line from Defects4J is stored alongside the participant's selection for later accuracy comparison.
 3. **Given** a participant session is in progress, **When** the participant clicks a line number, **Then** the system records the timestamp (in milliseconds) from task display to click.
 
 ---
@@ -33,7 +33,7 @@ As a researcher, I need to run McNemar's tests for accuracy and Linear Mixed-Eff
 
 **Acceptance Scenarios**:
 
-1. **Given** a complete CSV with 12 participants × 30 tasks each, **When** the statistical analysis pipeline runs, **Then** McNemar's tests produce p-values for accuracy comparisons and LME models produce p-values for speed comparisons.
+1. **Given** a complete CSV with multiple participants × 30 tasks each, **When** the statistical analysis pipeline runs, **Then** McNemar's tests produce p-values for accuracy comparisons and LME models produce p-values for speed comparisons.
 2. **Given** the statistical test results, **When** effect sizes are computed, **Then** Odds Ratios (for accuracy) and Cohen's d (for speed) with 95% confidence intervals via bootstrapping (multiple resamples, fixed seed) are generated for each comparison.
 3. **Given** multiple hypothesis tests are performed, **When** the analysis completes, **Then** a multiple-comparison correction (e.g., Bonferroni or Holm-Bonferroni) is applied to control family-wise error rate at α=0.05.
 

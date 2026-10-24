@@ -28,6 +28,13 @@ properties:
     type: integer
     description: "Ground truth buggy line number."
     minimum: 1
+  fallback_status:
+    type: string
+    description: "Indicates whether a fallback to rule‑based summary occurred."
+    enum:
+      - none
+      - llm_timeout
+      - llm_error
 required:
   - participant_id
   - task_id
@@ -35,3 +42,5 @@ required:
   - timestamp_ms
   - selected_line
   - ground_truth_line
+  - fallback_status
+additionalProperties: false

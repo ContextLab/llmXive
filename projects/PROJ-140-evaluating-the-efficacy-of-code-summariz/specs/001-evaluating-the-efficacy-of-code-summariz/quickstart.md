@@ -6,7 +6,7 @@
 ├─ code/
 │   ├─ main.py                # CLI entry point
 │   ├─ data_prep/
-│   │   ├─ download_defects4j.py
+│   │   ├─ download_defectsj.py
 │   │   └─ generate_summaries.py
 │   ├─ simulation/
 │   │   └─ simulate_study.py
@@ -48,23 +48,26 @@ python -m code.main --mode sim --help
 ### Typical workflow (simulated CI run)
 
 ```bash
-# 2️⃣ Download the verified Defects4J dataset (streaming, checksum‑verified)
-python code/data_prep/download_defects4j.py
+# 2️⃣ Run a priori power analysis (determines participant count)
+python code/power_analysis/run_power.py --output data/power_analysis/report.txt
 
-# 3️⃣ Generate rule‑based summaries (baseline and rule)
+# 3️⃣ Download the verified Defects4J dataset (streaming, checksum‑verified)
+python code/data_prep/download_defectsj.py
+
+# 4️⃣ Generate rule‑based summaries (baseline and rule)
 python code/data_prep/generate_summaries.py --mode sim
 
-# 4️⃣ Simulate participant interactions (12 participants, 10 tasks per condition)
-python code/simulation/simulate_study.py --participants 12 --tasks-per-condition 10 --seed 42
+# 5️⃣ Simulate participant interactions (participants may be 12 or 24 depending on power analysis)
+python code/simulation/simulate_study.py --seed 42
 
-# 5️⃣ Run the statistical analysis (CI‑mode disables heavy bootstrapping if needed)
+# 6️⃣ Run the statistical analysis (CI‑mode disables heavy bootstrapping if needed)
 python code/analysis/run_statistics.py --input data/interaction_logs/simulated_logs.csv --mode ci
 
-# 6️⃣ Verify outputs against contracts
+# 7️⃣ Verify outputs against contracts
 pytest -q tests/contract
 ```
 
-All steps complete within the GitHub Actions free‑tier limits (≤ 6 h, ≤ 7 GB RAM).  
+All steps complete within the GitHub Actions free‑tier limits (≤ 6 h, ≤ 7 GB RAM).
 
 ## 4. Real‑Study Execution (requires GPU)
 
@@ -77,7 +80,7 @@ All steps complete within the GitHub Actions free‑tier limits (≤ 6 h, �
    python -m code.main --mode real --log-file data/interaction_logs/anonymized_logs.csv
    ```
 
-The pipeline will automatically detect the presence of `summaries_llm.csv`; if missing, it aborts with a clear message.
+The pipeline automatically detects the presence of `summaries_llm.csv`; if missing, it aborts with a clear message.
 
 ## 5. Reproducibility Guarantees
 - All random seeds are fixed (`42`).  
@@ -86,3 +89,5 @@ The pipeline will automatically detect the presence of `summaries_llm.csv`; if m
 - Contract validation (`pytest -q tests/contract`) ensures every output file conforms to the declared schema.  
 
 ---
+
+

@@ -1,14 +1,14 @@
 status: none
-intent: Defects4J dataset pip install python package dataset
+intent: Defects4J v2.0 ground truth buggy lines download python package dataset
 required_fields:
 - participant_id
 - task_id
 - condition
 - timestamp_ms
-- selected_line_number
+- selected_line
 - ground_truth_buggy_line
 - project_name
 - buggy_method_id
-cache_key: 05bf21537d56b926cbc790a807c73feaa51eda1c85d6e9f4ed582a6c46d83861
-searched_at: '2026-10-19T22:17:02.735870+00:00'
+cache_key: d3416c880d0e893fe0f4de5f58a6385075370366687de4d668e7becb84afd599
+searched_at: '2026-10-24T04:08:30.229149+00:00'
 retry_count: 1

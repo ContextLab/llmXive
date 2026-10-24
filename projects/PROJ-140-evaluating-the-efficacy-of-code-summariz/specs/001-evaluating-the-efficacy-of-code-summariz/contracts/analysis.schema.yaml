@@ -9,7 +9,7 @@ properties:
   test_type:
     type: string
     enum:
-      - GLMM
+      - McNemar
       - LME
     description: "Statistical test used."
   p_value:
