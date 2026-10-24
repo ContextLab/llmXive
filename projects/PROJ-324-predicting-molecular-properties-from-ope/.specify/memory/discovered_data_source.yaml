@@ -1,29 +1,24 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import pubchempy as pcp\n\ncids = list(range(1, 51))\ncompounds =\
-  \ pcp.get_compounds(cids, namespace='cid')\nstandard = []\nfor comp in compounds:\n\
-  \    rec = {'CID': comp.cid}\n    if getattr(comp, 'isomeric_smiles', None):\n \
-  \       rec['SMILES'] = comp.isomeric_smiles\n    if getattr(comp, 'inchi_key',\
-  \ None):\n        rec['InChIKey'] = comp.inchi_key\n    if getattr(comp, 'molecular_weight',\
-  \ None):\n        rec['MolecularWeight'] = comp.molecular_weight\n    if getattr(comp,\
-  \ 'xlogp', None):\n        rec['XLogP3'] = comp.xlogp\n    standard.append(rec)\n\
-  \nprint(f\"RECORDS={len(standard)}\")\nif standard:\n    print(f\"FIELDS={','.join(standard[0].keys())}\"\
-  )"
-record_count: 50
+access_python: "import pubchempy as pcp\n\ncids = [2244, 5957, 1115]\nprops = pcp.get_properties(\n\
+  \    [\"MolecularFormula\", \"IsomericSMILES\", \"InChIKey\"], cids\n)\n\nrecords\
+  \ = [p for p in props if p]\nprint(f\"RECORDS={len(records)}\")\nif records:\n \
+  \   fields = sorted(records[0].keys())\n    print(\"FIELDS=\" + \",\".join(fields))"
+record_count: 3
 sample_fields:
 - CID
+- InChIKey
+- MolecularFormula
 - SMILES
-- MolecularWeight
-- XLogP3
-field_coverage: 0.571
+field_coverage: 0.5
 required_fields:
 - CID
-- SMILES
 - InChIKey
-- MolecularWeight
-- LogP
-- XLogP3
-- ExperimentalDataFlag
-intent: PubChem compound dataset SMILES properties download python package dataset
-cache_key: e65898d480ff4394f937f043b620d53765412749fcf6950f057c145fc3676956
+- SMILES
+- Experimental logP
+- Experimental solubility
+- Boiling point
+intent: PubChem and NIST experimental logP solubility boiling point dataset download
+  python package dataset
+cache_key: eb042060a80886830fd69c1c8f4d2dd74f06873f2a0b346ff53255ecd833548e

@@ -21,25 +21,24 @@ properties:
     description: "Experimental logP value."
   solubility_exp:
     type: number
-    description: "Experimental solubility value (g/L or logS)."
+    description: "Experimental solubility value (logS)."
   boiling_point_exp:
     type: number
-    description: "Experimental boiling point value (K or C)."
+    description: "Experimental boiling point value (USUALLY K)."
   is_outlier:
     type: boolean
     default: false
-    description: "Flag indicating if the molecule was excluded due to outlier status."
-  missing_covariate:
-    type: array
-    items:
-      type: string
-    description: "List of missing covariates (e.g., 'pH', 'temperature')."
-    default: []
-examples:
-  - id: "CID12345"
+    description: "Flag [ ? " ? ? " "
+  is_outlier:
+    type: boolean
+    default: false
+    description: "Flag "
+
+--- 
+example:
+  - 
+    id: "CID1234"
     smiles: "CCO"
-    logP_exp: negative, indicating a low partition coefficient.
-    solubility_exp: moderate level
-    boiling_point_exp: experimentally observed boiling point (to be quantified in the implementation phase)
-    is_outlier: false
-    missing_covariate: []
+    logP_exp: expected to be negative (i.e., less than zero).
+    solubidity?: 
+    ...

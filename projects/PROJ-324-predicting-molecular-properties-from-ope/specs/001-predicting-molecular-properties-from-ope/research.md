@@ -3,7 +3,7 @@
 ## Research Question
 *Which topological interaction signatures (fingerprint bit‑pairs) are most predictive of logP, aqueous solubility, and boiling point, and how does a non‑linear Random Forest model capture non‑additive deviations relative to property‑specific additive baselines?*  
 
-The question is framed as a **statistical** investigation of 2‑D fingerprint correlations, acknowledging that fingerprints are topological proxies for underlying 3‑D phenomena (see Constitution Principle VI).
+The question is framed as a **statistical** investigation of 2‑D fingerprint correlations, respecting Constitution Principle VI (explicit baseline comparison) and acknowledging that correlations do not imply causation.
 
 ## Dataset Strategy
 
@@ -11,53 +11,50 @@ The question is framed as a **statistical** investigation of 2‑D fingerprint c
 
 | Dataset | Source URL | Access Method | Key Fields |
 |---------|------------|---------------|------------|
-| PubChem Compound | https://pubchem.ncbi.nlm.nih.gov/ | `pubchempy` (Python API) | `CID`, `SMILES`, `logP`, `solubility`, `boiling_point`, `property_type` (must be `"Experimental"`), `measurement_uncertainty`, `logp_source` (must be `"Experimental"`), `confidence` |
-| Open Babel | https://openbabel.org/ | CLI `obabel` | Fingerprint generation (MACCS, ECFP4, FP2) |
+| PubChem Compound | https://pubchem.ncbi.nlm.nih.gov/ | `pubchempy` (Python API) | `CID`, `IsomericSMILES`, `logP`, `solubility`, `boiling_point`, `property_type` (must be `"Experimental"`), `measurement_uncertainty`, `confidence` |
+| Open Babel | https://openbabel.org/ | CLI `obabel` | Generation of MACCS and ECFP4 fingerprints (FP2 omitted) |
 
-**Rationale** – PubChem provides open, programmatic access to real **experimental** measurements, satisfying FR‑001 and the constitution’s verification requirement. Open Babel is the de‑facto standard for generating the required fingerprints (FR‑003).
+*Rationale*: PubChem provides open, programmatic access to **experimental** measurements, satisfying FR‑001 and the constitution’s verification requirement. Open Babel is the standard tool for the required fingerprints (FR‑003).
 
 ### Data Availability & Feasibility
-- **Size**: A curated set of several thousand molecules (tens of megabytes in CSV format) fits comfortably within the runner’s disk quota.  
-- **Streaming**: `download.py` can stream additional records if the set grows beyond 1 GB, preserving full‑dataset fidelity.  
-- **Checksum**: Every file in `data/raw/` is SHA‑256 hashed and recorded in `state/artifact_hashes.yaml` (III. Data Hygiene).
+- **Size**: The curated experimental subset contains a few thousand molecules (approximately a few megabytes in CSV format).  
+- **Streaming**: `download.py` can stream additional PubChem records if needed, but the default set fits comfortably within the runner’s 14 GB disk.  
+- **Checksum**: SHA‑256 recorded in `state/artifact_hashes.yaml` (III. Data Hygiene).  
 
 ## Methodological Rigor
 
 ### Modeling
-- **Baseline** (required by Constitution Principle VI):  
-  - **logP** – Crippen fragments via RDKit `Crippen` descriptors (experimental only).  
-  - **Solubility & Boiling point** – Linear regressions on molecular weight & polar surface area (experimental only).  
-- **Random Forest**: `sklearn.ensemble.RandomForestRegressor` with `n_estimators=300`, `max_depth=15`.  
-- **Nested Cross‑Validation**: Outer 5‑fold CV for unbiased performance; inner 5‑fold CV inside each outer training split to tune `max_features` & `min_samples_leaf`. The inner loop never sees the outer hold‑out data, preventing leakage (fulfills FR‑004).
+- **Additive Baselines** (required by Constitution Principle VI):  
+  - **logP** – Crippen fragments via RDKit (`MolLogP`).  
+  - **Solubility & Boiling Point** – Linear regressions on molecular weight and polar surface area (trained on the experimental subset).  
+- **Random Forest**: `sklearn.ensemble.RandomForestRegressor` with `n_estimators=300`, `max_depth=15`, `random_state=42`.  
+- **Nested Cross‑Validation**: Outer 5‑fold CV for unbiased performance; inner 5‑fold CV tunes `max_features` and `min_samples_leaf`. Random seed fixed (42) for reproducibility (IV. Reproducibility).
 
 ### Evaluation Metrics
-- **Primary**: Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE) on outer‑fold test sets.  
-- **Statistical Comparison**: Paired Wilcoxon signed‑rank test on absolute errors (RF vs. baseline) for each property.  
-- **Multiple‑Comparison Correction**: Bonferroni adjustment (α = 0.05/3).  
-- **Power Considerations**: With ≥ 5 000 molecules, power > 0.9 to detect a Cohen’s d = 0.2 effect (reported in `statistical_report.md`).  
+- **Primary**: MAE and RMSE on outer‑fold test sets (target thresholds MAE ≤ 0.5, RMSE ≤ 0.7 logP units).  
+- **Statistical Comparison**: Three **property‑wise** paired Wilcoxon signed‑rank tests on absolute errors (RF vs. baseline) with **Holm‑Bonferroni** correction (α = 0.05). To guard against heteroscedasticity across properties, we also compute a **non‑parametric bootstrap test** of the combined error reduction (1 000 resamples) and report its confidence interval.  
+- **Baseline generation**: Compute additive‑fragment XlogP3 values for all molecules; store residuals.  
+- **SHAP interaction significance**: Compute SHAP interaction values; assess via **bootstrap‑of‑model** (200 resamples) rather than target permutation, retaining interactions where observed magnitude exceeds the 95th percentile of the bootstrap distribution.  
+- **LNAI (Local Non‑Additivity Index)**:  
+  1. **Top‑K selection** – rank MACCS bits by **mean absolute SHAP interaction strength** **computed only on inner‑validation folds**; select the top‑ranked bits (resulting in a large set of pairs). This split‑based selection eliminates leakage.  
+  2. For each pair, require **marginal prevalence ≥ 5 %** for each bit and **joint prevalence ≥ 5 %**; **regress out each bit’s main effect** from `(RF_error − Baseline_error)`, then compute **rank‑biserial correlation** between the residuals and the joint‑presence indicator.  
+  3. Assess significance with **2 000 permutations** (Numba‑accelerated) and apply Benjamini‑Hochberg FDR (α = 0.05).  
+  4. **Power analysis** (Task T015c) estimates detectable effect size given N≈5 000 and ~4 950 tests; a warning is logged if power < 0.8.  
+- **Per‑molecule LNAI**: Average significant pairwise LNAI scores for each molecule; output `lna_index_per_molecule.csv`.  
+- **SMARTS mapping**: Use `reference/maccs_smart_lookup.json` to translate **all** selected MACCS bits to SMARTS; match against molecules via RDKit `GetSubstructMatches`.  
+- **Precision/Recall Evaluation**: Compare mapped substructures to the curated reference set (`reference/substructures.yaml`); required thresholds: precision ≥ 0.8, recall ≥ 0.7 (recorded in `mapping_metrics.txt`).  
 
 ### Explainability & Non‑Additivity
 - **SHAP Values**: Computed with `shap.TreeExplainer` (CPU).  
-- **SHAP Interaction Validation**: A permutation test (100 random shuffles of the target) recomputes interaction matrices; stability is assessed by the proportion of original interaction magnitudes exceeding the permutation distribution, reported in `shap_interaction_validation.txt`.  
-- **Top‑K MACCS Selection**: Mean absolute SHAP values are averaged across molecules; the top K = 50 MACCS bits are retained for downstream interaction analysis.  
-- **LNAI (Local Non‑Additivity Index)**: For each **pair among the top‑K bits** (≤1,225 pairs), compute **rank‑biserial correlation** between `(RF_error − Baseline_error)` and the **joint presence** of the two bits, applying a **prevalence filter** (each bit must appear in ≥5 % of molecules) and Benjamini‑Hochberg FDR (α = 0.05). Only pairs passing FDR < 0.05 are reported as significant interaction zones.  
-- **MACCS‑SMARTS Mapping**: Use a curated `maccs_smart_lookup.json` to translate each selected MACCS bit into a SMARTS pattern; map back to molecules with RDKit substructure searches, producing `deviation_contexts.csv`.  
+- **SHAP Interaction Validation**: **Bootstrap‑of‑model** (200 resamples) provides a proper null distribution for interaction magnitudes.  
+- **Top‑K MACCS Selection**: Split‑based, interaction‑strength driven, avoiding main‑effect bias.  
+- **LNAI**: Main‑effect regression, prevalence filters, permutation testing, FDR correction, and power analysis ensure statistical rigor.  
+- **Expert Validation**: Two independent chemists review the Interaction‑Zone Report PDF; their acceptance statements compiled into `validation_report.pdf` (FR‑011).  
 
 ### Assumptions & Limitations
-- **Observational Study**: All claims are correlational; no causal inference is attempted.  
-- **Collinearity**: Fingerprint bits are inherently correlated; SHAP interaction values are interpreted with this in mind and validated via the permutation test.  
-- **Construct Validity**: Only **experimental** property values are used; computed XLogP3 values are excluded, preserving the validity of the target variable.  
-
-## Compute Feasibility
-- **CPU‑first**: All heavy lifting (RF, SHAP, permutation tests, LNAI on ≤ 1,225 pairs) runs on the 2‑core CPU; estimated runtime ≤ 4 h.  
-- **Memory**: Fingerprint matrices (~5 000 × 2 200 bits ≈ 1.4 MB) plus model objects fit well within 7 GB RAM.  
-- **No GPU Needed**: The pipeline does not invoke CUDA; therefore no escape hatch is required.
-
-## Decision / Rationale
-- **Dataset**: PubChem is the only open, programmatic source meeting the variable requirements (SMILES + three target experimental properties).  
-- **Model**: Random Forest balances interpretability (via SHAP) and computational tractability on CPU.  
-- **Baseline**: Property‑specific additive baselines ensure scientific validity for each target property (Constitution Principle VI).  
-- **Explainability**: SHAP interaction validation guards against over‑interpretation of noisy high‑dimensional interaction scores.  
+- **Observational**: All conclusions are correlational; no causal claims are made.  
+- **Collinearity**: Fingerprint bits are not independent; SHAP interaction significance is tempered by the bootstrap approach and main‑effect adjustment.  
+- **Construct Validity**: Only **experimental** property values are used; any computed estimates are filtered out during preprocessing.  
 
 ## Deliverables (Generated by the pipeline)
 
@@ -65,25 +62,34 @@ The question is framed as a **statistical** investigation of 2‑D fingerprint c
 |----------|------|-------------|
 | Raw PubChem CSV | `data/raw/pubchem.csv` | Immutable download (raw) |
 | Data quality report | `data/derived/data_quality_report.csv` | Missing covariates, experimental‑data ratio |
-| Verification log | `data/derived/verification_log.txt` | Reference‑Validator outcomes |
-| Fingerprint arrays | `data/processed/*.npy` | MACCS (166 bits), ECFP4 (1024), FP2 (1024) |
+| Verification log | `data/derived/verification_log.txt` | URL verification outcomes |
+| Fingerprint arrays | `data/processed/*.npy` | MACCS (166 bits) & ECFP4 (1024 bits) |
 | Baseline predictions | `data/derived/baseline_predictions.csv` |
 | Baseline residual plot | `data/derived/baseline_residuals.png` |
 | RF predictions | `data/derived/rf_predictions.csv` |
 | RF residual plot | `data/derived/rf_residuals.png` |
-| Test‑set split | `data/derived/test_set.csv` | CID, outer‑fold index, test‑set flag |
+| Test‑set split | `data/derived/test_set.csv` |
 | Statistical report | `data/derived/statistical_report.md` |
-| SHAP values (JSON) | `data/derived/predictions/*.json` | Conforms to `prediction.schema.yaml` |
+| SHAP values (JSON) | `data/derived/shap/*.json` |
 | SHAP interaction heatmap | `data/derived/shap_interactions.png` |
 | SHAP interaction matrix (raw) | `data/derived/shap_interaction.npy` |
 | SHAP interaction validation | `data/derived/shap_interaction_validation.txt` |
-| Top‑K MACCS bits list | `data/derived/top_k_maccs.txt` |
+| Top‑K MACCS bits (selection‑set) | `data/derived/top_k_maccs_selection.txt` |
+| Top‑K MACCS bits (test‑set) | `data/derived/top_k_maccs_test.txt` |
 | LNAI table | `data/derived/lna_index.csv` |
-| Deviation contexts (MACCS‑SMARTS) | `data/derived/deviation_contexts.csv` |
-| Validation summary | `data/derived/validation_summary.csv` |
+| Per‑molecule LNAI | `data/derived/lna_index_per_molecule.csv` |
+| Deviation contexts (SMARTS) | `data/derived/deviation_contexts.csv` |
+| Mapping metrics (precision/recall) | `data/derived/mapping_metrics.txt` |
+| Interaction‑Zone Report | `data/derived/interaction_zone_report.pdf` |
+| Expert Validation Report | `data/derived/validation_report.pdf` |
+| Validation Audit | `data/derived/validation_audit.pdf` |
+| Predictions schema‑compliant CSV | `data/derived/predictions_schema.csv` |
+| Molecules schema‑compliant CSV | `data/derived/molecules_schema.csv` |
+| Validation summary (checksums, QC, etc.) | `data/derived/validation_summary.csv` |
 
-All artifacts will be validated against the JSON/YAML contracts in `contracts/`.
+All artifacts are validated against the JSON/YAML contracts in `contracts/`.
 
 ---
+
 
 

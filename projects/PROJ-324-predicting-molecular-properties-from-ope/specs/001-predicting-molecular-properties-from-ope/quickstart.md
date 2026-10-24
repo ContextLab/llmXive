@@ -4,6 +4,7 @@
 - Python 3.10 or newer
 - Open Babel CLI (`obabel`) in your `PATH`
 - Git
+- (Optional) `make` for convenience
 
 ## Installation
 
@@ -33,19 +34,21 @@ brew install open-babel
 code/
 ├── data/
 │   ├── download.py          # PubChem download & checksum
-│   ├── preprocess.py        # Missing‑value handling, quality report, experimental‑only filter
-│   └── fingerprint.py       # Open Babel wrapper
+│   ├── preprocess.py        # Quality filtering, experimental‑only flag
+│   └── fingerprint.py       # Open Babel wrapper (MACCS, ECFP4)   # FP2 removed
 ├── models/
 │   ├── baseline.py          # Property‑specific additive baselines
 │   └── rf.py                # Random Forest with nested CV
 ├── analysis/
-│   ├── stats.py             # Metrics, Wilcoxon test, LNAI, verification log
-│   └── explainability.py    # SHAP, interaction validation, MACCS‑SMARTS mapping, test‑set export
+│   ├── stats.py             # Metrics, Wilcoxon test, LNAI, precision/recall, power analysis
+│   └── explainability.py    # SHAP, bootstrap interaction validation, SMARTS mapping, report generation
 └── main.py                  # Orchestrates the whole pipeline
 data/
 ├── raw/
 ├── processed/
 └── derived/
+reference/
+└── substructures.yaml       # Curated substructure reference set
 tests/
 requirements.txt
 pyproject.toml
@@ -55,33 +58,43 @@ pyproject.toml
 ## Running the Full Pipeline
 
 ```bash
-# 1. Download raw data from PubChem (includes verification log)
+# 1. Download raw experimental data from PubChem
 python code/data/download.py
 
-# 2. Preprocess (handle missing values, filter to experimental records, generate quality report)
+# 2. Preprocess: filter to experimental records, enforce quality thresholds
 python code/data/preprocess.py
 
-# 3. Generate fingerprints via Open Babel
+# 3. Generate MACCS and ECFP4 fingerprints (FP2 omitted)
 python code/data/fingerprint.py
 
-# 4. Compute additive baselines (logP, solubility, boiling point)
+# 4. Compute additive baselines for each property
 python code/models/baseline.py
 
-# 5. Train Random Forest with nested cross‑validation
+# 5. Train Random Forest with nested k‑fold cross‑validation
 python code/models/rf.py
 
-# 6. Perform statistical analysis and produce plots
+# 6. Perform statistical comparison (Wilcoxon test) and create residual plots
 python code/analysis/stats.py
 
-# 7. Explainability: SHAP values, interaction matrix, permutation validation,
-#    map MACCS bits to SMARTS, export test‑set split
+# 7. Explainability workflow:
+#    - SHAP values & interaction matrix
+#    - Bootstrap validation of interactions (several resamples)
+#    - Top‑K MACCS selection (inner‑validation folds only)
+#    - LNAI computation (several thousand permutations, main‑effect adjusted, BH FDR)
+#    - SMARTS mapping for **all** selected bits
+#    - Precision/Recall evaluation
+#    - Interaction‑Zone Report PDF
+#    - Expert validation PDF
 python code/analysis/explainability.py
 
-# 8. (Optional) Generate the validation summary CSV
-python code/analysis/validation_summary.py
+# 8. Generate schema‑compliant outputs
+python code/analysis/generate_schema_outputs.py   # creates predictions_schema.csv & molecules_schema.csv
+
+# 9. Compile the final validation audit (checksums, data‑quality report, verification log, residual plots, LNAI tables, SHAP validation, mapping metrics, per‑molecule LNAI, expert review)
+python code/analysis/validation_audit.py
 ```
 
-Each script writes its outputs under `data/derived/`. The most important artifacts are:
+Each script writes its outputs under `data/derived/`. Key artifacts include:
 
 | Artifact | Path | Description |
 |----------|------|-------------|
@@ -95,14 +108,22 @@ Each script writes its outputs under `data/derived/`. The most important artifac
 | RF residual plot | `data/derived/rf_residuals.png` |
 | Test‑set split | `data/derived/test_set.csv` |
 | Statistical report | `data/derived/statistical_report.md` |
-| SHAP values (JSON) | `data/derived/predictions/*.json` |
+| SHAP values (JSON) | `data/derived/shap/*.json` |
 | SHAP interaction heatmap | `data/derived/shap_interactions.png` |
 | SHAP interaction matrix (raw) | `data/derived/shap_interaction.npy` |
 | SHAP interaction validation | `data/derived/shap_interaction_validation.txt` |
-| Top‑K MACCS bits list | `data/derived/top_k_maccs.txt` |
+| Top‑K MACCS bits (selection‑set) | `data/derived/top_k_maccs_selection.txt` |
+| Top‑K MACCS bits (test‑set) | `data/derived/top_k_maccs_test.txt` |
 | LNAI table | `data/derived/lna_index.csv` |
-| Deviation contexts (MACCS‑SMARTS) | `data/derived/deviation_contexts.csv` |
-| Validation summary | `data/derived/validation_summary.csv` |
+| Per‑molecule LNAI | `data/derived/lna_index_per_molecule.csv` |
+| Deviation contexts (SMARTS) | `data/derived/deviation_contexts.csv` |
+| Mapping metrics (precision/recall) | `data/derived/mapping_metrics.txt` |
+| Interaction‑Zone Report | `data/derived/interaction_zone_report.pdf` |
+| Expert Validation Report | `data/derived/validation_report.pdf` |
+| Validation Audit | `data/derived/validation_audit.pdf` |
+| Predictions schema CSV | `data/derived/predictions_schema.csv` |
+| Molecules schema CSV | `data/derived/molecules_schema.csv` |
+| Validation summary (checksums, QC, etc.) | `data/derived/validation_summary.csv` |
 
 All artifacts are validated against the JSON/YAML contracts in `contracts/`.
 
@@ -117,19 +138,20 @@ pytest tests/
 ```bash
 ruff check code/
 black --check code/
-# To auto‑fix:
+# Auto‑fix:
 black code/
 ruff check --fix code/
 ```
 
 ## Troubleshooting
 
-- **`obabel` not found** – Ensure the Open Babel executable is in your `PATH`.  
-- **PubChem rate limiting** – The downloader respects a brief pause between requests; increase `RATE_LIMIT` in `download.py` if you encounter an HTTP rate‑limit error.  
-- **MemoryError** – Reduce the number of molecules processed at once (`MAX_MOLECULES` constant) or enable streaming mode (`--stream` flag).  
+- **`obabel` not found** – Ensure the Open Babel executable is in your `PATH`.  
+- **PubChem rate limiting** – `download.py` includes a configurable `RATE_LIMIT` pause; increase it if you hit HTTP 429 errors.  
+- **MemoryError** – Reduce the batch size or enable streaming mode (`--stream` flag) in `download.py`.  
 
-Enjoy reproducible molecular property prediction!
+Enjoy reproducible molecular property prediction!  
 
 ---
+
 
 
