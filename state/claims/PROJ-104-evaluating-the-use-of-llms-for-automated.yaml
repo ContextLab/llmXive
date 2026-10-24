@@ -429,6 +429,23 @@
   updated_at: '2026-10-24T21:16:15Z'
 - artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
   attempts: 1
+  canonical: re-running pipeline stages produces identical results
+  claim_id: c_d9b4c010
+  context: 'To ensure scientific reproducibility, all stochastic components of the
+    pipeline are pinned to a single global seed defined in code/seeds.py... Verification:
+    Re-running any stage produces identical results.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Re-running any stage produces identical results.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:35:33Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 2
   canonical: Phase 0 smoke test completes in under 30 seconds
   claim_id: c_045c75b4
   context: This loads one tiny hard-coded commit pair (a plumbing smoke test only),
@@ -443,4 +460,54 @@
   source_hash: null
   source_type: result
   status: not_enough_info
-  updated_at: '2026-10-24T21:16:15Z'
+  updated_at: '2026-10-24T21:35:33Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: repositories cloned include pandas, requests, scikit-learn, flask, and
+    django
+  claim_id: c_4567f0ff
+  context: 'What happens: 1. The Monte-Carlo power analysis runs -> results/power_report.md.
+    2. Repositories (pandas, requests, scikit-learn, flask, django) are cloned.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Repositories (pandas, requests, scikit-learn, flask, django) are cloned.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:35:33Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: commits from last two years touching .md or .rst files are extracted
+  claim_id: c_34df2b79
+  context: 'What happens: ... 3. Commits from the last two years that touch .md/.rst
+    are extracted -> data/raw/commit_pairs.csv.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Commits from the last two years that touch .md/.rst are extracted
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:35:33Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: LLMs used for generation are Phi-3-mini, Gemma-2-2b, and Llama-3.2-3B
+  claim_id: c_7025cf7d
+  context: 'What happens: ... 5. Each LLM (Phi-3-mini, Gemma-2-2b, Llama-3.2-3B) generates
+    a documentation update per commit on CPU, with a 60 s timeout and up to 2 retries.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Each LLM (Phi-3-mini, Gemma-2-2b, Llama-3.2-3B) generates a documentation
+    update per commit on CPU
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T21:35:34Z'

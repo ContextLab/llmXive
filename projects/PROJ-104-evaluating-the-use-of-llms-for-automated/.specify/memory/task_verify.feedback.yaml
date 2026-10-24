@@ -1,4 +1,9 @@
 T001:
+  reason: "The quick\u2011start guide does not explicitly list the required Python\u202F\
+    3.11 packages (it only points to `requirements.txt`), and there is no recorded\
+    \ evidence that `pytest tests/test_quickstart.py` was executed and passed. Adding\
+    \ the package list to `docs/quickstart.md` and providing a test\u2011run log showing\
+    \ the pytest suite succeeding would be needed to satisfy the task."
   task: 7f3f924cb1e80f425a7fe363f56fcd146eb6dd4bf05f339acb5c536bf9d85ee5
 T002:
   task: cecc03d00aa9eeed68fadbcd623d9e9808aa9b5726f7eb14bedaec2c2c5cf5bc
@@ -77,12 +82,4 @@ T012:
     to write only project-owned outputs.'
   task: 9b900171c3c3d6ede9e74b140eaba6329ad95f41e7687ca7322a352daa2a46f3
 T013:
-  reason: "Checked `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`,\
-    \ `docs/quickstart.md` and the test suite `tests/test_hygiene_and_seeds.py`. While\
-    \ the checksum computation, metadata recording, raw\u2011file immutability, SEED\
-    \ definition, documentation, and all tests pass, `data_hygiene.py` does **not**\
-    \ enforce the requirement that each transformation writes a new file with a distinct\
-    \ name (i.e., it allows overwriting non\u2011raw files). Implement a check that\
-    \ prevents overwriting existing files outside `data/raw/` or otherwise guarantees\
-    \ distinct filenames for transformed artifacts."
   task: bf8e80e7fe8781f06e510ac045ae6f6d5214bfff3e6067021e4a481b89dd24a0

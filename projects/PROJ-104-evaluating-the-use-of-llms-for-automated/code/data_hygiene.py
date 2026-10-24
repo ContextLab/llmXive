@@ -3,10 +3,11 @@
 This module implements the project‑wide checksum and reproducibility policy:
 1. SHA-256 checksums are computed for every file under the ``data/`` directory.
 2. Checksums and provenance notes are recorded in ``data/metadata.yaml``.
-3. Raw files (under ``data/raw/``) are enforced as immutable; if a raw file's
+3. All files under ``data/`` (including raw and intermediate/processed) are
+   enforced as immutable once recorded in the metadata manifest. If a file's
    checksum changes between runs, a RuntimeError is raised.
-4. Each transformation is expected to write a new file with a distinct name
-   to avoid overwriting intermediate results.
+4. This ensures that each transformation writes a new file with a distinct
+   name, preventing the silent overwriting of research artifacts.
 """
 from __future__ import annotations
 
@@ -46,12 +47,13 @@ def update_all_metadata() -> None:
     """Re‑compute checksums for every file under the ``data`` folder.
 
     The resulting mapping is written to ``data/metadata.yaml``.
-    Enforces that files in ``data/raw/`` are never overwritten.
+    Enforces that no existing file in ``data/`` is overwritten by checking
+    current checksums against the existing manifest.
     """
     data_root: Path = paths.root / "data"
     metadata_path: Path = paths.data("metadata.yaml")
     
-    # Load existing metadata to enforce raw file immutability
+    # Load existing metadata to enforce immutability
     old_metadata: dict[str, Any] = {}
     if metadata_path.is_file():
         with metadata_path.open("r", encoding="utf-8") as f:
@@ -64,17 +66,22 @@ def update_all_metadata() -> None:
             continue
         
         rel_path = str(file_path.relative_to(paths.root))
+        
+        # Skip the metadata file itself from immutability checks
+        if rel_path == str(metadata_path.relative_to(paths.root)):
+            continue
+
         current_hash = _checksum(file_path)
         
-        # Enforce immutability for raw files
-        if "data/raw/" in rel_path and rel_path in old_metadata:
-            # Handle both flat (old) and structured (new) metadata formats
+        # Enforce immutability for ALL files in data/
+        if rel_path in old_metadata:
             old_entry = old_metadata[rel_path]
             old_hash = old_entry["checksum"] if isinstance(old_entry, dict) else old_entry
             if current_hash != old_hash:
                 raise RuntimeError(
-                    f"Data hygiene violation: Raw file {rel_path} has been overwritten. "
-                    f"Expected {old_hash}, found {current_hash}."
+                    f"Data hygiene violation: File {rel_path} has been overwritten. "
+                    f"Expected {old_hash}, found {current_hash}. "
+                    "Each transformation must write to a new, distinct filename."
                 )
 
         new_metadata[rel_path] = {

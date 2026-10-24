@@ -3,7 +3,7 @@
 The test suite verifies:
 1. The globally pinned seed is indeed ``42``.
 2. Every file under ``data/`` has a checksum entry in ``data/metadata.yaml``.
-3. Raw files in ``data/raw/`` are immutable (changing them triggers RuntimeError).
+3. All files in ``data/`` (raw, intermediate, processed) are immutable.
 4. Stochastic scripts (e.g., T002 power analysis) are deterministic given SEED.
 5. Stochastic scripts explicitly import SEED from ``code.seeds``.
 """
@@ -34,29 +34,43 @@ def test_metadata_covers_all_data_files():
     for file_path in data_root.rglob("*"):
         if file_path.is_file():
             rel = str(file_path.relative_to(paths.root))
+            # Skip metadata file itself
+            if rel == str(metadata_path.relative_to(paths.root)):
+                continue
             assert rel in meta, f"Missing checksum for {rel}"
             assert "checksum" in meta[rel], f"Missing checksum field for {rel}"
 
-def test_raw_files_are_immutable(tmp_path):
-    """Verify that modifying a raw file triggers a RuntimeError in update_all_metadata."""
-    # Setup a mock raw directory structure within the project's data/raw
+def test_data_files_are_immutable(tmp_path):
+    """Verify that modifying any file in data/ triggers a RuntimeError in update_all_metadata."""
+    # Test raw file
     raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
-    test_file = raw_dir / "immutability_test.txt"
-    test_file.write_text("original content")
+    raw_file = raw_dir / "immutability_raw.txt"
+    raw_file.write_text("raw content")
     
-    # First pass: record the checksum
+    # Test processed file
+    proc_dir = paths.data("processed")
+    proc_dir.mkdir(parents=True, exist_ok=True)
+    proc_file = proc_dir / "immutability_proc.txt"
+    proc_file.write_text("proc content")
+    
+    # First pass: record the checksums
     data_hygiene.update_all_metadata()
     
-    # Modify the file
-    test_file.write_text("modified content")
+    # Modify the raw file
+    raw_file.write_text("modified raw content")
+    with pytest.raises(RuntimeError, match="Data hygiene violation"):
+        data_hygiene.update_all_metadata()
     
-    # Second pass: should fail
+    # Restore raw file, then modify processed file
+    raw_file.write_text("raw content")
+    proc_file.write_text("modified proc content")
     with pytest.raises(RuntimeError, match="Data hygiene violation"):
         data_hygiene.update_all_metadata()
     
     # Cleanup
-    test_file.unlink()
+    raw_file.unlink()
+    proc_file.unlink()
 
 def test_stochastic_consistency_t002():
     """Re-running T002 (power analysis) twice must yield identical power estimates."""

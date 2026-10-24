@@ -1,5 +1,8 @@
-# Project‑wide dependencies (standard library + common scientific stack are pre‑installed)
-# Additional dependencies required for T008
-transformers
-torch
-tqdm
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil) are pre‑installed in the
+# execution environment.
+#
+# Additional third‑party packages required for this task:
+#
+# - None beyond ``requests`` which is already available.
+# (If a future task needs extra packages they should be added here.)

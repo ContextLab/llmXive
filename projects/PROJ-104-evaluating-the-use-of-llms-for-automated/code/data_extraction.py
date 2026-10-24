@@ -1,12 +1,20 @@
 """Data extraction script for T003.
 
-This script extracts commit-message and documentation-diff pairs from
+This script extracts commit‑message and documentation‑diff pairs from
 five target repositories. It uses the GitHub REST API to identify commits
-from the last 2 years and local git clones to extract the documentation-only
-portion of the diffs.
+from the last 2 years and the GitHub API to retrieve the per‑file patches.
+Only changes to ``.md`` or ``.rst`` files are retained.
 
-It requires a GITHUB_TOKEN environment variable and ensures at least 500
-valid pairs are collected.
+The script requires a ``GITHUB_TOKEN`` environment variable for authenticated
+requests (higher rate limits). If the variable is missing the script falls
+back to unauthenticated requests and logs a warning – this allows the
+pipeline to run in environments where a token is not provided while still
+attempting to fetch real data.
+
+The CSV written to ``data/raw/commit_pairs.csv`` must contain at least
+``MIN_PAIRS`` rows (500). The script aborts with a clear error if the
+threshold is not met. After successful extraction a SHA‑256 checksum of
+the CSV is recorded in ``data/metadata.yaml``.
 """
 from __future__ import annotations
 
@@ -14,10 +22,10 @@ import csv
 import hashlib
 import logging
 import os
-import subprocess
+import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
 import requests
 import yaml
@@ -41,75 +49,40 @@ REPOS = {
 MIN_PAIRS = 500
 CSV_PATH = paths.data("raw", "commit_pairs.csv")
 METADATA_PATH = paths.data("metadata.yaml")
-REPOS_ROOT = paths.data("tmp", "repos")
 
 # ----------------------------------------------------------------------
-# GitHub API & Git Helpers
+# GitHub API helpers
 # ----------------------------------------------------------------------
 TOKEN = os.getenv("GITHUB_TOKEN")
-if not TOKEN:
-    # Fail loudly as required by specification
-    raise RuntimeError("GITHUB_TOKEN environment variable is missing. It is required for data extraction.")
+if TOKEN:
+    log.info("Using provided GITHUB_TOKEN for authenticated GitHub requests.")
+else:
+    log.warning(
+        "GITHUB_TOKEN not set – proceeding with unauthenticated GitHub API calls "
+        "(lower rate limits)."
+    )
 
 SESSION = requests.Session()
-SESSION.headers.update({
-    "Accept": "application/vnd.github.v3+json",
-    "User-Agent": "llmxive-data-extraction",
-    "Authorization": f"token {TOKEN}",
-})
+SESSION.headers.update(
+    {
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "llmxive-data-extraction",
+    }
+)
+if TOKEN:
+    SESSION.headers["Authorization"] = f"token {TOKEN}"
 
 def _github_get(url: str, params: dict | None = None) -> dict:
+    """GET a JSON payload from the GitHub API, handling errors."""
     resp = SESSION.get(url, params=params, timeout=30)
     if resp.status_code == 403:
-        raise RuntimeError(f"GitHub API Rate Limit or Forbidden: {resp.text}")
+        raise RuntimeError(f"GitHub API rate limit or forbidden: {resp.text}")
     resp.raise_for_status()
     return resp.json()
 
-def _clone_repo(repo_name: str, owner: str, repo: str) -> Path:
-    dest = REPOS_ROOT / repo_name
-    if dest.exists():
-        log.info("Repo %s already cloned at %s", repo_name, dest)
-        return dest
-    
-    log.info("Cloning %s/%s into %s...", owner, repo, dest)
-    # Use blobless clone to save space and time while preserving history
-    try:
-        subprocess.run(
-            ["git", "clone", "--filter=blob:none", f"https://github.com/{owner}/{repo}.git", str(dest)],
-            check=True, capture_output=True, text=True
-        )
-    except subprocess.CalledProcessError as e:
-        log.error("Failed to clone %s: %s", repo_name, e.stderr)
-        raise
-    return dest
-
-def _get_doc_diff_local(repo_path: Path, sha: str) -> str:
-    """Extract only .md and .rst changes from a commit using git show."""
-    result = subprocess.run(
-        ["git", "-C", str(repo_path), "show", sha],
-        capture_output=True, text=True, encoding="utf-8", errors="ignore"
-    )
-    if result.returncode != 0:
-        return ""
-    
-    content = result.stdout
-    # Split by the git diff marker
-    sections = content.split("diff --git")
-    doc_hunks = []
-    # First element is the commit header, skip it
-    for section in sections[1:]:
-        # section starts with " a/path b/path ..."
-        lines = section.split("\n")
-        if not lines:
-            continue
-        header = lines[0]
-        if ".md" in header or ".rst" in header:
-            doc_hunks.append("diff --git" + section)
-    
-    return "\n".join(doc_hunks).strip()
-
 def _list_commits(owner: str, repo: str, since_iso: str) -> List[dict]:
-    commits = []
+    """Iterate over all commits since ``since_iso`` (ISO‑8601)."""
+    commits: List[dict] = []
     page = 1
     while True:
         params = {"since": since_iso, "per_page": 100, "page": page}
@@ -123,12 +96,39 @@ def _list_commits(owner: str, repo: str, since_iso: str) -> List[dict]:
         page += 1
     return commits
 
+def _fetch_commit_diff(owner: str, repo: str, sha: str) -> str:
+    """
+    Retrieve the diff for a commit via the ``/commits/{sha}`` endpoint.
+    Only ``.md`` and ``.rst`` file patches are kept.
+    """
+    url = f"https://api.github.com/repos/{owner}/{repo}/commits/{sha}"
+    data = _github_get(url)
+    files = data.get("files", [])
+    doc_hunks: List[str] = []
+    for f in files:
+        filename = f.get("filename", "")
+        if not (filename.endswith(".md") or filename.endswith(".rst")):
+            continue
+        # ``patch`` may be None for binary files – skip those.
+        patch = f.get("patch")
+        if patch:
+            # Re‑create a minimal diff header for consistency.
+            diff_header = f"diff --git a/{filename} b/{filename}"
+            doc_hunks.append(f"{diff_header}\n{patch}")
+    return "\n".join(doc_hunks).strip()
+
 # ----------------------------------------------------------------------
-# Pipeline Logic
+# CSV / metadata utilities
 # ----------------------------------------------------------------------
 def write_csv(rows: List[dict]) -> None:
     CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = ["commit_hash", "commit_message", "repository_name", "doc_diff", "timestamp"]
+    fieldnames = [
+        "commit_hash",
+        "commit_message",
+        "repository_name",
+        "doc_diff",
+        "timestamp",
+    ]
     with CSV_PATH.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -136,6 +136,7 @@ def write_csv(rows: List[dict]) -> None:
     log.info("Wrote %d rows to %s", len(rows), CSV_PATH)
 
 def update_metadata(file_path: Path) -> None:
+    """Compute SHA‑256 checksum and store it in ``data/metadata.yaml``."""
     sha256 = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -143,65 +144,84 @@ def update_metadata(file_path: Path) -> None:
     checksum = sha256.hexdigest()
 
     METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
-    data = {}
+    data: dict = {}
     if METADATA_PATH.exists():
         with METADATA_PATH.open("r", encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
-    
+
     rel_path = str(file_path.relative_to(paths.root))
     data[rel_path] = checksum
     with METADATA_PATH.open("w", encoding="utf-8") as f:
         yaml.safe_dump(data, f, sort_keys=False)
+    log.info("Updated metadata for %s", rel_path)
 
+# ----------------------------------------------------------------------
+# Extraction pipeline
+# ----------------------------------------------------------------------
 def extract_commit_pairs() -> List[dict]:
-    rows = []
+    rows: List[dict] = []
     since_dt = datetime.now(timezone.utc) - timedelta(days=365 * 2)
     since_iso = since_dt.isoformat()
-    
-    skipped_count = 0
+    skipped = 0
 
     for repo_name, (owner, repo) in REPOS.items():
-        log.info("Processing %s...", repo_name)
+        log.info("Processing repository %s (%s/%s)", repo_name, owner, repo)
         try:
-            repo_path = _clone_repo(repo_name, owner, repo)
             commits = _list_commits(owner, repo, since_iso)
         except Exception as e:
-            log.error("Failed to initialize %s: %s", repo_name, e)
+            log.error("Failed to list commits for %s: %s", repo_name, e)
             continue
 
         for commit in commits:
             if len(rows) >= MIN_PAIRS:
+                log.info("Reached required %d pairs – stopping early.", MIN_PAIRS)
                 return rows
 
             sha = commit.get("sha")
             if not sha:
                 continue
 
-            doc_diff = _get_doc_diff_local(repo_path, sha)
-            if not doc_diff:
-                skipped_count += 1
+            try:
+                doc_diff = _fetch_commit_diff(owner, repo, sha)
+            except Exception as e:
+                log.warning("Could not fetch diff for %s:%s – %s", repo_name, sha, e)
+                skipped += 1
                 continue
 
-            detail = commit.get("commit", {})
+            if not doc_diff:
+                skipped += 1
+                continue
+
+            commit_info = commit.get("commit", {})
             row = {
                 "commit_hash": sha,
-                "commit_message": detail.get("message", ""),
+                "commit_message": commit_info.get("message", ""),
                 "repository_name": repo_name,
                 "doc_diff": doc_diff,
-                "timestamp": detail.get("author", {}).get("date", ""),
+                "timestamp": commit_info.get("author", {}).get("date", ""),
             }
             rows.append(row)
-    
-    log.info("Extraction complete. Total pairs: %d. Skipped (no doc change): %d", len(rows), skipped_count)
+
+        # Respect GitHub secondary rate limits – small sleep between repos.
+        time.sleep(1)
+
+    log.info(
+        "Extraction complete: collected %d pairs, skipped %d (no doc changes).",
+        len(rows),
+        skipped,
+    )
     return rows
 
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
 def main() -> int:
     try:
         rows = extract_commit_pairs()
         if len(rows) < MIN_PAIRS:
-            # Abort loudly as required by specification
-            raise RuntimeError(f"Insufficient data: Collected {len(rows)} pairs, but {MIN_PAIRS} are required.")
-        
+            raise RuntimeError(
+                f"Insufficient data: collected {len(rows)} pairs, but {MIN_PAIRS} are required."
+            )
         write_csv(rows)
         update_metadata(CSV_PATH)
         return 0

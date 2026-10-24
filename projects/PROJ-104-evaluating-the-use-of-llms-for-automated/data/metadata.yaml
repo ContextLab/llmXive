@@ -1,6 +1,3 @@
-data/metadata.yaml:
-  checksum: e8c987a6173009d10d6e00674911e1b44327627306c0586faa63eab5c5c9d9bb
-  provenance: Pipeline artifact
 data/generated/generation_success_rates.csv:
   checksum: f43b769e41d61e0824026eecd92494778be2f6859034809a45af5118c52128f6
   provenance: LLM generation
@@ -151,15 +148,16 @@ data/generated/phi3-mini/0000000000000000000000000000000000000001_phi3-mini.txt:
 data/generated/phi3-mini/f7822f7c4185b45527f171095c4edf8777efe51b_phi3-mini.txt:
   checksum: 0ad9097fb76cffa780dd6ec0953068f0e4301e80cc39bece77b3d745bfa7a026
   provenance: LLM generation
-data/raw/immutability_test.txt:
-  checksum: bf573149b23303cac63c2a359b53760d919770c5d070047e76de42e2184f1046
+data/raw/immutability_raw.txt:
+  checksum: a6e5d15bf571ca7a23fd704caad6c4c071210ba8d38ea0296dc58c3ce0a0e514
   provenance: Raw data extraction
-data/raw/commit_pairs.csv:
-  checksum: 61ef6af5e8159e83edbe846c3271a87e04fa342de75d27f18f79231148e29a9d
-  provenance: Raw data extraction
+data/raw/commit_pairs.csv: 61ef6af5e8159e83edbe846c3271a87e04fa342de75d27f18f79231148e29a9d
 data/intermediate/intent_entities/sample_test.json:
   checksum: b2c40766d4e0a8fa8e8111b60d82d5467e66ccd32d8f8855da071e3dfb046d1b
   provenance: Entity extraction
 data/intermediate/intent_entities/dummy_intent.json:
   checksum: a626d06a6e24be6222339b9c5344428f1001e62b8264f0c774d164b2fe626fa4
   provenance: Entity extraction
+data/processed/immutability_proc.txt:
+  checksum: f2f60d733b1ca59fc307e4602a48c6d8dfb123a5dea97107072e92b41bb2dd91
+  provenance: Fidelity scoring

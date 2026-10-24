@@ -13,35 +13,21 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/power_analysis.py: self-declared fabricated metric — “…les, 3))      # Construct the simulated scores matrix:     #   mean + sqrt(…”; code/statistical_analysis.py: self-declared fabricated metric — “…rics CSV is empty – producing placeholder results.")     # Metrics we care abo…”; 4 command(s) failed: python -m src.run_pipeline --sample 5 (rc=1); python -m src.run_pipeline --full (rc=1); python -m pytest tests/contract/ (rc=1); 1 declared deliverable(s) absent: data/processed/fidelity_metrics.csv
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/power_analysis.py: self-declared fabricated metric — “…les, 3))      # Construct the simulated scores matrix:     #   mean + sqrt(…”; code/statistical_analysis.py: self-declared fabricated metric — “…rics CSV is empty – producing placeholder results.")     # Metrics we care abo…”; 3 command(s) failed: python -m src.run_pipeline --full (rc=1); python -m pytest tests/contract/ (rc=1); python -m pytest tests/unit/ (rc=2); 1 declared deliverable(s) absent: data/processed/fidelity_metrics.csv
 
 ## Failing / missing run-book commands
 
-- python -m src.run_pipeline --sample 5 -> rc=1
-
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/src/run_pipeline.py", line 10, in <module>
-    from code.run_pipeline import main as _real_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/run_pipeline.py", line 25, in <module>
-    from code import data_extraction
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 52, in <module>
-    raise RuntimeError("GITHUB_TOKEN environment variable is missing. It is required for data extraction.")
-RuntimeError: GITHUB_TOKEN environment variable is missing. It is required for data extraction.
-
 - python -m src.run_pipeline --full -> rc=1
-
+ to list commits for scikit-learn: 429 Client Error: too many requests for url: https://api.github.com/repos/scikit-learn/scikit-learn/commits?since=2024-10-24T21%3A40%3A04.430139%2B00%3A00&per_page=100&page=1
+2026-10-24 21:40:22,728 INFO code.data_extraction: Processing repository pandas (pandas-dev/pandas)
+2026-10-24 21:40:22,780 ERROR code.data_extraction: Failed to list commits for pandas: 429 Client Error: too many requests for url: https://api.github.com/repos/pandas-dev/pandas/commits?since=2024-10-24T21%3A40%3A04.430139%2B00%3A00&per_page=100&page=1
+2026-10-24 21:40:22,780 INFO code.data_extraction: Extraction complete: collected 10 pairs, skipped 170 (no doc changes).
+2026-10-24 21:40:22,780 ERROR code.data_extraction: Data extraction pipeline failed: Insufficient data: collected 10 pairs, but 500 are required.
 Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/src/run_pipeline.py", line 10, in <module>
-    from code.run_pipeline import main as _real_main
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/run_pipeline.py", line 25, in <module>
-    from code import data_extraction
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 52, in <module>
-    raise RuntimeError("GITHUB_TOKEN environment variable is missing. It is required for data extraction.")
-RuntimeError: GITHUB_TOKEN environment variable is missing. It is required for data extraction.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 222, in main
+    raise RuntimeError(
+RuntimeError: Insufficient data: collected 10 pairs, but 500 are required.
+2026-10-24 21:40:22,781 ERROR code.run_pipeline: Data extraction failed with exit code 1
 
 - python -m pytest tests/contract/ -> rc=1
 a
@@ -65,7 +51,7 @@ E       FileNotFoundError: [Errno 2] No such file or directory: 'specs/001-evalu
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py:1044: FileNotFoundError
 =========================== short test summary info ============================
 FAILED tests/contract/test_intent_schema.py::test_intent_json_schema - FileNo...
-========================= 1 failed, 6 passed in 0.22s ==========================
+========================= 1 failed, 6 passed in 0.20s ==========================
 
 
 - python -m pytest tests/unit/ -> rc=2
@@ -81,7 +67,7 @@ E   ImportError: cannot import name 'DEFAULT_OUTPUT_DIR' from 'code.entity_extra
 =========================== short test summary info ============================
 ERROR tests/unit/test_entity_extraction_intent.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.39s ===============================
+=============================== 1 error in 0.35s ===============================
 
 
 

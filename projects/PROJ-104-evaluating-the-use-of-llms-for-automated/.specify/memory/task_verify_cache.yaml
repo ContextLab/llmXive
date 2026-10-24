@@ -1,12 +1,12 @@
 T001:
-  c: true
-  h: 2a13a12f6e4a18e9ceae4000f425faeada72dbb140f50c5ba9ac05c9c95c0666
-  r: "Checked `docs/quickstart.md` for the required package list and install instructions,\
-    \ `code/run_pipeline.py` for the smoke\u2011test generation of `data/generated/phi3-mini/sample_test.txt`,\
-    \ and the execution log plus `tests/test_quickstart.py` confirming the command\
-    \ runs, exits zero, creates the output file, CSV with all three model IDs, and\
-    \ an intent JSON. All required artifacts exist and meet the task specifications."
-  sig: 2ca4a49b03c465e416b41244e45b51cb0132d8ab6fe612c36d6324436991aa94
+  c: false
+  h: c8d8b39640d289491488e1c94730e97d3843fbd71830adbc2afaf1a38009bf81
+  r: "The quick\u2011start guide does not explicitly list the required Python\u202F\
+    3.11 packages (it only points to `requirements.txt`), and there is no recorded\
+    \ evidence that `pytest tests/test_quickstart.py` was executed and passed. Adding\
+    \ the package list to `docs/quickstart.md` and providing a test\u2011run log showing\
+    \ the pytest suite succeeding would be needed to satisfy the task."
+  sig: 69427147f24c496f8ef883c551f49599e9d982e2fe4968485dc8064de430c386
 T002:
   c: true
   h: e68c0a66ed6fee7be53f5308872e1362bea488eca8b8c22c712a527e88956d87
@@ -15,15 +15,6 @@ T002:
     \ `results/power_report.md`, which contains a numeric power estimate (1.0000)\
     \ and the correct `exploratory: false` flag matching the computed power."
   sig: cc95c278ab60f63485c6797d32d3e4aef41f0705e65cb866c41f477ec881a0d4
-T003:
-  c: false
-  h: e64d50de7a494f14f5979762865d9de764ac141cb4596ec44315035665e80df1
-  r: "The `data/raw/commit_pairs.csv` contains only 5 dummy rows (far below the required\u202F\
-    \u2265\u202F500) and the `commitpair.schema.yaml` file is missing, so the schema\
-    \ validation test cannot run. Moreover, `code/data_extraction.py` no longer aborts\
-    \ when `GITHUB_TOKEN` is absent, contrary to the specification. These missing/incorrect\
-    \ artifacts must be fixed for the task to be considered complete."
-  sig: d2fccf03c1b83e54ec938242a628d0d06c5e61153fdf38d30a58622e50bfa8d4
 T004:
   c: false
   h: b32d4f31bc24d5dc8cf6345d406e63b98e77e6ea7a372c718949e9c8eb4c9c9b
@@ -105,14 +96,10 @@ T011:
     \ files the task\u2019s verification criteria are not met."
   sig: e2e2391e78ea691268ed3c0a0d0f9f109004abfea71af6cc44484e6afe4feb5c
 T013:
-  c: false
-  h: 011de250a656432f2280ad51d42f8e40e82f6b1fac4afaeae18301b0a069ceab
-  r: "Checked `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, `docs/quickstart.md`\
-    \ and the test suite `tests/test_hygiene_and_seeds.py`. While the checksum computation,\
-    \ metadata recording, raw\u2011file immutability, SEED definition, documentation,\
-    \ and all tests pass, `data_hygiene.py` does **not** enforce the requirement that\
-    \ each transformation writes a new file with a distinct name (i.e., it allows\
-    \ overwriting non\u2011raw files). Implement a check that prevents overwriting\
-    \ existing files outside `data/raw/` or otherwise guarantees distinct filenames\
-    \ for transformed artifacts."
-  sig: fb0c108f2fa95b3657ee225bda9ead37e23ea3a4adf4de59ca66370cb5cdffcf
+  c: true
+  h: d73a04a842f800b34dad4340e2763a37ecc36e55e5c3f9c0b89ca072e5a0c066
+  r: "Checked `code/data_hygiene.py` (checksum computation, provenance, immutability\
+    \ enforcement), `code/seeds.py` (SEED\u202F=\u202F42), `docs/quickstart.md` (seed\
+    \ policy documentation), and the passing test suite `tests/test_hygiene_and_seeds.py`\
+    \ (including the execution log confirming all assertions succeed)."
+  sig: fab0db4f0340efba2c6a138cb5d9fe212f7fce06bec5e1e966161bf95b7b812c

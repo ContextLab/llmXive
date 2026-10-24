@@ -8,7 +8,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 0 – Project scaffolding & sanity check
 
-- [X] T001 [US1] **Create quick‑start documentation and a minimal runnable entry point** – `docs/quickstart.md`, `code/run_pipeline.py`  
+- [ ] T001 [US1] **Create quick‑start documentation and a minimal runnable entry point** – `docs/quickstart.md`, `code/run_pipeline.py`  
   - Write a “Getting started” guide that lists required Python 3.11 packages, how to install `bitsandbytes` and `transformers`, and the command `python -m code.run_pipeline --sample 5`.  
   - Implement `run_pipeline` to load a tiny hard‑coded commit pair (synthetic smoke‑test only) and invoke the generation module (CPU‑only) to produce a single output file under `data/generated/phi3-mini/sample_test.txt`.  
   - **Verification**: Running the command completes in < 30 s, creates the output file, and `pytest tests/test_quickstart.py` passes.
@@ -19,7 +19,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
   - Write `results/power_report.md` containing the numeric power estimate and an `exploratory: true` flag if power < 0.8.  
   - **Verification**: Test asserts that the file exists, contains a numeric power estimate, and that the `exploratory` flag matches the computed power.
 
-- [ ] T013 **Data hygiene (checksums) and reproducibility (pinned seeds) utilities** – `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, `tests/test_hygiene_and_seeds.py`  
+- [X] T013 **Data hygiene (checksums) and reproducibility (pinned seeds) utilities** – `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, `tests/test_hygiene_and_seeds.py`  
   - `data_hygiene.py` computes SHA‑256 checksums for every file under `data/` after it is written and records them in `data/metadata.yaml` with provenance notes. Enforce that raw files are never overwritten; each transformation writes a new file with a distinct name.  
   - `seeds.py` defines a global seed `SEED = 42`; all stochastic components import this seed. Document the seed policy in `docs/quickstart.md`.  
   - **Verification**: Test asserts that each file under `data/` has a matching checksum entry, that raw files retain their original checksum across runs, and that `SEED` is imported by every stochastic script; re‑running T002 twice yields identical power estimates.  
@@ -28,7 +28,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 1 – Data acquisition & pairing (User Story 1)
 
-- [ ] T003 [P1] [US1] **Extract ≥ 500 (commit_message, documentation_diff) pairs from the five target repositories** – `code/data_extraction.py`, `data/raw/commit_pairs.csv`   <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=1 -->
+- [ ] T003 [P1] [US1] **Extract ≥ 500 (commit_message, documentation_diff) pairs from the five target repositories** – `code/data_extraction.py`, `data/raw/commit_pairs.csv`   <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=1 -->
   - Clone the repositories `pandas`, `requests`, `scikit-learn`, `flask`, `django` into `data/tmp/repos/`.  
   - Use the GitHub REST API (`GET /repos/{owner}/{repo}/commits`) with `since=2 years ago`, handling pagination and rate‑limit retries, and a personal‑access‑token supplied via `GITHUB_TOKEN` (fails loudly if missing).  
   - For each commit, fetch the full diff with `git show <sha>` and retain only commits that modify files ending in `.md` or `.rst`.  
