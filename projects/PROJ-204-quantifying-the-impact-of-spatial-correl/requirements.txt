@@ -1,12 +1,6 @@
 # Project dependencies
-numpy
-pandas
-scipy
-scikit-learn
-statsmodels
-seaborn
-matplotlib
-requests
-pyyaml
-# Additional required package for probing the HuggingFace dataset
-datasets
+# Existing environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema,
+# psutil.
+# Additional required packages:
+datasets>=2.0.0
