@@ -1,92 +1,142 @@
 # Tasks: Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis
 
-**Inputs**: Active `spec.md`, `plan.md`, data model, and contracts from `specs/001-neural-correlates-of-temporal-prediction/`.
+**Inputs**: `spec.md`, `plan.md`, data‑model, contracts, and any existing code/tests.  
+All result artifacts must live under the project‑owned directories `data/`, `code/`, `results/`, or `specs/`.  
+The pipeline is organized into three research phases; tasks are ordered to respect data flow and the functional requirements (FR‑001 – FR‑015) and success criteria (SC‑001 – SC‑004).
 
-This is the smallest complete study answering the research question: download real OpenNeuro ds004510 EEG data, preprocess it, compute MMN metrics for simple vs. complex auditory scene conditions, statistically compare them, and produce validated result tables and figures.
+---
 
-## Task format and paths
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-Use `- [ ] T### [P?] [USx?] description with exact artifact paths`. Paths are relative to the project directory. Code lives in `code/`, tests in `code/tests/`, results in `data/results/`.
+*Goal*: Verify that a minimal real‑data run works before scaling to the full cohort.
 
-**Authoritative output layout**: all result artifacts live under `data/results/` (`data/results/metrics_per_subject.csv`, `data/results/metrics.csv`, `data/results/stats.json`, `data/results/figures/`). Research tasks write only project-owned paths (`data/`, `code/`, `figures/`, `paper/`, this `specs/` dir) and never write to `state/` or `.github/`. NOTE: `plan.md`'s Project Structure and `data-model.md`'s Data Flow place outputs at `results/`; that divergence is flagged for kickback (item 7) — `data/results/` is authoritative for all tasks and downstream consumers.
+- [ ] **T001** [US1] Implement the Reference‑Validator and robust dataset download module.  
+  *File*: `code/verify_references.py` (functions `verify_dataset_id()`, `verify_conditions()`, `verify_citations()`) and `code/download.py`.  
+  - `verify_dataset_id()` checks that the requested OpenNeuro ID equals **ds004510** and that the URL resolves; on mismatch it raises a `DatasetIDError` with a clear message (FR‑012 (1)).  
+  - `download.py` invokes `verify_dataset_id()`, then streams the full OpenNeuro ds004510 BIDS files via `curl`/`wget` (FR‑001). It writes each file under `data/raw/` and computes a SHA‑256 checksum, storing the mapping in `data/raw/checksums.json`.  
+  - After a successful download, the script **updates the project state file** `state/projects/PROJ-250-neural-correlates-of-temporal-prediction.yaml` with a top‑level `artifact_hashes` map (file path → checksum) and an `updated_at` timestamp, thereby satisfying FR‑013.  
+  - The download command accepts an optional `--subjects N` flag for the minimal end‑to‑end run; when omitted it downloads **all** subjects. Errors (network failure, missing files) raise exceptions that terminate the run; no synthetic fallback is provided.  
+  - After download of the selected subset, `verify_conditions()` parses each subject’s `events.tsv` to confirm that both `simple` and `complex` values appear in the `condition_label` column; if `complex` is missing the script raises `DatasetConditionError` and halts with the exact FR‑008 message.  
+  - `verify_citations()` (stub for later) records verified citation status in `data/results/citation_verification.json`.  
+  - **Check**: `python code/verify_references.py --stage dataset` returns 0 for the correct ID; `python code/download.py --subjects 2` returns 0, creates `data/raw/` BIDS files, `data/raw/checksums.json`, and updates the state YAML; condition verification passes.
 
-## Documented inconsistencies flagged for upstream amendment (kickback)
+- [ ] **T002** [US1] Implement the preprocessing pipeline.  
+  *File*: `code/preprocess.py`.  
+  - Load each subject’s raw EEG (`mne.io.read_raw_*`) from `data/raw/`.  
+  - Apply a **1–40 Hz FIR zero‑phase band‑pass filter** (FR‑002).  
+  - Perform ICA (`n_components=0.99`, `random_state=42`), automatically detect EOG/ECG components via `mne.preprocessing.find_bads_eog`/`find_bads_ecg`, reject any component explaining > 99 % variance, and reconstruct the signal (FR‑002).  
+  - Re‑reference to the average of mastoid electrodes `TP9`/`TP10`.  
+  - Interpolate missing channels if < 10 % of the cap is absent (spherical splines).  
+  - Epoch the continuous data from **‑200 ms to 500 ms** around stimulus onsets, baseline‑correct using the pre‑stimulus interval (‑200 ms → 0 ms) (FR‑003).  
+  - Label epochs by `condition_label` (simple / complex) and `stimulus_type` (standard / deviant) from `events.tsv`.  
+  - Exclude any subject with > 50 % rejected epochs; log exclusions to `data/processed/exclusions.csv`.  
+  - Hard‑stop if any NaNs remain (`np.isnan(epochs.get_data()).any()` → abort).  
+  - Save per‑subject preprocessed epochs to `data/processed/sub-XX_epochs.fif`.  
+  - **Check**: Running on the T001 subset creates epoch files with the correct time window, no NaNs, and an updated exclusions log.
 
-These cannot be fixed in tasks.md alone and are flagged for the owning artifact:
+- [ ] **T003** [US1][US2] Compute per‑subject MMN metrics and define a per‑subject schema.  
+  *Files*: `code/analysis.py` (per‑subject mode) and `specs/001-neural-correlates-of-temporal-prediction/contracts/metrics_per_subject.schema.yaml`.  
+  - For each subject, each fronto‑central electrode (`Fz, FCz, Cz, F3, F4, FC3, FC4`) compute:  
+    * **Amplitude difference** = mean voltage (deviant − standard) within **150–250 ms**.  
+    * **Latency difference** = time of maximal difference within the same window.  
+    * **Noise floor** = **standard deviation** of the pre‑stimulus baseline (‑200 ms → 0 ms).  
+    * **SNR** = |amplitude| / baseline SD; `signal_validity = SNR ≥ 3.0` (FR‑011, SC‑001).  
+  - Output a CSV `data/results/metrics_per_subject.csv` with columns: `subject_id, condition_label, electrode, amplitude_diff, latency_diff, snr_ratio, signal_validity`.  
+  - Create `metrics_per_subject.schema.yaml` that enforces: required fields `subject_id, condition_label, electrode, amplitude_diff, latency_diff, snr_ratio, signal_validity`; enums for `condition_label`; boolean for `signal_validity`; numeric constraints (finite, non‑NaN).  
+  - **Check**: The CSV contains real numbers (no placeholders), all rows pass validation against the new schema, and the script runs on the T001/T002 subset.
 
-1. **Constitution Principle VI** names "OpenNeuro ds000246 or PhysioNet" as the dataset instance; every task uses **ds004510** per spec FR-001. The constitution must be amended to ds004510 (until then, the plan's Principle VI "PASS" row is internally unsupported).
-2. **output.schema.yaml** has no `subject_id` field, sets `additionalProperties: false`, and requires cohort-level statistics on every row, while `data-model.md`'s MMN Metric is per-subject. Tasks resolve this operationally via a two-tier layout: a NEW per-subject schema `contracts/metrics_per_subject.schema.yaml` (defined in T003, validated in T006) plus the cohort-level `output.schema.yaml`. The upstream schema/data-model should still be reconciled to acknowledge the two-tier design.
-3. **output.schema.yaml's `snr_ratio` description** says "SEM of pre-stimulus baseline" while FR-011/SC-001 define the noise floor as the **standard deviation**. Tasks implement the FR-011 SD definition (spec constraint level governs); the schema description (and plan Task 3.4 / data-model wording, which also say SEM) should be amended to SD.
-4. **plan.md Task 5.2** references `contracts/stats.schema.yaml`, which does not exist. Tasks validate `stats.json` against `contracts/output.schema.yaml` (array of row objects); the plan should be amended (or the schema created).
-5. **plan.md Task 2.1** says "low-frequency bandpass filtering (up to 40 Hz)", dropping the 1 Hz high-pass; FR-002 mandates the full **1–40 Hz** band, which tasks implement.
-6. **plan.md Task 4.3** says "topography maps for the –250ms window"; the correct MMN window is **150–250 ms**, which tasks implement.
-7. **plan.md Tasks 2.3 / Constraints / Project Structure and data-model.md Data Flow** paraphrase the epoch window instead of stating the concrete **−200 ms to 500 ms** bounds of FR-003, and place outputs at `results/` instead of `data/results/`; tasks implement the concrete bounds and the `data/results/` layout.
-8. **FR-013** requires artifact hashes in `state/projects/…yaml`; research scripts must not write to `state/` (platform-owned, derived at verification time). Tasks record checksums under `data/raw/checksums.json`; the spec should be amended to delegate `state/` hash recording to the platform.
+---
 
-## Phase 1: Setup and first end-to-end analysis
+## Phase 2 – Complete the study and validate its evidence  
 
-**Goal**: Run an executable analysis on a small subset of real ds004510 data early.
+*Goal*: Process the full cohort, perform group‑level statistics, and verify all contracts.
 
-- [ ] T001 [US1] Implement `code/verify_references.py` as a complete, re-runnable module with all three FR-012 check functions — `verify_dataset_id()` (dataset ID/URL against the canonical OpenNeuro source), `verify_conditions()` (presence of required 'simple' and 'complex' condition labels in events metadata), and `verify_citations()` (citation verification against named primary sources, writing `data/results/citation_verification.json`) — exposed via `--stage dataset|conditions|citations|all`. Then implement `code/download.py`, which FIRST invokes `verify_dataset_id()` and halts on mismatch (FR-012(1): the gate runs before any download), then fetches the OpenNeuro ds004510 dataset via **curl** (fallback wget) against the OpenNeuro S3 HTTPS endpoint, per FR-001's tool constraint, processing subjects iteratively (never loading all subjects at once) to stay within ~7 GB RAM. The loader MUST fail loudly on fetch errors — no synthetic or mock fallbacks. Verify file integrity via SHA-256 checksums of downloaded files recorded in `data/raw/checksums.json`. After metadata is available, invoke `verify_conditions()`: validate that the dataset contains both 'simple' and 'complex' `condition_label` values in `events.tsv` metadata (FR-001, FR-008); if 'complex' is missing, halt with the exact message "Dataset lacks required 'complex' condition; research question untestable with current data." Validate metadata against `specs/001-neural-correlates-of-temporal-prediction/contracts/dataset.schema.yaml`. For the first end-to-end pass, download only 2–3 subjects as the small real subset. <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
-  - Check: `python code/verify_references.py --stage dataset` exits 0 (and exits non-zero with a clear message for a wrong dataset ID, testable without any download); `python code/download.py --subjects 2` exits 0, `data/raw/` contains BIDS files, `data/raw/checksums.json` exists, and both condition labels are present.
-  - Note: dataset download, metadata validation, condition verification, and the FR-012(1)/(2) gate functions (plan Tasks 1.1–1.3, 3.1, 3.2) are bundled here; the platform derives artifact hashes itself — do not write to `state/`.
+- [ ] **T004** [US2] Scale the pipeline to the full ds004510 cohort and generate the canonical MMN topography template (leave‑one‑out).  
+  *Files*: `code/download.py` (full‑cohort mode), `code/preprocess.py` (iterative), `code/analysis.py` (template mode).  
+  - Download **all** subjects iteratively (memory‑mapped, one subject at a time) into `data/raw/`.  
+  - Preprocess each subject as in T002, saving epochs to `data/processed/`.  
+  - For every subject, compute the **deviant − standard** topography (average voltage across the 150–250 ms window) for the **simple** condition.  
+  - Build a **leave‑one‑out (LOO) canonical template** by averaging these topographies across *all other* subjects; save the resulting vector to `data/templates/canonical_mmn_loo.npy` and the corresponding channel order to `data/templates/canonical_mmn_channels.json`.  
+  - Append the full‑cohort rows to `data/results/metrics_per_subject.csv`.  
+  - **Check**: The CSV now contains entries for every non‑excluded subject; the LOO template file exists, its length matches the number of channels in the montage, and the channel‑order JSON is present.
 
-- [ ] T002 [US1] Implement `code/preprocess.py`: bandpass filter **1–40 Hz** (both cutoffs, per FR-002), ICA artifact rejection, average mastoid re-referencing, spherical-spline interpolation of <10% missing channels, and epoching at **-200 ms to 500 ms** with baseline correction (mean of -200 to 0 ms subtracted). ICA rejection criterion (US-1 acceptance scenario 2): fit ICA on filtered raw; reject components flagged by MNE's `find_bads_eog`/`find_bads_ecg` (correlation-based EOG/ECG detection) AND any components explaining >99% of variance; verify the reconstructed signal shows reduced blink/eye-movement contamination. Classify epochs as simple/complex from `condition_label` in `events.tsv` and standard/deviant from stimulus type (FR-002, FR-003, Edge Cases). Exclude subjects with >50% rejected epochs, logging exclusion counts to `data/processed/exclusions.csv`. Hard-stop if `np.isnan(epochs.get_data()).any()` is True. Save per-subject epochs to `data/processed/sub-XX_epo.fif`. Depends on T001's `data/raw/` output.
-  - Check: run on the T001 subset; output epochs have the correct time window (-200 to 500 ms), sampling rate matching source, no NaNs, `data/processed/exclusions.csv` exists, and blink contamination is reduced post-ICA.
+- [ ] **T005a** [US2] Perform group‑level statistical testing (paired t‑tests, FDR, effect size).  
+  *File*: `code/analysis.py` (group mode).  
+  - Load `metrics_per_subject.csv`.  
+  - For each electrode, conduct a **paired t‑test** comparing MMN amplitude between the simple and complex conditions (FR‑005).  
+  - Apply **Benjamini‑Hochberg FDR** correction across the electrode set (SC‑002).  
+  - Compute **Cohen’s d** for the paired differences.  
+  - Load the literature benchmark from `data/benchmarks/mmn_effect_sizes.json` (which contains `{ "medium_effect_d": 0.5 }`) and flag `practical_significance = (d ≥ 0.5)` (FR‑010, SC‑003).  
+  - Write an intermediate results file `data/results/stats_intermediate.csv` containing per‑electrode `t_statistic, p_value, p_value_fdr, cohen_d, benchmark_reference, practical_significance, significant`.  
+  - Additionally compute the **mean latency difference** across subjects for each electrode and include it as `latency_diff` for later aggregation.  
+  - **Check**: The CSV contains real statistics (no NaNs), FDR‑corrected p‑values, and the practical‑significance flag.
 
-- [ ] T003 [US1][US2] Implement the per-subject computation in `code/analysis.py`: for each subject/electrode/condition, compute MMN amplitude (mean deviant-minus-standard difference, 150–250 ms window, fronto-central electrodes e.g. Fz, FCz, Cz) and latency (peak difference time in the same window), plus the noise floor — defined as the **standard deviation** of the -200 to 0 ms pre-stimulus baseline, per FR-011/SC-001 — and SNR = |amplitude_diff| / baseline SD, with `signal_validity = SNR >= 3.0` (FR-004, FR-011, SC-001). Run it on the T001/T002 subset and write real per-subject metric rows (subject_id, condition, electrode, amplitude_diff, latency_diff, snr_ratio, signal_validity — per-subject fields only; cohort-level statistical fields are produced later by T005a/T005b) to `data/results/metrics_per_subject.csv`. Also define the per-subject contract `specs/001-neural-correlates-of-temporal-prediction/contracts/metrics_per_subject.schema.yaml` (fields: subject_id, condition_label enum simple/complex, electrode, amplitude_diff, latency_diff, snr_ratio with finite-number constraint, signal_validity boolean; `additionalProperties: false`), closing the FR-014 per-subject tier gap (kickback item 2). Units: amplitude in µV, latency in ms.
-  - Check: `data/results/metrics_per_subject.csv` exists with real measured values from the subset; no placeholder or random values; every row has a finite SD-based SNR; `contracts/metrics_per_subject.schema.yaml` exists and describes exactly the CSV's columns.
+- [ ] **T005b** [US2] Compute topographic validation, enforce SC‑004, and produce the final cohort‑level output files that fully comply with `contracts/output.schema.yaml`.  
+  *Files*: `code/analysis.py` (final mode) and `data/results/metrics.csv`, `data/results/stats.json`.  
+  - Load the LOO canonical template (`canonical_mmn_loo.npy` + channel order).  
+  - For each subject and each condition, compute the Pearson **r** between the observed MMN topography (deviant − standard, 150–250 ms) and the LOO template.  
+    * Tag `validation_type = "consistency_simple"` for the simple condition and `validation_type = "validity_complex"` for the complex condition.  
+    * **Enforce**: if any `r < 0.8` the script logs the subject ID, condition, and r‑value and raises a `TopographyThresholdError`, causing the pipeline to abort (fulfills SC‑004).  
+  - Aggregate per‑subject metrics to group‑level values: for each electrode compute the mean `amplitude_diff`, mean `latency_diff`, mean `snr_ratio`, and import the group‑level `t_statistic`, `p_value_fdr`, `cohen_d` from T005a.  
+  - Populate **all required fields** for the output schema:  
+    `metric_id` (UUID), `condition_label`, `electrode`, `amplitude_diff`, `latency_diff`, `window_start` (150), `window_end` (250), `snr_ratio`, `signal_validity`, `t_statistic`, `p_value`, `p_value_fdr`, `cohen_d`, `benchmark_reference` (`data/benchmarks/mmn_effect_sizes.json`), `practical_significance`, `validation_type`, `topographic_correlation`, `significant`.  
+  - Write `data/results/metrics.csv` (CSV) and `data/results/stats.json` (JSON array) such that every row validates against `contracts/output.schema.yaml`.  
+  - **Check**: both files pass `jsonschema` validation; any topographic r‑value below 0.8 aborts the run.
 
-**Checkpoint**: The documented command (`python code/main.py --subjects 2`) executes end-to-end on real data and its numerical outputs are checkable.
+- [ ] **T006** [P] Implement comprehensive contract tests.  
+  *File*: `code/tests/test_contracts.py`.  
+  - Use `jsonschema` to validate:  
+    1. Each row of `data/results/metrics_per_subject.csv` against `metrics_per_subject.schema.yaml`.  
+    2. Each row of `data/results/metrics.csv` and each object in `data/results/stats.json` against `output.schema.yaml`.  
+    3. The dataset metadata (subject‑level JSON generated from BIDS) against `dataset.schema.yaml`.  
+  - Extend tests to verify that every row in `metrics.csv` contains the required fields `latency_diff`, `window_start`, `window_end`, `t_statistic`, `p_value`, `cohen_d` (in addition to previously checked fields).  
+  - Include focused unit tests for:  
+    * Correct MMN window extraction (150–250 ms).  
+    * SD‑based SNR computation.  
+    * Benjamini‑Hochberg FDR implementation.  
+  - **Check**: `pytest -q code/tests/` exits with 0; any schema violation or logical error fails the suite.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] **T007** [US3] Generate publication‑quality visualizations.  
+  *File*: `code/visualize.py`.  
+  - **ERP plot**: average standard and deviant waveforms for each condition, overlay the 150–250 ms MMN window, save as `data/results/figures/erp_simple.png` and `erp_complex.png` (PNG + SVG).  
+  - **Scalp topography maps**: for the 150–250 ms window, plot the MMN difference topography for simple and complex conditions; save as `topography_simple.png` and `topography_complex.png`.  
+  - **Significance heatmap**: electrode‑wise FDR‑corrected p‑values and Cohen’s d visualized on a scalp map; save as `significance.png`.  
+  - All figures must be generated from the real data files (`metrics_per_subject.csv`, `metrics.csv`, `stats.json`) with no synthetic curves.  
+  - **Check**: All PNG/SVG files exist, open without error, and visually reflect the underlying data.
 
-- [ ] T004 [US2] Extend the pipeline to the full ds004510 cohort: run download, preprocessing, and MMN quantification for all subjects iteratively (memory-mapped, one subject at a time), preserving all preprocessing parameters, exclusion rules, and condition constraints. Generate the canonical MMN topography template by averaging deviant-minus-standard topographies across all participants in the 'simple' condition, saving to `data/templates/canonical_mmn.npy`, with channel order matching the epochs montage; save the channel names in the same order to `data/templates/canonical_mmn_channels.json` so the template's channel order is verifiable (FR-009, SC-004). Update `data/results/metrics_per_subject.csv` with the full-cohort rows.
-  - Check: `data/results/metrics_per_subject.csv` covers all non-excluded subjects and both conditions; `data/templates/canonical_mmn.npy` exists with one value per channel, and its length equals the number of entries in `canonical_mmn_channels.json`, which matches the epochs montage channel names in order.
+---
 
-- [ ] T005a [US2] Implement the statistical stage in `code/analysis.py`: paired t-tests comparing MMN amplitude/latency between simple and complex conditions across subjects, Benjamini-Hochberg FDR correction across electrodes, Cohen's d effect sizes, and comparison against the literature benchmark threshold d ≥ 0.5 loaded from `data/benchmarks/mmn_effect_sizes.json` (create this file citing the established medium-effect benchmark from Cohen, J. (1988), *Statistical Power Analysis for the Behavioral Sciences*, 2nd ed., which defines d ≥ 0.5 as a medium effect) (FR-005, FR-010, SC-002, SC-003). Write intermediate statistical results (per electrode: t_statistic, p_value, p_value_fdr, cohen_d, benchmark_reference, practical_significance, significant) to `data/results/stats_intermediate.csv`.
-  - Check: `data/results/stats_intermediate.csv` contains t-statistics, raw and FDR-corrected p-values, Cohen's d, `practical_significance`, and `significant` flags for every electrode; values are real computed statistics from the full-cohort per-subject metrics.
+## Phase 3 – Reproducible results, verification gates, and paper handoff  
 
-- [ ] T005b [US2] Implement the topographic validation and final output emission in `code/analysis.py`: compute Pearson r between each condition's observed MMN topography and the canonical template **loaded from `data/templates/canonical_mmn.npy` (produced by T004)**, using the channel order from `data/templates/canonical_mmn_channels.json`, tagged `validation_type` = "consistency_simple" or "validity_complex" (FR-009, SC-004, r ≥ 0.8 criterion recorded). Then build the cohort-level result table `data/results/metrics.csv` by combining the T005a statistical fields with the topographic fields — **metrics.csv contains exactly one aggregated row per electrode/condition and NO subject_id column** (output.schema.yaml sets `additionalProperties: false` and has no subject_id; per-subject rows stay exclusively in `data/results/metrics_per_subject.csv` — do not attempt to merge per-subject rows into metrics.csv). Every row must conform to `specs/001-neural-correlates-of-temporal-prediction/contracts/output.schema.yaml`. Write the same cohort-level rows to `data/results/stats.json` as a JSON array of objects, each conforming to `output.schema.yaml` (FR-015). Depends on T004 (template) and T005a (statistics).
-  - Check: `data/results/metrics.csv` rows and `data/results/stats.json` entries contain t-statistics, raw and FDR-corrected p-values, Cohen's d, `practical_significance`, `topographic_correlation`, and `significant` flags for every electrode/condition, contain no subject_id field, and validate against `output.schema.yaml`.
+*Goal*: Provide a single, documented entry point, verify all gates, and prepare the research report.
 
-- [ ] T006 [P] [US2] Implement `code/tests/test_contracts.py` (pytest) validating: (a) each row of the cohort-level `data/results/metrics.csv` against `specs/001-neural-correlates-of-temporal-prediction/contracts/output.schema.yaml`, (b) each entry of the `data/results/stats.json` JSON array against the same `output.schema.yaml` (note: plan Task 5.2's `contracts/stats.schema.yaml` does not exist; `output.schema.yaml` is the authoritative target — plan flagged for kickback), (c) each row of the per-subject `data/results/metrics_per_subject.csv` against `contracts/metrics_per_subject.schema.yaml` (field presence, enum values, finite SNR — closing the FR-014 per-subject tier gap), and (d) dataset metadata against `contracts/dataset.schema.yaml` (FR-014, FR-015). Include focused correctness tests for the MMN window computation (e.g., a synthetic analytic waveform with known amplitude difference verifies the windowed mean code — test fixture only, never a result), the SD-based SNR computation, and the FDR correction.
-  - Check: `pytest code/tests/ -v` passes on the real outputs; tests fail if schema fields are missing or out of range, including per-subject rows with non-finite SNR or invalid enum values.
+- [ ] **T008** [US2] Write the orchestration script and update the quick‑start guide.  
+  *File*: `code/main.py` and `quickstart.md`.  
+  - `main.py` sequentially calls: `verify_references --stage dataset`, `download`, `verify_references --stage conditions`, `preprocess`, `analysis` (full‑cohort), `visualize`, `verify_references --stage citations`.  
+  - Pin dependencies in `code/requirements.txt` (`mne>=1.7.0`, `numpy`, `pandas`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `jsonschema`, `pytest`).  
+  - Add a reproducible random seed (`numpy.random.seed(42)`, ICA `random_state=42`).  
+  - Update `quickstart.md` with the single command:  
 
-- [ ] T007 [P] [US3] Implement `code/visualize.py` generating publication-quality figures directly from `data/results/metrics_per_subject.csv`, `data/results/metrics.csv`, and `data/results/stats.json` (FR-006): (a) ERP waveforms for standard and deviant trials per condition with the 150–250 ms MMN window highlighted, (b) scalp topography maps of the MMN difference for the **150–250 ms** window for both conditions (not "–250ms" as plan Task 4.3 mistakenly says), (c) statistical significance plots (FDR-corrected p-values and effect sizes per electrode). Save PNG and SVG to `data/results/figures/`. Parallel-safe with T006 after T005b.
-  - Check: all figure files exist and render without errors; waveforms reflect actual computed ERPs, not invented curves.
+    ```bash
+    python code/main.py
+    ```
 
-## Phase 3: Reproducible results, verification gates, and paper handoff
+  - **Check**: On a fresh runner, executing `python code/main.py` reproduces all result files, and `pytest` passes.
 
-- [ ] T008 [US2] Write `code/main.py` orchestration and document the full runnable command in the feature's `quickstart.md`: `python code/main.py` (verify dataset ID → download → verify conditions → preprocess → analyze → visualize → verify citations), invoking the ALREADY-IMPLEMENTED `code/verify_references.py` functions from T001 at the FR-012 gate points (pre-download, pre-analysis, pre-reporting), with pinned dependencies in `code/requirements.txt` (mne>=1.7.0, numpy, pandas, scipy, statsmodels, matplotlib, jsonschema) and random seeds pinned for ICA. Re-run the documented workflow from its declared inputs and confirm all tests and artifact checks pass.
-  - Check: fresh re-run reproduces `data/results/metrics_per_subject.csv`, `data/results/metrics.csv`, and `data/results/stats.json` consistently; `pytest code/tests/` passes.
+- [ ] **T009** [US3] Write the methods‑results report linked to real artifacts.  
+  *File*: `specs/001-neural-correlates-of-temporal-prediction/research.md`.  
+  - Summarize the preprocessing pipeline, MMN quantification, statistical tests, topographic validation, and effect‑size benchmarking.  
+  - Cite only sources that passed `verify_references --stage citations` (listed in `data/results/citation_verification.json`).  
+  - Report the observed **SNR**, **p‑values (FDR‑corrected)**, **Cohen’s d**, and **Pearson r** values, noting whether each met its respective success criterion (SC‑001 – SC‑004).  
+  - Document any exclusions (subjects with > 50 % bad epochs) and limitations (single dataset, sample size).  
+  - Include a “paper‑stage handoff” section that lists the exact artifact paths (`data/results/metrics.csv`, `data/results/stats.json`, `data/results/figures/*`) that the downstream paper pipeline should consume.  
+  - **Check**: Running `python code/verify_references.py --stage citations` returns 0; every numeric claim in `research.md` can be traced to a row in the CSV/JSON or a figure file.
 
-- [ ] T009 [US2][US3] FIRST run `python code/verify_references.py --stage citations` (the citation-check function implemented in T001) so that every citation to be used is verified BEFORE the report is written (FR-012(3)); then write a concise methods/results account in `specs/001-neural-correlates-of-temporal-prediction/research.md` linked to the actual output rows in `data/results/metrics.csv`, entries in `data/results/stats.json`, and figure files in `data/results/figures/`, citing only citations recorded as verified in `data/results/citation_verification.json`. Report honestly: whether the SNR ≥ 3.0, FDR p < 0.05, d ≥ 0.5, and r ≥ 0.8 criteria were met per condition; subject exclusion counts; any negative findings (e.g., no significant complexity effect) and limitations (sample size, electrode coverage, single dataset). Document the paper-stage handoff: the paper pipeline receives `data/results/metrics.csv`, `data/results/stats.json`, and the figures, with the requirement to present MMN amplitude/latency/topography comparisons between simple and complex conditions with uncertainty.
-  - Check: `python code/verify_references.py --stage citations` exits 0 before research.md is written; every numerical claim in `research.md` traces to a row in the result artifacts; no expected or invented values.
-
-- [ ] T010 [US2][US3] Finalize `code/verify_references.py` (all three check functions are implemented in T001; this task hardens and re-runs them end-to-end) and verify the three FR-012 gate points hold in the final pipeline: (1) pre-download dataset ID/URL verification — re-run `--stage dataset` and confirm it exits non-zero with a clear message for a wrong dataset ID (a unit-testable negative case requiring no downloaded data); (2) pre-analysis condition verification — re-run `--stage conditions` against the downloaded events metadata (halt with the FR-008 message if absent); (3) pre-reporting citation verification — re-run `--stage citations` and confirm verification status (verified/unreachable) is recorded in `data/results/citation_verification.json` and that research.md cites only verified sources. FR-013's artifact-hash recording is satisfied within project-owned paths via `data/raw/checksums.json` (T001); the `state/projects/…yaml` hash map is platform-owned and derived at verification time — the spec's FR-013 path is flagged for kickback (item 8).
-  - Check: `python code/verify_references.py --stage all` exits 0 on the real dataset; each of the three checks fails loudly (non-zero exit, clear message) when given a wrong dataset ID, a missing condition, or an unreachable citation.
-
-## Dependencies and requirement coverage
-
-| Requirement | Task(s) | Order |
-|---|---|---|
-| FR-012(1) (pre-download dataset-ID gate) | T001 (implements + invokes `verify_dataset_id()` before download); T010 re-runs | gates T001's download from within T001 |
-| FR-001 (download via curl/wget + checksums) | T001 | first |
-| FR-002/FR-003 (preprocessing, epochs) | T002 | after T001 |
-| FR-004, FR-011 (MMN metrics, SD-based SNR) | T003, T004 | after T002 |
-| FR-008 / FR-012(2) (complex-condition halt, pre-analysis gate) | T001 (implements + invokes `verify_conditions()`); T005a consumes validated conditions; T010 re-runs | gate runs in T001, before any analysis |
-| FR-005, FR-010 (stats, FDR, Cohen's d, benchmark) | T005a | after T004 |
-| FR-009 (canonical template, topographic r) | T004, T005b | T004 before T005b |
-| FR-006 (visualizations) | T007 | after T005b |
-| FR-012(3) (pre-reporting citation gate) | T001 (implements `verify_citations()`); T009 invokes before writing research.md; T010 re-runs | gate precedes T009's report |
-| FR-013 (hashes; state/ path platform-owned) | T001 (data/raw/checksums.json) | at download |
-| FR-014, FR-015 (contract tests, incl. per-subject tier) | T003 (schema), T006 | after T005b (metrics/stats exist) |
-| Edge cases (exclusions, interpolation) | T002 | with preprocessing |
-| SC-001–SC-004 | T003, T004, T005a, T005b, T009 | as above |
-
-Execution order: T001 → T002 → T003 → T004 → T005a → T005b → (T006, T007) → T008 → T009 → T010. All three FR-012 gate functions are implemented in T001 (the first task), so each gate is invoked at its correct point in the pipeline: `verify_dataset_id()` before T001's download, `verify_conditions()` after T001's metadata extraction (before any analysis), and `verify_citations()` by T009 before research.md is written. T006 and T007 are parallel-safe with each other after T005b (both carry [P]); T010 re-runs and hardens the T001-implemented gates after the full pipeline exists.
-
-## Revision behavior
-
-Preserve working artifacts and verified requirements. Repair specific failing commands from verifier feedback rather than regenerating the task list. A narrow failure in one script is not a reason to rebuild the project skeleton.
+- [ ] **T010** [US2] Harden and re‑run all Reference‑Validator gates after the full pipeline is in place.  
+  *File*: `code/verify_references.py` (already created).  
+  - Add unit tests in `code/tests/test_verify.py` that deliberately supply:  
+    1. An incorrect dataset ID → expect non‑zero exit and clear error.  
+    2. A metadata file missing the `complex` label → expect FR‑008 halt.  
+    3. An unreachable citation URL → expect citation‑verification failure.  
+  - Execute `python code/verify_references.py --stage all` after the full run; it must exit 0 on the correct dataset, and each negative case must exit non‑zero with a descriptive message.  
+  - **Check**: All three negative unit tests fail as intended, and the positive “all” run succeeds, confirming the gates are reliable.
