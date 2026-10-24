@@ -1,76 +1,101 @@
 # Tasks: The Impact of Incidental Music on Autobiographical Memory Retrieval
 
-**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/`
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/`  
 **Research Question**: Does exposure to music during adolescence produce uniquely vivid and emotionally salient autobiographical memories compared to music exposure during other developmental periods?
 
-## Phase 1: Setup and first end-to-end analysis
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Goal**: Establish the pipeline skeleton and run a thin, end-to-end analysis on a small simulated sample to verify the statistical flow.
+- [ ] T000 Initialise `state.yaml` with the required top‑level keys (`artifact_hashes`, `updated_at`, `config`).  
+  - **Artifact**: `state.yaml`  
+  - **Verification**: `tests/unit/test_state_manager.py` confirms the file contains the expected keys and is valid JSON.
 
-- [X] T000 Initialize `state.yaml` with the required structure (`artifact_hashes`, `updated_at`, `config`) as a blocking prerequisite for all subsequent data tasks and checksumming.
-- [X] T001 Establish the project layout (`code/`, `data/raw/`, `data/processed/`, `data/final/`, `tests/`), `requirements.txt` (including `statsmodels`, `pyarrow`, `levenshtein`), and `code/config.py` containing thresholds (Levenshtein $\le 4$, `MATCH_RATE_THRESHOLD=0.8`) and seeds. Document the execution command in `quickstart.md`.
-- [X] T002 Implement the data contracts in `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` to define the User-Track Pair analysis dataset and the regression/permutation outputs.
-    - Verification: The contract files must pass `jsonschema` validation and match the requirements in `spec.md`.
-- [ ] T003 Implement a "thin" end-to-end pipeline in `code/main.py` using a small mock dataset to produce the first real result rows. This must exercise the basic flow: `simulate_amt.py` $\rightarrow$ `ingest.py` $\rightarrow$ `aggregate.py` $\rightarrow$ `model.py`. <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
-    - Output: `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`, and `data/final/regression_summary.csv`.
-    - Verification: The `regression_summary.csv` must contain the required columns (`term`, `estimate`, `std_error`, `t_value`, `p_value`, `vif`) as per the output contract.
+- [ ] T001 Create the canonical project layout (`code/`, `data/raw/`, `data/processed/`, `data/final/`, `tests/`) and pin all dependencies in `requirements.txt`. Add a runnable command to `quickstart.md`.  
+  - **Artifact**: `quickstart.md` (shows `python -m code.main --demo`)  
+  - **Verification**: CI checks that `pip install -r requirements.txt` succeeds, that the command exits with code 0, **and** `tests/unit/test_quickstart.py` asserts `quickstart.md` contains the exact string `python -m code.main --demo`.
 
-**Checkpoint**: The documented command executes and produces numerically valid result rows in `data/final/`.
+- [ ] T002 Add the JSON‑Schema contracts for the processed dataset and regression outputs (`contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`).  
+  - **Artifact**: schema files (unchanged)  
+  - **Verification**: `jsonschema` validation passes for every generated parquet/CSV file.
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] T003 Implement a **thin end‑to‑end pipeline** that uses a synthetic validation dataset (10 users × 5 tracks) with hand‑crafted birth years and release years so that the true `adolescent_exposure_ratio` is known.  
+  - **Code**: `code/main.py` (demo mode) → `code/simulate_demo.py` → `code/ingest.py` → `code/aggregate.py` → `code/model.py`.  
+  - **Outputs**: `data/processed/ingested_cohort.parquet`, `data/processed/user_track_pairs.parquet`, `data/final/regression_summary.csv`.  
+  - **Verification**: Unit test `tests/unit/test_exposure_accuracy.py` asserts that the computed ratio matches the expected value within 1e‑6 (SC‑001) and that `regression_summary.csv` contains the required columns.
 
-**Goal**: Implement the full-scale data processing, robust handling of edge cases, and the complete statistical suite.
+## Phase 2 – Full‑scale study and validation  
 
-- [ ] T004 [US1] Implement full data ingestion and exposure scoring in `code/data/ingest.py` and `code/data/aggregate.py`. <!-- FAILED-IN-EXECUTION: code/data_ingestion.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
-    - **MSD Schema Validation**: Before ingestion, verify the MSD source contains `track_id`, `release_date`, and `popularity`; fail with a clear error if missing.
-    - Implement the **Global Exposure Fallback** (FR-008) as a population-level proxy for missing individual data to be used as a predictor; ensure the fallback check for missing birth years ($>50\%$) occurs **before** any listen-count filtering (EC-001).
-    - Implement the **Minimum Listen Threshold** (FR-009: `total_listens >= 3`) and the raw `adolescent_exposure_ratio` calculation (FR-001).
-    - Output: `data/processed/ingested_cohort.parquet`.
-    - Verification: Unit tests in `tests/unit/test_ingestion.py` must verify that the fallback trigger correctly identifies missing birth year proportions and that the listen threshold is applied last.
-- [ ] T005 [US2] Implement the cue matching and aggregation logic in `code/data/match.py` and `code/data/aggregate.py`.
-    - Implement Levenshtein distance matching ($\le 4$) and the **Match Rate Verification** (SC-004: log warning if rate $< 80\%$ but proceed).
-    - Implement the **User-Track Pair aggregation** (FR-004) and filter out **Zero Variance Tracks** (EC-002: `n_cues == 0`).
-    - Output: `data/processed/user_track_pairs.parquet`.
-    - Verification: `data/logs/match_rate_stats.json` must record the actual match rate; `user_track_pairs.parquet` must strictly adhere to `contracts/user_track_pair.schema.yaml`.
-- [ ] T006 [US3] Implement the primary statistical analysis in `code/analysis/model.py`.
-    - Fit the Linear Mixed-Effects Model (LMM) (FR-005): `mean_vividness ~ adolescent_exposure_ratio + popularity + (1|user_id)`. **Note**: Use the raw ratio per spec; ignore the logit transformation suggested in `plan.md`.
-    - Implement the **Multicollinearity Check** (EC-003): calculate VIF for predictors and log a warning if $\text{VIF} > 5$.
-    - Output: `data/final/regression_summary.csv` and diagnostic plots in `data/final/plots/` (residuals, QQ plot).
-    - Verification: VIF values must be present in the regression summary; diagnostic plots must be non-empty.
-- [ ] T007 [US3] Implement the **Sensitivity Analysis** loop (FR-006) in `code/analysis/sensitivity.py`.
-    - For each Levenshtein threshold in $[1, 2, 3, 4, 5]$, re-run the matching and aggregation process and re-fit the LMM.
-    - Output: `data/final/sensitivity_analysis.csv`.
-    - Verification: The output CSV must contain one row per threshold with the corresponding coefficient and p-value.
-- [ ] T008 [US3] Implement the **Block-Permutation Test** (FR-007) in `code/analysis/permutation.py`.
-    - Shuffle `mean_vividness` within each `user_id` block for 5,000 iterations (seed 42) while keeping predictors fixed.
-    - Compare the observed coefficient against the null distribution to calculate the final p-value.
-    - Output: `data/final/permutation_results.csv`.
-    - Verification: Unit tests must verify that `user_id` blocks are preserved during shuffling (no leakage across users).
+- [ ] T004 **Data download & ingestion** – stream the verified MSD JSONL shards from the official HuggingFace mirror (`hf://datasets/msd/full`) into `data/raw/msd_*.jsonl`; abort with a clear error if the URL is unreachable. Also validate the presence of the user‑provided AMT parquet (`data/raw/amt.parquet`).  
+  - **Code**: `code/download.py`, `code/ingest.py`.  
+  - **Outputs**: `data/processed/ingested_cohort.parquet`.  
+  - **Verification**: Integration test `tests/integration/test_download_and_ingest.py` checks that (1) the MSD stream loads without loading the whole file into memory, (2) the schema of `ingested_cohort.parquet` contains the required raw columns, and (3) a missing AMT file raises `FileNotFoundError`.
 
-**Checkpoint**: All required runs complete; artifacts match the actual computations and adhere to the defined schemas.
+- [ ] T005 **Cue matching across thresholds** – for each Levenshtein distance `n ∈ {1,2,3,4,5}` match AMT cue text to MSD track titles, write one parquet per threshold (`data/processed/matched_thr{n}.parquet`), compute the **track‑matching rate** per threshold, and **log a warning** if the rate is `< 0.80`.  
+  - **Code**: `code/match.py`.  
+  - **Outputs**: `data/processed/matched_thr1.parquet` … `matched_thr5.parquet`; log file `logs/match_rate_{n}.json`.  
+  - **Verification**: `tests/unit/test_match_rate.py` asserts that the logged rate matches the on‑disk calculation and that a warning is emitted when below 0.80 (SC‑002, SC‑004).
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] T006 **Aggregation & edge‑case handling** – for each threshold `n`:
+  1. Join matched cues with the ingested cohort.  
+  2. Filter out rows with `total_listens < 5` **after** the fallback check (FR‑009 & EC‑001).  
+  3. If **> 50 %** of `birth_year` values are missing **before** any filtering, compute the **Global Exposure proxy** (mean adolescent exposure for the user's birth‑decade) and add column `global_exposure_proxy`.  
+  4. Remove zero‑variance tracks (`total_listens == 0`).  
+  5. Compute `adolescent_exposure_ratio = adolescent_listens / total_listens`.  
+  6. Apply the continuity‑corrected logit transformation (FR‑013) → `logit_ratio`.  
+  7. Compute VIF for `logit_ratio` and `track_popularity`; log a warning if any VIF > 5 (FR‑003, EC‑003).  
+  8. Write `data/processed/user_track_pairs_thr{n}.parquet`.  
+  - **Code**: `code/aggregate.py`.  
+  - **Verification**: `tests/unit/test_aggregation.py` checks that (a) the fallback is triggered before the listen‑count filter, (b) the logit calculation matches the continuity‑corrected formula, and (c) VIF warnings appear when appropriate. Schema validation against `contracts/dataset.schema.yaml` must pass.
 
-**Goal**: Ensure full reproducibility and prepare the final evidence package.
+- [ ] T007 **Linear Mixed‑Effects modelling** – for each threshold `n`, fit the LMM:  
+  `mean_vividness ~ logit_ratio + track_popularity + (1|user_id)` using `statsmodels`’s `MixedLM`. Exclude `total_listens` to avoid collinearity. Write a CSV summary `data/final/regression_summary_thr{n}.csv` that conforms to `contracts/output.schema.yaml` (includes VIF values).  
+  - **Code**: `code/model.py`.  
+  - **Verification**: `tests/unit/test_model.py` confirms that the CSV contains the required columns, that the random‑intercept variance is > 0, and that VIF columns are present.
 
-- [ ] T009 Verify all final artifacts. Recompute SHA-256 checksums for `data/processed/*.parquet` and `data/final/*.csv`, comparing them against `state.yaml`. Run a final contract test in `tests/contract/test_data_flow.py` to ensure the final results strictly match `contracts/output.schema.yaml`.
-- [ ] T010 Generate the final research account in `report.md`. This must link to the actual output cells in `data/final/`, describe the observed effect of adolescent exposure on vividness, and honestly document any failures (e.g., match rate warnings or VIF issues).
-- [ ] T011 Document the paper-stage handoff. Re-run the entire documented workflow from `quickstart.md` to confirm it completes within the 6-hour budget and maintains memory usage $< 5\text{GB}$ via streaming.
+- [ ] T008 **Sensitivity analysis & Bonferroni correction** – collate the five regression summaries, compute Bonferroni‑adjusted p‑values (`α_adj = 0.05 / 5`), and write `data/final/sensitivity_analysis.csv` with columns `threshold, match_rate, coef_estimate, p_value_adj`.  
+  - **Code**: `code/sensitivity.py`.  
+  - **Verification**: `tests/unit/test_sensitivity.py` checks that exactly five rows are present, that each row’s `p_value_adj` equals `min(p_value * 5, 1.0)`, and that at least one threshold shows significance **or** the file records “non‑significant” correctly (SC‑006).
 
-## Dependencies and requirement coverage
+- [ ] T009 **Block‑permutation test** – on the primary threshold (`n = 3`) perform **10 000** permutations that shuffle `mean_vividness` **within each `user_id` block** while keeping all predictors fixed. Collect the coefficient for `logit_ratio` from each permuted model, compute a two‑sided p‑value, and write `data/final/permutation_results.csv` containing `iteration, coef_null, coef_observed`. Also write a summary row (`iteration = 0`) with the observed coefficient, null‑distribution mean/SD, and final p‑value.  
+  - **Code**: `code/permutation.py`.  
+  - **Verification**: `tests/unit/test_permutation.py` ensures that (a) the block structure is respected (no cross‑user swaps), (b) exactly 10 000 null coefficients are generated, and (c) the reported p‑value matches the empirical proportion.
 
-| Requirement | Task | Verification |
-| :--- | :--- | :--- |
-| FR-001: Raw Exposure Ratio | T004 | `tests/unit/test_ingestion.py` |
-| FR-004: User-Track Pair Unit | T005 | `contracts/user_track_pair.schema.yaml` |
-| FR-005: LMM Model | T006 | `data/final/regression_summary.csv` |
-| FR-006: Sensitivity Analysis | T007 | `data/final/sensitivity_analysis.csv` |
-| FR-007: Block-Permutation | T008 | `data/final/permutation_results.csv` |
-| FR-008: Global Fallback | T004 | `tests/unit/test_ingestion.py` |
-| FR-009: Min Listen Threshold | T004 | `user_track_pairs.parquet` (min 3) |
-| SC-004: Match Rate Warning | T005 | `data/logs/match_rate_stats.json` |
-| EC-001: Fallback Order | T004 | `tests/unit/test_ingestion.py` |
-| EC-002: Zero Var Filtering | T005 | `user_track_pairs.parquet` (n_cues $\ge 1$) |
-| EC-003: VIF Warning | T006 | `data/final/regression_summary.csv` |
+- [ ] T010 **Power analysis** – run a simulation‑based a priori power calculation targeting **≥ 80 %** power to detect a small‑to‑medium effect (Cohen’s f² = 0.15) at α = 0.05 for the LMM, incorporating an ICC estimate from a pilot run. Write `data/final/power_report.txt` that lists the required sample size, the achieved sample size after filtering, and the post‑hoc power estimate. If post‑hoc power < 0.80, log a warning.  
+  - **Code**: `code/power_analysis.py`.  
+  - **Verification**: `tests/unit/test_power.py` checks that the required N is computed, that the final N is read from the filtered dataset, and that the reported power matches a reference implementation (SC‑005).
 
-**Execution Order**: T000 $\rightarrow$ T001 $\rightarrow$ T002 $\rightarrow$ T003 $\rightarrow$ T004 $\rightarrow$ T005 $\rightarrow$ T006 $\rightarrow$ T007 $\rightarrow$ T008 $\rightarrow$ T009 $\rightarrow$ T010 $\rightarrow$ T011.
+- [ ] T011 **Artifact verification & state update** – after all computational steps, (1) run schema validation on every parquet and CSV artifact, (2) compute SHA‑256 hashes for each **processed**, **final**, **and raw** file (`data/raw/msd_*.jsonl`), (3) update `state.yaml` with two sections: `artifact_hashes` (processed/final) and `raw_hashes` (raw MSD shards), and (4) refresh the `updated_at` timestamp.  
+  - **Code**: `code/state_manager.py`.  
+  - **Verification**: `tests/integration/test_state_updates.py` asserts that `state.yaml` contains a hash entry for every file in `data/raw/`, `data/processed/`, and `data/final/` and that the hashes match the actual file contents.
+
+- [ ] T014 **Reproducibility verification** – re‑run the full pipeline with the same random seeds (`random.seed(42)`, `np.random.seed(42)`) and compare SHA‑256 hashes of all final artifacts (`data/final/*.csv`, `data/final/*.txt`). The task fails if any hash differs, guaranteeing identical outputs across runs as required by Constitution Principle I.  
+  - **Code**: `code/reproducibility_check.py`.  
+  - **Verification**: `tests/unit/test_reproducibility.py` runs the pipeline twice in a temporary environment and asserts hash equality of all final outputs.
+
+## Phase 3 – Reproducible results & handoff  
+
+(Tasks T012 and T013 have been removed because they were not traceable to any functional requirement or success criterion.)
+
+### Coverage Table
+
+| Spec ID | Task(s) | Verification |
+|---------|---------|--------------|
+| FR‑001 | T006 | `tests/unit/test_aggregation.py` |
+| FR‑002 | T005 | `tests/unit/test_match_rate.py` |
+| FR‑003 | T006 | VIF warning test |
+| FR‑004 | T006 | schema `dataset.schema.yaml` |
+| FR‑005 | T007 | `tests/unit/test_model.py` |
+| FR‑006 | T008 | `tests/unit/test_sensitivity.py` |
+| FR‑007 | T009 | `tests/unit/test_permutation.py` |
+| FR‑008 | T006 | fallback logic test |
+| FR‑009 | T006 | minimum‑listen filter test |
+| FR‑010 | T007 | `track_popularity` included in model |
+| FR‑011 | T010 | `tests/unit/test_power.py` |
+| FR‑013 | T006 | logit transformation test |
+| SC‑001 | T003 | exposure‑accuracy unit test |
+| SC‑002 | T005 | match‑rate warning test |
+| SC‑003 | T006 | edge‑case handling test |
+| SC‑004 | T005 | same as SC‑002 |
+| SC‑005 | T010 | power‑report test |
+| SC‑006 | T008 | sensitivity‑analysis test |
+| SC‑007 | T009 | permutation‑results test |
+| SC‑008 | T011, T014 | schema‑validation and reproducibility tests |
