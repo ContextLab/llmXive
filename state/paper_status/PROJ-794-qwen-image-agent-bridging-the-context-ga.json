@@ -11,12 +11,12 @@
         "page": 25
       }
     ],
-    "audited_at": "2026-10-24T19:49:32.835522+00:00"
+    "audited_at": "2026-10-24T20:18:15.204115+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-794-qwen-image-agent-bridging-the-context-ga",
-  "updated_at": "2026-10-24T19:49:32.835538+00:00"
+  "updated_at": "2026-10-24T20:18:15.204128+00:00"
 }
