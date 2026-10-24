@@ -1,38 +1,80 @@
+T000:
+  reason: "The `pytest code/tests/test_pilot.py` run failed (see the log showing a\
+    \ ValidationError for missing required property\u202F`phase` and `quality_flag`).\
+    \ The pilot CSV does not contain these fields, so it does not validate against\
+    \ the schema used by the test, and the test suite does not pass. The task therefore\
+    \ is not completed."
+  task: 76215164a8c4b09e3329e0a78037a8b0c5e20e86c9da8478114e3afe9ab8643a
 T001:
-  reason: "The project layout, config file, requirements.txt, quickstart.md, and checksum\
-    \ manifest all exist and contain the required content, but there is no evidence\
-    \ (e.g., execution logs, test run output) that the documented command `python\
-    \ -m code.pipeline.run_all --config code/config/study_config.yaml` actually runs\
-    \ end\u2011to\u2011end without error. Provide a successful run log or pytest results\
-    \ confirming the pipeline execution."
-  task: 174633505f219c4b658f23ecedce846d2811425ec8414da62663e7d2ceae657f
+  reason: "Checked the presence of all required directories (all exist) and the required\
+    \ files `code/requirements.txt`, `code/config/study_config.yaml`, and `quickstart.md`\
+    \ (all present and populated). However, the integration test `tests/integration/test_layout.py`\
+    \ that is supposed to verify the layout is missing, so the task\u2019s verification\
+    \ step cannot be satisfied. The missing test file must be added (and runnable)\
+    \ to complete the task."
+  task: b56a62abf1e3355317248265a0e984a04e1b2d69f5a5203c563496d0b007af4d
+T001a:
+  task: 2b2980e7634d4e80a25e071238a217acfb437493c8c2f3bb3b16b9d7cec66ac3
+T001b:
+  reason: The Flask app `code/recruitment/app.py` is present, but it raises a `NameError`
+    because `json` is not imported, causing the integration test to return a 500 error
+    instead of the required 201. Consequently the endpoint does not successfully write
+    a participant row, and the test verification fails. Adding `import json` (and
+    any other needed fixes) is required for the task to be satisfied.
+  task: 658ba6fbdf7ab1b7b5f849b7287af21c5b4521bcfc02eaf6805eccc7de8d6601
+T001c:
+  reason: Checked `code/web/tasks/sart_ospan.py` and the integration test `tests/integration/test_task_delivery.py`.
+    The module raises a `ValueError` on import because the required configuration
+    file (`code/config/study_config.yaml`) is missing or lacks the required `tasks`
+    mapping, causing the test suite to error out before any CSV files are created.
+    Adding a proper config (or handling its absence) is needed for the task to be
+    considered complete.
+  task: 72e2de429065c3ee0b255718131ff84bcd9a18e834d43cac69b58741df5f0944
+T001d:
+  reason: "The `pss_panas.py` module exists, but it writes to `paths.data(\"questionnaire_responses.csv\"\
+    )` rather than the required `data/raw/questionnaire_responses.csv`, and the expected\
+    \ CSV file is missing. Moreover, the integration test crashes while loading `contracts/dataset.schema.yaml`\
+    \ as JSON (the file is YAML), so no validation of the CSV against the schema is\
+    \ performed. These issues mean the task\u2019s requirements are not met."
+  task: 2931eb3b2b2f90d703a59ddb4c9b752b845b0e644d894fa7e48056b93080d258
+T001e:
+  reason: "The `contracts/compliance.schema.yaml` file is located under `specs/.../contracts/`\
+    \ instead of the expected `contracts/` directory, causing the integration test\
+    \ to raise a `FileNotFoundError`. Additionally, the `data/raw/compliance_logs/`\
+    \ directory already contains a CSV (`compliance_P001_2024-10-01.csv`) so the test\u2019\
+    s \u201Cexactly one record should be written\u201D assertion would fail even if\
+    \ the schema path were corrected. Both issues must be fixed for the test to pass\
+    \ and the task to be considered complete."
+  task: d49cb84d61fc490e2fb61be5e8240e2c0d788c81b0440b25007ee080302666c4
 T002:
-  task: d1fa575b4e16934ab78d0c2914e360889d774ea4c38fe50367ff533b8b8dfe41
-T003:
-  reason: "The repository contains the required script, participants file, trial\u2011\
-    level CSVs, and compliance\u2011log directory, but there is no inspected evidence\
-    \ that `data/raw/simulated_measurements.csv` actually contains scored records\
-    \ that conform to `contracts/dataset.schema.yaml`, nor that `data/checksums.sha256`\
-    \ includes correct SHA\u2011256 entries, nor that `data/results/smoke_results.json`\
-    \ was generated with the expected mean\u2011change values. Without proof that\
-    \ these outputs exist and meet the schema and checksum requirements, the task\u2019\
-    s deliverables are not fully verified."
-  task: c8b14947bf6d6a4a0b6dcb00d594097a0474861d1d4c3c7f83e1d3c8854ae8b3
+  task: a923d8252625af6d6d9dcaeeae8a4b859b7ccd4ebe65c302ff345dab1b0eaf09
+T003a:
+  task: be210172e061b850163da7cbebe745c6c609c4bfd860f3b288a66a262cf0b7ca
+T003b:
+  reason: 'Requested task execution failed; rerun successfully: code/validation/validate_schema.py
+    exit=1'
+  task: cd226470606e1d180a9159d81f83f32da58928104f3fcdaee44153502dcbd411
+T003c:
+  task: a9f7b3312924a5fd4b2e5a270b6963600bacbfd7ab4ef95a8d4a6e51319d8b05
+T003d:
+  task: f10f14969b4742fb3379500dd11699fb5edee2dddc96b7dddd250d2dc93b3805
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/compliance/compute_compliance.py
-    exit=1'
-  task: cd760a88680e11e4ed9a06f51ce6631ba4a8c9f4c6943a4d18a1c9bdecf7836c
+  task: 8954630b89f3677b8e80c0f727fd5f950c57cd4a987a26c65b79ea196a863722
 T005:
-  reason: 'Requested task execution failed; rerun successfully: code/pipeline/merge_data.py
-    exit=1'
-  task: e9fdd70977cdbf9d922a30a371ef97cc478d8dde8be1127420955251b17f9a48
+  task: 3fcaf79a6b68698709b234515901287a5b8e3c972f6360853bc455023859cb3c
 T006:
-  task: bd18f508d5206ed15f23e96b10093dd7bf2ac955d86d412e9849c822154f5fda
+  task: b42c3b97564e25a6371c523da34e903becfa7fadf5804a1d41c01577b3c74cc8
+T006a:
+  task: 17aab6dbc41777e1edae04be68ecf3e9f549fbfdefef691d6cb763ebc9b31fe3
 T007:
-  task: 0317b6193d4ec4301a787b5d7aeecfe5e088ba4f80fff203b1f6f1b83e02468e
+  task: 819e35944b328f7307090ab5cbfe3eadde72766e4aa4e6fac487ac0f3a3ecf7e
 T008:
-  task: d0b91b0bf9afaeb38d5708c4b5b7f3e00dcaa1c3e87b39e8359f36294179d7c9
+  task: 75b5ef6d6c7b4450ad710368088b1d9905dde17e477a1bda8a75affd2dc3b400
 T009:
-  task: 753da68c99f6eb827ed354f8fef1482d4ffa56904f5de24daa2e9b9b0c89cae4
+  task: b49084315d01f1ee6c1a5c9dc4035815da41a02242d79eff4059bff5b40926df
 T010:
-  task: 0e5f6a59e43cafb9d149378e4fdb4bc523cee0c97aa41e7797440e34b39c9280
+  task: e8cfade8e4967856d305954d44dbde0d1f90274c5bade16439b875225bf071be
+T011:
+  task: 71bf41417b48327ff51368fc2e72b37fd29ea16d3671bc8db648bdf376800f61
+T012:
+  task: 0b9be5d96c023e0acae624eaf93948bd34bf3fb0e35a11074e54aa4a0c5cc056

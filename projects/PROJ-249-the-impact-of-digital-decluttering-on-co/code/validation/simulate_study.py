@@ -1,21 +1,21 @@
 """
-Simulate the deterministic study data for the digital decluttering project.
+Simulate a fully‑scored study dataset for the digital decluttering project.
 
-This script reads the study configuration, generates participant IDs,
-creates baseline and post‑intervention trial‑level data for SART and O‑Span,
-synthesises questionnaire scores (PSS‑10, PANAS‑PA, PANAS‑NA), writes
-compliance logs, scores the behavioural tasks (using the internal lightweight
-scorers), and finally produces a small “smoke” results JSON containing mean
-change values for the first five participants.
+This script creates deterministic, reproducible simulated data conforming to
+the `contracts/dataset.schema.yaml` JSON‑Schema.  All files are written under
+the `data/` folder using the `llmxive_toolkit.paths` helpers, and a SHA‑256
+manifest (`data/checksums.sha256`) is generated for every artifact.
 
-All outputs are written under the ``data/`` directory and SHA‑256
-checksums for every generated file are written to ``data/checksums.sha256``.
-The script is fully deterministic: the random number generator is seeded from
-``code/config/study_config.yaml`` and all identifiers / timestamps are derived
-from participant indices and the study start date, avoiding any per‑run randomness
-(e.g. no ``uuid.uuid4()`` or ``hash()`` calls). No fallback synthetic data is used.
+Expected outputs (all under `data/raw/`):
+  - participants_simulated.csv
+  - trial_level/sart_trials_sim.csv
+  - trial_level/ospan_trials_sim.csv
+  - measurement_records_sim.csv
+  - compliance_logs_sim/   (seven daily CSVs per participant)
+
+The script can be invoked directly:
+    python code/validation/simulate_study.py
 """
-
 import csv
 import hashlib
 import json
@@ -57,46 +57,41 @@ def _write_checksum(file_path: Path, manifest_path: Path):
         f.write(line)
 
 # ----------------------------------------------------------------------
-# Simple internal scoring (avoids buggy external functions)
+# Scoring utilities (lightweight, deterministic)
 # ----------------------------------------------------------------------
 def _score_sart(df: pd.DataFrame) -> dict:
     """
-    Very small SART scorer that returns the same keys used elsewhere
-    in the pipeline.
-
-    Expected columns in ``df``:
-        - rt_ms (int)
-        - is_target (bool)
-        - response (bool) – participant's button press (True = pressed)
-        - accuracy (bool) – whether response matches target status
+    Simple SART scorer returning commission/omission errors,
+    mean response time and a quality flag.
     """
-    # Commission errors: responded when should NOT (i.e., is_target=False & response=True)
     commission_errors = int(((~df["is_target"]) & df["response"]).sum())
-    # Omission errors: failed to respond when should (is_target=True & response=False)
     omission_errors = int(((df["is_target"]) & (~df["response"])).sum())
     mean_rt = float(df["rt_ms"].mean())
+
+    # Accuracy = proportion of correct responses
+    accuracy = float(((df["response"] == df["is_target"])).mean())
+    quality_flag = "valid" if accuracy >= 0.5 else "low_attention"
+
     return {
         "commission_errors": commission_errors,
         "omission_errors": omission_errors,
         "mean_rt": mean_rt,
+        "quality_flag": quality_flag,
     }
 
 def _score_ospan(df: pd.DataFrame) -> dict:
     """
-    Simple O‑Span scorer.
-
-    Expected columns:
-        - item (str)
-        - response (str) – the recalled item (empty string if incorrect)
-        - correct (bool) – whether the response was correct
+    Simple O‑Span scorer.  For the simulated data we treat the total
+    number of correct recalls as the span score.
     """
     total_correct = int(df["correct"].sum())
-    # Span score: the length of the longest consecutive run of correct trials.
-    # For simplicity we use total_correct as a proxy (common in pilot code).
+    # In this simplified version the span score equals total correct.
     span_score = total_correct
+    quality_flag = "valid"  # O‑Span does not have a low‑attention flag here.
     return {
         "total_correct": total_correct,
         "span_score": span_score,
+        "quality_flag": quality_flag,
     }
 
 # ----------------------------------------------------------------------
@@ -119,7 +114,7 @@ def _simulate_sart_trials(rng: np.random.Generator, n_trials: int = 100) -> pd.D
     # ``response`` is True when the participant presses the button.
     response = np.where(is_target, ~errors, errors)  # correct response = not error
     accuracy = response == is_target
-    rt_ms = rng.integers(100, 5001, size=n_trials)  # 100‑5000 ms inclusive lower bound
+    rt_ms = rng.integers(100, 5001, size=n_trials)  # inclusive lower bound
 
     df = pd.DataFrame(
         {
@@ -145,8 +140,8 @@ def _simulate_ospan_trials(rng: np.random.Generator, n_trials: int = 20) -> pd.D
     )
     return df
 
-def _simulate_questionnaire_scores(rng: np.random.Generator, metric: str) -> float:
-    """Return a plausible single‑value score for the given questionnaire metric."""
+def _simulate_questionnaire_score(rng: np.random.Generator, metric: str) -> float:
+    """Generate a plausible score for the given questionnaire metric."""
     if metric == "pss10_total":
         return float(rng.integers(0, 41))
     if metric == "panas_positive":
@@ -156,7 +151,7 @@ def _simulate_questionnaire_scores(rng: np.random.Generator, metric: str) -> flo
     raise ValueError(f"Unsupported questionnaire metric: {metric}")
 
 # ----------------------------------------------------------------------
-# Writing helpers – overwrite each run for determinism
+# Writing helpers – each run overwrites for determinism
 # ----------------------------------------------------------------------
 def _write_participants(participant_ids: list[str], start_date: date, manifest_path: Path):
     rows = []
@@ -169,7 +164,7 @@ def _write_participants(participant_ids: list[str], start_date: date, manifest_p
             }
         )
     df = pd.DataFrame(rows)
-    out_path = paths.data("raw", "participants.csv")
+    out_path = paths.data("raw", "participants_simulated.csv")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(out_path, index=False)
     _write_checksum(out_path, manifest_path)
@@ -180,13 +175,13 @@ def _write_trial_level_files(
     manifest_path: Path,
 ):
     # SART
-    sart_path = paths.data("raw", "trial_level", "sart_trials.csv")
+    sart_path = paths.data("raw", "trial_level", "sart_trials_sim.csv")
     sart_path.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(sart_rows).to_csv(sart_path, index=False)
     _write_checksum(sart_path, manifest_path)
 
     # OSPAN
-    ospan_path = paths.data("raw", "trial_level", "ospan_trials.csv")
+    ospan_path = paths.data("raw", "trial_level", "ospan_trials_sim.csv")
     ospan_path.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(ospan_rows).to_csv(ospan_path, index=False)
     _write_checksum(ospan_path, manifest_path)
@@ -197,7 +192,7 @@ def _write_compliance_logs(
     start_date: date,
     manifest_path: Path,
 ):
-    log_dir = paths.data("raw", "compliance_logs")
+    log_dir = paths.data("raw", "compliance_logs_sim")
     log_dir.mkdir(parents=True, exist_ok=True)
     for pid in participant_ids:
         rows = []
@@ -226,39 +221,54 @@ def _write_compliance_logs(
         df.to_csv(out_path, index=False)
         _write_checksum(out_path, manifest_path)
 
-def _write_measurements(
+def _write_measurement_records(
     measurement_rows: list[dict],
     manifest_path: Path,
 ):
-    out_path = paths.data("raw", "simulated_measurements.csv")
+    out_path = paths.data("raw", "measurement_records_sim.csv")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(measurement_rows).to_csv(out_path, index=False)
     _write_checksum(out_path, manifest_path)
 
 # ----------------------------------------------------------------------
-# Scoring wrapper
+# Scoring wrapper (behavioural tasks)
 # ----------------------------------------------------------------------
 def _score_behavioural_tasks(
     sart_df: pd.DataFrame,
     ospan_df: pd.DataFrame,
 ) -> dict:
     """
-    Return a mapping from metric_type to scored value for a single participant
-    and phase. Uses the lightweight internal scoring functions defined above.
+    Return a mapping from internal metric identifiers to scored values
+    together with their quality flags for a single participant / phase.
     """
     sart_scores = _score_sart(sart_df)
     ospan_scores = _score_ospan(ospan_df)
 
     return {
-        "sart_commission_errors": sart_scores.get("commission_errors", np.nan),
-        "sart_omission_errors": sart_scores.get("omission_errors", np.nan),
-        "sart_mean_rt": sart_scores.get("mean_rt", np.nan),
-        "ospan_span_score": ospan_scores.get("span_score", np.nan),
-        "ospan_total_correct": ospan_scores.get("total_correct", np.nan),
+        "sart_commission_errors": (
+            sart_scores["commission_errors"],
+            sart_scores["quality_flag"],
+        ),
+        "sart_omission_errors": (
+            sart_scores["omission_errors"],
+            sart_scores["quality_flag"],
+        ),
+        "sart_mean_rt": (
+            sart_scores["mean_rt"],
+            sart_scores["quality_flag"],
+        ),
+        "ospan_span_score": (
+            ospan_scores["span_score"],
+            ospan_scores["quality_flag"],
+        ),
+        "ospan_total_correct": (
+            ospan_scores["total_correct"],
+            ospan_scores["quality_flag"],
+        ),
     }
 
 # ----------------------------------------------------------------------
-# Smoke analysis
+# Smoke analysis (tiny summary printed to stdout)
 # ----------------------------------------------------------------------
 def _run_smoke_analysis(
     measurements: pd.DataFrame,
@@ -270,16 +280,13 @@ def _run_smoke_analysis(
 
     pivot = measurements.pivot_table(
         index=["participant_id", "metric_type"],
-        columns="session_type",
+        columns="phase",
         values="value",
         aggfunc="first",
     ).reset_index()
 
-    pivot = pivot.dropna(subset=["baseline", "post_intervention"], how="any")
-    pivot["change"] = pivot["baseline"] - pivot["post_intervention"]
-    # Note: the spec defines change as post - baseline; we keep that sign.
-    pivot["change"] = pivot["post_intervention"] - pivot["baseline"]
-
+    pivot = pivot.dropna(subset=["baseline", "post"], how="any")
+    pivot["change"] = pivot["post"] - pivot["baseline"]
     mean_changes = (
         pivot.groupby("metric_type")["change"]
         .mean()
@@ -292,6 +299,7 @@ def _run_smoke_analysis(
         "metrics": [
             {"metric": row["metric_type"], "mean_change": row["mean_change"]}
             for _, row in mean_changes.iterrows()
+            if row["metric_type"] in selected  # just a tiny sanity check
         ],
     }
 
@@ -345,7 +353,7 @@ def main():
         sart_baseline = _simulate_sart_trials(rng)
         ospan_baseline = _simulate_ospan_trials(rng)
 
-        # Inject low‑attention case for first participant
+        # Inject low‑attention case for first participant (trigger flag)
         if idx == 0:
             target_mask = sart_baseline["is_target"]
             sart_baseline.loc[target_mask, "response"] = ~sart_baseline.loc[
@@ -355,33 +363,35 @@ def main():
                 sart_baseline["response"] == sart_baseline["is_target"]
             )
 
-        # Score baseline
         baseline_scores = _score_behavioural_tasks(sart_baseline, ospan_baseline)
 
         # Timestamp for this participant (deterministic)
         timestamp = (base_datetime + timedelta(minutes=idx * 10)).isoformat()
 
-        # Record baseline measurements (behavioural + questionnaires)
-        for metric_type, value in baseline_scores.items():
+        # Record baseline measurement rows (behavioural)
+        for metric_key, (value, qflag) in baseline_scores.items():
             measurement_rows.append(
                 {
-                    "id": f"{pid}_baseline_{metric_type}",
+                    "id": f"{pid}_baseline_{metric_key}",
                     "participant_id": pid,
-                    "metric_type": metric_type,
+                    "phase": "baseline",
+                    "metric_type": metric_key,
                     "value": float(value),
                     "timestamp": timestamp,
-                    "session_type": "baseline",
+                    "quality_flag": qflag,
                 }
             )
+        # Record baseline questionnaire rows
         for q_metric in ["pss10_total", "panas_positive", "panas_negative"]:
             measurement_rows.append(
                 {
                     "id": f"{pid}_baseline_{q_metric}",
                     "participant_id": pid,
+                    "phase": "baseline",
                     "metric_type": q_metric,
-                    "value": _simulate_questionnaire_scores(rng, q_metric),
+                    "value": _simulate_questionnaire_score(rng, q_metric),
                     "timestamp": timestamp,
-                    "session_type": "baseline",
+                    "quality_flag": "valid",
                 }
             )
 
@@ -422,7 +432,6 @@ def main():
 
         # Apply effect‑size shifts as defined in the config
         for metric_key, d in effect_sizes.items():
-            # Map config metric names to our internal metric identifiers
             mapping = {
                 "SART": "sart_commission_errors",
                 "Ospan": "ospan_span_score",
@@ -432,34 +441,37 @@ def main():
             }
             internal_key = mapping.get(metric_key)
             if internal_key and internal_key in post_scores:
-                base_val = baseline_scores.get(internal_key, np.nan)
+                base_val, _ = baseline_scores.get(internal_key, (np.nan, "valid"))
                 if not np.isnan(base_val):
-                    # Use a simple std‑dev estimate (3 for behavioural, 5 for questionnaires)
+                    # Simple std‑dev estimate (3 for behavioural, 5 for questionnaires)
                     std_est = 5.0 if "pss10" in internal_key or "panas" in internal_key else 3.0
                     shift = d * std_est
-                    post_scores[internal_key] = float(base_val + shift)
+                    post_scores[internal_key] = (float(base_val + shift), post_scores[internal_key][1])
 
-        # Record post measurements
-        for metric_type, value in post_scores.items():
+        # Record post measurement rows (behavioural)
+        for metric_key, (value, qflag) in post_scores.items():
             measurement_rows.append(
                 {
-                    "id": f"{pid}_post_{metric_type}",
+                    "id": f"{pid}_post_{metric_key}",
                     "participant_id": pid,
-                    "metric_type": metric_type,
+                    "phase": "post",
+                    "metric_type": metric_key,
                     "value": float(value),
                     "timestamp": timestamp,
-                    "session_type": "post_intervention",
+                    "quality_flag": qflag,
                 }
             )
+        # Record post questionnaire rows
         for q_metric in ["pss10_total", "panas_positive", "panas_negative"]:
             measurement_rows.append(
                 {
                     "id": f"{pid}_post_{q_metric}",
                     "participant_id": pid,
+                    "phase": "post",
                     "metric_type": q_metric,
-                    "value": _simulate_questionnaire_scores(rng, q_metric),
+                    "value": _simulate_questionnaire_score(rng, q_metric),
                     "timestamp": timestamp,
-                    "session_type": "post_intervention",
+                    "quality_flag": "valid",
                 }
             )
 
@@ -468,7 +480,7 @@ def main():
             sart_rows.append(
                 {
                     "participant_id": pid,
-                    "phase": "post_intervention",
+                    "phase": "post",
                     "trial_index": int(trial_idx),
                     "rt_ms": int(row["rt_ms"]),
                     "is_target": bool(row["is_target"]),
@@ -480,7 +492,7 @@ def main():
             ospan_rows.append(
                 {
                     "participant_id": pid,
-                    "phase": "post_intervention",
+                    "phase": "post",
                     "trial_index": int(trial_idx),
                     "item": row["item"],
                     "response": row["response"],
@@ -492,15 +504,23 @@ def main():
     _write_trial_level_files(sart_rows, ospan_rows, manifest_path)
 
     # Write all measurement records
-    _write_measurements(measurement_rows, manifest_path)
+    _write_measurement_records(measurement_rows, manifest_path)
 
     # Load measurements into DataFrame for smoke analysis
-    meas_df = pd.read_csv(paths.data("raw", "simulated_measurements.csv"))
+    meas_df = pd.read_csv(paths.data("raw", "measurement_records_sim.csv"))
 
-    # Run smoke analysis for the first five participants
+    # Run a tiny smoke analysis for the first five participants
     _run_smoke_analysis(meas_df, participant_ids, base_datetime, manifest_path)
 
     log.info("Study simulation completed successfully.")
+    print("Simulation complete. Generated files:")
+    print("- participants_simulated.csv")
+    print("- trial_level/sart_trials_sim.csv")
+    print("- trial_level/ospan_trials_sim.csv")
+    print("- measurement_records_sim.csv")
+    print("- compliance_logs_sim/ (one CSV per participant)")
+    print("- results/smoke_results.json")
+    print("- data/checksums.sha256")
 
 if __name__ == "__main__":
     main()

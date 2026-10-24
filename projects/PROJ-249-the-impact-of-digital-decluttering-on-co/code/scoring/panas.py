@@ -8,7 +8,7 @@ The instrument contains 20 items:
 Each item is scored 1‑5. Subscale scores are the sum of the respective 10 items.
 """
 
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 def _validate_responses(responses: List[int]) -> None:
     if len(responses) != 20:
@@ -19,15 +19,18 @@ def _validate_responses(responses: List[int]) -> None:
         if not (1 <= r <= 5):
             raise ValueError(f"Response {i} out of valid range 1‑5: {r}")
 
-def score_panas(responses: List[int]) -> Tuple[int, int]:
+def score_panas(responses: List[int]) -> Dict[str, int | str]:
     """
-    Compute PANAS subscale scores.
+    Compute PANAS subscale scores and a quality flag.
 
     Args:
         responses: List of 20 integer responses (1‑5).
 
     Returns:
-        Tuple (pa_score, na_score) where each is the sum of its 10 items.
+        Dictionary with:
+            - 'positive_score' (int): Sum of the first 10 items.
+            - 'negative_score' (int): Sum of the last 10 items.
+            - 'quality_flag' (str): Always 'valid' for PANAS.
 
     Raises:
         ValueError: If the input list is malformed or contains out‑of‑range values.
@@ -40,4 +43,8 @@ def score_panas(responses: List[int]) -> Tuple[int, int]:
     pa_score = sum(pa_items)
     na_score = sum(na_items)
 
-    return int(pa_score), int(na_score)
+    return {
+        'positive_score': int(pa_score),
+        'negative_score': int(na_score),
+        'quality_flag': 'valid'
+    }

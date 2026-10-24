@@ -7,15 +7,17 @@ The total score is the sum of all items, ranging from 0 to 40.
 
 from typing import List
 
-def score_pss10(responses: List[int]) -> int:
+def score_pss10(responses: List[int]) -> Dict[str, int | str]:
     """
-    Compute the PSS‑10 total score.
+    Compute the PSS‑10 total score and a quality flag.
 
     Args:
         responses: List of 10 integer responses, each in the range 0‑4.
 
     Returns:
-        Integer total score (0‑40).
+        Dictionary with:
+            - 'total_score' (int): Sum of the responses (0‑40).
+            - 'quality_flag' (str): Always 'valid' for PSS‑10 (no RT limits).
 
     Raises:
         ValueError: If the number of responses is not 10 or any response is out of range.
@@ -29,4 +31,8 @@ def score_pss10(responses: List[int]) -> int:
         if not (0 <= r <= 4):
             raise ValueError(f"Response {i} out of valid range 0‑4: {r}")
 
-    return int(sum(responses))
+    total = int(sum(responses))
+    return {
+        'total_score': total,
+        'quality_flag': 'valid'
+    }

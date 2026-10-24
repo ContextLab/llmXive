@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T10:49:59.409921Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-249-the-impact-of-digital-decluttering-on-co
-last_run_id: 0296cc0c-1d37-4c27-bff0-a7fe2659a568
+last_run_id: 9fda9f8a-0c38-4cfa-b892-da0a71ce132f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/specs/001-the-impact-of-digital-decluttering-on-co
 title: The Impact of Digital Decluttering on Cognitive Performance and Well-being
-updated_at: '2026-10-24T11:28:11.348297Z'
+updated_at: '2026-10-24T11:35:50.481052Z'

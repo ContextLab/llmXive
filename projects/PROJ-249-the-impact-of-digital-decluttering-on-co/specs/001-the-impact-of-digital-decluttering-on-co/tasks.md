@@ -47,14 +47,14 @@ The goal is to implement a reproducible, end‑to‑end pipeline that evaluates 
 
 ### Scoring functions  
 
-- [ ] T002 **Implement scoring functions for SART, Ospan, PSS‑10, and PANAS with quality‑flag logic (FR‑002, FR‑003, FR‑009).**  
+- [~] T002 **Implement scoring functions for SART, Ospan, PSS‑10, and PANAS with quality‑flag logic (FR‑002, FR‑003, FR‑009).**  
   *Add modules `code/scoring/sart.py`, `code/scoring/ospan.py`, `code/scoring/pss10.py`, `code/scoring/panas.py` that follow OSF v2.1+ reference algorithms. Each returns a numeric score and a `quality_flag` (`valid`, `low_attention`, `missing`). SART flags `low_attention` when accuracy < 50 %; all tasks enforce response‑time limits 100 ms – 5000 ms.*  
   **File path(s)**: `code/scoring/*.py`, `code/tests/test_scoring.py`  
   **Verification**: `pytest code/tests/test_scoring.py` must pass; scored rows must validate against `contracts/dataset.schema.yaml`.
 
 ### Simulated dataset generation & validation  
 
-- [ ] T003a **Generate a fully‑scored simulated study dataset (baseline & post) for early testing.**  
+- [~] T003a **Generate a fully‑scored simulated study dataset (baseline & post) for early testing.**  
   *Run `code/validation/simulate_study.py` (seed = 42) to create:*  
   - `data/raw/participants_simulated.csv` (IDs P001‑P080).  
   - `data/raw/trial_level/sart_trials_sim.csv` & `ospan_trials_sim.csv`.  
@@ -63,7 +63,7 @@ The goal is to implement a reproducible, end‑to‑end pipeline that evaluates 
   **File path(s)**: `code/validation/simulate_study.py`, `data/raw/*sim*`  
   **Verification**: Script runs without error and prints a summary; `ls data/raw/*sim*` shows the expected files.
 
-- [ ] T003b **Validate the simulated measurement records against `contracts/dataset.schema.yaml`.**  
+- [ ] T003b **Validate the simulated measurement records against `contracts/dataset.schema.yaml`.**   <!-- FAILED-IN-EXECUTION: code/validation/validate_schema.py exit=1 -->
   *Execute `code/validation/validate_schema.py --schema contracts/dataset.schema.yaml --data data/raw/measurement_records_sim.csv`. Any violation must raise an exception (no silent correction).*  
   **File path(s)**: `code/validation/validate_schema.py` (shared validator)  
   **Verification**: `pytest code/tests/test_simulated_schema.py` asserts successful validation.

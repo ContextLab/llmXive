@@ -294,3 +294,18 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T15:37:34Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/quickstart.md
+  attempts: 1
+  canonical: 'pipeline log ends with STATUS: SUCCESS'
+  claim_id: c_65ededf0
+  context: 'Writes `results/pipeline.log` that ends with `STATUS: SUCCESS`.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Writes `results/pipeline.log` that ends with `STATUS: SUCCESS`.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T11:30:10Z'

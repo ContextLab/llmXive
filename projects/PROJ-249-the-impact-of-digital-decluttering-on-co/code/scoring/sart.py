@@ -44,7 +44,7 @@ def score_sart_trial(trial: Dict[str, Any]) -> Dict[str, Any]:
         'response_time': response_time
     }
 
-def score_sart_session(trials: List[Dict[str, Any]]) -> Dict[str, int | float]:
+def score_sart_session(trials: List[Dict[str, Any]]) -> Dict[str, int | float | str]:
     """
     Score an entire SART session.
 
@@ -58,13 +58,15 @@ def score_sart_session(trials: List[Dict[str, Any]]) -> Dict[str, int | float]:
             - mean_rt (float): Mean reaction time for correct target responses
               (filtered to 100‑5000 ms).
             - low_attention (bool): True if target accuracy < 50 %.
+            - quality_flag (str): One of 'valid', 'low_attention', 'missing'.
     """
     if not trials:
         return {
             'commission_errors': 0,
             'omission_errors': 0,
             'mean_rt': 0.0,
-            'low_attention': False
+            'low_attention': False,
+            'quality_flag': 'missing'
         }
 
     commission_count = 0
@@ -77,6 +79,9 @@ def score_sart_session(trials: List[Dict[str, Any]]) -> Dict[str, int | float]:
     # RT filter bounds in seconds (100 ms – 5000 ms)
     RT_MIN = 0.1
     RT_MAX = 5.0
+
+    # Flag to detect any out‑of‑bounds response times
+    out_of_bounds = False
 
     for trial in trials:
         scored = score_sart_trial(trial)
@@ -95,9 +100,12 @@ def score_sart_session(trials: List[Dict[str, Any]]) -> Dict[str, int | float]:
             # Calculate mean RT only for correct target responses
             # and only if the RT falls within the accepted window
             rt = float(trial.get('response_time', 0.0))
-            if rt > 0.0 and RT_MIN <= rt <= RT_MAX:
-                valid_rt_sum += rt
-                valid_rt_count += 1
+            if rt > 0.0:
+                if RT_MIN <= rt <= RT_MAX:
+                    valid_rt_sum += rt
+                    valid_rt_count += 1
+                else:
+                    out_of_bounds = True
 
     mean_rt = 0.0
     if valid_rt_count > 0:
@@ -108,9 +116,19 @@ def score_sart_session(trials: List[Dict[str, Any]]) -> Dict[str, int | float]:
         accuracy_rate = target_correct / target_total
         low_attention = accuracy_rate < 0.5
 
+    # Determine quality flag
+    if low_attention:
+        quality_flag = 'low_attention'
+    elif out_of_bounds:
+        # If any response time fell outside the permitted range, we treat the session as missing
+        quality_flag = 'missing'
+    else:
+        quality_flag = 'valid'
+
     return {
         'commission_errors': commission_count,
         'omission_errors': omission_count,
         'mean_rt': float(mean_rt),
-        'low_attention': low_attention
+        'low_attention': low_attention,
+        'quality_flag': quality_flag
     }

@@ -1,10 +1,3 @@
-# Project dependencies (pinned versions where appropriate)
-numpy==1.26.4
-pandas==2.2.2
-scipy==1.13.0
-scikit-learn==1.5.0
-matplotlib==3.9.0
-seaborn==0.13.2
-pyyaml==6.0.1
-# Core libraries already available in the environment (no need to list):
-# - statsmodels, pytest, requests, jsonschema, psutil, etc.
+# Project requirements – existing dependencies are pre‑installed.
+# Additional packages required for the questionnaire web UI.
+Flask>=2.2

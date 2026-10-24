@@ -1,4 +1,4 @@
-# Quickstart: The Impact of Digital Decluttering on Cognitive Performance and Well-being
+# Quickstart: The Impact of Digital Decluttering on Cognitive Performance and Well‑being
 
 ## Prerequisites
 
@@ -18,28 +18,35 @@ pip install -r code/requirements.txt
 python -m code.pipeline.run_all --config code/config/study_config.yaml
 ```
 
-This is the single documented entry point. It validates the study
-configuration strictly (raising on any missing or malformed key),
-establishes the project layout (`code/scoring/`, `code/analysis/`,
-`code/validation/`, `code/viz/`, `code/pipeline/`, `code/tests/`,
-`data/raw/`, `data/processed/`, `data/results/`), writes
-`data/results/pipeline_status.json`, and maintains the checksum
-manifest `data/checksums.sha256` covering all files under `data/`.
+This command:
 
-As later tasks land, this command is extended to run the full study
-pipeline (seeded simulation, compliance processing, change scores,
-bootstrap analysis, Holm-Bonferroni correction, power simulation,
-sensitivity analyses, figures, and reporting) in dependency order.
+1. Validates `code/config/study_config.yaml`.
+2. Creates the required project layout
+ (`code/scoring/`, `code/analysis/`, `code/compliance/`,
+ `code/viz/`, `code/validation/`, `code/pipeline/`,
+ `code/tests/`, `data/raw/`, `data/processed/`,
+ `data/results/`, `figures/`).
+3. Writes `results/pipeline.log` that ends with `STATUS: SUCCESS`. [UNRESOLVED-CLAIM: c_65ededf0 — status=not_enough_info]
+
+## Verification
+
+```bash
+# Check that the layout was created
+pytest -q tests/integration/test_layout.py
+
+# Confirm the pipeline log
+grep "STATUS: SUCCESS" results/pipeline.log
+```
 
 ## Configuration
 
 All study parameters live in `code/config/study_config.yaml`:
-`seed`, `n_participants`, `dropout_rate`, `effect_sizes` (per-metric
-dict for SART, Ospan, PSS-10, PANAS-PA, PANAS-NA),
+`seed`, `n_participants`, `dropout_rate`, `effect_sizes` (per‑metric
+dict for SART, Ospan, PSS‑10, PANAS‑PA, PANAS‑NA),
 `practice_effect_grid` ([0.0, 0.2, 0.4]), `bootstrap_resamples`
-(10000), `start_date` (ISO date), and `pilot_n` (5).
+(10 000), `start_date` (ISO date), and `pilot_n` (5).
 
-## Verify checksums
+## Checksums
 
 ```bash
 sha256sum -c data/checksums.sha256
@@ -48,12 +55,5 @@ sha256sum -c data/checksums.sha256
 ## Tests
 
 ```bash
-pytest code/tests -v
+pytest -v
 ```
-
-## Troubleshooting
-
-- **Config errors**: the runner raises immediately with the exact
- missing/invalid key; fix `code/config/study_config.yaml`.
-- **Checksum mismatch**: a file under `data/` changed after being
- recorded; re-run the pipeline or investigate the modification.
