@@ -36,7 +36,10 @@
 - **model_type**: `enum["linear_l2","random_forest"]`.  
 - **r2_per_fold**: `array<float>` (length = 5).  
 - **rmse_per_fold**: `array<float>` (length = 5).  
-- **r2_mean**, **r2_std**, **rmse_mean**, **rmse_std**: `float`.  
+- **r2_mean**: `float`  
+- **r2_std**: `float`  
+- **rmse_mean**: `float`  
+- **rmse_std**: `float`  
 - **p_value**: `float` – from paired test vs. baseline.  
 - **bonferroni_adjusted_p**: `float`.  
 - **significant**: `bool`.

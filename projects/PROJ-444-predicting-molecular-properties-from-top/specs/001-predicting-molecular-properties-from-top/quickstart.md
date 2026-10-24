@@ -103,6 +103,3 @@ Re‑running the pipeline yields identical results (within floating‑point tole
 - Checksums guarantee data integrity across runs.
 
 ---
-
-
-

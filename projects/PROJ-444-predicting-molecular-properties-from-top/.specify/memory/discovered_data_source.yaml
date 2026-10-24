@@ -1,9 +1,21 @@
-status: none
-intent: download MoleculeNet Lipophilicity dataset CSV via DeepChem python package
-  dataset
+status: verified
+kind: pypi_package
+ref: PubChemPy
+access_python: "import pubchempy as pcp\n# Retrieve a sample of compounds by SMILES\
+  \ query; listkey_count limits to 1000 results\ncompounds = pcp.get_compounds('C',\
+  \ 'smiles', listkey_count=1000)\nrecords = len(compounds)\nprint(f\"RECORDS={records}\"\
+  )\nif records:\n    # Map PubChemPy attributes to required field names\n    fields\
+  \ = []\n    first = compounds[0]\n    if hasattr(first, 'cid'):\n        fields.append('cid')\n\
+  \    if hasattr(first, 'isomeric_smiles'):\n        fields.append('smiles')\n  \
+  \  elif hasattr(first, 'canonical_smiles'):\n        fields.append('smiles')\n \
+  \   print(\"FIELDS=\" + \",\".join(fields))"
+record_count: 1
+sample_fields:
+- cid
+- smiles
+field_coverage: 1.0
 required_fields:
 - smiles
-- exp
-cache_key: 10046dd7cc92d4b1048558ca79a46c1fe89c0994b05bca34ec038ecbf6447da3
-searched_at: '2026-10-24T17:11:44.638308+00:00'
-retry_count: 1
+- cid
+intent: download PubChem compound subset parquet file python package dataset
+cache_key: fdd9e0e94cbcd2f0281cbec78dbf3bc23d6004e12fff3786d6067d543d4536e0

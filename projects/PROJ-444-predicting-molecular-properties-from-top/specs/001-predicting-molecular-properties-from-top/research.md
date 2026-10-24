@@ -28,7 +28,7 @@ We evaluate whether topological descriptors derived from shortest‑path distanc
    - Perform a **Wilcoxon signed‑rank test** on the **RMSE** differences between the Combined and Traditional models (RMSE is unbounded and more appropriate for a non‑parametric test).  
 
 3. **Multiple‑Comparison Correction**  
-   - Apply **Holm–Bonferroni** correction using a family‑wise α = 0.05 (source: https://en.wikipedia.org/wiki/Holm–Bonferroni_method) (FR‑005).  
+   - Apply **Holm–Bonferroni** correction using a family‑wise α = 0.05 (source: https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method) (FR‑005).  
 
 4. **Power Analysis**  
    - For a paired non‑parametric test, a minimum of **N ≥ 30** paired observations is recommended to achieve reasonable power (α = 0.05, power = 0.8, medium effect size).  
@@ -59,10 +59,7 @@ We evaluate whether topological descriptors derived from shortest‑path distanc
 
 ## References
 - **Dataset**: PubChem 10 M canonicalized – Hugging Face repository (verified URL above).  
-- **Multiple‑Comparison**: Holm–Bonferroni method, α = 0.05 (source: https://en.wikipedia.org/wiki/Holm–Bonferroni_method).
+- **Multiple‑Comparison**: Holm–Bonferroni method, α = 0.05 (source: https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method).  
 - **Topological Methods**: GUDHI library documentation (CPU‑only).  
 
 ---
-
-
-

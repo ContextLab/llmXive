@@ -43,13 +43,13 @@ specs/001-predict-molecular-properties-tda/
 projects/PROJ-444-predicting-molecular-properties-from-top/
 ├── code/
 │   ├── requirements.txt
-│   ├── 00_checksum_verify.py            # verifies SHA‑256 checksums of raw/processed files
-│   ├── 01_download_pubchem.py            # streams Hugging Face PubChem dataset, shuffles with seed=42, then **randomly samples** N=5000 valid molecules
-│   ├── 02_tda_computation.py            # shortest‑path filtration → persistence images (grid sizes 10/20/30)
-│   ├── 03_feature_engineering.py        # RDKit traditional descriptors, merges with topological vectors
+│   ├── 00_checksum_verify.py
+│   ├── 01_download_pubchem.py
+│   ├── 02_tda_computation.py
+│   ├── 03_feature_engineering.py
 │   ├── 04_model_training.py
 │   ├── 05_sensitivity_analysis.py
-│   ├── 06_diagnostics.py                # VIF (Linear Regression), MI, Holm–Bonferroni correction
+│   ├── 06_diagnostics.py
 │   ├── 07_feature_importance.py
 │   ├── 08_resource_monitor.py
 │   └── utils/
@@ -57,9 +57,9 @@ projects/PROJ-444-predicting-molecular-properties-from-top/
 │       └── persistence_utils.py
 ├── data/
 │   ├── raw/
-│   │   └── pubchem.parquet               # streamed, not fully materialized
+│   │   └── pubchem.parquet
 │   ├── processed/
-│   │   ├── molecules.csv                 # validated SMILES + logP
+│   │   ├── molecules.csv
 │   │   ├── topological_features_10.csv
 │   │   ├── topological_features_20.csv
 │   │   ├── topological_features_30.csv
@@ -93,11 +93,14 @@ No violations; the multi‑stage pipeline is required to satisfy every FR and SC
 | **FR-002** | `02_tda_computation.py` (baseline) | Vectorize diagrams to 10 × 10 persistence images; also produce 20 × 20 and 30 × 30 for sensitivity. |
 | **FR-003** | `04_model_training.py` & `03_feature_engineering.py` | Train Linear Regression (α = 1.0) and Random Forest (100 trees, max_depth = 10) on three feature sets; traditional descriptors computed in `03`. |
 | **FR-004** | `01_download_pubchem.py` + `04_model_training.py` | **5 repeats of 10‑fold** scaffold‑based splits (Bemis‑Murcko, seed = 42); compute R² & RMSE per fold. |
-| **FR-005** | `06_diagnostics.py` | Apply **Holm–Bonferroni** correction (α = 0.05) to p‑values from model‑comparison tests. |
+| **FR-005** | `06_diagnostics.py` | Apply **Holm–Bonferroni** correction using a family‑wise α = 0.05 (source: https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method) (FR‑005). |
 | **FR-006** | `05_sensitivity_analysis.py` | Sweep grid resolutions `{10,20,30}`; report R² variance and **assert that σ < 0.02** to satisfy SC‑002. |
 | **FR-007** | `06_diagnostics.py` | Compute VIF for Linear Regression; flag predictors with VIF > 5. |
 | **FR-008** | `04_model_training.py` (runtime guard) | Assert `torch.cuda.is_available()` is False; abort if GPU detected. |
 | **FR-009** | `06_diagnostics.py` | Compute mutual information between traditional and topological descriptor matrices. |
+| **FR-010** | `01_download_pubchem.py` | Randomly sample N = 5 000 valid molecules from the streamed PubChem dataset (seed = 42). |
+| **FR-011** | Contract tests | Validate all generated CSV artifacts against their JSON schema contracts. |
+| **FR-012** | `06_diagnostics.py` | Perform power analysis for paired Wilcoxon test; require ≥ 30 paired observations. |
 | **SC-001** | `04_model_training.py` | Compare combined vs. traditional RMSE; significance assessed after FR‑009 confirms non‑trivial redundancy. |
 | **SC-002** | `05_sensitivity_analysis.py` | Verify stability of R² across resolutions (σ < 0.02). |
 | **SC-003** | `06_diagnostics.py` | Verify family‑wise error rate ≤ 0.05 after Holm–Bonferroni correction. |
@@ -132,6 +135,3 @@ No violations; the multi‑stage pipeline is required to satisfy every FR and SC
 - Contract violations → each output file validated against its JSON schema after creation.  
 
 ---
-
-
-
