@@ -41,33 +41,54 @@ properties:
     minimum: 0
     description: "Cumulative observation count for the season."
   first_arrival_week:
-    type: ["integer", "null"]
+    type:
+      - "integer"
+      - "null"
     description: "Week where cumulative count reached the threshold (3, 5, or 10). Null if not reached."
   mean_temp_lag1:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean temperature 1 week prior."
   mean_temp_lag2:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean temperature 2 weeks prior."
   mean_temp_lag3:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean temperature 3 weeks prior."
   mean_temp_lag4:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean temperature 4 weeks prior."
   mean_ndvi_lag1:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean NDVI 1 week prior."
   mean_ndvi_lag2:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean NDVI 2 weeks prior."
   mean_ndvi_lag3:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean NDVI 3 weeks prior."
   mean_ndvi_lag4:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean NDVI 4 weeks prior."
   data_quality_flag:
     type: "string"
-    enum: ["valid", "missing_env", "low_count"]
+    enum:
+      - "valid"
+      - "missing_env"
+      - "low_count"
     description: "Quality flag for the observation."

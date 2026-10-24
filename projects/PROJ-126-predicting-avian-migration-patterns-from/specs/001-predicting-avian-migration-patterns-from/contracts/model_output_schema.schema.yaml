@@ -30,8 +30,12 @@ properties:
     enum: [3, 5, 10]
     description: "Threshold used for first arrival calculation."
   p_value:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "P-value from LMM comparison (if applicable)."
   lmm_significant:
-    type: ["boolean", "null"]
+    type:
+      - "boolean"
+      - "null"
     description: "True if p-value < 0.05."

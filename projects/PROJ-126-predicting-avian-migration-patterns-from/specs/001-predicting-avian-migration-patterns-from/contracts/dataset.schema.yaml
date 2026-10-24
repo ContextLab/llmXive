@@ -18,20 +18,30 @@ properties:
     type: "integer"
     minimum: 0
   first_arrival_date:
-    type: ["string", "null"]
+    type:
+      - "string"
+      - "null"
     description: "ISO 8601 date string or null if threshold not met."
     format: "date"
   mean_temp_lag_1:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean temperature 1 week prior."
   mean_temp_lag_2:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean temperature 2 weeks prior."
   mean_ndvi_lag_1:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean NDVI 1 week prior."
   mean_ndvi_lag_2:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Mean NDVI 2 weeks prior."
   data_quality_flag:
     type: "string"

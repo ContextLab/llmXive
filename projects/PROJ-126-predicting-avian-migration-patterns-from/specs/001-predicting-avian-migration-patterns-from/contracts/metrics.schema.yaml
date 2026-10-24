@@ -20,18 +20,24 @@ properties:
       - "Permutation_Importance_Diff"
       - "Threshold_Sensitivity_Flag"
       - "Feasibility"
-      - "Spatial_Bootstrap_P"   # newly added for primary test
+      - "Spatial_Bootstrap_P"
   value:
     type: "number"
     description: "Numeric value of the metric (e.g., RMSE value, p‑value, correlation)."
   p_value_dm:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "P‑value from Diebold‑Mariano test (included for legacy compatibility; null when not used)."
   confidence_interval_lower:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Lower bound of the 95 % confidence interval (if applicable)."
   confidence_interval_upper:
-    type: ["number", "null"]
+    type:
+      - "number"
+      - "null"
     description: "Upper bound of the 95 % confidence interval (if applicable)."
   threshold_sweep:
     type: "object"

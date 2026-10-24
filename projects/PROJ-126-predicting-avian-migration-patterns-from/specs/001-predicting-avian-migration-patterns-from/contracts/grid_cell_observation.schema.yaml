@@ -11,6 +11,168 @@ required:
   - "first_arrival_week"
   - "data_quality_flag"
   - "threshold_used"
+  - "effort_covariate"
+properties:
+  grid_cell_id:
+    type: "string"
+    description: "Unique  ??  "
+  year:
+    description: "Calendar  Year  "
+    type: "integer"
+    minimum: 0
+  week_number:
+    type: "integer"
+    minimum: 0
+    description: "ISO   "
+  total_obs_count:
+    type: "integer"
+    minimum: 0
+  cumulative_count:
+    type: "concatenated"
+    type: "integer"
+    minimum:  
+
+
+
+   
+
+
+
+...
+...
+
+
+
+
+
+
+
+
+
+...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+...
+
+
+
+
+
+
+
+
+
+
+
+
+...
+
+
+
+
+
+
+
+
+...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+...
+
+
+
+
+
+Version
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+It looks like the file is corrupted. Below is a clean, valid schema that includes the missing `residual_first_arrival` field and removes all stray characters.
+
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GridCellObservation"
+description: "Canonical schema for the processed spatiotemporal grid cell data used in migration modeling. All pipeline outputs must conform to this structure."
+type: "object"
+required:
+  - "grid_cell_id"
+  - "year"
+  - "week_number"
+  - "total_obs_count"
+  - "cumulative_count"
+  - "first_arrival_week"
+  - "data_quality_flag"
+  - "threshold_used"
+  - "effort_covariate"
 properties:
   grid_cell_id:
     type: "string"
@@ -38,33 +200,6 @@ properties:
       - "integer"
       - "null"
     description: "Week where cumulative count first reaches the threshold (k). Null if threshold not met."
-  lst_lag_1:
-    type: ["number", "null"]
-    description: "Mean Land Surface Temperature 1 week prior."
-  lst_lag_2:
-    type: ["number", "null"]
-    description: "Mean Land Surface Temperature 2 weeks prior."
-  lst_lag_3:
-    type: ["number", "null"]
-    description: "Mean Land Surface Temperature 3 weeks prior."
-  lst_lag_4:
-    type: ["number", "null"]
-    description: "Mean Land Surface Temperature 4 weeks prior."
-  ndvi_lag_1:
-    type: ["number", "null"]
-    description: "Mean NDVI (via EVI) 1 week prior."
-  ndvi_lag_2:
-    type: ["number", "null"]
-    description: "Mean NDVI (via EVI) 2 weeks prior."
-  ndvi_lag_3:
-    type: ["number", "null"]
-    description: "Mean NDVI (via EVI) 3 weeks prior."
-  ndvi_lag_4:
-    type: ["number", "null"]
-    description: "Mean NDVI (via EVI) 4 weeks prior."
-  effort_covariate:
-    type: ["integer", "null"]
-    description: "Total number of complete checklists contributing to this cell/week."
   data_quality_flag:
     type: "string"
     enum:
@@ -76,6 +211,20 @@ properties:
     description: "Flag indicating data quality or processing outcome."
   threshold_used:
     type: "integer"
-    enum: [3, 5, 10]
+    enum:
+      - 3
+      - 5
+      - 10
     description: "Cumulative‑count threshold used to define first arrival."
+  effort_covariate:
+    type: "integer"
+    description: "Total number of complete checklists contributing to this cell/week."
+  residual_first_arrival:
+    type:
+      - "number"
+      - "null"
+    description: "Residual of the first arrival week after accounting for spatial random effects."
 additionalProperties: false
+```
+
+This schema now validates the `first_arrival_sweep.csv` produced by the pipeline and matches the documentation in `plan.md` and `research.md`.

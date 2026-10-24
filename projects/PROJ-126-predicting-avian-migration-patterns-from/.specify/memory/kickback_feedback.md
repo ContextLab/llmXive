@@ -1,12 +1,9 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T002` (rejected 1x): Requested task execution failed; rerun successfully: code/data_loader.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan computes an effort covariate (`effort_covariate = number of complete checklists per cell‑year`) and then uses this covariate *only as a predictor* for the model (see Phase 1.3 and Phase 2). However, the target variable (first‑arrival week) is defined from raw cumulative counts of the same checklists without any effort adjustment. Because higher observer effort directly increases the chance of early detections, the effort covariate is *not independent* of the target definition. Including it as a predictor therefore creates a circular relationship: the model can improve performance by exploiting effort‑related signal rather than genuine environmental drivers (temperature/NDVI). This violates the scientific‑soundness requirement that predictors be independent of the way the outcome is constructed, and it undermines the validity of any inference about environmental effects.
