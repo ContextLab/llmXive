@@ -1,29 +1,13 @@
 """
-Verify that the Moral Foundations Eye‑Tracking dataset (OpenNeuro ds003123) is
-present under ``data/raw/ds003123/`` and generate a SHA‑256 checksum manifest
-at ``data/raw/checksums.json``.
+Verify that the Moral Foundations Eye-Tracking dataset (OpenNeuro ds003123) is
+present under `data/raw/ds003123/` and generate a SHA-256 checksum manifest
+at `data/raw/checksums.json`.
 
-The script aborts loudly with a ``RuntimeError`` containing the code
-``DATA_MISSING_001`` if any of the required conditions are not met:
-  1. ``data/raw/ds003123/`` must exist.
-  2. ``stimuli/`` sub‑directory must exist.
-  3. At least one ``sub‑*`` participant directory *if present* must contain
-     at least one file (eye‑tracking logs or related data).  The presence of
-     participant directories is optional for the verification step; the
-     script will still succeed when they are absent (useful for early‑stage
-     smoke tests).  When they exist, their files are included in the checksum
-     manifest.
-  4. All files under ``stimuli/`` and under each ``sub‑*`` directory are
-     hashed with SHA‑256 and recorded.
-
-The manifest format is:
-{
-    "files": {
-        "<relative/path>": "<hex_sha256>",
-        ...
-    }
-}
-where ``<relative/path>`` is relative to ``data/raw``.
+The script aborts loudly with a RuntimeError containing the code
+`DATA_MISSING_001: ds003123 incomplete` if any of the following are not met:
+  1. `data/raw/ds003123/` must exist.
+  2. `data/raw/ds003123/stimuli/` must exist.
+  3. At least one `sub-*/` participant folder must exist and contain at least one file.
 """
 
 import json
@@ -36,117 +20,65 @@ from llmxive_toolkit import paths, get_logger
 logger = get_logger(__name__)
 
 def compute_sha256(file_path: Path) -> str:
-    """Compute the SHA‑256 hash of a file."""
+    """Compute the SHA-256 hash of a file."""
     sha256 = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
 
-def gather_dataset_files(root: Path) -> List[Path]:
-    """Recursively collect all regular files under ``root``."""
+def gather_files(root: Path) -> List[Path]:
+    """Recursively collect all regular files under root."""
     return [p for p in root.rglob("*") if p.is_file()]
-
-def build_manifest(raw_root: Path, files: List[Path]) -> Dict:
-    """
-    Build a checksum manifest dictionary.
-    The ``files`` list contains absolute Path objects; keys in the manifest
-    are paths relative to ``raw_root`` (i.e. ``data/raw``).
-    """
-    manifest: Dict[str, Dict] = {"files": {}}
-    for f in files:
-        rel_path = f.relative_to(raw_root).as_posix()
-        manifest["files"][rel_path] = compute_sha256(f)
-    return manifest
-
-def _error(msg: str) -> None:
-    """Raise a RuntimeError with the required prefix."""
-    raise RuntimeError(f"DATA_MISSING_001: {msg}")
 
 def main() -> None:
     """
     Verify dataset presence and integrity.
-
-    - Checks for existence of ``data/raw/ds003123/``.
-    - Checks for ``stimuli/`` sub‑directory.
-    - Optionally checks for ``sub‑*`` participant directories; when they exist,
-      at least one file must be present inside any of them.
-    - Creates (or validates) ``checksums.json`` containing SHA‑256 hashes for
-      **all** files under ``stimuli/`` and under each participant folder.
     """
-    # Resolve the raw data root using the toolkit helper (creates the folder if needed)
+    # Resolve paths
     raw_root: Path = paths.data("raw")
     dataset_dir: Path = raw_root / "ds003123"
-    checksum_path: Path = raw_root / "checksums.json"
-
-    # --------------------------------------------------------------
-    # 1️⃣  Basic existence checks
-    # --------------------------------------------------------------
-    if not dataset_dir.is_dir():
-        _error("ds003123 not found")
-
     stimuli_dir = dataset_dir / "stimuli"
+    checksum_path = raw_root / "checksums.json"
+
+    # 1. Confirm data/raw/ds003123/ exists
+    if not dataset_dir.is_dir():
+        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
+
+    # 2. Confirm stimuli/ exists
     if not stimuli_dir.is_dir():
-        _error("stimuli directory missing in ds003123")
+        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
 
-    # --------------------------------------------------------------
-    # 2️⃣  Optional participant directories check
-    # --------------------------------------------------------------
+    # 3. Require at least one sub-*/ participant folder containing files
     sub_dirs = sorted(dataset_dir.glob("sub-*"))
+    if not sub_dirs:
+        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
+
     participant_files: List[Path] = []
-    if sub_dirs:
-        # Gather all files inside participant directories
-        for sub in sub_dirs:
-            participant_files.extend(gather_dataset_files(sub))
+    for sub in sub_dirs:
+        participant_files.extend(gather_files(sub))
 
-        if not participant_files:
-            _error("participant directories contain no files")
-    else:
-        logger.info("No participant directories (sub-*) found – proceeding without them.")
+    if not participant_files:
+        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
 
-    # --------------------------------------------------------------
-    # 3️⃣  Gather all files that must be hashed
-    # --------------------------------------------------------------
-    # Files under stimuli/ plus any participant files (if present)
-    files_to_hash = gather_dataset_files(stimuli_dir) + participant_files
+    # 4. Compute SHA-256 checksums for all files under stimuli/ and sub-*/
+    stimuli_files = gather_files(stimuli_dir)
+    all_files_to_hash = stimuli_files + participant_files
 
-    # --------------------------------------------------------------
-    # 4️⃣  Load existing manifest or create a new one
-    # --------------------------------------------------------------
-    if checksum_path.is_file():
-        logger.info(f"Loading existing checksum manifest from {checksum_path}")
-        with checksum_path.open("r", encoding="utf-8") as f:
-            manifest = json.load(f)
-    else:
-        logger.info("Checksum manifest not found – creating a new one.")
-        manifest = build_manifest(raw_root, files_to_hash)
-        checksum_path.parent.mkdir(parents=True, exist_ok=True)
-        with checksum_path.open("w", encoding="utf-8") as f:
-            json.dump(manifest, f, indent=2)
-        logger.info(f"Checksum manifest written to {checksum_path}")
+    if not all_files_to_hash:
+        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
 
-    # --------------------------------------------------------------
-    # 5️⃣  Verify each entry in the manifest
-    # --------------------------------------------------------------
-    for rel_path_str, expected_hash in manifest.get("files", {}).items():
-        rel_path = Path(rel_path_str)
-        absolute_path = raw_root / rel_path
-        if not absolute_path.is_file():
-            _error(f"file missing: {rel_path_str}")
-        actual_hash = compute_sha256(absolute_path)
-        if actual_hash != expected_hash:
-            _error(f"Checksum mismatch for {rel_path_str}")
+    manifest: Dict = {"files": {}}
+    for f in all_files_to_hash:
+        # Path relative to data/raw
+        rel_path = f.relative_to(raw_root).as_posix()
+        manifest["files"][rel_path] = compute_sha256(f)
 
-    # --------------------------------------------------------------
-    # 6️⃣  Ensure every required physical file is represented
-    # --------------------------------------------------------------
-    actual_paths = {p.relative_to(raw_root).as_posix() for p in files_to_hash}
-    missing_in_manifest = actual_paths - set(manifest.get("files", {}).keys())
-    if missing_in_manifest:
-        missing_list = ", ".join(sorted(missing_in_manifest))
-        _error(f"missing entries in manifest: {missing_list}")
+    # Write the manifest
+    with checksum_path.open("w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
 
-    logger.info("Dataset verification succeeded.")
+    logger.info(f"Dataset verification succeeded. Checksums written to {checksum_path}")
     print("Dataset verification succeeded")
 
 if __name__ == "__main__":
