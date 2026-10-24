@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1402.5723",
+  "judged_at": "2026-10-24T08:24:43Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available bird migration patterns and climate change statistics",
+  "rationale": "The paper focuses on a Bayesian hierarchical method for smoothing functional data and does not study bird migration, climate‑change statistics, or their relationship, nor does it serve as a canonical methodological reference for such ecological analyses. Hence it does not directly address the user's research question.",
+  "relevant": false
+}

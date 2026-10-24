@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2211.08160",
+  "judged_at": "2026-10-24T08:24:37Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available bird migration patterns and climate change statistics",
+  "rationale": "The paper studies paleoclimate reconstruction with sparse Gaussian processes and does not involve bird migration data or contemporary climate‑change statistics, so it lacks a measurable connection to the user's variables or domain.",
+  "relevant": false
+}
