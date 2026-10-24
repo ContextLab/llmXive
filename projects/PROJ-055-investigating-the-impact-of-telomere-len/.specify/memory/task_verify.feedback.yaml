@@ -1,34 +1,24 @@
 T001:
-  task: 99b1e94a124c6825c932f4457f3bc28528a77cea8f0906730a1f3a6883bd63fb
+  reason: 'Requested task execution failed; rerun successfully: code/R/verify_requirements.R
+    exit=-1'
+  task: 9f3c5743d59cab1cbcde0df6dc441165b07fb6b8b303ee866a8a24d2ef41005b
 T002:
-  reason: "`code/config.yaml` exists and is valid YAML with the Dryad base URL, AnAge\
-    \ URL, seed 42, and alpha 0.05, but the required dataset IDs are not documented\
-    \ \u2014 `dataset_ids: []` with a comment \"replace with real IDs after discovery\"\
-    \ is an explicit placeholder. Additionally, no evidence was provided that `02_ingest_data.py`\
-    \ and `03_clean_merge.py` exist and read this config (the task's verification\
-    \ criterion), nor that they contain no hard-coded URLs or seeds."
-  task: 0b8bf81499ac00f40ba477583896ad769aae235078ea55a1222962fad4707a95
+  task: 9f170d26d741f7974c73fd426db621fd92eeef1bbcfb70a4deab9961c34edfba
 T003:
-  task: 10b5f14858cd00a18046104ec45f199428fb21123ab355b7fad76c13ad23004a
+  task: e2414ffbf1755649d304847e6c4cadb44354e81fe3003202513b4aad420c42b2
 T004:
-  task: 18eaa76b083a8321d75641d9348c54b1554fbb1883c0f6d810db972c4a395647
+  task: d1e9a797a622cc6e6b6a66682a3ec661172714dd3b6f57bea3729189d77a0c0e
 T005:
-  task: e0ed0ddd18ad41918529c8aa1b99eb2b9af811800ccb738b3d619d75b6f02b60
+  task: fd691de8e6e6f2854e83b8e00034ddf772a6d95e8839f3dc16a9452167c73a10
 T006:
-  task: 210dab1eefc232d14e7fa37169927464d1e242fdb9286f4a2357ab2df097eb53
+  task: e36d5f40f0cc5435b7ef9c741cc24185bd87a2da419128412a25f7ec08b94338
 T007:
-  task: 937661b7a012061568e261c422f0c2b89f8cdca4d12bf607256cf738880363a9
+  task: 1618e473ee26a9406603bb863f0a3d60556da99332f20360da76542a89356bb4
 T008:
-  task: b6c936c264188861297339ba89ef45a36e821eac35c8a65e3e0193dfd0c1efb8
+  task: 41b2a53002c2e1d57e8ef168d79f98568a4516418061cb52f8ded44ecd9f32b5
 T009:
-  task: 7a591af12ca68c0672c905d61e6356adb04fdbac416f519650082f0f84d7b557
+  task: 245019fb50d440b87d53b5aebc90d6785abaa1a9ced4c88b71ae877ebb9db0a5
 T010:
-  task: 2750e04bc78276cb479479f3d0bd769edfd0006d428d43c41405e1d107dc5200
+  task: adc03b3a5dc41b2b7fc3f3448f07e5e9316bdac537c8eae206c1c8130795f8a3
 T011:
-  reason: 'Requested task execution failed; rerun successfully: code/R/verify_renv.py
-    exit=1'
-  task: d703109a608f9661c160dd32cedf2f75f5c3b098690d66bdcc5d9b8541f4ab30
-T012:
-  task: cf96fd8393510e3da15424dbcaf61a5bac3e16aa831433fe7cae38ebc899097c
-T013:
-  task: a864da3a6e65b9c5831b459506f0ba9f79086b2ed69556c1e21132b8a5409b58
+  task: 9f15f469970321d2ff50d8cefe396e0d8b3df40d4d94ca96bc188d8dbc512626

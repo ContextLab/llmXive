@@ -2,11 +2,11 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/04_sensitivity.py; 5 command(s) failed: python code/01_discover_data.py (rc=1); python code/02_ingest_data.py (rc=1); python code/03_clean_merge.py (rc=1); 1 declared deliverable(s) absent: data/processed/merged_analysis.csv
+**Summary**: 4 run-book script(s) missing (plan/impl path mismatch): python code/04_fit_pgls_base.py; python code/05_fit_pgls_interaction.py; python code/06_sensitivity_power.py   # LOOCV/jackknife + power simulation; 3 command(s) failed: python code/01_discover_data.py   # discovers Dryad DOIs; aborts on Data Availability Error (rc=1); python code/02_ingest_data.py (rc=1); python code/03_clean_merge.py (rc=1); 1 declared deliverable(s) absent: data/processed/merged_analysis.csv
 
 ## Failing / missing run-book commands
 
-- python code/01_discover_data.py -> rc=1
+- python code/01_discover_data.py   # discovers Dryad DOIs; aborts on Data Availability Error -> rc=1
 jects/PROJ-055-investigating-the-impact-of-telomere-len/code/01_discover_data.py", line 122, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/01_discover_data.py", line 90, in main
@@ -35,39 +35,21 @@ NameError: name 'Optional' is not defined
 
 No raw telomere CSV files found. Exiting.
 
-- python code/04_model_pglS.py -> rc=1
+- python code/04_fit_pgls_base.py -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/04_model_pglS.py", line 149, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/04_model_pglS.py", line 110, in main
-    init_project_logging(config)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/logging_config.py", line 112, in init_project_logging
-    logger = setup_logging(log_level=log_level, log_file=log_file)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/logging_config.py", line 70, in setup_logging
-    log_path = LOG_DIR / log_file
-               ~~~~~~~~^~~~~~~~~~
-TypeError: unsupported operand type(s) for /: 'PosixPath' and 'dict'
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-055-investigating-the-impact-of-telomere-len/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/04_fit_pgls_base.py': [Errno 2] No such file or directory
 
-- python code/04_sensitivity.py -> rc=2
+- python code/05_fit_pgls_interaction.py -> rc=2
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-055-investigating-the-impact-of-telomere-len/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/04_sensitivity.py': [Errno 2] No such file or directory
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-055-investigating-the-impact-of-telomere-len/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/05_fit_pgls_interaction.py': [Errno 2] No such file or directory
 
-- python code/05_visualize.py -> rc=1
+- python code/06_sensitivity_power.py   # LOOCV/jackknife + power simulation -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/05_visualize.py", line 130, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/05_visualize.py", line 103, in main
-    init_project_logging(config)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/logging_config.py", line 112, in init_project_logging
-    logger = setup_logging(log_level=log_level, log_file=log_file)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/logging_config.py", line 70, in setup_logging
-    log_path = LOG_DIR / log_file
-               ~~~~~~~~^~~~~~~~~~
-TypeError: unsupported operand type(s) for /: 'PosixPath' and 'dict'
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-055-investigating-the-impact-of-telomere-len/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/06_sensitivity_power.py': [Errno 2] No such file or directory
+
+- python code/07_visualize.py -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-055-investigating-the-impact-of-telomere-len/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-055-investigating-the-impact-of-telomere-len/code/07_visualize.py': [Errno 2] No such file or directory
 
 
 ## Declared deliverables still missing
@@ -80,8 +62,8 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/processed/merged_analysis.csv` is declared but was NOT written. Scripts referencing it:
     - `code/03_clean_merge.py` — IS a run-book command
-    - `code/04_model_pglS.py` — IS a run-book command
-    - `code/05_visualize.py` — IS a run-book command
+    - `code/04_model_pglS.py` — NOT invoked by the run-book
+    - `code/05_visualize.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/merged_analysis.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
