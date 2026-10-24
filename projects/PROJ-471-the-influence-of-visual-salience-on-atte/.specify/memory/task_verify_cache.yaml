@@ -1,14 +1,12 @@
 T001:
   c: true
-  h: b05bc8c63b6ea4f40a01f6d8cc527a55a05bce97f658fb6429f81ba02c3568a8
-  r: "The `code/bootstrap.py` script defines a `--root` argument, patches `llmxive_toolkit.paths.root`,\
-    \ creates the required directory tree, writes the pinned `requirements.txt`, and\
-    \ generates `quickstart.md` with the correct command. The provided `tests/test_bootstrap.py`\
-    \ imports this module, monkey\u2011patches the paths to a temporary directory,\
-    \ runs `bootstrap.main()`, and verifies that all directories, `requirements.txt`,\
-    \ and `quicklist.md` exist and contain the expected contents. All checks align\
-    \ with the task specifications, so the implementation satisfies T001."
-  sig: 9325f186fc5611678c36419de0fe49887653ca46ef3351a2a5587c21b66b407f
+  h: 6207e32ad0b3b014a1954225f713d9e92bb7939b67380fef238b6cc995ca7156
+  r: "Checked `code/bootstrap.py` for the required `--root` argument, path\u2011patching,\
+    \ directory creation, requirements.txt generation, and quickstart.md content,\
+    \ and verified that `tests/test_bootstrap.py` asserts those exact artifacts under\
+    \ a temporary root. The script implements all specified behavior, so the unit\
+    \ test should pass."
+  sig: 4e2c657aad443676d9233b7da8d54d3d4bf0ba01d06bd6e2cf73a1610d8f4059
 T002:
   c: false
   h: 03e2a2eec525168361594bc88784f7286b71ec0266f80b2bcbc159d269e9d3eb

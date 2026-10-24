@@ -22,11 +22,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 157, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 144, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 91, in main
-    raise RuntimeError(
-RuntimeError: DATA_MISSING_001: ds003123 incomplete (no sub‑* participant folders)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 78, in main
+    raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
+RuntimeError: DATA_MISSING_001: ds003123 incomplete
 
 - python -m pytest tests/ -q -> rc=2
 1/site-packages/torch/nn/modules/transformer.py:20
@@ -44,7 +44,7 @@ ERROR tests/unit/test_salience_batcher.py
 ERROR tests/unit/test_salience_gen.py
 ERROR tests/unit/test_update_spec_governance.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-1 warning, 8 errors in 3.35s
+1 warning, 8 errors in 6.13s
 
 
 
