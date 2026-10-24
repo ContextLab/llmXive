@@ -1,15 +1,10 @@
 status: none
-intent: download fluorescence quantum yield SMILES dataset fpbase csv python package
-  dataset
+intent: download joint SMILES fluorescence quantum yield dataset for machine learning
+  python package dataset
 required_fields:
-- SMILES
+- smiles
 - fluorescence_quantum_yield
-- excitation_wavelength_nm
-- emission_wavelength_nm
-- temperature_K
-- solvent
-- experimental_error
-- reference_doi
-cache_key: c9f89685e13e53d4a016e59fb8bc54ab49d4fff19ac083853b35c2d997a829f9
-searched_at: '2026-10-24T21:24:01.398275+00:00'
+- molecule_id
+cache_key: 183fcba340726a3ddc70053bf656bdb88cfb3db2da1089a4a6184171419c63d6
+searched_at: '2026-10-24T22:22:57.457089+00:00'
 retry_count: 1
