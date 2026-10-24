@@ -4,25 +4,25 @@
 
 **Verdict**: pass
 
-The question asks whether shifts in bird migration phenology are associated with changes in climate variables, a substantive ecological relationship. It does not hinge on the performance of any particular statistical or computational method.
+The question asks whether shifts in bird migration phenology (first‑arrival date, median‑arrival date, stopover duration) are associated with changes in climate variables (spring temperature, precipitation, extreme‑weather indices). It focuses on a substantive ecological relationship and does not depend on the performance of any particular statistical or computational method.
 
 ### Circularity check
 
 **Verdict**: pass
 
-Predictor variables (mean spring temperature, precipitation, extreme‑weather indices) come from NOAA climate archives, while the response variables (first‑arrival date, median‑arrival date, stopover duration) are derived from eBird citizen‑science observations. These are independent data sources, so the predictive relationship is not mechanically guaranteed.
+Predictor variables (climate metrics) are sourced from NOAA/PRISM archives, while the predicted variables (phenology metrics) are computed from eBird citizen‑science observations. These are independent primary data streams, so the predictive relationship is not mechanically guaranteed.
 
 ### Triviality check
 
 **Verdict**: pass
 
-Both a significant correlation and a lack of correlation would be informative: a positive finding would support phenology as a climate indicator, while a null result would highlight limits of the data or suggest other drivers. The outcome is not predetermined by existing domain knowledge.
+Although climate change is expected to affect phenology, the magnitude, direction, and species‑specific patterns are not established. Demonstrating a significant correlation—or finding a lack of correlation for certain species—would both provide novel, publishable insight.
 
 ### Question-narrowing check
 
 **Verdict**: pass
 
-The question frames a domain‑level relationship (“Do phenology shifts correlate with climate changes?”) rather than imposing constraints on implementation or computational resources.
+The question names a domain relationship (“Do observed shifts in bird migration phenology … correlate with recent changes in climate variables?”) rather than imposing constraints on a particular analysis method or computational budget.
 
 ### Overall verdict
 
