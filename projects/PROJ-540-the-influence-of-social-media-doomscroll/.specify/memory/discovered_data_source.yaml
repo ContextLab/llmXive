@@ -1,13 +1,12 @@
 status: none
-intent: download Pew Research social media use anxiety survey dataset GSS 0-percent-human
-  python package dataset
+intent: General Social Survey Pew Research Center YouGov news consumption anxiety
+  variables python package dataset
 required_fields:
-- news_exposure_freq
+- negative_news_consumption_frequency
 - anxiety_score
 - baseline_anxiety
 - age
 - gender
-- social_media_engagement
-cache_key: 3f66fcc81d55b246f767674396ff6c7694e58310b98d1db87d747d759de8316a
-searched_at: '2026-10-14T12:37:36.884769+00:00'
+cache_key: 8979c2896eb38e10e6fd8a66557073ee299b0d093fe0417aca858989e110edee
+searched_at: '2026-10-24T05:24:16.349596+00:00'
 retry_count: 1
