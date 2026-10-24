@@ -19,7 +19,7 @@ As a researcher, I want to ingest a dataset of small organic molecules (SMILES) 
 
 1. **Given** a CSV file containing 100 valid SMILES strings, **When** the TDA computation script is executed, **Then** a feature matrix is generated where every row corresponds to a molecule and contains non-null topological descriptors derived from persistent homology.
 2. **Given** a SMILES string representing a disconnected molecular graph, **When** the graph construction and filtration steps are applied, **Then** the system correctly handles the disconnected components in the persistence diagram calculation without crashing.
-3. **Given** a molecule with a complex ring system, **When** the shortest-path distance filtration is applied, **Then** the resulting Betti curves accurately reflect the birth and death of topological holes corresponding to the ring structures.
+3. **Given** a molecule with a complex ring system, **When** the shortest-path distance filtration is applied, **Then** the resulting Betti curves accurately reflect the birth and death of topological holes corresponding to the ring structures, as measured by a bottleneck distance ≤ 0.1 against a reference persistence diagram of the known ring topology. (See US-1)
 
 ---
 
@@ -33,8 +33,8 @@ As a researcher, I want to train regression models using (a) traditional descrip
 
 **Acceptance Scenarios**:
 
-1. **Given** the computed feature matrices (traditional and topological) and experimental property values, **When** the 5-fold cross-validation training loop runs, **Then** the system outputs performance metrics (R², RMSE) for the "Traditional Only," "Topological Only," and "Combined" models.
-2. **Given** the performance metrics from the cross-validation, **When** the statistical comparison step runs, **Then** a paired t-test or Wilcoxon signed-rank test is performed, and a p-value indicating the significance of the difference between models is recorded.
+1. **Given** the computed feature matrices (traditional and topological) and experimental property values, **When** the 5‑fold cross‑validation training loop runs, **Then** the system outputs performance metrics (R², RMSE) for the "Traditional Only," "Topological Only," and "Combined" models.
+2. **Given** the performance metrics from the cross‑validation, **When** the statistical comparison step runs, **Then** a paired Wilcoxon signed‑rank test on per‑sample RMSE differences is performed, and a p‑value < 0.05 indicating significance of the difference between models is recorded. (See US-2)
 3. **Given** a specific property (e.g., logP), **When** the combined model is trained, **Then** the system correctly identifies and reports the feature importance contributions from the topological features.
 
 ---
@@ -45,14 +45,14 @@ As a reviewer, I want to verify that the study design includes sensitivity analy
 
 **Why this priority**: This ensures the scientific validity of the results. It verifies that the implementation adheres to the methodological soundness constraints (multiplicity correction, threshold justification, redundancy analysis) before the project is considered complete.
 
-**Independent Test**: Inspect the output logs or report artifacts to confirm that a sensitivity sweep was performed on the persistence diagram vectorization parameters, a multiple-comparison correction was applied to the statistical tests, and a mutual information analysis was conducted.
+**Independent Test**: Inspect the output logs or report artifacts to confirm that a sensitivity sweep was performed on the persistence diagram vectorization parameters, a multiple‑comparison correction was applied to the statistical tests, and a mutual information analysis was conducted.
 
 **Acceptance Scenarios**:
 
-1. **Given** the persistence image generation parameters, **When** the sensitivity analysis script runs, **Then** the system re-runs the prediction with at least three different grid resolutions (e.g., low, medium, high) and reports the variance in R² scores across these configurations.
-2. **Given** a set of N hypothesis tests (where N is the count of successfully modeled properties), **When** the final statistical reporting step executes, **Then** the p-values are adjusted using the Bonferroni method to control the family-wise error rate.
-3. **Given** the correlation matrix of the input features, **When** the collinearity diagnostic runs, **Then** the system flags any pairs of predictors with a Variance Inflation Factor (VIF) > 5 and reports them in the final analysis summary.
-4. **Given** the feature sets (traditional and topological), **When** the redundancy analysis runs, **Then** the system calculates and reports the mutual information between the two sets to quantify feature overlap.
+1. **Given** the persistence image generation parameters, **When** the sensitivity analysis script runs, **Then** the system re‑runs the prediction with at least three different grid resolutions (e.g., low = 10, medium = 20, high = 30) and reports the variance in R² scores across these configurations. The standard deviation of R² across resolutions must be σ < 0.02. (See US-3)
+2. **Given** a set of N hypothesis tests (where N is the count of successfully modeled properties), **When** the final statistical reporting step executes, **Then** the p‑values are adjusted using the Holm–Bonferroni method to control the family‑wise error rate at α = 0.05. (See US-3)
+3. **Given** the correlation matrix of the input features, **When** the collinearity diagnostic runs, **Then** the system flags any pairs of predictors with a Variance Inflation Factor (VIF) > 5 and reports them in the final analysis summary. (See US-3)
+4. **Given** the feature sets (traditional and topological), **When** the redundancy analysis runs, **Then** the system calculates and reports the mutual information between the two sets; a value MI > 0.1 is required to deem the redundancy non‑trivial. (See US-3)
 
 ---
 
@@ -60,27 +60,30 @@ As a reviewer, I want to verify that the study design includes sensitivity analy
 
 - What happens when a SMILES string is invalid or cannot be converted to a valid graph by RDKit? (System must log the error and skip the molecule, continuing with the rest of the batch).
 - How does the system handle molecules with extremely large molecular weights that might cause the shortest-path matrix to exceed RAM limits? (System must implement chunking or subsampling logic).
-- What occurs if the persistent homology computation yields an empty diagram for a simple linear chain molecule? (System must handle empty diagrams gracefully, outputting a zero-vector or default baseline).
+- What occurs if the persistent homology computation yields an empty diagram for a simple linear chain molecule? (System must handle empty diagrams gracefully, outputting a zero‑vector or default baseline).
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST compute persistent homology diagrams from molecular graphs using a shortest-path distance filtration, explicitly citing the topological features used. This filtration is selected as the standard baseline for graph connectivity analysis, acknowledging that while it may not capture 3D conformational volume, it is the canonical method for pure topological graph descriptors (See US-1).
-- **FR-002**: System MUST convert persistence diagrams into vector representations (e.g., persistence images) with a grid resolution of exactly 10x10 for the primary experiment. This resolution is established as the baseline for comparison against sensitivity sweeps (See US-1).
-- **FR-003**: System MUST train regression models on three feature sets: traditional descriptors only, topological features only, and combined features. The models must use fixed hyperparameters: Linear Regression with L2 regularization (alpha=1.0) and Random Forest with 100 trees and a maximum depth of 10 (See US-2).
-- **FR-004**: System MUST perform 5-fold cross-validation using scaffold-based splits (Bemis-Murcko frameworks) to prevent data leakage from structural similarity. The split must use a fixed random seed of 42 to ensure reproducibility. The system must calculate R² and RMSE for each fold (See US-2).
-- **FR-005**: System MUST apply the Bonferroni multiple-comparison correction to the p-values generated from comparing model performance across the N successfully modeled properties (See US-3).
-- **FR-006**: System MUST execute a sensitivity analysis sweeping the vectorization grid resolution (e.g., {10, 20, 30}) and report the impact on prediction stability (See US-3).
+- **FR-002**: System MUST convert persistence diagrams into vector representations (e.g., persistence images) with a grid resolution of a moderate granularity for the primary experiment. This resolution is established as the baseline for comparison against sensitivity sweeps (See US-1).
+- **FR-003**: System MUST train regression models on three feature sets: traditional descriptors only, topological features only, and combined features. For each feature set, BOTH a Linear Regression model with L2 regularization (alpha = 1.0) **and** a Random Forest model with 100 trees and maximum depth 10 are trained, yielding six models total. Model evaluation uses 5‑fold scaffold‑based cross‑validation repeated 10 times (seed = 42) to produce a sufficient number of paired observations per comparison. Statistical significance is assessed with a paired Wilcoxon signed‑rank test on per‑sample RMSE differences (See US-2). (See US-2)
+- **FR-004**: System MUST perform k‑fold cross‑validation using scaffold‑based splits (Bemis‑Murcko frameworks) to prevent data leakage from structural similarity. The split must use a fixed random seed of 42 to ensure reproducibility. The system must calculate R² and RMSE for each fold (See US-2).
+- **FR-005**: System MUST apply the Holm–Bonferroni multiple‑comparison correction to the p‑values generated from comparing model performance across the N successfully modeled properties (family‑wise error rate α = 0.05). (See US-3).
+- **FR-006**: System MUST execute a sensitivity analysis sweeping the vectorization grid resolution (e.g., {10, 20, 30}) and report the impact on prediction stability. The standard deviation of R² across the three resolutions must be σ < 0.02. (See US-3).
 - **FR-007**: System MUST detect and report multicollinearity among predictors using Variance Inflation Factor (VIF) diagnostics, flagging any VIF > 5 and including them in the final analysis summary (See US-3).
 - **FR-008**: System MUST not require GPU acceleration or CUDA libraries; it must run entirely on CPU resources (See US-2).
-- **FR-009**: System MUST calculate and report the mutual information between the traditional descriptor set and the topological feature set to quantify feature redundancy before claiming added signal (See US-3).
+- **FR-009**: System MUST calculate and report the mutual information between the traditional descriptor set and the topological feature set to quantify feature redundancy before claiming added signal; a mutual information value MI > 0.1 is required to consider redundancy non‑trivial. (See US-3).
+- **FR-010**: System MUST randomly sample N = 5 000 valid molecules from the streamed PubChem (or ChEMBL) dataset by first shuffling the stream with seed = 42 and then selecting the first 5 000 entries, ensuring an unbiased sample. (See US-1).
+- **FR-011**: System MUST validate all generated CSV artifacts (e.g., `molecules.csv`, `topological_features_10.csv`) against their respective schema contracts (`dataset.schema.yaml`, `feature_matrix.schema.yaml`) using automated pytest contract tests. (See US-1).
+- **FR-012**: System MUST perform a power analysis appropriate for the paired‑sample Wilcoxon test with the target effective sample size of at least 30 paired observations (achieved via the 10 × 5‑fold repetition) to attain power ≥ 0.8 at α = 0.05 and medium effect size (d ≈ moderate). (See US-3).
 
 ### Key Entities
 
 - **Molecule**: Represents a chemical entity with attributes: SMILES string, molecular weight, and computed property values (solubility, logP, boiling point).
 - **TopologicalDescriptor**: Represents the vectorized output of persistent homology, containing Betti curves or persistence image values derived from the molecular graph.
-- **ModelPerformance**: Represents the aggregate metrics (R², RMSE, p-value) resulting from a specific training configuration and cross-validation fold.
+- **ModelPerformance**: Represents the aggregate metrics (R², RMSE, p-value) resulting from a specific training configuration and cross‑validation fold.
 
 ## Success Criteria *(mandatory)*
 
@@ -90,17 +93,18 @@ As a reviewer, I want to verify that the study design includes sensitivity analy
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The predictive performance (R²) of the combined model is measured against the baseline traditional-only model to determine if topological features provide a statistically significant improvement, contingent upon the mutual information analysis (FR-009) confirming non-trivial redundancy (See US-2).
-- **SC-002**: The stability of the model performance is measured across the sensitivity sweep of vectorization resolutions to ensure results are not artifacts of a single grid choice (See US-3).
-- **SC-003**: The family-wise error rate is measured against the nominal alpha level (0.05) after applying the Bonferroni correction to ensure the validity of the N hypothesis tests, acknowledging the conservative nature of this method for correlated properties (See US-3).
-- **SC-004**: The computational resource usage (RAM and CPU time) is measured against the GitHub Actions free-tier limits. and must complete within 90% of these limits (< 6.3GB RAM, < 5.4 hours) to confirm feasibility with a safety margin (See US-2).
+- **SC-001**: The predictive performance (R²) of the combined model is measured against the baseline traditional‑only model to determine if topological features provide a statistically significant improvement, **and** the mutual information between traditional and topological features must exceed 0.1 to confirm non‑trivial redundancy. Significance is declared when the paired Wilcoxon test yields p < 0.05. (See US-2).
+- **SC-002**: The stability of the model performance is measured across the sensitivity sweep of vectorization resolutions; the standard deviation of R² across the three resolutions must be σ < 0.02. (See US-3).
+- **SC-003**: The family‑wise error rate is measured against the nominal alpha level (0.05) after applying the Holm–Bonferroni correction to ensure the validity of the N hypothesis tests, acknowledging the conservative nature of this method for correlated properties. (See US-3).
+- **SC-004**: The computational resource usage (RAM and CPU time) is measured against the GitHub Actions free‑tier limits and must complete within 90% of these limits (< 6.3 GB RAM, < 5.4 hours) to confirm feasibility with a safety margin (See US-2).
 - **SC-005**: The collinearity diagnostics are measured against the VIF threshold of 5 to determine if any predictors need to be excluded or combined (See US-3).
+- **SC-006**: Baseline TDA feature computation is successful when **all** processed molecules yield a non‑null, non‑NaN topological descriptor vector of the expected dimensionality (10 × 10 for the primary grid). The proportion of valid descriptor vectors must be [deferred]. (See US-1).
 
 ## Assumptions
 
-- The PubChem or ChEMBL dataset contains sufficient molecules with experimentally verified solubility, logP, and boiling point values to support a k-fold cross-validation split (minimum sufficient molecules per property).
-- The RDKit and GUDHI/Dionysus libraries can be installed and run within the CPU-only environment of the GitHub Actions free tier without requiring proprietary licenses or GPU-specific builds.
+- The PubChem or ChEMBL dataset contains sufficient molecules with experimentally verified solubility, logP, and boiling point values to support a k‑fold cross‑validation split (minimum sufficient molecules per property).
+- The RDKit and GUDHI/Dionysus libraries can be installed and run within the CPU‑only environment of the GitHub Actions free tier without requiring proprietary licenses or GPU‑specific builds.
 - The "shortest-path distance" filtration on molecular graphs is sufficient to capture the relevant topological features for these physicochemical properties as a baseline graph descriptor; more complex filtrations (e.g., based on atomic charges) are out of scope for this initial study.
 - The relationship between molecular topology and properties is associative; the study design does not claim causal inference from the observational data.
-- The dataset provided does not require pre-filtering for stereochemistry or tautomers beyond standard canonicalization, as the topological features are intended to be robust to minor isomeric variations.
-- While solubility, logP, and boiling point are highly correlated, the Bonferroni correction is applied to the N modeled properties to maintain a conservative Type I error rate, accepting the potential for increased Type II error in this exploratory context.
+- The dataset provided does not require pre‑filtering for stereochemistry or tautomers beyond standard canonicalization, as the topological features are intended to be robust to minor isomeric variations.
+- While solubility, logP, and boiling point are highly correlated, the Holm–Bonferroni correction is applied to the N modeled properties to maintain a conservative Type I error rate, accepting the potential for increased Type II error in this exploratory context.
