@@ -1,68 +1,68 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "MMN Analysis Output Schema"
-description: "Schema for validating statistical results and metrics for temporal prediction errors"
+description: "Schema for validating per‑subject MMN metric rows."
 type: object
 properties:
   metric_id:
     type: string
-    description: "Unique identifier for the metric entry"
+    description: "Unique identifier for the metric entry."
   condition_label:
     type: string
     enum:
       - "simple"
       - "complex"
-    description: "Condition for which the metric was calculated"
+    description: "Condition for which the metric was calculated."
   electrode:
     type: string
-    description: "Electrode channel name (e.g., 'Fz')"
+    description: "EEG channel name (e.g., 'Fz')."
   amplitude_diff:
     type: number
-    description: "Mean voltage difference (deviant - standard) in microvolts"
+    description: "Mean voltage difference (deviant - standard) in µV."
   latency_diff:
     type: number
-    description: "Peak latency difference in milliseconds"
+    description: "Peak latency difference in ms."
   window_start:
     type: number
-    description: "Start of analysis window in milliseconds"
+    description: "Start of analysis window in ms (to be determined based on preliminary calibration)."
   window_end:
     type: number
-    description: "End of analysis window in milliseconds"
+    description: "End of analysis window in ms (a typical duration for this type of analysis)."
   snr_ratio:
     type: number
-    description: "Signal-to-Noise Ratio (|mean| / SEM of pre-stimulus baseline [-200, 0]ms)"
+    description: "Signal‑to‑Noise Ratio (|amplitude| / SEM of pre‑stimulus baseline)."
   signal_validity:
     type: boolean
-    description: "True if SNR >= 3.0"
+    description: "True if SNR ≥ 3.0."
   t_statistic:
-    type: number
-    description: "T-statistic from paired t-test"
+    type: ["number", "null"]
+    description: "T‑statistic from paired test (null if not applicable)."
   p_value:
-    type: number
-    description: "Raw p-value"
+    type: ["number", "null"]
+    description: "Raw p‑value (null if not applicable)."
   p_value_fdr:
-    type: number
-    description: "FDR-corrected p-value (Benjamini-Hochberg)"
+    type: ["number", "null"]
+    description: "FDR‑corrected p‑value (null if not applicable)."
   cohen_d:
-    type: number
-    description: "Effect size (Cohen's d)"
+    type: ["number", "null"]
+    description: "Effect size (Cohen's d)."
   benchmark_reference:
     type: string
-    description: "Source of the effect size benchmark (e.g., 'data/benchmarks/mmn_effect_sizes.json')"
+    description: "Path to benchmark JSON (e.g., 'data/benchmarks/mmn_effect_sizes.json')."
   practical_significance:
     type: boolean
-    description: "True if cohen_d >= 0.5"
+    description: "True if Cohen's d ≥ 0.5."
   topographic_correlation:
     type: ["number", "null"]
-    description: "Pearson r vs. canonical template (null if template missing)"
+    description: "Pearson r vs. canonical template (null if template missing)."
   validation_type:
     type: string
     enum:
       - "consistency_simple"
       - "validity_complex"
-    description: "Indicates whether this is a consistency check (simple vs. template) or validity check (complex vs. template)"
+    description: "Indicates whether this row is a consistency or validity check."
   significant:
     type: boolean
-    description: "True if p_value_fdr < 0.05"
+    description: "True if FDR‑corrected p‑value < 0.05."
 required:
   - metric_id
   - condition_label

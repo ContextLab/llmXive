@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Group Statistics Schema"
+description: "Schema for validating the aggregated statistical results file."
+type: object
+properties:
+  test_name:
+    type: string
+    description: "Descriptive name of the statistical test (e.g., 'paired t‑test MMN amplitude')."
+  t_statistic:
+    type: number
+    description: "Group‑level t‑statistic."
+  p_value_raw:
+    type: number
+    description: "Raw p‑value before correction."
+  p_value_fdr:
+    type: number
+    description: "Benjamini‑Hochberg FDR‑corrected p‑value."
+  cohen_d:
+    type: number
+    description: "Group‑level Cohen's d."
+  effect_size_benchmark:
+    type: number
+    description: "Benchmark threshold from literature (e.g., 0.5)."
+  practical_significance:
+    type: boolean
+    description: "True if cohen_d ≥ effect_size_benchmark."
+  topographic_consistency_r:
+    type: number
+    description: "Mean Pearson r for simple‑condition consistency check."
+  topographic_validity_r:
+    type: number
+    description: "Mean Pearson r for complex‑condition validity check."
+required:
+  - test_name
+  - t_statistic
+  - p_value_raw
+  - p_value_fdr
+  - cohen_d
+  - practical_significance
+additionalProperties: false

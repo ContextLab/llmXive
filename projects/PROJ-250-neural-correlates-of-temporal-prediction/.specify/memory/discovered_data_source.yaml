@@ -1,9 +1,17 @@
 status: none
-intent: '### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
-  **Description**: As a researcher, I need to download a publicly available EEG dataset
-  (OpenNeuro ds004510, which contains both simple oddball and complex auditory scene
-  conditions), apply standard preprocessing (bandpass fil'
-required_fields: []
-cache_key: 6396b0edc4776bff7a85ec45e5d9cc3151e173320e650b509223303c99827b8e
-searched_at: '2026-10-20T05:25:39.311017+00:00'
+intent: download OpenNeuro ds004510 EEG dataset using MNE-Python python package dataset
+required_fields:
+- subject_id
+- session_id
+- run
+- event_id
+- stimulus_type
+- condition
+- epoch_start_time
+- epoch_end_time
+- sampling_rate
+- channel_names
+- epoch_data
+cache_key: 997a9b53296cefd48d51a2fa7831f4f06d6f0486431de0b369be11cab265679c
+searched_at: '2026-10-24T07:14:22.457071+00:00'
 retry_count: 1

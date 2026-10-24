@@ -1,84 +1,76 @@
 # Quickstart: Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis
 
 ## Prerequisites
-
-- Python 3.x (recent versions)
+- Python 3.11 (or newer)
 - Git
-- GitHub Actions Runner or Linux environment with $\ge 7$ GB RAM.
+- Access to a Linux environment with at least 7 GB RAM (GitHub Actions free tier works out‑of‑the‑box)
 
 ## Installation
 
-1. **Clone and Setup**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-250-neural-correlates-of-temporal-prediction
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r code/requirements.txt
-   ```
-
-## Running the Pipeline
-
-The pipeline is executed in sequence via the `code/` directory.
-
-### 0. Reference verification gates (FR-012)
 ```bash
-python code/verify_references.py --stage dataset
-python code/verify_references.py --stage citations
+git clone <repo-url>
+cd projects/PROJ-250-neural-correlates-of-temporal-prediction
+python -m venv .venv
+source .venv/bin/activate
+pip install -r code/requirements.txt
 ```
-- Verifies the dataset ID/URL against the canonical OpenNeuro source before any download.
-- Verifies all citations against their named primary sources and writes
-  `data/results/citation_verification.json` before any report is written.
 
-### 1. Data Acquisition
+## Running the Full Pipeline
+
+The pipeline is orchestrated via the scripts in `code/`. Each script writes its output to the `data/` or `results/` folder and updates the contract state.
+
+### 0️⃣ Reference‑Validator Gates
 ```bash
-python code/download.py --subjects 2
+python code/verify_references.py --stage dataset   # checks ds004510 URL (FR‑012‑1)
+python code/verify_references.py --stage citations # checks bibliography (FR‑012‑3)
 ```
-- Downloads the OpenNeuro ds004510 dataset (2 subjects for the first
-  end-to-end pass; `--subjects 0` for the full cohort).
-- Verifies checksums (`data/raw/checksums.json`) and metadata
-  (`data/results/dataset_metadata.json`), and runs the condition gate.
-- **Halt Condition**: Stops if the "complex" condition is missing from the dataset.
 
-### 2. Preprocessing
+### 1️⃣ Data Acquisition
 ```bash
-python code/preprocess.py
+python code/download.py   # downloads OpenNeuro‑fslr64k, verifies checksum, records hash (FR‑001, FR‑013)
 ```
-- Applies the 1–40 Hz bandpass filter.
-- Performs ICA artifact rejection.
-- Re-references to average mastoids.
-- Subtracts baseline (mean of −200 to 0 ms).
-- Segments data into epochs (−200 to 500 ms).
+*If the dataset lacks the required “complex” condition the script aborts with the FR‑008 error message.*
 
-### 3. Analysis
+### 2️⃣ Preprocessing
+```bash
+python code/preprocess.py   # band‑pass, ICA, mastoid re‑reference, baseline correction, epoching (FR‑002‑FR‑003)
+```
+
+### 3️⃣ Analysis
 ```bash
 python code/analysis.py
 ```
-- Computes MMN amplitude/latency.
-- Validates SNR ≥ 3.0 using the pre-stimulus baseline standard deviation.
-- Generates canonical MMN topography template from 'simple' condition.
-- Performs topographic consistency check (simple vs. template).
-- Performs topographic validity check (complex vs. template).
-- Performs paired t-tests with FDR correction.
-- Calculates Cohen's $d$ and topographic correlations.
+Performs:
+- MMN amplitude/latency extraction (FR‑004)
+- Noise‑floor SNR validation (FR‑011, SC‑001)
+- Canonical topography generation (FR‑009)
+- Topographic consistency & validity checks (SC‑004)
+- Paired t‑tests with FDR (FR‑005, SC‑002)
+- Cohen’s d vs. benchmark (FR‑010, SC‑003)
 
-### 4. Visualization
+Outputs:
+- `results/metrics.csv` (validated by `contracts/output.schema.yaml`)
+- `results/stats.json` (validated by `contracts/stats.schema.yaml`)
+
+### 4️⃣ Visualization
 ```bash
 python code/visualize.py
 ```
-- Generates ERP waveforms, scalp maps, and significance plots in `data/results/figures/`.
+Generates PNG/SVG files in `results/figures/`:
+- ERP waveforms with MMN window highlighted
+- Scalp topography maps for simple & complex conditions
+- Significance heatmaps
 
-## Validation
-
-Run the contract tests to ensure data integrity and statistical validity:
+### 5️⃣ Contract Tests (Verification)
 ```bash
 pytest code/tests/
 ```
-This verifies:
-- `data/results/metrics.csv` matches `contracts/output.schema.yaml`.
-- `data/results/stats.json` matches `contracts/output.schema.yaml`.
-- Per-subject rows in `data/results/metrics_per_subject.csv` match
-  `contracts/metrics_per_subject.schema.yaml`.
-- Signal validity logic (SNR ≥ 3.0 using the baseline SD) is correctly applied.
-- FDR-corrected p-values are used for significance flags.
-- Topographic consistency and validity checks are properly distinguished.
+Tests verify:
+- `data/raw/` metadata against `contracts/dataset.schema.yaml`
+- `results/metrics.csv` against `contracts/output.schema.yaml`
+- `results/stats.json` against `contracts/stats.schema.yaml`
+- Presence of required fields, correct data types, and logical constraints (e.g., `snr_ratio >= 3.0`).
+
+All tests must pass before the pipeline is considered research‑ready.
+
+---

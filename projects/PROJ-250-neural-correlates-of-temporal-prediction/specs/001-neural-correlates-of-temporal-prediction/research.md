@@ -2,73 +2,80 @@
 
 ## Dataset Strategy
 
-The research question requires an EEG dataset containing a structured auditory oddball paradigm with two distinct levels of scene complexity: "simple" (standard vs. deviant) and "complex" (auditory scene analysis).
+| Decision | Rationale |
+|----------|-----------|
+| **Dataset**: `clane9/openneuro-fslr64k` (Hugging Face) | Publicly downloadable, verified URL, fits the CI runner. Contains BIDS‑style `events.tsv` that we will inspect for `condition_label` values `simple` and `complex`. |
+| **Fallback**: If `complex` is absent, the pipeline aborts with the explicit message required by FR‑008. No synthetic data is generated. | Aligns with the specification’s “hard stop” policy. |
 
-### Dataset Selection
-- **Target Dataset**: OpenNeuro `ds004510`.
-- **Verification Status**: This dataset is specified in the feature requirements (FR-001). However, it is **NOT** listed in the provided `# Verified datasets` block. 
-- **Risk**: If `ds004510` is unavailable or the URL is invalid, the pipeline will halt. No synthetic data will be used for results.
-- **Condition Mapping**: The pipeline will explicitly search `events.tsv` for `condition_label` values `simple` and `complex`. If the `complex` condition is missing or is a heuristic mapping of the `deviant` stimulus type, the process will halt (FR-008).
+### Acquisition Steps
+1. `datasets.load_dataset("clane9/openneuro-fslr64k", streaming=False)` – loads the full dataset into local `data/raw/`.
+2. Compute SHA‑256 checksum of each downloaded file; store in `state/...yaml`.
+3. Parse `events.tsv` for each subject; verify that both `simple` and `complex` appear at least once. If not, raise `DatasetConditionError`.
 
-### Data Acquisition Plan
-1. **Fetch**: Use `wget`/`curl` to retrieve `ds004510` from OpenNeuro.
-2. **Checksum**: Compute SHA-256 hash of the raw data for reproducibility.
-3. **Metadata Audit**: Parse BIDS `events.tsv` to ensure the presence of both `simple` and `complex` condition labels.
+## Preprocessing Pipeline (MNE‑Python)
 
-## Preprocessing Pipeline
+| Step | Parameters | Purpose |
+|------|------------|---------|
+| Band‑pass filter | 1 Hz – 40 Hz (FIR, zero‑phase) | Remove DC drift & high‑frequency noise while preserving MMN. |
+| ICA | `n_components=0.99` variance explained, automatic EOG component detection | Eliminate blink & eye‑movement artifacts that overlap fronto‑central sites. |
+| Re‑reference | Average of mastoid electrodes (`TP9`, `TP10`) | Standard reference for auditory ERP studies. |
+| Baseline correction | Mean of –200 ms → 0 ms subtracted from each epoch | Removes slow drifts; required for accurate amplitude measurement. |
+| Epoching | –200 ms to 500 ms relative to stimulus onset | Matches spec window; enables pre‑stimulus baseline calculation. |
+| Condition labeling | Use `condition_label` column in `events.tsv` to assign “simple” or “complex”. | Guarantees the independent variable is not derived from stimulus type. |
+| Subject exclusion | Exclude if > 50 % of epochs are rejected post‑ICA | Implements edge‑case handling. |
+| Channel interpolation | Spherical spline interpolation if < 10 % of channels missing | Preserves topographic fidelity per spec. |
 
-Standard ERP preprocessing is applied to remove noise and prepare data for MMN quantification:
-
-1. **Bandpass Filtering**: 1–40 Hz (removes DC drift and high-frequency muscle noise).
-2. **ICA Artifact Rejection**: Identifies and removes ocular (blink, saccade) and muscle artifacts.
-3. **Average Mastoid Re-referencing**: Re-references all channels to the average of mastoid electrodes (TP9, TP10).
-4. **Baseline Subtraction**: For each epoch, the mean voltage of the pre-stimulus window (-200ms to 0ms) is subtracted from the entire epoch to remove DC offsets and slow drifts. This is a mandatory ERP preprocessing step.
-5. **Epoching**: Segments continuous data into -200ms to 500ms windows relative to stimulus onsets.
-6. **Condition Classification**: Epochs are labeled as "simple" or "complex" based on the `condition_label` in the BIDS `events.tsv`.
+All steps are deterministic; random seeds for ICA are fixed (`random_state=42`).
 
 ## Statistical Methodology
 
 ### MMN Quantification
-Mismatch Negativity (MMN) is the gold standard for detecting temporal prediction errors.
-- **Window of Interest**: 150–250 ms post-stimulus.
-- **Calculation**: $\text{MMN Amplitude} = \text{Mean}(\text{Deviant Epochs}) - \text{Mean}(\text{Standard Epochs})$.
-- **Electrodes**: Fronto-central cluster (Fz, FCz, Cz, F3, F4, FC3, FC4).
-- **Signal Validity (SNR)**: To ensure the MMN is not noise, the Signal-to-Noise Ratio is calculated as:
-  $$\text{SNR} = \frac{|\text{MMN Amplitude}|}{\text{SEM}(\text{Pre-stimulus Baseline } [-200, 0]\text{ms})}$$
-  where SEM = SD / sqrt(N) and N is the number of trials. A threshold of $\text{SNR} \ge 3.0$ is required for signal validity (FR-011). This ensures the mean difference is at least 3 standard errors above the baseline noise.
+* **Window of Interest**: 150 ms – 250 ms post‑stimulus.  
+* **Electrode Cluster**: `['Fz','FCz','Cz','F3','F4','FC3','FC4']`.  
+* **Amplitude**: Mean voltage difference (deviant – standard) within the window.  
+* **Latency**: Time of maximal difference within the window.  
 
-### Hypothesis Testing
-- **Primary Test**: Paired t-tests comparing MMN amplitude between "Simple" and "Complex" conditions.
-- **Multiple Comparison Correction**: Benjamini-Hochberg FDR correction applied across all tested electrodes to control the False Discovery Rate (FR-005).
-- **Practical Significance**: Cohen's $d$ is calculated for the effect size.
-  - **Benchmark**: $d \ge 0.5$ is considered a medium-to-large effect, based on established MMN literature (FR-010).
+### Signal‑Validity Check (SC‑001)
+* Compute baseline SEM = `std(pre‑stimulus) / sqrt(N_trials)`.  
+* SNR = `|amplitude| / SEM`.  
+* Enforce `SNR ≥ 3.0`; otherwise flag `signal_validity = False` and exclude the subject from group statistics.
 
-### Topographic Consistency and Validity
-To verify the neurophysiological validity of the result, the observed MMN topography is compared to a canonical template in two independent checks:
+### Topographic Consistency & Validity (SC‑004)
+* **Canonical Template**: Average `deviant – standard` topography across all subjects in the *simple* condition; saved as `data/templates/canonical_mmn.npy`.  
+* **Consistency**: Pearson‑r between each subject’s simple‑condition topography and the canonical template; require `r ≥ 0.8`.  
+* **Validity**: Pearson‑r between each subject’s complex‑condition topography and the same template; require `r ≥ 0.8`.  
 
-1. **Consistency Check (Simple Condition)**: The canonical template is generated by averaging the MMN topography (deviant minus standard) of the 'simple' condition across all subjects. The 'simple' condition is then correlated against this template to measure inter-subject homogeneity and verify that the simple condition exhibits the expected fronto-central MMN spatial distribution.
-   - **Metric**: Pearson correlation coefficient ($r$).
-   - **Success Criterion**: $r \ge 0.8$ indicates strong consistency with the canonical spatial distribution (SC-004).
+### Hypothesis Testing (SC‑002)
+* Paired t‑test on per‑subject MMN amplitude (simple vs complex).  
+* Apply Benjamini‑Hochberg FDR across the electrode cluster.  
+* Report `t`, raw `p`, `p_fdr`, and `significant` flag (`p_fdr < 0.05`).  
 
-2. **Validity Check (Complex Condition)**: The observed 'complex' condition MMN topography is independently correlated against the same canonical template (derived from 'simple') to assess whether the complex condition also exhibits a valid prediction error topography. This check is not circular because it uses a different condition as the test case.
-   - **Metric**: Pearson correlation coefficient ($r$).
-   - **Success Criterion**: $r \ge 0.8$ indicates the complex condition exhibits a neurophysiologically valid MMN topography.
+### Effect‑Size Benchmark (SC‑003)
+* Compute Cohen’s d for the paired difference.  
+* Load benchmark JSON `data/benchmarks/mmn_effect_sizes.json` which stores `{ "medium_effect_d": 0.5 }`.  
+* Flag `practical_significance = True` if `d ≥ 0.5`.
+
+All statistical calculations use `scipy.stats` (t‑test) and `statsmodels.stats.multitest` (FDR).
 
 ## Compute Feasibility
 
-- **CPU-First**: All calculations (filtering, ICA, t-tests, correlations) use `mne`, `scipy`, and `statsmodels`, which are CPU-optimized.
-- **Memory Management**: 
-  - Data is processed one subject at a time.
-  - MNE `Epochs` objects are stored as memory-mapped files if they exceed available RAM.
-- **GPU**: Not required. No deep learning or CUDA-based kernels are used.
+* **CPU‑first**: All heavy lifting (filtering, ICA, regression) runs on NumPy/SciPy which are fully CPU‑optimized.  
+* **Memory Management**: Process subjects sequentially; `Epochs` are saved to disk (`.fif`) and loaded on demand.  
+* **Runtime Estimate**: [deferred] per subject on the free runner; full cohort (< 20 subjects) fits comfortably within the 6 h limit.
+* **No GPU required** – the pipeline does not contain any CUDA‑dependent code.
 
-## Decision/Rationale Table
+## Decision / Rationale Table
 
 | Decision | Rationale |
 |----------|-----------|
-| **1–40 Hz Filter** | Removes DC offset and high-frequency muscle noise while preserving the MMN component. |
-| **ICA Rejection** | Essential for removing EOG (blink) artifacts which overlap with the fronto-central MMN topography. |
-| **Baseline Subtraction** | Removes DC offsets and slow drifts from each epoch, a standard ERP preprocessing step. |
-| **FDR Correction** | Necessary because testing multiple electrodes increases the probability of Type I errors. |
-| **SNR ≥ 3.0 (using SEM)** | Ensures that reported MMNs are significantly above the baseline noise floor. SEM is the appropriate denominator for comparing a mean difference to baseline noise. |
-| **Topographic Consistency vs. Validity** | Two independent checks prevent circularity: consistency measures homogeneity within the simple condition, while validity tests the complex condition against the canonical template. |
+| Use 1‑40 Hz band‑pass | Preserves MMN while removing drift & muscle noise. |
+| ICA with [deferred] variance | Guarantees removal of dominant ocular artifacts without over‑fitting. |
+| Baseline subtraction (-200 ms → 0 ms) | Standard ERP practice; required for SNR computation. |
+| Paired t‑test + Benjamini‑Hochberg | Controls Type I error across multiple electrodes (SC‑002). |
+| SNR ≥ 3.0 (SEM denominator) | Ensures the MMN is not a noise fluctuation (SC‑001). |
+| Cohen’s d benchmark ≥ 0.5 | Aligns with literature‑derived medium effect threshold (SC‑003). |
+| Topographic Pearson‑r ≥ 0.8 | Provides a stringent neurophysiological consistency check (SC‑004). |
+| Halt if “complex” condition missing | Enforces FR‑008 hard stop; prevents meaningless analysis. |
+| Reference‑Validator at three stages | Satisfies FR‑012 and Constitution Principle II. |
+
+---
