@@ -1,9 +1,0 @@
-T001:
-  c: false
-  h: 4aea7735e8a7176451f22c89698ab9391383a8fc521693cc69a3e1344dd8ec03
-  r: "`data/raw/` contains only `checksums.txt` \u2014 the actual dataset files (`smiles.parquet`,\
-    \ `fqy.json`) referenced by the checksums are missing, so checksums cannot be\
-    \ verified against real data. There is also no download script artifact or evidence\
-    \ of a successful (exit 0) download run, and no seed-configuration module shown\
-    \ that is imported before any shuffle/split call."
-  sig: f68b6c4388513b588ce7b7e6722069da858b21200b3e4c159eb5b4d75087aab8

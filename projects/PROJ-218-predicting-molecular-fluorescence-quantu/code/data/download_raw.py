@@ -4,100 +4,134 @@ import os
 import sys
 import random
 import pathlib
-import requests
 import yaml
 import numpy as np
-import torch
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
 def download_file(url: str, dest_path: pathlib.Path) -> str:
     """
-    Streams a file from url to dest_path while computing its SHA-256.
+    Streams a file from the given URL to dest_path while computing its SHA-256 checksum.
+    Returns the hexadecimal checksum string.
     """
-    log.info(f"Downloading {url} to {dest_path}")
-    sha256_hash = hashlib.sha256()
-    
-    # Ensure directory exists
+    import urllib.request
+
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with requests.get(url, stream=True, allow_redirects=True) as r:
-        r.raise_for_status()
-        with open(dest_path, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    sha256_hash.update(chunk)
-    
-    return sha256_hash.hexdigest()
+    sha256 = hashlib.sha256()
+    with urllib.request.urlopen(url) as response, open(dest_path, "wb") as out_file:
+        while True:
+            chunk = response.read(8192)
+            if not chunk:
+                break
+            out_file.write(chunk)
+            sha256.update(chunk)
+    checksum = sha256.hexdigest()
+    log.info(f"Downloaded {url} to {dest_path} (sha256={checksum})")
+    return checksum
 
 def write_checksums(checksum_dict: dict):
     """
-    Writes a checksums.txt file with one line per entry: <filename> <sha256>.
+    Writes a checksums.txt file with one line per entry:
+    <filename> <sha256>
     """
-    out_path = paths.data("raw", "checksums.txt")
-    with open(out_path, "w") as f:
-        for filename, digest in checksum_dict.items():
-            f.write(f"{filename} {digest}\n")
+    checksums_path = paths.data("raw", "fluordb", "checksums.txt")
+    with open(checksums_path, "w") as f:
+        for filename, cs in checksum_dict.items():
+            f.write(f"{filename} {cs}\n")
+    log.info(f"Wrote checksums to {checksums_path}")
 
 def read_checksums() -> dict:
     """
     Reads checksums.txt and returns a mapping filename -> sha256.
     """
-    in_path = paths.data("raw", "checksums.txt")
-    if not in_path.exists():
-        return {}
-    
-    checksums = {}
-    with open(in_path, "r") as f:
+    checksums_path = paths.data("raw", "fluordb", "checksums.txt")
+    if not checksums_path.is_file():
+        raise FileNotFoundError(f"Checksum file not found at {checksums_path}")
+    result = {}
+    with open(checksums_path, "r") as f:
         for line in f:
             parts = line.strip().split()
-            if len(parts) == 2:
-                checksums[parts[0]] = parts[1]
-    return checksums
+            if len(parts) != 2:
+                continue
+            filename, cs = parts
+            result[filename] = cs
+    return result
 
 def verify_checksums(expected: dict):
     """
-    Verifies that the SHA-256 of each file on disk matches the expected value.
+    Verifies that each file listed in `expected` exists under the same directory
+    as the checksum file and that its SHA-256 matches the expected value.
+    Raises a RuntimeError on any mismatch.
     """
-    for filename, expected_digest in expected.items():
-        file_path = paths.data("raw", filename)
-        if not file_path.exists():
-            raise ValueError(f"File {filename} not found for checksum verification")
-        
-        sha256_hash = hashlib.sha256()
+    base_dir = paths.data("raw", "fluordb")
+    for filename, expected_cs in expected.items():
+        file_path = base_dir / filename
+        if not file_path.is_file():
+            raise RuntimeError(f"Expected file {file_path} is missing")
+        sha256 = hashlib.sha256()
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(8192), b""):
-                sha256_hash.update(chunk)
-        
-        actual_digest = sha256_hash.hexdigest()
-        if actual_digest != expected_digest:
-            raise ValueError(f"Checksum mismatch for {filename}: expected {expected_digest}, got {actual_digest}")
+                sha256.update(chunk)
+        actual_cs = sha256.hexdigest()
+        if actual_cs != expected_cs:
+            raise RuntimeError(
+                f"Checksum mismatch for {file_path}: expected {expected_cs}, got {actual_cs}"
+            )
+    log.info("All checksum verifications passed")
 
 def load_and_set_seeds():
     """
-    Loads seed values from code/config/seeds.yaml, sets seeds, 
-    and writes the seed mapping to results/seeds.json.
+    Loads seed values from code/config/seeds.yaml, sets seeds for Python,
+    random, NumPy, and (if available) PyTorch, and writes the mapping to
+    results/seeds.json for downstream verification.
     """
-    seed_file = paths.path("code", "config", "seeds.yaml")
-    with open(seed_file, "r") as f:
-        seeds = yaml.safe_load(f)
-    
-    # Set seeds
-    os.environ["PYTHONHASHSEED"] = str(seeds.get("pythonhashseed", 0))
-    random.seed(seeds.get("random_seed", 42))
-    np.random.seed(seeds.get("numpy_seed", 42))
-    torch.manual_seed(seeds.get("torch_seed", 42))
-    
-    # Record seeds
-    out_json = paths.results("seeds.json")
-    with open(out_json, "w") as f:
-        json.dump(seeds, f, indent=2)
-    
-    log.info(f"Seeds initialized and recorded to {out_json}")
+    seeds_path = paths.code("config", "seeds.yaml")
+    if not seeds_path.is_file():
+        raise FileNotFoundError(f"Seed configuration not found at {seeds_path}")
+
+    with open(seeds_path, "r") as f:
+        cfg = yaml.safe_load(f)
+
+    # Expected keys: pythonhashseed, random_seed, numpy_seed, torch_seed (optional)
+    pythonhashseed = cfg.get("pythonhashseed", 0)
+    random_seed = cfg.get("random_seed", 42)
+    numpy_seed = cfg.get("numpy_seed", 42)
+    torch_seed = cfg.get("torch_seed", None)
+
+    os.environ["PYTHONHASHSEED"] = str(pythonhashseed)
+    random.seed(random_seed)
+    np.random.seed(numpy_seed)
+
+    try:
+        import torch
+        if torch_seed is not None:
+            torch.manual_seed(torch_seed)
+    except ImportError:
+        log.warning("torch not installed; skipping torch seed setting")
+
+    # Write out the seeds that were actually set
+    out = {
+        "pythonhashseed": pythonhashseed,
+        "random_seed": random_seed,
+        "numpy_seed": numpy_seed,
+    }
+    if torch_seed is not None:
+        out["torch_seed"] = torch_seed
+
+    out_path = paths.results("seeds.json")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, "w") as f:
+        json.dump(out, f, indent=2)
+    log.info(f"Wrote seed mapping to {out_path}")
 
 def main():
-    # This is a utility module; main is provided for completeness
-    # but the pipeline uses run_t001_download_and_seed.py
-    pass
+    """
+    Entry point used by the project's seed configuration import side‑effect.
+    It simply loads and sets the seeds.
+    """
+    load_and_set_seeds()
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,45 +1,30 @@
 T001:
-  reason: "`data/raw/` contains only `checksums.txt` \u2014 the actual dataset files\
-    \ (`smiles.parquet`, `fqy.json`) referenced by the checksums are missing, so checksums\
-    \ cannot be verified against real data. There is also no download script artifact\
-    \ or evidence of a successful (exit 0) download run, and no seed-configuration\
-    \ module shown that is imported before any shuffle/split call."
-  task: 13ada98a6cebfe822f1710008b727f7dc49122c398970ba35de0d3fb1b4a5c83
+  reason: 'Requested task execution failed; rerun successfully: code/data/download_fluordb.py
+    exit=1'
+  task: fcf60e60b5125eae2d29a20035568704ec4aeaa16d6261fd0494ceb819e06d63
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/preprocessing/join.py
-    exit=1'
-  task: a18f9aee786ba8686dc931119b4d5e47d42bcbce149c04df0615d1b5269b676e
+  task: e1c38a41f30873cf50489bddde9ca6ae6589dc35064c240032edac191776413c
 T003:
-  reason: 'Requested task execution failed; rerun successfully: src/preprocessing/graph_features.py
-    exit=1'
-  task: daf78a28ccf04c679231bdf54f90a7dc27dca27af149d75a2a9abd6be71bf448
+  task: 93205117776fcd8f4448a7fe843213bf7da312f967a779ed65164260919beec8
 T004:
-  task: a07bff3ce4841bbf26625b54351188f82d62c6419bb084843f7f691c16403423
+  task: cd71ee531591fc4a115b9e8305c0d32235a6f6daf4abe36949345d26f654e25c
 T005:
-  task: 2ad04d8fdfed049aae94c77f962fcf9f15e5b3d926f873704ac04fb8af6996eb
+  task: d766fb3e11b68a2b88417f8314a3c1b91a9ea0e548aba44fcd4198d85917fe1f
 T006:
-  task: 32bb66e2b2e66fe77354e518d41de47058fa4839982f1d0bbed7554b6ad5588c
+  task: 7658dbeedf62036809fe0fab7141575bfe15df188e3f32a1c0e5cf32762ac880
 T007:
-  task: 54f6ae3522f30cafb43841e077b1a305e48ebfb9753e7e3f10ab2a06b564be2e
+  task: ac0f2a852b09601036322dbc17a05eeed7923ceb43e0f5cf887ec9da1ec36aac
 T008:
-  task: 1a72c47ffaf33008a3d5f7439d94fc2ae86186ca49eff19d6eb218bb4f33428d
+  task: 19265cbdc1bffc0dec8b61b0a99df82be96380f23352826b3aec000013bb4757
 T009:
-  task: 30649fff04f3e0a5b6717f55d66ddbd06621ee96dca35e1f4ccdabb07239e363
+  task: 28c8570d6af9a8fc005904d582cd0766f52ca2e26d172edeaff6a7b18519669d
 T010:
-  task: 6aa4a99ad411cb8c55c529ff33c7158bd36ebf560736b2164a958d310ac169f3
+  task: 4fc4c04698c82e1c786330dd56f9528bb70c56ee5d9010ae4570fed0edf7cb6f
 T011:
-  task: c92ec67b878a40847c455e6beb413b9264a82e7fd3a275905802a14523882b72
+  task: 02e309cc1a165b1d24035b43cd4477908d98bef1aca9177dc98c24c58a532013
 T012:
-  task: c50eb089db6b1d9b013c3c0cf1b23f7594d1cb8dc632d583e885e3f91c0f69f8
+  task: 0ec19e0a82282464faaaed3f21e408e4b9d85849eb7edfbdac5a99ab134d3f8b
 T013:
-  task: 1541ad52fe371215072e9e2ba9d15a9470f507716e4bb10e45d79e269b0d0f39
+  task: 6e57f5ad21e119d9af0e73fb887a9e10d752b6e9e2bde350ecb9061289357549
 T014:
-  task: 20e2a5f7e1b3dff55cd1e1d1caa21f0bf9f4da776e9064df4ddd6763cd482bbc
-T015:
-  task: 91ebd87b8cebc5170d82228cd31e250946a027f546eeaa58e512a80ce943bcea
-T016:
-  task: d42de94c0fc9100febf82186a4e4375d0d20ebce5623261e66826cf38fa6e281
-T017:
-  task: c987abe2fa684b7ce2502f5ef4b00a9b4dafcbd068964150fbde68a5ca6e229c
-T018:
-  task: 1d013cd38a71c07aac3332a992ac57978949964f13fe05239ebd2fe971da1bd1
+  task: e4f6eebd234a9c7f28730e02a7ce01f40c6d7d3e511d985d82bc3b1e6f7d5493
