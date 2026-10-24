@@ -1,14 +1,13 @@
 status: none
-intent: Something-Something V2 dataset download OpenCV optical flow python package
-  dataset
+intent: pip install something-something v2 video dataset download official source
+  python package dataset
 required_fields:
 - video_id
 - video_path
-- split
 - label
 - label_name
 - template
-- metadata
-cache_key: 185b3df57cc1d82fc215322c7924f4e957547a850cfa6f039573125b79a5244a
-searched_at: '2026-10-24T08:36:05.913863+00:00'
+- split
+cache_key: 2f4f20219042c5f9d5da839c24e62a26140ef43971c4453c83bbdc56d6b1c9e6
+searched_at: '2026-10-24T08:44:32.135500+00:00'
 retry_count: 1

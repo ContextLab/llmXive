@@ -20,7 +20,7 @@ The following checklist implements the smallest complete study that satisfies ev
   - Verify that the command prints a concise summary of generated artifacts and exits with status 0.  
   - **Files**: `quickstart.md`, `configs/run.yaml`.
 
-- [X] **T002** [ ] **Implement a robust streaming loader for Something‑Something V2**  
+- [ ] **T002** [ ] **Implement a robust streaming loader for Something‑Something V2**  
   - Write `src/data/something_loader.py` that streams the dataset via `datasets.load_dataset("something-something-v2", split="train", streaming=True)`.  
   - Raise any download exception (no synthetic fallback).  
   - Add deterministic shuffling with `--seed` (default 42).  
@@ -34,7 +34,7 @@ The following checklist implements the smallest complete study that satisfies ev
   - Verification: at least 20 distinct patches exist and manifest entries match file count.  
   - **Files**: `data/patches/`, `data/patches/manifest.csv`.
 
-- [ ] **T003** [ ] **Generate counterfactual video pairs (video creation only)**  
+- [ ] **T003** [ ] **Generate counterfactual video pairs (video creation only)**   <!-- FAILED-IN-EXECUTION: src/data/patches_download.py exit=-1 (TIMEOUT) -->
   1. Detect the primary object on the first frame using `torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)`.  
   2. Sample a semantically distinct patch from `data/patches/` (populated by T016).  
   3. Replace the region using OpenCV `seamlessClone`.  

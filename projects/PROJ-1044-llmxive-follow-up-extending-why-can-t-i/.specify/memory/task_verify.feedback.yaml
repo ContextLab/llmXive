@@ -1,15 +1,23 @@
 T000:
   task: 97dba22a9eb111d8f51683cb0f5fcba49aa786659e160994d7dd88d08bc8f972
 T001:
-  reason: "The required files `quickstart.md` and `configs/run.yaml` exist and contain\
-    \ the expected content, but there is no evidence that the command `python -m src.pipeline.run_all\
-    \ --config configs/run.yaml` actually runs, prints a concise summary, and exits\
-    \ with status\u202F0 (e.g., no captured stdout, exit\u2011code log, or test output).\
-    \ Add execution verification artifacts."
+  reason: "Checked `quickstart.md` and `configs/run.yaml` \u2013 both files exist\
+    \ and contain the required command description and default configuration. However,\
+    \ there is no evidence that `python -m src.pipeline.run_all --config configs/run.yaml`\
+    \ actually runs successfully, prints a concise summary, and exits with status\u202F\
+    0; the provided test log shows a failing pytest test (NameError) and no successful\
+    \ execution record. A passing run (or corrected test) is needed to satisfy the\
+    \ verification requirement."
   task: 4b4ef855ac93c2b9ea8b825a9494e0aab768534336e157eaaec607230fd87a78
 T002:
+  reason: "The `src/data/something_loader.py` and its unit test exist and meet the\
+    \ streaming, exception, and deterministic\u2011seed behavior, but `requirements.txt`\
+    \ does not pin the Faster\u2011RCNN detector weights (e.g., `torchvision==0.17.2`)\
+    \ as required. Adding that version pin will be needed to complete the task."
   task: 980323bc4c883c01eed25d6ec646efc9e6a1a59d9131779ba3d99b9707260a1c
 T003:
+  reason: 'Requested task execution failed; rerun successfully: src/data/patches_download.py
+    exit=-1 (TIMEOUT)'
   task: e78a730591e0dd5624f7de60f3c889b72a81604438485c346ef23643717a2c57
 T004:
   task: 86b20e99b97d9966667a7591809dbcf3d81b66a495084470a581000d17f87dd0

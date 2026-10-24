@@ -1,4 +1,5 @@
-"""Pipeline driver for the counterfactual consistency study.
+"""
+Pipeline driver for the counterfactual consistency study.
 
 The driver orchestrates all stages of the pipeline, accepting either
 a configuration file (``--config``) **or** the historic command‑line
@@ -91,10 +92,6 @@ def parse_cli_args(argv: List[str] | None = None) -> argparse.Namespace:
     )
 
     # Historic flags – they are kept for backward compatibility.
-    # ``--num_videos`` is deliberately typed as ``str`` so that placeholder
-    # values like ``<sufficient number of videos>`` do not cause an argparse
-    # type error.  The value is coerced to ``int`` later; if conversion fails
-    # we fall back to the config/default.
     parser.add_argument(
         "--num_videos",
         type=str,
@@ -127,7 +124,6 @@ def parse_cli_args(argv: List[str] | None = None) -> argparse.Namespace:
         default=None,
         help="(legacy) Feature cosine‑similarity threshold.",
     )
-
     return parser.parse_args(argv)
 
 # ----------------------------------------------------------------------
@@ -165,7 +161,6 @@ def main(argv: List[str] | None = None) -> int:
         config = _load_config(config_path)
 
     # Override config with any legacy flags that were supplied.
-    # This mirrors the behaviour of the original quickstart command.
     if args.num_videos is not None:
         try:
             config["num_videos"] = int(args.num_videos)
@@ -177,7 +172,6 @@ def main(argv: List[str] | None = None) -> int:
     if args.lambda_values is not None:
         config["lambda_values"] = args.lambda_values
     if args.seeds is not None:
-        # Preserve the original string list – downstream scripts expect strings.
         config["seeds"] = args.seeds
     if args.flow_divergence_thresh is not None:
         config["flow_divergence_thresh"] = args.flow_divergence_thresh
@@ -196,14 +190,19 @@ def main(argv: List[str] | None = None) -> int:
     synth_args: List[str] = []
     if "num_videos" in config:
         synth_args += ["--num_videos", str(config["num_videos"])]
-    # The synthetic generator writes directly into the project data tree,
-    # so we do not need to pass an explicit output path here.
     rc = _run_stage("src.data.synthetic_generator", synth_args)
     if rc != 0:
         return rc
 
     # ------------------------------------------------------------------
-    # Stage 2 – Optical flow pre‑compute for originals
+    # Stage 2 – Download object patches (required for counterfactuals)
+    # ------------------------------------------------------------------
+    rc = _run_stage("src.data.patches_download", [])
+    if rc != 0:
+        return rc
+
+    # ------------------------------------------------------------------
+    # Stage 3 – Optical flow pre‑compute for originals
     # ------------------------------------------------------------------
     flow_pre_args: List[str] = []
     if "subset_size" in config:
@@ -213,7 +212,7 @@ def main(argv: List[str] | None = None) -> int:
         return rc
 
     # ------------------------------------------------------------------
-    # Stage 3 – Counterfactual generation (original → counterfactual)
+    # Stage 4 – Counterfactual generation (original → counterfactual)
     # ------------------------------------------------------------------
     cf_args: List[str] = []
     if "flow_divergence_thresh" in config:
@@ -225,14 +224,14 @@ def main(argv: List[str] | None = None) -> int:
         return rc
 
     # ------------------------------------------------------------------
-    # Stage 4 – Optical flow for counterfactuals
+    # Stage 5 – Optical flow for counterfactuals
     # ------------------------------------------------------------------
     rc = _run_stage("src.data.optical_flow_precompute", ["--counterfactual"])
     if rc != 0:
         return rc
 
     # ------------------------------------------------------------------
-    # Stage 5 – Model training sweep
+    # Stage 6 – Model training sweep
     # ------------------------------------------------------------------
     train_args: List[str] = []
     if "lambda_values" in config:
@@ -244,23 +243,30 @@ def main(argv: List[str] | None = None) -> int:
         return rc
 
     # ------------------------------------------------------------------
-    # Stage 6 – Evaluation
+    # Stage 7 – Evaluation
     # ------------------------------------------------------------------
     rc = _run_stage("src.eval.evaluator", [])
     if rc != 0:
         return rc
 
     # ------------------------------------------------------------------
-    # Stage 7 – Statistics
+    # Stage 8 – Statistics
     # ------------------------------------------------------------------
     rc = _run_stage("src.eval.statistics", [])
     if rc != 0:
         return rc
 
     # ------------------------------------------------------------------
-    # Stage 8 – Report generation
+    # Stage 9 – Report generation
     # ------------------------------------------------------------------
     rc = _run_stage("src.eval.report", [])
+    if rc != 0:
+        return rc
+
+    # ------------------------------------------------------------------
+    # Stage 10 – Threshold‑retention figure (produced for quick‑start verification)
+    # ------------------------------------------------------------------
+    rc = _run_stage("src.report.threshold_retention_plot", [])
     if rc != 0:
         return rc
 
@@ -271,6 +277,14 @@ def main(argv: List[str] | None = None) -> int:
     _write_manifest(manifest_path, Path.cwd())
     log.info("Pipeline completed successfully. Manifest written to %s", manifest_path)
 
+    # Concise human‑readable summary (printed to stdout)
+    print("\n=== Pipeline Summary ===")
+    print(f"Output directory: {output_dir}")
+    print(f"Generated manifest: {manifest_path}")
+    print("Key artifacts:")
+    print(f"  - {paths.data('patches', 'manifest.csv')}")
+    print(f"  - {paths.data('counterfactuals', 'temp_metadata.csv')}")
+    print(f"  - {paths.figures('threshold_retention.png')}")
     return 0
 
 if __name__ == "__main__":

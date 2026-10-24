@@ -35,7 +35,10 @@ run_all.py: error: unrecognized arguments: number of videos>
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/counterfactuals/temp_metadata.csv` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
+- `data/counterfactuals/temp_metadata.csv` is declared but was NOT written. Scripts referencing it:
+    - `src/data/counterfactual.py` — NOT invoked by the run-book
+    - `src/pipeline/run_all.py` — IS a run-book command
+  Make ONE of these WRITE `data/counterfactuals/temp_metadata.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/patches/manifest.csv` is declared but was NOT written. Scripts referencing it:
     - `src/data/optical_flow_loader.py` — NOT invoked by the run-book
     - `src/data/optical_flow_precompute.py` — NOT invoked by the run-book
@@ -43,4 +46,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `src/data/synthetic_generator.py` — NOT invoked by the run-book
     - `src/pipeline/run_all.py` — IS a run-book command
   Make ONE of these WRITE `data/patches/manifest.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `figures/threshold_retention.png` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
+- `figures/threshold_retention.png` is declared but was NOT written. Scripts referencing it:
+    - `src/pipeline/run_all.py` — IS a run-book command
+    - `src/report/threshold_retention_plot.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `figures/threshold_retention.png` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

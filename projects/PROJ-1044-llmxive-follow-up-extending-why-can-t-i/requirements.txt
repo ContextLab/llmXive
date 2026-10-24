@@ -1,1 +1,5 @@
-torchvision==0.17.2
+# No extra dependencies beyond the base environment are required for T001.
+# The project already depends on: numpy, pandas, scipy, matplotlib,
+# scikit-learn, opencv-python, PyYAML, torch, torchvision.
+# If additional packages become necessary for later tasks they will be
+# added in their respective implementation steps.

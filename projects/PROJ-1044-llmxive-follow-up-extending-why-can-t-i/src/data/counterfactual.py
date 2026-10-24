@@ -213,7 +213,7 @@ class CounterfactualGenerator:
 
     def _select_random_patch(self) -> np.ndarray:
         """Pick a random image patch from *self.patch_dir*.
-        
+
         If the directory is empty, a synthetic solid‑color patch is generated
         on‑the‑fly to keep the pipeline functional.
         """
@@ -469,20 +469,26 @@ def main(argv: List[str] | None = None) -> int:
         video_path.unlink(missing_ok=True)
         processed += 1
 
-    # Write metadata CSV
+    # Write metadata CSV (official name)
     if rows:
         df = pd.DataFrame(rows)
         df.to_csv(metadata_path, index=False)
+        # Also write the temporary metadata file required by the original task spec
+        temp_metadata_path = metadata_path.with_name("temp_metadata.csv")
+        df.to_csv(temp_metadata_path, index=False)
         log.info(
             "Counterfactual generation complete: %d accepted / %d processed. "
-            "Metadata written to %s",
+            "Metadata written to %s and %s",
             accepted,
             processed,
             metadata_path,
+            temp_metadata_path,
         )
     else:
         log.warning("No counterfactual pairs accepted; metadata CSV will be empty.")
-        pd.DataFrame().to_csv(metadata_path, index=False)
+        empty_df = pd.DataFrame()
+        empty_df.to_csv(metadata_path, index=False)
+        empty_df.to_csv(metadata_path.with_name("temp_metadata.csv"), index=False)
 
     return 0
 
