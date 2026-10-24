@@ -33,7 +33,7 @@ The researcher needs to run the minimalistic "Digital Colleague" agent across va
 
 **Acceptance Scenarios**:
 
-1. **Given** a library of 50 skills and a task set of 500, **When** the agent executes, **Then** the system logs the completion status (success/fail) and latency for every single task.
+1. **Given** a library of many skills and a task set of a large number of items, **When** the agent executes, **Then** the system logs the completion status (success/fail) and latency for every single task.
 2. **Given** the agent encounters a retrieval failure, **When** it attempts to execute the task, **Then** the system records the failure and the specific retrieval noise metrics (e.g., top-k embedding variance).
 3. **Given** the experiment completes, **When** the researcher aggregates the logs, **Then** they can calculate the task success rate and average latency for the 50-skill configuration.
 
