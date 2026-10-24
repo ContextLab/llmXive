@@ -1,4 +1,4 @@
-# Project dependencies
 datasets==2.21.0
-pyarrow==15.0.0
-# Existing base environment already provides pandas, numpy, scipy, etc.
+pyarrow
+pandas==2.2.2
+numpy==2.0.0

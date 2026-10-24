@@ -1,11 +1,11 @@
 status: none
-intent: InstructPix2Pix image editing prompts with human feasibility scores python
-  package dataset
+intent: download image editing prompts dataset with human feasibility scores InstructPix2Pix
+  DiffusionDB LAION-5B python package dataset
 required_fields:
 - prompt_id
 - prompt_text
 - instruction_type
 - human_feasibility_score
-cache_key: aedb40ff55b94d0234c4859ac3c09933264ca37f8ffcab73971b0db083c87fd1
-searched_at: '2026-10-24T10:08:22.825558+00:00'
+cache_key: ec5ae85785642332335bc8be06f4a02283318ef3c51333af447cd27c627a0069
+searched_at: '2026-10-24T13:12:38.304456+00:00'
 retry_count: 1
