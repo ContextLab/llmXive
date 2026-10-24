@@ -33,7 +33,7 @@ properties:
     type: integer
     minimum: 1
     description: "Number of memory cues for this pair. Must be >= 1."
-  popularity:
+  track_popularity:
     type: number
     description: "Track popularity"
   match_threshold:
@@ -43,7 +43,7 @@ properties:
     type:
       - number
       - "null"
-    description: "Global exposure metric if birth_year is missing and fallback triggered."
+    description: "Global exposure metric if birth_year is missing."
 required:
   - user_id
   - track_id
@@ -51,6 +51,6 @@ required:
   - mean_valence
   - n_cues
   - total_listens
-  - popularity
+  - track_popularity
   - match_threshold
 additionalProperties: false

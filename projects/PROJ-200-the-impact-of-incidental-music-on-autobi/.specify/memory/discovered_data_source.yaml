@@ -1,33 +1,12 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: "import datasets, sys\n# Load the Hugging Face Last.fm 1K Users dataset\n\
-  try:\n    ds = datasets.load_dataset('matthewfranglen/lastfm-1k', split='train')\n\
-  except Exception as e:\n    sys.exit(f'Failed to load dataset: {e}')\nrecord_count\
-  \ = len(ds)\nif record_count == 0:\n    raise ValueError('Loaded dataset has zero\
-  \ records')\nprint(f'RECORDS={record_count}')\n# Print the column names present\
-  \ in the dataset\nfields = ds.column_names\nprint('FIELDS=' + ','.join(fields))"
-record_count: 13365803
-sample_fields:
-- user_index
-- artist_index
-- track_index
-- user_id
-- timestamp
-- musicbrainz_artist_id
-- artist_name
-- musicbrainz_track_id
-- track_name
-- gender
-- age
-- country
-- signup_date
-field_coverage: 0.75
+status: none
+intent: download Last.fm user listening dataset with MusicBrainz track release year
+  metadata python package dataset
 required_fields:
 - user_id
 - birth_year
 - track_id
+- track_release_year
 - listen_timestamp
-intent: download Last.fm 1K Users timestamps and birth years, MusicBrainz metadata
-  python package dataset
-cache_key: baafff64fed2d6c01cf337e38bf0713aff50c7cbfb02f9aedb265ed85d95864b
+cache_key: 6106b63b1d5def1463fdbaab35d48a1c167ad357e227247bc6fc187dfe793e9c
+searched_at: '2026-10-24T15:24:41.060882+00:00'
+retry_count: 1

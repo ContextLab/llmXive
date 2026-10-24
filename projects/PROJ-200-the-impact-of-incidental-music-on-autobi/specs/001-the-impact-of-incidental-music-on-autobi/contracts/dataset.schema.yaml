@@ -11,7 +11,7 @@ properties:
     description: "Unique track identifier"
   total_listens:
     type: integer
-    description: "Total listens for this pair (must be >= 5 per FR‑009)"
+    description: "Total listens for this pair (must be >= 5 per FR-009)"
     minimum: 5
   adolescent_listens:
     type: integer
@@ -24,7 +24,7 @@ properties:
     maximum: 1.0
   logit_ratio:
     type: number
-    description: "Logit transformation of adolescent_exposure_ratio (continuity‑corrected)"
+    description: "Logit transformation of adolescent_exposure_ratio (continuity-corrected)"
   mean_vividness:
     type: number
     description: "Average vividness rating (1-7)"
@@ -48,7 +48,9 @@ properties:
     minimum: 1
   global_exposure_proxy:
     type: number
-    description: "Population‑level proxy for missing birth years"
+    description: "Population-level proxy for missing birth years"
+    minimum: 0.0
+    maximum: 1.0
 required:
   - user_id
   - track_id

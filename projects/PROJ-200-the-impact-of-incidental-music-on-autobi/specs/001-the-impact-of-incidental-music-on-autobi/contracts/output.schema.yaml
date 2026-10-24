@@ -5,13 +5,27 @@ type: object
 properties:
   term:
     type: string
-    description: "Variable name (e.g.,     …    "
+    description: "Variable name (e.g., Intercept, logit_ratio, popularity, total_listens)."
   estimate:
     type: number
-    description: "Coefficient  "
+    description: "Coefficient estimate."
   std_error:
     type: number
-    description: "   "
----
-
-
+    description: "Standard error of the estimate."
+  t_value:
+    type: number
+    description: "t-statistic for the coefficient."
+  p_value:
+    type: number
+    description: "Bonferroni-adjusted p-value (0.0 – 1.0)."
+  vif:
+    type: number
+    description: "Variance Inflation Factor (>= 1.0)."
+required:
+  - term
+  - estimate
+  - std_error
+  - t_value
+  - p_value
+  - vif
+additionalProperties: false
