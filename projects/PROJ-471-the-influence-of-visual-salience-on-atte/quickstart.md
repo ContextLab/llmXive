@@ -1,12 +1,1 @@
-# Quickstart
-
-## Installation
-```bash
-pip install -r requirements.txt
-```
-
-## Run Entry Point
-To run a smoke test of the pipeline, use:
-```bash
-python -m code.main --stage smoke
-```
+# Quickstart\n\n## Installation\n```bash\npip install -r requirements.txt\n```\n\n## Run Entry Point\nTo run a smoke test of the pipeline, use:\n```bash\npython -m code.main --stage smoke\n```\n

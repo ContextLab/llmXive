@@ -10,33 +10,51 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/raw/checksums.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”; every produced artifact is gitignored (data/raw/checksums.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 6 declared deliverable(s) absent: data/interim/detection_metadata.json; data/interim/fixations.csv; data/interim/flagged_images.csv
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”; 2 command(s) failed: python -m code.ingestion.verify_data (rc=1); python -m pytest tests/ -q (rc=2); 6 declared deliverable(s) absent: data/interim/detection_metadata.json; data/interim/fixations.csv; data/interim/flagged_images.csv
 
 ## Failing / missing run-book commands
 
-- (no per-command failures; the run produced no real data/figure artifacts — ensure scripts WRITE their declared outputs under data/ and figures/)
+- python -m code.ingestion.verify_data -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 154, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 88, in main
+    raise RuntimeError("DATA_MISSING_001: ds003123 incomplete (no sub‑* participant folders)")
+RuntimeError: DATA_MISSING_001: ds003123 incomplete (no sub‑* participant folders)
+
+- python -m pytest tests/ -q -> rc=2
+471-the-influence-of-visual-salience-on-atte/code/scr/update_spec_governance.py)
+=============================== warnings summary ===============================
+../../.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/torch/nn/modules/transformer.py:20
+  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/torch/nn/modules/transformer.py:20: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)
+    device: torch.device = torch.device(torch._C._get_default_device()),  # torch.device('cpu'),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/integration/test_pipeline.py
+ERROR tests/test_roi_segmentation.py
+ERROR tests/unit/test_add_disclaimer.py
+ERROR tests/unit/test_salience_batcher.py
+ERROR tests/unit/test_salience_gen.py
+ERROR tests/unit/test_update_spec_governance.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+1 warning, 6 errors in 4.29s
+
+
 
 ## Declared deliverables still missing
 
 - data/interim/detection_metadata.json
 - data/interim/fixations.csv
 - data/interim/flagged_images.csv
-- data/interim/mask_provenance.json
 - data/interim/salience_metadata.json
 - data/processed/results.json
+- data/raw/checksums.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
@@ -54,9 +72,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/interim/flagged_images.csv` is declared but was NOT written. Scripts referencing it:
     - `code/eye_tracking/segment_roi.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/interim/flagged_images.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
-- `data/interim/mask_provenance.json` is declared but was NOT written. Scripts referencing it:
-    - `code/eye_tracking/segment_roi.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/interim/mask_provenance.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/interim/salience_metadata.json` is declared but was NOT written. Scripts referencing it:
     - `code/salience/generate_maps.py` — NOT invoked by the run-book
     - `code/validation/run_quickstart_validation.py` — NOT invoked by the run-book
@@ -71,3 +86,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/vif_interpretation.py` — NOT invoked by the run-book
     - `code/analysis/write_final_results.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/checksums.json` is declared but was NOT written. Scripts referencing it:
+    - `code/ingestion/download_data.py` — NOT invoked by the run-book
+    - `code/ingestion/verify_data.py` — IS a run-book command
+  Make ONE of these WRITE `data/raw/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

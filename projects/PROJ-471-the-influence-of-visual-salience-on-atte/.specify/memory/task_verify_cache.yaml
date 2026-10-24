@@ -1,34 +1,19 @@
 T001:
   c: false
-  h: 5f2353a77206f4d64834c65e7e214bc622d774f609e73544f5977dd4b8150785
-  r: "The recorded test run `tests/test_bootstrap.py` FAILED (exit 1): the monkeypatched\
-    \ `paths.root` did not take effect \u2014 logs show requirements.txt and quickstart.md\
-    \ written to the real project root instead of `tmp_path`, and the required `logs/`\
-    \ directory was never created under the temp root, so the test's core assertion\
-    \ failed. The task's stated verification (\"unit test asserts file existence and\
-    \ exact content\") is not satisfied; the implementer must fix the path patching\
-    \ (e.g., patch the toolkit's root resolution properly or have bootstrap accept\
-    \ a root argument) so the test passes. Additiona"
-  sig: 3d31a75f28d426e9a9e01a2a3e753f47c40cbd144824a492f4c4bcfd993dd208
+  h: e125b8b7631a9d8fee08c08b50690932f24bcd8e8cef3989449ee869749e9a6f
+  r: The `code/bootstrap.py` script parses `sys.argv` directly, causing a `SystemExit`
+    when the test suite runs (pytest injects its own arguments). Consequently `tests/test_bootstrap.py`
+    fails, so the required directories, `requirements.txt`, and `quickstart.md` are
+    never created under the temporary root. The script must ignore or strip external
+    arguments (e.g., use `parse_known_args()` or `parser.parse_args([])`) to let the
+    test pass.
+  sig: af657f5311b5ca3d1176b80990d72cecf2592968767f8c20b9358cfcfdb57667
 T002:
   c: false
-  h: c9a7c4354dc7fddcafa5daa3106139fb239285b7a006f52f033c92cf503bad5f
-  r: "The script `code/ingestion/verify_data.py` exists and looks reasonable, but\
-    \ the core deliverable \u2014 recorded integrity checksums \u2014 is not actually\
-    \ done: `data/raw/checksums.json` contains `{\"files\": []}`, meaning no checksums\
-    \ were computed for any real dataset files. The dataset directory `data/raw/ds003123/`\
-    \ exists but contains only a `stimuli/` sub-directory (no `sub-*` participant/eye-tracking\
-    \ data), and the script was silently modified to no longer enforce `sub-*` presence,\
-    \ contradicting the task's stated requirement to check participant directories\
-    \ and hash eye-tracking files. There is als"
-  sig: 47ade335026eaee9be1e0881b481bea0b555466b901289cef4db2c93f7b13618
-T004:
-  c: false
-  h: cdf4ecfc415938618b991bfc4c3e60e7565afb878087425c34a55251a8d38cf2
-  r: The `segment_roi.py` script imports `detectron2` at module load time, causing
-    an import error (ModuleNotFoundError) and preventing the test suite from being
-    collected or run. Consequently no masks, metadata, or CSV files are generated,
-    and the required verification tests cannot pass. The missing `detectron2` dependency
-    must be installed or the script must handle its absence gracefully for the task
-    to be considered complete.
-  sig: 9e10b9cccd00b3388a3eefdddab230a40537194dd66af9349e50e4b685a1dbc4
+  h: f6d632338f62cf345b0042756bef37cbefe68e55947d3865eb36121d17e39957
+  r: "The `tests/test_verify_data.py` suite fails the `test_verify_missing_dir` case\
+    \ because the script raises `RuntimeError(\"DATA_MISSING_001: ds003123 incomplete\"\
+    )` but does not include the required substring \u201Cds003123 not found\u201D\
+    \ in its error output. This mismatch means the implementation does not meet the\
+    \ specified verification behavior."
+  sig: 208c4d7741d7acccf0e38880553696afac690e23998336c42352c0f488dcfa91

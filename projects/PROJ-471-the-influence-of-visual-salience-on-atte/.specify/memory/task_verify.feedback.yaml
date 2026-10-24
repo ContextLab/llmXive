@@ -1,56 +1,43 @@
 T001:
-  reason: "The recorded test run `tests/test_bootstrap.py` FAILED (exit 1): the monkeypatched\
-    \ `paths.root` did not take effect \u2014 logs show requirements.txt and quickstart.md\
-    \ written to the real project root instead of `tmp_path`, and the required `logs/`\
-    \ directory was never created under the temp root, so the test's core assertion\
-    \ failed. The task's stated verification (\"unit test asserts file existence and\
-    \ exact content\") is not satisfied; the implementer must fix the path patching\
-    \ (e.g., patch the toolkit's root resolution properly or have bootstrap accept\
-    \ a root argument) so the test passes. Additiona"
-  task: 837ede49e78883ebaaea3092dab9ac81465d4bf319b4b68ba9e99daa13f83a13
+  reason: The `code/bootstrap.py` script parses `sys.argv` directly, causing a `SystemExit`
+    when the test suite runs (pytest injects its own arguments). Consequently `tests/test_bootstrap.py`
+    fails, so the required directories, `requirements.txt`, and `quickstart.md` are
+    never created under the temporary root. The script must ignore or strip external
+    arguments (e.g., use `parse_known_args()` or `parser.parse_args([])`) to let the
+    test pass.
+  task: da69c9ca510538a2821773caaa56a95b15e4bda208dce679ad2941dece860c5c
 T002:
-  reason: "The script `code/ingestion/verify_data.py` exists and looks reasonable,\
-    \ but the core deliverable \u2014 recorded integrity checksums \u2014 is not actually\
-    \ done: `data/raw/checksums.json` contains `{\"files\": []}`, meaning no checksums\
-    \ were computed for any real dataset files. The dataset directory `data/raw/ds003123/`\
-    \ exists but contains only a `stimuli/` sub-directory (no `sub-*` participant/eye-tracking\
-    \ data), and the script was silently modified to no longer enforce `sub-*` presence,\
-    \ contradicting the task's stated requirement to check participant directories\
-    \ and hash eye-tracking files. There is als"
-  task: 02685b8ff4f7529742c59f98d98def0273c4a7cb0652d3636c22183b2b7040f9
+  reason: "The `tests/test_verify_data.py` suite fails the `test_verify_missing_dir`\
+    \ case because the script raises `RuntimeError(\"DATA_MISSING_001: ds003123 incomplete\"\
+    )` but does not include the required substring \u201Cds003123 not found\u201D\
+    \ in its error output. This mismatch means the implementation does not meet the\
+    \ specified verification behavior."
+  task: d757de5d2df72f124cfe1d0c7fb7754353c097a9898dd12c06f48885e71273a5
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/salience/generate_maps.py
     exit=1'
-  task: d9f1594af4df8f1d3a00dedc9f305d1cdef60638ac54a4e04623503437a7adbc
+  task: e8ca765809c22560286ef9a711376c7dda2ed5bf1150c159cfafbb24b5424dfb
 T004:
-  reason: The `segment_roi.py` script imports `detectron2` at module load time, causing
-    an import error (ModuleNotFoundError) and preventing the test suite from being
-    collected or run. Consequently no masks, metadata, or CSV files are generated,
-    and the required verification tests cannot pass. The missing `detectron2` dependency
-    must be installed or the script must handle its absence gracefully for the task
-    to be considered complete.
-  task: a0d23483d2ddefee135c45d9cd0fb4f0e9dc05ab739ac437a0d918891848ff40
+  task: 88708ed8fe879e75382443f4a16c02c0097c05bb17496202ea860f2c97d9ac40
 T005:
-  reason: 'Requested task execution failed; rerun successfully: code/eye_tracking/parse_fixations.py
-    exit=1'
-  task: 8f081a992a7f3ded2f11ded5b93e05fb7e986fef8a3e090dab1f8cb0b6d7eb35
+  task: 10b0f1883ddaee21fc300ad181591e664208f035e9fc2bc053c81eaa470f1567
 T006:
-  task: ff0b7dc915770d096ec012167eb152d2acc54d5db04f42b3869536db73898a4e
+  task: e35e7a9580e438a9fcddd9fbc1fa223413e028399367a664476fdc81c1bb0156
 T007:
-  task: b4616c5437efede253e101e93037d001a7292a7726d486ef6bc97c5bf0524532
+  task: 95b7736f094bab45a50fc18894787ce1785e0d2ebd99b3a568f90e93c1d441f7
 T008:
-  task: 31bba67d012165af45e7c18d47416bf6478839502e92cadfa24a62b0ec9ccf4f
+  task: 54380949a88351115a77f5ece26b554f7d90f2fa0d62f9deed94b3635a5997d2
 T009:
-  task: b82d46863d23686d9792312437a0218c9c297840c2224406651192b382bec16e
+  task: 63f7cf757bbf4216876127e352d8a2da19acc59064d9e9d7847cd17e08f58d98
 T010:
-  task: cf89307eb01292be1772db752e764879b01e199c7ce425f247540506a742d046
+  task: 81cfb73b361a8537f2d7de1707bcc3703100921e868ee409cf3b86e4657d5545
 T011:
-  task: 04ddb68cdf79bd49b8768cd91c4f3b75e19551f53bdf8b82161c2add6a703bd8
+  task: c38f29da2cea12ba4d8cdba1dbc1030ff1b9598c14d0364c35af9d3b282c86ee
 T012:
-  task: 639a3a1a9ecd9459aa921e1c161ab4a267af6efde4fc1df8122b07ff72525542
+  task: ec02384cc0d97bac7f92ec546398d1e6f8e90594e960a15504e0c5f9f2aeb0d2
 T013:
-  task: 12aa1cc9b99703f8cd778301cdc1546921f2d4ca66a7bbf6c21d5c14a74e4f70
+  task: 4e4ffab7703f78cbf8b316fc4dd65fd7ea1e59f27438441ed5c76828e44d416a
 T014:
-  task: 8244e956867dc2bf95d8f7eb703438230b3b62448ef42b38830459a6de01f9a9
+  task: 68d1d0949dfee3c7988442b156e7ce612f1ed80c3126a13c121262f27604b346
 T015:
-  task: 4811cbc50c6b12a676ccc53415652c3d85bc1c7d60da816761632fe7ea10465f
+  task: 16d94b26015a1e4101deb2a9b3c345a625b22736d6d3aa51343a89d9f6456355
