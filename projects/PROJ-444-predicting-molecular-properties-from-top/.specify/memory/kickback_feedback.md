@@ -1,12 +1,14 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 6 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001a` (rejected 1x): Requested task execution failed; rerun successfully: code/01_download_lipophilicity.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan streams the PubChem dataset and then selects the *first* 5 000 valid molecules ("deterministic random seed (42) selects the first 5 000 valid molecules"). Selecting the first N records after streaming can introduce systematic bias if the source ordering is not random. This threatens construct validity of the sampled data and may confound the comparison between traditional and topological descriptors. Replace the deterministic “first‑N” approach with a truly random sample (e.g., shuffle the streamed records with the fixed seed before sub‑sampling) or explicitly verify that the dataset is already randomly ordered.
+- The plan describes generating persistence‑image CSVs (e.g., `topological_features_10.csv`) but does not state that these files are validated against the `feature_matrix.schema.yaml` contract. An explicit contract‑validation step (e.g., a pytest contract test) should be added to ensure schema compliance.
+- The sensitivity analysis (step 6) mentions sweeping grid resolutions {10,20,30} but does not specify that the stability criterion σ < 0.02 (SC‑002) will be checked. The plan should include a verification that the R² standard deviation across resolutions meets this threshold.
+- After downloading and processing the PubChem dataset (step 1), the plan does not explicitly reference a contract test against `dataset.schema.yaml`. Adding a contract‑validation step for the `molecules.csv` output will close the gap between the plan and the dataset contract.
+- The power analysis (α = 0.05, power = 0.8, effect size d = 0.5) is based on the total number of molecules (5 000) rather than the effective sample size of the paired test, which uses only the 5 fold‑wise R² differences. This mis‑matches the statistical assumptions: a paired t‑test (or Wilcoxon) with N = 5 has very low power, making the claimed significance unreliable. The plan should either increase the number of CV folds (or use repeated CV) to obtain a larger set of paired observations, or adopt a statistical test appropriate for the limited number of observations.
+- Applying a paired t‑test (or Wilcoxon) directly to R² values is questionable because R² is bounded [0,1] and often non‑normally distributed, violating t‑test assumptions. A more appropriate approach would be to compare per‑sample prediction errors (e.g., RMSE or MAE) across folds or use a non‑parametric test on the error differences.

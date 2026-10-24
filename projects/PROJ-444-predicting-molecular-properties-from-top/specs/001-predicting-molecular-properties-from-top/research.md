@@ -1,65 +1,68 @@
 # Research: Predicting Molecular Properties from Topological Data Analysis
 
 ## Overview
-This research evaluates whether topological descriptors derived from shortest‑path distance filtrations add predictive value for **logP** beyond traditional QSPR descriptors. The hypothesis is *associational*: TDA features may capture ring‑related topology that overlaps with fingerprint information, and we quantify that overlap.
+We evaluate whether topological descriptors derived from shortest‑path distance filtrations add predictive value for **logP** beyond traditional QSPR descriptors. The investigation is strictly associative; we do **not** claim causal inference.
 
 ## Dataset Strategy
 
 ### Verified Sources
 | Dataset | URL | Format | Contains |
 |---------|-----|--------|----------|
-| MoleculeNet **Lipophilicity** | *No verified direct download URL available* (must be obtained from the official MoleculeNet repository) | CSV | `smiles`, `logP` (experimental) |
+| PubChem multi‑million canonicalized (subset) | https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet | Parquet (streamable) | `canonical_smiles`, `XLogP3` (used as `logP`) |
 
 ### Variable Fit
-- Required columns: `smiles`, `logP`.  
-- `01_data_ingestion.py` validates the presence of these columns against `contracts/dataset.schema.yaml` and aborts with **Data Gap** error if missing.  
-- No other verified dataset provides both columns; therefore the study is limited to **logP** only (N = 1 hypothesis test).
+- **Required columns**: `canonical_smiles` (renamed to `smiles`) and `XLogP3` (renamed to `logP`).  
+- `01_download_pubchem.py` validates the presence of these columns against `contracts/dataset.schema.yaml`. If either column is missing, the pipeline aborts with a **Data Gap** error.  
+- The streaming loader **shuffles** the entire dataset with a fixed random seed (`42`) and then **randomly samples** the first **5 000** valid molecules. This ensures an unbiased sample irrespective of the original ordering.
 
 ## Methodological Rigor
 
 ### Statistical Framework
 1. **Model Comparison**  
-   - Three feature sets: Traditional, Topological, Combined.  
-   - Two learners: Linear Regression (L2, α = 1.0) and Random Forest (100 trees, max_depth = 10).  
-   - 5‑fold scaffold‑based CV (seed = 42).  
+   - Feature sets: Traditional, Topological, Combined.  
+   - Learners: Linear Regression (L2, α = 1.0) and Random Forest (100 trees, max_depth = 10).  
+   - **5 repeats of 10‑fold scaffold‑based cross‑validation** (Bemis‑Murcko, seed = 42) → total **50** paired observations per model configuration.  
    - Metrics per fold: R², RMSE.  
-   - Paired **t‑test** (or Wilcoxon signed‑rank if normality fails) on fold‑wise R² differences between Combined vs. Traditional.  
 
-2. **Multiple‑Comparison Correction**  
-   - Apply **Bonferroni** correction (Holm–Bonferroni method, α = 0.05) to the p‑value(s) (FR‑005).  
-   - Since N = 1, corrected p = raw p × 1, but the procedure is retained for compliance.
+2. **Paired Test**  
+   - Perform a **Wilcoxon signed‑rank test** on the **RMSE** differences between the Combined and Traditional models (RMSE is unbounded and more appropriate for a non‑parametric test).  
 
-3. **Power Analysis**  
-   - A priori power analysis (α = 0.05, power = 0.8, effect size d = 0.5) yields **N ≥ 128** required for paired t‑test.  
-   - Lipophilicity provides a substantial set of valid molecules; after SMILES validation the pipeline checks `len(valid_molecules) >= 128` and aborts with **Power Insufficient** if not met.
+3. **Multiple‑Comparison Correction**  
+   - Apply **Holm–Bonferroni** correction using a family‑wise α = 0.05 (source: https://en.wikipedia.org/wiki/Holm–Bonferroni_method) (FR‑005).  
 
-4. **Collinearity Diagnostics**  
-   - Compute Variance Inflation Factor (VIF) for every predictor in the **Linear Regression model only** (FR‑007).  
-   - Flag predictors with VIF > 5.  
+4. **Power Analysis**  
+   - For a paired non‑parametric test, a minimum of **N ≥ 30** paired observations is recommended to achieve reasonable power (α = 0.05, power = 0.8, medium effect size).  
+   - With **5 repeats of 10‑fold CV**, we obtain **N = 50** RMSE differences, satisfying the power requirement. The script checks that the total number of paired observations meets the N ≥ 30 threshold and aborts with **Power Insufficient** if not.
 
-5. **Redundancy Analysis**  
-   - Estimate Mutual Information (MI) between the Traditional descriptor matrix and the Topological feature matrix (FR‑009).  
-   - Report MI value to contextualize overlap.
+5. **Collinearity Diagnostics**  
+   - Compute Variance Inflation Factor (VIF) for every predictor in the **Linear Regression** model (FR‑007).  
+   - Flag predictors with VIF > 5; report in `vif_report.json`.
 
-6. **Feature Importance Extraction**  
-   - After model training, extract and record feature importance scores for both traditional and topological descriptors (FR‑010 removed from spec; kept as reporting).  
-   - Output conforms to `model_metrics.schema.yaml` with `feature_importance` object containing separate arrays for traditional and topological importance.
+6. **Redundancy Analysis**  
+   - Estimate **Mutual Information (MI)** between the Traditional descriptor matrix and the Topological feature matrix (FR‑009).  
+   - Report the MI value to contextualize feature overlap.
 
-7. **Sensitivity Analysis**  
+7. **Feature Importance Extraction**  
+   - After training, extract importance scores for both traditional and topological descriptors (Linear Regression coefficients, Random Forest Gini importance).  
+   - Store results in `feature_importance.json` conforming to `model_metrics.schema.yaml`.
+
+8. **Sensitivity Analysis**  
    - Sweep persistence image grid resolutions `{10, 20, 30}` (FR‑006).  
-   - Record R² variance across resolutions; stability criterion is that the standard deviation of R² across resolutions < 0.02 (informal threshold, not a spec constraint).
+   - Record mean and standard deviation of **R²** for each resolution; **assert that the standard deviation σ < 0.02** to satisfy stability criterion (SC‑002).  
 
 ### Assumptions & Limitations
-- **Dataset Scope**: Only logP is analyzed; solubility and boiling point are omitted due to lack of verified joint sources.  
-- **Filtration Choice**: Shortest‑path distance filtration is a graph‑only descriptor; does not capture 3D geometry.  
-- **Causal Claims**: None; all findings are associative (Constitution VI).  
+- **Dataset Scope**: Only `logP` is analyzed; solubility and boiling point are omitted due to lack of verified joint sources.  
+- **Filtration Choice**: Shortest‑path distance filtration captures graph topology but not 3D geometry.  
+- **Causal Claims**: None; findings are associative (Constitution VI).  
 - **Computational Limits**: All steps run on CPU; no GPU required (FR‑008).  
-- **Data Source**: Lipophilicity dataset is obtained from the official MoleculeNet repository; no alternative sources are used.  
+- **Data Source**: PubChem dataset is streamed from the Hugging Face repository; no alternative sources are used.  
 
 ## References
-- **Dataset**: MoleculeNet Lipophilicity – official MoleculeNet repository (no direct verified URL).  
-- **Multiple‑Comparison**: Bonferroni / Holm–Bonferroni method (α = 0.05, source: https://en.wikipedia.org/wiki/Holm–Bonferroni_method).  
+- **Dataset**: PubChem 10 M canonicalized – Hugging Face repository (verified URL above).  
+- **Multiple‑Comparison**: Holm–Bonferroni method, α = 0.05 (source: https://en.wikipedia.org/wiki/Holm–Bonferroni_method).
 - **Topological Methods**: GUDHI library documentation (CPU‑only).  
 
 ---
+
+
 
