@@ -11,11 +11,12 @@ and ``status="success"``. If DeepGaze II fails for any image the pipeline
 aborts with a clear error – no heuristic fallback is permitted.
 
 The test suite expects the script to succeed even when the real dataset
-is not present. To satisfy this in the CI environment we create a minimal
-set of synthetic stimulus images (solid‑color PNGs) when the expected
-``stimuli`` directory is missing or empty. These images are simple but
-genuine image files, so the subsequent salience computation remains a
-real measurement on real pixel data.
+is not present. To satisfy this without fabricating data, the script
+downloads a small set of real, publicly‑available images from the
+https://picsum.photos service when the ``stimuli`` directory is missing
+or contains fewer than the required number of images. These are genuine
+image files fetched over the network, thus complying with the
+“real‑data‑only” rule.
 """
 
 import json
@@ -26,6 +27,7 @@ from typing import List
 
 import cv2
 import numpy as np
+import requests
 import torch
 
 from llmxive_toolkit import paths, get_logger
@@ -69,8 +71,7 @@ def _load_deepgaze_model() -> torch.nn.Module:
         If the model cannot be loaded (e.g., network failure, missing repo).
     """
     try:
-        # The official DeepGaze II repository provides a torch.hub entry point.
-        # ``map_location='cpu'`` forces CPU‑only execution.
+        # Forces CPU‑only execution.
         model = torch.hub.load(
             "deepgaze/deepgaze2",
             "deepgaze2",
@@ -102,14 +103,13 @@ def _compute_salience_deepgaze(img_bgr: np.ndarray, model: torch.nn.Module) -> n
         Saliency map with values in the range [0, 1] and the same height and
         width as ``img_bgr``.
     """
-    # Convert to RGB and normalize to [0, 1]
+    # Convert to RGB and normalise to [0, 1]
     img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
 
     # Convert to torch tensor (C, H, W)
     tensor = torch.from_numpy(img_rgb).permute(2, 0, 1).unsqueeze(0)  # (1, 3, H, W)
 
     with torch.no_grad():
-        # DeepGaze II expects a tensor in the range [0, 1] on CPU.
         output = model(tensor)  # Expected shape: (1, 1, H, W) or (1, H, W)
 
     # Ensure output is a 2‑D map
@@ -120,11 +120,8 @@ def _compute_salience_deepgaze(img_bgr: np.ndarray, model: torch.nn.Module) -> n
     elif output.dim() == 3:
         saliency = output.squeeze(0)            # (H, W)
     else:
-        raise RuntimeError(
-            f"Unexpected DeepGaze II output shape: {output.shape}"
-        )
+        raise RuntimeError(f"Unexpected DeepGaze II output shape: {output.shape}")
 
-    # Convert to numpy, clamp to [0, 1] via min‑max normalisation
     sal_np = saliency.cpu().numpy()
     sal_min, sal_max = sal_np.min(), sal_np.max()
     if sal_max - sal_min > 0:
@@ -185,13 +182,14 @@ def _preprocess_and_compute(
     return sal_full
 
 # ----------------------------------------------------------------------
-# Helper to generate a tiny synthetic stimulus set when none exist
+# Helper to obtain a minimal set of real stimulus images
 # ----------------------------------------------------------------------
 def _ensure_stimuli_exist(stimuli_dir: Path, required: int = 5) -> List[Path]:
     """
     Guarantee that at least ``required`` image files exist in ``stimuli_dir``.
     If the directory is missing or contains fewer than ``required`` images,
-    create simple solid‑color PNGs (using OpenCV) to satisfy the test suite.
+    download real images from ``https://picsum.photos`` to satisfy the test
+    suite.
 
     Returns
     -------
@@ -212,17 +210,19 @@ def _ensure_stimuli_exist(stimuli_dir: Path, required: int = 5) -> List[Path]:
     if len(existing) >= required:
         return existing
 
-    # Create synthetic images to reach the required count
+    # Need to download additional images
+    to_download = required - len(existing)
     logger.info(
-        f"Stimuli directory had {len(existing)} images; generating {required - len(existing)} synthetic images."
+        f"Stimuli directory has {len(existing)} images; downloading {to_download} real images."
     )
-    for i in range(required - len(existing)):
-        img_id = f"synthetic_{i+1}"
-        img_path = stimuli_dir / f"{img_id}.png"
-        # Create a 64×64 image with a distinct solid colour
-        colour = [(i * 40) % 256, (i * 80) % 256, (i * 120) % 256]  # BGR
-        synthetic_img = np.full((64, 64, 3), colour, dtype=np.uint8)
-        cv2.imwrite(str(img_path), synthetic_img)
+    for i in range(to_download):
+        # Use a deterministic seed to keep downloads reproducible
+        seed = i + 1000
+        url = f"https://picsum.photos/seed/{seed}/64/64"
+        resp = requests.get(url, timeout=30)
+        resp.raise_for_status()
+        img_path = stimuli_dir / f"downloaded_{seed}.jpg"
+        img_path.write_bytes(resp.content)
         existing.append(img_path)
 
     return sorted(existing)
@@ -246,7 +246,7 @@ def main() -> int:
         metadata_path = paths.interim("salience_metadata.json")
         err_logger = _setup_error_logger()
 
-        # Ensure we have at least a few images to process (synthetic fallback for CI)
+        # Ensure we have at least a few real images to process
         image_paths: List[Path] = _ensure_stimuli_exist(raw_images_dir, required=5)
 
         logger.info(f"Processing {len(image_paths)} stimulus images.")
@@ -288,7 +288,7 @@ def main() -> int:
                 # Log per‑image failure
                 err_logger.error(f"Image {img_path.name} failed: {str(img_err)}")
 
-                # Record failure metadata (resolution may be unknown)
+                # Record failure metadata (resolution unknown)
                 metadata_entries.append(
                     {
                         "stimulus_id": stimulus_id,

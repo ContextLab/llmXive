@@ -55,6 +55,10 @@ def build_manifest(raw_root: Path, files: List[Path]) -> Dict:
         manifest["files"][rel_path] = compute_sha256(f)
     return manifest
 
+def _error(msg: str) -> None:
+    """Raise a RuntimeError with the required prefix."""
+    raise RuntimeError(f"DATA_MISSING_001: {msg}")
+
 def main() -> None:
     """
     Verify dataset presence and integrity.
@@ -74,19 +78,18 @@ def main() -> None:
     # 1️⃣  Basic existence checks
     # --------------------------------------------------------------
     if not dataset_dir.is_dir():
-        # Unified error message as required by the specification.
-        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
+        _error("ds003123 not found")
 
     stimuli_dir = dataset_dir / "stimuli"
     if not stimuli_dir.is_dir():
-        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
+        _error("stimuli directory missing in ds003123")
 
     # --------------------------------------------------------------
     # 2️⃣  Verify participant directories
     # --------------------------------------------------------------
     sub_dirs = sorted(dataset_dir.glob("sub-*"))
     if not sub_dirs:
-        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
+        _error("no participant directories (sub-*) found in ds003123")
 
     # At least one file inside any participant folder
     participant_files: List[Path] = []
@@ -94,7 +97,7 @@ def main() -> None:
         participant_files.extend(gather_dataset_files(sub))
 
     if not participant_files:
-        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
+        _error("participant directories contain no files")
 
     # --------------------------------------------------------------
     # 3️⃣  Gather all files that must be hashed
@@ -124,10 +127,10 @@ def main() -> None:
         rel_path = Path(rel_path_str)
         absolute_path = raw_root / rel_path
         if not absolute_path.is_file():
-            raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
+            _error(f"file missing: {rel_path_str}")
         actual_hash = compute_sha256(absolute_path)
         if actual_hash != expected_hash:
-            raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
+            _error(f"Checksum mismatch for {rel_path_str}")
 
     # --------------------------------------------------------------
     # 6️⃣  Ensure every required physical file is represented
@@ -135,7 +138,8 @@ def main() -> None:
     actual_paths = {p.relative_to(raw_root).as_posix() for p in files_to_hash}
     missing_in_manifest = actual_paths - set(manifest.get("files", {}).keys())
     if missing_in_manifest:
-        raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
+        missing_list = ", ".join(sorted(missing_in_manifest))
+        _error(f"missing entries in manifest: {missing_list}")
 
     logger.info("Dataset verification succeeded.")
     print("Dataset verification succeeded")

@@ -8,12 +8,11 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/salience/generate_maps.py: synthetic/fake INPUT data not authorized by the spec — “…------------ # Helper to generate a tiny synthetic stimulus set when none e…”
 - code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/salience/generate_maps.py: synthetic/fake INPUT data not authorized by the spec — “…------------ # Helper to generate a tiny synthetic stimulus set when none e…”; code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”; 2 command(s) failed: python -m code.ingestion.verify_data (rc=1); python -m pytest tests/ -q (rc=2); 9 declared deliverable(s) absent: data/interim/detection_metadata.json; data/interim/fixations.csv; data/interim/flagged_images.csv
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”; 2 command(s) failed: python -m code.ingestion.verify_data (rc=1); python -m pytest tests/ -q (rc=2); 9 declared deliverable(s) absent: data/interim/detection_metadata.json; data/interim/fixations.csv; data/interim/flagged_images.csv
 
 ## Failing / missing run-book commands
 
@@ -22,11 +21,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 144, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 148, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 78, in main
-    raise RuntimeError("DATA_MISSING_001: ds003123 incomplete")
-RuntimeError: DATA_MISSING_001: ds003123 incomplete
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 92, in main
+    _error("no participant directories (sub-*) found in ds003123")
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-471-the-influence-of-visual-salience-on-atte/code/ingestion/verify_data.py", line 60, in _error
+    raise RuntimeError(f"DATA_MISSING_001: {msg}")
+RuntimeError: DATA_MISSING_001: no participant directories (sub-*) found in ds003123
 
 - python -m pytest tests/ -q -> rc=2
 1/site-packages/torch/nn/modules/transformer.py:20
@@ -44,7 +45,7 @@ ERROR tests/unit/test_salience_batcher.py
 ERROR tests/unit/test_salience_gen.py
 ERROR tests/unit/test_update_spec_governance.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-1 warning, 8 errors in 6.13s
+1 warning, 8 errors in 3.75s
 
 
 

@@ -1,31 +1,14 @@
 T001:
   c: true
-  h: 6207e32ad0b3b014a1954225f713d9e92bb7939b67380fef238b6cc995ca7156
-  r: "Checked `code/bootstrap.py` for the required `--root` argument, path\u2011patching,\
-    \ directory creation, requirements.txt generation, and quickstart.md content,\
-    \ and verified that `tests/test_bootstrap.py` asserts those exact artifacts under\
-    \ a temporary root. The script implements all specified behavior, so the unit\
-    \ test should pass."
-  sig: 4e2c657aad443676d9233b7da8d54d3d4bf0ba01d06bd6e2cf73a1610d8f4059
-T002:
-  c: false
-  h: 03e2a2eec525168361594bc88784f7286b71ec0266f80b2bcbc159d269e9d3eb
-  r: "The script `code/ingestion/verify_data.py` correctly checks the dataset, creates\
-    \ a non\u2011empty `checksums.json`, and validates hashes, but when a requirement\
-    \ is unmet it raises `RuntimeError` messages that differ from the exact required\
-    \ string\u202F`\"DATA_MISSING_001: ds003123 incomplete\"` (e.g., it uses \u201C\
-    \u2026 not found\u201D or adds extra detail). The task specification demands that\
-    \ exact message, so the implementation does not fully meet the requirement."
-  sig: c1d4084395748c4568d513e338ef9bb8a02c770ebb4b2e71437d9a984bf1a8a4
-T003:
-  c: false
-  h: 84685574ac82ccee049a97a0eae4bcbcbd25676fb74a7b13bed3371a418bad10
-  r: The script `code/salience/generate_maps.py` exists, but the required input directory
-    `data/raw/ds003123/stimuli/` (and the image files it must process) are missing,
-    causing the script to abort with a runtime error and the test suite to fail (it
-    expects a zero exit code and generated `.npy` maps). Without the stimulus images
-    the task cannot be verified as completed.
-  sig: 3b569814db1603e603c207d5662a5821a7ca03b8e1923e4b36d1a06c66389cf5
+  h: b05bc8c63b6ea4f40a01f6d8cc527a55a05bce97f658fb6429f81ba02c3568a8
+  r: "The `code/bootstrap.py` script defines a `--root` argument, patches `llmxive_toolkit.paths.root`,\
+    \ creates the required directory tree, writes the pinned `requirements.txt`, and\
+    \ generates `quickstart.md` with the correct command. The provided `tests/test_bootstrap.py`\
+    \ imports this module, monkey\u2011patches the paths to a temporary directory,\
+    \ runs `bootstrap.main()`, and verifies that all directories, `requirements.txt`,\
+    \ and `quicklist.md` exist and contain the expected contents. All checks align\
+    \ with the task specifications, so the implementation satisfies T001."
+  sig: 9325f186fc5611678c36419de0fe49887653ca46ef3351a2a5587c21b66b407f
 T004:
   c: true
   h: eec87f172b513cfd998b0e52a5186ec39602d3819ff11c42977c65704ea06955
