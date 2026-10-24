@@ -1,3 +1,5 @@
-# Project dependencies
-# Added tiktoken for tokenization in comment generation
-tiktoken==0.7.0
+huggingface_hub>=0.20.0
+fastparquet>=2024.2.0
+# Existing dependencies are provided by the base environment (numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil). No
+# additional pins are required for this task.

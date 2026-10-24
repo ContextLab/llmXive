@@ -1,13 +1,11 @@
 T001:
   c: false
-  h: 1e13d5a18401f819fb70e39b1ce8f7e16e3c43b8baeb6db923c6a400e42be9a6
-  r: "Checked `src/data/download.py`, the generated JSONL files, `data/artifact_hashes.yaml`,\
-    \ and the pytest file. The script never appears to have been run \u2013 `data/dataset_preparation.log`\
-    \ is missing, and there is no execution evidence showing a zero\u2011exit status\
-    \ or that \u2265150 valid snippets were produced. Moreover, the provided test\
-    \ suite does not verify log creation as required. The task therefore lacks the\
-    \ required log artifact and execution proof."
-  sig: 470edbebcef0a519d748fe6c16b178478dbb12f9d7ff059f8fa601cf81bcba55
+  h: 31bd2a4c9e0452d84a4f047307441fcff694cb090ef583a78b7a3202806f8867
+  r: "Checked `data/validated_snippets.jsonl` (contains a single record) against the\
+    \ requirement that it hold \u2265\u202F150 valid snippets; the file only has one\
+    \ entry despite the log claiming 180 valid snippets. The validated snippets artifact\
+    \ is therefore missing the required content."
+  sig: b8e4c42c57dbb055b6c4ba790ad902f2aecbda21da5b3b2654e9079d98fd2c52
 T001b:
   c: true
   h: 3eb054792c983f22b47452eefc449f76385095c2ef0633d0761368367a4cca4a
@@ -18,16 +16,15 @@ T001b:
   sig: e3cf147dd76306be2461ff98b66d9f2c248da48532e95d592dacea9916a86212
 T002:
   c: false
-  h: bc7b6f5be0072a1d594d26f6678ac32cecea6b2550675dc079b7eeb5735e7704
-  r: "Checked `src/data/generate_comments.py`, `data/llm_comments.jsonl`, `data/excluded_llm_generation.json`,\
-    \ `data/truncation_warnings.log`, and the execution log. The script ran but reported\
-    \ **0 successful generations** and 170 failures, yet `llm_comments.jsonl` contains\
-    \ a single placeholder record (`test-001`) that is not from `validated_snippets.jsonl`.\
-    \ Consequently, no validated snippet has a real `llm_comment`, truncations are\
-    \ not fully logged, and the required output dataset is missing. The task\u2019\
-    s core requirement of producing a complete `llm_comments.jsonl` for the validated\
-    \ snippets is not"
-  sig: 81ac24444be8f7cdf4a878c3d73d3cabbfc067eda997e232e51f0ca00da61ee0
+  h: d55f3cb8e546f59bf92ed8b2c33066f00a5f8a5d56bb089c73109f9b475b10dc
+  r: "The script `src/data/generate_comments.py` exists, but the latest execution\
+    \ logged \u201C0 succeeded, 0 failed\u201D and the output file `data/llm_comments.jsonl`\
+    \ contains a record for `test-001` that is not present in `data/validated_snippets.jsonl`.\
+    \ The required snippet `tiny-001` has no entry in `llm_comments.jsonl`, violating\
+    \ the rule that every successfully processed snippet must appear exactly once\
+    \ and that failures be listed in `excluded_llm_generation.json`. Consequently\
+    \ the task\u2019s core output is missing."
+  sig: 42ca0a0f850a8d5b3e7ffc8bd92acb00d2d102888a9afa20b8b1dedac02e3459
 T004:
   c: true
   h: a959ddb0b402b852dde60f8142487c5cb63f19d4487934a57d4016f7f45615f8
@@ -63,14 +60,12 @@ T006:
   sig: 30b34759c05afb3e4af070d4d762eac1b023ad3591dde7945d9860cb6a48b00b
 T012:
   c: true
-  h: 36a02eee769204c92946e5c229a507b0dbc905b564cc6948d86b5538224d12ab
-  r: "The `src/utils/verify_requirements.py` script (3947\u202Fbytes) correctly checks\
-    \ for the existence and non\u2011emptiness of `code/requirements.txt`, optionally\
-    \ validates its SHA\u2011256 hash against `data/artifact_hashes.yaml`, returns\
-    \ a boolean flag, and logs all steps to `data/requirements_check.log`. The required\
-    \ `code/requirements.txt` file is present and non\u2011empty, and the optional\
-    \ hash entry is absent, which the script handles as designed."
-  sig: b74d6ed9d834a246bc53178dde4f05472878bd2cebbff8b75f2c3c6af18cfaf5
+  h: 9380c97dcc444a2d8770541d5464053e17024216cdb6d156ec50ab5bffbdda2b
+  r: "Checked `src/utils/verify_requirements.py` \u2013 it implements existence, non\u2011\
+    empty check, optional SHA\u2011256 verification, writes to `data/requirements_check.log`,\
+    \ and returns a boolean flag. The required `code/requirements.txt` is present\
+    \ and non\u2011empty; the hash manifest is optional and correctly handled."
+  sig: 07cf7ea2a8b6c511419530808b890bf848b92eb236b57dd14b127d5140a87904
 T014:
   c: false
   h: 6905723c95644c3fa0d318c717f892636bdd47d864f74b2ceb2dacdccac9926b

@@ -224,14 +224,18 @@ def main() -> None:
     # 2. Load parquet with tolerant column mapping
     log.info("Loading parquet file %s", parquet_path)
 
-    # Prefer fastparquet to avoid the pyarrow / NumPy 2.0 incompatibility.
+    # Try fastparquet first; fall back to pyarrow if needed.
     try:
         df_raw = pd.read_parquet(parquet_path, engine="fastparquet")
-    except Exception as e:
-        log.error("Failed to read parquet with fastparquet: %s", e)
-        raise RuntimeError(
-            "Unable to read parquet file. Ensure 'fastparquet' is installed."
-        ) from e
+    except Exception as e_fast:
+        log.warning("fastparquet failed (%s); trying pyarrow.", e_fast)
+        try:
+            df_raw = pd.read_parquet(parquet_path, engine="pyarrow")
+        except Exception as e_py:
+            log.error("Both fastparquet and pyarrow failed: %s", e_py)
+            raise RuntimeError(
+                "Unable to read parquet file. Ensure either 'fastparquet' or 'pyarrow' is installed."
+            ) from e_py
 
     df_mapped = _map_columns(df_raw)
 

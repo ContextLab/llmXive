@@ -45,10 +45,11 @@ def _load_validated_snippets() -> List[Dict]:
 
 def _tokenizer():
     """Return a tiktoken tokenizer for code."""
+    # The cl100k_base encoding is used for OpenAI‑compatible models and works well for Python code.
+    # If for any reason it is unavailable we fall back to a generic model encoding.
     try:
         return tiktoken.get_encoding("cl100k_base")
     except Exception:
-        # Fallback – should never happen for the provided model
         return tiktoken.encoding_for_model("gpt-4")
 
 def _truncate_to_token_limit(code: str, enc) -> str:
@@ -70,8 +71,7 @@ def _truncate_to_token_limit(code: str, enc) -> str:
 
     truncated = "".join(kept_lines)
 
-    # Safety fallback: if even the first line exceeds the limit,
-    # hard‑truncate to the token limit.
+    # Safety fallback: if even the first line exceeds the limit, hard‑truncate.
     if not truncated and lines:
         truncated = enc.decode(enc.encode(code)[:MAX_TOKENS])
 
@@ -103,7 +103,6 @@ def _generate_llm_comment(code: str) -> str:
 
     client = InferenceClient(model=MODEL_ID, token=token)
 
-    # Prompt follows the CodeLlama‑Instruct convention
     prompt = (
         f"[INST] Generate a concise, helpful, and professional docstring‑style comment "
         f"for the following Python code. Provide only the comment text, no conversational filler.\n\n"
@@ -118,7 +117,6 @@ def _generate_llm_comment(code: str) -> str:
                 top_p=1.0,
                 max_new_tokens=256,
                 do_sample=False,
-                # ``seed`` is accepted by the HF inference endpoint for deterministic output
                 seed=PROJECT_SEED,
             )
             # The endpoint may return a plain string or a dict with a ``generated_text`` key
@@ -169,7 +167,6 @@ def _save_checkpoint(processed_ids: Set[str]) -> None:
 def _append_excluded(snippet_id: str) -> None:
     """Record a snippet that could not be generated."""
     excluded_path = paths.data("excluded_llm_generation.json")
-    # Keep the file as a simple JSON list
     if excluded_path.exists():
         try:
             with excluded_path.open("r", encoding="utf-8") as f:
@@ -197,11 +194,15 @@ def main() -> None:
     snippets = _load_validated_snippets()
     enc = _tokenizer()
 
-    # Prepare output files (append mode for resumability)
+    # Output file – if we are starting from scratch (no checkpoint) we truncate it
     llm_out_path = paths.data("llm_comments.jsonl")
     llm_out_path.parent.mkdir(parents=True, exist_ok=True)
 
     processed_ids = _load_checkpoint()
+    if not processed_ids and llm_out_path.exists():
+        # Fresh run – clear any stale data (e.g., placeholder records from previous attempts)
+        llm_out_path.unlink()
+
     total = len(snippets)
     successful = 0
     failed = 0
@@ -269,9 +270,9 @@ def main() -> None:
     with log_path.open("a", encoding="utf-8") as log_f:
         log_f.write(
             f"=== Generation finished at {end_time} UTC ===\n"
-            f"Total snippets: {total}\n"
-            f"Successfully generated: {successful}\n"
-            f"Failed (excluded): {failed}\n"
+            f"Total snippets: {total}\\n"
+            f"Successfully generated: {successful}\\n"
+            f"Failed (excluded): {failed}\\n"
         )
 
     log.info(
