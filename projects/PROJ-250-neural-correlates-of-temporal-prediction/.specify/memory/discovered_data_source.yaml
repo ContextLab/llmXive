@@ -1,17 +1,17 @@
 status: none
-intent: download OpenNeuro ds004510 EEG dataset python package dataset
+intent: OpenNeuro ds004510 EEG dataset download via MNE-Python from Hugging Face python
+  package dataset
 required_fields:
 - subject_id
 - session_id
-- run
-- eeg_signal_array
-- sampling_rate_hz
+- run_id
+- task_name
+- event_id
+- epoch_start
+- epoch_end
+- sampling_rate
 - channel_names
-- event_type
-- event_onset_seconds
-- event_duration_seconds
-- condition_label
-- bids_metadata
-cache_key: 4c780a2b9f20cb9a3bb0548f662b9bf5e4b8ecf81886b25a01a6dc64b7834d72
-searched_at: '2026-10-24T09:10:08.062041+00:00'
+- data_array
+cache_key: 90889a9c7a4a5e17320344f8b4691deb69992006fcf9a91232f2906d2750f449
+searched_at: '2026-10-24T10:12:03.544335+00:00'
 retry_count: 1
