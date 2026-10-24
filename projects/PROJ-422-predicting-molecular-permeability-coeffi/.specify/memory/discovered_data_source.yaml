@@ -1,17 +1,16 @@
 status: none
-intent: polymer membrane permeability coefficients dataset Polymer Membrane Database
-  NIST Chemistry WebBook Materials Project python package dataset
+intent: NIST Polymer Permeability Database and Molecular Simulation Membrane Permeability
+  Database download python package dataset
 required_fields:
 - polymer_name
-- membrane_type
-- gas_species
-- permeability_coefficient
+- membrane_thickness
 - temperature_K
-- pressure_bar
+- pressure_atm
+- solute_gas
+- permeability_coefficient
 - units
 - measurement_method
-- thickness_microns
-- source_reference
-cache_key: 7b9e7577371f0b38d63f0e4d89ed722e4cec7dc6114c2113fdfbb2709ce67541
-searched_at: '2026-10-24T19:19:07.480964+00:00'
+- reference_citation
+cache_key: a96ec209a435f59736b6b66ef04741dae260a67fd6ff9fb61acb26a223ece067
+searched_at: '2026-10-24T20:11:30.957943+00:00'
 retry_count: 1

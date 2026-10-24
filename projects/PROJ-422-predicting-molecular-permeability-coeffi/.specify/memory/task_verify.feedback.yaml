@@ -1,14 +1,15 @@
 T000:
   task: ea2c45cc858183830149c8940f1ebe5b18b3c0f5911fb5170b70a35a13973a24
 T001:
+  reason: The `code/data/download.py` script is present and attempts streaming, but
+    the required output artifacts (`data/raw/` directory with the CSV file and `data/raw/checksums.json`)
+    are missing, and there is no evidence that `tests/unit/test_download.py` was executed
+    successfully. The task is incomplete until the script is run to produce those
+    files and the test passes.
   task: bde1a247186dfeaa5f1d6774448d378a0bd1c3f45400af7e97b56af0ae7b6ccd
 T002:
-  reason: "The `MoleculeProcessor.process` method writes the output files but then\
-    \ applies the retention guard using the raw input row count, causing a `SystemExit`\
-    \ for the provided sample dataframe (3 valid SMILES out of 5 \u2192 60\u202F%\u202F\
-    <\u202F95\u202F%). The unit test expects the method to complete without raising,\
-    \ so the guard logic does not meet the test\u2019s requirements. Adjust the retention\
-    \ calculation or threshold to satisfy the test."
+  reason: 'Requested task execution failed; rerun successfully: code/data/preprocess.py
+    exit=1'
   task: 67d7b1a4658038e6589b0fc24aba7777954fc0c6bdb406fc4e9f72649a881ce6
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/data/split.py

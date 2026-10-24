@@ -15,11 +15,11 @@ The tasks are ordered to respect data flow and to satisfy every functional requi
 
 ## Phase 1 – Data acquisition, preprocessing, and splitting  
 
-- [X] **T001** [US‑1] Implement `code/data/download.py` – streams the dataset identified by `config/selected_dataset.yaml` via `datasets.load_dataset("<selected>", streaming=True)`.  
+- [ ] **T001** [US‑1] Implement `code/data/download.py` – streams the dataset identified by `config/selected_dataset.yaml` via `datasets.load_dataset("<selected>", streaming=True)`.  
   - Writes raw files to `data/raw/` and a SHA‑256 manifest to `data/raw/checksums.json`.  
   - **Verification**: `tests/unit/test_download.py` asserts that at least one row is written and that the `permeability` column exists in the raw file.
 
-- [ ] **T002** [US‑1] Implement `code/data/preprocess.py` – `MoleculeProcessor.process(df)` that:  
+- [ ] **T002** [US‑1] Implement `code/data/preprocess.py` – `MoleculeProcessor.process(df)` that:   <!-- FAILED-IN-EXECUTION: code/data/preprocess.py exit=1 -->
   1. Parses each SMILES with `rdkit.Chem.MolFromSmiles`; logs and excludes invalid SMILES (FR‑011).  
   2. Computes the required RDKit descriptors (MW, logP, TPSA, HBA, HBD, rotatable bonds).  
   3. Builds a molecular‑graph JSON column (node & edge features).  

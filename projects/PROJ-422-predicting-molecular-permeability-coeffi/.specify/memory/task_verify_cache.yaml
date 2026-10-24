@@ -9,13 +9,14 @@ T000:
     \ they pass given the provided implementation."
   sig: 111b3f86e1449dc69f2281e7359a632d392ef76a74d4da52764e25f70ed93346
 T001:
-  c: true
-  h: 3b54844df932ad8d672d6b9970ab95ad88501c6322220814708ecd816b3c2c7d
-  r: Checked `code/data/download.py`, its execution log showing it streamed (attempted)
-    and fell back to the local sample, and the resulting `data/raw/permeability_data.csv`
-    plus `checksums.json` which contain rows and the required `permeability` column,
-    all passing `tests/unit/test_download.py`.
-  sig: 0a6b862a3d1f59dc2536ac98540db9a8f93c2b3d42ba35c5f325870251952749
+  c: false
+  h: 6b6522950bed5632ee250a418dde5733e7bff8c6cf7350d37c0f6642bfb59bfa
+  r: The `code/data/download.py` script is present and attempts streaming, but the
+    required output artifacts (`data/raw/` directory with the CSV file and `data/raw/checksums.json`)
+    are missing, and there is no evidence that `tests/unit/test_download.py` was executed
+    successfully. The task is incomplete until the script is run to produce those
+    files and the test passes.
+  sig: fece2d07856b20c8904e1cc97df2c450a2f0ac8a5f8d3592d876663bff846f28
 T002:
   c: false
   h: e511016fc685aa3fa4d62260a219c8143a5a9d5d085cc87f954d5d5fd59de234
