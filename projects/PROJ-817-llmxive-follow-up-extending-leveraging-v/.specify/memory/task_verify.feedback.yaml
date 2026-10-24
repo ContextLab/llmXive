@@ -1,38 +1,32 @@
 T001:
   reason: 'Requested task execution failed; rerun successfully: code/src/data/download.py
     exit=1'
-  task: e0b9d4a7ff639d238250ebbf9de3f18077f4cae5fa412ea017110cef615935f9
+  task: bd21d80524a851531a5cea30fa0fc35b99929602be2077bf40a77c955778967d
 T002:
-  reason: The script writes the CSV to `results/curated_prompts.csv` (as shown by
-    the execution log) while the task requires the file at `data/results/curated_prompts.csv`,
-    which is missing. Moreover, the conflict generator merely concatenates two prompts
-    with temporal phrasing and does not enforce antonymic attribute targets as the
-    specification demands. Both issues must be fixed for the task to be considered
-    complete.
-  task: dd8b0b45dc971e9f8c1040e9345ba6576981df9f5dc29efba26878695c3945f8
+  task: 5216edb6869cbaf9701705fdff8246a252aa69a56e70f50ff2509808e6675282
 T003:
-  task: a7ab5834cb38c211160246dac4df3fbc6cc66aa18ce342a613c54f8080b77e90
+  task: cb82a73d0ecd7871e1e30a6132ab2fa3855d9e5ccc9a6c823823d976be607132
 T004:
-  task: ba2f22859dce0ce1a6567e37239c9d53139e2f258132060448a4c1eb2120093c
+  task: eb64fb13f69e9bfd28a311fb4902f664704a10eaab9a78049014db3d3367ffab
 T005:
-  task: aa525662014e97fd9af68a7c0352b6c87efc81816e0f509155c6a9e59fad602e
+  task: b3e3148f2b1db9de35caad9646ea37e1eccaec4d47c1a4528583bcfc1a1aae67
 T006:
-  task: b01caf8c73a1ea8a7a7c98cbfb9931ff174bba84a43d23d0896da3b81e79f208
+  task: 822a9c3ad6b51241a720eaf88a484056fe0b90f8ee94424c4928ed436473a6ce
 T007:
-  task: 761c6f8b3c9e153e09f2d4069c78e6695de56c6adcca239c2862aa401011c4d7
+  task: b745851db23259d239273d64cac5473c16fa94ad682ffec41a7d625c0cd6923a
 T008:
-  task: d3cf3473828d0fefc4f6d34289b1b2d5ee3303005cba0bea53d76f664a400c33
+  task: 3b2eae332500ed458da093e676e52af07f733eb0dc1c77f7b3ade1075dd86876
 T009:
-  task: 2d0b2f4d4e30225be93a1ba4a433c97a30ccc3c7c534efead5ae2331d0a0bf0a
+  task: 69f8a18a9e61244cc30d4fd51413896e26e24fd1cbfb497624a51bce78257eac
 T010:
-  task: bdf58f1c2d910fac40511eaca8f65b015b5f929926d12563b9e75c0cbe5cad36
+  task: 23852c09deba89abe96472ba6ebee61f4e022d4fa599d28a6227e26700c83cf8
 T011:
-  task: f330f85b10b9951abd0c76c7b8251d3bc6441e6fce9baa49a92000270e500987
+  task: 97d051e03469d8d97163086cbe40bb800d4046d606ffad2477dc6f25777a9444
 T012:
-  task: 98ad26a356390d675044f96afb47823ca11f73ed18ce8519f99d6307634cfac4
+  task: 1b8ea17b2834e9014f08884d16f7678eb05c3e8369ce7a235909d996b0858435
 T013:
-  task: a46f9e76288f9f4742a50a4857533deeafb0c761bfc28b29bc2331f1c9db2794
+  task: 7c279373ee67dc47ac3e4d290d982400bdfb4a4f0de8908cfb8528a0ece50d10
 T014:
-  task: 923826e1f824a29b7ecb1ed481ac48dc5f03299c13fb03af19a3a14133752055
+  task: 316074b040ba881d4eadf93b9c42cbeab5f4bd86ddf0ca96379527a13373abac
 T015:
-  task: 085e289300ec0ce91e692e51fdeb0e7e7bdaa758614defc8fd04deea38d3bac0
+  task: 64a96f3214875e89ce8dd62d83faacef064df4c38569c616d330db132886ba45

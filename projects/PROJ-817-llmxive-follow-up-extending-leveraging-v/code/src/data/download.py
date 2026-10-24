@@ -7,8 +7,8 @@ It extracts the first ``N_PROMPTS`` rows that contain a non‑empty
 identifying fields is computed.
 
 The loader **fails loudly** (raises ``RuntimeError``) if fewer than the
-requested number of prompts can be collected – there is no synthetic or
-mock fallback. The output is written as a parquet file to
+requested number of prompts can be collected – there is no synthetic
+or mock fallback. The output is written as a parquet file to
 ``data/raw/prompts_sample.parquet`` and a checksum manifest is emitted
 to ``data/raw/checksums_manifest.json``.
 
@@ -42,6 +42,7 @@ OUTPUT_PATH = paths.data("raw", "prompts_sample.parquet")
 MANIFEST_PATH = paths.data("raw", "checksums_manifest.json")
 # ----------------------------------------------------------------------
 
+
 def _row_checksum(row: Mapping[str, object]) -> str:
     """Compute a stable SHA‑256 checksum for a source row.
 
@@ -59,20 +60,26 @@ def _row_checksum(row: Mapping[str, object]) -> str:
     )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
+
 def _iter_stream_hf() -> Iterator[Mapping[str, object]]:
-    """Yield rows from the HF streaming loader using the verified recipe.
-    """
+    """Yield rows from the HF streaming loader using the verified recipe."""
     try:
         from datasets import load_dataset
-        log.info("Streaming load via datasets.load_dataset for %s/%s", DATASET_ID, SPLIT)
-        
+
+        log.info(
+            "Streaming load via datasets.load_dataset for %s/%s",
+            DATASET_ID,
+            SPLIT,
+        )
         ds = load_dataset(DATASET_ID, split=SPLIT, streaming=True)
-        
         for row in ds:
             yield row
     except Exception as exc:
         log.error("HF streaming loader failed: %s", exc)
-        raise RuntimeError(f"Unable to stream dataset {DATASET_ID} from Hugging Face") from exc
+        raise RuntimeError(
+            f"Unable to stream dataset {DATASET_ID} from Hugging Face"
+        ) from exc
+
 
 def collect_prompt_sample(n_prompts: int = N_PROMPTS) -> pd.DataFrame:
     """Collect the first ``n_prompts`` valid prompts from the streaming source.
@@ -82,14 +89,12 @@ def collect_prompt_sample(n_prompts: int = N_PROMPTS) -> pd.DataFrame:
     records: list[dict] = []
     scanned = 0
 
-    row_iter = _iter_stream_hf()
-
-    for row in row_iter:
+    for row in _iter_stream_hf():
         scanned += 1
         prompt = row.get("prompt")
         if not prompt or not str(prompt).strip():
             continue
-        
+
         records.append(
             {
                 "row_id": len(records),
@@ -108,8 +113,11 @@ def collect_prompt_sample(n_prompts: int = N_PROMPTS) -> pd.DataFrame:
         )
 
     df = pd.DataFrame(records)
-    log.info("Successfully collected %d prompts from %d scanned rows", len(df), scanned)
+    log.info(
+        "Successfully collected %d prompts from %d scanned rows", len(df), scanned
+    )
     return df
+
 
 def main() -> int:
     """Entry point for ``python -m code.src.data.download``."""
@@ -119,32 +127,36 @@ def main() -> int:
         log.error("Data collection failed: %s", e)
         return 1
 
-    # 1. Write the parquet file
+    # 1. Write the parquet file using fastparquet (avoids pyarrow/Numpy2 issue)
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(OUTPUT_PATH, index=False)
+    df.to_parquet(OUTPUT_PATH, index=False, engine="fastparquet")
     log.info("Wrote %d rows to %s", len(df), OUTPUT_PATH)
 
     # 2. Generate the checksums manifest (row_id -> checksum)
     manifest = df.set_index("row_id")["checksum"].to_dict()
-    # Convert keys to string for JSON validity
     manifest_str = {str(k): v for k, v in manifest.items()}
     MANIFEST_PATH.write_text(json.dumps(manifest_str, indent=2))
     log.info("Wrote checksum manifest to %s", MANIFEST_PATH)
 
     # 3. Observable verification
-    check_df = pd.read_parquet(OUTPUT_PATH)
+    check_df = pd.read_parquet(OUTPUT_PATH, engine="fastparquet")
     assert len(check_df) >= N_PROMPTS, "Parquet contains fewer than required prompts"
     assert check_df["prompt"].notna().all(), "Null prompts present"
     assert check_df["checksum"].notna().all(), "Null checksums present"
-    
-    # Verify manifest matches parquet
-    with open(MANIFEST_PATH, 'r') as f:
-        loaded_manifest = json.load(f)
-    for idx, row in check_df.iterrows():
-        assert loaded_manifest[str(row['row_id'])] == row['checksum'], f"Checksum mismatch for row {idx}"
 
-    log.info("Verification passed: Parquet and Manifest are consistent and complete.")
+    # Verify manifest matches parquet
+    with open(MANIFEST_PATH, "r") as f:
+        loaded_manifest = json.load(f)
+    for _, row in check_df.iterrows():
+        assert loaded_manifest[str(row["row_id"])] == row["checksum"], (
+            f"Checksum mismatch for row {row['row_id']}"
+        )
+
+    log.info(
+        "Verification passed: Parquet and Manifest are consistent and complete."
+    )
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

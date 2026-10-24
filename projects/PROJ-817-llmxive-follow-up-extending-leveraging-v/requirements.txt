@@ -1,2 +1,37 @@
-datasets
-pyarrow
+# Project dependencies
+# Core scientific stack (already provided by the environment):
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil
+# Additional required packages for this project:
+
+# Hugging Face datasets for streaming the InstructPix2Pix dataset
+datasets==2.21.0
+
+# spaCy and English model (used in later tasks)
+spacy==3.7.4
+# The model will be downloaded at runtime via `python -m spacy download en_core_web_sm`
+
+# NetworkX for graph construction (used in later tasks)
+networkx==3.3
+
+# fastparquet provides a pure‑Python parquet writer/reader compatible with
+# NumPy < 2.0 and avoids the pyarrow version conflict.
+fastparquet
+
+# Pin a pyarrow version that works with the bundled NumPy (1.26.x)
+pyarrow==15.0.0
+
+# bitsandbytes for 8‑bit quantization (used in verifier tasks)
+bitsandbytes==0.43.0
+
+# transformers for loading the Edit‑R1 model
+transformers==4.44.0
+
+# tqdm for progress bars
+tqdm==4.66.5
+
+# statsmodels (used in statistical analysis)
+statsmodels==0.14.2
+
+# Additional utilities
+tqdm==4.66.5
