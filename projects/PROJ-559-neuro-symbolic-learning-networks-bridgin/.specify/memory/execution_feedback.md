@@ -25,7 +25,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/tools/reference_validator.py --threshold 0.8 -> rc=1
 
-2026-10-24 02:11:58,155 ERROR __main__: ERROR: URL validation failed for https://www.khanacademy.org/khan-academy
+2026-10-24 05:14:04,056 ERROR __main__: ERROR: URL validation failed for https://www.khanacademy.org
 
 - python code/data/download_assistments.py -> rc=2
 
@@ -36,17 +36,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-559-neuro-symbolic-learning-networks-bridgin/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/code/data/download_khan.py': [Errno 2] No such file or directory
 
 - python code/download/unify_datasets.py -> rc=1
-2026-10-24 02:11:58,281 - INFO - Starting dataset unification process...
-2026-10-24 02:11:58,281 - ERROR - Source file not found: data/raw/assistments.csv
-2026-10-24 02:11:58,281 - ERROR - Dataset unification failed. Aborting.
+2026-10-24 05:14:04,187 - INFO - Starting dataset unification process...
+2026-10-24 05:14:04,187 - ERROR - Source file not found: data/raw/assistments.csv
+2026-10-24 05:14:04,187 - ERROR - Dataset unification failed. Aborting.
 
 
 - python code/download/validate_unified_schema.py -> rc=1
-2026-10-24 02:11:58,331 - INFO - Starting schema validation for: data/raw/unified_problems.csv
-2026-10-24 02:11:58,332 - INFO - Using schema: contracts/problem.schema.yaml
-2026-10-24 02:11:58,332 - ERROR - Unified data file not found at: data/raw/unified_problems.csv
-2026-10-24 02:11:58,332 - ERROR - Dependency T012e (unify_datasets.py) must run successfully first.
-2026-10-24 02:11:58,332 - ERROR - Schema validation failed.
+2026-10-24 05:14:04,237 - INFO - Starting schema validation for: data/raw/unified_problems.csv
+2026-10-24 05:14:04,237 - INFO - Using schema: contracts/problem.schema.yaml
+2026-10-24 05:14:04,237 - ERROR - Unified data file not found at: data/raw/unified_problems.csv
+2026-10-24 05:14:04,237 - ERROR - Dependency T012e (unify_datasets.py) must run successfully first.
+2026-10-24 05:14:04,237 - ERROR - Schema validation failed.
 
 
 - python code/tools/validate_pilot.py   # checks against contracts/pilot_data.schema.yaml -> rc=2
@@ -66,7 +66,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-559-neuro-symbolic-learning-networks-bridgin/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/code/simulation/present_to_simulator.py': [Errno 2] No such file or directory
 
 - python code/simulate/run_simulation.py -> rc=1
-2026-10-24 02:11:58,887 - __main__ - ERROR - Calibration check failed. Cannot proceed with simulation.
+2026-10-24 05:14:04,817 - __main__ - ERROR - Calibration check failed. Cannot proceed with simulation.
 
 
 - python code/tools/validate_interactions.py   # checks against contracts/interaction_log.schema.yaml -> rc=2

@@ -1,17 +1,15 @@
 status: none
-intent: ASSISTments problem dataset download HuggingFace Khan Academy exercises dataset
-  python package dataset
+intent: download ASSISTments dataset and Khan Academy exercises from HuggingFace python
+  package dataset
 required_fields:
 - problem_id
 - problem_statement
 - solution
-- answer_key
+- hints
 - skill_id
-- knowledge_component
-- difficulty
-- source
-- metadata
+- difficulty_level
+- source_dataset
 - tags
-cache_key: 7b28a1151efb6e4025fcc84663091a3046e8c441e7b6d2a53d740086d63382e5
-searched_at: '2026-10-24T02:12:52.497657+00:00'
+cache_key: 45f54dd0fb00574189d0c5440e0ebe10d757d5d8e17787f87752b2d0e1e7f4d6
+searched_at: '2026-10-24T05:15:01.788841+00:00'
 retry_count: 1
