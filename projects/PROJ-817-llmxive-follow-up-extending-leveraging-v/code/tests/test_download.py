@@ -46,4 +46,4 @@ def test_collect_prompt_sample_fails_loudly_on_short_stream(monkeypatch):
 
     monkeypatch.setattr(dl, "_iter_stream_hf", fake_stream)
     with pytest.raises(RuntimeError):
-        collect_prompt_sample(n_prompts=5)
+        dl.collect_prompt_sample(n_prompts=5)

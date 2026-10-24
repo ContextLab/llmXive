@@ -1,19 +1,15 @@
 """Download a real sample of InstructPix2Pix prompts (T001).
 
-This script streams the public ``timbrooks/instruct-pix2pix`` 
-training split via ``datasets.load_dataset(..., streaming=True)``. 
-It extracts the first ``N_PROMPTS`` rows that contain a non‑empty 
-``edit_prompt``. For each row a stable SHA‑256 checksum over the 
-identifying fields is computed.
+This script streams a public InstructPix2Pix dataset from the Hugging Face Hub,
+extracts the first ``N_PROMPTS`` rows that contain a non‑empty ``edit_prompt``,
+computes a stable SHA‑256 checksum for each row, and writes two artefacts:
 
-The loader **fails loudly** (raises ``RuntimeError``) if fewer than the
-requested number of prompts can be collected – there is no synthetic
-or mock fallback. The output is written as a parquet file to
-``data/raw/prompts_sample.parquet`` and a checksum manifest is emitted
-to ``data/raw/checksums_manifest.json``.
+1. ``data/raw/prompts_sample.parquet`` – a Parquet file with the collected rows.
+2. ``data/raw/checksums_manifest.json`` – a JSON manifest mapping ``row_id`` to
+   its checksum.
 
-The script is intended to be run from the project root as:
-    python -m code.src.data.download
+The loader **fails loudly** (raises ``RuntimeError``) if fewer than the requested
+number of prompts can be collected – no synthetic fallback is performed.
 """
 
 from __future__ import annotations
@@ -32,12 +28,15 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Verified dataset identifier on Hugging Face Hub
-DATASET_ID = "timbrooks/instruct-pix2pix"
+# Primary and fallback dataset identifiers on Hugging Face Hub.
+# The canonical dataset is ``timbrooks/instruct-pix2pix``; some mirrors use
+# an underscore in the name. We attempt both in order.
+PRIMARY_DATASET_ID = "timbrooks/instruct-pix2pix"
+FALLBACK_DATASET_ID = "timbrooks/instruct_pix2pix"
 SPLIT = "train"
 N_PROMPTS = 2000  # target number of prompts to collect
 
-# Exported paths
+# Exported paths (created automatically by ``paths`` helpers)
 OUTPUT_PATH = paths.data("raw", "prompts_sample.parquet")
 MANIFEST_PATH = paths.data("raw", "checksums_manifest.json")
 # ----------------------------------------------------------------------
@@ -46,10 +45,9 @@ MANIFEST_PATH = paths.data("raw", "checksums_manifest.json")
 def _row_checksum(row: Mapping[str, object]) -> str:
     """Compute a stable SHA‑256 checksum for a source row.
 
-    The checksum is over the JSON serialisation of the fields
-    that uniquely identify a prompt in the original dataset.
+    The checksum is over the JSON serialisation of the fields that uniquely
+    identify a prompt in the original dataset.
     """
-    # Use 'edit_prompt' and 'original_prompt' as identifying fields
     payload = json.dumps(
         {
             "edit_prompt": row.get("edit_prompt"),
@@ -61,35 +59,32 @@ def _row_checksum(row: Mapping[str, object]) -> str:
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
-def _iter_stream_hf() -> Iterator[Mapping[str, object]]:
-    """Yield rows from the HF streaming loader using the verified recipe."""
+def _iter_stream_hf(dataset_id: str) -> Iterator[Mapping[str, object]]:
+    """Yield rows from the HF streaming loader for a given ``dataset_id``."""
     try:
         from datasets import load_dataset
 
         log.info(
             "Streaming load via datasets.load_dataset for %s/%s",
-            DATASET_ID,
+            dataset_id,
             SPLIT,
         )
-        ds = load_dataset(DATASET_ID, split=SPLIT, streaming=True)
+        ds = load_dataset(dataset_id, split=SPLIT, streaming=True, trust_remote_code=True)
         for row in ds:
             yield row
     except Exception as exc:
-        log.error("HF streaming loader failed: %s", exc)
+        log.error("HF streaming loader failed for %s: %s", dataset_id, exc)
         raise RuntimeError(
-            f"Unable to stream dataset {DATASET_ID} from Hugging Face"
+            f"Unable to stream dataset {dataset_id} from Hugging Face"
         ) from exc
 
 
-def collect_prompt_sample(n_prompts: int = N_PROMPTS) -> pd.DataFrame:
-    """Collect the first ``n_prompts`` valid prompts from the streaming source.
-
-    A row is considered valid when ``edit_prompt`` is a non‑empty string.
-    """
+def _collect_using_id(dataset_id: str, n_prompts: int) -> pd.DataFrame:
+    """Collect ``n_prompts`` valid rows from ``dataset_id``."""
     records: list[dict] = []
     scanned = 0
 
-    for row in _iter_stream_hf():
+    for row in _iter_stream_hf(dataset_id):
         scanned += 1
         prompt = row.get("edit_prompt")
         if not prompt or not str(prompt).strip():
@@ -108,15 +103,20 @@ def collect_prompt_sample(n_prompts: int = N_PROMPTS) -> pd.DataFrame:
 
     if len(records) < n_prompts:
         raise RuntimeError(
-            f"Collected only {len(records)} valid prompts (required {n_prompts}); "
-            f"stream ended after scanning {scanned} rows."
+            f"Collected only {len(records)} valid prompts (required {n_prompts}) "
+            f"after scanning {scanned} rows from {dataset_id}."
         )
+    return pd.DataFrame(records)
 
-    df = pd.DataFrame(records)
-    log.info(
-        "Successfully collected %d prompts from %d scanned rows", len(df), scanned
-    )
-    return df
+
+def collect_prompt_sample(n_prompts: int = N_PROMPTS) -> pd.DataFrame:
+    """Collect the first ``n_prompts`` valid prompts, trying primary then fallback."""
+    try:
+        return _collect_using_id(PRIMARY_DATASET_ID, n_prompts)
+    except RuntimeError as primary_err:
+        log.warning("Primary dataset failed: %s", primary_err)
+        log.info("Attempting fallback dataset %s", FALLBACK_DATASET_ID)
+        return _collect_using_id(FALLBACK_DATASET_ID, n_prompts)
 
 
 def main() -> int:
@@ -127,9 +127,11 @@ def main() -> int:
         log.error("Data collection failed: %s", e)
         return 1
 
-    # 1. Write the parquet file using pyarrow (default)
+    # Ensure output directories exist
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(OUTPUT_PATH, index=False)  # engine defaults to pyarrow
+
+    # 1. Write the parquet file (default engine = pyarrow)
+    df.to_parquet(OUTPUT_PATH, index=False)
     log.info("Wrote %d rows to %s", len(df), OUTPUT_PATH)
 
     # 2. Generate the checksums manifest (row_id -> checksum)
@@ -138,13 +140,12 @@ def main() -> int:
     MANIFEST_PATH.write_text(json.dumps(manifest_str, indent=2))
     log.info("Wrote checksum manifest to %s", MANIFEST_PATH)
 
-    # 3. Observable verification
+    # 3. Verify integrity
     check_df = pd.read_parquet(OUTPUT_PATH)
     assert len(check_df) >= N_PROMPTS, "Parquet contains fewer than required prompts"
     assert check_df["edit_prompt"].notna().all(), "Null edit_prompt present"
     assert check_df["checksum"].notna().all(), "Null checksums present"
 
-    # Verify manifest matches parquet
     with open(MANIFEST_PATH, "r") as f:
         loaded_manifest = json.load(f)
     for _, row in check_df.iterrows():
@@ -153,7 +154,7 @@ def main() -> int:
         )
 
     log.info(
-        "Verification passed: Parquet and Manifest are consistent and complete."
+        "Verification passed: Parquet and manifest are consistent and complete."
     )
     return 0
 

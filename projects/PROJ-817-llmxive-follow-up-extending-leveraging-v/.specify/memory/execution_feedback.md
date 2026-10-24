@@ -39,14 +39,18 @@ ERROR: Could not install requirement https://github.com/explosion/spacy-models/r
 
 - python -m src.data.download -> rc=1
 
-2026-10-24 04:43:03,486 INFO datasets: PyTorch version 2.14.1 available.
-2026-10-24 04:43:03,627 INFO __main__: Streaming load via datasets.load_dataset for timbrooks/instruct-pix2pix/train
-2026-10-24 04:43:03,788 ERROR __main__: HF streaming loader failed: Dataset 'timbrooks/instruct-pix2pix' doesn't exist on the Hub or cannot be accessed.
-2026-10-24 04:43:03,788 ERROR __main__: Data collection failed: Unable to stream dataset timbrooks/instruct-pix2pix from Hugging Face
+2026-10-24 05:24:37,743 INFO datasets: PyTorch version 2.14.1 available.
+2026-10-24 05:24:37,874 INFO __main__: Streaming load via datasets.load_dataset for timbrooks/instruct-pix2pix/train
+2026-10-24 05:24:37,967 ERROR __main__: HF streaming loader failed for timbrooks/instruct-pix2pix: Dataset 'timbrooks/instruct-pix2pix' doesn't exist on the Hub or cannot be accessed.
+2026-10-24 05:24:37,967 WARNING __main__: Primary dataset failed: Unable to stream dataset timbrooks/instruct-pix2pix from Hugging Face
+2026-10-24 05:24:37,967 INFO __main__: Attempting fallback dataset timbrooks/instruct_pix2pix
+2026-10-24 05:24:37,967 INFO __main__: Streaming load via datasets.load_dataset for timbrooks/instruct_pix2pix/train
+2026-10-24 05:24:38,036 ERROR __main__: HF streaming loader failed for timbrooks/instruct_pix2pix: Dataset 'timbrooks/instruct_pix2pix' doesn't exist on the Hub or cannot be accessed.
+2026-10-24 05:24:38,036 ERROR __main__: Data collection failed: Unable to stream dataset timbrooks/instruct_pix2pix from Hugging Face
 
 - python -m src.data.curate -> rc=1
 
-2026-10-24 04:43:04,157 ERROR __main__: Curate step failed: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/data/raw/prompts_sample.parquet'
+2026-10-24 05:24:38,381 ERROR __main__: Curate step failed: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/data/raw/prompts_sample.parquet'
 
 - python -m src.data.filter_conflicts -> rc=1
 
@@ -81,7 +85,6 @@ ERROR: Could not install requirement https://github.com/explosion/spacy-models/r
 platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-plugins: anyio-4.15.1
 collected 0 items
 
 ============================ no tests ran in 0.00s =============================
