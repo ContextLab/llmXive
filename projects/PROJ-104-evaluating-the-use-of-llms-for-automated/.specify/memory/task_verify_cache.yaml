@@ -1,24 +1,19 @@
 T001:
-  c: true
-  h: 419b7886051cf397cc80c663bb045155bfcd34509e4319b2ccd4fb49d846d79b
-  r: 'The required artifacts exist and are non-empty: `quickstart.md` documents Python
-    3.11 prerequisites, `pip install transformers bitsandbytes`, and the `python -m
-    code.run_pipeline --sample 5` command; `code/run_pipeline.py` loads a hard-coded
-    smoke-test commit pair, invokes the generation module, and writes `data/generated/phi3-mini/sample_test.txt`,
-    which is present on disk with content derived from the smoke-test pair (evidence
-    the command actually ran). `tests/quickstart_test.py` exercises the command and
-    checks the output file. The generation module''s deterministic template is acceptable
-    he'
-  sig: 6efb98db9f1a1f0ce620c818b47a2a52de2cd76fee5941ebb55aee91ac5d95dc
+  c: false
+  h: a91cbc0aabe2757ffea8509eb5c5fdbe8ad2c629ebc54332c4c036be2456dc1f
+  r: "The quick\u2011start guide and `run_pipeline.py` correctly implement the smoke\u2011\
+    test and produce `data/generated/phi3-mini/sample_test.txt`, but the required\
+    \ test suite (`tests/test_quickstart.py` or equivalent) is missing, so there is\
+    \ no evidence that the command runs under\u202F30\u202Fs or that the pytest verification\
+    \ passes. Adding the missing test file and execution timing evidence is needed."
+  sig: 320d4730e4b61aa5c522d59c7a983eea60bb2ad6161e50b56c97db5871e916d5
 T002:
-  c: true
-  h: d9afe2acf1abb777ca7fe3772e8388c5ba3a5707554e6cc3dc0a89af6999fc11
-  r: 'Both required artifacts exist and are substantive: `code/power_analysis.py`
-    implements a genuine Monte-Carlo simulation (1000 replicates, paired three-model
-    design with within-subject correlation, Friedman test via scipy, pinned seed 42
-    from `code/seeds.py`), and `results/power_report.md` contains a numeric power
-    estimate for n=500 (`estimated_power_n500: 1.0000`) with an `exploratory: false`
-    flag that is exactly consistent with the code''s rule (flag true iff power < 0.8).
-    The reported power of ~1.0 is statistically plausible for a medium effect (d=0.5)
-    with n=500 paired samples, so the report'
-  sig: 63652aba87952643d0eeab8044f3fe82b0ea155e6e0ce3be56b9621a8bdfc1a8
+  c: false
+  h: 32b214cebf0792000f8db5eb0edbf8307870955427c346f4cdaf5d8fc602e8de
+  r: "The `code/power_analysis.py` script exists and writes a markdown report, but\
+    \ it only simulates a single medium effect using Cohen\u2019s\u202Fd\u202F=\u202F\
+    0.5 (not the required Cohen\u2019s\u202Ff\u202F=\u202F0.25) and does not vary\
+    \ effect sizes as the task specifies. Consequently the core requirement of \u201C\
+    simulate paired precision scores \u2026 under varying effect sizes\u201D is not\
+    \ fulfilled."
+  sig: f2f77a1aaf631746c08000eb9c1a96f3d2fa402811d54656a293ec54d6850324

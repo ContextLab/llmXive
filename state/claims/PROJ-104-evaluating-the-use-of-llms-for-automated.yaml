@@ -220,3 +220,36 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-17T14:09:03Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_1755222d
+  context: "The quick smoke test loads one tiny hard\u2011coded commit pair, invokes\
+    \ the CPU\u2011only generation module, writes a sample file, and completes in\
+    \ well under 30 seconds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds and requires no model downloads.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:23:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: "re\u2011running any stage reproduces identical results"
+  claim_id: c_ae87860e
+  context: "All stochastic components use the single pinned seed SEED = 42; re\u2011\
+    running any stage reproduces identical results."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Re\u2011running any stage reproduces identical results."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:23:06Z'

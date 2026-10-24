@@ -1,32 +1,38 @@
 T001:
-  task: 6b37783f11eef2536d57ee4e06fbf80be45c24746a75a43127f9d575e4a5e5b5
+  reason: "The quick\u2011start guide and `run_pipeline.py` correctly implement the\
+    \ smoke\u2011test and produce `data/generated/phi3-mini/sample_test.txt`, but\
+    \ the required test suite (`tests/test_quickstart.py` or equivalent) is missing,\
+    \ so there is no evidence that the command runs under\u202F30\u202Fs or that the\
+    \ pytest verification passes. Adding the missing test file and execution timing\
+    \ evidence is needed."
+  task: 7f3f924cb1e80f425a7fe363f56fcd146eb6dd4bf05f339acb5c536bf9d85ee5
 T002:
-  task: 12a64c34cf48d4d8b4fbdb2c73b5b33bf6c31aa035a69bbca164ce6233248ff1
+  reason: "The `code/power_analysis.py` script exists and writes a markdown report,\
+    \ but it only simulates a single medium effect using Cohen\u2019s\u202Fd\u202F\
+    =\u202F0.5 (not the required Cohen\u2019s\u202Ff\u202F=\u202F0.25) and does not\
+    \ vary effect sizes as the task specifies. Consequently the core requirement of\
+    \ \u201Csimulate paired precision scores \u2026 under varying effect sizes\u201D\
+    \ is not fulfilled."
+  task: cecc03d00aa9eeed68fadbcd623d9e9808aa9b5726f7eb14bedaec2c2c5cf5bc
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/data_extraction.py
-    exit=1'
-  task: 94edb86a4d602bb7a5d57a797c7ad06c36fcfa13b6a7e31eb7ad5ced64314d56
+  task: e45cd58dfb2deb37015d910c48f98763df52968b3578974b6c8c76f568a25193
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/gold_annotation.py
-    exit=1'
-  task: 8bb51526e11b1cc8be8a2f2591bcb8eef59d226a84f3dc1a70fd230fa268732f
+  task: 810e65b200d1b5e46f9b1c92fa6d192386746b409bb13bd6977c7505abc5c537
 T005:
-  task: 2af3fe131f9e3c2f2cfead4ec911a8275d562fcfe146ef2ab4846969fbe8840a
+  task: ea4f9cbf0ad1b00f0fa5161bb2825756b08fb604ba9308de706fa8c4eade1031
 T006:
-  task: 541b525ff5f5a277de2bbeb38355b1037a012f58463642bf715d94c6548f3ca7
+  task: d776c6e9c8edb24658df159e391c1247e34020611b612b94cd1ffd811ec1a4bd
 T007:
-  task: 0797d243115c0b9501726725af554108a2ce925f9532cf7086d3c517b5299f57
+  task: 05c252a997a817f4653107d31a67860b2bf68d03d4ac0d76431cfbcfb9681aac
 T008:
-  task: b472b2a03d4fc950525c84e1305f916d80c4edd636232174b02a4ef88dad25c2
+  task: 3f1ea1fcbe47d199b34511144c21c984cf03f4b1a501e21922e0bfa0eb21b3ba
 T009:
-  task: dd6c2779973a5ccbc38fc6c70be622aa06e216577c49c5fc503b8d289e6ae407
+  task: aa3d382e985f5bcd8d229c6fc5549fb3dfc5f2c0c41a4fb8c413fc015027d555
 T010:
-  task: 25e974e6bc35f027dbc7a8bec77fefb17e99a63d38da17461032275fa6684c10
+  task: f3eb4ed3a6a7c4d9df27d4ad54ffff45f2df37740fe82abdba9b59504c07fa52
 T011:
-  task: 686c176083f3630807c4ccdbb3571bb3a2980929a791205b2c920a238d58d192
+  task: 57a2efed4e38228c4e0335448d4ab957dcf0e636598b98136c74463b61f0e504
 T012:
-  task: 93753c8e6439639db5e182327160b850d0cbde19fe71ca68049e53ddf684d08e
+  task: 9b900171c3c3d6ede9e74b140eaba6329ad95f41e7687ca7322a352daa2a46f3
 T013:
-  task: d4bcbb348945fa96dc498beda3c1d1fa73488897a004cc4048f5dd44eb1d8bd0
-T014:
-  task: 1873278e32a05901e67abb93e89b536152104ed8a8cecd30fd94cd8176978b58
+  task: bf8e80e7fe8781f06e510ac045ae6f6d5214bfff3e6067021e4a481b89dd24a0
