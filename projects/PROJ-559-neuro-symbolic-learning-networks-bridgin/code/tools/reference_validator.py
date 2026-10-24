@@ -3,7 +3,7 @@ Reference Validator
 
 This script validates a set of external URLs against a title‑overlap
 threshold. If any URL fails validation, the script logs an error and exits
-with status 1, causing the CI pipeline to abort. On success it creates an
+with status 1, causing the CI pipeline to abort. On success it creates an
 empty marker file at ``state/validation/citation_gate_passed.txt``.
 """
 
@@ -36,19 +36,19 @@ TITLE_OVERLAP_THRESHOLD = 0.8
 
 # Small stop‑word list – these tokens are common in page titles but
 # provide little discriminative power for URL validation. They are ignored
-# when computing the overlap ratio, allowing legitimate titles like
-# “Khan Academy | Free Online Courses, Lessons & Practice” to pass.
+# when computing the overlap ratio. 
+# NOTE: We MUST NOT include the target entity names (e.g., 'khan', 'github') 
+# in the stop-word list, as they are the primary tokens used for validation.
 STOPWORDS = {
     "the", "and", "or", "for", "with", "free", "online", "courses",
     "lessons", "practice", "learn", "learning", "education", "edu",
-    "khan", "academy", "khanacademy", "github", "datasets", "dataset",
     "page", "home", "welcome", "about", "documentation"
 }
 
 # ----------------------------------------------------------------------
 # Logging
 # ----------------------------------------------------------------------
-log = get_logger(__name__)  # Uses the project‑wide logger configuration
+log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -60,7 +60,9 @@ def fetch_title(url: str) -> str | None:
     Returns ``None`` if the request fails or the title cannot be extracted.
     """
     try:
-        response = requests.get(url, timeout=10)
+        # Using a common User-Agent to avoid 403s from some servers
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+        response = requests.get(url, timeout=15, headers=headers)
         response.raise_for_status()
     except Exception as exc:
         log.error(f"Failed to fetch URL {url}: {exc}")

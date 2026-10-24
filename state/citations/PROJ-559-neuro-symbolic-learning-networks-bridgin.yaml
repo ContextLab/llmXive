@@ -31,7 +31,7 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68be9fcd60240ce5c7da4753/5efc92c302efe8d0473e385ccf1683946dc0002ac75a7a69bc158f94705f6e86?user_id=public&X-Xet-Cas-Uid=public&xip=g3rURG8cg3g&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27skill_builder_data_corrected.csv%3B+filename%3D%22skill_builder_data_corrected.csv%22%3B&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&Expires=1792795134&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhiZTlmY2Q2MDI0MGNlNWM3ZGE0NzUzLzVlZmM5MmMzMDJlZmU4ZDA0NzNlMzg1Y2NmMTY4Mzk0NmRjMDAwMmFjNzVhN2E2OWJjMTU4Zjk0NzA1ZjZlODZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9ZzNyVVJHOGNnM2cmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3NraWxsX2J1aWxkZXJfZGF0YV9jb3JyZWN0ZWQuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyc2tpbGxfYnVpbGRlcl9kYXRhX2NvcnJlY3RlZC5jc3YlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YlM0IrY2hhcnNldCUzRHV0Zi04IiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI3OTUxMzR9fX1dfQ__&Signature=MEUCIQDTOdtCPr9CDVRzNggpb3jli%7Ex7UhrPqjoJ1lag2fn-EwIgV35qk3J3yO5cSl-Mjuj0y8voJr0hNkZr%7E3%7EFVbouR94_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-10-23T21:38:54.114408Z'
-- artifact_hash: 0d92aa846749060f8e8d3aa93bdbef26f9a26f4b484fed0d93044362e6087dbc
+- artifact_hash: 82746481ecb82d6a685f83bf1631fef9ce69d33f5dee91e7a56efabb4f7ee6ad
   artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://huggingface.co/datasets/assistments/2009-2010`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/assistments/2009-2010
-  verified_at: '2026-10-24T11:08:28.995756Z'
-- artifact_hash: 0d92aa846749060f8e8d3aa93bdbef26f9a26f4b484fed0d93044362e6087dbc
+  verified_at: '2026-10-24T22:10:53.275321Z'
+- artifact_hash: 82746481ecb82d6a685f83bf1631fef9ce69d33f5dee91e7a56efabb4f7ee6ad
   artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://huggingface.co/datasets/khanacademy/math`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/khanacademy/math
-  verified_at: '2026-10-24T11:08:28.995756Z'
+  verified_at: '2026-10-24T22:10:53.275321Z'
