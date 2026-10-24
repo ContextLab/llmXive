@@ -224,8 +224,7 @@ class MoleculeProcessor:
             # Descriptors
             descriptors = self.calculate_descriptors(mol)
             if not descriptors:
-                # Should not happen because descriptor calculation rarely fails,
-                # but treat as invalid molecule for safety.
+                # Treat as invalid molecule for safety.
                 invalid_smiles += 1
                 continue
 
@@ -313,24 +312,42 @@ class MoleculeProcessor:
         """
         When the script is executed directly, load the first CSV found in
         ``data/raw/`` (produced by ``code/data/download.py``) and process it.
+        If no raw CSV is present, fall back to the bundled sample dataset.
         """
         raw_dir = paths.data('raw')
         csv_files = list(raw_dir.glob('*.csv'))
+
         if not csv_files:
-            self.logger.error(f"No CSV files found in raw data directory: {raw_dir}")
-            raise FileNotFoundError(f"No CSV files in {raw_dir}")
+            # Fallback to the sample file shipped with the repo
+            sample_path = Path('data') / 'sample_permeability.csv'
+            if not sample_path.is_file():
+                self.logger.error(
+                    f"No CSV files found in raw data directory: {raw_dir} "
+                    f"and no sample fallback available."
+                )
+                raise FileNotFoundError(f"No CSV files in {raw_dir}")
+            self.logger.warning(
+                f"No raw CSV found; using sample fallback at {sample_path}"
+            )
+            df = pd.read_csv(sample_path)
+            # Align column names to expected defaults
+            rename_map = {}
+            if 'smiles' in df.columns and 'SMILES' not in df.columns:
+                rename_map['smiles'] = 'SMILES'
+            if 'permeability' in df.columns and 'permeability_coefficient' not in df.columns:
+                rename_map['permeability'] = 'permeability_coefficient'
+            if rename_map:
+                df = df.rename(columns=rename_map)
+        else:
+            # Use the first CSV file (the download step writes a single file)
+            csv_path = csv_files[0]
+            self.logger.info(f"Loading raw dataset from {csv_path}")
+            df = pd.read_csv(csv_path)
 
-        # Use the first CSV file (the download step writes a single file)
-        csv_path = csv_files[0]
-        self.logger.info(f"Loading raw dataset from {csv_path}")
-        df = pd.read_csv(csv_path)
-
-        # Attempt to infer column names: the download script writes columns as they appear.
-        # We keep the default SMILES and target column names used in the tests.
+        # Process the dataframe; any SystemExit will propagate as the script exit code
         try:
             self.process(df)
         except SystemExit as e:
-            # Propagate the exit code so the CLI exits with non‑zero status.
             raise e
 
 if __name__ == "__main__":
@@ -340,7 +357,7 @@ if __name__ == "__main__":
         # Successful run
         exit(0)
     except SystemExit as e:
-        # Ensure the script exits with the appropriate non‑zero code.
+        # Propagate the exit code
         exit(e.code if isinstance(e.code, int) else 1)
     except Exception as exc:
         log.error(f"Preprocessing failed: {exc}")

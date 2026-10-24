@@ -1,18 +1,18 @@
 status: none
-intent: download Polymer Membrane Permeability Database Robeson Upper Bound dataset
-  python package dataset
+intent: Polymer Membrane Permeability experimental dataset python package dataset
 required_fields:
 - polymer_name
-- polymer_structure_SMILES_or_InChI
+- polymer_structure_smiles
+- membrane_type
 - membrane_thickness
 - temperature_K
-- pressure_atm
-- gas_species
-- permeability_coefficient_units
-- permeability_coefficient_value
+- pressure_bar
+- gas_or_solute
+- permeability_coefficient_Barrer
 - measurement_method
-- selectivity_ratio
 - reference_citation
-cache_key: bebed6147b822ebfb0770e5655af85e48464355551e0b34e3c80b0234e0d2105
-searched_at: '2026-10-24T18:32:36.668113+00:00'
+- simulation_method
+- simulation_parameters
+cache_key: 4634b9f0426e3c007f9d2c48aa55272a828fe2b23b890c6df15037aca7773e06
+searched_at: '2026-10-24T18:38:00.755840+00:00'
 retry_count: 1

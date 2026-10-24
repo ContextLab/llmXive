@@ -1,31 +1,39 @@
 T000:
   task: ea2c45cc858183830149c8940f1ebe5b18b3c0f5911fb5170b70a35a13973a24
 T001:
-  reason: "The `code/data/download.py` script runs but fails to fetch the dataset\
-    \ (the Hugging\u202FFace identifier `deepchem/permeability` does not exist), so\
-    \ no CSV is written to `data/raw/` and the required `data/raw/checksums.json`\
-    \ file is missing. Consequently the unit test `tests/unit/test_download.py` fails,\
-    \ indicating the task\u2019s core requirements are not met. The implementation\
-    \ must point to a valid, publicly accessible dataset (or provide a mock/local\
-    \ fallback) and ensure both the raw CSV and checksum manifest are created."
+  reason: "The `code/data/download.py` script raises a `RuntimeError` when the Hugging\u202F\
+    Face dataset cannot be streamed, so the fallback to the local sample is never\
+    \ executed. Consequently `tests/unit/test_download.py` fails: no CSV is written\
+    \ to `data/raw/`, `data/raw/checksums.json` is missing, and the required columns\
+    \ are not verified. The `data/raw/` directory is empty, and the checksum manifest\
+    \ does not exist. The implementation must correctly handle the streaming failure,\
+    \ write the fallback CSV, compute and store the SHA\u2011256 checksum, and ensure\
+    \ the test passes."
   task: bde1a247186dfeaa5f1d6774448d378a0bd1c3f45400af7e97b56af0ae7b6ccd
 T002:
-  reason: The `process` method writes CSV and Parquet files, but the expected artifacts
-    `data/processed/processed_data.csv` and `data/processed/processed_data.parquet`
-    are missing from the project repository, so the unit test that checks for their
-    existence would fail. The implementation must ensure these files are actually
-    created at the specified paths.
   task: 67d7b1a4658038e6589b0fc24aba7777954fc0c6bdb406fc4e9f72649a881ce6
 T003:
+  reason: "Checked `code/data/split.py` (implements the required split logic) and\
+    \ the presence of the expected output files. While the script contains the correct\
+    \ functionality, the required output artifacts `data/processed/train.parquet`\
+    \ and `data/processed/test.parquet` are missing from the repository, so the task\u2019\
+    s deliverable is not satisfied."
   task: 7fd726fc2a27f0f6a65ef4cce1825d14d0dfe7303ebd282bb2a27ec6c677c5cf
 T004:
-  reason: "The provided `code/models/gnn.py` implements a CPU\u2011only 3\u2011layer\
-    \ MPNN with early stopping and saves a checkpoint to `code/models/gnn.pt`, but\
-    \ the checkpoint file is absent and the unit test suite (`tests/unit/test_models.py`)\
-    \ does not contain the required training\u2011time/ checkpoint verification test.\
-    \ Consequently the verification step is not satisfied."
+  reason: "The `code/models/gnn.py` file defines `MPNNLayer.forward(self, x, edge_index=None)`\
+    \ which does **not** accept the `edge_attr` argument required by `tests/unit/test_models.py::TestMPNNLayer.test_forward_pass_with_edge_features`.\
+    \ This causes a TypeError and the unit test suite fails (1/14 tests). Consequently\
+    \ the implementation does not satisfy the task\u2019s verification requirement.\
+    \ The model checkpoint file exists, but the failing test means the task is not\
+    \ fully completed. Fix the layer\u2019s forward signature (e.g., add `edge_attr=None`\
+    \ and handle it) so all tests pass."
   task: 1f159edc78f70bf5b5a77ef47454b7775fdeb6445548a972227d3f6257e926f2
 T005:
+  reason: The repository contains `code/models/rf.py` implementing the required RandomForestRegressor,
+    but the expected output file `code/models/rf.pkl` is missing; the model is not
+    saved in the project tree as required by the task. The absence of this pickle
+    file means the verification test cannot be satisfied in a persistent manner. Adding
+    the saved model (or ensuring the CLI creates it in the correct location) is needed.
   task: 24abc3260275764fab6a1119da493d93c503d7b5a5e9c20b03d8bd83966c2a1a
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/analysis/train.py

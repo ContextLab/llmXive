@@ -1,6 +1,13 @@
-# Existing dependencies are already provided by the platform:
-# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil
-# Additional third‑party packages needed for the GNN implementation:
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil) are provided by the platform.
+# Additional dependencies required for this project:
+rdkit-pypi
 torch==2.2.0
 torch-geometric
+shap
+# Pin numpy to a version compatible with torch (pre‑2.0) to avoid import errors.
+numpy<2
+# pyarrow is needed for Parquet I/O used in preprocessing.
+pyarrow
+joblib
+# The above list respects the project's need for real data handling and model training.
