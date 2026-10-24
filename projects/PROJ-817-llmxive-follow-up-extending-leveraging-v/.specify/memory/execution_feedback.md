@@ -33,19 +33,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-817-llmxive-follow-up-extending-leveraging-v/bin/python: No module named spacy
 
 - python -m code.src.data.download -> rc=1
- via datasets.load_dataset for timbrooks/instructpix2pix/train
-2026-10-24 13:09:46,288 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/timbrooks/instructpix2pix "HTTP/1.1 401 Unauthorized"
-2026-10-24 13:09:46,288 ERROR __main__: HF streaming loader failed for timbrooks/instructpix2pix: Dataset 'timbrooks/instructpix2pix' doesn't exist on the Hub or cannot be accessed.
-2026-10-24 13:09:46,289 WARNING __main__: Primary dataset failed: Unable to stream dataset timbrooks/instructpix2pix from Hugging Face
-2026-10-24 13:09:46,289 INFO __main__: Attempting fallback dataset timbrooks/instruct-pix2pix
-2026-10-24 13:09:46,289 INFO __main__: Streaming load via datasets.load_dataset for timbrooks/instruct-pix2pix/train
-2026-10-24 13:09:46,332 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/timbrooks/instruct-pix2pix "HTTP/1.1 401 Unauthorized"
-2026-10-24 13:09:46,332 ERROR __main__: HF streaming loader failed for timbrooks/instruct-pix2pix: Dataset 'timbrooks/instruct-pix2pix' doesn't exist on the Hub or cannot be accessed.
-2026-10-24 13:09:46,332 ERROR __main__: Data collection failed: Unable to stream dataset timbrooks/instruct-pix2pix from Hugging Face
+
+2026-10-24 19:12:58,855 INFO __main__: Attempting streaming load via datasets.load_dataset for timbrooks/instructpix2pix/train
+2026-10-24 19:12:58,987 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/timbrooks/instructpix2pix "HTTP/1.1 401 Unauthorized"
+2026-10-24 19:12:58,988 WARNING __main__: Standard HF loader failed for timbrooks/instructpix2pix: Dataset 'timbrooks/instructpix2pix' doesn't exist on the Hub or cannot be accessed.
+2026-10-24 19:12:58,988 INFO __main__: Attempting direct parquet stream fallback for timbrooks/instructpix2pix
+2026-10-24 19:12:59,316 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/timbrooks/instructpix2pix/revision/main "HTTP/1.1 401 Unauthorized"
+2026-10-24 19:12:59,316 ERROR __main__: Direct parquet stream also failed: datasets/timbrooks/instructpix2pix@main/data/train-00000-of-00001.parquet (repository not found)
+2026-10-24 19:12:59,317 ERROR __main__: Data collection failed: Unable to stream dataset timbrooks/instructpix2pix from Hugging Face via any method
 
 - python -m code.src.data.curate -> rc=1
 
-2026-10-24 13:09:46,712 ERROR __main__: Curate step failed: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/data/raw/prompts_sample.parquet'
+2026-10-24 19:12:59,886 ERROR __main__: Curate step failed: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/data/raw/prompts_sample.parquet'
 
 - python -m src.data.filter_conflicts -> rc=1
 

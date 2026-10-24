@@ -30,7 +30,9 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Primary and fallback dataset identifiers on Hugging Face Hub.
 PRIMARY_DATASET_ID = "timbrooks/instructpix2pix"
-FALLBACK_DATASET_ID = "timbrooks/instruct-pix2pix"
+# Direct URL to the primary parquet shard to bypass Hub API 401 errors on some runners.
+# This is the same real data as the primary dataset ID.
+PRIMARY_PARQUET_URL = "https://huggingface.co/datasets/timbrooks/instructpix2pix/resolve/main/data/train-00000-of-00001.parquet"
 SPLIT = "train"
 N_PROMPTS = 2000  # target number of prompts to collect
 
@@ -60,16 +62,20 @@ def _row_checksum(row: Mapping[str, object]) -> str:
 
 
 def _iter_stream_hf(dataset_id: str) -> Iterator[Mapping[str, object]]:
-    """Yield rows from the HF streaming loader for a given ``dataset_id``."""
+    """Yield rows from the HF streaming loader for a given ``dataset_id``.
+
+    Tries the standard dataset loader first. If a 401/API error occurs,
+    it falls back to the 'parquet' loader using the direct URL to the 
+    same real data to ensure reliability on restricted runners.
+    """
     try:
         from datasets import load_dataset
 
         log.info(
-            "Streaming load via datasets.load_dataset for %s/%s",
+            "Attempting streaming load via datasets.load_dataset for %s/%s",
             dataset_id,
             SPLIT,
         )
-        # trust_remote_code=True is often required for InstructPix2Pix loading scripts
         ds = load_dataset(
             dataset_id,
             split=SPLIT,
@@ -79,10 +85,24 @@ def _iter_stream_hf(dataset_id: str) -> Iterator[Mapping[str, object]]:
         for row in ds:
             yield row
     except Exception as exc:
-        log.error("HF streaming loader failed for %s: %s", dataset_id, exc)
-        raise RuntimeError(
-            f"Unable to stream dataset {dataset_id} from Hugging Face"
-        ) from exc
+        log.warning("Standard HF loader failed for %s: %s", dataset_id, exc)
+        log.info("Attempting direct parquet stream fallback for %s", dataset_id)
+        try:
+            from datasets import load_dataset
+            # Load using the generic 'parquet' loader on the direct URL
+            ds = load_dataset(
+                "parquet",
+                data_files=PRIMARY_PARQUET_URL,
+                split=SPLIT,
+                streaming=True,
+            )
+            for row in ds:
+                yield row
+        except Exception as fallback_exc:
+            log.error("Direct parquet stream also failed: %s", fallback_exc)
+            raise RuntimeError(
+                f"Unable to stream dataset {dataset_id} from Hugging Face via any method"
+            ) from fallback_exc
 
 
 def _collect_using_id(dataset_id: str, n_prompts: int) -> pd.DataFrame:
@@ -119,13 +139,9 @@ def _collect_using_id(dataset_id: str, n_prompts: int) -> pd.DataFrame:
 
 
 def collect_prompt_sample(n_prompts: int = N_PROMPTS) -> pd.DataFrame:
-    """Collect the first ``n_prompts`` valid prompts, trying primary then fallback."""
-    try:
-        return _collect_using_id(PRIMARY_DATASET_ID, n_prompts)
-    except RuntimeError as primary_err:
-        log.warning("Primary dataset failed: %s", primary_err)
-        log.info("Attempting fallback dataset %s", FALLBACK_DATASET_ID)
-        return _collect_using_id(FALLBACK_DATASET_ID, n_prompts)
+    """Collect the first ``n_prompts`` valid prompts."""
+    # We only use the primary source as the fallback is handled internally in _iter_stream_hf
+    return _collect_using_id(PRIMARY_DATASET_ID, n_prompts)
 
 
 def main() -> int:
