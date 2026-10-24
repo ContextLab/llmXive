@@ -24,11 +24,13 @@ items:
     band_gap:
       type: number
       minimum: 0
-      description: "Band gap in eV; 0 denotes a metal and is a valid, retained value."
+      description: "Band gap in eV; A designated categorical code denotes a metal and is a valid, retained value."
     hardness:
-      type: number
+      type:
+        - number
+        - "null"
       minimum: 0
-      description: "Hardness in GPa; provenance (DFT, experimental, or model-derived) must be documented when a dataset is attached."
+      description: "Hardness in GPa; provenance must be documented when a dataset is attached. Null is allowed when no open source provides this property."
     crystal_system:
       type: string
       enum:
@@ -39,3 +41,4 @@ items:
         - trigonal
         - hexagonal
         - cubic
+

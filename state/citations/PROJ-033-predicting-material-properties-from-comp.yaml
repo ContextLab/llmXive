@@ -9,3 +9,14 @@
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials/%7Bmpid%7D/cif
   verified_at: '2026-10-14T05:32:15.412472Z'
+- artifact_hash: 335ef258ada9d0bfaacef421d201aa022fdf4d3ac75f3f30983ec8ea2f21f8ef
+  artifact_path: projects/PROJ-033-predicting-material-properties-from-comp/specs/001-predicting-material-properties-from-comp/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/matbench/expt_gap
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/matbench/expt_gap
+  verified_at: '2026-10-24T13:28:12.301889Z'

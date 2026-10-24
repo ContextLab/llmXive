@@ -29,12 +29,12 @@ properties:
     type: object
     required: [r2_mean, r2_std, mae_mean, mae_std, rmse_mean, rmse_std]
     properties:
-      r2_mean: {type: number, description: "Mean R2 across 5 CV folds for hardness."}
-      r2_std: {type: number, description: "Std of R2 across folds for hardness."}
-      mae_mean: {type: number, description: "Mean MAE across folds for hardness."}
-      mae_std: {type: number, description: "Std of MAE across folds for hardness."}
-      rmse_mean: {type: number, description: "Mean RMSE across folds for hardness."}
-      rmse_std: {type: number, description: "Std of RMSE across folds for hardness."}
+      r2_mean: {type: ["number","null"], description: "Mean R2 across 5 CV folds for hardness (null if hardness not provided)."}
+      r2_std: {type: ["number","null"], description: "Std of R2 across folds for hardness (null if hardness not provided)."}
+      mae_mean: {type: ["number","null"], description: "Mean MAE across folds for hardness (null if hardness not provided)."}
+      mae_std: {type: ["number","null"], description: "Std of MAE across folds for hardness (null if hardness not provided)."}
+      rmse_mean: {type: ["number","null"], description: "Mean RMSE across folds for hardness (null if hardness not provided)."}
+      rmse_std: {type: ["number","null"], description: "Std of RMSE across folds for hardness (null if hardness not provided)."}
   rf_baseline:
     type: object
     description: "Random Forest baseline metrics with the same per-target structure; the delta vs GNN is a baseline gap, NOT a structure information-loss metric."
@@ -54,12 +54,12 @@ properties:
         type: object
         required: [r2_mean, r2_std, mae_mean, mae_std, rmse_mean, rmse_std]
         properties:
-          r2_mean: {type: number}
-          r2_std: {type: number}
-          mae_mean: {type: number}
-          mae_std: {type: number}
-          rmse_mean: {type: number}
-          rmse_std: {type: number}
+          r2_mean: {type: ["number","null"]}
+          r2_std: {type: ["number","null"]}
+          mae_mean: {type: ["number","null"]}
+          mae_std: {type: ["number","null"]}
+          rmse_mean: {type: ["number","null"]}
+          rmse_std: {type: ["number","null"]}
   delta_vs_rf:
     type: object
     description: "GNN minus RF per target and metric; single-source-of-truth artifact for the baseline gap. Explicitly NOT a structure information-loss metric."
@@ -76,7 +76,8 @@ properties:
         type: object
         required: [delta_r2, delta_mae, delta_rmse]
         properties:
-          delta_r2: {type: number, description: "r2_mean(GNN) - r2_mean(RF) for hardness."}
-          delta_mae: {type: number, description: "mae_mean(GNN) - mae_mean(RF) for hardness."}
-          delta_rmse: {type: number, description: "rmse_mean(GNN) - rmse_mean(RF) for hardness."}
+          delta_r2: {type: ["number","null"], description: "r2_mean(GNN) - r2_mean(RF) for hardness (null if hardness not provided)."}
+          delta_mae: {type: ["number","null"], description: "mae_mean(GNN) - mae_mean(RF) for hardness (null if hardness not provided)."}
+          delta_rmse: {type: ["number","null"], description: "rmse_mean(GNN) - rmse_mean(RF) for hardness (null if hardness not provided)."}
 additionalProperties: false
+
