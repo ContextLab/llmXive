@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -e
-python - <<'PY'
-import subprocess, sys, pathlib
-script = pathlib.Path("code/tools/reference_validator.py")
-result = subprocess.run([sys.executable, str(script), "--threshold", "0.8"], check=False)
-sys.exit(result.returncode)
-PY
+# Run the citation‑gate validation script.
+python "$(dirname "$0")/../tools/reference_validator.py" --threshold 0.8
+# If the script exits with 0, the marker file will have been created.
+echo "Citation‑gate validation completed successfully."

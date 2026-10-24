@@ -10,11 +10,11 @@
     "python code/simulate/run_simulation.py --num-students 2000 --conditions neural,symbolic,neuro_symbolic -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/code/simulate/run_simulation.py\", line 8, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
     "python code/analyze/mixed_effects.py --input data/derived/simulation_logs.csv --output data/derived/regression_results.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/code/analyze/mixed_effects.py\", line 17, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
   ],
-  "fix_rounds": 1,
-  "model_tier": 0,
+  "fix_rounds": 0,
+  "model_tier": 1,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-17T16:12:19Z"
+  "updated_at": "2026-10-24T00:27:15Z"
 }
