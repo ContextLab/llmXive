@@ -29,28 +29,23 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m spacy download en_core_web_sm -> rc=1
-Collecting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
 
-  ERROR: HTTP error 404 while getting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
-ERROR: Could not install requirement https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz because of HTTP error 404 Client Error: Not Found for url: https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz for URL https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
-
-[notice] A new release of pip is available: 24.0 -> 26.2.2
-[notice] To update, run: pip install --upgrade pip
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-817-llmxive-follow-up-extending-leveraging-v/bin/python: No module named spacy
 
 - python -m code.src.data.download -> rc=1
-
-2026-10-24 07:11:00,234 INFO datasets: PyTorch version 2.3.0 available.
-2026-10-24 07:11:00,449 INFO __main__: Streaming load via datasets.load_dataset for timbrooks/instruct-pix2pix/train
-2026-10-24 07:11:00,487 ERROR __main__: HF streaming loader failed for timbrooks/instruct-pix2pix: Dataset 'timbrooks/instruct-pix2pix' doesn't exist on the Hub or cannot be accessed.
-2026-10-24 07:11:00,487 WARNING __main__: Primary dataset failed: Unable to stream dataset timbrooks/instruct-pix2pix from Hugging Face
-2026-10-24 07:11:00,487 INFO __main__: Attempting fallback dataset timbrooks/instruct_pix2pix
-2026-10-24 07:11:00,488 INFO __main__: Streaming load via datasets.load_dataset for timbrooks/instruct_pix2pix/train
-2026-10-24 07:11:00,503 ERROR __main__: HF streaming loader failed for timbrooks/instruct_pix2pix: Dataset 'timbrooks/instruct_pix2pix' doesn't exist on the Hub or cannot be accessed.
-2026-10-24 07:11:00,503 ERROR __main__: Data collection failed: Unable to stream dataset timbrooks/instruct_pix2pix from Hugging Face
+ via datasets.load_dataset for timbrooks/instructpix2pix/train
+2026-10-24 10:07:42,906 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/timbrooks/instructpix2pix "HTTP/1.1 401 Unauthorized"
+2026-10-24 10:07:42,907 ERROR __main__: HF streaming loader failed for timbrooks/instructpix2pix: Dataset 'timbrooks/instructpix2pix' doesn't exist on the Hub or cannot be accessed.
+2026-10-24 10:07:42,907 WARNING __main__: Primary dataset failed: Unable to stream dataset timbrooks/instructpix2pix from Hugging Face
+2026-10-24 10:07:42,907 INFO __main__: Attempting fallback dataset timbrooks/instruct-pix2pix
+2026-10-24 10:07:42,907 INFO __main__: Streaming load via datasets.load_dataset for timbrooks/instruct-pix2pix/train
+2026-10-24 10:07:42,945 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/timbrooks/instruct-pix2pix "HTTP/1.1 401 Unauthorized"
+2026-10-24 10:07:42,945 ERROR __main__: HF streaming loader failed for timbrooks/instruct-pix2pix: Dataset 'timbrooks/instruct-pix2pix' doesn't exist on the Hub or cannot be accessed.
+2026-10-24 10:07:42,945 ERROR __main__: Data collection failed: Unable to stream dataset timbrooks/instruct-pix2pix from Hugging Face
 
 - python -m code.src.data.curate -> rc=1
 
-2026-10-24 07:11:01,025 ERROR __main__: Curate step failed: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/data/raw/prompts_sample.parquet'
+2026-10-24 10:07:43,281 ERROR __main__: Curate step failed: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/data/raw/prompts_sample.parquet'
 
 - python -m src.data.filter_conflicts -> rc=1
 

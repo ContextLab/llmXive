@@ -29,10 +29,11 @@ log = get_logger(__name__)
 # Configuration
 # ----------------------------------------------------------------------
 # Primary and fallback dataset identifiers on Hugging Face Hub.
-# The original InstructPix2Pix dataset is public under the ``timbrooks`` namespace.
-# Some mirrors use an underscore instead of a hyphen.
-PRIMARY_DATASET_ID = "timbrooks/instruct-pix2pix"
-FALLBACK_DATASET_ID = "timbrooks/instruct_pix2pix"
+# The InstructPix2Pix dataset is publicly hosted under the ``timbrooks`` namespace.
+# The canonical identifier is ``timbrooks/instructpix2pix`` (no hyphen).  Some
+# mirrors or older forks used a hyphen; we keep it as a fallback.
+PRIMARY_DATASET_ID = "timbrooks/instructpix2pix"
+FALLBACK_DATASET_ID = "timbrooks/instruct-pix2pix"
 SPLIT = "train"
 N_PROMPTS = 2000  # target number of prompts to collect
 
@@ -51,9 +52,14 @@ def _row_checksum(row: Mapping[str, object]) -> str:
     when the canonical ones are missing.
     """
     edit_prompt = row.get("edit_prompt") or row.get("prompt") or ""
-    original_prompt = row.get("original_prompt") or row.get("text") or ""
+    original_prompt = row.get(
+        "original_prompt"
+    ) or row.get("text") or ""
     payload = json.dumps(
-        {"edit_prompt": edit_prompt, "original_prompt": original_prompt},
+        {
+            "edit_prompt": edit_prompt,
+            "original_prompt": original_prompt,
+        },
         sort_keys=True,
         ensure_ascii=False,
     )
