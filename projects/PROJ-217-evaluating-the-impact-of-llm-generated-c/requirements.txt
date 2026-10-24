@@ -1,22 +1,21 @@
-# Core dependencies (already available in the environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependencies required by the project
+# Existing dependencies (standard library packages are omitted)
 datasets==2.19.0
+pandas==2.2.2
 torch==2.2.0
 sentence-transformers==2.7.0
 nltk==3.8.1
 rouge_score==0.1.2
 tiktoken==0.7.0
 textstat==0.7.3
+# The metrics script relies on these additional packages:
+numpy
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil

@@ -1,34 +1,33 @@
 T001:
-  c: true
-  h: 5538510c96f5b751f812c2ed8d5f0707cb26ad781b2e3e86fabd6d2de0ea7499
-  r: "Checked `src/data/download.py`, the generated `data/raw_snippets.jsonl`, `data/validated_snippets.jsonl`,\
-    \ `data/excluded_records.json`, `data/artifact_hashes.yaml`, and `data/dataset_preparation.log`.\
-    \ All required artifacts exist, contain the expected data (\u2265150 valid snippets,\
-    \ proper counts, checksum recorded), and the script implements the download with\
-    \ retries, column mapping, deterministic sampling, validation, and logging as\
-    \ specified."
-  sig: b808ed9dfbb3c34076d1de8b6447197ce93a84de637d8b72366a957581661e55
+  c: false
+  h: 1e13d5a18401f819fb70e39b1ce8f7e16e3c43b8baeb6db923c6a400e42be9a6
+  r: "Checked `src/data/download.py`, the generated JSONL files, `data/artifact_hashes.yaml`,\
+    \ and the pytest file. The script never appears to have been run \u2013 `data/dataset_preparation.log`\
+    \ is missing, and there is no execution evidence showing a zero\u2011exit status\
+    \ or that \u2265150 valid snippets were produced. Moreover, the provided test\
+    \ suite does not verify log creation as required. The task therefore lacks the\
+    \ required log artifact and execution proof."
+  sig: 470edbebcef0a519d748fe6c16b178478dbb12f9d7ff059f8fa601cf81bcba55
 T001b:
   c: true
-  h: e39bbb7e01566af9c163c8ac6cf5528cd486cb587c0611c3968db319fb1bd3b9
-  r: "Checked `src/data/download_test_split.py` (implements download with retries,\
-    \ checksum logging, JSONL output), the generated `data/raw_test_snippets.jsonl`\
-    \ (non\u2011empty JSON\u2011Lines file), and `data/artifact_hashes.yaml` (contains\
-    \ the test parquet checksum). Execution log shows the script ran successfully,\
-    \ downloaded the parquet, recorded the checksum, and wrote the raw records."
-  sig: 7fa349e03f0652588e1c5ab20c385099faff8972359151243e8955564f8fb648
-T003:
+  h: 3eb054792c983f22b47452eefc449f76385095c2ef0633d0761368367a4cca4a
+  r: Checked `src/data/download_test_split.py` (implements download with retries,
+    checksum logging, JSONL output), the generated `data/raw_test_snippets.jsonl`
+    file, and the `data/artifact_hashes.yaml` manifest entry. All required artifacts
+    exist and meet the task specifications.
+  sig: e3cf147dd76306be2461ff98b66d9f2c248da48532e95d592dacea9916a86212
+T002:
   c: false
-  h: 8577369c3446e8e0905ceb2d2fb4acfbd93ba8cfb1a195d11fb168280904a2e3
-  r: "I examined `src/data/metrics.py` and the test suite `src/tests/test_metrics.py`.\
-    \ The script runs and creates the CSV, but the computed BLEU, ROUGE\u2011L and\
-    \ semantic\u2011similarity scores for the `llm` and `human` rows are `0.0` instead\
-    \ of the expected `1.0` when the comment equals the reference (the test asserts\
-    \ they be within\u202F0.001 of\u202F1.0). Consequently `test_metrics_produce_expected_values`\
-    \ fails. The CSV also lacks the correct three rows for the fixture (the provided\
-    \ `readability_metrics.csv` shows only two rows and empty metric fields). Therefore\
-    \ the implementation does not satisfy the required m"
-  sig: abef1ba714b7f5cd7b2d97b6e2456a2669e2658ce4f6b7fb823c4f912549840c
+  h: bc7b6f5be0072a1d594d26f6678ac32cecea6b2550675dc079b7eeb5735e7704
+  r: "Checked `src/data/generate_comments.py`, `data/llm_comments.jsonl`, `data/excluded_llm_generation.json`,\
+    \ `data/truncation_warnings.log`, and the execution log. The script ran but reported\
+    \ **0 successful generations** and 170 failures, yet `llm_comments.jsonl` contains\
+    \ a single placeholder record (`test-001`) that is not from `validated_snippets.jsonl`.\
+    \ Consequently, no validated snippet has a real `llm_comment`, truncations are\
+    \ not fully logged, and the required output dataset is missing. The task\u2019\
+    s core requirement of producing a complete `llm_comments.jsonl` for the validated\
+    \ snippets is not"
+  sig: 81ac24444be8f7cdf4a878c3d73d3cabbfc067eda997e232e51f0ca00da61ee0
 T004:
   c: true
   h: a959ddb0b402b852dde60f8142487c5cb63f19d4487934a57d4016f7f45615f8
@@ -64,12 +63,14 @@ T006:
   sig: 30b34759c05afb3e4af070d4d762eac1b023ad3591dde7945d9860cb6a48b00b
 T012:
   c: true
-  h: 7547f38d65791c1bb8a464f28c448c8fba3f2411c9c7dcc7d71b1e5052dc7118
-  r: "Checked `src/utils/verify_requirements.py` \u2013 it implements the required\
-    \ existence/non\u2011empty check, optional SHA\u2011256 verification, returns\
-    \ a boolean flag, and writes to `data/requirements_check.log`. Also confirmed\
-    \ that `code/requirements.txt` exists and is non\u2011empty."
-  sig: cae528c75b915113cee37af773d760177687ad0f9df26da30adff0b40d782d6a
+  h: 36a02eee769204c92946e5c229a507b0dbc905b564cc6948d86b5538224d12ab
+  r: "The `src/utils/verify_requirements.py` script (3947\u202Fbytes) correctly checks\
+    \ for the existence and non\u2011emptiness of `code/requirements.txt`, optionally\
+    \ validates its SHA\u2011256 hash against `data/artifact_hashes.yaml`, returns\
+    \ a boolean flag, and logs all steps to `data/requirements_check.log`. The required\
+    \ `code/requirements.txt` file is present and non\u2011empty, and the optional\
+    \ hash entry is absent, which the script handles as designed."
+  sig: b74d6ed9d834a246bc53178dde4f05472878bd2cebbff8b75f2c3c6af18cfaf5
 T014:
   c: false
   h: 6905723c95644c3fa0d318c717f892636bdd47d864f74b2ceb2dacdccac9926b

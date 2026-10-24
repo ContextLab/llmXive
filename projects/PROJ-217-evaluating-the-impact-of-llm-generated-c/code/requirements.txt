@@ -1,22 +1,3 @@
-# Project requirements for the readability‑metrics pipeline
-# Core scientific stack (already available in the CI image)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional packages required by T003
-nltk==3.8.1
-rouge-score==0.1.2
-sentence-transformers==2.7.0
-textstat==0.7.3
-# tiktoken is used in generate_comments (already present elsewhere) but listed for completeness
+# Project dependencies
+# Added tiktoken for tokenization in comment generation
 tiktoken==0.7.0

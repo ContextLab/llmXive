@@ -1,20 +1,26 @@
 T001:
+  reason: "Checked `src/data/download.py`, the generated JSONL files, `data/artifact_hashes.yaml`,\
+    \ and the pytest file. The script never appears to have been run \u2013 `data/dataset_preparation.log`\
+    \ is missing, and there is no execution evidence showing a zero\u2011exit status\
+    \ or that \u2265150 valid snippets were produced. Moreover, the provided test\
+    \ suite does not verify log creation as required. The task therefore lacks the\
+    \ required log artifact and execution proof."
   task: 50c62fa0a2585fa3e973f7f9d998d7a9cb775fd0166118c6cdf5aaf1128db9da
 T001b:
   task: 94275c2fb1bade4b8bcdc619a561399a108b8b349c457b0a06dcf16f2290918b
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/data/generate_comments.py
-    exit=1'
+  reason: "Checked `src/data/generate_comments.py`, `data/llm_comments.jsonl`, `data/excluded_llm_generation.json`,\
+    \ `data/truncation_warnings.log`, and the execution log. The script ran but reported\
+    \ **0 successful generations** and 170 failures, yet `llm_comments.jsonl` contains\
+    \ a single placeholder record (`test-001`) that is not from `validated_snippets.jsonl`.\
+    \ Consequently, no validated snippet has a real `llm_comment`, truncations are\
+    \ not fully logged, and the required output dataset is missing. The task\u2019\
+    s core requirement of producing a complete `llm_comments.jsonl` for the validated\
+    \ snippets is not"
   task: cdeed5ef9b6f7f5e18e0bbd065e5b101b7a2a9b61b6450f55753468c2c4622bb
 T003:
-  reason: "I examined `src/data/metrics.py` and the test suite `src/tests/test_metrics.py`.\
-    \ The script runs and creates the CSV, but the computed BLEU, ROUGE\u2011L and\
-    \ semantic\u2011similarity scores for the `llm` and `human` rows are `0.0` instead\
-    \ of the expected `1.0` when the comment equals the reference (the test asserts\
-    \ they be within\u202F0.001 of\u202F1.0). Consequently `test_metrics_produce_expected_values`\
-    \ fails. The CSV also lacks the correct three rows for the fixture (the provided\
-    \ `readability_metrics.csv` shows only two rows and empty metric fields). Therefore\
-    \ the implementation does not satisfy the required m"
+  reason: 'Requested task execution failed; rerun successfully: tests/run_metrics_test.sh
+    exit=2'
   task: d940ea93ab03baaea1c86d24873f006f0d3eccc609fddb4569e3dadafb4b6c45
 T004:
   task: 19a59bd978269cfc34c781b794c6b874bd12d9f5246e792743d8e60c58df14c0

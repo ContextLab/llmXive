@@ -16,7 +16,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
   *Verification*:
   – Pipeline aborts if the requirements file is missing or empty, ensuring compliance with Constitution Principle I.
 
-- [X] **T001** [US-1] **Download & validate CodeSearchNet Python snippets (REDO: previous execution failed with exit=1)**
+- [ ] **T001** [US-1] **Download & validate CodeSearchNet Python snippets (REDO: previous execution failed with exit=1)**
   *Implement/repair* `src/data/download.py` that:
   - Downloads the verified CodeSearchNet Python **train** parquet via `hf_hub_download` (repo `kejian/codesearchnet-python-raw`, file `data/train-00000-of-00002-022fcdc5658ecd68.parquet`) with a 3‑attempt retry loop that **raises** on final failure — no synthetic or bundled fallback data.
   - Parses columns tolerant to naming (`code`/`docstring` or `func_code_string`/`func_documentation_string`). Abort with a clear error if neither schema is present.
@@ -50,7 +50,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
   – `success=True` and the log contains no error entries when the environment is ready.
   – If any check fails, the script exits with a non‑zero status and a specific reason in the log, halting downstream tasks (SC‑007).
 
-- [ ] **T002** [US-1] **Generate deterministic LLM comments via HuggingFace Inference API** <!-- FAILED-IN-EXECUTION: src/data/generate_comments.py exit=1 -->
+- [ ] **T002** [US-1] **Generate deterministic LLM comments via HuggingFace Inference API**
   *Implement* `src/data/generate_comments.py` that:
   - Reads `data/validated_snippets.jsonl`.
   - **Uniformly truncates** each snippet to ≤ 2048 tokens using `tiktoken` at the nearest newline; logs each truncation to `data/truncation_warnings.log`. The truncation is applied *before* any variant generation, ensuring the same truncated code is used for LLM, human, and no‑comment conditions (preserving experimental control per Principle VII).
@@ -65,7 +65,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
   – No snippet exceeds the token limit; any truncation is recorded.
   – The script can be re‑run after interruption and resumes from the last checkpoint.
 
-- [ ] **T003** [US-2] **Compute dual‑reference readability metrics for all comment conditions**
+- [ ] **T003** [US-2] **Compute dual‑reference readability metrics for all comment conditions** <!-- FAILED-IN-EXECUTION: tests/run_metrics_test.sh exit=2 -->
   *Implement* `src/data/metrics.py` that:
   - Consumes `data/llm_comments.jsonl`.
   - For each `snippet_id` creates three rows (conditions `llm`, `human`, `none`) in `data/readability_metrics.csv`.
