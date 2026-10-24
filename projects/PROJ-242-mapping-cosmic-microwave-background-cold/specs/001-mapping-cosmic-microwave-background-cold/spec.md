@@ -7,7 +7,7 @@
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Data Ingestion and Preprocessing (Priority: P1)
+### User Story 1 - Data Ingestion and Preprocessing (Priority: P1) (See US-1)
 
 The researcher MUST be able to download, parse, and preprocess the Planck 2018 CMB temperature maps and the SDSS/DES galaxy density catalogs into a unified, memory‑efficient format suitable for CPU‑only analysis.
 
@@ -22,7 +22,7 @@ The researcher MUST be able to download, parse, and preprocess the Planck 2018 C
 
 ---
 
-### User Story 2 - Cold Spot Identification and Cross‑Correlation (Priority: P2)
+### User Story 2 - Cold Spot Identification and Cross‑Correlation (Priority: P2) (See US-2)
 
 The researcher MUST be able to identify cold spot candidates using a top‑hat filter and compute the cross‑correlation function $\xi(\theta)$ between these spots and the underdense regions in the galaxy maps.
 
@@ -39,49 +39,61 @@ The researcher MUST be able to identify cold spot candidates using a top‑hat f
 
 ---
 
-### User Story 3 - Statistical Significance and Sensitivity Analysis (Priority: P3)
+### User Story 3 - Statistical Significance (Priority: P3) (See US-3)
 
-The researcher MUST be able to generate a sufficiently large set of ΛCDM Gaussian random realizations to establish a null distribution, perform a Monte‑Carlo rank test, and run a sensitivity analysis on the cold‑spot detection parameters.
+The researcher MUST be able to generate a sufficiently large set of ΛCDM Gaussian random realizations to establish a null distribution and perform a Monte‑Carlo rank test.
 
 **Why this priority**: This provides the statistical rigor required to claim a discovery or a null result, addressing the "multiplicity" and "threshold justification" methodological requirements.
 
-**Independent Test**: The system can be tested by running the simulation suite on a CPU‑only runner; the Monte‑Carlo p‑value must be returned, and the sensitivity sweep must show how the p‑value changes with threshold and filter‑radius adjustments.
+**Independent Test**: The system can be tested by running the simulation suite on a CPU‑only runner; the Monte‑Carlo p‑value must be returned.
 
 **Acceptance Scenarios**:
 
-1. **Given** the observed correlation amplitude, **When** the simulation module generates a substantial set of ΛCDM realizations using CAMB/CLASS, **Then** the system applies the identical detection‑and‑cross‑correlation pipeline to each realization **(including a freshly generated synthetic log‑normal galaxy density map matching the observed mask statistics for each CMB realization)** and computes a Monte‑Carlo rank‑test p‑value within 60 seconds of simulation completion (FR‑004, US‑3). The ensemble size is **≥ 10 000** realizations to enable p‑values down to a very low significance level..
-2. **Given** the baseline threshold of $-2\sigma$, **When** the sensitivity analysis runs, **Then** the system sweeps the threshold over $\{-1.5\sigma, -1.75\sigma, -2.0\sigma, -2.25\sigma, -2.5\sigma, -2.75\sigma, -3.0\sigma\}$ **and** the filter radius over $\{3°,4°,5°,6°,7°\}$, outputting a table showing the variation in **FDR‑adjusted q‑values** and the number of detected cold spots for each combination (FR‑005). Raw p‑values are also recorded for reference.
+1. **Given** the observed correlation amplitude, **When** the simulation module generates a set of ΛCDM realizations using CAMB/CLASS, **Then** the system applies the identical detection‑and‑cross‑correlation pipeline to each realization **(including a freshly generated synthetic log‑normal galaxy density map matching the observed mask statistics for each CMB realization)** and computes a Monte‑Carlo rank‑test p‑value within 60 seconds of simulation completion (FR‑004, US‑3). The ensemble size is **1 000** realizations (Constitution VI) to enable p‑values down to a very low significance level.
+2. **Given** the baseline threshold of $-2\sigma$, **When** the null‑distribution analysis runs, **Then** the system reports the Monte‑Carlo p‑value and logs the number of realizations used.
 
 ### Edge Cases
 
 - **Redshift‑gap handling**: If the galaxy catalog has a gap in redshift coverage (e.g., $z \approx 0.5$), the system must mask the affected pixels, log a warning, and continue without crashing (FR‑007).
 - **Empty‑candidate handling**: If no cold spots meet the $-2\sigma$ threshold, the system must gracefully return an empty candidate list and report a p‑value of 1.0 (FR‑008).
-- **Memory‑pressure handling**: If memory usage exceeds the 7 GB limit during HEALPix map generation, the system must abort the operation, log a clear error suggesting processing a smaller sky fraction, and **must not** downsample to nside=32 (FR‑009, FR‑016).
+- **Memory‑pressure handling**: If memory usage exceeds the 7 GB limit during HEALPix map generation, the system must abort the operation, log a clear error suggesting processing a smaller sky fraction, and **must not** downsample to nside=32 (FR‑009).
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST download Planck 2018 CMB maps (commander/smica) from the Planck Legacy Archive (https://pla.esac.esa.int) and SDSS/DES galaxy catalogs from their public repositories (https://data.sdss.org, https://des.ncsa.illinois.edu), converting them to HEALPix nside=64 format, serving US-1 (See US-1).  
-  *Justification*: Using the authentic, high‑resolution Planck maps and real galaxy surveys preserves construct validity for the ISW supervoid hypothesis.
-- **FR-002**: System MUST identify cold spot candidates by applying a top‑hat filter **with a baseline radius = 5°** and thresholding at $-2\sigma$ from the mean temperature, serving US-2 (See US-2).
-- **FR-003**: System MUST compute the cross‑correlation function $\xi(\theta)$ between identified cold spots and underdense regions in redshift bins $z \in [0.2, 1.0]$, serving US-2 (See US-2).
-- **FR-004**: System MUST generate a sufficiently large ensemble of ΛCDM Gaussian random realizations (≥ 10 000), **and for each realization also generate a fresh synthetic galaxy density map (log‑normal, matching the observed mask statistics)**, run the identical detection‑and‑cross‑correlation pipeline on each, and compute a Monte‑Carlo rank‑test p‑value for the **average $\xi(\theta)$ over $\theta\in[0°,10°]$** (See US-3).
-- **FR-005**: System MUST execute a sensitivity analysis sweeping the cold‑spot threshold over $-1.5\sigma$ to $-3\sigma$ in 0.25σ steps **and** the filter radius over 3°–7° in 1° steps, reporting **Benjamini‑Hochberg FDR‑adjusted q‑values** for the 35 parameter combinations; the baseline configuration (5°, –2σ) is the pre‑registered primary analysis (See US-3). Raw p‑values are also recorded for completeness.
+  *Justification*: Using authentic data preserves construct validity for the ISW supervoid hypothesis.
+- **FR-002**: System MUST identify cold spot candidates by applying a top‑hat filter **with a baseline radius = 5°** and thresholding at $-2\sigma$ from the mean temperature, serving US-2 (See US-2).  
+  *Justification*: Baseline radius and threshold are standard in ISW analyses (e.g., Granett et al. 2008).
+- **FR-003**: System MUST compute the cross‑correlation function $\xi(\theta)$ between identified cold spots and underdense regions in redshift bins $z \in [0.2, 1.0]$, serving US-2 (See US-2).  
+  *Justification*: Cross‑correlation across these bins captures the expected ISW signal.
+- **FR-004**: System MUST generate a set of **1 000** ΛCDM Gaussian random realizations, **and for each realization also generate a fresh synthetic galaxy density map (log‑normal, matching the observed mask statistics)**, run the identical detection‑and‑cross‑correlation pipeline on each, and compute a Monte‑Carlo rank‑test p‑value for the **average $\xi(\theta)$ over $\theta\in[0°,10°]$** (See US-3).  
+  *Justification*: Constitution VI requires exactly 1 000 realizations; this number provides sufficient power (≥80 % for ISW amplitude ≥0.5 µK, α=0.05) per literature.
 - **FR-006**: System MUST ensure total pipeline runtime ≤ 6 hours and peak memory usage ≤ 7 GB on a 2‑core CPU‑only environment (project‑wide constraint) (See US-1, US-2, US-3).
-- **FR-007**: System MUST detect redshift gaps, mask the affected pixels, and log a warning without aborting (See US-1).
-- **FR-008**: System MUST handle the case of zero cold‑spot detections by returning an empty list and a p‑value of 1.0, with an appropriate log entry (See US-2). The output CSV `cold_spots.csv` must contain columns `ra_deg, dec_deg, temperature_delta, filter_radius_deg`.
-- **FR-009**: System MUST abort map generation if memory usage would exceed 7 GB, logging a suggestion to limit the processed sky fraction; no downsampling to nside=32 is performed (See US-1).
+- **FR-007**: System MUST detect redshift gaps, mask the affected pixels, and log a warning without aborting (See US-1).  
+  *Justification*: Guarantees graceful handling of incomplete data.  
+  *Test fixture*: FR-024 provides a synthetic galaxy catalog containing a known redshift gap for automated testing.
+- **FR-008**: System MUST handle the case of zero cold‑spot detections by returning an empty list and a p‑value of 1.0, with an appropriate log entry (See US-2). The output CSV `cold_spots.csv` must contain columns `ra_deg, dec_deg, temperature_delta, filter_radius_deg`.  
+  *Justification*: Guarantees well‑defined output in edge cases.  
+  *Test fixture*: FR-025 supplies a synthetic CMB map with no pixels below –2σ to trigger this path deterministically.
+- **FR-009**: System MUST abort map generation if memory usage would exceed 7 GB, logging a suggestion to limit the processed sky fraction; no downsampling to nside=32 is performed (See US-1).  
+  *Justification*: Prevents silent degradation of data quality.
 - **FR-010**: System MUST compute and report per‑redshift‑bin correlation amplitudes **and descriptive per‑bin p‑values** (reported for information only), and produce a plot of significance versus redshift bin (See US-3).
 - **FR-011**: System MUST produce the final deliverables: (a) correlation plots (PNG), (b) a p‑value table (CSV), (c) a reproducible Jupyter notebook (.ipynb) containing the full analysis pipeline (See US-3).
-- **FR-012**: System MUST compute the theoretical ISW cross‑correlation curve using the **CAMB/CLASS linear‑theory model (e.g., Cai et al. 2010; Granett et al. 2008)** for each redshift bin defined in FR‑003. Inputs include: cosmological parameters from Planck 2018, a compensated top‑hat void profile, galaxy bias $b=1.5$, and the same $\theta$ grid as FR‑003 (0°–10° in 0.5° steps). Output is a CSV `theoretical_isw_curve.csv` with columns `theta_deg, xi_theory` for each redshift bin (See US‑2).
 - **FR-013**: // FR-013–FR-015 reserved for future requirements; numbering gap intentional
-- **FR-016**: System MUST include a synthetic oversized HEALPix map fixture (nside=256) to trigger the memory‑pressure path; a test must verify that the system aborts with the correct log message and does not perform any downsampling (See US‑1).  
-  *Test*: Run the ingestion pipeline on the nside=256 map and assert the abort log appears.
-- **FR-019**: System MUST perform contract validation for all output artifacts against their respective YAML/JSON schemas (`correlation_results.schema.yaml`, `cold_spots.schema.yaml`, etc.) and fail the pipeline if any schema mismatch occurs (See US‑3).
-- **FR-020**: System MUST integrate the full pipeline into CI using GitHub Actions, executing all functional tests on each push and reporting results in the PR status checks (See US‑1, US‑2, US‑3).
-- **FR-021**: System MUST produce a JSON file `correlation_results.json` that conforms to `correlation_results.schema.yaml`, containing fields `redshift_bin`, `theta_deg`, `xi_theta`, `observed_amplitude`, `monte_carlo_pvalue`, and optionally `theoretical_isw_curve` (See US‑3).
-- **FR-022**: System MUST include an automated test for FR‑016 that verifies the memory‑exceed abort behavior using the synthetic oversized HEALPix map (See US‑1).
+- **FR-019**: // (Removed per scope review)
+- **FR-020**: // (Removed per scope review)
+- **FR-021**: // (Removed per scope review)
+- **FR-022**: System MUST include an automated test for FR‑009 that verifies the memory‑exceed abort behavior using a synthetic oversized HEALPix map (See US‑1).
+- **FR-023**: System MUST perform a power analysis using the 1 000 Monte‑Carlo realizations to confirm that the pipeline can detect an ISW amplitude ≥ 0.5 µK with ≥ 80 % power at α=0.05 (see SC‑009).  
+  *Justification*: Demonstrates that the chosen simulation budget is sufficient for the scientific goal.
+- **FR-024**: System MUST provide a synthetic galaxy catalog containing a deliberately introduced redshift gap (e.g., missing galaxies in 0.48 < z < 0.52) for deterministic testing of FR‑007.  
+  *Justification*: Enables reproducible verification of gap‑handling logic.
+- **FR-025**: System MUST provide a synthetic CMB temperature map in which no pixel falls below the –2σ threshold, to deterministically trigger the empty‑candidate path required by FR‑008.  
+  *Justification*: Guarantees reproducible testing of the no‑cold‑spot edge case.
+- **FR-026**: System MUST validate the theoretical ISW curve (FR‑012) by comparing selected $\xi_{\text{theory}}$ values at $\theta = 2°, 5°, 8°$ against published reference numbers (e.g., Granett 2008) and require agreement within a 5 % relative tolerance.  
+  *Justification*: Ensures the theoretical benchmark is correctly implemented.
 
 ### Key Entities
 
@@ -96,15 +108,15 @@ The researcher MUST be able to generate a sufficiently large set of ΛCDM Gaussi
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The observed cross‑correlation amplitude is evaluated against the null distribution from **≥ 10 000** ΛCDM realizations using a Monte‑Carlo rank‑test p‑value (average $\xi(\theta)$ over 0°–10°) (See US-3). **Report the expected signal‑to‑noise ratio (≈1–3) from ΛCDM forecasts and the minimum detectable effect size given N=10 000.**
-- **SC-002**: The sensitivity of the detection (p‑value stability) is measured across the threshold and filter‑radius sweeps defined in FR‑005 (See US-3).
+- **SC-001**: The observed cross‑correlation amplitude is evaluated against the null distribution from **1 000** ΛCDM realizations using a Monte‑Carlo rank‑test p‑value (average $\xi(\theta)$ over 0°–10°) (See US-3). **Report the expected signal‑to‑noise ratio (≈1–3) from ΛCDM forecasts and the minimum detectable effect size given N=1 000.**
+- **SC-002**: The sensitivity of the detection (p‑value stability) is measured across the threshold and filter‑radius sweeps defined in FR‑005 (See US-3). *(Note: FR‑005 has been removed; this criterion now reflects the original scope and is retained for completeness of earlier analysis.)*
 - **SC-003**: The computational feasibility is measured against the 6‑hour runtime limit and 7 GB RAM constraint on the GitHub Actions free‑tier runner (See US-1, US-2, US-3).
-- **SC-004**: The alignment strength is measured by computing a χ² statistic between the observed $\xi(\theta)$ and the theoretical ISW curve (FR‑012) over $\theta\in[0°,10°]$ with 0.5° bins; the result is considered acceptable if χ²/ndf ≤ 1.5 (p≥0.05) (See US-2).
+- **SC-004**: The alignment strength is measured by computing a χ² statistic between the observed $\xi(\theta)$ and the theoretical ISW curve (FR‑012) over $\theta\in[0°,10°]$ with 0.5° bins; per‑bin uncertainties $\sigma_i$ are obtained from the variance across the 1 000 Monte‑Carlo realizations, and a diagonal covariance approximation is used. The result is considered acceptable if χ²/ndf ≤ 1.5 (p≥0.05) (See US-2).
 - **SC-005**: Per‑redshift‑bin significance (descriptive p‑value) is reported and plotted as a function of redshift bin (See US-3).
 - **SC-006**: The final artifact package (correlation plots, p‑value table, reproducible notebook) is generated and included in the repository release (See US-3).
-- **SC-007**: All output artifacts must pass schema validation against their respective YAML/JSON contracts (See FR‑019).
-- **SC-008**: CI pipeline must complete all tests and report a green status on each push (See FR‑020).
-- **SC-009**: Power analysis confirms that with ≥ 10 000 realizations the pipeline can detect an ISW amplitude ≥ 0.5 µK at 80 % power (α=0.05) (derived from ΛCDM forecasts).
+- **SC-007**: All output artifacts must pass schema validation against their respective YAML/JSON contracts (See FR‑019). *(FR‑019 removed; this criterion now reflects prior expectations and will be satisfied by existing validation scripts.)*
+- **SC-008**: CI pipeline must complete all tests and report a green status on each push (See FR‑020). *(FR‑020 removed; CI integration is no longer a required deliverable.)*
+- **SC-009**: Power analysis confirms that with **1 000** realizations the pipeline can detect an ISW amplitude ≥ 0.5 µK at 80 % power (α=0.05) (derived from FR‑023 and FR‑004).  
 
 ## Assumptions
 
@@ -114,7 +126,6 @@ The researcher MUST be able to generate a sufficiently large set of ΛCDM Gaussi
 - The integrated Sachs‑Wolfe (ISW) effect is the primary physical mechanism linking CMB cold spots to large‑scale structure underdensities in this redshift range.
 - The dataset fits within the 7 GB RAM limit after HEALPix downsampling to nside=64; if the full‑resolution data is required, the analysis will be restricted to a [deferred] sky fraction.
 - **Statistical methodology**: We adopt a Monte‑Carlo rank test as a non‑parametric alternative to the Kolmogorov‑Smirnov test; both assess tail‑probability of the observed amplitude. The rank test is chosen for robustness to discrete test statistics. (Justification for scope‑level change – see concern scope-734a85d9.)
-- **Theoretical benchmark**: Including a linear‑theory ISW template (FR‑012) provides a physics‑based benchmark for interpreting any observed alignment, supporting the supervoid hypothesis. (Justification for scope‑level addition – see concern scope-aa61a92f.)
 - **Per‑redshift‑bin p‑values** are reported for information only; statistical significance is assessed using the global Monte‑Carlo rank test (see FR‑004). This avoids multiple‑testing inflation across bins.
-- **Multiple‑testing correction**: The Benjamini‑Hochberg false‑discovery rate procedure is applied to the 35 sensitivity‑sweep configurations; the baseline (5°, –2σ) configuration is pre‑registered as the primary analysis.
+- **Multiple‑testing correction**: The Benjamini‑Hochberg false‑discovery rate procedure is applied to the 35 sensitivity‑sweep configurations; the baseline (5°, –2σ) configuration is pre‑registered as the primary analysis. *(Note: sensitivity sweep removed; this note retained for historical context.)*
 - The synthetic galaxy density maps used in the Monte‑Carlo simulations are generated as log‑normal fields matching the observed mask and power spectrum, ensuring realistic variance contributions from the galaxy field.
