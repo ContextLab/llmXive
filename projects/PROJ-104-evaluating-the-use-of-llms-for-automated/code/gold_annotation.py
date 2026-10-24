@@ -2,14 +2,14 @@
 
 This script implements a deterministic two‑annotator pipeline that
 samples 50 commit pairs from ``data/raw/commit_pairs.csv`` using the
-pinned seed defined in ``code/seeds.py``.  Each annotator extracts
+pinned seed defined in ``code.seeds.SEED``.  Each annotator extracts
 technical‑intent entities with a simple keyword‑based rule‑engine that
 is fully deterministic (no randomness, temperature 0, fixed prompts).
 
 The script computes inter‑annotator Cohen's κ.  If κ ≥ 0.6 the merged
 intent entities (the union of both annotators) are stored; otherwise
 the fallback flag is set and the merged list is left empty.  The
-resulting JSON file ``data/gold_standard/annotations.json`` contains
+resultting JSON file ``data/gold_standard/annotations.json`` contains
 one entry per sampled commit pair with the following keys:
 
   - ``sample_id``: the commit hash (unique identifier)

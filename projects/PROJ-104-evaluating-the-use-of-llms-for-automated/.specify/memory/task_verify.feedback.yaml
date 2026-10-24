@@ -1,20 +1,36 @@
 T001:
-  reason: "The quick\u2011start guide (`docs/quickstart.md`) is present and correct,\
-    \ but `code/run_pipeline.py` imports `code.data_extraction` at module load time,\
-    \ and `code/data_extraction.py` raises a `RuntimeError` if `GITHUB_TOKEN` is not\
-    \ set. This causes `python -m code.run_pipeline --sample 5` to exit with code\u202F\
-    1, so the smoke\u2011test does not run and the required output file is not produced.\
-    \ Additionally, the expected test file `tests/test_quickstart.py` is missing (the\
-    \ repository only contains `tests/quickstart_test.py`). Both issues must be fixed\
-    \ for the task to be considered complete."
+  reason: "Checked `docs/quickstart.md` (present and contains the required instructions)\
+    \ and `code/run_pipeline.py` (writes a placeholder file but never loads a commit\
+    \ pair nor calls any generation module). The required test suite `tests/test_quickstart.py`\
+    \ is missing, and the recorded pytest run shows both smoke\u2011test and full\u2011\
+    pipeline commands failing. Consequently the quick\u2011start command does not\
+    \ meet the specification nor pass verification."
   task: 7f3f924cb1e80f425a7fe363f56fcd146eb6dd4bf05f339acb5c536bf9d85ee5
 T002:
   task: cecc03d00aa9eeed68fadbcd623d9e9808aa9b5726f7eb14bedaec2c2c5cf5bc
 T003:
+  reason: "The `data/raw/commit_pairs.csv` contains only 5 dummy rows (far below the\
+    \ required\u202F\u2265\u202F500) and the `commitpair.schema.yaml` file is missing,\
+    \ so the schema validation test cannot run. Moreover, `code/data_extraction.py`\
+    \ no longer aborts when `GITHUB_TOKEN` is absent, contrary to the specification.\
+    \ These missing/incorrect artifacts must be fixed for the task to be considered\
+    \ complete."
   task: e45cd58dfb2deb37015d910c48f98763df52968b3578974b6c8c76f568a25193
 T004:
+  reason: "Checked `code/gold_annotation.py`, `data/gold/annotations.json`, `data/gold/sample_for_annotation.csv`,\
+    \ `data/gold/annotator_<id>.csv`, and `data/gold/conflicts.log`. The script never\
+    \ writes the required CSV sample file, provides no HTML/JS annotation UI, does\
+    \ not read annotator CSVs, writes its JSON to the wrong path (`data/gold_standard/annotations.json`),\
+    \ and only logs a fallback when \u03BA\u202F<\u202F0.6 instead of aborting\u2014\
+    so the required 50\u2011sample gold\u2011standard dataset, \u03BA\u202F\u2265\u202F\
+    0.6 guarantee, and associated files are missing."
   task: 810e65b200d1b5e46f9b1c92fa6d192386746b409bb13bd6977c7505abc5c537
 T005:
+  reason: The `docs/model_selection_and_limitations.md` file is present and contains
+    the required rationale, table, and limitation discussion, but the required test
+    file `tests/test_model_selection.py` is missing, so the verification step cannot
+    be performed. Adding the pytest file (and ensuring it passes) is needed to complete
+    the task.
   task: ea4f9cbf0ad1b00f0fa5161bb2825756b08fb604ba9308de706fa8c4eade1031
 T006:
   task: d776c6e9c8edb24658df159e391c1247e34020611b612b94cd1ffd811ec1a4bd
@@ -29,13 +45,17 @@ T010:
 T011:
   task: 57a2efed4e38228c4e0335448d4ab957dcf0e636598b98136c74463b61f0e504
 T012:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/research.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 9b900171c3c3d6ede9e74b140eaba6329ad95f41e7687ca7322a352daa2a46f3
 T013:
-  reason: "Checked `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`,\
-    \ and `tests/test_hygiene_and_seeds.py`. The test suite only verifies that a checksum\
-    \ file is created and that `SEED` equals 42; it does **not** confirm that raw\
-    \ files keep the same checksum across runs, that every stochastic script imports\
-    \ `SEED`, or that re\u2011running T002 yields identical power estimates as the\
-    \ task specification requires. Additional tests (or code) are needed to enforce\
-    \ raw\u2011file immutability and to verify seed import and reproducibility."
+  reason: "Checked `code/data_hygiene.py`, `code/seeds.py`, `docs/quickstart.md`,\
+    \ and the test suite. While the checksum function and seed definition exist, the\
+    \ hygiene module does not enforce the \u201Craw files are never overwritten\u201D\
+    \ policy, and there is no evidence that every stochastic script imports `SEED`\
+    \ (the extended hygiene test fails because `code/data_hygiene.py` does not import\
+    \ the seed). These missing enforcement and import checks mean the task\u2019s\
+    \ requirements are not fully satisfied."
   task: bf8e80e7fe8781f06e510ac045ae6f6d5214bfff3e6067021e4a481b89dd24a0

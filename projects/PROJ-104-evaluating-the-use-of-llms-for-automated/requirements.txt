@@ -1,4 +1,5 @@
-gitpython
-datasets
+# Project‑wide dependencies (standard library + common scientific stack are pre‑installed)
+# Additional dependencies required for T008
+transformers
+torch
 tqdm
-astor

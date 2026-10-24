@@ -58,7 +58,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 3 – Model inference (User Story 2)
 
-- [ ] T006 [P2] [US2] **CPU‑only generation pipeline for the three LLMs with success‑rate measurement** – `code/generation.py`, `data/generated/phi3-mini/`, `data/generated/gemma2-2b/`, `data/generated/llama3.2-3b/`, `data/generated/generation_success_rates.csv`  
+- [~] T006 [P2] [US2] **CPU‑only generation pipeline for the three LLMs with success‑rate measurement** – `code/generation.py`, `data/generated/phi3-mini/`, `data/generated/gemma2-2b/`, `data/generated/llama3.2-3b/`, `data/generated/generation_success_rates.csv`  
   - Load each model in 4‑bit quantization via `bitsandbytes` on `device="cpu"` (no GPU fallback).  
   - Prompt format:  
     ```
@@ -76,7 +76,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 4 – Entity extraction (User Story 3)
 
-- [ ] T007 [P3] [US3] **Surface‑entity regex extraction** – `code/entity_extraction_surface.py`, `data/intermediate/surface_entities/`  
+- [~] T007 [P3] [US3] **Surface‑entity regex extraction** – `code/entity_extraction_surface.py`, `data/intermediate/surface_entities/`  
   - Apply regexes **only** for the three surface patterns required by the spec:  
     1. File paths (`[a-zA-Z0-9_./-]+\\.(py|md|rst)`)  
     2. Function signatures (`def [a-zA-Z_][a-zA-Z0-9_]*\\(`)  
@@ -85,7 +85,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
   - Produce an `EntitySet` JSON per sample (`{sample_id}.json`) with `type: "surface"` and `verified: true/false`.  
   - **Verification**: For a 50‑sample audit subset, at least 95 % of surface entities from human diffs are verified; a test asserts this proportion.
 
-- [ ] T008 [P3] [US3] **Technical‑intent extraction with calibrated zero‑shot classifier** – `code/entity_extraction_intent.py`, `data/intermediate/intent_entities/`  
+- [~] T008 [P3] [US3] **Technical‑intent extraction with calibrated zero‑shot classifier** – `code/entity_extraction_intent.py`, `data/intermediate/intent_entities/`  
   - Primary method: zero‑shot NLI classifier (`facebook/bart-large-mnli`) run deterministically (seeded) and calibrated on the gold‑standard annotations from T004. Use the confidence threshold that maximises F1 on the held‑out validation split.  
   - For each generated intent entity, extract any technical noun‑phrase (function/class/module names) and verify against the repository codebase (same `git grep` approach). Flag `verified: false` for hallucinated intent terms.  
   - **Verification**: On the 50‑sample gold set, precision ≥ 0.75 and recall ≥ 0.70 against human‑annotated intent entities; every generated intent entity includes a boolean `verified` field; tests validate these metrics.
@@ -94,7 +94,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 5 – Fidelity scoring (User Story 3)
 
-- [ ] T009 [P3] [US3] **Compute precision/recall and hallucination rate per sample** – `code/fidelity_scoring.py`, `data/processed/fidelity_metrics.csv`  
+- [~] T009 [P3] [US3] **Compute precision/recall and hallucination rate per sample** – `code/fidelity_scoring.py`, `data/processed/fidelity_metrics.csv`  
   - Load the human `EntitySet` (surface + intent) and the generated `EntitySet` for each `(commit_hash, model_id)` pair.  
   - Calculate `precision_intent`, `recall_intent`, `precision_surface`, `recall_surface`.  
   - Hallucination rate = (number of generated entities with `verified: false`) / (total generated entities).  
@@ -106,7 +106,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 6 – Statistical analysis (User Story 3)
 
-- [ ] T010 [P3] [US3] **Normality testing, Friedman/ANOVA, Holm‑Bonferroni correction, and exploratory flag handling** – `code/statistical_analysis.py`, `results/statistics.json`  
+- [~] T010 [P3] [US3] **Normality testing, Friedman/ANOVA, Holm‑Bonferroni correction, and exploratory flag handling** – `code/statistical_analysis.py`, `results/statistics.json`  
   - Perform Shapiro‑Wilk tests on the paired differences of each metric. If any p < 0.05, use the Friedman chi‑square test; otherwise run repeated‑measures ANOVA.  
   - Apply Holm‑Bonferroni correction across the three primary metrics (intent precision, surface precision, hallucination rate).  
   - Include effect‑size reporting (Kendall’s W for Friedman, η² for ANOVA).  
@@ -117,7 +117,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ## Phase 7 – Visualization & reporting (User Story 3)
 
-- [ ] T011 [P3] [US3] **Generate figures and a markdown summary** – `code/visualization.py`, `results/figures/intent_precision_bar.png`, `results/figures/surface_confusion_matrix.png`, `results/summary.md`  
+- [~] T011 [P3] [US3] **Generate figures and a markdown summary** – `code/visualization.py`, `results/figures/intent_precision_bar.png`, `results/figures/surface_confusion_matrix.png`, `results/summary.md`  
   - Bar chart of mean intent precision per model (95 % CI).  
   - Heatmap confusion matrix for surface‑entity preservation vs. hallucination per model.  
   - Assemble `results/summary.md` that references the figure files, includes a concise table of key metrics, and states the exploratory status when applicable.  

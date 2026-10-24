@@ -1,31 +1,49 @@
-T001:
-  c: false
-  h: 3944248aa26620660e7ac0ed915ce13b1e254ce905063be564dca6a07f909131
-  r: "The quick\u2011start guide (`docs/quickstart.md`) is present and correct, but\
-    \ `code/run_pipeline.py` imports `code.data_extraction` at module load time, and\
-    \ `code/data_extraction.py` raises a `RuntimeError` if `GITHUB_TOKEN` is not set.\
-    \ This causes `python -m code.run_pipeline --sample 5` to exit with code\u202F\
-    1, so the smoke\u2011test does not run and the required output file is not produced.\
-    \ Additionally, the expected test file `tests/test_quickstart.py` is missing (the\
-    \ repository only contains `tests/quickstart_test.py`). Both issues must be fixed\
-    \ for the task to be considered complete."
-  sig: c4817b5ea725855dffbb33e3841dc6b0d7cf83cf0eda03a1cce042a96601fc93
 T002:
   c: true
-  h: 48e284426ad8acbd74cb04d5437090d15fa66f6bb8ff2603e4bca901f596f900
-  r: "Checked `code/power_analysis.py` and the generated `results/power_report.md`;\
-    \ the script runs a Monte\u2011Carlo simulation seeded with `code/seeds.py`, writes\
-    \ a markdown report containing a numeric power estimate (1.0000) and the correct\
-    \ `exploratory` flag (`false`), satisfying the task\u2019s specifications."
-  sig: 5632c782a8d042f3146c7e0b4bcc53412604f91fd0036a1ee3e898a4bf5b21ba
+  h: 749b0e0c4f3f47e62db15dd22347fdff22b7be84f95d6d8586638a95b6b6352e
+  r: "Checked `code/power_analysis.py` \u2013 it seeds with `code.seeds.SEED`, simulates\
+    \ three paired model scores, estimates power for n\u202F=\u202F500 with Cohen\u2019\
+    s\u202Ff\u202F=\u202F0.25, and writes a markdown report. Verified `results/power_report.md`\
+    \ contains a numeric power estimate (1.0000) and an `exploratory: false` flag,\
+    \ matching the computed power."
+  sig: 164d0bc3788ac9dd780d99511f93148b8171d01ccc7a50b34d78d76c84b857aa
+T003:
+  c: false
+  h: e64d50de7a494f14f5979762865d9de764ac141cb4596ec44315035665e80df1
+  r: "The `data/raw/commit_pairs.csv` contains only 5 dummy rows (far below the required\u202F\
+    \u2265\u202F500) and the `commitpair.schema.yaml` file is missing, so the schema\
+    \ validation test cannot run. Moreover, `code/data_extraction.py` no longer aborts\
+    \ when `GITHUB_TOKEN` is absent, contrary to the specification. These missing/incorrect\
+    \ artifacts must be fixed for the task to be considered complete."
+  sig: d2fccf03c1b83e54ec938242a628d0d06c5e61153fdf38d30a58622e50bfa8d4
+T004:
+  c: false
+  h: b32d4f31bc24d5dc8cf6345d406e63b98e77e6ea7a372c718949e9c8eb4c9c9b
+  r: "Checked `code/gold_annotation.py`, `data/gold/annotations.json`, `data/gold/sample_for_annotation.csv`,\
+    \ `data/gold/annotator_<id>.csv`, and `data/gold/conflicts.log`. The script never\
+    \ writes the required CSV sample file, provides no HTML/JS annotation UI, does\
+    \ not read annotator CSVs, writes its JSON to the wrong path (`data/gold_standard/annotations.json`),\
+    \ and only logs a fallback when \u03BA\u202F<\u202F0.6 instead of aborting\u2014\
+    so the required 50\u2011sample gold\u2011standard dataset, \u03BA\u202F\u2265\u202F\
+    0.6 guarantee, and associated files are missing."
+  sig: 468b45dd9635256e841d85a1406ed8e582b27f9df97e7d9c4b08fbb540dcd713
+T005:
+  c: false
+  h: 15cb29e683ef7d12b464c8d0349e20918860ec7c91dc859f66f0b314d68e66a5
+  r: The `docs/model_selection_and_limitations.md` file is present and contains the
+    required rationale, table, and limitation discussion, but the required test file
+    `tests/test_model_selection.py` is missing, so the verification step cannot be
+    performed. Adding the pytest file (and ensuring it passes) is needed to complete
+    the task.
+  sig: b20007ba827735d3c81a15d604c313fe5fce23cab687bfdf2959818ff35a5338
 T013:
   c: false
-  h: 384ed273b9fcc1047223ed30f252cfb5a11566b7cfc5fab7866c403345920540
-  r: "Checked `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, and `tests/test_hygiene_and_seeds.py`.\
-    \ The test suite only verifies that a checksum file is created and that `SEED`\
-    \ equals 42; it does **not** confirm that raw files keep the same checksum across\
-    \ runs, that every stochastic script imports `SEED`, or that re\u2011running T002\
-    \ yields identical power estimates as the task specification requires. Additional\
-    \ tests (or code) are needed to enforce raw\u2011file immutability and to verify\
-    \ seed import and reproducibility."
-  sig: ef84fe5ae0f824069a1832b124a5a11c89e196ada3c9afe0089defed01b92711
+  h: af951a0a7b93e747fa580c20add0a8833ca51d3ed664633316a8e3f534874a75
+  r: "Checked `code/data_hygiene.py`, `code/seeds.py`, `docs/quickstart.md`, and the\
+    \ test suite. While the checksum function and seed definition exist, the hygiene\
+    \ module does not enforce the \u201Craw files are never overwritten\u201D policy,\
+    \ and there is no evidence that every stochastic script imports `SEED` (the extended\
+    \ hygiene test fails because `code/data_hygiene.py` does not import the seed).\
+    \ These missing enforcement and import checks mean the task\u2019s requirements\
+    \ are not fully satisfied."
+  sig: 5f30f289731fbc826d7b825147960e50409566eb78f77dc49bd9e492cb6045eb

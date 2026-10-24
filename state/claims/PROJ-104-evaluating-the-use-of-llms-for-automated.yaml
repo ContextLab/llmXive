@@ -253,3 +253,144 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-24T19:23:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_8f2fd6f3
+  context: "Quick smoke test (Phase\u202F0) loads one tiny hard\u2011coded commit\
+    \ pair, invokes the CPU\u2011only generation module, and writes a sample file."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:30:40Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: power analysis estimated power for sample size 500
+  claim_id: c_2652a2d4
+  context: "Power analysis (Phase\u202F1) runs the Monte\u2011Carlo power analysis\
+    \ for the Friedman test and writes results/power_report.md."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The report contains the estimated power for n = 500
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:30:40Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_e5592cf7
+  context: "The quick smoke test loads one tiny hard\u2011coded commit pair, invokes\
+    \ the CPU\u2011only generation module, and writes data/generated/phi3-mini/sample_test.txt.\
+    \ It completes in well under 30\u202Fseconds and requires no model downloads."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "It completes in well under 30\u202Fseconds and requires no model downloads."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:31:26Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: GitHub Actions free tier runner provides about 7 GB RAM and CPU-only
+    resources
+  claim_id: c_03324848
+  context: "The pipeline runs on the GitHub Actions free\u2011tier runner, which provides\
+    \ \u2248\u202F7\u202FGB of RAM and CPU\u2011only resources."
+  evidence:
+    asserted: '7.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The experimental pipeline must run on the GitHub Actions free\u2011tier\
+    \ runner, which provides \u2248\u202F7\u202FGB of RAM and CPU\u2011only resources."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-24T19:32:54Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Phi-3-mini per-commit latency 4.5 seconds on CPU
+  claim_id: c_c0628bd4
+  context: "In the model table, Phi\u20113\u2011mini is listed with an expected per\u2011\
+    commit latency of 4.5 seconds on the CPU."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Phi\u20113\u2011mini (Microsoft) expected per\u2011commit latency (CPU,\
+    \ s) 4.5"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:32:54Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Gemma-2-2b per-commit latency 5.0 seconds on CPU
+  claim_id: c_f4c65f92
+  context: "In the model table, Gemma\u20112\u20112b is listed with an expected per\u2011\
+    commit latency of 5.0 seconds on the CPU."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Gemma\u20112\u20112b (Google) expected per\u2011commit latency (CPU,\
+    \ s) 5.0"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:32:54Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Llama-3.2-3B per-commit latency 5.2 seconds on CPU
+  claim_id: c_23303254
+  context: "In the model table, Llama\u20113.2\u20113B is listed with an expected\
+    \ per\u2011commit latency of 5.2 seconds on the CPU."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Llama\u20113.2\u20113B (Meta) expected per\u2011commit latency (CPU,\
+    \ s) 5.2"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:32:54Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: "Latency estimates based on average over 10 warm\u2011started commits"
+  claim_id: c_07781ceb
+  context: The latency estimates come from a short benchmark averaging over 10 commits
+    on the same runner.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Latency estimates are obtained from a short benchmark on the same runner\
+    \ (average over 10 commits, warm\u2011started model)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T19:32:54Z'
