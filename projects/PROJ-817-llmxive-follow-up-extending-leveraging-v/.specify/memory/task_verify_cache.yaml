@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: e92ba0c8a30d8ad13ece88d01004baf42f7fdf8743a0c0a9675ebf518fcd943c
-  r: The provided `code/src/data/download.py` streams **timbrooks/instructpix2pix-clip-filtered**
-    instead of the required **timbrooks/instructpix2pix**, and writes rows with an
-    `edit_prompt` field rather than a `prompt` field as the task specifies. Consequently
-    the script does not fulfill the exact dataset and column requirements of T001.
-  sig: 66e538c58dce5d2e495682cfa9947263a2be9305c510b3ac5cbcbfbdd6a77acd
 T002:
   c: false
   h: 1f164024c96168d5b2e448e4f7c39930006cbffe2dc0bc3a55ed916d71ece183

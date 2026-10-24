@@ -1,5 +1,2 @@
 datasets
-fastparquet
-huggingface_hub
-numpy>=2.0.0
-spacy
+pyarrow
