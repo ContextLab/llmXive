@@ -1,280 +1,259 @@
-# Tasks: Semantic Decay Retrieval for LightMem-Ego
+# Tasks: Semantic Decay Retrieval for LightMem‑Ego
 
 **Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/evaluation_report.schema.yaml`, original research question.
 
-This is a research implementation plan. All tasks satisfy the specification (FR-001–FR-015, SC-001–SC-010) and follow the three-phase structure: (1) setup and first end-to-end analysis on real inputs, (2) complete study with validation, (3) reproducible results and paper handoff.
+This is a research implementation plan. All tasks satisfy the specification (FR‑001 – FR‑015, SC‑001 – SC‑010) and follow the three‑phase structure: (1) setup and first end‑to‑end analysis, (2) complete study with validation, (3) reproducible results and paper handoff.
 
 ## Task format and paths
 
-Use `- [ ] T### [P?] [USx?] description with exact artifact paths`.
-Each task names its scientific requirement, concrete output, and observable check.
+Use `- [ ] T### [P?] [USx?] description with exact artifact paths`.  
+Each task names its scientific requirement, concrete output, and observable check.  
 Paths are relative to the project directory. All outputs go under `data/`, `code/`, `figures/`, or `paper/`.
 
 ---
 
-## Phase 1: Setup and First End-to-End Analysis
+## Phase 1: Setup and First End‑to‑End Analysis
 
 **Goal**: Run an executable analysis on valid, small real inputs early. Establish the existing code layout, validate input provenance, implement the primary computation, and produce real result rows under `data/results/`.
 
-- [ ] T001 [P1] [US-1] **Establish project layout, document dependencies, and validate Ego4D data provenance.**
-  - Create the project directory structure under `code/` with subdirectories: `code/src/data/`, `code/src/retrieval/`, `code/src/evaluation/`, `code/src/cli/`, `code/tests/contract/`, `code/tests/unit/`.
-  - Create `specs/001-semantic-decay-retrieval/quickstart.md` documenting: (i) how to install dependencies from `requirements.txt` (numpy, pandas, scipy, scikit-learn, faiss-cpu, datasets, tqdm, psutil, matplotlib), (ii) the exact command to download Ego4D metadata and embeddings from the verified HuggingFace URL, (iii) how to run the end-to-end pipeline with a small validation set (50 queries, 60-day window).
-  - Implement `code/src/data/download.py` with a function `download_ego4d_metadata(output_dir)` that fetches the Ego4D JSON manifest and video-MAE embeddings from `https://huggingface.co/datasets/` (or equivalent verified source) and stores raw files under `data/raw/`.
-  - Compute SHA-256 checksums of downloaded files and log them to `data/raw/CHECKSUMS.txt` for reproducibility (FR-001, Constitution III).
-  - **Output**: `code/requirements.txt`, `specs/001-semantic-decay-retrieval/quickstart.md`, `code/src/data/download.py`, `data/raw/CHECKSUMS.txt`.
-  - **Verification**: Run `python code/src/data/download.py --output-dir data/raw/` and confirm that files are downloaded, checksums are recorded, and the command completes without errors.
+- [ ] T001 [P1] [US-1] **Establish project layout, document dependencies, and validate Ego4D data provenance.**  
+  - Create the project directory structure under `code/` with subdirectories: `code/src/data/`, `code/src/retrieval/`, `code/src/evaluation/`, `code/src/cli/`, `code/tests/contract/`, `code/tests/unit/`.  
+  - Add `code/requirements.txt` listing the exact versions needed (e.g., `faiss-cpu==1.7.4`, `datasets>=2.18`, `numpy>=1.26`, `pandas>=2.2`, `scipy>=1.13`, `scikit-learn>=1.5`, `tqdm>=4.66`, `psutil>=5.9`, `matplotlib>=3.8`).  
+  - Create `specs/001-semantic-decay-retrieval/quickstart.md` documenting:  
+    1. Installation via `pip install -r code/requirements.txt`.  
+    2. Download of the Ego4D metadata and video‑MAE embeddings from the verified HF hub URL `https://huggingface.co/datasets/ego4d/ego4d`.  
+    3. Checksum verification (SHA‑256) of the downloaded files.  
+    4. Execution of the small validation pipeline (`python code/src/cli/run.py --mode validation`).  
+  - Implement `code/src/data/download.py` with a function `download_ego4d(output_dir: Path) -> None` that:  
+    * Uses `datasets.load_dataset("ego4d/ego4d", split="train", streaming=False)` to fetch the JSON manifest and embeddings.  
+    * Saves raw files under `data/raw/`.  
+    * Writes SHA‑256 checksums to `data/raw/CHECKSUMS.txt`.  
+    * Raises an exception if the download fails (no silent fallback).  
+  - **Output**: `code/requirements.txt`, `specs/001-semantic-decay-retrieval/quickstart.md`, `code/src/data/download.py`, `data/raw/CHECKSUMS.txt`.  
+  - **Verification**: Run `python code/src/data/download.py --output-dir data/raw/` and confirm that (a) the expected files appear, (b) the checksum file contains matching hashes, and (c) the command exits with status 0.
 
-- [ ] T002 [P1] [US-1] **Preprocess Ego4D data into memory nodes and compute semantic distinctness.**
-  - Implement `code/src/data/preprocess.py` with a function `build_memory_nodes_parquet(raw_dir, output_path)` that:
-    - Reads Ego4D JSON metadata and embeddings from `data/raw/`.
-    - Extracts `node_id`, `timestamp` (ISO-8601), `event_label`, and `embedding` (float32, shape (768,)).
-    - Computes `is_rare` (boolean): True if event_label frequency ≤ 5 in the corpus (FR-012).
-    - Performs semantic clustering via k-means (k=10, random_state=42) on the embeddings to compute within-cluster cohesion for each node.
-    - Computes `is_semantically_distinct` (boolean): True if the node's within-cluster cohesion exceeds the corpus median (Phase 0.4, construct validity for "semantically significant").
-    - Writes output to `data/processed/memory_nodes.parquet` with all fields as per `data-model.md`.
-  - Include error handling: if embeddings are malformed or timestamps are missing, raise a descriptive error (do not fall back to synthetic data).
-  - **Output**: `code/src/data/preprocess.py`, `data/processed/memory_nodes.parquet`.
-  - **Verification**: Run `python code/src/data/preprocess.py --raw-dir data/raw/ --output data/processed/memory_nodes.parquet` and confirm that the parquet file contains ≥100 rows with all required fields, `is_rare` and `is_semantically_distinct` are populated, and the schema matches `data-model.md`.
+- [ ] T002 [P1] [US-1] **Preprocess Ego4D data into memory‑node parquet and compute semantic distinctness.**  
+  - Implement `code/src/data/preprocess.py` with a function `build_memory_nodes_parquet(raw_dir: Path, output_path: Path) -> None` that:  
+    * Reads the Ego4D JSON manifest and embedding files from `data/raw/`.  
+    * Extracts `node_id`, `timestamp` (ISO‑8601), `event_label`, and `embedding` (float32, shape (768,)).  
+    * Computes `is_rare` = True if the frequency of `event_label` ≤ 5 (FR‑012).  
+    * Performs k‑means clustering (`k=10`, `random_state=42`) on all embeddings, computes each node’s within‑cluster cohesion, and sets `is_semantically_distinct` = True if the cohesion exceeds the corpus median (Phase 0.4).  
+    * Writes a parquet file `data/processed/memory_nodes.parquet` with the schema defined in `data-model.md`.  
+    * Raises a descriptive error if any required field is missing or embeddings are malformed (no synthetic fallback).  
+  - **Output**: `code/src/data/preprocess.py`, `data/processed/memory_nodes.parquet`.  
+  - **Verification**: Execute `python code/src/data/preprocess.py --raw-dir data/raw/ --output data/processed/memory_nodes.parquet` and check that the parquet contains ≥ 100 rows, all columns are present, and both boolean flags are populated.
 
-- [ ] T003 [P1] [US-1] **Build FAISS HNSW index and implement Fixed Hierarchy baseline retriever.**
-  - Implement `code/src/data/faiss_builder.py` with a function `build_faiss_index(memory_nodes_parquet, output_path)` that:
-    - Reads embeddings from `data/processed/memory_nodes.parquet`.
-    - Builds a FAISS HNSW index deterministically (seed=42, M=16, ef_construction=200, ef_search=50).
-    - Saves the index to `data/processed/faiss_hnsw_ego4d.index`.
-    - Stores a mapping of FAISS row IDs to node IDs in `data/processed/faiss_index_mapping.json` for result reconstruction.
-  - Implement `code/src/retrieval/baseline.py` with a class `FixedHierarchyRetriever` that:
-    - Routes queries to "current" (≤1 day), "short-term" (1–14 days), or "long-term" (>14 days) buckets based on explicit timestamp thresholds.
-    - Loads the FAISS index; if index load fails, raises a runtime exception with the message "FAISS index load failure: <details>" (FR-011).
-    - Implements `retrieve(query_embedding, timestamp, k=1)` returning the top-k node IDs and their similarity scores.
-  - **Output**: `code/src/data/faiss_builder.py`, `code/src/retrieval/baseline.py`, `data/processed/faiss_hnsw_ego4d.index`, `data/processed/faiss_index_mapping.json`.
-  - **Verification**: Run `python code/src/data/faiss_builder.py --memory-nodes data/processed/memory_nodes.parquet --output data/processed/faiss_hnsw_ego4d.index` and confirm the index file exists and is loadable. Then instantiate `FixedHierarchyRetriever`, call `retrieve()` with a sample query, and confirm it returns valid node IDs without errors.
+- [ ] T003 [P1] [US-1] **Build FAISS HNSW index and implement Fixed‑Hierarchy baseline retriever.**  
+  - Implement `code/src/data/faiss_builder.py` with `build_faiss_index(memory_nodes_parquet: Path, output_path: Path) -> None` that:  
+    * Loads embeddings from `data/processed/memory_nodes.parquet`.  
+    * Constructs a FAISS HNSW index on CPU with deterministic parameters (`seed=42`, `M=16`, `ef_construction=200`, `ef_search=50`).  
+    * Saves the index to `data/processed/faiss_hnsw_ego4d.index`.  
+    * Writes a JSON mapping `faiss_index_mapping.json` (FAISS row → `node_id`).  
+  - Implement `code/src/retrieval/baseline.py` containing class `FixedHierarchyRetriever` that:  
+    * Loads the FAISS index; if loading fails, raises `RuntimeError("FAISS index load failure: <details>")` (FR‑011).  
+    * Routes queries to buckets based on timestamp `t` (days since event):  
+      - **current**: `t ≤ 1` day,  
+      - **short‑term**: `1 < t ≤ 14` days,  
+      - **long‑term**: `t > 14` days.  
+    * Provides `retrieve(query_embedding: np.ndarray, query_timestamp: datetime, k: int = 1) -> List[Tuple[node_id, score]]`.  
+  - **Output**: `code/src/data/faiss_builder.py`, `code/src/retrieval/baseline.py`, `data/processed/faiss_hnsw_ego4d.index`, `data/processed/faiss_index_mapping.json`.  
+  - **Verification**: Run the builder script and then instantiate `FixedHierarchyRetriever` to retrieve a sample query; ensure a valid node ID list is returned and that a simulated load failure produces the exact error message.
 
-- [ ] T004 [P1] [US-1] **Implement Semantic Decay retriever with parameter bounds and error handling.**
-  - Implement `code/src/retrieval/semantic_decay.py` with a class `SemanticDecayRetriever` that:
-    - Scores memory nodes using `S = α·sim(q, m) + β·exp(-λ·t)` where `sim` is cosine similarity and `t` is time-since-event in days (FR-001).
-    - Takes learnable parameters `alpha`, `beta`, `lambda` as constructor arguments.
-    - Enforces bounds: `0 < α < 1`, `0 < β < 1`, `0 < λ < 10` (FR-010, FR-014); raise a validation error if any parameter is out of bounds.
-    - Implements `retrieve(query_embedding, timestamp, k=1)` returning the top-k node IDs and their semantic decay scores.
-    - Loads the FAISS index and handles load failures with the exact error message from FR-011.
-  - Implement `code/src/retrieval/utils.py` with helper functions for cosine similarity and exponential decay calculation.
-  - **Output**: `code/src/retrieval/semantic_decay.py`, `code/src/retrieval/utils.py`.
-  - **Verification**: Instantiate `SemanticDecayRetriever` with valid parameters (α=0.6, β=0.3, λ=0.5), call `retrieve()` with a sample query, and confirm it returns valid results. Then attempt instantiation with out-of-bounds parameters (e.g., λ=15) and confirm that a validation error is raised with a clear message.
+- [ ] T004 [P1] [US-1] **Implement Semantic‑Decay retriever with strict parameter bounds and error handling.**  
+  - Implement `code/src/retrieval/semantic_decay.py` with class `SemanticDecayRetriever` that:  
+    * Accepts `alpha: float`, `beta: float`, `lam: float` in the constructor.  
+    * Enforces `0 < alpha < 1`, `0 < beta < 1`, and `0 < lam < 10`; violation raises `ValueError("Lambda out of bounds: <value>")` (FR‑010, FR‑014).  
+    * Loads the same FAISS index as the baseline; on failure raises `RuntimeError("FAISS index load failure: <details>")`.  
+    * Computes similarity `sim = cosine(query, node_embedding)` and decay `decay = np.exp(-lam * t)` where `t` is days since the node’s timestamp.  
+    * Scores each candidate with `S = alpha * sim + beta * decay`.  
+    * Returns the top‑k node IDs and scores via `retrieve`.  
+  - Add helper functions in `code/src/retrieval/utils.py` for cosine similarity and exponential decay.  
+  - **Output**: `code/src/retrieval/semantic_decay.py`, `code/src/retrieval/utils.py`.  
+  - **Verification**: Instantiate with valid parameters (e.g., `alpha=0.6, beta=0.3, lam=0.5`) and retrieve a sample query – confirm non‑empty results. Attempt construction with `lam=15` and verify that the expected `ValueError` is raised with the correct message.
 
-- [ ] T005 [P1] [US-1] **Create a small validation set and run end-to-end retrieval on both models.**
-  - Implement `code/src/evaluation/grid_search.py` with a function `create_validation_set(memory_nodes_parquet, num_queries=50, random_seed=42)` that:
-    - Samples 50 representative queries uniformly from the 60-day corpus (using fixed seed 42 for reproducibility).
-    - For each query, selects a random memory node and uses its embedding as the query vector, recording the true node ID as the ground truth.
-    - Returns a list of (query_embedding, ground_truth_node_id, query_timestamp) tuples.
-    - Stores the validation set to `data/processed/validation_queries.json` for reproducibility.
-  - Implement `code/src/cli/run.py` with a function `run_end_to_end_validation(memory_nodes_parquet, faiss_index, output_dir)` that:
-    - Loads the validation set from `data/processed/validation_queries.json`.
-    - Instantiates both `FixedHierarchyRetriever` and `SemanticDecayRetriever` (with placeholder parameters α=0.6, β=0.3, λ=0.5).
-    - For each validation query, calls both retrievers and records: Top-1 hit (boolean), inference latency (ms via `time.perf_counter()`), and CPU time (via `psutil.Process().cpu_times().user`).
-    - Writes per-query results to `data/results/validation_run.json` with fields: `query_id`, `ground_truth_node_id`, `baseline_top1_hit`, `semantic_decay_top1_hit`, `baseline_latency_ms`, `semantic_decay_latency_ms`, `baseline_cpu_seconds`, `semantic_decay_cpu_seconds`.
-  - **Output**: `code/src/evaluation/grid_search.py`, `code/src/cli/run.py`, `data/processed/validation_queries.json`, `data/results/validation_run.json`.
-  - **Verification**: Run `python code/src/cli/run.py --memory-nodes data/processed/memory_nodes.parquet --faiss-index data/processed/faiss_hnsw_ego4d.index --output-dir data/results/` and confirm that `data/results/validation_run.json` contains ≥50 query results with all required fields populated (no null values). Spot-check 3–5 results for correctness: Top-1 hits should be boolean, latencies should be positive numbers, and CPU times should be non-decreasing.
+- [ ] T005 [P1] [US-1] **Create a small validation set and run an end‑to‑end benchmark on both models.**  
+  - Implement `code/src/evaluation/validation.py` with `create_validation_set(memory_nodes_parquet: Path, num_queries: int = 50, seed: int = 42) -> List[Dict]` that:  
+    * Randomly selects `num_queries` memory nodes (fixed seed 42) and uses each node’s embedding as a query vector.  
+    * Records the ground‑truth `node_id` and the query timestamp (the node’s own timestamp).  
+    * Saves the set to `data/processed/validation_queries.json`.  
+  - Extend `code/src/cli/run.py` with a `run_validation` mode that:  
+    * Loads the validation set.  
+    * Instantiates `FixedHierarchyRetriever` and `SemanticDecayRetriever` with placeholder parameters (`alpha=0.6, beta=0.3, lam=0.5`).  
+    * For each query, records: Top‑1 hit (bool) for each model, inference latency (`time.perf_counter()`), and CPU time (`psutil.Process().cpu_times().user`).  
+    * Writes per‑query records to `data/results/validation_run.json`.  
+  - **Output**: `code/src/evaluation/validation.py`, updated `code/src/cli/run.py`, `data/processed/validation_queries.json`, `data/results/validation_run.json`.  
+  - **Verification**: Execute `python code/src/cli/run.py --mode validation` and confirm that `validation_run.json` contains 50 entries with all required fields populated and that latencies are positive numbers.
 
-**Checkpoint**: The documented quickstart command executes successfully on a small validation set (50 queries) and produces real result rows in `data/results/validation_run.json`. Numerical outputs are populated and can be inspected.
+**Checkpoint**: The quick‑start command documented in `quickstart.md` runs successfully on the 50‑query validation set and produces real rows in `data/results/validation_run.json`.
 
 ---
 
 ## Phase 2: Complete the Study and Validate Its Evidence
 
-**Goal**: Run the complete specified parameter and data domain, implement all required correctness and sensitivity checks, and generate validated artifacts.
+**Goal**: Run the full evaluation on the complete query set, optimise hyper‑parameters, compute all required metrics, and generate a contract‑compliant report.
 
-- [ ] T006 [P2] [US-1] **Implement deterministic joint grid search for (α, β, λ) optimization.**
-  - Extend `code/src/evaluation/grid_search.py` with a function `grid_search_optimal_parameters(memory_nodes_parquet, validation_queries, output_dir)` that:
-    - Iterates over the parameter grid: α ∈ {0.5, 0.6, 0.7}, β ∈ {0.2, 0.3, 0.4}, λ ∈ {0.1, 0.2, 0.3, ..., 9.9} (27 × 99 = 2,673 combinations).
-    - For each combination, instantiates `SemanticDecayRetriever` and evaluates Top-1 accuracy on the validation set (from T005).
-    - Selects the first triple (α*, β*, λ*) achieving the maximal validation Top-1 accuracy (deterministic tie-breaking: ascending order by α, then β, then λ) (FR-001, FR-015).
-    - Logs the grid search progress to `data/results/grid_search_log.txt` with columns: `alpha`, `beta`, `lambda`, `validation_accuracy`.
-    - Stores the optimal parameters and their validation accuracy to `data/results/optimal_parameters.json` with fields: `optimal_alpha`, `optimal_beta`, `optimal_lambda`, `validation_accuracy`.
-  - **Output**: Updated `code/src/evaluation/grid_search.py`, `data/results/grid_search_log.txt`, `data/results/optimal_parameters.json`.
-  - **Verification**: Run `python -c "from code.src.evaluation.grid_search import grid_search_optimal_parameters; grid_search_optimal_parameters(...)"` and confirm that `data/results/optimal_parameters.json` contains three float fields in (0, 1), (0, 1), and (0, 10) respectively, and that `validation_accuracy` is between 0 and 1. Spot-check the grid search log to ensure all 2,673 combinations were evaluated and the selected parameters are indeed the first to achieve the maximum accuracy.
+- [ ] T006 [P2] [US-1] **Deterministic joint grid‑search for (α, β, λ) optimisation.**  
+  - Extend `code/src/evaluation/validation.py` with `grid_search_optimal_parameters(memory_nodes_parquet: Path, validation_set_path: Path, output_dir: Path) -> None` that:  
+    * Iterates over the grid `α ∈ {0.5,0.6,0.7}`, `β ∈ {0.2,0.3,0.4}`, `λ ∈ {0.1,0.2,…,9.9}` (27 × 99 = 2 673 combos).  
+    * For each combo, builds a `SemanticDecayRetriever`, evaluates Top‑1 accuracy on the validation set, and logs `alpha,beta,lambda,validation_accuracy` to `data/results/grid_search_log.txt`.  
+    * Uses the deterministic tie‑breaker: **first** triple (ascending α, then β, then λ) that attains the maximal validation accuracy (FR‑015).  
+    * Writes the selected triple and its accuracy to `data/results/optimal_parameters.json` with fields `optimal_alpha`, `optimal_beta`, `optimal_lambda`, `validation_accuracy`.  
+  - **Output**: Updated `code/src/evaluation/validation.py`, `data/results/grid_search_log.txt`, `data/results/optimal_parameters.json`.  
+  - **Verification**: Run the grid‑search script and confirm that the log contains exactly 2 673 lines, that the JSON file contains numbers respecting the bounds (`alpha,beta ∈ (0,1)`, `lambda ∈ (0,10)`), and that `validation_accuracy` lies in `[0,1]`.
 
-- [ ] T007 [P2] [US-1] [US-2] [US-3] **Run full evaluation on representative query set and compute all required metrics.**
-  - Extend `code/src/evaluation/metrics.py` with functions to:
-    - Load the optimal parameters from `data/results/optimal_parameters.json`.
-    - Create a representative evaluation set of ≥200 queries spanning 1–30 days (stratified by age bucket: 1–3 days, 4–14 days, >14 days) using fixed seed 42.
-    - Identify "rare" events: `is_rare AND is_semantically_distinct` from the memory nodes (Phase 0.4, refined definition).
-    - If the rare-event subset contains <50 events, log the flag "Insufficient rare-event data (n < 50): analysis skipped" and abort long-term accuracy analysis (FR-009, revised threshold).
-    - For each evaluation query, run both `FixedHierarchyRetriever` and `SemanticDecayRetriever` (with optimal parameters), recording:
-      - Top-1 hit (boolean), latency (ms), CPU time (seconds).
-      - Age bucket (short-term: 1–3 days, long-term: >14 days).
-    - Compute aggregated metrics:
-      - Long-term accuracy (Top-1) for events >14 days (SC-001).
-      - Short-term accuracy (Top-1) for events 1–3 days (SC-004).
-      - Overall accuracy across all queries.
-      - Latency: max, mean, p95 percentile (FR-006, SC-003).
-      - CPU cycles: baseline average, semantic decay average, ratio ≤1.10 (FR-013, SC-009).
-      - McNemar's test statistic and p-value for long-term queries (FR-005, SC-002, SC-010).
-    - Flag any short-term degradation >5% (FR-007, SC-004).
-    - Write all per-query results to `data/results/evaluation_queries.json` and aggregated metrics to `data/results/evaluation_metrics.json`.
-  - Extend `code/src/cli/run.py` with a function `run_full_evaluation(memory_nodes_parquet, faiss_index, optimal_parameters, output_dir)` that orchestrates the above.
-  - **Output**: `code/src/evaluation/metrics.py`, updated `code/src/cli/run.py`, `data/results/evaluation_queries.json`, `data/results/evaluation_metrics.json`.
-  - **Verification**: Run `python code/src/cli/run.py --mode full-evaluation --memory-nodes data/processed/memory_nodes.parquet --faiss-index data/processed/faiss_hnsw_ego4d.index --optimal-parameters data/results/optimal_parameters.json --output-dir data/results/` and confirm that:
-    - `data/results/evaluation_queries.json` contains ≥200 query results with all required fields.
-    - `data/results/evaluation_metrics.json` contains all required metric keys (long_term.accuracy_top1, short_term.accuracy_top1, latency.max_ms, latency.mean_ms, latency.p95_ms, cpu_cycles.baseline_avg, cpu_cycles.semantic_decay_avg, cpu_cycles.ratio, mcnemar_test.p_value, flags).
-    - All latencies are ≤200 ms (FR-006, SC-003).
-    - CPU cycle ratio is ≤1.10 (FR-013, SC-009).
-    - If short-term degradation >5%, the flags array contains the degradation warning (FR-007, SC-004).
+- [ ] T007 [P2] [US-1] [US-2] [US-3] **Full evaluation on a representative query set and computation of all metrics.**  
+  - Extend `code/src/evaluation/metrics.py` with a function `run_full_evaluation(memory_nodes_parquet: Path, faiss_index_path: Path, optimal_params_path: Path, output_dir: Path) -> None` that:  
+    1. Loads the optimal `(α,β,λ)` from `optimal_parameters.json`.  
+    2. Generates a stratified evaluation set of **≥ 200** queries covering three age buckets (1‑3 days, 4‑14 days, > 14 days) using fixed seed 42.  
+    3. Identifies **rare** events as `is_rare AND is_semantically_distinct`.  
+    4. **If the rare‑event subset contains fewer than 30 events**, abort long‑term accuracy computation, add the flag `"Insufficient rare-event data (n < 30): analysis skipped"` to the final report, and continue with short‑term/overall metrics (FR‑009).  
+    5. For each query, runs both retrievers, recording Top‑1 hit, latency (ms), and CPU time (seconds), as well as the age bucket.  
+    6. Aggregates:  
+       - Long‑term Top‑1 accuracy (> 14 days) and query count.  
+       - Short‑term Top‑1 accuracy (1‑3 days) and query count.  
+       - Overall Top‑1 accuracy.  
+       - Latency statistics: max, mean, 95th‑percentile (must satisfy FR‑006).  
+       - CPU‑cycle statistics: baseline average, semantic‑decay average, and ratio (must satisfy FR‑013).  
+       - Flag short‑term degradation > 5 % (FR‑007).  
+    7. Stores per‑query results to `data/results/evaluation_queries.json` and aggregated metrics to `data/results/evaluation_metrics.json`.  
+  - Update `code/src/cli/run.py` with a `--mode full-evaluation` entry that calls the above function.  
+  - **Output**: `code/src/evaluation/metrics.py`, updated `code/src/cli/run.py`, `data/results/evaluation_queries.json`, `data/results/evaluation_metrics.json`.  
+  - **Verification**: Execute `python code/src/cli/run.py --mode full-evaluation …` and confirm:  
+    * ≥ 200 query entries exist.  
+    * All latency values ≤ 200 ms.  
+    * CPU‑cycle ratio ≤ 1.10.  
+    * If short‑term degradation > 5 % a corresponding warning appears in `evaluation_metrics.json["flags"]`.  
+    * If rare‑event count < 30, the flag `"Insufficient rare-event data (n < 30): analysis skipped"` is present.
 
-- [ ] T008 [P2] [US-1] **Implement statistical significance testing via McNemar's test and validate edge cases.**
-  - Extend `code/src/evaluation/metrics.py` with a function `mcnemar_test_long_term(evaluation_queries, output_path)` that:
-    - Filters evaluation queries to the long-term subset (>14 days).
-    - Constructs a 2×2 contingency table: rows = baseline Top-1 hit (yes/no), columns = semantic decay Top-1 hit (yes/no).
-    - Computes McNemar's test statistic and p-value using `scipy.stats.chi2_contingency` or equivalent.
-    - Determines significance: `p_value < 0.05` (SC-002, SC-010).
-    - Writes results to `data/results/mcnemar_test.json` with fields: `statistic`, `p_value`, `significant` (boolean).
-  - Implement edge-case handling in `code/src/evaluation/metrics.py`:
-    - If rare-event subset is empty or <50 events, set flag "Insufficient rare-event data (n < X): analysis skipped" and skip long-term analysis (FR-009, SC-006).
-    - If λ is out of bounds (0, 10) during grid search or inference, raise a validation error "Lambda out of bounds: <value>" (FR-010, FR-014, SC-007).
-    - If FAISS index fails to load, catch the exception and re-raise with the exact message "FAISS index load failure: <details>" (FR-011, SC-008).
-  - **Output**: Updated `code/src/evaluation/metrics.py`, `data/results/mcnemar_test.json`.
-  - **Verification**: Run the full evaluation and confirm that `data/results/mcnemar_test.json` contains `statistic` (float ≥0), `p_value` (float in [0, 1]), and `significant` (boolean). Manually verify the contingency table by spot-checking a few query results. If the rare-event subset is small, confirm that the "Insufficient rare-event data" flag is present in `data/results/evaluation_metrics.json`.
+- [ ] T008 [P2] **Statistical significance testing via McNemar’s test and edge‑case handling.**  
+  - Extend `code/src/evaluation/metrics.py` with `compute_mcnemar_test(evaluation_queries_path: Path, output_path: Path) -> None` that:  
+    * Filters the long‑term subset (> 14 days).  
+    * Builds the 2 × 2 contingency table of baseline vs. semantic‑decay Top‑1 outcomes.  
+    * Uses `scipy.stats.chi2_contingency` (with Yates’ correction) to compute the chi‑square statistic and p‑value.  
+    * Writes `statistic`, `p_value`, and `significant` (`p_value < 0.05`) to `data/results/mcnemar_test.json`.  
+  - Ensure that if the long‑term subset is empty (e.g., because of the < 30 rare‑event abort) the function writes a flag `"Insufficient long-term data for McNemar test"` and skips the test.  
+  - **Output**: Updated `code/src/evaluation/metrics.py`, `data/results/mcnemar_test.json`.  
+  - **Verification**: After a full evaluation, run the McNemar utility (it is invoked automatically by the full‑evaluation pipeline) and check that `mcnemar_test.json` contains numeric `statistic` and `p_value` in `[0,1]`, and that `significant` correctly reflects `p_value < 0.05`. If the test is skipped, confirm the appropriate flag appears.
 
-- [ ] T009 [P2] **Assemble evaluation report conforming to the contract schema.**
-  - Implement `code/src/evaluation/report.py` with a function `assemble_evaluation_report(optimal_parameters, evaluation_metrics, mcnemar_test, output_path)` that:
-    - Reads results from `data/results/optimal_parameters.json`, `data/results/evaluation_metrics.json`, and `data/results/mcnemar_test.json`.
-    - Constructs a JSON object conforming to `contracts/evaluation_report.schema.yaml` with all required fields:
-      - `optimal_alpha`, `optimal_beta`, `optimal_lambda` (from grid search).
-      - `validation_accuracy` (from grid search).
-      - `long_term` (accuracy_top1, num_queries).
-      - `short_term` (accuracy_top1, num_queries).
-      - `overall` (accuracy_top1).
-      - `latency` (max_ms, mean_ms, p95_ms).
-      - `cpu_cycles` (baseline_avg, semantic_decay_avg, ratio).
-      - `mcnemar_test` (statistic, p_value, significant).
-      - `flags` (array of warning strings).
-    - Validates the report against the schema using `jsonschema`.
-    - Writes the report to `data/results/evaluation_report.json`.
-  - Implement a contract validation test in `code/tests/contract/test_evaluation_report.py` that:
-    - Loads the generated `evaluation_report.json`.
-    - Validates it against `contracts/evaluation_report.schema.yaml` using `jsonschema.validate()`.
-    - Checks that all numeric fields are within their specified ranges (e.g., accuracy ∈ [0, 1], latency ≥0, ratio ≥0).
-    - Asserts that `mcnemar_test.significant == (mcnemar_test.p_value < 0.05)`.
-  - **Output**: `code/src/evaluation/report.py`, `code/tests/contract/test_evaluation_report.py`, `data/results/evaluation_report.json`.
-  - **Verification**: Run `python code/src/evaluation/report.py --optimal-parameters data/results/optimal_parameters.json --evaluation-metrics data/results/evaluation_metrics.json --mcnemar-test data/results/mcnemar_test.json --output data/results/evaluation_report.json` and confirm the report is generated. Then run `pytest code/tests/contract/test_evaluation_report.py` and confirm all validation checks pass without errors.
+- [ ] T009 [P2] **Assemble a contract‑compliant evaluation report.**  
+  - Implement `code/src/evaluation/report.py` with `assemble_report(optimal_params_path, metrics_path, mcnemar_path, output_path) -> None` that:  
+    * Reads `optimal_parameters.json`, `evaluation_metrics.json`, and `mcnemar_test.json`.  
+    * Constructs a JSON object matching `contracts/evaluation_report.schema.yaml`, populating all required fields (`optimal_alpha`, `optimal_beta`, `optimal_lambda`, `validation_accuracy`, `long_term`, `short_term`, `overall`, `latency`, `cpu_cycles`, `mcnemar_test`, `flags`).  
+    * Validates the object with `jsonschema.validate`.  
+    * Writes the report to `data/results/evaluation_report.json`.  
+  - Add a contract test `code/tests/contract/test_evaluation_report.py` that loads the generated report and validates it against the schema, asserting that numeric ranges are respected and that `mcnemar_test.significant` matches the p‑value condition.  
+  - **Output**: `code/src/evaluation/report.py`, `code/tests/contract/test_evaluation_report.py`, `data/results/evaluation_report.json`.  
+  - **Verification**: Run the report assembly script and then `pytest code/tests/contract/test_evaluation_report.py`; both must succeed without errors.
 
-- [ ] T010 [P2] **Implement unit tests for baseline and semantic decay retrievers.**
-  - Implement `code/tests/unit/test_baseline.py` with tests for `FixedHierarchyRetriever`:
-    - Test that queries are correctly routed to "current," "short-term," and "long-term" buckets based on timestamp thresholds.
-    - Test that Top-1 results are valid node IDs and similarity scores are in [0, 1].
-    - Test that FAISS index load failure raises the exact error message from FR-011.
-    - Test that the retriever handles edge cases (empty query, out-of-range timestamp).
-  - Implement `code/tests/unit/test_semantic_decay.py` with tests for `SemanticDecayRetriever`:
-    - Test that parameter bounds are enforced (α, β ∈ (0, 1), λ ∈ (0, 10)); out-of-bounds parameters raise a validation error (FR-010, FR-014).
-    - Test that the semantic decay score formula `S = α·sim + β·exp(-λ·t)` is computed correctly for known inputs.
-    - Test that Top-1 results are valid node IDs and scores are non-negative.
-    - Test that FAISS index load failure raises the exact error message from FR-011.
-    - Test that the retriever handles edge cases (zero decay rate, very large time delta).
-  - **Output**: `code/tests/unit/test_baseline.py`, `code/tests/unit/test_semantic_decay.py`.
-  - **Verification**: Run `pytest code/tests/unit/test_baseline.py code/tests/unit/test_semantic_decay.py -v` and confirm all tests pass without errors.
+- [ ] T010 [P2] **Unit tests for both retrievers.**  
+  - Create `code/tests/unit/test_baseline.py` covering:  
+    * Correct bucket routing based on timestamps.  
+    * Valid Top‑1 results and similarity scores in `[0,1]`.  
+    * Proper raising of `RuntimeError("FAISS index load failure: <details>")` when the index file is missing or corrupted.  
+    * Edge cases such as an empty query vector.  
+  - Create `code/tests/unit/test_semantic_decay.py` covering:  
+    * Enforcement of parameter bounds (α, β ∈ (0,1); λ ∈ (0,10)).  
+    * Correct computation of the decay score for a known input (e.g., `sim=0.8`, `t=5`, `α=0.6`, `β=0.3`, `λ=0.5`).  
+    * Proper handling of FAISS load failures with the exact error message.  
+    * Behaviour when `t` is very large (score should be dominated by the similarity term).  
+  - **Output**: `code/tests/unit/test_baseline.py`, `code/tests/unit/test_semantic_decay.py`.  
+  - **Verification**: Execute `pytest code/tests/unit/test_baseline.py code/tests/unit/test_semantic_decay.py -q`; all tests must pass.
 
 ---
 
 ## Phase 3: Reproducible Results and Paper Handoff
 
-**Goal**: Write a concise methods/results account, re-run the documented workflow from declared inputs, confirm all tests and artifact checks, and prepare the paper-stage handoff.
+**Goal**: Write a concise methods/results narrative linked to actual artifacts, generate figures/tables, re‑run the entire pipeline for reproducibility, and hand off the final artifacts to the paper‑stage pipeline.
 
-- [ ] T011 [P3] **Write methods and results narrative linked to actual output artifacts.**
-  - Create `paper/methods.md` documenting:
-    - Data acquisition: Ego4D source URL, download procedure, checksum verification.
-    - Preprocessing: Memory node construction, semantic clustering, rarity definition (≤5 occurrences), semantic distinctness computation.
-    - FAISS index construction: HNSW parameters (M=16, ef_construction=200, ef_search=50), deterministic seed (42).
-    - Fixed Hierarchy baseline: Routing logic, timestamp thresholds (current ≤1 day, short-term 1–14 days, long-term >14 days).
-    - Semantic Decay model: Scoring formula `S = α·sim(q, m) + β·exp(-λ·t)`, parameter bounds (0 < α, β < 1; 0 < λ < 10).
-    - Grid search: Parameter space (α ∈ {0.5, 0.6, 0.7}, β ∈ {0.2, 0.3, 0.4}, λ ∈ {0.1, ..., 9.9}), validation set size (50 queries), deterministic selection (first achieving maximum accuracy).
-    - Evaluation protocol: Query stratification (1–3 days, 4–14 days, >14 days), metrics (Top-1 accuracy, latency, CPU cycles, McNemar's test).
-    - Edge cases: Insufficient rare-event handling (n < 50), λ bounds enforcement, FAISS index error handling.
-  - Create `paper/results.md` documenting:
-    - Optimal parameters: α*, β*, λ* and validation accuracy.
-    - Long-term accuracy (>14 days) for both models, improvement percentage, McNemar's test p-value and significance.
-    - Short-term accuracy (1–3 days) for both models, degradation percentage (if any), flag if >5%.
-    - Overall accuracy across all queries.
-    - Inference latency: max, mean, p95 percentile; confirmation that all queries ≤200 ms.
-    - CPU cycles: baseline average, semantic decay average, ratio; confirmation that ratio ≤1.10.
-    - Flags: Any warnings (insufficient data, degradation, out-of-bounds parameters).
-    - Links to actual output files: `data/results/evaluation_report.json`, `data/results/evaluation_queries.json`, `data/results/grid_search_log.txt`.
-  - **Output**: `paper/methods.md`, `paper/results.md`.
-  - **Verification**: Review the markdown files for completeness and accuracy. Spot-check 3–5 specific claims (e.g., "optimal λ = X") against the actual values in `data/results/evaluation_report.json`. Confirm all links to output files are correct and files exist.
+- [ ] T011 [P3] **Write methods and results narrative linked to actual output artifacts.**  
+  - Create `paper/methods.md` that details:  
+    * Data acquisition (Ego4D URL, download steps, checksum verification).  
+    * Preprocessing (memory‑node construction, rarity & semantic‑distinctness definitions).  
+    * FAISS index construction (deterministic HNSW parameters).  
+    * Fixed‑Hierarchy baseline logic.  
+    * Semantic‑Decay model formula and parameter bounds.  
+    * Grid‑search configuration (parameter grid, deterministic tie‑breaker).  
+    * Evaluation protocol (query stratification, metrics, statistical test).  
+    * Edge‑case handling (rare‑event abort, λ bounds, FAISS failures).  
+  - Create `paper/results.md` summarising:  
+    * Optimal `(α*, β*, λ*)` and validation accuracy.  
+    * Long‑term accuracy for both models, % improvement, and McNemar p‑value.  
+    * Short‑term accuracy and any degradation flag.  
+    * Overall accuracy, latency statistics (max, mean, p95), CPU‑cycle ratio.  
+    * All flags recorded in the report.  
+    * Direct links to `data/results/evaluation_report.json`, `evaluation_queries.json`, and `grid_search_log.txt`.  
+  - **Output**: `paper/methods.md`, `paper/results.md`.  
+  - **Verification**: Manually cross‑check at least three quantitative statements (e.g., “optimal λ = 0.7”) against the values in `evaluation_report.json`.
 
-- [ ] T012 [P3] **Generate summary figures and tables from validated outputs.**
-  - Implement `code/src/evaluation/visualization.py` with functions to:
-    - Generate a bar chart comparing long-term accuracy (>14 days) for baseline vs. semantic decay, with error bars (±1 std) and the improvement percentage labeled.
-    - Generate a line plot of latency (ms) vs. time-since-event (days) for both models, showing that all queries ≤200 ms.
-    - Generate a table summarizing: optimal parameters, validation accuracy, long-term accuracy, short-term accuracy, latency stats, CPU cycle ratio, McNemar's test result.
-    - Save figures to `figures/long_term_accuracy.png`, `figures/latency_vs_age.png` and the table to `figures/summary_table.txt`.
-  - Use `matplotlib` with consistent styling (sans-serif font, 10pt labels, high DPI for publication).
-  - **Output**: `code/src/evaluation/visualization.py`, `figures/long_term_accuracy.png`, `figures/latency_vs_age.png`, `figures/summary_table.txt`.
-  - **Verification**: Run `python code/src/evaluation/visualization.py --evaluation-report data/results/evaluation_report.json --output-dir figures/` and confirm that all three output files are generated, figures are readable PNG files with proper labels and legends, and the table contains all required metrics.
+- [ ] T012 [P3] **Generate summary figures and tables from validated outputs.**  
+  - Implement `code/src/evaluation/visualization.py` with functions to:  
+    * Plot a side‑by‑side bar chart of long‑term Top‑1 accuracy (baseline vs. semantic‑decay) with error bars (±1 std) and annotate the % improvement.  
+    * Plot latency (ms) versus age (days) for both models, showing the 200 ms ceiling.  
+    * Produce a concise text table summarising optimal parameters, validation accuracy, long‑term/short‑term/overall accuracies, latency stats, CPU‑cycle ratio, and McNemar significance.  
+    * Save PNGs to `figures/long_term_accuracy.png`, `figures/latency_vs_age.png` and the table to `figures/summary_table.txt`.  
+  - Use `matplotlib` with a clean style (sans‑serif, 10 pt fonts, 300 dpi).  
+  - **Output**: `code/src/evaluation/visualization.py`, `figures/long_term_accuracy.png`, `figures/latency_vs_age.png`, `figures/summary_table.txt`.  
+  - **Verification**: Run `python code/src/evaluation/visualization.py --report data/results/evaluation_report.json --output-dir figures/` and confirm that the three files appear and are visually sensible.
 
-- [ ] T013 [P3] **Re-run the documented workflow end-to-end and verify reproducibility.**
-  - Create a shell script `code/run_full_pipeline.sh` that:
-    - Clones/downloads the Ego4D data from the verified URL (as documented in `specs/001-semantic-decay-retrieval/quickstart.md`).
-    - Runs all preprocessing steps: `python code/src/data/download.py`, `python code/src/data/preprocess.py`, `python code/src/data/faiss_builder.py`.
-    - Runs the full evaluation: `python code/src/cli/run.py --mode full-evaluation ...`.
-    - Runs all tests: `pytest code/tests/contract/ code/tests/unit/ -v`.
-    - Generates figures and tables: `python code/src/evaluation/visualization.py ...`.
-    - Outputs a summary log to `data/results/pipeline_run.log`.
-  - Execute the script on a clean directory and confirm that:
-    - All intermediate artifacts are generated (parquet files, FAISS index, JSON results).
-    - All tests pass without errors.
-    - The final `evaluation_report.json` is generated and conforms to the schema.
-    - All figures and tables are produced.
-    - The pipeline completes within the CI resource limits (2 vCPU, 7 GB RAM, 6 h).
-  - **Output**: `code/run_full_pipeline.sh`, `data/results/pipeline_run.log`.
-  - **Verification**: Run `bash code/run_full_pipeline.sh 2>&1 | tee data/results/pipeline_run.log` and confirm that the log shows all steps completed successfully (no errors or failures). Spot-check 3–5 key outputs (parquet schema, FAISS index size, evaluation report fields) to ensure they match expectations from previous tasks.
+- [ ] T013 [P3] **Re‑run the documented full pipeline end‑to‑end and verify reproducibility.**  
+  - Write a shell script `code/run_full_pipeline.sh` that performs, in order:  
+    1. `python code/src/data/download.py --output-dir data/raw/`  
+    2. `python code/src/data/preprocess.py --raw-dir data/raw/ --output data/processed/memory_nodes.parquet`  
+    3. `python code/src/data/faiss_builder.py --memory-nodes data/processed/memory_nodes.parquet --output data/processed/faiss_hnsw_ego4d.index`  
+    4. `python code/src/cli/run.py --mode validation` (creates validation set and runs the small benchmark)  
+    5. `python code/src/evaluation/validation.py --grid-search` (optimises α, β, λ)  
+    6. `python code/src/cli/run.py --mode full-evaluation` (full metrics)  
+    7. `python code/src/evaluation/report.py --optimal-parameters data/results/optimal_parameters.json --evaluation-metrics data/results/evaluation_metrics.json --mcnemar-test data/results/mcnemar_test.json --output data/results/evaluation_report.json`  
+    8. `pytest code/tests/contract/ code/tests/unit/ -q` (run all tests)  
+    9. `python code/src/evaluation/visualization.py --report data/results/evaluation_report.json --output-dir figures/`  
+    10. Echo a summary line with the path to `evaluation_report.json`.  
+  - The script logs progress and any errors to `data/results/pipeline_run.log`.  
+  - **Output**: `code/run_full_pipeline.sh`, `data/results/pipeline_run.log`.  
+  - **Verification**: On a clean CI runner, execute `bash code/run_full_pipeline.sh 2>&1 | tee data/results/pipeline_run.log`. The log must end with “Pipeline completed successfully” and all intermediate artifacts must exist. Spot‑check that `evaluation_report.json` validates and that the figures are present.
 
-- [ ] T014 [P3] **Document paper-stage handoff and archive final artifacts.**
-  - Create `paper/HANDOFF.md` documenting:
-    - **Input data**: Ego4D source, download URL, checksum verification procedure.
-    - **Code location**: All source code under `code/src/`, tests under `code/tests/`, entry point `code/run_full_pipeline.sh`.
-    - **Output artifacts**: `data/results/evaluation_report.json` (primary result), `data/results/evaluation_queries.json` (per-query details), `figures/` (summary visualizations).
-    - **Reproducibility**: Fixed random seed (42) used throughout; all external dependencies pinned in `requirements.txt`.
-    - **Verification**: Contract validation test in `code/tests/contract/test_evaluation_report.py`; unit tests in `code/tests/unit/`.
-    - **Limitations and flags**: List any warnings from `evaluation_report.json.flags` (e.g., insufficient rare-event data, short-term degradation).
-    - **Next steps for paper pipeline**: The evaluation report and figures are ready for inclusion in a manuscript; no additional data processing or analysis is needed. The paper pipeline should handle figure captioning, table formatting, PDF compilation, and submission workflows.
-  - Archive all code, tests, and documentation under `code/`, `specs/001-semantic-decay-retrieval/`, and `paper/`.
-  - **Output**: `paper/HANDOFF.md`.
-  - **Verification**: Review the handoff document for completeness. Confirm that all required outputs are listed and their file paths are correct. Verify that the document clearly separates research-stage artifacts (data, code, tests) from paper-stage responsibilities (PDF, submission, peer review).
+- [ ] T014 [P3] **Document paper‑stage handoff and archive final artifacts.**  
+  - Create `paper/HANDOFF.md` that lists:  
+    * **Input data**: Ego4D source URL, checksum verification steps.  
+    * **Code location**: All source under `code/src/`, tests under `code/tests/`, entry point `code/run_full_pipeline.sh`.  
+    * **Output artifacts**: `data/results/evaluation_report.json` (primary result), `data/results/evaluation_queries.json` (per‑query details), `figures/` (visualisations), `paper/methods.md` & `paper/results.md`.  
+    * **Reproducibility**: Fixed random seed 42 throughout; exact dependency versions in `requirements.txt`.  
+    * **Verification**: Contract test (`test_evaluation_report.py`) and unit tests (`test_baseline.py`, `test_semantic_decay.py`).  
+    * **Limitations & flags**: Any warnings from `evaluation_report.json.flags` (e.g., insufficient rare events, short‑term degradation).  
+    * **Next steps for the paper pipeline**: The report and figures are ready for inclusion in a manuscript; the paper‑stage will handle captioning, table formatting, PDF generation, and submission.  
+  - Archive the entire research artefact tree (`code/`, `specs/001-semantic-decay-retrieval/`, `paper/`, `data/`) as part of the handoff.  
+  - **Output**: `paper/HANDOFF.md`.  
+  - **Verification**: Review the handoff document to ensure all paths are correct and that it clearly separates research‑stage artefacts from paper‑stage responsibilities.
 
 ---
 
 ## Dependencies and Requirement Coverage
 
-| Specification Requirement | Task(s) | Command/Artifact | Verification |
-|---------------------------|---------|-----------------|--------------|
-| **FR-001**: Semantic Decay formula `S = α·sim(q,m) + β·exp(-λ·t)` with grid search | T004, T006 | `code/src/retrieval/semantic_decay.py`, `code/src/evaluation/grid_search.py` | Instantiate retriever with optimal params; inspect `data/results/optimal_parameters.json` |
-| **FR-002**: Fixed Hierarchy baseline | T003 | `code/src/retrieval/baseline.py` | Run baseline retriever; confirm routing logic by bucket |
-| **FR-003**: Full evaluation on substantial query set | T007 | `code/src/cli/run.py`, `data/results/evaluation_queries.json` | ≥200 queries; all age buckets represented |
-| **FR-004**: Measure latency and CPU cycles | T007 | `code/src/evaluation/metrics.py`, `data/results/evaluation_metrics.json` | Latency in ms, CPU time in seconds, both per-query and aggregated |
-| **FR-005**: McNemar's test for statistical significance | T008 | `code/src/evaluation/metrics.py`, `data/results/mcnemar_test.json` | p-value < 0.05 for success; recorded in report |
-| **FR-006**: Inference latency ≤ 200 ms for all queries | T007 | `data/results/evaluation_metrics.json.latency.max_ms` | max_ms ≤ 200 |
-| **FR-007**: Short-term accuracy degradation ≤ 5% | T007 | `data/results/evaluation_metrics.json`, flags | Flag if degradation > 5% |
-| **FR-008**: CPU-only execution, ≤ 7 GB RAM | T001, T007 | `code/requirements.txt` (no CUDA), pipeline runs on CI | No CUDA imports; memory monitoring via psutil |
-| **FR-009**: Rare-event subset < 30 → abort long-term analysis | T007 | `code/src/evaluation/metrics.py`, flags | Flag "Insufficient rare-event data" if n < 50 |
-| **FR-010**: λ bounds (0, 10) enforcement during grid search | T006 | `code/src/evaluation/grid_search.py` | Grid search only iterates λ ∈ {0.1, ..., 9.9}; validation error if out-of-bounds |
-| **FR-011**: FAISS index load failure → exact error message | T003, T007 | `code/src/retrieval/baseline.py`, `code/src/retrieval/semantic_decay.py` | Try/catch with "FAISS index load failure: <details>" |
-| **FR-012**: Rare events defined as ≤ 5 occurrences | T002 | `code/src/data/preprocess.py`, `data/processed/memory_nodes.parquet` | is_rare field computed from event_label frequency |
-| **FR-013**: CPU cycles ratio ≤ 1.10 | T007 | `data/results/evaluation_metrics.json.cpu_cycles.ratio` | ratio ≤ 1.10; recorded in report |
-| **FR-014**: λ bounds enforced during training and inference | T004, T006 | `code/src/retrieval/semantic_decay.py` | Constructor raises error if λ ∉ (0, 10) |
-| **FR-015**: Deterministic grid search with fixed seed and ascending order | T006 | `code/src/evaluation/grid_search.py` | Seed=42; enumerate in ascending order; select first achieving max accuracy |
-| **SC-001**: Improvement in long-term accuracy measured | T007, T009 | `data/results/evaluation_report.json.long_term` | accuracy_top1 for both models; improvement % computed |
-| **SC-002**: McNemar's test p < 0.05 | T008, T009 | `data/results/evaluation_report.json.mcnemar_test.p_value` | p_value in [0, 1]; significant = (p_value < 0.05) |
-| **SC-003**: Latency ≤ 200 ms; max and p95 recorded | T007, T009 | `data/results/evaluation_report.json.latency` | max_ms ≤ 200; mean_ms, p95_ms present |
-| **SC-004**: Short-term degradation ≤ 5%; flag if exceeded | T007, T009 | `data/results/evaluation_report.json.short_term`, flags | accuracy_top1 for both models; degradation % computed; flag if > 5% |
-| **SC-005**: Memory ≤ 7 GB | T001, T007 | Pipeline execution on CI | Monitor via psutil; confirm no OOM errors |
-| **SC-006**: Rare-event subset < 30 → flag in report | T007, T009 | `data/results/evaluation_report.json.flags` | "Insufficient rare-event data: analysis skipped" if n < 50 |
-| **SC-007**: λ bounds (0, 10) enforced; violations logged and terminate | T006, T008 | `code/src/evaluation/grid_search.py`, logs | Grid search rejects λ ∉ (0, 10); error logged and pipeline stops |
-| **SC-008**: FAISS load failure → exact error message | T003, T008 | `code/src/retrieval/baseline.py`, `code/src/retrieval/semantic_decay.py` | "FAISS index load failure: <details>" on failure |
-| **SC-009**: CPU cycles ratio ≤ 1.10; both averages and ratio in report | T007, T009 | `data/results/evaluation_report.json.cpu_cycles` | baseline_avg, semantic_decay_avg, ratio all present; ratio ≤ 1.10 |
-| **SC-010**: McNemar's p-value reported; success if p < 0.05 | T008, T009 | `data/results/evaluation_report.json.mcnemar_test` | statistic, p_value, significant (bool) all present |
+| Specification Requirement | Task(s) | Artifact / Command | Verification |
+|---------------------------|---------|--------------------|--------------|
+| **FR‑001** Semantic‑Decay formula & grid‑search | T004, T006 | `semantic_decay.py`, `validation.py` | Inspect code & optimal parameters JSON |
+| **FR‑002** Fixed‑Hierarchy baseline | T003 | `baseline.py` | Run baseline retrieval and check bucket routing |
+| **FR‑003** Full evaluation on substantial query set | T007 | `run_full_evaluation` → `evaluation_queries.json` | ≥ 200 queries spanning all age buckets |
+| **FR‑004** Measure latency & CPU cycles | T007 | `evaluation_metrics.json` latency & cpu_cycles fields | All latencies ≤ 200 ms; ratio ≤ 1.10 |
+| **FR‑005** McNemar’s test | T008 | `mcnemar_test.json` | p‑value < 0.05 reported as `significant` |
+| **FR‑006** Latency ≤ 200 ms | T007 | `latency.max_ms` | ≤ 200 |
+| **FR‑007** Short‑term degradation ≤ 5 % | T007 | `short_term.accuracy_top1` & flags | Flag present only if > 5 % |
+| **FR‑008** CPU‑only execution, ≤ 7 GB RAM | T001, T007 | No CUDA imports; monitor via psutil | No OOM, no CUDA errors |
+| **FR‑009** Rare‑event abort if < 30 | T007 | Flag in `evaluation_metrics.json` | Correct threshold (30) enforced |
+| **FR‑010** λ bounds enforcement | T004, T006 | Constructor validation & grid‑search filter | Errors raised for out‑of‑bounds λ |
+| **FR‑011** FAISS load failure message | T003, T004 | RuntimeError with exact message | Simulate missing index → correct error |
+| **FR‑012** Rare‑event definition ≤ 5 | T002 | `is_rare` column in parquet | Verify counts ≤ 5 |
+| **FR‑013** CPU‑cycle ratio ≤ 1.10 | T007 | `cpu_cycles.ratio` ≤ 1.10 | Check in metrics JSON |
+| **FR‑014** λ bounds during training & inference | T004, T006 | Same as FR‑010 | Consistent enforcement |
+| **FR‑015** Deterministic grid‑search | T006 | Log order & tie‑breaker | Ascending enumeration, first max selected |
+| **SC‑001** Long‑term accuracy improvement | T007, T009 | `long_term.accuracy_top1` & report | Compute % improvement |
+| **SC‑002** McNemar significance | T008, T009 | `mcnemar_test.p_value` | < 0.05 |
+| **SC‑003** Latency stats | T007, T009 | `latency` object | max, mean, p95 present |
+| **SC‑04** Short‑term degradation flag | T007, T009 | `flags` array | Present only if > 5 % |
+| **SC‑005** Memory ≤ 7 GB | T001, T007 | CI monitor (psutil) | No OOM |
+| **SC‑006** Insufficient rare‑event flag | T007, T009 | `flags` array | Correct wording with n < 30 |
+| **SC‑007** λ bounds violation termination | T006, T008 | Logs / exceptions | Confirm abort on violation |
+| **SC‑008** FAISS load failure exact message | T003, T008 | Exception message | Verified |
+| **SC‑009** CPU‑cycle ratio ≤ 1.10 | T007, T009 | Ratio field | ≤ 1.10 |
+| **SC‑010** McNemar p‑value reported | T008, T009 | `mcnemar_test` object | Present and accurate |
 
----
-
-## Revision Behavior
-
-Preserve working artifacts and already verified requirements. Carry forward their identities and status; do not erase completed work to make the list look shorter. Use the precise failing command or verifier diagnosis to repair affected tasks. Consolidate redundant pending tasks without dropping their acceptance criteria. A narrow implementation failure is not a reason to rebuild the project skeleton, rewrite unrelated modules, or expand the study into an application framework.
-
-**All tasks in this plan are new and unchecked.** Completed tasks will be marked with `[x]` and their identities preserved across revision rounds.
+All scientific requirements are mapped to concrete tasks, and each task includes an observable verification step.
