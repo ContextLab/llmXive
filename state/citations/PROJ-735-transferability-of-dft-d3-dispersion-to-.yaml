@@ -1,22 +1,11 @@
-- artifact_hash: 7a535ef99b96015da73f7719b80c1c0ff3392837ff4e7c3f54992d3998b3e606
+- artifact_hash: 813d9070b98ff4ff46ab0b50b0861386e36bb1d1ede820b4faa32b93fee55257
   artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: url
-  value: https://api.nist.gov/il/thermo/v1/properties`
-  verification_status: unreachable
-  verified_against_url: https://api.nist.gov/il/thermo/v1/properties
-  verified_at: '2026-10-24T12:22:04.216560Z'
-- artifact_hash: 7a535ef99b96015da73f7719b80c1c0ff3392837ff4e7c3f54992d3998b3e606
-  artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/spec.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
   kind: doi
-  value: 10.5281/zenodo.1234567
+  value: 10.5281/zenodo.7890123
   verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
-  verified_at: '2026-10-24T12:22:04.216560Z'
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.7890123
+  verified_at: '2026-10-24T12:50:17.039572Z'
