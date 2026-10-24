@@ -1,0 +1,28 @@
+T001:
+  c: false
+  h: 447c004dec382a8976827de674d6db43e9dbde5b21743a6a01739ff9dc917aa8
+  r: "The integration test `tests/integration/test_skeleton.py` failed on the `ruff\
+    \ check code/` step (see `code/.tasks/T001.tests_integration_test_skeleton.py.log`),\
+    \ resulting in a missing/empty `artifacts/ruff_output.txt`. Consequently the CI\
+    \ verification that both artifact files exist and are non\u2011empty is not satisfied.\
+    \ The task needs the `ruff` module installed (or the test adjusted) so that the\
+    \ ruff check passes and the artifact is generated."
+  sig: a666420704cf08198695eb0e6c6f21deb0ecf24b096af9000f704d05ed7ce342
+T002:
+  c: false
+  h: d34fb4d941ca274a1e01b9f891b3a9042902616e7fe02e1b4d5444f05ed48c25
+  r: The required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,
+    `execution_metric.schema.yaml`, `statistics_result.schema.yaml`) are reported
+    as missing, causing the unit test `test_schema_validation` to fail, and the duplicate
+    `statistics-result.schema.yaml` has not been removed. The task therefore does
+    not meet the specification.
+  sig: 935bddafb21287f2290a9407c5f11bb1106faec0839af9324404e787f58dcbbf
+T003:
+  c: false
+  h: 3721816f6b76373c08bc1457b30de483509df5552f58f7a84cc4040efd6bd930
+  r: "The three loader functions in `code/utils/data_fetcher.py` raise `DataFetchError`\
+    \ because the requested dataset configurations do not exist (`'test'` for MS\u202F\
+    MARCO and `'tables'` for Spider) and the DBpedia download returns a 401 Unauthorized\
+    \ error. Consequently, all three unit tests in `tests/unit/test_data_fetcher.py`\
+    \ fail. The required functionality and passing tests are therefore missing."
+  sig: 0319a9fbec32903f0003773c9c7d50618e6102525c36714ced577e18660b07c9

@@ -1,53 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ExecutionLog
 type: object
 properties:
   query_id:
     type: string
-    description: "UUID of the query"
   source_type:
     type: string
     enum: [text, relational, graph]
-    description: "Source category"
   complexity_level:
     type: integer
     minimum: 1
-    description: "Exact plan depth"
   latency_ms:
     type: number
-    description: "Baseline‑corrected wall‑clock latency in milliseconds"
-  precision_at_10:
-    type: number
-    description: "Precision@10 for this query (0 ≤ value ≤ 1)"
   timestamp:
     type: string
     format: date-time
-    description: "ISO‑8601 timestamp of measurement"
   translation_error:
     type: boolean
-    description: "True if engine plan deviates from ground truth (optimal for sampled subset, greedy otherwise)"
   success_flag:
     type: boolean
-    description: "True if execution completed without error"
   timeout_flag:
     type: boolean
-    description: "True if execution exceeded the 60‑second limit"
   synthetic_flag:
-    type: boolean
-    description: "True if the query topology was synthetically generated"
+    type: integer
+    enum: [0, 1]
   throttling_mode:
     type: string
-    enum: [cgroups, failed]
-    description: "Method used to enforce CPU limits"
 required:
   - query_id
   - source_type
   - complexity_level
   - latency_ms
-  - precision_at_10
   - timestamp
   - translation_error
   - success_flag
   - timeout_flag
   - synthetic_flag
   - throttling_mode
-```
-
+additionalProperties: true

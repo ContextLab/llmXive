@@ -52,9 +52,9 @@ SCHEMAS = {
 DEPRECATED = [
     "analysis_result.schema.yaml",
     "gam_results.schema.yaml",
-    "execution_log.schema.yaml_",   # underscore variant
-    "execution_metrics.schema.yaml",  # underscore variant
-    "execution-log.schema.yaml",    # hyphen variant
+    "execution_log.schema.yaml_",
+    "execution_metrics.schema.yaml",
+    "execution-log.schema.yaml",
     "query_result.schema.yaml",
 ]
 
