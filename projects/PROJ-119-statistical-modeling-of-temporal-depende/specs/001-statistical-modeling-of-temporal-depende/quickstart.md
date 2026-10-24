@@ -2,7 +2,7 @@
 
 **Prerequisites**  
 - GitHub Actions runner (or a local Linux/macOS/Windows environment with Python 3.11).  
-- Internet access (to download the data from the CoinGecko public API).  
+- Internet access (to download the verified datasets).  
 
 **Step‑by‑Step**
 
@@ -23,7 +23,7 @@
    ```bash
    papermill notebooks/analysis.ipynb output/analysis_executed.ipynb
    ```
-   - The notebook automatically downloads the BTC and ETH OHLCV data **directly from the public CoinGecko API** for the most recent 5 years, validates required columns, and aborts with a clear error if validation fails.  
+   - The notebook automatically downloads the BTC JSON and ETH Parquet files from the **verified URLs** listed in the “Dataset Strategy” section, validates required columns, and aborts with a clear error if validation fails.  
    - All major steps are logged to `analysis.log` (timestamps included).  
 
 4. **Inspect the results**  
@@ -41,7 +41,7 @@
    ```bash
    /usr/bin/time -v papermill notebooks/analysis.ipynb output/analysis_executed.ipynb
    ```
-   Ensure `Maximum resident set size` ≤ 6000 KB and total CPU time ≤ 2 h (typical for the full bootstrap).  
+   Ensure `Maximum resident set size` ≤ 6000 KB and total CPU time ≤ 30 minutes (typical for the full bootstrap).  
 
 **Alternative Settings**  
 - To test the 3‑state model or the rolling‑std volatility proxy, edit the top‑of‑notebook parameters:
@@ -52,13 +52,11 @@
   Then repeat step 3.
 
 **Troubleshooting**  
-- *Missing required columns*: Notebook aborts with “Required OHLCV columns missing in <asset>”. Verify that the CoinGecko API endpoints have not changed.  
-- *Download failures*: The loader retries three times with exponential back‑off; persistent 5xx errors abort with “Data download unavailable”.  
+- *Missing required columns*: Notebook aborts with “Required column `<col>` missing in `<asset>`”. Verify that the verified dataset still contains the column.  
+- *Download failures*: The loader retries three times with exponential back‑off; persistent failure aborts with “Data download unavailable”.  
 - *HMM non‑convergence*: If EM does not converge within 100 iterations, the notebook logs “HMM convergence not achieved” and falls back to a stationary VAR.  
 - *Bootstrap exceeds time limit*: The notebook automatically switches to a reduced 2 000‑sample bootstrap and records the fallback in `analysis.log`.  
 
 That’s all – the full analysis completes with a single command.
 
 ---
-
-

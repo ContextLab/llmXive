@@ -4,7 +4,7 @@
 
 | Entity | Description | Primary Fields |
 |--------|-------------|----------------|
-| **AssetPriceRaw** | Unprocessed OHLCV records for a single asset. | `date (ISO‑8601)`, `open (float)`, `high (float)`, `low (float)`, `close (float)`, `volume (float)` |
+| **AssetPriceRaw** | Unprocessed price records for a single asset (only `date` and `close` are guaranteed by the verified sources). | `date (ISO‑8601)`, `close (float)`, `volume (float, optional)` |
 | **AssetReturnSeries** | Daily log‑returns and volatility proxies derived from `AssetPriceRaw`. | `date`, `btc_return`, `eth_return`, `vol_sq`, `vol_roll_std` |
 | **RegimeLabelSeries** | Integer regime label aligned with `AssetReturnSeries`. | `date`, `regime (int; 1=Low‑Vol, 2=High‑Vol, 3=optional third)` |
 | **RSVARModel** | Regime‑specific VAR parameters and diagnostics. | `regime (int)`, `lag (int)`, `coef_matrix (k×k)`, `cov_matrix (k×k)`, `autocorr_btc (float)`, `autocorr_eth (float)`, `cross_corr_resid (float)` |
@@ -17,24 +17,19 @@ All files are stored under `data/` (raw & derived) or `results/` (model artefact
 ### `raw_price.schema.yaml`
 ```yaml
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Raw OHLCV price record"
+title: "Raw price record (close only)"
 type: object
-required: [date, open, high, low, close, volume]
+required: [date, close]
 properties:
   date:
     type: string
     format: date
     description: "Trading day in ISO‑8601 format."
-  open:
-    type: number
-  high:
-    type: number
-  low:
-    type: number
   close:
     type: number
   volume:
     type: number
+    description: "Optional volume column if present."
 additionalProperties: false
 ```
 
