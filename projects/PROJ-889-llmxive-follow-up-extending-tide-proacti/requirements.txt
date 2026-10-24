@@ -1,4 +1,7 @@
+# Project dependencies
+numpy>=2.0
+pandas==2.2.2
 datasets==2.20.0
 huggingface_hub==0.23.0
-pandas==2.2.2
-radon==6.0.1
+# Existing dependencies already available in the base environment (do not need to reinstall):
+# scipy, matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil

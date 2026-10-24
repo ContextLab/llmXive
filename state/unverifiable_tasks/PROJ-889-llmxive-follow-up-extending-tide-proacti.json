@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-889-llmxive-follow-up-extending-tide-proacti",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "Requested task execution failed; rerun successfully: src/data/acquire_real.py exit=1",
+      "first_seen": "2026-10-24T10:16:24.509173+00:00",
+      "last_seen": "2026-10-24T10:16:24.509173+00:00"
+    }
+  ],
+  "updated_at": "2026-10-24T10:16:24.509173+00:00"
+}

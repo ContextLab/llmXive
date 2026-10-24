@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T19:09:36.832631Z'
-current_stage: in_progress
+current_stage: agent_blocked
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-889-llmxive-follow-up-extending-tide-proacti
-last_run_id: cd8aa742-0109-4f26-b1e8-b559b4ea8676
+last_run_id: 971f5101-b091-4ee9-8a1a-7930abd105cb
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-889-llmxive-follow-up-extending-tide-proacti/specs/001-llmxive-follow-up-extending-tide-proacti
 title: 'llmXive follow-up: extending "TIDE: Proactive Multi-Problem Discovery via
   Template-Guided Iteration"'
-updated_at: '2026-10-23T08:47:13.923959Z'
+updated_at: '2026-10-24T10:16:24.517555Z'

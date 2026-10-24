@@ -73,7 +73,7 @@ def main() -> None:
         logger.info(f"Streaming dataset '{REPO_ID}' split '{SPLIT}'.")
         # Use streaming=True as per plan.md to handle potentially large datasets
         dataset = load_dataset(REPO_ID, split=SPLIT, streaming=True, trust_remote_code=True)
-        
+
         # Convert the streamed dataset to a list of records
         records = list(dataset)
         df = pd.DataFrame(records)
@@ -88,15 +88,15 @@ def main() -> None:
     try:
         # Expected schema: instance_id, code, ground_truth_label
         # If 'instance_id' is missing, generate it.
-        if 'instance_id' not in df.columns:
-            df.insert(0, 'instance_id', range(len(df)))
-        
+        if "instance_id" not in df.columns:
+            df.insert(0, "instance_id", range(len(df)))
+
         # Map labels if necessary (e.g., 'label' -> 'ground_truth_label')
-        if 'label' in df.columns and 'ground_truth_label' not in df.columns:
-            df = df.rename(columns={'label': 'ground_truth_label'})
+        if "label" in df.columns and "ground_truth_label" not in df.columns:
+            df = df.rename(columns={"label": "ground_truth_label"})
 
         # Ensure required columns exist
-        required = {'instance_id', 'code', 'ground_truth_label'}
+        required = {"instance_id", "code", "ground_truth_label"}
         missing = required - set(df.columns)
         if missing:
             logger.error(f"Dataset missing required columns: {missing}. Found: {df.columns.tolist()}")
