@@ -5,7 +5,7 @@ This module lives under ``src/data`` to match the import path used
 throughout the quickstart (``python -m src.data.download_fluordb``).
 
 The heavy‑lifting is performed by the implementation in
-``code/data/download_fluordb.py``.  The wrapper simply forwards CLI
+``code/data/download_fluordb.py``. The wrapper simply forwards CLI
 arguments to that implementation.
 """
 

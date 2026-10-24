@@ -7,7 +7,7 @@ All tasks respect the data‑flow order required by the functional requirements 
 
 ## Phase 1 – Data acquisition, cleaning, and scaffold‑based split  
 
-- [ ] T001 **US‑1** Implement download script for verified FluorDB v1.0 → `code/data/download_fluordb.py` → `data/raw/fluordb/`   <!-- FAILED-IN-EXECUTION: code/data/download_fluordb.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download_fluordb.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_fluordb.py exit=1 -->
+- [ ] T001 **US‑1** Implement download script for verified FluorDB v1.0 → `code/data/download_fluordb.py` → `data/raw/fluordb/`   <!-- FAILED-IN-EXECUTION: code/data/download_fluordb.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download_fluordb.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download_fluordb.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download_fluordb.py exit=1 -->
   *Actions*  
   • Use `datasets.load_dataset("fluordb/v1", split="train", streaming=False)` to fetch the joint SMILES + FQY parquet file.  
   • Write the file `fluordb.parquet` into `data/raw/fluordb/`.  
