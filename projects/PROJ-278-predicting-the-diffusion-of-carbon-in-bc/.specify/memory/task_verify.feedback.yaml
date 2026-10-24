@@ -1,12 +1,11 @@
 T001:
+  reason: "The evidence shows the main project folder and the `code/` and `tests/`\
+    \ directories exist, but it does not demonstrate that the `__init__.py` files\
+    \ in those directories are empty, nor does it confirm the presence of the required\
+    \ `specs/001-predict-carbon-diffusion-bcc/contracts` sub\u2011directory. These\
+    \ missing confirmations must be provided for the task to be considered complete."
   task: 7c387e3c26ad2e3649e51499f7106105bd69301fbd2e1300c8b4577b8092dc83
 T002:
-  reason: "The file `code/requirements.txt` exists and contains all ten required packages,\
-    \ but none are pinned to specific versions \u2014 the task explicitly requires\
-    \ a pinned requirements file. Additionally it includes four extra packages (datasets,\
-    \ jsonschema, pyyaml, matplotlib, scipy) with informal comments rather than proper\
-    \ pin syntax; the implementer should pin every dependency to exact versions (e.g.,\
-    \ `pandas==2.x.y`)."
   task: e4e0f3cdf56263d948337a4179ba85a7ca5fb4116e8897d20a8a4d8f4c2f6455
 T003:
   task: 8a27d444c7dc8716d70af9fc98ea3451dc78c88e2e4ee7fc09bc9268f1d8bd04
@@ -72,7 +71,8 @@ T026:
 T027:
   task: c150efea0ea70e4e9423b575a392f973092c8babb05a7577e379cea7db311f41
 T028:
-  reason: 'declared artifact(s) missing/empty/invalid: docs/data_scarcity_report.md'
+  reason: 'Requested task execution failed; rerun successfully: code/06_data_scarcity_report.py
+    exit=1'
   task: 9719233fd22482747dc83c3b3ee992e2faa20efa6324b6e52322fcd5929aa790
 T029:
   task: 70afe41560a6cf46c4c7ed3f5910e5d95de5222a76d4f2ece4230ee013455415

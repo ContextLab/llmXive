@@ -11,7 +11,7 @@
   *Artifact*: empty directories at the paths above.  
   **Verification**: run a script that asserts `code/`, `data/`, and `tests/` exist.
 
-- [ ] **T002** Write `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt` containing the exact pinned versions required for reproducibility:  
+- [ ] **T002** Write `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt` containing the exact pinned versions required for reproducibility:   <!-- FAILED-IN-EXECUTION: code/setup_requirements.py exit=1 -->
 
   ```text
   datasets==2.14.0

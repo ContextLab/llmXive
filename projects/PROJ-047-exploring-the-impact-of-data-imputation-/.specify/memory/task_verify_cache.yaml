@@ -105,14 +105,53 @@ T011:
     \ data distribution, and the mask is a boolean array rather than a 0/1 indicator)\
     \ do not contradict the task's stated requireme"
   sig: de852061dbb070860337a13ecdf89fa3c12775a130ccee158c2d3c034c6592f5
-T014:
+T012:
+  c: true
+  h: e35abb5a80429844ce773edb0241641639f8ac56f1678643463207ae84224536
+  r: "Checked `code/simulation/missingness.py` (6541\u202Fbytes) and confirmed the\
+    \ `tune_alpha(beta, target_rate)` function is fully implemented, performs a binary\
+    \ search using a normal\u2011distributed reference for\u202FY, and returns an\
+    \ \u03B1 that achieves the requested missingness rate. No placeholder or missing\
+    \ code was found."
+  sig: 7841c0f8e6438b4ddcd59b84a8dd56a78a0ea3eb7e8628a15d757fc464889de0
+T013:
   c: false
-  h: b202950a4558ef0b70ac04ee98e08228b40406f6cf62939867480a36a31cb8ee
-  r: "The `verify_us1.py` file is truncated (ends with \u201Cdef mai\u201D) and does\
-    \ not contain a callable entry point or integration with T029a, and the required\
-    \ output file `data/results/us1_verification.json` is absent. Consequently the\
-    \ verification logic cannot be executed nor produce the mandated JSON results\
-    \ for all runs."
+  h: 65ddbaa7dbef4381b8a78d1386baa61b6f8f8bb39f42989695ded35604e77e71
+  r: "The `code/simulation/scm_generator.py` file (2777\u202Fbytes) contains only\
+    \ a simple correlation\u2011based `check_collinearity` function and does not import\
+    \ or use `statsmodels.stats.outliers_influence.variance_inflation_factor`, does\
+    \ not compute VIF for each confounder, does not log warnings when VIF\u202F>\u202F\
+    10, and does not store VIF values in run metadata. These required features are\
+    \ missing."
+  sig: 0956738f1a6bebdc78db756f4bd10993dff4f6f80a97f8cc2b99185bf52266de
+T014:
+  c: true
+  h: dbc00b64aad4d24413d957c38c72c3fa9dc8f74839fe6106811c7f0bffa64f0b
+  r: "Checked `code/simulation/verify_us1.py`, which implements the SHA\u2011256 run_id,\
+    \ computes Spearman\u202F\u03C1 and p\u2011value between the missingness mask\
+    \ and the complete Y, logs a warning on failure, and appends a record with the\
+    \ required fields to `data/results/us1_verification.json`. The script meets the\
+    \ schema and status logic, and is designed to be called for each simulation run,\
+    \ satisfying the task\u2019s specifications."
+  sig: 7d2782aa75f8bdf1be6369b937bdc29e1b9f3a5a65c0b5e91314d9d2dd7f911f
+T015:
+  c: true
+  h: 78208489fe36a1f2f5f66500f6a34743af9c97157ba089377cb0cbe11d6d87fd
+  r: "The `tests/test_scm_generator.py` file (2250\u202Fbytes) is present and contains\
+    \ tests that (1) check deterministic output of `regenerate_ground_truth` for a\
+    \ given seed and beta, and (2) verify that the generated `SyntheticDataset` stores\
+    \ the correct ground\u2011truth ATE (`ground_truth_ate`) and seed. The referenced\
+    \ implementation `code/simulation/scm_generator.py` provides the required functions,\
+    \ confirming the tests are applicable."
+  sig: 0f07783feee38aee308cd844d9585267675b189416304394d2e43a56fba46f91
+T016:
+  c: true
+  h: 9c56d099163c59f30191ecfbffee62024502291df6e635c79133e908bff5bb6e
+  r: "Checked the `tests/test_missingness.py` file (6787\u202Fbytes) which contains\
+    \ pytest tests verifying that `tune_alpha` finds an \u03B1 achieving the target\
+    \ missingness rate and that the injected MNAR missingness is correlated with the\
+    \ outcome variable\u202FY. The required tests are present and correctly implemented."
+  sig: 48db5d3a3ba6ac2392186b8c8709f55d65b0e30d31bba455e39558357289343a
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -158,3 +197,11 @@ T047:
     \ validation step required by T029d, and it uses sub\u2011commands rather than\
     \ the `--plot` flag format specified. Moreover, the required input file `data/results/simulation_summary.csv`\
     \ is absent, so the script cannot be exercised as intended."
+T055:
+  c: false
+  h: 4cd6a2ce62245b784f59d916d2a8af85fcbb4b4cef501ab56d75ee35266827ec
+  r: The file `code/simulation/missingness.py` does not contain the required `validate_mnar_ks`
+    function, and the expected output file `data/results/mnar_validation.json` is
+    absent. Moreover, `code/main.py` never imports or calls this validation function,
+    so the integration step is missing.
+  sig: e0570cf5b5aeea50351de58497c700e2328cc8b59965b7aabfc991cda12bdca4

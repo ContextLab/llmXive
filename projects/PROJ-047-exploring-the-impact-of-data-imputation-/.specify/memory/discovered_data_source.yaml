@@ -3,9 +3,11 @@ intent: synthetic causal inference dataset with MNAR missingness python package 
 required_fields:
 - treatment (binary)
 - outcome (continuous)
-- confounders (one or more columns)
-- missing_indicator (binary)
-- ground_truth_ate (numeric)
-cache_key: a04e1bb615b438850cdf46f96222ee0856d15c6ea254b9ada8cc4ccab0627a56
-searched_at: '2026-10-16T00:58:59.136467+00:00'
+- confounders (vector)
+- missingness indicator (M)
+- ground_truth_ATE
+- MNAR_parameter_beta
+- sample_id
+cache_key: e3669517a14a22baa8d4f797765c470df5ecab83c7ab1446a6fe6d570bca5ba7
+searched_at: '2026-10-24T00:54:02.892876+00:00'
 retry_count: 1

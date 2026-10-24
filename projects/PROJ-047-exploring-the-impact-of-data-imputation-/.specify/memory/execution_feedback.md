@@ -94,7 +94,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/results/power_analysis.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/power.py` — NOT invoked by the run-book
-    - `code/main.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/power_analysis.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/sensitivity_analysis.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/sensitivity.py` — NOT invoked by the run-book
@@ -117,7 +116,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/metrics.py` — NOT invoked by the run-book
     - `code/analysis/schemas.py` — NOT invoked by the run-book
     - `code/analysis.py` — IS a run-book command
-    - `code/main.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/statistical_test_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/us1_verification.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis.py` — IS a run-book command

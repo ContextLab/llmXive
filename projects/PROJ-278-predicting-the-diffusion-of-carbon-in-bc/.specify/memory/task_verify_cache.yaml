@@ -1,22 +1,20 @@
 T001:
-  c: true
-  h: 2c2c37e9528bf626c41573f568acb36d1e7adfe473e5d7d7c6b2d146b5fbd2d7
-  r: The required project directories exist under `projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc`
-    (code/, tests/, data/, docs/, specs/), and both `code/__init__.py` and `tests/__init__.py`
-    are present as required package markers. The project is substantially built out
-    beyond the scaffold (scripts, tests, configs), consistent with the structure-creation
-    task having been performed.
-  sig: 061eddc602b6a7a32b71022929fd324600e397d9f2249e020dc4dcc0e3991fea
-T002:
   c: false
-  h: 8c07ba529e33f077bd8880178495d981c56738e28eed6b68d58dc5b8d0285ece
-  r: "The file `code/requirements.txt` exists and contains all ten required packages,\
-    \ but none are pinned to specific versions \u2014 the task explicitly requires\
-    \ a pinned requirements file. Additionally it includes four extra packages (datasets,\
-    \ jsonschema, pyyaml, matplotlib, scipy) with informal comments rather than proper\
-    \ pin syntax; the implementer should pin every dependency to exact versions (e.g.,\
-    \ `pandas==2.x.y`)."
-  sig: 474adef977e02c337f4efa2ce92e9c56dc10ee7a6c34787df26a2b529f99dbe1
+  h: b454840e3a78deeea9b3be52db2f9c6744e25221b3237de2990baa8691b30d48
+  r: "The evidence shows the main project folder and the `code/` and `tests/` directories\
+    \ exist, but it does not demonstrate that the `__init__.py` files in those directories\
+    \ are empty, nor does it confirm the presence of the required `specs/001-predict-carbon-diffusion-bcc/contracts`\
+    \ sub\u2011directory. These missing confirmations must be provided for the task\
+    \ to be considered complete."
+  sig: a8be0cf5d44e502872097a83748ceff2cbe82e1baa38e3e1fe8a909f279dc82a
+T002:
+  c: true
+  h: 1e9c695beb96d96462ad245ccc3507ba7745b58a4bd150da20374a5f2107248f
+  r: "Checked `code/requirements.txt` (156\u202Fbytes) and confirmed it contains all\
+    \ required packages (pandas, numpy, scikit-learn, xgboost, shap, pymatgen, requests,\
+    \ pyarrow, pytest, psutil) with exact version pins. No missing or placeholder\
+    \ content."
+  sig: 6766e8716a6c1f6940d195922c50fe8352e617795c570e4efd7fe64308bfcbf8
 T003:
   c: true
   h: 67e8826c4e3c9a8f873aa746de6260ff296dc1703017d9b58d100ffb33fce290
@@ -54,12 +52,35 @@ T004c:
     \ (boolean) \u2014 as a valid draft-07 JSON Schema with no placeholders or stubs."
   sig: 34f9884f859ae8b7497a4cd9d8b58e0d9b23618d1125dd28d7bd3235654fc27f
 T005a:
-  c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: The required `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`
-    file does not exist (the only listed file is a missing `schema.yaml`). Consequently,
-    no schema defining the specified keys and constraints is present. The implementer
-    must create the requested schema file with the exact fields and enum constraint.
+  c: true
+  h: 30774ad8e51c1119d98eb3f3d74c5e78850dfbbe1d7da9e029e186908efdd388
+  r: Checked the `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`
+    file, which defines the required keys for `model_results.json`, `feature_importance.json`,
+    and `variance_partition.csv` with correct types and the required enum constraint.
+    All specified fields are present and correctly described.
+  sig: 5939fe2f9e810a1807de85b40abcace3e7db32c710e455b3a20c59f229d61af5
+T005b:
+  c: true
+  h: feb646b5b6dc9c126608232aee1c559ee79afaab440a1eb63cff236296596f8b
+  r: "The file `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`\
+    \ exists (1997\u202Fbytes) and contains a fully populated JSON\u2011Schema YAML\
+    \ definition, with no placeholders or empty sections."
+  sig: ba1361da9db0741c05c246bdd7a27dc9d22244d1cd513a3fd12ee2fde228d7f5
+T006:
+  c: true
+  h: 73b39dfb1565592472958071742d9b17bd3ae2b8f787ad5d18ff0eb354e3ff7c
+  r: "Checked `code/utils.py` (1784\u202Fbytes) which defines `get_atomic_radius`,\
+    \ `get_vec`, `get_electronegativity` (and a batch helper) using `pymatgen.Element`\
+    \ as required. The file is present, non\u2011empty, and implements the requested\
+    \ periodic\u2011table property retrieval functions."
+  sig: 42eb1bd6eb9a44482e170b6803b239465ddf8f3ce6cc7de8e263402258d983ce
+T007:
+  c: true
+  h: 98a655f911aa4002c1477c675800e9806df1bb315538c328f2688a20679cd44a
+  r: "Checked `code/logging_config.py`, which exists, is non\u2011empty, defines the\
+    \ three required exception classes inheriting from `Exception`, and sets up a\
+    \ logger using the exact deterministic format `%(asctime)s - %(levelname)s - %(message)s`."
+  sig: 60082d21b4b99e11801d230ec6aba793b55378f29091d4f2aa89c0d07756f103
 T013b:
   c: false
   h: 372942c830de08a024fca98c272a62acce529c10f97d042fea9ec092577bca71

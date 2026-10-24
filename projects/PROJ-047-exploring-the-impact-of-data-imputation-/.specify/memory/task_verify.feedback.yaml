@@ -54,6 +54,12 @@ T011:
 T012:
   task: 164b9c44c091f2e9d111ae0550e6733a2027b52b7891081e30e3baa41ec93a85
 T013:
+  reason: "The `code/simulation/scm_generator.py` file (2777\u202Fbytes) contains\
+    \ only a simple correlation\u2011based `check_collinearity` function and does\
+    \ not import or use `statsmodels.stats.outliers_influence.variance_inflation_factor`,\
+    \ does not compute VIF for each confounder, does not log warnings when VIF\u202F\
+    >\u202F10, and does not store VIF values in run metadata. These required features\
+    \ are missing."
   task: 29bb2c2f89fddfb5887c36984a4c354bcf59db9cb27250e818f5e9594208b33b
 T014:
   task: 270211c46235d8509e4c7404a854707f5cf2269e43103767bb8149689ff92859
@@ -148,4 +154,8 @@ T053:
 T054:
   task: 2ff40389a60b494165bf56e746fb241a1350d5d855916f90336f148bc85e641f
 T055:
+  reason: The file `code/simulation/missingness.py` does not contain the required
+    `validate_mnar_ks` function, and the expected output file `data/results/mnar_validation.json`
+    is absent. Moreover, `code/main.py` never imports or calls this validation function,
+    so the integration step is missing.
   task: 773f81be5001e4d7aeb8bc79a91950ea05d795d4277dc09395db6a8d07152b07

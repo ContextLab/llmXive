@@ -1,20 +1,12 @@
 T001:
   c: false
-  h: d241cae35b9bf9be7c78adc4fea493d60165443f8888e55e2002755b0c806a2c
-  r: "The required directories `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/`,\
-    \ `data/`, and `tests/` do exist, but they are populated with many files and sub\u2011\
-    folders rather than being empty as the task specifies. The artifact therefore\
-    \ does not meet the \u201Cempty directories\u201D requirement. The implementer\
-    \ must provide truly empty `code/`, `data/`, and `tests/` directories (or at least\
-    \ no files beyond the required placeholder structure)."
-T002:
-  c: false
-  h: aeeb940ab1158897ca224ec25014e54dbd7789a7e7edd7c4dd7f76c9534aa199
-  r: "The provided `requirements.txt` matches the requested pinned versions, but the\
-    \ required `requirements_checksum.txt` (containing the SHA\u2011256 checksum)\
-    \ and the `setup_log.txt` showing a successful `pip install -r requirements.txt`\
-    \ and `pip list` are absent. Without these verification artifacts the task is\
-    \ not fully satisfied."
+  h: 107ac24bd60739a4e87a7ef679d9d173b0c1ef09df9ec51ee33e9a4af49cd569
+  r: "The `data/` directory is missing entirely, and the `code/` and `tests/` directories\
+    \ are populated with many files rather than being empty as required. The scaffold\
+    \ verification log claims the directories exist, but the current repository state\
+    \ does not contain an empty `data/` folder, so the task\u2019s requirement is\
+    \ not satisfied."
+  sig: ae572fe7acab0a659cbe86ebde7332b5203e2488179662481a017d66ee0fe7fc
 T003:
   c: false
   h: f3cb94143bf25cc749091ff8105c6ef61841c9fdd1387f273ed7f4f5279f8e06
