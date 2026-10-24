@@ -1,4 +1,8 @@
-# Project dependencies
-# Added for T001 to enable dataset download from HuggingFace
 datasets>=2.14
-huggingface_hub>=0.23
+huggingface_hub>=0.16
+pandas>=2.2
+scikit-learn>=1.5
+statsmodels>=0.14
+ollama>=0.1
+tqdm
+pyyaml

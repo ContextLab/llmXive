@@ -8,7 +8,7 @@ The study must satisfy all functional requirements (FR‑001 – FR‑008) a
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T001 [US-1] **Download τⁿ‑Bench dataset** from the official HuggingFace repository (`datasets.load_dataset("tau_c_bench")`) into `data/raw/τc_bench/`. Abort with a clear error if the repository cannot be reached.   <!-- FAILED-IN-EXECUTION: src/pipelines/run_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/pipelines/run_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/pipelines/run_all.py exit=1; tests/contract/test_task_schema.py exit=1 -->
+- [ ] T001 [US-1] **Download τⁿ‑Bench dataset** from the official HuggingFace repository (`datasets.load_dataset("tau_c_bench")`) into `data/raw/τc_bench/`. Abort with a clear error if the repository cannot be reached.   <!-- FAILED-IN-EXECUTION: src/pipelines/run_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/pipelines/run_all.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/pipelines/run_all.py exit=1; tests/contract/test_task_schema.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_tau_c_bench.py exit=1 -->
   - **Output**: `data/raw/τc_bench/tasks.json` (raw JSON) and `data/raw/τc_bench/README.md` (checksum).  
   - **Verification**: SHA‑256 checksum matches the value recorded in `state/projects/...yaml`; unit test `tests/integration/test_download.py` asserts the file exists, is non‑empty, and the checksum is correct.  
 

@@ -1,13 +1,12 @@
 """Download the τ‑bench task data from its official HuggingFace repository.
 
 This script attempts to fetch the official τ‑bench dataset (`tau_c_bench`) from
-HuggingFace.  The primary implementation uses the `datasets` library.  If that
-fails (e.g. due to missing optional dependencies), a fallback HTTP download is
-performed, trying several possible locations for the raw ``tasks.json`` file.
-If all of those fail, we finally attempt to download the file via the
-`huggingface_hub` utilities.  The script writes the merged task list to
-``data/raw/τc_bench/tasks.json`` and creates a ``README.md`` containing the
-SHA‑256 checksum of that file.
+HuggingFace. The primary implementation uses the `datasets` library. If that
+fails, a fallback HTTP download is performed, trying several possible locations
+for the raw `tasks.json` file. If all of those fail, we finally attempt to
+download the file via the `huggingface_hub` utilities. The script writes the
+merged task list to `data/raw/τc_bench/tasks.json` and creates a `README.md`
+containing the SHA‑256 checksum of that file.
 
 The script aborts with a clear error if the download cannot be performed.
 """
@@ -22,15 +21,14 @@ import requests
 from llmxive_toolkit import paths, get_logger
 
 # Optional imports that may not be present in the base environment.
-# They are imported lazily inside the helper functions.
 try:
     from datasets import load_dataset  # type: ignore
-except Exception:  # pragma: no cover
+except Exception:
     load_dataset = None  # type: ignore
 
 try:
     from huggingface_hub import hf_hub_download  # type: ignore
-except Exception:  # pragma: no cover
+except Exception:
     hf_hub_download = None  # type: ignore
 
 log = get_logger(__name__)
@@ -38,30 +36,20 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# The HuggingFace dataset identifier.
-HF_DATASET = "sierra-research/tau_c_bench"
+# The HuggingFace dataset identifier as specified in tasks.md
+HF_DATASET = "tau_c_bench"
 
-# Possible URLs for the raw ``tasks.json`` file in the repository.
-# The dataset may store the file at the repository root or under a
-# ``data/`` sub‑directory.  Both are tried in order.
+# Possible URLs for the raw tasks.json file in the repository.
 RAW_JSON_URLS = [
     f"https://huggingface.co/datasets/{HF_DATASET}/resolve/main/tasks.json",
     f"https://huggingface.co/datasets/{HF_DATASET}/resolve/main/data/tasks.json",
-    # GitHub raw fallback – often more reliable for raw file access.
     f"https://raw.githubusercontent.com/sierra-research/tau_c_bench/main/tasks.json",
     f"https://raw.githubusercontent.com/sierra-research/tau_c_bench/main/data/tasks.json",
 ]
 # ----------------------------------------------------------------------
 
-
 def _load_tasks_via_datasets() -> List[dict]:
-    """Load all task records using the ``datasets`` library.
-
-    Returns
-    -------
-    list[dict]
-        A list of task dictionaries.
-    """
+    """Load all task records using the `datasets` library."""
     if load_dataset is None:
         raise RuntimeError("datasets library unavailable")
 
@@ -85,17 +73,8 @@ def _load_tasks_via_datasets() -> List[dict]:
         raise RuntimeError("The loaded dataset contains no task records.")
     return records
 
-
 def _load_tasks_via_http() -> List[dict]:
-    """Download the raw ``tasks.json`` file directly from the hub.
-
-    Tries each URL in ``RAW_JSON_URLS`` until one succeeds.
-
-    Returns
-    -------
-    list[dict]
-        A list of task dictionaries.
-    """
+    """Download the raw tasks.json file directly from the hub."""
     for url in RAW_JSON_URLS:
         log.info(f"Attempting to download tasks.json from {url}")
         try:
@@ -103,7 +82,7 @@ def _load_tasks_via_http() -> List[dict]:
             response.raise_for_status()
         except Exception as exc:
             log.warning(f"Download from {url} failed: {exc}")
-            continue  # try the next URL
+            continue
 
         try:
             data = response.json()
@@ -121,25 +100,13 @@ def _load_tasks_via_http() -> List[dict]:
         log.info(f"Successfully downloaded tasks.json from {url}")
         return data
 
-    # If we exit the loop, all attempts failed.
     raise RuntimeError("HTTP download of tasks.json failed for all known URLs")
 
-
 def _load_tasks_via_hf_hub() -> List[dict]:
-    """Download ``tasks.json`` using ``huggingface_hub`` utilities.
-
-    This is a last‑resort method that works even when the ``datasets``
-    package is unavailable and the direct HTTP URLs are blocked.
-
-    Returns
-    -------
-    list[dict]
-        A list of task dictionaries.
-    """
+    """Download tasks.json using huggingface_hub utilities."""
     if hf_hub_download is None:
         raise RuntimeError("huggingface_hub library unavailable")
 
-    # Try both possible locations inside the repo.
     possible_paths = ["tasks.json", "data/tasks.json"]
     last_err = None
     for repo_path in possible_paths:
@@ -151,23 +118,15 @@ def _load_tasks_via_hf_hub() -> List[dict]:
             if not isinstance(data, list):
                 raise ValueError("Downloaded JSON is not a list")
             return data
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:
             log.warning(f"hf_hub_download failed for {repo_path}: {exc}")
             last_err = exc
             continue
 
     raise RuntimeError("All huggingface_hub download attempts failed") from last_err
 
-
 def download_tasks_json() -> Path:
-    """Download and merge tasks from the official τ‑bench HF dataset.
-
-    Returns
-    -------
-    Path
-        Path to the file containing the merged JSON array.
-    """
-    # Try the high‑level ``datasets`` API first.
+    """Download and merge tasks from the official τ‑bench HF dataset."""
     try:
         merged_tasks = _load_tasks_via_datasets()
     except Exception as exc:
@@ -185,21 +144,18 @@ def download_tasks_json() -> Path:
     dest_file.write_text(json.dumps(merged_tasks, indent=2), encoding="utf-8")
     return dest_file
 
-
 def compute_sha256(file_path: Path) -> str:
-    """Compute the SHA‑256 checksum of ``file_path``."""
+    """Compute the SHA‑256 checksum of `file_path`."""
     sha256 = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
 
-
 def main() -> None:
     """Entry point for the download script."""
     dest_file = download_tasks_json()
 
-    # Verify that the file is non‑empty and valid JSON; abort loudly.
     if dest_file.stat().st_size == 0:
         raise RuntimeError("Downloaded tasks.json is empty. Aborting.")
     try:
@@ -208,25 +164,21 @@ def main() -> None:
         raise RuntimeError("Downloaded tasks.json is not valid JSON.") from exc
 
     if not isinstance(data, list) or len(data) == 0:
-        raise RuntimeError(
-            "Downloaded tasks.json does not contain any tasks. Aborting."
-        )
+        raise RuntimeError("Downloaded tasks.json does not contain any tasks. Aborting.")
     log.info(f"tasks.json contains {len(data)} task records.")
 
-    # Compute and record checksum.
     checksum = compute_sha256(dest_file)
 
     readme_path = dest_file.parent / "README.md"
     readme_contents = (
-        "# τ‑bench dataset (raw task definitions)\\n\\n"
-        f"Downloaded from the official HuggingFace dataset `{HF_DATASET}`.\\n"
-        f"Number of task records: {len(data)}\\n\\n"
-        f"SHA-256 checksum of `tasks.json`: `{checksum}`\\n"
+        "# τ‑bench dataset (raw task definitions)\n\n"
+        f"Downloaded from the official HuggingFace dataset `{HF_DATASET}`.\n"
+        f"Number of task records: {len(data)}\n\n"
+        f"SHA-256 checksum of `tasks.json`: `{checksum}`\n"
     )
     readme_path.write_text(readme_contents, encoding="utf-8")
     log.info(f"Wrote checksum README to {readme_path}")
     log.info("Dataset download completed successfully.")
-
 
 if __name__ == "__main__":
     try:
