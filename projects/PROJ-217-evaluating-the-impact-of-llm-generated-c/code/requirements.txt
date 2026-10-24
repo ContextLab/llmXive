@@ -1,0 +1,14 @@
+# Pinned requirements for reproducibility
+# (same as top-level requirements.txt)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil

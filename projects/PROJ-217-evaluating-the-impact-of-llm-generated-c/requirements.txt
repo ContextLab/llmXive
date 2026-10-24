@@ -1,4 +1,14 @@
-# Project dependencies
-# Existing dependencies are assumed to be already listed; added requirements for this task:
-huggingface_hub>=0.22.0
-pyarrow>=15.0.0
+# Project-wide pinned requirements
+# Core dependencies (already available in the environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
