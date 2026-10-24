@@ -24,7 +24,11 @@ import os
 import requests
 import yaml
 
-from huggingface_hub import snapshot_download
+# The `datasets` library provides a streaming interface to the Materials
+# Project dataset hosted on the HuggingFace Hub.  It is listed as a required
+# dependency in ``requirements.txt``.
+import datasets
+
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -51,45 +55,46 @@ def _write_yaml(manifest: dict, out_path: Path) -> None:
 # ----------------------------------------------------------------------
 def download_materials_project(raw_mp_path: Path) -> dict:
     """
-    Download the Materials Project dataset from the HuggingFace Hub,
+    Download the Materials Project dataset using the ``datasets`` library,
     filter out non‑magnetic entries (``magnetic_type`` == ``NM``), and write
     each remaining record as a JSON line.
 
     Returns a manifest dictionary containing the dataset version (the
-    Git commit hash of the downloaded snapshot) and the SHA‑256 checksum
-    of the written file.
+    git‑commit hash of the snapshot) and the SHA‑256 checksum of the written
+    file.
     """
-    log.info("Downloading Materials Project dataset via HuggingFace Hub.")
-    # The HuggingFace repository for the Materials Project dataset.
-    repo_id = "materialsproject/materialsproject"
-    # Download the entire repository snapshot (no pyarrow involvement).
-    repo_path = snapshot_download(repo_id=repo_id, repo_type="dataset")
-    log.info("Repository snapshot downloaded to %s", repo_path)
+    log.info("Downloading Materials Project dataset via the HuggingFace `datasets` library.")
+    # The dataset identifier on the Hub.
+    dataset_name = "materialsproject"
+    try:
+        # ``load_dataset`` with ``streaming=True`` avoids downloading the
+        # entire archive to disk and yields records lazily.
+        ds = datasets.load_dataset(
+            path=dataset_name,
+            split="train",          # the default split for this dataset
+            streaming=True,
+        )
+    except Exception as exc:
+        raise RuntimeError(
+            f"Failed to load the Materials Project dataset '{dataset_name}' via the `datasets` library: {exc}"
+        ) from exc
 
-    # Locate the first JSONL file in the snapshot – this typically contains
-    # the raw records.
-    jsonl_file = None
-    for root, _, files in os.walk(repo_path):
-        for fname in files:
-            if fname.lower().endswith(".jsonl"):
-                jsonl_file = Path(root) / fname
-                break
-        if jsonl_file:
-            break
-
-    if jsonl_file is None:
-        raise RuntimeError("No .jsonl file found in the Materials Project repository snapshot.")
+    # Retrieve the snapshot version (commit hash) from the dataset info.
+    try:
+        version = ds._fingerprint  # fingerprint is a hash of the underlying files
+    except Exception:
+        version = "unknown"
 
     raw_mp_path.parent.mkdir(parents=True, exist_ok=True)
 
     sha256 = hashlib.sha256()
     count = 0
-    with jsonl_file.open("r", encoding="utf-8") as src, raw_mp_path.open("w", encoding="utf-8") as dst:
-        for line in src:
-            if not line.strip():
+    with raw_mp_path.open("w", encoding="utf-8") as dst:
+        for record in ds:
+            # Defensive: ensure we have a mapping.
+            if not isinstance(record, dict):
                 continue
-            record = json.loads(line)
-            # Keep only magnetic entries (magnetic_type != "NM")
+            # Keep only magnetic entries (magnetic_type != "NM").
             if record.get("magnetic_type") == "NM":
                 continue
             out_line = json.dumps(record, ensure_ascii=False)
@@ -100,7 +105,9 @@ def download_materials_project(raw_mp_path: Path) -> dict:
                 log.info("Materials Project: %d magnetic records written...", count)
 
     if count == 0:
-        raise RuntimeError("No magnetic records were found after filtering the Materials Project dataset.")
+        raise RuntimeError(
+            "No magnetic records were found after filtering the Materials Project dataset."
+        )
 
     checksum = sha256.hexdigest()
     log.info(
@@ -109,18 +116,7 @@ def download_materials_project(raw_mp_path: Path) -> dict:
         checksum,
     )
 
-    # Use the Git commit hash of the snapshot as a version identifier.
-    version_file = Path(repo_path) / ".git" / "HEAD"
-    if version_file.is_file():
-        try:
-            with version_file.open() as f:
-                version_str = f.read().strip()
-        except Exception:
-            version_str = "unknown"
-    else:
-        version_str = "unknown"
-
-    return {"version": version_str, "sha256": checksum, "records": count}
+    return {"version": version, "sha256": checksum, "records": count}
 
 # ----------------------------------------------------------------------
 # Phase 0 – OQMD magnetic CSV

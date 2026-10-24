@@ -1,2 +1,6 @@
-huggingface_hub>=0.23.0
-# Existing dependencies are provided by the base environment (numpy, pandas, scikit-learn, matplotlib, seaborn, scipy, joblib, pymatgen, matminer, datasets, yaml) and do not need to be listed here.
+# Project dependencies
+# (standard libraries already available are omitted)
+datasets>=2.0.0
+# Other dependencies are already provided by the environment:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil, llmxive_toolkit
