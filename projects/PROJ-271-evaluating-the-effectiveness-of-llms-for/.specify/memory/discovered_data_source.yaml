@@ -1,11 +1,11 @@
 status: none
-intent: HuggingFace Python function code dataset for static analysis metrics python
+intent: HuggingFace Python function dataset for static analysis pip installable python
   package dataset
 required_fields:
 - function_code
 - loc
 - cyclomatic_complexity
 - pylint_errors
-cache_key: 349ceadf40d59300f3b5b34b2f27827078ee55464df3bb25abd98cb40ba328ff
-searched_at: '2026-10-21T03:57:17.584883+00:00'
+cache_key: 0255b2e5d36e0c393d759011909174b30cddfae294fcaf69dac605378f366c7a
+searched_at: '2026-10-24T20:08:31.798532+00:00'
 retry_count: 1

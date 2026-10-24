@@ -1,1 +1,22 @@
-[]
+- artifact_hash: b966e65b08b01e5f10280290646cb118ea5811b29258767ed77cc6912e2aaa44
+  artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: pending
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-10-24T20:27:39.513394Z'
+- artifact_hash: b966e65b08b01e5f10280290646cb118ea5811b29258767ed77cc6912e2aaa44
+  artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/code-search-net/python`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/code-search-net/python
+  verified_at: '2026-10-24T20:27:39.513394Z'
