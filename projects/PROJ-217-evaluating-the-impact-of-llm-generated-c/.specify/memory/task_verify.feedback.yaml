@@ -1,16 +1,35 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: src/data/download.py
-    exit=1'
+  reason: "Checked `src/data/download.py` and the generated outputs. The script downloads\
+    \ the parquet with a retry loop, maps columns, samples 200 records, validates\
+    \ docstrings, writes raw/validated/excluded files, records checksums, and creates\
+    \ `dataset_preparation.log` with \u2265150 valid snippets. However, it never parses\
+    \ the code snippets with `ast` to ensure they are syntactically valid, violating\
+    \ the requirement \u201Cvalidates \u2026 that the code parses with `ast`\u201D\
+    . The missing AST validation makes the task incomplete."
   task: 50c62fa0a2585fa3e973f7f9d998d7a9cb775fd0166118c6cdf5aaf1128db9da
 T001b:
   task: 94275c2fb1bade4b8bcdc619a561399a108b8b349c457b0a06dcf16f2290918b
 T002:
+  reason: "The generated `llm_comments.jsonl` contains only a single test record and\
+    \ does not include the many snippet IDs from `validated_snippets.jsonl`; the required\
+    \ `data/truncation_warnings.log`, `data/excluded_llm_generation.json`, `data/generation_checkpoint.json`,\
+    \ and `data/generation.log` are all missing. Consequently the script\u2019s checkpointing,\
+    \ exclusion logging, and full dataset creation are not demonstrated."
   task: cdeed5ef9b6f7f5e18e0bbd065e5b101b7a2a9b61b6450f55753468c2c4622bb
 T003:
+  reason: "The provided `src/data/metrics.py` writes the CSV and computes the required\
+    \ scores, but it loads the entire JSONL file into memory (no streaming) and, more\
+    \ critically, the test suite fails: `test_metrics_produce_expected_values` expects\
+    \ BLEU, ROUGE\u2011L and semantic similarity of 1.0 for the `*_vs_source` columns,\
+    \ yet the generated CSV contains `0.0` for those fields (the comment is not identical\
+    \ to the source code). Consequently the verification tests do not pass, and the\
+    \ streaming\u2011batch requirement is not satisfied."
   task: d940ea93ab03baaea1c86d24873f006f0d3eccc609fddb4569e3dadafb4b6c45
 T004:
   task: 19a59bd978269cfc34c781b794c6b874bd12d9f5246e792743d8e60c58df14c0
 T005:
+  reason: 'Requested task execution failed; rerun successfully: scripts/run_smoke.py
+    exit=1'
   task: fe614b4f728eea84211f5c8f8af4c230e16d4ad7b9695c92f7bf39d9318dd755
 T006:
   task: c77f2fad24d2dba35f1d04677c7afd5c4c205e6acfdc259a9d7f2669bc96bb8f

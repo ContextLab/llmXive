@@ -214,7 +214,16 @@ def main() -> None:
 
     # 2. Load parquet with tolerant column mapping
     log.info("Loading parquet file %s", parquet_path)
-    df_raw = pd.read_parquet(parquet_path, engine="pyarrow")
+
+    # Prefer fastparquet to avoid the pyarrow / NumPy 2.0 incompatibility.
+    try:
+        df_raw = pd.read_parquet(parquet_path, engine="fastparquet")
+    except Exception as e:
+        log.error("Failed to read parquet with fastparquet: %s", e)
+        raise RuntimeError(
+            "Unable to read parquet file. Ensure 'fastparquet' is installed."
+        ) from e
+
     df_mapped = _map_columns(df_raw)
 
     # 3. Deterministic sampling of N_SNIPPETS records

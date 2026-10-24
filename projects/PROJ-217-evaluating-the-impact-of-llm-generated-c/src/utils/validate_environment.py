@@ -2,16 +2,16 @@
 validate_environment.py
 
 This script validates that the execution environment meets the requirements for the
-user‑study portion of the project.  It performs the following checks:
+user‑study portion of the project. It performs the following checks:
 
 1. All required Python packages import successfully.
-2. Available RAM and free disk space are sufficient (≤ 7 GB RAM usage, ≥ 7 GB free disk).
+2. Available RAM and used disk space are within the 7 GB limit.
 3. A HuggingFace inference token is present and the HF inference API is reachable.
 4. The Prolific API is reachable with a valid token.
 5. The consent form PDF can be opened.
 
 The script writes a detailed log to ``data/recruitment_validation.log`` and prints a
-JSON line containing a ``success`` boolean to stdout.  It exits with status 0 if all
+JSON line containing a ``success`` boolean to stdout. It exits with status 0 if all
 checks pass; otherwise it exits with status 1.
 """
 
@@ -53,8 +53,8 @@ HF_PING_URL = "https://api-inference.huggingface.co/ping"
 PROLIFIC_PING_URL = "https://api.prolific.co/api/v1/ping"
 
 # Resource limits.
-MAX_RAM_USAGE_BYTES = 7 * 1024 ** 3          # 7 GB
-MIN_FREE_DISK_BYTES = 7 * 1024 ** 3          # 7 GB
+MAX_RAM_USAGE_BYTES = 7 * 1024 ** 3          # 7 GB RAM usage limit
+MAX_DISK_USAGE_BYTES = 7 * 1024 ** 3         # 7 GB disk usage limit
 
 # ----------------------------------------------------------------------
 # Helpers
@@ -92,14 +92,15 @@ def _check_memory() -> bool:
     return True
 
 def _check_disk() -> bool:
-    """Verify that free disk space on the project root is ≥ 7 GB."""
+    """Verify that disk usage is ≤ 7 GB."""
     root_path = Path(paths.root)
     du = psutil.disk_usage(str(root_path))
-    _log(f"[INFO] Disk total: {du.total / (1024 ** 3):.2f} GB, free: {du.free / (1024 ** 3):.2f} GB")
-    if du.free < MIN_FREE_DISK_BYTES:
-        _log(f"[ERROR] Free disk space less than {MIN_FREE_DISK_BYTES / (1024 ** 3)} GB")
+    used = du.total - du.free
+    _log(f"[INFO] Disk total: {du.total / (1024 ** 3):.2f} GB, used: {used / (1024 ** 3):.2f} GB")
+    if used > MAX_DISK_USAGE_BYTES:
+        _log(f"[ERROR] Disk usage exceeds {MAX_DISK_USAGE_BYTES / (1024 ** 3)} GB")
         return False
-    _log("[OK] Sufficient free disk space")
+    _log("[OK] Disk usage within limits")
     return True
 
 def _check_hf_token() -> bool:

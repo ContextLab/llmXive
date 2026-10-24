@@ -16,7 +16,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
   *Verification*:
   – Pipeline aborts if the requirements file is missing or empty, ensuring compliance with Constitution Principle I.
 
-- [ ] **T001** [US-1] **Download & validate CodeSearchNet Python snippets (REDO: previous execution failed with exit=1)** <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [ ] **T001** [US-1] **Download & validate CodeSearchNet Python snippets (REDO: previous execution failed with exit=1)**
   *Implement/repair* `src/data/download.py` that:
   - Downloads the verified CodeSearchNet Python **train** parquet via `hf_hub_download` (repo `kejian/codesearchnet-python-raw`, file `data/train-00000-of-00002-022fcdc5658ecd68.parquet`) with a 3‑attempt retry loop that **raises** on final failure — no synthetic or bundled fallback data.
   - Parses columns tolerant to naming (`code`/`docstring` or `func_code_string`/`func_documentation_string`). Abort with a clear error if neither schema is present.
@@ -32,13 +32,13 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
   – `data/validated_snippets.jsonl` contains ≥ 150 valid snippets.
   – Pytest `src/tests/test_download.py` asserts correct column mapping and log creation.
 
-- [ ] **T001b** **Download & validate CodeSearchNet Python test split (for validation fixtures)**
+- [X] **T001b** **Download & validate CodeSearchNet Python test split (for validation fixtures)**
   *Implement* `src/data/download_test_split.py` that:
   - Downloads the verified **test** parquet (`kejian/codesearchnet-python-rebalanced`, file `data/test-00000-of-00001-3967e86c21fe91c3.parquet`) with the same retry logic.
   - Writes the raw records to `data/raw_test_snippets.jsonl` and logs checksum in `data/artifact_hashes.yaml`.
   - No further validation is needed; this split is used only for metric‑calculation fixtures in tests.
 
-- [ ] **T004** **Validate environment and recruitment tools (REDO: previous executions failed with exit=1)**
+- [X] **T004** **Validate environment and recruitment tools (REDO: previous executions failed with exit=1)**
   *Implement/repair* `src/utils/validate_environment.py` that:
   - Checks that all required packages import successfully.
   - Verifies available RAM and disk headroom (≤ 7 GB usage) using `psutil`.
@@ -78,7 +78,7 @@ The study must deliver a three‑condition experimental dataset (LLM / Human / N
   – Metric columns are floats in [0, 1] or `null` for `none`.
   – `src/tests/test_metrics.py` validates metric values on fixed fixtures (tolerance 0.001) and that identical strings yield a score of 1.0.
 
-- [ ] **T005** [US-3] **Run a miniature end‑to‑end pipeline on 10 snippets**
+- [ ] **T005** [US-3] **Run a miniature end‑to‑end pipeline on 10 snippets** <!-- FAILED-IN-EXECUTION: scripts/run_smoke.py exit=1 -->
   *Implement* a `--smoke` mode (or `scripts/run_smoke.sh`) that executes T001–T003 stages on the first 10 validated snippets **and** runs a minimal analysis stub producing `data/results/smoke_analysis.json` with the required `anova_time` fields (F, p_value, df_between, df_within, reject_null). This validates the data flow download → generation → metrics → analysis before the full run.
   *Verification*:
   – The documented smoke command in `quickstart.md` executes with exit 0 and produces non‑empty, real (non‑placeholder) outputs, including `smoke_analysis.json`.

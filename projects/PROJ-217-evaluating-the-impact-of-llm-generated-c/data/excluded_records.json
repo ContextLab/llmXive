@@ -1,246 +1,120 @@
 [
   {
-    "snippet_id": "snippet_000007",
-    "code": "def paint(self, painter, option, index):\n        \"\"\"\n        Reimplements the :meth:`QStyledItemDelegate.paint` method.\n        \"\"\"\n\n        if option.state & QStyle.State_MouseOver:\n            styleSheet = self.__style.hover\n        elif option.state & QStyle.State_Selected:\n            styleSheet = self.__style.highlight\n        else:\n            styleSheet = self.__style.default\n\n        self.__label.setStyleSheet(styleSheet)\n        data = index.model().data(index, Qt.DisplayRole)\n        self.__label.setText(umbra.ui.common.QVariant_to_string(data))\n        self.__label.setFixedSize(option.rect.size())\n        painter.save()\n        painter.translate(option.rect.topLeft())\n        self.__label.render(painter)\n        painter.restore()",
-    "human_comment": "Reimplements the :meth:`QStyledItemDelegate.paint` method.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000009",
+    "snippet_id": "snippet_000003",
     "code": "def addStickerToSet(self, user_id, name, png_sticker, emojis,\n                        mask_position=None):\n        \"\"\"\n        See: https://core.telegram.org/bots/api#addstickertoset\n        \"\"\"\n        p = _strip(locals(), more=['png_sticker'])\n        return self._api_request_with_file('addStickerToSet', _rectify(p), 'png_sticker', png_sticker)",
     "human_comment": "See: https://core.telegram.org/bots/api#addstickertoset",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000020",
-    "code": "def show_firmware_version_output_show_firmware_version_os_version(self, **kwargs):\n        \"\"\"Auto Generated Code\n        \"\"\"\n        config = ET.Element(\"config\")\n        show_firmware_version = ET.Element(\"show_firmware_version\")\n        config = show_firmware_version\n        output = ET.SubElement(show_firmware_version, \"output\")\n        show_firmware_version = ET.SubElement(output, \"show-firmware-version\")\n        os_version = ET.SubElement(show_firmware_version, \"os-version\")\n        os_version.text = kwargs.pop('os_version')\n\n        callback = kwargs.pop('callback', self._callback)\n        return callback(config)",
-    "human_comment": "Auto Generated Code",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000033",
-    "code": "def flush(self):\n        \"\"\"Empty the buffer.\"\"\"\n        for seq in self.buffer:\n            SeqIO.write(seq, self.handle, self.format)\n        self.buffer = []",
-    "human_comment": "Empty the buffer.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000035",
-    "code": "def doWrite(self, sim, data):\n        \"\"\"write data to interface\"\"\"\n        sim.write(data, self.intf.data)",
-    "human_comment": "write data to interface",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000043",
+    "snippet_id": "snippet_000014",
     "code": "def before_render(self):\n        \"\"\"Before template render hook\n        \"\"\"\n        super(BatchFolderContentsView, self).before_render()\n\n        if self.context.portal_type == \"BatchFolder\":\n            self.request.set(\"disable_border\", 1)",
     "human_comment": "Before template render hook",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000046",
-    "code": "def close(self):\n        \"\"\"close(self)\"\"\"\n\n        if self.isClosed:\n            raise ValueError(\"operation illegal for closed doc\")\n        if hasattr(self, '_outline') and self._outline:\n            self._dropOutline(self._outline)\n            self._outline = None\n        self._reset_page_refs()\n        self.metadata    = None\n        self.stream      = None\n        self.isClosed    = True\n        self.openErrCode = 0\n        self.openErrMsg  = ''\n        self.FontInfos   = []\n        for gmap in self.Graftmaps:\n            self.Graftmaps[gmap] = None\n        self.Graftmaps = {}\n        self.ShownPages = {}\n\n\n        val = _fitz.Document_close(self)\n        self.thisown = False\n\n        return val",
-    "human_comment": "close(self)",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000075",
+    "snippet_id": "snippet_000024",
     "code": "def numpy_like(self) -> Tuple[np.ndarray, np.ndarray]:\n        \"\"\"Return \"\"\"\n        return self.frequencies, self.numpy_bins",
     "human_comment": "Return",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000109",
+    "snippet_id": "snippet_000038",
     "code": "def get_stp_mst_detail_output_cist_port_link_type(self, **kwargs):\n        \"\"\"Auto Generated Code\n        \"\"\"\n        config = ET.Element(\"config\")\n        get_stp_mst_detail = ET.Element(\"get_stp_mst_detail\")\n        config = get_stp_mst_detail\n        output = ET.SubElement(get_stp_mst_detail, \"output\")\n        cist = ET.SubElement(output, \"cist\")\n        port = ET.SubElement(cist, \"port\")\n        link_type = ET.SubElement(port, \"link-type\")\n        link_type.text = kwargs.pop('link_type')\n\n        callback = kwargs.pop('callback', self._callback)\n        return callback(config)",
     "human_comment": "Auto Generated Code",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000110",
-    "code": "def login(self):\n        '''\n        user login.\n        '''\n        post_data = self.get_post_data()\n\n        if 'next' in post_data:\n            next_url = post_data['next']\n        else:\n            next_url = '/'\n\n        u_name = post_data['user_name']\n        u_pass = post_data['user_pass']\n\n        result = MUser.check_user_by_name(u_name, u_pass)\n\n        # Todo: the kwd should remove from the codes.\n        if result == 1:\n            self.set_secure_cookie(\"user\", u_name)\n            MUser.update_time_login(u_name)\n            self.redirect(next_url)\n        elif result == 0:\n            self.set_status(401)\n\n            self.render('user/user_relogin.html',\n                        cfg=config.CMS_CFG,\n                        kwd={\n                            'info': '密码验证出错，请重新登陆。',\n                            'link': '/user/login',\n                        },\n                        userinfo=self.userinfo)\n        elif result == -1:\n            self.set_status(401)\n            self.render('misc/html/404.html',\n                        cfg=config.CMS_CFG,\n                        kwd={\n                            'info': '没有这个用户',\n                            'link': '/user/login',\n                        },\n                        userinfo=self.userinfo)\n        else:\n            self.set_status(305)\n            self.redirect(\"{0}\".format(next_url))",
-    "human_comment": "user login.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000113",
+    "snippet_id": "snippet_000039",
     "code": "def pkg_tracking(self):\n        \"\"\"Tracking package dependencies\n        \"\"\"\n        flag = []\n        options = [\n            \"-t\",\n            \"--tracking\"\n        ]\n        additional_options = [\n            \"--check-deps\",\n            \"--graph=\",\n            \"--case-ins\"\n        ]\n        for arg in self.args[2:]:\n            if arg.startswith(additional_options[1]):\n                flag.append(arg)\n                self.args.remove(arg)\n            if arg in additional_options:\n                flag.append(arg)\n        # clean additional options from args\n        for f in flag:\n            if f in self.args:\n                self.args.remove(f)\n        # print usage message if wrong additional option\n        for arg in self.args:\n            if arg.startswith(\"--\"):\n                if arg not in additional_options:\n                    usage(\"\")\n                    raise SystemExit()\n        if (len(self.args) >= 3 and len(self.args) <= 3 and\n                self.args[0] in options and\n                self.args[1] in self.meta.repositories):\n            TrackingDeps(self.args[2], self.args[1], flag).run()\n        elif (len(self.args) >= 2 and\n                self.args[1] not in self.meta.repositories):\n            usage(self.args[1])\n        else:\n            usage(\"\")",
     "human_comment": "Tracking package dependencies",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000117",
+    "snippet_id": "snippet_000041",
     "code": "def create_sockets(self):\n        \"\"\"create zmq sockets\"\"\"\n\n        ports = self.ports\n\n        context = zmq.Context()\n        poller = zmq.Poller()\n\n        # Socket to handle init data\n        rep = context.socket(zmq.REP)\n        # this was inconsequent: here REQ is for the client, we reply with REP.\n        # PULL and PUB is seen from here, not from the client.\n        # Is now renamed to PUSH and SUB: everything is seen from outside.\n        if \"REQ\" in ports:\n            rep.bind(\n                \"tcp://*:{port}\".format(port=ports[\"REQ\"])\n            )\n        else:\n            ports[\"REQ\"] = rep.bind_to_random_port(\n                \"tcp://*\"\n            )\n\n        pull = context.socket(zmq.PULL)\n        if \"PUSH\" in ports:\n            pull.bind(\n                \"tcp://*:{port}\".format(port=ports[\"PUSH\"])\n            )\n        else:\n            ports[\"PUSH\"] = pull.bind_to_random_port(\n                \"tcp://*\"\n            )\n\n        # for sending model messages\n        pub = context.socket(zmq.PUB)\n        if \"SUB\" in ports:\n            pub.bind(\n                \"tcp://*:{port}\".format(port=ports[\"SUB\"])\n            )\n        else:\n            ports[\"SUB\"] = pub.bind_to_random_port(\n                \"tcp://*\"\n            )\n\n        poller.register(rep, zmq.POLLIN)\n        poller.register(pull, zmq.POLLIN)\n\n        sockets = dict(\n            poller=poller,\n            rep=rep,\n            pull=pull,\n            pub=pub\n        )\n        return sockets",
     "human_comment": "create zmq sockets",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000144",
-    "code": "def logout(request):\n    \"\"\"\n    Log the user out.\n    \"\"\"\n    auth_logout(request)\n    info(request, _(\"Successfully logged out\"))\n    return redirect(next_url(request) or get_script_prefix())",
-    "human_comment": "Log the user out.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000158",
+    "snippet_id": "snippet_000058",
     "code": "def parse(self):\r\n        \"\"\" parses args json \"\"\"\r\n        data = json.loads(sys.argv[1])\r\n        self.config_path = self.decode(data['config_path'])\r\n        self.subject = self.decode(data['subject'])\r\n        self.text = self.decode(data['text'])\r\n        self.html = self.decode(data['html'])\r\n        self.send_as_one = data['send_as_one']\r\n        if 'files' in data:\r\n            self.parse_files(data['files'])\r\n        self.ccs = data['ccs']\r\n        self.addresses = data['addresses']\r\n        if not self.addresses:\r\n            raise ValueError(\r\n                'Atleast one email address is required to send an email')",
     "human_comment": "parses args json",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000171",
-    "code": "def setupTable_maxp(self):\n        \"\"\"Make the maxp table.\"\"\"\n        if \"maxp\" not in self.tables:\n            return\n\n        self.otf[\"maxp\"] = maxp = newTable(\"maxp\")\n        maxp.tableVersion = 0x00005000\n        maxp.numGlyphs = len(self.glyphOrder)",
-    "human_comment": "Make the maxp table.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000183",
-    "code": "def render_cvmfs_pvc(cvmfs_volume):\n    \"\"\"Render REANA_CVMFS_PVC_TEMPLATE.\"\"\"\n    name = CVMFS_REPOSITORIES[cvmfs_volume]\n    rendered_template = dict(REANA_CVMFS_PVC_TEMPLATE)\n    rendered_template['metadata']['name'] = 'csi-cvmfs-{}-pvc'.format(name)\n    rendered_template['spec']['storageClassName'] = \"csi-cvmfs-{}\".format(name)\n    return rendered_template",
-    "human_comment": "Render REANA_CVMFS_PVC_TEMPLATE.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000222",
-    "code": "def search(term, exact=False, rows=1e6):\n    '''Searches ChEBI via ols.'''\n    url = 'https://www.ebi.ac.uk/ols/api/search?ontology=chebi' + \\\n        '&exact=' + str(exact) + '&q=' + term + \\\n        '&rows=' + str(int(rows))\n\n    response = requests.get(url)\n    data = response.json()\n\n    return [ChebiEntity(doc['obo_id']) for doc in data['response']['docs']]",
-    "human_comment": "Searches ChEBI via ols.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000233",
-    "code": "def drvr_initialize(self, cfg):\n        \"\"\"Initialize the driver routines. \"\"\"\n        cnt = 0\n        for ip in self.obj_dict:\n            cfg_dict = {}\n            drvr_obj = self.obj_dict.get(ip).get('drvr_obj')\n            cfg_dict['mgmt_ip_addr'] = ip\n            if self.user_list is not None:\n                cfg_dict['user'] = self.user_list[cnt]\n            if self.pwd_list is not None:\n                cfg_dict['pwd'] = self.pwd_list[cnt]\n            if self.interface_in_list is not None:\n                cfg_dict['interface_in'] = self.interface_in_list[cnt]\n            if self.interface_out_list is not None:\n                cfg_dict['interface_out'] = self.interface_out_list[cnt]\n            drvr_obj.initialize(cfg_dict)\n            cnt = cnt + 1",
-    "human_comment": "Initialize the driver routines.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000238",
+    "snippet_id": "snippet_000090",
     "code": "def cmd_asterix(self, args):\n        '''asterix command parser'''\n        usage = \"usage: asterix <set|start|stop|restart|status>\"\n        if len(args) == 0:\n            print(usage)\n            return\n        if args[0] == \"set\":\n            self.asterix_settings.command(args[1:])\n        elif args[0] == \"start\":\n            self.start_listener()\n        elif args[0] == \"stop\":\n            self.stop_listener()\n        elif args[0] == \"restart\":\n            self.stop_listener()\n            self.start_listener()\n        elif args[0] == \"status\":\n            self.print_status()\n        else:\n            print(usage)",
     "human_comment": "asterix command parser",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000256",
+    "snippet_id": "snippet_000098",
     "code": "def compute_factorial(n):\n    \"\"\"\n    computes factorial of n\n    \"\"\"\n    sleep_walk(10)\n    ret = 1\n    for i in range(n):\n        ret = ret * (i + 1)\n    return ret",
     "human_comment": "computes factorial of n",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000262",
+    "snippet_id": "snippet_000103",
     "code": "def optimize(self):\n        \"\"\"\n        Do an optimization.\n        \"\"\"\n        jmodel = callJavaFunc(self.value.optimize)\n        from bigdl.nn.layer import Layer\n        return Layer.of(jmodel)",
     "human_comment": "Do an optimization.",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000263",
+    "snippet_id": "snippet_000104",
     "code": "def set_servo(self, channel, pwm):\n        '''set a servo value'''\n        self.mav.command_long_send(self.target_system, self.target_component,\n                                   mavlink.MAV_CMD_DO_SET_SERVO, 0,\n                                   channel, pwm,\n                                   0, 0, 0, 0, 0)",
     "human_comment": "set a servo value",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000264",
-    "code": "def process_status(self, helper, session, check):\n        \"\"\"\"process a single status\"\"\"\n        snmp_result_status = helper.get_snmp_value(session, helper, DEVICE_GLOBAL_OIDS['oid_' + check])\n\n        if check == \"system_lcd\":\n            helper.update_status(helper, normal_check(\"global\", snmp_result_status, \"LCD status\"))\n        elif check == \"global_storage\":\n            helper.update_status(helper, normal_check(\"global\", snmp_result_status, \"Storage status\"))\n        elif check == \"system_power\":\n            helper.update_status(helper, self.check_system_power_status(snmp_result_status))\n        elif check == \"global_system\":\n            helper.update_status(helper,\n                                 normal_check(\"global\", snmp_result_status, \"Device status\"))",
-    "human_comment": "process a single status",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000270",
+    "snippet_id": "snippet_000107",
     "code": "def elasticsearch(serializer, catalog):\n    \"\"\"\n    https://www.elastic.co/guide/en/elasticsearch/reference/current/_the_search_api.html\n    :param serializer:\n    :return:\n    \"\"\"\n\n    search_engine_endpoint = \"{0}/{1}/_search\".format(SEARCH_URL, catalog.slug)\n\n    q_text = serializer.validated_data.get(\"q_text\")\n    q_time = serializer.validated_data.get(\"q_time\")\n    q_geo = serializer.validated_data.get(\"q_geo\")\n    q_user = serializer.validated_data.get(\"q_user\")\n    d_docs_sort = serializer.validated_data.get(\"d_docs_sort\")\n    d_docs_limit = int(serializer.validated_data.get(\"d_docs_limit\"))\n    d_docs_page = int(serializer.validated_data.get(\"d_docs_page\"))\n    a_text_limit = serializer.validated_data.get(\"a_text_limit\")\n    a_user_limit = serializer.validated_data.get(\"a_user_limit\")\n    a_time_gap = serializer.validated_data.get(\"a_time_gap\")\n    a_time_limit = serializer.validated_data.get(\"a_time_limit\")\n    original_response = serializer.validated_data.get(\"original_response\")\n\n    # Dict for search on Elastic engine\n    must_array = []\n    filter_dic = {}\n    aggs_dic = {}\n\n    # get ES version to make the query builder to be backward compatible with\n    # diffs versions.\n    # TODO: move this to a proper place. maybe ES client?.\n    # TODO: cache it to avoid overwhelm ES with this call.\n    # TODO: ask for ES_VERSION when building queries with an elegant way.\n    ES_VERSION = 2\n    response = requests.get(SEARCH_URL)\n    if response.ok:\n        # looks ugly but will work on normal ES response for \"/\".\n        ES_VERSION = int(response.json()[\"version\"][\"number\"][0])\n\n    # String searching\n    if q_text:\n        # Wrapping query string into a query filter.\n\n        if ES_VERSION >= 2:\n            query_string = {\n                \"query_string\": {\n                    \"query\": q_text\n                }\n            }\n        else:\n            query_string = {\n                \"query\": {\n                    \"query_string\": {\n                        \"query\": q_text\n                    }\n                }\n            }\n\n        # add string searching\n        must_array.append(query_string)\n\n    if q_time:\n        # check if q_time exists\n        q_time = str(q_time)  # check string\n        shortener = q_time[1:-1]\n        shortener = shortener.split(\" TO \")\n        gte = shortener[0]  # greater than\n        lte = shortener[1]  # less than\n        layer_date = {}\n        if gte == '*' and lte != '*':\n            layer_date[\"lte\"] = lte\n            range_time = {\n                \"layer_date\": layer_date\n            }\n            range_time = {\"range\": range_time}\n            must_array.append(range_time)\n        if gte != '*' and lte == '*':\n            layer_date[\"gte\"] = gte\n            range_time = {\n                \"layer_date\": layer_date\n            }\n            range_time = {\"range\": range_time}\n            must_array.append(range_time)\n        if gte != '*' and lte != '*':\n            layer_date[\"gte\"] = gte\n            layer_date[\"lte\"] = lte\n            range_time = {\n                \"layer_date\": layer_date\n            }\n            range_time = {\"range\": range_time}\n            must_array.append(range_time)\n    # geo_shape searching\n    if q_geo:\n        q_geo = str(q_geo)\n        q_geo = q_geo[1:-1]\n        Ymin, Xmin = q_geo.split(\" TO \")[0].split(\",\")\n        Ymax, Xmax = q_geo.split(\" TO \")[1].split(\",\")\n        geoshape_query = {\n            \"layer_geoshape\": {\n                \"shape\": {\n                    \"type\": \"envelope\",\n                    \"coordinates\": [[Xmin, Ymax], [Xmax, Ymin]]\n                },\n                \"relation\": \"intersects\"\n            }\n        }\n        filter_dic[\"geo_shape\"] = geoshape_query\n\n    if q_user:\n        # Using q_user\n        user_searching = {\n            \"match\": {\n                \"layer_originator\": q_user\n            }\n        }\n        must_array.append(user_searching)\n\n    if ES_VERSION >= 2:\n        dic_query = {\n            \"query\": {\n                \"bool\": {\n                    \"must\": must_array,\n                    \"filter\": filter_dic\n                }\n            }\n        }\n    else:\n        dic_query = {\n            \"query\": {\n                \"filtered\": {\n                    \"filter\": {\n                        \"bool\": {\n                            \"must\": must_array,\n                            \"should\": filter_dic\n                        }\n                    }\n                }\n            }\n        }\n\n    # Page\n    if d_docs_limit:\n        dic_query[\"size\"] = d_docs_limit\n\n    if d_docs_page:\n        dic_query[\"from\"] = d_docs_limit * d_docs_page - d_docs_limit\n\n    if d_docs_sort == \"score\":\n        dic_query[\"sort\"] = {\"_score\": {\"order\": \"desc\"}}\n\n    if d_docs_sort == \"time\":\n        dic_query[\"sort\"] = {\"layer_date\": {\"order\": \"desc\"}}\n\n    if d_docs_sort == \"distance\":\n        if q_geo:\n            # distance_x = float(((float(Xmin) - float(Xmax)) ** 2.0) ** (0.5))\n            # distance_y = float(((float(Ymin) - float(Ymax)) ** 2.0) ** (0.5))\n            msg = (\"Sorting by distance is different on ElasticSearch than Solr, because this\"\n                   \"feature on elastic is unavailable to geo_shape type.ElasticSearch docs said:\"\n                   \"Due to the complex input structure and index representation of shapes,\"\n                   \"it is not currently possible to sort shapes or retrieve their fields directly.\"\n                   \"The geo_shape value is only retrievable through the _source field.\"\n                   \" Link: https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html\")\n            return {\"error\": {\"msg\": msg}}\n\n        else:\n            msg = \"q_qeo MUST BE NO ZERO if you wanna sort by distance\"\n            return {\"error\": {\"msg\": msg}}\n\n    if a_text_limit:\n        # getting most frequently occurring users.\n        text_limit = {\n            \"terms\": {\n                \"field\": \"abstract\",\n                \"size\": a_text_limit\n            }\n        }\n        aggs_dic['popular_text'] = text_limit\n\n    if a_user_limit:\n        # getting most frequently occurring users.\n        users_limit = {\n\n            \"terms\": {\n                \"field\": \"layer_originator\",\n                \"size\": a_user_limit\n            }\n        }\n        aggs_dic['popular_users'] = users_limit\n\n    if a_time_limit:\n        # TODO: Work in progress, a_time_limit is incomplete.\n        # TODO: when times are * it does not work. also a a_time_gap is not required.\n        if q_time:\n            if not a_time_gap:\n                # getting time limit histogram.\n                time_limt = {\n                    \"date_range\": {\n                        \"field\": \"layer_date\",\n                        \"format\": \"yyyy-MM-dd'T'HH:mm:ssZ\",\n                        \"ranges\": [\n                            {\"from\": gte, \"to\": lte}\n                        ]\n                    }\n                }\n                aggs_dic['range'] = time_limt\n            else:\n                pass\n\n        else:\n            msg = \"If you want to use a_time_limit feature, q_time MUST BE initialized\"\n            return {\"error\": {\"msg\": msg}}\n\n    if a_time_gap:\n        interval = gap_to_elastic(a_time_gap)\n        time_gap = {\n            \"date_histogram\": {\n                \"field\": \"layer_date\",\n                \"format\": \"yyyy-MM-dd'T'HH:mm:ssZ\",\n                \"interval\": interval\n            }\n        }\n        aggs_dic['articles_over_time'] = time_gap\n\n    # adding aggreations on body query\n    if aggs_dic:\n        dic_query['aggs'] = aggs_dic\n    try:\n        res = requests.post(search_engine_endpoint, data=json.dumps(dic_query))\n    except Exception as e:\n        return 500, {\"error\": {\"msg\": str(e)}}\n\n    es_response = res.json()\n\n    if original_response:\n        return es_response\n\n    data = {}\n\n    if 'error' in es_response:\n        data[\"error\"] = es_response[\"error\"]\n        return 400, data\n\n    data[\"request_url\"] = res.url\n    data[\"request_body\"] = json.dumps(dic_query)\n    data[\"a.matchDocs\"] = es_response['hits']['total']\n    docs = []\n    # aggreations response: facets searching\n    if 'aggregations' in es_response:\n        aggs = es_response['aggregations']\n        # getting the most frequently occurring users.\n        if 'popular_users' in aggs:\n            a_users_list_array = []\n            users_resp = aggs[\"popular_users\"][\"buckets\"]\n            for item in users_resp:\n                temp = {}\n                temp['count'] = item['doc_count']\n                temp['value'] = item['key']\n                a_users_list_array.append(temp)\n            data[\"a.user\"] = a_users_list_array\n\n        # getting most frequently ocurring words\n        if 'popular_text' in aggs:\n            a_text_list_array = []\n            text_resp = es_response[\"aggregations\"][\"popular_text\"][\"buckets\"]\n            for item in text_resp:\n                temp = {}\n                temp['count'] = item['doc_count']\n                temp['value'] = item['key']\n                a_text_list_array.append(temp)\n            data[\"a.text\"] = a_text_list_array\n\n        if 'articles_over_time' in aggs:\n            gap_count = []\n            a_gap = {}\n            gap_resp = aggs[\"articles_over_time\"][\"buckets\"]\n\n            start = \"*\"\n            end = \"*\"\n\n            if len(gap_resp) > 0:\n                start = gap_resp[0]['key_as_string'].replace('+0000', 'z')\n                end = gap_resp[-1]['key_as_string'].replace('+0000', 'z')\n\n            a_gap['start'] = start\n            a_gap['end'] = end\n            a_gap['gap'] = a_time_gap\n\n            for item in gap_resp:\n                temp = {}\n                if item['doc_count'] != 0:\n                    temp['count'] = item['doc_count']\n                    temp['value'] = item['key_as_string'].replace('+0000', 'z')\n                    gap_count.append(temp)\n            a_gap['counts'] = gap_count\n            data['a.time'] = a_gap\n\n        if 'range' in aggs:\n            # Work in progress\n            # Pay attention in the following code lines: Make it better!!!!\n            time_count = []\n            time_resp = aggs[\"range\"][\"buckets\"]\n            a_time = {}\n            a_time['start'] = gte\n            a_time['end'] = lte\n            a_time['gap'] = None\n\n            for item in time_resp:\n                temp = {}\n                if item['doc_count'] != 0:\n                    temp['count'] = item['doc_count']\n                    temp['value'] = item['key'].replace('+0000', 'z')\n                    time_count.append(temp)\n            a_time['counts'] = time_count\n            data['a.time'] = a_time\n\n    if not int(d_docs_limit) == 0:\n        for item in es_response['hits']['hits']:\n            # data\n            temp = item['_source']['abstract']\n            temp = temp.replace(u'\\u201c', \"\\\"\")\n            temp = temp.replace(u'\\u201d', \"\\\"\")\n            temp = temp.replace('\"', \"\\\"\")\n            temp = temp.replace(\"'\", \"\\'\")\n            temp = temp.replace(u'\\u2019', \"\\'\")\n            item['_source']['abstract'] = temp\n            docs.append(item['_source'])\n\n    data[\"d.docs\"] = docs\n\n    return data",
     "human_comment": "https://www.elastic.co/guide/en/elasticsearch/reference/current/_the_search_api.html\n    :param serializer:\n    :return:",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000273",
-    "code": "def _get_header(self, header):\n        \"\"\"\n        Gets the html header\n        \"\"\"\n        if header is None:\n            html = self.header()\n        else:\n            html = header\n        return html",
-    "human_comment": "Gets the html header",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000288",
-    "code": "def dense(x, units, **kwargs):\n  \"\"\"Identical to layers.dense.\"\"\"\n  layer_collection = kwargs.pop(\"layer_collection\", None)\n  activations = layers().Dense(units, **kwargs)(x)\n  if layer_collection:\n    # We need to find the layer parameters using scope name for the layer, so\n    # check that the layer is named. Otherwise parameters for different layers\n    # may get mixed up.\n    layer_name = tf.get_variable_scope().name\n    if (not layer_name) or (\"name\" not in kwargs):\n      raise ValueError(\n          \"Variable scope and layer name cannot be empty. Actual: \"\n          \"variable_scope={}, layer name={}\".format(\n              layer_name, kwargs.get(\"name\", None)))\n\n    layer_name += \"/\" + kwargs[\"name\"]\n    layer_params = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,\n                                     scope=layer_name)\n    assert layer_params\n    if len(layer_params) == 1:\n      layer_params = layer_params[0]\n\n    tf.logging.info(\n        \"Registering dense layer to collection for tensor: {}\".format(\n            layer_params))\n\n    x_shape = x.shape.as_list()\n    if len(x_shape) == 3:\n      # Handle [batch, time, depth] inputs by folding batch and time into\n      # one dimension: reshaping inputs to [batchxtime, depth].\n      x_2d = tf.reshape(x, [-1, x_shape[2]])\n      activations_shape = activations.shape.as_list()\n      activations_2d = tf.reshape(activations, [-1, activations_shape[2]])\n      layer_collection.register_fully_connected_multi(\n          layer_params, x_2d, activations_2d, num_uses=x_shape[1])\n      activations = tf.reshape(activations_2d, activations_shape)\n    else:\n      layer_collection.register_fully_connected(layer_params, x, activations)\n  return activations",
-    "human_comment": "Identical to layers.dense.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000299",
+    "snippet_id": "snippet_000114",
     "code": "def print_status(self, repo_name, repo_path):\n        \"\"\"Print repository status.\"\"\"\n        color = Color()\n        self.logger.info(color.colored(\n            \"=> [%s] %s\" % (repo_name, repo_path), \"green\"))\n        try:\n            repo = Repository(repo_path)\n            repo.status()\n        except RepositoryError as e:\n            self.logger.error(e)\n            pass\n        print(\"\\n\")",
     "human_comment": "Print repository status.",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000309",
-    "code": "def Authenticate(self, app_id, challenge_data,\n                   print_callback=sys.stderr.write):\n    \"\"\"See base class.\"\"\"\n    for authenticator in self.authenticators:\n      if authenticator.IsAvailable():\n        result = authenticator.Authenticate(app_id,\n                                            challenge_data,\n                                            print_callback)\n        return result\n\n    raise ValueError('No valid authenticators found')",
-    "human_comment": "See base class.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000337",
-    "code": "def father(self):\n        \"\"\"Parent of this individual\"\"\"\n        if self._father == []:\n            self._father = self.sub_tag(\"FAMC/HUSB\")\n        return self._father",
-    "human_comment": "Parent of this individual",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000350",
-    "code": "def pyspread(S=None):\n    \"\"\"Holds application main loop\"\"\"\n\n    # Initialize main application\n    app = MainApplication(S=S, redirect=False)\n\n    app.MainLoop()",
-    "human_comment": "Holds application main loop",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000355",
+    "snippet_id": "snippet_000136",
     "code": "def main(argv):\n    \"\"\"\n    Main program.\n\n    @return: none\n    \"\"\"\n    global g_log_base_dir\n    global g_airline_java\n    global g_milsongs_java\n    global g_airline_python\n    global g_milsongs_python\n\n    if len(argv) < 2:\n        print \"python grabGLRMrunLogs logsBaseDirectory\\n\"\n        sys.exit(1)\n    else:   # we may be in business\n        g_log_base_dir = argv[1]\n\n        if (os.path.isdir(g_log_base_dir)):     # open directory and start to process logs in each one\n            airline_java_dict = init_java_dict()\n            milsongs_java_dict = init_java_dict()\n            airline_py_dict = init_python_dict()\n            milsongs_py_dict = init_python_dict()\n\n            allBuilds = os.listdir(g_log_base_dir)\n            for dirName in allBuilds:\n                airline_java_dict = grab_java_results(dirName, g_airline_java, airline_java_dict)\n                milsongs_java_dict = grab_java_results(dirName, g_milsongs_java, milsongs_java_dict)\n                airline_py_dict = grab_py_results(dirName, g_airline_python, airline_py_dict)\n                milsongs_py_dict = grab_py_results(dirName, g_milsongs_python, milsongs_py_dict)\n\n        airline_py_dict = transform_time_python(airline_py_dict)    # calculate time taken per iteration\n        milsongs_py_dict = transform_time_python(milsongs_py_dict)\n\n        print(\"Airline Java log results: \\n {0}\".format(airline_java_dict))\n        print(\"Airline Python log results: \\n {0}\".format(airline_py_dict))\n        print(\"Milsongs Java log results: \\n {0}\".format(milsongs_java_dict))\n        print(\"Milsongs Python log results: \\n {0}\".format(milsongs_py_dict))\n\n        # dump dictionary into json files for later analysis\n        with open(os.path.join(g_log_base_dir, \"airline_java_dict\"),'wb') as test_file:\n            json.dump(airline_java_dict, test_file)\n\n        with open(os.path.join(g_log_base_dir, \"airline_py_dict\"),'wb') as test_file:\n            json.dump(airline_py_dict, test_file)\n\n        with open(os.path.join(g_log_base_dir, \"milsongs_java_dict\"),'wb') as test_file:\n            json.dump(milsongs_java_dict, test_file)\n\n        with open(os.path.join(g_log_base_dir, \"milsongs_py_dict\"),'wb') as test_file:\n            json.dump(milsongs_py_dict, test_file)\n\n        # dump analysis results into json format that octave can understand and process\n        generate_octave_java_ascii(airline_java_dict, \"airline_java_octave\")\n        generate_octave_java_ascii(milsongs_java_dict, \"milsongs_java_octave\")\n        generate_octave_py_ascii(airline_py_dict, \"airline_py_octave\")\n        generate_octave_py_ascii(milsongs_py_dict, \"milsongs_py_octave\")",
     "human_comment": "Main program.\n\n    @return: none",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000359",
-    "code": "def health(args):\n    \"\"\" Health FireCloud Server \"\"\"\n    r = fapi.health()\n    fapi._check_response_code(r, 200)\n    return r.content",
-    "human_comment": "Health FireCloud Server",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000379",
+    "snippet_id": "snippet_000144",
     "code": "def edit(self):\n\t\t\"\"\"\n\t\tEdit the file\n\t\t\"\"\"\n\t\tself.changed = False\n\t\twith self:\n\t\t\teditor = self.get_editor()\n\t\t\tcmd = [editor, self.name]\n\t\t\ttry:\n\t\t\t\tres = subprocess.call(cmd)\n\t\t\texcept Exception as e:\n\t\t\t\tprint(\"Error launching editor %(editor)s\" % locals())\n\t\t\t\tprint(e)\n\t\t\t\treturn\n\t\t\tif res != 0:\n\t\t\t\tmsg = '%(editor)s returned error status %(res)d' % locals()\n\t\t\t\traise EditProcessException(msg)\n\t\t\tnew_data = self.read()\n\t\t\tif new_data != self.data:\n\t\t\t\tself.changed = self._save_diff(self.data, new_data)\n\t\t\t\tself.data = new_data",
     "human_comment": "Edit the file",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000382",
-    "code": "def _percent(data, part, total):\n    \"\"\"\n    Calculate a percentage.\n    \"\"\"\n    try:\n        return round(100 * float(data[part]) / float(data[total]), 1)\n    except ZeroDivisionError:\n        return 0",
-    "human_comment": "Calculate a percentage.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000394",
+    "snippet_id": "snippet_000150",
     "code": "def print_logs(query, types=None):\n    \"\"\" Print status logs. \"\"\"\n    if query is None:\n        return\n\n    for run, log in query:\n        print((\"{0} @ {1} - {2} id: {3} group: {4} status: {5}\".format(\n            run.end, run.experiment_name, run.project_name,\n            run.experiment_group, run.run_group, log.status)))\n        print((\"command: {0}\".format(run.command)))\n        if \"stderr\" in types:\n            print(\"StdErr:\")\n            print((log.stderr))\n        if \"stdout\" in types:\n            print(\"StdOut:\")\n            print((log.stdout))\n        print()",
     "human_comment": "Print status logs.",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000395",
+    "snippet_id": "snippet_000151",
     "code": "def draw_freehand(self):\n        \n        \"\"\" Freehand sketching.\n        \"\"\"\n        \n        if _ctx._ns[\"mousedown\"]:\n            \n            x, y = mouse()\n            if self.show_grid:\n                x, y = self.grid.snap(x, y)\n            \n            if self.freehand_move == True:\n                cmd = MOVETO\n                self.freehand_move = False\n            else:\n                cmd = LINETO\n            \n            # Add a new LINETO to the path,\n            # except when starting to draw,\n            # then a MOVETO is added to the path.\n            pt = PathElement()\n            if cmd != MOVETO:\n                pt.freehand = True # Used when mixed with curve drawing.\n            else:\n                pt.freehand = False\n            pt.cmd = cmd\n            pt.x = x\n            pt.y = y\n            pt.ctrl1 = Point(x,y)\n            pt.ctrl2 = Point(x,y)\n            self._points.append(pt)\n            \n            # Draw the current location of the cursor.\n            r = 4\n            _ctx.nofill()\n            _ctx.stroke(self.handle_color)\n            _ctx.oval(pt.x-r, pt.y-r, r*2, r*2)\n            _ctx.fontsize(9)\n            _ctx.fill(self.handle_color)\n            _ctx.text(\" (\"+str(int(pt.x))+\", \"+str(int(pt.y))+\")\", pt.x+r, pt.y)\n        \n            self._dirty = True\n        \n        else:\n\n            # Export the updated drawing,\n            # remember to do a MOVETO on the next interaction.\n            self.freehand_move = True\n            if self._dirty:\n                self._points[-1].freehand = False\n                self.export_svg()\n                self._dirty = False",
     "human_comment": "Freehand sketching.",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000403",
+    "snippet_id": "snippet_000156",
     "code": "def core_oauth_token_create(self, data, **kwargs):\n        \"https://developer.zendesk.com/rest_api/docs/core/grant_type_tokens#create-token-for-grant-type\"\n        api_path = \"/oauth/tokens\"\n        return self.call(api_path, method=\"POST\", data=data, **kwargs)",
     "human_comment": "https://developer.zendesk.com/rest_api/docs/core/grant_type_tokens#create-token-for-grant-type",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000425",
+    "snippet_id": "snippet_000168",
     "code": "def logging_raslog_module_modId_modId(self, **kwargs):\n        \"\"\"Auto Generated Code\n        \"\"\"\n        config = ET.Element(\"config\")\n        logging = ET.SubElement(config, \"logging\", xmlns=\"urn:brocade.com:mgmt:brocade-ras\")\n        raslog = ET.SubElement(logging, \"raslog\")\n        module = ET.SubElement(raslog, \"module\")\n        modId = ET.SubElement(module, \"modId\")\n        modId = ET.SubElement(modId, \"modId\")\n        modId.text = kwargs.pop('modId')\n\n        callback = kwargs.pop('callback', self._callback)\n        return callback(config)",
     "human_comment": "Auto Generated Code",
     "reason": "invalid_docstring"
   },
   {
-    "snippet_id": "snippet_000441",
-    "code": "def conv_uuid(self, column, name, **kwargs):\n        \"\"\"Convert UUID filter.\"\"\"\n        return [f(column, name, **kwargs) for f in self.uuid_filters]",
-    "human_comment": "Convert UUID filter.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000442",
-    "code": "def slugify(text, sep='-'):\n    \"\"\"A simple slug generator.\"\"\"\n    text = stringify(text)\n    if text is None:\n        return None\n    text = text.replace(sep, WS)\n    text = normalize(text, ascii=True)\n    if text is None:\n        return None\n    return text.replace(WS, sep)",
-    "human_comment": "A simple slug generator.",
-    "reason": "invalid_docstring"
-  },
-  {
-    "snippet_id": "snippet_000460",
+    "snippet_id": "snippet_000182",
     "code": "def collect(self):\n        \"\"\"\n        Collect and publish metrics\n        \"\"\"\n        stats = self.parse_stats_file(self.config[\"status_path\"])\n        if len(stats) == 0:\n            return {}\n        elif \"info\" not in stats.keys():\n            return {}\n        elif \"programstatus\" not in stats.keys():\n            return {}\n\n        metrics = self.get_icinga_stats(stats[\"programstatus\"])\n        if \"hoststatus\" in stats.keys():\n            metrics = dict(\n                metrics.items() + self.get_host_stats(\n                    stats[\"hoststatus\"]).items())\n\n        if \"servicestatus\" in stats.keys():\n            metrics = dict(\n                metrics.items() + self.get_svc_stats(\n                    stats[\"servicestatus\"]).items())\n\n        for metric in metrics.keys():\n            self.log.debug(\"Publishing '%s %s'.\", metric, metrics[metric])\n            self.publish(metric, metrics[metric])",
     "human_comment": "Collect and publish metrics",
     "reason": "invalid_docstring"

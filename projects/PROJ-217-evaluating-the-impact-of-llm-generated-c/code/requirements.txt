@@ -1,4 +1,6 @@
-# Project requirements
-# Added dependencies for data download and parquet handling
-huggingface_hub>=0.23.0
-pyarrow>=15.0.0
+# Additional dependencies required for the LLM comment generation task
+huggingface-hub>=0.23.0
+tiktoken>=0.7.0
+# The base environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil. No further packages are needed here.
