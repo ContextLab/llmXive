@@ -33,7 +33,7 @@ The system MUST fit a multiple linear regression model to estimate the associati
 **Acceptance Scenarios**:
 
 1. **Given** a cleaned dataset with valid numeric variables, **When** the regression model is fitted, **Then** the output includes the coefficient, standard error, and p-value for the `news_exposure_freq` predictor.
-2. **Given** a fitted model, **When** the assumption checks run, **Then** the system outputs diagnostic plots (residuals vs. fitted, Q-Q plot) and a pass/fail status for linearity, homoscedasticity, and normality assumptions.
+2. **Given** a fitted model, **When** the assumption checks run, **Then** the system outputs diagnostic plots (residuals vs. fitted, Q‑Q plot) and a pass/fail status for linearity, homoscedasticity, and normality assumptions.
 
 ---
 
@@ -43,7 +43,7 @@ The system MUST generate a scatter plot with a regression line and confidence in
 
 **Why this priority**: Visualization provides immediate interpretability for stakeholders, while the robustness check ensures the findings are not driven by a specific segment of the population, adding scientific rigor.
 
-**Independent Test**: The visualization can be tested by generating a plot file and verifying the regression line passes through the centroid of the data points. The robustness check is tested by comparing the coefficient sign and significance between the full sample and the high-engagement subset.
+**Independent Test**: The visualization can be tested by generating a plot file and verifying the regression line passes through the centroid of the data points. The robustness check is tested by comparing the coefficient sign and significance between the full sample and the high‑engagement subset.
 
 **Acceptance Scenarios**:
 
@@ -59,7 +59,7 @@ The system MUST generate a scatter plot with a regression line and confidence in
 - **How does the system handle** perfect multicollinearity (e.g., if `baseline_anxiety` is mathematically derived from `anxiety_score`)? The system MUST detect the Variance Inflation Factor (VIF) > 10 and flag the model as unstable, preventing the reporting of independent effects.
 - **What happens when** the sample size is too small for regression?
     - If N < 30: The system MUST stop and report a power limitation warning (Hard Stop).
-    - If 30 ≤ N < 100: The system MUST proceed but emit a 'Low Power' warning (post-hoc power < 0.8) and flag results as preliminary.
+    - If 30 ≤ N < 100: The system MUST proceed but emit a 'Low Power' warning (post‑hoc power < 0.8) and flag results as preliminary.
 
 ## Requirements
 
@@ -68,9 +68,9 @@ The system MUST generate a scatter plot with a regression line and confidence in
 - **FR-001**: System MUST download a public survey dataset from a specified URL (e.g., GSS, Pew) and parse it into a structured dataframe format, ensuring the schema matches required variables. (See US-1)
 - **FR-002**: System MUST perform listwise deletion on rows with missing values in the predictor (`news_exposure_freq`) or outcome (`anxiety_score`) variables ONLY IF the resulting sample size is ≥ 30. If resulting N < 30, the system MUST halt and report a power limitation warning. (See US-1)
 - **FR-003**: System MUST fit a multiple linear regression model where `anxiety_score` is the dependent variable and `news_exposure_freq`, `baseline_anxiety`, `age`, and `gender` are independent variables. The system MUST verify that `baseline_anxiety` and `anxiety_score` are measured via distinct instruments or time points to avoid mathematical coupling. (See US-2)
-- **FR-004**: System MUST calculate and report the Pearson or Spearman correlation coefficient between `news_exposure_freq` and `anxiety_score`. (See US-2)
-- **FR-005**: System MUST generate a scatter plot with a regression line and a confidence interval visualization. (See US-3)
-- **FR-006**: System MUST perform a robustness check by re-fitting the model on a subset of users with high social media engagement (top percentile)., provided the correlation between `social_media_engagement` and `news_exposure_freq` is > 0.3. If correlation ≤ 0.3, the system MUST skip the check and log a warning. (See US-3)
+- **FR-004**: System MUST calculate and report the Pearson correlation coefficient between `news_exposure_freq` and `anxiety_score` if both variables pass a Shapiro‑Wilk normality test (p > 0.05); otherwise it MUST calculate and report the Spearman rank‑order correlation coefficient. The normality test result and the chosen statistic shall be documented in the analysis report. (See US-2)
+- **FR-005**: System MUST calculate and report the Pearson or Spearman correlation coefficient between `news_exposure_freq` and `anxiety_score`. (See US-2)  *[Note: Retained for backward compatibility; superseded by FR‑004 which provides the decision rule.]*
+- **FR-006**: System MUST perform a robustness check by re‑fitting the model on a subset of users with high social media engagement (top percentile), provided the correlation between `social_media_engagement` and `news_exposure_freq` is > 0.3. If correlation ≤ 0.3, the system MUST skip the check and log a warning. (See US-3)
 - **FR-007**: System MUST verify model assumptions (linearity, homoscedasticity, normality of residuals) and output diagnostic metrics. (See US-2)
 - **FR-008**: System MUST flag the analysis results if 'general_anxiety' was used as a proxy for 'anticipatory_anxiety', explicitly noting the construct validity limitation. (See US-2)
 
@@ -84,19 +84,19 @@ The system MUST generate a scatter plot with a regression line and confidence in
 
 ### Measurable Outcomes
 
-- **SC-001**: The association between negative news exposure and anxiety is measured against the null hypothesis (p < 0.05) to determine statistical significance. (See US-2)
+- **SC-001**: The association between negative news exposure and anxiety is considered statistically significant only if the two‑sided p‑value for the `news_exposure_freq` coefficient is < 0.05 after Bonferroni correction for the four predictors **and** the standardized effect size (β) is ≥ 0.10 (equivalent to Cohen’s f² ≥ 0.02). Both criteria must be satisfied for SC‑001 to be met. (See US-2)
 - **SC-002**: The model's explanatory power is measured against the R-squared value to assess the proportion of variance in anxiety explained by news exposure and covariates. (See US-2)
-- **SC-003**: The robustness of the findings is measured against the consistency of the coefficient sign and significance between the full sample and the high-engagement subset. (See US-3)
-- **SC-004**: The validity of the statistical inference is measured against the results of assumption checks (e.g., Shapiro-Wilk test p-value > 0.05 for residuals). (See US-2)
-- **SC-005**: The computational feasibility is measured against the execution time (≤ 60 seconds per [deferred] records) on a standard CPU environment. (See US-1)
+- **SC-003**: The robustness of the findings is measured against the consistency of the coefficient sign and significance between the full sample and the high‑engagement subset. (See US-3)
+- **SC-004**: The validity of the statistical inference is measured against the results of assumption checks (e.g., Shapiro‑Wilk test p‑value > 0.05 for residuals). (See US-2)
+- **SC-005**: The pipeline execution time will be recorded and reported for transparency, but no strict time bound is imposed. (See US-1)
 
 ## Assumptions
 
 - The analysis accepts any public dataset (e.g., GSS, Pew, YouGov) that contains the required variables: `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, and demographics. The system does not assume GSS specifically, but requires the schema.
 - If the dataset lacks a specific 'anticipatory_anxiety' scale (common in general surveys like GSS), the system will use 'general_anxiety' as a proxy, provided the limitation is explicitly flagged in the output (see FR-008).
-- The relationship between news exposure and anxiety is linear enough to be modeled via linear regression; non-linear relationships will be noted as a limitation if residual plots suggest curvature.
+- The relationship between news exposure and anxiety is linear enough to be modeled via linear regression; non‑linear relationships will be noted as a limitation if residual plots suggest curvature.
 - The dataset sample size must be ≥ 30 to proceed. If 30 ≤ N < 100, results are considered preliminary with low power.
-- The analysis runs entirely on CPU without GPU acceleration, utilizing standard Python libraries (pandas, statsmodels, scikit-learn) which are compatible with the GitHub Actions free-tier environment.
+- The analysis runs entirely on CPU without GPU acceleration, utilizing standard Python libraries (pandas, statsmodels, scikit‑learn) which are compatible with the GitHub Actions free‑tier environment.
 - Since the data is observational, all findings will be framed as associational, not causal, regardless of the statistical significance of the results.
 - Listwise deletion is the primary method for missing data. If the resulting N < 30, the analysis halts. No imputation methods are applied to preserve simplicity for CPU constraints.
 - 'Social media engagement' is used as a proxy for 'doomscrolling frequency' in the robustness check, valid only if correlated with news consumption (r > 0.3).
