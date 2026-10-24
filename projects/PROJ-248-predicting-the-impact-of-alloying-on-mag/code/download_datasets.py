@@ -2,10 +2,11 @@
 download_datasets.py
 
 Script to download the Materials Project magnetic dataset (via the HuggingFace
-``datasets`` library) and the OQMD magnetic CSV release (via a direct HTTP
-request).  The script writes three artefacts:
+Hub) and the OQMD magnetic CSV release (via a direct HTTP request).  The script
+writes three artefacts:
 
-* ``data/raw_mp.jsonl`` – streamed JSON‑lines from the Materials Project.
+* ``data/raw_mp.jsonl`` – filtered JSON‑lines from the Materials Project
+  (only entries where ``magnetic_type`` is not ``NM``).
 * ``data/raw_oqmd.csv`` – the raw OQMD CSV file.
 * ``data/data_sources.yaml`` – a small YAML manifest containing version
   identifiers and SHA‑256 checksums for reproducibility.
@@ -19,11 +20,11 @@ import hashlib
 import json
 import sys
 from pathlib import Path
-
+import os
 import requests
-from datasets import load_dataset
 import yaml
 
+from huggingface_hub import snapshot_download
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -50,50 +51,76 @@ def _write_yaml(manifest: dict, out_path: Path) -> None:
 # ----------------------------------------------------------------------
 def download_materials_project(raw_mp_path: Path) -> dict:
     """
-    Stream the Materials Project dataset, filter out non‑magnetic entries,
-    and write each record as a JSON line.
+    Download the Materials Project dataset from the HuggingFace Hub,
+    filter out non‑magnetic entries (``magnetic_type`` == ``NM``), and write
+    each remaining record as a JSON line.
 
-    Returns a manifest dictionary containing the dataset version and the
-    SHA‑256 checksum of the written file.
+    Returns a manifest dictionary containing the dataset version (the
+    Git commit hash of the downloaded snapshot) and the SHA‑256 checksum
+    of the written file.
     """
-    log.info("Downloading Materials Project magnetic entries (streaming).")
-    # The filter selects entries where magnetic_type != 'NM' (non‑magnetic)
-    ds = load_dataset(
-        "materialsproject",
-        split="all",
-        streaming=True,
-        # The filter syntax follows the HuggingFace datasets filtering API.
-        # ``$ne`` means “not equal”.
-        filter={"magnetic_type": {"$ne": "NM"}},
-    )
+    log.info("Downloading Materials Project dataset via HuggingFace Hub.")
+    # The HuggingFace repository for the Materials Project dataset.
+    repo_id = "materialsproject/materialsproject"
+    # Download the entire repository snapshot (no pyarrow involvement).
+    repo_path = snapshot_download(repo_id=repo_id, repo_type="dataset")
+    log.info("Repository snapshot downloaded to %s", repo_path)
+
+    # Locate the first JSONL file in the snapshot – this typically contains
+    # the raw records.
+    jsonl_file = None
+    for root, _, files in os.walk(repo_path):
+        for fname in files:
+            if fname.lower().endswith(".jsonl"):
+                jsonl_file = Path(root) / fname
+                break
+        if jsonl_file:
+            break
+
+    if jsonl_file is None:
+        raise RuntimeError("No .jsonl file found in the Materials Project repository snapshot.")
 
     raw_mp_path.parent.mkdir(parents=True, exist_ok=True)
 
     sha256 = hashlib.sha256()
     count = 0
-    with raw_mp_path.open("w", encoding="utf-8") as f:
-        for record in ds:
-            line = json.dumps(record, ensure_ascii=False)
-            f.write(line + "\n")
-            sha256.update(line.encode("utf-8"))
+    with jsonl_file.open("r", encoding="utf-8") as src, raw_mp_path.open("w", encoding="utf-8") as dst:
+        for line in src:
+            if not line.strip():
+                continue
+            record = json.loads(line)
+            # Keep only magnetic entries (magnetic_type != "NM")
+            if record.get("magnetic_type") == "NM":
+                continue
+            out_line = json.dumps(record, ensure_ascii=False)
+            dst.write(out_line + "\n")
+            sha256.update(out_line.encode("utf-8"))
             count += 1
             if count % 10_000 == 0:
-                log.info("Materials Project: %d records written...", count)
+                log.info("Materials Project: %d magnetic records written...", count)
 
     if count == 0:
-        raise RuntimeError("No records were streamed from the Materials Project dataset.")
+        raise RuntimeError("No magnetic records were found after filtering the Materials Project dataset.")
 
     checksum = sha256.hexdigest()
-    log.info("Materials Project download complete – %d records, SHA‑256: %s", count, checksum)
+    log.info(
+        "Materials Project download complete – %d records written, SHA‑256: %s",
+        count,
+        checksum,
+    )
 
-    # Attempt to retrieve a version identifier from the dataset info.
-    version = getattr(ds, "info", None)
-    if version is not None:
-        version = getattr(version, "version", "unknown")
+    # Use the Git commit hash of the snapshot as a version identifier.
+    version = Path(repo_path) / ".git" / "HEAD"
+    if version.is_file():
+        try:
+            with version.open() as f:
+                version_str = f.read().strip()
+        except Exception:
+            version_str = "unknown"
     else:
-        version = "unknown"
+        version_str = "unknown"
 
-    return {"version": str(version), "sha256": checksum, "records": count}
+    return {"version": version_str, "sha256": checksum, "records": count}
 
 # ----------------------------------------------------------------------
 # Phase 0 – OQMD magnetic CSV
@@ -106,8 +133,6 @@ def download_oqmd(raw_oqmd_path: Path) -> dict:
     checksum of the downloaded file.
     """
     # Verified HuggingFace URL for the OQMD magnetic CSV.
-    # The dataset is hosted under the ``oqmd`` organization; the CSV file
-    # resides at the repository root.
     url = "https://huggingface.co/datasets/oqmd/oqmd/resolve/main/oqmd.csv"
 
     log.info("Downloading OQMD magnetic CSV from %s", url)
