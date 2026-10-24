@@ -31,7 +31,7 @@ CITATIONS = [
         "id": "stein2021",
         "title": "Frequency and frequency modulation share the same predictive "
                  "encoding mechanisms in human auditory cortex",
-        "authors": "Jasmin Stein, Katharina von Kriegstein, Alejandro Tabas",
+        "authors": "Jasmin Stein, Kathrina von Kriegstein, Alejandro Tabas",
         "year": 2021,
         "source": "arXiv",
         "url": "https://arxiv.org/abs/2110.13690",
@@ -79,7 +79,7 @@ def verify_dataset_id(dataset_id=None, check_url=True):
     Runs BEFORE any download. Exits non-zero with a clear message on mismatch.
     """
     dataset_id = dataset_id or CANONICAL_DATASET_ID
-    if not re.fullmatch(r"ds\d{6}", dataset_id):
+    if not re.fullmatch(r"ds\\d{6}", dataset_id):
         _fail(
             "Invalid OpenNeuro dataset ID '%s': expected the form 'ds######'."
             % dataset_id
@@ -119,7 +119,7 @@ def scan_events(events_path):
     'stimulus_type' if present, otherwise any column with standard/deviant values.
     """
     with open(events_path, newline="", encoding="utf-8") as fh:
-        reader = csv.DictReader(fh, delimiter="\t")
+        reader = csv.DictReader(fh, delimiter="\\t")
         rows = list(reader)
         headers = reader.fieldnames or []
     condition_labels = set()

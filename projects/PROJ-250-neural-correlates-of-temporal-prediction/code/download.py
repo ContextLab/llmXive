@@ -2,8 +2,9 @@
 
 Pipeline:
   1. verify_dataset_id() -- FR-012(1) gate runs BEFORE any download; halts on mismatch.
-  2. Fetch minimal set of BIDS files (participants.tsv and each subject's events.tsv) from the OpenNeuro S3 bucket.
-  3. Record SHA-256 checksums of every downloaded file in data/raw/checksums.json.
+  2. Fetch the full BIDS zip archive from OpenNeuro, extract minimal required files
+     (participants.tsv and each subject's events.tsv) into data/raw/.
+  3. Record SHA-256 checksums of every extracted file in data/raw/checksums.json.
   4. verify_conditions() -- FR-012(2)/FR-008 gate after metadata is available.
   5. Validate dataset metadata against contracts/dataset.schema.yaml and write
      data/results/dataset_metadata.json.
@@ -21,6 +22,8 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -184,58 +187,26 @@ def _validate_metadata(raw_dir):
     return rows
 
 # ----------------------------------------------------------------------
-# Core download logic (minimal BIDS files)
+# Core download logic (full BIDS zip)
 # ----------------------------------------------------------------------
-def _download_participants(raw_dir):
-    """Download participants.tsv to discover subject IDs."""
-    participants_path = raw_dir / "participants.tsv"
-    if participants_path.is_file():
-        log.info("participants.tsv already present at %s", participants_path)
-        return participants_path
-    url = f"{S3_BASE}/{CANONICAL_DATASET_ID}/participants.tsv"
-    log.info("Downloading participants.tsv from %s", url)
-    _download_file(url, participants_path)
-    return participants_path
+def _download_full_zip(dataset_id, dest_dir):
+    """Download the full BIDS zip archive from OpenNeuro and extract it."""
+    dest_dir = Path(dest_dir)
+    dest_dir.mkdir(parents=True, exist_ok=True)
 
-def _download_subject_events(raw_dir, subject_id):
-    """Download the events.tsv file for a given subject."""
-    # Guess typical BIDS location: sub-XX/eeg/sub-XX_task-auditory_events.tsv
-    sub_dir = raw_dir / subject_id / "eeg"
-    sub_dir.mkdir(parents=True, exist_ok=True)
-    events_path = sub_dir / f"{subject_id}_task-auditory_events.tsv"
-    if events_path.is_file():
-        log.info("events.tsv already present for %s", subject_id)
-        return events_path
-    url = f"{S3_BASE}/{CANONICAL_DATASET_ID}/{subject_id}/eeg/{subject_id}_task-auditory_events.tsv"
-    log.info("Downloading events.tsv for %s from %s", subject_id, url)
-    _download_file(url, events_path)
-    return events_path
+    zip_url = f"https://openneuro.org/crn/datasets/{dataset_id}/download?format=zip"
+    log.info("Downloading full BIDS zip from %s", zip_url)
 
-def download_dataset_zip(raw_dir):
-    """Download a minimal set of BIDS files (participants + events) for the dataset."""
-    raw_dir = Path(raw_dir)
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        zip_path = Path(tmpdir) / f"{dataset_id}.zip"
+        _download_file(zip_url, zip_path)
 
-    # 1. Download participants.tsv to discover subjects
-    participants_path = _download_participants(raw_dir)
+        log.info("Extracting zip archive %s", zip_path)
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            zip_ref.extractall(dest_dir)
 
-    # 2. Parse subject IDs
-    subject_ids = []
-    with open(participants_path, newline="", encoding="utf-8") as fh:
-        reader = csv.DictReader(fh, delimiter="\t")
-        for row in reader:
-            subj = row.get("participant_id") or row.get("subject_id")
-            if subj:
-                subject_ids.append(subj.strip())
-    if not subject_ids:
-        raise RuntimeError("No subject IDs found in participants.tsv")
-
-    # 3. Download events.tsv for each subject
-    for subj in sorted(subject_ids):
-        _download_subject_events(raw_dir, subj)
-
-    log.info("Downloaded events.tsv for %d subjects.", len(subject_ids))
-    return raw_dir
+    log.info("Extraction complete into %s", dest_dir)
+    return dest_dir
 
 def prune_subjects(raw_dir, n_subjects):
     """Keep only the first n_subjects (sorted) under raw_dir; delete others."""
@@ -272,8 +243,8 @@ def main():
     verify_dataset_id(args.dataset_id)
 
     raw_dir = paths.data("raw")
-    # Download minimal BIDS files
-    download_dataset_zip(raw_dir)
+    # Download the full BIDS zip and extract
+    _download_full_zip(args.dataset_id, raw_dir)
 
     # Prune to the requested number of subjects
     prune_subjects(raw_dir, args.subjects)

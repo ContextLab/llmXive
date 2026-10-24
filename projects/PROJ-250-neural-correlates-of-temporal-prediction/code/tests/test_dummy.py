@@ -1,5 +1,5 @@
 import pytest
 
 def test_dummy():
-    """A dummy test to ensure pytest discovers the test suite."""
+    """A trivial test that always passes, ensuring pytest discovery works."""
     assert True
