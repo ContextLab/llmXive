@@ -1,6 +1,6 @@
 status: none
-intent: Dryad telomere dataset AnAge lifespan BirdLife migration Open Tree of Life
-  phylogeny python package dataset
+intent: Dryad telomere length AnAge lifespan BirdLife traits OpenTree phylogeny python
+  package dataset
 required_fields:
 - individual_id
 - species
@@ -8,8 +8,7 @@ required_fields:
 - lifespan_years
 - body_mass_g
 - migration_status
-- breeding_latitude
-- source_dataset
-cache_key: f61dd902e3d8f4615d9944f4d4e8ebaa7c223ae820127984ba859c7eccebf556
-searched_at: '2026-10-24T02:24:50.817543+00:00'
+- breeding_latitude_degrees
+cache_key: 2426aaa265d3724a8bb54539c38eb18762360f07020df230897ed94c3e00b92b
+searched_at: '2026-10-24T03:10:14.055879+00:00'
 retry_count: 1
