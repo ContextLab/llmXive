@@ -1,20 +1,24 @@
 T001:
   c: true
-  h: 6207e32ad0b3b014a1954225f713d9e92bb7939b67380fef238b6cc995ca7156
-  r: "Checked `code/bootstrap.py` for the required `--root` argument handling, path\
-    \ patching, directory creation, requirements.txt generation, and quickstart.md\
-    \ content; verified that `tests/test_bootstrap.py` exists and matches the expected\
-    \ assertions, and that the script\u2019s logic satisfies all those checks."
-  sig: 2a3f991aa3b25ad4faa62111b77a737a01cf379698b9f2f7d9ad652403dfad9b
+  h: b05bc8c63b6ea4f40a01f6d8cc527a55a05bce97f658fb6429f81ba02c3568a8
+  r: "The `code/bootstrap.py` script defines a `--root` argument, patches `llmxive_toolkit.paths.root`,\
+    \ creates the required directory tree, writes the pinned `requirements.txt`, and\
+    \ generates `quickstart.md` with the correct command. The provided `tests/test_bootstrap.py`\
+    \ imports this module, monkey\u2011patches the paths to a temporary directory,\
+    \ runs `bootstrap.main()`, and verifies that all directories, `requirements.txt`,\
+    \ and `quicklist.md` exist and contain the expected contents. All checks align\
+    \ with the task specifications, so the implementation satisfies T001."
+  sig: 9325f186fc5611678c36419de0fe49887653ca46ef3351a2a5587c21b66b407f
 T002:
-  c: true
-  h: bfd1acbe4dad2abd49359aa851831a11650f7c515652e688bf0bdc1b9e069c23
-  r: "Checked `code/ingestion/verify_data.py` implementation and `tests/test_verify_data.py`;\
-    \ the script performs all required existence checks, hashes every file under `stimuli/`\
-    \ and participant folders, writes a non\u2011empty `data/raw/checksums.json` with\
-    \ the correct structure, and raises the exact `RuntimeError` messages expected\
-    \ by the test suite."
-  sig: 89b56916a3e8ba89f7ce871471cd6815b632c48ff93b4fa44d567fee838828d7
+  c: false
+  h: 03e2a2eec525168361594bc88784f7286b71ec0266f80b2bcbc159d269e9d3eb
+  r: "The script `code/ingestion/verify_data.py` correctly checks the dataset, creates\
+    \ a non\u2011empty `checksums.json`, and validates hashes, but when a requirement\
+    \ is unmet it raises `RuntimeError` messages that differ from the exact required\
+    \ string\u202F`\"DATA_MISSING_001: ds003123 incomplete\"` (e.g., it uses \u201C\
+    \u2026 not found\u201D or adds extra detail). The task specification demands that\
+    \ exact message, so the implementation does not fully meet the requirement."
+  sig: c1d4084395748c4568d513e338ef9bb8a02c770ebb4b2e71437d9a984bf1a8a4
 T003:
   c: false
   h: 84685574ac82ccee049a97a0eae4bcbcbd25676fb74a7b13bed3371a418bad10

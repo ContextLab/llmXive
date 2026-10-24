@@ -1,13 +1,16 @@
 T001:
   task: da69c9ca510538a2821773caaa56a95b15e4bda208dce679ad2941dece860c5c
 T002:
+  reason: "The script `code/ingestion/verify_data.py` correctly checks the dataset,\
+    \ creates a non\u2011empty `checksums.json`, and validates hashes, but when a\
+    \ requirement is unmet it raises `RuntimeError` messages that differ from the\
+    \ exact required string\u202F`\"DATA_MISSING_001: ds003123 incomplete\"` (e.g.,\
+    \ it uses \u201C\u2026 not found\u201D or adds extra detail). The task specification\
+    \ demands that exact message, so the implementation does not fully meet the requirement."
   task: d757de5d2df72f124cfe1d0c7fb7754353c097a9898dd12c06f48885e71273a5
 T003:
-  reason: The script `code/salience/generate_maps.py` exists, but the required input
-    directory `data/raw/ds003123/stimuli/` (and the image files it must process) are
-    missing, causing the script to abort with a runtime error and the test suite to
-    fail (it expects a zero exit code and generated `.npy` maps). Without the stimulus
-    images the task cannot be verified as completed.
+  reason: 'Requested task execution failed; rerun successfully: code/salience/generate_maps.py
+    exit=1'
   task: e8ca765809c22560286ef9a711376c7dda2ed5bf1150c159cfafbb24b5424dfb
 T004:
   task: 88708ed8fe879e75382443f4a16c02c0097c05bb17496202ea860f2c97d9ac40
