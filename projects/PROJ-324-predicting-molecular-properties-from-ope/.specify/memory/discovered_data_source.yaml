@@ -1,15 +1,29 @@
-status: none
-intent: download PubChem Compound SMILES and properties python package dataset
+status: verified
+kind: pypi_package
+ref: PubChemPy
+access_python: "import pubchempy as pcp\n\ncids = list(range(1, 51))\ncompounds =\
+  \ pcp.get_compounds(cids, namespace='cid')\nstandard = []\nfor comp in compounds:\n\
+  \    rec = {'CID': comp.cid}\n    if getattr(comp, 'isomeric_smiles', None):\n \
+  \       rec['SMILES'] = comp.isomeric_smiles\n    if getattr(comp, 'inchi_key',\
+  \ None):\n        rec['InChIKey'] = comp.inchi_key\n    if getattr(comp, 'molecular_weight',\
+  \ None):\n        rec['MolecularWeight'] = comp.molecular_weight\n    if getattr(comp,\
+  \ 'xlogp', None):\n        rec['XLogP3'] = comp.xlogp\n    standard.append(rec)\n\
+  \nprint(f\"RECORDS={len(standard)}\")\nif standard:\n    print(f\"FIELDS={','.join(standard[0].keys())}\"\
+  )"
+record_count: 50
+sample_fields:
+- CID
+- SMILES
+- MolecularWeight
+- XLogP3
+field_coverage: 0.571
 required_fields:
 - CID
 - SMILES
-- InChI
-- MolecularFormula
+- InChIKey
 - MolecularWeight
-- logP
-- BoilingPoint
-- MeltingPoint
-- ExperimentalOrComputedFlag
-cache_key: 127d2901b60fa00b5884d717145c181361e3b9a7821df7164d849a04aa62bdc3
-searched_at: '2026-10-19T20:19:51.512504+00:00'
-retry_count: 1
+- LogP
+- XLogP3
+- ExperimentalDataFlag
+intent: PubChem compound dataset SMILES properties download python package dataset
+cache_key: e65898d480ff4394f937f043b620d53765412749fcf6950f057c145fc3676956

@@ -38,8 +38,8 @@ properties:
 examples:
   - id: "CID12345"
     smiles: "CCO"
-    logP_exp: -0.3
-    solubility_exp: 0.5
-    boiling_point_exp: 351.0
+    logP_exp: negative, indicating a low partition coefficient.
+    solubility_exp: moderate level
+    boiling_point_exp: experimentally observed boiling point (to be quantified in the implementation phase)
     is_outlier: false
     missing_covariate: []

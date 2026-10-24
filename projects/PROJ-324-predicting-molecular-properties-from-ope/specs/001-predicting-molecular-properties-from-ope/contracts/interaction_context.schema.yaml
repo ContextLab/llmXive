@@ -32,6 +32,6 @@ properties:
 examples:
   - bit_i: 12
     bit_j: 45
-    interaction_strength: 0.87
+    interaction_strength: 0.78
     substructure_desc: "Hydroxyl group adjacent to aromatic ring"
     context_type: "Topological-Electronic-Proxy"

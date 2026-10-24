@@ -1,12 +1,30 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 22 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T102` (rejected 1x): Requested task execution failed; rerun successfully: code/analysis/explainability.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The dataset schema permits `logp` to be *experimental OR computed* (XLogP3). Mixing computed and experimental values compromises construct validity of the target variable and can bias both the additive baseline and the Random Forest, undermining the claim that identified fingerprint interactions explain *experimental* property variation.
+- Task T030.2 computes the Local Non‑Additivity Index (LNAI) for *every* fingerprint bit‑pair and applies Benjamini‑Hochberg correction. With ~2 200 bits this yields >2  million pairwise tests, dramatically reducing statistical power after FDR correction and increasing false‑negative risk. A pre‑selection strategy (e.g., top‑K bits by SHAP importance) should be introduced before testing.
+- SHAP interaction values are generated for the Random Forest (step 6/7). For tree‑based models SHAP interaction estimates are approximations and can be unstable for high‑dimensional binary fingerprints. The plan does not include any validation of the interaction estimates (e.g., permutation tests), risking over‑interpretation of noisy interaction scores.
+- The LNAI metric uses a point‑biserial correlation between `(RF_error − Baseline_error)` and the *joint presence* of two bits. This ignores the marginal prevalence of each bit and can be confounded by highly imbalanced bit frequencies, leading to spurious “interaction zones”. No control for bit prevalence or stratification is described.
+- FR-001 (download real molecular data) is not linked to any concrete task in the plan. The task list contains no explicit download step (e.g., a task like `T00X` that runs `code/data/download.py`).
+- FR-002 (preprocess data to handle missing values and ensure high confidence) lacks a dedicated preprocessing task. The plan only includes checksum and verification tasks (T011.5, T011.6) but no step that performs missing‑value imputation or confidence filtering.
+- FR-008 (log data quality metrics including missing covariates) is not explicitly covered. The plan’s tasks T011.5/T011.6 focus on checksums and URL verification, not on generating a data‑quality report that lists missing covariates.
+- Task T010.1 (Diverse sampling via Euclidean distance) is not required by any functional requirement in the spec and appears to be an over‑reach.
+- Task T011.5 (Data integrity & checksum) is not mentioned in the spec; checksum generation is a good practice but not a mandated functional requirement.
+- Task T011.6 (Reference‑Validator verification) is not tied to any FR; the spec only requires verified sources, which is already covered by the constitution, not a separate task.
+- Baseline computation tasks (T014a, T014b, T014c, T014.5) are not specified in the functional requirements; the spec does not require additive baselines.
+- Task T033 (Conformational‑limitations audit) is not referenced by any FR; it is an extra analysis not required by the spec.
+- Task T057 (Comprehensive validation audit) aggregates many artifacts but the spec does not mandate a single PDF audit report.
+- Task T058 (Experimental validation protocol) is a forward‑looking document not required by the current functional requirements.
+- The Local Non‑Additivity Index (LNAI) task (T030.2) proposes computing a point‑biserial correlation for *every* fingerprint bit‑pair (≈2.2 k bits → ~2.4 M pairs). For a dataset of ~5 000 molecules this entails on the order of 12 billion correlation calculations, which is unlikely to complete within the 2‑core, 7 GB, ≤ 4 h runtime budget. The current plan does not include any sampling, dimensionality‑reduction, or computational‑guard to keep this step tractable, making the approach infeasible under the free‑compute constraints.
+- The plan lists `verification_log.txt` (under `data/derived/`) as a core artifact, but the data‑model.md does not define a schema or field for this file, breaking the Plan ↔ Data‑Model consistency.
+- `data_quality_report.csv` is referenced in the plan (e.g., in the “Data hygiene” description) yet no corresponding entity appears in the data model, leaving the pipeline without a single source of truth for that report.
+- Numerous derived visual artifacts (e.g., `baseline_residuals.png`, `rf_residuals.png`, `shap_interactions.png`, `validation_audit.pdf`) are produced by tasks but are absent from the data model’s list of output entities, creating a mismatch between documented data flow and the formal model.
+- `lna_index.csv` (Local Non‑Additivity Index table) is generated, yet the data model only defines a per‑record field `local_non_additivity_index` inside `output.schema.yaml`; there is no top‑level schema for the LNAI table itself.
+- `validation_audit.pdf` and `experimental_validation_protocol.md` are final deliverables mentioned in the plan but have no representation in the data model, violating the requirement that every artifact be captured by the model.
+- The plan creates JSON prediction records conforming to `prediction.schema.yaml`, but it never references the `output.schema.yaml` contract, which defines the aggregated prediction output (including SHAP values and LNAI). This leaves the `output.schema` contract unused.
+- The Local Non‑Additivity Index (LNAI) is defined as a point‑biserial correlation between the residual difference (RF_error − Baseline_error) and the binary presence of a fingerprint bit‑pair. Point‑biserial (Pearson) correlation assumes linearity and approximate normality of the continuous variable, which may not hold for residual differences that can be skewed or heavy‑tailed. Consider using a non‑parametric association measure (e.g., rank‑biserial correlation) or a permutation‑based significance test to ensure robustness of the LNAI significance assessment.

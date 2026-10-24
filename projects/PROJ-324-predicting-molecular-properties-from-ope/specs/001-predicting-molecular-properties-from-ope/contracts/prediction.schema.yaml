@@ -43,7 +43,7 @@ examples:
   - molecule_id: "CID12345"
     model_type: "Additive"
     property: "logP"
-    value_pred: -0.3
-    value_exp: -0.4
-    residual: -0.1
-    abs_error: 0.1
+    value_pred: a negative value
+    value_exp: negative effect
+    residual: negative (indicating a slight underestimation)
+    abs_error: low
