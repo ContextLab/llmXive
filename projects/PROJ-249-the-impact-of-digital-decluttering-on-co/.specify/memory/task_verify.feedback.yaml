@@ -1,38 +1,41 @@
 T000:
-  reason: "The pilot CSV exists and its response times/accuracies meet the numeric\
-    \ bounds, but `pytest code/tests/test_pilot.py` fails (see the execution log)\
-    \ because the rows do not satisfy the JSON schema loaded by the test \u2013 the\
-    \ schema expects fields like `phase` and `quality_flag` (and a different `metric_type`\
-    \ enum) that are absent, and the CSV\u2019s `metric_type` values (`sart_mean_rt`)\
-    \ are not allowed by the provided `contracts/dataset.schema.yaml`. Consequently\
-    \ the pilot data does not validate against the required schema, and the test suite\
-    \ does not pass. The task therefore remains incomplete."
+  reason: "Checked `data/raw/pilot/measurement_records_pilot.csv` (contains only PSS10\
+    \ rows, no SART or Ospan data) and `code/tests/test_pilot.py` (passes because\
+    \ the test never encounters any SART rows). The pilot file therefore does not\
+    \ provide the required SART response\u2011time and accuracy measurements, so the\
+    \ core requirement of verifying all response times are 100\u202Fms\u20135000\u202F\
+    ms and SART accuracy \u2265\u202F50\u202F% is not satisfied. Add proper pilot\
+    \ records (e.g., metric_type \u201Csart_mean_rt\u201D with trial_data including\
+    \ response_times and accuracies for the 5 participants) and ensure they pass the\
+    \ test."
   task: 76215164a8c4b09e3329e0a78037a8b0c5e20e86c9da8478114e3afe9ab8643a
 T001:
-  reason: "The required directories and files (requirements.txt, study_config.yaml,\
-    \ quickstart.md) exist, but the integration test `tests/integration/test_layout.py`\u2014\
-    the stipulated verification for T001\u2014fails because it cannot locate the configuration\
-    \ file at the expected path, so the test does not confirm the layout creation\
-    \ as required. The task\u2019s verification step is therefore not satisfied."
+  reason: "The required directories and files (`code/requirements.txt`, `code/config/study_config.yaml`,\
+    \ `quickstart.md`) exist, but the integration test `tests/integration/test_layout.py`\
+    \ fails because it cannot find the configuration file at the repository\u2011\
+    level shim path (`../code/config/study_config.yaml`). The `run_all` script does\
+    \ not correctly create this shim, causing the test to error out, so the task\u2019\
+    s verification step is not satisfied. The pipeline layout verification must be\
+    \ fixed (e.g., provide the config at the expected repository location or correct\
+    \ the shim creation)."
   task: b56a62abf1e3355317248265a0e984a04e1b2d69f5a5203c563496d0b007af4d
 T001a:
   task: 2b2980e7634d4e80a25e071238a217acfb437493c8c2f3bb3b16b9d7cec66ac3
 T001b:
-  reason: "The Flask app `code/recruitment/app.py` raises a **NameError** (`json`\
-    \ is not defined) when handling a registration request, causing the integration\
-    \ test to fail (expected 201 but got 500). Because the endpoint does not successfully\
-    \ generate an ID and write a CSV row, the task\u2019s core requirement is not\
-    \ met. Fix the import/bug so the `/register` endpoint works and the test passes."
+  reason: "The Flask app `code/recruitment/app.py` is present, but the integration\
+    \ test `tests/integration/test_recruitment.py` fails with a 500 error because\
+    \ `json` is not defined when generating the demographics string, indicating a\
+    \ missing or broken import. Consequently the endpoint does not successfully register\
+    \ a participant or write to the CSV, so the task\u2019s core requirement is not\
+    \ met. Fix the `json` import (or any other runtime error) and ensure the endpoint\
+    \ returns a 201 response with a correctly formatted ID."
   task: 658ba6fbdf7ab1b7b5f849b7287af21c5b4521bcfc02eaf6805eccc7de8d6601
 T001c:
-  reason: "The module `code/web/tasks/sart_ospan.py` exists, but it aborts on import\
-    \ because `load_config()` cannot find a valid `study_config.yaml` with a top\u2011\
-    level `tasks` mapping (see the pytest error). Consequently the integration test\
-    \ `tests/integration/test_task_delivery.py` fails to run, and the CSVs the module\
-    \ writes (`participant_id,trial_index,response_time,correct,stimulus`) do not\
-    \ match the required `contracts/dataset.schema.yaml` fields. The task therefore\
-    \ does not meet the delivery, checksum verification, or schema\u2011conformance\
-    \ requirements."
+  reason: "The `code/web/tasks/sart_ospan.py` module provides a placeholder HTML page\
+    \ and writes trial\u2011level CSVs, but it does **not** download the OSF task\
+    \ bundle nor verify it via checksum as required, and the generated CSV columns\
+    \ do not match the `contracts/dataset.schema.yaml` definition. Consequently the\
+    \ core delivery and schema\u2011conformance requirements are unmet."
   task: 72e2de429065c3ee0b255718131ff84bcd9a18e834d43cac69b58741df5f0944
 T001d:
   reason: "The `code/web/questionnaires/pss_panas.py` file exists and implements the\
@@ -45,8 +48,20 @@ T001d:
     \ to be considered complete."
   task: 2931eb3b2b2f90d703a59ddb4c9b752b845b0e644d894fa7e48056b93080d258
 T001e:
+  reason: "The integration test `tests/integration/test_compliance_ui.py` fails with\
+    \ a `FileNotFoundError` for `contracts/compliance.schema.yaml`, so the submitted\
+    \ logs cannot be validated against the required JSON\u2011Schema. The UI code\
+    \ and CSV output exist, but the schema file is not reachable at the path expected\
+    \ by the test, preventing the task\u2019s verification from succeeding. Fix the\
+    \ schema file location or adjust the test to point to the correct path."
   task: d49cb84d61fc490e2fb61be5e8240e2c0d788c81b0440b25007ee080302666c4
 T002:
+  reason: "The scoring modules exist, but `code/scoring/pss10.py` lacks a `Dict` import\
+    \ causing a import\u2011time NameError, and its return shape (a dict) does not\
+    \ match the test\u2019s expectation of an integer. Likewise `code/scoring/panas.py`\
+    \ returns a dict while the test expects a two\u2011value tuple (`pa, na`). Consequently\
+    \ `pytest code/tests/test_scoring.py` cannot pass, so the task\u2019s verification\
+    \ requirement is not satisfied."
   task: a923d8252625af6d6d9dcaeeae8a4b859b7ccd4ebe65c302ff345dab1b0eaf09
 T003a:
   task: be210172e061b850163da7cbebe745c6c609c4bfd860f3b288a66a262cf0b7ca

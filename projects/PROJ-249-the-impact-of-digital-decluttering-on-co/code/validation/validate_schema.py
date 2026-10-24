@@ -2,7 +2,7 @@
 validate_schema.py
 
 Validates a CSV file of measurement records against the MeasurementRecord
-definition in a JSON‑Schema file.  The script exits with status 0 if all rows
+definition in a JSON‑Schema file. The script exits with status 0 if all rows
 conform, otherwise it raises a jsonschema.ValidationError (which terminates
 the process with a non‑zero exit code).
 
@@ -14,18 +14,28 @@ import argparse
 import csv
 import json
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
+import yaml
 from jsonschema import Draft7Validator, ValidationError
 
 def _load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a JSON‑Schema file."""
+    """Load a JSON‑Schema file, supporting both JSON and YAML formats."""
     with schema_path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+        content = f.read()
+        # Try JSON first; fall back to YAML if JSON parsing fails.
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            # yaml.safe_load returns Python objects; ensure we get a dict.
+            data = yaml.safe_load(content)
+            if not isinstance(data, dict):
+                raise ValueError("Schema file does not contain a JSON/YAML object")
+            return data
 
-def _load_csv(data_path: Path) -> list[Dict[str, Any]]:
+def _load_csv(data_path: Path) -> List[Dict[str, Any]]:
     """Read a CSV file into a list of dictionaries, converting numeric fields."""
-    rows: list[Dict[str, Any]] = []
+    rows: List[Dict[str, Any]] = []
     with data_path.open("r", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for raw in reader:
@@ -44,7 +54,7 @@ def _load_csv(data_path: Path) -> list[Dict[str, Any]]:
 def _extract_measurement_schema(full_schema: Dict[str, Any]) -> Dict[str, Any]:
     """
     The top‑level schema describes the whole dataset (participants,
-    measurements, compliance_logs).  For CSV validation we only need the
+    measurements, compliance_logs). For CSV validation we only need the
     ``MeasurementRecord`` definition.
     """
     try:
@@ -73,9 +83,9 @@ def validate_csv_against_schema(schema_path: Path, data_path: Path) -> None:
     # 3️⃣ Load CSV rows, performing lightweight type coercion.
     rows = _load_csv(data_path)
 
-    # 4️⃣ Validate each row individually.  Errors are collected and reported
+    # 4️⃣ Validate each row individually. Errors are collected and reported
     #    together to make debugging easier.
-    errors: list[ValidationError] = []
+    errors: List[ValidationError] = []
     for idx, row in enumerate(rows, start=1):
         # ``validator.iter_errors`` yields all errors for a single instance.
         for err in validator.iter_errors(row):

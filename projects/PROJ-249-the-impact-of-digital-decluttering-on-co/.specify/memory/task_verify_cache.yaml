@@ -1,63 +1,20 @@
-T000:
-  c: false
-  h: 6d048d7888c2a4aab8d8d2e98b44b0fdb5f80f7bf2a7629e7e5d3fef946cf33f
-  r: "The pilot CSV exists and its response times/accuracies meet the numeric bounds,\
-    \ but `pytest code/tests/test_pilot.py` fails (see the execution log) because\
-    \ the rows do not satisfy the JSON schema loaded by the test \u2013 the schema\
-    \ expects fields like `phase` and `quality_flag` (and a different `metric_type`\
-    \ enum) that are absent, and the CSV\u2019s `metric_type` values (`sart_mean_rt`)\
-    \ are not allowed by the provided `contracts/dataset.schema.yaml`. Consequently\
-    \ the pilot data does not validate against the required schema, and the test suite\
-    \ does not pass. The task therefore remains incomplete."
-  sig: a31191058180a01571ee2f77eb90fa4939820a78a4cfde4fb94801f1d1963d94
-T001:
-  c: false
-  h: 9c15630988024f5ae24e3c6aaa83009efff22c28f9d6aefa0eecff5978cbd86d
-  r: "The required directories and files (requirements.txt, study_config.yaml, quickstart.md)\
-    \ exist, but the integration test `tests/integration/test_layout.py`\u2014the\
-    \ stipulated verification for T001\u2014fails because it cannot locate the configuration\
-    \ file at the expected path, so the test does not confirm the layout creation\
-    \ as required. The task\u2019s verification step is therefore not satisfied."
-  sig: 0163d0dbe955b8d5d3afbb9377d958499f55473b8fea693bfd0a623be71a75dd
-T001b:
-  c: false
-  h: 98f2854886feaa85464d1f0208db2fc6d785e8b980241fe6d025f522d5c94a29
-  r: "The Flask app `code/recruitment/app.py` raises a **NameError** (`json` is not\
-    \ defined) when handling a registration request, causing the integration test\
-    \ to fail (expected 201 but got 500). Because the endpoint does not successfully\
-    \ generate an ID and write a CSV row, the task\u2019s core requirement is not\
-    \ met. Fix the import/bug so the `/register` endpoint works and the test passes."
-  sig: 917212629d345c6a9939adece4ba979807e7ff2a65278dc8bbb79de922d81555
-T001c:
-  c: false
-  h: 44d14231a7c70960d483a75323ef16450da068fc3a89502baa616bfbcb926336
-  r: "The module `code/web/tasks/sart_ospan.py` exists, but it aborts on import because\
-    \ `load_config()` cannot find a valid `study_config.yaml` with a top\u2011level\
-    \ `tasks` mapping (see the pytest error). Consequently the integration test `tests/integration/test_task_delivery.py`\
-    \ fails to run, and the CSVs the module writes (`participant_id,trial_index,response_time,correct,stimulus`)\
-    \ do not match the required `contracts/dataset.schema.yaml` fields. The task therefore\
-    \ does not meet the delivery, checksum verification, or schema\u2011conformance\
-    \ requirements."
-  sig: 27663659b9b9f0c098f748c7e7a26816967db97879386374863a512d9b3e7fd8
-T001d:
-  c: false
-  h: 04952ec0b10dccc046079c83c8bab16fdd1082c9cc8a3cd2ff350be963ba14f1
-  r: "The `code/web/questionnaires/pss_panas.py` file exists and implements the required\
-    \ Flask endpoints, but the integration test `tests/integration/test_questionnaire.py`\
-    \ crashes during collection because it tries to read `contracts/dataset.schema.yaml`\
-    \ with `json.load`, which fails on a YAML file. Consequently the test never validates\
-    \ that the CSV is written correctly, so the task\u2019s verification is not satisfied.\
-    \ The test (or the schema file) must be corrected to load the schema properly\
-    \ (e.g., using `yaml.safe_load` or providing a valid JSON schema) for the task\
-    \ to be considered complete."
-  sig: 0356010f15b87e29663566d7a4dab615cd2c24bae443f9b8afe0e91b68efe4a5
 T001e:
-  c: true
-  h: acd450fe494f6c7df0e7699a131229a6d4869bd1efa708337df77e30246d54ed
-  r: "Checked `code/web/compliance/compliance_ui.py` (Flask UI that validates payload\
-    \ and writes a CSV per participant/day), the `data/raw/compliance_logs/` directory\
-    \ (contains the CSV written by the UI), and `contracts/compliance.schema.yaml`\
-    \ (JSON\u2011Schema used by the integration test). All required artifacts exist,\
-    \ are non\u2011empty, and the UI\u2019s behavior matches the test\u2019s expectations\
-    \ for schema validation and CSV storage."
-  sig: 723741d2ad6f0b224c91cb47e2897fb096265686478017bec68b67936ec45ffb
+  c: false
+  h: b9d9279477e2b3d1abaf00d88b9c6800badc2ae531fe06fbfc5a136dab1ff541
+  r: "The integration test `tests/integration/test_compliance_ui.py` fails with a\
+    \ `FileNotFoundError` for `contracts/compliance.schema.yaml`, so the submitted\
+    \ logs cannot be validated against the required JSON\u2011Schema. The UI code\
+    \ and CSV output exist, but the schema file is not reachable at the path expected\
+    \ by the test, preventing the task\u2019s verification from succeeding. Fix the\
+    \ schema file location or adjust the test to point to the correct path."
+  sig: e4d7cc9fae3d2f134f94b6844fd02f6e2ae5e8b19638433164fc75b4060c77e5
+T002:
+  c: false
+  h: a65b0685c03a4e27bb78a2c8f2a14d3d3d5b13a7904470aef65ab35d62723669
+  r: "The scoring modules exist, but `code/scoring/pss10.py` lacks a `Dict` import\
+    \ causing a import\u2011time NameError, and its return shape (a dict) does not\
+    \ match the test\u2019s expectation of an integer. Likewise `code/scoring/panas.py`\
+    \ returns a dict while the test expects a two\u2011value tuple (`pa, na`). Consequently\
+    \ `pytest code/tests/test_scoring.py` cannot pass, so the task\u2019s verification\
+    \ requirement is not satisfied."
+  sig: 03aa73ceb7dd6447e88fcf917d843fcd64da714439c5f6d3241e287d99b9c284

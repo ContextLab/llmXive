@@ -21,6 +21,7 @@ log = get_logger(__name__)
 
 app = Flask(__name__)
 
+# Use the llmxive toolkit to locate the participants CSV within the project.
 PARTICIPANT_CSV = paths.data("raw", "participants.csv")
 
 ID_PATTERN = re.compile(r"^P\d{3}$")

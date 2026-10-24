@@ -392,3 +392,56 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-24T11:37:32Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/quickstart.md
+  attempts: 1
+  canonical: 'pipeline log ends with STATUS: SUCCESS'
+  claim_id: c_b21bc184
+  context: 'Writes results/pipeline.log that ends with STATUS: SUCCESS.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'writes results/pipeline.log that ends with STATUS: SUCCESS'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T11:45:19Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/quickstart.md
+  attempts: 1
+  canonical: pipeline generates SHA-256 manifest including status file
+  claim_id: c_658e6cd3
+  context: "Generates a SHA\u2011256 manifest data/checksums.sha256 that includes\
+    \ the status file."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Generates a SHA\u2011256 manifest data/checksums.sha256 that includes\
+    \ the status file"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T11:45:19Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/quickstart.md
+  attempts: 1
+  canonical: integration test verifies layout creation and config file availability
+    at both locations
+  claim_id: c_2c49299e
+  context: "The integration test tests/integration/test_layout.py verifies that the\
+    \ layout is created and that the configuration file is available both at its canonical\
+    \ location and at the repository\u2011level shim."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The integration test tests/integration/test_layout.py verifies that the\
+    \ layout is created and that the configuration file is available both at its canonical\
+    \ location (code/config/study_config.yaml) and at the repository\u2011level shim\
+    \ (code/config/study_config.yaml one level up)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T11:45:19Z'

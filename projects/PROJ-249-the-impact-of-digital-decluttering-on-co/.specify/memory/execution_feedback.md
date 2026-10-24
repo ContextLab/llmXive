@@ -28,13 +28,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-249-the-impact-of-digital-decluttering-on-co/code/pipeline/run_all.py", line 219, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-249-the-impact-of-digital-decluttering-on-co/code/pipeline/run_all.py", line 244, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-249-the-impact-of-digital-decluttering-on-co/code/pipeline/run_all.py", line 203, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-249-the-impact-of-digital-decluttering-on-co/code/pipeline/run_all.py", line 209, in main
     _ = load_and_validate_config(args.config)
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-249-the-impact-of-digital-decluttering-on-co/code/pipeline/run_all.py", line 98, in load_and_validate_config
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-249-the-impact-of-digital-decluttering-on-co/code/pipeline/run_all.py", line 104, in load_and_validate_config
     raise ValueError(f"missing required keys: {', '.join(missing)}")
 ValueError: missing required keys: seed, n_participants, dropout_rate, effect_sizes, practice_effect_grid, bootstrap_resamples, start_date, pilot_n
 
@@ -55,7 +55,7 @@ ERROR tests/unit/test_bootstrap_ci.py
 ERROR tests/unit/test_config.py
 ERROR tests/unit/test_edge_cases.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 20 warnings, 5 errors in 2.24s ========================
+======================== 19 warnings, 5 errors in 1.48s ========================
 
 
 

@@ -1,15 +1,15 @@
 status: none
-intent: download Baseline cognitive emotional metrics dataset OpenNeuro ICPSR Open
-  Science Framework Cognitive Atlas python package dataset
+intent: download dataset containing SART OSPAN PSS-10 PANAS baseline measures python
+  package dataset
 required_fields:
 - participant_id
 - timestamp
 - sart_commission_errors
 - sart_omission_errors
 - ospan_score
-- pss10_total
-- panas_positive
-- panas_negative
-cache_key: 91f75e4cbff09c436aa91f213ad456087dff59e7c889b224ea8e191af4c60477
-searched_at: '2026-10-24T11:43:13.980965+00:00'
+- pss10_total_score
+- panas_positive_affect_score
+- panas_negative_affect_score
+cache_key: 98d79cac9934986cb7672594035d057d7e2229100dc9e216cf61d4002356bfc3
+searched_at: '2026-10-24T11:49:06.709956+00:00'
 retry_count: 1
