@@ -1,144 +1,201 @@
-# Tasks: llmXive follow‑up – mitigating object‑driven shortcuts
+# Tasks: Mitigating Object‑Driven Shortcuts with Counterfactual Consistency
 
-**Inputs**: `spec.md`, `plan.md`, existing source under `src/`, data directories under `data/`, and reviewer feedback.  
-All tasks respect the data‑flow order, stay within the free‑tier CPU budget, and satisfy every functional requirement (FR‑001 – FR‑006) and success‑criteria (SC‑001 – SC‑005).
+**Inputs**: `spec.md`, `plan.md`, existing source under `src/`, data directories under `data/`, and reviewer feedback.
 
-## Phase 1 – Setup and first end‑to‑end analysis
+The following checklist implements the smallest complete study that satisfies every functional requirement (FR‑001 – FR‑009) and success‑criterion (SC‑001 – SC‑007).  Tasks are ordered to respect data flow and the free‑tier CPU budget.  Previously verified tasks are retained (checked).  All remaining tasks are unchecked and must be executed to completion.
 
-- [X] **T001** [P] **Create a reproducible entry‑point and quick‑start guide**  
-  - Add `quickstart.md` describing a single command `python -m src.pipeline.run_all --config configs/run.yaml`.  
-  - Provide `configs/run.yaml` with default paths and hyper‑parameters.  
-  - Verify that the command prints a summary of generated artifacts and exits with status 0.  
-  - **File(s)**: `quickstart.md`, `configs/run.yaml`.
+---
 
-- [ ] **T002** [P] **Implement a robust streaming loader for Something‑Something V2**   <!-- FAILED-IN-EXECUTION: src/data/something_loader.py exit=1 -->
+## Phase 0 – Core data creation (new)
+
+- [ ] **T000** [ ] **Generate deterministic synthetic original videos**  
+  - Run `src/data/synthetic_generator.py` to create `N=200` short videos (5 s, 64×64) in `data/videos/orig/`.  
+  - Record each video filename and a UUID in `data/videos/orig/manifest.csv`.  
+  - Verification: at least 150 videos exist and manifest rows equal file count.  
+  - **Files**: `src/data/synthetic_generator.py`, `data/videos/orig/`, `data/videos/orig/manifest.csv`.
+
+- [ ] **T001** [ ] **Create a reproducible entry‑point and quick‑start guide**  
+  - Add `quickstart.md` describing the single command `python -m src.pipeline.run_all --config configs/run.yaml`.  
+  - Provide `configs/run.yaml` with default paths, hyper‑parameters, and seed list.  
+  - Verify that the command prints a concise summary of generated artifacts and exits with status 0.  
+  - **Files**: `quickstart.md`, `configs/run.yaml`.
+
+- [ ] **T002** [ ] **Implement a robust streaming loader for Something‑Something V2**  
   - Write `src/data/something_loader.py` that streams the dataset via `datasets.load_dataset("something-something-v2", split="train", streaming=True)`.  
-  - If the HuggingFace dataset cannot be accessed, fall back to the bundled fallback videos located in `data/fallback/` and continue yielding video bytes and labels.  
-  - Add a deterministic seed (`--seed`) to make the sampling reproducible.  
-  - Unit test `tests/test_something_loader.py` must load **at least five** videos and assert that each frame can be decoded by OpenCV.  
-  - **File(s)**: `src/data/something_loader.py`, `tests/test_something_loader.py`.
+  - Raise any download exception (no synthetic fallback).  
+  - Add deterministic shuffling with `--seed` (default 42).  
+  - Pin the Faster‑RCNN detector weights version in `requirements.txt` (e.g., `torchvision==0.17.2`).  
+  - Unit test `tests/test_something_loader.py` must load at least five videos, decode each frame with OpenCV, and assert non‑zero dimensions.  
+  - **Files**: `src/data/something_loader.py`, `tests/test_something_loader.py`.
 
-- [ ] **T004** [P] **Pre‑compute optical‑flow for original videos (CPU‑only)**   <!-- FAILED-IN-EXECUTION: src/data/optical_flow_precompute.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/optical_flow_precompute.py exit=1 -->
-  - Implement `src/data/optical_flow_precompute.py` that iterates over `data/videos/orig/*.mp4`, computes Farneback flow on the CPU, and stores `.npy` tensors under `data/flow/orig/`.  
+- [ ] **T016** [ ] **Populate `data/patches/` with real object patches**  
+  - Download a small, license‑compatible image patch library (e.g., Open Images “Object” subset) and extract one patch per target class into `data/patches/`.  
+  - Record a `patches/manifest.csv` mapping `patch_source_id` to source URL and class label.  
+  - Verification: at least 20 distinct patches exist and manifest entries match file count.  
+  - **Files**: `data/patches/`, `data/patches/manifest.csv`.
+
+- [ ] **T003** [ ] **Generate counterfactual video pairs (video creation only)**  
+  1. Detect the primary object on the first frame using `torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)`.  
+  2. Sample a semantically distinct patch from `data/patches/` (populated by T016).  
+  3. Replace the region using OpenCV `seamlessClone`.  
+  4. Write the counterfactual video to `data/counterfactuals/videos/{orig_id}_cf.mp4`.  
+  5. Record interim information (original path, counterfactual path, object classes, bbox, patch ID, generation timestamp, and ResNet‑18 cosine similarity) to a **temporary CSV** `data/counterfactuals/temp_metadata.csv`.  
+  6. Log any skipped videos (detector failure, similarity breach) without raising an exception.  
+  - Unit test `tests/test_counterfactual_generation.py` runs on a 2‑video mini‑subset and asserts that at least one counterfactual video file and a corresponding temporary metadata row are produced.  
+  - **Files**: `src/data/counterfactual.py`, `data/counterfactuals/videos/`, `data/counterfactuals/temp_metadata.csv`, `tests/test_counterfactual_generation.py`.
+
+- [ ] **T004** [ ] **Pre‑compute optical‑flow for original videos (CPU‑only, Farnebäck)**  
+  - Implement `src/data/optical_flow_precompute.py` that iterates over `data/videos/orig/*.mp4`, computes Farneback flow on the CPU, and stores each tensor as `data/flow/orig/{video_id}.npy`.  
   - After processing, generate `data/checksums/manifest.csv` containing SHA‑256 hashes for every `.npy` file created.  
-  - **Verification**: assert that `manifest.csv` exists and that each entry’s hash matches the on‑disk file.  
-  - **File(s)**: `src/data/optical_flow_precompute.py`, `data/flow/orig/*.npy`, `data/checksums/manifest.csv`.
+  - Verification: `manifest.csv` exists, each hash matches the file, and row count equals number of `.npy` files.  
+  - **Files**: `src/data/optical_flow_precompute.py`, `data/flow/orig/*.npy`, `data/checksums/manifest.csv`.
 
-- [ ] **T003** [P] **Generate counterfactual video pairs (no on‑the‑fly flow)**  
-  1. Use a CPU‑friendly detector (`torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)`) on a representative frame to obtain the primary‑object bounding box.  
-  2. Randomly select a semantically distinct patch from `data/patches/`.  
-  3. Replace the region with OpenCV `seamlessClone`.  
-  4. Compute ResNet‑18 feature cosine similarity (≥ 0.9) to guard against visual artifacts.  
-  5. Write the counterfactual video to `data/counterfactuals/videos/`.  
-  6. Record an initial row in `data/counterfactuals/metadata.csv` (fields except `optical_flow_divergence` and `status` will be filled later).  
-  7. Log any skipped videos (detection failure, similarity breach) without raising an exception.  
-  - Unit test `tests/test_counterfactual_generation.py` runs on a 2‑video mini‑subset and asserts that **at least one** accepted pair is recorded in `metadata.csv`.  
-  - **File(s)**: `src/data/counterfactual.py`, `data/counterfactuals/metadata.csv`, `tests/test_counterfactual_generation.py`.
+- [ ] **T005** [ ] **Compute optical‑flow divergence for counterfactual videos, finalize metadata**  
+  1. Read `data/counterfactuals/temp_metadata.csv`.  
+  2. For each row, compute Farneback flow on the counterfactual video and store `data/flow/cf/{video_id}.npy`.  
+  3. Load the corresponding original flow and compute **normalized L2 divergence** for **three thresholds**: 0.10, 0.15, 0.20.  
+  4. For each threshold, add columns `optical_flow_divergence_{thr}` to a new `metadata.csv`.  
+  5. Set `status` to `"accepted"` **only if** divergence ≤ threshold **and** cosine similarity ≥ 0.9; otherwise set to `"rejected"` and delete the counterfactual video and its flow file.  
+  6. Append SHA‑256 hashes for newly created `.npy` files to `data/checksums/manifest.csv`.  
+  7. Produce a CSV `results/threshold_retention.csv` reporting the retention rate for each threshold.  
+  - Verification: every `"accepted"` row has a corresponding `.npy` file, divergence values respect the thresholds, and retention CSV is present.  
+  - **Files**: `src/data/optical_flow_counterfactual.py`, `data/flow/cf/*.npy`, `data/counterfactuals/metadata.csv`, `data/checksums/manifest.csv`, `results/threshold_retention.csv`.
 
-- [ ] **T014** [P] **Pre‑compute optical‑flow for accepted counterfactual videos and finalize metadata**  
-  - Run Farneback flow on every video listed as `status=="accepted"` in `data/counterfactuals/metadata.csv`, storing `.npy` tensors under `data/flow/cf/`.  
-  - For each pair, load the corresponding original flow from `data/flow/orig/` and compute the **normalized L2 divergence**; update the `optical_flow_divergence` field in `metadata.csv`.  
-  - Set `status` to `"accepted"` only if divergence ≤ 0.15 **and** the previously computed cosine similarity ≥ 0.9; otherwise set to `"rejected"` and remove the video file.  
-  - Append SHA‑256 hashes for the new `.npy` files to `data/checksums/manifest.csv`.  
-  - **Verification**: confirm that every accepted pair now has a divergence ≤ 0.15, that `manifest.csv` includes all new flow files, and that the number of accepted rows matches the number of files in `data/flow/cf/`.  
-  - **File(s)**: `src/data/optical_flow_counterfactual.py`, `data/flow/cf/*.npy`, updated `data/counterfactuals/metadata.csv`, updated `data/checksums/manifest.csv`.
-
-- [ ] **T005** [P] **Implement the Counterfactual Consistency loss**  
+- [ ] **T006** [ ] **Implement the Counterfactual Consistency loss**  
   - Add `src/model/loss.py` containing:  
     * `cross_entropy_loss` (standard `torch.nn.CrossEntropyLoss`).  
-    * `counterfactual_consistency_loss(pred_orig, pred_cf)` returning KL‑divergence (`torch.nn.functional.kl_div`).  
+    * `counterfactual_consistency_loss(pred_orig, pred_cf)` returning KL‑divergence via `torch.nn.functional.kl_div`.  
     * `total_loss = ce + lambda_ * cc`.  
   - Provide a sanity‑check script `src/model/check_loss.py` that feeds identical logits for original and counterfactual inputs and asserts `cc == 0`.  
-  - **File(s)**: `src/model/loss.py`, `src/model/check_loss.py`.
+  - **Files**: `src/model/loss.py`, `src/model/check_loss.py`.
 
-## Phase 2 – Complete the study and validate its evidence
+## Phase 1 – Setup and first end‑to‑end analysis (updated)
 
-- [ ] **T006** [P] **Train linear classifiers (baseline + λ‑sweep) across seeds**  
-  - `src/train/trainer.py` loads frozen FlowNet‑C features from `data/flow/orig/` **and** `data/flow/cf/` (produced by T004 and T014).  
-  - Builds a single linear layer (`torch.nn.Linear(1024, num_classes)`).  
-  - Accepts CLI arguments `--lambda`, `--seed`, `--epochs`.  
-  - For each batch computes `L_total` using the module from T005 on paired original‑counterfactual features.  
-  - Saves checkpoints to `data/checkpoints/<model_id>_seed<seed>.pt`.  
-  - Writes a summary CSV `results/training_log.csv` with columns `model_id,lambda,seed,final_val_acc`.  
-  - **Verification**: after run, assert that a checkpoint file exists for every combination of λ ∈ {0, 0.1, 0.5, 1.0} and seed ∈ {42, 43, 44, 45, 46}, and that `training_log.csv` contains a row for each.  
-  - **File(s)**: `src/train/trainer.py`, `results/training_log.csv`.
+- [ ] **T007** [ ] **Train linear classifiers (baseline + λ‑sweep) across 15 seeds**  
+  - `src/train/trainer.py` loads frozen FlowNet‑C features from `data/flow/orig/` **and** `data/flow/cf/` (only rows with `status=="accepted"`).  
+  - Build a single linear layer (`torch.nn.Linear(1024, num_classes)`).  
+  - Accept CLI arguments `--lambda`, `--seed`, `--epochs`.  
+  - For each batch compute `L_total` using `src/model/loss.py`.  
+  - Save checkpoints to `data/checkpoints/{model_id}_seed{seed}.pt`.  
+  - Write a summary CSV `results/training_log.csv` with columns `model_id,lambda,seed,final_val_acc`.  
+  - Verification: a checkpoint exists for every combination of `lambda ∈ {0, 0.1, 0.5, 1.0}` and `seed ∈ {0,…,14}`; `training_log.csv` contains a matching row for each.  
+  - **Files**: `src/train/trainer.py`, `data/checkpoints/`, `results/training_log.csv`.
 
-- [ ] **T008** [P] **Evaluate models on original, swapped, and motion‑only test sets**  
+- [ ] **T008** [ ] **Evaluate models on original, swapped, and motion‑only test sets**  
   - `src/eval/evaluator.py` loads each checkpoint from `data/checkpoints/`.  
-  - Computes predictions on three test partitions:  
+  - Compute predictions on three partitions:  
     * `data/test/original/` (original videos).  
     * `data/test/counterfactual/` (object‑swapped videos).  
-    * `data/test/motion_only/` (objects blurred with a Gaussian kernel, σ = 5).  
-  - Calculates `accuracy_original`, `accuracy_counterfactual`, `delta_accuracy`, and `accuracy_motion_only`.  
-  - Writes per‑seed rows to `results/per_seed.csv` adhering to `evaluation_results.schema.yaml`.  
-  - **Verification**: confirm that `results/per_seed.csv` exists, validates against the schema, and contains the required columns for every seed and λ.  
-  - **File(s)**: `src/eval/evaluator.py`, `results/per_seed.csv`.
+    * `data/test/motion_only/` (objects blurred with Gaussian σ = 5).  
+  - Calculate `accuracy_original`, `accuracy_counterfactual`, `delta_accuracy`, and `accuracy_motion_only`.  
+  - Write per‑seed rows to `results/per_seed.csv` adhering to `evaluation_results.schema.yaml`.  
+  - Verification: `results/per_seed.csv` exists, validates against the schema, and contains entries for every seed‑λ pair.  
+  - **Files**: `src/eval/evaluator.py`, `results/per_seed.csv`.
 
-- [ ] **T009** [P] **Statistical validation (paired t‑test & bootstrap CI)**  
+- [ ] **T009** [ ] **Statistical validation (paired t‑test & bootstrap CI)**  
   - `src/eval/statistics.py` loads `results/per_seed.csv`.  
-  - Performs a paired t‑test (`scipy.stats.ttest_rel`) comparing `delta_accuracy` of each λ‑model against the baseline across the five seeds.  
-  - Executes 10 000 bootstrap resamples of the seed‑level differences to obtain a 95 % confidence interval.  
-  - Writes an aggregated summary `results/summary.csv` containing `model_id, lambda, p_value, t_statistic, ci_lower, ci_upper`.  
-  - Unit test `tests/test_statistics.py` checks that the function returns a dict with the expected keys.  
-  - **File(s)**: `src/eval/statistics.py`, `results/summary.csv`, `tests/test_statistics.py`.
+  - Perform a paired t‑test (`scipy.stats.ttest_rel`) comparing `delta_accuracy` of each λ‑model against the baseline (λ = 0) across the 15 seeds.  
+  - Run 10 000 bootstrap resamples of the seed‑level differences to obtain a 95 % confidence interval.  
+  - Write an aggregated summary `results/summary.csv` with columns `model_id,lambda,p_value,t_statistic,ci_lower,ci_upper`.  
+  - Unit test `tests/test_statistics.py` checks that the function returns a dict containing all expected keys.  
+  - **Files**: `src/eval/statistics.py`, `results/summary.csv`, `tests/test_statistics.py`.
 
-- [ ] **T010** [P] **Generate figures & tables for the paper hand‑off**  
+- [ ] **T010** [ ] **Generate figures & tables for the paper hand‑off**  
   - `src/report/report.py` reads `results/per_seed.csv` and `results/summary.csv` and produces:  
-    * Line plot **ΔAcc vs λ** → `figures/delta_acc_vs_lambda.png`.  
+    * Line plot **ΔAcc vs λ** → `figures/delta_acc_vs_lambda.png`.  
     * Histogram of bootstrap ΔAcc differences with 95 % CI overlay → `figures/bootstrap_hist.png`.  
-    * Table `tables/evaluation_summary.csv` summarising all metrics.  
-  - Verify that each PNG file exists and opens without error.  
-  - **File(s)**: `src/report/report.py`, `figures/delta_acc_vs_lambda.png`, `figures/bootstrap_hist.png`, `tables/evaluation_summary.csv`.
+    * Table `tables/evaluation_summary.csv` summarising all metrics (accuracy, ΔAcc, motion‑only accuracy, p‑values, effect sizes).  
+  - Verification: each PNG file opens without error (e.g., via Pillow) and the CSV file contains the expected columns.  
+  - **Files**: `src/report/report.py`, `figures/delta_acc_vs_lambda.png`, `figures/bootstrap_hist.png`, `tables/evaluation_summary.csv`.
 
-- [ ] **T011** [P] **Manual quality inspection of 50 counterfactual pairs**  
-  - `src/analysis/manual_inspection.py` randomly selects 50 accepted rows from `data/counterfactuals/metadata.csv`.  
-  - Computes SSIM on background regions (`skimage.metrics.structural_similarity`) and runs a pretrained ResNet‑18 classifier on the swapped patch to obtain class confidence.  
-  - Writes `results/manual_inspection.csv` with columns `video_id, ssim_bg, patch_confidence, pass`.  
-  - Script exits with non‑zero status if fewer than 45 rows meet **SSIM > 0.95** **and** **confidence > 0.9**.  
-  - **File(s)**: `src/analysis/manual_inspection.py`, `results/manual_inspection.csv`.
+- [ ] **T011** [ ] **Manual quality inspection of 50 accepted counterfactual pairs**  
+  - `src/analysis/manual_inspection.py` randomly selects 50 rows with `status=="accepted"` from `metadata.csv`.  
+  - For each pair compute SSIM on background regions (`skimage.metrics.structural_similarity`) and obtain ResNet‑18 class confidence for the swapped patch.  
+  - Write `results/manual_inspection.csv` with columns `video_id,ssim_bg,patch_confidence,pass`.  
+  - The script exits with a non‑zero status if fewer than 45 rows satisfy **SSIM > 0.95** **and** **patch_confidence > 0.9**.  
+  - Verification: the CSV exists and the `pass` column is `True` for at least 45 rows.  
+  - **Files**: `src/analysis/manual_inspection.py`, `results/manual_inspection.csv`.
 
-- [ ] **T012** [P] **Resource‑usage profiling to certify CPU‑only feasibility**  
+- [ ] **T012** [ ] **Resource‑usage profiling to certify CPU‑only feasibility**  
   - `src/utils/profile.py` wraps the full training‑and‑evaluation pipeline, recording:  
     * Peak RAM (`psutil.virtual_memory().used`).  
     * Wall‑clock time (`time.perf_counter`).  
     * Number of logical CPUs used (`psutil.cpu_count(logical=True)`).  
-  - After the run, asserts `peak_ram_mb <= 7000`, `wall_time_h <= 6`, `cpu_count_used <= 2`, **and** scans `sys.modules` to ensure no module name contains “cuda” or “torch.cuda”.  
-  - Writes JSON report `results/resource_profile.json` with the measured values and a pass/fail flag.  
-  - **File(s)**: `src/utils/profile.py`, `results/resource_profile.json`.
+    * Ensure no CUDA modules are imported (`"cuda"` not in any loaded module name).  
+  - After execution, assert `peak_ram_mb <= 7000`, `wall_time_h <= 6`, `cpu_count_used <= 2`.  
+  - Write JSON report `results/resource_profile.json` with measured values and a `pass` flag.  
+  - Verification: the JSON file exists and `pass == true`.  
+  - **Files**: `src/utils/profile.py`, `results/resource_profile.json`.
 
-- [ ] **T013** [P] **End‑to‑end reproducibility driver**  
+- [ ] **T013** [ ] **End‑to‑end reproducibility driver**  
   - Implement `src/pipeline/run_all.py` that sequentially executes:  
     1. `something_loader.py` (T002) to obtain a reproducible sample.  
     2. `optical_flow_precompute.py` (T004) for original videos.  
-    3. `counterfactual.py` (T003) to create accepted pairs and initial metadata.  
-    4. `optical_flow_counterfactual.py` (T014) for counterfactual flow, divergence, and final metadata.  
-    5. `trainer.py` (T006) for baseline and λ‑sweep models.  
+    3. `counterfactual.py` (T003) to create counterfactual videos and temporary metadata.  
+    4. `optical_flow_counterfactual.py` (T005) for counterfactual flow, divergence sweep, and final metadata.  
+    5. `trainer.py` (T007) for baseline and λ‑sweep models.  
     6. `evaluator.py` (T008).  
     7. `statistics.py` (T009).  
     8. `report.py` (T010).  
     9. `manual_inspection.py` (T011).  
     10. `profile.py` (T012).  
-   - After all steps, the script checks that the verification flags in `results/resource_profile.json`, `results/manual_inspection.csv` (pass column), and the schema‑validation steps (implicitly run inside the pipeline) all indicate success; otherwise it exits with a non‑zero code.  
-   - Document the command line in `quickstart.md`.  
-  - **File(s)**: `src/pipeline/run_all.py`.
+  - After all steps, the script checks that verification flags in `results/resource_profile.json`, `results/manual_inspection.csv` (`pass` column), and schema validation of `results/per_seed.csv` / `results/summary.csv` are all successful; otherwise it exits with a non‑zero code.  
+  - Document the command line in `quickstart.md` (already present).  
+  - **Files**: `src/pipeline/run_all.py`.
 
-## Dependency mapping (summary)
+## Phase 2 – Additional validation and reporting
 
-| Specification requirement | Satisfying task(s) |
-|---------------------------|--------------------|
-| FR‑001 (counterfactual generation + optical‑flow check) | T002, T003, T004, T014 |
-| FR‑002 (CC loss definition) | T005 |
-| FR‑003 (linear classifier + λ‑sweep) | T006 |
-| FR‑004 (robustness evaluation) | T008 |
-| FR‑005 (paired t‑test) | T009 |
-| FR‑006 (CPU‑only feasibility) | T004, T003 (no flow), T014, T012 |
-| SC‑001 (ΔAcc reduction) | T008, T009 |
-| SC‑002 (statistical significance) | T009 |
-| SC‑003 (resource constraints) | T012 |
-| SC‑004 (λ‑sweep) | T006 |
-| SC‑05 (manual inspection) | T011 |
-| Constitution III & V (checksums, versioning) | T004, T014, T013 |
-| Contract validation | implicit in T013 (schema checks) |
-| End‑to‑end reproducibility | T013 |
+- [ ] **T017** [ ] **Validate `counterfactual_pair.schema.yaml` against `metadata.csv`**  
+  - Use `jsonschema` to validate each row of `data/counterfactuals/metadata.csv` against `specs/001-llmxive-counterfactual-consistency/contracts/counterfactual_pair.schema.yaml`.  
+  - Write any validation errors to `results/metadata_schema_errors.log`.  
+  - Verification: the log is empty (no errors).  
+  - **Files**: `src/validation/validate_counterfactual_schema.py`, `results/metadata_schema_errors.log`.
 
-All tasks are unchecked except the already‑verified ones (T001, T004, T005). Running `python -m src.pipeline.run_all` will execute the complete study from data loading to final figures, satisfying the specification.  
+- [ ] **T018** [ ] **Validate `evaluation_results.schema.yaml` against result CSVs**  
+  - Validate `results/per_seed.csv` and `results/summary.csv` against `specs/001-llmxive-counterfactual-consistency/contracts/evaluation_results.schema.yaml`.  
+  - Write errors to `results/evaluation_schema_errors.log`.  
+  - Verification: the log is empty.  
+  - **Files**: `src/validation/validate_evaluation_schema.py`, `results/evaluation_schema_errors.log`.
+
+- [ ] **T019** [ ] **Divergence‑threshold sweep analysis & reporting** (see Phase 0 T005 for core computation)  
+  - Aggregate `results/threshold_retention.csv` to produce a summary figure `figures/threshold_retention.png` showing retention rate vs. threshold and the corresponding ΔAcc curves for each λ.  
+  - Update `tables/evaluation_summary.csv` with a new section reporting how ΔAcc varies across thresholds.  
+  - **Files**: `src/report/threshold_report.py`, `figures/threshold_retention.png`, updated `tables/evaluation_summary.csv`.
+
+- [ ] **T020** [ ] **Linear probe on motion‑only representations**  
+  - Extract frozen FlowNet‑C features for the motion‑only test set.  
+  - Train a linear classifier (no λ) to predict action labels from these features.  
+  - Record probe accuracy in `results/linear_probe.csv` and compare against baseline probe accuracy.  
+  - **Files**: `src/eval/linear_probe.py`, `results/linear_probe.csv`.
+
+- [ ] **T021** [ ] **Motion‑feature ablation study**  
+  - Zero‑out FlowNet‑C motion features (or randomly shuffle them) for the original test set, evaluate the best λ‑model, and compute the resulting accuracy drop.  
+  - Perform a paired t‑test versus the unablated model across the 15 seeds; store p‑value and effect size in `results/ablation_stats.csv`.  
+  - **Files**: `src/eval/motion_ablation.py`, `results/ablation_stats.csv`.
+
+- [ ] **T022** [ ] **Power‑analysis computation and documentation**  
+  - Use `statsmodels.stats.power.TTestPower` to compute required seed count for the observed effect size; store the calculation and achieved power in `results/power_analysis.txt`.  
+  - Reference this file in `paper/methods_results.md`.  
+  - **Files**: `src/utils/power_analysis.py`, `results/power_analysis.txt`.
+
+- [ ] **T014** [ ] **Write a concise methods & results summary linked to generated artifacts**  
+  - Produce `paper/methods_results.md` that:  
+    * Describes the data‑generation pipeline, loss formulation, training regime, and evaluation protocol.  
+    * References the exact artifact paths for each table/figure (e.g., `figures/delta_acc_vs_lambda.png`, `tables/evaluation_summary.csv`).  
+    * Reports any limitations discovered during manual inspection or resource profiling.  
+  - Verify that every referenced file exists in the repository.  
+  - **Files**: `paper/methods_results.md`.
+
+- [ ] **T015** [ ] **Re‑run the documented workflow from scratch to confirm full reproducibility**  
+  - Delete all generated directories under `data/`, `results/`, `figures/`, `tables/`, and `data/checkpoints/`.  
+  - Execute the command from `quickstart.md` (`python -m src.pipeline.run_all --config configs/run.yaml`).  
+  - Confirm that the run completes without errors, all verification flags are true, and the final artifacts match those recorded in `paper/methods_results.md`.  
+  - **Files**: (no new files; this task is a verification step).
+
+---
+
+### Dependency & Parallel‑Safety Notes
+
+- All `[P]` tags have been removed because several tasks write to shared files (`manifest.csv`, `metadata.csv`, `results/*.csv`). Tasks are intended to run sequentially via `run_all.py`.
+- The pipeline respects the free‑tier CPU limits (2 cores, ≤ 7 GB RAM, ≤ 6 h wall‑clock) as verified by T012.
+- All external models (Faster‑RCNN, ResNet‑18, FlowNet‑C) are downloaded once and version‑pinned in `requirements.txt` to guarantee reproducibility (Constitution I).
