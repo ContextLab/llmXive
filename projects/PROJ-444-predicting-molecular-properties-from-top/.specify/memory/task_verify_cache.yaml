@@ -6,16 +6,6 @@ T001:
     \ `smiles` (string), and `logP` (number) properties with a valid JSON\u2011Schema\
     \ structure."
   sig: b5c06606ce9acc950c963fb793d4c6b17d56c42294ecd85c192f4548c9c8f278
-T001a:
-  c: false
-  h: 79b7515c629a75ffc67433a03b401b5fe9381462c1c0e4133d8f405b558848fd
-  r: "The CSV file `data/raw/lipophilicity.csv` exists and its SHA\u2011256 hash matches\
-    \ the value recorded, and the download script ran successfully. However, `data/checksums.txt`\
-    \ does not follow the required format \u2013 it contains a line `a7c1b1800dd4673dd264410d814bc952ae14d94b114f85047f09fb2a1603232c\
-    \  data/raw/lipophilicity.csv` instead of the specified `lipophilicity.csv <checksum>`\
-    \ (filename first, no path). The checksum manifest must be corrected to meet the\
-    \ task specification."
-  sig: cf576676d3ba55131d95b694d486f9f47f3722ed9a617bc80c29f673ce520835
 T001b:
   c: false
   h: 96a641cf26ef2c851e5c75ff445f54559d39dd8d3d9f4c20d1c6f9916397d313

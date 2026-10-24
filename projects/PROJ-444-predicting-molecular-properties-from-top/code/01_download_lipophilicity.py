@@ -1,98 +1,75 @@
-"""
-Download the MoleculeNet Lipophilicity dataset (raw SMILES + logP) and
-register its SHA-256 checksum.
-
-This script implements task T001a. It uses the verified scikit-fingerprints
-loader to obtain the canonical Lipophilicity dataset, saves it to
-data/raw/lipophilicity.csv, and updates the checksum manifest.
-"""
-
 import hashlib
 import logging
 import sys
+import requests
 from pathlib import Path
-from typing import Dict
 
-import pandas as pd
-from skfp.datasets.moleculenet import load_lipophilicity
-from llmxive_toolkit import paths, get_logger
-
-# Setup logger
-log = get_logger(__name__)
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        stream=sys.stdout
+    )
+    return logging.getLogger("download_lipophilicity")
 
 def compute_sha256(file_path: Path) -> str:
-    """Return the hex SHA-256 hash of *file_path*."""
-    sha256 = hashlib.sha256()
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
     with file_path.open("rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            sha256.update(chunk)
-    return sha256.hexdigest()
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def read_checksums(path: Path) -> Dict[str, str]:
-    """
-    Parse a checksums.txt file into a {relative_path: hash} dict.
-    Supports the canonical <hash>  <path> format.
-    """
-    checksums = {}
-    if not path.is_file():
-        return checksums
-    with path.open("r") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if "  " in line:
-                h, p = line.split("  ", 1)
-                checksums[p.strip()] = h.strip()
-            elif ":" in line:
-                p, h = line.split(":", 1)
-                checksums[p.strip()] = h.strip()
-    return checksums
-
-def write_checksums(path: Path, checksums: Dict[str, str]) -> None:
-    """Write checksums to path using the canonical two-space format."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w") as f:
-        for rel_path, h in sorted(checksums.items()):
-            f.write(f"{h}  {rel_path}\n")
-
-def main() -> None:
-    # 1. Define paths
-    raw_csv_path = paths.data("raw", "lipophilicity.csv")
-    checksum_path = paths.path("data", "checksums.txt")
-
-    log.info("Downloading Lipophilicity dataset using scikit-fingerprints...")
+def main():
+    logger = setup_logging()
     
+    url = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/lipophilicity.csv"
+    raw_dir = Path("data/raw")
+    raw_path = raw_dir / "lipophilicity.csv"
+    checksums_path = Path("data/checksums.txt")
+
+    # 1. Ensure directory exists
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    # 2. Download the dataset
+    logger.info(f"Downloading Lipophilicity dataset from {url}...")
     try:
-        # Use the VERIFIED REAL DATA SOURCE recipe
-        X, y = load_lipophilicity()
+        response = requests.get(url, timeout=60)
+        response.raise_for_status()
         
-        # Create DataFrame
-        # The schema (T001) requires 'logP', while skfp returns target as 'exp'
-        df = pd.DataFrame({"smiles": X, "logP": y})
-        
-        log.info(f"Successfully loaded {len(df)} records.")
-        
-        # Save to CSV
-        raw_csv_path.parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(raw_csv_path, index=False)
-        log.info(f"Wrote raw dataset to {raw_csv_path}")
-        
+        with raw_path.open("wb") as f:
+            f.write(response.content)
+        logger.info(f"Successfully saved dataset to {raw_path}")
     except Exception as e:
-        log.error(f"Failed to obtain dataset: {e}")
+        logger.error(f"Failed to download dataset: {e}")
         sys.exit(1)
 
-    # 2. Compute and record checksum
-    checksum = compute_sha256(raw_csv_path)
-    rel_path = raw_csv_path.as_posix()
-    log.info(f"Computed SHA-256 checksum: {checksum}")
+    # 3. Compute checksum
+    checksum = compute_sha256(raw_path)
+    logger.info(f"Computed SHA-256: {checksum}")
 
-    checksums = read_checksums(checksum_path)
-    checksums[rel_path] = checksum
-    write_checksums(checksum_path, checksums)
-    log.info(f"Updated checksum manifest at {checksum_path}")
+    # 4. Write to checksums.txt in the EXACT format required by T001a:
+    # "lipophilicity.csv <checksum>"
+    # We use a temporary set to avoid duplicate entries if the script is rerun,
+    # but we ensure the format is exactly as requested.
+    existing_lines = []
+    if checksums_path.exists():
+        with checksums_path.open("r") as f:
+            existing_lines = f.readlines()
 
-    log.info("Task T001a completed successfully.")
+    # Remove any existing lines for lipophilicity.csv to avoid duplicates
+    filtered_lines = [
+        line for line in existing_lines 
+        if not line.strip().startswith("lipophilicity.csv")
+    ]
+    
+    # Append the new correct format line
+    filtered_lines.append(f"lipophilicity.csv {checksum}\n")
+
+    with checksums_path.open("w") as f:
+        f.writelines(filtered_lines)
+    
+    logger.info(f"Updated {checksums_path} with format: lipophilicity.csv {checksum}")
 
 if __name__ == "__main__":
     main()

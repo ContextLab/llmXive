@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-24T00:15:48Z",
+  "updated_at": "2026-10-24T17:09:18Z",
   "project_id": "PROJ-444-predicting-molecular-properties-from-top",
-  "replan_rounds": 2
+  "replan_rounds": 3
 }

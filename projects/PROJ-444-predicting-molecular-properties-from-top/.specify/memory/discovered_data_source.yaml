@@ -1,8 +1,20 @@
-status: none
-intent: download MoleculeNet Lipophilicity dataset SMILES logP python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import sys\nfrom datasets import load_dataset\n\nds = load_dataset(\"\
+  scikit-fingerprints/MoleculeNet_Lipophilicity\")\n# total records across all splits\n\
+  total = sum(len(split) for split in ds.values())\nprint(f\"RECORDS={total}\")\n\n\
+  # collect column names present in any split\ncols = set()\nfor split in ds.values():\n\
+  \    cols.update(split.column_names)\n\n# map possible column names to the required\
+  \ canonical names\nfield_map = {\"smiles\":\"smiles\",\"SMILES\":\"smiles\",\"logP\"\
+  :\"logP\",\"logp\":\"logP\",\"exp\":\"logP\"}\nfields = sorted({field_map[c] for\
+  \ c in cols if c in field_map})\nprint(\"FIELDS=\" + \",\".join(fields))"
+record_count: 4200
+sample_fields:
+- smiles
+field_coverage: 0.5
 required_fields:
-- SMILES
+- smiles
 - logP
-cache_key: f5b43d48b1df94500eb35c67001eb7c5caf9cb6be14fe19dae60e72c1c43701f
-searched_at: '2026-10-24T11:09:34.023561+00:00'
-retry_count: 1
+intent: MoleculeNet Lipophilicity dataset download DeepChem python package dataset
+cache_key: b9c3cef1996a8a5f28509ee6330923f62269ec22b2711e8b28f923a562d3b945
