@@ -1,10 +1,16 @@
 T001:
   c: false
-  h: d1e1d0489b8d84e59a1fcec5552e42b5d0efb2a86b462011e2bc6dbf2fbe249e
-  r: The provided `env_check.py` does not import the full required stack (missing
-    `psutil`, `openml`, `ucimlrepo` and treats `torch` as optional), and `config.py`
-    lacks the explicit constants `K_STEEL`, `K_ALUMINUM`, `PSI_TO_MPA` and any path
-    definitions. Consequently the test suite cannot correctly import `src.env_check`
-    nor verify the required configuration. The task needs the missing imports added
-    and the configuration file updated with the specified constants.
-  sig: e94fdec227a0bc35c94ddebe922dc34d8826bffa23cf68f7891b5b0713f51edb
+  h: 026f91a3e9e6a86bad7a6d022482f4cec554810a9bf28a6a1db3b4b5dfa222a0
+  r: "The repository lacks a `src/env_check.py` module required by `test_env_check.py`\
+    \ (the test runs `python -m src.env_check`), and there is no evidence of the expected\
+    \ `data/raw/checksums.json` file that the test also checks. Consequently the pytest\
+    \ suite cannot pass, so the task\u2019s requirements are not fully satisfied."
+  sig: ed4823e83a5c970bac0dc585c40af428225b79aa45231dec0fdcc00ff1da6631
+T001-1:
+  c: false
+  h: e0ef103764651c8ca7ee394859a3faf1a7b58e61d2ce054e79176f6efa268171
+  r: The `requirements.txt` is properly pinned and `data/raw/checksums.json` is an
+    empty JSON object, but `quickstart.md` documents the command `python -m src.run_e2e`
+    instead of the required `python -m code.src.run_e2e`. This deviation means the
+    documentation does not meet the task specification.
+  sig: ee1fc05f3c661b3e85ff4217f6aec4783952d361d501e5386f1210edbbcea26e

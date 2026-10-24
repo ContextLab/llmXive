@@ -1,12 +1,14 @@
 T001:
-  reason: The provided `env_check.py` does not import the full required stack (missing
-    `psutil`, `openml`, `ucimlrepo` and treats `torch` as optional), and `config.py`
-    lacks the explicit constants `K_STEEL`, `K_ALUMINUM`, `PSI_TO_MPA` and any path
-    definitions. Consequently the test suite cannot correctly import `src.env_check`
-    nor verify the required configuration. The task needs the missing imports added
-    and the configuration file updated with the specified constants.
+  reason: "The repository lacks a `src/env_check.py` module required by `test_env_check.py`\
+    \ (the test runs `python -m src.env_check`), and there is no evidence of the expected\
+    \ `data/raw/checksums.json` file that the test also checks. Consequently the pytest\
+    \ suite cannot pass, so the task\u2019s requirements are not fully satisfied."
   task: 75a0997476de49fa9387130e186621ec6a6f9d977dbafcd7a699d07a0617a4c0
 T001-1:
+  reason: The `requirements.txt` is properly pinned and `data/raw/checksums.json`
+    is an empty JSON object, but `quickstart.md` documents the command `python -m
+    src.run_e2e` instead of the required `python -m code.src.run_e2e`. This deviation
+    means the documentation does not meet the task specification.
   task: 573607ac5758e24529dbec5797c38352b5e2a362f932876d6c7c65fe372f6f0e
 T002:
   task: 4e9cbab298474745c77113a6704b35b28094fad48bb71fed06f82fb742221136
@@ -33,6 +35,8 @@ T011:
 T012:
   task: 6da2cc500ff6fc10619ce2d423b628ac5a29c390db1dd291aa4dccf26178bc07
 T014:
+  reason: 'Requested task execution failed; rerun successfully: code/src/acquire_external.py
+    exit=1'
   task: 664edf4b1dd80070d84ab344274472a7b70c04aa935cefcffc8fe6bbc50235b0
 T015:
   task: 379bf376feb7dd703dd72385050e5e15317b52abb9f4a6645e8e2c4026bd7b70

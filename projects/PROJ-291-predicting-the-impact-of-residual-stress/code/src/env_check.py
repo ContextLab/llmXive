@@ -1,116 +1,98 @@
 """
-code/src/env_check.py
----------------------
-Environment‑check script that verifies the scientific Python stack can be
-imported and that the two bundled raw data files are present.  It writes
-SHA‑256 checksums for those files to ``data/raw/checksums.json`` and exits
-with status 0 on success.
+env_check.py
+-------------
+Verifies that the execution environment contains all required scientific
+packages and that the raw data checksums are correct.
+The script exits with status 0 only if every import succeeds and all
+checksum validations pass.
 """
-import hashlib
+import importlib
 import json
 import sys
+import hashlib
 from pathlib import Path
 
-# ----------------------------------------------------------------------
-# 1. Verify mandatory scientific stack imports.
-# ----------------------------------------------------------------------
-try:
-    import pandas   # noqa: F401
-    import numpy    # noqa: F401
-    import sklearn  # noqa: F401
-    # torch is optional – the test environment may not have it installed.
-    # Importing it conditionally avoids spurious failures while still
-    # supporting environments where it is available.
-    try:
-        import torch  # noqa: F401
-    except Exception:  # pragma: no cover
-        pass
-    import statsmodels  # noqa: F401
-    import yaml     # noqa: F401
-    import pytest   # noqa: F401
-    import jsonschema  # noqa: F401
-except Exception as exc:  # pragma: no cover
-    print(f"IMPORT FAILURE (mandatory): {exc}", file=sys.stderr)
-    sys.exit(1)
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# 2. Paths for the bundled raw inputs.
+# List of required packages (must be importable)
 # ----------------------------------------------------------------------
-RAW_DIR = Path("data/raw")
-FILES = {
-    "pipeline_verification.csv": RAW_DIR / "pipeline_verification.csv",
-    "synthetic_fatigue.csv": RAW_DIR / "synthetic_fatigue.csv",
-}
+REQUIRED_PACKAGES = [
+    "pandas",
+    "numpy",
+    "sklearn",          # scikit-learn
+    "torch",
+    "statsmodels",
+    "yaml",             # PyYAML
+    "pytest",
+    "jsonschema",
+    "psutil",
+    "openml",
+    "ucimlrepo",
+]
+
+def _import_all() -> None:
+    """Attempt to import every required package; raise on failure."""
+    for pkg in REQUIRED_PACKAGES:
+        try:
+            importlib.import_module(pkg)
+            log.debug("Successfully imported %s", pkg)
+        except ImportError as exc:
+            log.error("Missing required package %s: %s", pkg, exc)
+            raise
 
 # ----------------------------------------------------------------------
-# 3. Helper to compute a file's SHA‑256 checksum.
+# Checksum utilities
 # ----------------------------------------------------------------------
 def _file_checksum(path: Path) -> str:
-    """Return the SHA‑256 checksum of the file at *path*."""
+    """Return SHA‑256 checksum of the file at *path*."""
     h = hashlib.sha256()
     with path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
     return h.hexdigest()
 
-# ----------------------------------------------------------------------
-# 4. Deterministic placeholder generator (used only when the file is
-#    missing).  The schema matches the one defined in
-#    ``contracts/dataset_schema.yaml``.
-# ----------------------------------------------------------------------
-def _ensure_raw_file(path: Path) -> None:
-    """Create a minimal deterministic CSV if *path* does not exist."""
-    if path.is_file():
-        return
+def _load_expected_checksums() -> dict:
+    """Load the JSON mapping of expected checksums (may be empty)."""
+    checksums_path = paths.raw("checksums.json")
+    if not checksums_path.is_file():
+        log.warning("Checksums file %s not found – treating as empty.", checksums_path)
+        return {}
+    with checksums_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
 
-    import pandas as pd
-    import numpy as np
-
-    rng = np.random.default_rng(42)
-    n_rows = 20
-
-    material_classes = np.where(np.arange(n_rows) % 2 == 0, "steel", "aluminum")
-
-    df = pd.DataFrame(
-        {
-            "sample_id": [f"id_{i}" for i in range(n_rows)],
-            "material_class": material_classes,
-            "heat_input": rng.uniform(5.0, 15.0, size=n_rows),          # MJ
-            "cooling_rate": rng.uniform(0.5, 2.0, size=n_rows),        # K/s
-            "other_process_params": ["{}"] * n_rows,
-            "elastic_modulus": rng.uniform(180.0, 210.0, size=n_rows), # GPa
-            "yield_strength": rng.uniform(200.0, 300.0, size=n_rows), # MPa
-            "fatigue_life_cycles": rng.integers(5_000, 20_000, size=n_rows),
-            "source": "synthetic",
-        }
-    )
-
-    measured = np.where(
-        np.arange(n_rows) % 2 == 0,
-        rng.uniform(250.0, 350.0, size=n_rows),
-        np.nan,
-    )
-    df["residual_stress_measured"] = measured
-
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False)
-
-# Ensure both files exist (creating deterministic placeholders if needed).
-for p in FILES.values():
-    _ensure_raw_file(p)
+def _validate_checksums() -> None:
+    """Validate that each raw file matches its recorded checksum (if any)."""
+    expected = _load_expected_checksums()
+    raw_dir = paths.raw()
+    for file_path in raw_dir.iterdir():
+        if file_path.is_file() and not file_path.name.startswith("."):
+            actual = _file_checksum(file_path)
+            expected_checksum = expected.get(file_path.name)
+            if expected_checksum is None:
+                log.info("No stored checksum for %s – skipping verification.", file_path.name)
+                continue
+            if actual != expected_checksum:
+                raise ValueError(
+                    f"Checksum mismatch for {file_path.name}: expected {expected_checksum}, got {actual}"
+                )
+            else:
+                log.debug("Checksum verified for %s", file_path.name)
 
 # ----------------------------------------------------------------------
-# 5. Compute checksums and write them to ``data/raw/checksums.json``.
+# Main entry point
 # ----------------------------------------------------------------------
-checksums = {name: _file_checksum(p) for name, p in FILES.items()}
+def main(argv=None) -> None:
+    try:
+        _import_all()
+        _validate_checksums()
+    except Exception as exc:
+        log.error("Environment validation failed: %s", exc)
+        sys.exit(1)
+    log.info("All required packages are importable and raw file checksums match.")
+    sys.exit(0)
 
-checksums_path = RAW_DIR / "checksums.json"
-checksums_path.parent.mkdir(parents=True, exist_ok=True)
-with checksums_path.open("w", encoding="utf-8") as f:
-    json.dump(checksums, f, indent=2, sort_keys=True)
-
-# ----------------------------------------------------------------------
-# 6. Success message and exit.
-# ----------------------------------------------------------------------
-print("Environment check passed. Checksums written to:", checksums_path)
-sys.exit(0)
+if __name__ == "__main__":
+    main()

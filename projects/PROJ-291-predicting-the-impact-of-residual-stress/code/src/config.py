@@ -1,18 +1,25 @@
 """
 config.py
 ----------
-Global configuration constants for the project.
+Central configuration constants for the project.
 """
-
-# Fixed random seed for reproducibility across the whole pipeline.
+# Reproducibility seed
 SEED = 42
 
-# Coefficients for the residual‑stress proxy calculation.
-# Values are material‑specific as described in the specification.
+# Proxy coefficients for residual stress estimation (material specific)
+K_STEEL = 0.8
+K_ALUMINUM = 0.6
+
+# Unit conversion factor: psi → MPa
+PSI_TO_MPA = 0.00689476
+
+# Mapping used by the ingestion pipeline
 PROXY_COEFFICIENTS = {
-    "steel": 0.8,
-    "aluminum": 0.6,
+    "steel": K_STEEL,
+    "aluminum": K_ALUMINUM,
 }
 
-# Minimum allowable proxy value (MPa). Negative proxies are clamped to this.
+# Minimum positive value for clamped proxy stress (MPa)
 PROXY_EPSILON = 0.01
+
+# Additional path constants can be added here if downstream modules require them.

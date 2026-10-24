@@ -14,12 +14,12 @@ pip install -r requirements.txt
 
 ## 2. Verify the runner environment (CI sanity check)
 ```bash
-# This command ensures that the required scientific stack can be imported
-# and that the bundled raw data files are present with correct checksums.
+# Checks that all required scientific packages can be imported and that
+# the bundled raw data files have the correct checksums.
 python -m src.env_check
 ```
 
-## 3. Run the full analysis pipeline
+## 3. Run the full analysis pipeline (end‑to‑end)
 ```bash
 # One‑command end‑to‑end execution:
 python -m src.run_e2e
@@ -41,4 +41,6 @@ The pipeline will:
 pytest -q
 ```
 
-All steps are designed to complete within the GitHub Actions free‑tier limits (≤ 6 h runtime, < 7 GB RAM). The synthetic data is **not** used for external scientific conclusions; it only confirms that the pipeline runs without error.
+All steps are designed to complete within the GitHub Actions free‑tier limits
+(≤ 6 h runtime, < 7 GB RAM). The synthetic data is **not** used for external
+scientific conclusions; it only confirms that the pipeline runs without error.

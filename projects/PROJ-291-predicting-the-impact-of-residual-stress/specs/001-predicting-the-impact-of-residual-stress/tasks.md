@@ -24,7 +24,7 @@ The checklist implements **FR‑001 – FR‑014** and **SC‑001 – SC
   4. Initialize `data/raw/checksums.json` as an empty JSON object to be populated by acquisition tasks.  
   *Verification*: Verify `requirements.txt` is non-empty and `quickstart.md` contains the e2e command.
 
-- [ ] T014 **Acquire external datasets from OpenML and UCI (fail‑loud, no synthetic fallback)**  
+- [ ] T014 **Acquire external datasets from OpenML and UCI (fail‑loud, no synthetic fallback)**   <!-- FAILED-IN-EXECUTION: code/src/acquire_external.py exit=1 -->
   *Files*: `code/src/acquire_external.py`, `data/external/acquisition_log.json`, `code/tests/test_acquire.py`  
   *Actions*  
   1. Use the `openml` Python client to list and download datasets with tags `fatigue`, `residual stress`, `steel`, `aluminum`. Use `ucimlrepo` similarly.  
