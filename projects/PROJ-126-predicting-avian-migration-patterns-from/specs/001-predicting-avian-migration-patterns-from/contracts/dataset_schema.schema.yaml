@@ -44,7 +44,7 @@ properties:
     type:
       - "integer"
       - "null"
-    description: "Week where cumulative count reached the threshold (3, 5, or 10). Null if not reached."
+    description: "Week where cumulative count reached the threshold (low, medium, or high). Null if not reached."
   mean_temp_lag1:
     type:
       - "number"

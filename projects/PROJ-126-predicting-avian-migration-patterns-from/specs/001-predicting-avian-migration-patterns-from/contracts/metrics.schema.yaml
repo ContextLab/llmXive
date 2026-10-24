@@ -66,4 +66,14 @@ properties:
     required:
       - "elapsed_time_hours"
       - "peak_ram_gb"
+  spatial_bootstrap_p:
+    type:
+      - "number"
+      - "null"
+    description: "Bonferroni‑adjusted p‑value from the spatial block bootstrap comparison."
+  residual_first_arrival:
+    type:
+      - "number"
+      - "null"
+    description: "Residual of the first‑arrival week after accounting for spatial random effects (GP correction)."
 additionalProperties: false

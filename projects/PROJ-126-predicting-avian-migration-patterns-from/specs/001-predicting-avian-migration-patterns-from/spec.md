@@ -111,5 +111,5 @@ The system must perform statistical testing (Diebold‑Mariano test) to compare 
 - The sample size of available checklists provides sufficient statistical power for the Diebold‑Mariano test and SHAP analysis; if power is low, this will be explicitly acknowledged as a limitation rather than a failure.
 - The 2023 eBird data are ingested but reserved for future extensions; they are not used in the current training/validation/testing splits.
 - The pipeline includes an executable `run_pipeline.sh` script at the repository root; invoking it without arguments runs the entire workflow.
-- The effort covariate (total complete checklists per cell) adequately captures observer‑effort variation for bias mitigation, as demonstrated in prior large‑scale citizen‑science studies (e.g., Kelling et al., 2019). This justification satisfies the scientific‑soundness requirement.
+- The effort covariate (total complete checklists per cell) adequately captures observer‑effort variation for bias mitigation, as demonstrated in prior large‑scale citizen‑science studies (e.g., Kelling et al.). This justification satisfies the scientific‑soundness requirement.
 - Spatial random‑effects modeling (FR‑010) is sufficient to account for residual spatial autocorrelation not captured by measured covariates.
