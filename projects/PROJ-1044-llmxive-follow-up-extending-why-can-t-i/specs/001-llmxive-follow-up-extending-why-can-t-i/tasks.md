@@ -8,7 +8,7 @@ The following checklist implements the smallest complete study that satisfies ev
 
 ## Phase 0 – Core data creation (new)
 
-- [ ] **T000** [ ] **Generate deterministic synthetic original videos**  
+- [ ] **T000** [ ] **Generate deterministic synthetic original videos**   <!-- FAILED-IN-EXECUTION: src/data/synthetic_generator.py exit=1 -->
   - Run `src/data/synthetic_generator.py` to create `N=200` short videos (5 s, 64×64) in `data/videos/orig/`.  
   - Record each video filename and a UUID in `data/videos/orig/manifest.csv`.  
   - Verification: at least 150 videos exist and manifest rows equal file count.  

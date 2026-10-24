@@ -1,203 +1,267 @@
+"""Pipeline driver for the counterfactual consistency study.
+
+The driver orchestrates all stages of the pipeline, accepting either
+a configuration file (``--config``) **or** the historic command‑line
+arguments that were used in earlier versions of the project.  This
+dual interface resolves the CLI drift that caused the previous
+execution failure.
+
+The script is deliberately lightweight – it merely parses arguments,
+loads the configuration (if any), and then invokes the individual
+stage scripts as subprocesses.  Each stage writes its own output
+files; the driver does not attempt to interpret them.
 """
-End-to-end pipeline driver.
-
-Usage (see quickstart.md):
-
-    python -m src.pipeline.run_all --config configs/run.yaml
-
-The driver accepts a YAML config file (``--config``) plus the historic
-CLI flags (``--num_videos``, ``--lambda_values``, ``--seeds``,
-``--flow_divergence_thresh``, ``--feature_sim_thresh``,
-``--output_dir``, ``--subset_size``).  Config-file values are used as
-defaults; explicit CLI flags override them.
-
-Steps performed:
-1. Parse CLI arguments and merge the YAML config.
-2. Ensure the output directory and the source-video directory exist.
-3. Invoke the optical-flow pre-compute step for original videos.
-4. Write a checksum manifest for all ``.npy`` files under ``data/flow``.
-5. Print a concise summary of produced artefacts and exit 0.
-"""
-
 from __future__ import annotations
 
 import argparse
-import hashlib
+import subprocess
 import sys
 from pathlib import Path
-from typing import List
+from typing import Any, Dict, List
 
-import yaml
-
-from llmxive_toolkit import get_logger, paths
-
-# Import the pre-compute script (T004).
-from src.data.optical_flow_precompute import main as precompute_flow
+from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-PROJECT_ROOT = paths.root
-
-
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 def _sha256_of_file(file_path: Path) -> str:
-    """Return the SHA-256 checksum of *file_path*."""
+    """Return the SHA‑256 checksum of *file_path*."""
+    import hashlib
+
     h = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
     return h.hexdigest()
 
-
 def _gather_npy_files(root: Path) -> List[Path]:
     """Return a list of all ``.npy`` files under *root* (recursively)."""
-    if not root.is_dir():
-        return []
     return list(root.rglob("*.npy"))
-
 
 def _write_manifest(manifest_path: Path, root: Path) -> None:
     """Write ``relative_path,sha256`` lines for every ``.npy`` under *root*."""
-    npy_files = _gather_npy_files(root)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     with manifest_path.open("w", encoding="utf-8") as f:
-        for npy_path in sorted(npy_files):
-            rel = npy_path.relative_to(PROJECT_ROOT)
+        for npy_path in _gather_npy_files(root):
+            rel = npy_path.relative_to(Path.cwd())
             sha = _sha256_of_file(npy_path)
-            f.write(f"{rel.as_posix()},{sha}\n")
-    log.info("Manifest written with %d entries to %s", len(npy_files), manifest_path)
+            f.write(f"{rel},{sha}\n")
 
-
-def _load_config(config_path: Path) -> dict:
+def _load_config(config_path: Path) -> Dict[str, Any]:
     """Load a YAML config file; returns an empty dict if unreadable."""
-    if config_path is None or not Path(config_path).is_file():
+    import yaml
+
+    if not config_path.is_file():
+        log.warning("Config file %s not found – using defaults.", config_path)
         return {}
-    with Path(config_path).open("r", encoding="utf-8") as f:
-        data = yaml.safe_load(f)
-    return data or {}
+    try:
+        with config_path.open("r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
+    except Exception as exc:
+        log.error("Failed to read config %s: %s", config_path, exc)
+        return {}
 
-
+# ----------------------------------------------------------------------
+# Argument parsing – supports both modern ``--config`` style and the
+# historic flags used by earlier quickstart versions.
+# ----------------------------------------------------------------------
 def parse_cli_args(argv: List[str] | None = None) -> argparse.Namespace:
-    """
-    Parse command-line arguments.
-
-    Accepts both the modern ``--config`` style and the historic flags
-    used by earlier quickstart versions.
-    """
     parser = argparse.ArgumentParser(
         description="Run the full counterfactual consistency pipeline."
     )
+    # Modern interface
     parser.add_argument(
         "--config",
-        type=Path,
-        default=None,
-        help="Path to a YAML config file (options from the config are merged).",
-    )
-    parser.add_argument(
-        "--num_videos", type=int, default=None, help=argparse.SUPPRESS
-    )
-    parser.add_argument(
-        "--lambda_values", nargs="*", type=float, default=None, help=argparse.SUPPRESS
-    )
-    parser.add_argument(
-        "--seeds", nargs="*", type=int, default=None, help=argparse.SUPPRESS
-    )
-    parser.add_argument(
-        "--flow_divergence_thresh", type=float, default=None, help=argparse.SUPPRESS
-    )
-    parser.add_argument(
-        "--feature_sim_thresh", type=float, default=None, help=argparse.SUPPRESS
+        type=str,
+        help="Path to a YAML configuration file (overrides other flags).",
     )
     parser.add_argument(
         "--output_dir",
-        type=Path,
-        default=None,
-        help="Root output directory for generated artifacts.",
+        type=str,
+        default=str(paths.path("output")),
+        help="Root directory for all generated artifacts.",
     )
     parser.add_argument(
         "--subset_size",
         type=int,
         default=None,
-        help="Optional subset size for downstream stages.",
+        help="Optional size of the video subset to process.",
     )
-    args = parser.parse_args(argv)
 
-    # Merge config-file values as defaults for anything not given on CLI.
-    config = _load_config(args.config) if args.config else {}
-    if args.subset_size is None and "subset_size" in config:
-        args.subset_size = int(config["subset_size"])
-    if args.num_videos is None:
-        args.num_videos = args.subset_size
-    if args.lambda_values is None:
-        args.lambda_values = list(config.get("lambda_values", []))
-    if args.seeds is None:
-        args.seeds = list(config.get("seeds", []))
-    if args.flow_divergence_thresh is None:
-        args.flow_divergence_thresh = config.get(
-            "optical_flow_divergence_threshold", 0.15
+    # Historic flags – they are kept for backward compatibility.
+    parser.add_argument(
+        "--num_videos",
+        type=int,
+        default=None,
+        help="(legacy) Number of synthetic videos to generate.",
+    )
+    parser.add_argument(
+        "--lambda_values",
+        type=float,
+        nargs="+",
+        default=None,
+        help="(legacy) List of λ values for the sweep.",
+    )
+    parser.add_argument(
+        "--seeds",
+        type=str,
+        nargs="+",
+        default=None,
+        help="(legacy) List of seeds (as strings) for reproducibility.",
+    )
+    parser.add_argument(
+        "--flow_divergence_thresh",
+        type=float,
+        default=None,
+        help="(legacy) Flow divergence threshold.",
+    )
+    parser.add_argument(
+        "--feature_sim_thresh",
+        type=float,
+        default=None,
+        help="(legacy) Feature cosine‑similarity threshold.",
+    )
+
+    return parser.parse_args(argv)
+
+# ----------------------------------------------------------------------
+# Main driver
+# ----------------------------------------------------------------------
+def _run_stage(module: str, args: List[str]) -> int:
+    """Run a stage script as a subprocess."""
+    cmd = [sys.executable, "-m", module] + args
+    log.info("Running stage: %s", " ".join(cmd))
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        log.error(
+            "Stage %s failed (exit %d). stdout:\n%s\nstderr:\n%s",
+            module,
+            result.returncode,
+            result.stdout,
+            result.stderr,
         )
-    if args.feature_sim_thresh is None:
-        args.feature_sim_thresh = config.get("feature_similarity_threshold", 0.9)
-    if args.output_dir is None:
-        args.output_dir = Path(config.get("output_dir", "./output"))
-    return args
-
+    else:
+        log.debug("Stage %s succeeded. stdout:\n%s", module, result.stdout)
+    return result.returncode
 
 def main(argv: List[str] | None = None) -> int:
-    """Run the pipeline driver; returns 0 on success."""
+    """
+    Execute the full pipeline. Returns 0 on success.
+    """
     args = parse_cli_args(argv)
 
-    # Ensure the output directory exists (used by downstream stages).
+    # ------------------------------------------------------------------
+    # Resolve configuration
+    # ------------------------------------------------------------------
+    config: Dict[str, Any] = {}
+    if args.config:
+        config_path = Path(args.config)
+        config = _load_config(config_path)
+
+    # Override config with any legacy flags that were supplied.
+    # This mirrors the behaviour of the original quickstart command.
+    if args.num_videos is not None:
+        config["num_videos"] = args.num_videos
+    if args.lambda_values is not None:
+        config["lambda_values"] = args.lambda_values
+    if args.seeds is not None:
+        # Preserve the original string list – downstream scripts expect strings.
+        config["seeds"] = args.seeds
+    if args.flow_divergence_thresh is not None:
+        config["flow_divergence_thresh"] = args.flow_divergence_thresh
+    if args.feature_sim_thresh is not None:
+        config["feature_sim_thresh"] = args.feature_sim_thresh
+    if args.subset_size is not None:
+        config["subset_size"] = args.subset_size
+
+    # Ensure output_dir exists
     output_dir = Path(args.output_dir)
-    if not output_dir.is_absolute():
-        output_dir = PROJECT_ROOT / output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Ensure the source-video directory exists so the pre-compute step
-    # always finds a directory (it writes an empty manifest when no
-    # MP4 files are present yet, e.g. on a fresh checkout).
-    videos_dir = PROJECT_ROOT / "data" / "videos" / "orig"
-    videos_dir.mkdir(parents=True, exist_ok=True)
+    # ------------------------------------------------------------------
+    # Stage 1 – Synthetic video generation
+    # ------------------------------------------------------------------
+    synth_args = []
+    if "num_videos" in config:
+        synth_args += ["--num_videos", str(config["num_videos"])]
+    # The synthetic generator writes directly into the project data tree,
+    # so we do not need to pass an explicit output path here.
+    rc = _run_stage("src.data.synthetic_generator", synth_args)
+    if rc != 0:
+        return rc
 
     # ------------------------------------------------------------------
-    # Step 3 – pre-compute optical flow for original videos.
+    # Stage 2 – Optical flow pre‑compute for originals
     # ------------------------------------------------------------------
-    log.info("Running optical-flow pre-compute for original videos …")
-    flow_ret = precompute_flow(
-        [
-            "--input_dir", str(videos_dir),
-            "--output_dir", str(PROJECT_ROOT / "data" / "flow" / "orig"),
-            "--manifest_path", str(PROJECT_ROOT / "data" / "checksums" / "manifest.csv"),
-        ]
-    )
-    if flow_ret != 0:
-        log.error("Optical-flow pre-compute failed with exit code %d", flow_ret)
-        return flow_ret
+    flow_pre_args = []
+    if "subset_size" in config:
+        flow_pre_args += ["--subset_size", str(config["subset_size"])]
+    rc = _run_stage("src.data.optical_flow_precompute", flow_pre_args)
+    if rc != 0:
+        return rc
 
     # ------------------------------------------------------------------
-    # Step 4 – write manifest for all flow files.
+    # Stage 3 – Counterfactual generation (original → counterfactual)
     # ------------------------------------------------------------------
-    manifest_path = PROJECT_ROOT / "data" / "checksums" / "manifest.csv"
-    flow_root = PROJECT_ROOT / "data" / "flow"
-    _write_manifest(manifest_path, flow_root)
+    cf_args = []
+    if "flow_divergence_thresh" in config:
+        cf_args += ["--flow_divergence_thresh", str(config["flow_divergence_thresh"])]
+    if "feature_sim_thresh" in config:
+        cf_args += ["--feature_sim_thresh", str(config["feature_sim_thresh"])]
+    rc = _run_stage("src.data.counterfactual", cf_args)
+    if rc != 0:
+        return rc
 
     # ------------------------------------------------------------------
-    # Step 5 – print a short summary.
+    # Stage 4 – Optical flow for counterfactuals
     # ------------------------------------------------------------------
-    npy_files = _gather_npy_files(flow_root)
-    summary_lines = [
-        "=== Pipeline Summary ===",
-        f"Config: {args.config}",
-        f"Output directory: {output_dir}",
-        f"Number of .npy flow files: {len(npy_files)}",
-        f"Manifest path: {manifest_path}",
-        "========================",
-    ]
-    for line in summary_lines:
-        log.info("%s", line)
-        print(line)
+    rc = _run_stage("src.data.optical_flow_precompute", ["--counterfactual"])
+    if rc != 0:
+        return rc
+
+    # ------------------------------------------------------------------
+    # Stage 5 – Model training sweep
+    # ------------------------------------------------------------------
+    train_args = []
+    if "lambda_values" in config:
+        train_args += ["--lambda_values"] + [str(v) for v in config["lambda_values"]]
+    if "seeds" in config:
+        train_args += ["--seeds"] + list(map(str, config["seeds"]))
+    rc = _run_stage("src.train.run_sweep", train_args)
+    if rc != 0:
+        return rc
+
+    # ------------------------------------------------------------------
+    # Stage 6 – Evaluation
+    # ------------------------------------------------------------------
+    rc = _run_stage("src.eval.evaluator", [])
+    if rc != 0:
+        return rc
+
+    # ------------------------------------------------------------------
+    # Stage 7 – Statistics
+    # ------------------------------------------------------------------
+    rc = _run_stage("src.eval.statistics", [])
+    if rc != 0:
+        return rc
+
+    # ------------------------------------------------------------------
+    # Stage 8 – Report generation
+    # ------------------------------------------------------------------
+    rc = _run_stage("src.eval.report", [])
+    if rc != 0:
+        return rc
+
+    # ------------------------------------------------------------------
+    # Final manifest of all .npy files for reproducibility
+    # ------------------------------------------------------------------
+    manifest_path = output_dir / "checksums_manifest.csv"
+    _write_manifest(manifest_path, Path.cwd())
+    log.info("Pipeline completed successfully. Manifest written to %s", manifest_path)
 
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

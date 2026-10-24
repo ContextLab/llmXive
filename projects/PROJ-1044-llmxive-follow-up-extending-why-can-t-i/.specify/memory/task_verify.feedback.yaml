@@ -1,38 +1,48 @@
+T000:
+  reason: 'Requested task execution failed; rerun successfully: src/data/synthetic_generator.py
+    exit=1'
+  task: 97dba22a9eb111d8f51683cb0f5fcba49aa786659e160994d7dd88d08bc8f972
 T001:
-  task: 135d9f2d64e2fc48477a7db249a8e13984addba24f49490b1581f160d2624884
+  task: 4b4ef855ac93c2b9ea8b825a9494e0aab768534336e157eaaec607230fd87a78
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/data/something_loader.py
-    exit=1'
-  task: 2ed1d5bc75e0b8726f0ad041317b1bb315b9874a16a883d140b54e015cb1486e
+  task: 980323bc4c883c01eed25d6ec646efc9e6a1a59d9131779ba3d99b9707260a1c
 T003:
-  reason: "The `src/data/counterfactual.py` script does not meet several core requirements:\
-    \ it falls back to a synthetic patch when `data/patches/` is missing (the directory\
-    \ is absent), it uses optical\u2011flow vectors instead of a ResNet\u201118 feature\
-    \ for the \u2265\u202F0.9 cosine\u2011similarity check, and it never writes any\
-    \ counterfactual video files (the `data/counterfactuals/videos/` directory is\
-    \ missing). Consequently the unit test `tests/test_counterfactual_generation.py`\
-    \ fails during dataset loading (fallback video download SSL error) and no rows\
-    \ are recorded in the output `metadata.csv`. These issues must be fixed"
-  task: 5f0540a3df70a4fd434f00383397ee920c2e5891f3544f4d66a88b81b498d67c
+  task: e78a730591e0dd5624f7de60f3c889b72a81604438485c346ef23643717a2c57
 T004:
-  reason: 'Requested task execution failed; rerun successfully: src/data/optical_flow_precompute.py
-    exit=1'
-  task: 099e621128831ae9054613b6e81107e1b21da047cd00ca9d790578d5806ce3e8
+  task: 86b20e99b97d9966667a7591809dbcf3d81b66a495084470a581000d17f87dd0
 T005:
-  task: d95398a47a4a87d60cf150c37757fe589fe0076b130b50c93623df1db1ed0740
+  task: 92d4d4edc306662e4c22f693eae7a15126b60469bfa8e89a2adac8dad2f95b8c
 T006:
-  task: ebe4344870ef65ebd401eb3364e12ca743aa1311ae7aa47922df5efd810207e7
+  task: 8a6c6b197b1d4a92475ba8e071fb956693a2ebbcce7fd4e04dd523de7c28e78a
+T007:
+  task: 8e8545b398256bbf45336359efb8dd1d88d7841b4bf170ca620ef047945b8373
 T008:
-  task: e08d4f7741254b3062b76ef21c3a1801d4615d1d4e06fd9b370ca589af71502d
+  task: ff1b90e5f562543596de65fd4ee4c0fb45acf14d312f2c350d654589626ed1ba
 T009:
-  task: fcdfcd122b9827016d3731dfb4e26b4d574b096441e944b13c1d42bd1b5000bf
+  task: 20ec45eb85eb9f4848af4b244433f46e77c2962e732a62c1868854730f7341b8
 T010:
-  task: 589a7d95345a7142d460cc22b76875886b4cde96e728e23da50ec8e327270121
+  task: 28bc5803ee4792fc134fa1fd846deea3656c0ce72ac6e898abfb88d9ba159adb
 T011:
-  task: 00240a567ed2ebb200225b99a408db83913d9a8de72f34fd0bf93ce6473e4845
+  task: b8900be16e0a609207eab1f477c097b003ec406311bf892eb0e392540e237d18
 T012:
-  task: b33f200a6e2b92a650d019db3938b5885ecd9fb0b08b03a4188ab4fef5f34bae
+  task: 3adbbb078987ba59b197990e9e67cbefd3255bde3461534f6ddee0b6325a7ebd
 T013:
-  task: 587059a1ef262699bea960cfcc06724c50678cef9f4935a9838dcd74797c06a0
+  task: 98a749e54d08e9442e13365a6c675e96de589f98413a6c9d64537673bf28ec39
 T014:
-  task: 3fefa0ae0a750e4d2e0917e546d0ae0fe6763bbc2df0f5f4902a6f0f9b3ede88
+  task: ec0a86b80947d8d493c580e3575ecec68dba6f4982ab4e69d1e8bcac875ef451
+T015:
+  task: 8a210363e9819078407615312281c20a140d1bb71c13fb6d094752327658beca
+T016:
+  task: d77cc43e7aa5e13a9ffc266deb3dfee0b95c53c022f8f486b5ee32d1aa16888b
+T017:
+  task: 3b80b95070cb65d022163c4a636a9483ff871abc536ccc1beab410f76c5279ca
+T018:
+  task: a70c7f6c23641f081af9e8875b1f627fe19be67a0b00165aa834ee3da48eee00
+T019:
+  task: 82ef31319207780f26135f1b0c9f5fb52608d61d871d9483eda20c475b0c8f55
+T020:
+  task: c75f6184d526ceecbed0e71bbacb9642c6b01a575258692a2359300640671a36
+T021:
+  task: d3ccfad0fa05b5462b40a527e419c4812420bb0aa509fa1b486b8dedc33302d0
+T022:
+  task: b3a92656e42a8497ab3b4714cbc7d2944d142db694c13ea72249069c1d9f7d38

@@ -1,14 +1,13 @@
 status: none
-intent: Download Something-Something V2 dataset with object annotations python package
-  dataset
+intent: Something-Something V2 video dataset download python package dataset
 required_fields:
 - video_id
-- video_url
-- label
-- primary_object_bbox
-- primary_object_class
-- frame_count
-- fps
-cache_key: 35aed84927379c272b60d574755c9cb1f31a9ebebc9996a80058fa02478c7987
-searched_at: '2026-10-22T07:48:22.984135+00:00'
+- video_file_path
+- action_label
+- object_label
+- object_bbox_per_frame
+- start_frame
+- end_frame
+cache_key: 134a7da398d33539a296c15c2993a96e3a5e7800973d11eeeb996547150f68b1
+searched_at: '2026-10-24T08:26:48.897098+00:00'
 retry_count: 1

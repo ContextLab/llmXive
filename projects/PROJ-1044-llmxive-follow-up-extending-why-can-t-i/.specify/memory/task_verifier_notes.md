@@ -2,6 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T002** — Requested task execution failed; rerun successfully: src/data/something_loader.py exit=1
-- **T004** — Requested task execution failed; rerun successfully: src/data/optical_flow_precompute.py exit=1
-- **T003** — The `src/data/counterfactual.py` script does not meet several core requirements: it falls back to a synthetic patch when `data/patches/` is missing (the directory is absent), it uses optical‑flow vectors instead of a ResNet‑18 feature for the ≥ 0.9 cosine‑similarity check, and it never writes any counterfactual video files (the `data/counterfactuals/videos/` directory is missing). Consequently the unit test `tests/test_counterfactual_generation.py` fails during dataset loading (fallback video download SSL error) and no rows are recorded in the output `metadata.csv`. These issues must be fixed
+- **T000** — Requested task execution failed; rerun successfully: src/data/synthetic_generator.py exit=1
