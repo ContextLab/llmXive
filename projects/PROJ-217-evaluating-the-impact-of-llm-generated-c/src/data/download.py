@@ -13,6 +13,7 @@ The script exits with a non‑zero status if the download fails after
 three attempts, or if fewer than 150 valid snippets are obtained.
 """
 
+import ast
 import hashlib
 import json
 import os
@@ -178,6 +179,14 @@ def _is_valid_docstring(doc) -> bool:
         return False
     return True
 
+def _code_parses(code: str) -> bool:
+    """Return True if ``code`` can be parsed by ``ast.parse`` without error."""
+    try:
+        ast.parse(code)
+        return True
+    except Exception:
+        return False
+
 def _write_jsonl(records: List[Dict], out_path: Path) -> None:
     """Write a list of dicts as JSON Lines."""
     with out_path.open("w", encoding="utf-8") as f:
@@ -254,6 +263,7 @@ def main() -> None:
             {"snippet_id": snippet_id, "code": code, "human_comment": doc}
         )
 
+        # Missing or empty code
         if not code.strip():
             excluded_records.append(
                 {
@@ -265,6 +275,7 @@ def main() -> None:
             )
             continue
 
+        # Docstring validation
         if not _is_valid_docstring(doc):
             excluded_records.append(
                 {
@@ -276,6 +287,19 @@ def main() -> None:
             )
             continue
 
+        # AST parsing validation
+        if not _code_parses(code):
+            excluded_records.append(
+                {
+                    "snippet_id": snippet_id,
+                    "code": code,
+                    "human_comment": doc,
+                    "reason": "code_parse_error",
+                }
+            )
+            continue
+
+        # Passed all checks
         valid_records.append(
             {"snippet_id": snippet_id, "code": code, "human_comment": doc}
         )

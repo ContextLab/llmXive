@@ -1,14 +1,13 @@
 T001:
-  c: false
-  h: 8448cc5fa5f01460b918c9d3e613e7a67747f687aeffbccbdd25eb74b64f5758
-  r: "Checked `src/data/download.py` and the generated outputs. The script downloads\
-    \ the parquet with a retry loop, maps columns, samples 200 records, validates\
-    \ docstrings, writes raw/validated/excluded files, records checksums, and creates\
-    \ `dataset_preparation.log` with \u2265150 valid snippets. However, it never parses\
-    \ the code snippets with `ast` to ensure they are syntactically valid, violating\
-    \ the requirement \u201Cvalidates \u2026 that the code parses with `ast`\u201D\
-    . The missing AST validation makes the task incomplete."
-  sig: a7aea7af717b3bd30816332d37fa29fb88eb0a6a6fa435ee5f19d0a679841d60
+  c: true
+  h: 5538510c96f5b751f812c2ed8d5f0707cb26ad781b2e3e86fabd6d2de0ea7499
+  r: "Checked `src/data/download.py`, the generated `data/raw_snippets.jsonl`, `data/validated_snippets.jsonl`,\
+    \ `data/excluded_records.json`, `data/artifact_hashes.yaml`, and `data/dataset_preparation.log`.\
+    \ All required artifacts exist, contain the expected data (\u2265150 valid snippets,\
+    \ proper counts, checksum recorded), and the script implements the download with\
+    \ retries, column mapping, deterministic sampling, validation, and logging as\
+    \ specified."
+  sig: b808ed9dfbb3c34076d1de8b6447197ce93a84de637d8b72366a957581661e55
 T001b:
   c: true
   h: e39bbb7e01566af9c163c8ac6cf5528cd486cb587c0611c3968db319fb1bd3b9

@@ -1,20 +1,10 @@
 T001:
-  reason: "Checked `src/data/download.py` and the generated outputs. The script downloads\
-    \ the parquet with a retry loop, maps columns, samples 200 records, validates\
-    \ docstrings, writes raw/validated/excluded files, records checksums, and creates\
-    \ `dataset_preparation.log` with \u2265150 valid snippets. However, it never parses\
-    \ the code snippets with `ast` to ensure they are syntactically valid, violating\
-    \ the requirement \u201Cvalidates \u2026 that the code parses with `ast`\u201D\
-    . The missing AST validation makes the task incomplete."
   task: 50c62fa0a2585fa3e973f7f9d998d7a9cb775fd0166118c6cdf5aaf1128db9da
 T001b:
   task: 94275c2fb1bade4b8bcdc619a561399a108b8b349c457b0a06dcf16f2290918b
 T002:
-  reason: "The generated `llm_comments.jsonl` contains only a single test record and\
-    \ does not include the many snippet IDs from `validated_snippets.jsonl`; the required\
-    \ `data/truncation_warnings.log`, `data/excluded_llm_generation.json`, `data/generation_checkpoint.json`,\
-    \ and `data/generation.log` are all missing. Consequently the script\u2019s checkpointing,\
-    \ exclusion logging, and full dataset creation are not demonstrated."
+  reason: 'Requested task execution failed; rerun successfully: src/data/generate_comments.py
+    exit=1'
   task: cdeed5ef9b6f7f5e18e0bbd065e5b101b7a2a9b61b6450f55753468c2c4622bb
 T003:
   reason: "The provided `src/data/metrics.py` writes the CSV and computes the required\
