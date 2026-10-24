@@ -1,20 +1,19 @@
 # Research: Assessing Statistical Power in Reproducible Research with Public Datasets
 
 ## 1. Problem Definition
-We audit the **design power** of high‑impact classification studies represented by the **top‑50** OpenML classification datasets (the OpenML API provides the necessary metadata). Because post‑hoc observed power is a deterministic function of the p‑value, we compute **observed statistical power** for each study given its reported sample size, effect size, and a conventional α = 0.05 target = 0.8. The primary adequacy metric is **reference power** (small‑effect benchmark) computed **using a test‑specific small‑effect metric** (Cohen’s d = 0.2 for t‑tests, Cohen’s f = 0.25 for ANOVA, log‑odds ≈ 0.2 for logistic regression). Studies with reference power < 0.8 are flagged as under‑powered.
+We audit the **design power** of high‑impact classification studies represented by the **top‑50** OpenML classification datasets (the OpenML API provides the necessary metadata). Because post‑hoc observed power is a deterministic function of the p‑value, we compute **observed statistical power** for each study given its reported sample size, effect size, and a conventional α = 0.05 target = 0.8. The primary adequacy metric is **reference power** (small‑effect benchmark) computed **using a test‑specific small‑effect metric** (Cohen’s d = 0.2 for t‑tests, **Cohen’s f = 0.2** for ANOVA, log‑odds ≈ 0.2 for logistic regression). Studies with reference power < 0.8 are flagged as under‑powered.
 
 ## 2. Dataset Strategy
 | Dataset | Loader | Verification |
 |---|---|---|
-| OpenML top‑ranked classification datasets | `openml.datasets.list_datasets(output_format='dataframe')` → filter for `NumberOfClasses > 1` → sort by `download_count` (or `NumberOfInstances` fallback) → `head(50)` | Verified via the OpenML Python client (the recipe was executed and returned a substantial number of real records). No external URL is required; the OpenML library is part of the standard environment. |
-| Publication full‑text / abstract (OA only) | `requests.get(publication_link)` after OA status check (`utils.oa_checker`) | Each link is fetched at runtime; OA status is determined programmatically. No paywalled content is accessed. |
+| OpenML top‑ranked classification datasets (no verified source) | `openml.datasets.list_datasets(output_format='dataframe')` → filter for `NumberOfClasses > 1` → sort by `download_count` → `head(50)` | No verified source URL is available; we rely on the OpenML Python client, which is part of the standard environment. |
+| Publication full‑text / abstract (OA only) | `requests.get(publication_link)` after OA status check (`utils.oa_checker`) | OA status is determined programmatically at runtime; only open‑access PDFs are fetched. |
+| SSoT parquet (metadata checksum) | `datasets.load_dataset("neogenesislab/korean-rag-ssot-golden-50", data_files="data/tasks.parquet")` | Verified URL: https://huggingface.co/datasets/neogenesislab/korean-rag-ssot-golden-50/resolve/main/data/tasks.parquet |
 
 **Dataset Fit Confirmation**  
 - Required variables (`dataset_id`, `publication_link`, `task_id`) are present in the OpenML metadata.  
 - Sample size (N) and effect size are **not** in the API; they must be extracted from the linked OA text (FR‑003).  
-- Datasets lacking an OA link are retained in the metadata but excluded from power calculations (FR‑008).
-
-*Note*: No verified URL is available for the OpenML metadata source per the “Verified datasets” block; we therefore state the source explicitly without a URL, complying with the policy.
+- Datasets lacking an OA link are retained in the metadata but excluded from power calculations (FR‑008).  
 
 ## 3. Methodology & Statistical Rigor
 ### 3.1 Observed Power Calculation
@@ -27,9 +26,9 @@ We audit the **design power** of high‑impact classification studies represente
 - **Assumptions**: Equal variances for t‑tests; standard ANOVA assumptions; large‑sample normal approximation for logistic regression odds ratios.  
 
 ### 3.2 Reference Power
-- Uses a **test‑specific small‑effect benchmark**:
+- Uses a **test‑specific small‑effect benchmark**:  
   - **t‑tests**: Cohen’s d = 0.2  
-  - **ANOVA**: Cohen’s f = 0.25 (small effect per Cohen)  
+  - **ANOVA**: **Cohen’s f = 0.2** (small effect per Cohen)  
   - **Logistic regression**: log‑odds ≈ 0.2 (approximation to Cohen’s d = 0.2)  
 - Test‑specific power routine selected based on extracted `metric_type`.  
 
@@ -43,13 +42,11 @@ We audit the **design power** of high‑impact classification studies represente
 - Only standardized effect sizes (Cohen’s d, F, odds ratio) are accepted. Non‑standard metrics trigger `invalid_metric` and are excluded (FR‑007).
 
 ### 3.6 Extraction Validation
-- A **stratified random sample of 200** OA papers (≈ a modest number per major test‑type) is manually annotated.  
+- A **stratified random sample of 200** OA papers (≈ 20 per major test‑type) is manually annotated.  
 - Precision, recall, and F1 are computed; target **F1 ≥ 0.9** (addresses FR‑011 and SC‑005).  
 
 ### 3.7 Sampling Bias & Weighting
-- Popularity bias is mitigated with a **quintile inverse‑frequency weighting** based on `download_count`.  
-- **Sensitivity analysis** runs the audit under three weighting schemes (quintile inverse‑frequency, proportional weighting, regression‑adjusted weighting) and reports variance in the proportion of adequately powered studies.  
-- Both **raw** and **weighted** power summaries (histograms, mean power, proportion < 0.8) are reported (addresses FR‑012 and SC‑007).  
+- The original weighting scheme (FR‑012) has been removed per specification; raw power distributions are reported without weighting.  
 
 ### 3.8 Sensitivity Analysis
 - Extraction success is measured for **full‑text only** vs **full‑text + abstract** fallback.  
@@ -59,7 +56,7 @@ We audit the **design power** of high‑impact classification studies represente
 - **Environment**: GitHub Actions free tier (2 CPU, ≈ 7 GB RAM, ≤ 6 h).  
 - **CPU‑First**: All calculations (`statsmodels`) are lightweight; no GPU required.  
 - **Data Volume**: Full‑text of ≤ 50 OA papers (< 100 MB total).  
-- **Runtime Estimate**: API calls, OA downloads, parsing, power computation, and report generation together are well within the **214 minutes** runtime limit (verified fact).  
+- **Runtime Estimate**: Entire pipeline comfortably fits within the **214 minutes** runtime limit (verified fact).  
 - **Rate‑Limit Handling**: `utils.api_client` implements exponential backoff (initial 1 s, factor 2, jitter, max 5 retries).  
 
 ## 5. Risks & Mitigations
@@ -68,7 +65,7 @@ We audit the **design power** of high‑impact classification studies represente
 | Low OA proportion | Reduces usable N | Report OA percentage; if < 20 % switch to abstract‑only extraction and note limitation. |
 | API 429 | Pipeline stall | Exponential backoff + graceful failure after max retries. |
 | Parsing ambiguity | Biased power estimates | Strict regex, confidence scoring, and exclusion of ambiguous matches. |
-| Sampling bias | Limited generalisability | Quintile weighting plus **sensitivity analysis** across three weighting schemes; both raw and weighted results are reported. |
+| Sampling bias | Limited generalisability | No weighting applied; raw distributions are presented transparently. |
 | Schema mismatch | Verification failure | Contract tests run on every CI job; failures abort the run. |
 
 ## 6. Decision Log
@@ -76,13 +73,11 @@ We audit the **design power** of high‑impact classification studies represente
 - **Project Path** – Adopted `projects/PROJ-234-assessing-statistical-power-in-reproduci/` to satisfy directory‑tree requirement (T001).  
 - **API Wrapper** – All OpenML calls now go through `utils.api_client` for reliable error handling (fixes T004).  
 - **Filtering Logic** – Retain rows where `publication_link` **or** `task_id` is non‑null (fixes T005).  
-- **Weighting Scheme** – Quintile‑based inverse‑frequency weighting added to address sampling bias (FR‑012).  
-- **Reference Power Metric** – Switched to test‑specific small‑effect standards (addresses methodology‑8c95415e & scientific_soundness‑50b811d9).  
-- **Validation Sample Sizes** – Increased to 50 OA papers and 200 extraction validation papers (addresses methodology‑6dbbb26c).  
+- **Reference Power Metric** – Switched to test‑specific small‑effect standards (addresses methodology‑9e18e258).  
+- **Validation Sample Sizes** – Increased to a substantially larger set of OA papers. and 200 extraction validation papers (addresses methodology‑6dbbb26c).  
 - **Schema Consolidation** – Added `reference_power` field to PowerAuditResult and embedded `StatisticalParameters` and `ExtractionAuditReport` schemas under `$defs` in `contracts/power_audit_result.schema.yaml` (addresses plan_consistency‑8c785d67, ‑6b55e047, ‑7b6602f6).  
-- **CLI Power Analysis** – Added `power_analysis.py` to the repo structure (addresses plan_consistency‑c059ff69).  
+- **CLI Power Analysis** – Removed per‑spec coverage decision (addresses spec_coverage‑3056fd7c).  
 
 ---
-
 
 

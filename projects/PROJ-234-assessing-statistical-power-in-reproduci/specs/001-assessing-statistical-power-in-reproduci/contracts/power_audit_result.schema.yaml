@@ -15,7 +15,7 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Power computed with the test‑specific small‑effect benchmark (d = 0.2, f = 0.25, log‑odds ≈ 0.2)."
+    description: "Power computed with the test‑specific small‑effect benchmark (d = 0.2, f = 0.2, log‑odds ≈ 0.2)."
   target_power:
     type: "number"
     description: "Power level used for a priori checks (default 0.8)."
@@ -141,10 +141,6 @@ $defs:
         type: "number"
         minimum: 0.0
         maximum: 1.0
-      dataset_type_distribution:
-        type: "object"
-      source_category_distribution:
-        type: "object"
       precision:
         type: "number"
         minimum: 0.0

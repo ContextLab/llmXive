@@ -1,40 +1,19 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: "import openml, pandas as pd\n\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
-  # Keep only classification datasets (more than one class)\nif 'NumberOfClasses'\
-  \ not in df.columns:\n    raise KeyError('NumberOfClasses column missing')\ndf =\
-  \ df[df['NumberOfClasses'].notna() & (df['NumberOfClasses'] > 1)]\n# Sort by download\
-  \ count if available, otherwise by number of instances\nsort_col = 'download_count'\
-  \ if 'download_count' in df.columns else ('NumberOfInstances' if 'NumberOfInstances'\
-  \ in df.columns else df.columns[0])\ndf = df.sort_values(sort_col, ascending=False).head(20)\n\
-  print(f\"RECORDS={len(df)}\")\n# Map available columns to the required field names\n\
-  mapping = {\n    'did': 'dataset_id',\n    'name': 'name',\n    'status': 'status',\n\
-  \    'default_target_attribute': 'default_target_attribute',\n    'NumberOfInstances':\
-  \ 'number_of_instances',\n    'NumberOfFeatures': 'number_of_features',\n    'NumberOfClasses':\
-  \ 'number_of_classes',\n    'download_count': 'download_count',\n    'url': 'url',\n\
-  \    'description': 'description'\n}\nfields = [std for col, std in mapping.items()\
-  \ if col in df.columns]\nprint('FIELDS=' + ','.join(fields))"
-record_count: 20
-sample_fields:
-- dataset_id
-- name
-- status
-- number_of_instances
-- number_of_features
-- number_of_classes
-field_coverage: 0.6
+status: none
+intent: OpenML python client retrieve most downloaded classification datasets metadata
+  python package dataset
 required_fields:
-- dataset_id
+- did (dataset ID)
 - name
-- status
-- default_target_attribute
+- url
 - number_of_instances
 - number_of_features
+- number_of_features_numeric
+- number_of_features_nominal
 - number_of_classes
-- download_count
-- url
+- default_target_attribute
+- citation
 - description
-intent: OpenML most downloaded classification datasets metadata via python package
-  dataset
-cache_key: 12e81b45eebc2e69bc142860b443d3569d335f106d018a65669dbd2152a9e089
+- original_data_url
+cache_key: f500e62836c2afb630c38bd5aa93e27d4322a8e7a6d78fa8f29606bf3c3b99e1
+searched_at: '2026-10-24T17:44:00.319674+00:00'
+retry_count: 1

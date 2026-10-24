@@ -35,16 +35,13 @@ python code/02_parse_publications.py
 # 3️⃣ Compute observed statistical power (appropriate test per metric)
 python code/03_compute_observed_power.py
 
-# 4️⃣ Generate the audit report (HTML) with raw & weighted power histograms,
+# 4️⃣ Generate the audit report (HTML) with raw power histograms,
 #    count of studies with power < 0.8, and disclaimer about the post‑hoc power fallacy
 python code/04_generate_report.py
 
 # 5️⃣ Produce the extraction audit summary (JSON) containing success metrics,
-#    sensitivity delta, and dataset‑type distribution
+#    sensitivity delta, and precision/recall/F1 (written to reports/extraction_audit.json)
 python code/05_generate_audit_report.py
-
-# 6️⃣ Run the a‑priori power analysis CLI (new script)
-python code/power_analysis.py --effect-size 0.2 --alpha 0.05 --power 0.8
 ```
 
 **Expected outputs**
@@ -55,9 +52,8 @@ python code/power_analysis.py --effect-size 0.2 --alpha 0.05 --power 0.8
 | 01_ingest_openml.py | `data/processed/filtered_datasets.csv` | Filtered list with OA status. |
 | 02_parse_publications.py | `data/processed/statistical_params.json` | Extracted N & effect sizes. |
 | 03_compute_observed_power.py | `data/processed/observed_power.csv` | Observed (and reference) power per dataset (validated against schema). |
-| 04_generate_report.py | `data/processed/audit_report.html` | Histogram of observed & weighted power (a suitable number of bins), counts < 0.8, disclaimer. |
-| 05_generate_audit_report.py | `data/processed/extraction_audit_report.json` | Extraction success metrics, sensitivity delta, precision/recall/F1, dataset‑type distribution (validated against the embedded `ExtractionAuditReport` schema in `contracts/power_audit_result.schema.yaml`). |
-| power_analysis.py | `output/power_requirements.json` | A‑priori sample‑size calculation for a given effect size. |
+| 04_generate_report.py | `data/processed/audit_report.html` | Histogram of raw power (using an appropriate number of bins, per verified bin count), count < 0.8, disclaimer. |
+| 05_generate_audit_report.py | `reports/extraction_audit.json` | Extraction success metrics, sensitivity delta, precision/recall/F1 (validated against the embedded `ExtractionAuditReport` schema in `contracts/power_audit_result.schema.yaml`). |
 
 ## 4. Testing
 
@@ -66,7 +62,7 @@ pytest tests/
 ```
 
 - **Unit tests** cover `api_client`, `oa_checker`, and `parsers`.  
-- **Contract tests** validate that `filtered_datasets.csv`, `observed_power.csv`, `statistical_params.json`, and `extraction_audit_report.json` conform to their schemas **as defined in `contracts/power_audit_result.schema.yaml`** (the file now contains definitions for `StatisticalParameters` and `ExtractionAuditReport` under `$defs`).  
+- **Contract tests** validate that `filtered_datasets.csv`, `observed_power.csv`, `statistical_params.json`, and `extraction_audit.json` conform to their schemas **as defined in `contracts/power_audit_result.schema.yaml`** (the file now contains definitions for `StatisticalParameters` and `ExtractionAuditReport` under `$defs`).  
 - **Integration test** (`tests/integration/test_full_pipeline.py`) runs the full pipeline on a deterministic 5‑dataset sample (seed = 42) and checks that the final report contains both raw and weighted power histograms.
 
 All tests must pass before committing; CI will enforce this automatically.
@@ -87,10 +83,9 @@ All tests must pass before committing; CI will enforce this automatically.
 | `test_api_client.py` fails (no `DataFetchError`) | `api_client` missing proper backoff/error handling | Updated `api_client.py` now raises `DataFetchError` after max retries (see T004 fix). |
 | Empty `filtered_datasets.csv` | Incorrect filter logic | Filtering now uses `publication_link` **or** `task_id` (fixed for T005). |
 | Schema validation error | Output file missing required field | Run `pytest tests/contract/` to see the exact missing field; fix the script to populate it. |
-| Missing weighted summary | Weighting step omitted | Ensure `04_generate_report.py` runs after `03_compute_observed_power.py`; it adds weighted calculations automatically. |
-| Missing `extraction_audit_report.json` | Audit step not executed | Run `05_generate_audit_report.py`; it creates the JSON per the data model. |
+| Missing weighted summary | Weighting step omitted | Weighting has been removed per spec; raw power histograms are reported. |
+| Missing `extraction_audit.json` | Audit step not executed | Run `05_generate_audit_report.py`; it creates the JSON per the data model. |
 
 ---
-
 
 
