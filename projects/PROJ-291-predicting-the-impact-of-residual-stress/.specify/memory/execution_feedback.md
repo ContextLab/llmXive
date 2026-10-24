@@ -15,43 +15,51 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-- run-book command: `python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success`
+- run-book command: `python -m src.ingest.ingest          # creates unified_fatigue.csv & missing_flags.json`
   - script usage: `ingest.py [-h] [--output OUTPUT] [--raw RAW [RAW ...]]`
-  - argparse error: `ingest.py: error: unrecognized arguments: # downloads, checksums, merges, proxy calc; exits 0 on success`
+  - argparse error: `ingest.py: error: unrecognized arguments: # creates unified_fatigue.csv & missing_flags.json`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/raw/checksums.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 9 command(s) failed: python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success (rc=2); python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation (rc=1); python -m src.models.train --feature-set A   # process‑only (rc=1); 4 declared deliverable(s) absent: data/processed/unified_fatigue.csv; data/results/model_performance.csv; data/results/proxy_agreement.csv
+**Summary**: every produced artifact is gitignored (data/raw/checksums.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 11 command(s) failed: python -m src.data.gen_synthetic (rc=1); python -m src.ingest.ingest          # creates unified_fatigue.csv & missing_flags.json (rc=2); python -m src.preprocess.validate    # validates against contracts/dataset_schema.yaml (rc=1); 4 declared deliverable(s) absent: data/processed/unified_fatigue.csv; data/results/model_performance.csv; data/results/proxy_agreement.csv
 
 ## Failing / missing run-book commands
 
-- python -m src.ingest.ingest          # downloads, checksums, merges, proxy calc; exits 0 on success -> rc=2
+- python -m src.data.gen_synthetic -> rc=1
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.data.gen_synthetic' (ModuleNotFoundError: No module named 'src.data')
+
+- python -m src.ingest.ingest          # creates unified_fatigue.csv & missing_flags.json -> rc=2
 
 usage: ingest.py [-h] [--output OUTPUT] [--raw RAW [RAW ...]]
                  [--limit-rows LIMIT_ROWS]
-ingest.py: error: unrecognized arguments: # downloads, checksums, merges, proxy calc; exits 0 on success
+ingest.py: error: unrecognized arguments: # creates unified_fatigue.csv & missing_flags.json
 
-- python -m src.preprocess.preprocess   # unit conversion, imputation, contract validation -> rc=1
+- python -m src.preprocess.validate    # validates against contracts/dataset_schema.yaml -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.preprocess.preprocess' (ModuleNotFoundError: No module named 'src.preprocess')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.preprocess.validate' (ModuleNotFoundError: No module named 'src.preprocess')
 
-- python -m src.models.train --feature-set A   # process‑only -> rc=1
+- python -m src.features.build_sets -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.train' (ModuleNotFoundError: No module named 'src.models')
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.features.build_sets' (ModuleNotFoundError: No module named 'src.features')
 
-- python -m src.models.train --feature-set B   # process + measured stress (balanced subset) -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.train' (ModuleNotFoundError: No module named 'src.models')
-
-- python -m src.models.train --feature-set C   # process + material props (+ proxy stress) -> rc=1
+- python -m src.models.train --feature-set A -> rc=1
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.train' (ModuleNotFoundError: No module named 'src.models')
 
-- python -m src.models.evaluate --compare A B   # Wilcoxon signed‑rank test (≥10 % MAPE improvement required) -> rc=1
+- python -m src.models.train --feature-set B -> rc=1
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.train' (ModuleNotFoundError: No module named 'src.models')
+
+- python -m src.models.train --feature-set C -> rc=1
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.train' (ModuleNotFoundError: No module named 'src.models')
+
+- python -m src.models.evaluate --compare A B   # Wilcoxon test + Bonferroni‑corrected significance -> rc=1
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.evaluate' (ModuleNotFoundError: No module named 'src.models')
 
-- python -m src.models.evaluate --cross-material  # transfer learning ΔMAPE + permutation test -> rc=1
+- python -m src.models.evaluate --cross-material   # transfer ΔMAPE + permutation test -> rc=1
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-291-predicting-the-impact-of-residual-stress/bin/python: Error while finding module specification for 'src.models.evaluate' (ModuleNotFoundError: No module named 'src.models')
 
@@ -74,7 +82,7 @@ projects/PROJ-291-predicting-the-impact-of-residual-stress/tests/test_ingest.py:
 =========================== short test summary info ============================
 FAILED tests/test_features.py::test_feature_sets_build_correctly - assert 8 == 4
 FAILED tests/test_ingest.py::test_run_ingest_creates_unified_csv - ValueError...
-2 failed, 3 passed, 1 warning in 1.90s
+2 failed, 3 passed, 1 warning in 1.71s
 
 
 

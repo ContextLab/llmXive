@@ -1,11 +1,10 @@
-T004:
+T001:
   c: false
-  h: e9f164feeb45c14c6e08c788b1988cd6d98cd8739994d7340a21e3b39ba59984
-  r: "The `build_features.py` script builds Feature Set\u202FA on the full dataset\
-    \ while Feature Set\u202FB_balanced is filtered to rows where `is_proxy=False`,\
-    \ causing a length mismatch (8 vs\u202F4) as shown by the failing `test_features.py`\
-    \ run. Consequently the required condition that A and balanced\u202FB share identical\
-    \ row indices is not met, and the verification test is missing. The task needs\
-    \ correction of the feature\u2011set construction logic (and the test file) to\
-    \ satisfy the specifications."
-  sig: d3e2c5346d6e6332b6fd70d6d76617c3c5125773456961f6f328504d836b3772
+  h: d1e1d0489b8d84e59a1fcec5552e42b5d0efb2a86b462011e2bc6dbf2fbe249e
+  r: The provided `env_check.py` does not import the full required stack (missing
+    `psutil`, `openml`, `ucimlrepo` and treats `torch` as optional), and `config.py`
+    lacks the explicit constants `K_STEEL`, `K_ALUMINUM`, `PSI_TO_MPA` and any path
+    definitions. Consequently the test suite cannot correctly import `src.env_check`
+    nor verify the required configuration. The task needs the missing imports added
+    and the configuration file updated with the specified constants.
+  sig: e94fdec227a0bc35c94ddebe922dc34d8826bffa23cf68f7891b5b0713f51edb
