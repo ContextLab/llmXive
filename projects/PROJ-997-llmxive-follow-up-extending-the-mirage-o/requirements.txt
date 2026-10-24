@@ -1,4 +1,7 @@
-torch
 transformers
-tqdm
+datasets
 fastparquet
+torch
+numpy
+pandas
+tqdm

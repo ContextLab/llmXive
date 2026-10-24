@@ -3,13 +3,11 @@ generate_ground_truth.py
 
 This script implements task **T015** – Generate Ground Truth Data.
 
-It downloads a subset of the GSM8K dataset using a direct HTTP request,
-runs full‑precision inference with a Hugging‑Face Transformers model,
-creates quantized variants of the same model, computes KL divergence
-between the full‑precision and quantized logits, extracts simple training‑side
-signals (gradient norm and a curvature proxy), and stores the results in a
-Parquet file. The script records the hardware source (`CPU`) for each row
-to satisfy verification requirements.
+It loads a subset of the GSM8K dataset using the Hugging Face `datasets` library,
+runs full‑precision inference with a Transformers model, creates quantized variants
+(INT8, FP16 as FP8 proxy), computes KL divergence between distributions,
+extracts training-side signals (gradient norm and curvature proxy), and stores
+the results in a Parquet file.
 """
 
 import argparse
@@ -21,30 +19,24 @@ from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
-import requests
 import torch
 import torch.nn.functional as F
 from tqdm.auto import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from datasets import load_dataset
 
 from llmxive_toolkit import get_logger
 
-# --------------------------------------------------------------------------- #
 # Logging configuration
-# --------------------------------------------------------------------------- #
 log = get_logger(__name__)
 
-# --------------------------------------------------------------------------- #
-# Helper functions
-# --------------------------------------------------------------------------- #
 def load_full_precision_model(model_name: str) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
     Load the full‑precision (float32) model and tokenizer.
-    If the requested model cannot be loaded (e.g., due to size constraints),
-    fall back to a small, readily‑available model (`distilgpt2`).
+    Falls back to 'distilgpt2' if the requested model is too large for the environment.
     """
     try:
-        log.info(f"Loading full‑precision model '{model_name}' (float32).")
+        log.info(f"Attempting to load model '{model_name}' (float32).")
         tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
@@ -52,25 +44,25 @@ def load_full_precision_model(model_name: str) -> Tuple[AutoModelForCausalLM, Au
             low_cpu_mem_usage=True,
         )
     except Exception as exc:
-        log.warning(
-            f"Failed to load model '{model_name}' ({exc}). Falling back to 'distilgpt2'."
-        )
+        log.warning(f"Failed to load model '{model_name}' ({exc}). Falling back to 'distilgpt2'.")
         tokenizer = AutoTokenizer.from_pretrained("distilgpt2", use_fast=True)
         model = AutoModelForCausalLM.from_pretrained(
             "distilgpt2",
             torch_dtype=torch.float32,
             low_cpu_mem_usage=True,
         )
+    
+    # Ensure tokenizer has a pad token
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+        
     model.eval()
-    model.requires_grad_(False)
     return model, tokenizer
 
 def quantize_model_int8(model: AutoModelForCausalLM) -> AutoModelForCausalLM:
-    """
-    Apply dynamic INT8 quantisation using torch.quantization.
-    Returns a new model instance (the original remains unchanged).
-    """
+    """Apply dynamic INT8 quantisation."""
     log.info("Applying dynamic INT8 quantisation.")
+    # Use torch.quantization.quantize_dynamic for CPU-based linear layers
     model_int8 = torch.quantization.quantize_dynamic(
         model, {torch.nn.Linear}, dtype=torch.qint8
     )
@@ -78,60 +70,47 @@ def quantize_model_int8(model: AutoModelForCausalLM) -> AutoModelForCausalLM:
     return model_int8
 
 def quantize_model_fp16(model: AutoModelForCausalLM) -> AutoModelForCausalLM:
-    """
-    Convert model weights to half‑precision (float16). This serves as a proxy
-    for FP8 quantisation – it is a real transformation performed on the model.
-    """
+    """Convert model weights to float16 (FP8 proxy)."""
     log.info("Converting model to float16 (FP16 proxy).")
     model_fp16 = model.half()
     model_fp16.eval()
     return model_fp16
 
 def compute_kl(p: np.ndarray, q: np.ndarray, eps: float = 1e-12) -> float:
-    """
-    Compute KL(p || q) where p and q are probability distributions.
-    """
+    """Compute KL(p || q) where p and q are probability distributions."""
     p = np.clip(p, eps, 1.0)
     q = np.clip(q, eps, 1.0)
     return float(np.sum(p * np.log(p / q)))
 
-def get_logits(
-    model: AutoModelForCausalLM,
-    tokenizer: AutoTokenizer,
-    prompt: str,
-    max_new_tokens: int = 1,
-) -> torch.Tensor:
-    """
-    Run the model on ``prompt`` and return the logits for the *next* token.
-    """
+def get_logits(model: AutoModelForCausalLM, tokenizer: AutoTokenizer, prompt: str) -> torch.Tensor:
+    """Run model and return logits for the next token."""
     inputs = tokenizer(prompt, return_tensors="pt")
     with torch.no_grad():
         output = model(**inputs)
-    logits = output.logits[:, -1, :]  # (1, vocab_size)
-    return logits.squeeze(0)  # (vocab_size,)
+    logits = output.logits[:, -1, :]
+    return logits.squeeze(0)
 
-def compute_gradient_norm(
-    model: AutoModelForCausalLM,
-    tokenizer: AutoTokenizer,
-    prompt: str,
-    target: str,
-) -> float:
-    """
-    Compute the L2 norm of the gradient of the cross‑entropy loss w.r.t. all
-    model parameters for a single (prompt, target) pair.
-    """
-    model.train()  # enable gradient tracking
+def compute_gradient_norm(model: AutoModelForCausalLM, tokenizer: AutoTokenizer, prompt: str, target: str) -> float:
+    """Compute L2 norm of the gradient of cross-entropy loss w.r.t. parameters."""
+    model.train()
     inputs = tokenizer(prompt, return_tensors="pt")
     target_ids = tokenizer(target, return_tensors="pt")["input_ids"]
     
+    # Ensure targets are within vocab range
+    if target_ids.shape[1] == 0:
+        # Fallback if target is empty or not tokenized
+        target_ids = torch.tensor([[tokenizer.eos_token_id]])
+
     # Forward pass
     outputs = model(**inputs)
-    logits = outputs.logits[:, -1, :]  # (1, vocab_size)
+    logits = outputs.logits[:, -1, :]
     
     loss_fct = torch.nn.CrossEntropyLoss()
+    # Use only the first token of target for the next-token prediction loss
     loss = loss_fct(logits, target_ids[:, 0])
     
     # Backward pass
+    model.zero_grad()
     loss.backward()
     
     total_norm = 0.0
@@ -141,121 +120,66 @@ def compute_gradient_norm(
             total_norm += param_norm.item() ** 2
     total_norm = math.sqrt(total_norm)
     
-    model.zero_grad(set_to_none=True)
     model.eval()
+    model.zero_grad(set_to_none=True)
     return total_norm
 
-def download_gsm8k_subset(sample_size: int) -> List[dict]:
-    """
-    Download the GSM8K training split via a direct HTTP request and return the first
-    ``sample_size`` records.
-    """
-    url = "https://huggingface.co/datasets/gsm8k/resolve/main/train.jsonl"
-    log.info(f"Downloading GSM8K dataset (first {sample_size} samples) from {url}.")
-    response = requests.get(url, stream=True, timeout=30)
-    response.raise_for_status()
-    records: List[dict] = []
-    for line in response.iter_lines():
-        if line:
-            record = json.loads(line.decode("utf-8"))
-            records.append(record)
-            if len(records) >= sample_size:
-                break
-    log.info(f"Retrieved {len(records)} samples from GSM8K.")
+def load_gsm8k_subset(sample_size: int) -> List[dict]:
+    """Load GSM8K subset using the datasets library to avoid 404s."""
+    log.info(f"Loading GSM8K dataset (first {sample_size} samples) via HF datasets.")
+    ds = load_dataset("gsm8k", "main", split="train", streaming=True)
+    records = []
+    for i, sample in enumerate(ds):
+        records.append(sample)
+        if len(records) >= sample_size:
+            break
+    log.info(f"Retrieved {len(records)} samples.")
     return records
 
-# --------------------------------------------------------------------------- #
-# Main pipeline (CLI entry point)
-# --------------------------------------------------------------------------- #
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Generate ground‑truth dataset for quantization gap analysis."
-    )
-    parser.add_argument(
-        "--model",
-        type=str,
-        required=True,
-        help="Hugging‑Face identifier of the base model.",
-    )
-    parser.add_argument(
-        "--levels",
-        nargs="+",
-        choices=["INT4", "INT8", "FP8"],
-        help="Quantization levels to generate (legacy flag).",
-    )
-    parser.add_argument(
-        "--quant_levels",
-        nargs="+",
-        choices=["INT4", "INT8", "FP8"],
-        help="Quantization levels to generate (quick‑start flag).",
-    )
-    parser.add_argument(
-        "--prompt_source",
-        type=str,
-        default="gsm8k",
-        help="Source of prompts.",
-    )
-    parser.add_argument(
-        "--sample-size",
-        type=int,
-        default=300,
-        help="Number of prompts to sample (default 300).",
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        required=True,
-        help="Path for the Parquet output file.",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility.",
-    )
+    parser = argparse.ArgumentParser(description="Generate ground‑truth dataset for quantization gap analysis.")
+    parser.add_argument("--model", type=str, required=True)
+    parser.add_argument("--quant_levels", nargs="+", choices=["INT4", "INT8", "FP8"])
+    parser.add_argument("--prompt_source", type=str, default="gsm8k")
+    parser.add_argument("--sample-size", type=int, default=300)
+    parser.add_argument("--output", type=str, required=True)
+    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
-    # Resolve quantization levels
-    if args.quant_levels:
-        levels = args.quant_levels
-    elif args.levels:
-        levels = args.levels
-    else:
-        parser.error("At least one of '--quant_levels' or '--levels' must be provided.")
-
-    parquet_path = Path(args.output).expanduser().resolve()
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
 
     # 1. Load data
-    subset = download_gsm8k_subset(args.sample_size)
+    subset = load_gsm8k_subset(args.sample_size)
 
     # 2. Load models
     full_model, tokenizer = load_full_precision_model(args.model)
 
     # Prepare quantized variants
     quantized_models = {}
-    for level in levels:
+    for level in args.quant_levels:
         if level == "INT8":
             quantized_models["INT8"] = quantize_model_int8(full_model)
         elif level == "FP8":
             quantized_models["FP8"] = quantize_model_fp16(full_model)
         elif level == "INT4":
-            log.warning("INT4 quantisation not natively supported by torch.quantization; using INT8 proxy.")
+            # Using INT8 as a proxy for INT4 as per project constraints for Torch-CPU
+            log.warning("INT4 using INT8 proxy for CPU-based Torch quantization.")
             quantized_models["INT4"] = quantize_model_int8(full_model)
-        else:
-            raise ValueError(f"Unsupported quantization level: {level}")
 
-    # 3. Process each sample
+    # 3. Process samples
     records = []
-    log.info("Processing prompts and computing statistics.")
+    log.info("Computing logits and gradients...")
     for idx, sample in tqdm(enumerate(subset), total=len(subset)):
         prompt = sample["question"]
+        # Target for gradient: the first part of the answer
         target = sample["answer"].split("\n")[0]
 
-        # Full‑precision logits & probability distribution
+        # Full-precision
         full_logits = get_logits(full_model, tokenizer, prompt)
         full_probs = F.softmax(full_logits, dim=-1).cpu().numpy()
 
-        # Gradient norm & curvature proxy
+        # Training signals
         grad_norm = compute_gradient_norm(full_model, tokenizer, prompt, target)
         curvature = grad_norm ** 2
 
@@ -264,23 +188,21 @@ def main() -> None:
             q_probs = F.softmax(q_logits, dim=-1).cpu().numpy()
             kl = compute_kl(full_probs, q_probs)
 
-            records.append(
-                {
-                    "input_id": idx,
-                    "quantization_level": level,
-                    "gradient_norm": grad_norm,
-                    "local_curvature": curvature,
-                    "kl_divergence": kl,
-                    "hardware_source": "CPU",
-                }
-            )
+            records.append({
+                "input_id": idx,
+                "quantization_level": level,
+                "gradient_norm": grad_norm,
+                "local_curvature": curvature,
+                "kl_divergence": kl,
+                "hardware_source": "CPU",
+            })
 
-    # 4. Persist dataset
+    # 4. Persist
     df = pd.DataFrame.from_records(records)
-    log.info(f"Saving dataset with {len(df)} rows to {parquet_path}.")
+    parquet_path = Path(args.output)
     parquet_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(parquet_path, index=False, engine="fastparquet")
-    log.info("Ground‑truth generation completed successfully.")
+    log.info(f"Saved dataset with {len(df)} rows to {parquet_path}.")
 
 if __name__ == "__main__":
     main()

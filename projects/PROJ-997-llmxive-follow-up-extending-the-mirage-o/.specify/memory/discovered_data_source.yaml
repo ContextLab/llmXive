@@ -1,14 +1,19 @@
 status: none
-intent: download hardware quantization gap dataset gradient norms curvature GSM8K
-  Llama-2-7B-4bit HuggingFace ONNX Runtime python package dataset
+intent: GSM8K Llama-2-7B-4bit quantization divergence gradient norms curvature dataset
+  huggingface python package dataset
 required_fields:
 - prompt_text
-- model_name
-- gradient_norm
-- local_curvature
+- full_precision_logits
+- int8_logits
+- int4_logits
+- fp8_logits
 - kl_divergence_int8
 - kl_divergence_int4
 - kl_divergence_fp8
-cache_key: e813f5baa437a5962494b47a5eb3452fab7e6dfbdc29ec841bd389f6b78c66f7
-searched_at: '2026-10-24T01:24:48.829356+00:00'
+- gradient_norm
+- local_curvature
+- model_name
+- quantization_method
+cache_key: 286f26332d6a5ef189a36d94a699777c4de099b6232714d44a80b6db9fd78a32
+searched_at: '2026-10-24T13:11:21.023718+00:00'
 retry_count: 1
