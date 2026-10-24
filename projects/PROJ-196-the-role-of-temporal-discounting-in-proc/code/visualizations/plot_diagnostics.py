@@ -8,7 +8,7 @@ import os
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 import numpy as np
 import pandas as pd
@@ -57,34 +57,30 @@ def load_interaction_results() -> Dict[str, Any]:
     with open(INTERACTION_RESULTS_PATH, 'r') as f:
         return json.load(f)
 
-def run_ols_regression(df: pd.DataFrame) -> sm.OLSResults:
+def run_ols_regression(df: pd.DataFrame) -> Any:
     """
     Run the OLS regression model as defined in T022.
-    
+
     Args:
         df: The centered dataframe containing predictors and outcome.
-        
+
     Returns:
         Fitted OLS results object.
     """
-    # Reconstruct the formula logic from T022
-    # Base formula: procrastination ~ log_k + wm_metric + log_k:wm_metric
-    # Covariates: age, gender (if present)
-    
     # Determine which covariates are present
     covariates = []
     if 'age' in df.columns:
         covariates.append('age')
     if 'gender' in df.columns:
         covariates.append('gender')
-        
+
     # Build formula
     predictors = ['log_k', 'wm_metric', 'log_k:wm_metric']
     formula_parts = predictors + covariates
     formula = f"procrastination ~ {' + '.join(formula_parts)}"
-    
+
     logger.info(f"Running OLS regression with formula: {formula}")
-    
+
     try:
         model = sm.formula.ols(formula=formula, data=df)
         results = model.fit()
@@ -93,77 +89,74 @@ def run_ols_regression(df: pd.DataFrame) -> sm.OLSResults:
         logger.error(f"OLS regression failed: {e}")
         raise
 
-def plot_residuals_vs_fitted(results: sm.OLSResults, save_path: Path) -> Dict[str, Any]:
+def plot_residuals_vs_fitted(results: Any, save_path: Path) -> Dict[str, Any]:
     """
     Generate Residuals vs Fitted plot.
-    
+
     Args:
         results: Fitted OLS results.
         save_path: Path to save the plot.
-        
+
     Returns:
         Dictionary with visual inspection results.
     """
     fig, ax = plt.subplots(figsize=(10, 8))
-    
+
     fitted = results.fittedvalues
     residuals = results.resid
-    
+
     ax.scatter(fitted, residuals, alpha=0.6, edgecolors='w', s=50)
     ax.axhline(0, color='red', linestyle='--', linewidth=2)
-    
+
     # Add a lowess smooth line to detect patterns
     if len(fitted) > 0:
         lowess = sm.nonparametric.lowess(residuals, fitted, frac=0.3)
         ax.plot(lowess[:, 0], lowess[:, 1], color='blue', linewidth=2, label='Lowess Smooth')
-    
+
     ax.set_xlabel('Fitted Values')
     ax.set_ylabel('Residuals')
     ax.set_title('Residuals vs Fitted')
     ax.legend()
     ax.grid(True, alpha=0.3)
-    
+
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)
     plt.close(fig)
-    
-    # Visual inspection: check for patterns
-    # Ideally, residuals should be randomly scattered around 0
-    # We check correlation between fitted and residuals
+
+    # Visual inspection: correlation between fitted and residuals
     corr, p_value = stats.pearsonr(fitted, residuals)
-    
+
     inspection = {
         "plot_type": "residuals_vs_fitted",
         "correlation_fitted_residuals": float(corr),
         "p_value": float(p_value),
         "interpretation": "No pattern" if p_value > 0.05 else "Pattern detected (heteroscedasticity or non-linearity)"
     }
-    
+
     logger.info(f"Residuals vs Fitted: correlation={corr:.4f}, p={p_value:.4f}")
     return inspection
 
-def plot_q_q_plot(results: sm.OLSResults, save_path: Path) -> Dict[str, Any]:
+def plot_q_q_plot(results: Any, save_path: Path) -> Dict[str, Any]:
     """
     Generate Q-Q plot for normality of residuals.
-    
+
     Args:
         results: Fitted OLS results.
         save_path: Path to save the plot.
-        
+
     Returns:
         Dictionary with visual inspection results.
     """
     fig, ax = plt.subplots(figsize=(10, 8))
-    
+
     sm.qqplot(results.resid, line='45', fit=True, ax=ax)
     ax.set_title('Normal Q-Q')
-    
+
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)
     plt.close(fig)
-    
-    # Statistical test for normality (Shapiro-Wilk)
-    # Note: Shapiro-Wilk has a limit of 5000 samples, so we sample if needed
+
+    # Shapiro‑Wilk test (sample if >5000)
     residuals = results.resid
     if len(residuals) > 5000:
         sample_indices = np.random.choice(len(residuals), 5000, replace=False)
@@ -171,71 +164,71 @@ def plot_q_q_plot(results: sm.OLSResults, save_path: Path) -> Dict[str, Any]:
         stat, p_value = stats.shapiro(sample_residuals)
     else:
         stat, p_value = stats.shapiro(residuals)
-    
+
     inspection = {
         "plot_type": "qq_plot",
         "shapiro_statistic": float(stat),
         "shapiro_p_value": float(p_value),
         "interpretation": "Normal" if p_value > 0.05 else "Non-normal residuals"
     }
-    
-    logger.info(f"Q-Q Plot: Shapiro-Wilk p={p_value:.4f}")
+
+    logger.info(f"Q‑Q Plot: Shapiro‑Wilk p={p_value:.4f}")
     return inspection
 
-def plot_scale_location(results: sm.OLSResults, save_path: Path) -> Dict[str, Any]:
+def plot_scale_location(results: Any, save_path: Path) -> Dict[str, Any]:
     """
     Generate Scale-Location plot (Square root of standardized residuals vs Fitted).
-    
+
     Args:
         results: Fitted OLS results.
         save_path: Path to save the plot.
-        
+
     Returns:
         Dictionary with visual inspection results.
     """
     fig, ax = plt.subplots(figsize=(10, 8))
-    
+
     fitted = results.fittedvalues
     standardized_residuals = results.get_influence().resid_studentized_internal
     sqrt_std_resid = np.sqrt(np.abs(standardized_residuals))
-    
+
     ax.scatter(fitted, sqrt_std_resid, alpha=0.6, edgecolors='w', s=50)
-    
+
     # Add lowess smooth line
     if len(fitted) > 0:
         lowess = sm.nonparametric.lowess(sqrt_std_resid, fitted, frac=0.3)
         ax.plot(lowess[:, 0], lowess[:, 1], color='red', linewidth=2, label='Lowess Smooth')
-    
+
     ax.set_xlabel('Fitted Values')
     ax.set_ylabel(r'$\sqrt{|Standardized Residuals|}$')
     ax.set_title('Scale-Location')
     ax.legend()
     ax.grid(True, alpha=0.3)
-    
+
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)
     plt.close(fig)
-    
-    # Check for trend in scale (heteroscedasticity)
+
+    # Correlation check
     corr, p_value = stats.pearsonr(fitted, sqrt_std_resid)
-    
+
     inspection = {
         "plot_type": "scale_location",
         "correlation_fitted_sqrt_resid": float(corr),
         "p_value": float(p_value),
         "interpretation": "Homoscedasticity" if p_value > 0.05 else "Heteroscedasticity detected"
     }
-    
-    logger.info(f"Scale-Location: correlation={corr:.4f}, p={p_value:.4f}")
+
+    logger.info(f"Scale‑Location: correlation={corr:.4f}, p={p_value:.4f}")
     return inspection
 
-def generate_diagnostics_report(inspections: list) -> Dict[str, Any]:
+def generate_diagnostics_report(inspections: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Aggregate all inspection results into a final report.
-    
+
     Args:
         inspections: List of inspection dictionaries.
-        
+
     Returns:
         Dictionary containing the full diagnostics report.
     """
@@ -247,9 +240,9 @@ def generate_diagnostics_report(inspections: list) -> Dict[str, Any]:
         },
         "summary": {
             "all_assumptions_met": all(
-                "No pattern" in i["interpretation"] or 
-                "Normal" in i["interpretation"] or 
-                "Homoscedasticity" in i["interpretation"] 
+                "No pattern" in i["interpretation"] or
+                "Normal" in i["interpretation"] or
+                "Homoscedasticity" in i["interpretation"]
                 for i in inspections
             ),
             "plots_generated": [
@@ -266,48 +259,48 @@ def run_diagnostics() -> None:
     Main function to run all diagnostic plots and generate the report.
     """
     logger.info("Starting model diagnostics generation...")
-    
+
     # Ensure directories exist
     ensure_directories()
-    
+
     # Load data
     df = load_centered_data()
-    
+
     # Run regression
     results = run_ols_regression(df)
-    
+
     # Define output paths
     residuals_path = DIAGNOSTICS_DIR / "residuals.png"
     qq_path = DIAGNOSTICS_DIR / "qq_plot.png"
     scale_path = DIAGNOSTICS_DIR / "scale_location.png"
-    
+
     # Generate plots and collect inspections
     inspections = []
-    
+
     logger.info("Generating Residuals vs Fitted plot...")
     inspections.append(plot_residuals_vs_fitted(results, residuals_path))
-    
-    logger.info("Generating Q-Q plot...")
+
+    logger.info("Generating Q‑Q plot...")
     inspections.append(plot_q_q_plot(results, qq_path))
-    
-    logger.info("Generating Scale-Location plot...")
+
+    logger.info("Generating Scale‑Location plot...")
     inspections.append(plot_scale_location(results, scale_path))
-    
+
     # Generate report
     report = generate_diagnostics_report(inspections)
-    
+
     # Save report
     with open(DIAGNOSTICS_REPORT_PATH, 'w') as f:
         json.dump(report, f, indent=2)
-    
+
     logger.info(f"Diagnostics report saved to {DIAGNOSTICS_REPORT_PATH}")
     logger.info(f"Plots saved to {DIAGNOSTICS_DIR}")
-    
+
     # Print summary
     print("\n=== Model Diagnostics Summary ===")
     print(f"Linearity/Homoscedasticity: {inspections[0]['interpretation']}")
     print(f"Normality: {inspections[1]['interpretation']}")
-    print(f"Scale-Location: {inspections[2]['interpretation']}")
+    print(f"Scale‑Location: {inspections[2]['interpretation']}")
     print(f"All Assumptions Met: {report['summary']['all_assumptions_met']}")
     print("================================\n")
 

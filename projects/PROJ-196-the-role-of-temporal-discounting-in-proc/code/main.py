@@ -1,16 +1,12 @@
 import argparse
 import sys
-import os
-import json
 import logging
 from pathlib import Path
-from typing import List
 
 from ingestion import verify_urls, load_and_harmonize
 from modeling import run_full_analysis
 from robustness import run_robustness_checks
 from utils.checksum import update_all_artifacts_in_directory
-from config import get_project_root, get_random_state
 
 def main():
     """
@@ -31,6 +27,8 @@ def main():
     parser.add_argument('--url', action='append', dest='urls', default=[],
                         help="Data source URL – specify three times, once per required source")
     args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO)
 
     # ------------------------------------------------------------------
     # Step 1 – URL verification

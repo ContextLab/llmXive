@@ -46,7 +46,7 @@ The goal is to deliver a fully‑reproducible end‑to‑end pipeline that
 
   - *Verification*: File exists and is valid JSON; `code/modeling.py` loads it without error.  
 
-- [ ] **T007** Create `code/main.py` orchestrator that:   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] **T007** Create `code/main.py` orchestrator that:   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   1. Calls `ingestion.verify_urls()` on the three official URLs.  
   2. If any URL check fails, aborts with a clear error (no synthetic fallback).  
   3. Otherwise runs `load_and_harmonize()`.  

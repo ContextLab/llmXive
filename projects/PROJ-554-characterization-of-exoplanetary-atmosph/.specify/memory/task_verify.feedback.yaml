@@ -21,6 +21,10 @@ T005a:
 T005b:
   task: fa4df378d5d7ab7cb2ea59e38a38aff4245d0b291ffb0da182bb60489a42c233
 T005c:
+  reason: "The `code/utils.py` file is present, but the censored\u2011data helper\
+    \ functions reference `pd` (pandas) and `Dict` without importing them, so they\
+    \ will raise `NameError` when used. Missing imports mean the upper\u2011limit\
+    \ handling utilities are not functional, violating the task requirement."
   task: fc27b7106eddfdb9dbd04e1cce1dec399842b7f7403b83f54036519b5fa201e9
 T006a:
   reason: 'declared artifact(s) missing/empty/invalid: data/raw/, data/processed/'
@@ -34,6 +38,11 @@ T008:
 T009:
   task: 5d789347b66ea7ffd1641fe2ea562371b49ab1bf54aa78c0691a06e92d4082ff
 T010:
+  reason: "The `tests/integration/test_download.py` file exists and defines `test_download_returns_valid_metadata`,\
+    \ but it performs a real API fetch (or optional local cache) instead of using\
+    \ mocked parameters as required. No mock objects or predefined mock query parameters\
+    \ are set up, so the integration test does not satisfy the \u201Cspecific mock\
+    \ parameters\u201D clause."
   task: b08dbcc39bd04a927fa25c8a00f4ca5aafc2d900047779beb839041c94b267a5
 T011a:
   task: d3195db22a67bd7078304da50f33078824519a472a58aed97cc12ad044733635

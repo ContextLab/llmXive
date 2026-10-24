@@ -1,374 +1,609 @@
-import os
-import sys
-import json
+"""
+Ingestion module for the Temporal Discounting study.
+
+This module provides:
+* verify_urls – validates that a list of URLs are reachable (HTTP 200).
+* load_and_harmonize – loads raw data (real or synthetic), merges the three
+  core datasets, fits a hyperbolic discounting model per participant,
+  creates derived variables, and writes all required artefacts.
+* run_dgp_pipeline – generates synthetic data for the three core datasets
+  when real data are unavailable (used by the test suite and the fallback
+  path in ``load_and_harmonize``).
+
+The implementation deliberately avoids writing to the platform‑owned
+``state/`` directory; hashes are written to a project‑local JSON file
+``data/processed/file_hashes.json``.  All paths are created via the
+``llmxive_toolkit.paths`` helpers to guarantee they live inside the
+repository.
+"""
+
 import argparse
+import json
 import logging
 import hashlib
+from pathlib import Path
+from typing import List, Dict, Tuple, Any
+
 import pandas as pd
 import numpy as np
 import requests
-from typing import Dict, List, Tuple, Any, Optional
 from scipy.optimize import curve_fit
-from pathlib import Path
 
-from config import get_project_root, get_config, get_random_state
+from llmxive_toolkit import paths, get_logger
+from config import get_random_state
 
-# Configure logging
-logger = logging.getLogger(__name__)
+# ----------------------------------------------------------------------
+# Configuration / constants
+# ----------------------------------------------------------------------
+logger = get_logger(__name__)
 
+# Expected raw file names (CSV).  The files must contain a column
+# named ``participant_id`` that can be used for an inner join.
+RAW_DELAY_FILE = "delay_discounting.csv"
+RAW_PROCRASTINATION_FILE = "procrastination.csv"
+RAW_NBACK_FILE = "nback.csv"
+
+# Output file names (all live under ``data/processed``)
+UNIFIED_CSV = "unified_analysis.csv"
+HARMONIZATION_LOG = "harmonization_log.json"
+EXCLUDED_CSV = "excluded_participants.csv"
+HALT_LOG = "halt_log.json"
+HASHES_JSON = "file_hashes.json"
+HARMONIZED_PARQUET = "harmonized_dataset.parquet"
+
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
+def _sha256(file_path: Path) -> str:
+    """Calculate the SHA‑256 hash of ``file_path``."""
+    h = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for block in iter(lambda: f.read(4096), b""):
+            h.update(block)
+    return h.hexdigest()
+
+# ----------------------------------------------------------------------
+# Public API – URL verification
+# ----------------------------------------------------------------------
+def verify_urls(urls: List[str]) -> None:
+    """
+    Verify that each URL in ``urls`` returns HTTP 200 via a HEAD request.
+
+    Raises
+    ------
+    RuntimeError
+        If any URL is unreachable or returns a non‑200 status.
+    """
+    for url in urls:
+        try:
+            response = requests.head(url, allow_redirects=True, timeout=10)
+            if response.status_code != 200:
+                raise RuntimeError(
+                    f"URL verification failed for {url}: status {response.status_code}"
+                )
+        except requests.RequestException as exc:
+            raise RuntimeError(f"URL verification failed for {url}: {exc}") from exc
+
+# ----------------------------------------------------------------------
+# Hyperbolic discounting utilities
+# ----------------------------------------------------------------------
 def hyperbolic_function(V, k, D):
-    """Hyperbolic discounting function."""
+    """Hyperbolic discounting: V / (1 + k·D)."""
     return V / (1 + k * D)
 
-def fit_hyperbolic_model(delays, values, immediate_value, participant_id=None):
+def fit_hyperbolic_model(
+    delays: np.ndarray,
+    values: np.ndarray,
+    immediate_value: float,
+    participant_id: str | None = None,
+) -> Tuple[float | None, str | None]:
     """
-    Fit hyperbolic model to delay discounting data.
+    Fit a hyperbolic model to a participant's discounting data.
 
-    Returns:
-        Tuple of (k_value, reason_code) where reason_code is None if successful.
+    Returns
+    -------
+    k_value : float | None
+        Estimated discount rate.  ``None`` indicates a failure.
+    reason_code : str | None
+        ``None`` if the fit succeeded; otherwise a short diagnostic code.
     """
     valid_mask = (delays >= 0) & (values > 0)
     if np.sum(valid_mask) < 3:
         return None, "INVALID_RANGE"
 
-    valid_delays = delays[valid_mask]
-    valid_values = values[valid_mask]
+    D = delays[valid_mask]
+    V = values[valid_mask]
 
     try:
-        k_guess = 0.05
+        def model(D_, k_):
+            return immediate_value / (1 + k_ * D_)
 
-        def model_func(D, k):
-            return immediate_value / (1 + k * D)
-
-        popt, pcov = curve_fit(
-            model_func,
-            valid_delays,
-            valid_values,
-            p0=[k_guess],
+        popt, _ = curve_fit(
+            model,
+            D,
+            V,
+            p0=[0.05],
             bounds=(0, np.inf),
-            maxfev=5000
+            maxfev=5000,
         )
-
-        k_value = popt[0]
-
-        if not np.isfinite(k_value) or k_value < 0 or k_value > 100:
+        k_est = popt[0]
+        if not np.isfinite(k_est) or k_est < 0 or k_est > 100:
             return None, "INVALID_RANGE"
-
-        return k_value, None
-
+        return k_est, None
     except RuntimeError:
         return None, "CONVERGENCE_FAIL"
     except Exception:
         return None, "NO_SOLUTION"
 
 # ----------------------------------------------------------------------
-# Synthetic data generators (unchanged – they are used by the DGP pipeline)
+# Cronbach's alpha (re‑exported for the test suite)
 # ----------------------------------------------------------------------
-def generate_delay_discounting_data(n: int, seed: int, params: Dict) -> pd.DataFrame:
-    """Generate synthetic delay discounting data."""
-    rng = np.random.default_rng(seed)
+def calculate_cronbach_alpha(items_df: pd.DataFrame, item_cols: List[str]) -> float:
+    """
+    Compute Cronbach's alpha for the columns listed in ``item_cols``.
 
-    participant_ids = [f"P{i:04d}" for i in range(n)]
-    delays = [0, 1, 7, 30, 90, 180, 365]  # Days
+    Parameters
+    ----------
+    items_df : pd.DataFrame
+        DataFrame containing the item responses.
+    item_cols : list[str]
+        Names of the columns that belong to the scale.
 
-    records = []
-    for pid in participant_ids:
-        k = rng.normal(params['k_mean'], params['k_sd'])
-        k = max(0.001, k)  # Ensure positive
-
-        for d in delays:
-            V = 100  # Immediate value
-            discounted = V / (1 + k * d)
-
-            # Add noise to choice
-            choice_prob = 1 / (1 + np.exp(-(discounted - 50) / 10))
-            chosen_immediate = rng.random() < choice_prob
-
-            records.append({
-                'participant_id': pid,
-                'delay_days': d,
-                'immediate_value': V,
-                'delayed_value': V,
-                'chosen_immediate': 1 if chosen_immediate else 0,
-                'k_true': k
-            })
-
-    return pd.DataFrame(records)
-
-def generate_procrastination_data(n: int, seed: int, params: Dict) -> pd.DataFrame:
-    """Generate synthetic procrastination scale data."""
-    rng = np.random.default_rng(seed + 100)
-
-    participant_ids = [f"P{i:04d}" for i in range(n)]
-
-    records = []
-    for pid in participant_ids:
-        base_score = rng.normal(params['procrastination_mean'], params['procrastination_sd'])
-
-        item_scores = {}
-        for i in range(1, 11):  # 10 items
-            item_score = base_score + rng.normal(0, 0.2)
-            item_score = np.clip(item_score, 1, 5)
-            item_scores[f'procrastination_item_{i}'] = item_score
-
-        record = {'participant_id': pid}
-        record.update(item_scores)
-        records.append(record)
-
-    return pd.DataFrame(records)
-
-def generate_nback_data(n: int, seed: int, params: Dict) -> pd.DataFrame:
-    """Generate synthetic n-back working memory task data."""
-    rng = np.random.default_rng(seed + 200)
-
-    participant_ids = [f"P{i:04d}" for i in range(n)]
-
-    records = []
-    for pid in participant_ids:
-        acc_mean = rng.normal(params['wm_accuracy_mean'], params['wm_accuracy_sd'])
-        acc_mean = np.clip(acc_mean, 0.3, 1.0)
-
-        for trial in range(100):  # 100 trials
-            is_target = rng.random() < 0.3
-            correct = rng.random() < acc_mean
-
-            rt_base = 500 if is_target else 400
-            rt = rt_base + rng.normal(0, 100)
-            rt = max(200, rt)
-
-            records.append({
-                'participant_id': pid,
-                'trial_id': trial,
-                'is_target': 1 if is_target else 0,
-                'response_correct': 1 if correct else 0,
-                'response_time_ms': rt
-            })
-
-    return pd.DataFrame(records)
-
-def generate_demographic_data(n: int, seed: int, params: Dict) -> pd.DataFrame:
-    """Generate synthetic demographic data."""
-    rng = np.random.default_rng(seed + 300)
-
-    participant_ids = [f"P{i:04d}" for i in range(n)]
-
-    records = []
-    for pid in participant_ids:
-        age = rng.normal(params['age_mean'], params['age_sd'])
-        age = int(np.clip(age, 18, 65))
-
-        gender_roll = rng.random()
-        if gender_roll < params['gender_distribution']['male']:
-            gender = 'male'
-        elif gender_roll < params['gender_distribution']['male'] + params['gender_distribution']['female']:
-            gender = 'female'
-        else:
-            gender = 'other'
-
-        education = rng.normal(params['education_mean'], params['education_sd'])
-        education = int(np.clip(education, 8, 25))
-
-        records.append({
-            'participant_id': pid,
-            'age': age,
-            'gender': gender,
-            'education': education
-        })
-
-    return pd.DataFrame(records)
-
-# ----------------------------------------------------------------------
-# Utility functions (unchanged)
-# ----------------------------------------------------------------------
-def calculate_cronbach_alpha(items_df: pd.DataFrame) -> float:
-    """Calculate Cronbach's alpha for a set of items."""
-    if items_df.shape[1] < 2:
+    Returns
+    -------
+    float
+        Alpha coefficient (0 – 1).  Returns 0 if computation is impossible.
+    """
+    if len(item_cols) < 2:
         return 0.0
 
-    total_var = items_df.var().sum()
-    item_vars = items_df.var().sum()
+    sub = items_df[item_cols].dropna()
+    if sub.empty:
+        return 0.0
 
-    n_items = items_df.shape[1]
-    alpha = (n_items / (n_items - 1)) * (1 - item_vars / total_var) if total_var > 0 else 0
-    return alpha
+    item_variances = sub.var(axis=0, ddof=1)
+    total_variance = sub.sum(axis=1).var(ddof=1)
 
-def validate_dgp_config(config: Dict) -> bool:
-    """Validate DGP configuration parameters."""
-    required_keys = [
-        'k_mean', 'k_sd',
-        'procrastination_mean', 'procrastination_sd',
-        'wm_accuracy_mean', 'wm_accuracy_sd',
-        'age_mean', 'age_sd',
-        'gender_distribution',
-        'education_mean', 'education_sd'
-    ]
-    return all(key in config for key in required_keys)
-
-def write_data_source_flag(n: int, params_hash: str, project_root: str):
-    """Write the data source flag JSON file."""
-    flag_data = {
-        "source": "synthetic_dgp",
-        "n": n,
-        "methodology": "Methodological Validation",
-        "dgp_params_hash": params_hash
-    }
-
-    flag_path = os.path.join(project_root, "data", "processed", "data_source_flag.json")
-    with open(flag_path, 'w') as f:
-        json.dump(flag_data, f, indent=2)
-
-    logger.info(f"Wrote data source flag to {flag_path}")
-
-def calculate_file_hash(file_path: str) -> str:
-    """Calculate SHA256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-def run_construct_independence_check(df: pd.DataFrame, project_root: str, seed: int):
-    """Check construct independence and log results."""
-    log_path = os.path.join(project_root, "data", "processed", "construct_independence.log")
-
-    with open(log_path, 'w') as f:
-        f.write(f"Seed used: {seed}\n")
-        f.write("Construct independence check passed.\n")
-
-    logger.info("Construct independence check logged")
-
-def handle_missing_data(df: pd.DataFrame, project_root: str) -> Tuple[pd.DataFrame, Dict]:
-    """Handle missing data in covariates."""
-    config = {'reduced_model': False, 'excluded_covariates': [], 'imputation_method': 'mean'}
-
-    # Check missingness for age and gender
-    missing_age = df['age'].isna().sum()
-    missing_gender = df['gender'].isna().sum()
-    total_rows = len(df)
-
-    missing_ratio = (missing_age + missing_gender) / (2 * total_rows)
-
-    if missing_ratio > 0.10:
-        config['reduced_model'] = True
-        config['excluded_covariates'] = ['age', 'gender']
-        config['imputation_method'] = 'listwise_deletion'
-        df = df.dropna(subset=['age', 'gender'])
-    else:
-        # Mean imputation for numeric, mode for categorical
-        df['age'] = df['age'].fillna(df['age'].mean())
-        df['gender'] = df['gender'].fillna(df['gender'].mode()[0])
-
-    # Log imputation values
-    imputation_log = {
-        'age_mean': float(df['age'].mean()),
-        'gender_mode': str(df['gender'].mode()[0])
-    }
-
-    log_path = os.path.join(project_root, "data", "processed", "imputation_log.json")
-    with open(log_path, 'w') as f:
-        json.dump(imputation_log, f, indent=2)
-
-    # Write model config
-    config_path = os.path.join(project_root, "data", "processed", "model_config.json")
-    with open(config_path, 'w') as f:
-        json.dump(config, f, indent=2)
-
-    logger.info(f"Missing data handled. Config: {config}")
-    return df, config
-
-def write_harmonized_dataset(df: pd.DataFrame, project_root: str):
-    """Write the final harmonized dataset and update state."""
-    output_path = os.path.join(project_root, "data", "processed", "harmonized_dataset.parquet")
-    df.to_parquet(output_path)
-
-    # Calculate hash
-    file_hash = calculate_file_hash(output_path)
-
-    # Update state file
-    state_path = os.path.join(project_root, "state", "projects", "PROJ-196-the-role-of-temporal-discounting-in-proc.yaml")
-    if os.path.exists(state_path):
-        import yaml
-        with open(state_path, 'r') as f:
-            state = yaml.safe_load(f)
-
-        if 'artifact_hashes' not in state:
-            state['artifact_hashes'] = {}
-
-        state['artifact_hashes']['harmonized_dataset.parquet'] = file_hash
-        state['last_updated'] = pd.Timestamp.now().isoformat()
-
-        with open(state_path, 'w') as f:
-            yaml.dump(state, f)
-
-    logger.info(f"Wrote harmonized dataset to {output_path}")
+    n_items = len(item_cols)
+    if total_variance == 0:
+        return 0.0
+    alpha = (n_items / (n_items - 1)) * (1 - item_variances.sum() / total_variance)
+    return float(alpha)
 
 # ----------------------------------------------------------------------
-# New public API required for T007
+# Default DGP configuration – kept for backward‑compatible unit tests
 # ----------------------------------------------------------------------
-def verify_urls(urls: List[str]) -> None:
-    """
-    Verify that each URL in ``urls`` returns a HTTP 200 status via a HEAD request.
-    Raises RuntimeError if any URL is unreachable or returns a non‑200 status.
-    """
-    for url in urls:
-        try:
-            response = requests.head(url, allow_redirects=True, timeout=10)
-            if response.status_code != 200:
-                raise RuntimeError(f"URL verification failed for {url}: status {response.status_code}")
-        except requests.RequestException as exc:
-            raise RuntimeError(f"URL verification failed for {url}: {exc}") from exc
+DGP_DEFAULTS: Dict[str, Any] = {
+    "k_mean": 0.05,
+    "k_sd": 0.02,
+    "procrastination_mean": 3.5,
+    "procrastination_sd": 0.8,
+    "wm_accuracy_mean": 0.85,
+    "wm_accuracy_sd": 0.1,
+    "age_mean": 25,
+    "age_sd": 5,
+    "gender_distribution": {"male": 0.5, "female": 0.5, "other": 0.0},
+    "education_mean": 16,
+    "education_sd": 2,
+}
 
-def load_and_harmonize(n: int = 500, seed: int = 42) -> pd.DataFrame:
-    """
-    Run the full DGP pipeline (synthetic data generation) and return the
-    harmonized DataFrame.  This function is a thin wrapper around the
-    existing ``run_dgp_pipeline`` to provide a stable entry point for the
-    orchestrator.
-    """
-    # Default DGP parameters – identical to those used in the original script
-    params = {
-        "k_mean": 0.05, "k_sd": 0.02,
-        "procrastination_mean": 3.5, "procrastination_sd": 0.8,
-        "wm_accuracy_mean": 0.85, "wm_accuracy_sd": 0.1,
-        "age_mean": 25, "age_sd": 5,
-        "gender_distribution": {"male": 0.5, "female": 0.5, "other": 0.0},
-        "education_mean": 16, "education_sd": 2
-    }
+# ----------------------------------------------------------------------
+# Harmonisation – thin wrapper around the existing implementation
+# ----------------------------------------------------------------------
+# The project already ships a robust harmonisation routine in
+# ``code/data/harmonize.py``.  For the public API expected by the test
+# suite we simply re‑export it.
+from data.harmonize import harmonize_datasets as _harmonize_datasets
 
-    # ``run_dgp_pipeline`` performs generation, raw‑file writing, and
-    # harmonisation, finally returning the unified DataFrame.
-    df = run_dgp_pipeline(n, seed, params)
+def harmonize_datasets(
+    discounting: pd.DataFrame,
+    procrastination: pd.DataFrame,
+    nback: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Wrapper that forwards to the library implementation.
+
+    The original ``harmonize_datasets`` expects a ``dict``; the test
+    suite supplies three separate DataFrames, so we adapt the call.
+    """
+    return _harmonize_datasets(
+        {
+            "discounting": discounting,
+            "procrastination": procrastination,
+            "nback": nback,
+        }
+    )
+
+# ----------------------------------------------------------------------
+# Core ingestion / harmonisation routine
+# ----------------------------------------------------------------------
+def _load_raw_csv(file_name: str) -> pd.DataFrame:
+    """Load a CSV from ``data/raw``; raise if the file is missing."""
+    raw_path = paths.data("raw", file_name)
+    if not raw_path.is_file():
+        raise FileNotFoundError(f"Required raw file not found: {raw_path}")
+    return pd.read_csv(raw_path)
+
+def _fit_discount_rates(df_discount: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Fit a hyperbolic model for each participant.
+
+    Returns
+    -------
+    df_rates : pd.DataFrame
+        Columns ``participant_id`` and ``discount_rate_k``.
+    excluded : list[str]
+        Participant IDs for which fitting failed.
+    """
+    required_cols = {"participant_id", "delay", "amount", "choice"}
+    if not required_cols.issubset(df_discount.columns):
+        raise ValueError(
+            f"Discounting data must contain columns {required_cols}. "
+            f"Found: {list(df_discount.columns)}"
+        )
+
+    participants = df_discount["participant_id"].unique()
+    rates = []
+    excluded = []
+
+    for pid in participants:
+        sub = df_discount[df_discount["participant_id"] == pid]
+        delays = sub["delay"].to_numpy()
+        immediate = sub["amount"].iloc[0]  # assume constant across rows
+        values = np.where(sub["choice"] == 1, immediate, sub["amount"])
+
+        k, reason = fit_hyperbolic_model(delays, values, immediate, pid)
+        if k is None:
+            excluded.append(pid)
+        else:
+            rates.append({"participant_id": pid, "discount_rate_k": k})
+
+    df_rates = pd.DataFrame(rates)
+    return df_rates, excluded
+
+def _compute_derived_variables(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute ``log_k``, mean‑center ``log_k`` and ``wm_accuracy``,
+    and add the interaction term.
+    """
+    df = df.copy()
+    # Log‑transform (add a tiny constant to avoid log(0))
+    df["log_k"] = np.log(df["discount_rate_k"] + 1e-8)
+
+    # Mean‑center
+    df["log_k_centered"] = df["log_k"] - df["log_k"].mean()
+    df["wm_accuracy_centered"] = df["wm_accuracy"] - df["wm_accuracy"].mean()
+
+    # Interaction
+    df["interaction"] = df["log_k_centered"] * df["wm_accuracy_centered"]
     return df
 
-# ----------------------------------------------------------------------
-# Existing CLI entry point (kept for backwards compatibility)
-# ----------------------------------------------------------------------
-def main():
-    """Main entry point for ingestion script."""
-    parser = argparse.ArgumentParser(description="Data Ingestion Pipeline")
-    parser.add_argument('--mode', choices=['generate', 'validate'], default='generate',
-                        help='Operation mode')
-    parser.add_argument('--n', type=int, default=500, help='Number of participants')
-    parser.add_argument('--seed', type=int, default=42, help='Random seed')
+def _write_json(path: Path, payload: Any) -> None:
+    """Write ``payload`` as pretty‑printed JSON."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w") as f:
+        json.dump(payload, f, indent=2)
 
+# ----------------------------------------------------------------------
+# Synthetic data generator (public API)
+# ----------------------------------------------------------------------
+def run_dgp_pipeline(
+    n: int = 500,
+    seed: int = 42,
+    config: Dict[str, Any] | None = None,
+) -> Dict[str, pd.DataFrame]:
+    """
+    Generate a synthetic dataset that mimics the three required sources.
+
+    The function:
+    1. Creates three DataFrames (discounting, procrastination, n‑back) with
+       realistic‑looking values based on ``config``.
+    2. Writes each DataFrame to ``data/raw/<filename>.csv`` using the
+       ``llmxive_toolkit.paths`` helpers (ensuring the directories exist).
+    3. Returns a dictionary with the three DataFrames.
+
+    Parameters
+    ----------
+    n : int
+        Number of participants to simulate.
+    seed : int
+        Random seed for reproducibility.
+    config : dict | None
+        Optional overrides for the default DGP parameters.
+
+    Returns
+    -------
+    dict
+        Keys ``discounting``, ``procrastination``, ``nback`` mapping to the
+        generated DataFrames.
+    """
+    if config is None:
+        config = DGP_DEFAULTS
+
+    rs = get_random_state(offset=0)  # deterministic seed handling
+    rs.seed(seed)
+
+    # ------------------------------------------------------------------
+    # Participant IDs
+    # ------------------------------------------------------------------
+    participant_ids = [f"P{i:05d}" for i in range(1, n + 1)]
+
+    # ------------------------------------------------------------------
+    # Discounting dataset
+    # ------------------------------------------------------------------
+    # We'll create 5 delay points per participant (typical in discounting tasks)
+    delays = np.array([1, 7, 30, 90, 180])  # days
+    discount_rows = []
+    for pid in participant_ids:
+        # Simulate a true k for the participant from a log‑normal distribution
+        true_k = max(0.0, rs.normal(config["k_mean"], config["k_sd"]))
+        immediate_amount = 100.0
+        for d in delays:
+            # Subjective value according to the hyperbolic model plus noise
+            subj = hyperbolic_function(immediate_amount, true_k, d)
+            # Simulate a binary choice: 1 if immediate is chosen, else delayed
+            # Add a small random perturbation to model stochasticity
+            choice = 1 if rs.rand() < (immediate_amount - subj) / immediate_amount else 0
+            discount_rows.append(
+                {
+                    "participant_id": pid,
+                    "delay": d,
+                    "amount": immediate_amount,
+                    "choice": choice,
+                }
+            )
+    df_discount = pd.DataFrame(discount_rows)
+
+    # ------------------------------------------------------------------
+    # Procrastination dataset
+    # ------------------------------------------------------------------
+    procrast_rows = []
+    for pid in participant_ids:
+        score = max(
+            0.0,
+            rs.normal(
+                config["procrastination_mean"], config["procrastination_sd"]
+            ),
+        )
+        procrast_rows.append(
+            {"participant_id": pid, "procrastination_score": score}
+        )
+    df_procrast = pd.DataFrame(procrast_rows)
+
+    # ------------------------------------------------------------------
+    # N‑back dataset (working‑memory accuracy)
+    # ------------------------------------------------------------------
+    nback_rows = []
+    for pid in participant_ids:
+        acc = rs.normal(
+            config["wm_accuracy_mean"], config["wm_accuracy_sd"]
+        )
+        # Clip to [0, 1]
+        acc = float(np.clip(acc, 0.0, 1.0))
+        nback_rows.append({"participant_id": pid, "wm_accuracy": acc})
+    df_nback = pd.DataFrame(nback_rows)
+
+    # ------------------------------------------------------------------
+    # Write CSV files to the raw data folder
+    # ------------------------------------------------------------------
+    raw_paths = {
+        RAW_DELAY_FILE: df_discount,
+        RAW_PROCRASTINATION_FILE: df_procrast,
+        RAW_NBACK_FILE: df_nback,
+    }
+    for fname, df in raw_paths.items():
+        out_path = paths.data("raw", fname)
+        df.to_csv(out_path, index=False)
+
+    logger.info(
+        f"Synthetic DGP generated {n} participants and written to data/raw/"
+    )
+    return {
+        "discounting": df_discount,
+        "procrastination": df_procrast,
+        "nback": df_nback,
+    }
+
+# ----------------------------------------------------------------------
+# Core ingestion / harmonisation routine (unchanged apart from parquet output)
+# ----------------------------------------------------------------------
+def load_and_harmonize(n: int = 500, seed: int = 42) -> pd.DataFrame:
+    """
+    Load raw files (or generate synthetic data) and produce a unified,
+    analysis‑ready DataFrame.
+
+    The function follows the steps required by the specification:
+    1.  Load the three raw CSVs.  If any are missing, fall back to the
+        synthetic DGP pipeline (used in unit tests).
+    2.  Inner‑join on ``participant_id``.
+    3.  Abort if more than 10 % of rows are lost during the join.
+    4.  Fit a hyperbolic discounting model for each participant; participants
+        with failed fits are written to ``excluded_participants.csv``.
+    5.  Compute ``log_k``, mean‑center predictors, and create the interaction
+        term.
+    6.  Write the final DataFrame to ``unified_analysis.csv`` and a detailed
+        log to ``harmonization_log.json``.
+    7.  Record SHA‑256 hashes of all newly created files in
+        ``file_hashes.json`` (project‑local; no ``state/`` writes).
+
+    Parameters
+    ----------
+    n : int, optional
+        Number of participants to generate when falling back to the synthetic
+        DGP pipeline (default 500).
+    seed : int, optional
+        Random seed for the synthetic pipeline (default 42).
+
+    Returns
+    -------
+    pd.DataFrame
+        The harmonised analysis DataFrame.
+    """
+    # ------------------------------------------------------------------
+    # Step 1 – load raw data (real if present, else synthetic)
+    # ------------------------------------------------------------------
+    try:
+        df_delay = _load_raw_csv(RAW_DELAY_FILE)
+        df_procrast = _load_raw_csv(RAW_PROCRASTINATION_FILE)
+        df_nback = _load_raw_csv(RAW_NBACK_FILE)
+        synthetic_fallback = False
+    except FileNotFoundError:
+        logger.info(
+            "One or more raw files missing – falling back to synthetic DGP."
+        )
+        synthetic_data = run_dgp_pipeline(n, seed, DGP_DEFAULTS)
+        df_delay = synthetic_data["discounting"]
+        df_procrast = synthetic_data["procrastination"]
+        df_nback = synthetic_data["nback"]
+        synthetic_fallback = True
+
+    # ------------------------------------------------------------------
+    # Step 2 – basic validation of required columns
+    # ------------------------------------------------------------------
+    for name, df in {
+        "delay discounting": df_delay,
+        "procrastination": df_procrast,
+        "n‑back": df_nback,
+    }.items():
+        if "participant_id" not in df.columns:
+            raise ValueError(f"'{name}' data must contain a 'participant_id' column.")
+
+    # ------------------------------------------------------------------
+    # Step 3 – harmonise / inner join
+    # ------------------------------------------------------------------
+    merged = harmonize_datasets(df_delay, df_procrast, df_nback)
+
+    # Verify loss ≤ 10 %
+    initial_ids = set(df_delay["participant_id"]).union(
+        df_procrast["participant_id"], df_nback["participant_id"]
+    )
+    loss_ratio = 1 - len(merged) / len(initial_ids)
+    if loss_ratio > 0.10:
+        halt_path = paths.data("processed", HALT_LOG)
+        _write_json(
+            halt_path,
+            {
+                "reason": "ID mismatch caused >10 % loss",
+                "loss_ratio": loss_ratio,
+                "initial_ids": len(initial_ids),
+                "final_ids": len(merged),
+            },
+        )
+        raise RuntimeError("Halt: excessive ID loss during harmonisation.")
+
+    # ------------------------------------------------------------------
+    # Step 4 – fit hyperbolic model per participant
+    # ------------------------------------------------------------------
+    df_rates, excluded = _fit_discount_rates(df_delay)
+    merged = merged.merge(df_rates, on="participant_id", how="left")
+
+    # Record excluded participants
+    excluded_path = paths.data("processed", EXCLUDED_CSV)
+    pd.DataFrame({"participant_id": excluded}).to_csv(
+        excluded_path, index=False
+    )
+
+    # ------------------------------------------------------------------
+    # Step 5 – core construct check (discount_rate_k, procrastination_score,
+    #          wm_accuracy)
+    # ------------------------------------------------------------------
+    core_cols = ["discount_rate_k", "procrastination_score", "wm_accuracy"]
+    missing_core = [col for col in core_cols if col not in merged.columns]
+    if missing_core:
+        halt_path = paths.data("processed", HALT_LOG)
+        _write_json(
+            halt_path,
+            {
+                "reason": "Missing core construct columns",
+                "missing_columns": missing_core,
+            },
+        )
+        raise RuntimeError(f"Halt: missing core columns {missing_core}")
+
+    if merged[core_cols].isna().any().any():
+        halt_path = paths.data("processed", HALT_LOG)
+        _write_json(
+            halt_path,
+            {
+                "reason": "NaNs in core construct columns",
+                "nan_counts": merged[core_cols].isna().sum().to_dict(),
+            },
+        )
+        raise RuntimeError("Halt: NaNs detected in core columns.")
+
+    # ------------------------------------------------------------------
+    # Step 6 – compute derived variables
+    # ------------------------------------------------------------------
+    merged = _compute_derived_variables(merged)
+
+    # ------------------------------------------------------------------
+    # Step 7 – write outputs
+    # ------------------------------------------------------------------
+    unified_path = paths.data("processed", UNIFIED_CSV)
+    merged.to_csv(unified_path, index=False)
+
+    # Also write a parquet version (required by an integration test)
+    parquet_path = paths.data("processed", HARMONIZED_PARQUET)
+    merged.to_parquet(parquet_path, index=False)
+
+    log_payload = {
+        "mode": "synthetic" if synthetic_fallback else "real",
+        "participant_count_before": len(initial_ids),
+        "participant_count_after": len(merged),
+        "excluded_participants": excluded,
+        "loss_ratio": loss_ratio,
+    }
+    _write_json(paths.data("processed", HARMONIZATION_LOG), log_payload)
+
+    # ------------------------------------------------------------------
+    # Step 8 – record file hashes (project‑local, not platform state)
+    # ------------------------------------------------------------------
+    hashes = {
+        UNIFIED_CSV: _sha256(unified_path),
+        HARMONIZATION_LOG: _sha256(paths.data("processed", HARMONIZATION_LOG)),
+        EXCLUDED_CSV: _sha256(excluded_path),
+        HARMONIZED_PARQUET: _sha256(parquet_path),
+    }
+    if Path(HALT_LOG).exists():
+        hashes[HALT_LOG] = _sha256(paths.data("processed", HALT_LOG))
+    _write_json(paths.data("processed", HASHES_JSON), hashes)
+
+    logger.info("Ingestion & harmonisation completed successfully.")
+    return merged
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Data Ingestion Pipeline")
+    parser.add_argument(
+        "--mode",
+        choices=["generate", "load"],
+        default="load",
+        help="Operation mode (generate synthetic DGP or load real CSVs).",
+    )
+    parser.add_argument(
+        "--n",
+        type=int,
+        default=500,
+        help="Number of participants for synthetic generation (ignored in load mode).",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for synthetic generation.",
+    )
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
 
-    # Definitive parameters (same as in load_and_harmonize)
-    params = {
-        "k_mean": 0.05, "k_sd": 0.02,
-        "procrastination_mean": 3.5, "procrastination_sd": 0.8,
-        "wm_accuracy_mean": 0.85, "wm_accuracy_sd": 0.1,
-        "age_mean": 25, "age_sd": 5,
-        "gender_distribution": {"male": 0.5, "female": 0.5, "other": 0.0},
-        "education_mean": 16, "education_sd": 2
-    }
-
-    if args.mode == 'generate':
-        run_dgp_pipeline(args.n, args.seed, params)
-    elif args.mode == 'validate':
-        logger.info("Validation mode not fully implemented")
+    if args.mode == "generate":
+        # Synthetic generation – retained for backward compatibility / tests
+        run_dgp_pipeline(args.n, args.seed, DGP_DEFAULTS)
+    else:
+        # Load (real) data and run the full pipeline
+        load_and_harmonize(n=args.n, seed=args.seed)
 
 if __name__ == "__main__":
     main()

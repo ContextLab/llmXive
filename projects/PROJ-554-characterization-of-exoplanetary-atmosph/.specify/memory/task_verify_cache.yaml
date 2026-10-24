@@ -48,6 +48,55 @@ T005b:
     \ classes and provides a `retry_on_failure` decorator implementing retry\u2011\
     with\u2011backoff logic, fulfilling the required error\u2011handling wrapper."
   sig: aa5ae5ee2c52409dc94c1443e3b19c11df23d3b012a6118bfd190361dd8667eb
+T005c:
+  c: false
+  h: ba37210e237c0b8a5ee5f4c2b9df2d2eba3b4fb3e966a1d36909b1b012a50ed1
+  r: "The `code/utils.py` file is present, but the censored\u2011data helper functions\
+    \ reference `pd` (pandas) and `Dict` without importing them, so they will raise\
+    \ `NameError` when used. Missing imports mean the upper\u2011limit handling utilities\
+    \ are not functional, violating the task requirement."
+  sig: 9846f40ef3cd2c0f2a15c08c537988349b8b522cbcd78fe94da0caba7f47c603
+T006b:
+  c: true
+  h: f04edf9acba2ae479a0489640ff3e93ad84310e10f3a86c9ee37765f4d56a53b
+  r: "The evidence shows the `code/`, `tests/unit/`, `tests/contract/`, and `tests/integration/`\
+    \ directories all exist under the project root and contain multiple files (non\u2011\
+    empty listings are provided). This fulfills the task\u2019s requirement to create\
+    \ and verify those directories."
+  sig: 847b5068ff91b3dce9dc9cf7e4e53f79b279d7c0adf6b94f66561186765d1a3e
+T007:
+  c: true
+  h: 611b845f2824519dcaef65d8e00c4c4748e5a4033e263569e470d1ecbdc82558
+  r: "Checked `code/data_models.py` (1124\u202Fbytes) which defines the `ExoplanetSpectrum`\
+    \ and `RetrievalResult` dataclasses with appropriate fields and no placeholders.\
+    \ The file exists, is non\u2011empty, and implements the required base data models."
+  sig: cb684db62abc63fdad3b31203e23a6df9cb09737ee16fea9a90273f32dfe8e0c
+T008:
+  c: true
+  h: ed8449aa6a41c68c5fa199687f0bda8ead9a646eec3672abc2bf26c89d42a3ae
+  r: "Checked `code/config.py` (1994\u202Fbytes) which defines `load_env_vars()` that\
+    \ reads `API_KEY` from the environment and provides a `set_random_seed()` function\
+    \ to set Python and NumPy seeds. The module also uses `os.getenv` for other config\
+    \ values, fulfilling the environment\u2011variable handling and seed configuration\
+    \ requirement."
+  sig: 20dbc3aa5564c619c6aa2fb09670218026dfd73d481da813a68132dd07c2f80b
+T009:
+  c: true
+  h: bec0314e64f13a4a4dc6e959fb81762b2fec1d3522a126fd2cb941743d39d69a
+  r: Checked the presence and content of `tests/contract/test_metadata_schema.py`,
+    which defines the required `validate_metadata_schema` function and includes pytest
+    tests covering valid files, missing columns, null values, invalid categories,
+    and negative values, satisfying the contract test requirement.
+  sig: cbeb1083bf016dfd2d8a51fd0c4d0d62d8cbd13e2630b6ca139cb5ab6a323a5f
+T010:
+  c: false
+  h: 24900b347508a074672050e919540e935da93b5cc74f431398155af6657ca7ac
+  r: "The `tests/integration/test_download.py` file exists and defines `test_download_returns_valid_metadata`,\
+    \ but it performs a real API fetch (or optional local cache) instead of using\
+    \ mocked parameters as required. No mock objects or predefined mock query parameters\
+    \ are set up, so the integration test does not satisfy the \u201Cspecific mock\
+    \ parameters\u201D clause."
+  sig: 78b63cf83c5770bab7f81f004e327e449449e81e5267cca73fd1be15f620c478
 T013a:
   c: false
   h: ff4f46866d930bad15abb21a93f3a1f18ca14920ed5caa45b605063b77da0552

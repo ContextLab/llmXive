@@ -58,11 +58,11 @@
 - [X] T004 [P] Setup `code/config.py` for configuration loading (paths, seeds, CPU thread limits)
 - [X] T005a [P] Implement logging setup in `code/utils.py` (logging configuration, log levels)
 - [X] T005b [P] Implement error handling wrapper in `code/utils.py` (custom exceptions, retry logic)
-- [~] T005c [P] Implement censored data helpers in `code/utils.py` (upper limit handling functions)
+- [ ] T005c [P] Implement censored data helpers in `code/utils.py` (upper limit handling functions)
 - [ ] T006a [P] Create data directories: `data/raw/`, `data/processed/`; verify existence
-- [~] T006b [P] Create code and test directories: `code/`, `tests/unit/`, `tests/contract/`, `tests/integration/`; verify existence
-- [~] T007 [P] Create base data models in `code/data_models.py` (Exoplanet Spectrum, Retrieval Result)
-- [~] T008 [P] Configure environment variable handling for API keys (if needed) and random seeds. **Deliverable**: `code/config.py` updated to load API keys from env vars.
+- [X] T006b [P] Create code and test directories: `code/`, `tests/unit/`, `tests/contract/`, `tests/integration/`; verify existence
+- [X] T007 [P] Create base data models in `code/data_models.py` (Exoplanet Spectrum, Retrieval Result)
+- [X] T008 [P] Configure environment variable handling for API keys (if needed) and random seeds. **Deliverable**: `code/config.py` updated to load API keys from env vars.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,8 +78,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T009 [US1] Contract test for metadata schema in `tests/contract/test_metadata_schema.py` implementing `validate_metadata_schema` function. **Depends on T007**.
-- [~] T010 [US1] Integration test for API download in `tests/integration/test_download.py` implementing `test_download_returns_valid_metadata` with specific mock parameters. **Depends on T007**.
+- [X] T009 [US1] Contract test for metadata schema in `tests/contract/test_metadata_schema.py` implementing `validate_metadata_schema` function. **Depends on T007**.
+- [ ] T010 [US1] Integration test for API download in `tests/integration/test_download.py` implementing `test_download_returns_valid_metadata` with specific mock parameters. **Depends on T007**.
 
 ### Implementation for User Story 1
 

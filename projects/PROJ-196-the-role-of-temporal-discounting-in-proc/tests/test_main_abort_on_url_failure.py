@@ -3,7 +3,6 @@ Test that the main orchestrator aborts cleanly when a URL verification fails.
 """
 import subprocess
 import sys
-import os
 from pathlib import Path
 
 def test_abort_without_fallback():

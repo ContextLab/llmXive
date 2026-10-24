@@ -1,7 +1,9 @@
 T001:
-  reason: "The `tests/test_scaffolding.py` file is missing, and the required sub\u2011\
-    folders `data/raw` and `data/processed` are not present in the listed project\
-    \ contents. Without these artifacts the scaffold verification cannot succeed."
+  reason: "The project root contains `data/raw`, `code`, `tests`, and `docs`, and\
+    \ the scaffold test file is present, but there is no evidence that the required\
+    \ `data/processed` sub\u2011folder actually exists (empty directories are not\
+    \ listed). Adding an empty `data/processed` directory is needed to satisfy the\
+    \ task."
   task: 259d99080f701e6fc38e17a7cd275d625f80f320c7f3177bf89d1728a883575b
 T002:
   task: 8d0e3ffbdc909706caa7cb33dc0fc77eb007d635acc229a099733f27a630d003

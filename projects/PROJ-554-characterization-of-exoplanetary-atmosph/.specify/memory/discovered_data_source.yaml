@@ -1,11 +1,11 @@
 status: none
-intent: NASA Exoplanet Archive transmission spectra API download python package dataset
+intent: NASA Exoplanet Archive transmission spectra download python package dataset
 required_fields:
 - planet_name
-- planet_category
 - equilibrium_temperature_K
-- host_star_metallicity_FeH
+- host_star_metallicity_Fe_H
+- planet_category
 - transmission_spectrum_url
-cache_key: 5c577028b90ee9ef65c610d625027bd7d549e35c0a68846889ef1f99bcc1f4f8
-searched_at: '2026-10-12T15:19:02.672538+00:00'
+cache_key: 9a608e2b0be572b81fc05aef2104f5edac886d545394b4d122f64236c807b7a0
+searched_at: '2026-10-24T21:32:42.560182+00:00'
 retry_count: 1
