@@ -4,16 +4,13 @@ Implements T002: Streams the eBird Basic Dataset (EBD) from HuggingFace,
 filters for the focal species (Setophaga ruticilla) and complete‑checklist
 criteria, and writes the result to a chunked CSV.
 """
-import csv
-import gzip
-import io
 import json
 import logging
 from pathlib import Path
 from typing import List
 
-import requests
 import pandas as pd
+import datasets
 
 from code.config import (
     DATA_RAW,
@@ -44,11 +41,6 @@ CHUNK_SIZE = 50_000
 EBIRD_OUTPUT_FILE = "ebd_subset.csv"
 CHECKSUMS_FILE = "checksums.json"
 
-# URL of the eBird Basic Dataset on HuggingFace (gzipped CSV)
-EBIRD_DATA_URL = (
-    "https://huggingface.co/datasets/vvud/eb-data/resolve/main/ebd.csv.gz"
-)
-
 def _record_passes_filters(record: dict) -> bool:
     """
     Return True if the record satisfies all required filters.
@@ -71,13 +63,13 @@ def _record_passes_filters(record: dict) -> bool:
             return False
 
         # Spatial filter (full North American bbox)
-        lat = float(record.get("latitude"))
-        lon = float(record.get("longitude"))
+        lat = float(record.get("latitude", 0))
+        lon = float(record.get("longitude", 0))
         if not (LAT_MIN <= lat <= LAT_MAX and LON_MIN <= lon <= LON_MAX):
             return False
 
         # Year filter
-        year = int(record.get("year"))
+        year = int(record.get("year", 0))
         if not (YEAR_START <= year <= YEAR_END):
             return False
 
@@ -85,28 +77,6 @@ def _record_passes_filters(record: dict) -> bool:
     except (TypeError, ValueError):
         # If any required field is missing or non‑numeric, it fails the filter
         return False
-
-def _stream_ebird_records() -> List[dict]:
-    """
-    Stream the eBird CSV from HuggingFace and yield each record as a dict.
-    This function uses HTTP streaming and gzip decompression to avoid loading
-    the entire file into memory.
-    """
-    logger.info(f"Downloading eBird data from {EBIRD_DATA_URL}")
-    try:
-        response = requests.get(EBIRD_DATA_URL, stream=True, timeout=120)
-        response.raise_for_status()
-    except Exception as e:
-        logger.critical(f"Failed to download eBird dataset: {e}")
-        raise
-
-    # Wrap the raw response stream with a GzipFile and a TextIOWrapper
-    gzip_file = gzip.GzipFile(fileobj=response.raw)
-    text_stream = io.TextIOWrapper(gzip_file, encoding="utf-8")
-    csv_reader = csv.DictReader(text_stream)
-
-    for row in csv_reader:
-        yield row
 
 def load_ebird_data() -> pd.DataFrame:
     """
@@ -134,12 +104,20 @@ def load_ebird_data() -> pd.DataFrame:
         except Exception as e:
             logger.warning(f"Checksum verification failed: {e}")
 
-    logger.info("Starting streaming, filtering, and chunked write process...")
+    logger.info("Streaming eBird data from HuggingFace 'vvud/eb-data'...")
+    
+    try:
+        # Stream the dataset as requested in T002
+        dataset = datasets.load_dataset("vvud/eb-data", split="train", streaming=True)
+    except Exception as e:
+        logger.critical(f"Failed to load dataset from HuggingFace: {e}")
+        raise
+
     rows_written = 0
     header_written = False
     chunk: List[dict] = []
 
-    for record in _stream_ebird_records():
+    for record in dataset:
         if _record_passes_filters(record):
             chunk.append(record)
 

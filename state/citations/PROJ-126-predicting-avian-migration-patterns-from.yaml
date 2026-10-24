@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/earthmod/modis-8day/resolve/main/modis_8day.npz
   verified_at: '2026-10-23T10:36:56.735596Z'
-- artifact_hash: 107b11c4d77b2051abad1db4bc8b2e74c2df61cbd9b87771e53c2ce196c7d248
+- artifact_hash: a723e591a7640b5700f63916ab8de71705fafd1fc77e5cbc8efe69570bd8cd42
   artifact_path: projects/PROJ-126-predicting-avian-migration-patterns-from/specs/001-predicting-avian-migration-patterns-from/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://huggingface.co/datasets/earthmod/modis-8day/resolve/main/modis_8day.npz`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/earthmod/modis-8day/resolve/main/modis_8day.npz
-  verified_at: '2026-10-24T03:16:52.034338Z'
+  verified_at: '2026-10-24T14:09:47.059433Z'
