@@ -16,7 +16,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 run-book script(s) missing (plan/impl path mismatch): python code/preprocess.py   # band‑pass, ICA, mastoid re‑reference, baseline correction, epoching (FR‑002‑FR‑003); python code/analysis.py; python code/visualize.py; 3 command(s) failed: python code/verify_references.py --stage dataset   # checks ds004510 URL (FR‑012‑1) (rc=2); python code/verify_references.py --stage citations # checks bibliography (FR‑012‑3) (rc=2); python code/download.py   # downloads OpenNeuro‑fslr64k, verifies checksum, records hash (FR‑001, FR‑013) (rc=2); 2 declared deliverable(s) absent: data/raw/checksums.json; data/results/citation_verification.json
+**Summary**: 3 command(s) failed: python code/verify_references.py --stage dataset   # checks ds004510 URL (FR‑012‑1) (rc=2); python code/verify_references.py --stage citations # checks bibliography (FR‑012‑3) (rc=2); python code/download.py   # downloads OpenNeuro‑fslr64k, verifies checksum, records hash (FR‑001, FR‑013) (rc=2); 2 declared deliverable(s) absent: data/raw/checksums.json; data/results/citation_verification.json
 
 ## Failing / missing run-book commands
 
@@ -36,18 +36,6 @@ verify_references.py: error: unrecognized arguments: # checks bibliography (FR�
 
 usage: download.py [-h] [--subjects SUBJECTS] [--dataset-id DATASET_ID]
 download.py: error: unrecognized arguments: # downloads OpenNeuro‑fslr64k, verifies checksum, records hash (FR‑001, FR‑013)
-
-- python code/preprocess.py   # band‑pass, ICA, mastoid re‑reference, baseline correction, epoching (FR‑002‑FR‑003) -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-250-neural-correlates-of-temporal-prediction/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/preprocess.py': [Errno 2] No such file or directory
-
-- python code/analysis.py -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-250-neural-correlates-of-temporal-prediction/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/analysis.py': [Errno 2] No such file or directory
-
-- python code/visualize.py -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-250-neural-correlates-of-temporal-prediction/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-250-neural-correlates-of-temporal-prediction/code/visualize.py': [Errno 2] No such file or directory
 
 
 ## Declared deliverables still missing
