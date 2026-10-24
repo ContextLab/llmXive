@@ -19,7 +19,7 @@ The data model defines the schema for all intermediate and final artifacts produ
 | `measurement_id` | string | Unique identifier. |
 | `host_id` | string | FK to `HostMolecule`. |
 | `halide_identity` | string (`"F-"`, `"Cl-"`, `"Br-"`, `"I-"`) | Halide ion. |
-| `binding_constant` | number | Log K or ΔG (simulated if needed). |
+| `binding_constant` | number | Log K or ΔG (simulated if needed). |
 | `solvent` | string (`"acetonitrile"`, `"chloroform"`, `"dichloromethane"`) | Solvent used. |
 | `reference_doi` | string | DOI of source or `"SIMULATED"`. |
 
@@ -34,13 +34,15 @@ The data model defines the schema for all intermediate and final artifacts produ
 | `feature_stability` | list of objects | `{feature_name:string, cv:number, is_stable:boolean}`. |
 
 ## Data Flow & File Layout
-- **CSV Implementation**: The pipeline writes a **single wide‑format CSV** (`halide_binding_data.csv`) where **each row corresponds to a single measurement** and **contains both host‑level fields** (`host_id`, `smiles`, `charge_density`, `cavity_volume`, `source`) **and measurement‑level fields** (`halide_identity`, `binding_constant`, `solvent`). This CSV **directly implements the combined entity** described by `HostMolecule` + `BindingMeasurement` and conforms to `contracts/dataset.schema.yaml`.  
-- The logical separation into `HostMolecule` and `BindingMeasurement` is retained in this documentation for clarity and future extensibility only; **no separate physical files are produced** for these entities. The physical storage is one CSV per dataset (primary and independent evaluation) to satisfy the Constitution’s Single Source of Truth requirement.  
-- In Simulated mode, each host row carries exactly one halide measurement by construction (single‑halide mode per FR‑011).
+- **CSV Implementation**: The pipeline writes a **single wide‑format CSV** (`halide_binding_data.csv`) where **each row corresponds to a single measurement** and **contains both host‑level fields** (`host_id`, `smiles`, `charge_density`, `cavity_volume`, `source`) **and measurement‑level fields** (`halide_identity`, `binding_constant`, `solvent`). This CSV directly implements the combined entity described by `HostMolecule` + `BindingMeasurement` and conforms to `contracts/dataset.schema.yaml`.  
+- In Simulated mode, each host row carries exactly one halide measurement (single‑halide mode per the applicable functional requirement).  
+- The logical separation into `HostMolecule` and `BindingMeasurement` is retained in documentation for clarity and future extensibility; **no separate physical files are produced** for these entities.  
 
 ## Data Files
-1. `data/processed/halide_binding_data.csv` – wide format, validated against `dataset.schema.yaml`.  
-2. `data/processed/independent_eval.csv` – independent evaluation set (feature‑independent targets), also validated against `dataset.schema.yaml`.  
+1. `data/processed/halide_binding_data.csv` – validated against `dataset.schema.yaml`.  
+2. `data/processed/independent_eval.csv` – independent evaluation set, also validated against `dataset.schema.yaml`.  
 3. `data/processed/model_runs.json` – list of `ModelRun` objects, validated against `model_output.schema.yaml`.  
 4. `data/processed/feature_analysis.json` – feature‑stability results.  
-5. `data/processed/report.md` – final narrative report (structure checked against `output.schema.yaml`).
+5. `data/processed/report.md` – final narrative report (structure checked against `output.schema.yaml`).  
+
+---

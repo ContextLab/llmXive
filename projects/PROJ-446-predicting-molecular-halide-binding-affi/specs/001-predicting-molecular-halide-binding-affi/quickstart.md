@@ -1,9 +1,9 @@
 # Quickstart: Predicting Molecular Halide Binding Affinities
 
 ## Prerequisites
-- Python 3.11 or newer  
+- Python 3.11 or newer  
 - `git` and internet access (for dataset download)  
-- 7 GB+ RAM (GitHub Actions runner provides this automatically)
+- Adequate RAM (GitHub Actions runner provides this automatically)
 
 ## Installation
 ```bash
@@ -26,32 +26,33 @@ Each step depends on the previous one. All scripts write to `data/processed/`. A
 python code/01_data_ingestion.py
 ```
 *Creates* `data/processed/halide_binding_data.csv` and `data/processed/independent_eval.csv`.  
-If real NIST/PubChem data are insufficient, the script automatically falls back to simulated data (see FR‑011) and also creates the independent evaluation set. In Simulated mode, each host carries a single halide measurement by construction.
+If real NIST/PubChem data are insufficient, the script automatically falls back to simulated data (FR‑011) and also creates the independent evaluation set. In Simulated mode each host carries a single halide measurement.
 
 ### Step 2: Feature Engineering
 ```bash
 python code/02_feature_engineering.py
 ```
-Adds RDKit descriptors, ECFP4 fingerprints, and standardized columns to a new CSV file.
+Adds RDKit descriptors, ECFP‑like fingerprints, and standardized columns to the CSV.  
+The unit test `tests/test_feature_engineering.py` (located in the top‑level `tests/` directory) imports the module via `sys.path.append('code')` and verifies that all required descriptor columns are present and correctly typed.
 
 ### Step 3: Model Training
 ```bash
 python code/03_model_training.py
 ```
-Trains Random Forest and Gradient Boosting models with host‑molecule GroupKFold.  
+Trains Random Forest and Gradient Boosting models with host‑molecule `RepeatedGroupKFold`.  
 Outputs `data/processed/model_runs.json`.
 
 ### Step 4: Model Output Schema Validation
 ```bash
 python -m jsonschema -i data/processed/model_runs.json contracts/model_output.schema.yaml
 ```
-Ensures the model output conforms to the contract (Task T009).
+Ensures the model output conforms to the contract (Task T009).
 
 ### Step 5: Feature Analysis
 ```bash
 python code/04_feature_analysis.py
 ```
-Performs bootstrap stability analysis and the physical plausibility check on the top feature (`charge_density`); in Simulated mode the check result is annotated "trivially satisfied by construction (simulated data)".  
+Performs bootstrap stability analysis and the physical plausibility check on the top feature (`charge_density`). In Simulated mode the check result is annotated “trivially satisfied by construction (simulated data)”.  
 Outputs `data/processed/feature_analysis.json`.
 
 ### Step 6: Partial Dependence Plots
@@ -64,7 +65,8 @@ Generates PDPs for the two most stable features and saves PNGs under `data/proce
 ```bash
 python code/05_statistical_reporting.py
 ```
-Generates bootstrap confidence intervals, under‑power warnings, and the final `report.md`.
+Generates bootstrap confidence intervals, under‑power warnings, and the final `report.md`.  
+Also creates a machine‑readable `output_summary.json` that conforms to `contracts/output.schema.yaml`.
 
 ### Step 8: Independent Evaluation on Hold‑Out Set
 ```bash
@@ -83,13 +85,14 @@ The Reference‑Validator Agent automatically checks all URLs listed in `researc
 5. `data/processed/figures/` contains at least two PNGs (`pdp_*.png`).  
 6. `data/processed/report.md` includes:
    - Dataset summary (real vs simulated flag).  
-   - Per‑halide performance tables (or abort notice).  
+   - Per‑halide performance tables **or** abort notice.  
    - Feature‑stability ranking.  
    - Partial dependence plots.  
    - Associational disclaimer.  
    - Appended independent‑evaluation metrics (feature‑independent target).  
+7. `data/processed/output_summary.json` conforms to `contracts/output.schema.yaml`.
 
 ## Troubleshooting
 - **MemoryError**: Reduce the number of sampled SMILES (edit `MAX_HOSTS` in `01_data_ingestion.py`).  
-- **No data found**: Expected when the scrape fails; the script logs a warning and proceeds with simulated data (exit code 0).  
-- **RDKit import errors**: Install via `conda` (`conda install -c rdkit rdkit`) or use the `rdkit-pypi` wheel.
+- **No data found**: Expected when the scrape fails; the script logs a warning and proceeds with simulated data (exit code 0).  
+- **RDKit import errors**: Install via `conda` (`conda install -c rdkit rdkit`) or use the `rdkit-pypi` wheel.  

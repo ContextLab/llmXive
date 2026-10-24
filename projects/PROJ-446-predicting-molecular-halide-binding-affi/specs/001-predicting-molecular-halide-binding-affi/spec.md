@@ -50,7 +50,7 @@ A researcher performs feature stability analysis to identify robust predictive d
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained gradient boosting model, **When** feature stability analysis (multiple bootstrap resamples) runs, **Then** the output includes a ranked list of top 10 features with stability scores (coefficient of variation)
+1. **Given** a trained gradient boosting model, **When** feature stability analysis (multiple bootstrap resamples) runs, **Then** the output includes a ranked list of the most important features with stability scores (coefficient of variation)
 2. **Given** the fitted model and test set, **When** partial dependence plots are generated, **Then** the plots show affinity trends for at least 2 features (e.g., hydrogen-bond donor count, cavity size) across the halide series
 3. **Given** the feature importance results, **When** the researcher reviews the top determinants, **Then** the output includes a summary table mapping features to their hypothesized chemical interpretation (e.g., "cationic center density → electrostatic attraction")
 
@@ -58,7 +58,7 @@ A researcher performs feature stability analysis to identify robust predictive d
 
 ### User Story 4 - Statistical Rigor & Reporting (Priority: P4)
 
-A researcher performs pairwise statistical comparisons of model performance across halide ions using **Bootstrap Confidence Intervals (95% CI, 10,000 resamples)** to compare mean R²/RMSE values, and generates a final report that explicitly states the findings are associational and includes a confidence interval summary for performance differences.
+A researcher performs pairwise statistical comparisons of model performance across halide ions using **Bootstrap Confidence Intervals (95% CI, a large number of resamples)** to compare mean R²/RMSE values, and generates a final report that explicitly states the findings are associational and includes a confidence interval summary for performance differences.
 
 **Why this priority**: This ensures the scientific validity of the comparative claims required by the Constitution (Principle VI) and addresses the risk of small sample sizes and correlated data. It depends on US-2.
 
@@ -92,7 +92,7 @@ A researcher performs pairwise statistical comparisons of model performance acro
 - **FR-006**: System MUST perform feature stability analysis (multiple bootstrap resamples) to identify robust predictive determinants of halide selectivity (See US-3)
 - **FR-007**: System MUST generate partial dependence plots for at least 2 key features showing affinity trends across the halide series (See US-3)
 - **FR-008**: System MUST frame all predictive findings as associational (not causal) in documentation, given the observational nature of the dataset (See US-4)
-- **FR-009**: System MUST compare R² and RMSE metrics across halide ions using **Bootstrap Confidence Intervals (95% CI, 10,000 resamples)** to assess if differences are statistically distinguishable from zero. The system MUST NOT use the Paired Wilcoxon signed-rank test on fold-level aggregates due to insufficient sample size (N=5) and invalid pairing assumptions. (See US-4)
+- **FR-009**: System MUST compare R² and RMSE metrics across halide ions using **Bootstrap Confidence Intervals (95% CI, a large number of resamples)** to assess if differences are statistically distinguishable from zero. The system MUST NOT use the Paired Wilcoxon signed-rank test on fold-level aggregates due to insufficient sample size (N=5) and invalid pairing assumptions. (See US-4)
 - **FR-010**: System MUST verify presence of raw SMILES or InChI strings for every host record; if missing, exclude the record and log the exclusion count (See US-1)
 - **FR-011**: System MUST verify the primary dataset contains ≥50 host molecules with ≥3 halides each and the `binding_constant` column. **IF** this fails, the system MUST: (1) Log the exact warning: "WARNING: Insufficient data (<50 hosts). Comparative analysis aborted. Switching to single-halide prediction mode with simulated data."; (2) Identify the most abundant halide in the available data; (3) Generate a simulated dataset where `log K_sim = 0.5 * charge_density + 0.3 * cavity_volume + N(0, 0.2)` (Gaussian noise). Here, `charge_density` is defined as the sum of Gasteiger charges on the host molecule, and `cavity_volume` is defined as the molecular volume (Å³) calculated via RDKit; (4) Validate the simulated data against `dataset.schema.yaml` before use; (5) Mark all outputs as "Simulated Data Mode" and explicitly state that the project FAILS to answer the primary comparative research question. (See US-1)
 - **FR-012**: System MUST verify that the dataset contains at least 10 host molecules per halide group before attempting detailed analysis; if N < 10 for any group, the system MUST report the analysis as "underpowered" and focus on reporting 95% Confidence Intervals for performance differences rather than significance testing. Post-hoc power analysis is explicitly excluded. (See US-4)
