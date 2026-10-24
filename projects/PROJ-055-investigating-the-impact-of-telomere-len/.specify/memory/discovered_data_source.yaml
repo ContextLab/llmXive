@@ -1,13 +1,14 @@
 status: none
-intent: download bird telomere length dataset AnAge BirdLife python package dataset
+intent: download telomere length Dryad dataset and AnAge lifespan CSV python package
+  dataset
 required_fields:
 - individual_id
 - species
 - telomere_length_kb
 - lifespan_years
-- body_mass_g
+- body_mass
 - migration_status
 - breeding_latitude
-cache_key: 5485b5745348dda841fa436d0a2b0e0eecefb21b859d4567d424f112304ca66e
-searched_at: '2026-10-24T06:13:40.124820+00:00'
+cache_key: c99ac7fbee69091a2aa66d6b6daab5bd5233e930ff01f908621b98ada60570d9
+searched_at: '2026-10-24T09:10:29.474414+00:00'
 retry_count: 1

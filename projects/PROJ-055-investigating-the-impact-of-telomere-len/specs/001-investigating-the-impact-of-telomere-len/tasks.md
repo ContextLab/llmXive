@@ -4,7 +4,7 @@
 
 ## Phase 0 – Dependency Specification  
 
-- [ ] T001 [P] Create reproducible dependency manifests   <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.R exit=-1 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.sh exit=127 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.R exit=-1 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.R exit=-1 -->
+- [ ] T001 [P] Create reproducible dependency manifests   <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.R exit=-1 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.sh exit=127 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.R exit=-1 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.R exit=-1 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.sh exit=127 -->
   - **Python**: `code/requirements.txt` listing pinned versions of `pandas`, `numpy`, `requests`, `rpy2`, `matplotlib`, `seaborn`, `pytest`, `pyyaml`, `tqdm`.  
   - **R**: `code/R/requirements_R.txt` containing package names and versions for `lme4`, `lmerTest`, `ggplot2`, `patchwork`, `performance`.  
   - **Verification**:  

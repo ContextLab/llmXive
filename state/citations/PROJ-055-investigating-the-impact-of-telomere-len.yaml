@@ -64,7 +64,7 @@
   verification_status: mismatch
   verified_against_url: https://www.birdlife.org/api/v1/ecology
   verified_at: '2026-10-24T01:45:03.403962Z'
-- artifact_hash: 95cdfed1c8c4ca7b79124f970905eb69e76d0ec0e9c7152acd8052f2f7cfabaf
+- artifact_hash: 53b738b723b9b9198cbbab2dc1311c953227c1ca45758177fc0b7d5997db0b74
   artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -74,8 +74,8 @@
   value: 10.5061/dryad.abc123
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5061/dryad.abc123
-  verified_at: '2026-10-24T06:12:04.996570Z'
-- artifact_hash: 95cdfed1c8c4ca7b79124f970905eb69e76d0ec0e9c7152acd8052f2f7cfabaf
+  verified_at: '2026-10-24T09:09:37.702666Z'
+- artifact_hash: 53b738b723b9b9198cbbab2dc1311c953227c1ca45758177fc0b7d5997db0b74
   artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -85,4 +85,4 @@
   value: 10.5061/dryad.def456
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5061/dryad.def456
-  verified_at: '2026-10-24T06:12:04.996570Z'
+  verified_at: '2026-10-24T09:09:37.702666Z'

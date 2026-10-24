@@ -18,9 +18,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/01_discover_data.py   # discovers Dryad DOIs; aborts on Data Availability Error -> rc=1
-2026-10-24 06:12:52 - telomere_pipeline - INFO - Starting Dryad dataset discovery (T002)...
-2026-10-24 06:12:52 - telomere_pipeline - INFO - Searching Dryad for query: 'telomere bird'
-2026-10-24 06:12:54 - telomere_pipeline - ERROR - Dryad API returned no results.
+2026-10-24 09:09:38 - telomere_pipeline - INFO - Starting Dryad dataset discovery (T002)...
+2026-10-24 09:09:38 - telomere_pipeline - INFO - Searching Dryad for query: 'telomere bird'
+2026-10-24 09:09:40 - telomere_pipeline - ERROR - Dryad API returned no results.
 
 
 - python code/02_ingest_data.py -> rc=1
