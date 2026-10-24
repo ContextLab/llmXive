@@ -1,9 +1,6 @@
 T001:
-  reason: "The required `data/results/feasibility_report.json` file is missing, and\
-    \ the execution log shows that all three source URLs were reported as unreachable\
-    \ (SSL error, 400 status, missing HuggingFace package), violating the \u201Call\
-    \ URLs must be reachable\u201D condition. The script therefore does not satisfy\
-    \ the task\u2019s output requirements."
+  reason: 'Requested task execution failed; rerun successfully: code/data/feasibility.py
+    exit=1'
   task: c6782c7b6f1d4eceb9f04bf0318d94186411186a68a940134c87859c38130386
 T002:
   task: 399b884e41dc4207056c71684d95a52743c77cd1621560b7593ef58f4c312529
