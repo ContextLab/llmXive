@@ -1,3 +1,14 @@
+T001:
+  c: false
+  h: e40aeab308a26601bb328aff0234d4989403b0824460d2c0dcff98e835462f5c
+  r: "The provided `code/data_loader.py` fetches datasets via `sklearn.datasets.fetch_openml`\
+    \ instead of the required `datasets.load_dataset` (HuggingFace) or plain HTTPS\
+    \ URLs, and all three hard\u2011coded OpenML IDs are observational (no genuine\
+    \ RCT dataset). Moreover, datasets skipped for having\u202FN\u202F<\u202F100 are\
+    \ simply omitted from the manifest rather than being recorded as a \u201CFLAGGED\u201D\
+    \ entry as the task specifies. These deviations mean the implementation does not\
+    \ meet the stated requirements."
+  sig: 159d5136f4ee96ec1b31eccd16169492b610bcffe8aff4eeb58fd0618d94cdbc
 T002:
   c: false
   h: f2d2915bbc022fd0ece291b4fae8811ed260775e38c5de8550449967db729aaf

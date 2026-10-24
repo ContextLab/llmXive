@@ -1,11 +1,11 @@
 status: none
-intent: OpenML clinical trial RCT-1 JSONL MCAR-0 Parquet MAR-0 CSV python package
+intent: OpenML RCT-1 JSONL MCAR-0 Parquet MAR-0 CSV synthetic treatment outcome python
+  package dataset
 required_fields:
+- subject_id
 - treatment
 - outcome
-- feature_1
-- feature_2
-- feature_3
-cache_key: af76d491b5a8b42bcc251c5a01e1940b848931d8fe5ef3e27079ae2d18c55a4c
-searched_at: '2026-10-24T06:11:25.231303+00:00'
+- baseline_covariates
+cache_key: 93a7feb2025513dc1b60209be71ef8f366b41fc091bd4fc27fe7dc8e47234557
+searched_at: '2026-10-24T07:10:42.321101+00:00'
 retry_count: 1

@@ -1,7 +1,0 @@
-{
-  "task_id": "T001",
-  "fingerprint": "cbdfcb78c9b928871b8ee6a3dc9aa2d8f2eb746b8023361ca85f3e5941d17836",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'tests/unit/test_data_loader.py': imports nonexistent names from sibling files: `from data_loader import _verify_columns` (available: DataLoadError, Dict, List, Optional, Path, _DATASET_IDS, _DATASET_URLS, _compute_sha256...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}
