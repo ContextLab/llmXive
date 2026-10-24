@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-24T19:11:42.250466+00:00",
+  "generated_at": "2026-10-24T19:19:22.248125+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -77597,7 +77597,7 @@
       "artifact_links": {
         "citations": "state/citations/PROJ-248-predicting-the-impact-of-alloying-on-mag.yaml",
         "code": "projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/code",
-        "data": "projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/data",
+        "data": null,
         "idea": "projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/idea/predicting-the-impact-of-alloying-on-mag.md",
         "paper_figures": null,
         "paper_pdf": null,
