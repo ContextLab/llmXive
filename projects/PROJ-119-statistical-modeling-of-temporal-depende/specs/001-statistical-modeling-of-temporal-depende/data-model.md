@@ -1,20 +1,18 @@
 # Data Model: Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations
 
-## Overview
-The project manipulates three logical data entities:
+## Logical Entities
 
 | Entity | Description | Primary Fields |
 |--------|-------------|----------------|
-| **AssetPriceRaw** | Unprocessed OHLCV records for a single asset. | `date (ISO8601)`, `open (float)`, `high (float)`, `low (float)`, `close (float)`, `volume (float)` |
-| **AssetReturnSeries** | Daily log‑returns and volatility proxy derived from `AssetPriceRaw`. | `date`, `btc_return`, `eth_return`, `vol_proxy_sq`, `vol_proxy_10d_std` |
-| **RegimeLabelSeries** | Integer regime label aligned with `AssetReturnSeries`. | `date`, `regime (int; 1=Low‑Vol, 2=High‑Vol, …)` |
-| **RSVARModel** | Collection of regime‑specific VAR parameters. | `regime (int)`, `coef_matrix (k×k)`, `cov_matrix (k×k)`, `lag (int)` |
-| **ModelComparisonMetrics** | Summary statistics for model selection & hypothesis tests. | `model_name`, `BIC`, `LR_pvalue`, `bootstrap_resamples`, `test_type` |
+| **AssetPriceRaw** | Unprocessed OHLCV records for a single asset. | `date (ISO‑8601)`, `open (float)`, `high (float)`, `low (float)`, `close (float)`, `volume (float)` |
+| **AssetReturnSeries** | Daily log‑returns and volatility proxies derived from `AssetPriceRaw`. | `date`, `btc_return`, `eth_return`, `vol_sq`, `vol_roll_std` |
+| **RegimeLabelSeries** | Integer regime label aligned with `AssetReturnSeries`. | `date`, `regime (int; 1=Low‑Vol, 2=High‑Vol, 3=optional third)` |
+| **RSVARModel** | Regime‑specific VAR parameters and diagnostics. | `regime (int)`, `lag (int)`, `coef_matrix (k×k)`, `cov_matrix (k×k)`, `autocorr_btc (float)`, `autocorr_eth (float)`, `cross_corr_resid (float)` |
+| **ModelComparisonMetrics** | Summary statistics for model selection and hypothesis testing. | `model_name`, `BIC`, `LR_pvalue`, `bootstrap_resamples`, `test_type` |
 
-All files are stored under `data/` (raw & derived) or `results/` (model outputs). Each transformation writes a new file; original raw files are never overwritten (Constitution Principle III).
+All files are stored under `data/` (raw & derived) or `results/` (model artefacts). Transformations always write new files; raw files are never overwritten (Constitution Principle III).
 
-## Schema Definitions
-Below are the JSON‑compatible schemas used by the contract tests. See `contracts/` for the full YAML versions.
+## Schema Definitions (YAML – see `contracts/` directory)
 
 ### `raw_price.schema.yaml`
 ```yaml
@@ -26,7 +24,7 @@ properties:
   date:
     type: string
     format: date
-    description: "Trading day (ISO‑8601)."
+    description: "Trading day in ISO‑8601 format."
   open:
     type: number
   high:
@@ -54,7 +52,7 @@ items:
       format: date
     regime:
       type: integer
-      enum: [1, 2, 3]   # 1=Low‑Vol, 2=High‑Vol, 3=optional third regime
+      enum: [1, 2, 3]
 additionalProperties: false
 ```
 

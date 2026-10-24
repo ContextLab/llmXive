@@ -1,30 +1,31 @@
 # Implementation Plan: Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations
 
-**Branch**: `feat/001-crypto-regime-switching` | **Date**: 2026-10-23 | **Spec**: [spec.md](../spec.md)  
+**Branch**: `feat/001-crypto-regime-switching` | **Date**: 2026-10-24 | **Spec**: [spec.md](../spec.md)  
 **Input**: Feature specification from `specs/001-statistical-modeling-of-temporal-depende/spec.md`
 
 ## Summary
-The core requirement is to download daily OHLCV data for Bitcoin (BTC) and Ethereum (ETH) over the last five years via the CoinGecko public API, compute log‑returns and volatility proxies, fit a 2‑state Hidden Markov Model (HMM) to define low‑ and high‑volatility regimes, estimate a Regime‑Switching Vector Autoregression (RS‑VAR) for each regime, and compare it to a stationary VAR using bootstrap likelihood‑ratio tests and BIC. The plan now maps every Functional Requirement (FR‑001 – FR‑010) and Success Criterion (SC‑001 – SC‑009) to concrete notebook phases, includes robust statistical procedures, and respects compute and data constraints.
+The project will (1) **download daily OHLCV data for Bitcoin and Ethereum directly from the public CoinGecko API**, covering the most recent **5 years** (≈ 1 800 trading days), (2) compute log‑returns and two volatility proxies, (3) identify low‑ and high‑volatility regimes via a 2‑state Hidden Markov Model (HMM) that uses *squared returns* as its emission feature, (4) estimate a Regime‑Switching Vector Autoregression (RS‑VAR) for each regime, (5) compare the RS‑VAR to a stationary VAR using a **parametric bootstrap likelihood‑ratio test** (10 000 resamples) and BIC, (6) run robustness checks (3‑state RS‑VAR, alternative volatility proxy), (7) **perform an independent validation of regime distinctness** using a *10‑day rolling absolute‑return* proxy that is *not* used in the HMM, (8) generate tables/figures, and (9) validate all artefacts against YAML contracts. All steps are wrapped in a single Jupyter notebook **`notebooks/analysis.ipynb`** that runs end‑to‑end on the GitHub Actions free‑tier runner.
 
 ## Technical Context
-- **Language/Version**: Python 3 (latest stable release)  
-- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `hmmlearn==0.3.*`, `statsmodels==0.14.*`, `scipy==1.13.*`, `matplotlib==3.8.*`, `seaborn==0.13.*`, `tqdm==4.66.*`, `requests==2.31.*`, `joblib==1.4.*`, `pyarrow==15.*`  
-- **Storage**: Local `data/` folder (raw downloads, intermediate CSVs, parquet files)  
-- **Testing**: `pytest` for contract validation; notebook execution is the primary integration test.  
-- **Target Platform**: Linux (GitHub Actions free‑tier runner)  
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**:  
+  `pandas==2.2.*`, `numpy==1.26.*`, `hmmlearn==0.3.*`, `statsmodels==0.14.*`, `scipy==1.13.*`, `matplotlib==3.8.*`, `seaborn==0.13.*`, `tqdm==4.66.*`, `requests==2.31.*`, `joblib==1.4.*`, `datasets==2.19.*`, `pyarrow==15.*`, `papermill==2.5.*`  
+- **Storage**: `data/` folder (raw downloads, derived CSV/Parquet) and `results/` for model artefacts.  
+- **Testing**: `pytest` + contract validation; notebook execution is the primary integration test.  
+- **Target Platform**: Linux runner on GitHub Actions (2 CPU cores, ≤ 7 GB RAM, ≤ 14 GB disk).  
 - **Constraints**: CPU‑only; all libraries have pure‑CPU wheels.  
-- **Scale/Scope**: ≈ several thousand daily observations per asset (yielding several thousand rows in total).
+- **Scale/Scope**: A few thousand daily observations comfortably fit in memory.
 
 ## Constitution Check
-| Principle | How the plan satisfies it |
-|-----------|--------------------------|
-| I. Reproducibility | Random seeds are pinned; CoinGecko API URLs are fixed; notebook runs end‑to‑end on a fresh runner. |
-| II. Verified Accuracy | The only external data source is the CoinGecko public API, which is a verified open endpoint. |
-| III. Data Hygiene | Each downloaded file’s SHA‑256 checksum is computed and recorded; transformations write new files without overwriting raw data. |
-| IV. Single Source of Truth | All reported numbers are programmatically extracted from notebook outputs and saved to CSVs that the paper can reference. |
-| V. Versioning Discipline | Artifacts are content‑hashed by the platform (handled automatically). |
-| VI. Regime Integrity | A bootstrap likelihood‑ratio test (5 000 resamples) compares 1‑state vs 2‑state HMM; p < 0.05 is required (FR‑010, SC‑009). |
-| VII. Stationarity | All correlation calculations are performed on log‑returns; ADF tests are run per regime before VAR fitting (addresses scientific soundness). |
+| Principle | Satisfaction |
+|-----------|---------------|
+| I. Reproducibility | Random seeds are fixed; data are fetched from the deterministic CoinGecko API; notebook runs end‑to‑end on a fresh runner. |
+| II. Verified Accuracy | The only external source is the public CoinGecko API, which is openly reachable without credentials. |
+| III. Data Hygiene | SHA‑256 checksums are computed for each raw file and recorded in `data/checksums.json`. Transformations write new files; raw files are never overwritten. |
+| IV. Single Source of Truth | All reported numbers are extracted directly from CSV artefacts generated by the notebook; the paper will reference those files. |
+| V. Versioning Discipline | The platform auto‑hashes every artefact; the plan does not interfere. |
+| VI. Regime Integrity | A **bootstrap likelihood‑ratio test** (5 000 resamples) compares 1‑state vs 2‑state HMM *and* an **independent volatility proxy** (10‑day rolling absolute returns) to confirm regimes differ in volatility (FR‑010, SC‑009). |
+| VII. Stationarity | All correlation calculations are performed on log‑returns; Augmented Dickey‑Fuller (ADF) tests are run per regime before VAR fitting. |
 
 ## Project Structure
 ```text
@@ -42,21 +43,28 @@ specs/001-statistical-modeling-of-temporal-depende/
 
 ## Phase Mapping (covers every FR & SC)
 
-| Phase | Tasks (mapped FR / SC) | Output |
-|-------|------------------------|--------|
-| **0 – Data Acquisition & Validation** | FR‑001 (download BTC & ETH via CoinGecko API), FR‑002 (compute log‑returns & volatility proxies), **SC‑001** (≥ 1 800 observations, no missing dates), **SC‑003** (runtime budget check), **SC‑008** (log‑file timestamps), **Checksum**: compute SHA‑256 for each raw file and record in `data/checksums.json`. | `data/raw/btc_ohlcv.parquet`, `data/raw/eth_ohlcv.parquet`, `data/derived/returns.csv`, `analysis.log` |
-| **1 – Regime Identification** | FR‑003 (fit 2‑state HMM on `[btc_ret, eth_ret, vol_proxy]`), FR‑010 (bootstrap LR test 5 000 resamples for 1‑vs‑2‑state), **SC‑002** (log‑likelihood improvement ≥ 10, LR p < 0.05), **SC‑009** (bootstrap LR for regime distinctness), **SC‑008** (log timestamps). | `data/derived/regime_labels.csv`, `results/hmm_summary.csv` |
-| **2 – Regime‑Switching VAR Estimation** | FR‑004 (fit RS‑VAR per regime), FR‑006 (extract true lag‑1 autocorrelations using `statsmodels.tsa.stattools.acf` and cross‑asset residual Pearson correlation), **Stationarity Check**: ADF test per regime (reject null at α = 0.05); non‑stationary regimes trigger a warning and optional differencing, **SC‑004** (bootstrap difference test 2 000 resamples for autocorrelation differences, Holm‑Bonferroni corrected), **SC‑005** (permutation Fisher‑z test for cross‑asset correlation differences, Holm‑Bonferroni corrected). | `results/rsvart_coeffs/`, `results/rsvart_stats.csv` |
-| **3 – Baseline VAR & Model Comparison** | FR‑005 (fit stationary VAR), FR‑007 (fit 3‑state RS‑VAR and RS‑VAR with rolling‑std volatility proxy), **Bootstrap LR**: parametric bootstrap **10 000 resamples** (vectorized, parallelized across the two CI cores) comparing RS‑VAR vs stationary VAR; a runtime guard aborts after 5 hours and falls back to **2 000 resamples** (still reported with a caveat). **Multiple‑Testing**: Holm‑Bonferroni correction applied to all p‑values from this phase, **SC‑003** (bootstrap LR p < 0.05), **SC‑006** (ΔBIC ≤ 2 for 3‑state vs 2‑state), **SC‑007** (runtime budget check). | `results/var_stationary/`, `results/var_3state/`, `results/comparison_metrics.csv` |
-| **4 – Reporting & Diagnostics** | FR‑008 (single Jupyter notebook `analysis.ipynb`), FR‑009 (comprehensive `analysis.log` with timestamps), **SC‑008** (log timestamps already covered), **SC‑007** (notebook runtime within budget). Includes failure‑handling edge cases (API retries, HMM non‑convergence fallback, singular covariance handling, duplicate timestamp de‑duplication). | `analysis.ipynb`, `analysis.log`, `tables/`, `figures/` |
-| **5 – Contract Validation** | Validate all output files against schemas in `contracts/` using `pytest`. | Test report (`test_report.xml`) |
+| Phase | Tasks (FR / SC) | Key Outputs |
+|-------|-----------------|-------------|
+| **0 – Data Acquisition & Validation** | FR‑001 (download BTC & ETH OHLCV from CoinGecko API, covering the most recent 5 years), FR‑002 (log‑returns & volatility proxies), **SC‑001** (≥ 1 800 obs, no missing dates), **SC‑008** (timestamped `analysis.log`), checksum generation, retry logic with exponential back‑off (3 attempts) and clear abort on persistent failure, duplicate‑timestamp de‑duplication, gap detection (abort if > 5 consecutive missing days) | `data/raw/btc_ohlc.csv`, `data/raw/eth_ohlc.csv`, `data/derived/returns.csv`, `data/checksums.json` |
+| **1 – Regime Identification** | FR‑003 (fit 2‑state GaussianHMM on `[btc_ret, eth_ret, vol_sq]`), FR‑010 (bootstrap LR 5 000 resamples for 1‑vs‑2‑state HMM *using the HMM emission proxy*), **SC‑002** (log‑likelihood gain ≥ 10, LR p < 0.05), **SC‑009** (independent volatility proxy test: bootstrap LR 5 000 resamples on 10‑day rolling absolute returns, p < 0.05) | `data/derived/regime_labels.csv`, `results/hmm_summary.csv` |
+| **2 – Independent Regime‑Distinctness Validation** | **New step**: Using the *independent* proxy `vol_abs_10d`, perform a second bootstrap LR (5 000 resamples) to confirm that the two regimes differ significantly on this metric, breaking circularity. | `results/indep_regime_validation.csv` |
+| **3 – RS‑VAR Estimation** | FR‑004 (fit regime‑specific VAR), FR‑006 (extract lag‑1 autocorrelations & cross‑asset residual correlation), **ADF** test per regime (ensures Principle VII), **SC‑004** (bootstrap difference test with several thousand resamples for autocorrelation differences, Holm‑Bonferroni corrected), **SC‑005** (permutation Fisher‑z test for cross‑asset correlation difference, Holm‑Bonferroni corrected) | `results/rsvart/coeffs_regime_1.json`, `results/rsvart/coeffs_regime_2.json`, `results/rsvart_stats.csv` |
+| **4 – Baseline VAR & Model Comparison** | FR‑005 (fit stationary VAR), FR‑007 (fit 3‑state RS‑VAR & RS‑VAR with 10‑day rolling‑std volatility proxy), **Bootstrap LR** (10 000 resamples) comparing RS‑VAR vs stationary VAR, **BIC** for all models, **SC‑003** (bootstrap LR p < 0.05), **SC‑006** (ΔBIC ≤ 2 for 3‑state vs 2‑state), **Multiple‑testing** correction (Holm‑Bonferroni) across all p‑values, **SC‑007** (runtime guard ≤ 5 h) | `results/var_stationary/`, `results/var_3state/`, `results/comparison_metrics.csv` |
+| **5 – Reporting & Diagnostics** | FR‑008 (single notebook `notebooks/analysis.ipynb`), FR‑009 (comprehensive `analysis.log`), edge‑case handling (API retries, HMM non‑convergence fallback, singular covariance, duplicate timestamps), **SC‑008** (log timestamps) | `notebooks/analysis.ipynb`, `analysis.log`, `results/tables/`, `results/figures/` |
+| **6 – Contract Validation** | Run `pytest -q tests/contract/` against schemas in `contracts/` | `test_report.xml` |
 
-All phases are ordered so that data download precedes any modeling, and models are fitted before any comparison or figure generation.
+All phases are ordered so that data download precedes any modelling; model fitting precedes comparison; comparison precedes figure generation.
 
 ## Risk & Mitigation
-- **Dataset‑Variable Fit**: The CoinGecko API is verified to return `date`, `open`, `high`, `low`, `close`, `volume`. A validation step aborts with “Required OHLCV columns missing in <asset>” if any are absent.  
-- **Compute Budget**: Bootstrap resample counts are set to **10 000** for the VAR LR test but implemented with a fully vectorized NumPy routine and parallelized via `joblib.Parallel`. Profiling shows the full run stays < 5 h on the free‑tier runner; a safety guard aborts after 5 h and automatically falls back to **2 000** resamples, logging the fallback.  
-- **HMM Convergence**: If EM does not converge within 100 iterations, the notebook logs “HMM convergence not achieved” and falls back to a stationary VAR, satisfying edge‑case handling.  
+| Risk | Mitigation |
+|------|------------|
+| **Dataset‑Variable Fit** – CoinGecko may omit `volume` in the OHLC endpoint. | We merge OHLC data with the market‑chart endpoint (which provides `total_volume`) before validation; if any required column is still missing, the notebook aborts with `RuntimeError: Required OHLCV columns missing in <asset>` and logs the issue. |
+| **Compute Budget** – 10 000‑sample bootstrap could exceed 6 h. | Vectorised NumPy implementation + `joblib.Parallel` across 2 cores; a wall‑time guard aborts after 5 h and automatically reduces to 2 000 resamples, logging the fallback. |
+| **HMM Convergence** – EM may not converge within 100 iterations. | Notebook logs “HMM convergence not achieved” and falls back to a stationary VAR, satisfying US‑3 edge case. |
+| **API Failure** – CoinGecko may return intermittent 5xx errors. | Each download is wrapped in a retry loop (3 attempts, exponential back‑off). Persistent failure aborts with “Data download unavailable” and records the error in `analysis.log`. |
+| **Statistical Validity** – Circular validation of regimes. | Added an **independent volatility proxy** (`vol_abs_10d`) and a separate bootstrap LR test to confirm regime distinctness on this metric, breaking circularity and satisfying SC‑009. |
+| **Bootstrap Time Limit** – Excessive runtime. | The wall‑time monitor automatically reduces the number of resamples and records the change, ensuring compliance with SC‑007. |
 
 ---
+
 

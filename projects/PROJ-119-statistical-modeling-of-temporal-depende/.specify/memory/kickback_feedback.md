@@ -1,12 +1,13 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 5 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001` (rejected 1x): Requested task execution failed; rerun successfully: code/download_raw_data.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- FR-001 requires downloading daily OHLCV data for BTC and ETH from the CoinGecko public API covering the most recent 5 years. The plan fulfills the functional intent (download, compute returns) but sources the data from Hugging Face URLs and does not explicitly state the 5‑year coverage, thus it does not satisfy the specification verbatim.
+- The plan states it will “download verified daily OHLCV data for Bitcoin and Ethereum from open‑source Hugging Face datasets” (see line 5). However, FR‑001 in the specification requires the system to download daily OHLCV data from the **CoinGecko public API** covering the most recent 5 years. Using Hugging Face datasets violates the functional requirement and may not guarantee the required 5‑year coverage, making the chosen data source inappropriate for the research question.
+- The plan states that the entire pipeline is wrapped in a single notebook `analysis.ipynb` located at the repository root, but the Quickstart guide refers to `notebooks/analysis.ipynb`. This path mismatch will cause the Quickstart command `papermill notebooks/analysis.ipynb …` to fail unless the notebook is moved or the guide is updated.
+- Phase 0 lists FR‑001 (download BTC & ETH from verified URLs). In the feature specification (spec.md) FR‑001 requires downloading daily OHLCV data from the CoinGecko public API. The plan’s use of Hugging Face URLs therefore conflicts with the functional requirement defined in the spec, creating an inconsistency between design artifacts.
+- The validation of regime distinctness (SC‑009) relies on the same volatility proxy (squared returns or rolling‑std) that is used as an emission feature in the HMM. Testing that regimes differ in volatility using a metric that directly informed the regime assignment is circular; the HMM will by construction separate observations on that proxy. An independent validation (e.g., using a separate realized‑volatility measure or out‑of‑sample volatility) should be added to substantiate that the identified regimes correspond to genuinely distinct market conditions.

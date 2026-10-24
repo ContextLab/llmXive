@@ -1,62 +1,68 @@
 # Research: Statistical Modeling of Temporal Dependence in Cryptocurrency Price Fluctuations
 
 **Feature**: `feat/001-crypto-regime-switching`  
-**Date**: 2026-10-23  
+**Date**: 2026-10-24  
 **Spec**: [spec.md](../spec.md)
 
 ## Objective
-Quantify how serial correlation and cross‑asset dependence between Bitcoin (BTC) and Ethereum (ETH) evolve across low‑volatility and high‑volatility regimes, and evaluate whether a Regime‑Switching VAR (RS‑VAR) provides a statistically superior fit to a stationary VAR.
+Quantify how serial correlation and cross‑asset dependence between Bitcoin (BTC) and Ethereum (ETH) evolve across low‑volatility and high‑volatility regimes, and assess whether a Regime‑Switching VAR (RS‑VAR) yields a statistically superior fit to a stationary VAR.
 
 ## Decision / Rationale
 | Decision | Rationale |
 |----------|-----------|
-| **CPU‑first implementation** | All required libraries (`hmmlearn`, `statsmodels`, `pandas`) have efficient CPU implementations. The bootstrap procedures are parallelized across the two available CI cores. No GPU is needed, satisfying the compute‑feasibility clause. |
-| **Open‑source data source: CoinGecko API** | The specification mandates downloading OHLCV data; CoinGecko’s public API is openly accessible, requires no key, and returns the required columns. This satisfies Constitution Principle II without relying on unverified HuggingFace datasets. |
-| **Data‑validation gate** | After download, the notebook checks for the six required OHLCV columns. Missing columns trigger a clear abort (`RuntimeError: Required OHLCV columns missing in <asset>`), fulfilling US‑3. |
-| **Bootstrap over asymptotic LR** | To avoid the Davies problem for LR tests comparing RS‑VAR to a stationary VAR, we use a **parametric bootstrap** (10 000 resamples) for the VAR LR test and a 5 000‑resample bootstrap LR for the HMM regime test (FR‑010/SC‑009). The bootstrap is implemented with a fully vectorized NumPy routine and `joblib.Parallel` across the two CI cores. A runtime guard aborts after 5 hours and automatically falls back to **2 000 resamples**, logging the fallback and noting the limitation. |
-| **Alternative volatility proxy** | To satisfy FR‑007 we compute both (a) squared daily returns (baseline) and (b) a 10‑day rolling standard deviation. This allows a direct comparison of regime definitions. |
-| **Model‑selection criteria** | BIC is computed for all candidate models (2‑state RS‑VAR, 3‑state RS‑VAR, stationary VAR). ΔBIC ≤ 2 is the threshold for SC‑006. |
-| **Failure handling** | Edge‑case behaviours (API failure, HMM non‑convergence, singular covariance) are coded as explicit `raise RuntimeError` with clear messages, matching US‑3 acceptance scenarios. |
-| **Bootstrap runtime safeguard** | Because a full 10 000‑sample bootstrap can approach the CI time limit, the notebook monitors elapsed wall‑time. If the VAR LR bootstrap exceeds 5 hours, it aborts the remaining resamples and re‑runs a reduced 2 000‑sample bootstrap, recording the fallback in `analysis.log`. This ensures the job completes within the free‑tier budget while still providing a statistically meaningful test (albeit with reduced precision). |
+| **CPU‑first implementation** | All required libraries (`hmmlearn`, `statsmodels`, `datasets`, `requests`) run efficiently on CPU. Parallelised bootstrap uses the two CI cores; no GPU is needed, satisfying the compute‑feasibility clause. |
+| **Open‑source data source (CoinGecko API)** | FR‑001 explicitly requires daily OHLCV data from the **CoinGecko public API** covering the most recent 5 years. The API is public, requires no key, and returns the necessary OHLC fields (and, via a secondary endpoint, volume). This satisfies the specification verbatim and avoids the unverified Hugging Face substitutes. |
+| **Bootstrap likelihood‑ratio tests** | To avoid the Davies problem highlighted by reviewers, we replace asymptotic chi‑square LR tests with **parametric bootstrap** procedures (5 000 resamples for the HMM regime‑count test, 10 000 for the RS‑VAR vs stationary VAR test). This yields valid p‑values under the null. |
+| **Independent regime‑distinctness validation** | In addition to the volatility proxy used as the HMM emission feature (squared returns), we compute a **10‑day rolling absolute‑return proxy**. A separate bootstrap LR test (5 000 resamples) checks that the identified regimes differ on this independent proxy, breaking circularity and satisfying SC‑009. |
+| **Multiple‑testing correction** | Holm‑Bonferroni correction is applied to all hypothesis‑test p‑values (autocorrelation differences, cross‑asset correlation differences, LR tests) to control family‑wise error. |
+| **Alternative volatility proxy** | In addition to squared returns, we compute a rolling standard deviation over a short‑term window. This satisfies FR‑007 and lets us compare regime definitions. |
+| **Failure handling** | The notebook includes explicit `raise RuntimeError` messages for: missing columns, API download failures, HMM non‑convergence, singular covariance, duplicate timestamps. This directly addresses US‑3 acceptance scenarios. |
+| **Runtime safeguard** | A wall‑time monitor aborts the bootstrap after 5 h and switches to a reduced 2 000‑sample bootstrap, logging the fallback. Guarantees compliance with SC‑007 (notebook runtime). |
+| **Notebook location** | The entire pipeline lives in `notebooks/analysis.ipynb`, matching the Quickstart instructions and the Constitution Check table. |
 
 ## Dataset Strategy
-| Role | Source | Loader | Required Columns | Validation Outcome |
-|------|--------|--------|------------------|--------------------|
-| BTC daily OHLCV (raw) | CoinGecko public API (`) | Custom `requests` call → `pd.DataFrame` | `date, open, high, low, close, volume` | Verified at runtime; aborts if any column missing. |
-| ETH daily OHLCV (raw) | CoinGecko public API (`) | Custom `requests` call → `pd.DataFrame` | `date, open, high, low, close, volume` | Verified at runtime; aborts if any column missing. |
-| Auxiliary (optional) | None | – | – | No substitute; if required columns are absent, the analysis aborts and the study is re‑scoped. |
+| Role | Source URL | Loader / Method | Required Columns | Validation |
+|------|------------|-----------------|------------------|------------|
+| BTC daily OHLCV (raw) | `https://api.coingecko.com/api/v3/coins/bitcoin/ohlc?vs_currency=usd&days=1825` | Custom `download_ohlc(asset="bitcoin")` using `requests` → `pd.DataFrame` | `date, open, high, low, close` (volume merged from market chart endpoint) | Verified at runtime; aborts with clear error if any column missing. |
+| ETH daily OHLCV (raw) | `https://api.coingecko.com/api/v3/coins/ethereum/ohlc?vs_currency=usd&days=1825` | Custom `download_ohlc(asset="ethereum")` using `requests` → `pd.DataFrame` | `date, open, high, low, close` (volume merged from market chart endpoint) | Same validation as BTC. |
+| Auxiliary (volume) | `https://api.coingecko.com/api/v3/coins/{id}/market_chart?vs_currency=usd&days=1825` | Same custom downloader merges `total_volume` into the OHLC table. | `volume` column added. | If volume cannot be merged, abort with informative message. |
 
-*If the CoinGecko API ever fails to provide the required OHLCV fields, the notebook will terminate with a clear diagnostic (see Phase 0). This satisfies Constitution Principle VI (regime integrity) by preventing spurious regime inference on incomplete data.*
+*If either source ever ceases to provide the required fields, the notebook stops with a diagnostic, satisfying Constitution Principle VI (regime integrity) by preventing spurious regime inference on incomplete data.*
 
 ## Methodology Overview
-1. **Download & checksum** raw BTC & ETH files; store under `data/raw/`.  
-2. **Preprocess**: parse dates, sort, drop duplicates (log count), forward‑fill missing days (if any) – abort if > 5 consecutive missing days (US‑3).  
-3. **Compute log‑returns**: `r_t = log(close_t / close_{t-1})`.  
-4. **Construct volatility proxies**: (a) squared returns, (b) 10‑day rolling standard deviation.  
-5. **Fit HMM** (`GaussianHMM` with 2 components) on the joint vector `[btc_ret, eth_ret, volatility_proxy]`.  
-6. **Bootstrap LR test** (5 000 resamples) for 1‑ vs 2‑state HMM (FR‑010).  
-7. **Assign regime labels** to each day; save `regime_labels.csv`.  
-8. **ADF test** per regime on log‑returns; if non‑stationary, issue warning and optionally difference the series.  
-9. **Fit RS‑VAR** per regime (`statsmodels.tsa.VAR`) allowing regime‑specific coefficient matrices and error covariances.  
-10. **Extract lag‑1 autocorrelation** (diagonal of AR(1) matrix) and **cross‑asset residual correlation** (Pearson on residuals).  
-11. **Bootstrap difference test** (2 000 resamples) for autocorrelation differences across regimes (SC‑004); Holm‑Bonferroni correction applied.  
-12. **Permutation Fisher‑z test** for cross‑asset correlation differences (SC‑005); Holm‑Bonferroni corrected.  
-13. **Fit baseline stationary VAR** on the full series.  
-14. **Bootstrap LR test** (10 000 resamples) comparing RS‑VAR vs stationary VAR (FR‑005). Runtime guard may reduce to 2 000 if needed (see Decision/Rationale).  
-15. **Fit alternative 3‑state RS‑VAR** and RS‑VAR with rolling‑std volatility proxy; compute BIC for each (FR‑007).  
-16. **Multiple‑testing correction** applied across all p‑values (Holm‑Bonferroni).  
-17. **Generate tables & figures**: regime‑specific coefficient tables, correlation heatmaps, BIC comparison plot, LR‑test histograms.  
-18. **Log** every major step with timestamps to `analysis.log`.  
-19. **Validate outputs** against YAML schemas in `contracts/` via `pytest`.  
+1. **Download & checksum** raw BTC & ETH OHLCV files from CoinGecko, store under `data/raw/`. Compute SHA‑256 checksums and write `data/checksums.json`.  
+2. **Preprocess**: parse `date` as `datetime64[ns]`, sort, drop duplicate timestamps (log count), ensure a continuous calendar (detect gaps > 5 consecutive missing days → abort).  
+3. **Log‑returns**: `r_t = log(close_t / close_{t‑1})` for each asset.  
+4. **Volatility proxies**: (a) squared returns (`vol_sq`), (b) 10‑day rolling standard deviation (`vol_roll_std`), (c) 10‑day rolling absolute‑return mean (`vol_abs_10d`) – used only for independent regime validation.  
+5. **HMM fitting**: `GaussianHMM(n_components=2, covariance_type="full", n_iter=100, tol=1e-4)` on `[btc_ret, eth_ret, vol_sq]`.  
+6. **Bootstrap LR for regime count**: 5 000 resamples comparing log‑likelihood of 1‑state vs 2‑state HMM; p < 0.05 required (FR‑010, SC‑009).  
+7. **Independent regime‑distinctness validation**: Using the *independent* proxy `vol_abs_10d`, perform a second bootstrap LR (5 000 resamples) to confirm that the two regimes differ significantly on this metric (breaks circularity).  
+8. **Assign regime labels** → `regime_labels.csv`.  
+9. **Stationarity check**: Augmented Dickey‑Fuller test per regime on each return series; if a series fails to reject the unit‑root null at α = 0.05, a warning is logged and the series is differenced before VAR fitting.  
+10. **Regime‑Switching VAR**: For each regime, fit `statsmodels.tsa.VAR` with lag‑1 (selected by AIC/BIC). Extract:  
+    - Lag‑1 autocorrelation for BTC & ETH (diagonal of AR(1) matrix).  
+    - Pearson correlation of residuals between assets.  
+11. **Bootstrap difference test** (2 000 resamples) for autocorrelation differences across regimes; Holm‑Bonferroni correction → **SC‑004**.  
+12. **Permutation Fisher‑z test** for cross‑asset residual correlation differences; Holm‑Bonferroni correction → **SC‑005** (or absolute Δ ≥ 0.20).  
+13. **Baseline stationary VAR** on the full series.  
+14. **Bootstrap LR (10 000 resamples)** comparing RS‑VAR vs stationary VAR; runtime guard may reduce to 2 000 resamples, logged. → **SC‑003**.  
+15. **Alternative models**: (a) 3‑state RS‑VAR, (b) RS‑VAR with `vol_roll_std` proxy. Compute BIC for each; ΔBIC ≤ 2 indicates no meaningful improvement → **SC‑006**.  
+16. **Multiple‑testing correction**: Holm‑Bonferroni applied to all p‑values from steps 11‑14.  
+17. **Generate outputs**:  
+    - Tables (`results/tables/`).  
+    - Figures (`results/figures/`): ACF per regime, cross‑asset correlation heatmaps, BIC comparison plot, LR‑test histogram.  
+    - Log file `analysis.log` with timestamps for every major step.  
+18. **Contract validation**: `pytest -q tests/contract/` validates raw price files, regime labels, and RS‑VAR output against the schemas in `contracts/`.  
 
-All steps are encapsulated in a single Jupyter notebook (`analysis.ipynb`) that can be executed with `papermill` in CI.
+All steps are encapsulated in `notebooks/analysis.ipynb`, executed in CI via `papermill`. The notebook is deterministic (seeds pinned) and fully reproducible.
 
 ## Expected Deliverables
-- `analysis.ipynb` (executable end‑to‑end pipeline)  
-- CSV tables: `regime_labels.csv`, `rsvart_stats.csv`, `comparison_metrics.csv`  
-- Figures (PNG): `acf_by_regime.png`, `cross_corr_heatmap.png`, `bic_comparison.png`  
-- Log file `analysis.log` with timestamps.  
-- Contract validation report (`test_report.xml`).  
+- `notebooks/analysis.ipynb` (single notebook pipeline)  
+- CSV/JSON artefacts: `regime_labels.csv`, `rsvart_stats.csv`, `comparison_metrics.csv`, `rsvart_output_regime_*.json`  
+- Figures (PNG): `acf_by_regime.png`, `cross_corr_heatmap.png`, `bic_comparison.png`, `lr_bootstrap_hist.png`  
+- Log file `analysis.log` (timestamped)  
+- Contract test report `test_report.xml`  
 
 ---
+
 

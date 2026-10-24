@@ -1,47 +1,50 @@
 # Quickstart: Running the Cryptocurrency Regime‑Switching Analysis
 
 **Prerequisites**  
-- GitHub Actions runner (or local Linux environment) with Python 3.11.  
-- Internet access (to download the two open‑source datasets).  
+- GitHub Actions runner (or a local Linux/macOS/Windows environment with Python 3.11).  
+- Internet access (to download the data from the CoinGecko public API).  
 
 **Step‑by‑Step**
 
-1. **Clone the repository** (the project root).  
+1. **Clone the repository**  
    ```bash
-   git clone 
-   cd PROJECT_REPO
+   git clone <REPO_URL>
+   cd <REPO_ROOT>
    ```
 
-2. **Create a virtual environment and install dependencies**  
+2. **Create a virtual environment and install exact dependencies**  
    ```bash
    python -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt   # pins all versions as listed in plan.md
+   source .venv/bin/activate   # Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
    ```
 
-3. **Run the notebook in a non‑interactive mode** (CI‑compatible)  
+3. **Run the notebook in a non‑interactive, CI‑compatible mode**  
    ```bash
    papermill notebooks/analysis.ipynb output/analysis_executed.ipynb
    ```
+   - The notebook automatically downloads the BTC and ETH OHLCV data **directly from the public CoinGecko API** for the most recent 5 years, validates required columns, and aborts with a clear error if validation fails.  
+   - All major steps are logged to `analysis.log` (timestamps included).  
 
-   - The notebook will automatically download the BTC JSON and ETH parquet files from the verified URLs, verify required columns, and abort with a clear error if they are missing.  
-   - All major steps are logged to `analysis.log`.  
-
-4. **Inspect the outputs**  
-   - Tables are written to `results/tables/`.  
-   - Figures are written to `results/figures/`.  
+4. **Inspect the results**  
+   - Tables are written to `results/tables/` (e.g., `regime_labels.csv`, `rsvart_stats.csv`).  
+   - Figures are written to `results/figures/` (e.g., `acf_by_regime.png`).  
    - The final regression summary is stored as `results/rsvart_summary.csv`.  
 
 5. **Run contract validation (optional but recommended)**  
    ```bash
-   pytest -q tests/contract/  # validates raw_price, regime_labels, rsvart_output schemas
+   pytest -q tests/contract/
    ```
+   This checks that `raw_price`, `regime_labels`, and `rsvart_output` files conform to the YAML schemas in `contracts/`.  
 
-6. **Check runtime compliance**  
-   - The CI job prints `time -v` statistics; ensure `Maximum resident set size` ≤ 6 GB and total CPU time ≤ 2 h (typical for full bootstrap).  
+6. **Verify runtime compliance** (CI will automatically report). Locally you can run:
+   ```bash
+   /usr/bin/time -v papermill notebooks/analysis.ipynb output/analysis_executed.ipynb
+   ```
+   Ensure `Maximum resident set size` ≤ 6000 KB and total CPU time ≤ 2 h (typical for the full bootstrap).  
 
-**Re‑running with alternative settings**  
-- To test the 3‑state model or the alternative volatility proxy, set the notebook parameters at the top of the file:
+**Alternative Settings**  
+- To test the 3‑state model or the rolling‑std volatility proxy, edit the top‑of‑notebook parameters:
   ```python
   NUM_REGIMES = 3          # default 2
   VOL_PROXY = "rolling_std"   # options: "squared_returns", "rolling_std"
@@ -49,10 +52,13 @@
   Then repeat step 3.
 
 **Troubleshooting**  
-- *Missing required columns*: The notebook will stop with “Required OHLCV columns missing in <source>”. Verify that the dataset URLs have not changed.  
-- *API failures*: The download block retries three times with exponential back‑off; persistent 5xx errors abort with “CoinGecko API unavailable”.  
-- *HMM non‑convergence*: If EM does not converge within 100 iterations, the notebook falls back to a stationary VAR and logs “HMM convergence not achieved”.  
+- *Missing required columns*: Notebook aborts with “Required OHLCV columns missing in <asset>”. Verify that the CoinGecko API endpoints have not changed.  
+- *Download failures*: The loader retries three times with exponential back‑off; persistent 5xx errors abort with “Data download unavailable”.  
+- *HMM non‑convergence*: If EM does not converge within 100 iterations, the notebook logs “HMM convergence not achieved” and falls back to a stationary VAR.  
+- *Bootstrap exceeds time limit*: The notebook automatically switches to a reduced 2 000‑sample bootstrap and records the fallback in `analysis.log`.  
 
 That’s all – the full analysis completes with a single command.
 
 ---
+
+
