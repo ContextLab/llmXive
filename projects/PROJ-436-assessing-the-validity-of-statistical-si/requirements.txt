@@ -1,15 +1,12 @@
-scikit-learn
-statsmodels
-scipy
+# Project requirements
 pandas
 numpy
-seaborn
+scipy
+scikit-learn
+statsmodels
 matplotlib
-requests
-openml
-miceforest
-joblib
-ruff
-black
+seaborn
 pytest
-pyarrow
+PyYAML
+requests
+# The huggingface datasets library is not needed because we download via direct HTTPS URLs.

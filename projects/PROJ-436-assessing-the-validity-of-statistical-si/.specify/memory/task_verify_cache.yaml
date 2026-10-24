@@ -1,14 +1,3 @@
-T001:
-  c: false
-  h: 1a3ecdfb7fc9a9b3ab46b90ffb2fb2f0432f393c9cdb74554c26f488fe25b36e
-  r: "The repository contains `code/data_loader.py` and a manifest, but there is no\
-    \ evidence that the three CSV files (`data/raw/42803.csv`, etc.) were actually\
-    \ downloaded, nor that the required unit tests (`tests/unit/test_data_loader.py`)\
-    \ have passed. Moreover, the loader uses OpenML instead of the permitted `datasets.load_dataset`\
-    \ (HuggingFace) or direct HTTPS URLs, and the claimed entry point `load_all` does\
-    \ not exist. These gaps mean the task\u2019s download\u2011and\u2011verify requirement\
-    \ is not genuinely satisfied."
-  sig: 94d4accd077485ee8cfe2722bad672fabc3284ce7a354a738d702527ddf3bd37
 T002:
   c: false
   h: f2d2915bbc022fd0ece291b4fae8811ed260775e38c5de8550449967db729aaf

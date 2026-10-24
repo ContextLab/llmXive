@@ -1,10 +1,12 @@
 status: none
-intent: download RCT-1 MCAR-0 MAR-0 datasets python package dataset
+intent: download clinical trial RCT-1 MCAR-0 MAR-0 datasets python package dataset
 required_fields:
+- subject_id
 - treatment
 - outcome
-- covariates
-- subject_id
-cache_key: 79192e6d6d42523a1b8707efe7c5c11a1f1884601f5ab33938ec47deda2341a5
-searched_at: '2026-10-24T04:21:59.666433+00:00'
+- covariate_1
+- covariate_2
+- covariate_3
+cache_key: 3648d34d34d1e833c50ea2d9ebd38c8fdcdfe67561700eaa62c6b12bf4d27a07
+searched_at: '2026-10-24T05:26:19.147153+00:00'
 retry_count: 1
