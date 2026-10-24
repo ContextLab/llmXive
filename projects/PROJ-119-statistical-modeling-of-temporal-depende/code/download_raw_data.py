@@ -36,9 +36,9 @@ VS_CURRENCY = "usd"
 # intervals; we use 90‑day chunks to stay within limits.
 CHUNK_DAYS = 90
 # Maximum retry attempts for each API call.
-MAX_RETRIES = 3
+MAX_RETRIES = 5
 # Base back‑off seconds.
-BACKOFF_BASE = 2
+BACKOFF_BASE = 5
 
 # ----------------------------------------------------------------------
 # Initialise logger and reproducibility seed
