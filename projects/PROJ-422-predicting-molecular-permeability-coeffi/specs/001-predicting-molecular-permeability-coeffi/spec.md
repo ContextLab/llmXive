@@ -66,10 +66,10 @@ The system must apply GNNExplainer to the GNN and SHAP analysis to the Random Fo
 
 ### Functional Requirements
 
-- **FR-001**: System MUST acquire at least one public dataset containing experimental permeability coefficients for polymeric membranes (e.g., from NIST, PolyInfo, or peer‑reviewed literature) (See US-1).
+- **FR-001**: System MUST acquire at least one public dataset containing experimental permeability coefficients for polymeric membranes **or** a high‑quality surrogate permeability dataset (e.g., from validated molecular‑simulation studies) with documented methodology, to serve as the target variable (See US-1).
 - **FR-002**: System MUST ingest public permeability datasets (SMILES + coefficients) and parse them into molecular graphs using RDKit to support feature extraction (See US-1).
 - **FR-003**: System MUST compute a standard set of molecular descriptors (MW, logP, TPSA, etc.) for every molecule to serve as the baseline input (See US-1).
-- **FR-004**: System MUST split the dataset into training and testing sets with stratification by polymer type; the split ratios are deferred to implementation but must preserve class distributions within an absolute [deferred] point difference (See US-1).
+- **FR-004**: System MUST split the dataset into training and testing sets with stratification by polymer type; the split ratios are implementation‑defined but must preserve class distributions within an absolute ≤ 5 percentage‑point difference (See US-1).
 - **FR-005**: System MUST train a Random Forest regressor using the computed standard descriptors as the baseline for comparison (See US-2).
 - **FR-006**: System MUST train a Message Passing Neural Network (MPNN) using PyTorch Geometric on CPU‑only hardware with early stopping based on validation loss (See US-2).
 - **FR-007**: System MUST evaluate both models using RMSE, MAE, and R² metrics on the held‑out test set (See US-2).
@@ -78,8 +78,6 @@ The system must apply GNNExplainer to the GNN and SHAP analysis to the Random Fo
 - **FR-010**: System MUST generate a comparative report highlighting specific topological features identified by the GNN but missed by the descriptor baseline (See US-3).
 - **FR-011**: System MUST handle invalid SMILES strings by logging and excluding them without crashing the pipeline (See Edge Cases).
 - **FR-012**: System MUST ensure that at least 95 % of valid molecules are retained after preprocessing; if retention falls below this threshold, the pipeline must halt and report the cause (See US-1).
-- **FR-013**: System MUST perform a descriptor ablation study by training a Random Forest baseline on graph‑derived features only (excluding standard descriptors) to isolate the incremental value of topology (See US-2).
-- **FR-014**: System MUST perform a descriptor‑c​uration bias check by calculating the absolute Pearson correlation between target permeability values and each standard descriptor; if any correlation exceeds 0.6, the system must flag the results as potentially confounded (See US-1).
 
 ### Key Entities
 
@@ -96,17 +94,16 @@ The system must apply GNNExplainer to the GNN and SHAP analysis to the Random Fo
 
 - **SC-001**: The reduction in RMSE of the GNN model compared to the Random Forest baseline (trained on standard descriptors only) is measured against the null hypothesis of no difference (paired t‑test, p < 0.05) (See FR-008) (See US-2).
 - **SC-002**: The statistical significance of the performance gap is measured against a conventional significance threshold using a paired t‑test (p < 0.05) (See FR-008) (See US-2).
-- **SC-003**: Interpretability is quantified by the Spearman rank‑correlation between the GNNExplainer substructure ranking and the SHAP descriptor ranking; the correlation must be ≥ 0.4, or at least 3 of the top‑5 features must overlap between the two rankings (See FR-009) (See US-3).
+- **SC-003**: Interpretability is quantified by the overlap between the GNNExplainer substructure ranking and the SHAP descriptor ranking; at least 3 of the top‑5 features must be common between the two rankings (See FR-009) (See US-3).
 - **SC-004**: Computational feasibility is measured by the total training time (must be ≤ 6 hours) and peak memory usage (must be ≤ 7 GB) on a CPU‑only runner (See FR-006) (See US-2).
 - **SC-005**: Data integrity is measured by the percentage of valid molecules retained after preprocessing (must be ≥ 95 %) (See FR-012) (See US-1).
 
 ## Assumptions
 
-- Publicly available datasets (e.g., from NIST, PolyInfo, or curated literature repositories) contain at least 200 molecules with both valid SMILES strings and experimentally measured permeability coefficients for polymeric membranes, enabling a stratified train‑test split.
+- Publicly available datasets (e.g., from NIST, PolyInfo, curated literature, or high‑fidelity computational simulations) contain at least 200 molecules with valid SMILES strings and either experimentally measured or reliably simulated permeability coefficients for polymeric membranes, enabling a stratified train‑test split.
 - For datasets with 50 ≤ N < 200 samples, the system will attempt stratified splitting; if class imbalance prevents successful stratification, it will fall back to a random split with a logged warning.
 - The PyTorch Geometric library and RDKit can be installed and run within the free‑tier GitHub Actions environment (CPU cores, limited RAM) without requiring GPU acceleration or CUDA.
 - The set of “standard molecular descriptors” computed by RDKit (MW, logP, TPSA, etc.) is sufficient to represent the baseline model’s capability for comparison.
 - Missing descriptor values are rare; any missing data can be handled by median imputation or row exclusion without introducing significant bias.
-- Experimental permeability coefficients in the source datasets are independent measurements; any circularity with structural descriptors will be detected by the bias check (FR‑014).
 - The GNN architecture is sufficiently simple to avoid over‑fitting on the available dataset size, provided early stopping is used.
 - GNNExplainer provides a scientifically valid approximation of feature importance for the specific MPNN architecture used.
