@@ -38,7 +38,7 @@ CHUNK_DAYS = 90
 # Maximum retry attempts for each API call.
 MAX_RETRIES = 5
 # Base back‑off seconds.
-BACKOFF_BASE = 5
+BACKOFF_BASE = 10
 
 # ----------------------------------------------------------------------
 # Initialise logger and reproducibility seed
@@ -80,6 +80,11 @@ def _fetch_market_chart_range(coin_id: str, from_ts: int, to_ts: int) -> dict:
         "from": from_ts,
         "to": to_ts,
     }
+    # User-Agent is critical for CoinGecko public API to avoid immediate 403/429
+    headers = {
+        "User-Agent": "llmXive-research-agent/1.0 (Science Pipeline)",
+        "Accept": "application/json"
+    }
     
     attempt = 0
     while attempt < MAX_RETRIES:
@@ -89,7 +94,7 @@ def _fetch_market_chart_range(coin_id: str, from_ts: int, to_ts: int) -> dict:
                 f"{datetime.fromtimestamp(from_ts, tz=timezone.utc).date()} → "
                 f"{datetime.fromtimestamp(to_ts, tz=timezone.utc).date()} (attempt {attempt+1})"
             )
-            response = requests.get(url, params=params, timeout=30)
+            response = requests.get(url, params=params, headers=headers, timeout=30)
             
             if response.status_code == 429:
                 log.warning(f"CoinGecko rate limit hit (429) for {coin_id}. Retrying...")
@@ -108,6 +113,7 @@ def _fetch_market_chart_range(coin_id: str, from_ts: int, to_ts: int) -> dict:
                 log.error(f"Final attempt failed for {coin_id}: {exc}")
                 break
             
+            # Exponential back-off
             wait = BACKOFF_BASE * (2 ** (attempt - 1))
             log.warning(
                 f"CoinGecko request failed for {coin_id} (attempt {attempt}): {exc}. "

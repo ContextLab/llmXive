@@ -1,5 +1,6 @@
 status: none
-intent: CoinGecko BTC ETH daily OHLCV 5 years CryptoDataDownload python package dataset
+intent: download daily BTC ETH OHLCV five years CoinGecko API pycoingecko python package
+  dataset
 required_fields:
 - date
 - open
@@ -7,6 +8,6 @@ required_fields:
 - low
 - close
 - volume
-cache_key: 18b03be5f47edef51c621931d3e2824dd10b496816ee61892a0983460283abcb
-searched_at: '2026-10-24T05:13:09.989424+00:00'
+cache_key: cbf1ee591de62b77cf8cd83842a5624a147441ca182d9de9295a703b4978c842
+searched_at: '2026-10-24T16:13:14.814884+00:00'
 retry_count: 1

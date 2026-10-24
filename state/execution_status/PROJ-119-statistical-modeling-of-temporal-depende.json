@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-23T20:09:37Z",
-  "project_id": "PROJ-119-statistical-modeling-of-temporal-depende"
+  "updated_at": "2026-10-24T16:13:14Z",
+  "project_id": "PROJ-119-statistical-modeling-of-temporal-depende",
+  "replan_rounds": 1
 }
