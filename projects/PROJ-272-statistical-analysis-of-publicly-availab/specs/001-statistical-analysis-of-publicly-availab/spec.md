@@ -9,7 +9,7 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 ### FR-001: Data Ingestion Scope (See US1)
 
 **Requirement**: The system shall ingest raw text transcripts and associated cognitive status labels (Control, MCI, AD) from the ADReSS (Alzheimer's Disease Recognition System for Speech) Challenge dataset.  
-**Optional**: The system may also ingest pre‑computed sentence embeddings (e.g., `all‑MiniLM‑L6‑v2`) when available to accelerate downstream processing.
+**Optional**: When pre‑computed sentence embeddings (`all‑MiniLM‑L6‑v2`) are provided, the system shall also ingest these embeddings to enable downstream semantic similarity calculations without re‑encoding. Raw transcripts remain required for lexical and syntactic feature extraction.
 
 **Scope Definition**:
 - **Primary Source**: ADReSS Challenge Dataset (2019/2020 editions).
@@ -21,28 +21,28 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 - Transcripts with insufficient length (< 50 words) **are omitted from the output CSV** and logged in `data/interim/exclusions.log`.
 - Non‑verbal annotations (e.g., `<laughter>`, `<pause>`) shall be removed during preprocessing.
 
-### FR-002: Linguistic Feature Extraction & Statistical Testing (See US2)
+### FR-002: Linguistic Feature Extraction, Covariate Adjustment, and Statistical Testing (See US2)
 
-**Requirement**: The system MUST extract the lexical, syntactic, and semantic features listed in US2, adjust for known confounding variables (age, education), and perform appropriate statistical tests with non‑parametric effect‑size reporting.
+**Requirement**: The system MUST extract the lexical, syntactic, and semantic features listed in US2, adjust each for known confounding variables (age, education) via regression‑based residualization, and perform **ANCOVA** (analysis of covariance) between groups (Control vs AD, Control vs MCI) for each feature. Results shall include **Bonferroni‑corrected p‑values** and **Cohen's d** effect sizes with 95 % confidence intervals.
 
 ### FR-003: Statistical Reporting (See US3)
 
 **Requirement**: The system MUST generate a comprehensive report containing:
 - Corrected p‑values (Bonferroni) for each feature comparison.
-- Non‑parametric effect sizes (rank‑biserial correlation) with 95 % confidence intervals.
+- Parametric effect sizes (Cohen's d) with 95 % confidence intervals.
 - Summary tables and visualizations suitable for manuscript inclusion.
 
 ### FR-004: Covariate Adjustment
 
-**Requirement**: When testing group differences, the system MUST adjust for age and education level as covariates (e.g., via ANCOVA or regression‑based residualization) to control for confounding.
+**Requirement**: When testing group differences, the system MUST adjust for age and education level by **regression‑based residualization** of each feature prior to the ANCOVA, thereby controlling for confounding while using a parametric testing framework.
 
-### FR-005: Privacy & Data Anonymization (See Non‑Functional Requirements)
+### FR-005: Privacy & Data Anonymization (See Non‑Functional Requirements, See US4)
 
 **Requirement**: The pipeline MUST ensure that no Personally Identifiable Information (PII) – defined as any name, email address, phone number, or physical address – is logged or stored. An automated regex‑based audit step shall scan all intermediate files; any detection triggers a pipeline abort and a logged error.
 
-### FR-006: Embedding Ingestion (Optional)
+### FR-007: Power Analysis (See US2)
 
-**Requirement**: When pre‑computed sentence embeddings (`all‑MiniLM‑L6‑v2`) are provided, the system shall load them alongside raw transcripts to enable downstream semantic similarity calculations without re‑encoding. The presence of embeddings does **not** replace the need for raw transcripts for lexical and syntactic feature extraction.
+**Requirement**: Prior to analysis, the system MUST perform an a priori power analysis targeting **≥ 80 % power** to detect a **medium effect size (Cohen’s d = 0.5)** for each feature after Bonferroni correction. The analysis shall determine the minimum detectable effect and confirm that the available sample size meets this criterion; results are recorded in `data/results/power_analysis.txt`.
 
 ## 3. User Stories
 
@@ -71,8 +71,9 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 1. Extract lexical features (Type‑Token Ratio, MTLD, Noun/Verb ratio) and adjust each for age and education.
 2. Extract syntactic features (Mean Clause Length, T‑unit Count) and adjust for age and education.
 3. Extract semantic features (Sentence Embedding Cosine Similarity) using the `all‑MiniLM‑L6‑v2` model (or loaded embeddings) and adjust for age and education.
-4. Perform Mann‑Whitney U tests between Control vs. AD and Control vs. MCI for each feature.
-5. Report effect sizes using **rank‑biserial correlation** with 95 % confidence intervals, applying Bonferroni correction for multiple comparisons.
+4. Perform **ANCOVA** between Control vs. AD and Control vs. MCI for each feature.
+5. Report effect sizes using **Cohen's d** with 95 % confidence intervals, applying Bonferroni correction for multiple comparisons.
+6. Conduct the a priori power analysis defined in FR‑007 and record the outcome.
 
 ### US3: Statistical Reporting and Interpretation
 
@@ -81,14 +82,25 @@ This project aims to develop a statistical analysis pipeline to detect cognitive
 **So that** I can interpret the significance and effect magnitude of linguistic markers across groups.
 
 **Acceptance Criteria**:
-1. Generate a PDF/HTML report summarizing all statistical test results, corrected p‑values, and rank‑biserial effect sizes.
+1. Generate a PDF/HTML report summarizing all statistical test results, corrected p‑values, and Cohen's d effect sizes.
 2. Provide visualizations (boxplots) for each feature.
 3. Archive the report at `data/results/statistical_report.pdf`.
+
+### US4: Privacy Auditing
+
+**As a** compliance officer,  
+**I want** the pipeline to automatically audit all intermediate artifacts for personally identifiable information,  
+**So that** we guarantee no PII is inadvertently stored or logged.
+
+**Acceptance Criteria**:
+1. After each processing step, run a regex‑based PII scanner over all generated files.
+2. If any PII pattern is detected, abort the pipeline, emit a clear error message, and write the incident to `logs/privacy_audit.log`.
+3. Verify that the final cleaned dataset (`cleaned_adress.csv`) contains no PII.
 
 ## 4. Non-Functional Requirements
 
 - **Reproducibility**: All random seeds must be fixed, and data sources must be versioned via checksums. An optional benchmark note: on an Intel Xeon E5‑2670 v3 (12 cores, 64 GB RAM) the full pipeline completes in ≤ 4 hours.
-- **Privacy**: No PII (name, email, phone, address) shall be logged or stored; an automated regex audit must verify this condition (see FR‑005).
+- **Privacy**: No PII (name, email, phone, address) shall be logged or stored; an automated regex audit (see FR‑005 / US4) must verify this condition.
 - **Robustness**: The pipeline shall log all exclusion reasons to `data/interim/exclusions.log` and continue processing remaining records.
 - **Memory**: Peak RAM usage must not exceed 16 GB, measured by monitoring the process RSS during execution.
 
@@ -107,12 +119,13 @@ The project follows a phased approach:
 2. **Phase 1**: Setup – Project structure and dependencies.
 3. **Phase 2**: Foundational – Logging, config, validation.
 4. **Phase 3**: US1 – Ingestion and cleaning.
-5. **Phase 4**: US2 – Feature extraction, covariate adjustment, and statistical testing.
+5. **Phase 4**: US2 – Feature extraction, covariate adjustment, statistical testing, and power analysis.
 6. **Phase 5**: US3 – Reporting and interpretation.
-7. **Phase N**: Polish and documentation.
+7. **Phase 6**: US4 – Privacy auditing integration.
+8. **Phase N**: Polish and documentation.
 
 ## 8. Success Criteria
 
-- **SC-001**: At least one linguistic feature shows a statistically significant difference (Bonferroni‑adjusted *p* ≤ 0.05) between Control and AD or Control and MCI groups.
-- **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains ≥ 1000 records after exclusions, and the metadata report lists exact counts per group.
-- **SC-003**: The final statistical report (`data/results/statistical_report.pdf`) is generated without errors, includes all required visualizations, and passes the automated PII audit.
+- **SC-001**: At least one linguistic feature shows a statistically significant difference (Bonferroni‑adjusted *p* ≤ 0.05) **and** the a priori power analysis (FR‑007) confirms ≥ 80 % power to detect a medium effect size (Cohen’s d = 0.5) for the dataset size.
+- **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains **≥ 300 records** after exclusions, and the metadata report lists exact counts per group.
+- **SC-003**: The final statistical report (`data/results/statistical_report.pdf`) is generated without errors, includes all required visualizations, and passes the automated PII audit (US4).
