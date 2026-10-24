@@ -11,7 +11,7 @@ covered; no requirement is omitted or weakened.
 
 ## Phase 0 – Data acquisition (US‑1)
 
-- [ ] T001 [P] [US1] **Download public magnetic‑property datasets via official APIs**   <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 -->
+- [ ] T001 [P] [US1] **Download public magnetic‑property datasets via official APIs**   <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 -->
   *Artifacts*: `data/raw_mp.jsonl`, `data/raw_oqmd.csv`, `data/data_sources.yaml`  
   *Steps*:  
   1. Retrieve the Materials Project magnetic entries by streaming the REST API (`datasets.load_dataset("materialsproject", split="all", streaming=True, filter={"magnetic_type": {"$ne": "NM"}})`).  

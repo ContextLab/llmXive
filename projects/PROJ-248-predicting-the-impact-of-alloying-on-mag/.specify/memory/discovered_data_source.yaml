@@ -1,14 +1,11 @@
 status: none
-intent: download Materials Project bulk archive 2026.09 Zenodo and OQMD magnetic dataset
-  python package
+intent: download Materials Project bulk archive v2026.09 and OQMD magnetic CSV dataset
+  python package dataset
 required_fields:
-- material_id
 - composition
-- saturation_magnetization
+- material_id
+- magnetic_moment
 - curie_temperature
-- formation_energy_per_atom
-- band_gap
-- crystal_system
-cache_key: 122070f33a51378a1fa445b2906b04992829d17f2880bca0524dbf4cf0e85994
-searched_at: '2026-10-24T14:09:00.759622+00:00'
+cache_key: aa7807f28bab9fa8a42ba527d72b0744de972c7e5a41828e477c64b78081cbe6
+searched_at: '2026-10-24T19:11:01.938637+00:00'
 retry_count: 1

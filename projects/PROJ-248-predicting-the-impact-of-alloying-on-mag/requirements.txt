@@ -1,4 +1,4 @@
-# Project dependencies
-# Existing base packages (numpy, pandas, scikit-learn, etc.) are provided by the runner.
-datasets>=2.18.0
-# ``datasets`` pulls in ``pyarrow`` and other heavy deps; version pinned for reproducibility.
+numpy>=2.0.0
+datasets
+pymatgen
+matminer

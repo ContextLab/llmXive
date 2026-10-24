@@ -2,16 +2,16 @@
 download_datasets.py
 
 Script to download the Materials Project magnetic dataset (via the HuggingFace
-``datasets`` library) and the OQMD magnetic CSV release (via a direct HTTP
+`datasets` library) and the OQMD magnetic CSV release (via a direct HTTP
 request). The script writes three artefacts:
 
-* ``data/raw_mp.jsonl`` – filtered JSON‑lines from the Materials Project
-  (only entries where ``magnetic_type`` is not ``NM``).
-* ``data/raw_oqmd.csv`` – the raw OQMD CSV file.
-* ``data/data_sources.yaml`` – a small YAML manifest containing version
-  identifiers and SHA‑256 checksums for reproducibility.
+* `data/raw_mp.jsonl` – filtered JSON-lines from the Materials Project
+  (only entries where `magnetic_type` is not `NM`).
+* `data/raw_oqmd.csv` – the raw OQMD CSV file.
+* `data/data_sources.yaml` – a small YAML manifest containing version
+  identifiers and SHA-256 checksums for reproducibility.
 
-The script is intended to be run as part of the pipeline's Phase 0 and must
+The script is intended to be run as part of the pipeline's Phase 0 and must
 succeed on a fresh runner (no cached data). It aborts loudly if any download
 fails or if the resulting checksum cannot be computed.
 """
@@ -24,7 +24,7 @@ import os
 import requests
 import yaml
 
-# The ``datasets`` library provides streaming access to the public
+# The `datasets` library provides streaming access to the public
 # Materials Project and OQMD datasets on HuggingFace without requiring an
 # API key.
 from datasets import load_dataset
@@ -37,7 +37,7 @@ log = get_logger(__name__)
 # Helper utilities
 # ----------------------------------------------------------------------
 def _sha256_of_path(file_path: Path) -> str:
-    """Compute the SHA‑256 checksum of a file."""
+    """Compute the SHA-256 checksum of a file."""
     h = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -58,25 +58,23 @@ def _write_yaml(manifest: dict, out_path: Path) -> None:
 def download_materials_project(raw_mp_path: Path) -> dict:
     """
     Download the Materials Project dataset from the HuggingFace hub using the
-    ``datasets`` library, filter out non‑magnetic entries (``magnetic_type`` ==
-    ``NM``), and write each remaining record as a JSON line.
+    `datasets` library, filter out non-magnetic entries (`magnetic_type` ==
+    `NM`), and write each remaining record as a JSON line.
 
     Returns a manifest dictionary containing a simple version identifier
-    (the dataset revision string) and the SHA‑256 checksum of the written
+    (the dataset revision string) and the SHA-256 checksum of the written
     file.
     """
-    log.info("Loading Materials Project dataset via ``datasets`` (streaming).")
-    # ``load_dataset`` with ``streaming=True`` returns an iterator over the
-    # records without materialising the full dataset in memory.
+    log.info("Loading Materials Project dataset via `datasets` (streaming).")
+    # Use the explicit HuggingFace path. Streaming is used to avoid 
+    # materialising the full dataset in memory.
     ds = load_dataset(
         "materialsproject/materialsproject",
         split="all",
         streaming=True,
     )
 
-    # Attempt to obtain a lightweight version identifier.  The ``datasets``
-    # object provides ``info`` metadata; ``revision`` is a hash that changes
-    # whenever the dataset is updated.
+    # Attempt to obtain a lightweight version identifier from the dataset info.
     version = getattr(ds, "info", None)
     version_id = getattr(version, "revision", "unknown")
     if version_id is None:
@@ -88,7 +86,7 @@ def download_materials_project(raw_mp_path: Path) -> dict:
     count = 0
     with raw_mp_path.open("w", encoding="utf-8") as dst:
         for record in ds:
-            # ``record`` is a dict; skip non‑magnetic entries.
+            # Filter out non-magnetic entries (NM = Non-Magnetic)
             if record.get("magnetic_type") == "NM":
                 continue
 
@@ -108,7 +106,7 @@ def download_materials_project(raw_mp_path: Path) -> dict:
 
     checksum = sha256.hexdigest()
     log.info(
-        "Materials Project download complete – %d records written, SHA‑256: %s",
+        "Materials Project download complete – %d records written, SHA-256: %s",
         count,
         checksum,
     )
@@ -123,7 +121,7 @@ def download_oqmd(raw_oqmd_path: Path) -> dict:
     """
     Download the OQMD magnetic CSV from a verified HuggingFace URL.
 
-    Returns a manifest dictionary containing the URL and the SHA‑256
+    Returns a manifest dictionary containing the URL and the SHA-256
     checksum of the downloaded file.
     """
     # Verified HuggingFace URL for the OQMD magnetic CSV.
@@ -149,7 +147,7 @@ def download_oqmd(raw_oqmd_path: Path) -> dict:
         raise RuntimeError("Downloaded OQMD CSV is empty.")
 
     checksum = sha256.hexdigest()
-    log.info("OQMD download complete – %d bytes, SHA‑256: %s", total_bytes, checksum)
+    log.info("OQMD download complete – %d bytes, SHA-256: %s", total_bytes, checksum)
 
     return {"url": url, "sha256": checksum, "bytes": total_bytes}
 
