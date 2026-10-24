@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet
   verified_at: '2026-10-22T04:46:51.361728Z'
-- artifact_hash: 4639531d786e9f37d5a18d16caf69f70dca2d4d51c6b60944118bcf13c19b1c0
+- artifact_hash: 31d66b9b34409fdafc92e2b112f69127fc90ff6dd71490d2b69a2b79f87d3ca3
   artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/specs/001-llmxive-follow-up-extending-omniretrieva/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet
-  verified_at: '2026-10-24T03:29:59.672239Z'
+  verified_at: '2026-10-24T08:20:28.954519Z'

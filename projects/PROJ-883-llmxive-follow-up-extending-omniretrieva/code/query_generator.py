@@ -7,6 +7,7 @@ resulting query instances to data/processed/generation_log.json.
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 from llmxive_toolkit import get_logger, paths
@@ -46,7 +47,12 @@ def main() -> None:
     generator = SyntheticQueryGenerator(seed=args.seed, levels=args.levels)
 
     output_path = paths.data("processed", "generation_log.json")
-    log.info("Generating %d synthetic queries (levels=%s) -> %s", args.count, args.levels, output_path)
+    log.info(
+        "Generating %d synthetic queries (levels=%s) -> %s",
+        args.count,
+        args.levels,
+        output_path,
+    )
     
     # This will generate queries, validate them against the schema, and save them.
     generator.save_queries(output_path, count=args.count)
@@ -63,7 +69,10 @@ def main() -> None:
     log.info("Verification: Found %d high-complexity graph queries", len(high_comp_graph))
     
     if len(high_comp_graph) < 100:
-        log.warning("High-complexity graph query count (%d) is below target (100).", len(high_comp_graph))
+        log.warning(
+            "High-complexity graph query count (%d) is below target (100).",
+            len(high_comp_graph),
+        )
     
     log.info("Synthetic query generation completed successfully.")
 

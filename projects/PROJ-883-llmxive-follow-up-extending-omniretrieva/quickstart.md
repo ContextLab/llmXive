@@ -29,6 +29,12 @@ them and stores the outputs under ``artifacts/``.
  python -m code.main
  ```
 
+4. **Generate the synthetic query dataset**
+
+ ```bash
+ python -m code.query_generator --count 500
+ ```
+
 ## Installation
 ```bash
 cd projects/PROJ-883-llmxive-follow-up-extending-omniretrieva

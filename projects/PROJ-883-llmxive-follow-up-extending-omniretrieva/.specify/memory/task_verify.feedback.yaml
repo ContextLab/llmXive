@@ -1,10 +1,10 @@
 T001:
-  reason: "The integration test `tests/integration/test_skeleton.py` failed on the\
-    \ `ruff check code/` step (see `code/.tasks/T001.tests_integration_test_skeleton.py.log`),\
-    \ resulting in a missing/empty `artifacts/ruff_output.txt`. Consequently the CI\
-    \ verification that both artifact files exist and are non\u2011empty is not satisfied.\
-    \ The task needs the `ruff` module installed (or the test adjusted) so that the\
-    \ ruff check passes and the artifact is generated."
+  reason: "The `quickstart.md` and `tests/integration/test_skeleton.py` files exist,\
+    \ but the integration test suite failed: `test_ruff_check` exited with code\u202F\
+    1 because the `ruff` module is not installed, so `artifacts/ruff_output.txt` was\
+    \ never created. Consequently the CI verification that both artifact files exist\
+    \ and are non\u2011empty is not satisfied. The task requires a passing ruff check,\
+    \ which is currently missing."
   task: 9f9c0b4560206240b1373cb3d5fdfe2a7f4ea54abc610a9a571c5df47b8aca9b
 T002:
   reason: The required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,
