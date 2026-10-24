@@ -1,75 +1,143 @@
 # Tasks: Evaluating the Effectiveness of Differential Privacy in Federated Learning
 
-**Inputs**: The active `spec.md`, `plan.md`, `data-model.md`, and `contracts/`.
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, and the JSON‑Schema contracts in `specs/…/contracts/`.
 
-This research implementation evaluates how client data heterogeneity (controlled via Dirichlet $\alpha$) modulates the privacy-utility trade-off in differentially private federated learning, specifically focusing on whether minority clients suffer disproportionate accuracy degradation.
+The study must use **only the FEMNIST dataset**, simulate heterogeneity with Dirichlet α ∈ {0.1, 0.5, 1.0}, run DP‑FedAvg with several ε values, and produce the statistical artefacts required by the specification.  
+All tasks are written as canonical checklist items; unchecked boxes indicate work that still needs to be executed.
 
-**Note on plan-root ambiguities (flagged for kickback)**: `plan.md`'s Minority Definition section still contains a `[deferred]` placeholder for the entropy percentile, contradicting the plan's own Constitution Check table ("bottom 30%"). The tasks below adopt the concrete **bottom 30%** value so the requirement is testable; the plan should be updated upstream to match. Likewise, the plan's "5 ε" sweep is never enumerated in `plan.md` or `spec.md`; the tasks below fix it as $\epsilon \in \{0.1, 0.5, 1.0, 5.0, \infty\}$ (with $\epsilon=\infty$ as the non-DP baseline), consistent with the plan's emphasis on $\epsilon \le 0.5$ in H13.
+---
 
-## Phase 1: Setup and first end-to-end analysis
+- [ ] **T001** [P] Download FEMNIST (stream → parquet) and enforce Shakespeare exclusion  
+  *File*: `code/data/download.py`  
+  *Description*: Stream the FEMNIST training and test splits via `datasets.load_dataset(..., streaming=True)`, write `data/raw/femnist_train.parquet` and `data/raw/femnist_test.parquet`, compute a SHA‑256 checksum of the concatenated parquet files and store it as `data/raw/femnist.sha256`. If the script is invoked with `--dataset shakespeare` it must raise `ValueError("Shakespeare excluded per plan.md Gap Analysis")`. **Note**: the correct exception behavior is ensured by task **T015**.  
+  *Verification*:  
+  – Unit test `tests/unit/test_download.py` that (a) runs the downloader for FEMNIST and checks that the two parquet files exist and that their SHA‑256 matches the recorded value, and (b) asserts that invoking the downloader with `dataset="shakespeare"` raises the exact `ValueError` with the required message.
 
-**Goal**: Establish the pipeline from streaming data download to a small-scale result to verify the compute budget and data flow.
+- [ ] **T002** [P] Verify Shakespeare‑exclusion behaviour with a real test script  
+  *File*: `tests/unit/test_shakespeare_exclusion.py`  
+  *Description*: Import the download module, call its entry point with `dataset="shakespeare"` and confirm that a `ValueError` with the exact message *“Shakespeare excluded per plan.md Gap Analysis”* is raised. This replaces the brittle grep‑based T000 check noted by the reviewer.  
+  *Verification*: `pytest -q tests/unit/test_shakespeare_exclusion.py` must exit with code 0.
 
-- [ ] T001 Establish the project structure, install dependencies (`torch`, `opacus`, `datasets`, `pandas`, `scipy`, `statsmodels`, `pyarrow`), and document the runnable entry point in `quickstart.md`. <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
-- [ ] T002 Implement the FEMNIST data loader in `code/data/download.py` using `datasets.load_dataset(..., streaming=True)` to materialize the dataset into `data/raw/femnist.parquet` with a corresponding `data/raw/femnist.sha256`. <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
-    The loader must fail loudly on fetch failure; no synthetic fallback is permitted. It must raise `ValueError("Shakespeare excluded per plan.md Gap Analysis")` if the dataset is set to "shakespeare".
-- [ ] T003 Implement a thin end-to-end pilot run in `code/main.py` using a single seed, one $\alpha=0.1$, and one $\epsilon=1.0$.
-    This must execute the full chain: Download $\rightarrow$ Partition $\rightarrow$ DP-FedAvg $\rightarrow$ Result logging.
-    Verification: Produce `results/raw_logs.csv` containing at least one row with all fields defined in `contracts/results.schema.yaml`.
+- [ ] **T003** [P] Compute the global minority‑client entropy threshold (bottom 25 % percentile)  
+  *File*: `code/data/minority_threshold.py`  
+  *Description*: Load the full FEMNIST training parquet, compute per‑client label entropy for **all** clients (using the official LEAF client IDs), determine the 25th percentile of the entropy distribution, and write the numeric threshold to `data/metadata/minority_threshold.json`. This single global threshold will be used by the partitioner to flag minority clients (FR‑006).  
+  *Verification*: A sanity‑check script `tests/unit/test_minority_threshold.py` loads the JSON and asserts that the value lies between 0 and log₂(62) and that at least one client’s entropy is ≤ threshold.
 
-**Checkpoint**: The documented command executes and produces real numerical outputs in `results/raw_logs.csv`.
+- [ ] **T004** [P] Dirichlet‑based client partitioning (reproducible)  
+  *File*: `code/data/partition.py`  
+  *Description*: For each seed in **{0,…,9}** and each α ∈ {0.1, 0.5, 1.0}, sample a Dirichlet distribution to obtain client‑label probability vectors, assign FEMNIST examples accordingly, and write the metadata to `data/partitions/partition_femnist_{seed}_{alpha}.json`. Each JSON must contain per‑client fields `client_id`, `samples`, `label_dist`, `entropy`, and `is_minority` (using the threshold from T003). After writing, compute and store the file’s SHA‑256 in the same directory (e.g., `partition_femnist_0_0.1.sha256`).  
+  *Verification*: `tests/unit/test_partition_reproducibility.py` runs the partitioner twice with the same `(seed, α)` and asserts that the two JSON files are byte‑identical (matching SHA‑256).
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] **T005** [P] Tiny CNN model and per‑client data loader  
+  *File*: `code/models/cnn.py` and `code/data/loader.py`  
+  *Description*: Implement a convolutional network with ≤ 50 k parameters suitable for FEMNIST (e.g., two Conv2d layers + one fully‑connected layer). Provide a `get_client_loader(client_id, partition_path, seed)` helper that returns a `torch.utils.data.DataLoader` for the client’s samples, seeded for deterministic shuffling.  
+  *Verification*: `tests/unit/test_model_loader.py` checks that the model can be instantiated, that a loader returns at least one batch, and that two loaders created with the same seed produce identical batches.
 
-**Goal**: Execute the full experimental matrix across 5 seeds, multiple $\alpha$ and $\epsilon$ values, and perform the mandated statistical analysis.
+- [ ] **T006** [P] DP‑FedAvg training loop (Opacus) and non‑DP baseline  
+  *Files*: `code/training/fedavg_dp.py` and `code/training/fedavg_baseline.py`  
+  *Description*:  
+  – Wrap the CNN with `opacus.PrivacyEngine` (Gaussian noise, clipping norm = 1.0).  
+  – For a target ε (any numeric value) compute the required noise multiplier using the Moments Accountant (δ = 1e‑5).  
+  – Track the cumulative privacy budget (`actual_epsilon`) after each round and log it.  
+  – The baseline script runs the identical FedAvg loop **without** Opacus and records `epsilon="inf"` and `is_dp=False`.  
+  *Verification*: After a short 3‑round run, `results/raw_logs.csv` must contain the columns `epsilon`, `actual_epsilon`, and `is_dp`. A deterministic sampling rule is used for the epsilon‑tolerance test: for each ε value, the first three seeds (0, 1, 2) are examined, and the test asserts `abs(actual_epsilon - target_epsilon) ≤ 0.05` for those runs.
 
-- [ ] T004 Implement the Dirichlet partitioning logic in `code/data/partition.py` to generate `data/partitions/partition_femnist_{seed}_{alpha}.json` for $\alpha \in \{0.1, 0.5, 1.0\}$.
-    The logic must compute empirical label entropy per client and flag `is_minority=True` for clients in the **bottom 30% percentile of the within-partition empirical label-entropy distribution** (bits), computed independently of $\alpha$ per Constitution Principle VI. The 30% threshold matches the plan's Constitution Check table.
-- [ ] T005 Implement the DP-FedAvg training loop in `code/training/fedavg.py` and `code/training/dp_utils.py` using Opacus.
-    Must implement: (1) Gaussian noise addition, (2) Privacy budget tracking via Moments Accountant, and (3) A non-DP baseline ($\epsilon=\infty, is\_dp=False$).
-- [ ] T006 Implement the 5-seed orchestrator in `code/main.py` to run the full matrix: 5 seeds $\times$ 3 $\alpha$ $\times$ 5 $\epsilon$, where $\epsilon \in \{0.1, 0.5, 1.0, 5.0, \infty\}$ and $\epsilon=\infty$ denotes the non-DP baseline.
-    Must implement the deterministic time-budget logic: check wall-clock time after each round; if the remaining budget is insufficient, cap rounds at `max_rounds` and set `is_time_limited=True`.
-    Must implement the plan's retry mechanism: if a seed crashes (OOM, timeout), a fresh seed (incremented integer) is drawn and retried up to 3 attempts to guarantee 5 successful runs per configuration.
-    Verification: `results/raw_logs.csv` must contain exactly 5 successful runs per $(\alpha, \epsilon)$ configuration (15 configurations, 75 successful runs total).
-- [ ] T007 Implement data filtering and convergence detection in `code/analysis/stats.py` to produce `results/filtered_data.csv` and `results/filtered_time.csv`.
-    Must remove: (1) Runs where `global_accuracy < 1/62` (utility collapse), and (2) Runs where `is_time_limited=True` — time-limited runs are excluded from **all** downstream statistical analyses (paired t-tests, LMM, filtering) per the plan's bias-avoidance rule; `filtered_data.csv` therefore excludes both utility-collapsed and time-limited runs.
-    Must also implement convergence detection per the plan's T025: compute `rounds_to_80` = the first round where `global_accuracy >= 0.80`, computed on time-limit-excluded data and written to `results/filtered_time.csv`.
-- [ ] T008 Perform the statistical analysis in `code/analysis/stats.py` using `results/filtered_data.csv` (which excludes both utility-collapsed and time-limited runs).
-    Must implement: (1) Paired t-tests comparing DP vs. Non-DP global accuracy per seed, and (2) A Linear Mixed-Effects Model (LMM) to compare degradation between majority and minority clients (degradation ~ Group + (1|Seed) + (1|Seed:Client), with robust SEs if the nested model is infeasible).
-    Must apply **Bonferroni correction** across the 15 simultaneous $(\alpha, \epsilon)$ tests ($\alpha_{adj} = 0.05/15 \approx 0.0033$), reporting both raw and adjusted p-values.
-    Verification: Produce `results/final_stats.csv` with raw and Bonferroni-adjusted p-values, effect sizes, and confidence intervals.
-- [ ] T009 Generate the required scientific figures in `code/analysis/plots.py`.
-    Must produce: (1) `figures/sensitivity_alpha.png` (Accuracy vs $\epsilon$ for different $\alpha$), and (2) `figures/minority_vs_global_overlay.png` (Overlay of minority client degradation vs global accuracy).
+- [ ] **T014** [P] Pre‑sweep power analysis (paired‑t, α=0.05, power=0.80)  
+  *File*: `code/analysis/power.py`  
+  *Description*: Before any training runs, compute the minimum detectable effect size (Cohen’s d) for the planned number of seeds per configuration (default 10). The calculation uses a paired‑t framework, α = 0.05, power = 0.80, and accounts for the Bonferroni‑adjusted number of ε‑α configurations. Write the result to `results/power_analysis.json` and record the value in `results/summary.csv` metadata. If the orchestrator later reduces the seed count (per Section 5 budget policy) the same script will be re‑run to update the detectable effect size.  
+  *Verification*: Unit test `tests/unit/test_power_analysis.py` checks that the JSON file exists and that the reported `minimum_detectable_d` matches the analytic calculation for the given seed count.
 
-**Checkpoint**: All required runs complete; statistical tests are performed on filtered real data; figures are generated from validated outputs.
+- [ ] **T007** [P] Full experiment orchestrator (sweep)  
+  *File*: `code/main.py`  
+  *Description*: Loop over:  
+  – **Seeds** = 10 (0‑9) (subject to reduction per Section 5 budget policy)  
+  – **α** ∈ {0.1, 0.5, 1.0} (subject to reduction)  
+  – **ε** ∈ {0.5, 1.0, 2.0, 5.0, inf} (subject to reduction)  
+  For each configuration run the DP trainer **and** the baseline trainer on the **same** partition file.  
+  – Enforce a wall‑clock budget: after each communication round estimate remaining time; if the projected total exceeds the CI budget, stop further rounds, set `is_time_limited=True`, and record the last round as censored.  
+  – All random generators (Python, NumPy, PyTorch, and the Dirichlet sampler) are seeded with the combination `(seed, α, ε)`.  
+  – Append per‑round metrics to `results/raw_logs.csv` (schema‑validated).  
+  *Verification*: After the orchestrator finishes, a validation script computes the expected row count as `2 * actual_seeds * actual_alphas * actual_epsilons` (where the actual numbers reflect any reductions) and asserts that `results/raw_logs.csv` contains exactly that many rows. It also checks that each `(seed, α, ε)` pair appears twice (DP and baseline).
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] **T008** [P] Statistical analysis and power‑analysis integration  
+  *File*: `code/analysis/stats.py`  
+  *Description*:  
+  1. Load `results/raw_logs.csv`.  
+  2. Flag `utility_collapse=True` for any run with `global_accuracy < 1/62`.  
+  3. Compute `rounds_to_target` as the first round where `global_accuracy ≥ target_fraction * baseline_final_accuracy` (default `target_fraction=0.90`) for each `(α, ε, seed)`; if never reached, set `converged=False` and keep the final round number.  
+  4. Perform a **paired** comparison of DP vs. baseline global accuracy for each `(α, ε)` using:  
+     – Shapiro‑Wilk normality test on the paired differences.  
+     – If normal (p > 0.05) → paired t‑test; else → Wilcoxon signed‑rank test.  
+     – Report raw p‑value, Cohen’s d (or rank‑biserial), and a significance flag (α = 0.05). No Bonferroni correction is applied (as not required by the specification).  
+  5. Fit a mixed‑effects model `degradation ~ α * ε * is_minority + (1 + ε + α | seed)` using `statsmodels.MixedLM`; extract the three‑way interaction coefficient, the two‑way interaction coefficients, 95 % CIs, and raw p‑values.  
+  6. Compute the minority‑vs‑majority accuracy gap per configuration and its effect size.  
+  7. Incorporate the pre‑sweep power‑analysis result from `results/power_analysis.json` into the final report.  
+  8. Write all statistics to `results/final_stats.csv`.  
+  *Verification*: `tests/unit/test_statistics.py` loads the CSV and asserts that required columns exist, that the three‑way interaction term is present, and that raw p‑values are ≤ 1.
 
-**Goal**: Consolidate results into a final report, verify the end-to-end reproducibility of the workflow, and lock in test coverage.
+- [ ] **T009a** [P] Convergence speed measurement (relative target)  
+  *File*: `code/analysis/convergence.py`  
+  *Description*: For each run, compute `rounds_to_target` as described in T008 (90 % of the corresponding non‑DP baseline’s final global accuracy). Record this value in `results/raw_logs.csv` under the column `rounds_to_target`. Flag runs that never reach the target with `converged=False`. No extra `matched_rounds` or `censoring` fields are generated, keeping the output compatible with the existing results schema.  
+  *Verification*: Unit test `tests/unit/test_convergence.py` confirms that the column exists, that at least one run has `converged=True`, and that runs with `is_time_limited=True` are still present.
 
-- [ ] T010 Generate the final result aggregation artifacts: `results/summary.csv`, `results/validation_report.md`, and `results/p_values_by_seed.json`.
-    The summary must include mean accuracies, degradation, and convergence rounds (`rounds_to_80`, computed by T007) per configuration.
-- [ ] T011 Update `README.md` with detailed "Installation", "Usage", and "Results" sections, including the explicit statement that the Shakespeare dataset is excluded per the plan.
-- [ ] T012 Execute a final end-to-end reproducibility check from `quickstart.md` on a fresh environment, confirming that all artifacts in `results/` and `figures/` are reproduced.
-    Verification: Produce `quickstart_verification.log` showing successful execution and checksum match for `data/raw/femnist.parquet`.
-- [ ] T013 Implement the unit/integration test suite per the plan's T032, using `pytest` under `tests/unit/` and `tests/integration/`.
-    Must cover: (1) partition reproducibility (same seed → identical partition JSON), (2) missing-classes handling in partitioning, (3) DP-vs-non-DP logging (epsilon, is_dp, actual_epsilon fields), (4) timeout flagging (`is_time_limited=True` when the round cap triggers), and (5) the utility-collapse filter (rows with `global_accuracy < 1/62` are removed from `filtered_data.csv`).
-    Verification: `pytest tests/` passes with at least one test per listed behavior.
+- [ ] **T009b** [P] Generate privacy‑utility and convergence‑speed figures  
+  *File*: `code/analysis/plots.py`  
+  *Description*: Using the aggregated statistics:  
+  – Plot **accuracy vs. ε** for each α (error bars = 95 % CI), saved as `figures/privacy_utility_accuracy.png`.  
+  – Plot **rounds_to_target vs. ε** for each α (censored points shown with an open marker), saved as `figures/privacy_utility_convergence.png`.  
+  – Overlay minority‑client accuracy degradation on the global accuracy curves (`figures/minority_overlay.png`).  
+  All plots include axis labels, legends, and a caption describing the confidence‑interval method. No extra `matched_rounds` or `censoring` fields are generated.  
+  *Verification*: `tests/unit/test_plots.py` loads each PNG and checks that the file size > 5 KB and that the PNG header is valid.
 
-## Dependencies and requirement coverage
+- [ ] **T010** [P] Assemble final summary table and validation report  
+  *File*: `code/analysis/summary.py`  
+  *Description*: Combine the per‑configuration rows from `final_stats.csv` into `results/summary.csv` containing the fields enumerated in FR‑011 (mean/std accuracy, mean degradation, p‑values, interaction estimates, counts of collapsed and time‑limited runs, minority‑gap, power‑effect‑size, etc.). Create `results/validation_report.md` that documents:  
+  – SHA‑256 verification of the raw FEMNIST parquet files,  
+  – Reproducibility of partitions (matching hashes),  
+  – Correlation (Pearson r) between client entropy and α (diagnostic from T004),  
+  – Confirmation that the Shakespeare‑exclusion unit test passes,  
+  – Counts of flagged collapsed and time‑limited runs, and  
+  – Results of a sensitivity analysis that excludes those flagged runs.  
+  *Verification*: `tests/unit/test_summary.py` parses both CSV and MD files and asserts that all required columns/sections are present and that the reported hash values match the actual files on disk.
 
-| Requirement | Task(s) | Verification |
-|---|---|---|
-| **FR-001** (FEMNIST / $\neg$Shakespeare) | T002, T011 | `ValueError` on "shakespeare" / `femnist.parquet` exists |
-| **FR-002** (Dirichlet $\alpha$) | T004 | `partition_*.json` exists with correct entropy flags |
-| **FR-003** (DP / Opacus / $\epsilon$) | T005 | `actual_epsilon` logged in `raw_logs.csv` |
-| **FR-004** (5 Seeds) | T006 | `raw_logs.csv` contains 5 entries per config (15 configs, 75 runs) |
-| **FR-005** (Paired t-tests / LMM) | T008 | `final_stats.csv` contains raw and Bonferroni-adjusted p-values |
-| **Utility-Collapse Filter** (plan.md Statistical Analysis Plan) | T007 | `filtered_data.csv` excludes accuracy $< 0.01613$ |
-| **Time-Limit Exclusion** (plan.md Early-Stop Logic) | T007, T008 | `is_time_limited` runs excluded from all statistical analyses |
-| **Convergence Detection** (plan.md T025) | T007 | `rounds_to_80` in `filtered_time.csv` |
-| **Compute Budget** (6h / Early Stop) | T006 | `is_time_limited` flag present in `raw_logs.csv` |
-| **Minority Definition** (bottom 30% entropy percentile) | T004 | `is_minority` field in partition JSONs |
-| **Test Coverage** (plan.md T032) | T013 | `pytest tests/` passes |
+- [ ] **T011** [P] Write a reproducible quick‑start guide  
+  *File*: `quickstart.md` (project root)  
+  *Description*: Provide step‑by‑step commands to (1) install dependencies (`pip install -r requirements.txt`), (2) run the full pipeline (`python -m code.main`), (3) locate the key artefacts (`results/summary.csv`, `figures/*.png`), and (4) verify reproducibility by re‑running and checking that the SHA‑256 values in `validation_report.md` match. Include the exact command used by the orchestrator (`python -m code.main --seeds 0-9 --alphas 0.1,0.5,1.0 --epsilons 0.5,1.0,2.0,5.0,inf`).  
+  *Verification*: Running `bash scripts/quickstart_check.sh` (generated by the guide) must complete without error and produce a log file `results/quickstart_verification.log` containing the phrase “All checks passed”.
 
-**Execution Order**: T001 $\rightarrow$ T002 $\rightarrow$ T003 $\rightarrow$ T004 $\rightarrow$ T005 $\rightarrow$ T006 $\rightarrow$ T007 $\rightarrow$ T008 $\rightarrow$ T009 $\rightarrow$ T010 $\rightarrow$ T011 $\rightarrow$ T012 $\rightarrow$ T013.
+- [ ] **T012** [P] Comprehensive pytest suite covering all scientific components  
+  *Directory*: `tests/` (unit + integration)  
+  *Description*: Add tests for:  
+  1. Download & Shakespeare exclusion (T001, T002).  
+  2. Global minority‑threshold computation (T003).  
+  3. Partition reproducibility and minority flag correctness (T004).  
+  4. Model instantiation & deterministic client loader (T005).  
+  5. DP budget tracking tolerance (T006).  
+  6. Orchestrator output completeness and dynamic row‑count verification (T007).  
+  7. Pre‑sweep power analysis (T014).  
+  8. Statistical analysis outputs, three‑way interaction term, and power‑analysis integration (T008).  
+  9. Plot generation sanity checks (T009b).  
+  10. Summary table integrity and validation‑report completeness (T010).  
+  11. Quick‑start reproducibility script (T011).  
+  All tests must pass (`pytest -q`) on a fresh CI runner.  
+  *Verification*: The CI pipeline will execute `pytest -q`; a passing run is the required evidence.
+
+- [ ] **T013** [P] End‑to‑end reproducibility verification on a clean environment  
+  *File*: `scripts/reproducibility_check.sh`  
+  *Description*: A shell script that (a) deletes the `data/`, `results/`, and `figures/` directories, (b) runs the quick‑start command, (c) recomputes the SHA‑256 checksums of the generated FEMNIST parquet files and partition JSONs, (d) compares them against the values recorded in `validation_report.md`, and (e) writes a concise pass/fail summary to `results/reproducibility_log.txt`.  
+  *Verification*: The script must exit with status 0 and the log must contain “Reproducibility check passed”. This script is invoked as the final step of the CI pipeline to certify that the entire study is fully reproducible from scratch.
+
+- [ ] **T015** [P] Fix download script to raise correct `ValueError` for Shakespeare exclusion  
+  *File*: `code/data/download.py`  
+  *Description*: Ensure the argument parser validates the `--dataset` option and raises `ValueError("Shakespeare excluded per plan.md Gap Analysis")` when the value is `"shakespeare"`. Add explicit unit‑test coverage if needed.  
+  *Verification*: Running the module with `--dataset shakespeare` must raise the exact `ValueError`; the existing `test_download.py` will now pass.
+
+- [ ] **T016** [P] Fix Shakespeare‑exclusion unit test to correctly assert `ValueError`  
+  *File*: `tests/unit/test_shakespeare_exclusion.py`  
+  *Description*: Update the test to import the corrected download entry point and use `with pytest.raises(ValueError, match="Shakespeare excluded per plan.md Gap Analysis"):` to verify the exception.  
+  *Verification*: `pytest -q tests/unit/test_shakespeare_exclusion.py` exits with code 0.
+
+- [ ] **T017** [P] Remove unsupported fields from results output  
+  *Files*: `code/training/fedavg_dp.py`, `code/training/fedavg_baseline.py`, `code/analysis/convergence.py`  
+  *Description*: Ensure that the CSV writer does not include `matched_rounds` or `censoring` columns; rename any existing logic to drop them before writing. Update any downstream scripts to rely only on schema‑defined fields.  
+  *Verification*: Run a short sweep and validate `results/raw_logs.csv` against `specs/001-evaluating-the-effectiveness-of-differen/contracts/results.schema.yaml` using a schema validator; it must pass.
