@@ -24,20 +24,20 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 ## Phase 1 – Data acquisition & pairing (Priority P1)
 
 - [ ] T003 [P1] [US1] **Extract ≥ 500 (commit_message, documentation_diff) pairs from the five target repositories** – `code/data_extraction.py`, `data/raw/commit_pairs.csv`  
-  - Clone the repositories `pandas`, `requests`, `scikit-learn`, `flask`, `django` at the default branch.  
-  - Use the GitHub REST API (`/repos/:owner/:repo/commits`) with `since=2 years ago` to enumerate commits.  
-  - For each commit, fetch the full diff (`git show <sha>`) and retain only those that modify files ending in `.md` or `.rst`.  
+  - Clone the repositories `pandas`, `requests`, `scikit-learn`, `flask`, `django` at the default branch into a temporary `data/tmp/repos/` directory.  
+  - Use the GitHub REST API (`GET /repos/{owner}/{repo}/commits`) with `since=2 years ago` and a personal‑access‑token supplied via the environment variable `GITHUB_TOKEN` (fails loudly if missing).  
+  - For each commit, fetch the full diff with `git show <sha>` and retain only those that modify files ending in `.md` or `.rst`.  
+  - Parse the diff to isolate the documentation‑only portion (exclude code hunks).  
   - Record `commit_hash`, `commit_message`, `repository_name`, `doc_diff`, and ISO‑8601 `timestamp` per the `CommitPair` schema.  
-  - Write the result to `data/raw/commit_pairs.csv` (no in‑place modifications of existing files).  
+  - Write the result to `data/raw/commit_pairs.csv` **without overwriting** any existing file; if the file already exists, abort with an error to avoid accidental data loss.  
   - **Verification**: CSV contains ≥ 500 rows, each row validates against `commitpair.schema.yaml` (`pytest tests/contract/test_commitpair_schema.py`), a log reports the number of skipped commits, and a SHA‑256 checksum entry for the CSV is added to `data/metadata.yaml`.
 
 - [ ] T004 [P1] [US1] **Create a human‑annotated gold‑standard intent dataset (50 samples) and compute inter‑annotator agreement** – `code/gold_annotation.py`, `data/gold/annotations.json`  
   - Randomly sample 50 commit pairs from `data/raw/commit_pairs.csv` using the pinned seed in `code/seeds.py`.  
-  - Export the sampled rows to a CSV (`data/gold/sample_for_annotation.csv`) and distribute to two independent human annotators (e.g., via a shared Google Sheet).  
-  - Annotators label all **technical‑intent** entities according to the rubric in the specification (keywords, reasoning clauses, etc.).  
-  - After annotation, run a script that reads the two annotator files, computes Cohen’s κ, and merges the annotations (resolving disagreements by a senior reviewer).  
-  - Store the merged result in `data/gold/annotations.json` with fields `sample_id`, `intent_entities`, and the computed `kappa`.  
-  - **Verification**: JSON parses, contains `kappa` in [0, 1], and a test asserts `kappa ≥ 0.6`. If κ < 0.6, the pipeline records `"fallback_used": true` and will later switch to the deterministic keyword‑heuristic extractor (handled in T007).
+  - Export the sampled rows to `data/gold/sample_for_annotation.csv`.  
+  - Provide a simple HTML/JS annotation interface (served locally via `python -m http.server`) that allows two independent annotators to label **technical‑intent** entities in the human documentation diffs. The interface writes each annotator’s results to `data/gold/annotator_<id>.csv`.  
+  - After both annotators finish, run `gold_annotation.py` to (a) read the two CSVs, (b) compute Cohen’s κ, (c) merge the annotations (conflicts resolved by a senior reviewer automatically flagged in `conflicts.log`), and (d) produce `data/gold/annotations.json` with fields `sample_id`, `intent_entities`, and `kappa`.  
+  - **Verification**: JSON parses, contains `kappa` in [0, 1], and a test asserts `kappa ≥ 0.6`. If κ < 0.6, the pipeline records `"fallback_used": true` in `data/gold/annotations.json` for downstream intent‑extraction tasks.
 
 ---
 
@@ -47,7 +47,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
   - Explain that Phi‑3‑mini (≈ 3 B), Gemma‑2‑2b (≈ 2 B), and Llama‑3.2‑3B are the largest open‑source models that can reliably run in 4‑bit quantization on the GitHub Actions free‑tier runner (≈ 7 GB RAM).  
   - Cite the reviewer concern that model scale is limited, and state that results will be interpreted as “behavior of comparable‑size models” rather than “scale‑driven trends”.  
   - Include a table of model parameters, quantization settings, and expected per‑commit latency.  
-  - **Verification**: The markdown file exists and a test (`tests/test_model_selection.py`) checks that each model listed has a `max_params` ≤ 3 B and that the file contains the required explanatory paragraph.
+  - **Verification**: The markdown file exists and a test (`tests/test_model_selection.py`) checks that each listed model has `max_params` ≤ 3 B and that the explanatory paragraph is present.
 
 ---
 
@@ -79,7 +79,7 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 - [ ] T007 [P3] [US3] **Technical‑intent extraction with fallback and codebase verification** – `code/entity_extraction_intent.py`, `data/intermediate/intent_entities/`  
   - Primary method: zero‑shot NLI classifier (`facebook/bart-large-mnli`) run deterministically (seeded) and calibrated on the gold‑standard annotations from T004. Use the confidence threshold that maximises F1 on the validation split.  
-  - If the gold‑standard κ < 0.6 (recorded in `data/gold/annotations.json`) or the classifier fails on a sample, fall back to a deterministic keyword‑heuristic extractor (keywords: because, fix, improve, handle, prevent).  
+  - If the gold‑standard κ < 0.6 (recorded in `data/gold/annotations.json`) **or** the classifier fails on a sample, fall back to a deterministic keyword‑heuristic extractor (keywords: because, fix, improve, handle, prevent).  
   - For each generated intent entity, extract any technical noun‑phrase (function/class/module names) and verify against the repository codebase (same `git grep` + AST approach). Flag `verified: false` for hallucinated intent terms.  
   - Output an `EntitySet` JSON per sample with `type: "intent"` and the `verified` flag.  
   - **Verification**: On the 50‑sample gold set, precision ≥ 0.75 and recall ≥ 0.70 against human‑annotated intent entities; every generated intent entity includes a boolean `verified` field; tests validate these metrics.
@@ -148,6 +148,16 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 
 ---
 
+## Phase 10 – Discussion of model‑scale limitation (new)
+
+- [ ] T016 [P2] [US2] **Explicitly discuss the impact of limited model scale on the research question** – `docs/limitations_and_future_work.md`  
+  - Summarize the reviewer concern that all three selected models are of comparable small size, limiting the ability to draw conclusions about “how different LLM architectures differ” with respect to scale.  
+  - Explain that the current experiment isolates architectural differences *within* the small‑scale regime and that any observed performance gaps should be interpreted as architecture‑specific rather than size‑driven.  
+  - Propose a concrete future‑work plan: (a) acquire larger open‑source models (e.g., Llama‑3‑8B, Mistral‑7B) and repeat the pipeline on a subset of the data, (b) perform a scaling analysis, and (c) discuss resource constraints and possible use of Kaggle‑free GPU for larger models.  
+  - **Verification**: The markdown file exists, contains the three required sections (reviewer concern, interpretation, future‑work plan), and a test (`tests/test_limitations.py`) checks for the presence of the phrase “future‑work plan”.
+
+---
+
 ## Dependencies & Requirement Coverage
 
 | Spec Requirement | Satisfying Task(s) |
@@ -164,10 +174,10 @@ The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisf
 | **SC‑001** (≥ 500 valid pairs) | T003 |
 | **SC‑002** (≥ 90 % generation success) | T005 |
 | **SC‑003** (precision/recall & hallucination metrics) | T006, T007, T008 |
-| **SC‑04** (statistical significance) | T002, T009 |
+| **SC‑004** (statistical significance) | T002, T009 |
 | **SC‑005** (hallucination rate) | T006, T007, T008 |
 | **Constitution I** (pinned seeds) | T014 |
 | **Constitution III** (data hygiene) | T013 |
 | **US‑1, US‑2, US‑3** | Reflected in task tags and verification steps |
 
-All tasks are ordered to respect data flow: extraction → gold‑standard annotation → model selection justification → generation → entity extraction → scoring → statistical analysis → visualization → hygiene/reproducibility → validation → CI. No task writes outside the `data/`, `code/`, `results/`, `tests/`, or `.github/` directories.
+All tasks are ordered to respect data flow: extraction → gold‑standard annotation → model selection justification → generation → entity extraction → scoring → statistical analysis → visualization → hygiene/reproducibility → validation → CI → discussion of limitations. No task writes outside the `data/`, `code/`, `results/`, `tests/`, `docs/`, or `.github/` directories.
