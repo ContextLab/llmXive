@@ -1,11 +1,11 @@
 status: none
-intent: download Image Editing Prompt Feasibility Dataset with human feasibility scores
-  python package dataset
+intent: download image editing prompts with human feasibility scores dataset python
+  package dataset
 required_fields:
 - prompt_id
 - instruction_type
-- prompt_text
+- prompt
 - human_feasibility_score
-cache_key: 2a4b320293377ab9c977f09f39c434dabf2d1ec8a30e551a10528b493d7fcb2f
-searched_at: '2026-10-24T04:09:41.548089+00:00'
+cache_key: 3a56c80f1f12f6aa7ba413912c5b986c231cf2a2b5f2eeecbe24feb1b377b55d
+searched_at: '2026-10-24T04:11:19.463140+00:00'
 retry_count: 1

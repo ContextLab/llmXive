@@ -9,7 +9,7 @@
 
 ### User Story 1 - Baseline Verifier Evaluation on Conflicting Instructions (Priority: P1) (US-1)
 
-The researcher MUST be able to run the baseline distilled verifier (Edit-R1 1B) on a curated dataset of 1000 image editing prompts (target 500 conflicting and 500 neutral) and generate a CSV report containing the verifier's alignment scores against human‑annotated feasibility scores for each prompt.
+The researcher MUST be able to run the baseline distilled verifier (Edit-R1 1B) on a curated dataset of a sizable collection of image editing prompts (target balanced numbers of conflicting and neutral prompts) and generate a CSV report containing the verifier's alignment scores against human‑annotated feasibility scores for each prompt.
 
 **Why this priority**: This establishes the failure mode hypothesis. Without quantifying the baseline degradation on conflicting instructions, the proposed graph augmentation cannot be evaluated. It is the essential control condition for the entire study.
 

@@ -26,66 +26,77 @@ python -m spacy download en_core_web_sm
 ## 3. Data download & curation
 ```bash
 # Stream the three verified parquet shards and write them to data/raw/
-python -m code.src.data.download
+python -m src.data.download
 
-# Build the balanced CSV, add synthetic scores, and assign UUIDs
-python -m code.src.data.curate
+# Build the balanced CSV, add synthetic scores, assign UUIDs, and write to data/results/
+python -m src.data.curate
 ```
-- **Provenance**: `data/raw/provenance.json` records the three URLs, their SHA‑256 checksums, and the generated file checksum.
+- **Provenance**: `data/raw/provenance.json` records the three URLs, their SHA‑2 family checksums, and the generated file checksum.
 
-## 4. Human feasibility annotation (required for evaluation)
+## 4. Conflict set selection (no synthetic generation)
+```bash
+# Filter natural language prompts for realistic contradictions using heuristic cues
+python -m src.data.filter_conflicts
+# This creates `data/results/curated_prompts.csv` with an equal number of conflicting and neutral prompts.
+```
+
+## 5. Human feasibility annotation (required for evaluation)
 ```bash
 python -m src.data.human_annotation
 ```
-- This script launches a lightweight web form (or MTurk batch) for all prompts.  
-- Results are saved to `data/human_validation.csv` and merged into `data/curated_prompts.csv` as the `human_score` column.
+- This script launches a lightweight web form (or MTurk batch) for **all 1 000** prompts.  
+- Results are saved to `data/results/human_validation.csv` and merged into `data/results/curated_prompts.csv` as the `human_score` column.
 
-## 5. Symbolic graph construction (CPU‑only)
+## 6. Symbolic graph construction (CPU‑only)
 ```bash
 python -m src.parser.graph_builder
-# Output: data/graphs/graph_<prompt_id>.json
+# Output: data/results/graphs/graph_<prompt_id>.json
 # Expected runtime < 30 min on the 2‑core runner (SC‑002).
 ```
 
-## 6. Baseline verifier evaluation
+## 7. Baseline verifier evaluation
 ```bash
 python -m src.verifier.baseline
-# Produces data/baseline_scores.csv
-# Uses CPU‑only 8‑bit quantized inference, staying within ≤ 7 GB RAM and ≤ 2 h runtime (SC‑009).
+# Produces data/results/baseline_scores.csv
+# Uses CPU‑only 8‑bit quantized inference, staying within ≤ 7 GB RAM and **≤ 2 h** runtime (target ≤ 2 h; aborts and reports limitation if exceeded) (SC‑009).
 ```
 
-## 7. Graph‑augmented verifier evaluation (with controls)
+## 8. Graph‑augmented verifier evaluation (with controls)
 ```bash
 python -m src.verifier.augmented
-# Produces data/augmented_scores.csv (conditions: graph_augmented, control_filler, control_empty)
+# Produces data/results/augmented_scores.csv (conditions: graph_augmented, control_filler, control_empty)
 ```
 
-## 8. Statistical analysis & report generation
+## 9. Statistical analysis & report generation
 ```bash
 python -m src.analysis.stats
 python -m src.analysis.report
 ```
 - Generates:
-  - `data/report.json`  (machine‑readable, conforms to contract)
-  - `data/report.csv`   (human‑readable table for the paper)
+  - `analysis/report.json`  (machine‑readable, conforms to contract)
+  - `analysis/report.csv`   (human‑readable table for the paper)
 
-## 9. Verification
+## 10. Verification
 ```bash
 pytest tests/contract/test_evaluation_report.py
 ```
 All contract tests must pass; otherwise the CI job fails.
 
-## 10. Expected outputs
+## 11. Expected outputs
 | File | Description |
 |------|-------------|
 | `data/raw/*.parquet` | Original InstructPix2Pix shards (verified URLs). |
 | `data/raw/provenance.json` | Checksums and source metadata. |
-| `data/curated_prompts.csv` | Prompt text + synthetic & **human** feasibility scores. |
-| `data/human_validation.csv` | Raw crowd ratings. |
-| `data/graphs/*.json` | One constraint graph per prompt (CPU‑only). |
-| `data/baseline_scores.csv` | Verifier scores without graph context. |
-| `data/augmented_scores.csv` | Verifier scores with graph context and two control conditions. |
-| `data/report.json` | Full statistical results, runtime, memory usage, correlation, correction method. |
-| `data/report.csv` | Human‑readable summary for inclusion in the manuscript. |
+| `data/results/curated_prompts.csv` | Prompt text + synthetic & **human** feasibility scores (human scores for all prompts). |
+| `data/results/human_validation.csv` | Raw crowd ratings. |
+| `data/results/graphs/*.json` | One constraint graph per prompt (CPU‑only). |
+| `data/results/baseline_scores.csv` | Verifier scores without graph context. |
+| `data/results/augmented_scores.csv` | Verifier scores with graph context and two control conditions. |
+| `analysis/report.json` | Full statistical results, runtime, memory usage, correlation, correction method. |
+| `analysis/report.csv` | Human‑readable summary for inclusion in the manuscript. |
 
-The quickstart now points to the correct module paths (``code.src`` for the download and curation steps) and includes the newly added ``spacy`` dependency.
+The quickstart now points to the correct module paths (`src/...`) and includes the new conflict‑filter step and the corrected output path for `curated_prompts.csv`.
+
+---
+
+
