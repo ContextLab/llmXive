@@ -1,88 +1,53 @@
 """
-Unit tests for data download module.
+Unit tests for the FEMNIST download module.
 
-Tests for T011: FEMNIST data downloader implementation.
+The tests verify that:
+1. The downloader creates the expected parquet files and checksum.
+2. Requesting the excluded 'shakespeare' dataset raises the exact ValueError.
+3. Requesting an unknown dataset raises a generic Unsupported‑dataset error.
 """
 
 import pytest
-from pathlib import Path
 import tempfile
-import os
+from pathlib import Path
 
-from code.data.download import download_femnist, download_dataset, DataFetchError
-from code.data.checksum_utils import compute_sha256
+from code.data.download import download_femnist, download_dataset, DataFetchError, EXCLUSION_MESSAGE
 
 
-class TestDownloadFEMNIST:
-    """Tests for FEMNIST download functionality."""
-    
-    def test_download_femnist_creates_files(self):
-        """Test that download_femnist creates the required parquet and checksum files."""
+class TestFEMNISTDownload:
+    def test_download_creates_files(self):
+        """Download FEMNIST and check that train/test parquet files and checksum exist."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            
-            # This test would require actual network access and dataset download
-            # For unit testing purposes, we verify the function signature and error handling
-            # The actual download is tested in integration tests
-            
-            # Verify that the function raises DataFetchError when network is unavailable
-            # (simulated by using a non-existent dataset name or network failure)
-            pass
-    
-    def test_download_femnist_with_invalid_dataset(self):
-        """Test that download_dataset raises ValueError for non-femnist datasets."""
+            out_dir = Path(tmpdir)
+            # Perform the download (real network call – will be executed in CI)
+            train_path, test_path = download_femnist(out_dir)
+
+            # Verify files exist
+            assert train_path.is_file(), f"{train_path} not found"
+            assert test_path.is_file(), f"{test_path} not found"
+
+            # Verify checksum file exists and matches concatenated hash
+            checksum_path = out_dir / "femnist.sha256"
+            assert checksum_path.is_file(), "Checksum file missing"
+
+            # Compute expected hash
+            combined = train_path.read_bytes() + test_path.read_bytes()
+            import hashlib
+
+            expected_hash = hashlib.sha256(combined).hexdigest()
+            recorded_hash = checksum_path.read_text().split()[0]
+            assert recorded_hash == expected_hash, "Checksum mismatch"
+
+    def test_shakespeare_exclusion(self):
+        """Requesting the excluded dataset must raise the exact ValueError."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            
-            # Test Shakespeare exclusion
-            with pytest.raises(ValueError, match="excluded per plan.md"):
-                download_dataset("shakespeare", output_dir)
-            
-            # Test unknown dataset
+            out_dir = Path(tmpdir)
+            with pytest.raises(ValueError, match=EXCLUSION_MESSAGE):
+                download_dataset("shakespeare", out_dir)
+
+    def test_unknown_dataset(self):
+        """Requesting an unsupported dataset must raise a generic ValueError."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            out_dir = Path(tmpdir)
             with pytest.raises(ValueError, match="Unsupported dataset"):
-                download_dataset("unknown_dataset", output_dir)
-    
-    def test_download_femnist_checksum_verification(self):
-        """Test that checksum is correctly generated and verified."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            
-            # Create a dummy parquet file for testing checksum logic
-            dummy_file = output_dir / "dummy.parquet"
-            dummy_file.write_text("dummy content")
-            
-            checksum = compute_sha256(dummy_file)
-            assert len(checksum) == 64  # SHA256 hex length
-            
-            # Verify checksum matches
-            assert compute_sha256(dummy_file) == checksum
-    
-    def test_download_femnist_retry_logic(self):
-        """Test that retry logic is implemented (conceptual test)."""
-        # This test verifies the structure of retry logic
-        # Actual retry behavior would require mocking network failures
-        # which is beyond the scope of unit tests
-        pass
-
-
-class TestDownloadDataset:
-    """Tests for the generic download_dataset function."""
-    
-    def test_download_dataset_dispatches_correctly(self):
-        """Test that download_dataset dispatches to correct download function."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            
-            # Verify that femnist dispatches to download_femnist
-            # (This is tested more thoroughly in integration tests)
-            pass
-    
-    def test_download_dataset_case_insensitive(self):
-        """Test that dataset name comparison is case-insensitive."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            
-            # Test various case combinations
-            # Note: This test would fail without actual network access
-            # It's included to verify the logic structure
-            pass
+                download_dataset("unknown_dataset", out_dir)

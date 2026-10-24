@@ -1,9 +1,10 @@
 status: none
-intent: FEMNIST train test parquet download python package dataset
+intent: Federated EMNIST FEMNIST train test Shakespeare image classification python
+  package dataset
 required_fields:
 - image
 - label
 - client_id
-cache_key: dba3c0a8feb5466aab80776d50ed3d002304d33a9a0b9aa358b71bb1280ef011
-searched_at: '2026-10-24T17:10:05.238747+00:00'
+cache_key: c853b9a089c0c1d64d9fe3db0ecdce1fa365842caab67b2aab4571e3616167b9
+searched_at: '2026-10-24T17:38:20.219977+00:00'
 retry_count: 1
