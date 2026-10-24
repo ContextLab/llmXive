@@ -1,12 +1,33 @@
-status: none
-intent: download synthetic query latency dataset MS MARCO DBpedia parquet plan depth
-  python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets
+
+
+  data = datasets.load_dataset("microsoft/ms_marco", "v1.1")
+
+  total_records = sum(len(split) for split in data.values())
+
+  first_split = next(iter(data.values()))
+
+  print(f"RECORDS={total_records}")
+
+  print("FIELDS=" + ",".join(first_split.column_names))'
+record_count: 102023
+sample_fields:
+- answers
+- passages
+- query
+- query_id
+- query_type
+- wellFormedAnswers
+field_coverage: 0.6
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
 - latency_ms
-cache_key: 5eb2a047377f7504d329d0d876fa3fcf781db44364149a2f2f7bc698c5899a07
-searched_at: '2026-10-24T08:21:20.449526+00:00'
-retry_count: 1
+intent: download MS MARCO parquet dataset and DBpedia triples parquet python package
+  dataset
+cache_key: 2da20e9a22a68869ffdbdee82bcdcc7c5b24b44a339d321bdfb01b44ee4fcaee

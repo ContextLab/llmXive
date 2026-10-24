@@ -1,10 +1,9 @@
 T001:
-  reason: "The `quickstart.md` and `tests/integration/test_skeleton.py` files exist,\
-    \ but the integration test suite failed: `test_ruff_check` exited with code\u202F\
-    1 because the `ruff` module is not installed, so `artifacts/ruff_output.txt` was\
-    \ never created. Consequently the CI verification that both artifact files exist\
-    \ and are non\u2011empty is not satisfied. The task requires a passing ruff check,\
-    \ which is currently missing."
+  reason: "The repository contains `quickstart.md` and a `tests/integration/test_skeleton.py`,\
+    \ but the test writes its outputs to a temporary directory rather than the required\
+    \ `artifacts/ruff_output.txt` and `artifacts/help_output.txt` paths, and no such\
+    \ artifact files exist in the repo. Consequently the CI verification step cannot\
+    \ confirm the presence of non\u2011empty output files as the task demands."
   task: 9f9c0b4560206240b1373cb3d5fdfe2a7f4ea54abc610a9a571c5df47b8aca9b
 T002:
   reason: The required schema files (`query_instance.schema.yaml`, `execution_log.schema.yaml`,
