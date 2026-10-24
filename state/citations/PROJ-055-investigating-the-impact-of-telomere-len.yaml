@@ -64,3 +64,47 @@
   verification_status: mismatch
   verified_against_url: https://www.birdlife.org/api/v1/ecology
   verified_at: '2026-10-24T01:45:03.403962Z'
+- artifact_hash: df55b61dd4207c923fb7a8d8689284ce2a293ad19bcfec189c0c8026cfba11b1
+  artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: datasets
+  kind: url
+  value: https://datadryad.org/api/v2/datasets
+  verification_status: pending
+  verified_against_url: https://datadryad.org/api/v2/datasets
+  verified_at: '2026-10-24T01:49:41.623902Z'
+- artifact_hash: df55b61dd4207c923fb7a8d8689284ce2a293ad19bcfec189c0c8026cfba11b1
+  artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://genomics.senescence.info/species/age_data.csv
+  verification_status: mismatch
+  verified_against_url: https://genomics.senescence.info/species/age_data.csv
+  verified_at: '2026-10-24T01:49:41.623902Z'
+- artifact_hash: df55b61dd4207c923fb7a8d8689284ce2a293ad19bcfec189c0c8026cfba11b1
+  artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5061/dryad.abc123
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5061/dryad.abc123
+  verified_at: '2026-10-24T01:49:41.623902Z'
+- artifact_hash: df55b61dd4207c923fb7a8d8689284ce2a293ad19bcfec189c0c8026cfba11b1
+  artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5061/dryad.def456
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5061/dryad.def456
+  verified_at: '2026-10-24T01:49:41.623902Z'
