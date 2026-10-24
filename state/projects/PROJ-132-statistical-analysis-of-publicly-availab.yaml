@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T08:40:08.648108Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-132-statistical-analysis-of-publicly-availab
-last_run_id: fe654ef8-5dcd-420b-8f3c-16e3ec92e6f3
+last_run_id: c388048f-58ff-4ffc-9325-c1dbc6aa2892
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Bird Migration Patterns and Climate
   Change
-updated_at: '2026-10-24T08:29:01.929523Z'
+updated_at: '2026-10-24T08:29:42.319343Z'
