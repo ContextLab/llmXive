@@ -1,4 +1,9 @@
 T001:
+  reason: "The contract schema files exist and pass the provided tests, but there\
+    \ is no evidence shown that they were copied verbatim from the read\u2011only\
+    \ schemas in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/` (e.g.,\
+    \ no file hashes or diff against the spec versions). Without proof of exact duplication,\
+    \ the task\u2019s core requirement is not fully verified."
   task: 75e517b6e8a2dc97fe0d873887f8740d274daec65427bbcc36c80370df9fa5c6
 T002:
   task: b49fbd775f29794697c67ccb18ebf0450c273a45959c4c84e69a082d48ed72a3
@@ -9,27 +14,28 @@ T003:
     write only project-owned outputs.'
   task: 665dad7bfde997215de2afdd36a637fc833075e980754b1acd6b76dfbfdc47b1
 T004:
-  reason: "The test suite file `tests/contract/test_schemas.py` is present, but it\
-    \ depends on schema files `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`,\
-    \ which are not provided in the evidence. Without these schemas the tests cannot\
-    \ validate the JSON data, so the contract\u2011validation suite is incomplete.\
-    \ Adding the missing schema files (and ensuring they match the expected structure)\
-    \ will satisfy the task requirements."
   task: 049939511d3fbcbe4e54e3aecf1fbe27f24cd2b73b897679636f5b0b0a083a3a
 T005:
   task: e8279dcb2db08ab3f3211ce6622d320faced4b974812d2d5655cd7b5e0822fa4
 T006:
-  reason: "Checked `code/agent.py`, its execution log (`run_50_off_HIGH.jsonl`) and\
-    \ the schema file. While the agent runs, writes JSON\u2011L entries that match\
-    \ the schema and handles the \u201Cmissing_skill\u201D edge case, there is no\
-    \ evidence of the required CSV log file or proof that exactly 100 CSV rows and\
-    \ 100 JSON\u2011L entries were produced. The missing CSV artifact (and lack of\
-    \ a line\u2011count verification for the JSON\u2011L file) means the task\u2019\
-    s verification criteria are not fully satisfied."
+  reason: "I checked `code/agent.py`, the raw data files, the JSON\u2011L logs, and\
+    \ the execution log showing the command `python -m code.agent --library-size 50\
+    \ --pruning off --overlap HIGH --task\u2011sample 100`. The agent loads the data,\
+    \ builds a library, retrieves top\u2011k skills, writes JSON\u2011L entries that\
+    \ match the schema, and logs edge\u2011case `\"missing_skill\"` correctly. However,\
+    \ the script\u2019s CLI only defines `--library-sizes` (a list) and does **not**\
+    \ accept `--library-size` or `--task-sample`, so the claimed command could not\
+    \ have been parsed by the provided code. Moreover, there is no evidence of a CSV\
+    \ file"
   task: 023664e19477b92fb14e44339419d563d9f7a6f5dd1066487a7062f588622be1
 T007:
+  reason: "The provided `code/pruning.py` defines a function `prune_fr04(library,\
+    \ tasks)` instead of the required `prune_redundant(library)` (and the signature\
+    \ does not match the task\u2019s specification). Consequently the artifact does\
+    \ not satisfy the task\u2019s naming and interface requirement."
   task: ad84f97ca4b9d433ab138e7878840d411d29275567f38dcc6f83f2f9c38608d8
 T008:
+  reason: 'Requested task execution failed; rerun successfully: code/agent.py exit=2'
   task: b90d162d69fc17337990c6a7f7bf15250cd402fc357775172c517e47b57c317c
 T009:
   task: 6d732547c154006093085974cff2332cc2cdd28bf09d942dc2cc0cc9916e8d9b

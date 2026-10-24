@@ -8,7 +8,7 @@ The list below follows the three research phases (setup → full experiment�
 
 ## Phase 1 – Contracts, synthetic data, and first end‑to‑end run  
 
-- [X] T001 [P] [US1] [DM-Task] [DM-Skill] **Create root‑level contract schema files**  
+- [ ] T001 [P] [US1] [DM-Task] [DM-Skill] **Create root‑level contract schema files**  
   *Paths*: `contracts/task.schema.yaml`, `contracts/skill.schema.yaml`, `contracts/experiment_log.schema.yaml`, `contracts/execution_log.schema.yaml`, `contracts/metrics.schema.yaml` – each copied verbatim from the read‑only schemas in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`.  
   *Verification*: `tests/contract/test_schema_presence.py` loads each file with `yaml.safe_load` and asserts the presence of top‑level keys `properties` and `required`; a minimal dummy instance validates via `jsonschema.validate`.  
 
@@ -32,7 +32,7 @@ The list below follows the three research phases (setup → full experiment�
   *Action*: Add a small helper script `code/write_checksums.py` that reads the SHA‑256 values from the generated files and writes a concise JSON mapping (`tasks_json_sha256`, `skills_json_sha256`) to `data/raw/checksums.json`. No platform‑owned `state/` paths are used.  
   *Verification*: `tests/state/test_checksums.py` loads `data/raw/checksums.json` and confirms that the stored digests exactly match the current files’ SHA‑256 hashes.  
 
-- [ ] T004 [P] [US2] [DM-Task] [DM-Skill] **Implement full contract‑validation test suite (`tests/contract/test_schemas.py`)**  
+- [X] T004 [P] [US2] [DM-Task] [DM-Skill] **Implement full contract‑validation test suite (`tests/contract/test_schemas.py`)**  
   *Scope*: validates every entry in `data/raw/tasks.json` and `data/raw/skills.json` against their schemas; computes mean pairwise cosine similarity of skill embeddings and asserts it meets the active `OVERLAP_LEVEL`; checks that each task’s `ground_truth_skills` reference existing `skill_id`s.  
 
 - [X] T005 [P] [US2] [DM-ExperimentLog] **Implement `code/logging_config.py` with exact CSV header**
@@ -64,7 +64,7 @@ The list below follows the three research phases (setup → full experiment�
   *Logic*: `prune_redundant(library)` removes a skill **only if** `usage_count == 0` **and** `min_cosine_similarity_to_any_other_skill_in_library < 0.70` (i.e., the skill is highly similar to another retained skill). The function returns `(pruned_library, false_prune_count)`, where `false_prune_count` counts removals of skills that appear in any remaining task’s `ground_truth_skills`.  
   *Verification*: `tests/unit/test_pruning.py` builds a deterministic mini‑library with known embeddings, runs `prune_redundant`, and asserts the expected IDs are removed and that `false_prune_count` is correct.  
 
-- [ ] T008 [US2] [SC-003] [DM-ExperimentLog] **Extend `code/agent.py` to support pruning variants and execute the full factorial sweep**  
+- [ ] T008 [US2] [SC-003] [DM-ExperimentLog] **Extend `code/agent.py` to support pruning variants and execute the full factorial sweep**   <!-- FAILED-IN-EXECUTION: code/agent.py exit=2 -->
   *Extensions*:  
   • CLI flag `--pruning {off,fr04}` selects either no pruning or the `prune_redundant` function from **T007** (run after every 10 tasks).  
   • No extra CSV columns are added; the existing `pruning_enabled` boolean indicates whether pruning was active.  

@@ -1,19 +1,18 @@
 status: none
-intent: synthetic multi-step task and skill library generation python package dataset
-  Meta-World MiniWoB python package dataset
+intent: synthetic multi-step task and skill library dataset python package
 required_fields:
 - task_id
 - task_description
-- task_steps
 - ground_truth_solution_path
-- task_difficulty
-- task_metadata
+- solution_step_index
+- solution_action
+- solution_parameters
 - skill_id
 - skill_name
-- skill_description
+- skill_code
 - skill_embedding_vector
-- skill_overlap_group
-- skill_semantic_density_score
-cache_key: f8cbb9bf5fb8dc2d5fc01ece8384ecc0dfe451bbc7f39bc62b64ae33c98c1dc7
-searched_at: '2026-10-24T00:24:23.512400+00:00'
+- skill_overlap_level
+- skill_semantic_density
+cache_key: 14be275f61a220789861431f93dcbcb821bb5fbafc32222eca59963181661a93
+searched_at: '2026-10-24T00:49:34.684767+00:00'
 retry_count: 1

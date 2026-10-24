@@ -4,12 +4,11 @@ from utils import cosine_similarity
 
 def prune_fr04(library: List[Dict[str, Any]], tasks: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], int]:
     """
-    Implements the Skill Pruning heuristic FR-004.
+    Implements the corrected Skill Pruning heuristic FR-004.
     
-    Removes a skill only if:
-    1. usage_count == 0
-    2. min_cosine_similarity_to_any_other_skill_in_library > 0.70 (meaning it is redundant 
-       relative to every other skill in the current library).
+    A skill is removed if it is unused (usage_count == 0) AND it is redundant.
+    Redundancy is defined as having a cosine similarity > 0.70 with AT LEAST ONE 
+    other skill currently in the library (max_cosine_similarity > 0.70).
     
     Args:
         library: The current active skill library (list of skill dictionaries).
@@ -38,8 +37,8 @@ def prune_fr04(library: List[Dict[str, Any]], tasks: List[Dict[str, Any]]) -> Tu
                 vec_j = np.array(skill_j['embedding_vector'])
                 sims.append(cosine_similarity(vec_i, vec_j))
             
-            # Prune only if the minimum similarity is above the threshold (redundant with all)
-            if sims and min(sims) > sim_threshold:
+            # Prune if the skill is highly similar to at least one other retained skill
+            if sims and max(sims) > sim_threshold:
                 skills_to_remove.add(skill_i['skill_id'])
 
     # Calculate false_prune_count: pruned skills that are part of any task's ground truth

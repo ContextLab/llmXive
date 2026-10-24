@@ -30,7 +30,7 @@ def main():
 
     log.info(f"Computing checksums for {tasks_path} and {skills_path}...")
     
-    # Compute hashes using the keys required by T003
+    # Compute hashes using the keys required by T003: tasks_json_sha256, skills_json_sha256
     checksums = {
         "tasks_json_sha256": get_sha256(tasks_path),
         "skills_json_sha256": get_sha256(skills_path),

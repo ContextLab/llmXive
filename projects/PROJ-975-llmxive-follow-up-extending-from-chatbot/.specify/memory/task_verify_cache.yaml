@@ -1,31 +1,31 @@
 T001:
-  c: true
-  h: b8d9a6dc6de1dc74b37e1ec58024cd45b720cb9a902bcebcff2b41aec1e411a8
-  r: "Checked the five contract schema files under `contracts/` (all non\u2011empty\
-    \ and containing the required `properties` and `required` keys) and the test `tests/contract/test_schema_presence.py`,\
-    \ whose execution log shows both tests passing."
-  sig: 806bf9aa1681062f010751d613321599f911c99c3d443b962731fed3d84e08e5
+  c: false
+  h: d6641522743a7095093a3c5bab5a0aef4af95e8a016eb3992cb76f09bf3d1bfe
+  r: "The contract schema files exist and pass the provided tests, but there is no\
+    \ evidence shown that they were copied verbatim from the read\u2011only schemas\
+    \ in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/` (e.g., no\
+    \ file hashes or diff against the spec versions). Without proof of exact duplication,\
+    \ the task\u2019s core requirement is not fully verified."
+  sig: 089b1a6391c5cfbe078f1382ef3d69e68c8fb6891cd3c8a135f855ff9815c139
 T002:
   c: true
-  h: bb9c8f268476e87b2a66040b1c16c6d10b325eaa7beb62987dc46b2e26bd34e3
-  r: "Checked `code/generate_data.py` (logic, memory guard, seed handling, model loading,\
-    \ overlap enforcement, checksum writing), the generated `data/raw/tasks.json`\
-    \ (500 entries, conforms to `task.schema.yaml`), `data/raw/skills.json` (100 entries,\
-    \ conforms to `skill.schema.yaml`), and `data/raw/checksums.json` (matching SHA\u2011\
-    256 digests). The script prints mean similarity\u202F\u2248\u202F0.99 and meets\
-    \ the HIGH overlap thresholds, and no MemoryError is raised. All required artifacts\
-    \ exist and satisfy the task specifications."
-  sig: 40f2e2f8563ff0bd13f479b4b8f15e49aa8c95acd0ac570aa78de89ffb83262a
+  h: c62e79942861ce66e89a852a764ab704345b99999700e0d456d51f6ca88582d2
+  r: "Checked `code/generate_data.py` (logic for generation, memory guard, overlap\
+    \ enforcement, checksum writing), the produced `data/raw/tasks.json` (500 entries\
+    \ conforming to `task.schema.yaml`), `data/raw/skills.json` (100 entries with\
+    \ 384\u2011dim vectors conforming to `skill.schema.yaml`), `data/raw/checksums.json`\
+    \ (SHA\u2011256 digests matching the files), and the execution log showing successful\
+    \ run with HIGH overlap (mean similarity\u202F0.9927, 100\u202F% >\u202F0.80)\
+    \ and correct record counts."
+  sig: 774d549839d3205135a432c9fded434e8db31078dce46478d708a21dd88a60e2
 T004:
-  c: false
-  h: 3ef23968fdf4e5acf01789688068b0b1a4088c221f00b034c253145c040b133e
-  r: "The test suite file `tests/contract/test_schemas.py` is present, but it depends\
-    \ on schema files `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`,\
-    \ which are not provided in the evidence. Without these schemas the tests cannot\
-    \ validate the JSON data, so the contract\u2011validation suite is incomplete.\
-    \ Adding the missing schema files (and ensuring they match the expected structure)\
-    \ will satisfy the task requirements."
-  sig: 7474c353f4170e6d1acecca5080b3bcdf539603e16a863a5f7502291e4ed7a54
+  c: true
+  h: d03a7fb544d2e3664ca4c5accfe9bb7465bca532bc93e182af0f91d1410e7c72
+  r: "Checked `tests/contract/test_schemas.py` (contains schema validation, embedding\
+    \ dimension, overlap metric assertions, and task\u2011skill reference checks)\
+    \ and the pytest execution log showing all five tests passed against the provided\
+    \ `tasks.json` and `skills.json`."
+  sig: 9b2f9302653f195f6ffe55d3aa7e7039d0af7ef551606f01b3d5bbde661daaa3
 T005:
   c: true
   h: a48ffed0179b8e9e48567102f7b7fa02fcd9b05a2a447173d181a7fd6280bd74
@@ -36,12 +36,22 @@ T005:
   sig: 966db3486e2050ceeeb1cd075b8b90569622d25341b5fe8a8c5af9a19266d032
 T006:
   c: false
-  h: e1426463030380b8ba3aeae8e31b650ab63e2e1f0ed748cf542cc22a368f78b8
-  r: "Checked `code/agent.py`, its execution log (`run_50_off_HIGH.jsonl`) and the\
-    \ schema file. While the agent runs, writes JSON\u2011L entries that match the\
-    \ schema and handles the \u201Cmissing_skill\u201D edge case, there is no evidence\
-    \ of the required CSV log file or proof that exactly 100 CSV rows and 100 JSON\u2011\
-    L entries were produced. The missing CSV artifact (and lack of a line\u2011count\
-    \ verification for the JSON\u2011L file) means the task\u2019s verification criteria\
-    \ are not fully satisfied."
-  sig: bffc4e185a6d07ebaadf1918b57dad54f8b6c12f3e0b78201f03e4915babd7e4
+  h: 0e30cb6f8696fbc272cebf1be89a2a4786762ec11a9ad26bc31769f0a8caa2ce
+  r: "I checked `code/agent.py`, the raw data files, the JSON\u2011L logs, and the\
+    \ execution log showing the command `python -m code.agent --library-size 50 --pruning\
+    \ off --overlap HIGH --task\u2011sample 100`. The agent loads the data, builds\
+    \ a library, retrieves top\u2011k skills, writes JSON\u2011L entries that match\
+    \ the schema, and logs edge\u2011case `\"missing_skill\"` correctly. However,\
+    \ the script\u2019s CLI only defines `--library-sizes` (a list) and does **not**\
+    \ accept `--library-size` or `--task-sample`, so the claimed command could not\
+    \ have been parsed by the provided code. Moreover, there is no evidence of a CSV\
+    \ file "
+  sig: 2ab8d225a29644fd52c97ff951ba59bcaa378bcefa80beceb1b4021130f3b5c8
+T007:
+  c: false
+  h: 0be7053b30ef11293bd6d871ed5f63f2aebcddc2cfb1fdc0d2a9583c4574337e
+  r: "The provided `code/pruning.py` defines a function `prune_fr04(library, tasks)`\
+    \ instead of the required `prune_redundant(library)` (and the signature does not\
+    \ match the task\u2019s specification). Consequently the artifact does not satisfy\
+    \ the task\u2019s naming and interface requirement."
+  sig: a3b5aed9b39b78f78688a3e2a4773676406977bb4316e92cd9c975cc22c9345a

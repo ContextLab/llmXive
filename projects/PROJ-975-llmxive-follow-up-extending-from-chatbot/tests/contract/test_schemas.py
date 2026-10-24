@@ -107,7 +107,6 @@ def test_real_skills_overlap_metrics():
     overlap_level = config.get('overlap_level', os.environ.get('OVERLAP_LEVEL', 'MEDIUM')).upper()
     
     # Calculate distribution for threshold checks
-    # We compute the actual pairwise matrix to check the "at least 30% > X" requirement
     norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
     norms[norms == 0] = 1
     normalized = embeddings / norms
@@ -144,7 +143,6 @@ def test_task_skill_reference_integrity():
     
     errors = []
     for i, task in enumerate(tasks_list):
-        # Use ground_truth_path as defined in generate_data.py and agent.py
         gt_path = task.get('ground_truth_path', [])
         for sid in gt_path:
             if sid not in valid_skill_ids:

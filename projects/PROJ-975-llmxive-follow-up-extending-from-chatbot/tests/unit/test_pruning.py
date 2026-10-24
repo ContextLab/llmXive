@@ -9,8 +9,8 @@ from pruning import prune_fr04
 
 class TestPruningFR04:
     """
-    Tests for the prune_fr04 heuristic implementing FR-004.
-    Criteria: usage_count == 0 AND min(sim_to_others) > 0.70.
+    Tests for the prune_fr04 heuristic implementing corrected FR-004.
+    Criteria: usage_count == 0 AND max(sim_to_others) > 0.70.
     """
 
     def setup_method(self):
@@ -18,28 +18,24 @@ class TestPruningFR04:
         # Orthogonal vectors
         self.v1 = np.array([1.0, 0.0, 0.0])
         self.v2 = np.array([0.0, 1.0, 0.0])
-        # Vector very close to v1
+        # Vector highly similar to v1 (sim ~ 0.99)
         self.v1_near = np.array([0.99, 0.01, 0.0])
-        # Vector close to both v1 and v2 (to test min_sim > 0.7)
-        # A vector that is ~0.71 similar to both [1,0,0] and [0,1,0]
-        # cos(theta) = 0.71 => theta approx 45 deg. [0.71, 0.71, 0]
-        self.v_redundant = np.array([0.71, 0.71, 0.0])
+        # Vector that is similar to v1 but not v2
+        # sim(v_redundant, v1) = 0.8, sim(v_redundant, v2) = 0.2
+        self.v_redundant = np.array([0.8, 0.6, 0.0])
         self.v_redundant /= np.linalg.norm(self.v_redundant)
 
     def test_pruning_removes_redundant_unused_skill(self):
         """
-        Verify that a skill with usage=0 and min_sim > 0.7 to all others is removed.
+        Verify that a skill with usage=0 and max_sim > 0.7 to at least one other is removed.
         """
-        # Library: v_redundant is similar to both v1 and v2
-        # sim(v_redundant, v1) = 0.71
-        # sim(v_redundant, v2) = 0.71
-        # min_sim = 0.71 > 0.70
+        # Library: s_red is similar to s1 (max_sim > 0.7)
         library = [
             {"skill_id": "s1", "embedding_vector": self.v1, "usage_count": 1},
             {"skill_id": "s2", "embedding_vector": self.v2, "usage_count": 1},
             {"skill_id": "s_red", "embedding_vector": self.v_redundant, "usage_count": 0},
         ]
-        tasks = [] # No ground truth for now
+        tasks = [] 
         
         pruned, false_count = prune_fr04(library, tasks)
         
@@ -49,16 +45,14 @@ class TestPruningFR04:
 
     def test_pruning_preserves_unique_unused_skill(self):
         """
-        Verify that a skill with usage=0 but min_sim < 0.7 is preserved.
+        Verify that a skill with usage=0 but max_sim < 0.7 to all others is preserved.
         """
-        # Library: s_unique is similar to s1 but not s2
-        # sim(v1_near, v1) = 0.99
-        # sim(v1_near, v2) = 0.01
-        # min_sim = 0.01 < 0.70
+        # Library: s_unique is orthogonal to others
+        v_unique = np.array([0.0, 0.0, 1.0])
         library = [
             {"skill_id": "s1", "embedding_vector": self.v1, "usage_count": 1},
             {"skill_id": "s2", "embedding_vector": self.v2, "usage_count": 1},
-            {"skill_id": "s_unique", "embedding_vector": self.v1_near, "usage_count": 0},
+            {"skill_id": "s_unique", "embedding_vector": v_unique, "usage_count": 0},
         ]
         tasks = []
         
