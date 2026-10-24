@@ -1,9 +1,9 @@
 """Download a real sample of InstructPix2Pix prompts (T001).
 
-This script streams the public ``timbrooks/instructpix2pix`` 
+This script streams the public ``timbrooks/instruct-pix2pix`` 
 training split via ``datasets.load_dataset(..., streaming=True)``. 
 It extracts the first ``N_PROMPTS`` rows that contain a non‑empty 
-``prompt``. For each row a stable SHA‑256 checksum over the 
+``edit_prompt``. For each row a stable SHA‑256 checksum over the 
 identifying fields is computed.
 
 The loader **fails loudly** (raises ``RuntimeError``) if fewer than the
@@ -33,7 +33,7 @@ log = get_logger(__name__)
 # Configuration
 # ----------------------------------------------------------------------
 # Verified dataset identifier on Hugging Face Hub
-DATASET_ID = "timbrooks/instructpix2pix"
+DATASET_ID = "timbrooks/instruct-pix2pix"
 SPLIT = "train"
 N_PROMPTS = 2000  # target number of prompts to collect
 
@@ -46,13 +46,13 @@ MANIFEST_PATH = paths.data("raw", "checksums_manifest.json")
 def _row_checksum(row: Mapping[str, object]) -> str:
     """Compute a stable SHA‑256 checksum for a source row.
 
-    The checksum is over the JSON serialisation of the fields that
-    uniquely identify a prompt in the original dataset.
+    The checksum is over the JSON serialisation of the fields
+    that uniquely identify a prompt in the original dataset.
     """
-    # Use 'prompt' and 'original_prompt' as identifying fields
+    # Use 'edit_prompt' and 'original_prompt' as identifying fields
     payload = json.dumps(
         {
-            "prompt": row.get("prompt"),
+            "edit_prompt": row.get("edit_prompt"),
             "original_prompt": row.get("original_prompt"),
         },
         sort_keys=True,
@@ -84,21 +84,21 @@ def _iter_stream_hf() -> Iterator[Mapping[str, object]]:
 def collect_prompt_sample(n_prompts: int = N_PROMPTS) -> pd.DataFrame:
     """Collect the first ``n_prompts`` valid prompts from the streaming source.
 
-    A row is considered valid when ``prompt`` is a non‑empty string.
+    A row is considered valid when ``edit_prompt`` is a non‑empty string.
     """
     records: list[dict] = []
     scanned = 0
 
     for row in _iter_stream_hf():
         scanned += 1
-        prompt = row.get("prompt")
+        prompt = row.get("edit_prompt")
         if not prompt or not str(prompt).strip():
             continue
 
         records.append(
             {
                 "row_id": len(records),
-                "prompt": str(prompt).strip(),
+                "edit_prompt": str(prompt).strip(),
                 "original_prompt": row.get("original_prompt"),
                 "checksum": _row_checksum(row),
             }
@@ -127,9 +127,9 @@ def main() -> int:
         log.error("Data collection failed: %s", e)
         return 1
 
-    # 1. Write the parquet file using fastparquet (avoids pyarrow/Numpy2 issue)
+    # 1. Write the parquet file using pyarrow (default)
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(OUTPUT_PATH, index=False, engine="fastparquet")
+    df.to_parquet(OUTPUT_PATH, index=False)  # engine defaults to pyarrow
     log.info("Wrote %d rows to %s", len(df), OUTPUT_PATH)
 
     # 2. Generate the checksums manifest (row_id -> checksum)
@@ -139,9 +139,9 @@ def main() -> int:
     log.info("Wrote checksum manifest to %s", MANIFEST_PATH)
 
     # 3. Observable verification
-    check_df = pd.read_parquet(OUTPUT_PATH, engine="fastparquet")
+    check_df = pd.read_parquet(OUTPUT_PATH)
     assert len(check_df) >= N_PROMPTS, "Parquet contains fewer than required prompts"
-    assert check_df["prompt"].notna().all(), "Null prompts present"
+    assert check_df["edit_prompt"].notna().all(), "Null edit_prompt present"
     assert check_df["checksum"].notna().all(), "Null checksums present"
 
     # Verify manifest matches parquet

@@ -39,14 +39,14 @@ ERROR: Could not install requirement https://github.com/explosion/spacy-models/r
 
 - python -m src.data.download -> rc=1
 
-2026-10-24 04:41:54,672 INFO datasets: PyTorch version 2.14.1 available.
-2026-10-24 04:41:54,812 INFO __main__: Streaming load via datasets.load_dataset for timbrooks/instructpix2pix/train
-2026-10-24 04:41:54,898 ERROR __main__: HF streaming loader failed: Dataset 'timbrooks/instructpix2pix' doesn't exist on the Hub or cannot be accessed.
-2026-10-24 04:41:54,899 ERROR __main__: Data collection failed: Unable to stream dataset timbrooks/instructpix2pix from Hugging Face
+2026-10-24 04:43:03,486 INFO datasets: PyTorch version 2.14.1 available.
+2026-10-24 04:43:03,627 INFO __main__: Streaming load via datasets.load_dataset for timbrooks/instruct-pix2pix/train
+2026-10-24 04:43:03,788 ERROR __main__: HF streaming loader failed: Dataset 'timbrooks/instruct-pix2pix' doesn't exist on the Hub or cannot be accessed.
+2026-10-24 04:43:03,788 ERROR __main__: Data collection failed: Unable to stream dataset timbrooks/instruct-pix2pix from Hugging Face
 
 - python -m src.data.curate -> rc=1
 
-2026-10-24 04:41:55,279 ERROR __main__: Curate step failed: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/data/raw/prompts_sample.parquet'
+2026-10-24 04:43:04,157 ERROR __main__: Curate step failed: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/data/raw/prompts_sample.parquet'
 
 - python -m src.data.filter_conflicts -> rc=1
 
