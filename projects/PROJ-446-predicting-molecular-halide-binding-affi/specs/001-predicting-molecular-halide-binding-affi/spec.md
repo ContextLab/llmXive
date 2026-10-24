@@ -36,7 +36,7 @@ A researcher trains random forest and gradient boosting models using scikit-lear
 
 1. **Given** the preprocessed dataset with ≥3 halides per host, **When** the 5-fold cross-validation split runs, **Then** no host molecule identity appears in both training and validation sets within the same fold
 2. **Given** a trained random forest model, **When** cross-validation completes, **Then** the output includes R² and RMSE metrics for each fold and their mean/std across folds
-3. **Given** the full dataset, **When** model training completes, **Then** the process finishes within ≤6 hours on a GitHub Actions free-tier runner (2 vCPU, 7 GB RAM) with ≤7 GB RAM peak usage
+3. **Given** the full dataset, **When** model training completes, **Then** the process finishes within ≤6 hours on a GitHub Actions free-tier runner (2 vCPU, 7 GB RAM) with ≤7 GB RAM peak usage
 
 ---
 
@@ -66,7 +66,7 @@ A researcher performs pairwise statistical comparisons of model performance acro
 
 **Acceptance Scenarios**:
 
-1. **Given** the per-halide R² and RMSE metrics from 5-fold cross-validation, **When** the comparison script runs, **Then** it calculates the difference in mean R²/RMSE between halide pairs and computes 95% confidence intervals using bootstrap resampling
+1. **Given** the per-halide R² and RMSE metrics from 5-fold cross-validation, **When** the comparison script runs, **Then** it calculates the difference in mean R²/RMSE between halide pairs and computes confidence intervals using bootstrap resampling
 2. **Given** the final report generation, **When** the report is rendered, **Then** it explicitly states that all findings are associational and not causal
 3. **Given** a pairwise comparison of performance metrics, **When** the discrepancy is calculated, **Then** any absolute difference in R² or RMSE ≥ 0.1 is flagged in the report with its 95% CI
 4. **Given** the smallest halide-specific test set, **When** the analysis runs, **Then** the report includes 95% confidence intervals for the performance difference; if the CI includes zero, the difference is reported as "not statistically distinguishable"
@@ -86,23 +86,29 @@ A researcher performs pairwise statistical comparisons of model performance acro
 
 - **FR-001**: System MUST attempt to download data from NIST Chemistry WebBook and PubChem using specific scraping logic: `requests` library with 2s delay between requests, exponential backoff (max limited number of retries) for 429/503 errors, and `BeautifulSoup` parsing of HTML tables. Filter records to those measured in consistent solvent conditions: **acetonitrile, chloroform, or dichloromethane**. If no verified URL is found or data is insufficient (0 records found after scraping), trigger FR-011 immediately. (See US-1)
 - **FR-002**: System MUST generate molecular fingerprints (ECFP) and RDKit descriptors from SMILES/InChI records for each host molecule (See US-1)
-- **FR-003**: System MUST filter the dataset to retain only host molecules with ≥3 different halide measurements (F⁻, Cl⁻, Br⁻, I⁻) for within-host comparison (See US-1)
+- **FR-003**: System MUST filter the dataset to retain only host molecules with ≥3 different halide measurements (F⁻, Cl⁻, Br⁻, I⁻) for within-host comparison (Implemented in Task T005) (See US-1)
 - **FR-004**: System MUST split data by host molecule identity (not by measurement) during k-fold cross-validation to prevent data leakage (See US-2)
-- **FR-005**: System MUST train random forest and gradient boosting models using scikit-learn>=1.4.0 with default hyperparameters, without GPU/CUDA acceleration, on a GitHub Actions free-tier runner (2 vCPU, 7 GB RAM) (See US-2)
-- **FR-006**: System MUST perform feature stability analysis (multiple bootstrap resamples) to identify robust predictive determinants of halide selectivity (See US-3)
+- **FR-005**: System MUST train random forest and gradient boosting models using scikit-learn>=1.4.0 with default hyperparameters, without GPU/CUDA acceleration, on a GitHub Actions free-tier runner (2 vCPU, 7 GB RAM) (See US-2)
+- **FR-006**: System MUST perform feature stability analysis using 1,000 bootstrap resamples to identify robust predictive determinants of halide selectivity (See US-3)
 - **FR-007**: System MUST generate partial dependence plots for at least 2 key features showing affinity trends across the halide series (See US-3)
 - **FR-008**: System MUST frame all predictive findings as associational (not causal) in documentation, given the observational nature of the dataset (See US-4)
-- **FR-009**: System MUST compare R² and RMSE metrics across halide ions using **Bootstrap Confidence Intervals (95% CI, a large number of resamples)** to assess if differences are statistically distinguishable from zero. The system MUST NOT use the Paired Wilcoxon signed-rank test on fold-level aggregates due to insufficient sample size (N=5) and invalid pairing assumptions. (See US-4)
+- **FR-009**: System MUST compare R² and RMSE metrics across halide ions using Bootstrap Confidence Intervals (95% CI) computed from 10,000 bootstrap resamples applied to performance estimates obtained from a repeated GroupKFold scheme (10 repeats, 50 total folds). The system MUST NOT use the Paired Wilcoxon signed‑rank test on fold‑level aggregates due to insufficient sample size. (See US-4)
 - **FR-010**: System MUST verify presence of raw SMILES or InChI strings for every host record; if missing, exclude the record and log the exclusion count (See US-1)
 - **FR-011**: System MUST verify the primary dataset contains ≥50 host molecules with ≥3 halides each and the `binding_constant` column. **IF** this fails, the system MUST: (1) Log the exact warning: "WARNING: Insufficient data (<50 hosts). Comparative analysis aborted. Switching to single-halide prediction mode with simulated data."; (2) Identify the most abundant halide in the available data; (3) Generate a simulated dataset where `log K_sim = 0.5 * charge_density + 0.3 * cavity_volume + N(0, 0.2)` (Gaussian noise). Here, `charge_density` is defined as the sum of Gasteiger charges on the host molecule, and `cavity_volume` is defined as the molecular volume (Å³) calculated via RDKit; (4) Validate the simulated data against `dataset.schema.yaml` before use; (5) Mark all outputs as "Simulated Data Mode" and explicitly state that the project FAILS to answer the primary comparative research question. (See US-1)
 - **FR-012**: System MUST verify that the dataset contains at least 10 host molecules per halide group before attempting detailed analysis; if N < 10 for any group, the system MUST report the analysis as "underpowered" and focus on reporting 95% Confidence Intervals for performance differences rather than significance testing. Post-hoc power analysis is explicitly excluded. (See US-4)
-- **FR-013**: System MUST report feature stability (coefficient of variation) for the top features across multiple bootstrap resamples; features with CV ≥ 0.3 are flagged as "unstable". Additionally, the system MUST perform a **Physical Plausibility Check**: verify that the sign of the coefficient for the top feature aligns with first-principles electrostatics (e.g., positive charge density correlates with increased anion affinity). This replaces the undefined 'curated list' validation. (See US-3)
+- **FR-013**: System MUST report feature stability (coefficient of variation) for the top features across multiple bootstrap resamples; features with CV ≥ 0.3 are flagged as "unstable". Additionally, the system MUST perform a **Physical Plausibility Check**: the sign of the coefficient for the top feature must be positive for charge_density (higher charge density should increase halide affinity) and, where chemically appropriate, negative for steric‑volume features. (See US-3)
+- **FR-014**: System MUST generate a JSON‑format final report that conforms to `contracts/output.schema.yaml`. (See US-4)
+- **FR-015**: System MUST invoke the Advancement‑Evaluator after each artifact generation step to record a SHA‑256 content hash of the artifact in `state.yaml`, satisfying Constitution Principle V. (See US-4)
 
 ### Key Entities *(include if feature involves data)*
 
 - **HostMolecule**: Represents an organic host compound with attributes SMILES, InChI, molecular descriptors (ECFP4 fingerprint, RDKit descriptors), and associated binding measurements
 - **BindingMeasurement**: Represents a single experimental measurement with attributes host_id, halide_identity (F⁻/Cl⁻/Br⁻/I⁻), binding_constant (log K or ΔG), units, source (NIST/PubChem/Simulated), solvent, and reference DOI
 - **ModelRun**: Represents a trained model instance with attributes model_type (random_forest/gradient_boosting), cross_validation_folds, R²_mean, R²_std, RMSE_mean, RMSE_std, and feature_stability_ranking
+
+## Verified Datasets
+
+The primary data sources are **NIST Chemistry WebBook** and **PubChem**. The pipeline scrapes the latest publicly available halide binding constants directly from these repositories; no pre‑packaged parquet files are used as the source of experimental binding data. All scraped records are stored in `data/raw/halide_bindings.csv` after validation.
 
 ## Success Criteria *(mandatory)*
 
@@ -112,24 +118,24 @@ A researcher performs pairwise statistical comparisons of model performance acro
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Out-of-sample R² is measured against the 5-fold cross-validation held-out host molecule identities to assess predictive performance on unseen hosts (See US-2)
+- **SC-001**: Out-of-sample R² is measured against the 5-fold cross-validation held-out host molecule identities to assess predictive performance on unseen hosts; the model must achieve **R² > 0.5** to be considered successful. (See US-2)
 - **SC-002**: Feature stability ranking is measured against the coefficient of variation (CV) of importance scores across multiple bootstrap resamples. to identify robust determinants of halide selectivity (See US-3)
-- **SC-003**: Model training runtime is measured against the documented compute budget (hours on 2 vCPU, 7 GB RAM, GitHub Actions ubuntu-latest runner) defined in Assumptions (See US-2)
+- **SC-003**: Model training runtime is measured against the documented compute budget (hours on 2 vCPU, 7 GB RAM, GitHub Actions ubuntu-latest runner) defined in Assumptions (See US-2)
 - **SC-004**: Dataset completeness is measured against the required variables (host SMILES, halide identity, binding constant, solvent) to verify dataset-variable fit (See US-1)
-- **SC-005**: Performance differences between halide ions MUST be reported with 95% Confidence Intervals (sufficient bootstrap resamples); if the CI includes zero, the difference is reported as "not distinguishable" (See US-4)
-- **SC-006**: 95% Confidence Intervals for performance differences MUST be reported for the smallest halide-specific test set; if the sample size is < 10, the CI width is reported as "wide" (See US-4)
-- **SC-007**: Feature stability is measured against the coefficient of variation (CV) of top 10 features; features with CV < 0.3 are considered "stable". Additionally, the top feature's sign MUST align with Coulombic attraction principles (See US-3)
+- **SC-005**: Performance differences between halide ions MUST be reported with 95% Confidence Intervals (sufficient bootstrap resamples); if the CI includes zero, the difference is reported as "not statistically distinguishable" (See US-4)
+- **SC-006**: 95% Confidence Intervals for performance differences MUST be reported for the smallest halide-specific test set; if the sample size is < 10, the CI is reported as **wide** (CI width > 0.2). (See US-4)
+- **SC-007**: Feature stability is measured against the coefficient of variation (CV) of top 10 features; features with CV < 0.3 are considered "stable". Additionally, the top feature's sign MUST align with Coulombic attraction principles (positive for charge_density). (See US-3)
 
 ## Assumptions
 
 - **Data Availability Contingency**: We assume that NIST Chemistry WebBook and PubChem contain binding constants for all four halide ions (F⁻, Cl⁻, Br⁻/I⁻) for a sufficient number of host molecules (≥50 hosts with ≥3 halides each) to support 5-fold cross-validation. **IF** this assumption fails (i.e., <50 hosts or missing columns), the project scope reduces to single-halide prediction using a simulated dataset (FR-011), and the comparative analysis (US-4) is explicitly aborted and flagged as unanswerable.
 - The filtering threshold of ≥3 different halide measurements per host is justified by the need for within-host comparison across the halide series, enabling analysis of how affinity varies by halide identity for the same receptor
 - All molecular structure data in NIST/PubChem records is provided in valid SMILES or InChI format parseable by RDKit; records with invalid structures are excluded from the dataset
-- The scikit-learn random forest and gradient boosting implementations can complete training on the full dataset within ≤6 hours on a GitHub Actions free-tier runner (2 vCPU, 7 GB RAM) without GPU acceleration
+- The scikit-learn random forest and gradient boosting implementations can complete training on the full dataset within ≤6 hours on a GitHub Actions free-tier runner (2 vCPU, 7 GB RAM) without GPU acceleration
 - Binding constants in NIST/PubChem records are reported in consistent units (log K or ΔG) that can be standardized; any records with ambiguous or non-standard units are excluded
-- The observational nature of the dataset (no random assignment of hosts to halides) means all reported structure-affinity relationships are associational, not causal; no identification strategy or randomization is available to support causal claims
+- The observational nature of the dataset (no random assignment of hosts to halides) means all reported structure‑affinity relationships are associational, not causal; no identification strategy or randomization is available to support causal claims
 - Molecular descriptors (ECFP4 fingerprints, RDKit descriptors) may exhibit collinearity; the analysis will report joint relationships descriptively and include a collinearity diagnostic (e.g., variance inflation factor) rather than claiming independent predictive effects for definitionally related descriptors
 - The dataset size after filtering will fit within available RAM and disk on the GitHub Actions runner; if the full dataset exceeds this, a representative subset will be sampled and the scoping decision will be documented
 - No validated questionnaires or psychometric instruments are used in this study (chemistry domain), so the measurement validity requirement for citable validation does not apply; molecular descriptors are standard computational chemistry tools with established community usage
 - The primary solvent for halide binding constants in the target literature is non-aqueous (e.g., acetonitrile, chloroform, DCM); water-based measurements are excluded to avoid confounding by solvation effects
-- **Constitution Compliance**: The `Advancement-Evaluator Agent` MUST update `state.yaml` on every artifact change (Constitution Principle V), specifically by appending a content hash of the modified file to the `artifacts` list in `state.yaml` upon every commit. The `Reference-Validator Agent` MUST validate all citations against primary sources (Constitution Principle II), specifically by verifying DOI existence and abstract match for all citations, and failing the build if validation fails.
+- **Constitution Compliance**: The `Advancement‑Evaluator Agent` MUST update `state.yaml` on every artifact change (Constitution Principle V), specifically by appending a content hash of the modified file to the `artifacts` list in `state.yaml` upon every commit. The `Reference‑Validator Agent` MUST validate all citations against primary sources (Constitution Principle II), specifically by verifying DOI existence and abstract match for all citations, and failing the build if validation fails.
