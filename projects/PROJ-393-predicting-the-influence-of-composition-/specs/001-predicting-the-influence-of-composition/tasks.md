@@ -10,7 +10,7 @@ This research implements a reproducible CPU‑only pipeline that (1) aggregates 
 
 **Goal**: Verify the technical stack on a tiny real dataset before scaling to the full aggregation.
 
-- [ ] T001 [P1] Establish the project layout, pin dependencies, and document a runnable command.  
+- [ ] T001 [P1] Establish the project layout, pin dependencies, and document a runnable command.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Create `code/requirements.txt` with exact package versions, add `quickstart.md` that shows `python -m src.main`, and create the folder hierarchy `code/src/`, `data/raw/`, `data/processed/`, `docs/reports/`.*  
   **Verification**: `quickstart.md` contains a reproducible command; a fresh checkout of the repo followed by `pip install -r code/requirements.txt && python -m src.main --help` prints a help message containing “Setup OK”.
 

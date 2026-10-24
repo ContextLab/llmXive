@@ -1,17 +1,14 @@
 status: none
-intent: Heusler alloy experimental magnetic hysteresis dataset NIST Materials Project
-  AFLOW python package dataset
+intent: Heusler alloy magnetic hysteresis experimental dataset NIST Materials Data
+  Facility Materials Project python package dataset
 required_fields:
-- alloy_composition
-- atomic_fractions
+- sample_id
+- source
+- composition_string
+- element_fractions
 - coercivity_Oe
 - saturation_magnetization_emu_per_g
-- remnant_magnetization_emu_per_g
 - measurement_temperature_K
-- sample_identifier
-- source_repository
-- publication_DOI
-- measurement_method
-cache_key: b2d10e9ad60061c611d278c4843eb1ef39466e4da1fa885de5a68ab63ab92606
-searched_at: '2026-10-24T16:27:58.784091+00:00'
+cache_key: 9a9ae3cab318dcb00d1e20e5d756f3d29f04e91fe0a2c36ff021ec658d3c1a40
+searched_at: '2026-10-24T16:29:54.554548+00:00'
 retry_count: 1

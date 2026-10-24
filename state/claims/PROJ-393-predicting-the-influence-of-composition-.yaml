@@ -7455,3 +7455,67 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-24T16:27:10Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/quickstart.md
+  attempts: 1
+  canonical: help message includes 'Setup OK'
+  claim_id: c_c659d640
+  context: Running the pipeline with --help is expected to display the required phrase.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the help message should include 'Setup OK'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T16:29:25Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/quickstart.md
+  attempts: 1
+  canonical: demo run generates data/results/demo_metrics.json
+  claim_id: c_a7c3a5b2
+  context: "A quick sanity\u2011check demo on the tiny manual dataset creates the\
+    \ demo_metrics.json file."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: python -m src.main --demo produces data/results/demo_metrics.json
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T16:29:26Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/quickstart.md
+  attempts: 1
+  canonical: "main.py runs full pipeline end\u2011to\u2011end"
+  claim_id: c_8569f7cb
+  context: The full pipeline can be executed via the main entry point.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "python main.py runs the full pipeline end\u2011to\u2011end"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T16:29:27Z'
+- artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/quickstart.md
+  attempts: 1
+  canonical: pipeline generates expected output files
+  claim_id: c_e1480abb
+  context: 'After successful execution, the following files will be generated: data/raw/manual_curated.csv,
+    data/processed/alloys_raw.csv, data/processed/alloys_features.csv, data/results/demo_metrics.json
+    (demo only), docs/reports/final_report.md, docs/reports/statistical_limitations.md,
+    docs/reports/microstructure_note.md, docs/reports/data_scarcity_warning.md.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: after successful execution, the listed files are generated
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T16:29:28Z'

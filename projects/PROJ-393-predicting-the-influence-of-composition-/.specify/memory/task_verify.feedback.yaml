@@ -1,8 +1,5 @@
 T001:
-  reason: "The `docs/reports/` directory is missing, the `requirements.txt` uses loose\
-    \ \u201C>=\u201D version specifiers instead of exact pins, and there is no execution\
-    \ evidence that `python -m src.main --help` produces the required \u201CSetup\
-    \ OK\u201D help message."
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: cea52f12cf0f20c82b88823fc6e42983d113f11968aa4f15b288c3e4806972f3
 T002:
   reason: The required file `data/raw/elemental_properties_v1.csv` is missing, `src/features/descriptors.py`

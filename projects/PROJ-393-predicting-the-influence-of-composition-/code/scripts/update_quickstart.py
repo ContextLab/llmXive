@@ -1,63 +1,36 @@
 """
-Helper script to update quickstart.md with the verification command.
-This ensures T072 is part of the run-book.
+Utility that rewrites ``quickstart.md`` when the project layout changes.
+The implementation now inserts the exact command ``python -m src.main --help``
+and documents the required “Setup OK” phrase.
 """
 import re
 from pathlib import Path
 
+QUICKSTART_PATH = Path(__file__).resolve().parent.parent / "quickstart.md"
+
 def main():
-    quickstart_path = Path(__file__).parent.parent / "quickstart.md"
-    if not quickstart_path.exists():
-        print(f"quickstart.md not found at {quickstart_path}")
-        return 1
+    """Update the quickstart file with the latest command references."""
+    if not QUICKSTART_PATH.exists():
+        raise FileNotFoundError(f"{QUICKSTART_PATH} does not exist")
 
-    content = quickstart_path.read_text()
-    
-    # Check if verification command is already present
-    if "python scripts/verify_artifacts.py" in content:
-        print("Verification command already present in quickstart.md")
-        return 0
+    text = QUICKSTART_PATH.read_text(encoding="utf-8")
 
-    # Find the 'Execution' or 'Run' section and append the verification step
-    # Pattern to find the end of the execution steps
-    pattern = r"(## Execution.*?)(?=## |\Z)"
-    match = re.search(pattern, content, re.DOTALL)
-    
-    if match:
-        section = match.group(1)
-        # Check if we need to add the verification step
-        if "verify_artifacts.py" not in section:
-            new_step = """
-### Step 6: Verify Artifacts (T072)
+    # Ensure the help command line is present and contains the required phrase.
+    help_block = r"python -m src\.main --help\s+# should include “Setup OK”"
+    if not re.search(help_block, text):
+        # Insert the check after the “Running the Pipeline” section.
+        insert_point = re.search(r"## Running the Pipeline", text)
+        if insert_point:
+            insertion = (
+                "\n```bash\n"
+                "cd code\n"
+                "python -m src.main --help   # should include “Setup OK”\n"
+                "```\n"
+            )
+            pos = insert_point.end()
+            text = text[:pos] + insertion + text[pos:]
 
-```bash
-python code/scripts/verify_artifacts.py
-```
-
-This step verifies that all output files exist and are valid, and updates the state file.
-"""
-            # Insert before the next section or at the end
-            if match.end() < len(content):
-                new_content = content[:match.end()] + new_step + content[match.end():]
-            else:
-                new_content = content + new_step
-            
-            quickstart_path.write_text(new_content)
-            print("Updated quickstart.md with verification step.")
-            return 0
-    else:
-        # Append to end if no specific section found
-        content += """
-## Verification (T072)
-
-```bash
-python code/scripts/verify_artifacts.py
-```
-"""
-        quickstart_path.write_text(content)
-        print("Appended verification step to quickstart.md.")
-        return 0
+    QUICKSTART_PATH.write_text(text, encoding="utf-8")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()
