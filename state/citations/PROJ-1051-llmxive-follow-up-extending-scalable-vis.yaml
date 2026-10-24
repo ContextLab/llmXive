@@ -31,3 +31,14 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67e62aa67dac83cb62dbeb68/56dfb335c9b1ba64858f209c312c0679964a3d5c6320deb1457b008fe0b28e85?xip=Z-QXxjK_2LQ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&Expires=1792660948&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdlNjJhYTY3ZGFjODNjYjYyZGJlYjY4LzU2ZGZiMzM1YzliMWJhNjQ4NThmMjA5YzMxMmMwNjc5OTY0YTNkNWM2MzIwZGViMTQ1N2IwMDhmZTBiMjhlODVcXD94aXA9Wi1RWHhqS18yTFEmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI2NjA5NDh9fX1dfQ__&Signature=MEQCIBwzxuMNY9B1ToDQdapr1hUjAuqzLGJQE5HOybR4pDxXAiAZGcdfuxs%7EyZf36sXImx6pc1KPhP9EXsXWPt7NVVEUSQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-10-22T08:22:28.259594Z'
+- artifact_hash: 2b50f1af814e81fe47aeb98d91de8f27c8a47b243a1348a1fe2e0f9b8aee29e0
+  artifact_path: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/docvqa`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/docvqa/datasets
+  verified_at: '2026-10-24T09:37:53.815336Z'

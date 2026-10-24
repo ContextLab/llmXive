@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-14T03:01:44.752143Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1051-llmxive-follow-up-extending-scalable-vis
-last_run_id: 0bebdb93-ac6b-412b-9951-09770a690b93
+last_run_id: a194d376-b5a7-4c80-a791-f5572d7bc031
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-1051-llmxive-follow-up-extending-scalable-vis/specs/001-llmxive-follow-up-extending-scalable-vis
 title: 'llmXive follow-up: extending "Scalable Visual Pretraining for Language Intelligence"'
-updated_at: '2026-10-22T08:22:32.146063Z'
+updated_at: '2026-10-24T09:37:54.045893Z'

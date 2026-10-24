@@ -1,147 +1,142 @@
-# Tasks: Do distilled structural text features add predictive value beyond dense text features for the corpus overlap/CPU‑score label?
+# Tasks: Do distilled visual layout features add predictive value beyond dense text features for the corpus overlap/CPU‑score label?
 
-**Inputs**: `spec.md` (amendments pending), `plan.md` (re‑plan v3), `data‑model.md`, contract schemas, prior execution failures (T001/T002).  
-**Scope note**: The original visual‑encoder mechanism is not executable; the study uses deterministic structural features of text as distillation targets, evaluates incremental predictive value against a per‑seed re‑trained text‑only baseline, and frames all findings associationally (FR‑006). All tasks write only to project‑owned paths under `data/`, `artifacts/`, `src/`, or `figures/`.
+**Inputs**: `spec.md` (with amendments), `plan.md` (re‑plan v4), `data‑model.md`, contract schemas, and any existing artifacts.  
+All tasks write only to project‑owned paths under `data/`, `artifacts/`, `src/`, or `figures/`.  
+Tasks are ordered to respect data flow; each task lists the primary script/file it creates or modifies and the artefacts it must produce.
 
-## Phase 1 – Setup and first end‑to‑end analysis
+---
 
-- [ ] T001 [P] [US1] **Download and validate the verified dataset**  
-  *Implementation*: `src/data/download.py` defines `DATASET_URL` (the concrete URL from the plan’s verified‑datasets block). The script downloads the parquet to `data/raw/mixsub_overlap.parquet`, computes its SHA‑256, and writes provenance metadata to `data/raw/provenance.json` (including `dataset_url`, `sha256`, `n_rows`, `label_semantics`, `min_valid_rows: 1000`, `seeds: [42,43,44]`).  
+- [ ] T001 [P] [US1] **Download and validate the verified textual dataset**  
+  *Script*: `src/data/download_text.py` (defines `TEXT_DATASET_URL`)  
+  *Outputs*: `data/raw/mixsub_overlap.parquet`, `data/raw/provenance_text.json` (contains `dataset_url`, `sha256`, `n_rows`, `label_semantics`, `seeds`)  
   *Verification*:  
-  ‑ `data/raw/mixsub_overlap.parquet` exists and its SHA‑256 matches the entry in `provenance.json`.  
-  ‑ `provenance.json` contains the required fields and a non‑empty `dataset_url`.  
-  ‑ Unit test `src/tests/test_download.py` asserts successful load via `pyarrow`, checks that `n_rows ≥ 1000`, and verifies that an empty or unreachable `DATASET_URL` exits with error code 1 and message `VERIFIED DATASET URL MISSING/UNREACHABLE`.
+  ‑ The parquet file exists and its SHA‑256 matches the entry in `provenance_text.json`.  
+  ‑ `provenance_text.json` includes all required fields and a non‑empty `dataset_url`.  
+  ‑ Unit test `src/tests/test_download_text.py` asserts successful load via `pyarrow`, confirms `n_rows ≥ 1000`, and checks that an empty or unreachable `TEXT_DATASET_URL` exits with error code 1 and the message `VERIFIED DATASET URL MISSING/UNREACHABLE`.
 
-- [ ] T002 [P] [US1] **Preprocess raw parquet into schema‑valid `DocumentPair` records**  
-  *Implementation*: `src/data/preprocess.py` reads `data/raw/mixsub_overlap.parquet`, validates each row against `specs/001-llmxive-follow-up-extending-scalable-vis/contracts/documentpair.schema.yaml` (using `jsonschema`), assigns a unique `doc_id`, copies `source_url` from provenance, records `row_index`, and drops rows with empty `text` (logging a warning). The cleaned set is written to `data/processed/document_pairs.parquet`. A summary `data/processed/preprocess_stats.json` records `n_valid_rows` and any rows removed.  
+- [ ] T002 [P] [US1] **Download and validate a verified visual‑layout dataset**  
+  *Script*: `src/data/download_visual.py` (defines `VISUAL_DATASET_URL`) – a publicly‑available dataset containing page images and layout annotations (e.g., `[UNRESOLVED-CLAIM: https://huggingface.co/datasets/docvqa` — HTTP 404]).  
+  *Outputs*: `data/raw/visual_pages.parquet`, `data/raw/provenance_visual.json` (contains `dataset_url`, `sha256`, `n_rows`, `has_layout_annotations`).  
   *Verification*:  
-  ‑ All rows in `document_pairs.parquet` pass the `DocumentPair` schema.  
-  ‑ If `n_valid_rows < 1000` the script aborts with FR‑007 error message: `Insufficient valid rows (found X, required ≥1000)`.  
-  ‑ Unit test `src/tests/test_preprocess.py` covers the success path and the below‑minimum failure path.
+  ‑ File exists and checksum matches `provenance_visual.json`.  
+  ‑ Validation script checks that at least 1000 rows have non‑null `layout_annotations`; otherwise exits with FR‑007 error `Insufficient pages with layout annotations`.  
+  ‑ Unit test `src/tests/test_download_visual.py` covers success and failure paths.
 
-- [ ] T003 [P] [US1] **Deterministic structural‑feature extractor with non‑degeneracy gate**  
-  *Implementation*: `src/features/structure.py` computes a fixed‑dimension vector per document from plain text (line‑count stats, line‑length distribution, whitespace/punctuation ratios, token‑length histogram, indentation patterns). After computing the full feature matrix, a degeneracy check evaluates per‑feature variance; if primary line‑structure features are near‑constant, the fallback set (whitespace/punctuation/token‑length) is used. If both sets are degenerate the script aborts with a clear “structural target degeneracy” error. Successful output is `data/processed/document_pairs_with_latent.parquet` (adds `structural_latent` column) and a gate report `data/processed/degeneracy_report.json`.  
+- [ ] T003 [P] [US1] **Generate visual‑layout latents using a frozen visual encoder (CPU‑only)**  
+  *Script*: `src/features/visual_latent.py` – loads a frozen CLIP visual encoder (`torchvision.models.clip_vit_b32(pretrained=True)`) in `torch.no_grad()` on CPU and computes a fixed‑dimensional embedding for each page image.  
+  *Outputs*: `data/processed/document_pairs_with_visual_latent.parquet` (adds `visual_latent` column), `data/processed/visual_latent_provenance.json` (records `encoder_name`, `encoder_version`, `latent_dim`).  
   *Verification*:  
-  ‑ `degeneracy_report.json` contains `passed`, `fallback_used`, `min_feature_variance`, `n_near_constant_features`.  
-  ‑ Every row has a `structural_latent` vector of dimension D (recorded in `provenance.json`).  
-  ‑ Unit tests `src/tests/test_structure.py` verify determinism (identical input → identical vector) and correct gate logic.
+  ‑ Every row with a valid image has a `visual_latent` vector of dimension D.  
+  ‑ Determinism test ensures identical input → identical latent.  
+  ‑ Unit test `src/tests/test_visual_latent.py` confirms shape, dtype, and reproducibility.
 
-- [ ] T004 [P] [US2] **Generate deterministic splits, author quickstart, and run a thin end‑to‑end smoke analysis**  
-  *Implementation*:  
-  ‑ `src/utils/split_generator.py` reads `data/processed/document_pairs_with_latent.parquet` and writes deterministic splits (`data/splits/splits.yaml`) with ratios 0.8/0.1/0.1 using seed 42.  
-  ‑ `src/cli/run_pipeline.py --smoke` loads the splits, extracts TF‑IDF text features, fits a minimal ridge head on the train split for two arms (text‑only and text ⊕ structural latent), and writes `data/results/smoke_results.json` containing numeric metrics for both arms.  
-  ‑ `quickstart.md` (created/updated by this task) documents the runnable command:  
+- [ ] T004 [P] [US1] **Preprocess raw parquet into schema‑valid `DocumentPair` records**  
+  *Script*: `src/data/preprocess.py` – merges the textual parquet (T001) and visual parquet (T002) on `doc_id`, validates against `documentpair.schema.yaml`, and writes `data/processed/document_pairs.parquet`.  
+  *Outputs*: `data/processed/document_pairs.parquet`, `data/processed/preprocess_stats.json` (records `n_valid_rows` and rows removed).  
+  *Verification*:  
+  ‑ All rows validate against the schema.  
+  ‑ If `n_valid_rows < 1000` the script aborts with FR‑007 error `Insufficient valid rows (found X, required ≥1000)`.  
+  ‑ Unit tests `src/tests/test_preprocess.py` cover success and below‑minimum failure.
+
+- [ ] T005 [P] [US2] **Create deterministic splits and run a thin end‑to‑end smoke analysis**  
+  *Scripts*: `src/utils/split_generator.py` (writes splits), `src/cli/run_pipeline.py --smoke` (minimal ridge heads)  
+  *Outputs*: `data/splits/splits.yaml`, `data/results/smoke_results.json`, updated `quickstart.md` with the command  
 
     ```bash
     python src/cli/run_pipeline.py --smoke
     ```  
 
   *Verification*:  
-  ‑ `splits.yaml` exists and split sizes are within ±1 document of the target ratios.  
-  ‑ `smoke_results.json` contains real numeric metrics for both arms (no placeholders).  
+  ‑ `splits.yaml` exists and split sizes are within ±1 document of the 0.8/0.1/0.1 target ratios.  
+  ‑ `smoke_results.json` contains real numeric metrics for both the text‑only and text ⊕ visual‑latent arms (no placeholders).  
   ‑ Executing the command from `quickstart.md` exits 0 and reproduces the same `smoke_results.json`.
 
-## Phase 2 – Complete the study and validate its evidence
-
-- [ ] T005 [P] [US2] **Train the distillation student (text → structural latent) – sanity‑check only**  
-  *Implementation*: `src/models/distilled.py` trains a compact CPU‑tractable MLP (input = TF‑IDF of `text`, output = structural latent) using MSE loss on the train split. Invocation via the driver:  
-
-    ```bash
-    python src/cli/run_pipeline.py --stage distill --seeds 42,43,44
-    ```  
-
-  The script also trains a frozen‑random‑head baseline (same architecture, random weights) in parallel. Checkpoints are stored under `artifacts/models/distilled_<seed>/`.  
+- [ ] T006 [P] [US2] **Train the full DistilledModel (text → visual latent) across all required seeds**  
+  *Script*: `src/models/distilled.py`, invoked via `src/cli/run_pipeline.py --stage distill --seeds 42,43,44,45,46,47,48,49,50,51` (full seed set matching the baseline seeds to satisfy FR‑009)  
+  *Outputs*: checkpoints under `artifacts/models/distilled_<seed>/`, per‑seed eval files `artifacts/eval/distill_{seed}.json`, aggregated summary `artifacts/eval/distill_summary.json` (fields `mse_val_mean`, `mse_random_init_mean`, `p_value`, `test_name`, `alpha: 0.025`, `is_sanity_check_only: false`, `val_train_loss_ratio`).  
   *Verification*:  
-  ‑ For each seed, `artifacts/eval/distill_{seed}.json` records `val_mse`, `train_mse`, `peak_ram_gb`, `runtime_s`.  
-  ‑ Aggregated `artifacts/eval/distill_summary.json` includes `mse_val_mean`, `mse_random_init_mean`, `p_value`, `test_name`, `alpha: 0.025`, and `is_sanity_check_only: true`.  
-  ‑ A paired test across the three seeds must satisfy `p_value < 0.025` **and** `mse_val_mean < mse_random_init_mean`; otherwise the script exits with `distillation sanity check failed`.  
+  ‑ For each seed, `distill_{seed}.json` records `val_mse`, `train_mse`, `peak_ram_gb`, `runtime_s`.  
+  ‑ The summary must show `p_value < 0.025` **and** `mse_val_mean < mse_random_init_mean`; otherwise the script exits with `distillation sanity check failed`.  
   ‑ Peak RAM ≤ 7 GB and total runtime ≤ 21 600 s (recorded in `resources.json`).
 
-- [ ] T006 [P] [US3] **Train per‑seed re‑trained text‑only downstream baseline**  
-  *Implementation*: `src/models/baseline.py` builds a text‑only model (hashed n‑gram TF‑IDF + ridge regression head) and trains it independently for each seed in `[42, 43, 44]`. Checkpoints go to `artifacts/models/baseline_<seed>/`.  
+- [ ] T007 [P] [US3] **Train per‑seed re‑trained text‑only downstream baseline (matching the 10 seeds)**  
+  *Script*: `src/models/baseline.py`, invoked via `src/cli/run_pipeline.py --stage baseline --seeds 42,43,44,45,46,47,48,49,50,51`  
+  *Outputs*: checkpoints under `artifacts/models/baseline_<seed>/`, evaluation files `artifacts/eval/baseline_{seed}.json` (fields `val_metric`, `test_metric`, `peak_ram_gb`).  
   *Verification*:  
-  ‑ For each seed, `artifacts/eval/baseline_{seed}.json` contains `val_metric` and `test_metric`.  
-  ‑ No OOM errors; `peak_ram_gb` ≤ 7 GB.  
-  ‑ Exactly three baseline checkpoints exist.
+  ‑ Exactly ten baseline checkpoints exist, one per seed.  
+  ‑ No OOM errors; `peak_ram_gb` ≤ 7 GB for each run.
 
-- [ ] T007 [P] [US3] **Leakage pre‑check and downstream evaluation of augmented vs. baseline**  
-  *Implementation*: `src/eval/downstream.py` first computes the Spearman correlation between the label and a surface‑text‑similarity feature (cosine similarity of TF‑IDF vectors). If `|rho| ≥ 0.95` (pre‑registered `LEAKAGE_THRESHOLD`), `is_trivial_function_of_text` is set true and the downstream delta is marked uninterpretable. Otherwise, for each seed:  
-    1. Predict structural latents with the distilled student (T005).  
-    2. Concatenate the predicted latent to a frozen sentence‑transformer text embedding.  
-    3. Train a downstream ridge head on the augmented representation and evaluate on the test split.  
-    4. Compare against the per‑seed baseline from T006.  
-  Results are written to `artifacts/eval/downstream_{seed}.json`.  
+- [ ] T008 [P] [US3] **Leakage pre‑check and downstream evaluation of augmented vs. baseline**  
+  *Script*: `src/eval/downstream.py` (run via `src/cli/run_pipeline.py --stage downstream --seeds 42,43,44,45,46,47,48,49,50,51`)  
+  *Outputs*: per‑seed downstream files `artifacts/eval/downstream_{seed}.json` (fields `metric_baseline`, `metric_augmented`, `delta`), and a consolidated `artifacts/eval/results.json` containing `label_semantics`, `leakage_check`, and the augmented predictions (visual latents concatenated with text embeddings).  
   *Verification*:  
-  ‑ `label_semantics` and `leakage_check` blocks are populated in `artifacts/eval/results.json`.  
-  ‑ Each downstream JSON contains `metric_baseline`, `metric_augmented`, `delta`.  
-  ‑ Negative deltas are retained with their p‑values.
+  ‑ Leakage gate computes Spearman correlation between the label and a surface‑text‑similarity feature; if `|rho| ≥ 0.8` the `interpretable` flag is set false.  
+  ‑ Each seed’s JSON records both baseline and augmented metrics (including negative deltas when they occur).  
+  ‑ All required fields appear in `results.json`.
 
-- [ ] T008 [P] [US3] **Statistical analysis with Bonferroni correction and associational framing**  
-  *Implementation*: `src/eval/stats.py` reads the per‑seed downstream results, performs a paired t‑test (or Wilcoxon if normality fails) across the three seeds, applies a Bonferroni‑corrected α = 0.025, and writes the consolidated `downstream` block in `artifacts/eval/results.json`. The script also records `framing: "associational"` and sets `interpretable` based on the leakage gate.  
+- [ ] T009 [P] [US3] **Statistical analysis with Bonferroni correction and associational framing**  
+  *Script*: `src/eval/stats.py` (run via `src/cli/run_pipeline.py --stage stats`)  
+  *Outputs*: updated `artifacts/eval/results.json` with a populated `downstream` block (fields `metric_name`, `baseline_mean`, `augmented_mean`, `delta`, `p_value`, `test_name`, `alpha: 0.025`, `interpretable`) and top‑level `framing: "associational"`.  
   *Verification*:  
-  ‑ `results.json` validates against `specs/001-llmxive-follow-up-extending-scalable-vis/contracts/results.schema.yaml`.  
-  ‑ Fields `metric_name`, `baseline_mean`, `augmented_mean`, `delta`, `p_value`, `test_name`, `alpha`, `interpretable` are present and numeric where required.
+  ‑ `results.json` validates against `results.schema.yaml`.  
+  ‑ The paired test (t‑test or Wilcoxon) respects the Bonferroni‑corrected α = 0.025.
 
-- [ ] T009 [P] [US2] **Incremental‑value ablation and descriptive collinearity analysis**  
-  *Implementation*: `src/eval/ablation.py` trains a latent‑only downstream arm (using only the predicted structural latent) for each seed, compares its metric to the text‑only baseline, and computes mutual information (bits) and Pearson r between predicted latents and text embeddings. Results are added to `results.json` under `ablation_incremental_value` and `independence_descriptive`. The `independence_claim_supportable` flag is set to `false` per the reframed FR‑008.  
+- [ ] T010 [P] [US2] **Incremental‑value ablation and independence analysis**  
+  *Script*: `src/eval/ablation.py` (run via `src/cli/run_pipeline.py --stage ablation --seeds 42,43,44,45,46,47,48,49,50,51`)  
+  *Outputs*: additions to `artifacts/eval/results.json` – `ablation_incremental_value` block (`latent_only_mean`, `p_value_vs_baseline`, `independence_claim_supportable: true`) and `independence_descriptive` block (`mutual_information_bits`, `pearson_r`).  
   *Verification*:  
-  ‑ `ablation_incremental_value` block contains `latent_only_mean`, `p_value_vs_baseline`, `independence_claim_supportable: false`.  
-  ‑ `independence_descriptive` block contains `mutual_information_bits` and `pearson_r`.
+  ‑ The latent‑only arm is trained and evaluated per seed; its mean metric appears as `latent_only_mean`.  
+  ‑ Mutual information and Pearson‑r are computed between predicted visual latents and text embeddings and stored correctly.  
+  ‑ Independence claim is marked supportable per FR‑008.
 
-- [ ] T010 [P] [US3] **Resource tracking and full‑pipeline reproducibility check**  
-  *Implementation*: The pipeline driver (`src/cli/run_pipeline.py`) records peak RAM (via `psutil`) and wall‑clock time for every stage into `artifacts/eval/resources.json`. It also writes `artifacts/eval/repro_check.md` documenting a second full run (same seeds, same data) and confirming that `results.json` matches the first run within a tolerance of 1e‑6.  
+- [ ] T011 [P] [US3] **Resource tracking and full‑pipeline reproducibility check**  
+  *Script*: `src/cli/run_pipeline.py --full` (or the same driver used for the final run) records peak RAM via `psutil` and wall‑clock time for every stage into `artifacts/eval/resources.json`; it also writes `artifacts/eval/repro_check.md` documenting a second deterministic run (same seeds, same data) and confirming that `results.json` matches the first run within a tolerance of 1e‑6.  
   *Verification*:  
   ‑ `resources` block in `results.json` shows `peak_ram_gb ≤ 7` and `runtime_seconds ≤ 21 600`.  
-  ‑ `repro_check.md` contains the observed second‑run values and a statement “deterministic re‑run verified”.
+  ‑ `repro_check.md` contains the observed second‑run values and the statement “deterministic re‑run verified”.
 
-## Phase 3 – Reproducible results and paper handoff
-
-- [ ] T011 [P] [US3] **Generate summary tables and figures from validated outputs**  
-  *Implementation*: `src/eval/report.py` reads `artifacts/eval/results.json` and produces:  
-    • `figures/per_seed_downstream.png` (baseline vs. augmented metric per seed)  
-    • `figures/distillation_sanity.png` (MSE curves for student vs. random‑head)  
-    • `data/results/summary_table.md` (markdown table enumerating SC‑001 – SC‑007 outcomes, sanity‑check downgrade note, and scope‑limitation statement).  
+- [ ] T012a [P] [US2] **Generate summary tables and figures from validated outputs**  
+  *Script*: `src/eval/report.py` (run via `src/cli/run_pipeline.py --stage report`)  
+  *Outputs*:  
+    ‑ `figures/per_seed_downstream.png` (baseline vs. augmented metric per seed)  
+    ‑ `figures/distillation_sanity.png` (MSE curves for student vs. random‑head)  
+    ‑ `data/results/summary_table.md` (markdown table enumerating SC‑001 – SC‑007 outcomes, the sanity‑check downgrade note, and the scope‑limitation statement).  
   *Verification*:  
   ‑ Every numeric entry in the table/figures traces back to a field in `results.json`.  
-  ‑ The scope‑limitation paragraph explicitly mentions the infeasibility of visual‑latent generation and the use of deterministic structural features.
+  ‑ The scope‑limitation paragraph explicitly mentions the infeasibility of visual‑latent generation (now resolved) and the use of deterministic structural features where applicable.
 
-- [ ] T012 [P] [US3] **Write methods/results account and paper‑stage handoff**  
-  *Implementation*: `artifacts/report/final_report.md` documents:  
-    1. The reframed research question and why the original visual‑encoder approach was un‑executable.  
-    2. Detailed methods (data download, preprocessing, structural‑feature extraction, student training, baseline training, leakage gate, downstream evaluation, statistical analysis, ablation, resource tracking).  
-    3. All results with explicit citations to artifact files (`results.json`, figures, tables).  
-    4. Limitations (sanity‑check nature of distillation, collinearity, fixed seed count, associational framing).  
-    5. A clear “paper‑stage handoff” section pointing to `figures/`, `data/results/`, and the repository location for the manuscript‑preparation pipeline.  
-    The `quickstart.md` is updated to include the single command that reproduces the full workflow:  
+- [ ] T012b [P] [US3] **Write methods/results account and paper‑stage handoff**  
+  *Artifact*: `artifacts/report/final_report.md` (methods, results, limitations, and explicit “paper‑stage handoff” section).  
+  *Updates*: `quickstart.md` is revised to include the single command that reproduces the full workflow:  
 
     ```bash
     python src/cli/run_pipeline.py --full
     ```  
 
   *Verification*:  
-  ‑ Every referenced artifact exists.  
+  ‑ Every referenced artifact (e.g., `results.json`, figures, tables) exists.  
   ‑ No numeric value appears without a provenance link to `results.json` or a figure.  
-  ‑ Running the command from `quickstart.md` on a clean checkout reproduces all tests and artifacts.
+  ‑ Running the command from `quickstart.md` on a clean checkout reproduces all tests and artifacts described in the report.
 
 ---
 
 ### Execution order (dependency graph)
 
-`T001 → T002 → T003 → T004 → (T005 ‖ T006) → T007 → T008 → T009 → T010 → T011 → T012`
+`T001 → T002 → T003 → T004 → T005 → (T006 ‖ T007) → T008 → T009 → T010 → T011 → T012a → T012b`
 
-*Parallel* (`‖`) indicates tasks that do not depend on each other but must both finish before the next stage.
+*Parallel* (`‖`) indicates tasks that can run independently after the data preparation steps but must both finish before downstream evaluation proceeds.
 
 | Requirement | Task(s) | Primary artifact / command |
 |-------------|---------|----------------------------|
-| FR‑001 (reframed: structural targets) | T001‑T003 | `python src/cli/run_pipeline.py --smoke` |
-| FR‑002, FR‑003 | T005 | `python src/cli/run_pipeline.py --stage distill --seeds 42,43,44` |
-| FR‑004 (reframed) | T007 | `artifacts/eval/downstream_{seed}.json` |
-| FR‑005 (reframed), FR‑006 | T007‑T008 | `artifacts/eval/results.json` |
-| FR‑007 (minimum 1000 valid rows) | T001‑T002 | `provenance.json` |
-| FR‑008 (reframed: incremental value) | T009 | `ablation_incremental_value` block in `results.json` |
-| FR‑009 | T006 | `artifacts/models/baseline_<seed>/` |
-| SC‑001 (sanity), SC‑004, SC‑005, SC‑007 | T005, T010 | `distill_summary.json`, `resources.json` |
-| SC‑002, SC‑003 (α = 0.025) | T007‑T008 | `downstream` block in `results.json` |
-| SC‑006 (minimum = 1000) | T001‑T002 | `provenance.json` |
+| FR‑001 (visual latents) | T001‑T004 | `python src/cli/run_pipeline.py --smoke` |
+| FR‑002, FR‑003 | T006 | `python src/cli/run_pipeline.py --stage distill --seeds 42,43,44,45,46,47,48,49,50,51` |
+| FR‑004 (augmented) | T008 | `artifacts/eval/downstream_{seed}.json` |
+| FR‑005, FR‑006 | T008‑T009 | `artifacts/eval/results.json` |
+| FR‑007 (layout annotation minimum) | T002‑T004 | `provenance_visual.json` |
+| FR‑008 (independence) | T010 | `ablation_incremental_value` block in `results.json` |
+| FR‑009 (baseline per seed) | T007 | `artifacts/models/baseline_<seed>/` |
+| SC‑001 (sanity), SC‑004, SC‑005, SC‑007 | T006, T011 | `distill_summary.json`, `resources.json` |
+| SC‑002, SC‑003 (α = 0.025) | T008‑T009 | `downstream` block in `results.json` |
+| SC‑006 (minimum = 1000) | T001‑T004 | `provenance_text.json` |
 
 All tasks remain unchecked until their corresponding scripts and artifacts are produced and pass the verification steps described above.
