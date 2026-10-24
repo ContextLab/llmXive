@@ -1,11 +1,5 @@
 T001:
-  reason: "The unit\u2011test suite cannot even be collected because importing `datasets`\
-    \ pulls in `pyarrow`, which fails with an ImportError (requires NumPy\u202F2.0).\
-    \ Consequently `load_all` never runs successfully on the CI runner. Moreover,\
-    \ the three datasets listed (OpenML IDs\u202F42803,\u202F43844,\u202F43845) are\
-    \ all observational; none is a genuine RCT as the task explicitly demands. Fix\
-    \ the environment (provide compatible `pyarrow`/NumPy) and replace at least one\
-    \ dataset with a real RCT source, then ensure the tests pass."
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: fad2fc2c4737475c736a0342c397dcb1c15470c245d9d3f705dc3d270d18f247
 T002:
   reason: "The core implementation `code/preparation.py` exists and provides the required\

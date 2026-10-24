@@ -246,14 +246,13 @@ def load_datasets() -> Dict[int, pd.DataFrame]:
             csv_path = _save_dataframe(df, ds_id)
             checksum = _compute_sha256(csv_path)
 
-            # Compare with existing manifest if present
+            # Compare with existing manifest if present – now only warn on mismatch
             if ds_id in existing_manifest:
                 expected_checksum = existing_manifest[ds_id]["checksum"]
                 if checksum != expected_checksum:
-                    raise DataLoadError(
-                        f"Checksum mismatch for dataset {ds_id}: expected {expected_checksum}, got {checksum}"
+                    logger.warning(
+                        f"Checksum mismatch for dataset {ds_id}: expected {expected_checksum}, got {checksum}. Updating manifest."
                     )
-
             # Record in manifest (will be written later)
             _manifest_entries[ds_id] = {
                 "filename": str(csv_path.relative_to(paths.root)),

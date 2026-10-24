@@ -8,18 +8,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py --action download -> rc=1
 
-2026-10-24 12:08:55,583 ERROR __main__: Config file not found: data/processed/simulation_config.json
+2026-10-24 18:08:35,615 ERROR __main__: Config file not found: data/processed/simulation_config.json
 
 - python code/main.py  --action run  --datasets rct_1 mcar_0 mar_0  --iterations 15000  --rates 0.05 0.10 0.15 0.20 0.25  --mechanisms MCAR MAR MNAR  --methods CC MI IPW -> rc=1
 
-2026-10-24 12:08:56,453 ERROR __main__: Config file not found: data/processed/simulation_config.json
+2026-10-24 18:08:36,687 ERROR __main__: Config file not found: data/processed/simulation_config.json
 
 - python code/main.py --action visualize --output figures/ -> rc=1
 
-2026-10-24 12:08:57,320 ERROR __main__: Config file not found: data/processed/simulation_config.json
+2026-10-24 18:08:37,801 ERROR __main__: Config file not found: data/processed/simulation_config.json
 
 - python -m pytest tests/ -v -> rc=2
-thon/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+mod = import_path(
+/home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/pathlib.py:591: in import_path
+    importlib.import_module(module_name)
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
 <frozen importlib._bootstrap>:1204: in _gcd_import
     ???
@@ -31,13 +34,14 @@ thon/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     ???
 /home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
     exec(co, module.__dict__)
-tests/integration/test_us2_sensitivity.py:29: in <module>
-    from main import run_sensitivity_sweep, validate_condition_matrix, generate_tipping_point_report
-E   ImportError: cannot import name 'run_sensitivity_sweep' from 'main' (/home/runner/work/llmXive/llmXive/projects/PROJ-436-assessing-the-validity-of-statistical-si/code/main.py)
+tests/integration/test_main_us1.py:19: in <module>
+    from main_us1 import run_single_condition_simulation
+code/main_us1.py:21: in <module>
+    import openml
+E   ModuleNotFoundError: No module named 'openml'
 =========================== short test summary info ============================
 ERROR tests/integration/test_main_us1.py
-ERROR tests/integration/test_us2_sensitivity.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 1.29s ===============================
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 1.32s ===============================
 
 

@@ -1,11 +1,13 @@
 status: none
-intent: download RCT-1 JSONL MCAR-0 Parquet MAR-0 CSV datasets python package dataset
+intent: RCT-1 JSONL clinical trial, MCAR-0 Parquet, MAR-0 CSV observational datasets
+  python package dataset
 required_fields:
 - subject_id
 - treatment
 - outcome
-- covariate1
-- covariate2
-cache_key: aafad9ddaefdb6c9186de0c8269a7443b897370b4b8a1f9e01adba3980ccecfd
-searched_at: '2026-10-24T12:09:55.614006+00:00'
+- feature_1
+- feature_2
+- feature_3
+cache_key: cc0b267a9a87e71a3e17a8fda60881c777050648511c7b4c1350d838d886bb6a
+searched_at: '2026-10-24T18:09:30.739555+00:00'
 retry_count: 1
