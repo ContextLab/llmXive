@@ -1,9 +1,10 @@
 status: none
-intent: OpenML download RCT-1 MCAR-0 MAR-0 benchmark datasets python package dataset
+intent: download RCT-1 MCAR-0 MAR-0 datasets python package dataset
 required_fields:
-- covariate columns (e.g., feature_1, feature_2, ...)
-- treatment (binary)
-- outcome (continuous or binary)
-cache_key: a66b5cdc2c6f62ae9b738321cab56137e74b4cb144114f809ca55510daa8b897
-searched_at: '2026-10-24T03:52:39.259336+00:00'
+- treatment
+- outcome
+- covariates
+- subject_id
+cache_key: 79192e6d6d42523a1b8707efe7c5c11a1f1884601f5ab33938ec47deda2341a5
+searched_at: '2026-10-24T04:21:59.666433+00:00'
 retry_count: 1

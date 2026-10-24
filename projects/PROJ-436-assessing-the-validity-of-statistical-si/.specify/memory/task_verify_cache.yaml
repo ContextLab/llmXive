@@ -1,14 +1,14 @@
 T001:
   c: false
-  h: 6931beae7ac55e5b77f1d6482d8834b98a95bb96573f929c8f1198719a512f09
-  r: "The `code/data_loader.py` only downloads a single Plotly diabetes CSV and synthesises\
-    \ the three required datasets, rather than fetching three real RCT/observational\
-    \ datasets (one genuine RCT, two observational) as mandated. It never compares\
-    \ computed checksums to the pre\u2011existing `data/checksums/manifest.json` nor\
-    \ records a \u201CFLAGGED\u201D entry for a dataset with\u202FN\u202F<\u202F100;\
-    \ it simply skips such datasets without updating the manifest. Consequently the\
-    \ implementation and the provided tests do not meet the task\u2019s core requirements."
-  sig: e77a2f750f404feea9c4ed8a51b43fb1e2e6883be700aea06fa2a384cdf6b135
+  h: 1a3ecdfb7fc9a9b3ab46b90ffb2fb2f0432f393c9cdb74554c26f488fe25b36e
+  r: "The repository contains `code/data_loader.py` and a manifest, but there is no\
+    \ evidence that the three CSV files (`data/raw/42803.csv`, etc.) were actually\
+    \ downloaded, nor that the required unit tests (`tests/unit/test_data_loader.py`)\
+    \ have passed. Moreover, the loader uses OpenML instead of the permitted `datasets.load_dataset`\
+    \ (HuggingFace) or direct HTTPS URLs, and the claimed entry point `load_all` does\
+    \ not exist. These gaps mean the task\u2019s download\u2011and\u2011verify requirement\
+    \ is not genuinely satisfied."
+  sig: 94d4accd077485ee8cfe2722bad672fabc3284ce7a354a738d702527ddf3bd37
 T002:
   c: false
   h: f2d2915bbc022fd0ece291b4fae8811ed260775e38c5de8550449967db729aaf

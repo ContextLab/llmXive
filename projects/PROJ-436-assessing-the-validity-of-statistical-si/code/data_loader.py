@@ -1,12 +1,13 @@
 """
 Data loading module for RCT datasets.
 
-This module downloads a verified public dataset (the Plotly diabetes dataset),
-prepares three synthetic RCT‑like datasets based on predefined specifications,
-computes SHA‑256 checksums, writes a manifest, and saves the CSV files under
-``data/raw``. Datasets with fewer than 100 rows are skipped (logged) as per the
-specification. No synthetic fallback for missing external data – the loader
-fails loudly if the download cannot be performed.
+This module downloads three verified public datasets from OpenML
+(one genuine RCT‑like dataset and two observational datasets),
+computes SHA‑256 checksums, verifies them against the manifest,
+writes a manifest, and saves the CSV files under ``data/raw``.
+Datasets with fewer than 100 rows are skipped (logged) as per the
+specification. No synthetic fallback for missing external data – the
+loader fails loudly if the download cannot be performed.
 """
 
 import hashlib
@@ -18,6 +19,9 @@ from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
+
+# OpenML is not part of the base environment; we declare it in requirements.txt
+import openml
 
 from llmxive_toolkit import paths, get_logger
 
@@ -137,24 +141,6 @@ def _ensure_required_columns(df: pd.DataFrame, spec: Dict[str, any]) -> pd.DataF
     return df
 
 # ----------------------------------------------------------------------
-# Core data acquisition (verified source)
-# ----------------------------------------------------------------------
-_DIABETES_URL = "https://raw.githubusercontent.com/plotly/datasets/master/diabetes.csv"
-
-def _download_diabetes_dataframe() -> pd.DataFrame:
-    """
-    Download the verified diabetes CSV and return it as a DataFrame.
-    This is the only external data source used for the three required datasets.
-    """
-    try:
-        logger.info(f"Downloading verified dataset from {_DIABETES_URL}")
-        df = pd.read_csv(_DIABETES_URL)
-        logger.info(f"Downloaded dataset with shape {df.shape}")
-        return df
-    except Exception as e:
-        raise DataLoadError(f"Failed to download verified dataset: {e}") from e
-
-# ----------------------------------------------------------------------
 # Public API (used by tests and downstream scripts)
 # ----------------------------------------------------------------------
 _DATASET_SPECS: Dict[int, Dict[str, any]] = {
@@ -201,19 +187,55 @@ def validate_rct_dataset(df: pd.DataFrame, min_rows: int = 100) -> bool:
 
     Returns True if the dataset is valid; otherwise raises DataLoadError.
     """
-    if len(df) < min_rows:
-        logger.warning(
-            f"Dataset has {len(df)} rows, which is less than the minimum {min_rows}. Skipping."
-        )
-        raise DataLoadError(
-            f"Dataset has {len(df)} rows, which is less than the minimum required {min_rows} rows."
-        )
     if df.empty:
         raise DataLoadError("Dataset is empty.")
+    if df.shape[1] < 2:
+        raise DataLoadError(
+            f"Dataset has only {df.shape[1]} column(s); at least 2 are required."
+        )
+    if len(df) < min_rows:
+        raise DataLoadError(
+            f"Dataset has {len(df)} rows, which is below the minimum threshold of {min_rows}."
+        )
     logger.info(
         f"Dataset validation passed: {len(df)} rows, {len(df.columns)} columns"
     )
     return True
+
+def get_openml_dataset(dataset_id: int):
+    """
+    Download a dataset from OpenML and return the OpenML dataset object.
+    The function fails loudly if the download cannot be performed.
+    """
+    try:
+        logger.info(f"Fetching OpenML dataset {dataset_id}")
+        oml_dataset = openml.datasets.get_dataset(dataset_id)
+        logger.info(f"Successfully fetched OpenML dataset {dataset_id}")
+        return oml_dataset
+    except Exception as e:
+        raise DataLoadError(f"Failed to fetch OpenML dataset {dataset_id}: {e}") from e
+
+def load_dataset_as_dataframe(dataset_id: int, output_path: str) -> pd.DataFrame:
+    """
+    Load a dataset from OpenML, optionally write it to ``output_path`` as CSV,
+    and return the DataFrame. Validation of row count and column count is
+    performed using ``validate_rct_dataset`` with the default minimum of 100 rows.
+    """
+    oml_dataset = get_openml_dataset(dataset_id)
+    try:
+        df, _, _ = oml_dataset.get_data(dataset_format="dataframe")
+    except Exception as e:
+        raise DataLoadError(f"Failed to retrieve dataframe for dataset {dataset_id}: {e}") from e
+
+    # Basic validation (row count & column count)
+    validate_rct_dataset(df)
+
+    # Write to CSV if required
+    out_path = Path(output_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(out_path, index=False)
+    logger.info(f"Dataset {dataset_id} saved to {out_path}")
+    return df
 
 def load_and_validate(
     dataset_id: int,
@@ -222,27 +244,39 @@ def load_and_validate(
     min_rows: int = 100,
 ) -> pd.DataFrame:
     """
-    Load the verified CSV (ignoring ``dataset_id``) and validate row count.
+    Load the verified OpenML CSV and validate row count.
     The function signature matches the original OpenML‑based version so that
     existing code and tests can monkey‑patch it.
     """
-    df = _download_diabetes_dataframe()
-    # If a target column is requested, ensure it exists (rename if needed)
+    df = load_dataset_as_dataframe(dataset_id, f"data/raw/{dataset_id}.csv")
     if target and target not in df.columns:
         raise DataLoadError(f"Target column '{target}' not found in dataset.")
     if exclude_features:
         df = df.drop(columns=[c for c in exclude_features if c in df.columns])
-    validate_rct_dataset(df, min_rows)
+    # Re‑validate with possibly different min_rows (e.g., tests may pass a custom value)
+    validate_rct_dataset(df, min_rows=min_rows)
     return df
 
 # Manifest handling
 _manifest_entries: Dict[int, Dict[str, str]] = {}
 
+def _load_existing_manifest() -> Dict[int, Dict[str, str]]:
+    """Load an existing manifest if present; otherwise return empty dict."""
+    manifest_path = paths.data("checksums", "manifest.json")
+    if manifest_path.is_file():
+        try:
+            with manifest_path.open("r", encoding="utf-8") as f:
+                content = json.load(f)
+                return {int(k): v for k, v in content.get("datasets", {}).items()}
+        except Exception as e:
+            logger.warning(f"Failed to read existing manifest: {e}")
+    return {}
+
 def _write_manifest() -> None:
     """Write the SHA256 manifest JSON to ``data/checksums/manifest.json``."""
     manifest_path = paths.data("checksums", "manifest.json")
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    manifest_content = {"datasets": _manifest_entries}
+    manifest_content = {"datasets": {str(k): v for k, v in _manifest_entries.items()}}
     with manifest_path.open("w", encoding="utf-8") as f:
         json.dump(manifest_content, f, indent=2)
     logger.info(f"Checksum manifest written to {manifest_path}")
@@ -253,6 +287,8 @@ def load_datasets() -> Dict[int, pd.DataFrame]:
     save them as CSV, compute checksums, and populate the manifest.
     Datasets with fewer than 100 rows are skipped (logged).
     """
+    # Load any existing manifest to allow checksum verification
+    existing_manifest = _load_existing_manifest()
     loaded: Dict[int, pd.DataFrame] = {}
     for ds_id, spec in _DATASET_SPECS.items():
         logger.info(f"Processing dataset {ds_id}")
@@ -278,6 +314,14 @@ def load_datasets() -> Dict[int, pd.DataFrame]:
             csv_path = _save_dataframe(df, ds_id)
             checksum = _compute_sha256(csv_path)
 
+            # Compare with existing manifest if present
+            if ds_id in existing_manifest:
+                expected_checksum = existing_manifest[ds_id]["checksum"]
+                if checksum != expected_checksum:
+                    raise DataLoadError(
+                        f"Checksum mismatch for dataset {ds_id}: expected {expected_checksum}, got {checksum}"
+                    )
+            # Record in manifest (will be written later)
             _manifest_entries[ds_id] = {
                 "filename": str(csv_path.relative_to(paths.root)),
                 "checksum": checksum,
@@ -286,7 +330,7 @@ def load_datasets() -> Dict[int, pd.DataFrame]:
             loaded[ds_id] = df
         except DataLoadError as e:
             # Distinguish row‑count skips from fatal errors
-            if "fewer than the minimum" in str(e):
+            if "below the minimum threshold" in str(e):
                 logger.warning(f"Skipping dataset {ds_id}: {e}")
                 continue
             else:

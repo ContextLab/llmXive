@@ -1,17 +1,3 @@
-# Project dependencies
-# Core scientific stack (already available in the environment)
-numpy
-pandas
-scipy
-scikit-learn
-statsmodels
-matplotlib
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional third‑party packages required by the project
-openml
+# Existing dependencies are provided by the platform.
+# Add OpenML for dataset retrieval.
+openml==0.14.2

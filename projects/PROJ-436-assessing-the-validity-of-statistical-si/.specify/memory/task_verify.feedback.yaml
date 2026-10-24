@@ -1,11 +1,11 @@
 T001:
-  reason: "The `code/data_loader.py` only downloads a single Plotly diabetes CSV and\
-    \ synthesises the three required datasets, rather than fetching three real RCT/observational\
-    \ datasets (one genuine RCT, two observational) as mandated. It never compares\
-    \ computed checksums to the pre\u2011existing `data/checksums/manifest.json` nor\
-    \ records a \u201CFLAGGED\u201D entry for a dataset with\u202FN\u202F<\u202F100;\
-    \ it simply skips such datasets without updating the manifest. Consequently the\
-    \ implementation and the provided tests do not meet the task\u2019s core requirements."
+  reason: "The repository contains `code/data_loader.py` and a manifest, but there\
+    \ is no evidence that the three CSV files (`data/raw/42803.csv`, etc.) were actually\
+    \ downloaded, nor that the required unit tests (`tests/unit/test_data_loader.py`)\
+    \ have passed. Moreover, the loader uses OpenML instead of the permitted `datasets.load_dataset`\
+    \ (HuggingFace) or direct HTTPS URLs, and the claimed entry point `load_all` does\
+    \ not exist. These gaps mean the task\u2019s download\u2011and\u2011verify requirement\
+    \ is not genuinely satisfied."
   task: fad2fc2c4737475c736a0342c397dcb1c15470c245d9d3f705dc3d270d18f247
 T002:
   reason: "The core implementation `code/preparation.py` exists and provides the required\
