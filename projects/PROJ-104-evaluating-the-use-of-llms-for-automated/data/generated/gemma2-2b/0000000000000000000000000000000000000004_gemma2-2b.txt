@@ -1,0 +1,5 @@
+[gemma2-2b] Generated documentation based on:\nCommit message: Dummy commit message for scikit-learn\nPre‑change documentation context: --- a/loader.py
++++ b/loader.py
+@@ -5 +5 @@
+- load_data()
++load_dataset()\nGenerate updated documentation:

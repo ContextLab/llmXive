@@ -11,70 +11,67 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/power_analysis.py: self-declared fabricated metric — “…les, 3))      # Construct the simulated scores matrix:     #   mean + sqrt(…”
 - code/statistical_analysis.py: self-declared fabricated metric — “…rics CSV is empty – producing placeholder results.")     # Metrics we care abo…”
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/raw/commit_pairs.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/power_analysis.py: self-declared fabricated metric — “…les, 3))      # Construct the simulated scores matrix:     #   mean + sqrt(…”; code/statistical_analysis.py: self-declared fabricated metric — “…rics CSV is empty – producing placeholder results.")     # Metrics we care abo…”; every produced artifact is gitignored (data/raw/commit_pairs.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python -m pytest tests/contract/ (rc=1); python -m pytest tests/unit/ (rc=1); 1 declared deliverable(s) absent: data/generated/generation_success_rates.csv
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/power_analysis.py: self-declared fabricated metric — “…les, 3))      # Construct the simulated scores matrix:     #   mean + sqrt(…”; code/statistical_analysis.py: self-declared fabricated metric — “…rics CSV is empty – producing placeholder results.")     # Metrics we care abo…”; 2 command(s) failed: python -m pytest tests/contract/ (rc=1); python -m pytest tests/unit/ (rc=2); 1 declared deliverable(s) absent: data/processed/fidelity_metrics.csv
 
 ## Failing / missing run-book commands
 
 - python -m pytest tests/contract/ -> rc=1
-sts/contract/test_intent_schema.py F                                   [ 28%]
-tests/contract/test_schemas.py ....                                      [ 85%]
-tests/contract/test_statistical_analysis_schema.py .                     [100%]
+a
+    with SCHEMA_PATH.open("r", encoding="utf-8") as f:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-=================================== FAILURES ===================================
-___________________________ test_intent_json_schema ____________________________
+self = PosixPath('specs/001-evaluating-the-use-of-llms-for-automated/contracts/intententity.schema.yaml')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
 
-tmp_path = PosixPath('/tmp/pytest-of-runner/pytest-4/test_intent_json_schema0')
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+E       FileNotFoundError: [Errno 2] No such file or directory: 'specs/001-evaluating-the-use-of-llms-for-automated/contracts/intententity.schema.yaml'
 
-    def test_intent_json_schema(tmp_path):
-        # Locate a sample intent JSON file (generated by the pipeline).
-        intent_dir = paths.data("intermediate", "intent_entities")
-        json_files = list(intent_dir.glob("*.json"))
->       assert json_files, "No intent JSON files found – run the extraction first."
-E       AssertionError: No intent JSON files found – run the extraction first.
-E       assert []
-
-tests/contract/test_intent_schema.py:27: AssertionError
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/pathlib.py:1044: FileNotFoundError
 =========================== short test summary info ============================
-FAILED tests/contract/test_intent_schema.py::test_intent_json_schema - Assert...
-========================= 1 failed, 6 passed in 0.18s ==========================
+FAILED tests/contract/test_intent_schema.py::test_intent_json_schema - FileNo...
+========================= 1 failed, 6 passed in 0.36s ==========================
 
 
-- python -m pytest tests/unit/ -> rc=1
- Request: HEAD https://huggingface.co/facebook/bart-large-mnli/resolve/d7645e127eaf1aefc7862fd59a17a5aa8558b8ce/special_tokens_map.json "HTTP/1.1 404 Not Found"
-INFO     httpx2:_client.py:1084 HTTP Request: HEAD https://huggingface.co/facebook/bart-large-mnli/resolve/d7645e127eaf1aefc7862fd59a17a5aa8558b8ce/chat_template.jinja "HTTP/1.1 404 Not Found"
-INFO     httpx2:_client.py:1084 HTTP Request: HEAD https://huggingface.co/facebook/bart-large-mnli/resolve/d7645e127eaf1aefc7862fd59a17a5aa8558b8ce/processor_config.json "HTTP/1.1 404 Not Found"
-INFO     httpx2:_client.py:1084 HTTP Request: HEAD https://huggingface.co/facebook/bart-large-mnli/resolve/d7645e127eaf1aefc7862fd59a17a5aa8558b8ce/video_preprocessor_config.json "HTTP/1.1 404 Not Found"
-INFO     httpx2:_client.py:1084 HTTP Request: HEAD https://huggingface.co/facebook/bart-large-mnli/resolve/d7645e127eaf1aefc7862fd59a17a5aa8558b8ce/preprocessor_config.json "HTTP/1.1 404 Not Found"
+- python -m pytest tests/unit/ -> rc=2
+-evaluating-the-use-of-llms-for-automated/tests/unit/test_entity_extraction_intent.py _
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/tests/unit/test_entity_extraction_intent.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_entity_extraction_intent.py:21: in <module>
+    from code.entity_extraction_intent import run_extraction, DEFAULT_OUTPUT_DIR, DEFAULT_CSV, DEFAULT_REPOS_ROOT
+E   ImportError: cannot import name 'DEFAULT_OUTPUT_DIR' from 'code.entity_extraction_intent' (/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/entity_extraction_intent.py)
 =========================== short test summary info ============================
-ERROR tests/unit/test_entity_extraction_intent.py::test_precision_recall_against_gold
-============================== 1 error in 15.84s ===============================
+ERROR tests/unit/test_entity_extraction_intent.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.60s ===============================
 
 
 
 ## Declared deliverables still missing
 
-- data/generated/generation_success_rates.csv
+- data/processed/fidelity_metrics.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/generated/generation_success_rates.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/generation.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/generated/generation_success_rates.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/fidelity_metrics.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/fidelity_scoring.py` — NOT invoked by the run-book
+    - `code/statistical_analysis.py` — NOT invoked by the run-book
+    - `code/visualization.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/fidelity_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
 A script in this project created `.github/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.

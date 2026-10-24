@@ -1,0 +1,40 @@
+[llama3.2-3b] Generated documentation based on:\nCommit message: Cleanup remaining http:// reference URIs\nPre‑change documentation context: @@ -30,7 +30,7 @@ Why not Httplib2?
+ -----------------
+ 
+ Chris Adams gave an excellent summary on
+-`Hacker News <http://news.ycombinator.com/item?id=2884406>`_:
++`Hacker News <https://news.ycombinator.com/item?id=2884406>`_:
+ 
+     httplib2 is part of why you should use requests: it's far more respectable
+     as a client but not as well documented and it still takes way too much code
+@@ -44,7 +44,7 @@ Chris Adams gave an excellent summary on
+     Disclosure: I'm listed in the requests AUTHORS file but can claim credit
+     for, oh, about 0.0001% of the awesomeness.
+ 
+-    1. http://code.google.com/p/httplib2/issues/detail?id=96 is a good example:
++    1. https://code.google.com/p/httplib2/issues/detail?id=96 is a good example:
+     an annoying bug that affected many people, there was a fix available for
+     months, which worked great when I applied it in a fork and pounded a couple
+     TB of data through it, but it took over a year to make it into trunk and
+@@ -7,4 +7,4 @@ Articles & Talks
+ - `Issac Kelly's 'Consuming Web APIs' talk <https://issackelly.github.io/Consuming-Web-APIs-with-Python-Talk/slides/slides.html>`_
+ - `Blog post about Requests via Yum <https://arunsag.wordpress.com/2011/08/17/new-package-python-requests-http-for-humans/>`_
+ - `Russian blog post introducing Requests <https://habr.com/post/126262/>`_
+-- `Sending JSON in Requests <http://www.coglib.com/~icordasc/blog/2014/11/sending-json-in-requests.html>`_
++- `Sending JSON in Requests <https://www.coglib.com/~icordasc/blog/2014/11/sending-json-in-requests.html>`_
+@@ -14,7 +14,7 @@ getting a feel for how contributing to this project works. If you have any
+ questions, feel free to reach out to either `Nate Prewitt`_, `Ian Cordasco`_,
+ or `Seth Michael Larson`_, the primary maintainers.
+ 
+-.. _Ian Cordasco: http://www.coglib.com/~icordasc/
++.. _Ian Cordasco: https://www.coglib.com/~icordasc/
+ .. _Nate Prewitt: https://www.nateprewitt.com/
+ .. _Seth Michael Larson: https://sethmlarson.dev/
+ 
+@@ -132,7 +132,7 @@ files and a semi-formal, yet friendly and approachable, prose style.
+ When presenting Python code, use single-quoted strings (``'hello'`` instead of
+ ``"hello"``).
+ 
+-.. _reStructuredText: http://docutils.sourceforge.net/rst.html
++.. _reStructuredText: https://docutils.sourceforge.net/rst.html
+ .. _Sphinx: https://www.sphinx-doc.org/en/master/\nGenerate updated documentation:

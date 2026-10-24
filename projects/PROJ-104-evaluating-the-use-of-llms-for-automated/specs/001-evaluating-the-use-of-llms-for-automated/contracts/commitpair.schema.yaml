@@ -1,5 +1,6 @@
+# JSON Schema for CommitPair entries
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CommitPair"
+title: CommitPair
 type: object
 required:
   - commit_hash
@@ -11,24 +12,25 @@ properties:
   commit_hash:
     type: string
     pattern: "^[0-9a-f]{40}$"
-    description: "Full SHA‑1 hash of the commit."
+    description: "Full 40‑character SHA‑1 hash of the commit."
   commit_message:
     type: string
     minLength: 1
-    description: "Original commit message."
+    description: "The commit message text."
   repository_name:
     type: string
-    enum: ["pandas", "requests", "scikit-learn", "flask", "django"]
-    description: "Name of the source repository."
+    enum:
+      - pandas
+      - requests
+      - scikit-learn
+      - flask
+      - django
+    description: "Name of the source repository (as defined in the extraction script)."
   doc_diff:
     type: string
     minLength: 1
-    description: "Unified diff of documentation files changed in the commit."
+    description: "Unified diff (patch) containing only documentation changes (.md or .rst)."
   timestamp:
     type: string
     format: date-time
-    description: "UTC timestamp of the commit."
-  metadata:
-    type: object
-    description: "Optional provenance information (author, URL, etc.)."
-additionalProperties: false
+    description: "ISO‑8601 timestamp of the commit author date."

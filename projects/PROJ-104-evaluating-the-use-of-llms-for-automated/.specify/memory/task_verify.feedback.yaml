@@ -1,10 +1,12 @@
 T001:
-  reason: "Checked `docs/quickstart.md` (present and contains the required instructions)\
-    \ and `code/run_pipeline.py` (writes a placeholder file but never loads a commit\
-    \ pair nor calls any generation module). The required test suite `tests/test_quickstart.py`\
-    \ is missing, and the recorded pytest run shows both smoke\u2011test and full\u2011\
-    pipeline commands failing. Consequently the quick\u2011start command does not\
-    \ meet the specification nor pass verification."
+  reason: "The quick\u2011start markdown is present and correct, but `code/run_pipeline.py`\
+    \ raises a `NameError: name 'json' is not defined` during the smoke\u2011test\
+    \ (see the test log), causing the command to exit with code\u202F1 and the `pytest\
+    \ tests/test_quickstart.py` suite to fail. The missing `import json` (and the\
+    \ broken `_write_dummy_intent_json` helper) prevents the required intent\u2011\
+    entity JSON file from being written and makes the verification step fail. Fix\
+    \ the import and ensure the smoke\u2011test runs successfully within 30\u202F\
+    s."
   task: 7f3f924cb1e80f425a7fe363f56fcd146eb6dd4bf05f339acb5c536bf9d85ee5
 T002:
   task: cecc03d00aa9eeed68fadbcd623d9e9808aa9b5726f7eb14bedaec2c2c5cf5bc
@@ -33,10 +35,31 @@ T005:
     the task.
   task: ea4f9cbf0ad1b00f0fa5161bb2825756b08fb604ba9308de706fa8c4eade1031
 T006:
+  reason: "The repository contains `code/generation.py` and the expected output files,\
+    \ but the script deliberately skips real 4\u2011bit CPU model loading, does not\
+    \ enforce the required decoding parameters, lacks any retry\u2011logic or `log.txt`\
+    \ files, provides no timing or timeout evidence, and `data/metadata.yaml` does\
+    \ not record SHA\u2011256 checksums for the generated documentation files. Consequently\
+    \ the core requirements of loading the three LLMs on CPU and measuring true success\u2011\
+    rate performance are not met."
   task: d776c6e9c8edb24658df159e391c1247e34020611b612b94cd1ffd811ec1a4bd
 T007:
+  reason: "The `code/entity_extraction_surface.py` script is present and implements\
+    \ the three required regexes and best\u2011effort `git grep -w` verification,\
+    \ but the required output directory `data/intermediate/surface_entities/` is missing\
+    \ and no evidence (e.g., generated JSON files or a test report showing \u2265\
+    95\u202F% verification on a 50\u2011sample audit) is provided. Without these artifacts\
+    \ the task\u2019s verification requirement is not satisfied."
   task: 05c252a997a817f4653107d31a67860b2bf68d03d4ac0d76431cfbcfb9681aac
 T008:
+  reason: "Checked `code/entity_extraction_intent.py` (implementation present) and\
+    \ the output directory `data/intermediate/intent_entities/` (contains only a single\
+    \ dummy JSON file). No evidence shows that the zero\u2011shot classifier was actually\
+    \ run, calibrated on the T004 gold annotations, or that precision\u202F\u2265\u202F\
+    0.75 and recall\u202F\u2265\u202F0.70 on the required 50\u2011sample gold set.\
+    \ Metrics or test results are missing, and the provided `results/statistics.json`\
+    \ contains only null placeholders. The task therefore lacks the required execution\
+    \ and evaluation artifacts."
   task: 3f1ea1fcbe47d199b34511144c21c984cf03f4b1a501e21922e0bfa0eb21b3ba
 T009:
   task: aa3d382e985f5bcd8d229c6fc5549fb3dfc5f2c0c41a4fb8c413fc015027d555
@@ -51,11 +74,12 @@ T012:
     to write only project-owned outputs.'
   task: 9b900171c3c3d6ede9e74b140eaba6329ad95f41e7687ca7322a352daa2a46f3
 T013:
-  reason: "Checked `code/data_hygiene.py`, `code/seeds.py`, `docs/quickstart.md`,\
-    \ and the test suite. While the checksum function and seed definition exist, the\
-    \ hygiene module does not enforce the \u201Craw files are never overwritten\u201D\
-    \ policy, and there is no evidence that every stochastic script imports `SEED`\
-    \ (the extended hygiene test fails because `code/data_hygiene.py` does not import\
-    \ the seed). These missing enforcement and import checks mean the task\u2019s\
-    \ requirements are not fully satisfied."
+  reason: "Checked `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`,\
+    \ `docs/quickstart.md`, and `tests/test_hygiene_and_seeds.py`. The checksum utility\
+    \ writes a mapping but lacks provenance notes and does not enforce or verify that\
+    \ raw files are never overwritten or that their original checksums persist across\
+    \ runs. The seed file is present and documented, but there is no test confirming\
+    \ that every stochastic script imports `SEED` nor that re\u2011running T002 yields\
+    \ identical power estimates. These missing checks mean the task\u2019s full requirements\
+    \ are not satisfied."
   task: bf8e80e7fe8781f06e510ac045ae6f6d5214bfff3e6067021e4a481b89dd24a0

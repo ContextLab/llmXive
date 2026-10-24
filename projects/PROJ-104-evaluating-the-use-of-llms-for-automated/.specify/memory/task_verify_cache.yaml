@@ -1,12 +1,24 @@
+T001:
+  c: false
+  h: aca2dbf975796052126fb1e490593ec8d0bb4300fb7b44af29987a97c979d73f
+  r: "The quick\u2011start markdown is present and correct, but `code/run_pipeline.py`\
+    \ raises a `NameError: name 'json' is not defined` during the smoke\u2011test\
+    \ (see the test log), causing the command to exit with code\u202F1 and the `pytest\
+    \ tests/test_quickstart.py` suite to fail. The missing `import json` (and the\
+    \ broken `_write_dummy_intent_json` helper) prevents the required intent\u2011\
+    entity JSON file from being written and makes the verification step fail. Fix\
+    \ the import and ensure the smoke\u2011test runs successfully within 30\u202F\
+    s."
+  sig: f2c3e9b12253fe8165f4387412323202185ca63a3b70fae363a79ba78597fe98
 T002:
   c: true
-  h: 749b0e0c4f3f47e62db15dd22347fdff22b7be84f95d6d8586638a95b6b6352e
-  r: "Checked `code/power_analysis.py` \u2013 it seeds with `code.seeds.SEED`, simulates\
-    \ three paired model scores, estimates power for n\u202F=\u202F500 with Cohen\u2019\
-    s\u202Ff\u202F=\u202F0.25, and writes a markdown report. Verified `results/power_report.md`\
-    \ contains a numeric power estimate (1.0000) and an `exploratory: false` flag,\
-    \ matching the computed power."
-  sig: 164d0bc3788ac9dd780d99511f93148b8171d01ccc7a50b34d78d76c84b857aa
+  h: 0de49338aea0cfd9acebbe7002f8052720fea440d1594609a418e745c2d1c3c0
+  r: "Checked `code/power_analysis.py` (implements seeded Monte\u2011Carlo simulation,\
+    \ estimates power for n\u202F=\u202F500, f\u202F=\u202F0.25, writes the markdown)\
+    \ and the generated `results/power_report.md` (contains a numeric power estimate\
+    \ and the correct `exploratory` flag). All required artifacts exist and match\
+    \ the task specifications."
+  sig: f97f06ee8a7ecba63b8a47a137053d0a8048a16fa275d6aedda65e1981abaa3b
 T003:
   c: false
   h: e64d50de7a494f14f5979762865d9de764ac141cb4596ec44315035665e80df1
@@ -36,14 +48,36 @@ T005:
     performed. Adding the pytest file (and ensuring it passes) is needed to complete
     the task.
   sig: b20007ba827735d3c81a15d604c313fe5fce23cab687bfdf2959818ff35a5338
-T013:
+T006:
   c: false
-  h: af951a0a7b93e747fa580c20add0a8833ca51d3ed664633316a8e3f534874a75
-  r: "Checked `code/data_hygiene.py`, `code/seeds.py`, `docs/quickstart.md`, and the\
-    \ test suite. While the checksum function and seed definition exist, the hygiene\
-    \ module does not enforce the \u201Craw files are never overwritten\u201D policy,\
-    \ and there is no evidence that every stochastic script imports `SEED` (the extended\
-    \ hygiene test fails because `code/data_hygiene.py` does not import the seed).\
-    \ These missing enforcement and import checks mean the task\u2019s requirements\
-    \ are not fully satisfied."
-  sig: 5f30f289731fbc826d7b825147960e50409566eb78f77dc49bd9e492cb6045eb
+  h: 70dd70e29daa6152206cc7158d755cca4118c047263af669197e9e02223dfcf0
+  r: "The repository contains `code/generation.py` and the expected output files,\
+    \ but the script deliberately skips real 4\u2011bit CPU model loading, does not\
+    \ enforce the required decoding parameters, lacks any retry\u2011logic or `log.txt`\
+    \ files, provides no timing or timeout evidence, and `data/metadata.yaml` does\
+    \ not record SHA\u2011256 checksums for the generated documentation files. Consequently\
+    \ the core requirements of loading the three LLMs on CPU and measuring true success\u2011\
+    rate performance are not met."
+  sig: 6f6e0da8ca05012ab6a1c5add3f8d27e5284b7d673a512ca20dcbdfd12d96738
+T007:
+  c: false
+  h: 540e417cdfb2d2bc16c5bfea522b78edfb5cfd23c2851939ff39e99d013a2d9f
+  r: "The `code/entity_extraction_surface.py` script is present and implements the\
+    \ three required regexes and best\u2011effort `git grep -w` verification, but\
+    \ the required output directory `data/intermediate/surface_entities/` is missing\
+    \ and no evidence (e.g., generated JSON files or a test report showing \u2265\
+    95\u202F% verification on a 50\u2011sample audit) is provided. Without these artifacts\
+    \ the task\u2019s verification requirement is not satisfied."
+  sig: 0affd7536e64e0148749ea2fc69322c3156393da9928b7a10a52fe4516d2acd0
+T008:
+  c: false
+  h: 027a9fe3e8bf0035f6af77458d7a2c716b709e8667e5074e7d13700004067afa
+  r: "Checked `code/entity_extraction_intent.py` (implementation present) and the\
+    \ output directory `data/intermediate/intent_entities/` (contains only a single\
+    \ dummy JSON file). No evidence shows that the zero\u2011shot classifier was actually\
+    \ run, calibrated on the T004 gold annotations, or that precision\u202F\u2265\u202F\
+    0.75 and recall\u202F\u2265\u202F0.70 on the required 50\u2011sample gold set.\
+    \ Metrics or test results are missing, and the provided `results/statistics.json`\
+    \ contains only null placeholders. The task therefore lacks the required execution\
+    \ and evaluation artifacts."
+  sig: a3a0c45d093417add23581b8c8d477db0151e49a88c52045728174043ad60fab

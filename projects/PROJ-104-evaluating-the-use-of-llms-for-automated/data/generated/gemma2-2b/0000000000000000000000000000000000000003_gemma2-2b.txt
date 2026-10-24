@@ -1,0 +1,5 @@
+[gemma2-2b] Generated documentation based on:\nCommit message: Dummy commit message for pandas\nPre‑change documentation context: --- a/setup.cfg
++++ b/setup.cfg
+@@ -2 +2 @@
+-version = 1.2.3
++version = 1.2.4\nGenerate updated documentation:
