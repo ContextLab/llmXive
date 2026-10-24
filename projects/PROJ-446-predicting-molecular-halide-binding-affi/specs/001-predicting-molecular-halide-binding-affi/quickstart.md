@@ -7,7 +7,7 @@
 
 ## Installation
 ```bash
-# Clone the repository (or navigate to the project directory)
+# Navigate to the project directory
 cd projects/PROJ-446-predicting-molecular-halide-binding-affi
 
 # Create a virtual environment
@@ -25,21 +25,21 @@ Each step depends on the previous one. All scripts write to `data/processed/`. A
 ```bash
 python code/01_data_ingestion.py
 ```
-*Creates* `data/processed/halide_binding_data.csv` and `data/processed/independent_eval.csv`.  
+Creates `data/processed/halide_binding_data.csv` and `data/processed/independent_eval_logp.csv`.  
 If real NIST/PubChem data are insufficient, the script automatically falls back to simulated data (FR‑011) and also creates the independent evaluation set. In Simulated mode each host carries a single halide measurement.
 
 ### Step 2: Feature Engineering
 ```bash
 python code/02_feature_engineering.py
 ```
-Adds RDKit descriptors, ECFP‑like fingerprints, and standardized columns to the CSV.  
-The unit test `tests/test_feature_engineering.py` (located in the top‑level `tests/` directory) imports the module via `sys.path.append('code')` and verifies that all required descriptor columns are present and correctly typed.
+Adds **one‑hot encoded halide_identity** columns (four binary columns) together with RDKit descriptors, ECFP‑like fingerprints, and standardized columns to the CSV.  
+The unit test `tests/test_feature_engineering.py` (top‑level `tests/` directory) imports the module via `sys.path.append('code')` and verifies that all required descriptor columns are present and correctly typed.
 
 ### Step 3: Model Training
 ```bash
 python code/03_model_training.py
 ```
-Trains Random Forest and Gradient Boosting models with host‑molecule `RepeatedGroupKFold`.  
+Trains Random Forest and Gradient Boosting models with host‑molecule `RepeatedGroupKFold` cross‑validation.  
 Outputs `data/processed/model_runs.json`.
 
 ### Step 4: Model Output Schema Validation
@@ -72,14 +72,20 @@ Also creates a machine‑readable `output_summary.json` that conforms to `contra
 ```bash
 python code/07_independent_evaluation.py
 ```
-Runs **after** statistical reporting. Loads `independent_eval.csv`, makes predictions with the trained models, and **appends** an R²/RMSE section for this **feature‑independent** target set to the existing `report.md` (it does not regenerate the report).
+Runs **after** statistical reporting. Loads `independent_eval_logp.csv`, makes predictions with the trained models, and **appends** an R²/RMSE section for this **feature‑independent** target set to the existing `report.md` (it does not regenerate the report).
 
-### Step 9: Citation Verification
+### Step 9: Runtime & Resource Logging
+```bash
+python -c "import json, pathlib; print(json.load(open('data/processed/training_log.json')).get('wall_time_seconds'))"
+```
+The `training_log.json` file records wall‑clock training time and peak RAM usage, satisfying SC‑003.
+
+### Step 10: Citation Verification
 The Reference‑Validator Agent automatically checks all URLs listed in `research.md`. No manual command is required; the CI pipeline runs this step after the statistical reporting stage.
 
 ## Verification Checklist
 1. `data/processed/halide_binding_data.csv` exists and validates against `contracts/dataset.schema.yaml`.  
-2. `data/processed/independent_eval.csv` exists and validates against `contracts/dataset.schema.yaml`.  
+2. `data/processed/independent_eval_logp.csv` exists and validates against `contracts/dataset.schema.yaml`.  
 3. `data/processed/model_runs.json` validates against `contracts/model_output.schema.yaml`.  
 4. `data/processed/feature_analysis.json` contains `feature_name`, `cv`, and `is_stable`.  
 5. `data/processed/figures/` contains at least two PNGs (`pdp_*.png`).  
@@ -90,9 +96,14 @@ The Reference‑Validator Agent automatically checks all URLs listed in `researc
    - Partial dependence plots.  
    - Associational disclaimer.  
    - Appended independent‑evaluation metrics (feature‑independent target).  
-7. `data/processed/output_summary.json` conforms to `contracts/output.schema.yaml`.
+7. `data/processed/output_summary.json` conforms to `contracts/output.schema.yaml`.  
+8. `data/processed/training_log.json` records wall‑clock runtime and peak RAM (SC‑003).  
+9. **SSoT**: `data/processed/results_master.json` aggregates all key results; every figure and table in the report references a key in this master JSON file (principle VII).
 
 ## Troubleshooting
 - **MemoryError**: Reduce the number of sampled SMILES (edit `MAX_HOSTS` in `01_data_ingestion.py`).  
 - **No data found**: Expected when the scrape fails; the script logs a warning and proceeds with simulated data (exit code 0).  
 - **RDKit import errors**: Install via `conda` (`conda install -c rdkit rdkit`) or use the `rdkit-pypi` wheel.  
+
+---
+

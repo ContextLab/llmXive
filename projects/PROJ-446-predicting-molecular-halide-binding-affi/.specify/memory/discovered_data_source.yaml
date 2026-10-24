@@ -1,17 +1,17 @@
 status: none
-intent: halide binding constants NIST Chemistry WebBook PubChem dataset python package
-  dataset
+intent: download halide binding constants dataset NIST Chemistry WebBook PubChem python
+  package dataset
 required_fields:
-- host_smiles
-- host_inchi
-- halide
-- binding_constant_logK
-- binding_constant_deltaG
+- host_SMILES
+- host_InChI
+- halide_identity
+- binding_constant_logK_or_deltaG
 - solvent
-- source_database
-- source_id
 - measurement_temperature
-- measurement_units
-cache_key: 654410701853ce88646bbad47cd216e67d0b972ca1f3e0a69d8b34fc9c7f7d3b
-searched_at: '2026-10-24T19:09:51.650389+00:00'
+- source_reference_ID
+- source_database_name
+- measurement_method
+- record_status
+cache_key: 7b5bd6dec27edfa11d762b1fbaa254a8e330ba8ed344176688b8a83d464db1ab
+searched_at: '2026-10-24T19:37:57.330762+00:00'
 retry_count: 1
