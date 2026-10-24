@@ -11,6 +11,8 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…""Create a deterministic synthetic dataset.      Parameters     ---…”
 - code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Execute the full synthetic data pipeline.      The funct…”
 - code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…---------------     # 2. Generate synthetic dataset     # ----------…”
+- data/raw/NationalSecurityAgency_ghidra/NationalSecurityAgency-ghidra-1640030/Ghidra/Framework/FileSystem/data/serialFilterREADME.md: synthetic/fake INPUT data not authorized by the spec — “…ymous class, or compiler‑generated synthetic class:  ```     ghidra.m…”
+- data/raw/iluwatar_java-design-patterns/iluwatar-java-design-patterns-4cabb20/partial-response/README.md: synthetic/fake INPUT data not authorized by the spec — “…(String id) {         // Dummy data for demonstration purpos…”
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
@@ -28,26 +30,9 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…""Create a deterministic synthetic dataset.      Parameters     ---…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Execute the full synthetic data pipeline.      The funct…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…---------------     # 2. Generate synthetic dataset     # ----------…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/data/label_bugs.py; 6 command(s) failed: python code/data/download_gh.py (rc=1); python code/data/extract_metrics.py (rc=2); python code/data/preprocess.py (rc=2); 1 declared deliverable(s) absent: data/model/thresholds.csv
+**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…""Create a deterministic synthetic dataset.      Parameters     ---…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…"""     Execute the full synthetic data pipeline.      The funct…”; code/data/pipeline.py: synthetic/fake INPUT data not authorized by the spec — “…---------------     # 2. Generate synthetic dataset     # ----------…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/data/label_bugs.py; 5 command(s) failed: python code/data/extract_metrics.py (rc=2); python code/data/preprocess.py (rc=2); python code/modeling/train.py (rc=2); 1 declared deliverable(s) absent: data/model/thresholds.csv
 
 ## Failing / missing run-book commands
-
-- python code/data/download_gh.py -> rc=1
-leapis.com/gh-projects/manifests/java-projects.json
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/data/download_gh.py", line 308, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/data/download_gh.py", line 304, in main
-    run_download_pipeline(output_dir=output_path, project_count=args.project_count)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/data/download_gh.py", line 219, in run_download_pipeline
-    manifest = fetch_manifest()
-               ^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/data/download_gh.py", line 83, in fetch_manifest
-    response.raise_for_status()
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://storage.googleapis.com/gh-projects/manifests/java-projects.json
 
 - python code/data/extract_metrics.py -> rc=2
 
@@ -94,7 +79,7 @@ ERROR tests/contract/test_dataset_schema.py::test_dataset_schema
 ERROR tests/contract/test_evaluation_metrics.py::test_evaluation_metrics
 ERROR tests/contract/test_fdr.py::test_fdr_threshold
 ERROR tests/contract/test_model_output_schema.py::test_model_output_schema
-========================= 6 failed, 5 errors in 0.50s ==========================
+========================= 6 failed, 5 errors in 0.47s ==========================
 
 
 

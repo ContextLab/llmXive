@@ -17,14 +17,14 @@ Tasks are grouped by research phase; each task is a single unchecked checkbox th
   - Remove every placeholder marker (`{{claim:…}}`, `[UNRESOLVED‑CLAIM: …]`).  
   - **Verification**: The file contains no placeholder text and its table of fields matches the spec line‑for‑line.
 
-- [ ] T002 [US1] **Implement real data acquisition** in `code/data/download_gh.py`:   <!-- FAILED-IN-EXECUTION: code/data/download_gh.py exit=1 -->
+- [ ] T002 [US1] **Implement real data acquisition** in `code/data/download_gh.py`:
   - Download the **GHTorrent Java dataset** (verified AWS mirror URL) as a compressed archive.  
   - Verify the SHA‑256 checksum recorded in `data/raw/ghtorrent_checksum.txt`.  
   - Extract Java source files (`*.java`) from the archive into `data/raw/<project_id>/`.  
   - Abort with an exception if download or checksum verification fails (no synthetic fallback).  
   - **Verification**: `data/raw/` contains ≥ 10 distinct Java project directories; `ghtorrent_checksum.txt` matches the downloaded archive.
 
-- [ ] T003 [US1] **Implement function‑level bug‑fix labeling** in `code/data/label_bug_fixes.py`:  
+- [ ] T003 [US1] **Implement function‑level bug‑fix labeling** in `code/data/label_bug_fixes.py`:   <!-- FAILED-IN-EXECUTION: code/data/label_bug_fixes.py exit=1 -->
   - For each repository, parse `git log --name-only` and regex‑match bug‑fix commit messages (`fix(es|ed)?|bug|close(s|d)? #\d+|resolve(s|d)? #\d+`).  
   - Map changed lines to functions (using start/end line numbers from the extracted metrics) and emit rows with `function_id`, `project_id`, `file_path`, `function_name`, `start_line`, `end_line`, `bug_label=1`.  
   - Emit `bug_label=0` rows for a random sample of untouched functions (fixed random seed).  

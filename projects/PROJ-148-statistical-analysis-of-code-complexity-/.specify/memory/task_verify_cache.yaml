@@ -1,8 +1,19 @@
 T001:
   c: true
-  h: 21fc3d74e84b3a7744f1841c4e3a1b0df1b6dd55fb7b942ec279cb58ee87625c
+  h: e8eafc1374d79953e97ffdf5da10a22084fc822cfdb122afd03d148d9f8cfa50
   r: "Checked `specs/001-statistical-analysis-of-code-complexity/data-model.md` against\
     \ Section\u202F4 of `specs/001-statistical-analysis-of-code-complexity/spec.md`;\
-    \ the table lists exactly the required columns in the correct order and contains\
-    \ no placeholder markers."
-  sig: 7d555a1b698dda123a626de23982e0951e5383f3bcebe0e12b90c35099f5fc67
+    \ the table lists exactly the required columns in the correct order, with matching\
+    \ types, and contains no `{{claim:\u2026}}` or `[UNRESOLVED\u2011CLAIM: \u2026\
+    ]` placeholders."
+  sig: 4c81c55f3d02a7aa53179dda240691dc04845fed08cca10cc3f801441ada80b9
+T002:
+  c: false
+  h: aaba2be9ecc6d3d12988851d64672677d7b16027163515e09608ed495c724a45
+  r: "The provided `code/data/download_gh.py` falls back to a GitHub search instead\
+    \ of downloading the GHTorrent Java dataset from the required AWS mirror, skips\
+    \ checksum verification for fallback archives, extracts whole archives (not just\
+    \ `*.java` files), and the run log shows only 9 successful project directories\
+    \ (one download failed), violating the \u2265\u202F10 projects requirement. The\
+    \ script also does not abort on checksum failures as mandated."
+  sig: 991b96093f945a075d84c6a89eb3030a733b44e401943f061bf4d804d7d21a3e

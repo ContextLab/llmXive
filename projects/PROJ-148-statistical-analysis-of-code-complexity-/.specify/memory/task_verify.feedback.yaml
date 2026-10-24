@@ -1,10 +1,16 @@
 T001:
   task: 243049479a0f67c65757398117c25bb8dbd09c7d79314ec5d1126dae92226318
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/data/download_gh.py
-    exit=1'
+  reason: "The provided `code/data/download_gh.py` falls back to a GitHub search instead\
+    \ of downloading the GHTorrent Java dataset from the required AWS mirror, skips\
+    \ checksum verification for fallback archives, extracts whole archives (not just\
+    \ `*.java` files), and the run log shows only 9 successful project directories\
+    \ (one download failed), violating the \u2265\u202F10 projects requirement. The\
+    \ script also does not abort on checksum failures as mandated."
   task: 1837918ac53390b63a732775c61613a4d44a627ceaa372f51445b9e4d5377eeb
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/data/label_bug_fixes.py
+    exit=1'
   task: 89bae9ff2216e27fff1a7002a57310acbdf716f0798654a2a05117b4fe4e81b4
 T004:
   task: b6b49630d41f725e2c49dbf574d973e25faf9380117bf3337729bfef5a501fc4

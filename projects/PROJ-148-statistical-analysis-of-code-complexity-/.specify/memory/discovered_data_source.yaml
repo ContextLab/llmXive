@@ -1,6 +1,6 @@
 status: none
-intent: download GHTorrent Java projects and GitHub Archive dataset python package
-  dataset
+intent: download GHTorrent Java projects dataset and GitHub Archive Java commits python
+  package dataset
 required_fields:
 - project_id
 - repository_name
@@ -9,11 +9,11 @@ required_fields:
 - start_line
 - end_line
 - cyclomatic_complexity
-- halstead_metrics
+- halstead_complexity
 - maintainability_index
 - commit_hash
 - commit_message
 - commit_timestamp
-cache_key: deee8b0afe480520471a8a9d65a11a9250f38e183342d564f86df22592a474a0
-searched_at: '2026-10-24T04:28:31.431051+00:00'
+cache_key: 534cba819eb2ab063b6037c185311592a84c48d7705149cd0b1c1017e7e2c7d6
+searched_at: '2026-10-24T04:34:01.636257+00:00'
 retry_count: 1
