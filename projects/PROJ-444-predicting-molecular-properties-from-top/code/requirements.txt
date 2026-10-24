@@ -1,22 +1,4 @@
-# Core dependencies (already provided by the platform)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependencies required for this project
-datasets
-rdkit-pypi
+rdkit
 gudhi
 deepchem
-networkx
-tqdm
-scikit-fingerprints
+datasets

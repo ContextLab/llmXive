@@ -16,7 +16,7 @@ Tasks are ordered to respect data flow; later tasks depend on the outputs of ear
   - Write `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml` containing the required properties `molecule_id` (string), `smiles` (string), and `logP` (number).  
   - **Verification**: `python -c "import jsonschema, yaml, pathlib; schema=yaml.safe_load(pathlib.Path('specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml').read_text()); jsonschema.Draft7Validator.check_schema(schema)"` exits 0.
 
-- [ ] **T001a** [US1] Download the **MoleculeNet Lipophilicity** dataset (the canonical dataset required by FR‑001). <!-- FAILED-IN-EXECUTION: code/01_download_lipophilicity.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_download_lipophilicity.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_download_lipophilicity.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_download_lipophilicity.py exit=1 -->
+- [ ] **T001a** [US1] Download the **MoleculeNet Lipophilicity** dataset (the canonical dataset required by FR‑001). <!-- FAILED-IN-EXECUTION: code/01_download_lipophilicity.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_download_lipophilicity.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_download_lipophilicity.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_download_lipophilicity.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_download_lipophilicity.py exit=1 -->
   - Use `deepchem.molnet.load_molnet_dataset('Lipophilicity')` or fetch from the official URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/lipophilicity.csv`.  
   - Save the CSV as `data/raw/lipophilicity.csv`.  
   - Compute its SHA‑256 checksum and append a line `lipophilicity.csv <checksum>` to `data/checksums.txt`.  

@@ -2,32 +2,21 @@
 Download the MoleculeNet Lipophilicity dataset (raw SMILES + logP) and
 register its SHA‑256 checksum.
 
-This script implements task **T001a**. It uses the HuggingFace
-`datasets` library with the verified dataset
-``scikit-fingerprints/MoleculeNet_Lipophilicity`` (split ``train``) to
-obtain a CSV containing two columns:
-
-  * ``smiles`` – the raw SMILES string for each molecule
-  * ``logP``   – the experimental LogP value
-
-The resulting file is written to ``data/raw/lipophilicity.csv``.
-A SHA‑256 checksum of the file is (idempotently) added to
-``data/checksums.txt`` in the standard ``<hash>  <relative_path>`` format.
-
-The script is safe to re‑run: it will not duplicate checksum entries and
-will overwrite the CSV only if the download succeeds.
+This script implements task **T001a**. It fetches the dataset from the
+official MoleculeNet S3 URL to ensure the canonical version is obtained,
+saves it to ``data/raw/lipophilicity.csv``, and updates the checksum
+manifest ``data/checksums.txt``.
 """
 
 import argparse
 import hashlib
-import json
 import logging
 import os
 import sys
 from pathlib import Path
 
+import requests
 import pandas as pd
-import datasets
 
 # ----------------------------------------------------------------------
 # Helper utilities
@@ -97,26 +86,35 @@ def setup_logger(log_file: str | None = None) -> logging.Logger:
 # ----------------------------------------------------------------------
 def download_lipophilicity(csv_path: Path, logger: logging.Logger) -> None:
     """
-    Download the Lipophilicity dataset using the HuggingFace ``datasets``
-    library, write it to *csv_path*, and return.
+    Download the Lipophilicity dataset from the official S3 URL,
+    ensure it contains the required columns, and write it to *csv_path*.
     """
-    logger.info("Loading Lipophilicity dataset via HuggingFace datasets…")
+    url = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/lipophilicity.csv"
+    logger.info(f"Downloading Lipophilicity dataset from {url}...")
+    
     try:
-        ds = datasets.load_dataset(
-            "scikit-fingerprints/MoleculeNet_Lipophilicity", split="train"
-        )
+        response = requests.get(url, timeout=60)
+        response.raise_for_status()
     except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
+        logger.error(f"Failed to download dataset: {e}")
         raise
 
-    # The dataset contains columns ``smiles`` and ``label`` (the logP value)
-    if "smiles" not in ds.column_names or "label" not in ds.column_names:
-        logger.error(
-            "Unexpected dataset schema. Expected columns 'smiles' and 'label'."
-        )
+    # Load into pandas to ensure we have the correct canonical columns (smiles, logP)
+    # The S3 file typically has 'smiles' and 'logP'
+    from io import StringIO
+    df = pd.read_csv(StringIO(response.text))
+    
+    if "smiles" not in df.columns:
+        logger.error("Downloaded CSV missing 'smiles' column.")
         raise ValueError("Dataset missing required columns")
+    
+    # The S3 file may use 'logP' or 'label'. Ensure it is 'logP' for the schema.
+    if "logP" not in df.columns and "label" in df.columns:
+        df = df.rename(columns={"label": "logP"})
+    elif "logP" not in df.columns:
+        logger.error("Downloaded CSV missing 'logP' or 'label' column.")
+        raise ValueError("Dataset missing target column")
 
-    df = pd.DataFrame({"smiles": ds["smiles"], "logP": ds["label"]})
     logger.info(f"Total records downloaded: {len(df)}")
 
     csv_path.parent.mkdir(parents=True, exist_ok=True)
@@ -169,7 +167,7 @@ def main() -> None:
     csv_path = Path(args.output_dir) / "lipophilicity.csv"
     checksum_path = Path(args.checksum_file)
 
-    # 1. Download (or re‑download) the dataset
+    # 1. Download the dataset
     download_lipophilicity(csv_path, logger)
 
     # 2. Compute and record checksum
