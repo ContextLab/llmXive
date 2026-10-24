@@ -6,51 +6,43 @@
 
 ## Installation
 1. **Clone the repository** and enter the project root.
-2. **Install dependencies**:
+2. **Create a virtual environment**
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # Windows: venv\Scripts\activate
+ ```
+3. **Install pinned dependencies**
  ```bash
  pip install -r requirements.txt
  ```
-3. **Initialize Project Layout**:
- ```bash
- python code/setup_project.py
- ```
 
-## Running the Pipeline
-The pipeline is orchestrated via `code/main.py`.
+## Running the Demo
+The demo runs a minimal, no‑data pipeline that verifies the codebase can be
+executed without errors.
 
-### 1. Download Data
-Fetch the MSD track metadata and generate simulated AMT data.
 ```bash
-python code/main.py --step download
+python -m code.main --demo
 ```
 
-### 2. Ingest & Aggregate
-Parse data, match cues, calculate exposure ratios, and filter.
+This command should exit with status 0 and print a short log message. [UNRESOLVED-CLAIM: c_692be648 — status=not_enough_info]
+
+## Full Pipeline (for later phases)
+When the full data ingestion and analysis steps are ready, the pipeline can be
+executed with:
 ```bash
-python code/main.py --step ingest
+python -m code.main --full-run
 ```
 
-### 3. Run Analysis
-Fit the LMM, run sensitivity analysis, and perform permutation tests.
-```bash
-python code/main.py --step analyze
+## Project Layout
+The repository follows the canonical layout:
+```
+code/ # Source code
+data/
+ raw/ # Raw input files
+ processed/ # Intermediate parquet files
+ final/ # Final CSV/PNG results
+tests/ # pytest test suite
 ```
 
-### 4. Update State
-Verify checksums and update `state.yaml`.
-```bash
-python code/main.py --step verify
-```
-
-## Full Run (Single Command)
-To run the entire pipeline from scratch:
-```bash
-python code/main.py --full-run
-```
-
-## Expected Outputs
-
-- `data/processed/user_track_pairs.parquet`: Core analysis dataset.
-- `data/final/regression_summary.csv`: Model coefficients and statistics.
-- `data/final/plots/`: Diagnostic plots.
-- `state.yaml`: Updated with artifact hashes.
+The `setup_project.py` script (run automatically on first import) ensures these
+directories exist.

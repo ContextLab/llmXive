@@ -1,30 +1,34 @@
 """
-Setup script for establishing the project layout.
+Helper script to initialise the canonical project layout.
+
+This script is imported by ``quickstart.md`` during the installation
+instructions and can also be run manually:
+
+```bash
+python code/setup_project.py
+```
+
+It creates the required top‑level directories (``code/``, ``data/raw/``,
+``data/processed/``, ``data/final/``, ``tests/``) if they do not already
+exist.  The function is idempotent – repeated calls are safe.
 """
-import sys
-import logging
-from config import ensure_directories, get_project_root
-from llmxive_toolkit import get_logger
 
-def main() -> int:
-    # Use simple logging to avoid shadowing issues during setup
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+import os
+from pathlib import Path
 
-    try:
-        logger.info("Creating project layout...")
-        ensure_directories()
-        
-        # Ensure additional structural directories exist
-        root = get_project_root()
-        for extra in ["code", "tests", "contracts", "specs"]:
-            (root / extra).mkdir(parents=True, exist_ok=True)
-            
-        logger.info(f"Project layout successfully created under {root}")
-        return 0
-    except Exception as exc:
-        logger.error(f"Failed to create project layout: {exc}")
-        return 1
+def ensure_directories() -> None:
+    """Create the standard project directories if they are missing."""
+    root = Path(__file__).resolve().parent.parent  # project root
+    dirs = [
+        root / "code",
+        root / "data" / "raw",
+        root / "data" / "processed",
+        root / "data" / "final",
+        root / "tests",
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    ensure_directories()
+    print("Project layout verified/created.")

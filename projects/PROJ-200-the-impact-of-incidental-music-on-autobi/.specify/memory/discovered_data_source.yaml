@@ -1,12 +1,11 @@
 status: none
-intent: download Last.fm user listening dataset with MusicBrainz track release year
-  metadata python package dataset
+intent: LFM-1b user demographics music listening dataset python package dataset
 required_fields:
 - user_id
 - birth_year
 - track_id
 - track_release_year
-- listen_timestamp
-cache_key: 6106b63b1d5def1463fdbaab35d48a1c167ad357e227247bc6fc187dfe793e9c
-searched_at: '2026-10-24T15:24:41.060882+00:00'
+- listen_count
+cache_key: 91df6e390657ea9643dcb27bacbabbdf7cc3b40b596ef6f6eab033f4c059d733
+searched_at: '2026-10-24T15:41:42.959466+00:00'
 retry_count: 1

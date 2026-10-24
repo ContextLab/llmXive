@@ -1,27 +1,43 @@
 T000:
-  task: 883cb8df1cee439963b64f56312618c65d6a3099a360e0b0ab1ea7050c8c09c3
+  reason: "The repository does not contain a `state.yaml` file (it is listed as MISSING),\
+    \ and the `state_manager` implementation creates a default state with top\u2011\
+    level keys `metadata` and `files`, not the required `artifact_hashes`, `updated_at`,\
+    \ and `config`. Consequently the task\u2019s requirement to initialise `state.yaml`\
+    \ with those specific keys is not met."
+  task: 667ad150128be2bd543adfe2b1e10139349bcaec8db0f33f55963949472f8525
 T001:
-  task: 24689101c69f744d0aa7d905eedde7015e19b8e55b8561ad31dafce823f03673
+  reason: "The `quickstart.md` does contain the required `python -m code.main --demo`\
+    \ command, but `requirements.txt` does not pin all dependencies (only `python-levenshtein`\
+    \ is version\u2011pinned) and the required test file `tests/unit/test_quickstart.py`\
+    \ is missing, so the CI checks cannot be satisfied."
+  task: c6d23c0e3b96240b9e0ba39926bb704ab4b9a58e488506e4ccebf23ad30b5762
 T002:
-  task: 9ffee1b6fb4836eb6687f4aebf3537be944cde5dd98e58c4c8ddacf56c5ee631
+  reason: "The two schema files (`contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`)\
+    \ are present and contain plausible JSON\u2011Schema definitions, but there is\
+    \ no evidence that `jsonschema` validation was actually run against the generated\
+    \ parquet/CSV files nor that all such files passed validation. Provide validation\
+    \ logs or test results confirming the schemas successfully validate the produced\
+    \ data."
+  task: c3da8e4dd9572ee7c420f289241f4e54dd94180a25e8b54425db80f8735b54f6
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
-  task: d1b5ceea866482ff6891e1a4c319300274aab55982666b2f9cfdfb3b704a22be
-T004:
-  reason: 'Requested task execution failed; rerun successfully: code/data_ingestion.py
+  reason: 'Requested task execution failed; rerun successfully: code/simulate_demo.py
     exit=1'
-  task: e5dc0956977d656a85761bf94d650070a2fb6b612fa62076a265007ac95cc040
+  task: 659a8a53fab612b18af5d64a530aa8ec0a2157d55c9452299c46af9d21c09258
+T004:
+  task: 2b8b41eb3095942d7e2f2d9420471e102146a6c51be9c8d5d7c0085a31325ee0
 T005:
-  task: 0b9bd27a80132010243c863e293118c6fe579c7dc90de70a31970f1c26c581e5
+  task: 2ba50175a7ae0a61d266ffac9141fb5be17fd4f0d969286a26f83fb67afac5b4
 T006:
-  task: 39d227782cd1e62405bef4159ad682245e5c92cca3777b8a0075433d86b55fe4
+  task: acec28520d913eb226d970a9b8599dd0ebbf56fd263cfbc13b3e55f644f3c877
 T007:
-  task: 2c30f9c0715d3d3a7e07ae8245ce58e4f84a566d7852329c99b54b389cd66dde
+  task: 8ce1f6892a54932baa4c88c95054aa3695e69167f5337c8f5bafbbfd0088c24e
 T008:
-  task: 86162ae74a22076a223b537f1e1adb3933f3f9293ec56f16e32f11d2537241de
+  task: 6f6831ee7b564b8430f1714364a2a72af3bc578d21ce64e7541495157933bae9
 T009:
-  task: 7fa961e99cb81ca35730060ed972c2f5c74eddee89951bad870948b920fb726e
+  task: 82c03e251fcf484dad52914e923f6004d10bdad26e75437022b1ad065005cc1a
 T010:
-  task: 141d27e1641e336187655c9a19c6496c585d486d5075e3bbca6179615b16be28
+  task: 97ef543e7ac844526eff16eeb04cdfa6c8faa3bcdc9803c915ee3887e1b0589d
 T011:
-  task: 8b3ada15d20e7c282db9bf60b03b2ebaa5834fc1112f8cfcd9922d03b0fb4764
+  task: 099c1914b0c61f35a1604350178069b8a2d62b59afdbeb7337bc3bc7c6005e79
+T014:
+  task: 83af31683800137d53c1cb2d5b1c02d3e4398e220a65807772e70e370ebd1f98

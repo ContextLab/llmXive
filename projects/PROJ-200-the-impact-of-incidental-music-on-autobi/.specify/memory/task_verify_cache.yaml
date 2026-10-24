@@ -1,32 +1,27 @@
 T000:
-  c: true
-  h: 3704b2e0f80c5e2b1bef630a8db0aa0d810f5fa7e96d522b61b65947c7e1683f
-  r: The `state.yaml` exists (806 bytes) with the required top-level keys `artifact_hashes`
-    (empty mapping), `updated_at` (ISO timestamp), and `config` (populated with project
-    paths and study parameters), and the execution log shows `code/init_state.py`
-    ran successfully (exit 0) creating the file.
-  sig: f06bab5fe1c4b8af8002efb8f125cecfa8dfd5b4e94359375a8b4215d8f2708c
+  c: false
+  h: 9d154d6f119db49a48dd25e0862781e5d32eca4eebacaf383d0a4f4f82320b6d
+  r: "The repository does not contain a `state.yaml` file (it is listed as MISSING),\
+    \ and the `state_manager` implementation creates a default state with top\u2011\
+    level keys `metadata` and `files`, not the required `artifact_hashes`, `updated_at`,\
+    \ and `config`. Consequently the task\u2019s requirement to initialise `state.yaml`\
+    \ with those specific keys is not met."
+  sig: 3c62bf41a326d93855653b0711f07f6a7409c551277a182b2b35718e3f51da4f
 T001:
-  c: true
-  h: e295f99329ab6f0074bd6392e40095086c22c4caa94034e0ae5b06d0bd36284c
-  r: 'All required artifacts exist and match the task: `code/`, `data/raw/`, `data/processed/`,
-    `data/final/`, `tests/` directories are present; `requirements.txt` includes statsmodels,
-    pyarrow, and python-levenshtein; `code/config.py` defines `LEVENSHTEIN_THRESHOLD
-    = 4`, `MATCH_RATE_THRESHOLD = 0.8`, and `RANDOM_SEED = 42`; and `quickstart.md`
-    documents the execution commands (`python code/main.py --step ...` / `--full-run`).
-    The failing pytest log is an environment issue (broken pyarrow/pandas in the runner
-    cache) unrelated to this layout/config task, and `setup_project.py` ran successfully
-    (exit '
-  sig: ac8d0891de8edf1967a86439d2709a9160a5fcb475c8427d5ea482ac13832343
+  c: false
+  h: 1faadebd87fdc53ee6e975f19ff869a373f7e03abaf13f8bec49ffe34e7dad4d
+  r: "The `quickstart.md` does contain the required `python -m code.main --demo` command,\
+    \ but `requirements.txt` does not pin all dependencies (only `python-levenshtein`\
+    \ is version\u2011pinned) and the required test file `tests/unit/test_quickstart.py`\
+    \ is missing, so the CI checks cannot be satisfied."
+  sig: 4fb951d211e13324ea1bd4a7e914280c880ee681fefd4382286d881d3881b83a
 T002:
-  c: true
-  h: 5ce37f545a9336adc6f2daa37162b365cc7d38cfea3a22da88ff8d9de4e5258f
-  r: "Both `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` exist\
-    \ with substantive, spec-aligned content: the dataset schema defines Track, CohortListen,\
-    \ MemoryCue, and a User-Track-Pair-level AggregatedMetric (user_id, track_id,\
-    \ mean_vividness, mean_valence, count_cues, adolescent_exposure_ratio bounded\
-    \ 0\u20131), and the output schema defines RegressionResults (term, estimate,\
-    \ std_error, t_value, p_value, vif), SensitivityAnalysis (levenshtein_threshold,\
-    \ match_rate, coefficient/p-value), and PermutationResults (observed statistic,\
-    \ null distribution stats, p_value, iterations), matchin"
-  sig: d700cec72a8f3d2197729b3c55a7fedb55f63de2b646d9d669918c5b6103b122
+  c: false
+  h: ee2522c8e62455c1ae09bf3930f08110f7a65b79bac69a45b35f95e3db3be803
+  r: "The two schema files (`contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`)\
+    \ are present and contain plausible JSON\u2011Schema definitions, but there is\
+    \ no evidence that `jsonschema` validation was actually run against the generated\
+    \ parquet/CSV files nor that all such files passed validation. Provide validation\
+    \ logs or test results confirming the schemas successfully validate the produced\
+    \ data."
+  sig: 013930a9d1254bbe0be7fc959ba7923865f273df87d3f784d29b347c54e4b581
