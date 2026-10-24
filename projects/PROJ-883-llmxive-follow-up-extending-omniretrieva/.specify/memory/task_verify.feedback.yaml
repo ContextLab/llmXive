@@ -1,76 +1,34 @@
 T001:
-  reason: 'The skeleton artifacts (directories, requirements.txt, .ruff.toml, pyproject.toml,
-    quickstart.md) all exist and are non-empty, and `python -m code.main` (no args)
-    exited 0 per the historical log. However, the task''s explicit verification criteria
-    are unevidenced: there is no execution record of `ruff check code/` passing, and
-    no record of `python -m code.main --help` exiting 0 (only the no-argument run
-    was logged), while `code/main.py` itself was not inspected to confirm it supports
-    `--help`. The next implementer should run and capture both verification commands
-    (and confirm `main.py` defines'
-  task: 5473e379875539bab4a72321bd1fa5a75dafe7efdc28ae6ade9ef5ab17f77dc7
+  task: 9f9c0b4560206240b1373cb3d5fdfe2a7f4ea54abc610a9a571c5df47b8aca9b
 T002:
-  reason: The collector explicitly reports all four required schemas (`query_instance.schema.yaml`,
-    `execution_log.schema.yaml`, `execution_metric.schema.yaml`, `statistics-result.schema.yaml`)
-    as MISSING, and the actual pytest run of `tests/unit/test_contracts.py` failed
-    with "Schema file query_instance.schema.yaml missing" (1 failed, 1 passed). Additionally,
-    the cleanup script `code/cleanup_contracts.py` deleted deprecated schemas from
-    the wrong directory (`specs/001-llmxive-follow-up-extending-omniretrieva/contracts/`
-    instead of `specs/001-structural-mismatch-cost/contracts/`), so the required four
-    c
-  task: 1f4520c0906c3b44759779d8941cfd7a5ff08023d9fd359a2b78224b00f9a6c6
+  task: aaee1af098b65fff093d7bf964cbfe6cf2c8add7984ce40c85c991c5447d6a3c
 T003:
-  reason: "The verification test run failed (exit 1): all three tests failed \u2014\
-    \ MS MARCO and Spider fetches raise `DataFetchError` because `datasets` cannot\
-    \ import (pyarrow requires NumPy 2.0+, environment has 1.26.4), and the DBpedia\
-    \ TTL download returns 404 for `https://raw.githubusercontent.com/RDFWebTools/rdf-samples/master/dbpedia-sample.ttl`,\
-    \ so no real row was fetched from any source. The task explicitly requires a real\
-    \ fetch to succeed and a unit test fetching \u22651 real row per source; the implementer\
-    \ must fix the environment/dependency issue (e.g. pin compatible numpy/pyarrow\
-    \ or handle the import)"
-  task: 5939f3dea9e491326c3dc1d03ab907c13a4d5b227199c8d5382eb86a5cf0fa13
+  task: c16828ba900b0640760cb90ad5b27d17811b5c9a7e6770e890fae2dcd346e59f
 T004:
-  reason: "The required output `data/processed/generation_log.json` (\u2265500 queries,\
-    \ \u2265100 high-complexity graph queries) is MISSING, and the schema file `query_instance.schema.yaml`\
-    \ is also absent \u2014 the test run confirms `test_schema_validation` FAILED\
-    \ with FileNotFoundError on that schema. Additionally, the generator does not\
-    \ use real T003 structural metadata (MS MARCO ids, Spider schemas, graph edges)\
-    \ \u2014 it fabricates placeholder nodes/edges and generic operation names \u2014\
-    \ and the reference engine is called with all steps at cost 1.0, so the \"greedy\"\
-    \ plan is trivially the input order rather than a real comp"
-  task: cb188582fa561e7e7a596959033ce2e965fc87b835fd7bed02d1725180b0fca0
+  task: cb288a327de842f63ecff2b0a4665ddad2b6051e844e0bd2ff8e37ff3213e8b5
 T005:
-  reason: "The implementation at `code/generators/reference_engine.py` is a real,\
-    \ non-stub module, but it does not satisfy the task's requirements: it merely\
-    \ sorts steps by an `estimated_cost` field supplied in the query dict, with no\
-    \ pre-computed source-statistics cost table independent of the router's cost model,\
-    \ and no evidence it consumes T004's `logical_plan.steps` structure (it expects\
-    \ its own `steps`/`step_id`/`estimated_cost` schema). Additionally, the required\
-    \ verification artifact \u2014 a unit test with a known 3-step plan asserting\
-    \ the greedy selection order (e.g., `tests/unit/test_reference_engin"
-  task: cdf09b5819385582b7bf0128235d136d5bd411298632f09ee4691b9c8c8cb9d1
+  task: 9c4ff8af6d98b8cd1f5f7033a8f85fa7aeb13fc773a7cd451eda9f36e7759d08
 T006:
-  reason: 'Requested task execution failed; rerun successfully: code/router/sut_router.py
-    exit=2'
-  task: 146f6144605a06e1537d489ca8d804b6632eaab04d4b040866a7a5e17c043f84
+  task: 2d4012c1fa6d4babe11e70fbdef6792f78c7155442644115a3d019375f1ca3f9
 T007:
-  task: 7766e6b07951e7e9386d5781f1d51cd2a0d9febb81eea4c725ba93b88b828d67
+  task: 3ace9e1f5c7d3a98727b7797d6417e0f73629d89a219c90f45bcd4f98530757d
 T008:
-  task: c32be59a5f185bce3823f5289b4809cf46c33ed6ad50fcdc9cf8353c482f540b
+  task: d23c1de4f52e0994b5cc69665dab547af52b3c83fa02c4352596fecef834e700
 T009:
-  task: 4fd833efdaf82ac84ead45cfaaf36f8e91a81ec4dc587e76b43faaacbe2535cc
+  task: de45cd46c6703475d3f37b44f11b85709d059bb8a6aee6919427f0bbe67695d5
 T010:
-  task: b7bcf53458ee771dbedc46819ae11512408eec0ac678868014292dbbba6e3691
+  task: c9d3d866dd09df37418c4a84d6edf8bdce1ddbbdcc19c0381a7ad5720855fe87
 T011:
-  task: bdc740275d46d7983060c8348dfacd608f37562f92399d28db204a335d4e3f38
+  task: 8929fcd7542b224a9077e715a03cd944aeda81cb888a21eb56839bfce36649f6
 T012:
-  task: 69dda3ed3e5c0ace8b7afa54c0aafc74cbdc32e100758a2a99e76c4a63a36d57
+  task: 0191acb3aa3d296480f27a16a8d97cf30eef45fdc78f7492022a7f2e1d85fc95
 T013:
-  task: e29c3bd19e9e149a10e17576f17d8b71926a3db7d67750e389db20669837d24b
+  task: 78920f0a9bce3d8d38eb21ffbb0619ce0a90a132271581e9863c92009d44b173
 T014:
-  task: 6b6c7a394e993f28343b75b4c483ee5d42dfe6020b83070ec8ed7c48fbb2898c
+  task: 4893c841c9a75b8f429b05453d3bd4bf3ee5bb9bfbc5de7c21a3395daafb06f4
 T015:
-  task: 8cf76466ea086aebc8484b30114122768b091fef260fd2d97997aa3dc53be70b
+  task: a8a40d0ccf9233a29fa41ee91241f30898dae0b9c1b76959b9a925440496dca7
 T016:
-  task: 7ed3bcb16f8607f206495107da4dbe8327d960bd86054e8debc8c5e760c32487
+  task: 0709d4ae62d00463569dccd81cffbca488d154af21fccf1dc55badfef60bf8ba
 T017:
-  task: 87980cfc4f2b6bcca7c891326ba1df9c6609257591296aaf9ebfa40cb4ea61f8
+  task: 070fe1f5a7d20c42f07e2d3b6bf3413b7cfe955df79f3adb5a499d0c2a81e8ec

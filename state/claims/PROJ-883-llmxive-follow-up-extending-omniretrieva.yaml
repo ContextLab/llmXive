@@ -65,3 +65,20 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-14T07:12:49Z'
+- artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/quickstart.md
+  attempts: 1
+  canonical: integration test stores outputs under artifacts directory
+  claim_id: c_56996e05
+  context: The integration test `tests/integration/test_skeleton.py` runs them and
+    stores the outputs under `artifacts/`.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The integration test `tests/integration/test_skeleton.py` runs them and
+    stores the outputs under `artifacts/`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T03:26:46Z'

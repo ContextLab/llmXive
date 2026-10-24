@@ -1,12 +1,12 @@
 status: none
-intent: LDBC SNB interactive query workload download with plan depth information python
-  package dataset
+intent: download MS MARCO and DBpedia parquet files via ir_datasets python package
+  dataset
 required_fields:
 - query_id
 - query_text
 - plan_depth
 - source_type
 - latency_ms
-cache_key: 564a26d76c0ff18d827dd243929840a71d52760530429a0461688826a16adc5e
-searched_at: '2026-10-22T04:30:42.414282+00:00'
+cache_key: c48e61596cc64c9e545ce04debd7227539ca1ffb82523ca62ffc8121e3ca42f5
+searched_at: '2026-10-24T03:28:08.519963+00:00'
 retry_count: 1

@@ -30,7 +30,7 @@ ERROR tests/unit/test_config.py
 ERROR tests/unit/test_query_gen.py
 ERROR tests/unit/test_synthetic_query.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 0.32s ===============================
+============================== 5 errors in 0.57s ===============================
 
 
 

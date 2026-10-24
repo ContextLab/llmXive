@@ -4,7 +4,6 @@ Generates queries with integer plan depths and attaches a deterministic
 ground‑truth plan using :class:`ReferenceEngine`.  The public API matches
 the expectations of the unit tests in ``tests/unit/test_synthetic_query.py``.
 """
-
 from __future__ import annotations
 
 import json
@@ -23,13 +22,7 @@ MAX_DEPTH = 4
 
 
 class SyntheticQueryGenerator:
-    """Generate synthetic queries with integer depth.
-
-    The original implementation required an explicit ``levels`` argument,
-    but the test suite expects a simpler constructor:
-
-    ``SyntheticQueryGenerator(seed=42)`` → defaults to levels ``[1, 2, 3, 4]``.
-    """
+    """Generate synthetic queries with integer depth."""
 
     def __init__(
         self,
@@ -46,11 +39,11 @@ class SyntheticQueryGenerator:
             Desired plan depths.  If ``None`` the default ``[1, 2, 3, 4]`` is used.
         count_per_level: int
             Number of queries to generate for each depth level when using
-            :meth:`generate`.  This value is ignored by :meth:`generate_queries`
-            which accepts an explicit ``count`` argument.
+            :meth:`generate`.  This value is ignored by
+            :meth:`generate_queries` which accepts an explicit ``count``
+            argument.
         """
         self.seed = seed
-        # Default to the four supported depths if the caller does not specify.
         self.complexity_levels = levels if levels is not None else [1, 2, 3, 4]
         self.count_per_level = count_per_level
         self.rng = random.Random(seed)
@@ -77,17 +70,7 @@ class SyntheticQueryGenerator:
         return level
 
     def _generate_query_structure(self, level: int) -> Dict[str, Any]:
-        """Create a minimal structure describing a synthetic query.
-
-        The structure contains:
-
-        - ``target_depth`` – the (capped) depth.
-        - ``operations`` – a list of operation names.  For depth ``1`` we
-          include ``"filter"``; for the maximum depth we also include
-          ``"recursive_lookup"``.
-        - ``nodes`` and ``edges`` – non‑empty placeholder collections so
-          that schema validation succeeds.
-        """
+        """Create a minimal structure describing a synthetic query."""
         eff = self._effective_level(level)
         ops = ["filter"]
         if eff >= 3:
@@ -107,11 +90,7 @@ class SyntheticQueryGenerator:
     # Public generation API
     # ------------------------------------------------------------------
     def generate(self) -> List[Dict[str, Any]]:
-        """Create queries using the per‑level ``count_per_level`` setting.
-
-        This method mirrors the original implementation and is retained for
-        backward compatibility.  New code should prefer :meth:`generate_queries`.
-        """
+        """Create queries using the per‑level ``count_per_level`` setting."""
         queries: List[Dict[str, Any]] = []
         for level in self.complexity_levels:
             eff_level = self._effective_level(level)
@@ -121,11 +100,7 @@ class SyntheticQueryGenerator:
         return queries
 
     def generate_queries(self, count: int) -> List[Dict[str, Any]]:
-        """Generate *count* queries distributed evenly across the configured levels.
-
-        If ``count`` is not divisible by the number of levels, the remainder
-        is distributed one‑by‑one starting from the lowest level.
-        """
+        """Generate *count* queries distributed evenly across the configured levels."""
         if count <= 0:
             raise ValueError("count must be a positive integer")
 
@@ -147,12 +122,7 @@ class SyntheticQueryGenerator:
         return queries
 
     def _create_query(self, level: int) -> Dict[str, Any]:
-        """Create a single query dictionary for *level*.
-
-        The ``logical_plan.steps`` field now contains a concrete operation
-        sequence derived from the synthetic query structure, satisfying the
-        "hollow‑plan" fix requirement.
-        """
+        """Create a single query dictionary for *level*."""
         eff_level = self._effective_level(level)
         qid = f"q_{eff_level}_{self.rng.randint(0, 1_000_000)}"
 
@@ -160,11 +130,14 @@ class SyntheticQueryGenerator:
         structure = self._generate_query_structure(level)
         logical_steps = structure["operations"]
 
-        # Use the reference engine to obtain a deterministic plan identifier.
-        # The reference engine expects a dict possibly containing ``steps``;
-        # we provide the steps so that a meaningful plan string is produced.
-        reference_plan_str = self.engine.generate_plan(
-            {"query_id": qid, "steps": [{"step_id": s, "estimated_cost": 1.0} for s in logical_steps]}
+        # Build step objects for the reference engine.
+        step_objs = [
+            {"step_id": s, "estimated_cost": 1.0} for s in logical_steps
+        ]
+
+        # Generate a deterministic plan identifier.
+        plan_id = self.engine.generate_plan(
+            {"query_id": qid, "steps": step_objs}
         )
 
         query: Dict[str, Any] = {
@@ -172,12 +145,13 @@ class SyntheticQueryGenerator:
             "source_type": self.rng.choice(["text", "relational", "graph"]),
             "complexity_level": int(eff_level),
             "logical_plan": {"steps": logical_steps},
-            # Ground‑truth plan is stored as an object with a ``steps`` list
-            # to satisfy the JSON‑Schema used in the contracts.
-            "ground_truth_plan": {"steps": logical_steps},
-            # Preserve the raw plan string for any downstream component that
-            # expects the original identifier.
-            "ground_truth_plan_id": reference_plan_str,
+            "ground_truth_plan": {
+                "steps": logical_steps,
+                "plan_id": plan_id,
+                "estimated_depth": int(eff_level),
+            },
+            # Preserve the raw identifier for downstream components.
+            "ground_truth_plan_id": plan_id,
         }
         return query
 
@@ -185,10 +159,7 @@ class SyntheticQueryGenerator:
     # Persistence helpers
     # ------------------------------------------------------------------
     def save_queries(self, filepath: Path | str, count: int = 10) -> None:
-        """Write *count* generated queries to *filepath* as JSON.
-
-        The method creates the parent directory if it does not exist.
-        """
+        """Write *count* generated queries to *filepath* as JSON."""
         path = Path(filepath) if not isinstance(filepath, Path) else filepath
         queries = self.generate_queries(count)
         path.parent.mkdir(parents=True, exist_ok=True)

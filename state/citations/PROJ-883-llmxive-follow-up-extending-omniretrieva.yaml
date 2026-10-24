@@ -52,4 +52,4 @@
   value: https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet
-  verified_at: '2026-10-24T03:25:36.979654Z'
+  verified_at: '2026-10-24T03:26:47.060254Z'
