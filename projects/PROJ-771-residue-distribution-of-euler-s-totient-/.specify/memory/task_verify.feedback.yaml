@@ -16,6 +16,11 @@ T002:
     \ files for the test configuration."
   task: 6ee8c9cee32f6a0f23ff9ca74d3ef4de289619ae973997b084120e65a4852ef2
 T003:
+  reason: Checked `code/benchmark.py`, `scripts/run_dummy.py`, and the generated `results/reports/benchmark_dummy.json`.
+    The JSON file exists with numeric fields, but the required integration test `tests/integration/test_benchmark_dummy.py`
+    is missing, and the benchmark implementation does not actually use `MemoryGuard`
+    to track peak memory (it never calls any guard method). These gaps mean the task
+    is not fully satisfied.
   task: 4a89124ad7415f1773c49c355f03a2554e1e4d39da44fb7d3dc592a665aaa625
 T004:
   task: a6003aa77176355bb4577f89c8758a4e79e600bb9da41df3275e5eb430a4501d
@@ -41,6 +46,11 @@ T006:
 T007:
   task: 999033d7396970010e41d40ea156f029907e1db3ca1bacb3806bc5ad8e205611
 T008:
+  reason: "The integration test file exists, but it writes flag JSONs to `results/reports/\u2026\
+    ` (via `flags.generate_flag_from_result`) while the test checks for them in `results/\u2026\
+    `. This path mismatch means the asserted flag files will not be found, so the\
+    \ test will not pass on CI. The flag\u2011file location needs to be aligned with\
+    \ the test\u2019s expectations."
   task: 14f5b436972880d2683c83140d3f4caf29857dd43da7bec939c98b1e357a05f9
 T009:
   task: b292e8fd0e37f3fb3f5f8c630e032c39ba357ac3fce4f7bc4a22d74577d35fa1

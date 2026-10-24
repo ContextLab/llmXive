@@ -20,13 +20,14 @@ T002:
     \ files for the test configuration."
   sig: 4fe23561163923a4211a8d7345f33edd18300f7789a94186146ce6fb775fb5f7
 T003:
-  c: true
-  h: 22a53004885339fd73aa98d050a98ce097052421f9837be79fa52857e37d818b
-  r: Checked `code/benchmark.py` implements the required context manager, `scripts/run_dummy.py`
-    runs it, and `results/reports/benchmark_dummy.json` exists with numeric `wall_time_sec`
-    and `peak_memory_mb` fields. The integration test file is not required as an artifact
-    for the task.
-  sig: 4ee949274517fc0b4f2feb6def0a8568145443fb00ee76eef7d6b247e1698ea1
+  c: false
+  h: 5efc392bc389ed8949c186a162d321e7fc057b61debef459438c49de0b1bcb86
+  r: Checked `code/benchmark.py`, `scripts/run_dummy.py`, and the generated `results/reports/benchmark_dummy.json`.
+    The JSON file exists with numeric fields, but the required integration test `tests/integration/test_benchmark_dummy.py`
+    is missing, and the benchmark implementation does not actually use `MemoryGuard`
+    to track peak memory (it never calls any guard method). These gaps mean the task
+    is not fully satisfied.
+  sig: 8306c5eb4fab6b3962973d1392657abea7d59ba0834c8c9974919e8e53e02029
 T004:
   c: true
   h: 154a4c8931b8c400d51a973a26e73103b3207dfe9eb4ed12c36312f0d5f73ad0
@@ -59,9 +60,17 @@ T006:
   sig: df16478e220fdb6dc5b1eadf8a924212554fc230469addce00e2e1c4b24e0a41
 T007:
   c: true
-  h: 1313ad26ba0cb1a193a9d8ba68bddeaf11339a8ad9296af8056c8322ec0e7c8b
-  r: Checked `code/flags.py` for correct flag generation logic and required fields,
-    `tests/unit/test_flags.py` for proper unit tests, and the produced `results/reports/flag_3_100.json`
-    and `flag_5_200.json` files which contain the expected boolean values and were
-    verified by the passing pytest run.
-  sig: 357e44b1cc3a11e9bc99ec5d6e4b2258cc4a66167cae4fce245bb3d90fd93207
+  h: 4fd83286c6adc6311911799b8956cde64c4678a05a185390a019e5e15f156852
+  r: Checked `code/flags.py` for correct flag generation logic and `tests/unit/test_flags.py`
+    for proper unit tests; the generated JSON flag files (`results/reports/flag_3_100.json`
+    and `flag_5_200.json`) exist and contain the expected booleans.
+  sig: 2e00f18c0f19b09d3aeeb8a6192c83cb4ac00046b8098b054f7072bde36a5cfc
+T008:
+  c: false
+  h: cd44fa7966df89d7460c70de2ab3d423f459d4a07af71d29445859ddde080f2f
+  r: "The integration test file exists, but it writes flag JSONs to `results/reports/\u2026\
+    ` (via `flags.generate_flag_from_result`) while the test checks for them in `results/\u2026\
+    `. This path mismatch means the asserted flag files will not be found, so the\
+    \ test will not pass on CI. The flag\u2011file location needs to be aligned with\
+    \ the test\u2019s expectations."
+  sig: f05405487f99b09b5f0554adce9780e23682a7a8d40c833118e4b62a622c6acf
