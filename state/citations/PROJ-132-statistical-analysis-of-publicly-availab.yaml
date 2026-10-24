@@ -31,3 +31,14 @@
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q115911873
   verified_at: '2026-10-08T21:34:05.537279Z'
+- artifact_hash: ae615e92b2b9cae77cb177ed679af2c3b9a4ee44458a822cc2b770c3baf5fecb
+  artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: C-squares - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/C-squares
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/C-squares
+  verified_at: '2026-10-24T08:26:14.015957Z'

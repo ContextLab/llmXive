@@ -1,103 +1,106 @@
-# Feature Specification: Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change
+# Feature Specification: Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change  
 
-**Feature Branch**: `001-bird-migration-climate-correlation`  
-**Created**: 2023-10-27  
+**Feature Branch**: `001-statistical-analysis-of-publicly-availab`  
+**Created**: 2026-10-24  
 **Status**: Draft  
-**Input**: User description: "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change"
+**Input**: User description: “Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change”  
 
-## User Scenarios & Testing
+## User Scenarios & Testing *(mandatory)*  
 
-### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1)
-(User Story ID: US-1)
+### User Story 1 – Data Acquisition and Preprocessing Pipeline (Priority: P1)  
 
-The system MUST ingest raw eBird Basic Dataset (EBD) records and NOAA/PRISM climate data, filter them to migratory species and the 2020–2024 period, and aggregate them into a unified, grid-aligned dataset using a regular spatial grid of consistent, sub‑degree resolution (e.g., cells on the order of a few tenths of a degree, **0.5° × 0.5°** as per C‑squares) with computed phenology metrics (first arrival, median arrival, stopover duration) and seasonal climate averages.
+**User story (US‑1)**  
+The system must ingest eBird observations and NOAA/PRISM climate products, filter them to a curated list of migratory species for the years 2020‑2022, and aggregate the data onto a 0.5° × 0.5° grid, computing first‑arrival date, median‑arrival date, and stopover duration for each species‑grid‑year combination.  
 
-**Why this priority**: Without a clean, aligned, and reproducible dataset, no statistical modeling or hypothesis testing can occur. This is the foundational step that enables all subsequent analysis.
+**Why this priority**: A clean, reproducible dataset is the prerequisite for any downstream statistical inference.  
 
-**Independent Test**: The pipeline can be fully tested by running the ingestion and preprocessing scripts on a subset of data (e.g., one species, one region) and verifying that the output CSV contains the expected columns (species, grid_cell, week, phenology_metric, climate_temp, climate_precip) with no missing values in critical fields.
+**Independent Test**: Run the preprocessing scripts on a single species (e.g., *Setophaga petechia*) within a single grid cell and verify that the output CSV contains the columns `species, grid_cell, year, first_arrival, median_arrival, stopover_duration, temp_spring, precip_spring, extreme_idx` with no missing values in these fields.  
 
-**Acceptance Scenarios**:
+**Acceptance Scenarios**  
 
-1. **Given** raw eBird and NOAA files are available in the input directory, **When** the preprocessing script is executed with the 2020–2024 filter, **Then** the output dataset contains a minimum of 208 weeks ([deferred] coverage) of data per grid cell for the specified migratory species, with phenology metrics calculated for at least [deferred]% of species-year combinations.
-2. **Given** a species with sparse observations in a specific grid cell, **When** the aggregation logic runs, **Then** that cell is marked as "insufficient data" rather than generating a false phenology metric, and the cell is excluded from downstream modeling.
+1. **Given** the raw eBird and NOAA files are accessible (either streamed or sampled), **when** the preprocessing pipeline is executed with the 2020‑2022 filter, **then** the resulting dataset contains at least 90 % of the expected species‑year‑grid combinations (i.e., ≤ 10 % marked “insufficient data”) and all phenology metrics are calculated from observed records only.  
+2. **Given** a grid cell that contains fewer than 5 observations for a species in a given year, **when** the aggregation step runs, **then** that cell is flagged as “insufficient data” and excluded from the modeling stage, with a log entry recording the species, grid cell, year, and reason.  
 
----
+---  
 
-### User Story 2 - Phenology-Climate Correlation Modeling (Priority: P2)
-(User Story ID: US-2)
+### User Story 2 – Phenology‑Climate Correlation Modeling (Priority: P2)  
 
-The system MUST fit Generalized Additive Mixed Models (GAMMs) to quantify the association between phenology metrics and climate variables (temperature, precipitation, extreme weather indices), incorporating species-level random slopes and accounting for spatial autocorrelation via Moran’s I diagnostics and a Gaussian Process (GP) random effect with a Matérn covariance function.
+**User story (US‑2)**  
+The system must fit Generalized Additive Mixed Models (GAMMs) that relate each phenology metric to spring temperature, precipitation, and an extreme‑weather index, while accounting for species‑level random intercepts and random slopes for year. The models must be evaluated with permutation‑based empirical p‑values and corrected for multiple testing.  
 
-**Why this priority**: This is the core analytical engine that directly addresses the research question. It transforms the preprocessed data into statistical evidence of climate sensitivity.
+**Why this priority**: This step directly addresses the research question by providing statistically robust evidence of climate‑phenology relationships.  
 
-**Independent Test**: The modeling step can be tested by running the GAMM script on a synthetic dataset with known correlation parameters and verifying that the output includes coefficient estimates, p-values, and model fit statistics (e.g., R², AIC) that match the known parameters within a 5% tolerance.
+**Independent Test**: Fit the GAMM script on a synthetic dataset (generated with known smooth relationships) and confirm that the estimated smooth terms recover the true effect sizes within a 5 % tolerance and that the permutation‑derived p‑values correctly flag the known significant terms.  
 
-**Acceptance Scenarios**:
+**Acceptance Scenarios**  
 
-1. **Given** a preprocessed dataset for a single species, **When** the GAMM is fitted with spring temperature as a smooth fixed effect, **Then** the output includes a p-value and the system flags the result as significant if p < 0.05 after FDR correction, and the model converges within 600 seconds.
-2. **Given** a dataset with high spatial autocorrelation, **When** Moran’s I is computed on the model residuals, **Then** the system flags the model if Moran’s I > 0.15, indicating unmodeled spatial structure, and triggers a re-fit with a Gaussian Process (GP) random effect using a Matérn covariance function.
+1. **Given** a pre‑processed dataset for a single species, **when** the GAMM is fitted with spring temperature as a smooth term, **then** the model converges in ≤ 300 seconds, returns a p‑value < 0.05 after Benjamini–Hochberg FDR correction, and reports the estimated smooth curve.  
+2. **Given** residuals that exhibit spatial autocorrelation (Moran’s I > 0.15), **when** the diagnostics module runs, **then** the system flags the model, refits it with a Gaussian Process random effect using a Matérn covariance, and records the improved Moran’s I in the log.  
 
----
+---  
 
-### User Story 3 - Route Shift Analysis and Uncertainty Quantification (Priority: P3)
-(User Story ID: US-3)
+### User Story 3 – Route‑Shift Analysis and Uncertainty Quantification (Priority: P3)  
 
-The system MUST represent weekly migration centroids as trajectories on a Riemannian manifold, apply manifold-based trajectory statistics to detect spatial route shifts, and generate uncertainty intervals for temporal phenology shifts using bootstrapped confidence intervals.
+**User story (US‑3)**  
+The system must compute weekly migration centroids for each species‑year, represent the centroid trajectories on a Riemannian manifold, and quantify spatial route shifts with 95 % confidence angles. Additionally, the pipeline must produce bootstrapped 95 % confidence intervals for phenology‑shift predictions.  
 
-**Why this priority**: This extends the analysis beyond simple timing to spatial route changes and provides robust uncertainty estimates, addressing the "routes" component of the research question and the need for reliable confidence intervals. The Riemannian approach is essential for detecting non-linear spatial shifts that linear methods miss.
+**Why this priority**: Spatial route changes complement timing analyses and provide a fuller picture of climate impacts on migration.  
 
-**Independent Test**: The route analysis can be tested by running the trajectory module on a synthetic dataset with randomized labels (null hypothesis) and verifying that the permutation test correctly identifies no significant shift (p > 0.05) in the absence of true signal.
+**Independent Test**: Apply the trajectory module to a synthetic set of centroids that contain no true shift; verify that the permutation test yields p > 0.05 and that the reported shift magnitude is ≤ 1 km.  
 
-**Acceptance Scenarios**:
+**Acceptance Scenarios**  
 
-1. **Given** weekly centroid coordinates for a species, **When** the Riemannian trajectory analysis is executed, **Then** the output includes a shift vector (magnitude in km, bearing in degrees, and a 95 % confidence angle) and a p-value derived from a large number of permutation shuffles, with the computation completing in ≤ 1800 seconds.
-2. **Given** a set of model predictions, **When** the bootstrapped confidence intervals are aggregated, **Then** the 95% confidence interval width is [deferred] days for the predicted phenology shift, ensuring adequate precision for ecological interpretation.
+1. **Given** weekly centroid coordinates for a species, **when** the Riemannian trajectory analysis is executed, **then** the output includes a shift vector (magnitude in km, bearing in degrees, 95 % confidence angle in degrees) and a permutation‑derived p‑value, with total runtime ≤ 1800 seconds.  
+2. **Given** model‑based phenology predictions, **when** the bootstrapping routine draws 1000 resamples, **then** the resulting 95 % confidence interval width for the predicted shift is ≤ 3 days.  
 
----
+### Edge Cases  
 
-### Edge Cases
+- **Sparse observations** – When a species has fewer than 5 observations in a grid cell for a given year, the pipeline marks the cell as “insufficient data” and excludes it from modeling.  
+- **Missing climate raster cells** – If a climate raster lacks a value for a particular grid‑week, the system imputes the value using inverse‑distance weighting from neighboring cells within a 1° radius and records the imputation flag in the metadata.  
+- **Model non‑convergence** – If a GAMM fails to converge after 10 optimization attempts, the system logs the failure, skips that species‑year, and continues with the remaining dataset, ensuring the overall pipeline does not abort.  
 
-- What happens when a species has insufficient data in a grid cell to compute a phenology metric? **System handles this by marking the cell as "insufficient data" and excluding it from modeling, with a log entry recording the species, grid cell, and reason.**
-- How does the system handle missing climate data for a specific grid cell and week? **System imputes missing values using spatial interpolation from neighboring cells (within 1° radius) and flags the imputed cells in the output metadata.**
-- What if the GAMM fails to converge for a species due to collinearity? **System logs the failure, skips the species for that model, and proceeds to the next one, ensuring the pipeline does not halt.**
+## Requirements *(mandatory)*  
 
-## Requirements
+### Functional Requirements  
 
-### Functional Requirements
+- **FR-001**: The system MUST acquire eBird observations for North America (2020‑2022) **by streaming** the eBird Basic Dataset (EBD) through the eBird API and applying a species‑level filter, such that the total on‑disk footprint never exceeds **5 GB** at any point.  
+- **FR-002**: The system MUST download NOAA GHCN‑Daily temperature & precipitation files and PRISM extreme‑weather rasters for the same period, **ensuring the combined climate data on‑disk ≤ 2 GB**.  
+- **FR-003**: The system MUST filter eBird records to a curated list of 20 long‑distance migratory species, aggregate observations to weekly counts per 0.5° × 0.5° grid cell, and compute the three phenology metrics (first arrival, median arrival, stopover duration) **using only observed dates** (no synthetic imputation of phenology).  
+- **FR-004**: The system MUST compute seasonal climate averages (mean March‑May temperature, total precipitation, extreme‑weather index) for each grid‑cell‑week.  
+- **FR-005**: The system MUST fit GAMMs with phenology metrics as responses, climate variables as smooth fixed effects, and species‑year random intercepts/slopes; spatial autocorrelation is diagnosed with Moran’s I and, if needed, mitigated with a Gaussian Process random effect (Matérn covariance).  
+- **FR-006**: The system MUST perform 10 000 permutation shuffles for each smooth term, derive empirical p‑values, and apply the Benjamini–Hochberg FDR correction across all species‑climate tests.  
+- **FR-007**: The system MUST represent weekly migration centroids as trajectories on a Riemannian manifold using the `geomstats` library, compute shift vectors (magnitude, bearing, confidence angle), and obtain permutation‑based significance.  
+- **FR-008**: The system MUST generate 95 % confidence intervals for phenology‑shift predictions via bootstrap resampling (≥ 1000 resamples).  
+- **FR-009**: The system MUST **deliver** (a) all preprocessing, modeling, and trajectory scripts; (b) intermediate CSVs; (c) fitted model objects; (d) figures and maps; and (e) a concise HTML report, packaged in a reproducible repository.  
+- **FR-010**: The system MUST ensure that **no fabricated or placeholder values** are used in any reported metric; all numbers must originate from observed eBird or NOAA/PRISM data or from formally defined statistical procedures (e.g., permutations, bootstraps).  
 
-- **FR-001**: System MUST download and cache a **stratified sample** of the eBird Basic Dataset (EBD) for North America (2020–2024) and NOAA/PRISM climate data, ensuring the total raw download size does not exceed **5 GB** and storing all files in a versioned directory structure (See US-1). If the full dataset is required, the system MAY stream records directly from the eBird API without persisting the entire raw file set, staying within the CI runner’s 14 GB disk quota.
-- **FR-002**: System MUST filter eBird records to migratory species using the Cornell Lab of Ornithology list and aggregate observations to weekly counts per **0.5° × 0.5°** grid cell (See US-1).
-- **FR-003**: System MUST compute phenology metrics (first arrival, median arrival, stopover duration) and seasonal climate averages (March–May temperature, precipitation) for each grid cell and species-year combination (See US-1).
-- **FR-004**: System MUST fit Generalized Additive Mixed Models (GAMMs) with phenology metrics as responses, climate variables as smooth fixed effects, and species-year random intercepts/slopes (See US-2).
-- **FR-005**: System MUST perform permutation tests (10,000 shuffles) and apply Benjamini–Hochberg FDR correction to all species‑climate coefficients to control false discovery rate (See US-2).
-- **FR-006**: System MUST represent weekly migration centroids as trajectories on a Riemannian manifold and apply manifold‑based trajectory statistics using the **Geodesic PCA implementation from the `geomstats` Python library**; the output shift vector shall be a three‑component tuple: (magnitude in km, bearing in degrees, 95 % confidence angle in degrees) (See US-3).
-- **FR-007**: System MUST generate 95% confidence intervals for model predictions using bootstrapped resampling of the centroid estimation process to quantify uncertainty (See US-3).
-- **FR-008**: All reported metrics, figures, and tables must be derived from real observed data; no synthetic placeholder values are permitted (See US-1, US-2, US-3).
-- **FR-009**: System MUST deliver the complete codebase (preprocessing scripts, GAMM modeling scripts, trajectory analysis modules), intermediate CSVs, model result files, and visualization figures as part of the final artifact package (See US-1, US-2, US-3).
+### Key Entities  
 
-### Key Entities
+- **MigrationRecord** – bird observation with attributes: `species, latitude, longitude, date, count, checklist_id`.  
+- **PhenologyMetric** – computed per `species, grid_cell, year` with attributes: `first_arrival, median_arrival, stopover_duration`.  
+- **ClimateVariable** – per `grid_cell, week` with attributes: `mean_temperature, total_precipitation, extreme_weather_index`.  
+- **Trajectory** – weekly centroids for a `species, year` with attributes: `weekly_centroids (list of lat/lon)`, `shift_vector`.  
 
-- **MigrationRecord**: Represents a single bird observation with attributes: species, latitude, longitude, date, count, checklist ID.
-- **PhenologyMetric**: Represents a computed metric for a species‑grid cell‑week combination with attributes: species, grid_cell, week, first_arrival_date, median_arrival_date, stopover_duration.
-- **ClimateVariable**: Represents a climate measurement for a grid cell‑week combination with attributes: grid_cell, week, mean_temperature, total_precipitation, extreme_weather_index.
-- **Trajectory**: Represents a sequence of weekly centroids for a species‑year with attributes: species, year, weekly_centroids (list of lat/lon pairs), shift_vector.
+## Success Criteria *(mandatory)*  
 
-## Success Criteria
+### Measurable Outcomes  
 
-### Measurable Outcomes
+- **SC-001**: Statistical power for detecting a minimum standardized effect size of **Cohen’s d ≥ 0.10** is **≥ 0.80** across species (estimated via post‑hoc power analysis).  
+- **SC-002**: The proportion of grid cells flagged “insufficient data” after preprocessing is **≤ 10 %** of total cells.  
+- **SC-003**: GAMM convergence rate (successful fits / total attempted fits) is **≥ 90 %**.  
+- **SC-004**: Width of bootstrapped 95 % confidence intervals for phenology‑shift predictions is **≤ 3 days**.  
+- **SC-005**: Total runtime of the end‑to‑end pipeline on a GitHub Actions free‑tier runner is **≤ 7200 seconds** (2 hours), staying within the CI time limit.  
+- **SC-006**: All generated figures, tables, and CSVs are reproducibly recreated by re‑running the pipeline on the same streamed data without manual intervention.  
 
-- **SC-001**: The statistical power of the phenology‑climate association tests must be **≥ 0.80** for detecting a minimum effect size of **Cohen’s d ≥ 0.10** (or an equivalent standardized metric) and the coefficient‑of‑variation of effect‑size estimates must be **≤ 0.20** across species (See US-2).
-- **SC-002**: The proportion of grid cells with "insufficient data" after preprocessing is measured against the target of **≤ 10 %** of total cells (See US-1).
-- **SC-003**: The convergence rate of GAMMs (successful fits / total attempts) is measured against the target of **≥ 90 %** (See US-2).
-- **SC-004**: The width of 95% confidence intervals from the bootstrapped ensemble is measured against the target of **≤ 3 days** for phenology shift predictions (See US-3).
-- **SC-005**: The total runtime of the analysis pipeline (download → preprocess → model → visualize) must be **≤ 7200 seconds** (2 hours), respecting the CI runner time limit defined in Assumptions (See US-1).
+## Assumptions  
 
-## Assumptions
+- **Data‑use agreement** – Access to the eBird Basic Dataset requires a signed data‑use agreement with the Cornell Lab of Ornithology; the pipeline includes a pre‑run check that the user has accepted the agreement and stored the required token in a protected secret (`EBIRD_TOKEN`).  
+- **Observer effort** – eBird records include effort covariates (checklist duration, number of observers). The modeling step incorporates these covariates as fixed effects to mitigate detection bias.  
+- **Computational environment** – The analysis runs on a GitHub Actions free‑tier runner providing **≤ 2 CPU cores**, **≈ 7 GB RAM**, **≤ 14 GB disk**, and **≤ 6 hours** total job time. All scripts are CPU‑only; no GPU, CUDA, or large‑model inference is required.  
+- **Sampling strategy** – Because the full EBD exceeds the disk quota, the pipeline streams the dataset and applies an on‑the‑fly filter for the 20 target species and the 2020‑2022 window, ensuring the on‑disk data never exceeds the 5 GB limit specified in FR‑001.  
+- **Statistical assumptions** – The Benjamini–Hochberg procedure is sufficient for controlling the false discovery rate given the number of species‑climate tests; permutation counts (10 000) provide stable empirical p‑values.  
+- **Spatial resolution** – Grid cells are defined using the C‑squares system with a cell size of **0.5°** (source: C‑squares, https://en.wikipedia.org/wiki/C-squares).  
 
-- **Assumption about data availability**: The eBird Basic Dataset and NOAA/PRISM climate data for 2020–2024 are publicly accessible **subject to a signed data‑use agreement with Cornell Lab of Ornithology**; the pipeline includes a step to verify agreement compliance before download.
-- **Assumption about computational resources**: The analysis will run on a standard CI runner with **≤ 14 GB** disk space, **≥ 8 CPU cores**, and **≥ 16 GB RAM**, sufficient for the sampled data and streaming approach.
-- **Assumption about statistical validity**: The Benjamini–Hochberg FDR correction is sufficient to control false discovery across all tested species, and the 10,000 permutation shuffles provide stable empirical p‑values.
-- **Assumption about data quality**: eBird citizen‑science data exhibit observer‑effort and detection bias; the pipeline will incorporate effort covariates (e.g., checklist duration, number of observers) as fixed effects to mitigate bias, and will perform sensitivity analyses to assess robustness.
-- **Assumption about methodological scope**: The Riemannian manifold trajectory analysis and bootstrapped uncertainty quantification are computationally feasible within the defined CI runner time limit, with the Matérn covariance function providing an efficient approximation for spatial autocorrelation.
-- **Assumption about CI runner time limit**: The CI environment imposes a hard wall of **7200 seconds (2 hours)** for the entire pipeline execution.
-- **Terminology note**: User Story identifiers are denoted **US‑1**, **US‑2**, **US‑3** and correspond to the User Story headings above.
+---  
+
+*End of Specification*
