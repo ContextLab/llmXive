@@ -12,17 +12,18 @@ For each source the script records:
   * HTTP reachable flag (True/False)
   * HTTP status code (or error description)
   * Number of records returned
-  * Whether at least one record links an EDS image file to performance metrics
-  * Sample IDs that provide such evidence
+  * Count of samples that provide both an EDS image and performance metrics
+  * Boolean ``has_linked_eds`` indicating whether any such linked sample exists
 
 The aggregated result is written to
-``data/results/data_feasibility_report.json``.  The JSON always contains a
+``data/results/feasibility_report.json``.  The JSON always contains a
 top‑level ``verdict`` field:
 
 * ``"continue"`` – at least one source provides linked EDS maps.
 * ``"halt"``     – no source provides linked EDS maps.
 
-The script exits with status code 1 if the verdict is "halt", and 0 otherwise.
+The script exits with status code 1 if the verdict is ``halt``, and 0
+otherwise.
 
 Invoked as a module:
 
@@ -65,14 +66,33 @@ def _safe_get(url: str, params: Dict[str, Any] = None, timeout: int = 30) -> Dic
         return {"reachable": False, "status": str(exc), "json": None}
 
 
+def _process_hits(records: List[Dict[str, Any]]) -> List[int]:
+    """
+    Helper to extract record IDs that contain both an image file and a
+    performance hint (e.g. the word ``pce`` in the description or title).
+    """
+    evidence_ids: List[int] = []
+    for rec in records:
+        rec_id = rec.get("id")
+        files = rec.get("files", []) or []
+        has_image = any(
+            str(f.get("key", "")).lower().endswith(IMAGE_EXTENSIONS) for f in files
+        )
+        metadata = rec.get("metadata", {}) or {}
+        desc = str(metadata.get("description", "")) + str(metadata.get("title", ""))
+        has_perf = "pce" in desc.lower() or "efficiency" in desc.lower()
+        if has_image and has_perf:
+            evidence_ids.append(rec_id)
+    return evidence_ids
+
+
 def probe_nrel() -> Dict[str, Any]:
     """Probe the NREL Perovskite Database API export endpoint."""
     url = "https://perovskitedatabase.com/api/export?format=json"
     result = _safe_get(url)
 
     n_records = 0
-    eds_linked = False
-    evidence_ids: List[Any] = []
+    linked_ids: List[int] = []
 
     if result["reachable"] and isinstance(result["json"], list):
         n_records = len(result["json"])
@@ -83,8 +103,7 @@ def probe_nrel() -> Dict[str, Any]:
                 and isinstance(rec.get("performance"), dict)
                 and rec["performance"].get("pce") is not None
             ):
-                eds_linked = True
-                evidence_ids.append(rec.get("id", -1))
+                linked_ids.append(rec.get("id", -1))
 
     return {
         "source": "NREL Perovskite Database",
@@ -92,8 +111,8 @@ def probe_nrel() -> Dict[str, Any]:
         "reachable": result["reachable"],
         "http_status": result["status"],
         "n_records": n_records,
-        "eds_linked": eds_linked,
-        "evidence_sample_ids": evidence_ids,
+        "linked_sample_count": len(linked_ids),
+        "has_linked_eds": bool(linked_ids),
     }
 
 
@@ -109,26 +128,13 @@ def probe_zenodo() -> Dict[str, Any]:
     result = _safe_get(base_url, params=params)
 
     n_records = 0
-    eds_linked = False
-    evidence_ids: List[Any] = []
+    linked_ids: List[int] = []
 
     if result["reachable"] and isinstance(result["json"], dict):
         hits = result["json"].get("hits", {})
         n_records = hits.get("total", 0)
         records = hits.get("hits", [])
-        for rec in records:
-            rec_id = rec.get("id")
-            files = rec.get("files", []) or []
-            has_image = any(
-                str(f.get("key", "")).lower().endswith(IMAGE_EXTENSIONS)
-                for f in files
-            )
-            metadata = rec.get("metadata", {}) or {}
-            desc = str(metadata.get("description", "")) + str(metadata.get("title", ""))
-            has_perf = "pce" in desc.lower() or "efficiency" in desc.lower()
-            if has_image and has_perf:
-                eds_linked = True
-                evidence_ids.append(rec_id)
+        linked_ids = _process_hits(records)
 
     return {
         "source": "Zenodo",
@@ -136,8 +142,8 @@ def probe_zenodo() -> Dict[str, Any]:
         "reachable": result["reachable"],
         "http_status": result["status"],
         "n_records": n_records,
-        "eds_linked": eds_linked,
-        "evidence_sample_ids": evidence_ids,
+        "linked_sample_count": len(linked_ids),
+        "has_linked_eds": bool(linked_ids),
     }
 
 
@@ -148,7 +154,7 @@ def probe_materials_project() -> Dict[str, Any]:
     The API requires an API key; if the package is unavailable or the
     request fails we record ``reachable=False`` with the error message.
     Materials Project provides composition metadata only (no EDS maps),
-    so ``eds_linked`` is always False for this fallback source.
+    so ``has_linked_eds`` is always False for this fallback source.
     """
     try:
         from mp_api.client import MPRester
@@ -160,8 +166,8 @@ def probe_materials_project() -> Dict[str, Any]:
             "reachable": False,
             "http_status": str(exc),
             "n_records": 0,
-            "eds_linked": False,
-            "evidence_sample_ids": [],
+            "linked_sample_count": 0,
+            "has_linked_eds": False,
         }
 
     try:
@@ -176,8 +182,8 @@ def probe_materials_project() -> Dict[str, Any]:
                 "reachable": True,
                 "http_status": 200,
                 "n_records": n_records,
-                "eds_linked": False,
-                "evidence_sample_ids": [],
+                "linked_sample_count": 0,
+                "has_linked_eds": False,
             }
     except Exception as exc:
         log.error("Materials Project query failed: %s", exc)
@@ -187,15 +193,15 @@ def probe_materials_project() -> Dict[str, Any]:
             "reachable": False,
             "http_status": str(exc),
             "n_records": 0,
-            "eds_linked": False,
-            "evidence_sample_ids": [],
+            "linked_sample_count": 0,
+            "has_linked_eds": False,
         }
 
 
 def main() -> int:
     """
     Execute the feasibility check for all three sources and write the
-    consolidated JSON report to ``data/results/data_feasibility_report.json``.
+    consolidated JSON report to ``data/results/feasibility_report.json``.
 
     Returns:
         0 – the check completed and at least one source provided linked EDS maps.
@@ -209,12 +215,12 @@ def main() -> int:
             rpt = probe()
             reports.append(rpt)
             log.info(
-                "Source %s reachable=%s status=%s records=%s eds_linked=%s",
+                "Source %s reachable=%s status=%s records=%s linked=%s",
                 rpt["source"],
                 rpt["reachable"],
                 rpt["http_status"],
                 rpt["n_records"],
-                rpt["eds_linked"],
+                rpt["has_linked_eds"],
             )
         except Exception as exc:  # defensive: record the failure honestly
             log.exception("Unexpected error probing source: %s", exc)
@@ -225,15 +231,18 @@ def main() -> int:
                     "reachable": False,
                     "http_status": str(exc),
                     "n_records": 0,
-                    "eds_linked": False,
-                    "evidence_sample_ids": [],
+                    "linked_sample_count": 0,
+                    "has_linked_eds": False,
                 }
             )
 
-    any_linked = any(r.get("eds_linked") for r in reports)
-    overall = {"sources": reports, "verdict": "continue" if any_linked else "halt"}
+    any_linked = any(r.get("has_linked_eds") for r in reports)
+    overall = {
+        "sources": reports,
+        "verdict": "continue" if any_linked else "halt",
+    }
 
-    out_path: Path = paths.data("results", "data_feasibility_report.json")
+    out_path: Path = paths.results("feasibility_report.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as fp:
         json.dump(overall, fp, indent=2)

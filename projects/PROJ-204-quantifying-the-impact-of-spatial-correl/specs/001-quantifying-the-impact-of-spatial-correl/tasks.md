@@ -11,7 +11,7 @@ Indented continuation lines list the concrete output, verification steps, and an
 | Goal | Run a minimal, fully‑real pipeline on a genuine subset of the public EDS + performance data, producing a verifiable end‑to‑end result. |
 |------|------------------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T001 [P] [US1] **Data‑availability feasibility check** – implement `code/data/feasibility.py` that programmatically probes the verified “Doe et al., 2023, Open Perovskite EDS Repository” (HuggingFace dataset `doe2023/perovskite-eds`) and the NREL Perovskite Database for linked performance metrics.  
+- [ ] T001 [P] [US1] **Data‑availability feasibility check** – implement `code/data/feasibility.py` that programmatically probes the verified “Doe et al., 2023, Open Perovskite EDS Repository” (HuggingFace dataset `doe2023/perovskite-eds`) and the NREL Perovskite Database for linked performance metrics.   <!-- FAILED-IN-EXECUTION: code/data/feasibility.py exit=1 -->
   - **Outputs**: `data/results/feasibility_report.json` containing, for each source, URL, HTTP status, number of records found, count of samples with both EDS map and performance record, and a boolean `has_linked_eds`.  
   - **Verification**:  
     1. File exists and is valid JSON.  
