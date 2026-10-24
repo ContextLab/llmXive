@@ -9,7 +9,7 @@ The script follows the specification for task T004:
     * Detectron2 (Mask R-CNN pretrained on COCO) to detect weapons.
   Both detectors use a confidence threshold of 0.85.
 - For each stimulus image a binary PNG mask is saved:
-    ``<stimulus_id>_face.png`` and ``<stimulus_id>_weapon.png``.
+  ``<stimulus_id>_face.png`` and ``<stimulus_id>_weapon.png``.
 - Images with no detections or low‑confidence detections are logged to
   ``data/interim/flagged_images.csv`` and also recorded in
   ``data/interim/detection_metadata.json``.
@@ -23,19 +23,10 @@ import json
 import shutil
 import logging
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 import cv2
 import numpy as np
-
-# YOLOv8
-from ultralytics import YOLO
-
-# Detectron2
-from detectron2.engine import DefaultPredictor
-from detectron2.config import get_cfg
-from detectron2 import model_zoo
-from detectron2.data import MetadataCatalog
 
 from llmxive_toolkit import paths, get_logger
 
@@ -48,13 +39,20 @@ CONFIDENCE_THRESHOLD = 0.85
 WEAPON_CLASS_KEYWORDS = {"knife", "gun", "sword", "weapon", "rifle", "pistol"}
 
 # ----------------------------------------------------------------------
-# Helper utilities
+# Lazy import helpers
 # ----------------------------------------------------------------------
-def _load_yolo_model() -> YOLO:
+def _load_yolo_model() -> Any:
     """
     Load the YOLOv8 nano model (CPU‑only). The model will be downloaded
     automatically on first use.
     """
+    try:
+        # Import inside the function to keep the module import‑time lightweight
+        from ultralytics import YOLO
+    except Exception as exc:
+        logger.error(f"Failed to import YOLOv8 library: {exc}")
+        raise RuntimeError("YOLOv8 library is not available.") from exc
+
     try:
         model = YOLO("yolov8n.pt")
         logger.info("YOLOv8 model loaded successfully.")
@@ -63,11 +61,21 @@ def _load_yolo_model() -> YOLO:
         logger.error(f"Failed to load YOLOv8 model: {exc}")
         raise RuntimeError("YOLOv8 model loading failed.") from exc
 
-def _load_detectron2_predictor() -> DefaultPredictor:
+def _load_detectron2_predictor() -> Any:
     """
     Load a Detectron2 Mask R‑CNN model pretrained on COCO.
     Returns a ``DefaultPredictor`` configured for inference on CPU.
     """
+    try:
+        # Import Detectron2 components lazily
+        from detectron2.engine import DefaultPredictor
+        from detectron2.config import get_cfg
+        from detectron2 import model_zoo
+        from detectron2.data import MetadataCatalog
+    except Exception as exc:
+        logger.error(f"Failed to import Detectron2 library: {exc}")
+        raise RuntimeError("Detectron2 library is not available.") from exc
+
     try:
         cfg = get_cfg()
         cfg.merge_from_file(
@@ -87,6 +95,9 @@ def _load_detectron2_predictor() -> DefaultPredictor:
         logger.error(f"Failed to load Detectron2 model: {exc}")
         raise RuntimeError("Detectron2 model loading failed.") from exc
 
+# ----------------------------------------------------------------------
+# Utility functions
+# ----------------------------------------------------------------------
 def _create_empty_mask(shape: tuple) -> np.ndarray:
     """Return an all‑zero binary mask with the given (height, width)."""
     return np.zeros(shape, dtype=np.uint8)
@@ -118,7 +129,7 @@ def _record_detection(
 # Core processing functions
 # ----------------------------------------------------------------------
 def _process_image_with_yolo(
-    model: YOLO, image_path: Path, stimulus_id: str
+    model: Any, image_path: Path, stimulus_id: str
 ) -> (np.ndarray, int, Optional[float]):
     """
     Run YOLOv8 on ``image_path`` and produce a binary face mask.
@@ -164,7 +175,7 @@ def _process_image_with_yolo(
     return mask, len(confidences), mean_conf
 
 def _process_image_with_detectron2(
-    predictor: DefaultPredictor, image_path: Path, stimulus_id: str
+    predictor: Any, image_path: Path, stimulus_id: str
 ) -> (np.ndarray, int, Optional[float]):
     """
     Run Detectron2 on ``image_path`` and produce a binary weapon mask.
@@ -184,6 +195,7 @@ def _process_image_with_detectron2(
     pred_classes = instances.pred_classes.cpu().numpy()
     scores = instances.scores.cpu().numpy()
     # Get class names from COCO metadata
+    from detectron2.data import MetadataCatalog  # Imported lazily above
     metadata = MetadataCatalog.get("coco_2017_train")
     class_names = metadata.thing_classes
 

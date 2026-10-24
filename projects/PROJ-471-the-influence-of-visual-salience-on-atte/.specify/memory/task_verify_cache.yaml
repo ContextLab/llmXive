@@ -1,14 +1,3 @@
-T001:
-  c: false
-  h: f1a34f78d22c4ef37ce19cf98469e97629bed889775011d8329aaf37e9bde0de
-  r: "The `code/bootstrap.py` script still calls `parser.parse_args()`, causing a\
-    \ `SystemExit` when pytest injects its own command\u2011line arguments (see the\
-    \ test failure log). Because of this the unit test `tests/test_bootstrap.py` aborts\
-    \ before any directories, `requirements.txt`, or `quickstart.md` are created,\
-    \ so the required behavior is not verified. The script must be changed to use\
-    \ `parse_known_args()` (or otherwise ignore unknown arguments) so that it returns\
-    \ 0 and the test can pass."
-  sig: 3af516ef301d468be6f1272539e111ace85e5ee56148af38cc5c1be2c03f8292
 T002:
   c: true
   h: 34987c3fcc1344c64711e22dc39ba62fcc8771af753a62a659b9bd3c06dd6d50
@@ -19,3 +8,34 @@ T002:
     \ ds003123 \u2026\")` on any failure. The accompanying `tests/test_verify_data.py`\
     \ validates these behaviours. No required files are missing or empty."
   sig: 3e23e28abe80360c49ae5d4155fa2b0a5f4ca95619ff7381b9f796e5313dd1a5
+T004:
+  c: false
+  h: b8d022ba12956b262fac4f5d69e1fcc420c71fd4e2dc5b97e76529c71386585b
+  r: "The `segment_roi.py` script implements lazy imports and the copy\u2011or\u2011\
+    run logic, but its detection metadata JSON entries lack the required `detector_used`\
+    \ field (e.g., `\"detector_used\": \"detectron2\"` for weapon masks). Consequently\
+    \ the `tests/test_roi_segmentation.py` check for this field will fail. Add the\
+    \ `detector_used` information to each metadata record (and ensure low\u2011confidence\
+    \ cases are logged accordingly)."
+  sig: 0564655f399e41192fed2d5ff148e60f953a9c952feeda2ee1116007392220ce
+T005:
+  c: false
+  h: 89f0e1859e6172d3c6133e454dafab942d58f438c6e318774a03eec0534e6afb
+  r: "The `parse_fixations.py` script creates the required CSV and passes the provided\
+    \ test, but it does **not** implement robust row\u2011level CSV handling nor does\
+    \ it log warnings for individual trials with malformed or missing gaze data as\
+    \ the task specification demands. It only logs file\u2011level errors, so the\
+    \ requirement to skip malformed rows with warnings and record per\u2011trial exclusions\
+    \ is unmet."
+  sig: f36d15a19a8f876f7bc8d90ee9130296b959a10cb8ae4e61beb50bff1772035c
+T006:
+  c: false
+  h: e4b9463ab9ec4bde77ba60745514162cdc680e055bc20dc5bdba69300dd35ac6
+  r: "The repository contains a full implementation of `code/analysis/feature_gen.py`,\
+    \ but the required output file `data/interim/low_level_features.json` is missing,\
+    \ and the verification test `tests/test_feature_computation.py` is also absent.\
+    \ Without the JSON results and the test suite, the task\u2019s acceptance criteria\
+    \ cannot be satisfied. The next implementer should run the script to generate\
+    \ the JSON (or include a pre\u2011computed version) and add the missing test file\
+    \ that checks the entries, value ranges, and JSON parsability."
+  sig: 2a077180e09ac49f81ed329ffc6a68b6a6054df54f68c3fc214e15ccf88656ee

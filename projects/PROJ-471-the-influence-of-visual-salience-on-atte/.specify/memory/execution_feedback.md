@@ -12,7 +12,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”; 2 command(s) failed: python -m code.ingestion.verify_data (rc=1); python -m pytest tests/ -q (rc=2); 6 declared deliverable(s) absent: data/interim/detection_metadata.json; data/interim/fixations.csv; data/interim/flagged_images.csv
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/create_readme.py: synthetic/fake INPUT data not authorized by the spec — “…a source is unreachable. Synthetic data fallbacks are strictly f…”; 2 command(s) failed: python -m code.ingestion.verify_data (rc=1); python -m pytest tests/ -q (rc=2); 9 declared deliverable(s) absent: data/interim/detection_metadata.json; data/interim/fixations.csv; data/interim/flagged_images.csv
 
 ## Failing / missing run-book commands
 
@@ -28,7 +28,7 @@ Traceback (most recent call last):
 RuntimeError: DATA_MISSING_001: ds003123 incomplete (no sub‑* participant folders)
 
 - python -m pytest tests/ -q -> rc=2
-471-the-influence-of-visual-salience-on-atte/code/scr/update_spec_governance.py)
+/code/scr/update_spec_governance.py)
 =============================== warnings summary ===============================
 ../../.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/torch/nn/modules/transformer.py:20
   /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-471-the-influence-of-visual-salience-on-atte/lib/python3.11/site-packages/torch/nn/modules/transformer.py:20: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)
@@ -37,13 +37,13 @@ RuntimeError: DATA_MISSING_001: ds003123 incomplete (no sub‑* participant fold
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 ERROR tests/integration/test_pipeline.py
-ERROR tests/test_roi_segmentation.py
+ERROR tests/test_alignment.py - json.decoder.JSONDecodeError: Expecting value...
 ERROR tests/unit/test_add_disclaimer.py
 ERROR tests/unit/test_salience_batcher.py
 ERROR tests/unit/test_salience_gen.py
 ERROR tests/unit/test_update_spec_governance.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-1 warning, 6 errors in 3.51s
+1 warning, 6 errors in 3.44s
 
 
 
@@ -52,7 +52,10 @@ ERROR tests/unit/test_update_spec_governance.py
 - data/interim/detection_metadata.json
 - data/interim/fixations.csv
 - data/interim/flagged_images.csv
+- data/interim/low_level_features.json
 - data/interim/salience_metadata.json
+- data/processed/aligned_data.csv
+- data/processed/alignment_stats.json
 - data/processed/results.json
 - data/raw/checksums.json
 
@@ -64,6 +67,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/eye_tracking/segment_roi.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/interim/detection_metadata.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/interim/fixations.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/align_data.py` — NOT invoked by the run-book
     - `code/data_models.py` — NOT invoked by the run-book
     - `code/eye_tracking/parse_fixations.py` — NOT invoked by the run-book
     - `code/processing/eye_tracking.py` — NOT invoked by the run-book
@@ -72,10 +76,24 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/interim/flagged_images.csv` is declared but was NOT written. Scripts referencing it:
     - `code/eye_tracking/segment_roi.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/interim/flagged_images.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/interim/low_level_features.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/align_data.py` — NOT invoked by the run-book
+    - `code/analysis/feature_gen.py` — NOT invoked by the run-book
+    - `code/analysis/vif_calc.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/interim/low_level_features.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/interim/salience_metadata.json` is declared but was NOT written. Scripts referencing it:
     - `code/salience/generate_maps.py` — NOT invoked by the run-book
     - `code/validation/run_quickstart_validation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/interim/salience_metadata.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/aligned_data.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/align_data.py` — NOT invoked by the run-book
+    - `code/analysis/lmm_fit.py` — NOT invoked by the run-book
+    - `code/processing/alignment.py` — NOT invoked by the run-book
+    - `code/processing/alignment_validator.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/aligned_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/alignment_stats.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/align_data.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/alignment_stats.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/results.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/feature_gen.py` — NOT invoked by the run-book
     - `code/analysis/lmm_fit.py` — NOT invoked by the run-book
