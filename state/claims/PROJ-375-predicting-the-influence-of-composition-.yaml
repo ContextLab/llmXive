@@ -788,3 +788,79 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-24T14:33:50Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: wall-clock time less than 30 seconds for 100 rows
+  claim_id: c_eff25d1a
+  context: "Expected runtime & resources bullet list includes wall\u2011clock time\
+    \ claim."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Wall\u2011clock time: <\u202F30\u202Fseconds (100 rows)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:35:20Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM less than 200 MB
+  claim_id: c_78f0a0bc
+  context: Expected runtime & resources bullet list includes peak RAM claim.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Peak RAM: <\u202F200\u202FMB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:35:20Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: uses 1 CPU core
+  claim_id: c_e5b84a5f
+  context: Expected runtime & resources bullet list includes CPU cores claim.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'CPU cores: 1 (the script does not spawn parallel workers).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:35:20Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: script does not use parallel workers
+  claim_id: c_d1e42ced
+  context: Expected runtime & resources bullet list mentions no parallel workers.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the script does not spawn parallel workers.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:35:20Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: script exits with status 0 only if validation succeeds
+  claim_id: c_11accabf
+  context: Description of script behavior after validation step.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "the script exits with status\u202F0 only if validation succeeds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T14:35:20Z'

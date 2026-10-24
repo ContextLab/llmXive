@@ -6,7 +6,7 @@ import os
 import sys
 import hashlib
 from pathlib import Path
-from typing import Optional, Callable, Any
+from typing import Optional, Callable, Any, Union
 
 def setup_logging(log_file: str = "logs/pipeline.log") -> logging.Logger:
     """
@@ -36,14 +36,25 @@ def setup_logging(log_file: str = "logs/pipeline.log") -> logging.Logger:
 
     return logger
 
-def compute_sha256(path: str) -> str:
+def compute_sha256(data: Union[str, bytes, Path]) -> str:
     """
-    Compute SHA256 checksum of a file.
+    Compute SHA256 checksum.
+
+    Accepts either a file path (str or Path) or raw bytes.
+    If a path is provided, the file is read in binary mode.
+    If raw bytes are provided, they are hashed directly.
     """
     sha256_hash = hashlib.sha256()
-    with open(path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+    if isinstance(data, (str, Path)):
+        # Treat as file path
+        path = Path(data)
+        with open(path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+    elif isinstance(data, (bytes, bytearray)):
+        sha256_hash.update(data)
+    else:
+        raise TypeError("compute_sha256 expects a file path or bytes-like object")
     return sha256_hash.hexdigest()
 
 def fail_loud_loader(loader_func: Callable) -> Callable:

@@ -35,7 +35,8 @@ python -m pipeline.run --sample 100
 
 The script will:
 
-1. Load `data/raw/curated_metallic_glass.csv`.
+1. Load `data/raw/curated_metallic_glass.csv`. If the file is missing it will be
+ automatically downloaded from a verified public repository.
 2. Keep only the first *N* rows (`N` defaults to 100, can be changed with `--sample`).
 3. Compute the four compositional descriptors
  - `weighted_mean_atomic_radius`

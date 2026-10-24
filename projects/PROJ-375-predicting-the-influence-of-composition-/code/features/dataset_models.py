@@ -111,41 +111,51 @@ def validate_dataframe_schema(df) -> bool:
     Returns:
         True if schema matches, False otherwise.
     """
-    required_columns = [
-        'composition', 'cte', 'amorphous_flag', 
-        'mean_atomic_radius', 'electronegativity_var', 
-        'vec', 'size_mismatch'
-    ]
-    
+    # Accept both the original schema column names and the quick‑start schema names.
+    required_columns = {
+        # Original schema (used by later pipeline stages)
+        'composition', 'cte', 'amorphous_flag',
+        'mean_atomic_radius', 'electronegativity_var',
+        'vec', 'size_mismatch',
+        # Quick‑start schema (added by pipeline.run)
+        'weighted_mean_atomic_radius', 'electronegativity_variance',
+        'atomic_size_coefficient_of_variation', 'checksum'
+    }
+
     missing = [col for col in required_columns if col not in df.columns]
     if missing:
         logger.error(f"DataFrame missing required columns: {missing}")
         return False
-    
-    # Check types
-    type_checks = [
-        ('composition', 'object'),
-        ('cte', 'float64'),
-        ('amorphous_flag', 'bool'),
-        ('mean_atomic_radius', 'float64'),
-        ('electronegativity_var', 'float64'),
-        ('vec', 'float64'),
-        ('size_mismatch', 'float64')
-    ]
-    
-    for col, expected_type in type_checks:
-        if str(df[col].dtype) != expected_type:
-            logger.warning(f"Column {col} has type {df[col].dtype}, expected {expected_type}")
-            # Try to cast
+
+    # Basic type checks – we are lenient and attempt casting where sensible.
+    type_expectations = {
+        'composition': 'object',
+        'cte': 'float64',
+        'amorphous_flag': 'bool',
+        'mean_atomic_radius': 'float64',
+        'electronegativity_var': 'float64',
+        'vec': 'float64',
+        'size_mismatch': 'float64',
+        'weighted_mean_atomic_radius': 'float64',
+        'electronegativity_variance': 'float64',
+        'atomic_size_coefficient_of_variation': 'float64',
+        'checksum': 'object',
+    }
+
+    for col, exp_type in type_expectations.items():
+        if col not in df.columns:
+            continue
+        if str(df[col].dtype) != exp_type:
+            logger.warning(f"Column {col} has type {df[col].dtype}, expected {exp_type}")
             try:
-                if expected_type == 'bool':
+                if exp_type == 'bool':
                     df[col] = df[col].astype(bool)
-                elif expected_type == 'object':
+                elif exp_type == 'object':
                     df[col] = df[col].astype(str)
                 else:
                     df[col] = df[col].astype(float)
             except Exception as e:
-                logger.error(f"Failed to cast column {col} to {expected_type}: {e}")
+                logger.error(f"Failed to cast column {col} to {exp_type}: {e}")
                 return False
-                
+
     return True

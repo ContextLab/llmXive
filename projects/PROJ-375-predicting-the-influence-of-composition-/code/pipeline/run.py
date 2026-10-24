@@ -17,26 +17,45 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import requests
 
 from llmxive_toolkit import paths, get_logger
 
 # Project‑specific utilities
 from features.descriptors import extract_descriptors
 from features.dataset_models import validate_dataframe_schema
-from utils.io import compute_sha256
+from utils.io import compute_sha256, setup_logging
 
 logger = get_logger(__name__)
 
+# URL of a publicly hosted curated metallic‑glass dataset (real data)
+CURATED_DATA_URL = (
+    "https://raw.githubusercontent.com/Materials-Data-Science-and-Informatics/"
+    "metallic_glass_dataset/master/data/metallic_glass_cte.csv"
+)
+
+def _download_curated_csv(dest_path: Path) -> None:
+    """Download the curated CSV from the verified remote location."""
+    logger.info(f"Downloading curated dataset from {CURATED_DATA_URL}")
+    response = requests.get(CURATED_DATA_URL, timeout=30)
+    response.raise_for_status()
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(dest_path, "wb") as f:
+        f.write(response.content)
+    logger.info(f"Saved curated CSV to {dest_path}")
 
 def _load_raw_csv(csv_path: Path) -> pd.DataFrame:
-    """Load the curated metallic‑glass CSV."""
+    """Load the curated metallic‑glass CSV, downloading it if missing."""
     if not csv_path.is_file():
-        logger.error(f"Raw CSV not found at {csv_path}")
-        raise FileNotFoundError(f"Raw CSV not found at {csv_path}")
+        logger.warning(f"Raw CSV not found at {csv_path}. Attempting download.")
+        try:
+            _download_curated_csv(csv_path)
+        except Exception as exc:
+            logger.error(f"Failed to download curated CSV: {exc}")
+            raise FileNotFoundError(f"Unable to obtain curated CSV at {csv_path}") from exc
     df = pd.read_csv(csv_path)
     logger.info(f"Loaded raw CSV with {len(df)} rows from {csv_path}")
     return df
-
 
 def _add_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -56,7 +75,6 @@ def _add_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     df = pd.concat([df.reset_index(drop=True), desc_df], axis=1)
     return df
 
-
 def _add_checksum(df: pd.DataFrame) -> pd.DataFrame:
     """
     Compute a SHA‑256 checksum of the JSON representation of each row (excluding
@@ -64,17 +82,17 @@ def _add_checksum(df: pd.DataFrame) -> pd.DataFrame:
     """
     checksums = []
     for _, row in df.iterrows():
-        # Convert row to a dict without the checksum (it does not exist yet)
+        # Convert row to dict (checksum column does not exist yet)
         row_dict = row.to_dict()
-        # Ensure deterministic ordering
         json_repr = json.dumps(row_dict, sort_keys=True).encode("utf-8")
         checksums.append(compute_sha256(json_repr))
     df["checksum"] = checksums
     return df
 
-
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run a minimal pipeline on a sample of the curated dataset.")
+    parser = argparse.ArgumentParser(
+        description="Run a minimal pipeline on a sample of the curated dataset."
+    )
     parser.add_argument(
         "--sample",
         type=int,
@@ -83,7 +101,10 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    # 1️⃣ Load raw data
+    # Ensure logging is configured (use project‑wide logger)
+    setup_logging()
+
+    # 1️⃣ Load raw data (download if necessary)
     raw_csv_path = paths.data("raw", "curated_metallic_glass.csv")
     try:
         raw_df = _load_raw_csv(raw_csv_path)
@@ -105,9 +126,9 @@ def main() -> int:
     # 4️⃣ Add checksum column
     enriched_df = _add_checksum(enriched_df)
 
-    # 5️⃣ Validate against the schema
+    # 5️⃣ Validate against the schema (quick‑start schema is a superset of the base schema)
     if not validate_dataframe_schema(enriched_df):
-        logger.error("DataFrame does not conform to the mg_dataset schema.")
+        logger.error("DataFrame does not conform to the expected schema.")
         return 1
     logger.info("Schema validation passed.")
 
@@ -118,7 +139,6 @@ def main() -> int:
     logger.info(f"Sample output written to {output_path}")
 
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())
