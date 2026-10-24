@@ -1,23 +1,8 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets, sys
-
-
-  ds = datasets.load_dataset("scikit-fingerprints/MoleculeNet_Lipophilicity", split="train")
-
-  records = len(ds)
-
-  print(f"RECORDS={records}")
-
-  print("FIELDS=" + ",".join(ds.column_names))'
-record_count: 4200
-sample_fields:
-- SMILES
-- label
-field_coverage: 0.5
+status: none
+intent: download MoleculeNet Lipophilicity dataset via deepchem python package dataset
 required_fields:
-- SMILES
-- logP
-intent: MoleculeNet Lipophilicity dataset download pip install python package dataset
-cache_key: 9f6a2cf1a4808386c875055fc560e0adad519484c8e8c0092f4c7c6847c5028d
+- smiles
+- exp
+cache_key: 41fbcb5dda0a9a6629421280b46a5715fc56e24a5936b2c68b94fdc674c6da12
+searched_at: '2026-10-24T00:15:48.454810+00:00'
+retry_count: 1

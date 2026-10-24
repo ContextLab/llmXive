@@ -2,16 +2,17 @@
 Download the MoleculeNet Lipophilicity dataset (raw SMILES + logP) and
 register its SHA‑256 checksum.
 
-This script is the implementation of task **T001a**. It uses DeepChem's
-``load_lipophilicity`` helper with the ``Raw`` featurizer to obtain the
-canonical CSV containing two columns:
+This script implements task **T001a**. It uses the HuggingFace
+`datasets` library with the verified dataset
+``scikit-fingerprints/MoleculeNet_Lipophilicity`` (split ``train``) to
+obtain a CSV containing two columns:
 
   * ``smiles`` – the raw SMILES string for each molecule
   * ``logP``   – the experimental LogP value
 
-The resulting file is written to ``data/raw/lipophilicity.csv``.  A SHA‑256
-checksum of the file is (idempotently) added to ``data/checksums.txt`` in
-the standard ``<hash>  <relative_path>`` format.
+The resulting file is written to ``data/raw/lipophilicity.csv``.
+A SHA‑256 checksum of the file is (idempotently) added to
+``data/checksums.txt`` in the standard ``<hash>  <relative_path>`` format.
 
 The script is safe to re‑run: it will not duplicate checksum entries and
 will overwrite the CSV only if the download succeeds.
@@ -26,8 +27,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-import deepchem as dc
-from deepchem.molnet import load_lipophilicity
+import datasets
 
 # ----------------------------------------------------------------------
 # Helper utilities
@@ -97,27 +97,28 @@ def setup_logger(log_file: str | None = None) -> logging.Logger:
 # ----------------------------------------------------------------------
 def download_lipophilicity(csv_path: Path, logger: logging.Logger) -> None:
     """
-    Download the Lipophilicity dataset using DeepChem's ``load_lipophilicity``
-    with the ``Raw`` featurizer, write it to *csv_path*, and return.
+    Download the Lipophilicity dataset using the HuggingFace ``datasets``
+    library, write it to *csv_path*, and return.
     """
-    logger.info("Loading Lipophilicity dataset via DeepChem (Raw featurizer)…")
-    # ``load_lipophilicity`` returns (tasks, (train, valid, test), transformers)
-    tasks, (train, valid, test), _ = load_lipophilicity(featurizer="Raw")
-    logger.info(f"Dataset tasks: {tasks}")
+    logger.info("Loading Lipophilicity dataset via HuggingFace datasets…")
+    try:
+        ds = datasets.load_dataset(
+            "scikit-fingerprints/MoleculeNet_Lipophilicity", split="train"
+        )
+    except Exception as e:
+        logger.error(f"Failed to load dataset: {e}")
+        raise
 
-    # Concatenate the three splits
-    splits = [train, valid, test]
-    records = []
-    for split in splits:
-        # ``split`` is a DiskDataset; ``X`` holds SMILES strings,
-        # ``y`` holds the logP values.
-        smiles = split.X.squeeze()  # shape (N,) array of strings
-        logp = split.y.squeeze()    # shape (N,) array of floats
-        for smi, lp in zip(smiles, logp):
-            records.append({"smiles": smi, "logP": float(lp)})
+    # The dataset contains columns ``smiles`` and ``label`` (the logP value)
+    if "smiles" not in ds.column_names or "label" not in ds.column_names:
+        logger.error(
+            "Unexpected dataset schema. Expected columns 'smiles' and 'label'."
+        )
+        raise ValueError("Dataset missing required columns")
 
-    df = pd.DataFrame.from_records(records)
+    df = pd.DataFrame({"smiles": ds["smiles"], "logP": ds["label"]})
     logger.info(f"Total records downloaded: {len(df)}")
+
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(csv_path, index=False)
     logger.info(f"Wrote raw Lipophilicity CSV to {csv_path}")
