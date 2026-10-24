@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-24T10:09:06.175232+00:00",
+  "generated_at": "2026-10-24T10:13:03.881090+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -77902,7 +77902,7 @@
       },
       "authors": [
         {
-          "contributions": 14,
+          "contributions": 15,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -77980,6 +77980,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 53.858178,
+          "ended_at": "2026-10-24T10:09:11.871566Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-24T10:08:18.013388Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 61.440398,
           "ended_at": "2026-10-24T09:09:12.100137Z",
           "model": "openai.gpt-oss-120b",
@@ -78049,14 +78057,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-20T05:19:34.819321Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 636.300513,
-          "ended_at": "2026-10-20T05:17:53.536185Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T05:07:17.235672Z"
         }
       ],
       "paper_status": null,
@@ -148550,7 +148550,7 @@
       },
       "authors": [
         {
-          "contributions": 23,
+          "contributions": 24,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -148611,6 +148611,14 @@
       "id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 37.819001,
+          "ended_at": "2026-10-24T10:07:42.302943Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-24T10:07:04.483942Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 124.208908,
@@ -148682,14 +148690,6 @@
           "model": "google.gemma-4-31B-it",
           "outcome": "success",
           "started_at": "2026-10-24T04:07:27.775394Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 728.381029,
-          "ended_at": "2026-10-23T16:26:46.044140Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T16:14:37.663111Z"
         }
       ],
       "paper_status": null,
@@ -176225,6 +176225,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 53.858178,
+      "ended_at": "2026-10-24T10:09:11.871566Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-250-neural-correlates-of-temporal-prediction",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-24T10:08:18.013388Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 37.819001,
+      "ended_at": "2026-10-24T10:07:42.302943Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-24T10:07:04.483942Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 779.458063,
       "ended_at": "2026-10-24T09:56:24.605523Z",
@@ -182199,30 +182223,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-23T07:28:21.205913Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 1242.673044,
-      "ended_at": "2026-10-23T07:36:45.809116Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-226-predicting-the-impact-of-surface-treatme",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-23T07:16:03.136072Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 91.677524,
-      "ended_at": "2026-10-23T07:36:33.254537Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-884-llmxive-follow-up-extending-self-improvi",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-23T07:35:01.577013Z"
     }
   ],
   "reviewed_preprints": [
