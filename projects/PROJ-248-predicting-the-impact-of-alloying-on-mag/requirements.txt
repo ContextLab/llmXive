@@ -1,0 +1,5 @@
+# Project dependencies
+# (standard libraries like numpy, pandas, scikit-learn etc. are pre‑installed)
+datasets>=2.0.0
+pyyaml
+requests
