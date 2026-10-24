@@ -1,12 +1,2 @@
 sentence-transformers==2.2.2
-numpy
-pandas
-scikit-learn
-pwlf
-statsmodels
-tqdm
-tqdm
-# The environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil. The above entries are added for clarity where
-# version pinning is desirable.
+psutil

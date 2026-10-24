@@ -1,29 +1,47 @@
 T001:
-  c: false
-  h: 429394581c0e497de8ec8ea7e6fa060a004feff85c836f1a95a8ff447794442b
-  r: "The five contract schema files exist and contain the required top\u2011level\
-    \ `properties` and `required` keys, so the provided test would pass. However,\
-    \ there is no evidence (e.g., matching hashes or displayed content from the read\u2011\
-    only specs files) that these files are exact verbatim copies of the schemas in\
-    \ `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`. Without that\
-    \ proof, the core requirement of copying the schemas verbatim is unverified."
-  sig: ec09a9c3adc899dd584999f6b8a668c7c92f4056c0fcf7c14ed41f6f18b05fe9
-T002:
-  c: false
-  h: f29f823929d670bbf7423f716d20f3e429f6681c22067cc677ac43ca7b949108
-  r: 'The generated `data/raw/tasks.json` and `data/raw/skills.json` contain extra
-    fields (`embedding_vector`, `edge_case` in tasks; `mean_cosine_similarity` in
-    skills) that are not allowed by the respective schemas (`additionalProperties:
-    false`). Consequently `jsonschema.validate` would fail, violating the core requirement
-    that all entries conform to `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`.
-    The task therefore does not meet the specification.'
-  sig: d1ac5076a5a48403089b8bd56ede751d3e04425a10d1a8613346de45f5989d26
-T004:
   c: true
-  h: 4e8351e17095e884c2c87e7e370f6ac6a9dd5fe7a40bf2534252d9af6e304131
-  r: "Checked `tests/contract/test_schemas.py` (exists, 6363\u202Fbytes) and its execution\
-    \ log showing all five validation tests passed against the provided `data/raw/tasks.json`\
-    \ and `data/raw/skills.json`, including schema compliance, embedding dimensions,\
-    \ overlap metrics, and task\u2011skill reference integrity. The suite implements\
-    \ the required checks and succeeds, satisfying the task\u2019s requirements."
-  sig: feb5f70da4c4047f9aa1a1cdad18a194e6d60df5a0f4440c7a3746d5d783f126
+  h: b8d9a6dc6de1dc74b37e1ec58024cd45b720cb9a902bcebcff2b41aec1e411a8
+  r: "Checked the five contract schema files under `contracts/` (all non\u2011empty\
+    \ and containing the required `properties` and `required` keys) and the test `tests/contract/test_schema_presence.py`,\
+    \ whose execution log shows both tests passing."
+  sig: 806bf9aa1681062f010751d613321599f911c99c3d443b962731fed3d84e08e5
+T002:
+  c: true
+  h: bb9c8f268476e87b2a66040b1c16c6d10b325eaa7beb62987dc46b2e26bd34e3
+  r: "Checked `code/generate_data.py` (logic, memory guard, seed handling, model loading,\
+    \ overlap enforcement, checksum writing), the generated `data/raw/tasks.json`\
+    \ (500 entries, conforms to `task.schema.yaml`), `data/raw/skills.json` (100 entries,\
+    \ conforms to `skill.schema.yaml`), and `data/raw/checksums.json` (matching SHA\u2011\
+    256 digests). The script prints mean similarity\u202F\u2248\u202F0.99 and meets\
+    \ the HIGH overlap thresholds, and no MemoryError is raised. All required artifacts\
+    \ exist and satisfy the task specifications."
+  sig: 40f2e2f8563ff0bd13f479b4b8f15e49aa8c95acd0ac570aa78de89ffb83262a
+T004:
+  c: false
+  h: 3ef23968fdf4e5acf01789688068b0b1a4088c221f00b034c253145c040b133e
+  r: "The test suite file `tests/contract/test_schemas.py` is present, but it depends\
+    \ on schema files `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`,\
+    \ which are not provided in the evidence. Without these schemas the tests cannot\
+    \ validate the JSON data, so the contract\u2011validation suite is incomplete.\
+    \ Adding the missing schema files (and ensuring they match the expected structure)\
+    \ will satisfy the task requirements."
+  sig: 7474c353f4170e6d1acecca5080b3bcdf539603e16a863a5f7502291e4ed7a54
+T005:
+  c: true
+  h: a48ffed0179b8e9e48567102f7b7fa02fcd9b05a2a447173d181a7fd6280bd74
+  r: Checked `code/logging_config.py` for correct `LOG_COLUMNS`, CSV handler with
+    flushing, and use of `llmxive_toolkit.get_logger`; reviewed `tests/contract/test_logging_schema.py`
+    and its execution log showing all three tests (header order, schema compliance,
+    singleton) passed; confirmed the smoke script also succeeded in writing a row.
+  sig: 966db3486e2050ceeeb1cd075b8b90569622d25341b5fe8a8c5af9a19266d032
+T006:
+  c: false
+  h: e1426463030380b8ba3aeae8e31b650ab63e2e1f0ed748cf542cc22a368f78b8
+  r: "Checked `code/agent.py`, its execution log (`run_50_off_HIGH.jsonl`) and the\
+    \ schema file. While the agent runs, writes JSON\u2011L entries that match the\
+    \ schema and handles the \u201Cmissing_skill\u201D edge case, there is no evidence\
+    \ of the required CSV log file or proof that exactly 100 CSV rows and 100 JSON\u2011\
+    L entries were produced. The missing CSV artifact (and lack of a line\u2011count\
+    \ verification for the JSON\u2011L file) means the task\u2019s verification criteria\
+    \ are not fully satisfied."
+  sig: bffc4e185a6d07ebaadf1918b57dad54f8b6c12f3e0b78201f03e4915babd7e4

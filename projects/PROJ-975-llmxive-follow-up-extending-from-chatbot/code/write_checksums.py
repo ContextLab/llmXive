@@ -30,13 +30,14 @@ def main():
 
     log.info(f"Computing checksums for {tasks_path} and {skills_path}...")
     
-    # Compute hashes
+    # Compute hashes using the keys required by T003
     checksums = {
         "tasks_json_sha256": get_sha256(tasks_path),
         "skills_json_sha256": get_sha256(skills_path),
     }
 
-    # Write to project-owned checksums file
+    # Write to project-owned checksums file (data/raw/checksums.json)
+    # This avoids using platform-owned state/ directories.
     with open(checksums_path, "w", encoding="utf-8") as f:
         json.dump(checksums, f, indent=2)
 

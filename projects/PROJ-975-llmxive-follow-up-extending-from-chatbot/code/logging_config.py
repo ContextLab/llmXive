@@ -5,7 +5,7 @@ import logging
 from typing import Optional, Dict, Any, List
 from llmxive_toolkit import get_logger as toolkit_get_logger, paths
 
-# Column names strictly matching T005 requirement and updated contracts/experiment_log.schema.yaml
+# Column names strictly matching T005 requirement and contracts/experiment_log.schema.yaml
 LOG_COLUMNS = [
     "run_id",
     "task_id",

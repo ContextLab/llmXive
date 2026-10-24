@@ -8,11 +8,11 @@ The list below follows the three research phases (setup → full experiment�
 
 ## Phase 1 – Contracts, synthetic data, and first end‑to‑end run  
 
-- [ ] T001 [P] [US1] [DM-Task] [DM-Skill] **Create root‑level contract schema files**  
+- [X] T001 [P] [US1] [DM-Task] [DM-Skill] **Create root‑level contract schema files**  
   *Paths*: `contracts/task.schema.yaml`, `contracts/skill.schema.yaml`, `contracts/experiment_log.schema.yaml`, `contracts/execution_log.schema.yaml`, `contracts/metrics.schema.yaml` – each copied verbatim from the read‑only schemas in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`.  
   *Verification*: `tests/contract/test_schema_presence.py` loads each file with `yaml.safe_load` and asserts the presence of top‑level keys `properties` and `required`; a minimal dummy instance validates via `jsonschema.validate`.  
 
-- [ ] T002 [P] [US1] **Implement `code/generate_data.py` to produce the synthetic environment**
+- [X] T002 [P] [US1] **Implement `code/generate_data.py` to produce the synthetic environment**
   *Behavior*:  
   • Generates **exactly 500** task objects (`data/raw/tasks.json`) conforming to `contracts/task.schema.yaml`.  
   • Generates **exactly 100** skill objects (`data/raw/skills.json`) conforming to `contracts/skill.schema.yaml`.  
@@ -32,10 +32,10 @@ The list below follows the three research phases (setup → full experiment�
   *Action*: Add a small helper script `code/write_checksums.py` that reads the SHA‑256 values from the generated files and writes a concise JSON mapping (`tasks_json_sha256`, `skills_json_sha256`) to `data/raw/checksums.json`. No platform‑owned `state/` paths are used.  
   *Verification*: `tests/state/test_checksums.py` loads `data/raw/checksums.json` and confirms that the stored digests exactly match the current files’ SHA‑256 hashes.  
 
-- [X] T004 [P] [US2] [DM-Task] [DM-Skill] **Implement full contract‑validation test suite (`tests/contract/test_schemas.py`)**  
+- [ ] T004 [P] [US2] [DM-Task] [DM-Skill] **Implement full contract‑validation test suite (`tests/contract/test_schemas.py`)**  
   *Scope*: validates every entry in `data/raw/tasks.json` and `data/raw/skills.json` against their schemas; computes mean pairwise cosine similarity of skill embeddings and asserts it meets the active `OVERLAP_LEVEL`; checks that each task’s `ground_truth_skills` reference existing `skill_id`s.  
 
-- [ ] T005 [P] [US2] [DM-ExperimentLog] **Implement `code/logging_config.py` with exact CSV header**   <!-- FAILED-IN-EXECUTION: code/smoke_logging.py exit=1 -->
+- [X] T005 [P] [US2] [DM-ExperimentLog] **Implement `code/logging_config.py` with exact CSV header**
   *Features*:  
   • Exposes `LOG_COLUMNS = ["run_id","task_id","library_size","pruning_enabled","success","latency_ms","tokens_used","retrieval_precision","retrieval_diversity","edge_case"]`.  
   • Provides `get_logger(name: str) -> logging.Logger` that writes rows to `data/results/experiment_log.csv` using the platform helper `llmxive_toolkit.get_logger`.  

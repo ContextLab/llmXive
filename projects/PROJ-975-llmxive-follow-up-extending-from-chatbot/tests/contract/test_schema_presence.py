@@ -1,6 +1,5 @@
 import json
 import yaml
-import hashlib
 import os
 from jsonschema import validate, ValidationError
 
@@ -29,15 +28,15 @@ def test_dummy_instance_validation():
         "description": "Dummy description",
         "ground_truth_path": ["skill_001"],
         "complexity": 1,
-        "embedding_vector": [0.0] * 768,
+        "embedding_vector": [0.0] * 384,
         "edge_case": False,
     }
     dummy_skill = {
         "skill_id": "skill_001",
         "function_code": "def dummy(): pass",
-        "embedding_vector": [0.0] * 768,
+        "embedding_vector": [0.0] * 384,
         "usage_count": 0,
     }
     # Validate
-    validate(dummy_task, task_schema)
-    validate(dummy_skill, skill_schema)
+    validate(instance=dummy_task, schema=task_schema)
+    validate(instance=dummy_skill, schema=skill_schema)

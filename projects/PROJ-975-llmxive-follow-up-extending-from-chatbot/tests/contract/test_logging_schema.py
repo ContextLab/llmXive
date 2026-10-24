@@ -13,6 +13,13 @@ def load_schema():
     with open(SCHEMA_PATH, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
 
+@pytest.fixture(autouse=True)
+def cleanup_logs():
+    """Ensure a clean log file before every test to avoid header pollution."""
+    if os.path.exists(LOG_PATH):
+        os.remove(LOG_PATH)
+    yield
+
 def test_logging_csv_header_order():
     """
     Verifies that the CSV header matches the required order in LOG_COLUMNS.

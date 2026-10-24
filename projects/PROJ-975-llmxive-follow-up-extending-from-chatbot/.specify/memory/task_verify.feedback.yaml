@@ -1,18 +1,6 @@
 T001:
-  reason: "The five contract schema files exist and contain the required top\u2011\
-    level `properties` and `required` keys, so the provided test would pass. However,\
-    \ there is no evidence (e.g., matching hashes or displayed content from the read\u2011\
-    only specs files) that these files are exact verbatim copies of the schemas in\
-    \ `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`. Without that\
-    \ proof, the core requirement of copying the schemas verbatim is unverified."
   task: 75e517b6e8a2dc97fe0d873887f8740d274daec65427bbcc36c80370df9fa5c6
 T002:
-  reason: 'The generated `data/raw/tasks.json` and `data/raw/skills.json` contain
-    extra fields (`embedding_vector`, `edge_case` in tasks; `mean_cosine_similarity`
-    in skills) that are not allowed by the respective schemas (`additionalProperties:
-    false`). Consequently `jsonschema.validate` would fail, violating the core requirement
-    that all entries conform to `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`.
-    The task therefore does not meet the specification.'
   task: b49fbd775f29794697c67ccb18ebf0450c273a45959c4c84e69a082d48ed72a3
 T003:
   reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
@@ -21,12 +9,23 @@ T003:
     write only project-owned outputs.'
   task: 665dad7bfde997215de2afdd36a637fc833075e980754b1acd6b76dfbfdc47b1
 T004:
+  reason: "The test suite file `tests/contract/test_schemas.py` is present, but it\
+    \ depends on schema files `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`,\
+    \ which are not provided in the evidence. Without these schemas the tests cannot\
+    \ validate the JSON data, so the contract\u2011validation suite is incomplete.\
+    \ Adding the missing schema files (and ensuring they match the expected structure)\
+    \ will satisfy the task requirements."
   task: 049939511d3fbcbe4e54e3aecf1fbe27f24cd2b73b897679636f5b0b0a083a3a
 T005:
-  reason: 'Requested task execution failed; rerun successfully: code/smoke_logging.py
-    exit=1'
   task: e8279dcb2db08ab3f3211ce6622d320faced4b974812d2d5655cd7b5e0822fa4
 T006:
+  reason: "Checked `code/agent.py`, its execution log (`run_50_off_HIGH.jsonl`) and\
+    \ the schema file. While the agent runs, writes JSON\u2011L entries that match\
+    \ the schema and handles the \u201Cmissing_skill\u201D edge case, there is no\
+    \ evidence of the required CSV log file or proof that exactly 100 CSV rows and\
+    \ 100 JSON\u2011L entries were produced. The missing CSV artifact (and lack of\
+    \ a line\u2011count verification for the JSON\u2011L file) means the task\u2019\
+    s verification criteria are not fully satisfied."
   task: 023664e19477b92fb14e44339419d563d9f7a6f5dd1066487a7062f588622be1
 T007:
   task: ad84f97ca4b9d433ab138e7878840d411d29275567f38dcc6f83f2f9c38608d8

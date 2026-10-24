@@ -26,7 +26,7 @@ def test_checksums_match_files():
     with open(checksums_path, "r", encoding="utf-8") as f:
         stored = json.load(f)
 
-    # 3. Verify keys exist
+    # 3. Verify keys exist as required by T003
     assert "tasks_json_sha256" in stored, "Missing tasks_json_sha256 in checksums.json"
     assert "skills_json_sha256" in stored, "Missing skills_json_sha256 in checksums.json"
 

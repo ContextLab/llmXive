@@ -3,10 +3,15 @@ from code.logging_config import get_logger, log_experiment_entry, LOG_COLUMNS
 from llmxive_toolkit import paths
 
 def main():
-    # 1. Setup logger
+    # 1. Clean up existing log file to ensure a fresh header for the smoke test
+    log_path = paths.data("results", "experiment_log.csv")
+    if log_path.exists():
+        os.remove(log_path)
+    
+    # 2. Setup logger
     logger = get_logger("smoke_test")
     
-    # 2. Create a row matching the required LOG_COLUMNS
+    # 3. Create a row matching the required LOG_COLUMNS
     entry = {
         "run_id": "smoke_run_001",
         "task_id": "smoke_task_001",
@@ -20,11 +25,10 @@ def main():
         "edge_case": "none"
     }
     
-    # 3. Log the entry
+    # 4. Log the entry
     log_experiment_entry(entry)
     
-    # 4. Verify file existence and content
-    log_path = paths.data("results", "experiment_log.csv")
+    # 5. Verify file existence and content
     if not log_path.exists():
         raise FileNotFoundError(f"Log file was not created at {log_path}")
     

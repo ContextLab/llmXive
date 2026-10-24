@@ -11,7 +11,7 @@ import numpy as np
 from datetime import datetime
 from typing import List, Dict, Any, Tuple, Optional
 
-from config import get_seeds, pin_seeds, get_experiment_config
+from config import get_seeds, pin_seeds
 from utils import get_model, get_embedding, cosine_similarity
 from logging_config import get_logger, log_experiment_entry
 
@@ -22,12 +22,17 @@ class SkillLibrary:
         self.skills = skills
         self.library_size = len(skills)
         self.model = get_model()
+        
+        # Verify embedding dimensions (384)
+        for s in self.skills:
+            emb = np.array(s.get('embedding_vector', get_embedding(self.model, s['function_code'])))
+            if emb.shape != (384,):
+                raise ValueError(f"Embedding dimension mismatch: expected 384, got {emb.shape}")
 
     def retrieve_top_k(self, task_description: str, k: int = 5) -> List[Dict[str, Any]]:
         task_embedding = get_embedding(self.model, task_description)
         similarities = []
         for skill in self.skills:
-            # Use pre-computed embedding if available, otherwise compute
             if 'embedding_vector' in skill:
                 skill_emb = np.array(skill['embedding_vector'])
             else:
@@ -36,7 +41,6 @@ class SkillLibrary:
             sim = cosine_similarity(task_embedding, skill_emb)
             similarities.append((skill, sim))
 
-        # Sort by similarity descending
         similarities.sort(key=lambda x: x[1], reverse=True)
         return [s[0] for s in similarities[:k]]
 
@@ -88,13 +92,13 @@ def run_task(task: Dict[str, Any], library: SkillLibrary, pruning_enabled: bool 
     ground_truth_ids = task.get('ground_truth_path', [])
     
     start_time = time.time()
-    edge_case = ""
+    edge_case = "none"
     
     try:
-        # Memory limit check (SC-005 / Edge Case)
+        # Memory limit check (SC-005)
         mem = psutil.virtual_memory()
         if mem.used > 6 * 1024**3: # 6GB
-            edge_case = "memory_limit"
+            raise MemoryError("Memory Limit Exceeded")
 
         retrieved = library.retrieve_top_k(description, k=5)
         retrieved_ids = [s['skill_id'] for s in retrieved]
@@ -110,12 +114,12 @@ def run_task(task: Dict[str, Any], library: SkillLibrary, pruning_enabled: bool 
         if sims and (sum(sims)/len(sims)) > 0.95:
             edge_case = "maximal_overlap"
 
-        # Success logic: Does retrieval contain any of the ground truth skills?
-        success = any(rid in ground_truth_ids for rid in retrieved_ids)
+        # Success logic: All ground truth skills must be retrieved to solve the multi-step task
+        success = set(ground_truth_ids).issubset(set(retrieved_ids))
         
-        # Execute the best retrieved skill to simulate real call
-        if retrieved:
-            execute_skill(retrieved[0], {})
+        # Simulate execution of retrieved skills
+        for s in retrieved:
+            execute_skill(s, {})
 
         latency_ms = (time.time() - start_time) * 1000
         precision = calculate_retrieval_precision(retrieved, ground_truth_ids)
@@ -141,6 +145,9 @@ def run_task(task: Dict[str, Any], library: SkillLibrary, pruning_enabled: bool 
             'failure_reason': failure_reason
         }
 
+    except MemoryError as me:
+        logger.error(f"Task {task_id} failed: {me}")
+        raise me
     except Exception as e:
         logger.error(f"Task {task_id} failed: {e}")
         return {
@@ -188,36 +195,33 @@ def main():
     random.shuffle(tasks)
     sampled_tasks = tasks[:args.task_sample]
 
-    run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # Run ID for this configuration
+    run_id = f"run_{args.library_size}_{args.pruning}_{args.overlap}"
     exec_log_dir = "data/results/execution_logs"
     os.makedirs(exec_log_dir, exist_ok=True)
     exec_log_path = os.path.join(exec_log_dir, f"{run_id}.jsonl")
-    
-    exp_logger = get_logger()
     
     with open(exec_log_path, 'w') as jsonl_file:
         for task in sampled_tasks:
             res = run_task(task, library, pruning_enabled=(args.pruning == "on"))
             
-            # CSV Logging (T005)
-            # Columns: task_id, skill_id, success, latency, tokens, retrieval_precision, 
-            # retrieval_diversity, pruning_risk_count, library_size, pruning_enabled, edge_case
+            # CSV Logging (Strictly matching LOG_COLUMNS from logging_config.py)
+            # run_id, task_id, library_size, pruning_enabled, success, latency_ms, tokens_used, retrieval_precision, retrieval_diversity, edge_case
             log_entry = {
+                "run_id": run_id,
                 "task_id": res['task_id'],
-                "skill_id": res['retrieved_skill_ids'][0] if res['retrieved_skill_ids'] else "none",
-                "success": res['success'],
-                "latency": res['latency_ms'],
-                "tokens": res['tokens'],
-                "retrieval_precision": res['retrieval_precision'],
-                "retrieval_diversity": res['retrieval_diversity'],
-                "pruning_risk_count": 0,
                 "library_size": args.library_size,
                 "pruning_enabled": args.pruning == "on",
+                "success": res['success'],
+                "latency_ms": res['latency_ms'],
+                "tokens_used": res['tokens'],
+                "retrieval_precision": res['retrieval_precision'],
+                "retrieval_diversity": res['retrieval_diversity'],
                 "edge_case": res['edge_case']
             }
             log_experiment_entry(log_entry)
             
-            # JSON-L Logging (T006)
+            # JSON-L Logging (Strictly matching contracts/execution_log.schema.yaml)
             exec_entry = {
                 "log_id": str(uuid.uuid4()),
                 "task_id": res['task_id'],
@@ -228,11 +232,11 @@ def main():
                 "token_usage": res['tokens'],
                 "latency_ms": res['latency_ms'],
                 "retrieved_skill_ids": res['retrieved_skill_ids'],
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.utcnow().isoformat() + "Z"
             }
             jsonl_file.write(json.dumps(exec_entry) + "\n")
                 
-    logger.info(f"Completed run {run_id}: processed {len(sampled_tasks)} tasks.")
+        logger.info(f"Completed run {run_id}: processed {len(sampled_tasks)} tasks.")
 
 if __name__ == "__main__":
     main()
