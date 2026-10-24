@@ -1,27 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelResult"
-description: "Schema for PGLS model output. Statistical fields are null (never placeholder values) when the low‑power message is issued for n_species < 15."
-type: "object"
-properties:
-  model_type:
-    type: "string"
-    description: "Type of model fitted."
-    enum:
-      - "PGLS_Base"
-      - "PGLS_Interaction"
-  fixed_effect_telomere:
-    type: ["number", "null"]
-    description: "Coefficient estimate for telomere length; null when low‑power message issued."
-  se_telomere:
-    type: ["number", "null"]
-    description: "Standard error of telomere coefficient."
-  ci_lower_telomere:
-    type: ["number", "null"]
-    description: "95 % CI lower bound for telomere coefficient."
-  ci_upper_telomere:
-    type: ["number", "null"]
-    description: "95 % CI upper bound for telomere coefficient."
-  fixed_effect_migration:
-    type: ["number", "null"]
-    description: "Coefficient for migration status (interaction model only)."
-  se_m...
+description: "Schema for   ---  "
+...
+
+
+
+
+---
+
+

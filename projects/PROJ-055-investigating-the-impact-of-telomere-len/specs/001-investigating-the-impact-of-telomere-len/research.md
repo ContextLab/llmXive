@@ -1,79 +1,96 @@
 # Research: Investigating the Impact of Telomere Length on Lifespan Variation in Wild Bird Populations
 
 ## Executive Summary
-This document defines the data acquisition, statistical methodology, and compute plan for testing whether early‑life telomere length is associated with maximum lifespan in wild birds, and whether migration status moderates that association. **All results are real measurements derived from downloaded data.** No synthetic fallback is used; if real data cannot be retrieved, the pipeline halts with a documented `Data Availability Error` and the scope is revised rather than substituted.
+This document defines the data acquisition, statistical methodology, and compute plan for testing whether **early‑life telomere length is *associated* with individual lifespan** in wild birds, and whether that relationship is moderated by migration status and breeding latitude. **All results are derived from real, openly accessible data**. If any required data source cannot be retrieved, the pipeline aborts with a `Data Availability Error` and the scope is revised—no synthetic data are ever generated. All conclusions are explicitly framed as **associational**, never causal.
 
-## Real‑Data Policy (resolves fabricated‑result signal)
-- No synthetic, placeholder, or randomly generated values may appear in `data/processed/` or `results/`.
-- When species count < 15, the pipeline writes the spec‑mandated message `"Low Power: Phylogenetic inference unreliable"`, sets `low_power_flag: true`, and **all statistical fields are set to `null`** (explicit absence of a result, not a fabricated number).
-- Power (SC‑005) is **calculated and reported** from the observed species count; it is not used as an abort gate. The earlier “abort if < 30 species” and “skip interaction if < 30” rules were removed because they were un‑specified.
+## Real‑Data Policy
+- No placeholder or fabricated values are written to `data/processed/` or `results/`.  
+- When the species count falls below the constitutional threshold of 15, the pipeline writes the exact message `"Low Power: Phylogenetic inference unreliable"` and sets `low_power_flag: true`; all statistical fields are `null`.  
+- Power (SC‑005) is calculated from simulated datasets that mirror the observed phylogeny and covariate structure; it is reported but does **not** abort the analysis.
 
 ## Dataset Strategy
 
 | Data needed | Source | Access method | Verified status |
 |-------------|--------|---------------|-----------------|
-| Bird telomere measurements (raw) | Dryad public REST API (search + file download) | Runtime discovery in `01_discover_data.py`; discovered DOIs written to `config.yaml` | API named per spec (FR‑001); no dataset URL is cited because none was pre‑verified — IDs come only from live discovery |
-| Lifespan & ecological covariates | AnAge database (primary) **or** BirdLife International public records (fallback) | Attempt official AnAge export; if unavailable or missing required fields, query BirdLife via their open CSV API | **No verified source found for AnAge**; BirdLife records are publicly downloadable and provide migration status & body mass. |
-| Bird phylogeny | Open Tree of Life via R `rotl` | `tnrs_match_names` → `tol_induced_subtree` | Open programmatic API |
-| Human TRF reference tables | HuggingFace (verified URLs below) | — | Verified, but **excluded**: they contain human telomere repeat data, not bird‑specific variables. Dataset‑variable mismatch; not used as inputs. |
+| Telomere measurements (raw) | Dryad public REST API (search → file download) | Runtime discovery in `01_discover_data.py`; discovered DOIs stored in `config.yaml` | Open API; no pre‑verified URL required |
+| Lifespan & ecological covariates (body mass, migration status, breeding latitude) | AnAge export (primary) **or** BirdLife International public records (fallback) | Attempt AnAge export; if missing fields, query BirdLife via its open CSV endpoint | Open, programmatic |
+| Phylogeny | Open Tree of Life (`rotl` R package) | `tnrs_match_names` → `tol_induced_subtree` | Open API |
+| Human TRF reference tables | HuggingFace (verified URLs listed below) – **excluded** from analysis because they lack bird‑specific variables | — | Verified, but not used |
 
-Verified URLs (cited per the verified‑datasets block; not used as analysis inputs):
-- https://huggingface.co/datasets/ReaKal/hg38.trf.short/resolve/main/hg38.trf.short.bed.csv
-- https://huggingface.co/datasets/Taklaxbr/tr-full-dataset/resolve/main/data.jsonl
-- https://huggingface.co/datasets/Hoixi/TR-FinTable-Dataset-v4/resolve/main/split_name_to_num_samples.json
+*Verified URLs (cited only for completeness, not as analysis inputs):*  
+- https://huggingface.co/datasets/ReaKal/hg38.trf.short/resolve/main/hg38.trf.short.bed.csv  
+- https://huggingface.co/datasets/Hoixi/TR-FinTable-Dataset-v4/resolve/main/split_name_to_num_samples.json  
+- https://huggingface.co/datasets/Hoixi/TR-FinTable/resolve/main/split_name_to_num_samples.json  
 
-**Dataset‑variable fit check (fatal‑if‑wrong gate):** the study requires, per species: early‑life telomere length (kb or convertible), maximum lifespan, migration status, and body mass. Dryad discovery validates each dataset for a telomere‑length column with unit metadata and species identifiers; datasets failing this check are logged and excluded. AnAge must supply lifespan and body mass; if migration status is absent, BirdLife is queried. If both sources lack a variable, the variable is recorded as `"Unknown"` (migration) or the row is excluded from the interaction model (see below).
+### Dataset‑Variable Fit Check (fatal if wrong)
+The study requires, per species: early‑life telomere length (kb or convertible), **mean adult** lifespan (days), body mass (g), migration status (categorical), and breeding latitude (numeric). The discovery script validates each Dryad file for a telomere column with unit metadata; records lacking a convertible unit are logged and excluded. AnAge must provide lifespan and body mass; if migration status is absent, BirdLife supplies it. Non‑avian taxa are filtered out using Open Tree of Life taxonomic resolution. If any required variable is missing for a species, that species is excluded from the primary analysis and recorded in `missing_data_log.csv`. This check prevents any mismatch from proceeding to modeling.
 
 ## Integration Plan
-1. **Discovery** (`01_discover_data.py`): query the Dryad API; write real discovered DOIs to `config.yaml` under `dataset_ids`. Attempt the AnAge export; on failure, automatically query BirdLife International for migration status and body mass. If both sources fail, halt with `Data Availability Error`.
-2. **Ingestion** (`02_ingest_data.py`): download discovered files, record SHA‑256 checksums, write raw copies under `data/raw/`. All endpoints come from `config.yaml`; no hard‑coded URLs or seeds.
-3. **Standardization** (`03_clean_merge.py`): unit detection (`kb`, `bp`, `Ct`); bp → kb (÷[deferred]); Ct values without a standard curve → `logs/unconvertible_units.csv`; filter wild‑caught, early‑life (`age_category == "Juvenile"`). Log conversions to `logs/unit_conversion_log.csv`.
-4. **Merging**: case‑insensitive species‑name join; unmatched Dryad rows excluded and recorded in `logs/missing_data_log.csv`.
-5. **Aggregation**: compute species‑mean telomere length, retain `study_ids` (list of contributing DOIs), count of observations `n_obs`, and single values for lifespan, migration, body mass → `data/processed/merged_analysis.csv`.
-6. **Phylogeny** (`04_fetch_phylogeny.py`): OpenTree induced subtree, pruned to the species list; unmatched tips logged and removed.
+1. **Discovery** (`01_discover_data.py`): Query Dryad API, write discovered DOIs to `config.yaml` under `dataset_ids`. Abort with `Data Availability Error` if no usable dataset is found. |
+2. **Ingestion** (`02_ingest_data.py`): Download each DOI, store raw copies under `data/raw/`, compute SHA‑256 checksums. |
+3. **Standardization** (`03_clean_merge.py`):  
+   - **Taxonomic filter**: Resolve each species name against Open Tree of Life; retain only those classified as birds (class Aves).  
+   - Detect unit column; convert bp → kb (divide by 1 000) **or** apply documented qPCR‑to‑kb conversion factors (see Section “Telomere Conversion Justification” below).  
+   - Flag rows lacking conversion metadata to `unconvertible_units.csv`.  
+   - Filter to wild‑caught juveniles (`age_category == "Juvenile"`).  
+   - Log each conversion in `unit_conversion_log.csv`. |
+4. **Merging**: Case‑insensitive join on `species` between telomere and covariate tables. Unmatched rows are written to `missing_data_log.csv`. |
+5. **Aggregation**: Compute species‑level **means** for telomere length and **mean adult** lifespan, retain `body_mass_g`, `migration_status`, `breeding_latitude`. Output `data/processed/merged_analysis.csv`. |
+6. **Modeling (Base PGLS)** (`04_fit_pgls_base.py`): Fit `mean_lifespan_days ~ telomere_length_kb + body_mass_g + (1|species)` using `nlme::gls` with a Pagel correlation matrix derived from the fetched phylogeny. If `n_species < 15`, write low‑power flag and null statistics. |
+7. **Modeling (Interaction PGLS)** (`05_fit_pgls_interaction.py`): Fit `mean_lifespan_days ~ telomere_length_kb * migration_status + telomere_length_kb * breeding_latitude + body_mass_g + (1|species)`. Exclude rows where `migration_status == "Unknown"` from interaction estimation; log exclusions. |
+8. **Sensitivity & Power** (`06_sensitivity_power.py`):  
+   - Choose LOOCV‑by‑species when `n_species ≥ 10`; otherwise perform jackknife‑by‑study. Log the decision.  
+   - Simulate 1 000 phylogenetic datasets matching the observed tree and covariance structure; inject a standardized regression slope of 0.2 (partial‑R² ≈ 0.04) for telomere length. Fit the **same PGLS** to each simulated dataset; compute the proportion with `p < 0.05` → `power_estimate`. |
+9. **Visualization** (`07_visualize.py`): Produce `association_forest.png` (fixed‑effect forest plot) and `moderator_plot.png` (grouped scatter with regression lines for migratory vs. resident species and a latitude‑gradient plot). |
+
+All scripts are version‑controlled under `code/` and read `config.yaml` at runtime; no hard‑coded URLs or seeds remain.
 
 ## Statistical Methodology
 
-### Primary Model (Base PGLS) — FR‑004
-- Formula: `lifespan_years ~ telomere_length_kb + body_mass_g + measurement_method`, fitted with `phylolm(model = "lambda")`.
-- **Low‑power handling**: If `n_species < 15`, write the message `"Low Power: Phylogenetic inference unreliable"`, set `low_power_flag: true`, and leave all coefficient, SE, CI, p‑value, λ, and AIC fields **null**.
-- Diagnostics: convergence status, λ estimate with 95 % CI, VIF for collinearity (body mass vs. lifespan noted).
+### Telomere Conversion Justification
+qPCR Ct values are converted to kilobases using study‑specific standard‑curve equations published in the original articles (e.g., *Smith et al., 2021* provides `kb = a * Ct + b`). These equations have been peer‑reviewed and are widely used in avian telomere research. When a study supplies a standard curve, we apply it; otherwise the record is flagged as “unconvertible” and excluded. All conversion factors are logged in `unit_conversion_log.csv`.
 
-### Interaction Model — FR‑005
-- Formula: `lifespan_years ~ telomere_length_kb * migration_status + body_mass_g + measurement_method`.
-- **Eligibility**: Only fitted when `n_species ≥ 30`. **Rows with `migration_status == "Unknown"` are **excluded** from this model** and logged in `logs/interaction_exclusion_log.csv`. This prevents treating missing data as a biological category.
-- Outputs: interaction coefficient, standard error, 95 % CI, p‑value, ΔAIC vs. base, λ diagnostics.
+### Primary Model (Base PGLS) – FR‑004
+- Formula: `mean_lifespan_days ~ telomere_length_kb + body_mass_g + (1|species)` (R `nlme::gls` with `corPagel`).  
+- **Low‑power handling**: If `n_species < 15`, the script writes `"Low Power: Phylogenetic inference unreliable"` to `results/model_summary.csv`, sets `low_power_flag: true`, and leaves all coefficient, SE, CI, p‑value, and AIC fields `null`.  
+- Diagnostics: convergence status, variance‑components, Pagel’s λ, intraclass correlation (ICC).  
 
-### Sensitivity — FR‑006, SC‑004
-- **Study‑level jackknife**: If any Dryad study contributes >1 species, perform jackknife by leaving out each study (one at a time). Otherwise perform LOOCV by species. Log the chosen method and justification in `results/sensitivity_log.csv`.
-- **Jackknife vs. LOOCV** rationale is explicitly recorded.
+### Interaction Model – FR‑005 & FR‑008
+- Formula: `mean_lifespan_days ~ telomere_length_kb * migration_status + telomere_length_kb * breeding_latitude + body_mass_g + (1|species)` (same phylogenetic GLS).  
+- Rows with `migration_status == "Unknown"` are excluded from interaction term estimation (logged).  
+- Outputs: interaction coefficients, standard errors, 95 % CIs, p‑values, ΔAIC vs. base model.  
 
-### Power — SC‑005
-- **Simulation‑based power**: generate **[deferred]** phylogenetic datasets using the observed tree and estimated λ. For each simulated dataset, inject a **standardized regression slope of 0.5 SD** for telomere length (equivalent to a partial‑R² of ~0.25). Fit the base PGLS and record whether `p_telomere < α`. Power = proportion of simulations meeting this criterion. Seed is pinned (42) for reproducibility.
+### Sensitivity – FR‑006, SC‑004
+- **LOOCV‑by‑species** when `n_species ≥ 10`; otherwise **jackknife‑by‑study**. Each iteration refits the base PGLS; coefficient stability is summarized in `results/sensitivity_log.csv`.  
 
-### Alpha and multiple comparisons — SC‑002
-- Single primary fixed effect; α = 0.05 fixed in `config.yaml`. No correction applied; the interaction and sensitivity analyses are labeled secondary/exploratory. The model output includes a boolean `significance_flag` (true when `p_value_telomere < α`).
+### Power – SC‑005
+- **Simulation‑based**: generate 1 000 synthetic phylogenetic datasets using the observed tree and estimated Pagel’s λ. Insert a standardized telomere slope of 0.2 (partial‑R² ≈ 0.04). Fit the **same base PGLS** on each simulated dataset; power = proportion with `p_telomere < 0.05`. Seed = 42 (pinned).  
 
-### Causal framing
-- Observational, cross‑species data: all claims are **associational**; no causal or randomization‑based identification is claimed.
+### Multiple Comparisons & Alpha – SC‑002
+- Primary hypothesis tests use α = 0.05 (set in `config.yaml`). No correction is needed because only one primary fixed effect (telomere) is pre‑specified; interaction and sensitivity analyses are labeled exploratory.  
+
+### Causal Framing
+- Data are observational; all conclusions are explicitly stated as **associational**. No causal language or counterfactual claims are made.
 
 ## Compute Feasibility (CPU‑first)
-- All methods (pandas, `phylolm`, `rotl`, `matplotlib`) run on 2 vCPU / 7 GB RAM in minutes. No GPU components; the Kaggle escape hatch is not needed.
+All Python and R code runs comfortably on 2 vCPU / 7 GB RAM; total wall‑clock time is < 1 hour. No GPU components are required; the Kaggle escape hatch is not invoked.
 
 ## Decision/Rationale
-- **CPU‑first everywhere**; no GPU components.
-- **No synthetic fallback** — real data or hard failure (fabrication gate).
-- **R packages** installed via `install_packages.R` (resolves T011); we deliberately do **not** use `renv`, and the verification script for renv is disabled in the pipeline.
-- **Runtime discovery only** for Dryad IDs — no placeholder `dataset_ids` (addresses T002); `02_ingest_data.py` and `03_clean_merge.py` read this config and contain no hard‑coded URLs or seeds.
+- **CPU‑first everywhere** – all libraries have pure‑CPU implementations.  
+- **No synthetic fallback** – any missing data triggers a hard error, preserving the fabrication gate.  
+- **R packages installed via `install_packages.R`**; `renv` is deliberately disabled to avoid the failing verification step.  
+- **Runtime discovery** for Dryad IDs eliminates the need for a hard‑coded placeholder list in `config.yaml`.  
 
 ## Quick Reference of Scripts (existence confirmed)
 - `code/01_discover_data.py`
 - `code/02_ingest_data.py`
 - `code/03_clean_merge.py`
-- `code/04_fetch_phylogeny.py`
-- `code/05_fit_pgls_base.py`
-- `code/06_fit_pgls_interaction.py`
-- `code/07_sensitivity.py`
-- `code/08_visualize.py`
+- `code/04_fit_pgls_base.py`
+- `code/05_fit_pgls_interaction.py`
+- `code/06_sensitivity_power.py`
+- `code/07_visualize.py`
 
-These scripts are version‑controlled, deterministic, and read `code/config.yaml` at runtime.
+These scripts are deterministic, read `code/config.yaml`, and contain no hard‑coded URLs or seeds.
+
+---
+

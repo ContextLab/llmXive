@@ -1,37 +1,37 @@
-- artifact_hash: f926e17a24783748b8f560dc6b56f2ac46372fbf74a31ec274e388a68a78432d
+- artifact_hash: 8915ac41bb04060c1c28b274d89d65964e368f872cdf731b6d6800c96c981065
   artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: hg38.trf.short.bed.csv
   kind: url
-  value: https://huggingface.co/datasets/ReaKal/hg38.trf.short/resolve/main/hg38.trf.short.bed.csv`
+  value: https://huggingface.co/datasets/ReaKal/hg38.trf.short/resolve/main/hg38.trf.short.bed.csv
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/ReaKal/hg38.trf.short/45e422c71d5fb0a6da2abe4d6b6e47bfc740a5e8/hg38.trf.short.bed.csv?%2Fdatasets%2FReaKal%2Fhg38.trf.short%2Fresolve%2Fmain%2Fhg38.trf.short.bed.csv=&etag=%2218a66bc1f6fdd9095634f952a79378a5f8ae8eb1%22
-  verified_at: '2026-10-14T02:31:06.672210Z'
-- artifact_hash: f926e17a24783748b8f560dc6b56f2ac46372fbf74a31ec274e388a68a78432d
+  verified_at: '2026-10-24T01:44:43.457030Z'
+- artifact_hash: 8915ac41bb04060c1c28b274d89d65964e368f872cdf731b6d6800c96c981065
   artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: data.jsonl
+  fetched_title: split_name_to_num_samples.json
   kind: url
-  value: https://huggingface.co/datasets/Taklaxbr/tr-full-dataset/resolve/main/data.jsonl`
+  value: https://huggingface.co/datasets/Hoixi/TR-FinTable-Dataset-v4/resolve/main/split_name_to_num_samples.json
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a2c6bc879b6ebb94abc37cf/3b4e9138e34819064f4d6cc6ca5f5e58f864b9922075af90d6ad96fcb8639541?xip=AXSNMhVGeeY&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.jsonl%3B+filename%3D%22data.jsonl%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1791948666&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmEyYzZiYzg3OWI2ZWJiOTRhYmMzN2NmLzNiNGU5MTM4ZTM0ODE5MDY0ZjRkNmNjNmNhNWY1ZTU4Zjg2NGI5OTIyMDc1YWY5MGQ2YWQ5NmZjYjg2Mzk1NDFcXD94aXA9QVhTTk1oVkdlZVkmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2RhdGEuanNvbmwlM0IrZmlsZW5hbWUlM0QlMjJkYXRhLmpzb25sJTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTE5NDg2NjZ9fX1dfQ__&Signature=MEQCIDkBaWoq4CRDmjLDB09giOCgEo5C2rJKpBKgmfeNRs%7EbAiBTvX1KmiKn0OaekFUDCBNPHLxZxNdPRQxbEZ4GumuROA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-14T02:31:06.672210Z'
-- artifact_hash: f926e17a24783748b8f560dc6b56f2ac46372fbf74a31ec274e388a68a78432d
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Hoixi/TR-FinTable-Dataset-v4/f8e200afd7603ac67620d8387e125778fe81a7bd/split_name_to_num_samples.json?%2Fdatasets%2FHoixi%2FTR-FinTable-Dataset-v4%2Fresolve%2Fmain%2Fsplit_name_to_num_samples.json=&etag=%22ef97ee14767f1fc9688d7a9ba19875be98e43e55%22
+  verified_at: '2026-10-24T01:44:43.457030Z'
+- artifact_hash: 8915ac41bb04060c1c28b274d89d65964e368f872cdf731b6d6800c96c981065
   artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: split_name_to_num_samples.json
   kind: url
-  value: https://huggingface.co/datasets/Hoixi/TR-FinTable-Dataset-v4/resolve/main/split_name_to_num_samples.json`
+  value: https://huggingface.co/datasets/Hoixi/TR-FinTable/resolve/main/split_name_to_num_samples.json
   verification_status: pending
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Hoixi/TR-FinTable-Dataset-v4/f8e200afd7603ac67620d8387e125778fe81a7bd/split_name_to_num_samples.json?%2Fdatasets%2FHoixi%2FTR-FinTable-Dataset-v4%2Fresolve%2Fmain%2Fsplit_name_to_num_samples.json=&etag=%22ef97ee14767f1fc9688d7a9ba19875be98e43e55%22
-  verified_at: '2026-10-14T02:31:06.672210Z'
-- artifact_hash: 23e03a99e89bf42b36e83749773e1b66b450823b14e03271d4f60ee001ddc1dd
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Hoixi/TR-FinTable/7ce1061416526edde9e18a32eb71e79a35a4de93/split_name_to_num_samples.json?%2Fdatasets%2FHoixi%2FTR-FinTable%2Fresolve%2Fmain%2Fsplit_name_to_num_samples.json=&etag=%227f66d62fbe2443926d8984c15d455c91b5c38501%22
+  verified_at: '2026-10-24T01:44:43.457030Z'
+- artifact_hash: 92dbaa4902f0d3f55a78784b1b197eb64f3b741556b8e268c4b5d98b83f951fc
   artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -41,15 +41,26 @@
   value: https://datadryad.org/api/v2
   verification_status: pending
   verified_against_url: https://datadryad.org/api/v2
-  verified_at: '2026-10-14T02:31:30.010867Z'
-- artifact_hash: 23e03a99e89bf42b36e83749773e1b66b450823b14e03271d4f60ee001ddc1dd
+  verified_at: '2026-10-24T01:45:03.403962Z'
+- artifact_hash: 92dbaa4902f0d3f55a78784b1b197eb64f3b741556b8e268c4b5d98b83f951fc
   artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/quickstart.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://genomics.senescence.info/species/animalia.txt
+  value: https://anage.org/api/v1/export.csv
+  verification_status: unreachable
+  verified_against_url: https://anage.org/api/v1/export.csv
+  verified_at: '2026-10-24T01:45:03.403962Z'
+- artifact_hash: 92dbaa4902f0d3f55a78784b1b197eb64f3b741556b8e268c4b5d98b83f951fc
+  artifact_path: projects/PROJ-055-investigating-the-impact-of-telomere-len/specs/001-investigating-the-impact-of-telomere-len/quickstart.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://birdlife.org/api/v1/ecology
   verification_status: mismatch
-  verified_against_url: https://genomics.senescence.info/species/animalia.txt
-  verified_at: '2026-10-14T02:31:30.010867Z'
+  verified_against_url: https://www.birdlife.org/api/v1/ecology
+  verified_at: '2026-10-24T01:45:03.403962Z'

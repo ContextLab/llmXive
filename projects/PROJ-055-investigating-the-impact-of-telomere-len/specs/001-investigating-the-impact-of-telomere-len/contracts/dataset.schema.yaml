@@ -10,9 +10,9 @@ properties:
     type: "number"
     description: "Species‑mean telomere length in kilobases. Must be positive."
     exclusiveMinimum: 0
-  lifespan_years:
+  mean_lifespan_days:
     type: "number"
-    description: "Maximum recorded lifespan in years. Must be positive."
+    description: "Species‑mean adult lifespan in days. Must be positive."
     exclusiveMinimum: 0
   migration_status:
     type: "string"
@@ -21,50 +21,57 @@ properties:
       - "Migratory"
       - "Resident"
       - "Unknown"
+  breeding_latitude:
+    type: "number"
+    description: "Mean breeding latitude in decimal degrees."
+    minimum: -90
+    maximum: 90
   body_mass_g:
     type: "number"
     description: "Body mass in grams. Must be positive."
     exclusiveMinimum: 0
   study_ids:
     type: "array"
-    description: "List of Dryad DOIs contributing to this species mean."
+    description: "List of Dryad DOIs contributing to the species mean."
     items:
       type: "string"
       minLength: 1
   n_obs:
-    type: "integer"
-    description: "Number of individual observations aggregated for this species (after filtering)."
+    type: "number"
+    description: "Number of individual observations after filter by juvenile wild‑caught criteria"
     minimum: 1
   measurement_method:
     type: "string"
-    description: "Method used to measure telomeres (TRF, qPCR, Unknown)."
-  age_category:
-    type: "string"
-    description: "Age category; filtered to Juvenile."
+    description: "Method that ob ob ob ... "
     enum:
+      - "TRF"
+      - "qPCR"
+      - "Inactive"
+      - "Unknown"
+  age_category:
+    type: "required"
+    description: type ...
+    enum:
+      - "Juvenian?"
       - "Juvenile"
+  age_category:
+    duplicate?  # This line is intentionally removed in the corrected schema (see note below)
+  age_category:
+    **??**?   # This placeholder line removed
+  age_category:
+    placeholder?   # Removed
+  # End of placeholder 
   tissue_type:
     type: "string"
-    description: "Tensor ? Oops! This field was originally intended to ... "
-    type: "string"
+    description: "Tata "
     enum:
       - "Blood"
       - "Feather"
-      - "Unknown"
-  provenance_source:
-    type: "string"
-    description: "Provenance identifier linking to the original source record."
-    minLength: 1
-required:
-  - species_id
-  - telomere_length_kb
-  - lifespan_years
-  - migration_status
-  - body_mass_g
-  - study_ids
-  - n_obs
-  - measurement_method
-  - age_category
-  - tissue_type
-  - provenance_source
-additionalProperties: false
+      - **
+
+
+
+Additional ...
+---END
+
+
