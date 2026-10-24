@@ -2,18 +2,11 @@
 #
 # This file centralises all external endpoints, dataset identifiers,
 # random seeds and statistical thresholds used throughout the pipeline.
-# Scripts should obtain these values via `config.get_config()` rather than
-# hard‑coding them.
-dryad:
-  # Base URL for the Dryad API (v2). Individual dataset IDs are listed
-  # in the JSON file produced by `01_discover_data.py`.  The pipeline
-  # also accepts an explicit list here for ad‑hoc runs.
-  base_url: "https://datadryad.org/api/v2"
-  # Example dataset identifiers (replace with real IDs after discovery)
-  dataset_ids: []
-anage:
-  # Direct CSV download URL for the AnAge bird dataset.
-  # The file contains species‑level longevity and ecological covariates.
-  url: "https://genomics.senescence.info/species/animalia.csv"
+# Scripts should obtain these values via `yaml.safe_load(open("code/config.yaml"))`
+# rather than hard‑coding them.
+dryad_api_base: "https://datadryad.org/api/v2"
+dataset_ids: []        # populated automatically by 01_discover_data.py
+anage_url: "https://genomics.senescence.info/species/animalia.csv"
 random_seed: 42
 alpha: 0.05
+chunk_size: 100000

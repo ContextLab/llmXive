@@ -14,7 +14,7 @@
 
 ## Phase 1 – Data Discovery, Configuration & Ingestion  
 
-- [ ] T002 [US-1] Populate a complete configuration file with real Dryad DOIs  
+- [ ] T002 [US-1] Populate a complete configuration file with real Dryad DOIs   <!-- FAILED-IN-EXECUTION: code/01_discover_data.py exit=1; code/02_ingest_data.py exit=1; code/03_clean_merge.py exit=1 -->
   - Create `code/config.yaml` containing required keys (`dryad_api_base`, `dataset_ids`, `anage_url`, `random_seed`, `alpha`, `chunk_size`).  
   - **Important**: `dataset_ids` **must be a non‑empty list** of real, publicly resolvable Dryad DOIs (e.g., `["[UNRESOLVED-CLAIM: 10.5061/dryad.abc123 — HTTP 404]", "[UNRESOLVED-CLAIM: 10.5061/dryad.def456 — HTTP 404]"]`).  
   - Implement `code/01_discover_data.py` that queries the Dryad API for datasets containing the keyword “telomere”, validates each DOI resolves (HTTP 200), and writes the list to `config.yaml`. Run this script to auto‑populate `dataset_ids`.  

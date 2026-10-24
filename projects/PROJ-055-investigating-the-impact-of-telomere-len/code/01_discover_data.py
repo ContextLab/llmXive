@@ -2,7 +2,7 @@
 01_discover_data.py
 
 Queries the Dryad API to find datasets related to bird telomere length.
-Extracts valid dataset IDs and saves them to a JSON file.
+Extracts valid dataset IDs and writes them back into `code/config.yaml`.
 Halts the pipeline (exit code 1) if no results are found.
 """
 
@@ -17,22 +17,31 @@ from typing import List, Dict, Any, Optional
 if __package__ is None:
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import get_config
+import yaml
 from logging_config import setup_logging, ensure_log_directory
 from utils import generate_checksum, update_state_file
 
 # Constants
-DRYAD_API_BASE = "https://datadryad.org/api/v2/datasets"
 SEARCH_QUERY = "telomere bird"
-OUTPUT_DIR = Path("data") / "raw"
-OUTPUT_FILE = OUTPUT_DIR / "dryad_dataset_ids.json"
-LOG_FILE = Path("logs") / "discover_data.log"
+CONFIG_PATH = Path("code") / "config.yaml"
+LOG_FILE_NAME = "discover_data.log"  # name only; logging_config will prepend the logs dir
+
+def load_config() -> Dict[str, Any]:
+    """Load the YAML configuration file."""
+    with CONFIG_PATH.open("r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+def save_config(cfg: Dict[str, Any]) -> None:
+    """Write the updated configuration back to disk."""
+    with CONFIG_PATH.open("w", encoding="utf-8") as f:
+        yaml.safe_dump(cfg, f, default_flow_style=False)
 
 def search_dryad(query: str, api_key: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Query Dryad API for datasets matching the query.
     Returns a list of dataset metadata dictionaries.
     """
+    base_url = "https://datadryad.org/api/v2/datasets"
     params = {
         "q": query,
         "qf": ["title", "abstract", "keyword"],
@@ -45,77 +54,73 @@ def search_dryad(query: str, api_key: Optional[str] = None) -> List[Dict[str, An
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
 
-    try:
-        response = requests.get(DRYAD_API_BASE, params=params, headers=headers, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        results = data.get("data", data.get("entry", []))
-        return results
-    except requests.exceptions.RequestException as e:
-        logger = logging.getLogger(__name__)
-        logger.error(f"Failed to query Dryad API: {e}")
-        raise
+    response = requests.get(base_url, params=params, headers=headers, timeout=30)
+    response.raise_for_status()
+    data = response.json()
+    # Dryad may return results under different keys depending on version
+    return data.get("data", data.get("entry", []))
 
 def extract_dataset_ids(results: List[Dict[str, Any]]) -> List[Dict[str, str]]:
     """
     Extract relevant dataset ID and metadata from Dryad search results.
     Returns a list of dicts with 'id', 'doi', and 'title'.
     """
-    valid_datasets = []
+    valid = []
     for item in results:
         dataset_id = item.get("identifier") or item.get("id")
         doi = item.get("doi") or item.get("dc:identifier")
         title = item.get("title") or item.get("dc:title") or "Unknown Title"
         if dataset_id and doi:
-            valid_datasets.append({
+            valid.append({
                 "id": str(dataset_id),
                 "doi": doi,
                 "title": title,
             })
-    return valid_datasets
+    return valid
 
-def save_dataset_ids(dataset_ids: List[Dict[str, str]], output_path: Path):
-    """
-    Save the list of valid dataset IDs to a JSON file.
-    """
-    ensure_log_directory(output_path.parent)
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(dataset_ids, f, indent=2)
+def main() -> None:
+    # Initialise logger – only the filename is passed; the helper creates the logs directory.
+    logger = setup_logging(log_file=LOG_FILE_NAME)
+    logger.info("Starting Dryad dataset discovery (T002)...")
 
-    checksum = generate_checksum(output_path)
-    update_state_file({"dryad_discovery": checksum})
-
-def main():
-    # Correct logger initialization – pass the *log_file* argument, not log_level
-    logger = setup_logging(log_file=str(LOG_FILE))
-    logger.info("Starting Dryad dataset discovery (T014)...")
-
-    config = get_config()
-    dryad_api_key = config.get("dryad_api_key")
+    cfg = load_config()
+    dryad_api_key = cfg.get("dryad_api_key")  # optional; may be absent
 
     try:
-        logger.info(f"Searching Dryad for: '{SEARCH_QUERY}'")
+        logger.info(f"Searching Dryad for query: '{SEARCH_QUERY}'")
         results = search_dryad(SEARCH_QUERY, dryad_api_key)
 
         if not results:
-            logger.warning("No results found from Dryad API.")
+            logger.error("Dryad API returned no results.")
             sys.exit(1)
 
-        logger.info(f"Found {len(results)} raw results.")
-        valid_datasets = extract_dataset_ids(results)
+        logger.info(f"Dryad returned {len(results)} raw entries.")
+        datasets = extract_dataset_ids(results)
 
-        if not valid_datasets:
-            logger.error("No valid dataset IDs could be extracted from results.")
+        if not datasets:
+            logger.error("No usable dataset IDs could be extracted.")
             sys.exit(1)
 
-        logger.info(f"Extracted {len(valid_datasets)} valid datasets.")
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        save_dataset_ids(valid_datasets, OUTPUT_FILE)
+        # Update config with the discovered DOIs (store just the DOI strings)
+        discovered_dois = [d["doi"] for d in datasets]
+        cfg["dataset_ids"] = discovered_dois
+        save_config(cfg)
 
-        logger.info(f"Successfully saved dataset IDs to {OUTPUT_FILE}")
-        logger.info("Discovery phase complete.")
-    except Exception as e:
-        logger.error(f"Discovery process failed: {e}")
+        # Persist the full list as a JSON artefact for downstream steps
+        output_dir = Path("data") / "raw"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        json_path = output_dir / "dryad_dataset_ids.json"
+        with json_path.open("w", encoding="utf-8") as jf:
+            json.dump(datasets, jf, indent=2)
+
+        # Record checksum for provenance
+        checksum = generate_checksum(json_path)
+        update_state_file({"dryad_discovery": checksum})
+
+        logger.info(f"Discovered {len(discovered_dois)} DOIs and wrote to {CONFIG_PATH}")
+        logger.info("Discovery phase completed successfully.")
+    except Exception as exc:
+        logger.exception(f"Discovery failed: {exc}")
         sys.exit(1)
 
 if __name__ == "__main__":

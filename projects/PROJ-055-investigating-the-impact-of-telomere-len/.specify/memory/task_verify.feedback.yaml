@@ -3,6 +3,8 @@ T001:
     exit=-1'
   task: 9f3c5743d59cab1cbcde0df6dc441165b07fb6b8b303ee866a8a24d2ef41005b
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/01_discover_data.py
+    exit=1; code/02_ingest_data.py exit=1; code/03_clean_merge.py exit=1'
   task: 9f170d26d741f7974c73fd426db621fd92eeef1bbcfb70a4deab9961c34edfba
 T003:
   task: e2414ffbf1755649d304847e6c4cadb44354e81fe3003202513b4aad420c42b2

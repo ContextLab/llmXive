@@ -1,141 +1,141 @@
-import os
+"""
+02_ingest_data.py
+
+Downloads raw CSV files from Dryad (using the DOIs discovered by
+01_discover_data.py) and the AnAge bird dataset.  For each file a
+SHA‑256 checksum file ``<filename>.sha256`` is written alongside the
+downloaded data.
+"""
+
 import sys
-import hashlib
 import json
-import time
+import hashlib
+import requests
 from pathlib import Path
+from typing import Optional, List
 
-# --------------------------------------------------------------
-# Configuration handling
-# --------------------------------------------------------------
-from config import get_config, set_random_seed
+import yaml
+from utils import generate_checksum, update_state_file
 
-_config = get_config()
+# ------------------------------------------------------------------
+# Load configuration (no hard‑coded URLs or seeds)
+# ------------------------------------------------------------------
+CONFIG_PATH = Path("code") / "config.yaml"
 
-# Apply the configured random seed (default 42) for reproducibility
-if "random_seed" in _config:
-    try:
-        set_random_seed(int(_config["random_seed"]))
-    except Exception as e:
-        print(f"Warning: could not set random seed from config: {e}", file=sys.stderr)
+def load_config() -> dict:
+    with CONFIG_PATH.open("r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
-# Endpoints that may be used by the ingestion functions
-DRYAD_BASE_URL = _config.get("dryad", {}).get("base_url", "https://datadryad.org/api/v2")
-ANAGE_URL = _config.get("anage", {}).get("url", "https://genomics.senescence.info/species/animalia.csv")
+_cfg = load_config()
+DRYAD_API_BASE = _cfg.get("dryad_api_base", "https://datadryad.org/api/v2")
+ANAGE_URL = _cfg.get("anage_url")
+RANDOM_SEED = int(_cfg.get("random_seed", 42))
+CHUNK_SIZE = int(_cfg.get("chunk_size", 8192))
 
-# --------------------------------------------------------------
-# Public API (unchanged signatures)
-# --------------------------------------------------------------
-def load_dataset_ids() -> list[str]:
-    """
-    Load discovered Dryad dataset IDs from the JSON file written by
-    `01_discover_data.py`.  If the config provides an explicit list of
-    dataset IDs, those are used as a fallback.
-    """
-    ids_path = Path(__file__).parent / "data" / "dryad_dataset_ids.json"
-    if ids_path.is_file():
-        with ids_path.open() as f:
-            data = json.load(f)
-        return [entry["id"] for entry in data if "id" in entry]
-
-    # Fallback to config‑provided IDs (useful for manual runs)
-    return _config.get("dryad", {}).get("dataset_ids", [])
-
+# ------------------------------------------------------------------
+# Helper utilities
+# ------------------------------------------------------------------
 def _discover_csv_file_id(dataset_id: str) -> Optional[str]:
     """
     Query the Dryad API for a dataset's file list and return the first
     file identifier that ends with '.csv'. Returns None if no CSV is found.
     """
-    import requests
-
-    url = f"{DRYAD_BASE_URL}/datasets/{dataset_id}"
-    response = requests.get(url, timeout=30)
-    response.raise_for_status()
-    data = response.json()
-    files = data.get("files", [])
-    for f in files:
+    url = f"{DRYAD_API_BASE}/datasets/{dataset_id}"
+    resp = requests.get(url, timeout=30)
+    resp.raise_for_status()
+    data = resp.json()
+    for f in data.get("files", []):
         fname = f.get("filename") or f.get("name")
         if fname and fname.lower().endswith(".csv"):
             return f.get("id") or f.get("file_id")
     return None
 
-def download_dryad_file(dataset_id: str, file_id: Optional[str], output_path: Path) -> bool:
+def download_dryad_file(dataset_id: str, file_id: Optional[str], out_path: Path) -> None:
     """
-    Download a specific file from Dryad using the API.
-    If ``file_id`` is None, the function will attempt to discover a CSV file
-    within the dataset.
+    Download a CSV file from a Dryad dataset.  Raises on any failure.
     """
-    import requests
-
     if file_id is None:
         file_id = _discover_csv_file_id(dataset_id)
         if not file_id:
-            raise FileNotFoundError(f"No CSV file found in Dryad dataset {dataset_id}")
+            raise FileNotFoundError(f"No CSV found in Dryad dataset {dataset_id}")
 
-    url = f"{DRYAD_BASE_URL}/datasets/{dataset_id}/files/{file_id}"
-    response = requests.get(url, stream=True, timeout=60)
-    response.raise_for_status()
+    url = f"{DRYAD_API_BASE}/datasets/{dataset_id}/files/{file_id}"
+    with requests.get(url, stream=True, timeout=60) as r:
+        r.raise_for_status()
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with out_path.open("wb") as f:
+            for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
+                if chunk:
+                    f.write(chunk)
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-    return True
+    # Write checksum file
+    checksum = generate_checksum(out_path)
+    (out_path.with_suffix(out_path.suffix + ".sha256")).write_text(checksum)
 
-def download_anage_data(output_path: Path) -> bool:
+def download_anage_data(out_path: Path) -> None:
     """
-    Download the AnAge bird CSV directly from the configured URL.
+    Download the AnAge bird CSV.
     """
-    import requests
+    with requests.get(ANAGE_URL, stream=True, timeout=60) as r:
+        r.raise_for_status()
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with out_path.open("wb") as f:
+            for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
+                if chunk:
+                    f.write(chunk)
 
-    response = requests.get(ANAGE_URL, stream=True, timeout=60)
-    response.raise_for_status()
+    checksum = generate_checksum(out_path)
+    (out_path.with_suffix(out_path.suffix + ".sha256")).write_text(checksum)
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-    return True
-
-def verify_checksum(file_path: Path, expected_hash: str | None = None) -> bool:
+# ------------------------------------------------------------------
+# Public API
+# ------------------------------------------------------------------
+def load_dataset_ids() -> List[str]:
     """
-    Compute (and optionally verify) the SHA256 checksum of a file.
+    Load the list of Dryad dataset IDs discovered by 01_discover_data.py.
+    Falls back to any IDs manually listed in the config file.
     """
-    sha256 = hashlib.sha256()
-    with file_path.open("rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            sha256.update(chunk)
-    computed = sha256.hexdigest()
-    if expected_hash:
-        return computed == expected_hash
-    else:
-        # Log the checksum for provenance; the calling script may store it.
-        print(f"Checksum for {file_path.name}: {computed}")
-        return True
+    json_path = Path("data") / "raw" / "dryad_dataset_ids.json"
+    if json_path.is_file():
+        with json_path.open("r", encoding="utf-8") as jf:
+            data = json.load(jf)
+        return [entry["id"] for entry in data if "id" in entry]
+
+    # Fallback to config‑provided list (may be empty)
+    return _cfg.get("dataset_ids", [])
 
 def main() -> None:
     """
-    Main execution flow for the ingestion step.
+    Execute the ingestion workflow.
     """
     dataset_ids = load_dataset_ids()
     if not dataset_ids:
-        print("No Dryad dataset IDs found. Continuing with AnAge only.", file=sys.stderr)
+        print("Warning: No Dryad dataset IDs discovered; only AnAge will be downloaded.", file=sys.stderr)
 
-    # Process each Dryad dataset (if any)
+    # Download each Dryad CSV
     for ds_id in dataset_ids:
-        out_path = Path("data") / "raw" / f"{ds_id}.csv"
+        out_file = Path("data") / "raw" / f"{ds_id}.csv"
         try:
-            download_dryad_file(ds_id, None, out_path)
-            verify_checksum(out_path)
+            download_dryad_file(ds_id, None, out_file)
+            print(f"Downloaded Dryad dataset {ds_id} to {out_file}")
         except Exception as e:
-            print(f"Failed to download CSV from Dryad dataset {ds_id}: {e}", file=sys.stderr)
+            print(f"Failed to download dataset {ds_id}: {e}", file=sys.stderr)
 
-    # Always download AnAge data
+    # Download AnAge data
     anage_path = Path("data") / "raw" / "anage_birds.csv"
-    download_anage_data(anage_path)
-    verify_checksum(anage_path)
+    try:
+        download_anage_data(anage_path)
+        print(f"Downloaded AnAge data to {anage_path}")
+    except Exception as e:
+        print(f"Failed to download AnAge data: {e}", file=sys.stderr)
+        sys.exit(1)
 
-    # Note: state hash updates are handled by the orchestrator / utils.
+    # Record a simple state hash for provenance
+    hash_map = {}
+    for p in Path("data") / "raw" .glob("*"):
+        if p.is_file():
+            hash_map[str(p.relative_to(Path.cwd()))] = generate_checksum(p)
+    update_state_file(hash_map)
 
 if __name__ == "__main__":
     main()
