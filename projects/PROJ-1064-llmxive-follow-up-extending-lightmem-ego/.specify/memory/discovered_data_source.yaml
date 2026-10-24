@@ -1,16 +1,14 @@
 status: none
-intent: Ego4D long-term egocentric retrieval dataset download python package dataset
+intent: Ego4D egocentric video dataset with timestamps and embeddings download python
+  package dataset
 required_fields:
+- clip_id
+- timestamp
+- event_id
+- embedding_vector_768
+- modality
 - query_id
-- query_text
-- ground_truth_video_id
-- ground_truth_start_sec
-- ground_truth_end_sec
-- event_timestamp
-- event_category
-- video_duration
-- video_url
-- metadata
-cache_key: a461b46db8140beb52f60c5933fd8b3ee571adb44af29cecc1373b9ce5df18c2
-searched_at: '2026-10-22T07:16:23.954145+00:00'
+- relevance_label
+cache_key: 0652a4f9695bd43281627e975dfc6f8e63258659985afbc3fb10a6db48dd50d5
+searched_at: '2026-10-24T07:25:35.307118+00:00'
 retry_count: 1

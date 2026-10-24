@@ -28,8 +28,6 @@ pytest -q tests/contract/test_evaluation_report.py
 
 * `evaluation_report.json` – machine‑readable results adhering to the contract, including optimal α, β, λ.  
 * `report.md` – human‑readable summary (accuracy, latency, significance, optimal parameters).  
-* `data/processed/faiss_hnsw_ego4d.index` – deterministically built FAISS index for reproducibility.  
+* `data/processed/faiss_hnsw_ego.index` – deterministically built FAISS index for reproducibility.  
 
 All steps respect the CPU‑only constraint and stay under a reasonable RAM threshold.  
-
----
