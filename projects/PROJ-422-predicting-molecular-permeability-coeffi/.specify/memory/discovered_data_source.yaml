@@ -1,18 +1,17 @@
 status: none
-intent: Robeson polymer membrane permeability dataset Polymer Membrane Permeability
-  Database NIST python package dataset
+intent: download membrane permeability coefficients from Polymer Membrane Permeability
+  Database NIST MPDB and MoleculeNet python package dataset
 required_fields:
 - polymer_name
-- polymer_identifier
+- polymer_structure_SMILES_or_InChI
 - membrane_thickness
-- temperature
-- pressure
+- temperature_K
+- pressure_atm
 - gas_species
-- permeability_coefficient
-- diffusion_coefficient
-- solubility_coefficient
+- permeability_coefficient_units
+- permeability_value
 - experimental_method
-- reference_citation
-cache_key: 53c876a3704a348bbc32e571687fa574ceca111c007be299495b0821d5309b11
-searched_at: '2026-10-24T15:48:25.430652+00:00'
+- reference_DOI
+cache_key: b3fc460dacefb9549d323e3a324066ad814379a23b6313bcbc9825aa48a8fada
+searched_at: '2026-10-24T16:20:31.750919+00:00'
 retry_count: 1

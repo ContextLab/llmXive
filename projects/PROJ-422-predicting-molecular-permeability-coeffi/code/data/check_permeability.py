@@ -21,13 +21,14 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 import yaml
-from datasets import load_dataset, DatasetDict, Dataset
+from datasets import load_dataset, Dataset
 
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
 def _project_root() -> Path:
     """Return the absolute path to the project root."""
+    # This file lives in <project_root>/code/data/
     return Path(__file__).resolve().parents[2]
 
 def _load_verified_datasets() -> List[Dict[str, Any]]:
@@ -48,7 +49,11 @@ def _load_verified_datasets() -> List[Dict[str, Any]]:
     """
     cfg_path = _project_root() / "config" / "verified_datasets.yaml"
     if not cfg_path.is_file():
-        raise FileNotFoundError(f"Verified datasets config not found at {cfg_path}")
+        # Gracefully handle a missing configuration – the pipeline cannot
+        # continue without a list of candidates, but we should not raise
+        # an unhandled exception (which would be interpreted as a crash).
+        logging.error(f"Verified datasets config not found at {cfg_path}")
+        return []  # Caller will treat this as a failure condition.
 
     with cfg_path.open("r", encoding="utf-8") as f:
         data = yaml.safe_load(f) or []
@@ -125,7 +130,7 @@ def main() -> int:
     try:
         candidates = _load_verified_datasets()
         if not candidates:
-            logger.error("Verified datasets list is empty.")
+            logger.error("Verified datasets list is empty or missing.")
             return 1
 
         selected = _select_dataset(candidates)
