@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.11+  
 - Git  
-- At least **7 GB** of RAM (local) or a GitHub Actions runner (2 CPU cores, 7 GB RAM).  
+- At least **7 GB** of RAM (local) or a GitHub Actions runner (Multiple CPU cores, 7 GB RAM).  
 
 ## Installation
 
@@ -40,7 +40,7 @@ python code/data/split.py \
     --train-ratio 0.80 --val-ratio 0.10 --test-ratio 0.10 \
     --strategy scaffold
 ```
-- Generates `MoleculeGraph` objects, derives `-HOMO` target, and creates an 80/10/10 scaffold split.  
+- Generates `MoleculeGraph` objects, derives the `-HOMO` target, and creates a scaffold split with a large majority allocated to the primary set and smaller equal portions for the secondary sets.  
 - Logs any excluded molecules (missing `homo` or unparsable SMILES).
 
 ### 3. Proxy Validation (Construct Validity)
@@ -74,7 +74,7 @@ python code/models/baselines.py --type lr
 python code/models/baselines.py --type dftb
 ```
 
-### 6. **Job B‑1 – Ablation Half 1 (Retraining)**
+### 6. **Job B‑1 – Ablation Half 1 (Retraining)**
 ```bash
 python code/experiments/ablation.py \
     --feature bond_type \
@@ -90,7 +90,7 @@ python code/experiments/ablation.py \
 - If the internal runtime guard detects that the estimated wall‑clock will exceed 4 hours, the script automatically switches to a **5 000‑molecule** subset (still meets power requirements).  
 - Results are saved to `results/ablation_part1.json`.
 
-### 7. **Job B‑2 – Ablation Half 2 (Retraining)**
+### 7. **Job B‑2 – Ablation Half 2 (Retraining)**
 ```bash
 python code/experiments/ablation.py \
     --feature bond_type \
@@ -107,7 +107,7 @@ python code/experiments/ablation.py \
 
 ### 8. **Job C – Attribution & Evaluation**
 ```bash
-# Integrated Gradients on a representative subset (1,000 test molecules)
+# Integrated Gradients on a representative subset of test molecules
 python code/experiments/evaluate.py \
     --model-path code/models/best_model.pth \
     --test-set data/splits/test.pt \
@@ -132,6 +132,3 @@ python code/experiments/evaluate.py \
 - **Attribution Runtime**: Only a 1 k subset is processed by default; increase `--ig-sample-size` only if compute budget permits.
 
 ---
-
-
-

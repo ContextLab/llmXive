@@ -37,7 +37,7 @@ The researcher needs to train a Message-Passing Neural Network (MPNN) on the pre
 2. **Given** the trained model and the ablation protocol, **When** the ablation study runs with bond features zeroed out, **Then** the system **re‑trains** the model for each configuration, performing **3 independent stochastic runs** per configuration and recording the MAE distribution for each run.
 3. **Given** the MAE distributions from the clean model and each retrained ablated model (3 runs each), **When** the statistical analysis runs, **Then** the system performs a **paired** t‑test on per‑molecule absolute errors across the shared test set, reports the p‑value **and** Cohen’s d effect size, and provides a post‑hoc power estimate; significance is declared at $p < 0.05$.
 4. **Given** an ablation configuration, **When** attribution is requested, **Then** the system computes an **Integrated Gradients** attribution map for the trained model and stores it as an `AttributionMap` linked to the corresponding run (See FR‑011). The method is explicitly defined in `contracts/model_output.schema.yaml`.
-5. **Given** the model architecture, **When** training on a batch of 64 molecules, **Then** the CPU memory usage (Peak RSS) remains ≤ 7 GB, and the architecture choice (e.g., GCN, GAT) is documented in the model definition file (See FR‑021).
+5. **Given** the model architecture, **When** training on a batch of multiple molecules, **Then** the CPU memory usage (Peak RSS) remains ≤ 7 GB, and the architecture choice (e.g., GCN, GAT) is documented in the model definition file (See FR‑021).
 
 ---
 
@@ -51,7 +51,7 @@ The researcher needs to evaluate the model's performance against a fingerprint-b
 
 **Acceptance Scenarios**:
 
-1. **Given** the trained GNN and the test set, **When** evaluation runs, **Then** the GNN's MAE and RMSE are reported alongside the fingerprint‑based linear regression baseline (ECFP4, radius 2).
+1. **Given** the trained GNN and the test set, **When** evaluation runs, **Then** the GNN's MAE and RMSE are reported alongside the fingerprint‑based linear regression baseline (ECFP fingerprint, radius 2).
 2. **Given** the error distribution, **When** analyzed against molecule size, **Then** the system reports the Pearson correlation coefficient between the absolute error and the number of rotatable bonds (flexibility).
 3. **Given** the decision threshold for “acceptable prediction” (absolute error < 0.4 eV), **When** the sensitivity analysis runs, **Then** the system sweeps the threshold over a representative set of values spanning the lower to higher end of the expected range and reports the variation in the “success” rate (percentage of test molecules meeting the threshold).
 4. **Given** the test set, **When** scaffold‑based OOD detection runs, **Then** the system flags any molecule whose Bemis‑Murcko scaffold does not appear in the training set, records the count, and notes the potential for higher prediction error in the final report.

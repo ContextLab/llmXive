@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Ablation Result Schema"
-description: "Schema for ablation study results. The study involves retraining the model with zeroed features for 10 independent stochastic runs (paired with 10 baseline runs)."
+description: "Schema for ablation study results. The study involves retraining the model with zeroed features for multiple independent stochastic runs (paired with an equal number of baseline runs)."
 type: "object"
 properties:
   ablation_config:
@@ -41,10 +41,10 @@ properties:
         description: "True if p‑value < 0.05 after Bonferroni correction."
       num_runs:
         type: "integer"
-        description: "Number of stochastic runs performed (must be 10)."
+        description: "Number of stochastic runs performed (must be 4‑?? ?? ?"
       test_type:
         type: "string"
-        description: "Statistical test used (e.g., 'paired_t_test')."
+        description: "Statistical test used"
     required:
       - baseline_mae
       - perturbed_mae_mean

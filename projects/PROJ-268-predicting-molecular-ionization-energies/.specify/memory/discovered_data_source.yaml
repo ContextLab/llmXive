@@ -1,12 +1,12 @@
 status: verified
 kind: pypi_package
 ref: qm9pack
-access_python: "import qm9pack\nimport pandas as pd\n\n# Load the full QM9 dataset;\
-  \ the required argument specifies the dataset name\ndata = qm9pack.get_data('qm9')\n\
-  \n# Convert to a DataFrame\ndf = pd.DataFrame(data)\n\nif not isinstance(df, pd.DataFrame):\n\
-  \    raise TypeError(\"Expected a pandas DataFrame from qm9pack.get_data()\")\n\n\
-  records = len(df)\nprint(f'RECORDS={records}')\n\nif records:\n    print('FIELDS='\
-  \ + ','.join(df.columns.tolist()))"
+access_python: "from qm9pack import get_data\n\n# Load the full QM9 dataset (the required\
+  \ argument is the dataset name)\ndata = get_data('qm9')\n\nif hasattr(data, \"shape\"\
+  ) and hasattr(data, \"columns\"):\n    records = len(data)\n    fields = list(data.columns)\n\
+  else:\n    data_list = list(data)\n    records = len(data_list)\n    fields = list(data_list[0].keys())\
+  \ if records else []\n\nprint(f\"RECORDS={records}\")\nprint(\"FIELDS=\" + \",\"\
+  .join(fields))"
 record_count: 130831
 sample_fields:
 - XYZ_file
@@ -40,11 +40,12 @@ sample_fields:
 - A_xz
 - A_yz
 - A_zz
-field_coverage: 0.667
+field_coverage: 0.5
 required_fields:
+- molecule_id
 - smiles
 - homo_energy
 - experimental_ionization_energy
-intent: QM9 dataset python package download NIST WebBook ionization energies python
+intent: download QM9 dataset and NIST WebBook experimental ionization energies python
   package dataset
-cache_key: 530e1cd29e55bf729eeb79b653a9d21f301177a44c7950c939d99ac83a44ae11
+cache_key: 66188eb6c582feb390d4f4b11cb756dd527b4c4321e97bf822c747182324cdcf

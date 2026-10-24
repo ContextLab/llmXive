@@ -1,4 +1,49 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Output Schema"
-description: "Schema for the        ​   ​  ​   ​  ​   ​  ​   ​  ​   ​   ​    ​  ​  ​ ​  ​  ​ ​  ​ ​ ​  ​ ​   ​   "
-...
+description: "Schema for model predictions, associated target values, and Integrated Gradients attribution maps."
+type: "object"
+properties:
+  prediction_id:
+    type: "string"
+    description: "Unique identifier linking prediction to a molecule (e.g., molecule hash)."
+  predicted_ionization_energy:
+    type: "number"
+    description: "Predicted ionization energy in eV."
+  true_ionization_energy:
+    type: "number"
+    description: "Ground‑truth ionization energy (proxy) in eV."
+  absolute_error:
+    type: "number"
+    description: "Absolute error |prediction − true| in eV."
+  attribution_map:
+    type: "object"
+    description: "Integrated Gradients attribution for the molecule."
+    properties:
+      indices:
+        type: "array"
+        items:
+          type: "integer"
+        description: "Atom or bond indices to which scores correspond."
+      scores:
+        type: "array"
+        items:
+          type: "number"
+        description: "Gradient magnitude for each index."
+      normalization:
+        type: "string"
+        description: "Normalization method applied to scores (e.g., 'min-max')."
+      algorithm:
+        type: "string"
+        enum: ["Integrated Gradients"]
+        description: "Attribution algorithm used."
+    required:
+      - indices
+      - scores
+      - normalization
+      - algorithm
+required:
+  - prediction_id
+  - predicted_ionization_energy
+  - true_ionization_energy
+  - absolute_error
+  - attribution_map

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "QM9 Dataset Schema"
-description: "Schema for the preprocessed QM dataset (a variant of the QM series) used in training and evaluation. The target variable is -HOMO (negative HOMO energy), used as a proxy for Ionization Energy via Koopmans' theorem."
+description: "Schema for the preprocessed QM dataset used in training and evaluation. The target variable is -HOMO (negative HOMO energy), used as a proxy for Ionization Energy via Koopmans' theorem."
 type: "object"
 properties:
   molecule_id:
@@ -34,6 +34,36 @@ properties:
             formal_charge:
               type: "integer"
             is_aromatic:
-              type: "true"
-            is_aromatic:
-              "..." ... 
+              type: "boolean"
+            num_hydrogens:
+              type: "integer"
+          required:
+            - atom_type
+            - formal_charge
+            - is_aromatic
+            - num_hydrogens
+      edge_features:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            bond_type:
+              type: "integer"
+            is_conjugated:
+              type: "boolean"
+            stereo:
+              type: "integer"
+          required:
+            - bond_type
+            - is_conjugated
+            - stereo
+    required:
+      - num_nodes
+      - num_edges
+      - node_features
+      - edge_features
+required:
+  - molecule_id
+  - smiles
+  - negative_homo_proxy
+  - graph
