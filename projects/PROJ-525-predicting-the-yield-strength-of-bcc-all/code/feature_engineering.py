@@ -6,6 +6,7 @@ from typing import Dict, Any, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+from periodictable import elements as pt_elements
 
 # Import from project API surface
 from env_config import get_processed_data_path, get_raw_data_path, ensure_dirs, setup_logger
@@ -93,6 +94,33 @@ def load_thermo_params(filepath: str) -> Dict[str, Any]:
     with open(filepath, "r", encoding="utf-8") as f:
         return json.load(f)
 
+def _load_periodic_properties() -> Tuple[Dict[str, float], Dict[str, int], Dict[str, float]]:
+    """
+    Build dictionaries for atomic radii, valences, and electronegativities using the
+    `periodictable` library. Missing values are filled with 0.0 (or 0 for valence).
+    """
+    radii: Dict[str, float] = {}
+    valences: Dict[str, int] = {}
+    electroneg: Dict[str, float] = {}
+
+    for el in pt_elements:
+        symbol = el.symbol
+        if not symbol:
+            continue
+        # Atomic radius: prefer covalent_radius, fall back to atomic_radius, else 0.0
+        radius = getattr(el, "covalent_radius", None) or getattr(el, "atomic_radius", None)
+        radii[symbol] = float(radius) if radius is not None else 0.0
+
+        # Valence: use the element's typical valence if available
+        val = getattr(el, "valence", None)
+        valences[symbol] = int(val) if val is not None else 0
+
+        # Electronegativity: Pauling scale if present
+        en = getattr(el, "electronegativity", None)
+        electroneg[symbol] = float(en) if en is not None else 0.0
+
+    return radii, valences, electroneg
+
 def calculate_delta(composition: Dict[str, float], atomic_radii: Dict[str, float]) -> float:
     """Calculate atomic radius mismatch (δ)."""
     return calculate_atomic_radius_mismatch(composition, atomic_radii)
@@ -125,33 +153,27 @@ def calculate_enhanced_features(
     if not composition:
         raise ValueError("Missing composition in alloy row")
 
-    # Calculate scalar descriptors
+    # Scalar descriptors
     delta = calculate_delta(composition, atomic_radii)
     vec = calculate_vec(composition, valences)
     entropy = calculate_entropy(composition)
 
-    # Calculate mixing enthalpy using thermo_params
-    # Expected format: thermo_params['omega'] = { "A-B": value, ... }
+    # Mixing enthalpy using omega parameters
     omega_params = thermo_params.get("omega", {})
     mixing_enthalpy = 0.0
     elements = list(composition.keys())
 
     for i, elem_a in enumerate(elements):
-        for elem_b in elements[i+1:]:
-            # Try both orderings for the pair key
+        for elem_b in elements[i + 1:]:
             pair_key = f"{elem_a}-{elem_b}"
             if pair_key not in omega_params:
                 pair_key = f"{elem_b}-{elem_a}"
-
             omega_val = omega_params.get(pair_key, 0.0)
             mixing_enthalpy += omega_val * composition[elem_a] * composition[elem_b]
 
-    # Calculate electronegativity difference (standard deviation)
+    # Electronegativity difference (standard deviation)
     en_vals = [electronegativities.get(e, 0.0) for e in elements if e in electronegativities]
-    if len(en_vals) > 1:
-        en_diff = float(np.std(en_vals))
-    else:
-        en_diff = 0.0
+    en_diff = float(np.std(en_vals)) if len(en_vals) > 1 else 0.0
 
     return {
         "delta": delta,
@@ -167,31 +189,28 @@ def save_features_descriptors(
     output_path: str
 ):
     """Save engineered features and descriptors to CSV."""
-    # Implementation would merge descriptors with original data
-    # For now, placeholder for the full pipeline
+    # This helper is retained for API compatibility but is not used by the
+    # current main() implementation.
     pass
 
-def main():
+def main() -> int:
     """
     Main entry point for feature engineering pipeline.
     Includes validation of thermo_params.json before proceeding.
     """
-    base_path = get_processed_data_path()
-    raw_path = get_raw_data_path()
-
-    # Ensure directories exist
+    # Ensure required directories exist
     ensure_dirs()
 
-    # Load and validate thermodynamic parameters (T025a output)
-    thermo_path = raw_path / THERMO_PARAMS_PATH
+    # Load and validate thermodynamic parameters
+    thermo_path = Path(THERMO_PARAMS_PATH)
     try:
         thermo_params = load_thermo_params(str(thermo_path))
     except ValidationError as e:
         logger.error(f"Pipeline halted: {e}")
         sys.exit(1)
 
-    # Load processed data from US1
-    input_file = base_path / "bcc_filtered.csv"
+    # Load processed BCC data
+    input_file = get_processed_data_path() / "bcc_filtered.csv"
     if not input_file.exists():
         logger.error(f"Input file not found: {input_file}")
         sys.exit(1)
@@ -199,26 +218,27 @@ def main():
     df = pd.read_csv(input_file)
     logger.info(f"Loaded {len(df)} alloys from {input_file}")
 
-    # Load periodic table data
-    # Assuming these are populated from a standard source or cached
-    atomic_radii = {}
-    valences = {}
-    electronegativities = {}
+    # Load periodic table properties (fallback to empty dicts if any value missing)
+    atomic_radii, valences, electronegativities = _load_periodic_properties()
 
-    # Populate from a simple mapping or external source
-    # In a real implementation, this would load from a database or file
-    # For now, we assume the periodic table utilities handle this internally
-    # and we just call the calculation functions which handle the lookup.
+    descriptors: List[CompositionalDescriptor] = []
 
-    # Process each alloy
-    descriptors = []
     for idx, row in df.iterrows():
         try:
+            # The composition column may be a JSON string or a plain string.
             composition = row.get("composition")
             if isinstance(composition, str):
-                composition = json.loads(composition)
+                try:
+                    composition = json.loads(composition)
+                except json.JSONDecodeError:
+                    # Attempt simple parsing of "Fe:0.5,Ni:0.5"
+                    comp_dict = {}
+                    for part in composition.split(','):
+                        if ':' in part:
+                            elem, val = part.split(':')
+                            comp_dict[elem.strip()] = float(val.strip())
+                    composition = comp_dict
 
-            # Calculate features
             features = calculate_enhanced_features(
                 {"composition": composition},
                 thermo_params,
@@ -227,7 +247,6 @@ def main():
                 electronegativities
             )
 
-            # Create descriptor
             desc = CompositionalDescriptor(
                 alloy_id=row.get("alloy_id", f"alloy_{idx}"),
                 composition=composition,
@@ -236,12 +255,11 @@ def main():
             descriptors.append(desc)
 
         except Exception as e:
-            logger.warning(f"Failed to process alloy {idx}: {e}")
+            logger.warning(f"Failed to process alloy at index {idx}: {e}")
             continue
 
     # Save results
-    output_file = base_path / "features_engineered.csv"
-    # Convert descriptors to DataFrame for saving
+    output_file = get_processed_data_path() / "features_engineered.csv"
     data_rows = []
     for d in descriptors:
         row_data = {
@@ -252,8 +270,8 @@ def main():
             "mixing_entropy": d.mixing_entropy,
             "mixing_enthalpy": d.mixing_enthalpy,
             "electronegativity_diff": d.electronegativity_diff,
-            # Add ILR features if available (placeholder)
-            "ilr_features": json.dumps(d.ilr_transformed_features) if d.ilr_transformed_features else "[]"
+            # Placeholder for ILR features (empty list)
+            "ilr_features": json.dumps(d.ilr_transformed_features) if getattr(d, "ilr_transformed_features", None) else "[]"
         }
         data_rows.append(row_data)
 

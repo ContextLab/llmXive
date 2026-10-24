@@ -4,7 +4,7 @@
 
 ## Phase 1 – Project scaffolding & first end‑to‑end run
 
-- [ ] T001 [US1] Create the canonical project directory tree, a pinned `code/requirements.txt`, and minimal lint/format configuration files.  
+- [ ] T001 [US1] Create the canonical project directory tree, a pinned `code/requirements.txt`, and minimal lint/format configuration files.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   - **Paths**: `data/raw/`, `data/processed/`, `data/logs/`, `data/results/`, `code/`, `code/tests/`, `figures/`, `reports/`, each containing a `.gitkeep`; `code/requirements.txt` listing exact versions of `pandas`, `numpy`, `scikit-learn`, `scipy`, `periodictable`, `requests`, `pyyaml`, `ruff`, `black`; `.ruff.toml` and `.pre-commit-config.yaml` enabling `ruff` and `black`.  
   - **Verification**: `tree` (or equivalent) shows all directories with a `.gitkeep`; `pip install -r code/requirements.txt` succeeds without version conflicts; `ruff --quiet .` and `black --check .` both exit with code 0.
 

@@ -1,10 +1,11 @@
 status: none
-intent: download MPEA alloy dataset with yield strength BCC filter matminer python
-  package dataset
+intent: MPEA alloy dataset DOI 10.1038/s41597-020-00768-9 python package dataset
 required_fields:
+- alloy_id
 - composition
+- elemental_fractions
 - crystal_structure
 - yield_strength
-cache_key: 7a4597ae0172bc9ffc5454ee94ba9917fefe063179237cdf045250ecb1b1f4d1
-searched_at: '2026-10-24T10:27:34.437433+00:00'
+cache_key: b04df498abf778084b1b63b1a32c6a5d79ec54a8788dc81a79d16031b1ceef08
+searched_at: '2026-10-24T10:29:32.286501+00:00'
 retry_count: 1

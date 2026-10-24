@@ -1,4 +1,5 @@
 T001:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 264134543c989d22815b18394819c51c6ad9735aee0d93c366835e083b07f0ba
 T002:
   task: 152a2d6ebab940f4d8c89ba1e4eb4a3867ac9bf294e5493bdbf3d17c704ba566

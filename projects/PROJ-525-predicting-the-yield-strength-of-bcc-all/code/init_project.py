@@ -1,57 +1,50 @@
-"""
-Project Initialization Script for T002.
-Verifies Python version and checks for required dependencies.
-"""
 import sys
 import subprocess
 import json
 from pathlib import Path
 
-REQUIRED_PACKAGES = [
-    "numpy", "pandas", "scipy", "scikit-learn",
-    "periodictable", "pymatgen", "skbio", "requests", "pyyaml"
-]
-
 def check_python_version():
     """Ensure Python 3.11+ is being used."""
     if sys.version_info < (3, 11):
-        print(f"ERROR: Python 3.11+ is required. Current version: {sys.version}")
-        sys.exit(1)
-    print(f"✓ Python version check passed: {sys.version}")
+        raise RuntimeError("Python 3.11 or higher is required.")
 
 def check_dependencies():
-    """Verify all required packages are installed."""
+    """Verify that all required packages are installed."""
+    required = [
+        "pandas==2.2.2",
+        "numpy==1.26.4",
+        "scikit-learn==1.5.0",
+        "scipy==1.13.0",
+        "periodictable==1.6.1",
+        "requests==2.32.3",
+        "pyyaml==6.0.2",
+        "ruff==0.5.0",
+        "black==24.3.0",
+    ]
     missing = []
-    for package in REQUIRED_PACKAGES:
+    for pkg in required:
+        name = pkg.split("==")[0]
         try:
-            __import__(package)
-            print(f"✓ {package} found")
+            __import__(name)
         except ImportError:
-            missing.append(package)
-            print(f"✗ {package} NOT found")
-
+            missing.append(pkg)
     if missing:
-        print(f"\nERROR: Missing dependencies: {', '.join(missing)}")
-        print("Run: pip install -r requirements.txt")
-        sys.exit(1)
-    print("\n✓ All dependencies verified.")
+        raise RuntimeError(f"Missing dependencies: {missing}")
 
 def check_dev_tools():
-    """Check for essential development tools (optional but recommended)."""
-    tools = ["git", "python3"]
-    for tool in tools:
+    """Check that development tools (ruff, black) are available."""
+    for tool in ["ruff", "black"]:
         try:
-            subprocess.run([tool, "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-            print(f"✓ {tool} found")
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            print(f"⚠ {tool} not found in PATH")
+            subprocess.run([tool, "--version"], check=True, stdout=subprocess.DEVNULL)
+        except Exception:
+            raise RuntimeError(f"Development tool {tool} not found in PATH.")
 
 def main():
-    print("=== Project Initialization Check (T002) ===")
+    """Run all project initialization checks."""
     check_python_version()
     check_dependencies()
     check_dev_tools()
-    print("=== Initialization Check Complete ===")
+    print("All checks passed.")
 
 if __name__ == "__main__":
     main()

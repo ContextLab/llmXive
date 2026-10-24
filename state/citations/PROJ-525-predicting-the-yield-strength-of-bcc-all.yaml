@@ -79,7 +79,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
   verified_at: '2026-10-21T21:36:19.009800Z'
-- artifact_hash: 2063a7b570752e8d7344e7130abcd3dcacd707f15601dfe4fc8f02026a5ff4bc
+- artifact_hash: a64f4e9777533c008fe92c389efda5d87dee1ed1f4a20d9e99dd962f895bbc1d
   artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -90,4 +90,4 @@
   value: 10.1038/s41597-020-00768-9
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
-  verified_at: '2026-10-24T10:25:04.852152Z'
+  verified_at: '2026-10-24T10:28:57.156760Z'
