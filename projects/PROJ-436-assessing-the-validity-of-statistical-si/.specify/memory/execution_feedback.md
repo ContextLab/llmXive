@@ -7,69 +7,37 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --action download -> rc=1
--validity-of-statistical-si/code/main.py", line 12, in <module>
-    from data_loader import load_and_validate, DataLoadError
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-436-assessing-the-validity-of-statistical-si/code/data_loader.py", line 26, in <module>
-    from datasets import load_dataset  # HuggingFace datasets library
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+2026-10-24 12:08:55,583 ERROR __main__: Config file not found: data/processed/simulation_config.json
 
 - python code/main.py  --action run  --datasets rct_1 mcar_0 mar_0  --iterations 15000  --rates 0.05 0.10 0.15 0.20 0.25  --mechanisms MCAR MAR MNAR  --methods CC MI IPW -> rc=1
--validity-of-statistical-si/code/main.py", line 12, in <module>
-    from data_loader import load_and_validate, DataLoadError
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-436-assessing-the-validity-of-statistical-si/code/data_loader.py", line 26, in <module>
-    from datasets import load_dataset  # HuggingFace datasets library
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+2026-10-24 12:08:56,453 ERROR __main__: Config file not found: data/processed/simulation_config.json
 
 - python code/main.py --action visualize --output figures/ -> rc=1
--validity-of-statistical-si/code/main.py", line 12, in <module>
-    from data_loader import load_and_validate, DataLoadError
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-436-assessing-the-validity-of-statistical-si/code/data_loader.py", line 26, in <module>
-    from datasets import load_dataset  # HuggingFace datasets library
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+
+2026-10-24 12:08:57,320 ERROR __main__: Config file not found: data/processed/simulation_config.json
 
 - python -m pytest tests/ -v -> rc=2
-PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/datasets/__init__.py:17: in <module>
-    from .arrow_dataset import Column, Dataset
-../../.llmxive-venvs/PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/datasets/arrow_dataset.py:59: in <module>
-    import pyarrow as pa
-../../.llmxive-venvs/PROJ-436-assessing-the-validity-of-statistical-si/lib/python3.11/site-packages/pyarrow/__init__.py:59: in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-pyarrow/lib.pyx:42: in init pyarrow.lib
+thon/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+<frozen importlib._bootstrap>:1204: in _gcd_import
     ???
-E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:690: in _load_unlocked
+    ???
+/home/runner/.cache/llmxive/base-env/py311-6f1866971868/_pytest/assertion/rewrite.py:178: in exec_module
+    exec(co, module.__dict__)
+tests/integration/test_us2_sensitivity.py:29: in <module>
+    from main import run_sensitivity_sweep, validate_condition_matrix, generate_tipping_point_report
+E   ImportError: cannot import name 'run_sensitivity_sweep' from 'main' (/home/runner/work/llmXive/llmXive/projects/PROJ-436-assessing-the-validity-of-statistical-si/code/main.py)
 =========================== short test summary info ============================
 ERROR tests/integration/test_main_us1.py
-ERROR tests/integration/test_us1_pipeline.py
 ERROR tests/integration/test_us2_sensitivity.py
-ERROR tests/integration/test_us3_comparison.py
-ERROR tests/test_data_loader.py
-ERROR tests/unit/test_data_loader.py
-ERROR tests/unit/test_simulation.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 1.71s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 1.29s ===============================
 
 
