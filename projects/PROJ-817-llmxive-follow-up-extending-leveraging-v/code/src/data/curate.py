@@ -6,7 +6,7 @@ selects 500 neutral prompts, generates 500 conflicting prompts using the
 result to ``data/results/curated_prompts.csv`` with the required columns:
 
 - prompt_id (UUID5 based on the prompt text)
-- instruction_type (\"neutral\" or \"conflict\")
+- instruction_type ("neutral" or "conflict")
 - prompt_text
 - synthetic_score (placeholder value 0.5)
 - human_score (null/NaN)
@@ -49,8 +49,8 @@ def _assign_uuid(prompt_text: str) -> str:
 
 def main() -> int:
     try:
-        # Load raw sample
-        df_raw = pd.read_parquet(RAW_PARQUET, engine="fastparquet")
+        # Load raw sample (use pandas default engine to avoid extra dependencies)
+        df_raw = pd.read_parquet(RAW_PARQUET)
         log.info("Loaded %d raw prompts from %s", len(df_raw), RAW_PARQUET)
 
         # ------------------------------------------------------------------
@@ -83,14 +83,17 @@ def main() -> int:
             rec["synthetic_score"] = 0.5  # placeholder synthetic feasibility
             rec["human_score"] = pd.NA
 
-        curated_df = pd.DataFrame(all_records, columns=[
-            "prompt_id",
-            "instruction_type",
-            "prompt_text",
-            "synthetic_score",
-            "human_score",
-            "checksum",
-        ])
+        curated_df = pd.DataFrame(
+            all_records,
+            columns=[
+                "prompt_id",
+                "instruction_type",
+                "prompt_text",
+                "synthetic_score",
+                "human_score",
+                "checksum",
+            ],
+        )
 
         # ------------------------------------------------------------------
         # 4️⃣ Write CSV

@@ -1,7 +1,7 @@
 """Download a real sample of InstructPix2Pix prompts (T001).
 
-This script streams a public InstructPix2Pix dataset from the Hugging Face Hub,
-extracts the first ``N_PROMPTS`` rows that contain a non‑empty ``edit_prompt``,
+This script streams a public InstructPix2Pix‑like dataset from the Hugging Face Hub,
+extracts the first ``N_PROMPTS`` rows that contain a non‑empty instruction prompt,
 computes a stable SHA‑256 checksum for each row, and writes two artefacts:
 
 1. ``data/raw/prompts_sample.parquet`` – a Parquet file with the collected rows.
@@ -29,8 +29,8 @@ log = get_logger(__name__)
 # Configuration
 # ----------------------------------------------------------------------
 # Primary and fallback dataset identifiers on Hugging Face Hub.
-# The canonical dataset is ``timbrooks/instruct-pix2pix``; some mirrors use
-# an underscore in the name. We attempt both in order.
+# The original InstructPix2Pix dataset is public under the ``timbrooks`` namespace.
+# Some mirrors use an underscore instead of a hyphen.
 PRIMARY_DATASET_ID = "timbrooks/instruct-pix2pix"
 FALLBACK_DATASET_ID = "timbrooks/instruct_pix2pix"
 SPLIT = "train"
@@ -46,13 +46,14 @@ def _row_checksum(row: Mapping[str, object]) -> str:
     """Compute a stable SHA‑256 checksum for a source row.
 
     The checksum is over the JSON serialisation of the fields that uniquely
-    identify a prompt in the original dataset.
+    identify a prompt in the original dataset.  Different datasets may use
+    different field names; we fall back to generic ``prompt``/``text`` keys
+    when the canonical ones are missing.
     """
+    edit_prompt = row.get("edit_prompt") or row.get("prompt") or ""
+    original_prompt = row.get("original_prompt") or row.get("text") or ""
     payload = json.dumps(
-        {
-            "edit_prompt": row.get("edit_prompt"),
-            "original_prompt": row.get("original_prompt"),
-        },
+        {"edit_prompt": edit_prompt, "original_prompt": original_prompt},
         sort_keys=True,
         ensure_ascii=False,
     )
@@ -69,7 +70,12 @@ def _iter_stream_hf(dataset_id: str) -> Iterator[Mapping[str, object]]:
             dataset_id,
             SPLIT,
         )
-        ds = load_dataset(dataset_id, split=SPLIT, streaming=True, trust_remote_code=True)
+        ds = load_dataset(
+            dataset_id,
+            split=SPLIT,
+            streaming=True,
+            trust_remote_code=True,
+        )
         for row in ds:
             yield row
     except Exception as exc:
@@ -86,7 +92,8 @@ def _collect_using_id(dataset_id: str, n_prompts: int) -> pd.DataFrame:
 
     for row in _iter_stream_hf(dataset_id):
         scanned += 1
-        prompt = row.get("edit_prompt")
+        # Accept a row if it contains a non‑empty instruction prompt.
+        prompt = row.get("edit_prompt") or row.get("prompt")
         if not prompt or not str(prompt).strip():
             continue
 
@@ -94,7 +101,9 @@ def _collect_using_id(dataset_id: str, n_prompts: int) -> pd.DataFrame:
             {
                 "row_id": len(records),
                 "edit_prompt": str(prompt).strip(),
-                "original_prompt": row.get("original_prompt"),
+                "original_prompt": row.get("original_prompt")
+                or row.get("text")
+                or "",
                 "checksum": _row_checksum(row),
             }
         )

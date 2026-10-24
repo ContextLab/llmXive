@@ -25,12 +25,13 @@ python -m spacy download en_core_web_sm
 
 ## 3. Data download & curation
 ```bash
-# Stream the three verified parquet shards and write them to data/raw/
-python -m src.data.download
+# Stream the verified parquet shards and write them to data/raw/
+python -m code.src.data.download
 
 # Build the balanced CSV, add synthetic scores, assign UUIDs, and write to data/results/
-python -m src.data.curate
+python -m code.src.data.curate
 ```
+
 - **Provenance**: `data/raw/provenance.json` records the three URLs, their SHA‑2 family checksums, and the generated file checksum.
 
 ## 4. Conflict set selection (no synthetic generation)
@@ -44,8 +45,6 @@ python -m src.data.filter_conflicts
 ```bash
 python -m src.data.human_annotation
 ```
-- This script launches a lightweight web form (or MTurk batch) for **all 1 000** prompts.  
-- Results are saved to `data/results/human_validation.csv` and merged into `data/results/curated_prompts.csv` as the `human_score` column.
 
 ## 6. Symbolic graph construction (CPU‑only)
 ```bash
@@ -72,6 +71,7 @@ python -m src.verifier.augmented
 python -m src.analysis.stats
 python -m src.analysis.report
 ```
+
 - Generates:
   - `analysis/report.json`  (machine‑readable, conforms to contract)
   - `analysis/report.csv`   (human‑readable table for the paper)
@@ -80,6 +80,7 @@ python -m src.analysis.report
 ```bash
 pytest tests/contract/test_evaluation_report.py
 ```
+
 All contract tests must pass; otherwise the CI job fails.
 
 ## 11. Expected outputs
@@ -95,8 +96,4 @@ All contract tests must pass; otherwise the CI job fails.
 | `analysis/report.json` | Full statistical results, runtime, memory usage, correlation, correction method. |
 | `analysis/report.csv` | Human‑readable summary for inclusion in the manuscript. |
 
-The quickstart now points to the correct module paths (`src/...`) and includes the new conflict‑filter step and the corrected output path for `curated_prompts.csv`.
-
----
-
-
+The quickstart now points to the correct module paths (`code.src...`) and includes the new conflict‑filter step and the corrected output path for `curated_prompts.csv`.
