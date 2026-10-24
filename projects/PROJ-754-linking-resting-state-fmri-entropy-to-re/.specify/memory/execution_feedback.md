@@ -38,7 +38,7 @@ E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 =========================== short test summary info ============================
 ERROR tests/unit/test_qc.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.59s ===============================
+=============================== 1 error in 0.62s ===============================
 
 
 

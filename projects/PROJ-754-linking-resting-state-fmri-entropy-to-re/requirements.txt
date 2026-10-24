@@ -1,4 +1,5 @@
 # Core scientific stack
+# Explicitly pinning NumPy >= 2.0.0 to resolve pyarrow ImportError
 numpy>=2.0.0
 pandas==2.2.*
 scipy==1.12.*
