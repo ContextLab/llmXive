@@ -35,7 +35,7 @@ projects/PROJ-044-evaluating-the-effectiveness-of-differen/
 │   ├── config.py
 │   ├── data/
 │   │   ├── download.py          # streaming → parquet, checksum
-│   │   ├── partition.py         # Dirichlet split, global entropy, minority flag
+│   │   ├── partition.py         # Dirichlet split, global entropy, minority flag, correlation diagnostic
 │   │   └── verify_shakespeare_exclusion.py   # real verification script
 │   ├── models/
 │   │   └── cnn.py               # tiny ConvNet (≈ tens of thousands of parameters)
@@ -43,7 +43,7 @@ projects/PROJ-044-evaluating-the-effectiveness-of-differen/
 │   │   ├── fedavg.py            # core FedAvg loop (DP optional)
 │   │   └── dp_utils.py          # Opacus wrapper, Moments Accountant
 │   ├── analysis/
-│   │   ├── stats.py             # paired tests, LMM, Bonferroni
+│   │   ├── stats.py             # paired tests, LMM (two‑way interactions), survival analysis
 │   │   └── plots.py             # overlay & sensitivity plots
 │   └── main.py                  # CLI orchestrator (sweep)
 ├── tests/
@@ -74,7 +74,7 @@ pip install -r requirements.txt
 python -c "import code, torch; print('Env OK')"
 ```
 
-## Step‑by‑Step Execution
+## Step‑by‑step Execution
 
 ### 1. Download FEMNIST (stream → parquet) and verify checksum
 ```bash
@@ -108,11 +108,11 @@ python code/data/partition.py \
     --output data/partitions \
     --seeds 42 43 44 45 46 47 48 49 50 51 \
     --alphas 0.1 0.5 1.0
-# Output files: data/partitions/partition_femnist_{seed}_{alpha}.json
 ```
 - `--seeds` and `--alphas` are space‑separated lists.  
 - Minority clients are flagged as the **global bottom quartile** of label‑entropy (computed once on the full training set) and applied to all partitions.  
-- SHA‑256 hashes of each JSON file are printed for reproducibility (SC‑001).
+- SHA‑256 hashes of each JSON file are printed for reproducibility (SC‑001).  
+- A Pearson correlation between entropy and α is computed and logged; any |r| > 0.3 triggers a warning in `validation_report.md`.
 
 ### 4. Run the full experiment sweep
 ```bash
@@ -123,7 +123,8 @@ python code/main.py sweep \
     --seeds 42,43,44,45,46,47,48,49,50,51
 ```
 - The orchestrator runs DP and non‑DP FedAvg on the *same* partition for each seed.  
-- Early‑stop logic caps rounds when the remaining wall‑clock time would exceed the 6 h budget; such runs are marked `is_time_limited=True` and **are retained** for analysis.  
+- Early‑stop logic caps rounds when the remaining wall‑clock time would exceed the 6 h budget; such runs are marked `is_time_limited=True` and **retained** for analysis.  
+- DP vs. non‑DP are compared at the **minimum number of completed rounds** between the pair (matched‑round evaluation).  
 - All metrics are appended to `results/raw_logs.csv`.
 
 ### 5. Statistical Analysis
@@ -134,8 +135,9 @@ python code/analysis/stats.py \
 ```
 - Performs Shapiro‑Wilk normality test on paired differences.  
 - Runs paired t‑test if normal, otherwise Wilcoxon signed‑rank test.  
-- Fits the mixed‑effects model with the `is_minority:alpha` interaction and random slopes for `epsilon` and `alpha` per `seed`.  
+- Fits the mixed‑effects model with the **two‑way** interaction `is_minority:alpha` and random slope for ε per seed.  
 - Applies Bonferroni correction across the multiple (α, ε) tests.  
+- Runs a Cox survival‑analysis on `rounds_to_80` with right‑censoring for time‑limited runs.  
 - Writes `results/final_stats.csv`.
 
 ### 6. Plot Generation
@@ -153,7 +155,8 @@ python code/analysis/generate_summary.py
 - The validation report includes:  
   * FEMNIST checksum verification.  
   * Confirmation that the only occurrence of “Shakespeare” is inside the mandated exclusion message (via `verify_shakespeare_exclusion.py`).  
-  * Seed completeness and any flagged runs.
+  * Seed completeness and any flagged runs.  
+  * Minority‑definition correlation diagnostic (Pearson r).  
 
 ## Expected Directory Layout after Successful Run
 ```text
@@ -194,3 +197,4 @@ figures/
 **Note on ε representation**: In `results/raw_logs.csv` the non‑DP baseline uses the literal string `"inf"` for the `epsilon` field, which conforms to the `results.schema.yaml` contract.
 
 ---
+

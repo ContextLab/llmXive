@@ -1,10 +1,9 @@
 status: none
-intent: FEMNIST EMNIST MNIST NIST special database federated learning dataset pip
-  install python package dataset
+intent: FEMNIST train test parquet download python package dataset
 required_fields:
 - image
 - label
 - client_id
-cache_key: a98fb14cb91ca2d54b0303fc2513faebf8f34fef1ad6fdfadd797345cf85de65
-searched_at: '2026-10-20T22:43:56.169181+00:00'
+cache_key: dba3c0a8feb5466aab80776d50ed3d002304d33a9a0b9aa358b71bb1280ef011
+searched_at: '2026-10-24T17:10:05.238747+00:00'
 retry_count: 1

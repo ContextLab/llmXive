@@ -59,20 +59,4 @@ properties:
   rounds_to_80:
     type: "integer"
     description: "First round where global_accuracy ≥ 0.80."
-required:
-  - run_id
-  - dataset
-  - alpha
-  - epsilon
-  - seed
-  - round
-  - global_accuracy
-  - majority_accuracy
-  - minority_accuracy
-  - delta
-  - actual_epsilon
-  - is_dp
-  - is_time_limited
-  - utility_collapse
-  - rounds_to_80
 additionalProperties: false
