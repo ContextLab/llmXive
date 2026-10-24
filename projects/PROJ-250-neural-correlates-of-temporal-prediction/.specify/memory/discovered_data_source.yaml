@@ -1,19 +1,18 @@
 status: none
-intent: OpenNeuro ds004510 EEG BIDS dataset download via MNE-Python python package
-  dataset
+intent: OpenNeuro ds004510 EEG BIDS download MNE-Python python package dataset
 required_fields:
 - subject_id
 - session_id
 - run_id
-- eeg_signal_matrix (channels x time)
+- condition
+- raw_eeg_file_path
 - sampling_rate
-- event_onsets
-- event_types
-- stimulus_condition (oddball or complex auditory scene)
 - channel_names
-- channel_locations (montage)
-- metadata (age, sex, handedness)
-- raw_data_file_path
-cache_key: 6fec0e120df6c28f4d157dc6f80a5603a42415113088ea485cfa184de8e6f6ba
-searched_at: '2026-10-24T12:12:38.978655+00:00'
+- events_tsv
+- participants_tsv
+- electrodes_tsv
+- epoch_time_window_start
+- epoch_time_window_end
+cache_key: 58cad1e032e559ed0705958507686c58309a71969d042f3f8454aa3ba873338d
+searched_at: '2026-10-24T15:13:17.465176+00:00'
 retry_count: 1
