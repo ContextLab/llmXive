@@ -3,12 +3,12 @@
   "stage": "planned",
   "class": "transient",
   "fingerprint": "backend_chain_failed",
-  "consecutive_count": 5,
+  "consecutive_count": 0,
   "first_seen": "2026-10-23T14:46:23.854066+00:00",
-  "last_seen": "2026-10-25T11:15:06.869238+00:00",
-  "retry_after": "2026-10-25T13:55:06.869238+00:00",
+  "last_seen": "2026-10-25T14:23:50.877685+00:00",
+  "retry_after": null,
   "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(transient attempt 1): Model zai-org.glm-5.3 not found. Please use `ChatDartmouth.list()` to verify the model name. | zai-org.glm-5.3(transient attempt 2): Model zai-org.glm-5.3 not found. Please use `ChatDartmouth.list()` to verify the model name. | zai-org.glm-5.3(model-down attempt 3): !DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n<html><head>\n<title>302 Moved Temporarily</title>\n</head><body>\n<h1>Moved </h1>\n<p>The document has moved <a href=\"http://outage.dartmouth.edu\">here</a>.</p>\n</body></html> | openai.gpt-oss-120b(model-down attempt 1): !DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n<html><head>\n<title>302 Moved Temporarily</title>\n</head><body>\n<h1>Moved </h1>\n<p>The document has moved <a href=\"http://outage.",
   "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(transient attempt 1): Model zai-org.glm-5.3 not found. Please use `ChatDartmouth.list()` to verify the model name. | zai-org.glm-5.3(tra",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "retry_scheduled"
+  "status": "cleared"
 }
