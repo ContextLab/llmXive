@@ -44,29 +44,33 @@ erDiagram
         string result_id PK
         string method
         float success_rate
+        float feasibility_rate "ratio of puzzles where symbolic planner succeeded"
         float mean_time
+        float std_time
         float p_value_z
         float p_value_t
         bool significance
+        float logical_contradiction_rate
     }
 ```
 
 ## 3. Schemas
 
 - **Puzzle Instance** – `contracts/dataset.schema.yaml`  
-- **BES Run Output** – `contracts/output.schema.yaml`  
+- **BES Run Output** – `contracts/output.schema.yaml` (includes optional `feasibility_rate`).  
 
 These schemas are validated against generated JSONL/JSON files during Phase 1 (tasks 1.8 & 1.9).
 
 ## 4. Data Flow
-1. `generator.py` → writes `puzzle_id` records (JSONL) + verifier scripts.  
-2. `main.py` loads puzzles, runs BES loop, writes `attempt_id` records (JSONL).  
+1. `generator.py` → writes a JSON object with a `"puzzles"` list (conforms to `dataset.schema.yaml`).  
+2. `main.py` loads puzzles, runs the BES loop, writes solution attempts to `attempts.jsonl`.  
 3. `verifier.py` consumes each `solution_text`, produces `evaluation_log` entries.  
 4. `stats.py` aggregates logs into a single `STATISTICAL_RESULT` JSON (`output.schema.yaml`).  
 
 ## 5. Integrity & Validation
 - **Checksums**: SHA‑256 recorded in `state/...yaml`.  
 - **Immutability**: Raw puzzle files never altered after creation.  
-- **Validation**: Unit tests (`tests/unit/test_generator.py`, `tests/unit/test_symbolic_planner.py`) assert schema conformity.  
+- **Validation**: Unit tests (`tests/unit/test_generator.py`, `tests/unit/test_symbolic_planner.py`) assert schema conformity.
 
 ---
+

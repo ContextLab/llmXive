@@ -23,7 +23,12 @@ properties:
     description: "Number of instances with a valid solution found."
   success_rate:
     type: "number"
-    description: "Success rate (success_count / total_instances)."
+    description: "Success rate (success_count / (total_instances - excluded_instances))."
+  feasibility_rate:
+    type: "number"
+    description: "Ratio of puzzles where the symbolic planner succeeded (1 - excluded_instances / total_instances)."
+    minimum: 0.0
+    maximum: 1.0
   mean_time:
     type: "number"
     description: "Mean wall-clock time per instance (seconds)."
@@ -41,7 +46,7 @@ properties:
     description: "True if primary hypothesis p < 0.0497."
   logical_contradiction_rate:
     type: "number"
-    description: "Rate of 'CONTRADICTION_DETECTED' errors in the symbolic planner."
+    description: "Rate of \"CONTRADICTION_DETECTED\" errors in the symbolic planner."
 required:
   - "run_id"
   - "method"
