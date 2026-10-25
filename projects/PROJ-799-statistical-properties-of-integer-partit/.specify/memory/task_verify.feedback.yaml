@@ -1,11 +1,13 @@
 T001:
   task: a3e175e96b4aa10cf000bc71b709c4fb51a063bfd939d1cc386b81fb16d62e87
 T002:
-  reason: "The generated CSV uses the header `p_P(n)` instead of the required `p_P_n`,\
-    \ and the supplied pytest suite only validates file structure\u2014not that the\
-    \ first 20 rows match the reference table as the task specifies. A correct implementation\
-    \ must output the exact column name and include a test asserting equality of the\
-    \ first 20 rows to the SC\u2011003 reference values."
+  reason: "The script `code/generate_reference.py` correctly computes the partition\
+    \ counts and writes them to `tests/data/reference_values.csv`, and the CSV\u2019\
+    s first 20 rows match the expected values. However, the provided pytest suite\
+    \ `tests/test_reference_validation.py` looks for the file at `data/reference_values.csv`\
+    \ (project root) and therefore all four tests fail, indicating the verification\
+    \ step is not satisfied. The reference file must be placed (or the test path adjusted)\
+    \ so that the test can locate it and pass."
   task: 4852e4f3786853c8e1eb5b05821808969902bc47bc685b2a9652936e22f2ecc4
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/generate_partitions.py

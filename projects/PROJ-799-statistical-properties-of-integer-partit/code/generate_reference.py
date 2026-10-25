@@ -10,7 +10,7 @@ dp[n] represents the number of ways to partition n into distinct primes.
 The order of loops (outer: primes, inner: descending n) ensures each prime
 is used at most once per partition.
 
-Output: tests/data/reference_values.csv with columns: n, p_P(n)
+Output: tests/data/reference_values.csv with columns: n, p_P_n
 """
 import os
 import csv
@@ -30,35 +30,35 @@ def generate_reference_values(n_max: int) -> np.ndarray:
     """
     # Get primes up to n_max (only primes <= n_max can contribute to partitions of n <= n_max)
     primes = generate_primes(n_max)
-    
+
     # Initialize DP array: dp[0] = 1 (one way to partition 0: empty set), others 0
     dp = np.zeros(n_max + 1, dtype=np.int64)
     dp[0] = 1
-    
+
     # Iterate over each prime and update DP table
     # Descending order ensures each prime is used at most once (distinct constraint)
     for p in primes:
         for n in range(n_max, p - 1, -1):
             dp[n] += dp[n - p]
-    
+
     return dp
 
 def main():
     """Generate reference values and save to CSV."""
     # Ensure output directory exists
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    
+
     # Compute reference values
     print(f"Generating reference values for n in [1, {N_MAX}]...")
     dp = generate_reference_values(N_MAX)
-    
-    # Write to CSV
+
+    # Write to CSV with the required column names
     with open(OUTPUT_PATH, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['n', 'p_P(n)'])
+        writer.writerow(['n', 'p_P_n'])
         for n in range(1, N_MAX + 1):
             writer.writerow([n, int(dp[n])])
-    
+
     print(f"Reference values saved to {OUTPUT_PATH}")
     print(f"Sample values: n=10 -> {dp[10]}, n=50 -> {dp[50]}, n=100 -> {dp[100]}")
 

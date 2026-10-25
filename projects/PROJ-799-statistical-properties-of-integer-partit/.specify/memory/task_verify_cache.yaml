@@ -9,13 +9,15 @@ T001:
   sig: f5480d0ac116c7b87f42540b442e52bba3bcfb315b223c1843402fdd37071f8c
 T002:
   c: false
-  h: d03d7532b475ad4fc75a164e49db0690c339f73e040f138807bba9bef0895089
-  r: "The generated CSV uses the header `p_P(n)` instead of the required `p_P_n`,\
-    \ and the supplied pytest suite only validates file structure\u2014not that the\
-    \ first 20 rows match the reference table as the task specifies. A correct implementation\
-    \ must output the exact column name and include a test asserting equality of the\
-    \ first 20 rows to the SC\u2011003 reference values."
-  sig: 102e3c7f8a498e0f5c2fc4dbfa356190a7394f5872fab9746079fa607534d3c1
+  h: 36a65e479d17d3268895afb471daaf9e402cb3301d989bed461aa58f2eee5ac0
+  r: "The script `code/generate_reference.py` correctly computes the partition counts\
+    \ and writes them to `tests/data/reference_values.csv`, and the CSV\u2019s first\
+    \ 20 rows match the expected values. However, the provided pytest suite `tests/test_reference_validation.py`\
+    \ looks for the file at `data/reference_values.csv` (project root) and therefore\
+    \ all four tests fail, indicating the verification step is not satisfied. The\
+    \ reference file must be placed (or the test path adjusted) so that the test can\
+    \ locate it and pass."
+  sig: ae756e136990700c8d4bf3ca5d30969e357fc0963fe3d7614af3692cf31b3580
 T004:
   c: false
   h: 771d9ccf7d3925d02ea276f1b84c5fe2ca789c1e325438c5068433deee364c00

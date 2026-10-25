@@ -39,15 +39,18 @@ order and the “prime” constraint by iterating only over primes from the siev
 
 Output:
 -------
-The script writes two CSV files:
+The script writes three CSV files:
 1. `data/raw/partitions_raw.csv` – contains n, p_P(n), Q_as(n) for all n where
    both counts and asymptotic baseline are positive. Rows where either value is
    non‑positive are written to `data/raw/partitions_excluded.csv`.
 2. `data/raw/partition_counts.csv` – a minimal table with columns `n,p_P_n`
    (the exact partition counts) for the full range 0 … n_max. This file satisfies
    the T003 deliverable.
+3. `state/projects/PROJ-799.yaml` is updated with a SHA‑256 checksum of the
+   raw data file for reproducibility.
 
-Both files are checksum‑tracked in the project state file.
+All paths are created automatically via the llmxive_toolkit `paths` helper,
+ensuring they reside inside the project directory.
 """
 
 import os
@@ -56,11 +59,16 @@ import csv
 import hashlib
 import json
 import argparse
-import numpy as np
-from typing import List, Tuple, Dict, Optional
-from utils.prime_sieve import generate_primes, get_prime_sieve, compute_sha256, update_state_file
-from utils.asymptotic_baseline import compute_asymptotic_baseline, generate_asymptotic_series
+from typing import List, Tuple, Dict
 
+import numpy as np
+
+from utils.prime_sieve import generate_primes, compute_sha256, update_state_file
+from utils.asymptotic_baseline import compute_asymptotic_baseline
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def load_reference_values(filepath: str) -> Dict[int, int]:
     """Load reference values from CSV file."""
     refs = {}
@@ -68,8 +76,9 @@ def load_reference_values(filepath: str) -> Dict[int, int]:
         reader = csv.DictReader(f)
         for row in reader:
             n = int(row['n'])
-            refs[n] = int(row['p_P(n)'])
+            refs[n] = int(row['p_P_n'])
     return refs
+
 
 def validate_against_reference(dp: List[int], refs: Dict[int, int], n_max: int) -> List[Tuple[int, str]]:
     """Validate computed DP values against reference values for n in [1, 100]."""
@@ -78,6 +87,7 @@ def validate_against_reference(dp: List[int], refs: Dict[int, int], n_max: int) 
         if n in refs and dp[n] != refs[n]:
             errors.append((n, f"Mismatch: computed {dp[n]}, expected {refs[n]}"))
     return errors
+
 
 def compute_partition_counts(n_max: int, primes: List[int]) -> List[int]:
     """
@@ -101,13 +111,20 @@ def compute_partition_counts(n_max: int, primes: List[int]) -> List[int]:
 
     return dp
 
+
 def compute_asymptotic_baseline_series(n_max: int) -> List[float]:
     """
-    Compute the asymptotic baseline Q_as(n) for n in [1, n_max].
+    Compute the asymptotic baseline Q_as(n) for n in [0, n_max].
 
-    Uses the distinct‑partition variant of Meinardus' theorem.
+    Uses the distinct‑partition variant of Meinardus' theorem via the
+    `compute_asymptotic_baseline` utility.
     """
-    return generate_asymptotic_series(n_max)
+    # The asymptotic is defined only for n > 1; for n <= 1 we return 0.0
+    Q_series = [0.0] * (n_max + 1)
+    for n in range(2, n_max + 1):
+        Q_series[n] = compute_asymptotic_baseline(n)
+    return Q_series
+
 
 def validate_partition_data(n_values: List[int], p_P_n: List[int], Q_as_n: List[float]) -> List[int]:
     """
@@ -122,6 +139,7 @@ def validate_partition_data(n_values: List[int], p_P_n: List[int], Q_as_n: List[
             valid_indices.append(i)
     return valid_indices
 
+
 def compute_file_checksum(filepath: str) -> str:
     """Compute SHA‑256 checksum of a file."""
     sha256_hash = hashlib.sha256()
@@ -130,19 +148,16 @@ def compute_file_checksum(filepath: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def update_state_file(checksum: str, key: str, state_path: str) -> None:
-    """Update the state file with the new checksum."""
-    # The utils.prime_sieve module already provides an update_state_file helper;
-    # we delegate to it to keep the format consistent.
-    update_state_file(state_path, key, checksum)
 
-def export_data(n_values: List[int],
-                p_P_n: List[int],
-                Q_as_n: List[float],
-                valid_indices: List[int],
-                output_path: str,
-                excluded_path: str) -> None:
-    """Export data to CSV files."""
+def export_data(
+    n_values: List[int],
+    p_P_n: List[int],
+    Q_as_n: List[float],
+    valid_indices: List[int],
+    output_path: str,
+    excluded_path: str,
+) -> None:
+    """Export the full raw table and the excluded table."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     os.makedirs(os.path.dirname(excluded_path), exist_ok=True)
 
@@ -164,6 +179,7 @@ def export_data(n_values: List[int],
                 else:
                     writer.writerow([n, 'zero_count_or_baseline'])
 
+
 def export_counts(n_values: List[int], p_P_n: List[int], counts_path: str) -> None:
     """Export the minimal partition‑count table required by T003."""
     os.makedirs(os.path.dirname(counts_path), exist_ok=True)
@@ -173,77 +189,114 @@ def export_counts(n_values: List[int], p_P_n: List[int], counts_path: str) -> No
         for n, count in zip(n_values, p_P_n):
             writer.writerow([n, count])
 
-def main():
-    parser = argparse.ArgumentParser(description="Generate partition counts into distinct primes.")
-    # Accept both the historic “--n_max” and the preferred “--n-max” flag.
-    parser.add_argument('--n-max', dest='n_max', type=int, default=50000,
-                        help="Maximum n value (default: 50000)")
-    parser.add_argument('--n_max', dest='n_max', type=int,
-                        help="Legacy alias for --n-max (kept for backward compatibility)")
-    parser.add_argument('--reference', type=str, default='tests/data/reference_values.csv',
-                        help="Path to reference values CSV (default: tests/data/reference_values.csv)")
+
+# ----------------------------------------------------------------------
+# Main driver
+# ----------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Generate partition counts into distinct primes."
+    )
+    # Accept both the historic “--n_max” and the newer “--n-max” flag.
+    parser.add_argument(
+        '--n-max',
+        dest='n_max',
+        type=int,
+        default=50000,
+        help="Maximum n value (default: 50000)",
+    )
+    parser.add_argument(
+        '--n_max',
+        dest='n_max',
+        type=int,
+        help="Legacy alias for --n-max (kept for backward compatibility)",
+    )
+    parser.add_argument(
+        '--reference',
+        type=str,
+        default='tests/data/reference_values.csv',
+        help="Path to reference values CSV (default: tests/data/reference_values.csv)",
+    )
     args = parser.parse_args()
 
     n_max = args.n_max
     reference_path = args.reference
-    output_path = 'data/raw/partitions_raw.csv'
-    excluded_path = 'data/raw/partitions_excluded.csv'
+    raw_output_path = 'data/raw/partitions_raw.csv'
+    excluded_output_path = 'data/raw/partitions_excluded.csv'
     counts_path = 'data/raw/partition_counts.csv'
     state_path = 'state/projects/PROJ-799.yaml'
 
     print(f"Starting partition generation for n_max={n_max}")
 
-    # Generate primes
+    # ------------------------------------------------------------------
+    # 1. Prime generation
+    # ------------------------------------------------------------------
     print("Generating primes...")
     primes = generate_primes(n_max)
     print(f"Generated {len(primes)} primes up to {n_max}")
 
-    # Compute partition counts
+    # ------------------------------------------------------------------
+    # 2. DP partition counts
+    # ------------------------------------------------------------------
     print("Computing partition counts...")
     dp = compute_partition_counts(n_max, primes)
     n_values = list(range(n_max + 1))
     p_P_n = dp
 
-    # Compute asymptotic baseline
+    # ------------------------------------------------------------------
+    # 3. Asymptotic baseline
+    # ------------------------------------------------------------------
     print("Computing asymptotic baseline...")
     Q_as_n = compute_asymptotic_baseline_series(n_max)
 
-    # Validate against reference if available
+    # ------------------------------------------------------------------
+    # 4. Reference validation (optional)
+    # ------------------------------------------------------------------
     if os.path.exists(reference_path):
         print(f"Validating against reference: {reference_path}")
         refs = load_reference_values(reference_path)
         errors = validate_against_reference(dp, refs, n_max)
         if errors:
-            print(f"Validation failed with {len(errors)} errors:")
+            print(f"Validation failed with {len(errors)} errors (showing up to 5):")
             for n, err in errors[:5]:
                 print(f"  n={n}: {err}")
             if len(errors) > 5:
                 print(f"  ... and {len(errors) - 5} more errors")
-            # Continue anyway; this is a generation step, not a test
+            # Continue – the generation step is not a test.
         else:
             print("Validation passed for n in [1, 100]")
     else:
         print(f"Reference file not found: {reference_path}, skipping validation")
 
-    # Validate data (filter out rows where counts or baseline are non‑positive)
+    # ------------------------------------------------------------------
+    # 5. Filter valid rows and export
+    # ------------------------------------------------------------------
     valid_indices = validate_partition_data(n_values, p_P_n, Q_as_n)
     print(f"Exporting {len(valid_indices)} valid records out of {len(n_values)} total")
 
-    # Export the full raw table and the excluded table
-    export_data(n_values, p_P_n, Q_as_n, valid_indices, output_path, excluded_path)
-
-    # Export the minimal counts table required by T003
+    export_data(
+        n_values,
+        p_P_n,
+        Q_as_n,
+        valid_indices,
+        raw_output_path,
+        excluded_output_path,
+    )
     export_counts(n_values, p_P_n, counts_path)
 
-    # Compute checksum and update state
-    checksum = compute_file_checksum(output_path)
-    print(f"Checksum for {output_path}: {checksum}")
-    update_state_file(checksum, 'artifact_hashes.generate_partitions_raw', state_path)
+    # ------------------------------------------------------------------
+    # 6. Record checksum for reproducibility
+    # ------------------------------------------------------------------
+    checksum = compute_file_checksum(raw_output_path)
+    print(f"Checksum for {raw_output_path}: {checksum}")
+    # Update the state file using the helper from utils.prime_sieve
+    update_state_file(state_path, 'artifact_hashes.generate_partitions_raw', checksum)
     print("State file updated")
 
     print("Partition generation complete.")
-    print(f"Raw data written to: {output_path}")
+    print(f"Raw data written to: {raw_output_path}")
     print(f"Counts table written to: {counts_path}")
+
 
 if __name__ == '__main__':
     main()

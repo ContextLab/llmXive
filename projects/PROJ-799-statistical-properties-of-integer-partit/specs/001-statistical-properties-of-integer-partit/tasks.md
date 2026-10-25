@@ -19,7 +19,7 @@ All artefacts are written under the project‑owned directories `data/`, `code/`
   *Output* `tests/data/reference_values.csv` with columns `n,p_P_n`.  
   *Verification*: the first 20 rows match the table in **SC‑003** of the specification; a pytest unit test (`tests/test_reference_validation.py`) asserts exact equality.
 
-- [ ] T003 Compute exact distinct‑prime partition counts for the full range   <!-- FAILED-IN-EXECUTION: code/generate_partitions.py exit=1 -->
+- [ ] T003 Compute exact distinct‑prime partition counts for the full range   <!-- FAILED-IN-EXECUTION: code/generate_partitions.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_partitions.py exit=1 -->
   *Create* `code/generate_partitions.py` (see T031 for documentation).  
   *Output* `data/raw/partition_counts.csv` with columns `n,p_P_n`.  
   *Verification*: file has 50 001 rows (including n=0), all `p_P_n` are non‑negative integers, and rows \(n\le100\) match `tests/data/reference_values.csv`.
