@@ -25,13 +25,13 @@ properties:
     description: "Coefficient for body mass."
   se_body_mass:
     type: ["number", "null"]
-    description: "Standard error for body mass coefficient."
+    description: "Standard error for body mass."
   ci_lower_body_mass:
     type: ["number", "null"]
-    description: "95 % CI lower bound for body mass coefficient."
+    description: "95 % CI lower bound for body mass."
   ci_upper_body_mass:
     type: ["number", "null"]
-    description: "95 % CI upper bound for body mass coefficient."
+    description: "95 % CI upper bound for body mass."
   fixed_effect_migration:
     type: ["number", "null"]
     description: "Coefficient for migration status (interaction model only)."
@@ -64,10 +64,10 @@ properties:
     description: "Standard error for latitude interaction coefficient."
   ci_lower_interaction_latitude:
     type: ["number", "null"]
-    description: "95 % CI lower bound for latitude interaction coefficient."
+    description: "95 % CI lower bound for interaction coefficient."
   ci_upper_interaction_latitude:
     type: ["number", "null"]
-    description: "95 % CI upper bound for latitude interaction coefficient."
+    description: "95 % CI upper bound for interaction coefficient."
   p_value_telomere:
     type: ["number", "null"]
     description: "Two‑sided p‑value for telomere coefficient."
@@ -88,7 +88,7 @@ properties:
     description: "ΔAIC vs. base model (only for interaction model)."
   n_species:
     type: "integer"
-    description: "Number of unique species used in the fit."
+    description: "Number of unique `species_id` used in the fit."
     minimum: 1
   low_power_flag:
     type: "boolean"

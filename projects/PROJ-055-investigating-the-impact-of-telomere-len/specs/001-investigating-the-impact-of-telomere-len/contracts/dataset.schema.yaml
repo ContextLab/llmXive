@@ -30,6 +30,27 @@ properties:
     type: "number"
     description: "Body mass in grams."
     exclusiveMinimum: 0
+  sex:
+    type: "string"
+    description: "Sex of the individual."
+    enum:
+      - "Male"
+      - "Female"
+      - "Unknown"
+  age_at_measurement_days:
+    type: "number"
+    description: "Age of the individual at telomere measurement (days)."
+    minimum: 0
+  measurement_method:
+    type: "string"
+    description: "Method used to obtain telomere length."
+    enum:
+      - "qPCR"
+      - "TRF"
+      - "Other"
+  batch_id:
+    type: "string"
+    description: "Identifier for the laboratory batch or study source."
   n_obs:
     type: "integer"
     description: "Number of raw rows aggregated into this species proxy."
@@ -47,6 +68,10 @@ required:
   - migration_status
   - breeding_latitude
   - body_mass_g
+  - sex
+  - age_at_measurement_days
+  - measurement_method
+  - batch_id
   - n_obs
   - source_file
   - checksum

@@ -1,14 +1,13 @@
 status: none
-intent: Dryad telomere length AnAge lifespan BirdLife Open Tree of Life python package
-  dataset
+intent: download avian telomere length Dryad dataset lifespan figshare migration AnAge
+  python package dataset
 required_fields:
 - individual_id
 - species
 - telomere_length_kb
-- lifespan_years
-- body_mass_g
+- lifespan_days
 - migration_status
-- breeding_latitude_deg
-cache_key: f77ff25156b4c9717a3d22b8cad72f195aa0584d4c0fe1bb5164dc6c8454a7cd
-searched_at: '2026-10-25T02:17:45.932205+00:00'
+- body_mass_g
+cache_key: 069d71209a9f1d0b00e1c272238d09b68a7ea33b60ad7fb7ef1e97bc76239ddd
+searched_at: '2026-10-25T02:44:32.008134+00:00'
 retry_count: 1
