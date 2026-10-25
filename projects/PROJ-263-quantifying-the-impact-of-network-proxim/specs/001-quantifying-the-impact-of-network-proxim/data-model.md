@@ -4,10 +4,10 @@
 | Field | Type | Description |
 |-------|------|-------------|
 | `node_id` | integer | Unique identifier for each node (0‑based). |
-| `x` | float | X‑coordinate (synthetic or MDS‑derived). |
-| `y` | float | Y‑coordinate (synthetic or MDS‑derived). |
+| `x` | float | X‑coordinate (real geographic, or random if synthetic). |
+| `y` | float | Y‑coordinate (real geographic, or random if synthetic). |
 | `degree` | integer | Node degree in the graph. |
-| `component` | integer | Identifier of the connected component (only LCC kept). |
+| `component` | integer | Identifier of the connected component (only LCC retained). |
 
 Stored as `data/derived/nodes.csv`.
 
@@ -21,18 +21,18 @@ Stored as `data/derived/nodes.csv`.
 Stored as `data/derived/edges.csv`.
 
 ## 3. Simulation Output (Primary Contract)
-See `contracts/simulation_output.schema.yaml` for the full JSON‑Schema. In brief, each row corresponds to a single Monte‑Carlo run:
+See `contracts/simulation_output.schema.yaml` for the full JSON‑Schema. Each row corresponds to a single Monte‑Carlo run:
 
 | Column | Type | Meaning |
 |--------|------|---------|
-| `simulation_id` | string | UUID of the run (`{beta}_{lambda}_{seed}`). |
-| `beta_0` | float | Base transmission rate used. |
-| `lambda` | float | Spatial decay parameter. |
+| `simulation_id` | string | UUID of the run, formatted as `beta_{beta}_lambda_{lambda}_seed_{seed}`. |
+| `beta_0` | float | Base transmission probability used. |
+| `lambda` | float | Spatial decay parameter applied to Euclidean distances. |
 | `seed` | integer | Random seed for reproducibility. |
-| `peak_infection` | float | Maximum fraction of infected nodes observed during the run. |
-| `final_size` | float | Fraction of nodes ever infected by the end of the run. |
-| `threshold_hit` | boolean | Whether the run contributed to crossing the epidemic threshold (peak ≥ 5 %). |
-| `runtime_seconds` | float | Wall‑clock time for the run. |
+| `peak_infection` | float (0‑1) | Maximum fraction of infected nodes observed during the run. |
+| `final_size` | float (0‑1) | Fraction of nodes ever infected by the end of the run. |
+| `threshold_hit` | boolean | Whether the run contributed to crossing the epidemic threshold (≥5 % infected in >50 % of runs). |
+| `runtime_seconds` | float | Wall‑clock time taken by the simulation (seconds). |
 
 File path: `data/derived/simulation_results.csv`.
 
@@ -50,10 +50,13 @@ Aggregated per (`beta_0`, `lambda`) pair:
 | `std_peak` | float | Standard deviation of `peak_infection`. |
 | `mean_final` | float | Mean final outbreak size. |
 | `threshold_estimate` | float or string | Estimated epidemic threshold (or `"undefined"`). |
-| `p_value` | float | Permutation test p‑value (null vs. spatial). |
+| `p_value` | float | Permutation test p‑value (spatial vs. null). |
 | `effect_size` | float | Cohen’s d (spatial vs. null). |
 | `significant` | boolean | Flag per α = 0.05 (Bonferroni‑adjusted). |
 
 Stored as `data/derived/summary_stats.csv`.
 
 ---
+
+
+

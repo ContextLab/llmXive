@@ -1,12 +1,12 @@
 status: none
-intent: download Brightkite social network dataset with geographic coordinates from
-  Stanford SNAP python package dataset
+intent: OpenFlights airport routes network dataset with coordinates python package
+  dataset
 required_fields:
 - node_id
 - latitude
 - longitude
-- edge_source
-- edge_target
-cache_key: db1b01a85bc03fa88dce9ee02ceadc5f15401ac9d51bd8a1995e28aa9df8dd48
-searched_at: '2026-10-25T08:11:20.968331+00:00'
+- source_id
+- target_id
+cache_key: 0c46f3b1ddd2afd887df707c0a8ef88c6e661bc855e62b539241eb80fb95a327
+searched_at: '2026-10-25T09:09:20.269592+00:00'
 retry_count: 1
