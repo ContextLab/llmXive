@@ -35,7 +35,7 @@ The system must train a lightweight, 2-step autoregressive diffusion student mod
 
 1. **Given** the physics‑generated dataset (**[deferred]** sequences) and the student model architecture, **When** the training loop executes for the defined epochs, **Then** the final validation MSE meets the convergence criteria defined in **SC‑002** and the relative improvement over the first epoch is at least 10 %.
 2. **Given** a trained student model and a new physics trajectory, **When** the model generates a 16‑frame sequence, **Then** the output frames exhibit structural consistency with the input trajectory (e.g., objects move in the correct direction and speed) as verified by a manual visual check **or** a Structural Similarity Index (SSIM) that meets the fidelity criteria defined in **SC‑003**.
-3. **Given** the CPU‑only constraint, **When** the training job runs, **Then** it completes within the 6‑hour GitHub Actions limit and consumes less than 7 GB of RAM, without triggering OOM errors or requiring GPU acceleration.
+3. **Given** the CPU‑only constraint, **When** the training job runs, **Then** it completes within the GitHub Actions time limit and consumes less than 7 GB of RAM, without triggering OOM errors or requiring GPU acceleration.
 
 ---
 
@@ -103,4 +103,4 @@ The system must evaluate the physics‑teacher model against a neural‑teacher 
 - **Threshold justification & sensitivity**: The α = 0.05 significance threshold follows community standards; a sensitivity analysis sweeps α over {0.01, 0.05, 0.10} to verify robustness of conclusions.
 - **Metric validity**: LPIPS is used as a fidelity metric against ground‑truth physics frames, reflecting how closely generated frames match the deterministic source. FID is used as a richness metric, capturing perceptual diversity relative to the neural‑teacher baseline (Zhang et al.; Heusel et al., 2017).
 - **Predictor singularity**: Since the physics trajectory is the sole predictor for the dynamic signal, there is no risk of collinearity between predictors; correlation between the physics signal and final pixel output is treated as the primary dependent relationship.
-- **Compute feasibility**: The 50 M‑parameter student model and the **[deferred]**‑sequence dataset fit within the ~7 GB RAM and ~14 GB disk constraints of the GitHub Actions free runner, allowing the entire pipeline to complete within 6 hours without GPU acceleration.
+- **Compute feasibility**: The a multi‑million‑parameter student model and the **[deferred]**‑sequence dataset fit within the ~7 GB RAM and ~14 GB disk constraints of the GitHub Actions free runner, allowing the entire pipeline to complete within 6 hours without GPU acceleration.

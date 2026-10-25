@@ -1,19 +1,19 @@
 status: none
-intent: download PHYRE physical reasoning dataset with Box2D trajectories python package
-  dataset
+intent: synthetic physics video dataset with ground truth state vectors Box2D python
+  package dataset
 required_fields:
-- video_file_or_frame_sequence
+- video_file_path_or_frame_sequence
 - object_id
-- frame_number
+- frame_index_or_timestamp
 - position_x
 - position_y
 - velocity_x
 - velocity_y
-- angular_position
+- orientation_angle
 - angular_velocity
-- simulation_seed
-- world_parameters (e.g., friction, restitution)
-- object_type
-cache_key: c306967a6392078bdaeacbc6bf72f8bdc1f8e487deefb5810ef4dd3820e3cc54
-searched_at: '2026-10-17T11:46:10.786795+00:00'
+- mass
+- friction_coefficient
+- shape_type
+cache_key: 9072c6b227bfb7f6a2926c78f0a2cda267baf5274a3e887786f9ea78fd130bb7
+searched_at: '2026-10-25T19:27:35.028571+00:00'
 retry_count: 1

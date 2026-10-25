@@ -1,27 +1,27 @@
 # Quickstart: Physics-Teacher Distillation
 
-The following commands run the entire end‑to‑end experiment on a fresh GitHub Actions runner (or a local Linux environment with the same resources).
+Run the full experiment on a fresh GitHub Actions runner (or a local Linux environment with comparable resources).
 
 ## Prerequisites
-- Python 3.11 installed.
-- `git clone` the repository.
-- Internet access (to download the verified Box2D metadata JSON **if needed**; the current pipeline generates worlds internally, so this step can be omitted).
+- Python 3.11  
+- Git clone of the repository  
+- Internet access (only needed for installing packages; all data are generated locally)
 
-## Step‑by‑Step
+## Steps
 
-1. **Create and activate the virtual environment**
+1. **Create and activate a virtual environment**
    ```bash
    python -m venv .venv
    source .venv/bin/activate
-   pip install -r requirements.txt   # pins all versions
+   pip install -r requirements.txt   # pins exact versions
    ```
 
-2. **Set deterministic seeds (once per run)**
+2. **Set a global deterministic seed**
    ```bash
    export GLOBAL_SEED=12345
    ```
 
-3. **Generate physics‑teacher data**
+3. **Generate synthetic physics data**
    ```bash
    python -m src.data_generation.generate \
        --seed $GLOBAL_SEED \
@@ -30,26 +30,37 @@ The following commands run the entire end‑to‑end experiment on a fresh GitHu
        --num-test <N_TEST> \
        --output-dir data/physics
    ```
-   - Sequence counts are **[deferred]** to implementation, chosen to fit the 6 h / 7 GB budget.
-   - Produces `data/physics/train/`, `val/`, `test/` with `.mp4` videos and `.npz` trajectories.
-   - The script logs any NaN‑containing sequences and discards them (fulfilling the relevant functional requirement), and re‑runs a fixed‑seed subset to verify determinism by checksum comparison (as defined in the functional specification).
+   - `<N_TRAIN>`, `<N_VAL>`, `<N_TEST>` are **[deferred]** to the implementation phase; choose values that respect the 6 h / 7 GB budget.  
+   - The script discards any NaN‑containing sequences, logs warnings, and verifies determinism by re‑running a fixed‑seed subset and comparing checksums.
 
-4. **Train the neural‑teacher baseline**
+4. **Generate neural‑teacher signals (baseline teacher)**
    ```bash
    python -m src.models.neural_teacher \
-       --dataset physics \
        --data-dir data/physics/train \
+       --output-dir data/physics/neural_teacher_signals \
+       --seed $GLOBAL_SEED
+   ```
+   This step produces frame‑wise predictions that will be used as teacher signals for the baseline diffusion model.
+
+5. **Train the baseline diffusion model (neural‑teacher signals)**
+   ```bash
+   python -m src.models.diffusion_student \
+       --train-dir data/physics/train \
+       --teacher-signals data/physics/neural_teacher_signals \
+       --model-size small   # uses the ~5 M‑parameter architecture
        --epochs <EPOCHS> \
        --batch-size 8 \
-       --output-dir outputs/neural_teacher
+       --gradient-accumulation-steps 4 \
+       --checkpoint-activation \
+       --output-dir outputs/baseline_diffusion
    ```
-   - This ConvLSTM video‑prediction model learns to predict the next frame from the current frame **without** explicit trajectory input, providing the neural teacher signal.
 
-5. **Train the student model on physics data**
+6. **Train the student diffusion model (physics teacher)**
    ```bash
-   python -m src.models.student_diffusion \
+   python -m src.models.diffusion_student \
        --train-dir data/physics/train \
-       --val-dir data/physics/val \
+       --teacher-signals data/physics/train/trajectories.npz \
+       --model-size small   # same ~5 M‑parameter architecture as baseline
        --epochs <EPOCHS> \
        --batch-size 8 \
        --gradient-accumulation-steps 4 \
@@ -57,23 +68,25 @@ The following commands run the entire end‑to‑end experiment on a fresh GitHu
        --output-dir outputs/student_physics
    ```
 
-6. **Run evaluation (shared held‑out test set)**
+7. **Run evaluation on the held‑out test set**
    ```bash
    python -m src.evaluation.metrics \
        --test-dir data/physics/test \
-       --neural-checkpoint outputs/neural_teacher/checkpoint.pt \
+       --baseline-checkpoint outputs/baseline_diffusion/checkpoint.pt \
        --student-checkpoint outputs/student_physics/checkpoint.pt \
+       --lpips-sample 100 \   # sample size for LPIPS/FID (≤ 100)
+       --fid-sample 100 \
        --output-dir outputs/metrics
    ```
 
-7. **Statistical analysis (includes power analysis)**
+8. **Statistical analysis (includes power analysis)**
    ```bash
    python -m src.evaluation.statistical \
        --metrics-dir outputs/metrics \
        --output-dir outputs/statistics
    ```
 
-8. **Ablation study**
+9. **Ablation study over physics parameters**
    ```bash
    python -m src.ablation.run_ablation \
        --param friction 0.2 0.35 0.5 0.65 0.8 \
@@ -81,21 +94,21 @@ The following commands run the entire end‑to‑end experiment on a fresh GitHu
        --samples-per-config 3 \
        --output-dir outputs/ablation
    ```
-   - Five levels per parameter, three random seeds per level (total 15 sequences per setting), ensuring sufficient degrees of freedom for regression.
 
-9. **Validate contracts and metric ground truths**
-   ```bash
-   pytest -m contract
-   pytest tests/unit   # includes analytic metric identity tests (SSIM(x,x)=1, FID(S,S)=0)
-   ```
-
-10. **Check runtime & memory compliance (SC‑005)**
+10. **Validate contracts & metric sanity checks**
     ```bash
-    cat outputs/manifest.json   # contains wall_clock_seconds and peak_ram_gb
-    # The run aborts automatically if limits are exceeded — it never truncates or substitutes values.
+    pytest -m contract
+    pytest tests/unit   # includes SSIM(x,x)=1, FID(S,S)=0 checks
     ```
 
-All generated artifacts are version‑hashed; re‑running the pipeline with the same `GLOBAL_SEED` yields identical hashes, confirming reproducibility (Principle I). **Every reported metric is a real measurement** traced via `outputs/manifest.json`; the pipeline fails loudly rather than emitting placeholder values (Anti‑Fabrication Commitment).
+11. **Check runtime & memory compliance (SC‑005)**
+    ```bash
+    cat outputs/manifest.json   # fields: wall_clock_seconds, peak_ram_gb
+    # The pipeline aborts automatically if limits are exceeded; no placeholders are inserted.
+    ```
+
+Re‑running the entire pipeline with the same `GLOBAL_SEED` yields identical hashes for all outputs, confirming reproducibility (Principle I). Every metric in the final tables is a real measurement traced via `outputs/manifest.json` (Anti‑Fabrication Commitment).
 
 ---
+
 
