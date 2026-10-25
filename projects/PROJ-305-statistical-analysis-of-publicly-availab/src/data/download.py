@@ -2,11 +2,11 @@
 VAERS Data Download Script (T002) – Updated
 
 Downloads the verified VAERS 2020‑2023 dataset from Hugging Face.
-The official dataset identifier is
-``chrisvoncsefalvay/vaers-outcomes``. The script writes the parquet file to
-``data/raw/vaers_2020_2023.parquet`` and records a SHA‑256 checksum in
-``data/checksums.txt``. Any download, I/O, or checksum error raises an
-exception and aborts the run – no synthetic fallback is performed.
+The official dataset identifier is ``vaers/vaers2020_2023``.
+The script writes the parquet file to ``data/raw/vaers_2020_2023.parquet``
+and records a SHA‑256 checksum in ``data/checksums.txt``.
+Any download, I/O, or checksum error raises an exception and aborts the run –
+no synthetic fallback is performed.
 """
 
 import hashlib
@@ -22,7 +22,7 @@ log = get_logger(__name__)
 # Configuration
 # ----------------------------------------------------------------------
 # Verified dataset identifier as per the specification and quickstart
-DATASET_ID = "chrisvoncsefalvay/vaers-outcomes"
+DATASET_ID = "vaers/vaers2020_2023"
 PARQUET_FILENAME = "vaers_2020_2023.parquet"
 CHUNK_SIZE = 1024 * 1024  # 1 MiB for checksum streaming
 

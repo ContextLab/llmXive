@@ -1,9 +1,8 @@
-# Project dependencies
+# Project requirements
 pandas
 numpy
 scipy
 matplotlib
-datasets
 pyarrow
 statsmodels
 psutil
@@ -13,3 +12,4 @@ jsonschema
 pytest
 ruff
 black
+datasets

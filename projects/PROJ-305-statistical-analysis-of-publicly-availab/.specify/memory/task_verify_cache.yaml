@@ -1,21 +1,11 @@
 T001:
-  c: true
-  h: 69f74383b762882b72506adf6ab410fbb44321abe1953b5859932356a9ad1bde
-  r: "Checked that all required directories exist, `logs/structure.txt` is non\u2011\
-    empty and contains \u201Csrc\u201D, and `quickstart.md` includes the documented\
-    \ command `python -m src.main`."
-  sig: 73cf4fcd51eada83930a5c594a9545f9bd33f557179b035ba97b6355c59aee23
-T002:
   c: false
-  h: 25feeea2475e42a63aed6a56391fc07ca5d212dc09a217f527fd3f218758dd43
-  r: "Checked `src/data/download.py`, `data/raw/vaers_2020_2023.parquet`, and `data/checksums.txt`.\
-    \ While the parquet file exists, is non\u2011empty, and its checksum is recorded,\
-    \ the download script uses the wrong Hugging\u202FFace identifier (`chrisvoncsefalvay/vaers-outcomes`)\
-    \ instead of the required `vaers/vaers2020_2023`. The task explicitly mandates\
-    \ loading that exact dataset, so the implementation does not meet the specification.\
-    \ The script must be updated to use `datasets.load_dataset(\"vaers/vaers2020_2023\"\
-    , split=\"train\")`."
-  sig: ba9ec101ed11dd26268936794f3b38e5afd7d61fa367f3c618c7e6a0a4266a6c
+  h: cc969faa81f41733716548dd82c76462c5220e507c71b31c952bcb2f2251fa4b
+  r: The required directory `data/raw/` is missing (marked MISSING), so the project
+    layout is incomplete despite the presence of `logs/structure.txt` and the documented
+    command in `quickstart.md`. The implementer must add the `data/raw/` directory
+    to satisfy the task.
+  sig: aac7aa6018dff5161853b34251f6d795cdeeb5c239a4a422af75eec3ff6232c5
 T003:
   c: false
   h: 318fffd4386daf79fa76598d30b53f0e9e9d81887869d846638cce143285a8fd
