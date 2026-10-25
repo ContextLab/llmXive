@@ -1,134 +1,130 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python -m src.data.download_fluordb  --url https://huggingface.co/datasets/fluordb/v1/resolve/main/data/fluordb.parquet  --output data/raw/fluordb.parquet`
+- run-book command: `python -m src.preprocessing.scaffold_split  --input data/processed/cleaned.parquet  --output-dir data/processed/split/  --min-test-size 50`
+  - script usage: `scaffold_split.py [-h] [--input INPUT] [--output-dir OUTPUT_DIR]`
+  - argparse error: `scaffold_split.py: error: unrecognized arguments: --min-test-size 50`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 15 command(s) failed: python -m src.data.download_fluordb  --url https://huggingface.co/datasets/fluordb/v1/resolve/main/data/fluordb.parquet  --output data/raw/fluordb.parquet (rc=1); python -m src.preprocessing.clean  --input data/raw/fluordb.parquet  --output data/processed/cleaned.parquet (rc=1); python -m src.preprocessing.scaffold_split  --input data/processed/cleaned.parquet  --output-dir data/processed/split/  --min-test-size 50 (rc=1); 1 declared deliverable(s) absent: data/raw/fluordb/fluordb.parquet
+**Summary**: 15 command(s) failed: python -m src.data.download_fluordb  --url https://huggingface.co/datasets/fluordb/v1/resolve/main/data/fluordb.parquet  --output data/raw/fluordb.parquet (rc=1); python -m src.preprocessing.clean  --input data/raw/fluordb.parquet  --output data/processed/cleaned.parquet (rc=1); python -m src.preprocessing.scaffold_split  --input data/processed/cleaned.parquet  --output-dir data/processed/split/  --min-test-size 50 (rc=2); 1 declared deliverable(s) absent: data/raw/fluordb/fluordb.parquet
 
 ## Failing / missing run-book commands
 
 - python -m src.data.download_fluordb  --url https://huggingface.co/datasets/fluordb/v1/resolve/main/data/fluordb.parquet  --output data/raw/fluordb.parquet -> rc=1
-load_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:03,531 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:03,532 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
-2026-10-25 11:09:04,080 INFO code.data.download_fluordb: Attempting direct download from https://huggingface.co/datasets/fluordb/v1/resolve/main/data/fluordb.parquet...
-2026-10-25 11:09:04,132 WARNING code.data.download_fluordb: Direct download failed: HTTP Error 401: Unauthorized
-2026-10-25 11:09:04,133 INFO code.data.download_fluordb: Attempting load via HuggingFace datasets library...
-2026-10-25 11:09:04,185 INFO httpx2: HTTP Request: HEAD https://huggingface.co/datasets/fluordb/v1/resolve/main/README.md "HTTP/1.1 401 Unauthorized"
-2026-10-25 11:09:04,186 WARNING code.data.download_fluordb: HF library load failed: Dataset 'fluordb/v1' doesn't exist on the Hub or cannot be accessed.
-2026-10-25 11:09:04,186 ERROR code.data.download_fluordb: All data loading attempts failed: Dataset 'fluordb/v1' doesn't exist on the Hub or cannot be accessed.
 
-- python -m src.preprocessing.clean  --input data/raw/fluordb.parquet  --output data/processed/cleaned.parquet -> rc=1
-
-2026-10-25 11:09:04,417 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:04,418 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:04,418 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: No module named src.preprocessing.clean
-
-- python -m src.preprocessing.scaffold_split  --input data/processed/cleaned.parquet  --output-dir data/processed/split/  --min-test-size 50 -> rc=1
-
-2026-10-25 11:09:04,564 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:04,565 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:04,565 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:41,894 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:41,894 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:41,895 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/src/preprocessing/scaffold_split.py", line 31, in <module>
-    from rdkit import Chem
-ModuleNotFoundError: No module named 'rdkit'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/src/data/download_fluordb.py", line 16, in <module>
+    from code.data.download_fluordb import main as _download_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/code/data/download_fluordb.py", line 17, in <module>
+    from datasets import load_dataset
+ModuleNotFoundError: No module named 'datasets'
+
+- python -m src.preprocessing.clean  --input data/raw/fluordb.parquet  --output data/processed/cleaned.parquet -> rc=1
+
+2026-10-25 22:11:42,290 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:42,290 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:42,291 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: No module named src.preprocessing.clean
+
+- python -m src.preprocessing.scaffold_split  --input data/processed/cleaned.parquet  --output-dir data/processed/split/  --min-test-size 50 -> rc=2
+
+2026-10-25 22:11:42,442 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:42,443 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:42,443 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+usage: scaffold_split.py [-h] [--input INPUT] [--output-dir OUTPUT_DIR]
+scaffold_split.py: error: unrecognized arguments: --min-test-size 50
 
 - python -m src.features.rdkit_features  --input data/processed/split/train.parquet  --output data/processed/features/train_graphs.pt -> rc=1
 
-2026-10-25 11:09:04,996 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:04,996 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:04,997 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:42,906 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:42,907 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:42,908 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.features.rdkit_features' (ModuleNotFoundError: No module named 'src.features')
 
 - python -m src.features.ecfp4  --input data/processed/split/train.parquet  --output data/processed/features/train_ecfp4.npy -> rc=1
 
-2026-10-25 11:09:05,139 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:05,140 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:05,140 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:43,062 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:43,062 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:43,063 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.features.ecfp4' (ModuleNotFoundError: No module named 'src.features')
 
 - python -m src.training.train  --graph-features data/processed/features/train_graphs.pt  --targets data/processed/split/train.parquet  --validation-split data/processed/split/validation.parquet  --epochs 50  --patience 10  --output models/gnn_best.pt -> rc=1
 
-2026-10-25 11:09:05,284 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:05,285 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:05,285 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:43,214 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:43,214 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:43,215 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.training.train' (ModuleNotFoundError: No module named 'src.training')
 
 - python -m src.training.train_lr  --features data/processed/features/train_ecfp4.npy  --metadata data/processed/split/train.parquet  --output models/lr.pkl -> rc=1
 
-2026-10-25 11:09:05,428 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:05,429 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:05,429 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:43,368 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:43,368 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:43,369 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.training.train_lr' (ModuleNotFoundError: No module named 'src.training')
 
 - python -m src.evaluation.evaluate  --gnn-model models/gnn_best.pt  --lr-model models/lr.pkl  --test-data data/processed/split/test.parquet  --output results/metrics.json  --fig-dir figures/ -> rc=1
 
-2026-10-25 11:09:05,572 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:05,573 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:05,574 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:43,520 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:43,520 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:43,521 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.evaluation.evaluate' (ModuleNotFoundError: No module named 'src.evaluation')
 
 - python -m src.interpretability.integrated_gradients  --model models/gnn_best.pt  --test-data data/processed/split/test.parquet  --output attributions/ig/ -> rc=1
 
-2026-10-25 11:09:05,717 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:05,717 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:05,718 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:43,670 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:43,671 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:43,671 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.interpretability.integrated_gradients' (ModuleNotFoundError: No module named 'src.interpretability')
 
 - python -m src.interpretability.shap_sanity  --model models/gnn_best.pt  --test-data data/processed/split/test.parquet  --sample-size 100  --seeds 42 123 999  --output attributions/shap/ -> rc=1
 
-2026-10-25 11:09:05,860 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:05,860 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:05,861 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:43,820 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:43,821 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:43,821 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.interpretability.shap_sanity' (ModuleNotFoundError: No module named 'src.interpretability')
 
 - python -m src.interpretability.aggregate_substructures  --ig-dir attributions/ig/  --output attributions/aggregated_top20.json -> rc=1
 
-2026-10-25 11:09:06,002 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:06,002 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:06,003 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:43,973 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:43,974 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:43,974 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.interpretability.aggregate_substructures' (ModuleNotFoundError: No module named 'src.interpretability')
 
 - python -m src.interpretability.aggregate_substructures  --ig-dir attributions/ig/  --atom-level  --output attributions/atom_top20.json -> rc=1
 
-2026-10-25 11:09:06,145 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:06,146 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:06,146 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:44,123 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:44,124 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:44,124 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.interpretability.aggregate_substructures' (ModuleNotFoundError: No module named 'src.interpretability')
 
 - python -m src.interpretability.validate_attributions  --aggregated attributions/aggregated_top20.json  --reference data/reference/fluorophore_motifs.csv  --train-data data/processed/split/train.parquet  --test-data data/processed/split/test.parquet  --output results/attribution_validation.json -> rc=1
 
-2026-10-25 11:09:06,293 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:06,294 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:06,295 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:44,271 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:44,272 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:44,273 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.interpretability.validate_attributions' (ModuleNotFoundError: No module named 'src.interpretability')
 
 - python -m src.evaluation.covariate_ablation  --gnn-model models/gnn_best.pt  --lr-model models/lr.pkl  --train-data data/processed/split/train.parquet  --validation-data data/processed/split/validation.parquet  --test-data data/processed/split/test.parquet  --output results/covariate_impact.json -> rc=1
 
-2026-10-25 11:09:06,497 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:06,497 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:06,497 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:44,421 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:44,421 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:44,422 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.evaluation.covariate_ablation' (ModuleNotFoundError: No module named 'src.evaluation')
 
 - python -m src.reporting.generate_report  --metrics results/metrics.json  --attribution-validation results/attribution_validation.json  --covariate-impact results/covariate_impact.json  --fig-dir figures/  --output report/ -> rc=1
 
-2026-10-25 11:09:06,639 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
-2026-10-25 11:09:06,640 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
-2026-10-25 11:09:06,641 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
+2026-10-25 22:11:44,571 WARNING code.data.download_raw: torch not installed; skipping torch seed setting
+2026-10-25 22:11:44,572 INFO code.data.download_raw: Wrote seed mapping to /home/runner/work/llmXive/llmXive/projects/PROJ-218-predicting-molecular-fluorescence-quantu/results/seeds.json
+2026-10-25 22:11:44,572 INFO utils.seed_assert: Seed assertion completed (checked PYTHONHASHSEED).
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-218-predicting-molecular-fluorescence-quantu/bin/python: Error while finding module specification for 'src.reporting.generate_report' (ModuleNotFoundError: No module named 'src.reporting')
 
 

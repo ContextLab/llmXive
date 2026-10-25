@@ -1,9 +1,11 @@
 status: none
-intent: download fluorescence quantum yield SMILES dataset joint SMILES FQY dataset
-  python package dataset
+intent: download fluorescence quantum yield SMILES dataset python package dataset
 required_fields:
 - smiles
 - fluorescence_quantum_yield
-cache_key: 5ffc033315c1507e3396956b9f36e58fe8fbec4c5257442e2200ff40eb6f185f
-searched_at: '2026-10-25T11:09:58.001459+00:00'
+- measurement_temperature
+- solvent
+- reference_id
+cache_key: 2f1f672cbff12fd295fc011fd33ebf69f74400b08c6a1535f16172920672ac28
+searched_at: '2026-10-25T22:12:39.783268+00:00'
 retry_count: 1
