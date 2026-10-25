@@ -1,12 +1,12 @@
 status: none
-intent: Pantheon+ Type Ia supernova catalog download python package dataset
+intent: download Pantheon+ Type Ia supernova dataset from GitHub python package dataset
 required_fields:
-- supernova_name
+- sn_name
 - ra
 - dec
 - redshift
 - distance_modulus
 - distance_modulus_error
-cache_key: 73fbdd508da87989ff36708a98c3806cf171e7c56bb662956d03b4f120ae624d
-searched_at: '2026-10-25T15:24:59.002460+00:00'
+cache_key: ab7260bba6e22fe423c6f65e661699df8a4a91818aadff7950e0e5c3134a2578
+searched_at: '2026-10-25T16:21:05.943515+00:00'
 retry_count: 1

@@ -1,71 +1,63 @@
-"""Integration test for the Pantheon+ download script (task T002).
-
-The test runs the ``download_pantheon.py`` script, then checks:
-  * The FITS file exists at the expected location.
-  * The SHA‑256 checksum recorded in ``metadata.json`` matches the
-    actual checksum of the downloaded file.
-  * The FITS header contains the required columns.
-  * The project state YAML contains the checksum entry.
-"""
 import json
-import pathlib
-import sys
+from pathlib import Path
 
 import pytest
-import yaml
-from astropy.io import fits
-
 from llmxive_toolkit import paths
 
-# Import the script as a module to invoke its ``main`` function.
-sys.path.append(str(pathlib.Path(__file__).parents[3] / "code"))
-import download_pantheon
+# Import the script's main function
+from code.download_pantheon import main as download_main
 
-@pytest.mark.integration
-def test_download_and_verify(tmp_path, monkeypatch):
-    # Ensure a clean environment: remove any existing raw files.
-    raw_dir = paths.data("raw")
-    for p in raw_dir.iterdir():
-        p.unlink()
+@pytest.fixture
+def clean_raw_dir(tmp_path):
+    """Create a temporary raw data directory and point the paths helper to it."""
+    raw_dir = tmp_path / "data" / "raw"
+    raw_dir.mkdir(parents=True)
+    # Monkey‑patch the llmxive_toolkit.paths.data function to use the temp dir
+    original_data = paths.data
 
-    # Run the script (it will download the real dataset).
-    download_pantheon.main()
+    def temp_data(*parts):
+        return raw_dir.joinpath(*parts)
 
-    # 1️⃣ Verify FITS file existence.
-    fits_path = raw_dir / "pantheon_plus.fits"
-    assert fits_path.is_file(), "FITS file was not created."
+    paths.data = temp_data
+    yield raw_dir
+    # Restore original function after test
+    paths.data = original_data
 
-    # 2️⃣ Verify checksum matches metadata.
-    metadata_path = raw_dir / "metadata.json"
-    assert metadata_path.is_file(), "metadata.json was not created."
-    with open(metadata_path, "r", encoding="utf-8") as f:
-        meta = json.load(f)
+def test_download_and_metadata_creation(clean_raw_dir, caplog):
+    """
+    End‑to‑end test that the download script:
+    * Retrieves the real Pantheon+ FITS file.
+    * Writes the file to data/raw/pantheon_plus.fits.
+    * Generates a valid metadata.json with required fields.
+    * Updates the project state YAML with the checksum.
+    """
+    # Run the script (no arguments -> default URL)
+    download_main()
 
-    # Re‑compute checksum independently.
-    import hashlib
+    fits_path = clean_raw_dir / "pantheon_plus.fits"
+    metadata_path = clean_raw_dir / "metadata.json"
+    state_path = Path(__file__).parents[3] / "state" / "projects" / "PROJ-753-testing-the-isotropy-of-cosmic-expansion.yaml"
 
-    def compute_sha256(path: pathlib.Path) -> str:
-        sha = hashlib.sha256()
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(8192), b""):
-                sha.update(chunk)
-        return sha.hexdigest()
+    # Verify files exist
+    assert fits_path.is_file(), "FITS file was not created"
+    assert metadata_path.is_file(), "metadata.json was not created"
+    assert state_path.is_file(), "State YAML was not created"
 
-    expected_checksum = compute_sha256(fits_path)
-    assert meta["sha256"] == expected_checksum, "Checksum mismatch in metadata."
+    # Verify metadata content
+    metadata = json.loads(metadata_path.read_text())
+    required_keys = {"dataset_version", "source_url", "sha256", "citation_verified"}
+    assert required_keys.issubset(metadata.keys()), "Missing keys in metadata.json"
+    assert metadata["citation_verified"] is False
 
-    # 3️⃣ Verify required FITS columns.
-    with fits.open(fits_path) as hdul:
-        table = hdul[1].data
-        cols = set(table.columns.names)
-        required = {"ID", "RA", "DEC", "ZHD", "MU", "MUERR"}
-        missing = required - cols
-        assert not missing, f"Missing columns in FITS: {missing}"
+    # Verify checksum matches the file's actual hash
+    from code.download_pantheon import compute_sha256
+    actual_hash = compute_sha256(fits_path)
+    assert metadata["sha256"] == actual_hash, "Checksum mismatch in metadata"
 
-    # 4️⃣ Verify state YAML entry.
-    state_path = pathlib.Path(__file__).parents[4] / "state" / "projects" / "PROJ-753-testing-the-isotropy-of-cosmic-expansion.yaml"
-    assert state_path.is_file(), "State YAML file was not created."
-    with open(state_path, "r", encoding="utf-8") as f:
-        state = yaml.safe_load(f) or {}
-    artifact_hashes = state.get("artifact_hashes", {})
-    assert artifact_hashes.get("pantheon_plus.fits") == expected_checksum, "Checksum not recorded in state YAML."
+    # Verify state YAML contains the same checksum
+    import yaml
+    state = yaml.safe_load(state_path.read_text())
+    assert state.get("artifact_hashes", {}).get("pantheon_plus.fits") == actual_hash
+
+    # Ensure the logger reported success
+    assert any("Pantheon+ dataset download and verification completed successfully." in rec.message for rec in caplog.records)

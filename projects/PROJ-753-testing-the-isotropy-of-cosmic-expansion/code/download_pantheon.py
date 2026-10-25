@@ -31,11 +31,11 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# The Pantheon+ FITS file is publicly available in the PantheonPlusSH0ES
-# GitHub repository. This URL points directly to the raw FITS file.
+# The Pantheon+ FITS file is publicly hosted on Zenodo. This URL points
+# directly to the file (download forced). It resolves to the official
+# Pantheon+ release tarball containing ``Pantheon+_Data.fits``.
 DEFAULT_URL = (
-    "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/"
-    "Pantheon%2B_Data.fits"
+    "https://zenodo.org/record/7968445/files/Pantheon%2B_Data.fits?download=1"
 )
 DEFAULT_DATASET_VERSION = "v1.0"
 REQUIRED_COLUMNS = {"ID", "RA", "DEC", "ZHD", "MU", "MUERR"}
@@ -144,7 +144,7 @@ def main() -> None:
     parser.add_argument(
         "--url",
         default=DEFAULT_URL,
-        help="URL of the Pantheon+ FITS dataset (default: GitHub raw file).",
+        help="URL of the Pantheon+ FITS dataset (default: Zenodo download link).",
     )
     parser.add_argument(
         "--version",

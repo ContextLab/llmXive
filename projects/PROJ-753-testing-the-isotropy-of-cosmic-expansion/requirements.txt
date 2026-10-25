@@ -1,17 +1,7 @@
-# Project dependencies
-# Core scientific stack (already available in the runner):
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependency required for FITS handling
 astropy>=5.0
+pyyaml>=6.0
+requests>=2.28
+numpy>=1.24
+scipy>=1.11
+healpy>=1.16  # required for later phases, safe to include now
+tqdm>=4.66   # useful for future simulation loops
