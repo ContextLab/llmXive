@@ -1,1 +1,3 @@
-"""Model definitions including baseline and microcircuit architectures."""
+"""
+models subpackage initializer.
+"""

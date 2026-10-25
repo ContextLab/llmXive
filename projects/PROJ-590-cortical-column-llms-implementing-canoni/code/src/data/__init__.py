@@ -1,1 +1,3 @@
-"""Data generation and loading utilities."""
+"""
+data subpackage initializer.
+"""

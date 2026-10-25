@@ -1,1 +1,3 @@
-"""Training loops, homeostasis logic, and optimizers."""
+"""
+training subpackage initializer.
+"""

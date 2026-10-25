@@ -1,1 +1,3 @@
-"""Utility functions for checksums, statistics, and reporting."""
+"""
+utils subpackage initializer.
+"""

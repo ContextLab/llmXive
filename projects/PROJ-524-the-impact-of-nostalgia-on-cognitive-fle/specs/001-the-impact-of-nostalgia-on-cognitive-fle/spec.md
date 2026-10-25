@@ -15,7 +15,7 @@ This document outlines the requirements and design for a study investigating the
 As a researcher, I want to **collect** WCST data from participants aged 65+ under either a nostalgia‑induction or neutral control condition, validate that participants meet the age criterion, and exclude those with significant cognitive impairment (MMSE < 24) so that the dataset is clean, empirically grounded, and relevant to the target population.
 
 ### US2: Statistical Analysis and Hypothesis Testing (See SC-002, SC-003, SC-004, SC-007)
-As a researcher, I want to perform statistical comparisons between the nostalgia and control groups using **Welch's independent samples t-test** to account for potential unequal variances, calculate Cohen's d with 95 % confidence intervals, apply Bonferroni correction for multiple outcomes, and monitor runtime, so that the results are statistically rigorous and reproducible.
+As a researcher, I want to perform statistical comparisons between the nostalgia and control groups using **Welch's independent samples t-test** to account for potential unequal variances, calculate Hedges' g with 95 % confidence intervals, apply Bonferroni correction for multiple outcomes, and monitor runtime, so that the results are statistically rigorous and reproducible.
 
 ### US3: Sensitivity Analysis and Robustness Check (See SC-005)
 As a researcher, I want to perform sensitivity analyses by varying significance thresholds and re‑running analyses with and without cognitive impairment exclusions to ensure the findings are robust and not artifacts of specific parameter choices.
@@ -37,7 +37,7 @@ The system must use **Welch's independent samples t-test** (between‑subjects d
 The system must apply **Bonferroni correction** to p‑values resulting from the two primary outcome comparisons.
 
 ### FR-004: Effect Size Calculation (See US2)
-The system must calculate **Cohen's d** with 95 % confidence intervals for all primary comparisons.
+The system must calculate **Hedges' g** with 95 % confidence intervals for all primary comparisons, providing a variance‑unbiased effect‑size estimate compatible with Welch's t-test.
 
 ### FR-005: Sensitivity Analysis (See US3)
 The system must flag results as "sensitive to threshold choice" if any (uncorrected) p‑value falls within the borderline range **0.04 – 0.06** during sensitivity runs.
@@ -55,13 +55,13 @@ The system must log a warning if the analysis runtime exceeds **6 hours** but 
 - `exclusion_log.json` accurately records counts of exclusions by reason.
 
 ### SC-002 (See US2)
-- Welch's t-test yields a **Bonferroni‑corrected p‑value ≤ 0.05** for at least one primary outcome when the effect is present.
+- Welch's t-test yields a **Bonferroni‑corrected p‑value ≤ 0.05** for at least one primary outcome.
 
 ### SC-003 (See US2)
 - Bonferroni correction is applied correctly: α_corrected = 0.05 / 2 = 0.025 for each of the two outcomes.
 
 ### SC-004 (See US2)
-- Reported **Cohen's d** 95 % CI does **not include zero** for any statistically significant outcome (p ≤ 0.05 after correction).
+- Reported **Hedges' g** 95 % CI does **not include zero** for any statistically significant outcome (p ≤ 0.05 after correction).
 
 ### SC-005 (See US3)
 - Sensitivity analysis reports a flag “sensitive to threshold choice” whenever any tested significance threshold yields a p‑value in the range **0.04 – 0.06**.
@@ -83,7 +83,7 @@ The system must log a warning if the analysis runtime exceeds **6 hours** but 
 - `MMSE`: float (optional)
 
 ### Output Schema (Processed)
-- `statistical_report.json`: Contains p‑values, Bonferroni‑corrected p‑values, Cohen's d with 95 % CI, power, and minimum detectable effect size (MDES).
+- `statistical_report.json`: Contains p‑values, Bonferroni‑corrected p‑values, Hedges' g with 95 % CI, power, and minimum detectable effect size (MDES).
 - `sensitivity_report.json`: Contains significance status across tested thresholds.
 - `exclusion_log.json`: Contains counts of excluded records by reason (age, MMSE).
 
@@ -105,8 +105,8 @@ Public WCST datasets lack a `stimulus_type` column; consequently, the study will
 
 ## 9. Appendix: Change Log
 
-- **T040 Update**: Updated FR-002 and US2 to explicitly specify Welch's independent samples t-test, replacing previous references to paired t-tests, to align with the between‑subjects experimental design.
-- Added Success Criteria (SC‑001 – SC‑007) linked to respective user stories.
-- Revised US1 and FR-001 to describe primary data collection rather than ingestion from public repositories.
-- Anchored FR-007 to US2 for runtime monitoring.
-- Clarified sensitivity range and effect‑size metric to match specification.
+- **T040 Update**: Updated FR-004 and SC-004 to use Hedges' g (variance‑unbiased) compatible with Welch's test.
+- Revised SC-002 to remove non‑observable clause and make it directly verifiable.
+- Added explicit justification for effect‑size choice in Design Decisions.
+- Clarified that data collection will be performed anew rather than relying on synthetic stimulus assignment.
+- Ensured all FR/SC links to User Stories remain intact and consistent.

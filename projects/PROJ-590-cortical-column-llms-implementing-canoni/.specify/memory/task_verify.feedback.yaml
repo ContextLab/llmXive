@@ -1,0 +1,144 @@
+T001a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`), `state/template.yaml` (shadows `state/`). A project owns data/, figures/,
+    code/ and paper/; the platform owns state/ and derives artifact hashes at verification
+    time. Re-scope the step to write only project-owned outputs.'
+  task: d51e8060c163ae39ef3efdbf8ec81981fce115efafb10f14e30c8685732e02b4
+T001b:
+  reason: "Checked `src/__init__.py` and `tests/__init__.py` \u2013 they exist, but\
+    \ none of the sub\u2011directories created under `src/` (e.g., `data/`, `experiments/`,\
+    \ `models/`, `training/`, `utils/`) or under `tests/` (e.g., `integration/`, `unit/`)\
+    \ contain an `__init__.py`. The task requires an `__init__.py` in **every** `src/`\
+    \ and `tests/` directory, so the missing package markers make the implementation\
+    \ incomplete."
+  task: 6a499eeca1a3af7a1a79b87375db0dc811485df6a2ee041211d4b95c47df7918
+T001c:
+  reason: The repository lacks a `.gitignore` file (or it was not found by the collector),
+    so the required ignore patterns for `data/` (with the specified exceptions) and
+    for `__pycache__`, `*.pyc`, `*.log` are not present. Adding a correctly configured
+    `.gitignore` is needed to satisfy task T001c.
+  task: 4286591d1c9ef5ac0fbd1a903750f47035e9cd86f8856769e5e419bf3de72833
+T003b:
+  task: b9de5a6ca9e5aa610234257930be6e9297b4734b79b5d6f1ec92eccd5a79057d
+T004:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/template.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 2e86f2a9b120b9ff1cdd722618d192f718c8323cf7b06eb7037e3a51db254fd4
+T005:
+  reason: "The provided `tests/conftest.py` exists and includes pytest-timeout configuration\
+    \ and a psutil\u2011based memory monitor, but it does not **atomically** set both\
+    \ the timeout and `psutil.Process.cpu_affinity` in a single step (it only reads\
+    \ affinity and logs warnings) and the memory limit is enforced only when `--strict-memory`\
+    \ is passed rather than being an unconditional assertion of RSS\u202F<\u202F7\u202F\
+    GB. These gaps mean the task\u2019s critical requirements are not fully met."
+  task: 238b24063e83805dda8c22e1d38bf784b841f7f02ed3a85a24675fb2248d2ed3
+T008a:
+  task: 6dba92492df98f75df05e5b5f5ad951b75e8afcaa9c3b237ea9ba333bb33ac2c
+T008b:
+  task: 399251d36cb56b06e342c70a85b865b9d76327b5fb0d8f53a1174291e81124e8
+T008c:
+  task: b31b8d50f41fd794ce3771155873efb61c1939a44e65097a8683d78be4c88e3c
+T009a:
+  task: 889f9ba27f638157cc09b552ffcb6b015637ea7eb7442ac7287444dcb84df18c
+T009d:
+  task: 65157a8258da8a8aa6d11d6570769b047bb6cc78d7a250535142b485f37c9b1e
+T009f:
+  task: 39ffd65f19531359d311f9bcfde0a0bc28e865d9668bcaee7c2c5e3209143e43
+T010a:
+  task: 63fdf5a184f7929ebf74a9fc058fc17d260cc71dc9d0d13152169a69a778f663
+T010b:
+  reason: "The `log_gradient_norms` function in `src/training/homeostasis.py` does\
+    \ not match the required specification: it uses a `log_path` argument instead\
+    \ of the mandated `output_file` name, computes only a single total L2 norm rather\
+    \ than a dictionary of per\u2011parameter\u2011group norms, does not employ `model.register_full_backward_hook`,\
+    \ and lacks any file\u2011locking or atomic\u2011write mechanism for concurrent\
+    \ safety. These omissions mean the task\u2019s core requirements are not satisfied."
+  task: 9df33d6d3bb7507e99877c4dbfe308e1238679b9f835d385742b18fc7f3de588
+T010c:
+  task: da2458fb9f724c3f833e839d29d5358e8df515a37eccec2c1f75e783773fae47
+T011a_run:
+  task: 0d5a873cf86f133cd547b1efcd1ba6025a51f218bbc6f3745aa38f39b6734374
+T011b:
+  task: 03c017277b8b9ac8ba9827eabcb5d85dfceb8385ca9ac2529556ed945927883c
+T012b_impl:
+  task: 3e6ecc42ffb55faf02b1800cdac0427112447760e2185b7a7bedeac7aa4b58cf
+T013:
+  task: 843469ddae40ff58f3bb87e66a9ac0946bfa7526270c37cfb6b92ae5a44c6afe
+T013b:
+  task: ec2692386d5f16ca363e3e1b319df3c2406c982ccee58d13f40eac586c2987aa
+T013c:
+  task: ee65e02404aadb52e07612cb64b77b4aed4c459439caa39c465a7032bde10dc3
+T014a:
+  task: ac04587b8f76b635e10718edb1ed836f6f9a5948de8b908a0bf8a08627289d30
+T014b:
+  task: aff5a9bb2623e027f0522c1247f3d6d3b97382575c055d4648f3b5d24a51dd82
+T014c:
+  task: 9bf91f8684fd8e64fee9a02563f3dc3e9cbd8d88f2e38f0657311e74fc3f7232
+T014d:
+  task: 57833acf4593956766abc4018ecb39c3ca5f31ffab7c58329afe4bdf7b579bfa
+T015:
+  task: da4c2a1f11388f70d14fd74ddabc5d6af94e7f2e02fd867ff83c7af0d293ad8d
+T019:
+  task: 7ccb655e61b52f85457e1e046015db861021ca68aa7dd5acc2749c45ffff0a58
+T025a:
+  task: 8030a9c40e586e88cdc85f34c84c453f5baa0d021d163940133c11c7f3259f47
+T025b:
+  task: 86f790cf524fda536c08f0c71e5f2f4619f1979b6e313ceb71f04f5fef8ade73
+T048:
+  task: 211d48d9921222c59998bdcdbc8585424836fb308e5b9fff1bc9c406a2903a5c
+T049a:
+  task: ff30aaba39836ee89ce734502c9513f9a3ed9ec26c83a953988afb6f29d6322f
+T049b:
+  task: aec9a8b2731217da9b444443b4dac4e5f1f999520c7d92a70f74d92e59d06d2c
+T049c:
+  task: a95bad68b10bc1af8f403fa8e5ce1863b252bf9d7d78bfbe9209ed1f3cd357ae
+T050:
+  task: 1a989325214f910ed65be9224624c14fc8fd89940da77efdad3f0ea10510c507
+T069:
+  task: 9c2d328d9dbf085e59fc9e11d6e83475c7fe4058c42b9635f3eab2d88ebd1a04
+T069b:
+  task: 44ddd13f48fbf3969dd7eb24ad6883fe9e3bd24a80ce9728a6283d49de9c747d
+T071a_impl:
+  task: 09ebfa00e53cedc498fefcc1fa8bdc0b4c4343592cc2eb95711aad113d887dca
+T071a_report:
+  task: ab306ead5a8c32c627f9f7ac82ef66c733fa8e7050a9892314f3b9fdc024bf95
+T071b_exec:
+  task: f4e3025e14100b2824e148b0f72fce0fa77d31f97e52983a4508d372f37e4032
+T071c_exec:
+  task: 3fdff2af77e1433e00a1fe0ecaa2b21f4bb8a437aedb352401d2eff82b84aa01
+T074:
+  task: fd37cabd8554dfaa8395d60d99b0a449efbb1d4ed57f8de99ddb6396a7efff24
+T075:
+  task: 4dfa22cc2e95819211f360faf7af4a454a2a27e94b9e22605f1205213c485e9d
+T076:
+  task: 582b2103c5e848dd63bf74e564417f25f9d2b305a8a69468f17db597259a1e23
+T080:
+  task: 771a6473e1eed509beda9846f2b359e4eee3eb4ee59350cd3f7cd900ec1e4803
+T081:
+  task: 41ed344d028944b81e1b91be072aadcd63acfc5251123bdd717b23572b8ad1f2
+T090:
+  task: f01a7648e29d7da5bf36826ed8dbd6782764ec8b4801e15a6ae0fcd214e1debd
+T091:
+  task: 989876768bfb1784a86a9e03b7a14416b2f371b164944787295f9b4ff1f66c19
+T092:
+  task: cad76bd2ffa806a37889cca806d74f3aecbab1f4eedca3a4b0d0337ccb76718e
+T093:
+  task: 2b332ce58bc3811b44c3eb69950b82e14d9b6a1f75febfdcb8094b24d193dc8c
+T094:
+  task: 826e88d997862c4c30eb5b56aaa503690b08e998b774b1de2e0da5465c750041
+T105:
+  task: 0b26c24e555d3c5bc223d7d97f9e4f3e6774fea021c7195dab72ed686c9b2679
+T106:
+  task: c65c6ee9d4aac95a5d56d6b0ddcb00b33a6377a5881850b4218f5d0f6438d875
+T107:
+  task: c4fd2c3d72877f3404034a1b2a41064e8ec972139dd11f32b2623829362750f1
+T108:
+  task: f26c5d3b292772107a2cf247a933fc74946b439ddec6540c988d4d8ec42fb831
+T110:
+  task: 4994d0d2ce8eec99ab00daeac28367420f655a2807a3385056e412effa72a51b
+T111:
+  task: 327c6d6f7d598e95220705203c365842f31fa30cef7249255a9f72babed305bc
+T112:
+  task: 2aa91e08181722c2549db036b70b003314454b8f97122f7141793126c8202e7e
