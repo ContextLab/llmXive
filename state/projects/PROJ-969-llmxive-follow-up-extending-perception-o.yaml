@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T19:38:24.003262Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-969-llmxive-follow-up-extending-perception-o
-last_run_id: 70b6ee8c-6f46-4547-a534-fcc972ed0c2e
+last_run_id: 09d7258d-014a-47a7-8528-e2800a99163d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o
 title: 'llmXive follow-up: extending "Perception or Prejudice: Can MLLMs Go Beyond
   First Impressions of Pers"'
-updated_at: '2026-10-25T18:21:30.212615Z'
+updated_at: '2026-10-25T18:22:45.334105Z'
