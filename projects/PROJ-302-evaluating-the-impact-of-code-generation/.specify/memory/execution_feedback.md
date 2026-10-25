@@ -22,7 +22,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --full-run -> rc=1
-^^^^^^
+projects/PROJ-302-evaluating-the-impact-of-code-generation/code/main.py", line 83, in run_stage
+    module = importlib.import_module(module_path)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -32,10 +34,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
   File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
   File "<frozen importlib._bootstrap_external>", line 940, in exec_module
   File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-302-evaluating-the-impact-of-code-generation/code/data_acquisition/__init__.py", line 19, in <module>
-    from ..data_acquisition import main  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ImportError: cannot import name 'main' from partially initialized module 'code.data_acquisition' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-302-evaluating-the-impact-of-code-generation/code/data_acquisition/__init__.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-302-evaluating-the-impact-of-code-generation/code/data_acquisition/__init__.py", line 11, in <module>
+    from .data_acquisition import main  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'code.data_acquisition.data_acquisition'
 
 
 ## Declared deliverables still missing

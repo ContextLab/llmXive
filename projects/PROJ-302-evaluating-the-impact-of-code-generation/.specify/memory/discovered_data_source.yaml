@@ -1,18 +1,19 @@
 status: none
-intent: download GHTorrent GitHub pull request dataset python package dataset
+intent: GitHub pull request metadata and synthetic code snippets dataset CodeLlama
+  python package dataset
 required_fields:
 - repository_id
 - repository_name
-- stars
+- star_count
 - pull_request_id
 - pull_request_number
 - pull_request_created_at
-- pull_request_merged_at
-- pull_request_closed_at
 - first_comment_timestamp
 - approval_timestamp
 - merge_timestamp
-- commit_sha
-cache_key: 897a32f101dee884a09fdf6224cf0c7f69c801c9b38fa8f14336c432adde9335
-searched_at: '2026-10-25T16:22:44.313356+00:00'
+- file_paths_changed
+- lines_added
+- lines_deleted
+cache_key: 4524eefe29ad395aed1bf0e2302dfb7c68390c64d22bd617267de0e125f745d5
+searched_at: '2026-10-25T16:24:13.543900+00:00'
 retry_count: 1

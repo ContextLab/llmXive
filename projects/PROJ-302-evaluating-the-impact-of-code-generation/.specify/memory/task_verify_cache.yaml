@@ -1,8 +1,9 @@
 T001:
   c: true
-  h: 28587276020278429d40ba9b4d51ac70dad7612df3ba72df87d5eb463a397392
-  r: "Checked that `requirements.txt` exists and pins exact versions for all listed\
-    \ packages, that `docs/quickstart.md` includes a \u201CRun\u2011the\u2011pipeline\u201D\
-    \ command (`python code/main.py --full-run`), and that `results/setup_verification.json`\
-    \ confirms a successful fresh\u2011venv install with all required packages importable."
-  sig: cf175b70e3289c48d1d4c211a680e3b677090fd21cb6a7fdd05b7edef5dcadfb
+  h: 9f13a4f89dab598d286f07413e9ce5c009533923a68ea71f76c0f93144a90fb9
+  r: "Checked `requirements.txt` (pinned exact versions for all listed packages),\
+    \ `docs/quickstart.md` (contains a \u201CRun\u2011the\u2011pipeline\u201D command),\
+    \ and `results/setup_verification.json` (shows all required packages imported\
+    \ successfully after a fresh install). All required artifacts exist and meet the\
+    \ task specifications."
+  sig: e3accaae7668141252256fe5abbb4ce88f086e57afad34d99aa7ddecbd6608ce

@@ -1,21 +1,11 @@
 """
-Package initialiser for the ``code.data_acquisition`` package.
+Package initializer for the data acquisition module.
 
-The original project contains both a ``code/data_acquisition.py`` module
-(which implements the synthetic commit‑message generator) and a package
-directory ``code/data_acquisition/`` with additional utilities.  Importing
-``code.data_acquisition`` would normally resolve to the *package*, causing
-the top‑level ``main`` function defined in ``code/data_acquisition.py`` to be
-inaccessible.  This leads to failures when the pipeline attempts to call
-``module.main()`` for the ``data_acquisition`` stage.
-
-To preserve the existing implementation while satisfying the import
-contract, we re‑export the ``main`` function from the sibling module.
-This makes ``code.data_acquisition.main`` available regardless of whether
-the package or the module is imported.
+Exposes the ``main`` function as the public entry point so that
+``import code.data_acquisition`` provides direct access to the
+pipeline's execution routine without causing circular imports.
 """
 
-# Re‑export the ``main`` function defined in the sibling ``data_acquisition.py``.
-from ..data_acquisition import main  # noqa: F401
-
-__all__ = ["main"]
+# Re-export the ``main`` function from the sibling module.
+# The leading dot ensures a relative import within the same package.
+from .data_acquisition import main  # noqa: F401
