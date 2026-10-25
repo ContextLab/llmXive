@@ -35,7 +35,7 @@ ERROR tests/unit/test_population.py
 ERROR tests/unit/test_result_aggregator.py
 ERROR tests/unit/test_symbolic_parser.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 0.78s ===============================
+============================== 6 errors in 0.25s ===============================
 
 
 
@@ -49,13 +49,11 @@ ERROR tests/unit/test_symbolic_parser.py
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/bes_results.json` is declared but was NOT written. Scripts referencing it:
-    - `code/bes/main.py` — NOT invoked by the run-book
     - `code/bes/result_aggregator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/bes_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/exclusions.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/final_report_generator.py` — NOT invoked by the run-book
     - `code/bes/evolutionary_loop.py` — NOT invoked by the run-book
-    - `code/bes/main.py` — NOT invoked by the run-book
     - `code/bes/result_aggregator.py` — NOT invoked by the run-book
     - `code/symbolic/exclusion_logger.py` — NOT invoked by the run-book
     - `code/symbolic/planner.py` — NOT invoked by the run-book

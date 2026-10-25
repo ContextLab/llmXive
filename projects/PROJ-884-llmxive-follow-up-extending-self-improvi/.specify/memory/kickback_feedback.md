@@ -1,0 +1,13 @@
+# Re-plan: task(s) could not be made to pass verification — adjust the approach
+
+The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+
+## Repeatedly-unverifiable tasks
+
+- `T001` (rejected 1x): The `code/dataset/generator.py` writes a JSONL file (one puzzle per line), but `code/tests/test_verifier.py` expects a single JSON object containing a `"puzzles"` list and reads it with `json.load`. This mismatch causes the verifier test to fail, so the required test suite does not pass. The generator’s output format must be changed to match the test’s expectations (or the test must be updated).
+- `T003` (rejected 1x): Requested task execution failed; rerun successfully: code/bes/main.py exit=1
+
+## Required change
+
+Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
+

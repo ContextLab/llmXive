@@ -1,14 +1,3 @@
-T001:
-  c: false
-  h: 2c1a799ae720ffee781d4635856a0492e83180c7af27178dbb90fb3076fc4ef7
-  r: "The `code/dataset/generator.py` writes a single JSON object with a top\u2011\
-    level `\"puzzles\"` array instead of emitting one JSON line per puzzle (JSONL),\
-    \ and its `to_dict()` method never includes the required `verifier_output` field,\
-    \ so the generated records do not satisfy `contracts/dataset.schema.yaml`. Consequently\
-    \ `code/tests/test_generator.py` would fail. Additionally, the required log file\
-    \ `data/processed/verifier_timing.log` is absent, showing the verifier has not\
-    \ recorded timing entries as mandated."
-  sig: 9790cf88739d74aa479655a7bdb74b411e32ca2ea78e91fda570b8fff6b389bb
 T002:
   c: true
   h: 7cd4bcd484da4637f21861a3e71c67e8cfa8800c992b59042387fb3a4a9e7c48
@@ -50,13 +39,10 @@ T015:
     \ succeeds without exception."
   sig: 9aa85770945712af45feb7842b227db596f2a218b29c764179aae18d7f0a399e
 T016:
-  c: false
-  h: 8673d1e276b769e6addab0115e88d847b4ee9ed77372625d925635cca9f852b0
-  r: "The quickstart.md file exists and lists the required `python -m code.main --pilot`\
-    \ command and expected output locations, and the `data/processed/pilot/` directory\
-    \ with non\u2011empty files is present. However, there is no concrete evidence\
-    \ (e.g., execution logs, CI run output, or a recorded successful run) showing\
-    \ that the command actually runs without error on a clean checkout and produces\
-    \ those artifacts. Provide a verified run (e.g., captured stdout, exit code, or\
-    \ CI log) to confirm the command\u2019s successful execution."
-  sig: 46d8d5886560a1eeea6bdc7a126f57c4672f4db7747a8e4ce4caad8c456e483e
+  c: true
+  h: f21025e98147468612084f304943a89efcaba15aeebc03d18dbd21618e005b6d
+  r: "Checked `specs/001-symbolic-bes/quickstart.md` (exists, contains the reproducible\
+    \ command `python -m code.main --pilot \u2026`) and the execution log `code/.tasks/T016.code_main.py.log`\
+    \ showing `code/main.py` exited with code\u202F0 and wrote non\u2011empty files\
+    \ `data/processed/pilot/pilot_run.jsonl` and `verifier_timing.log`."
+  sig: a551605d7a72c36810e81ad064b79f46782a5614bd46f0d2695dc5b979d380f5

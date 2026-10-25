@@ -10,10 +10,10 @@
     "python code/analysis/stats.py --symbolic data/processed/symbolic_run.jsonl --neural data/processed/neural_run.jsonl --output data/processed/results.json -> rc=1\n    Error: [Errno 2] No such file or directory: '--symbolic'"
   ],
   "fix_rounds": 0,
-  "model_tier": 2,
+  "model_tier": 0,
   "total_attempts": 1,
-  "replan_rounds": 1,
+  "replan_rounds": 2,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-10-25T07:30:04Z"
+  "updated_at": "2026-10-25T10:35:33Z"
 }

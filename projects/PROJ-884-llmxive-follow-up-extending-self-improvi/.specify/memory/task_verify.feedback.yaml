@@ -1,11 +1,10 @@
 T001:
-  reason: "The `code/dataset/generator.py` writes a single JSON object with a top\u2011\
-    level `\"puzzles\"` array instead of emitting one JSON line per puzzle (JSONL),\
-    \ and its `to_dict()` method never includes the required `verifier_output` field,\
-    \ so the generated records do not satisfy `contracts/dataset.schema.yaml`. Consequently\
-    \ `code/tests/test_generator.py` would fail. Additionally, the required log file\
-    \ `data/processed/verifier_timing.log` is absent, showing the verifier has not\
-    \ recorded timing entries as mandated."
+  reason: "The `code/dataset/generator.py` writes a JSONL file (one puzzle per line),\
+    \ but `code/tests/test_verifier.py` expects a single JSON object containing a\
+    \ `\"puzzles\"` list and reads it with `json.load`. This mismatch causes the verifier\
+    \ test to fail, so the required test suite does not pass. The generator\u2019\
+    s output format must be changed to match the test\u2019s expectations (or the\
+    \ test must be updated)."
   task: 684c82c06391a7601af8304e05adfd8798f3e3539d0a7998a00bb6bc695b0839
 T002:
   task: 1bb6370ddd68e20d82b1551745ec4077f99521f1c052ad733dd9951f6deaaa18
@@ -37,13 +36,6 @@ T014:
 T015:
   task: ee04be03cd38ad97a6cb2a7a0cbe4686dccfd6b589e8212d20d6b50fe4c3ba7e
 T016:
-  reason: "The quickstart.md file exists and lists the required `python -m code.main\
-    \ --pilot` command and expected output locations, and the `data/processed/pilot/`\
-    \ directory with non\u2011empty files is present. However, there is no concrete\
-    \ evidence (e.g., execution logs, CI run output, or a recorded successful run)\
-    \ showing that the command actually runs without error on a clean checkout and\
-    \ produces those artifacts. Provide a verified run (e.g., captured stdout, exit\
-    \ code, or CI log) to confirm the command\u2019s successful execution."
   task: 24d3f06098f3f7504d59778d7abbcf410fae7782b8c945952077495eeb6d443a
 T017:
   task: 950a6121b520961990afd3d652f2509731c495761614a0f59973a1e7b9f2cf13
