@@ -1,16 +1,20 @@
 T001:
-  reason: "The `plan.md` does include the required line `MAX_METHODS = 1000`, but\
-    \ it still contains a \u201CCPU full\u2011precision\u201D note (and mentions \u201C\
-    no GPU fallback\u201D), which violates the task\u2019s requirement to remove any\
-    \ full\u2011precision or fallback\u2011to\u20118\u2011bit notes. The `code/config.py`\
-    \ correctly defines `MAX_METHODS = 1000`. Remove the full\u2011precision reference\
-    \ from `plan.md` to satisfy the task."
   task: ee0b5354e4fc9c0980cfc5e5be717aa3fdfb64c0f7ade2f9a32fd4f451644129
 T002:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
   task: a687223f17db0ef230bc8270be897fff17fee516877879a4a5d5300b6886fda6
 T003:
+  reason: '`code/config.py` defines `SEED` and `MAX_METHODS` but does **not** contain
+    the required `TEMPERATURE = 0.2` constant. Consequently the file does not fully
+    meet the specification, even though `code/utils/seed_manager.py` correctly seeds
+    the RNGs. Adding the missing `TEMPERATURE` definition will satisfy the task.'
   task: f1c52381e4fab148318e3840aa36e1848c4809b09d8c29661cfffcb1648ec525
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/utils/repo_fetcher.py
+    exit=-1 (TIMEOUT)'
   task: be7f58a167ea380ee63c1b03f41f4fe4eabc5520c07c72eaefe1b15eec62d5cc
 T005:
   task: 2afcf786e835cb6935801f45c4dcaa10e66908b828a1263cc42d3e7b6abb3ef8

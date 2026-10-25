@@ -1,13 +1,18 @@
 T001:
+  c: true
+  h: 3dae579189504ad569f91b44f143babecd1d26dab6c349825ff00950c576c756
+  r: "Checked `plan.md` \u2013 contains \u201CMAX_METHODS = 1000\u201D and no occurrence\
+    \ of \u201Cfallback\u201D. Verified `code/config.py` exists and defines `MAX_METHODS\
+    \ = 1000`. Both required artifacts are present and correctly edited."
+  sig: f156dd2c940b80a680ef1734de33414909a291ca08bd318cf008b71c0c44c57c
+T003:
   c: false
-  h: d0846379e877174f5afb14b5a8e96ccf6bf4232f5de1c6a7a82e941def02f9b0
-  r: "The `plan.md` does include the required line `MAX_METHODS = 1000`, but it still\
-    \ contains a \u201CCPU full\u2011precision\u201D note (and mentions \u201Cno GPU\
-    \ fallback\u201D), which violates the task\u2019s requirement to remove any full\u2011\
-    precision or fallback\u2011to\u20118\u2011bit notes. The `code/config.py` correctly\
-    \ defines `MAX_METHODS = 1000`. Remove the full\u2011precision reference from\
-    \ `plan.md` to satisfy the task."
-  sig: 7f2e19a1c42a537d04b45f2c5b38143d5e3cef9ed3bb0b8804bda071ec9fc3ec
+  h: 7d148f22c28d0273b60309b578f2087c8049c7a7b0bf84c363068048abc42782
+  r: '`code/config.py` defines `SEED` and `MAX_METHODS` but does **not** contain the
+    required `TEMPERATURE = 0.2` constant. Consequently the file does not fully meet
+    the specification, even though `code/utils/seed_manager.py` correctly seeds the
+    RNGs. Adding the missing `TEMPERATURE` definition will satisfy the task.'
+  sig: 45121756c0aafe772e20c19c27efb3bbf673ed90055b6ff3c08ae98a4e6efef9
 T010:
   c: false
   h: f23769822259358a906ad566c071ee1091aacdb2c14238ce2a4790b4e317ae31

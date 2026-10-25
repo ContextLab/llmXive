@@ -7,7 +7,7 @@
 
 ## Phase 0 – Plan alignment  
 
-- [ ] T001 [P] Edit `plan.md` to enforce the hard **1 000‑method cap per repository**, add a constant `MAX_METHODS = 1000` in a new `code/config.py`, and remove any fallback‑to‑8‑bit or full‑precision notes.  
+- [X] T001 [P] Edit `plan.md` to enforce the hard **1 000‑method cap per repository**, add a constant `MAX_METHODS = 1000` in a new `code/config.py`, and remove any fallback‑to‑8‑bit or full‑precision notes.  
   *Verification*: `grep -q "MAX_METHODS = 1000" plan.md && ! grep -q "fallback"` succeeds.
 
 ---
@@ -24,7 +24,7 @@
 
 ## Phase 2 – Data‑source infrastructure  
 
-- [ ] T004 [US1] Implement `code/utils/repo_fetcher.py` that (a) queries the PyPI JSON API for the top‑20 packages, (b) performs **stratified sampling** across high/medium/low popularity tiers (≥ 5 repos per tier) as required by FR‑010, (c) uses an exponential backoff retry mechanism (max 5 retries, backoff factor 2) for all HTTP calls, and (d) writes `data/raw/frozen_repo_list.json`. Validate the file with a lightweight JSON‑schema derived from `contracts/dataset.schema.yaml`.  
+- [ ] T004 [US1] Implement `code/utils/repo_fetcher.py` that (a) queries the PyPI JSON API for the top‑20 packages, (b) performs **stratified sampling** across high/medium/low popularity tiers (≥ 5 repos per tier) as required by FR‑010, (c) uses an exponential backoff retry mechanism (max 5 retries, backoff factor 2) for all HTTP calls, and (d) writes `data/raw/frozen_repo_list.json`. Validate the file with a lightweight JSON‑schema derived from `contracts/dataset.schema.yaml`.   <!-- FAILED-IN-EXECUTION: code/utils/repo_fetcher.py exit=-1 (TIMEOUT) -->
   *Verification*: `python -m code.utils.repo_fetcher && jsonschema -i data/raw/frozen_repo_list.json contracts/dataset.schema.yaml` exits with status 0.  
 
 - [ ] T005 [US2] Implement `code/utils/model_loader.py` that loads `Salesforce/codegen-350M-mono` with **bitsandbytes 4‑bit CPU‑only** (`load_in_4bit=True`). The loader must raise a `RuntimeError` if `torch.cuda.is_available()` or if the model is not quantized to 4‑bit.  

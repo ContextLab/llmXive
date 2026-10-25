@@ -4988,3 +4988,181 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-25T14:24:43Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: overall peak RAM <= 3 GB
+  claim_id: c_c8858cf1
+  context: "All steps run on the GitHub Actions CPU runner; the full\u2011precision\
+    \ model fits within the memory budget, satisfying Principle\u202FVII."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Overall peak RAM \u2264\u202F3\u202FGB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:30:37Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: overall CPU time approx 3.5 hours
+  claim_id: c_f111dafc
+  context: "All steps run on the GitHub Actions CPU runner; the full\u2011precision\
+    \ model fits within the memory budget, satisfying Principle\u202FVII."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Overall approx CPU time \u2248\u202F3.5\u202Fh (well under 6\u202Fh limit)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:30:38Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: repo cloning and AST extraction peak RAM <= 2 GB per repo
+  claim_id: c_8e972fbf
+  context: "Compute Feasibility (CPU\u2011First) table lists resource usage for each\
+    \ component."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Repo cloning & AST extraction \u2264\u202F2\u202FGB (per repo)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:30:39Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: repo cloning and AST extraction time approx 30 seconds per repo
+  claim_id: c_fcde2482
+  context: "Compute Feasibility (CPU\u2011First) table lists resource usage for each\
+    \ component."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Repo cloning & AST extraction ~30\u202Fs per repo"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:30:40Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: codegen model load peak RAM <= 1 GB
+  claim_id: c_7806c797
+  context: "Compute Feasibility (CPU\u2011First) table lists resource usage for each\
+    \ component."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "CodeGen load (full\u2011precision CPU) \u2264\u202F1\u202FGB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:30:41Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: codegen model load time less than 1 minute
+  claim_id: c_39dee27e
+  context: "Compute Feasibility (CPU\u2011First) table lists resource usage for each\
+    \ component."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "CodeGen load (full\u2011precision CPU) <\u202F1\u202Fmin (once)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:30:42Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: generation peak RAM <= 1 GB for up to 1000 methods per repo
+  claim_id: c_041067eb
+  context: "Compute Feasibility (CPU\u2011First) table lists resource usage for each\
+    \ component."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Generation (\u2264\u202F1\u202F000 methods/repo) \u2264\u202F1\u202F\
+    GB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:30:43Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: generation time <= 8 minutes per repo for up to 1000 methods
+  claim_id: c_51586008
+  context: "Compute Feasibility (CPU\u2011First) table lists resource usage for each\
+    \ component."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Generation (\u2264\u202F1\u202F000 methods/repo) \u2264\u202F8\u202F\
+    min per repo"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:30:44Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: baseline copy generation peak RAM <= 0.2 GB
+  claim_id: c_b75760d5
+  context: "Compute Feasibility (CPU\u2011First) table lists resource usage for each\
+    \ component."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Baseline copy generation \u2264\u202F0.2\u202FGB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:30:44Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: coverage and similarity peak RAM <= 0.5 GB
+  claim_id: c_897dcb68
+  context: "Compute Feasibility (CPU\u2011First) table lists resource usage for each\
+    \ component."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Coverage & similarity \u2264\u202F0.5\u202FGB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:30:45Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: coverage and similarity time less than 5 minutes total
+  claim_id: c_90089984
+  context: "Compute Feasibility (CPU\u2011First) table lists resource usage for each\
+    \ component."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Coverage & similarity <\u202F5\u202Fmin total"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:30:46Z'

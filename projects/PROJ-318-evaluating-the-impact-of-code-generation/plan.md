@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-evaluating-the-impact-of-code-generation/spec.md`
 
 ## Summary
-The project implements a reproducible end‑to‑end pipeline that (1) selects a stratified sample of PyPI repositories, (2) extracts up to **1 000** public method signatures and any human docstrings per repository via the Python `ast` module, (3) generates docstrings for each method using the **CPU‑only** `Salesforce/codegen-350M-mono` model (temperature = 0.2, deterministic seeds), (4) generates a **signature‑copy baseline** to quantify circularity, (5) computes **Parameter Coverage**, **Description Coverage** (averaged over **all** parameters, giving zero for undocumented parameters), and a **Composite Documentation Completeness Score** (0.4 × Parameter Coverage + 0.6 × Description Coverage), (6) runs a **Wilcoxon signed‑rank test on method‑level paired Composite Scores** as the primary inferential analysis, (7) conducts an **exploratory repository‑level test** with Bonferroni correction (clearly labelled exploratory), (8) evaluates semantic similarity as an auxiliary metric, (9) conducts a human‑evaluation sampling study, and (10) produces a final JSON report validated against contracts.
+The project implements a reproducible end‑to‑end pipeline that (1) selects a stratified sample of PyPI repositories, (2) extracts up to **1 000** public method signatures and any human docstrings per repository via the Python `ast` module, (3) generates docstrings for each method using the **CPU‑only** `Salesforce/codegen-350M-mono` model (temperature = 0.2, deterministic seeds), (4) generates a **signature‑copy baseline** to quantify circularity, (5) computes **Parameter Coverage**, **Description Coverage** (averaged over **all** parameters, giving zero for undocumented parameters), and a **Composite Documentation Completeness Score** (0.4 × Parameter Coverage + 0.6 × Description Coverage), (6) runs a **Wilcoxon signed‑rank test on method‑level paired Composite Scores** as the primary inferential analysis, (7) conducts an **exploratory repository‑level test** with Bonferroni correction (clearly labelled exploratory), (8) evaluates semantic similarity as an auxiliary metric, (9) conducts a **human‑evaluation sampling study**, and (10) produces a final JSON report validated against contracts.
 
 The plan explicitly addresses the circularity limitation (the prompt contains the signature) by (a) providing the baseline, (b) down‑weighting the Parameter Coverage component, and (c) reporting the baseline comparison separately. It also frames the study as assessing an **association** rather than a causal impact, respecting Constitution Principle VII.
 
@@ -18,7 +18,7 @@ The plan explicitly addresses the circularity limitation (the prompt contains th
 | **Testing** | `pytest` unit tests for AST parsing, coverage calculation, generation handling, baseline generation, human‑evaluation sampling, and an end‑to‑end integration test on a single repository |
 | **Target Platform** | GitHub Actions free tier (Ubuntu‑latest, 2 CPU cores, ≤ 7 GB RAM, CPU‑only) |
 | **Performance Goals** | ≤ 6 h total wall‑clock time, peak RAM ≤ 3 GB, ≤ 1 000 methods per repo |
-| **Constraints** | Model loading on CPU, temperature = 0.2, deterministic seeds via `seed_manager.py`, stratified sampling across three popularity tiers (≥ 5 repos per tier) plus supplemental low‑tier repos, no GPU fallback (Principle VII) |
+| **Constraints** | Model loading on CPU, temperature = 0.2, deterministic seeds via `seed_manager.py`. (Principle VII) |
 
 ## Constitution Check
 
@@ -72,7 +72,7 @@ code/
  ├── results.json
  ├── results_with_coverage.json
  ├── results_with_scores.json
- ├── final_report.json
+ �├── final_report.json
  ├── flagged_records.json
  └── human_eval_results.json
 ```
@@ -123,7 +123,7 @@ All steps run on the GitHub Actions CPU runner; the full‑precision model fits 
 | Selection bias | Stratified sampling + low‑tier supplement; baseline control. |
 
 ## Conclusion
-The revised pipeline now (a) frames the study as an **association** rather than a causal impact, (b) explicitly acknowledges and controls for the circularity inherent in prompting with the signature, (c) uses a CPU‑compatible full‑precision model to satisfy compute constraints, (d) defines Description Coverage over **all** parameters, (e) excludes null‑human records from both per‑repository aggregates and the primary paired test to avoid bias, (f) implements FR‑018 deterministic matching, (g) conducts a single primary Wilcoxon test with an exploratory, Bonferroni‑corrected secondary test, and (h) provides a clear baseline for interpretation. All functional requirements and success criteria are met within the free‑tier resource limits.
+The revised pipeline now (a) frames the study as an **association** rather than a causal impact, (b) explicitly acknowledges and controls for the circularity inherent in prompting with the signature, (c) uses a CPU‑compatible full‑precision model to satisfy compute constraints, (d) defines Description Coverage over **all** parameters, (e) excludes null‑human records from both per‑method and per‑repository aggregates and the primary paired test to avoid bias, (f) implements FR‑018 deterministic matching, (g) conducts a single primary Wilcoxon test with an exploratory, Bonferroni‑corrected secondary test, and (h) provides a clear baseline for interpretation. All functional requirements and success criteria are met within the free‑tier resource limits.
 
 ## Configuration Constant
 MAX_METHODS = 1000

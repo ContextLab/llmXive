@@ -1,13 +1,16 @@
 status: none
-intent: HuggingFace Datasets pypi top packages list via PyPI JSON API python package
-  dataset
+intent: download PyPI top packages list HuggingFace pypi dataset GitHub repository
+  metadata python package dataset
 required_fields:
 - package_name
-- latest_version
-- github_repository_url
-- downloads_last_month
-- rank
-- summary
-cache_key: 67575cac13494daf24230c8cffe913b2ce0cc9ca7aaabcacb50a66a867d2d78f
-searched_at: '2026-10-25T14:29:23.951791+00:00'
+- repository_url
+- file_path
+- class_name
+- method_name
+- method_signature
+- docstring
+- is_public
+- method_index
+cache_key: 2f47cc381b239eb6502b7d76fc4b1031a6a9561b2d5d1b061993187d7b02aca2
+searched_at: '2026-10-25T14:39:54.165070+00:00'
 retry_count: 1
