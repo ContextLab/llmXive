@@ -37,7 +37,7 @@ jsonschema
 The pipeline creates a deterministic synthetic base that mimics realistic study‑size and SE distributions.
 
 ```bash
-python code/scripts/generate_base.py   # writes data/processed/base_template.csv
+python code/scripts/generate_base.py --seed 42 --out data/processed/base_template.csv
 ```
 
 The script uses a fixed random seed; if the file already exists it will be overwritten only after user confirmation.
@@ -59,7 +59,7 @@ python code/main.py --mode full --seed 12345
 ## 5. Run a Quick Dry‑Run (Sanity Check)
 
 ```bash
-python code/main.py --mode dry-run --replicates <multiple> --levels 0 0.1 --seed 42
+python code/main.py --mode dry-run --replicates 10 --levels 0 0.1 --seed 42
 ```
 
 *Creates only a few levels × 10 replicates* and finishes within seconds. Use this to verify that all files are produced and schemas pass.
@@ -92,5 +92,3 @@ All commands should exit with a success status. The validation step confirms tha
 | **Missing PNGs** | Plot script not executed. | Re‑run `python code/visualization/plots.py` or the full pipeline. |
 | **Schema validation fails** | Schema changed after data generation. | Re‑run the full pipeline to regenerate files matching the updated schema. |
 | **Base‑data generation fails** | Unhandled exception in `generate_base.py`. | Check that the script has write permission to `data/processed/` and that the seed is an integer. |
-
----

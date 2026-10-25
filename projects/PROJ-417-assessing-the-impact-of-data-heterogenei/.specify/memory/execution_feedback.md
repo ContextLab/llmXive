@@ -9,37 +9,13 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/results/estimation_results.csv, data/results/run_summary.json, data/results/simulation_raw.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/scripts/generate_base.py   # writes data/processed/base_template.csv`
-  - script usage: `generate_base.py [-h] [--seed SEED] [--out OUT]`
-  - argparse error: `generate_base.py: error: unrecognized arguments: # writes data/processed/base_template.csv`
-- run-book command: `python code/main.py --mode dry-run --replicates <multiple> --levels 0 0.1 --seed 42`
-  - script usage: `main.py [-h] [--mode {full,dry-run}] [--seed SEED]`
-  - argparse error: `main.py: error: argument --replicates: invalid int value: '<multiple>'`
+- every produced artifact is gitignored (data/processed/base_template.csv, data/raw/cochrane_base_synthetic.csv, data/results/estimation_results.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/results/estimation_results.csv, data/results/run_summary.json, data/results/simulation_raw.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python code/scripts/generate_base.py   # writes data/processed/base_template.csv (rc=2); python code/main.py --mode dry-run --replicates <multiple> --levels 0 0.1 --seed 42 (rc=2); python -m pytest tests/unit/ (rc=2); 4 declared deliverable(s) absent: data/results/aggregated_metrics.csv; data/results/coverage_vs_tau2.png; data/results/mean_bias_vs_tau2.png
+**Summary**: every produced artifact is gitignored (data/processed/base_template.csv, data/raw/cochrane_base_synthetic.csv, data/results/estimation_results.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python -m pytest tests/unit/ (rc=2); python -m pytest tests/integration/ (rc=1); 4 declared deliverable(s) absent: data/results/aggregated_metrics.csv; data/results/coverage_vs_tau2.png; data/results/mean_bias_vs_tau2.png
 
 ## Failing / missing run-book commands
-
-- python code/scripts/generate_base.py   # writes data/processed/base_template.csv -> rc=2
-
-usage: generate_base.py [-h] [--seed SEED] [--out OUT]
-generate_base.py: error: unrecognized arguments: # writes data/processed/base_template.csv
-
-- python code/main.py --mode dry-run --replicates <multiple> --levels 0 0.1 --seed 42 -> rc=2
-
-usage: main.py [-h] [--mode {full,dry-run}] [--seed SEED]
-               [--levels LEVELS [LEVELS ...]] [--replicates REPLICATES]
-               [--base-data BASE_DATA] [--skip-generation]
-               [--validate-contracts] [--verbose]
-main.py: error: argument --replicates: invalid int value: '<multiple>'
 
 - python -m pytest tests/unit/ -> rc=2
  items / 1 error
@@ -57,7 +33,7 @@ E   ImportError: cannot import name 'generate_synthetic_meta_analysis' from 'sim
 =========================== short test summary info ============================
 ERROR tests/unit/test_generator_variance.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.78s ===============================
+=============================== 1 error in 0.59s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=1
@@ -72,7 +48,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 0.51s =========================
+========================= 1 failed, 1 warning in 0.34s =========================
 
 
 
