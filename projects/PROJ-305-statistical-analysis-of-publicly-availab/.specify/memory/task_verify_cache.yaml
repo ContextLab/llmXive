@@ -1,10 +1,20 @@
 T001:
   c: true
-  h: 38064b3a0cba3641cfb0bac21ebaaab7bd7063e4c9e07130bb570679d8efbc03
-  r: "Checked that all required directories exist, `logs/structure.txt` is non\u2011\
-    empty and contains \u201Csrc\u201D, and `quickstart.md` documents the command\
-    \ `python -m src.main`."
-  sig: 9872baff62929cc313061e26746b96c49f945030e77d6b9d4ebd734f294f407c
+  h: 87bf5868ded08e9e592e73a4e54d83ab050f02c2322d91edadaf8d2416d3335b
+  r: "Checked that all required directories exist, that a non\u2011empty `logs/structure.txt`\
+    \ is present and contains the string \u201Csrc\u201D, and that `quickstart.md`\
+    \ documents the runnable command `python -m src.main`."
+  sig: cf5f060dfefbad52f2812f614749252a34b289dd2a01acf7a14dc04c696540bf
+T002:
+  c: false
+  h: ea476a13836ac6181c9000003e794edd9ac0190004216161d8b1e679591c76ef
+  r: "The `src/data/download.py` script does not use the required dataset identifier\
+    \ `datasets.load_dataset(\"vaers/vaers2020_2023\", split=\"train\")`; it instead\
+    \ loads `\"chrisvoncsefalvay/vaers-outcomes\"`. Consequently the implementation\
+    \ does not meet the task\u2019s primary specification, even though the parquet\
+    \ file and checksum line exist. The script must be updated to load the exact `vaers/vaers2020_2023`\
+    \ dataset."
+  sig: ee1592912add2a101d0510dc7d287f8f44be667183297710234ac09f75934269
 T003:
   c: false
   h: 318fffd4386daf79fa76598d30b53f0e9e9d81887869d846638cce143285a8fd

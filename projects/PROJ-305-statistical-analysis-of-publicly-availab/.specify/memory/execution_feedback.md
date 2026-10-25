@@ -8,36 +8,11 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
   - script usage: `validate.py [-h] --input INPUT [--schema SCHEMA]`
   - argparse error: `validate.py: error: the following arguments are required: --input`
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
-
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
-
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python src/data/download.py`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 command(s) failed: python src/data/download.py (rc=1); python src/data/validate.py (rc=2); python src/data/clean.py (rc=1)
+**Summary**: 4 command(s) failed: python src/data/validate.py (rc=2); python src/data/clean.py (rc=1); python src/main.py (rc=1)
 
 ## Failing / missing run-book commands
-
-- python src/data/download.py -> rc=1
-^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/datasets/load.py", line 1667, in load_dataset
-    builder_instance = load_dataset_builder(
-                       ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/datasets/load.py", line 1290, in load_dataset_builder
-    dataset_module = dataset_module_factory(
-                     ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/datasets/load.py", line 1176, in dataset_module_factory
-    raise e1 from None
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/datasets/load.py", line 1134, in dataset_module_factory
-    raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'vaers/vaers2020_2023' doesn't exist on the Hub or cannot be accessed.
 
 - python src/data/validate.py -> rc=2
 
@@ -45,14 +20,28 @@ usage: validate.py [-h] --input INPUT [--schema SCHEMA]
 validate.py: error: the following arguments are required: --input
 
 - python src/data/clean.py -> rc=1
-
-2026-10-25 13:07:43,377 - clean - INFO - Starting data cleaning process
-2026-10-25 13:07:43,378 - clean - ERROR - No VAERS data files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/data/raw
+icly-availab/src/data/clean.py", line 336, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/clean.py", line 313, in main
+    data = process_data(input_files, mapping_df, logger)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/clean.py", line 196, in process_data
+    processed_df = process_chunk(df, mapping_df, logger)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/clean.py", line 126, in process_chunk
+    chunk = chunk[chunk["VAX_TYPE"].notna() & (chunk["VAX_TYPE"] != "")]
+                  ~~~~~^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/frame.py", line 4102, in __getitem__
+    indexer = self.columns.get_loc(key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/indexes/base.py", line 3812, in get_loc
+    raise KeyError(key) from err
+KeyError: 'VAX_TYPE'
 
 - python src/main.py -> rc=1
-2026-10-25 13:07:44,092 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-25 13:07:44,098 - matplotlib.font_manager - INFO - generated new fontManager
-2026-10-25 13:07:44,357 - pipeline - INFO - No action specified. Use --full or --phase N
+2026-10-25 14:11:10,356 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-25 14:11:11,051 - matplotlib.font_manager - INFO - generated new fontManager
+2026-10-25 14:11:11,291 - pipeline - INFO - No action specified. Use --full or --phase N
 
 
 - python -m pytest -q tests/contract/ -> rc=4

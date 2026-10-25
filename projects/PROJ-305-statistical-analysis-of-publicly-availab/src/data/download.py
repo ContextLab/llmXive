@@ -1,11 +1,10 @@
 """
-VAERS Data Download Script (T002) – Updated
+VAERS Data Download Script (T002)
 
-Downloads the verified VAERS 2020‑2023 dataset using the 🤗 datasets library.
-The script writes the parquet file to ``data/raw/vaers_2020_2023.parquet``
-and records a SHA‑256 checksum in ``data/checksums.txt``.
-Any download, I/O, or checksum error raises an exception and aborts the run –
-no synthetic fallback is performed.
+Downloads the verified VAERS 2020-2023 dataset using the 🤗 datasets library.
+The script uses the verified source 'chrisvoncsefalvay/vaers-outcomes'
+and writes the parquet file to `data/raw/vaers_2020_2023.parquet`.
+It also records a SHA-256 checksum in `data/checksums.txt`.
 """
 
 import hashlib
@@ -19,11 +18,12 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-DATASET_NAME = "vaers/vaers2020_2023"
+# Verified real data source as specified in the project documentation
+DATASET_NAME = "chrisvoncsefalvay/vaers-outcomes"
 PARQUET_FILENAME = "vaers_2020_2023.parquet"
-CHUNK_SIZE = 1024 * 1024  # 1 MiB for streaming checksum calculation
+CHUNK_SIZE = 1024 * 1024  # 1 MiB for streaming checksum calculation
 
-# Output locations (project‑relative via llmxive_toolkit.paths)
+# Output locations (project-relative via llmxive_toolkit.paths)
 PARQUET_PATH = paths.data("raw", PARQUET_FILENAME)
 CHECKSUMS_PATH = paths.data("checksums.txt")
 SUMMARY_PATH = paths.data("results", "download_summary.txt")
@@ -32,7 +32,7 @@ SUMMARY_PATH = paths.data("results", "download_summary.txt")
 # Helper functions
 # ----------------------------------------------------------------------
 def sha256_checksum(file_path: Path) -> str:
-    """Return the SHA‑256 hex digest of *file_path*."""
+    """Return the SHA-256 hex digest of *file_path*."""
     hasher = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(CHUNK_SIZE), b""):
@@ -42,7 +42,7 @@ def sha256_checksum(file_path: Path) -> str:
 
 def record_checksum(parquet_path: Path, checksums_path: Path) -> str:
     """
-    Compute SHA‑256 and store ``<relative_path> <checksum>`` in the checksums file,
+    Compute SHA-256 and store `<relative_path> <checksum>` in the checksums file,
     replacing any previous entry for the same file.
     """
     checksum = sha256_checksum(parquet_path)
@@ -66,10 +66,10 @@ def record_checksum(parquet_path: Path, checksums_path: Path) -> str:
 
 
 def write_summary(parquet_path: Path, checksum: str) -> None:
-    """Write a human‑readable acquisition summary."""
+    """Write a human-readable acquisition summary."""
     size_bytes = parquet_path.stat().st_size
     lines = [
-        "VAERS 2020‑2023 dataset acquisition summary (T002)",
+        "VAERS 2020-2023 dataset acquisition summary (T002)",
         f"source: https://huggingface.co/datasets/{DATASET_NAME}",
         f"file: {parquet_path.relative_to(paths.root)}",
         f"sha256: {checksum}",
@@ -87,7 +87,7 @@ def write_summary(parquet_path: Path, checksum: str) -> None:
 def fetch_vaers_data() -> None:
     """
     Orchestrates the download (via 🤗 datasets), checksum recording,
-    and summary writing. Skips the download step if a non‑empty parquet
+    and summary writing. Skips the download step if a non-empty parquet
     file is already present.
     """
     if PARQUET_PATH.exists() and PARQUET_PATH.stat().st_size > 0:
@@ -97,6 +97,7 @@ def fetch_vaers_data() -> None:
         from datasets import load_dataset  # Imported lazily
 
         # Load the full training split; this returns a Dataset object
+        # Using the verified canonical ID from the project quickstart
         ds = load_dataset(DATASET_NAME, split="train")
         PARQUET_PATH.parent.mkdir(parents=True, exist_ok=True)
         ds.to_parquet(PARQUET_PATH)
@@ -108,8 +109,12 @@ def fetch_vaers_data() -> None:
 
     # Record checksum and write summary
     checksum = record_checksum(PARQUET_PATH, CHECKSUMS_PATH)
-    if checksum != sha256_checksum(PARQUET_PATH):
+    
+    # Final verification check
+    actual_checksum = sha256_checksum(PARQUET_PATH)
+    if checksum != actual_checksum:
         raise RuntimeError("Checksum verification failed after recording.")
+    
     write_summary(PARQUET_PATH, checksum)
     log.info(
         "Download and verification completed successfully. Checksum recorded in %s",

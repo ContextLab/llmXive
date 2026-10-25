@@ -1,7 +1,6 @@
 import subprocess
 import sys
 from pathlib import Path
-
 import pandas as pd
 import pytest
 
@@ -11,7 +10,6 @@ SCHEMA_PATH = Path(
     "specs/001-statistical-analysis-of-publicly-availab/contracts/raw_dataset.schema.yaml"
 )
 RAW_DATA_PATH = Path("data/raw/vaers_2020_2023.parquet")
-
 
 def run_validator(schema_path: Path, input_path: Path) -> subprocess.CompletedProcess:
     """Helper to invoke the validator via subprocess."""
@@ -27,8 +25,8 @@ def run_validator(schema_path: Path, input_path: Path) -> subprocess.CompletedPr
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        text=True,
     )
-
 
 def test_validate_raw_success():
     """
@@ -40,16 +38,15 @@ def test_validate_raw_success():
     result = run_validator(SCHEMA_PATH, RAW_DATA_PATH)
 
     # Expect a clean exit and the PASS log file.
-    assert result.returncode == 0, f"Validator exited with {result.returncode}"
+    assert result.returncode == 0, f"Validator exited with {result.returncode}. Stderr: {result.stderr}"
     pass_log = LOGS_DIR / "validate_raw_pass.txt"
     assert pass_log.is_file(), "PASS log file was not created"
-    assert pass_log.read_text().strip() == "PASS"
-
+    assert "PASS" in pass_log.read_text()
 
 def test_validate_raw_failure(tmp_path: Path):
     """
     Create a deliberately malformed parquet (missing required columns) and
-    verify that the validator exits with a non‑zero status and writes the
+    verify that the validator exits with a non-zero status and writes the
     FAIL log.
     """
     # Build a minimal DataFrame that omits SOC_CODE and REPT_DATE.

@@ -1,17 +1,16 @@
 T001:
   task: d21b4b4adb31830a06c2784e444bd7c41506c0f56e426a2b9ef3f06739c7a6bd
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/data/download.py
-    exit=1'
+  reason: "The `src/data/download.py` script does not use the required dataset identifier\
+    \ `datasets.load_dataset(\"vaers/vaers2020_2023\", split=\"train\")`; it instead\
+    \ loads `\"chrisvoncsefalvay/vaers-outcomes\"`. Consequently the implementation\
+    \ does not meet the task\u2019s primary specification, even though the parquet\
+    \ file and checksum line exist. The script must be updated to load the exact `vaers/vaers2020_2023`\
+    \ dataset."
   task: c1dbc93df69bacecb0ee9573e244f4b7018db0e3307b59f158c214f30c5a0428
 T003:
-  reason: "The repository contains `src/data/validate_raw.py` and the unit\u2011test\
-    \ file, but the CLI cannot be invoked (`python -m src.data.validate_raw` raises\
-    \ \u201CNo module named src.data.validate_raw\u201D) because `src` is not a package\
-    \ (no `src/__init__.py`). Consequently the tests fail, no log files are written,\
-    \ and the script does not use the `jsonschema` library as required. The task needs\
-    \ a proper package layout, correct importable module, use of `jsonschema` for\
-    \ schema loading/validation, and passing unit tests."
+  reason: 'Requested task execution failed; rerun successfully: src/data/validate_raw.py
+    exit=1'
   task: 4aebdc993fd2cf8087fd2ecbd1d5c0533a6f0cd4c25ded1aa5772a4a3cd5f511
 T004:
   reason: 'Requested task execution failed; rerun successfully: src/data/clean.py
