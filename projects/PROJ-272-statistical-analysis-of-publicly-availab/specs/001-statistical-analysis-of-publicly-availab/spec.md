@@ -42,7 +42,7 @@ This project aims develop a statistical analysis pipeline to detect cognitive de
 
 ### FR-007: Power Analysis (See US2)
 
-**Requirement**: Prior to analysis, the system MUST perform an a priori power analysis targeting **≥ 80 % power** to detect a **medium effect size (Cohen’s d = 0.5)** for each feature after Bonferroni correction. If the calculated power for the available sample size is **< 80 %**, the limitation shall be documented in `data/results/power_analysis.txt`; otherwise, the analysis shall confirm that the sample meets the target. Results are recorded in `data/results/power_analysis.txt`.
+**Requirement**: Prior to analysis, the system MUST perform an a priori power analysis for the ANCOVA models targeting **≥ 80 % power** to detect a **medium effect size (partial η² ≈ 0.06, corresponding to Cohen’s f = 0.25)** for each feature, with significance level α adjusted for Bonferroni correction (α = 0.05 / N_features). Power calculations shall account for the three groups (Control, MCI, AD) and the two covariates (age, education). If the calculated power for the available sample size is **< 80 %**, the limitation shall be documented in `data/results/power_analysis.txt`; otherwise, the analysis shall confirm that the sample meets the target. Results are recorded in `data/results/power_analysis.txt`.
 
 ### FR-008: ANCOVA Assumption Verification (See US2)
 
@@ -141,7 +141,7 @@ The project follows a phased approach:
 - **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains **≥ 80 records** after exclusions, and the metadata report lists exact counts per group (Justified by the ADReSS dataset size and expected exclusion rate). **(See US1)**
 - **SC-003**: The final statistical report (`data/results/statistical_report.pdf`) is generated without errors, includes the required visualizations (boxplots for each feature and a summary violin plot), and passes the automated PII audit **(See US3 & US4)**.
 - **SC-004**: Privacy audit reports **zero** PII detections; any detection aborts the pipeline as specified in US4.
-- **SC-009**: The a priori power analysis (FR‑007) confirms **≥ 80 % power** to detect a medium effect size (Cohen’s d = 0.5) given the available sample size **(See US2)**, or otherwise documents the limitation.
+- **SC-009**: The a priori power analysis (FR‑007) confirms **≥ 80 % power** to detect a medium effect size (partial η² ≈ 0.06) for the ANCOVA models given the available sample size **(See US2)**, or otherwise documents the limitation.
 
 ## Requirements *(mandatory)*
 

@@ -6,4 +6,4 @@ The convergence panel for this stage could not resolve the concerns below within
 
 ## Unresolved concerns
 
-- Duplicate functional requirement identifier **FR-001** appears both in the concrete Functional Requirements section (data ingestion) and again as a placeholder in the Spec Template’s Requirements list, creating ambiguity about which definition is authoritative.
+- Duplicate functional requirement identifier **FR-001** appears twice – once in the concrete Functional Requirements section (Data Ingestion Scope) and again as a placeholder in the Spec Template’s Requirements list. This creates ambiguity about which definition is authoritative.
