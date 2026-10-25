@@ -9,15 +9,15 @@
 
 ### User Story 1 - Physics-Based Teacher Signal Generation (Priority: P1)
 
-The system must generate a deterministic "teacher" trajectory using a CPU-based physics engine (e.g., Box2D or simplified Navier-Stokes) for a set of synthetic video sequences, providing the ground-truth causal signal required to train the student model without relying on neural networks.
+The system must generate a deterministic "teacher" trajectory using a CPU-based physics engine (e.g., Box2D or simplified Navier-Stokes) for a set of synthetic video sequences, providing the ground‑truth causal signal required to train the student model without relying on neural networks.
 
-**Why this priority**: This is the foundational differentiator of the project. Without a valid, deterministic physics signal, the core hypothesis (replacing neural teachers with physics solvers) cannot be tested. It is the primary data source for the entire experiment.
+**Why this priority**: This is the foundational differentiator of the project. Without a valid, deterministic physics‑teacher signal, the core hypothesis (replacing neural teachers with physics solvers) cannot be tested. It is the primary data source for the entire experiment.
 
 **Independent Test**: Can be fully tested by running the data generation script, verifying that the output includes both rendered frames and state vectors (position, velocity) for a substantial set of training sequences, and confirming that the physics solver runs entirely on CPU without GPU errors.
 
 **Acceptance Scenarios**:
 
-1. **Given** a set of initial state vectors for rigid bodies or fluid particles, **When** the physics engine simulates 16 frames of motion, **Then** the system outputs a video sequence and a corresponding trajectory of state vectors that strictly adheres to the defined physical laws (e.g., conservation of momentum) with **deterministic** outcomes (identical results on repeated runs with the same seed).
+1. **Given** a set of initial state vectors for rigid bodies or fluid particles, **When** the physics engine simulates a series of frames of motion, **Then** the system outputs a video sequence and a corresponding trajectory of state vectors that strictly adheres to the defined physical laws (e.g., conservation of momentum) with **deterministic** outcomes (identical results on repeated runs with the same seed).
 2. **Given** a request to generate **[deferred]** sequences, **When** the generation process completes, **Then** the system produces valid video files and metadata files, with **zero corruption** and **no NaN** values in any state vector.
 3. **Given** a specific physics parameter set (e.g., friction coefficient = 0.5), **When** the simulation runs, **Then** the resulting trajectory reflects the exact deterministic outcome of that parameter, with no stochastic noise introduced by the solver itself.
 
@@ -27,7 +27,7 @@ The system must generate a deterministic "teacher" trajectory using a CPU-based 
 
 The system must train a lightweight, 2-step autoregressive diffusion student model using the generated physics trajectories as the teacher signal, minimizing pixel‑space MSE loss to learn the mapping from current frame + physics trajectory to the next frame.
 
-**Why this priority**: This implements the core "distillation" mechanism. It tests whether the student model can successfully learn from the physics teacher. It is independent of the baseline comparison but dependent on the data generation from US‑01.
+**Why this priority**: This implements the core "distillation" mechanism. It tests whether the student model can successfully learn from the physics‑teacher. It is independent of the baseline comparison but dependent on the data generation from US‑01.
 
 **Independent Test**: Can be fully tested by initiating the training job, monitoring the loss curve to ensure it meets the convergence criteria, and verifying that the trained model can generate a single 16‑frame sequence that visually resembles the physics input without requiring the neural teacher.
 
@@ -69,9 +69,9 @@ The system must evaluate the physics‑teacher model against a neural‑teacher 
 - **FR-004**: System MUST compute Structural Similarity Index (SSIM), Peak Signal‑to‑Noise Ratio (PSNR), and Learned Perceptual Image Patch Similarity (LPIPS) metrics for both the physics‑teacher and neural‑teacher models on the same test set (See US‑03).
 - **FR-005**: System MUST perform a paired t‑test on the SSIM and LPIPS scores between the two models to determine statistical significance (See US‑03).
 - **FR-006**: System MUST verify that each generated video sequence is reproducibly identical on repeated runs with the same random seed and contains no NaN or corrupted frames (See US‑01).
-- **FR-007**: System MUST construct a neural‑teacher baseline by training an identical student model on the original Causal Forcing++ dataset using the same architecture and training hyper‑parameters as FR‑002 (See US‑03).
+- **FR-007**: System MUST construct a neural‑teacher baseline by training an identical student model on the same synthetic physics dataset used for the physics‑teacher, noting that the original Causal Forcing++ dataset is unavailable (See US‑03). This ensures both models are evaluated on the same test sequences.
 - **FR-008**: System MUST conduct an ablation study varying physics‑simulation complexity (e.g., friction coefficient, elasticity, fluid dynamics) and record the impact on fidelity (LPIPS) and richness (FID) metrics (See US‑03).
-- **FR-009**: System MUST compute the Fréchet Inception Distance (FID) between generated videos and neural‑teacher baseline videos to quantify generative richness (See SC‑009).
+- **FR-009**: System MUST compute the Fréchet Inception Distance (FID) between physics‑teacher generated videos and neural‑teacher baseline videos to quantify generative richness (See US‑03).
 
 ### Key Entities
 
@@ -91,7 +91,7 @@ The system must evaluate the physics‑teacher model against a neural‑teacher 
 - **SC-004**: Statistical significance of performance gap: paired t‑test on sequence‑level SSIM and LPIPS scores with Bonferroni‑adjusted α = 0.025; report p‑values and significance decisions (See US‑03).
 - **SC-005**: Computational feasibility: total wall‑clock time ≤ 6 hours and peak RAM usage ≤ 7 GB on GitHub Actions free tier (See US‑02).
 - **SC-006**: Ablation study reporting: linear regression results (Pearson r, p‑value) for LPIPS (and FID) versus physics‑complexity parameters, plus a comparison table summarising metric trends (See US‑03).
-- **SC-007**: Richness assessment: FID computed between physics‑teacher generated videos and neural‑teacher baseline videos; lower FID indicates higher similarity to baseline richness (See SC‑009).
+- **SC-007**: Richness assessment: FID computed between physics‑teacher generated videos and neural‑teacher baseline videos; lower FID indicates higher similarity to baseline richness (See US‑03).
 - **SC-008**: Baseline model training success: neural‑teacher baseline achieves validation MSE ≤ 0.05 within the same compute constraints (See FR‑007).
 - **SC-009**: Fréchet Inception Distance (FID) measurement: compute FID between the set of physics‑teacher generated videos (**[deferred]** sequences) and the corresponding neural‑teacher baseline videos; report the numeric FID value and interpret lower values as higher generative richness (See US‑03).
 
@@ -99,7 +99,7 @@ The system must evaluate the physics‑teacher model against a neural‑teacher 
 
 - **Dataset sufficiency**: The selected CPU physics engine (Box2D or simplified Navier‑Stokes) can generate sufficient state vectors (position, velocity) to fully define the causal trajectory for the 16‑frame sequences; if the engine lacks deformation variables, a rigid‑body approximation is used, and this limitation is noted as a scope boundary.
 - **Synthetic‑only scope**: Findings regarding “causal signal” are strictly associational within the context of the synthetic simulation; no claims of real‑world causal inference are made.
-- **Statistical power**: With **[deferred]** generated sequences and a **[deferred]**‑sequence held‑out test set, the paired t‑test attains ≥ 0.8 power to detect a medium effect size (Cohen’s d ≈ 0.5) for SSIM; if power is lower, results are interpreted as exploratory.
+- **Statistical power**: With **[deferred]** generated sequences and a **[deferred]**‑sequence held‑out test set, the paired t‑test attains ≥ 0.8 power to detect a medium effect size (Cohen’s d is anticipated to be of medium magnitude.) for SSIM; if power is lower, results are interpreted as exploratory.
 - **Threshold justification & sensitivity**: The α = 0.05 significance threshold follows community standards; a sensitivity analysis sweeps α over {0.01, 0.05, 0.10} to verify robustness of conclusions.
 - **Metric validity**: LPIPS is used as a fidelity metric against ground‑truth physics frames, reflecting how closely generated frames match the deterministic source. FID is used as a richness metric, capturing perceptual diversity relative to the neural‑teacher baseline (Zhang et al.; Heusel et al., 2017).
 - **Predictor singularity**: Since the physics trajectory is the sole predictor for the dynamic signal, there is no risk of collinearity between predictors; correlation between the physics signal and final pixel output is treated as the primary dependent relationship.
