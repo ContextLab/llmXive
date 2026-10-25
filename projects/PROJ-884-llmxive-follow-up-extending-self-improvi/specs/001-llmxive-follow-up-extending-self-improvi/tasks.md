@@ -6,23 +6,23 @@
 
 ## Phase 0 – Design and documentation  
 
-- [ ] T012 [P] [US1] Write **design_dataset.md** documenting puzzle‑type choices, complexity scaling, random‑seed handling, and provenance metadata.  
+- [X] T012 [P] [US1] Write **design_dataset.md** documenting puzzle‑type choices, complexity scaling, random‑seed handling, and provenance metadata.  
   • File: `specs/001-symbolic-bes/design_dataset.md`  
   • Verification: file exists, contains sections *Puzzle Types*, *Scaling Plan*, *Seed Management* and is syntactically valid Markdown.  
 
-- [ ] T013 [P] [US2] Write **stat_analysis_plan.md** specifying TOST bounds, α = 0.0497, power = 0.8, and effect‑size targets.  
+- [X] T013 [P] [US2] Write **stat_analysis_plan.md** specifying TOST bounds, α = 0.0497, power = 0.8, and effect‑size targets.  
   • File: `specs/001-symbolic-bes/stat_analysis_plan.md`  
   • Verification: file exists and includes numeric values for Δ, α, power, and required sample size.  
 
-- [ ] T014 [P] [US3] Record baseline LLM choice (e.g., `distilbert-base-uncased`) with exact HuggingFace commit hash and `device='cpu'`.  
+- [X] T014 [P] [US3] Record baseline LLM choice (e.g., `distilbert-base-uncased`) with exact HuggingFace commit hash and `device='cpu'`.  
   • File: `specs/001-symbolic-bes/baseline_architecture.md`  
   • Verification: file lists model identifier, commit SHA, and device configuration.  
 
-- [ ] T015 [P] [US4] Validate JSON‑Schema contracts `dataset.schema.yaml` and `output.schema.yaml`.  
+- [X] T015 [P] [US4] Validate JSON‑Schema contracts `dataset.schema.yaml` and `output.schema.yaml`.  
   • Files: `contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`  
   • Verification: running `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` and the same for `output.schema.yaml` exits without exception.  
 
-- [ ] T016 [P] [US5] Create **quickstart.md** with a reproducible command chain (`python -m code.main --pilot`) and list expected output locations.  
+- [X] T016 [P] [US5] Create **quickstart.md** with a reproducible command chain (`python -m code.main --pilot`) and list expected output locations.  
   • File: `specs/001-symbolic-bes/quickstart.md`  
   • Verification: file exists; the command runs without error on a clean checkout, producing non‑empty `data/processed/pilot/` artifacts.  
 
@@ -38,7 +38,7 @@
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T001 [P] [US1] Implement the **puzzle dataset generator** (`code/dataset/generator.py`) so that it writes a **single JSON object** containing a top‑level `"puzzles"` list (conforming to `contracts/dataset.schema.yaml`). Also implement the **deterministic verifier** (`code/dataset/verifier.py`).  
+- [~] T001 [P] [US1] Implement the **puzzle dataset generator** (`code/dataset/generator.py`) so that it writes a **single JSON object** containing a top‑level `"puzzles"` list (conforming to `contracts/dataset.schema.yaml`). Also implement the **deterministic verifier** (`code/dataset/verifier.py`).  
   • Paths: `code/dataset/generator.py`, `code/dataset/verifier.py`  
   • Requirements:  
     – `generator.py` creates `data/raw/puzzles.json` with structure `{ "puzzles": [ … ] }` (no JSONL).  
@@ -46,7 +46,7 @@
     – `verifier.py` provides a function `verify(solution_text: str, puzzle_path: str) -> (bool, str)` that runs in ≤ 100 ms and returns a boolean plus an error code.  
   • Verification: `pytest code/tests/test_generator.py code/tests/test_verifier.py` passes; the generator test loads the file with `json.load` and validates against `dataset.schema.yaml`; the verifier benchmark asserts runtime < 0.1 s.  
 
-- [ ] T002 [P] [US2] Implement the **symbolic planner** (`code/symbolic/planner.py`) and **parser** (`code/symbolic/parser.py`) with concrete exception classes `ParseFailure` and `ContradictionDetected`.  
+- [~] T002 [P] [US2] Implement the **symbolic planner** (`code/symbolic/planner.py`) and **parser** (`code/symbolic/parser.py`) with concrete exception classes `ParseFailure` and `ContradictionDetected`.  
   • Paths: `code/symbolic/planner.py`, `code/symbolic/parser.py`, `code/symbolic/exclusion_logger.py`  
   • Requirements: planner either returns an ordered list of sub‑goals **or** raises one of the two exception classes; exclusion logger writes `data/processed/exclusions.json` with puzzle IDs and reasons.  
   • Verification: `pytest code/tests/test_symbolic_planner.py` passes (exception handling uses the actual classes, not string literals).  

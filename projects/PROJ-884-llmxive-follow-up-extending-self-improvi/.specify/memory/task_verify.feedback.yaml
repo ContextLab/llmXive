@@ -1,30 +1,23 @@
 T001:
-  reason: "The `code/dataset/generator.py` writes a JSONL file (one puzzle per line),\
-    \ but `code/tests/test_verifier.py` expects a single JSON object containing a\
-    \ `\"puzzles\"` list and reads it with `json.load`. This mismatch causes the verifier\
-    \ test to fail, so the required test suite does not pass. The generator\u2019\
-    s output format must be changed to match the test\u2019s expectations (or the\
-    \ test must be updated)."
-  task: 684c82c06391a7601af8304e05adfd8798f3e3539d0a7998a00bb6bc695b0839
+  task: b03515ffe3f4f3a34eee4b9269962459cf8f560211ba8a52e2b919348f80800e
 T002:
-  task: 1bb6370ddd68e20d82b1551745ec4077f99521f1c052ad733dd9951f6deaaa18
+  task: 9128545407e13dc3aa034ed67e52cd38de4da31c7078416768782cff010429d6
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/bes/main.py exit=1'
-  task: 5a897560e5f5a5eb89f6e321006f7931578cad43ee1ba8beb385bfa04d0cce63
+  task: 1f51599665be107f8883aafa82d32dc1bcaf2a41e7cd9eb652de5b58f17bab23
 T004:
-  task: d341ae16881f6d66be99c0b6b414643598a9887262d9a917a8d527c27e00aa0b
+  task: f757da56f0feaacdd32021aa07c285418465931bec4d1f6c6cfc2bc154f496ba
 T005:
-  task: a38f63d82d4c2c417d7c67a6e786eef15cb4764774c537a067e3c4f9e20b879f
+  task: 626138f4848151a70db391d45e62e40b29838f3056a449574dcdefa1b2000e74
 T006:
-  task: d722269e263bc002f89e75fc7944c43d14dd7e598f544b1954cd0a2cbf417788
+  task: 50e089db7613a6437e91fb55d4b1e6e8d333ddc602258effae4f4525e50db7c3
 T007:
-  task: a0181efc5b47db55af21fa6bdfcabd8e00b54142948c7acca493b5ddd05a4517
+  task: a7a57ea03647e45d38fff239361928f8613f0b60a370f0d5f97cbcb66eb90f3a
 T008:
-  task: fed0b0bf1c2a19f3834f81694dc780e0cf624503e83ea6f94cdc7e7b4d1eeceb
+  task: b762b7c96c3d35928a15d4581805fcd700d6e7420f12bb061d1f859b471bd203
 T009:
   task: d69cf433cd7c3dec39206ef35db0987567f2f768b97772bfaa619ea907ad873f
 T010:
-  task: e88ce058628b70d8244476388a21c8b50578e6b3e53438487a27350fc59d2a67
+  task: c9655751250a9d22349a178ba71f8ba72e85134c3d231e44eb25d4d5ace30ff8
 T011:
   task: bf671b9cccc09d403f59fc750bcbeb422a7f599d81b3c11a16c91392ab4ec106
 T012:
@@ -36,8 +29,25 @@ T014:
 T015:
   task: ee04be03cd38ad97a6cb2a7a0cbe4686dccfd6b589e8212d20d6b50fe4c3ba7e
 T016:
-  task: 24d3f06098f3f7504d59778d7abbcf410fae7782b8c945952077495eeb6d443a
+  task: f8858d2fe427d58f4a35acd4eaa9091687f6c6d7396bf08f3ebd13313e8a8579
 T017:
   task: 950a6121b520961990afd3d652f2509731c495761614a0f59973a1e7b9f2cf13
 T018:
   task: 0f5e9e5843e45b109f84082559c605a8a50a3e6ef9fb23062026f844a3f1a562
+T019:
+  task: 53172638649154c4b7642ef4a7c011c7242bef1dd0bce6d80bfddd2def993662
+T020:
+  reason: "The integration test `tests/integration/test_checksums.py` fails: the checksum\
+    \ for `data/processed/experiment.log` in the generated `data/checksums.json` does\
+    \ not match the file\u2019s actual SHA\u2011256 hash, showing the manifest is\
+    \ incorrect. The required behavior\u2014accurate SHA\u2011256 checksums for every\
+    \ file under `data/`\u2014is therefore not satisfied. Fix the `compute_checksums`\
+    \ implementation (or the file contents) so that the manifest hashes match the\
+    \ real files and the test passes."
+  task: 81ffe255f3ac1a92c3d79ec1ac8ec974ee72ddec6b521adb5090fd61d60bf99f
+T021:
+  reason: 'declared artifact(s) missing/empty/invalid: data/provenance/seeds.json,
+    tests/unit/test_seed_pin.py'
+  task: 59f7ac166224775f11cb826548fcaee44ace489fec7ddfb572c65a987f21cc48
+T022:
+  task: 6795b852b1ff4f690dc0d01d144fab803f00f40dcfbc68a73c8862a97e39e31a

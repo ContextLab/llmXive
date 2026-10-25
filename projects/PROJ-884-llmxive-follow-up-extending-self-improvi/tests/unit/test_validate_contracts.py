@@ -1,16 +1,21 @@
 """
-Unit test for the contract validation script.
-
-The test simply imports the ``validate_contracts`` function and asserts that it
-returns ``True`` when both contract files are syntactically correct.  Any
-parsing error will raise, causing the test to fail.
+Unit tests to ensure that the JSON‑Schema contract files are syntactically valid YAML.
+This satisfies task T015 which requires that loading the schema files with
+`yaml.safe_load` does not raise an exception.
 """
 
-import pytest
+import yaml
+from pathlib import Path
 
-# Import the function from the script we just added
-from code.validate_contracts import validate_contracts
+def test_dataset_schema_load():
+    """Load contracts/dataset.schema.yaml and ensure it parses as valid YAML."""
+    schema_path = Path("contracts/dataset.schema.yaml")
+    assert schema_path.is_file(), f"Schema file not found: {schema_path}"
+    # yaml.safe_load will raise if the file is not valid YAML
+    yaml.safe_load(schema_path.read_text())
 
-def test_validate_contracts_returns_true():
-    """The function should return True if both schemas load without error."""
-    assert validate_contracts() is True
+def test_output_schema_load():
+    """Load contracts/output.schema.yaml and ensure it parses as valid YAML."""
+    schema_path = Path("contracts/output.schema.yaml")
+    assert schema_path.is_file(), f"Schema file not found: {schema_path}"
+    yaml.safe_load(schema_path.read_text())

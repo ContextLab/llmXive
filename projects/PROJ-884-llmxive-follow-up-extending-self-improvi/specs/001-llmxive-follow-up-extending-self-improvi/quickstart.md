@@ -39,7 +39,7 @@ All unit tests should pass. The fixes for **T001** (generator output format) and
 ## Phase 0 – Pilot dataset & verification
 
 ```bash
-python -m code.main --mode pilot --seed 42
+python -m code.main --pilot --seed 42
 ```
 
 What this does:
@@ -47,21 +47,21 @@ What this does:
 - Creates deterministic verifier scripts under `data/raw/verifiers/`.  
 - Runs a single generation of the BES loop using the symbolic planner and the CPU LLM.  
 - Writes pilot logs to:
-  - `data/processed/pilot/pilot_run.jsonl` – one line per puzzle with success flag, timing, and feasibility flag.  
-  - `data/processed/pilot/summary.json` – aggregated success rate (conditional on feasibility), feasibility rate, and mean time.
+  - `data/processed/pilot/pilot_run.jsonl` – one line per puzzle with `puzzle_id`, `success` and `time_ms` fields.  
+  - `data/processed/pilot/verifier_timing.log` – a simple log with a timestamp and the elapsed verification time.
 
 ## Expected output locations
 
 After the pilot command finishes, the following files/directories must exist and be non‑empty:
 
-- `data/raw/puzzles.json` – JSON object with `"puzzles"` list.  
+- `data/raw/puzzles.json` – JSON object with a `"puzzles"` list.  
 - `data/raw/verifiers/` – deterministic verifier scripts (unchanged after creation).  
-- `data/processed/pilot/pilot_run.jsonl` – per‑puzzle logs (includes feasibility flag).  
-- `data/processed/pilot/summary.json` – high‑level metrics (conditional success rate, feasibility rate, mean time).  
+- `data/processed/pilot/pilot_run.jsonl` – per‑puzzle log (includes `puzzle_id`, `success`, `time_ms`).  
+- `data/processed/pilot/verifier_timing.log` – timestamped verification timing log.  
 
 ## Troubleshooting
 
-- **Command fails with usage error** – ensure you are using the `--mode pilot` flag; other modes are not yet wired.  
+- **Command fails with usage error** – ensure you are using the `--pilot` flag; other modes are not yet wired.  
 - **Empty `pilot_run.jsonl`** – check console output for tracebacks; the deterministic verifier must complete within 100 ms per puzzle.  
 - **Missing `data/raw/puzzles.json`** – the generator may have aborted; re‑run with the same seed (`--seed 42`) for deterministic behaviour.
 
@@ -70,7 +70,7 @@ After the pilot command finishes, the following files/directories must exist and
 Once the pilot run succeeds, you can proceed to the full experiments:
 
 ```bash
-python -m code.main --mode full --seed 42
+python -m code.main --full --seed 42
 ```
 
 This will:
@@ -80,6 +80,3 @@ This will:
 - Record **CPU‑seconds** for each method and a placeholder `gpu_hours = 0` to satisfy Principle VII.
 
 *Remember to keep the virtual environment activated and to use the same seed for reproducibility.*
-
----
-

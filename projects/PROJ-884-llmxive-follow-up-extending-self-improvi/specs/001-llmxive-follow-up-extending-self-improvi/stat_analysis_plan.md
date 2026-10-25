@@ -57,7 +57,7 @@ n = 2 * ((1.959 + 0.842) / 0.20)^2
  ≈ 392.28 → 393 puzzles per group (rounded up)
 ```
 
-**Required sample size: 393 per group.** Because both methods are evaluated on
+**Required sample size: 393 per group. [UNRESOLVED-CLAIM: c_0ad9f100 — status=not_enough_info]** Because both methods are evaluated on
 the *same* fixed set of puzzles (a paired design in the puzzle dimension),
 the dataset of N = 500 puzzles (see `specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md`)
 satisfies this requirement with margin: 500 ≥ 393. For the McNemar‑style paired

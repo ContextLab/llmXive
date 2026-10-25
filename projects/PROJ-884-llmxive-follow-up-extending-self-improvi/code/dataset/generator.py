@@ -1,20 +1,19 @@
 """
 Puzzle Generator Module for llmXive
 Generates logic/arithmetic puzzles with deterministic Python verifiers.
-Emits a JSONL file where each line is a puzzle record conforming to
-`contracts/dataset.schema.yaml`.
+Emits a single JSON file containing a top‑level "puzzles" list
+(conforming to `contracts/dataset.schema.yaml`).
 """
 
 import json
 import random
-import hashlib
-import time
+import logging
 import sys
 import argparse
-import logging
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Set
+from typing import List, Dict, Any, Optional, Tuple, Set, Union
+
 from enum import Enum
 
 # Local imports
@@ -34,6 +33,7 @@ DEFAULT_SOURCE_ID = "curated_logic_v1"
 DEFAULT_SEED = 42
 DEFAULT_COUNT = 100
 DEFAULT_OUTPUT_DIR = "data/raw"
+OUTPUT_FILENAME = "puzzles.json"  # fixed filename per spec
 
 class PuzzleType(Enum):
     """Supported puzzle types"""
@@ -136,19 +136,12 @@ class PuzzleGenerator:
         count: int,
         difficulty: str = "medium",
     ) -> List[PuzzleInstance]:
-        """
-        Generate Sudoku variant puzzles.
-        N represents the grid size (e.g., 4 for 4x4, 9 for 9x9, etc.).
-        """
+        """Generate Sudoku variant puzzles."""
         puzzles = []
-        # Allow any square size >= 4; enforce minimum 4
         grid_size = max(4, n)
 
         for _ in range(count):
-            # Generate a valid sudoku grid
             grid = self._generate_valid_sudoku(grid_size)
-
-            # Create puzzle by removing cells according to difficulty
             puzzle_grid, solution_grid = self._create_puzzle_from_grid(
                 grid, difficulty
             )
@@ -189,12 +182,9 @@ class PuzzleGenerator:
         count: int,
         difficulty: str = "medium",
     ) -> List[PuzzleInstance]:
-        """
-        Generate constrained pathfinding puzzles.
-        N represents the grid dimensions (n x n).
-        """
+        """Generate constrained pathfinding puzzles."""
         puzzles = []
-        grid_size = max(4, n)  # Minimum 4x4 for pilot
+        grid_size = max(4, n)
 
         for _ in range(count):
             grid, start, end, obstacles = self._generate_pathfinding_grid(
@@ -249,12 +239,9 @@ class PuzzleGenerator:
         count: int,
         difficulty: str = "medium",
     ) -> List[PuzzleInstance]:
-        """
-        Generate logic grid puzzles (Einstein's riddle style).
-        N represents the number of categories/items.
-        """
+        """Generate logic grid puzzles (Einstein's riddle style)."""
         puzzles = []
-        num_items = max(3, n)  # Minimum 3 items per category
+        num_items = max(3, n)
 
         for _ in range(count):
             categories, clues, solution = self._generate_logic_grid_puzzle(
@@ -300,12 +287,9 @@ class PuzzleGenerator:
         count: int,
         difficulty: str = "medium",
     ) -> List[PuzzleInstance]:
-        """
-        Generate arithmetic puzzles (e.g., 24 game variants).
-        N represents the number of operands.
-        """
+        """Generate arithmetic puzzles (e.g., 24 game variants)."""
         puzzles = []
-        num_operands = max(3, n)  # Minimum 3 operands
+        num_operands = max(3, n)
 
         for _ in range(count):
             operands, target, solution = self._generate_arithmetic_puzzle(
@@ -321,7 +305,7 @@ class PuzzleGenerator:
             ]
 
             constraint_count = len(constraints)
-            variable_domain_size = 100  # Arbitrary typical range
+            variable_domain_size = 100
 
             instance = PuzzleInstance(
                 puzzle_type=PuzzleType.ARITHMETIC,
@@ -351,69 +335,68 @@ class PuzzleGenerator:
         self,
         n_values: List[int],
         count: int,
-        puzzle_types: List[Any],
+        puzzle_types: List[Union[PuzzleType, str]],
         output_dir: str = DEFAULT_OUTPUT_DIR,
     ) -> str:
         """
         Generate puzzles for multiple N values and types.
-        Writes a **JSONL** file where each line is a puzzle record
+        Writes a **single JSON file** with a top‑level "puzzles" list
         conforming to `contracts/dataset.schema.yaml`.
-        Returns the path to the generated file.
+        Returns the absolute path to the generated file.
         """
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
+        output_dir_path = Path(output_dir)
+        output_dir_path.mkdir(parents=True, exist_ok=True)
 
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-        output_file = output_dir / f"puzzles_{timestamp}.jsonl"
+        output_path = output_dir_path / OUTPUT_FILENAME
 
         verifier = PuzzleVerifier()
 
-        with open(output_file, "w", encoding="utf-8") as out_f:
-            for n in n_values:
-                for raw_type in puzzle_types:
-                    # Normalise to PuzzleType enum, raising DataGenerationError for unknown values
-                    if isinstance(raw_type, PuzzleType):
-                        p_type = raw_type
-                    else:
-                        try:
-                            p_type = PuzzleType(raw_type)
-                        except ValueError:
-                            raise DataGenerationError(f"Unknown puzzle type: {raw_type}")
+        all_puzzles: List[Dict[str, Any]] = []
 
-                    self.logger.info(
-                        f"Generating {count} puzzles of type {p_type.value} with N={n}"
-                    )
-                    if p_type == PuzzleType.SUDOKU:
-                        puzzles = self.generate_sudoku(n, count)
-                    elif p_type == PuzzleType.PATHFINDING:
-                        puzzles = self.generate_pathfinding(n, count)
-                    elif p_type == PuzzleType.LOGIC_GRID:
-                        puzzles = self.generate_logic_grid(n, count)
-                    elif p_type == PuzzleType.ARITHMETIC:
-                        puzzles = self.generate_arithmetic(n, count)
-                    else:
-                        # Defensive programming – should never happen
+        for n in n_values:
+            for raw_type in puzzle_types:
+                # Normalise to PuzzleType enum
+                if isinstance(raw_type, PuzzleType):
+                    p_type = raw_type
+                else:
+                    try:
+                        p_type = PuzzleType(raw_type)
+                    except ValueError:
                         raise DataGenerationError(f"Unknown puzzle type: {raw_type}")
 
-                    for puzzle in puzzles:
-                        # Verify deterministically and attach result
-                        puzzle_dict = puzzle.to_dict()
-                        is_valid, err_code = verifier.verify(puzzle_dict)
-                        puzzle.verifier_output = {
-                            "valid": is_valid,
-                            "error_code": err_code,
-                        }
-                        # Write the fully‑populated dict as a JSON line
-                        out_f.write(json.dumps(puzzle.to_dict()))
-                        out_f.write("\n")
+                self.logger.info(
+                    f"Generating {count} puzzles of type {p_type.value} with N={n}"
+                )
+                if p_type == PuzzleType.SUDOKU:
+                    puzzles = self.generate_sudoku(n, count)
+                elif p_type == PuzzleType.PATHFINDING:
+                    puzzles = self.generate_pathfinding(n, count)
+                elif p_type == PuzzleType.LOGIC_GRID:
+                    puzzles = self.generate_logic_grid(n, count)
+                elif p_type == PuzzleType.ARITHMETIC:
+                    puzzles = self.generate_arithmetic(n, count)
+                else:
+                    raise DataGenerationError(f"Unknown puzzle type: {raw_type}")
 
-        self.logger.info(
-            f"Generated puzzles written to JSONL file {output_file}"
-        )
-        return str(output_file)
+                for puzzle in puzzles:
+                    # Verify deterministically and attach result
+                    puzzle_dict = puzzle.to_dict()
+                    is_valid, err_code = verifier.verify(puzzle_dict)
+                    puzzle.verifier_output = {
+                        "valid": is_valid,
+                        "error_code": err_code,
+                    }
+                    all_puzzles.append(puzzle.to_dict())
+
+        # Write the single JSON object
+        with open(output_path, "w", encoding="utf-8") as out_f:
+            json.dump({"puzzles": all_puzzles}, out_f, indent=2)
+
+        self.logger.info(f"Puzzles written to {output_path}")
+        return str(output_path)
 
     # ------------------------------------------------------------------
-    # Helper methods (unchanged, but kept for completeness)
+    # Helper methods (unchanged, retained for completeness)
     # ------------------------------------------------------------------
     def _generate_valid_sudoku(self, size: int) -> List[List[int]]:
         """Generate a valid sudoku grid using backtracking."""

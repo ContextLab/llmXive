@@ -1,0 +1,7 @@
+{
+  "task_id": "T019",
+  "fingerprint": "8f9e485c423efb046e5e246bc44f2f03464fb6df4e3d663a58575d8b5ae0b69b",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/unit/test_evaluation_log.py': imports nonexistent names from sibling files: `from code.analysis.evaluation_logger import _EVALUATION_SCHEMA` (available: EvaluationLogger, Path, ValidationError, _SCHEMA_PATH, _parse_bool, datetime, get_logger, json...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

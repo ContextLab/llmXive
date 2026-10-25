@@ -1,48 +1,60 @@
 """
 Unit tests for the puzzle generator.
-Checks that generated puzzles conform to the dataset schema and that
-the generator produces a deterministic output given a fixed seed.
+Checks that generated instances conform to the JSON schema
+defined in `contracts/dataset.schema.yaml`.
 """
 
 import json
-import pytest
+import yaml
+import tempfile
 from pathlib import Path
+
+import pytest
+from jsonschema import validate, ValidationError
 
 from code.dataset.generator import PuzzleGenerator, PuzzleType, DataGenerationError
 
-def test_generator_output_structure(tmp_path):
-    """Generator should produce a JSON file with a top‑level 'puzzles' list."""
-    generator = PuzzleGenerator(seed=123, source_id="test_source")
-    out_file = generator.generate_puzzles(
+# Load the contract schema once (YAML format)
+with open("contracts/dataset.schema.yaml", "r", encoding="utf-8") as f:
+    SCHEMA = yaml.safe_load(f)
+
+def test_generate_small_dataset(tmp_path: Path):
+    """
+    Generate a minimal dataset (4x4 Sudoku + pathfinding) and
+    validate each puzzle against the schema.
+    """
+    generator = PuzzleGenerator(seed=123, source_id="test_run")
+    output_file = generator.generate_puzzles(
         n_values=[4],
-        count=2,
+        count=1,
         puzzle_types=[PuzzleType.SUDOKU, PuzzleType.PATHFINDING],
         output_dir=str(tmp_path)
     )
-    # Verify file exists
-    assert Path(out_file).exists()
 
-    # Load and inspect
-    with open(out_file, "r", encoding="utf-8") as f:
+    # Read JSON file (single object with "puzzles" list)
+    with open(output_file, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    assert isinstance(data, dict)
-    assert "puzzles" in data
-    assert isinstance(data["puzzles"], list)
-    assert len(data["puzzles"]) == 4  # 2 types × 2 count
+    puzzles = data.get("puzzles", [])
+    # Expect exactly two puzzle records
+    assert len(puzzles) == 2
 
-    # Basic schema‑like checks
-    for puzzle in data["puzzles"]:
-        for field in ("puzzle_type", "constraints", "initial_state", "target_state", "metadata", "verifier_output"):
-            assert field in puzzle
+    for puzzle in puzzles:
+        # Validate against the contract schema
+        try:
+            validate(instance=puzzle, schema=SCHEMA)
+        except ValidationError as ve:
+            pytest.fail(f"Puzzle failed schema validation: {ve}")
 
-def test_generator_invalid_type():
-    """Requesting an unknown puzzle type should raise DataGenerationError."""
-    generator = PuzzleGenerator(seed=0, source_id="test")
+def test_invalid_type_raises():
+    """
+    Requesting an unknown puzzle type should raise DataGenerationError.
+    """
+    generator = PuzzleGenerator()
     with pytest.raises(DataGenerationError):
         generator.generate_puzzles(
             n_values=[4],
             count=1,
-            puzzle_types=["unknown_type"],  # not a valid PuzzleType
+            puzzle_types=[PuzzleType.SUDOKU, "unknown_type"],  # type: ignore
             output_dir="."
         )

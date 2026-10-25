@@ -1,14 +1,3 @@
-- artifact_hash: 7612adddb7b1ab4747c3e92f2133185dad546e51ad77426dbced89fd595e865d
-  artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/api/models/
-  verification_status: pending
-  verified_against_url: https://huggingface.co/api/models
-  verified_at: '2026-10-25T03:31:17.937470Z'
 - artifact_hash: a5042d0379d582336ceb6658973212137ee6570149fe1772f2b1e57e1a251d22
   artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/plan.md
   cite_id: c-001
@@ -31,3 +20,14 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Two-proportion_Z-test
   verified_at: '2026-10-25T10:41:43.730717Z'
+- artifact_hash: d5dbb0c078f95008fca0ffb45faf4b69c98868238f02a9d97cc7fb9bacb450c4
+  artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/api/models/
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/models
+  verified_at: '2026-10-25T10:48:56.012094Z'

@@ -5,8 +5,7 @@ This module provides:
 - Data structures representing formal constraints.
 - A lightweight ``PuzzleParser`` that can turn simple textual
   constraints into ``FormalConstraint`` objects.
-- ``parse_dataset_file`` that reads a JSON dataset file and returns
-  a list of puzzle dictionaries (used by the pilot run).
+- ``parse_dataset_file`` that reads a JSON dataset file and returns a list of puzzle dictionaries (used by the pilot run).
 """
 
 import json
@@ -147,3 +146,53 @@ def parse_dataset_file(file_path: Path) -> List[Dict[str, Any]]:
 
     log.info(f"Loaded {len(puzzles)} puzzles.")
     return puzzles
+
+def main() -> None:
+    """
+    CLI entry point for manual testing of the parser.
+
+    It loads a dataset file, parses each puzzle's constraints and
+    optionally writes the parsed representation to an output JSON file.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Parse puzzle constraints from a dataset")
+    parser.add_argument("--input", type=str, required=True, help="Path to input puzzle JSON file")
+    parser.add_argument("--output", type=str, default=None, help="Path to write parsed constraints (optional)")
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO)
+
+    # Load puzzles
+    puzzles = parse_dataset_file(Path(args.input))
+
+    puzzle_parser = PuzzleParser()
+    results = []
+
+    for puzzle in puzzles:
+        puzzle_id = puzzle.get("metadata", {}).get("source_id", "unknown")
+        constraints_raw = puzzle.get("constraints", [])
+        try:
+            formal = puzzle_parser.parse_constraints(constraints_raw)
+            # Convert FormalConstraint objects to simple dicts for JSON serialisation
+            formal_dicts = [
+                {
+                    "type": fc.constraint_type.value,
+                    "variables": fc.variables,
+                    "value": fc.value if hasattr(fc, "value") else None,
+                }
+                for fc in formal
+            ]
+            results.append({"puzzle_id": puzzle_id, "parsed_constraints": formal_dicts})
+        except Exception as e:
+            results.append({"puzzle_id": puzzle_id, "error": str(e)})
+
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as out_f:
+            json.dump(results, out_f, indent=2)
+        log.info(f"Parsed constraints written to {args.output}")
+    else:
+        print(json.dumps(results, indent=2))
+
+if __name__ == "__main__":
+    main()

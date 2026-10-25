@@ -1,48 +1,54 @@
-T002:
-  c: true
-  h: 7cd4bcd484da4637f21861a3e71c67e8cfa8800c992b59042387fb3a4a9e7c48
-  r: "Checked `code/symbolic/planner.py`, `code/symbolic/parser.py`, and `code/symbolic/exclusion_logger.py`\
-    \ \u2013 they implement the planner and parser, raise the real `ParseFailure`\
-    \ and `ContradictionDetected` classes, and log exclusions to `data/processed/exclusions.json`.\
-    \ The provided pytest suite validates all required behaviours."
-  sig: 8acd209af55633777a99a37ff0b6271f9076249ea75b8871f15ff1753753be33
 T012:
   c: true
-  h: 40e699bc015e3ea88e8de71dc951a24de98685824b25c4d8b29d5d696d6f46c0
-  r: "Checked `specs/001-symbolic-bes/design_dataset.md` (8712\u202Fbytes) \u2013\
-    \ it exists, is valid Markdown, and contains the required sections \u201CPuzzle\
-    \ Types\u201D, \u201CScaling Plan\u201D, and \u201CSeed Management\u201D."
-  sig: 8714e83da21c72e6e6042677ac8c9f0a283919343a22f01928401fde3606ccc7
+  h: 35c7c9fa3b2cfc9a3e4fff7c2c8c34273e8080dc8cb0713ed3af30bf66c1abf2
+  r: "Checked `specs/001-symbolic-bes/design_dataset.md` (5782\u202Fbytes) which contains\
+    \ the required Markdown headings \u201C## Puzzle Types\u201D, \u201C## Scaling\
+    \ Plan\u201D, and \u201C## Seed Management\u201D (plus provenance metadata) and\
+    \ is a non\u2011empty, syntactically valid Markdown document."
+  sig: 360d8fa375a9a1a601cd9327aa7c5e7a5ca5c3458c30725e49008cb35974231e
 T013:
   c: true
-  h: c31a26ee4bf5728e676a0328f4209e0a962f6a03d2adf19c353d577a30a3ac17
-  r: "The `specs/001-symbolic-bes/stat_analysis_plan.md` file is present (7\u202F\
-    KB) and contains the required numeric specifications: \u0394\u202F=\u202F0.05,\
-    \ \u03B1\u202F=\u202F0.0497, power\u202F=\u202F0.80, and a required sample size\
-    \ of 393 per group (with total N\u202F=\u202F500). It also lists the effect\u2011\
-    size targets (Cohen\u2019s\u202Fh\u202F=\u202F0.20 and a \u226520\u202F% cost\
-    \ reduction)."
-  sig: b948623cd660b2ae4e5767ad61e96bb6aae5871c1755314ba5dabb1b79edab50
+  h: 76ebf1912c2571288b386be5476133fd6fe0550fdf010c71d5093255f7d2a83a
+  r: "The file `specs/001-symbolic-bes/stat_analysis_plan.md` (7085\u202Fbytes) is\
+    \ present and contains the required numeric specifications: TOST equivalence margin\
+    \ \u0394\u202F=\u202F0.05, \u03B1\u202F=\u202F0.0497, power\u202F=\u202F0.80,\
+    \ and the calculated required sample size n\u202F=\u202F393 (plus effect\u2011\
+    size targets such as Cohen\u2019s\u202Fh\u202F=\u202F0.20). All required values\
+    \ are explicitly listed in the document."
+  sig: 729cb8c8e768838a121e78a14392121836680474c16956af714a34fb500bee2f
 T014:
   c: true
-  h: 3f0853204e9f70ecc862eb1f66a4d45f692267210ef208308308d951581bf8ed
-  r: "Checked `specs/001-symbolic-bes/baseline_architecture.md` (resolved path shown)\
-    \ \u2013 it contains the required model identifier, exact HuggingFace commit hash,\
-    \ and explicit `device='cpu'` configuration."
-  sig: 90039349151e6087bf33e11da809ac0951212b3a248f6561f1c5eb358ae3c382
+  h: 3ffe2b9464a133c10fdb1674906097c5c059524a989486f59003ff83569fedf9
+  r: Checked `specs/001-symbolic-bes/baseline_architecture.md` (resolved to `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`),
+    which lists the model identifier `distilbert-base-uncased`, the exact HuggingFace
+    commit hash, and explicit `device='cpu'` settings.
+  sig: 4d499a0c1955d64e4426480d0c09d640185eeb7a099439716e9b7bb9964ae55c
 T015:
   c: true
-  h: 75d034b7559067c5090015a3c50ddd071476148a49f31073707f0c0104899add
-  r: "Checked the presence and contents of `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`,\
-    \ which are non\u2011empty, syntactically valid YAML/JSON\u2011Schema files, and\
-    \ confirmed via the recorded validation script log that loading them with `yaml.safe_load`\
-    \ succeeds without exception."
-  sig: 9aa85770945712af45feb7842b227db596f2a218b29c764179aae18d7f0a399e
+  h: c72eaf14e498481bb08c47b8eda0e8cf47b419538c8c2dc0972ba6ee0b4ed025
+  r: "Checked the presence and non\u2011empty content of `contracts/dataset.schema.yaml`\
+    \ and `contracts/output.schema.yaml`, and verified that the unit\u2011test log\
+    \ and the `validate_schemas.py` execution both loaded these files with `yaml.safe_load`\
+    \ without raising exceptions."
+  sig: bf19d88d4efbbc2f62905ef7223c178f14db304c1f21f6a61c4d3004b60a9109
 T016:
   c: true
-  h: f21025e98147468612084f304943a89efcaba15aeebc03d18dbd21618e005b6d
-  r: "Checked `specs/001-symbolic-bes/quickstart.md` (exists, contains the reproducible\
-    \ command `python -m code.main --pilot \u2026`) and the execution log `code/.tasks/T016.code_main.py.log`\
-    \ showing `code/main.py` exited with code\u202F0 and wrote non\u2011empty files\
-    \ `data/processed/pilot/pilot_run.jsonl` and `verifier_timing.log`."
-  sig: a551605d7a72c36810e81ad064b79f46782a5614bd46f0d2695dc5b979d380f5
+  h: e0b1b8147c6ee63dd5ba144f780fb0217a776c1112a1ac7a1b35b20e4cb5c629
+  r: "The `quickstart.md` file exists at the specified path and contains the reproducible\
+    \ command `python -m code.main --pilot --seed 42` with listed expected output\
+    \ locations. Execution logs (`code/.tasks/T016.code_main.py.log`) show the command\
+    \ exited with code\u202F0 and wrote the pilot artifacts, and the `data/processed/pilot/`\
+    \ directory contains non\u2011empty `pilot_run.jsonl` and `verifier_timing.log`\
+    \ files."
+  sig: 2e565452dc032ed62a36aa6e8b1586ca8e2d7b11ef5905624d551762af959388
+T020:
+  c: false
+  h: 5f00d7b323fbcb53c3dfe1d5ad0613be3c2dd7c67233d771c190242e8e29c39d
+  r: "The integration test `tests/integration/test_checksums.py` fails: the checksum\
+    \ for `data/processed/experiment.log` in the generated `data/checksums.json` does\
+    \ not match the file\u2019s actual SHA\u2011256 hash, showing the manifest is\
+    \ incorrect. The required behavior\u2014accurate SHA\u2011256 checksums for every\
+    \ file under `data/`\u2014is therefore not satisfied. Fix the `compute_checksums`\
+    \ implementation (or the file contents) so that the manifest hashes match the\
+    \ real files and the test passes."
+  sig: 6fb054772e2d9b30d013916a23f60388006f18ebf6dfec481ef0d1e64bafe93f

@@ -1,16 +1,15 @@
 status: none
-intent: logic puzzle dataset with Python verification scripts downloadable python
-  package dataset
+intent: download CSPLib constraint satisfaction puzzles with verification scripts
+  as python package dataset
 required_fields:
 - puzzle_id
 - puzzle_type
 - puzzle_representation
 - constraints_formal_language
-- solution_string
-- verification_script_path_or_code
+- solution_verifier_script
+- example_solution
 - difficulty_level
-- source_dataset_name
-- metadata_timestamp
-cache_key: c594c48b6da5d28982e844add143dd22c2bce92cc1a9787c5f483b6493426b8e
-searched_at: '2026-10-25T10:36:27.910083+00:00'
+- source_reference
+cache_key: b85587391b0efd17ec725b676154da7d7bff777086c3e1787c06a5b98e99b8ff
+searched_at: '2026-10-25T10:52:23.928721+00:00'
 retry_count: 1
