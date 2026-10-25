@@ -1,12 +1,28 @@
 T001:
-  reason: "The `data/raw/` and `data/processed/` directories are missing, and the\
-    \ package directories `code/config/` and `code/utils/` do not contain an `__init__.py`\
-    \ (required for a canonical layout). These omissions mean the task\u2019s directory\u2011\
-    structure and package\u2011initialisation requirements are not satisfied."
+  reason: "Checked the directory tree and found `code/`, `data/raw/`, `data/processed/`,\
+    \ `data/results/`, `docs/`, `code/config/settings.py`, and `code/utils/seeding.py`\
+    \ present, and `settings.py` contains the required typed keys. However, the package\
+    \ directories `code/config/` and `code/utils/` lack `__init__.py` files, and no\
+    \ unit\u2011test file is provided that demonstrates deterministic output of a\
+    \ NumPy operation using the seeding utilities. These missing pieces must be added\
+    \ to satisfy the task."
   task: b319631fc564067874138d1b90ef31ca2630cfb9ee920de615764a6464316d6e
 T002:
+  reason: "The pipeline only downloads a single `dataset_description.json` (an HTML\
+    \ page) instead of the full BIDS archive, writes a checksum of that file, and\
+    \ never creates the required per\u2011dataset metadata files (`data/metadata/{dataset_id}_metadata.json`).\u202F\
+    `verify_design.py` fails because the description files are not valid JSON and\
+    \ no pre/post scan directories exist, so gaps are logged with \u201Cinvalid_json\u2026\
+    \u201D rather than the required \u201Cdesign_missing\u201D reason.\u202FAdditionally,\
+    \ the unit test for design verification fails (UnboundLocalError). These missing/incorrect\
+    \ artifacts prevent the task from meeting its"
   task: acfa5cdbf3c49176704a73e3c589ddbe79b83d5982307ea20ca4952c0ebf40a7
 T003:
+  reason: "Checked `code/preprocessing/fmriprep_runner.py`, the empty `data/processed/fmriprep_outputs/`\
+    \ directory, and `data/processed/preproc_metadata.json`. No subject subfolders,\
+    \ preprocessed BOLD images, motion/confound files, or HTML QC reports were produced,\
+    \ and the metadata file contains an empty JSON object instead of per\u2011subject\
+    \ status entries. The required fMRIPrep outputs and metadata are therefore missing."
   task: 7fe63ca312609cf180d3042e2de1c44ecc981531a9c5b8e8171b876efdbdad2b
 T005:
   task: ed3091bcbd125d5ba5e3d4307c2a363d20a4b354dbbb2d8af17fb3accd933cd6
@@ -33,6 +49,8 @@ T015:
 T016:
   task: fa2ee563829dd712efb6296ef53001d7f24283b722aacd22e84e09ee7f37cd0b
 T017:
+  reason: 'declared artifact(s) missing/empty/invalid: code/datasets/metadata_schema.py,
+    dataset.schema.yaml'
   task: 87e8572aefd38f58a8506985106258f384861157d5de7bd7b382ebe38a1a983d
 T018:
   task: 9e4d0d3ef7cb7d91098b7f05269b365750cfccdc6270de481c0f2aebd0b8e785

@@ -1,8 +1,30 @@
-T001:
+T002:
   c: false
-  h: 7d4e48eebe306a15182ba8868275b272ae076f34af24d568b74d205009331a7e
-  r: "The `data/raw/` and `data/processed/` directories are missing, and the package\
-    \ directories `code/config/` and `code/utils/` do not contain an `__init__.py`\
-    \ (required for a canonical layout). These omissions mean the task\u2019s directory\u2011\
-    structure and package\u2011initialisation requirements are not satisfied."
-  sig: 015d28004d5f30bf6905ac7f73b79c9f1f3f80e35968517a34f8fb32a9bf7a96
+  h: 04f2a1e0111b38d66cc9de47f15096a683baf5d1f41c804693bb74ab8d43bde0
+  r: "The pipeline only downloads a single `dataset_description.json` (an HTML page)\
+    \ instead of the full BIDS archive, writes a checksum of that file, and never\
+    \ creates the required per\u2011dataset metadata files (`data/metadata/{dataset_id}_metadata.json`).\u202F\
+    `verify_design.py` fails because the description files are not valid JSON and\
+    \ no pre/post scan directories exist, so gaps are logged with \u201Cinvalid_json\u2026\
+    \u201D rather than the required \u201Cdesign_missing\u201D reason.\u202FAdditionally,\
+    \ the unit test for design verification fails (UnboundLocalError). These missing/incorrect\
+    \ artifacts prevent the task from meeting its "
+  sig: 26513cfb8aecb08b2a828900869d65afc4448d82e728b41c3b01df8420aa2b0b
+T003:
+  c: false
+  h: 71304d798bea836b8621ef84e9c1a2885cdd8232ff1221ec49eec5a197b62d12
+  r: "Checked `code/preprocessing/fmriprep_runner.py`, the empty `data/processed/fmriprep_outputs/`\
+    \ directory, and `data/processed/preproc_metadata.json`. No subject subfolders,\
+    \ preprocessed BOLD images, motion/confound files, or HTML QC reports were produced,\
+    \ and the metadata file contains an empty JSON object instead of per\u2011subject\
+    \ status entries. The required fMRIPrep outputs and metadata are therefore missing."
+  sig: b86b23956a4eaf03a6f79899a19471a776d1db77a39562a51a71e951e31ca42c
+T018:
+  c: true
+  h: 9d1eb53600468ab61c51f5a954030e436b1b005dc3ca601bd1d49aacd21d1827
+  r: "Checked `code/datasets/verify_design.py` (4529\u202Fbytes) which imports the\
+    \ T017 schema, verifies mindfulness metadata and pre/post scans, returns a boolean\
+    \ flag via `verify_dataset_design`, and writes per\u2011dataset JSON reports (`verification_report.json`\
+    \ and `qualified_datasets.json`). All required artifacts exist and function as\
+    \ specified."
+  sig: 570bf4cb1e4586ac2047634008a7d8bd32d6e7d5876c5c2cec884a69ea5acffb

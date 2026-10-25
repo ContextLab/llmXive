@@ -7,7 +7,7 @@
 
 ## Phase 1 – Project scaffolding & configuration  
 
-- [X] **T001** [USx?] Create the canonical project layout and core configuration files.  
+- [ ] **T001** [USx?] Create the canonical project layout and core configuration files.  
   *Paths*: `code/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, `code/config/settings.py`, `code/utils/seeding.py`.  
   *Verification*:  
   – Directory tree exists and contains an `__init__.py` in each package.  
@@ -30,7 +30,7 @@
   *Verification*:  
   – Unit test validates a sample metadata file against the schema.  
 
-- [ ] **T018** [USx?] Implement `code/datasets/verify_design.py` that uses the schema from T017 to verify pre/post design and mindfulness metadata.  
+- [X] **T018** [USx?] Implement `code/datasets/verify_design.py` that uses the schema from T017 to verify pre/post design and mindfulness metadata.  
   *Verification*:  
   – Script returns a boolean `design_verified` flag and writes a concise verification report per dataset.  
 

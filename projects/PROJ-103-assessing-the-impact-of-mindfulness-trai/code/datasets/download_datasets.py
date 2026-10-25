@@ -1,10 +1,15 @@
 """
-Compatibility shim for ``code.datasets.download_datasets``.
-
-The core download utilities are provided by ``src.datasets.download_datasets``.
-This module simply forwards the CLI entry point so that the path specified
-in the task description (``code/datasets/download_datasets.py``) is
-executable.
+CLI shim for downloading datasets.
 """
+import argparse
+from code.datasets.openneuro_client import list_datasets
+from code.src.datasets.download_datasets import main
 
-from src.datasets.download_datasets import main  # noqa: F401
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--verify-only", action="store_true")
+    args = parser.parse_args()
+    
+    candidates = list_datasets()
+    main(candidates, verify_only=args.verify_only)
+    print("Dataset download/verification process completed.")

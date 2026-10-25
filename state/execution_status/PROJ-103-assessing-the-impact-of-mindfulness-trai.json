@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-20T15:20:31Z",
-  "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai"
+  "updated_at": "2026-10-25T14:29:42Z",
+  "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
+  "replan_rounds": 1
 }
