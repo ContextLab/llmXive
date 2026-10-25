@@ -18,7 +18,7 @@ Indented continuation lines list the concrete output, verification steps, and an
     2. All `url` fields point to reachable HTTPS resources (no `synthetic`/`mock` strings).  
     3. `grep -r "synthetic\|mock\|random.rand" code/data/feasibility.py` returns no matches.  
 
-- [ ] T002 [P] [US1] **Real‑data ingestion & unified dataset creation** – complete the ingestion pipeline (`code/data/download.py`, `code/data/ingest.py`, `code/data/align.py`, `code/data/preprocess.py`). The pipeline must:   <!-- FAILED-IN-EXECUTION: code/data/ingest.py exit=1 -->
+- [ ] T002 [P] [US1] **Real‑data ingestion & unified dataset creation** – complete the ingestion pipeline (`code/data/download.py`, `code/data/ingest.py`, `code/data/align.py`, `code/data/preprocess.py`). The pipeline must:   <!-- FAILED-IN-EXECUTION: code/data/ingest.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/ingest.py exit=1 -->
   1. Download every EDS map referenced in the feasibility report **and store the raw files under `data/raw/`**.  
   2. Download the matching device‑performance CSV/JSON.  
   3. Align each map to a common 512 × 512 px grid.  

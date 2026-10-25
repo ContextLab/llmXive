@@ -2,6 +2,7 @@
 code/data/ingest.py
 -------------------
 Implements the ingestion pipeline: download -> align -> mask -> unify.
+Produces the SSoT unified_dataset.csv and ingestion_stats.json.
 """
 import json
 import logging
@@ -11,7 +12,7 @@ import numpy as np
 import pandas as pd
 from llmxive_toolkit import paths, get_logger
 from data.download import download_from_verified_source
-from data.align import create_aligned_dataset
+from data.align import create_aligned_dataset, resample_map
 from preprocess.calibrate import calibrate_and_log
 
 log = get_logger(__name__)
@@ -42,6 +43,7 @@ def ingest_and_filter_dataset(config_path: str = None) -> pd.DataFrame:
     processed_dir.mkdir(parents=True, exist_ok=True)
 
     # 1. Download
+    # The feasibility dict is optional for the fallback logic in download.py
     feasibility = {} 
     try:
         samples = download_from_verified_source(feasibility)
@@ -64,16 +66,14 @@ def ingest_and_filter_dataset(config_path: str = None) -> pd.DataFrame:
                 sample["ma_map_filename"],
             ]
             
-            # Alignment to 512x512 grid (implicitly handled by create_aligned_dataset 
-            # if reference is 512x512, but we ensure it here)
+            # Alignment to reference (Pb)
             aligned_maps = create_aligned_dataset(
                 raw_dir=raw_dir,
                 element_files=element_files,
                 reference_key="Pb",
             )
             
-            # Force 512x512 for the project spec
-            from data.align import resample_map
+            # Force 512x512 for the project spec as required by T002
             target_shape = (512, 512)
             final_maps = {}
             for elem, arr in aligned_maps.items():
@@ -82,7 +82,7 @@ def ingest_and_filter_dataset(config_path: str = None) -> pd.DataFrame:
                 else:
                     final_maps[elem] = arr
 
-            # Masking
+            # Masking and Calibration
             masked_paths = {}
             mask_percentages = []
             for elem, arr in final_maps.items():
@@ -92,32 +92,40 @@ def ingest_and_filter_dataset(config_path: str = None) -> pd.DataFrame:
                 masked_paths[elem] = str(out_path)
                 mask_percentages.append(stats["total_mask_fraction"])
 
+            # Create unified record
+            # Ensure no nulls in required performance columns
             record = {
                 "sample_id": sample_id,
-                "Pb_map_path": masked_paths.get("Pb"),
-                "I_map_path": masked_paths.get("I"),
-                "MA_map_path": masked_paths.get("MA"),
                 "pce": float(sample["pce"]),
                 "j_sc": float(sample["j_sc"]),
                 "v_oc": float(sample["v_oc"]),
                 "mask_percentage": float(np.mean(mask_percentages)),
                 "eds_status": "complete",
-                "co_location_status": "unknown",
-                "depth_validation_status": "unknown",
+                "Pb_map_path": masked_paths.get("Pb"),
+                "I_map_path": masked_paths.get("I"),
+                "MA_map_path": masked_paths.get("MA"),
             }
             records.append(record)
             
         except Exception as e:
-            log.warning(f"Sample {sample['sample_id']} failed: {e}")
+            log.warning(f"Sample {sample.get('sample_id', 'unknown')} failed: {e}")
             exclusions.append({"sample_id": sample.get("sample_id", "unknown"), "reason": str(e)})
 
+    # Create DataFrame
     df = pd.DataFrame(records)
-    unified_path = processed_dir / "unified_dataset.csv"
+    
+    # Validation: Ensure required columns are present and non-null
+    required_cols = ["pce", "j_sc", "v_oc"]
+    df = df.dropna(subset=required_cols)
+    
+    unified_path = paths.data("processed", "unified_dataset.csv")
     df.to_csv(unified_path, index=False)
     
+    # Log and stats
     _write_ingestion_log([f"{ex['sample_id']}: {ex['reason']}" for ex in exclusions])
     _write_ingestion_stats(n_requested, len(df), exclusions)
     
+    log.info(f"Ingestion completed. {len(df)}/{n_requested} samples successfully processed.")
     return df
 
 def main() -> None:

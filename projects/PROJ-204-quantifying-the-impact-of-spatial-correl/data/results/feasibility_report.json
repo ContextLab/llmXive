@@ -1,4 +1,32 @@
 {
-  "sources": [],
+  "sources": [
+    {
+      "source": "NREL Perovskite Database",
+      "url": "https://perovskitedatabase.com/api/export?format=json",
+      "reachable": false,
+      "http_status": "HTTPSConnectionPool(host='perovskitedatabase.com', port=443): Max retries exceeded with url: /api/export?format=json (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'perovskitedatabase.com'. (_ssl.c:1016)\")))",
+      "n_records": 0,
+      "linked_sample_count": 0,
+      "has_linked_eds": false
+    },
+    {
+      "source": "Zenodo",
+      "url": "https://zenodo.org/api/records?q=perovskite+EDS&size=100",
+      "reachable": false,
+      "http_status": 400,
+      "n_records": 0,
+      "linked_sample_count": 0,
+      "has_linked_eds": false
+    },
+    {
+      "source": "HuggingFace (doe2023/perovskite-eds)",
+      "url": "https://huggingface.co/datasets/doe2023/perovskite-eds",
+      "reachable": false,
+      "http_status": "datasets package missing",
+      "n_records": 0,
+      "linked_sample_count": 0,
+      "has_linked_eds": false
+    }
+  ],
   "verdict": "halt"
 }

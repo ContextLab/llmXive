@@ -12,3 +12,4 @@ jsonschema
 psutil
 datasets
 scikit-image
+pydantic

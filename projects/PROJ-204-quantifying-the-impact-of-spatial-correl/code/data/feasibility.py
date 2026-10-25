@@ -25,7 +25,7 @@ except ImportError:
 
 log = get_logger(__name__)
 
-IMAGE_EXTENSIONS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp")
+IMAGE_EXTENSIONS = (".tif", ".tiff", ".png", ".jpg", ".jpeg", ".bmp", ".npy")
 
 def _safe_get(url: str, params: Dict[str, Any] = None, timeout: int = 30) -> Dict[str, Any]:
     """Perform a GET request and return reachability and response."""
@@ -48,11 +48,15 @@ def _process_hits(records: List[Dict[str, Any]]) -> List[int]:
     for rec in records:
         rec_id = rec.get("id")
         files = rec.get("files", []) or []
+        # Check if any file in the record is an image
         has_image = any(
-            str(f.get("key", "")).lower().endswith(IMAGE_EXTENSIONS) for f in files
+            str(f.get("key", "")).lower().endswith(IMAGE_EXTENSIONS) 
+            or str(f.get("filename", "")).lower().endswith(IMAGE_EXTENSIONS) 
+            for f in files
         )
         metadata = rec.get("metadata", {}) or {}
         desc = str(metadata.get("description", "")) + str(metadata.get("title", ""))
+        # Look for efficiency keywords
         has_perf = "pce" in desc.lower() or "efficiency" in desc.lower()
         if has_image and has_perf:
             evidence_ids.append(rec_id)
@@ -67,8 +71,12 @@ def probe_nrel() -> Dict[str, Any]:
     linked_ids = []
     if result["reachable"] and isinstance(result["json"], list):
         n_records = len(result["json"])
-        # Logic to identify linked EDS would go here if the schema was known
-        linked_ids = [] 
+        # NREL API structure varies; we look for records containing both 'image' and 'pce'
+        for rec in result["json"]:
+            has_img = any("image" in str(v).lower() for v in rec.values())
+            has_pce = "pce" in rec or any("pce" in str(k).lower() for k in rec.keys())
+            if has_img and has_pce:
+                linked_ids.append(rec.get("id", "unknown"))
 
     return {
         "source": "NREL Perovskite Database",
@@ -119,6 +127,7 @@ def probe_huggingface() -> Dict[str, Any]:
         }
 
     try:
+        # Use streaming=True to avoid downloading the full dataset during feasibility probe
         ds = load_dataset("doe2023/perovskite-eds", split="train", streaming=True)
     except Exception as exc:
         return {
@@ -133,13 +142,19 @@ def probe_huggingface() -> Dict[str, Any]:
 
     n_records = 0
     linked_ids = []
-    for rec in ds:
+    # We iterate through the stream to count records and linked samples
+    # To keep the probe fast, we limit to the first 1000 records if the dataset is massive
+    for i, rec in enumerate(ds):
+        if i >= 1000:
+            break
         n_records += 1
+        # Check for any key containing 'image' that is not None
         has_image = any(k.lower().endswith("_image") and rec.get(k) is not None for k in rec.keys())
+        # Check for performance metrics
         perf = rec.get("performance", {})
         has_perf = isinstance(perf, dict) and perf.get("pce") is not None
         if has_image and has_perf:
-            linked_ids.append(rec.get("id", n_records))
+            linked_ids.append(rec.get("id", i))
 
     return {
         "source": "HuggingFace (doe2023/perovskite-eds)",
@@ -161,12 +176,21 @@ def main() -> int:
             reports.append(rpt)
         except Exception as exc:
             log.exception("Unexpected error probing source: %s", exc)
-            reports.append({"source": probe.__name__, "url": "unknown", "reachable": False, "http_status": str(exc), "n_records": 0, "linked_sample_count": 0, "has_linked_eds": False})
+            reports.append({
+                "source": probe.__name__, 
+                "url": "unknown", 
+                "reachable": False, 
+                "http_status": str(exc), 
+                "n_records": 0, 
+                "linked_sample_count": 0, 
+                "has_linked_eds": False
+            })
 
     reachable_reports = [r for r in reports if r["reachable"]]
     any_linked = any(r.get("has_linked_eds") for r in reachable_reports)
+    
     overall = {
-        "sources": reachable_reports,
+        "sources": reports,
         "verdict": "continue" if any_linked else "halt",
     }
 
