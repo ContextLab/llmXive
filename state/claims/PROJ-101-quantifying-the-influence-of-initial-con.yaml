@@ -356,3 +356,83 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-09T16:05:55Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/quickstart.md
+  attempts: 1
+  canonical: all tests pass on CI runner
+  claim_id: c_95f4e2fd
+  context: In the Verify the Test Suite section, after running pytest, the comment
+    notes that all tests should pass on the CI runner.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass on the CI runner.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T23:37:14Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/quickstart.md
+  attempts: 1
+  canonical: validator checks SHA-256 checksums
+  claim_id: c_0c7ce4af
+  context: 'The validator checks: 1. SHA-256 checksums (`state/artifacts/manifest.yaml`).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The validator checks SHA-256 checksums (`state/artifacts/manifest.yaml`).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T23:37:14Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/quickstart.md
+  attempts: 1
+  canonical: validator checks JSON schema compliance for ftle_results.json, regression_results.json,
+    and results.json
+  claim_id: c_834c608a
+  context: 'The validator checks: 3. JSON schema compliance for `ftle_results.json`,
+    `regression_results.json`, and `results.json`.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The validator checks JSON schema compliance for `ftle_results.json`, `regression_results.json`,
+    and `results.json`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T23:37:14Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/README.md
+  attempts: 1
+  canonical: 'three PNG figures generated: convergence, bias_scaling, dimension_scaling'
+  claim_id: c_e4488c8c
+  context: 'The figures are: data/processed/plots/convergence.png, data/processed/plots/bias_scaling.png,
+    data/processed/plots/dimension_scaling.png'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The plotting module creates three PNG figures under data/processed/plots/
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T23:37:40Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/README.md
+  attempts: 1
+  canonical: ftle_results.json conforms to its JSON schema
+  claim_id: c_d52f7c85
+  context: Results are aggregated into ftle_results.json (conforms to contracts/ftle_results.schema.yaml)
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: ftle_results.json conforms to contracts/ftle_results.schema.yaml
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T23:37:40Z'

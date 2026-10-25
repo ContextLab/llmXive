@@ -1,88 +1,50 @@
 T001:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
-    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
-    state/ and derives artifact hashes at verification time. Re-scope the step to
-    write only project-owned outputs.'
-  task: 8561e799f42aaa90446f46f814baa94d2a6385bc5f8984917bd0041d1d1ba26b
+  reason: "The directory layout and `data/dir_structure.txt` file exist and contain\
+    \ the nine required entries, but there is no evidence that a CI step (e.g., a\
+    \ workflow or test run) actually executed `tree -L 2` and asserted the manifest\u2019\
+    s contents. A CI log or test result confirming this verification is missing."
+  task: 3520514e19e8eb221709f8798732ba9719a0767267bb664d29ac547ec5b193f5
 T002:
-  task: b887bf56faf5c907d3f7386c1e89a8a4b418986bad94b966372d732561835a5c
+  reason: "The required `__init__.py` files exist, but the sub\u2011package imports\
+    \ are broken \u2013 e.g., `code/analysis/__init__.py` does `from config import\
+    \ get_full_config` (a top\u2011level import that cannot find `code/config.py`)\
+    \ and other imports that will raise `ModuleNotFoundError`. Consequently `import\
+    \ code.analysis` (and other sub\u2011modules) will fail, so the package is not\
+    \ fully importable as the task demands. The implementer must fix the imports (use\
+    \ relative imports) or simplify the init files so that each sub\u2011module can\
+    \ be imported without error."
+  task: 7a290371e3e1f2ce97af8f2c95846c4552e8cb41b76c7f793bf14a6eaccc8def
 T003:
-  task: 7251b7b1d60932fd6f146f4d407fa7cf10dfaeaacfc45135c62a87f710d05818
+  reason: The repository contains the required `tests/conftest.py` with a `seed` fixture
+    returning 42 and a fixture that leverages `tmp_path`. However, there is no dummy
+    test file (or evidence of a pytest run) demonstrating that `pytest -q` actually
+    passes a test asserting reproducibility of `np.random.RandomState(42).rand()`.
+    Adding such a test (e.g., in `tests/test_dummy.py`) and showing its successful
+    execution is needed to satisfy the verification step.
+  task: 272c6245d1313982afc48c391fa78b48bd8694e525ed0bc4200485ef934bcaf7
 T004:
-  task: 2c32d9ac5e89c4bd9784db9714ee1a87e839aecc8ee5b75a818f50e9b86eef8f
+  task: 83f6fd4d0168d18c9bd7ab5dc0e16858ed3c564610f0b5c196337c096e131e2c
 T005:
-  task: 4c5392aa595bfd0120b22305514fd95d7c50190b56d3859b438c2ab7834985bd
+  task: ef60dd57ac9cb16673ca619a6b20855c6ab101b217734fdde963dbcc16c2aa74
 T006:
-  reason: "The provided `code/simulation/generator.py` correctly implements the ODE,\
-    \ integration with DOP853, tolerances, and noise injection, and the shim `data/generator.py`\
-    \ maps most functions. However, the shim\u2019s `integrate_trajectory` ignores\
-    \ the `sigma_noise` argument and never emits the `HighNoiseWarning` for \u03C3\
-    \u202F>\u202F0.1 nor raises `UnphysicalTrajectoryError` for \u03C3\u202F>\u202F\
-    1.0, causing the `test_high_noise_warning` and `test_unphysical_trajectory_error_high_sigma`\
-    \ tests in `tests/unit/test_generator.py` to fail. The task\u2019s verification\
-    \ requires those unit tests to pass, so the implementation is incomplete."
-  task: 89738e452324f56dc9f041b5de292c389ccb9c0606c3a00fdc4f19d696455db9
+  task: e9a3270e2311c8daca9a3887829377b151a4a377a95985475220bf9d1d158a87
 T007:
-  reason: '`code/utils/stability.py` does define `check_boundedness` and `raise_if_unphysical`
-    with the 20.0 norm threshold and a `check_noise_level` helper, but the guard is
-    never wired into any integration path: `code/data/generator.py`''s `integrate_trajectory`
-    never calls `raise_if_unphysical`, and its `validate_trajectory` raises on `sigma_noise
-    > 1.0` / `max(|state|) > 100` instead of the required norm > 20.0 check. The test
-    suite would also fail as written: the `data/generator.py` shim used by the tests
-    never raises `UnphysicalTrajectoryError` or emits `HighNoiseWarning` in `integrate_trajectory`
-    ('
-  task: 9027907b62470127cc205d3a359a0e7bdca167be19e0044fd8ee3a60b50f3ff9
+  task: 8c8dda46801d6ca9cd85afc69c7bc11d6ec2cde22fccf0d278512a8532967dc9
 T008:
-  reason: "Checked `code/main.py` (generation loop implementation) and the expected\
-    \ output directory `data/raw/`. Although the loop code is present, the required\
-    \ integration test `tests/integration/test_generation.py` is missing, and no `.npz`\
-    \ files were generated in `data/raw/` (directory is empty). The task\u2019s verification\
-    \ step cannot be satisfied without the test and the actual output files."
-  task: 4a270566f88910afad60d3146081f21c8361019b60ad958736e7b52257239457
+  task: 42a6629d18bb30d34b535bed13f7e9f66915249ac0d096ecda68c4af17a53836
 T009:
-  reason: "The provided `code/analysis/baseline.py` does not meet the specification:\
-    \ it integrates only up to\u202F5\u202F000 steps (far short of the required\u202F\
-    \u2265\u202F50\u202F000), uses a default status of `\"converged\"` instead of\
-    \ `\"valid\"` (so the unit test\u2019s status check would fail), never raises\
-    \ `NonChaoticSystemError` when `lambda_max\u202F\u2264\u202F0`, and does not enforce\
-    \ the 5\u202F% relative\u2011change convergence rule (it only logs a warning).\
-    \ Moreover, the required `baseline.schema.yaml` file is missing and no `data/processed/baseline_{N}.json`\
-    \ files are present. These gaps must be fixed for the task to be considered complete."
-  task: bf913694bf4a2ee0800a6e0dd99e70b6b4add9c9e76d0879d053f9d50a338510
-T010:
-  reason: "The provided `code/analysis/ftle.py` does not perform QR re\u2011orthonormalisation\
-    \ (it uses a custom Gram\u2011Schmidt `orthonormalize`), lacks a `status` field\
-    \ in `FTLEResult`, and never writes aggregated results to the required `data/processed/ftle_results.json`\
-    \ (nor provides the `ftle_results.schema.yaml`). Moreover, the unit test suite\
-    \ does not verify the JSON output, and the JSON file and schema are missing from\
-    \ the repository. These gaps mean the task\u2019s core requirements are not met."
-  task: 0dd1d1f7c63d0703848b2a2293975d0b9431d98354f026512e9d5bfa24216846
+  task: 9e89547db46a0a2a9026cf1a9dedb195dd444ea7d7682a0bf3d08a28402bc97d
 T011:
-  reason: "Checked `code/main.py` gating logic and `code/analysis/baseline.py` baseline\
-    \ result. The gate loads the baseline JSON and expects `status == \"valid\"`,\
-    \ but `BaselineResult` defaults its `status` to `\"converged\"` and `save_baseline_result`\
-    \ writes that value, so the gate will always fail. The required `\"valid\"` status\
-    \ is never produced, violating the task\u2019s specification. The implementation\
-    \ must set `status` to `\"valid\"` (or adjust the gate to accept `\"converged\"\
-    `)."
-  task: 4d380e4b27fa0cc6f06d4e439d01267055a610f077e32cdc2eba6190d074b93b
+  task: 91a6947d93092b9fa79cf55651eb88c421238c96895e824ec6e586fd116f2ce8
 T012:
-  task: 3dce577e38c4e9413bbc13e4a7df58b978a30ed93333caaf92d0206e9d684ec9
+  task: 5f0c2dd4bc24cbf2a107ffd810a4661d8cf8804409165f77e87e21e5c2e0412d
+T012a:
+  task: 29db415ca19fc96e9154c12e103aefd5d46832d33c534f38f076a17c59d25a26
+T012b:
+  task: 86939bd44127b38ec577257d10071075309581f88992605acdbf3e42576d0859
 T013:
-  task: acd872d37f4328cb043d883c40ab4a6f33c5321f129a16aeda7ef546361209ca
+  task: a3581e51b904cf0ed495645cf576207f290e15569d8f32a6e218453c466f648a
 T014:
-  task: a64dfc4d7668555e7f7393a9b85b2f711d2a1ad1614483f47f6139f53a006922
+  task: 8fb11bde169e1a71d66767ff194a87d9205eac0b82b145687d7ce789a52d9a24
 T015:
-  task: c6f2e10db26334e0d3a1a04f501628ae44d49d21ecff293b0f0874c6f0f339c4
-T016:
-  task: 189f59987fc3ea8fc637f962627f4985065b346e7cac72de59cacb4443fbe8fe
-T017:
-  reason: "The required output files `data/processed/baseline_per_window_{N}.json`\
-    \ are not present in the repository (no matching files were found). Consequently,\
-    \ the task\u2019s core deliverable\u2014a JSON array with `window_size`, `lambda_max`,\
-    \ `convergence_error` (and a valid status) for each window size\u2014is missing.\
-    \ The implementation code exists, but without the generated JSON artifacts the\
-    \ task is incomplete."
-  task: bb33c52d3fc3bc63ef0f1e02161e45095e74456c68aa4e7631b3d4b34df45148
-T018:
-  task: e44506dd2ea61ee1a40b633c56088f8d7da22b4c8b84125f7b1e4f5094ad816d
+  task: 205cd1062727f0588631869cba94934a5ed45cdf15098c6cad90d14cd4cb5462

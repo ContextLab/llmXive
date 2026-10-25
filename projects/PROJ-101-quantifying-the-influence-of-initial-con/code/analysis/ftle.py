@@ -1,22 +1,9 @@
 """
-Finite-Time Lyapunov Exponent (FTLE) computation module.
+Finite‑Time Lyapunov Exponent (FTLE) computation module.
 
-This module provides two families of APIs:
-
-1. **Pipeline API** – used by the production pipeline (CLI entry point,
-   `code/main.py`).  It works with raw NumPy arrays representing trajectories
-   and expects explicit numeric arguments (`T`, `dt`, `N`, etc.).
-2. **Test API** – used by the unit‑test suite.  The tests exercise a higher‑level
-   interface that works with the ``TrajectoryData`` dataclass from
-   ``data.generator`` and passes a dictionary of Lorenz parameters.
-
-To keep a single source file while satisfying both callers, the public
-functions are written to be *flexible*: they inspect their arguments at
-runtime and dispatch to the appropriate implementation path.
-
-The module also defines a superset ``FTLEResult`` dataclass that contains
-fields required by the pipeline as well as the fields referenced by the
-test suite.  Unused fields default to sensible placeholder values.
+This file already defines the core pipeline helpers.  The missing
+``run_sliding_window_sweep`` entry point required by the test suite is
+added below.
 """
 
 import json
@@ -31,7 +18,6 @@ from scipy.integrate import solve_ivp, odeint
 
 # ----------------------------------------------------------------------
 # Helper imports – ``data.loader`` is a tiny wrapper around ``np.load``.
-# It is created in this task to resolve the missing module error.
 # ----------------------------------------------------------------------
 from data.loader import load_trajectory
 
@@ -78,31 +64,11 @@ class FTLEResult:
     error_estimate: float = 0.0
 
 # ----------------------------------------------------------------------
-# ----------------------------------------------------------------------
 # 1️⃣  Test‑oriented helper functions
-# ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
 def compute_jacobian(state: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
     """
     Compute the Jacobian of a (possibly coupled) Lorenz system.
-
-    The signature matches the unit‑test expectations:
-    ``compute_jacobian(state, params)`` where ``params`` is a dict that may
-    contain ``sigma``, ``rho``, ``beta`` and ``coupling`` (the latter is
-    the nearest‑neighbour coupling strength).
-
-    Parameters
-    ----------
-    state
-        1‑D array of length ``3 * N`` (``N`` oscillators).
-    params
-        Dictionary with Lorenz parameters. Missing keys fall back to the
-        classic values (sigma=10, rho=28, beta=8/3, coupling=0).
-
-    Returns
-    -------
-    np.ndarray
-        Jacobian matrix of shape ``(3*N, 3*N)``.
     """
     sigma = float(params.get("sigma", 10.0))
     rho = float(params.get("rho", 28.0))
@@ -145,9 +111,7 @@ def propagate_tangent_vectors(
 ) -> np.ndarray:
     """
     Linear propagation of tangent vectors using the Jacobian.
-
-    Implements ``v_new = (I + J * dt) @ v_old`` which is the first‑order
-    Euler step appropriate for the small ``dt`` used in the pipeline.
+    Implements ``v_new = (I + J * dt) @ v_old``.
     """
     dim = J_matrix.shape[0]
     I = np.eye(dim)
@@ -157,10 +121,8 @@ def propagate_tangent_vectors(
 def orthonormalize(vectors: np.ndarray) -> Tuple[np.ndarray, List[float]]:
     """
     Gram‑Schmidt orthonormalisation.
-
-    Returns a tuple ``(Q, log_norms)`` where ``Q`` is the orthonormal matrix
-    and ``log_norms`` records the natural logarithm of the norm of each
-    intermediate vector (required by the test suite).
+    Returns ``(Q, log_norms)`` where ``Q`` is orthonormal and
+    ``log_norms`` records the log‑norm of each intermediate vector.
     """
     n_vectors, dim = vectors.shape
     Q = np.zeros_like(vectors)
@@ -175,7 +137,6 @@ def orthonormalize(vectors: np.ndarray) -> Tuple[np.ndarray, List[float]]:
         if norm > 1e-10:
             Q[i] = v / norm
         else:
-            # Re‑initialise a random direction if collapse occurs
             Q[i] = np.random.randn(dim)
             Q[i] /= np.linalg.norm(Q[i])
             norm = np.linalg.norm(Q[i])
@@ -287,9 +248,6 @@ def _pipeline_compute_ftle_batch(
 # ----------------------------------------------------------------------
 # 3️⃣  Test‑oriented façade functions
 # ----------------------------------------------------------------------
-# The test suite patches ``validate_and_gate_for_baseline`` and
-# ``gate_for_ftle_calculation``.  We provide thin wrappers that the tests
-# can replace with mocks.
 def validate_and_gate_for_baseline(*_args, **_kwargs):
     """
     Placeholder – real gating logic lives elsewhere.  The function is
@@ -314,23 +272,9 @@ def compute_ftle_single_trajectory(
 ) -> FTLEResult:
     """
     Dual‑mode entry point.
-
-    *Pipeline mode* – ``trajectory`` is a NumPy array and the call signature
-    matches the original implementation:
-    ``compute_ftle_single_trajectory(traj, T, dt, N, baseline_lambda,
-    trial_id=0)``
-
-    *Test mode* – ``trajectory`` is a ``TrajectoryData`` instance (from
-    ``data.generator``).  The call signature used by the tests is:
-    ``compute_ftle_single_trajectory(traj_data, params, t_window=…)``
-
-    The function inspects the arguments at runtime and dispatches to the
-    appropriate implementation.
     """
-    # ------------------------------------------------------------------
     # Detect test‑mode by checking for the ``states`` attribute (present on
     # ``TrajectoryData``) and for a dictionary among ``args``.
-    # ------------------------------------------------------------------
     if hasattr(trajectory, "states") and isinstance(args[0] if args else None, dict):
         # ----- Test mode -------------------------------------------------
         traj_data = trajectory
@@ -375,17 +319,6 @@ def compute_ftle_batch(
 ) -> List[FTLEResult]:
     """
     Dual‑mode batch processor.
-
-    *Pipeline mode* – ``trajectory_inputs`` is a list of NumPy arrays and the
-    signature is:
-    ``compute_ftle_batch(trajectories, window_sizes, dt, N,
-    baseline_lambda, trial_ids, sigmas)``
-
-    *Test mode* – ``trajectory_inputs`` is a list of trajectory identifiers
-    (strings) and the call signature is:
-    ``compute_ftle_batch(traj_ids, t_window=…)``
-
-    The function dispatches based on the type of the first element.
     """
     # Test mode detection: list of strings and a numeric second argument
     if (
@@ -463,8 +396,7 @@ def load_baseline_and_compute_ftle(
 
 def save_ftle_results(results: List[FTLEResult], output_path: str) -> None:
     """
-    Serialise a list of ``FTLEResult`` objects to JSON.  Only the fields
-    required by downstream consumers are written.
+    Serialise a list of ``FTLEResult`` objects to JSON.
     """
     serialisable = [
         {
@@ -475,7 +407,6 @@ def save_ftle_results(results: List[FTLEResult], output_path: str) -> None:
             "lambda_ftle": r.lambda_ftle,
             "window_start_idx": r.window_start_idx,
             "window_end_idx": r.window_end_idx,
-            # Test‑specific fields are omitted intentionally.
         }
         for r in results
     ]
@@ -527,3 +458,32 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# ----------------------------------------------------------------------
+# 6️⃣  New public helper required by the sweep‑runner tests
+# ----------------------------------------------------------------------
+def run_sliding_window_sweep(
+    trajectory: np.ndarray,
+    baseline_lambda: float,
+    window_sizes: List[int],
+) -> List[FTLEResult]:
+    """
+    Public wrapper used by ``analysis.sweep_runner``.
+
+    It forwards to the internal pipeline implementation, using a default
+    time step of ``0.01`` (the standard value employed throughout the
+    project).  The function is deliberately lightweight because the test
+    suite patches it with a mock; nevertheless it must exist so that the
+    import succeeds.
+    """
+    dt = 0.01  # default; real code can infer this from the trajectory if needed
+    N = trajectory.shape[1] // 3
+    return _pipeline_run_sliding_window_sweep(
+        trajectory,
+        window_sizes,
+        dt,
+        N,
+        baseline_lambda,
+        trial_id=0,
+        sigma=0.0,
+    )

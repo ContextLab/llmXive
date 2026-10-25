@@ -1,12 +1,16 @@
 status: none
-intent: coupled lorenz oscillator trajectories synthetic python package dataset
+intent: Lorenz attractor synthetic time series python package dataset
 required_fields:
 - time
-- oscillator_id
+- oscillator_index
 - x
 - y
 - z
 - noise_std
-cache_key: 7d5e05030d859b6c503efea433c1815d0fe5866264e4e6bd22e80b9955d7e483
-searched_at: '2026-10-25T23:09:30.112187+00:00'
+- sigma
+- rho
+- beta
+- coupling_strength
+cache_key: bf3a0e42f4235616bfa735076d146ecd2aa09ec8fb4dd1ed302aeee645de3c9e
+searched_at: '2026-10-25T23:39:56.396757+00:00'
 retry_count: 1

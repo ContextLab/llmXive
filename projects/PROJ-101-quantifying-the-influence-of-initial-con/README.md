@@ -1,190 +1,158 @@
 # Quantifying the Influence of Initial Conditions on Chaotic Systems
 
-This project numerically quantifies how Finite-Time Lyapunov Exponents (FTLEs)
-deviate from asymptotic predictions in high-dimensional chaotic systems
-(coupled Lorenz oscillators) subject to observational noise, and derives the
-scaling laws relating the FTLE bias to noise amplitude, system dimension, and
-observation window length.
+This repository provides a reproducible pipeline for generating synthetic chaotic trajectories, computing finite‑time Lyapunov exponents (FTLE), establishing clean‑system baselines, performing statistical analysis, and producing the final figures and report.
 
-## Overview
+## Table of Contents
 
-The pipeline:
-
-1. Generates synthetic trajectories of coupled Lorenz oscillators with
- injected additive Gaussian noise (`scipy.integrate.solve_ivp`, method
- `DOP853`, `rtol=1e-9`, `atol=1e-12`).
-2. Computes a clean-system asymptotic Lyapunov baseline (Rosenstein-style)
- and gates the pipeline on convergence and chaoticity.
-3. Sweeps FTLE over sliding windows `T ∈ {500, 1000, 5000}` with QR /
- Gram-Schmidt re-orthonormalisation of tangent vectors.
-4. Fits a mixed-effects regression of the deviation
- `Δλ = λ_FTLE − λ_baseline` on `σ_noise`, `N`, their interaction and
- `1/T`, with Benjamini-Hochberg FDR correction, Durbin-Watson
- autocorrelation tests, Newey-West HAC standard errors, and an
- always-fit Tobit censored regression.
-5. Produces convergence, bias-scaling, and dimension-scaling figures and a
- final scientific report.
+1. [Environment Setup](#environment-setup)
+2. [Step 1 – Generate trajectories](#step-1--generate-trajectories)
+3. [Step 2 – Compute baseline](#step-2--compute-baseline)
+4. [Step 3 – FTLE sweep](#step-3--ftle-sweep)
+5. [Step 4 – Statistical analysis](#step-4--statistical-analysis)
+6. [Step 5 – Figures](#step-5--figures)
+7. [Full pipeline command](#full-pipeline-command)
+8. [Validation](#validation)
 
 ## Environment Setup
 
-Requirements: Python 3.11+, `git`, `pip`.
-
 ```bash
+# Clone the repository
 git clone <REPO_URL>
 cd projects/PROJ-101-quantifying-the-influence-of-initial-con
+
+# Create a virtual environment
 python -m venv.venv
 source.venv/bin/activate # Windows:.venv\Scripts\activate
+
+# Install pinned dependencies
 pip install -r requirements.txt
 ```
 
-Verify the installation by running the test suite:
+The project relies only on the standard scientific Python stack (`numpy`, `scipy`, `pandas`, `matplotlib`, `statsmodels`, `seaborn`, `pytest`, `PyYAML`, `jsonschema`). No external data files are required – all trajectories are generated synthetically.
+
+## Step 1 – Generate trajectories
+
+The trajectory generator integrates a coupled Lorenz system using `scipy.integrate.solve_ivp` with the **DOP853** method (`rtol=1e-9`, `atol=1e-12`). Additive Gaussian noise of standard deviation `σ_noise` is injected at each time step.
 
 ```bash
-pytest -q
-```
-
-## Step 1 – Generate trajectories
-
-Generate raw trajectories for a set of system dimensions and noise levels.
-Each `(N, σ_noise, trial)` combination is integrated with `DOP853`
-(`rtol=1e-9`, `atol=1e-12`) and saved as an immutable `.npz` file under
-`data/raw/trajectory_N{N}_sigma{sigma}_trial{t}.npz`. Noise levels are
-capped at the specification maximum `σ ≤ 1.0`, and the trial count is
-`k = 50` for `σ_noise < 0.01` and `k = 30` otherwise (unless overridden
-with `--trials`).
-
-```bash
-python code/main.py --mode generate \
- --N-values 3,5 \
+python -m code.main --mode generate \
+ --N-values 3,5,7 \
  --noise-levels 0.0001,0.001,0.01,0.05,0.1,0.2,0.5,0.8,1.0 \
+ --trials 30 \
  --seed 42
 ```
 
-Trajectories whose state norm exceeds 20.0 are flagged as unphysical
-(`UnphysicalTrajectoryError`) and excluded; noise levels above 0.1 emit a
-`HighNoiseWarning`.
+This command writes immutable `.npz` files to `data/raw/` with the naming pattern:
 
-## Step 2 – Compute baseline
+```
+data/raw/trajectory_N{N}_sigma{σ}_trial{t}.npz
+```
 
-Compute the asymptotic Lyapunov exponent for the clean (noise-free)
-coupled system using a Rosenstein-style algorithm on a long trajectory
-(≥ 50,000 steps). Convergence is declared when the relative change between
-successive estimates at `T = 5000` is below 5 %. The result is written to
-`data/processed/baseline_{N}.json` (schema `baseline.schema.yaml`).
+*High‑noise warnings* are emitted for `σ_noise > 0.1`; trajectories where any state norm exceeds `20.0` raise `UnphysicalTrajectoryError` and are skipped.
+
+## Step 2 – Compute baseline
+
+For each system dimension `N`, the pipeline generates ≥ 5 noise‑free trajectories of length ≥ 50 000 steps and computes the asymptotic Lyapunov exponent using Rosenstein’s method. The baseline is considered **valid** only when:
+
+- Relative error between the estimates at `T=5000` and `T=20 000` ≤ 1 %
+- 95 % confidence‑interval width ≤ 0.01
+
+The results are written to:
+
+- `data/processed/baseline_{N}.json` (single asymptotic exponent, `status: "valid"`)
+- `data/processed/baseline_per_window_{N}.json` (array of per‑window statistics)
 
 ```bash
-python code/main.py --mode analyze
+python -m code.main --mode analyze --step baseline --N-values 3,5,7
 ```
 
-The pipeline gates on this step: if the baseline JSON does not have
-`status == "valid"` or if `lambda_max ≤ 0` (non-chaotic regime, e.g.
-`ρ = 20`), the run aborts with a clear error message and exit code 1
-before any noisy FTLE computation is launched.
+## Step 3 – FTLE sweep
 
-## Step 3 – FTLE sweep
+Using the clean baseline, the FTLE module propagates the tangent linear system alongside each trajectory, performs QR re‑orthonormalisation at every integration step, and evaluates FTLE over sliding windows `T ∈ {500, 1000, 5000}` (ensuring `T < total_length – 10`). Results are aggregated into:
 
-For every raw trajectory, the FTLE module propagates the tangent linear
-model with QR / Gram-Schmidt re-orthonormalisation and evaluates the FTLE
-over sliding windows `T ∈ {500, 1000, 5000}`, enforcing the strict
-constraint `T < total_length − 10`. Each result records `window_size`,
-`lambda_max`, and a `status` flag (`valid`, `unphysical`, `non-chaotic`).
-Aggregated results are written to `data/processed/ftle_results.json`
-(schema `ftle_results.schema.yaml`).
+- `data/processed/ftle_results.json` (conforms to `contracts/ftle_results.schema.yaml`)
 
 ```bash
-python code/analysis/ftle.py \
- --trajectory data/raw/trajectory_N3_sigma0.01_trial0.npz \
- --baseline data/processed/baseline_3.json \
- --output data/processed/ftle_results.json
+python -m code.main --mode analyze --step ftle --window-sizes 500,1000,5000
 ```
 
-## Step 4 – Regression analysis
+## Step 4 – Statistical analysis
 
-The regression module merges `ftle_results.json` with the per-window
-clean baseline, computes the deviation `Δλ = λ_FTLE − λ_baseline` for
-every bounded trial, and fits the mixed-effects model
+The regression module merges FTLE results with the per‑window baseline, computes the deviation Δλ, and fits:
 
-```
-Δλ ~ σ_noise + N + σ_noise·N + 1/T + (1|trial_id)
-```
+1. **Primary** Tobit censored regression on the full dataset (including unphysical trials)
+2. **Secondary** mixed‑effects linear model on the bounded‑only subset
 
-using `statsmodels`, with:
+The analysis also:
 
-- Benjamini-Hochberg FDR correction (`q ≤ 0.05`) on all coefficients,
-- Durbin-Watson tests on the FTLE time-series and Newey-West HAC
- standard errors when autocorrelation is detected (`p < 0.05`),
-- an always-fit Tobit censored regression on the full dataset
- (including unphysical points) to estimate the latent bias,
-- the escape probability (fraction of trials with `‖x‖ > 20.0`) as a
- function of `σ_noise`.
+- Computes Pearson correlation between `|Δλ|` and `σ_noise` (asserting `r ≥ 0.8, p < 0.05`)
+- Applies Benjamini‑Hochberg FDR correction (`q ≤ 0.05`) to fixed‑effect p‑values
+- Performs Durbin‑Watson tests and, when autocorrelation is detected, recomputes standard errors with Newey‑West HAC
+- Uses baseline variance as observation‑level weights
+- Records escape probability per noise level
 
-Outputs: `data/processed/regression_results.json` and the consolidated
-bundle `data/processed/results.json`.
+Outputs:
+
+- `data/processed/regression_results.json`
+- `data/processed/regression_stats.json`
+- Updated `data/processed/results.json` (bundles all artifacts)
 
 ```bash
-python code/analysis/regression.py
+python -m code.main --mode analyze --step regression
 ```
 
-## Step 5 – Visualisation
+## Step 5 – Figures
 
-Generate the three publication figures:
+The plotting module creates three PNG figures under `data/processed/plots/`:
 
-1. **Convergence plot** — FTLE λ vs. window size T for σ = 0, 0.01, 0.1
- (`data/processed/plots/convergence.png`).
-2. **Bias-scaling plot** — Δλ vs. σ_noise with SEM error bars
- (`data/processed/plots/bias_scaling.png`).
-3. **Dimension-scaling plot** — Δλ vs. N, annotated with the fitted
- scaling exponent (`data/processed/plots/dimension_scaling.png`).
+1. **Convergence plot** – λ vs. window size `T` for σ = 0, 0.01, 0.1
+2. **Bias‑scaling plot** – Δλ vs. σ_noise with SEM error bars
+3. **Dimension‑scaling plot** – Δλ vs. system dimension `N` (log‑log) with fitted power‑law exponent
 
 ```bash
-python code/analysis/plotting.py
+python -m code.main --mode analyze --step plotting
 ```
 
-## Step 6 – Final report
+The figures are:
 
-The final scientific report `data/processed/final_report.md` summarises:
+- `data/processed/plots/convergence.png`
+- `data/processed/plots/bias_scaling.png`
+- `data/processed/plots/dimension_scaling.png`
 
-1. **Convergence validation (SC-001)** — baseline convergence statistics.
-2. **Bias-scaling relationship (SC-002)** — regression coefficients,
- scaling law, and plots.
-3. **Statistical significance (SC-003)** — p-values, effect sizes, and
- FDR-adjusted q-values.
-4. **Dimension scaling** — the exponent linking system dimension to bias
- magnitude.
+## Full pipeline command
 
-## Full pipeline (one command)
+The following single command runs **all** steps in the correct order, respecting gating logic and parallelisation:
 
 ```bash
-python code/main.py --mode full \
- --N-values 3,5 \
- --noise-levels 0.0001,0.001,0.01,0.1 \
+python -m code.main run-all \
+ --N-values 3,5,7 \
+ --noise-levels 0.0001,0.001,0.01,0.05,0.1,0.2,0.5,0.8,1.0 \
  --trials 30 \
  --window-sizes 500,1000,5000 \
  --seed 42
 ```
 
-See `quickstart.md` for the complete run-book, CLI reference, and
-alternative modes (generate-only, analyze-only, benchmark, tobit-only).
+This will:
 
-## Output artifacts
+1. Generate trajectories (`data/raw/…`)
+2. Compute clean baselines (`data/processed/baseline_*.json`)
+3. Perform FTLE sweeps (`ftle_results.json`)
+4. Run regression and statistical checks (`regression_results.json`, `regression_stats.json`)
+5. Produce the three summary figures (`plots/…`)
+6. Assemble `data/processed/results.json` bundling all artifacts
 
-| Path | Description |
-|------|-------------|
-| `data/raw/` | Immutable `.npz` trajectories |
-| `data/processed/baseline_{N}.json` | Clean asymptotic baselines |
-| `data/processed/baseline_per_window_{N}.json` | Per-window clean baselines |
-| `data/processed/ftle_results.json` | Aggregated FTLE estimates with status flags |
-| `data/processed/regression_results.json` | Regression coefficients, p-values, q-values |
-| `data/processed/results.json` | Consolidated results bundle (incl. escape probabilities) |
-| `data/processed/plots/` | Convergence, bias-scaling, dimension-scaling PNGs |
-| `data/processed/final_report.md` | Final scientific report |
+## Validation
 
-## Reproducibility
+After a successful run, verify everything with the built‑in validator:
 
-All random seeds are pinned (default seed 42, derived deterministically per
-`(N, σ, trial)`); every result file can be regenerated by re-running the
-commands above in order. Success criteria: clean FTLE converges to the
-baseline within 5 % at `T = 5000` (SC-001); monotonic bias scaling with
-noise for bounded trajectories (SC-002); significant σ_noise coefficient
-after FDR correction (SC-003); full pipeline completes within 45 minutes
-(SC-004).
+```bash
+python -m code.utils.validate --check-all
+```
+
+The validator checks:
+
+- SHA‑256 checksums (`state/artifacts/manifest.yaml`)
+- Baseline convergence criteria
+- JSON schema compliance for `ftle_results.json`, `regression_results.json`, and `results.json`
+
+Any failure aborts with a non‑zero exit status, causing CI to fail.

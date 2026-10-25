@@ -1,26 +1,9 @@
-./
-├── .pytest_cache/
-│   └── v/
-├── .runtime-home/
-├── .specify/
-│   └── memory/
-│   └── scripts/
-│   └── templates/
-├── code/
-│   └── .tasks/
-│   └── __pycache__/
-│   └── analysis/
-│   └── data/
-│   └── simulation/
-│   └── utils/
-├── data/
-│   └── __pycache__/
-│   └── processed/
-│   └── raw/
-├── idea/
-├── specs/
-│   └── 001-quantifying-the-influence-of-initial-con/
-├── tests/
-│   └── __pycache__/
-│   └── integration/
-│   └── unit/
+code
+code/simulation
+code/analysis
+code/utils
+tests/unit
+tests/integration
+data/raw
+data/processed
+data/processed/plots

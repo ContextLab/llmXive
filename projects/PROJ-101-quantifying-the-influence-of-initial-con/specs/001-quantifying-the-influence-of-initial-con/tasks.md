@@ -19,11 +19,11 @@ All tasks are written as checklist items; unchecked items indicate work that sti
   - **File**: `tests/conftest.py` containing a `seed` fixture (value 42) and using the built‑in `tmp_path` fixture.  
   - **Verification**: `pytest -q` passes a dummy test that asserts reproducibility of `np.random.RandomState(42).rand()`.
 
-- [ ] T004 [P] Write `quickstart.md` that documents the CLI entry point, the `--noise-levels` and `--N-values` arguments, and a minimal “run‑the‑pipeline” example.  
+- [X] T004 [P] Write `quickstart.md` that documents the CLI entry point, the `--noise-levels` and `--N-values` arguments, and a minimal “run‑the‑pipeline” example.  
   - **Path**: `quickstart.md`  
   - **Verification**: CI renders the markdown and checks that the two argument names appear in the file.
 
-- [ ] T005 [P] Update `README.md` with full pipeline instructions (environment setup, data generation, baseline computation, FTLE sweep, regression, visualisation, and final report).  
+- [X] T005 [P] Update `README.md` with full pipeline instructions (environment setup, data generation, baseline computation, FTLE sweep, regression, visualisation, and final report).  
   - **Path**: `README.md`  
   - **Verification**: CI runs a documentation lint step that confirms the presence of the section headings “Step 1 – Generate trajectories”, “Step 2 – Compute baseline”, “Step 3 – FTLE sweep”, “Step 4 – Statistical analysis”, and “Step 5 – Figures”.
 
