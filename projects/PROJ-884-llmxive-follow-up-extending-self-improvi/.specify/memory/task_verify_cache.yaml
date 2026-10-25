@@ -18,34 +18,35 @@ T002:
   sig: 8acd209af55633777a99a37ff0b6271f9076249ea75b8871f15ff1753753be33
 T012:
   c: true
-  h: 4f2027dbe539ff49bc623239ff33a66d26e9b9a198541a0b067d805789a66218
-  r: "Checked `specs/001-symbolic-bes/design_dataset.md` (8712\u202Fbytes) which contains\
-    \ the required Markdown sections \u201CPuzzle Types\u201D, \u201CScaling Plan\u201D\
-    , and \u201CSeed Management\u201D, and is syntactically valid. The file exists\
-    \ and is non\u2011empty."
-  sig: bc0f1b75730d6cd0934c4f9e00a9022e469930ab17d1d2e6a6b63de9452794a3
+  h: 40e699bc015e3ea88e8de71dc951a24de98685824b25c4d8b29d5d696d6f46c0
+  r: "Checked `specs/001-symbolic-bes/design_dataset.md` (8712\u202Fbytes) \u2013\
+    \ it exists, is valid Markdown, and contains the required sections \u201CPuzzle\
+    \ Types\u201D, \u201CScaling Plan\u201D, and \u201CSeed Management\u201D."
+  sig: 8714e83da21c72e6e6042677ac8c9f0a283919343a22f01928401fde3606ccc7
 T013:
   c: true
-  h: 2bdde9bbceef4f6c967dd42f7d941aff482bcd7c1cc9781db0363d73df619399
-  r: "Checked `specs/001-symbolic-bes/stat_analysis_plan.md` (resolved path shown)\
-    \ \u2013 it contains \u0394\u202F=\u202F0.05, \u03B1\u202F=\u202F0.0497, power\u202F\
-    =\u202F0.80, and a required sample size of 393 per group, satisfying the task\u2019\
-    s specifications."
-  sig: 77fd68900f43033c5f404a1cc80bd37d3e3f5c81d0d696b9e028d26131618909
+  h: c31a26ee4bf5728e676a0328f4209e0a962f6a03d2adf19c353d577a30a3ac17
+  r: "The `specs/001-symbolic-bes/stat_analysis_plan.md` file is present (7\u202F\
+    KB) and contains the required numeric specifications: \u0394\u202F=\u202F0.05,\
+    \ \u03B1\u202F=\u202F0.0497, power\u202F=\u202F0.80, and a required sample size\
+    \ of 393 per group (with total N\u202F=\u202F500). It also lists the effect\u2011\
+    size targets (Cohen\u2019s\u202Fh\u202F=\u202F0.20 and a \u226520\u202F% cost\
+    \ reduction)."
+  sig: b948623cd660b2ae4e5767ad61e96bb6aae5871c1755314ba5dabb1b79edab50
 T014:
   c: true
-  h: 26fcf994be9dc14b1191cf3191da53c1825c5d8378fb8cecc2085c9e3d1b03bb
-  r: "Checked `specs/001-symbolic-bes/baseline_architecture.md` (resolved to `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`).\
-    \ It lists the model identifier `distilbert-base-uncased`, the exact HuggingFace\
-    \ commit hash `12040accade4e8a0f71eabdb258fecc2e7e948be`, and explicitly sets\
-    \ `device = torch.device(\"cpu\")`. All required details are present and non\u2011\
-    placeholder."
-  sig: 57ed0b19b0a01fd5e852344c66ca7ad18a6954fb703822cddeed14bd7bfa589b
+  h: 3f0853204e9f70ecc862eb1f66a4d45f692267210ef208308308d951581bf8ed
+  r: "Checked `specs/001-symbolic-bes/baseline_architecture.md` (resolved path shown)\
+    \ \u2013 it contains the required model identifier, exact HuggingFace commit hash,\
+    \ and explicit `device='cpu'` configuration."
+  sig: 90039349151e6087bf33e11da809ac0951212b3a248f6561f1c5eb358ae3c382
 T015:
-  c: true
-  h: 712c97e19a1e73691ce005b088dd7db8e538f2cc9bd970133d5bd000658a6def
-  r: "Checked the presence and non\u2011empty content of `contracts/dataset.schema.yaml`\
-    \ and `contracts/output.schema.yaml`, and confirmed via the `code/validate_contracts.py`\
-    \ log and passing unit test that loading them with `yaml.safe_load` exits without\
-    \ exception."
-  sig: a5faea3ab9f6c2a070820eea0432b90bae00b51660d13f5329d2e7416adfa2b4
+  c: false
+  h: a3559ccf7416c2a7d85ef4e9a98207e99c81fdd72b03823685f361eb2f9a9e67
+  r: The `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` files
+    exist and appear to be valid YAML, but there is no evidence (e.g., command output,
+    log, or test script) showing that `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"`
+    (and the analogous command for `output.schema.yaml`) was actually executed and
+    exited without exception. Provide execution logs or a test confirming the load
+    succeeds.
+  sig: 49d49359e494859f12ab74d6b9de6fa49a03416f4c57c48434dacb11fed7f7a1

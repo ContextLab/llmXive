@@ -35,25 +35,20 @@ ERROR tests/unit/test_population.py
 ERROR tests/unit/test_result_aggregator.py
 ERROR tests/unit/test_symbolic_parser.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 0.31s ===============================
+============================== 7 errors in 0.64s ===============================
 
 
 - python -m code.main --pilot --seed 42 -> rc=1
-
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/main.py", line 77, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/main.py", line 70, in main
-    return _run_pilot(args)
-           ^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/main.py", line 20, in _run_pilot
-    from code.bes.main import run_pilot
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/__init__.py", line 9, in <module>
-    from .config import BESConfig, get_default_config
-ImportError: cannot import name 'get_default_config' from 'code.bes.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/config.py)
+ion import Population, Individual, SelectionMethod
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/population.py", line 24, in <module>
+    from code.bes.crossover_operator import CrossoverOperator
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/crossover_operator.py", line 14, in <module>
+    from bes.forward_step import ForwardStep, ForwardStepResult, ForwardStepError
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/__init__.py", line 10, in <module>
+    from .population import Population, Individual, SelectionMethod
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/population.py", line 24, in <module>
+    from code.bes.crossover_operator import CrossoverOperator
+ImportError: cannot import name 'CrossoverOperator' from partially initialized module 'code.bes.crossover_operator' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/crossover_operator.py)
 
 
 ## Declared deliverables still missing

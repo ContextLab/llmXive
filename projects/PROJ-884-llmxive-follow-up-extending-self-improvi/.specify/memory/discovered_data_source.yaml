@@ -1,15 +1,17 @@
 status: none
-intent: download logic puzzle dataset with verification scripts Python package dataset
+intent: CSPLib Sudoku puzzle dataset Kaggle Sudoku dataset logic puzzle dataset verification
+  scripts python package dataset
 required_fields:
 - puzzle_id
 - puzzle_type
-- puzzle_description
-- puzzle_constraints
-- solution_path
-- correct_answer
-- verifier_script
-- metadata
+- puzzle_representation
+- constraints_formal_language
+- solution_example
+- verification_python_script
 - error_codes
-cache_key: 92a53433ea0537ed5cc9486736ff17050578854f4d4a78e4ac002d58bbf54369
-searched_at: '2026-10-25T03:43:37.919695+00:00'
+- difficulty_level
+- source_dataset_name
+- source_url
+cache_key: 9be4cd0a0634248c4bbae496aa54f7a7df28710a269ceec44294672db47a8b07
+searched_at: '2026-10-25T05:09:34.780843+00:00'
 retry_count: 1
