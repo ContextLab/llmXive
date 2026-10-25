@@ -30,9 +30,9 @@ pytest -q
 ## Running the Full Analysis (Recommended)
 
 ```bash
-# Example grid: N = 3 and 5, 6 noise levels, 30 trials each, 3 window sizes
+# Example grid: N = 3, 5, 7 and 6 noise levels, 30 trials each, 3 window sizes
 python -m code.main \
-    --N-values 3,5 \
+    --N-values 3,5,7 \
     --noise-levels 0.0001,0.001,0.01,0.1,0.5,1.0 \
     --trials 30 \
     --window-sizes 500,1000,5000 \
@@ -43,7 +43,7 @@ The command performs, in order:
 1. **Trajectory generation** (raw files under `data/raw/`).  
 2. **Baseline validation** (creates `baseline_{N}.json` and `baseline_per_window_{N}.json`).  
 3. **FTLE calculation** for each window size.  
-4. **Statistical analysis** (mixed‑effects regression, Durbin‑Watson, Newey‑West, BH‑FDR, Tobit).  
+4. **Statistical analysis** (primary Tobit censored regression, secondary mixed‑effects on bounded data, Durbin‑Watson, Newey‑West, BH‑FDR, escape probability).  
 5. **Visualization** (plots saved under `data/processed/plots/`).  
 6. **Artifact packaging** (`ftle_results.json`, `regression_results.json`, `results.json`) with schema validation.
 
@@ -62,20 +62,20 @@ Key parameters can be edited in `code/config.py` or overridden via CLI:
 
 | CLI flag | Meaning |
 |----------|---------|
-| `--N-values` | Comma‑separated list of oscillator counts (e.g., `3,5`). |
+| `--N-values` | Comma‑separated list of oscillator counts (e.g., `3,5,7`). |
 | `--noise-levels` | Comma‑separated list of σ_noise values (e.g., `0.0001,0.001,0.01`). |
 | `--trials` | Number of independent runs per configuration (default = 30). |
-| `--window-sizes` | Sliding‑window lengths for FTLE (default = `[500,1000,5000]`). |
+| `--window-sizes` | Sliding‑window lengths for FTLE (default = `[[deferred][deferred]0]`). |
 | `--seed` | Global seed for reproducibility (default = 42). |
 | `--fit-tobit` | Flag to run Tobit regression (enabled by default). |
 
 ## Output Overview
 
 - `data/raw/` – Immutable `.npz` trajectories.  
-- `data/processed/baseline_{N}.json` – Clean asymptotic exponents (includes variance).  
+- `data/processed/baseline_{N}.json` – Clean asymptotic exponent (includes variance).  
 - `data/processed/baseline_per_window_{N}.json` – Per‑window baseline estimates (mean, std, convergence error).  
 - `data/processed/ftle_results.json` – Aggregated FTLE estimates and status flags.  
-- `data/processed/regression_results.json` – Mixed‑effects coefficients, p‑values, FDR q‑values, Newey‑West flag, escape probabilities, **baseline_variance_used** flag.  
+- `data/processed/regression_results.json` – Mixed‑effects coefficients, Tobit summary, escape probabilities, **baseline_variance_used** flag.  
 - `data/processed/results.json` – Bundle containing all above plus metadata.  
 - `data/processed/plots/` – PNG figures for convergence, bias scaling, and dimension scaling.  
 
@@ -97,3 +97,4 @@ The validator:
 Any failure aborts with a non‑zero exit status, causing CI to fail.
 
 ---
+

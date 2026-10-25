@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Baseline Schema"
-description: "Schema for the asymptotic Lyapunov baseline of a clean system."
+description: "Schema for the asymptotic Lyapunal exponent baseline of a clean system."
 type: object
 required:
   - system_dimension

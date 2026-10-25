@@ -11,22 +11,24 @@ required:
 properties:
   baseline:
     type: object
-    description: "Mapping from system dimension N to baseline object."
+    description: "Mapping from system dimension N to baseline object."
+    additionalKeys:
+      $ref: "./baseline.schema.yaml"
     additionalProperties:
       $ref: "./baseline.schema.yaml"
   ftle_results:
     $ref: "./ftle_results.schema.yaml"
-    description: "Aggregated FTLE results."
+    description: "Aggregated FTLE results ."
   regression:
     $ref: "./regression_results.schema.yaml"
-    description: "Mixed‑effects regression and Tobit summary."
+    description: "Regression analysis output."
   escape_probabilities:
     type: object
-    description: "Mapping from σ_noise to escape probability."
+    description: "Mapping σ_noise → escape probability."
     additionalProperties:
       type: number
   generated_at:
     type: string
     format: date-time
-    description: "ISO‑8601 timestamp of the artefactual creation."
+    description: "Timestamp of result bundle creation."
 additionalProperties: false

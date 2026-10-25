@@ -33,5 +33,5 @@ properties:
     description: "Confidence level used for interval estimation."
   n_trials:
     type: string
-    description: "Total number of trials (string to allow large formatted values)."
+    description: "Total number of trials (string to allow large formatted values)."
 additionalProperties: false

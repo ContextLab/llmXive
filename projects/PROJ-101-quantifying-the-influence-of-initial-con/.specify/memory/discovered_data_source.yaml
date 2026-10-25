@@ -1,19 +1,12 @@
 status: none
-intent: scikit-dynamics Lorenz96 synthetic trajectories coupled oscillators noise
-  python package dataset
+intent: coupled lorenz oscillator trajectories synthetic python package dataset
 required_fields:
 - time
-- state_vector
-- x1
-- y1
-- z1
-- x2
-- y2
-- z2
-- '...'
-- xN
-- yN
-- zN
-cache_key: ad8a4244e662ef223fa30ef67b160c8380fc6f8aea201757286ca119bf5c1d44
-searched_at: '2026-10-22T11:40:04.820800+00:00'
+- oscillator_id
+- x
+- y
+- z
+- noise_std
+cache_key: 7d5e05030d859b6c503efea433c1815d0fe5866264e4e6bd22e80b9955d7e483
+searched_at: '2026-10-25T23:09:30.112187+00:00'
 retry_count: 1
