@@ -24,7 +24,7 @@ As a researcher, I want to download the **Battery Archive** dataset (DOI), parse
 
 ### User Story 2 - CPU‑Tractable Bi‑LSTM Model Training (Priority: P2) (See US-2)
 
-As a researcher, I want to train a Bi‑LSTM model (multiple layers, 64 units) on the pre‑processed sequences using Adam optimizer with early stopping, such that the model fits within the free‑tier CPU time limit of GitHub Actions and **must** achieve an R² ≥ 0.80 on a held‑out test set.
+As a researcher, I want to train a Bi‑LSTM model (multiple layers, a suitable number of units) on the pre‑processed sequences using Adam optimizer with early stopping, such that the model fits within the free‑tier CPU time limit of GitHub Actions and **must** achieve an R² ≥ 0.80 on a held‑out test set.
 
 **Why this priority**: This is the core research engine. It must be computationally feasible on free‑tier infrastructure (no GPU) to ensure the project can reach completion without external hardware dependencies.
 
@@ -67,8 +67,8 @@ As a researcher, I want to apply permutation importance, SHAP analysis, and atte
   3. **University of Wisconsin Battery Repository** – https://data.wisc.edu/... (public CSV bundle)  
   The chosen dataset must provide voltage, current, temperature time‑series and capacity measurements for cells cycled under multiple protocols, and the system must filter for cells with complete cycling histories and known end‑of‑life capacity.
 - **FR-002**: System MUST resample time‑series data to a uniform **100 time‑steps per cycle**, normalize features per cell **using statistics computed only from the first 50 cycles**, and construct input sequences using the first 50 cycles as predictors and final capacity fade as the target (See US-1, FR‑010 removed). The Battery Archive dataset supplies the required three channels.
-- **FR-003**: System MUST implement a Bi‑LSTM model with multiple hidden layers (64 units) in PyTorch, configured to run exclusively on CPU without GPU acceleration (See US-2).
-- **FR-004**: System MUST train the model using the Adam optimizer with early stopping on a validation set, and perform a lightweight hyperparameter sweep (learning rate, hidden size) constrained to a 30‑minute execution window (See US-2).
+- **FR-003**: System MUST implement a Bi‑LSTM model with multiple hidden layers, **default 64 units per layer** (allowed hidden‑size range 32‑128) (See US-2). The model runs exclusively on CPU without GPU acceleration.
+- **FR-004**: System MUST train the model using the Adam optimizer with early stopping on a validation set, and perform a lightweight hyperparameter sweep (learning rate, hidden size) constrained to a 30‑minute execution window, with hidden size swept within **[32, 128]** units (See US-2).
 - **FR-005**: System MUST apply permutation importance, SHAP analysis, **and** attention‑based attribution to the trained model to quantify the contribution of specific time‑steps and channels (voltage, current, temperature) to the prediction (See US-3).
 - **FR-006**: System MUST evaluate the model on a held‑out test set of cells with unseen cycling protocols and report R² and RMSE metrics (See US-2).
 - **FR-007**: System MUST compute prediction intervals for each model prediction (e.g., via Monte Carlo dropout) and output coverage statistics (See US-2).
@@ -76,6 +76,9 @@ As a researcher, I want to apply permutation importance, SHAP analysis, and atte
 - **FR-011**: System MUST verify that the selected dataset contains **at least 30 cells spanning a minimum of two distinct cycling protocols**, guaranteeing that a held‑out subset of **≥ 10 cells** with an unseen protocol can be constructed (See US-2).
 - **FR-012**: System MUST NOT use synthetic, placeholder, or randomly generated data anywhere in the pipeline. All inputs, targets, and reported metrics MUST be computed from real Battery Archive measurements (See US-1, US-2, SC‑001).
 - **FR-015**: System MUST perform feature‑selection (permutation importance / SHAP) **only on the training subset** and MUST evaluate the downstream linear‑regression analysis on a **distinct held‑out validation subset** containing at least 5 cells, thereby avoiding circular validation.
+- **FR-016**: System MUST compute a hand‑crafted feature baseline (e.g., linear regression on early‑cycle summary statistics such as average voltage, capacity‑fade slope) and report its R² on the same held‑out test set; the Bi‑LSTM model’s R² must be **≥ 5 % absolute improvement** over this baseline (See US-3). *(See US-3)*
+- **FR-017**: System MUST analyse the identified top‑5 early‑cycle signatures separately for each distinct cycling protocol and report protocol‑specific importance rankings, enabling assessment of how signatures vary across protocols (See US-3). *(See US-3)*
+- **FR-018**: System MUST conduct a causal‑inference analysis using propensity‑score matching across protocols to estimate the causal effect of each of the top‑5 early‑cycle features on final capacity fade, reporting average treatment effects with 95 % confidence intervals (See US-3). *(See US-3)*
 
 ### Key Entities
 
@@ -97,7 +100,10 @@ As a researcher, I want to apply permutation importance, SHAP analysis, and atte
 - **SC-005**: Data completeness is measured by the percentage of cells successfully processed from the original download set after filtering for incomplete histories (processed / downloaded) (See US-1, FR‑001).
 - **SC-006**: Uncertainty coverage: **at least 90 %** of true final capacity fade values must fall within the predicted **[deferred]** prediction intervals (See FR‑007).
 - **SC-009**: Linear regression on the top‑5 identified features must achieve **R² ≥ 0.30** and each feature must have a **p‑value < 0.05** (statistical significance). Feature selection must be performed on the training split only, and the regression must be evaluated on a separate held‑out validation split (See FR‑015).
-- **SC-010**: Independent validation of feature rankings: **at least 3 of the top‑5** ranked features must correspond to early‑cycle degradation signatures documented in the battery‑ML literature (e.g., variance of the ΔQ(V) curve, early‑cycle capacity‑fade slope, incremental‑capacity peak shifts; see Severson et al. 2019, *Nature Energy*), assessed against a documented literature list (See US-3, FR‑005).
+- **SC-010**: Independent validation of feature rankings: **at least 3 of the top‑5** ranked features must correspond to early‑cycle degradation signatures documented in the battery‑ML literature (e.g., variance of the ΔQ(V) curve, early‑cycle capacity‑fade slope, incremental‑capacity peak shifts; see Severson et al. 2019, *Nature Energy*), assessed against a documented literature list (See US-3, FR‑005). This criterion now reflects associative correspondence rather than causation.
+- **SC-011**: Baseline comparison: The hand‑crafted feature baseline (FR‑016) must achieve an R² that is **≥ 5 % lower** than the Bi‑LSTM model’s R² on the same held‑out test set (See FR‑016). The numeric improvement is reported.
+- **SC-012**: Protocol‑specific signature analysis: For each distinct cycling protocol, the top‑5 early‑cycle feature rankings (from FR‑017) must be reported, and the inter‑protocol variance in ranking positions must be quantified (e.g., Kendall‑τ distance ≥ 0.3 indicates meaningful variation). Results are included in the final report (See FR‑017).
+- **SC-013**: Causal‑effect reporting: The causal‑inference analysis (FR‑018) must produce average treatment effect estimates for each of the top‑5 features with 95 % confidence intervals; at least one feature must show a statistically significant positive causal effect (p < 0.05) to substantiate the claim of “driving” signatures (See FR‑018).
 
 ## Assumptions
 

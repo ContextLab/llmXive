@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T10:27:42.146966Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-193-predicting-battery-degradation-from-publ
-last_run_id: 28987117-7cc8-419d-bcf8-cd54a47fa9ee
+last_run_id: 381b824d-7151-4933-8f36-f1e0742823a9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-193-predicting-battery-degradation-from-publ/specs/001-predicting-battery-degradation-from-publ
 title: Predicting Battery Degradation from Public Cycling Data with Recurrent Neural
   Networks
-updated_at: '2026-10-25T17:35:39.006928Z'
+updated_at: '2026-10-25T17:38:13.857603Z'
