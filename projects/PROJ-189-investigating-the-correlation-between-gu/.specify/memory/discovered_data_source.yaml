@@ -1,14 +1,14 @@
 status: none
-intent: American Gut Project Qiita 16S taxonomic tables download Health Retirement
-  Study cognitive metadata python package dataset
+intent: American Gut Project Qiita EBI taxonomy tables HRS cognitive metadata participant
+  age sex BMI cognitive score python package dataset
 required_fields:
 - participant_id
 - age
 - sex
 - BMI
 - cognitive_score
-- taxonomy
-- abundance_counts
-cache_key: f72170be0b01c1a2ccc598a117a5cadad9db60df7af74cd95e83601fb290f302
-searched_at: '2026-10-21T09:50:10.584407+00:00'
+- taxonomy_counts
+- sha256_checksum
+cache_key: ce92feb65351e325ddc6e6a66b8310a0c2bb0180d3bdd4fa946ae3abe3cfbde7
+searched_at: '2026-10-25T10:09:20.690689+00:00'
 retry_count: 1

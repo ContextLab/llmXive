@@ -40,7 +40,7 @@
 2. **Provenance**: `observed_checksums.json` compared to `expected_checksums.json`.  
 3. **Intermediate**: `merged_age60.parquet` (inner join, age filter, VIF exclusion).  
 4. **Processed**: `clr_normalized.parquet` (rarefied + CLR), `imputed.parquet` (BMI imputed).  
-5. **Outputs** (validated against contracts):  
+5. **Outputs** (validated against contracts):
    - `correlations.json` (correlation block)  
    - `model.json` (model block)  
    - `sensitivity.json` (sensitivity block)  
@@ -52,7 +52,7 @@ All files reside under `data/` and their SHA‑256 hashes are recorded in `state
 ## 3. Constraints & Validation
 - **Missing Data**: Rows missing `cognitive_score` or `age` are dropped before any analysis.  
 - **Zero Inflation**: Handled by rarefaction + CLR; no direct log of zeros.  
-- **Memory**: If `merged_age60.parquet` exceeds 6 GB, the pipeline automatically limits taxa to the top‑200 by mean abundance (Task T011).  
+- **Memory**: If `merged_age60.parquet` exceeds 6 GB RAM, the pipeline automatically limits taxa to the top‑200 by mean abundance (Task T011).  
 - **Linkage**: Pipeline aborts with error if `len(overlap) < 500` (fatal coverage gap).  
 - **Checksum Validation**: `01_download_and_provenance.py` must succeed before any downstream step.  
 - **Schema Conformance**: Every result file is validated against its respective schema in `contracts/` by the CI test suite.  

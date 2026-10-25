@@ -41,7 +41,7 @@ The system MUST compute Spearman rank correlations between genus‑level microbi
 
 ### User Story US-3 - Predictive Modeling, Interpretability, and Robustness Validation (Priority: P3)
 
-The system MUST train a Random Forest regressor to predict cognitive scores from **both microbial taxa (CLR‑transformed) and demographic covariates (age, sex, BMI, education)**, validate against a permutation null distribution, and report interpretability metrics (permutation importance and SHAP values). The model must be evaluated with an 80/20 train/test split, 5‑fold cross‑validation, and its hold‑out R² score must exceed the 95th percentile of the permutation null distribution (based on 1 000 permutations).
+The system MUST train a Random Forest regressor to predict cognitive scores from **both microbial taxa (CLR‑transformed) and demographic covariates (age, sex, BMI, education)**, validate against a permutation null distribution, and report interpretability metrics (permutation importance and SHAP values). The model must be evaluated with an A typical train/test split with a larger portion allocated to training and a smaller portion allocated to testing., 5‑fold cross‑validation, and its hold‑out R² score must exceed a high percentile of the permutation null distribution (based on a large number of permutations).
 
 **Why this priority**: This tests the predictive utility of the microbiome while accounting for demographic factors and ensures the findings are robust and interpretable.
 
@@ -50,7 +50,7 @@ The system MUST train a Random Forest regressor to predict cognitive scores from
 **Acceptance Scenarios**:
 
 1. **Given** the training set, **When** the Random Forest model is trained, **Then** it runs on CPU‑only hardware without GPU acceleration requests.
-2. **Given** the hold‑out set, **When** performance is evaluated, **Then** the R² score is compared against the 95th percentile of the permutation null distribution (1 000 iterations) and must be higher.
+2. **Given** the hold‑out set, **When** performance is evaluated, **Then** the R² score is compared against a high percentile of the permutation null distribution (1 000 iterations) and must be higher.
 3. **Given** the trained model, **When** interpretability analysis is performed, **Then** permutation importance scores and SHAP summary plots are produced and stored.
 
 ---
@@ -68,7 +68,7 @@ The system MUST train a Random Forest regressor to predict cognitive scores from
 - **FR-002**: System MUST rarefy taxonomic tables to a uniform depth equal to the minimum read depth observed in the retained samples after quality filtering and collapse to genus‑level relative abundances before analysis (See US-1).
 - **FR-003**: System MUST compute covariate‑adjusted Spearman rank correlations on CLR‑transformed genus abundances, applying Benjamini‑Hochberg FDR correction (α = 0.05), and explicitly label results as associational (See US-2). Covariate adjustment is performed by regressing both microbial abundances and cognitive scores on age, sex, BMI, and education and using residuals for correlation.
 - **FR-004**: System MUST train a Random Forest regressor (scikit‑learn) using CPU‑only execution, with an 80/20 train‑test split, 5‑fold cross‑validation, inclusion of demographic covariates as predictors (age, sex, BMI, education), and generate interpretability artefacts (see FR-008) (See US-3).
-- **FR-005**: System MUST perform a sensitivity analysis sweeping the rarefaction depth threshold over the set `{5,000, min_depth}` in steps of 500 reads, reporting how key association metrics (e.g., number of significant taxa) vary. **Justification**: Sensitivity analysis ensures results are robust to sequencing‑depth choices, a prerequisite for reliable association inference. (See US-1).
+- **FR-005**: System MUST perform a sensitivity analysis sweeping the rarefaction depth threshold over the set `{5,000, min_depth}` in steps of multiple reads, reporting how key association metrics (e.g., number of significant taxa) vary. **Justification**: Sensitivity analysis ensures results are robust to sequencing‑depth choices, a prerequisite for reliable association inference. (See US-1).
 - **FR-008**: System MUST generate model interpretability artefacts: permutation importance scores and SHAP summary plots for each predictor (See US-3).
 - **FR-009**: System MUST perform a priori power analysis for (a) genus‑level correlation tests (detect effect size |r| ≥ 0.2 with α = 0.05, power = 0.8) and (b) Random Forest regression (detect ΔR² ≥ 0.05 with α = 0.05, power = 0.8), reporting the required sample size and confirming that the actual sample meets or exceeds it (See US-1, US-3).
 - **FR-010**: System MUST assess multicollinearity among selected predictors **before CLR transformation** using Variance Inflation Factors; any predictor with VIF > 5 is excluded from the model (See US-3).
@@ -89,7 +89,7 @@ The system MUST train a Random Forest regressor to predict cognitive scores from
 
 - **SC-001**: Data merge success rate must be ≥ 80 % of AGP participant IDs (See US-1).
 - **SC-002**: Number of significant genus‑cognition associations is measured against the FDR‑corrected α = 0.05 threshold (See US-2).
-- **SC-003**: Model predictive performance (R²) must exceed the 95th percentile of the permutation‑based null distribution (1 000 iterations) (See US-3).
+- **SC-003**: Model predictive performance (R²) must exceed a high percentile of the permutation‑based null distribution (1 000 iterations) (See US-3).
 - **SC-004**: Memory usage during peak permutation testing must remain ≤ 6 GB; if exceeded, the system reduces permutation count and logs the adjustment (See Edge Cases).
 
 ## Assumptions
