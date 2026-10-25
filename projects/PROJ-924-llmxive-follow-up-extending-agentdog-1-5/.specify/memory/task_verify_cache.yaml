@@ -1,15 +1,19 @@
-? 'T-002-AmendUS03 [S] **Amend US-03 Acceptance Criteria**: Update `specs/PROJ-924/spec.md`
-  US-03 to explicitly state: "The system runs a zero-shot LLM classifier (google/flan-t-small)
-  on a subset of logs. " Update AUC-ROC comparison criteria to: "The drift-based method
-  is flagged as a ''computationally efficient alternative'' if its AUC is within 0.10
-  of the Flan-T5 baseline." **Action**: Modify `specs/PROJ-924/spec.md` text to reflect
-  the new model and criteria. **DEPENDS ON**: T-000-RatifySpecAmendment.'
-: c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `specs/PROJ-924/spec.md` file content is provided; the claim that\
-    \ the acceptance criteria were amended is not substantiated by any artifact. The\
-    \ required modification to mention the `google/flan-t-small` model and the new\
-    \ AUC\u2011ROC comparison clause is missing."
+T001:
+  c: false
+  h: 881b6fa24b17b205b19661fa7803ad1d6b6853deabc8abeee2c2aad0b74f0d28
+  r: "The required top\u2011level directory `specs/PROJ-924/` does not exist (marked\
+    \ MISSING), so the project structure is incomplete despite the test and log being\
+    \ present. The task also expects this specs folder to be created under the repository\
+    \ root."
+  sig: 9800b9644298f6798b11e1492c119fe23143d81751af56c40ffa7e0ef863ffe2
+T002:
+  c: false
+  h: 18a40f5d10ed41dd592a489651aee17bda29f0c35711248b418b950799a4c8a3
+  r: "The provided `requirements.txt` omits the required `scipy` package and `pyproject.toml`\
+    \ does not list any of the mandated dependencies. Moreover, the expected `data/processed/pytest_manifest_log.txt`\
+    \ file is missing, so the pytest run and its \u201C1 passed\u201D logs cannot\
+    \ be verified. These gaps must be fixed for the task to be complete."
+  sig: c37d4f6542c142c1002e83324ce4b4b0b12a908d23f5e999edace92e34f503d1
 T011a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -17,23 +21,3 @@ T011a:
     and therefore we cannot confirm the presence of the required constants (`RANDOM_SEED=42`,
     `MAX_RAM_GB=7`, `BATCH_SIZE = 64`). The implementer must supply the actual file
     with the specified contents.
-T011c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No pytest execution log, test report, or any indication that `test_config.py`
-    was run and passed is provided. The required artifact (evidence of a successful
-    pytest run) is missing, so the acceptance criterion is not demonstrated.
-T018:
-  c: false
-  h: 0bcc00718215f2042393535a57903cf3a656d3c16cb414b0638b9c8748451444
-  r: "The test file `tests/unit/test_contracts.py` is present, but it relies on the\
-    \ schema file `specs/001-llmxive-drift-detection/contracts/drift_result.schema.yaml`,\
-    \ which is missing. Without this schema the test cannot perform the required validation,\
-    \ so the task\u2019s requirement is not met. The missing `drift_result.schema.yaml`\
-    \ must be added (with the correct fields) for the implementation to be complete."
-T028:
-  c: false
-  h: 30a52141b20216f592d275c9c9c8599387b1a43f4b4ee4edf2549acce3b976d8
-  r: "The required unit test file `tests/unit/test_kappa.py` does not exist in the\
-    \ repository, so no test code is provided to verify the Kappa statistic calculation.\
-    \ The task\u2019s primary artifact is missing."

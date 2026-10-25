@@ -43,8 +43,7 @@ def test_directories_exist():
     project_name = "PROJ-924-llmxive-follow-up-extending-agentdog-1-5"
     
     # The task specifies creating these relative to the project root (except the project folder itself)
-    # But the task description lists `projects/.../code/` as a target.
-    # Based on T001a: "Create ... `projects/.../code/`, `tests/`, `data/raw/`..."
+    # But the task description lists `projects/.../code/`, `tests/`, `data/raw/`...
     # This implies the structure is:
     # projects/PROJ-.../
     #   code/

@@ -120,6 +120,18 @@ def get_config_summary() -> str:
 # =============================================================================
 # Path Resolution
 # =============================================================================
+_ALIAS_MAP = {
+    "raw_data": "data_raw",
+    "processed": "data_processed",
+    "test": "data_test",
+    "project_root": "project_root",
+    "data": "data",
+    "specs": "specs",
+    "docs": "docs",
+    "figures": "figures",
+    "code": "code",
+}
+
 def get_path(*parts: Union[str, Path]) -> Path:
     """
     Resolve a path relative to the project root.
@@ -139,20 +151,20 @@ def get_path(*parts: Union[str, Path]) -> Path:
     if not parts:
         return PROJECT_ROOT
     
+    # Resolve first part possibly via alias map
     first = parts[0]
-    
-    # Check if the first part is a registered key in PATHS
-    if len(parts) == 1 and first in PATHS:
-        return PATHS[first]
-    
-    # If the first part is a registered key, use it as the base
-    if first in PATHS:
-        base = PATHS[first]
+    if isinstance(first, Path):
+        base = first
         remaining = parts[1:]
     else:
-        # Otherwise, assume relative to project root
-        base = PROJECT_ROOT
-        remaining = parts
+        key = _ALIAS_MAP.get(first, first)
+        if key in PATHS:
+            base = PATHS[key]
+            remaining = parts[1:]
+        else:
+            # Not a known key, treat as relative to project root
+            base = PROJECT_ROOT
+            remaining = parts
     
     result = base
     for part in remaining:

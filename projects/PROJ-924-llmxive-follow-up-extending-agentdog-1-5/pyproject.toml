@@ -1,19 +1,11 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "agentdog-drift"
 version = "0.1.0"
-dependencies = [
-  "sentence-transformers",
-  "scikit-learn",
-  "pandas",
-  "numpy",
-  "datasets",
-  "jsonschema",
-  "statsmodels",
-  "pytest",
-  "transformers",
-  "accelerate"
-]
+description = "Drift detection pipeline for AgentDoG 1.5 extension"
+authors = [{name = "LLM Xive"}]
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W"]
+ignore = []

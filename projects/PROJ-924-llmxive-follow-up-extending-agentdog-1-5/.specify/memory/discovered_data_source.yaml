@@ -1,15 +1,16 @@
 status: none
-intent: Hugging Face LogHub safety logs and GitHub issues corpus with human annotated
-  categories python package dataset
+intent: Safety log dataset OpenAI Red Teaming HuggingFace Datasets GitHub issues python
+  package dataset
 required_fields:
-- log_id
 - log_text
-- category_label
-- source
-- timestamp
-- embedding_vector
+- log_embedding
+- safety_category
+- source_type
+- source_id
+- human_annotation
 - annotator_id
-- consensus_label
-cache_key: c1f98f3f4d774a18510e006d551d51d78c36b4282e31c50010a6ad792cd98f05
-searched_at: '2026-10-23T10:07:41.144743+00:00'
+- majority_vote_label
+- timestamp
+cache_key: 61be894a322bf19d51cfe61f3dc61935123082ae52f3c86902bd8ad6b291980c
+searched_at: '2026-10-25T06:26:23.804640+00:00'
 retry_count: 1

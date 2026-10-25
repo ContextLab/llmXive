@@ -29,7 +29,7 @@ steps, and any required scientific checks.
   2. Run `pytest` and capture console output to `data/processed/pytest_manifest_log.txt`.  
   3. The log must contain `1 passed` for each test.  
 
-- [ ] T010d **Create lint configuration & verify with pytest**  
+- [ ] T010d **Create lint configuration & verify with pytest**   <!-- FAILED-IN-EXECUTION: code/run_lint_test.py exit=5 -->
   *Create* a `.ruff.toml` file at the repository root containing the lint rules required by the project.  
   *Add* a test `tests/test_config_files.py::test_ruff_config_exists` that asserts the file exists and contains a `[tool.ruff]` section.  
   *Run* `pytest` and capture the full console output to `data/processed/pytest_lint_log.txt`.  

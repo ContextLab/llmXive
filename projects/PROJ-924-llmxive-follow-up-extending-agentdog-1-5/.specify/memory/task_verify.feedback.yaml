@@ -1,0 +1,41 @@
+T001:
+  reason: "The required top\u2011level directory `specs/PROJ-924/` does not exist\
+    \ (marked MISSING), so the project structure is incomplete despite the test and\
+    \ log being present. The task also expects this specs folder to be created under\
+    \ the repository root."
+  task: affc6517577f1ed234c48de3937415e70911fd71cb47a0cb28543d97de93e48b
+T002:
+  reason: "The provided `requirements.txt` omits the required `scipy` package and\
+    \ `pyproject.toml` does not list any of the mandated dependencies. Moreover, the\
+    \ expected `data/processed/pytest_manifest_log.txt` file is missing, so the pytest\
+    \ run and its \u201C1 passed\u201D logs cannot be verified. These gaps must be\
+    \ fixed for the task to be complete."
+  task: 52edcb6f80ee4a2097e33097e7ec4ab093c143315f13c7ef2ee9f0dcd1394371
+T005:
+  task: b4f27fc6a88b29b730befd7612d003e7b2fa647c9d70e80535fab39db73b813a
+T006:
+  task: 839338757f085c4933a6646bd6f3f6f01faeb64f6d898ebf2ab45b4bae350c36
+T007:
+  task: 4cf653d57b1ec7cf34fc0c42daa40a63fc024999af1d4578c4e9fb00a89361a3
+T008:
+  task: 9e7c9084a96f2e93787d2fa2a8a78429b18606d3aecb7a38791f2cba1584fb96
+T009:
+  task: b1a17942f338fe581aced6783a75c48f6f8eb61b0f3c1341d460f6834ef1d38a
+T010:
+  task: 4bf80bbb244e2528a326ea986531a4e4aa0e76302907d51474ebb2ff48b82ff8
+T010d:
+  reason: 'Requested task execution failed; rerun successfully: code/run_lint_test.py
+    exit=5'
+  task: 1169ad61c55039172f591dafb619e39cdade96d77b64cd3147cf1558174315c6
+T011:
+  task: a14dd95795c69bdcdef96b7686c526bd9dc605f8b375b2e635cd643a852b28a2
+T011a:
+  task: b500e1f64500eba72d21d4cd3afa53cb84145dced5a3bcb68da90aaa94df5344
+T012:
+  task: 33b44556c0a9d6f19d3a5cc5f597033b367c0d8e539419ea58ea0f0321a20365
+T013:
+  task: 28b8babf356700d4b4febe7b02a0a99079143c33744027f6371f4b3215621938
+T014:
+  task: 3815fa8a403f17eb824a2b59efb6b438c844c41206851c7f112b4a9c551df3fe
+T015:
+  task: b96467b1c21b41d9094c18f4c4a3a49009cd713ef12ead1104a79b86bf3ac68c
