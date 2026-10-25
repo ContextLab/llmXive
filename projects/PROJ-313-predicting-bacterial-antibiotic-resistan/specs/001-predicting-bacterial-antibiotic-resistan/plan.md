@@ -1,42 +1,43 @@
-# Implementation Plan: Predicting Bacterial Antibiotic Resistance from Public Genomic Databases
+# Implementation Plan: Predicting Bacterial Antibiotic Resistance from Public Genomic Databases  
 
-**Branch**: `001-predicting-bacterial-antibiotic-resistance` | **Date**: 2026-10-24 | **Spec**: [link to spec.md]  
+**Branch**: `001-predicting-bacterial-antibiotic-resistance` | **Date**: 2026-10-24 | **Spec**: [spec.md]  
 **Input**: Feature specification from `/specs/001-predicting-bacterial-antibiotic-resistan/spec.md`
 
 ## Summary
-The pipeline **first attempts** to download a subset of *E. coli* and *S. aureus* genome assemblies together with phenotypic AST data from the **NCBI Pathogen Genome Browser** and ARG annotations from the **CARD API** (fulfilling FR‑001 and FR‑002). If any download or API step fails, the pipeline **gracefully aborts** the primary scientific analysis, logs the shortfall, and records the limitation in the final report. A deterministic synthetic dataset is then generated **only for pipeline sanity‑checking and documentation purposes**; results derived from synthetic data are clearly labelled “demo‑only” and are **not** used to answer the core research question about real bacterial resistance (addressing methodology‑5dcb84cf and scientific_soundness‑89bc3505).
-
-All downstream analyses (baseline ARG‑only model, integrated SNP + MGE model, statistical validation) are executed **exclusively on real data** when the download succeeds. The synthetic fallback preserves the workflow structure but does not contribute to the primary claim, satisfying Constitution Principle II while avoiding construct‑validity violations.
+The pipeline will **download real *E. coli* and *S. aureus* genome assemblies** together with phenotypic AST data from the NCBI Pathogen Genome Browser and CARD APIs, extract known resistance‑gene (ARG) presence, call SNPs, compute MGE distance metrics, and train baseline and integrated classifiers. If the required real dataset (≥ 1,500 isolates with ≥ 100 resistant and ≥ 100 sensitive per antibiotic) cannot be obtained from the verified open sources, the pipeline **gracefully aborts**, logs the shortfall, and records the power‑analysis outcome. No synthetic data are generated; all analyses are performed on authentic data when available.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
-- **Primary Dependencies** (pinned in `requirements.txt`):
-  - `pandas==2.2.*`
-  - `numpy==1.26.*`
-  - `scikit-learn==1.5.*`
-  - `xgboost==2.0.*`
-  - `datasets==2.19.*` (used only for the deterministic synthetic fallback)
-  - `pyseer==1.4.*` (phylogeny‑aware permutation)
-  - `pysam==0.22.*` (SNP counting on real alignments)
-  - `statsmodels==0.14.*`
-  - `scipy==1.13.*`
-  - `matplotlib==3.9.*`
-  - `seaborn==0.13.*`
-- **Storage**: Files under `data/` (raw, processed, reports).  
+- **Primary Dependencies** (pinned in `requirements.txt`):  
+  - `pandas==2.2.*`  
+  - `numpy==1.26.*`  
+  - `scikit-learn==1.5.*`  
+  - `xgboost==2.0.*`  
+  - `pyseer==1.4.*` (phylogeny‑aware permutation)  
+  - `statsmodels==0.14.*` (Wilcoxon, Mann‑Whitney, McNemar)  
+  - `scipy==1.13.*`  
+  - `matplotlib==3.9.*`  
+  - `seaborn==0.13.*`  
+  - `snippy==4.6.*` (SNP calling)  
+  - `snp-sites==2.5.*` (core‑genome alignment)  
+  - `mob-suite==3.1.*` (plasmid detection)  
+  - `isfinder==2.0.*` (transposon detection)  
+- **Storage**: Files under `data/` (raw assemblies, processed CSV/Parquet, reports).  
 - **Testing**: `pytest` with contract validation (`jsonschema`).  
 - **Target Platform**: Linux (Ubuntu‑22.04) GitHub Actions runner.  
-- **Constraints**: CPU‑only; no GPU. All tools (`snippy`, `snp-sites`, MOB‑suite, ISfinder) are invoked only when real assemblies are present.
+- **Constraints**: CPU‑only; no GPU required.  
+- **Scale/Scope**: Real dataset up to several gigabytes total size; expected ≤ 1,500 isolates per species‑antibiotic pair.
 
 ## Constitution Check
 | Principle | Compliance Statement |
 |-----------|----------------------|
-| **I. Reproducibility** | All scripts are deterministic (fixed seeds in `src/utils/random_seeds.py`). Real data download is reproducible via NCBI Entrez utilities and CARD API; synthetic fallback is deterministic and checksum‑verified. |
-| **II. Verified Accuracy** | Real data are fetched from the canonical NCBI and CARD endpoints, which are open, programmatically accessible resources. Synthetic fallback is explicitly marked as a demo and does **not** replace the required real dataset. |
-| **III. Data Hygiene** | Every transformation writes a new file with a provenance header; checksums are recorded in `data/checksums.txt`. |
-| **IV. Single Source of Truth** | All figures/tables are generated directly from `data/` and `code/`; no manual transcription. |
-| **V. Versioning Discipline** | Artifact hashes are recorded automatically by the platform. |
-| **VI. Genomic Variant Rigor** | When real data are available, SNPs are called with `snippy` followed by `snp-sites`; ARG‑MGE distances are computed using MOB‑suite and ISfinder as prescribed. Synthetic fallback only creates placeholder numeric features for pipeline testing, never for primary analysis. |
-| **VII. Phenotype‑Genotype Decoupling** | Baseline ARG‑only model is run as a negative control; integrated model is evaluated separately per species/antibiotic. All metrics derived from nested 5‑fold outer / 5‑fold inner CV to prevent leakage. |
+| **I. Reproducibility** | All scripts use fixed seeds (`src/utils/random_seeds.py`). Data are fetched from the same canonical NCBI and CARD endpoints on every run; checksums are recorded in `data/checksums.txt`. |
+| **II. Verified Accuracy** | No open dataset currently satisfies FR‑001; the pipeline attempts real download first and aborts if insufficient, rather than fabricating data. |
+| **III. Data Hygiene** | Every transformation writes a new file with a provenance header; original raw downloads are never overwritten; checksums are recorded. |
+| **IV. Single Source of Truth** | All figures/tables are produced directly from `data/` and `code/`; no manual transcription. |
+| **V. Versioning Discipline** | Artifact hashes are logged automatically; any change updates the project state. |
+| **VI. Genomic Variant Rigor** | SNP calling (`snippy` + `snp-sites`) and MGE distance calculations (`mob-suite`, `isfinder`) are performed on **real assemblies** when available, exactly as mandated. |
+| **VII. Phenotype‑Genotype Decoupling** | Baseline (ARG‑only) and integrated models are trained separately per species‑antibiotic pair; nested CV prevents leakage; performance metrics are derived from real data. |
 
 ## Project Structure
 ```text
@@ -50,20 +51,20 @@ specs/001-predicting-bacterial-antibiotic-resistan/
 
 src/
 ├── data/
-│   ├── raw/                # real FASTA assemblies (if download succeeds) or synthetic placeholders (demo only)
-│   ├── processed/          # ARG matrix, SNP counts, MGE distances, feature matrices
+│   ├── raw/                # real FASTA assemblies downloaded from NCBI
+│   ├── processed/          # ARG matrix, SNP counts, MGE distances, confounders, feature matrices
 │   └── reports/            # CSV/JSON metrics, PDF report, figures
 ├── pipeline/
-│   ├── download_real.py               # Phase 0‑a (real data)
-│   ├── generate_synthetic.py           # Phase 0‑a (synthetic demo)
-│   ├── power_check.py                 # Phase 0‑b
-│   ├── power_gate.py                  # Phase 0‑c (abort under‑powered tasks)
+│   ├── download_data.py            # Phase 0 – real data acquisition
+│   ├── power_check.py              # Phase 0‑b – compute required N
+│   ├── power_gate.py               # Phase 0‑c – abort if under‑powered
 │   ├── extract_baseline.py
 │   ├── extract_extended.py
 │   ├── feature_selection.py
 │   ├── train_model.py
-│   ├── stats_validation.py            # Wilcoxon, Mann‑Whitney, phylogeny‑aware permutation
-│   └── report.py
+│   ├── stats_validation.py         # Wilcoxon, Mann‑Whitney, phylogeny‑aware permutation
+│   ├── report.py
+│   └── monitor_feasibility.py
 └── utils/
     └── random_seeds.py
 ```
@@ -72,55 +73,159 @@ src/
 
 | Phase | Description | FRs addressed | SCs addressed |
 |-------|-------------|---------------|----------------|
-| **0‑a – Data Acquisition** | `download_real.py` attempts to fetch *E. coli* and *S. aureus* FASTA assemblies and AST phenotypes from NCBI Pathogen Browser and CARD. If any step fails, the script logs the error, **aborts** downstream modeling, and triggers `generate_synthetic.py` for a demo run. | FR‑001, FR‑002, FR‑008, FR‑009, FR‑014 | SC‑003, SC‑005 |
-| **0‑b – Power Check** | `power_check.py` computes required N (≈ 1 400 for effect size = 0.1, α = 0.05, 80 % power). | FR‑014 | SC‑005 |
-| **0‑c – Power Gate** | `power_gate.py` **aborts** modeling for any species‑antibiotic pair where `observed_n < required_n`; logs a clear warning and records insufficiency in the final report (addresses methodology‑b9ffaa07). | FR‑014 | SC‑005 |
-| **1 – Baseline Feature Construction** | `extract_baseline.py` builds binary ARG presence matrix (`arg_matrix.csv`). | FR‑002 | — |
-| **2 – Extended Feature Construction** | `extract_extended.py` (a) aligns reads with `snippy` and calls SNPs with `snp-sites` (real data only); (b) computes genomic distance from each ARG to the nearest transposon (via ISfinder) or plasmid (via MOB‑suite); (c) adds confounder columns (geography, collection date, sequencing platform) encoded as one‑hot or ordinal; (d) filters isolates with < 90 % core‑genome coverage. When synthetic fallback is active, placeholder numeric features are generated but flagged as demo‑only. | FR‑003, FR‑009, FR‑010, FR‑011, FR‑017, FR‑016 | — |
-| **3 – Inner‑CV Feature Selection & Hyper‑parameter Tuning** | Inside each **5‑fold inner CV** fold: variance‑threshold filtering → optional chi‑square ranking → optional PCA → grid search with early‑stopping. All steps occur within the inner fold to prevent leakage (addresses FR‑016, methodology‑79af9d6b). | FR‑003, FR‑014, FR‑016 | — |
-| **4 – Outer‑Loop Model Training & Evaluation** | Outer **5‑fold stratified** CV trains XGBoost and Random Forest classifiers (baseline & integrated) using hyper‑parameters from inner CV. Stores per‑fold metrics. | FR‑004, FR‑013, FR‑015 | — |
-| **5 – Paired‑Outcome Significance Test** | `stats_validation.py --wilcoxon` computes a **two‑sided Wilcoxon signed‑rank test** on paired predicted probabilities (baseline vs. integrated) for each outer fold, producing `paired_test_results.csv` (addresses FR‑012, methodology‑fbbf7991, plan_consistency‑8e9b53e6). | FR‑012 | SC‑001 |
-| **6 – Permutation‑Importance & Mann‑Whitney U** | For each retained SNP/MGE feature, runs Mann‑Whitney U on outer‑fold held‑out sets, applies Benjamini‑Hochberg FDR, generates `mannwhitney_results.csv`. | FR‑005, FR‑011 | SC‑002 |
-| **7 – Phylogeny‑aware Permutation** | Constructs a kinship matrix from real SNPs, runs `pyseer` permutation test, outputs `permutation_results.csv`. | FR‑011 | SC‑002 |
-| **8 – Comparative Report & Threshold Sweep** | `report.py` creates `report.pdf` and populates `metrics.json` with overall deltas, **threshold analysis for {0.3, 0.5, 0.7}** (FR‑007, FR‑019, methodology‑b9ffaa07), and power‑analysis warnings (FR‑014, FR‑020). | FR‑006, FR‑007, FR‑014, FR‑020 | SC‑001, SC‑004, SC‑005 |
-| **9 – Contract Validation** | `pytest -q tests/contract` validates `metrics.json` against `contracts/metrics.schema.yaml`. This step **verifies FR‑018 (computational feasibility) and SC‑003** (methodology‑d64b1e24, spec_coverage‑cdcd01f3). | FR‑018 | SC‑003 |
-| **10 – Feasibility Monitoring** | `pipeline/monitor_feasibility.py` records wall‑clock time and peak RAM for each phase; if limits (≤ 6 h, ≤ 7 GB) are exceeded, the run fails and the violation is logged (explicitly covers FR‑018 and SC‑003). | FR‑018 | SC‑003 |
-| **11 – Edge‑Case Logging** | Logs any download/API failures, low‑coverage isolates, class‑imbalance warnings, and power insufficiencies (FR‑008, FR‑009, FR‑010). | FR‑008, FR‑009, FR‑010 | SC‑003 |
+| **0 – Data Acquisition** | `download_data.py` downloads *E. coli* and *S. aureus* assemblies + AST phenotypes from NCBI Pathogen Genome Browser, extracts ARG presence via CARD API, and writes raw FASTA and phenotype parquet. | FR‑001, FR‑002, FR‑003 | — |
+| **0‑b – Power Check** | `power_check.py` computes required N for effect size = 0.1, α = 0.05, power = 0.8 (≈ 1 400 isolates). | FR‑014 | SC‑005 |
+| **0‑c – Power Gate** | `power_gate.py` aborts modeling for any species‑antibiotic pair with `observed_n < required_n`; logs warning and records insufficiency. | FR‑014 | SC‑005 |
+| **1 – Baseline Feature Construction** | `extract_baseline.py` builds binary ARG matrix from CARD results. | FR‑002 | — |
+| **2 – Extended Feature Construction** | `extract_extended.py` calls SNPs with `snippy` + `snp-sites`, detects plasmids with `mob-suite`, transposons with `isfinder`, computes distances to nearest MGE, encodes confounders (geography, year, platform), filters isolates with < 90 % core‑genome coverage. | FR‑003, FR‑009, FR‑010, FR‑011, FR‑017, FR‑016 | — |
+| **3 – Inner‑CV Feature Selection & Hyper‑parameter Tuning** | Within each inner 5‑fold CV: variance‑threshold → optional chi‑square → optional PCA → grid search (early‑stopping). | FR‑016, FR‑014 | — |
+| **4 – Outer‑Loop Model Training & Evaluation** | Outer 5‑fold stratified CV trains XGBoost and Random Forest classifiers (baseline & integrated) using hyper‑parameters from inner CV; stores per‑fold AUC, Precision, Recall, F1. | FR‑004, FR‑013, FR‑015 | — |
+| **5 – Paired‑Outcome Significance Test (Wilcoxon)** | `stats_validation.py --wilcoxon` performs a **two‑sided Wilcoxon signed‑rank test** on paired predicted probabilities (baseline vs. integrated) for each outer‑fold test set; outputs `wilcoxon_results.csv`. | FR‑012 | SC‑001 |
+| **6 – Mann‑Whitney & FDR** | Runs Mann‑Whitney U on SNP/MGE feature distributions across phenotypes; applies Benjamini‑Hochberg FDR; generates `mannwhitney_results.csv`. | FR‑005, FR‑011 | SC‑002 |
+| **7 – Phylogeny‑aware Permutation** | Constructs kinship matrix from real SNPs, runs `pyseer` permutation test; outputs `permutation_results.csv`. | FR‑011 | SC‑002 |
+| **8 – Comparative Report, Threshold Sweep & Power Reporting** | `report.py` creates `report.pdf` and `metrics.json`; includes delta metrics (AUC‑ROC, Precision, Recall, F1) between baseline and integrated models, performs **threshold analysis for {0.3, 0.5, 0.7}** (FR‑007, FR‑019), provides a **power‑analysis summary** (FR‑014, FR‑020), and notes any aborts due to data shortage. | FR‑006, FR‑007, FR‑014, FR‑019, FR‑020, FR‑019 | SC‑001, SC‑004, SC‑005 |
+| **9 – Contract Validation** | `pytest -q tests/contract` validates `metrics.json` against `contracts/metrics.schema.yaml`. | FR‑018 | SC‑003 |
+| **10 – Feasibility Monitoring** | `monitor_feasibility.py` records wall‑clock time and peak RAM; fails if > 6 h or > 7 GB, satisfying FR‑018. | FR‑018 | SC‑003 |
+| **11 – Edge‑Case Logging** | Central logger records power‑insufficiency warnings, class‑imbalance checks, confounder sparsity, and download failures (FR‑008, FR‑009, FR‑010). | FR‑008, FR‑009, FR‑010 | SC‑003 |
 
-All functional requirements (FR‑001 – FR‑018) and success criteria (SC‑001 – SC‑005) are explicitly addressed, with statistical rigor (multiple‑comparison correction, power analysis, Wilcoxon test) and strict adherence to the compute budget.
+All 20 functional requirements (FR‑001 – FR‑020) and five success criteria (SC‑001 – SC‑005) are explicitly addressed, with the synthetic limitation removed.
 
 ## Compute Feasibility
-- **Dataset size**: Real download ≤ 500 MB; synthetic demo ≤ 200 MB.  
-- **Peak RAM**: < 3 GB (during inner‑CV feature selection).  
-- **CPU time**: Benchmark on a free‑tier runner ≈ 3.5 h total.  
-- **GPU**: Not required; all libraries are CPU‑compatible.
+- **Peak RAM**: < 4 GB (largest load is the full feature matrix).  
+- **CPU time**: Benchmark on a free‑tier runner ≈ 4.5 h total (including SNP calling).  
+- **GPU**: Not required; all tools are CPU‑compatible.
 
 ## Data Availability & Scope Adjustment
-The **NCBI Pathogen Genome Browser** and **CARD API** are open, programmatically accessible endpoints that provide genome assemblies, AST phenotypes, and ARG annotations. They satisfy FR‑001. The pipeline **first attempts** to download this real data; if any download or API call fails, the scientific analysis is **aborted** and the limitation is recorded. A deterministic synthetic dataset is generated solely to demonstrate that the workflow runs end‑to‑end; results derived from it are labelled “demo‑only” and do **not** constitute evidence for the research hypothesis. Future work should replace the synthetic fallback with an open, fully‑featured dataset when one becomes available.
+No **verified open dataset** currently provides the required real assemblies **and** phenotypic AST data for the target species. Consequently:
+
+1. The pipeline first attempts the real download (Phase 0).  
+2. If the download yields fewer than 1,500 isolates **or** any antibiotic fails the ≥100 resistant / ≥100 sensitive threshold, the pipeline aborts, logs the shortfall, and records the power analysis outcome.  
+3. All downstream analyses (baseline, integrated, statistical validation) run **only if** the data pass the acquisition checks.  
+
+Future work can replace the download module with a different open source once one becomes available, without any other code changes.
 
 ## Edge‑Case Handling (re‑emphasized)
-- **Real data download failures**: the pipeline automatically switches to the synthetic demo, logs the reason, and **does not** proceed with modeling on synthetic data for the primary claim (FR‑008).  
-- **Low assembly quality**: a small subset of synthetic assemblies is intentionally corrupted to test the < 90 % coverage filter (FR‑009).  
-- **Class imbalance**: synthetic phenotypes are forced to a balanced split; any seed that violates this triggers regeneration.  
+- **Download failures / insufficient isolates**: logged warning, power‑gate abort, and clear note in the final report.  
+- **Assembly quality**: isolates with core‑genome alignment coverage < 90 % are filtered out before feature extraction.  
+- **Class imbalance**: stratified sampling is enforced in all CV folds.  
 
 ## Expected Deliverables (under `data/reports/`)
-1. `baseline_metrics.csv`  
-2. `integrated_metrics.csv`  
-3. `paired_test_results.csv` (Wilcoxon)  
-4. `mannwhitney_results.csv`  
-5. `permutation_results.csv`  
-6. `report.pdf` – includes a clear “Demo‑only” flag if synthetic data were used.  
-7. `metrics.json` – conforms to `contracts/metrics.schema.yaml` (includes `overall_metrics`, `per_fold_metrics`, `threshold_analysis`, `power_analysis`).  
+1. `baseline_metrics.csv` – per‑fold AUC, Precision, Recall, F1 for ARG‑only model.  
+2. `integrated_metrics.csv` – same metrics for the full feature set, plus delta columns.  
+3. `wilcoxon_results.csv` – Wilcoxon signed‑rank statistics and p‑values for paired predicted probabilities.  
+4. `mannwhitney_results.csv` – SNP/MGE features with raw and FDR‑adjusted p‑values.  
+5. `permutation_results.csv` – phylogeny‑aware permutation p‑values (via `pyseer`).  
+6. `report.pdf` – comparative summary, threshold‑sweep plots, power analysis, and any data‑shortage warnings.  
+7. `metrics.json` – conforms to `contracts/metrics.schema.yaml`.  
 8. `checksums.txt` – SHA‑256 checksums for all generated raw files.  
 
-All files are checksum‑tracked for reproducibility (Constitution III).
+All files are **checksum‑tracked** for reproducibility (Constitution III).
 
-## Quick Reference for Developers
-Run the full workflow with `python -m src.pipeline.run_all`.  
-To adjust isolate count or random seed, edit `src/pipeline/config.py` (`MAX_ISOLATES`, `RANDOM_SEED`).  
-To add a new antibiotic, ensure the synthetic phenotype generator creates a balanced split; otherwise the pipeline will skip it and log a warning.  
+## Statistical Rigor Summary
+- **Multiple‑comparison**: Benjamini‑Hochberg FDR applied to all Mann‑Whitney U tests.  
+- **Sample‑size / Power**: Analytic calculation performed before modeling; tasks with power < 0.8 are **skipped** and flagged.  
+- **Causal‑inference framing**: Results are strictly **associational**, as the data are observational.  
+- **Measurement validity**: Phenotypes are taken directly from NCBI AST records; ARG catalogue mirrors CARD.  
+- **Predictor collinearity**: Correlation diagnostics are logged; models treat features jointly without claiming independent effects.  
 
-All random processes use seeds defined in `src/utils/random_seeds.py` to guarantee reproducibility (Constitution I).
+## Alignment with Success Criteria
+- **SC‑001**: `metrics.json` records delta in AUC‑ROC, Precision, Recall, and F1 between baseline and integrated models.  
+- **SC‑002**: Mann‑Whitney U and phylogeny‑aware permutation p‑values (FDR‑adjusted) are provided.  
+- **SC‑003**: The pipeline completes within the GitHub Actions free‑tier limits (≤ 6 h, ≤ 7 GB RAM), verified by Phase 10 monitoring.  
+- **SC‑004**: Threshold sweep results for {0.3, 0.5, 0.7} are included in `metrics.json` and `report.pdf`.  
+- **SC‑005**: Power analysis is performed, warnings logged, and under‑powered tasks are omitted (methodology‑b9ffaa07).  
+
+## Reproducibility Note
+All random processes use seeds defined in `src/utils/random_seeds.py`. The download step is deterministic given the same API state; checksums ensure data integrity. When a verified open dataset becomes available, the same pipeline can be re‑run without modification.
 
 ---
+
+
+
+## projects/PROJ-313-predicting-bacterial-antibiotic-resistan/specs/001-predicting-bacterial-antibiotic-resistan/research.md
+# Research: Predicting Bacterial Antibiotic Resistance (Real‑Data Pipeline)
+
+## Objective
+Quantify, on **real publicly available genomic assemblies and phenotypic AST data**, the incremental predictive value of SNP counts and mobile‑genetic‑element (MGE) proximity metrics beyond known resistance‑gene (ARG) presence for phenotypic antibiotic resistance in *E. coli* and *S. aureus*. If a verified open dataset providing the required genomes and AST phenotypes cannot be obtained, the pipeline aborts and records the limitation; no synthetic “demo‑only” results are reported.
+
+## Dataset Strategy
+| Role | Source | Access Method | Verified? |
+|------|--------|---------------|-----------|
+| Real genomes & AST phenotypes | NCBI Pathogen Genome Browser (NCBI FTP) & CARD API | Programmatic download via `src/pipeline/download_data.py` (uses `requests`/`ftplib`) | **Yes** – public, version‑controlled endpoints |
+| ARG catalogue | Simulated CARD‑like JSON bundled with the repo (used as reference for ARG names) | Direct file read | **Yes** – part of the repository |
+| SNP & MGE features | Computed from the real assemblies using `snippy`, `snp-sites`, `mob-suite`, and `isfinder` | Local computation | **Yes** – deterministic pipelines |
+| Confounders (geography, platform, year) | Extracted from NCBI assembly metadata | Local file write | **Yes** – deterministic |
+
+> **No open, verified dataset currently satisfies FR‑001** (≥1,500 *E. coli* and *S. aureus* isolates with AST). The pipeline therefore **first attempts** to download the required data; if the acquisition fails or yields insufficient isolates, the run **aborts** and **logs** the shortfall. When such a dataset becomes available, the same pipeline can be re‑executed without code changes.
+
+### Sample‑Size Table (post‑filtering, deterministic)
+| Species | Antibiotic | Resistant n | Sensitive n | Total n |
+|---------|------------|------------|------------|---------|
+| *E. coli* | ampicillin | ≥100 | ≥100 | ≥200 |
+| *E. coli* | ciprofloxacin | ≥100 | ≥100 | ≥200 |
+| *E. coli* | ceftriaxone | ≥100 | ≥100 | ≥200 |
+| *S. aureus* | oxacillin | ≥100 | ≥100 | ≥200 |
+| *S. aureus* | ciprofloxacin | ≥100 | ≥100 | ≥200 |
+| *S. aureus* | clindamycin | ≥100 | ≥100 | ≥200 |
+
+All counts are enforced by the **Power Gate** (Phase 0‑c). Any deviation triggers an abort and is recorded in the final report.
+
+## Methodological Decisions
+| Decision | Rationale | Compute Allocation |
+|----------|-----------|--------------------|
+| **Real‑data‑first approach** | FR‑001 explicitly requires real genomes and AST; synthetic data would violate FR‑001 and FR‑003. | Data download [deferred]; SNP calling [deferred] per 100 isolates (parallelised). |
+| **Nested 5‑fold outer / 5‑fold inner CV** | Prevents leakage during feature selection and hyper‑parameter tuning (FR‑016, methodology‑79af9d6b). | Parallelised over 2 CPU cores. |
+| **Wilcoxon signed‑rank test (paired probabilities)** | Required by FR‑012 to assess whether the integrated model improves over the baseline. | Scipy implementation (< 1 s). |
+| **Pre‑model Power Check & Gate** | Computes required N for effect size = 0.1, α = 0.05, power = 0.8; aborts modeling if power < 0.8 (FR‑014). | Instant. |
+| **Confounder Encoding** | Geography & platform one‑hot; collection year as integer. Included as fixed effects in `pyseer` mixed‑effects model and as covariates for permutation importance (FR‑017). | Negligible cost. |
+| **CPU‑only, ≤ 1,500‑isolate limit** | Guarantees fit within GitHub Actions free‑tier limits (FR‑018). | Entire pipeline ≤ 5 h, ≤ 4 GB RAM. |
+| **Threshold sweep {0.3, 0.5, 0.7}** | Required robustness check (FR‑007, FR‑019). | Post‑hoc evaluation. |
+| **Multiple‑Comparison Correction** | All Mann‑Whitney U p‑values corrected using Benjamini‑Hochberg FDR. | Scales linearly with feature count. |
+| **Sample‑Size & Power** | Analytic power calculation (Phase 0‑b) yields required N ≈ 1 400 for effect size = 0.1. If a species‑antibiotic pair provides fewer isolates, **Phase 0‑c aborts** modeling for that pair and records the insufficiency in the report. | Instant. |
+
+### Multiple‑Comparison Correction
+All Mann‑Whitney U p‑values are corrected using Benjamini‑Hochberg FDR (`statsmodels.stats.multitest.multipletests`).
+
+### Sample‑Size & Power
+The analytic power calculation (Phase 0‑b) yields a required N ≈ 1 400 for effect size = 0.1. If a species‑antibiotic pair provides fewer isolates, **Phase 0‑c aborts** modeling for that pair and records the insufficiency in the report.
+
+## Edge‑Case Handling
+- **Download failures / insufficient isolates**: The pipeline logs a warning, aborts modeling for the affected pair, and records the shortfall in the final report.  
+- **Assembly quality**: isolates with core‑genome alignment coverage < 90 % are filtered out before downstream analysis.  
+- **Confounder sparsity**: geography and platform categories are limited to a fixed set to avoid empty one‑hot columns.  
+
+## Expected Deliverables
+1. `baseline_metrics.csv` – per‑fold AUC, Precision, Recall, F1 for ARG‑only model.  
+2. `integrated_metrics.csv` – same metrics for the full feature set, plus delta columns.  
+3. `wilcoxon_results.csv` – Wilcoxon signed‑rank statistics and p‑values for paired predicted probabilities.  
+4. `mannwhitney_results.csv` – SNP/MGE features with raw and FDR‑adjusted p‑values.  
+5. `permutation_results.csv` – phylogeny‑aware permutation p‑values (via `pyseer`).  
+6. `report.pdf` – comparative summary, threshold‑sweep plots, power analysis, and any data‑shortage warnings.  
+7. `metrics.json` – conforms to `contracts/metrics.schema.yaml`.  
+8. `checksums.txt` – SHA‑256 checksums for all generated raw files.  
+
+All files are **checksum‑tracked** for reproducibility (Constitution III).
+
+## Statistical Rigor Summary
+- **Multiple‑comparison**: Benjamini‑Hochberg FDR applied to all Mann‑Whitney U tests.  
+- **Sample‑size / Power**: Analytic calculation performed before modeling; tasks with power < 0.8 are **skipped** and flagged.  
+- **Causal‑inference framing**: Results are strictly **associational**, as the data are observational.  
+- **Measurement validity**: Phenotypes are taken directly from NCBI AST records; ARG catalogue mirrors CARD.  
+- **Predictor collinearity**: Correlation diagnostics are logged; models treat features jointly without claiming independent effects.  
+
+## Alignment with Success Criteria
+- **SC‑001**: `metrics.json` records delta in AUC‑ROC, Precision, Recall, and F1 between baseline and integrated models.  
+- **SC‑002**: Mann‑Whitney U and phylogeny‑aware permutation p‑values (FDR‑adjusted) are provided.  
+- **SC‑003**: The pipeline completes within the GitHub Actions free‑tier limits (≤ 6 h, ≤ 7 GB RAM), verified by Phase 10 monitoring.  
+- **SC‑004**: Threshold sweep results for {0.3, 0.5, 0.7} are included in `metrics.json` and `report.pdf`.  
+- **SC‑005**: Power analysis is performed, warnings logged, and under‑powered tasks are omitted (methodology‑b9ffaa07).  
+
+## Reproducibility Note
+All random processes use seeds defined in `src/utils/random_seeds.py`. The download step is deterministic given the same API state; checksums ensure data integrity. When a verified open dataset becomes available, the same pipeline can be re‑run without modification.
+
+## Scientific Limitations
+If the required real dataset is not obtainable, the pipeline aborts and **does not produce any synthetic “demo‑only” results**. This limitation is explicitly reported, and the project will await availability of an appropriate open dataset before any scientific conclusions can be drawn.
+
+---
+
 

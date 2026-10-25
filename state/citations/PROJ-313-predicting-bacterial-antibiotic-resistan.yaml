@@ -1,37 +1,4 @@
-- artifact_hash: cde2e5bab7b558c72d88ce3cfa3f54dc3d171a1de1cbc4b21c5395789ecbae59
-  artifact_path: projects/PROJ-313-predicting-bacterial-antibiotic-resistan/specs/001-predicting-bacterial-antibiotic-resistan/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/ncbi/pathogen_detection/resolve/main/data/train.parquet
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/ncbi/pathogen_detection/resolve/main/data/train.parquet
-  verified_at: '2026-10-14T13:48:01.287611Z'
-- artifact_hash: cde2e5bab7b558c72d88ce3cfa3f54dc3d171a1de1cbc4b21c5395789ecbae59
-  artifact_path: projects/PROJ-313-predicting-bacterial-antibiotic-resistan/specs/001-predicting-bacterial-antibiotic-resistan/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: The Comprehensive Antibiotic Resistance Database
-  kind: url
-  value: https://card.mcmaster.ca
-  verification_status: pending
-  verified_against_url: https://card.mcmaster.ca
-  verified_at: '2026-10-14T13:48:01.287611Z'
-- artifact_hash: cde2e5bab7b558c72d88ce3cfa3f54dc3d171a1de1cbc4b21c5395789ecbae59
-  artifact_path: projects/PROJ-313-predicting-bacterial-antibiotic-resistan/specs/001-predicting-bacterial-antibiotic-resistan/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/predicting-bacterial-antibiotic-resistance.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/predicting-bacterial-antibiotic-resistance
-  verified_at: '2026-10-14T13:48:01.287611Z'
-- artifact_hash: 3063986bdde5adbf49212824093dacffce867640647e82eb3b8d8cf0cbcae075
+- artifact_hash: 412f9bb66c890f096feeb41ac21b6f20b9e64697b19f01cf4c6ad82b0b9ea637
   artifact_path: projects/PROJ-313-predicting-bacterial-antibiotic-resistan/specs/001-predicting-bacterial-antibiotic-resistan/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +8,4 @@
   value: https://github.com/your-org/predicting-bacterial-antibiotic-resistance.git
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/predicting-bacterial-antibiotic-resistance
-  verified_at: '2026-10-14T13:49:13.063773Z'
+  verified_at: '2026-10-25T06:52:55.053921Z'
