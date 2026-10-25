@@ -1,19 +1,19 @@
 status: none
-intent: download active Python JavaScript GitHub repos with LLM human code labels
+intent: download GHTorrent dataset active Python JavaScript repositories code metrics
   python package dataset
 required_fields:
+- repository_id
 - repository_name
 - repository_url
 - primary_language
-- star_count
+- stars
 - last_commit_date
-- code_block_id
-- code_block_source_file
-- code_block_start_line
-- code_block_end_line
-- code_block_text
-- origin_label
-- origin_confidence_score
-cache_key: fca4274fddf4d4bdefdea3bba2eace5feb307025ac195d9b05ca51cd38a78a50
-searched_at: '2026-10-23T10:33:32.243353+00:00'
+- commit_sha
+- file_path
+- code_block
+- label
+- confidence_score
+- cyclomatic_complexity
+cache_key: 5e18fbe6c0fbb5e72720de4df0c286349f1a0a18b3198272757bac48b582b55c
+searched_at: '2026-10-25T20:21:33.328795+00:00'
 retry_count: 1

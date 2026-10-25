@@ -1,39 +1,42 @@
-T001:
-  reason: Checked `code/requirements.txt` (contains all required pinned packages)
-    and `specs/001-code-maintainability-impact/quickstart.md` (documents runnable
-    command). However the repository lacks a `.env.example` file defining `GITHUB_TOKEN`,
-    `DATA_PATH`, and `LOG_PATH`, and no logging configuration file is present, both
-    of which are required by the task.
-  task: a876a79b1e7def0146374d046018b36b78aefd3d503f8aaffa3db11a4738d644
-T002:
-  reason: The script `code/01_data_curation.py` runs and logs successful cloning,
-    but the required output files `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`
-    are absent from the repository (both marked MISSING). The task explicitly demands
-    these CSVs be saved in `data/raw/`; without them the curation output is not produced.
-    The next implementer must ensure the script writes the CSVs to the correct `data/raw/`
-    directory and verify the files exist after execution.
-  task: cbc5911c83b824f1ab2876c5f2141ab580221569d3cf0ed4cca7259d012c5f1d
-T003:
-  reason: 'Requested task execution failed; rerun successfully: code/03_code_block_extraction.py
+T000:
+  reason: 'Requested task execution failed; rerun successfully: code/00_power_analysis.py
     exit=1'
-  task: aeed27dc5589f4dd45b7462661e7aa45e382d6f5bc3b0b28322a9eec16225c9c
+  task: 8464e534f5caf0a9acb05d77c67e82252bc41b2b414e6f138ca5234c68b3d760
+T001:
+  task: eb0e146ee7a6ebcdffa40f74832dfb59949746c55c135a9d330e50f14cef94e0
+T002:
+  task: 55c99f5fadf2e5e633f60cd348855dee58517b36d92e1624b534e3888f3b30c7
+T003:
+  task: 3fa9d0c143ba915706e968e2de589b61c562cda7fe8a3e2aa82e2a5996ee8200
 T004:
-  task: a595201031094a2d7cc6adde345e9cac49ba556728daf74bfce61caf66539647
+  task: 804e5bc0a06a1369e3cf561cc59e2d9adb8e19441bcf313721b8ef8f6ca11507
 T005:
-  task: 62c339b5a92ec5016e6fec9081bd197738e9e149a6ffa2bc0b2c08164e6db932
+  task: 4ee661c7e73cfc4dde5cd51c3ce88a3bdc6dc8b3178796010658dd3d1b6c1eba
 T006:
-  task: 53868e5a9b4379d33c87dad8c49d0f78f2f3c3d0fafeb975c1aa696dcf336aa8
+  task: 9aaf601c0aeac5c8ab1a3152c97ee632bb169e943fa10d62b91f76cb56552f29
 T007:
-  task: 943aee17145e05101b36f6dbe7e4b0b71bc8d274ac13cc373862d23be0a865b5
-T007b:
-  task: d9f545940e5bab4addcc9da674ba5688bb7e2f472253bf3004bc3adff5ab41b5
+  task: cd06cee4a2778839ff960cfc7d8294ce36a2ad37a048d1f1e46a15f34fe9ce21
 T008:
-  task: 6900b4f9375fecb4d189f70d2944265d24eaa66ebe9b1f78c26f089268225926
+  task: b67c84f42a39df40924cbea704f1c2af77b3dc587ae158f979f29f26376d0e54
 T009:
-  task: e8a37838fefdb5046c26e5c4e96f5a3ceb2549e37ad1dfe998f23c7398ebf2d0
-T010:
-  task: faa866f5af57c7d518809c7899a5b8a2481c30232a20a7b5097a076146d80802
+  task: 67d0bd8f573f2b5588c2aef08d1530c0004ab2f1dc30cf9b0b366192bf2e0485
+T010a:
+  task: 6458e88f27a585fca3c1bf09409a09edbb6968db5b777d502cd4efdb689784ba
+T010b:
+  task: c0710ce56886803a6f157a192123b1d7ee29ea72c90324db329dc4596f0b0a34
 T011:
-  task: a82bd5a063b02107621ffee31830e6608d38d975a030157799d42a035bc0c44b
+  task: a154785e6de5d465bd75e347b21f663fadb00e4f6177df08f0e0c5ef9c518240
 T012:
-  task: 98e74cffb8315f67d1318c72eadff39162a841c1f1c41127bbac8e6e6e1179d8
+  task: 5fa063f4d3d35a5187ccbb67eb116048ead13e55ea141dadf5e81513f925db6a
+T013:
+  task: 8e6190d43364a7b0b36cfb3976a8e70472fdb35c235af6db43bc1e751bcdec09
+T014a:
+  task: 8d615bd431cf9828a7383915cdfc620e9cda9818117b58e0b3cc5a7b1e023667
+T014b:
+  task: ace103ec35115f743eb7b422b6514fa26cb9a01eb7bc44eec30c8028c15ea80e
+T015:
+  task: 9b316af5881f8c8f718ed691f56b9781bf0cbbbddf9d1641b8a992bf8842ea98
+T016:
+  task: 309f6923967f3e1b5767bd02f45c63dbb23bcf7bd6003b2a0379e90427d13e40
+T017:
+  task: 512d28c4604f3e262800808f96fd8c874ac0494315581aa7b8c3e94526750747

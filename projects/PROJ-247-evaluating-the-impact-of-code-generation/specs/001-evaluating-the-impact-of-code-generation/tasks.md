@@ -9,7 +9,7 @@ All tasks must produce **real** artifacts (GitHub data, ONNX inference, etc.) an
 
 **Goal**: Verify that the pipeline can run on a small real subset of repositories and produce the first usable tagged‑and‑matched dataset.
 
-- [ ] T000 [US1] **A‑priori power analysis**  
+- [ ] T000 [US1] **A‑priori power analysis**   <!-- FAILED-IN-EXECUTION: code/00_power_analysis.py exit=1 -->
   - Using the `statsmodels.stats.power.WilcoxonPower` function, simulate a range of matched‑pair sample sizes to determine the minimum number required to achieve 0.80 power for detecting a medium effect size (rank‑biserial ≥ 0.3) with α = 0.05.  
   - Target **≥ 250 matched pairs** (as required by FR‑009).  
   - Output the result to `data/analysis/power_analysis_a_priori.json` containing fields `target_pairs`, `achieved_power`, `effect_size_target`.  
