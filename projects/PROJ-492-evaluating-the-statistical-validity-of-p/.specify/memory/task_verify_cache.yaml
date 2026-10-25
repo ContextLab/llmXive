@@ -1,9 +1,0 @@
-T001:
-  c: false
-  h: 45899ac09d174069215cfe9309d5c8e0b7e7e0afb5d9faeaef818796c58f6144
-  r: "The audit package is present and `python -m code.src.audit.run_audit --help`\
-    \ runs successfully, and `quickstart.md` contains the required command. However,\
-    \ there is no evidence that any duplicated \u201CPT###\u201D entries have been\
-    \ identified and removed, which is a mandatory part of the task. Provide proof\
-    \ (e.g., a diff or a listing showing no PT### duplicates) to complete the requirement."
-  sig: 94f93ff41df692bf7cd71445d12bc0f22a308b1c595d86428fe6b3b7addc814b

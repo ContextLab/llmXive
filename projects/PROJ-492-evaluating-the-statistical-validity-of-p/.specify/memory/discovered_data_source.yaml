@@ -1,18 +1,19 @@
 status: none
-intent: public A/B test summary dataset download python package dataset
+intent: download A/B test summary dataset with URLs, p-values, sample sizes, domains
+  python package dataset
 required_fields:
 - url
 - test_name
-- variant_a
-- variant_b
-- metric
-- reported_p_value
-- reported_effect_size
+- variant_a_description
+- variant_b_description
+- metric_name
 - sample_size_a
 - sample_size_b
-- confidence_interval
-- test_date
-- domain_category
-cache_key: 7e18f6be512543810927e2d5fc29a8fb24735413a1308a17cc19d725771b6d8a
-searched_at: '2026-10-25T18:41:50.334483+00:00'
+- total_sample_size
+- reported_p_value
+- reported_confidence_interval
+- reported_effect_size
+- test_statistic
+cache_key: 2643c2c318095452249a210347d507dea199f8c8bebdeed85bcd7ef7437d6cd9
+searched_at: '2026-10-25T21:21:03.199090+00:00'
 retry_count: 1
