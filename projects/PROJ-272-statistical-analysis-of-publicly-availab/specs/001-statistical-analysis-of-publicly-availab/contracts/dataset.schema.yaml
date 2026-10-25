@@ -1,17 +1,17 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Dataset Schema
-description: Schema for the cleaned and processed dataset.
+title: "Dataset Schema"
+description: "Schema for the cleaned and processed dataset."
 type: object
 properties:
   participant_id:
     type: string
-    description: Unique identifier for the participant.
+    description: "Unique identifier for the participant."
   label:
     type: string
-    description: Cognitive status label (Control, MCI, AD).
+    description: "Cognitive status label (Control, MCI, AD)."
   text:
     type: string
-    description: Cleaned transcript text (empty string when raw text unavailable).
+    description: "Cleaned transcript text (empty string when raw text unavailable)."
 required:
   - participant_id
   - label

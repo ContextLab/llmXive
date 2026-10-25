@@ -1,16 +1,7 @@
 status: none
-intent: download ADReSS Challenge raw text and DementiaBank Pitt Corpus python package
-  dataset
+intent: ADReSS Challenge sentence embeddings download python package dataset
 required_fields:
-- participant_id
-- audio_path
-- transcript
-- diagnosis
-- age
-- gender
-- MMSE_score
-- education_years
-- picture_description
-cache_key: a800f74ec41a6dd6a40e884d0698fc0ba823d2660cf739464478ec6c4a2e5e26
-searched_at: '2026-10-16T05:08:37.825282+00:00'
+- text
+cache_key: 76e42cfbb98cd3976337bb8f0da53faa7c0943cb42c628061436a27ec4bd0845
+searched_at: '2026-10-25T01:30:53.802827+00:00'
 retry_count: 1

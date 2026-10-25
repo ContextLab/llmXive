@@ -1,47 +1,50 @@
 # Data Model: Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive Decline
 
 ## Overview
-The data model defines three stages of data artifacts:
+The data model defines the lifecycle of three primary artifacts:
 
-1. **Raw Input** – verified ADReSS sentence‑embedding parquet file.  
-2. **Interim Cleaned CSV** – participant identifiers, clinical label, an empty `text` placeholder, and path to the embedding array.  
-3. **Processed Feature Matrix** – semantic similarity metric (lexical/syntactic fields present but `null`).  
+1. **Raw Input** – the ADReSS sentence‑embedding parquet (immutable).  
+2. **Interim Cleaned CSV** – participant identifiers, clinical label, placeholder text, demographic covariates, and the path to each participant’s embedding array.  
+3. **Processed Feature Matrix** – semantic coherence metric plus `null` placeholders for lexical and syntactic features that cannot be computed without raw transcripts.  
 
-All files reside under `data/` and are accompanied by SHA‑256 checksums recorded in the project state file.
+All artifacts reside under `data/` and are accompanied by SHA‑256 checksums recorded in the project state file.
 
 ## Entity Definitions
 
-### Participant
+### Participant (Interim CSV)
 | Field | Type | Description |
 |-------|------|-------------|
-| `participant_id` | string | Unique identifier (e.g., `ADReSS_001`). |
-| `cognitive_status` | enum(`Control`, `MCI`, `AD`) | Clinical label from ADReSS. |
-| `embedding_path` | string | Relative path to the `.npy` file containing the participant’s sentence embeddings. |
-| `word_count` | integer | **Not available** (raw text missing). Set to `null`. |
+| `participant_id` | string | Unique ID (e.g., `ADReSS_001`). |
+| `label` | enum(`Control`, `MCI`, `AD`) | Clinical diagnosis from ADReSS. |
+| `text` | string | Cleaned transcript text – **empty** because raw transcripts are unavailable. |
+| `age` | integer | optional; age in years (may be `null`). |
+| `education` | integer | optional; years of formal education (may be `null`). |
+| `embedding_path` | string | Relative path to the `.npy` file containing sentence embeddings for the participant. |
+| `word_count` | integer | **null** (raw text missing). |
 
-### Feature Record
+### Feature Record (Processed CSV)
 | Field | Type | Description |
 |-------|------|-------------|
-| `participant_id` | string | Foreign key to Participant. |
-| `cognitive_status` | enum(`Control`, `MCI`, `AD`) | Redundant copy for convenience. |
-| `sentence_embedding_cosine_similarity` | number (0 – 1) | Mean pairwise cosine similarity of sentence embeddings. |
-| `ttr` | [ "number", "null" ] | **null** (lexical feature unavailable). |
-| `mtld` | [ "number", "null" ] | **null**. |
-| `noun_verb_ratio` | [ "number", "null" ] | **null**. |
-| `mean_clause_length` | [ "number", "null" ] | **null**. |
-| `t_unit_count` | [ "integer", "null" ] | **null**. |
+| `participant_id` | string | FK to Participant. |
+| `label` | enum(`Control`, `MCI`, `AD`) | Redundant copy for convenience. |
+| `sentence_embedding_cosine_similarity` | number (0 – 1) | Mean pairwise cosine similarity of sentence embeddings (semantic coherence). |
+| `ttr` | number | `null` (lexical feature unavailable). |
+| `mtld` | number | `null`. |
+| `noun_verb_ratio` | number | `null`. |
+| `mean_clause_length` | number | `null`. |
+| `t_unit_count` | integer | `null`. |
+| `age` | integer | duplicate of covariate (may be `null`). |
+| `education` | integer | duplicate of covariate (may be `null`). |
 
-## Schemas (refer to `contracts/`)
+## Schemas (see `contracts/`)
 
-- **Raw Input Schema** – not required because the source file is a verified Hugging Face dataset; checksum ensures integrity.  
-- **Interim Schema** – matches `dataset.schema.yaml` (participant_id, label, text). The `text` column is an empty string placeholder.  
-- **Feature Schema** – matches `feature.schema.yaml`; fields not computed are set to `null` (interpreted as `NaN` by downstream code).
+* **`dataset.schema.yaml`** – validates the interim cleaned CSV (requires `participant_id`, `label`, `text`).  
+* **`feature.schema.yaml`** – validates the processed feature CSV; fields not computed are allowed to be `null`.  
 
 ## Data Hygiene Rules
-- **Checksums**: Every file written to `data/` is accompanied by a SHA hash stored in `state/projects/PROJ-272...yaml`.  
-- **Immutability**: Raw embeddings never altered; all transformations generate new files.  
-- **PII**: No personally identifying information exists in any artifact.  
-- **Zero‑Handling**: Missing lexical/syntactic values are encoded as `null` (JSON) / `NaN` (CSV) and are excluded from statistical calculations.
+1. **Checksums** – Every file under `data/` has a SHA‑256 hash stored in `state/projects/PROJ-272...yaml`.  
+2. **Immutability** – Raw embeddings are never altered; all transformations write new files.  
+3. **PII** – No personally identifying information appears in any artifact; the privacy audit enforces this.  
+4. **Missing Values** – Unavailable lexical/syntactic features are encoded as `null` (JSON) / `NaN` (CSV) and excluded from statistical calculations.  
 
 ---
-
