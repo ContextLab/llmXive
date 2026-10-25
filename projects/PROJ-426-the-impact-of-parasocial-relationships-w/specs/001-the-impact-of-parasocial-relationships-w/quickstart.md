@@ -33,7 +33,7 @@ python src/main.py --mode ingest_and_match
 python src/main.py --mode fit_model
 ```
 - **Output**: `data/results/model_summary.json`  
-- **Note**: This step runs **1 000** bootstrap iterations (seed = 42) and is optimized to complete ≤ 6 h on a CPU‑only runner (parallelized with `joblib`). If the matched dataset fails the SC‑006 size check (≥ 600 participants with ≥ 6 months data), the pipeline aborts before this step.
+- **Note**: This step runs **1 000** bootstrap iterations (seed = 42) and is optimized to complete ≤ 6 h on a CPU‑only runner (parallelized with `joblib`). If the matched dataset fails the SC‑006 size check (≥ 600 participants with ≥ 6 months of longitudinal scores), the pipeline aborts before this step.
 
 ### Step 3 – Contract Validation
 ```bash
@@ -55,9 +55,9 @@ PROJECT_ROOT/
 ├─ src/
 │  ├─ main.py
 │  ├─ ingest/
-│  │  └─ ... (data fetching scripts)
+│  │  └─ fetch_pushshift.py
 │  ├─ match/
-│  │  └─ ... (user matching scripts)
+│  │  └─ user_match.py
 │  ├─ utils/
 │  │  └─ retry_policy.py
 │  ├─ validation/
@@ -67,23 +67,24 @@ PROJECT_ROOT/
 ├─ data/
 │  ├─ raw/
 │  │  ├─ zenodo_loneliness.csv   # downloaded from Zenodo (if available)
-│  │  └─ pushshift_logs.jsonl   # streamed from Pushshift API
+│  │  └─ pushshift_logs.jsonl
 │  ├─ processed/
 │  │  └─ matched_users.parquet
 │  └─ results/
 │     └─ model_summary.json
 ├─ docs/
-│  └─ ... (documentation, figures)
+│  └─ figures/
 ├─ contracts/
 │  ├─ dataset.schema.yaml
 │  ├─ model_output.schema.yaml
 │  └─ unified_dataset.schema.yaml
 ├─ tests/
 │  └─ contract/
-│     └─ ... (schema validation tests)
+│     └─ test_contracts.py
 ├─ logs/
 │  ├─ ingest.log
 │  └─ model.log
+├─ config/                     # configuration files (e.g., logging, hyper‑params)
 ├─ requirements.txt
 └─ README.md
 ```
@@ -92,9 +93,9 @@ PROJECT_ROOT/
 
 | Symptom | Likely Cause | Remedy |
 |---|---|---|
-| `Data Linkage Impossible` | Zenodo DOI invalid or required columns missing. | Verify DOI; if unavailable, obtain an open substitute dataset. |
-| `Power Insufficient` | Matched users < 500 or match‑rate < 80 % or SC‑006 thresholds not met. | Review download window, increase sample, or provide a larger open dataset. |
-| `Lexicon Missing` | ECAR lexicon file not reachable. | Check internet connectivity; the URL is `https://huggingface.co/datasets/12ml/e-CARE/resolve/main/train.csv`. |
+| `Data Linkage Impossible` | Zenodo DOI invalid or required columns missing. | Verify DOI; if unavailable, provide an open substitute dataset. |
+| `Power Insufficient` | Matched users < 600, match‑rate < 80 % or SC‑006 thresholds not met. | Review download window, increase sample, or supply a larger open dataset. |
+| `Lexicon Missing` | ECAR lexicon file not reachable. | Check internet connectivity; the URL is `. |
 | Model fails to converge | Random‑slope structure too complex for data. | The pipeline will automatically fallback to a random‑intercept‑only model and log a warning. |
 | Subgroup analysis skipped | Fewer than 80 users aged ≥ 60. | The pipeline will report a power warning and omit subgroup results. |
 

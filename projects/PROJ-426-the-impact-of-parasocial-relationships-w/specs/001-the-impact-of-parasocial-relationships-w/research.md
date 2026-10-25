@@ -6,11 +6,11 @@ This research investigates whether higher engagement with AI companions (weekly 
 ## Dataset Strategy
 | Dataset | Verified URL (if any) | Access Method | Role in Study |
 |---|---|---|---|
-| **Reddit Loneliness Longitudinal Dataset** | *No verified public source found* | The pipeline attempts to download via the Zenodo DOI specified in the spec. Because no open, verifiable URL exists, the pipeline will abort with **“Data Linkage Impossible”**. **Spec‑root cause; flagged for specification revision**. | Provides longitudinal loneliness scores, demographics, and baseline posts for ECAR scoring. |
-| **Pushshift Reddit Interaction Logs** | *No verified source found* | Public Pushshift API (`https://api.pushshift.io/`) with exponential back‑off (max 5 retries, 30 s timeout). | Supplies AI‑companion usage timestamps needed for weekly frequency and session‑duration metrics. |
-| **ECAR Lexicon** | https://huggingface.co/datasets/12ml/e-CARE/resolve/main/train.csv | Load via `datasets.load_dataset("12ml/e-CARE")` | Generates attachment‑style proxy scores (anxiety & avoidance). |
+| **Reddit Loneliness Longitudinal Dataset** | *No verified public source found* | The pipeline attempts to download via the Zenodo DOI referenced in the spec. Because no open, verifiable URL exists, the pipeline will abort with **“Data Linkage Impossible”** and flag the specification for revision. | Provides longitudinal UCLA Loneliness scores, demographics, and baseline posts for ECAR scoring. |
+| **Pushshift Reddit Interaction Logs** | *No verified source found* | Public Pushshift API (`) with exponential back‑off (max 5 retries, 30 s timeout). | Supplies AI‑companion usage timestamps needed for weekly frequency and session‑duration metrics. |
+| **ECAR Lexicon** | https://huggingface.co/datasets/12ml/e-CARE/resolve/main/train.csv | Load via `datasets.load_dataset("12ml/e-CARE")`. | Generates attachment‑style proxy scores (anxiety & avoidance). |
 
-**Critical Feasibility Note**: Because the primary survey dataset lacks a verified public URL and does not meet the required variable set (`UCLA_Loneliness_Score`, `timestamp`, `username_hash`, `baseline_text`, `age`, `gender`), the study cannot proceed without an open substitute. This limitation is now explicitly flagged for specification revision.
+**Critical Feasibility Note**: Because the primary survey dataset lacks a verified public URL and does not meet the required variable set (`UCLA_Loneliness_Score`, `timestamp`, `username_hash`, `baseline_text`, `age`, `gender`), the study cannot proceed without an open substitute. This limitation is explicitly flagged for specification revision; the pipeline will halt early with a clear error message.
 
 ### Dataset Variable Fit Check
 - Required variables: `UCLA_Loneliness_Score`, `timestamp`, `username_hash`, `baseline_text`, `age`, `gender`.  
@@ -33,7 +33,7 @@ This research investigates whether higher engagement with AI companions (weekly 
 
 ### Measurement Validity
 - **UCLA Loneliness Scale**: Validated instrument; `src/validation/validate_data.py` checks ≥ 90 % completion and flags missing items.  
-- **ECAR Lexicon**: Peer‑reviewed lexicon (Rashkin et al., 2023); used to compute normalized anxiety and avoidance scores.
+- **ECAR Lexicon**: Peer‑reviewed lexicon (Rashkin et al., 2023); used to compute normalized anxiety and avoidance scores.  
 
 ### Data Handling
 - **Missing Data**: Users lacking baseline text or any required covariate are excluded (FR‑004b, FR‑009). No imputation.  
@@ -43,19 +43,19 @@ This research investigates whether higher engagement with AI companions (weekly 
 ## Computational Feasibility
 - **CPU‑First**: Modeling uses `statsmodels` and `joblib`; no GPU required.  
 - **Memory Management**: Input files streamed where possible; processing stays < 7 GB RAM.  
-- **Runtime**: Benchmarked bootstrap on a representative sample completes in ~4 h on 2 CPU cores; full run stays within the 6 h GitHub Actions limit.  
+- **Runtime**: Benchmarked bootstrap on a representative sample completes in a few hours on 2 CPU cores; full run stays within the GitHub Actions time limit.  
 - **GPU Escape Hatch**: Not needed.
 
 ## Risk Mitigation
 | Risk | Mitigation |
 |---|---|
-| **Dataset Missing / Invalid** | Early validation; clear error messages (“Data Linkage Impossible”). |
+| **Dataset Missing / Invalid** | Early validation; clear error message (“Data Linkage Impossible”). |
 | **Match Rate < 80 %** | Phase 1 aborts with “Power Insufficient” (SC‑001). |
 | **Model Non‑convergence** | Fallback to random‑intercept‑only model; log warning. |
 | **API Rate Limits** | Exponential back‑off (`src/utils/retry_policy.py`). |
 | **Insufficient Power** | Power analysis; halt if detectable effect size > 0.8. |
 | **Subgroup Power** | Power check for ≥ 60 subgroup (requires ≥ 80 users); skip if unmet. |
 | **Selection Bias** | Bias analysis reports demographic differences; informs interpretation. |
+| **Lexicon Validation Failure** | Halt with “Lexicon Validation Failed” if κ < 0.8 (SC‑005). |
 
 ---
-

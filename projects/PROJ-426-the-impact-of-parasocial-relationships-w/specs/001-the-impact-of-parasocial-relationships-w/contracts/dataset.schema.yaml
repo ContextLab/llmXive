@@ -52,6 +52,15 @@ properties:
         attachment_avoidance_score:
           type: number
           description: "Avoidance subscale from ECAR Lexicon (copied from UserProfile)."
+        overall_reddit_activity:
+          type: integer
+          description: "Total Reddit submissions/comments by the user in the same week."
+        baseline_mental_health_score:
+          type: number
+          description: "Baseline mental‑health metric from the survey (e.g., PHQ‑9)."
+        ses_index:
+          type: number
+          description: "Socio‑economic status index derived from survey items."
       required:
         - timestamp
         - loneliness_score
@@ -60,6 +69,9 @@ properties:
         - session_duration
         - attachment_anxiety_score
         - attachment_avoidance_score
+        - overall_reddit_activity
+        - baseline_mental_health_score
+        - ses_index
     minItems: 1
 required:
   - user_id
