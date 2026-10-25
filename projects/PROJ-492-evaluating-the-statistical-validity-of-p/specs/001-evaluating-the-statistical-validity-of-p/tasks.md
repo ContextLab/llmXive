@@ -8,7 +8,7 @@ The goal is to deliver a reproducible end‑to‑end audit pipeline that satisfi
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T001 [US1] Consolidate the project layout under `code/src/audit/` (CLI, extraction, reconstruction, Monte‑Carlo, power‑analysis, synthetic‑generator modules). Remove any duplicated `PT###` entries, ensure all imports work, and document the runnable command in `specs/001-evaluating-the-statistical-validity-of-p/quickstart.md`.  
+- [ ] T001 [US1] Consolidate the project layout under `code/src/audit/` (CLI, extraction, reconstruction, Monte‑Carlo, power‑analysis, synthetic‑generator modules). Remove any duplicated `PT###` entries, ensure all imports work, and document the runnable command in `specs/001-evaluating-the-statistical-validity-of-p/quickstart.md`.   <!-- FAILED-IN-EXECUTION: code/src/audit/run_audit.py exit=1 -->
   - **Verification**: `python -m code.src.audit.run_audit --help` exits with status 0; `quickstart.md` contains the exact command `python -m code.src.audit.run_audit data/input/urls.csv output/`.  
 
 - [ ] T017 [US1] Curate a deterministic corpus of **≥ 300** reachable URLs pointing to public A/B test summaries, write them to `data/input/urls.csv`, download each page, and store the raw HTML snapshot under `data/raw/`. Generate `data/checksums.txt` with SHA‑256 hashes of all snapshots.  
