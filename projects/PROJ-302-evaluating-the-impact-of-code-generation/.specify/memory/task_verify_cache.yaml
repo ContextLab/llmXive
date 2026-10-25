@@ -5,12 +5,3 @@ T001:
     \ (contains a \u201CRun\u2011the\u2011pipeline\u201D command), and `results/setup_verification.json`\
     \ (shows a successful import of every required package after a fresh install)."
   sig: 4fd2366db3bff5845eef19f296b42ce7b8acf55a4dd4fe72b710c25cd925b465
-T002:
-  c: false
-  h: 0f445c466083f1eb12ddce7d348504a2518233f698e5551ea9c5189a07d92463
-  r: "The `data/raw/` directory contains only a `.gitkeep`; none of the required `<owner>_<repo>.parquet`\
-    \ files or `commit_messages.parquet` are present, and the `pull_request.schema.yaml`\
-    \ file is missing. Without these artifacts (and evidence of successful API runs\
-    \ without unhandled 403 errors), the task\u2019s verification criteria are not\
-    \ met."
-  sig: 91a31d0b8cb0e80d7b3ebd1b997f5a847d848a7dc38459ff85d9cee5f9e56b54
