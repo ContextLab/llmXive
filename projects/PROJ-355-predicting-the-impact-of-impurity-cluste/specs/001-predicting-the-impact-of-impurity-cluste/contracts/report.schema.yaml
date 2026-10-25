@@ -55,3 +55,4 @@ required:
   - n_significance_changes
   - summary
 additionalProperties: false
+

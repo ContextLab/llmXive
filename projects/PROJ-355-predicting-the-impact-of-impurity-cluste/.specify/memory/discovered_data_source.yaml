@@ -1,19 +1,13 @@
 status: none
-intent: OQMD ICSD database bulk alloy composition spacegroup volume python package
+intent: Materials Project OQMD bulk alloy composition spacegroup dataset python package
   dataset
 required_fields:
-- material_id
-- formula
+- alloy_composition
 - spacegroup
-- spacegroup_number
-- volume_per_atom
-- lattice_parameter_a
-- lattice_parameter_b
-- lattice_parameter_c
-- lattice_angle_alpha
-- lattice_angle_beta
-- lattice_angle_gamma
-- crystal_system
-cache_key: 45a9a31d0f1fd13650ef0175685da3e38fc40e358c46d002429ba3ced44a5efa
-searched_at: '2026-10-23T08:54:19.645928+00:00'
+- lattice_parameters
+- atomic_positions
+- formation_energy
+- segregation_energy
+cache_key: 390c9a6569b6af74e14c70dd3c8449e2f58f2c4c4453ca001237d6934d1163a0
+searched_at: '2026-10-25T11:34:08.306633+00:00'
 retry_count: 1

@@ -75,7 +75,7 @@ The researcher MUST be able to perform hypothesis testing on the regression coef
 - **FR-006**: *Removed* (sensitivity‑sweep over regularization strength was out of scope).
 - **FR-007**: System MUST detect predictor collinearity (VIF ≥ 10) **before** any PCA or dimensionality reduction, and output a JSON report listing each predictor group with VIF ≥ 10 together with a one‑sentence descriptive summary (See US‑2).
 - **FR-008**: System MUST conduct a power analysis targeting statistical power ≥ 0.80, significance level α = 0.05, and effect size f² = 0.15 (medium per Cohen, 1992). The analysis must report the required minimum sample size and confirm that the available dataset meets or exceeds this size (See US‑2).
-- **FR-009**: System MUST generate a plot of cluster‑size vs. segregation‑energy with 95 % confidence intervals for each alloy system, saved as a high‑resolution PNG (See US‑3).
+- **FR-009**: System MUST generate a plot of cluster‑size vs. segregation‑energy with confidence intervals for each alloy system, saved as a high‑resolution PNG (See US‑3).
 - **FR-010**: System MUST perform exploratory linearity assessment (scatter plots of each descriptor vs. segregation energy, residual analysis) and document whether the relationship appears linear; if non‑linear, RandomForest may be used (See US‑2).
 - **FR-011**: System MUST validate EAM‑derived segregation‑energy labels against a DFT benchmark set of at least 30 samples; the mean absolute error must be ≤ 0.1 eV, justified by typical EAM‑DFT discrepancies in alloy segregation studies (≈0.08–0.12 eV) (See US‑1).
 - **FR-012**: System MUST report VIF values for the original three descriptors and ensure any VIF ≥ 10 triggers the JSON collinearity report required by FR‑007 (See US‑2).
@@ -97,7 +97,7 @@ The researcher MUST be able to perform hypothesis testing on the regression coef
 - **SC-002**: Root mean square error (RMSE) is measured on the held‑out test set predictions to quantify prediction accuracy (See US‑2).
 - **SC-003**: Multiple‑comparison correction is measured by reporting adjusted p‑values and the count of hypotheses whose significance (α = 0.05) changes after correction (See US‑3).
 - **SC-004**: Collinearity diagnostics (VIF scores) are measured against the threshold VIF ≥ 10; a JSON report listing all predictors exceeding this threshold must be produced (See US‑2).
-- **SC-005**: The visualization of cluster‑size vs. segregation‑energy with 95 % confidence intervals is generated for each alloy system and saved as a PNG file (See US‑3).
+- **SC-005**: The visualization of cluster‑size vs. segregation‑energy with confidence intervals is generated for each alloy system and saved as a PNG file (See US‑3).
 - **SC-006**: Validation of EAM‑derived segregation energies against the DFT benchmark set yields MAE ≤ 0.1 eV (See FR‑011).
 
 ## Assumptions

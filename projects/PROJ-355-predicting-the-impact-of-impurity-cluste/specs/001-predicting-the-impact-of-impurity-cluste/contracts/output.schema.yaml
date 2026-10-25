@@ -107,10 +107,10 @@ properties:
     properties:
       appears_linear:
         type: boolean
-        description: "FR-010 verdict from scatter plots and residual analysis."
+        description: "FR-010 verdict from Ramsey RESET test."
       evidence:
         type: string
-        description: "Description of scatter/residual diagnostics supporting the verdict."
+        description: "Description of RESET test result supporting the verdict."
     required:
       - appears_linear
       - evidence
@@ -210,3 +210,4 @@ required:
   - preprocessing
   - metadata
 additionalProperties: false
+

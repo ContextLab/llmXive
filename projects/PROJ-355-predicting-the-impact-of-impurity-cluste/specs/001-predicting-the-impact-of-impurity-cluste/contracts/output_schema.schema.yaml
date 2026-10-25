@@ -86,10 +86,10 @@ properties:
     properties:
       appears_linear:
         type: "boolean"
-        description: "FR-010 verdict from scatter plots and residual analysis."
+        description: "FR-010 verdict from Ramsey RESET test."
       evidence:
         type: "string"
-        description: "Description of scatter/residual diagnostics supporting the verdict."
+        description: "Description of RESET test result supporting the verdict."
     required: ["appears_linear", "evidence"]
   power_analysis:
     type: "object"
@@ -121,7 +121,7 @@ properties:
         description: "FR-011 result; DATA_UNAVAILABLE records the missing verified DFT benchmark."
       n_benchmark:
         type: "integer"
-        description: "Number of DFT benchmark samples used (0 when unavailable)."
+        description: "Number of DFT benchmark samples used (omitted if unavailable)."
       mae_eV:
         type: "number"
         description: "Mean absolute error vs DFT benchmark in eV."
@@ -170,3 +170,4 @@ required:
   - preprocessing
   - metadata
 additionalProperties: false
+

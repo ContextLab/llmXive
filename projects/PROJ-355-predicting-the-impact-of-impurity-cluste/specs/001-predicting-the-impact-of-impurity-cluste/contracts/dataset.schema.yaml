@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Training Dataset Row Schema"
-description: "One row of data/processed/training_set.csv linking clustering descriptors (computed on bulk configuration before impurity insertion), covariates, and EAM segregation energy."
+description: "One row of data/processed/training_set.csv linking clustering descriptors (computed on the GB interface region before impurity insertion), covariates, and EAM segregation energy."
 type: object
 properties:
   sample_id:
@@ -20,16 +20,19 @@ properties:
     description: "Element symbol of the impurity."
   rdf_peak_value:
     type: number
-    description: "RDF peak descriptor **computed on bulk configuration before impurity insertion**."
+    description: "RDF peak descriptor **computed on the GB interface region before impurity insertion**."
   pair_corr_value:
     type: number
-    description: "Pair‑correlation statistic **computed on bulk configuration before impurity insertion**."
+    description: "Pair‑correlation statistic **computed on the GB interface region before impurity insertion**."
   voronoi_count:
     type: integer
-    description: "Voronoi neighbor count for the impurity **computed on bulk configuration before impurity insertion**."
-  cluster_size:
+    description: "Voronoi neighbor count for the impurity **computed on the GB interface region before impurity insertion**."
+  misorientation_angle:
     type: number
-    description: "Mean nearest‑neighbor distance among impurity atoms within the interface region (used for FR‑009)."
+    description: "Misorientation angle of the grain boundary (degrees)."
+  boundary_plane:
+    type: string
+    description: "Boundary plane orientation (Miller indices)."
   local_lattice_strain:
     type: number
     description: "Covariate: trace of the local strain tensor around the interface."
@@ -55,10 +58,12 @@ required:
   - rdf_peak_value
   - pair_corr_value
   - voronoi_count
-  - cluster_size
+  - misorientation_angle
+  - boundary_plane
   - local_lattice_strain
   - atomic_radius
   - electronegativity
   - segregation_energy_eV
   - split
 additionalProperties: false
+
