@@ -7,7 +7,7 @@
 ## Installation
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/PROJ-420-predicting-the-effect-of-alloying-on-the.git
+git clone 
 cd PROJ-420-predicting-the-effect-of-alloying-on-the
 
 # Create a virtual environment
@@ -49,4 +49,6 @@ The test suite validates each JSON artifact against the corresponding YAML schem
 ## Troubleshooting
 - **No data downloaded**: Check `app.log` for network errors; the pipeline will abort with a clear message if the Materials Project download fails (see Spec Amendment AMP‑001).  
 - **VIF flagged**: High VIF is expected for raw fractions; the model still uses ILR features.  
-- **MAE > 0.05**: The report will contain a methodological‑concern flag; no failure occurs.
+- **MAE > 0.05**: The report will contain a methodological‑concern flag; no failure occurs.  
+
+---

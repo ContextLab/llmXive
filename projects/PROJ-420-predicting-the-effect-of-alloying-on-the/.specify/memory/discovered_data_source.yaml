@@ -1,14 +1,15 @@
 status: none
-intent: Materials Project and NIST aluminum alloy elastic properties python package
-  dataset
+intent: Materials Project elastic tensor dataset aluminum alloys Poisson's ratio Young's
+  modulus python package dataset
 required_fields:
 - material_id
 - formula
-- elemental_composition_atomic_fractions
-- youngs_modulus_gpa
+- atomic_fractions
 - poissons_ratio
+- youngs_modulus
 - elastic_tensor
-- source_database
-cache_key: b8a4a96ff65bdb90c9c94d52147d3fc7c0b94730b0bb2977e20ed49205ee8af1
-searched_at: '2026-10-21T07:27:41.645409+00:00'
+- spacegroup
+- density
+cache_key: f81324aa7ba477f31dc64c9f26218ed7212252e121ad4bf0bbb0977edc247507
+searched_at: '2026-10-25T05:09:46.109180+00:00'
 retry_count: 1

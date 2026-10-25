@@ -8,6 +8,7 @@ required:
   - elemental_composition
   - poissons_ratio
   - youngs_modulus_gpa
+  - poisson_source
   - measurement_method
   - source
   - is_alloy
@@ -68,20 +69,27 @@ properties:
     type: number
     exclusiveMinimum: 0
     description: "Young's modulus normalized to GPa."
+  poisson_source:
+    type: string
+    description: "Source of Poisson's ratio measurement."
+    enum:
+      - "ultrasonic"
+      - "direct_measurement"
+      - "laser_ultrasonics"
   measurement_method:
     type: string
+    description: "Method used to obtain Poisson's ratio."
     enum:
       - "Ultrasonic"
       - "Resonant Ultrasound Spectroscopy"
       - "Static Tensile"
       - "Other"
-    description: "Method used to obtain Poisson's ratio."
   source:
     type: string
+    description: "Origin of the record."
     enum:
       - "Materials Project"
       - "NIST MDR"
-    description: "Origin of the record."
   is_alloy:
     type: boolean
     description: "True if the entry represents a continuous solid solution."
