@@ -1,0 +1,38 @@
+T000:
+  c: false
+  h: fdc7acb0655df43373c37039f07d7498ddfc418f22e3d5b7aa616641247af6a7
+  r: "The JSON file `data/analysis/power_analysis_a_priori.json` exists and contains\
+    \ the required fields with `target_pairs`\u202F=\u202F250, but the supplied pytest\
+    \ `test_power_a_priori.py` fails because it cannot locate the JSON file at the\
+    \ expected relative path during test execution, so the verification step does\
+    \ not pass. The task must ensure the test runs successfully (e.g., generate the\
+    \ file before the test or place it where the test expects)."
+  sig: 83661edf28e66a2427a438bcc9f3ae0d7717215cd2fe3b1d722dd06a905c9dc1
+T001:
+  c: false
+  h: 1c51303754c00a63670fbb552dcbb248aa29ba255461335011faa9cc93f662ea
+  r: The logging config file exists and is valid, and the quickstart markdown contains
+    the required command, but the required `.env.example` file is missing entirely,
+    and the quickstart file is located at `specs/001-evaluating-the-impact-of-code-generation/quickstart.md`
+    instead of the specified `specs/001-code-maintainability-impact/quickstart.md`.
+    Add a proper `.env.example` at the project root defining the three variables and
+    place/update the quickstart file at the exact path required.
+  sig: 5374f81afe3750a97aa08225af123a83835e216c83966748b9a134b9d7944c4a
+T002:
+  c: false
+  h: 08016f9e6f4e127890daa256ee51ff817762d4553b307c1f31608e87646aaf3e
+  r: "The required output files `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`\
+    \ are absent \u2013 the pytest suite `tests/test_curation_outputs.py` fails with\
+    \ \u201Cfile does not exist\u201D errors, and the `data/raw/` directory only contains\
+    \ the `clones/` subdirectory. Consequently the task\u2019s core deliverable (CSV\
+    \ files with \u2265\u202F50 rows) is missing."
+  sig: 6efd9048d33b567c7530c1d94de7080eae96a04374eefa30f2f8fc2defa15e7b
+T003:
+  c: false
+  h: 5aec153c841ebd937ee4ca25e0f8953144003abd69eabe0764af5807096a0b2d
+  r: Checked `code/03_code_block_extraction.py`, `data/raw/code_blocks.csv`, `data/logs/refactor_exclusions.log`,
+    and the unit test file `code/tests/unit/test_git_mv_detection.py`. The extraction
+    script generates a UUID for `block_id` instead of the required `repo_id:file_path:start_line:end_line`
+    format, the CSV and exclusion log files are missing, and there is no evidence
+    that the unit tests actually pass. The task therefore remains incomplete.
+  sig: 90ca420f59b0d58a0e1896ef3b0b0d00488f1c0b1872de5a8a79547f5a6167fc

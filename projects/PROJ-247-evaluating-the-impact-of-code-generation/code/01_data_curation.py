@@ -86,13 +86,13 @@ def curate_repositories() -> None:
         'topic:copilot',
         '"LLM generated code"',
         '"Copilot generated"',
-        'language:python stars:>100' # Final fallback to ensure some data
+        'language:python stars:>100'  # Final fallback to ensure some data
     ]
 
     for query in queries:
         if len(repos_found) >= TARGET_REPO_COUNT:
             break
-        
+
         log.info(f"Searching with query: {query}")
         try:
             _handle_rate_limit(g)
@@ -100,7 +100,7 @@ def curate_repositories() -> None:
             for repo in results:
                 if len(repos_found) >= TARGET_REPO_COUNT:
                     break
-                
+
                 # Activity and Popularity Filters
                 if (
                     repo.stargazers_count >= 5
@@ -123,49 +123,81 @@ def curate_repositories() -> None:
         except GithubException as e:
             log.error(f"GitHub API error for '{query}': {e}")
 
-    log.info(f"Identified {len(repos_found)} repositories.")
+    log.info(f"Identified {len(repos_found)} repositories (target {TARGET_REPO_COUNT}).")
 
-    # Write repo_list.csv
+    # Write repo_list.csv with required columns: repo_id,clone_path,clone_status
     with open(REPO_LIST_CSV, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["repo_id", "owner", "name", "url"])
+        writer = csv.DictWriter(f, fieldnames=["repo_id", "clone_path", "clone_status"])
         writer.writeheader()
         for r in repos_found:
-            writer.writerow({k: r[k] for k in ["repo_id", "owner", "name", "url"]})
+            clone_path = CLONES_DIR / f"{r['owner']}_{r['name']}"
+            # We will fill clone_status after attempting the clone
+            writer.writerow({
+                "repo_id": r["repo_id"],
+                "clone_path": str(clone_path),
+                "clone_status": "pending"
+            })
 
-    # Clone and Metadata Extraction
+    # Clone repositories and collect metadata
     final_metadata = []
+    # Re-open the CSV to update clone_status after cloning
+    rows_to_update: List[Dict[str, Any]] = []
+
+    with open(REPO_LIST_CSV, "r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows_to_update = [row for row in reader]
+
     for repo in repos_found:
         target_path = CLONES_DIR / f"{repo['owner']}_{repo['name']}"
+        clone_status = "failed"
+        loc = 0
         try:
-            log.info(f"Cloning {repo['url']}...")
+            log.info(f"Cloning {repo['url']} into {target_path}...")
             subprocess.run(
                 ["git", "clone", "--depth", "100", repo["url"], str(target_path)],
-                check=True, capture_output=True, text=True, timeout=60
+                check=True, capture_output=True, text=True, timeout=120
             )
+            clone_status = "success"
             loc = calculate_total_loc(target_path)
         except Exception as e:
             log.error(f"Failed to clone {repo['url']}: {e}")
+            clone_status = "failed"
             loc = 0
+
+        # Update the corresponding row in rows_to_update
+        for row in rows_to_update:
+            if int(row["repo_id"]) == repo["repo_id"]:
+                row["clone_status"] = clone_status
+                break
 
         final_metadata.append({
             "repo_id": repo["repo_id"],
-            "stargazers_count": repo["stargazers_count"],
+            "stars": repo["stargazers_count"],
             "created_at": repo["created_at"],
             "updated_at": repo["updated_at"],
             "total_loc": loc,
         })
 
-    # Write repo_metadata.csv
-    with open(REPO_METADATA_CSV, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["repo_id", "stargazers_count", "created_at", "updated_at", "total_loc"])
+    # Write back updated repo_list.csv
+    with open(REPO_LIST_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["repo_id", "clone_path", "clone_status"])
         writer.writeheader()
-        writer.writerows(final_metadata)
+        for row in rows_to_update:
+            writer.writerow(row)
+
+    # Write repo_metadata.csv with required columns
+    with open(REPO_METADATA_CSV, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["repo_id", "stars", "created_at", "updated_at", "total_loc"])
+        writer.writeheader()
+        for meta in final_metadata:
+            writer.writerow(meta)
 
     log.info(f"Curation complete. List: {REPO_LIST_CSV}, Metadata: {REPO_METADATA_CSV}")
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--curate", action="store_true", default=True)
+    parser.add_argument("--curate", action="store_true", default=True,
+                        help="Run the repository curation step")
     args = parser.parse_args()
 
     if args.curate:

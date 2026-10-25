@@ -9,7 +9,7 @@ All tasks must produce **real** artifacts (GitHub data, ONNX inference, etc.) an
 
 **Goal**: Verify that the pipeline can run on a small real subset of repositories and produce the first usable tagged‑and‑matched dataset.
 
-- [ ] T000 [US1] **A‑priori power analysis**   <!-- FAILED-IN-EXECUTION: code/00_power_analysis.py exit=1 -->
+- [ ] T000 [US1] **A‑priori power analysis**
   - Using the `statsmodels.stats.power.WilcoxonPower` function, simulate a range of matched‑pair sample sizes to determine the minimum number required to achieve 0.80 power for detecting a medium effect size (rank‑biserial ≥ 0.3) with α = 0.05.  
   - Target **≥ 250 matched pairs** (as required by FR‑009).  
   - Output the result to `data/analysis/power_analysis_a_priori.json` containing fields `target_pairs`, `achieved_power`, `effect_size_target`.  
@@ -41,7 +41,7 @@ All tasks must produce **real** artifacts (GitHub data, ONNX inference, etc.) an
   - Provide focused unit tests in `code/tests/unit/test_git_mv_detection.py` covering (a) no rename, (b) rename within same directory, (c) rename across directories (should be excluded).  
   - **Verification**: The script exits with status 0, the CSV exists with ≥ 100 rows, and all unit tests pass (`pytest -q code/tests/unit/test_git_mv_detection.py`).
 
-- [ ] T004 [US1] **Classify blocks with CodeBERT, add static metrics, and document classifier provenance**  
+- [ ] T004 [US1] **Classify blocks with CodeBERT, add static metrics, and document classifier provenance**   <!-- FAILED-IN-EXECUTION: code/04_classifier_smoke_test.py exit=2 -->
   - Load the ONNX‑converted `microsoft/codebert-base` model using `onnxruntime` (CPU).  
   - For each block in `data/raw/code_blocks.csv`, run inference to obtain a probability for “LLM”. Assign label **LLM** if `p ≥ 0.8`, otherwise **Human**; blocks with confidence `< 0.8` are excluded and logged to `data/logs/classifier_exclusions.log`.  
   - Compute static complexity metrics with `radon` (cyclomatic complexity, maximum nesting depth, LOC) and append them to each retained block.  

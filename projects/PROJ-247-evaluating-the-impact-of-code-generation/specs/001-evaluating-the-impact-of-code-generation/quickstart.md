@@ -3,7 +3,7 @@
 ## Prerequisites
 - **Python 3.11+**
 - **GitHub Personal Access Token** with `repo` scope (to avoid unauthenticated rate limits).  
-- Minimum **8 GB RAM** and **10 GB free disk**.  
+- Minimum **8 GB RAM** and **Sufficient free disk space (e.g., on the order of several gigabytes).**.  
 - `git` installed and available in `$PATH`.
 
 ## Repository Setup
@@ -35,7 +35,7 @@ pip install -r code/requirements.txt
 ### Run the Full Pipeline
 ```bash
 export PYTHONPATH=$PYTHONPATH:$(pwd)/code   # make internal modules importable
-python code/main.py   # orchestrates all steps in order
+source .env.example && python code/main.py --stage quickstart   # orchestrates all steps in order
 ```
 
 The script executes the following sub‑scripts (each produces deterministic, validated output):
@@ -48,7 +48,7 @@ The script executes the following sub‑scripts (each produces deterministic, va
 | 4️⃣ Static Metrics & Classification | `code/03_classification.py` | `data/processed/tagged_blocks.csv` | `radon` metrics + CodeBERT labeling |
 | 5️⃣ Ground‑Truth Verification | `code/04_ground_truth.py` | `data/ground_truth/manual_labels.csv` | Random ≥ 100‑block manual labeling |
 | 6️⃣ Propensity‑Score Matching | `code/05_matching.py` | `data/processed/matched_pairs.csv` | Logistic regression & 1:1 NN |
-| 7️⃣ Longitudinal Metrics | `code/06_metrics_extraction.py` | `data/processed/metrics_per_pair.csv`, `data/processed/maintenance_events.csv` | Churn, normalized churn_rate, latency (6‑mo & 3‑mo) |
+| 7️⃣ Longitudinal Metrics | `code/06_metrics_extraction.py` | `data/processed/metrics_per_pair.csv`, `data/processed/maintenance_events.csv` | Churn, normalized churn_rate, latency (extended‑term & 3‑mo) |
 | 8️⃣ Statistical Analysis | `code/07_analysis.py` | `data/analysis/wilcoxon_results.json`, `data/analysis/figures/*.png` | Survival analysis for latency, within‑repo paired permutation for churn, BY correction |
 | 9️⃣ Logging & Config | `code/utils/config.py` | Console or file logs under `logs/` | Ensures reproducibility |
 
@@ -67,4 +67,3 @@ All tests must pass before proceeding to manuscript writing.
 - **Model download failure** – The first run downloads the ONNX model (hundreds of MB); ensure internet connectivity; the file is cached under `code/models/`.  
 
 ---
-

@@ -1,14 +1,37 @@
 T000:
-  reason: 'Requested task execution failed; rerun successfully: code/00_power_analysis.py
-    exit=1'
+  reason: "The JSON file `data/analysis/power_analysis_a_priori.json` exists and contains\
+    \ the required fields with `target_pairs`\u202F=\u202F250, but the supplied pytest\
+    \ `test_power_a_priori.py` fails because it cannot locate the JSON file at the\
+    \ expected relative path during test execution, so the verification step does\
+    \ not pass. The task must ensure the test runs successfully (e.g., generate the\
+    \ file before the test or place it where the test expects)."
   task: 8464e534f5caf0a9acb05d77c67e82252bc41b2b414e6f138ca5234c68b3d760
 T001:
+  reason: The logging config file exists and is valid, and the quickstart markdown
+    contains the required command, but the required `.env.example` file is missing
+    entirely, and the quickstart file is located at `specs/001-evaluating-the-impact-of-code-generation/quickstart.md`
+    instead of the specified `specs/001-code-maintainability-impact/quickstart.md`.
+    Add a proper `.env.example` at the project root defining the three variables and
+    place/update the quickstart file at the exact path required.
   task: eb0e146ee7a6ebcdffa40f74832dfb59949746c55c135a9d330e50f14cef94e0
 T002:
+  reason: "The required output files `data/raw/repo_list.csv` and `data/raw/repo_metadata.csv`\
+    \ are absent \u2013 the pytest suite `tests/test_curation_outputs.py` fails with\
+    \ \u201Cfile does not exist\u201D errors, and the `data/raw/` directory only contains\
+    \ the `clones/` subdirectory. Consequently the task\u2019s core deliverable (CSV\
+    \ files with \u2265\u202F50 rows) is missing."
   task: 55c99f5fadf2e5e633f60cd348855dee58517b36d92e1624b534e3888f3b30c7
 T003:
+  reason: Checked `code/03_code_block_extraction.py`, `data/raw/code_blocks.csv`,
+    `data/logs/refactor_exclusions.log`, and the unit test file `code/tests/unit/test_git_mv_detection.py`.
+    The extraction script generates a UUID for `block_id` instead of the required
+    `repo_id:file_path:start_line:end_line` format, the CSV and exclusion log files
+    are missing, and there is no evidence that the unit tests actually pass. The task
+    therefore remains incomplete.
   task: 3fa9d0c143ba915706e968e2de589b61c562cda7fe8a3e2aa82e2a5996ee8200
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/04_classifier_smoke_test.py
+    exit=2'
   task: 804e5bc0a06a1369e3cf561cc59e2d9adb8e19441bcf313721b8ef8f6ca11507
 T005:
   task: 4ee661c7e73cfc4dde5cd51c3ce88a3bdc6dc8b3178796010658dd3d1b6c1eba

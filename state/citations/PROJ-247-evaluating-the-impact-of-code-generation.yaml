@@ -9,14 +9,3 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/microsoft/codebert-base
   verified_at: '2026-10-23T10:44:30.869905Z'
-- artifact_hash: 54d56574dbd60fefad2c38a5199236ff23e597e9f7f163811e9f62f17483fa7d
-  artifact_path: projects/PROJ-247-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/PROJ-247-evaluating-the-impact-of-code-generation.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/PROJ-247-evaluating-the-impact-of-code-generation
-  verified_at: '2026-10-23T10:44:53.251822Z'

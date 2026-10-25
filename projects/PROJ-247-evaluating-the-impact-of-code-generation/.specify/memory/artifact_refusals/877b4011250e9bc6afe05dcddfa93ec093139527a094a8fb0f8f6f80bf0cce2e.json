@@ -1,7 +1,0 @@
-{
-  "task_id": "T004",
-  "fingerprint": "4c0df72f1e3026517ca3d25e01558136108217bfe64afdc755a38c01516fd1b9",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'tests/unit/test_classifier_smoke.py': SyntaxError at line 19: invalid decimal literal. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 3737"
-}

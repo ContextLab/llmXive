@@ -1,0 +1,30 @@
+- artifact_path: projects/PROJ-247-evaluating-the-impact-of-code-generation/docs/methods/classifier.md
+  attempts: 1
+  canonical: accuracy of 0.84
+  claim_id: c_93372f73
+  context: 'The original study reports: * Accuracy = 0.84'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Accuracy = 0.84
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T20:28:37Z'
+- artifact_path: projects/PROJ-247-evaluating-the-impact-of-code-generation/docs/methods/classifier.md
+  attempts: 1
+  canonical: F1 score of 0.82
+  claim_id: c_1cd54e8a
+  context: "The original study reports: * F1\u2011score = 0.82"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "F1\u2011score = 0.82"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T20:29:13Z'

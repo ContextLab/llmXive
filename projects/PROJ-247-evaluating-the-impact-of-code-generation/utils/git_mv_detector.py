@@ -1,37 +1,55 @@
 """
-Git rename detection utilities.
+Utilities for detecting rename (git mv) history of a file within a Git repository
+and deciding whether a rename should cause exclusion of a code block.
 
-Provides:
-  - get_git_rename_history(repo_path, file_path)
-  - should_exclude_due_to_rename(old_path, new_path)
-
-These are used by the unit tests in ``tests/unit/test_git_mv_detection.py`` and
-by the code‑block extraction pipeline.
+The functions are used by the code‑block‑extraction script (``code/03_code_block_extraction.py``)
+and by unit tests (``code/tests/unit/test_git_mv_detection.py``).
 """
 
 import subprocess
 from pathlib import Path
 from typing import List, Tuple
 
-
-def get_git_rename_history(repo_path: Path, file_path: Path) -> List[Tuple[str, str]]:
+def get_git_rename_history(repo_path: Path, rel_file: Path) -> List[Tuple[str, str]]:
     """
-    Return a list of ``(old_path, new_path)`` tuples representing rename events
-    for *file_path* within *repo_path*.
+    Return a list of rename events for ``rel_file`` within ``repo_path``.
 
-    The function runs ``git log --follow --name-status`` and parses lines that
-    start with ``R`` (rename). The order of the list follows the chronological
-    order of the log (oldest first).
+    Each rename event is a tuple ``(old_path, new_path)`` where the paths are
+    relative to the repository root (the same style as ``rel_file``).
+
+    The implementation relies on ``git log --follow --summary`` which
+    reports rename operations in lines that start with ``R`` (e.g.
+    ``R100\told_path\tnew_path``).  The function parses those lines,
+    preserving the order in which Git reports them (chronological from
+    oldest to newest).
+
+    Parameters
+    ----------
+    repo_path: Path
+        Path to the root of the Git repository.
+    rel_file: Path
+        Path to the file *as it exists now*, relative to ``repo_path``.
+
+    Returns
+    -------
+    List[Tuple[str, str]]
+        A list of rename pairs.  If the file has never been renamed, the
+        list is empty.
     """
+    # Ensure we are working with absolute paths for the subprocess call
+    repo_path = repo_path.resolve()
+    rel_file = rel_file.as_posix()  # git expects POSIX style paths
+
     try:
         result = subprocess.run(
             [
                 "git",
                 "log",
                 "--follow",
-                "--pretty=format:",
-                "--name-status",
-                str(file_path),
+                "--summary",
+                "--format=%H",  # commit hash only (helps git separate commits)
+                "--",
+                rel_file,
             ],
             cwd=repo_path,
             capture_output=True,
@@ -39,46 +57,59 @@ def get_git_rename_history(repo_path: Path, file_path: Path) -> List[Tuple[str, 
             check=True,
         )
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Git log failed for {file_path} in {repo_path}: {e}") from e
+        # If git fails (e.g., not a git repo), re‑raise to make the failure loud.
+        raise RuntimeError(f"Git log failed for {repo_path}/{rel_file}: {e}") from e
 
-    history: List[Tuple[str, str]] = []
+    rename_events: List[Tuple[str, str]] = []
+    # The output interleaves commit hashes and summary lines.
+    # We only care about lines that start with 'R' (rename).
     for line in result.stdout.splitlines():
-        parts = line.split("\t")
-        if not parts:
+        line = line.strip()
+        if not line:
             continue
-        status = parts[0]
-        if status.startswith("R") and len(parts) >= 3:
-            old, new = parts[1], parts[2]
-            history.append((old, new))
-    return history
-
+        # Rename lines look like: "R100\told_path\tnew_path"
+        if line.startswith("R"):
+            parts = line.split("\t")
+            if len(parts) >= 3:
+                _, old_path, new_path = parts[:3]
+                rename_events.append((old_path, new_path))
+    return rename_events
 
 def should_exclude_due_to_rename(old_path: str, new_path: str) -> bool:
     """
-    Determine whether a rename should trigger exclusion.
+    Decide whether a rename should trigger exclusion of a code block.
 
-    Exclusion criteria:
-      * The directory depth (number of path components) changes.
-      * The immediate parent directory name changes.
+    Exclusion criteria (as defined in the task specification):
+    * The directory depth changes (e.g., moving a file into a sub‑directory).
+    * The immediate parent directory name changes, even if the depth stays the same
+      (e.g., moving ``dir1/file.py`` to ``dir2/file.py``).
 
-    Returns ``True`` if either condition holds.
+    Parameters
+    ----------
+    old_path: str
+        The original file path (relative to the repository root) before the rename.
+    new_path: str
+        The new file path (relative to the repository root) after the rename.
+
+    Returns
+    -------
+    bool
+        ``True`` if the rename meets any exclusion criterion, ``False`` otherwise.
     """
     old_parts = Path(old_path).parts
     new_parts = Path(new_path).parts
 
-    # Depth comparison (ignore the filename)
+    # Depth is number of directories (parts minus the file name)
     old_depth = len(old_parts) - 1
     new_depth = len(new_parts) - 1
+
     if old_depth != new_depth:
         return True
 
-    # Parent directory name comparison
+    # Compare immediate parent directory names
     old_parent = Path(old_path).parent.name
     new_parent = Path(new_path).parent.name
     if old_parent != new_parent:
         return True
 
     return False
-
-
-__all__ = ["get_git_rename_history", "should_exclude_due_to_rename"]
