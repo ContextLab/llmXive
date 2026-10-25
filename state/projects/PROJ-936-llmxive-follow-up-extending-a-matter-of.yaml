@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T08:55:26.218728Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-936-llmxive-follow-up-extending-a-matter-of
-last_run_id: bf8df8b1-9d7e-4272-aaf6-262d2574dbf9
+last_run_id: e0cf0625-f148-4b26-a687-0efd2171c72d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-936-llmxive-follow-up-extending-a-matter-of/specs/001-llmxive-follow-up-extending-a-matter-of
 title: 'llmXive follow-up: extending "A Matter of TASTE: Improving Coverage and Difficulty
   of Agent Benchmar"'
-updated_at: '2026-10-25T03:35:46.505125Z'
+updated_at: '2026-10-25T03:41:49.764695Z'
