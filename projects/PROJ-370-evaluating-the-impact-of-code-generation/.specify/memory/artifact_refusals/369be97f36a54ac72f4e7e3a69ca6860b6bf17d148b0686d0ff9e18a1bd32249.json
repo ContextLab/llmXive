@@ -1,7 +1,0 @@
-{
-  "task_id": "T005",
-  "fingerprint": "3e265465336f02a2e395dd30d2614d4afeb8c5cf78878cc4b60cf18347726725",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'code/src/cli/main.py': imports nonexistent names from sibling files: `from src.utils.timeout_wrapper import get_remaining_time_seconds, get_timeout_context, log_timeout_warning` (available: Optional, Path, START_TIME_FILE, TIMEOUT_LIMIT_SECONDS, TIMEOUT_LOG_PATH, _write_timeout_event, check_global_timeout, check_timeout...); `from src.utils.logger import increment_pr_processed, increment_pr_skipped` (available: Path, _LOGGER, _LOG_FILE, _serialize_record, datetime, get_logger, json, logging...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-09T03:13:02.275872Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1020-llmxive-follow-up-extending-rynnworld-te
-last_run_id: b666ccdc-d0de-42e4-8b7f-fa4eefa07c67
+last_run_id: 9c8b18a4-ed5b-4c0e-84d5-b2c6bd772cc3
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-1020-llmxive-follow-up-extending-rynnworld-te/specs/001-llmxive-follow-up-extending-rynnworld-te
 title: 'llmXive follow-up: extending "RynnWorld-Teleop: An Action-Conditioned World
   Model for Digital Teleop"'
-updated_at: '2026-10-16T03:40:53.016696Z'
+updated_at: '2026-10-25T09:53:26.455604Z'

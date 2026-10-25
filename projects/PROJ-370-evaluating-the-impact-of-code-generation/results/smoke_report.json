@@ -1,0 +1,16 @@
+{
+  "threshold": 0.85,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1_score": 0.0,
+  "llm_only_recall": 0.0,
+  "mcnemar_p_value": 1.0,
+  "chi_square_p_value": 1.0,
+  "chi_square_statistic": 0.0,
+  "effect_size": 0.0,
+  "total_runtime_seconds": 0,
+  "sensitivity_to_noise": {
+    "high_confidence_p_value": 1.0,
+    "full_set_p_value": 1.0
+  }
+}

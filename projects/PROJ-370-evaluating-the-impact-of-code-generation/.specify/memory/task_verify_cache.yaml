@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: 37e4fc784bfc61d3721c5d75d8e265fe98c731eb52872ac8e4135ba3b9a81b62
-  r: "The verify_layout script confirms most required sub\u2011directories, but the\
-    \ expected path `specs/001-eval-llm-review-quality/contracts` is not present;\
-    \ instead the repository contains `specs/001-evaluating-the-impact-of-code-generation/contracts`.\
-    \ The exact required specs directory is missing, so the layout verification is\
-    \ not fully satisfied."
-  sig: 9ca963a854b0f227421bf2887432bb60b2456515b1816b7cc84b9046f8d60713
 T002:
   c: true
   h: cfde12c82675e812007cf25c0fd616a1df15baa301ba4cf2b3305c5b4ab1d8aa
@@ -15,3 +6,38 @@ T002:
     \ the three repos, hyper\u2011parameters, path constants, and random seeds). Both\
     \ files exist and match the task specifications."
   sig: 9be311031958507958b9a644e4850742fada90908ddae03dbaef1a8ad3561415
+T004:
+  c: true
+  h: 04cc17a8c08bb339d8b1995411ed6d51050686dfb37025198ac1364c3e968734
+  r: "Checked the presence and contents of `code/src/pipeline/logging_utils.py`, `code/src/pipeline/runtime_guard.py`,\
+    \ and their unit tests `code/tests/unit/test_logging_utils.py` and `code/tests/unit/test_runtime_guard.py`,\
+    \ all of which exist, are non\u2011empty, and the pytest logs show both test suites\
+    \ exit with code\u202F0 and the RuntimeGuard correctly exits with code\u202F143\
+    \ and writes a timeout event."
+  sig: 761b81bc836b40a3a6637b77e7fb8cdd5b15703d14c2393ded20f9e3cb4cf1be
+T005:
+  c: false
+  h: 6559b667b397e103e5f3e350279b47cf868ab886d125516a31a9f97f8cc69c9a
+  r: The CLI script exists, but it writes the smoke report to `results/smoke_report.json`
+    instead of the required `data/results/smoke_report.json`, and the expected `data/results/smoke_report.json`
+    file is missing. Additionally, there is no provided evidence that `logs/pipeline.jsonl`
+    contains a `"cli_start"` event.
+  sig: 6e50aaef6fdba38fea3945dbdaafa1890c820f434ee4ff20bb706b1ea1436903
+T006:
+  c: false
+  h: 160bea52231c500665d21d6d5c27d4628fae77dc38a699e526716b1c38ec3d10
+  r: "The `BugDetection` dataclass is present in `code/src/detection/schema.py` and\
+    \ `PullRequest` is defined in `code/src/extraction/schema.py`, but the required\
+    \ test suite `code/tests/contract/test_schemas.py` is missing, so the verification\
+    \ step \u201Cpytest \u2026 passes\u201D cannot be satisfied. Add the test file\
+    \ (or evidence of its successful execution) to complete the task."
+  sig: c1f70ff327788fe14cf1f9ebea5920f6a3006db619d78546459757aa1b04b9e7
+T007:
+  c: false
+  h: f58bd2f9aa0b316cf29a2538d9cda06354bae1e57548a7872973e89a1b4355d1
+  r: "The repository contains the `fetch_prs.py` script, but the required output files\
+    \ are absent: `data/raw/checksums.json` is missing and there is no evidence (logs,\
+    \ command output, or generated JSON payloads) that the script was executed successfully\
+    \ or produced non\u2011empty diffs and comments. The task\u2019s verification\
+    \ steps are therefore not satisfied."
+  sig: 75ab97df173ecf07b2b5dba172172e352cd5509ce37cb796845da85bd77f560f

@@ -1,0 +1,18 @@
+{
+  "seeding": {
+    "seed": 42
+  },
+  "model": {
+    "node_dim": 10,
+    "edge_dim": 5,
+    "hidden_dim": 32,
+    "num_layers": 3
+  },
+  "training": {
+    "max_epochs": 20,
+    "patience": 5,
+    "batch_size": 32,
+    "lr": 0.001,
+    "k_folds": 3
+  }
+}

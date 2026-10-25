@@ -12,7 +12,7 @@
   - **Artifact(s)**: `scripts/init_project.py` (exposes `setup_project_structure()`), empty directories `code/`, `data/raw/`, `data/derived/`, `data/processed/`, `tests/`, `state/`, `output/`, `docs/`.  
   - **Verification**: Run `python scripts/init_project.py`; afterwards `tree` (or `ls -R`) must show all listed directories and the script must exit with code 0.  
 
-- [ ] **T002** [US0] Add a pinned `requirements.txt` and a minimal `pyproject.toml` that configures the linting/formatting tools.   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
+- [ ] **T002** [US0] Add a pinned `requirements.txt` and a minimal `pyproject.toml` that configures the linting/formatting tools.   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
   - **Artifact(s)**: `requirements.txt` (Python 3.11, `pandas`, `numpy`, `statsmodels`, `datasets`, `nltk`, `vaderSentiment`, `ruff`, `black`, `flake8`, `pytest`, `shapely`), `pyproject.toml` (contains `[tool.black]`, `[tool.ruff]` sections).  
   - **Verification**: `pip install -r requirements.txt` succeeds, `ruff --version` and `black --version` run without error, and `ruff check code/` returns no lint failures on a clean repository.  
 

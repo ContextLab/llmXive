@@ -24,7 +24,7 @@ canonical format:
 - [ ] T003 [P] Create a `pyproject.toml` configuring **ruff** and **black** (line‑length 88, exclude patterns) and a GitHub Actions workflow that runs `ruff check` and `black --check` – `pyproject.toml`, `.github/workflows/ci.yml`
     *Verification*: `ruff check .` and `black --check .` both return exit 0 on a clean repo.
 
-- [ ] T004 [P] Implement core pipeline utilities:
+- [X] T004 [P] Implement core pipeline utilities:
     * `code/src/pipeline/logging_utils.py` – JSON‑lines logger that writes events conforming to `contracts/run_log_event_schema.yaml` to `logs/pipeline.jsonl`.
     * `code/src/pipeline/runtime_guard.py` – `RuntimeGuard` class that records a deadline timestamp, aborts the process with exit code 143 on breach, and writes a `"timeout"` event to `logs/timeout.log`.
     * Unit tests `code/tests/unit/test_logging_utils.py` and `code/tests/unit/test_runtime_guard.py`. – `code/src/pipeline/*.py`, `code/tests/unit/*.py`

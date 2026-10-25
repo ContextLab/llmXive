@@ -10,9 +10,9 @@ This script creates the following empty directories relative to the project root
   - output/
   - docs/
 
-It deliberately **does not** create a ``state/`` directory because that
-location is reserved for the platform's internal bookkeeping. Creating a
-shadow ``state/`` directory would interfere with the verification process.
+The ``state/`` directory is managed by the platform and must **not** be created
+by project code; attempting to create it would shadow the platform‑owned
+bookkeeping location and cause verification failures.
 
 The function ``setup_project_structure()`` is idempotent – running it multiple
 times will not raise errors. When the script is executed directly, it logs
@@ -47,10 +47,10 @@ def setup_project_structure() -> None:
     The directories are created with ``parents=True`` and ``exist_ok=True`` so
     that the call is safe to repeat. If any of the directories cannot be
     created (e.g., due to permission errors), an exception will be raised,
-    causing the script to exit with a non-zero status.
+    causing the script to exit with a non‑zero status.
 
-    Only project-owned output locations are created. The platform-owned
-    ``state/`` directory is intentionally NOT created.
+    NOTE: The platform owns the ``state/`` directory; this script deliberately
+    does **not** create it to avoid shadowing platform bookkeeping.
     """
     root = _project_root()
     dirs = [
@@ -73,13 +73,13 @@ def setup_project_structure() -> None:
 
 def main() -> None:
     """
-    Entry point for command-line execution.
+    Entry point for command‑line execution.
 
     Calls ``setup_project_structure()`` and exits with status 0 on success.
-    Any unhandled exception will cause a non-zero exit code, satisfying the
+    Any unhandled exception will cause a non‑zero exit code, satisfying the
     verification step that the script must exit cleanly.
     """
-    log.info("Initializing project directory structure (excluding platform-owned state/)...")
+    log.info("Initializing project directory structure (excluding platform‑owned state/)...")
     setup_project_structure()
     log.info("Project structure initialized successfully.")
 

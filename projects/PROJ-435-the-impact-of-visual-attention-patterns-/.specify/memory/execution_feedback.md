@@ -62,7 +62,7 @@ ERROR tests/unit/test_synthetic_data_generator.py
 ERROR tests/unit/test_verify_artifacts_checksums.py
 ERROR tests/unit/test_verify_checksums.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 17 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 17 errors in 2.85s ==============================
+============================== 17 errors in 2.20s ==============================
 
 
 

@@ -30,3 +30,20 @@
 {"timestamp": 1792516986.16691, "level": "INFO", "name": "root", "message": "Running src.extraction.fetch_prs.main()", "extra": {"name": "root"}}
 {"timestamp": 1792516986.1670144, "level": "INFO", "name": "src.extraction.fetch_prs", "message": "Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']", "extra": {"name": "src.extraction.fetch_prs"}}
 {"timestamp": 1792516986.1672537, "level": "INFO", "name": "src.extraction.fetch_prs", "message": "Fetching PRs for microsoft/vscode...", "extra": {"name": "src.extraction.fetch_prs"}}
+{"event": "cli_start", "timestamp": 1792919948.2389767}
+{"event": "seed_used", "seed": 42, "timestamp": 1792919948.2396836}
+{"event": "cli_complete", "status": "success", "timestamp": 1792919948.2399008}
+{"timestamp": 1792920071.0837948, "level": "INFO", "name": "__main__", "message": "Global timeout set to 6.00 hours", "extra": {"name": "__main__"}}
+{"timestamp": 1792920071.0838695, "level": "INFO", "name": "__main__", "message": "Phases to execute: []", "extra": {"name": "__main__"}}
+{"timestamp": 1792920071.083902, "level": "INFO", "name": "__main__", "message": "Pipeline execution finished.", "extra": {"name": "__main__"}}
+{"timestamp": 1792920191.5731707, "level": "INFO", "name": "__main__", "message": "Global timeout set to 6.00 hours", "extra": {"name": "__main__"}}
+{"timestamp": 1792920191.573249, "level": "INFO", "name": "__main__", "message": "Phases to execute: ['extraction', 'detection', 'inference', 'analysis', 'reporting']", "extra": {"name": "__main__"}}
+{"timestamp": 1792920191.5732892, "level": "INFO", "name": "__main__", "message": "Remaining time budget: 21600.00 seconds", "extra": {"name": "__main__"}}
+{"timestamp": 1792920191.5733292, "level": "INFO", "name": "root", "message": "=== Extraction Phase ===", "extra": {"name": "root"}}
+{"timestamp": 1792920191.5878868, "level": "INFO", "name": "root", "message": "Running src.extraction.fetch_prs.main()", "extra": {"name": "root"}}
+{"timestamp": 1792920191.587969, "level": "INFO", "name": "src.extraction.fetch_prs", "message": "Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']", "extra": {"name": "src.extraction.fetch_prs"}}
+{"timestamp": 1792920191.5880966, "level": "INFO", "name": "src.extraction.fetch_prs", "message": "Fetching PRs for microsoft/vscode...", "extra": {"name": "src.extraction.fetch_prs"}}
+{"timestamp": 1792920209.8239691, "level": "WARNING", "name": "src.extraction.fetch_prs", "message": "Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=9&per_page=100.", "extra": {"name": "src.extraction.fetch_prs"}}
+{"timestamp": 1792920209.8240619, "level": "WARNING", "name": "src.extraction.fetch_prs", "message": "Rate limit hit. Sleeping for 60 seconds.", "extra": {"name": "src.extraction.fetch_prs"}}
+{"timestamp": 1792920269.9366615, "level": "WARNING", "name": "src.extraction.fetch_prs", "message": "Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=9&per_page=100.", "extra": {"name": "src.extraction.fetch_prs"}}
+{"timestamp": 1792920269.9367535, "level": "WARNING", "name": "src.extraction.fetch_prs", "message": "Rate limit hit. Sleeping for 60 seconds.", "extra": {"name": "src.extraction.fetch_prs"}}
