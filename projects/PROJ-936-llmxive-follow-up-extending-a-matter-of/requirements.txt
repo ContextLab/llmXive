@@ -1,5 +1,2 @@
-# Project dependencies
-datasets>=2.14
-# Existing environment already provides: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil
+datasets
+huggingface_hub

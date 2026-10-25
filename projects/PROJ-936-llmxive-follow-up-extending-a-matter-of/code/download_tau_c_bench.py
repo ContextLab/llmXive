@@ -37,15 +37,13 @@ log = get_logger(__name__)
 # Configuration
 # ----------------------------------------------------------------------
 # The HuggingFace dataset identifier as specified in tasks.md.
-# The correct repo identifier includes the organization/user name.
-HF_DATASET = "sierra-research/tau_c_bench"
+# The correct repo identifier is simply "tau_c_bench".
+HF_DATASET = "tau_c_bench"
 
 # Possible URLs for the raw tasks.json file in the repository.
 RAW_JSON_URLS = [
     f"https://huggingface.co/datasets/{HF_DATASET}/resolve/main/tasks.json",
     f"https://huggingface.co/datasets/{HF_DATASET}/resolve/main/data/tasks.json",
-    f"https://raw.githubusercontent.com/sierra-research/tau_c_bench/main/tasks.json",
-    f"https://raw.githubusercontent.com/sierra-research/tau_c_bench/main/data/tasks.json",
 ]
 # ----------------------------------------------------------------------
 
@@ -172,10 +170,10 @@ def main() -> None:
 
     readme_path = dest_file.parent / "README.md"
     readme_contents = (
-        "# τ‑bench dataset (raw task definitions)\\n\\n"
-        f"Downloaded from the official HuggingFace dataset `{HF_DATASET}`.\\n"
-        f"Number of task records: {len(data)}\\n\\n"
-        f"SHA-256 checksum of `tasks.json`: `{checksum}`\\n"
+        "# τ-bench dataset (raw task definitions)\n\n"
+        f"Downloaded from the official HuggingFace dataset `{HF_DATASET}`.\n"
+        f"Number of task records: {len(data)}\n\n"
+        f"SHA-256 checksum of `tasks.json`: `{checksum}`\n"
     )
     readme_path.write_text(readme_contents, encoding="utf-8")
     log.info(f"Wrote checksum README to {readme_path}")
