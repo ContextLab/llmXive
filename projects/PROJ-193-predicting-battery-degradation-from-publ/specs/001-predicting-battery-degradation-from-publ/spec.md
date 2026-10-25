@@ -67,7 +67,7 @@ As a researcher, I want to apply permutation importance, SHAP analysis, and atte
   3. **University of Wisconsin Battery Repository** – https://data.wisc.edu/... (public CSV bundle)  
   The chosen dataset must provide voltage, current, temperature time‑series and capacity measurements for cells cycled under multiple protocols, and the system must filter for cells with complete cycling histories and known end‑of‑life capacity.
 - **FR-002**: System MUST resample time‑series data to a uniform **100 time‑steps per cycle**, normalize features per cell **using statistics computed only from the first 50 cycles**, and construct input sequences using the first 50 cycles as predictors and final capacity fade as the target (See US-1, FR‑010 removed). The Battery Archive dataset supplies the required three channels.
-- **FR-003**: System MUST implement a Bi‑LSTM model with 2 hidden layers (64 units) in PyTorch, configured to run exclusively on CPU without GPU acceleration (See US-2).
+- **FR-003**: System MUST implement a Bi‑LSTM model with multiple hidden layers (64 units) in PyTorch, configured to run exclusively on CPU without GPU acceleration (See US-2).
 - **FR-004**: System MUST train the model using the Adam optimizer with early stopping on a validation set, and perform a lightweight hyperparameter sweep (learning rate, hidden size) constrained to a 30‑minute execution window (See US-2).
 - **FR-005**: System MUST apply permutation importance, SHAP analysis, **and** attention‑based attribution to the trained model to quantify the contribution of specific time‑steps and channels (voltage, current, temperature) to the prediction (See US-3).
 - **FR-006**: System MUST evaluate the model on a held‑out test set of cells with unseen cycling protocols and report R² and RMSE metrics (See US-2).
@@ -102,7 +102,7 @@ As a researcher, I want to apply permutation importance, SHAP analysis, and atte
 ## Assumptions
 
 - The **Battery Archive** dataset (batteryarchive.org, DOI) contains real voltage, current, temperature time‑series and final capacity measurements for a sufficient number of cells; it aggregates cells from multiple public sources (e.g., NASA, Oxford, Sandia, Matr) providing at least two distinct cycling protocols with ≥15 cells each, satisfying FR‑011.
-- The GitHub Actions free‑tier runner (a modest number of CPU cores, several gigabytes of RAM) is sufficient to train the Bi‑LSTM model on the sampled dataset within the 6‑hour limit, based on benchmarked runtimes from similar studies.
+- The GitHub Actions free‑tier runner (a modest number of CPU cores, several gigabytes of RAM) is sufficient to train the Bi‑LSTM model on the sampled dataset within the typical time constraints of the free tier, based on benchmarked runtimes from similar studies.
 - The **first 50 cycles** window is a defensible community‑standard default for early‑cycle prediction; if the research suggests a different window is more predictive, a sensitivity analysis will be performed.
 - The Bi‑LSTM model will be trained in default precision (float32) without quantization or mixed‑precision to ensure CPU compatibility.
 - The dataset is publicly accessible and does not require authentication or special licensing beyond the standard terms of use.

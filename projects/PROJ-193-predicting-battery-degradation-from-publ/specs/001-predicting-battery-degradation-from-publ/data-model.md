@@ -1,34 +1,49 @@
 # Data Model: Predicting Battery Degradation from Public Cycling Data with Recurrent Neural Networks
 
 ## Overview
+The pipeline produces two core artefacts:
 
-Canonical representations for the pipeline. All artifacts under `data/` carry versioned filenames and provenance metadata; raw data is immutable (checksummed). Schemas in `contracts/` are validated by pytest (FR‑013). **No synthetic or placeholder data enters `data/`** (FR‑012); test fixtures live under `tests/fixtures/` and never produce reported metrics.
+1. **Processed Dataset** – ready‑to‑train tensors and metadata (`data/processed/processed_v1.npz`).  
+2. **Model Output** – predictions, uncertainty intervals, and interpretability scores (`results/predictions.json`).
+
+Both are validated against JSON‑Schema contracts in `contracts/`.
 
 ## Entities
 
 | Entity | Description | Fields |
 |--------|-------------|--------|
-| **BatteryCell** | Raw per‑cell record parsed from source CSVs. | `cell_id: string`, `protocol_type: string`, `cycle_numbers: list[int]`, `voltage_trace`, `current_trace`, `temperature_trace` (per‑cycle time‑series), `per_cycle_capacity: list[float]` |
-| **SequenceWindow** | Processed model input. | `cell_id: string`, `input_sequence: floating-point ndarray (50, 100, 3)`, `target_fade: float` where fade = (Q_initial − Q_final)/Q_initial **computed at cycle 100** (cells with fewer than 100 cycles are filtered out). |
-| **AggregatedFeatureImportance** | Summarized importance scores derived from raw time‑step/channel attributions. | `cell_id: string`, `per_cycle_importance: list[float]` (length 50, each the sum over 100 timesteps × 3 channels), `per_channel_importance: dict[string, float]` (`voltage`, `current`, `temperature`), `derived_signatures: dict[string, float]` (e.g., early‑cycle voltage variance, current slope, temperature fluctuation; these correspond to literature‑cited degradation signatures such as ΔQ(V) variance, early‑cycle capacity‑fade slope, incremental‑capacity peak shifts). |
-| **ModelPrediction** | Model output per test cell. | `cell_id: string`, `predicted_fade: float`, `ci_lower: float`, `ci_upper: float`, `feature_importance_scores: AggregatedFeatureImportance` |
-| **BaselineFeatureSet** | Hand‑crafted incremental‑capacity features **restricted to cycles 1‑50** (aligns with FR‑010). | `cell_id: string`, `features: dict[string, float]` (e.g., `dq_variance_1_50`, `fade_slope_early`, `ic_peak_shift_1_50`), `target_fade: float` |
+| **BatteryCell** | Raw per‑cell record parsed from source CSVs. | `cell_id: str`, `protocol_type: str`, `cycle_numbers: List[int]`, `voltage_trace`, `current_trace`, `temperature_trace` (per‑cycle time‑series), `per_cycle_capacity: List[float]` |
+| **SequenceWindow** | Processed model input (initial set of cycles). | `cell_id: str`, `input_sequence: ndarray (50, 100, 3)`, `target_fade: float` (computed as described below) |
+| **AggregatedFeatureImportance** | Summarized attribution scores. | `cell_id: str`, `per_cycle_importance: List[float]` (length 50), `per_channel_importance: Dict[str, float]` (`voltage`, `current`, `temperature`), `derived_signatures: Dict[str, float]` (e.g., voltage variance, current slope, temperature fluctuation) |
+| **ModelPrediction** | Model output per test cell. | `cell_id: str`, `protocol: str`, `predicted_fade: float`, `true_fade: float`, `ci_lower: float`, `ci_upper: float`, `feature_importance_scores: AggregatedFeatureImportance` |
+| **BaselineFeatureSet** | Hand‑crafted incremental‑capacity features (cycles 1‑50). | `cell_id: str`, `features: Dict[str, float]`, `target_fade: float` |
+
+## Target Definition (Addressing Reviewer Feedback)
+For each cell:
+
+```
+fade = (Q_initial - Q_final) / Q_initial
+```
+
+- `Q_initial` = capacity at **cycle 1**.  
+- `Q_final` = capacity at **cycle 150** if the cell reaches at least 150 cycles; otherwise the capacity at the **first cycle > 100**.  
+- This ensures `Q_final` lies **outside** the predictor window (cycles 1‑50) and removes label leakage.
 
 ## Splits
-
-- Train/validation: 80/20 by cell, stratified by `protocol_type`, fixed seed.
-- Test: entire held‑out protocol family (≥ 10 cells, FR‑011), guaranteed disjoint from training protocols.
+- **Train / Validation**: [deferred] / [deferred] stratified by `protocol_type`. Seed fixed (`seed=42`).
+- **Test (held‑out protocol)**: Entire protocol families not present in training, guaranteeing **≥ 10 cells** and **≥ 2 distinct protocols** (FR‑011).  
 
 ## Provenance
+All processed files record:
 
-Every processed file records: source URLs, checksums of raw inputs, pipeline version, seed, and generation timestamp.
+- `source_urls`: list of URLs used for download.  
+- `raw_checksums`: SHA‑256 checksums of each raw CSV.  
+- `pipeline_version`: semantic version of the preprocessing code.  
+- `generated_at`: ISO‑8601 UTC timestamp.  
 
-Derived files never overwrite raw files (Constitution III).
+## Contracts Mapping
+- `contracts/processed_dataset.schema.yaml` validates the NPZ structure, split indices, and provenance.  
+- `contracts/model_output.schema.yaml` validates the JSON predictions, metrics, and optional attribution fields.
 
-## Contracts
+---
 
-Validated by `tests/contract/test_processed_schema.py` and `tests/contract/test_model_output_schema.py` against `contracts/processed_dataset.schema.yaml` and `contracts/model_output.schema.yaml` (see `contracts/` files). Contract tests run on fixture‑derived artifacts; schema conformance of real‑data artifacts is asserted in‑pipeline at write time.
-
-## Mapping to Literature Signatures (new)
-
-`src/interpret/literature_mapping.py` defines explicit rules that map aggregated signatures (e.g., average voltage variance over cycles 1‑10) to the literature‑cited features required by SC‑010. This mapping enables a deterministic check that at least three of the top aggregated features correspond to known early‑cycle degradation signatures.

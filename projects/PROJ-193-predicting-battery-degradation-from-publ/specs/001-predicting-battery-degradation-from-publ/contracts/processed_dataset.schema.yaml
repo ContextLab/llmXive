@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Processed Battery Sequence Dataset"
-description: "Tensor dataset produced after ingestion and preprocessing, ready for model training. Input shape per cell is (a configurable number of cycles, a defined number of timesteps, 3 channels)."
+description: "Tensor dataset produced after ingestion and preprocessing, ready for model training. Input shape per cell is (several cycles, multiple time‑steps, 3 channels)."
 type: object
 required:
   - version
@@ -15,13 +15,13 @@ properties:
     description: "Semantic version of the processing pipeline (e.g., 'v1.0.0')."
   generated_at:
     type: string
-    description: "UTC timestamp (ISO 8601) when the file created."
+    description: "UTC timestamp (ISO 8601) when the file was created."
   seed:
     type: integer
     description: "Random seed used for splitting and training reproducibility."
   sequences:
     type: array
-    description: "Input tensors, each of shape (N, 100, 3): N cycles, 100 timesteps per cycle, 3 channels (voltage, current, temperature)."
+    description: "Input tensors, each of shape (N, M, 100, 3), where M denotes the intermediate feature dimension."
     items:
       type: array
       items:
@@ -32,7 +32,7 @@ properties:
             type: number
   targets:
     type: array
-    description: "Scalar final capacity-fade targets, fade = (Q_initial - Q_final)/Q_initial."
+    description: "Scalar final capacity‑fade targets, computed as described in the plan."
     items:
       type: number
   cell_ids:
@@ -42,12 +42,12 @@ properties:
       type: string
   protocols:
     type: array
-    description: "Cycling protocol label per cell, aligned with cell_ids; used for the held-out-protocol test split (FR-011)."
+    description: "Cycling protocol label per cell, used for held‑out protocol split."
     items:
       type: string
   splits:
     type: object
-    description: "Cell-index lists for train, validation, and held-out-protocol test sets."
+    description: "Indices for train, validation, and held‑out protocol test sets."
     properties:
       train:
         type: array
@@ -63,7 +63,7 @@ properties:
           type: integer
   provenance:
     type: object
-    description: "Source URLs, raw-file checksums, and pipeline version for reproducibility."
+    description: "Source URLs, raw file checksums, and pipeline version for reproducibility."
     properties:
       source_urls:
         type: array
@@ -71,5 +71,8 @@ properties:
           type: string
       raw_checksums:
         type: object
+        additionalProperties:
+          type: string
       pipeline_version:
         type: string
+        description: "Version tag of the preprocessing code."

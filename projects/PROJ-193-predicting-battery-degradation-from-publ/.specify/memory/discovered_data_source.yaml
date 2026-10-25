@@ -1,15 +1,14 @@
 status: none
-intent: Battery Archive dataset download CSV voltage current temperature capacity
-  DOI python package dataset
+intent: Battery Archive NASA Ames University Wisconsin battery cycling dataset download
+  python package dataset
 required_fields:
 - cell_id
 - cycle_number
-- time
+- time_index
 - voltage
 - current
 - temperature
 - capacity
-- final_capacity_fade
-cache_key: 806fdfa3eaa62625c5d2e127e30d5fed8541f1ebeb35126404bf971f5930c5bb
-searched_at: '2026-10-17T09:34:41.541391+00:00'
+cache_key: bfe195df71379bc2bcf5312abcb24924ad5d22bf6866dacff5ed020f36b4a392
+searched_at: '2026-10-25T17:25:25.034283+00:00'
 retry_count: 1
