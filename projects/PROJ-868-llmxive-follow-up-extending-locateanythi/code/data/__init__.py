@@ -1,1 +1,1 @@
-# Package marker for code.data
+# Package marker for the data submodule

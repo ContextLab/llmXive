@@ -167,7 +167,7 @@ def main() -> None:
         else:
             actual = sha256_of_file(target_path)
             log.warning(
-                "No checksum defined for %s. Calculated hash: %s", 
+                "No checksum defined for %s. Calculated hash: %s",
                 target_path.name, actual
             )
 

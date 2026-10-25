@@ -1,9 +1,6 @@
 T001:
-  reason: "The repository lacks the required `data/raw/vrsbench.parquet`, `coco_val.parquet`,\
-    \ and `refcoco_plus.parquet` files, and the `EXPECTED_HASHES` in `download.py`\
-    \ are placeholder strings rather than the published SHA\u2011256 checksums. No\
-    \ execution evidence shows the script running successfully or the unit test passing,\
-    \ so the task\u2019s download\u2011and\u2011verify requirement is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
   task: 3b381b8dbbdb7a5457e6481743bf9d50fdb3e48604651ca5b576d0af16490f59
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/data/preprocess.py
