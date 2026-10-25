@@ -1,3 +1,7 @@
+# Idea (source material)
+
+(no idea text was supplied)
+
 # Specification: Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive Decline
 
 ## 1. Introduction
@@ -110,7 +114,7 @@ Diagnostics and any violations shall be reported in the final statistical report
 
 ## 4. Non-Functional Requirements
 
-- **Reproducibility**: All random seeds must be fixed, and data sources must be versioned via checksums. An optional benchmark note: on an Intel Xeon E5‑2670 v3 (12 cores, 64 GB RAM) the full pipeline completes in ≤ 4 hours.
+- **Reproducibility**: All random seeds must be fixed, and data sources must be versioned via checksums. An optional benchmark note: on an Intel Xeon processor (multi‑core) with ample memory resources. the full pipeline completes in ≤ 4 hours.
 - **Privacy**: No PII (name, email, phone, address) shall be logged or stored; an automated regex audit (see FR‑005 / US4) must verify this condition.
 - **Robustness**: The pipeline shall log all exclusion reasons to `data/interim/exclusions.log` and continue processing remaining records.
 - **Memory**: Peak RAM usage must not exceed 16 GB, measured by monitoring the process RSS during execution.
@@ -145,4 +149,11 @@ The project follows a phased approach:
 
 ## Requirements *(mandatory)*
 
-Functional requirements are defined in the “Functional Requirements” section above. Please refer to those definitions for the authoritative specifications.
+Functional requirements are defined in Section 2. All placeholder functional requirement entries, including the duplicate FR-001, have been removed to avoid ambiguity.
+
+## Assumptions
+
+- Users have stable internet connectivity to download the ADReSS dataset.
+- Mobile support is out of scope for the initial release.
+- Existing authentication system will be reused for any internal tooling.
+- Requires access to the existing user profile API for metadata enrichment.
