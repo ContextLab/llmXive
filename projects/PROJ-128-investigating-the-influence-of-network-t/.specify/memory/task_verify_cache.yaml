@@ -1,19 +1,20 @@
 T001:
   c: true
-  h: a908b2e3869a16c8bddbc3b604e7b45d526c9ae2b3f70c9d5f61f348045d8809
-  r: "Checked that the project root contains the required top\u2011level folders (`code/`,\
-    \ `data/`, `contracts/`, `tests/`) and that the specified sub\u2011directories\
-    \ (`data/raw`, `data/derived`, `data/logs`, `tests/unit`, `tests/integration`)\
-    \ are present and populated. All required paths exist."
-  sig: 3ea75831f2c4ef143c3b2a3080ba381e50be63708d2a3bd4322a6ffa3e1a61df
+  h: fb1e13537f8e2fe5aa97b3e5363de2bbb723e27925adcf1cfa34055121251434
+  r: "Checked the presence of the top\u2011level directories `code/`, `data/`, `contracts/`,\
+    \ `tests/` and their required sub\u2011directories (`data/raw`, `data/derived`,\
+    \ `data/logs`, `tests/unit`, `tests/integration`) in the project root; all exist\
+    \ and contain files."
+  sig: 2efa41145ebe909fa871e881647675489334e2b7b9a909c7d905e48d38b992c5
 T002:
-  c: false
-  h: 07a80cf28443c5c1367d73d4fc9c86edabca4b4482c546553c1dccbd710d0726
-  r: The provided `requirements.txt` lists the required packages but does not pin
-    them to specific versions (e.g., `nilearn==...`). Only `pyyaml` has a version
-    spec, and an extra `datasets` line is present. To satisfy the task, each dependency
-    must be pinned (e.g., `nilearn==1.2.3`, `networkx==3.1`, etc.).
-  sig: 5ec7a85ca18d8aa011cadaf58fbec88e10604a5d978995a4ae1d464124300da7
+  c: true
+  h: 86862b9807ae028c30097f94bf4143da05df29374230941a38834fd3772a5b04
+  r: "The `requirements.txt` file was found at the expected location and contains\
+    \ exact version pins for nilearn, networkx, scikit-learn, pandas, numpy, statsmodels,\
+    \ scipy, and pyyaml (pinned to 6.0.1, satisfying the \u201C>=6.0\u201D constraint).\
+    \ The file is non\u2011empty and includes no placeholders, meeting the task\u2019\
+    s specification."
+  sig: e749b2444c5101441bd70bbff2a7c9b18df55fef4f75493c3ccba10e5728bd67
 T003:
   c: true
   h: 3a64e6411fc2771d78c5223a17b1005eea0cbc3eb3b55c5cec0ab984a49b5960
@@ -51,39 +52,38 @@ T005:
   sig: 77b01be80e4bda0b24f68e6632e6184868cabb5bd5863f6859ef83bc27302edf
 T006:
   c: true
-  h: f8e24cbeaaacab5761cedf5d3a77a820688fe0bcf6a23814ca727f01457dbb7b
-  r: "Checked the resolved artifact `code/structural.py` (10960\u202Fbytes) \u2013\
-    \ the file exists, is non\u2011empty, and provides the required skeleton (functions,\
-    \ CLI) with a placeholder\u2011style wrapper that delegates metric calculation\
-    \ to `preprocess.structural.calculate_graph_metrics`. This satisfies the task\u2019\
-    s requirement."
-  sig: 08db699f231dc857f6255e125b840e653877d0892057a6f237b1e7bb396fc4c0
+  h: 3c2d5f3e784a52f63c3eaa8c1b51bd984f3653cb2f1d343c1cc93efad913a22f
+  r: "Checked the `code/structural.py` file (resolved path present, 10\u202F960\u202F\
+    bytes) which defines the required wrapper functions, loading, metric calculation,\
+    \ and CLI skeleton, fulfilling the task to implement the module with a placeholder\u2011\
+    style wrapper around the core metric calculation."
+  sig: 1522036bf33ac1af2d4d50fc1a3ddf0ff48c9fa5eaf171a39290ff4619ecc3da
 T007:
   c: true
-  h: 0df2d18d121c136b2238087484367dc5d3825b7e25f82ebb9c6bf98c0d362176
-  r: "Checked `code/functional.py` (20491\u202Fbytes) \u2013 the module defines `_sliding_window_correlation`\
-    \ for sliding\u2011window correlation and functions (`generate_loso_centroids`,\
-    \ `assign_windows_to_centroids`, `compute_dynamic_metrics`, `process_subject_functional`)\
-    \ that perform state extraction via LOSO k\u2011means centroids. The required\
-    \ skeleton is present and functional."
-  sig: 358d4deb6f2ff43f221af00eb4a44bdc16bff4bb67965a2f66f1452afe94ae72
+  h: 432c1c95b54f25d7eec83cbcd22e380f7774f70cd7c670636b01e01d1fb34d6d
+  r: "Checked the `code/functional.py` file (20491\u202Fbytes) which defines `_sliding_window_correlation`,\
+    \ `assign_windows_to_centroids`, and related processing functions, providing a\
+    \ full implementation of sliding\u2011window correlation and state extraction\
+    \ as required. The file is non\u2011empty, contains concrete logic (no TODOs or\
+    \ stubs), and matches the task specification."
+  sig: e3dda7dc2457d8853fa195b265bff943564f7497ecd1e17fdfb9c9fc8781f75f
 T008:
   c: true
-  h: 3766f178050dd4def984e031149ae4c828c0254cb6518812c4a5b02c6ee69f68
-  r: "Checked the `code/correlation.py` file (4562\u202Fbytes) which defines a command\u2011\
-    line\u2011runnable `main` function, loads structural and dynamic metric CSVs,\
-    \ invokes the statistical routine in `analysis.correlation`, and writes the results\
-    \ CSV \u2013 exactly the requested skeleton for statistical testing."
-  sig: 3f373981e388ba4d0a779a8a8a80fc5f874e92729ff770ff66cff3dabdbf5e4d
+  h: 4c9ed673e0e0a1ea8b72de245f3364d54319d230e1d9320907758655097322bf
+  r: "Checked the `code/correlation.py` file (4562\u202Fbytes) which exists at the\
+    \ required path and contains a functional skeleton that loads metric CSVs, invokes\
+    \ the statistical analysis utilities, and writes the results, fulfilling the task\u2019\
+    s specification."
+  sig: 52f90508ec2871893f99d9b7e6fc004de056c8360b158151908d16f78e450d30
 T009:
   c: true
-  h: f9206b9a94bef12249d1a0340e3359401146d9ed701165728fef2ee14ad82aa8
-  r: "Checked the resolved file `code/reports/generate_report.py` (12796\u202Fbytes)\
-    \ which defines functions to load metrics, compute summary statistics, assemble\
-    \ a comprehensive report dictionary, and write it to `final_report.json`. The\
-    \ script is a concrete, non\u2011placeholder implementation of the requested report\u2011\
-    generation skeleton."
-  sig: 2d5981cd159ac5f27d6f6bef6e2dd812e1f1f92046fe1f195f351f8f2bd9d375
+  h: d3c42ce79948ec16e7f014cf865e83672d4ed79c04062a1a9f9d405308677681
+  r: "Checked the resolved artifact `code/reports/generate_report.py` (12796\u202F\
+    bytes) which contains a fully defined script with functions to load data, compute\
+    \ summary statistics, assemble a report dictionary, and write `final_report.json`.\
+    \ The file exists, is non\u2011empty, and implements the expected skeleton for\
+    \ generating the final output."
+  sig: b74c48a8829c2206d2dd52a5183dc822679e3c44b46e45c5b9a1c3427258ee39
 T009a:
   c: true
   h: 60066818849861a9e876321574be0b79e6f4c91bef0c701bde1f8d565200d963

@@ -5,10 +5,6 @@ T001a:
     exit=1'
   task: 3a4f0dcc936408fb2fae4f52ada5061273dcade590a08109238c71cc2b2d710c
 T002:
-  reason: The provided `requirements.txt` lists the required packages but does not
-    pin them to specific versions (e.g., `nilearn==...`). Only `pyyaml` has a version
-    spec, and an extra `datasets` line is present. To satisfy the task, each dependency
-    must be pinned (e.g., `nilearn==1.2.3`, `networkx==3.1`, etc.).
   task: 78ad4d8c016442cca743b65e86089966dad7b69c06a045f48ad0f20732cdbe91
 T003:
   task: 65d1d6842884ede345b7497961ad4b9341ca0b6bb176357c3b2b055c0f3c9b0a

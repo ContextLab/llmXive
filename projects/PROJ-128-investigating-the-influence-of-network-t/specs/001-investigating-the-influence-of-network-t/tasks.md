@@ -48,7 +48,7 @@ description: "Task list template for feature implementation"
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 [P] **Create Project Directory Structure**: Create `code/`, `data/`, `contracts/`, `tests/` directories and subdirectories as defined in the Plan (`data/raw`, `data/derived`, `data/logs`, `contracts/`, `code/`, `tests/unit`, `tests/integration`). Verify structure exists.
-- [ ] T002 Create `requirements.txt` pinning all dependencies (nilearn, networkx, scikit-learn, pandas, numpy, statsmodels, scipy, pyyaml>=6.0).
+- [X] T002 Create `requirements.txt` pinning all dependencies (nilearn, networkx, scikit-learn, pandas, numpy, statsmodels, scipy, pyyaml>=6.0).
 - [X] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` or `.pre-commit-config.yaml`.
 
 ---
@@ -66,8 +66,8 @@ description: "Task list template for feature implementation"
 - [X] T007 [P] Implement `code/functional.py` skeleton for sliding-window and state extraction.
 - [X] T008 [P] Create `code/correlation.py` skeleton for statistical testing.
 - [X] T009 [P] Create `code/reports/generate_report.py` skeleton for final output.
-- [X] T009a [P] **Create Documentation**: Write `docs/quickstart.md` with instructions to run the full pipeline end-to-end, including environment setup and data fetching.
-- [~] T010 [P] Setup `data/` directory structure (raw, derived, logs) and `contracts/` schema files (`dataset.schema.yaml`, `output.schema.yaml`).
+- [~] T009a [P] **Create Documentation**: Write `docs/quickstart.md` with instructions to run the full pipeline end-to-end, including environment setup and data fetching.
+- [ ] T010 [P] Setup `data/` directory structure (raw, derived, logs) and `contracts/` schema files (`dataset.schema.yaml`, `output.schema.yaml`).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
