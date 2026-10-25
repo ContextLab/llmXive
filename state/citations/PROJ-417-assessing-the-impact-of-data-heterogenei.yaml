@@ -20,3 +20,14 @@
   verification_status: pending
   verified_against_url: https://osf.io/9k2v6/
   verified_at: '2026-10-06T22:53:52.439715Z'
+- artifact_hash: 64786ed4dcefe906bb41490633f8eb32490f7efcb82ee1211c4aed2d8fd2c265
+  artifact_path: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/MetaAnalysisData/Cochrane/master/meta_data.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/MetaAnalysisData/Cochrane/master/meta_data.csv
+  verified_at: '2026-10-25T16:42:36.821467Z'
