@@ -1,9 +1,39 @@
 T001:
   c: true
-  h: 15b27ea98da327c669964c35ac3faacb2ea95f90650602757a516137fa091721
-  r: "Checked the five contract schema files in `contracts/` (hashes match those recorded\
-    \ in `data/raw/contract_hashes.json`), the `code/copy_contracts.py` script that\
-    \ performs the copy and hashing, and the passing test `tests/contract/test_contract_copy.py`\
-    \ which asserts `src_hash == dst_hash` for each file. All artifacts exist, are\
-    \ non\u2011empty, and the hashes confirm verbatim duplication."
-  sig: 09652044e3a116ac90b0fb1badaddd1485dbd58d85bf3c0a9dc3237619c00d59
+  h: 25cab505e87a9d54db9b036455b394c9a388a07fcd0ef858f55738123dc28221
+  r: Checked the `data/raw/contract_hashes.json` entries showing identical `src_hash`
+    and `dst_hash` for all five contract files, and the pytest run (`tests/contract/test_contract_copy.py`)
+    which passed, confirming the script copied the schemas verbatim and the verification
+    succeeded.
+  sig: b15ff16673025d64ad334c029fb2e21eb33d655f76dbb44a83f2f803cfc3a59d
+T002:
+  c: false
+  h: 7ab9fd23c5d75167194308865335a010d1b1ea4d415211613e81c6688e732bf8
+  r: "The `code/generate_data.py` script creates the required JSON files but does\
+    \ not implement a memory\u2011limit guard nor does it write the `data/raw/checksums.json`\
+    \ file, so the checksum\u2011consistency requirement is unmet. Moreover, the supplied\
+    \ `tests/unit/test_generate_data.py` does not actually verify record counts, schema\
+    \ compliance, overlap thresholds, or checksum consistency (it references undefined\
+    \ symbols and expects different field names), so the verification step is insufficient."
+  sig: 60628339c658af2d35b2e1e1057c17700f2eb9f6cd0b807440787aed8899844d
+T004:
+  c: false
+  h: bd9e6aaaa93dc535ae42e72bfd28f24c5636450f9d82a4775dadb1f21d0206cb
+  r: "The `tests/contract/test_schemas.py` file exists, but its execution log shows\
+    \ multiple failures: all tasks lack the required `solution_path` field (schema\
+    \ validation fails for 500 tasks) and the overlap\u2011metric test fails because\
+    \ the generated skill embeddings do not meet the configured overlap thresholds.\
+    \ Consequently the contract\u2011validation suite does not successfully validate\
+    \ the data as required. The data generation step must be corrected to include\
+    \ the missing fields and achieve the target similarity levels."
+  sig: 7fa57d3dd92394b68e02fb9d3db1f8f1545b36b4af55d0cd90679c28667d75cc
+T005:
+  c: false
+  h: a3c785ab089d4db731e4ddf6a2b6bc96165f19faeba0c56c9538a4fb40855736
+  r: Checked `code/logging_config.py` (defines the correct `LOG_COLUMNS` and a `get_logger`
+    that should write to `data/results/experiment_log.csv`) and the test suite `tests/contract/test_logging_schema.py`.
+    The required CSV log file `data/results/experiment_log.csv` is missing, and there
+    is no evidence that the tests have been run and passed, so the logging behavior
+    cannot be confirmed. The task needs a created CSV file (or proof that the tests
+    succeed) to satisfy the requirement.
+  sig: 6047f3a424e8d74e8acb9fb40db3b34617cbdc0f8b78a073225116cf08e48474

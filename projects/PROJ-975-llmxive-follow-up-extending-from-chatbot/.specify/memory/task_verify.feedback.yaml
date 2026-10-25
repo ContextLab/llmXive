@@ -1,14 +1,39 @@
 T001:
   task: 902baa1dd56af83fb991547ae56b3da9fe5f4f69d2f4abf63b4732c96d8cf897
 T002:
+  reason: "The `code/generate_data.py` script creates the required JSON files but\
+    \ does not implement a memory\u2011limit guard nor does it write the `data/raw/checksums.json`\
+    \ file, so the checksum\u2011consistency requirement is unmet. Moreover, the supplied\
+    \ `tests/unit/test_generate_data.py` does not actually verify record counts, schema\
+    \ compliance, overlap thresholds, or checksum consistency (it references undefined\
+    \ symbols and expects different field names), so the verification step is insufficient."
   task: 1f6ac80f52208f850eead5d57567c37dac4c62c336c28de2c64cea0fbc36aedf
 T003:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
   task: e9578efb5c067893cb5fc98262ac1ef8613aa1c7438138191240341ae5a309bd
 T004:
+  reason: "The `tests/contract/test_schemas.py` file exists, but its execution log\
+    \ shows multiple failures: all tasks lack the required `solution_path` field (schema\
+    \ validation fails for 500 tasks) and the overlap\u2011metric test fails because\
+    \ the generated skill embeddings do not meet the configured overlap thresholds.\
+    \ Consequently the contract\u2011validation suite does not successfully validate\
+    \ the data as required. The data generation step must be corrected to include\
+    \ the missing fields and achieve the target similarity levels."
   task: 816eba6082f40f14c96cf95aabb172f1f670f7f6502be281c9dfe00fabe0a836
 T005:
+  reason: Checked `code/logging_config.py` (defines the correct `LOG_COLUMNS` and
+    a `get_logger` that should write to `data/results/experiment_log.csv`) and the
+    test suite `tests/contract/test_logging_schema.py`. The required CSV log file
+    `data/results/experiment_log.csv` is missing, and there is no evidence that the
+    tests have been run and passed, so the logging behavior cannot be confirmed. The
+    task needs a created CSV file (or proof that the tests succeed) to satisfy the
+    requirement.
   task: adb973ea5b93f4ecd39ef2c94f5a1abca063ee220b47f804783b86bc7c82ea89
 T006:
+  reason: 'Requested task execution failed; rerun successfully: code/agent.py exit=-1'
   task: bc6bd1e464cf8e2bd6035c35a458e27ecec6a29d489e50cd7b4abd049314122c
 T007:
   task: 969bca29514619ea479fc5d2659590786deef6125adf4b1103a3141ff423e55c

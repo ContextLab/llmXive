@@ -33,7 +33,7 @@ The list follows the three research phases (setup → full experiment →�
 
 ## Phase 2 – Full experimental sweep, corrected pruning, and statistical analysis  
 
-- [ ] **T006** [S] [US2] **Update agent CLI, ensure CSV output, and produce a small end‑to‑end run**  
+- [ ] **T006** [S] [US2] **Update agent CLI, ensure CSV output, and produce a small end‑to‑end run**   <!-- FAILED-IN-EXECUTION: code/agent.py exit=-1 -->
   *Path*: `code/agent.py` – new CLI arguments:  
     * `--library-sizes LIST` (comma‑separated list of sizes; a single value is allowed for a one‑size run).  
     * `--task-sample INT` (number of tasks to draw from the 500‑task pool).  

@@ -36,21 +36,21 @@ def test_real_tasks_schema_compliance():
     """
     schema = load_schema(TASK_SCHEMA_PATH)
     data = load_json_data(TASKS_DATA_PATH)
-    
+
     # Handle both list format and dict-wrapped format
     tasks_list = data['tasks'] if isinstance(data, dict) and 'tasks' in data else data
     if not isinstance(tasks_list, list):
         pytest.fail(f"Unexpected data structure in {TASKS_DATA_PATH}: {type(tasks_list)}")
-    
+
     assert len(tasks_list) > 0, "Tasks list is empty."
-    
+
     errors = []
     for i, task in enumerate(tasks_list):
         try:
             validate(instance=task, schema=schema)
         except ValidationError as e:
             errors.append(f"Task {i} (ID: {task.get('task_id', 'N/A')}): {e.message}")
-    
+
     if errors:
         pytest.fail(f"Schema validation failed for {len(errors)} tasks:\n" + "\n".join(errors))
 
@@ -60,21 +60,21 @@ def test_real_skills_schema_compliance():
     """
     schema = load_schema(SKILL_SCHEMA_PATH)
     data = load_json_data(SKILLS_DATA_PATH)
-    
+
     # Handle both list format and dict-wrapped format
     skills_list = data['skills'] if isinstance(data, dict) and 'skills' in data else data
     if not isinstance(skills_list, list):
         pytest.fail(f"Unexpected data structure in {SKILLS_DATA_PATH}: {type(skills_list)}")
-    
+
     assert len(skills_list) > 0, "Skills list is empty."
-    
+
     errors = []
     for i, skill in enumerate(skills_list):
         try:
             validate(instance=skill, schema=schema)
         except ValidationError as e:
             errors.append(f"Skill {i} (ID: {skill.get('skill_id', 'N/A')}): {e.message}")
-    
+
     if errors:
         pytest.fail(f"Schema validation failed for {len(errors)} skills:\n" + "\n".join(errors))
 
@@ -84,7 +84,7 @@ def test_skills_embedding_dimension():
     """
     data = load_json_data(SKILLS_DATA_PATH)
     skills_list = data['skills'] if isinstance(data, dict) and 'skills' in data else data
-    
+
     for skill in skills_list:
         embedding = skill.get('embedding_vector', [])
         assert len(embedding) == 384, f"Skill {skill.get('skill_id')} embedding length is {len(embedding)}, expected 384."
@@ -95,27 +95,27 @@ def test_real_skills_overlap_metrics():
     """
     data = load_json_data(SKILLS_DATA_PATH)
     skills_list = data['skills'] if isinstance(data, dict) and 'skills' in data else data
-    
+
     # Extract embeddings as a numpy array
     embeddings = np.array([s['embedding_vector'] for s in skills_list])
-    
+
     # Compute mean pairwise cosine similarity using the utility
     mean_score = mean_pairwise_similarity(embeddings)
-    
+
     # Get active overlap level from config
     config = get_experiment_config()
     overlap_level = config.get('overlap_level', os.environ.get('OVERLAP_LEVEL', 'MEDIUM')).upper()
-    
+
     # Calculate distribution for threshold checks
     norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
     norms[norms == 0] = 1
     normalized = embeddings / norms
     sim_matrix = np.dot(normalized, normalized.T)
-    
+
     # Mask diagonal to get only unique pairs
     mask = ~np.eye(sim_matrix.shape[0], dtype=bool)
     all_pairs = sim_matrix[mask]
-    
+
     if overlap_level == 'LOW':
         assert mean_score < 0.30, f"Low overlap expected mean < 0.30, got {mean_score:.4f}"
     elif overlap_level == 'MEDIUM':
@@ -135,18 +135,18 @@ def test_task_skill_reference_integrity():
     """
     tasks_data = load_json_data(TASKS_DATA_PATH)
     skills_data = load_json_data(SKILLS_DATA_PATH)
-    
+
     tasks_list = tasks_data['tasks'] if isinstance(tasks_data, dict) and 'tasks' in tasks_data else tasks_data
     skills_list = skills_data['skills'] if isinstance(skills_data, dict) and 'skills' in skills_data else skills_data
-    
+
     valid_skill_ids = {s['skill_id'] for s in skills_list}
-    
+
     errors = []
     for i, task in enumerate(tasks_list):
         gt_path = task.get('ground_truth_path', [])
         for sid in gt_path:
             if sid not in valid_skill_ids:
                 errors.append(f"Task {task.get('task_id', i)} references missing skill_id: {sid}")
-    
+
     if errors:
         pytest.fail(f"Reference integrity check failed:\n" + "\n".join(errors))

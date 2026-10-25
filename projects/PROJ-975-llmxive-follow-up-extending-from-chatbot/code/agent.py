@@ -111,7 +111,8 @@ def run_task(task: Dict[str, Any],
     """
     task_id = task['task_id']
     description = task['description']
-    ground_truth_ids = task.get('ground_truth_path', [])
+    # The schema expects ground_truth_skills; some datasets also provide ground_truth_path.
+    ground_truth_ids = task.get('ground_truth_skills') or task.get('ground_truth_path') or []
 
     start_time = time.time()
     edge_case = "none"
@@ -197,8 +198,9 @@ def main():
 
     CLI flags:
       --library-sizes 10 20 30 ...   list of library sizes to test (required)
+      --task-sample INT              number of tasks to draw from the 500‑task pool (default 500)
       --overlap [low|medium|high]   optional; if omitted all three levels are used
-      --pruning [off|fr04]          optional; can be provided as a flag (defaults to fr04) or with a value
+      --pruning [off|fr04|on]       optional; 'on' is an alias for 'fr04'
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -209,6 +211,12 @@ def main():
         help="List of library sizes to evaluate (e.g., 10 20 30 ...)."
     )
     parser.add_argument(
+        "--task-sample",
+        type=int,
+        default=500,
+        help="Number of tasks to sample from the full task pool."
+    )
+    parser.add_argument(
         "--overlap",
         type=str,
         choices=["low", "medium", "high"],
@@ -217,14 +225,14 @@ def main():
         default=None,
         help="Overlap level to use. If omitted, all three levels are evaluated."
     )
-    # Allow the flag to be supplied without a value (treated as fr04)
+    # Accept both the original 'fr04' name and a user‑friendly 'on' flag.
     parser.add_argument(
         "--pruning",
         nargs="?",
         const="fr04",
         default="off",
-        choices=["off", "fr04"],
-        help="Pruning variant: 'off' disables pruning, 'fr04' enables the FR‑004 heuristic."
+        choices=["off", "fr04", "on"],
+        help="Pruning variant: 'off' disables pruning, 'fr04' or 'on' enables the FR‑004 heuristic."
     )
     args = parser.parse_args()
 
@@ -233,6 +241,10 @@ def main():
         overlap_levels = [args.overlap.upper()]
     else:
         overlap_levels = ["LOW", "MEDIUM", "HIGH"]
+
+    # Normalise pruning flag
+    pruning_flag = "fr04" if args.pruning in ("fr04", "on") else "off"
+    pruning_enabled_default = pruning_flag == "fr04"
 
     pin_seeds()
 
@@ -259,11 +271,16 @@ def main():
     exec_log_dir = os.path.join("data", "results", "execution_logs")
     os.makedirs(exec_log_dir, exist_ok=True)
 
+    # Clean any existing experiment CSV so we start fresh (remove placeholder rows)
+    csv_path = os.path.join("data", "results", "experiment_log.csv")
+    if os.path.exists(csv_path):
+        try:
+            os.remove(csv_path)
+        except OSError as e:
+            logger.warning(f"Could not delete existing CSV log: {e}")
+
     # Iterate over the Cartesian product of configurations
-    for lib_size, pruning_flag, overlap in product(args.library_sizes,
-                                                   [args.pruning],
-                                                   overlap_levels):
-        pruning_enabled = pruning_flag == "fr04"
+    for lib_size, overlap in product(args.library_sizes, overlap_levels):
         # Sample a fresh library for this configuration
         sampled_skills = skills[:lib_size]
         library = SkillLibrary(sampled_skills)
@@ -272,18 +289,24 @@ def main():
         run_id = f"run_{lib_size}_{pruning_flag}_{overlap}"
         exec_log_path = os.path.join(exec_log_dir, f"{run_id}.jsonl")
 
+        # Determine which tasks to process (sample without replacement)
+        if args.task_sample >= len(tasks):
+            selected_tasks = tasks
+        else:
+            selected_tasks = random.sample(tasks, args.task_sample)
+
         # Open JSON‑L file for this run
         with open(exec_log_path, "w") as jsonl_file:
-            # Process all tasks (full 500‑task set)
-            for idx, task in enumerate(tasks):
-                res = run_task(task, library, pruning_enabled=pruning_enabled)
+            # Process the selected tasks
+            for idx, task in enumerate(selected_tasks):
+                res = run_task(task, library, pruning_enabled=pruning_enabled_default)
 
                 # CSV logging via the shared logger
                 log_entry = {
                     "run_id": run_id,
                     "task_id": res["task_id"],
                     "library_size": library.library_size,  # may have changed due to pruning
-                    "pruning_enabled": pruning_enabled,
+                    "pruning_enabled": pruning_enabled_default,
                     "success": res["success"],
                     "latency_ms": res["latency_ms"],
                     "tokens_used": res["tokens"],
@@ -298,7 +321,7 @@ def main():
                     "log_id": str(uuid.uuid4()),
                     "task_id": res["task_id"],
                     "library_size": library.library_size,
-                    "pruning_enabled": pruning_enabled,
+                    "pruning_enabled": pruning_enabled_default,
                     "success": res["success"],
                     "failure_reason": res["failure_reason"],
                     "token_usage": res["tokens"],
@@ -309,14 +332,13 @@ def main():
                 jsonl_file.write(json.dumps(exec_entry) + "\n")
 
                 # Apply pruning after every 10 tasks if enabled
-                if pruning_enabled and ((idx + 1) % 10 == 0):
-                    # prune_fr04 returns (pruned_library, false_prune_count)
+                if pruning_enabled_default and ((idx + 1) % 10 == 0):
                     pruned_lib, false_prune_count = prune_fr04(library.skills, tasks)
                     library.update_library(pruned_lib)
-                    # The false_prune_count is not a CSV column but can be inspected later via the JSON‑L logs.
+                    # false_prune_count is retained for downstream analysis but not logged here
 
-        logger.info(f"Completed run {run_id}: processed {len(tasks)} tasks "
-                    f"with pruning={'on' if pruning_enabled else 'off'} at overlap {overlap}.")
+        logger.info(f"Completed run {run_id}: processed {len(selected_tasks)} tasks "
+                    f"with pruning={'on' if pruning_enabled_default else 'off'} at overlap {overlap}.")
 
     logger.info("All configurations have been processed.")
 

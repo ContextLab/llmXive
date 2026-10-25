@@ -4,12 +4,12 @@ required_fields:
 - task_id
 - task_description
 - ground_truth_solution_path (ordered list of skill_ids)
+- task_num_steps
 - skill_id
 - skill_name
 - skill_description
-- embedding_vector (numeric array)
-- overlap_level
-- semantic_density
-cache_key: 0b675df83a55ce2afa4007c0201a40bff376040d96a67728f7838f6f680426f6
-searched_at: '2026-10-25T16:25:08.421306+00:00'
+- skill_embedding_vector
+- skill_overlap_score
+cache_key: cbca63a133fe392ba47e286dcb8c5a5e2d12ad770771ffb3b9635791cd1ab19d
+searched_at: '2026-10-25T16:29:36.157994+00:00'
 retry_count: 1

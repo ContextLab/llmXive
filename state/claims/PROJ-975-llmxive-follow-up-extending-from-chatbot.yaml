@@ -2080,3 +2080,35 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-02T04:11:25Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: 500 multi-step tasks are generated
+  claim_id: c_1c7346b8
+  context: 'Step 2 of the pipeline: Generate Synthetic Data (User Story 1) instructs
+    to generate 500 multi-step tasks and a skill library with configurable overlap.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Generate 500 multi-step tasks and a skill library with configurable overlap:'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T16:27:58Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: The system checks RAM usage
+  claim_id: c_da888320
+  context: In the troubleshooting section it states that the system checks RAM usage
+    and suggests reducing dataset size if a "Memory Limit Exceeded" error occurs.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The system checks RAM usage.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T16:27:58Z'
