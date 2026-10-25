@@ -8,7 +8,7 @@ The list follows the canonical `- [ ] T### [P?] [USx?] description …` format. 
 
 ## Phase 0 – Environment setup  
 
-- [X] T000 [US-?] Create a reproducible Python environment, pin all dependency versions, set a global random seed, and generate SHA‑256 checksums for raw data.  
+- [ ] T000 [US-?] Create a reproducible Python environment, pin all dependency versions, set a global random seed, and generate SHA‑256 checksums for raw data.  
   - **Files**: `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`, `data/checksums.txt`  
   - **Verification**: `pip install -r requirements.txt` succeeds; `python -c "import src.utils.seeds; assert src.utils.seeds.SEED==42"` runs without error; `sha256sum` of each file matches entries in `data/checksums.txt`.
 
@@ -28,7 +28,7 @@ The list follows the canonical `- [ ] T### [P?] [USx?] description …` format. 
   - **Files**: `src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`, `src/interfaces/session.py`, `tests/interfaces/test_interfaces.py`  
   - **Verification**: `pytest -q tests/interfaces/test_interfaces.py` passes; a simulated participant receives a JSON response from `/init_session` indicating `interface_order` is balanced, and a second call after the first block is rejected until a 10‑minute interval has elapsed (mocked time in tests).
 
-- [X] T004 [US-2] Implement millisecond‑precision interaction logging that records start/end timestamps, iteration count, payload, response image path, and **NASA‑TLX score** after each task; aborted edits are logged with status `"aborted"`.  
+- [ ] T004 [US-2] Implement millisecond‑precision interaction logging that records start/end timestamps, iteration count, payload, response image path, and **NASA‑TLX score** after each task; aborted edits are logged with status `"aborted"`.  
   - **Files**: `src/logger/interaction_logger.py`, `tests/logger/test_interaction_logger.py`  
   - **Verification**: A test edit via FastAPI `TestClient` creates a line in `data/logs/interactions.jsonl` that validates against `specs/001-llmxive-follow-up-extending-crafter-a-mu/contracts/interaction_log.schema.yaml` and includes `subjective_load` (NASA‑TLX) and correct `task_start_ms` / `task_end_ms`.
 
@@ -36,7 +36,7 @@ The list follows the canonical `- [ ] T### [P?] [USx?] description …` format. 
   - **Files**: `src/validation/vector_match.py`, `src/validation/semantic_similarity.py`, `src/validation/run_validation.py`, `tests/validation/test_validation.py`  
   - **Verification**: Unit tests cover (a) exact vector match → `overall_success=True`, `semantic_pass` may be True/False; (b) semantic‑only match → `overall_success=False`, `semantic_pass=True`; (c) total failure → both False. All records conform to `semantic_validation.schema.yaml`.
 
-- [X] T006 [US-3] Perform a priori power analysis (α = 0.025, effect size d≈0.5, power = 0.80) and generate a deterministic synthetic participant driver that produces schema‑conformant logs at the required scale.  
+- [ ] T006 [US-3] Perform a priori power analysis (α = 0.025, effect size d≈0.5, power = 0.80) and generate a deterministic synthetic participant driver that produces schema‑conformant logs at the required scale.  
   - **Files**: `src/simulation/power_analysis.py`, `src/simulation/simulate_participants.py`  
   - **Verification**: `python -m src.simulation.power_analysis` prints required N ≥ 32 and exits 0; after running `simulate_participants.py`, `data/logs/interactions.jsonl` contains ≥ 7 500 lines, all passing the `interaction_log` schema test.
 
@@ -44,7 +44,7 @@ The list follows the canonical `- [ ] T### [P?] [USx?] description …` format. 
 
 ## Phase 2 – Aggregation, analysis, and validation  
 
-- [X] T007 [US-2] Aggregate per‑task `SemanticValidation` records into a **session‑aware** file (`data/results/semantic_validation_by_session.jsonl`). The aggregation step also (a) skips tasks with corrupted ground‑truth vectors (logging a warning), (b) respects the 15‑minute timeout by marking such tasks as `"aborted"` and **excluding** them from primary time‑to‑success calculations, and (c) records the final effective N per participant.  
+- [ ] T007 [US-2] Aggregate per‑task `SemanticValidation` records into a **session‑aware** file (`data/results/semantic_validation_by_session.jsonl`). The aggregation step also (a) skips tasks with corrupted ground‑truth vectors (logging a warning), (b) respects the 15‑minute timeout by marking such tasks as `"aborted"` and **excluding** them from primary time‑to‑success calculations, and (c) records the final effective N per participant.  
   - **File**: `src/analysis/validation_by_session.py` (updated)  
   - **Verification**: The output JSONL includes fields `session_id`, `task_id`, `overall_success`, `semantic_pass`, and `status`; a downstream schema validator (`tests/analysis/test_validation_aggregation.py`) passes.
 

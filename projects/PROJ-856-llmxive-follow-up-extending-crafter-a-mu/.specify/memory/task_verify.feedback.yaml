@@ -1,4 +1,9 @@
 T000:
+  reason: "The required files (`requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,\
+    \ `data/checksums.txt`) exist, but there is no evidence that `pip install -r requirements.txt`\
+    \ actually succeeded, nor any proof that the SHA\u2011256 values in `data/checksums.txt`\
+    \ were verified against the real files (e.g., command output or test logs). Provide\
+    \ installation logs and a verification run showing the checksums match."
   task: 63cb785ad60849e3caad4e88b36a90dc16d45849d7d3436f96b3354127241d03
 T001:
   task: 33b0619536c5f27a80371343dc50d7d8dc1269231f6184f6f9ec957d445cbb8c
@@ -7,16 +12,35 @@ T002:
 T003:
   task: dbf9a91563acd8266b94ceb0cd265230aa07b3708ef6725c19587239924819ff
 T004:
+  reason: "The logger module exists and can write millisecond\u2011precision JSON\
+    \ lines, and the unit tests validate schema conformity, but there is no evidence\
+    \ of a FastAPI endpoint being exercised by a TestClient, nor any log entry showing\
+    \ the required `subjective_load` (NASA\u2011TLX) field or an `aborted` status.\
+    \ The provided `interactions.jsonl` sample lacks `subjective_load`, and no test\
+    \ demonstrates that a FastAPI request triggers logging with the correct timestamps\
+    \ and optional fields. Adding a FastAPI route that calls `log_interaction` and\
+    \ a test that uses `TestClient` to verify a logged line containing `"
   task: d94402329fbfa8637993ab610740efdf24a33787b4fb06f5a38448d31e2fa0e2
 T005:
-  reason: The three required source files and the unit test exist and the test passes,
-    but the referenced `semantic_validation.schema.yaml` file is missing, so we cannot
-    verify that the produced records truly conform to the required schema. Adding
-    the schema file (or confirming its presence) is needed to complete the task.
+  reason: "The three required source modules and the unit\u2011test file are present\
+    \ and implement the dual\u2011success logic correctly, but the referenced `semantic_validation.schema.yaml`\
+    \ is missing, so we cannot verify that the generated records actually conform\
+    \ to the required schema. Adding the schema file (or otherwise proving conformance)\
+    \ is needed to complete the task."
   task: 55e2f555d7f99ddb9ddcd2466a1de5c787372d5c8886162fb7d8743883775f41
 T006:
+  reason: "The required files exist, and `simulate_participants.py` appears to generate\
+    \ >7\u202F500 log lines, but there is no evidence that `python -m src.simulation.power_analysis`\
+    \ actually prints a required N\u202F\u2265\u202F32 and exits with status\u202F\
+    0, nor any proof that the generated `interactions.jsonl` lines all pass the `interaction_log`\
+    \ schema test. Execution output and schema\u2011validation results are needed."
   task: e96f06895a9ad6b36f01119a0f00a251ca1c38485ed78c982123e821a3dce3e1
 T007:
+  reason: "The aggregation script and the session\u2011aware JSONL output exist and\
+    \ contain the required fields, and the test suite passes, but the required artifact\
+    \ that records the final effective\u202FN per participant (`effective_N_by_participant.jsonl`)\
+    \ is not present in the repository. Without this file the task\u2019s \u201Crecord\
+    \ the final effective N per participant\u201D requirement is unmet."
   task: f940264c5ec0a5940309d8a88a7ac432aae2b24fc6ea98b65f0b9c1638ae3816
 T008:
   reason: 'Requested task execution failed; rerun successfully: src/analysis/wilcoxon_analysis.py

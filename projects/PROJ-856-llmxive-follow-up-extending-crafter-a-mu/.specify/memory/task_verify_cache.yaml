@@ -1,12 +1,12 @@
 T000:
-  c: true
-  h: 838e0965ca3bc82932832c72740da5093f8d892b6747fc08bd709f38cd68c2a5
-  r: "Checked that `requirements.txt` is present with exact version pins, `src/utils/seeds.py`\
-    \ defines `SEED = 42` (import assertion passes), `src/utils/checksums.py` correctly\
-    \ writes SHA\u2011256 entries, and `data/checksums.txt` is non\u2011empty and\
-    \ was generated successfully as shown in the execution log. All required files\
-    \ exist and meet the task specifications."
-  sig: fb1123356e6d7443290417098e0d0e417aeb28df8f4c32fc1c1f1433caebee90
+  c: false
+  h: e6b20b4b5c91313c17c4f16cbd995af0d8044339bd3d80ff1016cbf67ab10c3f
+  r: "The required files (`requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,\
+    \ `data/checksums.txt`) exist, but there is no evidence that `pip install -r requirements.txt`\
+    \ actually succeeded, nor any proof that the SHA\u2011256 values in `data/checksums.txt`\
+    \ were verified against the real files (e.g., command output or test logs). Provide\
+    \ installation logs and a verification run showing the checksums match."
+  sig: b0ec6ca99b7ab24be1f4c043745b6ce9bdf7f7abe0980a043cd36963f719aa35
 T001:
   c: true
   h: 841fff798c26558a2992af2f35e92ed670afbd8cd3b40f22513472274dbca311
@@ -35,36 +35,32 @@ T003:
     \ functionality and the tests confirm correct responses."
   sig: 29168b1b201932806ad1d36dad5f2b1ed85913bc92d9ce13e78f9a8787d9228f
 T004:
-  c: true
-  h: ccca32982cd3661368c5641a2e50b7c6b0e994b5abf8a8cb7bf31ae0332dd8a5
-  r: "Checked `src/logger/interaction_logger.py` for millisecond timestamps, start/end\
-    \ tracking, iteration, payload, response image path, optional NASA\u2011TLX (`subjective_load`)\
-    \ and abort status logic, and verified that all seven pytest cases in `tests/logger/test_interaction_logger.py`\
-    \ (including schema validation, deterministic logging, abort handling, and subjective\
-    \ load clamping) passed, confirming compliance with the required schema and behavior."
-  sig: 69076d5271fd5331928f1900aa1578f8dc7979323d5c8850fa66220d4df2df4e
-T005:
   c: false
-  h: 7ec48b252ec26c31a71d7f04a462e696b7e87c20a32b22940726cc6582468886
-  r: The three required source files and the unit test exist and the test passes,
-    but the referenced `semantic_validation.schema.yaml` file is missing, so we cannot
-    verify that the produced records truly conform to the required schema. Adding
-    the schema file (or confirming its presence) is needed to complete the task.
-  sig: 416291b1cb832904b0f0d24d2d87df6b871b49447003d945bc31206ed915c44a
+  h: a36a005cb09807fae62dc9c2e81f1debfe6f9885354d9a02b956ae68f051bf64
+  r: "The logger module exists and can write millisecond\u2011precision JSON lines,\
+    \ and the unit tests validate schema conformity, but there is no evidence of a\
+    \ FastAPI endpoint being exercised by a TestClient, nor any log entry showing\
+    \ the required `subjective_load` (NASA\u2011TLX) field or an `aborted` status.\
+    \ The provided `interactions.jsonl` sample lacks `subjective_load`, and no test\
+    \ demonstrates that a FastAPI request triggers logging with the correct timestamps\
+    \ and optional fields. Adding a FastAPI route that calls `log_interaction` and\
+    \ a test that uses `TestClient` to verify a logged line containing `"
+  sig: 2bec530f8bd1952d2eba271778f547da2adaeedd7556af39e058726c288a7d8d
 T006:
-  c: true
-  h: c2727832ea73050816dc75a423d3657b7d1a647f0f65261aad7c72c7d3bca330
-  r: "Checked `src/simulation/power_analysis.py` execution (prints \u201CRequired\
-    \ participants (per group): 41\u201D, \u2265\u202F32, exit\u202F0), `src/simulation/simulate_participants.py`\
-    \ run (produces `data/logs/interactions.jsonl` \u2248\u202F6\u202FMB \u2192 >\u202F\
-    7\u202F500 lines) and the passing `tests/logger/test_interaction_logger.py` which\
-    \ validates schema conformity and deterministic logging."
-  sig: ccb7effe55443f035e812d2c4efc9b01bd57fa90576598c30fc9ef99c95345f5
+  c: false
+  h: 0cab946ab1d0758ae340114aeefa64a9f999421aae5388569ebb8d469a4d0241
+  r: "The required files exist, and `simulate_participants.py` appears to generate\
+    \ >7\u202F500 log lines, but there is no evidence that `python -m src.simulation.power_analysis`\
+    \ actually prints a required N\u202F\u2265\u202F32 and exits with status\u202F\
+    0, nor any proof that the generated `interactions.jsonl` lines all pass the `interaction_log`\
+    \ schema test. Execution output and schema\u2011validation results are needed."
+  sig: 8d404d4e61cfb6aea2eb6a1827133019781fd59db1ea63cf5e277a5d061a3857
 T007:
-  c: true
-  h: ecfa33d05812f2aa696498e401e9d2df8e2ea670c84387198a238e438f1a8bfc
-  r: Checked `data/results/semantic_validation_by_session.jsonl` for required fields
-    and correct handling, and verified `src/analysis/validation_by_session.py` implements
-    skipping corrupted records, abort status handling, and writes effective N; the
-    accompanying test `tests/analysis/test_validation_aggregation.py` passes.
-  sig: ed5f7107945b926e146c6040cd111c9aea3eed0ea14a68067a28a309e6414502
+  c: false
+  h: 6e4a0d883a1ec76ee890bf0f275273d34498c89eecdc6a76b9017bf5439ddff0
+  r: "The aggregation script and the session\u2011aware JSONL output exist and contain\
+    \ the required fields, and the test suite passes, but the required artifact that\
+    \ records the final effective\u202FN per participant (`effective_N_by_participant.jsonl`)\
+    \ is not present in the repository. Without this file the task\u2019s \u201Crecord\
+    \ the final effective N per participant\u201D requirement is unmet."
+  sig: 7d89a6a5e46c7a368100df062b5740ef24ca0168ce4997fbc4cb9e1367f3df1d
