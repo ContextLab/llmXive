@@ -50,7 +50,9 @@ class Config:
         # Back‑compatible alias used by older scripts (e.g. main.py)
         # Allows `CONFIG.results` to resolve to the same path as
         # `CONFIG.results_dir`.
-        self.results = self.results_dir
+        # The property `results` defined below provides this alias,
+        # so we do NOT set an attribute named `results` here to avoid
+        # the setter conflict that caused earlier failures.
 
         # Random seed for reproducibility
         self.random_seed = random_seed

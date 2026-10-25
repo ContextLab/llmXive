@@ -21,7 +21,7 @@ All tasks respect the data‑flow ordering required by the specification (FR‑0
 - [X] T001c [P] Add placeholder `.gitkeep` files in `data/raw/` and `data/processed/`.  
   **Verification**: Files are present, allowing empty directories to be tracked.
 
-- [ ] T002 [P] Initialise a Python project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit‑learn, matminer, statsmodels, chemparse, joblib, pytest, jsonschema).  
+- [ ] T002 [P] Initialise a Python project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit‑learn, matminer, statsmodels, chemparse, joblib, pytest, jsonschema).   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
   **Verification**: `pip install -r code/requirements.txt` completes without conflicts.
 
 - [ ] T003 [P] Configure linting/formatting (ruff + black) via `code/pyproject.toml`.  
@@ -37,13 +37,13 @@ All tasks respect the data‑flow ordering required by the specification (FR‑0
 
 ## Phase 1 – Data acquisition
 
-- [~] T006 [US1] Implement `code/logging_config.py`  
+- [ ] T006 [US1] Implement `code/logging_config.py`  
   *Create a `RotatingFileHandler` that writes JSON‑formatted log records to `data/logs/app.log` (max 10 MiB, 5 backups). The JSON payload must contain **only** the fields defined in `contracts/logging_schema.yaml`.*  
   **Verification**:  
   1. Run a short script that emits >10 MiB of logs; confirm rotation occurs and exactly 5 backup files are created.  
   2. Sample a log entry and validate it with the schema (`jsonschema.validate`).  
 
-- [~] T007 [US1] Define Pydantic models for the data contracts in `code/schemas/alloy_record.py`  
+- [X] T007 [US1] Define Pydantic models for the data contracts in `code/schemas/alloy_record.py`  
   *Models must match `specs/001-predicting-the-effect-of-alloying-on-the/contracts/alloy_record.schema.yaml` exactly.*  
   **Verification**: Unit test loads a valid JSON example and validates against the model.
 

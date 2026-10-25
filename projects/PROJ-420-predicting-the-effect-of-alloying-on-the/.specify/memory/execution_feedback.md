@@ -9,19 +9,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/main.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 16, in <module>
-    CONFIG = get_config()
-             ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/config.py", line 88, in get_config
-    _CONFIG = Config()
-              ^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/config.py", line 53, in __init__
-    self.results = self.results_dir
-    ^^^^^^^^^^^^
-AttributeError: property 'results' of 'Config' object has no setter
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 167, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 156, in main
+    aggregate_report_context()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 123, in aggregate_report_context
+    model_metrics = load_json_safe(str(Path(CONFIG.results_dir) / "model_metrics.json"))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main.py", line 23, in load_json_safe
+    raise FileNotFoundError(f"Required JSON file not found: {path}")
+FileNotFoundError: Required JSON file not found: results/model_metrics.json
 
 - python -m pytest tests/test_contracts.py -> rc=1
-           "model_metrics.schema.yaml",
+.parametrize(
+        "contract_file",
+        [
+            "logging_schema.yaml",
+            "dataset.schema.yaml",
+            "model_metrics.schema.yaml",
             "feature_importance.schema.yaml",
             "collinearity_diagnostic.schema.yaml",
         ],
@@ -30,16 +35,15 @@ AttributeError: property 'results' of 'Config' object has no setter
         """Check that a contract file exists and can be parsed as YAML/JSON."""
         path = CONTRACTS_DIR / contract_file
 >       assert path.is_file(), f"Contract file missing: {contract_file}"
-E       AssertionError: Contract file missing: feature_importance.schema.yaml
+E       AssertionError: Contract file missing: model_metrics.schema.yaml
 E       assert False
-E        +  where False = <bound method Path.is_file of PosixPath('contracts/feature_importance.schema.yaml')>()
-E        +    where <bound method Path.is_file of PosixPath('contracts/feature_importance.schema.yaml')> = PosixPath('contracts/feature_importance.schema.yaml').is_file
+E        +  where False = <bound method Path.is_file of PosixPath('contracts/model_metrics.schema.yaml')>()
+E        +    where <bound method Path.is_file of PosixPath('contracts/model_metrics.schema.yaml')> = PosixPath('contracts/model_metrics.schema.yaml').is_file
 
 tests/test_contracts.py:30: AssertionError
 =========================== short test summary info ============================
 FAILED tests/test_contracts.py::test_contract_file_exists_and_valid[model_metrics.schema.yaml]
-FAILED tests/test_contracts.py::test_contract_file_exists_and_valid[feature_importance.schema.yaml]
-========================= 2 failed, 4 passed in 0.06s ==========================
+========================= 1 failed, 5 passed in 0.06s ==========================
 
 
 

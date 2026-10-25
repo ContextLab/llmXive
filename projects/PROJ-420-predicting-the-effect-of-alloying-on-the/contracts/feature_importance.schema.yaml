@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureImportance"
+description: "Back‑transformed importance scores for alloying elements."
+type: object
+required:
+  - Cu_importance
+  - Mg_importance
+  - Si_importance
+  - Zn_importance
+  - Mn_importance
+  - ranked_elements
+properties:
+  Cu_importance:
+    type: number
+    description: "Importance contribution of Copper."
+    minimum: 0
+  Mg_importance:
+    type: number
+    description: "Importance contribution of Magnesium."
+    minimum: 0
+  Si_importance:
+    type: number
+    description: "Importance contribution of Silicon."
+    minimum: 0
+  Zn_importance:
+    type: number
+    description: "Importance contribution of Zinc."
+    minimum: 0
+  Mn_importance:
+    type: number
+    description: "Importance contribution of Manganese."
+    minimum: 0
+  ranked_elements:
+    type: array
+    description: "Elements ordered from highest to lowest importance."
+    items:
+      type: string
+      enum:
+        - "Cu"
+        - "Mg"
+        - "Si"
+        - "Zn"
+        - "Mn"
+additionalProperties: false

@@ -1,11 +1,11 @@
 T001a:
   c: true
-  h: d40cdcb6bd349a8ef01b100f352655be98d8d353b701786855aac2a4ceafc46c
-  r: "Checked the collector\u2011confirmed presence of all required directories (`code/`,\
-    \ `data/raw/`, `data/processed/`, `models/`, `results/`, `tests/`, `contracts/`)\
-    \ and the successful execution log of `create_core_layout.py` confirming the layout\
-    \ was created."
-  sig: b48b9ab016dd2d6a5f06a5a4e60f9844615e8f8b2677d4170802c06587a54e6e
+  h: 1dc9a2405e9d5febd1eb4b15d374dfa3596d922986612980a8168a124d7dc088
+  r: The collector confirms that `code/`, `data/raw/`, `data/processed/`, `models/`,
+    `results/`, `tests/`, and `contracts/` directories all exist in the project root,
+    and the task log (`code/.tasks/T001a.code_create_core_layout.py.log`) reports
+    successful creation of the core layout.
+  sig: 2f19868ce75ff9e4094f05fbaf057fb890cf47fad04c61f6128b9ae9e4b4aa48
 T001b:
   c: true
   h: dc6fa5184cf4ab32e52cd05a74ab2ddc1ad3ee04118e67137eadb9864fee4e1b
@@ -48,21 +48,31 @@ T004:
   sig: 487917d764f4a44e7aeca5c12d40e4f3a97864fafaf3ea345b95342f13369004
 T005:
   c: true
-  h: c86a750d9af4ca6d41650416cbcfc55d9dc1667528cd6bcbb55401e012a1d67a
-  r: Checked `code/config.py` which defines the required `DATA_ROOT`, `MODEL_ROOT`,
-    `RESULT_ROOT`, `RANDOM_SEED`, and `VALID_MEASUREMENT_METHODS` at module level,
-    and verified the passing test log `tests/test_config.py` confirming the constants
-    are importable.
-  sig: eb3c0769a68b571564c7ed5314336c0c7c8cddf6c4ed24f5aa7e6f8b0b8e9981
+  h: 7e37cc6007a572a47f876a5e5f95a8525ac92b654caaaacc0d5c42b3e4fa3cb6
+  r: Checked `code/config.py` which defines `DATA_ROOT`, `MODEL_ROOT`, `RESULT_ROOT`,
+    `RANDOM_SEED`, and `VALID_MEASUREMENT_METHODS`, and verified that the recorded
+    pytest run (`tests/test_config.py`) successfully imported the module and confirmed
+    the constants exist.
+  sig: c2114e976dc8761ddfca67e0d3ae9790270e4fe1a981b63deed749e8d2bd0b73
 T006:
   c: false
-  h: 8f8743f070f3afd8fbfb68056b018be98d37c3a5f9c222ae30da6cb714510f0c
-  r: The provided `logging_config.py` does not configure a `RotatingFileHandler` pointing
-    to `data/logs/app.log` with the required size limits, and the `data/logs/app.log`
-    file is missing. Moreover, the JSON output includes extra fields (`operation`,
-    `parameters`) not defined in `logging_schema.yaml`, so entries would not validate
-    against the schema. The rotation behavior and schema validation are therefore
-    not satisfied.
+  h: 4fcfb6c2ebc62bf02fadbe60ba338384c8e10b89b2ab1d83abfbfafcb9fa2bc7
+  r: "Checked `code/logging_config.py` (exists and defines a RotatingFileHandler with\
+    \ the correct size/backup settings and JSON output matching the schema) and the\
+    \ test log `code/.tasks/T006.tests_test_contracts.py.log` (shows schema\u2011\
+    field test passed). However, there is no evidence that a script was run to emit\
+    \ >10\u202FMiB of logs, no `data/logs/app.log` or its rotated backup files exist,\
+    \ and no sample log entry is shown being validated with `jsonschema.validate`.\
+    \ The required rotation\u2011behavior verification is missing."
+  sig: 938ba220b3c5e8b9337b0a415739347c583365de249c43019b7507726c3f465b
+T007:
+  c: true
+  h: c39bc4f177308c642c78220432efd57cd2b15d5ea1443ec55c13f808a215cb4a
+  r: "Checked `code/schemas/alloy_record.py` against the YAML schema \u2013 all required\
+    \ fields, types, ranges, enums, and `additionalProperties: false` are correctly\
+    \ represented, and the file includes a runnable example that validates a valid\
+    \ JSON record. No required artifact is missing or incorrect."
+  sig: d9eef92812a87789571b9a8319563317ad257da95bc8a2d69457740f15d2996e
 T014:
   c: false
   h: dc995f972425f645f30b08c05c2c144194b598347f1b8fcb32646f8594abced5

@@ -1,15 +1,14 @@
 status: none
-intent: Materials Project and NIST Materials Data Repository aluminum alloy elastic
-  properties python package dataset
+intent: download aluminum alloy elastic constants from Materials Project and NIST
+  python package dataset
 required_fields:
 - material_id
 - formula
 - composition_atomic_fractions
 - poisson_ratio
 - young_modulus_gpa
-- elastic_tensor
-- is_monolithic_alloy
 - source_database
-cache_key: e5910de4ddae5a05cf17ec8a70f2ef803949fc7fe5ef4b242f76bccac065e543
-searched_at: '2026-10-25T05:43:33.301713+00:00'
+- elastic_tensor
+cache_key: d0e8c149dcb0d92a3808a3cad84b321a869a94cb3473a103a503b8c6ac6e43c8
+searched_at: '2026-10-25T05:46:03.585641+00:00'
 retry_count: 1
