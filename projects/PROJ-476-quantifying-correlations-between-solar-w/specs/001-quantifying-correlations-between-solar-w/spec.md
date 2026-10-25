@@ -24,15 +24,15 @@ A researcher needs a reproducible, end‑to‑end pipeline that downloads the AC
 
 ### User Story 2 – Lagged Correlation & Significance Testing (Priority: P2)
 
-A researcher wants to compute Pearson and Spearman correlation coefficients between each composition parameter and each geomagnetic index at lags 0, 1, 2, 3, 6 hours on the **full continuous time series** (including quiet and storm periods), and determine statistical significance with a **Bonferroni‑adjusted α = 0.05** after correcting for autocorrelation.
+A researcher wants to compute Pearson and Spearman correlation coefficients between each composition parameter and each geomagnetic index at lags 0, 1, 2, 3, 6 hours **on storm‑filtered data (Dst < -50 nT)**, and determine statistical significance with a **Bonferroni‑adjusted α = 0.05** after correcting for autocorrelation.
 
-**Why this priority**: The core scientific claim hinges on whether composition variables exhibit statistically robust relationships with geomagnetic activity across the full range of solar conditions. Restricting analysis to storm periods introduces selection bias and invalidates correlation estimates.
+**Why this priority**: The core scientific claim hinges on whether composition variables exhibit statistically robust relationships with geomagnetic activity **during geomagnetic storm events**. Restricting analysis to storm periods focuses the investigation on high‑impact intervals relevant to space‑weather forecasting.
 
-**Independent Test**: Execute the correlation module on the full longitudinal dataset. Verify that a results table (30 rows = 3 params × 2 indices × 5 lags) is produced, each row containing Pearson r, Spearman ρ, raw p‑value (computed using an effective sample size to account for autocorrelation), and Bonferroni‑corrected p‑value.
+**Independent Test**: Execute the correlation module on the storm‑filtered subset of the longitudinal dataset. Verify that a results table (30 rows = 3 params × 2 indices × 5 lags) is produced, each row containing Pearson r, Spearman ρ, raw p‑value (computed using an effective sample size to account for autocorrelation), and Bonferroni‑corrected p‑value.
 
 **Acceptance Scenarios**:
 
-1. **Given** the synchronised CSV from US‑1, **When** the correlation module runs for lag = 3 h **on the full dataset**, **Then** it outputs Pearson r, Spearman ρ, raw p, and Bonferroni p for all pairs (e.g., helium vs. Dst).
+1. **Given** the synchronised CSV from US‑1, **When** the correlation module runs for lag = 3 h **on the storm‑filtered dataset**, **Then** it outputs Pearson r, Spearman ρ, raw p, and Bonferroni p for all pairs (e.g., helium vs. Dst).
 2. **Given** the same input, **When** the module evaluates all lagged pairs, **Then** any pair with Bonferroni‑corrected p < 0.05 is flagged as “significant”.
 
 ---
@@ -55,7 +55,7 @@ A researcher needs automatically generated visualisations (time‑series overlay
 ### Edge Cases
 
 - **Missing Variable**: What happens if the ACE dataset does not contain helium abundance for a given day?  
-  *The pipeline aborts with a clear error message and logs the missing timestamps (see SC‑XX).*
+  *The pipeline aborts with a clear error message and logs the missing timestamps (see SC‑002).*
 
 - **Non‑stationary Sampling**: How does the system handle periods where the ACE cadence drops below 1 hour (e.g., spacecraft anomalies)?  
   *The resampling step interpolates to 1‑hour resolution; extreme gaps (>6 h) trigger a warning and are excluded from correlation calculations.*
@@ -69,8 +69,8 @@ A researcher needs automatically generated visualisations (time‑series overlay
 
 - **FR-001** (See US‑1): The system MUST download ACE composition data (proton density, temperature, helium abundance) and NOAA Kp/Dst indices for any user‑specified date range.  
 - **FR-002** (See US‑1): The system MUST align both datasets to a common 1‑hour UTC grid, handling missing timestamps by linear interpolation (max gap = 6 h) and logging any interpolated intervals.  
-- **FR-003** (See US‑2): The system MUST compute Pearson and Spearman correlation coefficients for each composition‑index pair at lags 0, 1, 2, 3, 6 hours **on the full synchronized dataset** (without filtering for storm intensity). The system MUST output a table with raw p‑values that are calculated using an effective sample size to account for autocorrelation (see FR‑), and Bonferroni‑corrected p‑values.  
-- **FR-004** (See US‑2): The system MUST apply a Bonferroni correction for the full set of hypothesis tests., controlling the family‑wise error rate at α = 0.05. This method is standard in heliophysics correlation studies.  
+- **FR-003** (See US‑2): The system MUST compute Pearson and Spearman correlation coefficients for each composition‑index pair at lags 0, 1, 2, 3, 6 hours **on storm‑filtered data (Dst < -50 nT)** (as defined in the research question). The system MUST output a table with raw p‑values that are calculated using an effective sample size to account for autocorrelation (see FR‑010), and Bonferroni‑corrected p‑values.  
+- **FR-004** (See US‑2): The system MUST apply a Bonferroni correction for the full set of hypothesis tests, controlling the family‑wise error rate at α = 0.05. This method is standard in heliophysics correlation studies.  
 - **FR-006** (See US‑1): The system MUST verify that the downloaded ACE file contains **all** required variables (proton_density, temperature, helium_abundance) and that the NOAA file contains hourly Kp and Dst values.  
   - *In the ACE Level 2 data products used by this pipeline, the exact variable names are:*  
     - *Proton density: **"N_p"** (units: cm⁻³) – as listed in the SWEPAM Level 2 NetCDF/CSV files.*  
@@ -82,7 +82,7 @@ A researcher needs automatically generated visualisations (time‑series overlay
   2. Correlation heatmap (parameters × lags).  
   All artefacts shall be PNG files ≤ 5 MB each.  
 - **FR-009** (See US‑3): The system MUST produce a concise Markdown validation report summarising: (a) which composition‑index pairs exceed |r| > 0.5, (b) their statistical significance after correction.  
-- **FR-010** (New): The system MUST adjust raw p‑values for autocorrelation by estimating an effective sample size (Neff) using the lag‑1 autocorrelation of each time series (method of Pyper & Peterman) **on the full continuous time series** before applying the Bonferroni correction. This adjustment is required to prevent false positives arising from the inherent autocorrelation in solar wind and geomagnetic time series data.
+- **FR-010** (New): The system MUST adjust raw p‑values for autocorrelation by estimating an effective sample size (Neff) using the lag‑1 autocorrelation of each time series (method of Pyper & Peterman) **on the storm‑filtered dataset** before applying the Bonferroni correction. This adjustment is required to prevent false positives arising from the inherent autocorrelation in solar wind and geomagnetic time series data.
 
 ### Key Entities
 
@@ -94,7 +94,7 @@ A researcher needs automatically generated visualisations (time‑series overlay
 
 ### Measurable Outcomes
 
-- **SC-001** (See US‑2): The full 20‑year lagged correlation analysis (on the full dataset) completes within 6 hours on the CI runner, consuming ≤ 7 GB RAM, and produces a results table.  
+- **SC-001** (See US‑2): The storm‑filtered lagged correlation analysis (on the storm‑filtered dataset) for the full 20‑year period completes within 6 hours on the CI runner, consuming ≤ 7 GB RAM, and produces a results table.  
 - **SC-002** (See FR‑006): If any required variable is absent from the source files, the pipeline aborts with an explicit error message and logs the missing variable name.  
 - **SC-003** (See US‑3): All visual artefacts (time‑series plots, heatmaps) are generated as PNG files ≤ 5 MB each, and the validation report correctly flags any composition‑index pair with |r| > 0.5 **and** Bonferroni‑corrected p < 0.05. The multiple‑testing correction is recomputed on the validation set using the same Bonferroni procedure applied to p‑values that have been adjusted for autocorrelation via the effective‑sample‑size method (applied to the full validation period data).  
 - **SC-004** (See US‑1): The data‑acquisition and synchronisation pipeline (US‑1) completes within 30 minutes on the CI runner, using ≤ 4 GB RAM, and outputs a CSV file that contains the five required columns with **no missing entries** after imputation.
@@ -109,7 +109,7 @@ A researcher needs automatically generated visualisations (time‑series overlay
 - No external proprietary datasets are required; all data are publicly downloadable without authentication.  
 - The analysis is purely observational; therefore, findings will be framed as **associational** relationships, not causal statements (Methodological soundness).  
 - Predictor collinearity (e.g., proton density vs. helium abundance) will be diagnosed via variance‑inflation factors; results will be reported descriptively without claiming independent predictive effects (Methodological soundness).  
-- The effective sample size correction (FR-010) is applied to the full time series to ensure valid statistical assumptions regarding stationarity and autocorrelation structure.
+- The effective sample size correction (FR-010) is applied to the storm‑filtered dataset to ensure valid statistical assumptions regarding stationarity and autocorrelation structure.
 
 ---  
 
