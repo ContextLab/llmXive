@@ -10,11 +10,11 @@
   • The CSV contains exactly 20 rows with columns `study_id,effect,se,n`.  
   • The file exists under `data/processed/` and passes a simple header check (no schema validation required).  
 
-- [ ] T001a [P1] [FR-001] **(Optional) Validate that the downloaded Cochrane CSV is accessible**; if unavailable, the pipeline aborts with a clear error.   <!-- FAILED-IN-EXECUTION: code/scripts/validate_cochrane_download.py exit=1 -->
+- [ ] T001a [P1] [FR-001] **(Optional) Validate that the downloaded Cochrane CSV is accessible**; if unavailable, the pipeline aborts with a clear error.
   *Verification*:  
   • The script raises a `FileNotFoundError` if the URL cannot be reached; CI step fails accordingly.  
 
-- [ ] T002 [P1] [FR-001] **Implement the simulation generator** (`code/simulation/generator.py`) that reads `data/processed/base_template.csv` and writes synthetic `SimulatedDataset` records to `data/results/simulation_raw.jsonl`. It must:  
+- [ ] T002 [P1] [FR-001] **Implement the simulation generator** (`code/simulation/generator.py`) that reads `data/processed/base_template.csv` and writes synthetic `SimulatedDataset` records to `data/results/simulation_raw.jsonl`. It must:   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
     • Accept `--tau-squared` (comma‑separated list), `--replicates`, `--sweep-type`, `--out`.  
     • Produce **900 replicates per τ² level** for the primary sweep (`0,0.1,0.5,1.0,2.0`) and **900 replicates per τ² level** for the sensitivity sweep (`0.05,0.1,0.5`).  
     • Write each record as a JSON line conforming to `contracts/simulated_dataset.schema.yaml`.  

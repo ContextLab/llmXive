@@ -1,62 +1,72 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/main.py --mode full  --replicates 900  --batch-size 100  --seed 12345`
-  - script usage: `main.py [-h] [--mode {dry-run,full}] [--seed SEED]`
-  - argparse error: `main.py: error: unrecognized arguments: --replicates 900 --batch-size 100`
-- run-book command: `python code/main.py --mode dry-run  --replicates 10  --tau-squared 0.5 1.0  --batch-size 5  --seed 42`
-  - script usage: `main.py [-h] [--mode {dry-run,full}] [--seed SEED]`
-  - argparse error: `main.py: error: unrecognized arguments: --replicates 10 --tau-squared 0.5 1.0 --batch-size 5`
-- run-book command: `python code/main.py --validate-contracts`
-  - script usage: `main.py [-h] [--mode {dry-run,full}] [--seed SEED]`
-  - argparse error: `main.py: error: unrecognized arguments: --validate-contracts`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 command(s) failed: python code/main.py --mode full  --replicates 900  --batch-size 100  --seed 12345 (rc=2); python code/main.py --mode dry-run  --replicates 10  --tau-squared 0.5 1.0  --batch-size 5  --seed 42 (rc=2); python code/main.py --validate-contracts (rc=2); 2 declared deliverable(s) absent: data/results/aggregated_metrics.csv; data/results/reml_failures.json
+**Summary**: 4 command(s) failed: python code/main.py --mode full  --replicates 900  --batch-size 100  --seed 12345 (rc=1); python code/main.py --mode dry-run  --replicates 10  --tau-squared 0.5 1.0  --batch-size 5  --seed 42 (rc=1); python -m pytest tests/unit/ (rc=1); 2 declared deliverable(s) absent: data/results/aggregated_metrics.csv; data/results/reml_failures.json
 
 ## Failing / missing run-book commands
 
-- python code/main.py --mode full  --replicates 900  --batch-size 100  --seed 12345 -> rc=2
+- python code/main.py --mode full  --replicates 900  --batch-size 100  --seed 12345 -> rc=1
 
-usage: main.py [-h] [--mode {dry-run,full}] [--seed SEED]
-main.py: error: unrecognized arguments: --replicates 900 --batch-size 100
+2026-10-25 21:08:43,848 INFO __main__: Generating 900 replicates for τ²=0.0
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 284, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 223, in main
+    simulated_records, estimation_records = _run_simulation(
+                                            ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 73, in _run_simulation
+    validate_simulation_output(sim_namespace)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/simulation/generator.py", line 227, in validate_simulation_output
+    raise AssertionError("Expected a list of SimulationResult objects")
+AssertionError: Expected a list of SimulationResult objects
 
-- python code/main.py --mode dry-run  --replicates 10  --tau-squared 0.5 1.0  --batch-size 5  --seed 42 -> rc=2
+- python code/main.py --mode dry-run  --replicates 10  --tau-squared 0.5 1.0  --batch-size 5  --seed 42 -> rc=1
 
-usage: main.py [-h] [--mode {dry-run,full}] [--seed SEED]
-main.py: error: unrecognized arguments: --replicates 10 --tau-squared 0.5 1.0 --batch-size 5
+2026-10-25 21:08:44,598 INFO __main__: Generating 10 replicates for τ²=0.5
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 284, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 223, in main
+    simulated_records, estimation_records = _run_simulation(
+                                            ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 73, in _run_simulation
+    validate_simulation_output(sim_namespace)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/simulation/generator.py", line 227, in validate_simulation_output
+    raise AssertionError("Expected a list of SimulationResult objects")
+AssertionError: Expected a list of SimulationResult objects
 
-- python code/main.py --validate-contracts -> rc=2
-
-usage: main.py [-h] [--mode {dry-run,full}] [--seed SEED]
-main.py: error: unrecognized arguments: --validate-contracts
-
-- python -m pytest tests/unit/ -> rc=2
-mary ===============================
-tests/unit/test_generate_base.py:17
-  /home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/tests/unit/test_generate_base.py:17: PytestUnknownMarkWarning: Unknown pytest.mark.timeout - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    @pytest.mark.timeout(60)
-
-tests/unit/test_validate_cochrane_download.py:16
-  /home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/tests/unit/test_validate_cochrane_download.py:16: PytestUnknownMarkWarning: Unknown pytest.mark.timeout - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
-    @pytest.mark.timeout(60)
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-=========================== short test summary info ============================
-ERROR tests/unit/test_generator.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-========================= 2 warnings, 1 error in 0.89s =========================
+- python -m pytest tests/unit/ -> rc=1
+y
+FAILED tests/unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_default
+FAILED tests/unit/test_fetch_cochrane_data.py::test_load_success - RuntimeErr...
+FAILED tests/unit/test_fetch_cochrane_data.py::test_load_failure_raises - Run...
+FAILED tests/unit/test_fetch_cochrane_data.py::test_main_successful_run - ass...
+FAILED tests/unit/test_plots.py::test_plots_generate_files - AssertionError: ...
+FAILED tests/unit/test_stats.py::test_conditional_test_non_normal_data - Asse...
+ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_missing_field
+ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_wrong_type
+ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_save_dummy_record_to_results
+ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
+ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
+ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
+============ 13 failed, 70 passed, 203 warnings, 6 errors in 1.82s =============
 
 
 - python -m pytest tests/integration/ -> rc=1
+onkeypatch.syspath_prepend(str(repo_root))
+    
+        # Run the pipeline in dry‑run mode (small subset, fast).
+        exit_code = _run_cmd(
+            ["code/main.py", "--mode", "dry-run", "--seed", "42"]
+        )
+>       assert exit_code == 0, "Pipeline execution failed"
+E       AssertionError: Pipeline execution failed
+E       assert 1 == 0
 
-E            +    where <bound method Path.is_file of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/estimation_results.csv')> = PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/estimation_results.csv').is_file
-
-tests/integration/test_pipeline.py:58: AssertionError
+tests/integration/test_pipeline.py:43: AssertionError
 =============================== warnings summary ===============================
 tests/integration/test_pipeline.py:30
   /home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/tests/integration/test_pipeline.py:30: PytestUnknownMarkWarning: Unknown pytest.mark.timeout - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
@@ -65,7 +75,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 1.47s =========================
+========================= 1 failed, 1 warning in 0.79s =========================
 
 
 
@@ -87,6 +97,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/visualization/plots.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/aggregated_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/reml_failures.json` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
     - `code/reporting/report_gen.py` — NOT invoked by the run-book
     - `code/simulation/estimators.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/reml_failures.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
