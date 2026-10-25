@@ -28,7 +28,7 @@ python -m src.data.download
 
 **What you get**
 
-* `data/raw/squad_train.jsonl` – the raw SQuAD training set in JSONL format.  
+* `data/raw/ag_news_train.jsonl` – the raw AG News training set in JSONL format.  
 * `data/raw/CHECKSUMS.txt` – SHA‑256 checksum for the downloaded file.  
 * Subsequent steps will generate processed data, indexes, and evaluation reports.  
 
