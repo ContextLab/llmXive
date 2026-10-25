@@ -21,26 +21,26 @@ properties:
     description: "Mean Shannon entropy of all frames in the segment."
   entropy_std:
     type: number
-    description: "Standard deviation of frame entropy within the segment."
+    description: "Standard deviation of Shannon entropy of frames within the segment."
   hand_conf_mean:
     type: number
-    description: "Mean YOLOv8 hand detection confidence across frames."
+    description: "Mean MediaPipe Hands detection confidence across frames."
   hand_conf_std:
     type: number
-    description: "Standard deviation of hand confidence."
+    description: "Standard deviation of MediaPipe Hands detection confidence."
   lighting_mean:
     type: number
-    description: "Mean pixel intensity (grayscale) across frames."
+    description: "Mean pixel intensity (grayscale) across frames."
   lighting_std:
     type: number
-    description: "Standard deviation of pixel intensity."
+    description: "Standard deviation of pixel intensity "
   timestamp_mean:
     type: number
-    description: "Average timestamp (seconds) of frames in the segment."
+    description: "Average timestamp (seconds) across frames in the segment."
   exposure_mean:
     type: number
-    description: "Mean camera exposure value across frames."
+    description: "Mean exposure value (if available) across frames."
   focal_length_mean:
     type: number
-    description: "Mean focal length (in mm) extracted from video metadata."
+    description: "Average focal length (if available) across frames."
 additionalProperties: false

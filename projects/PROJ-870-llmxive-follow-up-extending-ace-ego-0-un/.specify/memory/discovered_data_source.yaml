@@ -1,15 +1,13 @@
 status: none
-intent: download ACE-Ego-0 dataset python package for static egocentric video feature
-  extraction python package dataset
+intent: download EPIC-KITCHENS-100 dataset, RoboCasa benchmark, RoboTwin benchmark,
+  OpenVLA episodes python package dataset
 required_fields:
 - video_id
-- segment_start_time
-- segment_end_time
 - video_file_path
 - frame_timestamp
-- exposure
+- exposure_time
 - focal_length
 - dynamic_reliability_score
-cache_key: 6958b46a25408a2d414a90c6a57a08fcaa67ff632fe20ebc1b2d303cb6162d0a
-searched_at: '2026-10-22T18:10:51.360754+00:00'
+cache_key: dec604fc71f0052de74a52f3d2b09cd61a04c392dd89e5ec8adfb8dcc09e7dc4
+searched_at: '2026-10-25T01:31:13.860733+00:00'
 retry_count: 1

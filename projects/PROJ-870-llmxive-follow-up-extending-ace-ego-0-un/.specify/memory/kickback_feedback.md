@@ -1,12 +1,10 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001` (rejected 1x): Requested task execution failed; rerun successfully: code/download_datasets.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- Phase 3 task T3‑01 proposes computing optical‑flow statistics for 1 s, 3 s, 5 s, 10 s windows using CPU‑only `torchvision`, and Phase 1 task T1‑03 runs a YOLOv8 hand detector on every frame. Processing up to 5 000 episodes (~10 h video) at 1 fps on the free‑tier GitHub Actions runner (2 CPU cores, ~7 GB RAM) is unlikely to complete within the claimed ≤ 5 h wall‑clock budget and may exceed the 6 GB RAM limit, making the pipeline infeasible under the free‑compute constraints.
+- The plan asserts that `data/static_predictions.csv` conforms to a `RegressionPrediction` schema and that `data/temporal_features_{w}s.csv` and `results/vla_*.csv` conform to their respective schemas, yet only `contracts/static_features.schema.yaml` is present. Missing contract files for `RegressionPrediction`, `TemporalWindowFeatures`, `StaticResidual`, and `VLAExperimentResult` cause a plan‑to‑contract mismatch (Plan ↔ contracts).
