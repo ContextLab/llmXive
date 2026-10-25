@@ -1,65 +1,61 @@
 T001:
-  c: false
-  h: 8b755406486971c7ffb47f9622e8166ca03fe4f159d8d479313d59d5d503b9eb
-  r: "Checked `code/config.py`, `code/config.yaml`, and `tests/unit/test_config.py`.\
-    \ The configuration loader reads the YAML correctly, but the test expects the\
-    \ key `seed` to be `12345` while the provided `config.yaml` contains `seed: 999`\
-    \ (and the defaults use 42). This mismatch causes the unit test to fail, so the\
-    \ task\u2019s requirement is not fully satisfied. Fix the seed value in the YAML\
-    \ (or adjust defaults) to match the test\u2019s expected value."
-  sig: 178ff764d084ebd7a5a9d330bc8afbe3b4f0417c4fdfe1cb7a49d3595d036e12
+  c: true
+  h: 1a26f3b080a19e1bd6563d25a32bff8a7a465006a07e451e690c6e57b4814871
+  r: "Checked `code/config.py` and `code/exceptions.py` \u2013 they define the required\
+    \ loader (validating primes against {3,5,7,11}) and the three exception classes\
+    \ with correct messages. The unit test logs (`tests/unit/test_config.py` and `tests/unit/test_exceptions.py`)\
+    \ show all assertions passed, confirming the modules behave as specified."
+  sig: 3ab928180c916c08888753070e1248b72b1910d2d33e7f42254c23a9f8aad5f4
 T002:
   c: false
-  h: 46108e4687b9930ca6f61487f87e12e822543ae0100e3beb8eed4b108f3e5346
-  r: "The `code/seed.py` and `code/memory_guard.py` files exist and meet their specifications,\
-    \ and the memory\u2011guard unit tests would pass. However, `tests/unit/test_seed_consistency.py`\
-    \ imports and runs `run_analysis.run_orchestration`, which depends on several\
-    \ modules (`sieve`, `stats`, `flags`, `visualize`, `benchmark`) that are not present\
-    \ in the project tree, causing an import error and preventing the deterministic\u2011\
-    seeding test from executing. Adding the missing pipeline modules (or stubs that\
-    \ satisfy the imports) is required for the seed\u2011consistency verification\
-    \ to succeed."
-  sig: c54423cb974d3a4db9a7a722e77b7a2e78ec1010455061870636b2f36d5a8196
+  h: 930a81cb8017667ea42fc7a1767e9e3610e2428fc1544fcc9cd770d427648f09
+  r: "The `code/seed.py` and `code/memory_guard.py` files exist and meet their functional\
+    \ specs, and the memory\u2011guard tests all pass. However, `tests/unit/test_seed_consistency.py`\
+    \ fails because `run_analysis.parse_args()` calls `parser.parse_args()` which\
+    \ aborts on the pytest command\u2011line arguments, causing a `SystemExit`. The\
+    \ seed\u2011consistency verification therefore does not succeed. Fix `parse_args`\
+    \ to ignore unknown arguments (e.g., use `parse_known_args` or strip `sys.argv`)\
+    \ so the test can run and compare the generated residue files."
+  sig: 2d55f205d2ec7857522297adb529757050f3b0c862e54ae8829a38fee71ca0e2
 T003:
   c: true
-  h: ece5a0651730728a7c1fe021e0bf4e6393edb7d3d91bf5ef1cfc7582a0d06ff2
-  r: Checked `code/benchmark.py` (provides the required `benchmark` context manager
-    using `MemoryGuard` and writes JSON), `scripts/run_dummy.py` (executes the benchmark
-    around a trivial loop), the generated `results/reports/benchmark_dummy.json` (contains
-    numeric `wall_time_sec` and `peak_memory_mb`), and the passing `tests/integration/test_benchmark_dummy.py`
-    which validates the file and schema.
-  sig: af54f759398568d4bee77120130e4aaade33fdd8f6c6ff8e0e1fcfb8b66b0796
+  h: 7ea59248f5f407290caeafa2771a8c0febdc791a5b662b11a55ffdb39a1d3978
+  r: "Checked `code/benchmark.py` (provides the required `benchmark` context manager\
+    \ using `MemoryGuard` and writes JSON), `scripts/run_dummy.py` (runs `benchmark(\"\
+    dummy\")` around a loop), and the generated `results/reports/benchmark_dummy.json`\
+    \ (contains numeric `wall_time_sec` and `peak_memory_mb`). The integration test\
+    \ `tests/integration/test_benchmark_dummy.py` validates the file\u2019s existence\
+    \ and schema."
+  sig: 6b0d8e7d92ecd9678f5d4238c811c9e28c0af08d8c2f5cbf8aa0c70e8b4f1bd8
 T004:
   c: true
-  h: bb563941c68c51c23a770d00d68c83a1a3e7a2f4a9e88931083a1c6241706001
-  r: "The `code/sieve.py` file defines `compute_phi_linear_sieve` and `compute_residues`\
-    \ exactly as required, imports and uses `MemoryGuard`, and includes error logging\
-    \ and exception handling. The accompanying `tests/unit/test_sieve.py` validates\
-    \ correct \u03C6 values, residue counts for primes 3,\u202F5,\u202F7,\u202F11,\
-    \ and proper `MemoryLimitExceeded` behavior under a low memory guard. All referenced\
-    \ modules (`memory_guard.py`, `exceptions.py`) are present and correctly implemented."
-  sig: 076489cb5f822feb4c1cd67e47fd523839f6c74b9b555e01785d76c634393a1e
+  h: 6e772d70bc36d5af9153f24afabe99192bff7b1dc548674f145a834c28beb137
+  r: "Checked `code/sieve.py` for the required `compute_phi_linear_sieve` and `compute_residues`\
+    \ implementations, proper use of `MemoryGuard`, error logging, and exception handling;\
+    \ and verified that `tests/unit/test_sieve.py` exercises exact \u03C6 values,\
+    \ residue counts for primes 3,\u202F5,\u202F7,\u202F11, and memory\u2011limit\
+    \ enforcement. All required behavior is present and matches the tests."
+  sig: 212c0053fd261b7350e75cd9ba0e4fa218744914bf9f68d89713b4b993bceb17
 T005:
   c: true
-  h: 5b11f04205cabbf00c484e50b20365af90e3a2d227d613f3f8aa5e2f940601d6
-  r: "Checked `code/sieve.py` \u2013 all public functions and classes have non\u2011\
-    empty docstrings and full type hints. Verified the presence of `tests/unit/test_phi_correctness.py`\
-    \ (exact \u03C6\u202F\u2264\u202F100 table) and `tests/unit/test_sieve_mypy.py`\
-    \ (runs `mypy code` and asserts zero exit code plus docstring presence). Both\
-    \ required artifacts exist and satisfy the task."
-  sig: 84de2f9bdd0549095fda6c21e15257496641b704592a3a52a4e38d7b55df9c58
+  h: 4133b1328e69126716197ea0fa1b6a92e852eb72565f8cc3c70811ccda8a77f1
+  r: "Checked `code/sieve.py` \u2013 all public functions and the `ResidueDataset`\
+    \ class have full docstrings and type hints. Verified the presence of `tests/unit/test_phi_correctness.py`\
+    \ (exact \u03C6\u2011value table up to\u202F100) and `tests/unit/test_sieve_mypy.py`\
+    \ (runs `mypy code` and asserts exit code\u202F0 and docstring presence)."
+  sig: 998db0eca3c01964618966a8596b91a62e68420c26bdd40cb8430af2f8789035
 T006:
   c: false
-  h: 96325b375ecb11a5b4e35690859ccb987264040e538e5e2e5e26722cd4c136b3
-  r: "The provided `code/stats.py` does not implement the required `calculate_chi_squared_statistic(dataset:\
-    \ ResidueDataset) -> float` nor a `run_chi_squared_test(dataset, M=\u2026) ->\
-    \ dict` that matches the `StatisticalResult` schema (fields `test_type`, `test_statistic`,\
-    \ `p_value`, `degrees_of_freedom`, `method`, `expected_counts`, `observed_counts`,\
-    \ `uniformity_hypothesis`, `metadata`). Instead it uses different signatures,\
-    \ returns tuples, and lacks an exact multinomial test or the exact JSON\u2011\
-    serialisable output. The unit tests present (`tests/unit/test_stats.py`) also\
-    \ do not cover the three sub\u2011tests"
-  sig: fbec0c92e08cdde99fa7323e7ae037d79d3a7be52794972755facc390cc85132
+  h: d0615426063b8cae791d9eb4e0722bed499db5e5bd9f77a80dd77799de9c95d5
+  r: "The `code/stats.py` does not correctly implement the new API: it expects a `ResidueDataset`\
+    \ to have fields `prime_modulus` and `total_count`, but the actual `ResidueDataset`\
+    \ defined in `code/sieve.py` provides `prime` and `N`, causing both `calculate_chi_squared_statistic`\
+    \ and `run_chi_squared_test` to raise errors for the required dataset input. Moreover,\
+    \ `run_chi_squared_test` never performs the Monte\u2011Carlo p\u2011value estimation\
+    \ described in the specification and the accompanying `tests/unit/test_stats.py`\
+    \ does not contain the three required sub\u2011tests for uniform, biased, and\
+    \ small\u2011N exact case"
+  sig: 61a23f9b57d2afcf5cbc25cddff4702c584cac36702ca2973554246aad897b91
 T007:
   c: true
   h: 0ec96c30788904b25e805f4cb1847a3a865c30497c726d7601b684f93eaa4ab4

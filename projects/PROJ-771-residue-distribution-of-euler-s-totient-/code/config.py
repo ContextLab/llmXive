@@ -3,8 +3,7 @@ Configuration loader for the Euler Totient Residue Distribution project.
 
 This module provides utilities to load configuration values from a YAML
 file (``code/config.yaml``) and optionally override them with command‑line
-arguments or environment variables. The public API matches the original
-specification so that existing orchestration code continues to work.
+arguments or environment variables.
 """
 
 import os
@@ -17,7 +16,8 @@ from typing import Dict, Any, List, Optional
 import yaml
 
 # Import the custom exception for invalid primes.
-from code.exceptions import InvalidPrimeError
+# Using relative-style import to ensure compatibility with the test suite's sys.path setup.
+from exceptions import InvalidPrimeError
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,6 @@ logger = logging.getLogger(__name__)
 _DEFAULTS: Dict[str, Any] = {
     "N": 1_000_000,
     "primes": [3, 5, 7, 11],
-    # The test suite expects the default memory limit to be 6000 MB.
     "memory_limit_mb": 6_000,
     "seed": 42,
     "memory_check_interval": 10_000,
@@ -47,22 +46,17 @@ def load_config(cli_args: Optional[argparse.Namespace] = None) -> Dict[str, Any]
 
     The function reads ``code/config.yaml`` (if it exists) and returns a
     dictionary containing at least the keys ``N``, ``primes``,
-    ``memory_limit_mb``, ``seed`` and ``memory_check_interval``.  Values
-    from the YAML file are merged with the built‑in defaults, then
-    optionally overridden by command‑line arguments and finally by
-    environment variables.
+    ``memory_limit_mb``, ``seed`` and ``memory_check_interval``.
 
     Parameters
     ----------
     cli_args :
         Parsed ``argparse.Namespace`` returned by :func:`parse_cli_args`.
-        If ``None`` the function behaves as a pure YAML loader.
 
     Returns
     -------
     dict
-        Configuration dictionary ready for consumption by the rest of the
-        pipeline.
+        Configuration dictionary.
 
     Raises
     ------
@@ -70,10 +64,10 @@ def load_config(cli_args: Optional[argparse.Namespace] = None) -> Dict[str, Any]
         If any prime in the final ``primes`` list is not one of the
         supported primes {3, 5, 7, 11}.
     """
-    # 1️⃣ Load defaults
+    # 1. Load defaults
     config: Dict[str, Any] = _DEFAULTS.copy()
 
-    # 2️⃣ Load YAML file (if present)
+    # 2. Load YAML file (if present)
     yaml_path = Path(__file__).with_name("config.yaml")
     if yaml_path.is_file():
         try:
@@ -86,13 +80,11 @@ def load_config(cli_args: Optional[argparse.Namespace] = None) -> Dict[str, Any]
             logger.error("Failed to read configuration YAML: %s", exc)
             raise
 
-    # 3️⃣ Override with CLI arguments (if supplied)
+    # 3. Override with CLI arguments (if supplied)
     if cli_args is not None:
         if getattr(cli_args, "N", None) is not None:
             config["N"] = cli_args.N
         if getattr(cli_args, "primes", None) is not None:
-            # ``primes`` may be a list of ints (from argparse) or a
-            # comma‑separated string.
             if isinstance(cli_args.primes, list):
                 config["primes"] = [int(p) for p in cli_args.primes]
             elif isinstance(cli_args.primes, str):
@@ -104,7 +96,7 @@ def load_config(cli_args: Optional[argparse.Namespace] = None) -> Dict[str, Any]
         if getattr(cli_args, "memory_check_interval", None) is not None:
             config["memory_check_interval"] = cli_args.memory_check_interval
 
-    # 4️⃣ Environment variable overrides (highest priority)
+    # 4. Environment variable overrides
     if os.getenv("LLMXIVE_N"):
         config["N"] = int(os.getenv("LLMXIVE_N"))
     if os.getenv("LLMXIVE_PRIMES"):
@@ -116,28 +108,18 @@ def load_config(cli_args: Optional[argparse.Namespace] = None) -> Dict[str, Any]
     if os.getenv("LLMXIVE_MEMORY_CHECK_INTERVAL"):
         config["memory_check_interval"] = int(os.getenv("LLMXIVE_MEMORY_CHECK_INTERVAL"))
 
-    # ------------------------------------------------------------------
     # Validate prime list
-    # ------------------------------------------------------------------
     primes = config.get("primes", [])
-    # Ensure we have a list of ints
     primes = [int(p) for p in primes]
     config["primes"] = primes
     for p in primes:
         if p not in _ALLOWED_PRIMES:
-            # Raise the domain‑specific exception as required by the spec.
             raise InvalidPrimeError(p)
 
     return config
 
 def create_argument_parser() -> argparse.ArgumentParser:
-    """
-    Create the :class:`argparse.ArgumentParser` used by the CLI.
-
-    The parser defines the same options that the original ``load_config``
-    function understood, allowing downstream scripts to continue using the
-    familiar ``--N``, ``--primes`` etc.
-    """
+    """Create the argparse.ArgumentParser used by the CLI."""
     parser = argparse.ArgumentParser(
         description="Euler Totient Residue Distribution Analysis"
     )
@@ -158,45 +140,16 @@ def create_argument_parser() -> argparse.ArgumentParser:
     return parser
 
 def parse_cli_args() -> argparse.Namespace:
-    """
-    Parse command‑line arguments using the parser from
-    :func:`create_argument_parser`.
-
-    Returns
-    -------
-    argparse.Namespace
-        Parsed arguments namespace.
-    """
+    """Parse command‑line arguments using the parser from create_argument_parser."""
     parser = create_argument_parser()
     return parser.parse_args()
 
 def save_config_to_json(config: Dict[str, Any], path: str) -> None:
-    """
-    Persist a configuration dictionary as a pretty‑printed JSON file.
-
-    Parameters
-    ----------
-    config :
-        Configuration dictionary to write.
-    path :
-        Destination file path (any string accepted by ``open``).
-    """
+    """Persist a configuration dictionary as a pretty‑printed JSON file."""
     with open(path, "w") as f:
         json.dump(config, f, indent=2)
 
 def load_config_from_json(path: str) -> Dict[str, Any]:
-    """
-    Load a configuration dictionary from a JSON file.
-
-    Parameters
-    ----------
-    path :
-        Path to the JSON file.
-
-    Returns
-    -------
-    dict
-        Configuration dictionary.
-    """
+    """Load a configuration dictionary from a JSON file."""
     with open(path, "r") as f:
         return json.load(f)

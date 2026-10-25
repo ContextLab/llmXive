@@ -69,7 +69,7 @@ class MemoryGuard:
         revisions of ``code/exceptions.py`` (it may accept a
         single message string, or ``(limit_mb, usage_mb)``).
         This helper tries the known signatures in order and
-        always raises ``MemoryLimitExceeded`` carrying a
+        always raises ``MemoryLimitExceeded` carrying a
         human‑readable description of the breach.
         """
         message = (

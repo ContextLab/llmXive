@@ -1,5 +1,5 @@
 """
-Unit tests for the custom exception hierarchy (Task T002).
+Unit tests for the custom exception hierarchy.
 """
 
 import pytest
@@ -10,7 +10,6 @@ def test_totient_error_message():
     assert str(exc) == "custom message"
 
 def test_memory_limit_exceeded_message():
-    # Test matches the updated MiB string in code/exceptions.py
     exc = MemoryLimitExceeded(limit_mb=100.0, usage_mb=120.5)
     assert "Memory limit exceeded" in str(exc)
     assert "100.00 MiB" in str(exc)

@@ -49,7 +49,7 @@ FAILED tests/unit/test_stats_t022.py::TestT022EdgeCases::test_custom_alpha - ...
 FAILED tests/unit/test_visualize.py::test_plot_residual_qq_creates_file - Att...
 FAILED tests/unit/test_visualize.py::test_plot_residual_qq_empty_residuals - ...
 FAILED tests/unit/test_visualize.py::test_plot_residual_qq_single_value - Att...
-================= 29 failed, 162 passed, 13 warnings in 4.03s ==================
+================= 29 failed, 163 passed, 13 warnings in 2.98s ==================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -68,6 +68,6 @@ lmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 =========================== short test summary info ============================
 ERROR tests/integration/test_synthetic_stats.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 1 error in 0.72s =========================
+======================== 13 warnings, 1 error in 0.58s =========================
 
 

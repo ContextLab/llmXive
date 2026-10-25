@@ -1,20 +1,13 @@
 T001:
-  reason: "Checked `code/config.py`, `code/config.yaml`, and `tests/unit/test_config.py`.\
-    \ The configuration loader reads the YAML correctly, but the test expects the\
-    \ key `seed` to be `12345` while the provided `config.yaml` contains `seed: 999`\
-    \ (and the defaults use 42). This mismatch causes the unit test to fail, so the\
-    \ task\u2019s requirement is not fully satisfied. Fix the seed value in the YAML\
-    \ (or adjust defaults) to match the test\u2019s expected value."
   task: bae565be800ad3f3cfd022405598f00c6d6656decb6faf77cfd4e157f3d4c8e5
 T002:
   reason: "The `code/seed.py` and `code/memory_guard.py` files exist and meet their\
-    \ specifications, and the memory\u2011guard unit tests would pass. However, `tests/unit/test_seed_consistency.py`\
-    \ imports and runs `run_analysis.run_orchestration`, which depends on several\
-    \ modules (`sieve`, `stats`, `flags`, `visualize`, `benchmark`) that are not present\
-    \ in the project tree, causing an import error and preventing the deterministic\u2011\
-    seeding test from executing. Adding the missing pipeline modules (or stubs that\
-    \ satisfy the imports) is required for the seed\u2011consistency verification\
-    \ to succeed."
+    \ functional specs, and the memory\u2011guard tests all pass. However, `tests/unit/test_seed_consistency.py`\
+    \ fails because `run_analysis.parse_args()` calls `parser.parse_args()` which\
+    \ aborts on the pytest command\u2011line arguments, causing a `SystemExit`. The\
+    \ seed\u2011consistency verification therefore does not succeed. Fix `parse_args`\
+    \ to ignore unknown arguments (e.g., use `parse_known_args` or strip `sys.argv`)\
+    \ so the test can run and compare the generated residue files."
   task: 6ee8c9cee32f6a0f23ff9ca74d3ef4de289619ae973997b084120e65a4852ef2
 T003:
   task: 4a89124ad7415f1773c49c355f03a2554e1e4d39da44fb7d3dc592a665aaa625
@@ -23,14 +16,15 @@ T004:
 T005:
   task: 199498aef5e7dafb54914a3c56b86079d57ed45d844ff1063210b24e717de6e8
 T006:
-  reason: "The provided `code/stats.py` does not implement the required `calculate_chi_squared_statistic(dataset:\
-    \ ResidueDataset) -> float` nor a `run_chi_squared_test(dataset, M=\u2026) ->\
-    \ dict` that matches the `StatisticalResult` schema (fields `test_type`, `test_statistic`,\
-    \ `p_value`, `degrees_of_freedom`, `method`, `expected_counts`, `observed_counts`,\
-    \ `uniformity_hypothesis`, `metadata`). Instead it uses different signatures,\
-    \ returns tuples, and lacks an exact multinomial test or the exact JSON\u2011\
-    serialisable output. The unit tests present (`tests/unit/test_stats.py`) also\
-    \ do not cover the three sub\u2011tests"
+  reason: "The `code/stats.py` does not correctly implement the new API: it expects\
+    \ a `ResidueDataset` to have fields `prime_modulus` and `total_count`, but the\
+    \ actual `ResidueDataset` defined in `code/sieve.py` provides `prime` and `N`,\
+    \ causing both `calculate_chi_squared_statistic` and `run_chi_squared_test` to\
+    \ raise errors for the required dataset input. Moreover, `run_chi_squared_test`\
+    \ never performs the Monte\u2011Carlo p\u2011value estimation described in the\
+    \ specification and the accompanying `tests/unit/test_stats.py` does not contain\
+    \ the three required sub\u2011tests for uniform, biased, and small\u2011N exact\
+    \ case"
   task: 4499cab26fa8ad876e631d8e222273ff416f14da002fc25f07d3c836a563487f
 T007:
   task: 999033d7396970010e41d40ea156f029907e1db3ca1bacb3806bc5ad8e205611

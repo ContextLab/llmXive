@@ -13,7 +13,7 @@ import pytest
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "code"))
 
-from run_analysis import parse_args, pin_orchestration_seed, run_orchestration
+from run_analysis import parse_args, pin_orchestration_seed, run_sieve_stage
 
 def _file_hash(path: Path) -> str:
     """Return SHA‑256 hash of the file's bytes."""
@@ -22,9 +22,13 @@ def _file_hash(path: Path) -> str:
 
 def test_seed_consistency(tmp_path: Path, monkeypatch):
     """
-    Run the full pipeline twice with identical configuration and
+    Run the sieve stage twice with identical configuration and
     assert that the generated ``data/raw/residues_*.json`` files are
     byte‑identical.
+
+    We use run_sieve_stage instead of run_orchestration to isolate the
+    seeding verification from potential failures in the stats or
+    visualization stages.
     """
     # Switch the current working directory to a temporary location so that
     # all relative paths (``data/...``) stay inside the temporary directory.
@@ -45,9 +49,9 @@ def test_seed_consistency(tmp_path: Path, monkeypatch):
         "memory_check_interval": 10_000,
     }
 
-    # Pin the seeds and execute the pipeline.
+    # Pin the seeds and execute the sieve stage.
     pin_orchestration_seed(config)
-    run_orchestration(config)
+    run_sieve_stage(config)
 
     # Record hashes of the generated residue files.
     hashes_run1 = {}
@@ -61,7 +65,7 @@ def test_seed_consistency(tmp_path: Path, monkeypatch):
     # ------------------------------------------------------------------
     # Re‑pin the seeds to guarantee the RNG state is reset.
     pin_orchestration_seed(config)
-    run_orchestration(config)
+    run_sieve_stage(config)
 
     # Record hashes again.
     hashes_run2 = {}

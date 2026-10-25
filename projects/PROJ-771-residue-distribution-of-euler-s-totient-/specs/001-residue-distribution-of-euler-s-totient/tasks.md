@@ -6,7 +6,7 @@
 
 ## Phase 0 – Project‑wide infrastructure (setup, reproducibility, resource guards)
 
-- [ ] T001 Create core configuration and exception modules – implement `code/config.py` (loads `code/config.yaml` exposing `N`, `primes`, `seed`, `memory_limit_mb`) and `code/exceptions.py` defining `TotientError`, `MemoryLimitExceeded`, `InvalidPrimeError`. The configuration loader MUST reject any prime $p \notin \{3, 5, 7, 11\}$ with a clear error message as per the Spec Edge Cases.  
+- [X] T001 Create core configuration and exception modules – implement `code/config.py` (loads `code/config.yaml` exposing `N`, `primes`, `seed`, `memory_limit_mb`) and `code/exceptions.py` defining `TotientError`, `MemoryLimitExceeded`, `InvalidPrimeError`. The configuration loader MUST reject any prime $p \notin \{3, 5, 7, 11\}$ with a clear error message as per the Spec Edge Cases.  
   *Verification*: `tests/unit/test_config.py` loads the sample config and asserts the parsed values; it also asserts that an `InvalidPrimeError` is raised when an unsupported prime is provided. `tests/unit/test_exceptions.py` raises each exception and checks the message string.
 
 - [ ] T002 Implement deterministic seeding and memory guard – add `code/seed.py` (sets `random.seed`, `numpy.random.seed`, exposes `get_seed()`) and `code/memory_guard.py` (class `MemoryGuard` polls `psutil` every 10 000 sieve iterations and raises `MemoryLimitExceeded` if RSS ≥ 90 % of `memory_limit_mb`).  
