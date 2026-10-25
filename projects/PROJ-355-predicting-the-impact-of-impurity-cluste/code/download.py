@@ -3,6 +3,10 @@ Download bulk configuration records from OQMD with retry logic,
 sample exactly 600 records (200 each of Fe‑Cr, Ni‑Al, Cu‑Zn),
 write them to ``data/raw/oqmd_records/`` and record SHA‑256 checksums
 and metadata in ``data/metadata.yaml``.
+
+This module also provides a generic ``download_bulk_configs`` function
+used by unit tests to verify retry logic, citation validation, and
+manifest handling.
 """
 import json
 import hashlib
@@ -13,10 +17,12 @@ from pathlib import Path
 from typing import List, Dict
 
 import yaml
-from datasets import load_dataset
+import requests
+import shutil
 
 from llmxive_toolkit import paths
 from config import get_data_paths, get_project_root
+from validators import validate_citations
 
 # Configure module logger
 logger = logging.getLogger(__name__)
@@ -54,13 +60,33 @@ def _write_record(record: Dict, out_path: Path) -> str:
     with open(out_path, "w", encoding="utf-8") as fp:
         json.dump(record, fp, indent=2, sort_keys=True)
 
-    # Compute checksum
     sha256 = hashlib.sha256()
     with open(out_path, "rb") as fp:
         for chunk in iter(lambda: fp.read(8192), b""):
             sha256.update(chunk)
-    checksum = sha256.hexdigest()
-    return checksum
+    return sha256.hexdigest()
+
+def _write_manifest(manifest_path: Path, url: str, reason: str) -> None:
+    """
+    Append a failure entry to the inaccessible manifest.
+    The manifest format is::
+
+        {
+            "failed_urls": [
+                {"url": "<url>", "reason": "<reason>"}
+            ]
+        }
+    """
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    if manifest_path.exists():
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = {"failed_urls": []}
+
+    data["failed_urls"].append({"url": url, "reason": reason})
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, sort_keys=True)
 
 def _update_metadata(
     checksums: Dict[str, str],
@@ -93,7 +119,113 @@ def _update_metadata(
     logger.info(f"Metadata written to {metadata_path}")
 
 # -------------------------------------------------------------------------
-# Main download routine
+# Public API expected by unit tests
+# -------------------------------------------------------------------------
+def download_bulk_configs(
+    url: str,
+    max_retries: int = 3,
+    metadata_path: Path = None,
+) -> Dict:
+    """
+    Generic download helper used by the test suite.
+
+    Steps:
+    1. Validate the URL via ``validators.validate_citations``.
+    2. Retry up to ``max_retries`` times on validation failure.
+    3. Perform a HEAD request to ensure the resource exists.
+    4. Stream the content to a file under ``data/raw/oqmd_records``.
+    5. Record a SHA‑256 checksum and update ``data/metadata.yaml``.
+    6. On permanent failure, write an ``inaccessible_manifest.json`` file
+       and return a failure dict with ``error_code: "DATA_UNAVAILABLE"``.
+
+    Returns a dict with at least ``"success"`` (bool) and optionally
+    ``"error_code"``.
+    """
+    if metadata_path is None:
+        metadata_path = get_data_paths()["metadata"]
+
+    # -----------------------------------------------------------------
+    # Validation with retry
+    # -----------------------------------------------------------------
+    attempt = 0
+    while attempt < max_retries:
+        attempt += 1
+        validation_result = validate_citations(url, str(metadata_path))
+        if validation_result.get("success"):
+            logger.info(f"URL validation succeeded on attempt {attempt}")
+            break
+        else:
+            logger.warning(
+                f"Validation failed (attempt {attempt}/{max_retries}): "
+                f"{validation_result.get('error_code')}"
+            )
+            if attempt < max_retries:
+                backoff = 2 ** attempt
+                logger.info(f"Retrying after {backoff}s...")
+                time.sleep(backoff)
+            else:
+                logger.error("[DATA_UNAVAILABLE] URL validation exhausted.")
+                manifest_path = metadata_path.parent / "inaccessible_manifest.json"
+                _write_manifest(
+                    manifest_path,
+                    url,
+                    validation_result.get("error_code", "UNKNOWN"),
+                )
+                return {"success": False, "error_code": "DATA_UNAVAILABLE"}
+
+    # -----------------------------------------------------------------
+    # HEAD request to confirm availability
+    # -----------------------------------------------------------------
+    try:
+        head_resp = requests.head(url, timeout=10)
+        if head_resp.status_code != 200:
+            raise RuntimeError(f"HEAD request returned {head_resp.status_code}")
+    except Exception as exc:
+        logger.error(f"HEAD request failed: {exc}")
+        manifest_path = metadata_path.parent / "inaccessible_manifest.json"
+        _write_manifest(manifest_path, url, "HEAD_FAILED")
+        return {"success": False, "error_code": "DATA_UNAVAILABLE"}
+
+    # -----------------------------------------------------------------
+    # Download the content
+    # -----------------------------------------------------------------
+    raw_dir: Path = paths.data("raw", "oqmd_records")
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    # Derive a deterministic filename from the URL
+    filename = url.split("/")[-1] or f"download_{int(time.time())}.bin"
+    out_path = raw_dir / filename
+
+    try:
+        with requests.get(url, stream=True, timeout=30) as r:
+            r.raise_for_status()
+            with open(out_path, "wb") as f:
+                shutil.copyfileobj(r.raw, f)
+    except Exception as exc:
+        logger.error(f"Download failed: {exc}")
+        manifest_path = metadata_path.parent / "inaccessible_manifest.json"
+        _write_manifest(manifest_path, url, "DOWNLOAD_FAILED")
+        return {"success": False, "error_code": "DATA_UNAVAILABLE"}
+
+    # Compute checksum
+    sha256 = hashlib.sha256()
+    with open(out_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    checksum = sha256.hexdigest()
+
+    # Record checksum in metadata
+    rel_path = str(out_path.relative_to(get_project_root()))
+    _update_metadata(
+        checksums={rel_path: checksum},
+        sampling_rule="direct_download",
+        waiver_status="DATA_UNAVAILABLE",
+    )
+
+    logger.info(f"Successfully downloaded {url} to {out_path}")
+    return {"success": True, "error_code": None}
+
+# -------------------------------------------------------------------------
+# OQMD specific bulk download (used by the pipeline)
 # -------------------------------------------------------------------------
 def download_oqmd_records(
     max_retries: int = 3,
@@ -137,7 +269,6 @@ def download_oqmd_records(
                 time.sleep(backoff)
             else:
                 logger.error("[DATA_UNAVAILABLE] OQMD dataset could not be loaded after retries.")
-                # Record metadata indicating failure and exit the function.
                 _update_metadata(
                     checksums={},
                     sampling_rule="",
@@ -198,7 +329,6 @@ def main() -> None:
         download_oqmd_records()
     except Exception as exc:
         logger.error(f"Download failed: {exc}")
-        # Propagate the exception so that a permanent failure is visible to the runner.
         raise
 
 if __name__ == "__main__":

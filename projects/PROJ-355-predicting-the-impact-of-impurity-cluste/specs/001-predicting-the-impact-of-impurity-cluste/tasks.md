@@ -36,7 +36,7 @@ All paths are relative to the project root `projects/PROJ-355-predicting-the-imp
     4. Record SHA‑256 checksums for every downloaded file, the sampling rule, and the Materials‑Project waiver (`materials_project_status: DATA_UNAVAILABLE`) in `data/metadata.yaml`.  
   - **Verification**: `tests/unit/test_download_retry.py` must pass; it checks the presence of the checksum map and the waiver field.  
 
-- [ ] **T013** [US‑1] **Download bulk configuration records from Materials Project with retry logic and record metadata**   <!-- FAILED-IN-EXECUTION: code/download_mp.py exit=1 -->
+- [ ] **T013** [US‑1] **Download bulk configuration records from Materials Project with retry logic and record metadata**   <!-- FAILED-IN-EXECUTION: code/download_mp.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_mp.py exit=1 -->
   - **Files**: `code/download_mp.py`, `data/raw/mp_records/` (immutable JSON/CSV), `data/metadata.yaml`  
   - **Steps**:  
     1. Use `pymatgen.ext.matproj.MPRester` (API key supplied via environment variable `MP_API_KEY`) to query the Materials Project for the same 600 compositions used for OQMD.  

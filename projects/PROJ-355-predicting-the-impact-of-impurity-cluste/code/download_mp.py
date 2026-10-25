@@ -110,7 +110,12 @@ def _fetch_material_ids(pair: tuple) -> List[str]:
     in *pair*. Returns a list of material IDs (strings).
     """
     elements = list(pair)
-    with MPRester(os.getenv("MP_API_KEY")) as mpr:
+    api_key = os.getenv("MP_API_KEY")
+    if not api_key:
+        raise EnvironmentError(
+            "Environment variable 'MP_API_KEY' not set – required for Materials Project access."
+        )
+    with MPRester(api_key) as mpr:
         # ``criteria`` uses the Materials Project query language.
         criteria = {"elements": {"$all": elements}}
         # We only need the material_id; other fields are fetched later.
@@ -126,7 +131,12 @@ def _fetch_structure(material_id: str) -> Structure:
     Retrieve the structure for *material_id* via the MP REST API.
     Returns a ``pymatgen.Structure`` instance.
     """
-    with MPRester(os.getenv("MP_API_KEY")) as mpr:
+    api_key = os.getenv("MP_API_KEY")
+    if not api_key:
+        raise EnvironmentError(
+            "Environment variable 'MP_API_KEY' not set – required for Materials Project access."
+        )
+    with MPRester(api_key) as mpr:
         struct = mpr.get_structure_by_material_id(material_id)
     return struct
 
@@ -211,7 +221,9 @@ def download_mp_records(max_retries: int = MAX_RETRIES, seed: int = SEED) -> Non
 
             out_path = out_dir / f"{mat_id}.json"
             checksum = _write_json_record(record, out_path)
-            all_checksums[str(out_path.relative_to(paths.root))] = checksum
+            # Store checksum with a path relative to the project root.
+            rel_path = str(out_path.relative_to(paths.root))
+            all_checksums[rel_path] = checksum
 
     # Update provenance metadata.
     _update_metadata(all_checksums)
