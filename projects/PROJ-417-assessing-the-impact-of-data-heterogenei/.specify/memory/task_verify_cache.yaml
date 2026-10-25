@@ -1,0 +1,8 @@
+T002:
+  c: false
+  h: 6d020aca57e7119ced12b309d90c4eed76fb0a70d4d44baafa3400d8dd5702d5
+  r: The generator script exists, but the required output file `data/results/simulation_raw.jsonl`
+    is missing, and there is no evidence that the unit test suite actually runs and
+    passes. The implementation must produce the JSONL file with the correct number
+    of records and demonstrate passing tests.
+  sig: 1f6afa8244ae1007559e7f10e1ef2e21546a992d79bee23395efd35f7cf562f9

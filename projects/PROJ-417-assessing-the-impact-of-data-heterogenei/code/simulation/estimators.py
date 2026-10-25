@@ -1,4 +1,6 @@
 """
+estimators.py
+
 Meta‑analysis estimators and heterogeneity utilities.
 
 This module provides three standard estimators:
@@ -121,12 +123,13 @@ def log_reml_failure(event: Dict[str, Any], log_path: str = REML_FAILURE_LOG_PAT
 
     Parameters
     ----------
-    event:
+    event :
         Dictionary describing the failure.
-    log_path:
+    log_path :
         Path to the JSON failure log.
     """
     events: List[Dict[str, Any]] = []
+    loaded: Optional[Any] = None  # Will hold the original JSON content if present
     try:
         with open(log_path, "r", encoding="utf-8") as f:
             content = f.read().strip()
@@ -159,7 +162,7 @@ def log_reml_failure(event: Dict[str, Any], log_path: str = REML_FAILURE_LOG_PAT
             with open(log_path, "w", encoding="utf-8") as f:
                 json.dump(loaded, f, indent=2)
         else:
-            # Plain list format
+            # Plain list format (including the case where the file did not exist)
             with open(log_path, "w", encoding="utf-8") as f:
                 json.dump(events, f, indent=2)
     except OSError as e:

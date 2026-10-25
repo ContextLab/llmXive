@@ -3,6 +3,10 @@ T001:
     exit=1'
   task: eb410804bb73f118292fe2730ed35dd4a58e7033fe1104e6b96fe3b09c9be1be
 T002:
+  reason: The generator script exists, but the required output file `data/results/simulation_raw.jsonl`
+    is missing, and there is no evidence that the unit test suite actually runs and
+    passes. The implementation must produce the JSONL file with the correct number
+    of records and demonstrate passing tests.
   task: 4d0921a6a568f210cb5dc7967a931498c4f3bb1a927feb10009ab1aef3af10e5
 T003:
   task: fc6b0e9eff3b697d1cc0e6fd5e82e0551732361b5792f456f7b012bffeb46e9e
