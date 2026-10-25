@@ -1,6 +1,6 @@
 """
 Test that contract schema files have been copied verbatim.
-The script `code/copy_contracts.py` writes a JSON mapping of SHA‑256
+The script ``code/copy_contracts.py`` writes a JSON mapping of SHA‑256
 hashes for each contract file. This test loads that mapping and asserts
 that the source and destination hashes match for every file.
 """
@@ -12,9 +12,12 @@ from llmxive_toolkit import paths
 @pytest.fixture
 def hash_mapping():
     """Load the JSON mapping produced by copy_contracts.py."""
-    json_path = paths.data("raw", "contract_hashes.json")
+    # The mapping is now written to the repository root.
+    json_path = paths.root / "contract_hashes.json"
     if not os.path.exists(json_path):
-        pytest.fail(f"Hash mapping file not found at {json_path}. Did you run copy_contracts.py?")
+        pytest.fail(
+            f"Hash mapping file not found at {json_path}. Did you run copy_contracts.py?"
+        )
     with open(json_path, "r", encoding="utf-8") as f:
         return json.load(f)
 

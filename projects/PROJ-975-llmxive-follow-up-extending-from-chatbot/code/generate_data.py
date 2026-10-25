@@ -378,7 +378,7 @@ def generate_tasks(seed_b: int, skills: list, count: int = TASK_COUNT) -> list:
             "complexity": complexity,
             "ground_truth_path": gt_path,
             # Legacy / auxiliary fields (kept for internal use)
-            "ground_truth_skills": gt_path,   # legacy alias (kept for compatibility)
+            "ground_truth_skills": gt_path,   # schema‑compliant alias
             "solution_path": gt_path,         # retained for backward compatibility with existing code
             "embedding_vector": task_embedding,
             "edge_case": False,
@@ -437,16 +437,18 @@ def main() -> None:
         {
             "task_id": t["task_id"],
             "description": t["description"],
-            "ground_truth_path": t["ground_truth_path"],
+            "ground_truth_skills": t["ground_truth_skills"],
             "complexity": t["complexity"],
+            "embedding_vector": t["embedding_vector"],
         }
         for t in core_tasks_full
     ]
 
-    # Strip to schema‑allowed fields for skills (exclude legacy ``name`` etc.)
+    # Strip to schema‑allowed fields for skills (include the required ``name``)
     schema_skills = [
         {
             "skill_id": s["skill_id"],
+            "name": s["name"],                     # required by schema
             "function_code": s["function_code"],
             "embedding_vector": s["embedding_vector"],
             "usage_count": s["usage_count"],

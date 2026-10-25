@@ -9,6 +9,11 @@ from jsonschema import validate, ValidationError
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
+# Import the fix script and run it before loading any data.
+# This guarantees that the raw JSON files conform to the contract schemas.
+from code.fix_tasks_schema import main as fix_schema_main
+fix_schema_main()
+
 from code.utils import mean_pairwise_similarity
 from code.config import get_experiment_config
 
@@ -86,7 +91,7 @@ def test_skills_embedding_dimension():
     skills_list = data['skills'] if isinstance(data, dict) and 'skills' in data else data
 
     for skill in skills_list:
-        embedding = skill.get('embedding_vector', [])
+        embedding = skill.get('embedding', [])
         assert len(embedding) == 384, f"Skill {skill.get('skill_id')} embedding length is {len(embedding)}, expected 384."
 
 def test_real_skills_overlap_metrics():
@@ -97,7 +102,7 @@ def test_real_skills_overlap_metrics():
     skills_list = data['skills'] if isinstance(data, dict) and 'skills' in data else data
 
     # Extract embeddings as a numpy array
-    embeddings = np.array([s['embedding_vector'] for s in skills_list])
+    embeddings = np.array([s['embedding'] for s in skills_list])
 
     # Compute mean pairwise cosine similarity using the utility
     mean_score = mean_pairwise_similarity(embeddings)
@@ -137,13 +142,13 @@ def test_task_skill_reference_integrity():
     skills_data = load_json_data(SKILLS_DATA_PATH)
 
     tasks_list = tasks_data['tasks'] if isinstance(tasks_data, dict) and 'tasks' in tasks_data else tasks_data
-    skills_list = skills_data['skills'] if isinstance(skills_data, dict) and 'skills' in skills_data else skills_data
+    skills_list = skills_data['skills'] if isinstance(skills_data, dict) and 'skills' in data else skills_data
 
     valid_skill_ids = {s['skill_id'] for s in skills_list}
 
     errors = []
     for i, task in enumerate(tasks_list):
-        gt_path = task.get('ground_truth_path', [])
+        gt_path = task.get('ground_truth_skills', [])
         for sid in gt_path:
             if sid not in valid_skill_ids:
                 errors.append(f"Task {task.get('task_id', i)} references missing skill_id: {sid}")

@@ -1,38 +1,43 @@
 T001:
-  reason: "The copy script correctly copies the five schema files and the test confirms\
-    \ matching SHA\u2011256 hashes, but the generated `contract_hashes.json` is written\
-    \ to `data/raw/contract_hashes.json` instead of the repository root as the task\
-    \ specification requires. The required root\u2011level `contract_hashes.json`\
-    \ file is missing."
+  reason: The `tests/contract/test_contract_copy.py` test fails because it cannot
+    find `contract_hashes.json` at the repository root, while `code/copy_contracts.py`
+    writes the JSON file to `data/raw/contract_hashes.json` instead of the required
+    root location. Consequently the CI verification does not pass.
   task: 558a684ab6cfd812e0d6b3f9f7f21befeb2df67af770009870cdfeffb5b574de
 T002:
-  reason: The project provides `code/generate_data.py`, the generated `tasks.json`,
-    `skills.json`, and `checksums.json`, and a comprehensive test suite, but the required
-    schema files `task.schema.yaml` and `skill.schema.yaml` are missing, so the records
-    cannot be validated against the contracts as the task specification demands. Without
-    these schemas the verification step (2) cannot be satisfied, and the implementation
-    is therefore incomplete.
+  reason: "Checked `code/generate_data.py`, `data/raw/tasks.json`, `data/raw/skills.json`,\
+    \ and `data/raw/checksums.json`. The generated `skills.json` does not contain\
+    \ the fields the script writes (it has `code`/`embedding`/`last_used` instead\
+    \ of `function_code`/`embedding_vector`), the required schema files (`task.schema.yaml`,\
+    \ `skill.schema.yaml`) are missing, and the SHA\u2011256 digest for `skills.json`\
+    \ recorded in `checksums.json` does not match the actual file hash. These issues\
+    \ violate the task\u2019s requirements."
   task: e1434351452dd1cf2ef1c0cd663e38c908eadce156262664ad059cbd6ec22783
 T003:
-  reason: "The `code/write_checksums.py` script is present and correctly implements\
-    \ SHA\u2011256 computation, and `data/raw/checksums.json` contains the expected\
-    \ hashes. However, the contract test `tests/contract/test_checksums.py` fails\
-    \ (FileNotFoundError for `tasks.json`) because the script\u2019s use of `llmxive_toolkit.paths`\
-    \ does not locate the existing `data/raw/tasks.json` and `skills.json`, so the\
-    \ test does not pass in CI as required. The path\u2011resolution issue must be\
-    \ fixed for the test to succeed."
+  reason: The `code/write_checksums.py` script raises a `FileNotFoundError` for `data/raw/tasks.json`
+    (as shown in the CI log), causing both contract tests to error. Consequently the
+    required verification test does not pass. The checksum script must correctly locate
+    the data files so the test can succeed.
   task: 3a00ec119c9e2f9d89ea6b136df79307137dbf0ba8a3c0879393fd3a6d76d0f6
 T004:
-  reason: The test file `tests/contract/test_schemas.py` exists and attempts to validate
-    the JSON files, but the schemas (`contracts/task.schema.yaml` and `contracts/skill.schema.yaml`)
-    require fields (`ground_truth_skills`, `solution_path`, `name`, `code`, `embedding`,
-    `last_used`) that are not present in the provided `data/raw/tasks.json` and `data/raw/skills.json`
-    (which use `ground_truth_path`, `embedding_vector`, `function_code`, etc.). Consequently
-    the tests would fail, so the required validation step is not satisfied.
+  reason: "The pytest run (`code/.tasks/T004.tests_contract_test_schemas.py.log`)\
+    \ exits with failures:\u202F`test_real_tasks_schema_compliance` reports that 500\
+    \ task entries lack the required `solution_path` field, and `test_task_skill_reference_integrity`\
+    \ also fails (the test references an undefined variable). Consequently the raw\
+    \ JSON files do not fully validate against their schemas, and the test suite does\
+    \ not succeed as required. The tasks data must be corrected (e.g., add `solution_path`\
+    \ to each task) and the integrity test fixed before the task can be considered\
+    \ complete."
   task: d1c2ba04f33156fde60bc946cb13780ce4df3c9e770d833d90b3294136521cac
 T005:
   task: 794d6e0d6d90cbd32a42721cee5338971eb6584e7926037d22b94be600b6fd2c
 T006:
+  reason: "Checked `code/agent.py` (has the Tuple import and CLI parsing) and the\
+    \ `data/results/execution_logs/` JSON\u2011L files (run_50_off_HIGH.jsonl exists).\
+    \ However, the required CSV log `data/results/experiment_log.csv` is missing,\
+    \ the script never imports `experiment_log.schema.yaml` for validation, and the\
+    \ integration test `tests/integration/test_agent_small_run.py` is absent. These\
+    \ missing artifacts prevent the task\u2019s requirement from being satisfied."
   task: 2268e3c6d17909bc6bcae179a576c1528bd2dd7103fba9da26c4c54b7d8f36a1
 T007:
   task: 879e6d34228d71362b97399218ca86b39850a0c51abf877d1574bb99d386acec
@@ -42,6 +47,8 @@ T009:
   reason: 'Requested task execution failed; rerun successfully: code/analysis.py exit=1'
   task: b6168ab08addd0ce22e0de3601512cfa61bca6f771b8d7c5242f67a1885c948d
 T010:
+  reason: 'Requested task execution failed; rerun successfully: code/run_feasibility.py
+    exit=1'
   task: 2f2825e38a345fe27caaa866e02bc662d2ec25de17b6cd0664ef6d792935d4a1
 T011:
   task: 382998b842648afaf812db923632b152947e48bfc492e225531325361d793c7e
@@ -52,4 +59,9 @@ T013:
 T014:
   task: c2b7776851d8e8ac3d6f7dc5788935501e34f76b3ef3706fe9fed9df85961ea6
 T015:
+  reason: The required file `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml`
+    does exist, but the test suite `tests/contract/test_schemas.py` contains no test
+    that validates this schema (no function matching `-k "experiment_log"`), so CI
+    cannot verify the schema as required. Add a test for `experiment_log.schema.yaml`
+    (or ensure the existing test suite includes it) and confirm it passes.
   task: 922df92926b39fe9a8f87f494101ca7ad39bf3ce515317ade5cc55eac5fdb0b2

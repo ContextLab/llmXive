@@ -1,12 +1,22 @@
+"""
+Copy contract schema files verbatim from the read‑only specs folder into the
+project‑owned ``contracts/`` directory and record SHA‑256 hashes.
+
+The mapping of source and destination hashes is written to a JSON file
+``contract_hashes.json`` at the repository root (i.e. ``paths.root``). This
+location matches the task specification that requires the file to live at
+the repository root rather than under ``data/raw/``.
+"""
 import os
 import shutil
 import hashlib
 import json
+
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-# List of contract filenames to copy
+# List of contract filenames to copy – must stay in sync with the spec.
 CONTRACT_FILES = [
     "task.schema.yaml",
     "skill.schema.yaml",
@@ -24,9 +34,14 @@ def compute_sha256(file_path: str) -> str:
     return sha256.hexdigest()
 
 def copy_and_hash_contracts():
-    """Copy contract schema files verbatim from the read‑only specs folder
-    to the project‑owned contracts directory and record SHA‑256 hashes."""
-    # Resolve source and destination directories
+    """
+    Copy contract schema files verbatim from the read‑only specs folder
+    to the project‑owned ``contracts`` directory and record SHA‑256 hashes.
+
+    The hash mapping is written to ``contract_hashes.json`` at the repository
+    root (``paths.root``).
+    """
+    # Resolve source (read‑only) and destination (project‑owned) directories.
     spec_contracts_dir = os.path.join(
         paths.root,
         "specs",
@@ -36,7 +51,9 @@ def copy_and_hash_contracts():
     dest_contracts_dir = os.path.join(paths.root, "contracts")
 
     if not os.path.isdir(spec_contracts_dir):
-        raise FileNotFoundError(f"Source contracts directory not found: {spec_contracts_dir}")
+        raise FileNotFoundError(
+            f"Source contracts directory not found: {spec_contracts_dir}"
+        )
 
     os.makedirs(dest_contracts_dir, exist_ok=True)
 
@@ -49,18 +66,20 @@ def copy_and_hash_contracts():
         if not os.path.isfile(src_path):
             raise FileNotFoundError(f"Source contract file missing: {src_path}")
 
-        # Copy file verbatim
+        # Copy file verbatim (preserve metadata).
         shutil.copy2(src_path, dst_path)
 
-        # Compute hashes
+        # Compute hashes for verification.
         src_hash = compute_sha256(src_path)
         dst_hash = compute_sha256(dst_path)
 
         hash_mapping[filename] = {"src_hash": src_hash, "dst_hash": dst_hash}
-        log.info(f"Copied {filename}: src_hash={src_hash}, dst_hash={dst_hash}")
+        log.info(
+            f"Copied {filename}: src_hash={src_hash}, dst_hash={dst_hash}"
+        )
 
-    # Write mapping to data/raw/contract_hashes.json
-    output_path = paths.data("raw", "contract_hashes.json")
+    # Write mapping to the repository root.
+    output_path = os.path.join(paths.root, "contract_hashes.json")
     with open(output_path, "w", encoding="utf-8") as out_f:
         json.dump(hash_mapping, out_f, indent=2, sort_keys=True)
 

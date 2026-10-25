@@ -1,43 +1,42 @@
 T001:
   c: false
-  h: af5c0daf9ba125a74ad0b7294a7d3c5f7809c3ae282e85f3be894ee1274240cb
-  r: "The copy script correctly copies the five schema files and the test confirms\
-    \ matching SHA\u2011256 hashes, but the generated `contract_hashes.json` is written\
-    \ to `data/raw/contract_hashes.json` instead of the repository root as the task\
-    \ specification requires. The required root\u2011level `contract_hashes.json`\
-    \ file is missing."
-  sig: 6ee1333d3eed7edf96a5c0daab5d7cfc29df2c2e9c15698595cb685c1aae3346
+  h: e080b27ed4b7bb3b992152ab36dc24d854545672005ec502c39b3e526c9eb63f
+  r: The `tests/contract/test_contract_copy.py` test fails because it cannot find
+    `contract_hashes.json` at the repository root, while `code/copy_contracts.py`
+    writes the JSON file to `data/raw/contract_hashes.json` instead of the required
+    root location. Consequently the CI verification does not pass.
+  sig: 665b6dc25448fe4752d79b00f28e8ed5ba65b2cd59d1e7d6f2e7585953f9acb4
 T002:
   c: false
-  h: 7a8b727ad5d91213e11554b853f1c768c7d085d2b1238f7e0047063e61198e9c
-  r: The project provides `code/generate_data.py`, the generated `tasks.json`, `skills.json`,
-    and `checksums.json`, and a comprehensive test suite, but the required schema
-    files `task.schema.yaml` and `skill.schema.yaml` are missing, so the records cannot
-    be validated against the contracts as the task specification demands. Without
-    these schemas the verification step (2) cannot be satisfied, and the implementation
-    is therefore incomplete.
-  sig: 35ac03cc5104866471ccda4fc5b09679a1e88cbe3b5b2b59a5577e1213d87ec2
+  h: 4bf24a1de641feb482ce3dbf46ea07de57e866e089b9183fea34f697848e8aa6
+  r: "Checked `code/generate_data.py`, `data/raw/tasks.json`, `data/raw/skills.json`,\
+    \ and `data/raw/checksums.json`. The generated `skills.json` does not contain\
+    \ the fields the script writes (it has `code`/`embedding`/`last_used` instead\
+    \ of `function_code`/`embedding_vector`), the required schema files (`task.schema.yaml`,\
+    \ `skill.schema.yaml`) are missing, and the SHA\u2011256 digest for `skills.json`\
+    \ recorded in `checksums.json` does not match the actual file hash. These issues\
+    \ violate the task\u2019s requirements."
+  sig: 578e98d09bdc87f209f5f44eddf1aa1958815aa78499c6767364355809fd4b58
 T003:
   c: false
-  h: 8bad0c2c67e7e9942ea47cc3062b41fde3d7fba195b90fd5b8ef3e6da7fb83d9
-  r: "The `code/write_checksums.py` script is present and correctly implements SHA\u2011\
-    256 computation, and `data/raw/checksums.json` contains the expected hashes. However,\
-    \ the contract test `tests/contract/test_checksums.py` fails (FileNotFoundError\
-    \ for `tasks.json`) because the script\u2019s use of `llmxive_toolkit.paths` does\
-    \ not locate the existing `data/raw/tasks.json` and `skills.json`, so the test\
-    \ does not pass in CI as required. The path\u2011resolution issue must be fixed\
-    \ for the test to succeed."
-  sig: 2c3414a71349e177df78158bbd645acc7c63c2f845e67ae6236559417954534a
+  h: 4eeeb8d04f104b105f0ce27f1d7ea2d024f736a07c2655b75aee9431b9f7f5f0
+  r: The `code/write_checksums.py` script raises a `FileNotFoundError` for `data/raw/tasks.json`
+    (as shown in the CI log), causing both contract tests to error. Consequently the
+    required verification test does not pass. The checksum script must correctly locate
+    the data files so the test can succeed.
+  sig: 1717104c9c430c0453964dd9a10484e19d98d3c81832d9da961b1c13cdd18c04
 T004:
   c: false
-  h: 3f24e4793e4bd40a7d6a4f6db1c35bb3c477c8867e3358e4a24e37934f210dd5
-  r: The test file `tests/contract/test_schemas.py` exists and attempts to validate
-    the JSON files, but the schemas (`contracts/task.schema.yaml` and `contracts/skill.schema.yaml`)
-    require fields (`ground_truth_skills`, `solution_path`, `name`, `code`, `embedding`,
-    `last_used`) that are not present in the provided `data/raw/tasks.json` and `data/raw/skills.json`
-    (which use `ground_truth_path`, `embedding_vector`, `function_code`, etc.). Consequently
-    the tests would fail, so the required validation step is not satisfied.
-  sig: dd16cf681895c2b0b93604920d04c26a12173c52ea4be3ebef94396a6bd682b8
+  h: 9a92319c60c61e6166399038458e8e15196b86ff512b97a5ff977b91a2e05da9
+  r: "The pytest run (`code/.tasks/T004.tests_contract_test_schemas.py.log`) exits\
+    \ with failures:\u202F`test_real_tasks_schema_compliance` reports that 500 task\
+    \ entries lack the required `solution_path` field, and `test_task_skill_reference_integrity`\
+    \ also fails (the test references an undefined variable). Consequently the raw\
+    \ JSON files do not fully validate against their schemas, and the test suite does\
+    \ not succeed as required. The tasks data must be corrected (e.g., add `solution_path`\
+    \ to each task) and the integrity test fixed before the task can be considered\
+    \ complete."
+  sig: daac2ca9861c345e65ab9cd67bc129dba686867171f083d41c0d685e0e4a9dde
 T005:
   c: true
   h: 08d6786a68435c06822390f9acde1d467dc5a1c667b3f285a7ed88af5abf5056
@@ -46,10 +45,22 @@ T005:
     where all three contract tests passed, confirming the CSV header order, schema
     compliance, and logger singleton behavior.
   sig: 532e607658f6e954e9c60356a0406d020dc732434c0b9db45f4c518906b440bb
+T006:
+  c: false
+  h: 6b6142aa5fac7f73aa4b11e655855fc5e0008f67ca65983faedcf33a186d7776
+  r: "Checked `code/agent.py` (has the Tuple import and CLI parsing) and the `data/results/execution_logs/`\
+    \ JSON\u2011L files (run_50_off_HIGH.jsonl exists). However, the required CSV\
+    \ log `data/results/experiment_log.csv` is missing, the script never imports `experiment_log.schema.yaml`\
+    \ for validation, and the integration test `tests/integration/test_agent_small_run.py`\
+    \ is absent. These missing artifacts prevent the task\u2019s requirement from\
+    \ being satisfied."
+  sig: d1125a2e257dbfaed5a5c61721d086a629e222150f1b29138f274a641b2b360c
 T015:
-  c: true
-  h: f216656261c472c109a7cfbe5f9be0d0e9d532ddd615e5c0b1b6c78a2f3c3101
-  r: "Checked the presence and content of `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml`,\
-    \ which exists (1640\u202Fbytes) and defines a full JSON\u2011Schema matching\
-    \ the expected fields. No missing or placeholder artifacts were found."
-  sig: 4fac895c76de0bc81d7f0b3e2f03a9572d8e29106f9580eceb18cf67b4511427
+  c: false
+  h: 8f528cadcdf91cf83684a65e5739a14f975015de660e37067ad9952af0b63a9a
+  r: The required file `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml`
+    does exist, but the test suite `tests/contract/test_schemas.py` contains no test
+    that validates this schema (no function matching `-k "experiment_log"`), so CI
+    cannot verify the schema as required. Add a test for `experiment_log.schema.yaml`
+    (or ensure the existing test suite includes it) and confirm it passes.
+  sig: c0bb53128c0cdd4238b00a29d90a0d76793584a715595a7a6cf1d6ad27b8fac6

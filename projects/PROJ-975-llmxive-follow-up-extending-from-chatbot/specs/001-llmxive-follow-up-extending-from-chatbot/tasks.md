@@ -29,7 +29,7 @@ The list follows the three research phases (setup → full experiment →�
   *Path*: `code/logging_config.py` defines `LOG_COLUMNS = ["run_id","task_id","library_size","pruning_enabled","success","latency_ms","tokens_used","retrieval_precision","retrieval_diversity","edge_case"]` and provides `get_logger(name)` that writes rows to `data/results/experiment_log.csv`.  
   *Verification*: `tests/contract/test_logging_schema.py` (a) creates a dummy row via the logger, (b) checks that `data/results/experiment_log.csv` exists, (c) asserts the header order matches `LOG_COLUMNS`, and (d) validates the dummy row against `contracts/experiment_log.schema.yaml`.
 
-- [X] **T015** [P] [US2] **Create missing experiment_log.schema.yaml**  
+- [ ] **T015** [P] [US2] **Create missing experiment_log.schema.yaml**  
   *Path*: `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml` – write the schema defined in the specification (identical to the one shown in the data model).  
   *Verification*: `tests/contract/test_schemas.py -k "experiment_log"` validates the new schema file; CI must succeed before any logging validation runs.
 
@@ -37,7 +37,7 @@ The list follows the three research phases (setup → full experiment →�
 
 ## Phase 2 – Full experimental sweep, corrected pruning, and statistical analysis  
 
-- [~] **T006** [S] [US2] **Fix and extend the agent CLI; ensure CSV output for a small run**  
+- [ ] **T006** [S] [US2] **Fix and extend the agent CLI; ensure CSV output for a small run**  
   *Path*: `code/agent.py` – add missing import `Tuple` from `typing`, correct argument parsing, and guarantee that every execution writes to `data/results/experiment_log.csv` **and** a JSON‑L file under `data/results/execution_logs/<run_id>.jsonl`. Ensure the script imports the newly added `experiment_log.schema.yaml` for validation.  
   *Verification*: `tests/integration/test_agent_small_run.py` runs  
 
@@ -79,7 +79,7 @@ The list follows the three research phases (setup → full experiment →�
     Writes `data/results/analysis_report.json`.  
   *Verification*: `tests/contract/test_analysis_output.py` checks that the JSON contains all required top‑level keys, that `breakpoint_estimate` lies between 10 and 100, that the two‑sided CI is present, and that every VIF value is numeric and `< 5.0`.
 
-- [ ] **T010** [P] [SC‑005] **Feasibility check (runtime & memory) for a representative subset**  
+- [ ] **T010** [P] [SC‑005] **Feasibility check (runtime & memory) for a representative subset**   <!-- FAILED-IN-EXECUTION: code/run_feasibility.py exit=1 -->
   *Path*: `code/run_feasibility.py` runs a representative subset of the factorial sweep (library sizes up to 50, both pruning flags, all three overlap levels). It records wall‑clock time (`time.perf_counter()`), peak RSS memory (`psutil.Process().memory_info().rss`), and asserts total runtime ≤ 21 600 s (6 h) and peak RAM ≤ 7 GB. Results are written to `data/results/feasibility_report.json`.  
   *Verification*: `tests/feasibility/test_feasibility.py` executes the wrapper and asserts that both `within_time_limit` and `within_memory_limit` are `true`.
 

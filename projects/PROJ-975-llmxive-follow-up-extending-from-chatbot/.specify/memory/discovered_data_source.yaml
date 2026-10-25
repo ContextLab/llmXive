@@ -1,16 +1,16 @@
 status: none
-intent: synthetic multi-step task and skill library dataset Meta-World RLBench python
-  package dataset
+intent: synthetic multi-step task and skill library generation python package dataset
 required_fields:
 - task_id
 - task_description
-- solution_path
+- ground_truth_solution_path
+- solution_step_order
+- action_id
 - skill_id
 - skill_name
-- skill_description
-- embedding_vector
-- semantic_density
+- skill_embedding_vector
+- semantic_density_score
 - overlap_level
-cache_key: eb27b392c859847c1949bd55ab5b2b20a79d61b1f0ec3dc4d520776774901c19
-searched_at: '2026-10-25T23:42:46.894606+00:00'
+cache_key: cde8a0a1e54b825b0beceedfc53de833cc6ef62e957698bdaf7213c40531afd7
+searched_at: '2026-10-25T23:46:20.418022+00:00'
 retry_count: 1

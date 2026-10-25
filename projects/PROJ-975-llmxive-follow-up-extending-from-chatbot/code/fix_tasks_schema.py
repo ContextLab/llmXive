@@ -1,75 +1,132 @@
 """
-Script to clean up the generated tasks.json so that it conforms to the
-task.schema.yaml contract. The original synthetic generator includes a
-number of auxiliary fields (e.g., embedding_vector, edge_case, id,
-num_steps) that are not permitted by the schema. This script retains only
-the fields required by the schema and renames ``ground_truth_path`` to
-``ground_truth_skills`` when necessary.
+fix_tasks_schema.py
+-------------------
+This script updates the generated synthetic ``tasks.json`` and ``skills.json`` files
+so that they conform to the JSON schemas located in ``contracts/``.  The original
+data generation step creates fields with legacy names (e.g. ``ground_truth_path``,
+``function_code``, ``embedding_vector``) that do not match the contract
+definitions.  The script performs a deterministic, in‑place transformation:
+
+* **Tasks**
+  - If ``ground_truth_skills`` is missing, copy the list from
+    ``ground_truth_path``.
+  - Ensure the required keys ``task_id``, ``description``, ``complexity``,
+    ``ground_truth_skills`` and ``solution_path`` exist.  The generation step
+    already creates all of these except ``ground_truth_skills``.
+
+* **Skills**
+  - Rename ``function_code`` → ``code``.
+  - Rename ``embedding_vector`` → ``embedding``.
+  - Add a ``name`` field derived from the function name inside ``code``.
+    If the function definition cannot be parsed, fall back to the ``skill_id``.
+  - Ensure ``last_used`` exists; if absent, populate it with the current UTC
+    timestamp in ISO‑8601 format.
+
+The script uses ``llmxive_toolkit.paths`` to resolve the data locations and
+writes the corrected JSON back to the same files.  It is safe to run multiple
+times – missing fields will be added only once and existing correct fields are
+left unchanged.
+
+The quick‑start guide runs this script after data generation, and the test
+suite imports the module to guarantee the data are schema‑compliant before
+validation.
 """
 
 import json
 import os
-from pathlib import Path
+import re
+from datetime import datetime, timezone
 
-# Paths (relative to project root)
-TASKS_PATH = Path("data") / "raw" / "tasks.json"
+from llmxive_toolkit import paths, get_logger
 
-def load_tasks(path: Path):
+log = get_logger(__name__)
+
+TASKS_PATH = paths.data("raw", "tasks.json")
+SKILLS_PATH = paths.data("raw", "skills.json")
+
+def load_json(path: str):
     with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    if isinstance(data, dict) and "tasks" in data:
-        return data["tasks"]
-    return data
+        return json.load(f)
 
-def save_tasks(tasks, path: Path):
-    # Preserve the original outer structure if it existed
-    with open(path, "r", encoding="utf-8") as f:
-        original = json.load(f)
-    if isinstance(original, dict) and "tasks" in original:
-        original["tasks"] = tasks
-        out_data = original
-    else:
-        out_data = tasks
+def save_json(data, path: str):
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(out_data, f, indent=2, sort_keys=False)
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
-def clean_task(task):
+def fix_tasks(tasks_data):
     """
-    Return a new dict containing only the fields allowed by the schema:
-    - task_id
-    - description
-    - ground_truth_skills (list of skill IDs)
-    - complexity (derived from number of steps if not present)
+    Ensure each task dictionary contains ``ground_truth_skills``.
+    If the legacy field ``ground_truth_path`` exists, copy its value.
     """
-    cleaned = {
-        "task_id": task.get("task_id"),
-        "description": task.get("description")
-    }
+    tasks = tasks_data["tasks"] if isinstance(tasks_data, dict) and "tasks" in tasks_data else tasks_data
+    for task in tasks:
+        if "ground_truth_skills" not in task:
+            if "ground_truth_path" in task:
+                task["ground_truth_skills"] = task["ground_truth_path"]
+                log.info(f"Added missing ground_truth_skills to task {task.get('task_id')}")
+            else:
+                log.error(f"Task {task.get('task_id')} missing both ground_truth_skills and ground_truth_path")
+    # Preserve original wrapper if present
+    return {"tasks": tasks} if isinstance(tasks_data, dict) and "tasks" in tasks_data else tasks
 
-    # Prefer the explicit ``ground_truth_skills`` field; otherwise fall back
-    # to ``ground_truth_path`` which is what the generator currently emits.
-    gt = task.get("ground_truth_skills")
-    if gt is None:
-        gt = task.get("ground_truth_path", [])
-    cleaned["ground_truth_skills"] = gt
+def extract_function_name(code_str: str) -> str:
+    """
+    Very small parser that extracts the first function name after a ``def`` keyword.
+    Falls back to ``None`` if parsing fails.
+    """
+    match = re.search(r"def\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(", code_str)
+    return match.group(1) if match else None
 
-    # Derive a simple complexity metric – number of steps in the ground‑truth path.
-    if "complexity" in task:
-        cleaned["complexity"] = task["complexity"]
-    else:
-        cleaned["complexity"] = len(gt)
+def fix_skills(skills_data):
+    """
+    Transform each skill dictionary:
+    - Rename legacy fields.
+    - Add ``name`` derived from the function definition.
+    - Ensure ``last_used`` timestamp exists.
+    """
+    skills = skills_data["skills"] if isinstance(skills_data, dict) and "skills" in skills_data else skills_data
+    for skill in skills:
+        # Rename ``function_code`` → ``code``
+        if "function_code" in skill and "code" not in skill:
+            skill["code"] = skill.pop("function_code")
+            log.info(f"Renamed function_code to code for skill {skill.get('skill_id')}")
 
-    return cleaned
+        # Rename ``embedding_vector`` → ``embedding``
+        if "embedding_vector" in skill and "embedding" not in skill:
+            skill["embedding"] = skill.pop("embedding_vector")
+            log.info(f"Renamed embedding_vector to embedding for skill {skill.get('skill_id')}")
+
+        # Add ``name`` if missing
+        if "name" not in skill:
+            code = skill.get("code", "")
+            derived_name = extract_function_name(code)
+            skill["name"] = derived_name if derived_name else skill.get("skill_id", "unnamed_skill")
+            log.info(f"Set name for skill {skill.get('skill_id')} to '{skill['name']}'")
+
+        # Ensure ``last_used`` exists
+        if "last_used" not in skill:
+            skill["last_used"] = datetime.now(timezone.utc).isoformat()
+            log.info(f"Added missing last_used for skill {skill.get('skill_id')}")
+
+    return {"skills": skills} if isinstance(skills_data, dict) and "skills" in skills_data else skills
 
 def main():
-    if not TASKS_PATH.is_file():
-        raise FileNotFoundError(f"Tasks file not found at {TASKS_PATH}")
+    # Fix tasks
+    if not os.path.exists(TASKS_PATH):
+        log.error(f"Tasks file not found at {TASKS_PATH}")
+        return
+    tasks_raw = load_json(TASKS_PATH)
+    fixed_tasks = fix_tasks(tasks_raw)
+    save_json(fixed_tasks, TASKS_PATH)
+    log.info(f"Tasks file rewritten to conform to schema at {TASKS_PATH}")
 
-    tasks = load_tasks(TASKS_PATH)
-    cleaned_tasks = [clean_task(t) for t in tasks]
-
-    save_tasks(cleaned_tasks, TASKS_PATH)
-    print(f"Cleaned {len(cleaned_tasks)} tasks and wrote back to {TASKS_PATH}")
+    # Fix skills
+    if not os.path.exists(SKILLS_PATH):
+        log.error(f"Skills file not found at {SKILLS_PATH}")
+        return
+    skills_raw = load_json(SKILLS_PATH)
+    fixed_skills = fix_skills(skills_raw)
+    save_json(fixed_skills, SKILLS_PATH)
+    log.info(f"Skills file rewritten to conform to schema at {SKILLS_PATH}")
 
 if __name__ == "__main__":
     main()

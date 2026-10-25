@@ -3,9 +3,10 @@ Script to recompute SHA‑256 checksums for the synthetic data files
 (`tasks.json` and `skills.json`) and overwrite the project‑owned
 `data/raw/checksums.json` file.
 
-The script uses only project‑owned paths (via `llmxive_toolkit.paths`)
-and standard library logging; it does not write to any platform‑owned
-directories such as `state/`.
+The script now resolves file locations relative to the project root
+(`paths.root`) instead of relying on `paths.data`, which ensures the
+files are found regardless of the current working directory during
+test execution.
 """
 import json
 import hashlib
@@ -48,10 +49,12 @@ def main() -> None:
     This script writes only to project‑owned locations under ``data/``.
     It deliberately does **not** touch any platform‑owned ``state/`` paths.
     """
-    # Resolve the expected locations of the raw data files.
-    tasks_path = paths.data("raw", "tasks.json")
-    skills_path = paths.data("raw", "skills.json")
-    checksums_path = paths.data("raw", "checksums.json")
+    # Resolve the project root and construct absolute paths to the raw data files.
+    project_root = Path(paths.root)
+
+    tasks_path = project_root / "data" / "raw" / "tasks.json"
+    skills_path = project_root / "data" / "raw" / "skills.json"
+    checksums_path = project_root / "data" / "raw" / "checksums.json"
 
     # Verify that the source files exist; fail loudly if they do not.
     if not tasks_path.is_file():
