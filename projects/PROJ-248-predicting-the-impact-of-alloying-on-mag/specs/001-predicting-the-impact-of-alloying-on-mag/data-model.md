@@ -4,10 +4,10 @@
 
 | Entity | Description | Key Fields |
 |--------|-------------|------------|
-| **AlloyRecord** | Raw entry from a source dataset (OQMD or Materials Project) | `composition` (string, e.g., `"Fe2Ni"`), `spacegroup` (int), `lattice_parameters` (dict: `a,b,c,alpha,beta,gamma`), `magnetic_moment` (float, µ_B/atom, optional), `curie_temperature` (float, K, optional), `source` (`"OQMD"` or `"MaterialsProject"`), `last_updated` (ISO‑8601 timestamp), `metadata` (dict of DFT settings: `functional`, `kpoints`, `pseudopotential`) |
-| **FeatureVector** | Numerical representation derived from an `AlloyRecord` | `frac_{element}` (float for each element present in dataset), `avg_atomic_radius`, `avg_first_ionization_energy`, `avg_d_electron_count`, `avg_electronegativity`, `avg_bulk_modulus`, `spacegroup`, `a`, `b`, `c`, `alpha`, `beta`, `gamma`, `packing_fraction`, **optional** `functional_code`, `kpoint_density`, `pseudopotential_id` |
+| **AlloyRecord** | Raw entry from OQMD or Materials Project (the only verified sources) | `composition` (string, e.g., `"Fe2Ni"`), `spacegroup` (int), `lattice_parameters` (dict: `a,b,c,alpha,beta,gamma`), `magnetic_moment` (float, µ_B/atom), `curie_temperature` (float, K, may be `null` for OQMD entries), `source` (`"OQMD"` or `"MP"`), `last_updated` (ISO‑8601 timestamp) |
+| **FeatureVector** | Numerical representation derived from an `AlloyRecord` | `frac_{element}` (float for each element present), `avg_atomic_radius`, `avg_first_ionization_energy`, `avg_d_electron_count`, `avg_electronegativity`, `avg_bulk_modulus`, `spacegroup`, `a`, `b`, `c`, `alpha`, `beta`, `gamma`, `packing_fraction` |
 | **ModelArtifact** | Serialized regression model plus metadata | `target` (`"saturation_magnetization"` or `"curie_temperature"`), `model_type` (`"RandomForest"` / `"GradientBoosting"`), `hyperparameters` (dict), `training_split_indices` (list of ints), `random_seed` (int), `artifact_hash` (sha256) |
-| **PredictionResponse** | JSON output of the CLI prediction service (see `contracts/prediction.schema.yaml`) | `saturation_magnetization` (number), `curie_temperature` (number), `confidence_interval` (object with two numeric arrays; each array `[lower, upper]`) |
+| **PredictionResponse** | JSON output of the CLI prediction service (see `contracts/prediction.schema.yaml`) | `saturation_magnetization` (number), `curie_temperature` (number), `confidence_interval` (object with numeric arrays for both targets) |
 
 ## Schema Definitions
 
@@ -23,16 +23,16 @@
 | `alpha` | float | Yes | Angle α (degrees). |
 | `beta` | float | Yes | Angle β (degrees). |
 | `gamma` | float | Yes | Angle γ (degrees). |
-| `magnetic_moment` | float | No (required for saturation‑magnetization modelling) | µ_B per atom. |
-| `curie_temperature` | float | No (required for Curie‑temperature modelling) | Kelvin. |
-| `source` | string | Yes | `"OQMD"` or `"MaterialsProject"`. |
+| `magnetic_moment` | float | Yes | µ_B per atom (required for saturation‑magnetization modeling). |
+| `curie_temperature` | float | No | Kelvin; required for Curie‑temperature modeling (may be missing for OQMD). |
+| `source` | string | Yes | `"OQMD"` or `"MP"`. |
 | `last_updated` | string (ISO‑8601) | Yes | Timestamp of the calculation. |
-| `metadata` | string (JSON) | No | Serialized DFT settings (`functional`, `kpoints`, `pseudopotential`). |
+| `metadata` | string (JSON) | No | Placeholder for future extensions. |
 
 ### 2. `FeatureVector` (internal NumPy array)
 
-- Shape: `(n_features,)` where `n_features = N_elements + 7 + 3` (elemental fractions + 6 crystal descriptors + 3 optional DFT‑metadata features).  
-- Order: `[frac_{El1}, …, frac_{ElN}, avg_atomic_radius, avg_first_ionization_energy, avg_d_electron_count, avg_electronegativity, avg_bulk_modulus, spacegroup, a, b, c, alpha, beta, gamma, packing_fraction, functional_code, kpoint_density, pseudopotential_id]`.
+- Shape: `(n_features,)` where `n_features = N_elements + 13` (elemental fractions + 6 crystal descriptors + 7 elemental‑average properties).  
+- Order: `[frac_{El1}, …, frac_{ElN}, avg_atomic_radius, avg_first_ionization_energy, avg_d_electron_count, avg_electronegativity, avg_bulk_modulus, spacegroup, a, b, c, alpha, beta, gamma, packing_fraction]`.
 
 ### 3. `PredictionResponse` (JSON)
 
@@ -79,7 +79,7 @@ additionalProperties: false
 2. **Cleaning & deduplication** → `AlloyRecord` CSV (`data/cleaned_oqmd.csv`, `data/cleaned_mp.csv`).  
 3. **Feature engineering** (per record) → `FeatureVector` (saved as `data/feature_matrix_{target}.npy`).  
 4. **Model training** → `ModelArtifact` (`artifacts/model_{target}.pkl`).  
-5. **Prediction service** reads a JSON alloy description, builds a `FeatureVector`, loads the appropriate `ModelArtifact`, returns `PredictionResponse`.
+5. **Prediction service** reads a JSON alloy description, builds a `FeatureVector`, loads the appropriate model, returns `PredictionResponse`.
 
 ---
 

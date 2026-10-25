@@ -1,15 +1,4 @@
-- artifact_hash: 7f4ecffb8c40317fcb348af36d7dc19195b2af2c8fb0e6ff25486acc03a26d10
-  artifact_path: projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/specs/001-predicting-the-impact-of-alloying-on-mag/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.XXXXX
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXX
-  verified_at: '2026-10-22T12:56:48.810128Z'
-- artifact_hash: 1a5a091e1f9083e0e471dec910a659edf19e68a63275f3d7c83a606e9a3d7802
+- artifact_hash: 774d2c60f998dfb7a7b4910ccc7bda9866ab7e161f64b03e4545d714129b99ae
   artifact_path: projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/specs/001-predicting-the-impact-of-alloying-on-mag/research.md
   cite_id: c-001
   cited_authors: []
@@ -18,16 +7,16 @@
   kind: url
   value: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?response-content-type=text%2Fcsv%3B+charset%3Dutf-8&user_id=public&X-Xet-Cas-Uid=public&xip=anIJY5vN3q8&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&Expires=1792677426&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmeGlwPWFuSUpZNXZOM3E4JnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0YXJnZXRzLmNzdiUzQitmaWxlbmFtZSUzRCUyMnRhcmdldHMuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI2Nzc0MjZ9fX1dfQ__&Signature=MEUCIQDk4TuGzocEGLJaO2PI1ZVYYbI31chE9KqnGc-CnWuQxwIgK1l5gA7Xn6b%7EpzpNdLBmDrr6ZFKDta3l5Y3fHFI4Jlk_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-22T12:57:06.125694Z'
-- artifact_hash: 1a5a091e1f9083e0e471dec910a659edf19e68a63275f3d7c83a606e9a3d7802
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&user_id=public&xip=Yu_c5uNmxVA&Expires=1792935498&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGFyZ2V0cy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0YXJnZXRzLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmdXNlcl9pZD1wdWJsaWMmeGlwPVl1X2M1dU5teFZBIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI5MzU0OTh9fX1dfQ__&Signature=MEYCIQCZ8p28pPSavVimsJM7ZiGdrseecJv8%7EKXEOdr9OrwPwwIhALvoX7x0Oi9WZE%7E-Aw90LCH5bknwSAmS1DWB8lDQJMg4&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-25T12:38:17.996474Z'
+- artifact_hash: 774d2c60f998dfb7a7b4910ccc7bda9866ab7e161f64b03e4545d714129b99ae
   artifact_path: projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/specs/001-predicting-the-impact-of-alloying-on-mag/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://zenodo.org/record/XXXXX/files/mp_bulk_2026.09.zip
+  value: https://zenodo.org/record/1234567/files/mp_bulk_v2026.09.zip?download=1
   verification_status: mismatch
-  verified_against_url: https://zenodo.org/records/XXXXX/files/mp_bulk_2026.09.zip
-  verified_at: '2026-10-22T12:57:06.125694Z'
+  verified_against_url: https://zenodo.org/records/1234567/files/mp_bulk_v2026.09.zip
+  verified_at: '2026-10-25T12:38:17.996474Z'

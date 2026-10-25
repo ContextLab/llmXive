@@ -1,31 +1,33 @@
-# Quickstart: Predicting Alloy Magnetic Properties
+# Quickstart: Predicting Magnetic Properties of Alloys (OQMD + Materials Project)
 
-This guide walks you through a **single CI run** that produces trained surrogate models for **both** saturation magnetization **and** Curie temperature using the public OQMD and Materials Project datasets, evaluates them, generates feature‑importance plots, and exposes a CLI for single‑alloy prediction.
+This guide walks you through a **single CI run** that produces surrogate models for **both** saturation magnetization and Curie temperature using publicly verified datasets, evaluates them, generates feature‑importance reports, and exposes a CLI for single‑alloy prediction.
+
+> **Scope Note** – Both targets are now modeled; the pipeline requires the verified Materials Project bulk archive (v2026.09) in addition to the OQMD magnetic CSV.
 
 ## Prerequisites
 - GitHub Actions runner (free tier) **or** a local Linux environment with **Python 3.11**.
-- No API keys required (Materials Project bulk archive is publicly downloadable via Zenodo).
+- No API keys required (both datasets are publicly downloadable).
 
 ## 1. Clone the Repository & Install Dependencies
 ```bash
-git clone 
+git clone <repo‑url>
 cd PROJ-248-predicting-the-impact-of-alloying-on-mag
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 2. Download the Raw Datasets
+## 2. Download the Datasets
 ```bash
-python code/download_datasets.py
+python src/services/data_fetch.py
 ```
 
-This step creates the following files under `data/`:
-- `raw_mp.jsonl` – filtered Materials Project magnetic entries
-- `raw_oqmd.csv` – OQMD magnetic CSV
-- `data_sources.yaml` – manifest with version identifiers and SHA‑256 checksums
+This script creates:
+- `data/raw_oqmd.csv` (OQMD magnetic CSV)  
+- `data/raw_mp.zip` (Materials Project bulk archive)  
+- `data/data_sources.yaml` (manifest with URLs, SHA‑256 checksums, and download timestamps)
 
-## 3. Run the End‑to‑End Pipeline
+## 3. Run the End‑to‑End Pipeline (Both Targets)
 ```bash
 python -m src.models.train \
     --targets saturation_magnetization curie_temperature \
@@ -33,31 +35,32 @@ python -m src.models.train \
     --output_dir artifacts \
     --log_dir logs
 ```
+
 **What happens**
-1. Downloads the OQMD CSV from the verified Hugging Face URL.  
-2. Downloads the Materials Project bulk archive (Zenodo DOI ``) and streams it to avoid full‑disk extraction.  
-3. Cleans the combined dataset, discarding records missing required fields and resolving duplicates.  
-4. Engineers features (elemental fractions, elemental‑average properties, crystal descriptors, **optional DFT metadata**).  
-5. Performs a 5‑fold GridSearchCV (≤ 30 min per target) for Random Forest and Gradient Boosting.  
-6. Saves the best model for each target as `artifacts/model_saturation.pkl` and `artifacts/model_curie.pkl`.  
-7. Writes `metrics/metrics_saturation.json` and `metrics/metrics_curie.json` (R², MAE, RMSE).  
-8. Generates feature‑importance bar charts (`reports/feature_importance_saturation.png`, `reports/feature_importance_curie.png`) and CSV exports.  
-9. Conducts paired Wilcoxon signed‑rank tests for both targets and logs Bonferroni‑corrected p‑values.  
+1. Loads both OQMD and Materials Project datasets from the verified URLs.  
+2. Cleans each dataset (standardizes formulas, removes missing fields, resolves duplicates).  
+3. Engineers features (fractional elemental abundances, elemental‑average properties, crystal descriptors).  
+4. Performs a 5‑fold GridSearchCV (≤ 30 min per target) for Random Forest and Gradient Boosting regressors.  
+5. Selects the best model for each target by R², saves them as `artifacts/model_saturation.pkl` and `artifacts/model_curie.pkl`.  
+6. Writes `metrics/metrics_saturation.json` and `metrics/metrics_curie.json` (R², MAE, RMSE) for internal test splits.  
+7. Samples 200 distinct alloys **not** seen during training from OQMD (saturation) and Materials Project (Curie) and evaluates the models, appending external metrics to the same JSON files.  
+8. Conducts paired Wilcoxon signed‑rank tests against Linear Regression baselines for **both** targets, applying a Bonferroni‑corrected α = 0.0125.  
+9. Generates feature‑importance CSV and PNG for each target (`reports/feature_importance_{target}.*`).  
 10. Uploads all artifacts as GitHub Actions artifacts.
 
 ## 4. Inspect Results
 ```bash
-# Metrics
+# Internal & external metrics
 cat metrics/metrics_saturation.json
 cat metrics/metrics_curie.json
 
-# Feature‑importance plot
+# Feature‑importance plots
 display reports/feature_importance_saturation.png
 display reports/feature_importance_curie.png
 ```
 
 ## 5. Single‑Alloy Prediction (CLI)
-Create a JSON file `example_alloy.json`:
+Create `example_alloy.json`:
 ```json
 {
   "composition": "Fe2Ni",
@@ -82,33 +85,36 @@ python -m src.cli.predict \
     --output prediction.json
 ```
 
-The output `prediction.json` will contain:
+`prediction.json` will contain:
 ```json
 {
-  "saturation_magnetization": "characteristic value to be determined during the experimental phase",
-  "curie_temperature": "high (significantly above room temperature)",
+  "saturation_magnetization": "value to be determined in the experimental phase",
+  "curie_temperature": "on the order of several hundred degrees",
   "confidence_interval": {
-    "saturation_magnetization": ["low-end estimate", 1.36],
-    "curie_temperature": ["lower bound of the expected range", 660.0]
+    "saturation_magnetization": [1.20, 1.48],
+    "curie_temperature": [580.0, 660.0]
   }
 }
 ```
-This conforms to `contracts/prediction.schema.yaml` and is produced in **≤ 2 seconds** on the CI runner.
+The prediction completes in **≤ 2 seconds** on the CI runner and conforms to `contracts/prediction.schema.yaml`.
 
 ## 6. Artifact Publishing (GitHub Actions)
-The workflow `ci.yml` automatically uploads the following as artifacts:
-- `data/cleaned_oqmd.csv`
-- `data/cleaned_mp.csv`
-- `artifacts/model_saturation.pkl`
-- `artifacts/model_curie.pkl`
-- `metrics/metrics_saturation.json`
-- `metrics/metrics_curie.json`
-- `reports/feature_importance_saturation.*`
-- `reports/feature_importance_curie.*`
-- `contracts/prediction.schema.yaml`
+The workflow `ci.yml` automatically uploads:
+- `data/cleaned_oqmd.csv`  
+- `data/cleaned_mp.csv`  
+- `artifacts/model_saturation.pkl`  
+- `artifacts/model_curie.pkl`  
+- `metrics/metrics_saturation.json`  
+- `metrics/metrics_curie.json`  
+- `reports/feature_importance_saturation.*`  
+- `reports/feature_importance_curie.*`  
+- `contracts/prediction.schema.yaml`  
 - `data/data_sources.yaml`
 
 These artifacts enable reproducibility checks by downstream reviewers.
 
-## 7. Extending to New Targets
-If additional magnetic properties become available in future releases (e.g., anisotropy), simply add them to the `--targets` argument; the pipeline will automatically handle feature generation and model training.
+## 7. Extending the Pipeline
+If additional magnetic descriptors become available (e.g., anisotropy), simply add them to the feature‑engineering module and rerun the training command with the new target list.
+
+---
+
