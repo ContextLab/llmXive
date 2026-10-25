@@ -22,7 +22,7 @@ The researcher MUST be able to run the baseline distilled verifier (Edit-R1 1B) 
 
 ### User Story 2 - Symbolic Constraint Graph Construction (Priority: P2) (US-2)
 
-The system MUST parse natural language instructions into directed constraint graphs using CPU‑only NLP libraries (spaCy, networkx) and a rule‑based contradiction detection module (e.g., antonym matching), identifying nodes (principles) and edges (temporal dependencies or contradictions), and output these graphs as structured JSON context for the verifier.
+The system MUST parse natural language instructions into directed constraint graphs using CPU‑only NLP libraries (spaCy, networkx) and a rule‑based contradiction detection module (e.g., antonym matching), identifying nodes (principles) and edges (temporal dependencies or contradictions), and output these graphs as structured JSON context for the verifier. The conflicting‑instruction dataset is built by augmenting the single‑step InstructPix2Pix shards with algorithmically generated contradictory pairs (e.g., pairing “add a tree” with “remove the tree”) and manually verifying the presence of genuine conflicts.
 
 **Why this priority**: This is the core innovation (the intervention). The graph module must function independently of the neural verifier to ensure it is a valid preprocessing layer. It provides the structural guidance hypothesized to mitigate reasoning degradation.
 
@@ -58,22 +58,20 @@ The researcher MUST be able to execute the graph‑augmented evaluation, feeding
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and curate a dataset of a balanced collection of image editing prompts, comprising an equal proportion of conflicting and neutral examples. and collect independent human‑annotated feasibility scores for **all 1000 prompts** via crowd‑sourcing (see FR‑009). (See US-1)
-- **FR-002**: System MUST implement a CPU‑only symbolic parser using standard NLP libraries (e.g., spaCy, networkx) and a rule‑based contradiction detection module (e.g., antonym matching) to parse natural language instructions into directed constraint graphs, identifying nodes (principles) and edges (temporal dependencies or contradictions). (See US-2)
+- **FR-001**: System MUST download and curate a balanced collection of a sizable number of prompts (approximately equal numbers of conflicting and neutral) **and collect human‑annotated feasibility scores for at least 200 prompts** via crowd‑sourcing, storing the results in `data/results/human_validation.csv`. (See US-1)
+- **FR-002**: System MUST implement a CPU‑only symbolic parser using standard NLP libraries (e.g., spaCy, networkx) and a rule‑based contradiction detection module (e.g., antonym matching) to parse natural language instructions into directed constraint graphs, identifying nodes (principles) and edges (temporal dependencies or contradictions). The conflicting‑instruction dataset is created by augmenting InstructPix2Pix shards with algorithmically generated contradictory pairs and manually verifying conflicts. (See US-2)
 - **FR-003**: System MUST execute the baseline distilled 1B‑parameter Edit‑R1 verifier on raw prompts and measure alignment against the *human‑annotated* feasibility scores collected per FR‑009. (See US-1)
 - **FR-004**: System MUST feed the generated constraint graphs as structured context into the verifier's prompt template and re‑run the evaluation to measure the change in alignment with human scores. (See US-3)
 - **FR-005**: System MUST apply a paired t‑test or Wilcoxon signed‑rank test to compare the alignment scores between the baseline and graph‑augmented conditions for the conflicting instruction subset, reporting p‑values, effect sizes, and 95 % confidence intervals. (See US-3)
 - **FR-006**: System MUST implement a robustness check by testing on a hold‑out set of conflicts generated with different linguistic phrasings to verify the improvement is not driven by overfitting to specific prompt syntax. (See US-3)
-- **FR-007**: System MUST perform a multiple‑comparison correction (e.g., Bonferroni or Benjamini‑Hochberg) if more than one hypothesis test is conducted on the alignment metrics to control the family‑wise error rate. (See US-3)
-- **FR-008**: System MUST ensure all analysis steps (parsing, inference, statistics) complete within a 6‑hour runtime on a CPU‑only runner with ≤ 7 GB RAM. (See US-2, US-3)
-- **FR-009**: System MUST collect human feasibility scores for at least 200 prompts by presenting each prompt to crowd‑workers and recording a plausibility rating on a 0‑1 scale; the aggregated rating constitutes the independent ground‑truth feasibility score. (See US-1)
+- **FR-009**: System MUST collect human feasibility scores for **at least 200 prompts** by presenting each prompt to crowd‑workers and recording a plausibility rating on a 0‑1 scale; the aggregated rating constitutes the independent ground‑truth feasibility score and is saved to `data/results/human_validation.csv`. (See US-1)
 - **FR-010**: System MUST ensure that any synthetic feasibility scores generated for exploratory analysis are **not** used for evaluation or statistical comparison; evaluation must rely exclusively on the human‑annotated scores from FR‑009/FR‑001. (See US-1, US-3)
 
 ### Key Entities
 
 - **Instruction**: A natural language prompt for image editing, classified as either "conflicting" or "neutral".
 - **Constraint Graph**: A directed graph representation of an instruction, where nodes represent principles and edges represent temporal or contradictory relationships.
-- **Alignment Score**: A quantitative metric (0.0 to 1.0) representing the correlation between the verifier's output and the human‑annotated feasibility score for a given instruction.
+- **Alignment Score**: The absolute difference between the verifier’s plausibility output (scaled 0‑1) and the human‑annotated feasibility score (0‑1) for a given instruction; lower values indicate better alignment.
 - **Feasibility Score**: A ground‑truth human‑annotated score indicating the logical feasibility of the instruction's edit outcome. For conflicting instructions, this is defined as the degree of partial compliance or plausibility of the non‑conflicting component.
 
 ## Success Criteria
@@ -90,16 +88,14 @@ The researcher MUST be able to execute the graph‑augmented evaluation, feeding
 - **SC-004**: The statistical significance (p‑value) of the improvement in alignment scores is measured against the 0.05 threshold for rejecting the null hypothesis. (See US-3)
 - **SC-005**: The robustness of the graph‑augmented verifier is measured against the difference in Cohen's d effect sizes between the primary test set and the hold‑out set, requiring no statistically significant drop (p ≥ 0.05) in the effect size. (See US-3)
 - **SC-006**: Baseline verifier average alignment score on the conflicting subset (against human scores) is reported with mean ± SD. (See US-1)
-- **SC-007**: Correlation (Pearson r) between verifier alignment scores (both baseline and graph‑augmented) and independent human feasibility scores must be ≥ 0.5. (See US-1)
-- **SC-008**: Effect size (Cohen's d) for the improvement of graph‑augmented over baseline must be ≥ 0.5. (See US-3)
-- **SC-009**: Baseline verifier runtime on the full 1000‑prompt dataset must be ≤ 2 hours on a CPU‑only runner with ≤ 7 GB RAM. (See US-1)
+- **SC-009**: Baseline verifier runtime on the full 1 000‑prompt dataset must be ≤ 2 hours on a CPU‑only runner with ≤ 7 GB RAM. (See US-1)
 - **SC-010**: Baseline verifier average alignment score on the conflicting subset must be reported (mean ± SD) and used as the reference point for improvement calculations. (See US-1)
 
 ## Assumptions
 
-- **Dataset Availability**: The public repository (e.g., InstructPixPix subset) contains sufficient examples of multi‑step conflicting instructions and neutral controls to construct the target 1000‑sample dataset. Synthetic feasibility scores will be generated for exploratory analysis only; a subset of at least 200 prompts will receive *real* human feasibility annotations as per FR‑009, and ultimately all 1000 prompts will have human‑annotated scores per FR‑001.
+- **Dataset Availability & Construction**: The public InstructPix2Pix shards provide a large pool of single‑step editing instructions. We will algorithmically pair or modify these instructions to create multi‑step and contradictory prompts, then manually verify a subset to ensure genuine conflict. This curated process yields the required 500 conflicting and 500 neutral prompts.
 - **Model Compatibility**: The distilled 1B‑parameter Edit‑R1 verifier can be loaded and executed on a CPU‑only environment with 7 GB RAM without requiring CUDA or quantization libraries that force GPU usage.
 - **NLP Library Reliability**: Standard Python NLP libraries (spaCy, networkx) combined with a rule‑based contradiction detection module are sufficient to parse the semantic structure of image editing instructions into valid constraint graphs without requiring specialized large‑language‑model‑based parsers.
-- **Statistical Power**: The target sample size of 1000 (500 conflicting, 500 neutral) provides sufficient statistical power (≥ 0.8) to detect a medium effect size (Cohen's d ≥ 0.5) in the paired comparison, assuming a significance level of 0.05. If the effect size is smaller, the study will report the power limitation.
-- **Threshold Justification**: The significance threshold of p < 0.05 and correlation threshold of r ≥ 0.5 are used as community‑standard defaults for hypothesis testing in this domain; no additional sensitivity analysis on these thresholds is required.
+- **Statistical Power**: With **at least 200** human‑annotated prompts (≈ 100 conflicting, 100 neutral), the paired test may have limited power to detect a medium effect size (Cohen's d ≈ 0.5). Observed power will be reported alongside results; the study is primarily exploratory.
+- **Threshold Justification**: The significance threshold of p < 0.05 is used as a community‑standard default for hypothesis testing in this domain; no additional sensitivity analysis on this threshold is required.
 - **Data Fit**: The dataset of image prompts and associated metadata fits within the disk space limits of the free‑tier runner when processed in batches, and remains within the 7 GB RAM limits.
