@@ -1,55 +1,88 @@
-- artifact_hash: d5197fe82a24871602c9aef2d54b6767f755a19d46decb67c5dd7b6a8b667edc
-  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/research.md
+- artifact_hash: ea7c29be7f93ba6c755e92a4cb9c1d4566e5e54e311894eece5ec1d82281682c
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/plan.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.science.org/doi/
-  verification_status: pending
-  verified_against_url: https://www.science.org/doi/
-  verified_at: '2026-08-19T21:42:45.255011Z'
-- artifact_hash: d5197fe82a24871602c9aef2d54b6767f755a19d46decb67c5dd7b6a8b667edc
-  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1126/science.aar7000
+  value: https://raw.githubusercontent.com/mitmedialab/moral-machine-data/master/processed/sharedResponses.csv`
   verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1126/science.aar7000
-  verified_at: '2026-08-19T21:42:45.255011Z'
-- artifact_hash: 468d13b936a34acc0c860c507cff8e8c4b876c8a9a92841cee40629b10252811
-  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Climate Data Store
-  kind: url
-  value: https://cds.climate.copernicus.eu/
-  verification_status: pending
-  verified_against_url: https://cds.climate.copernicus.eu/
-  verified_at: '2026-08-19T21:43:10.349798Z'
-- artifact_hash: 468d13b936a34acc0c860c507cff8e8c4b876c8a9a92841cee40629b10252811
-  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/quickstart.md
+  verified_against_url: https://raw.githubusercontent.com/mitmedialab/moral-machine-data/master/processed/sharedResponses.csv
+  verified_at: '2026-10-25T04:53:12.678921Z'
+- artifact_hash: ea7c29be7f93ba6c755e92a4cb9c1d4566e5e54e311894eece5ec1d82281682c
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/plan.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.science.org/doi/
-  verification_status: pending
-  verified_against_url: https://www.science.org/doi/
-  verified_at: '2026-08-19T21:43:10.349798Z'
-- artifact_hash: 468d13b936a34acc0c860c507cff8e8c4b876c8a9a92841cee40629b10252811
-  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/quickstart.md
+  value: https://raw.githubusercontent.com/mitmedialab/moral-machine-data/master/processed/sharedResponses.csv
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/mitmedialab/moral-machine-data/master/processed/sharedResponses.csv
+  verified_at: '2026-10-25T04:53:12.678921Z'
+- artifact_hash: ea7c29be7f93ba6c755e92a4cb9c1d4566e5e54e311894eece5ec1d82281682c
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/plan.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: doi
-  value: 10.1126/science.aar7000
+  kind: url
+  value: https://huggingface.co/datasets/zhixiangd/ERA5/resolve/main/2014_1.h5
   verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1126/science.aar7000
-  verified_at: '2026-08-19T21:43:10.349798Z'
+  verified_against_url: https://huggingface.co/datasets/zhixiangd/ERA5/resolve/main/2014_1.h5
+  verified_at: '2026-10-25T04:53:12.678921Z'
+- artifact_hash: ea7c29be7f93ba6c755e92a4cb9c1d4566e5e54e311894eece5ec1d82281682c
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/plan.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/jameszokah/ghsl-dictionary/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6901d4f475d2eb6c34f6ebd5/9ccc94fb9bd709b50be97394e4ebd71c7e43d5cf92d74645271518344a5ae72d?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&xip=Fwfl5arycV0&user_id=public&X-Xet-Cas-Uid=public&Expires=1792907592&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkwMWQ0ZjQ3NWQyZWI2YzM0ZjZlYmQ1LzljY2M5NGZiOWJkNzA5YjUwYmU5NzM5NGU0ZWJkNzFjN2U0M2Q1Y2Y5MmQ3NDY0NTI3MTUxODM0NGE1YWU3MmRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImeGlwPUZ3Zmw1YXJ5Y1YwJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI5MDc1OTJ9fX1dfQ__&Signature=MEYCIQCMGkabM6PepaHoBwr7Fk6b8XUB6koGm7KV3zvCsAbS2gIhAJrDqFfrt7BJvdIgWd6WgrjdJqpC0io87n3rU649oDCs&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-25T04:53:12.678921Z'
+- artifact_hash: ea7c29be7f93ba6c755e92a4cb9c1d4566e5e54e311894eece5ec1d82281682c
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/plan.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-25T04:53:12.678921Z'
+- artifact_hash: d7b32552db668bbe64140748fff65219e689b8d19b19c4932da55a159b1b6713
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/mitmedialab/moral-machine-data/master/processed/sharedResponses.csv
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/mitmedialab/moral-machine-data/master/processed/sharedResponses.csv
+  verified_at: '2026-10-25T04:53:21.210433Z'
+- artifact_hash: d7b32552db668bbe64140748fff65219e689b8d19b19c4932da55a159b1b6713
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/zhixiangd/ERA5/resolve/main/2014_1.h5
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/zhixiangd/ERA5/resolve/main/2014_1.h5
+  verified_at: '2026-10-25T04:53:21.210433Z'
+- artifact_hash: d7b32552db668bbe64140748fff65219e689b8d19b19c4932da55a159b1b6713
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/jameszokah/ghsl-dictionary/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6901d4f475d2eb6c34f6ebd5/9ccc94fb9bd709b50be97394e4ebd71c7e43d5cf92d74645271518344a5ae72d?user_id=public&xip=Fwfl5arycV0&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&Expires=1792907601&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkwMWQ0ZjQ3NWQyZWI2YzM0ZjZlYmQ1LzljY2M5NGZiOWJkNzA5YjUwYmU5NzM5NGU0ZWJkNzFjN2U0M2Q1Y2Y5MmQ3NDY0NTI3MTUxODM0NGE1YWU3MmRcXD91c2VyX2lkPXB1YmxpYyZ4aXA9RndmbDVhcnljVjAmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI5MDc2MDF9fX1dfQ__&Signature=MEQCIAFYk%7EviMqp1-4W7XMG1EJUuRC%7EiNLtrG7rekVBRIt6hAiAtcIfCfXJGmr5vviZbKhUK2y02JTfzCp5NraNlrZ2%7EyQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-25T04:53:21.210433Z'

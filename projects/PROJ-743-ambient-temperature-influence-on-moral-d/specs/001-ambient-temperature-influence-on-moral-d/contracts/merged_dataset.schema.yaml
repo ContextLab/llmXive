@@ -14,7 +14,7 @@ properties:
     description: "Anonymous participant identifier."
   country:
     type: "string"
-    description: "Country code of the participant."
+    description: "Country code of the participant (used as random effect)."
   latitude:
     type: "number"
     description: "Latitude of the response location."
@@ -48,6 +48,11 @@ properties:
     type: "number"
     description: "Static complexity score derived from scenario attributes."
     minimum: 0
+  difficulty_score:
+    type: "integer"
+    description: "Categorical difficulty (Low=0, Medium=1, High=2)."
+    minimum: 0
+    maximum: 2
   time_of_day:
     type: "integer"
     description: "Hour of day (0‑23)."
@@ -70,6 +75,9 @@ properties:
       - "OK"
       - "LOW_CONF"
       - "EXCLUDED"
+  exclusion_flag:
+    type: "boolean"
+    description: "True if the record was excluded due to distance or other quality issue."
 required:
   - record_id
   - response_id
@@ -82,6 +90,7 @@ required:
   - temperature_c
   - distance_km
   - dilemma_complexity
+  - difficulty_score
   - time_of_day
   - quality_flag
 additionalProperties: false

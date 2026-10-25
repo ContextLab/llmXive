@@ -18,7 +18,7 @@ The system must ingest the Moral Machine dataset and successfully match each res
 
 **Acceptance Scenarios**:
 
-1. **Given** a valid Moral Machine CSV file and access to ERA5 hourly reanalysis data for 2014‑2018, **When** the ingestion script runs, **Then** the percentage of original records successfully matched with ERA5 temperature data is measured against the total number of records with valid location data.
+1. **Given** a valid Moral Machine CSV file and access to ERA reanalysis hourly data for 2014‑2018, **When** the ingestion script runs, **Then** the percentage of original records successfully matched with ERA5 temperature data is measured against the total number of records with valid location data.
 2. **Given** a record with ambiguous location data (e.g., missing latitude/longitude), **When** the script processes the record, **Then** the record is flagged in a `data_quality_log` and excluded from the primary analysis dataset.
 3. **Given** a record where the timestamp falls outside the available ERA5 coverage period, **When** the script processes the record, **Then** the record is excluded and logged with the reason "ERA5 coverage gap".
 

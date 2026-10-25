@@ -34,7 +34,7 @@ properties:
     description: "Natural logarithm of response_time_ms."
   temperature_c:
     type: "number"
-    description: "Hourly ambient temperature in degrees Celsius from ERA5 (2014‑2018)."
+    description: "Hourly ambient temperature in degrees Celsius from ERA (2014‑2018)."
     minimum: -50
     maximum: 50
   temperature_c_squared:
@@ -44,6 +44,11 @@ properties:
     type: "number"
     description: "Static complexity score of the dilemma."
     minimum: 0
+  difficulty_score:
+    type: "integer"
+    description: "Categorical difficulty (Low=0, Medium=1, High=2)."
+    minimum: 0
+    maximum: 2
   time_of_day:
     type: "integer"
     description: "Hour of the day (0‑23) extracted from timestamp."
@@ -75,6 +80,7 @@ required:
   - temperature_c
   - temperature_c_squared
   - dilemma_complexity
+  - difficulty_score
   - time_of_day
   - distance_km
 additionalProperties: false

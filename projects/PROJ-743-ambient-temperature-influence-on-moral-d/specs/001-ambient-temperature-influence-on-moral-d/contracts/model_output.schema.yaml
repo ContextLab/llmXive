@@ -43,6 +43,15 @@ properties:
             type: "number"
           p_value:
             type: "number"
+      difficulty_score:
+        type: "object"
+        properties:
+          estimate:
+            type: "number"
+          std_error:
+            type: "number"
+          p_value:
+            type: "number"
       time_of_day:
         type: "object"
         properties:
@@ -58,7 +67,7 @@ properties:
     type: "object"
     description: "Cluster‑robust variance approximations (no true random effects)."
     properties:
-      participant_region_cluster:
+      country_cluster:
         type: "number"
   diagnostics:
     type: "object"
@@ -78,6 +87,8 @@ properties:
       - convergence
       - shapiro_wilk_p
       - calibration_plot_path
+      - aic
+      - bic
   timestamp:
     type: "string"
     format: "date-time"
