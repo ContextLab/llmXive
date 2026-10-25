@@ -50,8 +50,7 @@ def _load_fluordb_via_hf() -> pd.DataFrame:
     """
     Load the FluorDB v1.0 dataset using the ``datasets`` library.
     The HF dataset contains a ``smiles`` column and a target column.
-    The target column may be named ``fqy`` or ``fqy_raw``; we normalise it
-    to ``fqy_raw``.
+    The target column may be named ``fqy`` or already ``fqy_raw``.
     """
     try:
         # The dataset is small enough to load without streaming.
@@ -105,8 +104,8 @@ def main(argv=None) -> int:
 
     try:
         df = _load_fluordb_via_hf()
-    except Exception:
-        # Propagate the error code to the caller.
+    except Exception as e:
+        log.error(f"Data loading error: {e}")
         return 1
 
     row_count = len(df)
@@ -126,7 +125,7 @@ def main(argv=None) -> int:
     checksum = compute_sha256(output_path)
     checksums_path = paths.data("raw", "fluordb", CHECKSUMS_FILENAME)
     with open(checksums_path, "w") as f:
-        f.write(f"{output_path.name} {checksum}\\n")
+        f.write(f"{output_path.name} {checksum}\n")
     log.info(f"Wrote checksum to {checksums_path}")
 
     # Write a simple success log.

@@ -1,9 +1,9 @@
 status: none
-intent: download MoleculeNet photophysics dataset SMILES fluorescence quantum yield
-  python package dataset
+intent: download fluorescence quantum yield SMILES dataset QuantumYieldDB PhotochemCAD
+  NIST Chemistry WebBook python package dataset
 required_fields:
-- smiles
-- fluorescence_quantum_yield
-cache_key: 5d900de02d4b90c9b9aa1c51927b9568922aaa55105deea36dcf62c6b8363872
-searched_at: '2026-10-25T00:13:07.345421+00:00'
+- SMILES
+- FQY
+cache_key: 59877668b321b9159a24d2296bd06723fedc8d72e8b3c0391f16f2169d6bc5ec
+searched_at: '2026-10-25T05:10:55.665621+00:00'
 retry_count: 1

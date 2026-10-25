@@ -1,3 +1,3 @@
-# Existing dependencies are already available in the runner.
-# Add the HuggingFace 'datasets' library for FluorDB download.
-datasets>=2.0.0
+datasets
+pyarrow
+numpy>=2.0.0
