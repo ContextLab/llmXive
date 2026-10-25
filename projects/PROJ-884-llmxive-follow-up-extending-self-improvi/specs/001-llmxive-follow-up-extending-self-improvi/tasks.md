@@ -40,7 +40,7 @@
      • Requirements: planner produces ordered sub‑goals or raises the two concrete exceptions; exclusion logger writes `data/processed/exclusions.json` with puzzle IDs and reasons.  
      • Verification: `pytest code/tests/test_symbolic_planner.py` passes (exception handling uses the actual classes, not string literals).  
 
-- [ ] T003 [P] [US2] Implement the **BES evolutionary loop** (`code/bes/population.py`, `code/bes/forward_step.py`, `code/bes/backward_step.py`, `code/bes/main.py`).  
+- [ ] T003 [P] [US2] Implement the **BES evolutionary loop** (`code/bes/population.py`, `code/bes/forward_step.py`, `code/bes/backward_step.py`, `code/bes/main.py`).   <!-- FAILED-IN-EXECUTION: code/bes/main.py exit=1 -->
      • Paths: `code/bes/` directory files as listed.  
      • Requirements: forward step uses the CPU‑only LLM (`distilbert-base-uncased`) with `device='cpu'`; backward step calls the symbolic planner; fitness invokes the deterministic verifier with a timeout; termination logs reason.  
      • Verification: running `python -m code.main --pilot` creates a non‑empty `data/processed/pilot/attempts.jsonl` and `evaluations.jsonl` with real `cost_time` values; `pytest code/tests/test_bes_loop.py` passes.  

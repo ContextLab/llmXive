@@ -5,6 +5,7 @@ defined in `contracts/dataset.schema.yaml`.
 """
 
 import json
+import yaml
 import tempfile
 from pathlib import Path
 
@@ -13,9 +14,9 @@ from jsonschema import validate, ValidationError
 
 from code.dataset.generator import PuzzleGenerator, PuzzleType, DataGenerationError
 
-# Load the contract schema once
+# Load the contract schema once (YAML format)
 with open("contracts/dataset.schema.yaml", "r", encoding="utf-8") as f:
-    SCHEMA = json.load(f)
+    SCHEMA = yaml.safe_load(f)
 
 def test_generate_small_dataset(tmp_path: Path):
     """
@@ -30,14 +31,16 @@ def test_generate_small_dataset(tmp_path: Path):
         output_dir=str(tmp_path)
     )
 
+    # Read JSONL file line‑by‑line
+    puzzles = []
     with open(output_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            puzzles.append(json.loads(line))
 
-    # Header presence
-    assert "header" in data
-    assert data["header"]["total_instances"] == 2
-
-    puzzles = data["puzzles"]
+    # Expect exactly two puzzle records
     assert len(puzzles) == 2
 
     for puzzle in puzzles:

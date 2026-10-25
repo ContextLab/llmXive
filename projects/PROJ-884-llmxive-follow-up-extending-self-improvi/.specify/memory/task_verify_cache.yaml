@@ -1,15 +1,13 @@
 T001:
   c: false
-  h: 1232910e5b8b710a402a5ca8e849dbb02d9e1687cbd02a39270a8badbb9a6ed3
-  r: "The pytest collection for `test_generator.py` fails with a `JSONDecodeError`\
-    \ because `contracts/dataset.schema.yaml` is a YAML file but the test loads it\
-    \ with `json.load`. Consequently the generator\u2019s output is never validated\
-    \ against the schema. Moreover, `PuzzleGenerator.generate_puzzles` writes a single\
-    \ JSON object (with a \u201Cheader\u201D and a \u201Cpuzzles\u201D list) instead\
-    \ of the required JSON\u2011Lines (JSONL) format. Both issues prevent the required\
-    \ tests from passing and mean the generator does not emit records that conform\
-    \ to the contract. The verifier itself logs timings and returns the correct tuple,"
-  sig: dba4a8038eeec7f2bab98540cf631eb0de79e5fda8a32a16eafc074555d686af
+  h: 84878670d9fcfd7b477b861ec68aee58fc31e435e7c55749a8ebc5d12713d08a
+  r: "The `code/tests/test_generator.py` test suite fails: the `test_invalid_type_raises`\
+    \ case raises an `AttributeError` because `generate_puzzles` tries to access `.value`\
+    \ on a plain string instead of detecting the invalid type and raising `DataGenerationError`\
+    \ as required. Consequently the required pytest pass condition is not met, so\
+    \ the task is not fully satisfied. The verifier and timing log appear correct,\
+    \ but the generator\u2019s error\u2011handling must be fixed."
+  sig: c33bda5dd7f02d57aa8e3ab496284b3c0c15cb23e61300d5362179be2a42ca4b
 T002:
   c: true
   h: 7cd4bcd484da4637f21861a3e71c67e8cfa8800c992b59042387fb3a4a9e7c48
@@ -51,12 +49,3 @@ T015:
     \ log and passing unit test that loading them with `yaml.safe_load` exits without\
     \ exception."
   sig: a5faea3ab9f6c2a070820eea0432b90bae00b51660d13f5329d2e7416adfa2b4
-T016:
-  c: false
-  h: 30909bb07b7a159a36186fc8bfece3be335ce51a10e02a44c2d33149e0e11815
-  r: "The quickstart.md file exists and contains the required command chain and expected\
-    \ output locations, but there is no evidence that `python -m code.main --pilot`\
-    \ was executed successfully \u2013 the `data/processed/pilot/` directory is missing,\
-    \ and no generated artifacts or execution logs are provided. The task\u2019s core\
-    \ requirement of producing non\u2011empty pilot artifacts is not satisfied."
-  sig: 818db1192b643b5290d54d8bddf68943c807d8faed7f032aeea9f5ba8e6fb8ec

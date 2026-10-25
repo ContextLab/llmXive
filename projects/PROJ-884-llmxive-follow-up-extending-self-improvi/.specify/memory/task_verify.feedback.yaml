@@ -1,16 +1,15 @@
 T001:
-  reason: "The pytest collection for `test_generator.py` fails with a `JSONDecodeError`\
-    \ because `contracts/dataset.schema.yaml` is a YAML file but the test loads it\
-    \ with `json.load`. Consequently the generator\u2019s output is never validated\
-    \ against the schema. Moreover, `PuzzleGenerator.generate_puzzles` writes a single\
-    \ JSON object (with a \u201Cheader\u201D and a \u201Cpuzzles\u201D list) instead\
-    \ of the required JSON\u2011Lines (JSONL) format. Both issues prevent the required\
-    \ tests from passing and mean the generator does not emit records that conform\
-    \ to the contract. The verifier itself logs timings and returns the correct tuple,"
+  reason: "The `code/tests/test_generator.py` test suite fails: the `test_invalid_type_raises`\
+    \ case raises an `AttributeError` because `generate_puzzles` tries to access `.value`\
+    \ on a plain string instead of detecting the invalid type and raising `DataGenerationError`\
+    \ as required. Consequently the required pytest pass condition is not met, so\
+    \ the task is not fully satisfied. The verifier and timing log appear correct,\
+    \ but the generator\u2019s error\u2011handling must be fixed."
   task: 684c82c06391a7601af8304e05adfd8798f3e3539d0a7998a00bb6bc695b0839
 T002:
   task: 1bb6370ddd68e20d82b1551745ec4077f99521f1c052ad733dd9951f6deaaa18
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/bes/main.py exit=1'
   task: 5a897560e5f5a5eb89f6e321006f7931578cad43ee1ba8beb385bfa04d0cce63
 T004:
   task: d341ae16881f6d66be99c0b6b414643598a9887262d9a917a8d527c27e00aa0b

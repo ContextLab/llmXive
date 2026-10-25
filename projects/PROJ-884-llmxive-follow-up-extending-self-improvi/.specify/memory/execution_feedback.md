@@ -13,19 +13,19 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/bes/population.py: function `_roulette_selection` returns a bare RNG draw (line 305) — a reported value computed from no real input; code/config.py: self-declared fabricated metric — “…# The task T007b requires a placeholder value that warns if not overwritten…”; 1 command(s) failed: python -m pytest tests/unit/ (rc=2); 2 declared deliverable(s) absent: data/processed/bes_results.json; data/processed/exclusions.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/bes/population.py: function `_roulette_selection` returns a bare RNG draw (line 305) — a reported value computed from no real input; code/config.py: self-declared fabricated metric — “…# The task T007b requires a placeholder value that warns if not overwritten…”; 2 command(s) failed: python -m pytest tests/unit/ (rc=2); python -m code.main --pilot --seed 42 (rc=1); 2 declared deliverable(s) absent: data/processed/bes_results.json; data/processed/exclusions.json
 
 ## Failing / missing run-book commands
 
 - python -m pytest tests/unit/ -> rc=2
-nding-self-improvi/tests/unit/test_verifier.py'.
+ while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/tests/unit/test_symbolic_parser.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_verifier.py:14: in <module>
-    from code.dataset.verifier import PuzzleVerifier, ErrorCodes, SolutionResult, DataVerificationError
-E   ImportError: cannot import name 'DataVerificationError' from 'code.dataset.verifier' (/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/dataset/verifier.py)
+tests/unit/test_symbolic_parser.py:11: in <module>
+    from code.symbolic.parser import (
+E   ImportError: cannot import name 'main' from 'code.symbolic.parser' (/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/symbolic/parser.py)
 =========================== short test summary info ============================
 ERROR tests/unit/test_calibrate_tdp.py
 ERROR tests/unit/test_generate_tdp_constant.py
@@ -34,10 +34,26 @@ ERROR tests/unit/test_logging.py
 ERROR tests/unit/test_population.py
 ERROR tests/unit/test_result_aggregator.py
 ERROR tests/unit/test_symbolic_parser.py
-ERROR tests/unit/test_verifier.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 8 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 8 errors in 0.34s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 7 errors in 0.31s ===============================
 
+
+- python -m code.main --pilot --seed 42 -> rc=1
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/main.py", line 77, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/main.py", line 70, in main
+    return _run_pilot(args)
+           ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/main.py", line 20, in _run_pilot
+    from code.bes.main import run_pilot
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/__init__.py", line 9, in <module>
+    from .config import BESConfig, get_default_config
+ImportError: cannot import name 'get_default_config' from 'code.bes.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/config.py)
 
 
 ## Declared deliverables still missing
@@ -50,6 +66,7 @@ ERROR tests/unit/test_verifier.py
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/bes_results.json` is declared but was NOT written. Scripts referencing it:
+    - `code/bes/main.py` — NOT invoked by the run-book
     - `code/bes/result_aggregator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/bes_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/exclusions.json` is declared but was NOT written. Scripts referencing it:

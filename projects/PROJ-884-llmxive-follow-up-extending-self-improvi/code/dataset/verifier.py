@@ -42,6 +42,11 @@ class VerifierError(Exception):
     """Raised for unexpected internal verification failures."""
     pass
 
+# Alias used by legacy tests
+class DataVerificationError(VerifierError):
+    """Compatibility alias for older test suites."""
+    pass
+
 @dataclass
 class SolutionResult:
     """Result of solution verification."""

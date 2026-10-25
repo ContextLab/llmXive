@@ -3,7 +3,7 @@ Puzzle Generator Module for llmXive
 Generates logic/arithmetic puzzles with deterministic Python verifiers.
 Implements Data Provenance metadata injection as per T066.
 Updated to support 4x4 Sudoku and flexible grid sizes for pathfinding.
-Adjusted verifier output to conform to `contracts/dataset.schema.yaml`.
+Adjusted to emit JSONL puzzle records conforming to `contracts/dataset.schema.yaml`.
 """
 
 import json
@@ -66,7 +66,7 @@ class PuzzleInstance:
         self.verifier_output = verifier_output
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary representation"""
+        """Convert to dictionary representation (schema‑compatible)"""
         base = {
             "puzzle_type": self.puzzle_type.value,
             "constraints": self.constraints,
@@ -358,69 +358,52 @@ class PuzzleGenerator:
     ) -> str:
         """
         Generate puzzles for multiple N values and types.
-        Returns the path to the generated JSON file.
+        Writes a **JSONL** file where each line is a puzzle record
+        conforming to `contracts/dataset.schema.yaml`.
+        Returns the path to the generated file.
         """
-        all_puzzles = []
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
         timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-        output_file = output_dir / f"puzzles_{timestamp}.json"
+        output_file = output_dir / f"puzzles_{timestamp}.jsonl"
 
-        # Import verifier lazily to avoid circular import issues
+        # Lazy import to avoid circular dependency
         from code.dataset.verifier import PuzzleVerifier
 
         verifier = PuzzleVerifier()
 
-        for n in n_values:
-            for p_type in puzzle_types:
-                self.logger.info(
-                    f"Generating {count} puzzles of type {p_type.value} with N={n}"
-                )
-                if p_type == PuzzleType.SUDOKU:
-                    puzzles = self.generate_sudoku(n, count)
-                elif p_type == PuzzleType.PATHFINDING:
-                    puzzles = self.generate_pathfinding(n, count)
-                elif p_type == PuzzleType.LOGIC_GRID:
-                    puzzles = self.generate_logic_grid(n, count)
-                elif p_type == PuzzleType.ARITHMETIC:
-                    puzzles = self.generate_arithmetic(n, count)
-                else:
-                    raise DataGenerationError(f"Unknown puzzle type: {p_type}")
+        with open(output_file, "w", encoding="utf-8") as out_f:
+            for n in n_values:
+                for p_type in puzzle_types:
+                    self.logger.info(
+                        f"Generating {count} puzzles of type {p_type.value} with N={n}"
+                    )
+                    if p_type == PuzzleType.SUDOKU:
+                        puzzles = self.generate_sudoku(n, count)
+                    elif p_type == PuzzleType.PATHFINDING:
+                        puzzles = self.generate_pathfinding(n, count)
+                    elif p_type == PuzzleType.LOGIC_GRID:
+                        puzzles = self.generate_logic_grid(n, count)
+                    elif p_type == PuzzleType.ARITHMETIC:
+                        puzzles = self.generate_arithmetic(n, count)
+                    else:
+                        raise DataGenerationError(f"Unknown puzzle type: {p_type}")
 
-                # Run deterministic verifier on each puzzle to produce verifier_output
-                for puzzle in puzzles:
-                    # Convert to dict without verifier_output to avoid recursion
-                    puzzle_dict = puzzle.to_dict()
-                    is_valid, err_code = verifier.verify(puzzle_dict)
-                    # Store output using schema‑compatible field names
-                    puzzle.verifier_output = {
-                        "valid": is_valid,
-                        "error_code": err_code,
-                    }
-
-                all_puzzles.extend(puzzles)
-
-        # Assemble final JSON with provenance header
-        output_data = {
-            "header": {
-                "source_id": self.source_id,
-                "generation_seed": self.seed,
-                "timestamp": datetime.utcnow().isoformat(),
-                "generator_version": self.version,
-                "total_instances": len(all_puzzles),
-                "n_values": n_values,
-                "puzzle_types": [pt.value for pt in puzzle_types],
-                "count_per_type": count,
-            },
-            "puzzles": [p.to_dict() for p in all_puzzles],
-        }
-
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(output_data, f, indent=2)
+                    for puzzle in puzzles:
+                        # Verify deterministically and attach result
+                        puzzle_dict = puzzle.to_dict()
+                        is_valid, err_code = verifier.verify(puzzle_dict)
+                        puzzle.verifier_output = {
+                            "valid": is_valid,
+                            "error_code": err_code,
+                        }
+                        # Write as a single JSON line
+                        out_f.write(json.dumps(puzzle.to_dict()))
+                        out_f.write("\n")
 
         self.logger.info(
-            f"Generated {len(all_puzzles)} puzzles to {output_file}"
+            f"Generated puzzles written to JSONL file {output_file}"
         )
         return str(output_file)
 

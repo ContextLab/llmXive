@@ -1,17 +1,15 @@
 status: none
-intent: download logic arithmetic puzzles dataset with verification scripts including
-  Sudoku Kaggle OpenLogicPuzzle python package dataset
+intent: download logic puzzle dataset with verification scripts Python package dataset
 required_fields:
 - puzzle_id
 - puzzle_type
 - puzzle_description
-- constraints_formal
+- puzzle_constraints
 - solution_path
-- solution_answer
+- correct_answer
 - verifier_script
-- difficulty
-- source
-- license
-cache_key: 1cc07944723c243f3a528bba72342a17aff5b5333bd53da585adcd2723c55c6e
-searched_at: '2026-10-25T03:38:56.782589+00:00'
+- metadata
+- error_codes
+cache_key: 92a53433ea0537ed5cc9486736ff17050578854f4d4a78e4ac002d58bbf54369
+searched_at: '2026-10-25T03:43:37.919695+00:00'
 retry_count: 1

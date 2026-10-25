@@ -1,8 +1,19 @@
-scikit-learn==1.3.2
-numpy==1.26.0
-transformers==4.35.0
-datasets==2.14.0
-pyyaml==6.0.1
-pytest==7.4.0
-optimum[onnxruntime]>=1.13.0,<1.16.0
+# Core scientific stack (already available in the execution environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
 psutil
+
+# Additional packages required for the forward step (CPU‑only)
+transformers==4.41.2
+optimum[onnxruntime]==2.22.0
+torch==2.2.2+cpu
+# The ``+cpu`` suffix selects the CPU‑only wheels; it works on the CI runner.
