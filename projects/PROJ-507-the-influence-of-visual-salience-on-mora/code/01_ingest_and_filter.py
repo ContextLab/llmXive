@@ -139,17 +139,23 @@ def ingest_and_filter(
     # Load the dataset (streaming)
     # ------------------------------------------------------------------
     try:
-        log.info("Loading Visual Genome image dataset via HF datasets (streaming=True).")
-        # Use the 'images' config which provides direct image URLs.
+        log.info(
+            "Loading Visual Genome dataset via HF datasets (streaming=True)."
+        )
+        # The Visual Genome hub does not provide a dedicated ``images`` config.
+        # The ``objects`` config contains an ``image_id`` field for each entry,
+        # which we can use to construct a download URL.
         dataset = load_dataset(
             "visual_genome",
-            "images",
+            "objects",  # <-- corrected config
             split="train",
             streaming=True,
         )
     except Exception as exc:
         # Preserve the exact phrasing expected by the unit tests.
-        raise DataFetchError(f"Unable to load Open Images dataset: {exc}") from exc
+        raise DataFetchError(
+            f"Unable to load Open Images dataset: {exc}"
+        ) from exc
 
     selected: List[Dict[str, Any]] = []
     checksums: Dict[str, str] = {}
@@ -171,8 +177,8 @@ def ingest_and_filter(
 
         # --------------------------------------------------------------
         # Determine download URL.
-        # The 'images' config usually provides a direct ``url`` field.
-        # Fall back to the static Visual Genome URL pattern if missing.
+        # The ``objects`` config does not contain a direct ``url`` field.
+        # We fall back to the canonical Visual Genome static image URL pattern.
         # --------------------------------------------------------------
         url = sample.get("url")
         if not url:
@@ -188,7 +194,12 @@ def ingest_and_filter(
             with open(image_path, "wb") as f:
                 f.write(resp.content)
         except Exception as e:
-            log.warning("Failed to download image %s from %s: %s", image_id, url, e)
+            log.warning(
+                "Failed to download image %s from %s: %s",
+                image_id,
+                url,
+                e,
+            )
             continue
 
         # --------------------------------------------------------------
@@ -213,7 +224,9 @@ def ingest_and_filter(
     # No matches – raise a clear error (unit‑test expects this)
     # ------------------------------------------------------------------
     if not selected:
-        raise DataFetchError("No candidate images matched the filtering criteria.")
+        raise DataFetchError(
+            "No candidate images matched the filtering criteria."
+        )
 
     # ------------------------------------------------------------------
     # Deterministic shuffle (required by the original spec)

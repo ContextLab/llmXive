@@ -36,18 +36,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/00_pilot_power_analysis.py': [Errno 2] No such file or directory
 
 - python code/01_ingest_and_filter.py  --max-scenarios 30  --output data/processed/candidates_filtered.csv -> rc=1
-rs_v1.0.0', 'question_answers_v1.2.0', 'objects_v1.0.0', 'objects_v1.2.0', 'attributes_v1.0.0', 'attributes_v1.2.0', 'relationships_v1.0.0', 'relationships_v1.2.0']
+1.0.0', 'region_descriptions_v1.2.0', 'question_answers_v1.0.0', 'question_answers_v1.2.0', 'objects_v1.0.0', 'objects_v1.2.0', 'attributes_v1.0.0', 'attributes_v1.2.0', 'relationships_v1.0.0', 'relationships_v1.2.0']
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 289, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 302, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 282, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 295, in main
     ingest_and_filter(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 152, in ingest_and_filter
-    raise DataFetchError(f"Unable to load Open Images dataset: {exc}") from exc
-data_prep.DataFetchError: Unable to load Open Images dataset: BuilderConfig 'images' not found. Available: ['region_descriptions_v1.0.0', 'region_descriptions_v1.2.0', 'question_answers_v1.0.0', 'question_answers_v1.2.0', 'objects_v1.0.0', 'objects_v1.2.0', 'attributes_v1.0.0', 'attributes_v1.2.0', 'relationships_v1.0.0', 'relationships_v1.2.0']
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 156, in ingest_and_filter
+    raise DataFetchError(
+data_prep.DataFetchError: Unable to load Open Images dataset: BuilderConfig 'objects' not found. Available: ['region_descriptions_v1.0.0', 'region_descriptions_v1.2.0', 'question_answers_v1.0.0', 'question_answers_v1.2.0', 'objects_v1.0.0', 'objects_v1.2.0', 'attributes_v1.0.0', 'attributes_v1.2.0', 'relationships_v1.0.0', 'relationships_v1.2.0']
 
 - python code/02_prepare_human_coding_dir.py   # creates data/raw/human_coding/ -> rc=2
 
