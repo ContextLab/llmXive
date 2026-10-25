@@ -3,22 +3,52 @@ T001:
     exit=1'
   task: eb410804bb73f118292fe2730ed35dd4a58e7033fe1104e6b96fe3b09c9be1be
 T002:
-  reason: The generator script exists, but the required output file `data/results/simulation_raw.jsonl`
-    is missing, and there is no evidence that the unit test suite actually runs and
-    passes. The implementation must produce the JSONL file with the correct number
-    of records and demonstrate passing tests.
+  reason: "The generator module does not provide a CLI or function that writes `SimulatedDataset`\
+    \ records to `data/results/simulation_raw.jsonl`, and it lacks the API (e.g.,\
+    \ `SimulationResult`, `load_base_data_structure`, `calculate_effect_and_variance`,\
+    \ `create_replicate`) that the unit test `tests/unit/test_generator.py` expects.\
+    \ Moreover, the required output file `data/results/simulation_raw.jsonl` is missing.\
+    \ These gaps prevent the claimed unit\u2011test pass and the generation of the\
+    \ 900 JSONL lines."
   task: 4d0921a6a568f210cb5dc7967a931498c4f3bb1a927feb10009ab1aef3af10e5
 T003:
+  reason: "The estimators are implemented and the unit tests pass, but `estimate_reml`\
+    \ does not provide the required `convergence_warning` flag nor replace a failed\
+    \ \u03C4\xB2 estimate with a minimal positive value (e.g.,\u202F1e\u20116); it\
+    \ instead falls back to the DerSimonian\u2011Laird \u03C4\xB2 and sets `convergence_status=\"\
+    fallback_dl\"`. This does not satisfy the task\u2019s REML\u2011failure handling\
+    \ specification."
   task: fc6b0e9eff3b697d1cc0e6fd5e82e0551732361b5792f456f7b012bffeb46e9e
 T004:
+  reason: "Checked `code/analysis/metrics.py` (contains the metric functions and a\
+    \ `write_simulation_and_estimations` helper) and `tests/unit/test_metrics.py`\
+    \ (tests bias/coverage but does not invoke the write function). The required output\
+    \ file `data/results/simulation_raw.jsonl` is missing and there is no evidence\
+    \ that the function was run or that its lines were validated against the JSON\
+    \ schemas. The task\u2019s core requirement of actually writing and validating\
+    \ the combined records is not satisfied."
   task: 70fe9133d5cde369245bdc478ae4a8eb2b0af926ef9cdd93f6f12d545bfa0232
 T005:
+  reason: The pipeline entry point `code/main.py` does not accept the required `--tau-squared`,
+    `--replicates`, or `--batch-size` arguments, and it never creates the expected
+    `data/results/simulation_raw.jsonl` file (marked MISSING). The produced `data/results/sample_estimates.csv`
+    exists but contains far more than the required 20 rows (multiple estimator rows
+    per replicate) and thus does not meet the specification of 20 rows with the exact
+    columns. The task therefore fails to deliver the mandated outputs.
   task: e6b681c290837d9daac0faa02b4f8d2d9a2c332aa499ac948c245c4b7b4a692d
 T006:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/simulation_raw.jsonl'
   task: 7ebbf5ddfc43a865c26bbfa944cc3faec6360f13f2b19a58a19189b33d2aa349
 T007:
+  reason: "The generated CSV (`data/results/aggregated_metrics.csv`) has the wrong\
+    \ schema (missing required columns like `estimator_type`, `sweep_type`, etc.),\
+    \ only 5 rows instead of the required 15 (3 estimators\u202F\xD7\u202F5 \u03C4\
+    \xB2 levels), and the script never produces the required `data/results/coverage_tests.json`.\
+    \ Consequently the aggregation, binomial test, and bias\u2011distribution testing\
+    \ do not meet the task specifications."
   task: 15dabf9baba8fffa33e9002a65f4880f2316a555446bdf99013bd700917fbdb8
 T008:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 6bc5205f025621b82a8af9c159c9042336f35bd7dc3dff4d318941c0fc3c0910
 T009:
   task: ab334741101cdc9276d53cf217fec68cec1fd67279676965b906c3c30be8019e

@@ -1,12 +1,14 @@
 status: none
-intent: Cochrane Database of Systematic Reviews meta-analysis effect size dataset
-  python package dataset
+intent: "Cochrane Reviews meta\u2011analysis study\u2011level effect size dataset\
+  \ download python package dataset"
 required_fields:
 - study_id
 - effect_size
 - standard_error
+- variance
 - sample_size
-- outcome_type
-cache_key: 287720c045608173090c13360416ec83997abd99647531a6d4454411b4cef833
-searched_at: '2026-10-25T08:20:47.032385+00:00'
+- outcome
+- study_name
+cache_key: 3f35728c09b12a1272a23e424c0a0abdc2a3d48b8a7b221f2e8e30f51df22b1a
+searched_at: '2026-10-25T09:12:58.985079+00:00'
 retry_count: 1

@@ -9,10 +9,14 @@ source of the ground truth is accepted.
 """
 
 import math
+import json
+from pathlib import Path
 from typing import List, Dict, Any, Optional
+
 import numpy as np
 from scipy import stats
 
+from llmxive_toolkit import paths
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -50,7 +54,7 @@ class MetricsResult:
         return {
             "replicate_id": self.replicate_id,
             "true_effect": self.true_effect,
-            "pooled_estimate": self.pooled_estimate,
+            "pooled_effect": self.pooled_estimate,
             "ci_lower": self.ci_lower,
             "ci_upper": self.ci_upper,
             "tau_squared_estimate": self.tau_squared_estimate,
@@ -274,3 +278,62 @@ def aggregate_metrics(
         "mean_i_squared": float(np.mean(i_squares)),
         "total_replicates": len(results),
     }
+
+# ----------------------------------------------------------------------
+# New functionality for T004: write combined simulation and estimation
+# records to a JSON‑Lines file.
+# ----------------------------------------------------------------------
+def write_simulation_and_estimations(
+    simulated_records: List[Dict[str, Any]],
+    estimation_records: List[Dict[str, Any]],
+    output_path: Optional[Path] = None
+) -> Path:
+    """
+    Writes both ``SimulatedDataset`` records and ``EstimationResult``
+    records to a single JSON‑Lines file.
+
+    The function respects the JSON schemas defined in
+    ``contracts/simulated_dataset.schema.yaml`` and
+    ``contracts/estimation_result.schema.yaml``.  It does **not**
+    perform schema validation itself – that is left to downstream
+    validation steps – but it guarantees that each line is a valid
+    JSON object.
+
+    Parameters
+    ----------
+    simulated_records: List[Dict[str, Any]]
+        A list of dictionaries conforming to the SimulatedDataset schema.
+    estimation_records: List[Dict[str, Any]]
+        A list of dictionaries conforming to the EstimationResult schema.
+    output_path: Optional[Path]
+        Destination path.  If ``None`` the default location
+        ``data/results/simulation_raw.jsonl`` (created via the
+        ``paths`` helper) is used.
+
+    Returns
+    -------
+    Path
+        The path to the written JSON‑Lines file.
+    """
+    if output_path is None:
+        output_path = paths.data("results", "simulation_raw.jsonl")
+
+    # Ensure the parent directory exists.
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info("Writing %d simulated records and %d estimation records to %s",
+                len(simulated_records), len(estimation_records), output_path)
+
+    with output_path.open("w", encoding="utf-8") as f:
+        # Write simulated dataset records first.
+        for record in simulated_records:
+            json_line = json.dumps(record, allow_nan=False)
+            f.write(json_line + "\n")
+
+        # Follow with estimation result records.
+        for record in estimation_records:
+            json_line = json.dumps(record, allow_nan=False)
+            f.write(json_line + "\n")
+
+    logger.info("Finished writing combined JSON‑Lines file.")
+    return output_path

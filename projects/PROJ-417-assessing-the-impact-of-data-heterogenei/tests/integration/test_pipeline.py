@@ -30,8 +30,7 @@ def _run_cmd(cmd: list[str]) -> int:
 @pytest.mark.timeout(300)
 def test_full_pipeline_dry_run(tmp_path, monkeypatch):
     """
-    Execute the pipeline in dry‑run mode and verify that all
-    required output files exist and contain data.
+    Execute the pipeline in dry‑run mode (small subset, fast).
     """
     # Ensure the repository root is on the Python path for imports.
     repo_root = Path(__file__).resolve().parents[2]
@@ -69,7 +68,7 @@ def test_full_pipeline_dry_run(tmp_path, monkeypatch):
     reml_path = results_dir / "reml_failures.json"
     with reml_path.open("r", encoding="utf-8") as f:
         data = json.load(f)
-    # The file may contain either a list or a dict with an \"events\" key.
+    # The file may contain either a list or a dict with an "events" key.
     assert isinstance(data, (list, dict)), "Invalid REML failures JSON structure"
 
     # Verify aggregated metrics CSV has required columns.

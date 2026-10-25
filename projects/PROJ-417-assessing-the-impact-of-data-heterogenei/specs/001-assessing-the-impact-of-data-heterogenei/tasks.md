@@ -60,7 +60,7 @@
   • CSV has exactly 15 rows (3 estimators × 5 τ² levels).  
   • Each row contains numeric `binomial_p_value` and `bias_test_p_value`.  
 
-- [ ] T008 [P2] [US1] **Execute the sensitivity sweep** (τ² ∈ {0.05, 0.1, 0.5}, 900 replicates each) and append results to the same JSONL file.  
+- [ ] T008 [P2] [US1] **Execute the sensitivity sweep** (τ² ∈ {0.05, 0.1, 0.5}, 900 replicates each) and append results to the same JSONL file.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Command*: `python -m code.main --tau-squared 0.05 0.1 0.5 --replicates 900 --batch-size 100 --sweep-type sensitivity`  
   *Outputs*: additional 2 700 `SimulatedDataset` lines (and 5 400 `EstimationResult` lines) plus `data/results/stability_analysis.json`.  
   *Verification*:  
