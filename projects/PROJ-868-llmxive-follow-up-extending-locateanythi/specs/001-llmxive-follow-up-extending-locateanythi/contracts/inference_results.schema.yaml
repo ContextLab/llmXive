@@ -36,7 +36,7 @@ properties:
     minimum: 0.0
   global_context_activation_proportion:
     type: ["number", "null"]
-    description: "Proportion of Grad‑CAM activation on global‑context tokens (null if not computed)."
+    description: "Proportion of Grad‑CAM activation on global‑context tokens."
     minimum: 0.0
     maximum: 1.0
   prediction_path:

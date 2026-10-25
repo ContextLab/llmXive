@@ -33,11 +33,16 @@ python -m src.cli.run_experiment \
     --sparsity-grid global 64 32 16 \
     --run-one-patch false \
     --attribution-method gradcam \
+    --model-variant mini \
+    --max-dense-samples 2000 \
+    --batch-size 4 \
     --output-dir ../../data/
 ```
 - `--datasets` selects the verified datasets (VRSBench & COCO validation).  
 - `--sparsity-grid` defines the windows to evaluate; add `1` to include the optional run.  
 - `--run-one-patch` toggles FR‑009 (optional 1‑patch run).  
+- `--model-variant mini` selects the lightweight **LocateAnything‑mini** checkpoint that fits the CPU budget.  
+- `--max-dense-samples 2000` caps the number of dense images processed (see Phase 1 sampling for compute feasibility).  
 - The script **randomizes** the order of sparsity configurations using a fixed seed, eliminating warm‑up bias.  
 - After inference, the script automatically **consolidates** all `inference_*.parquet` files into `data/results/master_inference.parquet` before generating figures and tables.
 
@@ -47,7 +52,10 @@ If a tipping point is detected, the script automatically runs the sweep. To forc
 python -m src.cli.run_experiment \
     --datasets vrsbench coco_val \
     --sparsity-grid global 64 32 16 \
-    --sweep-around-tipping true
+    --sweep-around-tipping true \
+    --model-variant mini \
+    --max-dense-samples 2000 \
+    --batch-size 4
 ```
 
 ## 6. Validate contracts
@@ -68,5 +76,6 @@ All tables/figures reference the consolidated `master_inference.parquet`, satisf
 rm -rf data/raw/* data/processed/* data/results/* data/analysis/*
 ```
 
-**Note**: The entire run completes in ≤ 6 hours on the free‑tier GitHub Actions CPU runner (empirically on the order of several hours for the full grid). If you encounter memory pressure, lower the batch size via `--batch-size 4`.
+**Note**: The entire run completes in ≤ 6 hours on the free‑tier GitHub Actions CPU runner (empirically on the order of 3–4 h for the sampled subset). If you encounter memory pressure, lower the batch size via `--batch-size 2` or reduce `--max-dense-samples`.  
 
+---  

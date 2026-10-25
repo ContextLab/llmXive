@@ -1,14 +1,15 @@
 status: none
-intent: VRSBench validation dataset and COCO 2017 bounding boxes downloadable python
-  package dataset
+intent: download VRSBench validation dataset and COCO 2017 validation via huggingface
+  datasets python package dataset
 required_fields:
 - image_id
 - file_name
 - width
 - height
-- bbox
+- bbox (xmin,ymin,xmax,ymax)
 - category_id
 - category_name
-cache_key: b32394e6475ed7dd34cba66491ff5e4cb28f5c4dd6779d881433ddf3fe865fcf
-searched_at: '2026-10-25T06:14:25.012959+00:00'
+- annotation_id
+cache_key: f7721382f089351c2b93fa11c7dbb01a3ea8e1a21c18afae1e1452fe59a0becf
+searched_at: '2026-10-25T06:49:41.198538+00:00'
 retry_count: 1
