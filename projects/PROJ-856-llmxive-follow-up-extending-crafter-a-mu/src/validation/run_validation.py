@@ -12,10 +12,10 @@ Each record contains:
   - validation_id : a UUID for the record
   - task_id       : the figure identifier
   - vector_match  : boolean – true if the predicted vector matches ground‑truth
-  - semantic_score: cosine similarity (float in [0, 1])
-  - semantic_pass : boolean – true if semantic_score ≥ 0.95
+  - semantic_score: cosine similarity (float in [0, 1])
+  - semantic_pass : boolean – true if semantic_score >= 0.95
   - overall_success: boolean – true **only** if `vector_match` is true
-                        (semantic similarity does not affect primary inclusion)
+                    (semantic similarity does not affect primary inclusion)
 """
 
 import argparse

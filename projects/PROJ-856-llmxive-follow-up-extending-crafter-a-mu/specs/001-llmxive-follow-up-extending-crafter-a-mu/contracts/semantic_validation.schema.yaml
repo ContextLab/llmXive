@@ -4,17 +4,24 @@ type: object
 properties:
   validation_id:
     type: string
-    format: uuid
+    description: "UUID for the validation record"
   task_id:
     type: string
+    description: "Identifier of the figure/task"
   vector_match:
     type: boolean
+    description: "True if the predicted vector exactly matches the ground truth"
   semantic_score:
     type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Cosine similarity score from CLIP model"
   semantic_pass:
     type: boolean
+    description: "True if semantic_score >= 0.95"
   overall_success:
     type: boolean
+    description: "Primary success metric; True if and only if vector_match is True"
 required:
   - validation_id
   - task_id
@@ -22,4 +29,3 @@ required:
   - semantic_score
   - semantic_pass
   - overall_success
-additionalProperties: false

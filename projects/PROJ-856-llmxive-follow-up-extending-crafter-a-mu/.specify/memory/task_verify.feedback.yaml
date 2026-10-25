@@ -9,29 +9,14 @@ T003:
 T004:
   task: d94402329fbfa8637993ab610740efdf24a33787b4fb06f5a38448d31e2fa0e2
 T005:
-  reason: The four required source and test files exist and the combined validation
-    script correctly sets `overall_success` based only on exact vector match, with
-    unit tests covering the three scenarios. However, the referenced `semantic_validation.schema.yaml`
-    file is missing, so we cannot verify that the produced records truly conform to
-    the required schema. Adding the schema file (or providing evidence of conformance)
-    is needed to complete the task.
+  reason: The three required source files and the unit test exist and the test passes,
+    but the referenced `semantic_validation.schema.yaml` file is missing, so we cannot
+    verify that the produced records truly conform to the required schema. Adding
+    the schema file (or confirming its presence) is needed to complete the task.
   task: 55e2f555d7f99ddb9ddcd2466a1de5c787372d5c8886162fb7d8743883775f41
 T006:
-  reason: "Checked `src/simulation/power_analysis.py` (prints\u202F41\u202F\u2265\u202F\
-    32, exits\u202F0) and `src/simulation/simulate_participants.py` (runs, creates\
-    \ `data/logs/interactions.jsonl` with millions of bytes, clearly >\u202F7\u202F\
-    500 lines). However there is no evidence that the generated log file was validated\
-    \ against the `interaction_log` schema \u2013 the only test run (`tests/logger/test_interaction_logger.py`)\
-    \ failed to load the schema file, and no pass/fail output for a schema\u2011validation\
-    \ step is provided. To complete the task, run a schema validation on `data/logs/interactions.jsonl`\
-    \ (or show test output) confirming that eve"
   task: e96f06895a9ad6b36f01119a0f00a251ca1c38485ed78c982123e821a3dce3e1
 T007:
-  reason: "The repository contains the aggregation script and the corresponding test,\
-    \ but there is no evidence that `tests/analysis/test_validation_aggregation.py`\
-    \ was actually executed and passed, nor is the required output file `data/results/semantic_validation_by_session.jsonl`\
-    \ present after a run. Without a passing test run (or generated file) we cannot\
-    \ confirm the task\u2019s requirement is truly satisfied."
   task: f940264c5ec0a5940309d8a88a7ac432aae2b24fc6ea98b65f0b9c1638ae3816
 T008:
   reason: 'Requested task execution failed; rerun successfully: src/analysis/wilcoxon_analysis.py

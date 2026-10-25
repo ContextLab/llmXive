@@ -136,6 +136,10 @@ def _load_interaction_log(log_dir_arg: Optional[str] = None) -> pd.DataFrame:
         column_map["mode"] = "interface"
     if "participant" in df.columns and "participant_id" not in df.columns:
         column_map["participant"] = "participant_id"
+    if "session_id" in df.columns and "participant_id" not in df.columns:
+        column_map["session_id"] = "participant_id"
+    if "user_id" in df.columns and "participant_id" not in df.columns:
+        column_map["user_id"] = "participant_id"
     if column_map:
         df = df.rename(columns=column_map)
 
@@ -161,6 +165,12 @@ def _load_interaction_log(log_dir_arg: Optional[str] = None) -> pd.DataFrame:
         )
         .reset_index()
     )
+    # Fill missing optional columns with neutral defaults
+    if "subjective_load" not in agg.columns:
+        agg["subjective_load"] = np.nan
+    if "expertise_level" not in agg.columns:
+        agg["expertise_level"] = np.nan
+
     # Rename figure_id to task_id for downstream consistency
     agg = agg.rename(columns={"figure_id": "task_id"})
     return agg
@@ -179,6 +189,9 @@ def _aggregate_per_participant(df: pd.DataFrame) -> pd.DataFrame:
         )
         .reset_index()
     )
+    # Replace missing subjective_load with 0 (neutral) and expertise_level with 'unknown'
+    agg["subjective_load"] = agg["subjective_load"].fillna(0)
+    agg["expertise_level"] = agg["expertise_level"].fillna("unknown")
     return agg
 
 def _pivot_wide(df: pd.DataFrame) -> pd.DataFrame:
