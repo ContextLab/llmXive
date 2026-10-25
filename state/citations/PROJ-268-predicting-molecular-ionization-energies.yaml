@@ -64,7 +64,7 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/699d98fccb7ff0a7c59329bf/a6bfd74a82501a96bbb754bd1771d3f8307af4073b1db7384ff7f1216485c4b6?user_id=public&xip=_TMKCyiQ8fU&response-content-type=text%2Fplain%3B+charset%3Dutf-8&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27books_dataset.txt%3B+filename%3D%22books_dataset.txt%22%3B&Expires=1792839365&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjk5ZDk4ZmNjYjdmZjBhN2M1OTMyOWJmL2E2YmZkNzRhODI1MDFhOTZiYmI3NTRiZDE3NzFkM2Y4MzA3YWY0MDczYjFkYjczODRmZjdmMTIxNjQ4NWM0YjZcXD91c2VyX2lkPXB1YmxpYyZ4aXA9X1RNS0N5aVE4ZlUmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZwbGFpbiUzQitjaGFyc2V0JTNEdXRmLTgmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2Jvb2tzX2RhdGFzZXQudHh0JTNCK2ZpbGVuYW1lJTNEJTIyYm9va3NfZGF0YXNldC50eHQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MjgzOTM2NX19fV19&Signature=MEUCIQDl%7EY3I7VPBKPcqcVV1JjYQemSSDHZ7PhTFAkNC7PRtHgIgOuf1JuCtjQHpotM6h0jfcMMtbcd-DJf0DXV8cDOi58g_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-10-24T09:56:04.992912Z'
-- artifact_hash: 9ecbb69bc7d07240d9221995fbaabbb7826ef485751f5997df11271ac362f7cd
+- artifact_hash: b6689abb610270429c0587f6897bf8cc492e83e5540b48ef6cb658612db86ac9
   artifact_path: projects/PROJ-268-predicting-molecular-ionization-energies/specs/001-predicting-molecular-ionization-energies/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -74,4 +74,4 @@
   value: https://huggingface.co/datasets/deepchem/qm9`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/deepchem/qm9
-  verified_at: '2026-10-25T23:22:20.611146Z'
+  verified_at: '2026-10-25T23:23:33.686680Z'

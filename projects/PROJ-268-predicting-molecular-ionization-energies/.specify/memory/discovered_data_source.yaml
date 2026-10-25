@@ -1,12 +1,10 @@
 status: none
-intent: download QM9 dataset python package and NIST WebBook ionization energies python
-  package dataset
+intent: QM9 dataset download python package with HOMO energies and NIST WebBook ionization
+  energies python package dataset
 required_fields:
+- molecule_id
 - smiles
 - homo_energy
-- molecule_id
-- experimental_ionization_energy
-- atom_coordinates
-cache_key: 6c1854ae4d11316362e35532913a0a71295096f417a44ca09e4cc215dd249796
-searched_at: '2026-10-24T09:49:47.566419+00:00'
+cache_key: 1d25d57d58ae1569f32833be8b12f906c236e4949606f04a5a413b3d3e984358
+searched_at: '2026-10-25T23:24:58.052731+00:00'
 retry_count: 1
