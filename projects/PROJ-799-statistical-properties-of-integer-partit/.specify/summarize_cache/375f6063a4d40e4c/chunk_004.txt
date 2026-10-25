@@ -1,0 +1,86 @@
+  - intercept
+  - r_squared
+  - p_values
+  - fdr_corrected_p_values
+  - mse_cv
+additionalProperties: false
+
+
+
+## projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/contracts/partition_record.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PartitionRecord"
+description: "Schema for a single partition record containing n, exact count, and asymptotic prediction."
+type: "object"
+properties:
+  n:
+    type: "integer"
+    description: "The integer being partitioned."
+    minimum: 1
+    maximum: 50000
+  p_P_n:
+    type: "integer"
+    description: "Exact count of partitions of n into distinct primes."
+    minimum: 0
+  Q_as_n:
+    type: "number"
+    description: "Asymptotic prediction from Meinardus' theorem."
+    minimum: 0
+  R_n:
+    type: "number"
+    description: "Log‑residual (log(p_P_n) - log(Q_as_n)). Set to -9999 when inputs are non‑positive."
+required:
+  - n
+  - p_P_n
+  - Q_as_n
+  - R_n
+additionalProperties: false
+
+
+
+## projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/contracts/regression_output.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionModel"
+description: "Schema for regression model results"
+type: "object"
+properties:
+  coefficients:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Model coefficients"
+  intercept:
+    type: "number"
+    description: "Model intercept"
+  r_squared:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Coefficient of determination"
+  mse_cv:
+    type: "number"
+    minimum: 0
+    description: "Mean squared error averaged over 10‑fold time‑series cross‑validation."
+  p_values:
+    type: "object"
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+    description: "P-values for coefficients (corrected for autocorrelation)"
+  # Legacy optional fields for backward compatibility (not required by the pipeline)
+  mse:
+    type: "number"
+    minimum: 0
+    description: "Legacy field: mean squared error (if present)."
+  cv_mse:
+    type: "number"
+    minimum: 0
+    description: "Legacy field: cross‑validation MSE (if present)."
+required:
+  - coefficients
+  - intercept
+  - r_squared
+  - mse_cv
+  - p_values
+additionalProperties: false
