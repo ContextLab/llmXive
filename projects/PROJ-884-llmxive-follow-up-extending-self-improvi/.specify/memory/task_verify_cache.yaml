@@ -1,65 +1,54 @@
-T002:
+T001:
   c: false
-  h: 299e15bc46e425cc927f6cb10a8e5b311b6940f595af87ebb464ef13a72fa84a
-  r: The test suite `code/tests/test_symbolic_planner.py` fails (2 of 3 tests error)
-    because `SymbolicPlanner.decompose` incorrectly catches the string constants `PARSE_FAILURE`
-    and `CONTRADICTION_DETECTED` instead of the actual exception classes `ParseFailure`
-    and `ContradictionDetected`. This prevents proper handling of parse and contradiction
-    errors and stops the exclusion logger from being invoked. Fix the `except` clauses
-    to catch the real exception types (or adjust the constants to be exception classes)
-    so that all tests pass.
-  sig: debdc2483b7d615b2e45f2c12ad725074ef17aa1a1c210b6460d1878bf0355db
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`/`setup.cfg`
-    with Black settings, or CI integration scripts) are present in the provided evidence,
-    so the requirement to configure flake8 and Black is not satisfied. The implementer
-    must add the appropriate configuration files and ensure they are applied to the
-    codebase.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing that `data/raw` and `data/processed` directories were created,
-    nor any script or log confirming they exist and are writable. Without such evidence
-    the task requirement is not satisfied.
+  h: 1232910e5b8b710a402a5ca8e849dbb02d9e1687cbd02a39270a8badbb9a6ed3
+  r: "The pytest collection for `test_generator.py` fails with a `JSONDecodeError`\
+    \ because `contracts/dataset.schema.yaml` is a YAML file but the test loads it\
+    \ with `json.load`. Consequently the generator\u2019s output is never validated\
+    \ against the schema. Moreover, `PuzzleGenerator.generate_puzzles` writes a single\
+    \ JSON object (with a \u201Cheader\u201D and a \u201Cpuzzles\u201D list) instead\
+    \ of the required JSON\u2011Lines (JSONL) format. Both issues prevent the required\
+    \ tests from passing and mean the generator does not emit records that conform\
+    \ to the contract. The verifier itself logs timings and returns the correct tuple,"
+  sig: dba4a8038eeec7f2bab98540cf631eb0de79e5fda8a32a16eafc074555d686af
 T012:
   c: true
-  h: 93b42951657607df7b2392f6f68b110b8d7f7216d778df2aaaf759fbb71526a3
-  r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md`;\
-    \ the file exists, is non\u2011empty, and contains the required sections \u201C\
-    Puzzle Types\u201D, \u201CScaling Plan\u201D (Complexity), and \u201CSeed Management\u201D\
-    \ (plus provenance metadata)."
-  sig: cc63b8f145fac49190925ff6ff0b4c2b08913234f21ca27345963266596c01ea
+  h: 4f2027dbe539ff49bc623239ff33a66d26e9b9a198541a0b067d805789a66218
+  r: "Checked `specs/001-symbolic-bes/design_dataset.md` (8712\u202Fbytes) which contains\
+    \ the required Markdown sections \u201CPuzzle Types\u201D, \u201CScaling Plan\u201D\
+    , and \u201CSeed Management\u201D, and is syntactically valid. The file exists\
+    \ and is non\u2011empty."
+  sig: bc0f1b75730d6cd0934c4f9e00a9022e469930ab17d1d2e6a6b63de9452794a3
 T013:
   c: true
-  h: 40a66158ae5071fbf39dbaa65a2eae638d066e49901cfd98c3161dbd6309c45a
-  r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md`;\
-    \ it exists, is non\u2011empty, and includes numeric values for the TOST equivalence\
-    \ margin (delta\u202F=\u202F0.05), the significance level (alpha\u202F=\u202F\
-    0.05), and the required sample size per group (n\u202F=\u202F393)."
-  sig: 34b48d1db231da4a72338f710a38abf53043127c26128eb5e6cb7814bd2bfdd7
+  h: 2bdde9bbceef4f6c967dd42f7d941aff482bcd7c1cc9781db0363d73df619399
+  r: "Checked `specs/001-symbolic-bes/stat_analysis_plan.md` (resolved path shown)\
+    \ \u2013 it contains \u0394\u202F=\u202F0.05, \u03B1\u202F=\u202F0.0497, power\u202F\
+    =\u202F0.80, and a required sample size of 393 per group, satisfying the task\u2019\
+    s specifications."
+  sig: 77fd68900f43033c5f404a1cc80bd37d3e3f5c81d0d696b9e028d26131618909
 T014:
   c: true
-  h: d5faef779b75bb17357fd9d3c4700a7a96220400e852261e8e887181f094c3eb
-  r: "Checked `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`;\
-    \ it exists, is non\u2011empty, and lists the CPU\u2011only model `distilbert-base-uncased`\
-    \ with its exact HuggingFace commit hash, explicit device settings, and a ranked\
-    \ list of fallback models."
-  sig: fadea494db912b7bc436c5f30de94009bba139833ca158a89074c06e76927c5d
+  h: 26fcf994be9dc14b1191cf3191da53c1825c5d8378fb8cecc2085c9e3d1b03bb
+  r: "Checked `specs/001-symbolic-bes/baseline_architecture.md` (resolved to `specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md`).\
+    \ It lists the model identifier `distilbert-base-uncased`, the exact HuggingFace\
+    \ commit hash `12040accade4e8a0f71eabdb258fecc2e7e948be`, and explicitly sets\
+    \ `device = torch.device(\"cpu\")`. All required details are present and non\u2011\
+    placeholder."
+  sig: 57ed0b19b0a01fd5e852344c66ca7ad18a6954fb703822cddeed14bd7bfa589b
 T015:
   c: true
-  h: ea0ededd3830ea3688217a2eeb179e8c6f6b3d1377040af157ced56dfdc276c3
-  r: "The `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` files\
-    \ are present at the reported paths, are non\u2011empty, and their YAML contents\
-    \ (as shown) parse correctly with `yaml.safe_load`, satisfying the required syntactic\
-    \ validation."
-  sig: 8cf992a5c33c1e10fd10e9d9cd71f2142f548891a320515d04eecd0569f89797
+  h: 712c97e19a1e73691ce005b088dd7db8e538f2cc9bd970133d5bd000658a6def
+  r: "Checked the presence and non\u2011empty content of `contracts/dataset.schema.yaml`\
+    \ and `contracts/output.schema.yaml`, and confirmed via the `code/validate_contracts.py`\
+    \ log and passing unit test that loading them with `yaml.safe_load` exits without\
+    \ exception."
+  sig: a5faea3ab9f6c2a070820eea0432b90bae00b51660d13f5329d2e7416adfa2b4
 T016:
-  c: true
-  h: 779f5ef960ee5b6fd828118ef2bae6a838505f3fa04b78fdb2b26a3b05716bdc
-  r: "Checked the `specs/001-llmxive-follow-up-extending-self-improvi/quickstart.md`\
-    \ file (3353\u202Fbytes) which contains the required `python -m code.main --pilot`\
-    \ command, and the execution log `code/.tasks/T016.code_main.py.log` showing the\
-    \ command ran with exit\u202F0 and wrote the pilot results to `data/processed/pilot_result.jsonl`."
-  sig: efaf0e2eabc51ee8d47ea63ed66c13d2b859c14cf0bd41559fd80a524cc2a90b
+  c: false
+  h: 30909bb07b7a159a36186fc8bfece3be335ce51a10e02a44c2d33149e0e11815
+  r: "The quickstart.md file exists and contains the required command chain and expected\
+    \ output locations, but there is no evidence that `python -m code.main --pilot`\
+    \ was executed successfully \u2013 the `data/processed/pilot/` directory is missing,\
+    \ and no generated artifacts or execution logs are provided. The task\u2019s core\
+    \ requirement of producing non\u2011empty pilot artifacts is not satisfied."
+  sig: 818db1192b643b5290d54d8bddf68943c807d8faed7f032aeea9f5ba8e6fb8ec

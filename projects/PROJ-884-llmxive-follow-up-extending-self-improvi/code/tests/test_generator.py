@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 from jsonschema import validate, ValidationError
 
-from code.dataset.generator import PuzzleGenerator, PuzzleType
+from code.dataset.generator import PuzzleGenerator, PuzzleType, DataGenerationError
 
 # Load the contract schema once
 with open("contracts/dataset.schema.yaml", "r", encoding="utf-8") as f:

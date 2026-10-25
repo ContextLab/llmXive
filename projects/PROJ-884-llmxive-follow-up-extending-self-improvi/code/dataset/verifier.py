@@ -3,6 +3,7 @@ Puzzle Verifier Module for llmXive
 Validates puzzle instances and solutions with deterministic logic.
 Implements T066: Data Provenance metadata validation.
 Updated to expose a tuple‑based API that conforms to the dataset schema.
+Additionally records verification timing to a log file.
 """
 
 import json
@@ -13,6 +14,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 import logging
 from pathlib import Path
+
+# llmxive toolkit for path handling
+from llmxive_toolkit import paths
 
 # Configure logging
 logging.basicConfig(
@@ -437,8 +441,20 @@ class PuzzleVerifier:
         """
         Returns (is_valid, error_code_str) where error_code_str conforms to the
         dataset schema enum. Raises VerifierError on unexpected internal failures.
+        Also logs the verification duration to `data/processed/verifier_timing.log`.
         """
+        start_ms = time.time() * 1000
         result = self.verify_solution(puzzle_instance, solution)
+        elapsed_ms = time.time() * 1000 - start_ms
+
+        # Record timing
+        try:
+            log_path = paths.data("processed", "verifier_timing.log")
+            with open(log_path, "a", encoding="utf-8") as log_file:
+                log_file.write(f"{time.time()},{elapsed_ms:.3f}\\n")
+        except Exception as log_err:
+            self.logger.error(f"Failed to write verifier timing log: {log_err}")
+
         mapped_code = self._map_error_code(result.error_code)
         return result.is_valid, mapped_code
 

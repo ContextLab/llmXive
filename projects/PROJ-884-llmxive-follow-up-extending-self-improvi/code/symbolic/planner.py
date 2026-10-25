@@ -15,7 +15,14 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 # Local project imports
-from code.exceptions import CONTRADICTION_DETECTED, PARSE_FAILURE, raise_contradiction, raise_parse_failure
+from code.exceptions import (
+    CONTRADICTION_DETECTED,
+    PARSE_FAILURE,
+    raise_contradiction,
+    raise_parse_failure,
+    ParseFailure,
+    ContradictionDetected,
+)
 from code.symbolic.exclusion_logger import ExclusionEvent, ExclusionLogger
 from code.symbolic.parser import FormalConstraint, FormalConstraintType, PuzzleParser
 
@@ -106,26 +113,26 @@ class SymbolicPlanner:
                 execution_time_ms=exec_ms,
             )
 
-        except PARSE_FAILURE as e:
+        except ParseFailure as e:
             exec_ms = (time.time() - start_time) * 1000
             self._log_exclusion(puzzle_id, "PARSE_FAILURE", str(e), constraints_raw)
             return DecompositionResult(
                 puzzle_id=puzzle_id,
                 sub_goals=[],
                 is_valid=False,
-                error_code="PARSE_FAILURE",
+                error_code=PARSE_FAILURE,
                 error_message=str(e),
                 execution_time_ms=exec_ms,
             )
 
-        except CONTRADICTION_DETECTED as e:
+        except ContradictionDetected as e:
             exec_ms = (time.time() - start_time) * 1000
             self._log_exclusion(puzzle_id, "CONTRADICTION_DETECTED", str(e), constraints_raw)
             return DecompositionResult(
                 puzzle_id=puzzle_id,
                 sub_goals=[],
                 is_valid=False,
-                error_code="CONTRADICTION_DETECTED",
+                error_code=CONTRADICTION_DETECTED,
                 error_message=str(e),
                 execution_time_ms=exec_ms,
             )

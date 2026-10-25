@@ -1,47 +1,49 @@
 T001:
-  reason: The `code/tests/test_generator.py` references `DataGenerationError` without
-    importing it, causing a NameError and making the test suite fail. Consequently
-    the required observable check (`pytest code/tests/test_*.py` passes) is not satisfied.
-    Fix the missing import (or adjust the test) to allow the tests to run successfully.
-  task: 9cc76c156b336145c9d8302690031c9cb0ca0a0afc3d4594f09719e026c6c318
+  reason: "The pytest collection for `test_generator.py` fails with a `JSONDecodeError`\
+    \ because `contracts/dataset.schema.yaml` is a YAML file but the test loads it\
+    \ with `json.load`. Consequently the generator\u2019s output is never validated\
+    \ against the schema. Moreover, `PuzzleGenerator.generate_puzzles` writes a single\
+    \ JSON object (with a \u201Cheader\u201D and a \u201Cpuzzles\u201D list) instead\
+    \ of the required JSON\u2011Lines (JSONL) format. Both issues prevent the required\
+    \ tests from passing and mean the generator does not emit records that conform\
+    \ to the contract. The verifier itself logs timings and returns the correct tuple,"
+  task: 684c82c06391a7601af8304e05adfd8798f3e3539d0a7998a00bb6bc695b0839
 T002:
-  reason: The test suite `code/tests/test_symbolic_planner.py` fails (2 of 3 tests
-    error) because `SymbolicPlanner.decompose` incorrectly catches the string constants
-    `PARSE_FAILURE` and `CONTRADICTION_DETECTED` instead of the actual exception classes
-    `ParseFailure` and `ContradictionDetected`. This prevents proper handling of parse
-    and contradiction errors and stops the exclusion logger from being invoked. Fix
-    the `except` clauses to catch the real exception types (or adjust the constants
-    to be exception classes) so that all tests pass.
-  task: 463649f468922757615a5af58e32fc9c4d8b1ee10dabb111db2fc4f2c7f7ca93
+  task: 1bb6370ddd68e20d82b1551745ec4077f99521f1c052ad733dd9951f6deaaa18
 T003:
-  task: ad394fc93017184958857f7aa7cf207a33e43e141b279d83ee2ab522e493d3b4
+  task: 5a897560e5f5a5eb89f6e321006f7931578cad43ee1ba8beb385bfa04d0cce63
 T004:
-  task: b2169fe4dd07814be97ce5d52b98fd8d0ef2b94cc84caed4838307577af343ee
+  task: d341ae16881f6d66be99c0b6b414643598a9887262d9a917a8d527c27e00aa0b
 T005:
-  task: 59443091c0209a3fd1caaadcf6c801da44c5add0bb3bb572dd93e8e0632495a5
+  task: a38f63d82d4c2c417d7c67a6e786eef15cb4764774c537a067e3c4f9e20b879f
 T006:
-  task: 4f5a843da34970f5b0b2a9ed2b17e2dd61a4db21139f8550bf0296b12b00b38f
+  task: d722269e263bc002f89e75fc7944c43d14dd7e598f544b1954cd0a2cbf417788
 T007:
-  task: f4018d0792cd23a6d51eb0af5565d902b26e5e9538d40111453da5d5467e51e6
+  task: a0181efc5b47db55af21fa6bdfcabd8e00b54142948c7acca493b5ddd05a4517
 T008:
-  task: 4be3735afde7d730bfa859af46ac5c69f4a529d53ea5fd7079f3f9f9cf2bfc45
+  task: fed0b0bf1c2a19f3834f81694dc780e0cf624503e83ea6f94cdc7e7b4d1eeceb
 T009:
-  task: 24d2e3bc5b8900582957442d46aaeb6e0ed6a93c055fb4258ea1199c95a65fd6
+  task: d69cf433cd7c3dec39206ef35db0987567f2f768b97772bfaa619ea907ad873f
 T010:
-  task: 7800085b8007d6124960798fab1a6ce09ee958964937470e4e547eca907ae258
+  task: e88ce058628b70d8244476388a21c8b50578e6b3e53438487a27350fc59d2a67
 T011:
-  task: b27d410f98ba98c873d9517cba5e001f8c2841c5e013211371c0b180862f42d7
+  task: bf671b9cccc09d403f59fc750bcbeb422a7f599d81b3c11a16c91392ab4ec106
 T012:
-  task: b399e0b6945611f2c1e5f47fa069fe2e2218ba18a92d0166219496786fb80ab8
+  task: 217dd86cdf7036b1c7bb041069bab3acb3940f2f4e6f8971c75d0418161f9331
 T013:
-  task: 421b232de3ab1384a235c6bb424bf331e4ff1a6d7f8a102a5d5df84db3e4a838
+  task: eb4cb65529f7a1ce5c74406106a83d7e1c342ca777e4f539bb87a2be33295ffc
 T014:
-  task: 7dbdc608d71a229478390b2b186212c00068bee4fb5cccf8f6974d5930657a1c
+  task: f1b248a9bea05524673cd5f470a083acf318d3f3fca7997576d73e486a1ccc25
 T015:
-  task: 4d9e25dcdd59740df2374cc4d10ef76a1abfcb7c65954405025fcd9a0ca77dfe
+  task: ee04be03cd38ad97a6cb2a7a0cbe4686dccfd6b589e8212d20d6b50fe4c3ba7e
 T016:
-  task: b46893981ffdc3a4d6c1c062b3e4b3db40d2c40f4a64de516b4b5ed4bf351423
+  reason: "The quickstart.md file exists and contains the required command chain and\
+    \ expected output locations, but there is no evidence that `python -m code.main\
+    \ --pilot` was executed successfully \u2013 the `data/processed/pilot/` directory\
+    \ is missing, and no generated artifacts or execution logs are provided. The task\u2019\
+    s core requirement of producing non\u2011empty pilot artifacts is not satisfied."
+  task: 24d3f06098f3f7504d59778d7abbcf410fae7782b8c945952077495eeb6d443a
 T017:
-  task: 669a5b250f4915e56a64fb4acc047eb8e4912380f2eb0e16e92e3b9f57407e85
+  task: 950a6121b520961990afd3d652f2509731c495761614a0f59973a1e7b9f2cf13
 T018:
-  task: 88cce4cb6d8f3cc654662eb8d352df95d3f3ed833abe68a50540041318d1f340
+  task: 0f5e9e5843e45b109f84082559c605a8a50a3e6ef9fb23062026f844a3f1a562

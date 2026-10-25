@@ -6,19 +6,19 @@
 
 ## Phase 0 – Design and documentation  
 
-- [ ] T012 [P] [US1] Write **design_dataset.md** documenting puzzle‑type choices, complexity scaling, random‑seed handling, and provenance metadata.  
+- [X] T012 [P] [US1] Write **design_dataset.md** documenting puzzle‑type choices, complexity scaling, random‑seed handling, and provenance metadata.  
      • File: `specs/001-symbolic-bes/design_dataset.md`  
      • Verification: file exists, contains sections *Puzzle Types*, *Scaling Plan*, *Seed Management* and is syntactically valid Markdown.  
 
-- [ ] T013 [P] [US2] Write **stat_analysis_plan.md** specifying TOST bounds, α = 0.0497, power = 0.8, and effect‑size targets.  
+- [X] T013 [P] [US2] Write **stat_analysis_plan.md** specifying TOST bounds, α = 0.0497, power = 0.8, and effect‑size targets.  
      • File: `specs/001-symbolic-bes/stat_analysis_plan.md`  
      • Verification: file exists and includes numeric values for Δ, α, power, and required sample size.  
 
-- [ ] T014 [P] [US3] Record baseline LLM choice (e.g., `distilbert-base-uncased`) with exact HuggingFace commit hash and `device='cpu'`.  
+- [X] T014 [P] [US3] Record baseline LLM choice (e.g., `distilbert-base-uncased`) with exact HuggingFace commit hash and `device='cpu'`.  
      • File: `specs/001-symbolic-bes/baseline_architecture.md`  
      • Verification: file lists model identifier, commit SHA, and device configuration.  
 
-- [ ] T015 [P] [US4] Validate JSON‑Schema contracts `dataset.schema.yaml` and `output.schema.yaml`.  
+- [X] T015 [P] [US4] Validate JSON‑Schema contracts `dataset.schema.yaml` and `output.schema.yaml`.  
      • Files: `contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`  
      • Verification: running `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` and the same for `output.schema.yaml` exits without exception.  
 
@@ -35,7 +35,7 @@
      • Requirements: generator emits JSONL puzzle records conforming to `contracts/dataset.schema.yaml` plus a matching Python verifier script; verifier returns `(bool, error_code)` within 100 ms, records a timing entry in `data/processed/verifier_timing.log`, and raises `VerifierError` on internal failure.  
      • Verification: `pytest code/tests/test_generator.py code/tests/test_verifier.py` passes, including a benchmark asserting runtime < 0.1 s and that each verification writes a timing line to the log; generated files validate against `dataset.schema.yaml`.  
 
-- [ ] T002 [P] [US2] Implement the **symbolic planner** (`code/symbolic/planner.py`) and **parser** (`code/symbolic/parser.py`) with proper exception classes `ParseFailure` and `ContradictionDetected`.  
+- [~] T002 [P] [US2] Implement the **symbolic planner** (`code/symbolic/planner.py`) and **parser** (`code/symbolic/parser.py`) with proper exception classes `ParseFailure` and `ContradictionDetected`.  
      • Paths: `code/symbolic/planner.py`, `code/symbolic/parser.py`, `code/symbolic/exclusion_logger.py`  
      • Requirements: planner produces ordered sub‑goals or raises the two concrete exceptions; exclusion logger writes `data/processed/exclusions.json` with puzzle IDs and reasons.  
      • Verification: `pytest code/tests/test_symbolic_planner.py` passes (exception handling uses the actual classes, not string literals).  

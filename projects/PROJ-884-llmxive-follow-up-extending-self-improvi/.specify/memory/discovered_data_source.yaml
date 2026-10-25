@@ -1,15 +1,15 @@
 status: none
-intent: logic arithmetic puzzles CSPLib constraint satisfaction problems python package
-  dataset
+intent: download logic puzzle dataset with python verification script pip package
+  Sudoku ARC
 required_fields:
 - puzzle_id
 - puzzle_type
-- puzzle_definition
+- puzzle_representation
 - constraints_formal_language
-- solution_path
-- verification_script
+- solution_example
+- verification_script_path_or_code
 - difficulty_level
-- source_url
-cache_key: 844ab2fe72187213000da5a6ed83dc43895c697299e532a999d1bc4536d5e043
-searched_at: '2026-10-23T07:42:27.866024+00:00'
+- source_dataset_name
+cache_key: 36df83f811c22cba4cea53141f5a11eaa84c17a58cd136c3a4b094819cd9228d
+searched_at: '2026-10-25T03:36:45.022639+00:00'
 retry_count: 1

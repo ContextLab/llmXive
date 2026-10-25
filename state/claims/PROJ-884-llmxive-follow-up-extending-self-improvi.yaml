@@ -1229,7 +1229,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-25T19:52:40Z'
 - artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
   attempts: 1
@@ -2596,3 +2596,327 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T22:55:11Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md
+  attempts: 1
+  canonical: four puzzle types supported
+  claim_id: c_5c2cd11f
+  context: "The dataset is programmatically generated ... Four puzzle types are supported\
+    \ (see `PuzzleType` in `code/dataset/generator.py`); the primary experimental\
+    \ set uses the first two, per FR\u2011001."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Four puzzle types are supported.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:26:28Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md
+  attempts: 1
+  canonical: sudoku minimum grid size 9x9 for primary set
+  claim_id: c_38cc51ee
+  context: "Sudoku variant ... grid size scales with N (minimum 9\xD79 for the primary\
+    \ set; 4\xD74 variants used in pilot/unit tests)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The Sudoku variant grid size has a minimum of 9\xD79 for the primary\
+    \ set."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:26:29Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md
+  attempts: 1
+  canonical: sudoku 4x4 variants used in pilot unit tests
+  claim_id: c_fa357b66
+  context: "Sudoku variant ... grid size scales with N (minimum 9\xD79 for the primary\
+    \ set; 4\xD74 variants used in pilot/unit tests)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "4\xD74 Sudoku variants are used in pilot/unit tests."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:26:29Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md
+  attempts: 1
+  canonical: full dataset 500 instances per condition
+  claim_id: c_f41df02f
+  context: "The full set (500 instances per condition) exceeds the requirement derived\
+    \ from the pre\u2011registered power analysis ..."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The full dataset contains 500 instances per condition.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:26:29Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md
+  attempts: 1
+  canonical: scaling files for N 10 100 500
+  claim_id: c_da4077b5
+  context: "Dataset scales ... data/raw/puzzles_N10.json \u2014 pilot scale (N=10),\
+    \ data/raw/puzzles_N100.json \u2014 mid scale (N=100), data/raw/puzzles_N500.json\
+    \ \u2014 full scale (N=500)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Scaling files are provided for N=10 (pilot), N=100 (mid), and N=500 (full).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:26:30Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/design_dataset.md
+  attempts: 1
+  canonical: every instance has exact ground truth solution and deterministic verifier
+  claim_id: c_c8e11ae1
+  context: "The dataset is programmatically generated (synthetic curation with seeded,\
+    \ deterministic generation) so that every instance ships with an exact ground\u2011\
+    truth solution and a deterministic Python verifier."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Every puzzle instance ships with an exact ground\u2011truth solution\
+    \ and a deterministic Python verifier."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:26:30Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md
+  attempts: 1
+  canonical: required sample size per group 393
+  claim_id: c_4e58baf3
+  context: "Using the normal\u2011approximation formula implemented in code/analysis/stats.py::required_sample_size_for_power,\
+    \ the calculation yields n \u2248 392.28 \u2192 393 puzzles per group (rounded\
+    \ up)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Required sample size per group is 393.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:27:26Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md
+  attempts: 1
+  canonical: dataset size 500 puzzles satisfies required sample size 393
+  claim_id: c_04b9e903
+  context: "Both methods are evaluated on the same fixed set of puzzles, and the dataset\
+    \ of N = 500 puzzles satisfies this requirement with margin: 500 \u2265 393."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The dataset contains 500 puzzles, which satisfies the required sample
+    size of 393 per group.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:27:27Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md
+  attempts: 1
+  canonical: required sample size per group 1568 for h 0.10
+  claim_id: c_4c830b3a
+  context: Table of required n for other effect sizes shows h = 0.10 requires n per
+    group = 1568.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: For a Cohen's h of 0.10, the required sample size per group is 1568.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:27:27Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md
+  attempts: 1
+  canonical: required sample size per group 393 for h 0.20
+  claim_id: c_ec4a353d
+  context: Table of required n for other effect sizes shows h = 0.20 requires n per
+    group = 393.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: For a Cohen's h of 0.20, the required sample size per group is 393.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:27:28Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md
+  attempts: 1
+  canonical: required sample size per group 63 for h 0.50
+  claim_id: c_8f50e532
+  context: Table of required n for other effect sizes shows h = 0.50 requires n per
+    group = 63.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: For a Cohen's h of 0.50, the required sample size per group is 63.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:27:28Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md
+  attempts: 1
+  canonical: required sample size per group 25 for h 0.80
+  claim_id: c_dec35748
+  context: Table of required n for other effect sizes shows h = 0.80 requires n per
+    group = 25.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: For a Cohen's h of 0.80, the required sample size per group is 25.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:27:29Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/stat_analysis_plan.md
+  attempts: 1
+  canonical: 500 pairs provide >0.80 power for h 0.20
+  claim_id: c_eaf9900f
+  context: "For the McNemar\u2011style paired sensitivity check, 500 pairs provide\
+    \ >\u202F0.80 power for h\u202F=\u202F0.20."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 500 pairs provide greater than 0.80 power for h = 0.20.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:27:29Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md
+  attempts: 1
+  canonical: distilbert-base-uncased has 6 layers and 66 million parameters
+  claim_id: c_5c087fe8
+  context: The primary baseline model is identified as distilbert-base-uncased, described
+    as a 6-layer, 66M-parameter distilled encoder.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: distilbert-base-uncased is a 6-layer, 66M-parameter distilled encoder
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T03:30:27Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md
+  attempts: 1
+  canonical: distilbert-base-uncased hub downloads 6,850,254 at selection time
+  claim_id: c_d45c0b8c
+  context: The model identifier entry lists Hub downloads (at selection time) as 6850254.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Hub downloads (at selection time): 6850254'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T03:30:45Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md
+  attempts: 1
+  canonical: distilbert-base-uncased hub likes 1,135 at selection time
+  claim_id: c_2c5168ad
+  context: The model identifier entry lists Hub likes (at selection time) as 1135.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Hub likes (at selection time): 1135'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T03:30:57Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md
+  attempts: 1
+  canonical: distilbert-base-uncased memory footprint approximately 250 MB in float32
+  claim_id: c_67f41256
+  context: The rationale notes that the model has a small memory footprint (~250 MB
+    in float32), well within the ~7 GB GitHub Actions free-tier runner limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: has a small memory footprint (~250 MB in float32)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T03:31:03Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md
+  attempts: 1
+  canonical: TinyBERT model has 535,595 downloads
+  claim_id: c_6647869c
+  context: In the fallback options table, TinyBERT_General_4L_312D is listed with
+    downloads=535595.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downloads=535595
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T03:31:16Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md
+  attempts: 1
+  canonical: bert_uncased_L-2_H-128_A-2 model has 273,136 downloads
+  claim_id: c_6cb2648a
+  context: In the fallback options table, google/bert_uncased_L-2_H-128_A-2 is listed
+    with downloads=273136.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downloads=273136
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T03:31:17Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/baseline_architecture.md
+  attempts: 1
+  canonical: bert-tiny model has 956,473 downloads
+  claim_id: c_bf5b2416
+  context: In the fallback options table, prajjwal1/bert-tiny is listed with downloads=956473.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downloads=956473
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T03:31:17Z'

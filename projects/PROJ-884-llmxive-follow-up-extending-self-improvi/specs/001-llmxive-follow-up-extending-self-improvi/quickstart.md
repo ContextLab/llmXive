@@ -1,11 +1,20 @@
-# Quickstart: llmXive follow-up: extending "Self-Improving Language Models with Bidirectional Evolutionary Search"
+# Quickstart: llmXive follow‑up – Symbolic Bidirectional Evolutionary Search
+
+## Overview
+This quickstart provides a minimal, reproducible command chain that:
+1. Installs the project dependencies.
+2. Generates a small pilot dataset.
+3. Runs the pilot version of the BES pipeline (the only mode that currently works out‑of‑the‑box).
+
+The commands are designed to run on a **CPU‑only** environment (e.g. GitHub Actions free tier or a local machine) and create non‑empty artifacts under `data/processed/pilot/`.
 
 ## Prerequisites
-- **Python** 3.11+  
-- **Git** for cloning the repository  
-- **CPU‑only** environment (GitHub Actions free‑tier or local machine with ≥2 cores, ~7 GB RAM)  
+- Python 3.11+
+- Git
+- Sufficient RAM (approximately a few gigabytes) and at least 2 CPU cores
 
 ## Installation
+
 ```bash
 # 1. Clone the repository
 git clone <repo-url>
@@ -19,66 +28,41 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Verify Test Suite (addresses previously failing T001 & T002)
+## Verify the test suite
+
 ```bash
 pytest tests/unit/
 ```
-- **T001 fix**: `tests/unit/test_generator.py` now imports `DataGenerationError` from `code.dataset.errors`.  
-- **T002 fix**: `tests/unit/test_symbolic_planner.py` catches the real exception classes `ParseFailure` and `ContradictionDetected`.  
+All unit tests should pass.  The fixes for **T001** and **T002** are already incorporated, so the suite runs without import errors.
 
-All unit tests should now pass.
+## Phase 0 – Pilot dataset & verification
 
-## Phase 0 – Pilot Dataset & Verification
 ```bash
 python -m code.main --pilot --seed 42
 ```
-- Generates a small set of puzzles (N = 10‑30).  
-- Runs deterministic verification on a known correct solution to confirm < 100 ms latency.  
-- Outputs pilot logs to `data/processed/pilot_run.jsonl`.
+- Generates a tiny puzzle set (≈10‑30 instances) using the deterministic generator.
+- Runs the deterministic verifier on a known correct solution (latency < 100 ms).
+- Writes the pilot log to:
+  - `data/processed/pilot_run.jsonl`
+  - `data/processed/pilot/` (directory created automatically)
 
-## Phase 1 – Full Experiments
+## Expected output locations
 
-### Symbolic‑guided BES
-```bash
-python -m code.main \
-    --method symbolic \
-    --pop-size 50 \
-    --generations 20 \
-    --output data/processed/symbolic_run.jsonl \
-    --seed 42
-```
+After the pilot command finishes, the following files/directories must exist and be non‑empty:
 
-### Neural‑verifier Baseline
-```bash
-python -m code.main \
-    --method neural \
-    --pop-size 50 \
-    --generations 20 \
-    --output data/processed/neural_run.jsonl \
-    --seed 42
-```
-Both commands use the **same** puzzle set (generated once with `--seed 42`) so that success‑rate comparisons are based on matched instances. The success‑rate is computed as `valid_solutions / total_instances`; puzzles that the symbolic planner cannot decompose are counted as failures (success = 0) to keep denominators identical.
-
-## Phase 2 – Statistical Analysis
-```bash
-python -m code.analysis.stats \
-    --symbolic data/processed/symbolic_run.jsonl \
-    --neural data/processed/neural_run.jsonl \
-    --output data/processed/results.json
-```
-Produces:
-- `success_rate`, `mean_time`, `p_value_mcnemar`, `p_value_t`, `significance` fields (validated against `contracts/output.schema.yaml`).  
-- `scalability_regression.csv` containing log‑log regression coefficients.
-
-## Reproducibility Checklist
-- **Random seeds** are fixed (`--seed`).  
-- **Checksums**: run `sha256sum data/raw/*` and compare to `state/...yaml`.  
-- **Environment**: `pip freeze > env.txt` should match `requirements.txt`.  
+- `data/processed/pilot_run.jsonl` – JSON‑Lines file containing one entry per puzzle with verification timing and success flag.
+- `data/processed/pilot/` – folder that may contain auxiliary logs (e.g., `verifier_timing.log`).
 
 ## Troubleshooting
-- **MemoryError**: Reduce `--pop-size` or `--generations`.  
-- **Verifier timeout (>100 ms)**: Inspect `data/raw/verifier_*.py` for inefficiencies; ensure no heavy imports.  
-- **LLM slowdown**: The script automatically falls back to a smaller model (`distilgpt2`) if runtime exceeds 30 s per generation batch.  
+
+- **Command fails with usage error** – ensure you are running the *pilot* mode (`--pilot`).  The symbolic and neural modes are not yet wired into the CLI; attempting to use them will raise a usage error.
+- **Empty `pilot_run.jsonl`** – verify that the `code.main` entry point executed without exception (check the console output for any traceback).  The deterministic verifier must complete within 100 ms per puzzle; if it exceeds this, the pipeline aborts.
+- **Missing `data/processed/` directory** – the `paths` helper from `llmxive_toolkit` creates parent folders automatically.  If the directory is still missing, the script likely terminated early; re‑run with `--seed 42` to get deterministic behaviour.
+
+## Next steps
+
+Once the pilot run succeeds, you can proceed to implement the full symbolic‑guided and neural‑baseline experiments (tasks T003‑T009).  Those commands will be added to the quickstart once the corresponding CLI flags are implemented.
 
 ---
 
+*This document is version‑controlled; any future changes to the command chain must be reflected here to keep the quickstart reproducible.*
