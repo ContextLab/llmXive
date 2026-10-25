@@ -11,18 +11,18 @@
 - `formation_channel`: enum `"GWTC_observed"`  
 - `data_status`: enum `"real"`
 
-### 2. Simulation_Dataset (synthetic power‑law spin)
+### 2. Simulation_Dataset (official release)
 - `event_id`: string (`SIM_001`…)  
 - `component_mass_1`: number ≥ 0  
 - `component_mass_2`: number ≥ 0  
 - `mass_ratio`: number (0 < q ≤ 1)  
 - `effective_spin`: number (‑1 ≤ χ_eff ≤ 1)  
-- `formation_channel`: enum `"derived_from_power_law_spin"`  
-- `generation_method`: string (`"power_law_spin_distribution"` )  
-- `data_status`: enum `"synthetic"`
+- `formation_channel`: enum `"official_IllustrisTNG_EAGLE"`  
+- `generation_method`: enum `"official_release"`  
+- `data_status`: enum `"real"`
 
 ### 3. Data_Availability_Report
-- `source_name`: string (`"GWTC-1"` / `"GWTC-2"` / `"Simulation_Catalog"` / `"Efficiency_Curves"` )  
+- `source_name`: string (`"GWTC-1"` / `"GWTC-2"` / `"Simulation_Catalog"` )  
 - `status`: enum `"verified"` | `"unavailable"`  
 - `reason`: string (explanation when status is `"unavailable"` )  
 - `checksum`: string | null (SHA‑256 of accepted file)
@@ -69,18 +69,16 @@
 
 ## Data Flow Overview
 
-1. **T001** → raw GWTC files → `raw_gwtc.schema.yaml`  
+1. **T001** → raw GWTC archives → `raw_gwtc.schema.yaml`  
 2. **T002** → `data_availability.json` → `data_availability.schema.yaml`  
-3. **T004** → raw simulation files (if any) → `raw_gwtc.schema.yaml` (re‑used)  
-4. **T004‑fallback** → synthetic BBH catalog → `simulation_catalog.schema.yaml`  
+3. **T002‑download** → official simulation release → `simulation_catalog.schema.yaml` (must succeed; otherwise abort).  
+4. **T003/T004** → `obs_catalog.csv` → `gwtc_catalog.schema.yaml`  
 5. **T005** → `selection_weights.csv` → `dataset.schema.yaml` (weights validated separately)  
-6. **T003** → `obs_catalog.csv` → `gwtc_catalog.schema.yaml` (validated)  
-7. **T006 / T006b** → `ks_results.json` → `statistical_test_result.schema.yaml`  
-8. **T007 / T008b** → augment `ks_results.json` (same schema)  
-9. **T009** → PNG figures + `figure_manifest.json` → `visualization_output.schema.yaml`  
-10. **T011** → `performance_metrics.json` (optional fields in `statistical_test_result.schema.yaml`)  
-11. **T010** → `final_report.md` (free‑form, references the above artifacts).
+6. **T006/T007** → `ks_results.json` → `statistical_test_result.schema.yaml`  
+7. **T008** → PNG figures + `figure_manifest.json` → `visualization_output.schema.yaml`  
+8. **T009** → `performance_metrics.json` (optional fields in `statistical_test_result.schema.yaml`)  
+9. **T010** → `final_report.md` (free‑form, references the above artifacts).
 
 All intermediate files are version‑hashed and recorded in project state.
 
----
+--- 

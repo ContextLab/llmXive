@@ -1,11 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Simulation Catalog Schema"
-description: "Schema for synthetic binary‑black‑hole population catalog rows derived from a power‑law spin hypothesis."
+description: "Schema for binary‑black‑hole population catalog rows derived from the official IllustrisTNG/EAGLE releases."
 type: "object"
 properties:
   event_id:
     type: "string"
-    description: "Unique identifier for the synthetic event."
+    description: "Unique identifier for the simulation event."
   component_mass_1:
     type: "number"
     description: "Primary component mass in solar masses."
@@ -26,17 +26,19 @@ properties:
     maximum: 1
   formation_channel:
     type: "string"
-    description: "Source of the synthetic event."
+    description: "Source of the simulation data."
     enum:
-      - "derived_from_power_law_spin"
+      - "official_IllustrisTNG_EAGLE"
   generation_method:
     type: "string"
-    description: "Description of the generation hypothesis (e.g., \"power_law_spin_distribution\")."
+    description: "Method by which the catalog was generated."
+    enum:
+      - "official_release"
   data_status:
     type: "string"
-    description: "Provenance flag for synthetic data."
+    description: "Provenance flag."
     enum:
-      - "synthetic"
+      - "real"
 required:
   - event_id
   - component_mass_1

@@ -34,7 +34,7 @@ properties:
     description: "True if adjusted p‑value < α."
   borderline_flag:
     type: "boolean"
-    description: "True if significance flips across the α sweep {0.05, 0.06}."
+    description: "True if significance flips across the α sweep {0.01, 0.02, … 0.10}."
   alpha_sweep_results:
     type: "array"
     description: "Significance status for each α in the sweep."
