@@ -22,7 +22,7 @@ steps, and any required scientific checks.
   2. Run `pytest` and capture full console output to `data/processed/pytest_setup_log.txt`.  
   3. The log must contain the phrase `1 passed` for `test_directories_exist`.  
 
-- [ ] T002 [Setup] **Add package manifests**   <!-- FAILED-IN-EXECUTION: code/run_manifest_test.py exit=5 -->
+- [ ] T002 [Setup] **Add package manifests**   <!-- FAILED-IN-EXECUTION: code/run_manifest_test.py exit=5 --> <!-- FAILED-IN-EXECUTION: code/run_manifest_test.py exit=5 -->
   *Files:* `requirements.txt` (list of runtime dependencies) and `pyproject.toml` (PEP 621 metadata) – both must include the exact dependency list from the plan (sentence‑transformers, transformers, datasets, scikit‑learn, scipy, pandas, numpy, jsonschema, statsmodels, pytest, accelerate).  
   **Verification:**  
   1. `tests/test_config_files.py` is created and contains `test_pyproject_config_exists` and `test_ruff_config_exists`.  

@@ -6,14 +6,6 @@ T001:
     \ contains the \u201C1 passed\u201D output, and confirmed the listed project directories\
     \ exist."
   sig: 41c52c249143d6550512c30a7e0a877e04a21916cc910a6fcbd3c904781507eb
-T002:
-  c: false
-  h: 18a40f5d10ed41dd592a489651aee17bda29f0c35711248b418b950799a4c8a3
-  r: "The provided `requirements.txt` omits the required `scipy` package and `pyproject.toml`\
-    \ does not list any of the mandated dependencies. Moreover, the expected `data/processed/pytest_manifest_log.txt`\
-    \ file is missing, so the pytest run and its \u201C1 passed\u201D logs cannot\
-    \ be verified. These gaps must be fixed for the task to be complete."
-  sig: c37d4f6542c142c1002e83324ce4b4b0b12a908d23f5e999edace92e34f503d1
 T011a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

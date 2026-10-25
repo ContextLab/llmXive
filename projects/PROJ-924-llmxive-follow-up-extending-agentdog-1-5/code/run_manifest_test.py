@@ -21,9 +21,9 @@ def main():
     # Define the log file path
     log_path = get_path("processed", "pytest_manifest_log.txt")
 
-    # Run pytest and capture both stdout and stderr
+    # Run pytest targeting the tests directory and capture both stdout and stderr
     result = subprocess.run(
-        ["pytest", "-v"],
+        ["pytest", "-v", "tests"],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,

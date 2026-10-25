@@ -1,19 +1,15 @@
 status: none
-intent: Safety log centroids Hugging Face Red Teaming dataset GitHub issue logs python
-  package dataset
+intent: download safety category log dataset with HF curated logs and GitHub issue
+  logs python package dataset
 required_fields:
 - log_id
 - log_text
-- embedding_vector
-- category_label
+- category
 - source
-- annotator_id_1
-- annotator_id_2
-- annotator_id_3
-- majority_vote_label
-- is_novel_attack
-- centroid_vector
-- timestamp
-cache_key: 176ec4d0a65700a70ecf21e3c3c8637d67e7843804e83ccafa40ea17f94ebdc1
-searched_at: '2026-10-25T06:29:29.686486+00:00'
+- annotator1_label
+- annotator2_label
+- annotator3_label
+- gold_label
+cache_key: 15bcd74e352424a9a32690f6447c7163ab838f8fa4c59f4d6ae287a65c4403f7
+searched_at: '2026-10-25T06:31:10.249802+00:00'
 retry_count: 1
