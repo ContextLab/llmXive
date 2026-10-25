@@ -65,25 +65,3 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/654cfce223281492f2c82e4b/b15b92b8483cc6e3a9e478775ca0a9dcb28a83c20b9f84874d040026cf8edbee?xip=r-4W7kPHzbk&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27all_index.parquet%3B+filename%3D%22all_index.parquet%22%3B&user_id=public&Expires=1792750045&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU0Y2ZjZTIyMzI4MTQ5MmYyYzgyZTRiL2IxNWI5MmI4NDgzY2M2ZTNhOWU0Nzg3NzVjYTBhOWRjYjI4YTgzYzIwYjlmODQ4NzRkMDQwMDI2Y2Y4ZWRiZWVcXD94aXA9ci00VzdrUEh6YmsmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2FsbF9pbmRleC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyYWxsX2luZGV4LnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5Mjc1MDA0NX19fV19&Signature=MEYCIQCxKCR%7EU-U7vWVuCfswOlL7U-oduP2OvlcVdrYETccXJwIhAPtO6SCsNvGKoQ9ECPl8oc4loO-R-ToA1yMI0R2jkC-X&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-10-23T09:07:22.541480Z'
-- artifact_hash: 87ef397ebc1c04c09e6de0014621da1374d5a23ee68c60b4e7eb2cf985c66b2e
-  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://raw.githubusercontent.com/MaterialsData/segregation-energy/master/records.csv`
-  verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/MaterialsData/segregation-energy/master/records.csv
-  verified_at: '2026-10-25T05:28:45.946704Z'
-- artifact_hash: 87ef397ebc1c04c09e6de0014621da1374d5a23ee68c60b4e7eb2cf985c66b2e
-  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://raw.githubusercontent.com/DFTBenchmarks/gb-segregation/master/benchmark.csv`
-  verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/DFTBenchmarks/gb-segregation/master/benchmark.csv
-  verified_at: '2026-10-25T05:28:45.946704Z'
