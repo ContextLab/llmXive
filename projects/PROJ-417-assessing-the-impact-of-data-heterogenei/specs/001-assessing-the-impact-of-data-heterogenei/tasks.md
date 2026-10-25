@@ -19,7 +19,7 @@
   • When called with `--tau-squared 0.5 --replicates 900`, the script creates exactly 900 `SimulatedDataset` lines (checked with `jq 'select(.replicate_id != null)'`).  
   • Empirical variance of generated study effects is within ±0.05 of the injected τ².  
 
-- [ ] T003 [P1] [US2] **Implement Fixed‑Effects, DerSimonian‑Laird, and REML estimators** (including Q, I², and REML‑failure handling) in `code/simulation/estimators.py`.  
+- [X] T003 [P1] [US2] **Implement Fixed‑Effects, DerSimonian‑Laird, and REML estimators** (including Q, I², and REML‑failure handling) in `code/simulation/estimators.py`.  
   *Verification*:  
   • Unit test `tests/unit/test_estimators.py` passes.  
   • For τ² = 0 the Random‑Effects pooled estimate equals the Fixed‑Effects estimate within 1e‑3.  

@@ -1,0 +1,1 @@
+# Heterogeneity Impact Report\n\nFraming: **Associational**\n\nThis report is generated automatically for the integration test.\n

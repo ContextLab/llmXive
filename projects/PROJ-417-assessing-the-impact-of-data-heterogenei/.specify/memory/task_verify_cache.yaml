@@ -1,15 +1,26 @@
-T003:
+T002:
   c: false
-  h: 2b6c186d0d66d7f6f84e3583d986e7884db513a4cb318de98a123747454363b6
-  r: "Checked `code/simulation/estimators.py` and the unit test suite `tests/unit/test_estimators.py`.\
-    \ While the estimators and REML\u2011failure handling are implemented, the failure\u2011\
-    logging test patches `REML_FAILURE_LOG_PATH` to a temporary file but `log_reml_failure`\u2019\
-    s default argument is bound to the original constant at import time, so the log\
-    \ is written to the hard\u2011coded `\"data/results/reml_failures.json\"` instead\
-    \ of the temporary path. Consequently the test `test_failure_logging_and_fallback`\
-    \ will not find the expected log file and will fail. The task is therefore not\
-    \ fully satisfied."
-  sig: e8d4f902f24aa75e3b295fdb6d54a1cf1a2de5ae8f3a5d5a3d4a71dfdb8ee339
+  h: f15206094e322b51aee86b0f5bbfefc258080824c2fbee2464b7f55fd83852f4
+  r: "Checked `code/simulation/generator.py`, the unit\u2011test log (`tests/unit/test_generator.py`),\
+    \ the CLI execution log (`code/.tasks/T002.code_simulation_generator.py.log`),\
+    \ and the file `data/results/simulation_raw.jsonl`. The generator writes to `results/simulation_raw.jsonl`\
+    \ (not the required `data/results/simulation_raw.jsonl`), and the existing `data/results/simulation_raw.jsonl`\
+    \ contains \u03C4\xB2\u202F=\u202F0.0 and zero effect sizes rather than the requested\
+    \ \u03C4\xB2\u202F=\u202F0.5 with 900 replicates. No evidence is provided that\
+    \ the script actually produced 900 correctly\u2011parameterised records at the\
+    \ required path."
+  sig: 3fe36abdae7e49224a50fc384c05fa1106af5ccc853d88056a9207d57b91abf8
+T003:
+  c: true
+  h: 87fde3f06dfc4d7b6b8641d0c80c1d3ef360e96419f6dfb1b1c8f12a55eb32d2
+  r: "Checked `code/simulation/estimators.py` \u2013 it implements Fixed\u2011Effects,\
+    \ DerSimonian\u2011Laird, and REML estimators, computes Q and I\xB2, and on REML\
+    \ failure sets `convergence_warning=True` and replaces \u03C4\xB2 with the defined\
+    \ `MIN_POSITIVE_TAU2` (1e\u20116) while logging the event.  \nChecked `tests/unit/test_estimators.py`\
+    \ \u2013 the test suite includes checks that \u03C4\xB2\u202F=\u202F0 yields identical\
+    \ pooled estimates for FE, DL, and REML (within 1e\u20113) and verifies the REML\u2011\
+    failure flag and fallback behavior."
+  sig: eadadeb4c54edfe8f8f3f8e2fcb9c6418885b70be8a14f83397d57a87f8c8ab6
 T004:
   c: false
   h: a9ee90b6fc94cd556fe8931dd25f29d0b1d1fb3f941fd25ce1bd8c74dacc3dc3

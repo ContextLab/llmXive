@@ -119,7 +119,7 @@ class EstimationResult:
 # ----------------------------------------------------------------------
 # Logging utilities
 # ----------------------------------------------------------------------
-def log_reml_failure(event: Dict[str, Any], log_path: str = REML_FAILURE_LOG_PATH) -> None:
+def log_reml_failure(event: Dict[str, Any], log_path: Optional[str] = None) -> None:
     """
     Log a REML convergence failure event to a JSON file (FR‑006).
 
@@ -132,8 +132,15 @@ def log_reml_failure(event: Dict[str, Any], log_path: str = REML_FAILURE_LOG_PAT
     event :
         Dictionary describing the failure.
     log_path :
-        Path to the JSON failure log.
+        Path to the JSON failure log. If ``None`` the default
+        :data:`REML_FAILURE_LOG_PATH` is used, which respects any
+        runtime monkey‑patching of that constant.
     """
+    # Resolve the log path at call time so monkey‑patching of
+    # ``REML_FAILURE_LOG_PATH`` is honoured.
+    if log_path is None:
+        log_path = REML_FAILURE_LOG_PATH
+
     events: List[Dict[str, Any]] = []
     loaded: Optional[Any] = None  # Will hold the original JSON content if present
     try:

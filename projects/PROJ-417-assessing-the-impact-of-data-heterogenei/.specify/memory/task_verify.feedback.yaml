@@ -3,20 +3,16 @@ T001:
     exit=1'
   task: eb410804bb73f118292fe2730ed35dd4a58e7033fe1104e6b96fe3b09c9be1be
 T002:
-  reason: "The required output file `data/results/simulation_raw.jsonl` is missing;\
-    \ the CLI writes to `results/simulation_raw.jsonl` instead, so the generator does\
-    \ not place records at the specified path. Consequently the task\u2019s core requirement\
-    \ (producing the JSON\u2011Lines file in `data/results/`) is not satisfied."
+  reason: "Checked `code/simulation/generator.py`, the unit\u2011test log (`tests/unit/test_generator.py`),\
+    \ the CLI execution log (`code/.tasks/T002.code_simulation_generator.py.log`),\
+    \ and the file `data/results/simulation_raw.jsonl`. The generator writes to `results/simulation_raw.jsonl`\
+    \ (not the required `data/results/simulation_raw.jsonl`), and the existing `data/results/simulation_raw.jsonl`\
+    \ contains \u03C4\xB2\u202F=\u202F0.0 and zero effect sizes rather than the requested\
+    \ \u03C4\xB2\u202F=\u202F0.5 with 900 replicates. No evidence is provided that\
+    \ the script actually produced 900 correctly\u2011parameterised records at the\
+    \ required path."
   task: 4d0921a6a568f210cb5dc7967a931498c4f3bb1a927feb10009ab1aef3af10e5
 T003:
-  reason: "Checked `code/simulation/estimators.py` and the unit test suite `tests/unit/test_estimators.py`.\
-    \ While the estimators and REML\u2011failure handling are implemented, the failure\u2011\
-    logging test patches `REML_FAILURE_LOG_PATH` to a temporary file but `log_reml_failure`\u2019\
-    s default argument is bound to the original constant at import time, so the log\
-    \ is written to the hard\u2011coded `\"data/results/reml_failures.json\"` instead\
-    \ of the temporary path. Consequently the test `test_failure_logging_and_fallback`\
-    \ will not find the expected log file and will fail. The task is therefore not\
-    \ fully satisfied."
   task: fc6b0e9eff3b697d1cc0e6fd5e82e0551732361b5792f456f7b012bffeb46e9e
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'

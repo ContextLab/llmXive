@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-25T12:24:09Z",
+  "updated_at": "2026-10-25T16:30:08Z",
   "project_id": "PROJ-417-assessing-the-impact-of-data-heterogenei",
-  "replan_rounds": 2
+  "replan_rounds": 3
 }
