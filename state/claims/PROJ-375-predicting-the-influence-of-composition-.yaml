@@ -959,3 +959,52 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-24T17:21:01Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: sample_output.parquet passes JSON-Schema validation against mg_dataset.schema.yaml
+  claim_id: c_be9b6fbc
+  context: The command produces results/sample_output.parquet, which contains all
+    columns required by the mg_dataset.schema.yaml contract and passes JSON-Schema
+    validation.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The command produces results/sample_output.parquet, which contains all
+    columns required by the mg_dataset.schema.yaml contract and passes JSON-Schema
+    validation.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T02:21:03Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: wall-clock time for 100 rows is less than 30 seconds
+  claim_id: c_a81799ae
+  context: 'Expected runtime & resources - Wall-clock time: < 30 seconds (100 rows).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Wall-clock time: < 30 seconds (100 rows).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T02:21:04Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM usage is less than 200 MB
+  claim_id: c_62fc24ef
+  context: 'Expected runtime & resources - Peak RAM: < 200 MB.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Peak RAM: < 200 MB.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T02:21:04Z'

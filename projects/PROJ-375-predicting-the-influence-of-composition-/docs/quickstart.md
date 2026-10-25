@@ -20,8 +20,8 @@ export MP_API_KEY="YOUR_API_KEY"
 ## Installation
 
 ```bash
-git clone <repository‑url>
-cd <repo‑root>
+git clone <repository-url>
+cd <repo-root>
 python -m venv.venv
 source.venv/bin/activate # Windows:.venv\Scripts\activate
 pip install -r requirements.txt
@@ -38,7 +38,7 @@ The script will:
 1. Load `data/raw/curated_metallic_glass.csv`. If the file is missing it will be
  automatically downloaded from a verified public repository.
 2. Keep only the first *N* rows (`N` defaults to 100, can be changed with `--sample`).
-3. Compute the four compositional descriptors
+3. Compute the four compositional descriptors:
  - `weighted_mean_atomic_radius`
  - `electronegativity_variance`
  - `vec` (valence‑electron concentration)
@@ -59,7 +59,7 @@ print(df.head())
 print("Columns:", df.columns.tolist())
 PY
 
-# Schema validation (requires PyYAML and jsonschema, already in the environment)
+# Schema validation (requires PyYAML and jsonschema)
 python - <<'PY'
 import yaml, jsonschema, pandas as pd
 with open('contracts/mg_dataset.schema.yaml') as f:
@@ -75,6 +75,3 @@ PY
 - **Wall‑clock time**: < 30 seconds (100 rows).
 - **Peak RAM**: < 200 MB.
 - **CPU cores**: 1 (the script does not spawn parallel workers).
-
-The quick‑start command is deliberately lightweight and safe to run on any platform,
-making it ideal for CI checks, teaching, or rapid prototyping.
