@@ -1,3 +1,58 @@
-$schema: "http://json-schema.org/draft-7  "
-$schema: "http://…  "
-... 
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Threshold Results Schema"
+description: "Schema for the JSON output of threshold detection, including permutation test and LRT results."
+type: "object"
+properties:
+  primary_threshold:
+    type: ["integer", "null"]
+    description: "Selected knot (hop count) where the reasoning cliff is identified; null if none."
+  results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        knot:
+          type: "integer"
+          description: "Candidate knot position (hop count)."
+        p_value:
+          type: ["number", "null"]
+          minimum: 0.0
+          maximum: 1.0
+          description: "Bonferroni‑adjusted p‑value for the LRT at this knot."
+        effect_size:
+          type: ["number", "null"]
+          description: "Estimated effect size of the accuracy drop at this knot."
+        cliff_magnitude:
+          type: ["number", "null"]
+          description: "Magnitude of the accuracy cliff (difference in predicted accuracy before vs. after the knot)."
+        is_significant:
+          type: "boolean"
+          description: "Whether this knot passes the significance threshold."
+      required:
+        - knot
+        - p_value
+        - effect_size
+        - cliff_magnitude
+        - is_significant
+  robustness_status:
+    type: "string"
+    enum: ["PASS", "FAIL"]
+    description: "Overall robustness result across binning schemes."
+  bias_flag:
+    type: "boolean"
+    description: "True if disconnection rates correlate with hop count indicating potential bias."
+  disconnection_rates:
+    type: "object"
+    patternProperties:
+      "^[0-9]+\\+?$":
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Proportion of questions with no correct answer per hop bin."
+    additionalProperties: false
+required:
+  - primary_threshold
+  - results
+  - robustness_status
+  - bias_flag
+  - disconnection_rates

@@ -14,9 +14,11 @@ properties:
     description: "Ground truth answer text."
   correctness:
     type: "boolean"
-    description: "Binary label indicating whether the model answer is correct."
+    description: "Binary label indicating whether the answer is correct."
   predicted_correctness:
     type: "number"
+    minimum: 0.0
+    maximum: 1.0
     description: "Model prediction of correctness (probability, 0.0–1.0)."
   chain_length:
     type: "integer"
@@ -31,24 +33,42 @@ properties:
     description: "Binned hop count derived from `chain_length`."
   question_difficulty:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Difficulty score (0–1) from the dataset."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Difficulty score (0–1) computed from question length."
   video_length_seconds:
     type: "number"
-    minimum: 0
-    description: "Video  ​​  ​     ​  ​  ​  ​  ​  ​  ​     ​  ​  ​  ​  ​  ​ ​ ​ ​ ​ ​ ​ ​​ ​ ​ ​ ​​ ​  ​  ​ ​ ​​​  ​ ​​ ​ ​​ ​​​​  ​ ​​ ​​ ​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​ ​ ​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​  "
-  video_length_seconds:
-    type: "number"
-    minimum: 0
-    description: "Video  ​ ​  " 
+    minimum: 0.0
+    description: "Length of the associated video in seconds."
   answer_type:
-    type: "integer"
-    description: "Answer format   " 
+    type: "string"
+    enum:
+      - "multiple_choice"
+      - "open_ended"
+    description: "Answer format type."
   status:
-    type: "null"
-    description: "  "
+    type: "string"
+    enum:
+      - "annotated"
+      - "disconnected"
+      - "mapping_failure"
+    description: "Result of the entity linking and hop counting step."
+  hop_bin:
+    type: "string"
+    enum:
+      - "1"
+      - "2"
+      - "3+"
+    description: "Duplicate of `chain_bin` for backward compatibility."
 required:
-  - 
-  - ...
-... 
+  - question_id
+  - question_text
+  - answer_text
+  - correctness
+  - chain_length
+  - chain_bin
+  - question_difficulty
+  - video_length_seconds
+  - answer_type
+  - status
+  - hop_bin

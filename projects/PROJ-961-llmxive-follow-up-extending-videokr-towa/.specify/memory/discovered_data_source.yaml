@@ -1,15 +1,5 @@
 status: none
-intent: download TVQA dataset with knowledge graph and video lengths from HuggingFace
-  python package dataset
-required_fields:
-- question
-- answer
-- video_id
-- timestamp_start
-- timestamp_end
-- hop_level
-- knowledge_graph
-- video_length_seconds
-cache_key: da18f125fde8593ffad0c3f265b600f58ba3d4783523e13d06c297a389672adf
-searched_at: '2026-10-25T19:09:00.980201+00:00'
-retry_count: 1
+reason: no data intent found in planning artifacts
+cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
+searched_at: '2026-10-25T19:36:10.015134+00:00'
+retry_count: 3
