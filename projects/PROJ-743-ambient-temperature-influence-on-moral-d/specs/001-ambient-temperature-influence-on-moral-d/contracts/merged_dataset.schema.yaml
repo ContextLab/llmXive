@@ -61,7 +61,7 @@ properties:
     description: "Gender (optional)."
   urban_rural_proxy:
     type: "string"
-    description: "Urban or rural classification based on WorldPop density (optional)."
+    description: "Urban or rural classification based on GHSL density (optional)."
     enum: ["urban", "rural"]
   quality_flag:
     type: "string"
@@ -85,4 +85,3 @@ required:
   - time_of_day
   - quality_flag
 additionalProperties: false
-

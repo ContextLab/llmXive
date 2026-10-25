@@ -89,4 +89,3 @@ required:
   - diagnostics
   - timestamp
 additionalProperties: false
-

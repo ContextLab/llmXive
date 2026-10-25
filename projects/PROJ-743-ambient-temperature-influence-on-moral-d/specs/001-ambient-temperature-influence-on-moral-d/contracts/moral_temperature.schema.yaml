@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Merged Dataset Schema"
-description: "Schema for the merged Moral Machine and ERA5 dataset used in analysis."
+title: "Merged Moral Machine and ERA5 Dataset Schema"
+description: "Schema for the merged Moral Machine responses with ERA5 temperature data used in analysis."
 type: "object"
 properties:
   response_id:
@@ -8,7 +8,7 @@ properties:
     description: "Unique identifier for the moral response."
   participant_id:
     type: "string"
-    description: "Unique identifier for the participant."
+    description: "Anonymous participant identifier."
   country:
     type: "string"
     description: "ISO country code of the participant."
@@ -28,25 +28,25 @@ properties:
     description: "Timestamp of the response (ISO 8601)."
   response_time_ms:
     type: "integer"
-    description: "Response latency in milliseconds (required)."
+    description: "Average response latency in milliseconds for the scenario (derived from auxiliary experiment)."
   log_rt:
     type: "number"
-    description: "Natural log of response_time_ms."
+    description: "Natural logarithm of response_time_ms."
   temperature_c:
     type: "number"
-    description: "Hourly temperature (°C) from ERA5 2014‑2018."
+    description: "Hourly ambient temperature in degrees Celsius from ERA5 (2014‑2018)."
     minimum: -50
     maximum: 50
   temperature_c_squared:
     type: "number"
-    description: "Square of temperature_c for non‑linearity testing."
+    description: "Square of temperature_c, used for testing non‑linear temperature effects."
   dilemma_complexity:
     type: "number"
     description: "Static complexity score of the dilemma."
     minimum: 0
   time_of_day:
     type: "integer"
-    description: "Hour of the day (0‑23)."
+    description: "Hour of the day (0‑23) extracted from timestamp."
     minimum: 0
     maximum: 23
   age_group:
@@ -57,7 +57,7 @@ properties:
     description: "Gender (optional)."
   distance_km:
     type: "number"
-    description: "Distance in km to the nearest ERA5 grid point."
+    description: "Haversine distance in kilometers to the nearest ERA5 grid point."
     minimum: 0
     maximum: 100
   exclusion_flag:
