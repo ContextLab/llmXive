@@ -10,7 +10,7 @@ The generated artifacts conform to the contract schemas located in
 `contracts/`.  All fields required by the schemas are present and no
 disallowed fields (e.g. `id`, `num_steps`) are emitted in the persisted
 JSON files.  Legacy fields required by the unit‑test suite are provided
-by the in‑memory objects returned by the helper functions.
+by the in‑memory objects returned to the helper functions.
 
 The script respects the active overlap level, which can be set via the
 environment variable ``OVERLAP_LEVEL`` (case‑insensitive) or via the
@@ -232,8 +232,6 @@ def generate_skills(seed_a: int, count: int = SKILL_COUNT, overlap_level: str = 
         legacy fields required by the tests.
     """
     rng = np.random.default_rng(seed_a)
-    # Generate embeddings that satisfy the requested overlap constraints.
-    # The internal helper ``_generate_skills_core`` performs the retry loop.
     core_skills = _generate_skills_core(rng, count, overlap_level.lower())
     # Attach legacy fields.
     for skill in core_skills:
@@ -256,7 +254,20 @@ def _generate_skills_core(
     max_attempts = 20
     while True:
         attempts += 1
-        embeddings = generate_random_embeddings(count, rng)
+
+        if overlap_level == "high":
+            # Generate a base vector and add small noise to obtain a tightly
+            # clustered set of embeddings, guaranteeing high similarity.
+            base_vec = rng.normal(size=384)
+            base_vec = unit_vector(base_vec)
+            noise = rng.normal(scale=0.05, size=(count, 384))
+            raw = base_vec + noise
+            norms = np.linalg.norm(raw, axis=1, keepdims=True)
+            norms[norms == 0] = 1.0
+            embeddings = raw / norms
+        else:
+            embeddings = generate_random_embeddings(count, rng)
+
         mean_sim = mean_pairwise_cosine(embeddings)
 
         if overlap_level == "low":
@@ -278,11 +289,12 @@ def _generate_skills_core(
                 f"(mean similarity {mean_sim:.4f}) after {attempts} attempt(s)."
             )
             break
+
         if attempts >= max_attempts:
             raise RuntimeError(
                 f"Failed to generate embeddings satisfying {overlap_level.upper()} overlap after {max_attempts} attempts."
             )
-        # otherwise retry with a fresh RNG state
+        # otherwise retry with a fresh RNG state derived from the previous one
         rng = np.random.default_rng(rng.integers(0, 2**32 - 1))
 
     skills = []
@@ -362,7 +374,6 @@ def main() -> None:
     # Ensure we have enough free RAM before allocating large matrices.
     ensure_memory_available()
 
-    # Set deterministic RNGs
     overlap_level = args.overlap.lower()
     logger.info(f"Generating data with overlap level: {overlap_level.upper()}")
 

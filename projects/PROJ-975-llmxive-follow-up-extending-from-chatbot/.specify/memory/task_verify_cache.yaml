@@ -8,16 +8,6 @@ T001:
     is present (though not displayed) and is intended to assert these hash equalities.
     All required artifacts exist and verify verbatim duplication.
   sig: d2d9ff913dd4fe742e7ece10f60bbac8fee5d7ade1ee06a9a444ce5e7a478317
-T002:
-  c: false
-  h: 37ed56be069190340202e074b1298f7ababd92f332168af581361bd3a9a1c85e
-  r: "The `code/generate_data.py` script does not implement a memory\u2011limit guard,\
-    \ does not define the `validate_similarity_thresholds` function or the `SKILL_COUNT`\
-    \ / `TASK_COUNT` constants that the unit tests import, and it emits extra fields\
-    \ (`id`, `num_steps`) that the specification explicitly says must not be present.\
-    \ Consequently the generated artifacts do not fully meet the task\u2019s stated\
-    \ requirements."
-  sig: fed2728c7435ac6cffac892d8bc1519a23bfaf9b2f0e03b3cc190e61d65e909c
 T004:
   c: false
   h: bd9e6aaaa93dc535ae42e72bfd28f24c5636450f9d82a4775dadb1f21d0206cb

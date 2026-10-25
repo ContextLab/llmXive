@@ -15,7 +15,7 @@ The list follows the three research phases (setup → full experiment →�
   2. The script writes a mapping `{filename: {src_hash: “…”, dst_hash: “…”}}` to `data/raw/contract_hashes.json`.  
   3. `tests/contract/test_contract_copy.py` loads `contract_hashes.json` and **asserts `src_hash == dst_hash` for every file**, guaranteeing verbatim duplication.  
 
-- [ ] **T002** [S] [US1] **Generate synthetic environment**   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 -->
+- [ ] **T002** [S] [US1] **Generate synthetic environment**   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 -->
   *Path*: `code/generate_data.py` → produces `data/raw/tasks.json` (500 tasks) and `data/raw/skills.json` (100 skills) with embeddings, overlap levels, fixed seeds, memory‑limit guard, and writes SHA‑256 digests to `data/raw/checksums.json`.  
   *Verification*: `pytest tests/unit/test_generate_data.py` checks record counts, schema validation, overlap statistics, and checksum consistency.  
 

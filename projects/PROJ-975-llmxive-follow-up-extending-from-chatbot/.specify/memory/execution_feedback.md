@@ -27,14 +27,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/generate_data.py --seed 42 --overlap high -> rc=1
 
-2026-10-25 18:20:58,071 INFO __main__: Generating data with overlap level: HIGH
+2026-10-25 19:21:29,539 INFO __main__: Generating data with overlap level: HIGH
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 433, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 444, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 372, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 383, in main
     core_skills = _generate_skills_core(
                   ^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 282, in _generate_skills_core
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/generate_data.py", line 294, in _generate_skills_core
     raise RuntimeError(
 RuntimeError: Failed to generate embeddings satisfying HIGH overlap after 20 attempts.
 
@@ -59,7 +59,7 @@ FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
 FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
 ERROR tests/contract/test_checksums.py::test_tasks_checksum_matches - FileNot...
 ERROR tests/contract/test_checksums.py::test_skills_checksum_matches - FileNo...
-============== 3 failed, 12 passed, 6 skipped, 2 errors in 2.96s ===============
+============== 3 failed, 12 passed, 6 skipped, 2 errors in 3.25s ===============
 
 
 - python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning {on,off}  --seed 42  --randomize-tasks -> rc=2
@@ -90,7 +90,7 @@ FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
 FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
 ERROR tests/contract/test_checksums.py::test_tasks_checksum_matches - FileNot...
 ERROR tests/contract/test_checksums.py::test_skills_checksum_matches - FileNo...
-============== 3 failed, 12 passed, 6 skipped, 2 errors in 2.55s ===============
+============== 3 failed, 12 passed, 6 skipped, 2 errors in 3.05s ===============
 
 
 - python code/analysis.py --input data/results/metrics.csv -> rc=2
@@ -118,7 +118,7 @@ FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
 FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
 ERROR tests/contract/test_checksums.py::test_tasks_checksum_matches - FileNot...
 ERROR tests/contract/test_checksums.py::test_skills_checksum_matches - FileNo...
-============== 3 failed, 12 passed, 6 skipped, 2 errors in 2.67s ===============
+============== 3 failed, 12 passed, 6 skipped, 2 errors in 3.06s ===============
 
 
 
