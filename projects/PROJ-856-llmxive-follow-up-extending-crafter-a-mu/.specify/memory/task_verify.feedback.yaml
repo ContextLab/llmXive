@@ -23,6 +23,8 @@ T008:
     exit=2'
   task: 1a7dfae22e56ae80edf1cc80434dfb6930c6869b5eb566c064cf9c540a0b44dc
 T009:
+  reason: 'Requested task execution failed; rerun successfully: src/report/generate_report.py
+    exit=1'
   task: dc09d71c7c4a6bf8a0adbdea089ac33fc8700e2e71f06b5e491c19d227581e5a
 T010:
   task: a981bfb8da0bc0714f1f715fa921060d4446b870a164842d22da9feb53c1f369

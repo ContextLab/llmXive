@@ -1,49 +1,69 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "AnalysisResult"
-description: "Schema for the JSON‑Lines records produced by the statistical analysis step."
-type: object
-required:
-  - result_id
-  - metric
-  - structured_median
-  - chat_median
-  - wilcoxon_statistic
-  - p_value_corrected
-  - effect_size_r
-  - ci_95_lower
-  - ci_95_upper
-  - n_participants
-properties:
-  result_id:
-    type: string
-    description: "Unique identifier for the analysis result record."
-  metric:
-    type: string
-    enum: ["time_to_success_ms", "iteration_count", "subjective_load"]
-    description: "Metric that was analyzed."
-  structured_median:
-    type: number
-    description: "Median value for the structured harness condition."
-  chat_median:
-    type: number
-    description: "Median value for the chat interface condition."
-  wilcoxon_statistic:
-    type: number
-    description: "Wilcoxon signed‑rank test statistic (or t‑statistic if a paired t‑test was used)."
-  p_value_corrected:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Bonferroni‑corrected p‑value for the test."
-  effect_size_r:
-    type: number
-    description: "Rank‑siserial effect size (r)."
-  ci_95_lower:
-    type: number
-    description: "Lower bound of the 95 % bootstrap confidence interval for the median difference."
-  ci_95_upper:
-    type: number
-    description: "Upper bound of the 95 % bootstrap confidence interval for the median difference."
-  n_participants:
-    type: integer
-    description: "Number of participants included in the analysis."
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AnalysisResult",
+  "type": "object",
+  "required": [
+    "metric",
+    "test_used",
+    "statistic",
+    "p_value_raw",
+    "p_value_corrected",
+    "effect_size",
+    "ci_95_lower",
+    "ci_95_upper",
+    "n_participants"
+  ],
+  "properties": {
+    "metric": {
+      "type": "string",
+      "enum": ["time_to_success_ms", "iteration_count", "subjective_load"]
+    },
+    "test_used": {
+      "type": "string",
+      "enum": ["wilcoxon", "paired_t"]
+    },
+    "statistic": {
+      "type": "number"
+    },
+    "p_value_raw": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "p_value_corrected": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "effect_size": {
+      "type": "number"
+    },
+    "ci_95_lower": {
+      "type": "number"
+    },
+    "ci_95_upper": {
+      "type": "number"
+    },
+    "n_participants": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "mixed_effects": {
+      "type": "object",
+      "required": ["interface_coef", "interface_p", "model_summary"],
+      "properties": {
+        "interface_coef": {
+          "type": ["number", "null"]
+        },
+        "interface_p": {
+          "type": ["number", "null"]
+        },
+        "model_summary": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

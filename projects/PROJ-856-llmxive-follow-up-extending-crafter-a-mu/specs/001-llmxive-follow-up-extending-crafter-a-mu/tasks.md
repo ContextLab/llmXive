@@ -52,7 +52,7 @@ The list follows the canonical `- [ ] T### [P?] [USx?] description …` format. 
   - **File**: `src/analysis/wilcoxon_analysis.py`  
   - **Verification**: Running `python -m src.analysis.wilcoxon_analysis` exits 0; the generated JSONL validates against the schema; a sanity‑check test (`tests/analysis/test_wilcoxon.py`) confirms that known synthetic differences produce the expected significant p‑value.
 
-- [ ] T009 [US-3] Generate the final markdown report (`outputs/report.md`) that includes:  
+- [ ] T009 [US-3] Generate the final markdown report (`outputs/report.md`) that includes:   <!-- FAILED-IN-EXECUTION: src/report/generate_report.py exit=1 -->
   1. Median and mean tables for each metric per interface,  
   2. Wilcoxon (or t‑test) statistics, corrected p‑values, effect sizes, and 95 % CI,  
   3. Success‑rate breakdowns (vector‑match vs. semantic‑pass),  

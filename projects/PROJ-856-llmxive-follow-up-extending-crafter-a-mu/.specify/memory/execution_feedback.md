@@ -26,7 +26,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: src/curators/curate_failed_figures.py: synthetic/fake INPUT data not authorized by the spec — “…---------------------- # Synthetic data generation (used when ``…”; src/curators/curate_failed_figures.py: synthetic/fake INPUT data not authorized by the spec — “…tr) -> None:     """     Generate a deterministic synthetic dataset without external…”; src/curators/curate_failed_figures.py: synthetic/fake INPUT data not authorized by the spec — “…ult=False,         help="Generate deterministic synthetic data without downloading…”; 5 command(s) failed: python -m src.curators.curate_failed_figures  --download  --output-dir data/ (rc=1); python -m src.analysis.retention_check  --log-dir data/logs/  --min-valid 28  --required-participants 32 (rc=2); python -m src.validation.run_validation  --log-dir data/logs/  --output-dir data/validation/ (rc=2)
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: src/curators/curate_failed_figures.py: synthetic/fake INPUT data not authorized by the spec — “…---------------------- # Synthetic data generation (used when ``…”; src/curators/curate_failed_figures.py: synthetic/fake INPUT data not authorized by the spec — “…tr) -> None:     """     Generate a deterministic synthetic dataset without external…”; src/curators/curate_failed_figures.py: synthetic/fake INPUT data not authorized by the spec — “…ult=False,         help="Generate deterministic synthetic data without downloading…”; 4 command(s) failed: python -m src.curators.curate_failed_figures  --download  --output-dir data/ (rc=1); python -m src.analysis.retention_check  --log-dir data/logs/  --min-valid 28  --required-participants 32 (rc=2); python -m src.validation.run_validation  --log-dir data/logs/  --output-dir data/validation/ (rc=2)
 
 ## Failing / missing run-book commands
 
@@ -46,26 +46,6 @@ usage: run_validation.py [-h] --log-dir LOG_DIR --ground-truth-dir
                          [--prediction-image-dir PREDICTION_IMAGE_DIR]
                          --output-dir OUTPUT_DIR
 run_validation.py: error: the following arguments are required: --ground-truth-dir
-
-- python -m src.analysis.wilcoxon_analysis  --log-dir data/logs/  --validation-dir data/validation/  --output-dir outputs/ -> rc=1
- 1432, in aggregate
-    result = op.agg()
-             ^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/apply.py", line 190, in agg
-    return self.agg_dict_like()
-           ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/apply.py", line 423, in agg_dict_like
-    return self.agg_or_apply_dict_like(op_name="agg")
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/apply.py", line 1608, in agg_or_apply_dict_like
-    result_index, result_data = self.compute_dict_like(
-                                ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/apply.py", line 462, in compute_dict_like
-    func = self.normalize_dictlike_arg(op_name, selected_obj, func)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/core/apply.py", line 663, in normalize_dictlike_arg
-    raise KeyError(f"Column(s) {list(cols)} do not exist")
-KeyError: "Column(s) ['expertise_level', 'subjective_load'] do not exist"
 
 - python -m src.analysis.generate_report  --analysis-dir outputs/  --output-file outputs/report.md -> rc=1
 

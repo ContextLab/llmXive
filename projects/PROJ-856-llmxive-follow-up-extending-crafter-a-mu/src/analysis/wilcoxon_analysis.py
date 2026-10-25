@@ -150,6 +150,11 @@ def _load_interaction_log(log_dir_arg: Optional[str] = None) -> pd.DataFrame:
         log.error(f"Interaction log missing required columns: {missing}")
         sys.exit(1)
 
+    # Ensure optional columns exist so that aggregation does not raise KeyError
+    for opt in ["subjective_load", "expertise_level"]:
+        if opt not in df.columns:
+            df[opt] = np.nan
+
     # Exclude aborted trials if a status column is present
     if "status" in df.columns:
         df = df[df["status"] != "aborted"]
@@ -165,11 +170,6 @@ def _load_interaction_log(log_dir_arg: Optional[str] = None) -> pd.DataFrame:
         )
         .reset_index()
     )
-    # Fill missing optional columns with neutral defaults
-    if "subjective_load" not in agg.columns:
-        agg["subjective_load"] = np.nan
-    if "expertise_level" not in agg.columns:
-        agg["expertise_level"] = np.nan
 
     # Rename figure_id to task_id for downstream consistency
     agg = agg.rename(columns={"figure_id": "task_id"})

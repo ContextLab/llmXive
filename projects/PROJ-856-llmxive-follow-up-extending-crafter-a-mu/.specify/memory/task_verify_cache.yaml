@@ -9,12 +9,12 @@ T000:
   sig: fb1123356e6d7443290417098e0d0e417aeb28df8f4c32fc1c1f1433caebee90
 T001:
   c: true
-  h: fc5d2d9509727cfebf292b06cc1c4a58f26966fb9a127625434485eaec4caf23
+  h: 841fff798c26558a2992af2f35e92ed670afbd8cd3b40f22513472274dbca311
   r: "Checked `src/run_pipeline.py` \u2013 it defines an argparse entry point with\
-    \ a functional `--help` (provided by argparse) and a `--version` flag that prints\
-    \ the semantic version string `0.1.0`. Also verified `quickstart.md` exists and\
-    \ contains usage instructions for the pipeline, including the version command."
-  sig: fb02eb4d20446eb77efcc682a872dca44edc47fac202de83c3c6e263929de1f8
+    \ automatic `--help` support and a `--version` flag that prints the semantic version\
+    \ `0.1.0`. Also verified the presence of `quickstart.md`. Both required artifacts\
+    \ exist and contain the needed functionality."
+  sig: d1d289a8384e2efb6e1640f66c213166391d59e28e89e1cf3ef53136c2d579f5
 T002:
   c: true
   h: 86467e017aa6c48ad92eb5220e74d81be53707d27a767943301d1eb1b92387c2
@@ -36,14 +36,13 @@ T003:
   sig: 29168b1b201932806ad1d36dad5f2b1ed85913bc92d9ce13e78f9a8787d9228f
 T004:
   c: true
-  h: b5ea4234cafb4e1a712ec508c17dc588c6503ec850ca3711e103cdfe3723f0d8
-  r: "Checked `src/logger/interaction_logger.py` for millisecond timestamps, iteration,\
-    \ payload, response image path, abort status, and NASA\u2011TLX (`subjective_load`)\
-    \ handling, and verified that `tests/logger/test_interaction_logger.py` (all 7\
-    \ tests) passed, confirming schema validation, FastAPI TestClient integration,\
-    \ and correct logging behavior. The generated `data/logs/interactions.jsonl` file\
-    \ is present and contains valid log entries."
-  sig: 993f128ef8caa4144511f7ce7e2c032fb598c98b7d0dccfa7f8c14b304130fc9
+  h: ccca32982cd3661368c5641a2e50b7c6b0e994b5abf8a8cb7bf31ae0332dd8a5
+  r: "Checked `src/logger/interaction_logger.py` for millisecond timestamps, start/end\
+    \ tracking, iteration, payload, response image path, optional NASA\u2011TLX (`subjective_load`)\
+    \ and abort status logic, and verified that all seven pytest cases in `tests/logger/test_interaction_logger.py`\
+    \ (including schema validation, deterministic logging, abort handling, and subjective\
+    \ load clamping) passed, confirming compliance with the required schema and behavior."
+  sig: 69076d5271fd5331928f1900aa1578f8dc7979323d5c8850fa66220d4df2df4e
 T005:
   c: false
   h: 7ec48b252ec26c31a71d7f04a462e696b7e87c20a32b22940726cc6582468886
@@ -54,13 +53,13 @@ T005:
   sig: 416291b1cb832904b0f0d24d2d87df6b871b49447003d945bc31206ed915c44a
 T006:
   c: true
-  h: dacacb3e0dbbba8c8a9f24986f73c52dd5ea5bbdbaf77843405a23ed93d1e21d
-  r: "Checked `src/simulation/power_analysis.py` (prints \u201CRequired participants\
-    \ (per group): 41\u201D, \u2265\u202F32, exits\u202F0) and `src/simulation/simulate_participants.py`\
-    \ (runs without error, generates `data/logs/interactions.jsonl` >\u202F7\u202F\
-    500 lines) and the passing `tests/logger/test_interaction_logger.py` which confirms\
-    \ all log entries conform to the `interaction_log` schema."
-  sig: 40a8f55cbeb74d5771ebf3dbce99367c0eaddece77cce11b1958365cb14ac214
+  h: c2727832ea73050816dc75a423d3657b7d1a647f0f65261aad7c72c7d3bca330
+  r: "Checked `src/simulation/power_analysis.py` execution (prints \u201CRequired\
+    \ participants (per group): 41\u201D, \u2265\u202F32, exit\u202F0), `src/simulation/simulate_participants.py`\
+    \ run (produces `data/logs/interactions.jsonl` \u2248\u202F6\u202FMB \u2192 >\u202F\
+    7\u202F500 lines) and the passing `tests/logger/test_interaction_logger.py` which\
+    \ validates schema conformity and deterministic logging."
+  sig: ccb7effe55443f035e812d2c4efc9b01bd57fa90576598c30fc9ef99c95345f5
 T007:
   c: true
   h: ecfa33d05812f2aa696498e401e9d2df8e2ea670c84387198a238e438f1a8bfc
