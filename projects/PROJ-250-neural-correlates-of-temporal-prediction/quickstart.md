@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.11 (or newer)
 - Git
-- Access to a Linux environment with at least 7 GB RAM (GitHub Actions free tier works out-of-the-box)
+- Access to a Linux environment with at least 7 GB RAM (GitHub Actions free tier works out‑of‑the‑box)
 
 ## Installation
 
@@ -30,7 +30,7 @@ python code/verify_references.py --stage citations
 python code/download.py --subjects 2
 ```
 
-*If the dataset lacks the required “complex” condition the script aborts with the FR‑008 error message. [UNRESOLVED-CLAIM: c_ce53861e — status=not_enough_info]*
+*If the dataset lacks the required “complex” condition the script aborts with the FR‑008 error message.*
 
 ### 2️⃣ Preprocessing
 ```bash
