@@ -1,15 +1,42 @@
-status: none
-intent: download VRSBench validation dataset and COCO 2017 validation annotations
-  python package dataset
+status: verified
+kind: pypi_package
+ref: pycocotools
+access_python: "import json, os, sys, urllib.request, zipfile, tempfile\nfrom pycocotools.coco\
+  \ import COCO\n# Download COCO 2017 validation annotations zip\nurl = 'http://images.cocodataset.org/annotations/annotations_trainval2017.zip'\n\
+  with tempfile.TemporaryDirectory() as tmp:\n    zip_path = os.path.join(tmp, 'coco_ann.zip')\n\
+  \    urllib.request.urlretrieve(url, zip_path)\n    with zipfile.ZipFile(zip_path,\
+  \ 'r') as zf:\n        ann_file = zf.extract('annotations/instances_val2017.json',\
+  \ path=tmp)\n    coco = COCO(ann_file)\n    ann_ids = coco.getAnnIds()\n    anns\
+  \ = coco.loadAnns(ann_ids)\n    records = []\n    for ann in anns:\n        img\
+  \ = coco.loadImgs(ann['image_id'])[0]\n        bbox = ann['bbox']  # [x, y, width,\
+  \ height]\n        records.append({\n            'image_id': ann['image_id'],\n\
+  \            'image_path': img.get('file_name'),\n            'width': img.get('width'),\n\
+  \            'height': img.get('height'),\n            'bbox_x': bbox[0],\n    \
+  \        'bbox_y': bbox[1],\n            'bbox_width': bbox[2],\n            'bbox_height':\
+  \ bbox[3],\n            'category_id': ann.get('category_id')\n        })\n    print(f\"\
+  RECORDS={len(records)}\")\n    print(\"FIELDS=image_id,image_path,width,height,bbox_x,bbox_y,bbox_width,bbox_height,category_id\"\
+  )"
+record_count: 36781
+sample_fields:
+- image_id
+- image_path
+- width
+- height
+- bbox_x
+- bbox_y
+- bbox_width
+- bbox_height
+- category_id
+field_coverage: 1.0
 required_fields:
 - image_id
 - image_path
 - width
 - height
-- bbox
+- bbox_x
+- bbox_y
+- bbox_width
+- bbox_height
 - category_id
-- area
-- iscrowd
-cache_key: 3e14b4a7939fd2ae58ddc020636cac462f8ddc577fb6d86ace5b2d7611261fd9
-searched_at: '2026-10-25T00:14:33.702102+00:00'
-retry_count: 1
+intent: VRSBench validation set and COCO 2017 validation python package dataset
+cache_key: 7ed2f1da36740796d6262080a20c39bf5c43c6a3a986723c42f6392bd1f487f8

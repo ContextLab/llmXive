@@ -1,34 +1,37 @@
-T000:
-  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
-    exit=1'
-  task: 0b651c3283b7b9d10283200f0ad4d2520ccaab2f3472b7bfd2a08d478167bd65
 T001:
-  task: 4aa063922ef8a1945958b18c359f2d6be073ae5c816671cdaf46580a985c8f14
+  reason: "The repository lacks the required `data/raw/vrsbench.parquet`, `coco_val.parquet`,\
+    \ and `refcoco_plus.parquet` files, and the `EXPECTED_HASHES` in `download.py`\
+    \ are placeholder strings rather than the published SHA\u2011256 checksums. No\
+    \ execution evidence shows the script running successfully or the unit test passing,\
+    \ so the task\u2019s download\u2011and\u2011verify requirement is not satisfied."
+  task: 3b381b8dbbdb7a5457e6481743bf9d50fdb3e48604651ca5b576d0af16490f59
 T002:
-  task: 012ba2c6d9049a3f017172b9a79264eb17bb6b8d37d8ba9a8340bcb6ccce9486
+  reason: 'Requested task execution failed; rerun successfully: code/data/preprocess.py
+    exit=1'
+  task: 5b7a64793866ca9bce5d97129b2855e0c0db456f8087cffe3e88975e322dc1ac
 T003:
-  task: d1366d5a4ce6d32cd4e9c2f01fe7990bd8b330d86e25a311d5806a2057dad642
+  task: 2f903abb01ce8461f6564b789d2fa3c794830b203010cd0a72e3fdc38bc4e83a
 T004:
-  task: 3cf17dab0117b93a918cce40313e18a0c8fc5c6f372ee1506e3d6db46aaff6e2
+  task: 79e554ae5331ae176eff551cdaa8ea4863ceade5b59e322bae4c569da534500c
 T005:
-  task: 57ee87380b356f68f7c9783595f042d1f1f3e1505e05c06eefcf6ea286b63135
+  task: c5705f71c772133953497015e1a396cde093e403cf252bea526b9f3596e2d191
 T006:
-  task: 78135e47118a6eb8d163e7e0655fd93e1650ff389766379069d74b81b3502a21
+  task: 3e27ae5f6c55700f2c57a0a86eb82dd87639c5820821790f56c51862deced8aa
 T007:
-  task: ee018870d4b8d04d3b6eeac9857647b617ef6185be06a0938ebb1e4cfb8ad266
+  task: 28e7e344421558353ecdb69498c6a3291e1d237ec9374d90a8427f017e852d41
 T008:
-  task: 194a71a0aab231bc3dd02ae12c56909c58e7de05e505d780bfbc08880519630f
+  task: 4bdb1c7b96634f20e2763715878b2f165532eae9104b14ada352a2b78991f852
 T009:
-  task: 7ff2acb0642917904a3d68c83cd8b0d15a0a132b9cd7fb0dba7412b7e96e9298
+  task: 61ee59aa4c32f18d97dd2e9ae5eee80f38ca1d890b51b843855b169cf30c619a
 T010:
-  task: 447748a5f2fa00878774db87ba2d5ae3b083fd48108510acf017d70977b08042
+  task: 400d9425d8a579658183c2af887ccee6b26c2efc05e4e582904a4fd92bf06d38
 T011:
-  task: f702bd8532fd9d4c3cec2db4eaf7d08ba18b424007e6bced3365407d36cda04e
+  task: a52356ac53c27cc9bd7564cc5d00be29803621df875e60a91a852eb37d8d84a8
 T012:
-  task: 3c5ac8aabc8680df2b73ef9c07e3da1c81c026a08430b030918d79b19ea05644
+  task: 68904eb3b9e8f1f0825b26902991f5bb68e8993f592e2e739681c4b7b0827231
 T013:
-  task: da24f0a5d156aa43c9921db7ec07863957c564a4bf11ef1b8ef26680fbfba8d2
+  task: e01e600bd4f84123c559a086d9330070f9fd537304feb19fe9f42418c8a0cfc6
 T014:
-  task: b635381887f940f8b48a195615c5df48b60e088b9bc257bbb55f6345db7ef814
+  task: 54fd388b7ddb3408e9f38622eae6fb77cfa1f8871ffc68eb2440d205d8c3d6a7
 T015:
-  task: e967155b494c25367ef3e0f73b677edd729b90fd8cf3a5ae3712fc9ea8a8a73b
+  task: d17b0f7cf9461eb643dba4332e435d94561865d221490fcfb475fa20f47eba4a

@@ -16,7 +16,7 @@ The study follows three research phases. Tasks are expressed as checklist items;
 
 ## Phase 1 – Setup and first end‑to‑end analysis
 
-- [ ] **T002** [FR‑003 · FR‑007 · FR‑008] **Pre‑process raw data → dense / non‑dense subsets & exclusion log**  
+- [ ] **T002** [FR‑003 · FR‑007 · FR‑008] **Pre‑process raw data → dense / non‑dense subsets & exclusion log**   <!-- FAILED-IN-EXECUTION: code/data/preprocess.py exit=1 -->
   - **Path**: `code/data/preprocess.py` → `data/processed/dense_subset.parquet`, `data/processed/non_dense.parquet`, `data/processed/exclusion_log.json`  
   - **Verification**:  
     1. `tests/unit/test_preprocess.py` asserts that the proportion of excluded images ≤ 5 % of the total.  

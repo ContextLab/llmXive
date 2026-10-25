@@ -1,0 +1,9 @@
+T001:
+  c: false
+  h: 0a8e83b1ee60e6936325a4f9f4b0f8da07f725c59a9627813d54896206d7ee9e
+  r: "The repository lacks the required `data/raw/vrsbench.parquet`, `coco_val.parquet`,\
+    \ and `refcoco_plus.parquet` files, and the `EXPECTED_HASHES` in `download.py`\
+    \ are placeholder strings rather than the published SHA\u2011256 checksums. No\
+    \ execution evidence shows the script running successfully or the unit test passing,\
+    \ so the task\u2019s download\u2011and\u2011verify requirement is not satisfied."
+  sig: 99d6995f88a9b6a25cfeff4a53d96020651fc5f2cf9d736f019a35d1be7342db
