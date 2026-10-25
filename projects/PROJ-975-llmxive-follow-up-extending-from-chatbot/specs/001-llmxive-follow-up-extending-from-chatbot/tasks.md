@@ -8,18 +8,18 @@ The list follows the three research phases (setup → full experiment →�
 
 ## Phase 1 – Contracts, synthetic data, and first end‑to‑end run  
 
-- [X] **T001** [S] [US1] **Copy contract schema files verbatim and verify duplication**  
+- [ ] **T001** [S] [US1] **Copy contract schema files verbatim and verify duplication**  
   *Paths*: `contracts/task.schema.yaml`, `contracts/skill.schema.yaml`, `contracts/experiment_log.schema.yaml`, `contracts/execution_log.schema.yaml`, `contracts/metrics.schema.yaml` – each copied **exactly** from the read‑only versions in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`.  
   *Verification*:  
   1. `code/copy_contracts.py` copies the files and computes a SHA‑256 hash for each source and destination file.  
   2. The script writes a mapping `{filename: {src_hash: “…”, dst_hash: “…”}}` to `data/raw/contract_hashes.json`.  
   3. `tests/contract/test_contract_copy.py` loads `contract_hashes.json` and **asserts `src_hash == dst_hash` for every file**, guaranteeing verbatim duplication.  
 
-- [X] **T002** [S] [US1] **Generate synthetic environment**
+- [ ] **T002** [S] [US1] **Generate synthetic environment**
   *Path*: `code/generate_data.py` → produces `data/raw/tasks.json` (500 tasks) and `data/raw/skills.json` (100 skills) with embeddings, overlap levels, fixed seeds, memory‑limit guard, and writes SHA‑256 digests to `data/raw/checksums.json`.  
   *Verification*: `pytest tests/unit/test_generate_data.py` checks record counts, schema validation, overlap statistics, and checksum consistency.  
 
-- [ ] **T003** [S] [US1] **Record checksums in a project‑owned file**  
+- [ ] **T003** [S] [US1] **Record checksums in a project‑owned file**   <!-- FAILED-IN-EXECUTION: code/write_checksums.py exit=1 -->
   *Path*: `data/raw/checksums.json` (populated by **T002**) – stores `{tasks_json_sha256, skills_json_sha256}`.  
   *Action*: `code/write_checksums.py` recomputes the SHA‑256 of `data/raw/tasks.json` and `data/raw/skills.json` and overwrites `data/raw/checksums.json` with the fresh mapping (no `state/` usage).  
   *Verification*: `tests/contract/test_checksums.py` (now under `tests/contract/`) loads the file and confirms the stored digests match the current files’ hashes.  

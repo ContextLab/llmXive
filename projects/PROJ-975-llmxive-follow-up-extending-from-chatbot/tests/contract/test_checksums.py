@@ -5,10 +5,17 @@ source files `tasks.json` and `skills.json`.
 """
 import json
 import pytest
+import sys
+import os
+from pathlib import Path
 from llmxive_toolkit import paths
 
-# Import the script under test.
-from write_checksums import get_sha256, main
+# Ensure project root is in path for imports from code/
+root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(root))
+
+# Import the script under test from the code package.
+from code.write_checksums import get_sha256, main
 
 @pytest.fixture(scope="module")
 def recomputed_checksums():

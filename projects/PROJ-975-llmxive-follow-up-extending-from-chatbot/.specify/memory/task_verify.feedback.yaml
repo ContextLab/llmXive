@@ -1,12 +1,26 @@
 T001:
+  reason: "The contract schema files are present and their SHA\u2011256 hashes match\
+    \ the source files (as shown in `data/raw/contract_hashes.json` and the contract\
+    \ files themselves). The copy script `code/copy_contracts.py` correctly writes\
+    \ this mapping. However, the required test `tests/contract/test_contract_copy.py`\
+    \ was not inspected, so we have no evidence that it actually loads `contract_hashes.json`\
+    \ and asserts `src_hash == dst_hash` for every file as the task specification\
+    \ demands. The missing verification means the task\u2019s full requirement is\
+    \ not demonstrably satisfied."
   task: 902baa1dd56af83fb991547ae56b3da9fe5f4f69d2f4abf63b4732c96d8cf897
 T002:
+  reason: "Checked `code/generate_data.py`, the generated JSON files (`data/raw/tasks.json`,\
+    \ `data/raw/skills.json`, `data/raw/checksums.json`), and the unit\u2011test suite\
+    \ `tests/unit/test_generate_data.py`. While the script creates the required files\
+    \ with the correct record counts, embeddings, overlap handling, deterministic\
+    \ seeds, and a memory\u2011limit guard, the provided tests do **not** verify the\
+    \ SHA\u2011256 checksums (or schema validation) as the task specification demands.\
+    \ Adding tests that read `checksums.json` and compare the stored digests to the\
+    \ actual file hashes (and optionally validate JSON against t"
   task: 1f6ac80f52208f850eead5d57567c37dac4c62c336c28de2c64cea0fbc36aedf
 T003:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
-    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
-    state/ and derives artifact hashes at verification time. Re-scope the step to
-    write only project-owned outputs.'
+  reason: 'Requested task execution failed; rerun successfully: code/write_checksums.py
+    exit=1'
   task: e9578efb5c067893cb5fc98262ac1ef8613aa1c7438138191240341ae5a309bd
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/generate_data.py

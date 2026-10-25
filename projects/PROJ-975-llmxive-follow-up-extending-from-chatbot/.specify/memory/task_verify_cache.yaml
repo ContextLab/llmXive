@@ -1,20 +1,27 @@
 T001:
-  c: true
-  h: 861c7367b9d7c0f3f2f7b1b492ef174b0adef3fa5fe16507787ee52decbbb8f1
-  r: "Checked the five contract schema files in `contracts/` (all present with correct\
-    \ SHA\u2011256 hashes), the `code/copy_contracts.py` script, the generated `data/raw/contract_hashes.json`\
-    \ showing matching source and destination hashes, and the passing test `tests/contract/test_contract_copy.py`.\
-    \ All requirements are met."
-  sig: db7b07ea1d0c5e414e1d71671d39472ee26b2fe90782df2b6d9c4adf16c30dd9
+  c: false
+  h: 091c7adc3133176c276a20e7ba5a59312090aef3d5c6adfe8893b39a963b3296
+  r: "The contract schema files are present and their SHA\u2011256 hashes match the\
+    \ source files (as shown in `data/raw/contract_hashes.json` and the contract files\
+    \ themselves). The copy script `code/copy_contracts.py` correctly writes this\
+    \ mapping. However, the required test `tests/contract/test_contract_copy.py` was\
+    \ not inspected, so we have no evidence that it actually loads `contract_hashes.json`\
+    \ and asserts `src_hash == dst_hash` for every file as the task specification\
+    \ demands. The missing verification means the task\u2019s full requirement is\
+    \ not demonstrably satisfied."
+  sig: 9ec647b0ad2520594d1f1cc2ecd76138d0043a9a33c7f2afc66651c4072d8efa
 T002:
-  c: true
-  h: 5be5196c7ab36ac5d080e4fb7edcda45171996a9cc10401567571c292e547e9d
-  r: "Checked `code/generate_data.py` (produces 500 tasks, 100 skills, embeddings,\
-    \ overlap handling, memory guard, and writes correct SHA\u2011256 checksums) and\
-    \ the generated files `data/raw/tasks.json`, `data/raw/skills.json`, `data/raw/checksums.json`\
-    \ together with the full suite `tests/unit/test_generate_data.py`, all of which\
-    \ align with the task\u2019s specifications."
-  sig: 9799e577fa0ede59aa45d79f7029b7126dfd83c5ffeb19b2f2796407236efddb
+  c: false
+  h: 0d0a623d46fb1f21617386e327f083a780c740bea6cd29eab6f72657f16045f2
+  r: "Checked `code/generate_data.py`, the generated JSON files (`data/raw/tasks.json`,\
+    \ `data/raw/skills.json`, `data/raw/checksums.json`), and the unit\u2011test suite\
+    \ `tests/unit/test_generate_data.py`. While the script creates the required files\
+    \ with the correct record counts, embeddings, overlap handling, deterministic\
+    \ seeds, and a memory\u2011limit guard, the provided tests do **not** verify the\
+    \ SHA\u2011256 checksums (or schema validation) as the task specification demands.\
+    \ Adding tests that read `checksums.json` and compare the stored digests to the\
+    \ actual file hashes (and optionally validate JSON against t"
+  sig: 266c678fa87bc21909648ecece56fcc0877e670b7d21146a8a27414693a2cf4f
 T005:
   c: false
   h: 5a208cf74e21e12578dc9784d557f7ab5ef867d97b2d7c2f35caedaa09734584

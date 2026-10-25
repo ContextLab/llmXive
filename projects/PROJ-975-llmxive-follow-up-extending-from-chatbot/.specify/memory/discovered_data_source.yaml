@@ -1,18 +1,13 @@
 status: none
-intent: synthetic multi-step task dataset python package skills library generation
-  python package dataset
+intent: synthetic multi-step task and skill library dataset python package
 required_fields:
 - task_id
-- ground_truth_solution_path
-- steps
-- step_index
+- task_description
+- ground_truth_solution (ordered list of skill_ids)
 - skill_id
 - skill_name
 - skill_description
 - skill_embedding_vector
-- library_size
-- overlap_level
-- semantic_density
-cache_key: 935d37ebf2a03fa54695abc368f645ab55b3993452d0af6e97cd10374b5ded76
-searched_at: '2026-10-25T22:40:34.496421+00:00'
+cache_key: 3747cfbc9bf855e074eb3d758ebfe0470660d3def9e8d5dcf438f4971c90731f
+searched_at: '2026-10-25T23:09:48.726957+00:00'
 retry_count: 1
