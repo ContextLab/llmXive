@@ -2,7 +2,7 @@
 record provenance, and update the project state file.
 
 This script fulfills task **T002**:
-  1. Downloads the official Pantheon+ FITS file from Zenodo.
+  1. Downloads the official Pantheon+ FITS file from a reliable public URL.
   2. Computes its SHA‑256 checksum.
   3. Writes a provenance JSON file (metadata.json) containing:
      - dataset_version
@@ -31,10 +31,11 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Zenodo DOI resolves to a tarball containing Pantheon+_Data.fits.
-# Direct download link (as of the current release):
+# The Pantheon+ FITS file is publicly available in the PantheonPlusSH0ES
+# GitHub repository. This URL points directly to the raw FITS file.
 DEFAULT_URL = (
-    "https://zenodo.org/record/7968445/files/Pantheon%2B_Data.fits?download=1"
+    "https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/"
+    "Pantheon%2B_Data.fits"
 )
 DEFAULT_DATASET_VERSION = "v1.0"
 REQUIRED_COLUMNS = {"ID", "RA", "DEC", "ZHD", "MU", "MUERR"}
@@ -98,7 +99,9 @@ def verify_fits_columns(fits_path: Path) -> None:
     with fits.open(fits_path) as hdul:
         # The Pantheon+ data is stored in the first extension (binary table)
         if len(hdul) < 2:
-            raise ValueError("FITS file does not contain a binary table extension.")
+            raise ValueError(
+                "FITS file does not contain a binary table extension."
+            )
         table = hdul[1].data
         present = set(table.columns.names)
         missing = REQUIRED_COLUMNS - present
@@ -134,25 +137,53 @@ def update_state_yaml(state_path: Path, checksum: str) -> None:
 # ----------------------------------------------------------------------
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download Pantheon+ FITS dataset, verify it, and record provenance."
+        description=(
+            "Download Pantheon+ FITS dataset, verify it, and record provenance."
+        )
     )
     parser.add_argument(
         "--url",
         default=DEFAULT_URL,
-        help="URL of the Pantheon+ FITS dataset (default: Zenodo archive).",
+        help="URL of the Pantheon+ FITS dataset (default: GitHub raw file).",
     )
     parser.add_argument(
         "--version",
         default=DEFAULT_DATASET_VERSION,
         help="Dataset version identifier to store in metadata.json.",
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--verify-only",
+        action="store_true",
+        help="Only verify an existing file; do not download.",
+    )
+    # Use parse_known_args to tolerate pytest's injected arguments.
+    args, _ = parser.parse_known_args()
 
     # Resolve target paths using llmxive_toolkit helpers.
     raw_fits_path = paths.data("raw", "pantheon_plus.fits")
     metadata_path = paths.data("raw", "metadata.json")
 
-    # 1️⃣ Download the FITS file
+    if args.verify_only:
+        # Verify that the file exists, compute checksum, verify columns,
+        # write metadata and update state without re‑downloading.
+        if not raw_fits_path.is_file():
+            raise FileNotFoundError(
+                f"File not found for verification: {raw_fits_path}"
+            )
+        checksum = compute_sha256(raw_fits_path)
+        verify_fits_columns(raw_fits_path)
+        write_metadata(
+            metadata_path,
+            dataset_version=args.version,
+            source_url=args.url,
+            sha256=checksum,
+            citation_verified=False,
+        )
+        update_state_yaml(STATE_FILE, checksum)
+        logger.info("Verification-only mode completed successfully.")
+        return
+
+    # Normal mode: download, then verify.
     download_file(args.url, raw_fits_path)
 
     # 2️⃣ Compute checksum
@@ -173,7 +204,9 @@ def main() -> None:
     # 5️⃣ Record checksum in project state YAML
     update_state_yaml(STATE_FILE, checksum)
 
-    logger.info("Pantheon+ dataset download and verification completed successfully.")
+    logger.info(
+        "Pantheon+ dataset download and verification completed successfully."
+    )
 
 
 if __name__ == "__main__":

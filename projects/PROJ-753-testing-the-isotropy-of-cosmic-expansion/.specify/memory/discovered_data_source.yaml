@@ -1,12 +1,12 @@
 status: none
-intent: Pantheon+ Type Ia Supernova dataset download Zenodo python package dataset
+intent: Pantheon+ Type Ia supernova catalog download python package dataset
 required_fields:
-- name
+- supernova_name
 - ra
 - dec
 - redshift
 - distance_modulus
 - distance_modulus_error
-cache_key: 27a80bfce2a153669ac32c300e1a47bf9846eea176271bec276eefda65fdf1f1
-searched_at: '2026-10-25T15:23:26.324359+00:00'
+cache_key: 73fbdd508da87989ff36708a98c3806cf171e7c56bb662956d03b4f120ae624d
+searched_at: '2026-10-25T15:24:59.002460+00:00'
 retry_count: 1

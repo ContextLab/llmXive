@@ -12,37 +12,25 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…p="Run the pipeline on a synthetic dataset (placeholder)",     )…”
 - code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…of dipole to inject into synthetic data",     )     args = parse…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/download_pantheon.py   # writes data/raw/pantheon_plus.dat and records SHA‑256`
-  - script usage: `download_pantheon.py [-h] [--url URL] [--version VERSION]`
-  - argparse error: `download_pantheon.py: error: unrecognized arguments: # writes data/raw/pantheon_plus.dat and records SHA‑256`
-- run-book command: `python code/download_pantheon.py --verify-only`
-  - script usage: `download_pantheon.py [-h] [--url URL] [--version VERSION]`
-  - argparse error: `download_pantheon.py: error: unrecognized arguments: --verify-only`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis.py: self-declared fabricated metric — “…nd: {residuals_path}")      # Placeholder results – real values will be comput…”; code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…p="Run the pipeline on a synthetic dataset (placeholder)",     )…”; code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…of dipole to inject into synthetic data",     )     args = parse…”; 5 command(s) failed: python code/download_pantheon.py   # writes data/raw/pantheon_plus.dat and records SHA‑256 (rc=2); python code/download_pantheon.py --verify-only (rc=2); python code/power_analysis.py (rc=1); 2 declared deliverable(s) absent: data/processed/residuals.csv; data/raw/metadata.json
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis.py: self-declared fabricated metric — “…nd: {residuals_path}")      # Placeholder results – real values will be comput…”; code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…p="Run the pipeline on a synthetic dataset (placeholder)",     )…”; code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…of dipole to inject into synthetic data",     )     args = parse…”; 5 command(s) failed: python code/download_pantheon.py   # writes data/raw/pantheon_plus.dat and records SHA‑256 (rc=1); python code/download_pantheon.py --verify-only (rc=1); python code/power_analysis.py (rc=1); 2 declared deliverable(s) absent: data/processed/residuals.csv; data/raw/metadata.json
 
 ## Failing / missing run-book commands
 
-- python code/download_pantheon.py   # writes data/raw/pantheon_plus.dat and records SHA‑256 -> rc=2
+- python code/download_pantheon.py   # writes data/raw/pantheon_plus.dat and records SHA‑256 -> rc=1
 
-usage: download_pantheon.py [-h] [--url URL] [--version VERSION]
-download_pantheon.py: error: unrecognized arguments: # writes data/raw/pantheon_plus.dat and records SHA‑256
+2026-10-25 15:23:59,938 INFO __main__: Downloading Pantheon+ dataset from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data.fits
+2026-10-25 15:24:00,002 ERROR __main__: Pantheon+ download failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data.fits
 
-- python code/download_pantheon.py --verify-only -> rc=2
+- python code/download_pantheon.py --verify-only -> rc=1
 
-usage: download_pantheon.py [-h] [--url URL] [--version VERSION]
-download_pantheon.py: error: unrecognized arguments: --verify-only
+2026-10-25 15:24:00,265 ERROR __main__: Pantheon+ download failed: File not found for verification: /home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/data/raw/pantheon_plus.fits
 
 - python code/power_analysis.py -> rc=1
 
-2026-10-25 15:22:40,604 INFO __main__: Downloading Pantheon+ dataset from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
-2026-10-25 15:22:40,750 ERROR __main__: Power analysis failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
+2026-10-25 15:24:00,586 INFO __main__: Downloading Pantheon+ dataset from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
+2026-10-25 15:24:00,704 ERROR __main__: Power analysis failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
 
 - python code/analysis.py -> rc=1
 
