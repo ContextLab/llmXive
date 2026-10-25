@@ -58,7 +58,7 @@
 - **FR-003**: The system MUST filter the input dataset to create a **dense‑scene subset** defined as images containing **> 5 overlapping bounding‑box pairs** (pairwise IoU > 0.10). It MUST also define a **non‑dense subset** as all remaining images (≤ 5 overlapping pairs). (See US‑2)
 - **FR-004**: The system MUST execute a **two‑way mixed ANOVA** (within‑subject factor: sparsity level; between‑subject factor: scene density) to assess the interaction effect on mIoU. If normality assumptions are violated, it MUST fall back to a **Friedman aligned‑rank test**. The analysis MUST report the p‑value. (See US‑2, SC‑002)
 - **FR-005**: The system MUST implement gradient‑based attribution (e.g., Grad‑CAM or attention rollout) to generate visual heatmaps of feature importance for selected failure cases. (See US‑3)
-- **FR-006**: The system MUST enforce a CPU‑only execution mode with `torch.set_num_threads(2)` and memory‑mapped loading to ensure compatibility with the 2‑core/7 GB RAM constraint. (See US‑1)
+- **FR-006**: The system MUST enforce a CPU‑only execution mode with `torch.set_num_threads(2)` and memory‑mapped loading to ensure compatibility with the 2‑core/Limited RAM constraint. (See US‑1)
 - **FR-007**: The system MUST flag and exclude images whose ground‑truth boxes are **ambiguous** (zero‑area or IoU > 0.95 with another box) from all mIoU calculations. (See Edge Cases)
 - **FR-008**: For **low‑density images** (≤ 5 overlapping pairs), the system MUST still compute mIoU but MUST NOT compute or report the ambiguity‑resolution failure metric; SC‑007 requires reporting this as “N/A”. (See Edge Cases)
 - **FR-009**: When the sparsity knob is set to **1 patch**, the system MUST optionally execute this run, record the resulting mIoU, and treat it as the lower bound of the degradation curve. (See Edge Cases)
@@ -80,7 +80,7 @@
 - **SC-002**: The p‑value from the two‑way mixed ANOVA (or its non‑parametric fallback) for the interaction between sparsity and scene density must be reported. (See FR‑004)
 - **SC-003**: The correlation between attention window size and mIoU for both dense and non‑dense subsets must be measured (Pearson for linear trends, Spearman if non‑linear) and the coefficients reported. (See US‑2)
 - **SC-004**: For the attribution analysis, the system must compute the **global‑context activation proportion** (mass on tokens labelled “global‑context”) for both failure and success groups and report the absolute difference. (See FR‑005)
-- **SC-005**: The total inference latency per image must be measured and the overall batch run must complete within **6 hours** on the specified 2‑core CPU. (See US‑1)
+- **SC-005**: The total inference latency per image must be measured and the overall batch run must complete within **6 hours** on the specified Multi‑core CPU. (See US‑1)
 - **SC-006**: The number of images excluded due to ambiguous ground‑truth (FR‑007) must be reported and must not exceed **5 %** of the total dataset. (See Edge Cases)
 - **SC-007**: For low‑density images, the ambiguity‑resolution failure metric must be reported as **“N/A”**, and this reporting must be verified. (See Edge Cases)
 

@@ -1,19 +1,14 @@
 status: none
-intent: VRSBench validation split and COCO 2017 bounding boxes downloadable via Hugging
-  Face python package dataset
+intent: VRSBench validation dataset and COCO 2017 bounding boxes downloadable python
+  package dataset
 required_fields:
 - image_id
 - file_name
 - width
 - height
-- bbox_xmin
-- bbox_ymin
-- bbox_width
-- bbox_height
+- bbox
 - category_id
-- area
-- iscrowd
-- split
-cache_key: 5f01b94f33ff5c61611842c783599ce64759ebb0bf0ca70f1ecfbc3f4fb6ac2e
-searched_at: '2026-10-25T06:11:35.941565+00:00'
+- category_name
+cache_key: b32394e6475ed7dd34cba66491ff5e4cb28f5c4dd6779d881433ddf3fe865fcf
+searched_at: '2026-10-25T06:14:25.012959+00:00'
 retry_count: 1

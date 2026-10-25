@@ -38,12 +38,14 @@ python -m src.cli.run_experiment \
 - `--datasets` selects the verified datasets (VRSBench & COCO validation).  
 - `--sparsity-grid` defines the windows to evaluate; add `1` to include the optional run.  
 - `--run-one-patch` toggles FR‑009 (optional 1‑patch run).  
-- All intermediate artifacts are written under `data/` with content‑hash filenames.
+- The script **randomizes** the order of sparsity configurations using a fixed seed, eliminating warm‑up bias.  
+- After inference, the script automatically **consolidates** all `inference_*.parquet` files into `data/results/master_inference.parquet` before generating figures and tables.
 
 ## 5. (Optional) Perform the ±8‑patch sensitivity sweep
 If a tipping point is detected, the script automatically runs the sweep. To force it manually:
 ```bash
 python -m src.cli.run_experiment \
+    --datasets vrsbench coco_val \
     --sparsity-grid global 64 32 16 \
     --sweep-around-tipping true
 ```
@@ -57,13 +59,14 @@ All result files must satisfy `contracts/inference_results.schema.yaml`. Failure
 ## 7. Inspect results
 - `docs/results.md` – markdown summary ready for the paper pipeline.  
 - `figures/` – PNG files for degradation curve, latency, attribution examples.  
-- `tables/` – CSV files for ANOVA, correlation, tipping‑point.
+- `tables/` – CSV files for ANOVA, trend test, tipping‑point.
+
+All tables/figures reference the consolidated `master_inference.parquet`, satisfying the Single Source of Truth principle.
 
 ## 8. Clean up (optional)
 ```bash
 rm -rf data/raw/* data/processed/* data/results/* data/analysis/*
 ```
 
-**Note**: The entire run completes in ≤ 6 hours on the free‑tier GitHub Actions CPU runner (empirically on the order of several hours for the full grid). Adjust `--batch-size` if you encounter memory pressure.
+**Note**: The entire run completes in ≤ 6 hours on the free‑tier GitHub Actions CPU runner (empirically on the order of several hours for the full grid). If you encounter memory pressure, lower the batch size via `--batch-size 4`.
 
----
