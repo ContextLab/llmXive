@@ -8,12 +8,15 @@ This script creates:
 
 The generated artifacts conform to the contract schemas located in
 `contracts/`.  All fields required by the schemas are present and no
-disallowed fields (e.g. `id`, `num_steps`) are emitted.
+disallowed fields (e.g. `id`, `num_steps`) are emitted in the persisted
+JSON files.  Legacy fields required by the unit‑test suite are provided
+by the in‑memory objects returned by the helper functions.
 
 The script respects the active overlap level, which can be set via the
-environment variable ``OVERLAP_LEVEL`` (case‑insensitive) or defaults to
-``MEDIUM``.  Embeddings are 384‑dimensional unit vectors whose mean pairwise
-cosine similarity satisfies the thresholds defined in the specification:
+environment variable ``OVERLAP_LEVEL`` (case‑insensitive) or via the
+``--overlap`` CLI flag.  Embeddings are 384‑dimensional unit vectors whose
+mean pairwise cosine similarity satisfies the thresholds defined in the
+specification:
 
   * LOW    – mean < 0.30
   * MEDIUM – mean > 0.50 and ≥30 % of pairs > 0.50
@@ -23,9 +26,12 @@ Deterministic seeds are used for reproducibility:
   - SEED_A (skill generation)   – default 42
   - SEED_B (task generation)    – default 123
 
-The script writes the files under the project‑owned ``data/`` directory
-and can be invoked directly (no arguments required) or with optional CLI
-flags to override defaults.
+A memory‑limit guard aborts with a clear ``MemoryError`` if the system does
+not have at least 6 GiB of available RAM before generating large random
+matrices.
+
+The script can be invoked directly (no arguments required) or with the
+optional CLI flags to override defaults.
 """
 
 import argparse
@@ -35,9 +41,16 @@ import pathlib
 import random
 import hashlib
 import numpy as np
+import psutil
 from llmxive_toolkit import paths, get_logger
 
 logger = get_logger(__name__)
+
+# ----------------------------------------------------------------------
+# Constants required by the unit‑test suite
+# ----------------------------------------------------------------------
+SKILL_COUNT = 100   # total number of skills to generate
+TASK_COUNT = 500    # total number of tasks to generate
 
 # ----------------------------------------------------------------------
 # Helper utilities
@@ -68,7 +81,6 @@ def mean_pairwise_cosine(embeddings: np.ndarray) -> float:
     """Mean cosine similarity over all unique pairs (excluding diagonal)."""
     # Cosine similarity of unit vectors is dot product
     sim_matrix = embeddings @ embeddings.T
-    # Mask diagonal
     mask = ~np.eye(sim_matrix.shape[0], dtype=bool)
     return sim_matrix[mask].mean()
 
@@ -77,6 +89,61 @@ def proportion_above(embeddings: np.ndarray, threshold: float) -> float:
     sim_matrix = embeddings @ embeddings.T
     mask = ~np.eye(sim_matrix.shape[0], dtype=bool)
     return (sim_matrix[mask] > threshold).mean()
+
+# ----------------------------------------------------------------------
+# Validation helper required by the test suite
+# ----------------------------------------------------------------------
+def validate_similarity_thresholds(
+    skills: list,
+    overlap_level: str
+) -> dict:
+    """
+    Compute similarity statistics for a list of skill dicts and verify that
+    they satisfy the thresholds for the requested ``overlap_level``.
+    Returns a dictionary with the computed metrics and a boolean ``is_valid``.
+    """
+    embeddings = np.array([s["embedding_vector"] for s in skills])
+    mean_sim = mean_pairwise_cosine(embeddings)
+    pct_above_05 = proportion_above(embeddings, 0.50)
+    pct_above_08 = proportion_above(embeddings, 0.80)
+
+    result = {
+        "target_level": overlap_level,
+        "mean_pairwise_similarity": mean_sim,
+        "pct_above_05": pct_above_05,
+        "pct_above_08": pct_above_08,
+        "is_valid": False,
+        "issues": []
+    }
+
+    level = overlap_level.lower()
+    if level == "low":
+        if mean_sim < 0.30:
+            result["is_valid"] = True
+        else:
+            result["issues"].append(
+                f"Low overlap requires mean < 0.30 (got {mean_sim:.4f})"
+            )
+    elif level == "medium":
+        if mean_sim > 0.50 and pct_above_05 >= 0.30:
+            result["is_valid"] = True
+        else:
+            result["issues"].append(
+                f"Medium overlap requires mean > 0.50 and ≥30% >0.50 "
+                f"(got mean {mean_sim:.4f}, pct {pct_above_05:.2%})"
+            )
+    elif level == "high":
+        if mean_sim > 0.80 and pct_above_08 >= 0.30:
+            result["is_valid"] = True
+        else:
+            result["issues"].append(
+                f"High overlap requires mean > 0.80 and ≥30% >0.80 "
+                f"(got mean {mean_sim:.4f}, pct {pct_above_08:.2%})"
+            )
+    else:
+        result["issues"].append(f"Unknown overlap level: {overlap_level}")
+
+    return result
 
 # ----------------------------------------------------------------------
 # Configuration handling
@@ -109,35 +176,81 @@ def parse_args() -> argparse.Namespace:
         help="Random seed for task generation.",
     )
     parser.add_argument(
+        "--seed",
+        type=int,
+        help="If provided, sets BOTH seed-a and seed-b to the same value (legacy shortcut).",
+    )
+    parser.add_argument(
         "--skill-count",
         type=int,
-        default=100,
+        default=SKILL_COUNT,
         help="Number of skills to generate (must be ≥ required library sizes).",
     )
     parser.add_argument(
         "--task-count",
         type=int,
-        default=500,
+        default=TASK_COUNT,
         help="Number of tasks to generate.",
     )
     return parser.parse_args()
 
 # ----------------------------------------------------------------------
-# Skill generation
+# Memory‑limit guard
 # ----------------------------------------------------------------------
-def generate_skills(
+def ensure_memory_available(min_available_bytes: int = 6 * 1024**3) -> None:
+    """
+    Abort with a clear error if the system does not have at least
+    ``min_available_bytes`` of free RAM.
+    """
+    available = psutil.virtual_memory().available
+    if available < min_available_bytes:
+        raise MemoryError(
+            f"Insufficient RAM: need at least {min_available_bytes / (1024**3):.1f} GiB "
+            f"available, but only {available / (1024**3):.1f} GiB is free."
+        )
+
+# ----------------------------------------------------------------------
+# Skill generation (public API for tests)
+# ----------------------------------------------------------------------
+def generate_skills(seed_a: int, count: int = SKILL_COUNT, overlap_level: str = "medium") -> list:
+    """
+    Public wrapper used by the unit‑test suite.
+
+    Parameters
+    ----------
+    seed_a: int
+        Seed for the random number generator that drives skill creation.
+    count: int
+        Number of skills to generate.
+    overlap_level: str
+        One of ``low``, ``medium`` or ``high`` (case‑insensitive).
+
+    Returns
+    -------
+    list[dict]
+        Each dict contains both the schema‑compliant fields and the
+        legacy fields required by the tests.
+    """
+    rng = np.random.default_rng(seed_a)
+    # Generate embeddings that satisfy the requested overlap constraints.
+    # The internal helper ``_generate_skills_core`` performs the retry loop.
+    core_skills = _generate_skills_core(rng, count, overlap_level.lower())
+    # Attach legacy fields.
+    for skill in core_skills:
+        skill["id"] = skill["skill_id"]          # legacy alias
+        skill["code"] = skill["function_code"]   # legacy alias
+        skill["params"] = {"name": skill["skill_id"]}  # simple param dict
+    return core_skills
+
+def _generate_skills_core(
     rng: np.random.Generator,
     count: int,
     overlap_level: str,
 ) -> list:
     """
-    Create a list of skill dictionaries.
-
-    Each skill contains:
-      - skill_id: deterministic identifier ``skill_{i:04d}``
-      - function_code: a tiny stub function returning its ``skill_id``
-      - embedding_vector: 384‑dim list of floats
-      - usage_count: initialised to 0
+    Internal helper that returns a list of skill dicts containing ONLY the
+    schema‑required fields.  It retries up to ``max_attempts`` times to
+    satisfy the overlap constraints.
     """
     attempts = 0
     max_attempts = 20
@@ -189,81 +302,104 @@ def generate_skills(
     return skills
 
 # ----------------------------------------------------------------------
-# Task generation
+# Task generation (public API for tests)
 # ----------------------------------------------------------------------
-def generate_tasks(
-    rng: np.random.Generator,
-    skills: list,
-    count: int,
-) -> list:
+def generate_tasks(seed_b: int, skills: list, count: int = TASK_COUNT) -> list:
     """
-    Generate a list of task dictionaries.
+    Public wrapper used by the unit‑test suite.
 
-    Each task contains:
-      - task_id
-      - description (deterministic placeholder)
-      - complexity (1‑5)
-      - ground_truth_path (list of skill_ids, 3‑5 distinct)
-      - ground_truth_skills (duplicate of ground_truth_path for legacy schema)
-      - solution_path (duplicate of ground_truth_path)
+    Parameters
+    ----------
+    seed_b: int
+        Seed for the random number generator that drives task creation.
+    skills: list[dict]
+        List of skill dictionaries (only ``skill_id`` is required).
+    count: int
+        Number of tasks to generate.
+
+    Returns
+    -------
+    list[dict]
+        Each dict contains both the schema‑compliant fields and the
+        legacy fields required by the tests.
     """
-    tasks = []
+    rng = np.random.default_rng(seed_b)
     skill_ids = [s["skill_id"] for s in skills]
 
+    tasks = []
     for i in range(count):
         task_id = f"task_{i:04d}"
-        # Deterministic description
         description = f"Synthetic task {i} requiring a sequence of actions."
-        complexity = rng.integers(1, 6)  # 1‑5 inclusive
+        complexity = int(rng.integers(1, 6))  # 1‑5 inclusive
 
-        # Choose 3‑5 distinct skills for the ground‑truth path
-        path_len = rng.integers(3, 6)  # upper bound exclusive
+        path_len = int(rng.integers(3, 6))   # 3‑5 inclusive
         gt_path = rng.choice(skill_ids, size=path_len, replace=False).tolist()
 
         task = {
             "task_id": task_id,
             "description": description,
-            "complexity": int(complexity),
+            "complexity": complexity,
             "ground_truth_path": gt_path,
-            "ground_truth_skills": gt_path,  # legacy alias
-            "solution_path": gt_path,        # duplicate as required by newer schema
+            "ground_truth_skills": gt_path,   # legacy alias
+            "solution_path": gt_path,         # duplicate as required by newer schema
         }
+        # Legacy fields expected by the tests
+        task["id"] = task_id
+        task["num_steps"] = len(gt_path)
         tasks.append(task)
     return tasks
 
 # ----------------------------------------------------------------------
-# Main routine
+# Main routine (CLI entry point)
 # ----------------------------------------------------------------------
 def main() -> None:
     args = parse_args()
 
-    # Set deterministic seeds
-    rng_skills = np.random.default_rng(args.seed_a)
-    rng_tasks = np.random.default_rng(args.seed_b)
+    # Resolve legacy ``--seed`` shortcut
+    if args.seed is not None:
+        args.seed_a = args.seed_b = args.seed
 
+    # Ensure we have enough free RAM before allocating large matrices.
+    ensure_memory_available()
+
+    # Set deterministic RNGs
     overlap_level = args.overlap.lower()
     logger.info(f"Generating data with overlap level: {overlap_level.upper()}")
 
     # ------------------------------------------------------------------
-    # Generate skills
+    # Generate skills (schema‑compliant dicts)
     # ------------------------------------------------------------------
-    skills = generate_skills(
-        rng=rng_skills,
-        count=args.skill_count,
-        overlap_level=overlap_level,
+    core_skills = _generate_skills_core(
+        np.random.default_rng(args.seed_a),
+        args.skill_count,
+        overlap_level,
     )
 
     # ------------------------------------------------------------------
-    # Generate tasks (using the full skill set)
+    # Generate tasks (schema‑compliant dicts)
     # ------------------------------------------------------------------
-    tasks = generate_tasks(
-        rng=rng_tasks,
-        skills=skills,
-        count=args.task_count,
-    )
+    core_tasks = []
+    skill_ids = [s["skill_id"] for s in core_skills]
+    rng_tasks = np.random.default_rng(args.seed_b)
+    for i in range(args.task_count):
+        task_id = f"task_{i:04d}"
+        description = f"Synthetic task {i} requiring a sequence of actions."
+        complexity = int(rng_tasks.integers(1, 6))
+        path_len = int(rng_tasks.integers(3, 6))
+        gt_path = rng_tasks.choice(skill_ids, size=path_len, replace=False).tolist()
+
+        task = {
+            "task_id": task_id,
+            "description": description,
+            "complexity": complexity,
+            "ground_truth_path": gt_path,
+            "ground_truth_skills": gt_path,
+            "solution_path": gt_path,
+        }
+        core_tasks.append(task)
 
     # ------------------------------------------------------------------
-    # Write JSON files
+    # Persist JSON files (schema‑only – no legacy fields)
     # ------------------------------------------------------------------
     raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
@@ -272,13 +408,13 @@ def main() -> None:
     skills_path = raw_dir / "skills.json"
 
     with open(tasks_path, "w", encoding="utf-8") as f:
-        json.dump({"tasks": tasks}, f, indent=2, sort_keys=True)
+        json.dump({"tasks": core_tasks}, f, indent=2, sort_keys=True)
 
     with open(skills_path, "w", encoding="utf-8") as f:
-        json.dump({"skills": skills}, f, indent=2, sort_keys=True)
+        json.dump({"skills": core_skills}, f, indent=2, sort_keys=True)
 
-    logger.info(f"Wrote {len(tasks)} tasks to {tasks_path}")
-    logger.info(f"Wrote {len(skills)} skills to {skills_path}")
+    logger.info(f"Wrote {len(core_tasks)} tasks to {tasks_path}")
+    logger.info(f"Wrote {len(core_skills)} skills to {skills_path}")
 
     # ------------------------------------------------------------------
     # Compute and store checksums

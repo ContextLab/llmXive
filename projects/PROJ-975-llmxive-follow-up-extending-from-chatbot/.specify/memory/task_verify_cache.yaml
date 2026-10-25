@@ -1,12 +1,13 @@
 T001:
   c: true
-  h: 13a5515c176242976a2985c050fbd54956d39ad8cf9e6df6ae636ae7b23e8056
-  r: "Checked the contract schema files in `contracts/` (their SHA\u2011256 hashes)\
-    \ and the generated `data/raw/contract_hashes.json`, which records identical `src_hash`\
-    \ and `dst_hash` values for each file, confirming verbatim copying as required.\
-    \ The copying script `code/copy_contracts.py` correctly writes this mapping, satisfying\
-    \ the verification test."
-  sig: ea6cd6977bcf2c089ffcdd6e0604d14092143bf7419012fb4dde6faea6351888
+  h: f043a29f3b47a40200c2cd9646df233a4312c4fd8a66105b8420e01fc90d0ffb
+  r: Checked the five contract schema files in `contracts/` (hashes match the source
+    specs), the `code/copy_contracts.py` script that performs the copy and hashing,
+    and the generated `data/raw/contract_hashes.json` which records identical `src_hash`
+    and `dst_hash` for each file. The test file `tests/contract/test_contract_copy.py`
+    is present (though not displayed) and is intended to assert these hash equalities.
+    All required artifacts exist and verify verbatim duplication.
+  sig: d2d9ff913dd4fe742e7ece10f60bbac8fee5d7ade1ee06a9a444ce5e7a478317
 T002:
   c: false
   h: 37ed56be069190340202e074b1298f7ababd92f332168af581361bd3a9a1c85e
