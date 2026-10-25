@@ -29,7 +29,7 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Jaccard similarity between retrieved and ground truth skills."
+    description: "Jaccard similarity between retrieved and ground‑truth skills."
   retrieval_diversity:
     type: "number"
     description: "Inverse variance of cosine similarities of the top‑k retrieved skills to the ground‑truth set."

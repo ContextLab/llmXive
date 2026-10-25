@@ -9,7 +9,7 @@ import psutil
 import numpy as np
 from datetime import datetime
 from itertools import product
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
 from config import pin_seeds
 from utils import get_model, get_embedding, cosine_similarity
@@ -198,9 +198,11 @@ def main():
 
     CLI flags:
       --library-sizes 10 20 30 ...   list of library sizes to test (required)
-      --task-sample INT              number of tasks to draw from the 500‑task pool (default 500)
+      --task-sample INT              number of tasks to sample from the 500‑task pool (default 500)
       --overlap LEVEL                optional; if omitted all three levels are used (LOW/MEDIUM/HIGH)
       --pruning [off|fr04|on] ...    optional; one or more pruning variants; 'on' is an alias for 'fr04'
+      --seed INT                     optional seed for reproducibility
+      --randomize-tasks              optional flag to shuffle tasks before sampling
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -230,6 +232,17 @@ def main():
         choices=["off", "fr04", "on"],
         help="Pruning variant(s): 'off' disables pruning, 'fr04' or 'on' enables the FR‑004 heuristic."
     )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Optional random seed for reproducibility."
+    )
+    parser.add_argument(
+        "--randomize-tasks",
+        action="store_true",
+        help="If set, shuffle the task list before sampling."
+    )
     args = parser.parse_args()
 
     # Normalise overlap selection
@@ -245,6 +258,13 @@ def main():
             pruning_flags.append("fr04")
         else:
             pruning_flags.append("off")
+
+    # Set seeds if provided
+    if args.seed is not None:
+        random.seed(args.seed)
+        np.random.seed(args.seed)
+        os.environ["SEED_A"] = str(args.seed)
+        os.environ["SEED_B"] = str(args.seed)
 
     pin_seeds()
 
@@ -297,6 +317,10 @@ def main():
         else:
             selected_tasks = random.sample(tasks, args.task_sample)
 
+        # Optionally randomize order
+        if args.randomize_tasks:
+            random.shuffle(selected_tasks)
+
         # Open JSON‑L file for this run
         with open(exec_log_path, "w") as jsonl_file:
             # Process the selected tasks
@@ -335,7 +359,7 @@ def main():
 
                 # Apply pruning after every 10 tasks if enabled
                 if pruning_enabled and ((idx + 1) % 10 == 0):
-                    pruned_lib, false_prune_count = prune_fr04(library.skills, tasks)
+                    pruned_lib, false_prune_count = prune_fr04(library.skills)
                     library.update_library(pruned_lib)
                     # false_prune_count is retained for downstream analysis but not logged here
 

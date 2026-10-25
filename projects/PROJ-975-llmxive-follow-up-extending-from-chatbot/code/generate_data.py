@@ -242,12 +242,12 @@ def generate_skills(seed_a: int, count: int = SKILL_COUNT, overlap_level: str = 
         count,
         overlap_level.lower(),
     )
-    # Attach legacy fields and the required ``name`` field.
+    # Attach legacy fields and the required ``name`` field for backward compatibility.
     for skill in core_skills:
         skill["id"] = skill["skill_id"]          # legacy alias
         skill["code"] = skill["function_code"]   # legacy alias
         skill["params"] = {"name": skill["skill_id"]}  # simple param dict
-        # The contract schema expects a ``name`` property.
+        # The contract schema expects a ``name`` property; keep it for downstream use.
         skill["name"] = skill["skill_id"]
     return core_skills
 
@@ -377,6 +377,7 @@ def generate_tasks(seed_b: int, skills: list, count: int = TASK_COUNT) -> list:
             "description": description,
             "complexity": complexity,
             "ground_truth_path": gt_path,
+            # Legacy / auxiliary fields (kept for internal use)
             "ground_truth_skills": gt_path,   # legacy alias (kept for compatibility)
             "solution_path": gt_path,         # retained for backward compatibility with existing code
             "embedding_vector": task_embedding,
@@ -423,7 +424,7 @@ def main() -> None:
     )
 
     # ------------------------------------------------------------------
-    # Persist JSON files (full schema‑compliant objects)
+    # Persist JSON files (schema‑only objects)
     # ------------------------------------------------------------------
     raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
@@ -431,16 +432,38 @@ def main() -> None:
     tasks_path = raw_dir / "tasks.json"
     skills_path = raw_dir / "skills.json"
 
-    # Write the full task list (including all required fields)
+    # Strip to schema‑allowed fields for tasks
+    schema_tasks = [
+        {
+            "task_id": t["task_id"],
+            "description": t["description"],
+            "ground_truth_path": t["ground_truth_path"],
+            "complexity": t["complexity"],
+        }
+        for t in core_tasks_full
+    ]
+
+    # Strip to schema‑allowed fields for skills (exclude legacy ``name`` etc.)
+    schema_skills = [
+        {
+            "skill_id": s["skill_id"],
+            "function_code": s["function_code"],
+            "embedding_vector": s["embedding_vector"],
+            "usage_count": s["usage_count"],
+        }
+        for s in core_skills
+    ]
+
+    # Write the task list (schema‑compliant)
     with open(tasks_path, "w", encoding="utf-8") as f:
-        json.dump({"tasks": core_tasks_full}, f, indent=2, sort_keys=True)
+        json.dump({"tasks": schema_tasks}, f, indent=2, sort_keys=True)
 
-    # Write the full skill list (including the ``name`` field added above)
+    # Write the skill list (schema‑compliant)
     with open(skills_path, "w", encoding="utf-8") as f:
-        json.dump({"skills": core_skills}, f, indent=2, sort_keys=True)
+        json.dump({"skills": schema_skills}, f, indent=2, sort_keys=True)
 
-    logger.info(f"Wrote {len(core_tasks_full)} tasks to {tasks_path}")
-    logger.info(f"Wrote {len(core_skills)} skills to {skills_path}")
+    logger.info(f"Wrote {len(schema_tasks)} tasks to {tasks_path}")
+    logger.info(f"Wrote {len(schema_skills)} skills to {skills_path}")
 
     # ------------------------------------------------------------------
     # Compute and store checksums

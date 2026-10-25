@@ -1,70 +1,55 @@
 T001:
-  reason: "The contract schema files are present and their SHA\u2011256 hashes match\
-    \ the source files (as shown in `data/raw/contract_hashes.json` and the contract\
-    \ files themselves). The copy script `code/copy_contracts.py` correctly writes\
-    \ this mapping. However, the required test `tests/contract/test_contract_copy.py`\
-    \ was not inspected, so we have no evidence that it actually loads `contract_hashes.json`\
-    \ and asserts `src_hash == dst_hash` for every file as the task specification\
-    \ demands. The missing verification means the task\u2019s full requirement is\
-    \ not demonstrably satisfied."
-  task: 902baa1dd56af83fb991547ae56b3da9fe5f4f69d2f4abf63b4732c96d8cf897
+  reason: "The copy script correctly copies the five schema files and the test confirms\
+    \ matching SHA\u2011256 hashes, but the generated `contract_hashes.json` is written\
+    \ to `data/raw/contract_hashes.json` instead of the repository root as the task\
+    \ specification requires. The required root\u2011level `contract_hashes.json`\
+    \ file is missing."
+  task: 558a684ab6cfd812e0d6b3f9f7f21befeb2df67af770009870cdfeffb5b574de
 T002:
-  reason: "Checked `code/generate_data.py`, the generated JSON files (`data/raw/tasks.json`,\
-    \ `data/raw/skills.json`, `data/raw/checksums.json`), and the unit\u2011test suite\
-    \ `tests/unit/test_generate_data.py`. While the script creates the required files\
-    \ with the correct record counts, embeddings, overlap handling, deterministic\
-    \ seeds, and a memory\u2011limit guard, the provided tests do **not** verify the\
-    \ SHA\u2011256 checksums (or schema validation) as the task specification demands.\
-    \ Adding tests that read `checksums.json` and compare the stored digests to the\
-    \ actual file hashes (and optionally validate JSON against t"
-  task: 1f6ac80f52208f850eead5d57567c37dac4c62c336c28de2c64cea0fbc36aedf
+  reason: The project provides `code/generate_data.py`, the generated `tasks.json`,
+    `skills.json`, and `checksums.json`, and a comprehensive test suite, but the required
+    schema files `task.schema.yaml` and `skill.schema.yaml` are missing, so the records
+    cannot be validated against the contracts as the task specification demands. Without
+    these schemas the verification step (2) cannot be satisfied, and the implementation
+    is therefore incomplete.
+  task: e1434351452dd1cf2ef1c0cd663e38c908eadce156262664ad059cbd6ec22783
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/write_checksums.py
-    exit=1'
-  task: e9578efb5c067893cb5fc98262ac1ef8613aa1c7438138191240341ae5a309bd
+  reason: "The `code/write_checksums.py` script is present and correctly implements\
+    \ SHA\u2011256 computation, and `data/raw/checksums.json` contains the expected\
+    \ hashes. However, the contract test `tests/contract/test_checksums.py` fails\
+    \ (FileNotFoundError for `tasks.json`) because the script\u2019s use of `llmxive_toolkit.paths`\
+    \ does not locate the existing `data/raw/tasks.json` and `skills.json`, so the\
+    \ test does not pass in CI as required. The path\u2011resolution issue must be\
+    \ fixed for the test to succeed."
+  task: 3a00ec119c9e2f9d89ea6b136df79307137dbf0ba8a3c0879393fd3a6d76d0f6
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/generate_data.py
-    exit=1'
-  task: 816eba6082f40f14c96cf95aabb172f1f670f7f6502be281c9dfe00fabe0a836
+  reason: The test file `tests/contract/test_schemas.py` exists and attempts to validate
+    the JSON files, but the schemas (`contracts/task.schema.yaml` and `contracts/skill.schema.yaml`)
+    require fields (`ground_truth_skills`, `solution_path`, `name`, `code`, `embedding`,
+    `last_used`) that are not present in the provided `data/raw/tasks.json` and `data/raw/skills.json`
+    (which use `ground_truth_path`, `embedding_vector`, `function_code`, etc.). Consequently
+    the tests would fail, so the required validation step is not satisfied.
+  task: d1c2ba04f33156fde60bc946cb13780ce4df3c9e770d833d90b3294136521cac
 T005:
-  reason: "The repository contains `code/logging_config.py` with the correct `LOG_COLUMNS`\
-    \ and a `get_logger` that writes to `data/results/experiment_log.csv`, and the\
-    \ test suite `tests/contract/test_logging_schema.py` is present. However, the\
-    \ required log file `data/results/experiment_log.csv` is missing and there is\
-    \ no evidence (e.g., test run output, generated CSV, or CI log) that the tests\
-    \ have been executed successfully and that the CSV header and schema validation\
-    \ actually pass. Provide execution evidence of the tests (or a pre\u2011generated\
-    \ compliant CSV) to satisfy the task."
-  task: adb973ea5b93f4ecd39ef2c94f5a1abca063ee220b47f804783b86bc7c82ea89
+  task: 794d6e0d6d90cbd32a42721cee5338971eb6584e7926037d22b94be600b6fd2c
 T006:
-  reason: 'Requested task execution failed; rerun successfully: code/agent.py exit=-1'
-  task: bc6bd1e464cf8e2bd6035c35a458e27ecec6a29d489e50cd7b4abd049314122c
+  task: 2268e3c6d17909bc6bcae179a576c1528bd2dd7103fba9da26c4c54b7d8f36a1
 T007:
-  reason: "Checked `code/pruning.py` and its unit tests `tests/unit/test_pruning.py`.\
-    \ The function is defined as `prune_fr04(library, tasks)` (two arguments) and\
-    \ removes a skill when `usage_count == 0` **and** `max_cosine_similarity > 0.70`,\
-    \ whereas the task requires a signature `prune_fr04(library)` and removal only\
-    \ when `usage_count == 0` **and** `min_cosine_similarity_to_any_other_skill_in_library\
-    \ < 0.70` **and** the skill is not in any task\u2019s `ground_truth_skills`. The\
-    \ implementation therefore does not satisfy the specified behavior."
-  task: 969bca29514619ea479fc5d2659590786deef6125adf4b1103a3141ff423e55c
+  task: 879e6d34228d71362b97399218ca86b39850a0c51abf877d1574bb99d386acec
 T008:
-  reason: "The integration test fails because `code/agent.py` does not import `Tuple`\
-    \ (NameError), so the sweep never runs; consequently `data/results/experiment_log.csv`\
-    \ is missing, the `execution_logs/` directory is empty, and the required `contracts/experiment_log.schema.yaml`\
-    \ file is absent. These missing/erroneous artifacts prevent the test\u2019s four\
-    \ assertions from being satisfied."
-  task: 5171b40ed722c8ce10480a37649a9a219ab056c65eeaafc36ddaec1af4af47da
+  task: 4c1a22860751fee18f16da0fa9f947cbf91ed437aac065ae52c1622e2f9ef7f6
 T009:
-  reason: 'Requested task execution failed; rerun successfully: code/analyze.py exit=1'
-  task: e17aca438e40211d544aba4a4fb89677584bd7956a472f7d6986f23983235e90
+  reason: 'Requested task execution failed; rerun successfully: code/analysis.py exit=1'
+  task: b6168ab08addd0ce22e0de3601512cfa61bca6f771b8d7c5242f67a1885c948d
 T010:
-  task: b3f11adee034f928264e49e77ff94bea0262dbd9b5bdcacd6ee6f9482266846a
+  task: 2f2825e38a345fe27caaa866e02bc662d2ec25de17b6cd0664ef6d792935d4a1
 T011:
-  task: facccf9ff71b20f1270f05dd2f254e89bae35c28ef4ee61abab7a147a9618f4f
+  task: 382998b842648afaf812db923632b152947e48bfc492e225531325361d793c7e
 T012:
-  task: 1cb3cff1f71b411e3aac22f68c3911c34b407708b9b1790c03b413183e8bd56a
+  task: 97b72fe26104dec0090b2cea9b2f74e9adc79038ec909c0b75de177671fa699c
 T013:
-  task: 2e0b6ec23552ab41cb9294b256fd151a43c4a9f1c4cb967a29838f5755457de0
+  task: d09008595be9bc941f3ec62ad9908907844f27ec08e6251c4619bb1acb0625f0
 T014:
-  task: 6118f4c24ff9659583b816270b1e1d08f835f395ab754a5fc58d2a0c07d93d63
+  task: c2b7776851d8e8ac3d6f7dc5788935501e34f76b3ef3706fe9fed9df85961ea6
+T015:
+  task: 922df92926b39fe9a8f87f494101ca7ad39bf3ce515317ade5cc55eac5fdb0b2

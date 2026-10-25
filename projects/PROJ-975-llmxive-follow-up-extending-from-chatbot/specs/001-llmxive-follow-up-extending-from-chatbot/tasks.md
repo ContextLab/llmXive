@@ -25,11 +25,11 @@ The list follows the three research phases (setup → full experiment →�
   *Path*: `tests/contract/test_schemas.py` runs `jsonschema.validate` on every entry of `data/raw/tasks.json` and `data/raw/skills.json` using `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`.  
   *Verification*: The test suite must exit with success; any schema violation aborts the run.
 
-- [ ] **T005** [P] [US2] **Configure logging and produce a minimal compliant CSV header**  
+- [X] **T005** [P] [US2] **Configure logging and produce a minimal compliant CSV header**  
   *Path*: `code/logging_config.py` defines `LOG_COLUMNS = ["run_id","task_id","library_size","pruning_enabled","success","latency_ms","tokens_used","retrieval_precision","retrieval_diversity","edge_case"]` and provides `get_logger(name)` that writes rows to `data/results/experiment_log.csv`.  
   *Verification*: `tests/contract/test_logging_schema.py` (a) creates a dummy row via the logger, (b) checks that `data/results/experiment_log.csv` exists, (c) asserts the header order matches `LOG_COLUMNS`, and (d) validates the dummy row against `contracts/experiment_log.schema.yaml`.
 
-- [ ] **T015** [P] [US2] **Create missing experiment_log.schema.yaml**  
+- [X] **T015** [P] [US2] **Create missing experiment_log.schema.yaml**  
   *Path*: `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml` – write the schema defined in the specification (identical to the one shown in the data model).  
   *Verification*: `tests/contract/test_schemas.py -k "experiment_log"` validates the new schema file; CI must succeed before any logging validation runs.
 
@@ -37,7 +37,7 @@ The list follows the three research phases (setup → full experiment →�
 
 ## Phase 2 – Full experimental sweep, corrected pruning, and statistical analysis  
 
-- [ ] **T006** [S] [US2] **Fix and extend the agent CLI; ensure CSV output for a small run**  
+- [~] **T006** [S] [US2] **Fix and extend the agent CLI; ensure CSV output for a small run**  
   *Path*: `code/agent.py` – add missing import `Tuple` from `typing`, correct argument parsing, and guarantee that every execution writes to `data/results/experiment_log.csv` **and** a JSON‑L file under `data/results/execution_logs/<run_id>.jsonl`. Ensure the script imports the newly added `experiment_log.schema.yaml` for validation.  
   *Verification*: `tests/integration/test_agent_small_run.py` runs  
 
@@ -47,7 +47,7 @@ The list follows the three research phases (setup → full experiment →�
 
     and asserts (1) the CSV contains 100 rows, (2) each row validates against `experiment_log.schema.yaml`, and (3) a matching JSON‑L file with 100 entries exists.
 
-- [ ] **T007** [P] [US3] **Implement corrected “Skill Pruning” heuristic and its unit test**  
+- [~] **T007** [P] [US3] **Implement corrected “Skill Pruning” heuristic and its unit test**  
   *Path*: `code/pruning.py` – defines  
 
     ```python
@@ -57,7 +57,7 @@ The list follows the three research phases (setup → full experiment →�
     The function removes a skill **iff** (`usage_count == 0`) **and** (`min_cosine_similarity_to_any_other_skill_in_library < 0.70`). No ground‑truth check is performed, matching FR‑004. Returns the pruned library and the `false_prune_count`.  
   *Verification*: `tests/unit/test_pruning.py` constructs a deterministic mini‑library with known embeddings, calls `prune_fr04`, and checks that only the intended redundant skills are removed and that `false_prune_count` is correct.
 
-- [ ] **T008** [S] [US2] **Run the full factorial sweep (library × pruning × overlap) and produce complete logs**  
+- [~] **T008** [S] [US2] **Run the full factorial sweep (library × pruning × overlap) and produce complete logs**  
   *Path*: `code/agent.py` now integrates `prune_fr04` (triggered after every 10 tasks when `--pruning fr04` is set) and records the evolving `library_size` in subsequent CSV rows.  
   *Experiment*: Execute all configurations  
 
@@ -68,7 +68,7 @@ The list follows the three research phases (setup → full experiment →�
     processing the full 500‑task pool for each.  
   *Verification*: `tests/integration/test_full_sweep.py` runs the sweep (no dry‑run) and asserts: (1) the CSV contains exactly `10 × 2 × 3 × 500 = 30 000` rows, (2) every row validates against `experiment_log.schema.yaml`, (3) for pruning‑enabled runs `library_size` decreases at the 10‑task boundaries, and (4) `false_prune_count` extracted from the JSON‑L logs is ≥ 0.
 
-- [ ] **T009** [P] [SC‑004 & SC‑006] **Statistical analysis script and validation (Piecewise Linear Regression)**  
+- [ ] **T009** [P] [SC‑004 & SC‑006] **Statistical analysis script and validation (Piecewise Linear Regression)**   <!-- FAILED-IN-EXECUTION: code/analysis.py exit=1 -->
   *Path*: `code/analysis.py` – reads `data/results/experiment_log.csv`, performs:  
     1. **Piecewise **linear** regression** (single breakpoint) on binary `success` vs. `library_size` for the HIGH‑overlap, no‑pruning baseline (using `pwlf`).  
     2. **Bootstrap** (1 000 resamples) to obtain a 95 % CI for the breakpoint (`x₀`).  

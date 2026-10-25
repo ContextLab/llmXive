@@ -13,71 +13,42 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/raw/checksums.json, data/raw/contract_hashes.json, data/raw/skills.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --input data/results/metrics.csv; 4 command(s) failed: python -m pytest tests/contract/ (rc=1); python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning {on,off}  --seed 42  --randomize-tasks (rc=1); python -m pytest tests/contract/ (rc=1); 2 declared deliverable(s) absent: data/results/analysis_report.json; data/results/experiment_log.csv
+**Summary**: every produced artifact is gitignored (data/raw/checksums.json, data/raw/contract_hashes.json, data/raw/skills.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python -m pytest tests/contract/test_schemas.py -k "task or skill" (rc=1); python code/analysis.py --input data/results/metrics.csv (rc=1); python -m pytest tests/contract/test_schemas.py -k "analysis_report" (rc=5); 2 declared deliverable(s) absent: data/results/analysis_report.json; data/results/experiment_log.csv
 
 ## Failing / missing run-book commands
 
-- python -m pytest tests/contract/ -> rc=1
-re unexpected)
-E           Task 2 (ID: task_0002): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
-E           Task 3 (ID: task_0003): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
-E           Task 4 (ID: task_0004): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
+- python -m pytest tests/contract/test_schemas.py -k "task or skill" -> rc=1
+a required property\nSkill 86 (ID: skill_0086): 'name' is a required property\nSkill 87 (ID: skill_0087): 'name' is a required property\nSkill 88 (ID: skill_0088): 'name' is a required property\nSkill 89 (ID: skill_0089): 'name' is a required property\nSkill 90 (ID: skill_0090): 'name' is a required property\nSkill 91 (ID: skill_0091): 'name' is a required property\nSkill 92 (ID: skill_0092): 'name' is a required property\nSkill 93 (ID: skill_0093): 'name' is a required property\nSkill 94 (ID: skill_0094): 'name' is a required property\nSkill 95 (ID: skill_0095): 'name' is a required property\nSkill 96 (ID: skill_0096): 'name' is a required property\nSkill 97 (ID: skill_0097): 'name' is a required property\nSkill 98 (ID: skill_0098): 'name' is a required property\nSkill 99 (ID: skill_0099): 'name' is a required property
 
-tests/contract/test_task_schema.py:62: Failed
+tests/contract/test_schemas.py:79: Failed
 =========================== short test summary info ============================
-FAILED tests/contract/test_schema_presence.py::test_dummy_instance_validation
 FAILED tests/contract/test_schemas.py::test_real_tasks_schema_compliance - Fa...
 FAILED tests/contract/test_schemas.py::test_real_skills_schema_compliance - F...
-FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
-FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
-FAILED tests/contract/test_task_schema.py::test_all_tasks_validate - Failed: ...
-========================= 6 failed, 17 passed in 3.52s =========================
+========================= 2 failed, 3 passed in 2.68s ==========================
 
 
-- python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning {on,off}  --seed 42  --randomize-tasks -> rc=1
+- python code/analysis.py --input data/results/metrics.csv -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/agent.py", line 91, in <module>
-    def execute_skill(skill: Dict[str, Any], inputs: Dict[str, Any]) -> Tuple[bool, Any, str]:
-                                                                        ^^^^^
-NameError: name 'Tuple' is not defined. Did you mean: 'tuple'?
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/analysis.py", line 11, in <module>
+    from analyze import main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/analyze.py", line 24, in <module>
+    import pwlf
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/pwlf/__init__.py", line 1, in <module>
+    from .pwlf import PiecewiseLinFit  # noqa F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/lib/python3.11/site-packages/pwlf/pwlf.py", line 30, in <module>
+    from pyDOE import lhs
+ModuleNotFoundError: No module named 'pyDOE'
 
-- python -m pytest tests/contract/ -> rc=1
-re unexpected)
-E           Task 2 (ID: task_0002): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
-E           Task 3 (ID: task_0003): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
-E           Task 4 (ID: task_0004): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
+- python -m pytest tests/contract/test_schemas.py -k "analysis_report" -> rc=5
+============================= test session starts ==============================
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
+rootdir: /home/runner/work/llmXive/llmXive
+configfile: pyproject.toml
+collected 5 items / 5 deselected / 0 selected
 
-tests/contract/test_task_schema.py:62: Failed
-=========================== short test summary info ============================
-FAILED tests/contract/test_schema_presence.py::test_dummy_instance_validation
-FAILED tests/contract/test_schemas.py::test_real_tasks_schema_compliance - Fa...
-FAILED tests/contract/test_schemas.py::test_real_skills_schema_compliance - F...
-FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
-FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
-FAILED tests/contract/test_task_schema.py::test_all_tasks_validate - Failed: ...
-========================= 6 failed, 17 passed in 3.52s =========================
-
-
-- python code/analysis.py --input data/results/metrics.csv -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/analysis.py': [Errno 2] No such file or directory
-
-- python -m pytest tests/contract/ -> rc=1
-re unexpected)
-E           Task 2 (ID: task_0002): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
-E           Task 3 (ID: task_0003): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
-E           Task 4 (ID: task_0004): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
-
-tests/contract/test_task_schema.py:62: Failed
-=========================== short test summary info ============================
-FAILED tests/contract/test_schema_presence.py::test_dummy_instance_validation
-FAILED tests/contract/test_schemas.py::test_real_tasks_schema_compliance - Fa...
-FAILED tests/contract/test_schemas.py::test_real_skills_schema_compliance - F...
-FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
-FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
-FAILED tests/contract/test_task_schema.py::test_all_tasks_validate - Failed: ...
-========================= 6 failed, 17 passed in 3.53s =========================
+============================ 5 deselected in 2.42s =============================
 
 
 
@@ -91,6 +62,7 @@ FAILED tests/contract/test_task_schema.py::test_all_tasks_validate - Failed: ...
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/results/analysis_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis.py` — IS a run-book command
     - `code/analyze.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/analysis_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/experiment_log.csv` is declared but was NOT written. Scripts referencing it:

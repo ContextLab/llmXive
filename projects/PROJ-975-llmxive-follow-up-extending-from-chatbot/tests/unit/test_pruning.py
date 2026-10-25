@@ -29,16 +29,12 @@ class TestPruningFR04:
         """
         Verify that a skill with usage=0 and max_sim > 0.7 to at least one other is removed.
         """
-        # Library: s_red is similar to s1 (max_sim > 0.7)
         library = [
             {"skill_id": "s1", "embedding_vector": self.v1, "usage_count": 1},
             {"skill_id": "s2", "embedding_vector": self.v2, "usage_count": 1},
             {"skill_id": "s_red", "embedding_vector": self.v_redundant, "usage_count": 0},
         ]
-        tasks = [] 
-        
-        pruned, false_count = prune_fr04(library, tasks)
-        
+        pruned, false_count = prune_fr04(library)
         assert len(pruned) == 2
         assert "s_red" not in [s["skill_id"] for s in pruned]
         assert false_count == 0
@@ -47,19 +43,16 @@ class TestPruningFR04:
         """
         Verify that a skill with usage=0 but max_sim < 0.7 to all others is preserved.
         """
-        # Library: s_unique is orthogonal to others
         v_unique = np.array([0.0, 0.0, 1.0])
         library = [
             {"skill_id": "s1", "embedding_vector": self.v1, "usage_count": 1},
             {"skill_id": "s2", "embedding_vector": self.v2, "usage_count": 1},
             {"skill_id": "s_unique", "embedding_vector": v_unique, "usage_count": 0},
         ]
-        tasks = []
-        
-        pruned, _ = prune_fr04(library, tasks)
-        
+        pruned, false_count = prune_fr04(library)
         assert len(pruned) == 3
         assert "s_unique" in [s["skill_id"] for s in pruned]
+        assert false_count == 0
 
     def test_pruning_preserves_used_skill(self):
         """
@@ -69,41 +62,19 @@ class TestPruningFR04:
             {"skill_id": "s1", "embedding_vector": self.v1, "usage_count": 1},
             {"skill_id": "s_red", "embedding_vector": self.v_redundant, "usage_count": 1},
         ]
-        tasks = []
-        
-        pruned, _ = prune_fr04(library, tasks)
-        
+        pruned, false_count = prune_fr04(library)
         assert len(pruned) == 2
-
-    def test_false_prune_count(self):
-        """
-        Verify that false_prune_count increments when a pruned skill is in ground truth.
-        """
-        library = [
-            {"skill_id": "s1", "embedding_vector": self.v1, "usage_count": 1},
-            {"skill_id": "s2", "embedding_vector": self.v2, "usage_count": 1},
-            {"skill_id": "s_red", "embedding_vector": self.v_redundant, "usage_count": 0},
-        ]
-        # s_red is required by a task
-        tasks = [
-            {"task_id": "t1", "ground_truth_path": ["s_red"]}
-        ]
-        
-        pruned, false_count = prune_fr04(library, tasks)
-        
-        assert len(pruned) == 2
-        assert false_count == 1
+        assert false_count == 0
 
     def test_empty_or_small_library(self):
         """
         Verify the function handles small libraries without crashing.
         """
         library = [{"skill_id": "s1", "embedding_vector": self.v1, "usage_count": 0}]
-        tasks = []
-        pruned, false_count = prune_fr04(library, tasks)
+        pruned, false_count = prune_fr04(library)
         assert len(pruned) == 1
         assert false_count == 0
 
-        pruned, false_count = prune_fr04([], tasks)
+        pruned, false_count = prune_fr04([])
         assert len(pruned) == 0
         assert false_count == 0

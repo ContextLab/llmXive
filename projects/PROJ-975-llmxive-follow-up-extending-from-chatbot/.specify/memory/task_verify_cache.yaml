@@ -1,56 +1,55 @@
 T001:
   c: false
-  h: 091c7adc3133176c276a20e7ba5a59312090aef3d5c6adfe8893b39a963b3296
-  r: "The contract schema files are present and their SHA\u2011256 hashes match the\
-    \ source files (as shown in `data/raw/contract_hashes.json` and the contract files\
-    \ themselves). The copy script `code/copy_contracts.py` correctly writes this\
-    \ mapping. However, the required test `tests/contract/test_contract_copy.py` was\
-    \ not inspected, so we have no evidence that it actually loads `contract_hashes.json`\
-    \ and asserts `src_hash == dst_hash` for every file as the task specification\
-    \ demands. The missing verification means the task\u2019s full requirement is\
-    \ not demonstrably satisfied."
-  sig: 9ec647b0ad2520594d1f1cc2ecd76138d0043a9a33c7f2afc66651c4072d8efa
+  h: af5c0daf9ba125a74ad0b7294a7d3c5f7809c3ae282e85f3be894ee1274240cb
+  r: "The copy script correctly copies the five schema files and the test confirms\
+    \ matching SHA\u2011256 hashes, but the generated `contract_hashes.json` is written\
+    \ to `data/raw/contract_hashes.json` instead of the repository root as the task\
+    \ specification requires. The required root\u2011level `contract_hashes.json`\
+    \ file is missing."
+  sig: 6ee1333d3eed7edf96a5c0daab5d7cfc29df2c2e9c15698595cb685c1aae3346
 T002:
   c: false
-  h: 0d0a623d46fb1f21617386e327f083a780c740bea6cd29eab6f72657f16045f2
-  r: "Checked `code/generate_data.py`, the generated JSON files (`data/raw/tasks.json`,\
-    \ `data/raw/skills.json`, `data/raw/checksums.json`), and the unit\u2011test suite\
-    \ `tests/unit/test_generate_data.py`. While the script creates the required files\
-    \ with the correct record counts, embeddings, overlap handling, deterministic\
-    \ seeds, and a memory\u2011limit guard, the provided tests do **not** verify the\
-    \ SHA\u2011256 checksums (or schema validation) as the task specification demands.\
-    \ Adding tests that read `checksums.json` and compare the stored digests to the\
-    \ actual file hashes (and optionally validate JSON against t"
-  sig: 266c678fa87bc21909648ecece56fcc0877e670b7d21146a8a27414693a2cf4f
+  h: 7a8b727ad5d91213e11554b853f1c768c7d085d2b1238f7e0047063e61198e9c
+  r: The project provides `code/generate_data.py`, the generated `tasks.json`, `skills.json`,
+    and `checksums.json`, and a comprehensive test suite, but the required schema
+    files `task.schema.yaml` and `skill.schema.yaml` are missing, so the records cannot
+    be validated against the contracts as the task specification demands. Without
+    these schemas the verification step (2) cannot be satisfied, and the implementation
+    is therefore incomplete.
+  sig: 35ac03cc5104866471ccda4fc5b09679a1e88cbe3b5b2b59a5577e1213d87ec2
+T003:
+  c: false
+  h: 8bad0c2c67e7e9942ea47cc3062b41fde3d7fba195b90fd5b8ef3e6da7fb83d9
+  r: "The `code/write_checksums.py` script is present and correctly implements SHA\u2011\
+    256 computation, and `data/raw/checksums.json` contains the expected hashes. However,\
+    \ the contract test `tests/contract/test_checksums.py` fails (FileNotFoundError\
+    \ for `tasks.json`) because the script\u2019s use of `llmxive_toolkit.paths` does\
+    \ not locate the existing `data/raw/tasks.json` and `skills.json`, so the test\
+    \ does not pass in CI as required. The path\u2011resolution issue must be fixed\
+    \ for the test to succeed."
+  sig: 2c3414a71349e177df78158bbd645acc7c63c2f845e67ae6236559417954534a
+T004:
+  c: false
+  h: 3f24e4793e4bd40a7d6a4f6db1c35bb3c477c8867e3358e4a24e37934f210dd5
+  r: The test file `tests/contract/test_schemas.py` exists and attempts to validate
+    the JSON files, but the schemas (`contracts/task.schema.yaml` and `contracts/skill.schema.yaml`)
+    require fields (`ground_truth_skills`, `solution_path`, `name`, `code`, `embedding`,
+    `last_used`) that are not present in the provided `data/raw/tasks.json` and `data/raw/skills.json`
+    (which use `ground_truth_path`, `embedding_vector`, `function_code`, etc.). Consequently
+    the tests would fail, so the required validation step is not satisfied.
+  sig: dd16cf681895c2b0b93604920d04c26a12173c52ea4be3ebef94396a6bd682b8
 T005:
-  c: false
-  h: 5a208cf74e21e12578dc9784d557f7ab5ef867d97b2d7c2f35caedaa09734584
-  r: "The repository contains `code/logging_config.py` with the correct `LOG_COLUMNS`\
-    \ and a `get_logger` that writes to `data/results/experiment_log.csv`, and the\
-    \ test suite `tests/contract/test_logging_schema.py` is present. However, the\
-    \ required log file `data/results/experiment_log.csv` is missing and there is\
-    \ no evidence (e.g., test run output, generated CSV, or CI log) that the tests\
-    \ have been executed successfully and that the CSV header and schema validation\
-    \ actually pass. Provide execution evidence of the tests (or a pre\u2011generated\
-    \ compliant CSV) to satisfy the task."
-  sig: 85dc46730e75ca1a3b30fb96bf1dcd60de24a42ea8d5f665a8ed8f8979f288f9
-T007:
-  c: false
-  h: 041e1d0042e558cff8c056b2c3d64ef7a3c4935b561188880581a7972d2d3168
-  r: "Checked `code/pruning.py` and its unit tests `tests/unit/test_pruning.py`. The\
-    \ function is defined as `prune_fr04(library, tasks)` (two arguments) and removes\
-    \ a skill when `usage_count == 0` **and** `max_cosine_similarity > 0.70`, whereas\
-    \ the task requires a signature `prune_fr04(library)` and removal only when `usage_count\
-    \ == 0` **and** `min_cosine_similarity_to_any_other_skill_in_library < 0.70` **and**\
-    \ the skill is not in any task\u2019s `ground_truth_skills`. The implementation\
-    \ therefore does not satisfy the specified behavior."
-  sig: 0a50aef36fcfea5ce964bb3ae213a9f64e35c42f496fee9222dbf6a6daa1948d
-T008:
-  c: false
-  h: 5594e2b055ff7fe4c6f6473df1dc7c0ba1af9e015efe38eaf603cfca988da6c7
-  r: "The integration test fails because `code/agent.py` does not import `Tuple` (NameError),\
-    \ so the sweep never runs; consequently `data/results/experiment_log.csv` is missing,\
-    \ the `execution_logs/` directory is empty, and the required `contracts/experiment_log.schema.yaml`\
-    \ file is absent. These missing/erroneous artifacts prevent the test\u2019s four\
-    \ assertions from being satisfied."
-  sig: 935b937799355330a2b49e62bd97b2986494474c6e9c5589cc4e32fd9587d6c3
+  c: true
+  h: 08d6786a68435c06822390f9acde1d467dc5a1c667b3f285a7ed88af5abf5056
+  r: Checked `code/logging_config.py` (defines required LOG_COLUMNS and CSV logger)
+    and the execution log `code/.tasks/T005.tests_contract_test_logging_schema.py.log`
+    where all three contract tests passed, confirming the CSV header order, schema
+    compliance, and logger singleton behavior.
+  sig: 532e607658f6e954e9c60356a0406d020dc732434c0b9db45f4c518906b440bb
+T015:
+  c: true
+  h: f216656261c472c109a7cfbe5f9be0d0e9d532ddd615e5c0b1b6c78a2f3c3101
+  r: "Checked the presence and content of `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml`,\
+    \ which exists (1640\u202Fbytes) and defines a full JSON\u2011Schema matching\
+    \ the expected fields. No missing or placeholder artifacts were found."
+  sig: 4fac895c76de0bc81d7f0b3e2f03a9572d8e29106f9580eceb18cf67b4511427

@@ -24,10 +24,8 @@ def validate_csv_rows(csv_path, schema):
 
     required = set(schema["required"])
     for i, row in enumerate(rows):
-        # Ensure required fields exist
         missing = required - set(row.keys())
         assert not missing, f"Row {i} missing required fields: {missing}"
-        # Basic type checks (bools are stored as 'true'/'false')
         for field in ["pruning_enabled", "success"]:
             assert row[field] in ("true", "false"), f"Row {i} field {field} not boolean string"
     return rows
@@ -80,7 +78,6 @@ def test_full_factorial_sweep():
 
     # 3. Library size decrease for pruning-enabled runs
     pruning_runs = df[df["pruning_enabled"] == True]  # pandas converts 'true'/'false' to bool
-    # Group by run_id and check for any decrease
     decreased = False
     for run_id, group in pruning_runs.groupby("run_id"):
         sizes = group["library_size"].tolist()
