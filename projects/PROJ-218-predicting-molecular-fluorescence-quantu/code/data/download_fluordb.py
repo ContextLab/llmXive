@@ -1,13 +1,11 @@
 """
-Download the FluorDB v1.0 dataset (or a verified fallback) and store it as a Parquet
+Download the FluorDB v1.0 dataset and store it as a Parquet
 file under ``data/raw/fluordb/fluordb.parquet``. The script also writes a SHA‑256
 checksum file (``checksums.txt``) and a simple log (``download.log``). It aborts if
 fewer than 500 rows are present.
 
-The implementation uses the HuggingFace ``datasets`` library to fetch the
-joint SMILES + FQY parquet file directly from the ``fluordb/v1`` repository.
-This avoids heavyweight optional dependencies such as ``deepchem`` and ensures
-deterministic behaviour on the CI runner.
+The implementation prioritizes direct file download via URL to ensure reliability
+on CI runners, falling back to the HuggingFace ``datasets`` library if necessary.
 """
 
 import argparse
@@ -18,12 +16,12 @@ from pathlib import Path
 import pandas as pd
 from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
+from code.data.download_raw import download_file
 
 log = get_logger(__name__)
 
 # Minimum number of rows required for the downstream pipeline.
 MIN_ROWS = 500
-
 CHECKSUMS_FILENAME = "checksums.txt"
 LOG_FILENAME = "download.log"
 
@@ -46,31 +44,27 @@ def write_log(message: str):
     log.info(f"Wrote log to {log_path}")
 
 
-def _load_fluordb_via_hf() -> pd.DataFrame:
-    """
-    Load the FluorDB v1.0 dataset using the ``datasets`` library.
-    The HF dataset contains a ``smiles`` column and a target column.
-    The target column may be named ``fqy`` or already ``fqy_raw``.
-    """
+def _load_via_hf_library() -> pd.DataFrame:
+    """Fallback: Load the FluorDB v1.0 dataset using the ``datasets`` library."""
     try:
-        # The dataset is small enough to load without streaming.
         ds = load_dataset("fluordb/v1", split="train", streaming=False)
+        df = ds.to_pandas()
+        return df
     except Exception as e:
-        log.error(f"Failed to load FluorDB from HuggingFace: {e}")
+        log.warning(f"HF library load failed: {e}")
         raise
 
-    # Convert to pandas for easier manipulation.
-    df = ds.to_pandas()
 
-    # Ensure required column names.
+def _validate_and_clean_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Ensure required column names and return only necessary subset."""
     if "smiles" not in df.columns:
         raise RuntimeError("FluorDB dataset does not contain a 'smiles' column.")
+    
     # Target column may be named 'fqy' or already 'fqy_raw'.
     if "fqy_raw" not in df.columns:
         if "fqy" in df.columns:
             df = df.rename(columns={"fqy": "fqy_raw"})
         else:
-            # If no recognised target column, raise.
             raise RuntimeError(
                 "FluorDB dataset missing target column. Expected 'fqy' or 'fqy_raw'."
             )
@@ -83,29 +77,48 @@ def main(argv=None) -> int:
     )
     parser.add_argument(
         "--url",
-        help=(
-            "URL of the source file (unused). The script always downloads "
-            "the verified FluorDB v1.0 dataset via HuggingFace."
-        ),
+        type=str,
+        default="https://huggingface.co/datasets/fluordb/v1/resolve/main/data/fluordb.parquet",
+        help="URL of the source parquet file."
     )
     parser.add_argument(
         "--output",
         type=Path,
-        help=(
-            "Path where the parquet file will be written (unused). The file is "
-            "always written to ``data/raw/fluordb/fluordb.parquet`` as required by the spec."
-        ),
+        default=paths.data("raw", "fluordb", "fluordb.parquet"),
+        help="Path where the parquet file will be written."
     )
     args = parser.parse_args(argv)
 
-    # Canonical output location.
-    output_path = paths.data("raw", "fluordb", "fluordb.parquet")
+    output_path = args.output
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Strategy 1: Direct download via URL (most robust for CI)
+    success = False
     try:
-        df = _load_fluordb_via_hf()
+        log.info(f"Attempting direct download from {args.url}...")
+        download_file(args.url, output_path)
+        success = True
     except Exception as e:
-        log.error(f"Data loading error: {e}")
+        log.warning(f"Direct download failed: {e}")
+
+    # Strategy 2: Fallback to HF datasets library
+    if not success:
+        try:
+            log.info("Attempting load via HuggingFace datasets library...")
+            df = _load_via_hf_library()
+            df = _validate_and_clean_df(df)
+            df.to_parquet(output_path, index=False)
+            success = True
+        except Exception as e:
+            log.error(f"All data loading attempts failed: {e}")
+            return 1
+
+    # Validation of the resulting file
+    try:
+        df = pd.read_parquet(output_path)
+        df = _validate_and_clean_df(df)
+    except Exception as e:
+        log.error(f"Downloaded file is invalid: {e}")
         return 1
 
     row_count = len(df)
@@ -115,13 +128,10 @@ def main(argv=None) -> int:
         )
         return 1
 
-    try:
-        df.to_parquet(output_path, index=False)
-    except Exception as e:
-        log.error(f"Failed to write Parquet file {output_path}: {e}")
-        return 1
+    # Overwrite file with cleaned version to ensure schema consistency
+    df.to_parquet(output_path, index=False)
 
-    # Compute checksum of the Parquet file.
+    # Compute checksum of the final Parquet file.
     checksum = compute_sha256(output_path)
     checksums_path = paths.data("raw", "fluordb", CHECKSUMS_FILENAME)
     with open(checksums_path, "w") as f:
