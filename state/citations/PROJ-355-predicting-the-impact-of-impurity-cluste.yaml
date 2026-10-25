@@ -20,18 +20,6 @@
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q113106917
   verified_at: '2026-09-29T10:34:29.280754Z'
-- artifact_hash: 94396981a899ca3dd86d833dd5436b7e663aa5af67e7334faaf91947a58501e6
-  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2005.02245] Overcoming the inconsistences of the variance inflation
-    factor: a redefined VIF and a test to detect statistical troubling multicollinearity'
-  kind: url
-  value: https://arxiv.org/abs/2005.02245
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2005.02245
-  verified_at: '2026-10-17T13:30:53.046296Z'
 - artifact_hash: d01a278a61376979e834dfcc5dacbe56345a6c6cad1cb5ab1db81ca5cc21faef
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/research.md
   cite_id: c-001
@@ -65,3 +53,15 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/654cfce223281492f2c82e4b/b15b92b8483cc6e3a9e478775ca0a9dcb28a83c20b9f84874d040026cf8edbee?xip=r-4W7kPHzbk&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27all_index.parquet%3B+filename%3D%22all_index.parquet%22%3B&user_id=public&Expires=1792750045&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU0Y2ZjZTIyMzI4MTQ5MmYyYzgyZTRiL2IxNWI5MmI4NDgzY2M2ZTNhOWU0Nzg3NzVjYTBhOWRjYjI4YTgzYzIwYjlmODQ4NzRkMDQwMDI2Y2Y4ZWRiZWVcXD94aXA9ci00VzdrUEh6YmsmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2FsbF9pbmRleC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyYWxsX2luZGV4LnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5Mjc1MDA0NX19fV19&Signature=MEYCIQCxKCR%7EU-U7vWVuCfswOlL7U-oduP2OvlcVdrYETccXJwIhAPtO6SCsNvGKoQ9ECPl8oc4loO-R-ToA1yMI0R2jkC-X&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-10-23T09:07:22.541480Z'
+- artifact_hash: 5b797c35b0bf3ffecb08f88a1a38a06b98955692864051647df9fe6bf3b32435
+  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2005.02245] Overcoming the inconsistences of the variance inflation
+    factor: a redefined VIF and a test to detect statistical troubling multicollinearity'
+  kind: url
+  value: https://arxiv.org/abs/2005.02245
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2005.02245
+  verified_at: '2026-10-25T11:52:19.289276Z'
