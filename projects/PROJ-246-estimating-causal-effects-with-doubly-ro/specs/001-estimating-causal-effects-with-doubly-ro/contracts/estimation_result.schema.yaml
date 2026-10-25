@@ -36,18 +36,18 @@ properties:
     description: "Difference (estimate – true ATE)."
   coverage:
     type: boolean
-    description: "True ATE lies within the confidence interval?"
+    description: "True ATE lies within the confidence interval."
   outcome_model:
     type: string
     enum:
       - nonlinear_correct
-      - quadratic
-      - interaction_omitted
-    description: "Outcome model family used in this replication."
+      - quadratic_missing_sine
+      - linear_missing_quadratic
+    description: "Outcome model family used in this replication."
   propensity_model:
     type: string
     enum:
       - logistic_correct
       - logistic_misspecified
       - logistic_interaction_heavy
-    description: "Propensity model family used in this replication."
+    description: "Propensity model family … "

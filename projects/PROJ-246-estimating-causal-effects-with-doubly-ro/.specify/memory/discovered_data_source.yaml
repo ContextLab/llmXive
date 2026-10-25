@@ -1,6 +1,5 @@
 status: none
-intent: CausalML synthetic data generator known average treatment effect python package
-  dataset
+intent: causalml synthetic causal inference dataset python package dataset
 required_fields:
 - X1
 - X2
@@ -10,8 +9,6 @@ required_fields:
 - T
 - Y
 - propensity_score
-- true_ATE
-- random_seed
-cache_key: 57edfdf21e5ca4320e7c49b779f0ab2ba7260ab58251e2e72816842fb10331bc
-searched_at: '2026-10-23T18:18:41.948922+00:00'
+cache_key: 7e3a671c971c523fabec2790b44098d2576c9e9c57027f6f51ad054e8e0b2180
+searched_at: '2026-10-25T12:41:06.555531+00:00'
 retry_count: 1

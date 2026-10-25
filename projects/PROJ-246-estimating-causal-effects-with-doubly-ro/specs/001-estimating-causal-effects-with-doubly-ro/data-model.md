@@ -28,22 +28,19 @@ properties:
     description: "Number of observations (N)."
   dgp_params:
     type: object
-    required: [beta, beta_interaction, sigma]
+    required: [beta, sigma]
     properties:
       beta:
         type: array
         items:
           type: number
-        description: "Coefficients for the propensity logistic function (excluding interaction)."
-      beta_interaction:
-        type: number
-        description: "Coefficient for the X₁·X₂ interaction term in the propensity model."
+        description: "Coefficients for the propensity logistic function (one per covariate)."
       sigma:
         type: number
         description: "Standard deviation of outcome noise ε."
   outcome_model:
     type: string
-    enum: [nonlinear_correct, quadratic_missing_sine, interaction_omitted]
+    enum: [nonlinear_correct, quadratic_missing_sine, linear_missing_quadratic]
     description: "Outcome model family to be fitted."
   propensity_model:
     type: string
@@ -99,7 +96,7 @@ properties:
     enum:
       - nonlinear_correct
       - quadratic_missing_sine
-      - interaction_omitted
+      - linear_missing_quadratic
     description: "Outcome model family used in this replication."
   propensity_model:
     type: string
@@ -128,7 +125,7 @@ required:
 properties:
   outcome_model:
     type: string
-    enum: [nonlinear_correct, quadratic_missing_sine, interaction_omitted]
+    enum: [nonlinear_correct, quadratic_missing_sine, linear_missing_quadratic]
   propensity_model:
     type: string
     enum: [logistic_correct, logistic_misspecified, logistic_interaction_heavy]
@@ -164,4 +161,5 @@ properties:
 All files are version‑controlled via content hashes; the `state/...yaml` file records the hash and timestamp.
 
 ---
+
 
