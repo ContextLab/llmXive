@@ -148,21 +148,24 @@ def download_oqmd_records(max_retries: int = 3, seed: int = 20231023) -> None:
     raw_oqmd_dir.mkdir(parents=True, exist_ok=True)
 
     attempt = 0
-    all_records = []
     while attempt < max_retries:
         attempt += 1
         try:
             logger.info(f"Attempt {attempt}/{max_retries}: Loading OQMD dataset (streaming).")
             dataset = load_dataset("jablonkagroup/oqmd", name="raw_data", streaming=True)
-            # For sampling, we must collect the records. 
-            # We filter on the fly to avoid loading the entire OQMD dataset into memory.
+            
             target_systems = {"Fe-Cr": ["Fe", "Cr"], "Ni-Al": ["Ni", "Al"], "Cu-Zn": ["Cu", "Zn"]}
             collected = {sys: [] for sys in target_systems}
             
+            # Stream and filter
             for rec in dataset:
                 for sys, elements in target_systems.items():
-                    if all(el.lower() in rec.get("composition", "").lower() for el in elements):
+                    comp = rec.get("composition", "").lower()
+                    if all(el.lower() in comp for el in elements):
                         collected[sys].append(rec)
+                # Optimization: stop if we have plenty for sampling
+                if all(len(v) >= 2000 for v in collected.values()):
+                    break
             
             # Check if we have enough for each
             for sys, recs in collected.items():

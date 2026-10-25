@@ -7,8 +7,9 @@ T001:
   sig: eb97cb66888c6a6ffdaab6fc18a3fd2b1eb99cd25e157faefa564935744cb076
 T002:
   c: true
-  h: 62bb3d2477f85555b5de52d268df076433b87050c62b46a8cd6f49a61dd322fe
-  r: Checked `README.md` for the exact headings, execution command, and required phrases,
-    and verified that `tests/unit/test_readme_strict.py` would pass with the provided
-    content.
-  sig: ed91025d84f5f6e18e2bd0d4387dc7da419657aa64da6717c581a3a7e9ae2876
+  h: 423501901231dfd99adb48df130c47c294063fa556adfb394ecf990de396899e
+  r: "Checked `README.md` for the exact required headings in order, the exact execution\
+    \ command line `python -m code.main`, and the Data Provenance paragraph containing\
+    \ the phrases \u201COQMD loader\u201D, \u201CMaterials\u2011Project waiver\u201D\
+    , and \u201Cdata/raw/\u201D. All checks pass according to `tests/unit/test_readme_strict.py`."
+  sig: a05656053fa3aaf71c661596cab9111d1df78b08a1af5e933ea77b417310ff74
