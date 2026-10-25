@@ -1,15 +1,15 @@
 T001:
-  c: true
-  h: d8995b84cab950a935d5e315b6fd205a4c88f83474b81a33d495ca9b3fd6dd8b
-  r: Checked the `.gitignore` file via `tests/unit/test_gitignore_strict.py`, which
-    asserts the exact four required lines in order with no trailing spaces, and the
-    test execution log shows it passed.
-  sig: eb97cb66888c6a6ffdaab6fc18a3fd2b1eb99cd25e157faefa564935744cb076
+  c: false
+  h: e907fa7262392d8bb7f1cde1a991a829c524a78ada735578b63310103a098e08
+  r: "The evidence includes the unit test that checks the .gitignore, but the repository\
+    \ snapshot does not contain a `.gitignore` file (or its contents) for verification.\
+    \ Without the actual file showing the required four lines, the task\u2019s core\
+    \ requirement cannot be confirmed."
+  sig: 19049fab1c59e43bd82674e1f41cfb5513372466f24cb3692a31f6af27be4911
 T002:
   c: true
-  h: 423501901231dfd99adb48df130c47c294063fa556adfb394ecf990de396899e
-  r: "Checked `README.md` for the exact required headings in order, the exact execution\
-    \ command line `python -m code.main`, and the Data Provenance paragraph containing\
-    \ the phrases \u201COQMD loader\u201D, \u201CMaterials\u2011Project waiver\u201D\
-    , and \u201Cdata/raw/\u201D. All checks pass according to `tests/unit/test_readme_strict.py`."
-  sig: a05656053fa3aaf71c661596cab9111d1df78b08a1af5e933ea77b417310ff74
+  h: 62bb3d2477f85555b5de52d268df076433b87050c62b46a8cd6f49a61dd322fe
+  r: Checked `README.md` for the exact required headings, the exact execution command
+    line, and the presence of the three required phrases in the Data Provenance paragraph;
+    all conditions are satisfied by the file content.
+  sig: 3ba17368dd826e9a2570afa71a13d4f46a13a003d0a5ecad191787adfa59c02b

@@ -7,8 +7,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest tests/ -> rc=2
--warnings.html
-=========================== short test summary info ============================
+== short test summary info ============================
 ERROR tests/integration/test_artifact_verification.py - SystemExit: 1
 ERROR tests/integration/test_data_contract_validation.py
 ERROR tests/integration/test_data_pipeline.py
@@ -22,6 +21,7 @@ ERROR tests/unit/test_alloy_systems.py
 ERROR tests/unit/test_descriptor_filter.py
 ERROR tests/unit/test_descriptor_interface.py
 ERROR tests/unit/test_descriptors.py
+ERROR tests/unit/test_download_retry.py
 ERROR tests/unit/test_download_validation.py
 ERROR tests/unit/test_energy_generation.py
 ERROR tests/unit/test_gb_builder.py
@@ -29,8 +29,8 @@ ERROR tests/unit/test_preprocessing.py
 ERROR tests/unit/test_preprocessing_filter.py
 ERROR tests/unit/test_simulate_energy.py
 ERROR tests/unit/test_vif_analysis.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 20 errors during collection !!!!!!!!!!!!!!!!!!!
-======================= 19 warnings, 20 errors in 2.19s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 21 errors during collection !!!!!!!!!!!!!!!!!!!
+======================= 19 warnings, 21 errors in 4.87s ========================
 
 
 ## Platform-owned paths written inside the project

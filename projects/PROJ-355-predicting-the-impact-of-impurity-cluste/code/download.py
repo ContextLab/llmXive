@@ -33,15 +33,6 @@ if not logger.handlers:
 # -------------------------------------------------------------------------
 # Helper functions
 # -------------------------------------------------------------------------
-def _filter_records_by_elements(records: List[Dict], elements: List[str]) -> List[Dict]:
-    """Keep records whose composition field contains all elements (case-insensitive)."""
-    filtered = []
-    for rec in records:
-        comp = rec.get("composition", "").lower()
-        if all(el.lower() in comp for el in elements):
-            filtered.append(rec)
-    return filtered
-
 def _write_record(record: Dict, out_path: Path) -> str:
     """Write a record as JSON and return its SHA-256 checksum."""
     out_path.parent.mkdir(parents=True, exist_ok=True)
