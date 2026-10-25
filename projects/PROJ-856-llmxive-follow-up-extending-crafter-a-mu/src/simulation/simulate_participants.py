@@ -15,12 +15,12 @@ number of edit attempts (5) for every figure (50 figures × 30 participants
 """
 
 import argparse
-import uuid
+import json
 import random
 from pathlib import Path
 from datetime import datetime, timezone
 
-from src.logger.interaction_logger import log_interaction
+from src.logger.interaction_logger import log_interaction, set_deterministic
 
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -48,14 +48,15 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     return parser
 
-def _current_timestamp_ms() -> int:
-    """Return the current UTC time in milliseconds."""
-    return int(datetime.now(tz=timezone.utc).timestamp() * 1000)
+def _deterministic_timestamp(base_ms: int, offset_ms: int) -> int:
+    """Return a deterministic timestamp based on a fixed base and an offset."""
+    return base_ms + offset_ms
 
 def _sample_latency_ms(rng: random.Random) -> int:
     """
     Sample a latency (in milliseconds) from a log‑normal distribution.
     Median ≈ 1 s, heavy right tail – realistic for human interaction.
+    The rng is deterministic because it is seeded.
     """
     seconds = rng.lognormvariate(0, 0.5)  # median=exp(0)=1
     return max(100, int(seconds * 1000))
@@ -66,6 +67,9 @@ def main() -> None:
 
     # Seed all randomness sources.
     rng = random.Random(args.seed)
+
+    # Enable deterministic logging (fixed log_id sequence).
+    set_deterministic(True)
 
     # Resolve the figures directory – it must exist after curation.
     figures_dir = Path("data/figures")
@@ -82,6 +86,9 @@ def main() -> None:
     # Ensure the logger's output directory exists.
     log_dir_path = Path(args.log_dir)
     log_dir_path.mkdir(parents=True, exist_ok=True)
+
+    # Deterministic base timestamp (e.g., 2021‑01‑01 00:00:00 UTC)
+    base_timestamp_ms = int(datetime(2021, 1, 1, tzinfo=timezone.utc).timestamp() * 1000)
 
     # Simulate each participant.
     for participant_idx in range(args.participants):
@@ -108,13 +115,13 @@ def main() -> None:
                 num_edits = 5
 
                 # Base timestamp for the first edit of this task.
-                base_ts = _current_timestamp_ms()
+                task_base_ts = _deterministic_timestamp(base_timestamp_ms, participant_idx * 1_000_000)
 
                 for iteration in range(1, num_edits + 1):
                     # Simulate latency since the previous edit.
                     latency_ms = _sample_latency_ms(rng)
-                    timestamp_ms = base_ts + latency_ms
-                    base_ts = timestamp_ms
+                    timestamp_ms = task_base_ts + latency_ms
+                    task_base_ts = timestamp_ms
 
                     # Construct a synthetic payload.
                     payload = {
@@ -129,6 +136,9 @@ def main() -> None:
                         payload=payload,
                         iteration=iteration,
                     )
+
+    # After simulation, deterministic mode can be turned off if desired.
+    set_deterministic(False)
 
 if __name__ == "__main__":
     main()

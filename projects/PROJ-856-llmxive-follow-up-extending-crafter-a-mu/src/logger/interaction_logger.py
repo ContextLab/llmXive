@@ -57,6 +57,27 @@ _ABORT_THRESHOLD_MS = 15 * 60 * 1000
 # Keyed by (session_id, task_id)
 _task_state: Dict[Tuple[str, str], Dict[str, int]] = {}
 
+# ----------------------------------------------------------------------
+# Deterministic mode support (used by the synthetic participant driver)
+# ----------------------------------------------------------------------
+_deterministic: bool = False
+_deterministic_counter: int = 0
+
+def set_deterministic(flag: bool) -> None:
+    """
+    Enable or disable deterministic logging.
+
+    When deterministic mode is on, ``log_interaction`` generates a
+    reproducible ``log_id`` based on an incrementing counter instead of a
+    random UUID. This makes the synthetic logs fully reproducible given
+    the same random seed used by the simulator.
+    """
+    global _deterministic, _deterministic_counter
+    _deterministic = flag
+    if flag:
+        _deterministic_counter = 0
+
+# ----------------------------------------------------------------------
 def _timestamp_ms() -> int:
     """Return the current time as an integer number of milliseconds since the
     Unix epoch."""
@@ -123,9 +144,17 @@ def log_interaction(
     elapsed = task_end - task_start
 
     # Build the log record with both schema fields and analysis aliases
+    if _deterministic:
+        # Deterministic log_id based on a simple counter
+        global _deterministic_counter
+        log_id = f"det-{_deterministic_counter:08d}"
+        _deterministic_counter += 1
+    else:
+        log_id = str(uuid.uuid4())
+
     record: Dict[str, Any] = {
         # Schema‑required fields
-        "log_id": str(uuid.uuid4()),
+        "log_id": log_id,
         "session_id": participant_id,
         "task_id": figure_id,
         "timestamp_ms": now_ms,

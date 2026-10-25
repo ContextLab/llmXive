@@ -1,17 +1,19 @@
-# Core scientific stack (exact pinned versions)
-numpy==1.26.4
-pandas==2.2.2
-scipy==1.13.1
-scikit-learn==1.5.0
-statsmodels==0.14.2
-matplotlib==3.8.4
-seaborn==0.13.2
-fastapi==0.111.0
-uvicorn==0.30.1
-requests==2.31.0
-jsonschema==4.22.0
-pytest==8.2.2
-# Additional dependencies used by the project
-torch==2.3.0
-torchvision==0.18.0
-Pillow==10.2.0
+# Project dependencies
+# Core scientific stack (already available in the execution environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for interaction logging tests
+fastapi==0.111.*
+uvicorn==0.30.*
+pydantic==2.7.*

@@ -1,49 +1,29 @@
 T000:
-  reason: "The repository contains the required `requirements.txt`, `src/utils/seeds.py`,\
-    \ `src/utils/checksums.py`, and `data/checksums.txt`, and the seed constant is\
-    \ correctly set to\u202F42. However, there is no execution record or log showing\
-    \ that `pip install -r requirements.txt` actually succeeded, which is a mandatory\
-    \ verification step. Without evidence of a successful installation, the task cannot\
-    \ be considered fully completed."
+  reason: "The `requirements.txt` file does not pin versions for the majority of listed\
+    \ packages (e.g., `numpy`, `pandas`, `scipy`, etc.), violating the \u201Cpin all\
+    \ dependency versions\u201D requirement. All other artifacts exist, but the unpinned\
+    \ dependencies make the task incomplete."
   task: 63cb785ad60849e3caad4e88b36a90dc16d45849d7d3436f96b3354127241d03
 T001:
   task: 33b0619536c5f27a80371343dc50d7d8dc1269231f6184f6f9ec957d445cbb8c
 T002:
-  reason: "The provided `src/curators/curate_failed_figures.py` exists and runs, but\
-    \ it downloads CIFAR\u201110 rather than the required CrafterBench dataset, so\
-    \ it does not fetch a verified subset of 50 failed figures from CrafterBench.\
-    \ The script therefore does not satisfy the core requirement of the task. The\
-    \ next implementer must replace the synthetic CIFAR\u201110 source with a download\
-    \ of the actual CrafterBench data and ensure exactly 50 curated failed figures\
-    \ are produced, preserving the same error\u2011handling behavior."
+  reason: "Checked `src/curators/curate_failed_figures.py`. The script aborts with\
+    \ a non\u2011zero exit when the download fails, but it prints \u201Cverified source\
+    \ unavailable\u201D (lower\u2011case, different wording) instead of the required\
+    \ exact message \u201CVerified dataset source not available\u201D. The error message\
+    \ must match the specification exactly."
   task: 3133f3e03756a5ce38464bf745bb3c6d0ff384145e3b573db0503e5616d6d239
 T003:
-  reason: "The three source files exist and implement the required endpoints, but\
-    \ the provided test suite fails to run because the `fastapi` package is not installed\
-    \ (`ModuleNotFoundError: No module named 'fastapi'`). Without this dependency\
-    \ the verification command `pytest -q tests/interfaces/test_interfaces.py` cannot\
-    \ pass, so the task\u2019s acceptance criteria are not met. Install FastAPI (and\
-    \ its test client) or add it to the project\u2019s dependency list."
   task: dbf9a91563acd8266b94ceb0cd265230aa07b3708ef6725c19587239924819ff
 T004:
-  reason: "Checked `src/logger/interaction_logger.py` (contains the required fields\
-    \ and abort logic) and `tests/logger/test_interaction_logger.py` (the test suite\
-    \ fails to import `fastapi`, so no tests run, and it never verifies that a NASA\u2011\
-    TLX score is logged). The missing FastAPI dependency and lack of a test for the\
-    \ `subjective_load` field mean the required logging behavior is not demonstrated\
-    \ or validated. Fix by adding FastAPI (and any other test dependencies) and extending\
-    \ the tests to assert that a logged record includes `subjective_load` and passes\
-    \ schema validation."
   task: d94402329fbfa8637993ab610740efdf24a33787b4fb06f5a38448d31e2fa0e2
 T005:
-  reason: "The `src/validation/run_validation.py` script sets `overall_success = vector_match\
-    \ or semantic_pass`, violating the requirement that primary success be based **solely**\
-    \ on exact vector match, and the unit test (which expects `overall_success=False`\
-    \ when only semantic_pass is true) fails. Additionally, the test fails because\
-    \ `semantic_score` can exceed 1.0 due to floating\u2011point rounding, breaking\
-    \ the `0.99\u202F\u2264\u202Fscore\u202F\u2264\u202F1.0` assertion. Finally, the\
-    \ required `semantic_validation.schema.yaml` file is missing. Fix the overall_success\
-    \ logic, clamp or round similarity scores to \u2264\u202F1.0, and add the missin"
+  reason: The four required source and test files exist and the combined validation
+    script correctly sets `overall_success` based only on exact vector match, with
+    unit tests covering the three scenarios. However, the referenced `semantic_validation.schema.yaml`
+    file is missing, so we cannot verify that the produced records truly conform to
+    the required schema. Adding the schema file (or providing evidence of conformance)
+    is needed to complete the task.
   task: 55e2f555d7f99ddb9ddcd2466a1de5c787372d5c8886162fb7d8743883775f41
 T006:
   reason: "Checked `src/simulation/power_analysis.py` and `src/simulation/simulate_participants.py`\

@@ -36,9 +36,9 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     """
     Build the CLI argument parser.
 
-    ``--validation-dir`` is accepted for backward compatibility but
-    ignored – the analysis now derives everything directly from the
-    interaction log.
+    ``--validation-dir`` and ``--log-dir`` are accepted for backward
+    compatibility but are ignored – the analysis now derives everything
+    directly from the interaction log.
     """
     parser = argparse.ArgumentParser(
         description=(
@@ -53,6 +53,13 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--validation-dir",
+        type=str,
+        default=None,
+        help=argparse.SUPPRESS,
+    )
+    # Compatibility arguments – they are parsed but not used.
+    parser.add_argument(
+        "--log-dir",
         type=str,
         default=None,
         help=argparse.SUPPRESS,

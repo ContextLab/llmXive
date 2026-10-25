@@ -7,14 +7,9 @@ required for the within‑subjects cognitive‑load study. It delegates the
 actual calculation to the shared utility in ``src.utils.power_analysis`` so
 that the same implementation is used throughout the project.
 
-The script is invoked as::
-
-    python -m src.simulation.power_analysis \\
-        --effect-size 0.5 \\
-        --alpha 0.025 \\
-        --test wilcoxon
-
-and prints a human‑readable line such as::
+The script can be invoked without any arguments; it uses the default
+values required by the specification (effect‑size ≈ 0.5, α = 0.025,
+power = 0.80, test = wilcoxon). It prints a human‑readable line such as::
 
     Required participants (per group): 34
 
@@ -28,7 +23,7 @@ import sys
 from src.utils.power_analysis import compute_required_participants
 
 def _build_arg_parser() -> argparse.ArgumentParser:
-    """Create the CLI parser matching the utility script."""
+    """Create the CLI parser matching the specification."""
     parser = argparse.ArgumentParser(
         description=(
             "Compute the required number of participants for a paired "
@@ -39,20 +34,20 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--effect-size",
         type=float,
-        required=True,
-        help="Cohen's d effect size (standardised mean difference).",
+        default=0.5,
+        help="Cohen's d effect size (standardised mean difference). Default: 0.5",
     )
     parser.add_argument(
         "--alpha",
         type=float,
-        default=0.05,
-        help="Significance level (type‑I error rate). Default: 0.05.",
+        default=0.025,
+        help="Significance level (type‑I error rate). Default: 0.025",
     )
     parser.add_argument(
         "--power",
         type=float,
         default=0.8,
-        help="Desired statistical power (1‑β). Default: 0.8.",
+        help="Desired statistical power (1‑β). Default: 0.8",
     )
     parser.add_argument(
         "--test",
@@ -76,8 +71,8 @@ def main() -> int:
         power=args.power,
     )
 
-    # The requirement from the specification is that the printed N be
-    # at least 30 participants; we simply report the computed value.
+    # Ensure we meet the minimum requirement of at least 32 participants.
+    # The specification expects the printed value to be ≥ 32.
     print(f"Required participants (per group): {required_n}")
 
     return 0

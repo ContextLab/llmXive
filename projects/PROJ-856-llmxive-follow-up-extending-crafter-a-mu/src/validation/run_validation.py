@@ -12,9 +12,10 @@ Each record contains:
   - validation_id : a UUID for the record
   - task_id       : the figure identifier
   - vector_match  : boolean – true if the predicted vector matches ground‑truth
-  - semantic_score: cosine similarity (float in [‑1, 1])
+  - semantic_score: cosine similarity (float in [0, 1])
   - semantic_pass : boolean – true if semantic_score ≥ 0.95
-  - overall_success: boolean – true if **either** vector_match **or** semantic_pass is true
+  - overall_success: boolean – true **only** if `vector_match` is true
+                        (semantic similarity does not affect primary inclusion)
 """
 
 import argparse
@@ -25,6 +26,10 @@ from pathlib import Path
 from src.validation.vector_match import compare_vectors
 from src.validation.semantic_similarity import compute_similarity
 from llmxive_toolkit import paths
+
+def _clamp_similarity(value: float) -> float:
+    """Clamp similarity to the interval [0.0, 1.0] and round to 4 decimals."""
+    return round(min(max(value, 0.0), 1.0), 4)
 
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -74,8 +79,8 @@ def main() -> int:
     parser = _build_arg_parser()
     args = parser.parse_args()
 
-    # Resolve paths
-    log_dir = Path(args.log_dir)               # currently unused but kept for compatibility
+    # Resolve paths (log_dir is currently unused but retained for compatibility)
+    log_dir = Path(args.log_dir)
     gt_dir = Path(args.ground_truth_dir)
     pred_dir = Path(args.prediction_dir) if args.prediction_dir else None
     gt_img_dir = Path(args.ground_truth_image_dir)
@@ -116,20 +121,23 @@ def main() -> int:
             if pred_img_dir:
                 pred_image_path = pred_img_dir / f"{figure_id}.png"
                 if pred_image_path.is_file():
-                    similarity = compute_similarity(gt_image_path, pred_image_path)
+                    similarity_raw = compute_similarity(gt_image_path, pred_image_path)
                 else:
                     # Missing prediction image – compare ground‑truth image to itself
-                    similarity = compute_similarity(gt_image_path, gt_image_path)
+                    similarity_raw = compute_similarity(gt_image_path, gt_image_path)
             else:
                 # No prediction image supplied – compare the image to itself
-                similarity = compute_similarity(gt_image_path, gt_image_path)
+                similarity_raw = compute_similarity(gt_image_path, gt_image_path)
+
+            # Clamp similarity to [0, 1] and round for stability
+            similarity = _clamp_similarity(similarity_raw)
 
             semantic_pass = similarity >= 0.95
 
             # ---------------------------------------------------------
-            # Overall success (OR logic)
+            # Overall success (primary success = vector_match only)
             # ---------------------------------------------------------
-            overall_success = vector_match or semantic_pass
+            overall_success = vector_match
 
             # ---------------------------------------------------------
             # Record construction (conforms to the schema)

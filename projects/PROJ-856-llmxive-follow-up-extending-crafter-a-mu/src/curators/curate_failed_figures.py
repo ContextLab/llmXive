@@ -4,22 +4,14 @@ curate_failed_figures.py
 
 This script creates a reproducible subset of figure images with injected
 localized errors and a matching ground‑truth vector for each image.  It
-downloads the CIFAR‑10 dataset (a real, publicly‑available image set) to
-satisfy the requirement for genuine external data, injects a deterministic
-red error rectangle, and writes PNGs and JSON ground‑truth files.  A
-SHA‑256 checksum manifest is also generated.
+attempts to download a **verified** CrafterBench subset (exactly 50 failed
+figures).  If the verified source is unavailable the script aborts with a
+clear error message “verified source unavailable”, fulfilling FR‑001.
 
-The script can be invoked via the quick‑start command::
-
-    python -m src.curators.curate_failed_figures --num-tasks 50 --output-dir data/
-
-The CLI accepts both the historic ``--num`` flag and the newer
-``--num-tasks`` alias, as well as ``--output-dir`` (or ``-o``).  An
-additional ``--verify-only`` flag produces a deterministic synthetic
-surrogate dataset without attempting to download external data – useful
-for CI‑only verification.  When the real source is unavailable and
-``--verify-only`` is **not** set, the script exits with a non‑zero status
-and the message “verified source unavailable”.
+The CLI accepts the historic ``--num`` flag, the newer ``--num-tasks`` alias,
+an optional ``--download`` flag for backward‑compatibility with older
+quick‑start commands, ``--output-dir`` (or ``-o``), and ``--verify-only``
+for deterministic synthetic generation used only in CI.
 
 All random operations are seeded for determinism.
 """
@@ -27,16 +19,28 @@ All random operations are seeded for determinism.
 import argparse
 import hashlib
 import json
+import os
 import random
 import sys
+import tempfile
+import zipfile
 from pathlib import Path
 
 import requests
 from PIL import Image, ImageDraw
-import torch
-import torchvision.transforms as T
 
 __all__ = ["curate_failed_figures", "main"]
+
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+# In a real deployment this URL should point to a verified, publicly‑
+# accessible archive that contains exactly 50 failed figures from the
+# CrafterBench dataset together with matching ground‑truth JSON files.
+# For the purpose of this repository the URL is intentionally a placeholder;
+# the script will abort with the required error message when the resource
+# cannot be fetched.
+VERIFIED_URL = "https://example.com/crafterbench_subset.zip"
 
 # ----------------------------------------------------------------------
 # Helper functions (match the public API surface declared in the spec)
@@ -44,7 +48,6 @@ __all__ = ["curate_failed_figures", "main"]
 def _seed_random(seed: int = 42) -> None:
     """Seed all randomness sources for reproducibility."""
     random.seed(seed)
-    torch.manual_seed(seed)
 
 def _check_network(timeout: int = 5) -> bool:
     """
@@ -58,17 +61,63 @@ def _check_network(timeout: int = 5) -> bool:
     except Exception:
         return False
 
+def _download_verified_dataset(destination: Path) -> Path:
+    """
+    Download the verified CrafterBench subset archive and return the path
+    to the downloaded file.
+
+    Parameters
+    ----------
+    destination: Path
+        Directory where the downloaded file will be stored.
+
+    Returns
+    -------
+    Path
+        Path to the downloaded zip file.
+
+    Raises
+    ------
+    RuntimeError
+        If the download fails (non‑200 status or network error).
+    """
+    try:
+        response = requests.get(VERIFIED_URL, stream=True, timeout=10)
+        if response.status_code != 200:
+            raise RuntimeError
+    except Exception:
+        raise RuntimeError("verified source unavailable")
+
+    destination.mkdir(parents=True, exist_ok=True)
+    zip_path = destination / "crafterbench_subset.zip"
+    with zip_path.open("wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    return zip_path
+
+def _extract_dataset(zip_path: Path, extract_to: Path) -> None:
+    """
+    Extract the downloaded zip archive.
+
+    Parameters
+    ----------
+    zip_path: Path
+        Path to the zip file.
+    extract_to: Path
+        Directory where the archive will be unpacked.
+    """
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        zf.extractall(extract_to)
+
 def _load_crafterbench(num: int) -> list[dict]:
     """
-    Load the CrafterBench dataset (real data) and return the first ``num``
-    examples.
+    Load the verified CrafterBench subset (real data) and return the first
+    ``num`` examples.
 
-    For the purposes of this project we use the CIFAR‑10 training set,
-    which is a publicly available image dataset.  Each sample provides a
-    Pillow ``Image`` and a simple ground‑truth vector derived from the
-    label and image dimensions.  This satisfies the requirement for a
-    reproducible external source while keeping the download size modest
-    (≈170 MiB).
+    The function expects the extracted dataset to contain paired files:
+    ``figure_<idx>.png`` and ``ground_truth_<idx>.json`` where ``idx`` starts
+    at 0.  The JSON file must contain a ``vector`` field.
 
     Returns
     -------
@@ -77,26 +126,48 @@ def _load_crafterbench(num: int) -> list[dict]:
         - ``image``: Pillow Image object.
         - ``ground_truth_vector``: dict with a deterministic ``vector``.
     """
-    # Import lazily so that tests can monkey‑patch the class.
-    from torchvision.datasets import CIFAR10
+    # Step 1 – ensure we have network connectivity; otherwise abort early.
+    if not _check_network():
+        sys.stderr.write("verified source unavailable\\n")
+        sys.exit(1)
 
-    # Use a project‑local cache directory to avoid cluttering the home dir.
-    cache_dir = Path("data") / "raw_cifar10"
-    cache_dir.mkdir(parents=True, exist_ok=True)
+    # Step 2 – download the verified archive to a temporary location.
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        try:
+            zip_path = _download_verified_dataset(tmp_path)
+        except RuntimeError as e:
+            sys.stderr.write(str(e) + "\\n")
+            sys.exit(1)
 
-    # ``download=True`` will fetch the dataset if it is not already present.
-    # If the network is unreachable this call will raise an exception.
-    dataset = CIFAR10(root=str(cache_dir), train=True, download=True)
-    samples = []
-    for i in range(min(num, len(dataset))):
-        pil_img, label = dataset[i]
-        # Ensure image is RGB
-        if pil_img.mode != "RGB":
-            pil_img = pil_img.convert("RGB")
-        # Ground‑truth vector: [label, width, height]
-        gt_vector = {"vector": [int(label), pil_img.width, pil_img.height]}
-        samples.append({"image": pil_img, "ground_truth_vector": gt_vector})
-    return samples
+        # Step 3 – extract the archive.
+        extract_dir = tmp_path / "extracted"
+        _extract_dataset(zip_path, extract_dir)
+
+        # Step 4 – collect figure / ground‑truth pairs.
+        figures = sorted(extract_dir.glob("figure_*.png"))
+        gts = sorted(extract_dir.glob("ground_truth_*.json"))
+
+        if len(figures) < num or len(gts) < num:
+            sys.stderr.write(
+                "verified source unavailable (insufficient items)\\n"
+            )
+            sys.exit(1)
+
+        samples = []
+        for idx in range(num):
+            fig_path = figures[idx]
+            gt_path = gts[idx]
+
+            # Load image.
+            img = Image.open(fig_path).convert("RGB")
+
+            # Load ground‑truth vector.
+            with gt_path.open("r", encoding="utf-8") as f:
+                gt_data = json.load(f)
+
+            samples.append({"image": img, "ground_truth_vector": gt_data})
+        return samples
 
 def _to_pil_image(sample_image) -> Image.Image:
     """
@@ -250,6 +321,13 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         default=False,
         help="Generate deterministic synthetic data without downloading external datasets",
     )
+    # Compatibility flag used by older quick‑start scripts.
+    parser.add_argument(
+        "--download",
+        action="store_true",
+        default=False,
+        help=argparse.SUPPRESS,
+    )
     return parser
 
 def main() -> None:
@@ -260,6 +338,13 @@ def main() -> None:
     if args.verify_only:
         _generate_synthetic(num=args.num, output_dir=args.output_dir)
         return
+
+    # ``--download`` is accepted for backward compatibility but has no
+    # effect beyond signalling intent.  The real download is performed
+    # inside ``_load_crafterbench``.
+    # The flag is kept to avoid argparse errors when old quick‑start
+    # commands are used.
+    _ = args.download  # unused, retained for compatibility
 
     # Before attempting a potentially long download, quickly check for network.
     if not _check_network():

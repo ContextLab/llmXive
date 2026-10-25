@@ -14,6 +14,8 @@ This script:
    and ``status`` (``aborted`` or ``completed``).
 5. Skips tasks whose ground‑truth vector is missing or corrupted,
    logging a warning for each such case.
+6. Computes the final effective N (number of non‑aborted tasks) per participant
+   and writes it to ``effective_N_by_participant.jsonl``.
 
 The script is deliberately defensive: any unrecoverable mismatch causes a
 non‑zero exit status, preventing downstream analysis from running on
@@ -150,6 +152,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         default="data/results/semantic_validation_by_session.jsonl",
         help="Path to write the aggregated per‑session validation file.",
     )
+    parser.add_argument(
+        "--effective-n-output",
+        type=str,
+        default="data/results/effective_N_by_participant.jsonl",
+        help="Path to write the effective N per participant.",
+    )
     return parser
 
 def _run_validation(log_dir: Path, ground_truth_dir: Path, validation_dir: Path) -> None:
@@ -188,6 +196,7 @@ def main() -> int:
     validation_dir = Path(args.validation_dir)
     ground_truth_dir = Path(args.ground_truth_dir)
     output_path = Path(args.output_path)
+    effective_n_path = Path(args.effective_n_output)
 
     # 1. Ensure the validation file exists (run validation if needed)
     _run_validation(log_dir, ground_truth_dir, validation_dir)
@@ -236,6 +245,9 @@ def main() -> int:
     written = 0
     skipped_corrupt = 0
 
+    # Track effective N per participant (non‑aborted tasks)
+    effective_n_counter: Dict[str, int] = defaultdict(int)
+
     with output_path.open("w", encoding="utf-8") as out_f:
         for record in validations:
             raw_task = record.get("task_id") or record.get("figure_id")
@@ -269,6 +281,9 @@ def main() -> int:
             out_f.write(json.dumps(aggregated) + "\n")
             written += 1
 
+            if status != "aborted":
+                effective_n_counter[session_id] += 1
+
     if written == 0:
         log.error("No records were written to %s – aborting", output_path)
         return 1
@@ -279,6 +294,14 @@ def main() -> int:
         skipped_corrupt,
         output_path,
     )
+
+    # 5. Write effective N per participant.
+    effective_n_path.parent.mkdir(parents=True, exist_ok=True)
+    with effective_n_path.open("w", encoding="utf-8") as n_f:
+        for session_id, count in effective_n_counter.items():
+            n_f.write(json.dumps({"session_id": session_id, "effective_N": count}) + "\n")
+    log.info("Wrote effective N for %d participants to %s", len(effective_n_counter), effective_n_path)
+
     return 0
 
 if __name__ == "__main__":
