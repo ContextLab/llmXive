@@ -1,25 +1,3 @@
-- artifact_hash: d5eb9bcfc20a57570c500155741a744074fa413537bbacc0f0d05d8ad15fe08b
-  artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/mmbench/ocean
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/mmbench/ocean
-  verified_at: '2026-10-24T07:16:55.456244Z'
-- artifact_hash: d5eb9bcfc20a57570c500155741a744074fa413537bbacc0f0d05d8ad15fe08b
-  artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: arxiv
-  value: '2605.22109'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-10-24T07:16:55.456244Z'
 - artifact_hash: ef624c338d0a18427df7091d60bc75a68b3d68c8b06f89e405b50b62f5934ca6
   artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o/spec.md
   cite_id: c-001
@@ -86,3 +64,14 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-10-24T07:49:42.176305Z'
+- artifact_hash: 31fbd6a9892a4c61bd8f9f6f482915d298aabb77cdd71e62ab08501b1a4ecdd9
+  artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/mmbench/ocean
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/mmbench/ocean
+  verified_at: '2026-10-25T18:21:13.168179Z'
