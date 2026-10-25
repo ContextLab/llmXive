@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-25T18:27:28.284315+00:00",
+  "generated_at": "2026-10-25T18:30:01.489304+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -29211,6 +29211,11 @@
       "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
       "example_artifacts": [
         {
+          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-969-llmxive-follow-up-extending-perception-o",
+          "project_id": "PROJ-969-llmxive-follow-up-extending-perception-o",
+          "title": "llmXive follow-up: extending \"Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Pers\""
+        },
+        {
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-305-statistical-analysis-of-publicly-availab",
           "project_id": "PROJ-305-statistical-analysis-of-publicly-availab",
           "title": "Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports"
@@ -29229,11 +29234,6 @@
           "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot",
           "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
           "title": "llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Shift Toward Persisten\""
-        },
-        {
-          "github_url": "https://github.com/ContextLab/llmXive/tree/main/projects/PROJ-302-evaluating-the-impact-of-code-generation",
-          "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
-          "title": "Evaluating the Impact of Code Generation on Code Review Time: A Large-Scale Study"
         }
       ],
       "inputs": [
@@ -88425,7 +88425,7 @@
           ]
         },
         {
-          "contributions": 23,
+          "contributions": 24,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -88471,6 +88471,14 @@
       "id": "PROJ-302-evaluating-the-impact-of-code-generation",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 1148.101142,
+          "ended_at": "2026-10-25T18:26:48.102456Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T18:07:40.001314Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 734.984136,
@@ -88542,14 +88550,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-23T05:07:54.510033Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1161.502325,
-          "ended_at": "2026-10-18T11:43:24.165653Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-18T11:24:02.663328Z"
         }
       ],
       "paper_status": null,
@@ -108123,7 +108123,7 @@
           ]
         },
         {
-          "contributions": 72,
+          "contributions": 73,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -108169,6 +108169,14 @@
       "id": "PROJ-417-assessing-the-impact-of-data-heterogenei",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 762.601148,
+          "ended_at": "2026-10-25T18:20:48.874258Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T18:08:06.273110Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 37.56993,
@@ -108240,14 +108248,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-25T16:13:37.762675Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 176.448907,
-          "ended_at": "2026-10-25T16:13:37.759171Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-25T16:10:41.310264Z"
         }
       ],
       "paper_status": null,
@@ -172966,7 +172966,7 @@
       },
       "authors": [
         {
-          "contributions": 14,
+          "contributions": 16,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -173011,12 +173011,36 @@
         "repo_path": "projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "tasked",
+      "current_stage": "in_progress",
       "description": "Verdict: concern The question asks whether a reasoning deficit or a visual limitation causes the \"Prejudice Gap,\" which is a substantive scientific question about MLLM cognition. However, the phrasing \"significantly reduce... via retrieval-augmented prompting\" leans heavily toward evaluating a specific intervention\u2026",
       "field": "computer science",
       "id": "PROJ-969-llmxive-follow-up-extending-perception-o",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 28.87978,
+          "ended_at": "2026-10-25T18:23:38.518972Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T18:23:09.639192Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 66.538344,
+          "ended_at": "2026-10-25T18:22:45.307173Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T18:21:38.768829Z"
+        },
+        {
+          "agent": "tasker",
+          "duration_s": 0.034723,
+          "ended_at": "2026-10-25T18:21:30.210612Z",
+          "model": "deterministic-no-llm",
+          "outcome": "skipped",
+          "started_at": "2026-10-25T18:21:30.175889Z"
+        },
         {
           "agent": "tasker",
           "duration_s": 796.327343,
@@ -173072,30 +173096,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-22T22:15:40.902302Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 439.481854,
-          "ended_at": "2026-10-22T22:15:40.898358Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-22T22:08:21.416504Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 35.38021,
-          "ended_at": "2026-10-22T15:09:24.114861Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-22T15:08:48.734651Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 62.677456,
-          "ended_at": "2026-10-22T11:08:03.748773Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-22T11:07:01.071317Z"
         }
       ],
       "paper_status": null,
@@ -173109,7 +173109,7 @@
       "speckit_research_dir": "projects/PROJ-969-llmxive-follow-up-extending-perception-o/specs/001-llmxive-follow-up-extending-perception-o",
       "submitter": null,
       "title": "llmXive follow-up: extending \"Perception or Prejudice: Can MLLMs Go Beyond First Impressions of Pers\"",
-      "updated_at": "2026-10-25T18:21:13.374688+00:00",
+      "updated_at": "2026-10-25T18:22:45.334105+00:00",
       "upstream_feedback": null
     },
     {
@@ -173820,7 +173820,7 @@
           ]
         },
         {
-          "contributions": 34,
+          "contributions": 35,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -173866,6 +173866,14 @@
       "id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 811.214333,
+          "ended_at": "2026-10-25T18:20:57.942275Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T18:07:26.727942Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 48.506747,
@@ -173937,14 +173945,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-25T16:23:25.912761Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 105.06607,
-          "ended_at": "2026-10-25T16:23:25.907384Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T16:21:40.841314Z"
         }
       ],
       "paper_status": null,
@@ -176467,6 +176467,54 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 1148.101142,
+      "ended_at": "2026-10-25T18:26:48.102456Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T18:07:40.001314Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 28.87978,
+      "ended_at": "2026-10-25T18:23:38.518972Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-969-llmxive-follow-up-extending-perception-o",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T18:23:09.639192Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 66.538344,
+      "ended_at": "2026-10-25T18:22:45.307173Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-969-llmxive-follow-up-extending-perception-o",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T18:21:38.768829Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 0.034723,
+      "ended_at": "2026-10-25T18:21:30.210612Z",
+      "failure_reason": "",
+      "model": "deterministic-no-llm",
+      "outcome": "skipped",
+      "project_id": "PROJ-969-llmxive-follow-up-extending-perception-o",
+      "project_stage": "in_progress",
+      "severity": "soft",
+      "started_at": "2026-10-25T18:21:30.175889Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 796.327343,
       "ended_at": "2026-10-25T18:21:13.338682Z",
@@ -176474,9 +176522,33 @@
       "model": "openai.gpt-oss-120b",
       "outcome": "success",
       "project_id": "PROJ-969-llmxive-follow-up-extending-perception-o",
-      "project_stage": "tasked",
+      "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-25T18:07:57.011339Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 811.214333,
+      "ended_at": "2026-10-25T18:20:57.942275Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T18:07:26.727942Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 762.601148,
+      "ended_at": "2026-10-25T18:20:48.874258Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-417-assessing-the-impact-of-data-heterogenei",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T18:08:06.273110Z"
     },
     {
       "agent": "implementer",
@@ -182393,78 +182465,6 @@
       "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-10-24T21:07:47.095629Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 214.229177,
-      "ended_at": "2026-10-24T21:11:05.890899Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-422-predicting-molecular-permeability-coeffi",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-24T21:07:31.661722Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 43.120703,
-      "ended_at": "2026-10-24T20:46:44.847312Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-271-evaluating-the-effectiveness-of-llms-for",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T20:46:01.726609Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.084035,
-      "ended_at": "2026-10-24T20:46:01.723993Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-271-evaluating-the-effectiveness-of-llms-for",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T20:45:57.639958Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.465644,
-      "ended_at": "2026-10-24T20:45:57.637298Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-271-evaluating-the-effectiveness-of-llms-for",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T20:45:53.171654Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 52.790456,
-      "ended_at": "2026-10-24T20:44:34.964921Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-271-evaluating-the-effectiveness-of-llms-for",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T20:43:42.174465Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 4.732329,
-      "ended_at": "2026-10-24T20:43:42.171800Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-271-evaluating-the-effectiveness-of-llms-for",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T20:43:37.439471Z"
     }
   ],
   "reviewed_preprints": [
