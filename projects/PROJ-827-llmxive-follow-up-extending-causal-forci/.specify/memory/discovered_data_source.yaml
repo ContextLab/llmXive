@@ -1,19 +1,19 @@
 status: none
-intent: synthetic physics video dataset with ground truth state vectors Box2D python
-  package dataset
+intent: CLEVRER PHYRE DeepMind Control Suite physics video dataset with ground truth
+  state vectors python package dataset
 required_fields:
-- video_file_path_or_frame_sequence
+- video_file_path
+- frame_index
+- timestamp
 - object_id
-- frame_index_or_timestamp
 - position_x
 - position_y
+- position_z
 - velocity_x
 - velocity_y
-- orientation_angle
-- angular_velocity
-- mass
-- friction_coefficient
-- shape_type
-cache_key: 9072c6b227bfb7f6a2926c78f0a2cda267baf5274a3e887786f9ea78fd130bb7
-searched_at: '2026-10-25T19:27:35.028571+00:00'
+- velocity_z
+- orientation_quaternion
+- angular_velocity_x
+cache_key: 69aabe5f33572898864f5111dbeee1a2c292eeab608f3911b18380b3a8dbc471
+searched_at: '2026-10-25T19:40:27.693616+00:00'
 retry_count: 1

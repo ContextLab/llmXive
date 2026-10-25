@@ -30,7 +30,7 @@ Run the full experiment on a fresh GitHub Actions runner (or a local Linux envir
        --num-test <N_TEST> \
        --output-dir data/physics
    ```
-   - `<N_TRAIN>`, `<N_VAL>`, `<N_TEST>` are **[deferred]** to the implementation phase; choose values that respect the 6 h / 7 GB budget.  
+   - `<N_TRAIN>`, `<N_VAL>`, `<N_TEST>` are **[deferred]** to the implementation phase; choose values that respect the 6 h / 7 GB budget (minimum 500 training sequences, ≥ 200 test sequences for power).  
    - The script discards any NaN‑containing sequences, logs warnings, and verifies determinism by re‑running a fixed‑seed subset and comparing checksums.
 
 4. **Generate neural‑teacher signals (baseline teacher)**
@@ -44,13 +44,13 @@ Run the full experiment on a fresh GitHub Actions runner (or a local Linux envir
 
 5. **Train the baseline diffusion model (neural‑teacher signals)**
    ```bash
-   python -m src.models.diffusion_student \
+   python -m src.models.diffusion_baseline \
        --train-dir data/physics/train \
        --teacher-signals data/physics/neural_teacher_signals \
-       --model-size small   # uses the ~5 M‑parameter architecture
-       --epochs <EPOCHS> \
-       --batch-size 8 \
-       --gradient-accumulation-steps 4 \
+       --model-size small   # uses the ~multi‑million‑parameter architecture
+       --epochs 10 \
+       --batch-size 4 \
+       --gradient-accumulation-steps 8 \
        --checkpoint-activation \
        --output-dir outputs/baseline_diffusion
    ```
@@ -61,9 +61,9 @@ Run the full experiment on a fresh GitHub Actions runner (or a local Linux envir
        --train-dir data/physics/train \
        --teacher-signals data/physics/train/trajectories.npz \
        --model-size small   # same ~5 M‑parameter architecture as baseline
-       --epochs <EPOCHS> \
-       --batch-size 8 \
-       --gradient-accumulation-steps 4 \
+       --epochs 10 \
+       --batch-size 4 \
+       --gradient-accumulation-steps 8 \
        --checkpoint-activation \
        --output-dir outputs/student_physics
    ```
@@ -79,7 +79,7 @@ Run the full experiment on a fresh GitHub Actions runner (or a local Linux envir
        --output-dir outputs/metrics
    ```
 
-8. **Statistical analysis (includes power analysis)**
+8. **Statistical analysis (includes power analysis & permutation test)**
    ```bash
    python -m src.evaluation.statistical \
        --metrics-dir outputs/metrics \
@@ -110,5 +110,4 @@ Run the full experiment on a fresh GitHub Actions runner (or a local Linux envir
 Re‑running the entire pipeline with the same `GLOBAL_SEED` yields identical hashes for all outputs, confirming reproducibility (Principle I). Every metric in the final tables is a real measurement traced via `outputs/manifest.json` (Anti‑Fabrication Commitment).
 
 ---
-
 

@@ -31,13 +31,14 @@ properties:
     type: number
     minimum: 0.0
     description: "Learned Perceptual Image Patch Similarity (lower is better)."
+  mae:
+    type: number
+    minimum: 0.0
+    description: "Mean Absolute Error (pixel‑wise) against analytically computed reference frames."
   fid:
     type: number
     minimum: 0.0
     description: "Optional set‑level Fréchet Inception Distance against the baseline set (reported per model in outputs/metrics/fid.csv)."
-  trajectory_pixel_corr:
-    type: number
-    description: "Pearson correlation between physics velocities and optical‑flow vectors computed on student‑generated frames."
   additional_info:
     type: object
     description: "Optional free‑form fields (e.g., friction coefficient for ablation)."
