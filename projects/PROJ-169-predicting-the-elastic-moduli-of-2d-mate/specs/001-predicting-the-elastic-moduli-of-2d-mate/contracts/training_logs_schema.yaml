@@ -5,7 +5,7 @@ type: "object"
 properties:
   device:
     type: "string"
-    description: "Must be 'cpu'"
+    description: "Must be 'cpu'."
   peak_memory:
     type: "object"
     properties:
@@ -28,7 +28,7 @@ properties:
       type: "number"
   cross_validation:
     type: "object"
-    description: "k‑fold CV over train+val pool (FR‑010)"
+    description: "k‑fold CV over train+val pool (FR‑010)."
     properties:
       folds:
         type: "integer"
@@ -69,10 +69,10 @@ properties:
       - poisson_mae
   megnet_benchmark:
     type: "string"
-    description: "'executed' or 'descoped' with reason (CPU/memory condition)"
+    description: "'executed' or 'descoped' with reason (CPU/memory condition)."
   disclaimer:
     type: "string"
-    description: "Embedded scientific‑integrity disclaimer text"
+    description: "Embedded scientific‑integrity disclaimer text."
 required:
   - device
   - peak_memory

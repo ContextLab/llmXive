@@ -5,12 +5,12 @@ type: "object"
 properties:
   family_disjoint:
     type: "boolean"
-    description: "True if no family appears in more than one split"
+    description: "True if no family appears in more than one split."
   overlapping_families:
     type: "array"
     items:
       type: "string"
-    description: "Families found in multiple splits (must be empty on pass)"
+    description: "Families found in multiple splits (must be empty on pass)."
   split_sizes:
     type: "object"
     properties:

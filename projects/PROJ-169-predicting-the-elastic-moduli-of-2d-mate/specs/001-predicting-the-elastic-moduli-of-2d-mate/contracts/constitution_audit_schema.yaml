@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Constitution Title Audit Schema"
+description: "Schema for data/results/constitution_title_audit.json"
+type: "object"
+properties:
+  status:
+    type: "string"
+    enum: ["PASS", "FAIL"]
+    description: "Overall audit status; FAIL causes a non‑zero exit code."
+  audited_titles:
+    type: "array"
+    description: "One record per audited project‑produced title"
+    items:
+      type: "object"
+      properties:
+        file:
+          type: "string"
+          description: "Path of the audited document"
+        title:
+          type: "string"
+          description: "Title text found in the document"
+        result:
+          type: "string"
+          enum: ["PASS", "FAIL"]
+        forbidden_terms_found:
+          type: "array"
+          items:
+            type: "string"
+      required:
+        - file
+        - title
+        - result
+        - forbidden_terms_found
+  constitution_title_exemption:
+    type: "object"
+    description: "Record of the pre‑amendment constitution title exemption per spec Section 4b"
+    properties:
+      exempt:
+        type: "boolean"
+      reason:
+        type: "string"
+    required:
+      - exempt
+      - reason
+  exit_code:
+    type: "integer"
+    enum: [0, 1]
+    description: "0 on all‑pass, 1 on any failure (FR‑009)."
+required:
+  - status
+  - audited_titles
+  - constitution_title_exemption
+  - exit_code
+additionalProperties: false
