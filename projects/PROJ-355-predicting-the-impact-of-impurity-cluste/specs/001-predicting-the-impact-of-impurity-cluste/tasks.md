@@ -27,7 +27,7 @@ All paths are relative to the project root `projects/PROJ-355-predicting-the-imp
     4. `## Research Question` – a concise restatement of the question from the spec.  
   - **Verification**: `tests/unit/test_readme_strict.py` checks for the four headings in order and the exact execution command string.  
 
-- [ ] **T003** [US‑1] **Download bulk configuration records from OQMD with retry logic and record metadata**   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
+- [ ] **T003** [US‑1] **Download bulk configuration records from OQMD with retry logic and record metadata**   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
   - **Files**: `code/download.py`, `data/raw/oqmd_records/` (immutable JSON/CSV), `data/metadata.yaml`  
   - **Steps**:  
     1. Use `datasets.load_dataset("jablonkagroup/oqmd", name="raw_data", streaming=True)`.  

@@ -30,7 +30,7 @@ ERROR tests/unit/test_preprocessing_filter.py
 ERROR tests/unit/test_simulate_energy.py
 ERROR tests/unit/test_vif_analysis.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 20 errors during collection !!!!!!!!!!!!!!!!!!!
-======================= 19 warnings, 20 errors in 2.52s ========================
+======================= 19 warnings, 20 errors in 3.79s ========================
 
 
 ## Platform-owned paths written inside the project
