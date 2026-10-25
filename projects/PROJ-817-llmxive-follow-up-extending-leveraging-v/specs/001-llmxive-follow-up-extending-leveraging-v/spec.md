@@ -93,7 +93,7 @@ The researcher MUST be able to execute the graph‑augmented evaluation, feeding
 
 ## Assumptions
 
-- **Dataset Availability & Construction**: The public InstructPix2Pix shards provide a large pool of single‑step editing instructions. We will algorithmically pair or modify these instructions to create multi‑step and contradictory prompts, then manually verify a subset to ensure genuine conflict. This curated process yields the required 500 conflicting and 500 neutral prompts.
+- **Dataset Availability & Construction**: The public InstructPix2Pix shards provide a large pool of single‑step editing instructions. We will algorithmically pair or modify these instructions to create multi‑step and contradictory prompts, then manually verify a subset to ensure genuine conflict. This curated process yields the required set of conflicting and neutral prompts in equal quantities.
 - **Model Compatibility**: The distilled 1B‑parameter Edit‑R1 verifier can be loaded and executed on a CPU‑only environment with 7 GB RAM without requiring CUDA or quantization libraries that force GPU usage.
 - **NLP Library Reliability**: Standard Python NLP libraries (spaCy, networkx) combined with a rule‑based contradiction detection module are sufficient to parse the semantic structure of image editing instructions into valid constraint graphs without requiring specialized large‑language‑model‑based parsers.
 - **Statistical Power**: With **at least 200** human‑annotated prompts (≈ 100 conflicting, 100 neutral), the paired test may have limited power to detect a medium effect size (Cohen's d ≈ 0.5). Observed power will be reported alongside results; the study is primarily exploratory.

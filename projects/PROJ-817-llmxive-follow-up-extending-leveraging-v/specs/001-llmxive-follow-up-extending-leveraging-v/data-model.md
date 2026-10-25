@@ -10,8 +10,7 @@
 | `prompt_id` | string | Deterministic UUID for the prompt. |
 | `instruction_type` | enum(`conflicting`, `neutral`) | Ground‑truth label (balanced groups of equal size). |
 | `prompt_text` | string | Full natural‑language instruction. |
-| `synthetic_score` | number (0.0‑1.0) | Rule‑based feasibility heuristic (used only for internal diagnostics; **not** for evaluation). |
-| `human_score` | number (0.0‑1.0) | Independent human‑annotated feasibility score (primary ground‑truth). |
+| `synthetic_score` | number (0.0‑1.0) | Rule‑based feasibility heuristic (used only for diagnostics; **not** for evaluation). |
 | `checksum` | string | SHA‑256 of the original parquet row (data hygiene). |
 
 File path: `data/results/curated_prompts.csv`.
@@ -20,7 +19,7 @@ File path: `data/results/curated_prompts.csv`.
 | Column | Type | Description |
 |--------|------|-------------|
 | `prompt_id` | string | Links to `curated_prompts.csv`. |
-| `human_rating` | number (0.0‑1.0) | Average rating from crowd workers. |
+| `human_rating` | number (0.0‑1.0) | Average rating from crowd workers (the ground‑truth feasibility score). |
 | `annotation_source` | string | e.g., `"MTurk"` or `"internal_form"`. |
 
 File path: `data/results/human_validation.csv`.
@@ -48,8 +47,8 @@ Stored under `data/results/graphs/`.
 |--------|------|-------------|
 | `prompt_id` | string | Links to `curated_prompts.csv`. |
 | `verifier_score` | number (0.0‑1.0) | Alignment score from baseline verifier. |
-| `human_score` | number (0.0‑1.0) | Copied from `curated_prompts.csv`. |
-| `alignment_delta` | number | `verifier_score - human_score`. |
+| `human_score` | number (0.0‑1.0) | Copied from `human_validation.csv` (for all annotated prompts). |
+| `alignment_abs` | number | `|verifier_score - human_score|` (primary alignment metric). |
 
 File path: `data/results/baseline_scores.csv`.
 
@@ -138,3 +137,4 @@ File path: `analysis/report.json`.
 All CSV files are UTF‑8 encoded, line‑terminated with `\n`. JSON files are pretty‑printed with 2‑space indentation.
 
 ---
+

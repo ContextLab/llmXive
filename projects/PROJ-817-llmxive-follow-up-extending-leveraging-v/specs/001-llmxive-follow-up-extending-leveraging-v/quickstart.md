@@ -38,13 +38,13 @@ python -m src.data.curate
 ```bash
 # Filter natural language prompts for realistic contradictions using heuristic cues
 python -m src.data.filter_conflicts
-# This creates `data/results/curated_prompts.csv` with an equal number of conflicting and neutral prompts.
+# This creates `data/results/curated_prompts.csv` with an equal number of conflicting and neutral prompts (the same count for each category).
 ```
 
 ## 5. Human feasibility annotation (required for evaluation)
 ```bash
 python -m src.data.human_annotation
-# Writes `data/results/human_validation.csv` and merges scores into `curated_prompts.csv`.
+# Writes `data/results/human_validation.csv` (a set of human‑validated prompts) and merges scores into `curated_prompts.csv`.
 ```
 
 ## 6. Symbolic graph construction (CPU‑only)
@@ -89,14 +89,15 @@ All contract tests must pass; otherwise the CI job fails.
 |------|-------------|
 | `data/raw/*.parquet` | Original InstructPix2Pix shards (verified URLs). |
 | `data/raw/provenance.json` | Checksums and source metadata. |
-| `data/results/curated_prompts.csv` | Prompt text + synthetic & **human** feasibility scores (human scores for all prompts). |
-| `data/results/human_validation.csv` | Raw crowd ratings. |
+| `data/results/curated_prompts.csv` | Prompt text + synthetic scores + conflict label (human scores for the full set of prompts). |
+| `data/results/human_validation.csv` | Raw crowd ratings for the set of human‑scored prompts. |
 | `data/results/graphs/*.json` | One constraint graph per prompt (CPU‑only). |
-| `data/results/baseline_scores.csv` | Verifier scores without graph context. |
-| `data/results/augmented_scores.csv` | Verifier scores with graph context and two control conditions. |
+| `data/results/baseline_scores.csv` | Verifier scores for a substantial sample of human‑scored prompts (baseline). |
+| `data/results/augmented_scores.csv` | Verifier scores with graph context and two control conditions (baseline subset). |
 | `analysis/report.json` | Full statistical results, runtime, memory usage, correlation, correction method. |
 | `analysis/report.csv` | Human‑readable summary for inclusion in the manuscript. |
 
-The quickstart now points to the correct module paths (`src.data...`) and includes the new conflict‑filter step and the corrected output path for `curated_prompts.csv`.
+The quickstart now points to the correct module paths (`src.data...`) and includes the updated step for annotating **all 1 000** prompts.
 
 ---
+
