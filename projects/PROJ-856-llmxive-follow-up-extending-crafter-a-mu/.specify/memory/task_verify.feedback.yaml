@@ -1,10 +1,10 @@
 T000:
-  reason: "The repository contains the required files and the checksums script was\
-    \ run successfully, but there is no evidence that `pip install -r requirements.txt`\
-    \ completed without error nor that the seed verification command (`python -c \"\
-    import src.utils.seeds; assert src.utils.seeds.SEED==42\"`) was executed and passed.\
-    \ These execution artifacts are needed to satisfy the task\u2019s verification\
-    \ criteria."
+  reason: "The repository contains the required `requirements.txt`, `src/utils/seeds.py`,\
+    \ `src/utils/checksums.py`, and `data/checksums.txt`, and the seed constant is\
+    \ correctly set to\u202F42. However, there is no execution record or log showing\
+    \ that `pip install -r requirements.txt` actually succeeded, which is a mandatory\
+    \ verification step. Without evidence of a successful installation, the task cannot\
+    \ be considered fully completed."
   task: 63cb785ad60849e3caad4e88b36a90dc16d45849d7d3436f96b3354127241d03
 T001:
   task: 33b0619536c5f27a80371343dc50d7d8dc1269231f6184f6f9ec957d445cbb8c
