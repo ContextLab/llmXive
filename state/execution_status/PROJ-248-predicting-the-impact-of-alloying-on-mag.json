@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-24T16:06:43Z",
-  "project_id": "PROJ-248-predicting-the-impact-of-alloying-on-mag"
+  "updated_at": "2026-10-25T12:18:11Z",
+  "project_id": "PROJ-248-predicting-the-impact-of-alloying-on-mag",
+  "replan_rounds": 1
 }

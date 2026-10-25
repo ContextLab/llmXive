@@ -46,15 +46,15 @@ def download_materials_project(raw_mp_path: Path) -> dict:
     log.info("Loading Materials Project dataset via `datasets` (streaming).")
     
     try:
-        # Using the exact name specified in the task description.
-        # Note: split="all" is used as requested.
+        # The task description specifies this dataset and split.
+        # Note: load_dataset does not support a 'filter' keyword argument for 
+        # general datasets; filtering is performed via the .filter() method.
         ds = load_dataset("materialsproject", split="all", streaming=True)
     except Exception as e:
         log.error("Failed to load 'materialsproject' dataset from HuggingFace hub: %s", e)
         raise RuntimeError(f"Dataset 'materialsproject' not found or inaccessible: {e}")
 
     # Apply filtering: keep entries where magnetic_type is NOT 'NM' (Non-Magnetic)
-    # The prompt suggested a MongoDB-style filter; in datasets.IterableDataset, we use .filter()
     ds = ds.filter(lambda x: x.get("magnetic_type") != "NM")
 
     # Try to capture a version/revision identifier from the dataset info if available
