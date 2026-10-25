@@ -1,5 +1,5 @@
 status: none
-intent: graphene defect coordinates dataset Materials Cloud Zenodo python package
+intent: defect coordinate dataset graphene MoS2 Materials Cloud Zenodo python package
   dataset
 required_fields:
 - sample_id
@@ -7,8 +7,6 @@ required_fields:
 - x
 - y
 - unit
-- lattice_constant
-- source
-cache_key: 688063d944bf567d2e2dbd3084f8764882a54b638e18e31df77cd0565e0b5b14
-searched_at: '2026-10-23T19:11:20.105682+00:00'
+cache_key: 60b8dfe4f757e6e84f5e851c1fb9bf305668e9c523f5bc98ad466a54470a011f
+searched_at: '2026-10-25T13:26:37.681875+00:00'
 retry_count: 1

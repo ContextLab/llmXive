@@ -14,16 +14,16 @@ The list follows the platform’s canonical task format.  Tasks are grouped by r
 - [ ] **T001** [US1] Create the core project layout (directories `code/`, `data/raw/`, `data/processed/`, `results/`, `state/`, `contracts/`, `logs/`, `docs/`) and add placeholder `.gitkeep` files.  
   *Path*: `.` (project root)  
 
-- [ ] **T002** [US1] Add a pinned `requirements.txt` with the exact library versions required for the study.  
+- [X] **T002** [US1] Add a pinned `requirements.txt` with the exact library versions required for the study.  
   *Path*: `requirements.txt`  
 
-- [ ] **T003** [US1] Create a minimal `quickstart.md` that documents how to install dependencies and run the end‑to‑end pipeline on the smallest valid dataset.  
+- [X] **T003** [US1] Create a minimal `quickstart.md` that documents how to install dependencies and run the end‑to‑end pipeline on the smallest valid dataset.  
   *Path*: `docs/quickstart.md`  
 
-- [ ] **T004** [US1] Add a static configuration file `config.yaml` containing default values for the proximity threshold, scaling factor, the `validation_mode` flag **and** a `statistical_override` boolean to switch between fixed and lattice‑constant‑scaled thresholds.  
+- [X] **T004** [US1] Add a static configuration file `config.yaml` containing default values for the proximity threshold, scaling factor, the `validation_mode` flag **and** a `statistical_override` boolean to switch between fixed and lattice‑constant‑scaled thresholds.  
   *Path*: `config.yaml`  
 
-- [ ] **T005** [US1] Implement a thin entry‑point script `code/main.py` that orchestrates the whole workflow (ingestion → graph construction → metric extraction → analysis → reporting).  
+- [ ] **T005** [US1] Implement a thin entry‑point script `code/main.py` that orchestrates the whole workflow (ingestion → graph construction → metric extraction → analysis → reporting).   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Path*: `code/main.py`  
 
 - [ ] **T006** [US1] Write a unit test `tests/unit/test_end_to_end.py` that invokes `code/main.py` on a synthetic 1‑sample dataset and asserts that `data/results/end_to_end.json` is created and validates against `analysis.schema.yaml`.  
