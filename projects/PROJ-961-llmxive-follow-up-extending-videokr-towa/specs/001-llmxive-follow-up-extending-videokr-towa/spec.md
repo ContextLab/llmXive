@@ -35,9 +35,9 @@ The system must ingest the VideoKR‑SFT dataset and the associated Knowledge Gr
   - `question_text` (string)  
   - `answer_text` (string)  
   - `chain_length` (integer, 1, 2, 3…) – shortest‑path hop count  
-  - `status` (string, e.g., `"annotated"`)
+  - `status` (string, e.g., `"annotated"`)  
 
-*Note*: The `predicted_correctness` column required by the original schema is omitted here; it will be added later by the predictive‑model step (FR‑010) after the annotation stage. The schema file will be revised accordingly (see FR‑012).
+*Note*: The `predicted_correctness` column required by the original schema is omitted here; it will be added later by **FR-013 (Predicted Correctness Injection)** after the annotation stage. The schema file will be revised accordingly (see FR‑012).
 
 ### FR-002: Binning Strategy
 The system must generate a separate file containing the categorical **hop_bin** for each question.  
@@ -53,7 +53,7 @@ The system must calculate accuracy rates for each hop‑bin (1‑hop, 2‑hop, 3
 ### FR-004: Threshold Detection (Permutation Test & Logistic‑Regression LRT)
 The system must detect the optimal “knot” (threshold hop count) where accuracy drops significantly.  
 
-- **Permutation Test**: Operates on raw per‑sample correctness labels (binary 0/1), not on aggregated bin means. Perform a non‑parametric change‑point test with a sufficiently large number of permutations.  
+- **Permutation Test**: Operates on raw per‑sample correctness labels (binary 0/1), not on aggregated bin means. Perform a non‑parametric change‑point test with **10,000 permutations**.  
 
 - **Likelihood‑Ratio Test (LRT)**: Fit a **logistic regression** (binomial GLM) of correctness vs. hop count as the null model, and a piecewise‑logistic model with a knot at each candidate location (1 – 5). Compare models with an LRT to obtain a p‑value.  
 
@@ -76,7 +76,13 @@ The system must log the total end‑to‑end runtime of the pipeline and compare
 **Reason**: The Plan’s “Complexity Tracking” table explicitly rejects GAMs for this task due to statistical invalidity on discrete ordinal variables (hop counts). The permutation test and LRT are the approved methodologies for non‑linearity detection. (Retained for traceability; not active.)
 
 ### FR-008: Sensitivity Analysis of Threshold Definition
-The system must repeat the threshold detection (both permutation test and LRT) under three alternative binning schemes (e.g., `[initial,2,3+]`, `[initial,2,3,4+]`, `[initial,2,3,4,5+]`) and report the stability of the selected knot.  
+The system must repeat the threshold detection (both permutation test and LRT) under three alternative binning schemes:
+
+1. **Scheme A** – `'1', '2', '3+'` (identical to the default binning).  
+2. **Scheme B** – `'1', '2', '3', '4+'` (aggregates hop counts ≥ 4 into `'4+'`).  
+3. **Scheme C** – `'1', '2', '3', '4', '5+'` (aggregates hop counts ≥ 5 into `'5+'`).  
+
+The term “initial” corresponds to hop count 1.  
 - Output: `data/processed/sensitivity_analysis.json` with per‑scheme knots and significance flags. (See US3)
 
 ### FR-009: Memory Usage Logging
@@ -102,6 +108,15 @@ The system must extract the following covariates for each question to enable con
 - **answer_type** (categorical, `"multiple_choice"` or `"open_ended"`): derived from the answer format field in the original dataset.  
 These covariates are added to `data/processed/annotated_videokr.csv` (as new columns) and are used in the adjusted LRTs.  
 
+### FR-013: Predicted Correctness Injection
+The system must run the logistic regression model from FR-010 on the annotated data and write the predicted probability of correctness to a new column `predicted_correctness` (float, 0–1) in `data/processed/annotated_videokr.csv`.  
+- Output: the same CSV file now containing the additional column.  
+- This step follows FR-010 model training and is required for downstream analysis. (See US2)
+
+### FR-014: Data Ingestion Script Success
+The data download and ingestion script (`code/ingest/download_data.py`) must complete without error, exiting with status code 0. Failure must be logged and abort the pipeline.  
+- Output: log entry in `data/processed/ingest_log.json` with field `exit_code`. (See US1)
+
 ## 4. Data Model
 
 ### 4.1 Input Data
@@ -110,7 +125,7 @@ These covariates are added to `data/processed/annotated_videokr.csv` (as new col
 - **Video Metadata**: `metadata/video_lengths.csv` containing `video_id` and `length_seconds`.
 
 ### 4.2 Annotated Output
-- **CSV**: `data/processed/annotated_videokr.csv` (see FR‑001, FR‑012).  
+- **CSV**: `data/processed/annotated_videokr.csv` (see FR‑001, FR‑012, FR‑013).  
 - **Bin Mapping**: `data/processed/chain_bins.csv` (see FR‑002).  
 - **Stratified Accuracy Visuals**: `data/processed/accuracy_binned.png` and `data/processed/accuracy_binned.csv` (see FR‑003).  
 - **Raw Accuracy Visuals**: `data/processed/accuracy_vs_hop_raw.png` and `data/processed/accuracy_vs_hop_raw.csv` (see FR‑005).  
@@ -141,6 +156,26 @@ These covariates are added to `data/processed/annotated_videokr.csv` (as new col
 - Perform additional regression analyses including covariates for question difficulty (float), video length (seconds), and answer type (categorical). Confirm that the identified knot remains significant after adjusting for these covariates (p < 0.05).  
 - Output: `data/processed/confound_adjusted_lrt.json` with adjusted LRT results. (See US3)
 
+### SC-007: Model LRT Evaluation
+- Verify that `model_lrt_results.json` contains the LRT statistic, p‑value, and a boolean `is_significant` indicating whether adding hop count improves the model (p < 0.05).  
+- Output: `data/processed/model_lrt_results.json`. (See US2)
+
+### SC-008: Predicted Correctness Column Validation
+- Confirm that `annotated_videokr.csv` includes a `predicted_correctness` column with values in the range [0, 1] for every record after FR‑013 execution.  
+- Output: validation flag in `data/processed/predicted_correctness_check.json`. (See US2)
+
+### SC-009: Ingestion Script Success
+- Check `ingest_log.json` for `exit_code` = 0; if not, set `limit_exceeded` flag to true and abort further processing.  
+- Output: `data/processed/ingest_log.json`. (See US1)
+
+### SC-010: Real Dataset Usage
+- Ensure that the pipeline processes the official VideoKR‑SFT dataset files (`data/raw/videokr_sft.csv` etc.). Verify source file checksum matches the known release checksum; abort if mismatch.  
+- Output: `data/processed/dataset_verification.json` with `checksum_match: true/false`. (See US1)
+
+### SC-011: Correctness Label Integrity
+- Confirm that the `correctness` labels used in all analyses are taken directly from the original dataset without synthetic generation. Log a verification flag `original_labels_used: true`.  
+- Output: `data/processed/label_integrity_check.json`. (See US2)
+
 ## 6. Methodology Notes
 
 ### 6.1 Change‑Point Detection
@@ -166,3 +201,4 @@ These limits are enforced by FR‑006 and FR‑009 respectively and are justifie
 | 1.1 | 2023-10-27 | Research Team | Removed FR‑007 to align with Plan's Complexity Tracking table (Resolves F001). |
 | 1.2 | 2023-10-27 | Research Team | Added missing FR/SC links, defined CI limits, introduced power analysis, reinstated FR‑007 as removed for traceability, added FR‑008‑012, SC‑006, and predictive‑model requirement to satisfy methodological and scientific‑soundness concerns. |
 | 1.3 | 2023-10-27 | Research Team | Fixed internal consistency (removed `predicted_correctness` from FR‑001), unified naming to `hop_bin`, added covariate extraction FR‑012, replaced linear model with logistic regression in FR‑004, justified runtime and memory monitoring, expanded Data Model with missing visual artefacts. |
+| 1.4 | 2023-10-25 | Research Team | Added FR‑013 (Predicted Correctness Injection), FR‑014 (Ingestion Script Success), clarified binning schemes, specified permutation count, introduced SC‑007 to SC‑011 for new requirements, linked all new FRs/SCs to relevant User Stories. |
