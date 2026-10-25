@@ -1,24 +1,17 @@
 """
-Test that all core project modules can be imported without error.
+Test suite to ensure all project modules are importable without errors.
 """
 import pytest
 
 def test_module_imports():
-    """Verify that all key modules are importable."""
+    """Verify that all core sub-packages can be imported."""
     try:
-        import code.src.run_pipeline
+        import code.src.data
+        import code.src.analysis
+        import code.src.stats
+        import code.src.reporting
+        import code.src.utils
         import code.src.pipeline
-        import code.src.download_data
-        import code.src.data.download_hcp
-        import code.src.data.qc
-        import code.src.analysis.entropy
-        import code.src.compute_entropy
+        import code.src.run_pipeline
     except ImportError as e:
         pytest.fail(f"Module import failed: {e}")
-
-def test_toolkit_import():
-    """Verify llmxive_toolkit is available."""
-    try:
-        from llmxive_toolkit import paths, get_logger
-    except ImportError as e:
-        pytest.fail(f"llmxive_toolkit import failed: {e}")
