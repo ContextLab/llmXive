@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-25T04:27:13.535194+00:00",
+  "generated_at": "2026-10-25T04:42:00.182876+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -86389,7 +86389,7 @@
       },
       "authors": [
         {
-          "contributions": 48,
+          "contributions": 53,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -86454,6 +86454,46 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 94.693715,
+          "ended_at": "2026-10-25T04:10:28.331132Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:08:53.637417Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 15.527285,
+          "ended_at": "2026-10-25T04:08:53.634813Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:08:38.107528Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 30.253605,
+          "ended_at": "2026-10-25T04:08:38.104917Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:08:07.851312Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 16.680324,
+          "ended_at": "2026-10-25T04:08:07.848679Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:07:51.168355Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 17.436789,
+          "ended_at": "2026-10-25T04:07:51.165405Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:07:33.728616Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 33.278291,
           "ended_at": "2026-10-25T03:12:09.823271Z",
           "model": "openai.gpt-oss-120b",
@@ -86491,46 +86531,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-25T03:09:30.388484Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 62.950762,
-          "ended_at": "2026-10-25T03:09:30.386408Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T03:08:27.435646Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 21.796002,
-          "ended_at": "2026-10-25T03:08:27.433717Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T03:08:05.637715Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 28.647224,
-          "ended_at": "2026-10-25T03:08:05.635774Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T03:07:36.988550Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 25.367876,
-          "ended_at": "2026-10-25T03:07:36.976848Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T03:07:11.608972Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 749.478834,
-          "ended_at": "2026-10-25T00:24:13.755264Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T00:11:44.276430Z"
         }
       ],
       "paper_status": null,
@@ -97682,6 +97682,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "tasker",
+          "duration_s": 1034.458316,
+          "ended_at": "2026-10-25T04:25:15.807640Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-25T04:08:01.349324Z"
+        },
+        {
           "agent": "planner",
           "duration_s": 1189.578583,
           "ended_at": "2026-10-23T09:08:01.811341Z",
@@ -97752,14 +97760,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-17T13:06:03.535773Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 145.494726,
-          "ended_at": "2026-10-09T14:00:17.621359Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-09T13:57:52.126633Z"
         }
       ],
       "paper_status": null,
@@ -145597,7 +145597,7 @@
           ]
         },
         {
-          "contributions": 71,
+          "contributions": 72,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -145619,9 +145619,9 @@
           ]
         },
         {
-          "contributions": 1,
+          "contributions": 3,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "google.gemma-4-31B-it",
           "roles": [
             "implementer"
           ]
@@ -145629,7 +145629,7 @@
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "google.gemma-4-31B-it",
+          "name": "google.gemma-3-27b-it",
           "roles": [
             "implementer"
           ]
@@ -145654,6 +145654,30 @@
       "id": "PROJ-771-residue-distribution-of-euler-s-totient-",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 494.925948,
+          "ended_at": "2026-10-25T04:21:35.625662Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:13:20.699714Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 180.323228,
+          "ended_at": "2026-10-25T04:13:20.697824Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:10:20.374596Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 149.234572,
+          "ended_at": "2026-10-25T04:10:20.372327Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:07:51.137755Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 8.310372,
@@ -145709,30 +145733,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-25T03:09:12.334281Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 37.347514,
-          "ended_at": "2026-10-25T03:09:12.331867Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T03:08:34.984353Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 50.305392,
-          "ended_at": "2026-10-25T03:08:34.981924Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T03:07:44.676532Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 8.831083,
-          "ended_at": "2026-10-25T03:07:44.673749Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T03:07:35.842666Z"
         }
       ],
       "paper_status": null,
@@ -156767,7 +156767,7 @@
       },
       "authors": [
         {
-          "contributions": 19,
+          "contributions": 24,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -156825,6 +156825,46 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 69.890559,
+          "ended_at": "2026-10-25T04:09:56.880791Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:08:46.990232Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 36.770085,
+          "ended_at": "2026-10-25T04:08:46.986668Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:08:10.216583Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 11.79252,
+          "ended_at": "2026-10-25T04:08:10.213046Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:07:58.420526Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 10.888899,
+          "ended_at": "2026-10-25T04:07:58.416987Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:07:47.528088Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 15.826187,
+          "ended_at": "2026-10-25T04:07:47.524151Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-25T04:07:31.697964Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 99.092898,
           "ended_at": "2026-10-25T02:13:29.110380Z",
           "model": "openai.gpt-oss-120b",
@@ -156862,46 +156902,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-25T02:09:59.523042Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 802.051382,
-          "ended_at": "2026-10-25T01:35:09.221632Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T01:21:47.170250Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 33.736252,
-          "ended_at": "2026-10-25T00:37:38.228107Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T00:37:04.491855Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 50.181706,
-          "ended_at": "2026-10-25T00:31:14.905379Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T00:30:24.723673Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 7.506329,
-          "ended_at": "2026-10-25T00:30:24.720136Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T00:30:17.213807Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 0.035511,
-          "ended_at": "2026-10-25T00:30:09.522202Z",
-          "model": "deterministic-no-llm",
-          "outcome": "skipped",
-          "started_at": "2026-10-25T00:30:09.486691Z"
         }
       ],
       "paper_status": null,
@@ -176359,6 +176359,18 @@
   ],
   "recent_activity": [
     {
+      "agent": "tasker",
+      "duration_s": 1034.458316,
+      "ended_at": "2026-10-25T04:25:15.807640Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-355-predicting-the-impact-of-impurity-cluste",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-25T04:08:01.349324Z"
+    },
+    {
       "agent": "clarifier",
       "duration_s": 859.872874,
       "ended_at": "2026-10-25T04:22:11.732326Z",
@@ -176369,6 +176381,30 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-25T04:07:51.859452Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 494.925948,
+      "ended_at": "2026-10-25T04:21:35.625662Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-771-residue-distribution-of-euler-s-totient-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:13:20.699714Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 180.323228,
+      "ended_at": "2026-10-25T04:13:20.697824Z",
+      "failure_reason": "",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "success",
+      "project_id": "PROJ-771-residue-distribution-of-euler-s-totient-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:10:20.374596Z"
     },
     {
       "agent": "implementer",
@@ -176384,6 +176420,30 @@
     },
     {
       "agent": "implementer",
+      "duration_s": 94.693715,
+      "ended_at": "2026-10-25T04:10:28.331132Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:08:53.637417Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 149.234572,
+      "ended_at": "2026-10-25T04:10:20.372327Z",
+      "failure_reason": "",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "success",
+      "project_id": "PROJ-771-residue-distribution-of-euler-s-totient-",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:07:51.137755Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 160.594472,
       "ended_at": "2026-10-25T04:10:05.712298Z",
       "failure_reason": "",
@@ -176393,6 +176453,114 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-25T04:07:25.117826Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 69.890559,
+      "ended_at": "2026-10-25T04:09:56.880791Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-868-llmxive-follow-up-extending-locateanythi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:08:46.990232Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 15.527285,
+      "ended_at": "2026-10-25T04:08:53.634813Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:08:38.107528Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 36.770085,
+      "ended_at": "2026-10-25T04:08:46.986668Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-868-llmxive-follow-up-extending-locateanythi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:08:10.216583Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 30.253605,
+      "ended_at": "2026-10-25T04:08:38.104917Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:08:07.851312Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 11.79252,
+      "ended_at": "2026-10-25T04:08:10.213046Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-868-llmxive-follow-up-extending-locateanythi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:07:58.420526Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 16.680324,
+      "ended_at": "2026-10-25T04:08:07.848679Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:07:51.168355Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 10.888899,
+      "ended_at": "2026-10-25T04:07:58.416987Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-868-llmxive-follow-up-extending-locateanythi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:07:47.528088Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 17.436789,
+      "ended_at": "2026-10-25T04:07:51.165405Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:07:33.728616Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 15.826187,
+      "ended_at": "2026-10-25T04:07:47.524151Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-868-llmxive-follow-up-extending-locateanythi",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T04:07:31.697964Z"
     },
     {
       "agent": "planner",
@@ -182189,174 +182357,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-24T04:33:34.761969Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 1649.870446,
-      "ended_at": "2026-10-24T04:37:24.900103Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T04:09:55.029657Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 1548.446564,
-      "ended_at": "2026-10-24T04:33:17.110533Z",
-      "failure_reason": "StagePanelKickback: plan panel did not converge: 1 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full prove",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-140-evaluating-the-efficacy-of-code-summariz",
-      "project_stage": "clarified",
-      "severity": "soft",
-      "started_at": "2026-10-24T04:07:28.663969Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 52.514356,
-      "ended_at": "2026-10-24T04:31:19.904960Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T04:30:27.390604Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 100.023619,
-      "ended_at": "2026-10-24T04:30:27.386985Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T04:28:47.363366Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 112.372875,
-      "ended_at": "2026-10-24T04:27:25.305721Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T04:25:32.932846Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 16.955187,
-      "ended_at": "2026-10-24T04:25:32.929347Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T04:25:15.974160Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 0.034604,
-      "ended_at": "2026-10-24T04:25:07.429689Z",
-      "failure_reason": "",
-      "model": "deterministic-no-llm",
-      "outcome": "skipped",
-      "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
-      "project_stage": "in_progress",
-      "severity": "soft",
-      "started_at": "2026-10-24T04:25:07.395085Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 975.001491,
-      "ended_at": "2026-10-24T04:24:51.935320Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-148-statistical-analysis-of-code-complexity-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T04:08:36.933829Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 792.898713,
-      "ended_at": "2026-10-24T04:20:54.817815Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T04:07:41.919102Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 323.463427,
-      "ended_at": "2026-10-24T04:14:27.153100Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T04:09:03.689673Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 73.658653,
-      "ended_at": "2026-10-24T04:08:55.487634Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-055-investigating-the-impact-of-telomere-len",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-24T04:07:41.828981Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 83.981854,
-      "ended_at": "2026-10-24T04:08:51.757248Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-817-llmxive-follow-up-extending-leveraging-v",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T04:07:27.775394Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 11.767553,
-      "ended_at": "2026-10-24T04:07:41.826224Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-055-investigating-the-impact-of-telomere-len",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-24T04:07:30.058671Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 31.447815,
-      "ended_at": "2026-10-24T03:49:48.223297Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-436-assessing-the-validity-of-statistical-si",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T03:49:16.775482Z"
     }
   ],
   "reviewed_preprints": [
