@@ -9,16 +9,19 @@ publicly available at:
 
     https://www.openml.org/data/v1/download/4210
 
-This script downloads that file, validates that it contains the required
-columns, normalises column names to ``effect_size`` and ``standard_error``,
-and writes a clean CSV to ``data/raw/cochrane_base.csv``.
+The file can be either a plain CSV/TSV or an ARFF file.  This script
+transparently handles both formats, normalises column names to the
+canonical ``study_id``, ``effect_size`` and ``standard_error`` fields,
+validates the content and writes a clean CSV to the expected location.
 
 Failure behaviour
 -----------------
 Any download, parsing, or validation error raises ``FileNotFoundError``.
-The CLI exits with a non‑zero status, as required by task T001.
-No synthetic fallback is provided.
+The CLI exits with a non‑zero status, as required by the task
+specification.  No synthetic fallback is provided – the script will fail
+loudly if the real data cannot be obtained.
 """
+
 import csv
 import sys
 from io import StringIO
@@ -28,6 +31,7 @@ from typing import List, Dict
 import pandas as pd
 import requests
 import numpy as np
+from scipy.io import arff
 
 from llmxive_toolkit import paths
 
@@ -46,12 +50,11 @@ MIN_ROWS = 5
 # ----------------------------------------------------------------------
 
 
-def _download_dataset() -> pd.DataFrame:
-    """Download the dataset from OpenML and return it as a DataFrame.
+def _download_raw_bytes() -> bytes:
+    """Download the raw file bytes from OpenML.
 
     Raises:
-        FileNotFoundError: If the download fails or the content cannot be
-                           parsed as a CSV/TSV table.
+        FileNotFoundError: If the HTTP request fails.
     """
     try:
         response = requests.get(SOURCE_URL, timeout=30)
@@ -61,32 +64,60 @@ def _download_dataset() -> pd.DataFrame:
             f"REAL_DATA_FETCH_FAILED: unable to download OpenML dataset "
             f"{OPENML_DATASET_ID} from {SOURCE_URL}: {exc}"
         ) from exc
+    return response.content
 
-    content = response.content.decode("utf-8", errors="replace")
 
+def _try_read_csv(content: str) -> pd.DataFrame:
+    """Attempt to read the content as CSV/TSV using pandas."""
     try:
-        # Try to infer separator (handles CSV/TSV)
         df = pd.read_csv(
             StringIO(content),
-            sep=None,
+            sep=None,               # let pandas infer separator
             engine="python",
             comment="#",
             on_bad_lines="skip",
         )
-    except Exception as exc:
-        raise FileNotFoundError(
-            f"REAL_DATA_FETCH_FAILED: unable to parse the downloaded "
-            f"OpenML dataset {OPENML_DATASET_ID}: {exc}"
-        ) from exc
+        return df
+    except Exception:
+        # Return empty DataFrame to signal failure
+        return pd.DataFrame()
 
-    if df.empty:
-        raise FileNotFoundError(
-            "REAL_DATA_FETCH_FAILED: downloaded OpenML dataset is empty."
-        )
 
-    # Normalise column names to lower case and strip whitespace.
-    df = df.rename(columns=lambda x: str(x).strip().lower())
-    return df
+def _try_read_arff(content_bytes: bytes) -> pd.DataFrame:
+    """Attempt to parse the content as an ARFF file."""
+    try:
+        data, meta = arff.loadarff(StringIO(content_bytes.decode("utf-8", errors="replace")))
+        df = pd.DataFrame(data)
+        # Convert byte strings to normal strings
+        for col in df.select_dtypes([object]).columns:
+            df[col] = df[col].apply(lambda x: x.decode("utf-8") if isinstance(x, bytes) else x)
+        return df
+    except Exception:
+        return pd.DataFrame()
+
+
+def _download_dataset() -> pd.DataFrame:
+    """Download the dataset and return it as a DataFrame.
+
+    Handles CSV/TSV and ARFF formats.
+    """
+    raw_bytes = _download_raw_bytes()
+    content_str = raw_bytes.decode("utf-8", errors="replace")
+
+    # First try CSV/TSV
+    df = _try_read_csv(content_str)
+    if not df.empty:
+        return df
+
+    # Fall back to ARFF
+    df = _try_read_arff(raw_bytes)
+    if not df.empty:
+        return df
+
+    raise FileNotFoundError(
+        "REAL_DATA_FETCH_FAILED: could not parse the downloaded OpenML dataset "
+        f"{OPENML_DATASET_ID} as CSV/TSV nor ARFF."
+    )
 
 
 def _validate_and_normalise(df: pd.DataFrame) -> pd.DataFrame:
@@ -95,11 +126,17 @@ def _validate_and_normalise(df: pd.DataFrame) -> pd.DataFrame:
     Raises:
         FileNotFoundError: If required columns are missing or insufficient rows.
     """
-    # Broadened alias map to cover common meta-analysis naming conventions
+    # Alias map – covers common meta‑analysis naming conventions
     alias_map = {
-        "effect_size": ["effect_size", "yi", "effect", "log_or", "estimate", "mean", "beta"],
-        "standard_error": ["standard_error", "sei", "se", "stderr", "std_err", "std_error"],
-        "study_id": ["study_id", "id", "trial", "study", "name", "index"],
+        "effect_size": [
+            "effect_size", "yi", "effect", "log_or", "estimate", "mean", "beta"
+        ],
+        "standard_error": [
+            "standard_error", "sei", "se", "stderr", "std_err", "std_error"
+        ],
+        "study_id": [
+            "study_id", "id", "trial", "study", "name", "index"
+        ],
     }
 
     col_mapping: Dict[str, str] = {}
@@ -117,20 +154,17 @@ def _validate_and_normalise(df: pd.DataFrame) -> pd.DataFrame:
                 f"Found columns: {list(df.columns)}"
             )
 
-    # Apply the mapping
-    df = df.rename(columns=col_mapping)
+    # Apply mapping and keep only the canonical columns
+    df = df.rename(columns=col_mapping)[list(REQUIRED_COLUMNS)]
 
-    # Keep only the canonical columns
-    df = df[list(REQUIRED_COLUMNS)]
-
-    # Ensure numeric types and handle non-finite values
+    # Coerce numeric columns
     for col in ("effect_size", "standard_error"):
-        df[col] = pd.to_numeric(df[col], errors='coerce')
+        df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    # Drop rows with NaNs in essential columns
+    # Drop rows with missing essential values
     df = df.dropna(subset=["effect_size", "standard_error"])
 
-    # Filter for positive standard errors to avoid division by zero in downstream estimators
+    # Ensure positive standard errors
     df = df[df["standard_error"] > 0]
 
     if len(df) < MIN_ROWS:
@@ -138,6 +172,9 @@ def _validate_and_normalise(df: pd.DataFrame) -> pd.DataFrame:
             f"REAL_DATA_FETCH_FAILED: after cleaning, fewer than "
             f"{MIN_ROWS} usable rows remain (got {len(df)})."
         )
+
+    # Ensure study_id is a string
+    df["study_id"] = df["study_id"].astype(str)
 
     return df
 
@@ -154,17 +191,11 @@ def fetch_base_dataset() -> Path:
     raw_df = _download_dataset()
     df = _validate_and_normalise(raw_df)
 
-    # Ensure a study identifier column exists and is clean
-    if "study_id" not in df.columns or df["study_id"].isnull().all():
-        df = df.reset_index().rename(columns={"index": "study_id"})
-        df["study_id"] = df["study_id"].apply(lambda x: f"study_{int(x)+1}")
-    else:
-        df["study_id"] = df["study_id"].astype(str)
-
     # Write the cleaned CSV with the exact column order expected downstream.
-    # Use index=False to avoid adding an extra column.
     df[["study_id", "effect_size", "standard_error"]].to_csv(
-        OUTPUT_PATH, index=False, quoting=csv.QUOTE_MINIMAL
+        OUTPUT_PATH,
+        index=False,
+        quoting=csv.QUOTE_MINIMAL,
     )
 
     print(f"Wrote {len(df)} studies (effect size + SE) -> {OUTPUT_PATH}")
@@ -185,7 +216,7 @@ def main() -> int:
         print(f"ERROR: {exc}", file=sys.stderr)
         print("=" * 60)
         return 1
-    except Exception as exc:
+    except Exception as exc:  # pragma: no cover
         print(f"UNEXPECTED ERROR: {exc}", file=sys.stderr)
         print("=" * 60)
         return 1

@@ -7,7 +7,7 @@
 | Goal | Run a minimal, reproducible pipeline on a tiny synthetic input to prove that the data‑flow, schemas and basic calculations work before scaling up. |
 |------|------------------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T001 [P1] [US1] **Generate a deterministic synthetic base meta‑analysis template** using `code/scripts/generate_base.py` and store it at `data/processed/base_template.csv`.  
+- [ ] T001 [P1] [US1] **Generate a deterministic synthetic base meta‑analysis template** using `code/scripts/generate_base.py` and store it at `data/processed/base_template.csv`.   <!-- FAILED-IN-EXECUTION: code/scripts/fetch_openml.py exit=1 -->
   *Verification*:  
   • `python code/scripts/generate_base.py --seed 42 --out data/processed/base_template.csv` exits with status 0.  
   • The output CSV exists, has exactly 20 rows (studies) and columns `study_id, effect, se, n`.  
