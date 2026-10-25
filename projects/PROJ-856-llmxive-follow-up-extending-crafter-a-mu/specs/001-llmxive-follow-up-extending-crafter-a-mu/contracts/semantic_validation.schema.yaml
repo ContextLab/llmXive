@@ -1,29 +1,20 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: SemanticValidation
-description: Record produced by the combined validation step for a single figure editing trial.
 type: object
 properties:
   validation_id:
     type: string
     format: uuid
-    description: Unique identifier for this validation record.
   task_id:
     type: string
-    description: Identifier of the figure / task (matches the ground‑truth file stem).
   vector_match:
     type: boolean
-    description: True if the predicted layout vector exactly matches the ground‑truth vector.
   semantic_score:
     type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Cosine similarity between ground‑truth and predicted images (clamped to [0, 1]).
   semantic_pass:
     type: boolean
-    description: True if `semantic_score` ≥ 0.95.
   overall_success:
     type: boolean
-    description: Primary success flag – true only when `vector_match` is true (semantic similarity does not affect this flag).
 required:
   - validation_id
   - task_id

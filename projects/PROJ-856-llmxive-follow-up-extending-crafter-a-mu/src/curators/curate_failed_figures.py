@@ -6,7 +6,7 @@ This script creates a reproducible subset of figure images with injected
 localized errors and a matching ground‑truth vector for each image.  It
 attempts to download a **verified** CrafterBench subset (exactly 50 failed
 figures).  If the verified source is unavailable the script aborts with a
-clear error message “verified source unavailable”, fulfilling FR‑001.
+clear error message “Verified dataset source not available”, fulfilling FR‑001.
 
 The CLI accepts the historic ``--num`` flag, the newer ``--num-tasks`` alias,
 an optional ``--download`` flag for backward‑compatibility with older
@@ -86,7 +86,7 @@ def _download_verified_dataset(destination: Path) -> Path:
         if response.status_code != 200:
             raise RuntimeError
     except Exception:
-        raise RuntimeError("verified source unavailable")
+        raise RuntimeError("Verified dataset source not available")
 
     destination.mkdir(parents=True, exist_ok=True)
     zip_path = destination / "crafterbench_subset.zip"
@@ -116,7 +116,7 @@ def _load_crafterbench(num: int) -> list[dict]:
     ``num`` examples.
 
     The function expects the extracted dataset to contain paired files:
-    ``figure_<idx>.png`` and ``ground_truth_<idx>.json`` where ``idx`` starts
+    ``figure_<idx>.png`` and ``ground_truth_<idx>.json`` where ``idx>`` starts
     at 0.  The JSON file must contain a ``vector`` field.
 
     Returns
@@ -128,7 +128,7 @@ def _load_crafterbench(num: int) -> list[dict]:
     """
     # Step 1 – ensure we have network connectivity; otherwise abort early.
     if not _check_network():
-        sys.stderr.write("verified source unavailable\\n")
+        sys.stderr.write("Verified dataset source not available\\n")
         sys.exit(1)
 
     # Step 2 – download the verified archive to a temporary location.
@@ -150,7 +150,7 @@ def _load_crafterbench(num: int) -> list[dict]:
 
         if len(figures) < num or len(gts) < num:
             sys.stderr.write(
-                "verified source unavailable (insufficient items)\\n"
+                "Verified dataset source not available (insufficient items)\\n"
             )
             sys.exit(1)
 
@@ -245,7 +245,7 @@ def _generate_synthetic(num: int, output_dir: str) -> None:
 
     checksum_path = base_path / "checksums.txt"
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
-    checksum_path.write_text("\n".join(checksums) + "\n", encoding="utf-8")
+    checksum_path.write_text("\\n".join(checksums) + "\\n", encoding="utf-8")
 
 # ----------------------------------------------------------------------
 # Core routine
@@ -286,7 +286,7 @@ def curate_failed_figures(num: int = 50, output_dir: str = "data") -> None:
 
     checksum_path = base_path / "checksums.txt"
     checksum_path.parent.mkdir(parents=True, exist_ok=True)
-    checksum_path.write_text("\n".join(checksums) + "\n", encoding="utf-8")
+    checksum_path.write_text("\\n".join(checksums) + "\\n", encoding="utf-8")
 
 # ----------------------------------------------------------------------
 # CLI entry point
@@ -342,21 +342,18 @@ def main() -> None:
     # ``--download`` is accepted for backward compatibility but has no
     # effect beyond signalling intent.  The real download is performed
     # inside ``_load_crafterbench``.
-    # The flag is kept to avoid argparse errors when old quick‑start
-    # commands are used.
     _ = args.download  # unused, retained for compatibility
 
     # Before attempting a potentially long download, quickly check for network.
     if not _check_network():
-        sys.stderr.write("verified source unavailable\\n")
+        sys.stderr.write("Verified dataset source not available\\n")
         sys.exit(1)
 
     # Attempt to load real data; on failure emit the required error message.
     try:
         _ = _load_crafterbench(num=args.num)
     except Exception:
-        # Propagate a clear, user‑visible error as required by the verification spec.
-        sys.stderr.write("verified source unavailable\\n")
+        sys.stderr.write("Verified dataset source not available\\n")
         sys.exit(1)
 
     # If loading succeeded, run the normal curation pipeline.

@@ -1,17 +1,8 @@
 T000:
-  reason: "The `requirements.txt` file does not pin versions for the majority of listed\
-    \ packages (e.g., `numpy`, `pandas`, `scipy`, etc.), violating the \u201Cpin all\
-    \ dependency versions\u201D requirement. All other artifacts exist, but the unpinned\
-    \ dependencies make the task incomplete."
   task: 63cb785ad60849e3caad4e88b36a90dc16d45849d7d3436f96b3354127241d03
 T001:
   task: 33b0619536c5f27a80371343dc50d7d8dc1269231f6184f6f9ec957d445cbb8c
 T002:
-  reason: "Checked `src/curators/curate_failed_figures.py`. The script aborts with\
-    \ a non\u2011zero exit when the download fails, but it prints \u201Cverified source\
-    \ unavailable\u201D (lower\u2011case, different wording) instead of the required\
-    \ exact message \u201CVerified dataset source not available\u201D. The error message\
-    \ must match the specification exactly."
   task: 3133f3e03756a5ce38464bf745bb3c6d0ff384145e3b573db0503e5616d6d239
 T003:
   task: dbf9a91563acd8266b94ceb0cd265230aa07b3708ef6725c19587239924819ff
@@ -26,21 +17,21 @@ T005:
     is needed to complete the task.
   task: 55e2f555d7f99ddb9ddcd2466a1de5c787372d5c8886162fb7d8743883775f41
 T006:
-  reason: "Checked `src/simulation/power_analysis.py` and `src/simulation/simulate_participants.py`\
-    \ plus the generated `data/logs/interactions.jsonl`. The power\u2011analysis module\
-    \ still requires the `--effect-size` argument (so `python -m src.simulation.power_analysis`\
-    \ fails) and defaults \u03B1 to 0.05 instead of the required 0.025. The participant\
-    \ simulator uses nondeterministic `uuid.uuid4()` for log IDs, violating the \u201C\
-    deterministic\u201D requirement, and no evidence is provided that the resulting\
-    \ JSON\u2011Lines pass the `interaction_log` schema test. These gaps must be fixed\
-    \ for the task to be complete."
+  reason: "Checked `src/simulation/power_analysis.py` (prints\u202F41\u202F\u2265\u202F\
+    32, exits\u202F0) and `src/simulation/simulate_participants.py` (runs, creates\
+    \ `data/logs/interactions.jsonl` with millions of bytes, clearly >\u202F7\u202F\
+    500 lines). However there is no evidence that the generated log file was validated\
+    \ against the `interaction_log` schema \u2013 the only test run (`tests/logger/test_interaction_logger.py`)\
+    \ failed to load the schema file, and no pass/fail output for a schema\u2011validation\
+    \ step is provided. To complete the task, run a schema validation on `data/logs/interactions.jsonl`\
+    \ (or show test output) confirming that eve"
   task: e96f06895a9ad6b36f01119a0f00a251ca1c38485ed78c982123e821a3dce3e1
 T007:
-  reason: "Checked `src/analysis/validation_by_session.py` and its test `tests/analysis/test_validation_aggregation.py`.\
-    \ The script aggregates records and writes the required fields, and the test passes,\
-    \ but the implementation never records the final effective\u202FN per participant\
-    \ as required by the task specification. This missing output means the task is\
-    \ not fully satisfied."
+  reason: "The repository contains the aggregation script and the corresponding test,\
+    \ but there is no evidence that `tests/analysis/test_validation_aggregation.py`\
+    \ was actually executed and passed, nor is the required output file `data/results/semantic_validation_by_session.jsonl`\
+    \ present after a run. Without a passing test run (or generated file) we cannot\
+    \ confirm the task\u2019s requirement is truly satisfied."
   task: f940264c5ec0a5940309d8a88a7ac432aae2b24fc6ea98b65f0b9c1638ae3816
 T008:
   reason: 'Requested task execution failed; rerun successfully: src/analysis/wilcoxon_analysis.py

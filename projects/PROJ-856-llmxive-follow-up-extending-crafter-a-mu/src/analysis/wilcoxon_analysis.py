@@ -2,13 +2,13 @@
 wilcoxon_analysis.py
 --------------------
 Performs the main statistical analysis for the cognitive‑load study.
-It reads the interaction log (``data/logs/interactions_clean.jsonl``),
-aggregates per‑participant metrics, runs appropriate paired tests
-(Wilcoxon signed‑rank or paired t‑test depending on normality),
-applies Bonferroni correction, computes effect sizes, bootstraps a
-95 % confidence interval for the *median* difference, and fits an
-exploratory linear mixed‑effects model with ``expertise_level`` as a
-fixed covariate.
+It reads the interaction log (``data/logs/interactions_clean.jsonl`` or
+``data/logs/interactions.jsonl``), aggregates per‑participant metrics,
+runs appropriate paired tests (Wilcoxon signed‑rank or paired t‑test
+depending on normality), applies Bonferroni correction, computes effect
+sizes, bootstraps a 95 % confidence interval for the *median* difference,
+and fits an exploratory linear mixed‑effects model with ``expertise_level``
+as a fixed covariate.
 
 The results are written as JSON‑Lines to ``outputs/analysis_results.jsonl``
 and must conform to ``specs/001-llmxive-follow-up-extending-crafter-a-mu/contracts/analysis_result.schema.yaml``.
@@ -66,7 +66,30 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     return parser
 
-def _load_interaction_log() -> pd.DataFrame:
+def _determine_log_path(log_dir_arg: Optional[str]) -> Path:
+    """
+    Determine which interaction‑log file to read.
+
+    The pipeline historically wrote ``interactions_clean.jsonl``.
+    Some earlier runs produced ``interactions.jsonl``.  This helper
+    prefers the cleaned file but falls back gracefully.
+    """
+    default_dir = paths.data("logs")
+    log_dir = Path(log_dir_arg) if log_dir_arg else default_dir
+
+    candidates = [
+        log_dir / "interactions_clean.jsonl",
+        log_dir / "interactions.jsonl",
+    ]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+
+    # If none exist, raise a clear error – the caller can decide.
+    log.error(f"No interaction log found in {log_dir}. Tried: {candidates}")
+    sys.exit(1)
+
+def _load_interaction_log(log_dir_arg: Optional[str] = None) -> pd.DataFrame:
     """
     Load the interaction log written by ``src.logger.interaction_logger``.
     Expected columns (at minimum):
@@ -82,10 +105,7 @@ def _load_interaction_log() -> pd.DataFrame:
     The function aggregates raw edit records into per‑trial
     ``time_to_success_ms`` and ``iteration_count`` values.
     """
-    log_path = paths.data("logs", "interactions_clean.jsonl")
-    if not log_path.is_file():
-        log.error(f"Interaction log not found at {log_path}")
-        sys.exit(1)
+    log_path = _determine_log_path(log_dir_arg)
 
     records: List[Dict] = []
     with log_path.open("r", encoding="utf-8") as f:
@@ -105,6 +125,19 @@ def _load_interaction_log() -> pd.DataFrame:
         sys.exit(1)
 
     df = pd.DataFrame.from_records(records)
+
+    # ------------------------------------------------------------------
+    # Normalise column names – older logs may use slightly different names.
+    # ------------------------------------------------------------------
+    column_map = {}
+    if "task_id" in df.columns and "figure_id" not in df.columns:
+        column_map["task_id"] = "figure_id"
+    if "mode" in df.columns and "interface" not in df.columns:
+        column_map["mode"] = "interface"
+    if "participant" in df.columns and "participant_id" not in df.columns:
+        column_map["participant"] = "participant_id"
+    if column_map:
+        df = df.rename(columns=column_map)
 
     # Verify required columns
     required = {"participant_id", "figure_id", "interface", "timestamp_ms", "iteration"}
@@ -330,7 +363,7 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # 1. Load interaction log and compute per‑trial aggregates
-    df_trials = _load_interaction_log()
+    df_trials = _load_interaction_log(args.log_dir)
 
     if df_trials.empty:
         log.error("No trial data available after loading interaction log.")

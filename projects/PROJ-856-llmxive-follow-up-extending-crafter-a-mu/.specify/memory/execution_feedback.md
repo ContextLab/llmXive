@@ -32,143 +32,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m src.curators.curate_failed_figures  --download  --output-dir data/ -> rc=1
 
-verified source unavailable\n
+Verified dataset source not available\n
 - python -m src.analysis.retention_check  --log-dir data/logs/  --min-valid 28  --required-participants 32 -> rc=2
 
 usage: retention_check.py [-h] --log-dir LOG_DIR [--min-valid MIN_VALID]
 retention_check.py: error: unrecognized arguments: --required-participants 32
 
 - python -m src.validation.run_validation  --log-dir data/logs/  --output-dir data/validation/ -> rc=2
-.1%
-64.4%
-64.7%
-64.9%
-65.2%
-65.5%
-65.8%
-66.1%
-66.3%
-66.6%
-66.9%
-67.2%
-67.5%
-67.7%
-68.0%
-68.3%
-68.6%
-68.9%
-69.1%
-69.4%
-69.7%
-70.0%
-70.3%
-70.5%
-70.8%
-71.1%
-71.4%
-71.7%
-71.9%
-72.2%
-72.5%
-72.8%
-73.1%
-73.3%
-73.6%
-73.9%
-74.2%
-74.4%
-74.7%
-75.0%
-75.3%
-75.6%
-75.8%
-76.1%
-76.4%
-76.7%
-77.0%
-77.2%
-77.5%
-77.8%
-78.1%
-78.4%
-78.6%
-78.9%
-79.2%
-79.5%
-79.8%
-80.0%
-80.3%
-80.6%
-80.9%
-81.2%
-81.4%
-81.7%
-82.0%
-82.3%
-82.6%
-82.8%
-83.1%
-83.4%
-83.7%
-84.0%
-84.2%
-84.5%
-84.8%
-85.1%
-85.4%
-85.6%
-85.9%
-86.2%
-86.5%
-86.8%
-87.0%
-87.3%
-87.6%
-87.9%
-88.2%
-88.4%
-88.7%
-89.0%
-89.3%
-89.6%
-89.8%
-90.1%
-90.4%
-90.7%
-91.0%
-91.2%
-91.5%
-91.8%
-92.1%
-92.4%
-92.6%
-92.9%
-93.2%
-93.5%
-93.8%
-94.0%
-94.3%
-94.6%
-94.9%
-95.2%
-95.4%
-95.7%
-96.0%
-96.3%
-96.6%
-96.8%
-97.1%
-97.4%
-97.7%
-98.0%
-98.2%
-98.5%
-98.8%
-99.1%
-99.4%
-99.6%
-99.9%
-100.0%
+
 usage: run_validation.py [-h] --log-dir LOG_DIR --ground-truth-dir
                          GROUND_TRUTH_DIR [--prediction-dir PREDICTION_DIR]
                          [--ground-truth-image-dir GROUND_TRUTH_IMAGE_DIR]
@@ -178,7 +49,7 @@ run_validation.py: error: the following arguments are required: --ground-truth-d
 
 - python -m src.analysis.wilcoxon_analysis  --log-dir data/logs/  --validation-dir data/validation/  --output-dir outputs/ -> rc=1
 
-2026-10-25 14:11:35,839 ERROR __main__: Interaction log missing required columns: {'figure_id', 'interface', 'participant_id'}
+2026-10-25 14:26:56,959 ERROR __main__: Interaction log missing required columns: {'participant_id'}
 
 - python -m src.analysis.generate_report  --analysis-dir outputs/  --output-file outputs/report.md -> rc=1
 

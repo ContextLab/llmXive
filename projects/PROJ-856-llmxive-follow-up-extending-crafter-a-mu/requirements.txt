@@ -1,19 +1,17 @@
-# Project dependencies
-# Core scientific stack (already available in the execution environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional dependencies required for interaction logging tests
-fastapi==0.111.*
-uvicorn==0.30.*
-pydantic==2.7.*
+# Project dependencies with exact version pins
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+matplotlib==3.8.4
+scikit-learn==1.5.0
+seaborn==0.13.2
+statsmodels==0.14.2
+pytest==8.2.2
+PyYAML==6.0.2
+requests==2.32.3
+jsonschema==4.22.0
+psutil==5.9.8
+fastapi==0.111.0
+uvicorn==0.30.1
+pydantic==2.7.4
+# End of pinned dependencies
