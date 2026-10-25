@@ -1,10 +1,14 @@
 status: none
-intent: Materials Project perovskite band gap dataset Zenodo mirror python package
+intent: Materials Project perovskite band gap dataset Zenodo download python package
   dataset
 required_fields:
-- material_id
 - formula
 - band_gap
-cache_key: 4530688a58c7d6d553ff638b9abdda62767c7fe3bf699810fba8cd672c807203
-searched_at: '2026-10-21T20:22:28.931485+00:00'
+- mean_electronegativity
+- atomic_radius_variance
+- tolerance_factor
+- oxidation_state_variance
+- octahedral_factor
+cache_key: c794462667237abc7a9db5b3a79197ab87928771c4c24e484601c826709490f8
+searched_at: '2026-10-25T17:09:25.055038+00:00'
 retry_count: 1

@@ -49,7 +49,7 @@ The researcher needs to interpret the trained model to identify which compositio
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained Random Forest model, **When** the interpretability module runs, **Then** it must output a ranked list of the top 5 most important compositional descriptors and generate a visualization (SHAP summary) showing their impact direction.
+1. **Given** a trained Random Forest model, **When** the interpretability module runs, **Then** it must output a ranked list of the most important compositional descriptors and generate a visualization (SHAP summary) showing their impact direction.
 2. **Given** a separate experimental dataset (e.g., from NREL) not used in training, **When** the model predicts band gaps for these entries, **Then** the Spearman rank correlation between predicted and experimental values must be calculated and reported (ρ ≥ 0.5, see literature baseline).
 3. **Given** a decision threshold for "high‑accuracy" prediction (e.g., error < 0.35 eV), **When** the sensitivity analysis runs, **Then** it must sweep this threshold over {0.30, 0.35, 0.40} eV and report the variation in the false‑negative rate for identifying **lead‑free** candidates (see FR‑015).
 

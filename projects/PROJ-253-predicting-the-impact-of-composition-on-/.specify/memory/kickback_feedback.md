@@ -1,0 +1,12 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 4 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- The external validation step (step 11) relies on a Spearman correlation ≥ 0.5 using the NREL experimental set, which is required to contain only ≥ 20 entries. With such a small sample the statistical power to detect a true correlation of 0.5 is low, and the p‑value may be unstable. A power analysis or a larger experimental benchmark should be added, or the success criterion should be relaxed to account for the limited sample size.
+- Phase 11 – Reporting is listed without any associated FR or SC identifiers. The spec does not mandate a dedicated reporting phase, so this element is an over‑reach beyond the documented requirements.
+- The plan cites three HuggingFace parquet datasets (bio-datasets/dft23-full, sdmattpotter/dftest61523, sdmattpotter/dftest61623) as the source of “perovskite formulas and band gaps”. These datasets are generic DFT collections and do not guarantee that they contain a sufficient number of ABX₃ perovskite entries. Because the research question specifically requires a curated perovskite dataset (≥ 500 entries after filtering), using a dataset that may lack the required stoichiometry makes the data resource inappropriate for the task. Replace the cited sources with a verified perovskite‑specific DFT dataset (e.g., Materials Project perovskite subset, OQMD perovskite filter, or a Zenodo‑hosted perovskite collection) that explicitly provides the needed composition and band‑gap fields.
+- The plan’s Feature Engineering phase lists descriptor generation (FR‑002, FR‑012) but does not explicitly state that the computed descriptors will be standardized (zero‑mean, unit‑variance) before model training, as required by FR‑012 in the spec and implied by the data‑model (which expects raw values and a separate scaler artefact). Add a clear step (e.g., “Standardize descriptors using the training‑set scaler before training”) to ensure consistency with the specification and data model.

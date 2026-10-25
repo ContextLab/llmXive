@@ -33,7 +33,8 @@ properties:
     type: boolean
   source:
     type: string
-    enum: ["dft23-full", "dftest61523", "dftest61623"]
+    enum: ["materials_project", "zenodo_mirror", "dft23-full", "dftest61523", "dftest61623"]
+    description: "Origin of the raw data row."
   checksum:
     type: string
     pattern: "^[a-f0-9]{64}$"
