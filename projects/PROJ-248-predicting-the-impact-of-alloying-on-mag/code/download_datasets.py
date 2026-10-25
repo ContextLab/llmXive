@@ -1,9 +1,9 @@
 """
 download_datasets.py
 
-Script to download the Materials Project magnetic dataset (via the HuggingFace
-`datasets` library) and the OQMD magnetic CSV release (via a direct HTTP
-request). The script writes three artefacts:
+Script to download the Materials Project magnetic dataset (via a direct HTTP
+request to the HuggingFace raw file) and the OQMD magnetic CSV release
+(via a direct HTTP request). The script writes three artefacts:
 
 * `data/raw_mp.jsonl` – filtered JSON-lines from the Materials Project
   (only entries where `magnetic_type` is not `NM`).
@@ -19,7 +19,6 @@ from pathlib import Path
 
 import requests
 import yaml
-from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -40,45 +39,45 @@ def _write_yaml(manifest: dict, out_path: Path) -> None:
 
 def download_materials_project(raw_mp_path: Path) -> dict:
     """
-    Download Materials Project magnetic entries using a publicly available
-    HuggingFace dataset. The dataset ``materialsproject/mp-2020.10.01`` is
-    a snapshot of the Materials Project bulk archive and does not require
-    an API key.
+    Download Materials Project magnetic entries from the public HuggingFace
+    raw file. The dataset ``materialsproject/mp-2020.10.01`` is a snapshot
+    of the Materials Project bulk archive and does not require an API key.
 
-    The function streams the dataset, filters out entries where
+    The function streams the JSON‑lines file, filters out entries where
     ``magnetic_type`` equals ``NM`` (non‑magnetic), and writes each
     remaining record as a JSON line to ``raw_mp_path``. It returns a
     manifest containing a version identifier, the SHA‑256 checksum of the
     written file and the number of records written.
     """
-    log.info("Loading Materials Project dataset via `datasets` (streaming).")
-    try:
-        ds = load_dataset(
-            "materialsproject/mp-2020.10.01",
-            split="train",
-            streaming=True,
-            trust_remote_code=True,
-        )
-    except Exception as e:
-        log.error("Failed to load Materials Project dataset: %s", e)
-        raise RuntimeError(f"Materials Project dataset not accessible: {e}")
+    # Direct URL to the raw JSON‑lines file on HuggingFace
+    url = "https://huggingface.co/datasets/materialsproject/mp-2020.10.01/resolve/main/mp.jsonl"
+    log.info("Downloading Materials Project magnetic JSONL from %s", url)
 
-    # Keep only magnetic entries (exclude non‑magnetic)
-    ds = ds.filter(lambda x: x.get("magnetic_type") != "NM")
-
-    # Attempt to capture a version/revision identifier
-    version_id = "unknown"
-    if hasattr(ds, "info") and getattr(ds, "info", None):
-        version_id = getattr(ds.info, "revision", "unknown")
+    response = requests.get(url, stream=True, timeout=300)
+    response.raise_for_status()
 
     raw_mp_path.parent.mkdir(parents=True, exist_ok=True)
 
     sha256 = hashlib.sha256()
     count = 0
-    with raw_mp_path.open("w", encoding="utf-8") as dst:
-        for record in ds:
+    with raw_mp_path.open("w", encoding="utf-8") as out_f:
+        for line_bytes in response.iter_lines(chunk_size=8192, decode_unicode=True):
+            if not line_bytes:
+                continue
+            # Each line is a JSON object
+            try:
+                record = json.loads(line_bytes)
+            except json.JSONDecodeError as e:
+                log.warning("Skipping malformed line: %s", e)
+                continue
+
+            # Filter out non‑magnetic entries
+            if record.get("magnetic_type") == "NM":
+                continue
+
+            # Write the filtered record
             line = json.dumps(record, ensure_ascii=False)
-            dst.write(line + "\n")
+            out_f.write(line + "\n")
             sha256.update(line.encode("utf-8"))
             count += 1
             if count % 10_000 == 0:
@@ -96,7 +95,10 @@ def download_materials_project(raw_mp_path: Path) -> dict:
         checksum,
     )
 
-    return {"version": str(version_id), "sha256": checksum, "records": count}
+    # The version identifier is derived from the dataset name/date
+    version_id = "mp-2020.10.01"
+
+    return {"version": version_id, "sha256": checksum, "records": count}
 
 def download_oqmd(raw_oqmd_path: Path) -> dict:
     """
