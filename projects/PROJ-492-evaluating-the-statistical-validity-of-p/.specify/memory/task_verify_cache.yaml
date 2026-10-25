@@ -1,0 +1,10 @@
+T001:
+  c: true
+  h: 9c68fa6086ee8b8d5294ecf92ef9126af052f5e2e97aa353753627bda0b071a7
+  r: "Checked the presence of the consolidated `code/src/audit/` package (including\
+    \ `run_audit.py`), the passing integration test `test_run_audit_help.py` confirming\
+    \ `python -m code.src.audit.run_audit --help` exits with status\u202F0, and the\
+    \ `quickstart.md` file which contains the exact command `python -m code.src.audit.run_audit\
+    \ data/input/urls.csv output/`. All required artifacts exist and meet the task\
+    \ specifications."
+  sig: 93cb51b0d1c124328a22bb5747831913deb2ccd8eaa6974e52d8f3f99cb6321a

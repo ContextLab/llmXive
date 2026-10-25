@@ -1,19 +1,17 @@
 status: none
-intent: download A/B test summary dataset with URLs, p-values, sample sizes, domains
-  python package dataset
+intent: public A/B test summary dataset download for research site:kaggle.com python
+  package dataset
 required_fields:
 - url
-- test_name
-- variant_a_description
-- variant_b_description
-- metric_name
-- sample_size_a
-- sample_size_b
-- total_sample_size
 - reported_p_value
-- reported_confidence_interval
-- reported_effect_size
 - test_statistic
-cache_key: 2643c2c318095452249a210347d507dea199f8c8bebdeed85bcd7ef7437d6cd9
-searched_at: '2026-10-25T21:21:03.199090+00:00'
+- sample_size_control
+- sample_size_variant
+- effect_size
+- outcome_metric
+- test_date
+- confidence_interval
+- ground_truth_consistency_flag
+cache_key: 76b5a0db247c1fa826c4ad42966e2eba387358dfff5a2a968c2411faac0901c4
+searched_at: '2026-10-25T23:08:52.961395+00:00'
 retry_count: 1

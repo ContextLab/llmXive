@@ -1,11 +1,4 @@
 T001:
-  reason: "The repository contains the consolidated `code/src/audit/` package, the\
-    \ duplicate\u2011check script reports no PT### duplicates, and `quickstart.md`\
-    \ documents the required command. However, there is no provided execution evidence\
-    \ that `python -m code.src.audit.run_audit --help` actually runs and exits with\
-    \ status\u202F0, which is a mandatory verification step. Adding a logged run (or\
-    \ test) of that command with a successful exit code is needed to complete the\
-    \ task."
   task: 172b79b3fe114bd5307eab73d42d910154058a467786a749204778ea30908667
 T004:
   task: 4597ab3408fc57001606e93d71012aa2027d159142042e64271917bf36d3d93f

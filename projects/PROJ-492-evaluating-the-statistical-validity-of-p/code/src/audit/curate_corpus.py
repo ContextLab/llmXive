@@ -2,15 +2,15 @@
 curate_corpus.py
 
 Script to create a deterministic corpus of ≥ 300 reachable URLs that
-point to public A/B test summaries.  The script performs the following
+point to public A/B test summaries. The script performs the following
 steps:
 
 1. Retrieves a sitemap that lists many case‑study URLs from Optimizely
-   (https://www.optimizely.com/sitemap.xml).  The sitemap is publicly
+   (https://www.optimizely.com/sitemap.xml). The sitemap is publicly
    available and contains a large number of URLs.
 2. Filters the URLs to keep only those that appear to be case‑study or
    blog‑post pages (heuristic: contain “case-study” or “blog” in the
-   path).  The filtered list is sorted to guarantee determinism.
+   path). The filtered list is sorted to guarantee determinism.
 3. Takes the first 300 URLs, downloads each page, and writes the raw HTML
    to ``data/raw/<sanitized_name>.html``.
 4. Writes the list of URLs to ``data/input/urls.csv`` (header ``url``).
@@ -18,7 +18,7 @@ steps:
    the results to ``data/checksums.txt`` (format: ``<hash>  <relative_path>``).
 
 The script is idempotent: if the output files already exist it will
-skip re‑downloading the corresponding pages.  All paths are built using
+skip re‑downloading the corresponding pages. All paths are built using
 the ``llmxive_toolkit.paths`` helpers so they live inside the project
 directory.
 
@@ -63,7 +63,7 @@ def _sanitize_filename(url: str) -> str:
     Convert a URL into a safe filename for storing the HTML snapshot.
     Only alphanumerics and underscores are kept.
     """
-    # Extract path component, drop leading slash
+    # Remove scheme and replace non‑alphanumerics with underscores
     path = re.sub(r"^https?://", "", url)
     path = re.sub(r"[^A-Za-z0-9]+", "_", path)
     # Truncate to a reasonable length
@@ -72,17 +72,18 @@ def _sanitize_filename(url: str) -> str:
 def _fetch_sitemap() -> List[str]:
     """
     Download the sitemap XML and return a list of URLs contained within.
+    This implementation is robust to the presence or absence of XML
+    namespaces.
     """
     log.info(f"Fetching sitemap from {SITEMAP_URL}")
     resp = requests.get(SITEMAP_URL, timeout=TIMEOUT)
     resp.raise_for_status()
-    root = ET.fromstring(resp.text)
+    # Parse XML; use ``.//{*}url`` to match any namespace
+    root = ET.fromstring(resp.content)
 
-    # Namespaces handling – the sitemap may declare a default namespace.
-    ns = {"ns": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-    urls = []
-    for url_elem in root.findall("ns:url", ns):
-        loc = url_elem.find("ns:loc", ns)
+    urls: List[str] = []
+    for url_elem in root.findall(".//{*}url"):
+        loc = url_elem.find("{*}loc")
         if loc is not None and loc.text:
             urls.append(loc.text.strip())
     log.info(f"Found {len(urls)} URLs in sitemap")
@@ -137,7 +138,7 @@ def _compute_sha256(file_path: Path) -> str:
 # ----------------------------------------------------------------------
 def main() -> int:
     """
-    Entry point for the script.  Returns an exit code compatible with
+    Entry point for the script. Returns an exit code compatible with
     ``python -m`` execution.
     """
     try:
@@ -195,7 +196,7 @@ def main() -> int:
                     h = _compute_sha256(html_file)
                     # Store path relative to the project root
                     rel_path = html_file.relative_to(paths.root)
-                    chk_file.write(f"{h}  {rel_path}\n")
+                    chk_file.write(f"{h}  {rel_path}\\n")
         log.info(f"Wrote checksums to {checksums_path}")
 
         log.info("Corpus curation completed successfully")
