@@ -30,32 +30,32 @@ T001a:
     import lazy or adjust dependencies) so the tests can run successfully.
   sig: 3a23f1e07e17ead111eadf985e38e9b1baadf301a8d7996419a685d84ae65b29
 T001b:
-  c: true
-  h: 9de0ccd01c45d59e66926f08d82c397c02b96dc8c30ac98daa66a19579df7c69
-  r: "The unit test file `tests/unit/test_data_loader.py` exists and contains concrete\
-    \ tests for `download_and_checksum`, including checksum validation and idempotency\
-    \ checks. The implementation of `download_and_checksum` in `code/pipeline/loader.py`\
-    \ provides the required functionality that the tests exercise. All required artifacts\
-    \ are present and non\u2011placeholder."
-  sig: 3721fdd00e34cee46aabb9b381067793aa89142fe948140d2669ee8740639731
+  c: false
+  h: 8a9265b07a06ee7d2f9bf859bef963536322c7bfdd7ec56d145829bdc01863c0
+  r: "The only unit\u2011test file (`tests/unit/test_data_loader.py`) exercises `verify_urls`\
+    \ and the `exponential_backoff` decorator, but it contains no test case that imports\
+    \ or validates the `download_and_checksum` function. A test for `download_and_checksum`\
+    \ is required to satisfy task T001b."
+  sig: 972da6dec4a3a2b75505aa3a1ee06cb00f0b20568864347de326c5cc3a0f9fc1
 T001c:
-  c: true
-  h: 99d99da67dcf01627da859fcf500b39786326c119af2f1476e472bb8d98dcb46
-  r: "Checked `utils/data_loader.py` (re\u2011exports `verify_urls`), the core implementation\
-    \ in `code/utils/data_loader.py` (uses the `exponential_backoff` decorator from\
-    \ `code/pipeline/loader.py`), and the unit tests in `tests/unit/test_data_loader.py`\
-    \ which verify correct success/failure behavior and the FR\u2011011 back\u2011\
-    off schedule. All required artifacts exist and meet the specification."
-  sig: b5b767a7c3d76b70adc9e0697fdf850f88be2c08022e234e07967342fa7a13ed
+  c: false
+  h: 7a357fcbea16da8a9c5d2d966a3fc4349ed2c96fc07721f8e50961eb0b86ddd7
+  r: "The `utils/data_loader.py` file only re\u2011exports `verify_urls` from `code.utils.data_loader`\
+    \ and does not contain its own implementation, while the unit test imports `verify_urls`\
+    \ from `pipeline.loader` instead of `utils.data_loader`. Consequently the required\
+    \ function is not directly implemented in the specified module and the provided\
+    \ test does not verify it. The task\u2019s requirement is therefore unmet."
+  sig: 9ed1b1f08116e69c8d872878b594a0f7f3ee6261a1fdea67105d3e818f4952d6
 T001d:
-  c: true
-  h: 8613d044f7e3d5104a3dd346c71399f6fddc0af34fa0d3e0973e9c89fdfb50af
-  r: "Checked `code/pipeline/loader.py` for a functional `download_and_checksum` that\
-    \ writes a `SHA256SUM` file and returns a 64\u2011char SHA\u2011256 digest, and\
-    \ verified the corresponding unit tests in `tests/unit/test_data_loader.py` that\
-    \ assert correct file creation, checksum matching, and idempotence. All required\
-    \ artifacts exist and meet the specification."
-  sig: 83cd74fd5edb343ae2ef54fea7a65d57c32f57d3ce189250250bd75921ed061f
+  c: false
+  h: a5bb93e83a52daa8c71a330c75428da96880a2d850446f8f476331146f08e1ec
+  r: "The repository contains a `download_and_checksum` implementation, but the claimed\
+    \ verification unit test (`tests/unit/test_data_loader.py`) does **not** test\
+    \ this function \u2013 it only covers `verify_urls` and the `exponential_backoff`\
+    \ decorator. A test exercising `download_and_checksum` (e.g., mocking `datasets.load_dataset`\
+    \ and checking that a `SHA256SUM` file is created and the correct checksum is\
+    \ returned) is missing. Adding such a test is required to satisfy the task."
+  sig: 3670d62b2933ba0005a0d66c6dc77427df7c6b80687d31b0410f82a881ee38af
 T001e:
   c: true
   h: dcf72f37c8a2e14a93eaf93e1645156696b0015203bcafe80ba7c3e2c1d85128

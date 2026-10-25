@@ -1,3 +1,1 @@
-"""
-Top-level package for the self‑improving LLM project.
-"""
+"""Top‑level package for the self‑improving LLM project."""

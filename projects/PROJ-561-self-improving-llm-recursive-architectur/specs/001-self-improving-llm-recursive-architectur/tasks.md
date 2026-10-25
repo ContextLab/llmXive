@@ -13,9 +13,9 @@
 
 - [X] T005b [S] Implement exponential‑backoff wrapper `exponential_backoff` (initial_delay = 30 s, max_retries = 5). **Verification**: unit test added in `tests/unit/test_backoff.py`.
 
-- [X] T001c [S] Implement **Pre‑flight URL Verification** in `utils/data_loader.py` (`verify_urls(urls: List[str])`). Raises an error on unreachable URLs and implements FR‑011 exponential back‑off using the wrapper from T005b. **Verification**: unit test added in `tests/unit/test_data_loader.py`.
+- [ ] T001c [S] Implement **Pre‑flight URL Verification** in `utils/data_loader.py` (`verify_urls(urls: List[str])`). Raises an error on unreachable URLs and implements FR‑011 exponential back‑off using the wrapper from T005b. **Verification**: unit test added in `tests/unit/test_data_loader.py`.
 
-- [X] T001d [S] Implement **Data Download & Checksumming** (`download_and_checksum(dataset_name, dest_path)`). Writes a SHA‑256 hash file alongside the downloaded data. **Verification**: unit test added in `tests/unit/test_data_loader.py`.
+- [ ] T001d [S] Implement **Data Download & Checksumming** (`download_and_checksum(dataset_name, dest_path)`). Writes a SHA‑256 hash file alongside the downloaded data. **Verification**: unit test added in `tests/unit/test_data_loader.py`.
 
 - [X] T001e [S] Implement **Random Seed Pinning** in `code/utils/random.py` to ensure reproducibility (Constitution I). **Verification**: unit test asserts that `random.seed`, `np.random.seed`, and `torch.manual_seed` are called with the seed from `config.py`.
 
@@ -33,7 +33,7 @@
 ## Phase 2: Foundational (Blocking Prerequisites)
 
 - [ ] T001a [P] Unit test for `verify_urls` (see `tests/unit/test_data_loader.py`).  
-- [X] T001b [P] Unit test for `download_and_checksum` (see `tests/unit/test_data_loader.py`).  
+- [ ] T001b [P] Unit test for `download_and_checksum` (see `tests/unit/test_data_loader.py`).  
 - [ ] T005a [P] Implement dataset loaders for OpenWebText, GSM8K, ARC‑Challenge, BoolQ with fail‑fast logic and streaming support; use back‑off from T005b. **Verification**: ensure training and eval splits are disjoint and generate `data/disjoint_check_report.json`.  
 - [ ] T006 [P] Implement `models/loader.py` CPU‑only loader for the GPT‑2 checkpoint. **Verification**: `device='cpu'` after load.  
 - [ ] T013 [P] Define `ModificationProposal` Pydantic schema. **Verification**: schema validation unit test.  

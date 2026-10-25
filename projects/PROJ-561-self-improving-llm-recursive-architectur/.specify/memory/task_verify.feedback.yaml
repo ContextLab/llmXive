@@ -16,10 +16,26 @@ T001a:
     import lazy or adjust dependencies) so the tests can run successfully.
   task: a773c7bcd09d8183636339cef8dfd733cff1d2cb158f40c17e2f1e3f09ae41d6
 T001b:
+  reason: "The only unit\u2011test file (`tests/unit/test_data_loader.py`) exercises\
+    \ `verify_urls` and the `exponential_backoff` decorator, but it contains no test\
+    \ case that imports or validates the `download_and_checksum` function. A test\
+    \ for `download_and_checksum` is required to satisfy task T001b."
   task: 30781d71e0b835ac06a7244912c0796fda1a3169c71e1ce8317944b81cc0f6bd
 T001c:
+  reason: "The `utils/data_loader.py` file only re\u2011exports `verify_urls` from\
+    \ `code.utils.data_loader` and does not contain its own implementation, while\
+    \ the unit test imports `verify_urls` from `pipeline.loader` instead of `utils.data_loader`.\
+    \ Consequently the required function is not directly implemented in the specified\
+    \ module and the provided test does not verify it. The task\u2019s requirement\
+    \ is therefore unmet."
   task: 88e4c2391b092b97f7fa23ab3c473f23755393aaaa12d9dde036faf050c97ac4
 T001d:
+  reason: "The repository contains a `download_and_checksum` implementation, but the\
+    \ claimed verification unit test (`tests/unit/test_data_loader.py`) does **not**\
+    \ test this function \u2013 it only covers `verify_urls` and the `exponential_backoff`\
+    \ decorator. A test exercising `download_and_checksum` (e.g., mocking `datasets.load_dataset`\
+    \ and checking that a `SHA256SUM` file is created and the correct checksum is\
+    \ returned) is missing. Adding such a test is required to satisfy the task."
   task: 6010c9d6d0d1a875154b7dde639c63f016c47935a2acb29f6ee4d7aad08cef2d
 T001e:
   task: c71be3d5f252526e80015665eed26d91a210ab18e6235fbf67135fdb7e902e99
