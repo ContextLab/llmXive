@@ -9,17 +9,6 @@
   verification_status: pending
   verified_against_url: https://github.com/PantheonPlusSH0ES/DataRelease
   verified_at: '2026-10-21T01:21:31.479514Z'
-- artifact_hash: 7bc04e2843430d491853a3dd259b5135361d172fd1332f3b1d2efc726a86d988
-  artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon+_SH0ES.dat`
-  verification_status: mismatch
-  verified_against_url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon+_SH0ES.dat
-  verified_at: '2026-10-22T00:16:03.307669Z'
 - artifact_hash: f98fe50270eabc05fc43cb30517026b8b3bc73180f7fe2ddab469705aab31603
   artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/plan.md
   cite_id: c-001
@@ -76,3 +65,25 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.xxxxx
   verified_at: '2026-10-22T00:31:01.173210Z'
+- artifact_hash: 4798689e58a5d2caeecaea225fc652d5d393b85bce64f719259b5cb3a4106276
+  artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'QPRT: A Target Enabling Package | Zenodo'
+  kind: url
+  value: https://doi.org/10.5281/zenodo.7968445`
+  verification_status: pending
+  verified_against_url: https://zenodo.org/records/7968445
+  verified_at: '2026-10-25T15:19:29.543688Z'
+- artifact_hash: 4798689e58a5d2caeecaea225fc652d5d393b85bce64f719259b5cb3a4106276
+  artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.7968445
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.7968445
+  verified_at: '2026-10-25T15:19:29.543688Z'
