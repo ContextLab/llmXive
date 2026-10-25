@@ -34,17 +34,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python -m code.src.data.download -> rc=1
 
-2026-10-24 19:12:58,855 INFO __main__: Attempting streaming load via datasets.load_dataset for timbrooks/instructpix2pix/train
-2026-10-24 19:12:58,987 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/timbrooks/instructpix2pix "HTTP/1.1 401 Unauthorized"
-2026-10-24 19:12:58,988 WARNING __main__: Standard HF loader failed for timbrooks/instructpix2pix: Dataset 'timbrooks/instructpix2pix' doesn't exist on the Hub or cannot be accessed.
-2026-10-24 19:12:58,988 INFO __main__: Attempting direct parquet stream fallback for timbrooks/instructpix2pix
-2026-10-24 19:12:59,316 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/timbrooks/instructpix2pix/revision/main "HTTP/1.1 401 Unauthorized"
-2026-10-24 19:12:59,316 ERROR __main__: Direct parquet stream also failed: datasets/timbrooks/instructpix2pix@main/data/train-00000-of-00001.parquet (repository not found)
-2026-10-24 19:12:59,317 ERROR __main__: Data collection failed: Unable to stream dataset timbrooks/instructpix2pix from Hugging Face via any method
+2026-10-25 06:11:41,020 INFO __main__: Attempting streaming load via datasets.load_dataset for timbrooks/instructpix2pix/train
+2026-10-25 06:11:41,117 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/timbrooks/instructpix2pix "HTTP/1.1 401 Unauthorized"
+2026-10-25 06:11:41,118 WARNING __main__: Standard HF loader failed for timbrooks/instructpix2pix: Dataset 'timbrooks/instructpix2pix' doesn't exist on the Hub or cannot be accessed.
+2026-10-25 06:11:41,118 INFO __main__: Attempting direct parquet load fallback for timbrooks/instructpix2pix
+2026-10-25 06:11:41,209 ERROR __main__: Direct parquet load also failed: HTTP Error 401: Unauthorized
+2026-10-25 06:11:41,210 ERROR __main__: Data collection failed: Unable to fetch dataset timbrooks/instructpix2pix from Hugging Face via any method
 
 - python -m code.src.data.curate -> rc=1
 
-2026-10-24 19:12:59,886 ERROR __main__: Curate step failed: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/data/raw/prompts_sample.parquet'
+2026-10-25 06:11:41,613 ERROR __main__: Curate step failed: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-817-llmxive-follow-up-extending-leveraging-v/data/raw/prompts_sample.parquet'
 
 - python -m src.data.filter_conflicts -> rc=1
 

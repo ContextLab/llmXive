@@ -1,13 +1,13 @@
 status: none
-intent: download InstructPix2Pix image editing prompts dataset with human feasibility
-  scores python package dataset
+intent: InstructPix2Pix dataset human feasibility scores image editing prompts download
+  python package dataset
 required_fields:
 - prompt_id
+- instruction_text
 - instruction_type
-- prompt_text
 - human_feasibility_score
-- baseline_verifier_score
+- verifier_score
 - alignment_delta
-cache_key: 57fc6b19c99b2e7dde46cc0ea923ced46b8201e3ddb2d5bad3dab804419e6167
-searched_at: '2026-10-24T19:13:49.743083+00:00'
+cache_key: c29854367f39a9b5ee1ef13aa6b00d60a210c9d05a9995c4f6bfc1cb0ea5189d
+searched_at: '2026-10-25T06:12:30.216583+00:00'
 retry_count: 1

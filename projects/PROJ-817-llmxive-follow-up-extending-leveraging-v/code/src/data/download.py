@@ -1,6 +1,6 @@
 """Download a real sample of InstructPix2Pix prompts (T001).
 
-This script streams a public InstructPix2Pix‑like dataset from the Hugging Face Hub,
+This script streams a public InstructPix2Pix dataset from the Hugging Face Hub,
 extracts the first ``N_PROMPTS`` rows that contain a non‑empty instruction prompt,
 computes a stable SHA‑256 checksum for each row, and writes two artefacts:
 
@@ -28,10 +28,9 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Primary and fallback dataset identifiers on Hugging Face Hub.
+# Primary dataset identifier on Hugging Face Hub.
 PRIMARY_DATASET_ID = "timbrooks/instructpix2pix"
 # Direct URL to the primary parquet shard to bypass Hub API 401 errors on some runners.
-# This is the same real data as the primary dataset ID.
 PRIMARY_PARQUET_URL = "https://huggingface.co/datasets/timbrooks/instructpix2pix/resolve/main/data/train-00000-of-00001.parquet"
 SPLIT = "train"
 N_PROMPTS = 2000  # target number of prompts to collect
@@ -48,6 +47,7 @@ def _row_checksum(row: Mapping[str, object]) -> str:
     The checksum is over the JSON serialisation of the fields that uniquely
     identify a prompt in the original dataset.
     """
+    # Handle different possible column names in the dataset
     edit_prompt = row.get("edit_prompt") or row.get("prompt") or ""
     original_prompt = row.get("original_prompt") or row.get("text") or ""
     payload = json.dumps(
@@ -64,9 +64,8 @@ def _row_checksum(row: Mapping[str, object]) -> str:
 def _iter_stream_hf(dataset_id: str) -> Iterator[Mapping[str, object]]:
     """Yield rows from the HF streaming loader for a given ``dataset_id``.
 
-    Tries the standard dataset loader first. If a 401/API error occurs,
-    it falls back to the 'parquet' loader using the direct URL to the 
-    same real data to ensure reliability on restricted runners.
+    Tries the standard dataset loader first. If a 401/API error or Hub failure occurs,
+    it falls back to reading the direct parquet URL via pandas to ensure reliability.
     """
     try:
         from datasets import load_dataset
@@ -86,22 +85,18 @@ def _iter_stream_hf(dataset_id: str) -> Iterator[Mapping[str, object]]:
             yield row
     except Exception as exc:
         log.warning("Standard HF loader failed for %s: %s", dataset_id, exc)
-        log.info("Attempting direct parquet stream fallback for %s", dataset_id)
+        log.info("Attempting direct parquet load fallback for %s", dataset_id)
         try:
-            from datasets import load_dataset
-            # Load using the generic 'parquet' loader on the direct URL
-            ds = load_dataset(
-                "parquet",
-                data_files=PRIMARY_PARQUET_URL,
-                split=SPLIT,
-                streaming=True,
-            )
-            for row in ds:
-                yield row
+            # Use pandas to read the parquet file directly from the URL.
+            # While this downloads the shard, it is the most robust way to bypass 
+            # Hub API authentication/routing issues on restricted runners.
+            df_shard = pd.read_parquet(PRIMARY_PARQUET_URL)
+            for _, row in df_shard.iterrows():
+                yield row.to_dict()
         except Exception as fallback_exc:
-            log.error("Direct parquet stream also failed: %s", fallback_exc)
+            log.error("Direct parquet load also failed: %s", fallback_exc)
             raise RuntimeError(
-                f"Unable to stream dataset {dataset_id} from Hugging Face via any method"
+                f"Unable to fetch dataset {dataset_id} from Hugging Face via any method"
             ) from fallback_exc
 
 
@@ -140,7 +135,6 @@ def _collect_using_id(dataset_id: str, n_prompts: int) -> pd.DataFrame:
 
 def collect_prompt_sample(n_prompts: int = N_PROMPTS) -> pd.DataFrame:
     """Collect the first ``n_prompts`` valid prompts."""
-    # We only use the primary source as the fallback is handled internally in _iter_stream_hf
     return _collect_using_id(PRIMARY_DATASET_ID, n_prompts)
 
 
