@@ -19,20 +19,23 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_pantheon.py   # writes data/raw/pantheon_plus.dat and records SHA‑256 -> rc=1
-
-2026-10-25 19:07:52,415 INFO __main__: Downloading Pantheon+ dataset from https://zenodo.org/record/7968445/files/Pantheon%2B_Data.fits?download=1
-2026-10-25 19:07:52,978 WARNING __main__: Primary download URL failed (404 Client Error: NOT FOUND for url: https://zenodo.org/records/7968445/files/Pantheon+_Data.fits). Attempting fallback URL.
-2026-10-25 19:07:52,978 INFO __main__: Downloading Pantheon+ dataset from https://zenodo.org/records/7968445/files/Pantheon%2B_Data.fits?download=1
-2026-10-25 19:07:53,400 ERROR __main__: Pantheon+ download failed: 404 Client Error: NOT FOUND for url: https://zenodo.org/records/7968445/files/Pantheon%2B_Data.fits?download=1
+P/1.1 200 OK"
+2026-10-25 22:07:58,114 INFO httpx2: HTTP Request: HEAD https://huggingface.co/datasets/juliensimon/pantheon-plus-sne-ia/resolve/88f73dfe1f38394b32dc581aa31db867354fb7b7/.huggingface.yaml "HTTP/1.1 404 Not Found"
+2026-10-25 22:07:58,221 INFO httpx2: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=juliensimon/pantheon-plus-sne-ia "HTTP/1.1 200 OK"
+2026-10-25 22:07:58,294 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/juliensimon/pantheon-plus-sne-ia/tree/88f73dfe1f38394b32dc581aa31db867354fb7b7/data?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-25 22:07:58,363 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/juliensimon/pantheon-plus-sne-ia/tree/88f73dfe1f38394b32dc581aa31db867354fb7b7?recursive=false&expand=false "HTTP/1.1 200 OK"
+2026-10-25 22:07:58,450 INFO httpx2: HTTP Request: HEAD https://huggingface.co/datasets/juliensimon/pantheon-plus-sne-ia/resolve/88f73dfe1f38394b32dc581aa31db867354fb7b7/dataset_infos.json "HTTP/1.1 404 Not Found"
+2026-10-25 22:07:58,576 INFO __main__: Dataset loaded: 1701 records
+2026-10-25 22:07:58,578 ERROR __main__: Pantheon+ download failed: Column 'ra' doesn't exist.
 
 - python code/download_pantheon.py --verify-only -> rc=1
 
-2026-10-25 19:07:53,698 ERROR __main__: Pantheon+ download failed: File not found for verification: /home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/data/raw/pantheon_plus.fits
+2026-10-25 22:07:59,473 ERROR __main__: Pantheon+ download failed: File not found for verification: /home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/data/raw/pantheon_plus.fits
 
 - python code/power_analysis.py -> rc=1
 
-2026-10-25 19:07:54,180 INFO __main__: Downloading Pantheon+ dataset from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
-2026-10-25 19:07:54,293 ERROR __main__: Power analysis failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
+2026-10-25 22:08:00,041 INFO __main__: Downloading Pantheon+ dataset from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
+2026-10-25 22:08:00,183 ERROR __main__: Power analysis failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
 
 - python code/analysis.py -> rc=1
 
@@ -57,25 +60,6 @@ FileNotFoundError: Residuals file not found: /home/runner/work/llmXive/llmXive/p
 
 - data/processed/residuals.csv
 - data/raw/metadata.json
-
-## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
-
-Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
-
-- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
-- **Verified**: this loads **1701** real records with fields: sn_name, survey_id, redshift_hd, redshift_hd_err, redshift_cmb, redshift_cmb_err, redshift_helio, redshift_helio_err, apparent_mag_b, apparent_mag_b_err, stretch_x1, stretch_x1_err, color_c, color_c_err, host_log_mass, host_log_mass_err, fit_probability, distance_modulus, distance_modulus_err.
-- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
-
-```python
-import datasets
-
-ds = datasets.load_dataset("juliensimon/pantheon-plus-sne-ia", split="train")
-records = len(ds)
-print(f"RECORDS={records}")
-print("FIELDS=" + ",".join(ds.column_names))
-```
-
-Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

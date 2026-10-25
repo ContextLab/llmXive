@@ -1,44 +1,12 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets
-
-
-  ds = datasets.load_dataset("juliensimon/pantheon-plus-sne-ia", split="train")
-
-  records = len(ds)
-
-  print(f"RECORDS={records}")
-
-  print("FIELDS=" + ",".join(ds.column_names))'
-record_count: 1701
-sample_fields:
-- sn_name
-- survey_id
-- redshift_hd
-- redshift_hd_err
-- redshift_cmb
-- redshift_cmb_err
-- redshift_helio
-- redshift_helio_err
-- apparent_mag_b
-- apparent_mag_b_err
-- stretch_x1
-- stretch_x1_err
-- color_c
-- color_c_err
-- host_log_mass
-- host_log_mass_err
-- fit_probability
-- distance_modulus
-- distance_modulus_err
-field_coverage: 0.667
+status: none
+intent: download Pantheon+ Type Ia Supernova dataset python package dataset
 required_fields:
-- name
+- supernova_name
 - ra
 - dec
 - redshift
 - distance_modulus
 - distance_modulus_error
-intent: download Pantheon+ Type Ia supernova catalog as python package dataset
-cache_key: e04406f22e0bb218d2ff3ffe4b6c79d9bf6d9b558935525877614e45721b15b4
+cache_key: 68cc72f29be4db600fda0a3c6d3f36f24b5caa51ca1cacd81e30dca385a0c7dd
+searched_at: '2026-10-25T22:08:23.760868+00:00'
+retry_count: 1

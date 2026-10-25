@@ -5,3 +5,4 @@ numpy>=1.24
 scipy>=1.11
 healpy>=1.16  # required for later phases, safe to include now
 tqdm>=4.66   # useful for future simulation loops
+datasets>=2.0  # verified real source for Pantheon+ data
