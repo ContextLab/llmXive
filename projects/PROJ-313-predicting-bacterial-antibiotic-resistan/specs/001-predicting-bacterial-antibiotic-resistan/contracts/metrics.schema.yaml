@@ -21,8 +21,8 @@ properties:
     description: "Target antibiotic (e.g., ampicillin, ciprofloxacin)."
   model_type:
     type: string
-    enum: ["xgboost_baseline", "xgboost_integrated"]
-    description: "Indicates whether only ARGs or the full feature set were used."
+    enum: ["xgboost_baseline", "xgboost_integrated", "rf_baseline", "rf_integrated"]
+    description: "Indicates whether only ARGs or the full feature set were used, and which algorithm."
   cv_folds:
     type: integer
     minimum: 5

@@ -1,14 +1,15 @@
 status: none
-intent: NCBI Pathogen Detection dataset E coli S aureus AST phenotypes CARD python
-  package dataset
+intent: E coli Staphylococcus aureus genome antimicrobial susceptibility and CARD
+  gene dataset python package dataset
 required_fields:
 - isolate_id
 - species
-- genome_assembly_fasta_url
-- ast_antibiotic_resistance_columns (e.g., ampicillin_resistant, ciprofloxacin_resistant)
-- card_arg_gene_name
-- card_arg_presence_binary
-- refseq_accession
-cache_key: 3e3c2800345a3f9489d877ce072bc7611cf05b34aa94f706cfb1c85d979c8ae4
-searched_at: '2026-10-21T07:30:25.647236+00:00'
+- assembly_accession
+- genome_fasta_url
+- antibiotic
+- phenotype
+- mic_value
+- card_gene_presence_matrix
+cache_key: 2619b3e7a4d4bb65431af8f17ab57e5ff0b592802389f0ab0b32318bd1a885da
+searched_at: '2026-10-25T06:11:10.111013+00:00'
 retry_count: 1
