@@ -1,37 +1,3 @@
-- artifact_hash: db2a6149b7c39439b6db819a06858c0161e64c0f1ee862accf1a1f8dfd7ddb04
-  artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[1705.04312] FDR-Corrected Sparse Canonical Correlation Analysis
-    with Applications to Imaging Genomics'
-  kind: url
-  value: https://arxiv.org/abs/1705.04312
-  verification_status: pending
-  verified_against_url: https://arxiv.org/abs/1705.04312
-  verified_at: '2026-08-05T06:42:56.373905Z'
-- artifact_hash: db2a6149b7c39439b6db819a06858c0161e64c0f1ee862accf1a1f8dfd7ddb04
-  artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: OpenNeuro
-  kind: url
-  value: https://openneuro.org/datasets/ds004285`
-  verification_status: pending
-  verified_against_url: https://openneuro.org/datasets/ds004285
-  verified_at: '2026-08-02T21:42:33.748323Z'
-- artifact_hash: 043b24986ac4c55653a80de87201c60928c2413d0ff08080c1c987f106afd921
-  artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: Vif - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q113106917
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-08-02T21:42:33.748323Z'
 - artifact_hash: 3886fbec46b8b0807156ed565d359f0f139409f8d8eaf59b5a0abd3052d49c06
   artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
   cite_id: c-001
@@ -65,3 +31,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/proj-361-brain-illusion-topology
   verified_at: '2026-08-05T07:39:34.582286Z'
+- artifact_hash: 9f40b6b14ced37b4d65e367f49a6ca904f7945b1848f4449d4e00802a35cbe11
+  artifact_path: projects/PROJ-361-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds004285`
+  verification_status: pending
+  verified_against_url: https://openneuro.org/datasets/ds004285
+  verified_at: '2026-10-25T21:28:22.605484Z'
