@@ -104,6 +104,52 @@ def test_a_root_level_duplicate_of_a_code_module_is_refused(tmp_path: Path, caps
     assert "`code/run_analysis.py` already exists" in capsys.readouterr().out
 
 
+def test_a_root_script_that_is_already_there_can_still_be_edited(tmp_path: Path) -> None:
+    """Batch 7 run 1 (2026-10-12): the tests ran the root `run_phi_analysis.py`,
+    a copy also sat in `code/`, and 44 edits to the root file were refused as
+    "a second copy". Its one-line argument bug outlived three model tiers."""
+    _existing(tmp_path)
+    root = _existing(tmp_path, "run_analysis.py", DRIVER)
+    rewritten = DRIVER.replace("'ran\\n'", "'root ran\\n'")
+    project = _send(tmp_path, [{"path": "run_analysis.py", "contents": rewritten}])
+    assert root.read_text(encoding="utf-8") == rewritten
+    assert (project / "code/run_analysis.py").read_text(encoding="utf-8") == DRIVER
+
+
+def test_a_script_sent_under_its_bare_name_is_written_to_the_one_that_exists(tmp_path: Path, capsys) -> None:
+    """Batch 7 run 2: the task called the script `run_totient_analysis.py`, it
+    lived in `code/`, and nine rewrites sent under the bare name were dropped."""
+    driver = _existing(tmp_path)
+    rewritten = DRIVER.replace("'ran\\n'", "'ran again\\n'")
+    project = _send(tmp_path, [{"path": "run_analysis.py", "execute": True, "contents": rewritten}])
+    assert not (project / "run_analysis.py").exists()
+    assert driver.read_text(encoding="utf-8") == rewritten
+    assert (project / "data/summary.txt").read_text(encoding="utf-8") == "ran again\n"
+    assert "'run_analysis.py' -> 'code/run_analysis.py'" in capsys.readouterr().out
+
+
+def test_a_bare_name_does_not_follow_a_link_out_of_the_project(tmp_path: Path) -> None:
+    outside = tmp_path / "outside.py"
+    outside.write_text(DRIVER, encoding="utf-8")
+    link = tmp_path / "projects/PROJ-909-noop/code/run_analysis.py"
+    link.parent.mkdir(parents=True)
+    link.symlink_to(outside)
+    _send(tmp_path, [{"path": "run_analysis.py", "contents": DRIVER.replace("ran", "overwritten")}])
+    assert outside.read_text(encoding="utf-8") == DRIVER
+
+
+@pytest.mark.parametrize("shim", [
+    "import code.run_analysis as real\n\nmain = real.main\n",
+    "from run_analysis import main\n\nraise SystemExit(main())\n",
+    "import runpy\n\nrunpy.run_path('code/run_analysis.py', run_name='__main__')\n",
+])
+def test_a_wrapper_is_never_written_over_the_script_it_wraps(tmp_path: Path, shim: str) -> None:
+    driver = _existing(tmp_path)
+    project = _send(tmp_path, [{"path": "run_analysis.py", "contents": shim}])
+    assert not (project / "run_analysis.py").exists()
+    assert driver.read_text(encoding="utf-8") == DRIVER
+
+
 def test_a_root_level_file_with_its_own_name_is_still_written(tmp_path: Path) -> None:
     _existing(tmp_path)
     project = _send(tmp_path, [{"path": "requirements.txt", "contents": "numpy\n"}])

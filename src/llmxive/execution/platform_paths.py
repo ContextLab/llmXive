@@ -130,3 +130,60 @@ __all__ = [
     "shadow_dirs",
     "shadow_feedback",
 ]
+
+
+def project_dir_of(path: str | Path) -> Path | None:
+    """The ``projects/<id>`` directory a path lies in, read from the path alone."""
+    parts = Path(path).parts
+    for index in range(len(parts) - 2, -1, -1):
+        if parts[index] == "projects":
+            return Path(*parts[: index + 2])
+    return None
+
+
+def platform_path_tasks(text: str) -> list[tuple[str, str, str]]:
+    """``(task id, path, platform root)`` for each unfinished task naming a path
+    the platform owns."""
+    from llmxive.project_paths import declared_paths
+    from llmxive.speckit.task_lines import TASK_LINE_RE, mask_fenced_code, task_continuation
+
+    lines = mask_fenced_code(text).split("\n")
+    found = []
+    for index, line in enumerate(lines):
+        task = TASK_LINE_RE.fullmatch(line)
+        if not task or task.group("status") in "Xx":
+            continue
+        for path in declared_paths(line + task_continuation(lines, index)):
+            owned = platform_shadow(path)
+            if owned:
+                found.append((task.group("id"), path, owned))
+    return found
+
+
+def refuse_platform_path_tasks(text: str, project_dir: Path | None) -> None:
+    """Raise ``TaskFormatError`` for a project task list that writes a
+    platform-owned path.
+
+    The task verifier rejects every attempt at such a task whatever was
+    produced, so once it is in the list no amount of implementation finishes it
+    (batch 3, 2026-10-11: one task asking for ``.github/workflows/ci.yml`` took
+    22 verifier rounds and 39 implementer replies before the whole project was
+    re-planned). Refusing the list where it is written sends the reason to the
+    tasker instead. Does nothing outside a ``projects/<id>`` directory.
+    """
+    from llmxive.speckit.task_lines import TaskFormatError
+
+    if project_dir is None or not is_project_dir(project_dir):
+        return
+    offending = platform_path_tasks(text)
+    if offending:
+        raise TaskFormatError(
+            "Task(s) write a path the platform owns: "
+            + "; ".join(f"{tid} `{path}` (inside `{owned}/`)" for tid, path, owned in offending[:8])
+            + ". A project can only write inside its own directories (code/, src/, "
+            "scripts/, tests/, data/, figures/, results/, paper/); it cannot add "
+            "workflow files or platform state. Rewrite each of these tasks to produce "
+            "a project-owned file instead (for a CI step, a script under `scripts/` or "
+            "`code/` that runs the same commands), and make the plan and quickstart "
+            "name that file."
+        )
