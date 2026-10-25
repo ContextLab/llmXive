@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-22T05:19:35Z",
+  "updated_at": "2026-10-25T00:25:42Z",
   "project_id": "PROJ-291-predicting-the-impact-of-residual-stress",
   "replan_rounds": 2
 }

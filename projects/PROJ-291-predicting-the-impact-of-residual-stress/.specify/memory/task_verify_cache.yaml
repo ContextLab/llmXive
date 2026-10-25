@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 026f91a3e9e6a86bad7a6d022482f4cec554810a9bf28a6a1db3b4b5dfa222a0
-  r: "The repository lacks a `src/env_check.py` module required by `test_env_check.py`\
-    \ (the test runs `python -m src.env_check`), and there is no evidence of the expected\
-    \ `data/raw/checksums.json` file that the test also checks. Consequently the pytest\
-    \ suite cannot pass, so the task\u2019s requirements are not fully satisfied."
-  sig: ed4823e83a5c970bac0dc585c40af428225b79aa45231dec0fdcc00ff1da6631
 T001-1:
   c: false
   h: e0ef103764651c8ca7ee394859a3faf1a7b58e61d2ce054e79176f6efa268171

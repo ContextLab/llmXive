@@ -16,8 +16,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - bash scripts/env_check.sh -> rc=1
 
-2026-10-24 23:21:51,111 ERROR __main__: Missing required package torch: No module named 'torch'
-2026-10-24 23:21:51,111 ERROR __main__: Environment validation failed: No module named 'torch'
+2026-10-25 00:24:38,498 INFO openml.config: Error opening file /home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/.runtime-home/.config/openml/config: not readable
+2026-10-25 00:24:38,499 WARNING openml: No permission to create OpenML directory at /home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/.runtime-home/.config/openml! This can result in OpenML-Python not working properly.
+2026-10-25 00:24:38,605 ERROR __main__: Missing required package ucimlrepo: No module named 'ucimlrepo'
+2026-10-25 00:24:38,605 ERROR __main__: Environment validation failed: No module named 'ucimlrepo'
 
 - python -m src.data.gen_synthetic -> rc=1
 
@@ -76,7 +78,7 @@ E   ModuleNotFoundError: No module named 'src.acquire_external'
 =========================== short test summary info ============================
 ERROR code/tests/test_acquire.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-1 error in 0.83s
+1 error in 0.60s
 
 
 

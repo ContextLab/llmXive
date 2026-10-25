@@ -1,8 +1,9 @@
 T001:
-  reason: "The repository lacks a `src/env_check.py` module required by `test_env_check.py`\
-    \ (the test runs `python -m src.env_check`), and there is no evidence of the expected\
-    \ `data/raw/checksums.json` file that the test also checks. Consequently the pytest\
-    \ suite cannot pass, so the task\u2019s requirements are not fully satisfied."
+  reason: The provided `env_check.py` correctly imports the required packages, but
+    `code/tests/test_env_check.py` runs it as `python -m src.env_check`, which looks
+    for `src/env_check.py` that does not exist (the script is at `code/src/env_check.py`).
+    Additionally, the test expects a `data/raw/checksums.json` file, which is not
+    present in the repository. These mismatches cause the verification test to fail.
   task: 75a0997476de49fa9387130e186621ec6a6f9d977dbafcd7a699d07a0617a4c0
 T001-1:
   reason: The `requirements.txt` is properly pinned and `data/raw/checksums.json`
