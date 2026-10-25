@@ -34,7 +34,7 @@ def download_ego4d(output_dir: Path) -> None:
 
     # Core Constraint 9: For large datasets, we stream and take a real sample 
     # to fit within the 7GB RAM / 14GB Disk CI budget.
-    # We use streaming=True instead of streaming=False to prevent OOM/Disk errors.
+    # Ego4D is too large for streaming=False.
     try:
         ds = load_dataset("ego4d/ego4d", split="train", streaming=True)
     except Exception as e:
