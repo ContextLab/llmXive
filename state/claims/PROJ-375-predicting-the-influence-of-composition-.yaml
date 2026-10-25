@@ -1008,3 +1008,35 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-25T02:21:04Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: Wall-clock time for 100 rows is less than 30 seconds
+  claim_id: c_bd8dd67c
+  context: 'Expected runtime & resources for the minimal pipeline. Wall-clock time:
+    < 30 seconds (100 rows).'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Wall-clock time: < 30 seconds (100 rows).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T09:10:15Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: Peak RAM usage is less than 200 MB
+  claim_id: c_620d3bfc
+  context: 'Expected runtime & resources for the minimal pipeline. Peak RAM: < 200
+    MB.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Peak RAM: < 200 MB.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T09:10:15Z'

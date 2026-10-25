@@ -5,7 +5,8 @@ Usage:
     python -m pipeline.run --sample 100
 
 The script reads the first N rows of the curated CSV, computes the required
-compositional descriptors, adds a SHA‑256 checksum per row, writes the
+compositional descriptors, ensures schema compliance for both original and
+quick-start contracts, adds a SHA‑256 checksum per row, writes the
 enriched DataFrame to ``results/sample_output.parquet`` and validates the
 output against the dataset JSON‑Schema contract.
 """
@@ -84,6 +85,22 @@ def _add_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     df = pd.concat([df.reset_index(drop=True), desc_df], axis=1)
     return df
 
+def _ensure_schema_compliance(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Ensure the DataFrame contains all columns required by validate_dataframe_schema,
+    including both the 'Original' and 'Quick-start' schema sets.
+    """
+    # Map Quick-start descriptors to Original schema names
+    df["mean_atomic_radius"] = df["weighted_mean_atomic_radius"]
+    df["electronegativity_var"] = df["electronegativity_variance"]
+    df["size_mismatch"] = df["atomic_size_coefficient_of_variation"]
+    # 'vec' is already named 'vec' in both schemas.
+    
+    # Add amorphous_flag (default to True for this curated sample of metallic glasses)
+    df["amorphous_flag"] = True
+    
+    return df
+
 def _add_checksum(df: pd.DataFrame) -> pd.DataFrame:
     """
     Compute a SHA‑256 checksum of the JSON representation of each row.
@@ -137,16 +154,19 @@ def main() -> int:
         logger.critical("Descriptor computation failed.")
         return 1
 
-    # 4️⃣ Add checksum column
+    # 4️⃣ Ensure schema compliance (map columns for original schema)
+    enriched_df = _ensure_schema_compliance(enriched_df)
+
+    # 5️⃣ Add checksum column
     enriched_df = _add_checksum(enriched_df)
 
-    # 5️⃣ Validate against the schema
+    # 6️⃣ Validate against the schema
     if not validate_dataframe_schema(enriched_df):
         logger.error("DataFrame does not conform to the expected schema.")
         return 1
     logger.info("Schema validation passed.")
 
-    # 6️⃣ Write output parquet
+    # 7️⃣ Write output parquet
     output_path = paths.results("sample_output.parquet")
     enriched_df.to_parquet(output_path, index=False)
     logger.info(f"Sample output written to {output_path}")

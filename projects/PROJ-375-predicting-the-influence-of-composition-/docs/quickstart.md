@@ -43,9 +43,10 @@ The script will:
  - `electronegativity_variance`
  - `vec` (valence‑electron concentration)
  - `atomic_size_coefficient_of_variation`
-4. Add a per‑row SHA‑256 `checksum` for provenance.
-5. Write the enriched table to `results/sample_output.parquet`.
-6. Validate the table against the JSON‑Schema contract; the script exits with status 0
+4. Map these to the primary dataset schema (`mean_atomic_radius`, etc.) and set `amorphous_flag=True`.
+5. Add a per‑row SHA‑256 `checksum` for provenance.
+6. Write the enriched table to `results/sample_output.parquet`.
+7. Validate the table against the JSON‑Schema contract; the script exits with status 0
  only if validation succeeds.
 
 ## Verify the output
