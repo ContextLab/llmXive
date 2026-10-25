@@ -1,8 +1,12 @@
 status: none
-intent: download OEIS A000010 Euler totient function values python package dataset
+intent: download Euler totient values dataset OEIS A000010 python package dataset
 required_fields:
 - n
 - phi
-cache_key: e8374fa1412e11ee99444b132f5d089074f11301c577db4615242a0fbe7b451c
-searched_at: '2026-10-25T04:39:52.463427+00:00'
+- phi_mod_3
+- phi_mod_5
+- phi_mod_7
+- phi_mod_11
+cache_key: fa59fa0e8d4a7663ce91ba507adfe4650bc677c1c5a6277fa0c1f9bb7e531b1e
+searched_at: '2026-10-25T04:42:17.021638+00:00'
 retry_count: 1

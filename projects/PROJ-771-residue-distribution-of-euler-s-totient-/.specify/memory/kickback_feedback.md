@@ -1,12 +1,10 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T006` (rejected 1x): The provided `code/stats.py` defines `calculate_chi_squared_statistic` and a `run_chi_squared_test` that returns a dict matching the required schema, but it lacks a public `exact_multinomial_test` function and does not expose a `method="monte_carlo"` option. Moreover, the repository’s `tests/unit/test_stats.py` does not contain the three chi‑squared sub‑tests described in the task specification, so the required verification is missing. The next implementer must add the missing test cases (uniform, biased, and small‑N exact cases) and ensure the API supports the exact‑multinomial fallback and o
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan tests the observed residues against the *theoretically biased* expectations (Lebowitz‑Lockard 2021, Pollack & Roy 2024) rather than the uniform null hypothesis stated in the original specification (FR‑003). This mis‑alignment means the analysis will not answer the research question as originally posed – whether the residues are uniformly distributed.
+- A chi‑squared goodness‑of‑fit test assumes that the observations are independent draws from the underlying distribution. Here each observation is a deterministic function φ(n) of the integer n, so successive residues are not independent. Using the chi‑squared (or its Monte‑Carlo/Exact fallback) without accounting for this dependence may invalidate the p‑values and the resulting pass/fail decision.

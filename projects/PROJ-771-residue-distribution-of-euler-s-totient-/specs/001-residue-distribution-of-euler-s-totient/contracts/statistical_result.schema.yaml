@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "StatisticalResult"
-description: "Schema for the output of the chi-squared goodness-of-fit test (with Monte Carlo or exact fallback) against the **theoretically biased** expected counts."
+description: "Schema for the output of the chi-squared goodness-of-fit test (with Monte Carlo or exact fallback) against the **uniform** expected counts."
 type: object
 properties:
   test_type:
@@ -13,7 +13,7 @@ properties:
     minimum: 0
   p_value:
     type: number
-    description: "P-value for the test (proportion of simulated or exact tail probabilities)."
+    description: "Empirical p-value (proportion of simulated or exact tail probabilities)."
     minimum: 0
     maximum: 1
   degrees_of_freedom:
@@ -26,7 +26,7 @@ properties:
     enum: ["asymptotic","monte_carlo","exact"]
   expected_counts:
     type: array
-    description: "Theoretically biased expected counts $E_i$ for each residue (derived from number‑theoretic formulas)."
+    description: "Uniform expected counts $E_i = N/p$ for each residue."
     items:
       type: number
     minItems: 3
@@ -38,7 +38,7 @@ properties:
       type: integer
     minItems: 3
     maxItems: 11
-  uniformity_hypothesis:
+  uniformity_test_pass:
     type: boolean
     description: "True if p-value > 0.05 (significance threshold)."
   metadata:
@@ -83,6 +83,6 @@ required:
   - method
   - expected_counts
   - observed_counts
-  - uniformity_hypothesis
+  - uniformity_test_pass
   - metadata
 additionalProperties: false

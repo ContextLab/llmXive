@@ -16,28 +16,29 @@ Aggregated residue counts for a single prime $p$.
 | `computation_seed` | integer | Fixed random seed for reproducibility | `minimum: 0` |
 
 ### 2. StatisticalResult
-Result of the goodness‑of‑fit test for a given prime, **against the theoretically biased expected counts**.
+Result of the goodness‑of‑fit test for a given prime, **against the uniform null hypothesis**.
 
 | Attribute | Type | Description | Constraints |
 |-----------|------|-------------|-------------|
 | `test_type` | string | `"chi_squared"`, `"chi_squared_monte_carlo"` or `"exact_multinomial"` |
-| `test_statistic` | number | $\chi^{2}$ (or exact) statistic | `minimum: 0` |
-| `p_value` | number | Empirical p‑value (proportion of simulated or exact tail probabilities) | `minimum: 0`, `maximum: 1` |
+| `test_statistic` | number | The calculated chi‑squared (or exact) test statistic. | `minimum: 0` |
+| `p_value` | number | Empirical p‑value (proportion of simulated or exact tail probabilities). | `minimum: 0`, `maximum: 1` |
 | `degrees_of_freedom` | integer | $p-1$ | `minimum: 1` |
 | `method` | string | `"asymptotic"`, `"monte_carlo"` or `"exact"` |
-| `expected_counts` | array of numbers | **Theoretically biased expected counts** $E_i$ for each residue (derived from number‑theoretic formulas). |
-| `observed_counts` | array of integers | Observed counts $O_i$ for each residue (ordered 0 … p‑1). |
-| `uniformity_hypothesis` | boolean | `True` if p‑value > 0.05 (source → Replication‑crisis) |
-| `metadata` | object | Execution metadata (see below) |
+| `expected_counts` | array | **Uniform expected counts** $E_i = N/p$ for each residue. |
+| `observed_counts` | array | Observed counts $O_i$ for each residue (ordered 0 … p‑1). |
+| `uniformity_test_pass` | boolean | `True` if p‑value > 0.05 (significance threshold). |
+| `metadata` | object | Execution metadata (see sub‑object). |
+
 #### Metadata Sub‑object
 | Field | Type | Description |
 |-------|------|-------------|
-| `timestamp` | string (date‑time) | ISO 8601 execution time |
+| `timestamp` | string (date‑time) | ISO 8601 timestamp of execution. |
 | `python_version` | string | e.g. `"3.11.6"` |
-| `n_processed` | integer | Actual $N$ |
-| `peak_memory_mb` | number | Peak RAM usage (MB) |
-| `wall_time_sec` | number | Total runtime (seconds) |
-| `limit_reached` | boolean | `True` if MemoryGuard triggered |
+| `n_processed` | integer | Actual $N$ processed. |
+| `peak_memory_mb` | number | Peak RAM usage (MB). |
+| `wall_time_sec` | number | Total runtime (seconds). |
+| `limit_reached` | boolean | `True` if MemoryGuard triggered. |
 
 ## Data Flow
 1. `sieve.compute_residues` → `ResidueDataset` JSON (`data/raw/`).  
@@ -48,5 +49,4 @@ Result of the goodness‑of‑fit test for a given prime, **against the theoreti
 All files are UTF‑8 JSON, human‑readable, and checksum‑tracked.
 
 ---
-
 
