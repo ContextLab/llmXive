@@ -272,7 +272,12 @@ def _auth_headers() -> Dict[str, str]:
 
 
 def _http_config_for_split() -> str:
-    """Resolve the datasets‑server config name for the validation split."""
+    """Resolve the datasets‑server config name for the validation split.
+
+    The /splits endpoint returns a list where each element corresponds to
+    a config and contains a ``splits`` list. We need to locate the config
+    that provides the requested SPLIT.
+    """
     headers = _auth_headers()
     resp = requests.get(
         f"{DATASETS_SERVER}/splits",
@@ -281,13 +286,16 @@ def _http_config_for_split() -> str:
         timeout=60,
     )
     resp.raise_for_status()
-    splits = resp.json().get("splits", [])
-    for s in splits:
-        if s.get("split") == SPLIT:
-            return s["config"]
+    payload = resp.json()
+    splits_info = payload.get("splits", [])
+    for cfg in splits_info:
+        config_name = cfg.get("config")
+        for split_entry in cfg.get("splits", []):
+            if split_entry.get("split") == SPLIT:
+                return config_name
     raise RuntimeError(
         f"{DATASET_ID} has no '{SPLIT}' split according to the Hugging Face "
-        f"datasets‑server (available splits: {splits!r}); refusing to fabricate data."
+        f"datasets‑server (available configs: {splits_info!r}); refusing to fabricate data."
     )
 
 
