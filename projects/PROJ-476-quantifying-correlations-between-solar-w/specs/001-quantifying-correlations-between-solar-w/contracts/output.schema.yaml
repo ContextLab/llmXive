@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CorrelationResult"
-description: "Schema for rows of correlation result files matching the spec‑backed analysis (plain Bonferroni, Pyper & Peterman N_eff)."
+description: "Schema for rows of correlation result files matching the spec‑backed analysis (plain Bonferroni, Pyper & Peterman N_eff for Pearson; permutation test for Spearman)."
 type: object
 properties:
   composition_parameter:
@@ -38,12 +38,12 @@ properties:
   n_eff:
     type: number
     exclusiveMinimum: 2
-    description: "Pyper & Peterman effective sample size for this pair."
+    description: "Pyper & Peterman effective sample size for this pair (used for Pearson significance)."
   p_raw:
     type: number
     minimum: 0
     maximum: 1
-    description: "Raw p-value computed with df = n_eff - 2 (t‑approximation applied to both Pearson and Spearman)."
+    description: "Raw p-value: Pearson via t‑approximation with df = n_eff - 2; Spearman via permutation test."
   p_bonferroni:
     type: number
     minimum: 0

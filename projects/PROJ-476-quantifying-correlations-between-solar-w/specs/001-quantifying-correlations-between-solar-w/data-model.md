@@ -31,7 +31,14 @@
 | `Dst` | `float` | nT |
 | `interpolated_flag` | `bool` | True if any value in the row was linearly interpolated |
 
-### CorrelationResult (`results/correlations.csv`, `results/validation_correlations.csv`, `results/full_correlations.csv`)
+### StormFilteredRecord (derived, used for analysis)
+
+| Field | Type | Description |
+|:---|:---|:---|
+| `timestamp` | `datetime` (ISO‑8601 UTC) | Subset of `SynchronizedRecord` where `Dst < -50` nT |
+| *(all other columns inherited from `SynchronizedRecord`)* |  |  |
+
+### CorrelationResult (`results/*.csv`)
 
 | Field | Type | Description |
 |:---|:---|:---|
@@ -41,24 +48,24 @@
 | `pearson_r` | `float` | Pearson coefficient |
 | `spearman_rho` | `float` | Spearman coefficient |
 | `n_eff` | `float` | Pyper & Peterman effective sample size |
-| `p_raw` | `float` | raw p‑value (t‑approx, df = n_eff − 2) |
+| `p_raw` | `float` | Raw p‑value (t‑approx, df = n_eff − 2) |
 | `p_bonferroni` | `float` | min(1, 30 × p_raw) |
-| `significant` | `bool` | True if p_bonferroni < 0.05 |
-| `effect_size_large` | `bool` | True if |pearson_r| > 0.5 |
-| `evaluability_flag` | `bool` | False if valid observations < 30 **or** n_eff < 30 (data_resources‑9faf82e0) |
+| `significant` | `bool` | True if `p_bonferroni < 0.05` |
+| `effect_size_large` | `bool` | True if `|pearson_r| > 0.5` |
+| `evaluability_flag` | `bool` | False if valid observations < 30 **or** `n_eff < 30` (data_resources‑9faf82e0) |
 
 ## Data Flow
 
 1. **Fetch** → `data/raw/{ace_swpam.csv, ace_swics.csv, kp.txt, dst.txt}` + `checksums.json`.  
 2. **Sync** → `data/processed/synced.csv` (7 columns).  
-3. **Analyze** → `results/correlations.csv` (training 1998‑2017).  
-4. **Full‑period** → `results/full_correlations.csv` (1998‑2020).  
+3. **Storm filter** → `StormFilteredRecord` (in‑memory; no separate file).  
+4. **Analyze** → `results/full_correlations.csv`.  
 5. **Validate** → `results/validation_correlations.csv`, `results/validation_report.md`.  
 6. **Plot** → `figures/*.png`.
 
 ## Constraints
 
-- Missing required variable ⇒ abort with logged variable name (SC‑002).  
-- Interpolation only for gaps ≤ 6 h; longer gaps excluded from correlations.  
-- Lags restricted to 0, 1, 2, 3, 6 h.  
+- Missing required variable ⇒ abort with explicit error (SC‑002).  
+- Linear interpolation only for gaps ≤ 6 h; longer gaps excluded from analysis.  
+- Lags restricted to no lag, 1, 2, 3, 6 h.  
 - Evaluability floor: at least 30 valid observations **and** `n_eff ≥ 30`; otherwise `evaluability_flag` = False.

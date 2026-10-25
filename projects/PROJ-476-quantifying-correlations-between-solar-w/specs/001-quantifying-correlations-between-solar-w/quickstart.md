@@ -17,13 +17,13 @@ python -m code.main --stage fetch --start-date 1998-01-01 --end-date 2020-12-31
 # Align and interpolate to 1‑hour UTC grid
 python -m code.main --stage sync
 
-# Full‑period (1998‑2020) correlation analysis
+# **Storm‑filtered** correlation analysis (Dst < -50 nT)
 python -m code.main --stage analyze
 
 # Detrending sensitivity checks (first‑difference & 27‑day detrended)
 python -m code.main --stage detrend
 
-# Validation on 2018‑2020 hold‑out
+# Validation on 2018‑2020 hold‑out (storm‑filtered)
 python -m code.main --stage validate
 
 # Generate figures (PNG ≤ 5 MB each)
