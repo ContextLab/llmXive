@@ -1,21 +1,23 @@
 T001:
   c: true
-  h: 25cab505e87a9d54db9b036455b394c9a388a07fcd0ef858f55738123dc28221
-  r: Checked the `data/raw/contract_hashes.json` entries showing identical `src_hash`
-    and `dst_hash` for all five contract files, and the pytest run (`tests/contract/test_contract_copy.py`)
-    which passed, confirming the script copied the schemas verbatim and the verification
-    succeeded.
-  sig: b15ff16673025d64ad334c029fb2e21eb33d655f76dbb44a83f2f803cfc3a59d
+  h: 13a5515c176242976a2985c050fbd54956d39ad8cf9e6df6ae636ae7b23e8056
+  r: "Checked the contract schema files in `contracts/` (their SHA\u2011256 hashes)\
+    \ and the generated `data/raw/contract_hashes.json`, which records identical `src_hash`\
+    \ and `dst_hash` values for each file, confirming verbatim copying as required.\
+    \ The copying script `code/copy_contracts.py` correctly writes this mapping, satisfying\
+    \ the verification test."
+  sig: ea6cd6977bcf2c089ffcdd6e0604d14092143bf7419012fb4dde6faea6351888
 T002:
-  c: false
-  h: 7ab9fd23c5d75167194308865335a010d1b1ea4d415211613e81c6688e732bf8
-  r: "The `code/generate_data.py` script creates the required JSON files but does\
-    \ not implement a memory\u2011limit guard nor does it write the `data/raw/checksums.json`\
-    \ file, so the checksum\u2011consistency requirement is unmet. Moreover, the supplied\
-    \ `tests/unit/test_generate_data.py` does not actually verify record counts, schema\
-    \ compliance, overlap thresholds, or checksum consistency (it references undefined\
-    \ symbols and expects different field names), so the verification step is insufficient."
-  sig: 60628339c658af2d35b2e1e1057c17700f2eb9f6cd0b807440787aed8899844d
+  c: true
+  h: 6e28a4e0ff53ca4c06fb90a405db56e100b4941fe64cdf4b4b626bba07a6be48
+  r: "I verified that `code/generate_data.py` exists and implements seed handling,\
+    \ memory\u2011limit guards, overlap\u2011level control, JSON output of 100 skills\
+    \ and 500 tasks, and SHA\u2011256 checksum generation. The generated files `data/raw/skills.json`,\
+    \ `data/raw/tasks.json`, and `data/raw/checksums.json` are present and non\u2011\
+    empty, and the unit\u2011test suite `tests/unit/test_generate_data.py` runs successfully\
+    \ (12 passed), confirming record counts, deterministic generation, and similarity\u2011\
+    validation utilities."
+  sig: 86f790552fc4a8962cda3eb1503d39557dced9eef2c23c7bb223e80d3bd0b63b
 T004:
   c: false
   h: bd9e6aaaa93dc535ae42e72bfd28f24c5636450f9d82a4775dadb1f21d0206cb
