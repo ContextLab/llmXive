@@ -5,15 +5,10 @@ T001b:
 T001c:
   task: 379af483d3014bed0237b15b81f8f84189573bbc2b4eeda8eb51f90a3173eefe
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/verify_requirements.py
-    exit=1'
   task: 8ddc8d8d5c462bf3c52500931b5b5c76c7ed8e6a8b8b3aee75f7926c70451c73
 T003:
-  reason: "The repository contains a `code/pyproject.toml` with proper Ruff and Black\
-    \ configuration, but there is no execution evidence (logs, exit codes, or output)\
-    \ showing that `ruff .` and `black .` were run and completed without errors or\
-    \ formatting changes. Without such proof, the task\u2019s verification requirement\
-    \ is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/run_lint_format.py
+    exit=2'
   task: 1338b82faf6f26c067623b6d058c88986a07aa308fe19144a441f95e07d540ed
 T004:
   task: 447ba271da8b6f21163fd30384e87a64a71e29a1670db036c2830c0c44aba150

@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelMetrics"
+description: "Schema for model performance metrics."
+type: object
+required:
+  - cv_mae
+  - test_mae
+  - n_samples
+  - train_size
+  - test_size
+  - cv_method
+properties:
+  cv_mae:
+    type: number
+    description: "Mean Absolute Error from cross‑validation."
+    minimum: 0
+  test_mae:
+    type: number
+    description: "Mean Absolute Error on the held‑out test set."
+    minimum: 0
+  n_samples:
+    type: integer
+    description: "Total number of alloy records after filtering."
+    minimum: 0
+  train_size:
+    type: integer
+    description: "Number of samples used for training."
+    minimum: 0
+  test_size:
+    type: integer
+    description: "Number of samples used for testing."
+    minimum: 0
+  cv_method:
+    type: string
+    enum:
+      - "5-fold"
+      - "LOOCV"
+    description: "Cross‑validation strategy employed."
+additionalProperties: false

@@ -21,10 +21,10 @@ All tasks respect the data‑flow ordering required by the specification (FR‑0
 - [X] T001c [P] Add placeholder `.gitkeep` files in `data/raw/` and `data/processed/`.  
   **Verification**: Files are present, allowing empty directories to be tracked.
 
-- [ ] T002 [P] Initialise a Python project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit‑learn, matminer, statsmodels, chemparse, joblib, pytest, jsonschema).   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
+- [X] T002 [P] Initialise a Python project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit‑learn, matminer, statsmodels, chemparse, joblib, pytest, jsonschema).
   **Verification**: `pip install -r code/requirements.txt` completes without conflicts.
 
-- [ ] T003 [P] Configure linting/formatting (ruff + black) via `code/pyproject.toml`.  
+- [ ] T003 [P] Configure linting/formatting (ruff + black) via `code/pyproject.toml`.   <!-- FAILED-IN-EXECUTION: code/run_lint_format.py exit=2 -->
   **Verification**: `ruff .` and `black .` run cleanly.
 
 - [X] T004 [P] Add the JSON‑logging schema `contracts/logging_schema.yaml` (fields: `timestamp`, `level`, `message`, `trace_id`, `module`).  

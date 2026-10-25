@@ -1,11 +1,11 @@
 T001a:
   c: true
-  h: 1dc9a2405e9d5febd1eb4b15d374dfa3596d922986612980a8168a124d7dc088
-  r: The collector confirms that `code/`, `data/raw/`, `data/processed/`, `models/`,
-    `results/`, `tests/`, and `contracts/` directories all exist in the project root,
-    and the task log (`code/.tasks/T001a.code_create_core_layout.py.log`) reports
-    successful creation of the core layout.
-  sig: 2f19868ce75ff9e4094f05fbaf057fb890cf47fad04c61f6128b9ae9e4b4aa48
+  h: b69044ac6ab2778826a1d4cd14277e3e88f5e946437b29a7c07f355c3fa8dbbb
+  r: "Checked the collector\u2011confirmed presence of all required directories (`code/`,\
+    \ `data/raw/`, `data/processed/`, `models/`, `results/`, `tests/`, `contracts/`)\
+    \ and the successful run log of `create_core_layout.py` confirming the layout\
+    \ was created."
+  sig: 2a8dfd032e5ae81bfb0ce9a4b5b5a231e7e9ccc2b7904b214528dcb45786cbdd
 T001b:
   c: true
   h: dc6fa5184cf4ab32e52cd05a74ab2ddc1ad3ee04118e67137eadb9864fee4e1b
@@ -21,14 +21,12 @@ T001c:
     to add placeholder files in both locations.
   sig: 0026734a67b23c15402a1b3ac9bffcf02a618d99adb3d6cf0de7a958725d4906
 T002:
-  c: false
-  h: 163c7541eaa821dc6e670cf7052e68bb421f11756583f495bd1976e5237b4024
-  r: "The `code/requirements.txt` file exists and includes all required packages,\
-    \ but none are version\u2011pinned as the task specifies \u201Cpinned dependencies,\u201D\
-    \ and there is no evidence (e.g., pip install logs) showing that `pip install\
-    \ -r code/requirements.txt` completes without conflicts. Adding explicit version\
-    \ specifiers and providing successful install verification are needed."
-  sig: 498bf6a6ea29226f01c41668bb9f21d7ed019091a4606a75596e525f7072e4f9
+  c: true
+  h: def4a4185360539fa07c855dadab31877ce6ea96264f8bfcbdb4d5a816ca455d
+  r: "Checked `code/requirements.txt` (contains all required pinned packages) and\
+    \ the execution log `code/.tasks/T002.code_verify_requirements.py.log` showing\
+    \ `pip install -r code/requirements.txt` exited with code\u202F0 and no conflicts."
+  sig: ab62d35a2a6b7b066c0b31b78afd8a8db2070cb536771ef82073df66dee3968f
 T003:
   c: false
   h: 3c64cc2b1f693ee8f5f4fa07e768e1beb9d3ccece6eac8a80f7d6c315411d3a0
