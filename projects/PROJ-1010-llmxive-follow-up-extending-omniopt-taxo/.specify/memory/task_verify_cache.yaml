@@ -105,3 +105,44 @@ T012:
     for inspection, and there is no evidence that models were selected from HuggingFace
     or that gradient covariance was computed on TinyImageNet. The required artifact
     is missing, so the task is not satisfied.
+T013:
+  c: false
+  h: 44febe21ebd89a75f790ad3b56b305fa4a240c6ccde019cb2b3ee890c39ab6c9
+  r: "The file `code/spectral_extractor.py` defines `compute_spectral_features` and\
+    \ `compute_tail_decay_exponent`, which calculate spectral radius, condition number,\
+    \ and tail\u2011decay exponent as required, but the surrounding pipeline is broken\
+    \ (it calls `load_tinyimagenet_streaming` with arguments that the function does\
+    \ not accept, causing a runtime error) and the handling of singular matrices is\
+    \ only a crude \u201Cignore near\u2011zero eigenvalues\u201D check rather than\
+    \ explicit regularization. The script therefore cannot be executed to produce\
+    \ the required CSV of spectral features. Fix the data\u2011loader call (or pr"
+  sig: 855eaf0eecfc49dd80d6c44110148c2e60a0103e38bdbf0a9e6e83cbeb9cb5d0
+T013b:
+  c: true
+  h: ade9883c0202649495245f9ab3925af09d9f8ba1ae0440efcad2892eeb341b1c
+  r: "Checked `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py`\
+    \ \u2013 it defines `compute_spectral_entropy` that normalizes eigenvalues, computes\
+    \ `-np.sum(p * np.log2(p))`, and integrates the result into the feature dict returned\
+    \ by `compute_spectral_features`. The implementation is concrete, non\u2011placeholder,\
+    \ and matches the required formula."
+  sig: 5cbebb03ee560916e5d60947d3d7b72d34a53b99f6f90344956994f58a53ea76
+T014:
+  c: true
+  h: 98b90268f3980924ca2c7fc3d99e506c3b70d076de703f6dcdcbd171d8d221d0
+  r: "Checked `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py`\
+    \ \u2013 it contains try/except blocks, timeout handling, NaN/Inf checks, logs\
+    \ errors/warnings, returns\u202FNone for failed runs, and the main loop records\
+    \ and logs excluded samples. All required error\u2011handling behavior is present."
+  sig: 17f7b80f8e75db1084b521cf5f1cac3f134bccefd6c04e592a6a97813968804d
+T015:
+  c: false
+  h: 2262a0acdec77b05598d0710c2ccec5771763a0fee27172c9646c0a275099c9a
+  r: "The `spectral_extractor.py` allocates a full `(steps, total_params)` NumPy array\
+    \ (`gradient_accumulator = np.zeros((steps, total_params))`) which for typical\
+    \ models (e.g., ResNet\u201118 \u2248\u202F11\u202FM parameters) would require\
+    \ >\u202F8\u202FGB of RAM, violating the <\u202F7\u202FGB limit. Moreover, the\
+    \ code calls `check_memory_usage(MEMORY_LIMIT_GB * 1e9)`, but `check_memory_usage`\
+    \ is defined without parameters, so the memory\u2011limit enforcement never runs.\
+    \ These issues mean the implementation does not provide the required memory\u2011\
+    efficient gradient accumulation and covariance computation."
+  sig: 195387e30f609f5a21d3ae93d76aacd9c5eb9071a4be56760554368f5710cc71

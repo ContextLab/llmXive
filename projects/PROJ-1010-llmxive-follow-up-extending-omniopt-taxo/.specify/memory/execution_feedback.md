@@ -55,7 +55,7 @@ E   ModuleNotFoundError: No module named 'torchvision'
 =========================== short test summary info ============================
 ERROR tests/integration/test_t013c_save_features.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.38s ===============================
+=============================== 1 error in 1.27s ===============================
 
 
 ## Platform-owned paths written inside the project

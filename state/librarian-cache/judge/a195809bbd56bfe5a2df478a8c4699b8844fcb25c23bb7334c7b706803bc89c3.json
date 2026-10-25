@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.07253",
+  "judged_at": "2026-10-25T15:33:09Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+  "rationale": "The paper studies industrial anomaly synthesis using vision‑language large models and diffusion, i.e., the same open‑vocabulary, vision‑language mechanisms that IndusAgent leverages for detection, and it operates in the same industrial anomaly domain. This satisfies inclusion criterion (a) (same‑mechanism evidence) and (b) (measures a relevant variable in the same domain).",
+  "relevant": true
+}

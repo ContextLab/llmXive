@@ -1,33 +1,32 @@
 T001:
-  task: 8590e09b1dffe53fee82926ca7f85abd4391695f1caaf97a1ec5a6c4f741aae7
+  reason: "The `requirements.txt` file is present and pins many packages, and `docs/quickstart.md`\
+    \ contains a \u201CRun\u2011the\u2011pipeline\u201D command, but the required\
+    \ package **sentence\u2011transformers** is absent from the pinned list (and thus\
+    \ the dependency lock is incomplete). This violates the task\u2019s specification."
+  task: 07a7d178243203e52e8e8056088f81faa793d96eebe7787b11b89c1aa50fa5f9
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/data_acquisition.py
-    exit=1'
-  task: 0387e7cc5ed471f32b6ac8c4e1948a0407706154c0eb7ff32937b989b7cf17eb
+  task: e8434a10257568c4f6d44e271608b76cb800f5bb7d13c584ffc1ee6c6e19f36d
 T003:
-  task: a7912f4737cf44b164d753255305dccea5eaa6828fbaba6fdb7eed73dd7c930a
+  task: 5881a2814012a369414f9211ce17be2eeb3934d5d97dedf34bc5dbf2fe0e0362
 T004:
-  task: df279900e200776d45fe5ee4f607b6a88a86c4e0f8f31130eae13ece29ab021a
+  task: cbe32e240ace677d7572bb6d4fc39276cffc563f5b601349b6003131b4b1ee01
 T005:
-  task: 326934481a62ef1f7a160c4acea3afba6e37194e459e799a1eb26c067a1d693e
+  task: 1005478d42f19ef5156abbffd8bf39e8ada3e19d7f598caf8ceb7849d53d3cca
 T006:
-  task: a4a8c225f2a430e3159ea6a48f9148696e7afa1134b5a48078587f5f99b413e7
+  task: 15f6feb0aee45aa6c664e9702e60c7a2d96c735171131641f3c49821c8aaad6d
 T007:
-  task: 370e31a2dcfbd735e9e20c709fa3d9dea3f9e55c7a2e20355934aa9386155061
-T008:
-  task: 74de2e34fbde2457e0de4f6052c4d76431f79d8a7d18ca9445e7d7d24c4a1339
+  task: 2ed4ef708180e8ae28695c6c4bc15107b249733ad6b062c312c6c97ea5be8f19
 T009:
-  task: 6abefbfcddf5e7ea4a2333ca6534fd61b7e83060ed5def640a9d23b5b7b39422
+  task: 5fc30c1ea6739f63d2fc49e490ddba208deccb2dec71e7f6272c7db943dd5470
 T010:
-  task: ec395d62320a505759e4954cd9b2cf65ce73a41f983fe9310d733bc7df07b9ea
+  task: 02013c9e22698096b698b7b55cebf2b67ef01b81dc19cbe3077b81551955f374
 T011:
-  task: b31fa934cbb165828a0a5d07ab543edb6e7b9d501e5cad7997dbc9cb783d65a8
+  task: 053ae8a8013651eb46f073887da2a58fbf81669b2428aa56ab958bd56687d30d
 T012:
-  task: 7ea93ba00932c8f2f817bb14b88749364f62cd68fa1c4403c6a786951cc9adce
+  task: 8d34fc81593e0e4105ec1bf3744b13bf60c2e613a3b18d42cf5c1752c5501724
 T013:
-  task: 62e513034d6881bf00a182bbc09be10a496a85850785e08b6205bc2add0fc163
+  task: a0915048790c59dfac0ce2bf74ebd7ee8d51cedf56a543fc5d37572ce1790b9f
 T014:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
-  task: 8126075a3476aa13c9550aa360f2ecd078c28197cad19bce1e6fce5993ebff57
+  task: 9b0f2f4db6f2d10aaf042bed6395b41576f54bcf6930c756d9c5019602780a28
 T015:
-  task: 6f798c352024caa92a9361c7814e40a1b1adb75f7e4e376a286d2becfff1c710
+  task: 7c6bfecbc2bee43447911ff35db45ec353c1e5e6f3d2d636a63cc49157bb454d

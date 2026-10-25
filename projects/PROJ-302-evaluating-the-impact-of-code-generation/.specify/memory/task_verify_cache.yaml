@@ -1,14 +1,8 @@
 T001:
-  c: true
-  h: be5bd31846cfdc9f1e66319293c8743fd1926a12be2e07330c95006ca872c45e
-  r: "Checked `plan.md` for the required layout, confirmed the presence and content\
-    \ of `requirements.txt` with exact version pins, verified `docs/quickstart.md`\
-    \ includes a \u201CRun\u2011the\u2011pipeline\u201D command, and reviewed `results/setup_verification.json`\
-    \ which shows a successful fresh\u2011venv install of all listed packages."
-  sig: bedc8cdac45cd60f394d59b1b6f1bef53abef2f05a5a99d15f72a6864e75a027
-T003:
   c: false
-  h: 56e32c036cb77551798260d9e620e6bec0799fbcad7d4369efac866abb619716
-  r: The repository contains a `pyproject.toml` with Black and Ruff settings, but
-    the required separate `.ruff.toml` file is missing, so the task of creating both
-    configuration files is not fully satisfied.
+  h: ea2e0f10417b85d296e7c2add8e6bb0db5a3b76797b8850cf52182c1a15afffa
+  r: "The `requirements.txt` file is present and pins many packages, and `docs/quickstart.md`\
+    \ contains a \u201CRun\u2011the\u2011pipeline\u201D command, but the required\
+    \ package **sentence\u2011transformers** is absent from the pinned list (and thus\
+    \ the dependency lock is incomplete). This violates the task\u2019s specification."
+  sig: 0ad4f85b4d0158a518c3b66e1d5cd44111beb46be27ba420aff9ef4cc563b212

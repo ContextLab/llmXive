@@ -1,17 +1,11 @@
 status: none
-intent: download TinyImageNet dataset and OmniOpt benchmark tables python package
-  dataset
+intent: TinyImageNet OmniOpt benchmark gradient covariance spectral features python
+  package dataset
 required_fields:
-- model_id
-- architecture
-- parameter_count
-- proxy_dataset_name
-- training_steps
-- random_seed
+- model_identifier
 - spectral_radius
 - condition_number
 - tail_decay_exponent
-- top_50_eigenvalues
-cache_key: 33fd37d75468bb878031f0d2b2036f582f4dbbd2026bd7655b07eea43a8b2b8f
-searched_at: '2026-10-15T18:38:38.604506+00:00'
+cache_key: fbd4601c4979c8f237fef723621a774728bbab5fb641ab3eaff0aa2e24ae82ce
+searched_at: '2026-10-25T15:31:44.535986+00:00'
 retry_count: 1

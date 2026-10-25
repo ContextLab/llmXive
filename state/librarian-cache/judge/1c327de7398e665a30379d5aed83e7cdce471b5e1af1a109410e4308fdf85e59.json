@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.02155",
+  "judged_at": "2026-10-25T15:33:05Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+  "rationale": "The paper studies fine‑grained prompting of frozen vision‑language models for anomaly detection, which matches the same mechanism (prompt‑based VLM adaptation) that IndusAgent uses for open‑vocabulary industrial anomaly detection, satisfying acceptance criterion (a).",
+  "relevant": true
+}

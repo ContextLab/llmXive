@@ -85,11 +85,11 @@
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement `spectral_extractor.py` in `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/` to compute gradient covariance from first 100 steps of proxy training. **Model Selection**: Select a representative sample of models from HuggingFace model hub matching: parameter_count M-50M, architecture type in [ResNet, MobileNet, EfficientNet, ViT-Base]. Use TinyImageNet (a subset of samples).
-- [~] T013 [US1] Implement spectral feature extraction in `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py`: Calculate **Spectral Radius**, **Condition Number**, and **Tail Decay Exponent** (via power-law fitting via MLE on top-50 eigenvalues) per **FR-002** requirement. Handle numerical stability (regularization) for singular matrices.
-- [~] T013b [US1] Implement **Spectral Entropy** calculation in `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py`: Compute Shannon entropy of the normalized eigenvalue distribution (Formula: `-sum(p * log2(p))`) as the robust research metric per plan.md Complexity Tracking.
+- [ ] T013 [US1] Implement spectral feature extraction in `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py`: Calculate **Spectral Radius**, **Condition Number**, and **Tail Decay Exponent** (via power-law fitting via MLE on top-50 eigenvalues) per **FR-002** requirement. Handle numerical stability (regularization) for singular matrices.
+- [X] T013b [US1] Implement **Spectral Entropy** calculation in `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py`: Compute Shannon entropy of the normalized eigenvalue distribution (Formula: `-sum(p * log2(p))`) as the robust research metric per plan.md Complexity Tracking.
 - [ ] T013c [US1] Write extracted `SpectralFeatureVector` records (including both Tail Decay and Entropy) to `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/data/processed/spectral_features.csv`
-- [~] T014 [US1] Implement robust error handling in `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py` to log and exclude samples that fail to converge or produce NaN/Inf values
-- [~] T015 [US1] Implement memory-efficient gradient accumulation and covariance computation to ensure < 7GB peak RAM usage in `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py`
+- [X] T014 [US1] Implement robust error handling in `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py` to log and exclude samples that fail to converge or produce NaN/Inf values
+- [ ] T015 [US1] Implement memory-efficient gradient accumulation and covariance computation to ensure < 7GB peak RAM usage in `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
