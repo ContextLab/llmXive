@@ -41,12 +41,9 @@ T014:
     \ and explicit `device='cpu'` configuration."
   sig: 90039349151e6087bf33e11da809ac0951212b3a248f6561f1c5eb358ae3c382
 T015:
-  c: false
-  h: a3559ccf7416c2a7d85ef4e9a98207e99c81fdd72b03823685f361eb2f9a9e67
-  r: The `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` files
-    exist and appear to be valid YAML, but there is no evidence (e.g., command output,
-    log, or test script) showing that `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"`
-    (and the analogous command for `output.schema.yaml`) was actually executed and
-    exited without exception. Provide execution logs or a test confirming the load
-    succeeds.
-  sig: 49d49359e494859f12ab74d6b9de6fa49a03416f4c57c48434dacb11fed7f7a1
+  c: true
+  h: f8b453740300d5a28fd22cf36df6d3451d13f95f074572c94691033286bdb295
+  r: "Checked the presence and non\u2011empty content of `contracts/dataset.schema.yaml`\
+    \ and `contracts/output.schema.yaml`, and the unit\u2011test log showing both\
+    \ schemas load via `yaml.safe_load` without raising an exception."
+  sig: fbb39d9ccc84a8467fc67dc0ef6238a46a588e8f781179868f97317984c07f79

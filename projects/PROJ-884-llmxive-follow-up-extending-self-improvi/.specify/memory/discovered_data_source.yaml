@@ -1,17 +1,15 @@
 status: none
-intent: CSPLib Sudoku puzzle dataset Kaggle Sudoku dataset logic puzzle dataset verification
-  scripts python package dataset
+intent: Logic arithmetic puzzle dataset with deterministic verification scripts python
+  package dataset
 required_fields:
 - puzzle_id
 - puzzle_type
-- puzzle_representation
-- constraints_formal_language
-- solution_example
-- verification_python_script
-- error_codes
+- puzzle_definition_formal
+- verification_script_python
+- constraints_schema
+- example_solution
 - difficulty_level
-- source_dataset_name
-- source_url
-cache_key: 9be4cd0a0634248c4bbae496aa54f7a7df28710a269ceec44294672db47a8b07
-searched_at: '2026-10-25T05:09:34.780843+00:00'
+- source_reference
+cache_key: bad16c80ea81c7fe7d2daba3de3d8ded1ba0c45c9867fef691d85854514c1056
+searched_at: '2026-10-25T07:12:25.420322+00:00'
 retry_count: 1

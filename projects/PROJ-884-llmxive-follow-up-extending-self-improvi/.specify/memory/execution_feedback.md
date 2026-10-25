@@ -13,7 +13,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/bes/population.py: function `_roulette_selection` returns a bare RNG draw (line 305) — a reported value computed from no real input; code/config.py: self-declared fabricated metric — “…# The task T007b requires a placeholder value that warns if not overwritten…”; 2 command(s) failed: python -m pytest tests/unit/ (rc=2); python -m code.main --pilot --seed 42 (rc=1); 2 declared deliverable(s) absent: data/processed/bes_results.json; data/processed/exclusions.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/bes/population.py: function `_roulette_selection` returns a bare RNG draw (line 305) — a reported value computed from no real input; code/config.py: self-declared fabricated metric — “…# The task T007b requires a placeholder value that warns if not overwritten…”; 1 command(s) failed: python -m pytest tests/unit/ (rc=2); 2 declared deliverable(s) absent: data/processed/bes_results.json; data/processed/exclusions.json
 
 ## Failing / missing run-book commands
 
@@ -35,20 +35,8 @@ ERROR tests/unit/test_population.py
 ERROR tests/unit/test_result_aggregator.py
 ERROR tests/unit/test_symbolic_parser.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 0.64s ===============================
+============================== 7 errors in 0.80s ===============================
 
-
-- python -m code.main --pilot --seed 42 -> rc=1
-ion import Population, Individual, SelectionMethod
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/population.py", line 24, in <module>
-    from code.bes.crossover_operator import CrossoverOperator
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/crossover_operator.py", line 14, in <module>
-    from bes.forward_step import ForwardStep, ForwardStepResult, ForwardStepError
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/__init__.py", line 10, in <module>
-    from .population import Population, Individual, SelectionMethod
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/population.py", line 24, in <module>
-    from code.bes.crossover_operator import CrossoverOperator
-ImportError: cannot import name 'CrossoverOperator' from partially initialized module 'code.bes.crossover_operator' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/code/bes/crossover_operator.py)
 
 
 ## Declared deliverables still missing

@@ -34,12 +34,6 @@ T013:
 T014:
   task: f1b248a9bea05524673cd5f470a083acf318d3f3fca7997576d73e486a1ccc25
 T015:
-  reason: The `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` files
-    exist and appear to be valid YAML, but there is no evidence (e.g., command output,
-    log, or test script) showing that `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"`
-    (and the analogous command for `output.schema.yaml`) was actually executed and
-    exited without exception. Provide execution logs or a test confirming the load
-    succeeds.
   task: ee04be03cd38ad97a6cb2a7a0cbe4686dccfd6b589e8212d20d6b50fe4c3ba7e
 T016:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
