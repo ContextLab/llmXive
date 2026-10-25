@@ -1,4 +1,4 @@
-VAERS 2020-2023 dataset acquisition summary (T002)
+VAERS 2020‑2023 dataset acquisition summary (T002)
 source: Hugging Face dataset 'chrisvoncsefalvay/vaers-outcomes'
 file: data/raw/vaers_2020_2023.parquet
 sha256: e04cd0f99c1c3bd08c0c72781298cda0e5834441ac13a10a3f7027bde71fc898

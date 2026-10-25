@@ -1,20 +1,19 @@
 """
-VAERS Data Download Script (T002)
-=================================
+VAERS Data Download Script (T002) – Updated
 
-Downloads the verified VAERS 2020‑2023 dataset from Hugging Face
-(`vaers/vaers2020_2023`) using the `datasets` library.
-The script writes the real parquet file to
-`data/raw/vaers_2020_2023.parquet` and records a SHA‑256 checksum in
-`data/checksums.txt`. No synthetic fallback is performed; any download,
-I/O, or checksum error raises an exception and aborts the run.
+Downloads the verified VAERS 2020‑2023 dataset from Hugging Face.
+The official dataset identifier is
+``chrisvoncsefalvay/vaers-outcomes``. The script writes the parquet file to
+``data/raw/vaers_2020_2023.parquet`` and records a SHA‑256 checksum in
+``data/checksums.txt``. Any download, I/O, or checksum error raises an
+exception and aborts the run – no synthetic fallback is performed.
 """
 
 import hashlib
 import sys
 from pathlib import Path
 
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -22,10 +21,10 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Verified dataset identifier as per the specification
-DATASET_ID = "vaers/vaers2020_2023"
+# Verified dataset identifier as per the specification and quickstart
+DATASET_ID = "chrisvoncsefalvay/vaers-outcomes"
 PARQUET_FILENAME = "vaers_2020_2023.parquet"
-CHUNK_SIZE = 1024 * 1024  # 1 MiB for checksum streaming
+CHUNK_SIZE = 1024 * 1024  # 1 MiB for checksum streaming
 
 # Output locations (project‑relative via llmxive_toolkit.paths)
 PARQUET_PATH = paths.data("raw", PARQUET_FILENAME)
@@ -43,9 +42,10 @@ def sha256_checksum(file_path: Path) -> str:
             hasher.update(chunk)
     return hasher.hexdigest()
 
+
 def record_checksum(parquet_path: Path, checksums_path: Path) -> str:
     """
-    Compute SHA‑256 and record `<relative_path> <checksum>` in the
+    Compute SHA‑256 and record ``<relative_path> <checksum>`` in the
     checksums file, replacing any previous entry for the same file.
     """
     checksum = sha256_checksum(parquet_path)
@@ -67,27 +67,34 @@ def record_checksum(parquet_path: Path, checksums_path: Path) -> str:
         f.write(entry + "\n")
     return checksum
 
+
 def download_parquet() -> Path:
     """
-    Acquire the dataset from Hugging Face using the `datasets` library
+    Acquire the dataset from Hugging Face using the ``datasets`` library
     and save it as a local parquet file.
     """
     try:
         log.info("Loading dataset %s from Hugging Face", DATASET_ID)
-        # load_dataset handles the download and caching
-        ds = load_dataset(DATASET_ID, split="train")
-
-        # Ensure destination directory exists
-        PARQUET_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-        # Save directly to parquet using datasets method to be memory efficient
-        ds.to_parquet(PARQUET_PATH)
-
+        # ``load_dataset`` handles the download and caching.
+        # We request the ``train`` split because the dataset is a single
+        # collection of reports.
+        ds: Dataset = load_dataset(DATASET_ID, split="train")
     except Exception as exc:
-        log.error("Failed to acquire dataset: %s", exc)
+        log.error("Failed to load dataset %s: %s", DATASET_ID, exc)
         raise RuntimeError(
             f"Unable to acquire {DATASET_ID} via datasets.load_dataset"
         ) from exc
+
+    # Ensure destination directory exists
+    PARQUET_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        # Write directly to parquet – this is memory‑efficient because
+        # ``datasets`` streams to disk.
+        ds.to_parquet(PARQUET_PATH)
+    except Exception as exc:
+        log.error("Failed to write parquet file: %s", exc)
+        raise RuntimeError(f"Could not write parquet to {PARQUET_PATH}") from exc
 
     if not PARQUET_PATH.exists() or PARQUET_PATH.stat().st_size == 0:
         raise RuntimeError(
@@ -100,6 +107,7 @@ def download_parquet() -> Path:
         PARQUET_PATH.stat().st_size,
     )
     return PARQUET_PATH
+
 
 def write_summary(parquet_path: Path, checksum: str) -> None:
     """Write a human‑readable acquisition summary."""
@@ -115,6 +123,7 @@ def write_summary(parquet_path: Path, checksum: str) -> None:
     SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
     SUMMARY_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
     log.info("Wrote acquisition summary to %s", SUMMARY_PATH)
+
 
 # ----------------------------------------------------------------------
 # Public API used by the pipeline orchestrator
@@ -144,6 +153,7 @@ def fetch_vaers_data() -> None:
         CHECKSUMS_PATH,
     )
 
+
 # ----------------------------------------------------------------------
 # CLI entry point
 # ----------------------------------------------------------------------
@@ -152,6 +162,7 @@ def main() -> None:
     CLI wrapper used by the quickstart.
     """
     fetch_vaers_data()
+
 
 if __name__ == "__main__":
     main()

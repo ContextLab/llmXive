@@ -1,7 +1,29 @@
 T001:
   c: true
-  h: a000cfc07da36823807f886d8cddd2ef59cc3cc9b139bbed00b740b4f4f2c1fd
-  r: "Checked that all required directories exist, that `logs/structure.txt` is non\u2011\
-    empty and contains the string \u201Csrc\u201D, and that `quickstart.md` documents\
-    \ the command `python -m src.main`. All verification conditions are met."
-  sig: 5bc6b870cf216cd74964de1f60f856afa95042bb1c02eff06e6e5abeeca06e7e
+  h: 69f74383b762882b72506adf6ab410fbb44321abe1953b5859932356a9ad1bde
+  r: "Checked that all required directories exist, `logs/structure.txt` is non\u2011\
+    empty and contains \u201Csrc\u201D, and `quickstart.md` includes the documented\
+    \ command `python -m src.main`."
+  sig: 73cf4fcd51eada83930a5c594a9545f9bd33f557179b035ba97b6355c59aee23
+T002:
+  c: false
+  h: 25feeea2475e42a63aed6a56391fc07ca5d212dc09a217f527fd3f218758dd43
+  r: "Checked `src/data/download.py`, `data/raw/vaers_2020_2023.parquet`, and `data/checksums.txt`.\
+    \ While the parquet file exists, is non\u2011empty, and its checksum is recorded,\
+    \ the download script uses the wrong Hugging\u202FFace identifier (`chrisvoncsefalvay/vaers-outcomes`)\
+    \ instead of the required `vaers/vaers2020_2023`. The task explicitly mandates\
+    \ loading that exact dataset, so the implementation does not meet the specification.\
+    \ The script must be updated to use `datasets.load_dataset(\"vaers/vaers2020_2023\"\
+    , split=\"train\")`."
+  sig: ba9ec101ed11dd26268936794f3b38e5afd7d61fa367f3c618c7e6a0a4266a6c
+T003:
+  c: false
+  h: 318fffd4386daf79fa76598d30b53f0e9e9d81887869d846638cce143285a8fd
+  r: "The repository contains `src/data/validate_raw.py` and the unit\u2011test file,\
+    \ but the CLI cannot be invoked (`python -m src.data.validate_raw` raises \u201C\
+    No module named src.data.validate_raw\u201D) because `src` is not a package (no\
+    \ `src/__init__.py`). Consequently the tests fail, no log files are written, and\
+    \ the script does not use the `jsonschema` library as required. The task needs\
+    \ a proper package layout, correct importable module, use of `jsonschema` for\
+    \ schema loading/validation, and passing unit tests."
+  sig: 7133951d78a3816efecd3e96e6de36254beee550e8102eab83117da3f8882ad5
