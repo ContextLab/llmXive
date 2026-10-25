@@ -91,7 +91,7 @@ def download_vrsbench(output_path: Path) -> None:
 
 def download_coco_val(output_path: Path) -> None:
     """
-    Download a verified sample of the COCO 2017 validation split.
+    Download a verified sample of the COCO 2017 validation split.
     The Hub repository ``phiyodr/coco2017`` hosts a ``validation.parquet``
     file that contains 100 rows of the official validation split.
     """

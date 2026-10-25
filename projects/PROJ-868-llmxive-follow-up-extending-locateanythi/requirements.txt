@@ -1,3 +1,2 @@
-# Existing requirements (standard libraries are pre-installed)
-# Add fastparquet for parquet handling without pyarrow
+huggingface_hub
 fastparquet
