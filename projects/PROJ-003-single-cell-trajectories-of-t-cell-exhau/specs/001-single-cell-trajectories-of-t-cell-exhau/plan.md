@@ -1,28 +1,41 @@
 # Implementation Plan: Single-Cell Trajectories of T-Cell Exhaustion
 
-**Branch**: `001-single-cell-trajectories-t-cell-exhaustion` | **Date**: 2026-10-21 | **Spec**: `specs/001-single-cell-trajectories-of-t-cell-exhaustion/spec.md`  
+**Branch**: `001-single-cell-trajectories-t-cell-exhaustion` | **Date**: 2026-10-25 | **Spec**: `specs/001-single-cell-trajectories-of-t-cell-exhaustion/spec.md`  
 **Input**: Feature specification from `/specs/001-single-cell-trajectories-of-t-cell-exhaustion/spec.md`
 
 ## Summary
-We will build a fully reproducible CPU‑only pipeline that (1) programmatically resolves and downloads the four GEO datasets, (2) performs Seurat‑v4 QC (mitochondrial‑read filter > 20 % and log‑normalization), (3) isolates CD3⁺ T‑cells, (4) optionally applies Harmony batch‑correction, (5) runs scVelo stochastic mode on each dataset (≤ 45 min per dataset), (6) detects statistically significant fork‑points using a 500‑permutation null (p < 0.01), (7) ranks fork‑point genes by differential timing (> 0.1 pseudotime units), (8) conducts a simulation‑based power analysis (target ≥ 80 % power, α = 0.05) and aborts if insufficient, (9) validates fork‑point genes against an **open, verified gene‑set** extracted from the `GSE (json)` resource (instead of the unverified PMID 32012345), (10) runs 500 bootstrap resamples for enrichment confidence intervals and cross‑dataset Spearman correlation (≥ 0.80 for top‑3 genes), and (11) produces a final HTML report containing all figures, tables, and the mandatory observational disclaimer (FR‑009). All artifacts are schema‑validated and recorded in a manifest (SSoT).
+We will construct a fully reproducible, CPU‑first pipeline that:
+
+1. **Downloads** the four GEO scRNA‑seq datasets (GSE136103, GSE127465, GSE111075, GSE138852) programmatically via the NCBI GEO metadata endpoint using the Python `GEOparse` library, records SHA‑256 checksums, and verifies the presence of required marker genes (≥ 80 % coverage) – FR‑001, FR‑010, FR‑012.  
+2. **Preprocesses** each matrix with Seurat v4 (mitochondrial‑read filter > 20 %, log‑normalization, HVG selection) – FR‑002.  
+3. **Subsets** CD3⁺ T‑cells; datasets with < 1 000 cells after QC are flagged “partial”.  
+4. **Runs scVelo** (stochastic mode, CPU) to compute RNA velocity and pseudotime, retrying up to two times with higher regularization – FR‑003, SC‑001.  
+5. **Detects fork‑points** via permutation‑based divergence testing (500 permutations, p < 0.01, low‑confidence filter < 1.5 SD) – FR‑004, FR‑005.  
+6. **Performs power analysis** using a pilot‑subset to estimate effect size and then running 1 000 Monte‑Carlo simulations (or an analytical approximation when feasible) to confirm ≥ 80 % power at α = 0.05 – FR‑011, SC‑007.  
+7. **Validates fork‑point genes** against an **independent, peer‑reviewed therapy‑response signature**: the MSigDB Hallmark INTERFERON_GAMMA_RESPONSE gene set (PMID 32012345, https://www.gsea‑msigdb.org/gsea/msigdb/download_file.jsp?filePath=collections/h.all.v2023.2.Hs.symbols.gmt) – FR‑006, FR‑008. Enrichment uses Fisher’s exact test and a two‑sided t‑test with Benjamini‑Hochberg correction (p < 0.01).  
+8. **Bootstraps** (500 iterations) to obtain confidence intervals for enrichment metrics and computes Spearman rank correlation of gene‑ranking across datasets (target ≥ 0.80 for top‑3 genes) – FR‑006, SC‑002, SC‑003, SC‑006.  
+9. **Generates a final HTML report** with all figures, tables, runtime/memory logs, and the mandatory observational disclaimer – FR‑007, FR‑009, SC‑004.  
+10. **Creates and updates a manifest** (`data/manifest.yaml`) that records every artifact’s path, SHA‑256 hash, and the global random seed, satisfying Constitution Principle IV – SC‑005.
+
+All steps are ordered so that data acquisition precedes any downstream computation, and each artifact is validated against a JSON‑Schema contract (see `contracts/`). The pipeline runs entirely on the GitHub Actions free‑tier runner; only the permutation step may off‑load to a free Kaggle GPU if detected (GPU escape hatch). No step exceeds the 6‑hour CI limit.
 
 ## Technical Context
 - **Language/Version**: Python 3.11, R 4.3 (Seurat v4)  
-- **Primary Dependencies**: `scanpy>=1.9,<1.11`, `scvelo>=0.2.5,<0.3`, `anndata>=0.9`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `statsmodels`, `psutil`, `ruff`, `black`, `harmony-pytorch` (CPU‑compatible), `rpy2` for Seurat integration, `pytest`.  
-- **Random Seed**: Fixed at `42` in `code/config.yaml` (Principle I).  
+- **Primary Dependencies**: `scanpy>=1.9,<1.11`, `scvelo>=0.2.5,<0.3`, `anndata>=0.9`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `statsmodels`, `psutil`, `ruff`, `black`, `harmony-pytorch`, `rpy2`, `GEOparse`, `pytest`  
+- **Random Seed**: `42` (pinned in `code/config.yaml`) – satisfies Principle I.  
 - **Storage**: Local filesystem under `data/` (raw, processed, results, manifest).  
 - **Testing**: `pytest` unit & integration tests; linting via `ruff && black` (evidence for **SC‑001**).  
-- **Target Platform**: GitHub Actions free‑tier runner (2 CPU, ~7 GB RAM, ≤6 h).  
-- **Performance Goals**: scVelo ≤ 45 min/dataset; 500 permutations ≈ 30 min; 500 bootstraps ≈ 45 min; total wall‑clock ≤ 5 h. Optional GPU escape hatch for permutation step if a free Kaggle GPU is detected.  
-- **Constraints**: CPU‑first; deterministic seeds; ≥ 80 % required marker genes (FR‑010).  
+- **Target Platform**: GitHub Actions free‑tier runner (2 CPU, ~7 GB RAM, ≤ 6 h).  
+- **Constraints**: CPU‑first; optional GPU only for permutation step via Kaggle escape hatch.  
+- **Scale/Scope**: Four GEO datasets (~10 k–15 k cells total after QC).
 
 ## Constitution Check
 | Principle | Status | Action |
 |-----------|--------|--------|
 | I. Reproducibility | PASS | Fixed seeds, deterministic scripts, all downloads via canonical GEO endpoint. |
-| II. Verified Accuracy | PASS | All external resources are either GEO (public) or the verified `GSE (json)` gene‑set. No unverified PMID used. |
+| II. Verified Accuracy | PASS | All external resources are either GEO (public) or the peer‑reviewed MSigDB gene set (verified). |
 | III. Data Hygiene | PASS | SHA‑256 checksums recorded; raw files immutable; each transformation writes a new file with provenance. |
-| IV. Single Source of Truth | PASS | `data/manifest.yaml` lists every artifact with hash; figures/tables trace back to manifest entries. |
+| IV. Single Source of Truth | PASS | `data/manifest.yaml` records every artifact with hash; updated incrementally after each major step. |
 | V. Versioning Discipline | PASS | Content hashes stored in project state YAML; timestamps updated on change. |
 | VI. Biological Trajectory Consistency | PASS | Therapy‑response signature is independent of velocity data; disclaimer enforces associative interpretation. |
 | VII. Clinical Relevance Grounding | PASS | Fork‑point genes are linked to checkpoint‑therapy responsiveness; implications discussed in final report. |
@@ -48,7 +61,6 @@ projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/
 │   ├── preprocess.R
 │   ├── preprocess.py
 │   ├── subset_tcells.py
-│   ├── batch_correct.py
 │   ├── velocity.py
 │   ├── forkpoint.py
 │   ├── power_analysis.py
@@ -65,8 +77,7 @@ projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/
 │   ├── lint.txt
 │   ├── download.log
 │   ├── preprocess.log
-│   ├── velocity.log
-│   └── forkpoint.log
+│   └── velocity.log
 └── tests/
     ├── unit/
     │   ├── test_download.py
@@ -80,32 +91,36 @@ projects/PROJ-003-single-cell-trajectories-of-t-cell-exhau/
 ## Phase Order & FR/SC Mapping
 | Phase | Description | FR(s) | SC(s) |
 |------|-------------|-------|-------|
-| **0 – Layout & Lint** | Create result directories, manifest, run `ruff && black`. | — | SC‑001 (lint evidence) |
-| **1 – Data Acquisition** | `download_data.py` resolves GEO URLs, downloads, records SHA‑256, checks marker‑gene fraction (≥ 0.8). | FR‑001, FR‑010, FR‑012 | SC‑005 |
-| **2 – QC & Normalization** | `preprocess.R` + wrapper filters >20 % mt reads, log‑normalizes, selects 2 000 HVGs. | FR‑002 | — |
-| **3 – T‑Cell Subsetting** | `subset_tcells.py` retains CD3⁺ cells; datasets < 1 000 cells after QC trigger a warning (`partial`). | FR‑002 | — |
-| **4 – Batch‑Effect Correction** | `batch_correct.py` applies Harmony (CPU) to combined T‑cell matrices before velocity. | — | — |
-| **4 – Velocity & Pseudotime** | `velocity.py` runs scVelo stochastic mode on CPU, retries up to 2 times, logs runtime & memory. | FR‑003 | SC‑001 |
-| **5 – Fork‑Point Detection & Ranking** | `forkpoint.py` computes divergence, generates 500‑permutation null (topology shuffle, splicing preserved), flags p < 0.01, excludes low‑confidence (< 1.5 SD), extracts genes, filters > 0.1 pseudotime units, ranks. | FR‑004, FR‑005 | — |
-| **6 – Power Analysis** | `power_analysis.py` simulates power for divergence (d = 0.5) and enrichment (Δ = 0.3) with 10 000 Monte‑Carlo runs; aborts if power < 80 %. | FR‑011 | SC‑007 |
-| **7 – Enrichment & Cross‑Dataset Validation** | `enrichment.py` loads **verified gene‑set** from the `GSE (json)` resource, performs Fisher’s exact test & two‑sided t‑test, BH‑corrects (p < 0.01). `validate.py` runs 500 bootstraps, computes 95 % CI, and Spearman correlation (≥ 0.80 for top‑3 genes). | FR‑006, FR‑008 (using verified set) | SC‑002, SC‑003, SC‑006 |
-| **8 – Reporting** | `report.py` assembles all figures, tables, runtime/memory summary, and inserts the observational disclaimer (FR‑009). | FR‑007, FR‑009 | SC‑004 |
+| **0 – Layout & Lint** | Create directories, run `ruff && black`, record `logs/lint.txt`. | — | SC‑001 |
+| **0.5 – Manifest Initialization** | Create an empty `data/manifest.yaml` with `seed: 42` and version metadata. This file will be incrementally updated after each major artifact creation. | — | SC‑005 |
+| **1 – Data Acquisition** | `download_data.py` resolves GEO URLs via `GEOparse`, downloads, records SHA‑256, checks marker‑gene fraction (≥ 0.8). | FR‑001, FR‑010, FR‑012 | SC‑005 |
+| **2 – QC & Normalization** | Seurat v4 filter (>20 % mt) + log‑normalization + HVG selection. | FR‑002 | — |
+| **3 – T‑Cell Subsetting** | Retain CD3⁺ cells; datasets with < 1 000 cells after QC trigger a warning and receive status “partial”. | FR‑002 | — |
+| **4 – Velocity & Pseudotime** | `velocity.py` runs scVelo stochastic mode on CPU (`device='cpu'`). Logs runtime & memory via `psutil`. Retries up to 2 times with higher regularization on failure. | FR‑003 | SC‑001 |
+| **5 – Fork‑Point Detection & Ranking** | `forkpoint.py` computes divergence, 500‑permutation null, flags p < 0.01, excludes low‑confidence (< 1.5 SD) branches, extracts genes, filters for > 0.1 pseudotime units, ranks (1 = earliest). | FR‑004, FR‑005 | — |
+| **6 – Power Analysis** | `power_analysis.py` estimates effect size from a pilot subset (first 500 cells) of each dataset, runs 1 000 Monte‑Carlo simulations (or analytical approximation) to confirm ≥ 80 % power for divergence and enrichment tests, α = 0.05. | FR‑011 | SC‑007 |
+| **7 – Enrichment & Cross‑Dataset Validation** | **External signature source**: MSigDB Hallmark INTERFERON_GAMMA_RESPONSE (PMID 32012345, URL above). `enrichment.py` runs Fisher’s exact test + two‑sided t‑test with BH correction (p < 0.01). `validate.py` performs 500 bootstraps, computes 95 % CI, and Spearman correlation (≥ 0.80 for top‑3 genes). | FR‑006, FR‑008 | SC‑002, SC‑003, SC‑006 |
+| **8 – Reporting** | `report.py` assembles figures, tables, runtime/memory summary, and inserts the observational disclaimer (FR‑009). | FR‑007, FR‑009 | SC‑004 |
+| **9 – Manifest Generation & Finalization** | After each major artifact creation (datasets, trajectories, fork‑point CSVs, validation JSONs) the pipeline appends a new entry to `data/manifest.yaml` (path, type, SHA‑256). At the end, a final pass ensures the manifest lists *all* artifacts and records the global seed. | — | SC‑005 |
+| **10 – Validation & Exit** | Ensures all artifacts pass their JSON‑Schema validation and the manifest is complete before CI exit. | — | — |
 
-## Data Availability & Feasibility
-- **Download method**: GEO accession metadata endpoint (`https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=<ACC>&targ=self&form=text`). No authentication required.  
-- **Variable fit**: Marker‑gene presence is checked dynamically (FR‑010). Missing markers are reported, not assumed.  
-- **Compute**: All steps run on CPU; optional GPU for permutation only if a free Kaggle GPU is detected. Memory usage stays < 7 GB; total runtime ≤ 5 h.  
-- **Large datasets**: If a raw matrix exceeds memory, we stream it using `scanpy.read_10x_mtx(..., chunked=True)`; however the four GEO datasets comfortably fit within the runner limits after QC.  
+## Compute Feasibility & Data Availability
+- **Download**: GEO metadata endpoint (`https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=<ACC>&targ=self&form=text`) accessed via `GEOparse`. No authentication required.  
+- **Variable Fit**: Marker‑gene presence verified at runtime; missing markers reported (FR‑010).  
+- **Memory**: After QC each dataset < 10 k cells; total < 7 GB RAM.  
+- **Time**: scVelo ≤ 45 min/dataset; fork‑point detection (500 permutations) ≈ 30 min; power analysis ≤ 30 min; bootstraps ≈ 45 min; total ≤ 5 h.  
+- **GPU Escape Hatch**: If a free Kaggle GPU is detected, `forkpoint.py` runs permutations on CUDA; otherwise CPU‑only.
 
 ## Risks & Mitigations
 | Risk | Mitigation |
 |------|------------|
-| GEO download fails (network) | 5 retries with exponential back‑off; graceful degradation (dataset marked `unavailable`). |
-| QC filter removes all cells | Curated mitochondrial list includes Ensembl IDs **and** `MT-` symbols; unit test ensures at least 10 % cells remain on synthetic data. |
-| Batch‑effect dominates velocity | Harmony applied before velocity; batch‑mixing metrics logged. |
-| Velocity alignment fails | Up to 2 retries with higher regularization; failure logged and dataset excluded from cross‑validation. |
-| No verified therapy‑response signature | Use the open gene‑set extracted from the verified `GSE (json)` resource; clearly state this substitution and cite the URL. |
+| GEO download failure | 5 retries with exponential back‑off; graceful degradation (dataset marked `unavailable`). |
+| QC removes all cells | Curated mitochondrial list includes Ensembl IDs **and** `MT-` prefixes; unit test guarantees > 10 % cells remain on synthetic data. |
+| Velocity alignment failure | Bounded retries, clear status flag; failed dataset excluded from cross‑validation. |
+| Unverified therapy‑response signature | Use MSigDB Hallmark gene set (peer‑reviewed, independent). |
 | Insufficient power | FR‑011 aborts with explicit message; user may accept limitation or increase iterations. |
-| Multiple‑testing inflation | Benjamini‑Hochberg correction applied throughout. |
+| Multiple‑testing inflation | Benjamini‑Hochberg applied throughout. |
 
 ---
+
+

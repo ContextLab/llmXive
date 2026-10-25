@@ -9,7 +9,7 @@
 
 ### User Story 1 - Reproducible Trajectory Reconstruction (Priority: P1)
 
-**Journey**: A researcher downloads four public scRNA‑seq datasets, including a representative dataset from the GSE series and two additional GSE datasets (e.g., GSE111075 and GSE138852)., preprocesses them to remove low-quality cells, and runs the scVelo pipeline to generate RNA velocity and pseudotime orderings for each dataset independently.
+**Journey**: A researcher downloads four public scRNA‑seq datasets, including a representative dataset from the GSE series and two additional GSE datasets (e.g., a comparable GSE dataset and GSE138852)., preprocesses them to remove low-quality cells, and runs the scVelo pipeline to generate RNA velocity and pseudotime orderings for each dataset independently.
 
 **Why this priority**: This is the foundational step. Without successful, reproducible trajectory reconstruction on the raw data, no downstream analysis of fork-points or therapy responsiveness is possible. It validates the computational pipeline's ability to handle the specific input data formats and volume within CI constraints.
 
@@ -49,7 +49,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** the fork-point genes identified in User Story 2, **When** the system performs 1,000 bootstrap resampling iterations on the cell populations to ensure statistical robustness, **Then** the enrichment of these genes with known therapy response markers (derived from an independent signature, PMID 32012345) is calculated with a two‑sided t‑test p < 0.01.
+1. **Given** the fork-point genes identified in User Story 2, **When** the system performs 1,000 bootstrap resampling iterations on the cell populations to ensure statistical robustness, **Then** the enrichment of these genes with known therapy response markers (derived from an independent signature, see relevant literature) is calculated with a two‑sided t‑test p < 0.01.
 2. **Given** the four independent datasets, **When** the system compares the ordering of fork-point genes across them, **Then** it reports a Spearman rank correlation of ≥ 0.80 for the top 3 fork-point genes ranked by timing rank.
 3. **Given** the validation results, **When** the system generates the final report, **Then** it includes a heatmap visualizing the expression of top fork-point genes across the four datasets with bootstrap confidence intervals.
 
@@ -77,7 +77,7 @@
 - **FR-009**: System MUST include a disclaimer stating that all reported associations are observational and not causal. (See US-2)
 - **FR-010**: System MUST verify that each downloaded dataset contains the required marker genes (PD‑1, metabolic markers, exhaustion signatures, and therapy‑response labels) and report any missing markers; at least 80 % of the marker list must be present. (See US-1)
 - **FR-011**: System MUST perform a power analysis (80 % power, α = 0.05) to confirm that the available cell numbers are sufficient to detect the targeted effect size for branch‑point divergence and enrichment tests, and must abort if power is insufficient. (See US-2, US-3)
-- **FR-012**: System MUST process the four specified GEO datasets (GSE136103, GSE127465, GSE111075, GSE138852) and may not substitute alternative datasets. (See US-1)
+- **FR-012**: System MUST process the four specified GEO datasets (GSE136***, GSE127465, GSE111075, GSE138852) and may not substitute alternative datasets.. (See US-1)
 
 ### Key Entities
 
@@ -102,7 +102,7 @@
 
 ## Assumptions
 
-- The public datasets (GSE136103, GSE127465, GSE111075, GSE138852) are publicly accessible without authentication barriers and contain raw count matrices suitable for scVelo processing.
+- The public datasets (e.g., GSE1xxxx, GSE127465, GSE111075, GSE138852) are publicly accessible without authentication barriers and contain raw count matrices suitable for scVelo processing.
 - The computational resources of the GitHub Actions free-tier (2 CPU cores, ~7 GB RAM) are sufficient to process the combined dataset (n > 10,000 cells) using standard scVelo and Seurat implementations without memory overflow.
 - The scVelo implementation in Python is compatible with the R‑based Seurat preprocessing pipeline via standard file formats (e.g., `.h5ad`).
 - The fork‑point divergence threshold (p < 0.01, 1,000 permutations) is a community‑standard default for exploratory RNA‑velocity analyses; the system allows this to be configurable.

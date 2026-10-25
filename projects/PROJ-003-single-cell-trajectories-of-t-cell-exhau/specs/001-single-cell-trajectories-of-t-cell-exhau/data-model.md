@@ -29,3 +29,5 @@ Canonical entities and artifacts stored under `data/`, each validated against a 
 All artifacts are schema‑validated in CI; `data/results/` is part of the committed skeleton (satisfies T001). The manifest satisfies Principle IV by providing a unique reference for every downstream figure and statistic.
 
 ---
+
+

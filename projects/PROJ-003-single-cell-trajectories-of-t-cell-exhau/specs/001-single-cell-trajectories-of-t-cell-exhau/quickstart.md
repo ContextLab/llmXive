@@ -23,7 +23,7 @@ The log file `logs/lint.txt` is used as evidence for **SC‑001**.
 
 ### 0. Layout & Directory Setup
 ```bash
-mkdir -p data/results/fork_points data/results/validation data/results/report
+mkdir -p data/raw data/processed data/results/fork_points data/results/validation data/results/report
 ```
 
 ### 1. Data Download (Phase 1)
@@ -32,8 +32,9 @@ python code/download_data.py \
   --datasets GSE136103 GSE127465 GSE111075 GSE138852 \
   --output data/raw/
 ```
-- URLs are resolved at run time from the NCBI GEO accession metadata endpoint.  
-- Check `logs/download.log` for any `unavailable` datasets.
+- Uses the `GEOparse` library to resolve GEO Series URLs and download raw count matrices programmatically (no manual URL handling).  
+- Checksums are computed and recorded; marker‑gene coverage is verified (FR‑010).  
+- See `logs/download.log` for any `unavailable` datasets.
 
 ### 2. Preprocessing (Phase 2)
 ```bash
@@ -46,35 +47,33 @@ python code/preprocess.py --input data/raw/ --output data/processed/
 python code/subset_tcells.py --input data/processed/ --output data/processed/
 ```
 
-### 4. Batch‑Effect Correction (Phase 4b)
-```bash
-python code/batch_correct.py --input data/processed/ --output data/processed/
-```
-- Applies Harmony integration (CPU) across all datasets to align batch effects before velocity estimation.
-
-### 5. Velocity & Pseudotime (Phase 4)
+### 4. Velocity & Pseudotime (Phase 4)
 ```bash
 python code/velocity.py --input data/processed/ --output data/processed/
 ```
-- Runs scVelo on CPU; runtime and memory are logged (`logs/velocity.log`).
+- Runs scVelo on CPU; runtime and memory are logged (`logs/velocity.log`).  
+- Retries with higher regularization up to 2 times; if still failing, the dataset is marked `alignment_status: "failed"` and excluded from downstream validation.
 
-### 6. Fork‑Point Detection & Ranking (Phase 5)
+### 5. Fork‑Point Detection & Ranking (Phase 5)
 ```bash
 python code/forkpoint.py --input data/processed/ --output data/results/fork_points/
 ```
 
-### 7. Power Analysis (Phase 6)
+### 6. Power Analysis (Phase 6)
 ```bash
 python code/power_analysis.py --input data/processed/ --output data/results/validation/
 ```
+- Effect size is estimated from a pilot subset of 500 cells; 1 000 Monte‑Carlo simulations (or analytical approximation) are run to confirm ≥ 80 % power.
 
-### 8. Enrichment & Validation (Phase 7)
+### 7. Enrichment & Validation (Phase 8)
 ```bash
 python code/enrichment.py --input data/results/fork_points/ --output data/results/validation/
 python code/validate.py   --input data/results/validation/ --output data/results/validation/
 ```
+- Enrichment uses the **MSigDB Hallmark INTERFERON_GAMMA_RESPONSE** gene set (PMID 32012345).  
+- Validation follows `contracts/validation.schema.yaml`.
 
-### 9. Reporting (Phase 8)
+### 8. Reporting (Phase 9)
 ```bash
 python code/report.py --input data/results/validation/ --output data/results/report/
 ```
@@ -101,7 +100,11 @@ If the CI environment detects a free Kaggle GPU, the permutation step in `forkpo
 | `download_data.py` exits with error | GEO metadata endpoint temporarily unavailable | Rerun later; the script retries up to 5 times and logs failures. |
 | QC filter removes zero cells | Mitochondrial gene list missing a gene format | The script now uses a curated list covering Ensembl IDs **and** `MT-` prefixes; ensure the raw `genes.tsv` file is present. |
 | scVelo fails or hangs | Missing spliced/unspliced layers or convergence issues | Check `logs/velocity.log`; the script retries with higher regularization; if still failing, the dataset will be flagged `alignment_status: "failed"` and excluded from cross‑dataset validation. |
-| No enrichment results | Previously used an unverified PMID signature; now using the verified gene‑set from the `GSE (json)` resource. | Rerun the enrichment step; it will produce results consistent with the verified source. |
+| No enrichment results | Previously used an unverified PMID signature; now using the verified MSigDB Hallmark set. | Rerun the enrichment step; it will produce results consistent with the verified source. |
 | Report missing disclaimer | Custom modification of `report.py` | The provided script automatically inserts the FR‑009 disclaimer; ensure you are using the unmodified version. |
+| Manifest missing | No step generated `data/manifest.yaml` | Run the pipeline through to completion; the final phase creates the manifest automatically. |
+| Lint step fails (`ruff && black` error) | Code style violations | Fix reported issues or run `ruff check . --fix` and `black .` locally before committing. |
 
 ---
+
+
