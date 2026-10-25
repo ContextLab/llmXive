@@ -31,11 +31,13 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# The Pantheon+ FITS file is publicly hosted on Zenodo. This URL points
-# directly to the file (download forced). It resolves to the official
-# Pantheon+ release tarball containing ``Pantheon+_Data.fits``.
+# The Pantheon+ FITS file is publicly hosted on Zenodo. The correct
+# endpoint uses the plural ``records`` path (Zenodo switched from
+# ``record`` to ``records`` for newer releases). This URL points directly
+# to the FITS file (download forced). It resolves to the official
+# Pantheon+ release containing ``Pantheon+_Data.fits``.
 DEFAULT_URL = (
-    "https://zenodo.org/record/7968445/files/Pantheon%2B_Data.fits?download=1"
+    "https://zenodo.org/records/7968445/files/Pantheon%2B_Data.fits?download=1"
 )
 DEFAULT_DATASET_VERSION = "v1.0"
 REQUIRED_COLUMNS = {"ID", "RA", "DEC", "ZHD", "MU", "MUERR"}

@@ -20,17 +20,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/download_pantheon.py   # writes data/raw/pantheon_plus.dat and records SHA‑256 -> rc=1
 
-2026-10-25 16:20:11,355 INFO __main__: Downloading Pantheon+ dataset from https://zenodo.org/record/7968445/files/Pantheon%2B_Data.fits?download=1
-2026-10-25 16:20:11,977 ERROR __main__: Pantheon+ download failed: 404 Client Error: NOT FOUND for url: https://zenodo.org/records/7968445/files/Pantheon+_Data.fits
+2026-10-25 18:08:52,393 INFO __main__: Downloading Pantheon+ dataset from https://zenodo.org/records/7968445/files/Pantheon%2B_Data.fits?download=1
+2026-10-25 18:08:52,767 ERROR __main__: Pantheon+ download failed: 404 Client Error: NOT FOUND for url: https://zenodo.org/records/7968445/files/Pantheon%2B_Data.fits?download=1
 
 - python code/download_pantheon.py --verify-only -> rc=1
 
-2026-10-25 16:20:12,237 ERROR __main__: Pantheon+ download failed: File not found for verification: /home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/data/raw/pantheon_plus.fits
+2026-10-25 18:08:53,170 ERROR __main__: Pantheon+ download failed: File not found for verification: /home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/data/raw/pantheon_plus.fits
 
 - python code/power_analysis.py -> rc=1
 
-2026-10-25 16:20:12,601 INFO __main__: Downloading Pantheon+ dataset from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
-2026-10-25 16:20:12,919 ERROR __main__: Power analysis failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
+2026-10-25 18:08:53,819 INFO __main__: Downloading Pantheon+ dataset from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
+2026-10-25 18:08:53,908 ERROR __main__: Power analysis failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
 
 - python code/analysis.py -> rc=1
 
