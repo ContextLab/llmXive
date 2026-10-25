@@ -1,14 +1,11 @@
 status: none
-intent: OQMD magnetic dataset Materials Project bulk archive magnetic properties python
-  package dataset
+intent: download OQMD magnetic dataset and Materials Project bulk archive v2026.09
+  python package dataset
 required_fields:
 - material_id
 - formula
 - saturation_magnetization
 - curie_temperature
-- structure
-- formation_energy
-- spacegroup
-cache_key: 65a6b93af67f33a7f174d34986bae6d13f8b91c8f243e735320b380304b53635
-searched_at: '2026-10-25T12:45:22.321784+00:00'
+cache_key: 640f9b2424384212eabf8ceb8b24fe92dc0fdd1420bfd8e37d40c9022fa84f63
+searched_at: '2026-10-25T14:08:28.204885+00:00'
 retry_count: 1

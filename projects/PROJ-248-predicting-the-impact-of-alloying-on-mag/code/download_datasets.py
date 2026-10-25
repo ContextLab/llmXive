@@ -1,15 +1,15 @@
 """
 download_datasets.py
 
-Script to download the Materials Project magnetic dataset (via the
-HuggingFace `datasets` library) and the OQMD magnetic CSV release
-(via a direct HTTP request). The script writes three artefacts:
+Script to download the Materials Project magnetic dataset (via a direct HTTP request to the
+HuggingFace repository) and the OQMD magnetic CSV release (via a direct HTTP request).
+The script writes three artefacts:
 
 * `data/raw_mp.jsonl` – filtered JSON-lines from the Materials Project
   (only entries where `magnetic_type` is not `NM`).
 * `data/raw_oqmd.csv` – the raw OQMD CSV file.
 * `data/data_sources.yaml` – a small YAML manifest containing version
-  identifiers and SHA-256 checksums for reproducibility.
+  identifiers and SHA‑256 checksums for reproducibility.
 """
 
 import hashlib
@@ -19,13 +19,12 @@ from pathlib import Path
 
 import requests
 import yaml
-from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
 def _sha256_of_path(file_path: Path) -> str:
-    """Compute the SHA-256 checksum of a file."""
+    """Compute the SHA‑256 checksum of a file."""
     h = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -40,47 +39,53 @@ def _write_yaml(manifest: dict, out_path: Path) -> None:
 
 def download_materials_project(raw_mp_path: Path) -> dict:
     """
-    Download Materials Project magnetic entries using the public
-    HuggingFace ``datasets`` repository. The dataset
-    ``materialsproject/mp`` with the configuration ``2020.10.01`` is a
-    snapshot of the Materials Project bulk archive and does not require
-    an API key.
+    Download Materials Project magnetic entries using a direct HTTP request to the
+    HuggingFace-hosted dataset file. The dataset file
+    ``materialsproject/mp`` with configuration ``2020.10.01`` is stored as a
+    JSON‑lines file at a public URL and does not require the ``datasets`` library
+    (avoiding the heavy ``pyarrow`` dependency).
 
-    The function streams the dataset, filters out entries where
-    ``magnetic_type`` equals ``NM`` (non‑magnetic), and writes each
-    remaining record as a JSON line to ``raw_mp_path``. It returns a
-    manifest containing a version identifier, the SHA‑256 checksum of the
-    written file and the number of records written.
+    The function streams the file, filters out entries where ``magnetic_type`` equals
+    ``NM`` (non‑magnetic), and writes each remaining record as a JSON line to
+    ``raw_mp_path``. It returns a manifest containing a version identifier, the
+    SHA‑256 checksum of the written file and the number of records written.
     """
-    # Load the dataset in streaming mode to keep memory usage low.
-    log.info("Loading Materials Project dataset via the `datasets` library")
-    try:
-        ds = load_dataset(
-            "materialsproject/mp",
-            "2020.10.01",
-            split="train",
-            streaming=True,
-        )
-    except Exception as exc:
-        log.exception("Failed to load Materials Project dataset: %s", exc)
-        raise
+    # Direct URL to the JSON‑lines file in the HuggingFace repo.
+    url = (
+        "https://huggingface.co/datasets/materialsproject/mp/resolve/main/"
+        "2020.10.01/train-00000-of-00001.jsonl"
+    )
+    log.info("Downloading Materials Project dataset from %s", url)
+
+    resp = requests.get(url, stream=True, timeout=120)
+    resp.raise_for_status()
 
     raw_mp_path.parent.mkdir(parents=True, exist_ok=True)
 
     sha256 = hashlib.sha256()
     count = 0
     with raw_mp_path.open("w", encoding="utf-8") as out_f:
-        for record in ds:
-            # The dataset schema contains a ``magnetic_type`` field.
+        for line in resp.iter_lines(decode_unicode=True):
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                # Skip malformed lines but continue streaming.
+                continue
+
+            # Filter out non‑magnetic entries.
             if record.get("magnetic_type") == "NM":
                 continue
 
-            line = json.dumps(record, ensure_ascii=False)
-            out_f.write(line + "\n")
-            sha256.update(line.encode("utf-8"))
+            json_line = json.dumps(record, ensure_ascii=False)
+            out_f.write(json_line + "\n")
+            sha256.update(json_line.encode("utf-8"))
             count += 1
             if count % 10_000 == 0:
-                log.info("Materials Project: %d magnetic records written...", count)
+                log.info(
+                    "Materials Project: %d magnetic records written...", count
+                )
 
     if count == 0:
         raise RuntimeError(
@@ -89,7 +94,7 @@ def download_materials_project(raw_mp_path: Path) -> dict:
 
     checksum = sha256.hexdigest()
     log.info(
-        "Materials Project download complete - %d records written, SHA-256: %s",
+        "Materials Project download complete - %d records written, SHA‑256: %s",
         count,
         checksum,
     )
@@ -125,7 +130,9 @@ def download_oqmd(raw_oqmd_path: Path) -> dict:
         raise RuntimeError("Downloaded OQMD CSV is empty.")
 
     checksum = sha256.hexdigest()
-    log.info("OQMD download complete - %d bytes, SHA-256: %s", total_bytes, checksum)
+    log.info(
+        "OQMD download complete - %d bytes, SHA‑256: %s", total_bytes, checksum
+    )
 
     return {"url": url, "sha256": checksum, "bytes": total_bytes}
 
