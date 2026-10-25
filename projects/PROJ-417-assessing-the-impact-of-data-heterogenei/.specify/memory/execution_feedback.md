@@ -52,7 +52,7 @@ tests/unit/test_generate_base.py:17
 =========================== short test summary info ============================
 ERROR tests/unit/test_generator_variance.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 1 error in 0.82s ==========================
+========================= 1 warning, 1 error in 0.90s ==========================
 
 
 - python -m pytest tests/integration/ -> rc=1
@@ -75,7 +75,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 0.31s =========================
+========================= 1 failed, 1 warning in 0.30s =========================
 
 
 

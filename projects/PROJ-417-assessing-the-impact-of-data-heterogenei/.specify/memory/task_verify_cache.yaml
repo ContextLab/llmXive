@@ -1,21 +1,20 @@
 T001:
   c: true
-  h: 9c8d0f71afc7b3c85ec34a388ee518e4a1c87c3aaab66c461dd7d7ad33c31555
-  r: "Checked `code/scripts/generate_base_template.py` execution log (exit\u202F0)\
-    \ and the resulting `data/processed/base_template.csv`, which exists, has the\
-    \ correct header `study_id,effect,se,n`, and contains exactly 20 data rows. The\
-    \ script\u2019s deterministic generation matches the task\u2019s specifications."
-  sig: fdc9cdbdf532bbf90f1893f9492251ce5be18fa2cfa85d1b5529397816f0bcc7
+  h: 9516146cf9413452098006543838d006ae7acf98cdceb56533c2b81fd9953c67
+  r: "Checked `code/scripts/generate_base_template.py` (which deterministically writes\
+    \ 20 rows with the required columns) and the resulting `data/processed/base_template.csv`,\
+    \ confirming it exists, has exactly 20 rows, and the correct header `study_id,effect,se,n`.\
+    \ The CSV content matches the deterministic output the script would produce, indicating\
+    \ the script runs successfully with exit status\u202F0."
+  sig: 5765d344876dfba454aabe5060333849bd6f2801207c5c5fa92f4fc593b4939c
 T001a:
   c: false
-  h: f239f30978f22ab1b110c37dbe95450719e04afe49d61ad005509c34b3c5e1a4
-  r: "The unit\u2011test log for `tests/unit/test_fetch_cochrane_data.py` shows four\
-    \ failures: the `load_jackson_2010_base_data` function does not correctly use\
-    \ a context manager (`AttributeError: __enter__`) and the module lacks an `import\
-    \ urllib` causing a `NameError`. Consequently the script does not reliably raise\
-    \ a `FileNotFoundError` when the CSV URL is unreachable, and the CI step does\
-    \ not pass as required. The validation behavior is therefore not implemented correctly."
-  sig: c6b4bb4a949927c89f3c58db00bb3cec971a54e36aa653d82d2c4a3d240ed43d
+  h: 8cc25b14faf79caef7a1800a432fe42739b5d7a632a11a01d24fbb4c318f8d12
+  r: The evidence provides no script or test showing that a downloaded Cochrane CSV
+    is checked for accessibility, nor any CI log demonstrating a `FileNotFoundError`
+    abort. Without a concrete artifact implementing the validation and proving it
+    fails cleanly when the URL is unreachable, the task requirement is not satisfied.
+  sig: d66855af049a504be1352e1f6fefa7be0dc1edde349aa51cf9f14eb70588e5b6
 T002:
   c: false
   h: 777c46bb21ed7d93faa8edbdc24be8d916e90229d45155cdc8b187f82e01efc5

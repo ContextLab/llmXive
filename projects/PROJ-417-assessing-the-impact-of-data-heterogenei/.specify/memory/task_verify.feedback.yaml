@@ -1,13 +1,10 @@
 T001:
   task: 3a5581874bf50035ec578f3de3c8122a88cf5cb9d9b853f5122d629c336e4d78
 T001a:
-  reason: "The unit\u2011test log for `tests/unit/test_fetch_cochrane_data.py` shows\
-    \ four failures: the `load_jackson_2010_base_data` function does not correctly\
-    \ use a context manager (`AttributeError: __enter__`) and the module lacks an\
-    \ `import urllib` causing a `NameError`. Consequently the script does not reliably\
-    \ raise a `FileNotFoundError` when the CSV URL is unreachable, and the CI step\
-    \ does not pass as required. The validation behavior is therefore not implemented\
-    \ correctly."
+  reason: The evidence provides no script or test showing that a downloaded Cochrane
+    CSV is checked for accessibility, nor any CI log demonstrating a `FileNotFoundError`
+    abort. Without a concrete artifact implementing the validation and proving it
+    fails cleanly when the URL is unreachable, the task requirement is not satisfied.
   task: 23ebb3f19070bd6c3c3570c4585a07c907ed50516155b03fdd8a8b4635db5dbc
 T002:
   reason: "The `code/simulation/generator.py` CLI accepts the required arguments and\
