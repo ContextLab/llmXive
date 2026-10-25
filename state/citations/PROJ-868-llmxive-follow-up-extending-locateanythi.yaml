@@ -1,26 +1,26 @@
-- artifact_hash: 17caafcd57cc6f680dd8323babc92cabd39bc130c27a1e39f2edb2eff8fd4421
+- artifact_hash: d9a9a49a844c01bdbc3e1557350bc98702795107345a6c8ff74a83fbb95a88cb
   artifact_path: projects/PROJ-868-llmxive-follow-up-extending-locateanythi/specs/001-llmxive-follow-up-extending-locateanythi/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: train_10shot-00000-of-00001.parquet
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/omlab/VRSBench-FS/resolve/main/data/train_10shot-00000-of-00001.parquet
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68de06646b607648bdba1d10/c506cf08cad838a3bb7bfb3a9f1e9723ac37fb62f814064b3f2e4c600304c3c2?X-Xet-Cas-Uid=public&xip=QppQ5k2o2wc&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train_10shot-00000-of-00001.parquet%3B+filename%3D%22train_10shot-00000-of-00001.parquet%22%3B&user_id=public&Expires=1792460252&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhkZTA2NjQ2YjYwNzY0OGJkYmExZDEwL2M1MDZjZjA4Y2FkODM4YTNiYjdiZmIzYTlmMWU5NzIzYWMzN2ZiNjJmODE0MDY0YjNmMmU0YzYwMDMwNGMzYzJcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9UXBwUTVrMm8yd2MmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluXzEwc2hvdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW5fMTBzaG90LTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MjQ2MDI1Mn19fV19&Signature=MEQCIGXqk-3rAqyZEPhRG9sOZcdYqaIg%7ES-s30O-tFcyl6QEAiAhJO71db5oUPWZD0ROOgs9lN1y6Dlk89Y774SttHQEJQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-20T00:37:32.249501Z'
-- artifact_hash: 17caafcd57cc6f680dd8323babc92cabd39bc130c27a1e39f2edb2eff8fd4421
+  value: https://huggingface.co/datasets/omlab/VRSBench-FS/resolve/main/data/val_10shot-00000-of-00001.parquet
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/omlab/VRSBench-FS/resolve/main/data/val_10shot-00000-of-00001.parquet
+  verified_at: '2026-10-25T00:28:48.770388Z'
+- artifact_hash: d9a9a49a844c01bdbc3e1557350bc98702795107345a6c8ff74a83fbb95a88cb
   artifact_path: projects/PROJ-868-llmxive-follow-up-extending-locateanythi/specs/001-llmxive-follow-up-extending-locateanythi/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: test-00000-of-00009-4a09b5aab8de74d3.parquet
   kind: url
-  value: https://huggingface.co/datasets/pcuenq/coco-2017-mirror/resolve/main/annotations_val2017.zip
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/pcuenq/coco-2017-mirror/resolve/main/annotations_val2017.zip
-  verified_at: '2026-10-20T00:37:32.249501Z'
-- artifact_hash: 17caafcd57cc6f680dd8323babc92cabd39bc130c27a1e39f2edb2eff8fd4421
+  value: https://huggingface.co/datasets/jxie/coco_captions/resolve/main/data/test-00000-of-00009-4a09b5aab8de74d3.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6497c48dce9190ebb8644773/dfa369f0e5c35b3ae3e2b2e340376af9e661d3dd65d21cfd162bd9db9728149b?user_id=public&xip=g0UOEt3ObNA&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00009-4a09b5aab8de74d3.parquet%3B+filename%3D%22test-00000-of-00009-4a09b5aab8de74d3.parquet%22%3B&Expires=1792891728&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ5N2M0OGRjZTkxOTBlYmI4NjQ0NzczL2RmYTM2OWYwZTVjMzViM2FlM2UyYjJlMzQwMzc2YWY5ZTY2MWQzZGQ2NWQyMWNmZDE2MmJkOWRiOTcyODE0OWJcXD91c2VyX2lkPXB1YmxpYyZ4aXA9ZzBVT0V0M09iTkEmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDktNGEwOWI1YWFiOGRlNzRkMy5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwOS00YTA5YjVhYWI4ZGU3NGQzLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5Mjg5MTcyOH19fV19&Signature=MEQCIDvwvy3qJDxIuLgF5fN%7EobZMIB7FzKbnbBQzg-4jbiYdAiAtt55jyPhAvMpnq2mEcLt-8EPI5JNGu%7EN2s9FPauXt%7EA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-25T00:28:48.770388Z'
+- artifact_hash: d9a9a49a844c01bdbc3e1557350bc98702795107345a6c8ff74a83fbb95a88cb
   artifact_path: projects/PROJ-868-llmxive-follow-up-extending-locateanythi/specs/001-llmxive-follow-up-extending-locateanythi/research.md
   cite_id: c-003
   cited_authors: []
@@ -30,26 +30,4 @@
   value: https://huggingface.co/datasets/danelcsb/locateanything-job-demo/resolve/main/metadata.txt
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/danelcsb/locateanything-job-demo/9b17fc086267d7c9027d10082f85952c593fd592/metadata.txt?%2Fdatasets%2Fdanelcsb%2Flocateanything-job-demo%2Fresolve%2Fmain%2Fmetadata.txt=&etag=%22902c1301bc96855d21a049e24ccb7ea73fc6fa75%22
-  verified_at: '2026-10-20T00:37:32.249501Z'
-- artifact_hash: 17caafcd57cc6f680dd8323babc92cabd39bc130c27a1e39f2edb2eff8fd4421
-  artifact_path: projects/PROJ-868-llmxive-follow-up-extending-locateanythi/specs/001-llmxive-follow-up-extending-locateanythi/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: index.json
-  kind: url
-  value: https://huggingface.co/datasets/wangyanhui666/imagenet_vae_mds_fp32/resolve/main/0/index.json
-  verification_status: pending
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/wangyanhui666/imagenet_vae_mds_fp32/b10038721e22bcbb8d2e626d9bfeedbee68b2f86/0%2Findex.json?%2Fdatasets%2Fwangyanhui666%2Fimagenet_vae_mds_fp32%2Fresolve%2Fmain%2F0%2Findex.json=&etag=%22e684e7a6019bc50a84fda3517836bc73e4f45600%22
-  verified_at: '2026-10-20T00:37:32.249501Z'
-- artifact_hash: 4c1e7591a34ae6d81e0aa351faef9b33943eb466bd07cbaf24314a2e4124aa0e
-  artifact_path: projects/PROJ-868-llmxive-follow-up-extending-locateanythi/specs/001-llmxive-follow-up-extending-locateanythi/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/llmxive-project.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/llmxive-project
-  verified_at: '2026-10-20T00:37:53.650170Z'
+  verified_at: '2026-10-25T00:28:48.770388Z'

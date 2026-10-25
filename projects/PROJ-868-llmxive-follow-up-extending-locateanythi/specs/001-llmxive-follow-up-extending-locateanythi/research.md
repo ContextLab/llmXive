@@ -1,7 +1,7 @@
 # Research: llmXive follow-up – extending "LocateAnything: Fast and High-Quality Vision-Language Grounding with P"
 
 **Feature**: llmXive follow-up – attention sparsity impact study  
-**Prepared on**: 2026‑10‑20  
+**Prepared on**: 2026‑10‑24  
 
 ## Overview
 We will empirically measure how restricting the attention window of a LocateAnything‑style vision‑language grounding model degrades bounding‑box geometric coherence (mean Intersection‑over‑Union, mIoU) on dense scenes, locate the sparsity “tipping point” for an 80 % mIoU threshold, and explain failure modes via gradient‑based attribution. All work runs on the free‑tier GitHub Actions CPU runner (2 cores, ≤ 7 GB RAM, ≤ 6 h wall‑clock).
@@ -9,10 +9,9 @@ We will empirically measure how restricting the attention window of a LocateAnyt
 ## Dataset Strategy
 | Role | Dataset | Verified Source URL(s) | Loader | Key Variables |
 |------|---------|------------------------|--------|---------------|
-| Primary dense‑scene source | VRSBench (validation split) | https://huggingface.co/datasets/omlab/VRSBench-FS/resolve/main/data/train_10shot-00000-of-00001.parquet | `datasets.load_dataset("omlab/VRSBench-FS", split="validation")` | `image_id`, `bbox` (list of `[x1,y1,x2,y2]`), `caption` |
+| Primary dense‑scene source | VRSBench (validation split) | | `datasets.load_dataset("omlab/VRSBench-FS", split="validation")` | `image_id`, `bbox` (list of `[x1,y1,x2,y2]`) |
 | Supplemental bounding‑box source | COCO 2017 (validation split) | https://huggingface.co/datasets/jxie/coco_captions/resolve/main/data/test-00000-of-00009-4a09b5aab8de74d3.parquet | `datasets.load_dataset("coco", split="validation")` | `image_id`, `annotations.bbox`, `annotations.category_id` |
 | Model checkpoint metadata | LocateAnything (demo) | https://huggingface.co/datasets/danelcsb/locateanything-job-demo/resolve/main/metadata.txt | custom `download.py` (simple text file) | checkpoint URL (provided in metadata) |
-| Optional FP32 reference (not used for main analysis) | FP32 (json) | https://huggingface.co/datasets/wangyanhui666/imagenet_vae_mds_fp32/resolve/main/0/index.json | – | – |
 
 All datasets are directly downloadable via the Hugging Face `datasets` library or `urllib`. No authentication is required. Checksums are recorded in `data/` as part of the pipeline.
 
@@ -26,7 +25,8 @@ All datasets are directly downloadable via the Hugging Face `datasets` library o
 1. Load VRSBench and COCO (validation) with memory‑mapped loading (`mmap=True`).  
 2. For each image, compute pairwise IoU among all ground‑truth boxes.  
    - **Dense‑scene**: > 5 boxes where each pair’s IoU > 0.10 (FR‑003).  
-   - **Non‑dense**: all remaining images.  
+   - **Low‑density**: ≤ 5 overlapping pairs – still processed for mIoU but the ambiguity‑resolution failure metric is recorded as “N/A” (FR‑008/SC‑007).  
+   - **Non‑dense**: all remaining images (including low‑density).  
 3. Flag **ambiguous** boxes (zero‑area or IoU > 0.95 with another box) and exclude them from any mIoU computation (FR‑007). Record the proportion of excluded samples (must be ≤ 5 % → SC‑006).  
 4. Persist dense and non‑dense subsets as Parquet files (Phase 1 output).  
 
@@ -66,7 +66,7 @@ For each sparsity configuration (global, 64, 32, 16, optional 1):
 - Summarize the absolute difference between failure and success groups (SC‑004).  
 
 ### 7. Power & Sample‑Size Considerations
-- Expected dense‑scene count from VRSBench ≈ 2 k images. With the parameters above, power > 80 % is achieved.  
+- Expected dense‑scene count from VRSBench is on the order of a few thousand images. With the parameters above, power > 80 % is achieved.  
 - If after preprocessing the dense count drops below 500 (unlikely), we will explicitly note the reduced power in the final report and rely on descriptive statistics only (SC‑002).  
 
 ### 8. Reporting
@@ -76,7 +76,6 @@ For each sparsity configuration (global, 64, 32, 16, optional 1):
 - **Figure 2**: Attribution heatmap collage (failure vs. success).  
 - **Table 3**: Global‑context activation proportion difference (SC‑004).  
 - **Figure 3**: Inference latency per image across configurations (SC‑005).  
-
 All tables/figures reference a single row in the underlying CSV/Parquet artifact, satisfying Constitution Principle IV.
 
 ## Risks & Mitigations
@@ -88,3 +87,4 @@ All tables/figures reference a single row in the underlying CSV/Parquet artifact
 | Download script failure (previous T000) | Pipeline aborts | Implement robust `download.py` that retries, validates SHA‑256, and aborts with clear error if checksum mismatches. |
 
 ---
+

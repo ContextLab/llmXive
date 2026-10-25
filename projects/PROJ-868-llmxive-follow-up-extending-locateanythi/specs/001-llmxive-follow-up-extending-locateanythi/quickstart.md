@@ -64,6 +64,6 @@ All result files must satisfy `contracts/inference_results.schema.yaml`. Failure
 rm -rf data/raw/* data/processed/* data/results/* data/analysis/*
 ```
 
-**Note**: The entire run completes in ≤ 6 hours on the free‑tier GitHub Actions CPU runner (empirically ~4 h for the full grid). Adjust `--batch-size` if you encounter memory pressure.
+**Note**: The entire run completes in ≤ 6 hours on the free‑tier GitHub Actions CPU runner (empirically on the order of several hours for the full grid). Adjust `--batch-size` if you encounter memory pressure.
 
 ---

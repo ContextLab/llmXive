@@ -10,10 +10,10 @@ The pipeline generates a hierarchy of artifacts. The **primary contract‑valida
 | `sparsity_window` | integer | Attention window size in patches; `0` denotes *global* attention. | Allowed values: `0`, `64`, `32`, `16`, `1`. |
 | `scene_density` | string | `"dense"` if the image belongs to the dense‑scene subset, otherwise `"non_dense"`. | Enum: `"dense"`, `"non_dense"`. |
 | `excluded` | boolean | `true` if the image was flagged as ambiguous and excluded from mIoU calculations (FR‑007). | – |
-| `mIoU` | number | null | Mean Intersection‑over‑Union for this image (null if `excluded`). | `0.0 ≤ value ≤ 1.0`. |
+| `mIoU` | number \| null | Mean Intersection‑over‑Union for this image (null if `excluded`). | `0.0 ≤ value ≤ 1.0`. |
 | `latency_ms` | number | Inference latency for this image (milliseconds). | `> 0`. |
-| `global_context_activation_proportion` | number | null | Proportion of Grad‑CAM (or attention‑rollout) activation on tokens labelled “global‑context”. Populated only for images used in attribution analysis. | `0.0 ≤ value ≤ 1.0`. |
-| `prediction_path` | string | Relative path to the JSON file containing the model’s raw predictions. | Must match pattern `^data/predictions/.*\.json$`. |
+| `global_context_activation_proportion` | number \| null | Proportion of Grad‑CAM (or attention‑rollout) activation on tokens labelled “global‑context”. Populated only for images used in attribution analysis. | `0.0 ≤ value ≤ 1.0`. |
+| `prediction_path` | string | Relative path to the JSON file containing the model’s raw predictions. | Pattern: `^data/predictions/.*\.json$`. |
 
 *All fields are required; `null` is allowed for `mIoU` and `global_context_activation_proportion` when appropriate.*
 
