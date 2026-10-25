@@ -8,15 +8,15 @@ T001:
     \ also passed, confirming the file\u2019s existence and correctness."
   sig: 7a1df473d6b2eaab8dbfe7edf9bf570ea2014c0e3639da42a122e807aac6e94d
 T002:
-  c: false
-  h: 1185e04467c06a2165ef036589b444374f07bbfd45c54bdb93c9e145170ae5e3
-  r: "Checked the three contract schema files (they exist and are well\u2011formed)\
-    \ and the `src/utils/validate_schema.py` script (it runs without error). However,\
-    \ there is no evidence that the required log file `logs/schema_validation.log`\
-    \ was created; the artifact list and execution logs do not show this file, so\
-    \ the verification step is not demonstrably satisfied. Adding the log file (or\
-    \ providing its contents) is needed to complete the task."
-  sig: 302c040d47a3de6df697f0fff2ba580eeec3577fe1fe24f980f881737563873b
+  c: true
+  h: 9b8abc5f4fceb3f4133bb8cdc681c364e2c9052e75f90626037a0068defa1ce7
+  r: "Checked the three contract schema files (`contracts/unified_dataset.schema.yaml`,\
+    \ `contracts/model_output.schema.yaml`, `contracts/weekly_aggregates.schema.yaml`)\
+    \ which are present and contain appropriate JSON\u2011Schema definitions, and\
+    \ verified the `src/utils/validate_schema.py` script exists and runs successfully\
+    \ (exit\u202F0) with tests (`tests/contract/test_validate_schema.py`) confirming\
+    \ it creates `logs/schema_validation.log` and validates all schemas."
+  sig: 479de851198f366bdc776a3ee206384b9c196f853b2820f7da059ad9bfa4a402
 T011:
   c: false
   h: 96296957c986942207ca42fece3101dbc6c07a5fb8bfb6ab4fee27a3faa9f70a
@@ -26,15 +26,14 @@ T011:
     \ of completion invalid."
 T018:
   c: false
-  h: 562d45ecf34e857439830b99f52f4bed8957873b5bf546d408ef31bbd7aaacc0
-  r: "The manifest `data/artifact_manifest.yaml` only lists four `.gitkeep` placeholder\
-    \ files, not the actual raw, processed, or results artifacts the pipeline should\
-    \ produce. Moreover, the checksum utility fails when the data directory is outside\
-    \ the project root (as shown by the unit\u2011test failures), and there is no\
-    \ evidence of a verification step that checks current hashes against the manifest.\
-    \ The task\u2019s requirement to compute and store checksums for *every* data\
-    \ artifact and enforce integrity is therefore not met."
-  sig: 2a27e16db64e86f0e265b7f0b3df8ede31f53cb37290e96a87fe004d83b20996
+  h: d88b8a723d5a552f893a24cfa3b0d8b91b4bb70b11b6d033c4ca86c7216d7d2a
+  r: The manifest `data/artifact_manifest.yaml` only lists checksums for the placeholder
+    `.gitkeep` files, while the task requires checksums for *every* raw and derived
+    data artifact; no real data files are present and the unit tests fail because
+    expected files (e.g., `data/raw/file2.csv`) are missing. Consequently the checksum
+    generation does not cover the required artifacts, and the verification step cannot
+    be meaningfully applied.
+  sig: ab57f17bbecda188e54d1f2f8c68c648117d0c951031fcacf2b8d244de607945
 T020:
   c: true
   h: bf2899a226f14fd668e90b4bb31163ef5578486a2964f0e8745d5b3184c9f388

@@ -13,7 +13,7 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
   - **Paths created**: `src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, `contracts/`, `config/`.  
   - **Verification**: Run `tree -L 2 .` (or equivalent) and store the output in `docs/directory_structure.txt`; the file must list all nine top‑level folders.
 
-- [ ] T002 Add the three contract schema files required by the specification and validate them.
+- [X] T002 Add the three contract schema files required by the specification and validate them.
   - **Files**:  
     - `contracts/unified_dataset.schema.yaml` (matches *MatchedUsersDataset*).  
     - `contracts/model_output.schema.yaml` (matches *ModelResult*).  

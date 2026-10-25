@@ -64,8 +64,10 @@ def gather_artifact_checksums(root_data_dir: Path) -> Dict[str, str]:
     manifest: Dict[str, str] = {}
     for file_path in root_data_dir.rglob("*"):
         if file_path.is_file():
-            # Relative path from the project root, using forward slashes
-            rel_path = file_path.relative_to(paths.root).as_posix()
+            # Compute path relative to the *data* directory, then prepend the
+            # top‑level ``data`` folder to match the expected key format
+            rel_to_data = file_path.relative_to(root_data_dir).as_posix()
+            rel_path = f"data/{rel_to_data}"
             checksum = compute_sha256(file_path)
             manifest[rel_path] = checksum
             log.debug("Checksum computed for %s: %s", rel_path, checksum)
