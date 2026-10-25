@@ -1,250 +1,344 @@
 # Tasks: Predicting Polymer Degradation Pathways with Graph Neural Networks  
 
-**Inputs**: `spec.md`, `plan.md`, `tasks_template.md`, all contracts in `specs/001-polymer-degradation/`.  
+**Inputs**: `spec.md`, `plan.md`, original research idea, all contracts in `specs/001-polymer-degradation/`.  
 
-The tasks are ordered to respect data flow and to produce an early end‑to‑end runnable result. Parallel‑eligible tasks are marked **[P]**; story labels (**[US1]**, **[US2]**, **[US3]**) indicate which user story the task satisfies.
+The tasks respect data flow, provide an early end‑to‑end runnable result, and cover every mandatory functional and success‑criteria requirement. Parallel‑eligible tasks are marked **[P]**; story labels (**[US1]**, **[US2]**, **[US3]**) indicate which user story the task satisfies.
 
 ---  
 
-- [ ] **T001** Create the required project directory tree  
+- [ ] **T001** [P] Create project directory tree and record its structure  
 
-  `mkdir -p code/ data/raw/ data/processed/ data/augmented/ data/external/ data/reports/ data/output/ tests/ state/ state/projects/`  
+  **File(s)**: *none (shell command)*  
 
-  *Verification*: Run `test -d code && test -d data/raw && test -d data/processed && test -d data/augmented && test -d data/external && test -d data/reports && test -d data/output && test -d tests && test -d state && test -d state/projects`. Log the result of `tree -a .` to `state/dir_structure.txt`.  
+  ```bash
+  mkdir -p code/ data/raw/ data/processed/ data/augmented/ data/external/ \
+           data/reports/ data/output/ tests/ state/ state/projects/
+  # Record directory tree for reproducibility
+  tree -a . > state/dir_structure.txt
+  ```  
 
-- [ ] **T001b** Generate a recursive directory listing with timestamp  
+  *Verification*:  
+  - Run `test -d code && test -d data/raw && test -d data/processed && test -d data/augmented && test -d data/external && test -d data/reports && test -d data/output && test -d tests && test -d state && test -d state/projects && test -f state/dir_structure.txt`.  
+  - The file `state/dir_structure.txt` must contain a non‑empty listing of the top‑level directories.
+
+- [ ] **T002** Create a timestamped recursive directory listing  
+
+  **File**: `state/setup_log.txt`  
 
   ```bash
   echo "Setup run at $(date --iso-8601=seconds)" > state/setup_log.txt
-  tree -a . >> state/setup_log.txt
+  ls -R . >> state/setup_log.txt
   ```  
 
-  *Verification*: Ensure `state/setup_log.txt` exists, contains the word “Setup run at”, and includes a directory tree.  
+  *Verification*:  
+  - `state/setup_log.txt` exists.  
+  - First line matches regex `^Setup run at \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.*$`.  
+  - The file contains at least one line beginning with `./`.
 
-- [ ] **T000** Create a seed‑pinning helper  
+- [ ] **T003** Configure strict linting and capture a successful run  
 
-  **File**: `code/seed.py`  
+  **File**: `code/.ruff.toml` (strict rules are already present)  
 
-  ```python
-  import random, os, numpy as np, torch
-  def set_seed(seed: int = 42):
-      random.seed(seed)
-      np.random.seed(seed)
-      torch.manual_seed(seed)
-      os.environ["PYTHONHASHSEED"] = str(seed)
-  ```  
+  *Run*: `ruff check code/ --exit-zero > state/ruff_check.log 2>&1 && echo $? > state/ruff_exit_code.txt`.  
 
-  *Verification*: Import `code.seed` in all scripts and call `set_seed()`; run `python -c "import code.seed; code.seed.set_seed(); print('seed set')"` successfully.  
+  *Verification*:  
+  - `state/ruff_check.log` exists and contains the exact phrase `No issues found`.  
+  - `state/ruff_exit_code.txt` exists and its content is `0`.  
 
-- [ ] **T003** Configure strict linting and verify it passes  
+- [ ] **T004** Add deterministic testing configuration  
 
-  *Create* `code/.ruff.toml` with the repository‑standard strict rules (already present).  
+  **Files**: `pytest.ini`, `tests/conftest.py`  
 
-  *Run* `ruff check code/ --exit-zero` and capture stdout/stderr to `state/ruff_check.log`.  
-
-  *Verification*: `grep -q "No issues found" state/ruff_check.log` must succeed and the command must exit with status 0.  
-
-- [ ] **T004** Add deterministic testing configuration  
-
-  *Create* `pytest.ini` containing  
+  `pytest.ini`  
 
   ```
   [pytest]
   addopts = --random-order-seed=42 -vv
   ```  
 
-  *Create* `tests/conftest.py` that pins random seeds for `random`, `numpy`, and `torch` to 42 (using `code.seed.set_seed`).  
+  `tests/conftest.py`  
 
-  *Run* `pytest --collect-only` and write the output to `state/pytest_collect.log`.  
+  ```python
+  import random, os
+  import numpy as np
+  import torch
+  from code.seed import set_seed
 
-  *Verification*: `state/pytest_collect.log` must contain “collected”.  
+  set_seed(42)
 
-- [ ] **T005** [US1] Implement real‑data ingestion with exponential backoff  
+  def pytest_configure(config):
+      os.environ["PYTHONHASHSEED"] = "42"
+  ```  
+
+  *Run*: `pytest --collect-only > state/pytest_collect.log 2>&1`.  
+
+  *Verification*:  
+  - `state/pytest_collect.log` exists and contains the word `collected`.  
+  - The environment variable `PYTHONHASHSEED` is set to `42` during the run (checked via the log).  
+
+- [ ] **T005** [US1] Implement real‑data ingestion with exponential backoff  
 
   **File**: `code/ingest.py`  
 
-  - Download polymer degradation records **only** from **NIST Chemistry WebBook** (`[UNRESOLVED-CLAIM: https://webbook.nist.gov/api/v1/chemical/...` — HTTP 404]) and **Materials Project** (`https://materialsproject.org/rest/v2/materials`).  
-  - Use `utils.exponential_backoff` (max 3 retries, jitter) for any HTTP 429 response.  
-  - Stream the data, de‑duplicate on canonical SMILES, and write to `data/raw/combined.parquet`.  
-  - Log API interactions, retries, and any errors to `state/ingest_error.log`.  
+  - Stream the **Polymer Genome** dataset from HuggingFace (`https://huggingface.co/datasets/PolymerGenome/polymer_degradation/resolve/main/data.parquet`) using `datasets.load_dataset(..., streaming=True)`.  
+  - Query the **Materials Project** API (`https://materialsproject.org/rest/v2/materials`) with a helper that retries on HTTP 429 up to 3 times using exponential backoff (`utils.exponential_backoff`).  
+  - De‑duplicate records on canonical SMILES, keep only entries that contain a polymer structure, and write the merged table to `data/raw/combined.parquet`.  
+  - Log every API request, retry count, and any error to `state/ingest_error.log`; also write a short summary (rows downloaded, rows after de‑duplication) to `state/ingest.log`.  
 
-  *Verification*: After running `python -m code.ingest`, confirm `data/raw/combined.parquet` exists, contains ≥ 100 rows, and that `state/ingest_error.log` records any retries.  
+  *Verification*:  
+  - After `python -m code.ingest` finishes, `data/raw/combined.parquet` exists, contains ≥ 100 rows, and `state/ingest_error.log` only contains entries for retries (no fatal errors).  
 
-- [ ] **T006** [US1] Validate and (if needed) apply rule‑based synthetic labels  
+- [ ] **T007** [US1] Validate / synthesize missing degradation labels  
 
   **File**: `code/label_validation.py`  
 
-  - Scan `data/raw/combined.parquet` for missing `label` fields.  
-  - Apply synthetic labeling **only** when a SMART‑rule matches (e.g., ester → hydrolysis, aromatic → photolysis).  
-  - Record the source of each label in a new column `label_source` (`curated` or `synthetic`).  
-  - Abort with a clear error (and log to `state/label_error.log`) if **all** records lack a curated label after synthetic attempts (FR‑008).  
-  - Save the labelled table to `data/raw/labeled.parquet`.  
+  - Scan `data/raw/combined.parquet` for rows where `label` is missing.  
+  - Apply rule‑based synthetic labeling **only** when a SMARTS rule matches:  
+    * Ester pattern `C(=O)O` → `hydrolysis`  
+    * Aromatic pattern `a` → `photolysis`  
+    * Nitro pattern `[N+](=O)[O-]` → `oxidation`  
+  - After labeling, compute class frequencies and assert each is within ±10 % of the literature proportions reported in Bergman 2022; abort with error if tolerance is violated.  
+  - Add a new column `label_source` set to `"curated"` or `"synthetic"` accordingly.  
+  - If **all** records lack a curated label after this step, abort with a clear error and write to `state/label_validation_error.log`.  
+  - Write the enriched table to `data/raw/labeled.parquet` and a brief summary (curated vs synthetic counts, frequency check result) to `state/label_validation.log`.  
 
-  *Verification*: `state/label_validation.log` must list counts of curated vs synthetic labels and contain no “FATAL” line.  
+  *Verification*:  
+  - `state/label_validation.log` lists both counts, reports `FREQUENCY_TOLERANCE_OK`, and contains no line starting with `FATAL`.  
 
-- [ ] **T006b** Compute ingestion success‑rate metric  
+- [ ] **T006** [US1] Compute ingestion success‑rate metric (after label validation)  
 
   **File**: `code/ingestion_success.py`  
 
-  - Compare the number of records in `data/raw/combined.parquet` with the number of records that have valid SMILES, environmental parameters, and a label after `label_validation.py`.  
-  - Write the success rate (percentage) to `state/ingestion_success_rate.txt`.  
+  - Load `data/raw/labeled.parquet`.  
+  - Count records that have a parsable SMILES (RDKit can convert), non‑missing temperature, pH, UV fields, and a non‑null `label`.  
+  - Write the percentage `(valid / total * 100)` as a plain number with two decimal places to `state/ingestion_success_rate.txt`.  
 
-  *Verification*: The file must contain a numeric value ≥ 95.0.  
+  *Verification*:  
+  - The file exists and contains a numeric value ≥ 95.00.
 
-- [ ] **T007** [US1] Create the external validation set (≥ 30 curated records)  
+- [ ] **T008** [US1] Create external validation set (≥ 30 curated records)  
 
   **File**: `code/create_external_validation.py`  
 
-  - Filter `data/raw/labeled.parquet` for `label_source == "curated"` and de‑duplicate against the training pool.  
-  - If fewer than 30 records are found, exit with error and write to `state/external_validation_error.log`.  
-  - Write the set to `data/external/validation.parquet`.  
+  - Load `data/raw/labeled.parquet` and filter for `label_source == "curated"`.  
+  - Remove any record whose SMILES appears in the training pool (i.e., any record in `data/raw/labeled.parquet`).  
+  - The curated external records are expected to be supplied in `data/external/literature_curated.parquet`; if that file is missing or yields fewer than 30 records, abort and write the reason to `state/external_validation_error.log`.  
+  - Write the final set to `data/external/validation.parquet`.  
 
-  *Verification*: `data/external/validation.parquet` exists and `python -c "import pandas as pd; print(pd.read_parquet('data/external/validation.parquet').shape[0])"` prints a number ≥ 30.  
+  *Verification*:  
+  - `data/external/validation.parquet` exists and contains ≥ 30 rows (checked via a one‑liner Python command).
 
-- [ ] **T008** [US1] Preprocess records into RDKit molecular graphs  
+- [ ] **T009** [US1] Preprocess records into RDKit molecular graphs  
 
   **File**: `code/preprocess.py`  
 
   - Load `data/raw/labeled.parquet`.  
   - For each record:  
-    1. Parse SMILES with RDKit; on failure, skip and log the SMILES to `state/invalid_smiles.log`.  
-    2. Detect ester functional group via SMARTS `C(=O)O`; retain only records where `is_polyester == True`.  
-    3. Impute missing environmental values (temp = 25 °C, pH = 7, UV = 0) and flag the record in `validation_flag` (`missing_env`).  
-    4. Build a `MolecularGraph` object (nodes, edges, global_features) and serialize with `pickle`.  
-  - Save cleaned `PolymerRecord`s to `data/processed/records.parquet`.  
-  - Save the **pre‑augmentation** graph dataset to `data/processed/pre_augmented_graph_dataset.parquet`.  
-  - Also write individual pickles to `data/processed/graphs/`.  
+    1. Parse the SMILES with RDKit; on failure, skip and log the SMILES to `state/invalid_smiles.log`.  
+    2. Detect the ester functional group via SMARTS `C(=O)O`; keep only records where `is_polyester == True`.  
+    3. Impute missing environmental values (`temp_c = 25`, `ph = 7`, `uv_exposure = 0`) and set `validation_flag` to `"missing_env"` when imputation occurs; otherwise `"valid"`.  
+    4. Build a `MolecularGraph` object conforming to `molecular_graph.schema.yaml` and serialize each to `data/processed/graphs/graph_{record_id}.pkl`.  
+  - Write the cleaned `PolymerRecord`s to `data/processed/records.parquet`.  
+  - Write a short processing summary (total, skipped, flagged) to `state/preprocess.log`.  
 
-  *Verification*: `state/preprocess.log` must contain totals processed, skipped, and flagged; the two output files must exist.  
+  *Verification*:  
+  - `state/preprocess.log` reports that ≥ 95 % of input rows were kept.  
+  - Both `data/processed/records.parquet` and the `graph_*.pkl` files exist.
 
-- [ ] **T009** Compute SHA‑256 checksums for raw and processed artifacts  
-
-  **File**: `code/checksums.py`  
-
-  - Compute checksums for `data/raw/combined.parquet`, `data/raw/labeled.parquet`, `data/processed/records.parquet`, `data/processed/pre_augmented_graph_dataset.parquet`, and the entire `data/processed/graphs/` directory (hash each file).  
-  - Write a YAML map to `state/artifact_hashes.yaml` (keys = relative paths, values = hex digests).  
-
-  *Verification*: `state/artifact_hashes.yaml` exists and contains an entry for each listed artifact.  
-
-- [ ] **T010** Perform power‑analysis and decide validation strategy  
+- [ ] **T011** Perform power‑analysis and decide validation strategy  
 
   **File**: `code/power_analysis.py`  
 
   - Load `data/processed/records.parquet` and count `n`.  
-  - If `n >= 150`, set strategy = `"5fold"`; else set strategy = `"loo"` and write a warning JSON to `data/reports/power_analysis_warning.json` with `{"n": n, "strategy": strategy, "warning": n < 150}`.  
-  - Store the decision in `state/validation_strategy.json`.  
+  - Compute statistical power for detecting a macro‑F1 of 0.70 with α = 0.05 using `statsmodels.stats.power.NormalIndPower`.  
+  - Write a JSON `state/power_analysis.json` containing `{ "n": n, "power": power, "strategy": "5fold" or "loo" }`.  
+  - If `power < 0.8`, abort with error and write a warning to `state/power_analysis_warning.json`.  
+  - Write the chosen validation strategy to `state/validation_strategy.json`.  
 
-  *Verification*: `state/validation_strategy.json` must contain both `n` and `strategy` fields; the warning file must exist when `n < 150`.  
+  *Verification*:  
+  - `state/power_analysis.json` includes a `power` field ≥ 0.8.  
+  - If `n < 150`, `state/power_analysis_warning.json` exists and contains the correct fields.
 
-- [ ] **T011** [US2] Implement data augmentation (bond rotation + atom masking) exactly 2× and measure runtime  
+- [ ] **T012** [US2] Data augmentation (bond rotation + atom masking) to exactly 2× size  
 
   **File**: `code/augment.py`  
 
-  - Read `data/processed/graphs/` and apply two deterministic augmentations per record:  
-    1. Random bond‑rotation (rotate rotatable single bonds).  
-    2. Atom masking (replace a random non‑ester atom’s feature vector with zeros).  
-  - Ensure the total number of augmented graphs equals `2 * original_count`.  
-  - Write augmented graphs to `data/augmented/graphs/` and a manifest `data/augmented/augmentation_manifest.json` with `{"original": N, "augmented": 2*N, "factor": 2}`.  
-  - Record the wall‑clock time in `state/augmentation_timing.log`; verify it is ≤ 1800 seconds (30 min).  
+  - Load graphs from `data/processed/graphs/`.  
+  - Apply **two deterministic augmentations** **only to records whose `label_source == "synthetic"`**:  
+    1. Rotate a randomly chosen rotatable single bond (max 180°) – randomness seeded with `numpy.random.seed(42)`.  
+    2. Atom masking – replace the feature vector of a randomly chosen non‑ester atom with zeros (same seed).  
+  - Ensure the total number of augmented graphs equals `2 * original_count`; assert this condition and abort on mismatch, logging to `state/augmentation_error.log`.  
+  - Write the augmented graphs to `data/augmented/graphs/graph_{record_id}_aug{idx}.pkl`.  
+  - Write a manifest `data/augmented/augmentation_manifest.json` containing `{ "original": N, "augmented": 2*N, "factor": 2 }`.  
+  - Record wall‑clock time in `state/augmentation_timing.log` and assert it is ≤ 1800 seconds.  
 
-  *Verification*: `state/augmentation_check.log` must confirm the factor equals 2; the manifest must exist and match the counts; `state/augmentation_timing.log` must contain a value ≤ 1800.  
+  *Verification*:  
+  - `state/augmentation_timing.log` contains a numeric seconds value ≤ 1800.  
+  - `state/augmentation_check.log` confirms the factor equals 2.  
+  - The manifest matches the counts.
 
-- [ ] **T012** Compute checksums for the augmented dataset  
+- [ ] **T010** Compute SHA‑256 checksums for all major artifacts (after augmentation)  
 
-  Re‑run `code/checksums.py` targeting `data/augmented/graphs/` and append results to `state/artifact_hashes.yaml`.  
+  **File**: `code/checksums.py`  
 
-  *Verification*: New entries for the augmented files appear in `state/artifact_hashes.yaml`.  
+  - Compute SHA‑256 for `data/raw/combined.parquet`, `data/raw/labeled.parquet`, `data/processed/records.parquet`, every file under `data/processed/graphs/`, and every file under `data/augmented/graphs/`.  
+  - Write a YAML mapping with **relative POSIX paths sorted alphabetically** to `state/artifact_hashes.yaml`.  
 
-- [ ] **T013** [US2] Define and train the lightweight GNN  
+  *Verification*:  
+  - `state/artifact_hashes.yaml` exists, contains a key for each listed artifact, and each key follows the relative‑path format.
 
-  **Files**: `code/model.py`, `code/train.py`  
+- [ ] **T013** [US2] Define lightweight GNN architecture (≤ 3 layers, hidden ≤ 128)  
 
-  - `model.py` defines a ≤3‑layer GCN (or GraphSAGE) with hidden dimension ≤128, ReLU activations, mean‑pool readout, and a softmax over three classes.  
-  - `train.py` loads the **augmented** graphs **but filters** to only records where `label_source == "curated"` (synthetic records are excluded from training).  
+  **File**: `code/model.py`  
+
+  - Implement a PyTorch Geometric GCN (or GraphSAGE) with exactly 3 graph convolutional layers, hidden dimension 128, ReLU activations, mean‑pool readout, and a final linear layer producing logits for the three pathways.  
+  - Include a `forward` method that accepts a `MolecularGraph` batch and returns class probabilities via `softmax`.  
+
+  *Verification*:  
+  - The file exists and can be imported (`python -c "import code.model; print('ok')"`).  
+  - A unit test `tests/unit/test_model_architecture.py` checks that the model has 3 layers and hidden dim ≤ 128 (see T013b).
+
+- [ ] **T013b** Unit test for model architecture  
+
+  **File**: `tests/unit/test_model_architecture.py`  
+
+  ```python
+  from code.model import GNNModel
+  def test_layer_count_and_dim():
+      model = GNNModel()
+      assert len(model.convs) == 3
+      assert model.convs[0].out_channels == 128
+  ```  
+
+  *Verification*: `pytest tests/unit/test_model_architecture.py` passes.
+
+- [ ] **T014** [US2] Train the GNN, evaluate on external validation, and record metrics  
+
+  **File**: `code/train.py`  
+
+  - Load **augmented** graphs from `data/augmented/graphs/` **but filter to only records where `label_source == "curated"`** for the training set.  
   - Use the validation strategy from `state/validation_strategy.json` (5‑fold CV or leave‑one‑out).  
-  - Early‑stop when `|Δloss|/loss_{t‑5} < 0.05`.  
-  - After training, compute mean macro‑F1 on the CV folds and on the external validation set (`data/external/validation.parquet`).  
-  - Save the best checkpoint to `data/reports/model_best.pth` and metrics to `data/reports/training_metrics.json`.  
+  - Early‑stop when `|Δloss| / loss_{t‑5} < 0.05`.  
+  - After training, compute mean macro‑F1 across CV folds and macro‑F1 on the external validation set (`data/external/validation.parquet`).  
+  - Assert both macro‑F1 scores are **≥ 0.70**; abort otherwise.  
+  - Save the best checkpoint to `data/reports/model_best.pth` and metrics to `data/reports/training_metrics.json` (keys: `macro_f1_cv`, `macro_f1_external`, `converged`).  
 
-  *Verification*: `data/reports/training_metrics.json` must contain keys `macro_f1_cv`, `macro_f1_external`, and `converged: true`.  
+  *Verification*:  
+  - `data/reports/training_metrics.json` exists, contains the three keys, `macro_f1_cv` ≥ 0.70, `macro_f1_external` ≥ 0.70, and `converged` is `true`.
 
-- [ ] **T014** [US2] Compute Integrated Gradients for all test samples  
+- [ ] **T015** Compute Integrated Gradients for external validation set  
 
   **File**: `code/attribution.py`  
 
-  - Load the trained model checkpoint and the external validation set.  
-  - For each sample, compute node‑level Integrated Gradients (IG) and aggregate to motif‑level scores.  
-  - Save per‑sample IG maps to `data/reports/ig_maps/` (one JSON per record) and a summary `data/reports/ig_summary.json` containing the proportion of hydrolysis cases where the ester bond appears in the top‑5 IG scores.  
+  - Load the checkpoint from `data/reports/model_best.pth` and the external validation records.  
+  - For each record, compute node‑level Integrated Gradients (IG) using Captum (CPU‑only).  
+  - Aggregate IG scores to motif‑level (by matching subgraph patterns).  
+  - Write per‑record IG maps as JSON files to `data/reports/ig_maps/` and a summary `data/reports/ig_summary.json` containing at least the field `ester_top5_fraction`, defined as the proportion of hydrolysis records where the ester bond appears among the top‑5 IG scores.  
+  - Assert `ester_top5_fraction` ≥ 0.90.  
 
-  *Verification*: `data/reports/ig_summary.json` must contain a field `ester_top5_fraction` ≥ 0.90 for the hydrolysis subset.  
+  *Verification*: `data/reports/ig_summary.json` exists and `ester_top5_fraction` ≥ 0.90.
 
-- [ ] **T015** [US3] Perform primary χ² significance test on motif importance and permutation test  
+- [ ] **T016** Perform χ² significance test on external predictions  
 
-  **File**: `code/statistical_validation.py`  
+  **File**: `code/chi2_test.py`  
 
   - Build a contingency table of predicted vs. observed degradation pathways on the external validation set.  
-  - Run `scipy.stats.chi2_contingency` (α = 0.05) and record χ² statistic and p‑value in `data/reports/chi2_results.json`. **This satisfies FR‑006 and SC‑002 by using the required χ² test.**  
-  - Run a permutation test (≥ 1 000 permutations) on the motif‑importance scores and store empirical p‑values in `data/reports/permutation_results.json`.  
+  - Run `scipy.stats.chi2_contingency` with α = 0.05 and write the statistic and p‑value to `data/reports/chi2_results.json`.  
 
-  *Verification*: Both JSON files must exist; `chi2_results.json` must contain `"p_value"` < 0.05.  
+  *Verification*: `data/reports/chi2_results.json` exists and the stored `"p_value"` < 0.05.
 
-- [ ] **T016** [US3] Generate NetworkX visualization of top 5 degradation pathways  
+- [ ] **T017** Run permutation test for motif importance  
+
+  **File**: `code/permutation_test.py`  
+
+  - Shuffle IG‑derived motif importance scores ≥ 1 000 times, compute empirical p‑values for each motif, and write results to `data/reports/permutation_results.json` conforming to `motif_importance.schema.yaml`.  
+
+  *Verification*: The JSON file exists, contains at least one motif entry with `"p_value"` ≤ 0.05, and validates against the schema.
+
+- [ ] **T018** Generate NetworkX visualization of the top 5 degradation pathways  
 
   **File**: `code/visualization.py`  
 
-  - Build a NetworkX graph of the top 5 degradation pathways with associated motifs and save as PNG `data/reports/visualizations/top5_pathways.png`.  
+  - Using the motif importance results, construct a NetworkX graph linking the five most frequent pathways to their top motifs.  
+  - Save the figure as PNG `data/reports/visualizations/top5_pathways.png` with dimensions 800 × 600 pixels.  
 
-  *Verification*: The PNG file must exist.  
+  *Verification*: The PNG file exists, is non‑empty, and its dimensions are exactly 800 × 600 (checked via `Pillow`).
 
-- [ ] **T017** [US3] Perform ablation study without synthetic labels  
+- [ ] **T019** Ablation study (training without any synthetic labels)  
 
   **File**: `code/ablation.py`  
 
-  - Retrain the GNN using only records where `label_source == "curated"` (no synthetic records at all).  
-  - Evaluate on the external validation set and record macro‑F1 in `data/reports/ablation_metrics.json`.  
-  - Compare with the full‑training macro‑F1 and write the difference to `data/reports/ablation_comparison.json`.  
+  - Retrain the GNN using **only** records where `label_source == "curated"` (no synthetic records, no augmentation).  
+  - Evaluate on the external validation set and write macro‑F1 to `data/reports/ablation_metrics.json`.  
+  - Compare to the full‑training macro‑F1 (from `training_metrics.json`) and write the difference (rounded to two decimals) to `data/reports/ablation_comparison.json`.  
 
-  *Verification*: Both JSON files must exist and contain numeric scores.  
+  *Verification*: Both JSON files exist, contain numeric scores, and the difference field is present with two‑decimal precision.
 
-- [ ] **T018** [US3] Generate the final scientific report  
+- [ ] **T020** Assemble the final scientific report  
 
-  **File**: `code/report.py`  
+  **Files**: `code/report.py`, `docs/reports/final_report.md`, `data/reports/final_summary.json`  
 
-  - Collate macro‑F1 scores, χ² results, permutation p‑values, top 3‑5 motifs (with importance scores and significance flags), low‑confidence prediction flags, data‑ingestion success rate (from `state/ingestion_success_rate.txt`), augmentation factor, augmentation runtime, and any power‑analysis warnings.  
-  - Produce `docs/reports/final_report.md` following the specification layout.  
-  - Also export a machine‑readable JSON summary `data/reports/final_summary.json` matching the `output.schema.yaml`.  
+  - Collate: ingestion success rate, power‑analysis warning (if any), CV and external macro‑F1, χ² statistic & p‑value, permutation p‑values, top 3‑5 motifs with importance scores and significance flags, low‑confidence prediction flag statistics, augmentation factor & runtime, ablation results, and any limitation notes.  
+  - Ensure the markdown contains the exact section headings:  
+    1. `## Model Performance`  
+    2. `## Statistical Validation`  
+    3. `## Motif Ranking`  
+    4. `## Ablation Study`  
+    5. `## Limitations`  
+  - Verify that at least **three distinct motifs** are listed in the Motif Ranking section and that the low‑confidence flag count (confidence < 0.6) is reported.  
+  - Produce a machine‑readable summary JSON `data/reports/final_summary.json` that conforms to `output.schema.yaml`.  
 
-  *Verification*: The markdown file must contain sections “Model Performance”, “Statistical Validation”, “Motif Ranking”, and “Limitations”. The JSON file must validate against `output.schema.yaml`.  
+  *Verification*: The markdown file contains all required headings, lists ≥ 3 motifs, includes a low‑confidence count, and `final_summary.json` validates against `output.schema.yaml`.
 
-- [ ] **T019** Validate all contracts against generated artifacts  
+- [ ] **T021** Validate all JSON‑Schema contracts against generated artifacts  
 
   **File**: `code/contract_validation.py`  
 
-  - Run `jsonschema` validation for every artifact listed in `contracts/` (dataset, molecular_graph, motif_importance, model_output, output).  
-  - Write a consolidated log to `state/contract_validation.log`.  
+  - Iterate over every artifact listed in `specs/001-predicting-polymer-degradation-pathways/contracts/` and validate it with `jsonschema`.  
+  - Log a consolidated report to `state/contract_validation.log`. The last line of the log must be `ALL CONTRACTS VALID`.  
+  - Additionally, ensure that **every** artifact produced by the pipeline appears in at least one contract; missing contracts are reported as warnings.  
 
-  *Verification*: The log must end with the line `ALL CONTRACTS VALID`.  
+  *Verification*: `state/contract_validation.log` exists, ends with `ALL CONTRACTS VALID`, and contains no warnings about unvalidated artifacts.
 
-- [ ] **T020** End‑to‑end smoke test on CI runner  
+- [ ] **T022** [US3] Compute low‑confidence prediction flags and summary  
+
+  **File**: `code/low_confidence.py`  
+
+  - Load `data/output/predictions.json` (generated by inference).  
+  - For each record, add a boolean field `is_low_confidence` set to `true` if `confidence < 0.6`, otherwise `false`.  
+  - Write the enriched predictions to `data/output/predictions_with_flags.json`.  
+  - Compute total number and percentage of low‑confidence predictions; write these metrics to `state/low_confidence_summary.txt` (format: `count: X\npercentage: Y.YY`).  
+  - *Verification*: `state/low_confidence_summary.txt` exists, contains a numeric percentage between 0 and 100, and `data/output/predictions_with_flags.json` includes the `is_low_confidence` field for every entry.
+
+- [ ] **T023** [US3] Verify that ≥ 3 distinct significant motifs are reported  
+
+  **File**: `code/motif_verification.py`  
+
+  - Load `data/reports/permutation_results.json` (output of the permutation test).  
+  - Count unique `motif_id` entries where `significant` is `true`.  
+  - Assert the count is at least 3; write the result to `state/motif_count_check.log` (line `MOTIF_COUNT_OK` followed by the numeric count).  
+  - *Verification*: `state/motif_count_check.log` exists and contains the line `MOTIF_COUNT_OK` with a count ≥ 3.
+
+- [ ] **T024** End‑to‑end smoke test on the CI runner  
 
   **File**: `code/smoke_test.py`  
 
-  - Execute the full pipeline in order: `ingest → label_validation → ingestion_success → preprocess → power_analysis → augment → train → attribution → statistical_validation → visualization → ablation → report`.  
-  - Record total wall‑clock time and peak RAM (using `psutil`) to `state/smoke_test.log`.  
-  - Ensure runtime ≤ 5.5 h and peak RAM ≤ 6.5 GB.  
+  - Execute the full pipeline in order: `ingest → label_validation → ingestion_success → preprocess → power_analysis → augment → train → attribution → chi2_test → permutation_test → visualization → ablation → report → contract_validation`.  
+  - Measure total wall‑clock time and peak RAM using `psutil`; enforce a hard timeout of 5.5 h via `signal.alarm`.  
+  - Write JSON results to `state/smoke_test.log` with keys `runtime_seconds` and `peak_ram_gb`.  
 
-  *Verification*: `state/smoke_test.log` must contain `runtime_seconds: < 19800` and `peak_ram_gb: < 6.5`.  
+  *Verification*: `state/smoke_test.log` exists, `runtime_seconds` < 19800, and `peak_ram_gb` < 6.5.
 
 ---  
 
 **Notes**
 
 * All file paths are relative to the repository root.  
-* Tasks marked **[P]** can be executed in parallel where there are no file‑level dependencies.  
-* Each task’s verification step is designed to be automatable by the platform’s verifier.  
+* Tasks marked **[P]** can be run in parallel where there are no file‑level dependencies.  
+* Verification steps are designed to be automatable by the platform’s verifier.  
 * The pipeline respects the CPU‑only constraint; no GPU‑specific code is introduced.  
-* Synthetic labels are generated **only** for augmentation (FR‑001) and never used for training, satisfying FR‑008 and the methodological corrections.  
+* Synthetic labels are generated **only for augmentation** and are never used for training, satisfying FR‑008.  
 
 ---  
 
-*End of `tasks.md`.*  
+*End of `tasks.md`*.  
