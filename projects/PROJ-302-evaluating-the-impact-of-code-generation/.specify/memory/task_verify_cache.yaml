@@ -1,8 +1,8 @@
 T001:
-  c: false
-  h: ea2e0f10417b85d296e7c2add8e6bb0db5a3b76797b8850cf52182c1a15afffa
-  r: "The `requirements.txt` file is present and pins many packages, and `docs/quickstart.md`\
-    \ contains a \u201CRun\u2011the\u2011pipeline\u201D command, but the required\
-    \ package **sentence\u2011transformers** is absent from the pinned list (and thus\
-    \ the dependency lock is incomplete). This violates the task\u2019s specification."
-  sig: 0ad4f85b4d0158a518c3b66e1d5cd44111beb46be27ba420aff9ef4cc563b212
+  c: true
+  h: 28587276020278429d40ba9b4d51ac70dad7612df3ba72df87d5eb463a397392
+  r: "Checked that `requirements.txt` exists and pins exact versions for all listed\
+    \ packages, that `docs/quickstart.md` includes a \u201CRun\u2011the\u2011pipeline\u201D\
+    \ command (`python code/main.py --full-run`), and that `results/setup_verification.json`\
+    \ confirms a successful fresh\u2011venv install with all required packages importable."
+  sig: cf175b70e3289c48d1d4c211a680e3b677090fd21cb6a7fdd05b7edef5dcadfb

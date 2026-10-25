@@ -10,7 +10,7 @@ All tasks are expressed as canonical checklist items; unchecked boxes indicate w
 | Goal | Produce a runnable pipeline on a small real repository and generate the core input artefacts required for matching and analysis. |
 |------|-----------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T001 [US‑1] **Create project skeleton & lock dependencies** – `requirements.txt`, `docs/quickstart.md`, `code/` package layout.  
+- [X] T001 [US‑1] **Create project skeleton & lock dependencies** – `requirements.txt`, `docs/quickstart.md`, `code/` package layout.  
   *Create the directory layout shown in `plan.md` (`code/`, `data/`, `tests/`, `docs/`). Add a `requirements.txt` that pins exact versions of all packages (pandas, pyarrow, datasets, scikit‑learn, statsmodels, scipy, radon, transformers, torch, sentence‑transformers, matplotlib, seaborn, tenacity, requests, ruff). Commit the skeleton and ensure `pip install -r requirements.txt` succeeds in a fresh venv.*  
   - **Verification**: `requirements.txt` exists with the listed versions; `docs/quickstart.md` contains a “Run‑the‑pipeline” command; a fresh `python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt` finishes without errors.
 

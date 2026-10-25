@@ -1,8 +1,4 @@
 T001:
-  reason: "The `requirements.txt` file is present and pins many packages, and `docs/quickstart.md`\
-    \ contains a \u201CRun\u2011the\u2011pipeline\u201D command, but the required\
-    \ package **sentence\u2011transformers** is absent from the pinned list (and thus\
-    \ the dependency lock is incomplete). This violates the task\u2019s specification."
   task: 07a7d178243203e52e8e8056088f81faa793d96eebe7787b11b89c1aa50fa5f9
 T002:
   task: e8434a10257568c4f6d44e271608b76cb800f5bb7d13c584ffc1ee6c6e19f36d

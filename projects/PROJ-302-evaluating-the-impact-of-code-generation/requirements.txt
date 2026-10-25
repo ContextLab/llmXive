@@ -20,3 +20,4 @@ black==23.7.0
 pyarrow==13.0.0
 codecarbon==2.1.0
 tenacity==8.2.3
+sentence-transformers==2.2.2
