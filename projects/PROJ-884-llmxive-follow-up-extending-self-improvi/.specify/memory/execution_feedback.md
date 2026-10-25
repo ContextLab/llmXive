@@ -35,7 +35,7 @@ ERROR tests/unit/test_population.py
 ERROR tests/unit/test_result_aggregator.py
 ERROR tests/unit/test_symbolic_parser.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 0.80s ===============================
+============================== 7 errors in 0.32s ===============================
 
 
 
@@ -43,6 +43,24 @@ ERROR tests/unit/test_symbolic_parser.py
 
 - data/processed/bes_results.json
 - data/processed/exclusions.json
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
+- **Verified**: this loads **16951130** real records with fields: puzzle, solution, missing, difficulty, set, solving_time.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset("Ritvik19/Sudoku-Dataset", split="train")
+print(f"RECORDS={len(ds)}")
+print("FIELDS=" + ",".join(ds.column_names))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
 
 ## Declared deliverables NOT produced — make the run-book produce them
 

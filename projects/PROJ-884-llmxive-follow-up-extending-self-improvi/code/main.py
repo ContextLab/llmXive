@@ -12,8 +12,8 @@ two modes:
 
 The pilot implementation is self‑contained to avoid importing the full
 BES stack (which may have heavy optional dependencies).  This ensures that
-``python -m code.main --pilot`` executes cleanly on a fresh checkout and
-produces the non‑empty files required by ``quickstart.md``.
+``python -m code.main`` executes cleanly on a fresh checkout and produces
+the non‑empty files required by ``quickstart.md``.
 """
 
 import argparse
@@ -129,6 +129,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    # If neither mode is specified, default to the pilot run.
+    if not args.pilot and not args.full:
+        log.info("No mode specified; defaulting to --pilot for backward compatibility.")
+        args.pilot = True
+
     if args.pilot and args.full:
         parser.error("Only one of --pilot or --full may be specified")
 
@@ -137,6 +142,8 @@ def main(argv: list[str] | None = None) -> int:
     elif args.full:
         return _run_full(args)
     else:
+        # This branch is unreachable because we defaulted to pilot above,
+        # but keep it for completeness.
         parser.error("Please specify either --pilot or --full")
 
 if __name__ == "__main__":

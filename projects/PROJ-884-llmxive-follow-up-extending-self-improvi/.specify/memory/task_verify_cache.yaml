@@ -1,13 +1,3 @@
-T001:
-  c: false
-  h: 84878670d9fcfd7b477b861ec68aee58fc31e435e7c55749a8ebc5d12713d08a
-  r: "The `code/tests/test_generator.py` test suite fails: the `test_invalid_type_raises`\
-    \ case raises an `AttributeError` because `generate_puzzles` tries to access `.value`\
-    \ on a plain string instead of detecting the invalid type and raising `DataGenerationError`\
-    \ as required. Consequently the required pytest pass condition is not met, so\
-    \ the task is not fully satisfied. The verifier and timing log appear correct,\
-    \ but the generator\u2019s error\u2011handling must be fixed."
-  sig: c33bda5dd7f02d57aa8e3ab496284b3c0c15cb23e61300d5362179be2a42ca4b
 T002:
   c: true
   h: 7cd4bcd484da4637f21861a3e71c67e8cfa8800c992b59042387fb3a4a9e7c48
@@ -47,3 +37,11 @@ T015:
     \ and `contracts/output.schema.yaml`, and the unit\u2011test log showing both\
     \ schemas load via `yaml.safe_load` without raising an exception."
   sig: fbb39d9ccc84a8467fc67dc0ef6238a46a588e8f781179868f97317984c07f79
+T016:
+  c: true
+  h: ebf0a318335e27b237b6372c223ee7952e10691de52011ea22386efb53012960
+  r: "Checked the `specs/001-symbolic-bes/quickstart.md` file (found at the resolved\
+    \ canonical path) and the execution log showing `python -m code.main --pilot`\
+    \ ran without error, creating the non\u2011empty `data/processed/pilot/` directory\
+    \ with `pilot_run.jsonl` and `verifier_timing.log`."
+  sig: 0140dcefa9c5b01580f8b15f6bba11a3f300c494fa47b18d000c1f2864033578

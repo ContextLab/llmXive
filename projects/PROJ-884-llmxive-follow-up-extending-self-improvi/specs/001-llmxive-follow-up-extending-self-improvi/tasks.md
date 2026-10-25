@@ -22,7 +22,7 @@
      • Files: `contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`  
      • Verification: running `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` and the same for `output.schema.yaml` exits without exception.  
 
-- [ ] T016 [P] [US5] Create **quickstart.md** with a reproducible command chain (`python -m code.main --pilot`) and list expected output locations.   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
+- [X] T016 [P] [US5] Create **quickstart.md** with a reproducible command chain (`python -m code.main --pilot`) and list expected output locations.
      • File: `specs/001-symbolic-bes/quickstart.md`  
      • Verification: file exists and the command runs without error on a clean checkout, producing non‑empty `data/processed/pilot/` artifacts.  
 

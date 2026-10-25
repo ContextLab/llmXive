@@ -353,7 +353,7 @@ class PuzzleGenerator:
         self,
         n_values: List[int],
         count: int,
-        puzzle_types: List[PuzzleType],
+        puzzle_types: List[Any],
         output_dir: str = DEFAULT_OUTPUT_DIR,
     ) -> str:
         """
@@ -375,7 +375,16 @@ class PuzzleGenerator:
 
         with open(output_file, "w", encoding="utf-8") as out_f:
             for n in n_values:
-                for p_type in puzzle_types:
+                for raw_type in puzzle_types:
+                    # Normalise to PuzzleType enum, raising DataGenerationError for unknown values
+                    if isinstance(raw_type, PuzzleType):
+                        p_type = raw_type
+                    else:
+                        try:
+                            p_type = PuzzleType(raw_type)
+                        except ValueError:
+                            raise DataGenerationError(f"Unknown puzzle type: {raw_type}")
+
                     self.logger.info(
                         f"Generating {count} puzzles of type {p_type.value} with N={n}"
                     )
@@ -388,7 +397,8 @@ class PuzzleGenerator:
                     elif p_type == PuzzleType.ARITHMETIC:
                         puzzles = self.generate_arithmetic(n, count)
                     else:
-                        raise DataGenerationError(f"Unknown puzzle type: {p_type}")
+                        # This branch should never be reached because we validated above
+                        raise DataGenerationError(f"Unknown puzzle type: {raw_type}")
 
                     for puzzle in puzzles:
                         # Verify deterministically and attach result

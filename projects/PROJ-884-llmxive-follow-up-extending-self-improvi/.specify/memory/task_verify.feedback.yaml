@@ -1,10 +1,12 @@
 T001:
-  reason: "The `code/tests/test_generator.py` test suite fails: the `test_invalid_type_raises`\
-    \ case raises an `AttributeError` because `generate_puzzles` tries to access `.value`\
-    \ on a plain string instead of detecting the invalid type and raising `DataGenerationError`\
-    \ as required. Consequently the required pytest pass condition is not met, so\
-    \ the task is not fully satisfied. The verifier and timing log appear correct,\
-    \ but the generator\u2019s error\u2011handling must be fixed."
+  reason: "The generator and verifier scripts exist and can produce JSONL records\
+    \ that validate against `contracts/dataset.schema.yaml`, and the verifier returns\
+    \ a `(bool, error_code)` tuple. However, the verifier\u2019s timing log is never\
+    \ created because `data/processed/verifier_timing.log` (and its parent directory)\
+    \ do not exist, and the code does not create them before writing. Consequently\
+    \ the requirement \u201Crecords a timing entry in `data/processed/verifier_timing.log`\u201D\
+    \ is not satisfied. Adding code to ensure the `data/processed` directory is created\
+    \ (e.g., `Path(log_path).parent.mkdir(parents=True, exist"
   task: 684c82c06391a7601af8304e05adfd8798f3e3539d0a7998a00bb6bc695b0839
 T002:
   task: 1bb6370ddd68e20d82b1551745ec4077f99521f1c052ad733dd9951f6deaaa18
@@ -36,7 +38,6 @@ T014:
 T015:
   task: ee04be03cd38ad97a6cb2a7a0cbe4686dccfd6b589e8212d20d6b50fe4c3ba7e
 T016:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
   task: 24d3f06098f3f7504d59778d7abbcf410fae7782b8c945952077495eeb6d443a
 T017:
   task: 950a6121b520961990afd3d652f2509731c495761614a0f59973a1e7b9f2cf13

@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "8214720e129735699527498a24bb0d79d400429939f2d33e42b693bdc2cbbaaf",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/bes/main.py': imports nonexistent names from sibling files: `from code.dataset.verifier import DeterministicVerifier` (available: Any, DataVerificationError, Dict, Enum, ErrorCodes, List, Optional, Path...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}
