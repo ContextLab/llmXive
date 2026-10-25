@@ -26,11 +26,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest tests/contract/ -> rc=1
-roperties are not allowed ('ground_truth_path' was unexpected)
-E           Task 1 (ID: task_0001): Additional properties are not allowed ('ground_truth_path' was unexpected)
-E           Task 2 (ID: task_0002): Additional properties are not allowed ('ground_truth_path' was unexpected)
-E           Task 3 (ID: task_0003): Additional properties are not allowed ('ground_truth_path' was unexpected)
-E           Task 4 (ID: task_0004): Additional properties are not allowed ('ground_truth_path' was unexpected)
+re unexpected)
+E           Task 2 (ID: task_0002): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
+E           Task 3 (ID: task_0003): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
+E           Task 4 (ID: task_0004): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
 
 tests/contract/test_task_schema.py:62: Failed
 =========================== short test summary info ============================
@@ -40,7 +39,7 @@ FAILED tests/contract/test_schemas.py::test_real_skills_schema_compliance - F...
 FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
 FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
 FAILED tests/contract/test_task_schema.py::test_all_tasks_validate - Failed: ...
-========================= 6 failed, 17 passed in 4.60s =========================
+========================= 6 failed, 17 passed in 5.14s =========================
 
 
 - python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning {on,off}  --seed 42  --randomize-tasks -> rc=2
@@ -51,11 +50,10 @@ usage: agent.py [-h] --library-sizes LIBRARY_SIZES [LIBRARY_SIZES ...]
 agent.py: error: argument --pruning: invalid choice: '{on,off}' (choose from 'off', 'fr04', 'on')
 
 - python -m pytest tests/contract/ -> rc=1
-roperties are not allowed ('ground_truth_path' was unexpected)
-E           Task 1 (ID: task_0001): Additional properties are not allowed ('ground_truth_path' was unexpected)
-E           Task 2 (ID: task_0002): Additional properties are not allowed ('ground_truth_path' was unexpected)
-E           Task 3 (ID: task_0003): Additional properties are not allowed ('ground_truth_path' was unexpected)
-E           Task 4 (ID: task_0004): Additional properties are not allowed ('ground_truth_path' was unexpected)
+re unexpected)
+E           Task 2 (ID: task_0002): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
+E           Task 3 (ID: task_0003): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
+E           Task 4 (ID: task_0004): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
 
 tests/contract/test_task_schema.py:62: Failed
 =========================== short test summary info ============================
@@ -65,7 +63,7 @@ FAILED tests/contract/test_schemas.py::test_real_skills_schema_compliance - F...
 FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
 FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
 FAILED tests/contract/test_task_schema.py::test_all_tasks_validate - Failed: ...
-========================= 6 failed, 17 passed in 4.58s =========================
+========================= 6 failed, 17 passed in 4.87s =========================
 
 
 - python code/analysis.py --input data/results/metrics.csv -> rc=2
@@ -73,11 +71,10 @@ FAILED tests/contract/test_task_schema.py::test_all_tasks_validate - Failed: ...
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-975-llmxive-follow-up-extending-from-chatbot/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/analysis.py': [Errno 2] No such file or directory
 
 - python -m pytest tests/contract/ -> rc=1
-roperties are not allowed ('ground_truth_path' was unexpected)
-E           Task 1 (ID: task_0001): Additional properties are not allowed ('ground_truth_path' was unexpected)
-E           Task 2 (ID: task_0002): Additional properties are not allowed ('ground_truth_path' was unexpected)
-E           Task 3 (ID: task_0003): Additional properties are not allowed ('ground_truth_path' was unexpected)
-E           Task 4 (ID: task_0004): Additional properties are not allowed ('ground_truth_path' was unexpected)
+re unexpected)
+E           Task 2 (ID: task_0002): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
+E           Task 3 (ID: task_0003): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
+E           Task 4 (ID: task_0004): Additional properties are not allowed ('edge_case', 'embedding_vector', 'ground_truth_path', 'id', 'num_steps' were unexpected)
 
 tests/contract/test_task_schema.py:62: Failed
 =========================== short test summary info ============================
@@ -87,7 +84,7 @@ FAILED tests/contract/test_schemas.py::test_real_skills_schema_compliance - F...
 FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
 FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
 FAILED tests/contract/test_task_schema.py::test_all_tasks_validate - Failed: ...
-========================= 6 failed, 17 passed in 4.57s =========================
+========================= 6 failed, 17 passed in 4.80s =========================
 
 
 

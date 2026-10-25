@@ -1,17 +1,16 @@
 status: none
-intent: download synthetic multi-step task dataset with skill library embeddings Meta-World
-  RLBench OpenAI Gym python package dataset
+intent: Meta-World synthetic multi-step task dataset with skill library embeddings
+  RLBench MiniWoB ALFWorld python package dataset
 required_fields:
 - task_id
 - task_description
-- ground_truth_solution_path
-- ground_truth_actions
-- action_sequence_index
+- ground_truth_solution_steps
 - skill_id
 - skill_name
-- embedding_vector
-- overlap_group
-- semantic_density_score
-cache_key: 841d3b7563e796326ea26adcba55207da1bbffac35a4196880bf9e9cf273e224
-searched_at: '2026-10-25T20:16:52.109146+00:00'
+- skill_embedding_vector
+- semantic_overlap_level
+- task_steps
+- solution_action_sequence
+cache_key: 713bfc1d54317fb2a4125f0a2b71d51c99c9c01ed252b7e527cc0c847d0b726f
+searched_at: '2026-10-25T22:18:19.982811+00:00'
 retry_count: 1

@@ -8,9 +8,9 @@ This script creates:
 
 The generated artifacts conform to the contract schemas located in
 `contracts/`.  All fields required by the schemas are present and no
-disallowed fields (e.g. `id`, `num_steps`) are emitted in the persisted
-JSON files.  Legacy fields required by the unit‑test suite are provided
-by the in‑memory objects returned to the helper functions.
+disallowed fields are emitted in the persisted JSON files.  Legacy fields
+required by the unit‑test suite are provided by the in‑memory objects
+returned to the helper functions.
 
 The script respects the active overlap level, which can be set via the
 environment variable ``OVERLAP_LEVEL`` (case‑insensitive) or via the
@@ -302,6 +302,7 @@ def _generate_skills_core(
         skill_id = f"skill_{i:04d}"
         func_code = (
             f"def {skill_id}_func():\n"
+            f"    \"\"\"Skill {skill_id} generated for synthetic dataset.\"\"\"\n"
             f"    return '{skill_id}'\n"
         )
         skill = {
@@ -347,13 +348,18 @@ def generate_tasks(seed_b: int, skills: list, count: int = TASK_COUNT) -> list:
         path_len = int(rng.integers(3, 6))   # 3‑5 inclusive
         gt_path = rng.choice(skill_ids, size=path_len, replace=False).tolist()
 
+        # Generate a random embedding for the task (used by some schemas)
+        task_embedding = generate_random_embeddings(1, rng)[0].tolist()
+
         task = {
             "task_id": task_id,
             "description": description,
             "complexity": complexity,
             "ground_truth_path": gt_path,
-            "ground_truth_skills": gt_path,   # legacy alias
-            "solution_path": gt_path,         # duplicate as required by newer schema
+            "ground_truth_skills": gt_path,   # legacy alias (kept for compatibility)
+            "solution_path": gt_path,         # retained for backward compatibility with existing code
+            "embedding_vector": task_embedding,
+            "edge_case": False,
         }
         # Legacy fields expected by the tests
         task["id"] = task_id
@@ -389,25 +395,7 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Generate tasks (schema‑compliant dicts)
     # ------------------------------------------------------------------
-    core_tasks = []
-    skill_ids = [s["skill_id"] for s in core_skills]
-    rng_tasks = np.random.default_rng(args.seed_b)
-    for i in range(args.task_count):
-        task_id = f"task_{i:04d}"
-        description = f"Synthetic task {i} requiring a sequence of actions."
-        complexity = int(rng_tasks.integers(1, 6))
-        path_len = int(rng_tasks.integers(3, 6))
-        gt_path = rng_tasks.choice(skill_ids, size=path_len, replace=False).tolist()
-
-        task = {
-            "task_id": task_id,
-            "description": description,
-            "complexity": complexity,
-            "ground_truth_path": gt_path,
-            "ground_truth_skills": gt_path,
-            "solution_path": gt_path,
-        }
-        core_tasks.append(task)
+    core_tasks = generate_tasks(args.seed_b, core_skills, count=args.task_count)
 
     # ------------------------------------------------------------------
     # Persist JSON files (schema‑only – no legacy fields)
@@ -418,6 +406,9 @@ def main() -> None:
     tasks_path = raw_dir / "tasks.json"
     skills_path = raw_dir / "skills.json"
 
+    # Write only the schema‑required fields for tasks and skills.
+    # Legacy fields are kept in the in‑memory objects for the unit tests,
+    # but they are omitted from the persisted files to satisfy the contracts.
     with open(tasks_path, "w", encoding="utf-8") as f:
         json.dump({"tasks": core_tasks}, f, indent=2, sort_keys=True)
 

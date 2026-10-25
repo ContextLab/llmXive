@@ -1,14 +1,12 @@
 T001:
-  c: false
-  h: bc2a436ba25e14f7ea56d55276b52988c055db3509affaabb72b8b635a3b5cf7
-  r: "The contract schema files exist in `contracts/` and their SHA\u2011256 hashes\
-    \ match the source files, and `code/copy_contracts.py` correctly copies them and\
-    \ writes `data/raw/contract_hashes.json` with matching `src_hash` and `dst_hash`\
-    \ entries. However, the required test `tests/contract/test_contract_copy.py` was\
-    \ not inspected, so there is no evidence that it actually loads `contract_hashes.json`\
-    \ and asserts `src_hash == dst_hash` for every file as the task specifies. The\
-    \ missing verification of the test\u2019s content must be addressed."
-  sig: 04c9d150c8a01b6350186e4c513a6479b3b7cdf57e80363158dd29297e133b17
+  c: true
+  h: f376c341cfa20e9329ccba9e132b5d2bb479dbb2b297ffe79a42051c5e4998f1
+  r: Checked the five contract schema files in `contracts/` (hashes match those recorded
+    in `data/raw/contract_hashes.json`), the `code/copy_contracts.py` script that
+    performs the copy and hashing, the generated `data/raw/contract_hashes.json` mapping
+    showing identical source and destination hashes, and the pytest run (`tests/contract/test_contract_copy.py`)
+    which passed, confirming the hashes are equal for every file.
+  sig: b4cedb5bba265498cfee8d44f2da8679d756a934ff3ea7c580f855bf1bd30dc3
 T002:
   c: false
   h: 05add81d84b07bae08978e3c71cd056d61cb8f835050c4b0fb33e12fd25274b8
