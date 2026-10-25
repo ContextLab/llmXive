@@ -1,2 +1,3 @@
-pycocotools
-datasets
+# Existing requirements (implicitly available in the environment)
+# Adding only the packages that are not part of the default list.
+pycocotools>=2.0

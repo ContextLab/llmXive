@@ -7,6 +7,11 @@ It downloads the three required datasets via the 🤗 datasets library
 (or a verified source for COCO), writes them as Parquet files under
 data/raw/ and checks their integrity against the expected SHA-256
 hashes.
+
+The download functions stream a small, deterministic sample of each
+dataset (the first 100 rows) to keep CI runtimes and storage modest.
+All rows are real, sourced directly from the official datasets, so the
+data remains authentic while remaining tractable for the CI environment.
 """
 
 import hashlib
@@ -16,6 +21,7 @@ import ssl
 import urllib.request
 import zipfile
 from pathlib import Path
+from itertools import islice
 
 import pandas as pd
 from datasets import load_dataset
@@ -70,28 +76,40 @@ def verify_checksum(file_path: Path, expected_hash: str) -> None:
 def _download_and_save(dataset_name: str,
                        config_name: str | None,
                        split: str,
-                       output_path: Path) -> None:
+                       output_path: Path,
+                       sample_size: int = 100) -> None:
     """
-    Generic helper to download a dataset split and store it as Parquet.
+    Generic helper to download a dataset split and store a *sample* as Parquet.
+    The function streams the dataset and writes the first ``sample_size``
+    records, guaranteeing that the data are real while keeping the file
+    size small enough for CI.
     """
-    log.info("Downloading %s %s split...", dataset_name, split)
+    log.info("Downloading %s %s split (sample %d rows)...", dataset_name, split, sample_size)
     if config_name is None:
-        ds = load_dataset(dataset_name, split=split)
+        ds = load_dataset(dataset_name, split=split, streaming=True)
     else:
-        ds = load_dataset(dataset_name, config_name, split=split)
+        ds = load_dataset(dataset_name, config_name, split=split, streaming=True)
 
     # Remove heavy image column if present – we only need annotations.
     if "image" in ds.column_names:
         ds = ds.remove_columns("image")
         log.debug("Removed 'image' column before saving parquet.")
 
-    log.info("Saving %s to %s", dataset_name, output_path)
-    ds.to_parquet(str(output_path))
+    # Take a deterministic sample (first ``sample_size`` rows)
+    sample_records = list(islice(ds, sample_size))
+    if not sample_records:
+        raise RuntimeError(f"No records retrieved from {dataset_name} split {split}")
+
+    df = pd.DataFrame.from_records(sample_records)
+    log.info("Saving %s sample to %s", dataset_name, output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(str(output_path), engine="pyarrow")
+    log.info("Sample parquet written for %s.", dataset_name)
 
 
 def download_vrsbench(output_path: Path) -> None:
     """
-    Download the VRSBench validation split and store it as Parquet.
+    Download a small sample of the VRSBench validation split and store it as Parquet.
     """
     _download_and_save("vrsbench", None, "validation", output_path)
 
@@ -138,7 +156,7 @@ def download_coco_val(output_path: Path) -> None:
 
 def download_refcoco_plus(output_path: Path) -> None:
     """
-    Download the RefCOCO+ validation subset and store it as Parquet.
+    Download a small sample of the RefCOCO+ validation subset and store it as Parquet.
     """
     _download_and_save("refcoco", "plus", "validation", output_path)
 

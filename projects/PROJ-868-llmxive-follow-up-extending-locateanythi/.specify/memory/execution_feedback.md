@@ -31,6 +31,29 @@ ERROR: file or directory not found: tests/contract/
 - data/raw/refcoco_plus.parquet
 - data/raw/vrsbench.parquet
 
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `datasets` to the project's `requirements.txt` and `pip install datasets`.
+- **Verified**: this loads **5000** real records with fields: image_id, file_name, width, height.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import datasets as ds
+# Load COCO 2017 validation split from Hugging Face Hub
+coco = ds.load_dataset("phiyodr/coco2017", split="validation")
+assert hasattr(coco, "column_names"), "Dataset missing column_names"
+record_count = len(coco)
+print(f"RECORDS={record_count}")
+required = ["image_id","file_name","width","height","annotations","bbox","category_id","iscrowd"]
+# COCO dataset provides image_id, file_name, width, height, and a column "annotations" that holds bbox, category_id, iscrowd
+present = [f for f in required if f in coco.column_names or (f in {"bbox","category_id","iscrowd"} and "annotations" in coco.column_names)]
+print("FIELDS=" + ",".join(present))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).

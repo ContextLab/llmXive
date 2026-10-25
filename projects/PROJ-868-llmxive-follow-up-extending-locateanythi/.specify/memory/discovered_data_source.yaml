@@ -1,13 +1,43 @@
-status: none
-intent: VRSBench validation split with COCO 2017 bounding boxes HuggingFace datasets
-  python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets as ds
+
+  # Load COCO 2017 validation split from Hugging Face Hub
+
+  coco = ds.load_dataset("phiyodr/coco2017", split="validation")
+
+  assert hasattr(coco, "column_names"), "Dataset missing column_names"
+
+  record_count = len(coco)
+
+  print(f"RECORDS={record_count}")
+
+  required = ["image_id","file_name","width","height","annotations","bbox","category_id","iscrowd"]
+
+  # COCO dataset provides image_id, file_name, width, height, and a column "annotations"
+  that holds bbox, category_id, iscrowd
+
+  present = [f for f in required if f in coco.column_names or (f in {"bbox","category_id","iscrowd"}
+  and "annotations" in coco.column_names)]
+
+  print("FIELDS=" + ",".join(present))'
+record_count: 5000
+sample_fields:
+- image_id
+- file_name
+- width
+- height
+field_coverage: 0.5
 required_fields:
 - image_id
 - file_name
 - width
 - height
+- annotations
 - bbox
 - category_id
-cache_key: bfa6ff2e064b1f717d2153d05c723130fa82e70b7db99a71b9114d039f776cc3
-searched_at: '2026-10-25T00:38:31.134684+00:00'
-retry_count: 1
+- iscrowd
+intent: download VRSBench validation and COCO 2017 datasets via huggingface python
+  package dataset
+cache_key: ea314d612f60d99efb44ada7ceb84b2dba9ef0bc193b2d489d68ba25b26a470e
