@@ -30,7 +30,7 @@
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T001 [P] [US1] Implement the **puzzle dataset generator** (`code/dataset/generator.py`) and **deterministic verifier** (`code/dataset/verifier.py`).  
+- [X] T001 [P] [US1] Implement the **puzzle dataset generator** (`code/dataset/generator.py`) and **deterministic verifier** (`code/dataset/verifier.py`).  
      • Paths: `code/dataset/generator.py`, `code/dataset/verifier.py`  
      • Requirements: generator emits JSONL puzzle records conforming to `contracts/dataset.schema.yaml` plus a matching Python verifier script; verifier returns `(bool, error_code)` within 100 ms, records a timing entry in `data/processed/verifier_timing.log`, and raises `VerifierError` on internal failure.  
      • Verification: `pytest code/tests/test_generator.py code/tests/test_verifier.py` passes, including a benchmark asserting runtime < 0.1 s and that each verification writes a timing line to the log; generated files validate against `dataset.schema.yaml`.  
