@@ -1,38 +1,40 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Experiment Log Entry
-description: Schema for a single row in the experiment log CSV.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExperimentLogSchema"
+description: "Schema for the CSV output of the agent execution. Defines expected columns and types for validation scripts."
+type: "object"
 properties:
   run_id:
-    type: string
-    description: Unique identifier for the experimental run.
+    type: "string"
+    description: "Unique identifier for the experiment run configuration."
   task_id:
-    type: string
-    description: Unique identifier for the task.
+    type: "string"
+    description: "Reference to the task executed."
   library_size:
-    type: integer
-    description: Current size of the skill library.
+    type: "integer"
+    description: "Size of the skill library used (10, 20, 30, 40, 50, 60, 70, 80, 90, 100)."
   pruning_enabled:
-    type: boolean
-    description: Whether pruning was active for this run.
+    type: "boolean"
+    description: "Whether the pruning heuristic was active."
   success:
-    type: boolean
-    description: Whether the task execution was successful.
+    type: "boolean"
+    description: "Whether the task was completed successfully."
   latency_ms:
-    type: number
-    description: Execution latency in milliseconds.
+    type: "number"
+    description: "Execution latency in milliseconds."
   tokens_used:
-    type: integer
-    description: Number of tokens consumed.
+    type: "integer"
+    description: "Estimated token count."
   retrieval_precision:
-    type: number
-    description: Jaccard similarity between retrieved and ground-truth skills.
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Jaccard similarity between retrieved and ground truth skills."
   retrieval_diversity:
-    type: number
-    description: Inverse variance of cosine similarities of retrieved skills.
+    type: "number"
+    description: "Inverse variance of cosine similarities of the top‑k retrieved skills to the ground‑truth set."
   edge_case:
-    type: string
-    description: Description of the edge case triggered (e.g., 'missing_skill', 'maximal_overlap', 'none').
+    type: "string"
+    description: "Tag for edge cases (e.g., 'missing_skill', 'memory_limit', 'max_overlap', 'null')."
 required:
   - run_id
   - task_id

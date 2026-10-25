@@ -1,51 +1,28 @@
 T001:
-  reason: "The contract schema files exist and pass the provided tests, but there\
-    \ is no evidence shown that they were copied verbatim from the read\u2011only\
-    \ schemas in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/` (e.g.,\
-    \ no file hashes or diff against the spec versions). Without proof of exact duplication,\
-    \ the task\u2019s core requirement is not fully verified."
-  task: 75e517b6e8a2dc97fe0d873887f8740d274daec65427bbcc36c80370df9fa5c6
+  task: 902baa1dd56af83fb991547ae56b3da9fe5f4f69d2f4abf63b4732c96d8cf897
 T002:
-  task: b49fbd775f29794697c67ccb18ebf0450c273a45959c4c84e69a082d48ed72a3
+  task: 1f6ac80f52208f850eead5d57567c37dac4c62c336c28de2c64cea0fbc36aedf
 T003:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
-    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
-    state/ and derives artifact hashes at verification time. Re-scope the step to
-    write only project-owned outputs.'
-  task: 665dad7bfde997215de2afdd36a637fc833075e980754b1acd6b76dfbfdc47b1
+  task: e9578efb5c067893cb5fc98262ac1ef8613aa1c7438138191240341ae5a309bd
 T004:
-  task: 049939511d3fbcbe4e54e3aecf1fbe27f24cd2b73b897679636f5b0b0a083a3a
+  task: 816eba6082f40f14c96cf95aabb172f1f670f7f6502be281c9dfe00fabe0a836
 T005:
-  task: e8279dcb2db08ab3f3211ce6622d320faced4b974812d2d5655cd7b5e0822fa4
+  task: adb973ea5b93f4ecd39ef2c94f5a1abca063ee220b47f804783b86bc7c82ea89
 T006:
-  reason: "I checked `code/agent.py`, the raw data files, the JSON\u2011L logs, and\
-    \ the execution log showing the command `python -m code.agent --library-size 50\
-    \ --pruning off --overlap HIGH --task\u2011sample 100`. The agent loads the data,\
-    \ builds a library, retrieves top\u2011k skills, writes JSON\u2011L entries that\
-    \ match the schema, and logs edge\u2011case `\"missing_skill\"` correctly. However,\
-    \ the script\u2019s CLI only defines `--library-sizes` (a list) and does **not**\
-    \ accept `--library-size` or `--task-sample`, so the claimed command could not\
-    \ have been parsed by the provided code. Moreover, there is no evidence of a CSV\
-    \ file"
-  task: 023664e19477b92fb14e44339419d563d9f7a6f5dd1066487a7062f588622be1
+  task: bc6bd1e464cf8e2bd6035c35a458e27ecec6a29d489e50cd7b4abd049314122c
 T007:
-  reason: "The provided `code/pruning.py` defines a function `prune_fr04(library,\
-    \ tasks)` instead of the required `prune_redundant(library)` (and the signature\
-    \ does not match the task\u2019s specification). Consequently the artifact does\
-    \ not satisfy the task\u2019s naming and interface requirement."
-  task: ad84f97ca4b9d433ab138e7878840d411d29275567f38dcc6f83f2f9c38608d8
+  task: 969bca29514619ea479fc5d2659590786deef6125adf4b1103a3141ff423e55c
 T008:
-  reason: 'Requested task execution failed; rerun successfully: code/agent.py exit=2'
-  task: b90d162d69fc17337990c6a7f7bf15250cd402fc357775172c517e47b57c317c
+  task: 5171b40ed722c8ce10480a37649a9a219ab056c65eeaafc36ddaec1af4af47da
 T009:
-  task: 6d732547c154006093085974cff2332cc2cdd28bf09d942dc2cc0cc9916e8d9b
+  task: e17aca438e40211d544aba4a4fb89677584bd7956a472f7d6986f23983235e90
 T010:
-  task: ce32229a00248f2bba6d839e54beb0cfa796951f5738130c580da0c43aca9cf3
+  task: b3f11adee034f928264e49e77ff94bea0262dbd9b5bdcacd6ee6f9482266846a
 T011:
-  task: 191570552d2d1e809acd1fb8d1777c41289463867c84c3fd018151110fa32d76
+  task: facccf9ff71b20f1270f05dd2f254e89bae35c28ef4ee61abab7a147a9618f4f
 T012:
-  task: 300ee70e1da69100a5422d994eebb3b8d1318e2b5c83431d3758370605986f1f
+  task: 1cb3cff1f71b411e3aac22f68c3911c34b407708b9b1790c03b413183e8bd56a
 T013:
-  task: 0171e9204cb8c5b328a79c6de91da03d59617f8c707a8462d9baa118e7504c50
+  task: 2e0b6ec23552ab41cb9294b256fd151a43c4a9f1c4cb967a29838f5755457de0
 T014:
-  task: 66ee0453ff8e4c23f8c0e9c2233246e8deca10e06da7b3c0df6a27300896c1f8
+  task: 6118f4c24ff9659583b816270b1e1d08f835f395ab754a5fc58d2a0c07d93d63

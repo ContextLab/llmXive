@@ -8,7 +8,7 @@ The list follows the three research phases (setup → full experiment →�
 
 ## Phase 1 – Contracts, synthetic data, and first end‑to‑end run  
 
-- [ ] **T001** [S] [US1] **Copy contract schema files verbatim and verify duplication**  
+- [X] **T001** [S] [US1] **Copy contract schema files verbatim and verify duplication**  
   *Paths*: `contracts/task.schema.yaml`, `contracts/skill.schema.yaml`, `contracts/experiment_log.schema.yaml`, `contracts/execution_log.schema.yaml`, `contracts/metrics.schema.yaml` – each copied **exactly** from the read‑only versions in `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`.  
   *Verification*:  
   1. `code/copy_contracts.py` copies the files and computes a SHA‑256 hash for each source and destination file.  

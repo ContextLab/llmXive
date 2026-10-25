@@ -1,19 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Task Schema
-type: object
+title: "TaskSchema"
+description: "Schema for synthetic task definitions in the Digital Colleague experiment."
+type: "object"
 properties:
   task_id:
-    type: string
-    description: "Unique identifier for the task"
+    type: "string"
+    description: "Unique identifier for the task."
   description:
-    type: string
-    description: "Textual description of the task to be solved"
-  ground_truth_path:
-    type: array
-    description: "Ordered list of skill_ids required to solve the task"
+    type: "string"
+    description: "Natural language description of the task."
+  complexity:
+    type: "integer"
+    minimum: 3
+    maximum: 5
+    description: "Number of steps in the solution path."
+  ground_truth_skills:
+    type: "array"
     items:
-      type: string
+      type: "string"
+    minItems: 3
+    maxItems: 5
+    description: "List of skill IDs required to solve the task."
+  solution_path:
+    type: "array"
+    items:
+      type: "string"
+    minItems: 3
+    maxItems: 5
+    description: "Ordered list of function calls representing the ground truth."
 required:
   - task_id
   - description
-  - ground_truth_path
+  - complexity
+  - ground_truth_skills
+  - solution_path
+additionalProperties: false
