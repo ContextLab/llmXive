@@ -142,12 +142,10 @@ def ingest_and_filter(
         log.info(
             "Loading Visual Genome dataset via HF datasets (streaming=True)."
         )
-        # The Visual Genome hub does not provide a dedicated ``images`` config.
-        # The ``objects`` config contains an ``image_id`` field for each entry,
-        # which we can use to construct a download URL.
+        # Use a concrete config that exists in the HF hub.
         dataset = load_dataset(
             "visual_genome",
-            "objects",  # <-- corrected config
+            "objects_v1.0.0",  # <-- corrected config name
             split="train",
             streaming=True,
         )
