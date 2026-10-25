@@ -1,44 +1,11 @@
-- artifact_hash: 8b4dcf4f1ca609e039ec4be376d057ec363b79a6b7742975d099aa3a2b684988
+- artifact_hash: 38c8300ce8bbb9cad4feabd52ba87ed5e35aa214b4fd33b16c9f1f7f994c076a
   artifact_path: projects/PROJ-189-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Qiita
-  kind: url
-  value: https://qiita.ucsd.edu/study/description/10317`
-  verification_status: pending
-  verified_against_url: https://qiita.ucsd.edu/
-  verified_at: '2026-07-04T16:56:56.190202Z'
-- artifact_hash: 8b4dcf4f1ca609e039ec4be376d057ec363b79a6b7742975d099aa3a2b684988
-  artifact_path: projects/PROJ-189-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
   fetched_title: null
   kind: url
-  value: https://hrs.isr.umich.edu/data`
-  verification_status: pending
-  verified_against_url: https://hrs.isr.umich.edu/data
-  verified_at: '2026-07-04T16:56:56.190202Z'
-- artifact_hash: 36ae473709e66fa9ab555f09fbca7e45a876d09dc57f39f283f3397d30168158
-  artifact_path: projects/PROJ-189-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Qiita
-  kind: url
-  value: https://qiita.ucsd.edu/study/description/10317`
-  verification_status: pending
-  verified_against_url: https://qiita.ucsd.edu/
-  verified_at: '2026-07-04T16:57:33.146276Z'
-- artifact_hash: 36ae473709e66fa9ab555f09fbca7e45a876d09dc57f39f283f3397d30168158
-  artifact_path: projects/PROJ-189-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/quickstart.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://hrs.isr.umich.edu/data`
-  verification_status: pending
-  verified_against_url: https://hrs.isr.umich.edu/data
-  verified_at: '2026-07-04T16:57:33.146276Z'
+  value: https://public.qiita.ucsd.edu/api/v1/files/AGP/16S_counts.parquet`
+  verification_status: unreachable
+  verified_against_url: https://public.qiita.ucsd.edu/api/v1/files/AGP/16S_counts.parquet
+  verified_at: '2026-10-25T10:51:41.623294Z'

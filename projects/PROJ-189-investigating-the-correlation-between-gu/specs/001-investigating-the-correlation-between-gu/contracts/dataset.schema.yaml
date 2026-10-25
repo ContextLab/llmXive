@@ -1,30 +1,26 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Merged Dataset Schema"
-description: "Schema for the merged AGP‑HRS dataset after preprocessing (age ≥ 60, CLR‑normalized)."
+title: "Paired Dataset Schema"
+description: "Schema for the paired microbiome‑cognition dataset after preprocessing (age ≥ 60, CLR‑normalized)."
 type: object
 properties:
   metadata:
     type: object
     properties:
-      source_agp:
+      source:
         type: string
-        description: "AGP source identifier (Qiita study ID or URL)"
-      source_hrs:
+        description: "Identifier or URL of the dataset source (e.g., Zenodo DOI)."
+      checksum:
         type: string
-        description: "HRS source identifier (URL or DUA reference)"
-      merge_key:
-        type: string
-        description: "Column name used for merging (participant_id)"
+        description: "SHA‑256 checksum of the raw paired dataset file."
       total_samples:
         type: integer
-        description: "Number of rows after merge and age filter"
+        description: "Number of rows after age filtering."
       age_filter:
         type: integer
-        description: "Minimum age applied (e.g., a typical adult threshold)"
+        description: "Minimum age applied (e.g., 60)."
     required:
-      - source_agp
-      - source_hrs
-      - merge_key
+      - source
+      - checksum
       - total_samples
       - age_filter
   samples:
@@ -59,18 +55,21 @@ properties:
             - "60-69"
             - "70-79"
             - "80+"
+        education_years:
+          type: integer
+          minimum: 0
         genera_abundance:
           type: object
           additionalProperties:
             type: number
             minimum: 0
             maximum: 1
-          description: "Relative abundance (raw) for each genus"
+          description: "Relative abundance (raw) for each genus."
         genera_clr:
           type: object
           additionalProperties:
             type: number
-          description: "CLR‑transformed values for each genus"
+          description: "CLR‑transformed values for each genus."
       required:
         - sample_id
         - participant_id
@@ -80,6 +79,7 @@ properties:
         - is_missing_bmi
         - cognitive_score
         - age_group
+        - education_years
         - genera_abundance
         - genera_clr
 required:
