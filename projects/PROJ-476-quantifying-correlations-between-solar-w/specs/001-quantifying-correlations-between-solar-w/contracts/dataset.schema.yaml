@@ -23,7 +23,7 @@ properties:
     type: number
     minimum: 0
     maximum: 9
-    description: "Planetary K-index (lowest level to the maximum scale value)."
+    description: "Planetary K-index (scale ranging from the lowest to the highest level)."
   Dst:
     type: number
     description: "Disturbance Storm Time index in nT."

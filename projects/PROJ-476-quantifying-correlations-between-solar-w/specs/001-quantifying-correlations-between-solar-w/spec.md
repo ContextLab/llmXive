@@ -60,7 +60,7 @@ A researcher needs automatically generated visualisations (time‑series overlay
 
 - **Non‑stationary Sampling**: How does the system handle periods where the ACE cadence drops below 1 h (e.g., spacecraft anomalies)?  
   *The resampling step interpolates to 1‑hour resolution; extreme gaps (>6 h) trigger a warning and are excluded from correlation calculations.*  
-  **Independent Test**: Provide a synthetic input where a gap of 8 h is inserted. Verify that the pipeline logs a warning about the gap, excludes the affected interval from the correlation matrix, and still produces a results table for the remaining data.
+  **Independent Test**: Provide a synthetic input where a gap of several hours is inserted. Verify that the pipeline logs a warning about the gap, excludes the affected interval from the correlation matrix, and still produces a results table for the remaining data.
 
 - **Extreme Storm Events**: If a geomagnetic storm lasts longer than the maximum lag (6 h), does the analysis miss delayed effects?  
   *The methodology is limited to 0‑6 h lags (see FR‑003); any longer‑lag effects are out of scope for this version.*

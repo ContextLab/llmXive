@@ -1,6 +1,6 @@
 status: none
-intent: NASA CDAWeb python client ACE SWEPAM SWICS download dataset python package
-  dataset
+intent: CDAWeb ACE SWEPAM AC_H0_SWE ACE SWICS AC_H2_SWE NOAA Kp GFZ Dst Kyoto WDC
+  python package dataset
 required_fields:
 - timestamp
 - proton_density
@@ -8,6 +8,6 @@ required_fields:
 - helium_abundance
 - Kp
 - Dst
-cache_key: c6639c405a3410d23aa48fc43132834ecbce4493fa3f55d696d5934ab0dfae56
-searched_at: '2026-10-25T22:26:21.838166+00:00'
+cache_key: edb6e4352e1f8a9e2b94d892272f861a8bf465d2c7dcf10f90286cbb49a96964
+searched_at: '2026-10-25T22:44:28.864203+00:00'
 retry_count: 1

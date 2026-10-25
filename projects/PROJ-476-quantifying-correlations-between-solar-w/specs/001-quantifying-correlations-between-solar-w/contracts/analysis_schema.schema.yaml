@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CorrelationResult"
-description: "Schema for one row of results/correlations.csv and results/validation_correlations.csv."
+description: "Schema for one row of results/correlations.csv and results/validation_correlations.csv. Pearson p-values use the t‑approximation with df = n_eff - 2; Spearman p-values are obtained via a permutation test (a sufficiently large number of permutations) that preserves temporal dependence."
 type: object
 properties:
   composition_parameter:
@@ -38,12 +38,12 @@ properties:
   n_eff:
     type: number
     exclusiveMinimum: 2
-    description: "Pyper & Peterman effective sample size for this pair."
+    description: "Pyper & Peterman effective sample size for this pair (used for Pearson significance)."
   p_raw:
     type: number
     minimum: 0
     maximum: 1
-    description: "Raw p-value computed with df = n_eff - 2."
+    description: "Raw p-value: for Pearson computed with df = n_eff - 2 (t‑approximation); for Spearman computed via permutation test."
   p_bonferroni:
     type: number
     minimum: 0
