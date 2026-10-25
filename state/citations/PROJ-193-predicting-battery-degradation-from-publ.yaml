@@ -1,11 +1,44 @@
-- artifact_hash: c78cdcc319ca25d4e2caa1186e40da9eda55b01478322c859d209945ec8a9e03
+- artifact_hash: 4a7595ad3825770b9f4d735023c46477c475dabb3be843b4dc9516646b5bcfcd
   artifact_path: projects/PROJ-193-predicting-battery-degradation-from-publ/specs/001-predicting-battery-degradation-from-publ/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
-  kind: doi
-  value: 10.24433/CO.0933141.v1
+  kind: url
+  value: https://zenodo.org/record/1234567/files/battery_archive.zip?download=1
   verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.24433/CO.0933141.v1
-  verified_at: '2026-10-17T09:32:07.022471Z'
+  verified_against_url: https://zenodo.org/records/1234567/files/battery_archive.zip
+  verified_at: '2026-10-25T17:21:48.846174Z'
+- artifact_hash: 4a7595ad3825770b9f4d735023c46477c475dabb3be843b4dc9516646b5bcfcd
+  artifact_path: projects/PROJ-193-predicting-battery-degradation-from-publ/specs/001-predicting-battery-degradation-from-publ/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://data.nasa.gov/dataset/
+  verification_status: unreachable
+  verified_against_url: https://data.nasa.gov/dataset/
+  verified_at: '2026-10-25T17:21:48.846174Z'
+- artifact_hash: 4a7595ad3825770b9f4d735023c46477c475dabb3be843b4dc9516646b5bcfcd
+  artifact_path: projects/PROJ-193-predicting-battery-degradation-from-publ/specs/001-predicting-battery-degradation-from-publ/spec.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://data.wisc.edu/
+  verification_status: pending
+  verified_against_url: https://data.wisc.edu/
+  verified_at: '2026-10-25T17:21:48.846174Z'
+- artifact_hash: 4a7595ad3825770b9f4d735023c46477c475dabb3be843b4dc9516646b5bcfcd
+  artifact_path: projects/PROJ-193-predicting-battery-degradation-from-publ/specs/001-predicting-battery-degradation-from-publ/spec.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.1234567
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
+  verified_at: '2026-10-25T17:21:48.846174Z'
