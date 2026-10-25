@@ -1,0 +1,58 @@
+T001:
+  reason: "The `plan.md` does include the required line `MAX_METHODS = 1000`, but\
+    \ it still contains a \u201CCPU full\u2011precision\u201D note (and mentions \u201C\
+    no GPU fallback\u201D), which violates the task\u2019s requirement to remove any\
+    \ full\u2011precision or fallback\u2011to\u20118\u2011bit notes. The `code/config.py`\
+    \ correctly defines `MAX_METHODS = 1000`. Remove the full\u2011precision reference\
+    \ from `plan.md` to satisfy the task."
+  task: ee0b5354e4fc9c0980cfc5e5be717aa3fdfb64c0f7ade2f9a32fd4f451644129
+T002:
+  task: a687223f17db0ef230bc8270be897fff17fee516877879a4a5d5300b6886fda6
+T003:
+  task: f1c52381e4fab148318e3840aa36e1848c4809b09d8c29661cfffcb1648ec525
+T004:
+  task: be7f58a167ea380ee63c1b03f41f4fe4eabc5520c07c72eaefe1b15eec62d5cc
+T005:
+  task: 2afcf786e835cb6935801f45c4dcaa10e66908b828a1263cc42d3e7b6abb3ef8
+T006:
+  task: 7a4535315e49a9a458174721c05b7c73b07b526a01f94af7c802a70466357db8
+T007:
+  task: cb98897e3a2a610e700ec36c3147bf1abc06b58bc5f5a31048bdb055d6f84cc9
+T008:
+  task: 37e2cac141da30caf2792fa204e5dd861aacc114f550f799415a4965de88e464
+T009:
+  task: 324c4e568eb7d9dd3da2a5dd3aa9d1d1ae9eb9999dbd49a001e22a63382ad0db
+T010:
+  task: 24082a0b23668cd0c77ed27b6883779bf3d1bc9cef50aa0935e22e9b7f6fe393
+T011:
+  task: 91e8ecefa89f63b50e73f283d101ecc7b22671d786ab4e863d25e1c224d8e297
+T012:
+  task: 5b0a8f0d0438bccc69fc8c05ce3241307e859d4a6606d995068f97faf4f71a1d
+T013:
+  task: bd67696c61449adf2dfa839bce056e7085e499551e29c8c153ccdceb9b4cf9a4
+T014:
+  task: 984a354b98976199a6e7f14c933536e767a1ee551926d4931c6a3f65b6bea682
+T015:
+  task: 0356f61adc85f6d7d1fbaef282830e48bff9f1ddea9bf9ba0688c1a3fde3f8f1
+T016a:
+  task: d194fc4dd5c6d166793f291d90b598d7136f51be2cdf15a363de27b0dac7dd49
+T016b:
+  task: 98543e7d283e4e7b7fe29605f78b0f1791e451ad49e06be3f9b2eb06f92b1ffc
+T016c:
+  task: 4be2597ad01f1ab718a8d07fdc24c154ffa80149e0716e0d68271ce020b71938
+T017:
+  task: 9145c38262f7a3537201820190b5c4c1d99829ccda2185b027c6a1810a91f1b7
+T018:
+  task: b957dcacd35cc2156d1546a04d6f0ff3d943d827a8cd2ef3c4e8c0b3e9eea6a6
+T019:
+  task: 4ba7c731ac19272f5791d85e1ba5f20d8713244d7d7979f12e815d55855f48e6
+T020:
+  task: 7271b814cef28a88cdd668b64d9cfa2fbc5e6436c58816087eca145f93aabda0
+T023:
+  task: f1c83f783642a3fe3de9cd941eb0defc906a774ab1fa992f8285928128602ca7
+T024:
+  task: 3350e9b6d25376d1e727887cf0dc8b643a6eb0a3f7680f37a17f04d04c4cf658
+T025:
+  task: 48d78a639379ec9c9b938d1436a1a38cb8cee8e0e861e971af787a7be32074bd
+T026:
+  task: f5f9baa51210ee606e6e8fd4f50b2e439bc3464a7ff0990b6fe7139c636a4863

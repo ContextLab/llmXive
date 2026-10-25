@@ -1591,7 +1591,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-08-28T09:38:14Z'
 - artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
@@ -3341,7 +3341,7 @@
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-03T05:08:05Z'
 - artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
@@ -3613,7 +3613,7 @@
   resolver: resolve_superlative
   source_hash: null
   source_type: external
-  status: verified
+  status: pending
   updated_at: '2026-09-07T11:52:46Z'
 - artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
@@ -4968,3 +4968,23 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-08T13:56:25Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/plan.md
+  attempts: 1
+  canonical: all functional requirements FR-001 to FR-017 and success criteria SC-001
+    to SC-007 are addressed
+  claim_id: c_2090eff7
+  context: "The document states that all functional requirements (FR\u2011001\u202F\
+    \u2013\u202FFR\u2011017) and success criteria (SC\u2011001\u202F\u2013\u202FSC\u2011\
+    007) are explicitly addressed."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All functional requirements (FR\u2011001\u202F\u2013\u202FFR\u2011017)\
+    \ and success criteria (SC\u2011001\u202F\u2013\u202FSC\u2011007) are explicitly\
+    \ addressed within the implementation plan."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T14:24:43Z'

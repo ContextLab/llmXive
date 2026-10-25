@@ -1,19 +1,13 @@
 status: none
-intent: HuggingFace dataset of top PyPI packages method signatures with human docstrings
-  python package dataset
+intent: HuggingFace Datasets pypi top packages list via PyPI JSON API python package
+  dataset
 required_fields:
-- repository_name
 - package_name
-- repository_url
-- file_path
-- class_name
-- method_name
-- method_signature
-- docstring
-- is_public
-- line_number_start
-- line_number_end
-- popularity_tier
-cache_key: 1831982986935ddbf9022b964e20ee0e38b5b1dd6706423d7faa0d4ce0334baa
-searched_at: '2026-10-23T14:27:34.027526+00:00'
+- latest_version
+- github_repository_url
+- downloads_last_month
+- rank
+- summary
+cache_key: 67575cac13494daf24230c8cffe913b2ce0cc9ca7aaabcacb50a66a867d2d78f
+searched_at: '2026-10-25T14:29:23.951791+00:00'
 retry_count: 1
