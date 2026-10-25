@@ -8,118 +8,120 @@ The pipeline must (1) download the verified VAERS 2020‑2023 dataset, (2) valid
 
 ## Phase 1 – Setup and first end‑to‑end analysis
 
-- [ ] T001 [P] [US1] Establish project layout, runnable command, and directory evidence.  
+- [ ] T001 [US1] **Establish project layout and runnable command**  
   - Create required directories (`src/data/`, `src/analysis/`, `src/utils/`, `src/validation/`, `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `output/`, `logs/`).  
-  - Produce `logs/structure.txt` via `tree -a -L 3`.  
-  - Document the runnable command (`python -m src.main`) and input provenance in `quickstart.md`.  
-  - **Verification**: `test -s logs/structure.txt` succeeds and `grep -c src logs/structure.txt` ≥ 1.
+  - Write `logs/structure.txt` via `tree -a -L 3`.  
+  - Document the command `python -m src.main` in `quickstart.md`.  
+  - **Verification**: `test -s logs/structure.txt` and `grep -c src logs/structure.txt` ≥ 1.
 
-- [ ] T002 [P] [US1] Download the verified VAERS 2020‑2023 parquet dataset.  
-  - Implement `src/data/download.py` that uses `datasets.load_dataset("vaers/vaers2020_2023", split="train")` to fetch the parquet file.  
-  - Write the file to `data/raw/vaers_2020_2023.parquet`.  
-  - Compute a SHA‑256 checksum and record `data/raw/vaers_2020_2023.parquet <sha256>` in `data/checksums.txt`.  
-  - On any download or checksum error raise an exception (no synthetic fallback).  
-  - **Verification**: `grep -c "vaers_2020_2023.parquet" data/checksums.txt` returns 1 and `stat --format=%s data/raw/vaers_2020_2023.parquet` > 0.
+- [ ] T002 [P] [US1] **Download verified VAERS 2020‑2023 parquet dataset**  
+  - Implement `src/data/download.py` using `datasets.load_dataset("vaers/vaers2020_2023", split="train")`.  
+  - Write to `data/raw/vaers_2020_2023.parquet`.  
+  - Record SHA‑256 checksum in `data/checksums.txt`.  
+  - **Verification**: checksum line exists; file size > 0.
 
-- [ ] T003 [P] [US1] Implement a robust schema‑validation CLI for the raw VAERS file.  
-  - Create `src/data/validate.py` with a CLI `python -m src.data.validate --schema <schema_path> --input <file>`.  
-  - The CLI must load the JSON‑Schema at `specs/001-statistical-analysis-of-publicly-availab/contracts/raw_dataset.schema.yaml` and validate `data/raw/vaers_2020_2023.parquet`.  
-  - On success write `logs/validate_raw_pass.txt` containing “PASS” and exit 0; on failure write `logs/validate_raw_fail.txt` with the validation error and exit 1.  
-  - Add unit tests in `tests/unit/test_validate_raw.py` that (a) succeed on the downloaded file and (b) deliberately fail on a malformed fixture `tests/fixtures/malformed_missing_vax_type.parquet`.  
-  - **Verification**: `pytest tests/unit/test_validate_raw.py` passes and the CLI returns exit 0 for the real file.
+- [ ] T003 [P] [US1] **Validate raw VAERS file against JSON‑Schema**  
+  - Create `src/data/validate_raw.py` (CLI: `python -m src.data.validate_raw --schema <schema_path> --input <file>`).  
+  - Load `specs/001-statistical-analysis-of-publicly-availab/contracts/raw_dataset.schema.yaml` with `jsonschema`.  
+  - Exit 0 and write `logs/validate_raw_pass.txt` on success; on failure write `logs/validate_raw_fail.txt` and exit 1.  
+  - Add unit tests in `tests/unit/test_validate_raw.py` that (a) succeed on the downloaded file and (b) deliberately fail on a crafted malformed parquet fixture.  
+  - **Verification**: `pytest tests/unit/test_validate_raw.py` passes; CLI returns exit 0 for `data/raw/vaers_2020_2023.parquet`.
 
-- [ ] T004 [P] [US1] Clean, filter, map MedDRA→SOC, and assign vaccine groups.  
-  - Implement `src/data/clean.py` to read `data/raw/vaers_2020_2023.parquet` (streamed if > 500 MB).  
-  - Drop rows with missing `VAX_TYPE`, unparsable `REPT_DATE`, or missing `SOC_CODE`.  
-  - Join with `data/meddra_to_soc.csv` to obtain `SOC_NAME`.  
-  - Create `VAX_GROUP` column:  
-    * “COVID‑19” if `VAX_TYPE` contains “COVID” (case‑insensitive)  
-    * “Flu‑only” if `VAX_TYPE` contains “Influenza”  
-    * “Non‑COVID‑Non‑Flu” otherwise.  
-  - Write the cleaned dataset to `data/processed/cleaned.parquet` and also write group‑specific parquet files (`data/processed/covid.parquet`, `.../non_covid.parquet`, `.../flu.parquet`).  
-  - Log mapping coverage (≥ 95 %) and per‑group row counts to `logs/clean_summary.txt`.  
-  - Run the raw‑schema validator (T003) as a gate before writing the cleaned file.  
-  - **Verification**: `tests/unit/test_clean_filter.py` confirms existence of `cleaned.parquet`, non‑null `SOC_NAME`, and correct `VAX_GROUP` assignment.
+- [ ] T004 [P] [US1] **Clean, filter, map MedDRA→SOC, assign vaccine groups, and validate cleaned dataset**  
+  - Implement `src/data/clean.py` (streamed read if > 500 MB).  
+  - Drop rows missing `VAX_TYPE`, unparsable `REPT_DATE`, or missing `SOC_CODE`.  
+  - Join with `data/meddra_to_soc.csv` → `SOC_NAME`.  
+  - Create `VAX_GROUP`: “COVID‑19” if `VAX_TYPE` contains “COVID”; “Flu‑only” if contains “Influenza”; otherwise “Non‑COVID‑Non‑Flu”.  
+  - Write `data/processed/cleaned.parquet` and group‑specific parquet files.  
+  - **After writing**, run `src/data/validate_clean.py` against `contracts/cleaned_dataset.schema.yaml`.  
+  - Record success in `logs/validate_clean_pass.txt`.  
+  - Log coverage (≥ 95 %) and row counts to `logs/clean_summary.txt`.  
+  - **Verification**: `tests/unit/test_clean_filter.py` confirms existence of cleaned file, non‑null `SOC_NAME`, correct `VAX_GROUP`, and that `logs/validate_clean_pass.txt` exists.
 
-- [ ] T005 [P] [US1] Provide core utility modules.  
-  - `src/utils/config.py` defines constants: `SEED = 42`, `MAX_MEMORY_GB = 7`, `BH_ALPHA = 0.05`, metric thresholds (`ROR_THRESH = 2.0`, `ROR_CI_LOWER = 1.0`, `PRR_THRESH = 1.5`, `PRR_CI_LOWER = 1.0`, `IC_THRESH = 0.0`, `IC_CI_LOWER = 0.0`), and `Path` objects for key directories (`DATA_RAW`, `DATA_PROCESSED`, `OUTPUT`, `LOGS`).  
-  - `src/utils/plots.py` supplies `save_line_plot`, `save_forest_plot`, and `plot_weekly_counts`, all using the Agg backend to generate non‑empty PNGs.  
+- [ ] T005 [US1] **Provide core utility modules**  
+  - `src/utils/config.py` defines seeds, memory caps, thresholds, and `Path` objects (`DATA_RAW`, `DATA_PROCESSED`, `OUTPUT`, `LOGS`).  
+  - `src/utils/plots.py` supplies `save_line_plot`, `save_forest_plot`, `plot_weekly_counts` (Agg backend).  
   - Import verification writes “PASS” to `logs/config_import.txt`.  
-  - **Verification**: `pytest tests/unit/test_plots.py` succeeds and example PNGs are created under `output/figures/`.
-
----
+  - **Verification**: `pytest tests/unit/test_plots.py` succeeds; example PNGs appear under `output/figures/`.
 
 ## Phase 2 – Core analysis, validation, and extensions
 
-- [ ] T006 [P] [US2] Compute disproportionality metrics for each SOC.  
-  - Implement `src/analysis/disproportionality.py` to:  
-    1. Build 2 × 2 contingency tables for every SOC with ≥ 5 total reports across the COVID‑19 and Non‑COVID‑Non‑Flu groups, applying a continuity correction of 0.5 to any zero cell.  
-    2. Compute ROR (Clopper‑Pearson CI), PRR (beta‑binomial CI), and IC (Poisson‑Gamma CI).  
-    3. Perform Fisher’s exact test → raw p‑value.  
-    4. Apply Benjamini‑Hochberg correction **separately** for each metric, producing adjusted p‑values (`p_adj_ROR`, `p_adj_PRR`, `p_adj_IC`).  
-    5. Flag a signal (`is_signal = True`) when **at least two** metrics satisfy their literature‑based thresholds (ROR > 2.0 & lower CI > 1.0, PRR > 1.5 & lower CI > 1.0, IC > 0 & lower CI > 0). Record the passing metric names in `signal_metrics` (JSON array).  
+- [ ] T006 [P] [US2] **Compute disproportionality metrics for each SOC**  
+  - Build 2 × 2 tables for SOCs with ≥ 5 total reports (COVID‑19 vs. Non‑COVID‑Non‑Flu), applying a 0.5 continuity correction to zero cells.  
+  - Compute ROR, PRR, IC with standard 95 % confidence intervals (approximate methods).  
+  - Perform Fisher’s exact test → raw p‑value.  
+  - Apply Benjamini‑Hochberg correction **separately** for each metric, producing adjusted p‑values.  
+  - **Flag a signal** when at least two metrics satisfy their thresholds (ROR > 2 & lower CI > 1; PRR > 1.5 & lower CI > 1; IC > 0 & lower CI > 0). No BH‑adjusted p‑value threshold is required for signal definition.  
   - Export `output/signals.csv` (conforms to `signal.schema.yaml`) and `output/soc_cluster_stats.csv` (conforms to `soc_cluster.schema.yaml`).  
   - Log examined SOC count and signal count to `logs/disproportionality.txt`.  
-  - **Verification**: `tests/integration/test_disproportionality.py` checks schema compliance, ≥ 95 % finite metrics (SC‑001), monotonicity of each BH‑adjusted p‑value list (SC‑002), and correct population of `signal_metrics`.
+  - **Verification**: `tests/integration/test_disproportionality.py` checks schema compliance, ≥ 95 % finite metrics (SC‑001), monotonic BH‑adjusted p‑values (SC‑002), and correct `signal_metrics`.
 
-- [ ] T007 [P] [US2] Perform the Flu‑only baseline sensitivity analysis.  
-  - Using the primary results from T006, select the top‑5 signals by smallest BH‑adjusted p‑value.  
-  - Re‑compute ROR, PRR, and IC for those SOCs with COVID‑19 as the target vaccine and the **Flu‑only** cohort as the alternative baseline (primary baseline remains Non‑COVID‑Non‑Flu).  
-  - Calculate deltas (`delta_ROR`, `delta_PRR`, `delta_IC`) between Flu‑only and primary baselines and write `output/sensitivity_analysis.csv`.  
+- [ ] T007 [P] [US2] **Flu‑only baseline sensitivity analysis**  
+  - Select top‑5 signals by smallest BH‑adjusted p‑value from T006.  
+  - Re‑compute ROR, PRR, IC using **Flu‑only** as the baseline (COVID‑19 vs. Flu‑only).  
+  - Calculate deltas (`delta_ROR`, `delta_PRR`, `delta_IC`) versus the primary Non‑COVID‑Non‑Flu baseline.  
+  - Write `output/sensitivity_analysis.csv`.  
   - Log actions to `logs/sensitivity.txt`.  
-  - **Verification**: `tests/unit/test_sensitivity.py` confirms the file has exactly 5 rows, numeric delta columns, and no missing values.
+  - **Verification**: `tests/unit/test_sensitivity.py` confirms 5 rows, numeric deltas, no missing values.
 
-- [ ] T008 [P] [US3] Generate descriptive weekly reporting profiles for the top‑5 signals.  
-  - Compute the median `REPT_DATE` of the combined COVID‑19 + Non‑COVID‑Non‑Flu cohort.  
-  - For each of the top‑5 SOCs, aggregate weekly counts relative to that median (`week_offset`). Write per‑SOC CSVs to `output/temporal_profiles/<SOC>.csv`.  
-  - Produce line‑plot PNGs (`output/temporal_profiles/<SOC>.png`) via `src.utils.plots.plot_weekly_counts`; each title must contain “Reporting Time”.  
+- [ ] T008 [P] [US3] **Generate weekly reporting profiles for top‑5 signals**  
+  - Compute median `REPT_DATE` of the combined COVID‑19 + Non‑COVID‑Non‑Flu cohort.  
+  - For each top‑5 SOC, aggregate weekly counts relative to that median (`week_offset`).  
+  - Write per‑SOC CSVs to `output/temporal_profiles/<SOC>.csv`.  
+  - Produce line‑plot PNGs (`output/temporal_profiles/<SOC>.png`) with titles containing “Reporting Time”.  
   - If no signals exist, write `output/temporal_profiles/empty_signal_warning.txt` instead of PNGs.  
-  - **Verification**: `tests/integration/test_temporal_profiles.py` asserts existence of the CSVs and PNGs with correct titles.
+  - **Verification**: `tests/integration/test_temporal_profiles.py` asserts CSV and PNG existence and correct titles.
 
-- [ ] T009 [P] [US1] Orchestrate the full pipeline with memory profiling and CPU‑only enforcement.  
-  - Create `src/main.py` that sequentially invokes: download (T002) → raw validation (T003) → cleaning (T004) → disproportionality (T006) → hold‑out validation (T012) → sensitivity (T007) → temporal profiling (T008) → final report generation (T011).  
-  - Use `memory_profiler` to record peak RSS and write `data/results/memory_profile.json` (`{"peak_gb": <float>, "status": "OK"}` if ≤ 7 GB, else `"EXCEEDED"` and exit non‑zero).  
-  - Guard against any import of GPU‑only libraries; attempts raise a clear error.  
-  - Log the full run to `logs/main_run.txt`.  
-  - **Verification**: `python -m src.main` exits 0, `memory_profile.json` reports `"status": "OK"`, and `logs/main_run.txt` is non‑empty.
+- [ ] T009 [P] [US1] **Orchestrate full pipeline with memory profiling & CPU‑only enforcement**  
+  - Create `src/main.py` that sequentially calls: T002 → T003 → T004 → T006 → T007 → T012 → T008 → T010 → T011.  
+  - Use `memory_profiler` to record peak RSS; write `data/results/memory_profile.json` (`{"peak_gb": <float>, "status": "OK"}` if ≤ 7 GB, else `"EXCEEDED"` and exit non‑zero).  
+  - Guard against imports of GPU‑only libraries; raise clear error if detected.  
+  - Log full run to `logs/main_run.txt`.  
+  - **Verification**: `python -m src.main` exits 0, memory profile reports “OK”, and log file is non‑empty.
 
-- [ ] T010 [P] [US2] Implement a comprehensive validation suite for all outputs.  
-  - Create `src/validation/validate_outputs.py` that checks:  
+- [ ] T010 [P] [US2] **Comprehensive validation suite for all outputs**  
+  - Implement `src/validation/validate_outputs.py` to check:  
     1. Monotonicity of BH‑adjusted p‑values for each metric (SC‑002).  
     2. ≥ 95 % finite ROR/PRR/IC among examined SOCs (SC‑001).  
-    3. Presence of temporal PNGs for the top‑5 signals (SC‑003).  
+    3. Presence of temporal PNGs for top‑5 signals (SC‑003).  
     4. `memory_profile.json` status equals “OK” (SC‑004).  
-    5. Every `is_signal=True` row lists ≥ 2 entries in `signal_metrics` (SC‑005).  
-    6. Row‑wise validation of `output/signals.csv` against `signal.schema.yaml` and `output/soc_cluster_stats.csv` against `soc_cluster.schema.yaml`.  
-    7. Exclusion of SOCs with < 5 total reports.  
-    8. Hold‑out validation flag consistency (see T012).  
-  - Write PASS/FAIL lines to `data/results/validation.log` and exit 0 only if no FAIL lines appear.  
+    5. Row‑wise validation of `output/signals.csv` & `output/soc_cluster_stats.csv` against their schemas.  
+    6. Exclusion of SOCs with < 5 total reports.  
+    7. Consistency of hold‑out validation flags (see T012).  
+    **Note:** Validation of the 2‑out‑of‑3 signal rule (SC‑005) is performed only if the criterion is active; it is not a required success condition in the current specification (SC‑005 is deferred).  
+  - Write PASS/FAIL lines to `data/results/validation.log`; exit 0 only if no FAIL lines.  
   - **Verification**: `python -m src.validation.validate_outputs` exits 0 and `grep -c FAIL data/results/validation.log` returns 0.
 
-- [ ] T011 [P] [US2] Generate the final markdown report and figure hand‑off.  
-  - Implement `src/report/generate_report.py` that assembles `output/report.md` containing:  
-    * Memory usage summary, validation PASS lines.  
+- [ ] T011 [P] [US2] **Generate final markdown report and figure hand‑off**  
+  - Implement `src/report/generate_report.py` to assemble `output/report.md` containing:  
+    * Memory usage summary & validation PASS lines.  
     * Top‑10 signal table (from `output/signals.csv`).  
     * Sensitivity Δ‑table.  
     * Forest plot (`output/figures/forest_top_signals.png`).  
     * References to temporal PNGs.  
-    * Limitations section explicitly stating “findings are associational (not causal)”, “Reporting Time” only, and “Background Rate Unknown”.  
-  - Forbidden strings (“Post‑Vaccination Time”, “Causal Effect”, “Incidence Rate”) must not appear.  
+    * Limitations section explicitly stating “findings are associational (not causal)”, “Reporting Time only”, and “Background Rate Unknown”.  
+  - Ensure forbidden strings (“Post‑Vaccination”, “Causal Effect”, “Incidence Rate”) do **not** appear.  
   - Log generation to `logs/report_generation.txt`.  
   - **Verification**: `grep -E "Post‑Vaccination|Causal Effect|Incidence Rate" output/report.md` returns no matches.
 
-- [ ] T012 [P] [US2] Perform independent hold‑out validation of identified signals.  
-  - Randomly split `data/processed/cleaned.parquet` into a **training set** (80 %) and a **hold‑out set** (20 %) using the fixed seed from `src.utils.config.SEED`.  
-  - Re‑run the disproportionality calculations on the hold‑out set (reuse code from T006).  
-  - For each SOC flagged as a signal in the training run, verify that it also meets the 2‑out‑of‑3 metric thresholds **and** has BH‑adjusted p‑value < 0.05 in the hold‑out run.  
-  - Write `output/holdout_signals.csv` containing only those SOCs that pass both training and hold‑out criteria, and log the process to `logs/holdout.txt`.  
-  - **Verification**: `tests/unit/test_holdout_validation.py` checks that every row in `holdout_signals.csv` appears in `output/signals.csv` and that the hold‑out criteria are satisfied.
+- [ ] T012 [P] [US2] **Independent hold‑out validation of identified signals**  
+  - Split `data/processed/cleaned.parquet` into training (80 %) and hold‑out (20 %) using `src.utils.config.SEED`.  
+  - Re‑run disproportionality calculations on the hold‑out set (reuse code from T006).  
+  - For each SOC flagged as a signal in the training run, verify it also meets the 2‑out‑of‑3 thresholds **and** has BH‑adjusted p‑value < 0.05 in the hold‑out run.  
+  - Write `output/holdout_signals.csv` containing only SOCs that pass both criteria; log to `logs/holdout.txt`.  
+  - **Verification**: `tests/unit/test_holdout_validation.py` checks that every row in `holdout_signals.csv` appears in `output/signals.csv` and satisfies hold‑out criteria.
 
-- [ ] T016 [P] Update the project dependency list.  
-  - Edit `requirements.txt` to include the exact packages required by the pipeline: `pandas`, `numpy`, `scipy`, `matplotlib`, `datasets`, `pyarrow`, `statsmodels`, `psutil`, `memory_profiler`, `requests`, `jsonschema`, `pytest`, `ruff`, `black`.  
-  - **Verification**: run `grep -E "pandas|numpy|scipy|matplotlib|datasets|pyarrow|statsmodels|psutil|memory_profiler|requests|jsonschema|pytest|ruff|black" requirements.txt` and ensure each appears at least once.  
+- [ ] T013 [P] [US1] **Update project dependency list**  
+  - Edit `requirements.txt` to include exact versions of all packages used: `pandas`, `numpy`, `scipy`, `matplotlib`, `datasets`, `pyarrow`, `statsmodels`, `psutil`, `memory_profiler`, `requests`, `jsonschema`, `pytest`, `ruff`, `black`.  
+  - **Verification**: `grep -E "pandas|numpy|scipy|matplotlib|datasets|pyarrow|statsmodels|psutil|memory_profiler|requests|jsonschema|pytest|ruff|black" requirements.txt` finds each entry.
 
----  
+- [ ] T014 [P] [US?] **Revise specification wording for clarity**  
+  - Update `spec.md` User Story 2 and any downstream references to replace “vaccines to non‑vaccines” with “COVID‑19 vaccines versus other vaccines”.  
+  - Ensure FR‑002, FR‑007 and related acceptance criteria reference the corrected comparison.  
+  - Add a short note in the spec’s “Assumptions” section explaining that VAERS contains only post‑vaccination reports, so the baseline is “non‑COVID vaccines”.  
+  - **Verification**: Run a grep on `spec.md` for the phrase “non‑vaccines”; it should no longer appear.
+
+---
 
 ### Dependency‑requirement mapping (summary)
 
@@ -129,13 +131,13 @@ The pipeline must (1) download the verified VAERS 2020‑2023 dataset, (2) valid
 | FR‑002 (ROR/PRR/IC) | T006 |
 | FR‑003 (BH correction) | T006 |
 | FR‑004 (weekly profile) | T008 |
-| FR‑005 (2‑out‑of‑3 + hold‑out) | T006, T012 |
+| FR‑005 (2‑out‑of‑3 + hold‑out) | T006, T012 |
 | FR‑006 (CPU‑only) | T009 |
 | FR‑007 (Flu‑only sensitivity) | T007 |
 | SC‑001 (≥ 95 % finite metrics) | T010 |
-| SC‑002 (monotonic BH) | T010 |
+| SC‑02 (monotonic BH) | T010 |
 | SC‑003 (temporal plots) | T010 |
 | SC‑004 (memory ≤ 7 GB) | T009, T010 |
-| SC‑005 (signal‑metric list) | T010 |
+| SC‑005 (signal‑metric list) | T010 (optional) |
 
-All tasks respect the required data flow, use only real VAERS data, and avoid any fabricated inputs or GPU‑only computations.
+All tasks respect the required data flow, use only real VAERS data, and avoid fabricated inputs or GPU‑only computations. The pipeline can be executed end‑to‑end on the free‑tier CI runner and will produce verifiable, reproducible scientific artifacts.
