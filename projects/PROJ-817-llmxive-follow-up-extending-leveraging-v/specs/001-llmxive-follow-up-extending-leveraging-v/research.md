@@ -3,10 +3,10 @@
 ## 1. Dataset Strategy
 | Role | Source | Access Method | Notes |
 |------|--------|---------------|-------|
-| Raw prompts & images | InstructPixPix (three verified parquet shards) | `datasets.load_dataset("parquet", data_files=[URL1, URL2, URL3], streaming=False)` | URLs are verified in the “Verified datasets” block. |
+| Raw prompts & images | InstructPixPix (three verified parquet shards) | `datasets.load_dataset("parquet", data_files=[URL1, URL2, URL3], streaming=False)` | URLs are listed in the contract block; each file’s SHA‑256 is recorded in `data/raw/provenance.json`. |
 | Human feasibility scores | Crowdsourced annotation of all prompts | `src/data/human_annotation.py` writes `data/results/human_validation.csv` | Provides the primary ground‑truth for alignment (FR‑001, FR‑009). |
-| Conflict set | Heuristic filter on raw data (presence of contrastive cues like “but”, “however”, “contradict”) followed by manual verification | `src/data/filter_conflicts.py` selects a substantial set of naturally occurring conflicting prompts; the remaining items are neutral. | Guarantees a realistic, linguistically valid conflicting subset (addresses scientific soundness). |
-| Synthetic feasibility scores | Deterministic heuristic (Section 2) | Generated locally in `src/data/curate.py` | Used **only** for internal diagnostics; never for evaluation (FR‑010). |
+| Conflict set | Heuristic filter on raw data (presence of contrastive cue words) followed by manual verification | `src/data/filter_conflicts.py` produces a balanced CSV with an equal number of conflicting and neutral prompts. | Guarantees realistic conflicting examples. |
+| Synthetic feasibility scores | Deterministic heuristic (Section 2) | Generated locally in `src/data/curate.py` (column `synthetic_score`) | **Never** used for evaluation (FR‑010). |
 
 All downloads are performed programmatically on the CI runner; no manual steps are required.
 
@@ -25,15 +25,15 @@ All downloads are performed programmatically on the CI runner; no manual steps a
 
 *Alignment delta is always computed against the independent **human_score** (synthetic scores are ignored).*
 
-**Runtime target**: **≤ 2 hours** for the full 1 000‑prompt set (estimated ≈ 0.3 s per prompt with 8‑bit quantization). If runtime unexpectedly exceeds 2 h, the pipeline aborts and reports the limitation (SC‑009).
+**Runtime target**: **≤ 2 hours** for the full prompt set (≈ 0.3 s per prompt with 8‑bit quantization). If runtime unexpectedly exceeds 2 h, the pipeline aborts and reports the limitation (SC‑009).
 
 ## 4. Symbolic Constraint‑Graph Parser (FR‑002, Principle VI)
 - **Tokenization & POS** via spaCy (`en_core_web_sm`).  
 - **Node extraction**: noun‑phrase chunks representing actionable principles.  
 - **Temporal edges**: detect cue words (“first”, “then”, “after”) → `temporal-precedes`.  
 - **Contradiction edges**: two complementary heuristics  
-  1. WordNet antonym dictionary (as before).  
-  2. Cue‑word patterns (“but”, “however”, “contradict”, “while”) indicating a contrastive relationship.  
+  1. WordNet antonym dictionary.  
+  2. Cue‑word patterns (“but”, “however”, “contradict”, “while”).  
 - Serialize each graph to JSON (`graph_<prompt_id>.json`).  
 - **Runtime budget**: ≤ 30 min on 2‑core CPU (validated by profiling).  
 - **GPU usage**: None; the parser runs strictly on CPU.  
@@ -61,8 +61,8 @@ The permutation is generated with a fixed seed (`numpy.random.seed(12345)`) to e
 1. **Primary paired test** – Conflicting subset (`baseline_scores` vs. `augmented_scores`).  
    - Normality check (Shapiro‑Wilk).  
    - If normal → paired **t‑test**; else → **Wilcoxon signed‑rank**.  
-   - Report: mean alignment‑score difference (SC‑001), Cohen’s d (or rank‑biserial) (SC‑008), 95 % CI, p‑value (SC‑004).  
-2. **Neutral‑subset paired test** – Ensure graph augmentation does not degrade performance on neutral prompts (addresses SC‑006).  
+   - Report: mean alignment‑score difference, Cohen’s d (or rank‑biserial), 95 % CI, p‑value.  
+2. **Neutral‑subset paired test** – Verify that graph augmentation does not degrade performance on neutral prompts (addresses SC‑006).  
 3. **Control comparison** – Baseline vs. random filler (same test) to confirm improvements are not due to added context length.  
 4. **Robustness check** – Apply the full pipeline to a hold‑out set of re‑phrased conflicting prompts generated via deterministic back‑translation; repeat the paired test.  
    - Verify that the effect‑size drop is **non‑significant (p ≥ 0.05)** (SC‑005).  
@@ -74,9 +74,9 @@ All calculations use `scipy.stats` and `statsmodels.stats.multitest`.
 ## 8. Power Analysis (Methodology)
 Using G*Power (paired t‑test, α = 0.05, effect size d = 0.5), **N = 500** conflicting prompts yields power ≈ 0.85. Because we collect human scores for **all 1 000 prompts**, the paired analysis on the 500 conflicting items satisfies the planned power.  
 
-**Justification**: Prior work on verifier‑graph interventions reported medium‑sized effects (see *Leveraging Verifier‑Based RL in Image Editing*, 2025)..  
+**Justification**: Prior work on verifier‑graph interventions reported medium‑sized effects (see *Leveraging Verifier‑Based RL in Image Editing*, 2025).  
 
-**Contingency**: If the observed effect size is **< 0.3**, the report will flag the study as under‑powered and recommend collection of additional data rather than overstating significance.
+**Contingency**: If the observed effect size is **< 0.3**, the report will flag the study as under‑powered and recommend additional data collection rather than overstating significance.
 
 ## 9. Runtime & Memory Auditing (FR‑008, SC‑002, SC‑003, SC‑009)
 - `psutil` logs peak RAM for each stage; assert ≤ 7 GB.  
@@ -84,7 +84,7 @@ Using G*Power (paired t‑test, α = 0.05, effect size d = 0.5), **N =
 - **Baseline verifier runtime** is recorded separately and must be **≤ 2 h** (target ≤ 2 h); if exceeded, the pipeline aborts and the limitation is reported (SC‑009).  
 
 ## 10. Decision / Rationale (CPU vs GPU)
-The 1B Edit‑R1 model in float32 exceeds the 7 GB RAM limit on pure CPU, so inference scripts request **CPU‑only 8‑bit quantization**, which reduces RAM usage to ≈ 5 GB and fits within the free‑tier constraints without any GPU fallback.
+The 1B Edit‑R1 model in float32 exceeds the 7 GB RAM limit on pure CPU, so inference scripts request **CPU‑only 8‑bit quantization**, which reduces RAM usage to a modest amount (on the order of gigabytes) and fits within the free‑tier constraints without any GPU fallback.
 
 ## 11. Deliverables
 - `data/raw/*.parquet` (original InstructPix2Pix shards)  
@@ -102,7 +102,7 @@ All files conform to the schemas defined in `contracts/evaluation_report.schema.
 ## 12. Ethical & Reproducibility Notes
 - Human annotation data are stored under `data/results/human_validation.csv` with SHA‑256 checksums recorded in the project state file.  
 - All randomness seeded (`numpy.random.seed(42)`, `torch.manual_seed(42)`, `random.seed(42)`).  
-- Synthetic conflict generation is **not** used for evaluation; only the real conflict set is evaluated (fulfilling FR‑010).
+- Synthetic conflict generation is **not** used for evaluation; only the real conflict set is evaluated (fulfilling FR‑010).  
 
 ## 13. Verification
 ```bash
@@ -111,5 +111,3 @@ pytest tests/contract/test_evaluation_report.py
 All contract tests must pass before CI marks the job successful.
 
 ---
-
-

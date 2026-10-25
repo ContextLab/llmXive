@@ -138,5 +138,3 @@ File path: `analysis/report.json`.
 All CSV files are UTF‑8 encoded, line‑terminated with `\n`. JSON files are pretty‑printed with 2‑space indentation.
 
 ---
-
-
