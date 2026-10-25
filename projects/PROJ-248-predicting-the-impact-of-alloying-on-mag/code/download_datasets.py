@@ -1,15 +1,14 @@
 """
 download_datasets.py
 
-Script to download the Materials Project magnetic dataset (via a direct HTTP request to the
-HuggingFace repository) and the OQMD magnetic CSV release (via a direct HTTP request).
-The script writes three artefacts:
+Script to download the Materials Project magnetic dataset and the OQMD magnetic CSV
+using the HuggingFace `datasets` library. The script writes three artefacts:
 
-* `data/raw_mp.jsonl` – filtered JSON-lines from the Materials Project
+* `data/raw_mp.jsonl` – filtered JSON‑lines from the Materials Project
   (only entries where `magnetic_type` is not `NM`).
 * `data/raw_oqmd.csv` – the raw OQMD CSV file.
-* `data/data_sources.yaml` – a small YAML manifest containing version
-  identifiers and SHA‑256 checksums for reproducibility.
+* `data/data_sources.yaml` – a manifest containing version identifiers,
+  SHA‑256 checksums, and basic download metadata for reproducibility.
 """
 
 import hashlib
@@ -17,7 +16,8 @@ import json
 import sys
 from pathlib import Path
 
-import requests
+import pandas as pd
+from datasets import load_dataset
 import yaml
 from llmxive_toolkit import paths, get_logger
 
@@ -39,53 +39,38 @@ def _write_yaml(manifest: dict, out_path: Path) -> None:
 
 def download_materials_project(raw_mp_path: Path) -> dict:
     """
-    Download Materials Project magnetic entries using a direct HTTP request to the
-    HuggingFace-hosted dataset file. The dataset file
-    ``materialsproject/mp`` with configuration ``2020.10.01`` is stored as a
-    JSON‑lines file at a public URL and does not require the ``datasets`` library
-    (avoiding the heavy ``pyarrow`` dependency).
-
-    The function streams the file, filters out entries where ``magnetic_type`` equals
-    ``NM`` (non‑magnetic), and writes each remaining record as a JSON line to
-    ``raw_mp_path``. It returns a manifest containing a version identifier, the
-    SHA‑256 checksum of the written file and the number of records written.
+    Download Materials Project magnetic entries via the HuggingFace ``datasets``
+    library. The dataset identifier is ``materialsproject/mp`` with the
+    configuration ``2020.10.01``. The function streams the dataset, filters out
+    entries where ``magnetic_type`` equals ``NM``, and writes the remaining
+    records as JSON‑lines to ``raw_mp_path``.
+    Returns a manifest containing a version identifier, SHA‑256 checksum,
+    and the number of records written.
     """
-    # Direct URL to the JSON‑lines file in the HuggingFace repo.
-    url = (
-        "https://huggingface.co/datasets/materialsproject/mp/resolve/main/"
-        "2020.10.01/train-00000-of-00001.jsonl"
+    log.info("Loading Materials Project magnetic dataset via ``datasets``")
+    # The dataset is publicly hosted; no auth token is required.
+    ds = load_dataset(
+        "materialsproject/mp",
+        "2020.10.01",
+        split="train",
+        streaming=True,
     )
-    log.info("Downloading Materials Project dataset from %s", url)
-
-    resp = requests.get(url, stream=True, timeout=120)
-    resp.raise_for_status()
 
     raw_mp_path.parent.mkdir(parents=True, exist_ok=True)
 
     sha256 = hashlib.sha256()
     count = 0
     with raw_mp_path.open("w", encoding="utf-8") as out_f:
-        for line in resp.iter_lines(decode_unicode=True):
-            if not line:
-                continue
-            try:
-                record = json.loads(line)
-            except json.JSONDecodeError:
-                # Skip malformed lines but continue streaming.
-                continue
-
-            # Filter out non‑magnetic entries.
+        for record in ds:
+            # ``record`` is a dict; ensure required key exists.
             if record.get("magnetic_type") == "NM":
                 continue
-
             json_line = json.dumps(record, ensure_ascii=False)
             out_f.write(json_line + "\n")
             sha256.update(json_line.encode("utf-8"))
             count += 1
             if count % 10_000 == 0:
-                log.info(
-                    "Materials Project: %d magnetic records written...", count
-                )
+                log.info("Materials Project: %d magnetic records written...", count)
 
     if count == 0:
         raise RuntimeError(
@@ -99,40 +84,43 @@ def download_materials_project(raw_mp_path: Path) -> dict:
         checksum,
     )
 
-    # The version identifier mirrors the dataset configuration name.
     version_id = "mp-2020.10.01"
-
     return {"version": version_id, "sha256": checksum, "records": count}
 
 def download_oqmd(raw_oqmd_path: Path) -> dict:
     """
-    Download the OQMD magnetic CSV from a verified HuggingFace URL.
+    Download the OQMD magnetic CSV via the HuggingFace ``datasets`` library.
+    The dataset identifier is ``oqmd/oqmd`` with the configuration ``magnetic``.
+    The function writes the table to ``raw_oqmd_path`` as a CSV file.
+    Returns a manifest containing the source URL, SHA‑256 checksum, and size.
     """
-    url = "https://huggingface.co/datasets/oqmd/oqmd/resolve/main/oqmd.csv"
-    log.info("Downloading OQMD magnetic CSV from %s", url)
+    log.info("Loading OQMD magnetic dataset via ``datasets``")
+    ds = load_dataset(
+        "oqmd/oqmd",
+        "magnetic",
+        split="train",
+        streaming=False,  # small enough to load in memory
+    )
 
-    resp = requests.get(url, stream=True, timeout=120)
-    resp.raise_for_status()
+    # Convert to pandas DataFrame for easy CSV export.
+    df = pd.DataFrame(ds)
 
     raw_oqmd_path.parent.mkdir(parents=True, exist_ok=True)
 
-    sha256 = hashlib.sha256()
-    total_bytes = 0
-    with raw_oqmd_path.open("wb") as f:
-        for chunk in resp.iter_content(chunk_size=8192):
-            if not chunk:
-                continue
-            f.write(chunk)
-            sha256.update(chunk)
-            total_bytes += len(chunk)
+    # Write CSV (UTF‑8, no index)
+    df.to_csv(raw_oqmd_path, index=False, encoding="utf-8")
 
-    if total_bytes == 0:
-        raise RuntimeError("Downloaded OQMD CSV is empty.")
+    checksum = _sha256_of_path(raw_oqmd_path)
+    total_bytes = raw_oqmd_path.stat().st_size
 
-    checksum = sha256.hexdigest()
     log.info(
-        "OQMD download complete - %d bytes, SHA‑256: %s", total_bytes, checksum
+        "OQMD download complete - %d bytes written, SHA‑256: %s",
+        total_bytes,
+        checksum,
     )
+
+    # The dataset page can be used as a stable reference URL.
+    url = "https://huggingface.co/datasets/oqmd/oqmd/tree/main"
 
     return {"url": url, "sha256": checksum, "bytes": total_bytes}
 
