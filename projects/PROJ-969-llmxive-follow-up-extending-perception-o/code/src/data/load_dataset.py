@@ -24,6 +24,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import logging
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional
 
@@ -378,11 +379,17 @@ def main() -> None:
     with open(tmp_path, "w", encoding="utf-8") as out:
         buffer: List[Dict[str, Any]] = []
         for record in stream_records():
-            normalized = normalize_record(record, n_records)
+            try:
+                normalized = normalize_record(record, n_records)
+            except ValueError as ve:
+                # Skip records that cannot be normalized (e.g., missing video_id)
+                log.warning(str(ve))
+                continue
+
             errs = sorted(validator.iter_errors(normalized), key=lambda e: e.path)
             if errs:
                 raise jsonschema.ValidationError(
-                    f"Record {n_records} (video_id={normalized['video_id']}) violates "
+                    f"Record {n_records} (video_id={normalized.get('video_id')}) violates "
                     f"video_metadata.schema.yaml: {errs[0].message}"
                 )
             buffer.append(normalized)
@@ -399,6 +406,7 @@ def main() -> None:
                     out.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 buffer = []
                 log.info(" ... %d records streamed", n_records)
+        # Flush remaining buffer
         for rec in buffer:
             out.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
