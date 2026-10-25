@@ -20,9 +20,31 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/12ml/e-CARE/a9c788710144e6edd31f925345fa107c0634e223/train.csv?%2Fdatasets%2F12ml%2Fe-CARE%2Fresolve%2Fmain%2Ftrain.csv=&etag=%226b34f92c91c821241904e5033a90a69ca8407257%22
   verified_at: '2026-10-07T18:48:25.104130Z'
-- artifact_hash: dab60ddf69ec98a03d5991fb716df28e0eb4a475922986673fb0ba7ccf48607d
+- artifact_hash: ff7ec4a4d28f8b0cb807ddaa3686b632137b5838612938e098b3803e2bde65b3
   artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/spec.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://doi.org/10.5281/zenodo.1234567
+  verification_status: mismatch
+  verified_against_url: https://doi.org/10.5281/zenodo.1234567
+  verified_at: '2026-10-25T16:21:32.157395Z'
+- artifact_hash: ff7ec4a4d28f8b0cb807ddaa3686b632137b5838612938e098b3803e2bde65b3
+  artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://api.pushshift.io/reddit/search/submission/?subreddit={subreddit}&size=500&before={timestamp}&after={timestamp}`
+  verification_status: pending
+  verified_against_url: http://api.pushshift.io/reddit/search/submission?subreddit=%7Bsubreddit%7D&size=500&before=%7Btimestamp%7D&after=%7Btimestamp
+  verified_at: '2026-10-25T16:21:32.157395Z'
+- artifact_hash: ff7ec4a4d28f8b0cb807ddaa3686b632137b5838612938e098b3803e2bde65b3
+  artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/spec.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -30,10 +52,10 @@
   value: https://api.pushshift.io/reddit/search/submission/`
   verification_status: pending
   verified_against_url: http://api.pushshift.io/reddit/search/submission
-  verified_at: '2026-10-17T00:33:57.837603Z'
-- artifact_hash: dab60ddf69ec98a03d5991fb716df28e0eb4a475922986673fb0ba7ccf48607d
+  verified_at: '2026-10-25T16:21:32.157395Z'
+- artifact_hash: ff7ec4a4d28f8b0cb807ddaa3686b632137b5838612938e098b3803e2bde65b3
   artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/spec.md
-  cite_id: c-002
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -41,4 +63,4 @@
   value: 10.5281/zenodo.1234567
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
-  verified_at: '2026-10-17T00:33:57.837603Z'
+  verified_at: '2026-10-25T16:21:32.157395Z'
