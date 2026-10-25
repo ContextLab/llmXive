@@ -29,8 +29,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/run_analysis.py --primes 3,5,7,11 --n 5000000 -> rc=2
 
-2026-10-24 23:18:51,784 INFO matplotlib.font_manager: Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-24 23:18:51,866 INFO matplotlib.font_manager: generated new fontManager
+2026-10-25 01:35:32,816 INFO matplotlib.font_manager: Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-25 01:35:33,606 INFO matplotlib.font_manager: generated new fontManager
 usage: run_analysis.py [-h] [--N N] [--primes PRIMES [PRIMES ...]]
                        [--memory_limit_mb MEMORY_LIMIT_MB] [--seed SEED]
                        [--memory_check_interval MEMORY_CHECK_INTERVAL]
@@ -50,7 +50,7 @@ FAILED tests/unit/test_stats_t022.py::TestT022EdgeCases::test_custom_alpha - ...
 FAILED tests/unit/test_visualize.py::test_plot_residual_qq_creates_file - Att...
 FAILED tests/unit/test_visualize.py::test_plot_residual_qq_empty_residuals - ...
 FAILED tests/unit/test_visualize.py::test_plot_residual_qq_single_value - Att...
-================= 31 failed, 160 passed, 13 warnings in 7.92s ==================
+================= 31 failed, 160 passed, 13 warnings in 6.80s ==================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -69,6 +69,6 @@ lmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 =========================== short test summary info ============================
 ERROR tests/integration/test_synthetic_stats.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 1 error in 1.06s =========================
+======================== 13 warnings, 1 error in 0.88s =========================
 
 

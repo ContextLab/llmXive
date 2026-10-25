@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: 8b755406486971c7ffb47f9622e8166ca03fe4f159d8d479313d59d5d503b9eb
-  r: "Checked `code/config.py`, `code/config.yaml`, and `tests/unit/test_config.py`.\
-    \ The loader correctly validates primes and returns the required keys, but the\
-    \ unit test expects `seed`\u202F=\u202F12345 while the YAML file provides `seed`\u202F\
-    =\u202F999 (and the default is 42), so the test will fail. The seed value must\
-    \ match the test\u2019s expectation for the task to be complete."
-  sig: 44202c9a163c0f3fb255fe00df83257daf8ae5e56cda0e4fbc6aa3ef474108e5
 T002:
   c: false
   h: a48e5dfc5d7937bb1300e38fb38af1bdcfe9189c33df8d2514f7a47f45e4c61a

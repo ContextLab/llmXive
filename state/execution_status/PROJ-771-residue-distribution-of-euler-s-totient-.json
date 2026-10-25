@@ -1,7 +1,7 @@
 {
-  "model_tier": 0,
+  "model_tier": 1,
   "fix_rounds": 0,
-  "updated_at": "2026-10-20T10:19:07Z",
+  "updated_at": "2026-10-25T01:36:36Z",
   "project_id": "PROJ-771-residue-distribution-of-euler-s-totient-",
   "replan_rounds": 1
 }
