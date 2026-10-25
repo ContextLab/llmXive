@@ -24,6 +24,8 @@ T011:
 T012:
   task: 342dd46d4969c9c27de6ef710870f3a250d392ce5659c8b6a14c1d342cc6f976
 T013:
+  reason: 'Requested task execution failed; rerun successfully: code/download_mp.py
+    exit=1'
   task: 3b97cd9a073e7821c74e3e80cd8c857380de34d7fec7d7f27b7c8ac528fec10b
 T014:
   task: 686b2e00234a009583e271af6c528a8244d0399ecda6f60c6c8fdfb07fd19289

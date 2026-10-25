@@ -1,5 +1,4 @@
-# Project dependencies
-# Existing dependencies (preserved from original project)
+# Project dependencies (pinned where appropriate)
 datasets
 pymatgen
 ase
@@ -10,5 +9,4 @@ pandas
 matplotlib
 pyyaml
 pytest
-# Added dependency to resolve pyarrow/Numpy compatibility issue
-pyarrow==11.0.0
+# The base environment already provides: requests, jsonschema, psutil, etc.
