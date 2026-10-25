@@ -1,16 +1,19 @@
 status: none
-intent: NREL perovskite EDS maps performance metrics Zenodo Materials Project python
-  package dataset
+intent: download NREL Perovskite Database EDS maps Materials Project Zenodo Open Perovskite
+  EDS Repository python package dataset
 required_fields:
 - sample_id
-- element_pb_map
-- element_i_map
-- element_ma_map
+- pb_elemental_map
+- i_elemental_map
+- ma_elemental_map
 - pce
 - j_sc
 - v_oc
-- pixel_grid_x
-- pixel_grid_y
-cache_key: 08e7a54402957d00389190837c4129d72cab99cbfde898d56c03ec496b0e9a62
-searched_at: '2026-10-25T04:12:34.199565+00:00'
+- pixel_grid_coordinates
+- map_resolution
+- alignment_transform
+- source_dataset
+- metadata_json
+cache_key: e5e43642b631311751cf13103ca9119c076c66a8478d0952f337072f03be61e9
+searched_at: '2026-10-25T15:10:56.258453+00:00'
 retry_count: 1

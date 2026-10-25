@@ -1,15 +1,1 @@
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
 datasets
-scikit-image
-pydantic

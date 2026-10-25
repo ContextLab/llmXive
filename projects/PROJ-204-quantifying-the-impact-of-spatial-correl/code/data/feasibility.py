@@ -71,7 +71,6 @@ def probe_nrel() -> Dict[str, Any]:
     linked_ids = []
     if result["reachable"] and isinstance(result["json"], list):
         n_records = len(result["json"])
-        # NREL API structure varies; we look for records containing both 'image' and 'pce'
         for rec in result["json"]:
             has_img = any("image" in str(v).lower() for v in rec.values())
             has_pce = "pce" in rec or any("pce" in str(k).lower() for k in rec.keys())
@@ -127,7 +126,6 @@ def probe_huggingface() -> Dict[str, Any]:
         }
 
     try:
-        # Use streaming=True to avoid downloading the full dataset during feasibility probe
         ds = load_dataset("doe2023/perovskite-eds", split="train", streaming=True)
     except Exception as exc:
         return {
@@ -142,15 +140,11 @@ def probe_huggingface() -> Dict[str, Any]:
 
     n_records = 0
     linked_ids = []
-    # We iterate through the stream to count records and linked samples
-    # To keep the probe fast, we limit to the first 1000 records if the dataset is massive
     for i, rec in enumerate(ds):
         if i >= 1000:
             break
         n_records += 1
-        # Check for any key containing 'image' that is not None
         has_image = any(k.lower().endswith("_image") and rec.get(k) is not None for k in rec.keys())
-        # Check for performance metrics
         perf = rec.get("performance", {})
         has_perf = isinstance(perf, dict) and perf.get("pce") is not None
         if has_image and has_perf:
