@@ -40,17 +40,18 @@ All unit tests should pass.  The fixes for **T001** and **T002** are already inc
 ```bash
 python -m code.main --pilot --seed 42
 ```
-- Generates a tiny puzzle set (≈10‑30 instances) using the deterministic generator.
+- Generates a tiny puzzle set (a small number of instances) using the deterministic generator.
 - Runs the deterministic verifier on a known correct solution (latency < 100 ms).
 - Writes the pilot log to:
-  - `data/processed/pilot_run.jsonl`
-  - `data/processed/pilot/` (directory created automatically)
+  - `data/processed/pilot/pilot_run.jsonl`
+  - `data/processed/pilot/verifier_timing.log`
 
 ## Expected output locations
 
 After the pilot command finishes, the following files/directories must exist and be non‑empty:
 
-- `data/processed/pilot_run.jsonl` – JSON‑Lines file containing one entry per puzzle with verification timing and success flag.
+- `data/processed/pilot/pilot_run.jsonl` – JSON‑Lines file containing one entry per puzzle with verification timing and success flag.
+- `data/processed/pilot/verifier_timing.log` – simple timing log produced by the pilot run.
 - `data/processed/pilot/` – folder that may contain auxiliary logs (e.g., `verifier_timing.log`).
 
 ## Troubleshooting

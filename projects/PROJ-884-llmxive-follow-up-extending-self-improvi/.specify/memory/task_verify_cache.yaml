@@ -10,6 +10,14 @@ T001:
     \ tests from passing and mean the generator does not emit records that conform\
     \ to the contract. The verifier itself logs timings and returns the correct tuple,"
   sig: dba4a8038eeec7f2bab98540cf631eb0de79e5fda8a32a16eafc074555d686af
+T002:
+  c: true
+  h: 7cd4bcd484da4637f21861a3e71c67e8cfa8800c992b59042387fb3a4a9e7c48
+  r: "Checked `code/symbolic/planner.py`, `code/symbolic/parser.py`, and `code/symbolic/exclusion_logger.py`\
+    \ \u2013 they implement the planner and parser, raise the real `ParseFailure`\
+    \ and `ContradictionDetected` classes, and log exclusions to `data/processed/exclusions.json`.\
+    \ The provided pytest suite validates all required behaviours."
+  sig: 8acd209af55633777a99a37ff0b6271f9076249ea75b8871f15ff1753753be33
 T012:
   c: true
   h: 4f2027dbe539ff49bc623239ff33a66d26e9b9a198541a0b067d805789a66218

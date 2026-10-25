@@ -37,11 +37,7 @@ T014:
 T015:
   task: ee04be03cd38ad97a6cb2a7a0cbe4686dccfd6b589e8212d20d6b50fe4c3ba7e
 T016:
-  reason: "The quickstart.md file exists and contains the required command chain and\
-    \ expected output locations, but there is no evidence that `python -m code.main\
-    \ --pilot` was executed successfully \u2013 the `data/processed/pilot/` directory\
-    \ is missing, and no generated artifacts or execution logs are provided. The task\u2019\
-    s core requirement of producing non\u2011empty pilot artifacts is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
   task: 24d3f06098f3f7504d59778d7abbcf410fae7782b8c945952077495eeb6d443a
 T017:
   task: 950a6121b520961990afd3d652f2509731c495761614a0f59973a1e7b9f2cf13

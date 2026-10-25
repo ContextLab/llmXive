@@ -1,15 +1,17 @@
 status: none
-intent: download logic puzzle dataset with python verification script pip package
-  Sudoku ARC
+intent: download logic arithmetic puzzles dataset with verification scripts including
+  Sudoku Kaggle OpenLogicPuzzle python package dataset
 required_fields:
 - puzzle_id
 - puzzle_type
-- puzzle_representation
-- constraints_formal_language
-- solution_example
-- verification_script_path_or_code
-- difficulty_level
-- source_dataset_name
-cache_key: 36df83f811c22cba4cea53141f5a11eaa84c17a58cd136c3a4b094819cd9228d
-searched_at: '2026-10-25T03:36:45.022639+00:00'
+- puzzle_description
+- constraints_formal
+- solution_path
+- solution_answer
+- verifier_script
+- difficulty
+- source
+- license
+cache_key: 1cc07944723c243f3a528bba72342a17aff5b5333bd53da585adcd2723c55c6e
+searched_at: '2026-10-25T03:38:56.782589+00:00'
 retry_count: 1

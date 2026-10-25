@@ -22,7 +22,7 @@
      • Files: `contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`  
      • Verification: running `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` and the same for `output.schema.yaml` exits without exception.  
 
-- [ ] T016 [P] [US5] Create **quickstart.md** with a reproducible command chain (`python -m code.main --pilot`) and list expected output locations.  
+- [ ] T016 [P] [US5] Create **quickstart.md** with a reproducible command chain (`python -m code.main --pilot`) and list expected output locations.   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
      • File: `specs/001-symbolic-bes/quickstart.md`  
      • Verification: file exists and the command runs without error on a clean checkout, producing non‑empty `data/processed/pilot/` artifacts.  
 
@@ -35,7 +35,7 @@
      • Requirements: generator emits JSONL puzzle records conforming to `contracts/dataset.schema.yaml` plus a matching Python verifier script; verifier returns `(bool, error_code)` within 100 ms, records a timing entry in `data/processed/verifier_timing.log`, and raises `VerifierError` on internal failure.  
      • Verification: `pytest code/tests/test_generator.py code/tests/test_verifier.py` passes, including a benchmark asserting runtime < 0.1 s and that each verification writes a timing line to the log; generated files validate against `dataset.schema.yaml`.  
 
-- [~] T002 [P] [US2] Implement the **symbolic planner** (`code/symbolic/planner.py`) and **parser** (`code/symbolic/parser.py`) with proper exception classes `ParseFailure` and `ContradictionDetected`.  
+- [X] T002 [P] [US2] Implement the **symbolic planner** (`code/symbolic/planner.py`) and **parser** (`code/symbolic/parser.py`) with proper exception classes `ParseFailure` and `ContradictionDetected`.  
      • Paths: `code/symbolic/planner.py`, `code/symbolic/parser.py`, `code/symbolic/exclusion_logger.py`  
      • Requirements: planner produces ordered sub‑goals or raises the two concrete exceptions; exclusion logger writes `data/processed/exclusions.json` with puzzle IDs and reasons.  
      • Verification: `pytest code/tests/test_symbolic_planner.py` passes (exception handling uses the actual classes, not string literals).  
