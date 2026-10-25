@@ -1,88 +1,107 @@
-# Tasks: Cognitive-load comparison of Structured Harness vs. Chat Interface for Figure Editing
+# Tasks: Cognitive‑load comparison of Structured Harness vs. Chat Interface for Figure Editing  
 
-**Inputs**: `spec.md`, `plan.md`, existing `src/` skeleton, contracts in `specs/001-llmxive-cognitive-load/contracts/`, and the independent verifier's rejection notes for T001–T009, T011.
+**Inputs**: `spec.md`, `plan.md`, existing source files under `src/`, contract schemas in `specs/001-llmxive-follow-up-extending-crafter-a-mu/contracts/`, and reviewer feedback.  
+
+The list follows the canonical `- [ ] T### [P?] [USx?] description …` format. Checked boxes indicate completed work that satisfies the specification; unchecked boxes are pending implementation or revision.
 
 ---
 
-## Phase 0 – Environment Setup
+## Phase 0 – Environment setup  
 
-- [X] T000 [P] [US0] Create reproducible environment: generate `requirements.txt` with pinned versions, set global random seed (`seed=42`) in `src/utils/seeds.py`, and produce `data/checksums.txt` containing SHA‑256 checksums for all raw data files.  
-  - **Files**: `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`, `data/checksums.txt`.
+- [ ] T000 [US-?] Create a reproducible Python environment, pin all dependency versions, set a global random seed, and generate SHA‑256 checksums for raw data.  
+  - **Files**: `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`, `data/checksums.txt`  
+  - **Verification**: `pip install -r requirements.txt` succeeds; `python -c "import src.utils.seeds; assert src.utils.seeds.SEED==42"` runs without error; `sha256sum` of each file matches entries in `data/checksums.txt`.
 
-## Phase 1 – Setup, data curation, and first end‑to‑end run
+---
 
-- [X] T002 [P] [US1] Implement real‑data curation with loud failure and a clearly‑labeled deterministic verification surrogate.  
-  - **File**: `src/curators/curate_failed_figures.py`.  
-  - **Verification**: With network unreachable, `python -m src.curators.curate_failed_figures --num 50` exits non‑zero with “verified source unavailable”. With `--verify-only`, `data/figures/` contains exactly 50 PNGs, `data/ground_truth/` 50 JSON vectors, and `data/checksums.txt` is written.
+## Phase 1 – Data curation, interfaces, and instrumentation  
 
-- [X] T003 [P] [US1] Provide the two FastAPI interfaces and counterbalanced session initialization, verified in‑process.  
-  - **Files**: `src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`, `src/interfaces/session.py`, `tests/interfaces/test_interfaces.py`.  
-  - **Verification**: `pytest -q tests/interfaces/test_interfaces.py` passes, confirming 200 OK for `/init_session` (counterbalanced order) and `/edit` for both modes.
+- [ ] T001 [P] [US-1] Provide a lightweight pipeline entry point that prints help and version information, and documents usage in `quickstart.md`.  
+  - **Files**: `src/run_pipeline.py`, `quickstart.md`  
+  - **Verification**: `python -m src.run_pipeline --help` exits 0 and displays usage; `python -m src.run_pipeline --version` prints a semantic version string.
 
-- [X] T004 [P] [US2] Implement millisecond‑precision interaction logging with task‑level start/end timestamps and abort handling; write a *new* clean log file instead of editing in place.  
-  - **Files**: `src/logger/interaction_logger.py`, `tests/logger/test_interaction_logger.py`.  
-  - **Verification**: A real edit via `TestClient` creates a line in `data/logs/interactions_clean.jsonl` that validates against `specs/001-llmxive-cognitive-load/contracts/interaction_log.schema.yaml` and includes `timestamp_ms`, `iteration`, `mode`, plus `task_start_ms` and `task_end_ms` (derived from first/last edit). Abort after 15 min is logged with `status: "aborted"`.
+- [ ] T002 [US-1] Implement a **mandatory** download and curation script that fetches a **verified** subset of exactly 50 failed figures from CrafterBench; if the verified source is unavailable the script raises a fatal error and aborts the pipeline (fulfilling FR‑001).  
+  - **File**: `src/curators/curate_failed_figures.py`  
+  - **Verification**: Running `python -m src.curators.curate_failed_figures --num 50` succeeds only when a verified URL is provided; otherwise it exits with a non‑zero status and an explicit “Verified dataset source not available” message.
 
-- [X] T005 [P] [US2] Implement dual success‑validation utilities; define `overall_success` as **true when either** vector match **or** semantic pass succeeds (matches spec scenario 4).  
-  - **Files**: `src/validation/vector_match.py`, `src/validation/semantic_similarity.py`, `src/validation/run_validation.py`, `tests/validation/test_validation.py`.  
-  - **Verification**: Unit tests cover (a) exact match → both true, (b) semantic‑only match → `overall_success: true`, (c) full failure → false. Records conform to `specs/001-llmxive-cognitive-load/contracts/semantic_validation.schema.yaml`.
+- [ ] T003 [P] [US-1] Deploy two FastAPI editing endpoints (`/edit` for structured harness, `/edit` for chat) and a session‑initialization endpoint that (a) randomizes and **counterbalances** interface order across participants, and (b) enforces a **10‑minute** wash‑out interval between the two interface blocks (as required by FR‑010).  
+  - **Files**: `src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`, `src/interfaces/session.py`, `tests/interfaces/test_interfaces.py`  
+  - **Verification**: `pytest -q tests/interfaces/test_interfaces.py` passes; a simulated participant receives a JSON response from `/init_session` indicating `interface_order` is balanced, and a second call after the first block is rejected until a 10‑minute interval has elapsed (mocked time in tests).
 
-- [X] T006 [P] [US3] Implement a‑priori power analysis and synthetic participant driver that produces schema‑conformant logs at full scale.  
-  - **Files**: `src/simulation/power_analysis.py`, `src/simulation/simulate_participants.py`.  
-  - **Verification**: `python -m src.simulation.power_analysis` prints required N (≥30) and exits 0; after `simulate_participants.py`, `data/logs/interactions_clean.jsonl` contains ≥ 7 500 lines, all validating against the interaction‑log schema.
+- [ ] T004 [US-2] Implement millisecond‑precision interaction logging that records start/end timestamps, iteration count, payload, response image path, and **NASA‑TLX score** after each task; aborted edits are logged with status `"aborted"`.  
+  - **Files**: `src/logger/interaction_logger.py`, `tests/logger/test_interaction_logger.py`  
+  - **Verification**: A test edit via FastAPI `TestClient` creates a line in `data/logs/interactions.jsonl` that validates against `specs/001-llmxive-follow-up-extending-crafter-a-mu/contracts/interaction_log.schema.yaml` and includes `subjective_load` (NASA‑TLX) and correct `task_start_ms` / `task_end_ms`.
 
-- [X] T007 [P] [US2] **Generate per‑session aggregated validation results** (no `session_id` required in `SemanticValidation`). The script reads the per‑edit logs, applies `run_validation.py` to each task, and aggregates success counts per participant session, outputting `data/results/validation_by_session.jsonl`.
-  - **File**: `src/analysis/validation_by_session.py`.  
-  - **Verification**: Each line includes `session_id`, `task_id`, `overall_success` and passes a lightweight schema defined locally for the aggregated view.
+- [ ] T005 [US-2] Implement dual‑success validation utilities where **primary success** (`overall_success`) is defined **solely** by exact vector match; semantic similarity (`semantic_pass`) is recorded separately and does **not** affect primary inclusion.  
+  - **Files**: `src/validation/vector_match.py`, `src/validation/semantic_similarity.py`, `src/validation/run_validation.py`, `tests/validation/test_validation.py`  
+  - **Verification**: Unit tests cover (a) exact vector match → `overall_success=True`, `semantic_pass` may be True/False; (b) semantic‑only match → `overall_success=False`, `semantic_pass=True`; (c) total failure → both False. All records conform to `semantic_validation.schema.yaml`.
 
-- [ ] T008 [P] [US3] Paired Wilcoxon signed‑rank analysis (re‑verified after validation format change).   <!-- FAILED-IN-EXECUTION: src/analysis/wilcoxon_analysis.py exit=2 --> <!-- FAILED-IN-EXECUTION: src/analysis/wilcoxon_analysis.py exit=1 -->
-  - **File**: `src/analysis/wilcoxon_analysis.py`.  
-  - **Verification**: Uses the aggregated per‑session validation file from T007; outputs `AnalysisResult` JSONL with median fields and passes its own schema test.
+- [ ] T006 [US-3] Perform a priori power analysis (α = 0.025, effect size d≈0.5, power = 0.80) and generate a deterministic synthetic participant driver that produces schema‑conformant logs at the required scale.  
+  - **Files**: `src/simulation/power_analysis.py`, `src/simulation/simulate_participants.py`  
+  - **Verification**: `python -m src.simulation.power_analysis` prints required N ≥ 32 and exits 0; after running `simulate_participants.py`, `data/logs/interactions.jsonl` contains ≥ 7 500 lines, all passing the `interaction_log` schema test.
 
-- [ ] T018 [P] [US3] Mean‑based Wilcoxon analysis (required by SC‑001).   <!-- FAILED-IN-EXECUTION: code/src/analysis/mean_wilcoxon_analysis.py exit=2 -->
-  - **File**: `src/analysis/mean_wilcoxon_analysis.py`.  
-  - **Verification**: Computes mean differences, performs Wilcoxon on means, outputs a separate JSONL (`mean_wilcoxon_results.jsonl`) with fields `mean_structured`, `mean_chat`, `wilcoxon_stat`, `p_value`, `effect_size_r`.
+---
 
-- [ ] T015 [P] [US2] Detect corrupted ground‑truth vectors during validation, log a warning, and adjust N for reporting.  
-  - **File**: `src/validation/run_validation.py` (extended).  
-  - **Verification**: When a ground‑truth JSON cannot be parsed, a warning is emitted, the trial is skipped, and the final N is recorded in `data/results/report_metadata.json`.
+## Phase 2 – Aggregation, analysis, and validation  
 
-- [ ] T014 [P] [US2] Enforce a 15‑minute timeout per task; on timeout log abort, exclude from time‑to‑success but count max iterations.  
-  - **File**: `src/logger/interaction_logger.py` (timeout logic).  
-  - **Verification**: Simulated participants respect the timeout; aborted trials appear with `status: "aborted"` in the clean log.
+- [ ] T007 [US-2] Aggregate per‑task `SemanticValidation` records into a **session‑aware** file (`data/results/semantic_validation_by_session.jsonl`). The aggregation step also (a) skips tasks with corrupted ground‑truth vectors (logging a warning), (b) respects the 15‑minute timeout by marking such tasks as `"aborted"` and **excluding** them from primary time‑to‑success calculations, and (c) records the final effective N per participant.  
+  - **File**: `src/analysis/validation_by_session.py` (updated)  
+  - **Verification**: The output JSONL includes fields `session_id`, `task_id`, `overall_success`, `semantic_pass`, and `status`; a downstream schema validator (`tests/analysis/test_validation_aggregation.py`) passes.
 
-- [ ] T016 [P] [US2] Transform per‑task `SemanticValidation` records into a session‑aware file for retention checks (adds `session_id` field).  
-  - **File**: `src/analysis/validation_by_session.py` (extended).  
-  - **Verification**: Produces `data/results/semantic_validation_by_session.jsonl` where each line includes `session_id`, `task_id`, enabling accurate retention counting.
+- [ ] T008 [US-3] Implement the main statistical analysis script that (a) reads the session‑aware validation file, (b) **excludes** aborted tasks from all calculations, (c) computes **paired Wilcoxon signed‑rank tests** for `time_to_success_ms`, `iteration_count`, and `subjective_load` (fallback to paired t‑test if Shapiro‑Wilk p > 0.05), (d) applies Bonferroni correction (α = 0.025 per metric), (e) reports rank‑siserial effect size *r*, (f) bootstraps a 95 % confidence interval for the median difference (1 000 resamples), and (g) fits an exploratory linear mixed‑effects model with `expertise_level` as a fixed covariate. Results are written to `outputs/analysis_results.jsonl` conforming to `analysis_result.schema.yaml`.  
+  - **File**: `src/analysis/wilcoxon_analysis.py`  
+  - **Verification**: Running `python -m src.analysis.wilcoxon_analysis` exits 0; the generated JSONL validates against the schema; a sanity‑check test (`tests/analysis/test_wilcoxon.py`) confirms that known synthetic differences produce the expected significant p‑value.
 
-## Phase 2 – Power analysis, simulation driver, and pipeline verification
+- [ ] T009 [US-3] Generate the final markdown report (`outputs/report.md`) that includes:  
+  1. Median and mean tables for each metric per interface,  
+  2. Wilcoxon (or t‑test) statistics, corrected p‑values, effect sizes, and 95 % CI,  
+  3. Success‑rate breakdowns (vector‑match vs. semantic‑pass),  
+  4. Average NASA‑TLX scores per interface,  
+  5. A statement that current results are from deterministic simulation pending real‑world data.  
+  - **File**: `src/report/generate_report.py`  
+  - **Verification**: `python -m src.report.generate_report` creates `outputs/report.md`; a regex‑based test (`tests/report/test_report_contents.py`) checks for presence of all required sections and that numbers match those in `analysis_results.jsonl`.
 
-- [ ] T009 [P] [US3] Generate the final report, including both median **and** mean statistics, success‑rate tables, and a clear statement that current results are from deterministic simulation.  
-  - **File**: `src/report/generate_report.py`; output `outputs/report.md`.  
-  - **Verification**: `python -m src.report.generate_report` exits 0 and creates `outputs/report.md` containing Mean, Median, Wilcoxon stats, p‑values, effect sizes, confidence intervals, and success‑rate tables derived from raw logs and both analysis result files.
+- [ ] T010 [US-2] Run contract‑validation tests over all JSON‑Lines artifacts (interaction logs, semantic validation records, analysis results).  
+  - **File**: `tests/contract/test_contracts.py`  
+  - **Verification**: `pytest -q tests/contract/test_contracts.py` passes; any malformed line causes a test failure.
 
-- [ ] T012 [P] [US3] Write the methods/results account and paper‑stage handoff manifest.  
-  - **Files**: `paper/handoff.yaml`, `outputs/methods.md`.  
-  - **Verification**: `paper/handoff.yaml` validates as YAML and lists existing artifacts (`outputs/report.md`, `data/logs/interactions_clean.jsonl`, `data/results/semantic_validation.jsonl`, `src/report/generate_report.py`). `outputs/methods.md` references the simulation‑only scope and the pending human study.
+- [ ] T011 [US-3] End‑to‑end integration test that executes the full pipeline on the synthetic dataset, enforces the ≤ 6 hour wall‑clock budget (simulated with a time‑limit decorator), and verifies that `outputs/report.md` exists and contains both median and mean statistics traceable to input logs.  
+  - **File**: `tests/integration/test_end_to_end.py`  
+  - **Verification**: `pytest -q tests/integration/test_end_to_end.py` passes; the test asserts that total runtime < 360 seconds (mocked) and that the report references the synthetic N.
 
-## Phase 3 – Contract validation and end‑to‑end verification
+- [ ] T015 [US-3] Implement a real‑world retention verification that checks after data collection that **≥ 28** of the recruited **≥ 32** participants have completed both interface blocks with at least one primary‑success trial each (SC‑004). The task aborts with an informative error if the criterion is not met.  
+  - **File**: `src/validation/retention_check.py`  
+  - **Verification**: Running the script after participant data ingestion prints a pass/fail summary; a unit test (`tests/validation/test_retention_check.py`) validates correct behavior on synthetic edge cases.
 
-- [ ] T010 [P] [US2] Contract tests over all JSONL artifacts.  
-  - **File**: `tests/contract/test_contracts.py`.  
-  - **Verification**: `pytest -q tests/contract/test_contracts.py` passes; a malformed line in a temporary copy causes failure.
+- [ ] T016 [US-3] Record the actual wall‑clock runtime of the entire pipeline (from start of `run_pipeline.py` to completion of `generate_report.py`) and assert it does not exceed 6 hours on CPU‑only resources (SC‑005).  
+  - **File**: `src/utils/runtime_tracker.py` (integrated into `run_pipeline.py`)  
+  - **Verification**: After pipeline execution, a runtime log is written to `data/checksums.txt`; a test (`tests/utils/test_runtime_tracker.py`) confirms that the logged duration ≤ 21600 seconds.
 
-- [ ] T011 [P] [US3] End‑to‑end integration test with runtime budget enforcement.  
-  - **File**: `tests/integration/test_end_to_end.py`.  
-  - **Verification**: Runs the full documented pipeline on the verification simulation, asserts wall‑clock ≤ 6 h (minutes in practice) and that `outputs/report.md` exists with both mean and median numbers traceable to input JSONL.
+- [ ] T017 [US-3] Execute the Reference‑Validator Agent on all citations in the project (including those in `plan.md`, `spec.md`, and generated reports) before final evaluation, satisfying Constitution Principle II.  
+  - **File**: `src/validation/reference_validator.py`  
+  - **Verification**: The script exits with status 0 only if all citations pass; a CI step fails otherwise.
 
-## Phase 4 – Handoff to paper stage
+---
 
-- [ ] T013 [P] [US3] Implement the human‑data‑collection stub for ingesting real participant logs.  
-  - **File**: `src/simulation/human_data_collection.py`.  
-  - **Verification**: CLI `python -m src.simulation.human_data_collection --input data/real_logs/` parses logs into the unified schema without error.
+## Phase 3 – Documentation, handoff, and human‑study scaffolding  
 
-## Phase 5 – Scaffold entry point (formerly T001)
+- [ ] T012 [P] [US-3] Write the methods/results markdown (`outputs/methods.md`) that references the exact pipeline steps, data sources, and simulation scope, and create a paper‑stage handoff manifest (`paper/handoff.yaml`) listing all artifacts required for manuscript preparation.  
+  - **Files**: `outputs/methods.md`, `paper/handoff.yaml`  
+  - **Verification**: `paper/handoff.yaml` validates as YAML and enumerates `outputs/report.md`, `data/logs/interactions.jsonl`, `data/results/semantic_validation_by_session.jsonl`, and the source code files; `methods.md` contains the required sections (Data, Interfaces, Logging, Validation, Analysis).
 
-- [ ] T001 [P] [US1] Provide a lightweight pipeline scaffolding command that prints help and version information; document usage. Full end‑to‑end smoke is verified by T011.  
-  - **File**: `src/run_pipeline.py`, `quickstart.md`.  
-  - **Verification**: `python -m src.run_pipeline --help` exits 0 and displays usage; `python -m src.run_pipeline --version` shows version string.
+- [ ] T013 [P] [US-3] Implement a stub for ingesting real participant logs (`src/simulation/human_data_collection.py`) that parses logs adhering to the `interaction_log` schema and converts them into the unified session‑aware format used by downstream analysis.  
+  - **File**: `src/simulation/human_data_collection.py`  
+  - **Verification**: Running `python -m src.simulation.human_data_collection --input data/real_logs/` succeeds and produces `data/results/semantic_validation_by_session.jsonl` without schema violations.
+
+- [ ] T014 [P] [US-1] Document the full reproducible workflow in `quickstart.md`, including commands to (a) set up the environment, (b) run the synthetic pipeline, (c) replace the synthetic data with real CrafterBench data once a verified URL is available, and (d) execute the analysis on real participant logs.  
+  - **File**: `quickstart.md`  
+  - **Verification**: A reviewer can follow the steps on a fresh runner and reproduce `outputs/report.md` using only the commands listed; a CI step (`tests/docs/test_quickstart.py`) checks that each command runs without error.
+
+---
+
+## Phase 4 – Optional future extensions (placeholder for later work)  
+
+- T018 (future) – Extend the pipeline to support GPU‑accelerated CLIP inference for larger models if CPU performance becomes a bottleneck.  
+- T019 (future) – Integrate a web‑based participant recruitment portal that writes session metadata directly to the `ParticipantSession` JSON store.
+
+*These tasks are intentionally left unchecked and un‑detailed until the core study is completed and the real dataset becomes available.*  
