@@ -1,35 +1,9 @@
-status: verified
-kind: pypi_package
-ref: deepchem
-access_python: 'import deepchem as dc
-
-
-  # Load the Delaney solubility dataset (a standard DeepChem example)
-
-  tasks, (train, valid, test), _ = dc.molnet.load_delaney(featurizer=''ECFP'')
-
-
-  # Count all records across train, validation, and test splits
-
-  total_records = sum(len(ds) for ds in (train, valid, test))
-
-
-  print(f"RECORDS={total_records}")
-
-
-  # Field names: SMILES identifier plus the target task names
-
-  field_names = [''SMILES''] + tasks
-
-  print("FIELDS=" + ",".join(field_names))'
-record_count: 1128
-sample_fields:
-- SMILES
-- measured log solubility in mols per litre
-field_coverage: 0.5
+status: none
+intent: download MoleculeNet photophysics dataset SMILES fluorescence quantum yield
+  python package dataset
 required_fields:
-- SMILES
+- smiles
 - fluorescence_quantum_yield
-intent: downloadable Joint SMILES Fluorescence Quantum Yield dataset with SMILES strings
-  rdkit python package dataset
-cache_key: 2157ab881e88cf9e2e938c958508076e3efc8446373b0b9601687886369e4eb2
+cache_key: 5d900de02d4b90c9b9aa1c51927b9568922aaa55105deea36dcf62c6b8363872
+searched_at: '2026-10-25T00:13:07.345421+00:00'
+retry_count: 1

@@ -1,3 +1,4 @@
 # Existing dependencies (numpy, pandas, etc.) are provided by the platform.
-# Upgrade NumPy to a version compatible with pyarrow required by the `datasets` library.
+# Added dependencies required for the download script.
 numpy==2.0.0
+deepchem
