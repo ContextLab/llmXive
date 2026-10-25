@@ -1,8 +1,4 @@
 T001:
-  reason: The required directory `data/raw/` is missing (marked MISSING), so the project
-    layout is incomplete despite the presence of `logs/structure.txt` and the documented
-    command in `quickstart.md`. The implementer must add the `data/raw/` directory
-    to satisfy the task.
   task: d21b4b4adb31830a06c2784e444bd7c41506c0f56e426a2b9ef3f06739c7a6bd
 T002:
   reason: 'Requested task execution failed; rerun successfully: src/data/download.py

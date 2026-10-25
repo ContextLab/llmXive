@@ -10,7 +10,6 @@ no synthetic fallback is performed.
 """
 
 import hashlib
-import sys
 from pathlib import Path
 
 from datasets import load_dataset, Dataset

@@ -17,7 +17,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python src/data/download.py -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 16, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 15, in <module>
     from datasets import load_dataset, Dataset
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
     from .arrow_dataset import Column, Dataset
@@ -35,13 +35,13 @@ validate.py: error: the following arguments are required: --input
 
 - python src/data/clean.py -> rc=1
 
-2026-10-25 11:19:57,551 - clean - INFO - Starting data cleaning process
-2026-10-25 11:19:57,552 - clean - ERROR - No VAERS data files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/data/raw
+2026-10-25 12:09:45,694 - clean - INFO - Starting data cleaning process
+2026-10-25 12:09:45,695 - clean - ERROR - No VAERS data files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/data/raw
 
 - python src/main.py -> rc=1
-2026-10-25 11:19:58,278 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-25 11:19:58,373 - matplotlib.font_manager - INFO - generated new fontManager
-2026-10-25 11:19:58,594 - pipeline - INFO - No action specified. Use --full or --phase N
+2026-10-25 12:09:46,737 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-25 12:09:46,938 - matplotlib.font_manager - INFO - generated new fontManager
+2026-10-25 12:09:47,213 - pipeline - INFO - No action specified. Use --full or --phase N
 
 
 - python -m pytest -q tests/contract/ -> rc=4

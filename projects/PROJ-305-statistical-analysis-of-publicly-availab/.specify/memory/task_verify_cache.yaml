@@ -1,11 +1,10 @@
 T001:
-  c: false
-  h: cc969faa81f41733716548dd82c76462c5220e507c71b31c952bcb2f2251fa4b
-  r: The required directory `data/raw/` is missing (marked MISSING), so the project
-    layout is incomplete despite the presence of `logs/structure.txt` and the documented
-    command in `quickstart.md`. The implementer must add the `data/raw/` directory
-    to satisfy the task.
-  sig: aac7aa6018dff5161853b34251f6d795cdeeb5c239a4a422af75eec3ff6232c5
+  c: true
+  h: f234afc377c0ea663f105ae22b0e544a29bff09372405015e06c7ace2bea97f3
+  r: "Checked that all required directories exist, that `logs/structure.txt` is non\u2011\
+    empty and contains the string \u201Csrc\u201D, and that `quickstart.md` documents\
+    \ the command `python -m src.main`."
+  sig: a5230f2cae6130b75c065be1b00f447aa6f7ae2c25fa5005e41adeb1f54528c2
 T003:
   c: false
   h: 318fffd4386daf79fa76598d30b53f0e9e9d81887869d846638cce143285a8fd

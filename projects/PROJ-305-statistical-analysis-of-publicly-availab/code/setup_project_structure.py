@@ -1,94 +1,89 @@
-"""
-Project setup script for T001.
+"""Setup project directory layout and capture a filesystem snapshot.
 
-This script creates the required project directory layout and writes a
-filesystem snapshot to `logs/structure.txt` using the `tree` command when
-available, otherwise falling back to a simple Python implementation.
+This script creates all required directories for the VAERS analysis pipeline
+and writes a three‑level directory tree to ``logs/structure.txt``.  It first
+tries to use the system ``tree`` command; if unavailable it falls back to a
+pure‑Python implementation that mimics ``tree -a -L 3``.
+
+Required directories (created if missing):
+  - src/data/
+  - src/analysis/
+  - src/utils/
+  - src/validation/
+  - tests/unit/
+  - tests/integration/
+  - data/raw/
+  - data/processed/
+  - output/
+  - logs/
+
+The ``quickstart.md`` already documents the runnable command
+``python -m src.main``; this script satisfies the verification steps:
+  * ``test -s logs/structure.txt`` – the file is non‑empty.
+  * ``grep -c src logs/structure.txt`` – at least one line contains ``src``.
 """
 
 import subprocess
 from pathlib import Path
-import sys
 
-# List of directories required by the specification
-REQUIRED_DIRS = [
-    "src/data",
-    "src/analysis",
-    "src/utils",
-    "src/validation",
-    "tests/unit",
-    "tests/integration",
-    "data/raw",
-    "data/processed",
-    "output",
-    "logs",
-]
+from llmxive_toolkit import paths
 
+def _create_required_directories() -> None:
+    """Create the directory tree required by the project."""
+    required_dirs = [
+        Path("src/data"),
+        Path("src/analysis"),
+        Path("src/utils"),
+        Path("src/validation"),
+        Path("tests/unit"),
+        Path("tests/integration"),
+        Path("data/raw"),
+        Path("data/processed"),
+        Path("output"),
+        Path("logs"),
+    ]
+    for d in required_dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
-def create_directories() -> None:
-    """Create all required directories (idempotent)."""
-    for d in REQUIRED_DIRS:
-        Path(d).mkdir(parents=True, exist_ok=True)
+def _write_structure_snapshot() -> None:
+    """Write a three‑level directory listing to ``logs/structure.txt``."""
+    logs_dir = paths.logs()
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    output_path = logs_dir / "structure.txt"
 
-
-def _run_tree_command(output_path: Path) -> bool:
-    """Run `tree -a -L 3` and write its output to `output_path`.
-
-    Returns True if the command succeeded, False otherwise.
-    """
+    # Prefer the real ``tree`` utility for exact formatting.
     try:
-        # The command may not exist on minimal CI images; capture stderr to avoid noise
         result = subprocess.run(
             ["tree", "-a", "-L", "3"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            check=True,
+            capture_output=True,
             text=True,
+            check=True,
         )
         output_path.write_text(result.stdout, encoding="utf-8")
-        return True
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return False
+        return
+    except Exception:
+        # ``tree`` not available – fall back to a simple pathlib walk.
+        max_depth = 3
+        lines = []
 
+        def _add_path(p: Path, depth: int) -> None:
+            indent = "│   " * (depth - 1)
+            prefix = "├── " if depth > 0 else ""
+            lines.append(f"{indent}{prefix}{p.name}")
 
-def _fallback_tree(output_path: Path, max_depth: int = 3) -> None:
-    """Simple fallback that mimics `tree -a -L <max_depth>` using pathlib."""
-    root = Path(".").resolve()
+        root = Path(".")
+        for path in sorted(root.rglob("*")):
+            relative = path.relative_to(root)
+            depth = len(relative.parts)
+            if depth <= max_depth:
+                _add_path(path, depth)
 
-    def _walk(current: Path, prefix: str, depth: int) -> None:
-        if depth > max_depth:
-            return
-        entries = sorted([e for e in current.iterdir()], key=lambda p: p.name.lower())
-        for i, entry in enumerate(entries):
-            connector = "├── " if i < len(entries) - 1 else "└── "
-            line = f"{prefix}{connector}{entry.name}"
-            output_path.write_text(line + "\n", encoding="utf-8", append=True)
-            if entry.is_dir():
-                extension = "│   " if i < len(entries) - 1 else "    "
-                _walk(entry, prefix + extension, depth + 1)
-
-    # Ensure the file starts empty
-    output_path.write_text("", encoding="utf-8")
-    _walk(root, "", 0)
-
-
-def write_structure_snapshot() -> None:
-    """Capture a three‑level directory listing into `logs/structure.txt`."""
-    logs_dir = Path("logs")
-    logs_dir.mkdir(parents=True, exist_ok=True)
-    output_file = logs_dir / "structure.txt"
-
-    if not _run_tree_command(output_file):
-        # Fallback implementation
-        _fallback_tree(output_file, max_depth=3)
-
+        output_path.write_text("\n".join(lines), encoding="utf-8")
 
 def main() -> None:
     """Entry point for the setup script."""
-    create_directories()
-    write_structure_snapshot()
-    print("Project layout created and logged to logs/structure.txt", file=sys.stderr)
-
+    _create_required_directories()
+    _write_structure_snapshot()
 
 if __name__ == "__main__":
     main()

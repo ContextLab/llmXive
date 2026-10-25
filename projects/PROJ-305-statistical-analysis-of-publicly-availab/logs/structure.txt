@@ -14,6 +14,7 @@
 │   │   ├── research_question_validated.yaml
 │   │   ├── task_verifier_notes.md
 │   │   ├── task_verify.feedback.yaml
+│   │   ├── task_verify.yaml
 │   │   ├── task_verify_cache.yaml
 │   │   └── tasker_rounds.yaml
 │   ├── scripts
@@ -130,8 +131,10 @@
 │   ├── analysis
 │   │   └── disproportionality.py
 │   ├── data
+│   │   ├── clean.py
 │   │   ├── download.py
-│   │   └── validate.py
+│   │   ├── validate.py
+│   │   └── validate_raw.py
 │   ├── main.py
 │   ├── requirements.txt
 │   ├── utils
@@ -150,6 +153,7 @@
     │   └── test_temporal_profiles.py
     └── unit
         ├── test_bh_correction.py
+        ├── test_clean_filter.py
         ├── test_disproportionality.py
         ├── test_download.py
         ├── test_download_meddra.py
@@ -157,6 +161,7 @@
         ├── test_structure.py
         ├── test_t022_disproportionality.py
         ├── test_validate.py
-        └── test_validate_e_schema_missing.py
+        ├── test_validate_e_schema_missing.py
+        └── test_validate_raw.py
 
-49 directories, 111 files
+49 directories, 116 files
