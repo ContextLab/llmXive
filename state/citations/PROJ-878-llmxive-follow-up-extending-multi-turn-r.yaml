@@ -1,11 +1,22 @@
-- artifact_hash: 02a92ab6cab2edfe8e40835461c575a52a97950ee0b93b6d63a4c40702deb541
+- artifact_hash: 8d5c58c6fea6f5d1973a8489d2d0751c9363d92c1f1973a0db9f36caa199c512
+  artifact_path: projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/specs/001-llmxive-follow-up-extending-multi-turn-r/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&xip=9af-gkUty0Y&user_id=public&Expires=1792964270&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnhpcD05YWYtZ2tVdHkwWSZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyOTY0MjcwfX19XX0_&Signature=MEUCIBz-mxhb6ZIbZaQtLmYjew-PhkpSwgGBaYHcRYzRWSgUAiEAyvzi9Q8PGCcG8WurIcz3qMwHiV7GSF%7E1%7EPMJXTbZWEs_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-25T20:37:50.072206Z'
+- artifact_hash: bbd4eed1d5c7f7c4d17cb1f7a1352e6dd6c6318ddc927c9e08c532fe6fb1039d
   artifact_path: projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/specs/001-llmxive-follow-up-extending-multi-turn-r/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: test-00000-of-00001.parquet
   kind: url
-  value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet`
+  value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1787082895&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODcwODI4OTV9fX1dfQ__&Signature=MEQCIEgSSgqjhG4ND9AUE9fYWBMLlzbTzLgzbTrFxouyY2szAiAsBn3YF4dotsge6sq-MzluPW4cM4cHyQXQZiJJA3bJCQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-18T18:54:55.425130Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&xip=9af-gkUty0Y&Expires=1792964283&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJnhpcD05YWYtZ2tVdHkwWSIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyOTY0MjgzfX19XX0_&Signature=MEUCIAmWieoEweRWEN6dpG43d9Ot0MWB-KLyJZXfpGgMd00OAiEAg3s-7-btpzbVxJRZVQODlmWNQg%7E25R13O7157CbWKHU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-25T20:38:03.434228Z'

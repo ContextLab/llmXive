@@ -1,52 +1,12 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ExecutionLog"
-description: "Schema for a single execution log entry with censored data handling and logical validation."
-type: "object"
-required:
-  - instance_id
-  - convergence_status
-  - is_censored
-  - limit_hit
-  - runtime_seconds
-  - path_coverage
-properties:
-  instance_id:
-    type: "string"
-    description: "Foreign key to SyntheticPuzzle.instance_id."
-  turns_to_converge:
-    type:
-      - "integer"
-      - "null"
-    minimum: 0
-    description: "Number of turns taken; null if censored (failure)."
-  convergence_status:
-    type: "string"
-    enum:
-      - success
-      - failure
-    description: "Result of the inference loop."
-  is_censored:
-    type: "boolean"
-    description: "True if the run hit the max turn limit."
-  final_token_sequence:
-    type:
-      - "string"
-      - "null"
-    description: "Final output sequence (truncated if long)."
-  path_coverage:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Percentage of model steps matching the DAG edges (ILV metric)."
-  limit_hit:
-    type: "boolean"
-    description: "True if max turn limit was reached."
-  runtime_seconds:
-    type: "number"
-    minimum: 0
-    description: "Wall‑clock time for the run."
-  error_message:
-    type:
-      - "string"
-      - "null"
-    description: "Error details if execution failed."
+description: "Schema for a single execution log entry "
+title: "…"
+title: duplicated 
+title:  
+
+
+
+---
+
+

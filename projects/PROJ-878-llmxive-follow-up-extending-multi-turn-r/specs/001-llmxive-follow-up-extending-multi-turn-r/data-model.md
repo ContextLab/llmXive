@@ -22,7 +22,9 @@ Defines the data structures for the synthetic logical puzzle dataset, execution 
 | `is_acyclic` | `boolean` | Must be `true`. |
 | `is_solvable` | `boolean` | Must be `true`. |
 | `text_generation_method` | `string` | `"template_based"` (ensures deterministic mapping). |
-| `is_orthogonal` | `boolean` | Indicates whether the (depth, branch) pair satisfied the orthogonality constraint (|r| < 0.2). |
+| `is_orthogonal` | `boolean` | Flag indicating whether the (depth, branch) pair met the orthogonality constraint (|r| < 0.2). |
+| `token_length` | `integer` | Number of tokens in `text` (control for textual complexity). |
+| `lexical_complexity` | `number` | Flesch‑Kincaid readability score (control for semantic difficulty). |
 
 ### 2. ExecutionLog (Results)
 **File**: `data/processed/execution_log.csv`
@@ -33,10 +35,12 @@ Defines the data structures for the synthetic logical puzzle dataset, execution 
 | `turns_to_converge` | `integer` or `null` | Number of turns taken; `null` if censored (failure). |
 | `convergence_status` | `string` | `"success"` or `"failure"`. |
 | `is_censored` | `boolean` | `true` if the run hit the max‑turn limit. |
-| `final_token_sequence` | `string` or `null` | Model’s final output (truncated if long). |
-| `path_coverage` | `number` | Fraction of model steps that match DAG edges (0 – 1). |
-| `limit_hit` | `boolean` | `true` if the turn limit was reached. |
+| `limit_hit` | `boolean` | Mirrors `is_censored` for schema compatibility. |
 | `runtime_seconds` | `number` | Wall‑clock time for the run. |
+| `path_coverage` | `number` | Fraction of model steps matching the DAG edges (ILV diagnostic). |
+| `exact_match` | `boolean` | `true` only if the inferred path equals the ground‑truth path (the **sole** success criterion). |
+| `longest_path_divergence` | `number` | Fraction of steps differing from the longest path (required for SC‑006). |
+| `final_token_sequence` | `string` or `null` | Model’s final output (truncated if long). |
 | `error_message` | `string` or `null` | Error details if execution failed. |
 
 ### 3. AnalysisResult (Aggregated Statistics)
@@ -44,15 +48,15 @@ Defines the data structures for the synthetic logical puzzle dataset, execution 
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `cox_depth_hazard_ratio` | `number` | Hazard ratio for `nesting_depth`. |
+| `cox_depth_hazard_ratio` | `number` | Hazard ratio for `nesting_depth` from Cox PH model. |
 | `cox_depth_p_value` | `number` | P‑value for the hazard ratio. |
 | `tipping_point_depth` | `integer` | Depth where the degradation slope changes. |
 | `tipping_point_slope_change` | `number` | Magnitude of slope change at the breakpoint. |
 | `failure_rates` | `object` | Mapping `{threshold_turns: failure_rate}` (e.g., `"40": 0.12`). |
-| `budget_exhaustion_rate` | `number` | Fraction of 50‑turn failures that converge by 1000 turns. |
+| `budget_exhaustion_rate` | `number` | Fraction of 50‑turn failures that converged at 1000 turns. |
 | `collinearity_vif` | `number` | Variance Inflation Factor for predictors (optional). |
 | `orthogonality_check` | `object` | `{ "correlation_coefficient": <float>, "threshold": 0.2 }`. |
-| `spearman_correlation` | `number` | Descriptive Spearman ρ (not used for inference). |
+| `spearman_correlation` | `number` | Descriptive Spearman ρ (not used for inference due to censoring). |
 
 ## Constraints & Validation
 - `is_acyclic` = `true` for every puzzle.
@@ -60,6 +64,9 @@ Defines the data structures for the synthetic logical puzzle dataset, execution 
 - Correlation between depth and branching must be |r| < 0.2 (checked during generation).
 - `turns_to_converge` ≤ `max_turns` (50 primary, 1000 extended) or `null` if censored.
 - `instance_id` must be unique across all files.
-- `path_coverage` ≥ 0.95 required for a `"success"` status.
+- `path_coverage` ≥ 0.95 required for a `"success"` status **only** when `exact_match` is also `true`.
+- `longest_path_divergence` ∈ [0, 1] recorded for each execution (SC‑006).
 
 ---
+
+

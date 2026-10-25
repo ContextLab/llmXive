@@ -1,13 +1,13 @@
 status: none
-intent: download synthetic logical puzzle dataset with topology metadata GSM8K reference
-  python package dataset
+intent: CLUTRR synthetic relational reasoning dataset download python package GSM8K
+  reference python package dataset
 required_fields:
-- instance_id
-- problem_text
-- ground_truth_solution
-- directed_acyclic_graph
+- puzzle_id
+- puzzle_text
+- solution
+- dag_edges
 - max_nesting_depth
 - average_branching_factor
-cache_key: e55a39527d6a14355990b0f0b2f59f05446bb5ba74f7811dec2460f67ca6d134
-searched_at: '2026-10-22T03:21:17.888256+00:00'
+cache_key: a4fb979ba0a0a2c347660bf9e6bc4862522ef0caf9a61e47872308a8681f1a3f
+searched_at: '2026-10-25T20:11:28.528644+00:00'
 retry_count: 1

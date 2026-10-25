@@ -13,6 +13,9 @@ required:
   - is_acyclic
   - is_solvable
   - text_generation_method
+  - target_path_id
+  - seed
+  - is_orthogonal
 properties:
   instance_id:
     type: "string"
@@ -20,28 +23,26 @@ properties:
     description: "Unique identifier for the puzzle instance."
   text:
     type: "string"
-    description: "Natural language representation of the logical puzzle (deterministically mapped)."
+    description: "Natural language representation of the logical puzzle."
   ground_truth:
     type: "string"
-    description: "The correct solution path."
+    description: "The correct solution path in textual form."
   ground_truth_path:
-    type: "array"
-    items:
-      type: "string"
-    description: "Ordered list of node IDs representing the valid logical path."
+    type: "json"
+    description: "Ordered list of node IDs comprising the valid logical path."
   nesting_depth:
     type: "integer"
     minimum: 1
     maximum: 10
-    description: "Max nesting depth of the dependency graph (longest path)."
+    description: "Maximum length of any path in the DAG."
   branching_factor:
     type: "number"
     minimum: 1.0
     maximum: 5.0
-    description: "Average in-degree of non-root nodes."
+    description: "Average in-degree of non‑root nodes."
   graph_structure:
     type: "object"
-    description: "JSON representation of the DAG."
+    description: "JSON representation of the DAG (nodes and edges)."
     properties:
       nodes:
         type: "array"
@@ -55,23 +56,26 @@ properties:
             type: "string"
   target_path_id:
     type: "string"
-    description: "Identifier of the selected solution path."
+    description: "Identifier of selected ground‑truth path (perturbation )."
   seed:
     type: "integer"
-    description: "Random seed used for generation."
-  is_acyclic:
-    type: "boolean"
-    const: true
-    description: "Validation flag; must be true."
-  is_solvable:
-    type: "boolean"
-    const: true
-    description: "Validation flag; must be true."
-  text_generation_method:
-    type: "string"
-    enum:
-      - template_based
-    description: "Must be \"template_based\" to ensure deterministic mapping."
+    description: "Random seed for generation."
   is_orthogonal:
     type: "boolean"
-    description: "Flag indicating if the (depth, branch) pair met the orthogonality constraint (|r| < 0.2)."
+    description: "Flag indicating whether (depth  )."
+  is_acyclic:
+    type: "boolean"
+    description: "Must  "
+    #  
+  is_solvable:
+    type: "boolean"
+    description: "Must  "
+    # -
+    #  "
+  text_generation_method:
+    type: "string"
+    description: "Method  "
+    #  "
+  #  
+
+

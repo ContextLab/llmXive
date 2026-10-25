@@ -3,7 +3,7 @@
 ## Prerequisites
 - Python 3.11+
 - Git
-- ~ 2 GB free RAM (model + data) and ~ 5 GB disk space
+- ~ sufficient free RAM for the model and data, and adequate disk space.
 
 ## Installation
 
@@ -32,7 +32,7 @@ EOF
 ### 1️⃣ Generate Synthetic Dataset
 ```bash
 python code/graph_generator.py \
-  --count 500 \
+  --count <sufficiently large sample> \
   --depth-min 1 --depth-max 10 \
   --branch-min 1 --branch-max 5 \
   --output data/raw/synthetic_puzzles.jsonl \
@@ -50,15 +50,14 @@ python code/rm_executor.py \
   --batch-size 5 \
   --device cpu
 ```
-- For the extended budget run (FR‑008):
+- For the extended budget run (FR‑008) on the **full** dataset:
 ```bash
 python code/rm_executor.py \
   --input data/raw/synthetic_puzzles.jsonl \
   --output data/processed/execution_log_extended.csv \
   --max-turns 1000 \
   --batch-size 5 \
-  --device cpu \
-  --subset 0.2   # optional: run on 20 % subset for speed
+  --device cpu
 ```
 
 ### 3️⃣ Statistical Analysis
@@ -94,5 +93,9 @@ cat results/statistical_report.json
 - **Slow runtime**: Ensure no other CPU‑intensive jobs are running; the process is CPU‑bound.
 - **Graph generation failures**: Extreme depth/branch combos may be infeasible; adjust ranges or increase the number of rejection‑sampling attempts.
 - **High collinearity**: If orthogonalization repeatedly fails, consider a sparser grid of target pairs (still respects FR‑007).
+- **Success mis‑labeling**: Remember that a run is marked **successful** only when the inferred path exactly matches the ground‑truth path; `path_coverage` alone is insufficient.
+- **Extended budget analysis**: The 1000‑turn run processes the **full** dataset; expect longer runtime but still within CI limits.
 
 ---
+
+
