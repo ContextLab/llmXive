@@ -35,7 +35,7 @@ ERROR tests/unit/test_population.py
 ERROR tests/unit/test_result_aggregator.py
 ERROR tests/unit/test_symbolic_parser.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 0.79s ===============================
+============================== 6 errors in 0.78s ===============================
 
 
 

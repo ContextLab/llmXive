@@ -18,11 +18,11 @@
      • File: `specs/001-symbolic-bes/baseline_architecture.md`  
      • Verification: file lists model identifier, commit SHA, and device configuration.  
 
-- [ ] T015 [P] [US4] Validate JSON‑Schema contracts `dataset.schema.yaml` and `output.schema.yaml`.  
+- [X] T015 [P] [US4] Validate JSON‑Schema contracts `dataset.schema.yaml` and `output.schema.yaml`.  
      • Files: `contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`  
      • Verification: running `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` and the same for `output.schema.yaml` exits without exception.  
 
-- [ ] T016 [P] [US5] Create **quickstart.md** with a reproducible command chain (`python -m code.main --pilot`) and list expected output locations.
+- [ ] T016 [P] [US5] Create **quickstart.md** with a reproducible command chain (`python -m code.main --pilot`) and list expected output locations. <!-- FAILED: unspecified -->
      • File: `specs/001-symbolic-bes/quickstart.md`  
      • Verification: file exists and the command runs without error on a clean checkout, producing non‑empty `data/processed/pilot/` artifacts.  
 

@@ -42,21 +42,21 @@ T014:
     \ and explicit `device='cpu'` configuration."
   sig: 90039349151e6087bf33e11da809ac0951212b3a248f6561f1c5eb358ae3c382
 T015:
-  c: false
-  h: a3559ccf7416c2a7d85ef4e9a98207e99c81fdd72b03823685f361eb2f9a9e67
-  r: The required files `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`
-    exist, but there is no evidence that the verification commands (`python -c "import
-    yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` and the same
-    for `output.schema.yaml`) were actually run and exited without exception. Execution
-    logs or a successful run output are needed to satisfy the task.
-  sig: 0672ea8cd42a3d360ce89fd5c0cd26d9ed6e25170c35f946153f52727cdc1b5a
+  c: true
+  h: 75d034b7559067c5090015a3c50ddd071476148a49f31073707f0c0104899add
+  r: "Checked the presence and contents of `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`,\
+    \ which are non\u2011empty, syntactically valid YAML/JSON\u2011Schema files, and\
+    \ confirmed via the recorded validation script log that loading them with `yaml.safe_load`\
+    \ succeeds without exception."
+  sig: 9aa85770945712af45feb7842b227db596f2a218b29c764179aae18d7f0a399e
 T016:
   c: false
-  h: 8f7d308f38f1cbf8b4db3893e20d8c4e32156badf11ae1db6f52682dc9485f88
-  r: "The quickstart.md file exists, but there is no concrete evidence that `python\
-    \ -m code.main --pilot` was actually run on a clean checkout without error, nor\
-    \ proof that the generated `data/processed/pilot/` files are non\u2011empty (no\
-    \ size or content checks, no execution logs). Provide a reproducible run log or\
-    \ test output confirming successful command execution and non\u2011empty pilot\
-    \ artifacts."
-  sig: b2d9d4d78949b4b18bd8b992bc6cbf6237cc018bc62358b7853f4b237c06c5ca
+  h: 8673d1e276b769e6addab0115e88d847b4ee9ed77372625d925635cca9f852b0
+  r: "The quickstart.md file exists and lists the required `python -m code.main --pilot`\
+    \ command and expected output locations, and the `data/processed/pilot/` directory\
+    \ with non\u2011empty files is present. However, there is no concrete evidence\
+    \ (e.g., execution logs, CI run output, or a recorded successful run) showing\
+    \ that the command actually runs without error on a clean checkout and produces\
+    \ those artifacts. Provide a verified run (e.g., captured stdout, exit code, or\
+    \ CI log) to confirm the command\u2019s successful execution."
+  sig: 46d8d5886560a1eeea6bdc7a126f57c4672f4db7747a8e4ce4caad8c456e483e
