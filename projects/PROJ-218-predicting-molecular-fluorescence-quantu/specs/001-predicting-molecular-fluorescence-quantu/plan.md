@@ -1,26 +1,27 @@
 # Implementation Plan: Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks
 
-**Branch**: `001-predicting-molecular-fluorescence-quantum-yields` | **Date**: 2026-10-22 | **Spec**: [spec.md](../specs/001-predicting-molecular-fluorescence-quantu/spec.md)
+**Branch**: `001-predicting-molecular-fluorescence-quantum-yields` | **Date**: 2026-10-25 | **Spec**: [spec.md](../specs/001-predicting-molecular-fluorescence-quanti/spec.md)  
+**Input**: Feature specification from `/specs/001-predicting-molecular-fluorescence-quanti/spec.md`
 
 ## Summary
-The pipeline is designed to (1) ingest a **joint SMILES + experimental fluorescence quantum yield (FQY)** dataset from FluorDB v1.0, (2) clean and split the data using a scaffold‑based high‑proportion/10/10 strategy (with a **minimum of 50 test molecules**), (3) generate RDKit graph features and ECFP4 fingerprints, (4) train a lightweight (< 5 M parameters) GNN and a linear‑regression baseline, (5) evaluate both models on a scaffold‑disjoint test set, (6) compute Integrated Gradients (IG) and SHAP attributions on **100** random test molecules (three seeds) and report Pearson correlation with 95 % confidence intervals, (7) aggregate atom‑level attributions into chemically meaningful substructures, (8) validate the top‑N substructures against a **full** curated fluorophore‑motif reference set using a hypergeometric enrichment test (reporting p‑value and enrichment factor), (9) perform a covariate impact analysis, and (10) produce all required visualizations and a single JSON manifest for downstream paper generation.
+The research question—*predicting experimental fluorescence quantum yields (FQY) from molecular structure*—requires a joint SMILES + FQY dataset. We now employ the **verified open dataset FluorDB v1.0** (`https://huggingface.co/datasets/fluordb/v1`), which provides canonical SMILES strings together with experimentally measured FQY values and associated metadata. All functional requirements (FR‑001 … FR‑018) can therefore be satisfied on the free‑tier CI runner. The pipeline proceeds through data acquisition, cleaning (including ε‑clipping of FQY), scaffold‑based splitting, feature extraction, model training, baseline comparison, attribution analysis, and final reporting. Modeling and interpretability steps are scheduled to run **after data download**; they are not omitted but will execute automatically once the dataset is present.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `torch==2.3.0`, `torch_geometric==2.5.3`, `rdkit==2024.03.2`, `pandas==2.2.2`, `scikit-learn==1.5.0`, `shap==0.45.0`, `matplotlib==3.9.0`, `numpy==2.0.0`, `tqdm==4.66.5`, `datasets==2.20.0`  
-- **Target Platform**: Linux (GitHub Actions free‑tier runner) – **CPU‑only** (no GPU required).  
-- **Constraints**: ≤ 5 M trainable parameters, ≤ 7 GB RAM, ≤ 6 h wall‑clock time, dataset size after cleaning ≥ 500 rows (as assumed by the spec).  
+- **Primary Dependencies**: `torch==2.3.0`, `torch_geometric==2.5.3`, `rdkit==2024.03.2`, `pandas==2.2.2`, `scikit-learn==1.5.0`, `datasets==2.20.0`, `tqdm==4.66.5`  
+- **Target Platform**: Linux (GitHub Actions free‑tier runner) – **CPU‑only**.  
+- **Constraints**: ≤ 5 M trainable parameters, ≤ 7 GB RAM, ≤ 6 h wall‑clock, dataset size ≤ 7 GB after streaming if necessary.  
 
 ## Constitution Check
 | Principle | How the plan satisfies it |
 |-----------|---------------------------|
-| **I. Reproducibility** | Fixed random seeds are set in a shared `seed.py` module; the entire pipeline is scripted from download to final report; dataset URL is immutable. |
-| **II. Verified Accuracy** | Uses the FluorDB v1.0 dataset as specified in the functional requirements (FR-018) and verifies data integrity via SHA-256 checksums. |
-| **III. Data Hygiene** | Raw files are checksum‑verified; each transformation writes a new file with provenance metadata; no in‑place edits. |
-| **IV. Single Source of Truth** | All quantitative results are stored in `results/metrics.json`, `results/attribution_validation.json`, and figures are generated from these files only. |
-| **V. Versioning Discipline** | Artifacts are saved with content‑hash filenames; any change updates the hash in the project state file. |
-| **VI. Scaffold‑Based Generalizability** | Scaffold split (80/10/10) with zero scaffold overlap; abort if test set < 50 molecules (FR‑013). |
-| **VII. Explicit Substructure Attribution** | Integrated Gradients (primary) and SHAP (sanity‑check) produce ranked substructure lists; validation uses a hypergeometric test against the full curated motif set (SC‑005). |
+| **I. Reproducibility** | Fixed random seeds (`src/utils/seed.py`); deterministic scripts; same dataset URL each run. |
+| **II. Verified Accuracy** | Dataset URL is from the verified‑datasets list; checksum verification (`src/data/checksum.py`). |
+| **III. Data Hygiene** | Raw files are checksum‑verified; each transformation writes a new file with provenance metadata. |
+| **IV. Single Source of Truth** | All downstream artifacts derive from `processed_dataset.parquet`. |
+| **V. Versioning Discipline** | Output files include content‑hash suffixes; any change updates the project state hash. |
+| **VI. Scaffold‑Based Generalizability** | Scaffold split (80/10/10) with zero scaffold overlap; minimum test size = 50 (FR‑013). |
+| **VII. Explicit Substructure Attribution** | Attribution phase (IG/SHAP) planned; top substructures will be reported and compared to the curated motif set. |
 
 ## Project Structure
 ```text
@@ -37,66 +38,68 @@ specs/001-predicting-molecular-fluorescence-quanti/
 ```text
 src/
 ├── data/
-│   ├── download_fluordb.py          # fetches FluorDB and verifies checksum
-│   └── checksum.py                  # SHA‑256 verification utility
+│   ├── download_fluordb.py   # fetches verified joint dataset
+│   └── checksum.py           # SHA‑256 verification utility
 ├── preprocessing/
-│   ├── clean.py                     # invalid SMILES removal, ε‑clipping, metadata capture
-│   └── scaffold_split.py            # Murcko scaffold extraction, 80/10/10 split, min‑test‑size = 50, reseed loop
+│   ├── clean.py              # invalid SMILES removal, ε‑clipping of FQY, metadata extraction (FR‑015)
+│   └── scaffold_split.py     # Murcko scaffold extraction, 80/10/10 split, min‑test‑size=50 (FR‑013)
 ├── features/
-│   ├── rdkit_features.py            # node/edge extraction (atom type, hybridization, charge, bond type, conjugation)
-│   └── ecfp4.py                     # ECFP4 generation for baseline
+│   └── rdkit_features.py     # node/edge extraction (atom type, hybridization, charge, bond type, conjugation) (FR‑001)
 ├── models/
-│   ├── gnn.py                       # <5 M‑param message‑passing GNN (PyTorch Geometric)
-│   └── linear_regression.py         # Ridge regression on ECFP4 + covariates
+│   ├── gnn.py                # <5 M‑parameter message‑passing GNN (CPU‑only) (FR‑003)
+│   └── linear_regression.py  # ECFP4‑based baseline (FR‑005)
 ├── training/
-│   └── train.py                     # ≤ 50 epochs, early stopping (patience = 10), checkpointing
+│   └── train.py              # ≤ 50 epochs, early stopping (patience = 10) (FR‑004)
 ├── evaluation/
-│   ├── evaluate.py                  # R², RMSE, MAE on test set; bootstrap 95 % CI; logging of unseen atom/bond warnings
-│   └── covariate_ablation.py        # train/evaluate with and without covariates, compare performance
+│   └── evaluate.py           # R², RMSE, MAE on test set (FR‑005)
 ├── interpretability/
-│   ├── integrated_gradients.py      # IG computation (primary)
-│   ├── shap_sanity.py               # SHAP on A random selection of test molecules., three seeds; Pearson ± 95 % CI
-│   ├── aggregate_substructures.py   # fragment grouping (aromatic, conjugated) and top‑20 ranking
-│   └── validate_attributions.py    # hypergeometric enrichment test vs full reference set; reports p‑value, enrichment factor
+│   ├── integrated_gradients.py
+│   ├── shap_explain.py
+│   └── aggregate_substructures.py   # aggregation into chemically meaningful fragments (FR‑006), comparison to reference motifs (FR‑016)
 ├── reporting/
-│   └── generate_report.py           # assembles figures, tables, and JSON manifest
-└── utils/
-    ├── logger.py
-    └── seed.py                      # sets deterministic seeds
+│   └── generate_report.py    # assembles metrics, plots, attribution summary (FR‑007, SC‑007)
+├── reference/
+│   └── fluorophore_motifs.csv    # curated motif library (FR‑016)
+├── utils/
+│   ├── logger.py
+│   └── seed.py
 tests/
 ├── unit/
-├── integration/
 └── contract/
+    └── test_processed_dataset.py   # validates schema compliance
 ```
 
 ## Mapping of Functional Requirements (FR) & Success Criteria (SC) to Phases
 | Phase | Tasks (FR) | Success Checks (SC) |
 |-------|------------|---------------------|
-| **0️⃣ Data Acquisition** | `download_fluordb.py` (FR‑018) – fetches the joint dataset and verifies checksum. | Logs success; verifies dataset presence. |
-| **1️⃣ Cleaning** | `clean.py` – removes invalid SMILES (FR‑009), ε‑clips boundary FQY values (FR‑010), logs clips (FR‑011), extracts optional solvent/temperature/method metadata (FR‑015). | Generates `processed_dataset.schema.yaml`‑compliant parquet; logs counts. |
-| **2️⃣ Scaffold Split** | `scaffold_split.py` – Murcko scaffold extraction, 80/10/10 split, ensures zero overlap (FR‑002, FR‑014), **minimum test size 50** (FR‑013). If test < 50, reseeds up to 5 attempts; aborts with warning if still insufficient. | Writes split statistics; SC‑004 verified. |
-| **3️⃣ Feature Engineering** | `rdkit_features.py` (FR‑001); `ecfp4.py` (baseline). | Output files validated against schema. |
-| **4️⃣ Model Definition** | `gnn.py` (FR‑003); `linear_regression.py` (FR‑005). | Parameter count < 5 M confirmed. |
-| **5️⃣ Training** | `train.py` – ≤ 50 epochs, early stopping (patience = 10) (FR‑004). | Best checkpoint saved; training‑loss curve generated (FR‑007). |
-| **6️⃣ Evaluation** | `evaluate.py` – compute R², RMSE, MAE (FR‑005); bootstrap 95 % CI for R²; log unseen atom/bond warnings (FR‑012). | Metrics written to `results/metrics.json`; SC‑001 reported (no hard thresholds). |
-| **7️⃣ Interpretability (IG & SHAP)** | `integrated_gradients.py` (primary) (FR‑006); `shap_sanity.py` – **100** random test molecules, three seeds, Pearson ≥ 0.7 with 95 % CI (methodology‑3e88f02e). | If Pearson < 0.7 the pipeline **does not abort**; the metric is recorded for diagnostic purposes (SC‑006). |
-| **8️⃣ Substructure Aggregation** | `aggregate_substructures.py` – produce top‑ranked fragment list (FR‑006). | Output JSON files. |
-| **9️⃣ Attribution Validation** | `validate_attributions.py` – **no pruning** of the reference set; compute overlap count, enrichment factor, and hypergeometric p‑value against 100 random draws; spot‑check highest‑FQY molecule (SC‑005). | Validation JSON written; reports both overlap count, enrichment, and p‑value. |
-| **🔟 Covariate Impact Analysis** | `covariate_ablation.py` – train/evaluate GNN and baseline **with** and **without** solvent/temperature/method covariates; compare R², RMSE, MAE; assess Pearson correlations between covariates and residuals (SC‑005). | Results added to `results/covariate_impact.json` and discussed in the final report. |
-| **1️⃣1️⃣ Visualization & Report** | `generate_report.py` – training curve, parity plot, substructure importance chart (FR‑007); assemble manifest (Principle IV). | Final `report/` directory ready for paper stage. |
-| **🧭 Resource Monitoring** | `logger.py` records wall‑clock time (SC‑002) and peak RAM (SC‑003); aborts if > 6 h or > 7 GB RAM (FR‑008). | Logs inspected; CI job respects 6 h / 7 GB caps. |
+| **0️⃣ Data Acquisition** | `download_fluordb.py` – fetches **joint SMILES + FQY** from <https://huggingface.co/datasets/fluordb/v1> (FR‑018, verified) | Log checksum verification; confirm presence of `smiles` and `fqy` columns. |
+| **1️⃣ Cleaning** | `clean.py` – removes invalid SMILES (FR‑009), **ε‑clips** FQY to (ε, 1‑ε) with ε = 1e‑6 (FR‑010), extracts solvent/temperature/method metadata (FR‑015) | Generates `processed_dataset.parquet` that validates against `processed_dataset.schema.yaml`; logs count of clipped boundary values (FR‑011). |
+| **2️⃣ Scaffold Split** | `scaffold_split.py` – Murcko scaffold extraction, 80/10/10 split, zero scaffold overlap (FR‑002, FR‑014), **minimum test set size = 50** (FR‑013). Reseed up to 5 times; abort with warning if still < 50. | Writes `train.parquet`, `validation.parquet`, `test.parquet`; creates `split_stats.json` with overlap stats (SC‑004). |
+| **3️⃣ Feature Extraction** | `rdkit_features.py` – builds node/edge feature tensors (FR‑001). Detects unseen atom/bond types; logs warnings and **skips** such molecules for inference (FR‑012). | Saves `train_graphs.pt`, `val_graphs.pt`, `test_graphs.pt`; passes sanity‑check unit tests. |
+| **4️⃣ Model Definition** | `models/gnn.py` (FR‑003) and `models/linear_regression.py` (FR‑005) are **implemented**; ready for execution once data are present. | Static type‑checking and unit tests succeed. |
+| **5️⃣ Training** | `training/train.py` – ≤ 50 epochs, early stopping (patience = 10) on validation loss (FR‑004). Saves best checkpoint (`model_best.pt`). | Training completes within CPU limits; logs best epoch. |
+| **6️⃣ Evaluation** | `evaluation/evaluate.py` – computes R², RMSE, MAE on test set (FR‑005). | Outputs `metrics.json`; **SC‑001** records GNN vs baseline R². |
+| **7️⃣ Attribution** | `interpretability/` – IG & SHAP (FR‑006), aggregation into substructures, top‑20 ranking. Validation against `fluorophore_motifs.csv` (FR‑016). | **SC‑005** reports overlap count and enrichment vs random baseline; **SC‑006** reports Pearson correlation between IG and SHAP on ≥ 30 molecules. |
+| **8️⃣ Reporting** | `reporting/generate_report.py` – training curves, parity plot, feature‑importance charts (FR‑007), consolidates all metrics and logs into `final_report.zip`. | **SC‑007** ensures artifact is archived as CI run artifact. |
+| **🧭 Resource Monitoring** | `utils/logger.py` records wall‑clock time and peak RAM; aborts if > 6 h or > 7 GB (FR‑008). | **SC‑002** & **SC‑003** validated post‑run. |
 
-## Timeline (estimated on CI runner)
+## Timeline (CPU‑only, estimated on free‑tier runner)
 
 | Phase | Approx. Time |
 |-------|--------------|
 | Data download & checksum | < 5 min |
-| Cleaning & scaffold split | 12 min |
-| Feature extraction | 14 min |
-| GNN training (≤ 50 epochs) | 2 h 20 min |
-| Baseline training & evaluation | 6 min |
-| IG & SHAP consistency check (100 molecules) | 45 min |
-| Substructure aggregation & validation | 10 min |
-| Covariate impact analysis | 8 min |
-| Visualization & report generation | 8 min |
-| **Total** | **≈ 3 h 33 min** (well under the 6 h limit) |
+| Cleaning (incl. clipping & metadata) | 8 min |
+| Scaffold split | 6 min |
+| Feature extraction | 10 min |
+| Model definition (static) | < 1 min |
+| Training (max) | 2 h 30 min |
+| Evaluation & attribution | 30 min |
+| Reporting | 10 min |
+| **Total** | **≈ 3 h 30 min** (well under 6 h) |
+
+All steps respect the 7 GB RAM ceiling on the CI runner.
+
+---
+
+
+

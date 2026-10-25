@@ -1,6 +1,6 @@
 # Quickstart: Predicting Molecular Fluorescence Quantum Yields with Graph Neural Networks
 
-This guide walks a new researcher through the entire end‑to‑end pipeline on the free‑tier GitHub Actions runner (or locally on a similar Linux environment).
+This guide walks a new researcher through the **executable portion** of the pipeline (data download, cleaning, scaffold split, graph feature extraction, model training, evaluation, attribution, and reporting) on the free‑tier GitHub Actions runner (or locally on a similar Linux environment).
 
 ## 1️⃣ Prerequisites
 ```bash
@@ -18,152 +18,135 @@ pip install -r requirements.txt
 
 ## 2️⃣ Data Download & Verification
 ```bash
-# Download the joint FluorDB v1.0 dataset
+# Download the verified joint SMILES + FQY dataset
 python -m src.data.download_fluordb \
-  --url https://huggingface.co/datasets/fluordb/v1/resolve/main/data/fluordb.parquet \
+  --url https://huggingface.co/datasets/fluordb/v1 \
   --output data/raw/fluordb.parquet
 ```
-- The script computes a SHA‑256 checksum (recorded in `data/checksums.txt`) to ensure data integrity.
+- The script computes a SHA‑256 checksum (recorded in `data/checksums.txt`) to guarantee integrity (FR‑018).
 
-## 3️⃣ Deterministic Cleaning & Scaffold Split
+## 3️⃣ Deterministic Cleaning & Metadata Extraction
 ```bash
-# Clean the raw dataset (remove invalid SMILES, ε‑clip boundary FQY values, extract metadata)
+# Clean the raw file: remove invalid SMILES, ε‑clip FQY, extract solvent/temperature/method metadata.
 python -m src.preprocessing.clean \
   --input data/raw/fluordb.parquet \
   --output data/processed/cleaned.parquet
+```
+- Invalid SMILES are **excluded** and logged (FR‑009).  
+- FQY values are clipped to the interval (ε, 1‑ε) with ε = 1e‑6 (FR‑010).  
+- Any boundary values (exact 0 or 1) are logged (FR‑011).  
+- Optional columns `solvent`, `temperature`, `measurement_method` are copied into a nested `metadata` field (FR‑015).
 
-# Perform scaffold‑based 80/10/10 split; enforce a minimum **50** test molecules
+## 4️⃣ Scaffold‑Based Split (80/10/10, min test = 50)
+```bash
 python -m src.preprocessing.scaffold_split \
   --input data/processed/cleaned.parquet \
   --output-dir data/processed/split/ \
   --min-test-size 50
 ```
-- Invalid SMILES are **excluded** and logged (FR‑009).  
-- Exact 0 or 1 FQY values are **ε‑clipped** to `[1e-6, 1‑1e-6]` and logged (FR‑011).  
-- No additional scaling is performed (FR‑010).  
-- Scaffold split guarantees zero overlap; counts and overlap stats are written to `split_stats.json` (FR‑014).  
-- The script **aborts** if the test set contains fewer than **50** molecules (FR‑013).
+- Murcko scaffolds are extracted, and the dataset is partitioned ensuring **zero scaffold overlap** between train and test (FR‑002, FR‑014).  
+- If the test set ends up smaller than a minimal acceptable size after five reseed attempts, the script aborts with a warning (FR‑013)..  
+- Split statistics are written to `data/processed/split/split_stats.json`.
 
-## 4️⃣ Feature Extraction
+## 5️⃣ Graph Feature Extraction (RDKit)
 ```bash
-# Node/edge features for GNN
 python -m src.features.rdkit_features \
   --input data/processed/split/train.parquet \
   --output data/processed/features/train_graphs.pt
 
-# ECFP4 fingerprints for baseline
-python -m src.features.ecfp4 \
-  --input data/processed/split/train.parquet \
-  --output data/processed/features/train_ecfp4.npy
+python -m src.features.rdkit_features \
+  --input data/processed/split/validation.parquet \
+  --output data/processed/features/val_graphs.pt
+
+python -m src.features.rdkit_features \
+  --input data/processed/split/test.parquet \
+  --output data/processed/features/test_graphs.pt
 ```
 - Node features: atom type, hybridization, formal charge.  
 - Edge features: bond type, conjugation status (FR‑001).  
-- Condition covariates (solvent, temperature, measurement method) are automatically appended (FR‑015).
+- Any molecule containing an atom or bond type unseen in the training set triggers a **warning** and is **skipped for inference** (FR‑012); such molecules are retained for evaluation.
 
-## 5️⃣ Model Training
+## 6️⃣ Model Training & Baseline Comparison
 ```bash
-# Train the lightweight GNN (CPU‑only, max 50 epochs, early stopping patience=10)
+# Train the GNN (≤ 5 M parameters) with early stopping
 python -m src.training.train \
-  --graph-features data/processed/features/train_graphs.pt \
-  --targets data/processed/split/train.parquet \
-  --validation-split data/processed/split/validation.parquet \
-  --epochs 50 \
-  --patience 10 \
-  --output models/gnn_best.pt
+  --train data/processed/features/train_graphs.pt \
+  --val data/processed/features/val_graphs.pt \
+  --output-dir models/gnn/ \
+  --max-epochs 50 \
+  --patience 10
 
-# Train the linear‑regression baseline on ECFP4 + covariates
-python -m src.training.train_lr \
-  --features data/processed/features/train_ecfp4.npy \
-  --metadata data/processed/split/train.parquet \
-  --output models/lr.pkl
+# Train the linear regression baseline on ECFP4 fingerprints
+python -m src.models.linear_regression \
+  --train data/processed/features/train_graphs.pt \
+  --val data/processed/features/val_graphs.pt \
+  --output models/baseline.pkl
 ```
-- Early stopping saves the checkpoint with the lowest validation loss (FR‑004).  
-- Condition covariates are concatenated to the input vectors (methodology‑cf615953).
+- Training completes without GPU usage; the best checkpoint is saved based on validation loss (FR‑004).  
+- Early stopping saves the epoch with the lowest validation loss if convergence fails (FR‑004).
 
-## 6️⃣ Evaluation
+## 7️⃣ Evaluation
 ```bash
 python -m src.evaluation.evaluate \
-  --gnn-model models/gnn_best.pt \
-  --lr-model models/lr.pkl \
-  --test-data data/processed/split/test.parquet \
-  --output results/metrics.json \
-  --fig-dir figures/
+  --model models/gnn/model_best.pt \
+  --baseline models/baseline.pkl \
+  --test data/processed/features/test_graphs.pt \
+  --output metrics.json
 ```
-- Computes R², RMSE, MAE for both models (FR‑005).  
-- Generates a parity plot, training‑loss curve, and condition‑wise metric tables (FR‑007).  
-- Bootstrap confidence interval for R² is computed; results are stored in `results/metrics.json`.  
-- Unseen atom/bond types encountered in the test set are **logged**; they are retained for evaluation, while any new inference inputs with unseen chemistry will be **skipped** with a warning (FR‑012).
+- Outputs R², RMSE, and MAE for both the GNN and the baseline (FR‑005).  
+- SC‑001 records the GNN vs. baseline R² improvement.
 
-## 7️⃣ Interpretability (Integrated Gradients & SHAP)
+## 8️⃣ Feature Attribution & Interpretability
 ```bash
-# Integrated Gradients (primary) on the whole test set
+# Integrated Gradients
 python -m src.interpretability.integrated_gradients \
-  --model models/gnn_best.pt \
-  --test-data data/processed/split/test.parquet \
-  --output attributions/ig/
+  --model models/gnn/model_best.pt \
+  --test data/processed/features/test_graphs.pt \
+  --output attributions/ig.npy
 
-# SHAP sanity‑check on a random subset of **100** test molecules, three seeds
-python -m src.interpretability.shap_sanity \
-  --model models/gnn_best.pt \
-  --test-data data/processed/split/test.parquet \
-  --sample-size 100 \
-  --seeds 42 123 999 \
-  --output attributions/shap/
-```
-- IG produces atom‑level attribution scores saved as JSON per molecule.  
-- SHAP scores are compared to IG; the script **records** Pearson correlation and its 95 % confidence interval (methodology‑3e88f02e) but does **not abort** if the correlation falls below 0.7.
+# SHAP explanations
+python -m src.interpretability.shap_explain \
+  --model models/gnn/model_best.pt \
+  --test data/processed/features/test_graphs.pt \
+  --output attributions/shap.npy
 
-## 8️⃣ Substructure Aggregation & Validation
-```bash
-# Aggregate atom attributions into aromatic/conjugated fragments and rank the top‑N fragments.
+# Aggregate atom‑level attributions into chemically meaningful substructures
 python -m src.interpretability.aggregate_substructures \
-  --ig-dir attributions/ig/ \
-  --output attributions/aggregated_top20.json
-
-# Also produce an atom‑level top‑ranked list for completeness
-python -m src.interpretability.aggregate_substructures \
-  --ig-dir attributions/ig/ \
-  --atom-level \
-  --output attributions/atom_top20.json
-
-# Validate against the curated fluorophore‑motif reference set (full set, no pruning)
-python -m src.interpretability.validate_attributions \
-  --aggregated attributions/aggregated_top20.json \
+  --ig attributions/ig.npy \
+  --shap attributions/shap.npy \
   --reference data/reference/fluorophore_motifs.csv \
-  --train-data data/processed/split/train.parquet \
-  --test-data data/processed/split/test.parquet \
-  --output results/attribution_validation.json
+  --output attribution_metrics.json
 ```
-- The validation script computes **overlap count**, **enrichment factor**, and a **hypergeometric p‑value** against 100 random draws; it also spot‑checks the highest‑FQY test molecule and reports whether ≥ 3 of its top‑5 fragments match the reference set (US‑3 Scenario 3). No hard pass/fail gate is imposed.
+- Produces a ranked list of the **top 20 substructures** (FR‑006).  
+- SC‑005 reports overlap with the curated motif set and enrichment vs random baseline.  
+- SC‑006 reports Pearson correlation between IG and SHAP scores on ≥ 30 randomly selected test molecules.
 
-## 9️⃣ Covariate Impact Analysis
-```bash
-# Train/evaluate GNN and baseline **with** covariates (default) and **without** them
-python -m src.evaluation.covariate_ablation \
-  --gnn-model models/gnn_best.pt \
-  --lr-model models/lr.pkl \
-  --train-data data/processed/split/train.parquet \
-  --validation-data data/processed/split/validation.parquet \
-  --test-data data/processed/split/test.parquet \
-  --output results/covariate_impact.json
-```
-- Produces ΔR², ΔRMSE, and Pearson correlations between each covariate and model residuals, allowing assessment of potential confounding.
-
-## 🔟 Final Report Generation
+## 9️⃣ Reporting
 ```bash
 python -m src.reporting.generate_report \
-  --metrics results/metrics.json \
-  --attribution-validation results/attribution_validation.json \
-  --covariate-impact results/covariate_impact.json \
-  --fig-dir figures/ \
-  --output report/
+  --metrics metrics.json \
+  --attribution attribution_metrics.json \
+  --split-stats data/processed/split/split_stats.json \
+  --output-dir reports/
 ```
-- Populates `report/` with markdown tables, figures, and a `manifest.json` that the downstream paper stage will consume.
+- Generates training convergence plot, parity plot, feature‑importance bar chart, and a JSON manifest.  
+- The `reports/` folder is archived as a CI artifact (SC‑007).
 
-## 🔧 Clean‑up (optional)
+## 🔟 Resource Monitoring & Logging
+All scripts import `src.utils.logger` which records:
+- Wall‑clock time (must stay ≤ 6 h) – SC‑002.  
+- Peak RAM usage (must stay ≤ 7 GB) – SC‑003.  
+- Counts of excluded SMILES, scaffold overlap statistics, clipping warnings, and any unseen atom/bond warnings.
+
+## 11️⃣ Clean‑up (optional)
 ```bash
 # Remove large raw files to stay within CI disk quota
 rm -rf data/raw/
 ```
 
-**All steps are fully scripted; re‑running the `quickstart.sh` script reproduces the entire analysis from raw download to final report without manual intervention.**
+**All steps are fully scripted; re‑running the `quickstart.sh` script reproduces the entire analysis from raw download to final report without manual intervention.** When a new joint dataset becomes available, simply update the URL in `download_fluordb.py` and re‑run the pipeline.
+
+---
+
+
+

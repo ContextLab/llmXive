@@ -12,23 +12,40 @@ properties:
     type: string
     description: "Canonical SMILES string parsed by RDKit."
   fqy_raw:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Experimental fluorescence quantum yield as reported (dimensionless)."
+    type:
+      - "number"
+      - "null"
+    description: "Experimental fluorescence quantum yield as reported."
   fqy_norm:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Clipped FQY value (values of exactly 0 or 1 are clipped to [1e-6, 1‑1e-6]); no additional scaling is applied."
+    type:
+      - "number"
+      - "null"
+    description: "Clipped target value in (ε, 1-ε)."
   scaffold_id:
     type: string
-    description: "Murcko scaffold identifier used for scaffold‑based splitting."
+    description: "Murcko scaffold identifier."
   split:
     type: string
-    enum: [train, validation, test]
-    description: "Dataset partition."
+    enum:
+      - train
+      - validation
+      - test
+    description: "Dataset split assignment."
   metadata:
     type: object
-    additionalProperties: true
-    description: "Optional fields such as solvent, temperature, measurement method (used as covariates in modeling)."
+    description: "Optional experimental metadata."
+    properties:
+      solvent:
+        type:
+          - "string"
+          - "null"
+      temperature:
+        type:
+          - "number"
+          - "null"
+      measurement_method:
+        type:
+          - "string"
+          - "null"
+    additionalProperties: false
+additionalProperties: false
