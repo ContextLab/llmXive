@@ -1,19 +1,18 @@
 status: none
-intent: public A/B test summary dataset "Audit Corpus" "Synthetic Validation Set"
-  python package dataset
+intent: downloadable A/B test summary dataset python package
 required_fields:
-- url
-- test_id
+- summary_url
+- test_name
 - variant_a_description
 - variant_b_description
 - metric_name
 - sample_size_a
 - sample_size_b
+- observed_effect_size
 - reported_p_value
 - confidence_interval_lower
 - confidence_interval_upper
-- outcome
-- domain
-cache_key: 558c34ba5ae280c31fd9178fbe212cf5d9d282f80149d52671efdcb0a69e9736
-searched_at: '2026-10-22T01:46:44.105380+00:00'
+- test_start_date
+cache_key: a10e12a3e3e6ecdebe0f1c8ac8dab7a03d393ea140a3084cdb2eb1a224a97b13
+searched_at: '2026-10-25T18:08:20.847252+00:00'
 retry_count: 1

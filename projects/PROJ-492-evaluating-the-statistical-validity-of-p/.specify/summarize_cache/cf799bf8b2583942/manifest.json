@@ -4,7 +4,7 @@
   "goal": "extract every FR/SC id verbatim, every constraint, every named dataset, and the exact research question",
   "model": "zai-org.glm-5.3",
   "token_budget": 5333,
-  "created_at": "2026-10-22T01:53:47.778665+00:00",
+  "created_at": "2026-10-25T18:32:25.983399+00:00",
   "entries": [
     {
       "element_id": "e000",

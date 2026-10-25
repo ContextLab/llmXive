@@ -8,7 +8,7 @@ Represents a single extracted A/B test summary (FR‑002).
 ```yaml
 ABSummary:
   url: string               # required, valid URL
-  source_domain: string     # required, domain extracted from URL (used for provenance)
+  source_domain: string     # required, domain extracted from URL (provenance)
   variant_a_n: integer      # required, ≥1
   variant_b_n: integer      # required, ≥1
   variant_a_conversions: integer   # required, ≥0 (binary only)
@@ -20,7 +20,7 @@ ABSummary:
     lower: float
     upper: float
   extraction_timestamp: string     # ISO‑8601 timestamp
-  publication_year: integer|null  # optional, for optional subgroup analysis
+  publication_year: integer|null  # optional
   extraction_notes: string|null   # optional, FR‑007 messages
 ```
 
@@ -69,14 +69,14 @@ ValidationRecord:
 
 ## Relationships
 - Each **AuditRecord** is a one‑to‑one mapping from an **ABSummary**.  
-- **SummaryReport** aggregates the flags across all **AuditRecord** rows.  
-- **ValidationRecord** is stored under `data/validation/` and referenced in CI logs.
+- **SummaryReport** aggregates the `flag_inconsistent` field across all **AuditRecord** rows.  
+- **ValidationRecord** lives under `data/validation/` and is referenced in CI logs.
 
 ## Constraints (derived from FRs)
 - **FR‑004**: `flag_inconsistent` is `true` iff `diff_abs_p > 0.05` **or** `diff_abs_effect > 0.05 × max(|reported_effect|,|reconstructed_effect|)`.  
 - **FR‑004b**: If `|variant_a_n – variant_b_n| / max(variant_a_n, variant_b_n) > 0.05`, `notes` must contain a `data_quality_warning`.  
-- **FR‑012**: When baseline conversion is missing, `reconstructed_effect_size` is derived from the average of variant rates; `notes` must contain a heuristic flag.  
-- **SC‑001**: Extraction accuracy (field‑level) must be ≥ 95 % on the validation set; this is evaluated via `ValidationRecord`.  
+- **FR‑012**: When baseline conversion is missing, `reconstructed_effect_size` is derived from the average of the two variant rates; `notes` must contain a heuristic flag.  
+- **SC‑001**: Extraction accuracy (field‑level) must be ≥ 95 % on the validation set; evaluated via `ValidationRecord`.  
 - **SC‑003** & **SC‑026**: Monte Carlo validation must achieve absolute difference ≤ 0.005 for each statistical routine.  
 
 ---===END DATA MODEL===---

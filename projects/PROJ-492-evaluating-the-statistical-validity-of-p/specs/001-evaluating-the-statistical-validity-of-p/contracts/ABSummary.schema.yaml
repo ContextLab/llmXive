@@ -18,7 +18,7 @@ properties:
     description: "Original URL of the public A/B test summary"
   source_domain:
     type: "string"
-    description: "Domain extracted from URL hostname for provenance"
+    description: "Domain extracted from URL hostname (provenance)"
   variant_a_n:
     type: "integer"
     minimum: 1
@@ -30,11 +30,11 @@ properties:
   variant_a_conversions:
     type: "integer"
     minimum: 0
-    description: "Conversions for variant A (binary outcomes)"
+    description: "Conversions for variant A (binary outcomes only)"
   variant_b_conversions:
     type: "integer"
     minimum: 0
-    description: "Conversions for variant B (binary outcomes)"
+    description: "Conversions for variant B (binary outcomes only)"
   reported_p:
     type:
       - "number"
@@ -79,5 +79,5 @@ properties:
     type:
       - "string"
       - "null"
-    description: "Optional notes or error messages from extraction"
+    description: "Optional notes or error messages from extraction (FR‑007)"
 additionalProperties: false

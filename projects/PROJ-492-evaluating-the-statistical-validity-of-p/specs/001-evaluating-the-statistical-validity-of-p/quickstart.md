@@ -13,14 +13,14 @@ Create `data/input/urls.csv` with a header `url` and at least 30 reachable URLs:
 
 ```csv
 url
-https://example.com/ab-test-1
-https://example.com/ab-test-2
+
+
 # … add at least 28 more …
 ```
 
 ## Step 2: Install Dependencies
 ```bash
-git clone https://github.com/your-org/ab-test-audit.git
+git clone 
 cd ab-test-audit
 pip install -r requirements.txt
 ```
