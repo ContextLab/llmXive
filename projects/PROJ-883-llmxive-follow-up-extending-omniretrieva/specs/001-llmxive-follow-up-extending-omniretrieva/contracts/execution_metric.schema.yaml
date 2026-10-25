@@ -1,16 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: ExecutionMetric
 type: object
 properties:
   query_id:
     type: string
+    format: uuid
   latency_ms:
     type: number
-  mismatch_flag:
+    minimum: 0
+  translation_error:
     type: boolean
-  delta_latency:
+  reference_deviation:
+    type: boolean
+  precision_at_10:
     type: number
-  engine_version:
+    minimum: 0
+    maximum: 1
+  timeout_flag:
+    type: boolean
+  success_flag:
+    type: boolean
+  synthetic_flag:
+    type: boolean
+  throttling_mode:
     type: string
-  throttle_config:
+    enum: [cgroups, failed]
+  timestamp:
     type: string
-required: [query_id, latency_ms]
+    format: date-time
+required:
+  - query_id
+  - latency_ms
+  - success_flag
+additionalProperties: false

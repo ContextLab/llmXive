@@ -1,42 +1,29 @@
 status: verified
 kind: pypi_package
-ref: datasets
-access_python: 'from datasets import load_dataset
-
-
-  # Load the full dataset (use a valid config name)
-
-  dataset_dict = load_dataset("microsoft/ms_marco", name="v1.1")
-
-
-  # Count total records across all splits
-
-  total_records = sum(len(split) for split in dataset_dict.values())
-
-  print(f"RECORDS={total_records}")
-
-
-  # Show field names from a sample record
-
-  first_split = next(iter(dataset_dict.values()))
-
-  sample_record = first_split[0]
-
-  print(f"FIELDS={'',''.join(sample_record.keys())}")'
-record_count: 102023
+ref: ir-datasets
+access_python: "import ir_datasets\n\n# Load the MS MARCO passage development set\n\
+  ds = ir_datasets.load('msmarco-passage/dev')\n\n# Gather all queries\nqueries =\
+  \ list(ds.queries_iter())  # each item has .query_id and .text attributes\n\n# Build\
+  \ a mapping from query_id to its maximum relevance label\nmax_rel = {}\nfor qrel\
+  \ in ds.qrels_iter():  # each item has .query_id, .doc_id, .relevance attributes\n\
+  \    qid = qrel.query_id\n    rel = qrel.relevance\n    if qid not in max_rel or\
+  \ rel > max_rel[qid]:\n        max_rel[qid] = rel\n\n# Merge queries with relevance\
+  \ (None if no relevance found)\nmerged = []\nfor q in queries:\n    qid = q.query_id\n\
+  \    merged.append({\n        'query_id': qid,\n        'query_text': q.text,\n\
+  \        'relevance_label': max_rel.get(qid)\n    })\n\nprint(f\"RECORDS={len(merged)}\"\
+  )\nprint(\"FIELDS=query_id,query_text,relevance_label\")"
+record_count: 101093
 sample_fields:
-- answers
-- passages
-- query
 - query_id
-- query_type
-- wellFormedAnswers
+- query_text
+- relevance_label
 field_coverage: 0.6
 required_fields:
 - query_id
-- source_type
-- plan_depth
-- latency_ms
 - query_text
-intent: download MS MARCO parquet dataset and DBpedia triples python package dataset
-cache_key: f188ffaec2c9f312fe3fbc26810d413b02740785f1f569359f0990ada2fd7488
+- plan_depth
+- source_type
+- relevance_label
+intent: download LDBC SNB, MS MARCO, DBpedia query workloads with depth labels python
+  package dataset
+cache_key: fd062f3b933638f763b61ed638567fd9f62f818cd85974c90377576a7cdf34f5

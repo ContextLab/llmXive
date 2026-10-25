@@ -1,25 +1,46 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: ExecutionLog
 type: object
 properties:
   query_id:
     type: string
+    format: uuid
   source_type:
     type: string
+    enum: [text, relational, graph]
   complexity_level:
     type: integer
+    minimum: 1
   latency_ms:
     type: number
+    minimum: 0
+  precision_at_10:
+    type: number
+    minimum: 0
+    maximum: 1
   timestamp:
     type: string
     format: date-time
   translation_error:
+    type: boolean
+  reference_deviation:
     type: boolean
   success_flag:
     type: boolean
   timeout_flag:
     type: boolean
   synthetic_flag:
-    type: ["integer", "boolean"]
+    type: boolean
   throttling_mode:
     type: string
-required: [query_id, latency_ms, success_flag]
+    enum: [cgroups, failed]
+required:
+  - query_id
+  - source_type
+  - complexity_level
+  - latency_ms
+  - precision_at_10
+  - timestamp
+  - success_flag
+  - timeout_flag
+additionalProperties: false

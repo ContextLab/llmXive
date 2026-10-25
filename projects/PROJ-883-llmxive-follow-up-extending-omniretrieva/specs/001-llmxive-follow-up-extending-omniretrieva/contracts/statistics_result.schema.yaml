@@ -1,10 +1,16 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: StatisticsResult
 type: object
 properties:
   cutoff:
     type: integer
+    minimum: 2
   spike_point:
     type: number
   slope_change:
     type: number
-required: [cutoff, spike_point, slope_change]
+required:
+  - cutoff
+  - spike_point
+  - slope_change
+additionalProperties: false

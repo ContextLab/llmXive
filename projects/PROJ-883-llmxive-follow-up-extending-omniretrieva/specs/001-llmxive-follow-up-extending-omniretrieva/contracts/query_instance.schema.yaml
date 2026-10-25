@@ -1,8 +1,10 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: QueryInstance
 type: object
 properties:
   query_id:
     type: string
+    format: uuid
   source_type:
     type: string
     enum: [text, relational, graph]
@@ -17,8 +19,15 @@ properties:
         items:
           type: string
     required: [steps]
-  ground_truth_plan:
-    type: ["string", "null"]
+  reference_plan_id:
+    type: string
+    pattern: "^greedy_plan_[0-9a-f]{8}$"
   synthetic_flag:
     type: boolean
-required: [query_id, source_type, complexity_level, logical_plan]
+required:
+  - query_id
+  - source_type
+  - complexity_level
+  - logical_plan
+  - reference_plan_id
+additionalProperties: false
