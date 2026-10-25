@@ -1,29 +1,49 @@
 T001:
   c: true
-  h: ce063e3282f3b76e249f43677d509094e752ce94a2b32341affaffad2d8e6a0b
-  r: "Checked the five contract schema files in `contracts/` and their matching SHA\u2011\
-    256 hashes in `data/raw/contract_hashes.json`, the `code/copy_contracts.py` script\
-    \ that performs the copy and hashing, and the pytest run (`tests/contract/test_contract_copy.py`)\
-    \ which passed, confirming src\u2011hash equals dst\u2011hash for every file."
-  sig: e135e383b3de93a4e50647e7e86d970d402b0b0bc6071d6cdc7f65715c9345b3
+  h: 861c7367b9d7c0f3f2f7b1b492ef174b0adef3fa5fe16507787ee52decbbb8f1
+  r: "Checked the five contract schema files in `contracts/` (all present with correct\
+    \ SHA\u2011256 hashes), the `code/copy_contracts.py` script, the generated `data/raw/contract_hashes.json`\
+    \ showing matching source and destination hashes, and the passing test `tests/contract/test_contract_copy.py`.\
+    \ All requirements are met."
+  sig: db7b07ea1d0c5e414e1d71671d39472ee26b2fe90782df2b6d9c4adf16c30dd9
 T002:
   c: true
-  h: b789f57aa9b0fa9658fe1122ec68c7490593bd0b2c1a4ee7980695a7d394ecec
-  r: "Checked `code/generate_data.py` (implements required constants, memory guard,\
-    \ overlap handling, deterministic seeds, checksum writing) and the generated files\
-    \ `data/raw/tasks.json` (500 records), `data/raw/skills.json` (100 records), `data/raw/checksums.json`\
-    \ (correct SHA\u2011256 digests). The unit\u2011test suite `tests/unit/test_generate_data.py`\
-    \ exercises record counts, deterministic behavior, overlap validation, and other\
-    \ requirements, and the execution log shows the script ran successfully producing\
-    \ the expected outputs."
-  sig: 683be2109e17ca478b38a1972d533a32a5f9e2aaa8ba7bd225671d5926fc296d
+  h: 5be5196c7ab36ac5d080e4fb7edcda45171996a9cc10401567571c292e547e9d
+  r: "Checked `code/generate_data.py` (produces 500 tasks, 100 skills, embeddings,\
+    \ overlap handling, memory guard, and writes correct SHA\u2011256 checksums) and\
+    \ the generated files `data/raw/tasks.json`, `data/raw/skills.json`, `data/raw/checksums.json`\
+    \ together with the full suite `tests/unit/test_generate_data.py`, all of which\
+    \ align with the task\u2019s specifications."
+  sig: 9799e577fa0ede59aa45d79f7029b7126dfd83c5ffeb19b2f2796407236efddb
 T005:
   c: false
-  h: a3c785ab089d4db731e4ddf6a2b6bc96165f19faeba0c56c9538a4fb40855736
-  r: Checked `code/logging_config.py` (defines the correct `LOG_COLUMNS` and a `get_logger`
-    that should write to `data/results/experiment_log.csv`) and the test suite `tests/contract/test_logging_schema.py`.
-    The required CSV log file `data/results/experiment_log.csv` is missing, and there
-    is no evidence that the tests have been run and passed, so the logging behavior
-    cannot be confirmed. The task needs a created CSV file (or proof that the tests
-    succeed) to satisfy the requirement.
-  sig: 6047f3a424e8d74e8acb9fb40db3b34617cbdc0f8b78a073225116cf08e48474
+  h: 5a208cf74e21e12578dc9784d557f7ab5ef867d97b2d7c2f35caedaa09734584
+  r: "The repository contains `code/logging_config.py` with the correct `LOG_COLUMNS`\
+    \ and a `get_logger` that writes to `data/results/experiment_log.csv`, and the\
+    \ test suite `tests/contract/test_logging_schema.py` is present. However, the\
+    \ required log file `data/results/experiment_log.csv` is missing and there is\
+    \ no evidence (e.g., test run output, generated CSV, or CI log) that the tests\
+    \ have been executed successfully and that the CSV header and schema validation\
+    \ actually pass. Provide execution evidence of the tests (or a pre\u2011generated\
+    \ compliant CSV) to satisfy the task."
+  sig: 85dc46730e75ca1a3b30fb96bf1dcd60de24a42ea8d5f665a8ed8f8979f288f9
+T007:
+  c: false
+  h: 041e1d0042e558cff8c056b2c3d64ef7a3c4935b561188880581a7972d2d3168
+  r: "Checked `code/pruning.py` and its unit tests `tests/unit/test_pruning.py`. The\
+    \ function is defined as `prune_fr04(library, tasks)` (two arguments) and removes\
+    \ a skill when `usage_count == 0` **and** `max_cosine_similarity > 0.70`, whereas\
+    \ the task requires a signature `prune_fr04(library)` and removal only when `usage_count\
+    \ == 0` **and** `min_cosine_similarity_to_any_other_skill_in_library < 0.70` **and**\
+    \ the skill is not in any task\u2019s `ground_truth_skills`. The implementation\
+    \ therefore does not satisfy the specified behavior."
+  sig: 0a50aef36fcfea5ce964bb3ae213a9f64e35c42f496fee9222dbf6a6daa1948d
+T008:
+  c: false
+  h: 5594e2b055ff7fe4c6f6473df1dc7c0ba1af9e015efe38eaf603cfca988da6c7
+  r: "The integration test fails because `code/agent.py` does not import `Tuple` (NameError),\
+    \ so the sweep never runs; consequently `data/results/experiment_log.csv` is missing,\
+    \ the `execution_logs/` directory is empty, and the required `contracts/experiment_log.schema.yaml`\
+    \ file is absent. These missing/erroneous artifacts prevent the test\u2019s four\
+    \ assertions from being satisfied."
+  sig: 935b937799355330a2b49e62bd97b2986494474c6e9c5589cc4e32fd9587d6c3

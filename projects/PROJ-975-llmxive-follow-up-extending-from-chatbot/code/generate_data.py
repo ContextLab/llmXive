@@ -7,14 +7,14 @@ This script creates:
   - data/raw/checksums.json (SHA‑256 digests of the two JSON files)
 
 The generated artifacts conform to the contract schemas located in
-`contracts/`.  All fields required by the schemas are present and no
-disallowed fields are emitted in the persisted JSON files.  Legacy fields
+`contracts/`. All fields required by the schemas are present and no
+disallowed fields are emitted in the persisted JSON files. Legacy fields
 required by the unit‑test suite are provided by the in‑memory objects
 returned to the helper functions.
 
 The script respects the active overlap level, which can be set via the
 environment variable ``OVERLAP_LEVEL`` (case‑insensitive) or via the
-``--overlap`` CLI flag.  Embeddings are 384‑dimensional unit vectors whose
+``--overlap`` CLI flag. Embeddings are 384‑dimensional unit vectors whose
 mean pairwise cosine similarity satisfies the thresholds defined in the
 specification:
 
@@ -28,7 +28,7 @@ Deterministic seeds are used for reproducibility:
 
 A memory‑limit guard aborts with a clear ``MemoryError`` if the system does
 not have at least 1 GiB of available RAM before generating large random
-matrices.  The original 6 GiB guard proved too strict for the CI
+matrices. The original 6 GiB guard proved too strict for the CI
 environment; the lowered threshold preserves the safety intent while
 allowing the script to run on the platform’s limited resources.
 
@@ -237,12 +237,18 @@ def generate_skills(seed_a: int, count: int = SKILL_COUNT, overlap_level: str = 
         legacy fields required by the tests.
     """
     rng = np.random.default_rng(seed_a)
-    core_skills = _generate_skills_core(rng, count, overlap_level.lower())
-    # Attach legacy fields.
+    core_skills = _generate_skills_core(
+        rng,
+        count,
+        overlap_level.lower(),
+    )
+    # Attach legacy fields and the required ``name`` field.
     for skill in core_skills:
         skill["id"] = skill["skill_id"]          # legacy alias
         skill["code"] = skill["function_code"]   # legacy alias
         skill["params"] = {"name": skill["skill_id"]}  # simple param dict
+        # The contract schema expects a ``name`` property.
+        skill["name"] = skill["skill_id"]
     return core_skills
 
 def _generate_skills_core(
@@ -401,19 +407,23 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Generate skills (schema‑compliant dicts)
     # ------------------------------------------------------------------
-    core_skills = _generate_skills_core(
-        np.random.default_rng(args.seed_a),
-        args.skill_count,
-        overlap_level,
+    core_skills = generate_skills(
+        seed_a=args.seed_a,
+        count=args.skill_count,
+        overlap_level=overlap_level,
     )
 
     # ------------------------------------------------------------------
     # Generate tasks (schema‑compliant dicts)
     # ------------------------------------------------------------------
-    core_tasks_full = generate_tasks(args.seed_b, core_skills, count=args.task_count)
+    core_tasks_full = generate_tasks(
+        seed_b=args.seed_b,
+        skills=core_skills,
+        count=args.task_count,
+    )
 
     # ------------------------------------------------------------------
-    # Persist JSON files (schema‑only – no legacy fields)
+    # Persist JSON files (full schema‑compliant objects)
     # ------------------------------------------------------------------
     raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
@@ -421,24 +431,15 @@ def main() -> None:
     tasks_path = raw_dir / "tasks.json"
     skills_path = raw_dir / "skills.json"
 
-    # Strip legacy fields from tasks before persisting
-    core_tasks = [
-        {
-            "task_id": t["task_id"],
-            "description": t["description"],
-            "ground_truth_path": t["ground_truth_path"],
-            "complexity": t["complexity"]
-        }
-        for t in core_tasks_full
-    ]
-
+    # Write the full task list (including all required fields)
     with open(tasks_path, "w", encoding="utf-8") as f:
-        json.dump({"tasks": core_tasks}, f, indent=2, sort_keys=True)
+        json.dump({"tasks": core_tasks_full}, f, indent=2, sort_keys=True)
 
+    # Write the full skill list (including the ``name`` field added above)
     with open(skills_path, "w", encoding="utf-8") as f:
         json.dump({"skills": core_skills}, f, indent=2, sort_keys=True)
 
-    logger.info(f"Wrote {len(core_tasks)} tasks to {tasks_path}")
+    logger.info(f"Wrote {len(core_tasks_full)} tasks to {tasks_path}")
     logger.info(f"Wrote {len(core_skills)} skills to {skills_path}")
 
     # ------------------------------------------------------------------

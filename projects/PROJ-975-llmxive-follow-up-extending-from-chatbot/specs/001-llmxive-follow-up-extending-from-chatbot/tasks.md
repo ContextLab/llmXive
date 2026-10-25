@@ -51,7 +51,7 @@ The list follows the three research phases (setup → full experiment →�
   *Experiment*: Execute **all** configurations: library sizes {10,20,30,40,50,60,70,80,90,100} × pruning flags {off,fr04} × overlap levels {LOW,MEDIUM,HIGH}, each processing the full 500‑task set. The run appends rows to a single `data/results/experiment_log.csv` and creates a separate JSON‑L log per configuration under `data/results/execution_logs/`.  
   *Verification*: `tests/integration/test_full_sweep.py` runs the sweep (no dry‑run) and asserts: (1) the CSV contains exactly `10 × 2 × 3 × 500 = 30 000` rows, (2) every row validates against `experiment_log.schema.yaml`, (3) for pruning‑enabled blocks `library_size` decreases at the 10‑task boundaries, and (4) `false_prune_count` (derived from the JSON‑L files) is ≥ 0.  
 
-- [ ] **T009** [P] [SC‑004] [SC‑006] **Statistical analysis script**  
+- [ ] **T009** [P] [SC‑004] [SC‑006] **Statistical analysis script**   <!-- FAILED-IN-EXECUTION: code/analyze.py exit=1 -->
   *Path*: `code/analysis.py` – loads `data/results/experiment_log.csv`, fits a single‑breakpoint **piecewise linear** regression on binary success vs. `library_size` for the HIGH‑overlap, no‑pruning baseline (using `pwlf`), bootstraps 1 000 resamples for a 95 % CI, computes VIF for orthogonalized predictors `library_size` and `total_redundancy` (via `statsmodels`), conducts two‑proportion z‑tests for pruning efficacy, runs permutation and likelihood‑ratio tests for breakpoint significance, and writes `data/results/analysis_report.json`.  
   *Verification*: `tests/contract/test_analysis_output.py` checks presence and type of each top‑level key, ensures `10 ≤ breakpoint_estimate ≤ 100`, and that both VIF values are numeric and `< 5.0`.  
 

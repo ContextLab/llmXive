@@ -13,22 +13,36 @@ T004:
     exit=1'
   task: 816eba6082f40f14c96cf95aabb172f1f670f7f6502be281c9dfe00fabe0a836
 T005:
-  reason: Checked `code/logging_config.py` (defines the correct `LOG_COLUMNS` and
-    a `get_logger` that should write to `data/results/experiment_log.csv`) and the
-    test suite `tests/contract/test_logging_schema.py`. The required CSV log file
-    `data/results/experiment_log.csv` is missing, and there is no evidence that the
-    tests have been run and passed, so the logging behavior cannot be confirmed. The
-    task needs a created CSV file (or proof that the tests succeed) to satisfy the
-    requirement.
+  reason: "The repository contains `code/logging_config.py` with the correct `LOG_COLUMNS`\
+    \ and a `get_logger` that writes to `data/results/experiment_log.csv`, and the\
+    \ test suite `tests/contract/test_logging_schema.py` is present. However, the\
+    \ required log file `data/results/experiment_log.csv` is missing and there is\
+    \ no evidence (e.g., test run output, generated CSV, or CI log) that the tests\
+    \ have been executed successfully and that the CSV header and schema validation\
+    \ actually pass. Provide execution evidence of the tests (or a pre\u2011generated\
+    \ compliant CSV) to satisfy the task."
   task: adb973ea5b93f4ecd39ef2c94f5a1abca063ee220b47f804783b86bc7c82ea89
 T006:
   reason: 'Requested task execution failed; rerun successfully: code/agent.py exit=-1'
   task: bc6bd1e464cf8e2bd6035c35a458e27ecec6a29d489e50cd7b4abd049314122c
 T007:
+  reason: "Checked `code/pruning.py` and its unit tests `tests/unit/test_pruning.py`.\
+    \ The function is defined as `prune_fr04(library, tasks)` (two arguments) and\
+    \ removes a skill when `usage_count == 0` **and** `max_cosine_similarity > 0.70`,\
+    \ whereas the task requires a signature `prune_fr04(library)` and removal only\
+    \ when `usage_count == 0` **and** `min_cosine_similarity_to_any_other_skill_in_library\
+    \ < 0.70` **and** the skill is not in any task\u2019s `ground_truth_skills`. The\
+    \ implementation therefore does not satisfy the specified behavior."
   task: 969bca29514619ea479fc5d2659590786deef6125adf4b1103a3141ff423e55c
 T008:
+  reason: "The integration test fails because `code/agent.py` does not import `Tuple`\
+    \ (NameError), so the sweep never runs; consequently `data/results/experiment_log.csv`\
+    \ is missing, the `execution_logs/` directory is empty, and the required `contracts/experiment_log.schema.yaml`\
+    \ file is absent. These missing/erroneous artifacts prevent the test\u2019s four\
+    \ assertions from being satisfied."
   task: 5171b40ed722c8ce10480a37649a9a219ab056c65eeaafc36ddaec1af4af47da
 T009:
+  reason: 'Requested task execution failed; rerun successfully: code/analyze.py exit=1'
   task: e17aca438e40211d544aba4a4fb89677584bd7956a472f7d6986f23983235e90
 T010:
   task: b3f11adee034f928264e49e77ff94bea0262dbd9b5bdcacd6ee6f9482266846a

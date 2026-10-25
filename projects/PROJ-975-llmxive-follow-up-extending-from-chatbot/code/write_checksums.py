@@ -1,11 +1,24 @@
+"""
+Script to recompute SHA‑256 checksums for the synthetic data files
+(`tasks.json` and `skills.json`) and overwrite the project‑owned
+`data/raw/checksums.json` file.
+
+The script uses only project‑owned paths (via `llmxive_toolkit.paths`)
+and standard library logging; it does not write to any platform‑owned
+directories such as `state/`.
+"""
 import json
 import hashlib
-from llmxive_toolkit import paths, get_logger
+import logging
+from pathlib import Path
 
-# Obtain a logger that integrates with the llmxive tooling.
-log = get_logger(__name__)
+from llmxive_toolkit import paths
 
-def get_sha256(file_path):
+# Configure a simple console logger (no file handlers, no platform‑owned paths)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+log = logging.getLogger(__name__)
+
+def get_sha256(file_path: Path) -> str:
     """
     Compute the SHA‑256 hash of a file in a memory‑efficient way.
 
@@ -21,12 +34,12 @@ def get_sha256(file_path):
     """
     sha256_hash = hashlib.sha256()
     # Read the file in small chunks to avoid loading large files into memory.
-    with open(file_path, "rb") as f:
+    with file_path.open("rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def main():
+def main() -> None:
     """
     Re‑compute the SHA‑256 checksums for the synthetic data files
     (`tasks.json` and `skills.json`) and overwrite
@@ -58,8 +71,7 @@ def main():
     }
 
     # Write the mapping to the project‑owned JSON file.
-    with open(checksums_path, "w", encoding="utf-8") as f:
-        json.dump(checksums, f, indent=2, sort_keys=True)
+    checksums_path.write_text(json.dumps(checksums, indent=2, sort_keys=True), encoding="utf-8")
 
     log.info(f"Checksums successfully written to {checksums_path}")
     # Echo the mapping for interactive runs.

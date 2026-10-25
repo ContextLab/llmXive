@@ -2112,3 +2112,121 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-25T16:27:58Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: 500 multi-step tasks generated
+  claim_id: c_1d3d2b6b
+  context: In the Synthetic Data generation step, the guide instructs to run a script
+    that creates 500 multi-step tasks and a skill library.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Generate 500 multi-step tasks and a skill library with configurable overlap
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T22:36:18Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: tasks.json and skills.json conform to their schemas after running contract
+    tests
+  claim_id: c_045c3dbd
+  context: Step 4 of the Quickstart guide runs `pytest tests/contract/` to validate
+    that tasks.json and skills.json conform to their schemas.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: '`pytest tests/contract/` ensures `tasks.json` and `skills.json` conform
+    to their schemas.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T22:37:25Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: final analysis_report.json matches previous run when Quickstart is executed
+    on a fresh runner
+  claim_id: c_94ba5a65
+  context: "Step 10 instructs to run the Quickstart on a fresh runner (e.g., a new\
+    \ GitHub Actions job) and verify that the final analysis_report.json matches the\
+    \ one generated in Step\u202F8."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Running the entire Quickstart on a fresh runner confirms that the final\
+    \ `analysis_report.json` matches the one produced in Step\u202F8."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T22:37:25Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: pipeline produces experiment_log.csv
+  claim_id: c_e2b6c407
+  context: 'Step 6 Execute the Agent (full factorial sweep) ... **Outputs**: - data/results/experiment_log.csv
+    (detailed execution logs)'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline produces data/results/experiment_log.csv containing detailed
+    execution logs
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T22:39:08Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: analysis generates analysis_report.json
+  claim_id: c_cd56c6f9
+  context: 'Step 8 Analyze Results (User Story 3) ... **Outputs**: - data/results/analysis_report.json'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The analysis step generates data/results/analysis_report.json
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T22:39:09Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: analysis generates final_analysis.json
+  claim_id: c_6c1044a9
+  context: 'Step 8 Analyze Results (User Story 3) ... **Outputs**: - data/results/final_analysis.json'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The analysis step generates data/results/final_analysis.json
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T22:39:09Z'
+- artifact_path: projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/quickstart.md
+  attempts: 1
+  canonical: final analysis_report.json matches previous run
+  claim_id: c_042031dd
+  context: "Step 10 Verify End\u2011to\u2011End Reproducibility: Run the entire Quickstart\
+    \ on a fresh runner ... and confirm that the final analysis_report.json matches\
+    \ the one produced in Step\u202F8."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Running the entire Quickstart on a fresh runner yields a final analysis_report.json\
+    \ that matches the one produced in Step\u202F8"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T22:39:09Z'
