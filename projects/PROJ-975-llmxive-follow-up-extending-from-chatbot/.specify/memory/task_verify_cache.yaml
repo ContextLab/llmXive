@@ -8,16 +8,15 @@ T001:
     \ the verification test."
   sig: ea6cd6977bcf2c089ffcdd6e0604d14092143bf7419012fb4dde6faea6351888
 T002:
-  c: true
-  h: 6e28a4e0ff53ca4c06fb90a405db56e100b4941fe64cdf4b4b626bba07a6be48
-  r: "I verified that `code/generate_data.py` exists and implements seed handling,\
-    \ memory\u2011limit guards, overlap\u2011level control, JSON output of 100 skills\
-    \ and 500 tasks, and SHA\u2011256 checksum generation. The generated files `data/raw/skills.json`,\
-    \ `data/raw/tasks.json`, and `data/raw/checksums.json` are present and non\u2011\
-    empty, and the unit\u2011test suite `tests/unit/test_generate_data.py` runs successfully\
-    \ (12 passed), confirming record counts, deterministic generation, and similarity\u2011\
-    validation utilities."
-  sig: 86f790552fc4a8962cda3eb1503d39557dced9eef2c23c7bb223e80d3bd0b63b
+  c: false
+  h: 37ed56be069190340202e074b1298f7ababd92f332168af581361bd3a9a1c85e
+  r: "The `code/generate_data.py` script does not implement a memory\u2011limit guard,\
+    \ does not define the `validate_similarity_thresholds` function or the `SKILL_COUNT`\
+    \ / `TASK_COUNT` constants that the unit tests import, and it emits extra fields\
+    \ (`id`, `num_steps`) that the specification explicitly says must not be present.\
+    \ Consequently the generated artifacts do not fully meet the task\u2019s stated\
+    \ requirements."
+  sig: fed2728c7435ac6cffac892d8bc1519a23bfaf9b2f0e03b3cc190e61d65e909c
 T004:
   c: false
   h: bd9e6aaaa93dc535ae42e72bfd28f24c5636450f9d82a4775dadb1f21d0206cb

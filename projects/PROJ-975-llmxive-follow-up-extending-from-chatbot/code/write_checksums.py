@@ -15,6 +15,14 @@ def get_sha256(file_path):
     return sha256_hash.hexdigest()
 
 def main():
+    """
+    Recompute SHA-256 checksums for the synthetic data files and
+    overwrite ``data/raw/checksums.json`` with the fresh mapping.
+
+    This script is deliberately self‑contained and writes only to
+    project‑owned locations (under ``data/``). No platform‑owned
+    ``state/`` directories are used.
+    """
     # Define input paths
     tasks_path = paths.data("raw", "tasks.json")
     skills_path = paths.data("raw", "skills.json")
@@ -29,19 +37,19 @@ def main():
         raise FileNotFoundError(f"Missing {skills_path}")
 
     log.info(f"Computing checksums for {tasks_path} and {skills_path}...")
-    
-    # Compute hashes using the keys required by T003: tasks_json_sha256, skills_json_sha256
+
+    # Compute hashes using the keys required by T003
     checksums = {
         "tasks_json_sha256": get_sha256(tasks_path),
         "skills_json_sha256": get_sha256(skills_path),
     }
 
-    # Write to project-owned checksums file (data/raw/checksums.json)
-    # This avoids using platform-owned state/ directories.
+    # Write to project‑owned checksums file
     with open(checksums_path, "w", encoding="utf-8") as f:
         json.dump(checksums, f, indent=2)
 
     log.info(f"Successfully wrote checksums to {checksums_path}")
+    # Echo the mapping for interactive runs
     print(json.dumps(checksums, indent=2))
 
 if __name__ == "__main__":

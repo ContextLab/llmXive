@@ -1,19 +1,17 @@
 status: none
-intent: synthetic multi-step task and skill library dataset meta-world python package
+intent: download synthetic multi-step task dataset with skill library python package
   dataset
 required_fields:
 - task_id
 - task_description
-- ground_truth_solution_path (ordered list of skill_ids)
-- task_steps (list of action descriptions)
-- task_difficulty
-- skill_id
+- ground_truth_solution_path
+- number_of_steps
+- associated_skill_ids
 - skill_name
-- skill_description
 - skill_embedding_vector
-- skill_overlap_level
-- skill_semantic_density
-- skill_code_snippet
-cache_key: 6ea339a43f38220f666b46989afed7e574d27d8f864e73ec5d9630c1513ffd9f
-searched_at: '2026-10-25T17:23:58.797812+00:00'
+- semantic_overlap_score
+- difficulty_level
+- creation_timestamp
+cache_key: 292a8bcdd6531173fdcebe872339e9c34cf314c7551898044497a3af1d7b3644
+searched_at: '2026-10-25T17:26:05.813451+00:00'
 retry_count: 1

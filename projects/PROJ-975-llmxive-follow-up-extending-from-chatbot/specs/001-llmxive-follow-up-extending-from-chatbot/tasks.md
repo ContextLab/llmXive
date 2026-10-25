@@ -15,7 +15,7 @@ The list follows the three research phases (setup → full experiment →�
   2. The script writes a mapping `{filename: {src_hash: “…”, dst_hash: “…”}}` to `data/raw/contract_hashes.json`.  
   3. `tests/contract/test_contract_copy.py` loads `contract_hashes.json` and **asserts `src_hash == dst_hash` for every file**, guaranteeing verbatim duplication.  
 
-- [X] **T002** [S] [US1] **Generate synthetic environment**  
+- [ ] **T002** [S] [US1] **Generate synthetic environment**  
   *Path*: `code/generate_data.py` → produces `data/raw/tasks.json` (500 tasks) and `data/raw/skills.json` (100 skills) with embeddings, overlap levels, fixed seeds, memory‑limit guard, and writes SHA‑256 digests to `data/raw/checksums.json`.  
   *Verification*: `pytest tests/unit/test_generate_data.py` checks record counts, schema validation, overlap statistics, and checksum consistency.  
 
@@ -24,7 +24,7 @@ The list follows the three research phases (setup → full experiment →�
   *Action*: `code/write_checksums.py` recomputes the SHA‑256 of `data/raw/tasks.json` and `data/raw/skills.json` and overwrites `data/raw/checksums.json` with the fresh mapping (no `state/` usage).  
   *Verification*: `tests/contract/test_checksums.py` (now under `tests/contract/`) loads the file and confirms the stored digests match the current files’ hashes.  
 
-- [ ] **T004** [P] [US2] **Contract‑validation test suite**  
+- [ ] **T004** [P] [US2] **Contract‑validation test suite**   <!-- FAILED-IN-EXECUTION: code/generate_data.py exit=1 -->
   *Path*: `tests/contract/test_schemas.py` validates every entry in `data/raw/tasks.json` and `data/raw/skills.json` against their schemas, checks pair‑wise cosine similarity meets the active overlap level, and confirms that each `ground_truth_skills` entry references an existing `skill_id`.  
 
 - [ ] **T005** [P] [US2] **Logging configuration with exact CSV header**  

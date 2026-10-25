@@ -9,21 +9,31 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/raw/checksums.json, data/raw/contract_hashes.json, data/raw/skills.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/raw/checksums.json, data/raw/contract_hashes.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
+- run-book command: `python code/generate_data.py --seed 42 --overlap high`
+  - script usage: `generate_data.py [-h] [--overlap {low,medium,high}] [--seed-a SEED_A]`
+  - argparse error: `generate_data.py: error: ambiguous option: --seed could match --seed-a, --seed-b`
 - run-book command: `python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning {on,off}  --seed 42  --randomize-tasks`
   - script usage: `agent.py [-h] --library-sizes LIBRARY_SIZES [LIBRARY_SIZES ...]`
   - argparse error: `agent.py: error: argument --pruning: invalid choice: '{on,off}' (choose from 'off', 'fr04', 'on')`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/raw/checksums.json, data/raw/contract_hashes.json, data/raw/skills.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --input data/results/metrics.csv; 4 command(s) failed: python -m pytest tests/contract/ (rc=1); python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning {on,off}  --seed 42  --randomize-tasks (rc=2); python -m pytest tests/contract/ (rc=1); 1 declared deliverable(s) absent: data/results/experiment_log.csv
+**Summary**: every produced artifact is gitignored (data/raw/checksums.json, data/raw/contract_hashes.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --input data/results/metrics.csv; 5 command(s) failed: python code/generate_data.py --seed 42 --overlap high (rc=2); python -m pytest tests/contract/ (rc=1); python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning {on,off}  --seed 42  --randomize-tasks (rc=2); 1 declared deliverable(s) absent: data/results/experiment_log.csv
 
 ## Failing / missing run-book commands
+
+- python code/generate_data.py --seed 42 --overlap high -> rc=2
+
+usage: generate_data.py [-h] [--overlap {low,medium,high}] [--seed-a SEED_A]
+                        [--seed-b SEED_B] [--skill-count SKILL_COUNT]
+                        [--task-count TASK_COUNT]
+generate_data.py: error: ambiguous option: --seed could match --seed-a, --seed-b
 
 - python -m pytest tests/contract/ -> rc=1
 d', 'num_steps' were unexpected)
@@ -40,7 +50,7 @@ FAILED tests/contract/test_schemas.py::test_real_skills_overlap_metrics - Ass...
 FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
 FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
 FAILED tests/contract/test_task_schema.py::test_all_tasks_validate - Failed: ...
-========================= 7 failed, 16 passed in 5.12s =========================
+========================= 7 failed, 16 passed in 4.75s =========================
 
 
 - python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning {on,off}  --seed 42  --randomize-tasks -> rc=2
@@ -65,7 +75,7 @@ FAILED tests/contract/test_schemas.py::test_real_skills_overlap_metrics - Ass...
 FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
 FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
 FAILED tests/contract/test_task_schema.py::test_all_tasks_validate - Failed: ...
-========================= 7 failed, 16 passed in 4.70s =========================
+========================= 7 failed, 16 passed in 4.73s =========================
 
 
 - python code/analysis.py --input data/results/metrics.csv -> rc=2
@@ -87,7 +97,7 @@ FAILED tests/contract/test_schemas.py::test_real_skills_overlap_metrics - Ass...
 FAILED tests/contract/test_task_schema.py::test_schema_loads - AssertionError...
 FAILED tests/contract/test_task_schema.py::test_sample_task_validates - Faile...
 FAILED tests/contract/test_task_schema.py::test_all_tasks_validate - Failed: ...
-========================= 7 failed, 16 passed in 4.84s =========================
+========================= 7 failed, 16 passed in 4.77s =========================
 
 
 
