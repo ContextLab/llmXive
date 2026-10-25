@@ -52,7 +52,7 @@ properties:
     description: "Number of cycles to failure."
   source:
     type: string
-    description: "Origin of the record (e.g., 'synthetic', dataset name)."
+    description: "Origin of the record (e.g., 'synthetic', 'verification', or name of a real open dataset)."
   checksum:
     type: string
     description: "SHA-256 checksum of the raw row for provenance."

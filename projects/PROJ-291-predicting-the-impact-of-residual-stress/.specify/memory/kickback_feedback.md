@@ -1,12 +1,9 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001` (rejected 1x): The `env_check.py` script fails the test (`test_env_check_exits_successfully`) because it cannot import the required package `ucimlrepo`, causing a non‑zero exit code. Consequently the pytest suite reports a failure, and the task’s verification condition is not met. Additionally, `config.py` lacks any defined path constants, which the task specification also requires. The implementer must ensure all listed packages (including `ucimlrepo`) are importable in the environment and add the necessary path constant definitions.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan states that no verified open‑source fatigue dataset with measured residual stress exists and therefore the pipeline will run solely on deterministic synthetic data ("...ingest any open‑source fatigue dataset that satisfies the required schema (none currently exists, so the pipeline will run on the synthetic data only)" and "...bootstrap mediation analysis only if a real open dataset provides ≥ 50 rows with measured residual stress (the synthetic data is never eligible)"). Synthetic data is used only for pipeline validation, but the core research question—quantifying the mediating impact of residual stress on fatigue life—requires real measured‑stress observations. Without an appropriate real dataset, the study cannot provide empirical evidence for the hypothesis, making the chosen data resource inappropriate for the question.
