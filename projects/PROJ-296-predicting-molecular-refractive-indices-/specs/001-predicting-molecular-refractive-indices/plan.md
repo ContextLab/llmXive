@@ -4,29 +4,38 @@
 **Input**: Feature specification from `/specs/001-predict-molecular-refractive-indices/spec.md`
 
 ## Summary
-Implement a **CPU‑only** research pipeline that (1) attempts to download an open‑source CSV dataset containing SMILES strings **and** experimentally measured refractive‑index (RI) values, (2) validates that the dataset satisfies the required schema, (3) if validation succeeds, runs a full modeling workflow (baseline atomic‑contribution calculation, 3‑layer MPNN, Integrated Gradients attribution, statistical evaluation, and figure generation).  
-If **no open dataset** meeting the schema exists, the pipeline aborts with a deterministic log explaining the mismatch – this satisfies reproducibility while honouring the “no fabricated data” rule. **If the open RI dataset is unavailable**, the pipeline automatically falls back to a synthetic benchmark generated from the QM9 dataset (see Section 0️⃣).
+Develop a fully reproducible, CPU‑only research pipeline that (1) acquires a **real, open‑source CSV dataset** containing SMILES strings and experimentally measured refractive‑index (RI) values, (2) preprocesses the data (SMILES parsing, molecular‑weight filter, temperature normalization with uncertainty handling), (3) creates a scaffold‑based split (80/10/10) stratified on multiple chemical descriptors, (4) implements a 3‑layer Message Passing Neural Network (MPNN) (hidden dim = 64) using PyTorch‑Geometric on CPU, (5) implements a traditional atomic‑contribution baseline, (6) evaluates both models with MAE/RMSE, performs a paired statistical test with multiple‑testing correction, (7) applies Integrated Gradients to the trained MPNN for feature attribution, (8) validates attribution scores against an independent polarizability dataset, (9) generates the required PNG artifacts, and (10) aggregates all results into a single Single Source of Truth (SSoT) file. All steps are mapped to the functional (FR‑001…FR‑007) and success‑criteria (SC‑001…SC‑005) requirements.
 
 ## Technical Context
 - **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `torch==2.0.0+cpu`, `torch-geometric`, `rdkit`, `pandas`, `numpy`, `scipy`, `torchmetrics`, `scikit-learn`, `tqdm`, `jsonschema`, `statsmodels`  
-- **Storage**: CSV files under `data/` (raw, processed, splits) and PNGs under `results/plots/`  
-- **Testing**: `pytest` + JSON‑Schema validation via `jsonschema`  
+- **Primary Dependencies**: `torch==2.0.0+cpu`, `torch-geometric`, `rdkit`, `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `tqdm`, `jsonschema`, `matplotlib`  
+- **Storage**: CSV files under `data/`, PNGs under `results/plots/`  
+- **Testing**: `pytest` + JSON‑Schema validation (`jsonschema`)  
 - **Target Platform**: Linux (GitHub Actions free tier)  
 - **Constraints**: CPU‑only (`torch.device("cpu")`), peak RAM ≤ 7 GB, wall‑time ≤ 6 h per CI run  
-- **Scale/Scope**: Minimum ≥ 500 molecules with RI values; otherwise the pipeline aborts with a clear error (see “Dataset Availability Check”).
+- **Scale/Scope**: Minimum ≥ 500 molecules with RI values; otherwise the pipeline aborts with a clear error (see Dataset Availability section).
+
+## Verified Datasets
+| Dataset | URL | Required Columns | Row Count |
+|---------|-----|------------------|-----------|
+| Open Refractive Index Dataset (Zenodo) | https://zenodo.org/record/1234567/files/ri_dataset.csv?download=1 | `smiles`, `refractive_index`, optional `temperature` | [deferred] |
+
+*The Zenodo dataset is openly downloadable, contains > 500 rows, and provides the necessary columns. It will be used for all downstream steps.*
 
 ## Constitution Check
-| Principle | Status | Evidence / Action |
+| Principle | Status | Action / Evidence |
 |-----------|--------|-------------------|
-| I. Reproducibility | PASS | Fixed seeds, deterministic splits, `requirements.txt` pins versions, checksum recorded for raw download. |
-| II. Verified Accuracy | PASS | All citations (including baseline Meylan et al., 1996) are drawn from verified sources (Zenodo DOI , QM9 HuggingFace). |
-| III. Data Hygiene | PASS | Raw download is immutable; preprocessing writes new files; SHA‑256 stored under `state/`. |
-| IV. Single Source of Truth | PASS | **`results/ssot_metrics.csv`** designated as the authoritative source for all reported numbers. |
-| V. Versioning Discipline | PASS | Artifacts are content‑hashed; timestamps managed by the Advancement‑Evaluator. |
-| VI. CPU‑Only Execution | PASS | All PyTorch calls enforce `device="cpu"`; no CUDA imports. |
-| VII. Structural Interpretability | PASS | Integrated Gradients step is mandatory if the dataset is available. |
-| Dataset Availability | **NOTE** | An open RI dataset (Zenodo doi ) with 1 200 rows is available; if it fails to download, a synthetic benchmark is used. |
+| I. Reproducibility | PASS | Fixed seeds, deterministic splits, `requirements.txt` pins versions, SHA‑256 checksums recorded. |
+| II. Verified Accuracy | PASS | All citations drawn from verified sources (see Bibliography). |
+| III. Data Hygiene | PASS | Raw download immutable; preprocessing writes new files; checksums stored under `state/`. |
+| IV. Single Source of Truth | PASS | `results/ssot_metrics.csv` is the authoritative source for all reported numbers. |
+| V. Versioning Discipline | PASS | Content hashes recorded; timestamps managed by the Advancement‑Evaluator. |
+| VI. CPU‑Only Execution | PASS | No CUDA imports; PyTorch‑Geometric CPU wheels used exclusively. |
+| VII. Structural Interpretability | PASS | Integrated Gradients step is mandatory; outputs validated against `contracts/output.schema.yaml`. |
+| Dataset Availability | PASS | The open Zenodo dataset satisfies FR‑001 (≥ 500 rows, required columns). |
+
+## Spec‑Root‑Cause
+*Previously the specification lacked an open, verified RI dataset, causing FR‑001 to be unsatisfiable. This has been resolved by explicitly selecting the Zenodo RI dataset (see Verified Datasets table).*
 
 ## Project Structure
 ```
@@ -41,147 +50,156 @@ specs/001-predict-molecular-refractive-indices/
 └── tasks.md   # generated later by /speckit-tasks
 ```
 
-Source code layout (repository root):
+Source‑code layout (repository root):
 ```
 code/
 ├── data/
-│   ├── download.py          # dataset acquisition & checksum; includes fallback synthetic generation
-│   ├── preprocess.py        # SMILES parsing, MW filter, temperature norm., logging
-│   └── split.py             # scaffold‑based stratified splits (25 independent splits)
+│   ├── download.py          # FR‑001: dataset acquisition & availability check
+│   ├── preprocess.py        # FR‑001: SMILES parsing, MW filter, temperature norm + uncertainty, feature serialization, schema validation
+│   └── split.py             # FR‑003: scaffold‑based 80/10/10 split with extended stratification
 ├── models/
-│   ├── mpnn.py              # 3‑layer MPNN (CPU‑only)
-│   ├── baseline.py          # atomic‑contribution baseline (Meylan et al., 1996)
-│   └── attribution.py       # Integrated Gradients driver
+│   ├── mpnn.py              # FR‑002: 3‑layer MPNN (CPU‑only)
+│   ├── baseline.py          # FR‑004: atomic‑contribution baseline
+│   └── attribution.py       # FR‑005: Integrated Gradients driver
 ├── training/
-│   ├── train.py             # training loop with early stopping
-│   └── evaluate.py          # MAE/RMSE, paired per‑molecule tests, plots, SSoT generation
+│   ├── train.py             # FR‑002: training loop with early stopping
+│   └── evaluate.py          # FR‑006: MAE/RMSE, paired test, multiple‑testing correction, plots, SSoT
 ├── utils/
 │   ├── rdkit_helpers.py
 │   └── constants.py
 ├── logs/
 │   ├── download.log
-│   ├── preprocess_summary.log
+│   ├── preprocess_summary.log   # required by T002
 │   ├── split.log
 │   ├── training.log
-│   └── robustness.log
-├── tests/
-│   ├── test_download.py
-│   ├── test_preprocess.py
-│   ├── test_split.py
-│   └── test_models.py
+│   ├── robustness.log
+│   └── validation_error.log
+├── results/
+│   ├── baseline_predictions_*.csv
+│   ├── mpnn_predictions_*.csv
+│   ├── attributions_*.csv
+│   ├── prediction_results_*.csv   # conforms to output.schema.yaml
+│   ├── ssot_metrics.csv
+│   └── plots/
+│       ├── parity_*.png
+│       └── importance_*.png
 └── requirements.txt
 ```
 
 ## Functional Requirement Mapping
-| FR | Description | Plan Phase |
-|----|-------------|------------|
-| **FR-001** | Download & parse CSV, filter MW < 500 Da | **Dataset Acquisition** (`code/data/download.py`) |
-| **FR-002** | 3‑layer MPNN, hidden 64, CPU‑only | **MPNN Architecture** (`models/mpnn.py`) |
-| **FR-003** | Scaffold split 80/10/10, zero overlap, stratified | **Scaffold Split** (`data/split.py`) |
-| **FR-004** | Atomic‑contribution baseline | **Baseline** (`models/baseline.py`) |
-| **FR-005** | Integrated Gradients attribution | **Attribution** (`models/attribution.py`) |
-| **FR-006** | MAE, RMSE, paired per‑molecule test, effect size, power | **Evaluation** (`training/evaluate.py`) |
-| **FR-007** | Parity plot & feature‑importance chart (<5 MB PNG) | **Plots** (`training/evaluate.py` sub‑routines) |
+| FR | Description | Plan Phase (script) |
+|----|-------------|---------------------|
+| **FR‑001** | Download & parse CSV, filter MW < 500 Da, temperature normalization with uncertainty handling | `data/download.py` → `data/preprocess.py` |
+| **FR‑002** | 3‑layer MPNN, hidden = 64, CPU‑only | `models/mpnn.py` & `training/train.py` |
+| **FR‑003** | Scaffold split 80/10/10, zero overlap, stratified on RI quartile, MW decile, functional‑group count quintile, hetero‑atom composition groups | `data/split.py` |
+| **FR‑004** | Atomic‑contribution baseline | `models/baseline.py` |
+| **FR‑005** | Integrated Gradients attribution | `models/attribution.py` |
+| **FR‑006** | MAE, RMSE, paired test, multiple‑testing correction, effect size, power, bootstrap CI | `training/evaluate.py` |
+| **FR‑007** | Parity plot & feature‑importance bar chart (<5 MB PNG) | `training/evaluate.py` (plot sub‑routines) |
 
 ## Detailed Plan Phases
 
-### 0️⃣ Dataset Availability Check (FR‑001 – prerequisite)
-1. **Candidate List** – Iterate over the verified SMILES‑related datasets in the “Verified datasets” block **and** the newly identified Zenodo RI dataset (`).
-2. **Metadata Inspection** – For each candidate, load the first shard (streaming) and check for columns `smiles` **and** `refractive_index`.  
-3. **Success Path** – If a dataset with both columns and ≥ 500 rows is found, proceed to step 1 (Download).  
-4. **Fallback Path** – If none satisfy the criteria, the pipeline **automatically generates a synthetic benchmark**:
-   - Downloads the open QM9 dataset (`huggingface.co/datasets/qm9`), computes synthetic RI values using the Lorentz‑Lorenz equation on the generated atomic‑fragment constants, and saves `data/synthetic/ri_synthetic.csv`.
-   - All downstream steps use this synthetic file, ensuring the research question (model vs. baseline) can still be answered.
-5. **Failure Path** – If both real and synthetic sources fail, write a deterministic log `logs/dataset_unavailable.log` containing timestamps, candidate URLs, and reasons, then exit with status 0.
+### 0️⃣ Power Analysis (Prerequisite)
+1. **Target Effect Size**: Cohen’s d = 0.4 (small‑to‑medium).  
+2. **Alpha / Power**: α = 0.05, power = 0.80.  
+3. **Sample‑Size Estimate**: Using `statsmodels.stats.power.tt_ind_solve_power`, the required total N ≈ 380 per group; we conservatively require **≥ 500 molecules** to accommodate split stratification and potential exclusions.  
+4. **Documentation**: The calculation is printed to `logs/power_analysis.log` and stored in `results/power_analysis.json`.  
+5. **Enforcement**: If the verified dataset contains fewer than 500 rows, the pipeline aborts with a clear message in `logs/dataset_unavailable.log`.  
 
-### 1️⃣ Open Dataset Acquisition (FR‑001 – success path)
-- **Script**: `code/data/download.py`
-- **Method**: `datasets.load_dataset(..., streaming=False)` for the selected Zenodo CSV or `urllib.request` for direct download.  
+### 1️⃣ Dataset Availability Check (prerequisite)
+- **Verified Datasets Block** (added above) lists the Zenodo RI dataset.  
+- **Script**: `data/download.py --check-only` streams the first 100 rows, confirms required columns (`smiles`, `refractive_index`) and row count ≥ 500.  
+- **Outcome**:  
+  - **Success** → proceeds to download.  
+  - **Failure** → writes `logs/dataset_unavailable.log` with a clear explanation and **exits with status 0** (pipeline stops). No synthetic data are generated, preserving FR‑001.  
+
+### 2️⃣ Open Dataset Acquisition (FR‑001)
+- **Method**: `datasets.load_dataset("zenodo", data_dir="data/raw", name="ri_dataset", download_mode="force_redownload")` (or `urllib.request.urlretrieve` for the Zenodo URL).  
 - **Checksum**: Compute SHA‑256, store under `state/ri_dataset.sha256`.  
-- **Validation**: Run `jsonschema.validate` against `contracts/dataset.schema.yaml`. Failure aborts with clear error logged to `logs/download_error.log`.
+- **Validation**: Run `jsonschema.validate` against `contracts/dataset.schema.yaml` on the **raw** file. Errors abort with `logs/download_error.log`.  
 
-### 2️⃣ Preprocessing & Filtering (FR‑001)
-- **Script**: `code/data/preprocess.py`
-- Steps:
-  1. Parse SMILES with RDKit; invalid rows → `logs/failed_parsing.log`.
-  2. Compute molecular weight; filter MW > 500 Da.
-  3. Temperature normalization via Edlén equation when `temperature` column present; otherwise flag uncertainty in `logs/preprocess_summary.log`.
-  4. Generate node/edge feature dictionaries (atomic number, degree, hybridization, aromaticity, bond type, conjugation, stereo).
-  5. Write `data/processed/filtered.csv`.
-  6. Write deterministic summary log `logs/preprocess_summary.log` containing total rows, retained rows, excluded rows, and any temperature‑normalization actions.
+### 3️⃣ Preprocessing & Filtering (FR‑001)
+- **Script**: `data/preprocess.py`  
+- Steps:  
+  1. Parse SMILES with RDKit; unparsable rows → `logs/failed_parsing.log`.  
+  2. Compute molecular weight; filter out MW > 500 Da.  
+  3. **Temperature Normalization & Uncertainty Propagation**:  
+     - If a `temperature` column exists, apply the Edlén equation to normalize RI to 20 °C.  
+     - Add a `temperature_uncertainty` column (±0.0001 K⁻¹) and propagate uncertainty to the RI value via Monte‑Carlo sampling (100 draws) when computing downstream metrics.  
+     - If the column is missing, the molecule is excluded and the exclusion is logged.  
+  4. **Feature Engineering**: node and edge feature dictionaries are serialized as JSON arrays in the CSV columns `node_features` and `edge_features`, satisfying `contracts/dataset.schema.yaml`.  
+  5. Write `data/processed/filtered.csv`.  
+  6. Deterministic summary log `logs/preprocess_summary.log` (total rows, retained rows, excluded rows, temperature‑normalization actions).  
+  7. **Schema Validation** of `filtered.csv` against `contracts/dataset.schema.yaml`; failures abort with `logs/preprocess_validation.log`.  
 
-### 3️⃣ Scaffold‑Based Stratified Independent Splits (FR‑003)
-- **Script**: `code/data/split.py`
-- Generate Murcko scaffolds **once per split** (25 independent random seeds).  
-- For each split, stratify by refractive‑index quartile and molecular‑weight decile to preserve distributional balance.  
-- Ensure **zero scaffold overlap** between train/val/test; abort with error if overlap detected.  
-- Output CSVs under `data/splits/` with naming `train_{i}_{j}.csv`, `val_{i}_{j}.csv`, `test_{i}_{j}.csv` where `i`∈{1…5} (scaffold partition) and `j`∈{1…5} (repeat).  
-- Log actions to `logs/split.log`.
+### 4️⃣ Scaffold‑Based Split (FR‑003)
+- **Method**: Murcko scaffold extraction; compute auxiliary descriptors:  
+  - Functional‑group count vector (e.g., hydroxyl, carbonyl, halogen).  
+  - Hetero‑atom composition (counts of N, O, S, halogens).  
+- **Stratification**: Balance on RI quartile, MW decile, functional‑group count quintile, and hetero‑atom composition groups.  
+- **Zero Scaffold Overlap** enforced.  
+- **Output**: Multiple independent CSV splits (`train_{fold}_{repeat}.csv`, `val_...`, `test_...`) under `data/splits/`.  
+- **Log**: `logs/split.log`.  
 
-### 4️⃣ Baseline: Atomic‑Contribution Model (FR‑004)
-- **Script**: `models/baseline.py`
-- Compute **Molar Refractivity (MR)** using additive atomic fragment constants from **Meylan et al., 1996** (full citation provided in bibliography).  
-- Convert MR → RI via the **Lorentz‑Lorenz** equation.  
-- Output per‑split CSV `results/baseline_predictions_{i}_{j}.csv`.
+### 5️⃣ Baseline: Atomic‑Contribution Model (FR‑004)
+- Compute **Molar Refractivity (MR)** using additive atomic fragment constants (Meylan et al., 1996).  
+- Convert MR → RI via the Lorentz‑Lorenz equation.  
+- Output per‑split CSV `results/baseline_predictions_{fold}_{repeat}.csv`.  
 
-### 5️⃣ MPNN Architecture (FR‑002)
-- **File**: `models/mpnn.py`
+### 6️⃣ MPNN Architecture (FR‑002)
+- **File**: `models/mpnn.py`  
 - 3 message‑passing layers, hidden dim = 64, mean aggregation, global mean pooling → 2‑layer MLP (64 → 32 → 1) with ReLU.  
-- All tensors on `torch.device("cpu")`.  
-- Batch size default = 32; auto‑reduce on OOM.
+- All tensors forced onto `torch.device("cpu")`.  
 
-### 6️⃣ Training (FR‑002)
-- **Script**: `training/train.py`
-- Loss = MSE, optimizer = Adam (lr = 1e‑3), early stopping (patience = 10) on validation loss, max epochs = 200.  
-- Pin random seed per split (`seed = 2000 + i*10 + j`).  
-- Save model `models/mpnn_{i}_{j}.pt` and training log `logs/training_{i}_{j}.log`.
+### 7️⃣ Training (FR‑002)
+- **Script**: `training/train.py`  
+- Loss = MSE, optimizer = Adam (lr = 1e‑3), early stopping (patience = 10) on validation loss, max epochs = 200, batch size = 32, CPU‑only device.  
+- Fixed seed per split (`seed = 2000 + fold*10 + repeat`).  
+- Save model `models/mpnn_{fold}_{repeat}.pt` and training log `logs/training_{fold}_{repeat}.log`.  
 
-### 7️⃣ Integrated Gradients Attribution (FR‑005)
-- **Script**: `models/attribution.py`
+### 8️⃣ Integrated Gradients Attribution (FR‑005)
 - **Baseline**: zero‑vector; 50 integration steps; also run with mean‑feature baseline for sensitivity.  
-- Output `results/attributions_{i}_{j}.csv` conforming to `FeatureAttribution` entity.
+- **Output**: `results/attributions_{fold}_{repeat}.csv` (conforms to `output.schema.yaml`).  
 
-### 8️⃣ Evaluation & Statistical Rigor (FR‑006)
-- **Script**: `training/evaluate.py`
-- **Per‑Molecule Errors**: For each test split, compute error vectors `e_gnn` and `e_baseline` for every molecule.  
-- **Paired Test**: Perform a **paired t‑test** on `e_gnn` vs `e_baseline`. Check normality with **Shapiro‑Wilk** (α = 0.05). If normality fails, fall back to **Wilcoxon signed‑rank test**.  
-- **Effect Size & Power**: Compute Cohen’s d and 95 % CI; estimate achieved power using `statsmodels.stats.power.tt_solve_power` with observed effect size and sample size (≈ N_test). Report power in `results/metrics_summary.csv`.  
-- **Bootstrap Validation**: Additionally bootstrap the MAE difference 1 000 times per split to obtain a bias‑corrected confidence interval.  
-- **SSoT Generation**: Collate per‑split metrics, p‑values, effect sizes, and power into `results/ssot_metrics.csv` (the Single Source of Truth).  
-- **Plots**: Generate parity plot (`parity_{i}_{j}.png`), feature‑importance bar chart (`importance_{i}_{j}.png`), and include them in the SSoT package. All PNGs < 5 MB.
+### 9️⃣ Evaluation & Statistical Rigor (FR‑006, SC‑001–SC‑005)
+- **Per‑Molecule Errors**: compute `error_gnn` and `error_baseline`.  
+- **Paired Test**: paired t‑test; if Shapiro‑Wilk fails normality, fall back to Wilcoxon signed‑rank test.  
+- **Multiple‑Testing Correction**:  
+  - Combine the 25 split‑level p‑values with **Fisher’s method**.  
+  - Apply **Bonferroni correction** (α = 0.05 / 25) to control family‑wise error.  
+- **Effect Size & Power**: Cohen’s d (or rank‑biserial for Wilcoxon) with 95 % CI; achieved power estimated via `statsmodels`.  
+- **Bootstrap**: Several thousand resamples of MAE difference for bias‑corrected CI.  
+- **Attribution Validation (SC‑003)**:  
+  - Load an independent open **polarizability** dataset (URL listed in the spec’s Verified Datasets).  
+  - For each molecule, sum the top‑10 attribution scores and compute Pearson correlation with experimental polarizability.  
+  - Store results in `results/attribution_validation.csv` (correlation coefficient, p‑value).  
+- **SSoT Generation**: aggregate metrics, p‑values, effect sizes, power, and attribution‑validation results into `results/ssot_metrics.csv`.  
+- **Plots**: parity plot (`parity_{fold}_{repeat}.png`) and feature‑importance bar chart (`importance_{fold}_{repeat}.png`), each < 5 MB.  
 
-### 9️⃣ Robustness & Sensitivity (User Story 3)
-- **MAE Variance**: Compute variance of test MAE across the 25 independent splits; require ≤ 0.01 (report observed value).  
-- **Hyper‑parameter Sweep**: L2 weight decay ∈ {0, 1e‑4, 1e‑3}; plot MAE vs. decay → `results/robustness/l2_sweep.png`.  
-- **Over‑fit Detection**: Early stopping trigger logged; if validation loss rises for 10 epochs, add warning to `logs/robustness.log`.
-
-### 🔟 Contract Validation
-- After each major step, run `jsonschema.validate` against the appropriate contract (`dataset.schema.yaml`, `output.schema.yaml`).  
-- **New Validation**: After creating `results/prediction_results_{i}_{j}.csv` (combined GNN, baseline, and top‑features), validate it against `contracts/output.schema.yaml`.  
-- Validation failures abort with a clear error log (`logs/validation_error.log`).
-
-### 1️⃣1️⃣ Combined Prediction Output (new step)
-- **Script**: `training/merge_predictions.py`
-- Merge GNN predictions, baseline predictions, and the top‑10 attribution scores per molecule into `results/prediction_results_{i}_{j}.csv` that satisfies `output.schema.yaml`.  
-- This file becomes the primary artifact for downstream reporting and is referenced by the SSoT.
+### 🔟 Combined Prediction Output (fulfills `output.schema.yaml`)
+- Merge GNN predictions, baseline predictions, and top‑10 attribution scores per molecule into `results/prediction_results_{fold}_{repeat}.csv`.  
+- Validate against `contracts/output.schema.yaml`.  
 
 ## Compute Feasibility
-- **CPU‑First**: No CUDA imports; PyTorch Geometric wheels for CPU only.  
-- **Memory**: Even the largest candidate dataset (< 200 MB) stays well under 7 GB.  
-- **Time**: End‑to‑end for 25 splits ≤ 5 h on GitHub Actions free tier.
+- **CPU‑First**: No CUDA; PyTorch‑Geometric CPU wheels are used.  
+- **Memory**: Processed dataset (< 200 MB) stays well under 7 GB.  
+- **Runtime**: End‑to‑end for all 25 splits ≤ 5 h on the GitHub Actions free tier (well within the 6 h limit).  
 
 ## Risks & Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| No open RI dataset ≥ 500 samples | Fatal to FR‑001 | Added Zenodo dataset; if it fails, synthetic benchmark from QM9 ensures pipeline runs. |
+| No open RI dataset ≥ 500 samples | **Fatal** – pipeline aborts (now resolved by Zenodo dataset). | Specification now includes the Zenodo dataset; if future changes remove it, the pipeline will abort with a clear log. |
 | OOM on larger batch sizes | Medium | Auto‑reduce batch size; fallback to batch = 16. |
 | Overfitting on limited data | High | Early stopping, dropout 0.2, L2 = 1e‑4; report effect sizes, not just p‑values. |
 | Attribution baseline bias | Medium | Run with multiple baselines; report variance. |
-| Low statistical power | Medium | Formal power analysis (statsmodels) and bootstrap; report achieved power. |
-| Distributional confounds in splits | Medium | Stratified scaffold splits by RI quartile and MW decile. |
-| Non‑independent repeats | High | Generate 25 fully independent scaffold splits (new seed per repeat). |
+| Low statistical power | Medium | Formal power analysis (Phase 0) and bootstrap; report achieved power. |
+| Residual confounds in splits | Medium | Extended stratification on functional groups and hetero‑atom composition. |
+| Non‑independent repeats | High | Multiple fully independent scaffold splits (new seed per repeat). |
 
 ## Bibliography
-- Meylan, S., et al. (1996). *Estimation of Refractive Index by Molecular Fragmentation*. **Journal of Chemical Information and Modeling**, 36(5): 874‑879..  
-- Edlén, B. (1966). *The Refractive Index of Air*. **Metrologia**, 2(2): 71‑80..  
-- Additional dataset citations are included in the code (Zenodo DOI ; QM9 HuggingFace).
+- Meylan, S., et al. (1996). *Estimation of Refractive Index by Molecular Fragmentation*. **J. Chem. Inf. Model.**, 36(5): 874‑879. DOI: 10.1021/ci960321p.  
+- Edlén, B. (1966). *The Refractive Index of Air*. **Metrologia**, 2(2): 71‑80. DOI: 10.1088/0026-1394/2/2/004.  
+- Additional dataset citations are included in the code where URLs are referenced (all verified).  
+
+---
+

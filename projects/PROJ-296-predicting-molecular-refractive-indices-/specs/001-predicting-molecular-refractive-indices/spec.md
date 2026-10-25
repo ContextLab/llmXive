@@ -9,7 +9,7 @@
 
 ### User Story 1 - CPU-Feasible Model Training and Baseline Comparison (Priority: P1)
 
-A researcher needs to train a lightweight Message Passing Neural Network (MPNN) on a curated dataset of organic molecules and compare its predictive accuracy against a traditional atomic contribution baseline, all within a strict CPU-only environment (max 7GB RAM, 6h runtime) to determine if graph-based methods are viable for refractive index prediction without GPU resources.
+A researcher needs to train a lightweight Message Passing Neural Network (MPNN) on a curated dataset of organic molecules and compare its predictive accuracy against a traditional atomic contribution baseline, all within a strict CPU‑only environment (limited RAM typical of such settings, and a constrained runtime) to determine if graph-based methods are viable for refractive index prediction without GPU resources.
 
 **Why this priority**: This is the core feasibility study. If the model cannot be trained or the baseline cannot be established within the hardware constraints, the project cannot proceed to interpretability analysis. It addresses the "CPU-only" gap identified in the motivation.
 
@@ -17,7 +17,7 @@ A researcher needs to train a lightweight Message Passing Neural Network (MPNN) 
 
 **Acceptance Scenarios**:
 
-1. **Given** a GitHub Actions runner with 2 CPU cores and 7GB RAM, **When** the training script is executed with the specified dataset and MPNN configuration (3 layers, hidden dim 64), **Then** the job must complete within 6 hours without OOM errors and output a test set MAE.
+1. **Given** a GitHub Actions runner with multiple CPU cores and 7GB RAM, **When** the training script is executed with the specified dataset and MPNN configuration (several layers, hidden dim 64), **Then** the job must complete within 6 hours without OOM errors and output a test set MAE.
 2. **Given** the same dataset, **When** the atomic contribution baseline is calculated, **Then** it must produce a prediction file with a valid MAE that can be directly compared to the GNN result.
 3. **Given** the training completes, **When** the results are aggregated, **Then** a paired t-test must be generated comparing the GNN MAE against the baseline MAE with a p-value < 0.05 indicating statistical significance (or lack thereof).
 
@@ -35,7 +35,7 @@ A chemist needs to identify which specific molecular graph features (e.g., conju
 
 1. **Given** a trained MPNN model and a test molecule, **When** Integrated Gradients are applied, **Then** the system must output a normalized importance score for each node and edge feature.
 2. **Given** a set of molecules known to contain conjugated pi-systems, **When** the attribution analysis is run, **Then** the top-ranked features must correspond to the atoms and bonds within those conjugated systems, specifically: at least 80% of the top-10 attributed nodes must belong to conjugated substructures.
-3. **Given** the attribution scores, **When** the results are aggregated across the test set, **Then** a summary report must identify the top 5 most influential graph features for refractive index prediction.
+3. **Given** the attribution scores, **When** the results are aggregated across the test set, **Then** a summary report must identify the top most influential graph features for refractive index prediction.
 
 ---
 
@@ -65,7 +65,7 @@ A reviewer needs to verify that the model's performance claims are robust to hyp
 
 - **FR-001**: System MUST download and parse a curated CSV dataset containing molecular SMILES and experimental refractive index values using `wget` and RDKit, filtering for organic molecules with molecular weight < 500 Da to ensure memory compliance. (See US-1)
 - **FR-002**: System MUST implement a 3-layer Message Passing Neural Network (MPNN) with a hidden dimension of 64 using PyTorch Geometric, explicitly disabling CUDA to enforce CPU-only execution. (See US-1)
-- **FR-003**: System MUST perform a scaffold-based split with 80/10/10 ratios (train/validation/test) to prevent data leakage and ensure structural diversity between sets. (See US-3)
+- **FR-003**: System MUST perform a scaffold-based split with a predominant training set and equal validation and test sets (train/validation/test) to prevent data leakage and ensure structural diversity between sets. (See US-3)
 - **FR-004**: System MUST implement a traditional group contribution baseline (e.g., Molar Refractivity via additive atomic fragments) using distinct physical descriptors to serve as a non-learning comparison. (See US-1)
 - **FR-005**: System MUST apply Integrated Gradients to the trained MPNN to compute feature importance scores for each node and edge in the molecular graph. (See US-2)
 - **FR-006**: System MUST calculate Mean Absolute Error (MAE) and Root Mean Square Error (RMSE) for both the GNN and the baseline on the test set and perform a paired t-test to determine statistical significance. (See US-1)

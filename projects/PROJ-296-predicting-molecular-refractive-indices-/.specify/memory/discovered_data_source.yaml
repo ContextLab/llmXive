@@ -1,11 +1,10 @@
 status: none
-intent: Open refractive index dataset download Zenodo SMILES refractive index python
-  package dataset
+intent: download refractive index organic molecules dataset qm9 molecule net pubchem
+  python package dataset
 required_fields:
 - smiles
 - refractive_index
-- temperature
 - molecular_weight
-cache_key: 5ade8931abb880b5a4d4e3c767fe27d454b775738c78b265a0623d9cda5092b7
-searched_at: '2026-10-25T15:09:38.279809+00:00'
+cache_key: a2d3c289df749222cabb2c2606e07e6bc3436088248f6761901c71baa7ecbe8d
+searched_at: '2026-10-25T15:39:50.506128+00:00'
 retry_count: 1
