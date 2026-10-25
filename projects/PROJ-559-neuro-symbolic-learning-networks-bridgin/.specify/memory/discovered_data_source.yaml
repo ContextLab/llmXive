@@ -1,14 +1,15 @@
 status: none
-intent: ASSISTments and Khan Academy problem dataset download python package dataset
+intent: download assistments and khan academy knowledge tracing datasets python package
+  dataset
 required_fields:
 - problem_id
-- problem_text
-- solution_explanation
+- problem_statement
 - answer_key
 - skill_id
-- source
 - difficulty_level
-- metadata_json
-cache_key: dbcce2a096831b37fcebfc045cc3105535faf4848c7513e918cd31ed29977499
-searched_at: '2026-10-24T22:11:45.922776+00:00'
+- source_dataset
+- problem_type
+- hints
+cache_key: 1bfad097122943c208151c197a74d85e5e829bf6be5eb648bc94299c8ac51866
+searched_at: '2026-10-25T20:18:05.729641+00:00'
 retry_count: 1
