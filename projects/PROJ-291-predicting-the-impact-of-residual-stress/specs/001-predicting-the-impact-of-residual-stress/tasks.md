@@ -45,7 +45,7 @@ The checklist implements **FR‑001 – FR‑014** and **SC‑001 – SC
 
 ## Phase 2 – Ingestion, preprocessing, and thin end‑to‑end run
 
-- [ ] T002 **Ingest all raw files, harmonise units, median‑impute, compute proxy, and validate schema**  
+- [ ] T002 **Ingest all raw files, harmonise units, median‑impute, compute proxy, and validate schema**   <!-- FAILED-IN-EXECUTION: code/ingest/ingest.py exit=1 -->
   *Files*: `code/src/ingest.py`, `data/processed/unified_fatigue.csv`, `data/processed/missing_flags.json`, `logs/proxy_clamp.log`, `code/tests/test_ingest.py`  
   *Actions*  
   1. Load the bundled verification CSV, the synthetic CSV, and all external CSVs produced by T014. Verify each file’s SHA‑256 against `checksums.json`; raise on mismatch.  
@@ -83,7 +83,7 @@ The checklist implements **FR‑001 – FR‑014** and **SC‑001 – SC
   6. Standardise numeric features and persist scalers under `code/models/scalers/`.  
   *Verification*: `pytest code/tests/test_features.py` asserts identical row counts for A and B, and that B contains no proxy rows.
 
-- [~] T005 [P] **Train RF, GBM, and shallow NN with 5‑fold CV and held‑out test evaluation**  
+- [ ] T005 [P] **Train RF, GBM, and shallow NN with 5‑fold CV and held‑out test evaluation**  
   *Files*: `code/src/train.py`, `data/results/model_performance.csv`, `code/models/<feature_set>/<algorithm>/`, `code/tests/test_train.py`  
   *Actions*  
   1. Define a 10‑combination hyper‑parameter grid for RF, GBM, and NN (1 hidden layer, ≤500 epochs).  

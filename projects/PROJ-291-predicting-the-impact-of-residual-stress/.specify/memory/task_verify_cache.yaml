@@ -1,21 +1,12 @@
 T001:
   c: false
-  h: 3b87a0a7284139e25e9110da0483e22a46585915f15abe75e99dcb412eb7859e
-  r: The `env_check.py` does not import the required `ucimlrepo` package (it is commented
-    out), and the test suite expects a `data/raw/checksums.json` file (and matching
-    raw data files) which is not present in the provided artifacts. These omissions
-    cause the verification tests to fail.
-  sig: e63f56e663af850e4897767cb7d966cdc1958c6ab3a3fddd01080e033394f7eb
-T001-1:
-  c: false
-  h: baa6cc5a3e90a983b3f8d1317a2a3875158b3ab342d09e05ccafa0f437cf7bb1
-  r: "Checked `requirements.txt`, `code/src/timing.py`, `quickstart.md`, and `data/raw/checksums.json`.\
-    \ The `requirements.txt` is non\u2011empty but includes an unpinned entry (`ucimlrepo`\
-    \ without a version specifier), violating the \u201Cpin every dependency\u201D\
-    \ requirement. All other artifacts meet their specifications. Fix the requirements\
-    \ file by adding an exact version (e.g., `ucimlrepo==<version>`) for every listed\
-    \ package."
-  sig: c77fd1886839a1b2b1468bff49eac57c428d98e61b4eee7802394447748fe502
+  h: bfbcc9c32c6f41d40ba4b5bcf0903f2d63a979db0d1a6225be3e54045e483dac
+  r: The test suite `code/tests/test_env_check.py` fails because (1) it runs `python
+    -m src.env_check`, but there is no `src/env_check.py` module (the script is only
+    at `code/src/env_check.py`), and (2) it expects a `data/raw/checksums.json` file
+    that is not present in the repository. Both issues prevent the required pytest
+    verification from passing.
+  sig: 86f21bf6f4e2f98448d1b260d87cb5bdb786b7bef47930c51cec7ead855374b0
 T002:
   c: false
   h: ebe3789a7f7904aaee22c3597f3461a7a73c31f5fa109cde03de439e1b0bc141
@@ -44,11 +35,21 @@ T004:
     \ and the verification test `code/tests/test_features.py` \u2013 are all missing.\
     \ Without these files and tests, the task\u2019s core deliverables are not present."
   sig: 9c71f855d62f9bff3df4db20677ab294b59ae2a8224274db0803c426c2d4dd79
+T005:
+  c: false
+  h: 2a67685def2d8be4e124af9dd3e7cd5a9c389fa175528b0df64f929de1ec90ac
+  r: 'The repository contains the training script and test suite, but the required
+    output artifacts are absent: `data/results/model_performance.csv` does not exist,
+    and no model files were created under `code/models/<feature_set>/<algorithm>/`
+    (the entire `code/models/` directory is missing). Without these files the verification
+    tests cannot pass, so the task is not fully completed.'
+  sig: f325ac51067ce5c777deafa9383a4ca56c45bf38282dc24e22590ce3aa55b352
 T015:
   c: false
-  h: 0a2ee1f4eb731cdf69e062370d427af24f421ca256f1adc695136eb3149e8ee9
-  r: The required file `code/src/data/gen_synthetic.py` is missing (the only generator
-    script is at `src/data/gen_synthetic.py`), and the generated CSV is written to
-    `raw/synthetic_fatigue.csv` instead of the expected `data/raw/synthetic_fatigue.csv`,
-    causing the test to fail and the checksum file not to be updated as specified.
-  sig: 39ddfb9b9fb1ad9df0d509dd05bacf7f5c603a8e1d2028b691c539e7d93b7ca3
+  h: 72c273b4ae3e9310bf472fbf48107a50b040febbdb1bc9b98c8edabcaa59dff2
+  r: The repository contains the generator code (`src/data/gen_synthetic.py` and its
+    wrapper) which uses `np.random.default_rng(42)` and writes the CSV and updates
+    `data/raw/checksums.json` when executed, but the required output file `data/raw/synthetic_fatigue.csv`
+    is missing and `data/raw/checksums.json` is still empty. The task demands these
+    artifacts to exist in the project, so they must be generated and committed.
+  sig: fbcedf0825b147d41305b3ec52790801b1204fe90437f1b305ce91be495cb4b6

@@ -22,7 +22,7 @@ python -m src.env_check
 ## 3. Run the full analysis pipeline (end‑to‑end)
 ```bash
 # One‑command end‑to‑end execution:
-python -m code.src.run_e2e
+python -m src.run_e2e
 ```
 
 The pipeline will:
