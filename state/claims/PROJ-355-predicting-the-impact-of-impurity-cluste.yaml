@@ -5609,3 +5609,53 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-09T13:57:50Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: bulk alloy records sourced from OQMD via HuggingFace datasets loader
+  claim_id: c_d6486c21
+  context: The bulk alloy records are sourced from the Open Quantum Materials Database
+    (OQMD) using the HuggingFace datasets loader.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The bulk alloy records are sourced from the Open Quantum Materials Database
+    (OQMD) using the HuggingFace `datasets` loader (`datasets.load_dataset('jablonkagroup/oqmd',
+    name='raw_data')`).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T05:33:16Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Materials Project data omitted due to documented waiver
+  claim_id: c_6892edd7
+  context: Materials Project data are omitted due to a documented waiver (no unauthenticated
+    open source available).
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Materials Project data are omitted due to a documented waiver (no unauthenticated
+    open source available).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T05:34:08Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: raw data files stored under data/raw directory
+  claim_id: c_40e39f03
+  context: All raw data files are stored under the `data/raw/` directory.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All raw data files are stored under the `data/raw/` directory.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T05:34:09Z'

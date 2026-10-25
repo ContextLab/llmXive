@@ -2,30 +2,38 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/train_model.py --input data/processed/training_set.csv --output results/metrics.json; 1 command(s) failed: python code/data/validate_potential.py (rc=1); 1 declared deliverable(s) absent: data/processed/potential_validation.json
+**Summary**: 1 command(s) failed: python -m pytest tests/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/data/validate_potential.py -> rc=1
+- python -m pytest tests/ -> rc=2
+ps://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/integration/test_artifact_verification.py - SystemExit: 1
+ERROR tests/integration/test_data_contract_validation.py
+ERROR tests/integration/test_data_pipeline.py
+ERROR tests/integration/test_descriptor_filter_integration.py
+ERROR tests/integration/test_descriptor_integration.py
+ERROR tests/integration/test_descriptor_pipeline.py
+ERROR tests/integration/test_model_training.py
+ERROR tests/integration/test_preprocessing_integration.py
+ERROR tests/unit/test_alloy_system_id.py
+ERROR tests/unit/test_alloy_systems.py
+ERROR tests/unit/test_descriptor_filter.py
+ERROR tests/unit/test_descriptor_interface.py
+ERROR tests/unit/test_descriptors.py
+ERROR tests/unit/test_energy_generation.py
+ERROR tests/unit/test_gb_builder.py
+ERROR tests/unit/test_preprocessing.py
+ERROR tests/unit/test_preprocessing_filter.py
+ERROR tests/unit/test_simulate_energy.py
+ERROR tests/unit/test_vif_analysis.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 19 errors during collection !!!!!!!!!!!!!!!!!!!
+======================== 6 warnings, 19 errors in 1.98s ========================
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-355-predicting-the-impact-of-impurity-cluste/code/data/validate_potential.py", line 25, in <module>
-    from ase import Atoms
-ModuleNotFoundError: No module named 'ase'
 
-- python code/train_model.py --input data/processed/training_set.csv --output results/metrics.json -> rc=2
+## Platform-owned paths written inside the project
 
-/home/runner/work/llmXive/llmXive/projects/PROJ-355-predicting-the-impact-of-impurity-cluste/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-355-predicting-the-impact-of-impurity-cluste/code/train_model.py': [Errno 2] No such file or directory
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
 
-
-## Declared deliverables still missing
-
-- data/processed/potential_validation.json
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/processed/potential_validation.json` is declared but was NOT written. Scripts referencing it:
-    - `code/data/validate_potential.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/potential_validation.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.
