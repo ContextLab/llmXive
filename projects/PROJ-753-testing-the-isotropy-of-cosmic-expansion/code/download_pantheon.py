@@ -31,12 +31,14 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# The Pantheon+ FITS file is publicly hosted on Zenodo. The correct
-# endpoint uses the plural ``records`` path (Zenodo switched from
-# ``record`` to ``records`` for newer releases). This URL points directly
-# to the FITS file (download forced). It resolves to the official
-# Pantheon+ release containing ``Pantheon+_Data.fits``.
-DEFAULT_URL = (
+# The Pantheon+ FITS file is hosted on Zenodo. The most reliable direct
+# download link uses the ``record`` endpoint (the older API) which is
+# currently reachable. If this URL ever fails, we fall back to the newer
+# ``records`` endpoint.
+PRIMARY_URL = (
+    "https://zenodo.org/record/7968445/files/Pantheon%2B_Data.fits?download=1"
+)
+FALLBACK_URL = (
     "https://zenodo.org/records/7968445/files/Pantheon%2B_Data.fits?download=1"
 )
 DEFAULT_DATASET_VERSION = "v1.0"
@@ -64,7 +66,6 @@ def download_file(url: str, destination: Path) -> None:
                     out_f.write(chunk)
     logger.info("Saved dataset to %s", destination)
 
-
 def compute_sha256(file_path: Path) -> str:
     """Return the hexadecimal SHA‑256 checksum of ``file_path``."""
     sha256 = hashlib.sha256()
@@ -72,7 +73,6 @@ def compute_sha256(file_path: Path) -> str:
         for chunk in iter(lambda: f.read(8192), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
-
 
 def write_metadata(
     metadata_path: Path,
@@ -94,7 +94,6 @@ def write_metadata(
         json.dump(data, f, indent=2)
     logger.info("Wrote metadata to %s", metadata_path)
 
-
 def verify_fits_columns(fits_path: Path) -> None:
     """Raise an error if required columns are missing from the FITS table."""
     logger.info("Verifying FITS columns in %s", fits_path)
@@ -112,7 +111,6 @@ def verify_fits_columns(fits_path: Path) -> None:
                 f"Missing required columns in FITS file {fits_path.name}: {missing}"
             )
     logger.info("All required FITS columns are present.")
-
 
 def update_state_yaml(state_path: Path, checksum: str) -> None:
     """Add or update the checksum entry for the Pantheon+ FITS file."""
@@ -133,7 +131,6 @@ def update_state_yaml(state_path: Path, checksum: str) -> None:
         yaml.safe_dump(state, f)
     logger.info("State file updated with checksum.")
 
-
 # ----------------------------------------------------------------------
 # Main entry point
 # ----------------------------------------------------------------------
@@ -145,8 +142,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--url",
-        default=DEFAULT_URL,
-        help="URL of the Pantheon+ FITS dataset (default: Zenodo download link).",
+        default=None,
+        help="URL of the Pantheon+ FITS dataset. If omitted, the script uses the built‑in primary URL.",
     )
     parser.add_argument(
         "--version",
@@ -165,6 +162,9 @@ def main() -> None:
     raw_fits_path = paths.data("raw", "pantheon_plus.fits")
     metadata_path = paths.data("raw", "metadata.json")
 
+    # Determine which URL to use.
+    source_url = args.url or PRIMARY_URL
+
     if args.verify_only:
         # Verify that the file exists, compute checksum, verify columns,
         # write metadata and update state without re‑downloading.
@@ -177,7 +177,7 @@ def main() -> None:
         write_metadata(
             metadata_path,
             dataset_version=args.version,
-            source_url=args.url,
+            source_url=source_url,
             sha256=checksum,
             citation_verified=False,
         )
@@ -185,8 +185,19 @@ def main() -> None:
         logger.info("Verification-only mode completed successfully.")
         return
 
-    # Normal mode: download, then verify.
-    download_file(args.url, raw_fits_path)
+    # Normal mode: attempt download from primary URL, fall back if needed.
+    try:
+        download_file(source_url, raw_fits_path)
+    except Exception as primary_err:
+        logger.warning(
+            "Primary download URL failed (%s). Attempting fallback URL.", primary_err
+        )
+        # If a custom URL was supplied, we do not fallback.
+        if args.url:
+            raise
+        fallback_url = FALLBACK_URL
+        download_file(fallback_url, raw_fits_path)
+        source_url = fallback_url  # Record the actual URL used.
 
     # 2️⃣ Compute checksum
     checksum = compute_sha256(raw_fits_path)
@@ -198,7 +209,7 @@ def main() -> None:
     write_metadata(
         metadata_path,
         dataset_version=args.version,
-        source_url=args.url,
+        source_url=source_url,
         sha256=checksum,
         citation_verified=False,
     )
@@ -209,7 +220,6 @@ def main() -> None:
     logger.info(
         "Pantheon+ dataset download and verification completed successfully."
     )
-
 
 if __name__ == "__main__":
     try:

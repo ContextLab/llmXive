@@ -1,12 +1,44 @@
-status: none
-intent: Pantheon+ supernova dataset download from GitHub repository python package
-  dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets
+
+
+  ds = datasets.load_dataset("juliensimon/pantheon-plus-sne-ia", split="train")
+
+  records = len(ds)
+
+  print(f"RECORDS={records}")
+
+  print("FIELDS=" + ",".join(ds.column_names))'
+record_count: 1701
+sample_fields:
+- sn_name
+- survey_id
+- redshift_hd
+- redshift_hd_err
+- redshift_cmb
+- redshift_cmb_err
+- redshift_helio
+- redshift_helio_err
+- apparent_mag_b
+- apparent_mag_b_err
+- stretch_x1
+- stretch_x1_err
+- color_c
+- color_c_err
+- host_log_mass
+- host_log_mass_err
+- fit_probability
+- distance_modulus
+- distance_modulus_err
+field_coverage: 0.667
 required_fields:
+- name
 - ra
 - dec
 - redshift
 - distance_modulus
 - distance_modulus_error
-cache_key: c7a329a187a99fc3184d8db4dc2f3d4606d9a9b34e80846140e69012524dae47
-searched_at: '2026-10-25T18:09:44.203223+00:00'
-retry_count: 1
+intent: download Pantheon+ Type Ia supernova catalog as python package dataset
+cache_key: e04406f22e0bb218d2ff3ffe4b6c79d9bf6d9b558935525877614e45721b15b4
