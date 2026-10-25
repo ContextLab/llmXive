@@ -1,14 +1,15 @@
-datasets==2.18.0
-pyarrow==15.0.0
 pandas==2.2.2
 numpy==1.26.4
 scipy==1.13.0
 matplotlib==3.8.4
+datasets==2.18.0
+pyarrow==15.0.0
 memory_profiler==0.61.0
 jsonschema==4.22.0
 statsmodels==0.14.2
 psutil
 requests
+PyYAML
 pytest
 ruff
 black

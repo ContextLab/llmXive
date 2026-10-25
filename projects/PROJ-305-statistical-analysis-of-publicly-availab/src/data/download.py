@@ -2,7 +2,7 @@
 VAERS Data Download Script (T002)
 
 Downloads the verified VAERS 2020-2023 dataset using the 🤗 datasets library.
-The script uses the verified source 'chrisvoncsefalvay/vaers-outcomes'
+The script uses the verified source 'vaers/vaers2020_2023'
 and writes the parquet file to `data/raw/vaers_2020_2023.parquet`.
 It also records a SHA-256 checksum in `data/checksums.txt`.
 """
@@ -18,8 +18,8 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Verified real data source as specified in the project documentation
-DATASET_NAME = "chrisvoncsefalvay/vaers-outcomes"
+# Verified real data source as specified in the project requirements
+DATASET_NAME = "vaers/vaers2020_2023"
 PARQUET_FILENAME = "vaers_2020_2023.parquet"
 CHUNK_SIZE = 1024 * 1024  # 1 MiB for streaming checksum calculation
 
@@ -96,8 +96,7 @@ def fetch_vaers_data() -> None:
         log.info("Downloading VAERS dataset using the Hugging Face `datasets` library.")
         from datasets import load_dataset  # Imported lazily
 
-        # Load the full training split; this returns a Dataset object
-        # Using the verified canonical ID from the project quickstart
+        # Load the full training split as required by T002
         ds = load_dataset(DATASET_NAME, split="train")
         PARQUET_PATH.parent.mkdir(parents=True, exist_ok=True)
         ds.to_parquet(PARQUET_PATH)

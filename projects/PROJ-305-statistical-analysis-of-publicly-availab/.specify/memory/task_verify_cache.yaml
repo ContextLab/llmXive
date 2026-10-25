@@ -1,10 +1,10 @@
 T001:
   c: true
-  h: 87bf5868ded08e9e592e73a4e54d83ab050f02c2322d91edadaf8d2416d3335b
-  r: "Checked that all required directories exist, that a non\u2011empty `logs/structure.txt`\
-    \ is present and contains the string \u201Csrc\u201D, and that `quickstart.md`\
-    \ documents the runnable command `python -m src.main`."
-  sig: cf5f060dfefbad52f2812f614749252a34b289dd2a01acf7a14dc04c696540bf
+  h: b3ef21fb41787d5603e52f7d95f209746d6f88d6696e5b74f12abce74dedbec9
+  r: "Checked that all required directories exist, that `logs/structure.txt` is non\u2011\
+    empty and contains the string \u201Csrc\u201D, and that `quickstart.md` documents\
+    \ the command `python -m src.main`. All artifacts match the task specifications."
+  sig: f60d07f3ee1376591e5d8363e8cfc4df2a3787160031e505a96f858b464bf54e
 T002:
   c: false
   h: ea476a13836ac6181c9000003e794edd9ac0190004216161d8b1e679591c76ef
