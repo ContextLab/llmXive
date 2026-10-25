@@ -1,3 +1,10 @@
+T001:
+  c: true
+  h: d8995b84cab950a935d5e315b6fd205a4c88f83474b81a33d495ca9b3fd6dd8b
+  r: Checked the `.gitignore` file via `tests/unit/test_gitignore_strict.py`, which
+    asserts the exact four required lines in order with no trailing spaces, and the
+    test execution log shows it passed.
+  sig: eb97cb66888c6a6ffdaab6fc18a3fd2b1eb99cd25e157faefa564935744cb076
 T002:
   c: true
   h: 62bb3d2477f85555b5de52d268df076433b87050c62b46a8cd6f49a61dd322fe

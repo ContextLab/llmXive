@@ -1,10 +1,4 @@
 T001:
-  reason: "The evidence includes the unit test that checks the `.gitignore` file,\
-    \ but the repository snapshot does not contain a `.gitignore` file at the project\
-    \ root, nor any content showing the required four lines. Without the actual `.gitignore`\
-    \ file, the task\u2019s core requirement cannot be verified. The implementer must\
-    \ add a `.gitignore` file containing exactly:\n\n```\ndata/\nresults/\n*.pyc\n\
-    __pycache__/\n``` \n\nwith no extra lines or trailing spaces."
   task: 5e995dcddf7b2007dcd34aca13ab2a1e40050ea65f744e7ea7dfad8a601d62c2
 T002:
   task: ff762e2d63a6837ba5ebca8cd7f90926f7dc4104ebed7236a71d268c1c333f44
