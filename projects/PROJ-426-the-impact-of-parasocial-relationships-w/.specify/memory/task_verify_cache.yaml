@@ -1,10 +1,22 @@
 T001:
   c: true
-  h: aa2da45f5cc7d6e12a44fab947208406b13b85a79fabe07d4337cfd780ba340e
-  r: Checked that all required directories exist in the project tree and that `docs/directory_structure.txt`
-    contains the expected `tree -L 2 .` listing of the nine specified paths, with
-    the verification test passing.
-  sig: a516ce9530b4de984ddae28ab23543f056bc299ee4e09544760062141faa309d
+  h: ef40938b3c1cb8fafbd13ecb4fb5c3aa8bb5756d78ef80e5abe34838764d1a9d
+  r: "The directory tree is present (src/, tests/, data/, data/raw/, data/processed/,\
+    \ data/results/, docs/, contracts/, config/) as shown by the collector\u2019s\
+    \ directory listings, and the verification file `docs/directory_structure.txt`\
+    \ contains the expected nine entries. The pytest test `tests/test_directory_structure.py`\
+    \ also passed, confirming the file\u2019s existence and correctness."
+  sig: 7a1df473d6b2eaab8dbfe7edf9bf570ea2014c0e3639da42a122e807aac6e94d
+T002:
+  c: false
+  h: 1185e04467c06a2165ef036589b444374f07bbfd45c54bdb93c9e145170ae5e3
+  r: "Checked the three contract schema files (they exist and are well\u2011formed)\
+    \ and the `src/utils/validate_schema.py` script (it runs without error). However,\
+    \ there is no evidence that the required log file `logs/schema_validation.log`\
+    \ was created; the artifact list and execution logs do not show this file, so\
+    \ the verification step is not demonstrably satisfied. Adding the log file (or\
+    \ providing its contents) is needed to complete the task."
+  sig: 302c040d47a3de6df697f0fff2ba580eeec3577fe1fe24f980f881737563873b
 T011:
   c: false
   h: 96296957c986942207ca42fece3101dbc6c07a5fb8bfb6ab4fee27a3faa9f70a
@@ -12,3 +24,21 @@ T011:
     \ so no integration test is present to verify end\u2011to\u2011end data ingestion\
     \ as specified. The task\u2019s primary artifact is missing, making the claim\
     \ of completion invalid."
+T018:
+  c: false
+  h: 562d45ecf34e857439830b99f52f4bed8957873b5bf546d408ef31bbd7aaacc0
+  r: "The manifest `data/artifact_manifest.yaml` only lists four `.gitkeep` placeholder\
+    \ files, not the actual raw, processed, or results artifacts the pipeline should\
+    \ produce. Moreover, the checksum utility fails when the data directory is outside\
+    \ the project root (as shown by the unit\u2011test failures), and there is no\
+    \ evidence of a verification step that checks current hashes against the manifest.\
+    \ The task\u2019s requirement to compute and store checksums for *every* data\
+    \ artifact and enforce integrity is therefore not met."
+  sig: 2a27e16db64e86f0e265b7f0b3df8ede31f53cb37290e96a87fe004d83b20996
+T020:
+  c: true
+  h: bf2899a226f14fd668e90b4bb31163ef5578486a2964f0e8745d5b3184c9f388
+  r: "Checked `config/random_seed.yaml` (contains seed\u202F42) and `src/utils/set_seed.py`\
+    \ (defines `DEFAULT_SEED = 42`, seeds `random`, `numpy`, and `torch` when available,\
+    \ and writes the seed file). The script fulfills the required behavior."
+  sig: 16ad8c25d12a0db78f0564fb98b8f646a88e98e914a16fff22ad85a1f62086fd

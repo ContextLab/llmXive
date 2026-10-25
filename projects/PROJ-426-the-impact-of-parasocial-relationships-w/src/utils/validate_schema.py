@@ -14,6 +14,7 @@ This fulfills Task T002's verification requirement.
 import json
 import logging
 from pathlib import Path
+from typing import Any, Dict, List
 
 import yaml
 import jsonschema
@@ -34,18 +35,22 @@ def dummy_instance_for_schema(schema: dict) -> dict:
 
     The function inspects each required property, looks at its declared ``type``,
     and supplies a simple value that conforms to constraints such as ``minimum``,
-    ``pattern`` or ``format``.
-
-    This is **not** a full‑fledged generator – it only needs to produce something
-    that passes ``jsonschema.validate`` for the purposes of contract testing.
+    ``pattern``, ``format`` or ``enum``.
     """
-    instance = {}
-    required = schema.get("required", [])
-    properties = schema.get("properties", {})
+    instance: Dict[str, Any] = {}
+    required: List[str] = schema.get("required", [])
+    properties: Dict[str, Any] = schema.get("properties", {})
 
     for field in required:
         prop = properties.get(field, {})
         field_type = prop.get("type")
+
+        # Handle enum first – pick the first allowed value
+        if "enum" in prop:
+            enum_vals = prop["enum"]
+            if isinstance(enum_vals, list) and enum_vals:
+                instance[field] = enum_vals[0]
+                continue
 
         # Strings – handle common patterns / formats
         if field_type == "string":
@@ -64,12 +69,18 @@ def dummy_instance_for_schema(schema: dict) -> dict:
             else:
                 instance[field] = "example"
 
-        # Numbers / integers – respect ``minimum`` when present
+        # Numbers / integers – respect ``minimum`` and ``maximum`` when present
         elif field_type in ("number", "integer"):
             minimum = prop.get("minimum")
-            if minimum is not None:
-                # Use the minimum if it is non‑negative, otherwise use 1
+            maximum = prop.get("maximum")
+            if minimum is not None and maximum is not None:
+                # Choose a value within the bounds; pick the minimum if feasible
                 instance[field] = max(minimum, 1)
+            elif minimum is not None:
+                instance[field] = max(minimum, 1)
+            elif maximum is not None:
+                # If only a maximum is defined, pick a safe value below it
+                instance[field] = min(maximum, 1)
             else:
                 instance[field] = 1
 

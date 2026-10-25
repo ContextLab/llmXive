@@ -36,7 +36,7 @@ def test_schema_has_required_fields(schema):
 
 def test_schema_types(schema):
     properties = schema.get("properties", {})
-    
+
     assert properties["user_id"]["type"] == "string"
     assert properties["loneliness_score"]["type"] == "number"
     assert properties["usage_frequency"]["type"] == "number"
@@ -47,14 +47,14 @@ def test_schema_types(schema):
 
 def test_schema_constraints(schema):
     properties = schema.get("properties", {})
-    
+
     # Check bounds for scores
     assert properties["loneliness_score"].get("minimum") is not None
     assert properties["loneliness_score"].get("maximum") is not None
-    
+
     assert properties["usage_frequency"].get("minimum") == 0
     assert properties["session_duration"].get("maximum") == 24.0
-    
+
     assert properties["attachment_anxiety_score"].get("maximum") == 1.0
     assert properties["attachment_avoidance_score"].get("maximum") == 1.0
 

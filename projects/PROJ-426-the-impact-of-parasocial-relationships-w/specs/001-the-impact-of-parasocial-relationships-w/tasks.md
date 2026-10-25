@@ -13,7 +13,7 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
   - **Paths created**: `src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, `contracts/`, `config/`.  
   - **Verification**: Run `tree -L 2 .` (or equivalent) and store the output in `docs/directory_structure.txt`; the file must list all nine top‑level folders.
 
-- [ ] T002 Add the three contract schema files required by the specification and validate them.   <!-- FAILED-IN-EXECUTION: src/utils/validate_schema.py exit=1 -->
+- [ ] T002 Add the three contract schema files required by the specification and validate them.
   - **Files**:  
     - `contracts/unified_dataset.schema.yaml` (matches *MatchedUsersDataset*).  
     - `contracts/model_output.schema.yaml` (matches *ModelResult*).  
@@ -21,7 +21,7 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
   - **Verification**: Write a small script `src/utils/validate_schema.py` that loads each YAML with `jsonschema.validate` against a dummy instance; the script must exit with code 0 and produce `logs/schema_validation.log` confirming success.  
   - **Dependency**: Runs after T001 (now explicitly dependent).
 
-- [ ] T020 [P] Set a global random seed (42) for all stochastic steps and record it in `config/random_seed.yaml`.  
+- [X] T020 [P] Set a global random seed (42) for all stochastic steps and record it in `config/random_seed.yaml`.  
   - **Verification**: Script `src/utils/set_seed.py` writes the seed file and asserts that `numpy`, `random`, and `torch` (if present) are seeded; downstream scripts import this utility.
 
 - [ ] T018 [P] Compute SHA‑256 checksums for every raw and derived data artifact created throughout the pipeline and store them in `data/artifact_manifest.yaml`.  

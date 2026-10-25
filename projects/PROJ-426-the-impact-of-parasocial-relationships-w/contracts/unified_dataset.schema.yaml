@@ -42,6 +42,7 @@ properties:
       within the analysis window. Calculated as time difference between
       first and last activity in a 7-day window.
     minimum: 0
+    maximum: 24.0
 
   attachment_anxiety_score:
     type: number

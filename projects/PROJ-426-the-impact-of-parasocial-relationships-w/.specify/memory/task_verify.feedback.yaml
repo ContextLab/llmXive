@@ -1,8 +1,12 @@
 T001:
   task: 0fe83e43f956a0aab11359a772fff7a19bd30a14ae6968ec85912c498b9ae6e2
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/utils/validate_schema.py
-    exit=1'
+  reason: "Checked the three contract schema files (they exist and are well\u2011\
+    formed) and the `src/utils/validate_schema.py` script (it runs without error).\
+    \ However, there is no evidence that the required log file `logs/schema_validation.log`\
+    \ was created; the artifact list and execution logs do not show this file, so\
+    \ the verification step is not demonstrably satisfied. Adding the log file (or\
+    \ providing its contents) is needed to complete the task."
   task: e173da3b07f270b420718ca31709c2812b01b753983fa1a2fa8736d2322a7434
 T003:
   task: 1771c3bbcab9e4fc14585f0d93a6aeb543d4ac5e95626989943ca2d14a3f89ce
@@ -35,6 +39,13 @@ T016:
 T017:
   task: 8f202d78c27feb80964d3bcd2ca396634cd46d6e32440aa2aa1579879ff43d86
 T018:
+  reason: "The manifest `data/artifact_manifest.yaml` only lists four `.gitkeep` placeholder\
+    \ files, not the actual raw, processed, or results artifacts the pipeline should\
+    \ produce. Moreover, the checksum utility fails when the data directory is outside\
+    \ the project root (as shown by the unit\u2011test failures), and there is no\
+    \ evidence of a verification step that checks current hashes against the manifest.\
+    \ The task\u2019s requirement to compute and store checksums for *every* data\
+    \ artifact and enforce integrity is therefore not met."
   task: 3d653bf162875fe0ca5344adf1563dc9a97c1c7310ab5488f802b8ded4556fb8
 T019:
   task: 68cc79feff0d3e21c3f05e3091d9813381e2e856f5b2b1d189e3e46e692bd9bc
