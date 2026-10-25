@@ -1,36 +1,3 @@
-- artifact_hash: 294dfc06e721bee7c76628819108f98a75be79c1487e8e07ac88e18df8259f36
-  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-10-05T12:52:53.959111Z'
-- artifact_hash: 294dfc06e721bee7c76628819108f98a75be79c1487e8e07ac88e18df8259f36
-  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Registry Number Not Found
-  kind: url
-  value: https://webbook.nist.gov/cgi/cbook.cgi?ID=...`
-  verification_status: pending
-  verified_against_url: https://webbook.nist.gov/cgi/cbook.cgi?ID=
-  verified_at: '2026-10-05T12:52:53.959111Z'
-- artifact_hash: 294dfc06e721bee7c76628819108f98a75be79c1487e8e07ac88e18df8259f36
-  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://materialsproject.org/rest/v/materials/...`
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/rest/v/materials/
-  verified_at: '2026-10-05T12:52:53.959111Z'
 - artifact_hash: 677d17cd9caa7be618194136399630418313404bd959e86f40cc16560961c6db
   artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/spec.md
   cite_id: c-001
@@ -133,3 +100,25 @@
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials
   verified_at: '2026-10-25T21:31:23.472503Z'
+- artifact_hash: ca3b86f6676c9aa7d59dcadc8d923a779b3297d1f67431582b96a87574a2c488
+  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://webbook.nist.gov/api/v1/chemical/...`
+  verification_status: mismatch
+  verified_against_url: https://webbook.nist.gov/api/v1/chemical/
+  verified_at: '2026-10-25T21:42:58.202194Z'
+- artifact_hash: ca3b86f6676c9aa7d59dcadc8d923a779b3297d1f67431582b96a87574a2c488
+  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://materialsproject.org/rest/v2/materials`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials
+  verified_at: '2026-10-25T21:42:58.202194Z'
