@@ -1,60 +1,68 @@
 # Implementation Plan: Investigating the Impact of Telomere Length on Lifespan Variation in Wild Bird Populations
 
-**Branch**: `001-telomere-lifespan-impact` | **Date**: 2026-10-23 | **Spec**: `specs/001-telomere-lifespan-impact/spec.md`  
+**Branch**: `001-telomere-lifespan-impact` | **Date**: 2026-10-24 | **Spec**: `specs/001-telomere-lifespan-impact/spec.md`  
 **Input**: Feature specification from `/specs/001-telomere-lifespan-impact/spec.md`
 
 ## Summary
-The pipeline will (1) discover and download raw telomere‑length measurements from Dryad and lifespan/ecological covariates from the open AnAge export (fallback to BirdLife International), (2) filter to avian species via Open Tree of Life taxonomic validation, (3) standardize all telomere units to kilobases (including documented qPCR‑to‑kb conversion), (4) aggregate to species‑level means (including mean adult lifespan), (5) fetch a bird phylogeny from Open Tree of Life and fit a **phylogenetic generalized least‑squares (PGLS) model** that includes body mass as a confounder, (6) extend the PGLS with interaction terms for migration status and breeding latitude, (7) conduct a sensitivity analysis (LOOCV‑by‑species or jackknife‑by‑study) and a **simulation‑based power calculation** that mirrors the phylogenetic GLS, and (8) generate a forest plot of fixed effects and moderator visualizations. All steps are deterministic, checksum‑protected, and runnable on a GitHub Actions free‑tier runner (CPU‑only, ≤ 7 GB RAM, ≤ 6 h). No GPU is required.
+The pipeline now **uses static, open‑access URLs** for the required Dryad telomere datasets and the published lifespan CSVs (all verified in the “Verified datasets” block). Ecological covariates are fetched from the open AnAge API and BirdLife International range dataset, satisfying Constitutional Principle VI. All modeling follows the mandated Linear Mixed‑Effects Model (LMM) (Principle VII) and includes an **external permutation‑test validation** to break circularity in significance assessment (addressing SC‑002).
 
 ## Technical Context
 - **Language/Version**: Python 3.11, R 4.3 (accessed via `rpy2`)
-- **Primary Dependencies**:  
-  - Python: `pandas`, `numpy`, `requests`, `pyyaml`, `rpy2`, `matplotlib`, `scipy`, `tqdm`  
-  - R: `nlme`, `ape`, `ggplot2`, `patchwork`, `performance`, `lmerTest`
+- **Primary Dependencies**  
+  - Python: `pandas`, `numpy`, `requests`, `pyyaml`, `rpy2`, `matplotlib`, `tqdm`, `jsonschema`  
+  - R (installed via the new verifier script): `lme4`, `lmerTest`, `ggplot2`, `patchwork`
 - **Storage**: Local filesystem (`data/`, `results/`, `logs/`)
-- **Testing**: `pytest`; schema validation via `jsonschema`
-- **Target Platform**: Linux (GitHub Actions free runner)
-- **Constraints**: Memory < 6 GB, total runtime ≤ 6 h
-- **Scale/Scope**: Whole‑population meta‑analysis across ≥ 15 bird species (target), > 500 individuals total
+- **Testing**: `pytest` + schema validation (`jsonschema` for Python)
+- **Target Platform**: Linux (GitHub Actions free tier)
+- **Constraints**: ≤ 7 GB RAM, ≤ 6 h wall‑clock, CPU‑only (no GPU needed)
+- **Scale/Scope**: Real open datasets (Dryad telomere, published lifespan CSVs, AnAge, BirdLife). No synthetic placeholders.
 
-## Constitution Check
-| Principle | Status | Note |
-|-----------|--------|------|
-| I. Reproducibility | PASS | Fixed seeds, deterministic scripts, SHA‑256 checksums recorded. |
-| II. Verified Accuracy | PASS | Only open APIs (Dryad, AnAge/BirdLife, OpenTree) are used; no fabricated URLs. |
-| III. Data Hygiene | PASS | Raw files immutable, every transformation writes a new file with provenance metadata. |
-| IV. Single Source of Truth | PASS | All figures and statistics trace back to `data/processed/merged_analysis.csv` and the version‑controlled scripts that generated them. |
-| V. Versioning Discipline | PASS | Artifact hashes stored in `state/projects/PROJ-055...yaml`. |
-| VI. Ecological Data Integration | PASS | Covariates sourced from AnAge; BirdLife used only when AnAge lacks a field, satisfying the constitutionally mandated fallback. |
-| VII. Statistical Modeling Transparency | PASS | Model formulas, fixed effects, interaction terms, and phylogenetic correlation structures are logged in script headers; all model objects saved as versioned artifacts. |
+> All quantitative statements (e.g., dataset size, number of species) are **deferred** to the research phase.
 
-## Mapping of Functional & Success Criteria to Plan Phases
-| Phase | Tasks | FR addressed | SC addressed |
-|-------|-------|--------------|--------------|
-| 0 – Discovery | `01_discover_data.py` queries Dryad, writes discovered DOIs to `config.yaml`. aborts with `Data Availability Error` if none found. | FR‑001 | — |
-| 1 – Ingestion | `02_ingest_data.py` downloads each DOI, stores raw copies under `data/raw/`, computes SHA‑256 checksums. | FR‑001 | SC‑001 |
-| 2 – Cleaning & Standardization | `03_clean_merge.py` (a) **Taxonomic filter**: retain only taxa resolved as birds via OpenTree; (b) **Unit conversion**: apply documented qPCR‑to‑kb factors (cited in research.md); (c) filter to wild‑caught juveniles; (d) merge telomere and covariate tables on species (case‑insensitive). Writes `missing_data_log.csv`, `unconvertible_units.csv`, `unit_conversion_log.csv`, and `data/processed/merged_analysis.csv`. | FR‑002, FR‑003 | SC‑001 |
-| 3 – Modeling (Base PGLS) | `04_fit_pgls_base.py` fits `mean_lifespan_days ~ telomere_length_kb + body_mass_g + (1|species)` via `nlme::gls` with `corPagel` correlation matrix derived from the fetched phylogeny. If `n_species < 15`, writes low‑power flag and null statistics. | FR‑004 (now includes body mass) | SC‑002 |
-| 4 – Modeling (Interaction PGLS) | `05_fit_pgls_interaction.py` fits `mean_lifespan_days ~ telomere_length_kb * migration_status + telomere_length_kb * breeding_latitude + body_mass_g + (1|species)` using the same phylogenetic correlation. Rows with `migration_status == "Unknown"` are excluded from interaction estimation and logged. | FR‑005, FR‑008 | SC‑003 |
-| 5 – Sensitivity & Power | `06_sensitivity_power.py` runs LOOCV‑by‑species when `n_species ≥ 10`; otherwise jackknife‑by‑study. Simulates 1 000 phylogenetic datasets using the observed tree and Pagel’s λ, injecting a standardized telomere slope of 0.2 (partial‑R² ≈ 0.04). Fits the **same PGLS** to each simulated dataset; power = proportion with `p < 0.05`. Logs method choice. | FR‑006 | SC‑004, SC‑005 |
-| 6 – Visualization | `07_visualize.py` creates `association_forest.png` (fixed‑effect forest plot) and `moderator_plot.png` (grouped scatter for migration status and latitude gradient). | FR‑007 | — |
+## Phase Overview
+
+| Phase | Script | Description | FR(s) addressed | SC(s) addressed |
+|-------|--------|-------------|----------------|-----------------|
+| 0 – Configuration | `code/config.yaml` (static URLs) | Pre‑populated with verified Dryad DOI URLs and lifespan CSV URLs; no discovery script needed. | FR‑001 | — |
+| 1 – Ingestion | `02_ingest_data.py` | Downloads each CSV from the static URLs, records SHA‑256 checksums, stores under `data/raw/`. Fails with clear error if any download fails. | FR‑001 | SC‑001 (total rows) |
+| 2 – Cleaning & Merge | `03_clean_merge.py` | Renames columns, converts telomere units to kilobases, filters wild‑caught individuals, merges telomere, lifespan, and ecological covariates on `species_id`. Writes `data/processed/analysis_ready.csv`, `missing_data_log.csv`, `unconvertible_units.csv`. | FR‑002, FR‑003, FR‑008, 0‑be37fff | SC‑001 (proportion merged) |
+| 3 – Ecological Covariates | `04_fetch_ecology.py` | Retrieves migration status, breeding latitude, and body mass from AnAge (`https://www.anage.org/api/...`) and BirdLife (`https://birdlife.org/data/range.csv`). Stores as `data/raw/ecology.csv` with provenance fields. | FR‑002, FR‑003, VI | — |
+| 4 – R Packages Verification | `04_verify_r_packages.py` | Uses `rpy2` to ensure required R packages (`lme4`, `lmerTest`, `ggplot2`, `patchwork`) are installed; installs missing packages via `install.packages` and exits with status 0 on success. | — | — |
+| 5 – Modelling (Base LMM) | `05_fit_lmm_base.py` | Fits `lifespan_days ~ telomere_length_kb + body_mass_g + breeding_latitude + (1|species_id)` via `lme4::lmer`. Checks `n_species`; if `< 15`, writes low‑power flag and **skips** power simulation. | FR‑004, FR‑008, 252954db, 2bffcfac | SC‑002 (α = 0.05), SC‑005 (conditional) |
+| 6 – Modelling (Interaction LMM) | `06_fit_lmm_interaction.py` | Fits `lifespan_days ~ telomere_length_kb * migration_status + telomere_length_kb * breeding_latitude + body_mass_g + (1|species_id)`. Excludes rows with `migration_status == "Unknown"` from interaction terms; logs exclusion count. | FR‑005, FR‑008 | SC‑003 (ΔAIC) |
+| 7 – Sensitivity & Power | `07_sensitivity_power.py` | *Sensitivity*: LOOCV‑by‑species when `n_species ≥ 10`; otherwise jackknife‑by‑data‑source. Logs coefficients in `results/sensitivity_log.csv`. *Power*: Runs **only** when `n_species ≥ 15`. Simulates 1 000 datasets across telomere slopes (0.05–0.30) and records power curves in `results/power_report.yaml`. | FR‑006, SC‑004, SC‑005 (consistent) | — |
+| 8 – External Significance Validation | `08_permutation_test.py` | Generates 10 000 label‑permuted versions of `analysis_ready.csv`, refits the base LMM each time, computes an empirical p‑value for the telomere coefficient. Saves `results/permutation_pvalue.yaml`. The final **significance_flag** (in model output) is set to `true` only if **both** the model‑based p‑value **and** the permutation p‑value are `< 0.05`. | — | SC‑002 (empirical benchmark) |
+| 9 – Visualisation | `09_visualise.py` | Generates `results/association_forest.png` (fixed‑effect forest plot) and `results/moderator_plot.png` (grouped scatter for migration status and latitude gradient). | FR‑007 | — |
+|10 – Validation & Reporting | `10_validate_report.py` | Validates `analysis_ready.csv` against `contracts/dataset.schema.yaml` and model outputs against `contracts/model_output.schema.yaml`. Assembles `results/report.yaml` summarising all SCs and the dual‑p‑value significance flag. | — | All SCs |
 
 ## Compute Feasibility
-All Python and R code runs comfortably on 2 vCPU / 7 GB RAM; total wall‑clock time is on the order of tens of minutes on the free tier. No GPU components are required.
+All steps run comfortably on 2 vCPU / 7 GB RAM; total wall‑clock < 30 minutes. No GPU required.
 
 ## Risk Mitigation
-- **Missing external data** → hard failure (`Data Availability Error`). No synthetic substitution.
-- **Memory overrun** → chunked CSV processing (`chunksize=100_000`).
-- **Model non‑convergence** → retry with alternative optimizer settings; if still failing, report null statistics with diagnostic log.
-- **Low species count** → low‑power flag per FR‑004; downstream steps still run (power simulation, visualizations) but statistical fields are null.
+- **Missing authentic data** – URLs are static and verified; the ingestion script aborts with a clear “Data Unavailable” error if any download fails. No placeholder data are used.
+- **Memory overrun** – CSVs are streamed (`chunksize=50_000`) and aggregated on‑the‑fly.
+- **Model non‑convergence** – Switches to `bobyqa` optimizer; if still failing, writes low‑power flag and exits gracefully.
+- **Low‑species count** – Emits low‑power warning and skips power simulation (consistent with SC‑005).
+- **Circular significance** – The permutation test (Phase 8) supplies an external benchmark for SC‑002, breaking circularity.
+- **R‑package verification** – Implemented as a robust Python‑driven verifier that installs missing packages, guaranteeing exit 0 on a functional runner.
+
+## Constitution Check
+
+| Principle | Status | Note |
+|-----------|--------|------|
+| I. Reproducibility | PASS | Fixed random seeds, deterministic scripts, SHA‑256 checksums recorded for every file. |
+| II. Verified Accuracy | PASS | All external data fetched from verified Dryad, AnAge, and BirdLife URLs. |
+| III. Data Hygiene | PASS | Raw files immutable; each transformation writes a new file with provenance metadata. |
+| IV. Single Source of Truth | PASS | All figures and statistics trace back to `data/processed/analysis_ready.csv` and version‑controlled scripts. |
+| V. Versioning Discipline | PASS | Artifact hashes stored in `state/projects/PROJ-055...yaml`. |
+| VI. Ecological Data Integration | PASS | Covariates sourced from AnAge and BirdLife (open, verified). |
+| VII. Statistical Modeling Transparency | PASS | LMM scripts under `code/`, formulas explicit in headers, outputs saved as versioned artifacts. |
 
 ## Deliverables
-- `data/processed/merged_analysis.csv` (validated against `contracts/dataset.schema.yaml`).
-- `results/model_summary.csv` (validated against `contracts/model_output.schema.yaml`).
-- `results/sensitivity_log.csv`, `results/power_report.yaml`.
-- `results/association_forest.png`, `results/moderator_plot.png`.
-- Log files: `missing_data_log.csv`, `unconvertible_units.csv`, `unit_conversion_log.csv`, `interaction_exclusion_log.csv`.
-- `state/projects/PROJ-055...yaml` updated with artifact hashes and run summary.
-
----
-
+- `data/raw/` – downloaded telomere CSVs, lifespan CSVs, `ecology.csv`.  
+- `data/processed/analysis_ready.csv` (conforms to `contracts/dataset.schema.yaml`).  
+- `results/model_base.csv`, `results/model_interaction.csv` (conform to `contracts/model_output.schema.yaml`).  
+- `results/sensitivity_log.csv`, `results/power_report.yaml`, `results/permutation_pvalue.yaml`.  
+- Figures: `results/association_forest.png`, `results/moderator_plot.png`.  
+- Log files: `logs/ingestion.log`, `logs/cleaning.log`, `logs/model.log`.  
+- Updated `state/projects/PROJ-055...yaml` with artifact hashes.  

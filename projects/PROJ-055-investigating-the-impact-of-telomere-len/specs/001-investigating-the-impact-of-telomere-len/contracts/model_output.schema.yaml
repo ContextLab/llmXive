@@ -1,11 +1,119 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelResult"
-description: "Schema for   ---  "
-...
-
-
-
-
----
-
-
+description: "Schema for model output artifacts (both base and interaction LMMs)."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "LMM_Base"
+      - "LMM_Interaction"
+  fixed_effect_telomere:
+    type: ["number", "null"]
+    description: "Coefficient for telomere length."
+  se_telomere:
+    type: ["number", "null"]
+    description: "Standard error for telomere coefficient."
+  ci_lower_telomere:
+    type: ["number", "null"]
+    description: "95 % CI lower bound for telomere coefficient."
+  ci_upper_telomere:
+    type: ["number", "null"]
+    description: "95 % CI upper bound for telomere coefficient."
+  fixed_effect_body_mass:
+    type: ["number", "null"]
+    description: "Coefficient for body mass."
+  se_body_mass:
+    type: ["number", "null"]
+    description: "Standard error for body mass coefficient."
+  ci_lower_body_mass:
+    type: ["number", "null"]
+    description: "95 % CI lower bound for body mass coefficient."
+  ci_upper_body_mass:
+    type: ["number", "null"]
+    description: "95 % CI upper bound for body mass coefficient."
+  fixed_effect_migration:
+    type: ["number", "null"]
+    description: "Coefficient for migration status (interaction model only)."
+  se_migration:
+    type: ["number", "null"]
+    description: "Standard error for migration coefficient."
+  ci_lower_migration:
+    type: ["number", "null"]
+    description: "95 % CI lower bound for migration coefficient."
+  ci_upper_migration:
+    type: ["number", "null"]
+    description: "95 % CI upper bound for migration coefficient."
+  interaction_effect_migration:
+    type: ["number", "null"]
+    description: "Telomere × migration interaction coefficient."
+  se_interaction_migration:
+    type: ["number", "null"]
+    description: "Standard error for interaction coefficient."
+  ci_lower_interaction_migration:
+    type: ["number", "null"]
+    description: "95 % CI lower bound for interaction coefficient."
+  ci_upper_interaction_migration:
+    type: ["number", "null"]
+    description: "95 % CI upper bound for interaction coefficient."
+  interaction_effect_latitude:
+    type: ["number", "null"]
+    description: "Telomere × latitude interaction coefficient."
+  se_interaction_latitude:
+    type: ["number", "null"]
+    description: "Standard error for latitude interaction coefficient."
+  ci_lower_interaction_latitude:
+    type: ["number", "null"]
+    description: "95 % CI lower bound for latitude interaction coefficient."
+  ci_upper_interaction_latitude:
+    type: ["number", "null"]
+    description: "95 % CI upper bound for latitude interaction coefficient."
+  p_value_telomere:
+    type: ["number", "null"]
+    description: "Two‑sided p‑value for telomere coefficient."
+  p_value_interaction_migration:
+    type: ["number", "null"]
+    description: "p‑value for telomere × migration interaction."
+  p_value_interaction_latitude:
+    type: ["number", "null"]
+    description: "p‑value for telomere × latitude interaction."
+  significance_flag:
+    type: "boolean"
+    description: "True when both model‑based and permutation p‑values are < 0.05."
+  aic_score:
+    type: ["number", "null"]
+    description: "Akaike Information Criterion."
+  delta_aic:
+    type: ["number", "null"]
+    description: "ΔAIC vs. base model (only for interaction model)."
+  n_species:
+    type: "integer"
+    description: "Number of unique species used in the fit."
+    minimum: 1
+  low_power_flag:
+    type: "boolean"
+    description: "True when species count < 15."
+  low_power_message:
+    type: ["string", "null"]
+    description: "Message explaining low‑power condition."
+  power_estimate:
+    type: ["number", "null"]
+    description: "Simulated power to detect a standardized slope of 0.2 at α = 0.05."
+  permutation_pvalue:
+    type: ["number", "null"]
+    description: "Empirical p‑value from permutation test (Phase 8)."
+required:
+  - model_type
+  - fixed_effect_telomere
+  - se_telomere
+  - ci_lower_telomere
+  - ci_upper_telomere
+  - fixed_effect_body_mass
+  - se_body_mass
+  - ci_lower_body_mass
+  - ci_upper_body_mass
+  - p_value_telomere
+  - significance_flag
+  - n_species
+  - low_power_flag
+additionalProperties: false
