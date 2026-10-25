@@ -11,30 +11,25 @@ pip install -r requirements.txt
 
 ## 2. Dataset Curation
 ```bash
-# Attempt to download the real CrafterBench subset (required for the human study)
+# Attempt to download a verified CrafterBench subset (50 failed figures)
 python -m src.curators.curate_failed_figures \
-    --num-tasks 50 \
+    --download \
     --output-dir data/
 ```
-- If the verified URL (`https://huggingface.co/datasets/crafterbench`) cannot be reached, the script **exits with an informative error** and the pipeline halts (real study blocked).  
-- To **only** verify the pipeline (CI), generate a deterministic synthetic surrogate:
-```bash
-python -m src.curators.curate_failed_figures \
-    --verify-only \
-    --num-tasks 50 \
-    --output-dir data/
-```
-*These synthetic logs are **not** used for scientific conclusions; they only prove that the pipeline runs and conforms to schemas.*
+- If a verified open‑source CrafterBench subset is **available**, the script will download and curate exactly 50 failed figures with injected errors and corresponding ground‑truth vectors.  
+- If no verified source exists, the script aborts with an informative error; this signals that the required dataset must be provided before the study can proceed (FR‑001).  
+- **Do not** rely on a synthetic surrogate for scientific conclusions; synthetic data is only used for CI‑verification of pipeline mechanics (see `simulate_participants.py`).
 
 ## 3. Run a priori power analysis
 ```bash
 python -m src.simulation.power_analysis \
     --effect-size 0.5 \
-    --alpha 0.025 \   # Bonferroni‑adjusted significance level
+    --alpha 0.025 \
     --test wilcoxon
 ```
+*The script prints the required sample size (approximately a few dozen participants).*
 
-## 4. Launch the interface stubs (manual sanity check)
+## 4. Launch the interface stubs (sanity check)
 ```bash
 # Structured harness on port 8001
 uvicorn src.interfaces.structured_harness:app --port 8001 &
@@ -42,8 +37,10 @@ uvicorn src.interfaces.structured_harness:app --port 8001 &
 uvicorn src.interfaces.chat_interface:app --port 8002 &
 sleep 2
 
-# Verify session initialization (returns JSON with counterbalanced order and 2‑minute wash‑out interval)
-curl -X POST http://127.0.0.1:8001/init_session -H "Content-Type: application/json" -d '{"participant_id":"test_user"}'
+# Verify session initialization (returns JSON with counterbalanced order and **10‑minute wash‑out interval**)
+curl -X POST Connection refused"))] \
+    -H "Content-Type: application/json" \
+    -d '{"participant_id":"test_user"}'
 ```
 
 ## 5. CI‑Only Pipeline Verification (synthetic participants)
@@ -56,38 +53,32 @@ python -m src.simulation.simulate_participants \
 *These logs are **not** used for scientific conclusions; they only prove that the pipeline runs and conforms to schemas.*
 
 ## 6. Human‑Participant Data Collection (real study)
-> Start the FastAPI servers (step 4) and have recruited participants interact with the interfaces. `interaction_logger.py` will automatically record real wall‑clock timestamps, iteration counts, and **NASA‑TLX** scores to `data/logs/`.
+> Start the FastAPI servers (step 4) and recruit participants. The system will enforce randomization, counterbalancing, and a 10‑minute wash‑out interval between interface blocks. Collect NASA‑TLX scores after each task.
 
 ## 7. Retention check
 ```bash
 python -m src.analysis.retention_check \
     --log-dir data/logs/ \
-    --min-valid 25
+    --min-valid 28 \
+    --required-participants 32
 ```
 
-## 8. Validation (Vector + Semantic)
+## 8. Validation (Vector match & Semantic similarity)
 ```bash
 python -m src.validation.run_validation \
     --log-dir data/logs/ \
-    --ground-truth-dir data/ground_truth/ \
     --output-dir data/validation/
 ```
 
-## 9. Statistical analysis & report generation
+## 9. Statistical analysis and report generation
 ```bash
 python -m src.analysis.wilcoxon_analysis \
+    --log-dir data/logs/ \
     --validation-dir data/validation/ \
     --output-dir outputs/
-```
-
-## 10. Verify contracts (CI gate)
-```bash
-pytest -q tests/contract
-```
-
-## 11. Run the full pipeline end‑to‑end
-```bash
-python -m src.run_pipeline --config config.yaml
+python -m src.analysis.generate_report \
+    --analysis-dir outputs/ \
+    --output-file outputs/report.md
 ```
 
 ---

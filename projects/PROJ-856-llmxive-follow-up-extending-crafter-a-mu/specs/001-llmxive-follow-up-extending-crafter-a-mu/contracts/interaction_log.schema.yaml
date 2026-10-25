@@ -24,28 +24,32 @@ properties:
     description: "Identifier of the figure task."
   timestamp_ms:
     type: integer
-    description: "Epoch time in milliseconds when the edit was submitted."
+    description: "Epoch time when the edit was submitted."
   iteration:
     type: integer
     minimum: 1
-    description: "1‑based count of the edit attempt within the task."
+    description: "1‑based iteration number for the edit attempt."
   mode:
     type: string
     enum: ["structured", "chat"]
     description: "Interface mode used for this edit."
   payload:
     type: string
-    description: "The raw edit command (typed code) or natural‑language utterance."
+    description: "The edit command or natural‑language instruction submitted by the participant."
   response_image_path:
     type: string
-    description: "Filesystem path to the figure generated after this edit."
+    description: "Path to the image generated in response to the edit."
   task_start_ms:
     type: integer
-    description: "Timestamp of the first interaction for this task (ms since epoch)."
+    description: "Timestamp marking the start of the task."
   task_end_ms:
     type: integer
-    description: "Timestamp of the most recent interaction for this task (ms since epoch)."
+    description: "Timestamp marking the end of the task."
   status:
     type: string
-    enum: ["aborted"]
-    description: "If present, indicates the task exceeded the 15‑minute timeout."
+    description: "Optional status flag (e.g., \"aborted\")."
+  subjective_load:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "NASA‑TLX score (0–100) reported by the participant after the task."

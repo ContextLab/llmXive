@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AnalysisResult"
-description: "Schema for the JSON‑Lines records produced by the Wilcoxon analysis script."
+description: "Schema for the JSON‑Lines records produced by the statistical analysis step."
 type: object
 required:
   - result_id
@@ -16,31 +16,28 @@ required:
 properties:
   result_id:
     type: string
-    description: "Unique identifier for this analysis result."
+    description: "Unique identifier for the analysis result record."
   metric:
     type: string
-    enum:
-      - time_to_success_ms
-      - iteration_count
-      - subjective_load
-    description: "The metric that was analysed."
+    enum: ["time_to_success_ms", "iteration_count", "subjective_load"]
+    description: "Metric that was analyzed."
   structured_median:
     type: number
-    description: "Median value for the structured harness."
+    description: "Median value for the structured harness condition."
   chat_median:
     type: number
-    description: "Median value for the chat interface."
+    description: "Median value for the chat interface condition."
   wilcoxon_statistic:
     type: number
-    description: "Wilcoxon signed‑rank test statistic (W)."
+    description: "Wilcoxon signed‑rank test statistic (or t‑statistic if a paired t‑test was used)."
   p_value_corrected:
     type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Bonferroni‑adjusted two‑sided p‑value."
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni‑corrected p‑value for the test."
   effect_size_r:
     type: number
-    description: "Rank‑siserial correlation effect size."
+    description: "Rank‑siserial effect size (r)."
   ci_95_lower:
     type: number
     description: "Lower bound of the 95 % bootstrap confidence interval for the median difference."
@@ -49,5 +46,4 @@ properties:
     description: "Upper bound of the 95 % bootstrap confidence interval for the median difference."
   n_participants:
     type: integer
-    minimum: 1
-    description: "Number of participant pairs included in the test."
+    description: "Number of participants included in the analysis."

@@ -1,5 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SemanticValidation"
+description: "Schema for records capturing both exact vector match and CLIP‑based semantic similarity for a completed figure task."
 type: object
 required:
   - validation_id
@@ -22,10 +23,10 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "Cosine similarity between ResNet‑18 feature vectors of the output and ground‑truth images."
+    description: "Cosine similarity between the generated figure image and the ground‑truth image as computed by CLIP ViT‑B/32."
   semantic_pass:
     type: boolean
-    description: "True if `semantic_score` ≥ 0.90 (threshold justified by pilot validation)."
+    description: "True if `semantic_score` ≥ 0.95."
   overall_success:
     type: boolean
-    description: "True if and only if both `vector_match` and `semantic_pass` are true."
+    description: "Primary success flag; defined as the `vector_match` result only (semantic similarity does not affect primary inclusion)."
