@@ -1,3 +1,18 @@
+T001a:
+  c: true
+  h: 20db0714da1a72cb7cf5466a0443d43933b2e4ac33b37a2808c3bff7c68213da
+  r: The collector confirms that the directories `code/`, `data/raw/`, `data/processed/`,
+    `models/`, `results/`, `tests/`, and `contracts/` all exist in the project root,
+    and the execution log for `create_core_layout.py` shows a successful run creating
+    the layout.
+  sig: 99f7f95691dfd3a8adc5b80041bc87716ce9469936a847682cae5f6a18826839
+T001b:
+  c: true
+  h: dc6fa5184cf4ab32e52cd05a74ab2ddc1ad3ee04118e67137eadb9864fee4e1b
+  r: "Checked that `code/__init__.py` exists, is non\u2011empty, contains valid Python\
+    \ code (docstring, version string) and therefore can be imported without error,\
+    \ satisfying the requirement to make the `code` tree a package."
+  sig: b849c6cb8a33f9291b9586b25eefdf4214b1a7487d377362d7942e9a4d4782e7
 T006:
   c: false
   h: 8f8743f070f3afd8fbfb68056b018be98d37c3a5f9c222ae30da6cb714510f0c
@@ -17,13 +32,6 @@ T014:
     the required `data/logs/exclusion_log.txt` does not exist. The implementer must
     complete the function with the exact inference logic and ensure the correct log
     entries are written.
-T021b:
-  c: false
-  h: 8b9a790577cc4282f877776dc687b0ad98c3b8bc106e924e3bfecab2705d3044
-  r: "The repository lacks `results/cv_metrics.json` and `results/cv_best_hyperparameters.json`,\
-    \ and the provided `code/modeling.py` does not contain the required `extract_best_hyperparameters`\
-    \ function (or any implementation that reads those files and writes the best hyperparameters).\
-    \ The task\u2019s core artifact is therefore missing."
 T024:
   c: false
   h: ef7b4f56a7464c8a96f574759df831236d270538f1694566df2ed764e9323bef

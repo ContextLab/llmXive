@@ -11,11 +11,11 @@ All tasks respect the data‑flow ordering required by the specification (FR‑0
 
 ## Phase 0 – Project scaffolding
 
-- [ ] T001a [P] Create the core directory layout  
+- [X] T001a [P] Create the core directory layout  
   `code/`, `data/raw/`, `data/processed/`, `models/`, `results/`, `tests/`, `contracts/`.  
   **Verification**: All listed directories exist on the filesystem.
 
-- [ ] T001b [P] Add `code/__init__.py` to make the code tree a package.  
+- [X] T001b [P] Add `code/__init__.py` to make the code tree a package.  
   **Verification**: Importing `code` succeeds without error.
 
 - [ ] T001c [P] Add placeholder `.gitkeep` files in `data/raw/` and `data/processed/`.  
