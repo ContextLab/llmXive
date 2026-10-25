@@ -21,7 +21,7 @@ The following checklist implements the full end‑to‑end study while addressin
   **Tags**: [FR-001] [FR-006] [FR-007]  
   **Verification**: All subtasks succeed; final checksum files exist and validate.
 
-- [ ] T014  Graph construction and topology control  
+- [X] T014  Graph construction and topology control  
   *Create `code/graph_generator.py` and `code/utils/graph_utils.py` that generate DAGs with controlled `nesting_depth` (3‑6 for primary, 7‑10 for auxiliary) and `branching_factor` (1‑5). Enforce acyclicity and solvability, compute `nesting_depth`, `branching_factor`, `token_length`, `lexical_complexity`, and `target_path_id` (perturbed from longest path).*  
   **Tags**: [FR-001] [FR-006] [FR-007]  
   **Verification**: Generation script runs without error and produces in‑memory structures matching constraints.

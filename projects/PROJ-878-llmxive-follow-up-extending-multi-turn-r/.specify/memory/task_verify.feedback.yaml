@@ -1,38 +1,50 @@
 T001:
-  task: 04beb1208ff2afd2d188ef2b70bd93cede5411d9f9ee2dfa60a911985bc40b23
+  reason: "The directory tree and `code/requirements.txt` exist and contain the required\
+    \ entries, and three `__init__.py` files are present, but there is no provided\
+    \ evidence (e.g., command output or logs) that `pip install -r code/requirements.txt`\
+    \ actually succeeded or that `ruff check --output-format=concise` exited with\
+    \ status\u202F0. These execution confirmations are required to complete the task."
+  task: 2f5f07791fe223aae3ef29f8ea363979ebe6bcf6e1b02e83a38b7fe62a1c8406
 T002:
-  reason: "The only execution record (`code/.tasks/T002...log`) shows `pytest` exiting\
-    \ with code 2 \u2014 the test module fails to even collect because `code/graph_generator.py`\
-    \ imports `datasets`/`pyarrow`, which is incompatible with the installed NumPy\
-    \ 1.24.3 (\"pyarrow requires NumPy 2.0 or newer\"). The task's verification criterion\
-    \ \u2014 `pytest code/tests/test_graph_generator.py` passes after T003 \u2014\
-    \ is therefore not met, and there is no evidence the generated dataset files (`data/raw/synthetic_puzzles.jsonl`,\
-    \ `data/raw/aux_puzzles.jsonl`) exist for the integration test to validate. Fix:\
-    \ remove or guard the `d"
-  task: e5dad39be55f3a48af0b2a2d128c0953abf4d998c1d65313fd80c490c723267d
+  reason: "The `graph_generator.py` correctly avoids heavy imports, but the test suite\
+    \ does not pass: `test_nx_set_seed_compatibility` fails (NetworkX has no `set_seed`),\
+    \ and the integration test (`test_cli_generation_integration`) fails because the\
+    \ generated data shows a Pearson |r|\u202F\u2248\u202F0.96, far above the required\u202F\
+    <\u202F0.2. Moreover, the integration test that should run the generator on a\
+    \ tiny seed is skipped (dataset files missing) and does not actually validate\
+    \ a freshly\u2011generated JSONL file. The required lightweight integration test\
+    \ is therefore missing or incorrect."
+  task: 82f2231cf66b96a2ad030fad64e7aa0fb5d3fd08616c3bd89f7f31270de25b4b
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/graph_generator.py
-    exit=1'
-  task: 414c156dcaa7e05c3ee31253ef3b804cd19722155b748dfd9db95ca4c858515a
+  reason: "The log shows the generation script ran and claimed to write checksum files,\
+    \ but the actual checksum files (`data/checksums_primary.txt`, `data/checksums_aux.txt`)\
+    \ are not present in the evidence, nor is there any proof that subtasks T014\u2011\
+    T016 were executed or that the checksums were validated. Provide the checksum\
+    \ files and verification output (or logs) to satisfy the task."
+  task: 6f4784464d5297a831e45758553d8805228043b0b35f3348a0cea45f6dfe4237
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/rm_executor.py
-    exit=1'
-  task: 4f55f0845c6535570606bbaa83e61f6b1971350b363bff89740d71ac987cd7ba
+  task: 2909717203fc1c35a7ca4a5f4dcef9db2f614db17df0e8016deb8c847f110c71
 T005:
-  task: 5a4196dddc8b7fd8f60d3d78557ab8fbea6dcecb3be607b1f021f77bb4b24fef
+  task: 739c37391e29fdbd55215529a0422c4bcea43f00e1472ef126be5f93004c1d8a
 T006:
-  task: 79b72fd797cd91c613752ed60d9fb66d4c175f01588a32959badaae9acc9fe22
+  task: 3aa9bcfed328465757d9f930cbd13a340532291cd064e17a032bdf3d9c77af13
 T007:
-  task: 4b5f27315bee3b9da9e4933402b8028607e2ec61a26b991820ae7834c55b0f57
+  task: 50b42a67a2822648de548c24ddfc893da156079d569133df4261c4aaf64ccaa2
 T008:
-  task: 3ee293ac26b680cfeb3229202fd1fcd59218be972cce88b59743fd9328a4beb4
+  task: b0b79010ca12365e3693fc1d985b6f07926ebd585b32651149082110a5c8dd43
 T009:
-  task: 06a527ead770f43113d6778d68ef745543e65c106ebd0cf8d530e94058e5be1c
+  task: a9faf3fc13344bba355b5dd8533e9e7dbf2d441fc55442488b8c713f65d49f60
 T010:
-  task: 25f38307b271b789d894f8f018d259c644edd20879b0014156625b515646b95c
+  task: 67ba73587a4d4b601f2b517644be53cddea4747ef647c49b3f265baacd713ebd
 T011:
-  task: 67ab9fded0a0caa5d84523ed7fdbf0cbc7f8a5ac7d1285a6519e459fc82997a5
+  task: 0bdac8e23665f6b01c0457e897ead8b627b0e7395046cd664d4ba2523e5a8f42
 T012:
-  task: 2941f43ca4605c26a198960639861bda0d02023910531ad8a90513a61d1e2703
+  task: 2e9cb0fb4c37d567c304c44c40c2dda27ae4c43f29d3245208b4161da0185f40
 T013:
-  task: e45a489e68414497b18ebda191826c210d15c8869ad5d63d982fafb02edb0777
+  task: a1ebd20bd4d050892bb30ce1f8740e7abe887db0584bf909941ada1981900940
+T014:
+  task: fcd75a335e5f6d640f5d2881395a74afa08eb5bf28db5bad4f6a4ad65274e042
+T015:
+  task: 11e092afef1970df57697b263e46cbb166547f72eede1576e1f71e9d28686574
+T016:
+  task: 5ac59ba7d815370a6e8a251b9c9ec70d654ca10f3aa9b79e1037f6c01a9abf3a

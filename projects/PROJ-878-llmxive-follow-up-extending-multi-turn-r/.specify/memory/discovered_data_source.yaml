@@ -1,13 +1,13 @@
 status: none
-intent: CLUTRR synthetic relational reasoning dataset download python package GSM8K
-  reference python package dataset
+intent: ProofWriter RuleTaker logical deduction DAG metadata synthetic dataset python
+  package dataset
 required_fields:
-- puzzle_id
+- instance_id
 - puzzle_text
-- solution
 - dag_edges
 - max_nesting_depth
 - average_branching_factor
-cache_key: a4fb979ba0a0a2c347660bf9e6bc4862522ef0caf9a61e47872308a8681f1a3f
-searched_at: '2026-10-25T20:11:28.528644+00:00'
+- ground_truth_solution
+cache_key: a3342b3c8ccc7866525625702e688e0b8174bbb2f79fd10a6e81eac6361a2ff0
+searched_at: '2026-10-25T20:47:48.018185+00:00'
 retry_count: 1

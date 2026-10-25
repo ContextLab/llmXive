@@ -1,1 +1,1 @@
-# Ensure test package is recognized
+"""Test package initialization."""

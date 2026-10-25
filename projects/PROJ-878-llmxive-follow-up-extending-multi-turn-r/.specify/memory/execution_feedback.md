@@ -1,32 +1,37 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/graph_generator.py  --count <sufficiently large sample>  --depth-min 1 --depth-max 10  --branch-min 1 --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42`
+  - script usage: `graph_generator.py [-h] --count COUNT --depth-min DEPTH_MIN --depth-max`
+  - argparse error: `graph_generator.py: error: argument --count: invalid int value: '<sufficiently'`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python code/graph_generator.py  --count 500  --depth-min 1  --depth-max 10  --branch-min 1  --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 (rc=1); python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu (rc=1); python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 (rc=1); 3 declared deliverable(s) absent: data/processed/execution_log.csv; data/processed/execution_log_smoke.csv; data/processed/extended_budget_log.csv
+**Summary**: 4 command(s) failed: python code/graph_generator.py  --count <sufficiently large sample>  --depth-min 1 --depth-max 10  --branch-min 1 --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 (rc=2); python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu (rc=1); python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log_extended.csv  --max-turns 1000  --batch-size 5  --device cpu (rc=1); 3 declared deliverable(s) absent: data/processed/execution_log.csv; data/processed/execution_log_smoke.csv; data/processed/extended_budget_log.csv
 
 ## Failing / missing run-book commands
 
-- python code/graph_generator.py  --count 500  --depth-min 1  --depth-max 10  --branch-min 1  --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 -> rc=1
+- python code/graph_generator.py  --count <sufficiently large sample>  --depth-min 1 --depth-max 10  --branch-min 1 --branch-max 5  --output data/raw/synthetic_puzzles.jsonl  --seed 42 -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/graph_generator.py", line 10, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/datasets/__init__.py", line 22, in <module>
-    from .arrow_dataset import Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-878-llmxive-follow-up-extending-multi-turn-r/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.24.3
+usage: graph_generator.py [-h] --count COUNT --depth-min DEPTH_MIN --depth-max
+                          DEPTH_MAX --branch-min BRANCH_MIN --branch-max
+                          BRANCH_MAX --output OUTPUT [--seed SEED]
+graph_generator.py: error: argument --count: invalid int value: '<sufficiently'
 
 - python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log.csv  --max-turns 50  --batch-size 5  --device cpu -> rc=1
 
 MODEL_PATH not found in .env. Please set it.
 
+- python code/rm_executor.py  --input data/raw/synthetic_puzzles.jsonl  --output data/processed/execution_log_extended.csv  --max-turns 1000  --batch-size 5  --device cpu -> rc=1
+
+MODEL_PATH not found in .env. Please set it.
+
 - python code/analyzer.py  --puzzles data/raw/synthetic_puzzles.jsonl  --results data/processed/execution_log.csv  --output results/statistical_report.json  --thresholds 40 50 60 -> rc=1
 
-2026-10-22 03:16:34,579 - __main__ - ERROR - Analysis failed: Execution results file not found: data/processed/execution_log.csv
+2026-10-25 20:47:05,018 - __main__ - ERROR - Analysis failed: Execution results file not found: data/processed/execution_log.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/analyzer.py", line 213, in <module>
     main()
@@ -36,12 +41,6 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-878-llmxive-follow-up-extending-multi-turn-r/code/analyzer.py", line 38, in load_execution_results
     raise FileNotFoundError(f"Execution results file not found: {filepath}")
 FileNotFoundError: Execution results file not found: data/processed/execution_log.csv
-
-- python -c "import json; data = [json.loads(l) for l in open('data/raw/synthetic_puzzles.jsonl')]; print(f'Count: {len(data)}'); print(f'Depth Range: {min(d[\"nesting_depth\"] for d in data)}-{max(d[\"nesting_depth\"] for d in data)}')" -> rc=1
-
-Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-FileNotFoundError: [Errno 2] No such file or directory: 'data/raw/synthetic_puzzles.jsonl'
 
 
 ## Declared deliverables still missing
