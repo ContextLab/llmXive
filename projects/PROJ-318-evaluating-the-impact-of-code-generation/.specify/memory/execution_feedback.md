@@ -15,25 +15,25 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/utils/repo_fetcher.py   # Writes data/raw/frozen_repo_list.json -> rc=-1
-rror: rate limit exceeded for url: https://api.github.com/repos/scikit-learn/scikit-learn. Retrying in 16.0s...
-2026-10-25 14:38:34,758 - __main__ - WARNING - Skipping scikit-learn due to fetch error: Failed to fetch star count for https://github.com/scikit-learn/scikit-learn after 5 retries.
-2026-10-25 14:38:34,831 - __main__ - WARNING - Attempt 1/5 failed for https://github.com/keras-team/keras: 403 Client Error: rate limit exceeded for url: https://api.github.com/repos/keras-team/keras. Retrying in 1.0s...
-2026-10-25 14:38:35,859 - __main__ - WARNING - Attempt 2/5 failed for https://github.com/keras-team/keras: 403 Client Error: rate limit exceeded for url: https://api.github.com/repos/keras-team/keras. Retrying in 2.0s...
-2026-10-25 14:38:37,889 - __main__ - WARNING - Attempt 3/5 failed for https://github.com/keras-team/keras: 403 Client Error: rate limit exceeded for url: https://api.github.com/repos/keras-team/keras. Retrying in 4.0s...
-2026-10-25 14:38:41,920 - __main__ - WARNING - Attempt 4/5 failed for https://github.com/keras-team/keras: 403 Client Error: rate limit exceeded for url: https://api.github.com/repos/keras-team/keras. Retrying in 8.0s...
+ps://github.com/django/django after 5 retries.
+2026-10-25 14:42:02,613 - __main__ - WARNING - Attempt 1/5 failed for https://github.com/pandas-dev/pandas/issues: 403 Client Error: rate limit exceeded for url: https://api.github.com/repos/pandas/issues. Retrying in 1.0s...
+2026-10-25 14:42:03,642 - __main__ - WARNING - Attempt 2/5 failed for https://github.com/pandas-dev/pandas/issues: 403 Client Error: rate limit exceeded for url: https://api.github.com/repos/pandas/issues. Retrying in 2.0s...
+2026-10-25 14:42:05,671 - __main__ - WARNING - Attempt 3/5 failed for https://github.com/pandas-dev/pandas/issues: 403 Client Error: rate limit exceeded for url: https://api.github.com/repos/pandas/issues. Retrying in 4.0s...
+2026-10-25 14:42:09,701 - __main__ - WARNING - Attempt 4/5 failed for https://github.com/pandas-dev/pandas/issues: 403 Client Error: rate limit exceeded for url: https://api.github.com/repos/pandas/issues. Retrying in 8.0s...
+2026-10-25 14:42:17,734 - __main__ - WARNING - Attempt 5/5 failed for https://github.com/pandas-dev/pandas/issues: 403 Client Error: rate limit exceeded for url: https://api.github.com/repos/pandas/issues. Retrying in 16.0s...
 
 
 [TIMEOUT after 120s]
 - python code/utils/git_clone.py   # Clones each repo into data/raw/repos/ -> rc=1
 
-2026-10-25 14:38:46,150 - __main__ - INFO - Starting repository cloning process
-2026-10-25 14:38:46,151 - __main__ - INFO - Repo list: /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/raw/frozen_repo_list.json
-2026-10-25 14:38:46,151 - __main__ - INFO - Target directory: /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/raw/repos
-2026-10-25 14:38:46,151 - __main__ - ERROR - Critical error during cloning: Repository list file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/raw/frozen_repo_list.json
+2026-10-25 14:42:29,982 - __main__ - INFO - Starting repository cloning process
+2026-10-25 14:42:29,982 - __main__ - INFO - Repo list: /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/raw/frozen_repo_list.json
+2026-10-25 14:42:29,982 - __main__ - INFO - Target directory: /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/raw/repos
+2026-10-25 14:42:29,982 - __main__ - ERROR - Critical error during cloning: Repository list file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/raw/frozen_repo_list.json
 
 - python code/extract.py -> rc=1
-2026-10-25 14:38:47,614 - __main__ - INFO - Starting repository extraction pipeline
-2026-10-25 14:38:47,614 - __main__ - ERROR - Pipeline failed: Repository list not found at data/raw/frozen_repo_list.json. Run T010 to generate it first.
+2026-10-25 14:42:31,453 - __main__ - INFO - Starting repository extraction pipeline
+2026-10-25 14:42:31,453 - __main__ - ERROR - Pipeline failed: Repository list not found at data/raw/frozen_repo_list.json. Run T010 to generate it first.
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/code/extract.py", line 272, in main
     raise FileNotFoundError(
@@ -45,13 +45,13 @@ FileNotFoundError: Repository list not found at data/raw/frozen_repo_list.json. 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-318-evaluating-the-impact-of-code-generation/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/code/baseline_copy.py': [Errno 2] No such file or directory
 
 - python code/aggregate.py -> rc=1
-2026-10-25 14:38:49,724 - INFO - Starting aggregation. Processing dir: /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/processed, Output: /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/processed/results.json
-2026-10-25 14:38:49,725 - INFO - Found 0 batch files in /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/processed
-2026-10-25 14:38:49,725 - ERROR - No batch files found. Aborting.
+2026-10-25 14:42:33,515 - INFO - Starting aggregation. Processing dir: /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/processed, Output: /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/processed/results.json
+2026-10-25 14:42:33,515 - INFO - Found 0 batch files in /home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/data/processed
+2026-10-25 14:42:33,515 - ERROR - No batch files found. Aborting.
 
 
 - python code/analyze.py --step=coverage -> rc=1
-2026-10-25 14:38:50,123 - __main__ - INFO - Loading data from data/processed/results.json
+2026-10-25 14:42:33,914 - __main__ - INFO - Loading data from data/processed/results.json
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/code/analyze.py", line 373, in <module>
@@ -64,7 +64,7 @@ Traceback (most recent call last):
 FileNotFoundError: File not found: data/processed/results.json
 
 - python code/analyze.py --step=similarity -> rc=1
-2026-10-25 14:38:50,562 - __main__ - INFO - Loading data from data/processed/results_with_coverage.json
+2026-10-25 14:42:34,347 - __main__ - INFO - Loading data from data/processed/results_with_coverage.json
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/code/analyze.py", line 373, in <module>
@@ -81,7 +81,7 @@ FileNotFoundError: File not found: data/processed/results_with_coverage.json
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-318-evaluating-the-impact-of-code-generation/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/code/human_eval.py': [Errno 2] No such file or directory
 
 - python code/analyze.py --step=stats -> rc=1
-2026-10-25 14:38:51,038 - __main__ - INFO - Loading data from data/processed/results_with_scores.json
+2026-10-25 14:42:34,813 - __main__ - INFO - Loading data from data/processed/results_with_scores.json
 
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-318-evaluating-the-impact-of-code-generation/code/analyze.py", line 373, in <module>
@@ -119,7 +119,7 @@ ERROR tests/unit/test_generation.py
 ERROR tests/unit/test_quantization_enforcer.py
 ERROR tests/unit/test_repo_fetcher.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================== 4 warnings, 6 errors in 2.37s =========================
+======================== 4 warnings, 6 errors in 2.40s =========================
 
 
 

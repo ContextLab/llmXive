@@ -1,16 +1,19 @@
 status: none
-intent: download PyPI top packages list HuggingFace pypi dataset GitHub repository
-  metadata python package dataset
+intent: download PyPI top packages source code method signatures docstrings dataset
+  python package dataset
 required_fields:
-- package_name
+- repository_name
 - repository_url
+- package_name
+- package_version
 - file_path
 - class_name
 - method_name
-- method_signature
+- signature
 - docstring
 - is_public
-- method_index
-cache_key: 2f47cc381b239eb6502b7d76fc4b1031a6a9561b2d5d1b061993187d7b02aca2
-searched_at: '2026-10-25T14:39:54.165070+00:00'
+- method_id
+- extraction_timestamp
+cache_key: af7d99f31833fecb25542b671814ee7380ea68bbdb4d978d927a8ec5a19016e8
+searched_at: '2026-10-25T14:43:33.255016+00:00'
 retry_count: 1
