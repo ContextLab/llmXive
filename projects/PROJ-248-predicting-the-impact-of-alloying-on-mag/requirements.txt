@@ -1,5 +1,6 @@
-# Project dependencies
-# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
-# seaborn, pytest, PyYAML, requests, jsonschema, psutil) are pre‑installed in the runner.
-# Adding the HuggingFace datasets library for reliable public data access.
-datasets>=2.18.0
+datasets
+# Existing dependencies (numpy, pandas, scikit-learn, matplotlib, seaborn,
+# pymatgen, matminer, requests, PyYAML, pytest, jsonschema, psutil) are
+# already provided by the base environment.  The only new requirement is
+# the HuggingFace ``datasets`` library used to fetch the Materials Project
+# magnetic archive.
