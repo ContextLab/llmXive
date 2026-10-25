@@ -3,14 +3,14 @@ Unit tests for the dual‑success validation utilities (T005).
 
 The tests cover three scenarios:
   a) Exact vector match & semantic pass → overall_success = True
-  b) Vector mismatch but semantic pass → overall_success = True
+  b) Vector mismatch but semantic pass → overall_success = False (primary success depends only on vector match)
   c) Both checks fail → overall_success = False
 
 The test creates a minimal temporary dataset (ground‑truth vectors,
 optional prediction vectors, and PNG images) and invokes the
 `src.validation.run_validation` CLI.  The resulting JSONL file is
 inspected to ensure the fields match the contract and that the
-`overall_success` logic follows the OR rule.
+`overall_success` logic follows the primary‑only rule.
 """
 
 import json
@@ -71,8 +71,12 @@ def setup_dataset(tmp_path):
 
     # --- Predictions for vector mismatch (scenario b & c) ---
     # vector mismatch for figure 1 and 2
-    (pred_dir / "1.json").write_text(json.dumps({"vector": [999, 32, 32]}, indent=2), encoding="utf-8")
-    (pred_dir / "2.json").write_text(json.dumps({"vector": [999, 32, 32]}, indent=2), encoding="utf-8")
+    (pred_dir / "1.json").write_text(
+        json.dumps({"vector": [999, 32, 32]}, indent=2), encoding="utf-8"
+    )
+    (pred_dir / "2.json").write_text(
+        json.dumps({"vector": [999, 32, 32]}, indent=2), encoding="utf-8"
+    )
 
     # --- Prediction image for figure 2 (different colour → low similarity) ---
     write_image(pred_img_dir / "2.png", (0, 0, 255))  # blue image
@@ -130,7 +134,8 @@ def test_overall_success_logic(setup_dataset):
     rec1 = rec_by_id["1"]
     assert rec1["vector_match"] is False
     assert rec1["semantic_pass"] is True
-    assert rec1["overall_success"] is True
+    # Primary success depends only on exact vector match
+    assert rec1["overall_success"] is False
     assert 0.99 <= rec1["semantic_score"] <= 1.0  # same image compared → high similarity
 
     # --- Scenario c: both checks fail (figure 2) ---
@@ -143,5 +148,6 @@ def test_overall_success_logic(setup_dataset):
 
     # Verify required schema fields are present
     for r in records:
-        for field in ["validation_id", "task_id", "vector_match", "semantic_score", "semantic_pass", "overall_success"]:
+        for field in ["validation_id", "task_id", "vector_match",
+                      "semantic_score", "semantic_pass", "overall_success"]:
             assert field in r

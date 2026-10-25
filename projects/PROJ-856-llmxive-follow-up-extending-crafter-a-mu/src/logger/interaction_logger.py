@@ -3,7 +3,7 @@ Interaction Logger Module
 =========================
 
 Provides millisecond‑precision logging of user interactions during figure editing.
-Each call writes a single JSON line to ``data/logs/interactions_clean.jsonl``.
+Each call writes a single JSON line to ``data/logs/interactions.jsonl``.
 The log schema (defined in ``contracts/interaction_log.schema.yaml``) includes:
 
 - ``log_id``: unique identifier for the log entry
@@ -13,10 +13,17 @@ The log schema (defined in ``contracts/interaction_log.schema.yaml``) includes:
 - ``iteration``: integer count of the edit attempt (starting at 1)
 - ``mode``: interface mode used for this edit (``structured`` or ``chat``)
 - ``payload``: **string** representation of the raw edit command (typed code) or natural‑language utterance
-- ``response_image_path``: filesystem path to the figure generated after this edit
-- ``task_start_ms``: timestamp of the first interaction for this task
-- ``task_end_ms``: timestamp of the most recent interaction for this task
+- ``response_image_path``: filesystem path to the image generated after the edit
+- ``task_start_ms``: timestamp marking the start of the task
+- ``task_end_ms``: timestamp marking the end of the task
 - optional ``status``: ``aborted`` when the task exceeds the 15‑minute timeout
+- optional ``subjective_load``: NASA‑TLX score (0–100) reported after task completion
+- ``participant_id``: alias for ``session_id`` required by downstream analysis
+- ``figure_id``: alias for ``task_id`` required by downstream analysis
+- ``interface``: alias for ``mode`` required by downstream analysis
+
+The logger records both the original schema fields and the analysis‑friendly aliases,
+ensuring compatibility with contract validation **and** the statistical analysis pipeline.
 """
 
 from __future__ import annotations
@@ -26,14 +33,14 @@ import threading
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, Optional
 
 from llmxive_toolkit import get_logger, paths
 
 # ----------------------------------------------------------------------
 # Constants & helpers
 # ----------------------------------------------------------------------
-LOG_PATH: Path = paths.data("logs", "interactions_clean.jsonl")
+LOG_PATH: Path = paths.data("logs", "interactions.jsonl")
 """Path to the JSON‑Lines interaction log file. ``paths.data`` ensures the
 ``data/logs`` directory exists."""
 
@@ -72,6 +79,7 @@ def log_interaction(
     interface: str,
     payload: Dict[str, Any],
     iteration: int,
+    subjective_load: Optional[float] = None,
 ) -> None:
     """
     Append a single interaction record to the interaction log.
@@ -88,12 +96,17 @@ def log_interaction(
         The raw request payload sent to the edit endpoint.
     iteration: int
         The 1‑based edit attempt number for this figure.
+    subjective_load: float, optional
+        NASA‑TLX score (0–100) reported after the task is completed.
+        If ``None`` the field is omitted.
 
     The function records per‑task start/end timestamps, generates a unique
     ``log_id``, and writes the record as a JSON line.  If the elapsed time
     for the task exceeds 15 minutes, a ``status: "aborted"`` field is added.
     The ``payload`` field is stored as a JSON‑encoded **string** to satisfy
-    the contract schema.
+    the contract schema.  In addition to the schema‑required fields, the
+    record also contains analysis‑friendly aliases ``participant_id``,
+    ``figure_id`` and ``interface``.
     """
     now_ms = _timestamp_ms()
 
@@ -109,25 +122,31 @@ def log_interaction(
     task_end = _task_state[key]["task_end_ms"]
     elapsed = task_end - task_start
 
-    # Build the log record
+    # Build the log record with both schema fields and analysis aliases
     record: Dict[str, Any] = {
+        # Schema‑required fields
         "log_id": str(uuid.uuid4()),
         "session_id": participant_id,
         "task_id": figure_id,
         "timestamp_ms": now_ms,
         "iteration": iteration,
         "mode": interface,
-        # Store payload as a compact JSON string per schema requirement
         "payload": json.dumps(payload, separators=(",", ":")),
-        # Placeholder path – in a real system this would point to the edited figure.
         "response_image_path": f"data/figures/{figure_id}_edit_{iteration}.png",
         "task_start_ms": task_start,
         "task_end_ms": task_end,
+        # Analysis‑friendly aliases
+        "participant_id": participant_id,
+        "figure_id": figure_id,
+        "interface": interface,
     }
 
-    # Abort handling
+    # Optional fields
     if elapsed > _ABORT_THRESHOLD_MS:
         record["status"] = "aborted"
+    if subjective_load is not None:
+        # Clamp to the allowed range per schema
+        record["subjective_load"] = max(0, min(100, subjective_load))
 
     # Ensure the parent directory exists (paths.data already created it,
     # but this is a defensive guard for direct imports outside the quick‑start).

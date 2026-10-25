@@ -2,21 +2,27 @@
 validation_by_session.py
 -------------------------
 
-Aggregate per‑task validation results into a per‑session view.
+Aggregate per‑task SemanticValidation records into a session‑aware file.
 
-This script (re)runs the validation step to ensure that the
-``semantic_validation.jsonl`` file exists, then reads the interaction
-log to map each (session, task) pair to the corresponding validation
-record.  It emits one line per (session, task) with the validation
-outcome and a per‑session summary.
+This script:
+1. Ensures the semantic validation file exists (runs the validation step if needed).
+2. Reads the interaction log to map each (session, task) pair.
+3. Joins the mapping with the validation records.
+4. Writes a JSON‑Lines file ``semantic_validation_by_session.jsonl`` containing
+   the fields required by the specification:
+   ``session_id``, ``task_id``, ``overall_success``, ``semantic_pass``,
+   and ``status`` (``aborted`` or ``completed``).
+5. Skips tasks whose ground‑truth vector is missing or corrupted,
+   logging a warning for each such case.
 
-If any required mapping cannot be recovered the script aborts with a
-non‑zero exit status – it never emits placeholder ``"unknown"``
-identifiers.
+The script is deliberately defensive: any unrecoverable mismatch causes a
+non‑zero exit status, preventing downstream analysis from running on
+incomplete data.
 """
 
 import argparse
 import json
+import logging
 import re
 import subprocess
 import sys
@@ -118,7 +124,7 @@ def _extract_pair(entry: Dict) -> Tuple[Optional[str], Optional[str], Optional[s
 
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Aggregate per‑task validation results by participant session."
+        description="Aggregate per‑task SemanticValidation records by participant session."
     )
     parser.add_argument(
         "--log-dir",
@@ -141,14 +147,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--output-path",
         type=str,
-        default="data/results/validation_by_session.jsonl",
+        default="data/results/semantic_validation_by_session.jsonl",
         help="Path to write the aggregated per‑session validation file.",
-    )
-    parser.add_argument(
-        "--summary-path",
-        type=str,
-        default="data/results/session_success_summary.jsonl",
-        help="Path to write the per‑session success‑count summary.",
     )
     return parser
 
@@ -188,12 +188,11 @@ def main() -> int:
     validation_dir = Path(args.validation_dir)
     ground_truth_dir = Path(args.ground_truth_dir)
     output_path = Path(args.output_path)
-    summary_path = Path(args.summary_path)
 
     # 1. Ensure the validation file exists (run validation if needed)
     _run_validation(log_dir, ground_truth_dir, validation_dir)
 
-    # 2. Load interaction log and build a mapping from task → (session, interface)
+    # 2. Load interaction log and build a mapping from task → (session, status)
     interaction_log_path = log_dir / "interactions_clean.jsonl"
     if not interaction_log_path.is_file():
         log.error("Interaction log not found: %s", interaction_log_path)
@@ -204,28 +203,22 @@ def main() -> int:
         log.error("Interaction log is empty: %s", interaction_log_path)
         return 1
 
-    task_to_sessions: Dict[str, List[Tuple[str, str]]] = defaultdict(list)
-    seen_pairs = set()
+    # Mapping: normalized task_id -> (session_id, status)
+    task_to_session: Dict[str, Tuple[str, str]] = {}
     unmapped = 0
     for entry in interactions:
-        session, task, interface = _extract_pair(entry)
+        session, task, _ = _extract_pair(entry)
         task_norm = _normalize_task_id(task)
         if session is None or task_norm is None:
             unmapped += 1
             continue
-        key = (str(session), task_norm)
-        if key not in seen_pairs:
-            seen_pairs.add(key)
-            task_to_sessions[task_norm].append(
-                (str(session), str(interface) if interface else "unknown")
-            )
+        status = entry.get("status", "completed")
+        task_to_session[task_norm] = (str(session), str(status))
+
     if unmapped:
         log.warning("%d interaction records could not be mapped to (session, task)", unmapped)
-    if not task_to_sessions:
-        log.error(
-            "Could not recover any (session, task) pairs from %s – aborting",
-            interaction_log_path,
-        )
+    if not task_to_session:
+        log.error("Could not recover any (session, task) pairs from %s – aborting", interaction_log_path)
         return 1
 
     # 3. Load semantic validation records.
@@ -240,9 +233,8 @@ def main() -> int:
 
     # 4. Write aggregated per‑session records.
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    session_stats: Dict[str, Dict[str, int]] = defaultdict(lambda: {"tasks_attempted": 0, "successes": 0})
     written = 0
-    unmapped_tasks = 0
+    skipped_corrupt = 0
 
     with output_path.open("w", encoding="utf-8") as out_f:
         for record in validations:
@@ -251,65 +243,42 @@ def main() -> int:
             if task_norm is None:
                 continue
 
-            vector_match = bool(record.get("vector_match", False))
-            semantic_pass = bool(record.get("semantic_pass", False))
-            overall_success = vector_match or semantic_pass
-
-            pairs = task_to_sessions.get(task_norm, [])
-            if not pairs:
-                # As a last resort try the raw identifier directly.
-                pairs = task_to_sessions.get(str(raw_task), [])
-            if not pairs:
-                unmapped_tasks += 1
-                log.warning(
-                    "No session found for task %s (raw id %r) – skipping",
-                    task_norm,
-                    raw_task,
-                )
+            # Detect missing ground‑truth vector (corrupted)
+            if "vector_match" not in record:
+                log.warning("Validation record missing vector_match for task %s – skipping", raw_task)
+                skipped_corrupt += 1
                 continue
 
-            for session_id, interface in pairs:
-                aggregated = {
-                    "session_id": session_id,
-                    "task_id": str(raw_task),
-                    "interface": interface,
-                    "vector_match": vector_match,
-                    "semantic_pass": semantic_pass,
-                    "overall_success": overall_success,
-                }
-                out_f.write(json.dumps(aggregated) + "\n")
-                session_stats[session_id]["tasks_attempted"] += 1
-                if overall_success:
-                    session_stats[session_id]["successes"] += 1
-                written += 1
+            vector_match = bool(record.get("vector_match", False))
+            semantic_pass = bool(record.get("semantic_pass", False))
+            overall_success = vector_match  # primary success defined solely by vector match
+
+            session_status = task_to_session.get(task_norm)
+            if session_status is None:
+                log.warning("No interaction entry for validation task %s – skipping", raw_task)
+                continue
+
+            session_id, status = session_status
+            aggregated = {
+                "session_id": session_id,
+                "task_id": str(raw_task),
+                "overall_success": overall_success,
+                "semantic_pass": semantic_pass,
+                "status": status,
+            }
+            out_f.write(json.dumps(aggregated) + "\n")
+            written += 1
 
     if written == 0:
-        log.error("No (session, task) records were written – aborting")
+        log.error("No records were written to %s – aborting", output_path)
         return 1
-    if unmapped_tasks:
-        log.warning("%d validation tasks had no matching session", unmapped_tasks)
 
-    log.info("Aggregated %d (session, task) records written to %s", written, output_path)
-
-    # 5. Write per‑session success‑count summary.
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
-    with summary_path.open("w", encoding="utf-8") as sum_f:
-        for session_id in sorted(session_stats):
-            stats = session_stats[session_id]
-            attempted = stats["tasks_attempted"]
-            successes = stats["successes"]
-            sum_f.write(
-                json.dumps(
-                    {
-                        "session_id": session_id,
-                        "tasks_attempted": attempted,
-                        "successes": successes,
-                        "success_rate": round(successes / attempted, 4) if attempted else 0.0,
-                    }
-                )
-                + "\n"
-            )
-    log.info("Per‑session summary written to %s", summary_path)
+    log.info(
+        "Aggregated %d records (skipped %d corrupted) into %s",
+        written,
+        skipped_corrupt,
+        output_path,
+    )
     return 0
 
 if __name__ == "__main__":

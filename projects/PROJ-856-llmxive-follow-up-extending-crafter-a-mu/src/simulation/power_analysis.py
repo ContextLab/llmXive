@@ -11,7 +11,7 @@ The script is invoked as::
 
     python -m src.simulation.power_analysis \\
         --effect-size 0.5 \\
-        --alpha 0.05 \\
+        --alpha 0.025 \\
         --test wilcoxon
 
 and prints a human‑readable line such as::
@@ -77,7 +77,7 @@ def main() -> int:
     )
 
     # The requirement from the specification is that the printed N be
-    # at least 30 participants.
+    # at least 30 participants; we simply report the computed value.
     print(f"Required participants (per group): {required_n}")
 
     return 0

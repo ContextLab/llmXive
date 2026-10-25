@@ -4,17 +4,21 @@ import random
 
 import numpy as np
 
-GLOBAL_SEED = 42
+# Public constant for verification as required by the task specification.
+SEED = 42
+
+# Alias kept for backward compatibility with existing code.
+GLOBAL_SEED = SEED
 
 
-def set_global_seed(seed: int = GLOBAL_SEED) -> None:
+def set_global_seed(seed: int = SEED) -> None:
     """
     Seed the common random number generators used in the project.
 
     Parameters
     ----------
     seed : int, optional
-        The seed value to set for reproducibility, by default 42.
+        The seed value to set for reproducibility, by default SEED (42).
     """
     random.seed(seed)
     np.random.seed(seed)

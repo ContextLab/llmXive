@@ -1,68 +1,63 @@
 T000:
+  c: false
+  h: e1052b35a022a5a95de0a7f1b979263e0c8582f021d23341cc17205243b3654b
+  r: "Checked `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,\
+    \ and `data/checksums.txt`. The requirements file uses wildcard version specifiers\
+    \ (e.g., `numpy==1.26.*`) instead of exact pinned versions, and no raw data files\
+    \ are present to verify that the SHA\u2011256 hashes in `data/checksums.txt` actually\
+    \ correspond to the files. Both the exact\u2011version pinning and the checksum\u2011\
+    matching verification are therefore missing."
+  sig: d17fb7e0002fb3909d0f73aa61096ecbcebfdcd160dcf82c893bcc754c0bcfe0
+T001:
   c: true
-  h: 99fa32a34d4c4d84358e3d8009f89941b1a9b37d1d161762846b7c917f5d673f
-  r: 'All four required artifacts exist and are non-empty with correct content: `requirements.txt`
-    pins exact versions for all dependencies, `src/utils/seeds.py` defines `GLOBAL_SEED
-    = 42` and seeds Python/NumPy/torch RNGs (applied at import), `src/utils/checksums.py`
-    is a real SHA-256 hashing script (not a stub) that walks `data/` and writes `<checksum>  <path>`
-    lines, and `data/checksums.txt` contains 100 well-formed SHA-256 entries covering
-    the 50 figure/ground-truth pairs. The repeating figure hashes (period 12) are
-    consistent with duplicated source images rather than random fabrication (ground-'
-  sig: 7f2be98f93d4bbfb22a5abea4584706eba77e247ac63491f150dde2a526b0485
+  h: 2308b169dc57442b24a0040e3c703c603bad068f756e29364f25879a6943869f
+  r: "Checked `src/run_pipeline.py` \u2013 it defines an argparse entry point with\
+    \ automatic `--help` and a `--version` flag that prints the semantic version \u201C\
+    0.1.0\u201D.  \nChecked `quickstart.md` \u2013 present and documents usage, including\
+    \ the version and help commands."
+  sig: 9bdebcfaa06ef237f4b27dad3b3d28a802570caab8e2e2a9c40b97c3d72599cf
 T002:
-  c: true
-  h: 235eabc09b5baf5f2f595c2a696661181c694a3991f54440a9095a2d80878b29
-  r: "The script `src/curators/curate_failed_figures.py` implements both required\
-    \ behaviors: without `--verify-only` it probes the network and exits non-zero\
-    \ with \"verified source unavailable\" on failure, and with `--verify-only` it\
-    \ deterministically generates the surrogate dataset. The on-disk artifacts match\
-    \ the verification spec exactly \u2014 `data/figures/` contains exactly 50 PNGs,\
-    \ `data/ground_truth/` contains 50 JSON vectors (confirmed contents like `{\"\
-    vector\": [idx, 32, 32]}` consistent with the deterministic surrogate), and `data/checksums.txt`\
-    \ is written with 100 SHA-256 entries matching the f"
-  sig: a8083e74b46a75cdfea78c31533a1d2bbaccdba6dedc56da545fadce285646a4
+  c: false
+  h: 8b1c03e62e320807029389f837c5c08cf8dc2afe801246a2e90a4996babcdf63
+  r: "The provided `src/curators/curate_failed_figures.py` exists and runs, but it\
+    \ downloads CIFAR\u201110 rather than the required CrafterBench dataset, so it\
+    \ does not fetch a verified subset of 50 failed figures from CrafterBench. The\
+    \ script therefore does not satisfy the core requirement of the task. The next\
+    \ implementer must replace the synthetic CIFAR\u201110 source with a download\
+    \ of the actual CrafterBench data and ensure exactly 50 curated failed figures\
+    \ are produced, preserving the same error\u2011handling behavior."
+  sig: 33ac5a55d8e60b29682fd56c01477d0bf56b2e4ca30641d0d33ac94c44efc1fa
 T003:
-  c: true
-  h: dbd1d5b983fb98357e00c6756222fe72204d0ae55c85684aefcb9480bad40ede
-  r: "Checked `src/interfaces/structured_harness.py`, `src/interfaces/chat_interface.py`,\
-    \ `src/interfaces/session.py`, and `tests/interfaces/test_interfaces.py`; the\
-    \ FastAPI apps expose `/edit` and `/init_session` endpoints, and the provided\
-    \ pytest file asserts 200\u202FOK responses and a shuffled order containing both\
-    \ interfaces, satisfying the task requirements."
-  sig: a0a97ad885a482759adec6e399c3f4442a8e871ac3219b65325e70be6f28d64b
+  c: false
+  h: ef7ec01784c0cd334a1312ad0f555b8e3e94994aa7d57c444dc1f9096914e2a1
+  r: "The three source files exist and implement the required endpoints, but the provided\
+    \ test suite fails to run because the `fastapi` package is not installed (`ModuleNotFoundError:\
+    \ No module named 'fastapi'`). Without this dependency the verification command\
+    \ `pytest -q tests/interfaces/test_interfaces.py` cannot pass, so the task\u2019\
+    s acceptance criteria are not met. Install FastAPI (and its test client) or add\
+    \ it to the project\u2019s dependency list."
+  sig: 82e94049600df6cc93b84372cc82593134f1b867a3148646f6cdfd06a407ec8f
 T004:
-  c: true
-  h: 52963280f34e280fe44b4225910c6ea5e427d800aca396f93c1f67a3780de68b
-  r: "Checked `src/logger/interaction_logger.py` for millisecond\u2011precision logging,\
-    \ task\u2011level start/end timestamps, abort handling, and clean file writes;\
-    \ and `tests/logger/test_interaction_logger.py` which uses FastAPI `TestClient`\
-    \ to verify that a POST creates a valid JSON\u2011line in `data/logs/interactions_clean.jsonl`\
-    \ with all required schema fields and abort status when simulated over 15\u202F\
-    minutes. All required artifacts exist and behave as specified."
-  sig: b2dd7f023fd5f009f01c20e22dc0b0f6aa86787e4d77b619afbed24cff44ae45
+  c: false
+  h: e098b8001a02088b1a2821e321dabdd3b502df98b85ebad9b8e47056176c14aa
+  r: "Checked `src/logger/interaction_logger.py` (contains the required fields and\
+    \ abort logic) and `tests/logger/test_interaction_logger.py` (the test suite fails\
+    \ to import `fastapi`, so no tests run, and it never verifies that a NASA\u2011\
+    TLX score is logged). The missing FastAPI dependency and lack of a test for the\
+    \ `subjective_load` field mean the required logging behavior is not demonstrated\
+    \ or validated. Fix by adding FastAPI (and any other test dependencies) and extending\
+    \ the tests to assert that a logged record includes `subjective_load` and passes\
+    \ schema validation."
+  sig: 9f25be916e1591eca8288e1c770a8dabf45c0db7c892dbfbc9831fc1664bc315
 T005:
-  c: true
-  h: 759f5e8cca9be23a06ccc4272a49f8d6401307f6dc3d7dbd9f7e6490089e38fb
-  r: "Checked the four required source files (vector_match.py, semantic_similarity.py,\
-    \ run_validation.py, test_validation.py) \u2013 they exist, contain full implementations,\
-    \ and the unit test exercises the combined validation script, confirming overall_success\
-    \ follows the OR logic and that the output records include all schema\u2011required\
-    \ fields with correct types."
-  sig: 6c1f8772c7110be921afdcf9837deec7bffd9c664550f71a71ec413d47714ac4
-T006:
-  c: true
-  h: c184946a1a3f353c96391c3a632667e4b6bc1c8eb6180d042728f7f9e19acc1c
-  r: "Checked `src/simulation/power_analysis.py` execution log (prints 34\u202F\u2265\
-    \u202F30, exit\u202F0), `src/simulation/simulate_participants.py` execution log\
-    \ (runs with 30 participants, exit\u202F0), and the generated `data/logs/interactions_clean.jsonl`\
-    \ (non\u2011empty 2.6\u202FMiB file with thousands of JSON\u2011Lines matching\
-    \ the required schema, exceeding the 7\u202F500\u2011line minimum)."
-  sig: bcca438bd1da5b6c99fc7bcb63df12583e08b710e481242c5350933054017dbc
-T007:
-  c: true
-  h: 731a3966a1203099789f20bd70493b0f1e79bf9b7b701e20303938120a23e59b
-  r: "Checked `src/analysis/validation_by_session.py` (exists, runs validation, writes\
-    \ aggregated JSON\u2011Lines) and the resulting `data/results/validation_by_session.jsonl`\
-    \ (non\u2011empty, each line has `session_id`, `task_id`, `overall_success`).\
-    \ The script meets the specification despite a mismatched test path."
-  sig: f84de9b2d5c4bff58f18eaee5cfa48e1ae2fe970037bcaa17e8e63443181f09f
+  c: false
+  h: 1914eda6046b034730c1758f1261388c8e7249bdc0745ef7c8f4bc965458f7de
+  r: "The `src/validation/run_validation.py` script sets `overall_success = vector_match\
+    \ or semantic_pass`, violating the requirement that primary success be based **solely**\
+    \ on exact vector match, and the unit test (which expects `overall_success=False`\
+    \ when only semantic_pass is true) fails. Additionally, the test fails because\
+    \ `semantic_score` can exceed 1.0 due to floating\u2011point rounding, breaking\
+    \ the `0.99\u202F\u2264\u202Fscore\u202F\u2264\u202F1.0` assertion. Finally, the\
+    \ required `semantic_validation.schema.yaml` file is missing. Fix the overall_success\
+    \ logic, clamp or round similarity scores to \u2264\u202F1.0, and add the missin"
+  sig: 691f59facb82fa28e56dc36c828bd8d6ea1424349b8d1ba85490093b1a1dbcd9

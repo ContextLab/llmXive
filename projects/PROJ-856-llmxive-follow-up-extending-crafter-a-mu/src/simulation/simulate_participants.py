@@ -6,7 +6,7 @@ Synthetic driver that simulates a full within‑subjects experiment.
 For each participant it randomises the order of the two interfaces,
 assigns a balanced set of figures to each interface, and logs every
 edit attempt using the shared ``log_interaction`` utility. The logger
-writes JSON‑Lines to ``data/logs/interactions_clean.jsonl`` – the file
+writes JSON‑Lines to ``data/logs/interactions.jsonl`` – the file
 required by the contract tests.
 
 The script guarantees at least 7 500 log lines by using the maximum
@@ -75,9 +75,7 @@ def main() -> None:
         if figure_files:
             figure_ids = [f.stem for f in figure_files]
 
-    # Fallback: If curation hasn't run or directory is empty, use the
-    # expected 50 figure IDs to ensure the simulation produces the
-    # required 7,500 lines for contract verification.
+    # Fallback: If curation hasn't run or directory is empty, use placeholder IDs.
     if not figure_ids:
         figure_ids = [f"figure_{i}" for i in range(50)]
 

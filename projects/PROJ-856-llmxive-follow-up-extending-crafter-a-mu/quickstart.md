@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 ## 2. Verify data availability
 ```bash
-# The script will attempt to download CrafterBench (via CIFAR-10); if unavailable it falls back to synthetic data.
+# The script will attempt to download CrafterBench (via CIFAR-10); if unavailable it falls back to synthetic data. [UNRESOLVED-CLAIM: c_a1fc97ef — status=not_enough_info]
 python -m src.curators.curate_failed_figures --num-tasks 50 --output-dir data/
 ```
 - After execution you will see `data/figures/` and `data/ground_truth/`.
@@ -25,7 +25,7 @@ python -m src.curators.curate_failed_figures --num-tasks 50 --output-dir data/
 uvicorn src.interfaces.structured_harness:app --port 8001 &
 uvicorn src.interfaces.chat_interface:app --port 8002 &
 ```
-- Visit the endpoints (e.g., ` Connection refused"))]) to see a `200 OK` JSON response containing a randomized `interface_order` and shuffled `task_order`.
+- Visit the endpoints (e.g., ` Connection refused"))] and ` Connection refused"))]) to see a `200 OK` JSON response containing a randomized `interface_order` and shuffled `task_order`.
 
 ## 4. Run a priori power analysis (optional but recommended)
 ```bash
@@ -41,11 +41,13 @@ python -m src.simulation.simulate_participants \
  --log-dir data/logs/
 ```
 - This creates `data/logs/interactions_clean.jsonl` containing millisecond‑precise interaction records.
-- With 30 participants, 50 figures, and 5 edits per figure the file contains 7 500 lines, satisfying the contract schema. [UNRESOLVED-CLAIM: c_efc6dd26 — status=not_enough_info]
+- With 30 participants, 50 figures, and 5 edits per figure the file contains 7 500 lines, satisfying the contract schema. [UNRESOLVED-CLAIM: c_bba97744 — status=not_enough_info]
 
 ## 6. Retention check
 ```bash
-python -m src.utils.check_retention --log-dir data/logs/ --min-valid 25
+python -m src.analysis.retention_check \
+ --log-dir data/logs/ \
+ --min-valid 25
 ```
 - Fails the pipeline if fewer than 25 sessions have at least one non‑aborted successful trial.
 
@@ -79,9 +81,7 @@ pytest -q tests/contract
 ```
 All logs and the final analysis must pass the JSON schema contracts located in `contracts/`.
 
-## Run the end‑to‑end pipeline
-The full study pipeline can be executed with a single command. It sequentially runs the data curation, simulation, validation, analysis, and report generation steps, respecting the deterministic configuration defined in `config.yaml`.
-
+## 10. Run the end‑to‑end pipeline
 ```bash
 python -m src.run_pipeline --config config.yaml
 ```
@@ -89,5 +89,11 @@ Expected output:
 ```
 Pipeline completed
 ```
+
+To view the installed version of the pipeline tooling:
+```bash
+python -m src.run_pipeline --version
+```
+This prints the semantic version string (e.g., ``0.1.0``).
 
 The `src.run_pipeline` module seeds all randomness sources (Python `random`, NumPy, and PyTorch when available) to guarantee deterministic behaviour across runs.

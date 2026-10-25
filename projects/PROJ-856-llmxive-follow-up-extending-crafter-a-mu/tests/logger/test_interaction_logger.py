@@ -44,11 +44,17 @@ def test_log_interaction_basic():
     assert len(lines) == 1
     
     rec = json.loads(lines[0])
+    # Schema fields
     assert rec["session_id"] == participant
     assert rec["task_id"] == figure
     assert rec["mode"] == interface
     assert rec["iteration"] == iteration
     assert rec["payload"] == json.dumps(payload, separators=(",", ":"))
+    # Aliases required by downstream analysis
+    assert rec["participant_id"] == participant
+    assert rec["figure_id"] == figure
+    assert rec["interface"] == interface
+    # Common mandatory fields
     assert "log_id" in rec
     assert "timestamp_ms" in rec
     assert "task_start_ms" in rec

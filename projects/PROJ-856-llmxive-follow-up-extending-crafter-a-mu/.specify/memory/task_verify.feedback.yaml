@@ -1,40 +1,73 @@
 T000:
-  task: 2639fac37d36ae301f9fa656597ed56ceac0632c0fd09b197e786718825b2286
+  reason: "Checked `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,\
+    \ and `data/checksums.txt`. The requirements file uses wildcard version specifiers\
+    \ (e.g., `numpy==1.26.*`) instead of exact pinned versions, and no raw data files\
+    \ are present to verify that the SHA\u2011256 hashes in `data/checksums.txt` actually\
+    \ correspond to the files. Both the exact\u2011version pinning and the checksum\u2011\
+    matching verification are therefore missing."
+  task: 63cb785ad60849e3caad4e88b36a90dc16d45849d7d3436f96b3354127241d03
 T001:
-  task: a67de131a5fe4c8832269c1f23669775deba5330e24fdd2d4b2e7750cbc37424
+  task: 33b0619536c5f27a80371343dc50d7d8dc1269231f6184f6f9ec957d445cbb8c
 T002:
-  task: 2e58516fa9258c2dc7cb1635b56537b1c26c70e6906960ac89d1d57433eb59d8
+  reason: "The provided `src/curators/curate_failed_figures.py` exists and runs, but\
+    \ it downloads CIFAR\u201110 rather than the required CrafterBench dataset, so\
+    \ it does not fetch a verified subset of 50 failed figures from CrafterBench.\
+    \ The script therefore does not satisfy the core requirement of the task. The\
+    \ next implementer must replace the synthetic CIFAR\u201110 source with a download\
+    \ of the actual CrafterBench data and ensure exactly 50 curated failed figures\
+    \ are produced, preserving the same error\u2011handling behavior."
+  task: 3133f3e03756a5ce38464bf745bb3c6d0ff384145e3b573db0503e5616d6d239
 T003:
-  task: 99a536c55f5323dfb946d52edcab9671a048ced34551ae7ae305c519791c0f6c
+  reason: "The three source files exist and implement the required endpoints, but\
+    \ the provided test suite fails to run because the `fastapi` package is not installed\
+    \ (`ModuleNotFoundError: No module named 'fastapi'`). Without this dependency\
+    \ the verification command `pytest -q tests/interfaces/test_interfaces.py` cannot\
+    \ pass, so the task\u2019s acceptance criteria are not met. Install FastAPI (and\
+    \ its test client) or add it to the project\u2019s dependency list."
+  task: dbf9a91563acd8266b94ceb0cd265230aa07b3708ef6725c19587239924819ff
 T004:
-  task: abd319250ab4cefa38fa46a0ef742a9ba7ce2261a2d280afe602a38480051f80
+  reason: "Checked `src/logger/interaction_logger.py` (contains the required fields\
+    \ and abort logic) and `tests/logger/test_interaction_logger.py` (the test suite\
+    \ fails to import `fastapi`, so no tests run, and it never verifies that a NASA\u2011\
+    TLX score is logged). The missing FastAPI dependency and lack of a test for the\
+    \ `subjective_load` field mean the required logging behavior is not demonstrated\
+    \ or validated. Fix by adding FastAPI (and any other test dependencies) and extending\
+    \ the tests to assert that a logged record includes `subjective_load` and passes\
+    \ schema validation."
+  task: d94402329fbfa8637993ab610740efdf24a33787b4fb06f5a38448d31e2fa0e2
 T005:
-  task: 20d306815f40a03746e6758b5c85dbd93adc9a32f5764077408120009b9a627f
+  reason: "The `src/validation/run_validation.py` script sets `overall_success = vector_match\
+    \ or semantic_pass`, violating the requirement that primary success be based **solely**\
+    \ on exact vector match, and the unit test (which expects `overall_success=False`\
+    \ when only semantic_pass is true) fails. Additionally, the test fails because\
+    \ `semantic_score` can exceed 1.0 due to floating\u2011point rounding, breaking\
+    \ the `0.99\u202F\u2264\u202Fscore\u202F\u2264\u202F1.0` assertion. Finally, the\
+    \ required `semantic_validation.schema.yaml` file is missing. Fix the overall_success\
+    \ logic, clamp or round similarity scores to \u2264\u202F1.0, and add the missin"
+  task: 55e2f555d7f99ddb9ddcd2466a1de5c787372d5c8886162fb7d8743883775f41
 T006:
-  task: c06eee802d579bf6b663e1101c0f94d3e06f3a5cef23b3478d1d3f3d2b77c617
+  task: e96f06895a9ad6b36f01119a0f00a251ca1c38485ed78c982123e821a3dce3e1
 T007:
-  task: 52bf6b1fa7f2438f0195dfed9e5554c45ea0ba202f6affa0e65c58dd2606736f
+  task: f940264c5ec0a5940309d8a88a7ac432aae2b24fc6ea98b65f0b9c1638ae3816
 T008:
   reason: 'Requested task execution failed; rerun successfully: src/analysis/wilcoxon_analysis.py
     exit=2'
-  task: bcefad7f416adb06be0b87e241b3b23e14ac515ba1cb9de6adbc390ba4357fb8
+  task: 1a7dfae22e56ae80edf1cc80434dfb6930c6869b5eb566c064cf9c540a0b44dc
 T009:
-  task: 48f59439d60e621db064793dfd0df8604e3767aa72baa64a03b191f33451609e
+  task: dc09d71c7c4a6bf8a0adbdea089ac33fc8700e2e71f06b5e491c19d227581e5a
 T010:
-  task: cf5dfb997e92a8203b5480747a4277d5f4d97f391c8ba16bcd7171543e6f29fe
+  task: a981bfb8da0bc0714f1f715fa921060d4446b870a164842d22da9feb53c1f369
 T011:
-  task: 3fea7a51f5af2118ee3ca99c3b2b9af9a0396013ad980403e2a6528965bdf80f
+  task: 8f8eba4f63380561e4c4ecc71376caa0434a99c473352b7cdd7a07b5dd37db76
 T012:
-  task: f5a462d54725f3bb9971a50d258f5f3e697dbd5306deaee636f59139a5b14330
+  task: 65d7e4689edd4837c8d37098048e902599fe1b6837c708d52a409c9d58a2f3aa
 T013:
-  task: e41a69a5bf36de51a32458e9a49acf012a0e8b91e183c60a6653a5d2218c7706
+  task: bc8d626c7a888582f923818380515ddc86fcccfa33f894be5905406cc16f3eca
 T014:
-  task: a5f702dd6906c41c88402ee5849ccdf80a40e4a9d7de2b69eba60986daaf25ab
+  task: 910943d8420614c12be3888cb742b0ea45788c6fa0915b27b33f9dd3fb396ca5
 T015:
-  task: 36909e02d2befd7c58f89ef934c42c185126a9079f0977e0cf21cb7650c7f323
+  task: a26499f556583c6a161026476d178bc7023b9461475a084b4f25be74e9577ea4
 T016:
-  task: 46a61e0f8bfc6c8bb13b626755f714fe7a7cff713f45b78742f871e763125625
-T018:
-  reason: 'Requested task execution failed; rerun successfully: code/src/analysis/mean_wilcoxon_analysis.py
-    exit=2'
-  task: 71abcf62a9503228bca528e1602f68a054d830ecff496b49cfc5bb47075ed235
+  task: 42f33bc6f4ee6d20e8ed2dba933c179b15da509b01c6f19d30ad73ad1322298a
+T017:
+  task: 9a3836057739e13b2bc123ce679249c67793a9c7171815ae8dcc2fb7f5833b6f
