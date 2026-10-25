@@ -28,4 +28,5 @@ properties:
   generation_timestamp:
     type: string
     format: "date-time"
-    description: "Timestamp when the evolution
+    description: "Timestamp when the evolution script generated the record."
+additionalProperties: false

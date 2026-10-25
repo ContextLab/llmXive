@@ -19,48 +19,49 @@ If the τⁿ‑Bench repository cannot be fetched, the pipeline stops with a cle
 ### 1. Baseline Execution
 Run the quantized Llama‑2‑7B agent on ≤ 200 tasks. For each run record:
 `task_id`, `run_id`, `success` (bool), `total_calls`, `total_tokens`, `duration_seconds`, `status` (`completed`, `failed`, `timeout`), `warning_codes`, `timestamp`.  
-Timeouts > 6 h are logged as `timeout`. Missing required fields cause the run to be flagged as failed (SC‑006).
+Timeouts > 6 h are logged as `timeout`; the run is marked as failure.  
+
+**Log completeness check**: after execution, verify that ≥ 99 % of rows have non‑null `task_id`, `success`, `total_calls`, and `total_tokens`; abort with a clear error if the threshold is not met.
 
 ### 2. Efficiency Penalty (Primary Metric)
-- **Optimal denominator**: `optimal_path_length` when present.  
-- **Fallback**: `tool_diversity_k` (minimum number of distinct tool types required) if `optimal_path_length` is missing.  
-- **Penalty**: `penalty = total_calls / optimal_path_length` (primary) or `penalty = total_calls / tool_diversity_k` (fallback).  
-- If `optimal_path_length` is absent, emit warning `OPTIMAL_PATH_MISSING` and use the fallback.  
-- Flag tasks with `penalty > 2.0` for downstream evolution.
+- **Primary denominator**: `optimal_path_length` (when present).  
+- **Fallback denominator**: `tool_diversity_k` (minimum number of distinct tool types required).  
+- **Primary penalty**: `penalty_primary = total_calls / optimal_path_length`.  
+- **Fallback penalty** (used only for sensitivity analysis): `penalty_alt = total_calls / tool_diversity_k`.  
 
-*Construct‑validity note*: The fallback is a heuristic; it may over‑estimate penalties. A dedicated **sensitivity analysis** (Phase 10) evaluates robustness to this choice.
+If `optimal_path_length` is missing, the pipeline logs warning `OPTIMAL_PATH_MISSING` and **excludes** the task from primary‑penalty analyses (but includes it in the sensitivity branch).  
+Flag tasks with `penalty_primary > 2.0` for downstream evolution.
 
 ### 3. Correlation & Partial Correlation (FR‑004)
-Compute (a) Pearson point‑biserial correlation between continuous `penalty` and binary `success` across the **full** task set, and (b) a **partial correlation** controlling for out‑of‑fold `difficulty_score` (derived from the difficulty model). Store coefficient *r*, p‑value, 95 % CI; require *p* < 0.05 and |r| ≥ 0.2 (SC‑009). The partial correlation mitigates confounding between efficiency and difficulty.
+Compute (a) Pearson point‑biserial correlation between continuous `penalty_primary` and binary `success` across the **full** task set, and (b) a **partial correlation** controlling for the out‑of‑fold `difficulty_score` (derived from the difficulty model). Store coefficient *r*, p‑value, 95 % CI; require *p* < 0.05 and |r| ≥ 0.2 (SC‑009). The partial correlation mitigates confounding between efficiency and difficulty.
 
-### 4. Reward Modeling – Difficulty Prediction (FR‑007)
-Train a `DecisionTreeRegressor(max_depth=5, random_state=42)` **on the filtered high‑penalty tasks only** (penalty > 2.0). Use 5‑fold cross‑validation to generate **out‑of‑fold** `difficulty_score` predictions for **all** tasks (including those not used for training). Hold‑out R² ≥ 0.6 is required (SC‑007). **Importantly, `tool_diversity_k` is excluded from the feature set** to avoid circularity with the penalty metric.
+### 4. Full‑Dataset Difficulty Modeling (FR‑010)
+Train a `DecisionTreeRegressor(max_depth=5, random_state=42)` on **all** tasks using only raw task features (excluding any penalty‑derived columns, including `tool_diversity_k`). Use 5‑fold cross‑validation to generate **out‑of‑fold** `difficulty_score` predictions for **every** task. Hold‑out R² ≥ 0.6 is required (SC‑007). The resulting difficulty scores are independent of the efficiency‑penalty metric.
 
 ### 5. Cost‑Performance Frontier (SC‑005)
-Fit a linear regression `success ~ penalty`; obtain the marginal cost‑performance slope (cost per % success change) and plot the frontier.
+Perform a **paired t‑test** comparing success rates on the original high‑penalty tasks versus their evolved variants (paired per source task). Plot the frontier showing the trade‑off between penalty increase and success‑rate drop.
 
 ### 6. Task Evolution (FR‑007)
-For each high‑penalty task, generate **≥ 5** variants that maximize the out‑of‑fold `difficulty_score`. Each variant is stored as an `evolved_task` record conforming to `evolved_task.schema.yaml`. The evolution algorithm does **not** use `tool_diversity_k` as a model feature.
+For each high‑penalty task, generate **≥ 5** variants that **maximize the predicted `difficulty_score`** (the difficulty model is the only selection criterion). Each variant is stored as an `evolved_task` record conforming to `evolved_task.schema.yaml`, including `optimal_path_length`, `features`, etc. The evolution algorithm does **not** use `penalty_primary` as a selection driver, avoiding circularity.
 
 ### 7. Evolved‑Task Penalty Increase Check (SC‑008)
-After re‑running the baseline on evolved tasks, compute the **observed** average penalty of evolved tasks and assert a ≥ 10 % increase over the source tasks. This provides independent evidence of difficulty amplification, distinct from any model‑predicted penalty.
+After re‑running the baseline on evolved tasks, compute the **observed** average `penalty_primary` of evolved tasks and assert a ≥ 10 % increase over the source tasks. This provides independent evidence that the evolution succeeded in making tasks harder.
 
 ### 8. Re‑run Baseline on Evolved Set
 Execute the baseline agent on all evolved tasks; log with the same schema as in step 1.
 
-### 9. Trade‑off Evaluation (FR‑005)
-- **Primary test**: **Chi‑squared test** for difference in success proportions between baseline (original tasks) and baseline (evolved tasks). Report χ², p‑value, and effect size.  
-- **Supplementary model**: Logistic regression `evolved_success ~ baseline_penalty + difficulty_score` using **out‑of‑fold** difficulty scores. Report coefficients, standard errors, odds ratios, p‑values, 95 % CIs; verify the penalty coefficient is negative and significant (p < 0.05).  
-- **Power analysis**: Using `statsmodels.stats.power.GofChisquarePower`, compute the minimum required sample size for an expected odds‑ratio ≈ 2.5 at α = 0.05. If the actual N is below this threshold, emit a clear warning about limited power.
+### 9. Trade‑off Evaluation (FR‑005, FR‑009)
+- **Primary test**: **McNemar paired test** for difference in success proportions between baseline (original tasks) and baseline (evolved tasks). If any cell count < 5, automatically switch to **Fisher’s exact test** and log a warning. Report statistic, p‑value, and effect size.  
+- **Supplementary model**: Logistic regression `evolved_success ~ baseline_penalty + difficulty_score` using the out‑of‑fold difficulty scores. Compute VIF for predictors; if VIF > 5, drop `difficulty_score` and re‑fit, noting the change. Report coefficients, standard errors, odds ratios, p‑values, 95 % CIs; verify the penalty coefficient is negative and significant (p < 0.05).  
+- **Power analysis**: Use `statsmodels.stats.power.NormalIndPower` to compute the required sample size for detecting a proportion difference of Δ = 0.15 at α = 0.05 with 80 % power (paired proportion test). Emit a clear warning if the actual N is below this threshold (fulfills FR‑009 and SC‑011).
 
 ### 10. Sensitivity Analysis (FR‑008)
-Repeat steps 2‑9 using the **pure tool‑diversity** denominator (`penalty_alt = total_calls / tool_diversity_k`). Compare logistic‑regression penalty coefficients:
-- Same sign (both negative).  
-- Absolute difference in effect size ≤ 0.05 (SC‑010).  
+Repeat steps 2‑9 using the **fallback** `penalty_alt`. Compare logistic‑regression penalty coefficients: same sign (both negative) and absolute difference ≤ 0.05. Report both primary and sensitivity results.
 
-If the dataset lacks an alternative optimal metric, the analysis reports results only for the primary metric.
+### 11. Artifact‑Schema Validation (Phase 11)
+Validate every generated CSV/JSON/PNG against its corresponding JSON‑Schema contract in `contracts/` (including `artifact.schema.yaml`). Failure to validate aborts the pipeline, ensuring adherence to `artifact.schema.yaml`.
 
-### 11. Reporting
+### 12. Reporting
 Produce:
 - `data/outputs/summary.csv` (coefficients, p‑values, effect sizes for primary and sensitivity analyses).  
 - `data/outputs/figures/regression_coefficients.png` (forest plot).  
@@ -71,23 +72,23 @@ Produce:
 | Requirement | Implementation |
 |-------------|----------------|
 | Multiple‑comparison correction | Not needed (single model per metric). |
-| Sample‑size / power justification | Formal power analysis in Phase 9; warning if N < required. |
+| Sample‑size / power justification | Formal power analysis in Phase 9; warning if N < required (paired proportion test). |
 | Causal inference | Observational; claims limited to *associational* trade‑off. Difficulty included as a covariate. |
 | Measurement validity | Token and call counters read directly from Ollama; tool‑diversity fallback validated via sensitivity analysis. |
-| Predictor collinearity | VIF computed for `baseline_penalty` and `difficulty_score`; predictors with VIF > 5 are dropped and noted. |
+| Predictor collinearity | VIF computed for `baseline_penalty` and `difficulty_score`; predictors with VIF > 5 are omitted and noted. |
 
 ## Decision / Rationale
 - **CPU‑first**: All components run on the free‑tier CPU runner; no GPU is required.  
 - **Dataset Availability**: Attempt to download τⁿ‑Bench by name; abort if unavailable (no fabricated mirror).  
 - **Model Choice**: Quantized Llama‑2‑7B fits within the 6 h budget for ≤ 200 tasks.  
-- **Metric Adjustment**: Primary penalty uses `optimal_path_length` when available, with a documented fallback to `tool_diversity_k`.  
-- **Statistical Tests**: Chi‑squared test provides a valid comparison for independent groups; logistic regression supplies effect‑size estimates with out‑of‑fold scores to avoid circularity.  
-- **Selection Bias Mitigation**: Difficulty model trained on the filtered high‑penalty set; predictions for all tasks are out‑of‑fold.  
-- **Sensitivity Analysis**: Guarantees robustness to the choice of optimal‑path proxy.  
+- **Metric Adjustment**: Primary penalty uses `optimal_path_length` only; fallback used solely for sensitivity.  
+- **Statistical Tests**: Paired t‑test for frontier, McNemar/Fisher for success‑rate comparison, logistic regression with VIF check, and power analysis appropriate for paired proportion test.  
+- **Selection Bias Mitigation**: Difficulty model trained on the **full** dataset; evolution driven solely by difficulty predictions.  
+- **Independence Assurance**: Paired tests respect the within‑task relationship between baseline and evolved outcomes.  
 
 ## Expected Deliverables
 - `data/derived/baseline_execution.csv` – conforms to `execution_log` schema.  
-- `data/derived/filtered_tasks.csv` – tasks with `penalty > 2.0`.  
+- `data/derived/filtered_tasks.csv` – tasks with `penalty_primary > 2.0`.  
 - `data/derived/correlation_results.json`.  
 - `data/derived/difficulty_model.pkl`.  
 - `data/derived/evolved_tasks.csv` – conforms to `evolved_task` schema.  
@@ -99,6 +100,5 @@ Produce:
 - `report/analysis.md`.  
 
 ---
-
 
 

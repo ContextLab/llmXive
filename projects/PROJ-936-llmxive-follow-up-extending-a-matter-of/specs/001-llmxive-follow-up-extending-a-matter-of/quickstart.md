@@ -27,13 +27,14 @@ This guide walks you through a single‑command end‑to‑end execution on the 
    - The script performs the following in order:
      1. Attempts to download τⁿ‑Bench; aborts with a clear error if unavailable.  
      2. Executes the baseline Llama‑2‑7B 8‑bit agent and writes `baseline_execution.csv`.  
-     3. Computes primary efficiency penalties, flags high‑penalty tasks.  
-     4. Trains a regression decision tree **only on the filtered high‑penalty set** and generates out‑of‑fold difficulty scores for all tasks.  
-     5. Evolves ≥ 5 harder variants per high‑penalty task.  
-     6. Re‑runs the baseline on evolved tasks.  
-     7. Runs a **chi‑squared test** for independent success proportions, logistic regression with out‑of‑fold scores, and a formal **power analysis** (warning if under‑powered).  
-     8. Conducts the **sensitivity analysis** using the pure tool‑diversity denominator.  
-     9. Generates `summary.csv`, frontier and coefficient figures, and `report/analysis.md`.  
+     3. Computes the **primary** efficiency penalty (`total_calls / optimal_path_length`) and flags high‑penalty tasks; also computes the **fallback** penalty for sensitivity.  
+     4. Trains a difficulty‑score model on the **full** task set using only raw task features (excluding any penalty‑derived columns).  
+     5. Evolves ≥ 5 harder variants per high‑penalty task based solely on predicted difficulty.  
+     6. Re‑runs the baseline on evolved tasks; logs with the same schema as Phase 1.  
+     7. Performs a **paired McNemar test** (or Fisher’s exact test if counts are low) for success‑rate differences, a **paired t‑test** for the cost‑performance frontier, logistic regression with VIF check, and a formal **power analysis** for the paired proportion test.  
+     8. Conducts the **sensitivity analysis** using the fallback penalty.  
+     9. Validates all generated CSV/JSON/PNG files against their JSON‑Schema contracts (including `artifact.schema.yaml`).  
+     10. Generates `summary.csv`, frontier and coefficient figures, and `report/analysis.md`.  
 
 3. **Inspect the results**
    ```bash
@@ -52,7 +53,7 @@ This guide walks you through a single‑command end‑to‑end execution on the 
 
 ## Reproducibility Tips
 - All random seeds are fixed (`--seed` propagates to NumPy, Scikit‑learn, and any internal RNG).  
-- SHA‑256 checksums of every generated artifact are recorded in `state/projects/PROJ-936-...yaml`.  
+- SHA checksums of every generated artifact are recorded in `state/projects/PROJ-936-...yaml`.  
 - To reproduce exactly, use the same `--seed` and `--max_tasks` values.
 
 ## Troubleshooting
@@ -61,11 +62,10 @@ This guide walks you through a single‑command end‑to‑end execution on the 
 | `OllamaConnectionError` | Ollama server not running or model not pulled | Start Ollama (`ollama serve`) and run `ollama pull llama2:7b-q8_0`. |
 | `TimeoutError` during baseline run | Individual task exceeds 6 h limit | The pipeline marks the task as `timeout`; check `baseline_execution.csv` for `status="timeout"`. |
 | Dataset download fails | τⁿ‑Bench repo unreachable (no verified URL) | The pipeline aborts with a clear error; no synthetic data are used. |
-| Missing `tool_diversity_k` warning | Dataset does not provide the heuristic (unlikely) | The pipeline logs `OPTIMAL_PATH_MISSING` and skips the affected task. |
+| Missing `tool_diversity_k` warning | Dataset does not provide the heuristic (unlikely) | The pipeline logs `OPTIMAL_PATH_MISSING` and skips the affected task for primary penalty. |
 | Sensitivity analysis not run | Dataset lacks `minimum_step_count` field | The pipeline notes the limitation and reports results only for the primary metric. |
 | Power analysis warning | Sample size below the computed requirement for the expected effect size | Review the warning; consider increasing `--max_tasks` if compute budget permits. |
 
 ---
-
 
 

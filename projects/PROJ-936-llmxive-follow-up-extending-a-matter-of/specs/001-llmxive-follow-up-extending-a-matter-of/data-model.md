@@ -34,18 +34,18 @@ All artifacts reside under `data/` with explicit versioning, checksum tracking, 
 | `base_task_id` | string | ID of the source task. |
 | `modifications` | array[string] | Human‑readable description of each change. |
 | `predicted_penalty` | number | Penalty score predicted by the regression model for this evolved task. |
-| `task` | object (nested `task` schema) | Full task definition of the evolved variant. |
+| `task` | object (nested `task` schema) | Full Task definition of the evolved variant. |
 | `generation_timestamp` | string (ISO‑8601) | When the evolution script generated the record. |
 
 ### 4. Penalty Metrics
-- **Primary**: `penalty_primary = total_calls / optimal_path_length` when `optimal_path_length` is present; otherwise `penalty_primary = total_calls / tool_diversity_k`.  
-- **Sensitivity**: `penalty_alt = total_calls / tool_diversity_k` (identical when `optimal_path_length` missing).  
+- **Primary Penalty**: `penalty_primary = total_calls / optimal_path_length` (computed **only** when `optimal_path_length` is present).  
+- **Fallback Penalty (Sensitivity)**: `penalty_alt = total_calls / tool_diversity_k`.  
 - **Optional Step‑Count Metric** (if dataset provides `minimum_step_count`): `penalty_step = total_calls / minimum_step_count`.  
 
 Both primary and sensitivity metrics are stored in derived CSV files for side‑by‑side comparison.
 
 ## Versioning & Checksums
-- Every generated file is accompanied by a SHA‑256 checksum recorded in `state/projects/PROJ-936-...yaml` under `artifact_hashes`.  
+- Every generated file is accompanied by a SHA‑256 checksum recorded under `state/projects/PROJ-936-...yaml` in the `artifact_hashes` map.
 - Transformations never overwrite existing files; they produce a new file (e.g., `baseline_execution_v1.csv` → `baseline_execution_v2.csv`) and update the checksum map.
 
 ## Storage Layout
@@ -55,7 +55,7 @@ data/
 │   └── tau_c_bench/               # downloaded from HuggingFace (or abort)
 ├── derived/
 │   ├── baseline_execution.csv                # execution_log records
-│   ├── filtered_tasks.csv                    # tasks with penalty > 2.0
+│   ├── filtered_tasks.csv                    # tasks with primary penalty > 2.0
 │   ├── correlation_results.json              # point‑biserial output
 │   ├── difficulty_model.pkl                  # sklearn DecisionTreeRegressor
 │   ├── evolved_tasks.csv                     # evolved_task records
@@ -69,8 +69,5 @@ data/
         ├── regression_coefficients.png
         └── cost_performance_frontier.png
 ```
-
----
-
 
 
