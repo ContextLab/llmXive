@@ -1,12 +1,11 @@
 T001:
-  reason: "The generator and verifier scripts exist and can produce JSONL records\
-    \ that validate against `contracts/dataset.schema.yaml`, and the verifier returns\
-    \ a `(bool, error_code)` tuple. However, the verifier\u2019s timing log is never\
-    \ created because `data/processed/verifier_timing.log` (and its parent directory)\
-    \ do not exist, and the code does not create them before writing. Consequently\
-    \ the requirement \u201Crecords a timing entry in `data/processed/verifier_timing.log`\u201D\
-    \ is not satisfied. Adding code to ensure the `data/processed` directory is created\
-    \ (e.g., `Path(log_path).parent.mkdir(parents=True, exist"
+  reason: "The `code/tests/test_verifier.py` fixture reads the generator output with\
+    \ `json.load` and expects a JSON object containing a `\"puzzles\"` list, but `code/dataset/generator.py`\
+    \ writes a JSONL file (one JSON object per line). This mismatch causes a JSON\
+    \ decoding error, so the verifier tests cannot run and the required timing log\
+    \ is never written. The generator\u2019s output format must be adjusted (or the\
+    \ test changed) to produce a single JSON object with a `\"puzzles\"` array for\
+    \ the verifier tests to pass."
   task: 684c82c06391a7601af8304e05adfd8798f3e3539d0a7998a00bb6bc695b0839
 T002:
   task: 1bb6370ddd68e20d82b1551745ec4077f99521f1c052ad733dd9951f6deaaa18

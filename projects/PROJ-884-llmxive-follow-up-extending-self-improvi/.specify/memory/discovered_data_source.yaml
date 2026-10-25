@@ -1,35 +1,14 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'from datasets import load_dataset
-
-
-  ds = load_dataset("Ritvik19/Sudoku-Dataset", split="train")
-
-  print(f"RECORDS={len(ds)}")
-
-  print("FIELDS=" + ",".join(ds.column_names))'
-record_count: 16951130
-sample_fields:
-- puzzle
-- solution
-- missing
-- difficulty
-- set
-- solving_time
-field_coverage: 0.636
+status: none
+intent: download Sudoku logic puzzle dataset with verification scripts python package
 required_fields:
 - puzzle_id
-- puzzle_name
 - puzzle_type
-- puzzle_definition
-- formal_constraints
-- canonical_solution
-- solution_path_steps
-- verifier_script
+- puzzle_representation
+- constraints_formal_language
+- solution_path
+- verification_script
 - difficulty_level
-- source_url
-- validation_reference_dataset
-intent: Sudoku puzzle dataset with verification scripts Kaggle Sudoku OpenAI Gym Puzzlevault
-  python package dataset
-cache_key: 7baca8a82a0322174d7a6b619e721d2d597602a04ef2d724c3d539d1915e61af
+- source_reference
+cache_key: 57375a4ea408710d9e2dc63b62801e0a0e34363384e51f48c4b4d8c2867be64c
+searched_at: '2026-10-25T07:36:04.961432+00:00'
+retry_count: 1

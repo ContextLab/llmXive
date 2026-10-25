@@ -3,14 +3,15 @@ Puzzle Verifier Module for llmXive
 Validates puzzle instances and solutions with deterministic logic.
 Implements T066: Data Provenance metadata validation.
 Updated to expose a tuple‑based API that conforms to the dataset schema.
-Additionally records verification timing to a log file.
+Additionally records verification timing to a log file, ensuring the log
+directory exists before writing.
 """
 
 import json
 import time
 import sys
-from typing import Dict, Any, Optional, List, Tuple
-from dataclasses import dataclass, field
+from typing import Dict, Any, Optional, Tuple
+from dataclasses import dataclass
 from enum import Enum
 import logging
 from pathlib import Path
@@ -42,7 +43,7 @@ class VerifierError(Exception):
     """Raised for unexpected internal verification failures."""
     pass
 
-# Alias used by legacy tests
+# Compatibility alias for older test suites
 class DataVerificationError(VerifierError):
     """Compatibility alias for older test suites."""
     pass
@@ -452,10 +453,17 @@ class PuzzleVerifier:
         result = self.verify_solution(puzzle_instance, solution)
         elapsed_ms = time.time() * 1000 - start_ms
 
+        # Ensure the log directory exists
+        log_path = paths.data("processed", "verifier_timing.log")
+        try:
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+        except Exception as dir_err:
+            self.logger.error(f"Failed to create log directory: {dir_err}")
+
         # Record timing
         try:
-            log_path = paths.data("processed", "verifier_timing.log")
             with open(log_path, "a", encoding="utf-8") as log_file:
+                # Write epoch timestamp and elapsed milliseconds
                 log_file.write(f"{time.time()},{elapsed_ms:.3f}\\n")
         except Exception as log_err:
             self.logger.error(f"Failed to write verifier timing log: {log_err}")

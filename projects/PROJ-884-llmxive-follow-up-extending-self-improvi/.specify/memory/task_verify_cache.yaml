@@ -1,3 +1,14 @@
+T001:
+  c: false
+  h: 410d58bb1e524a111e7fa134245009dd962d45d62fed4e5bd19ec6f6b69b4f6b
+  r: "The `code/tests/test_verifier.py` fixture reads the generator output with `json.load`\
+    \ and expects a JSON object containing a `\"puzzles\"` list, but `code/dataset/generator.py`\
+    \ writes a JSONL file (one JSON object per line). This mismatch causes a JSON\
+    \ decoding error, so the verifier tests cannot run and the required timing log\
+    \ is never written. The generator\u2019s output format must be adjusted (or the\
+    \ test changed) to produce a single JSON object with a `\"puzzles\"` array for\
+    \ the verifier tests to pass."
+  sig: faebba823725b16e48124db2fd7571bc0a49d1d3bc6ded6b3a610e606cc325e6
 T002:
   c: true
   h: 7cd4bcd484da4637f21861a3e71c67e8cfa8800c992b59042387fb3a4a9e7c48

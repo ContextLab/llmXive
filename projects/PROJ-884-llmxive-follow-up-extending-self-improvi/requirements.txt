@@ -1,4 +1,4 @@
-# Core scientific stack (already available in the execution environment)
+# Core scientific stack (already available in the base image)
 numpy
 pandas
 scipy
@@ -12,8 +12,10 @@ requests
 jsonschema
 psutil
 
-# Additional packages required for the forward step (CPU‑only)
+# Additional dependencies required for the BES implementation
+datasets==2.18.0
 transformers==4.41.2
-optimum[onnxruntime]==2.22.0
+optimum==1.19.0
 torch==2.2.2+cpu
-# The ``+cpu`` suffix selects the CPU‑only wheels; it works on the CI runner.
+# The ``+cpu`` suffix ensures the CPU‑only wheel is installed.  No
+# GPU‑related packages are needed for this task.
