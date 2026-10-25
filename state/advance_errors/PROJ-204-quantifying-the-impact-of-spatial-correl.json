@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-204-quantifying-the-impact-of-spatial-correl",
-  "stage": "in_progress",
+  "stage": "clarified",
   "class": "transient",
   "fingerprint": "unknown",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-24T14:38:26.962248+00:00",
-  "last_seen": "2026-10-25T15:10:56.345261+00:00",
-  "retry_after": null,
-  "last_error": "no implementation progress: no stage change or verified task completion",
-  "evidence": "no implementation progress: no stage change or verified task completion",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-25T15:29:13.866540+00:00",
+  "last_seen": "2026-10-25T15:29:13.866540+00:00",
+  "retry_after": "2026-10-25T15:39:13.866540+00:00",
+  "last_error": "data-model.md <-> contracts/ inconsistency (FR-007): one or more contracts/ schemas are empty or not valid schemas: ['contracts/dataset.schema.yaml (invalid YAML: expected a single document in the stream\\n  in \"<unicode string>\", line 1, column 1:\\n    $schema: \"http://json-schema.org ... \\n    ^\\nbut found another document\\n  in \"<unicode string>\", line 57, column 1:\\n    ---\\n    ^)']",
+  "evidence": "data-model.md <-> contracts/ inconsistency (FR-007): one or more contracts/ schemas are empty or not valid schemas: ['contracts/dataset.schema.yaml (invalid YAML: expected a single document in the stream\\n in \"<unicode string>\", line 1, column 1:\\n $schema: \"http://json-schema.org ... \\n ^\\nbut found another document\\n in \"<unicode string>\", line 57, column 1:\\n ---\\n ^)']",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }
