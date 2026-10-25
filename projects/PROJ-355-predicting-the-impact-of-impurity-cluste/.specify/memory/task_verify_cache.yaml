@@ -1,14 +1,14 @@
 T001:
-  c: false
-  h: f40ec394edece0fca2ba92f7322b95ee186497abf6a4f7b1fa66d4f6e52a9903
-  r: "The repository contains no `.gitignore` file at the project root, and the required\
-    \ test `tests/unit/test_gitignore_strict.py` is missing, so the strict\u2011ignore\
-    \ specification cannot be verified."
-  sig: f03ad82dcbe5e4e19c76a00a15edd08b4e0227210bca6b2a862c2e14ce71f053
+  c: true
+  h: c67eeecbe4154e23497bbddae87e76223d1cee120361ea3110227d6f6a0d806f
+  r: The `.gitignore` file at the repository root was verified by `tests/unit/test_gitignore_strict.py`,
+    which read the file and confirmed it contains exactly the four required lines
+    in order with no trailing spaces, and the test log shows it passed.
+  sig: abe60b683f2938bd6ba4972678d04c25fd5684a6a48617fb824debd028f11e22
 T002:
-  c: false
-  h: 4544b55f9a234a05be3792fd7d1b92cde742421b7ef7d6e4c6160349e4d13202
-  r: The `README.md` file meets the heading and content specifications, but the required
-    verification script `tests/unit/test_readme_strict.py` is missing, so the strict
-    README cannot be automatically validated as required.
-  sig: 2e93e5077a3435ee8c52799e1a1f694cfbc387cdf11acd4bbcd0234f2d4b42ef
+  c: true
+  h: e9c7540dc6ac0aeb3359e1645fdd3537ea6d1fb343a983d4c7d96c8a23d3352d
+  r: Checked `README.md` for the exact required headings, the exact execution command
+    line, and the required phrases in the Data Provenance paragraph; all are present
+    and the unit test `test_readme_strict.py` passes.
+  sig: eecad549b35be0337c7ff308c1d794b46304eb80cc57e847252b759888e785b4

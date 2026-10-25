@@ -7,7 +7,7 @@ All paths are relative to the project root `projects/PROJ-355-predicting-the-imp
 
 ## Phase 1 – Project scaffolding & first end‑to‑end run  
 
-- [ ] **T001** [P] **Create a strict `.gitignore`**  
+- [X] **T001** [P] **Create a strict `.gitignore`**  
   - **File**: `.gitignore`  
   - **Requirements**: Must contain **exactly** the three lines (in this order, no trailing spaces):  
     ```
@@ -18,7 +18,7 @@ All paths are relative to the project root `projects/PROJ-355-predicting-the-imp
     ```  
   - **Verification**: `tests/unit/test_gitignore_strict.py` reads the file and asserts the exact line order and content.  
 
-- [ ] **T002** [P] **Write a strict `README.md`**  
+- [X] **T002** [P] **Write a strict `README.md`**  
   - **File**: `README.md`  
   - **Requirements**: Must contain the headings **exactly** as:  
     1. `# Project Title` – the project title from the spec.  
@@ -27,7 +27,7 @@ All paths are relative to the project root `projects/PROJ-355-predicting-the-imp
     4. `## Research Question` – a concise restatement of the question from the spec.  
   - **Verification**: `tests/unit/test_readme_strict.py` checks for the four headings in order and the exact execution command string.  
 
-- [ ] **T003** [US‑1] **Download bulk configuration records from OQMD with retry logic and record metadata**   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
+- [ ] **T003** [US‑1] **Download bulk configuration records from OQMD with retry logic and record metadata**   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
   - **Files**: `code/download.py`, `data/raw/oqmd_records/` (immutable JSON/CSV), `data/metadata.yaml`  
   - **Steps**:  
     1. Use `datasets.load_dataset("jablonkagroup/oqmd", name="raw_data", streaming=True)`.  

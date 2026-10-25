@@ -7,29 +7,22 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest tests/ -> rc=2
-ps://docs.pytest.org/en/stable/how-to/capture-warnings.html
+:14: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+tests/integration/test_linting_integration.py:34
+  /home/runner/work/llmXive/llmXive/projects/PROJ-355-predicting-the-impact-of-impurity-cluste/tests/integration/test_linting_integration.py:34: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.integration
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR tests/integration/test_artifact_verification.py - SystemExit: 1
 ERROR tests/integration/test_data_contract_validation.py
-ERROR tests/integration/test_data_pipeline.py
-ERROR tests/integration/test_descriptor_filter_integration.py
-ERROR tests/integration/test_descriptor_integration.py
-ERROR tests/integration/test_descriptor_pipeline.py
 ERROR tests/integration/test_model_training.py
-ERROR tests/integration/test_preprocessing_integration.py
 ERROR tests/unit/test_alloy_system_id.py
 ERROR tests/unit/test_alloy_systems.py
 ERROR tests/unit/test_descriptor_filter.py
-ERROR tests/unit/test_descriptor_interface.py
-ERROR tests/unit/test_descriptors.py
-ERROR tests/unit/test_energy_generation.py
-ERROR tests/unit/test_gb_builder.py
-ERROR tests/unit/test_preprocessing.py
-ERROR tests/unit/test_preprocessing_filter.py
-ERROR tests/unit/test_simulate_energy.py
-ERROR tests/unit/test_vif_analysis.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 19 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 6 warnings, 19 errors in 1.98s ========================
+!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 6 warnings, 5 errors in 1.41s =========================
 
 
 ## Platform-owned paths written inside the project

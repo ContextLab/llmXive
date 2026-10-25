@@ -159,6 +159,7 @@ def download_oqmd_records(
             filename = f"{system_name.replace('-', '_')}_record_{idx:03d}.json"
             out_path = raw_oqmd_dir / filename
             checksum = _write_record(rec, out_path)
+            # Store checksum keyed by path relative to project root for provenance
             checksums[str(out_path.relative_to(get_project_root()))] = checksum
             sampled_records.append(rec)
 

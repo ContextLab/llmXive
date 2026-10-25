@@ -5659,3 +5659,47 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-25T05:34:09Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: bulk alloy records sourced from OQMD via verified loader
+  claim_id: c_5589fda1
+  context: "The bulk alloy records are sourced from the Open Quantum Materials Database\
+    \ (OQMD) using the verified OQMD loader (`datasets.load_dataset('jablonkagroup/oqmd',\
+    \ name='raw_data')`). Materials\u2011Project waiver is documented..."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The bulk alloy records are sourced from the Open Quantum Materials Database
+    (OQMD) using the verified OQMD loader (`datasets.load_dataset('jablonkagroup/oqmd',
+    name='raw_data')`).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T05:37:09Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Materials Project data omitted because no unauthenticated public source
+  claim_id: c_31906f57
+  context: "Materials\u2011Project waiver is documented in the project plan because\
+    \ Materials\u2011Project data are omitted due to the lack of an unauthenticated\
+    \ public source."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P856: https://materialsproject.org'
+      source_id: Q105085929
+      url: https://www.wikidata.org/wiki/Q105085929
+      value: https://materialsproject.org
+    filled: true
+  kind: entity_fact
+  raw_text: "Materials\u2011Project data are omitted due to the lack of an unauthenticated\
+    \ public source."
+  resolved_value: https://materialsproject.org
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-25T05:37:34Z'

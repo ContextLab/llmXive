@@ -1,7 +1,14 @@
-# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn,
-# statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil)
-# Added for OQMD download
-datasets>=2.0.0
-# The ``datasets`` package pulls in huggingface_hub and other
-# lightweight dependencies; all are compatible with the project’s
-# Python 3.11 environment.
+# Project dependencies
+# Existing dependencies (preserved from original project)
+datasets
+pymatgen
+ase
+scikit-learn
+statsmodels
+numpy
+pandas
+matplotlib
+pyyaml
+pytest
+# Added dependency to resolve pyarrow/Numpy compatibility issue
+pyarrow==11.0.0
