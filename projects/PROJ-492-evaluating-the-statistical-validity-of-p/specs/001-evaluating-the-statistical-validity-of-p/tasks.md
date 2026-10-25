@@ -1,83 +1,109 @@
 # Tasks: Evaluating the Statistical Validity of Public A/B Test Summaries
 
-**Inputs**: Active `spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer feedback (Feynman reviewer, 2026-06-27).
+**Inputs**: active `spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer feedback.  
 
-## Phase 1: Setup and first end‑to‑end analysis
+The goal is to deliver a reproducible end‑to‑end audit pipeline that satisfies every functional requirement (FR‑001 … FR‑031b) and success‑criteria (SC‑001 … SC‑031b) in the specification while remaining within the GitHub‑Actions resource caps (FR‑009).
 
-- [ ] T001 [P1] [US1] Repair the task‑identity and layout damage: consolidate the duplicated T001–T004/PT000–PT004 entries into a single canonical source layout under `code/src/` (CLI `code/src/cli/run_audit.py`, statistics `code/src/audit/stat_verification.py`, Monte Carlo core `code/src/audit/monte_carlo_core.py`, power analysis `code/src/audit/power_analysis.py`, synthetic generator `code/src/audit/synthetic.py`, annotation protocol `code/src/audit/annotation_protocol.md`), remove the alias `PT###` duplicates, and document the runnable command in `specs/001-evaluating-the-statistical-validity-of-p/quickstart.md`. Preserve the verified implementations from the previously checked tasks (ingestor, fetcher, extractor, reconstructor, validator, prevalence scaffolding, report generator, manifest, resource monitor) by moving them into `code/src/audit/` without behavioral change.  
-  - Verification: `python -m code.src.cli.run_audit --help` exits 0; every module under `code/src/audit/` imports; no duplicate task IDs remain in `tasks.md`; `quickstart.md` names the exact command.
+---
 
-- [ ] T017 [P1] [US1] Generate a deterministic corpus of public A/B test summary URLs: curate ≥ 300 reachable URLs, write them to `data/input/urls.csv`, and for each URL download and store the raw HTML snapshot under `data/raw/` (used for reproducible re‑runs).  
-  - Verification: `data/input/urls.csv` exists with ≥ 300 rows; each URL has a corresponding file in `data/raw/`; checksum file `data/checksums.txt` includes all snapshots.
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] T002 [P1] [US1] Rebuild the synthetic validation dataset generator in `code/src/audit/synthetic.py` (FR‑030). Generate exactly 10 000 simulated A/B test summaries (mix of binary and continuous outcomes) with ground‑truth p‑values and effect sizes computed using `statsmodels` (independent of the FR‑003 reconstruction implementation), seeded via the project seed. Write `data/synthetic/synthetic_validation.csv` and `data/synthetic/synthetic_ground_truth.json` conforming to `specs/001-evaluating-the-statistical-validity-of-p/contracts/synthetic_dataset.schema.yaml`.  
-  - Verification: files exist, contain ≥ 10 000 records, both `outcome_type` values appear, JSON validates against the schema, and a fixed seed reproduces identical output on re‑run.
+- [ ] T001 [US1] Consolidate the project layout under `code/src/audit/` (CLI, extraction, reconstruction, Monte‑Carlo, power‑analysis, synthetic‑generator modules). Remove any duplicated `PT###` entries, ensure all imports work, and document the runnable command in `specs/001-evaluating-the-statistical-validity-of-p/quickstart.md`.  
+  - **Verification**: `python -m code.src.audit.run_audit --help` exits with status 0; `quickstart.md` contains the exact command `python -m code.src.audit.run_audit data/input/urls.csv output/`.  
 
-- [ ] T003 [P1] [US1] Run Monte Carlo validation of every statistical test (two‑proportion z‑test, Fisher’s exact, Welch’s t‑test, binomial test) with **10 000** replicates each in `code/src/audit/monte_carlo_validation.py` (FR‑026, SC‑003, SC‑026). Compare the `scipy` implementation against the Monte Carlo estimate and assert absolute difference ≤ 0.005 per test; write `output/monte_carlo_validation_report.json` (FR‑026).  
-  - Verification: module exits 0; report lists each test with its difference and a pass flag; all differences ≤ 0.005; aborts with `ERR-801` on any failure.
+- [ ] T017 [US1] Curate a deterministic corpus of **≥ 300** reachable URLs pointing to public A/B test summaries, write them to `data/input/urls.csv`, download each page, and store the raw HTML snapshot under `data/raw/`. Generate `data/checksums.txt` with SHA‑256 hashes of all snapshots.  
+  - **Verification**: `urls.csv` has ≥ 300 rows; every URL has a corresponding file in `data/raw/`; all hashes are present in `data/checksums.txt`.  
 
-- [ ] T004 [P1] [US1] Run the audit end‑to‑end on the deterministic URL corpus produced by T017: ingestion → fetch → extract → reconstruct → validate, producing `output/audit_report.json` with `AuditRecord` fields (`url`, `reported_p`, `reported_effect_size`, `reported_sample_size_a/b`, `reconstructed_p`, `reconstructed_effect_size`, `diff_abs_p`, `diff_abs_effect`, `flag_inconsistent`, `notes`) validated against `specs/001-evaluating-the-statistical-validity-of-p/contracts/audit_record.schema.yaml`.  
-  - Additional verification steps:  
-    • Validate extracted `ABSummary` entities against the **canonical** `specs/001-evaluating-the-statistical-validity-of-p/contracts/abs_summary.schema.yaml`.  
-    • Confirm FR‑004 flagging thresholds are enforced (e.g., a synthetic record with `diff_abs_p = 0.06` is flagged inconsistent).  
-    • Extraction failures raise/log `ERR-###` codes (FR‑007); the loader must fail loudly on dead URLs — never substitute synthetic data.  
-  - Verification: driver exits 0; JSON validates against the schema; every `reconstructed_p` traces to the extracted counts for that URL; parsing‑error rate ≤ 5 % (SC‑005).
+- [ ] T004 [US1] Create `code/src/audit/monte_carlo_validation.py` that runs **10 000** Monte‑Carlo replicates for each statistical routine (two‑proportion z/Fisher, Welch’s t, binomial test). Compare the SciPy/StatsModels result to the Monte‑Carlo estimate and assert an absolute difference ≤ 0.005. Write `output/monte_carlo_validation_report.json` summarising each test’s difference and a pass flag.  
+  - **Verification**: script exits 0; the JSON lists all four tests, each `diff` ≤ 0.005; any failure logs an `ERR‑801` and aborts the pipeline.  
 
-## Phase 2: Complete the study and validate its evidence
+- [ ] T005 [US1] Run the full audit end‑to‑end on the corpus created by T017 using `code/src/audit/run_audit.py`. The pipeline must ingest URLs, fetch HTML, extract fields into `ABSummary` records, reconstruct p‑values/effect sizes, flag inconsistencies (FR‑004/FR‑004b), and write:  
+  - `output/audit_report.json` (conforms to `audit_report.schema.yaml`)  
+  - `output/audit_records.parquet` (optional intermediate)  
+  - `output/parsing_errors.log` (contains `ERR‑###` messages).  
+  - **Verification**: JSON validates against the schema; parsing‑error rate ≤ 5 % (SC‑005); at least one synthetic record with `diff_abs_p = 0.06` is flagged inconsistent.  
 
-- [ ] T005 [P1] [US1] Scale the corpus to the power‑analysis minimum: run `code/src/audit/power_analysis.py` (FR‑025) to compute the minimum N for power ≥ 0.80 at α = 0.05 detecting proportion 0.10 vs. baseline 0.05, write `output/power_analysis.json`, and audit a real corpus of N ≥ 300 (or the calculated minimum) deduplicated public A/B test summaries (source from T017). Write per‑summary audit records to `output/audit_report.json`.  
-  - Verification: `output/power_analysis.json` exists with numeric N and power; audited corpus size recorded in the audit metadata meets N ≥ 300 or the calculated minimum (SC‑025); deduplication collapses duplicate URLs.
+---
 
-- [ ] T006 [P1] [US1] Evaluate the inconsistency‑detection component (FR‑004 logic) on the synthetic dataset from T002: compute precision, recall, F1 in `code/tests/integration/test_synthetic_validation.py` and assert precision ≥ 90 %, recall ≥ 80 %, F1 ≥ 0.85 (FR‑031, SC‑030); write `output/synthetic_validation_report.json`.  
-  - Verification: test passes (else `ERR-800`); report contains the three metrics and pass flag; metrics computed from the ground‑truth labels in T002's output.
+## Phase 2 – Complete the study and validate its evidence  
 
-- [ ] T018 [P1] [US1] Author the annotation protocol required for real‑world validation (FR‑031b). Create `docs/annotation_protocol.md` describing stratified sampling, dual‑annotator workflow, third‑annotator resolution, and label schema.  
-  - Verification: file exists, follows the described protocol, and is referenced by T007.
+- [ ] T006 [US1] Execute `code/src/audit/power_analysis.py` to compute the minimum sample size **N** needed for a two‑sided binomial test that detects an inconsistency proportion of 0.10 with α = 0.05 and power ≥ 0.80 (FR‑025). Write the result to `output/power_analysis.json` and ensure the actual corpus size from T017 meets or exceeds this N.  
+  - **Verification**: JSON contains fields `required_N` and `achieved_N`; `achieved_N ≥ required_N`.  
 
-- [ ] T007 [P1] [US1] Build and evaluate the real‑world extraction validation set (FR‑031b, SC‑001, SC‑031b):  
-    1. Use the protocol from T018 to source ≥ 100 public A/B test summary URLs stratified across five domains (≥ 20 per domain).  
-    2. Store human‑verified labels in `data/manual_validation/real_world_labels.csv` (columns: `url`, `ground_truth_sample_size_a`, `ground_truth_sample_size_b`, `ground_truth_effect_size`, `ground_truth_p`, `annotator_1`, `annotator_2`, `annotator_3`, `resolution_notes`).  
-    3. Run the extraction module on this set and compute **field‑accuracy** (proportion of correctly captured fields) ≥ 95 % (satisfying SC‑001) **and** precision ≥ 85 %, recall ≥ 75 %, F1 ≥ 0.80 (satisfying SC‑031b).  
-    Write `output/real_world_validation_report.json`.  
-  - Verification: label CSV has ≥ 100 rows with ≥ 20 per domain; inter‑annotator agreement ≥ 85 % recorded; field‑accuracy ≥ 95 %; precision/recall/F1 meet thresholds; report shows the metrics with pass flag (else `ERR-802`).
+- [ ] T007 [US1] Evaluate the inconsistency‑detection logic on a **synthetically generated** dataset (generated on‑the‑fly inside this task, no separate generator). Compute precision, recall, and F1 for the flagging of `is_inconsistent`. Write `output/synthetic_validation_report.json`.  
+  - **Verification**: precision ≥ 0.90, recall ≥ 0.80, F1 ≥ 0.85; report includes a `pass: true` flag; any shortfall logs `ERR‑800`.  
 
-- [ ] T008 [P2] [US2] Implement and run the prevalence analysis (FR‑005a, FR‑005b) in `code/src/audit/prevalence.py`: two‑sided binomial test of the inconsistency proportion against baseline 0.05 at α = 0.05, 95 % Wilson CI (width ≤ 0.10, SC‑014), and sensitivity analysis over baselines 0.02–0.10 step 0.01 reporting maximum prevalence variation (< 0.02, SC‑015). Exclude entries flagged for sample‑size mismatch (FR‑004b) from aggregates. Write `output/prevalence.json`.  
-  - Verification: JSON contains p‑value (3 dp), Wilson bounds, raw rate, sensitivity table; CI width ≤ 0.10; no size‑mismatch entries included (cross‑check against audit flags).
+- [ ] T018 [US1] Author the annotation protocol for the real‑world extraction validation set (FR‑031b). Store the markdown at `docs/annotation_protocol.md` and include: stratified sampling plan, dual‑annotator workflow, third‑annotator resolution, label schema, and quality‑control checklist.  
+  - **Verification**: file exists, contains all required sections, and is referenced by T019.  
 
-- [ ] T009 [P1] [US1] Implement and run domain bias assessment and subgroup analysis (FR‑027, FR‑032): compute domain proportions, subsample any domain exceeding 30 % of the corpus, compute the domain‑weighted (equal‑weight) bias‑adjusted inconsistency rate, and per‑domain/per‑year prevalence with Fisher’s exact tests for subgroups with ≥ 10 summaries (Bonferroni‑adjusted α = 0.05 / #subgroups). Write `output/bias_report.json` and `output/subgroup_report.json` (+ mirrored `output/subgroup_report.csv`).  
-  - Verification: no domain exceeds 30 % in the analyzed corpus (SC‑027); bias report contains raw and adjusted rates; subgroup report contains prevalence, Fisher p‑value, and Bonferroni‑adjusted significance flag per qualifying subgroup (SC‑032).
+- [ ] T019 [US1] Build the real‑world extraction validation set (≥ 100 summaries, ≥ 20 per domain) following the protocol in T018. Store the human‑verified ground‑truth labels in `data/manual_validation/real_world_labels.csv`. Run the extraction module on this set, compute field‑level extraction accuracy (≥ 95 % – SC‑001) and precision/recall/F1 for the three key fields (≥ 85 % precision, ≥ 75 % recall, F1 ≥ 0.80 – SC‑031b). Write `output/real_world_validation_report.json`.  
+  - **Verification**: CSV has ≥ 100 rows with the required domain distribution; the report lists `field_accuracy`, `precision`, `recall`, `f1_score`, and a `pass: true` flag.  
 
-- [ ] T010 [P2] [US2] Generate the final summary artifacts (FR‑024, SC‑024): `output/summary_report.csv` with columns `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`, values exactly matching `output/audit_report.json`; run the export consistency checker `code/src/audit/export_validator.py` comparing JSON and CSV counts (log `ERR-201` on mismatch); compute SHA256 checksums for all files under `data/` and `output/` into `data/checksums.txt` and `output/checksums.txt` respectively (Constitution III/IV) and record them in `output/manifest.json` with resource usage (SC‑008, SC‑013).  
-  - Verification: CSV exists with exact column names; JSON↔CSV counts identical; both checksum files exist with valid SHA256 lines; manifest validates against the manifest contract; full run completes within 6 hours, ≤ 2 GB RAM, ≤ 2 vCPUs.
+- [ ] T008 [US2] Implement the prevalence analysis in `code/src/audit/prevalence.py`:  
+  1. Perform a two‑sided binomial test of the observed inconsistency proportion against the baseline 0.05 (FR‑005a).  
+  2. Compute a 95 % Wilson confidence interval (SC‑014) and ensure its total width ≤ 0.10.  
+  3. Conduct the sensitivity sweep over baseline proportions 0.02–0.10 (step 0.01) and verify that the maximum change in prevalence across the sweep is < 0.02 (SC‑015).  
+  Write `output/prevalence.json`.  
+  - **Verification**: JSON contains `p_value`, `wilson_ci_lower`, `wilson_ci_upper`, `sensitivity_variation`; all thresholds satisfied; entries flagged for sample‑size mismatch (FR‑004b) are excluded.  
 
-- [ ] T099 [P2] [US2] Constitution‑Compliance Audit (Principles I–VII). Execute `code/src/audit/constitution_audit.py` to verify that all code paths, data‑hygiene steps, checksum generation, resource‑usage logging, and reproducibility guarantees conform to the Constitution. Write `output/constitution_audit_report.json`.  
-  - Verification: report lists each principle with pass/fail; all pass; any failure aborts the pipeline.
+- [ ] T009 [US2] Perform domain‑bias assessment and subgroup analyses in `code/src/audit/bias_assessment.py`:  
+  1. Compute domain‑frequency distribution; if any domain exceeds 30 % of the corpus, down‑sample to a maximum of 30 % and log a `bias_warning`.  
+  2. Calculate a domain‑weighted bias‑adjusted inconsistency rate.  
+  3. For each domain and for each publication‑year with ≥ 10 summaries, run a Fisher’s exact test (or chi‑square) and apply Bonferroni correction.  
+  Write `output/bias_report.json` and `output/subgroup_report.csv`.  
+  - **Verification**: JSON contains `raw_rate`, `bias_adjusted_rate`; CSV includes columns `domain`, `year`, `inconsistent_count`, `total`, `rate`, `p_value_adj`; no domain > 30 % after down‑sampling.  
 
-## Phase 3: Reproducible results and paper handoff
+- [ ] T010 [US2] Generate the final aggregated summary artefacts:  
+  1. `output/summary_report.csv` with columns `total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`.  
+  2. Run `code/src/audit/export_validator.py` to cross‑check that the counts in `audit_report.json` match those in `summary_report.csv`; any mismatch logs `ERR‑201`.  
+  3. Compute SHA‑256 checksums for **all** files under `data/` and `output/` (producing `data/checksums.txt` and `output/checksums.txt`).  
+  4. Create `output/manifest.json` (conforms to `manifest.schema.yaml`) that records the run ID, timestamps, status, list of output files, checksums, and resource‑usage metrics.  
+  - **Verification**: CSV exists with exact column names; JSON↔CSV counts identical; both checksum files contain a line for every file; `manifest.json` validates; total runtime ≤ 6 h, RAM ≤ 2 GB, CPU ≤ 2 vCPUs (SC‑008).  
 
-- [ ] T011 [P2] [US1] Write the Quickstart guide (FR‑028, SC‑028) in `README_QUICKSTART.md` with step‑by‑step command‑line instructions enabling a novice to run the audit on a 30‑URL sample within 30 minutes on the default runner, including expected runtime and the novice‑verification step. The verification step writes a log to `output/novice_verification.log`.  
-  - Verification: guide exists with runnable commands; the documented 30‑URL command executes end‑to‑end and completes within 30 minutes; `output/novice_verification.log` is created and contains a timestamped success message.
+- [ ] T099 [US2] Run the Constitution‑compliance audit (`code/src/audit/constitution_audit.py`). The script must verify Principles I‑VII (reproducibility, verified accuracy, data hygiene, single source of truth, versioning, statistical consistency, source provenance). Write `output/constitution_audit_report.json`.  
+  - **Verification**: report lists each principle with `status: pass`; any failure aborts the pipeline.  
 
-- [ ] T012 [P2] [US1] Write a concise methods/results account in `specs/001-evaluating-the-statistical-validity-of-p/results.md` linked to the actual output cells (`output/audit_report.json`, `output/summary_report.csv`, `output/prevalence.json`, `output/subgroup_report.json`): report the inconsistency prevalence with Wilson CI, bias‑adjusted rate, subgroup findings, validation metrics (Monte Carlo, synthetic, real‑world extraction), and honestly state the construct‑validity limitation — the method tests internal consistency of reported numbers, not external accuracy against raw experimental data — plus the FR‑012 baseline‑heuristic uncertainty and FR‑030/031 synthetic‑validation limitations.  
-  - Verification: every number in the account traces to a named output file; limitations section present; no invented results.
+---
 
-- [ ] T013 [P2] [US1] Re‑run the documented workflow from its declared inputs (`data/input/urls.csv`, seed 42) and confirm all required checks pass — schema validation of all outputs, Monte Carlo ≤ 0.005, synthetic precision/recall thresholds, real‑world extraction thresholds, JSON↔CSV consistency, resource limits — then document the paper‑stage handoff (tables, figures, and prevalence narrative to be produced by the paper pipeline from `output/`).  
-  - Verification: full re‑run exits 0 with identical aggregate statistics for all deterministic components (synthetic, Monte Carlo, validation reports); handoff section names the source artifacts for each planned table/figure; no research task duplicates paper‑layout or publication work.
+## Phase 3 – Reproducible results and paper handoff  
 
-## Dependencies and requirement coverage
+- [ ] T011 [US2] Write the Quickstart guide (`README_QUICKSTART.md`) that a novice can follow to run the audit on a **30‑URL** sample within **30 minutes** on the default GitHub‑Actions runner. Include the exact command, expected runtime, and a verification step that writes `output/novice_verification.log` containing a timestamped success message.  
+  - **Verification**: guide exists; running the documented command on the sample completes ≤ 30 min and produces the log file; the log contains the phrase `Quickstart verification successful`.  
 
-- **SC‑001** satisfied by T007 (field‑accuracy ≥ 95 %).  
-- **SC‑003, SC‑026** satisfied by T003 (Monte Carlo 10 000 replicates, matching FR‑026).  
-- **SC‑005** enforced in T004 (parsing‑error rate ≤ 5 %).  
-- **SC‑014, SC‑015** satisfied by T008.  
-- **SC‑027** satisfied by T009 (domain ≤ 30 %).  
-- **SC‑028** satisfied by T011 (novice log).  
-- **SC‑030** satisfied by T006 (synthetic precision/recall).  
-- **SC‑031b** satisfied by T007 (precision/recall thresholds).  
-- **SC‑032** satisfied by T009 (Bonferroni‑adjusted subgroup tests).  
+- [ ] T012 [US2] Draft a concise methods‑and‑results account in `specs/001-evaluating-the-statistical-validity-of-p/results.md`. The document must:  
+  1. Cite every numeric claim (prevalence, CI, bias‑adjusted rate, synthetic precision/recall, real‑world extraction accuracy) and link it to the exact output file.  
+  2. Explicitly state the methodological limitation that the audit tests **internal statistical consistency only** (cannot assess external data fidelity).  
+  3. Note the heuristic baseline handling (FR‑012) and its flag in audit notes.  
+  - **Verification**: each number in the text is accompanied by a footnote referencing a file path; the limitations paragraph is present.  
 
-**Execution order** (selected critical path):  
-T001 → T017 → T002 → T003 → T004 → T005 → T006 → T008 → T009 → T010 → T011 → T012 → T013.  
-Additional parallel‑safe tasks: T018 (annotation protocol) runs after T001; T007 runs after T018; T099 runs after T010.  
+- [ ] T013 [US2] Perform a full reproducibility run: reset the workspace (remove `output/`), then execute the documented workflow from the seed‑controlled entry point (`python -m code.src.audit.run_audit data/input/urls.csv output/ --seed 42`). Verify that all deterministic artefacts (synthetic files, Monte Carlo report, power analysis, manifest) are byte‑identical to the previously committed versions, and that all success criteria (SC‑001 … SC‑031b) still hold. Document the handoff in `specs/001-evaluating-the-statistical-validity-of-p/handoff.md` by listing the artefacts that the downstream paper pipeline will consume.  
+  - **Verification**: a diff of the regenerated deterministic files against the repository shows no differences; the handoff markdown lists `audit_report.json`, `summary_report.csv`, `prevalence.json`, `bias_report.json`, `real_world_validation_report.json`, and `constitution_audit_report.json`.  
 
-**Task Registry** (preserved IDs): T001‑T013, plus newly added T017, T018, T099.
+---
+
+## Dependencies and requirement coverage  
+
+| Requirement | Satisfying Task(s) |
+|-------------|--------------------|
+| FR‑001, FR‑002 | T005 |
+| FR‑003 | T005 |
+| FR‑004, FR‑004b | T005 |
+| FR‑005a, FR‑005b | T008 |
+| FR‑007 | T005 |
+| FR‑009 | T010 |
+| FR‑012 | T005 |
+| FR‑024 | T010 |
+| FR‑025 | T006 |
+| FR‑026 | T004 |
+| FR‑028 | T011 |
+| FR‑031b | T019 |
+| SC‑001 | T019 |
+| SC‑003, SC‑026 | T004 |
+| SC‑005 | T005 |
+| SC‑008 | T010 |
+| SC‑013 | T010 |
+| SC‑014, SC‑015 | T008 |
+| SC‑024, SC‑025, SC‑028 | T010, T011 |
+| SC‑031b | T019 |
+
+---===END TASKS===---
