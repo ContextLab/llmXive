@@ -1,11 +1,11 @@
 T001:
-  reason: "The `code/tests/test_verifier.py` fixture reads the generator output with\
-    \ `json.load` and expects a JSON object containing a `\"puzzles\"` list, but `code/dataset/generator.py`\
-    \ writes a JSONL file (one JSON object per line). This mismatch causes a JSON\
-    \ decoding error, so the verifier tests cannot run and the required timing log\
-    \ is never written. The generator\u2019s output format must be adjusted (or the\
-    \ test changed) to produce a single JSON object with a `\"puzzles\"` array for\
-    \ the verifier tests to pass."
+  reason: "The `code/dataset/generator.py` writes a single JSON object with a top\u2011\
+    level `\"puzzles\"` array instead of emitting one JSON line per puzzle (JSONL),\
+    \ and its `to_dict()` method never includes the required `verifier_output` field,\
+    \ so the generated records do not satisfy `contracts/dataset.schema.yaml`. Consequently\
+    \ `code/tests/test_generator.py` would fail. Additionally, the required log file\
+    \ `data/processed/verifier_timing.log` is absent, showing the verifier has not\
+    \ recorded timing entries as mandated."
   task: 684c82c06391a7601af8304e05adfd8798f3e3539d0a7998a00bb6bc695b0839
 T002:
   task: 1bb6370ddd68e20d82b1551745ec4077f99521f1c052ad733dd9951f6deaaa18
@@ -35,8 +35,19 @@ T013:
 T014:
   task: f1b248a9bea05524673cd5f470a083acf318d3f3fca7997576d73e486a1ccc25
 T015:
+  reason: The required files `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`
+    exist, but there is no evidence that the verification commands (`python -c "import
+    yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` and the same
+    for `output.schema.yaml`) were actually run and exited without exception. Execution
+    logs or a successful run output are needed to satisfy the task.
   task: ee04be03cd38ad97a6cb2a7a0cbe4686dccfd6b589e8212d20d6b50fe4c3ba7e
 T016:
+  reason: "The quickstart.md file exists, but there is no concrete evidence that `python\
+    \ -m code.main --pilot` was actually run on a clean checkout without error, nor\
+    \ proof that the generated `data/processed/pilot/` files are non\u2011empty (no\
+    \ size or content checks, no execution logs). Provide a reproducible run log or\
+    \ test output confirming successful command execution and non\u2011empty pilot\
+    \ artifacts."
   task: 24d3f06098f3f7504d59778d7abbcf410fae7782b8c945952077495eeb6d443a
 T017:
   task: 950a6121b520961990afd3d652f2509731c495761614a0f59973a1e7b9f2cf13

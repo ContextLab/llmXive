@@ -18,7 +18,8 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest tests/unit/ -> rc=2
- while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/tests/unit/test_symbolic_parser.py'.
+arser.py ______________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-884-llmxive-follow-up-extending-self-improvi/tests/unit/test_symbolic_parser.py'.
 Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
@@ -29,13 +30,12 @@ E   ImportError: cannot import name 'main' from 'code.symbolic.parser' (/home/ru
 =========================== short test summary info ============================
 ERROR tests/unit/test_calibrate_tdp.py
 ERROR tests/unit/test_generate_tdp_constant.py
-ERROR tests/unit/test_generator.py
 ERROR tests/unit/test_logging.py
 ERROR tests/unit/test_population.py
 ERROR tests/unit/test_result_aggregator.py
 ERROR tests/unit/test_symbolic_parser.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 7 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 7 errors in 0.33s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 6 errors in 0.79s ===============================
 
 
 
@@ -49,11 +49,13 @@ ERROR tests/unit/test_symbolic_parser.py
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/processed/bes_results.json` is declared but was NOT written. Scripts referencing it:
+    - `code/bes/main.py` — NOT invoked by the run-book
     - `code/bes/result_aggregator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/bes_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/exclusions.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/final_report_generator.py` — NOT invoked by the run-book
     - `code/bes/evolutionary_loop.py` — NOT invoked by the run-book
+    - `code/bes/main.py` — NOT invoked by the run-book
     - `code/bes/result_aggregator.py` — NOT invoked by the run-book
     - `code/symbolic/exclusion_logger.py` — NOT invoked by the run-book
     - `code/symbolic/planner.py` — NOT invoked by the run-book

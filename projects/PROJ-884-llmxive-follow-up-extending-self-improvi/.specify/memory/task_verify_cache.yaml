@@ -1,14 +1,14 @@
 T001:
   c: false
-  h: 410d58bb1e524a111e7fa134245009dd962d45d62fed4e5bd19ec6f6b69b4f6b
-  r: "The `code/tests/test_verifier.py` fixture reads the generator output with `json.load`\
-    \ and expects a JSON object containing a `\"puzzles\"` list, but `code/dataset/generator.py`\
-    \ writes a JSONL file (one JSON object per line). This mismatch causes a JSON\
-    \ decoding error, so the verifier tests cannot run and the required timing log\
-    \ is never written. The generator\u2019s output format must be adjusted (or the\
-    \ test changed) to produce a single JSON object with a `\"puzzles\"` array for\
-    \ the verifier tests to pass."
-  sig: faebba823725b16e48124db2fd7571bc0a49d1d3bc6ded6b3a610e606cc325e6
+  h: 2c1a799ae720ffee781d4635856a0492e83180c7af27178dbb90fb3076fc4ef7
+  r: "The `code/dataset/generator.py` writes a single JSON object with a top\u2011\
+    level `\"puzzles\"` array instead of emitting one JSON line per puzzle (JSONL),\
+    \ and its `to_dict()` method never includes the required `verifier_output` field,\
+    \ so the generated records do not satisfy `contracts/dataset.schema.yaml`. Consequently\
+    \ `code/tests/test_generator.py` would fail. Additionally, the required log file\
+    \ `data/processed/verifier_timing.log` is absent, showing the verifier has not\
+    \ recorded timing entries as mandated."
+  sig: 9790cf88739d74aa479655a7bdb74b411e32ca2ea78e91fda570b8fff6b389bb
 T002:
   c: true
   h: 7cd4bcd484da4637f21861a3e71c67e8cfa8800c992b59042387fb3a4a9e7c48
@@ -42,17 +42,21 @@ T014:
     \ and explicit `device='cpu'` configuration."
   sig: 90039349151e6087bf33e11da809ac0951212b3a248f6561f1c5eb358ae3c382
 T015:
-  c: true
-  h: f8b453740300d5a28fd22cf36df6d3451d13f95f074572c94691033286bdb295
-  r: "Checked the presence and non\u2011empty content of `contracts/dataset.schema.yaml`\
-    \ and `contracts/output.schema.yaml`, and the unit\u2011test log showing both\
-    \ schemas load via `yaml.safe_load` without raising an exception."
-  sig: fbb39d9ccc84a8467fc67dc0ef6238a46a588e8f781179868f97317984c07f79
+  c: false
+  h: a3559ccf7416c2a7d85ef4e9a98207e99c81fdd72b03823685f361eb2f9a9e67
+  r: The required files `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`
+    exist, but there is no evidence that the verification commands (`python -c "import
+    yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` and the same
+    for `output.schema.yaml`) were actually run and exited without exception. Execution
+    logs or a successful run output are needed to satisfy the task.
+  sig: 0672ea8cd42a3d360ce89fd5c0cd26d9ed6e25170c35f946153f52727cdc1b5a
 T016:
-  c: true
-  h: ebf0a318335e27b237b6372c223ee7952e10691de52011ea22386efb53012960
-  r: "Checked the `specs/001-symbolic-bes/quickstart.md` file (found at the resolved\
-    \ canonical path) and the execution log showing `python -m code.main --pilot`\
-    \ ran without error, creating the non\u2011empty `data/processed/pilot/` directory\
-    \ with `pilot_run.jsonl` and `verifier_timing.log`."
-  sig: 0140dcefa9c5b01580f8b15f6bba11a3f300c494fa47b18d000c1f2864033578
+  c: false
+  h: 8f7d308f38f1cbf8b4db3893e20d8c4e32156badf11ae1db6f52682dc9485f88
+  r: "The quickstart.md file exists, but there is no concrete evidence that `python\
+    \ -m code.main --pilot` was actually run on a clean checkout without error, nor\
+    \ proof that the generated `data/processed/pilot/` files are non\u2011empty (no\
+    \ size or content checks, no execution logs). Provide a reproducible run log or\
+    \ test output confirming successful command execution and non\u2011empty pilot\
+    \ artifacts."
+  sig: b2d9d4d78949b4b18bd8b992bc6cbf6237cc018bc62358b7853f4b237c06c5ca

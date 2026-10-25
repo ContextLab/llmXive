@@ -1,7 +1,0 @@
-{
-  "task_id": "T003",
-  "fingerprint": "5fac627e33389a41dbb17048927797198760979f865e151077bf72845ffc73d3",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'code/symbolic/parser.py': imports nonexistent names from sibling files: `from code.symbolic.parser import parse` (available: Any, Dict, Enum, FormalConstraint, FormalConstraintType, List, Optional, Path...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}
