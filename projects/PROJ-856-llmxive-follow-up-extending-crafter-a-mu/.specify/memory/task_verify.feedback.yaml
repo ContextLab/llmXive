@@ -1,10 +1,10 @@
 T000:
-  reason: "Checked `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,\
-    \ and `data/checksums.txt`. The requirements file uses wildcard version specifiers\
-    \ (e.g., `numpy==1.26.*`) instead of exact pinned versions, and no raw data files\
-    \ are present to verify that the SHA\u2011256 hashes in `data/checksums.txt` actually\
-    \ correspond to the files. Both the exact\u2011version pinning and the checksum\u2011\
-    matching verification are therefore missing."
+  reason: "The repository contains the required files and the checksums script was\
+    \ run successfully, but there is no evidence that `pip install -r requirements.txt`\
+    \ completed without error nor that the seed verification command (`python -c \"\
+    import src.utils.seeds; assert src.utils.seeds.SEED==42\"`) was executed and passed.\
+    \ These execution artifacts are needed to satisfy the task\u2019s verification\
+    \ criteria."
   task: 63cb785ad60849e3caad4e88b36a90dc16d45849d7d3436f96b3354127241d03
 T001:
   task: 33b0619536c5f27a80371343dc50d7d8dc1269231f6184f6f9ec957d445cbb8c
@@ -46,8 +46,21 @@ T005:
     \ logic, clamp or round similarity scores to \u2264\u202F1.0, and add the missin"
   task: 55e2f555d7f99ddb9ddcd2466a1de5c787372d5c8886162fb7d8743883775f41
 T006:
+  reason: "Checked `src/simulation/power_analysis.py` and `src/simulation/simulate_participants.py`\
+    \ plus the generated `data/logs/interactions.jsonl`. The power\u2011analysis module\
+    \ still requires the `--effect-size` argument (so `python -m src.simulation.power_analysis`\
+    \ fails) and defaults \u03B1 to 0.05 instead of the required 0.025. The participant\
+    \ simulator uses nondeterministic `uuid.uuid4()` for log IDs, violating the \u201C\
+    deterministic\u201D requirement, and no evidence is provided that the resulting\
+    \ JSON\u2011Lines pass the `interaction_log` schema test. These gaps must be fixed\
+    \ for the task to be complete."
   task: e96f06895a9ad6b36f01119a0f00a251ca1c38485ed78c982123e821a3dce3e1
 T007:
+  reason: "Checked `src/analysis/validation_by_session.py` and its test `tests/analysis/test_validation_aggregation.py`.\
+    \ The script aggregates records and writes the required fields, and the test passes,\
+    \ but the implementation never records the final effective\u202FN per participant\
+    \ as required by the task specification. This missing output means the task is\
+    \ not fully satisfied."
   task: f940264c5ec0a5940309d8a88a7ac432aae2b24fc6ea98b65f0b9c1638ae3816
 T008:
   reason: 'Requested task execution failed; rerun successfully: src/analysis/wilcoxon_analysis.py

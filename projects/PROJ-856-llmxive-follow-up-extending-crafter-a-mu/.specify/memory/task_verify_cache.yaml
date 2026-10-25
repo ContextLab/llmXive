@@ -1,13 +1,13 @@
 T000:
   c: false
-  h: e1052b35a022a5a95de0a7f1b979263e0c8582f021d23341cc17205243b3654b
-  r: "Checked `requirements.txt`, `src/utils/seeds.py`, `src/utils/checksums.py`,\
-    \ and `data/checksums.txt`. The requirements file uses wildcard version specifiers\
-    \ (e.g., `numpy==1.26.*`) instead of exact pinned versions, and no raw data files\
-    \ are present to verify that the SHA\u2011256 hashes in `data/checksums.txt` actually\
-    \ correspond to the files. Both the exact\u2011version pinning and the checksum\u2011\
-    matching verification are therefore missing."
-  sig: d17fb7e0002fb3909d0f73aa61096ecbcebfdcd160dcf82c893bcc754c0bcfe0
+  h: ddad960559121d42e8a87bcf69e21f0483c64490bb794d5816890739deccf8c9
+  r: "The repository contains the required files and the checksums script was run\
+    \ successfully, but there is no evidence that `pip install -r requirements.txt`\
+    \ completed without error nor that the seed verification command (`python -c \"\
+    import src.utils.seeds; assert src.utils.seeds.SEED==42\"`) was executed and passed.\
+    \ These execution artifacts are needed to satisfy the task\u2019s verification\
+    \ criteria."
+  sig: 8347cdccefa429f1a7b9e3231fa0d809bf92f838be18eb82a128a586a32e5323
 T001:
   c: true
   h: 2308b169dc57442b24a0040e3c703c603bad068f756e29364f25879a6943869f
@@ -61,3 +61,24 @@ T005:
     \ required `semantic_validation.schema.yaml` file is missing. Fix the overall_success\
     \ logic, clamp or round similarity scores to \u2264\u202F1.0, and add the missin"
   sig: 691f59facb82fa28e56dc36c828bd8d6ea1424349b8d1ba85490093b1a1dbcd9
+T006:
+  c: false
+  h: e97afce8226712330fefc863c3742ed15b802d0ae699fa91d4f9b1828f964b46
+  r: "Checked `src/simulation/power_analysis.py` and `src/simulation/simulate_participants.py`\
+    \ plus the generated `data/logs/interactions.jsonl`. The power\u2011analysis module\
+    \ still requires the `--effect-size` argument (so `python -m src.simulation.power_analysis`\
+    \ fails) and defaults \u03B1 to 0.05 instead of the required 0.025. The participant\
+    \ simulator uses nondeterministic `uuid.uuid4()` for log IDs, violating the \u201C\
+    deterministic\u201D requirement, and no evidence is provided that the resulting\
+    \ JSON\u2011Lines pass the `interaction_log` schema test. These gaps must be fixed\
+    \ for the task to be complete."
+  sig: ba4637fd305c3c63128adcf55813e76fc53110b7fb84af0c4d7a2fbffa45ec6a
+T007:
+  c: false
+  h: 962c7ade310616267ec380545dd09efd39d95d6c8dfa9824061d163e79553878
+  r: "Checked `src/analysis/validation_by_session.py` and its test `tests/analysis/test_validation_aggregation.py`.\
+    \ The script aggregates records and writes the required fields, and the test passes,\
+    \ but the implementation never records the final effective\u202FN per participant\
+    \ as required by the task specification. This missing output means the task is\
+    \ not fully satisfied."
+  sig: c28daaa722c658d564d0d2967f0cb2bde85ff5da21b732ca1a746608fff124e4
