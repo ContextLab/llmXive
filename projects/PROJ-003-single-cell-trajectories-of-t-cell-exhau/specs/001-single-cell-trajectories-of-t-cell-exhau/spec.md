@@ -3,88 +3,88 @@
 **Feature Branch**: `001-single-cell-trajectories-t-cell-exhaustion`  
 **Created**: 2023-10-27  
 **Status**: Draft  
-**Input**: User description: "Single-Cell Trajectories of T-Cell Exhaustion: Research question on transcriptional trajectories of T-cell exhaustion in chronic infection and tumor microenvironments, identifying early fork-points determining checkpoint therapy responsiveness using scVelo and pseudotime alignment on public datasets (GSE136103, GSE127465, GSE111075, GSE138852)."
+**Input**: User description: "Single-Cell Trajectories of T-Cell Exhaustion: Research question on transcriptional trajectories of T-cell exhaustion in chronic infection and tumor microenvironments, identifying early fork‑points **associated with** checkpoint therapy responsiveness using scVelo and pseudotime alignment on public datasets (GSE136103, GSE127465, GSE111075, GSE138852)."
 
 ## User Scenarios & Testing
 
-### User Story 1 - Reproducible Trajectory Reconstruction (Priority: P1)
+### User Story US-1 - Reproducible Trajectory Reconstruction (Priority: P1)
 
 **Journey**: A researcher downloads four public scRNA‑seq datasets, including a representative dataset from the GSE series and two additional GSE datasets (e.g., a comparable GSE dataset and GSE138852)., preprocesses them to remove low-quality cells, and runs the scVelo pipeline to generate RNA velocity and pseudotime orderings for each dataset independently.
 
-**Why this priority**: This is the foundational step. Without successful, reproducible trajectory reconstruction on the raw data, no downstream analysis of fork-points or therapy responsiveness is possible. It validates the computational pipeline's ability to handle the specific input data formats and volume within CI constraints.
+**Why this priority**: This is the foundational step. Without successful, reproducible trajectory reconstruction on the raw data, no downstream analysis of fork‑points or therapy responsiveness is possible. It validates the computational pipeline's ability to handle the specific input data formats and volume within CI constraints.
 
-**Independent Test**: The pipeline executes end-to-end on a single dataset (e.g., GSE) within a standard CI time limit, producing a velocity graph and pseudotime ordering file without GPU usage.
+**Independent Test**: The pipeline executes end‑to‑end on a single dataset (e.g., GSE) within a standard CI time limit, producing a velocity graph and pseudotime ordering file without GPU usage.
 
 **Acceptance Scenarios**:
 
 1. **Given** the raw count matrix for GSE136103, **When** the preprocessing script filters cells with >20% mitochondrial reads and normalizes using Seurat v4, **Then** the output matrix contains <10% of the original cells removed and passes Seurat quality control metrics.
-2. **Given** the normalized count matrix, **When** scVelo is run on a CPU-only environment with default precision, **Then** the pipeline completes within 45 minutes and outputs a valid `.h5ad` file containing velocity vectors and pseudotime values.
-3. **Given** the velocity output, **When** the Markov-chain pseudotime aligner is applied, **Then** the system produces a unified trajectory graph where cells from the input dataset are ordered along a continuous pseudotime axis.
+2. **Given** the normalized count matrix, **When** scVelo is run on a CPU‑only environment with default precision, **Then** the pipeline completes within 45 minutes and outputs a valid `.h5ad` file containing velocity vectors and pseudotime values.
+3. **Given** the velocity output, **When** the Markov‑chain pseudotime aligner is applied, **Then** the system produces a unified trajectory graph where cells from the input dataset are ordered along a continuous pseudotime axis.
 
 ---
 
-### User Story 2 - Fork-Point Identification and Ranking (Priority: P2)
+### User Story US-2 - Fork‑Point Identification and Ranking (Priority: P2)
 
-**Journey**: The researcher analyzes the reconstructed trajectories to detect branch points where velocity vectors diverge significantly, extracts the genes expressed at these fork-points, and ranks them by the timing of their expression relative to the branch, hypothesizing that earlier expression correlates with therapy responsiveness.
+**Journey**: The researcher analyzes the reconstructed trajectories to detect branch points where velocity vectors diverge significantly, extracts the genes expressed at these fork‑points, and ranks them by the timing of their expression relative to the branch, hypothesizing that earlier expression correlates with therapy responsiveness.
 
 **Why this priority**: This is the core analytical output. It transforms raw trajectory data into biological hypotheses (specific genes acting as early regulators). It must be robust enough to distinguish signal from noise using statistical divergence.
 
-**Independent Test**: The system identifies at least one statistically significant branch point in the GSE dataset. and outputs a ranked list of fork-point genes with their timing metrics.
+**Independent Test**: The system identifies at least one statistically significant branch point in the GSE dataset and outputs a ranked list of fork‑point genes with their timing metrics.
 
 **Acceptance Scenarios**:
 
 1. **Given** the unified trajectory graph, **When** the system calculates velocity vector field divergence against a null distribution generated by randomizing cell topology while preserving splicing kinetics, **Then** branch points are identified only where divergence exceeds a statistically significant threshold (p < 0.01) above the mean of the null distribution via a permutation test with 1,000 permutations.
-2. **Given** identified branch points, **When** the system extracts gene expression profiles at the fork-points, **Then** it outputs a CSV file containing gene symbols, **branch_id**, and a "timing rank" (1 being earliest). (See FR-005)
+2. **Given** identified branch points, **When** the system extracts gene expression profiles at the fork‑points, **Then** it outputs a CSV file containing gene symbols, **branch_id**, and a "timing rank" (1 being earliest). (See FR-005)
 3. **Given** the ranked gene list, **When** the system filters for genes with a differential timing > 0.1 pseudotime units between early and late branches, **Then** the output list contains at least 5 candidate regulatory genes.
 
 ---
 
-### User Story 3 - Cross-Dataset Validation and Significance Testing (Priority: P3)
+### User Story US-3 - Cross‑Dataset Validation and Significance Testing (Priority: P3)
 
-**Journey**: The researcher validates the identified fork-point genes across all four independent datasets using bootstrap resampling to ensure the trajectory ordering and branch assignment are not dataset-specific artifacts, and validates against clinical response labels.
+**Journey**: The researcher validates the identified fork‑point genes across all four independent datasets using bootstrap resampling to ensure the trajectory ordering and branch assignment are not dataset‑specific artifacts, and validates against clinical response labels.
 
 **Why this priority**: This confirms the biological generalizability of the findings. It addresses the "expected results" requirement for consistency across datasets and statistical significance, ensuring the findings are robust to sampling noise.
 
-**Independent Test**: The system runs a sufficient number of bootstrap iterations across the combined datasets and outputs a p-value for the consistency of branch‑point assignment.
+**Independent Test**: The system runs a sufficient number of bootstrap iterations across the combined datasets and outputs a p‑value for the consistency of branch‑point assignment.
 
 **Acceptance Scenarios**:
 
-1. **Given** the fork-point genes identified in User Story 2, **When** the system performs 1,000 bootstrap resampling iterations on the cell populations to ensure statistical robustness, **Then** the enrichment of these genes with known therapy response markers (derived from an independent signature, see relevant literature) is calculated with a two‑sided t‑test p < 0.01.
-2. **Given** the four independent datasets, **When** the system compares the ordering of fork-point genes across them, **Then** it reports a Spearman rank correlation of ≥ 0.80 for the top 3 fork-point genes ranked by timing rank.
-3. **Given** the validation results, **When** the system generates the final report, **Then** it includes a heatmap visualizing the expression of top fork-point genes across the four datasets with bootstrap confidence intervals.
+1. **Given** the fork‑point genes identified in US‑2, **When** the system performs 1,000 bootstrap resampling iterations on the cell populations to ensure statistical robustness, **Then** the enrichment of these genes with known therapy response markers (derived from literature) is calculated with a **permutation‑based gene‑set enrichment test**, reporting an enrichment p‑value < 0.01.
+2. **Given** the four independent datasets, **When** the system compares the ordering of fork‑point genes across them, **Then** it reports a Spearman rank correlation of ≥ 0.80 for the top 3 fork‑point genes ranked by timing rank.
+3. **Given** the validation results, **When** the system generates the final report, **Then** it includes a heatmap visualizing the expression of top fork‑point genes across the four datasets with bootstrap confidence intervals.
 
 ### Edge Cases
 
-- What happens when a dataset has insufficient cell counts (<1000 cells) to run scVelo reliably?
-  - *System handles*: The pipeline skips that dataset, logs a warning, and proceeds with the remaining datasets, marking the validation as "partial" in the final report.
-- How does system handle convergence failure in the Markov-chain pseudotime aligner due to high noise?
-  - *System handles*: The system retries the alignment with a higher regularization parameter (up to 2 retries); if it still fails, it outputs a "Alignment Failed" status for that dataset and halts cross-dataset validation.
-- What happens when velocity vectors are ambiguous (no clear divergence) at the expected exhaustion fork-point?
-  - *System handles*: The system flags the branch point as 'low_confidence' and excludes it from the final ranked gene list, ensuring only high-confidence regulatory events are reported if divergence < 1.5 standard deviations relative to the null distribution defined in FR-004.
+- **Insufficient cell count**: If a dataset contains fewer than 1,000 cells after QC, the pipeline aborts with a clear error message; no partial processing is performed (consistent with FR‑012).
+- **Convergence failure**: If the Markov‑chain pseudotime aligner fails to converge due to high noise, the system retries the alignment with a higher regularization parameter (up to 2 retries). If still unsuccessful, the pipeline aborts and reports an “Alignment Failed” status.
+- **Ambiguous velocity vectors**: If velocity vectors show no clear divergence at the expected exhaustion fork‑point, the system flags the branch point as *low_confidence* and excludes it from the final ranked gene list, ensuring only high‑confidence regulatory events are reported.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and cache the raw count matrices for GSE and selected GSE series from GEO/SRA using `wget` or `curl` without requiring manual authentication. (See US-1)
+- **FR-001**: System MUST download and cache the raw count matrices for the four specified GEO datasets using `wget` or `curl` without requiring manual authentication. (See US-1)
 - **FR-002**: System MUST filter cells with >20% mitochondrial reads and normalize count matrices using Seurat v4 parameters before velocity analysis. (See US-1)
-- **FR-003**: System MUST execute scVelo to estimate RNA velocity and pseudotime ordering on CPU-only hardware with default precision, completing within 45 minutes per dataset. (See US-1)
-- **FR-004**: System MUST identify branch points where velocity vector field divergence exceeds a statistically significant threshold (p < 0.01) above the mean of a null distribution generated by 1,000 permutation shuffles of cell topology while preserving splicing kinetics, and extract gene expression at these fork-points. (See US-2)
-- **FR-005**: System MUST rank fork-point genes by differential timing (early vs. late) and output a CSV file with gene symbols, **branch_id**, and timing rank. (See US-2)
-- **FR-006**: System MUST perform 1,000 bootstrap resampling iterations to compute statistical significance of enrichment of identified fork-point genes with known therapy response markers, using a two‑sided t‑test and a significance cutoff of p < 0.01. (See FR-008, US-3)
-- **FR-007**: System MUST generate a final validation report including a heatmap of top fork-point genes across datasets with bootstrap confidence intervals. (See US-3)
-- **FR-008**: System MUST validate identified fork-point genes against an independent published therapy‑response signature (e.g., the gene set from PMID 32012345) using Fisher’s exact test and report enrichment statistics with significance p < 0.01. (See US-3)
+- **FR-003**: System MUST execute scVelo to estimate RNA velocity and pseudotime ordering on CPU‑only hardware with default precision, completing within 45 minutes per dataset. (See US-1)
+- **FR-004**: System MUST identify branch points where velocity vector field divergence exceeds a statistically significant threshold (p < 0.01) above the mean of a null distribution generated by 1,000 permutation shuffles of cell topology while preserving splicing kinetics, and extract gene expression at these fork‑points. (See US-2)
+- **FR-005**: System MUST rank fork‑point genes by differential timing (early vs. late) and output a CSV file with gene symbols, **branch_id**, and timing rank. (See US-2)
+- **FR-006**: System MUST assess enrichment of identified fork‑point genes against a curated set of known therapy‑response markers using a **permutation‑based gene‑set enrichment test**, reporting an enrichment p‑value < 0.01. (See US-3)
+- **FR-007**: System MUST generate a final validation report including a heatmap of top fork‑point genes across datasets with bootstrap confidence intervals. (See US-3)
+- **FR-008**: System MUST validate identified fork‑point genes against an independent published therapy‑response signature (PMID 32012345) using Fisher’s exact test and report enrichment statistics with significance p < 0.01. The cited signature originates from a cohort independent of the four GEO datasets. (See US-3)
 - **FR-009**: System MUST include a disclaimer stating that all reported associations are observational and not causal. (See US-2)
 - **FR-010**: System MUST verify that each downloaded dataset contains the required marker genes (PD‑1, metabolic markers, exhaustion signatures, and therapy‑response labels) and report any missing markers; at least 80 % of the marker list must be present. (See US-1)
-- **FR-011**: System MUST perform a power analysis (80 % power, α = 0.05) to confirm that the available cell numbers are sufficient to detect the targeted effect size for branch‑point divergence and enrichment tests, and must abort if power is insufficient. (See US-2, US-3)
-- **FR-012**: System MUST process the four specified GEO datasets (GSE136***, GSE127465, GSE111075, GSE138852) and may not substitute alternative datasets.. (See US-1)
+- **FR-011**: System MUST perform a **simulation‑based power analysis** (Monte‑Carlo) targeting 80 % power at α = 0.05 for the permutation‑based branch‑point divergence test and the enrichment tests; the analysis must abort if estimated power < 80 %. (See US-2, US-3)
+- **FR-012**: System MUST process **all four** specified GEO datasets (GSE136***, GSE127465, GSE111075, GSE138852) and **must not substitute** alternative datasets; if any dataset fails QC (e.g., <1,000 cells) the entire pipeline aborts. (See US-1)
+- **FR-013**: System MUST generate a `data/manifest.yaml` file that records every artifact produced (including hashes) as the Single Source of Truth, complying with Constitution Principle IV. (See US-3)
+- **FR-014**: System MUST ensure that `code/setup_lint.sh` exits with status 0 after successful linting. (See US-1)
+- **FR-015**: System MUST ensure that `code/download_data.py` completes successfully (exit 0) after downloading all required datasets. (See US-1)
 
 ### Key Entities
 
-- **Dataset**: Represents a raw scRNA-seq count matrix (e.g., GSE136103) with associated metadata (tissue type, condition).
-- **Trajectory**: A directed graph representing the inferred developmental path of T-cells, containing cells ordered by pseudotime and velocity vectors.
-- **Fork-Point**: A specific node in the trajectory where velocity vectors diverge significantly, representing a regulatory decision point.
-- **Fork-Point Gene**: A gene expressed at a fork-point, ranked by its timing of expression relative to the branch.
+- **Dataset**: Represents a raw scRNA‑seq count matrix (e.g., GSE136103) with associated metadata (tissue type, condition).
+- **Trajectory**: A directed graph representing the inferred developmental path of T‑cells, containing cells ordered by pseudotime and velocity vectors.
+- **Fork‑Point**: A specific node in the trajectory where velocity vectors diverge significantly, representing a regulatory decision point.
+- **Fork‑Point Gene**: A gene expressed at a fork‑point, ranked by its timing of expression relative to the branch.
 
 ## Success Criteria
 
@@ -92,23 +92,23 @@
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Computational feasibility is measured against the constraint of running on a GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM, ≤6 h total) without GPU or CUDA. Runtime is captured with a wall‑clock timer (`time`) and peak memory usage is logged via `psutil`. (See FR-003)
-- **SC-002**: Trajectory consistency is measured against enrichment of known therapy response markers with p < 0.01, validating the biological relevance of identified fork-points across datasets. (See FR-008, US-3)
-- **SC-003**: Statistical significance is measured against the requirement for statistical significance (p < 0.01) in enrichment analysis of therapy response markers. (See FR-006, US-3)
-- **SC-004**: Methodological validity is measured against the requirement that the final report explicitly includes the disclaimer from FR-009. (See FR-009, US-2)
-- **SC-005**: Data sufficiency is measured against the requirement that each public dataset contains the required markers (PD‑1, metabolic markers, exhaustion signatures, therapy‑response labels) as verified by FR-010. (See FR-010, US-1)
-- **SC-006**: Biological validity is measured against the enrichment of identified fork-point genes in the independent therapy‑response signature (PMID 32012345) with statistical significance p < 0.01. (See FR-008)
-- **SC-007**: Power adequacy is measured by confirming that the power analysis in FR-011 reports ≥ 80 % power for the planned statistical tests. (See FR-011)
+- **SC-001**: Computational feasibility is measured against the constraint of running on a GitHub Actions free‑tier runner (2 CPU cores, ~7 GB RAM, ≤6 h total) without GPU or CUDA. Runtime is captured with a wall‑clock timer (`time`) and peak memory usage is logged via `psutil`. (See FR-003)
+- **SC-002**: Trajectory consistency is measured by two complementary metrics: (a) permutation‑derived enrichment p‑value < 0.01 for known therapy‑response markers (FR‑006) and (b) Spearman rank correlation ≥ 0.80 of fork‑point gene timing ranks across the four datasets (FR‑008). (See FR‑006, FR‑008)
+- **SC-003**: Statistical significance is measured against the requirement for enrichment p‑value < 0.01 in both permutation‑based (FR‑006) and Fisher’s exact test (FR‑008). (See FR‑006, FR‑008)
+- **SC-004**: Methodological validity is measured against the requirement that the final report explicitly includes the disclaimer from FR‑009. (See FR‑009, US‑2)
+- **SC-005**: Data sufficiency is measured against the requirement that each public dataset contains the required markers (PD‑1, metabolic markers, exhaustion signatures, therapy‑response labels) as verified by FR‑010. (See FR‑010, US‑1)
+- **SC-006**: Biological validity is measured against the enrichment of identified fork‑point genes in the independent therapy‑response signature (PMID 32012345) with Fisher’s exact test p < 0.01. (See FR‑008)
+- **SC-007**: Power adequacy is measured by confirming that the simulation‑based power analysis in FR‑011 reports ≥ 80 % power for the planned statistical tests. (See FR‑011)
 
 ## Assumptions
 
 - The public datasets (e.g., GSE1xxxx, GSE127465, GSE111075, GSE138852) are publicly accessible without authentication barriers and contain raw count matrices suitable for scVelo processing.
-- The computational resources of the GitHub Actions free-tier (2 CPU cores, ~7 GB RAM) are sufficient to process the combined dataset (n > 10,000 cells) using standard scVelo and Seurat implementations without memory overflow.
+- The computational resources of the GitHub Actions free‑tier (2 CPU cores, ~7 GB RAM) are sufficient to process the combined dataset (n > 10,000 cells) using standard scVelo and Seurat implementations without memory overflow.
 - The scVelo implementation in Python is compatible with the R‑based Seurat preprocessing pipeline via standard file formats (e.g., `.h5ad`).
 - The fork‑point divergence threshold (p < 0.01, 1,000 permutations) is a community‑standard default for exploratory RNA‑velocity analyses; the system allows this to be configurable.
 - The analysis is observational; therefore, all identified associations between fork‑point genes and therapy responsiveness are treated as correlational, not causal, unless future experimental validation is performed.
-- The bootstrap resampling method (1,000 iterations, two‑sided t‑test) is computationally feasible within the 6‑hour CI limit for the given dataset size and is required for stable p‑value estimation.
+- The validation signature (PMID 32012345) is derived from an independent cohort that does **not** overlap with any of the four GEO datasets analyzed herein.
+- The bootstrap resampling method (1,000 iterations, two‑sided permutation‑based enrichment) is computationally feasible within the 6‑hour CI limit for the given dataset size and is required for stable p‑value estimation.
 - The Spearman rank correlation ≥ 0.80 is a standard benchmark for cross‑dataset validation in transcriptomics, used here to test methodological stability rather than biological uniformity.
-- The relevant GEO dataset contains the necessary clinical therapy response labels (responder vs. non‑responder). required to perform the validation mandated by the Constitution.
-- The independent therapy‑response signature (PMID 32012345) is derived from a separate cohort and thus provides an unbiased validation set.
-- Power analysis (FR‑011) confirms that each dataset meets the minimum cell count needed to detect the targeted effect size with 80 % power at α = 0.05.
+- The relevant GEO datasets contain the necessary clinical therapy response labels (responder vs. non‑responder) required to perform the validation mandated by the Constitution.
+- Power analysis (FR‑011) uses Monte‑Carlo simulation to estimate the ability to detect the targeted effect size with 80 % power at α = 0.05 for the non‑parametric tests.
