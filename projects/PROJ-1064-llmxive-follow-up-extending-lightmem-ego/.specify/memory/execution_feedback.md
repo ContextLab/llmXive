@@ -13,38 +13,23 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python -m src.data.download (rc=1); python -m src.data.preprocess (rc=1); python -m src.cli.run (rc=1); 11 declared deliverable(s) absent: data/processed/faiss_index_mapping.json; data/processed/memory_nodes.parquet; data/processed/validation_queries.json
+**Summary**: 1 command(s) failed: python -m src.data.download (rc=1); 11 declared deliverable(s) absent: data/processed/faiss_index_mapping.json; data/processed/memory_nodes.parquet; data/processed/validation_queries.json
 
 ## Failing / missing run-book commands
 
 - python -m src.data.download -> rc=1
-^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/lib/python3.11/site-packages/datasets/load.py", line 1667, in load_dataset
-    builder_instance = load_dataset_builder(
-                       ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/lib/python3.11/site-packages/datasets/load.py", line 1290, in load_dataset_builder
-    dataset_module = dataset_module_factory(
-                     ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/lib/python3.11/site-packages/datasets/load.py", line 1176, in dataset_module_factory
-    raise e1 from None
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/lib/python3.11/site-packages/datasets/load.py", line 1134, in dataset_module_factory
-    raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'ego4d/ego4d' doesn't exist on the Hub or cannot be accessed.
-
-- python -m src.data.preprocess -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/bin/python: No module named src.data.preprocess
-
-- python -m src.cli.run -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/bin/python: No module named src.cli.run
-
-- python -m pytest -q tests/contract/test_evaluation_report.py -> rc=4
-
-no tests ran in 0.00s
-
-ERROR: file or directory not found: tests/contract/test_evaluation_report.py
-
+75, in cached_path
+    ).resolve_path(url_or_filename)
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/lib/python3.11/site-packages/huggingface_hub/hf_file_system.py", line 549, in resolve_path
+    parsed = parse_hf_uri(f"{constants.HF_PROTOCOL}{path}")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/lib/python3.11/site-packages/huggingface_hub/utils/_hf_uris.py", line 319, in parse_hf_uri
+    return _parse_repo_body(location, type_, raw=raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/lib/python3.11/site-packages/huggingface_hub/utils/_hf_uris.py", line 617, in _parse_repo_body
+    raise HfUriError(uri=raw, msg=f"Repository id must be 'namespace/name', got '{repo_id}'.")
+huggingface_hub.errors.HfUriError: Invalid HF URI 'hf://datasets/squad@7b6d24c440a36b6815f21b70d25016731768db1f/.huggingface.yaml'. Repository id must be 'namespace/name', got 'squad'.
 
 
 ## Declared deliverables still missing

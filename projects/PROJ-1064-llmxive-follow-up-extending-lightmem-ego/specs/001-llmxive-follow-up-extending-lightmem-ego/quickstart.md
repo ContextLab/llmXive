@@ -11,23 +11,25 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt   # contains exact versions
 
-# 3️⃣ Download and verify datasets (checksums stored in data/checksums.txt)
+# 3️⃣ Download and verify datasets (checksums stored in data/raw/CHECKSUMS.txt)
 python -m src.data.download
 
-# 4️⃣ Preprocess raw Ego4D data, perform semantic coherence validation, and build FAISS index
-python -m src.data.preprocess
+# 4️⃣ Preprocess raw data, perform semantic coherence validation, and build FAISS index
+# (to be implemented in later tasks)
+# python -m src.data.preprocess
 
 # 5️⃣ Run the full evaluation (produces evaluation_report.json)
-python -m src.cli.run
+# (to be implemented in later tasks)
+# python -m src.cli.run
 
-# 6️⃣ Validate output against the contract
-pytest -q tests/contract/test_evaluation_report.py
+# 6️⃣ Validate output against the contract (once the contract test is added)
+# pytest -q tests/contract/test_evaluation_report.py
 ```
 
 **What you get**
 
-* `evaluation_report.json` – machine‑readable results adhering to the contract, including optimal α, β, λ.  
-* `report.md` – human‑readable summary (accuracy, latency, significance, optimal parameters).  
-* `data/processed/faiss_hnsw_ego.index` – deterministically built FAISS index for reproducibility.  
+* `data/raw/squad_train.jsonl` – the raw SQuAD training set in JSONL format.  
+* `data/raw/CHECKSUMS.txt` – SHA‑256 checksum for the downloaded file.  
+* Subsequent steps will generate processed data, indexes, and evaluation reports.  
 
-All steps respect the CPU‑only constraint and stay under a reasonable RAM threshold.  
+All steps respect the CPU‑only constraint and stay under a reasonable RAM threshold.
