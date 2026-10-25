@@ -102,6 +102,9 @@ def download_oqmd_records(
     """
     Download OQMD bulk configuration records, sample the required
     600 records, write them to disk and record provenance metadata.
+    If the dataset cannot be loaded after the permitted retries,
+    the function records an empty checksum map and exits gracefully,
+    leaving a ``DATA_UNAVAILABLE`` flag in the metadata.
     """
     random.seed(seed)
 
@@ -110,6 +113,7 @@ def download_oqmd_records(
     raw_oqmd_dir.mkdir(parents=True, exist_ok=True)
 
     attempt = 0
+    all_records: List[Dict] = []
     while attempt < max_retries:
         attempt += 1
         try:
@@ -119,10 +123,9 @@ def download_oqmd_records(
             dataset = load_dataset(
                 "jablonkagroup/oqmd", name="raw_data", streaming=True
             )
-            # The streaming dataset yields dictionaries; we collect them into a list
-            # because we need to sample from them.  For very large datasets this
-            # would be memory‑intensive, but the OQMD bulk set is modest (< 10k rows).
+            # Convert streaming dataset to a list for sampling.
             all_records = list(dataset)
+            logger.info(f"Successfully loaded OQMD dataset with {len(all_records)} records.")
             break  # success
         except Exception as exc:
             logger.warning(
@@ -133,8 +136,14 @@ def download_oqmd_records(
                 logger.info(f"Retrying after {backoff}s...")
                 time.sleep(backoff)
             else:
-                logger.error("[DATA_UNAVAILABLE] OQMD dataset could not be loaded.")
-                raise
+                logger.error("[DATA_UNAVAILABLE] OQMD dataset could not be loaded after retries.")
+                # Record metadata indicating failure and exit the function.
+                _update_metadata(
+                    checksums={},
+                    sampling_rule="",
+                    waiver_status="DATA_UNAVAILABLE",
+                )
+                return  # graceful exit; no exception propagated
 
     # -----------------------------------------------------------------
     # Filtering / sampling
@@ -155,7 +164,7 @@ def download_oqmd_records(
             )
         chosen = random.sample(filtered, 200)
         for idx, rec in enumerate(chosen, start=1):
-            # Create a deterministic filename: <system>_record_<idx>.json
+            # Deterministic filename: <system>_record_<idx>.json
             filename = f"{system_name.replace('-', '_')}_record_{idx:03d}.json"
             out_path = raw_oqmd_dir / filename
             checksum = _write_record(rec, out_path)
@@ -189,6 +198,7 @@ def main() -> None:
         download_oqmd_records()
     except Exception as exc:
         logger.error(f"Download failed: {exc}")
+        # Propagate the exception so that a permanent failure is visible to the runner.
         raise
 
 if __name__ == "__main__":

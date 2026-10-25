@@ -7,7 +7,7 @@ All paths are relative to the project root `projects/PROJ-355-predicting-the-imp
 
 ## Phase 1 – Project scaffolding & first end‑to‑end run  
 
-- [X] **T001** [P] **Create a strict `.gitignore`**  
+- [ ] **T001** [P] **Create a strict `.gitignore`**  
   - **File**: `.gitignore`  
   - **Requirements**: Must contain **exactly** the three lines (in this order, no trailing spaces):  
     ```

@@ -1,14 +1,17 @@
 T001:
-  c: true
-  h: c67eeecbe4154e23497bbddae87e76223d1cee120361ea3110227d6f6a0d806f
-  r: The `.gitignore` file at the repository root was verified by `tests/unit/test_gitignore_strict.py`,
-    which read the file and confirmed it contains exactly the four required lines
-    in order with no trailing spaces, and the test log shows it passed.
-  sig: abe60b683f2938bd6ba4972678d04c25fd5684a6a48617fb824debd028f11e22
+  c: false
+  h: e907fa7262392d8bb7f1cde1a991a829c524a78ada735578b63310103a098e08
+  r: "The evidence includes the unit test that checks the `.gitignore` file, but the\
+    \ repository snapshot does not contain a `.gitignore` file at the project root,\
+    \ nor any content showing the required four lines. Without the actual `.gitignore`\
+    \ file, the task\u2019s core requirement cannot be verified. The implementer must\
+    \ add a `.gitignore` file containing exactly:\n\n```\ndata/\nresults/\n*.pyc\n\
+    __pycache__/\n``` \n\nwith no extra lines or trailing spaces."
+  sig: 7d1649370442c7cfb61929e2a27fa1adc47e486b63b62c61de4162f1ee1931fc
 T002:
   c: true
-  h: e9c7540dc6ac0aeb3359e1645fdd3537ea6d1fb343a983d4c7d96c8a23d3352d
-  r: Checked `README.md` for the exact required headings, the exact execution command
-    line, and the required phrases in the Data Provenance paragraph; all are present
-    and the unit test `test_readme_strict.py` passes.
-  sig: eecad549b35be0337c7ff308c1d794b46304eb80cc57e847252b759888e785b4
+  h: 62bb3d2477f85555b5de52d268df076433b87050c62b46a8cd6f49a61dd322fe
+  r: Checked `README.md` for the exact headings, execution command, and required phrases,
+    and verified that `tests/unit/test_readme_strict.py` would pass with the provided
+    content.
+  sig: ed91025d84f5f6e18e2bd0d4387dc7da419657aa64da6717c581a3a7e9ae2876
