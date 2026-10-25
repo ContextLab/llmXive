@@ -15,18 +15,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/data/download.py -> rc=1
-
+12:23:29,314 INFO __main__: Starting download from https://huggingface.co/datasets/vaers/vaers2020_2023/resolve/main/vaers_2020_2023.parquet
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 15, in <module>
-    from datasets import load_dataset, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/datasets/__init__.py", line 17, in <module>
-    from .arrow_dataset import Column, Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 59, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-305-statistical-analysis-of-publicly-availab/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 163, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 159, in main
+    fetch_vaers_data()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 129, in fetch_vaers_data
+    download_file(DATASET_URL, PARQUET_PATH)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/src/data/download.py", line 86, in download_file
+    r.raise_for_status()
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://huggingface.co/datasets/vaers/vaers2020_2023/resolve/main/vaers_2020_2023.parquet
 
 - python src/data/validate.py -> rc=2
 
@@ -35,13 +36,11 @@ validate.py: error: the following arguments are required: --input
 
 - python src/data/clean.py -> rc=1
 
-2026-10-25 12:09:45,694 - clean - INFO - Starting data cleaning process
-2026-10-25 12:09:45,695 - clean - ERROR - No VAERS data files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/data/raw
+2026-10-25 12:23:30,243 - clean - INFO - Starting data cleaning process
+2026-10-25 12:23:30,244 - clean - ERROR - No VAERS data files found in /home/runner/work/llmXive/llmXive/projects/PROJ-305-statistical-analysis-of-publicly-availab/data/raw
 
 - python src/main.py -> rc=1
-2026-10-25 12:09:46,737 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-25 12:09:46,938 - matplotlib.font_manager - INFO - generated new fontManager
-2026-10-25 12:09:47,213 - pipeline - INFO - No action specified. Use --full or --phase N
+2026-10-25 12:23:31,007 - pipeline - INFO - No action specified. Use --full or --phase N
 
 
 - python -m pytest -q tests/contract/ -> rc=4
