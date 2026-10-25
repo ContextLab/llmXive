@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-08T04:21:20.446269Z'
-- artifact_hash: c2128a57ae1162701de781286fe453322f35f42420004f573bd420f497c31a42
+- artifact_hash: 9975d2b0b7f68bdfc93f1d5af4130c96ee1c7c2354d0c8739d1654b0d45980dc
   artifact_path: projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/specs/001-predicting-the-elastic-moduli-of-2d-mate/spec.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: '2505.05891'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-10-16T22:46:18.352012Z'
+  verified_at: '2026-10-25T13:21:38.310176Z'
