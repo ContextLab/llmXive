@@ -1,1 +1,1 @@
-# Retrieval package initialization
+"""Retrieval package initialization."""

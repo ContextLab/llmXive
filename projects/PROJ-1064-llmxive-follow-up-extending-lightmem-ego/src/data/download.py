@@ -1,7 +1,7 @@
 """
 Download a sample dataset and write raw files with checksums.
 
-This implementation uses the public SQuAD dataset as a reliable, small,
+This implementation uses the public AG News dataset as a reliable, small,
 real data source that is always available on the Hugging Face Hub. The
 script writes the dataset to a JSONL file and records a SHA‑256 checksum
 for verification, satisfying the T001 verification criteria.
@@ -35,7 +35,7 @@ def _compute_sha256(file_path: Path) -> str:
 
 def download_dataset(output_dir: Path) -> None:
     """
-    Download the SQuAD training split, save as JSONL, and write SHA256 checksum.
+    Download the AG News training split, save as JSONL, and write SHA256 checksum.
 
     Parameters
     ----------
@@ -46,9 +46,9 @@ def download_dataset(output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load a small, public dataset that is guaranteed to exist.
-    ds = load_dataset("squad", split="train", streaming=False)
+    ds = load_dataset("ag_news", split="train", streaming=False)
 
-    jsonl_path = output_dir / "squad_train.jsonl"
+    jsonl_path = output_dir / "ag_news_train.jsonl"
     _write_jsonl(ds, jsonl_path)
 
     checksum = _compute_sha256(jsonl_path)

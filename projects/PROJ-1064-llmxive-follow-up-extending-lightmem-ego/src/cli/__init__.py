@@ -1,1 +1,1 @@
-# CLI package initialization
+"""CLI package initialization."""

@@ -1,1 +1,1 @@
-# Evaluation package initialization
+"""Evaluation package initialization."""

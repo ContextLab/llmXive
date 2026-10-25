@@ -16,7 +16,7 @@ Paths are relative to the project directory. All outputs go under `data/`, `src/
 
 **Goal**: Run an executable analysis on valid, small real inputs early. Establish the existing code layout, validate input provenance, implement the primary computation, and produce real result rows under `data/results/`.
 
-- [ ] T001 [US-1] **Establish project layout, document dependencies, and validate Ego4D data provenance.**   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [ ] T001 [US-1] **Establish project layout, document dependencies, and validate Ego4D data provenance.**   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   - Create the project directory structure under `src/` with sub‑directories: `src/data/`, `src/retrieval/`, `src/evaluation/`, `src/cli/`, `tests/contract/`, `tests/unit/`.  
   - Add a top‑level `requirements.txt` listing the exact versions needed (e.g., `faiss-cpu==1.7.4`, `datasets>=2.18`, `numpy>=1.26`, `pandas>=2.2`, `scipy>=1.13`, `scikit-learn>=1.5`, `tqdm>=4.66`, `psutil>=5.9`, `matplotlib>=3.8`).  
   - Create `specs/001-semantic-decay-retrieval/quickstart.md` documenting:  

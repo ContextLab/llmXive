@@ -18,7 +18,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.data.download -> rc=1
-75, in cached_path
+in cached_path
     ).resolve_path(url_or_filename)
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/lib/python3.11/site-packages/huggingface_hub/hf_file_system.py", line 549, in resolve_path
@@ -29,7 +29,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/lib/python3.11/site-packages/huggingface_hub/utils/_hf_uris.py", line 617, in _parse_repo_body
     raise HfUriError(uri=raw, msg=f"Repository id must be 'namespace/name', got '{repo_id}'.")
-huggingface_hub.errors.HfUriError: Invalid HF URI 'hf://datasets/squad@7b6d24c440a36b6815f21b70d25016731768db1f/.huggingface.yaml'. Repository id must be 'namespace/name', got 'squad'.
+huggingface_hub.errors.HfUriError: Invalid HF URI 'hf://datasets/ag_news@eb185aade064a813bc0b7f42de02595523103ca4/.huggingface.yaml'. Repository id must be 'namespace/name', got 'ag_news'.
 
 
 ## Declared deliverables still missing

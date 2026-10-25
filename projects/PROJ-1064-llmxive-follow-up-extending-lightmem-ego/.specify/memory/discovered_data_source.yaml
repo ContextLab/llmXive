@@ -1,14 +1,15 @@
 status: none
-intent: download Ego4D egocentric memory dataset with embeddings video MAE L features
-  python package dataset
+intent: Ego4D dataset download with retrieval annotations python package dataset
 required_fields:
+- video_id
 - timestamp
 - event_id
-- embedding_vector
+- embedding_vector_768d
+- query_id
+- query_text
+- ground_truth_event_id
 - modality
-- video_id
-- fps
-- embedding_dimension
-cache_key: e298f18d5a8de7a41bcdb0eb8ce3ade3312c3bbadba48915c01d1f263b697d27
-searched_at: '2026-10-25T00:13:20.952569+00:00'
+- duration_seconds
+cache_key: ccb9faffc439bf03a417154cc006adab207c044645bd644d6dc8e01f200fef07
+searched_at: '2026-10-25T03:09:07.246440+00:00'
 retry_count: 1
