@@ -1,20 +1,12 @@
 T001:
   c: true
-  h: 9516146cf9413452098006543838d006ae7acf98cdceb56533c2b81fd9953c67
-  r: "Checked `code/scripts/generate_base_template.py` (which deterministically writes\
-    \ 20 rows with the required columns) and the resulting `data/processed/base_template.csv`,\
-    \ confirming it exists, has exactly 20 rows, and the correct header `study_id,effect,se,n`.\
-    \ The CSV content matches the deterministic output the script would produce, indicating\
-    \ the script runs successfully with exit status\u202F0."
-  sig: 5765d344876dfba454aabe5060333849bd6f2801207c5c5fa92f4fc593b4939c
-T001a:
-  c: false
-  h: 8cc25b14faf79caef7a1800a432fe42739b5d7a632a11a01d24fbb4c318f8d12
-  r: The evidence provides no script or test showing that a downloaded Cochrane CSV
-    is checked for accessibility, nor any CI log demonstrating a `FileNotFoundError`
-    abort. Without a concrete artifact implementing the validation and proving it
-    fails cleanly when the URL is unreachable, the task requirement is not satisfied.
-  sig: d66855af049a504be1352e1f6fefa7be0dc1edde349aa51cf9f14eb70588e5b6
+  h: b596b476f5e8d67d1b46d9ab8c24be382268b464fef94093a864ffa5433584b1
+  r: "Checked `code/scripts/generate_base_template.py` (exists, deterministic logic\
+    \ for 20 rows) and `data/processed/base_template.csv` (exists, exactly 20 rows\
+    \ with columns `study_id,effect,se,n`). The CSV content matches the script\u2019\
+    s deterministic output, confirming the script runs successfully and produces the\
+    \ required file."
+  sig: 697957db13589fd30c9bab6b9f0ac90d1de4274ba210996d434f06c4099e4996
 T002:
   c: false
   h: 777c46bb21ed7d93faa8edbdc24be8d916e90229d45155cdc8b187f82e01efc5

@@ -10,7 +10,7 @@
   • The CSV contains exactly 20 rows with columns `study_id,effect,se,n`.  
   • The file exists under `data/processed/` and passes a simple header check (no schema validation required).  
 
-- [ ] T001a [P1] [FR-001] **(Optional) Validate that the downloaded Cochrane CSV is accessible**; if unavailable, the pipeline aborts with a clear error.  
+- [ ] T001a [P1] [FR-001] **(Optional) Validate that the downloaded Cochrane CSV is accessible**; if unavailable, the pipeline aborts with a clear error.   <!-- FAILED-IN-EXECUTION: code/scripts/validate_cochrane_download.py exit=1 -->
   *Verification*:  
   • The script raises a `FileNotFoundError` if the URL cannot be reached; CI step fails accordingly.  
 
