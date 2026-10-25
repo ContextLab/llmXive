@@ -8,7 +8,7 @@ and records a benchmark JSON for the whole run.
 
 The script can be executed as a module:
 
-    python -m code.run_analysis --N 200 --primes 3 5
+    python -m code.run_analysis --N 200 --primes 3,5,7,11
 
 All output files are written under the ``data/`` and ``results/``
 directories as specified in the project specification.
@@ -16,8 +16,8 @@ directories as specified in the project specification.
 
 import sys
 import argparse
-import logging
 import json
+from pathlib import Path
 from typing import Dict, Any, List
 
 from llmxive_toolkit import get_logger
@@ -71,7 +71,38 @@ def parse_args() -> argparse.Namespace:
     Parse command‑line arguments, apply defaults required by the test
     suite and return a populated ``argparse.Namespace``.
     """
-    parser = create_argument_parser()
+    # Build a lightweight parser that accepts comma‑separated primes.
+    parser = argparse.ArgumentParser(description="Euler Totient residue analysis")
+    parser.add_argument(
+        "--N",
+        type=int,
+        default=None,
+        help="Upper bound N for the sieve (inclusive)",
+    )
+    parser.add_argument(
+        "--primes",
+        type=str,
+        default=None,
+        help="Comma‑separated list of primes (e.g. 3,5,7,11)",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Random seed for Monte‑Carlo simulations",
+    )
+    parser.add_argument(
+        "--memory-limit-mb",
+        type=int,
+        default=None,
+        help="Memory limit in megabytes for the guard",
+    )
+    parser.add_argument(
+        "--memory-check-interval",
+        type=int,
+        default=None,
+        help="Iteration interval at which memory usage is polled",
+    )
     args = parser.parse_args()
 
     # Apply the defaults expected by the unit tests when arguments are omitted.
@@ -128,8 +159,10 @@ def run_sieve_stage(config: Dict[str, Any]) -> None:
     logger.info(f"Starting sieve stage for N={N}, primes={primes}")
 
     # Initialise the memory guard – it will be polled inside the sieve.
-    guard = MemoryGuard(limit_mb=memory_limit_mb,
-                        check_interval=config.get("memory_check_interval", 10_000))
+    guard = MemoryGuard(
+        limit_mb=memory_limit_mb,
+        check_interval=config.get("memory_check_interval", 10_000),
+    )
 
     # Compute φ once – the same list can be reused for all primes.
     phi_vals = compute_phi_linear_sieve(N, memory_guard=guard)
@@ -137,8 +170,12 @@ def run_sieve_stage(config: Dict[str, Any]) -> None:
     for prime in primes:
         logger.info(f"Processing prime {prime}")
         residues = compute_residues(phi_vals, prime)
-        out_path = f"data/raw/residues_{prime}_{N}.json"
-        save_residue_dataset(residues, prime, N, out_path)
+
+        # Ensure the output directory exists.
+        out_path = Path("data", "raw", f"residues_{prime}_{N}.json")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+
+        save_residue_dataset(residues, prime, N, str(out_path))
         logger.info(f"Residue dataset written to {out_path}")
 
 # ----------------------------------------------------------------------
@@ -161,11 +198,12 @@ def run_stats_stage(config: Dict[str, Any]) -> None:
     logger.info("Starting statistics stage")
 
     for prime in primes:
-        raw_path = f"data/raw/residues_{prime}_{N}.json"
-        result_path = f"data/processed/stats_{prime}_{N}.json"
+        raw_path = Path("data", "raw", f"residues_{prime}_{N}.json")
+        result_path = Path("data", "processed", f"stats_{prime}_{N}.json")
+        result_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Load the raw residue JSON – keys are strings, convert to int.
-        with open(raw_path, "r", encoding="utf-8") as f:
+        with raw_path.open("r", encoding="utf-8") as f:
             raw = json.load(f)
 
         freq_map_raw = raw.get("frequency_map", {})
@@ -178,11 +216,11 @@ def run_stats_stage(config: Dict[str, Any]) -> None:
             N,
             config={"seed": seed},
         )
-        save_statistical_result(result, result_path)
+        save_statistical_result(result, str(result_path))
         logger.info(f"Statistical result written to {result_path}")
 
         # Generate the pass/fail flag JSON.
-        generate_flag_from_result(result_path)
+        generate_flag_from_result(str(result_path))
 
 # ----------------------------------------------------------------------
 # Visualisation stage
@@ -202,11 +240,11 @@ def run_visualization_stage(config: Dict[str, Any]) -> None:
     logger.info("Starting visualisation stage")
 
     for prime in primes:
-        residue_path = f"data/raw/residues_{prime}_{N}.json"
-        stats_path = f"data/processed/stats_{prime}_{N}.json"
+        residue_path = Path("data", "raw", f"residues_{prime}_{N}.json")
+        stats_path = Path("data", "processed", f"stats_{prime}_{N}.json")
 
         # Load the residue dataset (handles string‑to‑int conversion).
-        data = load_residue_data(residue_path)
+        data = load_residue_data(str(residue_path))
 
         # Create the two required figures.
         plot_bar_frequencies(data, prime)
@@ -216,7 +254,7 @@ def run_visualization_stage(config: Dict[str, Any]) -> None:
         annotate_theoretical_bounds(prime, data)
 
         # Write a tiny markdown summary linking the artefacts.
-        generate_visualization_report(prime, N, stats_path)
+        generate_visualization_report(prime, N, str(stats_path))
 
 # ----------------------------------------------------------------------
 # Orchestration entry point

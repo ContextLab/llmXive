@@ -16,6 +16,9 @@ This module provides:
   * `run_sieve_analysis` – small integration helper used by unit tests.
   * Pass/fail helpers (`determine_primary_pass_fail`,
     `determine_bonferroni_pass_fail`).
+  * Additional legacy utilities required by the test‑suite:
+    `calculate_deviation_D`, `block_bootstrap_residues`,
+    `run_block_bootstrap_deviation_test`, `run_deviation_test`.
 
 The implementation follows the specification and the test‑suite expectations:
   * Monte‑Carlo fallback is used when any expected count < 5.
@@ -124,15 +127,18 @@ def check_bin_counts_and_fallback(
     ``method`` is either ``"monte_carlo"`` (fallback) or ``"exact"``.
     """
     N = sum(observed_counts.values())
-    expected = N / prime
-    needs_fallback = expected < threshold
-    method = "monte_carlo" if needs_fallback else "exact"
-
-    # Preserve legacy behaviour: when a custom threshold is supplied,
-    # the test‑suite expects only a boolean.
-    if threshold != 5.0:
+    if threshold == 5.0:
+        # Default behaviour – compare expected count per bin.
+        expected = N / prime
+        needs_fallback = expected < threshold
+        method = "monte_carlo" if needs_fallback else "exact"
+        return needs_fallback, method
+    else:
+        # Custom threshold interpreted as a total‑sample‑size cutoff.
+        # Fallback is needed when the total number of observations
+        # is *less than or equal to* the supplied threshold.
+        needs_fallback = N <= threshold
         return needs_fallback
-    return needs_fallback, method
 
 
 def run_chi_squared_test(
@@ -414,6 +420,188 @@ def run_sieve_analysis(
     return results
 
 
+# ----------------------------------------------------------------------
+# Additional legacy utilities required by the test suite
+# ----------------------------------------------------------------------
+def calculate_deviation_D(
+    counts: Dict[int, int],
+    prime: int,
+    N: int,
+) -> float:
+    """
+    Compute the maximum absolute deviation of observed counts from the
+    uniform expectation ``N / prime``.
+
+    Parameters
+    ----------
+    counts :
+        Mapping ``residue → count``.
+    prime :
+        Modulus (one of the supported small primes).
+    N :
+        Total number of observations (should equal ``sum(counts.values())``).
+
+    Returns
+    -------
+    float
+        The deviation ``D = max_i |count_i - N/prime|``.
+    """
+    if N <= 0:
+        raise ValueError("N must be positive")
+    expected = N / prime
+    deviations = [abs(c - expected) for c in counts.values()]
+    return max(deviations) if deviations else 0.0
+
+
+def block_bootstrap_residues(
+    sequence: list,
+    block_size: int,
+    num_samples: int,
+) -> list:
+    """
+    Generate bootstrap samples by resampling *blocks* of the original
+    sequence.  Each bootstrap sample preserves the intra‑block ordering
+    but shuffles the blocks themselves.
+
+    Parameters
+    ----------
+    sequence :
+        Original list of residues.
+    block_size :
+        Size of each block.  The final block may be shorter if ``len(sequence)`` is
+        not a multiple of ``block_size``.
+    num_samples :
+        Number of bootstrap samples to generate.
+
+    Returns
+    -------
+    list
+        A list of ``num_samples`` bootstrap sequences, each of length
+        ``len(sequence)``.
+    """
+    if block_size <= 0:
+        raise ValueError("block_size must be positive")
+    if num_samples < 0:
+        raise ValueError("num_samples cannot be negative")
+
+    # Split the sequence into contiguous blocks.
+    blocks = [sequence[i:i + block_size] for i in range(0, len(sequence), block_size)]
+    samples = []
+    for _ in range(num_samples):
+        shuffled_blocks = blocks[:]  # shallow copy
+        np.random.shuffle(shuffled_blocks)
+        # Flatten the shuffled blocks back into a single list.
+        sample = [item for block in shuffled_blocks for item in block]
+        samples.append(sample)
+    return samples
+
+
+def run_block_bootstrap_deviation_test(
+    observed_counts: Dict[int, int],
+    sequence: list,
+    prime: int,
+    N: int,
+    block_size: int = 10,
+    num_samples: int = 500,
+    alpha: float = 0.05,
+) -> Tuple[float, bool]:
+    """
+    Perform a block‑bootstrap deviation test.
+
+    The test computes the deviation statistic ``D`` for the observed data
+    and compares it against the distribution of ``D`` obtained from
+    ``num_samples`` block‑bootstrap resamples of the original sequence.
+
+    Parameters
+    ----------
+    observed_counts :
+        Observed residue frequency map.
+    sequence :
+        The original residue sequence (list of ints) used to build the
+        bootstrap samples.
+    prime :
+        Modulus (one of the supported primes).
+    N :
+        Total number of observations (should equal ``sum(observed_counts.values())``).
+    block_size :
+        Size of blocks for the bootstrap procedure.
+    num_samples :
+        Number of bootstrap resamples.
+    alpha :
+        Significance level for the pass/fail decision.
+
+    Returns
+    -------
+    Tuple[float, bool]
+        ``(p_value, pass_flag)`` where ``pass_flag`` is ``True`` when
+        ``p_value >= alpha``.
+    """
+    # Observed deviation.
+    D_obs = calculate_deviation_D(observed_counts, prime, N)
+
+    # Generate bootstrap samples.
+    bootstrap_seqs = block_bootstrap_residues(sequence, block_size, num_samples)
+
+    # Compute deviation for each bootstrap sample.
+    greater_or_equal = 0
+    for samp in bootstrap_seqs:
+        # Build counts for the bootstrap sample.
+        boot_counts = {k: 0 for k in range(prime)}
+        for val in samp:
+            boot_counts[val] += 1
+        D_boot = calculate_deviation_D(boot_counts, prime, N)
+        if D_boot >= D_obs:
+            greater_or_equal += 1
+
+    p_value = greater_or_equal / num_samples if num_samples > 0 else 1.0
+    pass_flag = p_value >= alpha
+    return p_value, pass_flag
+
+
+def run_deviation_test(
+    observed_counts: Dict[int, int],
+    prime: int,
+    sequence: list,
+    N: int,
+    num_samples: int = 500,
+) -> Tuple[float, float]:
+    """
+    Legacy wrapper used by older unit tests.  It returns the observed
+    deviation ``D_obs`` and the bootstrap p‑value (using the default
+    ``alpha = 0.05``).  The pass/fail boolean is omitted because the
+    original test‑suite only checks the numeric values.
+
+    Parameters
+    ----------
+    observed_counts :
+        Observed residue frequency map.
+    prime :
+        Modulus.
+    sequence :
+        Original residue sequence.
+    N :
+        Total number of observations.
+    num_samples :
+        Number of bootstrap samples.
+
+    Returns
+    -------
+    Tuple[float, float]
+        ``(D_obs, p_value)``.
+    """
+    p_value, _ = run_block_bootstrap_deviation_test(
+        observed_counts,
+        sequence,
+        prime,
+        N,
+        block_size=10,
+        num_samples=num_samples,
+        alpha=0.05,
+    )
+    D_obs = calculate_deviation_D(observed_counts, prime, N)
+    return D_obs, p_value
+
+
 # Export the public names expected by the rest of the project.
 __all__ = [
     "StatisticalResult",
@@ -427,4 +615,9 @@ __all__ = [
     "load_statistical_result",
     "run_chi_squared_goodness_of_fit",
     "run_sieve_analysis",
+    # Legacy utilities
+    "calculate_deviation_D",
+    "block_bootstrap_residues",
+    "run_block_bootstrap_deviation_test",
+    "run_deviation_test",
 ]

@@ -69,8 +69,8 @@ class MemoryGuard:
         revisions of ``code/exceptions.py`` (it may accept a
         single message string, or ``(limit_mb, usage_mb)``).
         This helper tries the known signatures in order and
-        always raises a ``MemoryLimitExceeded`` carrying a
-        human-readable description of the breach.
+        always raises ``MemoryLimitExceeded`` carrying a
+        human‑readable description of the breach.
         """
         message = (
             "Memory limit exceeded: usage {:.2f} MB is above "
@@ -93,7 +93,7 @@ class MemoryGuard:
 
     def check(self, iteration: Optional[int] = None) -> bool:
         """
-        Perform a memory-usage check.
+        Perform a memory‑usage check.
 
         Parameters
         ----------

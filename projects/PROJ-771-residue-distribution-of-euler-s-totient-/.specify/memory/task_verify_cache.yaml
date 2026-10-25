@@ -1,36 +1,65 @@
 T001:
-  c: true
-  h: c4d2a8c53a84d444ca71e2adca2340b522e42e1fda3e6cfd1c1f5ab5a6924232
-  r: Checked `code/config.py` (loads YAML, validates primes, returns required keys)
-    and `code/exceptions.py` (defines the three required exception classes with correct
-    messages). All unit tests pass and the loader raises `InvalidPrimeError` for unsupported
-    primes.
-  sig: 660eecf26dc048e1dbc30a0327ca7cb9d74f52f1036146b1914d709b6715811b
+  c: false
+  h: 8b755406486971c7ffb47f9622e8166ca03fe4f159d8d479313d59d5d503b9eb
+  r: "Checked `code/config.py`, `code/config.yaml`, and `tests/unit/test_config.py`.\
+    \ The configuration loader reads the YAML correctly, but the test expects the\
+    \ key `seed` to be `12345` while the provided `config.yaml` contains `seed: 999`\
+    \ (and the defaults use 42). This mismatch causes the unit test to fail, so the\
+    \ task\u2019s requirement is not fully satisfied. Fix the seed value in the YAML\
+    \ (or adjust defaults) to match the test\u2019s expected value."
+  sig: 178ff764d084ebd7a5a9d330bc8afbe3b4f0417c4fdfe1cb7a49d3595d036e12
+T002:
+  c: false
+  h: 46108e4687b9930ca6f61487f87e12e822543ae0100e3beb8eed4b108f3e5346
+  r: "The `code/seed.py` and `code/memory_guard.py` files exist and meet their specifications,\
+    \ and the memory\u2011guard unit tests would pass. However, `tests/unit/test_seed_consistency.py`\
+    \ imports and runs `run_analysis.run_orchestration`, which depends on several\
+    \ modules (`sieve`, `stats`, `flags`, `visualize`, `benchmark`) that are not present\
+    \ in the project tree, causing an import error and preventing the deterministic\u2011\
+    seeding test from executing. Adding the missing pipeline modules (or stubs that\
+    \ satisfy the imports) is required for the seed\u2011consistency verification\
+    \ to succeed."
+  sig: c54423cb974d3a4db9a7a722e77b7a2e78ec1010455061870636b2f36d5a8196
 T003:
   c: true
-  h: f5a1bc9fe46479d8b5f1af5027eb164291f066084de285f9a3942520ea005fc5
-  r: Checked `code/benchmark.py`, `scripts/run_dummy.py`, the generated `results/reports/benchmark_dummy.json`,
-    and the integration test `tests/integration/test_benchmark_dummy.py`, all of which
-    confirm the benchmark context manager records time and memory and writes the required
-    JSON file with numeric fields.
-  sig: 90a007b2a4e4fe8fd2990003f8aacef5b95e74de75c6106d4dbf1469c804246f
+  h: ece5a0651730728a7c1fe021e0bf4e6393edb7d3d91bf5ef1cfc7582a0d06ff2
+  r: Checked `code/benchmark.py` (provides the required `benchmark` context manager
+    using `MemoryGuard` and writes JSON), `scripts/run_dummy.py` (executes the benchmark
+    around a trivial loop), the generated `results/reports/benchmark_dummy.json` (contains
+    numeric `wall_time_sec` and `peak_memory_mb`), and the passing `tests/integration/test_benchmark_dummy.py`
+    which validates the file and schema.
+  sig: af54f759398568d4bee77120130e4aaade33fdd8f6c6ff8e0e1fcfb8b66b0796
 T004:
   c: true
-  h: 154a4c8931b8c400d51a973a26e73103b3207dfe9eb4ed12c36312f0d5f73ad0
-  r: "Checked `code/sieve.py` for the two required functions, proper MemoryGuard usage,\
-    \ error logging, and verified that `tests/unit/test_sieve.py` exercises exact\
-    \ \u03C6 values, residue counts for primes 3,5,7,11, and memory\u2011limit exception\
-    \ handling\u2014all present and correctly implemented."
-  sig: 31aff10ec62ba2af7f793e750d4d5dcccdca7096701a3a9e408be24fcfcc1ac2
+  h: bb563941c68c51c23a770d00d68c83a1a3e7a2f4a9e88931083a1c6241706001
+  r: "The `code/sieve.py` file defines `compute_phi_linear_sieve` and `compute_residues`\
+    \ exactly as required, imports and uses `MemoryGuard`, and includes error logging\
+    \ and exception handling. The accompanying `tests/unit/test_sieve.py` validates\
+    \ correct \u03C6 values, residue counts for primes 3,\u202F5,\u202F7,\u202F11,\
+    \ and proper `MemoryLimitExceeded` behavior under a low memory guard. All referenced\
+    \ modules (`memory_guard.py`, `exceptions.py`) are present and correctly implemented."
+  sig: 076489cb5f822feb4c1cd67e47fd523839f6c74b9b555e01785d76c634393a1e
 T005:
   c: true
-  h: c33d8db7964f02dd7029e66dcaf1cb1d5907698a59b4d1b9ae5d40f1a670a9ab
-  r: "The `code/sieve.py` file provides docstrings and full type hints for every public\
-    \ function and class, and the `tests/unit/test_sieve_mypy.py` script checks that\
-    \ `mypy code` exits with code\u202F0. The `tests/unit/test_phi_correctness.py`\
-    \ test validates `compute_phi_linear_sieve` against the reference \u03C6\u2011\
-    values for\u202Fn\u202F\u2264\u202F100, matching the required correctness suite."
-  sig: 00cd6f9cdb35a203d9b303f7cd830a50fbe3f1bf402084e69a5d84368cd01c80
+  h: 5b11f04205cabbf00c484e50b20365af90e3a2d227d613f3f8aa5e2f940601d6
+  r: "Checked `code/sieve.py` \u2013 all public functions and classes have non\u2011\
+    empty docstrings and full type hints. Verified the presence of `tests/unit/test_phi_correctness.py`\
+    \ (exact \u03C6\u202F\u2264\u202F100 table) and `tests/unit/test_sieve_mypy.py`\
+    \ (runs `mypy code` and asserts zero exit code plus docstring presence). Both\
+    \ required artifacts exist and satisfy the task."
+  sig: 84de2f9bdd0549095fda6c21e15257496641b704592a3a52a4e38d7b55df9c58
+T006:
+  c: false
+  h: 96325b375ecb11a5b4e35690859ccb987264040e538e5e2e5e26722cd4c136b3
+  r: "The provided `code/stats.py` does not implement the required `calculate_chi_squared_statistic(dataset:\
+    \ ResidueDataset) -> float` nor a `run_chi_squared_test(dataset, M=\u2026) ->\
+    \ dict` that matches the `StatisticalResult` schema (fields `test_type`, `test_statistic`,\
+    \ `p_value`, `degrees_of_freedom`, `method`, `expected_counts`, `observed_counts`,\
+    \ `uniformity_hypothesis`, `metadata`). Instead it uses different signatures,\
+    \ returns tuples, and lacks an exact multinomial test or the exact JSON\u2011\
+    serialisable output. The unit tests present (`tests/unit/test_stats.py`) also\
+    \ do not cover the three sub\u2011tests"
+  sig: fbec0c92e08cdde99fa7323e7ae037d79d3a7be52794972755facc390cc85132
 T007:
   c: true
   h: 0ec96c30788904b25e805f4cb1847a3a865c30497c726d7601b684f93eaa4ab4

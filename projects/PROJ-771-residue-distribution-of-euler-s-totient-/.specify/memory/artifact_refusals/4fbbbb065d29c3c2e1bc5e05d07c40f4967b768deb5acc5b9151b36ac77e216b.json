@@ -1,6 +1,6 @@
 {
   "task_id": "T009",
-  "fingerprint": "f1c5a8db2e1fc1d0dd77214fe23a68f7c51d1a9c63c67ada550bb8e6ef16dd45",
+  "fingerprint": "c8188e055cd16e65c23ad0ef74b2b81eda1bfd95e978f8b6b945923c49f21412",
   "count": 1,
   "model": "openai.gpt-oss-120b",
   "reason": "[implementer] refused 'validate_contracts.py': `code/validate_contracts.py` already exists. Edit that file; do not add a second copy or a re-exporting wrapper at the project root."
