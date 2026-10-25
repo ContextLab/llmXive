@@ -343,129 +343,129 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive-crosslingual
   verified_at: '2026-08-05T18:08:38.905951Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/common_crawl/en
+  value: https://huggingface.co/datasets/allenai/redpajama-1b
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/common_crawl/en
-  verified_at: '2026-10-09T15:04:21.697784Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+  verified_against_url: https://huggingface.co/datasets/allenai/redpajama-1b
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/common_crawl/fr
+  value: https://huggingface.co/datasets/ccnet/fr
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/common_crawl/fr
-  verified_at: '2026-10-09T15:04:21.697784Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+  verified_against_url: https://huggingface.co/datasets/ccnet/fr
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/common_crawl/zh
+  value: https://huggingface.co/datasets/ccnet/zh
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/common_crawl/zh
-  verified_at: '2026-10-09T15:04:21.697784Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+  verified_against_url: https://huggingface.co/datasets/ccnet/zh
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/common_crawl/ar
+  value: https://huggingface.co/datasets/ccnet/ar
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/common_crawl/ar
-  verified_at: '2026-10-09T15:04:21.697784Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+  verified_against_url: https://huggingface.co/datasets/ccnet/ar
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/common_crawl/sw
+  value: https://huggingface.co/datasets/ccnet/sw
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/common_crawl/sw
-  verified_at: '2026-10-09T15:04:21.697784Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+  verified_against_url: https://huggingface.co/datasets/ccnet/sw
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-006
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/common_crawl/de
+  value: https://huggingface.co/datasets/ccnet/de
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/common_crawl/de
-  verified_at: '2026-10-09T15:04:21.697784Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+  verified_against_url: https://huggingface.co/datasets/ccnet/de
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-007
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/common_crawl/es
+  value: https://huggingface.co/datasets/ccnet/es
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/common_crawl/es
-  verified_at: '2026-10-09T15:04:21.697784Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+  verified_against_url: https://huggingface.co/datasets/ccnet/es
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-008
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/common_crawl/hi
+  value: https://huggingface.co/datasets/ccnet/hi
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/common_crawl/hi
-  verified_at: '2026-10-09T15:04:21.697784Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+  verified_against_url: https://huggingface.co/datasets/ccnet/hi
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-009
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/common_crawl/ja
+  value: https://huggingface.co/datasets/ccnet/ja
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/common_crawl/ja
-  verified_at: '2026-10-09T15:04:21.697784Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+  verified_against_url: https://huggingface.co/datasets/ccnet/ja
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-010
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/common_crawl/pt
+  value: https://huggingface.co/datasets/ccnet/pt
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/common_crawl/pt
-  verified_at: '2026-10-09T15:04:21.697784Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+  verified_against_url: https://huggingface.co/datasets/ccnet/pt
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-011
   cited_authors: []
   cited_title: null
-  fetched_title: "GitHub - facebookresearch/SentEval: A python tool for evaluating\
-    \ the quality of sentence embeddings. \xB7 GitHub"
+  fetched_title: "GitHub - cldf-datasets/wals: The World Atlas of Language Structures\
+    \ \xB7 GitHub"
   kind: url
-  value: https://github.com/facebookresearch/SentEval
+  value: https://github.com/cldf-datasets/wals
   verification_status: pending
-  verified_against_url: https://github.com/facebookresearch/SentEval
-  verified_at: '2026-10-09T15:04:21.697784Z'
-- artifact_hash: ba7b0ae67aeb0896f57807aedef1ef1be6a274ff9bff835db522ddc41c9e1a93
+  verified_against_url: https://github.com/cldf-datasets/wals
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
   artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
   cite_id: c-012
   cited_authors: []
@@ -476,4 +476,18 @@
   value: https://www.wikidata.org/wiki/Q136293754
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q136293754
-  verified_at: '2026-10-09T15:04:21.697784Z'
+  verified_at: '2026-10-25T21:33:15.184771Z'
+- artifact_hash: 90901d33d4e45db44aae935075d82e06d9bd6845d38eead4324f79f6584fce48
+  artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/spec.md
+  cite_id: c-013
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - google-research/xtreme: XTREME is a benchmark for the evaluation\
+    \ of the cross-lingual generalization ability of pre-trained multilingual models\
+    \ that covers 40 typologically diverse languages and includes nine tasks. \xB7\
+    \ GitHub"
+  kind: url
+  value: https://github.com/google-research/xtreme
+  verification_status: pending
+  verified_against_url: https://github.com/google-research/xtreme
+  verified_at: '2026-10-25T21:33:15.184771Z'
