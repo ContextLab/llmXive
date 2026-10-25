@@ -1,14 +1,20 @@
-"""Download the Pantheon+ “full” sample, verify its SHA‑256 checksum,
-and record provenance information.
+"""Download the Pantheon+ dataset (FITS format), verify its SHA‑256 checksum,
+record provenance, and update the project state file.
 
-This script fulfills task T004 by:
-  1. Downloading the official Pantheon+ SH0ES data file from the
-     canonical GitHub repository.
-  2. Computing its SHA‑256 hash.
-  3. Writing ``data/metadata.json`` with the fields
-     ``dataset_version``, ``source_url`` and ``sha256``.
-The script raises on any download or I/O error, ensuring that failures
-are loud and not silently ignored.
+This script fulfills task **T002**:
+  1. Downloads the official Pantheon+ FITS file from Zenodo.
+  2. Computes its SHA‑256 checksum.
+  3. Writes a provenance JSON file (metadata.json) containing:
+     - dataset_version
+     - source_url
+     - sha256
+     - citation_verified (initially false)
+  4. Verifies that the FITS header contains the required columns:
+     ID, RA, DEC, ZHD, MU, MUERR.
+  5. Updates the project‑specific state YAML with the checksum.
+
+The script exits with a non‑zero status on any failure, ensuring that the
+pipeline aborts loudly if the real data cannot be obtained or validated.
 """
 import argparse
 import hashlib
@@ -17,42 +23,42 @@ import sys
 from pathlib import Path
 
 import requests
+import yaml
+from astropy.io import fits
+
 from llmxive_toolkit import paths, get_logger
 
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Correct canonical URL for the Pantheon+ SH0ES data file. 
-# The file is located at the root of the DataRelease repository.
+# Zenodo DOI resolves to a tarball containing Pantheon+_Data.fits.
+# Direct download link (as of the current release):
 DEFAULT_URL = (
-    "https://raw.githubusercontent.com/PantheonPlusSH0ES/"
-    "DataRelease/main/Pantheon%2B_SH0ES.dat"
+    "https://zenodo.org/record/7968445/files/Pantheon%2B_Data.fits?download=1"
 )
-# The version string is recorded as v1.0 based on the release.
 DEFAULT_DATASET_VERSION = "v1.0"
+REQUIRED_COLUMNS = {"ID", "RA", "DEC", "ZHD", "MU", "MUERR"}
+STATE_FILE = (
+    Path(__file__).parents[2]
+    / "state"
+    / "projects"
+    / "PROJ-753-testing-the-isotropy-of-cosmic-expansion.yaml"
+)
 
+logger = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def download_file(url: str, destination: Path) -> None:
-    """Download ``url`` to ``destination`` using a streaming request.
-
-    Raises
-    ------
-    requests.HTTPError
-        If the HTTP request returns an error status.
-    OSError
-        If writing to ``destination`` fails.
-    """
-    logger = get_logger(__name__)
+    """Download ``url`` to ``destination`` using a streaming request."""
     logger.info("Downloading Pantheon+ dataset from %s", url)
-
-    # Stream the response to avoid loading the whole file into memory.
-    with requests.get(url, stream=True, timeout=60) as response:
-        response.raise_for_status()
-        with open(destination, "wb") as out_file:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:  # filter out keep‑alive chunks
-                    out_file.write(chunk)
-
+    with requests.get(url, stream=True, timeout=60) as resp:
+        resp.raise_for_status()
+        with open(destination, "wb") as out_f:
+            for chunk in resp.iter_content(chunk_size=8192):
+                if chunk:
+                    out_f.write(chunk)
     logger.info("Saved dataset to %s", destination)
 
 
@@ -66,76 +72,113 @@ def compute_sha256(file_path: Path) -> str:
 
 
 def write_metadata(
-    metadata_path: Path, *, dataset_version: str, source_url: str, sha256: str
+    metadata_path: Path,
+    *,
+    dataset_version: str,
+    source_url: str,
+    sha256: str,
+    citation_verified: bool = False,
 ) -> None:
     """Write the provenance JSON file required by the spec."""
-    logger = get_logger(__name__)
-    metadata = {
+    data = {
         "dataset_version": dataset_version,
         "source_url": source_url,
         "sha256": sha256,
+        "citation_verified": citation_verified,
     }
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
     with open(metadata_path, "w", encoding="utf-8") as f:
-        json.dump(metadata, f, indent=2)
+        json.dump(data, f, indent=2)
     logger.info("Wrote metadata to %s", metadata_path)
 
 
+def verify_fits_columns(fits_path: Path) -> None:
+    """Raise an error if required columns are missing from the FITS table."""
+    logger.info("Verifying FITS columns in %s", fits_path)
+    with fits.open(fits_path) as hdul:
+        # The Pantheon+ data is stored in the first extension (binary table)
+        if len(hdul) < 2:
+            raise ValueError("FITS file does not contain a binary table extension.")
+        table = hdul[1].data
+        present = set(table.columns.names)
+        missing = REQUIRED_COLUMNS - present
+        if missing:
+            raise ValueError(
+                f"Missing required columns in FITS file {fits_path.name}: {missing}"
+            )
+    logger.info("All required FITS columns are present.")
+
+
+def update_state_yaml(state_path: Path, checksum: str) -> None:
+    """Add or update the checksum entry for the Pantheon+ FITS file."""
+    logger.info("Updating state file %s", state_path)
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if state_path.is_file():
+        with open(state_path, "r", encoding="utf-8") as f:
+            state = yaml.safe_load(f) or {}
+    else:
+        state = {}
+
+    artifact_hashes = state.get("artifact_hashes", {})
+    artifact_hashes["pantheon_plus.fits"] = checksum
+    state["artifact_hashes"] = artifact_hashes
+
+    with open(state_path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(state, f)
+    logger.info("State file updated with checksum.")
+
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download Pantheon+ SH0ES data and record provenance."
+        description="Download Pantheon+ FITS dataset, verify it, and record provenance."
     )
     parser.add_argument(
         "--url",
         default=DEFAULT_URL,
-        help="URL of the Pantheon+ dataset (default: official GitHub raw URL).",
+        help="URL of the Pantheon+ FITS dataset (default: Zenodo archive).",
     )
     parser.add_argument(
         "--version",
         default=DEFAULT_DATASET_VERSION,
-        help="Dataset version identifier to store in the metadata file.",
+        help="Dataset version identifier to store in metadata.json.",
     )
     args = parser.parse_args()
 
-    logger = get_logger(__name__)
+    # Resolve target paths using llmxive_toolkit helpers.
+    raw_fits_path = paths.data("raw", "pantheon_plus.fits")
+    metadata_path = paths.data("raw", "metadata.json")
 
-    # Resolve the target paths using the llmxive_toolkit helpers.
-    # Per tasks.md, the file should be saved as pantheon_plus_SH0ES.dat.
-    raw_path = paths.data("raw", "pantheon_plus_SH0ES.dat")
-    metadata_path = paths.data("metadata.json")
+    # 1️⃣ Download the FITS file
+    download_file(args.url, raw_fits_path)
 
-    try:
-        download_file(args.url, raw_path)
-    except Exception as exc:
-        logger.error("Failed to download Pantheon+ dataset: %s", exc)
-        raise
+    # 2️⃣ Compute checksum
+    checksum = compute_sha256(raw_fits_path)
 
-    try:
-        checksum = compute_sha256(raw_path)
-    except Exception as exc:
-        logger.error("Failed to compute SHA‑256 checksum: %s", exc)
-        raise
+    # 3️⃣ Verify required columns
+    verify_fits_columns(raw_fits_path)
 
-    try:
-        write_metadata(
-            metadata_path,
-            dataset_version=args.version,
-            source_url=args.url,
-            sha256=checksum,
-        )
-    except Exception as exc:
-        logger.error("Failed to write metadata.json: %s", exc)
-        raise
+    # 4️⃣ Write provenance metadata (citation not yet verified)
+    write_metadata(
+        metadata_path,
+        dataset_version=args.version,
+        source_url=args.url,
+        sha256=checksum,
+        citation_verified=False,
+    )
 
-    logger.info("Successfully downloaded Pantheon+ dataset (SHA‑256=%s)", checksum)
+    # 5️⃣ Record checksum in project state YAML
+    update_state_yaml(STATE_FILE, checksum)
+
+    logger.info("Pantheon+ dataset download and verification completed successfully.")
 
 
 if __name__ == "__main__":
-    # Propagate any exception as a non‑zero exit status so the CI can
-    # detect a failure.
     try:
         main()
-    except Exception as e:
-        # Log the exception (the logger may not be initialised yet if the
-        # error occurred early).
-        sys.stderr.write(f"Error: {e}\n")
+    except Exception as exc:
+        logger.error("Pantheon+ download failed: %s", exc)
         sys.exit(1)

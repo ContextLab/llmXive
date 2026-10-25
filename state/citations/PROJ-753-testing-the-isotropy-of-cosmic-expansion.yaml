@@ -65,7 +65,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.xxxxx
   verified_at: '2026-10-22T00:31:01.173210Z'
-- artifact_hash: de23abf7a9afdb366cb66974336008a7a92f9980071caee2c4a8679ec36a1565
+- artifact_hash: c83a7014de7c1169f5468894c049ce7ec615b78bb73be75d4db45e62665154ca
   artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -75,8 +75,8 @@
   value: https://doi.org/10.5281/zenodo.7968445`
   verification_status: pending
   verified_against_url: https://zenodo.org/records/7968445
-  verified_at: '2026-10-25T15:21:43.104258Z'
-- artifact_hash: de23abf7a9afdb366cb66974336008a7a92f9980071caee2c4a8679ec36a1565
+  verified_at: '2026-10-25T15:22:38.470337Z'
+- artifact_hash: c83a7014de7c1169f5468894c049ce7ec615b78bb73be75d4db45e62665154ca
   artifact_path: projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -86,4 +86,4 @@
   value: 10.5281/zenodo.7968445
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.7968445
-  verified_at: '2026-10-25T15:21:43.104258Z'
+  verified_at: '2026-10-25T15:22:38.470337Z'
