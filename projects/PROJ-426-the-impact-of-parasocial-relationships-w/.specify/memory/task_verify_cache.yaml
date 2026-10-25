@@ -1,12 +1,10 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or file tree was provided showing the required folders\
-    \ (`src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`,\
-    \ `docs/`, `contracts/`, `config/`). Without concrete evidence that these directories\
-    \ exist in the project root, the task requirement is not satisfied. The implementer\
-    \ must supply a visible file\u2011system snapshot (e.g., `tree` output or a screenshot)\
-    \ confirming the presence of all specified directories."
+T001:
+  c: true
+  h: aa2da45f5cc7d6e12a44fab947208406b13b85a79fabe07d4337cfd780ba340e
+  r: Checked that all required directories exist in the project tree and that `docs/directory_structure.txt`
+    contains the expected `tree -L 2 .` listing of the nine specified paths, with
+    the verification test passing.
+  sig: a516ce9530b4de984ddae28ab23543f056bc299ee4e09544760062141faa309d
 T011:
   c: false
   h: 96296957c986942207ca42fece3101dbc6c07a5fb8bfb6ab4fee27a3faa9f70a

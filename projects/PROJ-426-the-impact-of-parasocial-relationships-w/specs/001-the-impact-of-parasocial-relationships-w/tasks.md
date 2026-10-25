@@ -9,11 +9,11 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
 
 ## Phase 0 – Project scaffolding  
 
-- [ ] T001 [P] Create the required project directory tree and verify its existence.  
+- [X] T001 [P] Create the required project directory tree and verify its existence.  
   - **Paths created**: `src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, `contracts/`, `config/`.  
   - **Verification**: Run `tree -L 2 .` (or equivalent) and store the output in `docs/directory_structure.txt`; the file must list all nine top‑level folders.
 
-- [ ] T002 Add the three contract schema files required by the specification and validate them.  
+- [ ] T002 Add the three contract schema files required by the specification and validate them.   <!-- FAILED-IN-EXECUTION: src/utils/validate_schema.py exit=1 -->
   - **Files**:  
     - `contracts/unified_dataset.schema.yaml` (matches *MatchedUsersDataset*).  
     - `contracts/model_output.schema.yaml` (matches *ModelResult*).  

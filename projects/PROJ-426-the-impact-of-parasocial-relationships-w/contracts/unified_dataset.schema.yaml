@@ -19,7 +19,7 @@ properties:
       Cryptographic hash of the original username (SHA-256, lowercase hex).
       Used to anonymize PII while maintaining deterministic linkage.
     pattern: "^[a-f0-9]{64}$"
-  
+
   loneliness_score:
     type: number
     description: >
@@ -27,14 +27,14 @@ properties:
       Typically ranges from 0 to 100 or standardized Z-scores.
     minimum: -100.0
     maximum: 200.0
-  
+
   usage_frequency:
     type: number
     description: >
       Count of AI interactions (posts/comments) by the user within the
       defined analysis window (e.g., per week or per survey period).
     minimum: 0
-  
+
   session_duration:
     type: number
     description: >
@@ -42,7 +42,7 @@ properties:
       within the analysis window. Calculated as time difference between
       first and last activity in a 7-day window.
     minimum: 0
-  
+
   attachment_anxiety_score:
     type: number
     description: >
@@ -50,7 +50,7 @@ properties:
       keyword analysis of baseline posts. Range typically [0.0, 1.0].
     minimum: 0.0
     maximum: 1.0
-  
+
   attachment_avoidance_score:
     type: number
     description: >
@@ -58,7 +58,7 @@ properties:
       keyword analysis of baseline posts. Range typically [0.0, 1.0].
     minimum: 0.0
     maximum: 1.0
-  
+
   age:
     type: integer
     description: >
@@ -66,20 +66,20 @@ properties:
       May be null if not provided in the source data.
     minimum: 0
     maximum: 120
-  
+
   timestamp:
     type: string
     format: date-time
     description: >
       ISO 8601 timestamp of the survey response or data aggregation point.
       Used for longitudinal ordering.
-  
+
   survey_period:
     type: string
     description: >
       Identifier for the specific longitudinal survey wave/period.
       Used to track changes over time.
-  
+
   missing_attachment_flag:
     type: boolean
     description: >

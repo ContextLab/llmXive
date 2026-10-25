@@ -1,0 +1,9 @@
+src/
+tests/
+data/
+data/raw/
+data/processed/
+data/results/
+docs/
+contracts/
+config/
