@@ -1,4 +1,4 @@
-# Data Model: llmXive follow-up: extending "Crafter: A Multi‑Agent Harness for Editable Scientific Figure Generation"
+# Data Model: llmXive follow‑up: extending "Crafter: A Multi‑Agent Harness for Editable Scientific Figure Generation"
 
 ## Core Entities
 
@@ -20,3 +20,5 @@
 - `contracts/interaction_log.schema.yaml` validates each line written by `interaction_logger.py`.  
 - `contracts/semantic_validation.schema.yaml` validates the dual‑check output (with `overall_success` defined as vector_match only).  
 - `contracts/analysis_result.schema.yaml` validates the final statistical objects.
+
+---

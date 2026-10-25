@@ -1,4 +1,15 @@
-- artifact_hash: f52a15ed317c1d200921bfb4dc7884ee5209c089bd760f968cf04dfd64b947db
+- artifact_hash: 0a6bc169c22ab18bc2bccca1f5231c61ab954309a66450c86c6c41b08712d4d9
+  artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/specs/001-llmxive-follow-up-extending-crafter-a-mu/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: http://127.0.0.1:8001/init_session
+  verification_status: unreachable
+  verified_against_url: http://127.0.0.1:8001/init_session
+  verified_at: '2026-10-25T15:41:23.101415Z'
+- artifact_hash: 5903f8ca57deefcb665c80a967b22f4d79b814bc84d7c4f333590d2ff6f4bf65
   artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/specs/001-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +19,4 @@
   value: http://127.0.0.1:8001/init_session
   verification_status: unreachable
   verified_against_url: http://127.0.0.1:8001/init_session
-  verified_at: '2026-10-25T03:37:51.790289Z'
+  verified_at: '2026-10-25T15:41:59.808172Z'

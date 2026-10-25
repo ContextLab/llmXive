@@ -32,7 +32,7 @@ properties:
   mode:
     type: string
     enum: ["structured", "chat"]
-    description: "Interface mode used for this edit."
+    description: "Interface mode used for this edit (typed‑edit harness or natural‑language chat)."
   payload:
     type: string
     description: "The edit command or natural‑language instruction submitted by the participant."
@@ -53,3 +53,4 @@ properties:
     minimum: 0
     maximum: 100
     description: "NASA‑TLX score (0–100) reported by the participant after the task."
+additionalProperties: false

@@ -66,7 +66,7 @@ The system must perform a robust paired statistical test on the collected metric
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and curate a static subset of exactly 50 failed figure generations from the CrafterBench dataset with known localized errors. (See US‑1)
+- **FR-001**: System MUST download and curate a static subset of failed figure generations from the CrafterBench dataset with known localized errors. (See US‑1)
 - **FR-002**: System MUST provide two distinct, functional interfaces for editing: a structured typed‑edit harness and a natural‑language chat interface, and MUST implement a within‑subjects design with randomized and counterbalanced interface order for each participant. (See US‑1)
 - **FR-003**: System MUST automatically log the start time, end time, and every intermediate edit attempt for each participant task with millisecond precision. (See US‑2)
 - **FR-004**: System MUST validate a “successful fix” by requiring an exact match between the user‑produced layout vector and the pre‑defined ground‑truth vector; this exact match defines primary success for statistical analysis. (See US‑2)
@@ -74,7 +74,7 @@ The system must perform a robust paired statistical test on the collected metric
 - **FR-006**: System MUST perform a Wilcoxon signed‑rank test on the collected metrics (time‑to‑success, iteration count) to determine statistical significance; if normality is confirmed (Shapiro‑Wilk p > 0.05), a paired t‑test may be used instead. (See US‑3)
 - **FR-007**: System MUST generate a final report containing the mean/median time‑to‑success and iteration counts for both interfaces, along with the calculated p‑value, confidence intervals, and a breakdown of success rates by vector match, semantic similarity, and NASA‑TLX scores. (See US‑3)
 - **FR-008**: System MUST collect a NASA‑TLX questionnaire rating (0–100) from each participant after each task; these scores serve as the primary subjective measure of cognitive load. (See US‑2)
-- **FR-009**: System MUST perform an a priori power analysis targeting α = 0.025 (Bonferroni‑adjusted) and a target power of 0.80 for a medium effect size (Cohen’s d ≈ 0.5), yielding a required sample size of at least 32 participants; the analysis result must be documented before data collection. (See US‑1)
+- **FR-009**: System MUST perform an a priori power analysis targeting α = 0.025 (Bonferroni‑adjusted) and a target power of a conventional high level (as typically employed in statistical planning) for a medium effect size (Cohen’s d ≈ moderate), yielding a required sample size of at least 32 participants; the analysis result must be documented before data collection. (See US‑1)
 - **FR-010**: System MUST enforce a minimum 5‑minute wash‑out interval between a participant’s tasks that use different interface modes to mitigate carry‑over learning effects. (See US‑1)
 - **FR-011**: System MUST exclude aborted tasks from both “time‑to‑success” and “iteration count” calculations to avoid asymmetric bias. (See US‑2)
 - **FR-012**: System MUST record each participant’s self‑reported prior experience level (novice, intermediate, expert) and include it as a covariate in the final statistical analysis. (See US‑3)

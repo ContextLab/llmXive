@@ -1,7 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: SemanticValidation
+title: "SemanticValidation"
 type: object
-additionalProperties: false
 required:
   - validation_id
   - task_id
@@ -13,21 +12,22 @@ properties:
   validation_id:
     type: string
     format: uuid
-    description: Unique identifier for the validation record.
+    description: "Unique identifier for the validation record."
   task_id:
     type: string
-    description: Identifier of the figure/task being validated.
+    description: "Identifier of the figure/task being validated."
   vector_match:
     type: boolean
-    description: Primary success flag – true if predicted layout vector exactly matches ground truth.
+    description: "Primary success flag – true if predicted layout vector exactly matches ground truth."
   semantic_score:
     type: number
     minimum: 0.0
     maximum: 1.0
-    description: Cosine similarity score between ground‑truth and predicted images (range [0,1]).
+    description: "Cosine similarity score between ground‑truth and predicted images (range [0,1])."
   semantic_pass:
     type: boolean
-    description: Secondary success flag – true if semantic_score >= 0.95.
+    description: "Secondary success flag – true if semantic_score >= 0.95."
   overall_success:
     type: boolean
-    description: Overall primary success – identical to vector_match (semantic_pass does not affect inclusion).
+    description: "Overall primary success – identical to vector_match (semantic_pass does not affect inclusion)."
+additionalProperties: false
