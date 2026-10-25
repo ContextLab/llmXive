@@ -1,0 +1,49 @@
+T001:
+  task: a3e175e96b4aa10cf000bc71b709c4fb51a063bfd939d1cc386b81fb16d62e87
+T002:
+  reason: "The generated CSV uses the header `p_P(n)` instead of the required `p_P_n`,\
+    \ and the supplied pytest suite only validates file structure\u2014not that the\
+    \ first 20 rows match the reference table as the task specifies. A correct implementation\
+    \ must output the exact column name and include a test asserting equality of the\
+    \ first 20 rows to the SC\u2011003 reference values."
+  task: 4852e4f3786853c8e1eb5b05821808969902bc47bc685b2a9652936e22f2ecc4
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/generate_partitions.py
+    exit=1'
+  task: 1bee2b854cde3b60d85dbc4ccfcf649f3e31010f910192513d611706b9fd7ce7
+T004:
+  task: 1073f13b0a37cff48b8c91f12ed58ba91399de17c2db4151942caf506fdf3a97
+T005:
+  task: ba969ccd85bb709a91a9c5bfeaae5bcc5a3a26914312d4398a3524f56a6640d8
+T006:
+  task: 6f75371d467276b1840ae7b15383a48b7624d379bac9a520af7feea1a31407c3
+T007:
+  task: 2409d067e9c1d4232d26d088b47ef2ffb1bdea455c356f9caeae482fe902aaf9
+T008:
+  task: bf9f06de454390c66d79e171d9d72581d1f936b8a3078ae35ad9d0f098a768dd
+T009:
+  task: d4d46e9dedb7db93c245d2501bcb6ba3a933ae75694e750b243d012a5c59851b
+T010:
+  task: d81f885a6bccd54c59347d56d519766e8775d5cd11ddf3b7263edc08f8a0671d
+T011:
+  task: 987691f3846c43d99528e40b1888671de32ae1360f7ea80eb2d10ca334fcb9ee
+T012:
+  task: 4bfcb1253c14c397f3664cb84bf47ee7f8ca54e2a2dd4042994f0b0a1b80ed01
+T013:
+  task: d2e0a972958dd6ceeb1898d6395145d79c117f3efcf5f51fc0d2e75391a102bb
+T014:
+  task: 62af9bfa9ec6b7ed5a295784570a7ad40d0147391cc3f19e1b47ae062ef14dd5
+T015:
+  task: 6102fe0bd52f1716bda48d7c38a07eca9f5f616c5720ae06319d87893733674e
+T016:
+  task: 4477f07a9653640d86c27c303080a01e13cb5251e7096c060f55373bc9471c61
+T016b:
+  task: d2817da10f3b83d8530a7fe470027357e3051a0582fd1d5aad219c3c36409bf7
+T017:
+  task: f1b9bc6860f459b3023512d33abc3cec024de42fed72ca2350545f8debd76862
+T018:
+  task: 8fc77ad4c01ceb1859c6c887d8f4a096ad9b77e7c3472ea0eb0c0e1947438043
+T019:
+  task: 0de690c58f0c5fde6298a3e2e50a4f2aab4b90135d47315bb391dd7cf5a5e1cf
+T031:
+  task: 71a12961c3a21d34a38fb49086203f7ef0dcaec57a98d3785f3e4bd5c59a0a2e

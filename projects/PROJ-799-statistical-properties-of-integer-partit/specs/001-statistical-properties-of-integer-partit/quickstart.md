@@ -42,7 +42,7 @@ All intermediate artifacts are written under `data/processed/`.
 | Step | Command | Output |
 |------|---------|--------|
 | Prime sieve | `python code/generate_primes.py` | `data/raw/primes_up_to_50000.csv` |
-| Partition counts | `python code/generate_partitions.py` | `data/processed/partition_counts.csv` |
+| Partition counts | `python code/generate_partitions.py --n-max 50000` | `data/raw/partition_counts.csv` |
 | Asymptotic baseline | `python code/compute_baseline.py` | `data/processed/baseline_values.csv` |
 | Feature engineering | `python code/feature_engineering.py` | `data/processed/features.csv` |
 | Model fitting | `python code/fit_model.py` | `data/processed/model_results.json` |
@@ -68,5 +68,3 @@ Key tests:
 - `data/processed/residuals_plot.png` – visual comparison of raw residuals and fitted correction term.  
 
 All files are checksum‑tracked for reproducibility.
-
----

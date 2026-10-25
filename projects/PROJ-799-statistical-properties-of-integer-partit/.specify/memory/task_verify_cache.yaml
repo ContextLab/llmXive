@@ -1,3 +1,21 @@
+T001:
+  c: true
+  h: aeb2bd2089dd4982cd1eedd6162c5ecd2f2c9b5870149aa5405b35a9dbc49700
+  r: "The `code/generate_primes.py` script implements a sieve via `utils.prime_sieve`,\
+    \ writes `data/raw/primes_up_to_50000.csv` with a single \u201Cprime\u201D header,\
+    \ and prints the SHA\u2011256 checksum. The CSV file exists, contains 5\u202F\
+    133 prime entries (matching \u03C0(50\u202F000)), and its checksum (`0ded44fa6a1ab6e4a3760b671b9459436e2f4bde2e895fc02225ca75766c31b6`)\
+    \ is output by the script, as confirmed by the execution logs and passing pytest."
+  sig: f5480d0ac116c7b87f42540b442e52bba3bcfb315b223c1843402fdd37071f8c
+T002:
+  c: false
+  h: d03d7532b475ad4fc75a164e49db0690c339f73e040f138807bba9bef0895089
+  r: "The generated CSV uses the header `p_P(n)` instead of the required `p_P_n`,\
+    \ and the supplied pytest suite only validates file structure\u2014not that the\
+    \ first 20 rows match the reference table as the task specifies. A correct implementation\
+    \ must output the exact column name and include a test asserting equality of the\
+    \ first 20 rows to the SC\u2011003 reference values."
+  sig: 102e3c7f8a498e0f5c2fc4dbfa356190a7394f5872fab9746079fa607534d3c1
 T004:
   c: false
   h: 771d9ccf7d3925d02ea276f1b84c5fe2ca789c1e325438c5068433deee364c00

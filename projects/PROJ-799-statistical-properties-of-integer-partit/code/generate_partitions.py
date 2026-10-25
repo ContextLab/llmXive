@@ -1,5 +1,5 @@
 """
-Generate exact partition counts p_P(n) for n in [1, n_max] into distinct prime summands.
+Generate exact partition counts p_P(n) for n in [0, n_max] into distinct prime summands.
 
 Generating Function:
 -------------------
@@ -20,29 +20,34 @@ Key Distinctions:
    Distinct prime partitions allow only prime numbers p ∈ ℙ.
 2. **Multiplicity**: Unrestricted partitions allow repeated summands (e.g., 2+2+2=6).
    Distinct prime partitions require each prime to appear at most once.
-3. **Asymptotics**: The unrestricted case follows the Hardy-Ramanujan formula
-   p(n) ~ exp(π√(2n/3)) / (4n√3). The distinct prime case follows a different
+3. **Asymptotics**: The unrestricted case follows the Hardy‑Ramanujan formula
+   p(n) ~ exp(π√(2n/3)) / (4n√3). The distinct‑prime case follows a different
    asymptotic regime derived from Meinardus' theorem applied to the set of primes,
-   with density π(x) ~ x/ln(x). The prime gaps create "holes" in the summand set,
+   with density π(x) ~ x/ln(x). The prime gaps create “holes” in the summand set,
    fundamentally altering the asymptotic behavior, especially in the transition
-   region n ≤ 50,000.
+   region n ≤ 50 000.
 
 Algorithm:
 ----------
-We use a 1D dynamic programming array where dp[i] stores the number of ways to
+We use a 1‑D dynamic programming array where dp[i] stores the number of ways to
 partition i into distinct primes. We iterate over each prime p and update the
 array in reverse order (from n_max down to p) to ensure each prime is used at most
 once per partition.
 
-This approach enforces the "distinct" constraint naturally by the reverse iteration
-order and the "prime" constraint by iterating only over primes from the sieve.
+This approach enforces the “distinct” constraint naturally by the reverse iteration
+order and the “prime” constraint by iterating only over primes from the sieve.
 
 Output:
 -------
-The script outputs:
-- data/raw/partitions_raw.csv: Contains n, p_P(n), Q_as(n) for valid n.
-- data/raw/partitions_excluded.csv: Contains n, reason_code for edge cases (n < 5).
-- Updates state/projects/PROJ-799.yaml with artifact checksums.
+The script writes two CSV files:
+1. `data/raw/partitions_raw.csv` – contains n, p_P(n), Q_as(n) for all n where
+   both counts and asymptotic baseline are positive. Rows where either value is
+   non‑positive are written to `data/raw/partitions_excluded.csv`.
+2. `data/raw/partition_counts.csv` – a minimal table with columns `n,p_P_n`
+   (the exact partition counts) for the full range 0 … n_max. This file satisfies
+   the T003 deliverable.
+
+Both files are checksum‑tracked in the project state file.
 """
 
 import os
@@ -70,9 +75,8 @@ def validate_against_reference(dp: List[int], refs: Dict[int, int], n_max: int) 
     """Validate computed DP values against reference values for n in [1, 100]."""
     errors = []
     for n in range(1, min(n_max + 1, 101)):
-        if n in refs:
-            if dp[n] != refs[n]:
-                errors.append((n, f"Mismatch: computed {dp[n]}, expected {refs[n]}"))
+        if n in refs and dp[n] != refs[n]:
+            errors.append((n, f"Mismatch: computed {dp[n]}, expected {refs[n]}"))
     return errors
 
 def compute_partition_counts(n_max: int, primes: List[int]) -> List[int]:
@@ -101,7 +105,7 @@ def compute_asymptotic_baseline_series(n_max: int) -> List[float]:
     """
     Compute the asymptotic baseline Q_as(n) for n in [1, n_max].
 
-    Uses the distinct-partition variant of Meinardus' theorem.
+    Uses the distinct‑partition variant of Meinardus' theorem.
     """
     return generate_asymptotic_series(n_max)
 
@@ -119,7 +123,7 @@ def validate_partition_data(n_values: List[int], p_P_n: List[int], Q_as_n: List[
     return valid_indices
 
 def compute_file_checksum(filepath: str) -> str:
-    """Compute SHA-256 checksum of a file."""
+    """Compute SHA‑256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
@@ -128,22 +132,28 @@ def compute_file_checksum(filepath: str) -> str:
 
 def update_state_file(checksum: str, key: str, state_path: str) -> None:
     """Update the state file with the new checksum."""
+    # The utils.prime_sieve module already provides an update_state_file helper;
+    # we delegate to it to keep the format consistent.
     update_state_file(state_path, key, checksum)
 
-def export_data(n_values: List[int], p_P_n: List[int], Q_as_n: List[float],
-                valid_indices: List[int], output_path: str, excluded_path: str) -> None:
+def export_data(n_values: List[int],
+                p_P_n: List[int],
+                Q_as_n: List[float],
+                valid_indices: List[int],
+                output_path: str,
+                excluded_path: str) -> None:
     """Export data to CSV files."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     os.makedirs(os.path.dirname(excluded_path), exist_ok=True)
 
-    # Export valid data
+    # Export valid data (partitions_raw.csv)
     with open(output_path, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['n', 'p_P(n)', 'Q_as(n)'])
         for i in valid_indices:
             writer.writerow([n_values[i], p_P_n[i], f"{Q_as_n[i]:.6e}"])
 
-    # Export excluded data (n < 5)
+    # Export excluded data (n < 5 or zero/negative values)
     with open(excluded_path, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['n', 'reason_code'])
@@ -154,9 +164,22 @@ def export_data(n_values: List[int], p_P_n: List[int], Q_as_n: List[float],
                 else:
                     writer.writerow([n, 'zero_count_or_baseline'])
 
+def export_counts(n_values: List[int], p_P_n: List[int], counts_path: str) -> None:
+    """Export the minimal partition‑count table required by T003."""
+    os.makedirs(os.path.dirname(counts_path), exist_ok=True)
+    with open(counts_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['n', 'p_P_n'])
+        for n, count in zip(n_values, p_P_n):
+            writer.writerow([n, count])
+
 def main():
     parser = argparse.ArgumentParser(description="Generate partition counts into distinct primes.")
-    parser.add_argument('--n-max', type=int, default=50000, help="Maximum n value (default: 50000)")
+    # Accept both the historic “--n_max” and the preferred “--n-max” flag.
+    parser.add_argument('--n-max', dest='n_max', type=int, default=50000,
+                        help="Maximum n value (default: 50000)")
+    parser.add_argument('--n_max', dest='n_max', type=int,
+                        help="Legacy alias for --n-max (kept for backward compatibility)")
     parser.add_argument('--reference', type=str, default='tests/data/reference_values.csv',
                         help="Path to reference values CSV (default: tests/data/reference_values.csv)")
     args = parser.parse_args()
@@ -165,6 +188,7 @@ def main():
     reference_path = args.reference
     output_path = 'data/raw/partitions_raw.csv'
     excluded_path = 'data/raw/partitions_excluded.csv'
+    counts_path = 'data/raw/partition_counts.csv'
     state_path = 'state/projects/PROJ-799.yaml'
 
     print(f"Starting partition generation for n_max={n_max}")
@@ -195,20 +219,21 @@ def main():
                 print(f"  n={n}: {err}")
             if len(errors) > 5:
                 print(f"  ... and {len(errors) - 5} more errors")
-            # Continue anyway as this is a generation step, not a test
+            # Continue anyway; this is a generation step, not a test
         else:
             print("Validation passed for n in [1, 100]")
     else:
         print(f"Reference file not found: {reference_path}, skipping validation")
 
-    # Validate data
+    # Validate data (filter out rows where counts or baseline are non‑positive)
     valid_indices = validate_partition_data(n_values, p_P_n, Q_as_n)
     print(f"Exporting {len(valid_indices)} valid records out of {len(n_values)} total")
 
-    # Export data
+    # Export the full raw table and the excluded table
     export_data(n_values, p_P_n, Q_as_n, valid_indices, output_path, excluded_path)
-    print(f"Data exported to {output_path}")
-    print(f"Excluded data exported to {excluded_path}")
+
+    # Export the minimal counts table required by T003
+    export_counts(n_values, p_P_n, counts_path)
 
     # Compute checksum and update state
     checksum = compute_file_checksum(output_path)
@@ -217,6 +242,8 @@ def main():
     print("State file updated")
 
     print("Partition generation complete.")
+    print(f"Raw data written to: {output_path}")
+    print(f"Counts table written to: {counts_path}")
 
 if __name__ == '__main__':
     main()

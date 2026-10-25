@@ -1,10 +1,10 @@
 status: none
-intent: OEIS distinct prime partitions dataset and SC-003 reference python package
-  dataset
+intent: download OEIS sequence distinct prime partitions p_P_n up to 50000 python
+  package dataset
 required_fields:
 - n
 - p_P_n
 - Q_as_n
-cache_key: 5a3564ebc87b4ee70624ff8e112825b8711209b2c9a710d58f06939a9622760b
-searched_at: '2026-10-23T04:41:48.269040+00:00'
+cache_key: 00c932ce404b565b547f0a1cfc12a3907b9625247f5a6bc5e1918e8a2a131742
+searched_at: '2026-10-25T02:27:18.910016+00:00'
 retry_count: 1
