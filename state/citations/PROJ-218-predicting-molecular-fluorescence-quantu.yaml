@@ -1,14 +1,3 @@
-- artifact_hash: 17d1c85786baf48bc43426360003c7cf660cc163d183447a945ed32021ee4613
-  artifact_path: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/fluordb/v1`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/fluordb/v1
-  verified_at: '2026-10-23T03:43:04.985940Z'
 - artifact_hash: b461e54de8f41d10ad1f0dc295db1562bface218dba95f3b98ae10ebf10d4211
   artifact_path: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu/research.md
   cite_id: c-001
@@ -53,3 +42,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/fluordb/v1/resolve/main/data/fluordb.parquet
   verified_at: '2026-10-23T04:03:18.381096Z'
+- artifact_hash: 0c2ede368d7a2b5178f8cb852fcc92630310987021c30c107bdc7cd01292c0eb
+  artifact_path: projects/PROJ-218-predicting-molecular-fluorescence-quantu/specs/001-predicting-molecular-fluorescence-quantu/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/fluordb/v1`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/fluordb/v1
+  verified_at: '2026-10-25T22:46:47.232024Z'
