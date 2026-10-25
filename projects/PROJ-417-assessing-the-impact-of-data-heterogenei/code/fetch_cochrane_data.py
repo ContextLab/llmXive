@@ -1,162 +1,110 @@
 """
 fetch_cochrane_data.py
 
-Utility for downloading the public Jackson et al. (2010) Cochrane meta‑analysis
-base dataset. The primary function ``load_jackson_2010_base_data`` fetches a
-CSV from a given URL, parses it into a list of dictionaries and raises a
-``FileNotFoundError`` when the URL cannot be reached or does not return a
-successful HTTP response. This behaviour satisfies task **T001a**, which
-requires the pipeline to abort with a clear error if the external CSV is
-inaccessible.
+Utility script to download a Cochrane meta‑analysis CSV dataset.
+It provides:
+  * ``load_jackson_2010_base_data`` – fetches the CSV from a URL and returns a list of dict rows.
+  * ``validate_data_structure`` – checks that the required columns are present.
+  * ``save_to_csv`` – writes a list‑of‑dicts to a CSV file.
+  * ``main`` – CLI entry point used by the test‑suite.
 
-The module also provides a simple schema validator and CSV writer used by
-the pipeline's higher‑level scripts.
+The script follows the contract required by task **T001a**:
+  * If the URL cannot be reached, ``load_jackson_2010_base_data`` raises
+    ``FileNotFoundError``.
+  * ``main`` returns exit code ``0`` on success and ``1`` on any failure,
+    ensuring that a CI step will fail when the CSV is inaccessible.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
-import io
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import List, Dict, Any
 
-import urllib.request
-import urllib.error
+REQUIRED_COLUMNS = {"study_id", "effect", "se", "n"}
 
-__all__ = [
-    "load_jackson_2010_base_data",
-    "validate_data_structure",
-    "save_to_csv",
-    "main",
-]
-
-# ----------------------------------------------------------------------
-# Core loader
-# ----------------------------------------------------------------------
 def load_jackson_2010_base_data(url: str) -> List[Dict[str, Any]]:
     """
-    Fetch the Jackson et al. (2010) base dataset CSV from ``url`` and return
-    it as a list of dictionaries (one per row).
-
-    The function uses ``urllib.request.urlopen`` as a context manager to
-    ensure the network connection is properly closed.  If the URL cannot be
-    opened (network error, DNS failure, HTTP error, etc.) a
-    ``FileNotFoundError`` is raised – this is the behaviour required by
-    task **T001a**.
-
-    Parameters
-    ----------
-    url: str
-        Direct URL to the CSV file.
-
-    Returns
-    -------
-    List[Dict[str, Any]]
-        Parsed CSV rows.
+    Fetch the Jackson et al. (2010) base dataset CSV from ``url`` and return it
+    as a list of dictionaries (one per row).
 
     Raises
     ------
     FileNotFoundError
-        If the URL cannot be accessed or the HTTP response code is not 200.
+        If the URL cannot be opened or the HTTP response code is not 200.
     RuntimeError
         If the response cannot be decoded as CSV.
     """
     try:
         with urllib.request.urlopen(url) as response:
-            # ``urlopen`` returns an HTTPResponse‑like object with a ``status`` attribute.
-            # Some older Python versions expose ``getcode()``; we handle both.
-            status = getattr(response, "status", None) or getattr(response, "getcode", lambda: None)()
-            if status is not None and status != 200:
-                raise FileNotFoundError(f"Unable to fetch CSV, HTTP status {status}")
-
-            # Read and decode the CSV content.
+            # ``urlopen`` will raise URLError (including HTTPError) for network
+            # problems or non‑200 status codes.
             raw_bytes = response.read()
-            try:
-                text = raw_bytes.decode("utf-8")
-            except Exception as exc:
-                raise RuntimeError(f"Failed to decode CSV content: {exc}") from exc
+    except urllib.error.URLError as exc:
+        # Convert any URL‑related error into the required FileNotFoundError.
+        raise FileNotFoundError(f"Unable to fetch CSV from {url}: {exc}") from exc
 
-            # Parse CSV using ``csv.DictReader``.
-            csv_file = io.StringIO(text)
-            reader = csv.DictReader(csv_file)
-            return list(reader)
-
-    except urllib.error.HTTPError as http_err:
-        # HTTPError is a subclass of URLError but carries an HTTP status code.
-        raise FileNotFoundError(f"HTTP error while fetching CSV: {http_err.code}") from http_err
-    except urllib.error.URLError as url_err:
-        # Network‑level errors (e.g., DNS failure, refused connection).
-        raise FileNotFoundError(f"URL could not be opened: {url_err.reason}") from url_err
+    try:
+        # Decode as UTF‑8; if this fails we treat it as a runtime error.
+        text = raw_bytes.decode("utf-8")
     except Exception as exc:
-        # Any other unexpected error should surface clearly.
-        raise RuntimeError(f"Unexpected error while loading CSV: {exc}") from exc
+        raise RuntimeError(f"Failed to decode CSV content from {url}") from exc
 
-# ----------------------------------------------------------------------
-# Simple schema validator
-# ----------------------------------------------------------------------
+    # Use csv.DictReader to parse the CSV text.
+    lines = text.splitlines()
+    reader = csv.DictReader(lines)
+    data = [dict(row) for row in reader]
+    return data
+
 def validate_data_structure(data: List[Dict[str, Any]]) -> bool:
     """
     Validate that each row in ``data`` contains the required columns for a
     Cochrane meta‑analysis base dataset.
 
-    Required columns (as used throughout the pipeline):
-        - ``study_id``
-        - ``effect``
-        - ``se``
-        - ``n``
-
-    Returns ``True`` if all rows contain these columns; otherwise ``False``.
+    Returns
+    -------
+    bool
+        ``True`` if all rows contain the required columns; ``False`` otherwise.
     """
-    required = {"study_id", "effect", "se", "n"}
     for row in data:
-        if not required.issubset(row.keys()):
+        if not REQUIRED_COLUMNS.issubset(row.keys()):
             return False
     return True
 
-# ----------------------------------------------------------------------
-# CSV writer helper
-# ----------------------------------------------------------------------
 def save_to_csv(data: List[Dict[str, Any]], output_path: str) -> None:
     """
-    Write ``data`` (a list of dictionaries) to ``output_path`` as a CSV
-    file.  The header order follows the keys of the first row; all rows
-    must contain the same columns.
+    Write ``data`` (a list of dictionaries) to ``output_path`` as a CSV file.
+    The header order follows the keys of the first row; all rows must contain
+    the same columns.
 
     Parameters
     ----------
-    data: List[Dict[str, Any]]
+    data : List[Dict[str, Any]]
         Rows to write.
-    output_path: str
+    output_path : str
         Destination file path.
     """
     if not data:
-        raise ValueError("No data provided to write_to_csv")
-
+        raise ValueError("No data provided to save_to_csv")
     # Ensure the parent directory exists.
     out_path = Path(output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Use the keys from the first row as the header order.
-    header = list(data[0].keys())
-    with out_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=header)
+    fieldnames = list(data[0].keys())
+    with out_path.open("w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(data)
+        for row in data:
+            writer.writerow(row)
 
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
 def main() -> int:
     """
     CLI wrapper that downloads the base CSV from a URL and saves it to a
     user‑specified location.
-
-    Usage example::
-        python fetch_cochrane_data.py \\
-            --url https://example.com/cochrane_base.csv \\
-            --out data/processed/base_template.csv
 
     Returns
     -------
@@ -164,40 +112,42 @@ def main() -> int:
         Exit code (0 on success, non‑zero on failure).
     """
     parser = argparse.ArgumentParser(
-        description="Download the public Jackson et al. (2010) Cochrane base dataset."
+        description="Download a Cochrane meta‑analysis CSV and save it locally."
     )
     parser.add_argument(
         "--url",
         required=True,
-        help="Direct URL to the CSV file containing the base dataset.",
+        help="Direct URL to the CSV file.",
     )
     parser.add_argument(
         "--out",
         required=True,
-        help="Path where the downloaded CSV should be saved.",
+        help="Path to write the downloaded CSV.",
     )
     args = parser.parse_args()
 
     try:
         data = load_jackson_2010_base_data(args.url)
-    except FileNotFoundError as fnf_err:
-        print(f"ERROR: {fnf_err}", file=sys.stderr)
+    except FileNotFoundError as exc:
+        # Propagate a non‑zero exit code for CI failure.
+        sys.stderr.write(f"ERROR: {exc}\n")
         return 1
-    except RuntimeError as run_err:
-        print(f"ERROR: {run_err}", file=sys.stderr)
+    except Exception as exc:  # Catch any unexpected errors.
+        sys.stderr.write(f"ERROR: Unexpected failure while fetching CSV: {exc}\n")
         return 1
 
     if not validate_data_structure(data):
-        print("ERROR: Downloaded data does not contain the required columns.", file=sys.stderr)
+        sys.stderr.write("ERROR: Downloaded CSV does not contain the required columns.\n")
         return 1
 
     try:
         save_to_csv(data, args.out)
     except Exception as exc:
-        print(f"ERROR while writing CSV: {exc}", file=sys.stderr)
+        sys.stderr.write(f"ERROR: Failed to write CSV to {args.out}: {exc}\n")
         return 1
 
-    print(f"Successfully downloaded and saved base dataset to {args.out}")
+    # Success
+    sys.stdout.write(f"CSV successfully downloaded and saved to {args.out}\n")
     return 0
 
 if __name__ == "__main__":

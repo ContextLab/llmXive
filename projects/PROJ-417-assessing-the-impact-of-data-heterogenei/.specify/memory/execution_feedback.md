@@ -8,7 +8,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py --mode full  --replicates 900  --batch-size 100  --seed 12345 -> rc=1
 
-2026-10-25 21:08:43,848 INFO __main__: Generating 900 replicates for τ²=0.0
+2026-10-25 23:08:17,952 INFO __main__: Generating 900 replicates for τ²=0.0
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 284, in <module>
     sys.exit(main())
@@ -17,14 +17,14 @@ Traceback (most recent call last):
     simulated_records, estimation_records = _run_simulation(
                                             ^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 73, in _run_simulation
-    validate_simulation_output(sim_namespace)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/simulation/generator.py", line 227, in validate_simulation_output
-    raise AssertionError("Expected a list of SimulationResult objects")
-AssertionError: Expected a list of SimulationResult objects
+    validate_simulation_output(sim_namespace.replicates)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/simulation/generator.py", line 230, in validate_simulation_output
+    raise AssertionError("List element is not a SimulationResult")
+AssertionError: List element is not a SimulationResult
 
 - python code/main.py --mode dry-run  --replicates 10  --tau-squared 0.5 1.0  --batch-size 5  --seed 42 -> rc=1
 
-2026-10-25 21:08:44,598 INFO __main__: Generating 10 replicates for τ²=0.5
+2026-10-25 23:08:18,728 INFO __main__: Generating 10 replicates for τ²=0.5
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 284, in <module>
     sys.exit(main())
@@ -33,16 +33,16 @@ Traceback (most recent call last):
     simulated_records, estimation_records = _run_simulation(
                                             ^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 73, in _run_simulation
-    validate_simulation_output(sim_namespace)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/simulation/generator.py", line 227, in validate_simulation_output
-    raise AssertionError("Expected a list of SimulationResult objects")
-AssertionError: Expected a list of SimulationResult objects
+    validate_simulation_output(sim_namespace.replicates)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/simulation/generator.py", line 230, in validate_simulation_output
+    raise AssertionError("List element is not a SimulationResult")
+AssertionError: List element is not a SimulationResult
 
 - python -m pytest tests/unit/ -> rc=1
 y
 FAILED tests/unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_default
-FAILED tests/unit/test_fetch_cochrane_data.py::test_load_success - RuntimeErr...
-FAILED tests/unit/test_fetch_cochrane_data.py::test_load_failure_raises - Run...
+FAILED tests/unit/test_fetch_cochrane_data.py::test_load_success - AttributeE...
+FAILED tests/unit/test_fetch_cochrane_data.py::test_load_failure_raises - Nam...
 FAILED tests/unit/test_fetch_cochrane_data.py::test_main_successful_run - ass...
 FAILED tests/unit/test_plots.py::test_plots_generate_files - AssertionError: ...
 FAILED tests/unit/test_stats.py::test_conditional_test_non_normal_data - Asse...
@@ -52,7 +52,7 @@ ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_sav
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-============ 13 failed, 70 passed, 203 warnings, 6 errors in 1.82s =============
+============ 13 failed, 70 passed, 203 warnings, 6 errors in 1.84s =============
 
 
 - python -m pytest tests/integration/ -> rc=1
@@ -75,7 +75,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 0.79s =========================
+========================= 1 failed, 1 warning in 0.81s =========================
 
 
 

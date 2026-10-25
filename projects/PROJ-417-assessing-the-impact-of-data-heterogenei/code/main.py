@@ -69,15 +69,15 @@ def _run_simulation(
         log.info(f"Generating {replicates} replicates for τ²={tau2}")
         sim_namespace = generate_synthetic_meta_analysis(cfg)
 
-        # Basic sanity‑check – raises AssertionError if something is wrong.
-        validate_simulation_output(sim_namespace)
+        # Basic sanity‑check – now correctly validates the list of replicates.
+        validate_simulation_output(sim_namespace.replicates)
 
         for rep_idx, rep in enumerate(sim_namespace.replicates):
             # Build the SimulatedDataset record.
             simulated_record: Dict[str, Any] = {
                 "replicate_id": rep_idx,
                 "tau_squared": tau2,
-                "injected_true_effect": 0.0,  # ground‑truth overall effect used in generator
+                "true_effect": 0.0,  # ground‑truth overall effect used in generator
                 "N_studies": len(rep.studies),
                 "studies": rep.studies,
             }

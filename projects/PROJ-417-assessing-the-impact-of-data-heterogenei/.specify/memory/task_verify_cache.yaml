@@ -9,27 +9,12 @@ T001:
   sig: 697957db13589fd30c9bab6b9f0ac90d1de4274ba210996d434f06c4099e4996
 T001a:
   c: false
-  h: 42bdec838b09de80777940f8c9decf89e64627d6f8ad3b35cd2fc5bec7c6964f
-  r: "The only artifact provided is a log of a successful run (`Cochrane CSV is accessible.`)\
-    \ and the script\u2019s existence, but there is no evidence that the script actually\
-    \ raises a `FileNotFoundError` when the CSV cannot be reached, nor any CI log\
-    \ showing a failed step in that scenario. To satisfy the task, the implementer\
-    \ must supply the script\u2019s source showing the error\u2011handling logic and\
-    \ a failing CI execution (non\u2011zero exit, error message) demonstrating the\
-    \ abort behavior."
-  sig: 76ceba5825e8ea1b02c7222aa018ef2493ea083cf48cf529e77b3267ee36afbb
-T002:
-  c: false
-  h: 777c46bb21ed7d93faa8edbdc24be8d916e90229d45155cdc8b187f82e01efc5
-  r: "The `code/simulation/generator.py` CLI accepts the required arguments and the\
-    \ unit tests pass, but the generated file `data/results/simulation_raw.jsonl`\
-    \ contains records with keys `injected_true_effect`, `N_studies`, and `studies`\
-    \ instead of the schema\u2011required fields (`true_effect`, `study_effects`,\
-    \ `study_se`, `study_sizes`, `k`, `sweep_type`). All lines have `\"tau_squared\"\
-    : 0.0` rather than the requested \u03C4\xB2 values, and the file does not contain\
-    \ the 900 replicates per \u03C4\xB2 level (or the total 4\u202F500 lines for the\
-    \ primary sweep). Consequently the output does not conform to `contracts/simulated_"
-  sig: cd4d93a988cd00d7c8a1e7ce5fbf2b44b926c35c0f64cb0dc55f4b796871db1d
+  h: 8cc25b14faf79caef7a1800a432fe42739b5d7a632a11a01d24fbb4c318f8d12
+  r: The evidence provides no script or test showing that the pipeline checks the
+    Cochrane CSV URL and raises a `FileNotFoundError` with a clear abort message;
+    no file path or execution log is present to confirm this behavior. The required
+    validation artifact is missing.
+  sig: 50da072a91de3a9653a0082543c2a7e7e4f55fb7c1d8fc779ac9be5596cb2daf
 T003:
   c: false
   h: 9248694a0fe3fe92a1b4ec961460d507d37f9431c06718e950909515ee8c1b6f
