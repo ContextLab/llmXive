@@ -1,11 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Training Dataset Row Schema"
-description: "One row of data/processed/training_set.csv linking clustering descriptors (computed on the GB interface region before impurity insertion), covariates, and EAM segregation energy."
+description: "One row of data/processed/training_set.csv linking clustering descriptors (computed on the bulk lattice only), covariates, and EAM segregation energy."
 type: object
 properties:
   sample_id:
     type: string
-    description: "Unique training-sample identifier."
+    description: "Unique training‑sample identifier."
   bulk_id:
     type: string
     description: "Originating BulkConfiguration identifier."
@@ -20,13 +20,13 @@ properties:
     description: "Element symbol of the impurity."
   rdf_peak_value:
     type: number
-    description: "RDF peak descriptor **computed on the GB interface region before impurity insertion**."
+    description: "RDF peak descriptor **computed on the bulk lattice only**."
   pair_corr_value:
     type: number
-    description: "Pair‑correlation statistic **computed on the GB interface region before impurity insertion**."
+    description: "Pair‑correlation statistic **computed on the bulk lattice only**."
   voronoi_count:
     type: integer
-    description: "Voronoi neighbor count for the impurity **computed on the GB interface region before impurity insertion**."
+    description: "Voronoi neighbor count **computed on the bulk lattice only**."
   misorientation_angle:
     type: number
     description: "Misorientation angle of the grain boundary (degrees)."
@@ -35,16 +35,16 @@ properties:
     description: "Boundary plane orientation (Miller indices)."
   local_lattice_strain:
     type: number
-    description: "Covariate: trace of the local strain tensor around the interface."
+    description: "Trace of the local strain tensor around the interface."
   atomic_radius:
     type: number
-    description: "Covariate: impurity atomic radius (from standard elemental property tables)."
+    description: "Impurity atomic radius (standard elemental property)."
   electronegativity:
     type: number
-    description: "Covariate: impurity electronegativity (from standard elemental property tables)."
+    description: "Impurity electronegativity (standard elemental property)."
   segregation_energy_eV:
     type: number
-    description: "Leave‑one‑out EAM segregation energy in eV."
+    description: "EAM segregation energy in eV."
   split:
     type: string
     enum: ["train", "test"]
@@ -66,4 +66,3 @@ required:
   - segregation_energy_eV
   - split
 additionalProperties: false
-

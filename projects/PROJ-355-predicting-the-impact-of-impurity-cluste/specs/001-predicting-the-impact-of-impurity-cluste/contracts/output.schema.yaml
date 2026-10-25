@@ -1,11 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Metrics Output Schema"
-description: "results/metrics.json: CV metrics, per-system results, collinearity, power analysis, linearity assessment, and EAM validation status."
+description: "results/metrics.json: CV metrics, per‑system results, collinearity, power analysis, linearity assessment, and preprocessing summary."
 type: object
 properties:
   model_type:
     type: string
-    description: "Primary model selected by the FR-010 linearity assessment, e.g. 'LinearRegression' or 'RandomForest'."
+    description: "Primary model selected by the linearity assessment, e.g. 'LinearRegression' or 'RandomForest'."
   cross_validation:
     type: object
     properties:
@@ -34,17 +34,17 @@ properties:
     properties:
       n_test:
         type: integer
-        description: "Number of held-out samples (at least 50)."
+        description: "Number of held‑out samples (at least 50)."
       r2:
         type: number
       rmse:
         type: number
       permutation_p_value:
         type: number
-        description: "SC-001 permutation-test p-value for R2."
+        description: "Permutation‑test p‑value for R² (SC‑001)."
       ci95_available:
         type: boolean
-        description: "Whether 95 percent prediction intervals were produced."
+        description: "Whether 95 % prediction intervals were produced."
     required:
       - n_test
       - r2
@@ -53,7 +53,7 @@ properties:
       - ci95_available
   per_system_r2:
     type: array
-    description: "SC-001: R2 per alloy system (at least 3 systems)."
+    description: "SC‑001: R² per alloy system (at least 3 systems)."
     items:
       type: object
       properties:
@@ -72,7 +72,7 @@ properties:
     properties:
       vif_threshold:
         type: number
-        description: "Threshold for flagging collinearity (based on a qualitative criterion)."
+        description: "Threshold for flagging collinearity (per 2005.02245)."
       vif_scores:
         type: object
         additionalProperties:
@@ -92,7 +92,7 @@ properties:
               type: number
             descriptive_summary:
               type: string
-              description: "One-sentence descriptive framing of the joint relationship."
+              description: "One‑sentence description of the joint relationship."
           required:
             - predictors
             - max_vif
@@ -107,10 +107,10 @@ properties:
     properties:
       appears_linear:
         type: boolean
-        description: "FR-010 verdict from Ramsey RESET test."
+        description: "Result of Ramsey RESET test (FR‑010)."
       evidence:
         type: string
-        description: "Description of RESET test result supporting the verdict."
+        description: "Brief description of the RESET test outcome."
     required:
       - appears_linear
       - evidence
@@ -119,13 +119,13 @@ properties:
     properties:
       effect_size_f2:
         type: number
-        description: "0.15 per FR-008."
+        description: "0.15 per FR‑008."
       alpha:
         type: number
-        description: "0.05 per FR-008."
+        description: "0.05 per FR‑008."
       target_power:
         type: number
-        description: "0.80 per FR-008."
+        description: "0.80 per FR‑008."
       required_n:
         type: integer
       achieved_n:
@@ -142,41 +142,18 @@ properties:
       - achieved_n
       - achieved_power
       - meets_requirement
-  eam_validation:
-    type: object
-    properties:
-      status:
-        type: string
-        enum: ["VALIDATED", "DATA_UNAVAILABLE"]
-        description: "FR-011 result; DATA_UNAVAILABLE records the missing verified DFT benchmark."
-      n_benchmark:
-        type: integer
-        description: "Number of DFT benchmark samples used (marked as unavailable when not provided)."
-      mae_eV:
-        type: number
-        description: "Mean absolute error vs DFT benchmark in eV."
-      threshold_eV:
-        type: number
-        description: "0.1 eV per FR-011."
-      note:
-        type: string
-        description: "Explanation when status is DATA_UNAVAILABLE."
-    required:
-      - status
-      - n_benchmark
-      - threshold_eV
   preprocessing:
     type: object
     properties:
       n_zero_impurity_excluded:
         type: integer
-        description: "Count of zero-impurity configurations filtered."
+        description: "Count of zero‑impurity configurations filtered (FR‑013)."
       n_missing_energy_excluded:
         type: integer
         description: "Count of entries excluded for missing segregation energy."
       missing_energy_rate:
         type: number
-        description: "Exclusion rate; warning issued if above 0.05."
+        description: "Exclusion rate; warning issued if > 0.05."
     required:
       - n_zero_impurity_excluded
       - n_missing_energy_excluded
@@ -206,8 +183,6 @@ required:
   - collinearity
   - linearity_assessment
   - power_analysis
-  - eam_validation
   - preprocessing
   - metadata
 additionalProperties: false
-

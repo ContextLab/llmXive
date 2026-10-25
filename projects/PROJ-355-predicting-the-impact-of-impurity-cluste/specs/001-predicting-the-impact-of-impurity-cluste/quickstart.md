@@ -20,19 +20,18 @@ python -m code.main --mode full
 ```
 The pipeline executes the steps described in `plan.md`:
 
-1. **Download OQMD** (verified loader, ≤3 retries). Materials Project data are omitted (waiver) due to lack of an unauthenticated open source.  
+1. **Download OQMD** (verified loader, ≤3 retries). Materials Project data are omitted (waiver).  
 2. **Reconstruct bulk structures** from formula + `volume_per_atom`.  
-3. **Compute bulk‑pre‑insertion clustering descriptors** (RDF peak, pair‑correlation, Voronoi count) **within the GB interface region *before* impurity insertion**.  
+3. **Compute bulk‑lattice clustering descriptors** (RDF peak, pair‑correlation, Voronoi count) **on the bulk lattice region only**.  
 4. **Build GB supercells** and insert impurities at the interface; filter zero‑impurity cases (edge‑case logging).  
 5. **Generate segregation energies** with validated EAM potentials for Fe‑Cr, Ni‑Al, Cu‑Zn (≥200 labeled configs).  
-6. **Run EAM‑vs‑DFT validation** – reports `[DATA_UNAVAILABLE]` if no DFT benchmark is found; this limitation is formally **waived** (see FR‑011).  
-7. **Assemble training set** (`data/processed/training_set.csv`).  
-8. **Linearity assessment** – Ramsey RESET test decides primary model.  
-9. **Train Linear Regression** (with robust SE p‑values) **and RandomForest** under 5‑fold CV (or LOOCV if N < 5).  
-10. **Power analysis** (f² = 0.15, α = 0.05, target ≥ 0.80; medium effect per Cohen, 1992).  
-11. **Apply Bonferroni correction** to all coefficient tests; hypothesis report written to `results/hypothesis_report.json`.  
-12. **Generate figure** `results/cluster_size_vs_segregation.png` (post‑insertion cluster‑size vs. segregation energy, for visualization only).  
-13. **Write metrics** to `results/metrics.json` (validated against `contracts/output.schema.yaml`) and `results/hypothesis_report.json`.  
+6. **Assemble training set** (`data/processed/training_set.csv`).  
+7. **Linearity assessment** – Ramsey RESET test decides primary model.  
+8. **Train Linear Regression** (with robust SE p‑values) **and RandomForest** under 5‑fold CV (or LOOCV if N < 5).  
+9. **Power analysis** (f² = 0.15, α = 0.05, target ≥ 0.80; medium effect per Cohen, 1992).  
+10. **Apply Bonferroni correction** to all coefficient tests; hypothesis report written to `results/hypothesis_report.json`.  
+11. **Generate figure** `results/cluster_size_vs_segregation.png` (post‑insertion cluster‑size vs. segregation energy, for visualization only).  
+12. **Write metrics** to `results/metrics.json` (validated against `contracts/output.schema.yaml`) and `results/hypothesis_report.json`.  
 
 ## Inspect Results
 ```bash
@@ -70,15 +69,13 @@ __pycache__/
 # Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
 
 ## Overview
-This repository implements a reproducible pipeline that links **pre‑insertion** impurity‑clustering descriptors
-computed **within the grain‑boundary interface region** to segregation‑energy labels generated with validated
-EAM potentials. The study uses **only open OQMD data** (Materials Project data are omitted
+This repository implements a reproducible pipeline that links **bulk‑lattice** impurity‑clustering descriptors to segregation‑energy labels generated with validated EAM potentials. The study uses **only open OQMD data** (Materials Project data are omitted
 due to lack of an unauthenticated public source).
 
 ## Quickstart
 ```bash
 git clone <repo-url>
-cd PROJ-355-predicting-the-impact-of-impurity-cluste
+cd PROJ-355-predicting-the-impact-of-impurity-clustering
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python -m code.main --mode full
@@ -87,8 +84,7 @@ python -m code.main --mode full
 ## Data Provenance
 - **Bulk alloy records**: OQMD, loaded via `datasets.load_dataset("jablonkagroup/oqmd", name="raw_data")`  
   (verified URLs listed in `research.md`).  
-- **Segregation energies**: generated in‑house with EAM potentials (cited in `code/simulate_energy.py`).  
-- **DFT benchmark**: not available from an open source; the validation harness records `[DATA_UNAVAILABLE]`.
+- **Segregation energies**: generated in‑house with EAM potentials (cited in `code/extract_energy.py`).  
 
 ## Reproducibility
 - All random seeds are fixed in `code/`.  
@@ -96,7 +92,7 @@ python -m code.main --mode full
 - SHA‑256 checksums for raw and derived files are stored in `data/metadata.yaml`.
 
 ## License
-[Specify appropriate open-source license]
+[Specify appropriate open‑source license]
 ```
 
 ## Troubleshooting
@@ -105,8 +101,7 @@ python -m code.main --mode full
 |---------|-----|
 | `[DATA_UNAVAILABLE]` after 3 retries | Verify internet connectivity; the verified loader URL is `datasets.load_dataset("jablonkagroup/oqmd", name="raw_data")`. |
 | VIF ≥ 10 warnings | Expected for definitionally related descriptors; consult the collinearity JSON report – relationships are described, not removed. |
-| Validation reports `DATA_UNAVAILABLE` | No open DFT benchmark is publicly accessible; this is a documented limitation, not an error. |
 | Power shortfall (achieved N < required N) | Logged in `metrics.json`; increase OQMD sample size if compute budget permits. |
-| Results appear overly optimistic | Remember that all relationships are **associational within the EAM model** (see Scope Limitation). |
+| Unexpectedly high R² | Remember that all relationships are **associational within the EAM model** (see Scope Limitation). |
 
 ---===
