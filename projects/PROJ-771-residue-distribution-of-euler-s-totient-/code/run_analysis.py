@@ -79,6 +79,14 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Upper bound N for the sieve (inclusive)",
     )
+    # Add alias --n for --N to support run-book commands
+    parser.add_argument(
+        "--n",
+        dest="N",
+        type=int,
+        default=None,
+        help="Upper bound N for the sieve (inclusive)",
+    )
     parser.add_argument(
         "--primes",
         type=str,
@@ -103,7 +111,10 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Iteration interval at which memory usage is polled",
     )
-    args = parser.parse_args()
+    
+    # Use parse_known_args to ignore unknown arguments (like pytest flags)
+    # which prevents SystemExit during unit tests.
+    args, _ = parser.parse_known_args()
 
     # Apply the defaults expected by the unit tests when arguments are omitted.
     if args.N is None:

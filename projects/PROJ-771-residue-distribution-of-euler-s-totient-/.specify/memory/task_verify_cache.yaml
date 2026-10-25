@@ -1,32 +1,33 @@
 T001:
-  c: true
-  h: 1a26f3b080a19e1bd6563d25a32bff8a7a465006a07e451e690c6e57b4814871
-  r: "Checked `code/config.py` and `code/exceptions.py` \u2013 they define the required\
-    \ loader (validating primes against {3,5,7,11}) and the three exception classes\
-    \ with correct messages. The unit test logs (`tests/unit/test_config.py` and `tests/unit/test_exceptions.py`)\
-    \ show all assertions passed, confirming the modules behave as specified."
-  sig: 3ab928180c916c08888753070e1248b72b1910d2d33e7f42254c23a9f8aad5f4
-T002:
   c: false
-  h: 930a81cb8017667ea42fc7a1767e9e3610e2428fc1544fcc9cd770d427648f09
-  r: "The `code/seed.py` and `code/memory_guard.py` files exist and meet their functional\
-    \ specs, and the memory\u2011guard tests all pass. However, `tests/unit/test_seed_consistency.py`\
-    \ fails because `run_analysis.parse_args()` calls `parser.parse_args()` which\
-    \ aborts on the pytest command\u2011line arguments, causing a `SystemExit`. The\
-    \ seed\u2011consistency verification therefore does not succeed. Fix `parse_args`\
-    \ to ignore unknown arguments (e.g., use `parse_known_args` or strip `sys.argv`)\
-    \ so the test can run and compare the generated residue files."
-  sig: 2d55f205d2ec7857522297adb529757050f3b0c862e54ae8829a38fee71ca0e2
-T003:
+  h: 58dba1408d6ce4880ebfdfca661e7492d98c8877fd2250e701cae7ca1483add4
+  r: 'Checked `code/config.py` and `code/config.yaml` against `tests/unit/test_config.py`.
+    The configuration loader correctly validates primes and loads the required keys,
+    but the YAML file defines `seed: 123` while the test expects `seed: 12345`; with
+    the provided artifacts the test would fail, so the required behavior is not fully
+    satisfied.'
+  sig: 083fc1eebe4e87e3d0f958d72916a8c671ff5412f170300453d41d009abf4ac1
+T002:
   c: true
-  h: 7ea59248f5f407290caeafa2771a8c0febdc791a5b662b11a55ffdb39a1d3978
-  r: "Checked `code/benchmark.py` (provides the required `benchmark` context manager\
-    \ using `MemoryGuard` and writes JSON), `scripts/run_dummy.py` (runs `benchmark(\"\
-    dummy\")` around a loop), and the generated `results/reports/benchmark_dummy.json`\
-    \ (contains numeric `wall_time_sec` and `peak_memory_mb`). The integration test\
-    \ `tests/integration/test_benchmark_dummy.py` validates the file\u2019s existence\
-    \ and schema."
-  sig: 6b0d8e7d92ecd9678f5d4238c811c9e28c0af08d8c2f5cbf8aa0c70e8b4f1bd8
+  h: 6173d4e1c7ba855eb3186c89f7a1437e6cea59f4502bd19052e57f454d77531f
+  r: "Checked `code/seed.py` and `code/memory_guard.py` for proper seed setting, `get_seed`,\
+    \ and memory\u2011limit checking logic, and verified that `tests/unit/test_seed_consistency.py`\
+    \ and `tests/unit/test_memory_guard.py` both run and pass. All required files\
+    \ exist, contain functional implementations, and the unit tests confirm deterministic\
+    \ seeding and correct memory\u2011guard behavior."
+  sig: 400288cf95c253c3c165dae63aa489d87ae5ccaf172a388a26bd44b98b4d738f
+T003:
+  c: false
+  h: bc0eef99ad7ec79933ed66a68eb7457e764dacc3d9288c80047476baf162795e
+  r: 'The `code/benchmark.py` implementation and the generated `benchmark_dummy.json`
+    file meet the content requirements, but `scripts/run_dummy.py` imports the benchmark
+    module with `from benchmark import benchmark` even though the module lives at
+    `code/benchmark.py`. Without a package or path adjustment this import fails, so
+    the script cannot be executed by the integration test (`subprocess.check_call([sys.executable,
+    "scripts/run_dummy.py"])`). Consequently the required dummy run is not reliably
+    reproducible, violating the task. Fix the import (e.g., `from code.benchmark import
+    benchmark` or add '
+  sig: b891fad8ccc5c5377bcc9b24db2ac3195e4d76df0da02cb4184777683254b8c3
 T004:
   c: true
   h: 6e772d70bc36d5af9153f24afabe99192bff7b1dc548674f145a834c28beb137
@@ -37,25 +38,16 @@ T004:
     \ enforcement. All required behavior is present and matches the tests."
   sig: 212c0053fd261b7350e75cd9ba0e4fa218744914bf9f68d89713b4b993bceb17
 T005:
-  c: true
-  h: 4133b1328e69126716197ea0fa1b6a92e852eb72565f8cc3c70811ccda8a77f1
-  r: "Checked `code/sieve.py` \u2013 all public functions and the `ResidueDataset`\
-    \ class have full docstrings and type hints. Verified the presence of `tests/unit/test_phi_correctness.py`\
-    \ (exact \u03C6\u2011value table up to\u202F100) and `tests/unit/test_sieve_mypy.py`\
-    \ (runs `mypy code` and asserts exit code\u202F0 and docstring presence)."
-  sig: 998db0eca3c01964618966a8596b91a62e68420c26bdd40cb8430af2f8789035
-T006:
   c: false
-  h: d0615426063b8cae791d9eb4e0722bed499db5e5bd9f77a80dd77799de9c95d5
-  r: "The `code/stats.py` does not correctly implement the new API: it expects a `ResidueDataset`\
-    \ to have fields `prime_modulus` and `total_count`, but the actual `ResidueDataset`\
-    \ defined in `code/sieve.py` provides `prime` and `N`, causing both `calculate_chi_squared_statistic`\
-    \ and `run_chi_squared_test` to raise errors for the required dataset input. Moreover,\
-    \ `run_chi_squared_test` never performs the Monte\u2011Carlo p\u2011value estimation\
-    \ described in the specification and the accompanying `tests/unit/test_stats.py`\
-    \ does not contain the three required sub\u2011tests for uniform, biased, and\
-    \ small\u2011N exact case"
-  sig: 61a23f9b57d2afcf5cbc25cddff4702c584cac36702ca2973554246aad897b91
+  h: adacfebcc567b4a269173bc2b4985823c02d034a98aacdfebc895f8d7b1475e3
+  r: "The repository contains `code/sieve.py` with docstrings and full type hints\
+    \ for all public callables, and the required test files `tests/unit/test_phi_correctness.py`\
+    \ and `tests/unit/test_sieve_mypy.py`. However, there is no evidence that the\
+    \ `test_sieve_mypy.py` test was actually executed and that `mypy` returned exit\
+    \ code\u202F0; without run logs or a passing test report, we cannot confirm the\
+    \ static\u2011typing check succeeded. Provide the mypy execution output (or a\
+    \ passing test run) to complete the task."
+  sig: 7777e55f9e1fe8c3d4b5f5b2d8e24335736cf81a2a57b41857333eeb7105d151
 T007:
   c: true
   h: 0ec96c30788904b25e805f4cb1847a3a865c30497c726d7601b684f93eaa4ab4
@@ -65,11 +57,12 @@ T007:
     \ the expected booleans. All required files exist and behave as specified."
   sig: a491c2e39fd93c9f47c31fed43cc4a7d6d14b24d1e7b919e779d0e5aae29badc
 T008:
-  c: false
-  h: cd44fa7966df89d7460c70de2ab3d423f459d4a07af71d29445859ddde080f2f
-  r: "The integration test file exists, but it writes flag JSONs to `results/reports/\u2026\
-    ` (via `flags.generate_flag_from_result`) while the test checks for them in `results/\u2026\
-    `. This path mismatch means the asserted flag files will not be found, so the\
-    \ test will not pass on CI. The flag\u2011file location needs to be aligned with\
-    \ the test\u2019s expectations."
-  sig: f05405487f99b09b5f0554adce9780e23682a7a8d40c833118e4b62a622c6acf
+  c: true
+  h: 4bbee024775106af617fa35181179a734ad0f45da05a4a2285d0e11b47e7ff0c
+  r: "Checked the integration test file `tests/integration/test_synthetic_stats.py`\
+    \ and its helper module `code/synthetic_validation.py`, which generate uniform/biased\
+    \ synthetic counts, run the full statistical pipeline (`run_full_statistical_analysis`\
+    \ \u2192 `generate_flag_from_result`), and assert `alpha_pass` is True for uniform\
+    \ data and False for biased data. The test writes and reads the flag JSON via\
+    \ the platform\u2019s `paths.results`, matching the task\u2019s requirements."
+  sig: a56b20196777616c399f9912f919bcf1f60ed029149589e04f777b334f83cf84

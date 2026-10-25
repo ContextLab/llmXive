@@ -28,7 +28,8 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import asdict, dataclass
-from typing import Any, Dict, Optional, Tuple, List
+from math import comb, factorial
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.stats import chi2
@@ -80,23 +81,20 @@ def calculate_chi_squared_statistic(
     # ------------------------------------------------------------------
     # New API – a ResidueDataset instance
     # ------------------------------------------------------------------
-    # A ResidueDataset is defined in ``code.sieve``; we import lazily to avoid
-    # circular imports.
     try:
         from sieve import ResidueDataset  # type: ignore
     except Exception:  # pragma: no cover
         ResidueDataset = None  # fallback for type checking only
 
     if ResidueDataset is not None and isinstance(observed_counts, ResidueDataset):
-        # Extract fields from the dataclass / dict‑like object.
-        # The expected schema is: ``frequency_map`` (dict of str→int),
-        # ``prime_modulus`` (int) and ``total_count`` (int).
+        # Extract fields – the dataclass defined in ``code.sieve`` uses
+        # ``prime`` and ``N`` as attribute names.
+        prime = getattr(observed_counts, "prime", None)
+        total = getattr(observed_counts, "N", None)
         freq_map = getattr(observed_counts, "frequency_map", {})
-        prime = getattr(observed_counts, "prime_modulus", None)
-        total = getattr(observed_counts, "total_count", None)
-        if freq_map is None or prime is None or total is None:
+        if prime is None or total is None:
             raise ValueError("ResidueDataset missing required fields")
-        # Convert keys that may be strings to ints.
+        # Convert possible string keys to ints.
         observed = {int(k): int(v) for k, v in freq_map.items()}
         expected = _expected_counts(total, prime)
         chi2_val = 0.0
@@ -160,8 +158,6 @@ def check_bin_counts_and_fallback(
         return needs_fallback, method
     else:
         # Custom threshold interpreted as a total‑sample‑size cutoff.
-        # Fallback is needed when the total number of observations
-        # is *less than or equal to* the supplied threshold.
         needs_fallback = N <= threshold
         return needs_fallback
 
@@ -204,14 +200,13 @@ def _exact_multinomial_p_value(
         Exact (or Monte‑Carlo approximated) p‑value.
     """
     # Compute the observed χ² statistic once.
-    observed_chi2 = calculate_chi_squared_statistic(observed_counts, _expected_counts(N, prime))
-
-    # Number of possible outcome vectors = (N+prime-1 choose prime-1)
-    from math import comb
+    observed_chi2 = calculate_chi_squared_statistic(
+        observed_counts, _expected_counts(N, prime)
+    )
 
     total_outcomes = comb(N + prime - 1, prime - 1)
     if total_outcomes > max_enumerate:
-        # Switch to Monte‑Carlo – this path is only taken for safety.
+        # Monte‑Carlo fallback for safety.
         if seed is not None:
             np.random.seed(seed)
         probs = np.full(prime, 1 / prime)
@@ -228,7 +223,6 @@ def _exact_multinomial_p_value(
         return greater / M if M > 0 else 1.0
 
     # Exact enumeration – generate all compositions of N into ``prime`` parts.
-    # We use a simple recursive generator.
     def compositions(remaining: int, k: int) -> List[Tuple[int, ...]]:
         if k == 1:
             return [(remaining,)]
@@ -240,19 +234,16 @@ def _exact_multinomial_p_value(
 
     all_outcomes = compositions(N, prime)
     p = 0.0
-    prob_factor = 1.0 / (prime ** N)  # each sequence equally likely under uniform multinomial
+    prob_factor = 1.0 / (prime ** N)  # uniform multinomial probability factor
     for outcome in all_outcomes:
-        # Multinomial probability = N! / (x1! … xk!) * (1/p)^N
-        # We can compute the factorial term directly.
-        from math import factorial
-
         multinom_coeff = factorial(N)
         for count in outcome:
             multinom_coeff //= factorial(count)
         prob = multinom_coeff * prob_factor
-        # Convert outcome to dict for χ² calculation.
         outcome_counts = {i: int(c) for i, c in enumerate(outcome)}
-        chi2_val = calculate_chi_squared_statistic(outcome_counts, _expected_counts(N, prime))
+        chi2_val = calculate_chi_squared_statistic(
+            outcome_counts, _expected_counts(N, prime)
+        )
         if chi2_val >= observed_chi2:
             p += prob
     return p
@@ -305,9 +296,11 @@ def run_chi_squared_test(
     if ResidueDataset is not None and isinstance(observed_counts, ResidueDataset):
         # New API – build the full result dict.
         dataset = observed_counts
-        prime_mod = getattr(dataset, "prime_modulus")
-        total = getattr(dataset, "total_count")
-        freq_map = getattr(dataset, "frequency_map")
+        prime_mod = getattr(dataset, "prime", None)
+        total = getattr(dataset, "N", None)
+        freq_map = getattr(dataset, "frequency_map", {})
+        if prime_mod is None or total is None:
+            raise ValueError("ResidueDataset missing required fields")
         observed = {int(k): int(v) for k, v in freq_map.items()}
 
         expected = _expected_counts(total, prime_mod)
@@ -373,13 +366,15 @@ def run_chi_squared_test(
                 greater += 1
         p_value = greater / M if M > 0 else 1.0
         method = "chi_squared_monte_carlo"
+        test_type = "chi_squared"
     else:
         # Asymptotic χ² p‑value
         p_value = 1.0 - chi2.cdf(chi2_stat, df)
         method = "chi_squared_exact"
+        test_type = "chi_squared"
 
+    # For the legacy API we return a tuple matching older expectations.
     return p_value, method
-
 
 # ----------------------------------------------------------------------
 # Pass/Fail flag helpers (used by ``code.flags``)
@@ -662,7 +657,7 @@ def block_bootstrap_residues(
     sequence :
         Original list of residues.
     block_size :
-        Size of each block.  The final block may be shorter if ``len(sequence)`` is
+        Size of each block. The final block may be shorter if ``len(sequence)`` is
         not a multiple of ``block_size``.
     num_samples :
         Number of bootstrap samples to generate.
@@ -720,7 +715,7 @@ def run_block_bootstrap_deviation_test(
     block_size :
         Size of blocks for the bootstrap procedure.
     num_samples :
-        Number of bootstrap resamples.
+        Number of bootstrap samples.
     alpha :
         Significance level for the pass/fail decision.
 
@@ -760,7 +755,7 @@ def run_deviation_test(
     num_samples: int = 500,
 ) -> Tuple[float, float]:
     """
-    Legacy wrapper used by older unit tests.  It returns the observed
+    Legacy wrapper used by older unit tests.  Returns the observed
     deviation ``D_obs`` and the bootstrap p‑value (using the default
     ``alpha = 0.05``).  The pass/fail boolean is omitted because the
     original test‑suite only checks the numeric values.
@@ -768,7 +763,7 @@ def run_deviation_test(
     Parameters
     ----------
     observed_counts :
-        Observed residue frequency map.
+        Frequency map.
     prime :
         Modulus.
     sequence :

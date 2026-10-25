@@ -1,39 +1,46 @@
 T001:
+  reason: 'Checked `code/config.py` and `code/config.yaml` against `tests/unit/test_config.py`.
+    The configuration loader correctly validates primes and loads the required keys,
+    but the YAML file defines `seed: 123` while the test expects `seed: 12345`; with
+    the provided artifacts the test would fail, so the required behavior is not fully
+    satisfied.'
   task: bae565be800ad3f3cfd022405598f00c6d6656decb6faf77cfd4e157f3d4c8e5
 T002:
-  reason: "The `code/seed.py` and `code/memory_guard.py` files exist and meet their\
-    \ functional specs, and the memory\u2011guard tests all pass. However, `tests/unit/test_seed_consistency.py`\
-    \ fails because `run_analysis.parse_args()` calls `parser.parse_args()` which\
-    \ aborts on the pytest command\u2011line arguments, causing a `SystemExit`. The\
-    \ seed\u2011consistency verification therefore does not succeed. Fix `parse_args`\
-    \ to ignore unknown arguments (e.g., use `parse_known_args` or strip `sys.argv`)\
-    \ so the test can run and compare the generated residue files."
   task: 6ee8c9cee32f6a0f23ff9ca74d3ef4de289619ae973997b084120e65a4852ef2
 T003:
+  reason: The `code/benchmark.py` implementation and the generated `benchmark_dummy.json`
+    file meet the content requirements, but `scripts/run_dummy.py` imports the benchmark
+    module with `from benchmark import benchmark` even though the module lives at
+    `code/benchmark.py`. Without a package or path adjustment this import fails, so
+    the script cannot be executed by the integration test (`subprocess.check_call([sys.executable,
+    "scripts/run_dummy.py"])`). Consequently the required dummy run is not reliably
+    reproducible, violating the task. Fix the import (e.g., `from code.benchmark import
+    benchmark` or add
   task: 4a89124ad7415f1773c49c355f03a2554e1e4d39da44fb7d3dc592a665aaa625
 T004:
   task: a6003aa77176355bb4577f89c8758a4e79e600bb9da41df3275e5eb430a4501d
 T005:
+  reason: "The repository contains `code/sieve.py` with docstrings and full type hints\
+    \ for all public callables, and the required test files `tests/unit/test_phi_correctness.py`\
+    \ and `tests/unit/test_sieve_mypy.py`. However, there is no evidence that the\
+    \ `test_sieve_mypy.py` test was actually executed and that `mypy` returned exit\
+    \ code\u202F0; without run logs or a passing test report, we cannot confirm the\
+    \ static\u2011typing check succeeded. Provide the mypy execution output (or a\
+    \ passing test run) to complete the task."
   task: 199498aef5e7dafb54914a3c56b86079d57ed45d844ff1063210b24e717de6e8
 T006:
-  reason: "The `code/stats.py` does not correctly implement the new API: it expects\
-    \ a `ResidueDataset` to have fields `prime_modulus` and `total_count`, but the\
-    \ actual `ResidueDataset` defined in `code/sieve.py` provides `prime` and `N`,\
-    \ causing both `calculate_chi_squared_statistic` and `run_chi_squared_test` to\
-    \ raise errors for the required dataset input. Moreover, `run_chi_squared_test`\
-    \ never performs the Monte\u2011Carlo p\u2011value estimation described in the\
-    \ specification and the accompanying `tests/unit/test_stats.py` does not contain\
-    \ the three required sub\u2011tests for uniform, biased, and small\u2011N exact\
-    \ case"
+  reason: "The provided `code/stats.py` defines `calculate_chi_squared_statistic`\
+    \ and a `run_chi_squared_test` that returns a dict matching the required schema,\
+    \ but it lacks a public `exact_multinomial_test` function and does not expose\
+    \ a `method=\"monte_carlo\"` option. Moreover, the repository\u2019s `tests/unit/test_stats.py`\
+    \ does not contain the three chi\u2011squared sub\u2011tests described in the\
+    \ task specification, so the required verification is missing. The next implementer\
+    \ must add the missing test cases (uniform, biased, and small\u2011N exact cases)\
+    \ and ensure the API supports the exact\u2011multinomial fallback and o"
   task: 4499cab26fa8ad876e631d8e222273ff416f14da002fc25f07d3c836a563487f
 T007:
   task: 999033d7396970010e41d40ea156f029907e1db3ca1bacb3806bc5ad8e205611
 T008:
-  reason: "The integration test file exists, but it writes flag JSONs to `results/reports/\u2026\
-    ` (via `flags.generate_flag_from_result`) while the test checks for them in `results/\u2026\
-    `. This path mismatch means the asserted flag files will not be found, so the\
-    \ test will not pass on CI. The flag\u2011file location needs to be aligned with\
-    \ the test\u2019s expectations."
   task: 14f5b436972880d2683c83140d3f4caf29857dd43da7bec939c98b1e357a05f9
 T009:
   task: b292e8fd0e37f3fb3f5f8c630e032c39ba357ac3fce4f7bc4a22d74577d35fa1

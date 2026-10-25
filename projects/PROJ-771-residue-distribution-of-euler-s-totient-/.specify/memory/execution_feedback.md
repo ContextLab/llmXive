@@ -13,26 +13,29 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *biased* residue frequen…”
 - code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…tatistical analysis on a synthetic dataset and generate     the cor…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/run_analysis.py --primes 3,5,7,11 --n 5000000`
-  - script usage: `run_analysis.py [-h] [--N N] [--primes PRIMES] [--seed SEED]`
-  - argparse error: `run_analysis.py: error: unrecognized arguments: --n 5000000`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…ides helper functions to generate synthetic uniform and biased resid…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *uniform* residue freque…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *biased* residue frequen…”; 3 command(s) failed: python code/run_analysis.py --primes 3,5,7,11 --n 5000000 (rc=2); python -m pytest tests/unit/ (rc=1); python -m pytest tests/integration/ (rc=2)
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…ides helper functions to generate synthetic uniform and biased resid…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *uniform* residue freque…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *biased* residue frequen…”; 3 command(s) failed: python code/run_analysis.py --primes 3,5,7,11 --n 5000000 (rc=1); python -m pytest tests/unit/ (rc=1); python -m pytest tests/integration/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/run_analysis.py --primes 3,5,7,11 --n 5000000 -> rc=2
-
-usage: run_analysis.py [-h] [--N N] [--primes PRIMES] [--seed SEED]
-                       [--memory-limit-mb MEMORY_LIMIT_MB]
-                       [--memory-check-interval MEMORY_CHECK_INTERVAL]
-run_analysis.py: error: unrecognized arguments: --n 5000000
+- python code/run_analysis.py --primes 3,5,7,11 --n 5000000 -> rc=1
+unner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/code/run_analysis.py", line 230, in run_stats_stage
+    save_statistical_result(result, str(result_path))
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-771-residue-distribution-of-euler-s-totient-/code/stats.py", line 522, in save_statistical_result
+    json.dump(asdict(result), f, ensure_ascii=False, indent=2)
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type bool_ is not JSON serializable
 
 - python -m pytest tests/unit/ -> rc=1
 ased_data - N...
@@ -49,7 +52,7 @@ FAILED tests/unit/test_stats_t022.py::TestT022EdgeCases::test_custom_alpha - ...
 FAILED tests/unit/test_visualize.py::test_plot_residual_qq_creates_file - Att...
 FAILED tests/unit/test_visualize.py::test_plot_residual_qq_empty_residuals - ...
 FAILED tests/unit/test_visualize.py::test_plot_residual_qq_single_value - Att...
-================= 29 failed, 163 passed, 13 warnings in 2.98s ==================
+================= 29 failed, 163 passed, 13 warnings in 1.25s ==================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -68,6 +71,6 @@ lmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 =========================== short test summary info ============================
 ERROR tests/integration/test_synthetic_stats.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 1 error in 0.58s =========================
+======================== 13 warnings, 1 error in 0.54s =========================
 
 
