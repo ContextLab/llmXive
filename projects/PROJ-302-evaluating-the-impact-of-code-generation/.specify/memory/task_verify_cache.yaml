@@ -1,9 +1,17 @@
 T001:
   c: true
-  h: 9f13a4f89dab598d286f07413e9ce5c009533923a68ea71f76c0f93144a90fb9
-  r: "Checked `requirements.txt` (pinned exact versions for all listed packages),\
-    \ `docs/quickstart.md` (contains a \u201CRun\u2011the\u2011pipeline\u201D command),\
-    \ and `results/setup_verification.json` (shows all required packages imported\
-    \ successfully after a fresh install). All required artifacts exist and meet the\
-    \ task specifications."
-  sig: e3accaae7668141252256fe5abbb4ce88f086e57afad34d99aa7ddecbd6608ce
+  h: 28587276020278429d40ba9b4d51ac70dad7612df3ba72df87d5eb463a397392
+  r: "Checked `requirements.txt` (pinned required packages), `docs/quickstart.md`\
+    \ (contains a \u201CRun\u2011the\u2011pipeline\u201D command), and `results/setup_verification.json`\
+    \ (shows a successful fresh\u2011venv install and import of all required packages).\
+    \ All required artifacts exist and meet the task specifications."
+  sig: ec07ceb78b04651e3532bb544b8d12aebf8a8dee0b4a2b7df4d679266097b699
+T002:
+  c: false
+  h: 0f445c466083f1eb12ddce7d348504a2518233f698e5551ea9c5189a07d92463
+  r: "The `data/raw/` directory contains only a `.gitkeep`; none of the required `<owner>_<repo>.parquet`\
+    \ files or `commit_messages.parquet` are present, and the `pull_request.schema.yaml`\
+    \ file is missing. Without these artifacts (and evidence of successful API runs\
+    \ without unhandled 403 errors), the task\u2019s verification criteria are not\
+    \ met."
+  sig: 91a31d0b8cb0e80d7b3ebd1b997f5a847d848a7dc38459ff85d9cee5f9e56b54

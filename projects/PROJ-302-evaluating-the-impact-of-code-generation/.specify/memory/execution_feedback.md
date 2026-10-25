@@ -17,28 +17,17 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/data_acquisition/prompt_cohort_generator.py: synthetic/fake INPUT data not authorized by the spec — “…all back to filtering or synthetic data.  Output: data/processed…”; code/data_acquisition/prompt_generator.py: synthetic/fake INPUT data not authorized by the spec — “…load)  Implements T014b: Generate a small synthetic cohort of code snippets…”; code/data_acquisition/synthetic_generator.py: synthetic/fake INPUT data not authorized by the spec — “…llback: Create a minimal synthetic input for demonstration if no…”; 1 command(s) failed: python code/main.py --full-run (rc=1); 6 declared deliverable(s) absent: data/processed/analysis_results.json; data/processed/covariate_config.json; data/processed/merged_features.parquet
+**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/data_acquisition/prompt_cohort_generator.py: synthetic/fake INPUT data not authorized by the spec — “…all back to filtering or synthetic data.  Output: data/processed…”; code/data_acquisition/prompt_generator.py: synthetic/fake INPUT data not authorized by the spec — “…load)  Implements T014b: Generate a small synthetic cohort of code snippets…”; code/data_acquisition/synthetic_generator.py: synthetic/fake INPUT data not authorized by the spec — “…llback: Create a minimal synthetic input for demonstration if no…”; 1 command(s) failed: python code/main.py --full-run (rc=-1); 6 declared deliverable(s) absent: data/processed/analysis_results.json; data/processed/covariate_config.json; data/processed/merged_features.parquet
 
 ## Failing / missing run-book commands
 
-- python code/main.py --full-run -> rc=1
-projects/PROJ-302-evaluating-the-impact-of-code-generation/code/main.py", line 83, in run_stage
-    module = importlib.import_module(module_path)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
-  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
-  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
-  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
-  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-302-evaluating-the-impact-of-code-generation/code/data_acquisition/__init__.py", line 11, in <module>
-    from .data_acquisition import main  # noqa: F401
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'code.data_acquisition.data_acquisition'
+- python code/main.py --full-run -> rc=-1
 
+2026-10-25 17:22:55,851 INFO __main__: Running main() of 'code.data_acquisition' for stage 'data_acquisition'.
+2026-10-25 17:22:55,851 INFO code.data_acquisition.data_acquisition: Fetching PRs for tensorflow/tensorflow
+2026-10-25 17:23:20,031 WARNING code.data_acquisition.data_acquisition: Rate limit exceeded, sleeping for 2091s before retry.
+
+[TIMEOUT after 120s]
 
 ## Declared deliverables still missing
 
@@ -79,6 +68,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/quickstart_validator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_summary.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/commit_messages.parquet` is declared but was NOT written. Scripts referencing it:
+    - `code/data_acquisition/data_acquisition.py` — NOT invoked by the run-book
     - `code/data_acquisition/prompt_generator.py` — NOT invoked by the run-book
     - `code/data_acquisition.py` — NOT invoked by the run-book
     - `code/prompt_engineering.py` — NOT invoked by the run-book
