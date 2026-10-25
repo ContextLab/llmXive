@@ -139,10 +139,15 @@ def ingest_and_filter(
     # Load the dataset (streaming)
     # ------------------------------------------------------------------
     try:
-        log.info("Loading Visual Genome image dataset via HF datasets (streaming=True).")
+        log.info("Loading Visual Genome dataset via HF datasets (streaming=True).")
+        # The Visual Genome HF repo does not expose a dedicated ``images`` config.
+        # Most configs contain ``image_id`` fields but not direct URLs.
+        # We therefore load a config that provides ``image_id`` (e.g. objects)
+        # and construct the image URL manually using the public Visual Genome
+        # static image server pattern.
         dataset = load_dataset(
             "visual_genome",
-            "images",
+            "objects_v1.2.0",   # a config that exists and contains image_id
             split="train",
             streaming=True,
         )
@@ -163,15 +168,17 @@ def ingest_and_filter(
         if not _record_has_tag(sample, tags):
             continue
 
-        url = sample.get("url") or sample.get("image_url")
-        if not url:
-            # No downloadable image; skip this record.
-            continue
-
         # --------------------------------------------------------------
         # Derive a stable identifier for the image
         # --------------------------------------------------------------
         image_id = str(sample.get("image_id") or sample.get("id") or idx)
+
+        # --------------------------------------------------------------
+        # Construct a download URL.
+        # Visual Genome hosts images at:
+        #   https://visualgenome.org/static/images/<image_id>.jpg
+        # --------------------------------------------------------------
+        url = f"https://visualgenome.org/static/images/{image_id}.jpg"
 
         # --------------------------------------------------------------
         # Download the image

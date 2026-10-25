@@ -3,12 +3,12 @@
   "stage": "in_progress",
   "class": "transient",
   "fingerprint": "unknown",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-22T13:49:50.182441+00:00",
-  "last_seen": "2026-10-24T23:11:28.902561+00:00",
-  "retry_after": null,
+  "consecutive_count": 1,
+  "first_seen": "2026-10-25T07:27:25.986483+00:00",
+  "last_seen": "2026-10-25T07:27:25.986483+00:00",
+  "retry_after": "2026-10-25T07:37:25.986483+00:00",
   "last_error": "no implementation progress: no stage change or verified task completion",
   "evidence": "no implementation progress: no stage change or verified task completion",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }

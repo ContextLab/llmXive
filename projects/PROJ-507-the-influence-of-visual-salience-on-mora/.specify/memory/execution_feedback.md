@@ -36,18 +36,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/00_pilot_power_analysis.py': [Errno 2] No such file or directory
 
 - python code/01_ingest_and_filter.py  --max-scenarios 30  --output data/processed/candidates_filtered.csv -> rc=1
-rs_v1.0.0', 'question_answers_v1.2.0', 'objects_v1.0.0', 'objects_v1.2.0', 'attributes_v1.0.0', 'attributes_v1.2.0', 'relationships_v1.0.0', 'relationships_v1.2.0']
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 284, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 277, in main
-    ingest_and_filter(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/01_ingest_and_filter.py", line 151, in ingest_and_filter
-    raise DataFetchError(f"Unable to load Open Images dataset: {exc}") from exc
-data_prep.DataFetchError: Unable to load Open Images dataset: BuilderConfig 'images' not found. Available: ['region_descriptions_v1.0.0', 'region_descriptions_v1.2.0', 'question_answers_v1.0.0', 'question_answers_v1.2.0', 'objects_v1.0.0', 'objects_v1.2.0', 'attributes_v1.0.0', 'attributes_v1.2.0', 'relationships_v1.0.0', 'relationships_v1.2.0']
+alience-on-mora/lib/python3.11/site-packages/fsspec/implementations/http.py", line 358, in _open
+    size = size or self.info(path, **kwargs)["size"]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/lib/python3.11/site-packages/fsspec/asyn.py", line 118, in wrapper
+    return sync(self.loop, func, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/lib/python3.11/site-packages/fsspec/asyn.py", line 103, in sync
+    raise return_result
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/lib/python3.11/site-packages/fsspec/asyn.py", line 56, in _runner
+    result[0] = await coro
+                ^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/lib/python3.11/site-packages/fsspec/implementations/http.py", line 432, in _info
+    raise FileNotFoundError(url) from exc
+FileNotFoundError: https://cs.stanford.edu/people/rak248/VG_100K_2/images2.zip
 
 - python code/02_prepare_human_coding_dir.py   # creates data/raw/human_coding/ -> rc=2
 
