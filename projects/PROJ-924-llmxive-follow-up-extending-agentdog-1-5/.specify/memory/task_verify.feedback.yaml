@@ -1,15 +1,8 @@
 T001:
-  reason: "The required top\u2011level directory `specs/PROJ-924/` does not exist\
-    \ (marked MISSING), so the project structure is incomplete despite the test and\
-    \ log being present. The task also expects this specs folder to be created under\
-    \ the repository root."
   task: affc6517577f1ed234c48de3937415e70911fd71cb47a0cb28543d97de93e48b
 T002:
-  reason: "The provided `requirements.txt` omits the required `scipy` package and\
-    \ `pyproject.toml` does not list any of the mandated dependencies. Moreover, the\
-    \ expected `data/processed/pytest_manifest_log.txt` file is missing, so the pytest\
-    \ run and its \u201C1 passed\u201D logs cannot be verified. These gaps must be\
-    \ fixed for the task to be complete."
+  reason: 'Requested task execution failed; rerun successfully: code/run_manifest_test.py
+    exit=5'
   task: 52edcb6f80ee4a2097e33097e7ec4ab093c143315f13c7ef2ee9f0dcd1394371
 T005:
   task: b4f27fc6a88b29b730befd7612d003e7b2fa647c9d70e80535fab39db73b813a

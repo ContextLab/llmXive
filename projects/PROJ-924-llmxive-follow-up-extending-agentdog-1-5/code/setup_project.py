@@ -13,7 +13,8 @@ from config import get_path, ensure_directories
 def create_required_directories() -> None:
     """
     Ensure that all directories required by the project exist.
-    The list matches the expectations in `tests/test_setup.py`.
+    The list matches the expectations in `tests/test_setup.py` and the
+    task specification, including the top‑level specs folder.
     """
     required_dirs = [
         # Top‑level directories under the project root
@@ -24,8 +25,10 @@ def create_required_directories() -> None:
         "data/test",
         "specs",
         "docs",
-        # Additional spec sub‑directory required by the test suite
+        # Additional spec sub‑directories required by the test suite
         "specs/001-llmxive-drift-detection",
+        # Directory required by the task description
+        "specs/PROJ-924",
     ]
 
     # Resolve each directory using the unified path helper and create it
@@ -50,7 +53,7 @@ def run_pytest_and_capture_log() -> None:
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
-        check=False,  # We want to capture failures as well
+        check=False,  # Capture failures without raising
     )
 
     # Write the captured output to the designated log file

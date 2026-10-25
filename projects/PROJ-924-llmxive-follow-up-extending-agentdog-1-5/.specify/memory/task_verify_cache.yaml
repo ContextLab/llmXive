@@ -1,11 +1,11 @@
 T001:
-  c: false
-  h: 881b6fa24b17b205b19661fa7803ad1d6b6853deabc8abeee2c2aad0b74f0d28
-  r: "The required top\u2011level directory `specs/PROJ-924/` does not exist (marked\
-    \ MISSING), so the project structure is incomplete despite the test and log being\
-    \ present. The task also expects this specs folder to be created under the repository\
-    \ root."
-  sig: 9800b9644298f6798b11e1492c119fe23143d81751af56c40ffa7e0ef863ffe2
+  c: true
+  h: f8e32cf0bf6fa43bc966347dc8fa7422932e5fba7853d7aea1769b495b878e47
+  r: "Checked `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/tests/test_setup.py`\
+    \ for the required test, verified `projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/processed/pytest_setup_log.txt`\
+    \ contains the \u201C1 passed\u201D output, and confirmed the listed project directories\
+    \ exist."
+  sig: 41c52c249143d6550512c30a7e0a877e04a21916cc910a6fcbd3c904781507eb
 T002:
   c: false
   h: 18a40f5d10ed41dd592a489651aee17bda29f0c35711248b418b950799a4c8a3

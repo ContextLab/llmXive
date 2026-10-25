@@ -4,6 +4,19 @@ version = "0.1.0"
 description = "Drift detection pipeline for AgentDoG 1.5 extension"
 authors = [{name = "LLM Xive"}]
 requires-python = ">=3.11"
+dependencies = [
+  "sentence-transformers",
+  "transformers",
+  "datasets",
+  "scikit-learn",
+  "scipy",
+  "pandas",
+  "numpy",
+  "jsonschema",
+  "statsmodels",
+  "pytest",
+  "accelerate"
+]
 
 [tool.ruff]
 line-length = 88

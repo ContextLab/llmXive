@@ -1,16 +1,19 @@
 status: none
-intent: Safety log dataset OpenAI Red Teaming HuggingFace Datasets GitHub issues python
+intent: Safety log centroids Hugging Face Red Teaming dataset GitHub issue logs python
   package dataset
 required_fields:
+- log_id
 - log_text
-- log_embedding
-- safety_category
-- source_type
-- source_id
-- human_annotation
-- annotator_id
+- embedding_vector
+- category_label
+- source
+- annotator_id_1
+- annotator_id_2
+- annotator_id_3
 - majority_vote_label
+- is_novel_attack
+- centroid_vector
 - timestamp
-cache_key: 61be894a322bf19d51cfe61f3dc61935123082ae52f3c86902bd8ad6b291980c
-searched_at: '2026-10-25T06:26:23.804640+00:00'
+cache_key: 176ec4d0a65700a70ecf21e3c3c8637d67e7843804e83ccafa40ea17f94ebdc1
+searched_at: '2026-10-25T06:29:29.686486+00:00'
 retry_count: 1
