@@ -1,14 +1,15 @@
 status: none
-intent: Battery Archive NASA Ames University Wisconsin battery cycling dataset download
-  python package dataset
+intent: download Battery Archive NASA Ames University Wisconsin battery datasets python
+  package dataset
 required_fields:
 - cell_id
 - cycle_number
-- time_index
+- time_step
 - voltage
 - current
 - temperature
 - capacity
-cache_key: bfe195df71379bc2bcf5312abcb24924ad5d22bf6866dacff5ed020f36b4a392
-searched_at: '2026-10-25T17:25:25.034283+00:00'
+- final_capacity_fade
+cache_key: ccdfc6b4055ecb6cc252c149b61456239f73dec2a5aaf64efbd3ff5bb57a293b
+searched_at: '2026-10-25T17:40:58.415840+00:00'
 retry_count: 1

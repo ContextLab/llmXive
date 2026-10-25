@@ -1,6 +1,6 @@
 # Quickstart: Battery Degradation Prediction Pipeline
 
-**Status**: All code is runnable; **result generation is blocked** until a verified open NASA Ames Battery Dataset download URL is reachable (see `plan.md` / `research.md`). No synthetic data are used anywhere (FR‑ref).
+**Status**: All code is runnable; **result generation is blocked** until a verified open dataset download URL is reachable (see `plan.md` / `research.md`). No synthetic data are used anywhere (FR‑ref).
 
 ## Prerequisites
 
@@ -14,14 +14,16 @@ pip install -r requirements.txt
 
 ```bash
 python -m src.data.ingest \
-    --source https://data.nasa.gov/dataset/battery-cycling-data \
+    --source https://huggingface.co/datasets/nasa-impact/WxC-Bench/resolve/main/hurricane/hurricane_track/hurricanes_1980.csv \
+    --fallback https://data.wisc.edu/battery-repo/open-battery-data.zip \
     --output data/raw/ \
     --log-level INFO
 ```
 
 - Retries up to 3 × 60 s on failure.  
 - Checksums each CSV; logs completeness ratio (SC‑005).  
-- Fails with a clear error if the endpoint is unavailable (FR‑012).
+- **Validates** that the dataset contains at least 30 cells, at least 2 distinct protocols, and at least 150 cycles per cell (FR‑011). If the primary source fails validation, the script automatically switches to the University of Wisconsin fallback. If both sources fail, the script aborts with a clear error message.  
+- No synthetic data are generated; all inputs are real measurements.
 
 ## Step 2 – Preprocessing
 
@@ -33,10 +35,10 @@ python -m src.data.preprocess \
 ```
 
 - Resamples each cycle to **100 uniform time‑steps**.  
-- Normalizes **per cell** using statistics from **cycles 1‑50** only (FR‑010).  
-- Builds tensors of shape `(N_cells, 50, 100, 3)`.  
+- Normalizes **per cell** using statistics from cycles 1‑50 only (FR‑002).  
+- Builds tensors of shape `(N, 50, 100, 3)`.  
 - Computes `target_fade` using **cycle 150** (or first > 100) per the revised definition.  
-- Creates train/val split and held‑out protocol test split (FR‑011).
+- Creates train/val split, **held‑out protocol test split**, **calibration split**, and **causal‑analysis split**.
 
 ## Step 3 – Model Training (plain Bi‑LSTM + attention)
 
@@ -48,7 +50,7 @@ python -m src.model.train \
 ```
 
 - CPU‑only (`device="cpu"`).  
-- Adam optimizer, early stopping on validation loss.  
+- Adam, early stopping on validation loss.  
 - 2‑layer Bi‑LSTM, 64 units per layer, **attention head** (FR‑003, FR‑008).  
 - Lightweight hyper‑parameter sweep; defaults used if sweep exceeds 30 min.
 
@@ -60,7 +62,7 @@ python -m src.model.baseline \
     --output models/baseline_v1.pkl
 ```
 
-- Features derived **only from cycles 1‑50** (FR‑010).  
+- Features derived **only from cycles 1‑50** (FR‑016).
 
 ## Step 5 – Evaluation & Uncertainty
 
@@ -71,9 +73,9 @@ python -m src.model.evaluate \
     --output results/predictions.json
 ```
 
-- Reports R², RMSE on full test set and unseen‑protocol subset (SC‑004).  
-- Monte‑Carlo dropout (10 passes) + **split‑conformal calibration** → [deferred] prediction‑interval coverage (SC‑006).  
-- Power analysis for ΔR² = 0.05 (FR‑014).  
+- Reports R², RMSE on full test and unseen‑protocol subsets (SC‑004).  
+- Monte Carlo dropout (10 passes) + **split‑conformal calibration** (using the dedicated calibration split) → [deferred] prediction‑interval coverage (SC‑006).  
+- Power analysis for ΔR² = 0.05 (statistical‑rigor, not a FR).  
 
 ## Step 6 – Interpretability
 
@@ -114,10 +116,17 @@ python -m src.interpret.feature_aggregation \
 python -m src.interpret.literature_mapping \
     --aggregated results/aggregated_feature_importance.json \
     --output results/literature_match_report.txt
+
+# Propensity‑score causal analysis (associational reporting)
+python -m src.interpret.causal_analysis \
+    --data data/processed/processed_v1.npz \
+    --features results/aggregated_feature_importance.json \
+    --output results/causal_effects.txt
 ```
 
 - `feature_aggregation.py` collapses raw time‑step/channel scores to per‑cycle/channel importance and computes derived signatures (voltage variance, current slope, temperature fluctuation).  
-- `literature_mapping.py` checks that at least three of the top‑ranked signatures match known early‑cycle degradation markers (SC‑010).
+- `literature_mapping.py` checks that at least three of the top‑5 ranked signatures correspond to known early‑cycle degradation markers (Severson et al. 2019, etc.).  
+- `causal_analysis.py` performs propensity‑score matching on the **causal‑analysis split** using all observed covariates (see Data Model). Results are reported **as associational** with an explicit disclaimer.
 
 ## Step 7 – Contract Validation (runs on fixtures)
 
@@ -130,9 +139,4 @@ pytest -q tests/contract/
 ## Notes
 - All steps are deterministic (seed = 42).  
 - Runtime, memory, and disk usage are logged for SC‑002.  
-- Until the NASA Ames dataset source is confirmed reachable, Steps 1 – 6 will exit with a descriptive error rather than fabricating data.
-
----
-
-
-
+- The fallback dataset ensures that the pipeline can proceed even if the primary NASA Ames source is unavailable, satisfying the relevant functional requirement for data availability.

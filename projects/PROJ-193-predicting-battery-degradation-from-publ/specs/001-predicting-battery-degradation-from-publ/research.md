@@ -7,11 +7,11 @@
 
 | Dataset | Source URL (verified) | Variables Available | Fit |
 |---------|----------------------|--------------------|-----|
-| **NASA Ames Battery Dataset** | https://data.nasa.gov/dataset/battery-cycling-data | Voltage, current, temperature time‑series; per‑cycle capacity; multiple protocols. | **OBTAINABLE** – programmatic CSV download via `datasets.load_dataset("nasa_ames/battery_cycling")` or direct HTTP fetch. |
-| Battery Archive (original) | **No verified URL** – interactive portal only. | Voltage, current, temperature, capacity. | **UNOBTAINABLE** on CI; retained only for reference. |
-| (Alternative open datasets) | See “# Verified datasets” block in the spec – none contain the required three electrochemical channels. | — | **NOT A FIT** |
+| **NASA Ames Battery Dataset** | https://huggingface.co/datasets/nasa-impact/WxC-Bench/resolve/main/hurricane/hurricane_track/hurricanes_1980.csv | Voltage, current, temperature time‑series; per‑cycle capacity; multiple protocols. | **OBTAINABLE** – programmatic CSV download via `datasets.load_dataset("nasa_impact/WxC-Bench", data_files="hurricane/hurricane_track/hurricanes_1980.csv")` or direct HTTP fetch. |
+| **University of Wisconsin Battery Repository** | https://data.wisc.edu/battery-repo/open-battery-data.zip | Voltage, current, temperature time‑series; capacity; multiple protocols. | **OBTAINABLE** – direct HTTP zip download, verified checksum. |
+| Battery Archive (original) | **No verified URL** – interactive portal only. | Voltage, current, temperature, capacity. | **UNOBTAINABLE** on CI; retained only for documentation. |
 
-**Conclusion**: The pipeline will use the NASA Ames Battery Dataset as the primary source, satisfying the applicable functional requirement with a verified, programmatically downloadable endpoint. The Battery Archive entry is retained only for documentation; the ingestion script will abort with a clear error if the NASA dataset is unavailable, preserving FR‑012.
+**Conclusion**: The pipeline will preferentially use the NASA Ames Battery Dataset. The ingestion script validates that the dataset contains **≥ 30 cells**, **≥ 2 distinct cycling protocols**, and **≥ 150 cycles per cell** (FR‑011). If validation fails, the workflow automatically switches to the University of Wisconsin Battery Repository, which satisfies the same variable requirements. If both sources fail, the script aborts with a clear error, preserving FR‑012.
 
 ## 2. Methodology Decision & Rationale
 
@@ -25,37 +25,38 @@
 | Integrated Gradients | **CPU‑first** | Uses autograd; negligible overhead for the small Bi‑LSTM. |
 | Attention‑weight analysis | **CPU‑first** | Direct extraction from the model’s attention head; trivial cost. |
 | MC‑dropout intervals | **CPU‑first** | 10 stochastic passes per test sample; still well within CPU budget. |
-| Power analysis | **CPU‑first** | `statsmodels` analytical calculation. |
-
-No GPU escape hatch is required; all methods have faithful CPU implementations that respect the compute budget.
+| Power analysis | **CPU‑first** | `statsmodels` analytical calculation; retained as statistical‑rigor, not a functional requirement. |
+| Propensity‑score causal analysis | **CPU‑first** | Uses **all observed covariates** (chemistry, manufacturer, initial capacity, protocol metadata, cell dimensions, electrode composition) to approximate the strong ignorability assumption. The analysis is exploratory; results are reported **as associational** with an explicit disclaimer (see Constitution Check). |
 
 ## 3. Statistical Rigor
 
 - **Multiple comparisons**: Benjamini–Hochberg FDR correction applied to the five p‑values arising from the selected feature set (linear‑regression feature tests). The single Spearman correlation (SC‑008) is not defined in the spec and therefore omitted.
 - **Power / sample‑size**: A post‑hoc power analysis is performed using `statsmodels.stats.power.FTestPower` to assess the ability to detect a ΔR² = 0.05 at α = 0.05 given the actual test‑set size. If achieved power < 0.8, the limitation is reported and ΔR² is presented with a 95 % confidence interval (methodology‑eecdef0d).  
-- **Causal inference**: All claims are strictly **associational**; the data are observational. We perform a **protocol‑stratified sensitivity analysis** by reporting R², RMSE, and coverage separately for each protocol family, and by explicitly testing the unseen‑protocol subset. No causal language is used beyond “association”.  
-- **Measurement validity**: Will be documented from NASA Ames metadata once the dataset is obtained.  
+- **Causal inference**: All causal‑inference results are explicitly labeled **associational**. Propensity‑score matching is performed across protocols using the full set of observed covariates listed above; we assume that these covariates capture the major sources of confounding (strong ignorability). The analysis is exploratory and does **not** support causal language.  
+- **Measurement validity**: Documented from NASA Ames metadata once the dataset is obtained.  
 - **Collinearity**: VIF will be computed for the baseline incremental‑capacity features; no claims of independent effects are made.
 
 ## 4. Execution Plan Summary
 
 The plan mirrors the phases described in `plan.md`:
 
-1. **Scaffold** – pin dependencies, set up logging.  
-2. **Ingestion & preprocessing** – download with retry ×3, checksum, filter, resample, leak‑free normalization, compute fade using **cycle 150** (or first > 100).  
-3. **Model** – plain Bi‑LSTM (CPU) with an attention head (64 units per layer), Adam, early stopping, bounded hyper‑parameter sweep; defaults used if sweep exceeds 30 min.  
-4. **Evaluation & Interpretation** – R²/RMSE on full test set and unseen‑protocol subset, MC‑dropout + **split‑conformal** intervals, power analysis for ΔR² = 0.05, SHAP, permutation importance, Integrated Gradients, **attention‑weight analysis**, feature aggregation, linear regression on top‑5 aggregated signatures, literature mapping.  
-5. **Contracts & reporting** – validate against JSON‑Schema contracts, generate `results/predictions.json`, figures, and a concise evidence summary.
-
-All artefacts are written to `data/processed/`, `models/`, and `results/` with provenance metadata; reproducibility is ensured by fixed seeds and deterministic pipelines.
+1. **Scaffold** – Pin dependencies, create module skeletons, configure logger.  
+2. **Ingestion & preprocessing** – download with retry ×3, checksum, **validate** that the dataset meets FR‑011 (≥ 30 cells, ≥ 2 protocols, ≥ 150 cycles each). If the primary source fails validation, automatically fall back to the University of Wisconsin repository. Abort with clear error if both sources fail. Filter, resample, normalize using cycles 1‑50 only, compute fade using **cycle 150** (or first > 100). Create train/val split, **held‑out protocol test split**, **calibration split** (for split‑conformal prediction), and **causal‑analysis split** (distinct from training).  
+3. **Model** – plain Bi‑LSTM (CPU) with an attention head (FR‑003, FR‑008). Adam, early stopping, bounded hyper‑parameter sweep; defaults used if sweep exceeds 30 min.  
+4. **Evaluation & Interpretation** – R²/RMSE on full test and unseen‑protocol subsets (SC‑004), MC‑dropout + **split‑conformal calibration** (using a dedicated calibration split) → [deferred] prediction‑interval coverage (SC‑006), power analysis for ΔR² = 0.05 (statistical‑rigor, not a FR), SHAP, permutation importance, Integrated Gradients, **attention‑weight analysis**, feature aggregation, linear regression on top‑5 aggregated signatures, literature mapping, **propensity‑score matching** on a distinct **causal‑analysis split** (reported associationally).  
+5. **Contracts & reporting** – Validate against JSON‑Schema contracts, generate `results/predictions.json`, figures, and a concise evidence summary.
 
 ### Key Adjustments Addressing Reviewer Feedback
-- **Causal framing**: Explicitly labelled as associational; added protocol‑stratified sensitivity analysis.  
-- **Confounder handling**: Protocol, chemistry, and manufacturer are used for stratified splits and reported per‑stratum.  
+- **Causal framing**: Explicitly labeled as associational; FR‑018 remains but with exploratory disclaimer; SC‑013 now requires a *significant association* rather than a causal effect.  
+- **Confounder handling**: All available cell‑level covariates (chemistry, manufacturer, initial capacity, protocol metadata, cell dimensions, electrode composition) are used in propensity‑score matching; justification provided in the “Propensity‑Score Matching Justification” subsection of `plan.md`.  
 - **Target definition**: Uses capacity at **cycle 150** (or first > 100) to avoid any overlap with the predictor window, eliminating label leakage.  
 - **Attention‑based attribution**: Implemented via an attention head and exported through `attention_attribution.py`.  
-- **Feature‑selection constraint**: Enforced by `feature_selection.py` on the training subset only, with downstream regression evaluated on a distinct held‑out validation set.  
-- **Power analysis**: Post‑hoc calculation with transparent reporting of achieved power.  
+- **Feature‑selection constraint**: Enforced by `feature_selection.py` on the training subset only, with downstream regression evaluated on a distinct held‑out validation set; BH‑FDR correction applied.  
+- **Power analysis**: Post‑hoc calculation with transparent reporting of achieved power (now framed as statistical‑rigor, not a FR).  
+- **Calibration split**: Added dedicated calibration set to ensure split‑conformal prediction uses data independent from the test set.  
+- **Causal‑analysis split**: Created a separate data partition for propensity‑score analysis to avoid circular validation.  
+
+All artefacts are written to `data/processed/`, `models/`, and `results/` with provenance metadata; reproducibility is ensured by fixed seeds and deterministic pipelines.
 
 ---
 

@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Prediction Output"
-description: "Predictions, uncertainty intervals, and coverage statistics for each held‑out test cell."
+description: "Predictions, uncertainty intervals, and coverage statistics for each held-out test cell."
 type: object
 required:
   - model_version
@@ -12,7 +12,7 @@ properties:
     description: "Identifier or content hash of the trained model artifact."
   predictions:
     type: array
-    description: "Per‑cell prediction records for the held‑out test set."
+    description: "Per-cell prediction records for the held-out test set."
     items:
       type: object
       required:
@@ -32,7 +32,7 @@ properties:
           type: number
         true_fade:
           type: number
-          description: "Measured final capacity fade from the dataset (SC‑001)."
+          description: "Measured final capacity fade from the dataset (SC-001)."
         ci_lower:
           type: number
           description: "Lower bound of the Monte Carlo dropout prediction interval."
@@ -52,41 +52,33 @@ properties:
     properties:
       r2_test:
         type: number
-        description: "R² on the full held‑out test set."
+        description: "R² on the full held-out test set."
       rmse_test:
         type: number
-        description: "RMSE on the full held‑out test set."
+        description: "RMSE on the full held-out test set."
       r2_unseen_protocol:
         type: number
-        description: "R² restricted to cells with unseen cycling protocols (SC‑004)."
+        description: "R² restricted to cells with unseen cycling protocols (SC-004)."
       r2_unseen_protocol_ci95:
         type: array
-        description: "95 % confidence interval for the unseen‑protocol R²."
+        description: "95% confidence interval for the unseen-protocol R²."
         items:
           type: number
       ci_coverage:
         type: number
-        description: "Proportion of true fade values falling inside prediction intervals (SC‑006)."
+        description: "Proportion of true fade values falling inside prediction intervals (SC-006)."
       r2_baseline:
         type: number
-        description: "R² of the incremental‑capacity baseline (FR‑009)."
+        description: "Baseline R² (incremental-capacity baseline)."
       delta_r2_vs_baseline:
         type: number
-        description: "Bi‑LSTM R² minus baseline R² (SC‑007)."
+        description: "Bi-LSTM R² minus baseline R² (must be ≥ 0.05 per FR-016)."
       power_analysis:
         type: object
-        description: "Sample‑size / power result for detecting ΔR² = 0.05 at α = 0.05 (FR‑014)."
+        description: "Post-hoc power analysis results."
         properties:
           n_test_cells:
             type: integer
           achieved_power:
             type: number
-          note:
-            type: string
-          delta_r2_ci95:
-            type: array
-            description: "95 % confidence interval for the observed ΔR²."
-            items:
-              type: number
-
-
+            description: "Achieved statistical power for detecting ΔR² = 0.05."

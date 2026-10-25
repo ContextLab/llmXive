@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Processed Battery Sequence Dataset"
-description: "Tensor dataset produced after ingestion and preprocessing, ready for model training. Input shape per cell is (several cycles, multiple time‑steps, 3 channels)."
+description: "Tensor dataset produced after ingestion and preprocessing, ready for model training."
 type: object
 required:
   - version
@@ -15,55 +15,33 @@ properties:
     description: "Semantic version of the processing pipeline (e.g., 'v1.0.0')."
   generated_at:
     type: string
-    description: "UTC timestamp (ISO 8601) when the file was created."
-  seed:
-    type: integer
-    description: "Random seed used for splitting and training reproducibility."
+    format: date-time
+    description: "UTC timestamp (ISO 8601) when the dataset was created."
   sequences:
     type: array
-    description: "Input tensors, each of shape (N, M, 100, 3), where M denotes the intermediate feature dimension."
+    description: "List of input tensors, each of shape (L, 100, 3), where L denotes the variable sequence length."
     items:
       type: array
       items:
-        type: array
-        items:
-          type: array
-          items:
-            type: number
+        type: number
   targets:
     type: array
-    description: "Scalar final capacity‑fade targets, computed as described in the plan."
+    description: "Target fade values corresponding to each sequence."
     items:
       type: number
   cell_ids:
     type: array
-    description: "Original cell identifiers aligned with sequences/targets."
+    description: "Unique identifiers for each cell."
     items:
       type: string
   protocols:
     type: array
-    description: "Cycling protocol label per cell, used for held‑out protocol split."
+    description: "Cycling protocol label for each cell."
     items:
       type: string
-  splits:
-    type: object
-    description: "Indices for train, validation, and held‑out protocol test sets."
-    properties:
-      train:
-        type: array
-        items:
-          type: integer
-      validation:
-        type: array
-        items:
-          type: integer
-      test:
-        type: array
-        items:
-          type: integer
   provenance:
     type: object
-    description: "Source URLs, raw file checksums, and pipeline version for reproducibility."
+    description: "Metadata about source files and processing."
     properties:
       source_urls:
         type: array
@@ -75,4 +53,6 @@ properties:
           type: string
       pipeline_version:
         type: string
-        description: "Version tag of the preprocessing code."
+      generated_at:
+        type: string
+        format: date-time
