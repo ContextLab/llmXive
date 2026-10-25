@@ -1,24 +1,26 @@
 T001:
-  c: true
-  h: f043a29f3b47a40200c2cd9646df233a4312c4fd8a66105b8420e01fc90d0ffb
-  r: Checked the five contract schema files in `contracts/` (hashes match the source
-    specs), the `code/copy_contracts.py` script that performs the copy and hashing,
-    and the generated `data/raw/contract_hashes.json` which records identical `src_hash`
-    and `dst_hash` for each file. The test file `tests/contract/test_contract_copy.py`
-    is present (though not displayed) and is intended to assert these hash equalities.
-    All required artifacts exist and verify verbatim duplication.
-  sig: d2d9ff913dd4fe742e7ece10f60bbac8fee5d7ade1ee06a9a444ce5e7a478317
-T004:
   c: false
-  h: bd9e6aaaa93dc535ae42e72bfd28f24c5636450f9d82a4775dadb1f21d0206cb
-  r: "The `tests/contract/test_schemas.py` file exists, but its execution log shows\
-    \ multiple failures: all tasks lack the required `solution_path` field (schema\
-    \ validation fails for 500 tasks) and the overlap\u2011metric test fails because\
-    \ the generated skill embeddings do not meet the configured overlap thresholds.\
-    \ Consequently the contract\u2011validation suite does not successfully validate\
-    \ the data as required. The data generation step must be corrected to include\
-    \ the missing fields and achieve the target similarity levels."
-  sig: 7fa57d3dd92394b68e02fb9d3db1f8f1545b36b4af55d0cd90679c28667d75cc
+  h: bc2a436ba25e14f7ea56d55276b52988c055db3509affaabb72b8b635a3b5cf7
+  r: "The contract schema files exist in `contracts/` and their SHA\u2011256 hashes\
+    \ match the source files, and `code/copy_contracts.py` correctly copies them and\
+    \ writes `data/raw/contract_hashes.json` with matching `src_hash` and `dst_hash`\
+    \ entries. However, the required test `tests/contract/test_contract_copy.py` was\
+    \ not inspected, so there is no evidence that it actually loads `contract_hashes.json`\
+    \ and asserts `src_hash == dst_hash` for every file as the task specifies. The\
+    \ missing verification of the test\u2019s content must be addressed."
+  sig: 04c9d150c8a01b6350186e4c513a6479b3b7cdf57e80363158dd29297e133b17
+T002:
+  c: false
+  h: 05add81d84b07bae08978e3c71cd056d61cb8f835050c4b0fb33e12fd25274b8
+  r: "Checked `code/generate_data.py`, the generated `data/raw/tasks.json` and `data/raw/skills.json`,\
+    \ and the unit\u2011test suite `tests/unit/test_generate_data.py`. The script\
+    \ creates the required files and meets most tests, but the `test_skill_code_format`\
+    \ expects each generated skill\u2019s `code` field to contain a docstring (`\"\
+    \"\"`), which the current `generate_skills` implementation does not include (it\
+    \ only emits a bare function definition). Consequently the test suite would fail,\
+    \ so the task\u2019s verification is not fully satisfied. The skill code generation\
+    \ needs to be updated to include a docstring."
+  sig: b0ab57c3296fe8bdf1995db775c0837eeff3fb0cfd2c2bf9d0a40d9ebc33dacb
 T005:
   c: false
   h: a3c785ab089d4db731e4ddf6a2b6bc96165f19faeba0c56c9538a4fb40855736

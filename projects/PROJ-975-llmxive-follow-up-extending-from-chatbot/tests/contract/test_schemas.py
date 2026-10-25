@@ -52,7 +52,7 @@ def test_real_tasks_schema_compliance():
             errors.append(f"Task {i} (ID: {task.get('task_id', 'N/A')}): {e.message}")
 
     if errors:
-        pytest.fail(f"Schema validation failed for {len(errors)} tasks:\n" + "\n".join(errors))
+        pytest.fail(f"Schema validation failed for {len(errors)} tasks:\\n" + "\\n".join(errors))
 
 def test_real_skills_schema_compliance():
     """
@@ -76,7 +76,7 @@ def test_real_skills_schema_compliance():
             errors.append(f"Skill {i} (ID: {skill.get('skill_id', 'N/A')}): {e.message}")
 
     if errors:
-        pytest.fail(f"Schema validation failed for {len(errors)} skills:\n" + "\n".join(errors))
+        pytest.fail(f"Schema validation failed for {len(errors)} skills:\\n" + "\\n".join(errors))
 
 def test_skills_embedding_dimension():
     """
@@ -104,7 +104,7 @@ def test_real_skills_overlap_metrics():
 
     # Get active overlap level from config
     config = get_experiment_config()
-    overlap_level = config.get('overlap_level', os.environ.get('OVERLAP_LEVEL', 'MEDIUM')).upper()
+    overlap_level = config.get('overlap_level', os.getenv('OVERLAP_LEVEL', 'MEDIUM')).upper()
 
     # Calculate distribution for threshold checks
     norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
@@ -149,4 +149,4 @@ def test_task_skill_reference_integrity():
                 errors.append(f"Task {task.get('task_id', i)} references missing skill_id: {sid}")
 
     if errors:
-        pytest.fail(f"Reference integrity check failed:\n" + "\n".join(errors))
+        pytest.fail(f"Reference integrity check failed:\\n" + "\\n".join(errors))

@@ -27,6 +27,7 @@ def test_dummy_instance_validation():
         "task_id": "task_0000",
         "description": "Dummy description",
         "ground_truth_path": ["skill_001"],
+        "ground_truth_skills": ["skill_001"],
         "complexity": 1,
         "embedding_vector": [0.0] * 384,
         "edge_case": False,

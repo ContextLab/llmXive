@@ -251,16 +251,16 @@ def _generate_skills_core(
     satisfy the overlap constraints.
     """
     attempts = 0
-    max_attempts = 20
+    max_attempts = 100  # increased to give more chances for high overlap
     while True:
         attempts += 1
 
         if overlap_level == "high":
-            # Generate a base vector and add small noise to obtain a tightly
-            # clustered set of embeddings, guaranteeing high similarity.
+            # Create a tightly clustered set of embeddings.
+            # Use a very small noise scale to guarantee high similarity.
             base_vec = rng.normal(size=384)
             base_vec = unit_vector(base_vec)
-            noise = rng.normal(scale=0.05, size=(count, 384))
+            noise = rng.normal(scale=0.001, size=(count, 384))
             raw = base_vec + noise
             norms = np.linalg.norm(raw, axis=1, keepdims=True)
             norms[norms == 0] = 1.0

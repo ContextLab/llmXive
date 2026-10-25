@@ -1,8 +1,21 @@
 T001:
+  reason: "The contract schema files exist in `contracts/` and their SHA\u2011256\
+    \ hashes match the source files, and `code/copy_contracts.py` correctly copies\
+    \ them and writes `data/raw/contract_hashes.json` with matching `src_hash` and\
+    \ `dst_hash` entries. However, the required test `tests/contract/test_contract_copy.py`\
+    \ was not inspected, so there is no evidence that it actually loads `contract_hashes.json`\
+    \ and asserts `src_hash == dst_hash` for every file as the task specifies. The\
+    \ missing verification of the test\u2019s content must be addressed."
   task: 902baa1dd56af83fb991547ae56b3da9fe5f4f69d2f4abf63b4732c96d8cf897
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/generate_data.py
-    exit=1'
+  reason: "Checked `code/generate_data.py`, the generated `data/raw/tasks.json` and\
+    \ `data/raw/skills.json`, and the unit\u2011test suite `tests/unit/test_generate_data.py`.\
+    \ The script creates the required files and meets most tests, but the `test_skill_code_format`\
+    \ expects each generated skill\u2019s `code` field to contain a docstring (`\"\
+    \"\"`), which the current `generate_skills` implementation does not include (it\
+    \ only emits a bare function definition). Consequently the test suite would fail,\
+    \ so the task\u2019s verification is not fully satisfied. The skill code generation\
+    \ needs to be updated to include a docstring."
   task: 1f6ac80f52208f850eead5d57567c37dac4c62c336c28de2c64cea0fbc36aedf
 T003:
   reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows

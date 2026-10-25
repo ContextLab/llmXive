@@ -1,7 +1,7 @@
 {
-  "model_tier": 1,
+  "model_tier": 2,
   "fix_rounds": 0,
-  "updated_at": "2026-10-25T19:22:43Z",
+  "updated_at": "2026-10-25T20:29:05Z",
   "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
   "replan_rounds": 2
 }
