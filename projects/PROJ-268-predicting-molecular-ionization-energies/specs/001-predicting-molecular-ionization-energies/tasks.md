@@ -8,7 +8,7 @@ The list below follows the canonical `- [ ] T### [P?] [USx?] description …` fo
 
 ## Phase 0 – Verification of external sources & citation quality  
 
-- [ ] T018 [P1] [US-1] Verify QM9 dataset URL and column schema against the original QM9 publication.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
+- [ ] T018 [P1] [US-1] Verify QM9 dataset URL and column schema against the original QM9 publication.   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   - **File(s)**: `code/data/download.py`  
   - **Actions**:  
     1. Fetch the QM9 dataset URL (`https://huggingface.co/datasets/deepchem/qm9`).  

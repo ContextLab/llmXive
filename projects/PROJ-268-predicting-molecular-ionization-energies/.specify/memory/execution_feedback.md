@@ -7,18 +7,23 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data/download.py -> rc=1
+gface.co/deepchem/qm9/resolve/main/dataset_infos.json.
+Please make sure you specified the correct `repo_id` and `repo_type`.
+If you are trying to access a private or gated repo, make sure you are authenticated and your token has the required permissions.
+For more details, see https://huggingface.co/docs/huggingface_hub/authentication
+Invalid username or password.
+
+The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-268-predicting-molecular-ionization-energies/code/data/download.py", line 4, in <module>
-    from datasets import load_dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-268-predicting-molecular-ionization-energies/lib/python3.11/site-packages/datasets/__init__.py", line 18, in <module>
-    from .arrow_dataset import Dataset
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-268-predicting-molecular-ionization-energies/lib/python3.11/site-packages/datasets/arrow_dataset.py", line 60, in <module>
-    import pyarrow as pa
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-268-predicting-molecular-ionization-energies/lib/python3.11/site-packages/pyarrow/__init__.py", line 59, in <module>
-    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
-  File "pyarrow/lib.pyx", line 42, in init pyarrow.lib
-ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-268-predicting-molecular-ionization-energies/code/data/download.py", line 96, in <module>
+    download_and_verify()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-268-predicting-molecular-ionization-energies/code/data/download.py", line 58, in download_and_verify
+    column_names = _load_dataset_schema(DATASET_NAME)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-268-predicting-molecular-ionization-energies/code/data/download.py", line 27, in _load_dataset_schema
+    raise RuntimeError("Could not retrieve QM9 schema information") from exc
+RuntimeError: Could not retrieve QM9 schema information
 
 - python code/data/preprocess.py  --input data/raw/qm9.parquet  --output data/processed/graphs.pt -> rc=2
 
@@ -56,3 +61,23 @@ ImportError: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-268-predicting-molecular-ionization-energies/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-268-predicting-molecular-ionization-energies/code/experiments/evaluate.py': [Errno 2] No such file or directory
 
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `qm9pack` to the project's `requirements.txt` and `pip install qm9pack`.
+- **Verified**: this loads **130831** real records with fields: XYZ_file, Index, SMILES, InChi, N_atoms, Stoichiometry, Elements, XYZ_Ang, Mulliken_pop, Harmonic_Freq_cmi, RotA_GHz, RotB_GHz, RotC_GHz, Dipole_debye, Polarizability_bohr3, HOMO_au, LUMO_au, HOMO_LUMO_gap_au, R2_bohr2, ZPVE_au, InternalEnergy_0K_au, InternalEnergy_298K_au, Enthalphy_298K_au, GibbsFreeEnergy_298K_au, Heatcapacity_Cv_cal_mol_K, A_xx, A_xy, A_yy, A_xz, A_yz, A_zz.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import qm9pack
+
+records = qm9pack.get_data('qm9')
+
+print(f"RECORDS={len(records)}")
+if not records.empty:
+    print("FIELDS=" + ",".join(records.columns.tolist()))
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
