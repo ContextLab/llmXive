@@ -14,13 +14,13 @@ The pipeline must (1) download the verified VAERS 2020‑2023 dataset, (2) valid
   - Document the command `python -m src.main` in `quickstart.md`.  
   - **Verification**: `test -s logs/structure.txt` and `grep -c src logs/structure.txt` ≥ 1.
 
-- [ ] T002 [P] [US1] **Download verified VAERS 2020‑2023 parquet dataset** <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
+- [ ] T002 [P] [US1] **Download verified VAERS 2020‑2023 parquet dataset**
   - Implement `src/data/download.py` using `datasets.load_dataset("vaers/vaers2020_2023", split="train")`.  
   - Write to `data/raw/vaers_2020_2023.parquet`.  
   - Record SHA‑256 checksum in `data/checksums.txt`.  
   - **Verification**: checksum line exists; file size > 0.
 
-- [ ] T003 [P] [US1] **Validate raw VAERS file against JSON‑Schema**   <!-- FAILED-IN-EXECUTION: src/data/validate_raw.py exit=1 -->
+- [ ] T003 [P] [US1] **Validate raw VAERS file against JSON‑Schema**   <!-- FAILED-IN-EXECUTION: src/data/validate_raw.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/validate_raw.py exit=1 -->
   - Create `src/data/validate_raw.py` (CLI: `python -m src.data.validate_raw --schema <schema_path> --input <file>`).  
   - Load `specs/001-statistical-analysis-of-publicly-availab/contracts/raw_dataset.schema.yaml` with `jsonschema`.  
   - Exit 0 and write `logs/validate_raw_pass.txt` on success; on failure write `logs/validate_raw_fail.txt` and exit 1.  

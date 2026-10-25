@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 import pandas as pd
+import numpy as np
 import yaml
 import jsonschema
 from jsonschema import validate, ValidationError, SchemaError
@@ -69,8 +70,21 @@ def validate_raw_dataset(input_path: Path, schema_path: Path) -> bool:
         records = df_sample.to_dict(orient="records")
         
         for i, record in enumerate(records):
+            # jsonschema does not handle pandas/numpy types (Timestamp, int64, float64)
+            # We must cast them to native Python types for the validator to work.
+            cleaned_record = {}
+            for k, v in record.items():
+                if isinstance(v, pd.Timestamp):
+                    cleaned_record[k] = v.strftime('%Y-%m-%d')
+                elif isinstance(v, (np.integer, np.int64)):
+                    cleaned_record[k] = int(v)
+                elif isinstance(v, (np.floating, np.float64)):
+                    cleaned_record[k] = float(v)
+                else:
+                    cleaned_record[k] = v
+            
             try:
-                validate(instance=record, schema=schema)
+                validate(instance=cleaned_record, schema=schema)
             except ValidationError as ve:
                 log.error("Validation error at row %d: %s", i, ve.message)
                 return False

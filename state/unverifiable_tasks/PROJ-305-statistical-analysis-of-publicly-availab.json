@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-305-statistical-analysis-of-publicly-availab",
+  "tasks": [
+    {
+      "task_key": "T002",
+      "reject_count": 1,
+      "last_reason": "Checked `src/data/download.py` (uses dataset\u202f`chrisvoncsefalvay/vaers-outcomes` instead of the required `\"vaers/vaers2020_2023\"`), the generated `data/raw/vaers_2020_2023.parquet` (size\u202f>\u202f0) and `data/checksums.txt` (checksum line present). The wrong dataset source violates the task specification, so the requirement is not fully satisfied.",
+      "first_seen": "2026-10-25T17:24:12.644177+00:00",
+      "last_seen": "2026-10-25T17:24:12.644177+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "Requested task execution failed; rerun successfully: src/data/validate_raw.py exit=1",
+      "first_seen": "2026-10-25T17:24:12.645577+00:00",
+      "last_seen": "2026-10-25T17:24:12.645577+00:00"
+    }
+  ],
+  "updated_at": "2026-10-25T17:24:12.645577+00:00"
+}

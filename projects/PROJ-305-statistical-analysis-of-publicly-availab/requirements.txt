@@ -11,5 +11,3 @@ psutil
 requests
 PyYAML
 pytest
-ruff
-black

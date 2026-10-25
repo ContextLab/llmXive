@@ -1,8 +1,11 @@
 T001:
   task: d21b4b4adb31830a06c2784e444bd7c41506c0f56e426a2b9ef3f06739c7a6bd
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/data/download.py
-    exit=1'
+  reason: "Checked `src/data/download.py` (uses dataset\u202F`chrisvoncsefalvay/vaers-outcomes`\
+    \ instead of the required `\"vaers/vaers2020_2023\"`), the generated `data/raw/vaers_2020_2023.parquet`\
+    \ (size\u202F>\u202F0) and `data/checksums.txt` (checksum line present). The wrong\
+    \ dataset source violates the task specification, so the requirement is not fully\
+    \ satisfied."
   task: c1dbc93df69bacecb0ee9573e244f4b7018db0e3307b59f158c214f30c5a0428
 T003:
   reason: 'Requested task execution failed; rerun successfully: src/data/validate_raw.py
