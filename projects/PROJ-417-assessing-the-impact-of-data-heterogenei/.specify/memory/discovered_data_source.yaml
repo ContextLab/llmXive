@@ -1,13 +1,12 @@
 status: none
-intent: Cochrane Database of Systematic Reviews meta-analysis dataset python package
-  for heterogeneity simulation python package dataset
+intent: Cochrane Database of Systematic Reviews meta-analysis data python package
+  dataset
 required_fields:
 - study_id
 - effect_size
 - standard_error
+- variance
 - sample_size
-- replicate_id
-- tau2_level
-cache_key: 72c4ba71b5198ab93949a3609cde5f6eee47a66371972c020f71a60741970522
-searched_at: '2026-10-21T09:14:43.181379+00:00'
+cache_key: f546095117b4353c0cd02b1ef2f40734ac7f6950fbd336e6710c68cf27a7b0c9
+searched_at: '2026-10-25T07:11:22.788210+00:00'
 retry_count: 1

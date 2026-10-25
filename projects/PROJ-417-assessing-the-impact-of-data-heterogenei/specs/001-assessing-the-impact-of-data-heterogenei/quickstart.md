@@ -1,8 +1,8 @@
 # Quickstart: Assessing the Impact of Data Heterogeneity on Meta-Analysis Results
 
 ## 1. Prerequisites
-* Python 3.11 or newer
-* `git` (to clone the repository)
+* Python 3.11 or newer  
+* `git` (to clone the repository)  
 * Access to a terminal (local machine or GitHub Actions runner)
 
 ## 2. Installation
@@ -45,7 +45,7 @@ The script uses a fixed random seed; if the file already exists it will be overw
 ## 4. Run the Full Simulation
 
 ```bash
-# Full primary sweep (5 τ² levels × 900 replicates) + sensitivity sweep
+# Full primary sweep (multiple τ² levels × 900 replicates) + sensitivity sweep
 python code/main.py --mode full --seed 12345
 ```
 
@@ -59,10 +59,10 @@ python code/main.py --mode full --seed 12345
 ## 5. Run a Quick Dry‑Run (Sanity Check)
 
 ```bash
-python code/main.py --mode dry-run --replicates 10 --levels 0 0.1 --seed 42
+python code/main.py --mode dry-run --replicates <multiple> --levels 0 0.1 --seed 42
 ```
 
-*Creates only 2 levels × 10 replicates* and finishes within seconds. Use this to verify that all files are produced and schemas pass.
+*Creates only a few levels × 10 replicates* and finishes within seconds. Use this to verify that all files are produced and schemas pass.
 
 ## 6. Verify Outputs
 
@@ -78,7 +78,7 @@ pytest tests/unit/
 pytest tests/integration/
 ```
 
-All commands should exit with status 0. The validation step confirms that:
+All commands should exit with a success status. The validation step confirms that:
 * `simulation_raw.jsonl` contains records matching the three contract schemas.  
 * `aggregated_metrics.csv` matches `contracts/aggregated_metric.schema.yaml`.  
 * PNG plots exist in `data/results/`.
