@@ -1,7 +1,7 @@
 # Data Model: Assessing the Impact of Data Heterogeneity on Meta-Analysis Results
 
 ## 1. Overview
-The pipeline stores three core artifact types, each validated against a JSON/YAML schema in `contracts/`. All files live under `data/results/`.
+The pipeline stores four core artifact types, each validated against a JSON/YAML schema in `contracts/`. All files live under `data/results/`.
 
 ## 2. Entities
 
@@ -10,7 +10,7 @@ The pipeline stores three core artifact types, each validated against a JSON/YAM
 |-------|------|-------------|
 | `replicate_id` | integer | Unique identifier for the replicate (1‑based). |
 | `tau_squared` | number | Injected between‑study variance (ground truth). |
-| `true_effect` | number | Fixed true effect size used for generation (0.5). |
+| `true_effect` | number | Fixed true effect size used for generation (`0.5`). |
 | `study_effects` | array[number] | Generated effect sizes $y_{i,r}$. |
 | `study_se` | array[number] | Corresponding standard errors $\sigma_i$. |
 | `study_sizes` | array[integer] | Sample sizes $N_i$ used to derive SEs. |
@@ -31,7 +31,7 @@ The pipeline stores three core artifact types, each validated against a JSON/YAM
 | `coverage_flag` | boolean | True if `true_effect` lies within `[ci_lower, ci_upper]`. |
 | `convergence_warning` | boolean | True only for REML when convergence failed (fallback used). |
 
-*All `EstimationResult` records are stored **exclusively** in the JSON‑lines file `data/results/simulation_raw.jsonl` alongside their originating `SimulatedDataset`. No separate CSV file is used, satisfying Principle IV (Single Source of Truth).*
+All `EstimationResult` records are stored **exclusively** in the JSON‑lines file `data/results/simulation_raw.jsonl` alongside their originating `SimulatedDataset`. No separate CSV file is used, satisfying Principle IV (Single Source of Truth).
 
 ### 2.3 AggregatedMetric
 | Field | Type | Description |
@@ -44,13 +44,25 @@ The pipeline stores three core artifact types, each validated against a JSON/YAM
 | `coverage_deviation` | number | `coverage_rate − 0.95`. |
 | `coverage_ci_lower` | number | Wilson‑score lower bound for coverage. |
 | `coverage_ci_upper` | number | Wilson‑score upper bound for coverage. |
-| `binomial_p_value` | number | Exact binomial test p‑value (Bonferroni‑adjusted). |
-| `bias_test_p_value` | number | Kruskal‑Wallis (or Dunn’s post‑hoc) p‑value for bias differences across τ² levels. |
+| `binomial_p_value` | number | Exact binomial test p‑value (Bonferroni‑adjusted α = 0.01). |
+| `bias_test_p_value` | number | ANOVA or Kruskal‑Wallis p‑value for bias differences across τ² levels. |
 | `report_framing` | string | Must be `"associational"` per SC‑005. |
+
+### 2.4 CoverageTest
+| Field | Type | Description |
+|-------|------|-------------|
+| `estimator_type` | string (enum as above) | Estimator evaluated. |
+| `tau_squared` | number | τ² level of the test. |
+| `p_value` | number | Exact binomial test p‑value (pre‑adjustment). |
+| `alpha_used` | number | Nominal α before Bonferroni correction (`0.01`). |
+| `test_type` | string | `"binomial"` (fixed for this project). |
+
+The `CoverageTest` objects are stored in `data/results/coverage_tests.json` (one JSON object per line). This artifact is now part of the data model, fulfilling the Single Source of Truth principle.
 
 ## 3. File Formats
 * **SimulatedDataset & EstimationResult** – stored together as JSON‑lines (`.jsonl`) in `simulation_raw.jsonl`. Each line conforms to its respective schema.  
 * **AggregatedMetric** – CSV (`aggregated_metrics.csv`) with column names matching the table above.  
+* **CoverageTest** – JSON‑lines (`coverage_tests.json`) matching `contracts/coverage_test.schema.yaml`.  
 * **Plots** – PNG files (`coverage_vs_tau2.png`, `mean_bias_vs_tau2.png`).  
 * **Report** – Markdown (`report.md`).  
 
@@ -60,3 +72,4 @@ The pipeline stores three core artifact types, each validated against a JSON/YAM
 * **Unit tests** – Verify that generated objects satisfy schemas (`tests/unit/test_generator.py`, `test_estimators.py`).  
 
 ---
+
