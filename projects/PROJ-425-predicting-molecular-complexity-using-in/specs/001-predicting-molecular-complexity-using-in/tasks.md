@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure: `mkdir -p code/ data/raw/ data/processed/ tests/unit tests/integration`
+- [ ] T001 Create project structure: `mkdir -p code/ data/raw/ data/processed/ tests/unit tests/integration`
 - [X] T002 Create `code/requirements.txt` with pinned versions: `rdkit==2023.9.1 `, `pandas==2.1.0 `, `numpy==1.24.0 `, `scipy==1.11.0 `, `scikit-learn==1.3.0 `, `matplotlib==3.8.0 `, `seaborn==0.13.0 `, `requests==2.31.0 `, `huggingface_hub==0.17.0 `, `datasets==2.14.0 `
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -56,9 +56,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 **NOTE**: The following tasks are **Atomic File Creation Tasks**. Each task creates exactly ONE file. Do not combine these into a single implementation step.
 
-- [X] T004 [P] [Atomic] Create `code/config.py`: Define `{'SEED': 42, 'DATASET_ID': 'sagawa/pubchem-10m-canonicalized ', 'CHUNK_SIZE': 500, 'TIMEOUT_SECONDS': 60, 'MAX_RETRIES': 3, 'MEMORY_LIMIT_GB': 'sufficient for the workload'}`. Ensure `DATASET_ID` reflects the Plan's override of the Spec's CID requirement. Note: This configuration supports the analysis of molecular complexity vs. chemical properties on a representative random sample of PubChem.
+- [ ] T004 [P] [Atomic] Create `code/config.py`: Define `{'SEED': 42, 'DATASET_ID': 'sagawa/pubchem-10m-canonicalized ', 'CHUNK_SIZE': 500, 'TIMEOUT_SECONDS': 60, 'MAX_RETRIES': 3, 'MEMORY_LIMIT_GB': 'sufficient for the workload'}`. Ensure `DATASET_ID` reflects the Plan's override of the Spec's CID requirement. Note: This configuration supports the analysis of molecular complexity vs. chemical properties on a representative random sample of PubChem.
 
-- [X] T005 [P] [Atomic] Create `code/download.py`: Implement `fetch_molecules()` using `datasets.load_dataset` with streaming for `sagawa/pubchem-10m-canonicalized `. Implement retry logic (exponential backoff, max 3 retries) for network errors. Verify SHA-256 checksums. Output an iterator of dicts `{'cid': int, 'smiles': str}`. **Do not** implement PubChem API logic; use HuggingFace as per Plan.
+- [ ] T005 [P] [Atomic] Create `code/download.py`: Implement `fetch_molecules()` using `datasets.load_dataset` with streaming for `sagawa/pubchem-10m-canonicalized `. Implement retry logic (exponential backoff, max 3 retries) for network errors. Verify SHA-256 checksums. Output an iterator of dicts `{'cid': int, 'smiles': str}`. **Do not** implement PubChem API logic; use HuggingFace as per Plan.
 - [X] T006 [P] [Atomic] Create `code/metrics.py` with exact signatures:
  - `calculate_shannon_entropy(smiles: str) -> float`
  - `calculate_lzma_length(smiles: str) -> int`
@@ -66,9 +66,9 @@
  - `calculate_qed_score(smiles: str) -> float`
  - `calculate_molecular_weight(smiles: str) -> float`
  - `calculate_atom_count(smiles: str) -> int`
-- [X] T007 [P] [Atomic] Create `code/main.py` orchestration skeleton: Load config, initialize logging, define `process_chunk` function. <!-- FAILED: unspecified -->
-- [X] T008 [P] [Atomic] Configure logging in `code/main.py` to capture skipped molecules (invalid SMILES, timeouts) with specific format: `{"event": "skipped", "reason": "timeout" | "invalid_smiles", "cid": int}`.
-- [X] T009 [P] [Atomic] Create `code/setup_env.py` (or equivalent): Configure environment variables for CI runner constraints (CPU-only, memory limits) and validate `rdkit` installation.
+- [~] T007 [P] [Atomic] Create `code/main.py` orchestration skeleton: Load config, initialize logging, define `process_chunk` function. <!-- FAILED: unspecified -->
+- [~] T008 [P] [Atomic] Configure logging in `code/main.py` to capture skipped molecules (invalid SMILES, timeouts) with specific format: `{"event": "skipped", "reason": "timeout" | "invalid_smiles", "cid": int}`.
+- [~] T009 [P] [Atomic] Create `code/setup_env.py` (or equivalent): Configure environment variables for CI runner constraints (CPU-only, memory limits) and validate `rdkit` installation.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,19 +84,19 @@
 
 > **NOTE**: Write these test scaffolds FIRST to define assertions for Phase 2 functions.
 
-- [X] T010 [P] [US1] Add `tests/unit/test_metrics.py::test_shannon_entropy_returns_positive_float` with assertion: Input `smiles="CCO"`, assert `result > 0` and `isinstance(result, float)`.
-- [X] T011 [P] [US1] Add `tests/unit/test_metrics.py::test_lzma_length_returns_integer` with assertion: Input `smiles="CCO"`, assert `isinstance(result, int)` and `result > 0`.
-- [X] T012 [P] [US1] Add `tests/unit/test_metrics.py::test_sa_and_qed_return_valid_range` with assertion: Input `smiles="CCO"`, assert `0.0 <= sa_score <= 10.0` and `0.0 <= qed_score <= 1.0`.
-- [X] T013 [P] [US1] Add `tests/integration/test_error_handling.py::test_invalid_smiles_skipped` with assertion: Input list `["CCO", "INVALID_SMILES_STRING", "CC"]`, assert `skipped_count == 1` and `valid_count == 2`.
+- [~] T010 [P] [US1] Add `tests/unit/test_metrics.py::test_shannon_entropy_returns_positive_float` with assertion: Input `smiles="CCO"`, assert `result > 0` and `isinstance(result, float)`.
+- [~] T011 [P] [US1] Add `tests/unit/test_metrics.py::test_lzma_length_returns_integer` with assertion: Input `smiles="CCO"`, assert `isinstance(result, int)` and `result > 0`.
+- [~] T012 [P] [US1] Add `tests/unit/test_metrics.py::test_sa_and_qed_return_valid_range` with assertion: Input `smiles="CCO"`, assert `0.0 <= sa_score <= 10.0` and `0.0 <= qed_score <= 1.0`.
+- [~] T013 [P] [US1] Add `tests/integration/test_error_handling.py::test_invalid_smiles_skipped` with assertion: Input list `["CCO", "INVALID_SMILES_STRING", "CC"]`, assert `skipped_count == 1` and `valid_count == 2`.
 
 ### Implementation for User Story 1
 
-- [X] T014 [US1] **VERIFY DATA SOURCE**: Confirm `code/main.py` calls `code/download.py` (T005) which fetches from `sagawa/pubchem-10m-canonicalized `. Document in `code/main.py` comments that this overrides Spec FR-001 (CID 1-5000) per Plan, ensuring the sample is representative.
-- [ ] T014B [US1] **Document Deviation**: Update `code/report.py` to include a `limitations` section in the final JSON/HTML report explicitly stating: "Analysis performed on HuggingFace dataset 'sagawa/pubchem-10m-canonicalized ' (random sample) instead of Spec FR-001 (CID 1-5000) per Plan.md. Results are generalizable to chemical space but not strictly limited to the CID 1-5000 range."
+- [~] T014 [US1] **VERIFY DATA SOURCE**: Confirm `code/main.py` calls `code/download.py` (T005) which fetches from `sagawa/pubchem-10m-canonicalized `. Document in `code/main.py` comments that this overrides Spec FR-001 (CID 1-5000) per Plan, ensuring the sample is representative.
+- [~] T014B [US1] **Document Deviation**: Update `code/report.py` to include a `limitations` section in the final JSON/HTML report explicitly stating: "Analysis performed on HuggingFace dataset 'sagawa/pubchem-10m-canonicalized ' (random sample) instead of Spec FR-001 (CID 1-5000) per Plan.md. Results are generalizable to chemical space but not strictly limited to the CID 1-5000 range."
 - [ ] T015 [US1] Implement `code/main.py` chunked processing loop: Iterate `code/download.py` in batches of `CHUNK_SIZE`; call `code/metrics.py` functions; write results incrementally to `data/processed/metrics.csv` (columns: cid, smiles, entropy, lz, sa, qed, mw, atom_count). <!-- ATOMIZE: requested -->
-- [X] T016 [US1] Implement `code/analysis.py` function `calculate_pearson_correlations(df: pd.DataFrame) -> dict`: Input `df` columns; use `scipy.stats.pearsonr`; return dict `{'entropy_sa': (r, p), 'entropy_qed': (r, p),...}`.
-- [X] T017 [US1] Implement `code/report.py` function `generate_initial_report(correlations: dict) -> None`: Write JSON to `data/processed/report.json` with keys `r`, `p`, `n`, and explicit label `type: "associational"`.
-- [X] T018 [US1] Implement timeout handling in `code/metrics.py` wrapper: Enforce `TIMEOUT_SECONDS` per molecule with a duration sufficient to complete the evaluation.; log skipped entries with `reason: "timeout"`; ensure no hanging processes.
+- [~] T016 [US1] Implement `code/analysis.py` function `calculate_pearson_correlations(df: pd.DataFrame) -> dict`: Input `df` columns; use `scipy.stats.pearsonr`; return dict `{'entropy_sa': (r, p), 'entropy_qed': (r, p),...}`.
+- [~] T017 [US1] Implement `code/report.py` function `generate_initial_report(correlations: dict) -> None`: Write JSON to `data/processed/report.json` with keys `r`, `p`, `n`, and explicit label `type: "associational"`.
+- [~] T018 [US1] Implement timeout handling in `code/metrics.py` wrapper: Enforce `TIMEOUT_SECONDS` per molecule with a duration sufficient to complete the evaluation.; log skipped entries with `reason: "timeout"`; ensure no hanging processes.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,22 +110,22 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Unit test for bootstrap resampling logic in `tests/unit/test_analysis.py`: Input `data=[1, 2, 3, 4, 5]`, `n_iter=100`, assert `len(results) == 100` and `0 < mean(results) < 6`.
-- [X] T021 [P] [US2] Unit test for multiple-comparison correction (Bonferroni) in `tests/unit/test_analysis.py`: Input `p_values=[0.01, 0.04, 0.05, 0.06]`, `n_tests=4`, assert `adjusted[0] == 0.04` and `adjusted[3] == 1.0` (capped at 1).
+- [~] T020 [P] [US2] Unit test for bootstrap resampling logic in `tests/unit/test_analysis.py`: Input `data=[1, 2, 3, 4, 5]`, `n_iter=100`, assert `len(results) == 100` and `0 < mean(results) < 6`.
+- [~] T021 [P] [US2] Unit test for multiple-comparison correction (Bonferroni) in `tests/unit/test_analysis.py`: Input `p_values=[0.01, 0.04, 0.05, 0.06]`, `n_tests=4`, assert `adjusted[0] == 0.04` and `adjusted[3] == 1.0` (capped at 1).
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement `code/analysis.py` function `calculate_bootstrap_stats(df: pd.DataFrame, metric_x: str, metric_y: str, n_iter: int=1000) -> dict`: Resample rows with replacement; calculate Pearson r for each iteration; compute 95% CI using percentile method; return `{'r_mean': float, 'ci_lower': float, 'ci_upper': float, 'std': float}`.
+- [~] T022 [US2] Implement `code/analysis.py` function `calculate_bootstrap_stats(df: pd.DataFrame, metric_x: str, metric_y: str, n_iter: int=1000) -> dict`: Resample rows with replacement; calculate Pearson r for each iteration; compute 95% CI using percentile method; return `{'r_mean': float, 'ci_lower': float, 'ci_upper': float, 'std': float}`.
 - [ ] T022B [US2] **Orchestrate Bootstrap**: Update `code/main.py` to call `calculate_bootstrap_stats` for all four metric pairs after Pearson calculation and pass results to `generate_final_report`.
-- [X] T023 [US2] Implement `code/analysis.py` function `apply_multiple_comparison_correction(p_values: dict) -> dict`: Apply Bonferroni correction to 4 p-values; return adjusted p-values.
-- [X] T037 [US2] Implement `code/analysis.py` function `calculate_spearman_correlations(df: pd.DataFrame) -> dict`: Use `scipy.stats.spearmanr`; return dict of r and p-values for same pairs as Pearson.
+- [~] T023 [US2] Implement `code/analysis.py` function `apply_multiple_comparison_correction(p_values: dict) -> dict`: Apply Bonferroni correction to 4 p-values; return adjusted p-values.
+- [~] T037 [US2] Implement `code/analysis.py` function `calculate_spearman_correlations(df: pd.DataFrame) -> dict`: Use `scipy.stats.spearmanr`; return dict of r and p-values for same pairs as Pearson.
 - [ ] T037B [US2] **Integrate Spearman**: Update `code/report.py` to include Spearman correlation results (r and p) in the final report table.
 - [ ] T037C [US2] **Execute Spearman**: Update `code/main.py` to explicitly call `calculate_spearman_correlations` and pass results to `generate_final_report`.
-- [X] T038 [US2] Implement `code/analysis.py` function `calculate_partial_correlations(df: pd.DataFrame) -> dict`: Control for MW and Atom Count; return partial r and p-values for Entropy-SA and LZ-SA.
+- [~] T038 [US2] Implement `code/analysis.py` function `calculate_partial_correlations(df: pd.DataFrame) -> dict`: Control for MW and Atom Count; return partial r and p-values for Entropy-SA and LZ-SA.
 - [ ] T038B [US2] **Integrate Partial**: Update `code/report.py` to include Partial correlation results (r and p) in the final report table.
 - [ ] T038C [US2] **Execute Partial**: Update `code/main.py` to explicitly call `calculate_partial_correlations` and pass results to `generate_final_report`.
 - [ ] T040 [US2] **Load Data for Analysis**: Implement `code/main.py` step to load `data/processed/metrics.csv` into a pandas DataFrame (`df_full`) for analysis. Handle `FileNotFoundError` gracefully.
-- [X] T039 [US2] **Enforce Memory Limit**: Implement `code/analysis.py` function `enforce_memory_limit_bootstrap(df: pd.DataFrame) -> pd.DataFrame`:
+- [~] T039 [US2] **Enforce Memory Limit**: Implement `code/analysis.py` function `enforce_memory_limit_bootstrap(df: pd.DataFrame) -> pd.DataFrame`:
  1. Check `df.memory_usage(deep=True)`.
  2. If `> 4GB`:
  a. Bin `atom_count` into 10 quantiles.

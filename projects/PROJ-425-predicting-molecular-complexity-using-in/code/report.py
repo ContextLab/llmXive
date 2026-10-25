@@ -9,6 +9,13 @@ from logging_setup import get_logger
 
 logger = get_logger(__name__)
 
+# Limitation description to be included in every report
+_LIMITATIONS_TEXT = (
+    "Analysis performed on HuggingFace dataset 'sagawa/pubchem-10m-canonicalized' "
+    "(random sample) instead of Spec FR-001 (CID 1-5000) per Plan.md. "
+    "Results are generalizable to chemical space but not strictly limited to the CID 1-5000 range."
+)
+
 def generate_initial_report(correlations: Dict[str, tuple], n_samples: Optional[int] = None) -> None:
     """
     Generate the initial associational report.
@@ -18,7 +25,7 @@ def generate_initial_report(correlations: Dict[str, tuple], n_samples: Optional[
                      Example: {'entropy_sa': (0.85, 0.001), 'entropy_qed': (-0.12, 0.45)}
         n_samples: Optional explicit sample size. If None, will attempt to infer from
                    the processed metrics file.
-    
+
     Writes:
         data/processed/report.json with structure:
         {
@@ -27,9 +34,10 @@ def generate_initial_report(correlations: Dict[str, tuple], n_samples: Optional[
             "correlations": {
                 "entropy_sa": {"r": float, "p": float},
                 ...
-            }
+            },
+            "limitations": "..."
         }
-    
+
     Returns:
         None (writes file to disk as a side effect)
     """
@@ -62,7 +70,8 @@ def generate_initial_report(correlations: Dict[str, tuple], n_samples: Optional[
     report_data = {
         "type": "associational",
         "n": n_samples,
-        "correlations": formatted_correlations
+        "correlations": formatted_correlations,
+        "limitations": _LIMITATIONS_TEXT
     }
 
     # Ensure directory exists
@@ -89,7 +98,7 @@ def main():
         "lz_sa": (0.62, 0.0002),
         "lz_qed": (-0.18, 0.09)
     }
-    
+
     try:
         generate_initial_report(mock_correlations)
         print(f"Report generated successfully.")

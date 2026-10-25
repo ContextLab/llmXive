@@ -1,3 +1,50 @@
+T001:
+  c: false
+  h: c41a53311f1f528eacb55174eb9fa14d08f4fde4d844071c93c8d6b327b9011a
+  r: The `code/` directory exists, but the required `data/raw/`, `data/processed/`,
+    `tests/unit/`, and `tests/integration/` directories are missing from the project
+    structure.
+  sig: b0ff6e152e7d98c97ecd4ab15814f320f6e2e4d425d956e0158d22722234aa88
+T002:
+  c: true
+  h: 27c58c1fd9784ab454bcecbfee50c1a63e9eaf71c13d99a9fbbd344495dab22b
+  r: "The `code/requirements.txt` file exists (169\u202Fbytes) and contains exactly\
+    \ the pinned versions specified for rdkit, pandas, numpy, scipy, scikit-learn,\
+    \ matplotlib, seaborn, requests, huggingface_hub, and datasets."
+  sig: 3c02f152c2aab98ac6e61763fe67a986fc7c05f7907ccca7169fcd1615a5fee0
+T003:
+  c: false
+  h: 1bd0f9b0c701f5d92004adc71714b5c2d64081fafa084f5ad9d26b19392f4403
+  r: The evidence contains no linting or formatting configuration files (e.g., `pyproject.toml`
+    with Black settings, `.ruff.toml` or `ruff.toml`, `.flake8`), nor any scripts
+    or CI steps that invoke ruff/flake8/black. Without these artifacts, the task of
+    configuring the tools is not demonstrated.
+  sig: e74fd5fa4635875f8f6c3c3b561fe01458ab560f61cc67248898ac497d7b36a7
+T004:
+  c: false
+  h: de0f14fd223abe3d5d72cc465298007630d0b416207e57999104d36a7bc7d07e
+  r: "The provided `code/config.py` defines the configuration values as separate variables,\
+    \ not as a single dictionary matching the exact key\u2011value mapping required,\
+    \ and the `DATASET_ID` string lacks the trailing space shown in the task specification.\
+    \ The artifact therefore does not precisely satisfy the task\u2019s requirement."
+  sig: b41eba08bf08764e77fe93722f1c376cf494f72f52d2f559d62250ecf01545fc
+T005:
+  c: false
+  h: 552840b6e51a01397ec49883e297b717d72d518d71aafac298d1273d9edd9e99
+  r: "The `code/download.py` file exists and implements streaming fetch with exponential\u2011\
+    backoff retries, but it never calls the `verify_checksum` (or `compute_file_checksum`)\
+    \ functions, so SHA\u2011256 checksum verification is not performed as required.\
+    \ Adding checksum verification of the downloaded dataset (or of each streamed\
+    \ file) is needed to satisfy the task."
+  sig: 3117547c7e2a83da7e6849368d3e531b84344beb72ca34ebfdd7f17b27b9a08b
+T006:
+  c: true
+  h: 36f832b092cb87da4c3da6987e7d68699d21c5a6dcaa5b1bd98a5a3308022908
+  r: "Checked `code/metrics.py` (9905\u202Fbytes) and confirmed it defines all six\
+    \ required functions with the exact signatures and appropriate return types, implementing\
+    \ the described calculations. The file exists, is non\u2011empty, and meets the\
+    \ task specification."
+  sig: 95005c16ab28124069c730c64b69a9356df1da143d5073ae017320c6ef4bfd6e
 T015:
   c: false
   h: 18b7843faea4242de80d5e2aa6430d04952ea1e2a67dd6bb40c6fdb99ec668d0
