@@ -6,23 +6,24 @@ Primary path: ``datasets.load_dataset(..., streaming=True)``. The
 environments ship a ``pyarrow`` build incompatible with the installed
 NumPy (ImportError at import time). When — and only when — the
 ``datasets`` library itself cannot be imported, the loader falls back to
-the official Hugging Face datasets-server HTTP API
+the official Hugging Face datasets‑server HTTP API
 (https://datasets-server.huggingface.co), which serves the SAME real
 records of the SAME real dataset as JSON. Both paths stream the REAL
 validation split; any fetch/parse failure raises loudly. There is NO
 synthetic or mock fallback.
 
 Outputs:
-- ``data/raw/video_metadata.jsonl``  (one schema-validated record/line)
-- ``data/raw/checksums.json``       (SHA-256 checksums of written files)
+- ``data/raw/video_metadata.jsonl``  (one schema‑validated record/line)
+- ``data/raw/checksums.json``       (SHA‑256 checksums of written files)
 - ``data/raw/dataset_stats.json``   (record count, field presence,
-  missing-tag counts, sample-size/power limitation statement)
+  missing‑tag counts, sample‑size/power limitation statement)
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, Iterator, List, Optional
 
@@ -37,7 +38,7 @@ log = get_logger(__name__)
 # ``datasets`` is imported defensively: on runners where pyarrow was
 # built against NumPy 2.x but NumPy 1.x is installed, importing
 # ``datasets`` raises ImportError. In that case we keep the module-level
-# name ``load_dataset = None`` and use the datasets-server HTTP API in
+# name ``load_dataset = None`` and use the datasets‑server HTTP API in
 # ``stream_records``. If the import succeeds, the streaming path is used
 # and any runtime fetch error propagates (fail loudly).
 try:  # pragma: no cover - environment dependent
@@ -157,7 +158,7 @@ def _first_present(record: Dict[str, Any], keys: List[str]) -> Optional[Any]:
     for key in keys:
         if key in record and record[key] is not None:
             return record[key]
-    # case-insensitive fallback
+    # case‑insensitive fallback
     lower = {str(k).strip().lower(): v for k, v in record.items()}
     for key in keys:
         if key in lower and lower[key] is not None:
@@ -249,7 +250,7 @@ def normalize_record(record: Dict[str, Any], index: int) -> Dict[str, Any]:
         for k, v in record.items()
         if k not in used and not str(k).lower() in {t for t in OCEAN_TRAITS}
     }
-    # keep only JSON-serializable extras
+    # keep only JSON‑serializable extras
     clean_extra: Dict[str, Any] = {}
     for k, v in extra.items():
         try:
@@ -261,10 +262,22 @@ def normalize_record(record: Dict[str, Any], index: int) -> Dict[str, Any]:
     return mapped
 
 
+def _auth_headers() -> Dict[str, str]:
+    """Return optional Authorization header if a HuggingFace token is available."""
+    token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
+    if token:
+        return {"Authorization": f"Bearer {token}"}
+    return {}
+
+
 def _http_config_for_split() -> str:
-    """Resolve the datasets-server config name for the validation split."""
+    """Resolve the datasets‑server config name for the validation split."""
+    headers = _auth_headers()
     resp = requests.get(
-        f"{DATASETS_SERVER}/splits", params={"dataset": DATASET_ID}, timeout=60
+        f"{DATASETS_SERVER}/splits",
+        params={"dataset": DATASET_ID},
+        headers=headers,
+        timeout=60,
     )
     resp.raise_for_status()
     splits = resp.json().get("splits", [])
@@ -273,12 +286,12 @@ def _http_config_for_split() -> str:
             return s["config"]
     raise RuntimeError(
         f"{DATASET_ID} has no '{SPLIT}' split according to the Hugging Face "
-        f"datasets-server (available splits: {splits!r}); refusing to fabricate data."
+        f"datasets‑server (available splits: {splits!r}); refusing to fabricate data."
     )
 
 
 def _stream_records_http() -> Iterator[Dict[str, Any]]:
-    """Stream the REAL validation split via the datasets-server rows API.
+    """Stream the REAL validation split via the datasets‑server rows API.
 
     Used only when the ``datasets`` library cannot be imported (e.g. a
     pyarrow/NumPy binary incompatibility on the runner). Raises on any
@@ -286,13 +299,14 @@ def _stream_records_http() -> Iterator[Dict[str, Any]]:
     """
     config = _http_config_for_split()
     log.info(
-        "Streaming %s split=%s via datasets-server (config=%s); "
-        "datasets-library import unavailable: %s",
+        "Streaming %s split=%s via datasets‑server (config=%s); "
+        "datasets‑library import unavailable: %s",
         DATASET_ID,
         SPLIT,
         config,
         _DATASETS_IMPORT_ERROR,
     )
+    headers = _auth_headers()
     offset = 0
     page_size = 100
     while True:
@@ -305,6 +319,7 @@ def _stream_records_http() -> Iterator[Dict[str, Any]]:
                 "offset": offset,
                 "length": page_size,
             },
+            headers=headers,
             timeout=120,
         )
         resp.raise_for_status()
@@ -316,7 +331,7 @@ def _stream_records_http() -> Iterator[Dict[str, Any]]:
             rec = row.get("row")
             if rec is None:
                 raise RuntimeError(
-                    f"Malformed datasets-server row at offset {offset}: {row!r}"
+                    f"Malformed datasets‑server row at offset {offset}: {row!r}"
                 )
             yield dict(rec)
         if len(rows) < page_size:
@@ -334,7 +349,7 @@ def stream_records() -> Iterator[Dict[str, Any]]:
             yield dict(record)
         return
     # ``datasets`` could not be imported on this runner — use the real
-    # datasets-server HTTP API for the same dataset/split.
+    # datasets‑server HTTP API for the same dataset/split.
     yield from _stream_records_http()
 
 
@@ -434,9 +449,9 @@ def main() -> None:
             "results (deviation #1, flagged for kickback)."
         ),
         "transport": (
-            "datasets-library streaming"
+            "datasets‑library streaming"
             if callable(globals().get("load_dataset"))
-            else "huggingface datasets-server HTTP API (datasets library not "
+            else "huggingface datasets‑server HTTP API (datasets library not "
                  "importable on this runner)"
         ),
     }
