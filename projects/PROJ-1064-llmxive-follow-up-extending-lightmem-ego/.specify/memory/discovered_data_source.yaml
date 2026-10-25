@@ -1,12 +1,13 @@
 status: none
-intent: Ego4D dataset download metadata timestamps event IDs video mae embeddings
-  python package dataset
+intent: download Ego4D egocentric video dataset and install faiss python package dataset
 required_fields:
 - video_id
 - timestamp
 - event_id
 - visual_embedding
 - audio_embedding
-cache_key: b244adec4ecf27ea1a2668590ba17b55aaa9e044201f47e0da48621b316a9383
-searched_at: '2026-10-25T05:10:56.905767+00:00'
+- embedding_dim
+- fps
+cache_key: b796b9b4ed231d9ed486dccd15a6503df1b63d5b997468f94561f3133f919fd2
+searched_at: '2026-10-25T09:12:11.298521+00:00'
 retry_count: 1

@@ -1,31 +1,17 @@
 """
-Download a sample dataset and write raw files with checksums.
-
-This implementation uses the public AG News dataset as a reliable, small,
-real data source that is always available on the Hugging Face Hub. The
-script writes the dataset to a JSONL file and records a SHA‑256 checksum
-for verification, satisfying the T001 verification criteria.
+Download Ego4D dataset metadata and embeddings and write raw files with checksums.
 """
 
 import argparse
 import hashlib
 import json
 from pathlib import Path
-
 from datasets import load_dataset
 from tqdm.auto import tqdm
 
 
-def _write_jsonl(dataset, output_path: Path):
-    """Write a HuggingFace Dataset to a JSONL file."""
-    with output_path.open("w", encoding="utf-8") as f:
-        for example in tqdm(dataset, desc=f"Writing {output_path.name}", unit="record"):
-            json.dump(example, f)
-            f.write("\n")
-
-
 def _compute_sha256(file_path: Path) -> str:
-    """Compute SHA‑256 checksum of a file."""
+    """Compute SHA-256 checksum of a file."""
     h = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -33,9 +19,10 @@ def _compute_sha256(file_path: Path) -> str:
     return h.hexdigest()
 
 
-def download_dataset(output_dir: Path) -> None:
+def download_ego4d(output_dir: Path) -> None:
     """
-    Download the AG News training split, save as JSONL, and write SHA256 checksum.
+    Download the Ego4D training split, save a real sample as JSONL, 
+    and write SHA256 checksum.
 
     Parameters
     ----------
@@ -45,20 +32,37 @@ def download_dataset(output_dir: Path) -> None:
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load a small, public dataset that is guaranteed to exist.
-    ds = load_dataset("ag_news", split="train", streaming=False)
+    # Core Constraint 9: For large datasets, we stream and take a real sample 
+    # to fit within the 7GB RAM / 14GB Disk CI budget.
+    # We use streaming=True instead of streaming=False to prevent OOM/Disk errors.
+    try:
+        ds = load_dataset("ego4d/ego4d", split="train", streaming=True)
+    except Exception as e:
+        raise RuntimeError(f"Failed to load dataset ego4d/ego4d: {e}")
 
-    jsonl_path = output_dir / "ag_news_train.jsonl"
-    _write_jsonl(ds, jsonl_path)
+    jsonl_path = output_dir / "ego4d_train.jsonl"
+    
+    # Save the first 1000 records as a representative real sample
+    count = 0
+    with jsonl_path.open("w", encoding="utf-8") as f:
+        for example in tqdm(ds, desc="Downloading Ego4D sample", total=1000):
+            json.dump(example, f)
+            f.write("\n")
+            count += 1
+            if count >= 1000:
+                break
+
+    if count == 0:
+        raise RuntimeError("Dataset was empty; no records downloaded.")
 
     checksum = _compute_sha256(jsonl_path)
     checksum_path = output_dir / "CHECKSUMS.txt"
     with checksum_path.open("w", encoding="utf-8") as f:
-        f.write(f"{checksum}  {jsonl_path.name}\\n")
+        f.write(f"{checksum}  {jsonl_path.name}\n")
 
 
 def _parse_args():
-    parser = argparse.ArgumentParser(description="Download raw dataset.")
+    parser = argparse.ArgumentParser(description="Download Ego4D raw data.")
     parser.add_argument(
         "--output-dir",
         type=str,
@@ -70,7 +74,7 @@ def _parse_args():
 
 def main():
     args = _parse_args()
-    download_dataset(Path(args.output_dir))
+    download_ego4d(Path(args.output_dir))
 
 
 if __name__ == "__main__":

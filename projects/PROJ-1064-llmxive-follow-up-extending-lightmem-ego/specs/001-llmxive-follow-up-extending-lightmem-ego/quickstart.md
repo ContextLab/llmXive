@@ -1,35 +1,28 @@
-# Quickstart
+# Quickstart: Semantic Decay Retrieval
 
-The following commands run the full benchmark on a fresh GitHub Actions runner (CPU‑only).
+This guide describes how to set up the environment and run the initial validation pipeline for the Semantic Decay retrieval mechanism.
 
+## 1. Installation
+Install the required dependencies from the project root:
 ```bash
-# 1️⃣ Clone the repository (already done in CI)
-git checkout 001-semantic-decay-retrieval
-
-# 2️⃣ Create a virtualenv and install dependencies
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt   # contains exact versions
-
-# 3️⃣ Download and verify datasets (checksums stored in data/raw/CHECKSUMS.txt)
-python -m src.data.download
-
-# 4️⃣ Preprocess raw data, perform semantic coherence validation, and build FAISS index
-# (to be implemented in later tasks)
-# python -m src.data.preprocess
-
-# 5️⃣ Run the full evaluation (produces evaluation_report.json)
-# (to be implemented in later tasks)
-# python -m src.cli.run
-
-# 6️⃣ Validate output against the contract (once the contract test is added)
-# pytest -q tests/contract/test_evaluation_report.py
+pip install -r requirements.txt
 ```
 
-**What you get**
+## 2. Data Acquisition
+Download the Ego4D metadata and video-MAE embeddings from the Hugging Face Hub:
+```bash
+python src/data/download.py --output-dir data/raw/
+```
+This script fetches data from `https://huggingface.co/datasets/ego4d/ego4d` and saves a real sample to `data/raw/ego4d_train.jsonl`.
 
-* `data/raw/ag_news_train.jsonl` – the raw AG News training set in JSONL format.  
-* `data/raw/CHECKSUMS.txt` – SHA‑256 checksum for the downloaded file.  
-* Subsequent steps will generate processed data, indexes, and evaluation reports.  
+## 3. Checksum Verification
+Verify the integrity of the downloaded files using the generated checksums:
+```bash
+sha256sum -c data/raw/CHECKSUMS.txt
+```
 
-All steps respect the CPU‑only constraint and stay under a reasonable RAM threshold.
+## 4. Validation Pipeline
+Execute the small validation pipeline to verify the end-to-end flow:
+```bash
+python src/cli/run.py --mode validation
+```
