@@ -13,38 +13,30 @@ required:
 properties:
   task_id:
     type: string
-    description: "Unique identifier of the task from the τⁿ‑Bench dataset."
   run_id:
     type: string
-    description: "UUID for this specific agent execution."
   success:
     type: boolean
-    description: "True if the agent produced a correct final answer."
   total_calls:
     type: integer
     minimum: 0
-    description: "Number of tool calls issued by the agent."
   total_tokens:
     type: integer
     minimum: 0
-    description: "Total LLM tokens consumed (prompt + completion)."
   duration_seconds:
     type: number
-    minimum: 0
-    description: "Wall‑clock runtime in seconds."
+    description: "Number"
   status:
     type: string
     enum:
       - "completed"
       - "failed"
       - "timeout"
-    description: "Overall execution outcome."
   warning_codes:
     type: array
     items:
       type: string
-    description: "Optional list of warning identifiers (e.g., OPTIMAL_PATH_MISSING)."
   timestamp:
     type: string
-    format: date-time
-    description: "UTC timestamp when the run finished."
+    format: "date-time"
+additionalProperties: false

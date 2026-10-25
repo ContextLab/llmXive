@@ -11,57 +11,21 @@ required:
 properties:
   evolved_task_id:
     type: string
-    description: "Identifier for the evolved task variant."
+    description: "Unique identifier for the evolved task."
   base_task_id:
     type: string
-    description: "Original task identifier from which this variant was derived."
+    description: "Identifier of the original task."
   modifications:
     type: array
     items:
       type: string
-    description: "Human‑readable description of each change applied during evolution."
+    description: "List of textual descriptions of the changes applied to the original task."
   predicted_penalty:
     type: number
-    description: "Penalty score predicted by the regression model for this evolved task."
+    description: "Penalty score predicted by the regression model."
   task:
-    type: object
-    description: "Full task definition (nested Task object conforming to Task schema)."
-    required:
-      - task_id
-      - goal
-      - environment
-      - optimal_path_length
-      - tool_diversity_k
-      - features
-    properties:
-      task_id:
-        type: string
-        description: "Unique task identifier for the evolved variant."
-      goal:
-        type: string
-        description: "Natural‑language description of the task objective (may be modified from base task)."
-      environment:
-        type: object
-        additionalProperties: true
-        description: "JSON‑serializable representation of the task state (may be modified from base task)."
-      optimal_path_length:
-        type:
-          - integer
-          - "null"
-        description: "Provided optimal call count for the evolved variant; null if missing."
-      tool_diversity_k:
-        type: integer
-        description: "Minimum number of distinct tool types required for the evolved variant (heuristic)."
-      features:
-        type: object
-        additionalProperties: true
-        description: "Pre‑computed numeric features for the evolved task (e.g., num_tools, desc_len)."
-      difficulty_score:
-        type:
-          - number
-          - "null"
-        description: "Model‑predicted difficulty score for the evolved task; null if not yet computed."
+    $ref: "task.schema.yaml"
   generation_timestamp:
     type: string
-    format: date-time
-    description: "When the evolution script generated this entry."
+    format: "date-time"
+    description: "Timestamp when the evolution

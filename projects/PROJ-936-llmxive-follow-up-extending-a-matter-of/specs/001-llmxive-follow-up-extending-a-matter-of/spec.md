@@ -25,7 +25,7 @@
 
 ### User Story 2 - Efficiency Penalty Calculation & Task Filtering (Priority: P2) (Identifier: US-2)
 
-**Journey**: The researcher calculates the "efficiency penalty" (ratio of agent calls to optimal calls) for each task, identifies tasks where this ratio exceeds a threshold of 2.0x, and filters the dataset to focus on "inefficiently solved" tasks for further analysis.
+**Journey**: The researcher calculates the "efficiency penalty" (ratio of agent calls to optimal calls) for each task, identifies tasks where this ratio exceeds a substantially elevated threshold., and filters the dataset to focus on "inefficiently solved" tasks for further analysis.
 
 **Why this priority**: This step transforms raw logs into a structured variable (the predictor) and defines the specific subset of the problem space (high redundancy) where the trade-off is hypothesized to exist. It is necessary to isolate the phenomenon of interest.
 
