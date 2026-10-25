@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-25T11:07:45.399560+00:00",
+  "generated_at": "2026-10-25T11:19:51.570747+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -30157,6 +30157,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 508.607983,
+          "ended_at": "2026-10-25T11:15:07.239147Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-25T11:06:38.631164Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 1246.688665,
           "ended_at": "2026-10-21T10:38:30.837799Z",
           "model": "openai.gpt-oss-120b",
@@ -30226,14 +30234,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-18T14:08:07.174137Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 75.239441,
-          "ended_at": "2026-10-18T14:08:07.170273Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-18T14:06:51.930832Z"
         }
       ],
       "paper_status": null,
@@ -72641,7 +72641,7 @@
           ]
         },
         {
-          "contributions": 5,
+          "contributions": 6,
           "kind": "llm",
           "name": "google.gemma-4-31B-it",
           "roles": [
@@ -72685,6 +72685,14 @@
       "id": "PROJ-218-predicting-molecular-fluorescence-quantu",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 149.325548,
+          "ended_at": "2026-10-25T11:09:03.383242Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "success",
+          "started_at": "2026-10-25T11:06:34.057694Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 135.965084,
@@ -72756,14 +72764,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-24T21:07:16.832430Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1195.591919,
-          "ended_at": "2026-10-23T04:03:36.568060Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T03:43:40.976141Z"
         }
       ],
       "paper_status": null,
@@ -91161,6 +91161,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 505.126812,
+          "ended_at": "2026-10-25T11:15:06.868158Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-25T11:06:41.741346Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 1042.182483,
           "ended_at": "2026-10-25T09:24:17.314059Z",
           "model": "openai.gpt-oss-120b",
@@ -91230,14 +91238,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "success",
           "started_at": "2026-10-13T13:39:22.370593Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 581.391091,
-          "ended_at": "2026-10-13T13:39:09.355489Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-13T13:29:27.964398Z"
         }
       ],
       "paper_status": null,
@@ -143569,7 +143569,7 @@
           ]
         },
         {
-          "contributions": 3,
+          "contributions": 4,
           "kind": "llm",
           "name": "google.gemma-4-31B-it",
           "roles": [
@@ -143604,6 +143604,14 @@
       "id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 140.940916,
+          "ended_at": "2026-10-25T11:08:47.291213Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "success",
+          "started_at": "2026-10-25T11:06:26.350297Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 142.204331,
@@ -143675,14 +143683,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T12:29:00.715249Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 23.506232,
-          "ended_at": "2026-10-23T12:29:00.713281Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T12:28:37.207049Z"
         }
       ],
       "paper_status": null,
@@ -176419,6 +176419,54 @@
   "recent_activity": [
     {
       "agent": "planner",
+      "duration_s": 508.607983,
+      "ended_at": "2026-10-25T11:15:07.239147Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-003-single-cell-trajectories-of-t-cell-exhau",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-25T11:06:38.631164Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 505.126812,
+      "ended_at": "2026-10-25T11:15:06.868158Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-318-evaluating-the-impact-of-code-generation",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-25T11:06:41.741346Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 149.325548,
+      "ended_at": "2026-10-25T11:09:03.383242Z",
+      "failure_reason": "",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "success",
+      "project_id": "PROJ-218-predicting-molecular-fluorescence-quantu",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T11:06:34.057694Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 140.940916,
+      "ended_at": "2026-10-25T11:08:47.291213Z",
+      "failure_reason": "",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "success",
+      "project_id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T11:06:26.350297Z"
+    },
+    {
+      "agent": "planner",
       "duration_s": 1044.954083,
       "ended_at": "2026-10-25T10:52:05.716057Z",
       "failure_reason": "",
@@ -182368,54 +182416,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-24T14:06:29.696647Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 13.366114,
-      "ended_at": "2026-10-24T14:07:09.766875Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-24T14:06:56.400761Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 41.285102,
-      "ended_at": "2026-10-24T14:06:56.398360Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-883-llmxive-follow-up-extending-omniretrieva",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-24T14:06:15.113258Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 632.785043,
-      "ended_at": "2026-10-24T13:46:52.227575Z",
-      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
-      "project_stage": "clarified",
-      "severity": "hard",
-      "started_at": "2026-10-24T13:36:19.442532Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 27.043834,
-      "ended_at": "2026-10-24T13:38:23.909924Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-033-predicting-material-properties-from-comp",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-24T13:37:56.866090Z"
     }
   ],
   "reviewed_preprints": [
