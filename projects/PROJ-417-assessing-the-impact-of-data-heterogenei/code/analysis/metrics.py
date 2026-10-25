@@ -1,7 +1,7 @@
 """
 Metrics calculation module for meta-analysis estimation results.
 
-Calculates bias, coverage, and I^2 statistics (FR-003).
+Calculates bias, coverage, and I² statistics (FR-003).
 
 The true effect used for bias and coverage is read STRICTLY from the
 ``injected_true_effect`` column of the simulation output; no other
@@ -84,9 +84,9 @@ def calculate_i_squared(
     pooled_estimate: float
 ) -> float:
     """
-    Calculates the I^2 statistic.
+    Calculates the I² statistic.
 
-    I^2 = max(0, (Q - df) / Q) * 100
+    I² = max(0, (Q - df) / Q) * 100
     where Q = sum(w_i * (y_i - pooled)^2) and df = k - 1
     """
     # Convert inputs to floats to guard against string values
@@ -155,7 +155,7 @@ def compute_metrics_from_simulation(
     ``injected_true_effect`` column of each record (FR-003).
 
     Each record is expected to contain:
-      - injected_true_effect: the ground-truth effect size
+      - injected_true_effect: the ground‑truth overall effect size
       - pooled_effect: the estimated pooled effect
       - ci_lower / ci_upper: confidence interval bounds
       - replicate_id (optional): replicate identifier
@@ -279,9 +279,11 @@ def aggregate_metrics(
         "total_replicates": len(results),
     }
 
+
 # ----------------------------------------------------------------------
 # New functionality for T004: write combined simulation and estimation
-# records to a JSON‑Lines file.
+# records to a JSON‑Lines file, computing bias & coverage for each
+# EstimationResult.
 # ----------------------------------------------------------------------
 def write_simulation_and_estimations(
     simulated_records: List[Dict[str, Any]],
@@ -292,12 +294,11 @@ def write_simulation_and_estimations(
     Writes both ``SimulatedDataset`` records and ``EstimationResult``
     records to a single JSON‑Lines file.
 
-    The function respects the JSON schemas defined in
-    ``contracts/simulated_dataset.schema.yaml`` and
-    ``contracts/estimation_result.schema.yaml``.  It does **not**
-    perform schema validation itself – that is left to downstream
-    validation steps – but it guarantees that each line is a valid
-    JSON object.
+    The function also computes ``bias`` and ``coverage_flag`` for each
+    ``EstimationResult`` based on the true effect stored in the
+    matching ``SimulatedDataset`` record (matched via ``replicate_id`` /
+    ``dataset_id``).  The resulting records therefore satisfy the
+    ``contracts/estimation_result.schema.yaml`` schema.
 
     Parameters
     ----------
@@ -321,8 +322,39 @@ def write_simulation_and_estimations(
     # Ensure the parent directory exists.
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info("Writing %d simulated records and %d estimation records to %s",
-                len(simulated_records), len(estimation_records), output_path)
+    # Build a lookup from replicate_id to true effect.
+    true_effect_lookup: Dict[int, float] = {}
+    for sim in simulated_records:
+        rid = int(sim["replicate_id"])
+        true_effect_lookup[rid] = float(sim[TRUE_EFFECT_COLUMN])
+
+    # Enrich estimation records with bias & coverage_flag.
+    enriched_estimations: List[Dict[str, Any]] = []
+    for est in estimation_records:
+        dataset_id = int(est["dataset_id"])
+        true_eff = true_effect_lookup.get(dataset_id)
+        if true_eff is None:
+            raise KeyError(
+                f"Estimation record references unknown dataset_id {dataset_id}"
+            )
+        pooled = float(est["pooled_effect"])
+        ci_low = float(est["ci_lower"])
+        ci_up = float(est["ci_upper"])
+
+        # Compute metrics.
+        bias = calculate_bias(pooled, true_eff)
+        coverage = calculate_coverage(ci_low, ci_up, true_eff)
+
+        # Insert (or overwrite) the fields required by the schema.
+        est["bias"] = bias
+        est["coverage_flag"] = coverage
+
+        enriched_estimations.append(est)
+
+    logger.info(
+        "Writing %d simulated records and %d estimation records to %s",
+        len(simulated_records), len(enriched_estimations), output_path
+    )
 
     with output_path.open("w", encoding="utf-8") as f:
         # Write simulated dataset records first.
@@ -330,8 +362,8 @@ def write_simulation_and_estimations(
             json_line = json.dumps(record, allow_nan=False)
             f.write(json_line + "\n")
 
-        # Follow with estimation result records.
-        for record in estimation_records:
+        # Follow with enriched estimation result records.
+        for record in enriched_estimations:
             json_line = json.dumps(record, allow_nan=False)
             f.write(json_line + "\n")
 

@@ -4,3 +4,5 @@ scipy
 matplotlib
 pyyaml
 pytest
+jsonschema
+# No additional dependencies required for T004; all needed packages are in the base environment.

@@ -1,24 +1,15 @@
-T002:
-  c: false
-  h: 464c2b843cf89f901d33c1af0e93db9bd202f077bc961455ae6210aea89843bf
-  r: "The generator module does not provide a CLI or function that writes `SimulatedDataset`\
-    \ records to `data/results/simulation_raw.jsonl`, and it lacks the API (e.g.,\
-    \ `SimulationResult`, `load_base_data_structure`, `calculate_effect_and_variance`,\
-    \ `create_replicate`) that the unit test `tests/unit/test_generator.py` expects.\
-    \ Moreover, the required output file `data/results/simulation_raw.jsonl` is missing.\
-    \ These gaps prevent the claimed unit\u2011test pass and the generation of the\
-    \ 900 JSONL lines."
-  sig: 2b9ddafc1481e2fc01af7c01dd30ca7e75568cf65b41c75b639d8533e7f4ff41
 T003:
   c: false
-  h: 431e826c4e3fbea2ac537aa49817c06908ac86d2deb6d2d7a85cb53067855ced
-  r: "The estimators are implemented and the unit tests pass, but `estimate_reml`\
-    \ does not provide the required `convergence_warning` flag nor replace a failed\
-    \ \u03C4\xB2 estimate with a minimal positive value (e.g.,\u202F1e\u20116); it\
-    \ instead falls back to the DerSimonian\u2011Laird \u03C4\xB2 and sets `convergence_status=\"\
-    fallback_dl\"`. This does not satisfy the task\u2019s REML\u2011failure handling\
-    \ specification."
-  sig: c52ad74b2b90c7c7eba8c5eea0ceaecc4fbe773b5cb855d22b1fe1c22fd9961d
+  h: 2b6c186d0d66d7f6f84e3583d986e7884db513a4cb318de98a123747454363b6
+  r: "Checked `code/simulation/estimators.py` and the unit test suite `tests/unit/test_estimators.py`.\
+    \ While the estimators and REML\u2011failure handling are implemented, the failure\u2011\
+    logging test patches `REML_FAILURE_LOG_PATH` to a temporary file but `log_reml_failure`\u2019\
+    s default argument is bound to the original constant at import time, so the log\
+    \ is written to the hard\u2011coded `\"data/results/reml_failures.json\"` instead\
+    \ of the temporary path. Consequently the test `test_failure_logging_and_fallback`\
+    \ will not find the expected log file and will fail. The task is therefore not\
+    \ fully satisfied."
+  sig: e8d4f902f24aa75e3b295fdb6d54a1cf1a2de5ae8f3a5d5a3d4a71dfdb8ee339
 T004:
   c: false
   h: a9ee90b6fc94cd556fe8931dd25f29d0b1d1fb3f941fd25ce1bd8c74dacc3dc3

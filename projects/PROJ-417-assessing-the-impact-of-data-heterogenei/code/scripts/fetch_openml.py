@@ -24,7 +24,7 @@ loudly if the real data cannot be obtained.
 
 import csv
 import sys
-from io import StringIO
+from io import BytesIO, StringIO
 from pathlib import Path
 from typing import List, Dict
 
@@ -84,13 +84,22 @@ def _try_read_csv(content: str) -> pd.DataFrame:
 
 
 def _try_read_arff(content_bytes: bytes) -> pd.DataFrame:
-    """Attempt to parse the content as an ARFF file."""
+    """Attempt to parse the content as an ARFF file.
+
+    The original implementation incorrectly used ``StringIO`` which
+    yields strings and causes ``arff.loadarff`` to fail.  The corrected
+    version uses ``BytesIO`` so that ``loadarff`` receives a binary
+    stream, matching its expected input type.
+    """
     try:
-        data, meta = arff.loadarff(StringIO(content_bytes.decode("utf-8", errors="replace")))
+        # ``arff.loadarff`` expects a file‑like object returning bytes.
+        data, meta = arff.loadarff(BytesIO(content_bytes))
         df = pd.DataFrame(data)
         # Convert byte strings to normal strings
         for col in df.select_dtypes([object]).columns:
-            df[col] = df[col].apply(lambda x: x.decode("utf-8") if isinstance(x, bytes) else x)
+            df[col] = df[col].apply(
+                lambda x: x.decode("utf-8") if isinstance(x, bytes) else x
+            )
         return df
     except Exception:
         return pd.DataFrame()

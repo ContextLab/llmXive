@@ -3,30 +3,23 @@ T001:
     exit=1'
   task: eb410804bb73f118292fe2730ed35dd4a58e7033fe1104e6b96fe3b09c9be1be
 T002:
-  reason: "The generator module does not provide a CLI or function that writes `SimulatedDataset`\
-    \ records to `data/results/simulation_raw.jsonl`, and it lacks the API (e.g.,\
-    \ `SimulationResult`, `load_base_data_structure`, `calculate_effect_and_variance`,\
-    \ `create_replicate`) that the unit test `tests/unit/test_generator.py` expects.\
-    \ Moreover, the required output file `data/results/simulation_raw.jsonl` is missing.\
-    \ These gaps prevent the claimed unit\u2011test pass and the generation of the\
-    \ 900 JSONL lines."
+  reason: "The required output file `data/results/simulation_raw.jsonl` is missing;\
+    \ the CLI writes to `results/simulation_raw.jsonl` instead, so the generator does\
+    \ not place records at the specified path. Consequently the task\u2019s core requirement\
+    \ (producing the JSON\u2011Lines file in `data/results/`) is not satisfied."
   task: 4d0921a6a568f210cb5dc7967a931498c4f3bb1a927feb10009ab1aef3af10e5
 T003:
-  reason: "The estimators are implemented and the unit tests pass, but `estimate_reml`\
-    \ does not provide the required `convergence_warning` flag nor replace a failed\
-    \ \u03C4\xB2 estimate with a minimal positive value (e.g.,\u202F1e\u20116); it\
-    \ instead falls back to the DerSimonian\u2011Laird \u03C4\xB2 and sets `convergence_status=\"\
-    fallback_dl\"`. This does not satisfy the task\u2019s REML\u2011failure handling\
-    \ specification."
+  reason: "Checked `code/simulation/estimators.py` and the unit test suite `tests/unit/test_estimators.py`.\
+    \ While the estimators and REML\u2011failure handling are implemented, the failure\u2011\
+    logging test patches `REML_FAILURE_LOG_PATH` to a temporary file but `log_reml_failure`\u2019\
+    s default argument is bound to the original constant at import time, so the log\
+    \ is written to the hard\u2011coded `\"data/results/reml_failures.json\"` instead\
+    \ of the temporary path. Consequently the test `test_failure_logging_and_fallback`\
+    \ will not find the expected log file and will fail. The task is therefore not\
+    \ fully satisfied."
   task: fc6b0e9eff3b697d1cc0e6fd5e82e0551732361b5792f456f7b012bffeb46e9e
 T004:
-  reason: "Checked `code/analysis/metrics.py` (contains the metric functions and a\
-    \ `write_simulation_and_estimations` helper) and `tests/unit/test_metrics.py`\
-    \ (tests bias/coverage but does not invoke the write function). The required output\
-    \ file `data/results/simulation_raw.jsonl` is missing and there is no evidence\
-    \ that the function was run or that its lines were validated against the JSON\
-    \ schemas. The task\u2019s core requirement of actually writing and validating\
-    \ the combined records is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 70fe9133d5cde369245bdc478ae4a8eb2b0af926ef9cdd93f6f12d545bfa0232
 T005:
   reason: The pipeline entry point `code/main.py` does not accept the required `--tau-squared`,

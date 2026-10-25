@@ -25,7 +25,7 @@
   • For τ² = 0 the Random‑Effects pooled estimate equals the Fixed‑Effects estimate within 1e‑3.  
   • When REML fails to converge the flag `convergence_warning` is set to `true` and the estimated τ² is replaced by a minimal positive value (e.g., 1e‑6).  
 
-- [ ] T004 [P1] [US2] **Add metric‑calculation logic** in `code/analysis/metrics.py` that computes bias and 95 % CI coverage for each `EstimationResult` and writes both `SimulatedDataset` and `EstimationResult` objects to `data/results/simulation_raw.jsonl`.  
+- [ ] T004 [P1] [US2] **Add metric‑calculation logic** in `code/analysis/metrics.py` that computes bias and 95 % CI coverage for each `EstimationResult` and writes both `SimulatedDataset` and `EstimationResult` objects to `data/results/simulation_raw.jsonl`.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   *Verification*:  
   • Unit test `tests/unit/test_metrics.py` passes.  
   • Every line written to `simulation_raw.jsonl` validates against the appropriate JSON schema (`contracts/simulated_dataset.schema.yaml` or `contracts/estimation_result.schema.yaml`).  

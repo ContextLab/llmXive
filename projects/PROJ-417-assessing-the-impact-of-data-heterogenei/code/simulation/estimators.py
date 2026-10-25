@@ -56,6 +56,9 @@ REML_FAILURE_LOG_PATH = "data/results/reml_failures.json"
 # Minimum number of studies for reliable chi‑square / df approximations
 MIN_STUDIES_FOR_RELIABILITY = 5
 
+# Minimal positive tau² to use when REML fails (as required by the spec)
+MIN_POSITIVE_TAU2 = 1e-6
+
 # ----------------------------------------------------------------------
 # Helper classes / functions
 # ----------------------------------------------------------------------
@@ -79,6 +82,7 @@ class EstimationResult:
         n_studies: int,
         convergence_status: str = "success",
         small_study_flag: bool = False,
+        convergence_warning: bool = False,
     ):
         self.pooled_effect = pooled_effect
         self.se_pooled = se_pooled
@@ -92,6 +96,7 @@ class EstimationResult:
         self.n_studies = n_studies
         self.convergence_status = convergence_status
         self.small_study_flag = small_study_flag
+        self.convergence_warning = convergence_warning
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialise the result for downstream JSON/CSV output."""
@@ -108,6 +113,7 @@ class EstimationResult:
             "n_studies": self.n_studies,
             "convergence_status": self.convergence_status,
             "small_study_flag": self.small_study_flag,
+            "convergence_warning": self.convergence_warning,
         }
 
 # ----------------------------------------------------------------------
@@ -273,6 +279,7 @@ def estimate_fixed_effects(
         n_studies=n,
         convergence_status="success",
         small_study_flag=small_flag,
+        convergence_warning=False,
     )
 
 def estimate_dersimonian_laird(
@@ -340,6 +347,7 @@ def estimate_dersimonian_laird(
         n_studies=n,
         convergence_status="success",
         small_study_flag=small_flag,
+        convergence_warning=False,
     )
 
 def estimate_reml(
@@ -351,7 +359,9 @@ def estimate_reml(
     Restricted Maximum Likelihood (REML) random‑effects estimator.
 
     On optimisation failure the event is logged (FR‑006) and the
-    estimator falls back to the DerSimonian‑Laird variance.
+    estimator falls back to the DerSimonian‑Laird variance, but
+    additionally sets ``convergence_warning`` to ``True`` and replaces
+    the estimated τ² with a minimal positive value (``MIN_POSITIVE_TAU2``).
     """
     n = _validate_inputs(effect_sizes, variances)
     if n == 1:
@@ -405,12 +415,14 @@ def estimate_reml(
             )
         logger.warning("REML optimisation failed (%s); falling back to DL tau².", failure_reason)
         dl_res = estimate_dersimonian_laird(effect_sizes, variances)
+        # Replace τ² with a minimal positive value as per specification
+        minimal_tau2 = max(dl_res.tau2, MIN_POSITIVE_TAU2)
         return EstimationResult(
             pooled_effect=dl_res.pooled_effect,
             se_pooled=dl_res.se_pooled,
             ci_lower=dl_res.ci_lower,
             ci_upper=dl_res.ci_upper,
-            tau2=dl_res.tau2,
+            tau2=minimal_tau2,
             i2=dl_res.i2,
             q_statistic=dl_res.q_statistic,
             df=dl_res.df,
@@ -418,6 +430,7 @@ def estimate_reml(
             n_studies=dl_res.n_studies,
             convergence_status="fallback_dl",
             small_study_flag=dl_res.small_study_flag,
+            convergence_warning=True,
         )
 
     # ----------------------------------------------------------------------
@@ -452,6 +465,7 @@ def estimate_reml(
             n_studies=fe_res.n_studies,
             convergence_status="fallback_fe",
             small_study_flag=fe_res.small_study_flag,
+            convergence_warning=False,
         )
 
     pooled = sum(w * y for w, y in zip(w_re, effect_sizes)) / sum_w_re
@@ -491,6 +505,7 @@ def estimate_reml(
         n_studies=n,
         convergence_status="success",
         small_study_flag=small_flag,
+        convergence_warning=False,
     )
 
 def apply_estimator(
