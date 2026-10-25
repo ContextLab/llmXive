@@ -1,55 +1,51 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/scripts/fetch_openml.py
-    exit=1'
-  task: eb410804bb73f118292fe2730ed35dd4a58e7033fe1104e6b96fe3b09c9be1be
+  task: 3a5581874bf50035ec578f3de3c8122a88cf5cb9d9b853f5122d629c336e4d78
+T001a:
+  reason: "The unit\u2011test log for `tests/unit/test_fetch_cochrane_data.py` shows\
+    \ four failures: the `load_jackson_2010_base_data` function does not correctly\
+    \ use a context manager (`AttributeError: __enter__`) and the module lacks an\
+    \ `import urllib` causing a `NameError`. Consequently the script does not reliably\
+    \ raise a `FileNotFoundError` when the CSV URL is unreachable, and the CI step\
+    \ does not pass as required. The validation behavior is therefore not implemented\
+    \ correctly."
+  task: 23ebb3f19070bd6c3c3570c4585a07c907ed50516155b03fdd8a8b4635db5dbc
 T002:
-  reason: "Checked `code/simulation/generator.py`, the unit\u2011test log (`tests/unit/test_generator.py`),\
-    \ the CLI execution log (`code/.tasks/T002.code_simulation_generator.py.log`),\
-    \ and the file `data/results/simulation_raw.jsonl`. The generator writes to `results/simulation_raw.jsonl`\
-    \ (not the required `data/results/simulation_raw.jsonl`), and the existing `data/results/simulation_raw.jsonl`\
-    \ contains \u03C4\xB2\u202F=\u202F0.0 and zero effect sizes rather than the requested\
-    \ \u03C4\xB2\u202F=\u202F0.5 with 900 replicates. No evidence is provided that\
-    \ the script actually produced 900 correctly\u2011parameterised records at the\
-    \ required path."
-  task: 4d0921a6a568f210cb5dc7967a931498c4f3bb1a927feb10009ab1aef3af10e5
+  reason: "The `code/simulation/generator.py` CLI accepts the required arguments and\
+    \ the unit tests pass, but the generated file `data/results/simulation_raw.jsonl`\
+    \ contains records with keys `injected_true_effect`, `N_studies`, and `studies`\
+    \ instead of the schema\u2011required fields (`true_effect`, `study_effects`,\
+    \ `study_se`, `study_sizes`, `k`, `sweep_type`). All lines have `\"tau_squared\"\
+    : 0.0` rather than the requested \u03C4\xB2 values, and the file does not contain\
+    \ the 900 replicates per \u03C4\xB2 level (or the total 4\u202F500 lines for the\
+    \ primary sweep). Consequently the output does not conform to `contracts/simulated_"
+  task: 1b3720e43681cf37f0a3bde403fb75419bcfa60fd446723f2f7f75a7200e4db5
 T003:
-  task: fc6b0e9eff3b697d1cc0e6fd5e82e0551732361b5792f456f7b012bffeb46e9e
+  reason: "The `estimate_reml` function logs failures and sets `convergence_warning=True`,\
+    \ but on REML failure it falls back to the DerSimonian\u2011Laird \u03C4\xB2 value\
+    \ (`max(dl_res.tau2, MIN_POSITIVE_TAU2)`) instead of unconditionally using the\
+    \ required fallback \u03C4\xB2\u202F=\u202F1e\u20116. This violates the task specification\
+    \ that the fallback \u03C4\xB2 must be exactly\u202F1e\u20116. The implementation\
+    \ should set `tau2 = MIN_POSITIVE_TAU2` when REML fails."
+  task: ffec5db28a354c8cde055b5e7053544dafeb3f0b990055884cf21dad2ed75212
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
-  task: 70fe9133d5cde369245bdc478ae4a8eb2b0af926ef9cdd93f6f12d545bfa0232
+  task: 88ee1160736e2825847e8daaca2f6db661120a10c584fed2958bd1aad120baf1
 T005:
-  reason: The pipeline entry point `code/main.py` does not accept the required `--tau-squared`,
-    `--replicates`, or `--batch-size` arguments, and it never creates the expected
-    `data/results/simulation_raw.jsonl` file (marked MISSING). The produced `data/results/sample_estimates.csv`
-    exists but contains far more than the required 20 rows (multiple estimator rows
-    per replicate) and thus does not meet the specification of 20 rows with the exact
-    columns. The task therefore fails to deliver the mandated outputs.
-  task: e6b681c290837d9daac0faa02b4f8d2d9a2c332aa499ac948c245c4b7b4a692d
+  task: 5f7ea25897dda64c044e8df3bedcf93c7f018b94c2114ee093b0d013280d4e18
 T006:
-  reason: 'declared artifact(s) missing/empty/invalid: data/results/simulation_raw.jsonl'
-  task: 7ebbf5ddfc43a865c26bbfa944cc3faec6360f13f2b19a58a19189b33d2aa349
+  task: 1817d0d1ae34b32a794ff419806c42a76ca2dbb5754d0e8f50cf1e0e38a58697
 T007:
-  reason: "The generated CSV (`data/results/aggregated_metrics.csv`) has the wrong\
-    \ schema (missing required columns like `estimator_type`, `sweep_type`, etc.),\
-    \ only 5 rows instead of the required 15 (3 estimators\u202F\xD7\u202F5 \u03C4\
-    \xB2 levels), and the script never produces the required `data/results/coverage_tests.json`.\
-    \ Consequently the aggregation, binomial test, and bias\u2011distribution testing\
-    \ do not meet the task specifications."
-  task: 15dabf9baba8fffa33e9002a65f4880f2316a555446bdf99013bd700917fbdb8
+  task: b57061bb9bc09dc41d98a0a1e21e9e9ee05187599298a6789bb42e301db030f7
 T008:
-  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
-  task: 6bc5205f025621b82a8af9c159c9042336f35bd7dc3dff4d318941c0fc3c0910
+  task: ce78e9670679793bfabd5e2bddffe33ef8457e7c258231b9f5414da91cc8c17c
 T009:
-  task: ab334741101cdc9276d53cf217fec68cec1fd67279676965b906c3c30be8019e
+  task: 4db51cdb7fc5a8af19dbedef2e40716c7ee938cb5625dad2e8f002415f2fb382
 T010:
-  task: 76877aaffe9a0a780ea46dc28b35122f58c1d8e5c4606a22f03a9ffd587ef3cb
+  task: 9e6d314b2228ff2c72d4b8051f3b37ab9b1b562564b0bd12058f8f57451c3cba
 T011:
-  task: 2b406bc4fe35e29d32bf2f33dc9815bfe8b25b29bf9273161c36099b053742b5
+  task: edf6b22b61b9bb8875068edd3ed8afca6c5b9cbe35b90dd3944bfca6e7a631dc
 T012:
-  task: d21109cb7cadc320fc4e20522ea9813caa65e902dbf9cc1d9beac86d9dafdf56
+  task: d1082e2faf5073cee06fd9cd2f9998a7e617c9c6c77dc36af9558335f17463bd
 T013:
-  task: ae7f92827ac55c54ca8d72818d6808bfa80cf96c07ddbb61fe79230a0e7c0a40
+  task: 2218b102287d7a20b822a9851c324894ccb0558565913805ae2c51a6401af9bb
 T014:
-  task: 2b69b60b352de2e235f7f5e221e9409c623ff65a1f08e9942d7a0c69cf80bb47
-T015:
-  task: 7545022f0f133f74ce3d966ea3258fd373285417b7517a93de8aa45bd4ebc26d
+  task: ec4946d62fbe291ac65e1d515386fe06d62533f69ecef3b38db4f05f54608770

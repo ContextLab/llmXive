@@ -12,10 +12,10 @@ This module provides:
 * ``create_replicate`` – builds a ``SimulationResult`` for one replicate.
 * ``validate_simulation_output`` – sanity‑check that a list of results has
   the required structure.
-* ``generate_synthetic_meta_analysis`` – high‑level helper used by the
-  pipeline (returns a ``SimpleNamespace`` for backward compatibility).
-* CLI entry point – writes ``SimulatedDataset`` records to
-  ``data/results/simulation_raw.jsonl``.
+* ``write_simulation_results`` – writes ``SimulatedDataset`` records to a
+  JSON‑Lines file that conforms to ``contracts/simulated_dataset.schema.yaml``.
+* CLI entry point – accepts a list of τ² values, number of replicates per
+  τ², sweep type, and output path.
 """
 
 from __future__ import annotations
@@ -27,7 +27,6 @@ import math
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from types import SimpleNamespace
 from typing import List, Dict, Any, Iterable, Union
 
 import numpy as np
@@ -43,8 +42,8 @@ __all__ = [
     "calculate_effect_and_variance",
     "create_replicate",
     "validate_simulation_output",
-    "generate_synthetic_meta_analysis",
     "write_simulation_results",
+    "main",
 ]
 
 # ----------------------------------------------------------------------
@@ -65,6 +64,7 @@ class SimulationConfig:
     num_replicates: int | None = None
     seed: int = 0
     base_data_path: str | Path = ""
+    sweep_type: str = "primary"  # “primary” or “sensitivity”
 
     def effective_tau2(self) -> float:
         """Return the τ² that should be used for the simulation."""
@@ -160,6 +160,7 @@ def create_replicate(
     if n <= 0:
         raise ValueError("Number of studies must be positive")
 
+    # Draw a true effect for each study from N(0, sqrt(tau2))
     true_effects = rng.normal(
         loc=config.injected_true_effect,
         scale=math.sqrt(config.injected_tau2) if config.injected_tau2 > 0 else 0.0,
@@ -172,16 +173,21 @@ def create_replicate(
         obs_effect, obs_variance = calculate_effect_and_variance(
             config.injected_tau2, se, true_effects[i], config.injected_true_effect, rng
         )
-        studies.append({
-            "study_id": f"study_{i}",
-            "true_effect": float(true_effects[i]),
-            "effect_size": float(obs_effect),
-            "standard_error": float(se),
-            "variance": float(obs_variance),
-        })
+        studies.append(
+            {
+                "study_id": f"study_{i}",
+                "true_effect": float(true_effects[i]),
+                "effect_size": float(obs_effect),
+                "standard_error": float(se),
+                "variance": float(obs_variance),
+                "n": 30,
+            }
+        )
 
     mean_effect = float(np.mean(true_effects))
-    observed_between = float(np.var(true_effects, ddof=1)) if n > 1 else 0.0
+    observed_between = (
+        float(np.var(true_effects, ddof=1)) if n > 1 else 0.0
+    )
 
     return SimulationResult(
         replicate_id=0,
@@ -201,7 +207,7 @@ def validate_simulation_output(results: Any) -> bool:
     # Fix for TypeError in main.py: handle SimpleNamespace
     if hasattr(results, "replicates"):
         results = results.replicates
-    
+
     if not isinstance(results, (list, tuple, Iterable)):
         raise TypeError(f"Expected iterable or SimpleNamespace, got {type(results)}")
 
@@ -210,7 +216,7 @@ def validate_simulation_output(results: Any) -> bool:
         # it doesn't have the SimulationResult dataclass type but has 'studies'
         if not hasattr(res, "studies"):
             raise AssertionError("Result must have 'studies' attribute")
-        
+
         studies = res.studies
         assert isinstance(studies, list), "'studies' must be a list"
         for study in studies:
@@ -222,95 +228,152 @@ def validate_simulation_output(results: Any) -> bool:
     return True
 
 # ----------------------------------------------------------------------
-# High‑level generator for pipeline compatibility
-# ----------------------------------------------------------------------
-def generate_synthetic_meta_analysis(
-    config: SimulationConfig,
-) -> SimpleNamespace:
-    """
-    Generate synthetic meta‑analysis datasets.
-    Returns a SimpleNamespace for backward compatibility with main.py.
-    """
-    n_studies = config.effective_n_studies()
-    rng = np.random.default_rng(config.seed)
-    replicates: List[SimpleNamespace] = []
-    sigma = math.sqrt(config.effective_tau2()) if config.effective_tau2() > 0 else 0.0
-
-    for rep_idx in range(config.num_replicates or 0):
-        # To ensure deterministic seeding across replicates
-        rep_rng = np.random.default_rng(config.seed + rep_idx)
-        true_effects = rep_rng.normal(loc=0.0, scale=sigma, size=n_studies)
-        studies: List[Dict[str, Any]] = []
-        for study_idx, te in enumerate(true_effects):
-            studies.append({
-                "study_id": f"study_{rep_idx}_{study_idx}",
-                "true_effect": float(te),
-                "effect": float(te),
-                "se": 0.1,
-                "n": 30,
-            })
-        replicates.append(SimpleNamespace(studies=studies))
-
-    return SimpleNamespace(replicates=replicates)
-
-# ----------------------------------------------------------------------
-# JSON‑Lines writer
+# JSON‑Lines writer conforming to the contract
 # ----------------------------------------------------------------------
 def write_simulation_results(
     results: Iterable[SimulationResult],
+    sweep_type: str,
     output_path: Path | None = None,
 ) -> Path:
-    """Write a sequence of SimulationResult objects to a JSON‑Lines file."""
+    """
+    Write a sequence of ``SimulationResult`` objects to a JSON‑Lines file
+    that matches ``contracts/simulated_dataset.schema.yaml``.
+
+    The contract expects the following fields per line:
+    - replicate_id (int)
+    - tau_squared (number)
+    - true_effect (number)
+    - study_effects (array[number])
+    - study_se (array[number])
+    - study_sizes (array[int])
+    - k (int)
+    - sweep_type (string, enum)
+
+    Parameters
+    ----------
+    results: Iterable[SimulationResult]
+        The simulated replicates.
+    sweep_type: str
+        Either ``\"primary\"`` or ``\"sensitivity\"`` – recorded for each line.
+    output_path: Path | None
+        Destination path.  If ``None`` the default location
+        ``data/results/simulation_raw.jsonl`` (via ``paths.data``) is used.
+    """
     if output_path is None:
-        output_path = paths.results("simulation_raw.jsonl")
+        # Use the *data* folder as required by the specification.
+        output_path = paths.data("results", "simulation_raw.jsonl")
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Convert to list to avoid consuming generator before logging count
-    results_list = list(results)
+    written = 0
     with output_path.open("w", encoding="utf-8") as f:
-        for res in results_list:
+        for res in results:
+            # Extract per‑study vectors
+            study_effects = [s.get("effect_size", s.get("effect", 0.0)) for s in res.studies]
+            study_se = [s.get("standard_error", s.get("se", 0.1)) for s in res.studies]
+            study_sizes = [int(s.get("n", 0)) for s in res.studies]
+
             record: Dict[str, Any] = {
                 "replicate_id": res.replicate_id,
                 "tau_squared": res.injected_tau2,
-                "injected_true_effect": res.injected_true_effect,
-                "N_studies": res.N_studies,
-                "studies": res.studies,
+                "true_effect": res.injected_true_effect,
+                "study_effects": study_effects,
+                "study_se": study_se,
+                "study_sizes": study_sizes,
+                "k": len(res.studies),
+                "sweep_type": sweep_type,
             }
             json.dump(record, f)
             f.write("\n")
-    log.info(f"Written {len(results_list)} simulated replicates to {output_path}")
+            written += 1
+
+    log.info(f"Written {written} simulated replicates to {output_path}")
     return output_path
 
 # ----------------------------------------------------------------------
 # CLI
 # ----------------------------------------------------------------------
 def _parse_cli_args(argv: List[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate synthetic meta‑analysis replicates.")
-    parser.add_argument("--tau-squared", type=float, required=True)
-    parser.add_argument("--replicates", type=int, required=True)
-    parser.add_argument("--base-data", type=str, default=str(paths.data("processed", "base_template.csv")))
-    parser.add_argument("--out", type=str, default=str(paths.results("simulation_raw.jsonl")))
-    parser.add_argument("--seed", type=int, default=42)
+    parser = argparse.ArgumentParser(
+        description="Generate synthetic meta‑analysis replicates."
+    )
+    parser.add_argument(
+        "--tau-squared",
+        type=str,
+        required=True,
+        help="Comma‑separated list of τ² values (e.g. \"0,0.1,0.5\").",
+    )
+    parser.add_argument(
+        "--replicates",
+        type=int,
+        required=True,
+        help="Number of replicates to generate per τ² level.",
+    )
+    parser.add_argument(
+        "--sweep-type",
+        type=str,
+        choices=["primary", "sensitivity"],
+        required=True,
+        help="Sweep type – either \"primary\" or \"sensitivity\".",
+    )
+    parser.add_argument(
+        "--base-data",
+        type=str,
+        default=str(paths.data("processed", "base_template.csv")),
+        help="Path to the base CSV containing study SEs.",
+    )
+    parser.add_argument(
+        "--out",
+        type=str,
+        default=str(paths.data("results", "simulation_raw.jsonl")),
+        help="Output JSON‑Lines file.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Base random seed for reproducibility.",
+    )
     return parser.parse_args(argv)
 
 def main(argv: List[str] | None = None) -> int:
     args = _parse_cli_args(argv)
-    cfg = SimulationConfig(
-        injected_true_effect=0.0,
-        injected_tau2=args.tau_squared,
-        N_studies=_load_number_of_studies(Path(args.base_data)),
-        base_data_path=args.base_data,
-        seed=args.seed,
-    )
-    _, base_ses = load_base_data_structure(args.base_data)
-    results: List[SimulationResult] = []
-    for rep_id in range(args.replicates):
-        rep_rng = np.random.default_rng(args.seed + rep_id)
-        res = create_replicate(cfg, [], base_ses, rep_rng)
-        object.__setattr__(res, "replicate_id", rep_id)
-        results.append(res)
 
-    write_simulation_results(results, Path(args.out))
+    # Parse τ² list
+    try:
+        tau2_values = [float(v) for v in args.tau_squared.split(",") if v.strip() != ""]
+    except ValueError as exc:
+        log.error("Failed to parse --tau-squared values.")
+        raise
+
+    # Load base SEs (effects are not needed for the current generator)
+    _, base_ses = load_base_data_structure(args.base_data)
+
+    all_results: List[SimulationResult] = []
+    replicate_counter = 0
+
+    for tau2 in tau2_values:
+        cfg = SimulationConfig(
+            injected_true_effect=0.0,
+            injected_tau2=tau2,
+            N_studies=_load_number_of_studies(Path(args.base_data)),
+            base_data_path=args.base_data,
+            seed=args.seed,
+            sweep_type=args.sweep_type,
+        )
+        for rep_idx in range(args.replicates):
+            # Derive a deterministic RNG per replicate
+            rng = np.random.default_rng(args.seed + replicate_counter)
+            res = create_replicate(cfg, [], base_ses, rng)
+            # Assign a global replicate_id as required by the schema
+            object.__setattr__(res, "replicate_id", replicate_counter)
+            all_results.append(res)
+            replicate_counter += 1
+
+    write_simulation_results(
+        all_results,
+        sweep_type=args.sweep_type,
+        output_path=Path(args.out),
+    )
     return 0
 
 if __name__ == "__main__":

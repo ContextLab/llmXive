@@ -4,7 +4,7 @@
 
 ## Phase 1 – Data acquisition & synthetic dataset generation  
 
-- [ ] T001 [P1] [FR-001] **Download a public Cochrane meta‑analysis CSV and generate a deterministic synthetic base template** using `code/scripts/generate_base_template.py` and store it at `data/processed/base_template.csv`.  
+- [X] T001 [P1] [FR-001] **Download a public Cochrane meta‑analysis CSV and generate a deterministic synthetic base template** using `code/scripts/generate_base_template.py` and store it at `data/processed/base_template.csv`.  
   *Verification*:  
   • Running `python code/scripts/generate_base_template.py --out data/processed/base_template.csv` exits with status 0.  
   • The CSV contains exactly 20 rows with columns `study_id,effect,se,n`.  

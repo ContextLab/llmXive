@@ -1,53 +1,40 @@
+T001:
+  c: true
+  h: 9c8d0f71afc7b3c85ec34a388ee518e4a1c87c3aaab66c461dd7d7ad33c31555
+  r: "Checked `code/scripts/generate_base_template.py` execution log (exit\u202F0)\
+    \ and the resulting `data/processed/base_template.csv`, which exists, has the\
+    \ correct header `study_id,effect,se,n`, and contains exactly 20 data rows. The\
+    \ script\u2019s deterministic generation matches the task\u2019s specifications."
+  sig: fdc9cdbdf532bbf90f1893f9492251ce5be18fa2cfa85d1b5529397816f0bcc7
+T001a:
+  c: false
+  h: f239f30978f22ab1b110c37dbe95450719e04afe49d61ad005509c34b3c5e1a4
+  r: "The unit\u2011test log for `tests/unit/test_fetch_cochrane_data.py` shows four\
+    \ failures: the `load_jackson_2010_base_data` function does not correctly use\
+    \ a context manager (`AttributeError: __enter__`) and the module lacks an `import\
+    \ urllib` causing a `NameError`. Consequently the script does not reliably raise\
+    \ a `FileNotFoundError` when the CSV URL is unreachable, and the CI step does\
+    \ not pass as required. The validation behavior is therefore not implemented correctly."
+  sig: c6b4bb4a949927c89f3c58db00bb3cec971a54e36aa653d82d2c4a3d240ed43d
 T002:
   c: false
-  h: f15206094e322b51aee86b0f5bbfefc258080824c2fbee2464b7f55fd83852f4
-  r: "Checked `code/simulation/generator.py`, the unit\u2011test log (`tests/unit/test_generator.py`),\
-    \ the CLI execution log (`code/.tasks/T002.code_simulation_generator.py.log`),\
-    \ and the file `data/results/simulation_raw.jsonl`. The generator writes to `results/simulation_raw.jsonl`\
-    \ (not the required `data/results/simulation_raw.jsonl`), and the existing `data/results/simulation_raw.jsonl`\
-    \ contains \u03C4\xB2\u202F=\u202F0.0 and zero effect sizes rather than the requested\
-    \ \u03C4\xB2\u202F=\u202F0.5 with 900 replicates. No evidence is provided that\
-    \ the script actually produced 900 correctly\u2011parameterised records at the\
-    \ required path."
-  sig: 3fe36abdae7e49224a50fc384c05fa1106af5ccc853d88056a9207d57b91abf8
+  h: 777c46bb21ed7d93faa8edbdc24be8d916e90229d45155cdc8b187f82e01efc5
+  r: "The `code/simulation/generator.py` CLI accepts the required arguments and the\
+    \ unit tests pass, but the generated file `data/results/simulation_raw.jsonl`\
+    \ contains records with keys `injected_true_effect`, `N_studies`, and `studies`\
+    \ instead of the schema\u2011required fields (`true_effect`, `study_effects`,\
+    \ `study_se`, `study_sizes`, `k`, `sweep_type`). All lines have `\"tau_squared\"\
+    : 0.0` rather than the requested \u03C4\xB2 values, and the file does not contain\
+    \ the 900 replicates per \u03C4\xB2 level (or the total 4\u202F500 lines for the\
+    \ primary sweep). Consequently the output does not conform to `contracts/simulated_"
+  sig: cd4d93a988cd00d7c8a1e7ce5fbf2b44b926c35c0f64cb0dc55f4b796871db1d
 T003:
-  c: true
-  h: 87fde3f06dfc4d7b6b8641d0c80c1d3ef360e96419f6dfb1b1c8f12a55eb32d2
-  r: "Checked `code/simulation/estimators.py` \u2013 it implements Fixed\u2011Effects,\
-    \ DerSimonian\u2011Laird, and REML estimators, computes Q and I\xB2, and on REML\
-    \ failure sets `convergence_warning=True` and replaces \u03C4\xB2 with the defined\
-    \ `MIN_POSITIVE_TAU2` (1e\u20116) while logging the event.  \nChecked `tests/unit/test_estimators.py`\
-    \ \u2013 the test suite includes checks that \u03C4\xB2\u202F=\u202F0 yields identical\
-    \ pooled estimates for FE, DL, and REML (within 1e\u20113) and verifies the REML\u2011\
-    failure flag and fallback behavior."
-  sig: eadadeb4c54edfe8f8f3f8e2fcb9c6418885b70be8a14f83397d57a87f8c8ab6
-T004:
   c: false
-  h: a9ee90b6fc94cd556fe8931dd25f29d0b1d1fb3f941fd25ce1bd8c74dacc3dc3
-  r: "Checked `code/analysis/metrics.py` (contains the metric functions and a `write_simulation_and_estimations`\
-    \ helper) and `tests/unit/test_metrics.py` (tests bias/coverage but does not invoke\
-    \ the write function). The required output file `data/results/simulation_raw.jsonl`\
-    \ is missing and there is no evidence that the function was run or that its lines\
-    \ were validated against the JSON schemas. The task\u2019s core requirement of\
-    \ actually writing and validating the combined records is not satisfied."
-  sig: 99ad022f44536c52f8c74d94aea0c2f12a90b6c194f0ac4d4431d7843dc7a703
-T005:
-  c: false
-  h: 315f21928fbe8936e4d62bf14cb7d74e7eea07a390a5bda774a9fd47fb34605c
-  r: The pipeline entry point `code/main.py` does not accept the required `--tau-squared`,
-    `--replicates`, or `--batch-size` arguments, and it never creates the expected
-    `data/results/simulation_raw.jsonl` file (marked MISSING). The produced `data/results/sample_estimates.csv`
-    exists but contains far more than the required 20 rows (multiple estimator rows
-    per replicate) and thus does not meet the specification of 20 rows with the exact
-    columns. The task therefore fails to deliver the mandated outputs.
-  sig: 3dcd6a7dfa77b982efdb093b959925fdb2d5ed4ae2b1dec47f40a77ed62afb7c
-T007:
-  c: false
-  h: bfc6338ac4c3b5688d6a7186a4df83840d3a5d7f0c143aa1d78983e1f0be15ea
-  r: "The generated CSV (`data/results/aggregated_metrics.csv`) has the wrong schema\
-    \ (missing required columns like `estimator_type`, `sweep_type`, etc.), only 5\
-    \ rows instead of the required 15 (3 estimators\u202F\xD7\u202F5 \u03C4\xB2 levels),\
-    \ and the script never produces the required `data/results/coverage_tests.json`.\
-    \ Consequently the aggregation, binomial test, and bias\u2011distribution testing\
-    \ do not meet the task specifications."
-  sig: b64602bd2c53ec6c9c448282d6ab031a207b4aa925afd8e0c04e1fdb85a39cc8
+  h: 9248694a0fe3fe92a1b4ec961460d507d37f9431c06718e950909515ee8c1b6f
+  r: "The `estimate_reml` function logs failures and sets `convergence_warning=True`,\
+    \ but on REML failure it falls back to the DerSimonian\u2011Laird \u03C4\xB2 value\
+    \ (`max(dl_res.tau2, MIN_POSITIVE_TAU2)`) instead of unconditionally using the\
+    \ required fallback \u03C4\xB2\u202F=\u202F1e\u20116. This violates the task specification\
+    \ that the fallback \u03C4\xB2 must be exactly\u202F1e\u20116. The implementation\
+    \ should set `tau2 = MIN_POSITIVE_TAU2` when REML fails."
+  sig: 3933ce1c600b87dc3bbc9f55afeb57aa16a8a9f777146d27b7380fa12d312009

@@ -29,7 +29,18 @@ import numpy as np
 from scipy import optimize
 from pathlib import Path  # Added import for Path handling
 
-from utils.logging import get_logger
+# ----------------------------------------------------------------------
+# Logging helper – fall back to the standard library if the project‑specific
+# ``utils.logging`` module is unavailable (e.g., during isolated test runs).
+# ----------------------------------------------------------------------
+try:
+    from utils.logging import get_logger  # type: ignore
+except Exception:  # pragma: no cover
+    import logging
+
+    def get_logger(name: str, **kwargs) -> logging.Logger:  # noqa: D401
+        """Return a standard library logger as a fallback."""
+        return logging.getLogger(name)
 
 logger = get_logger(__name__)
 
