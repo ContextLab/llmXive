@@ -6,7 +6,7 @@ The following checklist implements the complete, reproducible study while satisf
 
 ---
 
-- [ ] **T001** [P] **[US-1]** *Download and verify real RCT/observational datasets*   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] **T001** [P] **[US-1]** *Download and verify real RCT/observational datasets*   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
   **File**: `code/data_loader.py`  
   *Implementation*: Use `datasets.load_dataset` (HuggingFace) or direct HTTPS URLs to fetch three verified datasets (one genuine RCT, two observational). Compute SHA‑256 checksums, compare against `data/checksums/manifest.json`, abort on mismatch, and **skip** any dataset with N < 100 (log a warning). No synthetic fallback; failures raise exceptions.  
   *Verification*:  
