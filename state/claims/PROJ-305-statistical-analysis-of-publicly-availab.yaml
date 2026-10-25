@@ -560,3 +560,72 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-10-19T07:30:27Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 0
+  canonical: VAERS is operated by the U.S. FDA and CDC
+  claim_id: c_b288605f
+  context: VAERS is operated by the U.S. FDA and CDC; the data are spontaneous adverse-event
+    reports and carry the well-known limitations of such systems.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Vaccine adverse event
+        url: https://en.wikipedia.org/wiki/Vaccine_adverse_event
+        value: Food and Drug Administration (FDA) and the Centers for Disease Control
+          and Prevention (CDC)
+      quote: The CDC uses a number of tools to monitor the safety of vaccines. The
+        Vaccine Adverse Event Reporting System (VAERS), a national vaccine safety
+        surveillance program run by CDC and the FDA. "VAERS detects possible safety
+        issues with U.S. vaccines by collecting information about adverse events (possible
+        side effects or health problems) after vaccination." The CDC's Safety Information
+        by Vaccine page provides a list of the latest safety information, side effects,
+        and answers to common questions about CDC recommended vaccines.
+      source_id: Centers for Disease Control and Prevention
+      url: https://en.wikipedia.org/wiki/Centers_for_Disease_Control_and_Prevention
+      value: CDC and the FDA
+    filled: true
+  kind: entity_fact
+  raw_text: VAERS is operated by the U.S. FDA and CDC
+  resolved_value: CDC and the FDA
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-25T10:26:07Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: primary input dataset is chrisvoncsefalvay/vaers-outcomes on Hugging
+    Face
+  claim_id: c_c831ae2a
+  context: The primary input is the verified, publicly accessible Hugging Face dataset
+    `chrisvoncsefalvay/vaers-outcomes` (VAERS outcomes, parquet format).
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The primary input is the verified, publicly accessible Hugging Face dataset
+    `chrisvoncsefalvay/vaers-outcomes`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T10:26:35Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: pipeline analyses VAERS data for years 2020 to 2023
+  claim_id: c_af050dcf
+  context: The pipeline analyses Vaccine Adverse Event Reporting System (VAERS) data
+    for reporting years 2020-2023.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline analyses Vaccine Adverse Event Reporting System (VAERS) data
+    for reporting years 2020-2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T10:27:03Z'

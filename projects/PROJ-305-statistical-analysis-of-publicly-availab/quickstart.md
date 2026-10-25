@@ -30,7 +30,7 @@ source venv/bin/activate # Windows: venv\Scripts\activate
 pip install -r src/requirements.txt
 ```
 
-## Step-by-Step Execution
+## Step‑by‑Step Execution
 
 1. **Create the directory tree and filesystem evidence artifact (T001)**
 
@@ -41,25 +41,21 @@ pip install -r src/requirements.txt
  Writes `logs/structure.txt` (output of `tree -a -L 3`, with a `find`
  fallback). Verification: `test -s logs/structure.txt`.
 
-2. **Download the VAERS dataset (T002)**
-
+2. **Download the VAERS dataset**
  ```bash
  python src/data/download.py
  ```
-
- Fetches the verified parquet from Hugging Face
- (`chrisvoncsefalvay/vaers-outcomes`) and writes
+ - Downloads the verified parquet from
+ `chrisvoncsefalvay/vaers-outcomes` and writes
  `data/raw/vaers_2020_2023.parquet` plus its SHA-256 to
  `data/checksums.txt`. Any download failure raises an exception — there is
  no synthetic fallback.
 
-3. **Validate the raw schema (T003)**
-
+3. **Validate the raw schema**
  ```bash
  python -m src.data.validate --input data/raw/vaers_2020_2023.parquet
  ```
-
- Checks required columns (`VAERS_ID`, `VAX_TYPE`, `SOC_CODE`, `SOC_NAME`,
+ - Checks required columns (`VAERS_ID`, `VAX_TYPE`, `SOC_CODE`, `SOC_NAME`,
  `REPT_DATE`) against `contracts/dataset.schema.yaml`; writes
  `logs/validate_pass.txt` on success, `logs/validate_fail.txt` and exit 1
  on failure.
@@ -69,8 +65,7 @@ pip install -r src/requirements.txt
  ```bash
  python src/data/clean.py
  ```
-
- Produces `data/processed/cleaned.parquet` plus per-group parquet files
+ - Produces `data/processed/cleaned.parquet` plus per-group parquet files
  (`covid.parquet`, `non_covid.parquet`, `flu.parquet`) and a summary in
  `logs/clean_summary.txt`.
 
@@ -79,36 +74,40 @@ pip install -r src/requirements.txt
  ```bash
  python -m src.main
  ```
+ This single runnable command orchestrates:
+ - Disproportionality calculations (`output/signals.csv`).
+ - Benjamini‑Hochberg correction.
+ - Signal flagging (2‑out‑of‑3 rule **plus** BH‑adjusted p‑value < 0.05 **and** hold‑out validation).
+ - Temporal profiling (canonical CSV files `output/temporal_profiles/<SOC>.csv`; optional PNG plots).
+ - Temporal‑bias robustness check (signals must survive spike‑week removal).
+ - Flu‑only sensitivity analysis (`output/sensitivity_analysis.csv`).
+ - Memory profiling and final `output/report.md`.
 
- This single runnable command orchestrates: download -> validate ->
- clean -> disproportionality metrics (ROR/PRR/IC with Benjamini-Hochberg
- correction, `output/signals.csv`) -> bootstrap empirical FDR
- (`output/empirical_fdr.txt`) -> Flu-only sensitivity analysis
- (`output/sensitivity_analysis.csv`) -> weekly reporting-time profiles
- (`output/temporal_profiles/`) -> independent output validation ->
- final report (`output/report.md`), with peak-memory profiling recorded in
- `data/results/memory_profile.json` (abort if > 7 GB).
-
-6. **Run the test suite**
-
+6. **Verify contracts**
  ```bash
- pytest -q tests/
+ pytest -q tests/contract/
  ```
+ All JSON‑schema contracts must pass.
 
 7. **Inspect results**
-
- - `output/signals.csv` — ROR/PRR/IC with 95% CIs and BH-adjusted p-values.
- - `output/temporal_profiles/` — weekly count CSVs and PNGs for top signals
- (labelled "Reporting Time", never "Post-Vaccination Time").
- - `output/sensitivity_analysis.csv` — delta metrics vs. Flu-only baseline.
- - `output/report.md` — summary, memory usage, and limitations.
+ - `output/signals.csv` – table of ROR/PRR/IC with adjusted p‑values, hold‑out validation flag, and stability indicator.
+ - `output/temporal_profiles/` – CSV files for weekly counts (canonical) and optional PNG plots for the top signals (labelled "Reporting Time").
+ - `output/sensitivity_analysis.csv` – Δ‑metrics vs. Flu baseline.
+ - `output/report.md` – summary, memory usage, and limitations.
 
 ## Troubleshooting
 
 | Symptom | Likely cause | Remedy |
-|----------|--------------|--------------------------------------------------|
-| `logs/structure.txt` missing | Step 1 not executed | Run `python code/setup_project_structure.py` |
+|---------|--------------|--------|
+| `logs/structure.txt` missing | Step 1 not executed | Run `python code/setup_project_structure.py` |
 | Download fails | Hugging Face dataset unreachable | Confirm the dataset id `chrisvoncsefalvay/vaers-outcomes` |
 | `E_SCHEMA_MISSING` from validate | Required columns absent | Confirm the downloaded parquet matches the contract |
-| MemoryError | Dataset exceeds 7 GB RAM | Enable chunked processing in `src/utils/config.py` |
-| Lint failures (`ruff` exit 1) | Style violations | Run `ruff check src/` locally, fix reported issues |
+| MemoryError | Dataset larger than 7 GB RAM | Set `USE_CHUNKED=True` in `src/utils/config.py`; the pipeline will process the parquet in 500 k‑row chunks. |
+| `logs/structure.txt` missing | Step 1 not executed | Run `python code/setup_project_structure.py` |
+| Plot functions raise `ImportError` | Placeholder code in `src/utils/plots.py` not replaced | Ensure the full implementation of `plot_weekly_counts` is present (provided in the repository). |
+| Lint failures (`ruff` exit 1) | Style violations | Run `ruff check src/` locally, fix reported issues, then re‑run the lint script. |
+
+## Next Steps
+- Review `output/report.md` and incorporate the findings into the manuscript (`paper/`).
+- Run the full test suite (`pytest -q`) to ensure ongoing compliance.
+- To experiment with a larger VAERS archive, replace the download URL with the full dataset identifier; the same pipeline will handle it provided memory constraints are respected.

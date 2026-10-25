@@ -1,21 +1,7 @@
 T001:
   c: true
-  h: 8c016cca23f025b7c43e63d320c4457e3110eafd5cf10e5b3de6bf24089a6253
-  r: All required directories (`src/data/`, `src/analysis/`, `src/utils/`, `src/validation/`,
-    `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `output/`,
-    `logs/`) exist per the collector, `logs/structure.txt` is non-empty (5223 bytes)
-    and contains genuine `tree -a -L 3` output listing all required directories, and
-    `quickstart.md` documents the runnable command `python -m src.main` plus input
-    provenance (Hugging Face VAERS dataset with checksum). The setup script's execution
-    log shows exit 0, and the structure.txt content matches the actual on-disk layout.
-  sig: 09e2b223fa969a7344c4ca97ea1e348b1ea82fdc69bf05673f628bbafaa4560f
-T002:
-  c: true
-  h: a7643acb6d5ab22300af0318f4f3d0ba77490bb66f3a07aa2c1b863109256a20
-  r: The script uses `datasets.load_dataset("chrisvoncsefalvay/vaers-outcomes", split="train")`,
-    writes the parquet to `data/raw/vaers_2020_2023.parquet` (391 MB, real VAERS content
-    visible, PAR1 magic), and records the SHA-256 in `data/checksums.txt` with exactly
-    one matching entry whose hash matches the collector-computed file hash (e04cd0f9...).
-    The execution log shows a real Hugging Face download (exit 0) with no synthetic
-    fallback, and errors raise exceptions as required.
-  sig: 88bcbfefa4791ac030b4229f60b641432d1dc8af00ae8e8be7782128f4999713
+  h: a000cfc07da36823807f886d8cddd2ef59cc3cc9b139bbed00b740b4f4f2c1fd
+  r: "Checked that all required directories exist, that `logs/structure.txt` is non\u2011\
+    empty and contains the string \u201Csrc\u201D, and that `quickstart.md` documents\
+    \ the command `python -m src.main`. All verification conditions are met."
+  sig: 5bc6b870cf216cd74964de1f60f856afa95042bb1c02eff06e6e5abeeca06e7e

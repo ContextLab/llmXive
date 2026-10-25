@@ -1,3 +1,4 @@
+# Project dependencies
 pandas
 numpy
 scipy
@@ -12,4 +13,3 @@ jsonschema
 pytest
 ruff
 black
-huggingface_hub

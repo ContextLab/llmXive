@@ -14,7 +14,6 @@
 │   │   ├── research_question_validated.yaml
 │   │   ├── task_verifier_notes.md
 │   │   ├── task_verify.feedback.yaml
-│   │   ├── task_verify.yaml
 │   │   ├── task_verify_cache.yaml
 │   │   └── tasker_rounds.yaml
 │   ├── scripts
@@ -92,7 +91,8 @@
 │   ├── processed
 │   ├── raw
 │   └── results
-│       └── __init__.py
+│       ├── __init__.py
+│       └── download_summary.txt
 ├── figures
 │   └── .gitkeep
 ├── idea
@@ -100,7 +100,8 @@
 │   └── statistical-analysis-of-publicly-availab.md
 ├── logs
 │   ├── lint.txt
-│   └── structure.txt
+│   ├── structure.txt
+│   └── validate_fail.txt
 ├── output
 │   ├── .gitkeep
 │   └── figures
@@ -158,4 +159,4 @@
         ├── test_validate.py
         └── test_validate_e_schema_missing.py
 
-49 directories, 110 files
+49 directories, 111 files

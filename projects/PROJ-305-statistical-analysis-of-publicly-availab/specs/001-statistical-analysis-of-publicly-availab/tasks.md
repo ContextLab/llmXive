@@ -8,13 +8,13 @@ The pipeline must (1) download the verified VAERS 2020‑2023 dataset, (2) valid
 
 ## Phase 1 – Setup and first end‑to‑end analysis
 
-- [ ] T001 [US1] **Establish project layout and runnable command**  
+- [X] T001 [US1] **Establish project layout and runnable command**  
   - Create required directories (`src/data/`, `src/analysis/`, `src/utils/`, `src/validation/`, `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `output/`, `logs/`).  
   - Write `logs/structure.txt` via `tree -a -L 3`.  
   - Document the command `python -m src.main` in `quickstart.md`.  
   - **Verification**: `test -s logs/structure.txt` and `grep -c src logs/structure.txt` ≥ 1.
 
-- [ ] T002 [P] [US1] **Download verified VAERS 2020‑2023 parquet dataset**  
+- [ ] T002 [P] [US1] **Download verified VAERS 2020‑2023 parquet dataset**   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   - Implement `src/data/download.py` using `datasets.load_dataset("vaers/vaers2020_2023", split="train")`.  
   - Write to `data/raw/vaers_2020_2023.parquet`.  
   - Record SHA‑256 checksum in `data/checksums.txt`.  

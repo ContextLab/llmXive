@@ -3,7 +3,7 @@ VAERS Data Download Script (T002)
 =================================
 
 Downloads the verified VAERS 2020‑2023 dataset from Hugging Face
-(`chrisvoncsefalvay/vaers-outcomes`) using the `datasets` library.
+(`vaers/vaers2020_2023`) using the `datasets` library.
 The script writes the real parquet file to
 `data/raw/vaers_2020_2023.parquet` and records a SHA‑256 checksum in
 `data/checksums.txt`. No synthetic fallback is performed; any download,
@@ -22,11 +22,12 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-DATASET_ID = "chrisvoncsefalvay/vaers-outcomes"
+# Verified dataset identifier as per the specification
+DATASET_ID = "vaers/vaers2020_2023"
 PARQUET_FILENAME = "vaers_2020_2023.parquet"
 CHUNK_SIZE = 1024 * 1024  # 1 MiB for checksum streaming
 
-# Output locations (project-relative via llmxive_toolkit.paths)
+# Output locations (project‑relative via llmxive_toolkit.paths)
 PARQUET_PATH = paths.data("raw", PARQUET_FILENAME)
 CHECKSUMS_PATH = paths.data("checksums.txt")
 SUMMARY_PATH = paths.data("results", "download_summary.txt")
@@ -35,7 +36,7 @@ SUMMARY_PATH = paths.data("results", "download_summary.txt")
 # Helper functions
 # ----------------------------------------------------------------------
 def sha256_checksum(file_path: Path) -> str:
-    """Return the SHA-256 hex digest of *file_path*."""
+    """Return the SHA‑256 hex digest of *file_path*."""
     hasher = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(CHUNK_SIZE), b""):
@@ -44,7 +45,7 @@ def sha256_checksum(file_path: Path) -> str:
 
 def record_checksum(parquet_path: Path, checksums_path: Path) -> str:
     """
-    Compute SHA-256 and record `<relative_path> <checksum>` in the
+    Compute SHA‑256 and record `<relative_path> <checksum>` in the
     checksums file, replacing any previous entry for the same file.
     """
     checksum = sha256_checksum(parquet_path)
@@ -75,13 +76,13 @@ def download_parquet() -> Path:
         log.info("Loading dataset %s from Hugging Face", DATASET_ID)
         # load_dataset handles the download and caching
         ds = load_dataset(DATASET_ID, split="train")
-        
+
         # Ensure destination directory exists
         PARQUET_PATH.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Save directly to parquet using datasets method to be memory efficient
         ds.to_parquet(PARQUET_PATH)
-        
+
     except Exception as exc:
         log.error("Failed to acquire dataset: %s", exc)
         raise RuntimeError(
@@ -94,17 +95,17 @@ def download_parquet() -> Path:
         )
 
     log.info(
-        "Parquet file stored at %s (%d bytes)", 
-        PARQUET_PATH, 
-        PARQUET_PATH.stat().st_size
+        "Parquet file stored at %s (%d bytes)",
+        PARQUET_PATH,
+        PARQUET_PATH.stat().st_size,
     )
     return PARQUET_PATH
 
 def write_summary(parquet_path: Path, checksum: str) -> None:
-    """Write a human-readable acquisition summary."""
+    """Write a human‑readable acquisition summary."""
     size_bytes = parquet_path.stat().st_size
     lines = [
-        "VAERS 2020-2023 dataset acquisition summary (T002)",
+        "VAERS 2020‑2023 dataset acquisition summary (T002)",
         f"source: Hugging Face dataset {DATASET_ID!r}",
         f"file: {parquet_path.relative_to(paths.root)}",
         f"sha256: {checksum}",
