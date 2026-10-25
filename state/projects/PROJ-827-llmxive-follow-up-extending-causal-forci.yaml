@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T21:06:54.896184Z'
-current_stage: specified
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-827-llmxive-follow-up-extending-causal-forci
-last_run_id: babffee2-468a-45ed-9f98-16a16aa4a94f
+last_run_id: c69123b6-40e8-4873-b9ae-2b32cad2c1e2
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-827-llmxive-follow-up-extending-causal-forci/specs/001-llmxive-follow-up-extending-causal-forci
 title: 'llmXive follow-up: extending "Causal Forcing++: Scalable Few-Step Autoregressive
   Diffusion Distillat"'
-updated_at: '2026-10-25T19:45:31.560189Z'
+updated_at: '2026-10-25T19:49:31.649769Z'
