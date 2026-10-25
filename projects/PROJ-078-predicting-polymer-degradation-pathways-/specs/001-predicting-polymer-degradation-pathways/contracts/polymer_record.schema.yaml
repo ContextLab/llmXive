@@ -1,58 +1,61 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: PolymerRecord
-description: Schema for polymer degradation records with SMILES and environmental conditions.
-type: object
+title: "PolymerRecord"
+description: "Schema for polymer degradation records with SMILES and environmental conditions."
+type: "object"
 properties:
   id:
-    type: string
+    type: "string"
     description: "Unique identifier (hash of SMILES + conditions)"
   smiles:
-    type: string
+    type: "string"
     description: "SMILES string of polymer"
-  polymer_type:
-    type: string
-    description: "Detected polymer class (e.g., polyester)"
-  temperature:
-    type: number
-    description: "Temperature in °C (imputed if missing)"
+  is_polyester:
+    type: "boolean"
+    description: "True if functional group detected"
+  temp_c:
+    type: "number"
+    description: "Temperature in Celsius; default 25 if imputed."
     minimum: -273.15
   ph:
-    type: number
-    description: "pH value (imputed if missing)"
+    type: "number"
+    description: "pH value; default 7 if imputed."
     minimum: 0.0
     maximum: 14.0
   uv_exposure:
-    type: number
-    description: "UV exposure level (0-1, imputed if missing)"
+    type: "number"
+    description: "UV exposure level (0‑1)."
     minimum: 0.0
     maximum: 1.0
-  degradation_pathway:
-    type: string
-    description: "Pathway label (hydrolysis, oxidation, photolysis)"
+  label:
+    type: "string"
+    description: "Degradation pathway label"
     enum:
-      - hydrolysis
-      - oxidation
-      - photolysis
+      - "hydrolysis"
+      - "oxidation"
+      - "photolysis"
   label_source:
-    type: string
-    description: "Source of label (synthetic or curated)"
+    type: "string"
+    description: "Origin of the label"
     enum:
-      - synthetic
-      - curated
-  flagged_for_curation:
-    type: boolean
-    description: "True if label missing/invalid"
-  metadata:
-    type: object
-    description: "Additional info (e.g., imputation flags)"
+      - "curated"
+      - "synthetic"
+  validation_flag:
+    type: "string"
+    description: "Record validation status"
+    enum:
+      - "valid"
+      - "missing_env"
+      - "invalid_smiles"
 required:
   - id
   - smiles
-  - polymer_type
-  - temperature
+  - is_polyester
+  - temp_c
   - ph
   - uv_exposure
-  - degradation_pathway
+  - label
   - label_source
-  - flagged_for_curation
-additionalProperties: true
+  - validation_flag
+additionalProperties: false
+
+

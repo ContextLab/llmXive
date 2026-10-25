@@ -5,15 +5,15 @@
 ### PolymerRecord
 | Field | Type | Description | Constraints |
 |-------|------|-------------|-------------|
-| `id` | string | SHA‑256 hash of (`smiles` + `temperature` + `ph` + `uv_exposure`). | Required, unique |
+| `id` | string | SHA‑256 hash of (`smiles` + `temp_c` + `ph` + `uv_exposure`). | Required, unique |
 | `smiles` | string | Canonical SMILES; **must be a valid RDKit SMILES**. | Valid RDKit SMILES |
-| `polymer_type` | string | Detected class (e.g., `"polyester"`). | Derived from SMARTS detection |
-| `temperature` | number | °C; default 25 if imputed. | ≥ -273.15 |
-| `ph` | number | pH; default 7 if imputed. | 0 – 14 |
+| `is_polyester` | boolean | `True` if the SMARTS pattern `C(=O)O` (ester) is detected; otherwise `False`. | Derived from SMARTS detection |
+| `temp_c` | number | Temperature in Celsius; default 25 if imputed. | ≥ -273.15 |
+| `ph` | number | pH value; default 7 if imputed. | 0 – 14 |
 | `uv_exposure` | number | Normalised UV (0‑1); default 0 if imputed. | 0 – 1 |
-| `degradation_pathway` | string | `"hydrolysis"`, `"oxidation"` or `"photolysis"`. | Curated label required for training |
+| `label` | string | Degradation pathway (`"hydrolysis"`, `"oxidation"` or `"photolysis"`). | Curated label required for training |
 | `label_source` | string | `"curated"` (used for training) **or** `"synthetic"` (used **only for augmentation**). |
-| `flagged_for_curation` | boolean | True if label missing/invalid before synthetic labeling. |
+| `validation_flag` | string | `"valid"` if all fields pass checks, `"missing_env"` if any environmental variable was imputed, `"invalid_smiles"` if RDKit failed to parse. |
 | `metadata` | object | Flags for imputation, validation status, etc. |
 
 ### MolecularGraph
@@ -22,7 +22,7 @@
 | `record_id` | string | FK → `PolymerRecord.id`. |
 | `nodes` | list of objects | Atom features (`atom_type`, `degree`, `hybridization`, `formal_charge`). |
 | `edges` | list of objects | Bond features (`bond_type`, `conjugation`, `aromaticity`). |
-| `global_features` | object | `{temperature, ph, uv_exposure}`. |
+| `global_features` | object | `{temp_c, ph, uv_exposure}`. |
 | `graph_hash` | string | SHA‑256 of the serialized graph. |
 
 ### MotifImportance
@@ -41,14 +41,14 @@
 | `record_id` | string | FK to `PolymerRecord.id`. |
 | `predicted_class` | string | One of the three pathways. |
 | `confidence` | number | Softmax probability (0 – 1). |
-| `is_low_confidence` | boolean | `confidence < 0.6`. |
+| `is_low_confidence` | boolean | `confidence < 0.6` (source: 2312.01650). |
 | `motif_importance` | object | Mapping `{motif_name: score}`. |
 | `attribution_map` | array of numbers | Node‑level IG scores. |
 
 ## Data Flow Diagram (conceptual)
 
-1. **Ingestion** → raw CSV/JSON (`data/raw/`).  
-2. **Label Validation** → `label_flags.json` (adds `label_source`, `flagged_for_curation`).  
+1. **Ingestion** → raw Parquet (`data/raw/`).  
+2. **Label Validation** → `label_flags.json` (adds `label_source`, `validation_flag`).  
 3. **Preprocess** → `PolymerRecord`s (`records.parquet`) + `MolecularGraph`s (`graphs/*.pkl`).  
 4. **Augmentation** (bond rotation + atom masking) → augmented graphs (`augmented/graphs/*.pkl`).  
 5. **Training** → model checkpoint (`code/models/model.pt`).  
@@ -60,4 +60,5 @@
 All artifacts are version‑hashed and listed in `state/artifact_hashes.yaml` for reproducibility.
 
 ---
+
 
