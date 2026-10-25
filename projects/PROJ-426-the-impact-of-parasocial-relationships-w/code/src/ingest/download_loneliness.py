@@ -1,38 +1,40 @@
 """
 Download the Reddit Loneliness Longitudinal Dataset from Zenodo.
 
-This script fetches the dataset identified by a Zenodo DOI, validates that it
-contains the required columns, enforces that each user has at least
-``MIN_MONTHS_PER_USER`` distinct calendar months with a non‑null
-``UCLA_Loneliness_Score``, and writes the cleaned data to a Parquet file.
-The script is deliberately lightweight so that the unit test
-``tests/unit/test_download_loneliness.py`` can run it without additional
-configuration.
+This script fetches the dataset associated with the DOI provided in the
+configuration, validates required columns, enforces a minimum longitudinal
+depth per user, and writes the cleaned data to a Parquet file.
 """
 
 import sys
 import logging
 from pathlib import Path
 from typing import Dict, Any, List
-
 import pandas as pd
 
-# Project‑wide utilities
-from llmxive_toolkit import paths, get_logger
-from src.utils.config import get_config
-from src.utils.logging import log_stage_start, log_stage_end, log_error_context
+# Ensure the project root is on the import path when executed as a script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-# External helper for Zenodo downloads (installed in the environment)
 from zenodo_get import zenodo_get
+from src.utils.logging import get_logger, log_stage_start, log_stage_end, log_error_context
+from src.utils.config import get_config
+from src.utils.data_validation import record_checksum, ValidationError
+
+# Configure logger
+logger = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Constants – these are imported by the unit test
+# Constants required by the unit test
 # ----------------------------------------------------------------------
-# Minimum number of distinct calendar months with a non‑null loneliness score
-MIN_MONTHS_PER_USER = 6
+MIN_MONTHS_PER_USER: int = 6          # Minimum distinct months with a score per user
+MIN_ROWS: int = 600                   # Minimum total rows after cleaning
+OUTPUT_PARQUET = Path("data/raw/loneliness_dataset.parquet")
 
-# Required column names in the raw dataset (as per the specification)
-REQUIRED_COLUMNS = [
+# ----------------------------------------------------------------------
+# Expected column names (as defined in the specification)
+# ----------------------------------------------------------------------
+REQUIRED_COLUMNS: List[str] = [
     "username_hash",
     "UCLA_Loneliness_Score",
     "timestamp",
@@ -41,99 +43,104 @@ REQUIRED_COLUMNS = [
     "gender",
 ]
 
-# Minimum number of rows (after cleaning) that the dataset must contain
-MIN_ROWS = 600
-
-# Output location (used by the test)
-OUTPUT_PARQUET = paths.data("raw", "loneliness_dataset.parquet")
-
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _download_from_zenodo(doi: str, dest_dir: Path) -> Path:
-    """
-    Download a Zenodo record identified by ``doi`` into ``dest_dir``.
-    Returns the path to the first data file (CSV or Parquet) found.
-    """
-    logger = get_logger(__name__)
-    logger.info(f"Downloading Zenodo record {doi} into {dest_dir}")
+def load_config() -> Dict[str, Any]:
+    """Load configuration for data paths and Zenodo DOI."""
+    cfg = get_config()
+    return {
+        "zenodo_doi": cfg.get("data", {}).get(
+            "zenodo_loneliness_doi", "10.5281/zenodo.123456"
+        ),
+        "output_dir": Path("data/raw"),
+    }
 
-    # ``zenodo_get`` expects a list of DOIs and a target directory.
-    zenodo_get([doi], output_dir=str(dest_dir))
+def fetch_dataset(zenodo_doi: str, output_dir: Path) -> Path:
+    """
+    Fetch dataset from Zenodo using zenodo_get.
 
-    # Find the first file that looks like a dataset.
+    Returns the path to the first data file (CSV, Parquet, or ZIP) found.
+    """
+    logger.info(f"Fetching dataset from Zenodo DOI: {zenodo_doi}")
+    zenodo_get([zenodo_doi], output_dir=str(output_dir))
+
+    # Locate a suitable data file
     candidates = [
-        p for p in dest_dir.iterdir()
+        p for p in output_dir.rglob("*")
         if p.suffix.lower() in {".csv", ".parquet", ".zip"}
     ]
     if not candidates:
-        raise FileNotFoundError(f"No data file found after downloading DOI {doi}")
-
-    # If a zip archive is present, extract it and look again.
-    first = candidates[0]
-    if first.suffix.lower() == ".zip":
-        import zipfile
-
-        with zipfile.ZipFile(first, "r") as zip_ref:
-            zip_ref.extractall(dest_dir)
-        extracted = [
-            p for p in dest_dir.iterdir()
-            if p.suffix.lower() in {".csv", ".parquet"}
-        ]
-        if not extracted:
-            raise FileNotFoundError("Zip archive did not contain a CSV/Parquet file")
-        first = extracted[0]
-
-    logger.info(f"Dataset file resolved to {first}")
-    return first
+        raise FileNotFoundError(
+            f"No CSV/Parquet/ZIP files found in {output_dir} after downloading {zenodo_doi}"
+        )
+    # Prefer non‑ZIP files first
+    for p in candidates:
+        if p.suffix.lower() != ".zip":
+            return p
+    # If only ZIPs were found, return the first ZIP (it will be extracted later)
+    return candidates[0]
 
 def _load_dataframe(file_path: Path) -> pd.DataFrame:
-    """Load CSV or Parquet into a DataFrame."""
+    """Load CSV or Parquet (or ZIP‑contained CSV/Parquet) into a DataFrame."""
     if file_path.suffix.lower() == ".csv":
-        df = pd.read_csv(file_path)
-    elif file_path.suffix.lower() == ".parquet":
-        df = pd.read_parquet(file_path)
-    else:
-        raise ValueError(f"Unsupported file extension: {file_path.suffix}")
-    return df
+        return pd.read_csv(file_path)
+    if file_path.suffix.lower() == ".parquet":
+        return pd.read_parquet(file_path)
+    if file_path.suffix.lower() == ".zip":
+        import zipfile
+        with zipfile.ZipFile(file_path, "r") as zip_ref:
+            # Find the first CSV or Parquet inside the zip
+            for name in zip_ref.namelist():
+                if name.lower().endswith(".csv"):
+                    with zip_ref.open(name) as f:
+                        return pd.read_csv(f)
+                if name.lower().endswith(".parquet"):
+                    with zip_ref.open(name) as f:
+                        return pd.read_parquet(f)
+        raise ValueError("ZIP archive does not contain a CSV or Parquet file.")
+    raise ValueError(f"Unsupported file type: {file_path}")
 
 def _validate_columns(df: pd.DataFrame) -> None:
-    """Ensure all REQUIRED_COLUMNS are present."""
+    """Ensure all REQUIRED_COLUMNS are present in the DataFrame."""
     missing = [c for c in REQUIRED_COLUMNS if c not in df.columns]
     if missing:
-        raise ValueError(f"Dataset is missing required columns: {missing}")
+        raise ValidationError(
+            f"Dataset is missing required columns: {missing}"
+        )
 
 def _enforce_longitudinal_depth(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Keep only users that have at least ``MIN_MONTHS_PER_USER`` distinct
-    calendar months with a non‑null ``UCLA_Loneliness_Score``.
+    Keep only users that have at least MIN_MONTHS_PER_USER distinct calendar
+    months with a non‑null UCLA_Loneliness_Score.
     """
-    # Ensure timestamp is a datetime
+    # Ensure timestamp is datetime
     if not pd.api.types.is_datetime64_any_dtype(df["timestamp"]):
         df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
 
-    # Drop rows where the score is null or timestamp could not be parsed
-    mask = df["UCLA_Loneliness_Score"].notna() & df["timestamp"].notna()
-    df = df[mask].copy()
+    # Drop rows where timestamp could not be parsed
+    df = df.dropna(subset=["timestamp"])
 
-    # Extract year‑month identifier
+    # Extract year‑month for grouping
     df["year_month"] = df["timestamp"].dt.to_period("M")
 
-    # Count distinct months per user
+    # Count distinct months with non‑null scores per user
     month_counts = (
-        df.groupby("username_hash")["year_month"]
+        df.dropna(subset=["UCLA_Loneliness_Score"])
+        .groupby("username_hash")["year_month"]
         .nunique()
-        .rename("month_count")
     )
     eligible_users = month_counts[month_counts >= MIN_MONTHS_PER_USER].index
 
-    filtered = df[df["username_hash"].isin(eligible_users)].drop(columns=["year_month"])
+    filtered = df[df["username_hash"].isin(eligible_users)].copy()
+    # Clean up helper column
+    filtered.drop(columns=["year_month"], inplace=True)
     return filtered
 
 def _final_row_count_check(df: pd.DataFrame) -> None:
-    """Raise an error if the cleaned dataset is too small."""
+    """Raise an error if the cleaned dataset does not meet MIN_ROWS."""
     if len(df) < MIN_ROWS:
-        raise ValueError(
+        raise ValidationError(
             f"Dataset contains only {len(df)} rows after cleaning; "
             f"minimum required is {MIN_ROWS}."
         )
@@ -142,28 +149,18 @@ def _final_row_count_check(df: pd.DataFrame) -> None:
 # Main entry point
 # ----------------------------------------------------------------------
 def main() -> None:
-    """
-    Download, validate, clean, and persist the Reddit Loneliness Longitudinal
-    Dataset.
-    """
-    log_stage_start("T003: Download Loneliness Dataset")
-    logger = get_logger(__name__)
+    """Download, validate, clean, and persist the Reddit Loneliness Dataset."""
+    log_stage_start("T003: Download Reddit Loneliness Longitudinal Dataset")
 
     try:
-        # ------------------------------------------------------------------
-        # Configuration – the DOI can be overridden via the global config.
-        # ------------------------------------------------------------------
-        cfg = get_config()
-        zenodo_doi = cfg.get("data", {}).get(
-            "zenodo_loneliness_doi", "10.5281/zenodo.1234567"
-        )
-        download_dir = Path("data") / "raw"
-        download_dir.mkdir(parents=True, exist_ok=True)
+        cfg = load_config()
+        output_dir: Path = cfg["output_dir"]
+        output_dir.mkdir(parents=True, exist_ok=True)
 
         # ------------------------------------------------------------------
-        # 1. Download the raw file from Zenodo
+        # 1. Download the raw file
         # ------------------------------------------------------------------
-        raw_file = _download_from_zenodo(zenodo_doi, download_dir)
+        raw_file = fetch_dataset(cfg["zenodo_doi"], output_dir)
 
         # ------------------------------------------------------------------
         # 2. Load into a DataFrame
@@ -171,17 +168,17 @@ def main() -> None:
         df = _load_dataframe(raw_file)
 
         # ------------------------------------------------------------------
-        # 3. Basic schema validation
+        # 3. Validate required columns
         # ------------------------------------------------------------------
         _validate_columns(df)
 
         # ------------------------------------------------------------------
-        # 4. Enforce longitudinal depth (≥ MIN_MONTHS_PER_USER months)
+        # 4. Enforce longitudinal depth per user
         # ------------------------------------------------------------------
         df = _enforce_longitudinal_depth(df)
 
         # ------------------------------------------------------------------
-        # 5. Final row‑count sanity check
+        # 5. Minimum row count check
         # ------------------------------------------------------------------
         _final_row_count_check(df)
 
@@ -190,13 +187,17 @@ def main() -> None:
         # ------------------------------------------------------------------
         OUTPUT_PARQUET.parent.mkdir(parents=True, exist_ok=True)
         df.to_parquet(OUTPUT_PARQUET, index=False)
+
+        # Record checksum for provenance
+        checksum_path = OUTPUT_PARQUET.parent / "loneliness_dataset.sha256"
+        record_checksum(OUTPUT_PARQUET, checksum_path)
+
         logger.info(f"Cleaned dataset written to {OUTPUT_PARQUET}")
+        log_stage_end("T003: Download Reddit Loneliness Longitudinal Dataset", success=True)
 
-        log_stage_end("T003: Download Loneliness Dataset", success=True)
-
-    except Exception as exc:
-        log_error_context("T003: Download Loneliness Dataset", exc)
-        log_stage_end("T003: Download Loneliness Dataset", success=False)
+    except Exception as e:
+        log_error_context("T003: Download Reddit Loneliness Longitudinal Dataset", e)
+        log_stage_end("T003: Download Reddit Loneliness Longitudinal Dataset", success=False)
         raise
 
 if __name__ == "__main__":

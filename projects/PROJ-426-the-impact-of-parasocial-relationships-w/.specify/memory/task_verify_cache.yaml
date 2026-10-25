@@ -24,16 +24,6 @@ T011:
     \ so no integration test is present to verify end\u2011to\u2011end data ingestion\
     \ as specified. The task\u2019s primary artifact is missing, making the claim\
     \ of completion invalid."
-T018:
-  c: false
-  h: d88b8a723d5a552f893a24cfa3b0d8b91b4bb70b11b6d033c4ca86c7216d7d2a
-  r: The manifest `data/artifact_manifest.yaml` only lists checksums for the placeholder
-    `.gitkeep` files, while the task requires checksums for *every* raw and derived
-    data artifact; no real data files are present and the unit tests fail because
-    expected files (e.g., `data/raw/file2.csv`) are missing. Consequently the checksum
-    generation does not cover the required artifacts, and the verification step cannot
-    be meaningfully applied.
-  sig: ab57f17bbecda188e54d1f2f8c68c648117d0c951031fcacf2b8d244de607945
 T020:
   c: true
   h: bf2899a226f14fd668e90b4bb31163ef5578486a2964f0e8745d5b3184c9f388

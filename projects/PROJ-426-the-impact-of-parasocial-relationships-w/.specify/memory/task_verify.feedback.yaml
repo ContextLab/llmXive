@@ -33,12 +33,14 @@ T016:
 T017:
   task: 8f202d78c27feb80964d3bcd2ca396634cd46d6e32440aa2aa1579879ff43d86
 T018:
-  reason: The manifest `data/artifact_manifest.yaml` only lists checksums for the
-    placeholder `.gitkeep` files, while the task requires checksums for *every* raw
-    and derived data artifact; no real data files are present and the unit tests fail
-    because expected files (e.g., `data/raw/file2.csv`) are missing. Consequently
-    the checksum generation does not cover the required artifacts, and the verification
-    step cannot be meaningfully applied.
+  reason: "The manifest `data/artifact_manifest.yaml` only lists the four `.gitkeep`\
+    \ placeholder files and contains no entries for the real raw, processed, or results\
+    \ artifacts that the pipeline should generate. The unit test `test_gather_and_write_manifest`\
+    \ fails because it expects a file `data/raw/file2.csv` that is not present in\
+    \ the manifest, showing the checksum script did not compute hashes for actual\
+    \ data artifacts. To satisfy the task, the script must walk the entire `data`\
+    \ tree, compute SHA\u2011256 hashes for every real artifact, write them to the\
+    \ manifest, and the verification step must detect any"
   task: 3d653bf162875fe0ca5344adf1563dc9a97c1c7310ab5488f802b8ded4556fb8
 T019:
   task: 68cc79feff0d3e21c3f05e3091d9813381e2e856f5b2b1d189e3e46e692bd9bc

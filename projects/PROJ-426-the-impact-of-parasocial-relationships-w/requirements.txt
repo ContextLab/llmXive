@@ -1,6 +1,3 @@
-# Project‑wide dependencies
-# (standard libraries listed in the system description are omitted)
-pandas
-numpy
-pyarrow
+# Existing dependencies are provided by the platform.
+# Additional third‑party packages required for this task:
 zenodo-get
