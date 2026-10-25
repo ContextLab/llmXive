@@ -2,7 +2,7 @@
 
 Fetches the ``mmbench/ocean`` validation split from the Hugging Face Hub.
 Primary path: ``datasets.load_dataset(..., streaming=True)``. The
-``datasets`` import is performed lazily/defensively because some runner
+``datasets`` import is performed defensively because some runner
 environments ship a ``pyarrow`` build incompatible with the installed
 NumPy (ImportError at import time). When — and only when — the
 ``datasets`` library itself cannot be imported, the loader falls back to

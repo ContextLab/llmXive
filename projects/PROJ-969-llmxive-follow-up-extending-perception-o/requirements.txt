@@ -1,9 +1,6 @@
 # Project dependencies
-# Core libraries are pre-installed: numpy, pandas, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil, torch (CPU), transformers, bitsandbytes,
-# sentence-transformers, tqdm
-#
-# Additional dependencies required for the data acquisition step
-datasets>=2.18
-# (Other task‑specific dependencies will be added by subsequent tasks.)
+# Core scientific libraries are pre-installed in the execution environment.
+# Add any additional packages required for this project below.
+
+datasets>=2.18.0
+# (other non‑standard dependencies can be added here as needed)
