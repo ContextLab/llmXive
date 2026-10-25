@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-25T01:16:03.145242+00:00",
+  "generated_at": "2026-10-25T01:25:09.953310+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -77640,19 +77640,19 @@
           ]
         },
         {
-          "contributions": 1,
+          "contributions": 2,
           "kind": "llm",
-          "name": "google.gemma-3-27b-it",
+          "name": "google.gemma-4-31B-it",
           "roles": [
-            "brainstorm_submitter"
+            "implementer"
           ]
         },
         {
           "contributions": 1,
           "kind": "llm",
-          "name": "google.gemma-4-31B-it",
+          "name": "google.gemma-3-27b-it",
           "roles": [
-            "implementer"
+            "brainstorm_submitter"
           ]
         }
       ],
@@ -77675,6 +77675,14 @@
       "id": "PROJ-248-predicting-the-impact-of-alloying-on-mag",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 168.267364,
+          "ended_at": "2026-10-25T01:24:42.565401Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "success",
+          "started_at": "2026-10-25T01:21:54.298037Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 180.862635,
@@ -77746,14 +77754,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-24T11:05:47.431723Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1245.936631,
-          "ended_at": "2026-10-22T12:58:02.455044Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-22T12:37:16.518413Z"
         }
       ],
       "paper_status": null,
@@ -176346,6 +176346,18 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 168.267364,
+      "ended_at": "2026-10-25T01:24:42.565401Z",
+      "failure_reason": "",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "success",
+      "project_id": "PROJ-248-predicting-the-impact-of-alloying-on-mag",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-25T01:21:54.298037Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 96.216394,
       "ended_at": "2026-10-25T00:58:57.286819Z",
       "failure_reason": "",
@@ -182331,18 +182343,6 @@
       "project_stage": "agent_blocked",
       "severity": "ok",
       "started_at": "2026-10-24T00:23:45.737787Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 706.044061,
-      "ended_at": "2026-10-24T00:23:28.697588Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-217-evaluating-the-impact-of-llm-generated-c",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-24T00:11:42.653527Z"
     }
   ],
   "reviewed_preprints": [
