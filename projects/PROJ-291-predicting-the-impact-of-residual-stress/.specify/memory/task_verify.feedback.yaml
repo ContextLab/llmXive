@@ -1,25 +1,45 @@
 T001:
-  reason: The provided `env_check.py` correctly imports the required packages, but
-    `code/tests/test_env_check.py` runs it as `python -m src.env_check`, which looks
-    for `src/env_check.py` that does not exist (the script is at `code/src/env_check.py`).
-    Additionally, the test expects a `data/raw/checksums.json` file, which is not
-    present in the repository. These mismatches cause the verification test to fail.
+  reason: The `env_check.py` does not import the required `ucimlrepo` package (it
+    is commented out), and the test suite expects a `data/raw/checksums.json` file
+    (and matching raw data files) which is not present in the provided artifacts.
+    These omissions cause the verification tests to fail.
   task: 75a0997476de49fa9387130e186621ec6a6f9d977dbafcd7a699d07a0617a4c0
 T001-1:
-  reason: The `requirements.txt` is properly pinned and `data/raw/checksums.json`
-    is an empty JSON object, but `quickstart.md` documents the command `python -m
-    src.run_e2e` instead of the required `python -m code.src.run_e2e`. This deviation
-    means the documentation does not meet the task specification.
+  reason: "Checked `requirements.txt`, `code/src/timing.py`, `quickstart.md`, and\
+    \ `data/raw/checksums.json`. The `requirements.txt` is non\u2011empty but includes\
+    \ an unpinned entry (`ucimlrepo` without a version specifier), violating the \u201C\
+    pin every dependency\u201D requirement. All other artifacts meet their specifications.\
+    \ Fix the requirements file by adding an exact version (e.g., `ucimlrepo==<version>`)\
+    \ for every listed package."
   task: 573607ac5758e24529dbec5797c38352b5e2a362f932876d6c7c65fe372f6f0e
 T002:
+  reason: "The required output artifacts (`data/processed/unified_fatigue.csv`, `data/processed/missing_flags.json`,\
+    \ `logs/proxy_clamp.log`) and the test suite (`code/tests/test_ingest.py`) are\
+    \ missing, and the ingestion code does not perform the checksum\u2011verification\
+    \ step nor does it use the `stress_unit` column with `config.PSI_TO_MPA` for unit\
+    \ conversion or log the clamping count as specified."
   task: 4e9cbab298474745c77113a6704b35b28094fad48bb71fed06f82fb742221136
 T003:
+  reason: "The e2e pipeline fails during the ingestion phase because the expected\
+    \ raw file `raw/pipeline_verification.csv` is not present, so `proxy_agreement.csv`\
+    \ and `e2e_summary.json` are never created. Additionally, `proxy_agreement.py`\
+    \ writes a different caveat string than the required \u201Cdeterministic (linear)\
+    \ proxy \u2013 descriptive only\u201D. Both issues must be fixed for the task\
+    \ to be considered complete."
   task: 9e24cd4ea4ffc0f66c2c5ab5f2651ed20072e7d3421bab68ff88947f9101869c
 T004:
+  reason: "Checked `code/src/build_features.py` (present) but the required output\
+    \ artifacts \u2013 `data/processed/balanced_measured.csv`, `feature_set_A.csv`,\
+    \ `feature_set_B.csv`, `feature_set_B_full.csv`, `feature_set_C.csv`, the scaler\
+    \ files under `code/models/scalers/`, and the verification test `code/tests/test_features.py`\
+    \ \u2013 are all missing. Without these files and tests, the task\u2019s core\
+    \ deliverables are not present."
   task: 63419f35076eb3afac97b4e87bd6f02ec25191680cefccfa84c870de5449dd23
 T005:
   task: 2bdc5dd6f709f7e0a103191c04045e85202c8dbcb038532a75366bc8e9546f5d
 T006:
+  reason: 'Requested task execution failed; rerun successfully: code/src/wilcoxon_compare.py
+    exit=1'
   task: e4b76ec99f072fd3dde22be7e4bc8d59bffb472e7bdd0e1d1d2cd95b86b33261
 T007:
   task: fcf05f697e63529fb26d14c38c7827b766a51c385fc168402a8f9c3e5c7643e5
@@ -40,4 +60,8 @@ T014:
     exit=1'
   task: 664edf4b1dd80070d84ab344274472a7b70c04aa935cefcffc8fe6bbc50235b0
 T015:
+  reason: The required file `code/src/data/gen_synthetic.py` is missing (the only
+    generator script is at `src/data/gen_synthetic.py`), and the generated CSV is
+    written to `raw/synthetic_fatigue.csv` instead of the expected `data/raw/synthetic_fatigue.csv`,
+    causing the test to fail and the checksum file not to be updated as specified.
   task: 379bf376feb7dd703dd72385050e5e15317b52abb9f4a6645e8e2c4026bd7b70

@@ -83,7 +83,7 @@ The checklist implements **FR‑001 – FR‑014** and **SC‑001 – SC
   6. Standardise numeric features and persist scalers under `code/models/scalers/`.  
   *Verification*: `pytest code/tests/test_features.py` asserts identical row counts for A and B, and that B contains no proxy rows.
 
-- [ ] T005 [P] **Train RF, GBM, and shallow NN with 5‑fold CV and held‑out test evaluation**  
+- [~] T005 [P] **Train RF, GBM, and shallow NN with 5‑fold CV and held‑out test evaluation**  
   *Files*: `code/src/train.py`, `data/results/model_performance.csv`, `code/models/<feature_set>/<algorithm>/`, `code/tests/test_train.py`  
   *Actions*  
   1. Define a 10‑combination hyper‑parameter grid for RF, GBM, and NN (1 hidden layer, ≤500 epochs).  
@@ -93,7 +93,7 @@ The checklist implements **FR‑001 – FR‑014** and **SC‑001 – SC
   5. Enforce hard limit of 3600 s for NN training.  
   *Verification*: `pytest code/tests/test_train.py` checks for model existence and that NN training time ≤ 3600s.
 
-- [ ] T006 [P] **Statistical comparison of Set A vs Set B per material class (Constitution‑VII)**  
+- [ ] T006 [P] **Statistical comparison of Set A vs Set B per material class (Constitution‑VII)**   <!-- FAILED-IN-EXECUTION: code/src/wilcoxon_compare.py exit=1 -->
   *Files*: `code/src/wilcoxon_compare.py`, `data/results/wilcoxon_results.csv`, `code/tests/test_wilcoxon.py`  
   *Actions*  
   1. Compute absolute errors for Models A vs B on identical test rows (measured stress only).  

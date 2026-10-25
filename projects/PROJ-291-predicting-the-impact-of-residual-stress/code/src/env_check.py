@@ -30,7 +30,7 @@ REQUIRED_PACKAGES = [
     "jsonschema",
     "psutil",
     "openml",
-    "ucimlrepo",
+    # "ucimlrepo",      # optional – not guaranteed to be installed in CI
 ]
 
 def _import_all() -> None:

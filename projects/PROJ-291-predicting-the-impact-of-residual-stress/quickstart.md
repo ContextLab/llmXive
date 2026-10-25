@@ -22,7 +22,7 @@ python -m src.env_check
 ## 3. Run the full analysis pipeline (end‑to‑end)
 ```bash
 # One‑command end‑to‑end execution:
-python -m src.run_e2e
+python -m code.src.run_e2e
 ```
 
 The pipeline will:
@@ -43,4 +43,5 @@ pytest -q
 
 All steps are designed to complete within the GitHub Actions free‑tier limits
 (≤ 6 h runtime, < 7 GB RAM). The synthetic data is **not** used for external
-scientific conclusions; it only confirms that the pipeline runs without error.
+scientific conclusions and is **never used for mediation**; it only validates
+that the pipeline runs without error.

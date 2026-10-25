@@ -6,9 +6,10 @@ and a shallow neural network with 5‑fold cross‑validation, hyper‑parameter
 search, timing, and final evaluation.
 
 The script is runnable as a module:
-    python -m src.train --feature-set A
-It writes model artefacts under ``code/models/`` and a performance summary
-CSV to ``data/results/model_performance.csv``.
+    python -m src.train
+It writes model artefacts under ``code/models/<feature_set>/<algorithm>/model.pt``
+(or ``model.pkl`` for scikit‑learn models) and a performance summary CSV to
+``data/results/model_performance.csv``.
 """
 import json
 import os
@@ -97,10 +98,11 @@ def _prepare_data(
     """
     Returns X, y, material_class for the requested feature set.
 
-    * For A and B_balanced we use the *balanced* subset (rows where
-      ``is_proxy`` is False).  For B_full and C we use the full dataset.
+    * For A and B we use the *balanced* subset (rows where ``is_proxy`` is False).
+    * For B_full and C we use the full dataset.
     """
     df = _load_feature_set(feature_set_name)
+
     # Target
     y = pd.to_numeric(df["fatigue_life_cycles"], errors="coerce")
     # Material class for stratification
@@ -184,7 +186,9 @@ def _train_shallow_nn(
     start_time = time.time()
 
     for epoch in range(max_epochs):
-        permutation = torch.randperm(X_tensor.size(0), generator=torch.Generator().manual_seed(SEED))
+        permutation = torch.randperm(
+            X_tensor.size(0), generator=torch.Generator().manual_seed(SEED)
+        )
         epoch_losses = []
         for i in range(0, X_tensor.size(0), batch_size):
             indices = permutation[i : i + batch_size]
@@ -209,7 +213,9 @@ def _train_shallow_nn(
 
     train_time = time.time() - start_time
     if train_time > 3600:
-        raise RuntimeError(f"Shallow NN training exceeded 60 min ({train_time:.1f}s).")
+        raise RuntimeError(
+            f"Shallow NN training exceeded 60 min ({train_time:.1f}s)."
+        )
     return model, train_time
 
 # ----------------------------------------------------------------------
@@ -248,7 +254,16 @@ def _cross_validate(
             else:
                 raise ValueError(f"Unsupported algorithm: {algorithm}")
 
-            preds = model.predict(X_val) if algorithm != "NN" else model(torch.from_numpy(X_val.values.astype(np.float32))).detach().numpy().ravel()
+            preds = (
+                model.predict(X_val)
+                if algorithm != "NN"
+                else model(
+                    torch.from_numpy(X_val.values.astype(np.float32))
+                )
+                .detach()
+                .numpy()
+                .ravel()
+            )
             mape, r2 = _evaluate_metrics(y_val.values, preds)
             fold_maps.append(mape)
             fold_r2s.append(r2)
@@ -257,7 +272,9 @@ def _cross_validate(
         mean_r2 = np.mean(fold_r2s)
 
         # Select by lowest MAPE; break ties with higher R².
-        if mean_mape < best_score or (np.isclose(mean_mape, best_score) and mean_r2 > best_r2):
+        if mean_mape < best_score or (
+            np.isclose(mean_mape, best_score) and mean_r2 > best_r2
+        ):
             best_score = mean_mape
             best_r2 = mean_r2
             best_params = params
@@ -276,22 +293,19 @@ def main() -> None:
     # expected by the test suite.
     feature_sets = {
         "A": "A",
-        "B_balanced": "B_balanced",
+        "B": "B",          # balanced set with measured stress
         "B_full": "B_full",
         "C": "C",
     }
 
     results: List[Dict] = []
 
-    models_dir = Path("code/models")
-    models_dir.mkdir(parents=True, exist_ok=True)
-
     for fs_key, fs_name in feature_sets.items():
         X, y, material = _prepare_data(fs_name)
 
         # Determine whether this set should be stratified on the *balanced*
-        # subset (A and B_balanced) or on the full data (B_full, C).
-        balanced = fs_key in ("A", "B_balanced")
+        # subset (A and B) or on the full data (B_full, C).
+        balanced = fs_key in ("A", "B")
 
         # 80/20 train‑test split (stratified)
         X_tr, X_te, y_tr, y_te, mat_tr, mat_te = train_test_split(
@@ -319,7 +333,9 @@ def main() -> None:
             test_pred = model.predict(X_te)
             test_mape, test_r2 = _evaluate_metrics(y_te.values, test_pred)
 
-            model_path = models_dir / f"{fs_name}_RF.pkl"
+            model_dir = paths.code("models", fs_name, "RF")
+            model_dir.mkdir(parents=True, exist_ok=True)
+            model_path = model_dir / "model.pkl"
             pd.to_pickle(model, model_path)
 
             results.append(
@@ -350,7 +366,9 @@ def main() -> None:
             test_pred = model.predict(X_te)
             test_mape, test_r2 = _evaluate_metrics(y_te.values, test_pred)
 
-            model_path = models_dir / f"{fs_name}_GBM.pkl"
+            model_dir = paths.code("models", fs_name, "GBM")
+            model_dir.mkdir(parents=True, exist_ok=True)
+            model_path = model_dir / "model.pkl"
             pd.to_pickle(model, model_path)
 
             results.append(
@@ -378,14 +396,19 @@ def main() -> None:
                 balanced=balanced,
             )
             model, train_time = _train_shallow_nn(X_tr, y_tr, best_params)
+
             # NN prediction on test set
             model.eval()
             with torch.no_grad():
-                test_tensor = torch.from_numpy(X_te.values.astype(np.float32))
+                test_tensor = torch.from_numpy(
+                    X_te.values.astype(np.float32)
+                )
                 test_pred = model(test_tensor).numpy().ravel()
             test_mape, test_r2 = _evaluate_metrics(y_te.values, test_pred)
 
-            model_path = models_dir / f"{fs_name}_NN.pt"
+            model_dir = paths.code("models", fs_name, "NN")
+            model_dir.mkdir(parents=True, exist_ok=True)
+            model_path = model_dir / "model.pt"
             torch.save(model.state_dict(), model_path)
 
             results.append(

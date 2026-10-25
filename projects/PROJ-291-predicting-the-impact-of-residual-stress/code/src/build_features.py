@@ -12,10 +12,14 @@ Constructs the four feature sets required for downstream modeling:
 * Feature Set C – process parameters + material‑property attributes +
   the proxy stress column (full dataset).
 
+Additionally, the script writes the **balanced measured subset** to
+`data/processed/balanced_measured.csv` for downstream use (e.g. model
+training and statistical tests).
+
 All numeric features are standardised (zero mean, unit variance) using a
 ``sklearn.preprocessing.StandardScaler``.  The fitted scalers are persisted
-to ``data/processed`` so that later stages (training, inference) can reuse
-them.
+under ``data/processed/scaler_<name>.pkl`` so that later stages (training,
+inference) can reuse them.
 """
 
 import json
@@ -90,18 +94,25 @@ def _write_feature_set(df: pd.DataFrame, name: str) -> None:
     df.to_csv(out_path, index=False)
     log.info("Feature set %s written to %s", name, out_path)
 
+def _write_balanced_measured(df: pd.DataFrame) -> None:
+    """Write the balanced measured‑stress subset to ``balanced_measured.csv``."""
+    out_path: Path = paths.processed("balanced_measured.csv")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(out_path, index=False)
+    log.info("Balanced measured subset written to %s", out_path)
+
 # ----------------------------------------------------------------------
 # Core builder
 # ----------------------------------------------------------------------
 def build_feature_sets(unified_path: Path = None) -> Dict[str, pd.DataFrame]:
     """
-    Build and persist all four feature sets.
+    Build and persist all four feature sets plus the balanced measured subset.
 
     Returns
     -------
     dict
-        Mapping from feature‑set name (``A``, ``B_balanced``, ``B_full``,
-        ``C``) to the corresponding processed ``DataFrame``.
+        Mapping from feature‑set name (``A``, ``B``, ``B_full``, ``C``)
+        to the corresponding processed ``DataFrame``.
     """
     df = _load_unified_dataset(unified_path)
 
@@ -112,27 +123,31 @@ def build_feature_sets(unified_path: Path = None) -> Dict[str, pd.DataFrame]:
         raise KeyError("Column 'is_proxy' missing – cannot build balanced sets.")
     mask_measured = ~df["is_proxy"].astype(bool)
 
+    df_balanced = df.loc[mask_measured].reset_index(drop=True)
+
+    # Write the balanced measured subset for downstream tests / training
+    _write_balanced_measured(df_balanced)
+
     # ------------------------------------------------------------------
     # 1. Feature Set A – process parameters only, on the balanced subset
     # ------------------------------------------------------------------
     proc_cols = _select_process_columns(df)
     if not proc_cols:
         raise ValueError("No process‑parameter columns found in the dataset.")
-    df_balanced = df.loc[mask_measured].reset_index(drop=True)
     X_A = df_balanced[proc_cols].copy()
     X_A, scaler_A = _standardise(X_A)
     _save_scaler(scaler_A, "A")
     _write_feature_set(X_A, "A")
 
     # ------------------------------------------------------------------
-    # 2. Feature Set B (balanced) – process + measured stress, rows where
-    #    ``is_proxy`` is False.
+    # 2. Feature Set B (balanced) – process + measured stress,
+    #    rows where ``is_proxy`` is False.
     # ------------------------------------------------------------------
     b_balanced_cols = proc_cols + ["residual_stress_measured"]
     X_B_balanced = df_balanced[b_balanced_cols].copy()
     X_B_balanced, scaler_B = _standardise(X_B_balanced)
-    _save_scaler(scaler_B, "B_balanced")
-    _write_feature_set(X_B_balanced, "B_balanced")
+    _save_scaler(scaler_B, "B")
+    _write_feature_set(X_B_balanced, "B")
 
     # ------------------------------------------------------------------
     # 3. Feature Set B‑full – process + stress (measured when present,
@@ -165,7 +180,7 @@ def build_feature_sets(unified_path: Path = None) -> Dict[str, pd.DataFrame]:
     log.info("All feature sets built successfully.")
     return {
         "A": X_A,
-        "B_balanced": X_B_balanced,
+        "B": X_B_balanced,
         "B_full": X_B_full,
         "C": X_C,
     }
