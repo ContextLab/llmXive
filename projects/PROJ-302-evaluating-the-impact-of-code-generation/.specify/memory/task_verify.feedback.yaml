@@ -1,11 +1,8 @@
 T001:
   task: 07a7d178243203e52e8e8056088f81faa793d96eebe7787b11b89c1aa50fa5f9
 T002:
-  reason: "The `data/raw/` directory contains only a `.gitkeep`; none of the required\
-    \ `<owner>_<repo>.parquet` files or `commit_messages.parquet` are present, and\
-    \ the `pull_request.schema.yaml` file is missing. Without these artifacts (and\
-    \ evidence of successful API runs without unhandled 403 errors), the task\u2019\
-    s verification criteria are not met."
+  reason: 'Requested task execution failed; rerun successfully: code/data_acquisition.py
+    exit=-1 (TIMEOUT)'
   task: e8434a10257568c4f6d44e271608b76cb800f5bb7d13c584ffc1ee6c6e19f36d
 T003:
   task: 5881a2814012a369414f9211ce17be2eeb3934d5d97dedf34bc5dbf2fe0e0362

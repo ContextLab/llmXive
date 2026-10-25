@@ -1,6 +1,6 @@
 status: none
-intent: GHTorrent GitHub pull request metadata dataset with synthetic code python
-  package dataset
+intent: GHTorrent GitHub pull request metadata CodeXGLUE synthetic code python package
+  dataset
 required_fields:
 - repository_id
 - repository_name
@@ -8,12 +8,12 @@ required_fields:
 - pull_request_id
 - pull_request_number
 - pull_request_created_at
-- pull_request_closed_at
 - pull_request_merged_at
-- first_review_comment_timestamp
+- pull_request_closed_at
+- first_comment_timestamp
 - approval_timestamp
 - merge_timestamp
-- commit_id
-cache_key: 62e4bcca5815949b39733e52e31f05efdd60f89a33eaecc7c943efed02c133ca
-searched_at: '2026-10-25T17:25:59.537888+00:00'
+- commit_sha
+cache_key: 868b4c0a119b8f9bd37c1bca5da145d5edc481ef484eec449b30e4c53c66a666
+searched_at: '2026-10-25T18:29:18.973613+00:00'
 retry_count: 1

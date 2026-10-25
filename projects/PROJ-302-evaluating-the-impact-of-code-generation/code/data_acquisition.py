@@ -11,10 +11,10 @@ via exponential back‑off (tenacity) and writes:
 * ``data/raw/commit_messages.parquet`` – a consolidated table with the
   columns ``pr_id`` and ``commit_message`` (the PR title).
 
-The script deliberately limits the number of PRs fetched per repository
-to ``MAX_PRs = 200`` to keep the run‑time well within the CI limits while
-still providing a non‑empty, real dataset that satisfies the verification
-requirements.
+The script limits the number of PRs fetched per repository to
+``MAX_PRS = 30`` to stay comfortably within the unauthenticated GitHub
+rate‑limit (60 requests per hour) while still producing a non‑empty
+dataset that satisfies the verification requirements.
 """
 
 import os
@@ -44,10 +44,10 @@ REPOSITORIES = [
 ]
 
 # Limit the number of PRs fetched per repository – enough to produce a
-# non‑empty parquet file while staying within the GitHub unauthenticated
+# non‑empty parquet file while staying well within the GitHub unauthenticated
 # rate limit (60 requests / hour).  The back‑off logic will pause if the
 # limit is hit.
-MAX_PRS = 200
+MAX_PRS = 30  # Reduced from 200 to avoid rate‑limit exhaustion
 
 # GitHub API endpoint template
 API_ROOT = "https://api.github.com"

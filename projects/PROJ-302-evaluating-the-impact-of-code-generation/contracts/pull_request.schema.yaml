@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: PullRequest
+type: object
+properties:
+  pr_id:
+    type: integer
+  repo_owner:
+    type: string
+  repo_name:
+    type: string
+  repo_id:
+    type: string
+  created_at:
+    type: string
+    format: date-time
+  merged_at:
+    type: [string, "null"]
+    format: date-time
+  state:
+    type: string
+  title:
+    type: string
+  body:
+    type: string
+  additions:
+    type: integer
+  deletions:
+    type: integer
+  changed_files:
+    type: integer
+  author_login:
+    type: string
+  review_comment_count:
+    type: [integer, "null"]
+  ci_duration_seconds:
+    type: [number, "null"]
+required:
+  - pr_id
+  - repo_owner
+  - repo_name
+  - repo_id
+  - created_at
+  - state
+  - title
+  - body
+  - additions
+  - deletions
+  - changed_files
+  - author_login
+additionalProperties: true

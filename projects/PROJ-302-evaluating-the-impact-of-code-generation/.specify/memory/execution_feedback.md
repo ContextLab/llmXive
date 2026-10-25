@@ -23,9 +23,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py --full-run -> rc=-1
 
-2026-10-25 17:22:55,851 INFO __main__: Running main() of 'code.data_acquisition' for stage 'data_acquisition'.
-2026-10-25 17:22:55,851 INFO code.data_acquisition.data_acquisition: Fetching PRs for tensorflow/tensorflow
-2026-10-25 17:23:20,031 WARNING code.data_acquisition.data_acquisition: Rate limit exceeded, sleeping for 2091s before retry.
+2026-10-25 18:26:50,453 INFO __main__: Running main() of 'code.data_acquisition' for stage 'data_acquisition'.
+2026-10-25 18:26:50,454 INFO code.data_acquisition.data_acquisition: Fetching PRs for tensorflow/tensorflow
+2026-10-25 18:27:15,139 WARNING code.data_acquisition.data_acquisition: Rate limit exceeded, sleeping for 2886s before retry.
 
 [TIMEOUT after 120s]
 
