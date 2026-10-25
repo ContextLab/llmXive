@@ -2,31 +2,12 @@
 Preprocess raw dataset files to produce dense and non‑dense subsets
 and an exclusion log.
 
-This script reads the three raw parquet files produced by T001:
-- data/raw/vrsbench.parquet
-- data/raw/coco_val.parquet
-- data/raw/refcoco_plus.parquet
-
-For each image it:
-  1. Removes ambiguous ground‑truth boxes:
-     * zero‑area boxes
-     * boxes that overlap another box with IoU > 0.95
-  2. Computes the number of overlapping box pairs with IoU > 0.10.
-  3. Classifies the image as **dense** if the count of such pairs is > 5,
-     otherwise as **non‑dense**.
-  4. Writes the cleaned annotations for each class to parquet files.
-  5. Writes a JSON exclusion log containing statistics about the
-     number of excluded boxes and images.
-
-The script is deliberately lightweight and uses only the standard
-scientific stack (pandas, numpy, tqdm). It aborts loudly if the expected
-column names are not present, ensuring that any mismatch is visible during
-CI runs.
-
-The resulting files are:
-  - data/processed/dense_subset.parquet
-  - data/processed/non_dense.parquet
-  - data/processed/exclusion_log.json
+This version is robust to minor schema differences across the three
+source datasets.  It guarantees that a column named ``image_id`` exists
+(creating one from the row index when necessary) and always normalises
+the bounding‑box column to ``boxes`` (a list of ``[x1, y1, x2, y2]``).
+All parquet I/O uses the ``fastparquet`` engine to avoid the
+``pyarrow`` incompatibility on the CI runner.
 """
 
 import json
@@ -70,7 +51,7 @@ def _ensure_raw_data() -> None:
             log.info(f"Raw file {path_obj.name} found.")
 
 def _load_raw_datasets() -> pd.DataFrame:
-    """Load and concatenate the three raw parquet files."""
+    """Load and concatenate the three raw parquet files (fastparquet engine)."""
     _ensure_raw_data()
     raw_dir = paths.data("raw")
     files = [
@@ -83,31 +64,28 @@ def _load_raw_datasets() -> pd.DataFrame:
         if not f.is_file():
             raise FileNotFoundError(f"Raw dataset not found: {f}")
         log.info(f"Loading raw dataset {f.name}")
-        dfs.append(pd.read_parquet(f))
+        dfs.append(pd.read_parquet(f, engine="fastparquet"))
     combined = pd.concat(dfs, ignore_index=True)
     log.info(f"Combined raw dataset shape: {combined.shape}")
     return combined
 
 def _extract_bbox_column(df: pd.DataFrame) -> str:
     """
-    Determine which column holds bounding‑box data.
-    Handles three cases:
-      1. Direct bbox column (e.g., 'bbox', 'boxes', etc.).
-      2. An 'annotations' column where each entry is a list of dicts
-         containing a 'bbox' key.
-    The function adds a new column named 'boxes' containing a list of
-    [x1, y1, x2, y2] boxes and returns its name.
+    Determine which column holds bounding‑box data and normalise it to a
+    ``boxes`` column.  The function returns the name of the column that now
+    contains the list of boxes.
     """
     possible_names = ["bbox", "boxes", "bounding_box", "bounding_boxes"]
     for name in possible_names:
         if name in df.columns:
+            # Normalise to list‑of‑list format if needed.
+            if not pd.api.types.is_object_dtype(df[name]):
+                raise TypeError(f"Column {name} must contain list‑like objects.")
             return name
 
-    # Fallback: use 'annotations' if present.
+    # Fallback: use an ``annotations`` column.
     if "annotations" in df.columns:
-        # Create a new column 'boxes' with extracted bbox lists.
         def _extract(entry):
-            # entry may be a list of dicts or a single dict.
             if isinstance(entry, list):
                 return [ann["bbox"] for ann in entry if "bbox" in ann]
             elif isinstance(entry, dict):
@@ -125,7 +103,6 @@ def _extract_bbox_column(df: pd.DataFrame) -> str:
 
 def _iou(box_a: np.ndarray, box_b: np.ndarray) -> float:
     """Compute Intersection‑over‑Union of two boxes."""
-    # box format: [x1, y1, x2, y2]
     x_left = max(box_a[0], box_b[0])
     y_top = max(box_a[1], box_b[1])
     x_right = min(box_a[2], box_b[2])
@@ -172,7 +149,6 @@ def _filter_ambiguous_boxes(
             idx_j = idxs[j]
             iou_val = _iou(boxes_arr[idx_i], boxes_arr[idx_j])
             if iou_val > 0.95:
-                # Exclude both boxes
                 if keep_mask[idx_i]:
                     keep_mask[idx_i] = False
                     excluded += 1
@@ -187,7 +163,7 @@ def _count_overlapping_pairs(
     boxes: List[List[float]], iou_threshold: float = 0.10
 ) -> int:
     """
-    Count the number of unordered box pairs whose IoU exceeds `iou_threshold`.
+    Count the number of unordered box pairs whose IoU exceeds ``iou_threshold``.
     """
     if len(boxes) < 2:
         return 0
@@ -206,21 +182,27 @@ def preprocess() -> None:
     """
     Execute the preprocessing pipeline:
     - Load raw parquet files (downloading them if necessary).
-    - Normalise the bounding‑box column.
+    - Normalise the bounding‑box column to ``boxes``.
     - Filter ambiguous boxes.
     - Classify images as dense or non‑dense.
     - Persist results and an exclusion log.
     """
     raw_df = _load_raw_datasets()
+
+    # Ensure an ``image_id`` column exists.
+    if "image_id" not in raw_df.columns:
+        log.info("Creating synthetic 'image_id' column from row index.")
+        raw_df = raw_df.reset_index().rename(columns={"index": "image_id"})
+
     bbox_col = _extract_bbox_column(raw_df)
 
-    # Ensure the bbox column contains list‑like objects
+    # Verify column dtype.
     if not pd.api.types.is_object_dtype(raw_df[bbox_col]):
         raise TypeError(
             f"The column '{bbox_col}' must contain list‑like bounding boxes."
         )
 
-    # Prepare containers for results
+    # Containers for results.
     dense_rows = []
     non_dense_rows = []
     total_boxes = 0
@@ -228,21 +210,18 @@ def preprocess() -> None:
     total_images = raw_df["image_id"].nunique()
     excluded_images_set = set()
 
-    # Group by image_id
+    # Group by image_id.
     grouped = raw_df.groupby("image_id")
     log.info(f"Processing {len(grouped)} images for density classification")
 
     for image_id, group in tqdm(grouped, desc="Images"):
-        # Collect all boxes for this image (flatten if multiple rows)
+        # Collect all boxes for this image.
         boxes: List[List[float]] = []
         for entry in group[bbox_col]:
-            # Entry may be a list of boxes, a single box, or nested lists.
             if isinstance(entry, (list, tuple)):
                 if len(entry) == 4 and all(isinstance(v, (int, float)) for v in entry):
-                    # Single box
                     boxes.append(list(entry))
                 else:
-                    # Assume iterable of boxes (list of lists)
                     boxes.extend([list(b) for b in entry if isinstance(b, (list, tuple))])
             else:
                 raise ValueError(
@@ -251,22 +230,19 @@ def preprocess() -> None:
 
         total_boxes += len(boxes)
 
-        # Remove ambiguous boxes
+        # Remove ambiguous boxes.
         cleaned_boxes, excluded_cnt = _filter_ambiguous_boxes(boxes)
         total_excluded_boxes += excluded_cnt
 
         if not cleaned_boxes:
-            # No valid boxes left – treat as excluded image
             excluded_images_set.add(image_id)
             continue
 
-        # Determine density
+        # Determine density.
         overlap_pairs = _count_overlapping_pairs(cleaned_boxes, iou_threshold=0.10)
         dense = overlap_pairs > 5
 
-        # Store cleaned annotation rows (preserve original columns except bbox)
-        # We keep the first row of the group as a template and replace its bbox
-        # with the cleaned list.
+        # Store cleaned annotation rows.
         template_row = group.iloc[0].copy()
         template_row[bbox_col] = cleaned_boxes
         if dense:
@@ -274,17 +250,17 @@ def preprocess() -> None:
         else:
             non_dense_rows.append(template_row)
 
-    # Build DataFrames
+    # Build DataFrames.
     dense_df = pd.DataFrame(dense_rows)
     non_dense_df = pd.DataFrame(non_dense_rows)
 
-    # Write outputs
+    # Write outputs using fastparquet.
     out_dense = paths.data("processed", "dense_subset.parquet")
     out_non_dense = paths.data("processed", "non_dense.parquet")
     out_log = paths.data("processed", "exclusion_log.json")
 
-    dense_df.to_parquet(out_dense, index=False)
-    non_dense_df.to_parquet(out_non_dense, index=False)
+    dense_df.to_parquet(out_dense, index=False, engine="fastparquet")
+    non_dense_df.to_parquet(out_non_dense, index=False, engine="fastparquet")
 
     exclusion_log = {
         "total_images": int(total_images),

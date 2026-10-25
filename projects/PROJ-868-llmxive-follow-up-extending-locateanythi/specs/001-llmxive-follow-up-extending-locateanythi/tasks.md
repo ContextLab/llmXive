@@ -30,7 +30,7 @@ The study follows three research phases. Tasks are expressed as checklist items;
   - **Path**: `code/model/locateany.py` (class `LocateAnythingSparsityWrapper`)  
   - **Verification**: Integration test `tests/unit/test_model_wrapper.py` runs a forward pass on a single image with `window_size=32` and checks that the output dict contains keys `prediction`, `latency_ms`, and that `torch.get_num_threads()` equals 2.
 
-- [ ] **T005** [FR‑002 · FR‑009] **End‑to‑end sanity run on a tiny sample (5 images) with global attention**   <!-- FAILED-IN-EXECUTION: src/cli/run_experiment.py exit=1 -->
+- [ ] **T005** [FR‑002 · FR‑009] **End‑to‑end sanity run on a tiny sample (5 images) with global attention**   <!-- FAILED-IN-EXECUTION: src/cli/run_experiment.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/cli/run_experiment.py exit=1 -->
   - **Path**: `code/cli/run_experiment.py --config global --sample 5` → `data/results/sanity_global.parquet`, `data/predictions/sample_global.json`  
   - **Verification**:  
     1. All rows in the parquet file pass `inference_results.schema.yaml` (contract test `tests/contract/test_contracts.py`).  

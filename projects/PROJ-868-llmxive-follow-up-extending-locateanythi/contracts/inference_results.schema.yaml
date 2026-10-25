@@ -1,0 +1,25 @@
+# JSON Schema for inference result records.
+# This schema validates the parquet files produced by the pipeline.
+type: object
+properties:
+  image_id:
+    type: [integer, string]
+  prediction:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+  mean_iou:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+  latency_ms:
+    type: number
+    minimum: 0.0
+required:
+  - image_id
+  - prediction
+  - mean_iou
+  - latency_ms
+additionalProperties: false

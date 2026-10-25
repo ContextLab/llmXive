@@ -11,7 +11,7 @@ satisfies the contract schema:
 
 Because the full LocateAnything model is heavyweight and not required for
 the sanity check, the script uses the ground‑truth bounding boxes as the
-model predictions. This yields an mIoU of 1.0 for every image, which is a
+model predictions.  This yields an mIoU of 1.0 for every image, which is a
 valid numeric value between 0 and 1 and satisfies the contract test.
 
 The script is deliberately lightweight, runs on CPU‑only, and respects
@@ -108,7 +108,7 @@ def main() -> None:
     if not dense_path.is_file():
         raise FileNotFoundError(f"Dense subset not found at {dense_path}")
 
-    dense_df = pd.read_parquet(dense_path)
+    dense_df = pd.read_parquet(dense_path, engine="fastparquet")
     if dense_df.empty:
         raise RuntimeError("Dense subset is empty – cannot run sanity check.")
 
@@ -164,8 +164,9 @@ def main() -> None:
     results_path = paths.data("results", "sanity_global.parquet")
     predictions_path = paths.data("predictions", "sample_global.json")
 
-    # Ensure parent directories exist (paths.* does this automatically).
-    pd.DataFrame.from_records(records).to_parquet(results_path, index=False)
+    pd.DataFrame.from_records(records).to_parquet(
+        results_path, index=False, engine="fastparquet"
+    )
     log.info(f"Wrote sanity results parquet to {results_path}")
 
     with predictions_path.open("w", encoding="utf-8") as f:
@@ -175,7 +176,7 @@ def main() -> None:
     # -----------------------------------------------------------------
     # Step 6 – sanity check on the output.
     # -----------------------------------------------------------------
-    df_check = pd.read_parquet(results_path)
+    df_check = pd.read_parquet(results_path, engine="fastparquet")
     if not all(0.0 <= v <= 1.0 for v in df_check["mean_iou"]):
         raise AssertionError("Mean mIoU values fall outside the [0, 1] range.")
     log.info("Sanity run completed successfully.")

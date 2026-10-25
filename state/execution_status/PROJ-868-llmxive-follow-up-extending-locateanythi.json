@@ -1,7 +1,7 @@
 {
-  "model_tier": 1,
+  "model_tier": 2,
   "fix_rounds": 0,
-  "updated_at": "2026-10-25T01:38:02Z",
+  "updated_at": "2026-10-25T04:25:24Z",
   "project_id": "PROJ-868-llmxive-follow-up-extending-locateanythi",
   "replan_rounds": 1
 }

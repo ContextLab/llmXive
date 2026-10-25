@@ -7,18 +7,21 @@ T002:
     exit=1'
   task: 5b7a64793866ca9bce5d97129b2855e0c0db456f8087cffe3e88975e322dc1ac
 T003:
-  reason: "The `code/model/sparsity.py` file exists, but the unit test `tests/unit/test_sparsity.py`\
-    \ fails for the `window_size=1` case: the generated mask is not the identity matrix\
-    \ as required. The mask construction swaps row/column indices, causing the identity\u2011\
-    mask test to error. The implementation must be corrected so that `window_size=1`\
-    \ yields an exact diagonal (identity) mask and all tests pass."
+  reason: "The provided `code/model/sparsity.py` defines `SparsityConfig` with a `mask(num_tokens)`\
+    \ method, but the tests expect a constructor accepting `num_patches` and a `get_mask()`\
+    \ method. Moreover, the mask logic does not produce a global mask for window sizes\
+    \ larger than the grid (e.g., `window_size=16` on a 16\xD716 grid) as required\
+    \ by the test cases. The API mismatch and incorrect masking behavior mean the\
+    \ task\u2019s requirements are not satisfied."
   task: 2f903abb01ce8461f6564b789d2fa3c794830b203010cd0a72e3fdc38bc4e83a
 T004:
-  reason: The wrapper implementation (`code/model/locateany.py`) exists and meets
-    the basic functional spec, but the required integration test `tests/unit/test_model_wrapper.py`
-    is missing, so the verification step cannot be performed. Adding the test file
-    (which runs a forward pass with `window_size=32` and asserts the presence of `prediction`,
-    `latency_ms`, and `torch.get_num_threads() == 2`) is needed to complete the task.
+  reason: "The `code/model/locateany.py` file defines the wrapper, but the integration\
+    \ test cannot run: the test fails during import because the `torch` package is\
+    \ not installed, and the wrapper\u2019s constructor signature (`__init__(self,\
+    \ model, sparsity_config)`) does not match the test\u2019s usage (`LocateAnythingSparsityWrapper(sparsity_config=config)`).\
+    \ Consequently the required forward\u2011pass check and thread\u2011limit assertion\
+    \ are never exercised. The task needs a working environment with `torch` available\
+    \ and a wrapper API that matches the test expectations."
   task: 79e554ae5331ae176eff551cdaa8ea4863ceade5b59e322bae4c569da534500c
 T005:
   reason: 'Requested task execution failed; rerun successfully: src/cli/run_experiment.py

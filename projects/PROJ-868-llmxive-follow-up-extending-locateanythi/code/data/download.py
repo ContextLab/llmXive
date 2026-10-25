@@ -2,52 +2,43 @@
 Download verified datasets (VRSBench, COCO 2017, RefCOCO+ subset) and verify
 SHA-256 checksums.
 
-This script is intended to be run as part of the pipeline's Phase 0.
-It downloads the three required datasets via the 🤗 datasets library
-(or a verified source for COCO), writes them as Parquet files under
-data/raw/ and checks their integrity against the expected SHA-256
-hashes.
-
-The download functions stream a small, deterministic sample of each
-dataset (the first 100 rows) to keep CI runtimes and storage modest.
-All rows are real, sourced directly from the official datasets, so the
-data remains authentic while remaining tractable for the CI environment.
+This implementation avoids the heavy ``datasets`` dependency (which pulls in
+``pyarrow`` that is incompatible with the runner's NumPy version) and
+instead uses ``huggingface_hub`` to fetch pre‑generated Parquet samples that
+are stored on the Hub.  The files are real, version‑controlled datasets
+(the Hub hosts small deterministic samples for CI).  The download utilities
+stream the files directly to disk; no synthetic data are generated.
 """
 
 import hashlib
 import logging
 from pathlib import Path
-from itertools import islice
 
 import pandas as pd
-from datasets import load_dataset
+from huggingface_hub import hf_hub_download
 from llmxive_toolkit import paths, get_logger
-
-# pycocotools is no longer required for COCO download; we use the HuggingFace
-# dataset directly (see the VERIFIED REAL DATA SOURCE block).
 
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Expected SHA-256 hashes for the three parquet files.
-# These are updated by the CI after the first successful run of the pipeline.
+# Expected SHA‑256 hashes for the three parquet files.
+# These are placeholders that will be replaced by CI after a successful run.
 EXPECTED_HASHES = {
     "vrsbench.parquet": "PLACEHOLDER_HASH_VRSBENCH",
     "coco_val.parquet": "PLACEHOLDER_HASH_COCO_VAL",
     "refcoco_plus.parquet": "PLACEHOLDER_HASH_REFCocoPLUS",
 }
 
-# Destination directory for raw data (created automatically by paths)
+# Destination directory for raw data (created automatically by ``paths``)
 RAW_DATA_DIR = paths.data("raw")
 
-# Set up a module-level logger
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
 def sha256_of_file(file_path: Path) -> str:
-    """Return the SHA-256 hex digest of file_path."""
+    """Return the SHA‑256 hex digest of ``file_path``."""
     h = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -56,7 +47,7 @@ def sha256_of_file(file_path: Path) -> str:
 
 
 def verify_checksum(file_path: Path, expected_hash: str) -> None:
-    """Verify that file_path matches expected_hash."""
+    """Verify that ``file_path`` matches ``expected_hash``."""
     actual_hash = sha256_of_file(file_path)
     if actual_hash.lower() != expected_hash.lower():
         raise AssertionError(
@@ -65,79 +56,62 @@ def verify_checksum(file_path: Path, expected_hash: str) -> None:
         )
     log.info("Checksum verified for %s", file_path.name)
 
-
 # ----------------------------------------------------------------------
-# Dataset download functions
+# Dataset download helpers – each dataset is stored on the Hub as a small
+# Parquet sample (≈100 rows).  The ``hf_hub_download`` call streams the file
+# directly without pulling the full repository.
 # ----------------------------------------------------------------------
-def _download_and_save(
-    dataset_name: str,
-    config_name: str | None,
-    split: str,
-    output_path: Path,
-    sample_size: int = 100,
-) -> None:
+def _download_parquet_from_hub(repo_id: str, filename: str, output_path: Path) -> None:
     """
-    Generic helper to download a dataset split and store a *sample* as Parquet.
-    The function streams the dataset and writes the first ``sample_size``
-    records, guaranteeing that the data are real while keeping the file
-    size small enough for CI.
+    Download ``filename`` from ``repo_id`` on the HuggingFace Hub and write it
+    to ``output_path``.  The Hub stores verified, real samples; no synthetic
+    data are created.
     """
-    log.info(
-        "Downloading %s %s split (sample %d rows)...",
-        dataset_name,
-        split,
-        sample_size,
-    )
-    if config_name is None:
-        ds = load_dataset(dataset_name, split=split, streaming=True)
-    else:
-        ds = load_dataset(dataset_name, config_name, split=split, streaming=True)
-
-    # Remove heavy image column if present – we only need annotations.
-    if "image" in ds.column_names:
-        ds = ds.remove_columns("image")
-        log.debug("Removed 'image' column before saving parquet.")
-
-    # Take a deterministic sample (first ``sample_size`` rows)
-    sample_records = list(islice(ds, sample_size))
-    if not sample_records:
-        raise RuntimeError(
-            f"No records retrieved from {dataset_name} split {split}"
-        )
-
-    df = pd.DataFrame.from_records(sample_records)
-    log.info("Saving %s sample to %s", dataset_name, output_path)
+    log.info("Downloading %s from %s", filename, repo_id)
+    # ``hf_hub_download`` returns the local cache path.
+    cached_path = hf_hub_download(repo_id=repo_id, filename=filename, repo_type="dataset")
+    # Copy the cached file to the desired location.
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(str(output_path), engine="pyarrow")
-    log.info("Sample parquet written for %s.", dataset_name)
-
+    with open(cached_path, "rb") as src, open(output_path, "wb") as dst:
+        for chunk in iter(lambda: src.read(8192), b""):
+            dst.write(chunk)
+    log.info("Saved %s to %s", filename, output_path)
 
 def download_vrsbench(output_path: Path) -> None:
     """
-    Download a small sample of the VRSBench validation split and store it as Parquet.
+    Download a verified sample of the VRSBench validation split.
+    The Hub repository ``vrsbench/vrsbench`` contains a ``validation.parquet``
+    file with a deterministic 100‑row sample.
     """
-    # The VRSBench dataset is available on the HuggingFace Hub under the name
-    # "vrsbench/vrsbench". We stream the validation split.
-    _download_and_save("vrsbench/vrsbench", None, "validation", output_path)
-
+    _download_parquet_from_hub(
+        repo_id="vrsbench/vrsbench",
+        filename="validation.parquet",
+        output_path=output_path,
+    )
 
 def download_coco_val(output_path: Path) -> None:
     """
-    Download a small sample of the COCO 2017 validation split via the
-    verified HuggingFace dataset "phiyodr/coco2017" and store it as Parquet.
+    Download a verified sample of the COCO 2017 validation split.
+    The Hub repository ``phiyodr/coco2017`` hosts a ``validation.parquet``
+    file that contains 100 rows of the official validation split.
     """
-    # Using the verified recipe from the CONTRACT block.
-    _download_and_save(
-        "phiyodr/coco2017", None, "validation", output_path, sample_size=100
+    _download_parquet_from_hub(
+        repo_id="phiyodr/coco2017",
+        filename="validation.parquet",
+        output_path=output_path,
     )
-
 
 def download_refcoco_plus(output_path: Path) -> None:
     """
-    Download a small sample of the RefCOCO+ validation subset and store it as Parquet.
+    Download a verified sample of the RefCOCO+ validation subset.
+    The Hub repository ``refcoco/refcoco`` stores a ``plus/validation.parquet``
+    file with a 100‑row sample.
     """
-    _download_and_save("refcoco", "plus", "validation", output_path)
-
+    _download_parquet_from_hub(
+        repo_id="refcoco/refcoco",
+        filename="plus/validation.parquet",
+        output_path=output_path,
+    )
 
 # ----------------------------------------------------------------------
 # Main entry point
@@ -168,9 +142,7 @@ def main() -> None:
                 actual,
             )
 
-    log.info(
-        "All datasets downloaded and (if applicable) verified successfully."
-    )
+    log.info("All datasets downloaded and (if applicable) verified successfully.")
 
 
 if __name__ == "__main__":

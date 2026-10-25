@@ -1,7 +1,3 @@
-# Existing requirements (implicitly available in the environment)
-# Adding only the packages that are not part of the default list.
-pycocotools>=2.0
-datasets>=2.0
-
-# Additional requirement for the model wrapper
-torch==2.3.0
+# Existing requirements (standard libraries are pre-installed)
+# Add fastparquet for parquet handling without pyarrow
+fastparquet

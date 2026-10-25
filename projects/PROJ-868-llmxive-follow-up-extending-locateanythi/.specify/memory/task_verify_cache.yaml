@@ -1,18 +1,21 @@
 T003:
   c: false
-  h: 811048f46a8d0f0a6ea69127bfb0d99fc232135364daf8e6b19f786573a5709e
-  r: "The `code/model/sparsity.py` file exists, but the unit test `tests/unit/test_sparsity.py`\
-    \ fails for the `window_size=1` case: the generated mask is not the identity matrix\
-    \ as required. The mask construction swaps row/column indices, causing the identity\u2011\
-    mask test to error. The implementation must be corrected so that `window_size=1`\
-    \ yields an exact diagonal (identity) mask and all tests pass."
-  sig: ca0eff64287ce5b10190d8e1b690ba0fe3e66ab52f798962013ae4b7e8f2dbcf
+  h: c84d8ba5944f0cfd14691e75a7df31a5406a429df3c20e53a904910ee7c70555
+  r: "The provided `code/model/sparsity.py` defines `SparsityConfig` with a `mask(num_tokens)`\
+    \ method, but the tests expect a constructor accepting `num_patches` and a `get_mask()`\
+    \ method. Moreover, the mask logic does not produce a global mask for window sizes\
+    \ larger than the grid (e.g., `window_size=16` on a 16\xD716 grid) as required\
+    \ by the test cases. The API mismatch and incorrect masking behavior mean the\
+    \ task\u2019s requirements are not satisfied."
+  sig: 5f95056eae72452fa999dcb00eab21520b17f16d22febbbbb252a0bf869dbd9d
 T004:
   c: false
-  h: 4352417fdf06bc8bda93fc2ab22caf7b797aa2e4757787e231b341d4d4dda960
-  r: The wrapper implementation (`code/model/locateany.py`) exists and meets the basic
-    functional spec, but the required integration test `tests/unit/test_model_wrapper.py`
-    is missing, so the verification step cannot be performed. Adding the test file
-    (which runs a forward pass with `window_size=32` and asserts the presence of `prediction`,
-    `latency_ms`, and `torch.get_num_threads() == 2`) is needed to complete the task.
-  sig: 91a129bcdfb0ea2860cdd47bc8c1f8baa5eed9a89e5499cb731a6261d62e2090
+  h: 0e3f84f135e7844fed37ec262d2a2c4aedb0c6a4bf00baffd3d891c8e5270ba5
+  r: "The `code/model/locateany.py` file defines the wrapper, but the integration\
+    \ test cannot run: the test fails during import because the `torch` package is\
+    \ not installed, and the wrapper\u2019s constructor signature (`__init__(self,\
+    \ model, sparsity_config)`) does not match the test\u2019s usage (`LocateAnythingSparsityWrapper(sparsity_config=config)`).\
+    \ Consequently the required forward\u2011pass check and thread\u2011limit assertion\
+    \ are never exercised. The task needs a working environment with `torch` available\
+    \ and a wrapper API that matches the test expectations."
+  sig: 326520e1b84a333e66ee323189be4297ff3229bd2afc7b4081ffc966934069cc

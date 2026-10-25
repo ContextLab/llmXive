@@ -34,7 +34,7 @@ def test_parquet_files_conform_to_schema(validator):
     assert parquet_files, "No parquet result files found for contract validation."
 
     for pfile in parquet_files:
-        df = pd.read_parquet(pfile)
+        df = pd.read_parquet(pfile, engine="fastparquet")
         # Convert each row to a plain dict for validation.
         for _, row in df.iterrows():
             # jsonschema expects basic Python types.

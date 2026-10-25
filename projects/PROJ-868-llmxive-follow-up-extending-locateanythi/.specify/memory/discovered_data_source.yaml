@@ -1,17 +1,16 @@
 status: none
-intent: download VRSBench dense scene dataset with COCO style annotations python package
+intent: download VRSBench validation and COCO 2017 datasets huggingface python package
   dataset
 required_fields:
 - image_id
-- file_name
+- image_path
 - width
 - height
-- annotations
-- annotations.bbox
-- annotations.category_id
-- annotations.area
-- annotations.iscrowd
-- scene_density (number of boxes per image)
-cache_key: 2fa83a65ec7cb666e71bc09e9d154930b5dd8a8a0d68d0478a752766da72979d
-searched_at: '2026-10-25T02:18:35.894985+00:00'
+- bboxes
+- category_ids
+- annotation_id
+- scene_complexity
+- file_name
+cache_key: 7d383ce8856067b226a4721804bfb36012c99f3a8bc59a7baea7690a01679c4e
+searched_at: '2026-10-25T04:12:32.145910+00:00'
 retry_count: 1
