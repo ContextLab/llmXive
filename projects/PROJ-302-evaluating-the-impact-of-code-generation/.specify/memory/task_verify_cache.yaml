@@ -1,7 +1,25 @@
 T001:
   c: true
-  h: 9f13a4f89dab598d286f07413e9ce5c009533923a68ea71f76c0f93144a90fb9
-  r: "Checked `requirements.txt` (pinned versions for all listed packages), `docs/quickstart.md`\
-    \ (contains a \u201CRun\u2011the\u2011pipeline\u201D command), and `results/setup_verification.json`\
-    \ (shows a successful import of every required package after a fresh install)."
-  sig: 4fd2366db3bff5845eef19f296b42ce7b8acf55a4dd4fe72b710c25cd925b465
+  h: ba7656016ccbaf654a36c83f2300e1d7d04bcf7dbd67481eb4c4abc8f8bad8ab
+  r: "Checked `requirements.txt` (pinned versions, includes all listed packages),\
+    \ `docs/quickstart.md` (contains a \u201CRun\u2011the\u2011pipeline\u201D command),\
+    \ and `results/setup_verification.json` (shows a fresh venv install succeeded\
+    \ and all packages imported)."
+  sig: 11ac8e75d44e7a7e4aaf983dd240b5c14de3c3cf8a8233e26ed4816f19681535
+T002:
+  c: false
+  h: 9d31588ef22ba3a0af15b0514817e0d0cdc86a75779dc42562db19f0ed18014c
+  r: "The `data/raw/` directory contains only a `.gitkeep`; no `<owner>_<repo>.parquet`\
+    \ files or `commit_messages.parquet` were generated, and the required `pull_request.schema.yaml`\
+    \ is absent. Consequently the task\u2019s core deliverables (parquet files with\
+    \ PR rows and the schema) are missing."
+  sig: 04478ba2002e33eec9e8bbb6f50d7a431bf0f793fdeaed43f95a5b98b9d498e3
+T003:
+  c: false
+  h: df0ca19e49641686031a601280468088d8bcdce34793305067e412b0c2eb6d43
+  r: The repository contains `code/prompt_engineering.py`, but the required input
+    file `data/raw/commit_messages.parquet` is missing, causing the script (and its
+    unit test) to fail, and consequently `data/processed/intent_prompts.parquet` is
+    never created. Both the source parquet and the output parquet must exist for the
+    task to be satisfied.
+  sig: b0a6c9a9330c2462cc70c03d9b7893724940cb84d8875a68dee2d77d5f351edd

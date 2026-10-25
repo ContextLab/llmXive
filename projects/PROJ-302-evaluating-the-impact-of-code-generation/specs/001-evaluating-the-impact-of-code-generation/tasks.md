@@ -22,7 +22,7 @@ All tasks are expressed as canonical checklist items; unchecked boxes indicate w
   *Implement `code/prompt_engineering.py` that reads `data/raw/commit_messages.parquet`, derives a natural‑language prompt for each PR (e.g., “Write a medium‑complexity change that implements …”), and writes `data/processed/intent_prompts.parquet` containing `pr_id`, `prompt`, and a `complexity_indicator` field.*  
   - **Verification**: `intent_prompts.parquet` exists; a random sample shows non‑empty `prompt` strings and a valid `complexity_indicator` (simple / moderate / complex); all `pr_id`s match those in the raw PR files.
 
-- [ ] T004 [US‑4] **Synthetic code generation (both cohorts)** – `code/synthetic_generation.py`, `data/synthetic/context_based.parquet`, `data/synthetic/prompt_based.parquet`  
+- [ ] T004 [US‑4] **Synthetic code generation (both cohorts)** – `code/synthetic_generation.py`, `data/synthetic/context_based.parquet`, `data/synthetic/prompt_based.parquet`   <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 -->
   *Using the CPU‑tractable **CodeLlama‑7B‑4bit‑GGUF** model, generate two LLM cohorts:*  
   1. **Context‑based** – feed the original code snippet together with its prompt.  
   2. **Prompt‑only** – feed only the NL prompt derived in T003.  

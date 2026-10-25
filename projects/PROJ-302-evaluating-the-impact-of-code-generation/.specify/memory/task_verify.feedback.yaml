@@ -1,16 +1,21 @@
 T001:
   task: 07a7d178243203e52e8e8056088f81faa793d96eebe7787b11b89c1aa50fa5f9
 T002:
-  reason: "The script and parquet files exist and were generated (5 rows per repo,\
-    \ 15 commit messages), and the logs show no unhandled 403 errors. However, the\
-    \ required `pull_request.schema.yaml` file is missing, so we cannot verify that\
-    \ the parquet files conform to the specified schema, violating the task\u2019\
-    s verification criteria. Adding the schema file (and optionally confirming its\
-    \ match) is needed to complete the task."
+  reason: "The `data/raw/` directory contains only a `.gitkeep`; no `<owner>_<repo>.parquet`\
+    \ files or `commit_messages.parquet` were generated, and the required `pull_request.schema.yaml`\
+    \ is absent. Consequently the task\u2019s core deliverables (parquet files with\
+    \ PR rows and the schema) are missing."
   task: e8434a10257568c4f6d44e271608b76cb800f5bb7d13c584ffc1ee6c6e19f36d
 T003:
+  reason: The repository contains `code/prompt_engineering.py`, but the required input
+    file `data/raw/commit_messages.parquet` is missing, causing the script (and its
+    unit test) to fail, and consequently `data/processed/intent_prompts.parquet` is
+    never created. Both the source parquet and the output parquet must exist for the
+    task to be satisfied.
   task: 5881a2814012a369414f9211ce17be2eeb3934d5d97dedf34bc5dbf2fe0e0362
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/synthetic_generation.py
+    exit=1'
   task: cbe32e240ace677d7572bb6d4fc39276cffc563f5b601349b6003131b4b1ee01
 T005:
   task: 1005478d42f19ef5156abbffd8bf39e8ada3e19d7f598caf8ceb7849d53d3cca
