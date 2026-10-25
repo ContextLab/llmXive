@@ -11,7 +11,7 @@ Each task includes indented continuation lines that specify the concrete output 
 
 ## Phase 0 – Data Search & Verification (Blocking Gate)
 
-- [ ] T010 [US1] **Discover and verify a real paired microbiome‑serology dataset**
+- [ ] T010 [US1] **Discover and verify a real paired microbiome‑serology dataset** <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
   *Path*: `code/download.py`, `data/research/sra_status.json`  
   *Action*:  
   1. Query Hugging‑Face (`datasets.load_dataset("influenza_microbiome", split="train", streaming=True)`) and, if needed, NCBI E‑utilities for studies containing 16S OTU tables **and** influenza serology.  

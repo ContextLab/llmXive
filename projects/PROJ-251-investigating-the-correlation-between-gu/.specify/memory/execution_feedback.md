@@ -48,7 +48,7 @@ ERROR tests/test_sra_downloader.py
 ERROR tests/test_sra_fetcher.py
 ERROR tests/test_validate_schema.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 6 errors in 0.42s ===============================
+============================== 6 errors in 0.43s ===============================
 
 
 

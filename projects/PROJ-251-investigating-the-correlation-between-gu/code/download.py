@@ -37,8 +37,9 @@ import sys
 from pathlib import Path
 from typing import List, Tuple, Optional
 
+import pandas as pd
 import requests
-import pandas as pd  # <-- added import for pandas
+from datasets import load_dataset  # huggingface datasets library
 
 # llmxive toolkit helpers for consistent path handling
 from llmxive_toolkit import paths, get_logger
@@ -159,23 +160,26 @@ def discover_hf_dataset() -> dict:
     if not _hf_dataset_exists(HF_DATASET_ID):
         raise RuntimeError(f"Hugging‑Face dataset '{HF_DATASET_ID}' not found.")
 
-    files = _list_dataset_files(HF_DATASET_ID)
+    # Use the datasets library to stream a small sample and inspect columns
+    try:
+        logger.info("Loading HF dataset via `datasets` library for column inspection.")
+        ds = load_dataset(HF_DATASET_ID, split="train", streaming=True)
+    except Exception as exc:
+        logger.error("Failed to load HF dataset via `datasets`: %s", exc)
+        raise RuntimeError("Unable to load HF dataset") from exc
 
-    # Prefer CSV files; any other format would need additional parsing.
-    csv_files = [f for f in files if f.lower().endswith(".csv")]
-    if not csv_files:
-        raise RuntimeError("No CSV files found in the HF dataset.")
+    # Grab the first record to infer columns
+    try:
+        first_record = next(iter(ds))
+    except StopIteration:
+        raise RuntimeError("HF dataset is empty.")
 
-    # Examine the first CSV file to ensure it has required columns.
-    candidate = csv_files[0]
-    logger.info("Inspecting CSV file '%s' for required columns.", candidate)
+    sample_columns = list(first_record.keys())
+    logger.debug("Sample columns from HF dataset: %s", sample_columns)
 
-    sample_bytes = _download_file_sample(HF_DATASET_ID, candidate, max_bytes=65536)
-    header_cols = _extract_header(sample_bytes)
-
-    if not dataset_has_required_columns(header_cols):
+    if not dataset_has_required_columns(sample_columns):
         raise RuntimeError(
-            f"CSV '{candidate}' does not contain required columns or taxon prefix."
+            f"HF dataset '{HF_DATASET_ID}' does not contain required columns or taxon prefix."
         )
 
     logger.info("HF dataset '%s' verified successfully.", HF_DATASET_ID)
@@ -184,39 +188,67 @@ def discover_hf_dataset() -> dict:
         "use_synthetic": False,
         "accession": None,
         "hf_dataset_id": HF_DATASET_ID,
-        "csv_files": csv_files,   # include for downstream download step
     }
 
-def _download_file_sample(repo_id: str, filename: str, max_bytes: int = 8192) -> bytes:
+def _select_otu_and_serology(columns: List[str]) -> Tuple[List[str], List[str]]:
     """
-    Download the first ``max_bytes`` of a file from the HF dataset.
-    This is sufficient to read the header line of a CSV without pulling the whole file.
+    Given a list of column names, return two lists:
+    - OTU columns (subject_id + all taxon columns)
+    - Serology columns (subject_id + required serology columns)
     """
-    raw_url = HF_RAW_URL_TEMPLATE.format(repo_id=repo_id, filename=filename)
-    try:
-        resp = requests.get(raw_url, stream=True, timeout=15)
-        resp.raise_for_status()
-        chunk = resp.raw.read(max_bytes)
-        logger.debug("Downloaded %d bytes from %s.", len(chunk), raw_url)
-        return chunk
-    except requests.RequestException as exc:
-        logger.error("Error downloading %s: %s", raw_url, exc)
-        raise RuntimeError(f"Failed to download sample of {filename}") from exc
+    otu_cols = ["subject_id"] + [c for c in columns if c.startswith(TAXON_PREFIX)]
+    sero_cols = ["subject_id"] + [c for c in REQUIRED_COLUMNS if c != "subject_id"]
+    return otu_cols, sero_cols
 
-def _select_otu_and_serology(csv_files: List[str]) -> Tuple[Optional[str], Optional[str]]:
+def download_full_dataset_and_write() -> None:
     """
-    Heuristically pick OTU and serology CSV filenames from the list.
-    Returns (otu_path, serology_path). May be ``None`` if not found.
+    Streams the full HF dataset, splits into OTU and serology CSVs, and writes them.
     """
-    otu_candidate = None
-    sero_candidate = None
-    for f in csv_files:
-        low = f.lower()
-        if ("otu" in low) or ("taxon" in low):
-            otu_candidate = f
-        if ("sero" in low) or ("serology" in low) or ("metadata" in low):
-            sero_candidate = f
-    return otu_candidate, sero_candidate
+    logger.info("Streaming full HF dataset for download.")
+    ds = load_dataset(HF_DATASET_ID, split="train", streaming=True)
+
+    # Determine column groups from the first record
+    first_record = next(iter(ds))
+    all_columns = list(first_record.keys())
+    otu_cols, sero_cols = _select_otu_and_serology(all_columns)
+
+    # Prepare data containers (write incrementally to avoid memory issues)
+    otutable_path = paths.data("raw", "otutable.csv")
+    serology_path = paths.data("raw", "serology.csv")
+
+    # Write headers
+    otutable_path.parent.mkdir(parents=True, exist_ok=True)
+    serology_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(otutable_path, "w", encoding="utf-8") as otu_f, \
+         open(serology_path, "w", encoding="utf-8") as sero_f:
+        otu_f.write(",".join(otu_cols) + "\n")
+        sero_f.write(",".join(sero_cols) + "\n")
+
+        # Write the first record
+        otu_f.write(",".join(str(first_record.get(col, "")) for col in otu_cols) + "\n")
+        sero_f.write(",".join(str(first_record.get(col, "")) for col in sero_cols) + "\n")
+
+        # Stream remaining records
+        for record in ds:
+            # Skip the first record already written
+            if record is first_record:
+                continue
+            otu_f.write(",".join(str(record.get(col, "")) for col in otu_cols) + "\n")
+            sero_f.write(",".join(str(record.get(col, "")) for col in sero_cols) + "\n")
+
+    logger.info("Finished writing OTU table to %s", otutable_path)
+    logger.info("Finished writing serology table to %s", serology_path)
+
+    # Verify non‑empty files
+    if otutable_path.stat().st_size == 0 or serology_path.stat().st_size == 0:
+        raise RuntimeError("Downloaded files are empty after streaming.")
+
+    # Compute and log SHA‑256 checksums.
+    otu_checksum = _compute_sha256(otutable_path)
+    sero_checksum = _compute_sha256(serology_path)
+    logger.info("SHA‑256 OTU table: %s", otu_checksum)
+    logger.info("SHA‑256 Serology: %s", sero_checksum)
 
 def fallback_to_synthetic() -> dict:
     """
@@ -256,10 +288,9 @@ def main() -> None:
     Entry point for the script.
 
     1. Discover the HF dataset.
-    2. If a real dataset is found, locate the OTU and serology CSV files,
-       download them in full, verify they contain the required columns,
-       compute SHA‑256 checksums (logged), and write them to
-       ``data/raw/otutable.csv`` and ``data/raw/serology.csv``.
+    2. If a real dataset is found, stream it, split into OTU and serology CSVs,
+       verify they contain the required columns, compute SHA‑256 checksums,
+       and write them to ``data/raw/otutable.csv`` and ``data/raw/serology.csv``.
     3. If any step fails, raise ``RuntimeError`` – no silent fallback.
     """
     try:
@@ -275,46 +306,8 @@ def main() -> None:
     if discovery.get("use_synthetic", True):
         raise RuntimeError("Real dataset not available – cannot download OTU/serology files.")
 
-    # At this point we have a real dataset and a list of CSV files.
-    csv_files: List[str] = discovery.get("csv_files", [])
-    otu_name, sero_name = _select_otu_and_serology(csv_files)
-
-    if not otu_name or not sero_name:
-        raise RuntimeError(
-            f"Could not identify OTU and serology files among: {csv_files}"
-        )
-
-    # Build full URLs for the selected files.
-    otu_url = HF_RAW_URL_TEMPLATE.format(repo_id=HF_DATASET_ID, filename=otu_name)
-    sero_url = HF_RAW_URL_TEMPLATE.format(repo_id=HF_DATASET_ID, filename=sero_name)
-
-    # Destination paths within the project.
-    otu_path = paths.data("raw", "otutable.csv")
-    sero_path = paths.data("raw", "serology.csv")
-
-    # Download both files.
-    _download_file(otu_url, otu_path)
-    _download_file(sero_url, sero_path)
-
-    # Verify that both files are non‑empty and contain required columns.
-    for path, name in [(otu_path, "OTU table"), (sero_path, "Serology")]:
-        if not path.is_file() or path.stat().st_size == 0:
-            raise RuntimeError(f"Downloaded {name} is empty or missing: {path}")
-
-        # Quick column check (only for serology, OTU just needs subject_id)
-        df = pd.read_csv(path, nrows=0)
-        cols = set(df.columns)
-        if name == "Serology":
-            missing = {"subject_id", "titer_baseline", "titer_post"} - cols
-            if missing:
-                raise RuntimeError(f"Serology file missing columns: {missing}")
-
-    # Compute and log SHA‑256 checksums.
-    otu_checksum = _compute_sha256(otu_path)
-    sero_checksum = _compute_sha256(sero_path)
-    logger.info("SHA‑256 OTU table: %s", otu_checksum)
-    logger.info("SHA‑256 Serology: %s", sero_checksum)
-
+    # At this point we have a real dataset; download and write CSVs.
+    download_full_dataset_and_write()
     logger.info("Successfully downloaded and verified raw data files.")
 
 if __name__ == "__main__":

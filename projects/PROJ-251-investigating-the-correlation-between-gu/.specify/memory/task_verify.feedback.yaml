@@ -5,11 +5,7 @@ T001s:
 T002:
   task: 860f4179afac4defbc71cabf6a734f70a697fb61960b35962852a46c1b67c5ea
 T010:
-  reason: "The `data/research/sra_status.json` reports `\"status\": \"no_real_data\"\
-    ` and `\"use_synthetic\": true`, and the script aborts without downloading the\
-    \ required `data/raw/otutable.csv` and `data/raw/serology.csv`. Consequently no\
-    \ real paired microbiome\u2011serology dataset was discovered or verified, which\
-    \ is the core requirement of the task."
+  reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
   task: 1302136e1b534456dcb476616050696ea85cc000cd896bb3076e1c55d01cba69
 T011a:
   reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'

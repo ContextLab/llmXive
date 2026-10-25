@@ -1,13 +1,23 @@
+# Project dependencies
 pandas
 numpy
 scipy
 scikit-learn
 biom-format
 requests
-pyyaml
+PyYAML
 ruff
 black
-# Added for dataset discovery on Hugging Face
-huggingface_hub
-# The following packages are already provided in the base environment:
-#   numpy, pandas, scipy, scikit-learn, matplotlib, seaborn, pytest, PyYAML, requests, jsonschema, psutil
+datasets>=2.0.0
+# The following are pre‑installed in the execution environment:
+# - numpy
+# - pandas
+# - scipy
+# - scikit-learn
+# - matplotlib
+# - seaborn
+# - pytest
+# - jsonschema
+# - requests
+# - psutil
+# - llmxive_toolkit

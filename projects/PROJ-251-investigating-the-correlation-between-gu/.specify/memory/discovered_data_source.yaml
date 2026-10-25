@@ -1,14 +1,15 @@
 status: none
-intent: NCBI SRA 16S rRNA OTU and serology dataset NCBI Disease SRA Imagenet bw_spec_cls_4_00_s_clr
+intent: download vaccine 16S OTU and serology dataset NCBI SRA NCBI Disease SRA Imagenet
   python package dataset
 required_fields:
 - subject_id
+- baseline_timepoint
+- otu_id
+- otu_abundance
+- antibody_titer_pre
+- antibody_titer_post
 - age
 - sex
-- baseline_otu_taxa
-- baseline_otu_relative_abundance
-- pre_vaccination_antibody_titer
-- post_vaccination_antibody_titer
-cache_key: 74ab0885de61777ef8c3d0dba5c7317dc2b1228823096db0f5f6f23d80ce6d47
-searched_at: '2026-10-17T18:24:51.276344+00:00'
+cache_key: ab029ffce9d327066bb6c9c9ec53da2a5eeb9f26243a2cee715f7933f9b878ef
+searched_at: '2026-10-25T18:33:01.682846+00:00'
 retry_count: 1
