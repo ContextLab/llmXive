@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T16:42:35.792677Z'
-current_stage: clarified
+current_stage: specified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-263-quantifying-the-impact-of-network-proxim
-last_run_id: 27210e3c-de9f-4685-a19c-143277b51e02
+last_run_id: ed364452-c095-4fe4-90ba-824e82554aa8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-263-quantifying-the-impact-of-network-proxim/specs/001-quantifying-the-impact-of-network-proxim
 title: Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free
   Networks
-updated_at: '2026-10-25T09:34:00.245296Z'
+updated_at: '2026-10-25T09:44:35.704520Z'

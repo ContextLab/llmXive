@@ -36,8 +36,9 @@ properties:
     description: "Fraction of nodes ever infected by the end of the simulation."
   threshold_hit:
     type: "boolean"
-    description: "True if the run contributed to crossing the epidemic threshold (≥5 % infected in >50 % of runs)."
+    description: "True if the run contributed to crossing the epidemic threshold (average final outbreak size > 5 % of nodes)."
   runtime_seconds:
     type: "number"
     minimum: 0.0
     description: "Wall‑clock time taken by the simulation (seconds)."
+

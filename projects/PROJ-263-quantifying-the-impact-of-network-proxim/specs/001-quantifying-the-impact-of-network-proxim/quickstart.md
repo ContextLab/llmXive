@@ -1,8 +1,8 @@
 # Quickstart: Running the Network‑Proximity Epidemic Study
 
 ## Prerequisites
-- **Python 3.11** (available on GitHub Actions runners).  
-- Internet access (to download the verified Brightkite dataset and any fallback resources).  
+- **Python 3.11** (pre‑installed on GitHub Actions runners).  
+- Internet access (to download the OpenFlights dataset).  
 - No GPU required.
 
 ## 1. Install Dependencies
@@ -22,20 +22,20 @@ Computes SHA‑256 checksums of raw files under `data/raw/` and compares them to
 ## 3. Run the Full Pipeline
 ```bash
 python -m src.pipeline.run \
-    --beta-values 0.01 0.06 0.11 0.16 0.21 0.26 0.31 0.36 0.41 0.46 \
+    --beta-values 0.01 0.06 0.11 0.16 0.21 0.26 0.31 0.36 0.41 0.46 0.51 \
     --lambdas 0.05 0.1 0.2 \
-    --mc-runs 15 \
-    --null-runs 20 \
+    --mc-runs 50 \
+    --null-runs 10 \
     --max-runtime-hours 6 \
     --max-nodes 10000 \
     --seed 42
 ```
 Key arguments:
-- `--beta-values` controls the β₀ sweep (FR‑013, step 0.05).  
-- `--lambdas` sets the spatial decay values (FR‑006).  
-- `--mc-runs` / `--null-runs` enforce FR‑003 and FR‑004 with the reduced counts for compute feasibility.  
-- `--max-runtime-hours` triggers the dynamic reduction logic (FR‑007).  
-- `--max-nodes` caps the graph size; larger inputs are down‑sampled to 10 k nodes and logged (FR‑008).  
+- `--beta-values` now includes the upper bound **0.51** (FR‑013, plan_consistency‑27dca202).  
+- `--mc-runs` is set to **50** to satisfy Constitution VII and improve statistical power (methodology‑bf8fe1c4, scientific_soundness‑134cd63e).  
+- `--null-runs` remains at 10 as required by FR‑004 (synthetic‑null generation).  
+- `--max-runtime-hours` activates the dynamic reduction logic (FR‑007).  
+- `--max-nodes` caps the graph size; larger inputs are down‑sampled with a **degree‑preserving random node removal** scheme and logged (methodology‑cf6324a6).
 
 The command writes:
 - `data/derived/nodes.csv`, `edges.csv` (network).  
@@ -50,7 +50,7 @@ python -m src.pipeline.validate_contracts \
     --schema contracts/simulation_output.schema.yaml \
     --data data/derived/simulation_results.csv
 ```
-Raises an error if any column violates the schema.
+Raises an error if any column violates the JSON‑Schema.
 
 ## 5. Inspect Results
 ```bash
@@ -69,10 +69,10 @@ All parameters are exposed via CLI flags; for a fast sanity check on a tiny grap
 python -m src.pipeline.run \
     --max-nodes 500 \
     --mc-runs 5 \
-    --null-runs 10 \
+    --null-runs 5 \
     --seed 123
 ```
-Useful during development (fits comfortably in < 1 min).
+Useful during development (fits comfortably in < 1 min).  
 
 ---
 
