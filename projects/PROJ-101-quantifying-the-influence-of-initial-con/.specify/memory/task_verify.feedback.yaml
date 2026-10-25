@@ -1,18 +1,13 @@
 T001:
-  reason: "The directory layout and `data/dir_structure.txt` file exist and contain\
-    \ the nine required entries, but there is no evidence that a CI step (e.g., a\
-    \ workflow or test run) actually executed `tree -L 2` and asserted the manifest\u2019\
-    s contents. A CI log or test result confirming this verification is missing."
+  reason: "The `data/dir_structure.txt` manifest exists and lists the nine required\
+    \ directories, but the CI integration test that runs `tree -L 2` fails \u2013\
+    \ it does not detect the `code/simulation` directory in the tree output, causing\
+    \ the verification step to error. The task requires both the manifest check **and**\
+    \ the successful `tree` verification, so the CI step is not satisfied. Fix the\
+    \ `tree` command or directory layout so that all nine directories appear in the\
+    \ `tree -L 2` output."
   task: 3520514e19e8eb221709f8798732ba9719a0767267bb664d29ac547ec5b193f5
 T002:
-  reason: "The required `__init__.py` files exist, but the sub\u2011package imports\
-    \ are broken \u2013 e.g., `code/analysis/__init__.py` does `from config import\
-    \ get_full_config` (a top\u2011level import that cannot find `code/config.py`)\
-    \ and other imports that will raise `ModuleNotFoundError`. Consequently `import\
-    \ code.analysis` (and other sub\u2011modules) will fail, so the package is not\
-    \ fully importable as the task demands. The implementer must fix the imports (use\
-    \ relative imports) or simplify the init files so that each sub\u2011module can\
-    \ be imported without error."
   task: 7a290371e3e1f2ce97af8f2c95846c4552e8cb41b76c7f793bf14a6eaccc8def
 T003:
   reason: The repository contains the required `tests/conftest.py` with a `seed` fixture

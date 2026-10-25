@@ -11,7 +11,7 @@ All tasks are written as checklist items; unchecked items indicate work that sti
   - **Paths**: `code/`, `code/simulation/`, `code/analysis/`, `code/utils/`, `tests/unit/`, `tests/integration/`, `data/raw/`, `data/processed/`, `data/processed/plots/`  
   - **Verification**: CI runs `cat data/dir_structure.txt` and asserts each directory name appears.
 
-- [ ] T002 [P] Add minimal package initialisation files so the Python package is importable.  
+- [X] T002 [P] Add minimal package initialisation files so the Python package is importable.  
   - **Files**: `code/__init__.py`, `code/simulation/__init__.py`, `code/analysis/__init__.py`, `code/utils/__init__.py`, `tests/__init__.py`  
   - **Verification**: `python -c "import code"` runs without `ImportError`; CI imports each sub‑module.
 
