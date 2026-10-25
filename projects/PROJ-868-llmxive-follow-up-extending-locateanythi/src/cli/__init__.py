@@ -1,0 +1,3 @@
+"""
+CLI subpackage marker.
+"""

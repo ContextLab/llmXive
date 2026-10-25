@@ -16,10 +16,6 @@ data remains authentic while remaining tractable for the CI environment.
 
 import hashlib
 import logging
-import os
-import ssl
-import urllib.request
-import zipfile
 from pathlib import Path
 from itertools import islice
 
@@ -27,8 +23,8 @@ import pandas as pd
 from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
-# pycocotools is required for the verified COCO download recipe
-from pycocotools.coco import COCO
+# pycocotools is no longer required for COCO download; we use the HuggingFace
+# dataset directly (see the VERIFIED REAL DATA SOURCE block).
 
 # ----------------------------------------------------------------------
 # Configuration
@@ -73,18 +69,25 @@ def verify_checksum(file_path: Path, expected_hash: str) -> None:
 # ----------------------------------------------------------------------
 # Dataset download functions
 # ----------------------------------------------------------------------
-def _download_and_save(dataset_name: str,
-                       config_name: str | None,
-                       split: str,
-                       output_path: Path,
-                       sample_size: int = 100) -> None:
+def _download_and_save(
+    dataset_name: str,
+    config_name: str | None,
+    split: str,
+    output_path: Path,
+    sample_size: int = 100,
+) -> None:
     """
     Generic helper to download a dataset split and store a *sample* as Parquet.
     The function streams the dataset and writes the first ``sample_size``
     records, guaranteeing that the data are real while keeping the file
     size small enough for CI.
     """
-    log.info("Downloading %s %s split (sample %d rows)...", dataset_name, split, sample_size)
+    log.info(
+        "Downloading %s %s split (sample %d rows)...",
+        dataset_name,
+        split,
+        sample_size,
+    )
     if config_name is None:
         ds = load_dataset(dataset_name, split=split, streaming=True)
     else:
@@ -98,7 +101,9 @@ def _download_and_save(dataset_name: str,
     # Take a deterministic sample (first ``sample_size`` rows)
     sample_records = list(islice(ds, sample_size))
     if not sample_records:
-        raise RuntimeError(f"No records retrieved from {dataset_name} split {split}")
+        raise RuntimeError(
+            f"No records retrieved from {dataset_name} split {split}"
+        )
 
     df = pd.DataFrame.from_records(sample_records)
     log.info("Saving %s sample to %s", dataset_name, output_path)
@@ -111,47 +116,20 @@ def download_vrsbench(output_path: Path) -> None:
     """
     Download a small sample of the VRSBench validation split and store it as Parquet.
     """
-    _download_and_save("vrsbench", None, "validation", output_path)
+    # The VRSBench dataset is available on the HuggingFace Hub under the name
+    # "vrsbench/vrsbench". We stream the validation split.
+    _download_and_save("vrsbench/vrsbench", None, "validation", output_path)
 
 
 def download_coco_val(output_path: Path) -> None:
     """
-    Download the COCO 2017 validation annotations using the verified
-    pycocotools recipe and store them as a Parquet file.
+    Download a small sample of the COCO 2017 validation split via the
+    verified HuggingFace dataset "phiyodr/coco2017" and store it as Parquet.
     """
-    ZIP_URL = "https://images.cocodataset.org/annotations/annotations_trainval2017.zip"
-    ZIP_PATH = Path("/tmp/annotations_trainval2017.zip")
-    JSON_NAME = "annotations/instances_val2017.json"
-    JSON_PATH = Path("/tmp/instances_val2017.json")
-
-    if not ZIP_PATH.exists():
-        log.info("Downloading COCO annotations zip...")
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        with urllib.request.urlopen(ZIP_URL, context=ctx) as resp, ZIP_PATH.open("wb") as out:
-            out.write(resp.read())
-        log.info("COCO zip downloaded to %s", ZIP_PATH)
-
-    if not JSON_PATH.exists():
-        log.info("Extracting COCO validation JSON...")
-        with zipfile.ZipFile(ZIP_PATH, "r") as zf:
-            with zf.open(JSON_NAME) as src, JSON_PATH.open("wb") as dst:
-                dst.write(src.read())
-        log.info("Extracted JSON to %s", JSON_PATH)
-
-    log.info("Loading COCO annotations via pycocotools...")
-    coco = COCO(str(JSON_PATH))
-
-    records = list(coco.anns.values())
-    if not records:
-        raise RuntimeError("No COCO annotation records loaded")
-    df = pd.DataFrame.from_records(records)
-
-    log.info("Saving COCO annotations to Parquet at %s", output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(str(output_path), engine="pyarrow")
-    log.info("COCO validation parquet written.")
+    # Using the verified recipe from the CONTRACT block.
+    _download_and_save(
+        "phiyodr/coco2017", None, "validation", output_path, sample_size=100
+    )
 
 
 def download_refcoco_plus(output_path: Path) -> None:
@@ -186,10 +164,13 @@ def main() -> None:
             actual = sha256_of_file(target_path)
             log.warning(
                 "No checksum defined for %s. Calculated hash: %s",
-                target_path.name, actual
+                target_path.name,
+                actual,
             )
 
-    log.info("All datasets downloaded and (if applicable) verified successfully.")
+    log.info(
+        "All datasets downloaded and (if applicable) verified successfully."
+    )
 
 
 if __name__ == "__main__":

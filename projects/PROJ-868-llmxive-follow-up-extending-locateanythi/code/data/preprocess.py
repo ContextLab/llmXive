@@ -39,13 +39,39 @@ from tqdm import tqdm
 
 from llmxive_toolkit import paths, get_logger
 
+# Import download utilities to lazily fetch missing raw data.
+from code.data.download import (
+    download_vrsbench,
+    download_coco_val,
+    download_refcoco_plus,
+)
+
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
+def _ensure_raw_data() -> None:
+    """
+    Ensure that the three expected raw parquet files exist.
+    If any are missing, invoke the download functions to create them.
+    """
+    raw_dir = paths.data("raw")
+    files_and_downloads = [
+        (raw_dir / "vrsbench.parquet", download_vrsbench),
+        (raw_dir / "coco_val.parquet", download_coco_val),
+        (raw_dir / "refcoco_plus.parquet", download_refcoco_plus),
+    ]
+    for path_obj, download_fn in files_and_downloads:
+        if not path_obj.is_file():
+            log.info(f"Raw file {path_obj.name} missing – downloading.")
+            download_fn(path_obj)
+        else:
+            log.info(f"Raw file {path_obj.name} found.")
+
 def _load_raw_datasets() -> pd.DataFrame:
     """Load and concatenate the three raw parquet files."""
+    _ensure_raw_data()
     raw_dir = paths.data("raw")
     files = [
         raw_dir / "vrsbench.parquet",
@@ -62,19 +88,39 @@ def _load_raw_datasets() -> pd.DataFrame:
     log.info(f"Combined raw dataset shape: {combined.shape}")
     return combined
 
-def _ensure_bbox_column(df: pd.DataFrame) -> str:
+def _extract_bbox_column(df: pd.DataFrame) -> str:
     """
     Determine which column holds bounding‑box data.
-    Expected format: list/tuple of four numbers [x1, y1, x2, y2].
-    Returns the column name.
+    Handles three cases:
+      1. Direct bbox column (e.g., 'bbox', 'boxes', etc.).
+      2. An 'annotations' column where each entry is a list of dicts
+         containing a 'bbox' key.
+    The function adds a new column named 'boxes' containing a list of
+    [x1, y1, x2, y2] boxes and returns its name.
     """
     possible_names = ["bbox", "boxes", "bounding_box", "bounding_boxes"]
     for name in possible_names:
         if name in df.columns:
             return name
+
+    # Fallback: use 'annotations' if present.
+    if "annotations" in df.columns:
+        # Create a new column 'boxes' with extracted bbox lists.
+        def _extract(entry):
+            # entry may be a list of dicts or a single dict.
+            if isinstance(entry, list):
+                return [ann["bbox"] for ann in entry if "bbox" in ann]
+            elif isinstance(entry, dict):
+                return [entry["bbox"]] if "bbox" in entry else []
+            else:
+                return []
+
+        df["boxes"] = df["annotations"].apply(_extract)
+        return "boxes"
+
     raise KeyError(
         "Could not find a bounding‑box column. Expected one of "
-        f"{possible_names}, found columns: {list(df.columns)}"
+        f"{possible_names + ['annotations']}, found columns: {list(df.columns)}"
     )
 
 def _iou(box_a: np.ndarray, box_b: np.ndarray) -> float:
@@ -157,8 +203,16 @@ def _count_overlapping_pairs(
 # Main preprocessing routine
 # ----------------------------------------------------------------------
 def preprocess() -> None:
+    """
+    Execute the preprocessing pipeline:
+    - Load raw parquet files (downloading them if necessary).
+    - Normalise the bounding‑box column.
+    - Filter ambiguous boxes.
+    - Classify images as dense or non‑dense.
+    - Persist results and an exclusion log.
+    """
     raw_df = _load_raw_datasets()
-    bbox_col = _ensure_bbox_column(raw_df)
+    bbox_col = _extract_bbox_column(raw_df)
 
     # Ensure the bbox column contains list‑like objects
     if not pd.api.types.is_object_dtype(raw_df[bbox_col]):
@@ -180,16 +234,16 @@ def preprocess() -> None:
 
     for image_id, group in tqdm(grouped, desc="Images"):
         # Collect all boxes for this image (flatten if multiple rows)
-        boxes = []
+        boxes: List[List[float]] = []
         for entry in group[bbox_col]:
-            # Entry may be a list of boxes or a single box
+            # Entry may be a list of boxes, a single box, or nested lists.
             if isinstance(entry, (list, tuple)):
                 if len(entry) == 4 and all(isinstance(v, (int, float)) for v in entry):
                     # Single box
-                    boxes.append(entry)
+                    boxes.append(list(entry))
                 else:
-                    # Assume iterable of boxes
-                    boxes.extend(entry)
+                    # Assume iterable of boxes (list of lists)
+                    boxes.extend([list(b) for b in entry if isinstance(b, (list, tuple))])
             else:
                 raise ValueError(
                     f"Unexpected bbox entry type {type(entry)} for image {image_id}"

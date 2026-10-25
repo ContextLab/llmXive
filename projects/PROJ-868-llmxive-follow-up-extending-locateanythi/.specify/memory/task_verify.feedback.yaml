@@ -7,10 +7,22 @@ T002:
     exit=1'
   task: 5b7a64793866ca9bce5d97129b2855e0c0db456f8087cffe3e88975e322dc1ac
 T003:
+  reason: "The `code/model/sparsity.py` file exists, but the unit test `tests/unit/test_sparsity.py`\
+    \ fails for the `window_size=1` case: the generated mask is not the identity matrix\
+    \ as required. The mask construction swaps row/column indices, causing the identity\u2011\
+    mask test to error. The implementation must be corrected so that `window_size=1`\
+    \ yields an exact diagonal (identity) mask and all tests pass."
   task: 2f903abb01ce8461f6564b789d2fa3c794830b203010cd0a72e3fdc38bc4e83a
 T004:
+  reason: The wrapper implementation (`code/model/locateany.py`) exists and meets
+    the basic functional spec, but the required integration test `tests/unit/test_model_wrapper.py`
+    is missing, so the verification step cannot be performed. Adding the test file
+    (which runs a forward pass with `window_size=32` and asserts the presence of `prediction`,
+    `latency_ms`, and `torch.get_num_threads() == 2`) is needed to complete the task.
   task: 79e554ae5331ae176eff551cdaa8ea4863ceade5b59e322bae4c569da534500c
 T005:
+  reason: 'Requested task execution failed; rerun successfully: src/cli/run_experiment.py
+    exit=1'
   task: c5705f71c772133953497015e1a396cde093e403cf252bea526b9f3596e2d191
 T006:
   task: 3e27ae5f6c55700f2c57a0a86eb82dd87639c5820821790f56c51862deced8aa

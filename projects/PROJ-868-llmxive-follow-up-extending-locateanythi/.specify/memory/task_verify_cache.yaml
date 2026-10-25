@@ -1,0 +1,18 @@
+T003:
+  c: false
+  h: 811048f46a8d0f0a6ea69127bfb0d99fc232135364daf8e6b19f786573a5709e
+  r: "The `code/model/sparsity.py` file exists, but the unit test `tests/unit/test_sparsity.py`\
+    \ fails for the `window_size=1` case: the generated mask is not the identity matrix\
+    \ as required. The mask construction swaps row/column indices, causing the identity\u2011\
+    mask test to error. The implementation must be corrected so that `window_size=1`\
+    \ yields an exact diagonal (identity) mask and all tests pass."
+  sig: ca0eff64287ce5b10190d8e1b690ba0fe3e66ab52f798962013ae4b7e8f2dbcf
+T004:
+  c: false
+  h: 4352417fdf06bc8bda93fc2ab22caf7b797aa2e4757787e231b341d4d4dda960
+  r: The wrapper implementation (`code/model/locateany.py`) exists and meets the basic
+    functional spec, but the required integration test `tests/unit/test_model_wrapper.py`
+    is missing, so the verification step cannot be performed. Adding the test file
+    (which runs a forward pass with `window_size=32` and asserts the presence of `prediction`,
+    `latency_ms`, and `torch.get_num_threads() == 2`) is needed to complete the task.
+  sig: 91a129bcdfb0ea2860cdd47bc8c1f8baa5eed9a89e5499cb731a6261d62e2090
