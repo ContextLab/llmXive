@@ -68,7 +68,7 @@ The system must execute robustness checks, including alternative temperature met
 
 ### Functional Requirements
 
-- **FR-001**: System MUST ingest the Moral Machine dataset and merge it with ERA5 hourly reanalysis temperature data (2014‑2018) using geographic coordinates **and** timestamps as keys, and must validate that the source meets the hourly‑resolution standard (see `contracts/moral_temperature.schema.yaml`). (See US-1)
+- **FR-001**: System MUST ingest the Moral Machine dataset and merge it with ERA5 hourly reanalysis temperature data (2014‑2018) using geographic coordinates **and** timestamps as keys, and must validate that the source meets the hourly‑resolution standard (see `contracts/moral_temperature.schema.yaml`). *Justification*: ERA provides hourly fine‑scale grid resolution, which is essential for precise temporal‑spatial matching; NOAA GSS lacks the required hourly granularity. (See US-1)
 - **FR-002**: System MUST filter out records with temperature values outside the extreme range **−10 °C ≤ temperature ≤ 40 °C**. (See US-1)
 - **FR-003**: System MUST fit a linear mixed‑effects model with log‑transformed response time as the dependent variable, ambient temperature as the fixed effect, and random intercepts for participant ID and cultural region. (See US-2)
 - **FR-004**: System MUST include covariates for participant age (if available at aggregate country level), gender (if available at aggregate country level), dilemma complexity score, time‑of‑day, and latitude (to control for regional climate gradients) in the primary regression model. (See US-2)
@@ -78,19 +78,28 @@ The system must execute robustness checks, including alternative temperature met
 - **FR-008**: System MUST export all results, including model coefficients, p‑values, and generated figures, to the `results/` directory in a reproducible format. (See US-3)
 - **FR-009**: System MUST flag or exclude records where the distance to the nearest ERA5 grid point exceeds 100 km and log the reason "distance > 100 km" (see `exclusion_log.schema.yaml`). (See US-1)
 - **FR-010**: If response‑time data is present, System MUST filter out response times **< 100 ms** or **> 10 000 ms** before any modeling occurs. (See US-1)
-- **FR-011**: System MUST control for the specific dilemma choice (e.g., "save the many" vs. "save the few") as a fixed effect or interaction term to prevent confounding, and ensure dilemma complexity is derived independently of response time. (See US-2)
-- **FR-012**: System MUST perform a mandatory analysis of the indoor/outdoor confound by stratifying the data using GHSL urban/rural classification (if available) and report the change in R² when the classification is added; if unavailable, the system MUST report the limitation and quantify potential noise impact via a robustness check. (See US-3)
-- **FR-013**: System MUST test for non‑linearity in the temperature effect by including a quadratic term (`temperature_celsius^2`) and compare model fit against the linear‑only model; this is justified by literature suggesting possible inverted‑U relationships between temperature and cognitive speed. (See US-2)
+- **FR-011**: System MUST compute a **dilemma complexity metric** that is *derived independently of response time*:  
+  1. **Lives at stake** – sum of all lives indicated as potentially saved or sacrificed in the scenario.  
+  2. **Difficulty score** – a categorical value (Low, Medium, High) based solely on scenario attributes (e.g., number of parties involved, presence of children, vehicular vs. pedestrian victims).  
+  The final complexity score is the numeric sum of lives at stake plus a numeric mapping of the difficulty score (Low = 0, Medium = 1, High = 2). This procedure uses only the scenario description and does not reference any response‑time field, satisfying testability. (See US-2)
+- **FR-012**: System MUST assess the indoor/outdoor confound as follows:  
+  *If* GHSL urban/rural classification is available, stratify the dataset by this label and compute the temperature coefficient within each stratum; report the change in R² between stratified and unstratified models.  
+  *If* GHSL is unavailable, perform a **bootstrap robustness check**: repeatedly (1,000 resamples) assign a random urban/rural label preserving overall proportions, re‑fit the model, and record the distribution of the temperature coefficient. Report the 95 % confidence interval width of this distribution as the **noise impact metric**. This explicit method makes the requirement verifiable. (See US-3) *Justification*: Controlling for indoor/outdoor context is essential to avoid confounding ambient temperature with exposure conditions.
+- **FR-013**: System MUST test for non‑linearity in the temperature effect by including a quadratic term (`temperature_celsius^2`) and compare model fit against the linear‑only model using AIC; retain the model with lower AIC. *Justification*: Prior literature suggests possible inverted‑U relationships between temperature and cognitive speed, so testing curvature is essential for valid inference. (See US-2)
 - **FR-014**: System MUST validate all data sources against the project's constitution 'Verified Accuracy' principle and **reject** any source that does not meet the hourly‑resolution standard before ingestion. (See US-1)
-- **FR-015**: System MUST conduct a pre‑study power analysis (α = 0.05, target power = 0.8) based on an expected small effect size (Cohen’s d ≈ 0.1) and report the required sample size; the analysis must be documented in `results/power_analysis.txt`. (See US-2)
+- **FR-015**: System MUST conduct a pre‑study power analysis (α = 0.05, target power = 0.8) based on an expected small effect size (Cohen’s d ≈ small) and report the required sample size; the analysis must be documented in `results/power_analysis.txt`. *Justification*: Ensures the corpus is sufficiently large to detect the hypothesized small temperature effect, aligning with the core research question. (See US-2)
+- **FR-016**: System MUST obtain response‑time measurements from an auxiliary crowdsourced experiment (e.g., a short online study replicating a subset of Moral Machine scenarios) and merge these latency values with the Moral Machine records using scenario ID and participant pseudonym. This provides the necessary outcome variable for the speed hypothesis. (See US-2)
+- **FR-017**: System MUST treat `data/processed/merged_dataset.parquet` as the **single source of truth** for all downstream analysis steps, satisfying Constitution Principle I. (See US-1)
+- **FR-018**: System MUST validate the merged dataset against the `contracts/moral_temperature.schema.yaml` contract and log any schema violations before modeling. (See US-1)
 
 ### Key Entities
 
-- **Moral Response**: A single decision event containing participant ID, location coordinates, timestamp, dilemma ID, response time (if available), and demographic data.
+- **Moral Response**: A single decision event containing participant ID, location coordinates, timestamp, dilemma ID, *optional* response time (sourced from the auxiliary experiment defined in FR‑016), and demographic data.
 - **Temperature Record**: A meteorological data point containing grid ID, timestamp, latitude, longitude, and ambient temperature in Celsius.
-- **Merged Dataset**: The combined entity linking Moral Responses to Temperature Records, serving as the input for statistical modeling.
+- **Merged Dataset**: The combined entity linking Moral Responses to Temperature Records, serving as the input for statistical modeling. Conforms to `contracts/moral_temperature.schema.yaml`.
 - **Model Output**: The statistical result containing fixed‑effect coefficients, standard errors, p‑values, and random effect variances.
-- **Dilemma Complexity**: A static metric derived from the number of lives at stake and the specific dilemma type, explicitly excluding response time from its calculation.
+- **Dilemma Complexity**: A metric derived as described in FR‑011, based solely on scenario attributes and lives at stake, explicitly excluding any response‑time information.
+- **Indoor/Outdoor Classification**: GHSL urban/rural label when available; otherwise handled via the bootstrap robustness method in FR‑012.
 
 ## Success Criteria
 
@@ -104,7 +113,7 @@ The system must execute robustness checks, including alternative temperature met
 - **SC-002**: The statistical significance of the temperature coefficient (p‑value) is measured against a standard alpha threshold **α = 0.05** to determine if the association is non‑zero. (See US-2)
 - **SC-003**: The variation in the temperature coefficient across the sensitivity analysis thresholds is measured against the primary model coefficient to assess robustness. (See US-3)
 - **SC-004**: The convergence status of the mixed‑effects model is measured against the requirement of successful optimization (no convergence warnings) to ensure valid inference. (See US-2)
-- **SC-005**: Normality of model residuals is assessed with the Shapiro‑Wilk test on a random sample (size deferred) and requires **p > 0.05** to indicate a good fit; visual inspection of QQ‑plots supplements this check. (See US-2)
+- **SC-005**: Normality of model residuals is assessed with the Shapiro‑Wilk test on a random sample of size **min(500, N_residuals)** and requires **p > 0.05** to indicate a good fit; visual inspection of QQ‑plots supplements this check. (See US-2)
 
 ## Assumptions
 
@@ -114,6 +123,6 @@ The system must execute robustness checks, including alternative temperature met
 - The GitHub Actions free‑tier runner (multiple CPU cores, sufficient RAM) is sufficient to process the merged dataset and fit the mixed‑effects model without memory overflow or timeout, provided the dataset is sampled if necessary.
 - The "dilemma complexity score" and "time‑of‑day" covariates are either present in the Moral Machine dataset or can be derived from the available data without introducing circularity.
 - Any observed association between temperature and response time is correlational; the design does not support causal claims due to the observational nature of the data (no random assignment of temperature).
-- The dataset contains a `response_time_ms` field; if this field is absent, the study cannot proceed and must be re‑scoped.
+- The auxiliary crowdsourced experiment (FR‑016) will reliably capture response latency for a representative subset of scenarios, enabling the speed analysis.
 - The "3‑hour moving average" temperature metric is a valid proxy for the thermal environment experienced by the participant during the decision‑making task.
-- The micro‑climate (indoor vs. outdoor) effect is addressed using GHSL urban/rural classification when available; otherwise, its potential impact is quantified via robustness checks.
+- The micro‑climate (indoor vs. outdoor) effect is addressed using GHSL urban/rural classification when available; otherwise, its potential impact is quantified via the bootstrap robustness check defined in FR‑012.
