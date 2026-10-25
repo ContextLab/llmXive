@@ -38,7 +38,7 @@ properties:
         - is_aromatic
   edge_features:
     type: "array"
-    description: "List of edge (bond) features."
+    description: "List of edge features (bonds)."
     items:
       type: "object"
       properties:

@@ -4,55 +4,53 @@
 - Python 3.11+  
 - `pip` (or `conda`)  
 - Linux environment (GitHub Actions runner or local Linux VM)  
-- At least 2 GB RAM (the full pipeline uses < 1 GB)  
+- At least 2 GB RAM (full pipeline uses < 1 GB)  
 
 ## Installation
 
-1. **Clone the repository**  
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-296-predict-molecular-refractive-indices-/code
-   ```
+```bash
+# Clone the repository (replace <repo-url> with the actual URL)
+git clone <repo-url>
+cd projects/PROJ-296-predict-molecular-refractive-indices-/code
 
-2. **Install dependencies**  
-   ```bash
-   pip install -r requirements.txt
-   # Install CPU‑only PyTorch Geometric wheels
-   pip install torch-geometric torch-scatter torch-sparse torch-cluster torch-spline-conv -f https://data.pyg.org/whl/torch-2.0.0+cpu.html
-   ```
+# Install dependencies
+pip install -r requirements.txt
 
-3. **Verify RDKit**  
-   ```bash
-   python -c "import rdkit; print(rdkit.__version__)"
-   ```
+# Install CPU‑only PyTorch Geometric wheels
+pip install torch-geometric torch-scatter torch-sparse torch-cluster torch-spline-conv -f https://data.pyg.org/whl/torch-2.0.0+cpu.html
+```
 
-## Data Preparation
+## Step‑by‑Step Execution
 
-The pipeline expects an **open‑source CSV** with ≥ 500 organic molecules and experimental refractive indices.  
-If such a dataset is available, run:
+### 1️⃣ Dataset Availability Check (always runs first)
+```bash
+python data/download.py --check-only
+```
+- The script scans the verified SMILES datasets for a column `refractive_index`.  
+- If a suitable dataset is found, it proceeds automatically to the download step.  
+- If not, it writes `logs/dataset_unavailable.log` and exits with status 0 (pipeline stops cleanly).
 
+### 2️⃣ Download (run only if step 1 succeeded)
 ```bash
 python data/download.py
 ```
+- Downloads the selected dataset, records SHA‑256 under `state/ri_dataset.sha256`, and validates against `contracts/dataset.schema.yaml`.
 
-The script will:
-1. Download the dataset from a verified public URL (Zenodo, Figshare, or HuggingFace).  
-2. Compute a SHA‑256 checksum and store it under `state/ri_dataset.sha256`.  
-3. Validate the CSV against `contracts/dataset.schema.yaml`.  
-
-*If no suitable dataset is found, the script aborts with a clear error and the project must be re‑specified to accommodate the data limitation.*
-
-## Preprocessing & Splitting
-
+### 3️⃣ Preprocess & Filter
 ```bash
-python data/preprocess.py --filter-mw 500
+python data/preprocess.py
+```
+- Parses SMILES, filters MW > 500 Da, applies temperature normalization, writes `data/processed/filtered.csv`.  
+- Generates deterministic summary log `logs/preprocess_summary.log`.
+
+### 4️⃣ Scaffold‑Based Splits
+```bash
 python data/split.py --folds 5 --repeats 5 --ratios 0.8 0.1 0.1
 ```
-- Parses SMILES, filters MW > 500 Da, adds normalized MW as a global feature.  
-- Performs **5 × 5 scaffold‑based splits** (total 25 splits) with zero scaffold overlap.
+- Creates a set of train/val/test CSVs under `data/splits/`.  
+- Logs actions to `logs/split.log`.
 
-## Training the MPNN (CPU‑only)
-
+### 5️⃣ Train the MPNN (CPU‑only)
 ```bash
 for i in {1..5}; do
   for j in {1..5}; do
@@ -60,11 +58,19 @@ for i in {1..5}; do
   done
 done
 ```
-- Saves each fold’s weights to `models/mpnn_${i}_${j}.pt`.  
-- Logs training progress to `logs/training_${i}_${j}.log`.  
+- Saves model weights `models/mpnn_${i}_${j}.pt` and training logs.
 
-## Evaluation & Attribution
+### 6️⃣ Baseline Predictions
+```bash
+for i in {1..5}; do
+  for j in {1..5}; do
+    python models/baseline.py --fold $i --repeat $j
+  done
+done
+```
+- Generates `results/baseline_predictions_${i}_${j}.csv`.
 
+### 7️⃣ Evaluation & Attribution
 ```bash
 for i in {1..5}; do
   for j in {1..5}; do
@@ -73,21 +79,27 @@ for i in {1..5}; do
   done
 done
 ```
-- Generates `results/metrics_summary.csv` (MAE/RMSE, paired test/Wilcoxon results, Cohen’s d, confidence intervals).  
-- Produces PNG plots: `results/plots/parity_${i}_${j}.png` and `results/plots/importance_${i}_${j}.png`.
+- Produces `results/metrics_summary.csv`, parity plots, importance bar charts, and attribution CSVs.
 
-## Verification of Success Criteria
-
+### 8️⃣ Verify Success Criteria
 ```python
 import pandas as pd
 metrics = pd.read_csv('results/metrics_summary.csv')
 print(metrics[['fold','repeat','mae_gnn','mae_baseline','p_value']])
-# Expect MAE variance across repeats to be reported; p‑value may be > 0.05 due to limited power.
+
+# Check variance of MAE across repeats
+print("MAE variance:", metrics['mae_gnn'].var())
 ```
+- Expected outputs:
+  - **SC‑001**: Paired test p‑value (or Wilcoxon) reported; significance noted only if p < 0.05.
+  - **SC‑002**: MAE variance across repeats ≤ 0.01 (or reported value with disclaimer).
+  - **SC‑003**: Top‑5 graph features listed in `results/attributions_*` files.
+  - **SC‑004**: Total runtime logged in `logs/runtime.log` (must be ≤ 6 h).  
+  - **SC‑005**: Peak memory logged in `logs/memory_usage.log` (must be ≤ 7 GB).
 
 ## Notes on Scope
-- The bundled CSV used in earlier drafts has been replaced by an **open dataset requirement**. If such a dataset cannot be obtained, the pipeline aborts and the specification must be revised.  
-- The study remains a **feasibility pilot**; no formal claim of statistical significance is made unless the dataset meets the size requirement.  
-- The pipeline can be re‑run with a larger dataset in the future without code changes.
+- **Dataset Limitation**: If the availability check fails (no open RI dataset), the pipeline stops early with a clear log. In that case, the project requires a specification revision to either (a) provide a suitable open dataset or (b) change the target property. No synthetic data are generated, preserving scientific integrity.  
+- All steps are deterministic and fully reproducible on a fresh GitHub Actions runner.  
+- The quickstart commands assume a Unix‑like shell; Windows users can run the same Python scripts via PowerShell or WSL.
 
 ---
