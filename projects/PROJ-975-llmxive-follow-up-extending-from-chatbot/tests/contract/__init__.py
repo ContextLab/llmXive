@@ -1,1 +1,1 @@
-# Contract tests package
+# This file makes the contract tests importable as a package.

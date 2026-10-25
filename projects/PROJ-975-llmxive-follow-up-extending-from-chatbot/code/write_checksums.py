@@ -62,7 +62,7 @@ def main():
         json.dump(checksums, f, indent=2, sort_keys=True)
 
     log.info(f"Checksums successfully written to {checksums_path}")
-    # Echo the mapping for interactive runs (useful when script is invoked manually).
+    # Echo the mapping for interactive runs.
     print(json.dumps(checksums, indent=2))
 
 if __name__ == "__main__":

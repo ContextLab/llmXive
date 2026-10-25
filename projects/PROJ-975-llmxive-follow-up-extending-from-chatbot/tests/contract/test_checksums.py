@@ -7,8 +7,7 @@ import json
 import pytest
 from llmxive_toolkit import paths
 
-# Import the script under test. It lives in the `code/` directory and is
-# importable by its filename (without the .py extension).
+# Import the script under test.
 from write_checksums import get_sha256, main
 
 @pytest.fixture(scope="module")

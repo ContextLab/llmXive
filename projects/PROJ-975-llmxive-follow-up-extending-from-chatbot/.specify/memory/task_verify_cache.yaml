@@ -1,24 +1,22 @@
 T001:
   c: true
-  h: f376c341cfa20e9329ccba9e132b5d2bb479dbb2b297ffe79a42051c5e4998f1
-  r: Checked the five contract schema files in `contracts/` (hashes match those recorded
-    in `data/raw/contract_hashes.json`), the `code/copy_contracts.py` script that
-    performs the copy and hashing, the generated `data/raw/contract_hashes.json` mapping
-    showing identical source and destination hashes, and the pytest run (`tests/contract/test_contract_copy.py`)
-    which passed, confirming the hashes are equal for every file.
-  sig: b4cedb5bba265498cfee8d44f2da8679d756a934ff3ea7c580f855bf1bd30dc3
+  h: ce063e3282f3b76e249f43677d509094e752ce94a2b32341affaffad2d8e6a0b
+  r: "Checked the five contract schema files in `contracts/` and their matching SHA\u2011\
+    256 hashes in `data/raw/contract_hashes.json`, the `code/copy_contracts.py` script\
+    \ that performs the copy and hashing, and the pytest run (`tests/contract/test_contract_copy.py`)\
+    \ which passed, confirming src\u2011hash equals dst\u2011hash for every file."
+  sig: e135e383b3de93a4e50647e7e86d970d402b0b0bc6071d6cdc7f65715c9345b3
 T002:
-  c: false
-  h: 05add81d84b07bae08978e3c71cd056d61cb8f835050c4b0fb33e12fd25274b8
-  r: "Checked `code/generate_data.py`, the generated `data/raw/tasks.json` and `data/raw/skills.json`,\
-    \ and the unit\u2011test suite `tests/unit/test_generate_data.py`. The script\
-    \ creates the required files and meets most tests, but the `test_skill_code_format`\
-    \ expects each generated skill\u2019s `code` field to contain a docstring (`\"\
-    \"\"`), which the current `generate_skills` implementation does not include (it\
-    \ only emits a bare function definition). Consequently the test suite would fail,\
-    \ so the task\u2019s verification is not fully satisfied. The skill code generation\
-    \ needs to be updated to include a docstring."
-  sig: b0ab57c3296fe8bdf1995db775c0837eeff3fb0cfd2c2bf9d0a40d9ebc33dacb
+  c: true
+  h: b789f57aa9b0fa9658fe1122ec68c7490593bd0b2c1a4ee7980695a7d394ecec
+  r: "Checked `code/generate_data.py` (implements required constants, memory guard,\
+    \ overlap handling, deterministic seeds, checksum writing) and the generated files\
+    \ `data/raw/tasks.json` (500 records), `data/raw/skills.json` (100 records), `data/raw/checksums.json`\
+    \ (correct SHA\u2011256 digests). The unit\u2011test suite `tests/unit/test_generate_data.py`\
+    \ exercises record counts, deterministic behavior, overlap validation, and other\
+    \ requirements, and the execution log shows the script ran successfully producing\
+    \ the expected outputs."
+  sig: 683be2109e17ca478b38a1972d533a32a5f9e2aaa8ba7bd225671d5926fc296d
 T005:
   c: false
   h: a3c785ab089d4db731e4ddf6a2b6bc96165f19faeba0c56c9538a4fb40855736

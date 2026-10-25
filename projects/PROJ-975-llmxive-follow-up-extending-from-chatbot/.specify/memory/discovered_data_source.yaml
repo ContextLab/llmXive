@@ -1,16 +1,18 @@
 status: none
-intent: Meta-World synthetic multi-step task dataset with skill library embeddings
-  RLBench MiniWoB ALFWorld python package dataset
+intent: synthetic multi-step task and skill library dataset python package meta-world
+  rlbench python package dataset
 required_fields:
 - task_id
 - task_description
+- ground_truth_solution_path
 - ground_truth_solution_steps
+- skill_sequence
 - skill_id
 - skill_name
+- skill_description
 - skill_embedding_vector
-- semantic_overlap_level
-- task_steps
-- solution_action_sequence
-cache_key: 713bfc1d54317fb2a4125f0a2b71d51c99c9c01ed252b7e527cc0c847d0b726f
-searched_at: '2026-10-25T22:18:19.982811+00:00'
+- skill_overlap_level
+- skill_semantic_density
+cache_key: de990ce9edfc1b4afe39a4ad7ce08ef55aa076c5712b2b10db7c1073f4993968
+searched_at: '2026-10-25T22:34:20.525332+00:00'
 retry_count: 1
