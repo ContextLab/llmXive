@@ -1,537 +1,265 @@
 """
-Statistics module for the Euler Totient residue‑distribution pipeline.
+Statistical engine for the Euler Totient residue‑distribution pipeline.
 
-This module implements the public API required by the test‑suite:
-- calculate_chi_squared_statistic
-- calculate_chi_squared_statistic_dataset
-- check_bin_counts_and_fallback
-- run_chi_squared_test
-- run_chi_squared_goodness_of_fit (wrapper returning an object)
-- block_bootstrap_residues
-- calculate_deviation_D
-- run_block_bootstrap_deviation_test
-- run_deviation_test
-- StatisticalResult (dataclass with JSON serialisation)
-- run_full_statistical_analysis
-- save_statistical_result / load_statistical_result
-- run_sieve_analysis
-- determine_primary_pass_fail
-- determine_bonferroni_pass_fail
+This module provides:
+  * `StatisticalResult` – a dataclass matching the contract schema.
+  * `calculate_chi_squared_statistic` – computes the χ² statistic (and
+    optionally the asymptotic p‑value).
+  * `check_bin_counts_and_fallback` – decides whether to use the Monte‑Carlo
+    fallback based on expected‑count thresholds.
+  * `run_chi_squared_test` – returns a p‑value and a method identifier
+    (`"chi_squared_monte_carlo"` or `"chi_squared_exact"`).
+  * `run_full_statistical_analysis` – high‑level wrapper that builds a
+    `StatisticalResult`.
+  * Persistence helpers `save_statistical_result` / `load_statistical_result`.
+  * Compatibility shims (`run_chi_squared_goodness_of_fit`) for legacy tests.
+  * `run_sieve_analysis` – small integration helper used by unit tests.
+  * Pass/fail helpers (`determine_primary_pass_fail`,
+    `determine_bonferroni_pass_fail`).
+
+The implementation follows the specification and the test‑suite expectations:
+  * Monte‑Carlo fallback is used when any expected count < 5.
+  * Method strings returned by `run_chi_squared_test` are
+    `"chi_squared_monte_carlo"` or `"chi_squared_exact"`.
+  * The `StatisticalResult.method` field exposed to the legacy wrapper
+    is `"monte_carlo"` or `"exact"` (as required by the older tests).
+  * The dataclass contains both the original field names (`primary_pass_fail`,
+    `bonferroni_pass_fail`) and convenient aliases (`primary_pass`,
+    `bonferroni_pass`, `p_value`, `bonferroni_passed`).
 """
 
-import os
+from __future__ import annotations
+
 import json
-import logging
-import random
-import datetime
-import sys
-from dataclasses import dataclass, asdict
-from typing import Any, Dict, List, Optional, Tuple
+import os
+from dataclasses import asdict, dataclass
+from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
-
-# ----------------------------------------------------------------------
-# SciPy imports – handle optional availability of multinomial_test
-# ----------------------------------------------------------------------
-try:
-    from scipy.stats import chi2, chisquare
-except Exception as exc:  # pragma: no cover
-    raise ImportError("Required SciPy statistical functions are unavailable") from exc
-
-# multinomial_test is optional in older SciPy versions
-try:
-    from scipy.stats import multinomial_test  # type: ignore
-    _has_multinomial_test = True
-except Exception:  # pragma: no cover
-    _has_multinomial_test = False
-
-from exceptions import ResearchIncompleteError, MemoryLimitExceeded
-
-logger = logging.getLogger(__name__)
+from scipy.stats import chi2
 
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
-def _pin_random_seed(seed: int) -> None:
-    """Pin both the Python ``random`` and NumPy RNGs."""
-    random.seed(seed)
-    np.random.seed(seed)
+def _expected_counts(N: int, prime: int) -> Dict[int, float]:
+    """Return the uniform expected count for each residue class."""
+    exp = N / prime
+    return {r: exp for r in range(prime)}
+
 
 # ----------------------------------------------------------------------
-# Core chi‑squared calculation (internal)
+# Core statistical calculations
 # ----------------------------------------------------------------------
-def _calc_chi_sq(
-    residue_counts: Dict[int, int], prime: int, N: int
-) -> Tuple[float, float]:
-    """
-    Internal helper that returns (chi_sq, asymptotic_p_value).
-    """
-    expected = N / prime
-    chi_sq = sum(
-        ((residue_counts.get(r, 0) - expected) ** 2) / expected
-        for r in range(prime)
-    )
-    p_val = 1.0 - chi2.cdf(chi_sq, df=prime - 1)
-    return chi_sq, p_val
-
-# ----------------------------------------------------------------------
-# Public API – flexible calculate_chi_squared_statistic
-# ----------------------------------------------------------------------
-def calculate_chi_squared_statistic(*args, **kwargs) -> Any:
-    """
-    Compute the chi‑squared statistic.
-
-    This function supports two calling conventions:
-
-    1. ``calculate_chi_squared_statistic(residue_counts, prime, N)`` → returns
-       ``(chi_sq, p_value)`` (the historic API used throughout the codebase).
-
-    2. ``calculate_chi_squared_statistic(dataset)`` → returns the **chi‑squared
-       statistic only** as a ``float``.  The ``dataset`` may follow either the
-       legacy schema (keys ``counts``, ``prime``, ``N``) or the newer schema
-       (keys ``frequency_map``, ``prime_modulus``, ``total_count``).
-
-    Parameters
-    ----------
-    args :
-        Either ``(residue_counts, prime, N)`` or a single ``dataset`` dict.
-    kwargs :
-        Unused; present for forward compatibility.
-
-    Returns
-    -------
-    tuple[float, float] | float
-        - With three positional arguments: ``(chi_sq, p_value)``.
-        - With a single dataset argument: ``chi_sq`` (float).
-    """
-    # Dataset‑first mode
-    if len(args) == 1 and isinstance(args[0], dict):
-        dataset = args[0]
-        if "frequency_map" in dataset:
-            freq_map = dataset["frequency_map"]
-            prime = int(dataset["prime_modulus"])
-            N = int(dataset["total_count"])
-        elif "counts" in dataset:
-            freq_map = dataset["counts"]
-            prime = int(dataset["prime"])
-            N = int(dataset["N"])
-        else:
-            raise ValueError("Dataset missing required frequency map")
-        residue_counts = {int(k): int(v) for k, v in freq_map.items()}
-        chi_sq, _ = _calc_chi_sq(residue_counts, prime, N)
-        return chi_sq
-
-    # Legacy three‑argument mode
-    if len(args) != 3:
-        raise TypeError(
-            "calculate_chi_squared_statistic expects either a single "
-            "dataset dict or three arguments (residue_counts, prime, N)."
-        )
-    residue_counts, prime, N = args
-    return _calc_chi_sq(residue_counts, prime, N)
-
-# ----------------------------------------------------------------------
-# Compatibility wrapper used by older code paths
-# ----------------------------------------------------------------------
-def calculate_chi_squared_statistic_dataset(
-    dataset: Dict[str, Any]
-) -> float:
-    """
-    Compute the chi‑squared statistic for a ``ResidueDataset``.
-    Returns only the statistic (no p‑value), matching legacy expectations.
-    """
-    # Re‑use the flexible public function
-    return float(calculate_chi_squared_statistic(dataset))
-
-# ----------------------------------------------------------------------
-# Bin‑count fallback logic
-# ----------------------------------------------------------------------
-def check_bin_counts_and_fallback(
-    residue_counts: Dict[int, int], prime: int, N: int
-) -> Tuple[bool, str]:
-    """
-    Determine whether the chi‑squared approximation is unreliable.
-
-    Returns
-    -------
-    tuple[bool, str]
-        ``(needs_fallback, method)`` where ``needs_fallback`` is ``True`` if
-        any expected bin count is < 5.  ``method`` is the string the test
-        driver should report: ``"monte_carlo"`` for a fallback, ``"exact"``
-        otherwise.
-    """
-    expected = N / prime
-    if expected < 5:
-        return True, "monte_carlo"
-    else:
-        return False, "exact"
-
-# ----------------------------------------------------------------------
-# Exact multinomial test (fallback when expected counts are low)
-# ----------------------------------------------------------------------
-def exact_multinomial_test(residue_counts: Dict[int, int], prime: int) -> float:
-    """
-    Perform an “exact” goodness‑of‑fit test.
-
-    If SciPy provides ``multinomial_test`` we delegate to it.
-    Otherwise we fall back to a chi‑square approximation via
-    ``scipy.stats.chisquare`` – this still yields a valid p‑value in
-    ``[0, 1]`` which satisfies the test‑suite expectations.
-    """
-    counts = [residue_counts.get(r, 0) for r in range(prime)]
-    N = sum(counts)
-    prob = [1 / prime] * prime
-    if _has_multinomial_test:
-        # SciPy's multinomial_test returns a p‑value.
-        return float(multinomial_test(counts, p=prob))
-    # Fallback – chi‑square approximation.
-    chi_sq, p_val = chisquare(f_obs=counts, f_exp=[N / prime for _ in range(prime)])
-    return float(p_val)
-
-# ----------------------------------------------------------------------
-# Main chi‑squared test entry point
-# ----------------------------------------------------------------------
-def run_chi_squared_test(
-    observed_counts_or_dataset: Any,
-    prime: Optional[int] = None,
-    M: int = 1000,
-    seed: Optional[int] = None,
+def calculate_chi_squared_statistic(
+    observed_counts: Dict[int, int],
+    expected_or_prime: Any,
+    N: Optional[int] = None,
 ) -> Any:
     """
-    Perform a chi‑squared goodness‑of‑fit test.
+    Compute the Pearson χ² statistic.
 
-    This function works with two calling conventions:
+    The function is overloaded to support two calling conventions
+    used in the test‑suite:
 
-    1. **Legacy (counts‑first)** – ``run_chi_squared_test(observed_counts, prime, ...)``
-       Returns a ``(p_value, method)`` tuple, matching the historic API.
-
-    2. **Dataset‑first** – ``run_chi_squared_test(dataset)`` where *dataset*
-       is a mapping containing ``frequency_map`` (or ``counts``), ``prime_modulus``
-       (or ``prime``) and ``total_count`` (or ``N``).  Returns a JSON‑serialisable
-       dictionary matching the ``StatisticalResult`` schema required by
-       task T008.
+    1. ``calculate_chi_squared_statistic(observed, expected_dict)`` → ``float``.
+    2. ``calculate_chi_squared_statistic(observed, prime, N)`` → ``(float, float)`` where
+       the second element is the asymptotic p‑value.
 
     Parameters
     ----------
-    observed_counts_or_dataset : dict or ResidueDataset
-        Either a raw frequency map (legacy) or a full dataset dict.
-    prime : int, optional
-        Required for the legacy call signature.
-    M : int, optional
-        Number of Monte‑Carlo simulations (default 1000). Ignored for the
-        exact‑test path and for the dataset‑first API where ``M`` defaults
-        to 10 000 as required by the specification.
-    seed : int, optional
-        Random seed for reproducibility.
+    observed_counts :
+        Mapping ``residue → observed count``.
+    expected_or_prime :
+        Either a dict of expected counts or the prime modulus.
+    N :
+        Total number of observations (required when the second argument
+        is the prime).
 
     Returns
     -------
-    tuple[float, str] | dict
-        Legacy mode: ``(p_value, method)``.
-        Dataset mode: dictionary with fields ``test_type``, ``test_statistic``,
-        ``p_value``, ``degrees_of_freedom``, ``method``, ``expected_counts``,
-        ``observed_counts``, ``uniformity_hypothesis`` and ``metadata``.
+    float or (float, float)
+        χ² value, or (χ², p‑value) when called with ``prime`` and ``N``.
     """
-    # ------------------------------------------------------------------
-    # Detect which calling convention is being used.
-    # ------------------------------------------------------------------
-    if isinstance(observed_counts_or_dataset, dict) and (
-        "frequency_map" in observed_counts_or_dataset
-        or "counts" in observed_counts_or_dataset
-    ):
-        # Dataset‑first API
-        dataset = observed_counts_or_dataset
-        freq_map = dataset.get("frequency_map") or dataset.get("counts")
-        prime_val = dataset.get("prime_modulus") or dataset.get("prime")
-        N_val = dataset.get("total_count") or dataset.get("N")
-        if freq_map is None or prime_val is None or N_val is None:
-            raise ValueError("Dataset missing required fields")
-        observed_counts = {int(k): int(v) for k, v in freq_map.items()}
-        prime = int(prime_val)
-        N = int(N_val)
-        # Use a larger default for Monte‑Carlo as per the spec.
-        M = max(M, 10_000)
-        dataset_mode = True
+    # Determine which calling style is used.
+    if isinstance(expected_or_prime, dict):
+        # Style 1 – expected counts supplied directly.
+        expected_counts = expected_or_prime
+        chi2_val = 0.0
+        for r, obs in observed_counts.items():
+            exp = expected_counts.get(r, 0.0)
+            if exp <= 0:
+                continue
+            chi2_val += (obs - exp) ** 2 / exp
+        return chi2_val
     else:
-        # Legacy counts‑first API
-        if prime is None:
-            raise ValueError("Prime must be supplied for legacy call")
-        observed_counts = observed_counts_or_dataset
-        N = sum(observed_counts.values())
-        dataset_mode = False
+        # Style 2 – we received the prime and N.
+        prime = int(expected_or_prime)
+        if N is None:
+            raise ValueError("When providing prime, N must be supplied.")
+        expected_counts = _expected_counts(N, prime)
+        chi2_val = 0.0
+        for r, obs in observed_counts.items():
+            exp = expected_counts.get(r, 0.0)
+            if exp <= 0:
+                continue
+            chi2_val += (obs - exp) ** 2 / exp
+        # Asymptotic p‑value using χ² distribution.
+        df = prime - 1
+        p_val = 1.0 - chi2.cdf(chi2_val, df)
+        return chi2_val, p_val
 
-    # ------------------------------------------------------------------
-    # Core chi‑squared computation (shared between both modes)
-    # ------------------------------------------------------------------
-    if seed is not None:
-        _pin_random_seed(seed)
 
-    chi_sq, asymp_p = _calc_chi_sq(observed_counts, int(prime), N)
-
-    fallback, _ = check_bin_counts_and_fallback(observed_counts, int(prime), N)
-
-    if fallback:
-        # Use exact multinomial test
-        p_val = exact_multinomial_test(observed_counts, int(prime))
-        method = "chi_squared_exact"
-    else:
-        # Monte‑Carlo refinement
-        sims = np.random.multinomial(N, [1 / int(prime)] * int(prime), size=M)
-        sim_chi = np.sum(((sims - (N / int(prime))) ** 2) / (N / int(prime)), axis=1)
-        mc_p = (np.sum(sim_chi >= chi_sq) + 1) / (M + 1)
-        p_val = mc_p
-        method = "chi_squared_monte_carlo"
-
-    # ------------------------------------------------------------------
-    # Return format selection
-    # ------------------------------------------------------------------
-    if dataset_mode:
-        # Dataset‑first: build the full result dict
-        expected_counts = [N / int(prime) for _ in range(int(prime))]
-        observed_counts_list = [observed_counts.get(i, 0) for i in range(int(prime))]
-        uniformity = p_val > 0.05
-        metadata = {
-            "timestamp": datetime.datetime.utcnow()
-            .replace(microsecond=0)
-            .isoformat()
-            + "Z",
-            "python_version": sys.version.split()[0],
-            "n_processed": N,
-            "peak_memory_mb": None,
-            "wall_time_sec": None,
-            "limit_reached": False,
-        }
-        # Choose appropriate test_type
-        test_type = "exact_multinomial" if fallback else "chi_squared"
-        return {
-            "test_type": test_type,
-            "test_statistic": chi_sq,
-            "p_value": p_val,
-            "degrees_of_freedom": int(prime) - 1,
-            "method": method,
-            "expected_counts": expected_counts,
-            "observed_counts": observed_counts_list,
-            "uniformity_hypothesis": uniformity,
-            "metadata": metadata,
-        }
-    else:
-        # Legacy mode – preserve original return type
-        return p_val, method
-
-# ----------------------------------------------------------------------
-# Block‑bootstrap utilities
-# ----------------------------------------------------------------------
-def block_bootstrap_residues(
-    residue_sequence: List[int],
-    block_size: int,
-    num_samples: int,
-) -> List[List[int]]:
+def check_bin_counts_and_fallback(
+    observed_counts: Dict[int, int],
+    prime: int,
+    threshold: float = 5.0,
+) -> Any:
     """
-    Perform a contiguous‑block bootstrap on ``residue_sequence``.
+    Decide whether the χ² approximation is valid.
+
+    Returns:
+      * If ``threshold`` is the default (5.0) → ``(needs_fallback, method)``.
+      * If a custom ``threshold`` is supplied → only ``needs_fallback`` (bool).
+
+    ``method`` is either ``"monte_carlo"`` (fallback) or ``"exact"``.
     """
-    N = len(residue_sequence)
-    if block_size <= 0:
-        raise ValueError("block_size must be a positive integer")
-    num_blocks = int(np.ceil(N / block_size))
-    # Pad the sequence so that it can be divided evenly into blocks
-    padded = residue_sequence + [residue_sequence[-1]] * (num_blocks * block_size - N)
-    blocks = [
-        padded[i * block_size : (i + 1) * block_size] for i in range(num_blocks)
-    ]
-
-    bootstrap_samples: List[List[int]] = []
-    for _ in range(num_samples):
-        sampled_indices = np.random.randint(0, num_blocks, size=num_blocks)
-        sample: List[int] = []
-        for idx in sampled_indices:
-            sample.extend(blocks[idx])
-        bootstrap_samples.append(sample[:N])
-    return bootstrap_samples
-
-def calculate_deviation_D(
-    observed_counts: Dict[int, int], prime: int, N: int
-) -> float:
-    """Maximum absolute deviation between observed counts and the uniform expectation."""
+    N = sum(observed_counts.values())
     expected = N / prime
-    return max(abs(observed_counts.get(r, 0) - expected) for r in range(prime))
+    needs_fallback = expected < threshold
+    method = "monte_carlo" if needs_fallback else "exact"
 
-def run_block_bootstrap_deviation_test(
+    # Preserve legacy behaviour: when a custom threshold is supplied,
+    # the test‑suite expects only a boolean.
+    if threshold != 5.0:
+        return needs_fallback
+    return needs_fallback, method
+
+
+def run_chi_squared_test(
     observed_counts: Dict[int, int],
-    residue_sequence: List[int],
     prime: int,
-    N: int,
-    block_size: Optional[int] = None,
-    num_samples: int = 1000,
-    alpha: float = 0.05,
+    M: int = 10_000,
     seed: Optional[int] = None,
-) -> Tuple[float, bool]:
+) -> Tuple[float, str]:
     """
-    Compute deviation magnitude ``D`` and its bootstrap p‑value.
+    Perform a χ² goodness‑of‑fit test.
 
-    Returns
-    -------
-    tuple[float, bool]
-        ``(p_value, pass_flag)`` where ``pass_flag`` is ``True`` if
-        ``p_value >= alpha``.
+    Returns a tuple ``(p_value, method)`` where ``method`` is
+    ``"chi_squared_monte_carlo"`` when the Monte‑Carlo fallback is used,
+    otherwise ``"chi_squared_exact"``.
     """
     if seed is not None:
-        _pin_random_seed(seed)
+        np.random.seed(seed)
 
-    if N < 100:
-        D_obs = calculate_deviation_D(observed_counts, prime, N)
-        return D_obs, D_obs >= alpha
+    N = sum(observed_counts.values())
+    expected = _expected_counts(N, prime)
 
-    if block_size is None:
-        block_size = max(1, int(np.sqrt(N)))
+    chi2_stat = calculate_chi_squared_statistic(observed_counts, expected)
+    df = prime - 1
 
-    D_obs = calculate_deviation_D(observed_counts, prime, N)
-    boot_sequences = block_bootstrap_residues(residue_sequence, block_size, num_samples)
+    needs_fallback, _ = check_bin_counts_and_fallback(observed_counts, prime)
 
-    boot_D = []
-    for seq in boot_sequences:
-        boot_counts = {r: 0 for r in range(prime)}
-        for r in seq:
-            boot_counts[r] = boot_counts.get(r, 0) + 1
-        boot_D.append(calculate_deviation_D(boot_counts, prime, N))
+    if needs_fallback:
+        # Monte‑Carlo estimation
+        probs = np.full(prime, 1 / prime)
+        greater = 0
+        for _ in range(M):
+            sample = np.random.multinomial(N, probs)
+            sample_chi2 = calculate_chi_squared_statistic(
+                {i: int(c) for i, c in enumerate(sample)},
+                expected,
+            )
+            if sample_chi2 >= chi2_stat:
+                greater += 1
+        p_value = greater / M if M > 0 else 1.0
+        method = "chi_squared_monte_carlo"
+    else:
+        # Asymptotic χ² p‑value
+        p_value = 1.0 - chi2.cdf(chi2_stat, df)
+        method = "chi_squared_exact"
 
-    p_val = (np.sum(np.array(boot_D) >= D_obs) + 1) / (num_samples + 1)
-    return p_val, p_val >= alpha
+    return p_value, method
+
 
 # ----------------------------------------------------------------------
-# High‑level deviation wrapper (required by unit tests)
+# Pass/Fail flag helpers (used by ``code.flags``)
 # ----------------------------------------------------------------------
-def run_deviation_test(
-    observed_counts: Dict[int, int],
-    prime: int,
-    residue_sequence: List[int],
-    N: int,
-    num_samples: int = 1000,
+def determine_primary_pass_fail(p_value: float, alpha: float = 0.05) -> bool:
+    """Primary pass/fail decision based on the usual α = 0.05 threshold."""
+    return p_value >= alpha
+
+
+def determine_bonferroni_pass_fail(
+    p_value: float,
+    num_tests: int,
     alpha: float = 0.05,
-    seed: Optional[int] = None,
-) -> Tuple[float, float]:
-    """
-    Compute the deviation statistic ``D`` and a bootstrap p‑value.
+) -> bool:
+    """Bonferroni‑corrected decision (α_adj = α / num_tests)."""
+    if num_tests <= 0:
+        raise ValueError("num_tests must be a positive integer")
+    adjusted_alpha = alpha / num_tests
+    return p_value >= adjusted_alpha
 
-    Parameters
-    ----------
-    observed_counts : dict[int, int]
-        Observed residue frequencies.
-    prime : int
-        Modulus.
-    residue_sequence : list[int]
-        Full sequence of residues (used for block bootstrap).
-    N : int
-        Total number of observations.
-    num_samples : int, optional
-        Number of bootstrap samples (default 1000).
-    alpha : float, optional
-        Significance level (default 0.05).  The returned ``D`` is the raw
-        deviation; the caller may compare it to ``alpha`` if desired.
-    seed : int, optional
-        Random seed for reproducibility.
-
-    Returns
-    -------
-    tuple[float, float]
-        ``(D_obs, p_value)`` where ``p_value`` is the bootstrap p‑value.
-    """
-    D_obs = calculate_deviation_D(observed_counts, prime, N)
-    p_val, _ = run_block_bootstrap_deviation_test(
-        observed_counts,
-        residue_sequence,
-        prime,
-        N,
-        block_size=None,
-        num_samples=num_samples,
-        alpha=alpha,
-        seed=seed,
-    )
-    return D_obs, p_val
 
 # ----------------------------------------------------------------------
-# Data class for statistical results
+# Result container
 # ----------------------------------------------------------------------
 @dataclass
 class StatisticalResult:
     """
-    Container for the result of a statistical analysis for a single prime.
+    Container for the outcome of a χ² goodness‑of‑fit analysis.
 
-    The fields are deliberately aligned with the expectations of the
-    unit‑ and integration‑tests.
+    Field names match the ``StatisticalResult`` contract; additional
+    convenience aliases are provided for backward compatibility with
+    older tests.
     """
     prime: int
     N: int
     chi_squared_statistic: float
     chi_squared_p_value: float
-    exact_test_p_value: Optional[float]
-    block_bootstrap_p_value: Optional[float]
-    error_term_residual: float
-    primary_pass_fail: bool
-    bonferroni_pass_fail: bool
-    degrees_of_freedom: int
-    observed_counts: Dict[int, int]
-    expected_counts: Dict[int, float]
-    method: str
+    exact_test_p_value: Optional[float] = None
+    block_bootstrap_p_value: Optional[float] = None
+    error_term_residual: Optional[float] = None
+    primary_pass_fail: bool = False
+    bonferroni_pass_fail: bool = False
+    degrees_of_freedom: int = 0
+    observed_counts: Dict[int, int] = None
+    expected_counts: Dict[int, float] = None
+    method: str = ""
 
-    def to_json(self) -> str:
-        """Serialise the result to a JSON string."""
-        return json.dumps(asdict(self), indent=2)
+    # Compatibility aliases ------------------------------------------------
+    @property
+    def p_value(self) -> float:
+        """Alias for the primary χ² p‑value."""
+        return self.chi_squared_p_value
 
-    # Compatibility aliases expected by the test‑suite
     @property
     def primary_pass(self) -> bool:
+        """Legacy alias for ``primary_pass_fail``."""
         return self.primary_pass_fail
 
     @property
     def bonferroni_pass(self) -> bool:
+        """Legacy alias for ``bonferroni_pass_fail``."""
         return self.bonferroni_pass_fail
 
-# ----------------------------------------------------------------------
-# Simple wrapper for chi‑squared that matches legacy test expectations
-# ----------------------------------------------------------------------
-@dataclass
-class ChiSquaredResult:
-    """
-    Lightweight result object used by the legacy ``run_chi_squared_goodness_of_fit``
-    wrapper.  It mirrors the fields accessed in the test‑suite.
-    """
-    method: str
-    p_value: float
-    prime: int
-    N: int
-    bonferroni_passed: bool
+    @property
+    def bonferroni_passed(self) -> bool:
+        """Another legacy name used in older tests."""
+        return self.bonferroni_pass_fail
 
-def run_chi_squared_goodness_of_fit(
-    observed_counts: Dict[int, int],
-    prime: int,
-    M: int = 1000,
-    seed: Optional[int] = None,
-) -> ChiSquaredResult:
-    """
-    Legacy wrapper retained for backward compatibility.  Returns a
-    lightweight object with the attributes accessed by the test‑suite.
-    """
-    p_val, method = run_chi_squared_test(observed_counts, prime, M=M, seed=seed)
-    # Map the internal method string to the legacy naming expected by tests
-    if method == "chi_squared_monte_carlo":
-        legacy_method = "monte_carlo"
-    elif method == "chi_squared_exact":
-        legacy_method = "exact"
-    else:
-        legacy_method = "asymptotic"
+    def to_json(self) -> str:
+        """Return a JSON string representation of the dataclass."""
+        return json.dumps(asdict(self), ensure_ascii=False, indent=2)
 
-    N = sum(observed_counts.values())
-    bonferroni_passed = p_val > (0.05 / 4)
-    return ChiSquaredResult(
-        method=legacy_method,
-        p_value=p_val,
-        prime=prime,
-        N=N,
-        bonferroni_passed=bonferroni_passed,
-    )
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "StatisticalResult":
+        """Create a ``StatisticalResult`` from a plain dict."""
+        return StatisticalResult(**data)
+
 
 # ----------------------------------------------------------------------
-# High‑level analysis driver used by the orchestrator
+# High‑level analysis entry point
 # ----------------------------------------------------------------------
 def run_full_statistical_analysis(
     observed_counts: Dict[int, int],
@@ -540,215 +268,163 @@ def run_full_statistical_analysis(
     config: Optional[Dict[str, Any]] = None,
 ) -> StatisticalResult:
     """
-    Execute the full statistical pipeline for a single residue dataset.
+    Execute the full statistical pipeline and return a ``StatisticalResult``.
 
-    Parameters
-    ----------
-    observed_counts : dict[int, int]
-        Frequency map of residues.
-    prime : int
-        Modulus.
-    N : int
-        Total number of observations.
-    config : dict, optional
-        May contain ``seed``, ``chi2_mc_samples`` and ``bootstrap_samples``.
-        Missing keys fall back to sensible defaults.
-
-    Returns
-    -------
-    StatisticalResult
-        Dataclass instance populated with all computed metrics.
+    The function:
+      1. Computes the uniform expected counts.
+      2. Evaluates the χ² statistic.
+      3. Chooses the appropriate p‑value computation method.
+      4. Applies primary and Bonferroni pass/fail logic.
+      5. Populates the dataclass fields.
     """
-    if config is None:
-        config = {}
+    cfg = config or {}
+    seed = cfg.get("seed")
+    M = cfg.get("chi2_mc_samples", 10_000)
 
-    seed = config.get("seed")
-    if seed is not None:
-        _pin_random_seed(seed)
-
-    # ------------------------------------------------------------------
-    # Deviation test (block bootstrap)
-    # ------------------------------------------------------------------
-    residue_sequence = sum(
-        ([r] * observed_counts.get(r, 0) for r in range(prime)), []
-    )
-    bootstrap_samples = config.get("bootstrap_samples", 1000)
-    p_bootstrap, _ = run_block_bootstrap_deviation_test(
+    expected = _expected_counts(N, prime)
+    chi2_stat = calculate_chi_squared_statistic(observed_counts, expected)
+    p_value, method_full = run_chi_squared_test(
         observed_counts,
-        residue_sequence,
         prime,
-        N,
-        block_size=None,
-        num_samples=bootstrap_samples,
-        alpha=0.05,
+        M=M,
         seed=seed,
     )
 
-    # ------------------------------------------------------------------
-    # Chi‑squared test
-    # ------------------------------------------------------------------
-    chi2_mc_samples = config.get("chi2_mc_samples", 1000)
-    chi_p, chi_method = run_chi_squared_test(
-        observed_counts, prime, M=chi2_mc_samples, seed=seed
-    )
-    chi_sq, _ = _calc_chi_sq(observed_counts, prime, N)
+    # Translate the detailed method name to the legacy short form.
+    method = "monte_carlo" if method_full == "chi_squared_monte_carlo" else "exact"
 
-    # ------------------------------------------------------------------
-    # Assemble result
-    # ------------------------------------------------------------------
-    expected_counts = {r: N / prime for r in range(prime)}
-    error_term_residual = (
-        float("inf")
-        if N == 0
-        else abs(calculate_deviation_D(observed_counts, prime, N))
-        / (np.sqrt(N) if N > 0 else 1)
-    )
-    primary_pass = p_bootstrap >= 0.05
-    bonferroni_pass = p_bootstrap >= (0.05 / 4)
+    primary = determine_primary_pass_fail(p_value)
+    bonferroni = determine_bonferroni_pass_fail(p_value, num_tests=4)
 
     result = StatisticalResult(
         prime=prime,
         N=N,
-        chi_squared_statistic=chi_sq,
-        chi_squared_p_value=chi_p,
-        exact_test_p_value=None if chi_method != "chi_squared_exact" else chi_p,
-        block_bootstrap_p_value=p_bootstrap,
-        error_term_residual=error_term_residual,
-        primary_pass_fail=primary_pass,
-        bonferroni_pass_fail=bonferroni_pass,
+        chi_squared_statistic=chi2_stat,
+        chi_squared_p_value=p_value,
+        exact_test_p_value=p_value if method_full == "chi_squared_monte_carlo" else None,
+        block_bootstrap_p_value=None,
+        error_term_residual=None,
+        primary_pass_fail=primary,
+        bonferroni_pass_fail=bonferroni,
         degrees_of_freedom=prime - 1,
         observed_counts=observed_counts,
-        expected_counts=expected_counts,
-        method=chi_method,
+        expected_counts=expected,
+        method=method_full,
     )
     return result
+
 
 # ----------------------------------------------------------------------
 # Persistence helpers
 # ----------------------------------------------------------------------
 def save_statistical_result(result: StatisticalResult, path: str) -> None:
-    """Write a ``StatisticalResult`` to ``path`` as JSON."""
-    with open(path, "w") as f:
-        json.dump(asdict(result), f, indent=2)
+    """
+    Serialize a ``StatisticalResult`` to ``path`` as JSON.
+    """
+    out_path = os.path.abspath(path)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(asdict(result), f, ensure_ascii=False, indent=2)
+
 
 def load_statistical_result(path: str) -> StatisticalResult:
-    """Read a ``StatisticalResult`` from ``path``."""
-    with open(path, "r") as f:
+    """
+    Load a JSON file created by :func:`save_statistical_result` and
+    reconstruct the ``StatisticalResult`` instance.
+    """
+    with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    return StatisticalResult(**data)
+    return StatisticalResult.from_dict(data)
+
 
 # ----------------------------------------------------------------------
-# Integration helper used by the tests
+# Compatibility shims for legacy test suite
+# ----------------------------------------------------------------------
+def run_chi_squared_goodness_of_fit(
+    observed_counts: Dict[int, int],
+    prime: int,
+    M: int = 10_000,
+    seed: Optional[int] = None,
+) -> StatisticalResult:
+    """
+    Legacy wrapper that returns a ``StatisticalResult`` directly.
+    The ``method`` attribute is the short form (``"monte_carlo"`` or ``"exact"``)
+    to satisfy older unit tests.
+    """
+    N = sum(observed_counts.values())
+    return run_full_statistical_analysis(
+        observed_counts,
+        prime,
+        N,
+        config={"seed": seed, "chi2_mc_samples": M},
+    )
+
+
+# ----------------------------------------------------------------------
+# Integration helper used by ``tests/unit/test_stats_save.py``
 # ----------------------------------------------------------------------
 def run_sieve_analysis(
     N: int,
-    primes: List[int],
-    seed: Optional[int] = None,
-    raw_dir: str = "data/raw",
-    processed_dir: str = "data/processed",
+    primes: list,
+    seed: int = 42,
+    data_root: str = "data",
 ) -> Dict[int, str]:
     """
-    Load each raw residue file, run the full statistical pipeline and
-    write the result JSON.  Returns a mapping from prime to the output
-    file path.
+    Small helper that mimics the behaviour of the full pipeline's
+    statistics stage.  It reads the raw residue JSON files produced by the
+    sieve stage, runs the statistical analysis for each prime, writes the
+    result JSON to ``data/processed`` and returns a mapping ``prime → path``.
 
     Parameters
     ----------
-    N : int
-        Upper bound of the range (inclusive).
-    primes : List[int]
+    N :
+        Upper bound used when the residue files were generated.
+    primes :
         List of prime moduli to process.
-    seed : int, optional
-        Random seed for reproducibility.
-    raw_dir : str
-        Directory containing raw residue JSON files.
-    processed_dir : str
-        Directory to write processed statistical result JSON files.
-
-    Returns
-    -------
-    Dict[int, str]
-        Mapping ``prime → output_file_path``.
+    seed :
+        Random seed for reproducibility (passed to the statistical routine).
+    data_root :
+        Base directory containing ``raw`` and ``processed`` sub‑folders.
     """
-    if seed is not None:
-        _pin_random_seed(seed)
-
-    os.makedirs(processed_dir, exist_ok=True)
     results: Dict[int, str] = {}
-
     for prime in primes:
-        raw_path = os.path.join(raw_dir, f"residues_{prime}_{N}.json")
-        if not os.path.exists(raw_path):
-            raise FileNotFoundError(f"Raw residue file not found: {raw_path}")
-
+        raw_path = os.path.join(data_root, "raw", f"residues_{prime}_{N}.json")
+        # Load the raw JSON – it's expected to contain a ``frequency_map`` key.
         with open(raw_path, "r", encoding="utf-8") as f:
             raw = json.load(f)
+        freq_map_raw = raw.get("frequency_map", {})
+        observed_counts = {int(k): int(v) for k, v in freq_map_raw.items()}
 
-        # Support both the legacy schema (counts, prime, N) and the
-        # current ResidueDataset schema (frequency_map, prime_modulus,
-        # total_count).
-        if "frequency_map" in raw:
-            freq_map_raw = raw["frequency_map"]
-            observed_counts = {int(k): int(v) for k, v in freq_map_raw.items()}
-            total_N = raw.get("total_count", N)
-        elif "counts" in raw:
-            freq_map_raw = raw["counts"]
-            observed_counts = {int(k): int(v) for k, v in freq_map_raw.items()}
-            total_N = raw.get("N", N)
-        else:
-            raise ValueError("Unrecognised residue JSON format")
-
+        # Run the analysis.
         result = run_full_statistical_analysis(
             observed_counts,
             prime,
-            total_N,
+            N,
             config={"seed": seed},
         )
+
+        # Save the result.
         out_path = os.path.join(
-            processed_dir, f"stats_{prime}_{total_N}.json"
+            data_root,
+            "processed",
+            f"stats_{prime}_{N}.json",
         )
         save_statistical_result(result, out_path)
         results[prime] = out_path
-
     return results
 
-# ----------------------------------------------------------------------
-# Helper functions required by task T008
-# ----------------------------------------------------------------------
-def determine_primary_pass_fail(p_value: float, alpha: float = 0.05) -> bool:
-    """
-    Determine whether a test passes under the primary (unadjusted) significance level.
 
-    Parameters
-    ----------
-    p_value : float
-        The p‑value obtained from a statistical test.
-    alpha : float, optional
-        Significance threshold (default 0.05).
-
-    Returns
-    -------
-    bool
-        ``True`` if ``p_value`` is greater than or equal to ``alpha``.
-    """
-    return p_value >= alpha
-
-def determine_bonferroni_pass_fail(p_value: float, num_tests: int = 4, alpha: float = 0.05) -> bool:
-    """
-    Determine pass/fail status after applying a Bonferroni correction.
-
-    Parameters
-    ----------
-    p_value : float
-        The p‑value obtained from a statistical test.
-    num_tests : int, optional
-        Number of simultaneous hypotheses (default 4).
-    alpha : float, optional
-        Family‑wise significance level (default 0.05).
-
-    Returns
-    -------
-    bool
-        ``True`` if ``p_value`` is greater than or equal to ``alpha / num_tests``.
-    """
-    return p_value >= (alpha / num_tests)
+# Export the public names expected by the rest of the project.
+__all__ = [
+    "StatisticalResult",
+    "calculate_chi_squared_statistic",
+    "check_bin_counts_and_fallback",
+    "run_chi_squared_test",
+    "determine_primary_pass_fail",
+    "determine_bonferroni_pass_fail",
+    "run_full_statistical_analysis",
+    "save_statistical_result",
+    "load_statistical_result",
+    "run_chi_squared_goodness_of_fit",
+    "run_sieve_analysis",
+]

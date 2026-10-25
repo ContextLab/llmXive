@@ -1,13 +1,22 @@
-status: none
-intent: download Euler totient function values dataset OEIS A002202 python package
-  dataset
+status: verified
+kind: pypi_package
+ref: sympy
+access_python: 'import sympy as sp
+
+  records = [{''n'': n, ''phi'': sp.totient(n)} for n in range(1, 1001)]
+
+  print(f''RECORDS={len(records)}'')
+
+  print(''FIELDS=n,phi'')'
+record_count: 1000
+sample_fields:
+- n
+- phi
+field_coverage: 0.5
 required_fields:
 - n
 - phi
-- phi_mod_3
-- phi_mod_5
-- phi_mod_7
-- phi_mod_11
-cache_key: 313f0315cc2bc7c59ed658dea8642f6fcf1fabe3a2a2ca6d0714c94bbdfde870
-searched_at: '2026-10-25T01:36:36.006100+00:00'
-retry_count: 1
+- phi_mod_p
+- prime_modulus
+intent: download Euler totient values dataset OEIS A000010 python package dataset
+cache_key: 8ce3a7f64a1490ed7909eb5f8644da4c309f61e51b595eeb8f2e51060b6d7b4f

@@ -1,24 +1,19 @@
-T002:
-  c: false
-  h: a48e5dfc5d7937bb1300e38fb38af1bdcfe9189c33df8d2514f7a47f45e4c61a
-  r: "The `code/seed.py` and `code/memory_guard.py` files exist and implement the\
-    \ required functionality, and the memory\u2011guard unit tests would pass. However,\
-    \ `tests/unit/test_seed_consistency.py` cannot be collected because `run_analysis`\
-    \ imports `stats`, which tries to import `multinomial_test` from `scipy.stats`\
-    \ (not available), causing an ImportError. Consequently the pipeline never runs\
-    \ and the expected residue JSON files are not generated. Fix the import error\
-    \ (or adjust `stats.py`) and ensure the pipeline creates the `data/raw/residues_*.json`\
-    \ files for the test configuration."
-  sig: 4fe23561163923a4211a8d7345f33edd18300f7789a94186146ce6fb775fb5f7
+T001:
+  c: true
+  h: c4d2a8c53a84d444ca71e2adca2340b522e42e1fda3e6cfd1c1f5ab5a6924232
+  r: Checked `code/config.py` (loads YAML, validates primes, returns required keys)
+    and `code/exceptions.py` (defines the three required exception classes with correct
+    messages). All unit tests pass and the loader raises `InvalidPrimeError` for unsupported
+    primes.
+  sig: 660eecf26dc048e1dbc30a0327ca7cb9d74f52f1036146b1914d709b6715811b
 T003:
-  c: false
-  h: 5efc392bc389ed8949c186a162d321e7fc057b61debef459438c49de0b1bcb86
-  r: Checked `code/benchmark.py`, `scripts/run_dummy.py`, and the generated `results/reports/benchmark_dummy.json`.
-    The JSON file exists with numeric fields, but the required integration test `tests/integration/test_benchmark_dummy.py`
-    is missing, and the benchmark implementation does not actually use `MemoryGuard`
-    to track peak memory (it never calls any guard method). These gaps mean the task
-    is not fully satisfied.
-  sig: 8306c5eb4fab6b3962973d1392657abea7d59ba0834c8c9974919e8e53e02029
+  c: true
+  h: f5a1bc9fe46479d8b5f1af5027eb164291f066084de285f9a3942520ea005fc5
+  r: Checked `code/benchmark.py`, `scripts/run_dummy.py`, the generated `results/reports/benchmark_dummy.json`,
+    and the integration test `tests/integration/test_benchmark_dummy.py`, all of which
+    confirm the benchmark context manager records time and memory and writes the required
+    JSON file with numeric fields.
+  sig: 90a007b2a4e4fe8fd2990003f8aacef5b95e74de75c6106d4dbf1469c804246f
 T004:
   c: true
   h: 154a4c8931b8c400d51a973a26e73103b3207dfe9eb4ed12c36312f0d5f73ad0
@@ -28,34 +23,22 @@ T004:
     \ handling\u2014all present and correctly implemented."
   sig: 31aff10ec62ba2af7f793e750d4d5dcccdca7096701a3a9e408be24fcfcc1ac2
 T005:
-  c: false
-  h: 78809bc4142f36603fbc1333367f0479f9afd73d0f527f2082562c7e67d9bc1e
-  r: "The `code/sieve.py` file does contain docstrings and full type hints, and the\
-    \ required test files are present. However, there is no evidence that `mypy code`\
-    \ actually runs without errors across the entire `code/` package, and the contents\
-    \ of the many other modules in `code/` (e.g., `benchmark.py`, `stats.py`, etc.)\
-    \ are not shown; they likely lack the required type annotations. Without proof\
-    \ of a zero\u2011error mypy run, the task\u2019s full requirement is not satisfied."
-  sig: 7c383c327507bcf00af29a48187c591d4ae254aa44f1aafa76de3c5523771cf0
-T006:
-  c: false
-  h: d881435a4b89ffcc6946c7d7e749d30dcc095ff754f3792d58b0da526dd460fa
-  r: "The repository contains a `code/stats.py` with a flexible `calculate_chi_squared_statistic`\
-    \ and a `run_chi_squared_test` that returns a dict matching the required schema,\
-    \ but the implementation always uses Monte\u2011Carlo estimation and never returns\
-    \ the asymptotic \u03C7\xB2 p\u2011value as the specification demands. Moreover,\
-    \ the supplied `tests/unit/test_stats.py` does not include the three chi\u2011\
-    squared sub\u2011tests described in the task (uniform, biased, and small\u2011\
-    N exact cases), so there is no evidence that the required behavior is verified.\
-    \ The missing asymptotic path and absent verification tests mean the t"
-  sig: df16478e220fdb6dc5b1eadf8a924212554fc230469addce00e2e1c4b24e0a41
+  c: true
+  h: c33d8db7964f02dd7029e66dcaf1cb1d5907698a59b4d1b9ae5d40f1a670a9ab
+  r: "The `code/sieve.py` file provides docstrings and full type hints for every public\
+    \ function and class, and the `tests/unit/test_sieve_mypy.py` script checks that\
+    \ `mypy code` exits with code\u202F0. The `tests/unit/test_phi_correctness.py`\
+    \ test validates `compute_phi_linear_sieve` against the reference \u03C6\u2011\
+    values for\u202Fn\u202F\u2264\u202F100, matching the required correctness suite."
+  sig: 00cd6f9cdb35a203d9b303f7cd830a50fbe3f1bf402084e69a5d84368cd01c80
 T007:
   c: true
-  h: 4fd83286c6adc6311911799b8956cde64c4678a05a185390a019e5e15f156852
-  r: Checked `code/flags.py` for correct flag generation logic and `tests/unit/test_flags.py`
-    for proper unit tests; the generated JSON flag files (`results/reports/flag_3_100.json`
-    and `flag_5_200.json`) exist and contain the expected booleans.
-  sig: 2e00f18c0f19b09d3aeeb8a6192c83cb4ac00046b8098b054f7072bde36a5cfc
+  h: 0ec96c30788904b25e805f4cb1847a3a865c30497c726d7601b684f93eaa4ab4
+  r: "Checked `code/flags.py` for correct flag logic and output location, and `tests/unit/test_flags.py`\
+    \ which creates high\u2011p and low\u2011p JSON inputs, runs the generator, and\
+    \ confirms the resulting `results/reports/flag_{prime}_{N}.json` files contain\
+    \ the expected booleans. All required files exist and behave as specified."
+  sig: a491c2e39fd93c9f47c31fed43cc4a7d6d14b24d1e7b919e779d0e5aae29badc
 T008:
   c: false
   h: cd44fa7966df89d7460c70de2ab3d423f459d4a07af71d29445859ddde080f2f

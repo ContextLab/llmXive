@@ -23,38 +23,41 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…ides helper functions to generate synthetic uniform and biased resid…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *uniform* residue freque…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *biased* residue frequen…”; 3 command(s) failed: python code/run_analysis.py --primes 3,5,7,11 --n 5000000 (rc=2); python -m pytest tests/unit/ (rc=1); python -m pytest tests/integration/ (rc=2)
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…ides helper functions to generate synthetic uniform and biased resid…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *uniform* residue freque…”; code/synthetic_validation.py: synthetic/fake INPUT data not authorized by the spec — “…t[int, int]:     """     Generate a synthetic *biased* residue frequen…”; 3 command(s) failed: python code/run_analysis.py --primes 3,5,7,11 --n 5000000 (rc=2); python -m pytest tests/unit/ (rc=2); python -m pytest tests/integration/ (rc=2)
 
 ## Failing / missing run-book commands
 
 - python code/run_analysis.py --primes 3,5,7,11 --n 5000000 -> rc=2
 
-2026-10-25 01:35:32,816 INFO matplotlib.font_manager: Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
-2026-10-25 01:35:33,606 INFO matplotlib.font_manager: generated new fontManager
+2026-10-25 03:11:09,117 INFO matplotlib.font_manager: Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: In FT2Font: Can not load face (unknown file format; error code 0x2)
+2026-10-25 03:11:09,191 INFO matplotlib.font_manager: generated new fontManager
 usage: run_analysis.py [-h] [--N N] [--primes PRIMES [PRIMES ...]]
                        [--memory_limit_mb MEMORY_LIMIT_MB] [--seed SEED]
                        [--memory_check_interval MEMORY_CHECK_INTERVAL]
 run_analysis.py: error: argument --primes: invalid int value: '3,5,7,11'
 
-- python -m pytest tests/unit/ -> rc=1
-sts/unit/test_stats_fallback.py::test_chi2_fallback_execution - Asse...
-FAILED tests/unit/test_stats_fallback.py::test_chi2_exact_execution - Asserti...
-FAILED tests/unit/test_stats_method.py::test_full_statistical_result_includes_method
-FAILED tests/unit/test_stats_save.py::test_save_statistical_result - TypeErro...
-FAILED tests/unit/test_stats_save.py::test_load_statistical_result - TypeErro...
-FAILED tests/unit/test_stats_save.py::test_run_sieve_analysis_integration - F...
-FAILED tests/unit/test_stats_t022.py::TestT022PrimaryPassFail::test_integration_with_statistical_result
-FAILED tests/unit/test_stats_t022.py::TestT022PrimaryPassFail::test_integration_with_biased_distribution
-FAILED tests/unit/test_stats_t022.py::TestT022bBonferroniCorrection::test_bonferroni_stricter_threshold
-FAILED tests/unit/test_stats_t022.py::TestT022EdgeCases::test_custom_alpha - ...
-FAILED tests/unit/test_visualize.py::test_plot_residual_qq_creates_file - Att...
-FAILED tests/unit/test_visualize.py::test_plot_residual_qq_empty_residuals - ...
-FAILED tests/unit/test_visualize.py::test_plot_residual_qq_single_value - Att...
-================= 31 failed, 160 passed, 13 warnings in 6.80s ==================
+- python -m pytest tests/unit/ -> rc=2
+1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92: PyparsingDeprecationWarning: 'resetCache' deprecated - use 'reset_cache'
+    parser.resetCache()
+
+../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45
+  /home/runner/.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_mathtext.py:45: PyparsingDeprecationWarning: 'enablePackrat' deprecated - use 'enable_packrat'
+    ParserElement.enablePackrat()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/unit/test_stats.py
+ERROR tests/unit/test_stats_bootstrap.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 13 warnings, 2 errors in 0.93s ========================
 
 
 - python -m pytest tests/integration/ -> rc=2
-lmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
+ntconfig_pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 ../../../../../.cache/llmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
@@ -68,7 +71,25 @@ lmxive/base-env/py311-6f1866971868/matplotlib/_fontconfig_pattern.py:92
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 ERROR tests/integration/test_synthetic_stats.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-======================== 13 warnings, 1 error in 0.88s =========================
+ERROR tests/integration/test_t020_integration.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+======================== 13 warnings, 2 errors in 0.75s ========================
 
 
+
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `sympy` to the project's `requirements.txt` and `pip install sympy`.
+- **Verified**: this loads **1000** real records with fields: n, phi.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import sympy as sp
+records = [{'n': n, 'phi': sp.totient(n)} for n in range(1, 1001)]
+print(f'RECORDS={len(records)}')
+print('FIELDS=n,phi')
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.

@@ -11,7 +11,7 @@ Boolean fields:
   corrected threshold (0.05 / 4).
 * ``overall_pass`` – ``True`` only when *both* of the above are ``True``.
 
-The output file is written to ``results/reports/flag_{prime}_{N}.json``,
+The output file is written to ``results/flag_{prime}_{N}.json``,
 where ``prime`` and ``N`` are extracted from the input JSON.
 """
 
@@ -73,7 +73,7 @@ def generate_flag_from_result(json_path: str) -> Dict[str, bool]:
         \"overall_pass\": bool}``
     """
     # Load the statistical result
-    with open(json_path, "r") as f:
+    with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     # Extract required metadata
@@ -94,9 +94,9 @@ def generate_flag_from_result(json_path: str) -> Dict[str, bool]:
         "overall_pass": overall_pass,
     }
 
-    # Write the flag file to the prescribed location
-    output_path = paths.results("reports", f"flag_{prime}_{N}.json")
-    with open(output_path, "w") as f:
+    # Write the flag file to the prescribed location (directly under results/)
+    output_path = paths.results(f"flag_{prime}_{N}.json")
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(flag_dict, f, indent=2)
 
     log.info(

@@ -1,47 +1,28 @@
 T001:
-  reason: "Checked `code/config.py`, `code/config.yaml`, and `tests/unit/test_config.py`.\
-    \ The loader correctly validates primes and returns the required keys, but the\
-    \ unit test expects `seed`\u202F=\u202F12345 while the YAML file provides `seed`\u202F\
-    =\u202F999 (and the default is 42), so the test will fail. The seed value must\
-    \ match the test\u2019s expectation for the task to be complete."
   task: bae565be800ad3f3cfd022405598f00c6d6656decb6faf77cfd4e157f3d4c8e5
 T002:
-  reason: "The `code/seed.py` and `code/memory_guard.py` files exist and implement\
-    \ the required functionality, and the memory\u2011guard unit tests would pass.\
-    \ However, `tests/unit/test_seed_consistency.py` cannot be collected because `run_analysis`\
-    \ imports `stats`, which tries to import `multinomial_test` from `scipy.stats`\
-    \ (not available), causing an ImportError. Consequently the pipeline never runs\
-    \ and the expected residue JSON files are not generated. Fix the import error\
-    \ (or adjust `stats.py`) and ensure the pipeline creates the `data/raw/residues_*.json`\
-    \ files for the test configuration."
+  reason: "The `seed.py` and `memory_guard.py` modules exist and meet their specifications,\
+    \ and the unit tests for `MemoryGuard` would pass. However, `tests/unit/test_seed_consistency.py`\
+    \ requires the full pipeline (`run_analysis`, sieve functions, and file output)\
+    \ to generate `data/raw/residues_*.json` files, but no `sieve` module or any generated\
+    \ residue files are present. Consequently the seed\u2011consistency test cannot\
+    \ succeed, so the task is not fully satisfied."
   task: 6ee8c9cee32f6a0f23ff9ca74d3ef4de289619ae973997b084120e65a4852ef2
 T003:
-  reason: Checked `code/benchmark.py`, `scripts/run_dummy.py`, and the generated `results/reports/benchmark_dummy.json`.
-    The JSON file exists with numeric fields, but the required integration test `tests/integration/test_benchmark_dummy.py`
-    is missing, and the benchmark implementation does not actually use `MemoryGuard`
-    to track peak memory (it never calls any guard method). These gaps mean the task
-    is not fully satisfied.
   task: 4a89124ad7415f1773c49c355f03a2554e1e4d39da44fb7d3dc592a665aaa625
 T004:
   task: a6003aa77176355bb4577f89c8758a4e79e600bb9da41df3275e5eb430a4501d
 T005:
-  reason: "The `code/sieve.py` file does contain docstrings and full type hints, and\
-    \ the required test files are present. However, there is no evidence that `mypy\
-    \ code` actually runs without errors across the entire `code/` package, and the\
-    \ contents of the many other modules in `code/` (e.g., `benchmark.py`, `stats.py`,\
-    \ etc.) are not shown; they likely lack the required type annotations. Without\
-    \ proof of a zero\u2011error mypy run, the task\u2019s full requirement is not\
-    \ satisfied."
   task: 199498aef5e7dafb54914a3c56b86079d57ed45d844ff1063210b24e717de6e8
 T006:
-  reason: "The repository contains a `code/stats.py` with a flexible `calculate_chi_squared_statistic`\
-    \ and a `run_chi_squared_test` that returns a dict matching the required schema,\
-    \ but the implementation always uses Monte\u2011Carlo estimation and never returns\
-    \ the asymptotic \u03C7\xB2 p\u2011value as the specification demands. Moreover,\
-    \ the supplied `tests/unit/test_stats.py` does not include the three chi\u2011\
-    squared sub\u2011tests described in the task (uniform, biased, and small\u2011\
-    N exact cases), so there is no evidence that the required behavior is verified.\
-    \ The missing asymptotic path and absent verification tests mean the t"
+  reason: "The provided `code/stats.py` does not implement the required `calculate_chi_squared_statistic(dataset:\
+    \ ResidueDataset) -> float` nor `run_chi_squared_test(dataset: ResidueDataset,\
+    \ M=10_000) -> dict` signatures; it returns a tuple instead of a schema\u2011\
+    matching dict and lacks the `exact_multinomial_test` fallback. Moreover, the test\
+    \ suite `tests/unit/test_stats.py` imports functions (`run_deviation_test`, `calculate_deviation_D`,\
+    \ `block_bootstrap_residues`) that are absent, and its `check_bin_counts_and_fallback`\
+    \ expectations are not met by the current implementation. Consequently, the task\u2019\
+    s fun"
   task: 4499cab26fa8ad876e631d8e222273ff416f14da002fc25f07d3c836a563487f
 T007:
   task: 999033d7396970010e41d40ea156f029907e1db3ca1bacb3806bc5ad8e205611
