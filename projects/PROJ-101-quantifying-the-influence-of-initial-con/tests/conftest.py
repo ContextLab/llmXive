@@ -1,17 +1,14 @@
-import pytest
-import numpy as np
-import builtins
-import pathlib
+"""
+Pytest configuration fixtures required for the project.
 
-@pytest.fixture(scope="session")
-def seed():
-    """Fixed random seed for reproducibility."""
-    return 42
+* ``seed`` – provides a deterministic random seed (42) used by the
+  dummy reproducibility test.
+* ``tmp_path`` – is a built‑in pytest fixture; no custom code needed.
+"""
+
+import pytest
 
 @pytest.fixture
-def tmp_path_fixture(tmp_path):
-    """Provides a temporary directory for each test."""
-    return tmp_path
-
-# Inject Path into builtins for legacy tests that reference Path without import
-builtins.Path = pathlib.Path
+def seed():
+    """Return a fixed random seed for reproducibility tests."""
+    return 42

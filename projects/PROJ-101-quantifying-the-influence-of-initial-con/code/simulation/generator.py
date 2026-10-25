@@ -2,7 +2,8 @@
 code/simulation/generator.py
 --------------------------------
 Implementation of the coupled Lorenz system and a trajectory generator
-as required by task T006.
+as required by task T006, now wired with stability guards from
+``code.utils.stability`` (task T007).
 
 The module provides:
 - ``lorenz_ode``: computes the time derivative for a single coupled
@@ -11,9 +12,9 @@ The module provides:
   ``scipy.integrate.solve_ivp`` with method ``'DOP853'`` and the
   tolerances ``rtol=1e-9`` and ``atol=1e-12``.  Additive Gaussian noise
   of user‑specified standard deviation ``sigma_noise`` is injected after
-  the deterministic integration.  The function raises
-  ``UnphysicalTrajectoryError`` if any state norm exceeds the bound
-  ``20.0`` and emits a ``HighNoiseWarning`` when ``sigma_noise > 0.1``.
+  the deterministic integration.  The function now uses the
+  ``raise_if_unphysical`` and ``check_noise_level`` guards from
+  ``code.utils.stability`` to enforce the project‑specific contracts.
 
 The public API matches the specification in ``tasks.md`` and can be
 imported as:
@@ -33,6 +34,9 @@ from typing import Callable, Tuple
 
 import numpy as np
 from scipy.integrate import solve_ivp
+
+# Local imports of the stability guards
+from ..utils.stability import raise_if_unphysical, check_noise_level
 
 __all__ = ["HighNoiseWarning", "UnphysicalTrajectoryError",
            "TrajectoryData", "lorenz_ode", "generate_trajectory"]
@@ -241,7 +245,12 @@ def generate_trajectory(
 
     The function performs the following checks:
 
-    * If ``sigma_noise > 0.1`` a :class:`HighNoiseWarning` is issued.
+    * If ``sigma_noise > 0.1`` a :class:`HighNoiseWarning` is issued via
+      ``check_noise_level``.
+    * After each integration phase (deterministic and noisy) the
+      ``raise_if_unphysical`` guard is called; it raises
+      :class:`UnphysicalTrajectoryError` if any state norm exceeds
+      ``20.0``.
     * If any state norm exceeds ``20.0`` a
       :class:`UnphysicalTrajectoryError` is raised.
 
@@ -275,11 +284,7 @@ def generate_trajectory(
     rng = np.random.default_rng(seed)
 
     # Emit warning for high noise levels (strictly greater than 0.1)
-    if sigma_noise > 0.1:
-        warnings.warn(
-            f"High noise level (σ={sigma_noise}) may produce unphysical trajectories.",
-            HighNoiseWarning,
-        )
+    check_noise_level(sigma_noise)
 
     # Initial condition
     y0 = _generate_initial_conditions(N, rng)
@@ -307,24 +312,17 @@ def generate_trajectory(
     if not sol.success:
         raise RuntimeError(f"ODE integration failed: {sol.message}")
 
-    # Check for unphysical divergence before adding noise
-    norms = np.linalg.norm(sol.y, axis=0)  # shape (n_steps,)
-    if np.any(norms > 20.0):
-        raise UnphysicalTrajectoryError(
-            f"Unphysical trajectory: state norm exceeded 20.0 (max={norms.max():.3f})"
-        )
+    # Convert to (time, dim) shape
+    state_det = sol.y.T  # (n_steps, 3*N)
 
-    # State matrix (n_steps, 3*N)
-    state = sol.y.T  # transpose to (time, dim)
+    # Guard against unphysical deterministic trajectory
+    raise_if_unphysical(state_det, threshold=20.0)
 
     # Inject noise (if any)
-    noisy_state = _inject_noise(state, sigma_noise, rng)
+    noisy_state = _inject_noise(state_det, sigma_noise, rng)
 
-    # Final unphysical check after noise injection (noise could push it over)
-    if np.any(np.linalg.norm(noisy_state, axis=1) > 20.0):
-        raise UnphysicalTrajectoryError(
-            "Unphysical trajectory after noise injection: state norm exceeded 20.0"
-        )
+    # Guard against unphysical trajectory after noise injection
+    raise_if_unphysical(noisy_state, threshold=20.0)
 
     return TrajectoryData(
         time=sol.t,

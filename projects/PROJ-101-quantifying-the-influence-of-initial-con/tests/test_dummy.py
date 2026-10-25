@@ -8,7 +8,7 @@ import numpy as np
 
 def test_random_state_reproducibility(seed):
     """
-    The `seed` fixture provides the value 42.  Using it to initialise
+    The `seed` fixture provides the value 42. Using it to initialise
     NumPy's RandomState should yield the same first random number on each
     call.
     """

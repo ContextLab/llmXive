@@ -1,13 +1,3 @@
-T001:
-  c: false
-  h: 502b96a7b005b237fbc768af0ae74b178baf26088b05dd0e69eda68eb304e878
-  r: "The `data/dir_structure.txt` manifest exists and lists the nine required directories,\
-    \ but the CI integration test that runs `tree -L 2` fails \u2013 it does not detect\
-    \ the `code/simulation` directory in the tree output, causing the verification\
-    \ step to error. The task requires both the manifest check **and** the successful\
-    \ `tree` verification, so the CI step is not satisfied. Fix the `tree` command\
-    \ or directory layout so that all nine directories appear in the `tree -L 2` output."
-  sig: 017efa7259063f8d40c9752188216d4ef541c5abd88b4792553e9e8358e3a22c
 T002:
   c: true
   h: fb57edbdf58397842a74081a564dfd6f8f989b5c754e5b9fecfef64d4d38c8e3
@@ -19,14 +9,15 @@ T002:
   sig: b745026a8421094a7bd98a03db52fa3c7d5bc7e0ea548bdef7a25340611f96b2
 T003:
   c: false
-  h: 2854fff7be82ae826ee7e6aa61f103344d7f62bf27fb145a01927b760f344cb7
-  r: The repository contains the required `tests/conftest.py` with a `seed` fixture
-    returning 42 and a fixture that leverages `tmp_path`. However, there is no dummy
-    test file (or evidence of a pytest run) demonstrating that `pytest -q` actually
-    passes a test asserting reproducibility of `np.random.RandomState(42).rand()`.
-    Adding such a test (e.g., in `tests/test_dummy.py`) and showing its successful
-    execution is needed to satisfy the verification step.
-  sig: 8def5638461ff400db7ea3e029e9775be8ff042ad0cab77a6d1992468dc226a6
+  h: 5820631b5428f2c10a3a02c5fc56cfa60a62a7ff9030b0b8d5078a4ebe8c5e1a
+  r: "The repository contains the required `tests/conftest.py` with a `seed` fixture\
+    \ returning\u202F42, satisfying the fixture definition. However, the mandatory\
+    \ dummy test does not pass: the recorded pytest run (`python -m pytest -v`) exits\
+    \ with an error (`AttributeError: module 'subprocess' has no attribute 'PIPE'`)\
+    \ and the test suite fails, so the verification step (\u201C`pytest -q` passes\
+    \ a dummy test that asserts reproducibility\u2026\u201D) is not met. The task\
+    \ therefore remains incomplete."
+  sig: b696b4247b930bc4650b300438aa817a1cd14048355de7d3252b69f951beb476
 T004:
   c: true
   h: 448966be75a5f851bd7d7977bb98bf666d9c5ad1cfc8a801489abf29c7d056ef
@@ -45,3 +36,25 @@ T005:
     , and \u201CStep\u202F5\u202F\u2013\u202FFigures\u201D. The file is present and\
     \ non\u2011empty, fulfilling the task."
   sig: d4a63908eae610f563f1a943ce80e9e51080d8675f640c04b75b12cb4e6c6fab
+T006:
+  c: false
+  h: 29ca2de01b7e2994d850b7347467df7561c042c8fba614aba3d4288d287c74b9
+  r: "The `data/generator.py` compatibility layer provides the required symbols, but\
+    \ its `integrate_trajectory` function never checks the state norm after integration.\
+    \ Consequently the unit tests `test_unphysical_trajectory_error_high_sigma` and\
+    \ `test_unphysical_trajectory_error_divergence` (which expect an `UnphysicalTrajectoryError`\
+    \ for \u03C3\u202F=\u202F1.5 and for extreme initial conditions) will fail, because\
+    \ the function only emits a warning for high noise and does not invoke the unphysical\u2011\
+    trajectory guard. The task\u2019s requirement to raise `UnphysicalTrajectoryError`\
+    \ when any state norm exceeds\u202F20.0 is ther"
+  sig: 14cd32ae3029a1f3e09d496b918b61c301fd13806ee1f6a8d523c1da75467817
+T007:
+  c: false
+  h: 7a0e64bad23b46c45194e0e053773de6dafc9e1d3eb541a664e1b72d4078e79c
+  r: "Checked `code/utils/stability.py` (contains `raise_if_unphysical` and `check_noise_level`)\
+    \ and `code/simulation/generator.py` (imports the guards and calls them after\
+    \ integration and for noise). While the code wiring is present, there is no provided\
+    \ evidence that the required unit tests (the same as T006) were executed and passed,\
+    \ nor any test files showing the guards being exercised. Without test execution\
+    \ results, the task\u2019s verification condition is unmet."
+  sig: 3571c838ed003a2d88ffb02d230f40cd565266464ff6395392ab55ea5c239290
