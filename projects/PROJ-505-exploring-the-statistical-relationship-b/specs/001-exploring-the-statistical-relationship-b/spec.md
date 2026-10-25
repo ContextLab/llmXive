@@ -63,7 +63,7 @@ The system MUST validate the statistical significance of composition coefficient
 ### Functional Requirements
 
 - **FR-001**: System MUST download and parse solar wind composition data (O/Fe, He/H, C/O) from ACE/WIND archives for a multi‑decadal interval spanning the early 21st century. (See US-1)
-- **FR-002**: System MUST download and parse NOAA Dst and Kp geomagnetic indices for the same 2000-2020 period. (See US-1)
+- **FR-002**: System MUST download and parse NOAA Dst and Kp geomagnetic indices for the same multi‑decadal period covering the early 21st century through 2020. (See US-1)
 - **FR-003**: System MUST align all time series to a 1-hour resolution using hourly median aggregation, ensuring a maximum temporal offset of ≤ 30 minutes. (See US-1)
 - **FR-004**: System MUST fit a baseline multivariate linear regression model predicting Dst/Kp using physically relevant coupling functions (e.g., Akasofu epsilon, Newell function) derived from bulk parameters. (See US-2)
 - **FR-005**: System MUST fit a full multivariate linear regression model predicting Dst/Kp using coupling functions plus composition ratios (O/Fe, He/H, C/O). (See US-2)

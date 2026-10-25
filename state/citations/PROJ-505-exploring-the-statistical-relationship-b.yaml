@@ -1,15 +1,37 @@
-- artifact_hash: 50373352b3ee0e637f2a6c2f8f2d58c2131907242fed080898301a9bc457d4fe
+- artifact_hash: 021af453f1f061afc398a58f46e5c6326f2954c62306607dbd0e8cf797cac1f9
+  artifact_path: projects/PROJ-505-exploring-the-statistical-relationship-b/specs/001-exploring-the-statistical-relationship-b/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: date_to_take_mapping_20261006.csv
+  kind: url
+  value: https://huggingface.co/datasets/ACERobotics/ACE-Data-0/resolve/main/Room-scale/date_to_take_mapping_20261006.csv`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/ACERobotics/ACE-Data-0/490ef485529d2816746b9a9d5ea97fbba8205986/Room-scale%2Fdate_to_take_mapping_20261006.csv?%2Fdatasets%2FACERobotics%2FACE-Data-0%2Fresolve%2Fmain%2FRoom-scale%2Fdate_to_take_mapping_20261006.csv=&etag=%2240270d939a86aa6be7502fdbf5c2b9e0d4cb9e1e%22
+  verified_at: '2026-10-25T01:45:17.231850Z'
+- artifact_hash: 021af453f1f061afc398a58f46e5c6326f2954c62306607dbd0e8cf797cac1f9
+  artifact_path: projects/PROJ-505-exploring-the-statistical-relationship-b/specs/001-exploring-the-statistical-relationship-b/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: full_2023_remove_flawed.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6538f137ee5888edef6860de/6485c4566749068043602ae2a93520b6c1f5120ce51c5e03fa629dfac2c7d158?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full_2023_remove_flawed.parquet%3B+filename%3D%22full_2023_remove_flawed.parquet%22%3B&xip=SHe4txqML6A&Expires=1792896317&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUzOGYxMzdlZTU4ODhlZGVmNjg2MGRlLzY0ODVjNDU2Njc0OTA2ODA0MzYwMmFlMmE5MzUyMGI2YzFmNTEyMGNlNTFjNWUwM2ZhNjI5ZGZhYzJjN2QxNThcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZnVsbF8yMDIzX3JlbW92ZV9mbGF3ZWQucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmZ1bGxfMjAyM19yZW1vdmVfZmxhd2VkLnBhcnF1ZXQlMjIlM0ImeGlwPVNIZTR0eHFNTDZBIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI4OTYzMTd9fX1dfQ__&Signature=MEUCIQDknJz%7EvgA2WRbCDOuvxhec7WGz7ZBviC1k8ePBOzi1vQIgJJ0VZMMmSFDVgj2EqbW9rtL0125GTSaH4zm5tDBEJ%7Ew_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-25T01:45:17.231850Z'
+- artifact_hash: 0a6d3ec1c3791007e2bae8a585d9c9d359aa0dd092651f729f2d1e15e34df351
   artifact_path: projects/PROJ-505-exploring-the-statistical-relationship-b/specs/001-exploring-the-statistical-relationship-b/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "ij5/ace \xB7 Datasets at Hugging Face"
+  fetched_title: date_to_take_mapping_20261006.csv
   kind: url
-  value: https://huggingface.co/datasets/ij5/ace`
+  value: https://huggingface.co/datasets/ACERobotics/ACE-Data-0/resolve/main/Room-scale/date_to_take_mapping_20261006.csv`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/ij5/ace
-  verified_at: '2026-10-20T18:43:24.402830Z'
-- artifact_hash: 50373352b3ee0e637f2a6c2f8f2d58c2131907242fed080898301a9bc457d4fe
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/ACERobotics/ACE-Data-0/490ef485529d2816746b9a9d5ea97fbba8205986/Room-scale%2Fdate_to_take_mapping_20261006.csv?%2Fdatasets%2FACERobotics%2FACE-Data-0%2Fresolve%2Fmain%2FRoom-scale%2Fdate_to_take_mapping_20261006.csv=&etag=%2240270d939a86aa6be7502fdbf5c2b9e0d4cb9e1e%22
+  verified_at: '2026-10-25T01:45:56.012041Z'
+- artifact_hash: 0a6d3ec1c3791007e2bae8a585d9c9d359aa0dd092651f729f2d1e15e34df351
   artifact_path: projects/PROJ-505-exploring-the-statistical-relationship-b/specs/001-exploring-the-statistical-relationship-b/research.md
   cite_id: c-002
   cited_authors: []
@@ -18,5 +40,16 @@
   kind: url
   value: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6538f137ee5888edef6860de/6485c4566749068043602ae2a93520b6c1f5120ce51c5e03fa629dfac2c7d158?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full_2023_remove_flawed.parquet%3B+filename%3D%22full_2023_remove_flawed.parquet%22%3B&xip=VvaCX5LDllg&X-Xet-Cas-Uid=public&user_id=public&Expires=1792525404&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUzOGYxMzdlZTU4ODhlZGVmNjg2MGRlLzY0ODVjNDU2Njc0OTA2ODA0MzYwMmFlMmE5MzUyMGI2YzFmNTEyMGNlNTFjNWUwM2ZhNjI5ZGZhYzJjN2QxNThcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZnVsbF8yMDIzX3JlbW92ZV9mbGF3ZWQucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmZ1bGxfMjAyM19yZW1vdmVfZmxhd2VkLnBhcnF1ZXQlMjIlM0ImeGlwPVZ2YUNYNUxEbGxnJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI1MjU0MDR9fX1dfQ__&Signature=MEUCIAIkA5-HzZzs7s2VdaB8E2dYp8T0EzBuOtjzMkgMsAeBAiEAo3csT7kTnxAIxue-p8augpg7q91RaXBIBUXaiE2c1%7EQ_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-20T18:43:24.402830Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6538f137ee5888edef6860de/6485c4566749068043602ae2a93520b6c1f5120ce51c5e03fa629dfac2c7d158?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full_2023_remove_flawed.parquet%3B+filename%3D%22full_2023_remove_flawed.parquet%22%3B&user_id=public&xip=SHe4txqML6A&Expires=1792896356&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUzOGYxMzdlZTU4ODhlZGVmNjg2MGRlLzY0ODVjNDU2Njc0OTA2ODA0MzYwMmFlMmE5MzUyMGI2YzFmNTEyMGNlNTFjNWUwM2ZhNjI5ZGZhYzJjN2QxNThcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZnVsbF8yMDIzX3JlbW92ZV9mbGF3ZWQucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmZ1bGxfMjAyM19yZW1vdmVfZmxhd2VkLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmeGlwPVNIZTR0eHFNTDZBIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI4OTYzNTZ9fX1dfQ__&Signature=MEUCIQCKnrjYvWZcNXXM6sM7s6gRWbZ5Ov3Tld4cCqgwoGPvfQIgbV1INPS3oJbJ-8buVM05qJKedyEUsqSYEM9NNyCHYAk_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-25T01:45:56.012041Z'
+- artifact_hash: 0a6d3ec1c3791007e2bae8a585d9c9d359aa0dd092651f729f2d1e15e34df351
+  artifact_path: projects/PROJ-505-exploring-the-statistical-relationship-b/specs/001-exploring-the-statistical-relationship-b/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "ij5/ace \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/ij5/ace`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/ij5/ace
+  verified_at: '2026-10-25T01:45:56.012041Z'

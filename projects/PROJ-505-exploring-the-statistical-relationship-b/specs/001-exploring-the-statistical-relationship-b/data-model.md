@@ -5,18 +5,20 @@
 ### SolarWindSample
 | Field | Type | Description |
 |-------|------|-------------|
-| `timestamp` | `datetime` (UTC, hourly) | Observation time (hourly grid). |
+| `timestamp` | `datetime` (UTC, hourly) | Observation time on the hourly grid. |
 | `velocity_km_s` | `float` | Bulk solar‑wind speed (km s⁻¹). |
 | `density_cm3` | `float` | Proton density (cm⁻³). |
 | `imf_nT` | `float` | IMF magnitude (nT). |
 | `imf_bz_nT` | `float` | IMF Bz component (nT). |
-| `o_fe_ratio` | `float` or `null` | O / Fe ion flux ratio (may be missing for hours without a 2‑hour measurement). |
-| `he_h_ratio` | `float` or `null` | He / H ion flux ratio. |
-| `c_o_ratio` | `float` or `null` | C / O ion flux ratio. |
-| `epsilon` | `float` | Akasofu ε coupling function. |
-| `newell_flux` | `float` | Newell dΦ/dt coupling function. |
+| `o_fe_ratio` | `float` or `null` | Oxygen‑to‑Iron ion flux ratio (may be missing for hours without a 2‑hour measurement). |
+| `he_h_ratio` | `float` or `null` | Helium‑to‑Hydrogen ion flux ratio. |
+| `c_o_ratio` | `float` or `null` | Carbon‑to‑Oxygen ion flux ratio. |
+| `epsilon` | `float` | Akasofu ε coupling function (computed from bulk parameters). |
+| `newell_flux` | `float` | Newell dΦ/dt coupling function (computed from bulk parameters). |
 | `dst_index` | `float` | Dst geomagnetic index (nT). |
 | `kp_index` | `float` | Kp index (0‑9 scale). |
+
+*Note*: The composition fields are optional for the **primary baseline analysis**; they become required only when real composition data are present and Principle VI is amended.
 
 ### RegressionModel
 | Attribute | Type | Description |
@@ -43,16 +45,17 @@
 ## Data Flow (textual)
 
 1. **Synthetic Composition Generation** → `data/raw/synthetic_composition.parquet` (raw, unchanged).  
-2. **Bulk & Geomagnetic Download** → `data/raw/bulk_and_geomagnetic.parquet`.  
-3. **Alignment** (`align.py`) → `data/processed/aligned_hourly.parquet`.  
-4. **Coupling Functions** (`coupling_functions.py`) → `data/processed/with_coupling.parquet`.  
-5. **Baseline Regression** (`regression.py`) → `data/artifacts/baseline_model.json`.  
-6. **Full Regression** (`regression.py`) → `data/artifacts/full_model.json`.  
-7. **ΔR²** (`regression.py --compute-delta`) → `data/artifacts/delta_r2.json`.  
-8. **Cross‑Validation** (`cross_validation.py`) → `data/artifacts/cv_metrics.json`.  
-9. **Permutation Test** (`permutation_test.py`) → `data/artifacts/permutation_results.json`.  
-10. **Sensitivity & FDR** (`sensitivity.py`) → `data/artifacts/sensitivity.json`.  
-11. **Reporting** (`main.py`) aggregates everything into `data/artifacts/final_report.json` and generates plots under `data/artifacts/figures/`.
+2. **Bulk & Geomagnetic Download** → `data/raw/ace_bulk.csv` + `data/raw/noaa_geomagnetic.parquet`.  
+3. **Checksum Creation** → `data/raw/checksums.yaml`.  
+4. **Alignment** (`align.py`) → `data/processed/aligned_hourly.parquet` + `alignment_report.json`.  
+5. **Coupling Functions** (`coupling_functions.py`) → `data/processed/with_coupling.parquet`.  
+6. **Baseline Regression** (`regression.py`) → `baseline_model.json`.  
+7. **Full Regression** (`regression.py`) → `full_model.json` (only if the amendment to Principle VI is recorded and real composition is present).  
+8. **ΔR²** (`regression.py --compute-delta`) → `delta_r2.json` (conditional).  
+9. **Cross‑Validation** (`cross_validation.py`) → `cv_metrics.json`.  
+10. **Permutation Test** (`permutation_test.py`) → `permutation_results.json` (conditional).  
+11. **Sensitivity & FDR** (`sensitivity.py`) → `sensitivity.json` (conditional).  
+12. **Reporting** (`main.py`) aggregates everything into `final_report.json` and generates PNG/PDF figures under `data/artifacts/figures/`.
 
 ## Data Hygiene & Provenance
 
@@ -62,4 +65,4 @@
 * **Metadata** – Each JSON artifact includes a `provenance` block with fields: `source_file`, `script`, `git_commit`, `timestamp`.  
 * **Composition Provenance** – For synthetic ratios, `source: synthetic_config.yaml`; when real composition becomes available, the `source` will point to the corresponding raw CDF file, satisfying Principle VI.
 
----
+--- 
