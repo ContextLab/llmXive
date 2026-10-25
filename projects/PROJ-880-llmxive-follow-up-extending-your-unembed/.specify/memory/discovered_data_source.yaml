@@ -1,13 +1,14 @@
 status: none
-intent: unembedding matrices Llama-3 Mistral BLOOM Hugging Face Hub WALS Common Crawl
-  python package dataset
+intent: "Hugging Face Transformers unembedding matrix weights for Llama\u20113 Mistral\
+  \ BLOOM python package dataset"
 required_fields:
 - model_name
+- language_type
+- unembedding_matrix_path_or_tensor
 - vocab_size
-- hidden_size
-- unembedding_matrix
-- token_id_map
-- language
-cache_key: 1e04fb7f4430f54356f2fb008cf5a86c930d16d2b0f06ae439849b77aab126c0
-searched_at: '2026-10-17T15:08:47.984656+00:00'
+- hidden_dim
+- repository_url
+- model_version
+cache_key: 8d1a514b6d2b6a6e7c2833d270dd6543693f992ded8b98efc548f65568c9dbb4
+searched_at: '2026-10-25T21:45:04.445131+00:00'
 retry_count: 1

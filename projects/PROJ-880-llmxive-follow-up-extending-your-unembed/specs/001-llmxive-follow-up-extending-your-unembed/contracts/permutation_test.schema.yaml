@@ -1,13 +1,13 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Permutation Test Schema
+title: "Permutation Test Schema"
 type: object
 required:
-  - observed_similarity
-  - null_distribution_mean
-  - null_distribution_std
-  - p_value
-  - iterations
-  - significance_flag
+  - "observed_similarity"
+  - "null_distribution_mean"
+  - "null_distribution_std"
+  - "p_value"
+  - "iterations"
+  - "significance_flag"
 properties:
   observed_similarity:
     type: number
@@ -21,7 +21,7 @@ properties:
     type: number
     minimum: 0
     maximum: 1
-    description: "Two-tailed p-value with at least four decimal places."
+    description: "Two-tailed p-value."
   iterations:
     type: integer
     minimum: 10000

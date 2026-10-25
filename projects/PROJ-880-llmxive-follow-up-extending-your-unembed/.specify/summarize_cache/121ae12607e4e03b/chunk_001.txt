@@ -1,0 +1,54 @@
+  - Arabic: Common Crawl Arabic subset (https://huggingface.co/datasets/ccnet/ar)  
+  - Swahili: Common Crawl Swahili subset (https://huggingface.co/datasets/ccnet/sw)  
+  - German: Common Crawl German subset (https://huggingface.co/datasets/ccnet/de)  
+  - Spanish: Common Crawl Spanish subset (https://huggingface.co/datasets/ccnet/es)  
+  - Hindi: Common Crawl Hindi subset (https://huggingface.co/datasets/ccnet/hi)  
+  - Japanese: Common Crawl Japanese subset (https://huggingface.co/datasets/ccnet/ja)  
+  - Portuguese: Common Crawl Portuguese subset (https://huggingface.co/datasets/ccnet/pt)  
+  Each subset must contain **≥ 1 000 000** tokens. (See US‑2)
+- **FR-007**: System MUST acquire and process WALS typological features (official repository https://github.com/cldf-datasets/wals) and multilingual XTREME probing benchmark results (e.g., XNLI accuracy) for the target languages. All dataset URLs are verified against official sources and timestamps recorded. (See US‑2)
+- **FR-008**: System MUST implement a vocabulary mapping layer using a shared subword vocabulary of size **11 200** (source: Q136293754, https://www.wikidata.org/wiki/Q136293754). The mapping procedure must:  
+  1. Convert each model’s token IDs to the shared subword tokens.  
+  2. Transform raw token counts into probability distributions by dividing by the total token count.  
+  3. Apply length‑normalization to account for differing tokenization granularity.  
+  4. Compute overlap ratios on these normalized distributions rather than raw counts.  
+  This rigorous normalization eliminates confounding from vocabulary‑size differences. (See US‑2)
+- **FR-009**: System MUST ensure that **all** frequency distributions are derived from the same corpus source per language: English from RedPajama, all other languages from their respective Common Crawl subsets, satisfying Constitution Principle VII. (See US‑2)
+- **FR-010**: System MUST compute an **adjusted similarity metric** defined as Δ similarity = observed subspace similarity – mean similarity of matched‑architecture control pairs (see FR‑027). This isolates linguistic effects from architecture‑specific variance. (See US‑1)
+- **FR-011**: System MUST store all generated artifacts under the `data/derived/` directory in accordance with the data model (e.g., `data/derived/subspace_similarity.json`). (See US‑1)
+- **FR-012**: System MUST verify that all external dataset URLs (Common Crawl language‑filtered splits, RedPajama, WALS CSV, XTREME repository) are confirmed against official sources prior to download, satisfying Constitution Principle II. Verification timestamps and source citations are recorded in the final report. (See US‑2) **(See FR‑038)**
+- **FR-013**: System MUST exercise each defined contract schema (`edge_spectrum.schema.yaml`, `feasibility_report.schema.yaml`, `frequency_list.schema.yaml`, `similarity_matrix.schema.yaml`, `similarity_metric.schema.yaml`, `similarity_report.schema.yaml`, `bootstrap_test.schema.yaml`, `permutation_test.schema.yaml`). (See US‑1)
+- **FR-014**: System MUST produce an `edge_spectrum.json` file that conforms to `edge_spectrum.schema.yaml`, containing fields `model_name`, `top_k`, `edge_vectors`, `checksum`, and `generated_at`. (See US‑1)
+- **FR-015**: System MUST generate bootstrap confidence intervals (95 % CI, ≥ 1 000 replicates) for all reported subspace similarity measurements by resampling rows of the unembedding matrix (or token samples when FR‑028 is active) and include them in the `similarity_report.json`. (See SC‑006)
+- **FR-016**: System MUST conduct correlation analyses on **at least ten** languages (English, French, Chinese, Arabic, Swahili, German, Spanish, Hindi, Japanese, Portuguese). For each language pair, compute the scalar Δ similarity magnitude and the Hamming distance between their WALS feature vectors; report Pearson $r$, two‑tailed $p$‑value, and 95 % confidence interval. (See SC‑007)
+- **FR-028**: System MUST extract edge‑spectrum subspaces **per language** by applying a language‑specific token mask to the unembedding matrix *after* the vocabulary mapping layer (FR‑008). The mask is constructed by selecting tokens whose frequency in language L (from FR‑006) is at least **0.1 %** of the total token count for that language. This ensures the masked matrix reflects language‑specific usage patterns while preserving comparability across models. *Note*: To assess potential confounds introduced by the mask, FR‑042 (see below) requires running the full pipeline **without** the mask as a sensitivity analysis. (See US‑1)  
+- **FR-029**: System MUST compute a **uniform‑frequency baseline** by projecting a uniform token frequency vector (all tokens assigned equal probability) through the same pseudo‑inverse pipeline ($W_U^{+} \times f_{uniform}$) to obtain a baseline mean embedding. This baseline shift vector is then compared against language‑specific shift vectors in correlation analyses to test whether observed effects exceed what would be expected under a null uniform distribution. (See US‑2, SC‑010)
+- **FR-030**: System MUST detect missing or corrupted model weight files, log a clear error message identifying the affected model, and continue processing any remaining valid models without aborting the pipeline. (Addresses Acceptance Scenario 2 of US‑1)
+- **FR-031**: System MUST generate a geometric baseline by creating **10 000** random orthogonal bases, compute overlap percentages for token‑ranking comparisons against this baseline, and report the deviation of the observed overlap from the baseline mean. (Supports Acceptance Scenario 4 of US‑2)
+- **FR-032**: System MUST conduct an ablation analysis that randomizes the language‑specific token mask (while preserving overall token count) and repeats the full pipeline; a loss of correlation with WALS (p > 0.05) validates that the original relationship is not artefactual. (See US‑2)
+- **FR-033**: System MUST detect numerical instability during SVD (e.g., singular values below 1e‑12 or failure to converge) and, in such cases, log a warning, skip the affected model, and continue with remaining models. (Addresses Edge Case 1)
+- **FR-034**: System MUST verify that each language‑filtered Common Crawl subset contains at least **1 000 000** tokens; if a subset falls below this threshold, the system must raise a `DataInsufficiencyError`, log the deficiency, and abort processing for that language while continuing for others. (Addresses Edge Case 3)
+- **FR-035**: System MUST perform a power analysis to determine the minimum number of languages required to detect a Pearson correlation of magnitude $r=0.5$ with 80 % power at $\alpha=0.05$ (result: **≥ 29** languages). The analysis result is reported in `feasibility_report.json`; the current study with a limited set of languages is noted as under‑powered. (New requirement)
+- **FR-036**: System MUST perform cross‑lingual projection of mean embeddings: for each ordered language pair (A → B), project language A’s mean embedding onto language B’s edge‑spectrum subspace **after aligning both to the common 11200‑dimensional space (FR‑040)** and compute cosine similarity; store all pairwise projection similarities in `cross_projection.json`. (New requirement, See US‑2)
+- **FR-037**: System MUST monitor the conditioning of $W_U$ when computing the Moore‑Penrose pseudo‑inverse. If the condition number exceeds $1\times10^{8}$, apply Tikhonov regularization with $\lambda=1\times10^{-5}$ and log a warning. (New requirement)
+- **FR-038**: System MUST enforce dataset verification: for each external URL, compute and record a checksum (e.g., SHA‑256) and compare against the official source metadata before download; any mismatch aborts the acquisition and logs the issue. (New requirement)
+- **FR-040**: System MUST align all model representations to a common 11200‑dimensional subword space using the shared vocabulary mapping layer (FR‑008) and a linear projection derived from the shared embedding matrix. The alignment must preserve cosine similarity and is applied before any subspace similarity or projection calculations. (See US‑1)
+- **FR-042**: System MUST run a **sensitivity analysis** by executing the entire pipeline **without** the language‑specific token mask (FR‑028) and compare the resulting Δ similarity and correlation metrics to the masked run. The analysis must be documented in `sensitivity_analysis.json` and used to assess whether the mask introduces systematic bias. (Addresses methodological soundness of FR‑028)
+
+### Key Entities
+
+- **Edge Spectrum Matrix**: A matrix containing the top‑100 singular vectors of the unembedding matrix $W_U$, representing the direction of anisotropy.
+- **Mean Embedding Vector**: A computed embedding vector $\hat{\vh}$ derived by projecting the token frequency distribution onto the pseudo‑inverse of the unembedding matrix ($W_U^{+} \times f$), representing the centroid of the vocabulary.
+- **Subspace Similarity Metric**: A scalar value derived from the sum of squared cosines of principal angles between two subspace bases, providing a rotation‑invariant measure of alignment.
+- **Permutation Null Distribution**: A set of similarity scores generated by comparing the observed subspace against within‑language similarity samples, across‑model similarity samples, and model‑specific variability samples to establish a baseline for statistical testing.
+- **WALS Feature Vector**: A binary vector representing the typological properties of a language (e.g., word order, noun class system).
+
+## Success Criteria
+
+### Measurable Outcomes
+
+> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: The magnitude of the anisotropy bias (subspace similarity metric) is measured against the within‑language baseline (self‑similarity) and reported with a 95 % bootstrap confidence interval. (See FR‑002, FR‑010, FR‑015)
+- **SC-002**: The composition shift of dominant tokens is measured against the overlap ratio of the top tokens between English and non‑English models compared to a random orthogonal basis baseline (average overlap with random bases); the magnitude of the difference is the metric. (See FR‑003, FR‑031)
+- **SC-003**: The statistical significance of the shift is measured against the component p‑values from the permutation test with Bonferroni‑adjusted α = 0.05/3. (See FR‑004, FR‑026)
