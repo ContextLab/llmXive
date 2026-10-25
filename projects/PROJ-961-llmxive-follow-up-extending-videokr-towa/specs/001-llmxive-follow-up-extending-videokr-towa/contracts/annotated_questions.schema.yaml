@@ -37,22 +37,18 @@ properties:
   video_length_seconds:
     type: "number"
     minimum: 0
-    description: "Video duration in seconds."
+    description: "Video  ​​  ​     ​  ​  ​  ​  ​  ​  ​     ​  ​  ​  ​  ​  ​ ​ ​ ​ ​ ​ ​ ​​ ​ ​ ​ ​​ ​  ​  ​ ​ ​​​  ​ ​​ ​ ​​ ​​​​  ​ ​​ ​​ ​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​ ​ ​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​  "
+  video_length_seconds:
+    type: "number"
+    minimum: 0
+    description: "Video  ​ ​  " 
   answer_type:
-    type: "string"
-    enum:
-      - "multiple_choice"
-      - "open_ended"
-    description: "Answer format (multiple_choice or open_ended)."
+    type: "integer"
+    description: "Answer format   " 
+  status:
+    type: "null"
+    description: "  "
 required:
-  - question_id
-  - question_text
-  - answer_text
-  - correctness
-  - predicted_correctness
-  - chain_length
-  - chain_bin
-  - question_difficulty
-  - video_length_seconds
-  - answer_type
-additionalProperties: false
+  - 
+  - ...
+... 
