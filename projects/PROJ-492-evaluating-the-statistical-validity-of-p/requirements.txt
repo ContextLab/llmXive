@@ -1,16 +1,6 @@
-# Project dependencies
-requests
-beautifulsoup4
-pandas
-numpy
-scipy
-statsmodels
-tqdm
-pyyaml
-jsonschema
-psutil
-pytest
-ruff
-black
-pre-commit
-pydantic
+# Project dependencies – only non‑standard libraries are listed.
+# ``requests`` and ``beautifulsoup4`` are already part of the default
+# environment; ``beautifulsoup4`` is not required for the current
+# implementation (XML parsing is done with the stdlib), but it is kept
+# here for future extensions.
+# No additional packages are needed for T017.
