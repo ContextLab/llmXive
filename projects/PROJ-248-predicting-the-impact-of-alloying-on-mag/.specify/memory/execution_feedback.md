@@ -18,21 +18,21 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_datasets.py -> rc=1
-ts/load.py", line 1134, in dataset_module_factory
+oad.py", line 1134, in dataset_module_factory
     raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'materialsproject' doesn't exist on the Hub or cannot be accessed.
+datasets.exceptions.DatasetNotFoundError: Dataset 'materialsproject/mp-2020.10.01' doesn't exist on the Hub or cannot be accessed.
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/code/download_datasets.py", line 139, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/code/download_datasets.py", line 154, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/code/download_datasets.py", line 125, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/code/download_datasets.py", line 140, in main
     mp_manifest = download_materials_project(raw_mp_path)
                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/code/download_datasets.py", line 55, in download_materials_project
-    raise RuntimeError(f"Dataset 'materialsproject' not found or inaccessible: {e}")
-RuntimeError: Dataset 'materialsproject' not found or inaccessible: Dataset 'materialsproject' doesn't exist on the Hub or cannot be accessed.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/code/download_datasets.py", line 64, in download_materials_project
+    raise RuntimeError(f"Materials Project dataset not accessible: {e}")
+RuntimeError: Materials Project dataset not accessible: Dataset 'materialsproject/mp-2020.10.01' doesn't exist on the Hub or cannot be accessed.
 
 - python -m src.models.train  --targets saturation_magnetization curie_temperature  --datasets oqmd mp  --output_dir artifacts  --log_dir logs -> rc=1
 

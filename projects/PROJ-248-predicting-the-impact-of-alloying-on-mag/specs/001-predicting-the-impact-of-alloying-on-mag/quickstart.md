@@ -19,12 +19,12 @@ pip install -r requirements.txt
 
 ## 2. Download the Datasets
 ```bash
-python src/services/data_fetch.py
+python code/download_datasets.py
 ```
 
 This script creates:
 - `data/raw_oqmd.csv` (OQMD magnetic CSV)  
-- `data/raw_mp.zip` (Materials Project bulk archive)  
+- `data/raw_mp.jsonl` (Materials Project magnetic JSON‑lines)  
 - `data/data_sources.yaml` (manifest with URLs, SHA‑256 checksums, and download timestamps)
 
 ## 3. Run the End‑to‑End Pipeline (Both Targets)
@@ -115,6 +115,3 @@ These artifacts enable reproducibility checks by downstream reviewers.
 
 ## 7. Extending the Pipeline
 If additional magnetic descriptors become available (e.g., anisotropy), simply add them to the feature‑engineering module and rerun the training command with the new target list.
-
----
-

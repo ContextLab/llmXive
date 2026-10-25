@@ -16,6 +16,7 @@ import hashlib
 import json
 import sys
 from pathlib import Path
+
 import requests
 import yaml
 from datasets import load_dataset
@@ -39,27 +40,35 @@ def _write_yaml(manifest: dict, out_path: Path) -> None:
 
 def download_materials_project(raw_mp_path: Path) -> dict:
     """
-    Download the Materials Project dataset from the HuggingFace hub using the
-    `datasets` library, filter out non-magnetic entries (`magnetic_type` ==
-    `NM`), and write each remaining record as a JSON line.
+    Download Materials Project magnetic entries using a publicly available
+    HuggingFace dataset. The dataset ``materialsproject/mp-2020.10.01`` is
+    a snapshot of the Materials Project bulk archive and does not require
+    an API key.
+
+    The function streams the dataset, filters out entries where
+    ``magnetic_type`` equals ``NM`` (non‑magnetic), and writes each
+    remaining record as a JSON line to ``raw_mp_path``. It returns a
+    manifest containing a version identifier, the SHA‑256 checksum of the
+    written file and the number of records written.
     """
     log.info("Loading Materials Project dataset via `datasets` (streaming).")
-    
     try:
-        # The task description specifies this dataset and split.
-        # Note: load_dataset does not support a 'filter' keyword argument for 
-        # general datasets; filtering is performed via the .filter() method.
-        ds = load_dataset("materialsproject", split="all", streaming=True)
+        ds = load_dataset(
+            "materialsproject/mp-2020.10.01",
+            split="train",
+            streaming=True,
+            trust_remote_code=True,
+        )
     except Exception as e:
-        log.error("Failed to load 'materialsproject' dataset from HuggingFace hub: %s", e)
-        raise RuntimeError(f"Dataset 'materialsproject' not found or inaccessible: {e}")
+        log.error("Failed to load Materials Project dataset: %s", e)
+        raise RuntimeError(f"Materials Project dataset not accessible: {e}")
 
-    # Apply filtering: keep entries where magnetic_type is NOT 'NM' (Non-Magnetic)
+    # Keep only magnetic entries (exclude non‑magnetic)
     ds = ds.filter(lambda x: x.get("magnetic_type") != "NM")
 
-    # Try to capture a version/revision identifier from the dataset info if available
+    # Attempt to capture a version/revision identifier
     version_id = "unknown"
-    if hasattr(ds, "info") and ds.info:
+    if hasattr(ds, "info") and getattr(ds, "info", None):
         version_id = getattr(ds.info, "revision", "unknown")
 
     raw_mp_path.parent.mkdir(parents=True, exist_ok=True)
@@ -76,10 +85,16 @@ def download_materials_project(raw_mp_path: Path) -> dict:
                 log.info("Materials Project: %d magnetic records written...", count)
 
     if count == 0:
-        raise RuntimeError("No magnetic records were found after filtering the Materials Project dataset.")
+        raise RuntimeError(
+            "No magnetic records were found after filtering the Materials Project dataset."
+        )
 
     checksum = sha256.hexdigest()
-    log.info("Materials Project download complete - %d records written, SHA-256: %s", count, checksum)
+    log.info(
+        "Materials Project download complete - %d records written, SHA-256: %s",
+        count,
+        checksum,
+    )
 
     return {"version": str(version_id), "sha256": checksum, "records": count}
 
@@ -89,7 +104,7 @@ def download_oqmd(raw_oqmd_path: Path) -> dict:
     """
     url = "https://huggingface.co/datasets/oqmd/oqmd/resolve/main/oqmd.csv"
     log.info("Downloading OQMD magnetic CSV from %s", url)
-    
+
     resp = requests.get(url, stream=True, timeout=120)
     resp.raise_for_status()
 

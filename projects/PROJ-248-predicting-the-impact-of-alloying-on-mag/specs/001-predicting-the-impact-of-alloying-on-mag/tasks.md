@@ -11,7 +11,7 @@ satisfy the corresponding functional requirements and success criteria.
 
 ## Phase 0 – Data acquisition (US‑1)
 
-- [ ] T001 [P] [US1] **Download public magnetic‑property datasets via verified sources**  
+- [ ] T001 [P] [US1] **Download public magnetic‑property datasets via verified sources**   <!-- FAILED-IN-EXECUTION: code/download_datasets.py exit=1 -->
   *Artifacts*: `data/raw_mp.jsonl`, `data/raw_oqmd.csv`, `data/data_sources.yaml`  
   *Steps*:  
   1. Retrieve the Materials Project magnetic entries **via the Materials Project REST API** (e.g., `https://materialsproject.org/rest/v2/materials/search?has_magnetic_properties=true`) using the public endpoint that does not require an API key; stream the JSON response and write to `data/raw_mp.jsonl`.  
