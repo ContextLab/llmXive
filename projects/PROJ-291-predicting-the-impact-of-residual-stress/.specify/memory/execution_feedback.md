@@ -30,10 +30,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - bash scripts/env_check.sh -> rc=1
 
-2026-10-25 04:10:29,273 INFO openml.config: Error opening file /home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/.runtime-home/.config/openml/config: not readable
-2026-10-25 04:10:29,273 WARNING openml: No permission to create OpenML directory at /home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/.runtime-home/.config/openml! This can result in OpenML-Python not working properly.
-2026-10-25 04:10:29,369 ERROR __main__: Missing required package ucimlrepo: No module named 'ucimlrepo'
-2026-10-25 04:10:29,369 ERROR __main__: Environment validation failed: No module named 'ucimlrepo'
+2026-10-25 06:17:12,157 INFO openml.config: Error opening file /home/runner/work/llmXive/llmXive/projects/PROJ-291-predicting-the-impact-of-residual-stress/.runtime-home/.config/openml/config: not readable
+2026-10-25 06:17:12,235 ERROR __main__: Missing required package ucimlrepo: No module named 'ucimlrepo'
+2026-10-25 06:17:12,235 ERROR __main__: Environment validation failed: No module named 'ucimlrepo'
 
 - python -m src.ingest.ingest          # creates unified_fatigue.csv & missing_flags.json -> rc=2
 
@@ -93,7 +92,7 @@ ERROR code/tests/test_acquire.py
 ERROR code/tests/test_train.py
 ERROR code/tests/test_wilcoxon.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-3 errors in 1.01s
+3 errors in 1.35s
 
 
 

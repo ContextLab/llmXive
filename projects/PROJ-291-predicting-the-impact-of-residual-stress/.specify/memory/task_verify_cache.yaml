@@ -1,12 +1,12 @@
-T001:
-  c: false
-  h: bfbcc9c32c6f41d40ba4b5bcf0903f2d63a979db0d1a6225be3e54045e483dac
-  r: The test suite `code/tests/test_env_check.py` fails because (1) it runs `python
-    -m src.env_check`, but there is no `src/env_check.py` module (the script is only
-    at `code/src/env_check.py`), and (2) it expects a `data/raw/checksums.json` file
-    that is not present in the repository. Both issues prevent the required pytest
-    verification from passing.
-  sig: 86f21bf6f4e2f98448d1b260d87cb5bdb786b7bef47930c51cec7ead855374b0
+T001-1:
+  c: true
+  h: e3c895c10359a387f0a87c122d989e18a2e519c0ef579ae57e5d43bd6913b1d3
+  r: "Checked `requirements.txt` (non\u2011empty, all dependencies pinned), `code/src/timing.py`\
+    \ (provides the required `phase_timer` writing to `data/results/runtime_summary.csv`),\
+    \ `quickstart.md` (contains the `python -m code.src.run_e2e` command), and `data/raw/checksums.json`\
+    \ (initialized as an empty JSON object). All required artifacts exist and meet\
+    \ the task specifications."
+  sig: 26c1158c94c7fe9e9135243da23714d99c66e4021a0fe1424a174160259351ad
 T002:
   c: false
   h: ebe3789a7f7904aaee22c3597f3461a7a73c31f5fa109cde03de439e1b0bc141

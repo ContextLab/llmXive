@@ -1,6 +1,6 @@
 # Quickstart: Predicting Residual‑Stress Impact on Fatigue Life
 
-> Assumes a recent Python 3.11 interpreter and internet access from the repository root.
+> Assumes a recent Python 3.11 interpreter and internet access from the repository root.
 
 ## 1. Set up the environment
 ```bash
@@ -16,13 +16,13 @@ pip install -r requirements.txt
 ```bash
 # Checks that all required scientific packages can be imported and that
 # the bundled raw data files have the correct checksums.
-python -m src.env_check
+python -m code.src.env_check
 ```
 
 ## 3. Run the full analysis pipeline (end‑to‑end)
 ```bash
 # One‑command end‑to‑end execution:
-python -m src.run_e2e
+python -m code.src.run_e2e
 ```
 
 The pipeline will:
@@ -42,6 +42,6 @@ pytest -q
 ```
 
 All steps are designed to complete within the GitHub Actions free‑tier limits
-(≤ 6 h runtime, < 7 GB RAM). The synthetic data is **not** used for external
+(≤ 6 h runtime, < 7 GB RAM). The synthetic data is **not** used for external
 scientific conclusions and is **never used for mediation**; it only validates
 that the pipeline runs without error.

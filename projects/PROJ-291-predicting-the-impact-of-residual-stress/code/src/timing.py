@@ -57,8 +57,8 @@ def phase_timer(phase_name: str):
         write_header = not out_path.is_file()
         with out_path.open("a", encoding="utf-8", newline="") as f:
             if write_header:
-                f.write("phase,wall_clock_s,peak_rss_mb\\n")
-            f.write(f"{phase_name},{elapsed},{peak_mb}\\n")
+                f.write("phase,wall_clock_s,peak_rss_mb\n")
+            f.write(f"{phase_name},{elapsed},{peak_mb}\n")
 
         log.info(
             "Phase %s completed: wall_clock_s=%.4f, peak_rss_mb=%.4f",

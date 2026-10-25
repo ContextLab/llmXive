@@ -23,5 +23,3 @@ PROXY_COEFFICIENTS = {
     "steel": K_STEEL,
     "aluminum": K_ALUMINUM,
 }
-
-# Additional path constants can be added here if needed by downstream code.

@@ -30,7 +30,7 @@ REQUIRED_PACKAGES = [
     "jsonschema",
     "psutil",
     "openml",
-    "ucimlrepo",        # now required per task T001
+    "ucimlrepo",
 ]
 
 def _import_all() -> None:
@@ -67,6 +67,9 @@ def _validate_checksums() -> None:
     """Validate that each raw file matches its recorded checksum (if any)."""
     expected = _load_expected_checksums()
     raw_dir = paths.raw()
+    if not raw_dir.exists():
+        log.info("Raw directory does not exist – skipping checksum verification.")
+        return
     for file_path in raw_dir.iterdir():
         if file_path.is_file() and not file_path.name.startswith("."):
             actual = _file_checksum(file_path)

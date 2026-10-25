@@ -1,17 +1,13 @@
 T001:
-  reason: The test suite `code/tests/test_env_check.py` fails because (1) it runs
-    `python -m src.env_check`, but there is no `src/env_check.py` module (the script
-    is only at `code/src/env_check.py`), and (2) it expects a `data/raw/checksums.json`
-    file that is not present in the repository. Both issues prevent the required pytest
-    verification from passing.
+  reason: "The `env_check.py` script fails the test (`test_env_check_exits_successfully`)\
+    \ because it cannot import the required package `ucimlrepo`, causing a non\u2011\
+    zero exit code. Consequently the pytest suite reports a failure, and the task\u2019\
+    s verification condition is not met. Additionally, `config.py` lacks any defined\
+    \ path constants, which the task specification also requires. The implementer\
+    \ must ensure all listed packages (including `ucimlrepo`) are importable in the\
+    \ environment and add the necessary path constant definitions."
   task: 75a0997476de49fa9387130e186621ec6a6f9d977dbafcd7a699d07a0617a4c0
 T001-1:
-  reason: Checked `requirements.txt` (pinned versions present), `code/src/timing.py`
-    (phase_timer writes to `data/results/runtime_summary.csv` and underlying `runtime_summary.csv`
-    with correct columns is provided), and `data/raw/checksums.json` (empty JSON object).
-    However, `quickstart.md` documents `python -m src.run_e2e` instead of the required
-    `python -m code.src.run_e2e`, so the quickstart command does not match the task
-    specification.
   task: 573607ac5758e24529dbec5797c38352b5e2a362f932876d6c7c65fe372f6f0e
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/ingest/ingest.py
