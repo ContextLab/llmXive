@@ -20,7 +20,7 @@
   verification_status: mismatch
   verified_against_url: https://zenodo.org/records/1234567/files/mp_bulk_v2026.09.zip
   verified_at: '2026-10-25T12:38:17.996474Z'
-- artifact_hash: 0d4af5c19d9410796380e82a07f98491549b0c8d77b1debdeecd423ced8858d5
+- artifact_hash: 22ada842e205b8171bc56ed0dec8833dcb676092b7fcefe9c22635e581f9688c
   artifact_path: projects/PROJ-248-predicting-the-impact-of-alloying-on-mag/specs/001-predicting-the-impact-of-alloying-on-mag/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://materialsproject.org/rest/v2/materials/search?has_magnetic_properties=true`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials/search?has_magnetic_properties=true
-  verified_at: '2026-10-25T12:43:34.608397Z'
+  verified_at: '2026-10-25T13:19:53.776286Z'

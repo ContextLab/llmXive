@@ -1,2 +1,15 @@
+# Project dependencies
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+joblib
+tqdm
+pyyaml
+pymatgen
+matminer
+scipy
 datasets
-numpy>=2.0.0
+# The following are already provided by the base environment and do not need to be listed:
+# requests, jsonschema, pytest, etc.

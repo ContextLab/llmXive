@@ -1,8 +1,8 @@
 """
 download_datasets.py
 
-Script to download the Materials Project magnetic dataset (via a direct HTTP
-request to the HuggingFace raw file) and the OQMD magnetic CSV release
+Script to download the Materials Project magnetic dataset (via the
+HuggingFace `datasets` library) and the OQMD magnetic CSV release
 (via a direct HTTP request). The script writes three artefacts:
 
 * `data/raw_mp.jsonl` – filtered JSON-lines from the Materials Project
@@ -19,6 +19,7 @@ from pathlib import Path
 
 import requests
 import yaml
+from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -39,43 +40,41 @@ def _write_yaml(manifest: dict, out_path: Path) -> None:
 
 def download_materials_project(raw_mp_path: Path) -> dict:
     """
-    Download Materials Project magnetic entries from the public HuggingFace
-    raw file. The dataset ``materialsproject/mp-2020.10.01`` is a snapshot
-    of the Materials Project bulk archive and does not require an API key.
+    Download Materials Project magnetic entries using the public
+    HuggingFace ``datasets`` repository. The dataset
+    ``materialsproject/mp`` with the configuration ``2020.10.01`` is a
+    snapshot of the Materials Project bulk archive and does not require
+    an API key.
 
-    The function streams the JSON‑lines file, filters out entries where
+    The function streams the dataset, filters out entries where
     ``magnetic_type`` equals ``NM`` (non‑magnetic), and writes each
     remaining record as a JSON line to ``raw_mp_path``. It returns a
     manifest containing a version identifier, the SHA‑256 checksum of the
     written file and the number of records written.
     """
-    # Direct URL to the raw JSON‑lines file on HuggingFace
-    url = "https://huggingface.co/datasets/materialsproject/mp-2020.10.01/resolve/main/mp.jsonl"
-    log.info("Downloading Materials Project magnetic JSONL from %s", url)
-
-    response = requests.get(url, stream=True, timeout=300)
-    response.raise_for_status()
+    # Load the dataset in streaming mode to keep memory usage low.
+    log.info("Loading Materials Project dataset via the `datasets` library")
+    try:
+        ds = load_dataset(
+            "materialsproject/mp",
+            "2020.10.01",
+            split="train",
+            streaming=True,
+        )
+    except Exception as exc:
+        log.exception("Failed to load Materials Project dataset: %s", exc)
+        raise
 
     raw_mp_path.parent.mkdir(parents=True, exist_ok=True)
 
     sha256 = hashlib.sha256()
     count = 0
     with raw_mp_path.open("w", encoding="utf-8") as out_f:
-        for line_bytes in response.iter_lines(chunk_size=8192, decode_unicode=True):
-            if not line_bytes:
-                continue
-            # Each line is a JSON object
-            try:
-                record = json.loads(line_bytes)
-            except json.JSONDecodeError as e:
-                log.warning("Skipping malformed line: %s", e)
-                continue
-
-            # Filter out non‑magnetic entries
+        for record in ds:
+            # The dataset schema contains a ``magnetic_type`` field.
             if record.get("magnetic_type") == "NM":
                 continue
 
-            # Write the filtered record
             line = json.dumps(record, ensure_ascii=False)
             out_f.write(line + "\n")
             sha256.update(line.encode("utf-8"))
@@ -95,7 +94,7 @@ def download_materials_project(raw_mp_path: Path) -> dict:
         checksum,
     )
 
-    # The version identifier is derived from the dataset name/date
+    # The version identifier mirrors the dataset configuration name.
     version_id = "mp-2020.10.01"
 
     return {"version": version_id, "sha256": checksum, "records": count}
