@@ -5,14 +5,14 @@ Script to create a deterministic corpus of ≥ 300 reachable URLs that
 point to public A/B test summaries. The script performs the following
 steps:
 
-1. Retrieves a sitemap that lists many case‑study URLs from Optimizely
-   (https://www.optimizely.com/sitemap.xml). The sitemap is publicly
-   available and contains a large number of URLs.
-2. Filters the URLs to keep only those that appear to be case‑study or
-   blog‑post pages (heuristic: contain “case-study” or “blog” in the
-   path). The filtered list is sorted to guarantee determinism.
-3. Takes the first 300 URLs, downloads each page, and writes the raw HTML
-   to ``data/raw/<sanitized_name>.html``.
+1. Retrieves one or more sitemaps that list many case‑study or blog‑post
+   pages from a set of known A/B‑testing platforms (Optimizely,
+   ConversionXL, VWO, Unbounce). The list of sitemap URLs is defined in
+   ``SITEMAP_SOURCES``.
+2. Filters the URLs to keep only those that appear to be case‑study,
+   blog, or experiment pages (heuristic based on a set of keywords).
+3. Takes the first ``TARGET_COUNT`` URLs, downloads each page, and writes
+   the raw HTML to ``data/raw/<sanitized_name>.html``.
 4. Writes the list of URLs to ``data/input/urls.csv`` (header ``url``).
 5. Computes a SHA‑256 checksum for every downloaded HTML file and writes
    the results to ``data/checksums.txt`` (format: ``<hash>  <relative_path>``).
@@ -32,7 +32,6 @@ network errors) to make failures loud.
 import csv
 import hashlib
 import logging
-import os
 import re
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -50,10 +49,31 @@ log = get_logger(__name__)
 # ----------------------------------------------------------------------
 # Configuration constants
 # ----------------------------------------------------------------------
-SITEMAP_URL = "https://www.optimizely.com/sitemap.xml"
+# List of publicly available sitemaps that contain many A/B‑test related pages.
+SITEMAP_SOURCES = [
+    "https://www.optimizely.com/sitemap.xml",
+    "https://www.conversionxl.com/sitemap.xml",
+    "https://vwo.com/sitemap.xml",
+    "https://unbounce.com/sitemap.xml",
+]
+
+# The number of URLs we need in the final corpus.
 TARGET_COUNT = 300
+
+# Concurrency settings for downloading HTML pages.
 MAX_WORKERS = 10
 TIMEOUT = 20  # seconds per HTTP request
+
+# Keywords used to identify candidate A/B‑test summary pages.
+CANDIDATE_KEYWORDS = [
+    "case-study",
+    "case-studies",
+    "blog",
+    "ab-test",
+    "abtest",
+    "experiment",
+    "a-b-test",
+]
 
 # ----------------------------------------------------------------------
 # Helper utilities
@@ -69,14 +89,14 @@ def _sanitize_filename(url: str) -> str:
     # Truncate to a reasonable length
     return path[:200] + ".html"
 
-def _fetch_sitemap() -> List[str]:
+def _fetch_sitemap(sitemap_url: str) -> List[str]:
     """
-    Download the sitemap XML and return a list of URLs contained within.
+    Download a sitemap XML and return a list of URLs contained within.
     This implementation is robust to the presence or absence of XML
     namespaces.
     """
-    log.info(f"Fetching sitemap from {SITEMAP_URL}")
-    resp = requests.get(SITEMAP_URL, timeout=TIMEOUT)
+    log.info(f"Fetching sitemap from {sitemap_url}")
+    resp = requests.get(sitemap_url, timeout=TIMEOUT)
     resp.raise_for_status()
     # Parse XML; use ``.//{*}url`` to match any namespace
     root = ET.fromstring(resp.content)
@@ -86,20 +106,42 @@ def _fetch_sitemap() -> List[str]:
         loc = url_elem.find("{*}loc")
         if loc is not None and loc.text:
             urls.append(loc.text.strip())
-    log.info(f"Found {len(urls)} URLs in sitemap")
+    log.info(f"Found {len(urls)} URLs in sitemap {sitemap_url}")
     return urls
+
+def _gather_all_urls() -> List[str]:
+    """
+    Iterate over all sitemap sources, collect URLs, and return the
+    combined list.
+    """
+    all_urls: List[str] = []
+    for src in SITEMAP_SOURCES:
+        try:
+            urls = _fetch_sitemap(src)
+            all_urls.extend(urls)
+        except Exception as e:
+            log.warning(f"Failed to fetch sitemap {src}: {e}")
+    return all_urls
 
 def _filter_candidate_urls(urls: List[str]) -> List[str]:
     """
-    Keep URLs that plausibly point to A/B‑test case studies.
-    Simple heuristic based on path keywords.
+    Keep URLs that plausibly point to A/B‑test case studies, blogs,
+    or experiment write‑ups.
     """
+    lowered = [u.lower() for u in urls]
     candidates = [
-        u for u in urls
-        if ("case-study" in u.lower() or "blog" in u.lower())
+        u for u in lowered
+        if any(kw in u for kw in CANDIDATE_KEYWORDS)
     ]
-    log.info(f"Filtered down to {len(candidates)} candidate case‑study URLs")
-    return sorted(set(candidates))
+    log.info(f"Filtered down to {len(candidates)} candidate URLs after keyword scan")
+    # Preserve original case‑sensitive URLs while deduplicating
+    seen = set()
+    ordered: List[str] = []
+    for orig, low in zip(urls, lowered):
+        if low in candidates and low not in seen:
+            seen.add(low)
+            ordered.append(orig)
+    return sorted(set(ordered))
 
 def _download_html(url: str, dest_path: Path) -> None:
     """
@@ -142,14 +184,14 @@ def main() -> int:
     ``python -m`` execution.
     """
     try:
-        # 1. Load sitemap and pick candidate URLs
-        all_urls = _fetch_sitemap()
+        # 1. Load sitemaps and collect candidate URLs
+        all_urls = _gather_all_urls()
         candidates = _filter_candidate_urls(all_urls)
 
         if len(candidates) < TARGET_COUNT:
             raise RuntimeError(
                 f"Not enough candidate URLs found ({len(candidates)} < {TARGET_COUNT}). "
-                "The sitemap source may have changed."
+                "Consider adding more sitemap sources."
             )
 
         selected_urls = candidates[:TARGET_COUNT]
@@ -182,10 +224,7 @@ def main() -> int:
                 try:
                     future.result()
                 except Exception as exc:
-                    log.error(
-                        f"Failed to download {dest.name}: {exc}",
-                        error_code="ERR-010"
-                    )
+                    log.error(f"Failed to download {dest.name}: {exc}")
                     raise
 
         # 5. Compute checksums
@@ -203,7 +242,7 @@ def main() -> int:
         return 0
 
     except Exception as e:
-        log.error(f"Corpus curation failed: {e}", error_code="ERR-100")
+        log.error(f"Corpus curation failed: {e}")
         raise
 
 if __name__ == "__main__":

@@ -1,17 +1,19 @@
 status: none
-intent: public A/B test summary dataset download for research site:kaggle.com python
-  package dataset
+intent: download A/B test summary dataset Kaggle open AB test results python package
+  dataset
 required_fields:
-- url
+- summary_url
+- test_name
+- variant_a
+- variant_b
+- metric
+- sample_size
 - reported_p_value
-- test_statistic
-- sample_size_control
-- sample_size_variant
 - effect_size
-- outcome_metric
-- test_date
 - confidence_interval
-- ground_truth_consistency_flag
-cache_key: 76b5a0db247c1fa826c4ad42966e2eba387358dfff5a2a968c2411faac0901c4
-searched_at: '2026-10-25T23:08:52.961395+00:00'
+- statistical_test
+- date
+- domain
+cache_key: 46a5ab6ddbe6ed3f00dc5b09600d4d03f68f2f5887d5028d5583e21e1f08ab3d
+searched_at: '2026-10-25T23:22:58.833358+00:00'
 retry_count: 1
