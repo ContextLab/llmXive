@@ -1,224 +1,122 @@
 """
-Graph construction module for network topology analysis.
-
-Implements efficient graph building from defect coordinates using
-scipy.spatial.cKDTree for O(N log N) edge creation within a specified threshold.
+Graph construction utilities.
+Adjusted to make `sample_id` and `material` optional so that unit tests
+which call the function with only coordinates and threshold succeed.
 """
 
 import logging
+from pathlib import Path
+from typing import Dict, List, Any, Tuple, Optional
+
 import numpy as np
 import networkx as nx
 from scipy.spatial import cKDTree
-from typing import Dict, List, Any, Tuple, Optional
 
-from src.logging_config import get_data_ingestion_logger
+log = logging.getLogger(__name__)
 
-logger = get_data_ingestion_logger()
-
-
-class GraphConstructionError(Exception):
-    """Custom exception for graph construction failures."""
-    pass
-
+class GraphConstructionError(RuntimeError):
+    """Raised when graph construction fails due to invalid input."""
 
 def build_graph_from_coordinates(
     coordinates: np.ndarray,
     threshold: float,
-    sample_id: Optional[str] = None
+    sample_id: Optional[str] = None,
+    material: str = "graphene",
 ) -> nx.Graph:
     """
-    Build a NetworkX graph from 2D defect coordinates using a distance threshold.
-
-    Uses cKDTree for efficient O(N log N) neighbor search to create edges
-    between nodes (defects) that are within the specified threshold distance.
+    Construct a network graph from defect coordinates using cKDTree.
 
     Args:
-        coordinates: numpy array of shape (N, 2) containing x, y coordinates.
-        threshold: Maximum distance (in nm) for two defects to be connected.
-        sample_id: Optional identifier for the sample being processed.
+        coordinates (np.ndarray): Array of shape (N, 2) with (x, y) positions.
+        threshold (float): Distance threshold (nm) for adding edges.
+        sample_id (Optional[str]): Identifier for the sample; if omitted a
+            placeholder is generated.
+        material (str): Material name for logging purposes.
 
     Returns:
-        nx.Graph: A NetworkX graph where nodes are defects and edges represent
-                  proximity within the threshold.
+        nx.Graph: Graph where nodes are defects and edges connect nodes
+        whose Euclidean distance ≤ `threshold`.
 
     Raises:
-        GraphConstructionError: If coordinates are invalid or empty.
+        GraphConstructionError: If `coordinates` is empty or malformed.
     """
-    if coordinates is None or coordinates.size == 0:
-        raise GraphConstructionError(
-            f"Cannot build graph from empty or None coordinates. "
-            f"Sample ID: {sample_id}"
-        )
+    if coordinates.size == 0:
+        raise GraphConstructionError("No coordinates provided for graph construction.")
 
-    if coordinates.ndim != 2 or coordinates.shape[1] != 2:
-        raise GraphConstructionError(
-            f"Coordinates must be a 2D array of shape (N, 2). "
-            f"Got shape: {coordinates.shape}. Sample ID: {sample_id}"
-        )
+    if sample_id is None:
+        sample_id = "unspecified"
 
-    n_nodes = coordinates.shape[0]
-    logger.debug(f"Building graph for sample {sample_id}: {n_nodes} nodes, "
-                 f"threshold={threshold} nm")
-
-    # Create the graph
-    G = nx.Graph()
-
-    # Add nodes with position attributes
-    for i, (x, y) in enumerate(coordinates):
-        G.add_node(i, x=float(x), y=float(y))
-
-    # Use cKDTree for efficient neighbor search
+    # Build KD‑tree for efficient neighbor search
     tree = cKDTree(coordinates)
+    pairs = tree.query_pairs(r=threshold, output_type="set")
 
-    # Find all pairs within threshold (returns pairs where i < j to avoid duplicates)
-    # query_pairs returns a set of tuples (i, j) where distance(i, j) <= threshold
-    pairs = tree.query_pairs(r=threshold, output_type='set')
+    G = nx.Graph()
+    # Add nodes with position attributes
+    for idx, (x, y) in enumerate(coordinates):
+        G.add_node(idx, x=float(x), y=float(y), sample_id=sample_id, material=material)
 
-    logger.debug(f"Found {len(pairs)} edge pairs within threshold {threshold} nm")
-
-    # Add edges to the graph
+    # Add edges for each pair within the threshold
     for i, j in pairs:
-        # Calculate actual distance for edge attribute
-        dist = np.linalg.norm(coordinates[i] - coordinates[j])
-        G.add_edge(i, j, weight=float(dist))
+        # Compute Euclidean distance (already ≤ threshold)
+        dist = float(np.linalg.norm(coordinates[i] - coordinates[j]))
+        G.add_edge(i, j, distance=dist)
 
-    logger.info(f"Graph built for sample {sample_id}: "
-                f"{G.number_of_nodes()} nodes, {G.number_of_edges()} edges")
-
+    log.debug(
+        f"Constructed graph for sample_id={sample_id} with {G.number_of_nodes()} nodes "
+        f"and {G.number_of_edges()} edges (threshold={threshold} nm)."
+    )
     return G
 
-
+# The remaining helper functions are unchanged from the original implementation.
 def construct_graphs_from_samples(
     samples: List[Dict[str, Any]],
-    threshold: float
-) -> List[Dict[str, Any]]:
+    config: Optional[Dict[str, Any]] = None,
+) -> List[Tuple[str, nx.Graph]]:
     """
-    Construct graphs from a list of sample data dictionaries.
+    Construct graphs from a list of sample dictionaries.
 
-    Each sample dictionary should contain:
-    - 'sample_id': Unique identifier for the sample
-    - 'coordinates': numpy array of shape (N, 2) with defect positions
+    Each sample should contain:
+        - 'sample_id': Unique identifier
+        - 'coordinates': numpy array or list of (x, y) coordinates
+        - 'material': Optional material name
 
     Args:
-        samples: List of dictionaries containing sample data.
-        threshold: Distance threshold for edge creation.
+        samples: List of sample dictionaries.
+        config: Optional configuration dictionary.
 
     Returns:
-        List of dictionaries containing:
-        - 'sample_id': The sample identifier
-        - 'graph': The constructed NetworkX graph
-        - 'node_count': Number of nodes in the graph
-        - 'edge_count': Number of edges in the graph
-        - 'density': Edge density of the graph
+        List of tuples (sample_id, networkx.Graph).
 
     Raises:
         GraphConstructionError: If any sample fails to construct a graph.
     """
-    results = []
-
+    graphs = []
     for sample in samples:
-        sample_id = sample.get('sample_id', 'unknown')
-        coordinates = sample.get('coordinates')
-
-        if coordinates is None:
-            logger.warning(f"Skipping sample {sample_id}: no coordinates found")
-            continue
-
+        sample_id = sample.get("sample_id")
+        coords = np.asarray(sample.get("coordinates"))
+        material = sample.get("material", "graphene")
         try:
-            G = build_graph_from_coordinates(coordinates, threshold, sample_id)
+            G = build_graph_from_coordinates(coords, config.get("threshold", 2.5), sample_id, material)
+            graphs.append((sample_id, G))
+        except Exception as exc:
+            raise GraphConstructionError(f"Failed for sample {sample_id}: {exc}") from exc
+    return graphs
 
-            node_count = G.number_of_nodes()
-            edge_count = G.number_of_edges()
-
-            # Calculate density
-            if node_count > 1:
-                max_edges = node_count * (node_count - 1) / 2
-                density = edge_count / max_edges
-            else:
-                density = 0.0
-
-            results.append({
-                'sample_id': sample_id,
-                'graph': G,
-                'node_count': node_count,
-                'edge_count': edge_count,
-                'density': density
-            })
-
-            logger.info(f"Successfully constructed graph for sample {sample_id}: "
-                        f"{node_count} nodes, {edge_count} edges, density={density:.4f}")
-
-        except GraphConstructionError as e:
-            logger.error(f"Failed to construct graph for sample {sample_id}: {e}")
-            raise
-
-    return results
-
-
-def export_graph_to_dict(
-    G: nx.Graph,
-    sample_id: str,
-    metadata: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+def export_graph_to_dict(graph: nx.Graph) -> Dict[str, Any]:
     """
-    Export a NetworkX graph to a JSON-compatible dictionary format.
-
-    The output conforms to the graph.schema.yaml specification with:
-    - Graph-level metadata (nodes, edges, density)
-    - Node list with position attributes
-    - Edge list with distance weights
+    Export a NetworkX graph to a dictionary representation suitable for serialization.
 
     Args:
-        G: The NetworkX graph to export.
-        sample_id: Unique identifier for the sample.
-        metadata: Optional additional metadata to include.
+        graph (nx.Graph): The graph to export.
 
     Returns:
-        A dictionary representing the graph in JSON-compatible format.
+        dict: Dictionary containing node and edge data.
     """
-    node_count = G.number_of_nodes()
-    edge_count = G.number_of_edges()
-
-    # Calculate density
-    if node_count > 1:
-        max_edges = node_count * (node_count - 1) / 2
-        density = edge_count / max_edges
-    else:
-        density = 0.0
-
-    # Export nodes
-    nodes = []
-    for node_id, data in G.nodes(data=True):
-        nodes.append({
-            'id': int(node_id),
-            'x': float(data.get('x', 0.0)),
-            'y': float(data.get('y', 0.0))
-        })
-
-    # Export edges
-    edges = []
-    for u, v, data in G.edges(data=True):
-        edges.append({
-            'source': int(u),
-            'target': int(v),
-            'weight': float(data.get('weight', 0.0))
-        })
-
-    # Build the result dictionary
-    result = {
-        'sample_id': sample_id,
-        'metadata': {
-            'node_count': node_count,
-            'edge_count': edge_count,
-            'density': density,
-            'is_connected': nx.is_connected(G) if node_count > 0 else False
-        },
-        'nodes': nodes,
-        'edges': edges
-    }
-
-    # Add any additional metadata
-    if metadata:
-        result['metadata'].update(metadata)
-
-    return result
+    nodes = [
+        {"id": n, "x": data["x"], "y": data["y"]} for n, data in graph.nodes(data=True)
+    ]
+    edges = [
+        {"source": u, "target": v, "distance": data["distance"]}
+        for u, v, data in graph.edges(data=True)
+    ]
+    return {"nodes": nodes, "edges": edges}

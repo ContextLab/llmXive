@@ -24,10 +24,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/src/data_ingestion/generate_synthetic.py --output data/raw/synthetic_defects.csv --seed 42 -> rc=1
-2026-10-25 13:25:58 - llmXive.data_ingestion - WARNING - === SYNTHETIC DATA GENERATION MODE ===
-2026-10-25 13:25:58 - llmXive.data_ingestion - WARNING - This dataset is generated for pipeline validation ONLY.
-2026-10-25 13:25:58 - llmXive.data_ingestion - WARNING - Do not use for scientific hypothesis testing.
-2026-10-25 13:25:58 - llmXive.data_ingestion - ERROR - Failed to generate synthetic data: [Errno 17] File exists: 'data/raw/synthetic_defects.csv'
+2026-10-25 13:27:46 - llmXive.data_ingestion - WARNING - === SYNTHETIC DATA GENERATION MODE ===
+2026-10-25 13:27:46 - llmXive.data_ingestion - WARNING - This dataset is generated for pipeline validation ONLY.
+2026-10-25 13:27:46 - llmXive.data_ingestion - WARNING - Do not use for scientific hypothesis testing.
+2026-10-25 13:27:46 - llmXive.data_ingestion - ERROR - Failed to generate synthetic data: [Errno 17] File exists: 'data/raw/synthetic_defects.csv'
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-364-exploring-the-impact-of-network-topology/code/src/data_ingestion/generate_synthetic.py", line 181, in main
     result = generate_synthetic_dataset(
@@ -75,7 +75,7 @@ E   ModuleNotFoundError: No module named 'src.metrics.clustering'
 ERROR tests/unit/test_disconnected_graphs.py
 ERROR tests/unit/test_metrics.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.76s ===============================
+============================== 2 errors in 0.70s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=1

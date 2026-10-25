@@ -30,7 +30,8 @@ def ensure_dir_and_gitkeep(dir_path: Path) -> None:
 def main() -> None:
     """
     Create all required top‑level project directories and place .gitkeep files
-    inside each of them.
+    inside each of them, **excluding platform‑owned `state/`** which must not be
+    written by project code.
     """
     # Define the set of directories required by the project layout
     required_dirs = [
@@ -38,7 +39,7 @@ def main() -> None:
         paths.data("raw"),                # data/raw/
         paths.data("processed"),          # data/processed/
         paths.results(),                  # results/
-        paths.path("state"),              # state/
+        # Exclude paths.path("state") – platform‑owned
         paths.path("contracts"),          # contracts/
         paths.path("logs"),               # logs/
         paths.docs(),                     # docs/
@@ -52,7 +53,7 @@ def main() -> None:
     for top_dir in [paths.data(), paths.results()]:
         ensure_dir_and_gitkeep(top_dir)
 
-    log.info("Project layout creation complete.")
+    log.info("Project layout creation complete (state/ excluded).")
 
 if __name__ == "__main__":
     main()
