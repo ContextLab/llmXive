@@ -133,8 +133,17 @@ def setup_logging(
         from config import get_config  # Imported here
 
         cfg = get_config()
-        # Prefer a path defined in config if present
-        effective_log_file = getattr(cfg, "data_logs", None) or "data/logs/app.log"
+        # Prefer a path defined in config if present; cfg.data_logs is a directory
+        # If it points to a directory, append the default filename.
+        candidate = getattr(cfg, "data_logs", None)
+        if candidate:
+            candidate_path = Path(candidate)
+            if candidate_path.is_dir() or not candidate_path.suffix:
+                effective_log_file = str(candidate_path / "app.log")
+            else:
+                effective_log_file = str(candidate_path)
+        else:
+            effective_log_file = "data/logs/app.log"
 
     # Ensure directory exists
     Path(effective_log_file).parent.mkdir(parents=True, exist_ok=True)

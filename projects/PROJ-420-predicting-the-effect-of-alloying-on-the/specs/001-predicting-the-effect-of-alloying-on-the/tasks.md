@@ -18,7 +18,7 @@ All tasks respect the data‑flow ordering required by the specification (FR‑0
 - [X] T001b [P] Add `code/__init__.py` to make the code tree a package.  
   **Verification**: Importing `code` succeeds without error.
 
-- [ ] T001c [P] Add placeholder `.gitkeep` files in `data/raw/` and `data/processed/`.  
+- [X] T001c [P] Add placeholder `.gitkeep` files in `data/raw/` and `data/processed/`.  
   **Verification**: Files are present, allowing empty directories to be tracked.
 
 - [ ] T002 [P] Initialise a Python project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit‑learn, matminer, statsmodels, chemparse, joblib, pytest, jsonschema).  
@@ -27,23 +27,23 @@ All tasks respect the data‑flow ordering required by the specification (FR‑0
 - [ ] T003 [P] Configure linting/formatting (ruff + black) via `code/pyproject.toml`.  
   **Verification**: `ruff .` and `black .` run cleanly.
 
-- [ ] T004 [P] Add the JSON‑logging schema `contracts/logging_schema.yaml` (fields: `timestamp`, `level`, `message`, `trace_id`, `module`).  
+- [X] T004 [P] Add the JSON‑logging schema `contracts/logging_schema.yaml` (fields: `timestamp`, `level`, `message`, `trace_id`, `module`).  
   **Verification**: The file exists and validates against the JSON‑Schema meta‑schema.
 
-- [ ] T005 [P] Implement `code/config.py` exposing paths (`DATA_ROOT`, `MODEL_ROOT`, `RESULT_ROOT`), random seeds, and the list `VALID_MEASUREMENT_METHODS`.  
+- [X] T005 [P] Implement `code/config.py` exposing paths (`DATA_ROOT`, `MODEL_ROOT`, `RESULT_ROOT`), random seeds, and the list `VALID_MEASUREMENT_METHODS`.  
   **Verification**: Importing `code.config` yields the expected constants.
 
 ---
 
 ## Phase 1 – Data acquisition
 
-- [ ] T006 [US1] Implement `code/logging_config.py`  
+- [~] T006 [US1] Implement `code/logging_config.py`  
   *Create a `RotatingFileHandler` that writes JSON‑formatted log records to `data/logs/app.log` (max 10 MiB, 5 backups). The JSON payload must contain **only** the fields defined in `contracts/logging_schema.yaml`.*  
   **Verification**:  
   1. Run a short script that emits >10 MiB of logs; confirm rotation occurs and exactly 5 backup files are created.  
   2. Sample a log entry and validate it with the schema (`jsonschema.validate`).  
 
-- [ ] T007 [US1] Define Pydantic models for the data contracts in `code/schemas/alloy_record.py`  
+- [~] T007 [US1] Define Pydantic models for the data contracts in `code/schemas/alloy_record.py`  
   *Models must match `specs/001-predicting-the-effect-of-alloying-on-the/contracts/alloy_record.schema.yaml` exactly.*  
   **Verification**: Unit test loads a valid JSON example and validates against the model.
 
@@ -55,7 +55,7 @@ All tasks respect the data‑flow ordering required by the specification (FR‑0
   *Fetch raw compositional and property data for aluminum alloys from the NIST Materials Data Repository and save to `data/raw/nist_alloys.json`. The pipeline must abort with a clear error if this download fails, because FR‑001 requires both sources.*  
   **Verification**: `data/raw/nist_alloys.json` exists; failure to download raises an exception that stops the pipeline.
 
-- [ ] T009c [US1] Merge data sources  
+- [ ] T009c [US1] Merge data sources   <!-- FAILED-IN-EXECUTION: code/data/merge_sources.py exit=1 -->
   *Combine `mp_raw.json` and `nist_alloys.json` into a single raw dataset for processing. The merge step must verify that records from **both** sources are present before proceeding.*  
   **Verification**: The merged dataset contains entries from both Materials Project and NIST MDR; a log entry records the counts per source.
 

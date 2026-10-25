@@ -7,13 +7,10 @@ seaborn
 matplotlib
 compositional
 statsmodels
-datasets
-periodictable
+pydantic
+matminer
+chemparse
 joblib
 pytest
-pytest-cov
-ruff
-black
-shap
 jsonschema
-pyarrow
+datasets

@@ -5,8 +5,18 @@ T001b:
 T001c:
   task: 379af483d3014bed0237b15b81f8f84189573bbc2b4eeda8eb51f90a3173eefe
 T002:
+  reason: "The `code/requirements.txt` file exists and includes all required packages,\
+    \ but none are version\u2011pinned as the task specifies \u201Cpinned dependencies,\u201D\
+    \ and there is no evidence (e.g., pip install logs) showing that `pip install\
+    \ -r code/requirements.txt` completes without conflicts. Adding explicit version\
+    \ specifiers and providing successful install verification are needed."
   task: 8ddc8d8d5c462bf3c52500931b5b5c76c7ed8e6a8b8b3aee75f7926c70451c73
 T003:
+  reason: "The repository contains a `code/pyproject.toml` with proper Ruff and Black\
+    \ configuration, but there is no execution evidence (logs, exit codes, or output)\
+    \ showing that `ruff .` and `black .` were run and completed without errors or\
+    \ formatting changes. Without such proof, the task\u2019s verification requirement\
+    \ is not satisfied."
   task: 1338b82faf6f26c067623b6d058c88986a07aa308fe19144a441f95e07d540ed
 T004:
   task: 447ba271da8b6f21163fd30384e87a64a71e29a1670db036c2830c0c44aba150
@@ -17,10 +27,14 @@ T006:
 T007:
   task: 34bc4b79579bcbed932bf6e45855e81f7dcf2260c06e6c3b0f6f509c824bc094
 T009a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/mp_raw.json'
   task: b0303e87ce20c333a052052aa04e331620e179dd22ba22fc314c0c388513b0bf
 T009b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/nist_alloys.json'
   task: 9a82986290f215faf4f122a6c2ceae20f3dd6e818e19f237be1a508862be36da
 T009c:
+  reason: 'Requested task execution failed; rerun successfully: code/data/merge_sources.py
+    exit=1'
   task: 27d39df31dafb5caf869faa5f4a0a5c509f929ce438b798f89b0555f0f0d1e41
 T009d:
   task: ea229ecaa35020ea4a88b417f8a749eca102a3dbac3a1145643215231fa90ba3

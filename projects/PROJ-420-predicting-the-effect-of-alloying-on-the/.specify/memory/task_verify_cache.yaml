@@ -1,11 +1,11 @@
 T001a:
   c: true
-  h: 20db0714da1a72cb7cf5466a0443d43933b2e4ac33b37a2808c3bff7c68213da
-  r: The collector confirms that the directories `code/`, `data/raw/`, `data/processed/`,
-    `models/`, `results/`, `tests/`, and `contracts/` all exist in the project root,
-    and the execution log for `create_core_layout.py` shows a successful run creating
-    the layout.
-  sig: 99f7f95691dfd3a8adc5b80041bc87716ce9469936a847682cae5f6a18826839
+  h: d40cdcb6bd349a8ef01b100f352655be98d8d353b701786855aac2a4ceafc46c
+  r: "Checked the collector\u2011confirmed presence of all required directories (`code/`,\
+    \ `data/raw/`, `data/processed/`, `models/`, `results/`, `tests/`, `contracts/`)\
+    \ and the successful execution log of `create_core_layout.py` confirming the layout\
+    \ was created."
+  sig: b48b9ab016dd2d6a5f06a5a4e60f9844615e8f8b2677d4170802c06587a54e6e
 T001b:
   c: true
   h: dc6fa5184cf4ab32e52cd05a74ab2ddc1ad3ee04118e67137eadb9864fee4e1b
@@ -13,6 +13,47 @@ T001b:
     \ code (docstring, version string) and therefore can be imported without error,\
     \ satisfying the requirement to make the `code` tree a package."
   sig: b849c6cb8a33f9291b9586b25eefdf4214b1a7487d377362d7942e9a4d4782e7
+T001c:
+  c: true
+  h: 556151ec1c45eb9a77d0068db6538d2c6268920a7e363a48384cbb7db971e027
+  r: The `data/raw/` directory contains a `.gitkeep` file (and a subdirectory), and
+    `data/processed/` also contains a `.gitkeep` file, satisfying the requirement
+    to add placeholder files in both locations.
+  sig: 0026734a67b23c15402a1b3ac9bffcf02a618d99adb3d6cf0de7a958725d4906
+T002:
+  c: false
+  h: 163c7541eaa821dc6e670cf7052e68bb421f11756583f495bd1976e5237b4024
+  r: "The `code/requirements.txt` file exists and includes all required packages,\
+    \ but none are version\u2011pinned as the task specifies \u201Cpinned dependencies,\u201D\
+    \ and there is no evidence (e.g., pip install logs) showing that `pip install\
+    \ -r code/requirements.txt` completes without conflicts. Adding explicit version\
+    \ specifiers and providing successful install verification are needed."
+  sig: 498bf6a6ea29226f01c41668bb9f21d7ed019091a4606a75596e525f7072e4f9
+T003:
+  c: false
+  h: 3c64cc2b1f693ee8f5f4fa07e768e1beb9d3ccece6eac8a80f7d6c315411d3a0
+  r: "The repository contains a `code/pyproject.toml` with proper Ruff and Black configuration,\
+    \ but there is no execution evidence (logs, exit codes, or output) showing that\
+    \ `ruff .` and `black .` were run and completed without errors or formatting changes.\
+    \ Without such proof, the task\u2019s verification requirement is not satisfied."
+  sig: e97e3cfde6abc09e8cdcb3ebdad50baac8bc9115b0131765056918ea2817c9f7
+T004:
+  c: true
+  h: 3913e5d2d4665ffe815ad7acab0282fdfc2c9ac2512d658524b208c0a873f110
+  r: "Checked the `contracts/logging_schema.yaml` file (530\u202Fbytes) which defines\
+    \ the required fields `timestamp`, `level`, `message`, `trace_id`, and `module`,\
+    \ and confirmed via the pytest run that both the existence test and the field\u2011\
+    matching test passed. The schema also validates against the JSON\u2011Schema meta\u2011\
+    schema as indicated by the successful test."
+  sig: 487917d764f4a44e7aeca5c12d40e4f3a97864fafaf3ea345b95342f13369004
+T005:
+  c: true
+  h: c86a750d9af4ca6d41650416cbcfc55d9dc1667528cd6bcbb55401e012a1d67a
+  r: Checked `code/config.py` which defines the required `DATA_ROOT`, `MODEL_ROOT`,
+    `RESULT_ROOT`, `RANDOM_SEED`, and `VALID_MEASUREMENT_METHODS` at module level,
+    and verified the passing test log `tests/test_config.py` confirming the constants
+    are importable.
+  sig: eb3c0769a68b571564c7ed5314336c0c7c8cddf6c4ed24f5aa7e6f8b0b8e9981
 T006:
   c: false
   h: 8f8743f070f3afd8fbfb68056b018be98d37c3a5f9c222ae30da6cb714510f0c
