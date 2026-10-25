@@ -1,12 +1,12 @@
 status: none
-intent: SNAP Gowalla social network dataset with geographic coordinates download python
-  package dataset
+intent: download Brightkite social network dataset with geographic coordinates from
+  Stanford SNAP python package dataset
 required_fields:
 - node_id
 - latitude
 - longitude
 - edge_source
 - edge_target
-cache_key: 5ceadb9bd04c99e4c7e0e1deba9a312bfa1dfc3bcb0fc93adae9477d6ef575d5
-searched_at: '2026-10-21T09:25:28.726400+00:00'
+cache_key: db1b01a85bc03fa88dce9ee02ceadc5f15401ac9d51bd8a1995e28aa9df8dd48
+searched_at: '2026-10-25T08:11:20.968331+00:00'
 retry_count: 1
