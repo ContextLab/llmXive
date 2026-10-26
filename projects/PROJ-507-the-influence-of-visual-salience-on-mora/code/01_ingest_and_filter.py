@@ -82,13 +82,13 @@ def _record_has_tag(sample: Dict[str, Any], tags: List[str]) -> bool:
 
     # Normalise to lower‑case strings
     tag_list = [str(t).lower() for t in tag_list]
-    tags = [t.lower() for t in tags]
+    tags_lc = [t.lower() for t in tags]
 
     # If we have no tag information, accept the record (see docstring)
     if not tag_list:
         return True
 
-    return any(t in tag_list for t in tags)
+    return any(t in tag_list for t in tags_lc)
 
 # ----------------------------------------------------------------------
 # Core ingestion routine
@@ -140,12 +140,12 @@ def ingest_and_filter(
     # ------------------------------------------------------------------
     try:
         log.info(
-            "Loading Visual Genome dataset via HF datasets (streaming=True)."
+            "Loading Visual Genome image dataset via HF datasets (streaming=True)."
         )
-        # Use a concrete config that exists in the HF hub.
+        # Correct config for images as per the specification.
         dataset = load_dataset(
             "visual_genome",
-            "objects_v1.0.0",  # <-- corrected config name
+            "images",  # <-- corrected config name
             split="train",
             streaming=True,
         )
@@ -175,11 +175,11 @@ def ingest_and_filter(
 
         # --------------------------------------------------------------
         # Determine download URL.
-        # The ``objects`` config does not contain a direct ``url`` field.
-        # We fall back to the canonical Visual Genome static image URL pattern.
+        # The ``images`` config provides a direct ``url`` field.
         # --------------------------------------------------------------
         url = sample.get("url")
         if not url:
+            # Fallback to the canonical Visual Genome static image URL pattern.
             url = f"https://visualgenome.org/static/images/{image_id}.jpg"
 
         # --------------------------------------------------------------
