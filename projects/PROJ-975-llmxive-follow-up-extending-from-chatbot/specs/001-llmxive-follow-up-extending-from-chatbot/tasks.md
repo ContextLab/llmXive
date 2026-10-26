@@ -13,11 +13,11 @@ The list follows the three research phases (setup → full experiment →�
   *Implementation*: `code/copy_contracts.py` copies each schema file, computes SHA‑256 for source and destination, and writes a mapping to **`contract_hashes.json`** at the repository root.  
   *Verification*: `tests/contract/test_contract_copy.py` loads `contract_hashes.json` and asserts `src_hash == dst_hash` for every file; the CI runs this test and must pass.
 
-- [ ] **T002** [P] [US1] **Generate synthetic environment (tasks & skills) with deterministic seeds and overlap enforcement**  
+- [ ] **T002** [P] [US1] **Generate synthetic environment (tasks & skills) with deterministic seeds and overlap enforcement**   <!-- FAILED: unspecified -->
   *Path*: `code/generate_data.py` → produces `data/raw/tasks.json` (500 tasks) and `data/raw/skills.json` (100 skills) with embeddings, semantic‑overlap levels, and a memory‑limit guard.  
   *Verification*: `tests/unit/test_generate_data.py` checks (1) record counts, (2) that each record validates against `task.schema.yaml` / `skill.schema.yaml`, (3) that the mean pairwise cosine similarity meets the requested overlap level, and (4) that the SHA‑256 digests recorded in `data/raw/checksums.json` match the actual file hashes.
 
-- [ ] **T003** [P] [US1] **Implement checksum verification script and associated test**  
+- [X] **T003** [P] [US1] **Implement checksum verification script and associated test**  
   *Path*: `code/write_checksums.py` recomputes SHA‑256 for `data/raw/tasks.json` and `data/raw/skills.json` and overwrites `data/raw/checksums.json` with the fresh mapping.  
   *Verification*: `tests/contract/test_checksums.py` loads `data/raw/checksums.json`, recomputes the hashes, and asserts equality; the test must pass in CI.
 

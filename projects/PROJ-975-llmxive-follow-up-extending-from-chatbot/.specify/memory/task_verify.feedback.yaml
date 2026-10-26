@@ -3,21 +3,11 @@ T001:
 T002:
   reason: "Checked `code/generate_data.py`, `data/raw/tasks.json`, `data/raw/skills.json`,\
     \ `data/raw/checksums.json`, and `tests/unit/test_generate_data.py`. The required\
-    \ schema files (`task.schema.yaml`, `skill.schema.yaml`) are missing, the test\
-    \ suite does not validate records against schemas, and the SHA\u2011256 recorded\
-    \ for `skills.json` in `checksums.json` does not match the actual file hash, violating\
-    \ the checksum verification requirement. These issues must be fixed for the task\
-    \ to be considered complete."
+    \ schema files (`task.schema.yaml`, `skill.schema.yaml`) are missing, so records\
+    \ cannot be validated, and the SHA\u2011256 for `skills.json` recorded in `checksums.json`\
+    \ does not match the actual file hash, violating the checksum guard."
   task: e1434351452dd1cf2ef1c0cd663e38c908eadce156262664ad059cbd6ec22783
 T003:
-  reason: "The `code/write_checksums.py` script exists and correctly computes SHA\u2011\
-    256 hashes, but its `main()` function parses `sys.argv` with `argparse` and aborts\
-    \ when pytest supplies its own command\u2011line options (e.g., `-v`, `--tb=short`).\
-    \ This causes a `SystemExit: 2` during the `recomputed_checksums` fixture, so\
-    \ both contract tests error out instead of passing. The required verification\
-    \ test therefore does not succeed in CI. The script must be modified to ignore\
-    \ unknown arguments (e.g., using `parse_known_args()` or `parse_args([])`) or\
-    \ the test must be adjusted accordingly. Until the test passes, t"
   task: 3a00ec119c9e2f9d89ea6b136df79307137dbf0ba8a3c0879393fd3a6d76d0f6
 T004:
   reason: "The pytest run (`code/.tasks/T004.tests_contract_test_schemas.py.log`)\

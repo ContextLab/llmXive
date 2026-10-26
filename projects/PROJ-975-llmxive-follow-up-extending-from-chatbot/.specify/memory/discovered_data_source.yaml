@@ -1,16 +1,14 @@
 status: none
-intent: synthetic multi-step task skill library dataset python package dataset
+intent: TaskBench synthetic multi-step task and skill library dataset python package
+  dataset
 required_fields:
 - task_id
 - task_description
-- solution_path
-- num_actions
+- ground_truth_solution_path
 - skill_id
 - skill_name
-- skill_description
-- embedding_vector
-- semantic_density
-- overlap_level
-cache_key: 27c53e58e10a81cefae229f0c95b1e9717d8723245d331720be5a71709b885ea
-searched_at: '2026-10-26T03:16:47.133743+00:00'
+- skill_embedding_vector
+- semantic_overlap_level
+cache_key: 58a7c8e186215b858699e2fb0e1e39861d25ef16f08cd78427c7c919f332e54a
+searched_at: '2026-10-26T05:23:21.665708+00:00'
 retry_count: 1

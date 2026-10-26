@@ -21,8 +21,10 @@ from pathlib import Path
 from llmxive_toolkit import paths
 
 # Configure a simple console logger (no file handlers, no platform‑owned paths)
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
 log = logging.getLogger(__name__)
 
 def get_sha256(file_path: Path) -> str:
@@ -65,6 +67,8 @@ def _parse_cli() -> argparse.Namespace:
     """
     Parse optional positional arguments for the two source JSON files.
     If omitted, defaults derived from the project layout are used.
+    The parser tolerates unknown arguments (e.g., those injected by pytest)
+    by using ``parse_known_args``.
     """
     parser = argparse.ArgumentParser(
         description="Re‑compute SHA‑256 checksums for synthetic data files."
@@ -79,7 +83,11 @@ def _parse_cli() -> argparse.Namespace:
         nargs="?",
         help="Path to skills.json (default: data/raw/skills.json)",
     )
-    return parser.parse_args()
+    # ``parse_known_args`` returns a tuple (Namespace, list_of_unknowns).
+    # We ignore the unknowns, which allows the function to be called from
+    # environments that inject extra CLI flags (e.g., pytest).
+    args, _ = parser.parse_known_args()
+    return args
 
 
 def main() -> None:
