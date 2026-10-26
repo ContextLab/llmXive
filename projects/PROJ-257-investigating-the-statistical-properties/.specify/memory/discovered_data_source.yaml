@@ -1,11 +1,12 @@
 status: none
-intent: download GWTC-2 and GWTC-1 posterior samples python package dataset from Zenodo
+intent: Zenodo LIGO GWTC-1 GWTC-2 posterior samples binary BH synthesis python package
+  dataset
 required_fields:
 - event_id
-- component_mass_1
-- component_mass_2
+- mass_1
+- mass_2
 - mass_ratio
 - effective_spin
-cache_key: 3c9631af758778cd03b35efdd90cf11a06054689b8f4d21528116878867fd297
-searched_at: '2026-10-25T02:18:41.894478+00:00'
+cache_key: 6f70565ec98846e042f9024fb4df9b1e27c3dfdfc997e1d86542a733577275ad
+searched_at: '2026-10-26T15:20:04.654309+00:00'
 retry_count: 1

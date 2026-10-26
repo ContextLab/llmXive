@@ -21,7 +21,7 @@ The output format is a mapping from file name to a small metadata object:
         }
     }
 
-The script exits with a non‑zero status if any file is missing or its
+The script exits with a non-zero status if any file is missing or its
 checksum does not match, fulfilling the “fail loudly” requirement.
 """
 

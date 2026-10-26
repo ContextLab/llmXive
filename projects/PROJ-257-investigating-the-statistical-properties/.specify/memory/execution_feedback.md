@@ -10,60 +10,45 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python -m src.main               # Executes all phases in order`
+  - script usage: `main.py [-h] [--download-only] [--skip-download] [--seed SEED]`
+  - argparse error: `main.py: error: unrecognized arguments: # Executes all phases in order`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”; 2 command(s) failed: python -m src.main (rc=1); python -m pytest tests/ (rc=2); 2 declared deliverable(s) absent: data/raw/checksums.json; data/results/data_availability.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: src/data/synthetic_gen.py: synthetic/fake INPUT data not authorized by the spec — “…-> pd.DataFrame:     """Generate the synthetic BBH catalog (AM-001 hypo…”; 2 command(s) failed: python -m src.main               # Executes all phases in order (rc=2); python -m pytest tests/contract (rc=5); 1 declared deliverable(s) absent: data/results/data_availability.json
 
 ## Failing / missing run-book commands
 
-- python -m src.main -> rc=1
+- python -m src.main               # Executes all phases in order -> rc=2
 
-2026-10-21 05:15:44,880 INFO __main__: Starting GWTC download
-2026-10-21 05:15:44,880 INFO src.data.download: Fetching Zenodo metadata for record 3966973 (DOI 10.5281/zenodo.3966973)
-2026-10-21 05:15:45,410 ERROR __main__: GWTC download failed: No HDF5 file found in Zenodo record metadata
+usage: main.py [-h] [--download-only] [--skip-download] [--seed SEED]
+main.py: error: unrecognized arguments: # Executes all phases in order
 
-- python -m pytest tests/ -> rc=2
-thon 3.11.17, pytest-8.1.1, pluggy-1.7.0
+- python -m pytest tests/contract -> rc=5
+============================= test session starts ==============================
+platform linux -- Python 3.11.17, pytest-8.1.1, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties
 configfile: pyproject.toml
 plugins: platformdirs-4.13.5
-collected 73 items / 1 error
+collected 0 items
 
-==================================== ERRORS ====================================
-_________________ ERROR collecting tests/unit/test_download.py _________________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties/tests/unit/test_download.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_download.py:9: in <module>
-    import requests_mock
-E   ModuleNotFoundError: No module named 'requests_mock'
-=========================== short test summary info ============================
-ERROR tests/unit/test_download.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.42s ===============================
+============================ no tests ran in 0.01s =============================
 
 
 
 ## Declared deliverables still missing
 
-- data/raw/checksums.json
 - data/results/data_availability.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/raw/checksums.json` is declared but was NOT written. Scripts referencing it:
-    - `code/src/data/download_gwtc.py` — NOT invoked by the run-book
-    - `code/src/data/record_availability.py` — NOT invoked by the run-book
-    - `code/src/utils/__init__.py` — NOT invoked by the run-book
-    - `src/data/download.py` — NOT invoked by the run-book
-    - `src/data/record_availability.py` — NOT invoked by the run-book
-    - `src/main.py` — IS a run-book command
-    - `src/utils/checksum.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/checksums.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/data_availability.json` is declared but was NOT written. Scripts referencing it:
     - `code/src/data/record_availability.py` — NOT invoked by the run-book
     - `src/data/record_availability.py` — NOT invoked by the run-book

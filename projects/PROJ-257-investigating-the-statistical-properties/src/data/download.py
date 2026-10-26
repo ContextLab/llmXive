@@ -56,11 +56,15 @@ def _doi_to_record_id(doi: str) -> str:
 def _select_file_info(meta: dict) -> Tuple[str, str]:
     """
     From a Zenodo record metadata dictionary, select the first HDF5 file.
+
+    The Zenodo records for GWTC-1/2 sometimes use the ``.hdf5`` extension
+    instead of ``.h5``. This selector therefore accepts both extensions,
+    preferring any file that ends with either ``.h5`` or ``.hdf5`` (case‑insensitive).
     """
     files = meta.get("files", [])
     for entry in files:
         fname = entry.get("key", "")
-        if fname.lower().endswith(".h5"):
+        if fname.lower().endswith((".h5", ".hdf5")):
             url = entry.get("links", {}).get("download")
             if not url:
                 raise RuntimeError(f"Download link missing for file '{fname}'")
@@ -89,7 +93,7 @@ def _download_with_retries(url: str, dest: Path, max_retries: int = 3) -> None:
             response = requests.get(url, stream=True, timeout=60)
             response.raise_for_status()
             dest.parent.mkdir(parents=True, exist_ok=True)
-            
+
             tmp_path = dest.with_suffix(dest.suffix + ".part")
             with open(tmp_path, "wb") as fh:
                 for chunk in response.iter_content(chunk_size=8192):
@@ -106,10 +110,13 @@ def _download_with_retries(url: str, dest: Path, max_retries: int = 3) -> None:
                 raise RuntimeError(
                     f"Failed to download {url} after {max_retries} retries: {exc}"
                 ) from exc
-            delay = 2**attempt  # 1, 2, 4
+            delay = 2 ** attempt  # 1, 2, 4
             log.warning(
                 "Download attempt %d/%d failed (%s). Retrying in %d s...",
-                attempt + 1, max_retries + 1, exc, delay,
+                attempt + 1,
+                max_retries + 1,
+                exc,
+                delay,
             )
             time.sleep(delay)
 
@@ -126,15 +133,21 @@ def download_all() -> dict:
     for doi, target_name in DATASETS:
         record_id = _doi_to_record_id(doi)
         meta_url = f"https://zenodo.org/api/records/{record_id}"
-        log.info("Fetching Zenodo metadata for record %s (DOI %s)", record_id, doi)
+        log.info(
+            "Fetching Zenodo metadata for record %s (DOI %s)", record_id, doi
+        )
         resp = requests.get(meta_url, timeout=60)
         resp.raise_for_status()
         meta = resp.json()
 
         fname, download_url = _select_file_info(meta)
         if fname != target_name:
-            log.warning("Expected filename %s but Zenodo returned %s; proceeding with %s",
-                        target_name, fname, fname)
+            log.warning(
+                "Expected filename %s but Zenodo returned %s; proceeding with %s",
+                target_name,
+                fname,
+                fname,
+            )
 
         dest_path = paths.data("raw", target_name)
         _download_with_retries(download_url, dest_path)
