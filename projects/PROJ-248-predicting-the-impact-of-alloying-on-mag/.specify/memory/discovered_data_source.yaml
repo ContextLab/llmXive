@@ -1,12 +1,11 @@
 status: none
-intent: download Materials Project OQMD magnetic dataset with saturation magnetization
-  Curie temperature python package dataset
+intent: Materials Project bulk archive 2026.09 CSV download OQMD magnetic dataset
+  python package dataset
 required_fields:
 - material_id
-- composition
-- spacegroup
+- formula
 - saturation_magnetization
 - curie_temperature
-cache_key: 0eef47c62818097ec49832117909bf5228b065c3a359236c53bedc64e60b60ca
-searched_at: '2026-10-26T13:20:14.888445+00:00'
+cache_key: b263184674178ea9f9e85dbe9709e163f744bf381a901d504a505b6af8a0cf05
+searched_at: '2026-10-26T13:22:13.846029+00:00'
 retry_count: 1

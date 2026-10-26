@@ -27,7 +27,7 @@ A researcher wishes to understand which elemental properties drive the predictio
 
 **Why this priority**: Interpretable results are essential for scientific acceptance and for informing hypothesis generation.
 
-**Independent Test**: After a successful training run, request the feature‑importance report and verify that the top‑10 descriptors are listed with quantitative importance scores.
+**Independent Test**: After a successful training run, request the feature‑importance report and verify that the top descriptors are listed with quantitative importance scores.
 
 **Acceptance Scenarios**:
 

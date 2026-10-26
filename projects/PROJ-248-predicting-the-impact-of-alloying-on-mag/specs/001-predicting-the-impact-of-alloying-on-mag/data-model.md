@@ -1,13 +1,13 @@
-# Data Model: Predicting the Impact of Alloying on Magnetic Properties via Public Data
+# Data Model: Predicting Saturation Magnetization of Alloys via Public OQMD Data
 
 ## Core Entities
 
 | Entity | Description | Key Fields |
 |--------|-------------|------------|
-| **AlloyRecord** | Raw entry from OQMD or Materials Project (the only verified sources) | `composition` (string, e.g., `"Fe2Ni"`), `spacegroup` (int), `lattice_parameters` (dict: `a,b,c,alpha,beta,gamma`), `magnetic_moment` (float, µ_B/atom), `curie_temperature` (float, K, may be `null` for OQMD entries), `source` (`"OQMD"` or `"MP"`), `last_updated` (ISO‑8601 timestamp) |
+| **AlloyRecord** | Raw entry from OQMD (the only verified source) | `composition` (string, e.g., `"Fe2Ni"`), `spacegroup` (int), `lattice_parameters` (dict: `a,b,c,alpha,beta,gamma`), `magnetic_moment` (float, µ_B/atom), `source` (`"OQMD"`), `last_updated` (ISO‑8601 timestamp) |
 | **FeatureVector** | Numerical representation derived from an `AlloyRecord` | `frac_{element}` (float for each element present), `avg_atomic_radius`, `avg_first_ionization_energy`, `avg_d_electron_count`, `avg_electronegativity`, `avg_bulk_modulus`, `spacegroup`, `a`, `b`, `c`, `alpha`, `beta`, `gamma`, `packing_fraction` |
-| **ModelArtifact** | Serialized regression model plus metadata | `target` (`"saturation_magnetization"` or `"curie_temperature"`), `model_type` (`"RandomForest"` / `"GradientBoosting"`), `hyperparameters` (dict), `training_split_indices` (list of ints), `random_seed` (int), `artifact_hash` (sha256) |
-| **PredictionResponse** | JSON output of the CLI prediction service (see `contracts/prediction.schema.yaml`) | `saturation_magnetization` (number), `curie_temperature` (number), `confidence_interval` (object with numeric arrays for both targets) |
+| **ModelArtifact** | Serialized regression model plus metadata | `target` (`"saturation_magnetization"`), `model_type` (`"RandomForest"` / `"GradientBoosting"`), `hyperparameters` (dict), `training_split_indices` (list of ints), `random_seed` (int), `artifact_hash` (sha256) |
+| **PredictionResponse** | JSON output of the CLI prediction service (see `contracts/prediction.schema.yaml`) | `saturation_magnetization` (number), `curie_temperature` (number | null), `confidence_interval` (object with numeric arrays) |
 
 ## Schema Definitions
 
@@ -23,9 +23,8 @@
 | `alpha` | float | Yes | Angle α (degrees). |
 | `beta` | float | Yes | Angle β (degrees). |
 | `gamma` | float | Yes | Angle γ (degrees). |
-| `magnetic_moment` | float | Yes | µ_B per atom (required for saturation‑magnetization modeling). |
-| `curie_temperature` | float | No | Kelvin; required for Curie‑temperature modeling (may be missing for OQMD). |
-| `source` | string | Yes | `"OQMD"` or `"MP"`. |
+| `magnetic_moment` | float | Yes | µ_B per atom (used for saturation‑magnetization modeling). |
+| `source` | string | Yes | `"OQMD"`. |
 | `last_updated` | string (ISO‑8601) | Yes | Timestamp of the calculation. |
 | `metadata` | string (JSON) | No | Placeholder for future extensions. |
 
@@ -43,8 +42,8 @@ properties:
     type: number
     description: "Predicted saturation magnetization in µ_B per atom"
   curie_temperature:
-    type: number
-    description: "Predicted Curie temperature in Kelvin"
+    type: [number, "null"]
+    description: "Predicted Curie temperature in Kelvin (null until data available)"
   confidence_interval:
     type: object
     properties:
@@ -55,16 +54,8 @@ properties:
         minItems: 2
         maxItems: 2
         description: "[lower, upper] 95 % CI for saturation magnetization"
-      curie_temperature:
-        type: array
-        items:
-          type: number
-        minItems: 2
-        maxItems: 2
-        description: "[lower, upper] 95 % CI for Curie temperature"
     required:
       - saturation_magnetization
-      - curie_temperature
     additionalProperties: false
 required:
   - saturation_magnetization
@@ -73,13 +64,17 @@ required:
 additionalProperties: false
 ```
 
+> **Note**: The original specification required both `saturation_magnetization` **and** `curie_temperature`. Because no verified open‑source provides Curie‑temperature values, the `curie_temperature` field will be emitted as `null` with a logged warning. This maintains schema compatibility while transparently indicating the data gap.
+
 ## Data Flow Diagram (textual)
 
-1. **Raw download** → `AlloyRecord` CSV (`data/raw_oqmd.csv`, `data/raw_mp.csv`).  
-2. **Cleaning & deduplication** → `AlloyRecord` CSV (`data/cleaned_oqmd.csv`, `data/cleaned_mp.csv`).  
-3. **Feature engineering** (per record) → `FeatureVector` (saved as `data/feature_matrix_{target}.npy`).  
-4. **Model training** → `ModelArtifact` (`artifacts/model_{target}.pkl`).  
-5. **Prediction service** reads a JSON alloy description, builds a `FeatureVector`, loads the appropriate model, returns `PredictionResponse`.
+1. **Raw download** → `AlloyRecord` CSV (`data/raw_oqmd.csv`).  
+2. **Cleaning & deduplication** → `AlloyRecord` CSV (`data/cleaned_oqmd.csv`).  
+3. **Feature engineering** (per record) → `FeatureVector` (saved as `data/feature_matrix_saturation.npy`).  
+4. **Model training** → `ModelArtifact` (`artifacts/model_saturation.pkl`).  
+5. **Prediction service** reads a single‑alloy JSON, builds a `FeatureVector`, loads the model, returns a `PredictionResponse` (with `curie_temperature: null`).  
 
 ---
+
+
 
