@@ -1,7 +1,0 @@
-{
-  "task_id": "T005",
-  "fingerprint": "74f9b48cfbeed3fba405e0b9b79f8de13e81f7e42c7181aa39dd45c3347d052b",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'code/main.py': imports nonexistent names from sibling files: `from simulation.generator import generate_synthetic_meta_analysis` (available: Any, Dict, Iterable, List, Path, SimulationConfig, SimulationResult, Union...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

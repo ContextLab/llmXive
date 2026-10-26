@@ -4,7 +4,7 @@
 
 ## Phase 1 – Data acquisition & synthetic dataset generation  
 
-- [X] T001 [P1] [FR-001] **Download a public Cochrane meta‑analysis CSV and generate a deterministic synthetic base template** using `code/scripts/generate_base_template.py` and store it at `data/processed/base_template.csv`.  
+- [ ] T001 [P1] [FR-001] **Download a public Cochrane meta‑analysis CSV and generate a deterministic synthetic base template** using `code/scripts/generate_base_template.py` and store it at `data/processed/base_template.csv`.  
   *Verification*:  
   • Running `python code/scripts/generate_base_template.py --out data/processed/base_template.csv` exits with status 0.  
   • The CSV contains exactly 20 rows with columns `study_id,effect,se,n`.  
@@ -25,7 +25,7 @@
 
 ## Phase 2 – Estimation, metric calculation & full sweeps  
 
-- [ ] T003 [P2] [FR-002] **Implement Fixed‑Effects, DerSimonian‑Laird, and REML estimators** in `code/simulation/estimators.py`. Include computation of pooled effect, 95 % CI, τ² estimate, I², Q, and a `convergence_warning` flag for REML failures (fallback τ² = 1e‑6).  
+- [X] T003 [P2] [FR-002] **Implement Fixed‑Effects, DerSimonian‑Laird, and REML estimators** in `code/simulation/estimators.py`. Include computation of pooled effect, 95 % CI, τ² estimate, I², Q, and a `convergence_warning` flag for REML failures (fallback τ² = 1e‑6).  
   *Verification*:  
   • Unit tests `tests/unit/test_estimators.py` pass for all three estimators.  
   • For a dataset with `tau_squared = 0`, the Random‑Effects pooled estimate equals the Fixed‑Effects estimate within 1e‑3.  
@@ -41,7 +41,7 @@
   • `sample_estimates.csv` has 30 rows and the required columns.  
   • `simulation_raw.jsonl` contains 10 `SimulatedDataset` lines followed by 30 `EstimationResult` lines.  
 
-- [ ] T004 [P2] [FR-003] **Compute bias and coverage per replicate** (`code/analysis/metrics.py`). The script reads `data/results/simulation_raw.jsonl`, extracts each `EstimationResult`, calculates bias (`pooled_effect − true_effect`) and verifies coverage (`true_effect` within CI). It writes these per‑replicate metrics to `data/results/replicate_metrics.jsonl` (each line conforms to a new schema with fields `dataset_id`, `estimator_type`, `bias`, `coverage_flag`).  
+- [ ] T004 [P2] [FR-003] **Compute bias and coverage per replicate** (`code/analysis/metrics.py`). The script reads `data/results/simulation_raw.jsonl`, extracts each `EstimationResult`, calculates bias (`pooled_effect − true_effect`) and verifies coverage (`true_effect` within CI). It writes these per‑replicate metrics to `data/results/replicate_metrics.jsonl` (each line conforms to a new schema with fields `dataset_id`, `estimator_type`, `bias`, `coverage_flag`).   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
   *Verification*:  
   • After execution, every line in `replicate_metrics.jsonl` validates against the new metrics schema.  
   • Bias values are numeric and coverage_flag correctly reflects CI inclusion of the true effect (0.5).  

@@ -1,50 +1,28 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- results/reml_failures.json: results file is EMPTY ([]) — the analysis produced no values
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 command(s) failed: python code/main.py --mode full  --replicates 900  --batch-size 100  --seed 12345 (rc=1); python code/main.py --mode dry-run  --replicates 10  --tau-squared 0.5 1.0  --batch-size 5  --seed 42 (rc=1); python -m pytest tests/unit/ (rc=1); 2 declared deliverable(s) absent: data/results/aggregated_metrics.csv; data/results/reml_failures.json
+**Summary**: 1 hollow-result signal(s) — the analysis ran but computed nothing: results/reml_failures.json: results file is EMPTY ([]) — the analysis produced no values; 2 command(s) failed: python -m pytest tests/unit/ (rc=1); python -m pytest tests/integration/ (rc=1); 2 declared deliverable(s) absent: data/results/aggregated_metrics.csv; data/results/reml_failures.json
 
 ## Failing / missing run-book commands
 
-- python code/main.py --mode full  --replicates 900  --batch-size 100  --seed 12345 -> rc=1
-
-2026-10-26 01:37:01,107 INFO __main__: Generating 900 replicates for τ²=0.0
-2026-10-26 01:37:01,131 INFO __main__: Generating 900 replicates for τ²=0.1
-2026-10-26 01:37:01,156 INFO __main__: Generating 900 replicates for τ²=0.5
-2026-10-26 01:37:01,205 INFO __main__: Generating 900 replicates for τ²=1.0
-2026-10-26 01:37:01,232 INFO __main__: Generating 900 replicates for τ²=2.0
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 284, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 230, in main
-    write_simulation_and_estimations(simulated_records, estimation_records)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/analysis/metrics.py", line 329, in write_simulation_and_estimations
-    true_effect_lookup[rid] = float(sim[TRUE_EFFECT_COLUMN])
-                                    ~~~^^^^^^^^^^^^^^^^^^^^
-KeyError: 'injected_true_effect'
-
-- python code/main.py --mode dry-run  --replicates 10  --tau-squared 0.5 1.0  --batch-size 5  --seed 42 -> rc=1
-
-2026-10-26 01:37:02,026 INFO __main__: Generating 10 replicates for τ²=0.5
-2026-10-26 01:37:02,027 INFO __main__: Generating 10 replicates for τ²=1.0
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 284, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 230, in main
-    write_simulation_and_estimations(simulated_records, estimation_records)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/analysis/metrics.py", line 329, in write_simulation_and_estimations
-    true_effect_lookup[rid] = float(sim[TRUE_EFFECT_COLUMN])
-                                    ~~~^^^^^^^^^^^^^^^^^^^^
-KeyError: 'injected_true_effect'
-
 - python -m pytest tests/unit/ -> rc=1
-ate_count_default
-FAILED tests/unit/test_fetch_cochrane_data.py::test_load_success - AttributeE...
-FAILED tests/unit/test_fetch_cochrane_data.py::test_load_failure_raises - Nam...
-FAILED tests/unit/test_fetch_cochrane_data.py::test_main_successful_run - ass...
+uccessful_run - ass...
+FAILED tests/unit/test_main.py::test_main_dry_run_creates_outputs - Assertion...
+FAILED tests/unit/test_metrics.py::test_compute_metrics_strict_column_check
 FAILED tests/unit/test_plots.py::test_plots_generate_files - AssertionError: ...
+FAILED tests/unit/test_stats.py::test_conditional_test_normal_data - Assertio...
 FAILED tests/unit/test_stats.py::test_conditional_test_non_normal_data - Asse...
 FAILED tests/unit/test_validate_cochrane_csv.py::test_validate_success - File...
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_missing_field
@@ -53,21 +31,14 @@ ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_sav
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-============ 14 failed, 71 passed, 203 warnings, 6 errors in 2.04s =============
+============ 17 failed, 69 passed, 204 warnings, 6 errors in 3.07s =============
 
 
 - python -m pytest tests/integration/ -> rc=1
-onkeypatch.syspath_prepend(str(repo_root))
-    
-        # Run the pipeline in dry‑run mode (small subset, fast).
-        exit_code = _run_cmd(
-            ["code/main.py", "--mode", "dry-run", "--seed", "42"]
-        )
->       assert exit_code == 0, "Pipeline execution failed"
-E       AssertionError: Pipeline execution failed
-E       assert 1 == 0
 
-tests/integration/test_pipeline.py:43: AssertionError
+E            +    where <bound method Path.is_file of PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/estimation_results.csv')> = PosixPath('/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/data/results/estimation_results.csv').is_file
+
+tests/integration/test_pipeline.py:58: AssertionError
 =============================== warnings summary ===============================
 tests/integration/test_pipeline.py:30
   /home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/tests/integration/test_pipeline.py:30: PytestUnknownMarkWarning: Unknown pytest.mark.timeout - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
@@ -76,7 +47,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 0.78s =========================
+========================= 1 failed, 1 warning in 1.11s =========================
 
 
 

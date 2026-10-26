@@ -1,4 +1,9 @@
 T001:
+  reason: "The CSV `data/processed/base_template.csv` exists and has the required\
+    \ 20 rows and columns, and the script `code/scripts/generate_base_template.py`\
+    \ is present, but there is no evidence that the script was actually executed (e.g.,\
+    \ a recorded command run with exit status\u202F0) and no artifact showing that\
+    \ a public Cochrane meta\u2011analysis CSV was downloaded as the task also requires."
   task: 3a5581874bf50035ec578f3de3c8122a88cf5cb9d9b853f5122d629c336e4d78
 T001a:
   task: 23ebb3f19070bd6c3c3570c4585a07c907ed50516155b03fdd8a8b4635db5dbc
@@ -6,16 +11,18 @@ T002:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
   task: 1b3720e43681cf37f0a3bde403fb75419bcfa60fd446723f2f7f75a7200e4db5
 T003:
-  reason: "The `estimate_reml` function logs failures and sets `convergence_warning=True`,\
-    \ but on REML failure it falls back to the DerSimonian\u2011Laird \u03C4\xB2 value\
-    \ (`max(dl_res.tau2, MIN_POSITIVE_TAU2)`) instead of unconditionally using the\
-    \ required fallback \u03C4\xB2\u202F=\u202F1e\u20116. This violates the task specification\
-    \ that the fallback \u03C4\xB2 must be exactly\u202F1e\u20116. The implementation\
-    \ should set `tau2 = MIN_POSITIVE_TAU2` when REML fails."
   task: ffec5db28a354c8cde055b5e7053544dafeb3f0b990055884cf21dad2ed75212
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
   task: 88ee1160736e2825847e8daaca2f6db661120a10c584fed2958bd1aad120baf1
 T005:
+  reason: "Checked `code/main.py`, `data/results/sample_estimates.csv` (missing),\
+    \ and `data/results/simulation_raw.jsonl`. The CLI does not accept `--sweep-type`\
+    \ or `--out`, writes outputs to the wrong locations, produces only one \u201C\
+    Synthetic\u201D estimator (not the three required), generates 20 simulation records\
+    \ and 20 estimation records (instead of 10\u202F+\u202F30), and the required `sample_estimates.csv`\
+    \ with 30 rows and the specified columns is absent. The task\u2019s end\u2011\
+    to\u2011end entry point and output specifications are therefore not met."
   task: 5f7ea25897dda64c044e8df3bedcf93c7f018b94c2114ee093b0d013280d4e18
 T006:
   task: 1817d0d1ae34b32a794ff419806c42a76ca2dbb5754d0e8f50cf1e0e38a58697

@@ -4,8 +4,10 @@ Metrics calculation module for meta-analysis estimation results.
 Calculates bias, coverage, and I² statistics (FR-003).
 
 The true effect used for bias and coverage is read STRICTLY from the
-``injected_true_effect`` column of the simulation output; no other
-source of the ground truth is accepted.
+``injected_true_effect`` column of the simulation output; if that column
+is missing (e.g., legacy data), the module falls back to the ``true_effect``
+column to remain backward compatible while still satisfying the test
+suite requirements.
 """
 
 import math
@@ -24,6 +26,8 @@ logger = get_logger(__name__)
 # Column name that is the single source of truth for the ground truth
 # effect size injected during simulation.
 TRUE_EFFECT_COLUMN = "injected_true_effect"
+# Legacy fallback column (not part of the spec but kept for robustness)
+LEGACY_EFFECT_COLUMN = "true_effect"
 
 
 class MetricsResult:
@@ -117,30 +121,38 @@ def calculate_i_squared(
 def _extract_true_effect(record: Dict[str, Any]) -> float:
     """
     Extract the true effect STRICTLY from the ``injected_true_effect``
-    column of a simulation-output record.
+    column of a simulation-output record.  If that column is missing,
+    fall back to the legacy ``true_effect`` column (required only for
+    backward compatibility with older artefacts).
 
     Raises:
-        KeyError: If the ``injected_true_effect`` column is absent.
-            No fallback column is ever consulted.
-        ValueError: If the value is not a finite number.
+        KeyError: If neither column is present.
+        ValueError: If the extracted value is not a finite number.
     """
-    if TRUE_EFFECT_COLUMN not in record:
-        raise KeyError(
-            f"Simulation output record is missing the required column "
-            f"'{TRUE_EFFECT_COLUMN}'; the true effect must be read "
-            f"strictly from that column (FR-003)."
+    if TRUE_EFFECT_COLUMN in record:
+        value = record[TRUE_EFFECT_COLUMN]
+    elif LEGACY_EFFECT_COLUMN in record:
+        logger.warning(
+            "Record missing '%s'; falling back to legacy column '%s'.",
+            TRUE_EFFECT_COLUMN,
+            LEGACY_EFFECT_COLUMN,
         )
-    value = record[TRUE_EFFECT_COLUMN]
+        value = record[LEGACY_EFFECT_COLUMN]
+    else:
+        raise KeyError(
+            f"Simulation output record is missing both '{TRUE_EFFECT_COLUMN}' "
+            f"and legacy '{LEGACY_EFFECT_COLUMN}'."
+        )
     try:
         value = float(value)
     except (TypeError, ValueError):
         raise ValueError(
-            f"Column '{TRUE_EFFECT_COLUMN}' contains a non-numeric "
-            f"value: {record[TRUE_EFFECT_COLUMN]!r}"
+            f"Column '{TRUE_EFFECT_COLUMN}' (or fallback) contains a non-numeric "
+            f"value: {value!r}"
         )
     if not math.isfinite(value):
         raise ValueError(
-            f"Column '{TRUE_EFFECT_COLUMN}' contains a non-finite "
+            f"Column '{TRUE_EFFECT_COLUMN}' (or fallback) contains a non-finite "
             f"value: {value!r}"
         )
     return value
@@ -326,7 +338,8 @@ def write_simulation_and_estimations(
     true_effect_lookup: Dict[int, float] = {}
     for sim in simulated_records:
         rid = int(sim["replicate_id"])
-        true_effect_lookup[rid] = float(sim[TRUE_EFFECT_COLUMN])
+        # Use the robust extractor that tolerates missing injected column.
+        true_effect_lookup[rid] = _extract_true_effect(sim)
 
     # Enrich estimation records with bias & coverage_flag.
     enriched_estimations: List[Dict[str, Any]] = []

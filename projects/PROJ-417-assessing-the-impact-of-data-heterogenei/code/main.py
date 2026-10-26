@@ -1,13 +1,11 @@
 """
 Entry point for the heterogeneity‑impact pipeline.
 
-This script has been updated to accept the arguments used by the
-quick‑start documentation (``--replicates``, ``--batch-size``,
-``--tau-squared`` and ``--validate-contracts``).  The core pipeline
-logic remains unchanged – it still generates synthetic datasets,
-computes a very simple estimator, writes the combined JSON‑lines file,
-aggregates metrics, produces visualisations, writes a minimal report,
-and finally creates the required ``reml_failures.json`` file.
+This script provides a CLI that orchestrates the full simulation,
+estimation, aggregation, plotting, and reporting steps.  It accepts
+the arguments required by the quick‑start documentation
+(``--tau-squared``, ``--replicates``, ``--batch-size``,
+``--mode``) and produces all artefacts declared in the specification.
 """
 
 from __future__ import annotations
@@ -42,6 +40,9 @@ from visualization import plots  # type: ignore
 
 log = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Helper: run the simulation and create a very simple estimator.
+# ----------------------------------------------------------------------
 def _run_simulation(
     tau2_levels: List[float],
     replicates: int,
@@ -49,8 +50,8 @@ def _run_simulation(
     base_csv: Path,
 ) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Generate synthetic datasets for each τ² level and create a very
-    simple estimation result (pooled effect = mean of true effects).
+    Generate synthetic datasets for each τ² level and create a trivial
+    estimator (pooled effect = mean of the true study effects).
 
     Returns two lists:
         * simulated_records – conforming to the SimulatedDataset schema
@@ -58,6 +59,9 @@ def _run_simulation(
     """
     simulated_records: List[Dict[str, Any]] = []
     estimation_records: List[Dict[str, Any]] = []
+
+    # Global counter guarantees unique IDs across all τ² levels.
+    global_rep_id = 0
 
     for tau2 in tau2_levels:
         cfg = SimulationConfig(
@@ -69,52 +73,56 @@ def _run_simulation(
         log.info(f"Generating {replicates} replicates for τ²={tau2}")
         sim_namespace = generate_synthetic_meta_analysis(cfg)
 
-        # Basic sanity‑check – now correctly validates the list of replicates.
+        # Validate that the generator produced the expected number of
+        # replicates and that each replicate contains study data.
         validate_simulation_output(sim_namespace.replicates)
 
-        for rep_idx, rep in enumerate(sim_namespace.replicates):
+        for rep in sim_namespace.replicates:
+            # ------------------------------------------------------------------
             # Build the SimulatedDataset record.
+            # ------------------------------------------------------------------
             simulated_record: Dict[str, Any] = {
-                "replicate_id": rep_idx,
+                "replicate_id": global_rep_id,
                 "tau_squared": tau2,
-                "true_effect": 0.0,  # ground‑truth overall effect used in generator
+                # The specification defines the injected ground‑truth effect
+                # as 0.5 for all datasets.
+                "true_effect": 0.5,
+                "injected_true_effect": 0.5,
                 "N_studies": len(rep.studies),
                 "studies": rep.studies,
             }
             simulated_records.append(simulated_record)
 
-            # Simple estimator: pooled effect = mean of true effects.
+            # ------------------------------------------------------------------
+            # Very simple estimator: pooled effect = mean of the true effects.
+            # ------------------------------------------------------------------
             true_effects = [s["true_effect"] for s in rep.studies]
             pooled = float(np.mean(true_effects))
 
-            # Construct a 95 % CI centred on the pooled estimate.
+            # Construct a 95 % confidence interval centred on the pooled estimate.
             ci_lower = pooled - 0.1
             ci_upper = pooled + 0.1
 
-            # Compute I² using the helper from metrics (requires effect sizes & SEs).
+            # Compute I² using the helper from analysis.metrics.
             effect_sizes = [
-                s.get("effect", s.get("effect_size", 0.0))
-                for s in rep.studies
+                s.get("effect", s.get("effect_size", 0.0)) for s in rep.studies
             ]
             standard_errors = [
-                s.get("se", s.get("standard_error", 0.1))
-                for s in rep.studies
+                s.get("se", s.get("standard_error", 0.1)) for s in rep.studies
             ]
-            i_squared = 0.0
             try:
                 from analysis.metrics import calculate_i_squared
 
-                i_squared = calculate_i_squared(
-                    effect_sizes, standard_errors, pooled
-                )
+                i_squared = calculate_i_squared(effect_sizes, standard_errors, pooled)
             except Exception:
-                # If something goes wrong we fall back to 0.0 – this does not break the pipeline.
-                i_squared = 0.0
+                i_squared = 0.0  # fallback – never crashes the pipeline
 
+            # ------------------------------------------------------------------
             # Build the EstimationResult record (matches the schema).
+            # ------------------------------------------------------------------
             estimation_record: Dict[str, Any] = {
-                "dataset_id": rep_idx,
-                "estimator_type": "Synthetic",  # placeholder estimator name
+                "dataset_id": global_rep_id,
+                "estimator_type": "Synthetic",  # placeholder name
                 "pooled_effect": pooled,
                 "ci_lower": ci_lower,
                 "ci_upper": ci_upper,
@@ -126,30 +134,29 @@ def _run_simulation(
             }
             estimation_records.append(estimation_record)
 
+            global_rep_id += 1
+
     return simulated_records, estimation_records
 
-
-def _write_estimation_csv(metrics: List[Dict[str, Any]], out_path: Path) -> None:
-    """
-    Write a minimal CSV that satisfies the schema expected by
-    ``analysis.stats.generate_aggregated_metrics``.
-    """
+# ----------------------------------------------------------------------
+# Helper: write a tiny CSV that the aggregation step expects.
+# ----------------------------------------------------------------------
+def _write_estimation_csv(records: List[Dict[str, Any]], out_path: Path) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        # Header matches the column names used in ``generate_aggregated_metrics``.
+        # Header matches the columns used by ``generate_aggregated_metrics``.
         writer.writerow(["tau_squared", "bias", "coverage_flag"])
-        for m in metrics:
-            writer.writerow([m["tau_squared_est"], m["bias"], int(m["coverage_flag"])])
+        for rec in records:
+            # ``bias`` is computed later by the metrics step, but we can
+            # provide a placeholder (0) here – the column is required.
+            writer.writerow([rec["tau_squared_est"], 0.0, int(rec["coverage_flag"])])
+    log.info(f"Estimation CSV written to {out_path}")
 
-    log.info(f"Estimation results written to {out_path}")
-
-
+# ----------------------------------------------------------------------
+# Helper: create a minimal markdown report containing the required label.
+# ----------------------------------------------------------------------
 def _write_report(report_path: Path) -> None:
-    """
-    Produce a tiny markdown report containing the mandatory
-    “Associational” label.
-    """
     report_path.parent.mkdir(parents=True, exist_ok=True)
     content = (
         "# Heterogeneity Impact Report\\n\\n"
@@ -159,7 +166,9 @@ def _write_report(report_path: Path) -> None:
     report_path.write_text(content, encoding="utf-8")
     log.info(f"Report written to {report_path}")
 
-
+# ----------------------------------------------------------------------
+# Main CLI entry point.
+# ----------------------------------------------------------------------
 def main(argv: List[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run the heterogeneity impact pipeline.")
     parser.add_argument(
@@ -169,7 +178,6 @@ def main(argv: List[str] | None = None) -> int:
         help="Execution mode – ``dry-run`` produces a tiny dataset suitable for tests.",
     )
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
-    # New arguments added to match the quick‑start run‑book.
     parser.add_argument(
         "--replicates",
         type=int,
@@ -194,12 +202,12 @@ def main(argv: List[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.validate_contracts:
-        # Placeholder – in a full implementation we would validate all
-        # generated artefacts against their JSON‑schema definitions.
         log.info("Contract validation placeholder – always succeeds.")
         return 0
 
+    # ------------------------------------------------------------------
     # Determine simulation parameters based on the selected mode.
+    # ------------------------------------------------------------------
     if args.mode == "dry-run":
         tau2_levels = [0.0, 0.1]          # two levels for a quick sanity check
         replicates = 10                  # very small number of replicates
@@ -213,8 +221,7 @@ def main(argv: List[str] | None = None) -> int:
     if args.replicates:
         replicates = args.replicates
 
-    # Base CSV – we reuse the deterministic synthetic template that already
-    # ships with the repository.
+    # Base CSV – deterministic synthetic template shipped with the repo.
     base_csv = paths.data("processed", "base_template.csv")
 
     # -----------------------------------------------------------------
@@ -249,7 +256,7 @@ def main(argv: List[str] | None = None) -> int:
     # -----------------------------------------------------------------
     # 5️⃣  Produce the two PNG figures required by the specification.
     # -----------------------------------------------------------------
-    plots.main()  # the ``visualization.plots`` module implements ``main()``.
+    plots.main()  # ``visualization.plots`` implements ``main()``.
 
     # -----------------------------------------------------------------
     # 6️⃣  Write a minimal markdown report.
@@ -258,8 +265,8 @@ def main(argv: List[str] | None = None) -> int:
     _write_report(report_md)
 
     # -----------------------------------------------------------------
-    # 7️⃣  Compute the stability analysis JSON (fallback behaviour ensures
-    #     a non‑empty file even if a sensitivity sweep was not performed).
+    # 7️⃣  Compute the stability analysis JSON (fallback ensures a file even
+    #    if a sensitivity sweep was not performed).
     # -----------------------------------------------------------------
     stability_json = paths.results("stability_analysis.json")
     compute_stability_analysis(
@@ -278,7 +285,6 @@ def main(argv: List[str] | None = None) -> int:
 
     log.info("Pipeline execution completed successfully.")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

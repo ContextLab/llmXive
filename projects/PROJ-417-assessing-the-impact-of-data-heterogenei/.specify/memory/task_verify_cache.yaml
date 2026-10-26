@@ -1,12 +1,12 @@
 T001:
-  c: true
-  h: b596b476f5e8d67d1b46d9ab8c24be382268b464fef94093a864ffa5433584b1
-  r: "Checked `code/scripts/generate_base_template.py` (exists, deterministic logic\
-    \ for 20 rows) and `data/processed/base_template.csv` (exists, exactly 20 rows\
-    \ with columns `study_id,effect,se,n`). The CSV content matches the script\u2019\
-    s deterministic output, confirming the script runs successfully and produces the\
-    \ required file."
-  sig: 697957db13589fd30c9bab6b9f0ac90d1de4274ba210996d434f06c4099e4996
+  c: false
+  h: af0c03c37e0e74938b2e42e017dd13753cd99fdfd611ad40fb82f73876d67b2b
+  r: "The CSV `data/processed/base_template.csv` exists and has the required 20 rows\
+    \ and columns, and the script `code/scripts/generate_base_template.py` is present,\
+    \ but there is no evidence that the script was actually executed (e.g., a recorded\
+    \ command run with exit status\u202F0) and no artifact showing that a public Cochrane\
+    \ meta\u2011analysis CSV was downloaded as the task also requires."
+  sig: 9f20de182aae88efe7dfb3d0993101b7732fa907bdcf6daa8936f140170455b1
 T001a:
   c: true
   h: 6f27c73a4b5ccd31e48f21a5dca2be5145e770ea2ed2d8a76f6e6458845920a4
@@ -16,12 +16,23 @@ T001a:
     \ and implements the specified error handling."
   sig: fc4a916ffcb12df370f75d2464724e89cd8e9f824a304a96c1c7ed5518fe7366
 T003:
+  c: true
+  h: 95c9eed824740a506eab5b8567a0536ae42c9e61a11b2100f047429a2d3c4295
+  r: "Checked `code/simulation/estimators.py` for the three estimator implementations,\
+    \ the presence of Q, I\xB2, pooled effect, 95\u202F% CI, \u03C4\xB2 handling,\
+    \ and the `convergence_warning` flag, and verified that `tests/unit/test_estimators.py`\
+    \ contains tests that exercise these features (including \u03C4\xB2\u202F=\u202F\
+    0 equivalence and REML failure fallback to \u03C4\xB2\u202F=\u202F1e\u20116).\
+    \ All required artifacts exist and meet the specification."
+  sig: 4733e85432449d1c0b44f9617cc2aea8e995ced3aa832d1dcccb4284bd39b026
+T005:
   c: false
-  h: 9248694a0fe3fe92a1b4ec961460d507d37f9431c06718e950909515ee8c1b6f
-  r: "The `estimate_reml` function logs failures and sets `convergence_warning=True`,\
-    \ but on REML failure it falls back to the DerSimonian\u2011Laird \u03C4\xB2 value\
-    \ (`max(dl_res.tau2, MIN_POSITIVE_TAU2)`) instead of unconditionally using the\
-    \ required fallback \u03C4\xB2\u202F=\u202F1e\u20116. This violates the task specification\
-    \ that the fallback \u03C4\xB2 must be exactly\u202F1e\u20116. The implementation\
-    \ should set `tau2 = MIN_POSITIVE_TAU2` when REML fails."
-  sig: 3933ce1c600b87dc3bbc9f55afeb57aa16a8a9f777146d27b7380fa12d312009
+  h: a839bc8dd66d20007207847948f729902e05a481aa4b036909d687d3a607899c
+  r: "Checked `code/main.py`, `data/results/sample_estimates.csv` (missing), and `data/results/simulation_raw.jsonl`.\
+    \ The CLI does not accept `--sweep-type` or `--out`, writes outputs to the wrong\
+    \ locations, produces only one \u201CSynthetic\u201D estimator (not the three\
+    \ required), generates 20 simulation records and 20 estimation records (instead\
+    \ of 10\u202F+\u202F30), and the required `sample_estimates.csv` with 30 rows\
+    \ and the specified columns is absent. The task\u2019s end\u2011to\u2011end entry\
+    \ point and output specifications are therefore not met."
+  sig: c8efbc7b60be361c4923ad10dc878b764205470673dd1542344fa271510dd4f0

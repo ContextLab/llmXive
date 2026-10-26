@@ -433,8 +433,8 @@ def estimate_reml(
             )
         logger.warning("REML optimisation failed (%s); falling back to DL tau².", failure_reason)
         dl_res = estimate_dersimonian_laird(effect_sizes, variances)
-        # Replace τ² with a minimal positive value as per specification
-        minimal_tau2 = max(dl_res.tau2, MIN_POSITIVE_TAU2)
+        # According to the specification the fallback τ² must be exactly 1e‑6.
+        minimal_tau2 = MIN_POSITIVE_TAU2
         return EstimationResult(
             pooled_effect=dl_res.pooled_effect,
             se_pooled=dl_res.se_pooled,
