@@ -43,7 +43,7 @@
 | `p_value` | number | Raw p‑value for the correlation test. |
 | `adj_p_value` | number | BH‑FDR adjusted p‑value. |
 | `partial_rho` | number (optional) | Partial correlation controlling for covariates. |
-| `window_delta` | number (optional) | Difference `ρ_window − ρ_cross` (SC‑004). |
+| `window_delta` | number (optional) | Difference `ρ_window − ρ_cross`. |
 | `is_significant` | boolean | `adj_p_value < 0.05`. |
 | `exclusion_reason` | string (optional) | Reason for omission (e.g., `missing_data`). |
 | `prop_significant` | number (optional) | Proportion of devices with cluster‑adjusted p ≤ 0.05 (FR‑017). |

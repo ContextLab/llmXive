@@ -1,18 +1,18 @@
 status: none
-intent: IBM Quantum backend properties and historical archive dataset download python
-  package dataset
+intent: IBM Quantum backend properties historical archive dataset python package dataset
 required_fields:
 - backend_name
-- backend_status
-- num_qubits
-- gate_set
-- gate_error_rates
-- readout_error_rates
-- t1_times
-- t2_times
-- qubit_frequencies
-- last_update_timestamp
-- snapshot_date
-cache_key: a53be5bbe916a65ee6e9d81829894eb6f1a2fb47624341d6aba0cd4ef5651534
-searched_at: '2026-10-26T01:25:26.136080+00:00'
+- qubit_index
+- gate_name
+- gate_error
+- readout_error
+- t1
+- t2
+- frequency
+- anharmonicity
+- calibration_timestamp
+- status
+- date
+cache_key: ce9ec65f877098dbb3c137fd2f700c4e7c9d9345a8da8e2023f39f7e7cd464bb
+searched_at: '2026-10-26T01:53:12.891493+00:00'
 retry_count: 1

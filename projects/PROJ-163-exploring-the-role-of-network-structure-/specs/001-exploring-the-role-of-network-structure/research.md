@@ -37,7 +37,7 @@ Before any statistical merging, verify that the topology snapshot timestamp and 
 
 ### 4. Primary Statistical Analysis
 - **Spearman Correlation**: Compute ρ for each topology‑performance pair, applying a **cluster‑robust variance estimator** that clusters on `chip_generation` (FR‑015).  
-- **Linear Regression**: Fit a separate heteroscedasticity‑robust linear regression model for each topology‑performance pair, reporting β coefficients with 95 % confidence intervals (fulfills FR‑008).  
+- **Linear Regression**: Fit a heteroscedasticity‑robust linear regression model for each topology‑performance pair, reporting β coefficients with 95 % confidence intervals (FR‑008).  
 - **Partial Correlation**: Control for `chip_generation`, `qubit_count`, `device_age_days`, `readout_architecture`, and `timestamp` via `pingouin.partial_corr` (FR‑011).  
 - **Permutation Test**: If N < 30, use 10 000 permutations to obtain p‑values and 95 % CI; otherwise use the exact Spearman p‑value.  
 - **Multiple‑Comparison Correction**: Benjamini‑Hochberg FDR (α = 0.05) (SC‑003).  
@@ -77,6 +77,3 @@ Before any statistical merging, verify that the topology snapshot timestamp and 
 - No GPU resources are required.
 
 ---
-
-
-
