@@ -1,63 +1,20 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Aggregated Metrics Schema"
-description: "Schema for per‑pipeline, per‑domain aggregated scores."
+title: Aggregated Metrics
 type: object
 required:
-  - pipeline_type
-  - domain
-  - access_control_score
-  - utility_score
-  - conditional_utility
-  - forgetting_score
-  - avg_latency_ms
-  - avg_peak_ram_mb
-  - total_episodes
+  - AccessControl
+  - Utility
+  - Forgetting
 properties:
-  pipeline_type:
-    type: string
-    enum:
-      - gatekeeper
-      - retrieval_only
-      - long_context
-    description: "Pipeline evaluated."
-  domain:
-    type: string
-    enum:
-      - medical
-      - office
-      - education
-      - household
-    description: "Domain of the aggregated data."
-  access_control_score:
+  AccessControl:
     type: number
     minimum: 0
     maximum: 1
-    description: "Rate of unauthorized exposure."
-  utility_score:
+  Utility:
     type: number
     minimum: 0
     maximum: 1
-    description: "Overall task success rate."
-  conditional_utility:
+  Forgetting:
     type: number
     minimum: 0
     maximum: 1
-    description: "Utility among queries allowed by the gate."
-  forgetting_score:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Deletion compliance rate."
-  avg_latency_ms:
-    type: number
-    minimum: 0
-    description: "Mean inference latency."
-  avg_peak_ram_mb:
-    type: number
-    minimum: 0
-    description: "Mean peak RAM usage."
-  total_episodes:
-    type: integer
-    minimum: 0
-    description: "Number of episodes aggregated."
-additionalProperties: false

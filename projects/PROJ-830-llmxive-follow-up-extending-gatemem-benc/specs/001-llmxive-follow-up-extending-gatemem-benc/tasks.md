@@ -46,7 +46,7 @@
   - Provide `apply_rules(episode_dict) → bool`.  
   - *Verification*: `tests/unit/test_rules.py::test_malformed_handling` succeeds.  
 
-- [~] T013 [ ] Gatekeeper pipeline – `src/gatekeeper/pipeline.py`  
+- [ ] T013 [ ] Gatekeeper pipeline – `src/gatekeeper/pipeline.py`  
   - For each streamed episode: run classifier, then rules.  
   - If allowed, invoke LLM backbone (`src/utils/config.py` → `get_llm_singleton()`) with prompts from `templates/prompts.yaml`.  
   - Record results in `data/processed/gatekeeper_results.jsonl` (conforms to `evaluation_result.schema.yaml`).  

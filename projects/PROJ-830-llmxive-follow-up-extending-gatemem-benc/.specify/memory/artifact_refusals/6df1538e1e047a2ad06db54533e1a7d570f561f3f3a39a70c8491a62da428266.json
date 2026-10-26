@@ -1,0 +1,7 @@
+{
+  "task_id": "T010a",
+  "fingerprint": "bf8f21385f5d82a7f15a2e21b2757f2fa1a3fe7f0ecb7ff5e6109793cbf8b154",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/gatekeeper/classifier.py': imports nonexistent names from sibling files: `from gatekeeper.classifiers import ClassificationResult, run_intent_classification` (available: Any, Dict, FrozenDistilBERTClassifier, List, __all__, get_logger, logging, pipeline...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

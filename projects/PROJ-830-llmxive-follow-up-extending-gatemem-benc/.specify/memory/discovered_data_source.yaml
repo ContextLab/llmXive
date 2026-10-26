@@ -1,14 +1,13 @@
 status: none
-intent: download GateMem dataset medical office education household annotations python
-  package
+intent: download GateMem dataset medical office education household python package
+  dataset
 required_fields:
 - episode_id
 - domain
-- text
 - annotations
 - role_definitions
 - deletion_request_flag
-- metadata
-cache_key: 4da94c85a43afaffb532994ea2cac3e84b49158e9394d47a66652f8c95563ac3
-searched_at: '2026-10-26T02:43:21.921535+00:00'
+- conversation_text
+cache_key: 1f6d387ef3735e95f319f17ed2b791e29bfe5e4c1b469b23c1260fcc519cf1ba
+searched_at: '2026-10-26T02:46:46.860909+00:00'
 retry_count: 1

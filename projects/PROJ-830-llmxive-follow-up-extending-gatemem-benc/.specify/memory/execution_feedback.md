@@ -17,11 +17,10 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/utils/data_loader.py -> rc=1
+Data Fetch Error: Failed to fetch dataset Ray368/GateMem: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/src/utils/data_loader.py", line 15, in <module>
-    from src.utils.config import (
-ImportError: cannot import name 'DATASET_ID' from 'src.utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-830-llmxive-follow-up-extending-gatemem-benc/src/utils/config.py)
+2026-10-26 02:45:45,645 - CRITICAL - Critical: Real Data Fetch Failed
+2026-10-26 02:45:45,645 - ERROR - Fetch error: pyarrow requires NumPy 2.0 or newer, found 1.26.4
 
 - python code/cli/run_evaluation.py --mode gatekeeper --domains medical,office,education,household -> rc=1
 ast):
@@ -113,7 +112,7 @@ ERROR tests/unit/test_stats_stratified.py
 ERROR tests/unit/test_verify_deps.py
 ERROR tests/us3/test_profiling_integration.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 26 errors during collection !!!!!!!!!!!!!!!!!!!
-======================== 2 warnings, 26 errors in 6.35s ========================
+======================== 2 warnings, 26 errors in 5.90s ========================
 
 
 ## Platform-owned paths written inside the project

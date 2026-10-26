@@ -1,15 +1,6 @@
-# Dataset schema for GateMem episodes
-# This schema defines the minimal required fields that each episode
-# must contain for the benchmark pipeline.
-#
-# Required fields:
-# - id: Unique episode identifier (string)
-# - domain: One of the four benchmark domains (medical, office, education, household)
-# - leak-target: Annotation indicating whether the episode contains a leak target (string)
-# - role: The user role that generated the episode (string)
-# - outcome: Ground‑truth access decision; "allowed" or "denied" (string)
-# - authorization_boundaries: JSON object describing role‑based access limits (object)
-
+$schema: "http://json-schema.org/draft-07/schema#"
+title: GateMem Dataset Episode
+type: object
 required:
   - id
   - domain
@@ -17,10 +8,19 @@ required:
   - role
   - outcome
   - authorization_boundaries
-type: object
-additionalProperties: true
-description: |
-  Minimal contract for a GateMem episode. All fields listed under
-  ``required`` must be present; extra fields are permitted. This
-  contract is used by the data‑loader validation step and the
-  contract‑testing suite.
+properties:
+  id:
+    type: string
+  domain:
+    type: string
+    enum: [medical, office, education, household]
+  leak-target:
+    type: string
+  role:
+    type: string
+  outcome:
+    type: string
+    enum: [allowed, denied]
+  authorization_boundaries:
+    type: object
+    additionalProperties: true

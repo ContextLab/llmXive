@@ -1,15 +1,14 @@
 T001:
   c: false
-  h: 776530466ed3ffe627717d322f1bc2272927957e2b2267a28520394502126ab0
-  r: "The required contract files (`dataset.schema.yaml`, `evaluation_result.schema.yaml`,\
-    \ `metrics.schema.yaml`, `results.schema.yaml`, `output.schema.yaml`) are not\
-    \ shown to exist with valid content at the specified path, and no evidence is\
-    \ provided that the contract test suite actually passes (the test expects a `SCHEMA_PATH`\
-    \ that points to a root\u2011level `contracts` directory, which does not contain\
-    \ the schemas). Consequently the task\u2019s core deliverable \u2013 correct JSON\u2011\
-    Schema contracts under `specs/001-llmxive-follow-up-extending-gatemem-benc/contracts/`\
-    \ \u2013 is not demonstrably present or validated."
-  sig: 9905ff3355299c257c8f2af9e4e1db21651a1b458162c21b53ef826b68759daf
+  h: 9644a8bb3cd2f67d31e2f9c495015e633fd09120094ddb68b9a9f28f355b95bb
+  r: "The required schema files do exist in `specs/001-llmxive-follow-up-extending-gatemem-benc/contracts/`,\
+    \ but their contents are not provided, and there is no evidence that they are\
+    \ valid JSON\u2011Schema contracts. Moreover, the test suite `tests/contract/test_dataset_schema.py`\
+    \ imports a `SCHEMA_PATH` variable that is not defined in `code/utils/data_loader.py`,\
+    \ and no test execution logs are supplied to show the pytest checks passing. The\
+    \ task therefore lacks the necessary validated schema artifacts and proof of passing\
+    \ contract tests."
+  sig: a1712e87744223e03c47c795e36d3f04801c6e97a5df01d2ddf68bea68e7e29a
 T002:
   c: true
   h: 554d8f10761a54646950e2d8d514715e3bc3ed956721e825108e455f55ae1c6a
@@ -21,12 +20,11 @@ T002:
   sig: 42bdc90f3e05865b3223f80d48cb5dbb108e560bb8204f2171c0473d80879b38
 T003:
   c: false
-  h: c686af012acf069ad2d18ffaf8eb061659c3bbf9e8058bf658acc9562dd0b7ca
-  r: The required file `src/utils/profiling.py` is missing; only a different module
-    `code/utils/profiling.py` exists, which the tests import, but the task explicitly
-    demands an implementation at `src/utils/profiling.py`. The missing artifact must
-    be added (or the test adjusted) to satisfy the requirement.
-  sig: d0981b3622df54c1d2582996fefafc4f04d9b00826496961821719aef0f6f720
+  h: 9c79029540667c44d551c940fcfd55e4b9172049063a9b0e58b753b9ad78345d
+  r: "The required file `src/utils/profiling.py` is missing; only a similarly named\
+    \ module exists under `code/utils/profiling.py`, which does not satisfy the task\u2019\
+    s specified path. The task\u2019s primary artifact is absent."
+  sig: c91c6cc0f812e423765c043bc75b4c9a2d456401d8f40171fd09894bc42ab882
 T010a:
   c: false
   h: 4913a9535adb4209ec418a2a447bdd2ae65474b563bb9dfd55e63a2bf7d7db20
@@ -54,6 +52,18 @@ T012:
     \ validate roles against a whitelist in `config.py`. The task\u2019s core requirements\
     \ are therefore not satisfied."
   sig: 53efe7d6eae311d7297e0589cd455e0036584609374ffef2cb251ef58baef1f2
+T013:
+  c: false
+  h: 3e4088b584704c43d586ee1f8dd609f837008160da2fcb23bd8baf0736d9c947
+  r: "The provided `src/gatekeeper/pipeline.py` runs a classifier and rule checks,\
+    \ but it never calls the LLM singleton from `src/utils/config.py`, writes results\
+    \ to `data/processed/gatekeeper_results.json` (not the required `.jsonl` file),\
+    \ and does not validate against `evaluation_result.schema.yaml` (which is missing).\
+    \ Moreover, the integration test `tests/integration/test_us1_medical_domain.py`\
+    \ expects an `access_control_results.json` file with non\u2011empty scores, which\
+    \ the current pipeline does not produce. Consequently, the core requirements of\
+    \ the task are not satisfied."
+  sig: 30bdfd5aad70f3f7f746daee2394acb225489ceda78073458e160291c23629d0
 T021:
   c: false
   h: ce1215ea96bb0f6c7328c4c6081b59cb0d26486570fc96534b960b2ec1fe05d2

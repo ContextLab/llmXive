@@ -1,20 +1,18 @@
 T001:
-  reason: "The required contract files (`dataset.schema.yaml`, `evaluation_result.schema.yaml`,\
-    \ `metrics.schema.yaml`, `results.schema.yaml`, `output.schema.yaml`) are not\
-    \ shown to exist with valid content at the specified path, and no evidence is\
-    \ provided that the contract test suite actually passes (the test expects a `SCHEMA_PATH`\
-    \ that points to a root\u2011level `contracts` directory, which does not contain\
-    \ the schemas). Consequently the task\u2019s core deliverable \u2013 correct JSON\u2011\
-    Schema contracts under `specs/001-llmxive-follow-up-extending-gatemem-benc/contracts/`\
-    \ \u2013 is not demonstrably present or validated."
+  reason: "The required schema files do exist in `specs/001-llmxive-follow-up-extending-gatemem-benc/contracts/`,\
+    \ but their contents are not provided, and there is no evidence that they are\
+    \ valid JSON\u2011Schema contracts. Moreover, the test suite `tests/contract/test_dataset_schema.py`\
+    \ imports a `SCHEMA_PATH` variable that is not defined in `code/utils/data_loader.py`,\
+    \ and no test execution logs are supplied to show the pytest checks passing. The\
+    \ task therefore lacks the necessary validated schema artifacts and proof of passing\
+    \ contract tests."
   task: b08c5ab56da9233e3e3e320aa4620798672b8b4d9c380c0cbf51f8bd202cdaa7
 T002:
   task: e94eca5db5f4e92ed4731c4b04b7b9f5bde094d1e5b29eeb051ae5818c3062d8
 T003:
-  reason: The required file `src/utils/profiling.py` is missing; only a different
-    module `code/utils/profiling.py` exists, which the tests import, but the task
-    explicitly demands an implementation at `src/utils/profiling.py`. The missing
-    artifact must be added (or the test adjusted) to satisfy the requirement.
+  reason: "The required file `src/utils/profiling.py` is missing; only a similarly\
+    \ named module exists under `code/utils/profiling.py`, which does not satisfy\
+    \ the task\u2019s specified path. The task\u2019s primary artifact is absent."
   task: 260512ca4e45f143512850dd9f99fd406867de33efbb341fea3706f054b7e4f9
 T010:
   reason: 'the task writes platform-owned path(s) inside the project: `state/artifact_hashes.yaml`
@@ -44,6 +42,14 @@ T012:
     s core requirements are therefore not satisfied."
   task: 995060c1ce03e40de905267d247cdcef9d03b495b6a25f6e91589dbd8851dc9c
 T013:
+  reason: "The provided `src/gatekeeper/pipeline.py` runs a classifier and rule checks,\
+    \ but it never calls the LLM singleton from `src/utils/config.py`, writes results\
+    \ to `data/processed/gatekeeper_results.json` (not the required `.jsonl` file),\
+    \ and does not validate against `evaluation_result.schema.yaml` (which is missing).\
+    \ Moreover, the integration test `tests/integration/test_us1_medical_domain.py`\
+    \ expects an `access_control_results.json` file with non\u2011empty scores, which\
+    \ the current pipeline does not produce. Consequently, the core requirements of\
+    \ the task are not satisfied."
   task: 73392e774efe96ada402307c524e01c850777f5454e4f68ef4edb6649212b1b3
 T013a:
   reason: 'Requested task execution failed; rerun successfully: tests/unit/test_llm_cpu.py
