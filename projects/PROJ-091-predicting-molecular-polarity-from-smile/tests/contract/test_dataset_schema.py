@@ -1,58 +1,51 @@
 """
-Contract test for the descriptor matrix schema.
-
-This test validates that the processed descriptor matrix parquet file
-conforms to the expected schema defined in `tests/contract/validators.py`.
-
-If the required file does not exist (e.g., because the upstream data
-generation step has not yet been run), the test is skipped rather than
-failing. This allows the contract suite to be executed early in the
-pipeline while still providing full validation once the artifact is
-present.
+Contract test for the descriptor matrix artifact.
+Verifies that data/processed/descriptors.parquet exists and conforms
+to the expected schema defined in validators.py.
 """
 import pytest
-from pathlib import Path
-
 import pandas as pd
+from tests.contract.validators import (
+    DescriptorMatrix, 
+    validate_descriptor_frame, 
+    DESCRIPTORS_PARQUET
+)
 
-# Import the Pydantic model and helper validator from the same package
-from .validators import DescriptorMatrix, validate_descriptor_frame
-
-
-def _get_descriptors_path() -> Path:
-    """Return the absolute path to the descriptors parquet file."""
-    return (
-        Path(__file__).resolve().parents[2]
-        / "data"
-        / "processed"
-        / "descriptors.parquet"
-    )
-
-
-def test_descriptor_matrix_schema():
+def test_descriptors_parquet_schema():
     """
-    Verify that the descriptor matrix file exists, contains the required
-    metadata columns, and includes all descriptor columns listed in
-    `descriptor_names.json`.
+    Validate that the descriptors parquet file exists and matches 
+    the required columns and types.
     """
-    descriptors_path = _get_descriptors_path()
-    if not descriptors_path.exists():
-        pytest.skip(f"Descriptor matrix not found at {descriptors_path}")
+    # 1. Check existence
+    if not DESCRIPTORS_PARQUET.exists():
+        pytest.fail(f"Required artifact missing: {DESCRIPTORS_PARQUET}")
 
-    # Load the parquet file
-    df = pd.read_parquet(descriptors_path)
+    # 2. Load data
+    df = pd.read_parquet(DESCRIPTORS_PARQUET)
 
-    # Use the helper to assert column presence and correctness.
-    # This will raise a ValueError if the schema does not match.
-    descriptor_columns = validate_descriptor_frame(df)
+    # 3. Validate frame structure (metadata + expected descriptors from JSON)
+    # This will raise ValueError if columns are missing
+    validate_descriptor_frame(df)
 
-    # Spot‑check a single row with the Pydantic model. The model allows
-    # extra fields (the descriptor columns) but enforces the required
-    # metadata fields.
-    sample_row = df.iloc[0].to_dict()
-    instance = DescriptorMatrix(**sample_row)
+    # 4. Validate data types for a sample of rows using Pydantic
+    # We check the first and last row to ensure consistency
+    for idx in [0, len(df) - 1]:
+        row_dict = df.iloc[idx].to_dict()
+        try:
+            DescriptorMatrix(**row_dict)
+        except Exception as e:
+            pytest.fail(f"Row {idx} failed Pydantic validation: {e}")
 
-    # Basic sanity checks
-    assert isinstance(instance, DescriptorMatrix)
-    assert isinstance(descriptor_columns, list)
-    assert len(descriptor_columns) > 0
+def test_descriptors_no_empty_columns():
+    """
+    Ensure that no descriptor columns are entirely NaN.
+    """
+    if not DESCRIPTORS_PARQUET.exists():
+        pytest.skip("Artifact missing, skipping content check")
+    
+    df = pd.read_parquet(DESCRIPTORS_PARQUET)
+    descriptor_cols = [c for c in df.columns if c not in {"smiles", "target", "stereochemistry_flag", "flexible_flag"}]
+    
+    for col in descriptor_cols:
+        if df[col].isna().all():
+            pytest.fail(f"Column {col} is entirely NaN")

@@ -10,20 +10,13 @@ This script fulfills the requirements of task **T101**:
   missing descriptor values are dropped and logged.
 * Adds boolean flags:
   - ``stereochemistry_flag`` – true when the molecule has undefined
-    stereochemistry (always ``False`` for QM9, satisfying the ≤ 5 %
-    requirement).
+    stereochemistry (checked via presence of chiral centers vs SMILES markers).
   - ``flexible_flag`` – true when the rotatable‑bond count ≥ 5.
 * Persists the ordered list of descriptor names to
   ``data/processed/descriptor_names.json``.
-* Writes the descriptor matrix (with exact descriptor column names) to
-  ``data/processed/descriptors.parquet``.
+* Writes the descriptor matrix to ``data/processed/descriptors.parquet``.
 * Logs total runtime, peak memory usage and basic statistics.
 * Asserts that preprocessing completes within 15 minutes.
-
-The script can be invoked directly or via ``code/main.py
---step fetch_and_preprocess``.
-It exits with status 0 on success and raises an exception otherwise,
-causing the pipeline to abort.
 """
 
 import os
@@ -32,7 +25,7 @@ import json
 import time
 import logging
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Any
 
 import psutil
 import pandas as pd
@@ -60,24 +53,11 @@ logger = logging.getLogger(__name__)
 # -------------------------------------------------------------------------
 # Constants
 # -------------------------------------------------------------------------
-DATA_PROC_DIR = Path(__file__).resolve().parents[2] / "data" / "processed"
+DATA_PROC_DIR = Path("data") / "processed"
 
-# Descriptors that must be excluded according to FR‑001
 DESCRIPTOR_EXCLUSIONS = {
-    # TPSA‑related descriptors
-    "TPSA",
-    "TPSA_E",
-    "TPSA_E2",
-    "TPSA_E3",
-    "TPSA_E4",
-    "TPSA_E5",
-    "TPSA_E6",
-    "TPSA_E7",
-    "TPSA_E8",
-    "TPSA_E9",
-    "TPSA_E10",
-    # SMARTS‑based functional‑group counts (all descriptors that start with "fr_")
-    # We will filter them programmatically below.
+    "TPSA", "TPSA_E", "TPSA_E2", "TPSA_E3", "TPSA_E4", "TPSA_E5",
+    "TPSA_E6", "TPSA_E7", "TPSA_E8", "TPSA_E9", "TPSA_E10",
 }
 
 # -------------------------------------------------------------------------
@@ -85,12 +65,8 @@ DESCRIPTOR_EXCLUSIONS = {
 # -------------------------------------------------------------------------
 def get_2d_descriptor_names() -> List[str]:
     """
-    Return a list of RDKit 2‑D descriptor names, excluding TPSA‑related
-    descriptors, any descriptor that contains ``3D`` in its name, and all
-    SMARTS‑based functional‑group counts (those whose name starts with
-    ``fr_``).
+    Return a list of RDKit 2‑D descriptor names, excluding TPSA, 3D, and SMARTS counts.
     """
-    # All callable descriptor functions in rdkit.Chem.Descriptors
     all_desc = [
         name
         for name in dir(Descriptors)
@@ -104,38 +80,23 @@ def get_2d_descriptor_names() -> List[str]:
         if "3D" in name:
             continue
         if name.startswith("fr_"):
-            # SMARTS‑based functional‑group counts – exclude per FR‑001
             continue
         filtered.append(name)
 
-    logger.info(
-        f"Found {len(all_desc)} total RDKit descriptors, {len(filtered)} after filtering."
-    )
+    logger.info(f"Found {len(all_desc)} total RDKit descriptors, {len(filtered)} after filtering.")
     return filtered
 
-def compute_descriptors(mol: Chem.Mol, names: List[str]) -> Dict[str, float]:
+def check_undefined_stereo(smiles: str, mol: Chem.Mol) -> bool:
     """
-    Compute the requested descriptors for a single RDKit molecule.
-    Returns a mapping ``{name: value}``.  NaN/Inf are kept as ``np.nan``.
+    Flag molecules with undefined stereochemistry.
+    True if the molecule has chiral centers but the SMILES lacks stereochemical markers.
     """
-    result = {}
-    for name in names:
-        try:
-            func = getattr(Descriptors, name)
-            val = func(mol)
-            if pd.isna(val) or np.isinf(val):
-                result[name] = np.nan
-            else:
-                result[name] = float(val)
-        except Exception:
-            logger.debug(f"Descriptor {name} failed for a molecule; setting NaN.")
-            result[name] = np.nan
-    return result
+    has_centers = mol.GetNumChiralCenters() > 0 or mol.GetNumStereoCenters() > 0
+    has_markers = any(c in smiles for c in ['@', '/', '\\'])
+    return has_centers and not has_markers
 
 def is_flexible(mol: Chem.Mol) -> bool:
-    """
-    Return True if the molecule has ≥ 5 rotatable bonds.
-    """
+    """Return True if the molecule has ≥ 5 rotatable bonds."""
     return rdMolDescriptors.CalcNumRotatableBonds(mol) >= 5
 
 # -------------------------------------------------------------------------
@@ -146,52 +107,42 @@ def generate_descriptors() -> None:
     process = psutil.Process(os.getpid())
     peak_memory = 0
 
-    # Ensure output directory exists
     DATA_PROC_DIR.mkdir(parents=True, exist_ok=True)
 
-    # -----------------------------------------------------------------
-    # Determine descriptor set
-    # -----------------------------------------------------------------
+    # 1. Determine descriptor set
     descriptor_names = get_2d_descriptor_names()
     descriptor_names_path = DATA_PROC_DIR / "descriptor_names.json"
     descriptor_names_path.write_text(json.dumps(descriptor_names, indent=2))
     logger.info(f"Descriptor names written to {descriptor_names_path}")
 
-    # -----------------------------------------------------------------
-    # Load QM9 dataset via qm9pack (verified real source)
-    # -----------------------------------------------------------------
+    # 2. Load QM9 dataset
     logger.info("Loading QM9 dataset via qm9pack...")
     try:
         df_raw = qm9pack.get_data("qm9")
     except Exception as e:
-        logger.error(f"Failed to load QM9 data via qm9pack: {e}")
+        logger.error(f"Failed to load QM9 data: {e}")
         raise
 
-    # Normalise column names to lower case for robust lookup
     df_raw.columns = [c.lower() for c in df_raw.columns]
-
-    # Expected column names (case‑insensitive)
     SMILES_COL = "smiles"
     TARGET_COL = "dipole_debye"
 
     if SMILES_COL not in df_raw.columns or TARGET_COL not in df_raw.columns:
-        raise ValueError(
-            f"QM9 data must contain columns '{SMILES_COL}' and '{TARGET_COL}'."
-        )
+        raise ValueError(f"QM9 data must contain '{SMILES_COL}' and '{TARGET_COL}'.")
 
-    # -----------------------------------------------------------------
-    # Filter to rows that satisfy the flag‑proportion constraints.
-    # For speed we take a subset where ``flexible_flag`` is False.
-    # This guarantees the ``flexible_flag`` proportion ≤ 5 %.
-    # -----------------------------------------------------------------
-    smiles_series = df_raw[SMILES_COL]
-    target_series = df_raw[TARGET_COL]
+    # Pre-bind functions for performance
+    desc_funcs = {name: getattr(Descriptors, name) for name in descriptor_names}
 
-    rows: List[Dict] = []
-    total_records = 0
+    # 3. Process molecules
+    rows = []
+    smiles_vals = df_raw[SMILES_COL].values
+    target_vals = df_raw[TARGET_COL].values
 
-    # Process molecules in a streaming‑like fashion
-    for idx, (smiles, target) in enumerate(zip(smiles_series, target_series)):
+    logger.info(f"Processing {len(df_raw)} molecules...")
+    for idx in range(len(df_raw)):
+        smiles = smiles_vals[idx]
+        target = target_vals[idx]
+
         if pd.isna(smiles) or pd.isna(target):
             continue
 
@@ -199,107 +150,70 @@ def generate_descriptors() -> None:
         if mol is None:
             continue
 
-        # Compute flexibility flag early; skip if flexible (to keep proportion low)
-        flexible = is_flexible(mol)
-        if flexible:
-            # We keep only a small random sample of flexible molecules to stay
-            # under the 5 % threshold. Here we simply skip them.
-            continue
-
-        desc_vals = compute_descriptors(mol, descriptor_names)
+        # Compute descriptors
+        desc_vals = {}
+        for name, func in desc_funcs.items():
+            try:
+                val = func(mol)
+                desc_vals[name] = float(val) if not (pd.isna(val) or np.isinf(val)) else np.nan
+            except:
+                desc_vals[name] = np.nan
 
         row = {
             "smiles": smiles,
             "target": float(target),
+            "stereochemistry_flag": check_undefined_stereo(smiles, mol),
+            "flexible_flag": is_flexible(mol),
+            **desc_vals
         }
-        row.update(desc_vals)
-
-        # Flags
-        row["stereochemistry_flag"] = False  # QM9 does not provide undefined stereo info
-        row["flexible_flag"] = flexible
-
         rows.append(row)
-        total_records += 1
 
-        # Periodic logging of memory usage
-        if (idx + 1) % 5000 == 0:
+        if (idx + 1) % 10000 == 0:
             current_rss = process.memory_info().rss
             peak_memory = max(peak_memory, current_rss)
-            logger.info(
-                f"Processed {idx + 1} records – "
-                f"Current RSS {current_rss / (1024**2):.1f} MiB"
-            )
+            logger.info(f"Processed {idx + 1}/{len(df_raw)} records – RSS {current_rss / (1024**2):.1f} MiB")
 
-    logger.info(f"Finished processing. Total records kept: {total_records}")
-
-    # -----------------------------------------------------------------
-    # Build DataFrame
-    # -----------------------------------------------------------------
+    # 4. DataFrame and NaN handling
     df = pd.DataFrame(rows)
-    logger.info(f"DataFrame shape before NaN handling: {df.shape}")
+    descriptor_cols = descriptor_names
 
-    # -----------------------------------------------------------------
-    # Missing‑value handling
-    # -----------------------------------------------------------------
-    descriptor_cols = [
-        c
-        for c in df.columns
-        if c not in ("smiles", "target", "stereochemistry_flag", "flexible_flag")
-    ]
+    # Drop rows with > 5% NaNs
+    missing_mask = df[descriptor_cols].isna().mean(axis=1) > 0.05
+    dropped_count = missing_mask.sum()
+    if dropped_count > 0:
+        logger.info(f"Dropping {dropped_count} rows with > 5% missing descriptors.")
+        df = df[~missing_mask].reset_index(drop=True)
 
-    # Drop rows with >5 % missing descriptor values
-    missing_per_row = df[descriptor_cols].isna().mean(axis=1)
-    mask_drop = missing_per_row > 0.05
-    dropped_rows = mask_drop.sum()
-    if dropped_rows:
-        logger.info(f"Dropping {dropped_rows} rows with >5 % missing descriptors.")
-    df = df.loc[~mask_drop].reset_index(drop=True)
-
-    # Impute remaining NaNs with column median
+    # Impute remaining NaNs with median
     for col in descriptor_cols:
         if df[col].isna().any():
-            median_val = df[col].median()
-            df[col].fillna(median_val, inplace=True)
+            df[col] = df[col].fillna(df[col].median())
 
-    logger.info(f"DataFrame shape after NaN handling: {df.shape}")
+    # 5. Flag proportion checks
+    stereo_prop = df["stereochemistry_flag"].mean()
+    flex_prop = df["flexible_flag"].mean()
+    logger.info(f"Stereochem flag proportion: {stereo_prop:.4%}")
+    logger.info(f"Flexible flag proportion: {flex_prop:.4%}")
 
-    # -----------------------------------------------------------------
-    # Flag proportion checks (must be ≤ 5 %)
-    # -----------------------------------------------------------------
-    stereochem_prop = df["stereochemistry_flag"].mean()
-    flexible_prop = df["flexible_flag"].mean()
-    logger.info(f"stereochemistry_flag true for {stereochem_prop:.4%} of records")
-    logger.info(f"flexible_flag true for {flexible_prop:.4%} of records")
-    assert (
-        stereochem_prop <= 0.05
-    ), "stereochemistry_flag exceeds 5 % limit (undefined stereochemistry)"
-    assert flexible_prop <= 0.05, "flexible_flag exceeds 5 % limit (flexibility)"
+    # Verification of constraints (as per T101 requirements)
+    assert stereo_prop <= 0.05, f"stereochemistry_flag exceeds 5% limit: {stereo_prop:.4%}"
+    assert flex_prop <= 0.05, f"flexible_flag exceeds 5% limit: {flex_prop:.4%}"
 
-    # -----------------------------------------------------------------
-    # Persist results
-    # -----------------------------------------------------------------
+    # 6. Persist results
     descriptors_path = DATA_PROC_DIR / "descriptors.parquet"
     df.to_parquet(descriptors_path, index=False)
-    logger.info(f"Wrote descriptor matrix to {descriptors_path}")
+    logger.info(f"Wrote descriptor matrix to {descriptors_path}. Shape: {df.shape}")
 
-    # -----------------------------------------------------------------
-    # Runtime / memory assertions
-    # -----------------------------------------------------------------
     elapsed = time.time() - start_time
-    logger.info(f"Total runtime: {elapsed:.2f} s")
-    logger.info(f"Peak RSS memory: {peak_memory / (1024**2):.1f} MiB")
-    assert elapsed <= 15 * 60, "Preprocessing exceeded the 15‑minute time limit"
+    logger.info(f"Total runtime: {elapsed:.2f} s")
+    logger.info(f"Peak RSS memory: {peak_memory / (1024**2):.1f} MiB")
+    assert elapsed <= 15 * 60, f"Preprocessing exceeded 15 min limit: {elapsed:.2f} s"
 
-    logger.info("Descriptor generation completed successfully.")
-
-# -------------------------------------------------------------------------
-# Entry point
-# -------------------------------------------------------------------------
 def main() -> None:
     try:
         generate_descriptors()
     except Exception as exc:
-        logger.exception(f"Fatal error during descriptor generation: {exc}")
+        logger.exception(f"Fatal error: {exc}")
         sys.exit(1)
 
 if __name__ == "__main__":

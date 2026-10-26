@@ -9,11 +9,15 @@ import json
 from typing import List, Any
 
 import pandas as pd
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 # -------------------------------------------------------------------------
 # Helper utilities
 # -------------------------------------------------------------------------
+# Path: tests/contract/validators.py
+# parents[0]: tests/contract
+# parents[1]: tests
+# parents[2]: project_root
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 DESCRIPTORS_PARQUET = PROJECT_ROOT / "data" / "processed" / "descriptors.parquet"
@@ -22,6 +26,8 @@ DESCRIPTOR_NAMES_JSON = PROJECT_ROOT / "data" / "processed" / "descriptor_names.
 
 def load_descriptor_names() -> List[str]:
     """Load the list of descriptor names from the JSON file."""
+    if not DESCRIPTOR_NAMES_JSON.exists():
+        raise FileNotFoundError(f"Descriptor names JSON missing: {DESCRIPTOR_NAMES_JSON}")
     with open(DESCRIPTOR_NAMES_JSON, "r", encoding="utf-8") as f:
         names = json.load(f)
     return names
@@ -59,28 +65,24 @@ class DescriptorMatrix(BaseModel):
     imputed; the presence of the column is enforced by the schema
     validator in the test suite.
     """
+    model_config = ConfigDict(extra="allow")
 
     smiles: str
     target: float
     stereochemistry_flag: bool
     flexible_flag: bool
 
-    # Dynamically allow any descriptor column (float or int)
     @field_validator("*", mode="before")
     def allow_numeric(cls, v: Any) -> Any:
         if isinstance(v, (int, float)):
             return float(v)
         return v
 
-    class Config:
-        extra = "allow"
-
 
 class ModelOutput(BaseModel):
     """
     Model output metrics schema.
     """
-
     r2_score: float = Field(..., ge=0.0)
     rmse: float = Field(..., ge=0.0)
     baseline_r2: float = Field(..., ge=0.0)

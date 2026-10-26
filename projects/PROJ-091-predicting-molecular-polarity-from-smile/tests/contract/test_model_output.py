@@ -1,49 +1,35 @@
 """
-Contract test for the model output metrics file.
-
-The test loads ``data/results/model_metrics.json`` and validates that
-the JSON structure conforms to the ``ModelOutput`` Pydantic model defined
-in ``tests/contract/validators.py``.
-
-If the file is not yet generated (e.g., the training step has not run),
-the test is skipped so that the contract suite can still be executed
-without causing a failure.
+Contract test for the model output metrics artifact.
+Verifies that data/results/model_metrics.json exists and conforms
+to the ModelOutput Pydantic schema.
 """
-import json
 import pytest
+import json
 from pathlib import Path
+from tests.contract.validators import ModelOutput
 
-# Import the Pydantic model that defines the expected schema.
-from .validators import ModelOutput
+# Define the path to the expected model metrics artifact
+# Based on tasks.md T104 and plan.md
+MODEL_METRICS_JSON = Path("data/results/model_metrics.json")
 
-
-def _get_metrics_path() -> Path:
-    """Return the absolute path to the model metrics JSON file."""
-    return (
-        Path(__file__).resolve().parents[2]
-        / "data"
-        / "results"
-        / "model_metrics.json"
-    )
-
-
-def test_model_output_schema():
+def test_model_metrics_schema():
     """
-    Verify that the model metrics file exists and matches the
-    ``ModelOutput`` schema.
+    Validate that the model metrics JSON exists and contains 
+    the required metrics (R2, RMSE, baseline_R2) with valid values.
     """
-    metrics_path = _get_metrics_path()
-    if not metrics_path.exists():
-        pytest.skip(f"Model metrics not found at {metrics_path}")
+    # 1. Check existence
+    if not MODEL_METRICS_JSON.exists():
+        pytest.fail(f"Required artifact missing: {MODEL_METRICS_JSON}")
 
-    with open(metrics_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+    # 2. Load JSON data
+    with open(MODEL_METRICS_JSON, "r", encoding="utf-8") as f:
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError as e:
+            pytest.fail(f"Failed to decode JSON from {MODEL_METRICS_JSON}: {e}")
 
-    # Validation via Pydantic – will raise if fields are missing or out of range.
-    model_output = ModelOutput(**data)
-
-    assert isinstance(model_output, ModelOutput)
-    # Ensure the numeric fields are indeed numbers (Pydantic already coerces).
-    assert model_output.r2_score >= 0.0
-    assert model_output.rmse >= 0.0
-    assert model_output.baseline_r2 >= 0.0
+    # 3. Validate against Pydantic model
+    try:
+        ModelOutput(**data)
+    except Exception as e:
+        pytest.fail(f"Model metrics failed schema validation: {e}")

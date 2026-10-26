@@ -1,13 +1,11 @@
-# Core dependencies (already available in the runner)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
+rdkit
 lightgbm
 shap
-rdkit
-datasets
-psutil
-pydantic
+pandas
+numpy
+scikit-learn
 qm9pack
+pytest
+scipy
+pyarrow
+psutil
