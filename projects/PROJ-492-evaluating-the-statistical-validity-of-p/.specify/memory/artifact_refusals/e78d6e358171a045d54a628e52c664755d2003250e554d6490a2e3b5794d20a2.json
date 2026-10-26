@@ -1,0 +1,7 @@
+{
+  "task_id": "T001",
+  "fingerprint": "16533045bd42f4e4ea6cecc699b4bd22532c2ee28523b34a5b646041df59c92c",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'code/src/audit/__init__.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`."
+}

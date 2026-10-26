@@ -1,8 +1,0 @@
-T001:
-  c: true
-  h: 09194ccb29930776c9d0926e3a1d2955efd730949e7f2d32025aa648abb81288
-  r: Checked the `code/src/audit/` directory (contains all required modules and `run_audit.py`),
-    the passing test log confirming `python -m code.src.audit.run_audit --help` works,
-    duplicate PT entries are absent, and `quickstart.md` includes the exact command
-    `python -m code.src.audit.run_audit data/input/urls.csv output/`.
-  sig: aaa40b957334b981135a233b77e9c1af353f93da72171939c36d088345c23c8f

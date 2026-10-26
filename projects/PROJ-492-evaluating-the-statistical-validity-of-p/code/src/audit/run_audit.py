@@ -1,72 +1,51 @@
 """
-CLI entry point for the audit pipeline.
-This module provides a minimal command‑line interface that validates imports of
-the core audit sub‑modules and parses the required arguments.  The full
-processing logic will be added later; for now the script exits with status 0
-after printing a short acknowledgement (or the help text when `--help` is
-used).
-"""
+Entry point for the A/B test audit pipeline.
 
+Provides a minimal CLI that accepts an input CSV of URLs and an output
+directory. The full audit logic will be implemented in later tasks; this
+script only validates arguments and creates the output directory so that
+the ``--help`` command works and the quick‑start command can be invoked.
+
+The module is importable as ``code.src.audit.run_audit`` and can be run
+via ``python -m code.src.audit.run_audit``.
+"""
 import argparse
 import sys
 from pathlib import Path
 
-# Import audit sub‑modules to ensure the package layout is correct.
-# The imports are intentionally unused; they will raise an ImportError if
-# any expected module is missing, causing the CLI to fail early.
-try:
-    from code.src.audit import monte_carlo_core  # noqa: F401
-    from code.src.audit import power_analysis   # noqa: F401
-    from code.src.audit import bias_adjustment  # noqa: F401
-    from code.src.audit import domain_subsample # noqa: F401
-    from code.src.audit import evaluation       # noqa: F401
-except Exception as exc:  # pragma: no cover
-    raise ImportError(f"Failed to import audit sub‑modules: {exc}") from exc
-
 def build_parser() -> argparse.ArgumentParser:
-    """Create the top‑level argument parser."""
+    """Create the argument parser for the CLI."""
     parser = argparse.ArgumentParser(
-        prog="python -m code.src.audit.run_audit",
-        description="Run the full A/B test audit pipeline."
+        description="Run the A/B test audit pipeline."
     )
     parser.add_argument(
         "input_csv",
         type=Path,
-        help="Path to a CSV file containing a column 'url' with URLs to audit."
+        help="Path to a CSV file containing URLs (header must include 'url').",
     )
     parser.add_argument(
         "output_dir",
         type=Path,
-        help="Directory where output artefacts will be written."
+        help="Directory where pipeline output files will be written.",
     )
     parser.add_argument(
         "--seed",
         type=int,
-        default=42,
-        help="Random seed for reproducible components."
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Validate arguments and exit without processing."
+        default=None,
+        help="Random seed for reproducible steps (optional).",
     )
     return parser
 
 def main(argv: list | None = None) -> int:
-    """Entry point for the CLI."""
+    """Entry point for the module when executed as a script."""
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    # Ensure the output directory exists.
+    # Ensure the output directory exists; real pipeline steps will write files here.
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
-    if args.dry_run:
-        parser.print_help()
-        return 0
-
-    # Placeholder for the real pipeline orchestration.
-    # At this stage we only confirm that arguments were parsed successfully.
-    print(f"Running audit on {args.input_csv} → {args.output_dir}")
+    # Placeholder for future pipeline orchestration.
+    # At this stage we simply succeed if arguments are valid.
     return 0
 
 if __name__ == "__main__":

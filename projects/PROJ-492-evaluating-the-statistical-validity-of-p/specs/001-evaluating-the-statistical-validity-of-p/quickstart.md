@@ -27,7 +27,7 @@ pip install -r requirements.txt
 
 ## Step 3: Run the Audit
 ```bash
-python -m src.run_audit data/input/urls.csv output/
+python -m code.src.audit.run_audit data/input/urls.csv output/
 ```
 The script will:
 1. Curate the URL list (`data/curated_urls.csv`).  

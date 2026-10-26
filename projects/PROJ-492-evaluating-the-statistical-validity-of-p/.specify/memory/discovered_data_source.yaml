@@ -1,16 +1,19 @@
 status: none
-intent: download audit corpus A/B test summary dataset with validation set python
-  package dataset
+intent: download ABTest experiment summary dataset with validation set python package
+  dataset
 required_fields:
 - url
-- reported_p_value
-- test_statistic
-- variant_a_n
-- variant_b_n
-- effect_size
-- confidence_interval
 - summary_text
-- domain
-cache_key: 2ab01fb858f3127a8a9b4c36934ce66bef61eec91596f2155c379e7ce45f3a27
-searched_at: '2026-10-26T03:30:17.312236+00:00'
+- reported_p_value
+- computed_p_value
+- sample_size
+- effect_size
+- test_statistic
+- confidence_interval
+- domain_category
+- experiment_date
+- treatment_variation
+- control_variation
+cache_key: 218011c63b531e27da14df933b061443be8bcb14895a9c09ce578fb4c5ed5daf
+searched_at: '2026-10-26T03:41:38.117638+00:00'
 retry_count: 1
