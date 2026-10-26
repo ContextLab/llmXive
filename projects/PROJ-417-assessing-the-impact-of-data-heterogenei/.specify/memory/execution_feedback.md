@@ -31,7 +31,7 @@ ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_sav
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-============ 16 failed, 70 passed, 204 warnings, 6 errors in 2.69s =============
+============ 16 failed, 70 passed, 204 warnings, 6 errors in 3.78s =============
 
 
 - python -m pytest tests/integration/ -> rc=1
@@ -47,7 +47,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 1.06s =========================
+========================= 1 failed, 1 warning in 1.44s =========================
 
 
 

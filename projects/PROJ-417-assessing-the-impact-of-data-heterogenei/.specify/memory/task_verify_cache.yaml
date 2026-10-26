@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: af0c03c37e0e74938b2e42e017dd13753cd99fdfd611ad40fb82f73876d67b2b
-  r: "The CSV `data/processed/base_template.csv` exists and has the required 20 rows\
-    \ and columns, and the script `code/scripts/generate_base_template.py` is present,\
-    \ but there is no evidence that the script was actually executed (e.g., a recorded\
-    \ command run with exit status\u202F0) and no artifact showing that a public Cochrane\
-    \ meta\u2011analysis CSV was downloaded as the task also requires."
-  sig: 9f20de182aae88efe7dfb3d0993101b7732fa907bdcf6daa8936f140170455b1
 T001a:
   c: false
   h: 8cc25b14faf79caef7a1800a432fe42739b5d7a632a11a01d24fbb4c318f8d12

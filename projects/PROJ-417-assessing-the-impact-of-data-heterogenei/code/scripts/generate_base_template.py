@@ -42,7 +42,9 @@ def _download_cochrane_data(url: str, out_path: Path) -> None:
     """Download a real public meta-analysis CSV from the provided URL."""
     log.info("Downloading public Cochrane-style data from %s", url)
     try:
-        response = requests.get(url, timeout=30)
+        # Adding a User-Agent to prevent potential blocks from GitHub raw content
+        headers = {"User-Agent": "llmXive-research-agent/1.0"}
+        response = requests.get(url, timeout=30, headers=headers)
         response.raise_for_status()
         
         out_path.parent.mkdir(parents=True, exist_ok=True)
