@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T17:28:38.227887Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-097-predicting-corrosion-rates-of-common-met
-last_run_id: 1d781504-b2c4-4652-877d-2605c4445867
+last_run_id: 1190edcb-f72a-4318-9fa8-d0157ffe0124
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-097-predicting-corrosion-rates-of-common-met/specs/001-predicting-corrosion-rates-of-common-met
 title: Predicting Corrosion Rates of Common Metals Using Machine Learning on Public
   Databases
-updated_at: '2026-10-26T05:41:58.772937Z'
+updated_at: '2026-10-26T05:44:59.115236Z'
