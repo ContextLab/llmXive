@@ -1,2 +1,2 @@
-# Initialize the data sub-module.
+# Package initializer for data acquisition and QC.
 pass

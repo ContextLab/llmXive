@@ -1,1 +1,2 @@
-# Ensure the ``code.tests`` package is recognised by pytest.
+# Package initializer for tests.
+pass

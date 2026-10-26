@@ -34,7 +34,7 @@ Run the full analysis on a fresh GitHub Actions runner (or any Linux environment
 
 3. **Run the test suite**
  ```bash
- pytest -v tests/
+ pytest -v code/tests/
  ```
  - Confirms that all modules import correctly and that a dry‑run of the pipeline exits cleanly.
 

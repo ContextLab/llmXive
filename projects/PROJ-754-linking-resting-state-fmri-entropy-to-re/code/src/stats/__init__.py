@@ -1,2 +1,2 @@
-# Initialize the stats sub-module.
+# Package initializer for statistical modeling.
 pass

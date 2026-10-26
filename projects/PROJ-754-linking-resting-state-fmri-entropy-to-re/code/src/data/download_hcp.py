@@ -30,6 +30,8 @@ def _select_subjects(phenotypic_df: pd.DataFrame, limit: int) -> List[str]:
     with ``42`` and the first ``limit`` IDs are returned.
     """
     ids = sorted(phenotypic_df["subject_id"].unique())
+    # Seed is required by spec, although slicing a sorted list is 
+    # inherently deterministic.
     random.seed(42)
     return ids[:limit]
 
@@ -108,8 +110,9 @@ def main() -> None:
     log.info("Loading HCP dataset from Hugging Face.")
     # The dataset identifier and configuration are taken from the
     # specification: dataset ``hcp`` with the ``rest`` config.
+    # We pass the token explicitly to ensure authentication for gated data.
     dataset = load_dataset(
-        "hcp", name="rest", split="train", streaming=False
+        "hcp", name="rest", split="train", streaming=False, token=token
     )
     df = dataset.to_pandas()
 

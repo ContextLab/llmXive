@@ -1,2 +1,2 @@
-# Initialize the reporting sub-module.
+# Package initializer for reporting and figures.
 pass

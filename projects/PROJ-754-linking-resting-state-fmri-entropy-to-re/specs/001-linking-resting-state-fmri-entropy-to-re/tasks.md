@@ -19,12 +19,12 @@ All scripts run on CPU‑only GitHub‑Actions runners and use only real, public
 
 ## Phase 1 – Project scaffolding, data acquisition & quality control  
 
-- [ ] T001 Create the project code layout, a runnable quick‑start command, and a passing test suite. `code/src/run_pipeline.py`, `quickstart.md`, `code/tests/`.
+- [~] T001 Create the project code layout, a runnable quick‑start command, and a passing test suite. `code/src/run_pipeline.py`, `quickstart.md`, `code/tests/`.
   - Verify that the directory tree `code/src/` contains `__init__.py` in each sub‑package (`data/`, `analysis/`, `stats/`, `reporting/`, `utils/`).  
   - Verify `quickstart.md` documents the command `python -m code.src.run_pipeline --subjects 5` and that running it with `--dry‑run` exits with code 0 and prints “Pipeline completed (dry‑run)”.  
   - Verify `pytest code/tests/` finishes with “0 failed, X passed”.
 
-- [ ] T002 Implement a robust HCP download script with credential handling. `code/src/data/download_hcp.py`.
+- [ ] T002 Implement a robust HCP download script with credential handling. `code/src/data/download_hcp.py`. <!-- FAILED-IN-EXECUTION: code/src/data/download_hcp.py exit=1 -->
   - The script checks for the environment variable `HCP_TOKEN`; if missing or invalid it raises `RuntimeError` with a clear message.  
   - It deterministically selects the first 200 subject IDs (sorted, seed 42).  
   - It uses the verified Hugging Face dataset `hcp` (accessed via `datasets.load_dataset("hcp", "rest", split="train", streaming=False)`) to download the minimally preprocessed 4 mm Schaefer‑400 time series and the accompanying behavioral table containing DSRT scores, age, sex, and mean FD.  

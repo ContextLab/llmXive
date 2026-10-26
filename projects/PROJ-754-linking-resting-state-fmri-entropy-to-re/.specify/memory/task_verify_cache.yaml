@@ -9,15 +9,6 @@ T001:
     0 failed, X passed\u201D. These missing artifacts prevent the task from being\
     \ considered complete."
   sig: e40c63c39958da1247ce7baa5274b0ca993406334c419a49169d28883d67b378
-T002:
-  c: false
-  h: 3da4a15aa1a422331f62ff344f709197d17f6d25d958177c0d8eaa47286cea66
-  r: "The repository contains the `download_hcp.py` script, but the required output\
-    \ artifacts (`data/raw/dsrt_scores.parquet` and the per\u2011subject parquet files\
-    \ in `data/raw/timeseries/`) are missing, so there is no evidence that the script\
-    \ successfully downloads data, writes the files, or produces the specified columns.\
-    \ The task is not satisfied until those files are generated and verified."
-  sig: 584bf1f688b3f86c69618801939a0433b905db6f0226fc7764a1e6feb4a25ff6
 T003:
   c: false
   h: 36b3049dd3724c58b6046e24a6f66297d9133259a9585171911c3f815106c851

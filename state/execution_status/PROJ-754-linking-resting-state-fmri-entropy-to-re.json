@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-26T20:16:43Z",
+  "updated_at": "2026-10-26T23:15:46Z",
   "project_id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
-  "replan_rounds": 2
+  "replan_rounds": 3
 }

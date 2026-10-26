@@ -103,7 +103,7 @@ def main() -> None:
 
     # Determine whether we are in a dry‑run.  The original script forced a
     # dry‑run when the HCP token was missing; we keep that behaviour but
-    # also honour an explicit ``--dry-run`` flag.
+    # also honour an explicit ``--dry‑run`` flag.
     token_present = os.getenv("HCP_TOKEN") is not None
     effective_dry_run = args.dry_run or not token_present
 
@@ -128,8 +128,12 @@ def main() -> None:
     if not effective_dry_run:
         # Import the orchestrator lazily – this avoids importing heavy
         # optional dependencies (pandas, pyarrow, etc.) during a dry‑run.
-        from code.src.pipeline import run_pipeline as orchestrator
-        orchestrator(subjects=subjects, dry_run=False)
+        try:
+            from code.src.pipeline import run_pipeline as orchestrator
+            orchestrator(subjects=subjects, dry_run=False)
+        except ImportError as e:
+            logger.error("Failed to import orchestrator: %s", e)
+            sys.exit(1)
 
     end_time = time.time()
     runtime_seconds = end_time - start_time

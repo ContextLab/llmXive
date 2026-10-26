@@ -3401,3 +3401,154 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-26T15:19:58Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: Download & QC stage takes less than or equal to 30 minutes
+  claim_id: c_596dcfd5
+  context: Expected Runtime & Resources (CI-friendly) table
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Download & QC | \u2264 30 min"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T23:12:38Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: Download & QC stage peak RAM is less than or equal to 2 GB
+  claim_id: c_ae2d8d8f
+  context: Expected Runtime & Resources (CI-friendly) table
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Download & QC | \u2264 2 GB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T23:12:38Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: Entropy (full 200) stage takes less than or equal to 90 minutes
+  claim_id: c_07323746
+  context: Expected Runtime & Resources (CI-friendly) table
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Entropy (full 200) | \u2264 90 min"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T23:12:39Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: Entropy (full 200) stage peak RAM is less than or equal to 4 GB
+  claim_id: c_6447b427
+  context: Expected Runtime & Resources (CI-friendly) table
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Entropy (full 200) | \u2264 4 GB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T23:12:40Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: Modeling & 1,000 permutations stage takes less than or equal to 150 minutes
+  claim_id: c_f1e95ee5
+  context: Expected Runtime & Resources (CI-friendly) table
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Modeling & 1 000 permutations (parallel) | \u2264 150 min"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T23:12:40Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: Modeling & 1,000 permutations stage peak RAM is less than or equal to
+    5 GB
+  claim_id: c_cfc4c3d6
+  context: Expected Runtime & Resources (CI-friendly) table
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Modeling & 1 000 permutations (parallel) | \u2264 5 GB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T23:12:41Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: Reporting & Sensitivity stage takes less than or equal to 30 minutes
+  claim_id: c_d1296aaa
+  context: Expected Runtime & Resources (CI-friendly) table
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Reporting & Sensitivity | \u2264 30 min"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T23:12:42Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: Reporting & Sensitivity stage peak RAM is less than or equal to 2 GB
+  claim_id: c_16234ed6
+  context: Expected Runtime & Resources (CI-friendly) table
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Reporting & Sensitivity | \u2264 2 GB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T23:12:42Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: Total pipeline runtime is approximately 4 hours
+  claim_id: c_dbfc6917
+  context: Expected Runtime & Resources (CI-friendly) table
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total | \u2248 4 h"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T23:12:43Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: Total pipeline peak RAM is less than or equal to 5 GB
+  claim_id: c_fb5a7431
+  context: Expected Runtime & Resources (CI-friendly) table
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total | \u2264 5 GB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T23:12:43Z'

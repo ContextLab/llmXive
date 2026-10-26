@@ -1,2 +1,2 @@
-# Initialize the analysis sub-module.
+# Package initializer for analysis modules.
 pass

@@ -1,2 +1,2 @@
-# Initialize the src package.
+# Package initializer for the core source directory.
 pass

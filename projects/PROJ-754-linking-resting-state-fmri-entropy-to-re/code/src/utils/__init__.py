@@ -1,2 +1,2 @@
-# Initialize the utils sub-module.
+# Package initializer for general utilities.
 pass

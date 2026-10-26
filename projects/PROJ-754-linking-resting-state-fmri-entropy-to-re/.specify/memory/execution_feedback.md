@@ -20,9 +20,9 @@ usage: run_pipeline.py [-h] [--subjects SUBJECTS] [--dry-run]
 run_pipeline.py: error: argument --subject-limit: invalid int value: '<maximum_subjects>'
 
 - python -m pytest -v tests/ -> rc=2
-k/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re
+ive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re
 configfile: pyproject.toml
-plugins: platformdirs-4.13.5
+plugins: platformdirs-4.13.5, anyio-4.15.1
 collecting ... collected 34 items / 1 error
 
 ==================================== ERRORS ====================================
@@ -38,7 +38,7 @@ E   ModuleNotFoundError: No module named 'src.analysis.entropy'
 =========================== short test summary info ============================
 ERROR tests/unit/test_entropy.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.89s ===============================
+=============================== 1 error in 0.94s ===============================
 
 
 
@@ -74,7 +74,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/derived/invalid_parcels.csv` is declared but was NOT written. Scripts referencing it:
     - `code/src/analysis/entropy.py` — NOT invoked by the run-book
     - `code/src/compute_entropy.py` — NOT invoked by the run-book
-    - `code/tests/unit/test_entropy.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/derived/invalid_parcels.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/derived/subject_qc.csv` is declared but was NOT written. Scripts referencing it:
     - `code/src/data/qc.py` — NOT invoked by the run-book

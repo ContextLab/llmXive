@@ -8,11 +8,8 @@ T001:
     \ considered complete."
   task: 7206176e37b9af32937c9b4ae4a8ac6a42f3658a4d6daffd687b234f6eec0018
 T002:
-  reason: "The repository contains the `download_hcp.py` script, but the required\
-    \ output artifacts (`data/raw/dsrt_scores.parquet` and the per\u2011subject parquet\
-    \ files in `data/raw/timeseries/`) are missing, so there is no evidence that the\
-    \ script successfully downloads data, writes the files, or produces the specified\
-    \ columns. The task is not satisfied until those files are generated and verified."
+  reason: 'Requested task execution failed; rerun successfully: code/src/data/download_hcp.py
+    exit=1'
   task: a33675c07213d536631f285b9d94ce261b82acdb894421ea1e551f3802de4e7e
 T003:
   reason: "The repository contains the `code/src/data/qc.py` script, but the required\
