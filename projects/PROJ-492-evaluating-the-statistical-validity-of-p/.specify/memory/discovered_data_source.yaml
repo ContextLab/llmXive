@@ -1,19 +1,18 @@
 status: none
-intent: Kaggle AB Testing Dataset download CSV with URLs, p-values, sample sizes python
-  package dataset
+intent: Kaggle A/B test summary dataset OpenABTest repository python package dataset
 required_fields:
 - url
 - test_id
-- variant_a_metric
-- variant_b_metric
+- test_name
+- variant_a_description
+- variant_b_description
 - sample_size_a
 - sample_size_b
+- metric_a_value
+- metric_b_value
 - reported_p_value
-- effect_size
-- confidence_interval_lower
-- confidence_interval_upper
-- test_start_date
-- test_end_date
-cache_key: 04c5c2d4fb1057fc4aeec0e094fa8306efe369608eb264c11b0e411ab224264c
-searched_at: '2026-10-26T06:22:49.747017+00:00'
+- confidence_interval
+- test_date
+cache_key: f9f45e1099999e8d1bb34db2465ad63a12deeb3f49d3ff3c7cbb1421ab47fe93
+searched_at: '2026-10-26T08:28:55.823748+00:00'
 retry_count: 1
