@@ -1,19 +1,18 @@
 T001:
-  c: true
-  h: bcf9eb731dec3c932bce237ce50c365512ba216d3c77561f739b11aae0d6a9ab
-  r: "Checked that `code/src/audit/` contains the required modules (e.g., `extractor.py`,\
-    \ `reconstructor.py`, `monte_carlo_core.py`, `power_analysis.py`, `synthetic.py`)\
-    \ and that `specs/001-evaluating-the-statistical-validity-of-p/quickstart.md`\
-    \ includes the exact command `python -m code.src.audit.run_audit data/input/urls.csv\
-    \ output/`. The test log shows `test_run_audit_help` passed, confirming the help\
-    \ command exits with status\u202F0."
-  sig: dec9cf81dee8681eec3798307c9905155ca77ee99a8d4fad0c925a7380411e63
-T017:
   c: false
-  h: 38ff4105962651fba981b13d7f281c4b39773526c901844d25011c3963dc420d
-  r: "The `data/input/urls.csv` passes the minimum\u2011row test, but `data/raw/`\
-    \ is empty (0 entries) and the pytest suite reports missing HTML files for the\
-    \ URLs. Consequently the required raw HTML snapshots are not present, and the\
-    \ checksum file lists hashes for files that do not exist. The corpus is therefore\
-    \ not fully materialised."
-  sig: 38d9c953a479e51d89a4784a0118d0e70951aaf9b3d20f19979c7c133900151b
+  h: 29c8cdcd5622b9973060c12266b89aed4c4e814aa6b6b9d3a1e9d07551b7d034
+  r: "Checked the `code/src/audit/` directory (modules present) and the `quickstart.md`\
+    \ which contains the exact command `python -m code.src.audit.run_audit data/input/urls.csv\
+    \ output/`. However, there is no evidence that running `python -m code.src.audit.run_audit\
+    \ --help` actually exits with status\u202F0 (no command\u2011line output or exit\u2011\
+    code log is provided). Add a recorded execution (e.g., terminal capture showing\
+    \ exit code\u202F0) to satisfy the verification requirement."
+  sig: 89fb6971a4e733cd3aaa0d24209801257337e9fd30aa12271df87e60d5d58d6f
+T017:
+  c: true
+  h: 303762f39fd7106f7e4029f70979789d1a26eafe970951ea0804cb1764b32ced
+  r: "Checked `data/input/urls.csv` (log shows \u201CCurating corpus of 300 distinct\
+    \ URLs\u201D), the `data/raw/` directory (contains 300 HTML files) and `data/checksums.txt`\
+    \ (lists a SHA\u2011256 line for each snapshot). The presence of varied hashes\
+    \ confirms non\u2011empty HTML downloads for each URL."
+  sig: 5a408c4d7aebc5aa6da9b2acfd43c29b025562c5082a8be635ba141cc9d33b69

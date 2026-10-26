@@ -1,19 +1,17 @@
 status: none
-intent: download A/B test summary dataset with manual annotations for validation python
-  package dataset
+intent: download OpenML ABTest dataset with A/B test summaries python package dataset
 required_fields:
 - url
-- experiment_title
-- domain
-- treatment_group
-- control_group
-- sample_size_treatment
-- sample_size_control
-- outcome_metric
+- test_name
+- variant_a
+- variant_b
+- sample_size
+- metric
 - reported_p_value
-- reported_test_statistic
-- confidence_interval
 - effect_size
-cache_key: fac9c75c2083d2394fd4cbe07a36e8c87fc653610aa618f7f7203d78653745d2
-searched_at: '2026-10-26T03:49:18.327865+00:00'
+- confidence_interval
+- date
+- domain
+cache_key: e1540e6de7b0f1513d4fb05582925760a76f4825887e7e7757314d5e0593ab83
+searched_at: '2026-10-26T04:26:03.251254+00:00'
 retry_count: 1

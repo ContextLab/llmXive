@@ -1,4 +1,10 @@
 T001:
+  reason: "Checked the `code/src/audit/` directory (modules present) and the `quickstart.md`\
+    \ which contains the exact command `python -m code.src.audit.run_audit data/input/urls.csv\
+    \ output/`. However, there is no evidence that running `python -m code.src.audit.run_audit\
+    \ --help` actually exits with status\u202F0 (no command\u2011line output or exit\u2011\
+    code log is provided). Add a recorded execution (e.g., terminal capture showing\
+    \ exit code\u202F0) to satisfy the verification requirement."
   task: 452685b003fc653514689cac6a9c8be21d41fdb927a53a3d343b134eaa3e2681
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/src/audit/monte_carlo_validation.py
@@ -21,11 +27,6 @@ T012:
 T013:
   task: 37ca182ef26e7ebf0ae38f9fff390c1948f5366b41f11e6ce0d2cbec51d0ea0d
 T017:
-  reason: "The `data/input/urls.csv` passes the minimum\u2011row test, but `data/raw/`\
-    \ is empty (0 entries) and the pytest suite reports missing HTML files for the\
-    \ URLs. Consequently the required raw HTML snapshots are not present, and the\
-    \ checksum file lists hashes for files that do not exist. The corpus is therefore\
-    \ not fully materialised."
   task: 58411f9f695d38ffcd8e809d7af9bd8a5fabb7f918c7c0dedab6002ac4a68bd3
 T018:
   task: 6c5ba3d3461a4ab6c85ae83bfd6364156841befa05a8bada4f4e14e5246f9aa4
