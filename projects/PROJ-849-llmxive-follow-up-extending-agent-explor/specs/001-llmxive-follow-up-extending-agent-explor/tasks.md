@@ -72,7 +72,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Contract test for divergence output schema in `tests/contract/test_divergence_schema.py`
-- [X] T011 [P] [US1] Unit test for zero-retrieval edge case (returns zero vector, score=1.0) in `tests/unit/test_retrieval.py`
+- [ ] T011 [P] [US1] Unit test for zero-retrieval edge case (returns zero vector, score=1.0) in `tests/unit/test_retrieval.py`
 - [X] T012 [P] [US1] Unit test for synthetic orthogonal inputs (similarity ≤ 0.05) in `tests/unit/test_metrics.py`
 - [X] T013 [P] [US1] Unit test for synthetic identical inputs (similarity ≥ 0.99) in `tests/unit/test_metrics.py`
 
@@ -96,9 +96,9 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US2] Contract test for correlation output schema in `tests/contract/test_correlation_schema.py`
-- [X] T020 [P] [US2] Unit test for random data (p-value > 0.05) in `tests/unit/test_analysis.py`
-- [X] T021 [P] [US2] Unit test for strong negative correlation detection in `tests/unit/test_analysis.py`
+- [~] T019 [P] [US2] Contract test for correlation output schema in `tests/contract/test_correlation_schema.py`
+- [~] T020 [P] [US2] Unit test for random data (p-value > 0.05) in `tests/unit/test_analysis.py`
+- [~] T021 [P] [US2] Unit test for strong negative correlation detection in `tests/unit/test_analysis.py`
 
 ### Implementation for User Story 2
 
