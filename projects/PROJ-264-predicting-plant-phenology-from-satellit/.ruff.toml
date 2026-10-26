@@ -1,5 +1,3 @@
-# Extend the main pyproject.toml configuration if needed, 
-# or use this for specific overrides. 
-# Currently, we rely on pyproject.toml for the main config.
-# This file exists to satisfy tool detection if strictly looking for .ruff.toml
-extend = "pyproject.toml"
+max-line-length = 100
+ignore = ["E501"]
+target-version = "py311"

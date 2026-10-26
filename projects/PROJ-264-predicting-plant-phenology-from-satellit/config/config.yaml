@@ -1,0 +1,15 @@
+# Plant phenology pipeline configuration
+#
+# Paths are interpreted relative to the project root unless an absolute
+# path is given. The schema defined in ``contracts/config_schema.json``
+# requires the following keys.
+project_root: .
+data_dir: data
+raw_data_dir: data/raw
+processed_data_dir: data/processed
+artifacts_dir: artifacts
+models_dir: artifacts/models
+seed: 42
+api_keys: {}
+gee_credentials_path: null
+nature_notebook_api_key: null

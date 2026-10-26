@@ -1,0 +1,132 @@
+T001a:
+  reason: The `src/` directory exists, but the required `src/models/` subdirectory
+    is reported as missing, so the specified directory structure is not fully present.
+    Create the `models/` subdirectory under `src/` to satisfy the task.
+  task: 6cf0c4d0d27c0a2c55491c9d52365d3f9fe24f59c2b33d02aa0556ff764b124f
+T001b:
+  task: 78b747a2ad5389e8505739029bad9b56c6d02c3673532668a63237c5d47e640c
+T001c:
+  task: 21cf2207601fcfecac8743348fb299a9da53e24b7055d14aa17aef9354e1d357
+T001d:
+  task: a10146d4f84c2760aebfcc630ec6e563445944b23219406664ab8a1800408dae
+T002:
+  reason: 'declared artifact(s) missing/empty/invalid: src/lib/utils.py'
+  task: a1b252771126e44effa1396b41d47a7f66e184505f8e8b25b46271b84c312140
+T003a:
+  task: 2ef96d92c5028548bde8f5b4e0f1e61386964411ddf19071239b73a95adf7138
+T003b:
+  task: b46f08628cbcaa3789f599d5a977ed150afac7f4c186f1b04569f39b56ea313c
+T004:
+  reason: "The required `config/config.yaml` file is missing, and `src/config.py`\
+    \ neither loads a YAML file nor validates the configuration with the `jsonschema`\
+    \ library; its schema handling and structure also do not match the task\u2019\
+    s specified `paths`, `seeds`, and optional `api_keys` dict contract."
+  task: ab409ecad16a9c34ee0272d4154870c0bed23e09087c59669474a6b10a60546b
+T006:
+  task: f11f93e9b922ad49b616497da129003f00202a15d76525e2bd2eeb7cf510e60a
+T007:
+  task: e1d9ca01f71605cb1356053567f48dbfdceb64fb5af963101dccdf54b57bcf6a
+T008:
+  reason: 'declared artifact(s) missing/empty/invalid: scripts/checksum_raw_data.py,
+    data/raw/, data/checksums.txt'
+  task: 6b6a69d0a56c33c79230a509e8e59f897ec93dc460c0cc51f779777110cbe0ca
+T009:
+  task: e43d39372661860fa18214ead5648739217f0114784601d7b1c4e824214f538c
+T010:
+  task: 2d03f79658409cb19aface5bbe7c02c21c18646cd413de48bae9ae3473589a6a
+T011:
+  task: 89c7c0f7087e5a05e118ebcc6a5c715f2a03c20504f5d2578688bcafe484af68
+T012:
+  task: c75854115655b248326fe378e6d73a2ede0b7df3d5b014058b7e55346149a63e
+T013:
+  task: 17973d24ebc3c4e9dd533c5be1e42f5775e2570f1fbed79decb0c842c277dee4
+T014:
+  task: 859f1ca4689c22ae190dc8c14d49c584acfb847463b07e19a7dd3a8cd43f1077
+T015:
+  task: d0d6697f00d3858be62a0c8574fc42a419e15b4a29681014b027d814f952fe46
+T016:
+  task: f06db60c04210d33862599c41a678b4796ef00a21f37c05d77c7e67b070d1036
+T017:
+  task: 9fc4d4e904413112860c1a07c90e3e8cda248e57c3b2a001e2c31b384d2aac31
+T018:
+  task: 15a7d571d9bd8a71e973ec1f5474f7df3fc1b78798191377f1d6dfa6e104adf7
+T019:
+  task: 910c40378ae0cab5fc1a0ee68ada2708c449c790d1ea82201110f21fbb0acae5
+T019b:
+  task: 6dd75ed3fbf51f8c8320b8d5eee10d546475d08ab01fcedf8ad56592b0cc4f88
+T020:
+  task: 8f9ef752f77c1e6b3c133cf1b762263029f2b824f3f01d8fe0add8b9a91f942f
+T021:
+  task: b478e0fd504384ec836c99c1cdf078f10da2e57461a6432edb8001e6b59f0d5f
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/train.py'
+  task: d4f45b46b0871fc76b0bebdbfa5944998edc2c36294ff1710aa3ec460a10b0c4
+T022b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/train.py'
+  task: d6b8b27757f45b9c2903690ca560f1f0bafccac4ff1131d189cdac8bb00df3f8
+T023:
+  reason: 'Requested task execution failed; rerun successfully: src/models/train.py
+    exit=1; src/cli/run_pipeline.py exit=2'
+  task: 62ac89fdd37d11747e28345d84003d8854d6a65f985dfcb8331fb1e2fe8ef18a
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/evaluate.py'
+  task: c8ec4147ac167c7080c338c59ef29db6c09d7938b173806d84c23d1c251786f1
+T024a:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/evaluate.py'
+  task: e8b6ce57903e1faaf99ae56d076af0e17b220072f6b39e30b225a215573671c0
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/climate_overlap_check.json'
+  task: 07f59029e3b08ccd5a004df2c48e0905fe064252b8c6c8e0734fe9bd20ebe387
+T025b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/evaluate.py, data/processed/climate_overlap_check.json'
+  task: 4db33cdc472b01b2ae76dc4bf1d34169f6a782749eb98f9859dbfe4b61893827
+T026a:
+  task: 32f51bd4e145022baab9d37544d167dd5e0a5aa7d7108972afd8c613df349adf
+T026b:
+  task: 053755d948119959e6d271693f70b0ab788570eb80f1941596844b34b91ab14a
+T026c:
+  task: 1f306a10392c01320db3b740eddd3f7e5d819afffc3660ad3ddd9996099c33b8
+T027:
+  task: 99ae6437c9b52f6bfd1e972ec857860b279a3d95d8e505b8aa18b9b94cbaa544
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/sensitivity.py'
+  task: dd671977c8c3795ea68c689bc710cb3f268146a1a1cb2ab3e8e7c7c770b508bb
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/sensitivity.py'
+  task: ad2004ce5a8ee3adca3fee87768fdd411fc287ec92dff146b8b1668edbae0398
+T030:
+  task: e25a260c001f49b0f8a4b4a37893d0036966aabf486aaf465feeb7a8289ca5d6
+T031:
+  task: e83ec83a1b379b4ebb2f9287ac19a79bf4021076732e5b853f135866346cba61
+T032a:
+  task: c1605edfcd987056f3f58694d20e1f6ee9a95dc2da09364682e26c5f064c08c8
+T032b:
+  task: f2ab8278ec92741e532e20aeb249f56e3d3a961e602d73f03128175233761d5e
+T033a:
+  task: c5c4bebdd013828509df1209d0da4707eb153f349b4afaf3f299a373ea23e3c7
+T033b:
+  task: 97920e5c4f46ac1eaf0b82302f306cf482b465571e3df2ccfc93298e060429d0
+T034:
+  task: c3ea44dda4bfafb1676b99f8cc4944c298ffd393428d3509f6f3162a662703dd
+T035:
+  task: 12915b34324bfd5899affdde684c4e4b349301eba406b0143ca43d66876485b1
+T036:
+  task: 979811ca5b85ddcc8adb79a07805e0de1ee7163fac055f2ed2aa432e8bcca349
+T037a:
+  task: 82ec6d714ead3122a61c7c81967d6b581dcd0c7b9e56dc0cd1cd3bdded905350
+T039:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/train.py'
+  task: 0f283593dc2667f8880f05c78f9db951fb5462d18e2e9086984e6aaf0f9fa5f1
+T040:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/train.py'
+  task: fce0b9f7dca5346e1ea6ac5a9d5c08584dadd4dc0dd5df30eb5b8f19777cbe62
+T041:
+  task: c49d4d2ce427cf4fa4e5458210342bb7aaf10d836c3b70d1b32b6646f40911ff
+T042:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/train.py, data/processed/training_log.txt'
+  task: c8b43721b55733365f956f08a481f7b8ccdf32ac7668614f064a4a4aabf54050
+T043:
+  reason: 'declared artifact(s) missing/empty/invalid: src/models/sensitivity.py'
+  task: b1d6ed7a304489f23bb5867ec3ddf8d11626cf4b714130727f83d983255fd2a3
+T044:
+  task: cfd3e6ed75fff628c7f3d52830fe722ec4c1db8d364badf5da20be59bb2d5c5b
