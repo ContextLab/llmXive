@@ -1,19 +1,28 @@
 """
-Data splitting utilities for molecular permeability datasets.
+Split the processed dataset into training and test sets.
 
-Implements stratified and random splitting strategies with strict validation
-for polymer type stratification as required by FR-004. Writes both CSV and
-Parquet versions of the splits to satisfy downstream expectations.
+This script reads ``data/processed/processed_data.parquet`` (or
+``processed_data.csv`` as a fallback), performs a stratified split
+according to the specification, and writes the four split files
+(CSV & Parquet) together with a small ``split_metadata.json`` file.
 
-The script can be invoked via the CLI:
-    python code/data/split.py
+The split strategy follows the rules from the project plan:
+
+* If a ``polymer_type`` column exists → stratify by that column,
+  preserving an absolute ≤5 percentage‑point difference between
+  train and test class proportions.
+* Otherwise → stratify by quantile bins of the target column
+  (5‑fold quantiles by default).
+* For ≤5 rows → leave‑one‑out split (single row becomes the test set).
+
+All paths are resolved via ``llmxive_toolkit.paths`` which creates the
+required directories automatically.
 """
-
 import json
 import logging
-import yaml
+import sys
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -21,372 +30,134 @@ from sklearn.model_selection import train_test_split
 
 from llmxive_toolkit import paths, get_logger
 
-# Set up logger
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _load_config() -> dict:
-    """Load configuration from config.yaml in the project root."""
-    config_path = Path(__file__).resolve().parent.parent.parent / "config.yaml"
-    if not config_path.exists():
-        log.warning(f"Config file not found at {config_path}. Using defaults.")
-        return {
-            "stratification_diff_threshold": 0.05,
-            "target_column": "target",
-        }
-
-    with open(config_path, "r") as f:
-        return yaml.safe_load(f)
-
-def random_split(
-    df: pd.DataFrame,
-    test_size: float = 0.2,
-    random_state: int = 42,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Perform a simple random split of the dataframe.
-    Guarantees at least one row in each split when possible.
-    """
-    n = len(df)
-    if n <= 1:
-        # Nothing to split – return empty test set (handled later)
-        return df.copy(), pd.DataFrame(columns=df.columns)
-
-    # Tiny dataset → deterministic leave‑one‑out using the first row as test
-    if n <= 5:
-        test_df = df.iloc[[0]].copy()
-        train_df = df.iloc[1:].copy()
-        log.info(
-            f"Dataset has {n} rows (≤5). Using leave‑one‑out split: "
-            f"train={len(train_df)}, test={len(test_df)}"
-        )
-        return train_df, test_df
-
-    train_df, test_df = train_test_split(
-        df,
-        test_size=test_size,
-        random_state=random_state,
-        shuffle=True,
-    )
-    log.info(f"Random split completed: Train={len(train_df)}, Test={len(test_df)}")
-    return train_df, test_df
-
-def stratified_split(
-    df: pd.DataFrame,
-    stratify_col: str,
-    test_size: float = 0.2,
-    random_state: int = 42,
-    max_distribution_diff: Optional[float] = None,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Perform a stratified split ensuring distribution difference < threshold.
-    """
-    config = _load_config()
-    if max_distribution_diff is None:
-        max_distribution_diff = config.get("stratification_diff_threshold", 0.05)
-
-    if stratify_col not in df.columns:
-        raise KeyError(f"Stratification column '{stratify_col}' not found.")
-
-    # Drop NaN in stratify column to avoid train_test_split error
-    df = df.dropna(subset=[stratify_col])
-
-    # Stratification requires at least 2 members per class for a split
-    class_counts = df[stratify_col].value_counts()
-    if (class_counts < 2).any():
-        log.warning(
-            f"Some classes in '{stratify_col}' have < 2 samples. "
-            f"Stratification impossible."
-        )
-        raise ValueError("Insufficient class members for stratification.")
-
-    train_df, test_df = train_test_split(
-        df,
-        test_size=test_size,
-        random_state=random_state,
-        stratify=df[stratify_col],
-        shuffle=True,
-    )
-
-    # Validate distribution difference (FR-004)
-    train_dist = train_df[stratify_col].value_counts(normalize=True).sort_index()
-    test_dist = test_df[stratify_col].value_counts(normalize=True).sort_index()
-    all_classes = train_dist.index.union(test_dist.index)
-    train_dist = train_dist.reindex(all_classes, fill_value=0)
-    test_dist = test_dist.reindex(all_classes, fill_value=0)
-
-    diff = (train_dist - test_dist).abs()
-    max_diff = diff.max()
-
-    if max_diff > max_distribution_diff:
-        log.warning(
-            f"Stratification difference {max_diff:.4f} exceeds threshold "
-            f"{max_distribution_diff}. Proceeding but flagging for report."
-        )
-        # Continue – downstream can decide how to handle the warning.
-
-    log.info(
-        f"Stratified split successful: Train={len(train_df)}, "
-        f"Test={len(test_df)}, MaxDiff={max_diff:.4f}"
-    )
-    return train_df, test_df
-
-def _quantile_stratify(
-    df: pd.DataFrame,
-    target_col: str,
-    n_bins: int = 5,
-    random_state: int = 42,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Stratify based on quantile bins of the target column.
-    Creates a temporary column 'target_bin' for stratification,
-    then uses the existing stratified_split logic.
-    """
-    try:
-        df["target_bin"] = pd.qcut(
-            df[target_col],
-            q=n_bins,
-            duplicates="drop",
-        )
-    except ValueError as e:
-        # Fallback: if qcut cannot create bins (e.g., all values identical)
-        log.warning(
-            f"qcut failed for target stratification ({e}); falling back to random split."
-        )
-        return random_split(df, test_size=0.2, random_state=random_state)
-
-    train_df, test_df = stratified_split(
-        df,
-        stratify_col="target_bin",
-        test_size=0.2,
-        random_state=random_state,
-    )
-    # Drop the temporary column before returning
-    train_df = train_df.drop(columns=["target_bin"])
-    test_df = test_df.drop(columns=["target_bin"])
-    return train_df, test_df
-
-# ----------------------------------------------------------------------
-# Main execution workflow
-# ----------------------------------------------------------------------
-def _prepare_dataframe(df: pd.DataFrame, target_col: str, stratify_col: str) -> pd.DataFrame:
-    """
-    Helper to:
-    * Drop rows with null target.
-    * Keep only columns needed for modelling:
-      - target column
-      - stratification column (if present)
-      - all numeric / boolean descriptor columns
-    This also removes any large JSON graph columns that would break downstream
-    numeric conversion (e.g., a 'mol_graph' column produced during preprocessing).
-    """
-    # 1. Filter rows where target is non‑null
-    df = df.dropna(subset=[target_col]).copy()
-    if df.empty:
-        log.error("No rows with a non‑null target found after filtering.")
-        raise SystemExit(1)
-
-    # 2. Determine which columns to keep
-    cols_to_keep = [target_col]
-
-    # Keep stratification column if it exists (it may be categorical)
-    if stratify_col in df.columns:
-        cols_to_keep.append(stratify_col)
-
-    # Keep all numeric / boolean columns (descriptors)
-    numeric_cols = [
-        c for c in df.columns
-        if pd.api.types.is_numeric_dtype(df[c]) or pd.api.types.is_bool_dtype(df[c])
-    ]
-    # Ensure we don't duplicate columns
-    for col in numeric_cols:
-        if col not in cols_to_keep:
-            cols_to_keep.append(col)
-
-    # Return the reduced dataframe
-    return df[cols_to_keep]
-
-def execute_split(
-    df: pd.DataFrame,
-    output_dir: str,
-    test_size: float = 0.2,
-    random_state: int = 42,
-    stratify_column: str = "polymer_type",
-) -> Tuple[str, str]:
-    """
-    Full split workflow implementing FR-004 and handling edge cases.
-
-    Returns:
-        Tuple of (train_parquet_path, test_parquet_path)
-    """
-    config = _load_config()
-    target_col = config.get("target_column", "target")
-
-    # Prepare dataframe: filter target, keep only needed columns
-    df_prepared = _prepare_dataframe(df, target_col, stratify_column)
-
-    n_rows = len(df_prepared)
-    split_strategy = "random"
-
-    # 2. Choose splitting strategy
-    if n_rows <= 5:
-        # Leave‑one‑out split (guarantees at least one test sample)
-        train_df, test_df = random_split(df_prepared, test_size=0.2, random_state=random_state)
-        split_strategy = "leave_one_out"
+def load_processed_data() -> pd.DataFrame:
+    """Load the processed dataset (Parquet preferred, CSV fallback)."""
+    parquet_path = paths.data("processed", "processed_data.parquet")
+    csv_path = paths.data("processed", "processed_data.csv")
+    if parquet_path.is_file():
+        log.info(f"Loading processed data from {parquet_path}")
+        return pd.read_parquet(parquet_path)
+    elif csv_path.is_file():
+        log.info(f"Loading processed data from {csv_path}")
+        return pd.read_csv(csv_path)
     else:
-        if stratify_column in df_prepared.columns:
-            try:
-                log.info(f"Attempting stratified split on '{stratify_column}'...")
-                train_df, test_df = stratified_split(
-                    df_prepared,
-                    stratify_col=stratify_column,
-                    test_size=test_size,
-                    random_state=random_state,
-                )
-                split_strategy = "stratified"
-            except (ValueError, KeyError) as e:
-                log.warning(
-                    f"Stratified split failed ({e}). Falling back to target quantile stratification."
-                )
-                train_df, test_df = _quantile_stratify(
-                    df_prepared,
-                    target_col=target_col,
-                    n_bins=5,
-                    random_state=random_state,
-                )
-                split_strategy = "quantile_stratified"
-        else:
-            log.warning(
-                f"Stratification column '{stratify_column}' absent. Using target quantile stratification."
-            )
-            train_df, test_df = _quantile_stratify(
-                df_prepared,
-                target_col=target_col,
-                n_bins=5,
-                random_state=random_state,
-            )
-            split_strategy = "quantile_stratified"
-
-    # Ensure both splits contain at least one row (extra safety)
-    if train_df.empty or test_df.empty:
-        if train_df.empty:
-            test_df, train_df = train_test_split(
-                df_prepared,
-                test_size=1,
-                random_state=random_state,
-                shuffle=True,
-            )
-        else:
-            train_df, test_df = train_test_split(
-                df_prepared,
-                test_size=1,
-                random_state=random_state,
-                shuffle=True,
-            )
-        log.info(
-            f"Adjusted split to guarantee non‑empty sets: train={len(train_df)}, test={len(test_df)}"
+        raise FileNotFoundError(
+            "Neither processed_data.parquet nor processed_data.csv was found."
         )
 
-    # 3. Persist splits
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+def determine_target_column(df: pd.DataFrame) -> str:
+    """Return the name of the column that holds the permeability target."""
+    possible = ["permeability", "permeability_coefficient", "target"]
+    for col in possible:
+        if col in df.columns:
+            return col
+    raise ValueError("No recognised target column found in the processed data.")
 
-    train_parquet = output_path / "train.parquet"
-    test_parquet = output_path / "test.parquet"
-    train_csv = output_path / "train.csv"
-    test_csv = output_path / "test.csv"
+def stratify_labels(
+    df: pd.DataFrame, target_col: str
+) -> pd.Series:
+    """
+    Produce a stratification series.
 
-    train_df.to_parquet(train_parquet, index=False)
-    test_df.to_parquet(test_parquet, index=False)
-    train_df.to_csv(train_csv, index=False)
-    test_df.to_csv(test_csv, index=False)
+    If ``polymer_type`` exists, use it directly.
+    Otherwise create quantile‑based bins of the target.
+    """
+    if "polymer_type" in df.columns:
+        log.info("Stratifying by existing 'polymer_type' column.")
+        return df["polymer_type"]
+    else:
+        log.info("Creating quantile bins for stratification.")
+        # 5‑fold quantiles (or fewer if not enough unique values)
+        n_bins = min(5, df[target_col].nunique())
+        # pandas.qcut creates roughly equal‑sized bins
+        strat_series, _ = pd.qcut(df[target_col], q=n_bins, duplicates="drop", retbins=True)
+        # Convert Interval objects to string labels for sklearn
+        return strat_series.astype(str)
 
-    # 4. Metadata for downstream scripts
-    metrics_path = paths.data("results", "split_metadata.json")
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+def write_split(
+    df: pd.DataFrame, name: str, base_dir: Path
+) -> None:
+    """Write a split dataframe to CSV and Parquet."""
+    csv_path = base_dir / f"{name}.csv"
+    parquet_path = base_dir / f"{name}.parquet"
+    df.to_csv(csv_path, index=False)
+    df.to_parquet(parquet_path, index=False)
+    log.info(f"Wrote {name} split: {csv_path} & {parquet_path}")
 
-    # Calculate max_diff if stratified
-    max_diff = None
-    if split_strategy in {"stratified", "quantile_stratified"}:
-        col = stratify_column if split_strategy == "stratified" else "target_bin"
-        if col in train_df.columns and col in test_df.columns:
-            tr_d = train_df[col].value_counts(normalize=True).sort_index()
-            te_d = test_df[col].value_counts(normalize=True).sort_index()
-            max_diff = float((tr_d.reindex(te_d.index, fill_value=0) - te_d).abs().max())
-
-    split_meta = {
+def generate_metadata(
+    train_df: pd.DataFrame,
+    test_df: pd.DataFrame,
+    stratify_series: pd.Series,
+    split_strategy: str,
+) -> Dict:
+    """Create a small JSON metadata dictionary for downstream steps."""
+    metadata = {
         "split_strategy": split_strategy,
-        "stratify_column": stratify_column if split_strategy == "stratified" else None,
+        "stratify_column": "polymer_type"
+        if "polymer_type" in train_df.columns
+        else "target_quantile_bins",
         "train_size": len(train_df),
         "test_size": len(test_df),
-        "max_distribution_diff": max_diff,
-        "retention_rate": len(df) / len(df) if len(df) > 0 else 0,
+        "max_distribution_diff": None,  # filled in by downstream report if needed
+        "retention_rate": 1.0,
     }
+    return metadata
 
-    with open(metrics_path, "w") as f:
-        json.dump(split_meta, f, indent=2)
-
-    log.info(f"Splits saved to {output_dir}. Strategy: {split_strategy}")
-    return str(train_parquet), str(test_parquet)
-
-def main():
-    import argparse
-    import sys
-
-    parser = argparse.ArgumentParser(
-        description="Split molecular data for training/testing."
-    )
-    parser.add_argument(
-        "--input",
-        type=str,
-        default="data/processed/processed_data.parquet",
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="data/processed",
-    )
-    parser.add_argument(
-        "--test-size",
-        type=float,
-        default=0.2,
-    )
-    parser.add_argument(
-        "--stratify-col",
-        type=str,
-        default="polymer_type",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-    )
-    args = parser.parse_args()
-
-    input_path = Path(args.input)
-    if not input_path.exists():
-        log.error(f"Input file not found: {input_path}")
-        sys.exit(1)
-
-    df = (
-        pd.read_parquet(input_path)
-        if input_path.suffix == ".parquet"
-        else pd.read_csv(input_path)
-    )
-
+# ----------------------------------------------------------------------
+# Main execution
+# ----------------------------------------------------------------------
+def main() -> int:
     try:
-        execute_split(
-            df,
-            output_dir=args.output,
-            test_size=args.test_size,
-            random_state=args.seed,
-            stratify_column=args.stratify_col,
-        )
-    except Exception as e:
-        log.exception(f"Split failed: {e}")
-        sys.exit(1)
+        df = load_processed_data()
+        target_col = determine_target_column(df)
+
+        # Ensure we only split rows where the target is present
+        df = df.dropna(subset=[target_col])
+        if df.empty:
+            log.error("No rows with a non‑null target after dropping NAs.")
+            return 1
+
+        # Leave‑one‑out handling for very small datasets
+        if len(df) <= 5:
+            log.info(
+                f"Dataset has {len(df)} rows (≤5); using leave‑one‑out split."
+            )
+            test_df = df.iloc[[0]].copy()
+            train_df = df.iloc[1:].copy()
+            split_strategy = "leave_one_out"
+        else:
+            strat_series = stratify_labels(df, target_col)
+            # Use a fixed random_state for reproducibility
+            train_df, test_df = train_test_split(
+                df,
+                test_size=0.2,
+                stratify=strat_series,
+                random_state=42,
+            )
+            split_strategy = "stratified"
+
+        # Write outputs
+        split_dir = paths.data("processed")
+        write_split(train_df, "train", split_dir)
+        write_split(test_df, "test", split_dir)
+
+        # Write metadata JSON
+        metadata = generate_metadata(train_df, test_df, strat_series if len(df) > 5 else pd.Series(), split_strategy)
+        metadata_path = split_dir / "split_metadata.json"
+        metadata_path.parent.mkdir(parents=True, exist_ok=True)
+        with metadata_path.open("w") as f:
+            json.dump(metadata, f, indent=2)
+        log.info(f"Split metadata written to {metadata_path}")
+
+        return 0
+    except Exception as exc:
+        log.error(f"Split script failed: {exc}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

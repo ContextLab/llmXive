@@ -49,7 +49,7 @@ def test_download_creates_files():
     # Verify required columns.
     df = pd.read_csv(csv_path)
     required = ["smiles", "permeability"]
-    # Column check should be case-insensitive
+    # Column check should be case‑insensitive
     actual_cols = [c.lower() for c in df.columns]
     for col in required:
         assert col in actual_cols, f"Column {col} missing in downloaded DataFrame"

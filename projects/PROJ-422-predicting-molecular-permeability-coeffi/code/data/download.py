@@ -4,23 +4,24 @@ Data download script for the Molecular Permeability project.
 This script reads the dataset identifier from ``config/selected_dataset.yaml``,
 attempts to stream the dataset from Hugging Face, and falls back to a local
 sample CSV (``data/sample_permeability.csv``) when the remote dataset is
-unavailable or empty. It validates that the required columns (SMILES and permeability)
-are present, writes the raw CSV file to ``data/raw/`` and records a SHA‑256
-checksum in ``data/raw/checksums.json``.
+unavailable or empty. It validates that the required columns (SMILES and
+permeability) are present, writes the raw CSV file to ``data/raw/`` and records
+a SHA‑256 checksum in ``data/raw/checksums.json``.
 """
 import csv
 import hashlib
 import json
 import logging
-import sys
 import shutil
+import sys
 from pathlib import Path
 from typing import Any, Dict, Tuple
 
 import yaml
 from datasets import load_dataset
-from llmxive_toolkit import paths, get_logger
+from llmxive_toolkit import get_logger
 
+# Module‑level logger
 logger = get_logger(__name__)
 
 class DataLoader:
@@ -41,14 +42,25 @@ class DataLoader:
             config_path = Path("config") / "selected_dataset.yaml"
         if not config_path.is_file():
             raise FileNotFoundError(f"Dataset config not found at {config_path}")
+
         with config_path.open("r", encoding="utf-8") as f:
             self.config: Dict[str, Any] = yaml.safe_load(f)
 
         # Normalise expected columns to lower‑case for case‑insensitive checks
-        self.expected_columns = [c.lower() for c in self.config.get("expected_columns", [])]
+        self.expected_columns = [
+            col.lower() for col in self.config.get("expected_columns", [])
+        ]
+        if len(self.expected_columns) < 2:
+            raise RuntimeError(
+                "Config must specify at least two expected columns (SMILES and target)."
+            )
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def compute_checksum(self, file_path: Path) -> str:
+    # ------------------------------------------------------------------
+    # Helper utilities
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _compute_checksum(file_path: Path) -> str:
         """Compute SHA‑256 checksum of ``file_path``."""
         sha256 = hashlib.sha256()
         with file_path.open("rb") as f:
@@ -56,17 +68,20 @@ class DataLoader:
                 sha256.update(block)
         return sha256.hexdigest()
 
-    def write_checksum_file(self, checksums: Dict[str, str], checksum_path: Path) -> None:
+    @staticmethod
+    def _write_checksum_file(checksums: Dict[str, str], checksum_path: Path) -> None:
         """Write ``checksums`` dictionary as JSON."""
         checksum_path.parent.mkdir(parents=True, exist_ok=True)
         with checksum_path.open("w", encoding="utf-8") as f:
             json.dump(checksums, f, indent=2)
-        self.logger.info(f"Wrote checksum file to {checksum_path}")
+        logging.info(f"Wrote checksum file to {checksum_path}")
 
-    def fetch_dataset(self) -> Tuple[Path, bool]:
+    # ------------------------------------------------------------------
+    # Core download logic
+    # ------------------------------------------------------------------
+    def _fetch_remote(self) -> Tuple[Path, bool]:
         """
-        Attempt to stream the dataset from Hugging Face. If that fails,
-        copy the local ``data/sample_permeability.csv`` file.
+        Attempt to stream the dataset from Hugging Face.
 
         Returns
         -------
@@ -80,57 +95,66 @@ class DataLoader:
         self.logger.info(
             f"Attempting to fetch dataset {hf_path} (split={split}) from Hugging Face..."
         )
-        
+
+        # Stream the dataset; any exception triggers the fallback path.
+        dataset = load_dataset(hf_path, split=split, streaming=True)
+
+        # Determine output CSV path under the project’s ``data/raw`` folder.
+        csv_path = Path("data") / "raw" / filename
+        csv_path.parent.mkdir(parents=True, exist_ok=True)
+
+        iterator = iter(dataset)
         try:
-            # Stream the dataset
-            dataset = load_dataset(
-                hf_path,
-                split=split,
-                streaming=True,
+            first_record = next(iterator)
+        except StopIteration:
+            raise RuntimeError("Hugging Face dataset is empty")
+
+        fieldnames = list(first_record.keys())
+        with csv_path.open("w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow(dict(first_record))
+            for record in iterator:
+                writer.writerow(dict(record))
+
+        self.logger.info(f"Saved remote dataset to {csv_path}")
+        return csv_path, True
+
+    def _fallback_to_local(self) -> Tuple[Path, bool]:
+        """
+        Copy the bundled sample CSV to the raw data directory.
+        """
+        local_sample = Path("data") / "sample_permeability.csv"
+        if not local_sample.is_file():
+            raise FileNotFoundError(
+                f"Local fallback sample not found at {local_sample}"
             )
-            
-            # Determine output CSV path
-            csv_path = paths.data("raw", filename)
-            csv_path.parent.mkdir(parents=True, exist_ok=True)
+        filename = self.config.get("filename", "sample_permeability.csv")
+        csv_path = Path("data") / "raw" / filename
+        csv_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(local_sample, csv_path)
+        self.logger.info(f"Copied local sample to {csv_path}")
+        return csv_path, False
 
-            # Write CSV header and rows
-            iterator = iter(dataset)
-            try:
-                first_record = next(iterator)
-            except StopIteration:
-                raise RuntimeError("Hugging Face dataset is empty")
-
-            fieldnames = list(first_record.keys())
-            with csv_path.open("w", newline="", encoding="utf-8") as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerow(dict(first_record))
-                for record in iterator:
-                    writer.writerow(dict(record))
-
-            self.logger.info(f"Saved raw dataset to {csv_path}")
-            return csv_path, True
-            
+    def _fetch_dataset(self) -> Tuple[Path, bool]:
+        """
+        Wrapper that first tries the remote source, then falls back to the local sample.
+        """
+        try:
+            return self._fetch_remote()
         except Exception as exc:
             self.logger.warning(
                 f"Failed to fetch remote dataset ({exc}); falling back to local sample."
             )
-            # Fallback: copy local sample CSV
-            local_sample = Path("data") / "sample_permeability.csv"
-            if not local_sample.is_file():
-                raise FileNotFoundError(
-                    f"Local fallback sample not found at {local_sample}"
-                )
-            
-            csv_path = paths.data("raw", self.config.get("filename", "sample_permeability.csv"))
-            csv_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(local_sample, csv_path)
-            self.logger.info(f"Copied local sample to {csv_path}")
-            return csv_path, False
+            return self._fallback_to_local()
 
-    def validate_columns(self, csv_path: Path) -> Tuple[str, str]:
+    # ------------------------------------------------------------------
+    # Validation
+    # ------------------------------------------------------------------
+    def _validate_columns(self, csv_path: Path) -> Tuple[str, str]:
         """
         Ensure that the required SMILES and target columns exist (case‑insensitive).
+
         Returns the original column names as they appear in the file.
         """
         with csv_path.open("r", encoding="utf-8") as f:
@@ -139,41 +163,41 @@ class DataLoader:
                 raise RuntimeError(f"CSV file {csv_path} has no headers.")
             cols = [c.lower() for c in reader.fieldnames]
 
-        required = self.expected_columns
-        if len(required) < 2:
-            raise RuntimeError("Config must specify at least two expected columns (smiles and target).")
-            
-        missing = [c for c in required if c not in cols]
+        missing = [c for c in self.expected_columns if c not in cols]
         if missing:
             raise RuntimeError(
                 f"Missing required columns: {missing}. "
                 f"Found columns: {reader.fieldnames}"
             )
 
+        # Return the canonical column names as they appear in the file.
         smiles_col = next(
-            (c for c in reader.fieldnames if c.lower() == required[0]), None
+            (c for c in reader.fieldnames if c.lower() == self.expected_columns[0]), None
         )
         target_col = next(
-            (c for c in reader.fieldnames if c.lower() == required[1]), None
+            (c for c in reader.fieldnames if c.lower() == self.expected_columns[1]), None
         )
         return smiles_col, target_col
 
-    def process(self, save_path: Path = None):
+    # ------------------------------------------------------------------
+    # Public entry point
+    # ------------------------------------------------------------------
+    def process(self) -> Path:
         """
         Execute the full data‑download pipeline:
         * stream the dataset (or copy local fallback),
         * validate column presence,
         * compute and store a SHA‑256 checksum.
         """
-        csv_path, from_remote = self.fetch_dataset()
+        csv_path, from_remote = self._fetch_dataset()
 
         # Validate required columns
-        smiles_col, target_col = self.validate_columns(csv_path)
+        self._validate_columns(csv_path)
 
         # Compute checksum and write manifest
-        checksum = self.compute_checksum(csv_path)
+        checksum = self._compute_checksum(csv_path)
         checksum_path = csv_path.parent / "checksums.json"
-        self.write_checksum_file({csv_path.name: checksum}, checksum_path)
+        self._write_checksum_file({csv_path.name: checksum}, checksum_path)
 
         self.logger.info(
             f"Data download completed successfully (rows written). "

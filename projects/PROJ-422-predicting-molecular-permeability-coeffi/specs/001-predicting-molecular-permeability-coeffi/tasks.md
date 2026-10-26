@@ -16,7 +16,7 @@ All scripts write their outputs under the project‑owned directories `data/`, `
 
 ## Phase 1 – Data acquisition, preprocessing, and splitting  
 
-- [ ] T001 [US‑1] Implement `code/data/download.py` – streams the dataset identified by `config/selected_dataset.yaml` via `datasets.load_dataset(..., streaming=True)`.  
+- [X] T001 [US‑1] Implement `code/data/download.py` – streams the dataset identified by `config/selected_dataset.yaml` via `datasets.load_dataset(..., streaming=True)`.  
   - Writes raw files to `data/raw/` and a SHA‑256 manifest to `data/raw/checksums.json`.  
   - **Verification**: `tests/unit/test_download.py` checks that at least one row is written and that the `permeability` column exists in the raw file.
 
@@ -29,7 +29,7 @@ All scripts write their outputs under the project‑owned directories `data/`, `
   6. Drops rows with missing `target` (permeability) from the output.  
   - **Verification**: `tests/unit/test_preprocess.py` checks that both output files exist, that `mol_valid` is boolean, and that the retention guard triggers only when the valid‑molecule rate falls below 95 %.
 
-- [ ] T003 [US‑1] Implement `code/data/split.py` – reads `data/processed/processed_data.parquet`, filters to rows where `target` is non‑null, then:   <!-- FAILED-IN-EXECUTION: code/data/split.py exit=1 -->
+- [ ] T003 [US‑1] Implement `code/data/split.py` – reads `data/processed/processed_data.parquet`, filters to rows where `target` is non‑null, then:
   1. If a `polymer_type` column exists, performs an **80 %/20 % stratified split** preserving an absolute ≤ 5 percentage‑point difference per polymer class (FR‑004).  
   2. If `polymer_type` is absent, performs a **stratified split based on target‑value quantile bins** (e.g., 5‑fold quantiles) to maintain distribution balance, logging the chosen strategy.  
   3. Guarantees that **both** training and test sets contain at least one record; for datasets with ≤ 5 rows it creates a **leave‑one‑out** split (the single left‑out row becomes the test set).  
@@ -40,7 +40,7 @@ All scripts write their outputs under the project‑owned directories `data/`, `
 
 ## Phase 2 – Model implementation, training, evaluation, and interpretation  
 
-- [ ] T004 [US‑2] Implement `code/models/gnn.py` – a **CPU‑only** 3‑layer Message Passing Neural Network (hidden = 64, global mean pooling) with:  
+- [ ] T004 [US‑2] Implement `code/models/gnn.py` – a **CPU‑only** 3‑layer Message Passing Neural Network (hidden = 64, global mean pooling) with:   <!-- FAILED-IN-EXECUTION: run_all.sh exit=1 -->
   - Early‑stopping on validation loss (patience = 5, max epochs = 50).  
   - Strict `device="cpu"` (no CUDA imports).  
   - Training routine `train_gnn(train_loader, val_loader, ...)` that returns the best checkpoint.  

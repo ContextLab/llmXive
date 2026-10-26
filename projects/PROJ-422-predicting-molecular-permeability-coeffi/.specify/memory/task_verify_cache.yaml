@@ -8,13 +8,13 @@ T000:
     \ All required artifacts exist and behave as specified."
   sig: 648d95a4d2452304671919e57cbdb9519f882a634fbf60e0b119a12054e350f5
 T001:
-  c: false
-  h: 23c897c9862c513f80a6e7a74dff411456ad8e364e2c0e2af12e97c381ba98e9
-  r: "The `data/raw/` directory is empty and `data/raw/checksums.json` is missing,\
-    \ so the script has not demonstrably written the required CSV and checksum files,\
-    \ and there is no evidence that `tests/unit/test_download.py` actually passes.\
-    \ The task\u2019s verification step is therefore unmet."
-  sig: 042f695ba350a22e95776b7640ae79bd457c44151e87557e0d54b843b873d75a
+  c: true
+  h: 6b810b30c96ea78c37097df6d58ac43977abfe6a4f72464c104163e5267d047e
+  r: "Checked `code/data/download.py` (uses `load_dataset(..., streaming=True)` and\
+    \ writes CSV and `checksums.json`), the generated `data/raw/permeability_data.csv`\
+    \ with a non\u2011empty `permeability` column, and the passing `tests/unit/test_download.py`\
+    \ log confirming the files are created and validated."
+  sig: 565926cb171d3c5f0c04daa8185fe3eb881dc801f05cca7f6a7d6eda97ec9ef7
 T002:
   c: true
   h: d0a71894e41af95f2fd05c67308e337b39b2fc966c4d02c2b9808bbdd433c517
@@ -25,3 +25,15 @@ T002:
     \ targets, and raises a non\u2011zero `SystemExit` when the valid\u2011molecule\
     \ fraction is below 95\u202F%, satisfying all test assertions."
   sig: c0f9d39f775baa6689ee71d8df747e1610a2ed89c93e72785940a54a91d1e10a
+T003:
+  c: false
+  h: 5490925d7a7326c379e1dc25c18d272371d74134234bb10d0afe9f4ca7f69425
+  r: "The `code/data/split.py` script exists, reads the processed Parquet file, drops\
+    \ rows with null targets, handles \u22645\u2011row leave\u2011one\u2011out splits,\
+    \ and writes both CSV and Parquet files. However, it does **not** enforce the\
+    \ required \u22645\u202Fpercentage\u2011point class distribution difference for\
+    \ polymer\u2011type stratification, nor does it provide the `stratified_split`\
+    \ / `execute_split` APIs that the unit tests expect (as shown by multiple failures\
+    \ in `tests/unit/test_split.py`). Consequently the stratification constraint verification\
+    \ and the unit\u2011test suite are not satisfied."
+  sig: 3a32cf49e43ec78e72ee5d61be2f3b49e4e02e39cb546073d724aaed5dcd3953

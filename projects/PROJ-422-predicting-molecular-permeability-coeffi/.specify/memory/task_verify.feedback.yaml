@@ -1,18 +1,21 @@
 T000:
   task: 8009f0a957a2f9bf0584b2f0ed4ff9c3e8a52a6a297f8a7905551fab7b76b23e
 T001:
-  reason: "The `data/raw/` directory is empty and `data/raw/checksums.json` is missing,\
-    \ so the script has not demonstrably written the required CSV and checksum files,\
-    \ and there is no evidence that `tests/unit/test_download.py` actually passes.\
-    \ The task\u2019s verification step is therefore unmet."
   task: f944ecf2db7974df06b84326a3ca73c6a8de103aa19cb3c30934673d7adedc97
 T002:
   task: 01225ffdef422e3621ee10adc1a293d9872947bae04c7caf4da6044af5d4f2a8
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/data/split.py
-    exit=1'
+  reason: "The `code/data/split.py` script exists, reads the processed Parquet file,\
+    \ drops rows with null targets, handles \u22645\u2011row leave\u2011one\u2011\
+    out splits, and writes both CSV and Parquet files. However, it does **not** enforce\
+    \ the required \u22645\u202Fpercentage\u2011point class distribution difference\
+    \ for polymer\u2011type stratification, nor does it provide the `stratified_split`\
+    \ / `execute_split` APIs that the unit tests expect (as shown by multiple failures\
+    \ in `tests/unit/test_split.py`). Consequently the stratification constraint verification\
+    \ and the unit\u2011test suite are not satisfied."
   task: 63ca040e52b19fb51b3b431c6e48dd0f60bf36a7cda072de4c10c871d0eb7c97
 T004:
+  reason: 'Requested task execution failed; rerun successfully: run_all.sh exit=1'
   task: 873e7c9a4063fcbc6e94b6aec0cd441573872d1c204a0e4e5d9cf8748abaf5b3
 T005:
   task: c74d3a808c2fea719e4dcdd1d8082d28c6c1a0861773958d3faa1b3059d6126f
