@@ -12,7 +12,7 @@ data/
 │   ├── baseline_{N}.json            # Clean asymptotic exponent (baseline.schema.yaml)
 │   ├── baseline_per_window_{N}.json # Per‑window baseline estimates (mean, std, convergence error)
 │   ├── ftle_results.json            # Aggregated FTLE entries and status flags
-│   ├── regression_results.json      # Mixed‑effects summary, Tobit summary, escape probabilities, **baseline_variance_used** flag
+│   ├── regression_results.json      # Mixed‑effects summary, Tobit summary, escape probabilities, baseline_variance_used flag
 │   ├── results.json                 # Bundle containing all above plus metadata
 │   └── plots/
 │       ├── convergence.png
@@ -54,4 +54,3 @@ data/
 The `baseline_variance` (or per‑window `lambda_std`) captured in Phase 3 is **propagated as observation‑level weights** in the mixed‑effects regression (Phase 6). This explicitly acknowledges algorithmic differences between Rosenstein baseline and QR‑based FTLE computation and prevents under‑estimation of uncertainty in the deviation metric \(\Delta\lambda\).
 
 ---
-

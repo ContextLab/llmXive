@@ -1,5 +1,6 @@
 status: none
-intent: Lorenz attractor synthetic time series python package dataset
+intent: coupled Lorenz oscillator synthetic trajectories configurable noise DOP853
+  integrator python package dataset
 required_fields:
 - time
 - oscillator_index
@@ -7,10 +8,7 @@ required_fields:
 - y
 - z
 - noise_std
-- sigma
-- rho
-- beta
-- coupling_strength
-cache_key: bf3a0e42f4235616bfa735076d146ecd2aa09ec8fb4dd1ed302aeee645de3c9e
-searched_at: '2026-10-25T23:39:56.396757+00:00'
+- integration_step
+cache_key: 9942414516ba2ebbeb520ab97caa70f034593d3d6bed339db24fa9a600350884
+searched_at: '2026-10-26T01:48:18.753008+00:00'
 retry_count: 1

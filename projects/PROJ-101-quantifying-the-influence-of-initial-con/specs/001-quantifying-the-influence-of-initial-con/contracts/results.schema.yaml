@@ -12,8 +12,6 @@ properties:
   baseline:
     type: object
     description: "Mapping from system dimension N to baseline object."
-    additionalKeys:
-      $ref: "./baseline.schema.yaml"
     additionalProperties:
       $ref: "./baseline.schema.yaml"
   ftle_results:
