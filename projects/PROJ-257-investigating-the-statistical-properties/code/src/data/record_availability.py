@@ -6,9 +6,10 @@ and matches its recorded SHA‑256 hash, and writes a JSON report
 ``data/results/data_availability.json`` that conforms to the contract
 ``specs/001-investigating-the-statistical-properties/contracts/result.schema.yaml``.
 
-If the checksum manifest is missing (e.g., because the download step has
-not been run yet), the script will invoke the GWTC download routine to
-fetch the required files and generate the manifest before proceeding.
+If the checksum manifest is missing (e.g., because the download
+step has not been run yet), the script will invoke the GWTC download
+routine to fetch the required files and generate the manifest before
+proceeding.
 """
 
 import json
