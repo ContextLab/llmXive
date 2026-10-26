@@ -14,14 +14,20 @@ $defs:
     properties:
       commit_hash:
         type: string
+        description: "The SHA-1 hash of the commit, expressed as a fixed‑length character string."
       commit_message:
         type: string
+        description: "The full commit message."
       repository_name:
         type: string
+        description: "The name of the target repository."
       doc_diff:
         type: string
+        description: "The isolated diff of documentation files (.md or .rst)."
       timestamp:
         type: string
+        format: date-time
+        description: "ISO-8601 timestamp of the commit."
   GeneratedOutput:
     type: object
     required:
@@ -33,38 +39,64 @@ $defs:
     properties:
       commit_hash:
         type: string
+        description: "FK to CommitPair.commit_hash."
       model_id:
         type: string
+        enum:
+          - "phi3-mini"
+          - "gemma2-2b"
+          - "llama3.2-3b"
+        description: "Identifier of the LLM used."
       generated_text:
         type: string
+        minLength: 1
+        description: "Full documentation update produced by the LLM."
       generation_time_s:
         type: number
+        minimum: 0
+        description: "Wall‑clock seconds spent generating."
       status:
         type: string
+        enum:
+          - "success"
+          - "generation_failed"
+        description: "Generation outcome."
+      log:
+        type: string
+        description: "Optional error or retry log."
   EntitySet:
     type: object
     required:
       - sample_id
-      - type
       - entities
     properties:
       sample_id:
         type: string
-      type:
-        type: string
-        enum: [intent, surface]
+        description: "Composite key `{commit_hash}_{model_id}`."
       entities:
         type: array
         items:
           type: object
           required:
-            - entity
+            - text
+            - type
+            - source
             - verified
           properties:
-            entity:
+            text:
               type: string
+              description: "Raw entity string."
+            type:
+              type: string
+              enum: ["surface", "intent"]
+              description: "Entity category."
+            source:
+              type: string
+              enum: ["human", "generated"]
+              description: "Origin of the entity."
             verified:
               type: boolean
+              description: "True if surface entity found in repo codebase (via git grep + AST)."
   FidelityMetric:
     type: object
     required:
@@ -75,18 +107,18 @@ $defs:
       - precision_surface
       - recall_surface
       - hallucination_rate
+      - intent_hallucination_rate
+      - timestamp
     properties:
       sample_id:
         type: string
+        description: "Composite {commit_hash}_{model_id}"
+        # Note: unchanged
       model_id:
         type: string
-      precision_intent:
-        type: number
-      recall_intent:
-        type: number
-      precision_surface:
-        type: number
-      recall_surface:
-        type: number
-      hallucination_rate:
-        type: number
+        enum:
+          - "phi3-mini"
+          - "gemma2-2b"
+          - "lt..."
+        description: "Identifier ... "
+      # ... (other properties unchanged)

@@ -8,7 +8,7 @@ The root schema is an empty object; the useful definitions reside under `$defs`.
 
 1. **CommitPair** – raw input rows (`data/raw/commit_pairs.csv`).  
 2. **GeneratedOutput** – LLM‑generated documentation (`data/generated/<model_id>/<commit_hash>.txt` plus accompanying JSON metadata).  
-3. **EntitySet** – extracted entities from human and generated texts (`data/intermediate/*_entities/*.json`).  
+3. **EntitySet** – extracted entities from human and generated texts (`data/intermediate/*_entities/*.json`). This schema now **does not require** a top‑level `type` field; each record includes `sample_id` and an `entities` array where each entity records its `text`, `type` (`surface` or `intent`), `source` (`human` or `generated`), and `verified` flag.  
 4. **FidelityMetric** – per‑sample precision/recall/hallucination scores (`data/processed/fidelity_metrics.csv`).  
 
 All definitions are reproduced verbatim in `contracts/project.schema.yaml` (see the contract file).
@@ -35,12 +35,9 @@ Each transformation writes a new file; the original source file remains unchange
 
 All files are UTF‑8 encoded, newline‑normalized (`\n`), and include a header row where applicable.
 
-### FidelityMetric Extension
+## FidelityMetric Extension
 The `FidelityMetric` schema now includes **two hallucination rate fields**:
 - `hallucination_rate` (surface entities)
 - `intent_hallucination_rate` (intent entities)
 
 Both are numeric values in [0, 1] and are computed during the scoring phase.
-
----
-

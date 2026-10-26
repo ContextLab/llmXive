@@ -1,14 +1,29 @@
-status: none
-intent: GitHub commit message and documentation diff dataset pip install python package
-  dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: "import sys\nfrom datasets import load_dataset\n\nds = load_dataset(\"\
+  SalutefaceAAC/commit-messages-from-diffs\", split=\"train\")\nrecords = len(ds)\n\
+  print(f\"RECORDS={records}\")\nif records:\n    first = ds[0]\n    fields = list(first.keys())\n\
+  \    print(\"FIELDS=\" + \",\".join(fields))\nelse:\n    print(\"FIELDS=\")"
+record_count: 88
+sample_fields:
+- id
+- language
+- repo_context
+- diff
+- commit_message
+- conventional_commit
+- commit_type
+- scope
+- breaking_change
+- difficulty
+field_coverage: 0.5
 required_fields:
+- commit_message
+- doc_diff
 - commit_hash
 - repository_name
-- commit_message
-- documentation_diff
-- file_path
 - timestamp
 - intent_entities
-cache_key: 73d8306a60e1ac4759b1195ea651c3948677f591b13b318cd7dfcb4ad207ff1a
-searched_at: '2026-10-26T15:44:27.663545+00:00'
-retry_count: 1
+intent: GitHub commit messages documentation diffs paired dataset python package dataset
+cache_key: 1452b753410c3dc53fdc963c61fa50656898bc24cf1665a4e1ec552d178ff84b

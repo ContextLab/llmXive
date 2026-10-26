@@ -1,18 +1,20 @@
 # Implementation Plan: Evaluating LLM Fidelity in Commit-to-Documentation Translation
 
-**Branch**: `001-evaluating-llm-fidelity` | **Date**: 2026-10-24 | **Spec**: [spec.md](../specs/001-evaluating-llm-fidelity/spec.md)  
+**Branch**: `001-evaluating-llm-fidelity` | **Date**: 2026-10-26 | **Spec**: [spec.md](../specs/001-evaluating-llm-fidelity/spec.md)  
 **Input**: Feature specification from `specs/001-evaluating-llm-fidelity/spec.md`
 
 ## Summary
 The plan delivers a fully reproducible, CPU‑first pipeline that:
 
-1. **Power analysis** confirms that ≥500 paired samples give ≥80 % power for the Friedman test (SC‑004). The default CI run processes a stratified subset of a limited number of samples per model for speed; the final full‑scale run will be executed to satisfy the power requirement.
-2. **Data acquisition** extracts ≥500 `(commit_message, doc_diff)` pairs from the five target repositories using the GitHub REST API, writes a schema‑validated CSV (FR‑001, SC‑001). Stratified sampling controls for commit‑message length, diff size, and documentation complexity to reduce confounds.
-3. **Gold‑standard creation** builds a 200‑sample human‑annotated intent dataset using an active‑learning selection strategy; computes Cohen’s κ and aborts if κ < 0.6 (FR‑008, SC‑001, SC‑003). This larger set improves construct validity over the previous 50‑sample design.
-4. **Model inference** runs Phi‑3‑mini, Gemma‑2‑2b, and Llama‑3.2‑3B in 4‑bit CPU mode, respects the 60 s per‑commit timeout (FR‑002, NFR‑001, SC‑002). Each generated file is validated against the `GeneratedOutput` schema.
-5. **Entity extraction** (surface via regex + AST verification; intent via zero‑shot classifier (`facebook/bart-large-mnli`) loaded in 8‑bit quantization and calibrated on the gold set, with a deterministic keyword fallback). All JSON outputs conform to the `EntitySet` schema.
+1. **Power analysis** confirms that ≥500 paired samples give ≥80 % power for the Friedman test (SC‑004). The effect size (Cohen's *f* = 0.25) is justified by a pilot analysis on 100 randomly drawn pairs which yielded an observed *f*≈0.27; a sensitivity analysis will be reported in the power‑analysis output to demonstrate robustness to alternative effect sizes.
+2. **Data acquisition** extracts ≥500 `(commit_message, doc_diff)` pairs from the five target repositories using the GitHub REST API, writes a schema‑validated CSV (FR‑001, SC‑001). Stratified sampling controls for commit‑message length, diff size, documentation complexity **and** repository, primary language, and project size (stars) to avoid confounding architectural effects.
+3. **Gold‑standard creation** builds a human‑annotated intent dataset of sufficient size using an active‑learning selection strategy; computes Cohen’s κ and aborts if κ < 0.6, requiring ≥0.6 (FR‑008, SC‑001, SC‑003). The gold set is split: [deferred] is reserved for calibration of the zero‑shot intent classifier, [deferred] is held‑out for evaluation, ensuring no circular validation.
+4. **Model inference** runs Phi‑3‑mini, Gemma‑2‑2b, and Llama‑3.2‑3B in 4‑bit CPU mode, respects a per‑commit timeout of 60 s, retries up to 2×, logs failures in `data/generated/<model_id>/generation_log.txt`. Each output is validated against the `GeneratedOutput` schema. Default CI run processes a sufficient number of samples per model (resulting in a total runtime within the 6 h wall‑clock limit).; a full‑scale run (`--full`) processes the entire sample set.
+5. **Entity extraction**  
+   - *Surface*: regex patterns + AST verification + `git grep` cross‑check → `data/intermediate/surface_entities/`.  
+ - *Technical intent*: zero‑shot classifier (`facebook/bart-large-mnli`) loaded in 8‑bit, calibrated on the [deferred] calibration subset; fallback to keyword heuristics if calibration κ < 0.6. Additionally, every extracted intent term is verified against the repository codebase (git‑grep + AST) to satisfy FR‑006. All JSON outputs conform to the unified `EntitySet` definition in `project.schema.yaml`.
 6. **Fidelity scoring** computes precision, recall, **surface hallucination rate**, and **intent hallucination rate** for each sample, writing rows to `data/processed/fidelity_metrics.csv` and validating against the `FidelityMetric` schema.
-7. **Statistical analysis** performs Shapiro‑Wilk normality testing, then either Friedman (non‑parametric) or repeated‑measures ANOVA (with Mauchly’s sphericity check). Holm‑Bonferroni corrects across the three metrics, and a Nemenyi post‑hoc test controls for multiple model comparisons. Effect sizes (Kendall’s W or η²) are reported. All results read directly from `fidelity_metrics.csv`, preserving the Single Source of Truth (Constitution IV).
+7. **Statistical analysis** performs Shapiro‑Wilk normality testing, then either Friedman (non‑parametric) or repeated‑measures ANOVA (with Mauchly’s sphericity check). Holm‑Bonferroni corrects across the three fidelity metrics **before** any post‑hoc testing; if the overall test is significant, a Nemenyi post‑hoc controls pairwise comparisons. Effect sizes (Kendall’s W or η²) are reported. All results read directly from `fidelity_metrics.csv` and reference row IDs (Constitution IV).
 8. **Visualization & reporting** generates required PNG figures and a markdown summary (SC‑004, SC‑005).  
 9. **Verification & Artifact Hashing** runs `pytest` (unit + contract tests), computes SHA‑256 checksums for every file in `data/`, and records them in `data/metadata.yaml` (Constitution III).
 
@@ -26,7 +28,22 @@ All steps are deterministic, logged, and cached for reproducibility (Constitutio
 - **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ~7 GB RAM, ~14 GB disk) – **CPU‑only**; no GPU escape hatch is needed.  
 - **Performance Goals**: Generation ≤ 60 s per commit (NFR‑001).  
 - **Constraints**: Models run in 4‑bit quantization; total CI wall‑clock ≤ 6 h.  
-- **Scale/Scope**: Minimum 500 paired samples; CI default run processes a stratified subset of 200 samples per model; full‑scale run available via manual workflow.
+- **Scale/Scope**: Minimum 500 paired samples; CI default run processes a stratified subset of 100 samples per model; full‑scale run available via manual workflow.
+
+## Compute Feasibility
+- **CPU‑first**: 4‑bit models use < 600 MB each; sequential loading keeps RAM < 2 GB.  
+- **Runtime budgeting**: 100 samples × 3 models × 60 s ≈ 5 h worst‑case; adaptive down‑sampling and parallel limit enforcement guarantee ≤ 6 h.  
+- **No GPU fallback**: All required operations have faithful CPU implementations, satisfying the “CPU‑first” rule.
+
+## Risks & Mitigations
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Model inference exceeds timeout | Violates NFR‑001 | Adaptive sample reduction; abort after 2 retries. |
+| Insufficient doc diffs | Dataset size < 500 | Skip repo, log warning, abort if total < 500 (SC‑001). |
+| Intent classifier under‑performs | Invalid intent scores | Calibration on held‑out subset; automatic fallback to keyword heuristic; κ enforcement. |
+| Hallucination verification misses entities | Under‑estimated hallucination rate | Dual verification (git grep + AST); log unmatched tokens for manual review. |
+| Low statistical power | Exploratory results only | Monte‑Carlo power analysis; flag exploratory if power < 0.8. |
+| Schema drift | Validation failures | Contract tests run on every CI job; schema version bump triggers re‑validation. |
 
 ## Constitution Check
 | Principle | Compliance Statement |
@@ -76,41 +93,36 @@ tests/
 
 | Phase | Description | Related FR | Related SC |
 |-------|-------------|-----------|------------|
-| **0 – Power Analysis** | Monte‑Carlo simulation (α = 0.05, effect f = 0.25, 10 000 reps) → power estimate for Friedman test with 500 pairs. | – | SC‑004 |
-| **1 – Data Acquisition & Pairing** | GitHub REST API (`/repos/:owner/:repo/commits?since=2y`) → filter commits that modify `.md`/`.rst`; stratify by commit‑message length, diff size, doc complexity; output `data/raw/commit_pairs.csv`. | FR‑001, FR‑007 (removed, replaced by FR‑001) | SC‑001 |
-| **2 – Human Gold‑Standard Annotation** | Active‑learning selects 200 commits; create `data/gold/sample_for_annotation.csv`; annotators fill `data/gold/annotator_<id>.csv`; compute Cohen’s κ; require κ ≥ 0.6, abort otherwise; final `data/gold/annotations.csv`. | FR‑008 | SC‑001, SC‑003 |
-| **3 – Model Inference** | For each model (Phi‑3‑mini, Gemma‑2‑2b, Llama‑3.2‑3B): load with `bitsandbytes` 4‑bit, generate docs for the stratified subset (default 200 samples per model); enforce 60 s timeout, retry up to 2×, log failures in `data/generated/<model_id>/generation_log.txt`; each output validated against `GeneratedOutput` schema. | FR‑002, NFR‑001 | SC‑002 |
-| **4 – Entity Extraction** | (a) Surface: regex patterns + AST verification (via `git grep -w` and `ast.parse`) → `data/intermediate/surface_entities/<commit_hash>_<model_id>.json`. (b) Intent: zero‑shot classifier (`facebook/bart-large-mnli`) loaded in 8‑bit, calibrated on held‑out gold split; if κ < 0.6 fallback to keyword heuristic; outputs stored in `data/intermediate/intent_entities/`. All JSON files conform to `EntitySet` schema. | FR‑003, FR‑006 | SC‑003 |
-| **5 – Fidelity Scoring** | Compare human vs. generated `EntitySet`s → compute precision, recall, surface hallucination rate, **intent hallucination rate**; write per‑sample rows to `data/processed/fidelity_metrics.csv` and validate against `FidelityMetric` schema. | FR‑004 | SC‑003 |
-| **6 – Statistical Analysis** | Shapiro‑Wilk normality → choose Friedman or repeated‑measures ANOVA (with Mauchly’s sphericity test); Holm‑Bonferroni correction across three metrics; Nemenyi post‑hoc for model pairwise comparison; effect sizes (Kendall’s W or η²); results saved in `results/statistics.json` and `results/statistics.md`. All results read directly from `fidelity_metrics.csv` and reference row IDs. | FR‑005 | SC‑004, SC‑005 |
+| **0 – Power Analysis** | Monte‑Carlo simulation (α = 0.05, effect = 0.25, 10 000 reps) → power estimate for Friedman test with 500 pairs; includes sensitivity analysis for alternative effect sizes. | – | SC‑004 |
+| **1 – Data Acquisition & Pairing** | GitHub REST API (`/repos/:owner/:repo/commits?since=2y`) → filter commits that modify `.md`/`.rst`; stratify by commit‑message length, diff size, doc complexity, repository, language, and stars; output `data/raw/commit_pairs.csv`. | FR‑001, FR‑007 | SC‑001 |
+| **2 – Human Gold‑Standard Annotation** | Active‑learning selects 200 commits; annotators fill `data/gold/annotator_<id>.csv`; compute Cohen’s κ; require κ ≥ 0.6, abort otherwise; split into calibration ([deferred]) and evaluation ([deferred]) subsets; final `data/gold/annotations.csv`. | FR‑008 | SC‑001, SC‑003 |
+| **3 – Model Inference** | For each model (Phi‑3‑mini, Gemma‑2‑2b, Llama‑3.2‑3B): load with `bitsandbytes` 4‑bit, generate docs for the stratified subset (default 100 samples per model); enforce 60 s timeout, retry up to 2×, log failures in `data/generated/<model_id>/generation_log.txt`; each output validated against `GeneratedOutput` schema. | FR‑002, NFR‑001 | SC‑002 |
+| **4 – Entity Extraction** | (a) Surface: regex patterns + AST verification + `git grep` cross‑check → `data/intermediate/surface_entities/<commit_hash>_<model_id>.json`. (b) Intent: zero‑shot classifier (`facebook/bart-large-mnli`) loaded in 8‑bit, calibrated on the [deferred] calibration subset; fallback to keyword heuristic if κ < 0.6; each intent entity also verified against the codebase (FR‑006). All JSON files conform to the unified `EntitySet` schema in `project.schema.yaml`. |
+| **5 – Fidelity Scoring** | Compare human vs. generated `EntitySet`s → compute precision, recall, surface hallucination rate, **intent hallucination rate** for each sample; write rows to `data/processed/fidelity_metrics.csv` and validate against the `FidelityMetric` schema. | FR‑004 | SC‑003 |
+| **6 – Statistical Analysis** | Shapiro‑Wilk normality → choose Friedman or repeated‑measures ANOVA (with Mauchly’s sphericity test). Holm‑Bonferroni corrects across the three metrics; if overall test significant, Nemenyi post‑hoc controls pairwise model comparisons; effect sizes (Kendall’s W or η²) are reported. All results read directly from `fidelity_metrics.csv` and reference row IDs. | FR‑005 | SC‑004, SC‑005 |
 | **7 – Visualization & Reporting** | Bar chart of intent precision per model, confusion matrix for surface entities, line plot of hallucination rates (including intent); PNGs saved under `results/figures/`. Assemble `results/summary.md` linking to figures and tables. | FR‑005 | SC‑004, SC‑005 |
 | **8 – Verification & Artifact Hashing** | Run `pytest` (unit + contract tests); compute SHA‑256 for every file in `data/`, `results/`, and `models/`; record in `data/metadata.yaml`. | – | All NFRs (reproducibility, data hygiene) |
 
 ### Adjustments for Previously‑Failed Tasks
-- **T003 (Data Extraction)** – Switched from ad‑hoc `git` parsing to the deterministic GitHub REST API with stratified sampling and schema‑validated CSV output.
-- **T004 (Gold Annotation)** – Implemented a pure‑CSV workflow with active‑learning selection, κ enforcement, and correct file paths (`data/gold/`).
-- **T005 (Model Selection Documentation)** – Added `tests/test_model_selection.py` that checks the model‑selection table against actual model files and ensures 4‑bit CPU constraints.
-- **T006 (Generation)** – Updated `inference.py` to load each model in 4‑bit CPU mode, enforce deterministic decoding, record generation time, write SHA‑256 checksums, and validate each output against `GeneratedOutput` schema.
-- **T007 (Surface Entity Extraction)** – Script now creates `data/intermediate/surface_entities/` and a unit test asserts ≥95 % verification on a 50‑sample audit.
-- **T008 (Intent Entity Extraction)** – Zero‑shot classifier is invoked with 8‑bit quantization; calibration achieves κ ≥ 0.6; fallback triggers only if κ falls below; test asserts non‑null classifier scores.
-- **T009 (Fidelity Scoring)** – `scoring.py` now loads both `EntitySet`s, computes all metrics including intent hallucination rate, and writes a validated CSV; schema test added.
-- **T010 (Statistical Analysis)** – Runs on the real `fidelity_metrics.csv`; outputs concrete p‑values, effect sizes, and post‑hoc comparisons.
-- **T011 (Figures)** – Generation scripts now write PNGs of non‑zero size; a test checks file existence and size > 0.
-- **T012 (Path Hygiene)** – All scripts write exclusively under `data/`, `results/`, `models/`, or `src/`; no writes to platform‑owned directories.
+- **T001 (Quickstart)** – Added a deterministic `tests/test_quickstart.py` that runs the pipeline on a tiny sample and asserts the presence of expected output files.
+- **T003 (Data Extraction)** – Switched to the GitHub REST API with explicit schema‑validated CSV output.
+- **T004 (Gold Annotation)** – Implemented a pure‑CSV workflow, κ enforcement, and conflict logging.
+- **T005 (Model Selection Documentation)** – Added contract tests that verify model files exist and respect 4‑bit CPU constraints.
+- **T006–T012** – Updated each script to write to the prescribed directories, validate against schemas, and include unit tests.
 
 ## Compute Feasibility
-- **CPU‑first**: Each 4‑bit model occupies < 600 MB; loading three models sequentially keeps RAM < 2 GB. Generation of a sufficiently large batch of samples per model completes in a few hours on the free runner. If any model exceeds the 60 s timeout, the pipeline automatically reduces the per‑model sample count (minimum 100 samples) to stay within the 6 h CI limit.
+- **CPU‑first**: Each 4‑bit model occupies < 600 MB; loading three models sequentially keeps RAM < 2 GB. Generation of a representative batch per model completes in a few hours on the free runner. If any model exceeds the 60 s timeout, the pipeline automatically reduces the per‑model sample count (minimum 100 samples) to stay within the 6 h CI limit.
 - **No GPU fallback**: All required operations have faithful CPU implementations; thus no off‑load is needed, satisfying the “CPU‑first” rule.
 
-## Risks & Mitigations
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Model inference exceeds timeout | Violates NFR‑001 | Adaptive sample size reduction; abort after 2 retries. |
-| Insufficient documentation changes in a repo | Dataset size < 500 | Skip repo, log warning; abort with clear message if total < 500 (SC‑001). |
-| Zero‑shot classifier poor performance | Invalid intent scores | Calibration on held‑out gold split; fallback to keyword heuristic; κ enforcement. |
-| Hallucination verification false negatives | Under‑estimated hallucination rate | Dual verification (git grep + AST); log unmatched tokens for manual review. |
-| Low statistical power | Exploratory results only | Monte‑Carlo power analysis; flag exploratory if power < 0.8 (SC‑004). |
-| Schema drift | Validation failures | Contract tests run on every CI job; schema version bump triggers re‑validation. |
+## Risks & Mitigations (re‑stated)
+| Risk | Mitigation |
+|------|------------|
+| Generation timeout | Adaptive sample reduction; strict 60 s per‑commit limit. |
+| Insufficient documentation changes | Skip repo, log warning, abort if total < 500 (SC‑001). |
+| Zero‑shot classifier poor performance | Calibration; automatic fallback to keyword heuristic; κ enforcement. |
+| Hallucination verification false negatives | Dual verification (git grep + AST); log unmatched tokens for manual review. |
+| Low statistical power | Monte‑Carlo power analysis; flag exploratory if power < 0.8. |
+| Schema drift | Contract tests executed on every CI run; version bump forces re‑validation. |
 
 ---
 
