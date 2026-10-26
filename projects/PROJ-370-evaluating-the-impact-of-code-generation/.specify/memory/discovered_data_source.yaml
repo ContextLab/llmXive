@@ -1,18 +1,18 @@
 status: none
-intent: GitHub pull request dataset GHTorrent HuggingFace python package dataset
+intent: GitHub Pull Request Dataset from GHTorrent and GH Archive python package dataset
 required_fields:
-- pr_id
-- repository_full_name
-- diff_patch
-- review_comments
-- linked_issue_ids
+- repository_name
+- pull_request_number
+- pull_request_url
 - author_login
+- author_association
 - created_at
 - merged_at
-- state
-- files_changed
-- additions
-- deletions
-cache_key: 723be669e7d13980e221e80b0c9d70129004d7634a9032b78e0119288b2e585a
-searched_at: '2026-10-26T04:30:54.621562+00:00'
+- closed_at
+- diff_text
+- added_files
+- removed_files
+- modified_files
+cache_key: aa5da98b86ce17aa77fe5ec4ad6fb4164c5e7f23c4e009f14611e229c8669f5c
+searched_at: '2026-10-26T08:31:12.136858+00:00'
 retry_count: 1

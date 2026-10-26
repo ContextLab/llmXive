@@ -64,3 +64,16 @@
 {"timestamp": 1792988761.937492, "level": "WARNING", "name": "src.extraction.fetch_prs", "message": "Rate limit hit. Sleeping for 60 seconds.", "extra": {"name": "src.extraction.fetch_prs"}}
 {"timestamp": 1792988822.0782795, "level": "WARNING", "name": "src.extraction.fetch_prs", "message": "Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=1&per_page=100.", "extra": {"name": "src.extraction.fetch_prs"}}
 {"timestamp": 1792988822.0783782, "level": "WARNING", "name": "src.extraction.fetch_prs", "message": "Rate limit hit. Sleeping for 60 seconds.", "extra": {"name": "src.extraction.fetch_prs"}}
+{"event": "cli_start", "timestamp": 1793002917.498078}
+{"event": "seed_used", "seed": 42, "timestamp": 1793002917.4986804}
+{"event": "cli_complete", "status": "success", "timestamp": 1793002917.4990485}
+{"timestamp": 1793003061.6975744, "level": "INFO", "name": "__main__", "message": "Global timeout set to 6.00 hours", "extra": {"name": "__main__"}}
+{"timestamp": 1793003061.6976807, "level": "INFO", "name": "__main__", "message": "Phases to execute: []", "extra": {"name": "__main__"}}
+{"timestamp": 1793003061.6977265, "level": "INFO", "name": "__main__", "message": "Pipeline execution finished.", "extra": {"name": "__main__"}}
+{"timestamp": 1793003182.259589, "level": "INFO", "name": "__main__", "message": "Global timeout set to 6.00 hours", "extra": {"name": "__main__"}}
+{"timestamp": 1793003182.2596676, "level": "INFO", "name": "__main__", "message": "Phases to execute: ['extraction', 'detection', 'inference', 'analysis', 'reporting']", "extra": {"name": "__main__"}}
+{"timestamp": 1793003182.2597365, "level": "INFO", "name": "__main__", "message": "Remaining time budget: 21600.00 seconds", "extra": {"name": "__main__"}}
+{"timestamp": 1793003182.259771, "level": "INFO", "name": "root", "message": "=== Extraction Phase ===", "extra": {"name": "root"}}
+{"timestamp": 1793003182.2793014, "level": "INFO", "name": "root", "message": "Running src.extraction.fetch_prs.main()", "extra": {"name": "root"}}
+{"timestamp": 1793003182.2794173, "level": "INFO", "name": "src.extraction.fetch_prs", "message": "Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']", "extra": {"name": "src.extraction.fetch_prs"}}
+{"timestamp": 1793003182.2796724, "level": "INFO", "name": "src.extraction.fetch_prs", "message": "Fetching PRs for microsoft/vscode...", "extra": {"name": "src.extraction.fetch_prs"}}

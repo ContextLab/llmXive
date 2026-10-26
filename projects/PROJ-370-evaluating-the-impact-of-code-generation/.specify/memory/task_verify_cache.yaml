@@ -1,10 +1,11 @@
 T001:
   c: false
-  h: ba7c4b674a5748bffe2d25d19a9d8e3f155b4905e9ab5fe9e0b6e6501aaafa3f
-  r: "The `code/` hierarchy is present, but the required `specs/001-eval-llm-review-quality/contracts`\
-    \ directory is missing (the log shows a differently named `specs/001-evaluating-the-impact-of-code-generation/contracts`).\
-    \ The task\u2019s directory layout is therefore not fully satisfied."
-  sig: 68c9f65c6d8b185646a2a0e57faddb8d5f7ce7582a205ae1116924cf7b337209
+  h: 1918e85bf5cb306661788a0b06998a2ec57707b3a53faa1d502382c71f5df412
+  r: The evidence shows the full `code/` hierarchy (src, tests, data, logs) is present,
+    but the required `specs/001-eval-llm-review-quality/contracts` directory is not
+    found in the listed artifacts. Adding that missing `specs/.../contracts` folder
+    (and any needed contents) is needed to satisfy the task.
+  sig: c918047c64d0bc04ddfcae97f2354a566311df25e1174556610c6df2481316ce
 T002:
   c: true
   h: cfde12c82675e812007cf25c0fd616a1df15baa301ba4cf2b3305c5b4ab1d8aa
@@ -14,33 +15,24 @@ T002:
     \ files exist and match the task specifications."
   sig: 9be311031958507958b9a644e4850742fada90908ddae03dbaef1a8ad3561415
 T004:
-  c: false
-  h: 269aebb454553400918e4975a27b5ba217e919e8725c33512fcf061742685820
-  r: "Checked `code/src/pipeline/logging_utils.py`, `code/src/pipeline/runtime_guard.py`\
-    \ and their unit tests `code/tests/unit/test_logging_utils.py` & `code/tests/unit/test_runtime_guard.py`.\
-    \ The files exist and the code appears to meet the functional specs, but there\
-    \ is no provided evidence that the tests were actually run (e.g., pytest output\
-    \ showing exit code\u202F0) nor a demonstration that invoking `RuntimeGuard` with\
-    \ a past deadline produces a real `logs/timeout.log` entry. Those execution artifacts\
-    \ are required to consider the task complete."
-  sig: db8ccd81765f93679524045b92b79a8df27582c328374fdaec51ec56cd8e7e1a
-T005:
-  c: false
-  h: ecee263c1a1a443a28de1a2914992d9a22aafb8c298929b378c71ed805c9790b
-  r: "The CLI script exists and logs a `\"cli_start\"` event, but the required output\
-    \ file `data/results/smoke_report.json` is missing (the script writes to `results/smoke_report.json`\
-    \ instead) and there is no evidence that `logs/pipeline.jsonl` actually contains\
-    \ the `\"cli_start\"` entry. The task\u2019s smoke\u2011test artifacts are not\
-    \ present at the specified paths."
-  sig: 0468aec7b87dce7f18f5d7e7356c42ae483dcf27a9e267aeb74dab0a20687b4c
+  c: true
+  h: 38712198cecefe1023052f1aabf619651d6600007e8b23078b689ba282e189ba
+  r: "Checked `code/src/pipeline/logging_utils.py` and `runtime_guard.py` (both implement\
+    \ the required JSON\u2011lines logging and timeout behavior), the unit test files\
+    \ `test_logging_utils.py` and `test_runtime_guard.py`, and the recorded pytest\
+    \ logs showing both test suites exit with code\u202F0 and the manual `verify_guard.py`\
+    \ run confirming a past\u2011deadline guard exits with code\u202F143 and creates\
+    \ a non\u2011empty `logs/timeout.log`."
+  sig: b896f2ea4d11c9f5a5d87adb7ff09ebe3b44bcf07fc825e232db5495e78f8465
 T006:
   c: true
-  h: cd5af53ffb7c67bb5d6dff1a3a0bd94608ab96b8aa56094bd713df1a98065a61
-  r: Checked `code/src/detection/schema.py` for the `BugDetection` dataclass definition
-    and `code/src/extraction/schema.py` for the isolated `PullRequest` class. The
-    contract tests in `code/tests/contract/test_schemas.py` all passed, confirming
-    correct imports, serialization behavior, and schema isolation.
-  sig: db1a38446933b48e9815564e628c2c8a571737bbdf44479482d3ab27433832a9
+  h: 8542a7a87057e08bb5bb000426ec6619cabdc10c9ffdccd47b84f84a4587270b
+  r: "Checked `code/src/detection/schema.py` \u2013 it defines the required `BugDetection`\
+    \ dataclass, and `code/src/extraction/schema.py` defines `PullRequest` with no\
+    \ duplicate definition. The contract tests in `code/tests/contract/test_schemas.py`\
+    \ validate both schemas and their isolation, confirming the implementation meets\
+    \ the task requirements."
+  sig: 545db81bebfda9f876eb3800acfe81be0028763bfdc56853d5ce1d5e9b003afc
 T007:
   c: false
   h: f58bd2f9aa0b316cf29a2538d9cda06354bae1e57548a7872973e89a1b4355d1

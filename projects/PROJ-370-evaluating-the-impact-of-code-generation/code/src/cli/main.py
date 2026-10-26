@@ -33,7 +33,7 @@ try:
 except ImportError:
     def log_event(event: Dict[str, Any]) -> None:
         """Fallback logger that writes a JSON line to logs/pipeline.jsonl."""
-        log_path = paths.data("logs/pipeline.jsonl") if hasattr(paths, "data") else Path("logs/pipeline.jsonl")
+        log_path = Path("logs/pipeline.jsonl")
         log_path.parent.mkdir(parents=True, exist_ok=True)
         with log_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(event, ensure_ascii=False) + "\n")
@@ -152,7 +152,8 @@ def main():
     if args.run == "smoke":
         logger.info("Running smoke test – generating placeholder report.")
         # Write to data/results/smoke_report.json as required by T005
-        report_path = paths.results("smoke_report.json")
+        # Use paths.data("results", ...) to ensure it lands in data/results/
+        report_path = paths.data("results", "smoke_report.json")
         elapsed = int(time.time() - start_time)
         _write_smoke_report(report_path, elapsed)
         logger.info(f"Smoke report written to {report_path}")
