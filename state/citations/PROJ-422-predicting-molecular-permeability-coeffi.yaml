@@ -64,3 +64,25 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/691a8b8eb9d00158e249626e/82059ec7857eb8bb8ce797a633df6fbadb7cb5f9d950ccede71972562bac39a4?xip=awHuwsBER08&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1792882006&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxYThiOGViOWQwMDE1OGUyNDk2MjZlLzgyMDU5ZWM3ODU3ZWI4YmI4Y2U3OTdhNjMzZGY2ZmJhZGI3Y2I1ZjlkOTUwY2NlZGU3MTk3MjU2MmJhYzM5YTRcXD94aXA9YXdIdXdzQkVSMDgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI4ODIwMDZ9fX1dfQ__&Signature=MEUCIQDsxY-mp1fQ63hIpZ3XbXRVd5uhqksHiuLE8ue2yyglswIgITtxO7gsrdHNKqwDZM3yZez5DwHy%7E3odpGf5lpGgBzw_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-10-24T21:46:38.373099Z'
+- artifact_hash: e8537ac0c2fd43ef2092c9440e089c54a7096f560a4bb6a0f59203756da7c4af
+  artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://example.com/permeability-dataset-1.csv
+  verification_status: mismatch
+  verified_against_url: https://example.com/permeability-dataset-1.csv
+  verified_at: '2026-10-26T09:50:03.401892Z'
+- artifact_hash: e8537ac0c2fd43ef2092c9440e089c54a7096f560a4bb6a0f59203756da7c4af
+  artifact_path: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://example.com/permeability-dataset-2.csv
+  verification_status: mismatch
+  verified_against_url: https://example.com/permeability-dataset-2.csv
+  verified_at: '2026-10-26T09:50:03.401892Z'
