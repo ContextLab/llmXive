@@ -1,30 +1,45 @@
 T001:
   c: false
-  h: bd562c73211f63d04d9e9a7a588ff80ca86754ee10ae9cd9ef5f21aefacbbb2a
-  r: "The quick\u2011start guide omits any instruction for setting `GITHUB_TOKEN`\
-    \ and describes only a \u201Csmoke\u2011test\u201D that uses a hard\u2011coded\
-    \ commit pair rather than a real 5\u2011sample subset downloaded by the data\u2011\
-    extraction script. Moreover, `tests/test_quickstart.py` calls `run_pipeline.main`\
-    \ directly instead of invoking the command via `subprocess`, and it does not capture\
-    \ stdout as required. These omissions mean the task\u2019s specifications are\
-    \ not fully met."
-  sig: d147776890cf735123a2a3aa5390cc8b6165d6b7b63b21ee96e4c0062d9175d9
+  h: e42bff2e14a78c8f4d2d2d79cd37e703bded9b9b248b504828f7b08f4dda405a
+  r: "The quickstart guide\u2019s \u201Csample\u201D command runs only a hard\u2011\
+    coded smoke test, not a real 5\u2011sample subset downloaded via the data\u2011\
+    extraction script, and the required log file `logs/quickstart_run.log` is not\
+    \ present among the artifacts. Consequently the test does not fully meet the task\u2019\
+    s specifications."
+  sig: 8a3e6380a875f34943406f1dab0cf8d4c727426d414bbcd8d042f6dabeecb56a
 T002:
   c: true
-  h: 55e11064785ce31a30fb6e5b93689cda402295e8af95811ed660ade1bdeb4063
-  r: "Checked `code/power_analysis.py` for correct simulation logic and report generation,\
-    \ `results/power_report.md` for the required numeric power estimate line and exploratory\
-    \ flag, and `tests/test_power_analysis.py` confirming the markdown file exists\
-    \ and contains a valid floating\u2011point power value. The artifacts are present,\
-    \ non\u2011empty, and satisfy the task specifications."
-  sig: c048192e0c4c836b9bc2895796e7b44867ed262034f5ceb7b61eb21a9299fd11
+  h: 380402d31cfd6f5616392fa24273c5948fc35df34b1d1571967549c0ae4a22e0
+  r: "Checked `code/power_analysis.py` for correct simulation parameters (n\u202F\
+    =\u202F500, f\u202F=\u202F0.25) and report generation, and verified `results/power_report.md`\
+    \ contains the numeric power estimate line and the exploratory flag. The test\
+    \ suite `tests/test_power_analysis.py` passes with the provided markdown file."
+  sig: 6354e52e7f687c29d61dafae29831a66289746217be6242a3975a5295596fc1d
+T004:
+  c: false
+  h: 6e385feb08f6aec3a72eb56a85718b84505c00f11e6df50103d41cad0a6b02fc
+  r: "The repository lacks the required UI files (`annotation_ui/index.html`, etc.)\
+    \ and the gold\u2011standard CSVs (`data/gold/sample_for_annotation.csv`, `annotator_1.csv`,\
+    \ `annotator_2.csv`). `gold_annotation.py` writes its JSON to a different path,\
+    \ never reads the annotator CSVs, does not abort when \u03BA\u202F<\u202F0.6,\
+    \ and does not produce a `conflicts.log`. These missing/incorrect artifacts mean\
+    \ the task\u2019s specifications are not met."
+  sig: 58ad899cd25a7f0162e964252777fec62b6c4b28c84e6342374fa01e0dfe3c71
+T005:
+  c: false
+  h: 0c2d2c8c670479a1b20f99376cbda1a232592d330defa3f3377851c7ac16433b
+  r: "The markdown file lacks the required \u201CCPU\u2011only compatibility\u201D\
+    \ column and its scale\u2011limitation sentence does not contain \u201Ccomparable\u201D\
+    \ or \u201Csimilar\u201D, causing `test_scale_limitation_sentence` to fail (see\
+    \ test log). Consequently the verification test does not pass and the task is\
+    \ not fully satisfied."
+  sig: b8bc8796fe4068fe34ed63415602515836646710053e8cf23842da24ade7a23b
 T013:
   c: true
-  h: 1da8da87baa9433a6b1e68c27aba1593d48d9fc939ea33b194a10e19c87724bd
+  h: 1df5e9284225a65bba9cfdad7321d2ac0786b0dea50b74dbe899a837945b0a09
   r: "Checked `code/data_hygiene.py` (checksum computation and immutability enforcement),\
-    \ `code/seeds.py` (global SEED\u202F=\u202F42), `data/metadata.yaml` (populated\
-    \ with checksums for all data files), and `tests/test_hygiene_and_seeds.py` (verifies\
-    \ metadata coverage, immutability, deterministic power analysis, and SEED imports).\
-    \ All required artifacts exist, contain the proper logic, and the tests confirm\
-    \ the specified behavior."
-  sig: 425bf5a4136952fa5666163f9bae6f141ca70a38d9da2eba899e0ab06b744d72
+    \ `code/seeds.py` (global SEED\u202F=\u202F42), `data/metadata.yaml` (stores SHA\u2011\
+    256 entries for all data files), and `tests/test_hygiene_and_seeds.py` (verifies\
+    \ seed, metadata coverage, immutability, deterministic power analysis, and SEED\
+    \ imports). All requirements are satisfied."
+  sig: 2948ce7b406af6265651ae3676944ea29af2ff1e00a86a5202ace64bd278e038

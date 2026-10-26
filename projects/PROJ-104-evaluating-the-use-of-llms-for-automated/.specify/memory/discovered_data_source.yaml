@@ -1,12 +1,12 @@
 status: none
-intent: GitHub commit message documentation diff dataset download python package dataset
+intent: download GitHub documentation diff and commit message dataset python package
 required_fields:
 - commit_hash
-- commit_message
 - repository_name
-- doc_diff
+- commit_message
+- documentation_diff
 - timestamp
-- file_path
-cache_key: 0cec602ef3c15096c93f9321f7d3772e85495d4ec0eb69a05eb7b7c9ed9a5ff4
-searched_at: '2026-10-26T09:31:25.438406+00:00'
+- intent_entities
+cache_key: 67238a12c204496660710890d128c4daa355b010395dfa8201bd1c12f96dfa11
+searched_at: '2026-10-26T09:38:24.354645+00:00'
 retry_count: 1

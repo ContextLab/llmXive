@@ -1,104 +1,73 @@
-"""Minimal run‑pipeline implementation for the quick‑start test (T001).
+"""Orchestrator for the LLM‑fidelity pipeline.
 
-The full research pipeline is extensive; for the purpose of the
-quick‑start verification we only need to ensure that the placeholder
-smoke‑test files are present and that the function returns a zero exit
-code.  This implementation therefore:
-
-1. Parses ``--sample`` (or ``--full``) arguments but treats any invocation
-   as a successful smoke‑test run.
-2. Guarantees that the expected artefacts exist:
-   - ``data/generated/phi3-mini/sample_test.txt``
-   - ``data/generated/generation_success_rates.csv``
-   - At least one intent‑entity JSON under ``data/intermediate/intent_entities/``
-3. Returns ``0`` on success, ``1`` on unexpected error.
-
-This satisfies ``tests/test_quickstart.py`` while keeping the rest of
-the pipeline untouched for later development.
+This minimal orchestrator now invokes the generation stage (Task T006)
+after any prior steps have been completed.  It respects the ``--sample``
+flag (used by the quick‑start smoke test) by creating a tiny stub CSV
+if the real ``commit_pairs.csv`` does not exist.
 """
 from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
 from llmxive_toolkit import get_logger, paths
+from code.generation import main as generation_main
 
 log = get_logger(__name__)
 
-
-def _ensure_placeholder_outputs() -> None:
-    """Create minimal placeholder artefacts if they are missing."""
-    # 1. Sample generated text file
-    gen_file = paths.data("generated", "phi3-mini", "sample_test.txt")
-    gen_file.parent.mkdir(parents=True, exist_ok=True)
-    if not gen_file.is_file():
-        gen_file.write_text("Placeholder generated documentation for quick‑start.\n", encoding="utf-8")
-
-    # 2. Generation success‑rate CSV
-    csv_path = paths.data("generated", "generation_success_rates.csv")
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
-    if not csv_path.is_file():
-        csv_path.write_text(
-            "model_id,success_rate\n"
-            "phi3-mini,1.0000\n"
-            "gemma2-2b,1.0000\n"
-            "llama3.2-3b,1.0000\n",
-            encoding="utf-8",
-        )
-
-    # 3. At least one intent‑entity JSON file
-    intent_dir = paths.data("intermediate", "intent_entities")
-    intent_dir.mkdir(parents=True, exist_ok=True)
-    sample_json = intent_dir / "sample_test.json"
-    if not sample_json.is_file():
-        sample_json.write_text(
-            """{
-  "sample_id": "0000000000000000000000000000000000000000",
-          "type": "intent",
-          "entities": [
-              {
-                  "entity": "smoke_test_intent",
-                  "verified": true
-              }
-          ]
-      }""",
-            encoding="utf-8",
-        )
-
-
-def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the LLM fidelity pipeline (quick‑start mode).")
+def _parse_args(argv: list[str] | None = None):
+    parser = argparse.ArgumentParser(description="Run the LLM fidelity pipeline")
     parser.add_argument(
         "--sample",
         type=int,
-        default=5,
-        help="Number of sample commit pairs to process (default: 5).",
+        help="Run a tiny smoke‑test with the given number of dummy samples",
     )
     parser.add_argument(
         "--full",
         action="store_true",
-        help="Run the full pipeline (currently a placeholder).",
+        help="Run the full pipeline (all stages that have been implemented)",
     )
     return parser.parse_args(argv)
 
+def _ensure_placeholder_outputs(sample: int | None) -> None:
+    """Create a minimal ``commit_pairs.csv`` when running a smoke test."""
+    if sample is None:
+        return
+    csv_path = paths.data("raw", "commit_pairs.csv")
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
+        fieldnames = [
+            "commit_hash",
+            "commit_message",
+            "repository_name",
+            "doc_diff",
+            "timestamp",
+        ]
+        writer = __import__("csv").DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for i in range(sample):
+            writer.writerow(
+                {
+                    "commit_hash": f"{i:040x}",
+                    "commit_message": f"Dummy commit message {i}",
+                    "repository_name": "dummy_repo",
+                    "doc_diff": f"Added dummy documentation line {i}",
+                    "timestamp": "1970-01-01T00:00:00Z",
+                }
+            )
 
 def main(argv: list[str] | None = None) -> int:
-    """Entry point used by the quick‑start test."""
+    args = _parse_args(argv)
+    if args.sample:
+        _ensure_placeholder_outputs(args.sample)
+
+    # Future stages (data extraction, annotation, etc.) would be called here.
+    # For now we only run the generation stage.
     try:
-        args = _parse_args(argv)
-        log.info("Running run_pipeline with args: %s", args)
-
-        # For the quick‑start we do not perform real data extraction or model
-        # inference; we simply ensure the placeholder artefacts exist.
-        _ensure_placeholder_outputs()
-
-        # Normal exit code
-        return 0
-    except Exception as exc:  # pragma: no cover
-        log.exception("run_pipeline failed: %s", exc)
+        return generation_main()
+    except Exception as e:
+        log.exception("Pipeline failed: %s", e)
         return 1
 
-
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

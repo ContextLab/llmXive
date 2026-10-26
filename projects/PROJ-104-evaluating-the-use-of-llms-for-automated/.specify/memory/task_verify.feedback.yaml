@@ -1,11 +1,9 @@
 T001:
-  reason: "The quick\u2011start guide omits any instruction for setting `GITHUB_TOKEN`\
-    \ and describes only a \u201Csmoke\u2011test\u201D that uses a hard\u2011coded\
-    \ commit pair rather than a real 5\u2011sample subset downloaded by the data\u2011\
-    extraction script. Moreover, `tests/test_quickstart.py` calls `run_pipeline.main`\
-    \ directly instead of invoking the command via `subprocess`, and it does not capture\
-    \ stdout as required. These omissions mean the task\u2019s specifications are\
-    \ not fully met."
+  reason: "The quickstart guide\u2019s \u201Csample\u201D command runs only a hard\u2011\
+    coded smoke test, not a real 5\u2011sample subset downloaded via the data\u2011\
+    extraction script, and the required log file `logs/quickstart_run.log` is not\
+    \ present among the artifacts. Consequently the test does not fully meet the task\u2019\
+    s specifications."
   task: ad8b7da12a812516de57f5cc04b2d15ce66c35856e417d66bfbc7d46ef6297a4
 T002:
   task: 301a52712c3dd0fe87b0e770778abfeb16e6ed0f5fc2564483ea2bca5228bcd8
@@ -14,8 +12,19 @@ T003:
     exit=1'
   task: 3f204a970bc7acc62aab1f2edb9749ff55ac5a33ca39748a1515fd2246a7b4b3
 T004:
+  reason: "The repository lacks the required UI files (`annotation_ui/index.html`,\
+    \ etc.) and the gold\u2011standard CSVs (`data/gold/sample_for_annotation.csv`,\
+    \ `annotator_1.csv`, `annotator_2.csv`). `gold_annotation.py` writes its JSON\
+    \ to a different path, never reads the annotator CSVs, does not abort when \u03BA\
+    \u202F<\u202F0.6, and does not produce a `conflicts.log`. These missing/incorrect\
+    \ artifacts mean the task\u2019s specifications are not met."
   task: d4bae6a779a54556a230619704daeef0b24fa7e12e16d85cd942eac3b543b508
 T005:
+  reason: "The markdown file lacks the required \u201CCPU\u2011only compatibility\u201D\
+    \ column and its scale\u2011limitation sentence does not contain \u201Ccomparable\u201D\
+    \ or \u201Csimilar\u201D, causing `test_scale_limitation_sentence` to fail (see\
+    \ test log). Consequently the verification test does not pass and the task is\
+    \ not fully satisfied."
   task: 19decc807d5be24f5149a74fad943d60cac068688c3fb89284e936fe3c56eb6f
 T006:
   task: 86ebedd41fa998c7d9361c306b98e0ef8477ed91f700c50e3e471214571b61e8

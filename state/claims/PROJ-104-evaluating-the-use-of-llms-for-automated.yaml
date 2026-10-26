@@ -543,3 +543,90 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-26T09:28:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: re-running any stage reproduces identical results
+  claim_id: c_3924e858
+  context: "All stochastic components use the single pinned seed SEED = 42 ... Re\u2011\
+    running any stage reproduces identical results."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Re\u2011running any stage reproduces identical results."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:32:29Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_48d9d4f8
+  context: "Quick smoke test (Phase\u202F0) ... It completes in well under 30\u202F\
+    seconds and requires no model downloads."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The quick smoke test completes in well under 30\u202Fseconds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:32:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: power analysis estimates power for n=500
+  claim_id: c_89fa132e
+  context: "Power analysis (Phase\u202F1) ... The report contains the estimated power\
+    \ for n\u202F=\u202F500 ..."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The Monte\u2011Carlo power analysis estimates power for n\u202F=\u202F\
+    500."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:32:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: full pipeline runs phase-0 smoke test and phase-1 power analysis and
+    exits successfully
+  claim_id: c_fef7b45b
+  context: "Running the Full Pipeline ... until the remaining tasks land, --full runs\
+    \ every implemented stage (currently the Phase\u20110 smoke test and Phase\u2011\
+    1 power analysis), reports the not\u2011yet\u2011implemented stages as pending,\
+    \ and exits successfully ..."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The full pipeline runs the Phase\u20110 smoke test and Phase\u20111 power\
+    \ analysis and exits successfully."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:32:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: ci workflow runs full cpu-only pipeline on every push
+  claim_id: c_96b1a7e4
+  context: "CI Execution ... the repository includes a GitHub Actions workflow that\
+    \ automatically runs the full CPU\u2011only pipeline on every push, caches model\
+    \ weights, and uploads artefacts."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The CI workflow automatically runs the full CPU\u2011only pipeline on\
+    \ every push."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:32:30Z'

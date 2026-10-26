@@ -2,8 +2,8 @@
 
 The test suite loads the consolidated ``project.schema.yaml`` and
 validates each artefact that exists on disk against its corresponding
-definition.  At this stage of the project only ``CommitPair`` has a
-concrete file (``data/raw/commit_pairs.csv``); additional artefacts
+definition.  At this stage of the project only ``CommitPair`` has
+a concrete file (``data/raw/commit_pairs.csv``); additional artefacts
 will be added in later tasks.
 """
 from __future__ import annotations
@@ -59,7 +59,7 @@ def test_commitpair_schema():
 # Placeholder hooks for future artefacts – they simply assert existence
 # if the corresponding file is present.  This keeps the test suite
 # extensible without causing failures for artefacts that have not yet
-# been generated.
+# generated.
 def _optional_file_check(relative_path: str):
     path = paths.root / relative_path
     if path.exists():
