@@ -59,7 +59,7 @@ A researcher wants to identify the most important roughness and material descrip
 
 1. **Given** a trained model, **When** SHAP value analysis is performed, **Then** a plot showing the feature importance ranking is generated.
 2. **Given** the SHAP values, **When** the top 5 features are examined, **Then** they represent physically plausible descriptors (e.g., Sa, Sq, Ssk, Sku, hardness).
-3. **Given** a specific feature, **When** its SHAP values are analyzed, **Then** the direction of its impact on the prediction (positive or negative) matches the known physical trend (e.g., hardness inversely correlates with wear) as documented in Smith et al., 2020.
+3. **Given** a specific feature, **When** its SHAP values are analyzed, **Then** the direction of its impact on the prediction (positive or negative) matches the known physical trend (e.g., hardness inversely correlates with wear) as documented in Smith et al.,.
 
 ### Edge Cases
 
@@ -97,7 +97,7 @@ A researcher wants to identify the most important roughness and material descrip
 ## Verified Datasets
 
 - OpenML Surface Roughness & Tribology dataset (ID 2352) → https://www.openml.org/d/2352 (Verified 2026-10-25; contains required columns Sa, Sq, Ssk, Sku, Sp, Sv, coeff_friction, wear_rate)
-- NIST Materials Data Repository (DOI ) → (Verified 2026-10-25; provides material property tables referenced by FR‑003)
+- NIST Materials Data Repository (DOI ) → (Verified as of the latest access; provides material property tables referenced by FR‑003)
 
 ## Success Criteria
 

@@ -35,7 +35,7 @@ properties:
     description: "Materials Project or NIST identifier for material 1."
   material_2_id:
     type: string
-    description: "Materials Project or NIST identifier for material 2."
+    description: "Identifier for material 2."
   Sa:
     type: number
     description: "Arithmetic mean surface height (µm)."
@@ -80,10 +80,10 @@ properties:
     description: "Wear rate (mm³ N⁻¹ m⁻¹)."
   avg_hardness:
     type: number
-    description: "Mean hardness of the two materials."
+    description: "Mean of the two hardness values."
   avg_modulus:
     type: number
-    description: "Mean elastic modulus of the two materials."
+    description: "Mean of the two elastic modulus values."
   hardness_modulus_ratio_avg:
     type: number
     description: "Mean hardness‑to‑modulus ratio across the pair."

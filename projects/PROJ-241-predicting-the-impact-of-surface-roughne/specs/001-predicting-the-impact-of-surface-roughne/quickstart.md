@@ -19,17 +19,17 @@ export RANDOM_SEED=42
 
 ## 3. Run the pipeline
 ```bash
-python -m src.pipeline.run_all
+python -m src.pipeline.__main__   # orchestrates all phases
 ```
-`run_all` orchestrates the phases defined in `plan.md`:
+`__main__` executes the phases defined in `plan.md`:
 
 1. **download** – Phase 0 & 1 (data availability check, streaming OpenML dataset).  
 2. **extract** – Phase 2 (pySurf roughness extraction or KS‑validated fallback).  
-3. **preprocess** – Phase 3 (MAD outlier removal, median imputation with logging, scaling, row‑count assertion).  
-4. **split** – Phase 5 (strict group‑aware train/test split by `material_pair_id` that also guarantees no individual material appears in both sets).  
-5. **modeling** – Phase 6 (nested CV, hyper‑parameter tuning, final model training).  
-6. **evaluation** – Phase 7 & 8 (metrics, power analysis, significance testing).  
-7. **interpret** – Phase 9 (SHAP plots, directionality reporting).  
+3. **preprocess** – Phase 3 (±3 σ outlier removal, median imputation, logging, bootstrap note, scaling, row‑count assertion).  
+4. **split** – Phase 4 (strict group‑aware train/test split).  
+5. **modeling** – Phase 5 (nested CV, hyper‑parameter tuning, final model training).  
+6. **evaluation** – Phase 6 & 7 (metrics, power analysis, significance testing).  
+7. **interpret** – Phase 8 (SHAP plots, directionality reporting).  
 
 ## 4. Inspect results
 - **Metrics**: `results/metrics.json`  
@@ -49,6 +49,4 @@ On the CI runner the full pipeline should finish well within the allocated time 
 **Important:** If a suitable open dataset cannot be downloaded **or** does not contain the required columns, the script will raise `DataAvailabilityError` and exit with a non‑zero status. In that case, contact the project owner to provide a verified open dataset URL or adjust the specification accordingly.
 
 ---
-
-
 
