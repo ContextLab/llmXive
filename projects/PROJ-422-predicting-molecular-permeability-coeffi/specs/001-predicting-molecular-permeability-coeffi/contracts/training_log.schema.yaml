@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Log"
+type: object
+properties:
+  model:
+    type: string
+    enum: ["gnn", "rf"]
+    description: "Identifier of the model that was trained"
+  start_time_iso:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp when training started"
+  end_time_iso:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp when training ended"
+  total_hours:
+    type: number
+    description: "Wall‑clock duration in hours (must be < 6 for CI compliance)"
+  planned_sample_size:
+    type: integer
+    description: "Sample size required for [deferred] power at Cohen's d = 0.3"
+  achieved_power:
+    type: number
+    description: "Power actually ... (placeholder for future value)"
+  sufficient:
+    type: boolean
+    description: "True if achieved_power >= 0.8"
+required:
+  - model
+  - start_time_iso
+  - end_time_iso
+  - total_hours
+  - planned_sample_size
+  - achieved_power
+  - sufficient
+additionalProperties: false

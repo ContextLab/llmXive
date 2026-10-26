@@ -21,40 +21,65 @@ pip install -r requirements.txt
 
 ## Step‑by‑Step Execution
 
-1. **Load & Verify Data (streaming)**
+1. **Verify & Download Data**
+   ```bash
+   python code/data/download.py
+   ```
+   - Streams the verified datasets from Hugging Face, checks SHA‑256 checksums, and writes raw files under `data/raw/`.  
+   - The script **first searches for an experimental `permeability` column**; if none is found, it **searches for an approved surrogate column** (e.g., `simulated_permeability`, `logS`, `solubility`).  
+   - If a surrogate is found, the pipeline records `target_type: "surrogate"` in the metadata and proceeds.  
+   - If **no target column** (experimental nor surrogate) is present, the script prints a clear error, creates a GitHub issue titled “Request open permeability dataset for PROJ‑422”, and exits with status 1. No downstream steps are executed.
+
+2. **Preprocess**
    ```bash
    python code/data/preprocess.py
    ```
-   - Streams the verified datasets from Hugging Face, computes SHA‑256 checksums, parses SMILES, and writes **both** `data/processed/processed_data.parquet` **and** `data/processed/processed_data.csv`.  
-   - If the valid‑molecule retention rate falls below 95 %, the script attempts canonicalization, logs a warning, and writes the largest valid subset, continuing with a `retention_warning` flag in `results/metrics.json`.  
-   - If no `permeability` column is found, the script halts after this step with an informative message and **automatically creates a GitHub issue** requesting a suitable open dataset (see Phase 0).  
+   - Parses SMILES with `rdkit.Chem.MolFromSmiles`; logs & drops invalid entries (FR‑011).  
+   - **Retention Guard**: ensures ≥ 95 % of molecules are valid; if not, attempts canonicalization and aborts if still below threshold.  
+   - Computes MW, logP, TPSA, HBA, HBD, rotatable bonds, and one‑hot `polymer_type` (if present).  
+   - Writes `data/processed/processed_data.parquet` **and** `processed_data.csv`.  
+   - If a surrogate target is used, `target_type` is set to `"surrogate"` in the output files.
 
-2. **Cross‑Validation Training & Evaluation** *(only runs when a true permeability target is present or an approved surrogate is used)*
+3. **(Optional) Split – runs only if a target column is present**
    ```bash
-   # This runs the k‑fold CV, the hold‑out test, power analysis, bias check, and writes results/metrics.json
-   python code/analysis/train.py --config config.yaml
+   python code/data/split.py
    ```
-   - Handles stratified CV, early stopping, power analysis, bias check, and records `sufficient: false` if under‑powered.  
+   - Generates 5‑fold stratified CV splits and a hold‑out test set, each as Parquet and CSV.  
+   - The script aborts with a clear error if the `target` column is missing, ensuring that downstream steps are never run on an invalid dataset.
 
-3. **Interpretability**
+4. **Train Models**
+   ```bash
+   python code/analysis/train.py
+   ```
+   - Trains the GNN and Random Forest on each CV fold, applies early stopping, records wall‑clock time, and writes `results/training_log.json`.  
+   - **Power‑analysis gate**: if the achieved power is < 0.8 the script aborts and logs `sufficient: false`.
+
+5. **Evaluate & Test Significance**
+   ```bash
+   python code/analysis/evaluate.py
+   ```
+   - Computes RMSE, MAE, R² for both models on the **hold‑out test set**, performs the Shapiro‑Wilk normality test on per‑sample error differences, then runs the appropriate paired test (t‑test or Wilcoxon) **on those per‑sample errors**, and records the p‑value and significance flag.
+
+6. **Interpretability**
    ```bash
    python code/analysis/explain.py
    ```
-   - Generates SHAP plots for the Random Forest (excluding any surrogate target) and GNNExplainer visualizations for the GNN.  
-   - Outputs are stored in `results/interpretability/`.  
+   - Generates SHAP bar charts for the Random Forest and GNNExplainer substructure heatmaps for the GNN.  
+   - Computes the **deterministic overlap metric** using a pre‑defined SMARTS‑to‑descriptor lookup table and a permutation‑test (10 000 shuffles) to obtain a p‑value; results are stored in `results/metrics.json`.
 
-4. **Full End‑to‑End Run (optional)**
+7. **Full End‑to‑End Run (convenience)**
    ```bash
    ./run_all.sh
    ```
-   *`run_all.sh`* simply chains the three commands above and exits with a non‑zero code if any step fails.
+   *`run_all.sh`* sequentially executes the commands above with `set -e`, aborting early if any step returns a non‑zero exit code (e.g., when no permeability target is found, power is insufficient, or a script fails).  
 
 ## Expected Outputs
-- `data/processed/processed_data.parquet` and `processed_data.csv` – cleaned feature tables (or a warning if retention < 95 %).  
-- `data/processed/` contains **5 CV split files** (`train_fold_0.parquet`, `test_fold_0.parquet`, …) and a **[deferred] hold‑out** (`holdout_test.parquet`), each with matching CSV versions.
-- `results/metrics.json` – RMSE, MAE, R² (mean ± SD across folds) for GNN and RF; paired test result; normality test outcome; power‑analysis summary; **interpretability overlap** metric; **bias_check** fields.  
-- `results/interpretability/` – PNG/HTML files for SHAP bar charts and GNNExplainer substructure heatmaps.  
-- Model checkpoints: `code/models/gnn.pt`, `code/models/rf.pkl`.  
+- `data/processed/processed_data.parquet` and `processed_data.csv` – cleaned feature tables (or a graceful halt if target missing).  
+- `data/processed/` – 5 CV split files + hold‑out test set (only when a target exists).  
+- `code/models/gnn.pt`, `code/models/rf.pkl` – trained model checkpoints.  
+- `results/training_log.json` – start/end timestamps, total_hours, power‑analysis fields for each model; training aborts if `sufficient` is false.  
+- `results/metrics.json` – RMSE, MAE, R² for both models, statistical‑test outcome, bias‑check (including any dropped descriptors), and interpretability overlap metric (including permutation p‑value).  
+- `results/interpretability/` – PNG/HTML visualizations for SHAP and GNNExplainer.  
 
 ## Reproducibility Tips
 - Random seeds are fixed (`seed=42`) inside the code base.  
@@ -62,8 +87,9 @@ pip install -r requirements.txt
 - The CI runner uses the same `requirements.txt`; no hidden dependencies.  
 
 ## What Happens When No Permeability Data Is Available?
-The preprocessing script will stop after the retention guard and **automatically file a GitHub issue** titled “Request open permeability dataset for PROJ‑422”. No modeling or downstream analysis will be performed until such a dataset is added, preserving scientific rigor.  
+`code/data/download.py` will stop after checksum verification, log the absence of a `permeability` column, and **automatically file a GitHub issue** titled “Request open permeability dataset for PROJ‑422”. The pipeline will **not** proceed to preprocessing, splitting, or modeling until a suitable dataset is added, preserving scientific rigor.  
 
 ---
+
 
 

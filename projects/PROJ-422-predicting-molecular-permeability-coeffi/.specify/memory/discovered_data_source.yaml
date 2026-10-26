@@ -1,19 +1,17 @@
 status: none
-intent: Polymer Membrane Permeability Database NIST permeability coefficients download
-  python package dataset
+intent: OpenML polymer membrane permeability experimental dataset from Membrane Permeability
+  Database python package dataset
 required_fields:
 - polymer_name
-- polymer_structure_smiles
-- repeat_unit
-- temperature_K
-- pressure_atm
+- polymer_structure
+- membrane_thickness
+- temperature
+- pressure
 - gas_species
-- permeability_coefficient_P
-- diffusion_coefficient_D
-- solubility_coefficient_S
-- measurement_uncertainty
-- experimental_method
-- reference_citation
-cache_key: 0d3d02f63fd6e11b8c49573725e251e511258cb6f709b556b25712eca524bf16
-searched_at: '2026-10-26T09:19:07.218162+00:00'
+- permeability_coefficient
+- units
+- measurement_method
+- reference
+cache_key: ba2f6a9757c43a5df3eb3d7e66279eea40df0a02db6dd4abdb742e1ba9f71e0e
+searched_at: '2026-10-26T09:34:43.704168+00:00'
 retry_count: 1
