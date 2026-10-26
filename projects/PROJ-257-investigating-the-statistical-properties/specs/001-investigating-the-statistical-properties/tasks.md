@@ -13,7 +13,7 @@ Tasks are ordered to respect data‑flow and the functional priorities defined i
   *Outputs*: `data/raw/gwtc1.h5`, `data/raw/gwtc2.h5`.  
   *Verification*: `pytest tests/unit/test_download_gwtc.py` asserts both files exist, are readable as HDF5, and that their checksums match the expected values.
 
-- [ ] T002 [P0] [US0] **Record data‑availability metadata and enforce free‑tier resource limits**  
+- [~] T002 [P0] [US0] **Record data‑availability metadata and enforce free‑tier resource limits**  
   *Implementation*: `code/src/data/record_availability_and_resources.py` (1) writes a JSON report `data/results/data_availability.json` conforming to `result.schema.yaml` with `status: "verified"` for each source; (2) wraps the pipeline start/end with `code/src/utils/resource_monitor.py` to capture `wall_time_seconds`, `peak_memory_gb`, `peak_disk_gb` in `data/results/resource_usage.json`; (3) `code/src/analysis/check_resources.py` reads the usage file and aborts with a clear error if runtime > 6 h, memory > 7 GB, or disk > 20 GB.  
   *Outputs*: `data/results/data_availability.json`, `data/results/resource_usage.json`.  
   *Verification*: `pytest tests/unit/test_data_availability.py` validates the JSON against the schema and checks `status == "verified"`; `pytest tests/unit/test_check_resources.py` mocks limit violations and confirms the script fails, and passes when limits are respected.

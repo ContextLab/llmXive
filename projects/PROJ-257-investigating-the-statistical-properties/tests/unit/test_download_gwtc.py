@@ -10,6 +10,7 @@ Unit tests for the GWTC download script. The tests verify that:
 
 import json
 from pathlib import Path
+
 import h5py
 import pytest
 from llmxive_toolkit import paths

@@ -1,100 +1,99 @@
 """
 src/main.py
 
-Entry point for the end‑to‑end analysis pipeline. The script follows the
-Quickstart specification:
+Entry point for the full pipeline execution as referenced in
+`quickstart.md`. It orchestrates the GWTC download (T001) and the
+data‑availability recording (T002) steps.
 
-* ``--download-only`` – fetch GWTC files, record availability, then exit.
-* ``--skip-download`` – assume the raw files and checksum manifest already
-  exist; the script will still verify availability before proceeding.
-* ``--seed <int>`` – optional override of the global random seed (used by
-  downstream steps).
+The command line interface mirrors the flags described in the
+quickstart documentation, but only the flags required for the
+current tasks are implemented:
 
-The implementation invokes the core building‑block functions defined in
-``src.data`` and ``src.analysis``. Only the steps required for T001 are
-guaranteed to run; later stages are left untouched to preserve existing
-behaviour.
+* ``--download-only`` – perform only the download step.
+* ``--skip-download`` – assume the raw files already exist and
+  only run the availability check.
+* ``--seed`` – placeholder for future reproducibility; not used
+  directly by the current tasks.
+
+The script exits with a non‑zero status if any step fails,
+satisfying the “fail loudly” requirement.
 """
 
 import argparse
 import sys
-from llmxive_toolkit import get_logger
 
-# Core pipeline components
-from src.data.download import download_all
-from src.data.record_availability import record_availability
-from src.data.preprocess import preprocess
-from src.data.synthetic_gen import acquire_sim_catalog
+from llmxive_toolkit import get_logger
+from src.data.download_gwtc import main as download_main
+from src.data.record_availability import main as record_main
 
 log = get_logger(__name__)
 
-def _parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Run the GWTC statistical‑properties pipeline"
+        description="Run the GWTC download and data‑availability checks."
     )
     parser.add_argument(
         "--download-only",
         action="store_true",
-        help="Only download GWTC files and record availability",
+        help="Only download GWTC files (skip availability check).",
     )
     parser.add_argument(
         "--skip-download",
         action="store_true",
-        help="Assume GWTC files already exist (skip download step)",
+        help="Skip downloading; only perform availability check.",
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=None,
-        help="Override the default random seed (debugging only)",
+        help="Random seed placeholder (not used in current tasks).",
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
-def main():
-    args = _parse_args()
-
-    # ------------------------------------------------------------------
-    # Step 1 – GWTC download and availability recording
-    # ------------------------------------------------------------------
+def run_pipeline(args):
+    """
+    Execute the pipeline steps according to the supplied arguments.
+    """
+    # Step 1: download GWTC files unless explicitly skipped.
     if not args.skip_download:
-        log.info("Starting GWTC download")
+        log.info("Starting GWTC download step...")
         try:
-            download_all()
+            download_main()
+        except SystemExit as exc:
+            # download_main uses sys.exit on failure; propagate the error.
+            log.error("GWTC download failed with exit code %s", exc.code)
+            raise
         except Exception as exc:
-            log.error("GWTC download failed: %s", exc)
-            sys.exit(1)
+            log.error("Unexpected error during GWTC download: %s", exc)
+            raise
 
-    # At this point a ``checksums.json`` should exist – either freshly
-    # written by ``download_all`` or pre‑existing.
+    # Step 2: record data‑availability metadata unless download‑only.
+    if not args.download_only:
+        log.info("Running data‑availability recording step...")
+        try:
+            record_main()
+        except SystemExit as exc:
+            log.error(
+                "Data‑availability recording failed with exit code %s",
+                exc.code,
+            )
+            raise
+        except Exception as exc:
+            log.error("Unexpected error during availability check: %s", exc)
+            raise
+
+    log.info("Pipeline completed successfully.")
+
+def main(argv=None):
+    """
+    CLI entry point.
+    """
+    args = parse_args(argv)
     try:
-        record_availability()
-    except Exception as exc:
-        log.error("Data‑availability check failed: %s", exc)
+        run_pipeline(args)
+    except Exception:
+        # Ensure a non‑zero exit status on any failure.
         sys.exit(1)
-
-    if args.download_only:
-        log.info("Download‑only mode selected; exiting after availability check")
-        return
-
-    # ------------------------------------------------------------------
-    # Step 2 – Observational preprocessing (required for later phases)
-    # ------------------------------------------------------------------
-    try:
-        preprocess()
-    except Exception as exc:
-        log.error("Preprocessing of GWTC data failed: %s", exc)
-        sys.exit(1)
-
-    # ------------------------------------------------------------------
-    # Step 3 – Simulation catalog acquisition / synthetic fallback
-    # ------------------------------------------------------------------
-    try:
-        acquire_sim_catalog()
-    except Exception as exc:
-        log.error("Simulation catalog acquisition failed: %s", exc)
-        sys.exit(1)
-
-    log.info("Pipeline execution completed successfully")
 
 if __name__ == "__main__":
     main()

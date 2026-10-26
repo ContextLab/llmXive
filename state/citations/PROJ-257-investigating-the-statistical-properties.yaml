@@ -75,7 +75,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966974
   verified_at: '2026-10-25T02:39:46.974025Z'
-- artifact_hash: 341201b88eebb49dd716ab75df654eb7d5bf4f66ba1fcd7925a278471318062a
+- artifact_hash: dffe5d291d35b8d2357ea2ad7a63be7338c6a7454e3e390299434828f7af0c91
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,8 +85,8 @@
   value: 10.5281/zenodo.3966973
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966973
-  verified_at: '2026-10-26T15:45:17.670269Z'
-- artifact_hash: 341201b88eebb49dd716ab75df654eb7d5bf4f66ba1fcd7925a278471318062a
+  verified_at: '2026-10-26T16:13:25.348491Z'
+- artifact_hash: dffe5d291d35b8d2357ea2ad7a63be7338c6a7454e3e390299434828f7af0c91
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -96,4 +96,4 @@
   value: 10.5281/zenodo.3966974
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966974
-  verified_at: '2026-10-26T15:45:17.670269Z'
+  verified_at: '2026-10-26T16:13:25.348491Z'

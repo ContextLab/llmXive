@@ -1,8 +1,10 @@
 """
 Unit tests for the data‑availability recording script (T002).
-The test validates that the JSON report conforms to the expected schema
-(the schema is exercised elsewhere) and that each entry reports a
-``status`` of ``verified`` when the underlying file matches its checksum.
+
+The test invokes ``code/src/data/record_availability.main`` which should
+(a) ensure the GWTC files are present (triggering a download if
+necessary), (b) verify their checksums, and (c) write a JSON report with
+``status: "verified"`` for each entry.
 """
 
 import json

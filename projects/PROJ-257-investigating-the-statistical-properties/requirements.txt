@@ -1,1 +1,5 @@
-h5py
+# No additional third‑party dependencies beyond the base environment.
+# The project already depends on numpy, pandas, scipy, matplotlib,
+# requests, tqdm, pytest, h5py, statsmodels, and memory-profiler,
+# all of which are provided in the base environment.  This file is
+# present to satisfy the repository layout expectations.
