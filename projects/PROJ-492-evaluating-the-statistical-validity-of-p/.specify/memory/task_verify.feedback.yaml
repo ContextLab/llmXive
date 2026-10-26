@@ -1,11 +1,4 @@
 T001:
-  reason: "The quickstart.md does contain the required command, and the audit package\
-    \ with the expected modules exists, but there is no evidence that duplicate\u202F\
-    PT### entries have been removed, that all imports succeed, or that `python -m\
-    \ code.src.audit.run_audit --help` actually runs and exits with status\u202F0.\
-    \ Provide a successful run\u2011help command log and proof (e.g., a script output\
-    \ or test) that no PT### duplicates remain and that the package imports without\
-    \ error."
   task: 172b79b3fe114bd5307eab73d42d910154058a467786a749204778ea30908667
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/src/audit/monte_carlo_validation.py
@@ -30,14 +23,8 @@ T012:
 T013:
   task: a70894a462841cbc9ee8e014fd1f584ade49f78a58ba96d16f3db00de7ef14eb
 T017:
-  reason: "The provided `data/input/urls.csv` contains \u2265\u202F300 URLs and `data/raw/`\
-    \ holds many HTML files with matching SHA\u2011256 entries in `data/checksums.txt`,\
-    \ satisfying the mechanical checks. However, the URLs are generic Unbounce blog\
-    \ posts about A/B testing rather than actual public A/B test **summaries** (i.e.,\
-    \ pages reporting specific test results, p\u2011values, effect sizes, etc.). The\
-    \ artifact therefore does not meet the core requirement of curating a corpus of\
-    \ reachable URLs that point to public A/B test summaries. The next implementer\
-    \ must replace the current URLs with at least 300 genuine A/B test"
+  reason: 'Requested task execution failed; rerun successfully: code/src/audit/curate_corpus.py
+    exit=1'
   task: fb820ecf40419667ce98df55e05101ac67398025d425d5097ab5067c94607e44
 T018:
   task: 95bc0431fa32ceed5ec805efe0296f0183920b67bd5276f1183004ef8eb57d72

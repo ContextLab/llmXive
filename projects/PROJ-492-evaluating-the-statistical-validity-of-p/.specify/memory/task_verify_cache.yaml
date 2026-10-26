@@ -1,13 +1,11 @@
 T001:
-  c: false
-  h: e209691aea00fa3ba14876059a3ea0fc76586cf3907f5144c0466ac7dab26a03
-  r: "The quickstart.md does contain the required command, and the audit package with\
-    \ the expected modules exists, but there is no evidence that duplicate\u202FPT###\
-    \ entries have been removed, that all imports succeed, or that `python -m code.src.audit.run_audit\
-    \ --help` actually runs and exits with status\u202F0. Provide a successful run\u2011\
-    help command log and proof (e.g., a script output or test) that no PT### duplicates\
-    \ remain and that the package imports without error."
-  sig: d123875dd0a76f67f63afef86182e02fc79f4f8836241e43ffa0e122d53fc766
+  c: true
+  h: 09194ccb29930776c9d0926e3a1d2955efd730949e7f2d32025aa648abb81288
+  r: Checked the `code/src/audit/` directory (contains all required modules and `run_audit.py`),
+    the passing test log confirming `python -m code.src.audit.run_audit --help` works,
+    duplicate PT entries are absent, and `quickstart.md` includes the exact command
+    `python -m code.src.audit.run_audit data/input/urls.csv output/`.
+  sig: aaa40b957334b981135a233b77e9c1af353f93da72171939c36d088345c23c8f
 T017:
   c: false
   h: cfe8d7d8d7ae68f0897f83b8cadec4dbe20c610d30da2abfbc6c3f24ffcb0765

@@ -1,19 +1,19 @@
 status: none
-intent: download A/B Test Summary Corpus dataset for reproducible audit python package
-  dataset
+intent: downloadable A/B test summary corpus with annotated validation set python
+  package dataset
 required_fields:
 - url
-- test_name
-- variant_a
-- variant_b
-- metric
-- sample_size_a
-- sample_size_b
-- reported_p_value
-- confidence_interval
-- statistical_test
+- title
 - domain
-- ground_truth_consistency_label
-cache_key: 6e51a8964f38b5a5ba063db5f3a3fc5117acdb2a8ad061c10603a9c8c240f70e
-searched_at: '2026-10-26T00:23:03.011112+00:00'
+- reported_p_value
+- sample_size_control
+- sample_size_treatment
+- effect_size
+- test_statistic
+- confidence_interval
+- outcome_metric
+- date
+- consistency_label
+cache_key: c4e36de564d3589be1adcbef87386c7ea5055cea0a2c26940936378306c5c798
+searched_at: '2026-10-26T03:23:19.262861+00:00'
 retry_count: 1

@@ -1,6 +1,4 @@
-# Project dependencies – only non‑standard libraries are listed.
-# ``requests`` and ``beautifulsoup4`` are already part of the default
-# environment; ``beautifulsoup4`` is not required for the current
-# implementation (XML parsing is done with the stdlib), but it is kept
-# here for future extensions.
-# No additional packages are needed for T017.
+# Existing dependencies are already available in the execution environment.
+# Add BeautifulSoup only if needed; the current implementation uses the
+# standard library, so no extra packages are required.
+# (This file is intentionally left unchanged.)
