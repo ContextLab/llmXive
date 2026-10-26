@@ -70,5 +70,3 @@ pytest tests/contract/test_evaluation_report.py
 ```
 
 All tests should pass, indicating that the report meets the required structure and that all functional requirements have been satisfied.
-
----

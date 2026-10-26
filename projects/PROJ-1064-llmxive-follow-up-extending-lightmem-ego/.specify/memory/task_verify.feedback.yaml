@@ -1,36 +1,39 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: src/data/download.py
-    exit=1'
-  task: 05caff25f59905ec32832f8d3678c9cd9e3284609c31e063ac03dfae3b374687
+  reason: "The required quickstart file is not present at `specs/001-semantic-decay-retrieval/quickstart.md`\
+    \ (it lives under a different specs folder), and `src/data/download.py` does not\
+    \ implement the prescribed `download_ego4d(output_dir: Path) -> None` using `datasets.load_dataset`;\
+    \ instead it uses a different signature with explicit URLs and `requests`. These\
+    \ deviations mean the task\u2019s core artifacts and API contract are not met."
+  task: febcef115ef02b8a610c2bab9b95210f1e3e5ae53021a2add02bb6cc8a63e07b
 T002:
-  task: bb8b6816a1b6ecf55316294e4d6b5369bcbe39179a3b7f7fd97f0625bd6b23bb
+  reason: 'Requested task execution failed; rerun successfully: src/data/preprocess.py
+    exit=1'
+  task: 52325a2efe1fa759d395464e4a1a76f5397c06156be89f7d7b9b0a6dd9537490
 T003:
-  task: 697290ff22c13ba4c6a0e4dd3b1c00e49aa7da8f9f95cf7c63f956195ea2bfcd
+  task: aaaaff9f9ccbe5b9fab1fa6239100d866a5dd1444b606a3f09435d1e8616b16c
 T004:
-  task: 4f6fe1a775634b6d54c83c13996b0ed2fba74a5466e71515c56ad94e9774b73d
+  task: 579edbc7f5e11986b1fb24a99d7b067cffb5639e055adf1785862dde8be93e3a
 T005:
-  task: 62ef8cc9be5dae630aca05ef8a11e454f52237712e04f253e177fa8155c972a8
+  task: a8b56b443e653d33c372b46a1108edb3bc1a09e365e31bda6a383db3d93bc470
 T006:
-  task: 90cb8bf30d70f8bc9ce0fb59b0265e9ffe957f66dd7486037169a5f3beaa4098
+  task: ff7ab25e8f5b430e41af012e9ab62911d74eab209014b403c5f49964b75a1ac6
 T007:
-  task: e9119605544f247dd699e60c06e7b4afa3a84b19aaea063851655d6322c8d089
+  task: e6302ff721d006f1292cd9c7d248f6c1e6ad97d824d1599dd2bb37852056935d
 T008:
-  task: d59945055576593d6f33e74a3a997d70ea02b49d57068ecb57e40fca86d25890
+  task: 7f3b4260cfa318bd5a180363ab83d39efc42845457316b2796fdadc9e1eb2f97
 T009:
-  task: 12410e0055deb7a029cae4acfbc0632cff3a73176b6e59b0a8255ee1f7283954
+  task: 2c288e82e8f092e5fe3c113f6e1bffe1bc1b31113f2cc6b16bfa3329541a3558
 T010:
-  task: 9b732336358334d0ad713adf6d1686323e1548757bf2e11254008709ca642d42
+  task: 2547526de00a12994229f6343fc7cfc63768b701e0b9ab13c5cae271a5c5a2da
 T011:
-  task: deaee1e7e612f2361b406aaf83186ab768bbf0079b89e7b26a3e6916d8a99649
+  task: 2171a511ce6fa1c8548466d525301fa14f6e19e2cb61bce33551571e71d6752a
 T012:
-  task: 2c8775dfe84ab35e00e3e3e1f3c672c5f2e2cc1f49b5e27408a90e6d9bcc56ba
+  task: 2511bb0485f55689e4f95877024543d3308400fd411b0546d51e32b3c235acfc
 T013:
-  task: bb88a71d7b15b0f2ad25352b6b877331ac593689865a97a75f6e563c3d776582
+  task: 386d3feec524eaa44203acf761b883c7115f45ccb58a03782e328eab83670607
 T014:
-  task: 6d2554cefe1db3f7f7c7f36333810909cd3fa645abef97fe87ca8d1c81f41329
+  task: 9e3771b0047845b0733e79c0678a18762c5434e40f49d8a299db93d0daa60ddc
 T015:
-  task: 49cd5ce03d4a9402f2b6e6922cb1df0c6b4f59cd7b907dcbdcb4a45f48dc9b8b
+  task: 96dbae2d9126f9e42a4a4495b1223e0bced836d0be845b784e2b6cc5f35f51ee
 T016:
-  task: 63f7dfef4c14d2a7b6792bd4121d7f468d11f04a4f524cb51c4a611682d81c1e
-T017:
-  task: 465e16999630e56e7a9da98599ab0928824144f2e637a5b05b644d69d7474ed2
+  task: d67dfcf83c924a6e4dece51d8e68b2295da2e4531bd50dd5bc57970e5a3b4cb8
