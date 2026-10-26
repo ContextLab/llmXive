@@ -1,10 +1,11 @@
 status: none
-intent: Ego4D dataset video-mae L14 embeddings download python package dataset
+intent: download ego4d dataset python package with timestamps and embeddings python
+  package dataset
 required_fields:
 - video_id
 - timestamp
 - event_id
-- mae_l14_embedding
-cache_key: c687a3a861e77cb34b7d8e393925facf69af675a560912aa72a71f1423834d63
-searched_at: '2026-10-26T07:34:30.891009+00:00'
+- embedding_768
+cache_key: d2a5aa36c4d66cc1b2d5823cc002e01ce5a72ef49daa7034381f090ccc3c2f81
+searched_at: '2026-10-26T09:17:48.651176+00:00'
 retry_count: 1

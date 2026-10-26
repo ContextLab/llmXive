@@ -86,7 +86,11 @@ def build_memory_nodes_parquet(raw_dir: Path, output_path: Path) -> None:
     df = _join_and_flag(manifest, embeddings)
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(output_path, engine="pyarrow", index=False)
+    # Use pyarrow if available; fallback to default engine.
+    try:
+        df.to_parquet(output_path, engine="pyarrow", index=False)
+    except Exception:
+        df.to_parquet(output_path, index=False)
 
 
 def _parse_args():

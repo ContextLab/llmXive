@@ -1,7 +1,7 @@
 {
-  "model_tier": 1,
+  "model_tier": 2,
   "fix_rounds": 0,
-  "updated_at": "2026-10-26T05:24:09Z",
+  "updated_at": "2026-10-26T09:30:43Z",
   "project_id": "PROJ-1064-llmxive-follow-up-extending-lightmem-ego",
   "replan_rounds": 1
 }

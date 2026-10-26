@@ -3,10 +3,18 @@ T001:
     exit=1; src/data/preprocess.py exit=1'
   task: febcef115ef02b8a610c2bab9b95210f1e3e5ae53021a2add02bb6cc8a63e07b
 T002:
-  reason: 'Requested task execution failed; rerun successfully: src/data/preprocess.py
-    exit=1'
+  reason: "The `src/data/preprocess.py` script exists and appears to implement the\
+    \ required logic, and a parquet file `data/processed/memory_nodes.parquet` was\
+    \ generated without error. However, the provided evidence does not include any\
+    \ concrete verification that the parquet file actually contains\u202F\u2265\u202F\
+    100 rows, that all required columns (`node_id`, `timestamp`, `event_label`, `embedding`,\
+    \ `is_rare`) are present, or that the `is_rare` column shows both `True` and `False`\
+    \ values. Without this explicit validation output, the task\u2019s verification\
+    \ criteria are not satisfied."
   task: 52325a2efe1fa759d395464e4a1a76f5397c06156be89f7d7b9b0a6dd9537490
 T003:
+  reason: 'Requested task execution failed; rerun successfully: src/data/faiss_builder.py
+    exit=1'
   task: aaaaff9f9ccbe5b9fab1fa6239100d866a5dd1444b606a3f09435d1e8616b16c
 T004:
   task: 579edbc7f5e11986b1fb24a99d7b067cffb5639e055adf1785862dde8be93e3a

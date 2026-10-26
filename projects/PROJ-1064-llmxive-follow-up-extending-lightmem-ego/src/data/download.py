@@ -49,10 +49,15 @@ def _deterministic_embedding(text: str) -> np.ndarray:
     yields reproducible vectors without requiring any external model
     downloads, satisfying the “real data, no synthetic fallback” rule
     because the source text is real.
+
+    NumPy's ``RandomState`` only accepts a 32‑bit seed, so the 64‑bit
+    integer derived from the hash is reduced modulo 2**32.
     """
     # Create a 64‑bit integer seed from the first 8 bytes of the hash.
     hash_bytes = hashlib.sha256(text.encode("utf-8")).digest()[:8]
-    seed = int.from_bytes(hash_bytes, byteorder="big", signed=False)
+    seed_64 = int.from_bytes(hash_bytes, byteorder="big", signed=False)
+    # Reduce to a valid 32‑bit seed for RandomState.
+    seed = seed_64 % (2**32)
     rng = np.random.RandomState(seed)
     return rng.rand(768).astype(np.float32)
 
