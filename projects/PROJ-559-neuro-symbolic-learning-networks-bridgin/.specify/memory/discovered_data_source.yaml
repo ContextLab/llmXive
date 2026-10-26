@@ -1,16 +1,9 @@
 status: none
-intent: download ASSISTments and Khan Academy problem datasets from HuggingFace python
-  package dataset
-required_fields:
-- problem_id
-- problem_statement
-- answer_key
-- skill_tags
-- difficulty_level
-- source
-- hint
-- solution_explanation
-- metadata_timestamp
-cache_key: ddeeb49255e4e84c694065068ade0e9d3b1d1c21ddae8cf6c0c030aef8b8accb
-searched_at: '2026-10-26T18:16:39.125163+00:00'
+intent: "### User Story 1 \u2013 Generate and Deliver Explanations (Priority: P1)\
+  \ A researcher wants to obtain three types of explanations (neural\u2011only, symbolic\u2011\
+  only, neuro\u2011symbolic) for each problem in the ASSISTments/Khan Academy dataset\
+  \ and present one of them to a simulated student. **Why this priority**: Wi"
+required_fields: []
+cache_key: d7985e48ea8077f173b8682b7743c14578bce00379806cd47866a3672ebcecfc
+searched_at: '2026-10-26T18:21:34.470837+00:00'
 retry_count: 1
