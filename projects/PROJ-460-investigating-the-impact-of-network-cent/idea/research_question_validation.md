@@ -2,30 +2,28 @@
 
 ### Phenomenon-vs-method check
 
-**Verdict**: pass  
+**Verdict**: pass
 
-The question asks whether structural eigenvector centrality of DMN hubs serves as a mediator between whole‑brain functional connectivity strength and ADOS‑2 social‑communication severity. This is a substantive hypothesis about brain‑behavior mechanisms, not about the performance of a particular analysis pipeline or computational method.
+The question investigates whether structural hub centrality (a neuroanatomical property) mediates the link between whole‑brain functional connectivity strength (a neurophysiological measure) and ADOS‑2 social‑communication scores (a behavioral phenotype) in ASD. It focuses on a substantive brain‑behavior relationship and does not hinge on the performance of any particular analysis technique.
 
 ### Circularity check
 
-**Verdict**: pass  
+**Verdict**: pass
 
-Predictor (global functional connectivity strength) is derived from resting‑state fMRI correlations, the mediator (DMN eigenvector centrality) is derived from diffusion‑MRI tractography, and the outcome (ADOS‑2 score) is a clinical assessment collected independently. These data sources are distinct, so the predictive relationship is not mechanically guaranteed.
+Predictor X (global functional connectivity strength) is derived from resting‑state fMRI time series, mediator M (DMN eigenvector centrality) is computed from diffusion‑MRI–derived structural connectivity matrices, and outcome Y (ADOS‑2 scores) is a clinical assessment collected independently. These three data streams are distinct, so the mediation relationship is not mechanically guaranteed.
 
 ### Triviality check
 
-**Verdict**: pass  
+**Verdict**: pass
 
-If the mediation is significant, it would provide evidence that structural hub topology constrains functional dys‑connectivity relevant to ASD symptoms; if null, it would suggest functional alterations arise via other mechanisms. Both outcomes would meaningfully inform theories of neurobiological substrates of ASD.
+Both a significant mediation effect and a null mediation would provide novel insight: a positive finding would suggest structural hubs constrain functional dys‑connectivity linked to behavior, whereas a null result would indicate that functional abnormalities relate to symptoms independently of structural hub integrity. Neither outcome is predetermined by existing literature.
 
 ### Question-narrowing check
 
-**Verdict**: pass  
+**Verdict**: pass
 
-The formulation names a domain relationship—how a structural network property mediates a functional‑behavior link—rather than imposing constraints on a specific algorithm, hardware, or runtime budget.
+The formulation names a domain‑level mediation relationship (“how does structural centrality mediate the functional‑behavior link”) rather than imposing constraints on a specific algorithm, hardware, or runtime budget.
 
 ### Overall verdict
 
-**Verdict**: validated  
-
-All four checks pass, indicating the research question is well‑posed, non‑circular, non‑trivial, and focused on a genuine scientific phenomenon. The project can proceed to the next stage.
+**Verdict**: validated
