@@ -15,16 +15,20 @@ Rate‑limit handling:
     ``X-RateLimit-Reset`` epoch time.
   * For HTTP 429 or 403 responses an exponential back‑off (max 5 attempts)
     with jitter is applied.
+  * If a ``GITHUB_TOKEN`` environment variable is present, it is used for
+    authenticated requests (≈5 000 req/hr).  Otherwise unauthenticated requests
+    are used (≈60 req/hr) – the script minimizes calls by only fetching the
+    first‑comment timestamp when a PR has at least one comment.
 
-The implementation purposefully avoids any synthetic data – all values are
-fetched from the live GitHub API (unauthenticated requests are sufficient for
-the tiny demo repository list used in the CI).
+The implementation avoids any synthetic data – all values are fetched from
+the live GitHub API.
 """
 import argparse
 import hashlib
 import json
-import time
+import os
 import random
+import time
 from pathlib import Path
 from typing import Dict, List
 
@@ -129,14 +133,18 @@ def validate_columns(df: pd.DataFrame, fields: List[str]) -> Dict[str, str]:
 def _request(url: str, params: Dict = None) -> requests.Response:
     """GET request with exponential back‑off for 429/403 responses."""
     attempt = 0
+    headers = {}
+    token = os.getenv("GITHUB_TOKEN")
+    if token:
+        headers["Authorization"] = f"token {token}"
     while True:
         attempt += 1
         try:
-            resp = requests.get(url, params=params, timeout=30)
+            resp = requests.get(url, params=params, headers=headers, timeout=30)
         except requests.RequestException as exc:
             raise RuntimeError(f"Network error while contacting {url}: {exc}")
 
-        # Rate‑limit handling (unauthenticated: 60 req/hr)
+        # Rate‑limit handling
         remaining = int(resp.headers.get("X-RateLimit-Remaining", "0"))
         reset_ts = int(resp.headers.get("X-RateLimit-Reset", "0"))
         if remaining == 0:
@@ -198,7 +206,6 @@ def _fetch_commit_message(owner: str, repo: str, sha: str) -> str:
     url = f"{GITHUB_API}/repos/{owner}/{repo}/commits/{sha}"
     resp = _request(url)
     data = resp.json()
-    # The nested structure follows the GitHub API spec.
     return data.get("commit", {}).get("message", "")
 
 def _fetch_first_comment_timestamp(owner: str, repo: str, number: int) -> str:
@@ -211,7 +218,6 @@ def _fetch_first_comment_timestamp(owner: str, repo: str, number: int) -> str:
     comments = resp.json()
     if not comments:
         return None
-    # comments are already ordered newest‑first; find earliest.
     earliest = min(comments, key=lambda c: c.get("created_at", ""))
     return earliest.get("created_at")
 
@@ -281,8 +287,13 @@ def main() -> None:
             head_sha = detail.get("head", {}).get("sha")
             commit_msg = _fetch_commit_message(owner, repo, head_sha) if head_sha else ""
 
-            # 4️⃣ First comment timestamp (may be None)
-            first_comment_ts = _fetch_first_comment_timestamp(owner, repo, number)
+            # 4️⃣ First comment timestamp (only if there are comments)
+            comment_cnt = pr.get("comments", 0) or 0
+            first_comment_ts = (
+                _fetch_first_comment_timestamp(owner, repo, number)
+                if comment_cnt > 0
+                else None
+            )
 
             record = {
                 "pr_id": number,
@@ -291,7 +302,7 @@ def main() -> None:
                 "merged_at": pr.get("merged_at"),
                 "additions": detail.get("additions", 0),
                 "deletions": detail.get("deletions", 0),
-                "comment_count": pr.get("comments", 0),
+                "comment_count": comment_cnt,
                 "commit_message": commit_msg,
                 "first_comment_timestamp": first_comment_ts,
                 # Optional fields left as null (schema permits)

@@ -8,8 +8,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/download_data.py --repo-list code/repo_list.txt --output data/raw/ -> rc=-1
 
-2026-10-26 17:14:03,026 INFO __main__: Schema required fields: ['pr_id', 'repo_name', 'created_at', 'merged_at', 'additions', 'deletions', 'comment_count', 'commit_message', 'first_comment_timestamp']
-2026-10-26 17:14:03,042 WARNING __main__: Rate limit exhausted. Sleeping for 2678s until reset.
+2026-10-26 20:16:39,745 INFO __main__: Schema required fields: ['pr_id', 'repo_name', 'created_at', 'merged_at', 'additions', 'deletions', 'comment_count', 'commit_message', 'first_comment_timestamp']
+2026-10-26 20:17:01,346 INFO __main__: Fetched 2046 PRs for octocat/Hello-World
+2026-10-26 20:17:09,634 WARNING __main__: Rate limit exhausted. Sleeping for 3571s until reset.
 
 [TIMEOUT after 120s]
 - python code/classify_provenance.py  --input data/raw/combined_prs.json  --output data/processed/classified_prs.csv -> rc=1

@@ -1,18 +1,19 @@
 status: none
-intent: GitHub pull request dataset with provenance labels huggingface python package
+intent: GitHub pull request metadata dataset with LLM provenance labels python package
   dataset
 required_fields:
 - pull_request_id
 - repository_full_name
-- created_at
-- merged_at
+- creation_timestamp
+- merge_timestamp
 - comment_count
-- additions
-- deletions
-- changed_files
-- review_comments_count
-- review_timestamps
-- provenance_label
-cache_key: 1c837c631ff699932998c96e08682e3533fa2ffdbc7d2cbd048681b124877f1f
-searched_at: '2026-10-26T17:17:22.087341+00:00'
+- lines_added
+- lines_deleted
+- total_lines_changed
+- review_timestamp
+- author_association
+- commit_message
+- diff_pattern
+cache_key: 99fad04c5e07ef501026eb1e959340332d791bca41e4e5ab11f2967b69b6e34a
+searched_at: '2026-10-26T20:19:41.164046+00:00'
 retry_count: 1
