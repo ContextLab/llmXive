@@ -11,7 +11,8 @@ from the GitHub REST API – no synthetic or fabricated rows are created.
 For each PR the script:
   * infers a ``complexity_indicator`` using a simple heuristic,
   * builds a natural‑language ``prompt`` string,
-  * writes the result to ``data/processed/intent_prompts.parquet``.
+  * writes the result to ``data/processed/intent_prompts.parquet`` **and**
+    ``data/processed/intent_prompts.json`` for downstream compatibility.
 
 The module can be executed directly (``python -m code.prompt_engineering``)
 or imported and called via ``main()``.
@@ -176,14 +177,16 @@ def main() -> None:
     1. Ensure ``commit_messages.parquet`` exists (fetching a tiny fallback
        dataset if necessary).
     2. For each row, infer ``complexity_indicator`` and build a NL ``prompt``.
-    3. Write the resulting DataFrame to ``intent_prompts.parquet``.
+    3. Write the resulting DataFrame to ``intent_prompts.parquet`` **and**
+       ``intent_prompts.json`` for downstream compatibility.
     """
     # Step 1 – load (or create) the raw commit‑message table.
     input_path = _ensure_commit_messages_parquet()
-    output_path = paths.data("processed", "intent_prompts.parquet")
+    output_parquet = paths.data("processed", "intent_prompts.parquet")
+    output_json = paths.data("processed", "intent_prompts.json")
 
     # Ensure the output directory exists.
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_parquet.parent.mkdir(parents=True, exist_ok=True)
 
     try:
         df_commits = pd.read_parquet(input_path)
@@ -216,10 +219,18 @@ def main() -> None:
     df_out = pd.DataFrame(records)
 
     try:
-        df_out.to_parquet(output_path, index=False)
-        log.info(f"Intent prompts written to {output_path} (rows={len(df_out)})")
+        df_out.to_parquet(output_parquet, index=False)
+        log.info(f"Intent prompts written to {output_parquet} (rows={len(df_out)})")
     except Exception as exc:
         log.error(f"Failed to write intent prompts parquet: {exc}")
+        raise
+
+    # Also write a JSON version for tools that expect JSON.
+    try:
+        df_out.to_json(output_json, orient="records", lines=False, indent=2)
+        log.info(f"Intent prompts JSON written to {output_json}")
+    except Exception as exc:
+        log.error(f"Failed to write intent prompts JSON: {exc}")
         raise
 
 

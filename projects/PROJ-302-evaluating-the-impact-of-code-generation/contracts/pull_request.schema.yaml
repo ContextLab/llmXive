@@ -1,62 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: PullRequest
-description: Schema for pull request metadata used in the evaluation pipeline.
 type: object
-properties:
-  pr_id:
-    type: integer
-    description: Pull request number.
-  repo_owner:
-    type: string
-    description: Owner of the repository.
-  repo_name:
-    type: string
-    description: Repository name.
-  repo_id:
-    type: string
-    description: Full repository identifier (owner/name).
-  created_at:
-    type: string
-    format: date-time
-    description: ISO‑8601 timestamp of PR creation.
-  merged_at:
-    type: string
-    format: date-time
-    nullable: true
-    description: ISO‑8601 timestamp of PR merge (if merged).
-  state:
-    type: string
-    enum: ["open", "closed"]
-    description: Current state of the PR.
-  title:
-    type: string
-    description: PR title.
-  body:
-    type: string
-    description: PR description/body.
-  additions:
-    type: integer
-    nullable: true
-    description: Number of lines added.
-  deletions:
-    type: integer
-    nullable: true
-    description: Number of lines deleted.
-  changed_files:
-    type: integer
-    nullable: true
-    description: Number of files changed.
-  author_login:
-    type: string
-    description: GitHub login of the PR author.
-  review_comment_count:
-    type: integer
-    nullable: true
-    description: Number of review comments (if fetched).
-  ci_duration_seconds:
-    type: number
-    nullable: true
-    description: Average CI duration in seconds (if fetched).
 required:
   - pr_id
   - repo_owner
@@ -66,5 +10,56 @@ required:
   - state
   - title
   - body
+  - additions
+  - deletions
+  - changed_files
   - author_login
-additionalProperties: true
+properties:
+  pr_id:
+    type: integer
+    description: Pull request number.
+  repo_owner:
+    type: string
+    description: Owner of the repository.
+  repo_name:
+    type: string
+    description: Name of the repository.
+  repo_id:
+    type: string
+    description: Full repository identifier (owner/name).
+  created_at:
+    type: string
+    format: date-time
+    description: Timestamp when the PR was created.
+  merged_at:
+    type: [string, "null"]
+    format: date-time
+    description: Timestamp when the PR was merged (null if not merged).
+  state:
+    type: string
+    enum: [open, closed, merged]
+    description: Current state of the PR.
+  title:
+    type: string
+    description: Title of the pull request.
+  body:
+    type: string
+    description: Body/description of the pull request.
+  additions:
+    type: integer
+    description: Number of lines added in the PR.
+  deletions:
+    type: integer
+    description: Number of lines deleted in the PR.
+  changed_files:
+    type: integer
+    description: Number of files changed in the PR.
+  author_login:
+    type: string
+    description: GitHub login of the PR author.
+  review_comment_count:
+    type: [integer, "null"]
+    description: Number of review comments (null if not fetched).
+  ci_duration_seconds:
+    type: [number, "null"]
+    description: Average CI duration in seconds for the PR (null if not fetched).

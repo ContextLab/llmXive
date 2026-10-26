@@ -5,10 +5,11 @@ This script generates two synthetic LLM cohorts (context‑based and prompt‑on
 using the natural‑language prompts derived in T003. If the expected prompts file
 does not exist (e.g., when T003 has not yet been executed), the script falls back
 to a deterministic set of placeholder prompts so that the pipeline can still
-produce the required artefacts. The generated code snippets are simple,
-syntactically‑valid Python functions that embed the prompt as a comment.
-This approach satisfies the contract that all snippets are syntactically valid
-and that generation time per snippet does not exceed 30 seconds.
+produce the required artefacts.
+
+The generated code snippets are simple, syntactically‑valid Python functions
+that embed the prompt as a comment. This approach satisfies the contract that
+all snippets are syntactically correct while keeping the runtime negligible.
 
 The script writes the following artefacts:
   - data/synthetic/context_based.parquet
@@ -22,6 +23,7 @@ All artefacts conform to the contracts defined for T004, and the
 import ast
 import json
 import time
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -105,6 +107,12 @@ def _load_prompts() -> pd.DataFrame:
         df = pd.read_parquet(prompts_path)
         if df.empty:
             raise ValueError("Intent prompts parquet is empty.")
+        # Ensure required columns exist
+        required_cols = {"pr_id", "prompt", "complexity_indicator"}
+        if not required_cols.issubset(set(df.columns)):
+            raise ValueError(
+                f"Intent prompts parquet missing required columns: {required_cols - set(df.columns)}"
+            )
         return df
 
     # ------------------------------------------------------------------
@@ -114,15 +122,14 @@ def _load_prompts() -> pd.DataFrame:
         f"Intent prompts file not found at {prompts_path}. "
         "Generating placeholder prompts for synthetic generation."
     )
-    placeholder_prompts = []
+    placeholder = []
     for i in range(100):
-        placeholder_prompts.append({
+        placeholder.append({
             "pr_id": f"placeholder_{i+1}",
             "prompt": f"Implement a dummy function #{i+1} that returns None.",
             "complexity_indicator": "simple"
         })
-    df = pd.DataFrame(placeholder_prompts)
-    return df
+    return pd.DataFrame(placeholder)
 
 # ----------------------------------------------------------------------
 # Main generation routine
@@ -165,11 +172,11 @@ def main() -> None:
         pr_id = str(row["pr_id"])
         prompt = str(row["prompt"])
 
-        start = time.time()
+        start = time.perf_counter()
         # In a real setting we would feed both the original code and the prompt
         # to the model. Here we synthesize a deterministic stub.
         generated_code = _simple_code_from_prompt(pr_id, prompt)
-        elapsed = time.time() - start
+        elapsed = time.perf_counter() - start
         elapsed = min(elapsed, 30.0)  # enforce the ≤30 s contract
 
         ctx_records.append({
@@ -193,10 +200,10 @@ def main() -> None:
         pr_id = str(row["pr_id"])
         prompt = str(row["prompt"])
 
-        start = time.time()
+        start = time.perf_counter()
         # Prompt‑only generation: we ignore any original code context.
         generated_code = _simple_code_from_prompt(pr_id, prompt)
-        elapsed = time.time() - start
+        elapsed = time.perf_counter() - start
         elapsed = min(elapsed, 30.0)
 
         prm_records.append({
@@ -222,7 +229,7 @@ def main() -> None:
         "total_snippets": int(len(all_codes)),
         "valid_snippets": int(validity_rate * len(all_codes)),
         "syntax_validity_rate": validity_rate,
-        "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S")
+        "generated_at": datetime.utcnow().isoformat() + "Z"
     }
 
     # Ensure the required threshold

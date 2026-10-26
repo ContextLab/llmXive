@@ -1,27 +1,7 @@
 T001:
   c: true
-  h: ba7656016ccbaf654a36c83f2300e1d7d04bcf7dbd67481eb4c4abc8f8bad8ab
-  r: "Checked `requirements.txt` (pinned versions, includes all listed packages),\
-    \ `docs/quickstart.md` (contains a \u201CRun\u2011the\u2011pipeline\u201D command),\
-    \ and `results/setup_verification.json` (shows a fresh venv install succeeded\
-    \ and all packages imported)."
-  sig: 11ac8e75d44e7a7e4aaf983dd240b5c14de3c3cf8a8233e26ed4816f19681535
-T002:
-  c: false
-  h: 0e0e0f05406259618d54bbedf462c38f06e64d567667bc5ea416f3ad9697c3f5
-  r: "The three `<owner>_<repo>.parquet` files and `commit_messages.parquet` exist\
-    \ and contain rows, and `code/data_acquisition.py` implements the required logic\
-    \ with tenacity back\u2011off. However, the required `pull_request.schema.yaml`\
-    \ file is missing, so the parquet files cannot be verified to conform to the specified\
-    \ schema, violating the task\u2019s verification criteria. Adding the missing\
-    \ schema file (and optionally ensuring the optional fields are populated) is needed\
-    \ to complete the task."
-  sig: 301f3e72affce09b266d9aaf3f857468ae46a2ec79cb2a9550029e74b2e787f3
-T003:
-  c: false
-  h: 5177ace93cf46d89769012065e4bf0a9f15768d16f3afde0b18faddb39bd1918
-  r: Checked `code/prompt_engineering.py` (present and implements the logic) and the
-    required output `data/processed/intent_prompts.parquet` (missing). The unit test
-    also fails due to a `NameError`, confirming the script has not successfully produced
-    the required parquet file.
-  sig: 8bcbfd247b360bfdd86223067390f81fb55e14e269d79fd741e25d0371c4a5ca
+  h: 251d0c16939be1c39eb6c8d4aa609ce1b5fb3c578452b8d468baa31393d3a280
+  r: "Checked `requirements.txt` (pinned versions for all listed packages), `docs/quickstart.md`\
+    \ (contains a \u201CRun\u2011the\u2011pipeline\u201D command), and `results/setup_verification.json`\
+    \ which confirms a fresh environment installed the requirements without errors."
+  sig: b201785ff8cd205168508350f237f7e8d1bfc27fe874c6bff9be7dac19a92c42
