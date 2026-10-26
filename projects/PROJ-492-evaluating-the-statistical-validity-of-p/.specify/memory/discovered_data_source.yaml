@@ -1,19 +1,19 @@
 status: none
-intent: download ABTest experiment summary dataset with validation set python package
-  dataset
+intent: OpenABTest public A/B test summary dataset annotated validation set python
+  package dataset
 required_fields:
 - url
-- summary_text
+- title
+- test_variants
+- metric_name
 - reported_p_value
-- computed_p_value
-- sample_size
+- sample_size_variant_a
+- sample_size_variant_b
 - effect_size
-- test_statistic
 - confidence_interval
-- domain_category
-- experiment_date
-- treatment_variation
-- control_variation
-cache_key: 218011c63b531e27da14df933b061443be8bcb14895a9c09ce578fb4c5ed5daf
-searched_at: '2026-10-26T03:41:38.117638+00:00'
+- statistical_test
+- reported_confidence_interval
+- domain
+cache_key: a2907e1d236e4803ced2d42d7632145070f328d57a8db69b87e34fd996531e4a
+searched_at: '2026-10-26T03:48:14.564640+00:00'
 retry_count: 1

@@ -1,0 +1,19 @@
+T001:
+  c: true
+  h: bcf9eb731dec3c932bce237ce50c365512ba216d3c77561f739b11aae0d6a9ab
+  r: "Checked that `code/src/audit/` contains the required modules (e.g., `extractor.py`,\
+    \ `reconstructor.py`, `monte_carlo_core.py`, `power_analysis.py`, `synthetic.py`)\
+    \ and that `specs/001-evaluating-the-statistical-validity-of-p/quickstart.md`\
+    \ includes the exact command `python -m code.src.audit.run_audit data/input/urls.csv\
+    \ output/`. The test log shows `test_run_audit_help` passed, confirming the help\
+    \ command exits with status\u202F0."
+  sig: dec9cf81dee8681eec3798307c9905155ca77ee99a8d4fad0c925a7380411e63
+T017:
+  c: false
+  h: 38ff4105962651fba981b13d7f281c4b39773526c901844d25011c3963dc420d
+  r: "The `data/input/urls.csv` passes the minimum\u2011row test, but `data/raw/`\
+    \ is empty (0 entries) and the pytest suite reports missing HTML files for the\
+    \ URLs. Consequently the required raw HTML snapshots are not present, and the\
+    \ checksum file lists hashes for files that do not exist. The corpus is therefore\
+    \ not fully materialised."
+  sig: 38d9c953a479e51d89a4784a0118d0e70951aaf9b3d20f19979c7c133900151b
