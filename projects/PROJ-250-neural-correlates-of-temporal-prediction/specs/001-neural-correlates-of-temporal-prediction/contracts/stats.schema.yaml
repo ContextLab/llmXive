@@ -20,7 +20,7 @@ properties:
     description: "Group‑level Cohen's d."
   effect_size_benchmark:
     type: number
-    description: "Benchmark threshold from literature (e.g., 0.5)."
+    description: "Benchmark threshold from literature (e.g., a commonly reported value)."
   practical_significance:
     type: boolean
     description: "True if cohen_d ≥ effect_size_benchmark."

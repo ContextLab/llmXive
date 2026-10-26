@@ -16,7 +16,7 @@
 **Independent Test**: Can be fully tested by running the preprocessing script on a subset of the ds004510 dataset and verifying that the output contains valid epoch objects with correct time windows (-200 to 500ms) and no NaN values in the signal channels (verified via `np.isnan(epochs.get_data()).any()` returning `False`). This is a hard stop condition; if NaNs are present, the pipeline must halt.
 
 **Acceptance Scenarios**:
-1. **Given** a valid OpenNeuro dataset ID (ds004510), **When** the download and preprocessing script is executed, **Then** a MNE-Python `Epochs` object is created with a sampling rate matching the source and a time window of -200ms to 500ms.
+1. **Given** a valid OpenNeuro dataset ID (ds004510), **When** the download and preprocessing script is executed, **Then** a MNE-Python `Epochs` object is created with a sampling rate matching the source and a time window spanning a pre‑stimulus interval to 500 ms post‑stimulus..
 2. **Given** raw EEG data containing ocular artifacts, **When** ICA is applied with a standard threshold (e.g., explaining >99% variance), **Then** the identified artifact components are rejected, and the reconstructed signal shows reduced blink/eye-movement contamination.
 
 ---
@@ -30,7 +30,7 @@
 **Independent Test**: Can be fully tested by running the analysis script on a subset of the ds004510 dataset (specifically the 'simple' and 'complex' conditions) and verifying that the script correctly identifies the amplitude/latency differences and outputs the statistical test results (t-values, p-values, effect sizes).
 
 **Acceptance Scenarios**:
-1. **Given** preprocessed epochs for simple and complex conditions from ds004510, **When** the MMN quantification script is run, **Then** it outputs a table of mean amplitude differences (deviant minus standard) in the 150–250ms window for fronto-central electrodes.
+1. **Given** preprocessed epochs for simple and complex conditions from ds004510, **When** the MMN quantification script is run, **Then** it outputs a table of mean amplitude differences (deviant minus standard) in the early post‑stimulus window for fronto‑central electrodes.
 2. **Given** the computed MMN metrics for both conditions, **When** the statistical comparison is performed, **Then** the script outputs paired t-test results with FDR-corrected p-values and effect sizes (Cohen's d).
 
 ---
@@ -45,7 +45,7 @@
 
 **Acceptance Scenarios**:
 1. **Given** the statistical results from User Story 2, **When** the visualization script is executed, **Then** it generates an ERP plot showing waveforms for standard and deviant trials across complexity conditions with the MMN window highlighted.
-2. **Given** the topographic data, **When** the script is executed, **Then** it generates scalp maps for the 150–250ms window showing the spatial distribution of the MMN for both conditions.
+2. **Given** the topographic data, **When** the script is executed, **Then** It generates scalp maps for the early post‑stimulus window showing the spatial distribution of the MMN for both conditions..
 
 ---
 
@@ -98,7 +98,7 @@
 - The OpenNeuro ds004510 dataset contains both simple oddball and complex auditory scene conditions.
 - The EEG data is recorded with a sufficient number of channels (≥32) to allow for accurate topographic mapping of the MMN component.
 - The analysis will be performed using MNE-Python on a CPU-only environment (GitHub Actions free tier) with ≤7 GB RAM and ≤6 hours runtime.
-- The MMN component will be observable in the 150–250ms time window for both conditions, consistent with established literature.
+- The MMN component will be observable in the early post‑stimulus time window for both conditions, consistent with established literature..
 - The dataset contains no more than 20% of subjects with excessive artifacts that would require exclusion, ensuring sufficient statistical power.
 - The FDR correction method (Benjamini-Hochberg) is appropriate for the number of electrodes tested and provides adequate control of false positives.
 - Heuristic fallbacks for missing 'complex' conditions are scientifically invalid and will not be attempted; the system will halt if the condition is missing.

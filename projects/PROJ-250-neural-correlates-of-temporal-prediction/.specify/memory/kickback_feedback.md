@@ -1,12 +1,12 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 4 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001` (rejected 1x): Requested task execution failed; rerun successfully: code/download.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan computes a required sample size for a paired t‑test to detect d = 0.5 with 80 % power, but if the post‑exclusion N falls below this threshold the pipeline only logs a warning and continues the analysis. Proceeding with an under‑powered sample risks false‑negative conclusions and violates the success criterion that the study be adequately powered. The methodology should either abort the analysis or flag the result as exploratory, rather than treating it as confirmatory.
+- Phase 0 (Power Analysis) is not required by any functional requirement or success criterion in the specification. It introduces a task (compute required N for paired t‑test) that has no corresponding FR or SC, constituting an over‑reach. Consider removing this phase or explicitly marking it as optional/deferred.
+- The plan assumes that OpenNeuro dataset **ds004510** “contains BIDS‑style `events.tsv` with `condition_label` values `simple` and `complex`” (see Research: Dataset Strategy table). Public metadata for ds004510 describes only a standard oddball paradigm (simple deviant vs. standard) and does **not** include a separate “complex” auditory‑scene condition or a `condition_label` field distinguishing simple vs. complex trials. Using this dataset therefore cannot satisfy FR‑008 (require both conditions) nor the core scientific question about how MMN scales with scene complexity. A different dataset that explicitly provides both simple and complex auditory‑scene conditions (e.g., OpenNeuro ds001734 or a suitable PhysioNet EEG collection) should be selected, or the research question must be reframed to match the available data.
+- The `MMNMetric` entity in `data-model.md` omits the `window_start`, `window_end`, and `benchmark_reference` fields that are required by the `output.schema.yaml` contract (see contracts/output.schema.yaml). This creates a mismatch between the data model and the output schema, risking validation failures.

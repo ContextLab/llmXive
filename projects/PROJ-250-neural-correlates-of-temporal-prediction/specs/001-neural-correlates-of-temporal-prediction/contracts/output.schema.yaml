@@ -23,10 +23,10 @@ properties:
     description: "Peak latency difference in ms."
   window_start:
     type: number
-    description: "Start of analysis window in ms (to be determined based on preliminary calibration)."
+    description: "Start of analysis window in ms."
   window_end:
     type: number
-    description: "End of analysis window in ms (a typical duration for this type of analysis)."
+    description: "End of analysis window in ms."
   snr_ratio:
     type: number
     description: "Signal‑to‑Noise Ratio (|amplitude| / SEM of pre‑stimulus baseline)."
