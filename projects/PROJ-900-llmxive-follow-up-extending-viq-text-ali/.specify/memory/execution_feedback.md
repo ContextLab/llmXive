@@ -65,29 +65,31 @@ Traceback (most recent call last):
 RuntimeError: Pipeline step failed: Training (Codebook Initialization)
 
 - python code/analysis.py -> rc=1
-2026-10-12 13:03:06,397 - INFO - Starting Correlation Analysis (T022)
-2026-10-12 13:03:06,397 - INFO - Computing texture complexity and PSNR for images in data/processed/ground_truth_images
-2026-10-12 13:03:06,397 - ERROR - Failed to load data: No PNG images found in ground truth directory.
+2026-10-26 06:38:08,850 - INFO - Starting Correlation Analysis (T022)
+2026-10-26 06:38:08,850 - INFO - Computing texture complexity and PSNR for images in data/processed/ground_truth_images
+2026-10-26 06:38:08,850 - ERROR - Failed to load data: No PNG images found in ground truth directory.
 
 
 - python -m pytest tests/ -v -> rc=2
-.24.0
-_______________ ERROR collecting tests/test_spec_verification.py _______________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/tests/test_spec_verification.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/test_spec_verification.py:13: in <module>
-    from verify_spec_amendments import verify_spec_amendments
-E   ImportError: cannot import name 'verify_spec_amendments' from 'verify_spec_amendments' (/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/verify_spec_amendments.py)
+module>
+    from code.data_loader import load_coco_streaming, load_imagenet_batched, validate_exclusions
+code/data_loader.py:19: in <module>
+    from datasets import load_dataset
+../../.llmxive-venvs/PROJ-900-llmxive-follow-up-extending-viq-text-ali/lib/python3.11/site-packages/datasets/__init__.py:22: in <module>
+    from .arrow_dataset import Dataset
+../../.llmxive-venvs/PROJ-900-llmxive-follow-up-extending-viq-text-ali/lib/python3.11/site-packages/datasets/arrow_dataset.py:59: in <module>
+    import pyarrow as pa
+../../.llmxive-venvs/PROJ-900-llmxive-follow-up-extending-viq-text-ali/lib/python3.11/site-packages/pyarrow/__init__.py:59: in <module>
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+pyarrow/lib.pyx:42: in init pyarrow.lib
+    ???
+E   ImportError: pyarrow requires NumPy 2.0 or newer, found 1.24.0
 =========================== short test summary info ============================
 ERROR tests/integration/test_eval.py
 ERROR tests/test_data.py
 ERROR tests/test_data_loader.py
-ERROR tests/test_spec_verification.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 1.77s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 1.46s ===============================
 
 
 

@@ -8,6 +8,7 @@ Verifies that spec.md contains the required amendments:
 
 Raises RuntimeError if any required text block is missing.
 Writes a verification log to data/results/spec_verification_log.json.
+Provides a callable `verify_spec_amendments` function for test usage.
 """
 import json
 import sys
@@ -21,8 +22,8 @@ REQUIRED_STRINGS = [
 ]
 
 SPEC_CANDIDATES = [
-    Path("specs/001-viq-resolution-invariance/spec.md"),
-    Path("specs/001-viq-resolution-invariance-llmxive-follow-up-extending-viq-text-ali/spec.md"),
+    Path("specs/001-llmxive-follow-up-extending-viq-text-ali/spec.md"),
+    Path("specs/001-llmxive-follow-up-extending-viq-text-ali/spec.md"),
     Path("spec.md"),
 ]
 
@@ -30,16 +31,21 @@ LOG_PATH = Path("data/results/spec_verification_log.json")
 
 
 def find_spec() -> Path:
+    """Return the first existing spec file from the candidate list."""
     for candidate in SPEC_CANDIDATES:
         if candidate.is_file():
             return candidate
     raise RuntimeError(
-        "spec.md not found. Searched: "
-        + ", ".join(str(c) for c in SPEC_CANDIDATES)
+        "spec.md not found. Searched: " + ", ".join(str(c) for c in SPEC_CANDIDATES)
     )
 
 
 def verify(spec_path: Path) -> dict:
+    """Check that all REQUIRED_STRINGS are present in the spec file.
+
+    Returns a dict mapping each required string to a boolean indicating presence.
+    Raises RuntimeError if any string is missing.
+    """
     text = spec_path.read_text(encoding="utf-8")
     checks = {}
     missing = []
@@ -56,7 +62,20 @@ def verify(spec_path: Path) -> dict:
     return checks
 
 
+def verify_spec_amendments() -> dict:
+    """Public API used by tests.
+
+    Finds the spec file, validates required strings, and returns the check dict.
+    """
+    spec_path = find_spec()
+    return verify(spec_path)
+
+
 def main() -> int:
+    """CLI entry point.
+
+    Performs verification, writes a JSON log, and prints a human‑readable summary.
+    """
     spec_path = find_spec()
     checks = verify(spec_path)
 

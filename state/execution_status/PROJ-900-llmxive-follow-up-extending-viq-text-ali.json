@@ -10,10 +10,10 @@
     "python code/correlation_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/code/correlation_analysis.py\", line 22, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
   ],
   "fix_rounds": 0,
-  "model_tier": 1,
+  "model_tier": 2,
   "total_attempts": 1,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-10T23:10:56Z"
+  "updated_at": "2026-10-26T06:49:58Z"
 }

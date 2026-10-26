@@ -10,17 +10,6 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/src/executor.py: self-declared fabricated metric — “…ction time                  # Mock result for demonstration if no real…”
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
-
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
-
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
-
-- `python code/utils/io.py --verify-checksums`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/src/executor.py: self-declared fabricated metric — “…ction time                  # Mock result for demonstration if no real…”; 9 command(s) failed: python code/src/main.py --stage download (rc=1); python code/src/main.py --stage embed --tasks 18 (rc=1); python code/src/main.py --stage plan --tasks 18 (rc=1); 2 declared deliverable(s) absent: data/interim/baseline_results.parquet; data/interim/execution_logs.parquet
@@ -30,107 +19,99 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 - python code/src/main.py --stage download -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 27, in <module>
-    from src.oracle_executor import OracleExecutor, run_oracle_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/oracle_executor.py", line 24, in <module>
-    from src.config import DATA_INTERIM_PATH
-ImportError: cannot import name 'DATA_INTERIM_PATH' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 21, in <module>
+    from src.config import BASE_DIR, PLANNING_TIMEOUT_S, SEED
+ImportError: cannot import name 'SEED' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage embed --tasks 18 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 27, in <module>
-    from src.oracle_executor import OracleExecutor, run_oracle_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/oracle_executor.py", line 24, in <module>
-    from src.config import DATA_INTERIM_PATH
-ImportError: cannot import name 'DATA_INTERIM_PATH' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 21, in <module>
+    from src.config import BASE_DIR, PLANNING_TIMEOUT_S, SEED
+ImportError: cannot import name 'SEED' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage plan --tasks 18 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 27, in <module>
-    from src.oracle_executor import OracleExecutor, run_oracle_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/oracle_executor.py", line 24, in <module>
-    from src.config import DATA_INTERIM_PATH
-ImportError: cannot import name 'DATA_INTERIM_PATH' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 21, in <module>
+    from src.config import BASE_DIR, PLANNING_TIMEOUT_S, SEED
+ImportError: cannot import name 'SEED' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage execute --mode oracle -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 27, in <module>
-    from src.oracle_executor import OracleExecutor, run_oracle_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/oracle_executor.py", line 24, in <module>
-    from src.config import DATA_INTERIM_PATH
-ImportError: cannot import name 'DATA_INTERIM_PATH' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 21, in <module>
+    from src.config import BASE_DIR, PLANNING_TIMEOUT_S, SEED
+ImportError: cannot import name 'SEED' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage execute --mode real -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 27, in <module>
-    from src.oracle_executor import OracleExecutor, run_oracle_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/oracle_executor.py", line 24, in <module>
-    from src.config import DATA_INTERIM_PATH
-ImportError: cannot import name 'DATA_INTERIM_PATH' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 21, in <module>
+    from src.config import BASE_DIR, PLANNING_TIMEOUT_S, SEED
+ImportError: cannot import name 'SEED' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage baseline_gpu --subset 5 -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 27, in <module>
-    from src.oracle_executor import OracleExecutor, run_oracle_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/oracle_executor.py", line 24, in <module>
-    from src.config import DATA_INTERIM_PATH
-ImportError: cannot import name 'DATA_INTERIM_PATH' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 21, in <module>
+    from src.config import BASE_DIR, PLANNING_TIMEOUT_S, SEED
+ImportError: cannot import name 'SEED' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/src/main.py --stage analyze -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 27, in <module>
-    from src.oracle_executor import OracleExecutor, run_oracle_pipeline
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/oracle_executor.py", line 24, in <module>
-    from src.config import DATA_INTERIM_PATH
-ImportError: cannot import name 'DATA_INTERIM_PATH' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/main.py", line 21, in <module>
+    from src.config import BASE_DIR, PLANNING_TIMEOUT_S, SEED
+ImportError: cannot import name 'SEED' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
 
 - python code/utils/io.py --verify-checksums -> rc=1
 
-2026-10-22 10:30:48,011 INFO httpx2: HTTP Request: HEAD https://huggingface.co/datasets/RoboDojo/RoboDojo-v1/resolve/main/README.md "HTTP/1.1 401 Unauthorized"
-2026-10-22 10:30:48,011 ERROR __main__: Failed to load RoboDojo dataset: Dataset 'RoboDojo/RoboDojo-v1' doesn't exist on the Hub or cannot be accessed.
-2026-10-22 10:30:48,011 ERROR __main__: Dataset streaming failed: Unable to fetch RoboDojo dataset
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/utils/io.py", line 26, in <module>
+    from datasets import load_dataset
+ModuleNotFoundError: No module named 'datasets'
 
 - python -c "import pandas as pd; print(pd.read_parquet('data/interim/execution_logs.parquet').head())" -> rc=1
 
 Traceback (most recent call last):
   File "<string>", line 1, in <module>
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 667, in read_parquet
-    return impl.read(
-           ^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 267, in read
-    path_or_handle, handles, filesystem = _get_path_or_handle(
-                                          ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 140, in _get_path_or_handle
-    handles = get_handle(
-              ^^^^^^^^^^^
-  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 882, in get_handle
-    handle = open(handle, ioargs.mode)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'data/interim/execution_logs.parquet'
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 651, in read_parquet
+    impl = get_engine(engine)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parquet.py", line 67, in get_engine
+    raise ImportError(
+ImportError: Unable to find a usable engine; tried using: 'pyarrow', 'fastparquet'.
+A suitable version of pyarrow or fastparquet is required for parquet support.
+Trying to import the above resulted in these errors:
+ - Missing optional dependency 'pyarrow'. pyarrow is required for parquet support. Use pip or conda to install pyarrow.
+ - Missing optional dependency 'fastparquet'. fastparquet is required for parquet support. Use pip or conda to install fastparquet.
 
 - python -m pytest code/tests/ -v -> rc=2
-cutor.py ______________
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/tests/unit/test_oracle_executor.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
+ython3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-code/tests/unit/test_oracle_executor.py:15: in <module>
-    from src.oracle_executor import OracleExecutor, OracleExecutionOutcome, run_oracle_pipeline
-code/src/oracle_executor.py:24: in <module>
-    from src.config import DATA_INTERIM_PATH
-E   ImportError: cannot import name 'DATA_INTERIM_PATH' from 'src.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/code/src/config.py)
+code/tests/unit/test_vision_encoder.py:9: in <module>
+    import torch
+E   ModuleNotFoundError: No module named 'torch'
 =========================== short test summary info ============================
+ERROR code/tests/contract/test_execution_outcome.py
+ERROR code/tests/integration/test_executor_logging.py
+ERROR code/tests/integration/test_failure_logging.py
+ERROR code/tests/integration/test_gap_analysis.py
+ERROR code/tests/integration/test_planner.py
+ERROR code/tests/integration/test_report.py
 ERROR code/tests/unit/test_config.py
+ERROR code/tests/unit/test_controller_adapter.py
+ERROR code/tests/unit/test_data_loader.py
+ERROR code/tests/unit/test_executor.py
 ERROR code/tests/unit/test_oracle_executor.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 3.00s ===============================
+ERROR code/tests/unit/test_planner.py
+ERROR code/tests/unit/test_state_mapper.py
+ERROR code/tests/unit/test_stats.py
+ERROR code/tests/unit/test_stats_analysis.py
+ERROR code/tests/unit/test_vision_encoder.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 16 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 16 errors in 0.70s ==============================
 
 
 

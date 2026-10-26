@@ -1,37 +1,15 @@
-T001:
-  c: false
-  h: 5b1e49af19e0b82a965568b3a911922fc3ab828b7c792ac328c5dc5aec8943e4
-  r: "The provided `code/config.py` exists and defines `SEED`, CPU/memory limits,\
-    \ and a `TASK_IDS` constant, but there is no execution evidence that importing\
-    \ it succeeds (i.e., that the dataset fetch works and `TASK_IDS` actually contains\
-    \ 18 entries). Moreover, the relative import `from .src.data_loader import \u2026\
-    ` will fail unless `code` is a Python package (no `code/__init__.py` is present).\
-    \ The implementer must supply a runnable verification (e.g., the output of `python\
-    \ -c \"import code.config as cfg; assert cfg.SEED == 42; assert len(cfg.TASK_IDS)==18\"\
-    `), and ensure the package structure allows th"
-  sig: 2349e6d177b56750b59735fa20302f0543b4e5384552168cd0222df890619e6c
 T001a:
-  c: false
-  h: 494b5789a45affa01c7ef4b69b5caa9f97fdaeedd4686984122e2e234c6093bd
-  r: Checked `code/requirements.txt`, which correctly lists pinned `ruff==0.6.3` and
-    `black==24.8.0`. However, there is no evidence that `pip install -r requirements.txt`
-    was run and that `ruff --version` and `black --version` succeeded, so the verification
-    step is missing.
-  sig: 21ef71f3c3cf0881b16ec7d38a2ac5a559ad4822903fb2adcf1a7c3d55379135
-T002:
-  c: false
-  h: 9bb4c05d7884984ca4423badb843ceab31768a47fa4ffa984ab5cc4f98ecc725
-  r: "The three required files (`code/pyproject.toml`, `code/.ruff.toml`, `code/.black.toml`)\
-    \ exist, but the verification commands fail: the test log shows `ruff --config\
-    \ \u2026 .` returns exit\u202F1 (command removed) and `black --check code/` returns\
-    \ exit\u202F1 with many files needing reformatting. Hence the linting/formatting\
-    \ configuration does not satisfy the task\u2019s \u201Cno errors\u201D requirement."
-  sig: 0f842a0683ff6fc98c3a26cb931c39acb46c49de80c20f138825c7ed06e3c239
+  c: true
+  h: b15891bb4853c508f03ef1394eedd42df20b4decea9f1bbc2990279488c17e00
+  r: The `code/requirements.txt` file contains the pinned `ruff==0.6.3` and `black==24.8.0`
+    entries, and the execution log `code/.tasks/T001a.code_verify_linting.py.log`
+    shows that `verify_linting.py` ran successfully, installing the requirements and
+    confirming both tools are functional.
+  sig: 2ce25800672d9c6b97f989a22123604d3d79057b3c5e2427b83e14f191020416
 T003:
   c: true
-  h: 3ce7e14511c3a6432f461b56da5748a5a82d4c896c0ad2d38ad2a23bb8c8534f
-  r: "Checked the `data/` directory tree \u2013 it contains exactly the four required\
-    \ empty sub\u2011folders (`raw`, `interim`, `processed`, `final`) and no other\
-    \ data files appear outside this hierarchy. The `create_data_dirs.py` script ran\
-    \ successfully and logged creation of all four directories."
-  sig: 6bd6c7401ec7e60c59326e9c80de59195d391b6b1ce2a890aabb1eefe52c39de
+  h: a3b93131bd98e7bc22a39fdcf6f3206c5c112f31497f2b87d1654e5429dbdffe
+  r: "The evidence shows that `data/raw/`, `data/interim/`, `data/processed/`, and\
+    \ `data/final/` directories all exist (empty) under the project root, and `data/`\
+    \ contains exactly those four sub\u2011folders, satisfying the required hierarchy."
+  sig: c352b58285e90413d0eee2618ba98279b3d90f120db6084ea8d4595fdad831d9

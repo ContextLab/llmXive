@@ -1,25 +1,19 @@
 T001:
-  reason: "The provided `code/config.py` exists and defines `SEED`, CPU/memory limits,\
-    \ and a `TASK_IDS` constant, but there is no execution evidence that importing\
-    \ it succeeds (i.e., that the dataset fetch works and `TASK_IDS` actually contains\
-    \ 18 entries). Moreover, the relative import `from .src.data_loader import \u2026\
-    ` will fail unless `code` is a Python package (no `code/__init__.py` is present).\
-    \ The implementer must supply a runnable verification (e.g., the output of `python\
-    \ -c \"import code.config as cfg; assert cfg.SEED == 42; assert len(cfg.TASK_IDS)==18\"\
-    `), and ensure the package structure allows th"
+  reason: The `code/config.py` file exists and defines `SEED = 42`, but importing
+    it fails because its dependency `code/src/data_loader.py` raises an `ImportError`
+    (the required `datasets` package is not installed). Consequently `cfg.TASK_IDS`
+    is never populated, and the verification command cannot succeed. The missing `datasets`
+    dependency (or a fallback static list) must be provided so that `import code.config`
+    works and yields exactly 18 task IDs.
   task: 928417be1fb297ffcbcbdf90ac1597cd5af4714899a1f5fff650c9b5cc098d1b
 T001a:
-  reason: Checked `code/requirements.txt`, which correctly lists pinned `ruff==0.6.3`
-    and `black==24.8.0`. However, there is no evidence that `pip install -r requirements.txt`
-    was run and that `ruff --version` and `black --version` succeeded, so the verification
-    step is missing.
   task: d69556cca882828757192f4a86cb88822db7fb0532820081958e6b92011c0d17
 T002:
   reason: "The three required files (`code/pyproject.toml`, `code/.ruff.toml`, `code/.black.toml`)\
-    \ exist, but the verification commands fail: the test log shows `ruff --config\
-    \ \u2026 .` returns exit\u202F1 (command removed) and `black --check code/` returns\
-    \ exit\u202F1 with many files needing reformatting. Hence the linting/formatting\
-    \ configuration does not satisfy the task\u2019s \u201Cno errors\u201D requirement."
+    \ are present, but there is no evidence that the verification commands (`ruff\
+    \ --config code/.ruff.toml .` and `black --check code/`) were actually executed\
+    \ and returned success. Provide the command output or logs showing zero lint/formatting\
+    \ errors (or a status\u202F0 exit) to satisfy the task."
   task: 263322d2d82315777c37deffcb547b5f66f41430a795ede007c11c66f4c803e2
 T003:
   task: 32cdf292126d51aaf6e2aca68d3f46490c70b863cd63d6da2973d4fe199a4107

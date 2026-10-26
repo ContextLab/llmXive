@@ -8,7 +8,7 @@ The following checklist implements the smallest complete study that satisfies ev
 
 ## Phase 0 – Project Setup & Tooling
 
-- [ ] T001a **Install linting and formatting tools**  
+- [X] T001a **Install linting and formatting tools**  
   - **File**: `requirements.txt` – add `ruff` and `black` (pinned versions).  
   - **Verification**: After `pip install -r requirements.txt`, `ruff --version` and `black --version` succeed.
 
@@ -24,7 +24,7 @@ The following checklist implements the smallest complete study that satisfies ev
   - **Paths**: `data/raw/`, `data/interim/`, `data/processed/`, `data/final/`.  
   - **Verification**: `tree -d data` lists the four sub‑folders; no files are placed outside `data/`.
 
-- [ ] T004 **Add verified RoboDojo dataset download script**   <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 -->
+- [ ] T004 **Add verified RoboDojo dataset download script**   <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/io.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/utils/run_io_test.sh exit=1 -->
   - **File**: `code/utils/io.py` – uses `datasets.load_dataset("robodojo", split="real", streaming=True)` with checksum validation.  
   - **Verification**: Executing `python -m code.utils.io --test` streams at least one record and raises on any fetch error (no silent fallback).
 

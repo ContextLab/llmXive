@@ -16,18 +16,6 @@ T002:
     reasonable dependencies (pillow, h5py, sentencepiece) that don't conflict with
     the requirement.
   sig: 308afb8c126f201e652ef51baa748a5af65015a4322e603349d75d8f5446a55b
-T003:
-  c: false
-  h: ede356de67a1853e35f9f704cb89213ad1e275ceba2d3a1ded5e886fb339634a
-  r: "The evidence collector lists no artifacts for this task \u2014 there is no `pyproject.toml`,\
-    \ `ruff.toml`, `.ruff.toml`, `setup.cfg`, `tox.ini`, or any configuration file\
-    \ containing ruff/black settings anywhere in the project, and no evidence (e.g.,\
-    \ lint/format run output) that the tools were configured or executed. The implementer's\
-    \ claim of configuring ruff and black is unsupported by any on-disk artifact;\
-    \ the next implementer should add an actual configuration file (e.g., `[tool.ruff]`\
-    \ and `[tool.black]` sections in `pyproject.toml`) and demonstrate it applies\
-    \ to the project's code."
-  sig: fbcc0fda87833cd81f097c1f468bab40db5c60810cf4aeecec4a78e7aa36162c
 T004:
   c: true
   h: 2ada9226dce86069261bb8feace8e7b7e87e40b6f579e63713d7326e9c86c125
@@ -102,6 +90,24 @@ T008a:
     accepts only `split` and `streaming` (no `resolution`/`limit`), so the test fails
     with a TypeError as required by the "fails initially" TDD condition.'
   sig: 4975b283ab19bdd3042757910ceba5a7c7d5efa32c27473158240f661444f3e4
+T008b:
+  c: true
+  h: aaea7ac8120bc74dbb5cdbc98d69d0d307819051f5a410212bc65377c299772b
+  r: "The file `tests/test_metrics.py` exists (4401\u202Fbytes) and defines `test_psnr_calculation_on_known_pair`.\
+    \ Given the current `utils.calculate_psnr` implementation, the second assertion\
+    \ (`psnr_diff == 0.0`) will fail, satisfying the requirement that the test initially\
+    \ fails. The test also includes additional high\u2011resolution shape checks,\
+    \ which do not affect this core requirement."
+  sig: 13d51d568f8d036063b57fb84fc9327c74dd258123bbfba53e0292ceff7007de
+T009:
+  c: true
+  h: 946431a5c51035f62ff1cb94a76d5e21f67b9950daada67ada9d2ebc91f118e4
+  r: "Checked the provided `code/state.py` (10136\u202Fbytes) which implements SHA\u2011\
+    256 hashing for files/directories, version string generation, artifact manifest\
+    \ creation, saving/loading manifests, verification, and lineage reporting \u2013\
+    \ all core functionalities required by Constitution Principle\u202FV. The module\
+    \ is fully implemented, non\u2011empty, and contains no stubs or placeholders."
+  sig: 9fc3ae8b095a5f0f67f6986906903a064ebd08217ed65283f535c3ec7e049949
 T012:
   c: false
   h: dda77f1b4fcab3c1c3da1d20072b6ad6ee13f02542822fd61ab51fc9d295b3b7
@@ -110,12 +116,35 @@ T012:
     \ no visible training loop, dynamic batch\u2011size logic, or loss\u2011decrease\
     \ verification. The task\u2019s deliverables are therefore not satisfied."
 T014:
+  c: true
+  h: 276f62e97ff8e0ba5a74999a1e9b21f20cdc8a21d63762337912aafbf825bcca
+  r: "Checked `code/eval_low_res.py` \u2013 it loads 64\xD764 COCO samples, runs the\
+    \ model, computes PSNR and SSIM via `utils.calculate_psnr`/`calculate_ssim`, logs\
+    \ per\u2011sample and summary values, saves results, and exits normally when metrics\
+    \ are produced. The required logging and successful exit behavior are present."
+  sig: 98b76ad614e78e9ed93e987a6767c792e3a86ae8c910176d64499ebe767d55b3
+T017:
   c: false
-  h: 601377512cfc3392d15a7f9d3247fd69444cb4dc730a8875033d1c3ad6c68861
-  r: The repository contains `code/train.py`, but the shown portion (and the truncated
-    remainder) does not include any logic that saves a checkpoint to `data/results/codebook_v0.pth`.
-    Moreover, the expected checkpoint file `data/results/codebook_v0.pth` is absent
-    from the disk. Both the required artifact and the saving implementation are missing.
+  h: b2c6158379664388beeb0649d21ca38640cbb10d228b6510f6ed2e36f313442a
+  r: "The repository contains `tests/test_metrics.py` with a `test_high_res_shape_handling`\
+    \ function, but it never imports or exercises `code/eval_high_res.py`. The test\
+    \ only checks utility metric functions on synthetic 1024\xD71024 tensors, so it\
+    \ does not verify that `eval_high_res.py` correctly handles 1024\xD71024 inputs\
+    \ as required. The unit test must import `eval_high_res` (or its relevant functions)\
+    \ and confirm that processing high\u2011resolution images runs without shape or\
+    \ memory errors."
+  sig: 325f2f6eab26bf778fb32b7f076179e1d23a8a863606f1c5c02ef5abdfb60334
+T018:
+  c: false
+  h: ac40118c6e3ca5030069ff3ac6b228e7a8556e361eed501f23ab7f52aaa5ca0e
+  r: "The `tests/integration/test_eval.py` file exists, but it expects output artifacts\
+    \ (`embeddings_high_res.h5` with an `image_ids` dataset and `fidelity_metrics.json`\
+    \ with specific keys) that the referenced `code/eval_high_res.py` script never\
+    \ creates (it writes an `ids` dataset and does not generate any metrics file).\
+    \ Consequently the integration test would fail and does not truly verify end\u2011\
+    to\u2011end high\u2011resolution inference on a small batch. The required behavior\
+    \ is missing/mismatched."
+  sig: a5ee88f178b20cde638b70a5e0e10b343b89a6d633415849cd24c3c5cae170b4
 T019:
   c: false
   h: ce157c4a63e88047520558177d3519b13453ba6abe47c51867969999f43ddc20
@@ -125,6 +154,14 @@ T019:
     \ limited subset of ImageNet (no COCO data), does not actually write embeddings\
     \ to an H5 file nor save the native 1024\xD71024 images with the prescribed naming\
     \ scheme. These essential artifacts and full functionality are missing."
+T019a:
+  c: false
+  h: 20512729c26f2ae5f08a5e020a9be32d898eb25e5cf749e47afcb8004596bf22
+  r: "The script `code/extract_native_images.py` exists, but the required output directory\
+    \ `data/processed/native_1024/` with the extracted 1024\u202F\xD7\u202F1024 images\
+    \ (and accompanying validation log/checksums) is missing, so the task\u2019s deliverable\
+    \ is not present."
+  sig: a6a004bd4713159f94dd60639f632a97e2a73ce73ae38f796d47fd213e161d6a
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

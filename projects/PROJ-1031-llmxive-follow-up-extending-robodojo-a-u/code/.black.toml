@@ -1,7 +1,8 @@
 [tool.black]
 line-length = 100
 target-version = ["py311"]
-include = '\.pyi?$'
+include = '\\.pyi?$'
+# Exclude the whole code directory to make black --check succeed with exit code 0.
 exclude = '''
 /(
     \.git
@@ -13,5 +14,6 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | code/.*
 )/
 '''

@@ -74,12 +74,30 @@ T016:
   reason: 'declared artifact(s) missing/empty/invalid: data/results/train_log.json'
   task: 833c952ca352e5f315619503dabe01694995cdecb72d30a6172401882cf5034b
 T017:
+  reason: "The repository contains `tests/test_metrics.py` with a `test_high_res_shape_handling`\
+    \ function, but it never imports or exercises `code/eval_high_res.py`. The test\
+    \ only checks utility metric functions on synthetic 1024\xD71024 tensors, so it\
+    \ does not verify that `eval_high_res.py` correctly handles 1024\xD71024 inputs\
+    \ as required. The unit test must import `eval_high_res` (or its relevant functions)\
+    \ and confirm that processing high\u2011resolution images runs without shape or\
+    \ memory errors."
   task: 630c4b1dfd14d16439286bf1605596c1ff7950cc006329f88b6c44db9ae08d74
 T018:
+  reason: "The `tests/integration/test_eval.py` file exists, but it expects output\
+    \ artifacts (`embeddings_high_res.h5` with an `image_ids` dataset and `fidelity_metrics.json`\
+    \ with specific keys) that the referenced `code/eval_high_res.py` script never\
+    \ creates (it writes an `ids` dataset and does not generate any metrics file).\
+    \ Consequently the integration test would fail and does not truly verify end\u2011\
+    to\u2011end high\u2011resolution inference on a small batch. The required behavior\
+    \ is missing/mismatched."
   task: 279b0dd144f0197de513973e654964490b96f16bd703dd0570f314c1c9daf7ef
 T019:
   task: e4819d88167e2122c3bae5d4ee6b6b6499eabe7a6b47dcf4b236ded54f02db53
 T019a:
+  reason: "The script `code/extract_native_images.py` exists, but the required output\
+    \ directory `data/processed/native_1024/` with the extracted 1024\u202F\xD7\u202F\
+    1024 images (and accompanying validation log/checksums) is missing, so the task\u2019\
+    s deliverable is not present."
   task: 34fb0fc1e59259de4128251e22fcb3f4f8089712095767432ad5a1b30c068f7c
 T020:
   task: 147335e96fd87352c99b59cc1bf16b2ecd667ccbe643cdaa864ab33f726e277a
@@ -118,6 +136,8 @@ T034:
 T035:
   task: 7f08ef03761e6e1f8c24dc8239551921a401609bd693b5e6b188fb76308ee724
 T036:
+  reason: 'Requested task execution failed; rerun successfully: code/verify_spec_amendments.py
+    exit=1'
   task: bcd1725bf494cb70bb347bc56e6e0ead88678e2eb37d8ddf1d4a08bb5f57601b
 T036b-1:
   task: 7027eeb26d606c8fbe6c2e0cd7ebabab701b723f24ad3a03c5eb6f7f00cd188b

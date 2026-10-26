@@ -31,7 +31,7 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-14T02:40:58.288428Z'
-- artifact_hash: e679da6e90e5a68ea0df42a228860ca5824424cf5f1da1d9d1cf3ece1d5fed80
+- artifact_hash: b015b9b61162b5a8f6c07842a06b5872e797512e22dbf00a5cea4a44cea60094
   artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://en.wikipedia.org/wiki/Structural_similarity_index_measure
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Structural_similarity_index_measure
-  verified_at: '2026-10-12T13:00:49.671126Z'
+  verified_at: '2026-10-26T06:36:14.574841Z'

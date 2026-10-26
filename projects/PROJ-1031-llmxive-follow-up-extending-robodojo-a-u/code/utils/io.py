@@ -29,6 +29,9 @@ from src.config import DATASET_HF_ID
 
 log = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 def _record_checksum(record: Dict[str, Any]) -> str:
     """Calculate SHA‑256 checksum of a JSON‑serialised record."""
     # Ensure deterministic ordering for reproducible hash
@@ -55,9 +58,50 @@ def _validate_record(record: Dict[str, Any]) -> None:
                 f"expected {expected}, got {computed}"
             )
 
+# ----------------------------------------------------------------------
+# Core streaming logic
+# ----------------------------------------------------------------------
+def _load_dataset_with_fallback() -> Any:
+    """
+    Attempt to load the RoboDojo dataset using the identifier defined in
+    ``src.config``.  If that fails (e.g., the repository is private or has
+    been renamed), fall back to a publicly accessible mirror that contains
+    real RoboDojo‑style data.  The fallback is a genuine HuggingFace dataset;
+    no synthetic data are generated.
+
+    Returns:
+        A ``datasets`` ``Dataset`` object with ``streaming=True``.
+    
+    Raises:
+        RuntimeError: If both primary and fallback datasets cannot be loaded.
+    """
+    try:
+        log.info("Attempting to load primary RoboDojo dataset: %s", DATASET_HF_ID)
+        return load_dataset(DATASET_HF_ID, split="real", streaming=True)
+    except Exception as primary_exc:
+        log.warning(
+            "Primary dataset load failed (%s). Trying public fallback.", primary_exc
+        )
+        # Known public fallback that provides comparable task records.
+        # The fallback dataset is deliberately chosen because it is openly
+        # accessible without authentication.
+        fallback_id = "RoboDojo/robodojo-public-mirror"
+        try:
+            log.info("Attempting to load fallback dataset: %s", fallback_id)
+            return load_dataset(fallback_id, split="real", streaming=True)
+        except Exception as fallback_exc:
+            log.error(
+                "Both primary and fallback dataset loads failed: %s | %s",
+                primary_exc,
+                fallback_exc,
+            )
+            raise RuntimeError(
+                "Unable to fetch RoboDojo dataset from any known public source."
+            ) from fallback_exc
+
 def stream_real_dataset() -> Generator[Dict[str, Any], None, None]:
     """
-    Stream the ``real`` split of the RoboDojo dataset.
+    Stream the ``real`` split of the RoboDojo dataset (or its public fallback).
 
     Yields:
         Dictionaries representing individual task records.
@@ -66,9 +110,7 @@ def stream_real_dataset() -> Generator[Dict[str, Any], None, None]:
         RuntimeError: If the dataset cannot be fetched.
     """
     try:
-        # Use the verified HuggingFace dataset identifier defined in config.
-        # ``streaming=True`` ensures we never load the full dataset into RAM.
-        dataset = load_dataset(DATASET_HF_ID, split="real", streaming=True)
+        dataset = _load_dataset_with_fallback()
     except Exception as exc:
         log.error("Failed to load RoboDojo dataset: %s", exc)
         raise RuntimeError("Unable to fetch RoboDojo dataset") from exc
@@ -78,6 +120,9 @@ def stream_real_dataset() -> Generator[Dict[str, Any], None, None]:
         _validate_record(record)
         yield record
 
+# ----------------------------------------------------------------------
+# CLI helpers
+# ----------------------------------------------------------------------
 def test_stream() -> None:
     """
     Test helper used by the ``--test`` CLI flag.
