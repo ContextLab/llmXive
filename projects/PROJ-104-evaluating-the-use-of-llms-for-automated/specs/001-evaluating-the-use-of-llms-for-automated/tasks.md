@@ -1,133 +1,175 @@
 # Tasks: Evaluating LLM Fidelity in Commit-to-Documentation Translation
 
-**Inputs**: `spec.md`, `plan.md`, contracts in `specs/001-evaluating-the-use-of-llms-for-automated/contracts/`, and any reviewer feedback.
+**Inputs**: `spec.md`, `plan.md`, contracts under `specs/001-evaluating-the-use-of-llms-for-automated/contracts/`, and any reviewer feedback.
 
-The goal is to deliver a fully reproducible, end‑to‑end pipeline that satisfies every functional and non‑functional requirement in the specification while providing an early executable result that can be run on a minimal subset of the data.
-
----
-
-## Phase 0 – Project scaffolding & sanity check
-
-- [ ] T001 [US1] **Create quick‑start documentation and a minimal runnable entry point** – `docs/quickstart.md`, `code/run_pipeline.py`  
-  - Write a “Getting started” guide that lists required Python 3.11 packages, how to install `bitsandbytes` and `transformers`, and the command `python -m code.run_pipeline --sample 5`.  
-  - Implement `run_pipeline` to load a tiny hard‑coded commit pair (synthetic smoke‑test only) and invoke the generation module (CPU‑only) to produce a single output file under `data/generated/phi3-mini/sample_test.txt`.  
-  - **Verification**: Running the command completes in < 30 s, creates the output file, and `pytest tests/test_quickstart.py` passes.
-
-- [X] T002 [P] [US1] **Monte‑Carlo power analysis for the Friedman test** – `code/power_analysis.py`, `results/power_report.md`  
-  - Simulate paired precision scores for three models under varying effect sizes (seeded with `code/seeds.py`).  
-  - Estimate power for n = 500 with a medium effect (Cohen’s f = 0.25).  
-  - Write `results/power_report.md` containing the numeric power estimate and an `exploratory: true` flag if power < 0.8.  
-  - **Verification**: Test asserts that the file exists, contains a numeric power estimate, and that the `exploratory` flag matches the computed power.
-
-- [X] T013 **Data hygiene (checksums) and reproducibility (pinned seeds) utilities** – `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, `tests/test_hygiene_and_seeds.py`  
-  - `data_hygiene.py` computes SHA‑256 checksums for every file under `data/` after it is written and records them in `data/metadata.yaml` with provenance notes. Enforce that raw files are never overwritten; each transformation writes a new file with a distinct name.  
-  - `seeds.py` defines a global seed `SEED = 42`; all stochastic components import this seed. Document the seed policy in `docs/quickstart.md`.  
-  - **Verification**: Test asserts that each file under `data/` has a matching checksum entry, that raw files retain their original checksum across runs, and that `SEED` is imported by every stochastic script; re‑running T002 twice yields identical power estimates.  
+The aim is a reproducible, CPU‑first pipeline that satisfies every functional and non‑functional requirement, produces a minimal end‑to‑end result on a tiny subset of real data, and then scales to the full study.
 
 ---
 
-## Phase 1 – Data acquisition & pairing (User Story 1)
+## Phase 0 – Project scaffolding & early end‑to‑end smoke test  
 
-- [ ] T003 [P1] [US1] **Extract ≥ 500 (commit_message, documentation_diff) pairs from the five target repositories** – `code/data_extraction.py`, `data/raw/commit_pairs.csv`   <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=1 -->
-  - Clone the repositories `pandas`, `requests`, `scikit-learn`, `flask`, `django` into `data/tmp/repos/`.  
-  - Use the GitHub REST API (`GET /repos/{owner}/{repo}/commits`) with `since=2 years ago`, handling pagination and rate‑limit retries, and a personal‑access‑token supplied via `GITHUB_TOKEN` (fails loudly if missing).  
-  - For each commit, fetch the full diff with `git show <sha>` and retain only commits that modify files ending in `.md` or `.rst`.  
-  - Isolate the documentation‑only portion of each diff, discarding unrelated code hunks.  
-  - Record `commit_hash`, `commit_message`, `repository_name`, `doc_diff`, and ISO‑8601 `timestamp` per the `CommitPair` schema.  
-  - After extraction, **verify** that the CSV contains **≥ 500 rows**; abort with a clear error if the threshold is not met.  
-  - **Verification**: CSV contains ≥ 500 rows, each row validates against `commitpair.schema.yaml` (`pytest tests/contract/test_commitpair_schema.py`), a log reports the number of skipped commits, and a SHA‑256 checksum entry for the CSV is added to `data/metadata.yaml`.
+- [ ] **T001** [US1] **Create a complete quick‑start guide and a verification test** – `docs/quickstart.md`, `tests/test_quickstart.py`  
+  - List **all required Python 3.11 packages** (e.g., `torch>=2.0`, `bitsandbytes`, `transformers`, `datasets`, `pandas`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `tqdm`, `regex`, `pyyaml`, `gitpython`).  
+  - Explain how to install `bitsandbytes` for 4‑bit quantization and how to set `GITHUB_TOKEN`.  
+  - Provide the command `python -m code.run_pipeline --sample 5` that runs the pipeline on a **real** 5‑sample subset (downloaded via the data‑extraction script).  
+  - `test_quickstart.py` must invoke the command with `subprocess`, capture stdout, assert exit code 0, and check that at least one file appears under `data/generated/phi3-mini/`.  
+  - **Verification**: After running `pytest tests/test_quickstart.py` the test passes and a short log file `logs/quickstart_run.log` (generated by the test) is recorded.  
 
-- [ ] T004 [P1] [US1] **Create a human‑annotated gold‑standard intent dataset (50 samples) and compute inter‑annotator agreement** – `code/gold_annotation.py`, `data/gold/annotations.json`  
-  - Randomly sample 50 commit pairs from `data/raw/commit_pairs.csv` using the global seed defined in `code/seeds.py`.  
-  - Export the sampled rows to `data/gold/sample_for_annotation.csv`.  
-  - Provide a minimal HTML/JS annotation interface (served locally via `python -m http.server`) that allows two independent annotators to label **technical‑intent** entities in the human documentation diffs. The interface writes each annotator’s results to `data/gold/annotator_<id>.csv`.  
-  - After both annotators finish, run `gold_annotation.py` to (a) read the two CSVs, (b) compute Cohen’s κ, (c) **require** κ ≥ 0.6 (abort with informative error if lower), (d) merge the annotations (conflicts resolved automatically and logged in `data/gold/conflicts.log`), and (e) produce `data/gold/annotations.json` with fields `sample_id`, `intent_entities`, and `kappa`.  
-  - **Verification**: JSON parses, contains `kappa` in [0, 1] and ≥ 0.6; a test asserts this condition. No fallback is permitted.
+- [ ] **T002** [P] **Monte‑Carlo power analysis for the Friedman test** – `code/power_analysis.py`, `results/power_report.md`  
+  - Simulates paired precision scores for three models, estimates power for *n* = 500 with effect size *f* = 0.25, writes a numeric power estimate and an `exploratory` flag.  
+  - **Verification**: `tests/test_power_analysis.py` checks that the markdown file exists, contains a floating‑point power value, and that `exploratory` matches the computed power (< 0.8 → true).  
 
----
-
-## Phase 2 – Model selection justification & limitation discussion (User Story 2)
-
-- [ ] T005 [P2] [US2] **Document the rationale for selecting three CPU‑friendly LLMs and acknowledge scale limitation** – `docs/model_selection_and_limitations.md`  
-  - Explain that Phi‑3‑mini (≈ 3 B), Gemma‑2‑2b (≈ 2 B), and Llama‑3.2‑3B (≈ 3 B) are the largest open‑source models that can reliably run in 4‑bit quantization on the GitHub Actions free‑tier runner (≈ 7 GB RAM).  
-  - Cite the reviewer concern that model scale is limited and state that the experiment isolates **architectural** differences within a comparable‑size regime; any observed gaps should be interpreted accordingly.  
-  - Include a table of model parameters, quantization settings, and expected per‑commit latency.  
-  - **Verification**: The markdown file exists, contains the required explanatory paragraphs and table, and `pytest tests/test_model_selection.py` checks that each listed model has ≤ 3 B parameters and that the limitation discussion is present.
+- [ ] **T013** [?] **Data‑hygiene utilities (checksums & seeded randomness)** – `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, `tests/test_hygiene_and_seeds.py`  
+  - Computes SHA‑256 checksums for every file under `data/` after it is written and records them in `data/metadata.yaml`.  
+  - Provides a global `SEED = 42` imported by all stochastic scripts.  
+  - **Verification**: Test asserts that each data file has a matching checksum entry, that raw files retain their original checksum across runs, and that re‑running the power analysis yields identical results.  
 
 ---
 
-## Phase 3 – Model inference (User Story 2)
+## Phase 1 – Data acquisition & pairing (User Story 1)  
 
-- [ ] T006 [P2] [US2] **CPU‑only generation pipeline for the three LLMs with success‑rate measurement** – `code/generation.py`, `data/generated/phi3-mini/`, `data/generated/gemma2-2b/`, `data/generated/llama3.2-3b/`, `data/generated/generation_success_rates.csv`  
-  - Load each model in 4‑bit quantization via `bitsandbytes` on `device="cpu"` (no GPU fallback).  
-  - Prompt format:  
-    ```
-    Commit message: <commit_message>
-    Pre‑change documentation context: <prev_doc_snippet>
-    Generate updated documentation:
-    ```  
-  - Use deterministic decoding (`do_sample=False`), `max_new_tokens=200`, and enforce a hard timeout of 60 s per commit.  
-  - Retry up to 2 times on failure; after the third failure write a `generation_failed` entry in `data/generated/<model_id>/log.txt`.  
-  - Write each successful output to `data/generated/<model_id>/<commit_hash>_<model_id>.txt`.  
-  - After processing the full dataset, compute per‑model success rate = `n_success / n_input` and store in `data/generated/generation_success_rates.csv`.  
-  - **Verification**: Generation time per commit ≤ 60 s on the CPU runner, all three models achieve `success_rate ≥ 0.90` (test fails otherwise), and SHA‑256 checksums for all generated files are recorded in `data/metadata.yaml`.
+- [ ] **T003** [P1] **Extract ≥ 500 (commit_message, documentation_diff) pairs from the five target repos** – `code/data_extraction.py`, `data/raw/commit_pairs.csv`  
+  - Clone `pandas`, `requests`, `scikit-learn`, `flask`, `django` into `data/tmp/repos/`.  
+  - Use the **GitHub REST API** (`GET /repos/{owner}/{repo}/commits?since=2y`) with pagination and rate‑limit handling; require a `GITHUB_TOKEN` environment variable (fail loudly if missing).  
+  - For each commit, fetch the full diff via `git show <sha>` and retain only hunks that modify `.md` or `.rst` files.  
+  - Strip code hunks, keep the documentation‑only diff, and record `commit_hash`, `commit_message`, `repository_name`, `doc_diff`, `timestamp` per the `CommitPair` schema.  
+  - After processing, **assert** that the CSV contains **≥ 500 rows** and that the `doc_diff` field is non‑empty for every row; abort with a clear error otherwise.  
+  - Record a SHA‑256 checksum for the CSV in `data/metadata.yaml`.  
+  - **Verification**: `tests/contract/test_commitpair_schema.py` validates every row; `tests/test_data_extraction.py` checks row count ≥ 500, verifies that no `doc_diff` entry is empty, and that the checksum entry exists.  
 
----
-
-## Phase 4 – Entity extraction (User Story 3)
-
-- [ ] T007 [P3] [US3] **Surface‑entity regex extraction** – `code/entity_extraction_surface.py`, `data/intermediate/surface_entities/`  
-  - Apply regexes **only** for the three surface patterns required by the spec:  
-    1. File paths (`[a-zA-Z0-9_./-]+\\.(py|md|rst)`)  
-    2. Function signatures (`def [a-zA-Z_][a-zA-Z0-9_]*\\(`)  
-    3. Version numbers (`\\d+\\.\\d+\\.\\d+`)  
-  - For each extracted token, verify existence in the repository’s current codebase using `git grep -w`.  
-  - Produce an `EntitySet` JSON per sample (`{sample_id}.json`) with `type: "surface"` and `verified: true/false`.  
-  - **Verification**: For a 50‑sample audit subset, at least 95 % of surface entities from human diffs are verified; a test asserts this proportion.
-
-- [ ] T008 [P3] [US3] **Technical‑intent extraction with calibrated zero‑shot classifier** – `code/entity_extraction_intent.py`, `data/intermediate/intent_entities/`  
-  - Primary method: zero‑shot NLI classifier (`facebook/bart-large-mnli`) run deterministically (seeded) and calibrated on the gold‑standard annotations from T004. Use the confidence threshold that maximises F1 on the held‑out validation split.  
-  - For each generated intent entity, extract any technical noun‑phrase (function/class/module names) and verify against the repository codebase (same `git grep` approach). Flag `verified: false` for hallucinated intent terms.  
-  - **Verification**: On the 50‑sample gold set, precision ≥ 0.75 and recall ≥ 0.70 against human‑annotated intent entities; every generated intent entity includes a boolean `verified` field; tests validate these metrics.
+- [ ] **T004** [P1] **Create a 50‑sample human‑annotated gold‑standard intent dataset and enforce κ ≥ 0.6** – `code/gold_annotation.py`, `data/gold/sample_for_annotation.csv`, `data/gold/annotator_1.csv`, `data/gold/annotator_2.csv`, `data/gold/annotations.json`  
+  - Randomly sample 50 commit pairs from `data/raw/commit_pairs.csv` using the global seed.  
+  - Export the sample to `sample_for_annotation.csv`.  
+  - Provide a minimal **HTML/JS annotation UI** (served locally via `python -m http.server`) that loads each human documentation diff and lets two annotators label “technical‑intent” entities. All UI files are placed in the repository‑root `annotation_ui/` directory (e.g., `annotation_ui/index.html`, `annotation_ui/style.css`, `annotation_ui/script.js`). The UI writes each annotator’s results to `annotator_<id>.csv`.  
+  - `gold_annotation.py` reads the two CSVs, computes **Cohen’s κ**, **requires κ ≥ 0.6** (abort with informative error if lower), merges annotations (conflicts logged in `conflicts.log`), and writes `annotations.json` containing `sample_id`, `intent_entities`, and the achieved `kappa`.  
+  - **Verification**: `tests/test_gold_annotation.py` asserts that `annotations.json` exists, parses correctly, and that `kappa` ≥ 0.6; also checks that the UI files are present under `annotation_ui/`.  
 
 ---
 
-## Phase 5 – Fidelity scoring (User Story 3)
+## Phase 2 – Model selection justification (User Story 2)  
 
-- [ ] T009 [P3] [US3] **Compute precision/recall and hallucination rate per sample** – `code/fidelity_scoring.py`, `data/processed/fidelity_metrics.csv`  
-  - Load the human `EntitySet` (surface + intent) and the generated `EntitySet` for each `(commit_hash, model_id)` pair.  
-  - Calculate `precision_intent`, `recall_intent`, `precision_surface`, `recall_surface`.  
-  - Hallucination rate = (number of generated entities with `verified: false`) / (total generated entities).  
-  - Write one row per sample to `data/processed/fidelity_metrics.csv conforming to `fidelity.schema.yaml`.  
-  - Record the CSV checksum in `data/metadata.yaml`.  
-  - **Verification**: CSV passes schema validation (`pytest tests/contract/test_fidelity_schema.py`) and contains exactly `N_samples × 3` rows (three models per sample).
+- [ ] **T005** [P2] **Document model‑selection rationale and provide a verification test** – `docs/model_selection_and_limitations.md`, `tests/test_model_selection.py`  
+  - Explain why **Phi‑3‑mini (≈ 3 B)**, **Gemma‑2‑2b (≈ 2 B)**, and **Llama‑3.2‑3B (≈ 3 B)** are the largest open‑source models that can run in **4‑bit quantization** on the GitHub Actions free‑tier runner (≈ 7 GB RAM).  
+  - Include a table with model name, parameter count, quantization bits, expected per‑commit latency, and CPU‑only compatibility flag.  
+  - Discuss the limitation that all three models are of comparable small size, so any observed differences reflect **architectural** rather than **scale** effects.  
+  - **Verification**: `test_model_selection.py` parses the markdown, checks that each listed model has ≤ 3 B parameters, that the table contains the required columns, and that a sentence mentioning the scale limitation is present.  
 
 ---
 
-## Phase 6 – Statistical analysis (User Story 3)
+## Phase 3 – Model inference (User Story 2)  
 
-- [ ] T010 [P3] [US3] **Normality testing, Friedman/ANOVA, Holm‑Bonferroni correction, and exploratory flag handling** – `code/statistical_analysis.py`, `results/statistics.json`  
-  - Perform Shapiro‑Wilk tests on the paired differences of each metric. If any p < 0.05, use the Friedman chi‑square test; otherwise run repeated‑measures ANOVA.  
-  - Apply Holm‑Bonferroni correction across the three primary metrics (intent precision, surface precision, hallucination rate).  
-  - Include effect‑size reporting (Kendall’s W for Friedman, η² for ANOVA).  
-  - Propagate the `exploratory` flag from `results/power_report.md`; if `exploratory: true`, add `"exploratory": true` to the JSON and note that results are framed as exploratory.  
-  - **Verification**: JSON contains keys `p_values`, `significant`, `effect_sizes`, and `exploratory` (matching the power report); a test asserts their presence and consistency.
-
----
-
-## Phase 7 – Visualization & reporting (User Story 3)
-
-- [ ] T011 [P3] [US3] **Generate figures and a markdown summary** – `code/visualization.py`, `results/figures/intent_precision_bar.png`, `results/figures/surface_confusion_matrix.png`, `results/summary.md`  
-  - Bar chart of mean intent precision per model (95 % CI).  
-  - Heatmap confusion matrix for surface‑entity preservation vs. hallucination per model.  
-  - Assemble `results/summary.md` that references the figure files, includes a concise table of key metrics, and states the exploratory status when applicable.  
-  - **Verification**: PNG files exist, are ≥ 300 px wide, non‑empty; `summary.md` contains Markdown image links to each figure; a test checks file existence and non‑zero size.
+- [ ] **T006** [P2] **CPU‑only 4‑bit generation pipeline with timeout, retries, and checksum logging** – `code/generation.py`, `data/generated/phi3-mini/`, `data/generated/gemma2-2b/`, `data/generated/llama3.2-3b/`, `data/generated/generation_success_rates.csv`, `data/metadata.yaml`  
+  - Load each model with `bitsandbytes` **4‑bit** quantization on `device="cpu"` (no GPU fallback).  
+  - Prompt format must include the commit message and the pre‑change documentation snippet (extracted from the raw data).  
+  - Use **deterministic decoding** (`do_sample=False`, `max_new_tokens=200`).  
+  - Enforce a **hard timeout of 60 s** per generation via `signal.alarm` (or `concurrent.futures` with timeout).  
+  - On failure, **retry up to 2 times**; after the third failure write a `GeneratedOutput` JSON with `"status": "generation_failed"` and a log entry `log.txt`.  
+  - Successful outputs are written as `<commit_hash>_<model_id>.txt` plus a matching `<commit_hash>_<model_id>.json` that conforms to the `GeneratedOutput` schema (including `generation_time_s`).  
+  - After the full run, compute per‑model success rate (`n_success / n_input`) and store in `generation_success_rates.csv`.  
+  - Record SHA‑256 checksums for **every generated file** (text and JSON) in `data/metadata.yaml`.  
+  - **Verification**: `tests/test_generation.py` asserts that all three model directories exist, that each successful file’s generation time ≤ 60 s, that the success‑rate column is ≥ 0.90 for each model, and that checksum entries are present.  
 
 ---
 
-## Phase 8 – Contract validation, CI, and reproducibility utilities
+## Phase 4 – Entity extraction (User Story 3)  
 
-- [ ] T012 [P?] **Run contract tests against all schemas and integrate full pipeline in GitHub Actions** – `tests/contract/test_schemas.py`, `.github/workflows/research.yml`  
-  - Execute `pytest -m contract` after the pipeline finishes to ensure every artifact (`commit_pairs.csv`, generated outputs, entity sets, fidelity metrics) validates against its definition in `contracts/project.schema.yaml`.  
-  - Add a GitHub Actions workflow that caches model weights, installs dependencies, runs the full pipeline (`python -m code.run_pipeline --full`), then executes `pytest`. Enforce CPU‑only execution (no `--gpu` flag).  
-  - **Verification**: CI run completes with “Validate contracts” passing; workflow badge shows “All checks passed”.
+- [ ] **T007** [P3] **Surface‑entity extraction with regex + repository verification** – `code/entity_extraction_surface.py`, `data/intermediate/surface_entities/`  
+  - Apply the three regex patterns required by **FR‑003**:  
+    1. File paths `[\w./-]+\.(py|md|rst)`  
+    2. Function signatures `def [A-Za-z_][A-Za-z0-9_]*\(`  
+    3. Version numbers `\d+\.\d+\.\d+`  
+  - For each token, run `git grep -w` against the **cloned repository** to set `verified: true/false`.  
+  - Emit an `EntitySet` JSON named `{commit_hash}_{model_id}.json` (sample_id) with `type: "surface"` for each extracted token.  
+  - **Verification**: `tests/test_surface_extraction.py` audits a random 50‑sample subset, asserts that **≥ 95 %** of surface entities from the human diff are present and correctly marked `verified`. Also checks that the output directory exists and contains a JSON file for every `(commit_hash, model_id)` pair.  
+
+- [ ] **T008** [P3] **Technical‑intent extraction using a calibrated zero‑shot classifier** – `code/entity_extraction_intent.py`, `data/intermediate/intent_entities/`  
+  - Load `facebook/bart-large-mnli` in **8‑bit** quantization (CPU).  
+  - Calibrate the classifier on the **gold‑standard intent annotations** from T004 (use an 80/20 split; pick the confidence threshold that maximises F1 on the validation split).  
+  - For each generated documentation text, run the classifier to identify sentences containing intent cues (keywords “because”, “fix”, “improve”, etc.). Extract the noun phrase following the cue as the intent entity.  
+  - Verify each extracted intent token against the repository codebase with `git grep -w`; set `verified: false` for hallucinated intent terms.  
+  - Emit an `EntitySet` JSON per sample with `type: "intent"` and the `verified` flag.  
+  - **Verification**: `tests/test_intent_extraction.py` computes precision and recall on the 50‑sample gold set; asserts **precision ≥ 0.75** and **recall ≥ 0.70**. Also checks that the output directory contains JSON files for all samples and that each entity includes the required fields.  
+
+---
+
+## Phase 5 – Fidelity scoring (User Story 3)  
+
+- [ ] **T009** [P3] **Compute per‑sample fidelity metrics and write a validated CSV** – `code/fidelity_scoring.py`, `data/processed/fidelity_metrics.csv`  
+  - Load the **human** `EntitySet` (both surface and intent) and the **generated** `EntitySet` for each `(commit_hash, model_id)`.  
+  - Compute: `precision_intent`, `recall_intent`, `precision_surface`, `recall_surface`.  
+  - Compute **surface hallucination rate** = (generated surface entities with `verified: false`) / (total generated surface entities).  
+  - Compute **intent hallucination rate** = (generated intent entities with `verified: false`) / (total generated intent entities).  
+  - Write one row per sample conforming to the `FidelityMetric` schema, including a UTC `timestamp`.  
+  - Record a SHA‑256 checksum for the CSV in `data/metadata.yaml`.  
+  - **Verification**: `tests/contract/test_fidelity_schema.py` validates the CSV against `fidelity.schema.yaml`; `tests/test_fidelity_scoring.py` checks that the file has exactly `N_samples × 3` rows (three models per sample) and that all numeric fields lie in [0, 1].  
+
+---
+
+## Phase 6 – Statistical analysis (User Story 3)  
+
+- [ ] **T010** [P3] **Normality testing, Friedman/ANOVA, Holm‑Bonferroni correction, and effect‑size reporting** – `code/statistical_analysis.py`, `results/statistics.json`  
+  - Load `fidelity_metrics.csv`.  
+  - Perform **Shapiro‑Wilk** tests on the paired differences of each metric; if any p < 0.05, select the **Friedman** test; otherwise run **repeated‑measures ANOVA** (with Mauchly’s sphericity check).  
+  - Apply **Holm‑Bonferroni** correction across the three primary metrics (intent precision, surface precision, hallucination rate).  
+  - Report effect sizes: **Kendall’s W** for Friedman, **η²** for ANOVA.  
+  - Propagate the `exploratory` flag from `results/power_report.md`; if true, add `"exploratory": true` to the JSON.  
+  - **Verification**: `tests/test_statistical_analysis.py` asserts that `statistics.json` contains keys `p_values`, `significant`, `effect_sizes`, and (if applicable) `exploratory`, and that none of the values are `null`.  
+
+---
+
+## Phase 7 – Visualization & reporting (User Story 3)  
+
+- [ ] **T011** [P3] **Generate PNG figures and a markdown summary** – `code/visualization.py`, `results/figures/intent_precision_bar.png`, `results/figures/surface_confusion_matrix.png`, `results/summary.md`  
+  - Bar chart showing **mean intent precision** per model with 95 % confidence intervals.  
+  - Heat‑map **confusion matrix** for surface‑entity preservation vs. hallucination per model.  
+  - Save figures as PNGs ≥ 300 px wide, non‑empty.  
+  - Assemble `summary.md` that:  
+    * embeds the two figures via Markdown image links,  
+    * presents a concise table of key metrics (means, stds, p‑values),  
+    * states whether the analysis is exploratory, and  
+    * links to the full `statistics.json`.  
+  - **Verification**: `tests/test_visualization.py` checks that both PNG files exist, have file size > 0, and that `summary.md` contains the required image links and a table header.  
+
+---
+
+## Phase 8 – Contract validation & reproducibility (no platform‑owned paths)  
+
+- [ ] **T012** [?] **Run full contract‑validation suite locally and ensure no platform‑owned files are written** – `tests/contract/test_all_schemas.py`, `scripts/run_contracts.sh`  
+  - The script executes `pytest -m contract` after the entire pipeline finishes, validating **all artifacts** (`commit_pairs.csv`, generated outputs, entity sets, fidelity metrics) against the consolidated `project.schema.yaml`.  
+  - It **does not create** any `.github/` workflow files; the platform will supply its own CI workflow.  
+  - The script restricts file writes to the following allowed directories only: `data/`, `results/`, `code/`, `docs/`, `tests/`, and `logs/`. It verifies this constraint before any write operation.  
+  - The script writes a short log `logs/contract_validation.log` inside the project (allowed path).  
+  - **Verification**: `tests/test_contracts_runner.py` asserts that the log file exists, contains the phrase “All contracts passed”, and that no files were written outside `data/`, `results/`, `code/`, `docs/`, `tests/`, or `logs/`.  
+
+---
+
+## Phase 9 – Minimal end‑to‑end demonstration (early executable result)  
+
+- [ ] **T014** [US1] **Run the full pipeline on a 5‑sample subset and produce a reproducible result package** – `scripts/run_small_demo.sh`, `results/demo_package/`  
+  - The script calls `python -m code.run_pipeline --sample 5`, which internally executes: data extraction (limited to 5 commits), generation for all three models, entity extraction, scoring, statistical analysis, and figure creation **only on those 5 samples**.  
+  - All outputs (CSV, JSON, PNGs) are copied into `results/demo_package/` together with a `README.md` that lists the commands used, the seed, and the timestamps.  
+  - **Verification**: `tests/test_small_demo.py` runs the script, then checks that `demo_package/` contains at least one `fidelity_metrics.csv` row per model, the two PNGs, and a non‑empty `summary.md`.  
+
+---
+
+### Dependency mapping (summary)
+
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| FR‑001, SC‑001 | T003 |
+| FR‑008, SC‑001, SC‑003 | T004 |
+| FR‑002, NFR‑001, SC‑002 | T006 |
+| FR‑003, FR‑006 | T007, T008 |
+| FR‑004 | T009 |
+| FR‑005, SC‑004, SC‑005 | T010 |
+| FR‑005 (visual) | T011 |
+| Contract & reproducibility | T012 |
+| Early executable result | T001, T014 |
+| Power analysis | T002 |
+| Data‑hygiene & seeds | T013 |
+
+All tasks are ordered to respect data flow: extraction → gold annotation → model selection → generation → entity extraction → scoring → statistical analysis → visualization → validation.  
+
+---  
+
+*End of `tasks.md`.*  
