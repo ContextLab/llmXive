@@ -67,6 +67,7 @@ def download_materials_project(raw_mp_path: Path) -> Dict[str, object]:
     raw_mp_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Load the dataset; this pulls the public, version‑controlled archive.
+    # We use the 'magnetic' config as per the plan and spec.
     ds = load_dataset("materialsproject/mp", "magnetic", split="train")
 
     sha256 = hashlib.sha256()

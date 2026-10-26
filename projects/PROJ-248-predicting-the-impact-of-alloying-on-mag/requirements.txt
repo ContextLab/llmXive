@@ -1,6 +1,3 @@
+numpy>=2.0.0
 datasets
-# Existing dependencies (numpy, pandas, scikit-learn, matplotlib, seaborn,
-# pymatgen, matminer, requests, PyYAML, pytest, jsonschema, psutil) are
-# already provided by the base environment.  The only new requirement is
-# the HuggingFace ``datasets`` library used to fetch the Materials Project
-# magnetic archive.
+pyarrow
