@@ -1,16 +1,16 @@
 Collecting numpy==1.26.* (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 1))
   Downloading numpy-1.26.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (61 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.0/61.0 kB 4.1 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.0/61.0 kB 3.4 MB/s eta 0:00:00
 Collecting pandas==2.2.* (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 2))
   Downloading pandas-2.2.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (89 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.9/89.9 kB 19.4 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.9/89.9 kB 5.8 MB/s eta 0:00:00
 Collecting scikit-learn==1.5.* (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 3))
   Downloading scikit_learn-1.5.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (13 kB)
 Collecting statsmodels==0.14.* (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 4))
   Downloading statsmodels-0.14.6-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.5 kB)
 Collecting scipy==1.14.* (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 5))
   Downloading scipy-1.14.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (60 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.8/60.8 kB 25.2 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.8/60.8 kB 31.6 MB/s eta 0:00:00
 Collecting pyarrow==15.0.* (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 6))
   Downloading pyarrow-15.0.2-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (3.0 kB)
 ERROR: Ignored the following yanked versions: 0.4.2

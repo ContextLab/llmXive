@@ -20,12 +20,15 @@ def main() -> None:
     # Run pip install in a subprocess, capturing stdout and stderr.
     # Use --force-reinstall to guarantee that pip prints a
     # "Successfully installed" line even when packages are already present.
+    # Use --no-deps to avoid pulling in additional system‑level dependencies
+    # that may not be available in the CI environment.
     cmd = [
         sys.executable,
         "-m",
         "pip",
         "install",
         "--force-reinstall",
+        "--no-deps",
         "-r",
         str(req_path),
     ]
