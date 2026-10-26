@@ -20,19 +20,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/download_pantheon.py   # writes data/raw/pantheon_plus.dat and records SHA‑256 -> rc=1
 
-2026-10-26 07:30:24,309 INFO __main__: Fetching file list from Zenodo API: https://zenodo.org/api/records/7968445
-2026-10-26 07:30:24,760 ERROR __main__: Pantheon+ download failed: Could not find Pantheon+ FITS or archive in Zenodo record.
+2026-10-26 19:13:46,628 INFO __main__: Downloading Pantheon+ FITS from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data.fits
+2026-10-26 19:13:46,679 ERROR __main__: Pantheon+ download failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_Data.fits
 
 - python code/download_pantheon.py --verify-only -> rc=1
 
-2026-10-26 07:30:25,137 ERROR __main__: Pantheon+ download failed: File not found for verification: /home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/data/raw/pantheon_plus.fits
+2026-10-26 19:13:47,064 ERROR __main__: Pantheon+ download failed: File not found for verification: /home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/data/raw/pantheon_plus.fits
 
 - python code/power_analysis.py -> rc=1
 
 /home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/code/power_analysis.py:23: UserWarning: A NumPy version >=1.22.4 and <2.3.0 is required for this version of SciPy (detected version 2.4.6)
   from scipy.spatial.transform import Rotation
-2026-10-26 07:30:25,590 INFO __main__: Downloading Pantheon+ dataset from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
-2026-10-26 07:30:25,741 ERROR __main__: Power analysis failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
+2026-10-26 19:13:47,491 INFO __main__: Downloading Pantheon+ dataset from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
+2026-10-26 19:13:47,613 ERROR __main__: Power analysis failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
 
 - python code/analysis.py -> rc=1
 

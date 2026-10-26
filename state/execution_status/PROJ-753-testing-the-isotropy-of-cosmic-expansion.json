@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-25T22:08:23Z",
+  "updated_at": "2026-10-26T19:14:31Z",
   "project_id": "PROJ-753-testing-the-isotropy-of-cosmic-expansion",
-  "replan_rounds": 2
+  "replan_rounds": 3
 }
