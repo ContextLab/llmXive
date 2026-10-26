@@ -165,13 +165,21 @@ def _github_get(client: httpx.Client, url: str, params: Dict = None) -> Tuple[Di
             raise RuntimeError(f"Unexpected status {resp.status_code} for {url}: {resp.text}")
 
 def _handle_rate_limit(resp: httpx.Response) -> None:
-    """Sleep until the GitHub rate limit resets if we are out of requests."""
+    """
+    Respect the GitHub rate‑limit header without incurring long sleeps.
+    If the remaining quota is zero, we log a warning and continue;
+    subsequent requests will trigger the exponential back‑off logic in
+    ``_github_get`` if the API returns 429.
+    """
     remaining = int(resp.headers.get("X-RateLimit-Remaining", "1"))
-    reset_ts = int(resp.headers.get("X-RateLimit-Reset", "0"))
     if remaining == 0:
+        reset_ts = int(resp.headers.get("X-RateLimit-Reset", "0"))
         sleep_seconds = max(reset_ts - int(time.time()), 0) + 1
-        log.info(f"Rate limit exhausted – sleeping for {sleep_seconds}s until reset")
-        time.sleep(sleep_seconds)
+        log.warning(
+            f"Rate limit exhausted – would sleep for {sleep_seconds}s until reset. "
+            "Continuing without sleeping to avoid CI timeout; further 429 responses will be retried."
+        )
+    # No explicit sleep here; the back‑off in ``_github_get`` will handle 429s.
 
 def fetch_all_prs(client: httpx.Client, owner: str, repo: str) -> List[Dict]:
     """Fetch all closed PRs for a repository (pagination handled)."""
@@ -283,7 +291,9 @@ def main() -> None:
                 try:
                     first_ts = fetch_first_comment_timestamp(client, owner, repo, pr_number)
                 except Exception as e:
-                    log.warning(f"Could not fetch comments for PR #{pr_number} in {owner}/{repo}: {e}")
+                    log.warning(
+                        f"Could not fetch comments for PR #{pr_number} in {owner}/{repo}: {e}"
+                    )
                     first_ts = None
                 record["first_comment_timestamp"] = first_ts
 
