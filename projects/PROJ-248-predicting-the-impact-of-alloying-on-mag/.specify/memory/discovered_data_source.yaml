@@ -1,40 +1,12 @@
-status: verified
-kind: pypi_package
-ref: matminer
-access_python: "import pandas as pd\nfrom matminer.datasets import load_dataset, get_available_datasets\n\
-  \n# Choose a dataset known to exist in matminer\ndataset_name = \"elastic_tensor_2015\"\
-  \nif dataset_name not in get_available_datasets():\n    raise ValueError(f\"Dataset\
-  \ '{dataset_name}' is not available. Available datasets: {get_available_datasets()}\"\
-  )\n\ndf = load_dataset(dataset_name)\n\nprint(f\"RECORDS={len(df)}\")\nif len(df)\
-  \ > 0:\n    print(\"FIELDS=\" + \",\".join(df.columns.tolist()))"
-record_count: 1181
-sample_fields:
-- material_id
-- formula
-- nsites
-- space_group
-- volume
-- structure
-- elastic_anisotropy
-- G_Reuss
-- G_VRH
-- G_Voigt
-- K_Reuss
-- K_VRH
-- K_Voigt
-- poisson_ratio
-- compliance_tensor
-- elastic_tensor
-- elastic_tensor_original
-- cif
-- kpoint_density
-- poscar
-field_coverage: 0.5
+status: none
+intent: download Materials Project OQMD magnetic dataset with saturation magnetization
+  Curie temperature python package dataset
 required_fields:
 - material_id
-- formula
+- composition
+- spacegroup
 - saturation_magnetization
 - curie_temperature
-intent: download OQMD magnetic dataset and Materials Project bulk archive as python
-  package dataset
-cache_key: fd22f87bda6867064f861eb5122307d3a2156349de693c34aeb8bd32fa77a0bf
+cache_key: 0eef47c62818097ec49832117909bf5228b065c3a359236c53bedc64e60b60ca
+searched_at: '2026-10-26T13:20:14.888445+00:00'
+retry_count: 1
