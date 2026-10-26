@@ -4,7 +4,7 @@ Reproduce the full analysis on a fresh GitHub Actions runner (or locally).
 
 ## Prerequisites
 - Python 3.11
-- Internet access (to download HuggingFace datasets)
+- Internet access (to query the GitHub REST API and download auxiliary datasets)
 - Git
 
 ## Steps
@@ -19,12 +19,12 @@ python -m venv .venv && source .venv/bin/activate
 # Install dependencies
 pip install -r code/requirements.txt
 
-# 0. Download raw data, verify checksums, and generate schema map
-python code/download_data.py
+# 0. Download raw PR data from GitHub (respects rate limits) and verify checksums
+python code/download_data.py --repo-list code/repo_list.txt --output data/raw/
 
-# 1. Classify provenance (FR‑002, FR‑008, FR‑010)
+# 1. Classify provenance (FR‑002, FR‑008, FR‑010 modified handling)
 python code/classify_provenance.py \
-    --input data/raw/prs_v2_sample.parquet \
+    --input data/raw/combined_prs.json \
     --output data/processed/classified_prs.csv
 
 # 2. Compute metrics and create the SSoT (FR‑020)
@@ -42,12 +42,12 @@ python code/statistical_analysis.py \
     --input data/processed/filtered_prs_iqr1.5.csv \
     --results data/results/stats_summary.csv
 
-# 5. Validation (Cohen's κ) – generate labeling worksheet and compute κ
+# 5. Validation (Cohen's κ) – independent sample from auxiliary known‑LLM datasets
 python code/validation.py \
-    --input data/processed/filtered_prs_iqr1.5.csv \
-    --report data/results/validation_report.md
+    --aux-dataset prs-eth/AGBD \
+    --output data/results/validation_report.md
 
-# 6. Sensitivity analyses (IQR sweep, comment‑filter, source‑stratified)
+# 6. Sensitivity analyses (IQR sweep, comment‑filter, source‑stratified, selection‑bias)
 python code/sensitivity.py --mode full
 
 # 7. Assemble final report
@@ -65,10 +65,12 @@ python code/report.py \
 | `data/processed/filtered_prs_iqr1.5.csv` (and variants) | Filtered datasets for primary analysis and sensitivity checks. |
 | `data/results/stats_summary.csv` | Statistical test results; conforms to `contracts/statistical_results.schema.yaml`. |
 | `data/results/sensitivity_report.csv` | IQR & comment‑filter sweep results, robustness flags. |
-| `data/results/validation_report.md` | Cohen’s κ, misclassification response, or pending‑validation note. |
+| `data/results/validation_report.md` | Cohen’s κ from independent auxiliary dataset, misclassification response. |
 | `data/results/group_source_contingency.csv` | Contingency table of provenance × source (required for FR‑018). |
 | `report.md` + `data/results/figures/` | Final manuscript‑ready report with tables, box‑plots, and limitation statements. |
 
-All files are written under the `data/` hierarchy as required by the plan and contracts.
+If **no LLM‑generated PRs** are detected after classification, step 4 will emit a descriptive summary instead of hypothesis‑test rows, and the final report will contain a clear limitation statement. All files are written under the `data/` hierarchy as required by the plan and contracts.
 
 ---
+
+

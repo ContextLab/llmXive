@@ -7,8 +7,6 @@ required:
   - lines_changed
   - comment_count
   - review_active_seconds
-  - comment_density
-  - issue_severity
   - provenance_label
 properties:
   pr_id:
@@ -23,6 +21,9 @@ properties:
   review_active_seconds:
     type: number
     description: "Seconds from first review comment to PR merge; falls back to review_duration_seconds if first_comment_timestamp is unavailable (limitation reported)."
+  review_duration_seconds:
+    type: number
+    description: "Total time from PR creation to merge."
   comment_density:
     type: number
     description: "Review comments per line of changed code."
@@ -34,3 +35,6 @@ properties:
     type: string
     enum: ["LLM-generated", "Human-written", "Mixed"]
     description: "Provenance classification per FR‑002 precedence rules."
+  creation_quarter:
+    type: string
+    description: "Fiscal quarter of PR creation (e.g., Q1‑2023)."

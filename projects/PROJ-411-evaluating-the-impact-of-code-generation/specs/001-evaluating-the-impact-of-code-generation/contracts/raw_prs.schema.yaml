@@ -10,6 +10,7 @@ required:
   - deletions
   - comment_count
   - commit_message
+  - first_comment_timestamp
 properties:
   pr_id:
     type: integer

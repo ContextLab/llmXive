@@ -1,19 +1,19 @@
 status: none
-intent: download GitHub pull request metadata dataset with LLM provenance classification
-  python package dataset
+intent: GitHub pull request metadata dataset with provenance labels python package
+  dataset
 required_fields:
 - pr_id
-- repository_name
-- pull_request_number
-- creation_timestamp
-- merge_timestamp
+- repository_full_name
+- pr_number
+- created_at
+- merged_at
 - author_login
 - commit_message
 - file_header_attribution
-- diff_pattern_matches
-- lines_added
-- lines_deleted
-- total_lines_changed
-cache_key: 1d7107bea230197a8960c93ed6101a36624a86272aefbd1b040d3921f2fe7ffe
-searched_at: '2026-10-26T08:16:32.362697+00:00'
+- diff_added
+- diff_deleted
+- diff_changed_files
+- comment_count
+cache_key: 2b993a2aac494213a092b6279b5b8e6aca2a05f658ffa5b8bdea3e9488233df9
+searched_at: '2026-10-26T09:20:12.200101+00:00'
 retry_count: 1

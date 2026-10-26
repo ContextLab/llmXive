@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T21:27:32.737989Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-411-evaluating-the-impact-of-code-generation
-last_run_id: 39b32b2b-33a5-4708-a69f-5a7317162591
+last_run_id: 21c6e1f6-09fa-4462-ae24-bd45c58aa9fe
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-411-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation on Code Review Burden
-updated_at: '2026-10-22T23:17:29.983124Z'
+updated_at: '2026-10-26T09:43:59.561491Z'
