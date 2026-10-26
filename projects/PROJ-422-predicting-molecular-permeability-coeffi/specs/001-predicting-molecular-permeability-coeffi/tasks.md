@@ -40,7 +40,7 @@ All scripts write their outputs under the project‑owned directories `data/`, `
 
 ## Phase 2 – Model implementation, training, evaluation, and interpretation  
 
-- [ ] T004 [US‑2] Implement `code/models/gnn.py` – a **CPU‑only** 3‑layer Message Passing Neural Network (hidden = 64, global mean pooling) with:   <!-- FAILED-IN-EXECUTION: run_all.sh exit=1 -->
+- [ ] T004 [US‑2] Implement `code/models/gnn.py` – a **CPU‑only** 3‑layer Message Passing Neural Network (hidden = 64, global mean pooling) with:   <!-- FAILED-IN-EXECUTION: run_all.sh exit=1 --> <!-- FAILED-IN-EXECUTION: run_all.sh exit=1 -->
   - Early‑stopping on validation loss (patience = 5, max epochs = 50).  
   - Strict `device="cpu"` (no CUDA imports).  
   - Training routine `train_gnn(train_loader, val_loader, ...)` that returns the best checkpoint.  

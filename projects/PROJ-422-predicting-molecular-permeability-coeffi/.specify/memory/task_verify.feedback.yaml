@@ -5,14 +5,13 @@ T001:
 T002:
   task: 01225ffdef422e3621ee10adc1a293d9872947bae04c7caf4da6044af5d4f2a8
 T003:
-  reason: "The `code/data/split.py` script exists, reads the processed Parquet file,\
-    \ drops rows with null targets, handles \u22645\u2011row leave\u2011one\u2011\
-    out splits, and writes both CSV and Parquet files. However, it does **not** enforce\
-    \ the required \u22645\u202Fpercentage\u2011point class distribution difference\
-    \ for polymer\u2011type stratification, nor does it provide the `stratified_split`\
-    \ / `execute_split` APIs that the unit tests expect (as shown by multiple failures\
-    \ in `tests/unit/test_split.py`). Consequently the stratification constraint verification\
-    \ and the unit\u2011test suite are not satisfied."
+  reason: "The `code/data/split.py` script fails to run the `execute_split` function\
+    \ because it expects a `config.yaml` at the project root, which is not present,\
+    \ causing unit\u2011test failures. Consequently the required split files are not\
+    \ reliably produced, and the script\u2019s main path does not enforce the \u2264\
+    5\u202Fpercentage\u2011point stratification constraint. Adding the missing configuration\
+    \ (or removing the hard dependency) and ensuring the stratified split respects\
+    \ the distribution\u2011difference threshold are needed to satisfy the task."
   task: 63ca040e52b19fb51b3b431c6e48dd0f60bf36a7cda072de4c10c871d0eb7c97
 T004:
   reason: 'Requested task execution failed; rerun successfully: run_all.sh exit=1'

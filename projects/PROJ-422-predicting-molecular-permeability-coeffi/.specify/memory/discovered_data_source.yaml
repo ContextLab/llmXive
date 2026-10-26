@@ -1,18 +1,19 @@
 status: none
-intent: Freeman polymer membrane permeability database and Molecular Simulation Permeability
-  dataset python package dataset
+intent: Polymer Membrane Permeability Database experimental dataset NIST Chemistry
+  WebBook Materials Project python package dataset
 required_fields:
 - polymer_name
-- polymer_structure
-- repeat_unit
-- gas_species
+- membrane_type
 - permeability_coefficient
+- permeability_units
+- solute_species
 - temperature
+- temperature_units
 - pressure
-- measurement_method
-- diffusion_coefficient
-- solubility_coefficient
-- reference_citation
-cache_key: 49ebd219fc85e8b5c8f48b6be0b7065f8e5ba873dd70580781e9816aa5cdc39e
-searched_at: '2026-10-26T07:55:24.977053+00:00'
+- pressure_units
+- membrane_thickness
+- thickness_units
+- experimental_method
+cache_key: 274b58e48af0d09b3e54452d592a730266a0c939d8df10554a25687ee599be38
+searched_at: '2026-10-26T07:59:05.622144+00:00'
 retry_count: 1

@@ -7,7 +7,6 @@ import numpy as np
 from pathlib import Path
 import tempfile
 import shutil
-import os
 import yaml
 
 from code.data.split import random_split, stratified_split, execute_split, _load_config

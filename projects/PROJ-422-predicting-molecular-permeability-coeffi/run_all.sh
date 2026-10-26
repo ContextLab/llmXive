@@ -1,20 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -e
 
-# ----------------------------------------------------------------------
-# Deterministic seeds
-# ----------------------------------------------------------------------
-export PYTHONHASHSEED=0
-python - <<PY
-import random, numpy as np, torch
-random.seed(42)
-np.random.seed(42)
-torch.manual_seed(42)
-PY
-
-# ----------------------------------------------------------------------
-# Pipeline steps (order respects data flow)
-# ----------------------------------------------------------------------
 echo "=== Step 1: Download raw data ==="
 python code/data/download.py
 
@@ -30,23 +16,16 @@ python code/analysis/train.py --config config.yaml
 echo "=== Step 5: Evaluate models ==="
 python code/analysis/evaluate.py
 
-echo "=== Step 6: Explainability analysis ==="
+echo "=== Step 6: Statistical tests ==="
+python code/analysis/statistical_tests.py
+
+echo "=== Step 7: Explainability ==="
 python code/analysis/explain.py
 
-# ----------------------------------------------------------------------
-# Hand‑off document
-# ----------------------------------------------------------------------
-RESULTS_MD=$(paths.results "results.md")
-cat > "$RESULTS_MD" <<EOF
-# Pipeline Run Summary
+echo "=== Step 8: Generate report ==="
+python code/analysis/comparative_report.py
 
-- **Dataset source**: \`data/raw/permeability_data.csv\`
-- **Processed data**: \`data/processed/processed_data.parquet\`
-- **Train / Test splits**: \`data/processed/train.parquet\`, \`data/processed/test.parquet\`
-- **GNN checkpoint**: \`code/models/gnn.pt\`
-- **Random Forest model**: \`code/models/rf.pkl\`
-- **Metrics**: \`results/metrics.json\`
-- **Interpretability artifacts**: \`results/interpretability/*\`
-EOF
+echo "=== Step 9: Verify metrics ==="
+python code/utils/verify_metrics.py
 
-echo "Pipeline completed successfully. Summary written to $RESULTS_MD"
+echo "=== Pipeline completed successfully ==="
