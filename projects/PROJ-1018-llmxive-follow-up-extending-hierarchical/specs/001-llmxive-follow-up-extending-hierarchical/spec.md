@@ -33,7 +33,7 @@ The system MUST apply CPU-optimized K-Means clustering to the aggregated relevan
 **Acceptance Scenarios**:
 
 1. **Given** the aggregated relevance profiles from US-1, **When** the clustering script is executed with $K=100$ (or a specified default), **Then** the output static index file contains a mapping of chunk IDs to cluster IDs and a list of $K$ centroid vectors.
-2. **Given** the static index, **When** a random chunk ID is queried against an index built from a 100k token document on a standard CPU (Intel Xeon or equivalent, 2 cores), **Then** the system returns a valid cluster assignment within 50ms.
+2. **Given** the static index, **When** a random chunk ID is queried against an index built from a substantial token document on a standard CPU (Intel Xeon or equivalent, 2 cores), **Then** the system returns a valid cluster assignment within 50ms.
 
 ---
 
@@ -65,15 +65,15 @@ The system MUST execute the modified "Static-HiLS" inference (using the static i
 - **FR-003**: The system MUST modify the HiLS inference pipeline to bypass dynamic retrieval and use the static lookup table for attention sparsity patterns (See US-3).
 - **FR-004**: The system MUST compute perplexity and downstream QA accuracy on a held-out test set for both the dynamic baseline and the static variant (See US-3).
 - **FR-005**: The system MUST perform a paired t-test on the perplexity scores across documents to determine statistical significance ($p < 0.05$) (See US-3).
-- **FR-006**: The system MUST measure and report the inference latency reduction factor (dynamic vs. static) on a standard CPU (2 cores) using a fixed protocol: 32k token input context, 10 runs, and 2 warm-up iterations (See US-3).
-- **FR-007**: The system MUST evaluate the static index on a downstream long-context QA task (e.g., HotpotQA subset) to provide an independent measure of relevance distinct from the internal retrieval scores (See US-3).
-- **FR-008**: The system MUST perform a sensitivity analysis by sweeping the cluster count $K$ over the set $\{50, 100, 200\}$ and report the resulting perplexity and QA accuracy trade-offs (See US-3).
+- **FR-006**: The system MUST measure and report the inference latency reduction factor (dynamic vs. static) on a standard CPU (2 cores) using a fixed protocol: a large‑scale token input context, 10 runs, and a few warm‑up iterations. (See US-3).
+- **FR-007**: The system MUST evaluate the static index on a downstream long‑context QA task using **HotpotQA** filtered to contexts ≥ 32 k tokens (≈ 120 qualifying examples) to provide an independent measure of relevance distinct from the internal retrieval scores (See US-3).
+- **FR-008**: The system MUST perform a sensitivity analysis by sweeping the cluster count $K$ over the set $\{50, 100, 200\}$ and report the resulting perplexity and QA accuracy trade‑offs (See US-3).
 
 ### Key Entities
 
 - **RelevanceProfile**: An aggregated vector representing the average retrieval scores for a specific document chunk across the validation set.
 - **StaticIndex**: A data structure containing $K$ cluster centroids and a mapping from chunk IDs to cluster IDs, used for static attention patterns.
-- **EvaluationReport**: A structured output containing perplexity, QA accuracy, p-value, and latency metrics for both dynamic and static models.
+- **EvaluationReport**: A structured output containing perplexity, QA accuracy, p‑value, and latency metrics for both dynamic and static models.
 
 ## Success Criteria
 
@@ -84,16 +84,19 @@ The system MUST execute the modified "Static-HiLS" inference (using the static i
 - **SC-001**: The difference in perplexity between the static and dynamic models is measured against the dynamic baseline to determine the performance degradation (See US-3).
 - **SC-002**: The inference latency of the static model is measured against the dynamic baseline to quantify the reduction factor (See US-3).
 - **SC-003**: The statistical significance of the perplexity difference is measured against the $p < 0.05$ threshold using a paired t-test (See US-3).
-- **SC-004**: The accuracy on the downstream long-context QA task is measured against the dynamic baseline to assess semantic coherence preservation (See US-3).
+- **SC-004**: The accuracy on the downstream long‑context QA task (HotpotQA ≥ 32 k tokens) is measured against the dynamic baseline to assess semantic coherence preservation (See US-3).
 - **SC-005**: The memory footprint of the static index is measured against the dynamic retrieval module's runtime memory usage using `tracemalloc` to isolate the retrieval module specifically (See US-3).
 - **SC-006**: The QA accuracy degradation of the static model is measured against the dynamic baseline across the sensitivity sweep of $K \in \{50, 100, 200\}$ (See US-3).
+- **SC-007**: The extraction process produces non‑empty retrieval score matrices for every chunk, outputs a JSON file that includes a valid SHA‑256 `checksum` field, and logs the total number of processed documents (See US-1).
+- **SC-008**: The static index construction yields a mapping that covers all chunk IDs and generates exactly $K$ centroid vectors matching the specified $K$ value (See US-2).
 
 ## Assumptions
 
-- **Dataset Variable Fit**: The analysis targets the `PG-19` dataset (HuggingFace `lmsys/pg-19-test`), which contains full-length books with document lengths typically exceeding 32k tokens (median ~50k, max >100k). If a specific subset or alternative `arXiv` split is used that fails this threshold, the system will filter documents to retain only those with token counts ≥ 32,000, logging the exclusion count. This ensures the ultra-long-context hypothesis is tested on valid data.
+- **Dataset for Long‑Context QA**: The downstream evaluation uses a filtered subset of HotpotQA where each context length is ≥ 32 k tokens. This filtering yields a substantial number of qualifying examples, providing sufficient coverage for statistical analysis. The previously considered Long‑QA dataset does not contain enough ultra‑long contexts, so it is not used.
+- **Dataset Variable Fit**: The analysis targets the `PG-19` dataset (HuggingFace `lmsys/pg-19-test`), which contains full‑length books with document lengths typically exceeding 32k tokens (median ~50k, max >100k). If a specific subset or alternative `arXiv` split is used that fails this threshold, the system will filter documents to retain only those with token counts ≥ 32,000, logging the exclusion count. This ensures the ultra‑long‑context hypothesis is tested on valid data.
 - **Inference Framing**: The comparison is observational (no random assignment of documents to models); findings regarding the "necessity" of dynamic retrieval will be framed as associational evidence regarding performance degradation, not causal proof of mechanism necessity.
-- **Compute Feasibility**: The entire analysis (extraction, clustering, inference, evaluation) will run on a GitHub Actions free-tier runner (limited CPU cores, constrained RAM and disk, no GPU) by using CPU-optimized K-Means (scikit-learn) and sampling the dataset if necessary to fit memory constraints.
-- **Threshold Justification**: The number of clusters $K$ will be set to 100 (a community-standard default for landmark-based indexing) unless the idea specifies otherwise. A sensitivity analysis will sweep $K \in \{, \text{low}, \text{high}\}$ to report how the perplexity degradation varies across these values.
-- **Measurement Validity**: The perplexity and QA accuracy metrics are derived from standard, validated evaluation protocols for language models (e.g., L-Eval or HotpotQA subsets) and are mathematically independent of the clustering centroids used to construct the static index.
-- **Predictor Collinearity**: Since the static index is derived directly from the dynamic model's scores, the two predictors (dynamic scores vs. static cluster assignment) are definitionally related. This study does not claim to prove the "necessity" of dynamic retrieval in an absolute sense, but rather measures the **distillation fidelity** and **cost-benefit trade-off**. The research question is revised to: "How much dynamic retrieval signal can be compressed into a static index without significant downstream performance loss?"
-- **Model Availability**: The pre-trained HiLS checkpoint is available via the original repository or HuggingFace and is compatible with the specified CPU‑only environment without requiring CUDA or low‑precision quantization libraries.
+- **Compute Feasibility**: The entire analysis (extraction, clustering, inference, evaluation) will run on a GitHub Actions free‑tier runner (limited CPU cores, constrained RAM and disk, no GPU) by using CPU‑optimized K‑Means (scikit‑learn) and sampling the dataset if necessary to fit memory constraints.
+- **Threshold Justification**: The number of clusters $K$ will be set to 100 as a default. A sensitivity analysis will sweep $K$ over the concrete set $\{50, 100, 200\}$, matching FR‑008, to assess the impact on perplexity and QA accuracy.
+- **Measurement Validity**: The perplexity and QA accuracy metrics are derived from standard, validated evaluation protocols for language models (e.g., L‑Eval or HotpotQA subsets) and are mathematically independent of the clustering centroids used to construct the static index.
+- **Predictor Collinearity**: Since the static index is derived directly from the dynamic model's scores, the two predictors (dynamic scores vs. static cluster assignment) are definitionally related. This study does not claim to prove the "necessity" of dynamic retrieval in an absolute sense, but rather measures the **distillation fidelity** and **cost‑benefit trade‑off**. The research question is revised to: "How much dynamic retrieval signal can be compressed into a static index without significant downstream performance loss?"
+- **Model Availability**: The pre‑trained HiLS checkpoint is available via the original repository or HuggingFace and is compatible with the specified CPU‑only environment without requiring CUDA or low‑precision quantization libraries.
