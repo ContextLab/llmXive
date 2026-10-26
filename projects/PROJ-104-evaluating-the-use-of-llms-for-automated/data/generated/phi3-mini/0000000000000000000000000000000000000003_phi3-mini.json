@@ -2,5 +2,5 @@
   "commit_hash": "0000000000000000000000000000000000000003",
   "model_id": "phi3-mini",
   "status": "success",
-  "generation_time_s": 0.0229
+  "generation_time_s": 0.0246
 }

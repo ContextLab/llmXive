@@ -2,5 +2,5 @@
   "commit_hash": "0000000000000000000000000000000000000003",
   "model_id": "llama3.2-3b",
   "status": "success",
-  "generation_time_s": 0.0151
+  "generation_time_s": 0.2576
 }

@@ -1,13 +1,14 @@
 status: none
-intent: GitHub commit documentation diff paired dataset from GitHub REST API python
-  package dataset
+intent: GitHub commit message and documentation diff dataset pip install python package
+  dataset
 required_fields:
 - commit_hash
-- commit_message
 - repository_name
-- doc_diff
+- commit_message
+- documentation_diff
+- file_path
 - timestamp
 - intent_entities
-cache_key: 658058217339a0fc423ae398a94827add2f4f5bcabf25120b06e8ed9cf9dcff9
-searched_at: '2026-10-26T13:32:58.433556+00:00'
+cache_key: 73d8306a60e1ac4759b1195ea651c3948677f591b13b318cd7dfcb4ad207ff1a
+searched_at: '2026-10-26T15:44:27.663545+00:00'
 retry_count: 1

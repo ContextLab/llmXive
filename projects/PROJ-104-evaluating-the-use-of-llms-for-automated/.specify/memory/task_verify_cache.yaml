@@ -1,12 +1,12 @@
 T002:
   c: true
-  h: e13e9ec4b90da12c477303584127b5182f0a39cbbbc52eeaddfd7c8914fb8c49
+  h: ab7389d54b8a045d51ac4fdc406c54f79c72741e91e1756c67709eb34b1140a7
   r: "Checked `code/power_analysis.py` (implements the Monte\u2011Carlo simulation,\
-    \ writes the markdown with power and exploratory flag) and `results/power_report.md`\
-    \ (contains a numeric power estimate and matching exploratory flag), and the test\
-    \ `tests/test_power_analysis.py` confirms the report exists and includes a valid\
-    \ floating\u2011point power value."
-  sig: 828dfc1ff975f302d772f6aa9556c0706610b1f80c41b042d4cdd6b131b33303
+    \ writes the required markdown with power and exploratory flag) and `results/power_report.md`\
+    \ (contains a numeric power estimate line and the flag). The accompanying `tests/test_power_analysis.py`\
+    \ confirms the report exists and includes a valid floating\u2011point power value.\
+    \ All required artifacts are present and meet the task specifications."
+  sig: dd3dd7daa98d1966b981f74ed2aaee64a4d24138fa7490cf4e7522c72e6766ec
 T004:
   c: false
   h: 6e385feb08f6aec3a72eb56a85718b84505c00f11e6df50103d41cad0a6b02fc
@@ -28,10 +28,11 @@ T005:
   sig: b8bc8796fe4068fe34ed63415602515836646710053e8cf23842da24ade7a23b
 T013:
   c: true
-  h: d9e4af3706c9e8714ca7778dcd6558d22098b0f521bbce779171be5574427acf
-  r: "Checked `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, and `tests/test_hygiene_and_seeds.py`;\
-    \ the utilities compute and record SHA\u2011256 checksums for all files under\
-    \ `data/`, enforce immutability, provide a global `SEED = 42`, and the test suite\
-    \ verifies checksum coverage, immutability, and deterministic power\u2011analysis\
-    \ results."
-  sig: 3ca0b7a47e1f856ee2a27ad12fa8278fea2f92c80c6d26e2bdfa709fb9b4c121
+  h: 9dd2cd2f29d1532f4d51ffb34b90730d67674cb385f5fafc4a26b0a940e18da5
+  r: "Checked `code/data_hygiene.py` (checksum computation and immutability enforcement),\
+    \ `code/seeds.py` (global SEED\u202F=\u202F42), `data/metadata.yaml` (stores checksums),\
+    \ and the test suite `tests/test_hygiene_and_seeds.py` (verifies metadata coverage,\
+    \ immutability, seed value, and deterministic power analysis). All required artifacts\
+    \ exist, contain the correct logic, and the tests would pass, satisfying the task\u2019\
+    s specifications."
+  sig: ea00177667b6cff2a7f1beb01bb265cb02012c2fac54005074380c27783246d9
