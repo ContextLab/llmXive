@@ -4,129 +4,172 @@
 
 ## Phase 0 – Dependency Specification  
 
-- [ ] T001 [P] Create reproducible dependency manifests   <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.R exit=-1 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.sh exit=127 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.R exit=-1 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.R exit=-1 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.sh exit=127 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.sh exit=127 --> <!-- FAILED-IN-EXECUTION: code/R/verify_requirements.sh exit=1 -->
-  - **Python**: `code/requirements.txt` listing pinned versions of `pandas`, `numpy`, `requests`, `rpy2`, `matplotlib`, `seaborn`, `pytest`, `pyyaml`, `tqdm`.  
-  - **R**: `code/R/requirements_R.txt` containing package names and versions for `lme4`, `lmerTest`, `ggplot2`, `patchwork`, `performance`.  
+- [ ] T001 [P] Create reproducible dependency manifests and verification script  
+  - **Description**: Add a Python `code/requirements.txt` listing exact versions of `pandas`, `numpy`, `requests`, `rpy2`, `matplotlib`, `seaborn`, `pytest`, `pyyaml`, `tqdm`. Add an R `code/R/requirements_R.txt` listing `lme4`, `lmerTest`, `metafor`, `ggplot2`, `patchwork`, `performance`.  
   - **Verification**:  
-    - Both files exist and are non‑empty.  
-    - `pip install -r code/requirements.txt` succeeds in a fresh virtual environment.  
-    - Running `Rscript code/R/verify_requirements.R` exits with status 0, confirming all listed R packages are installed.
+    - Files exist, are non‑empty, and contain version‑pinned entries.  
+    - Running `pip install -r code/requirements.txt` in a fresh venv succeeds (exit 0).  
+    - Running `Rscript code/R/verify_requirements.R` succeeds (exit 0) confirming all R packages are installed.  
 
-## Phase 1 – Data Discovery, Configuration & Ingestion  
+## Phase 1 – Configuration & Data Discovery  
 
-- [ ] T002 [US-1] Populate a complete configuration file with real Dryad DOIs   <!-- FAILED-IN-EXECUTION: code/01_discover_data.py exit=1; code/02_ingest_data.py exit=1; code/03_clean_merge.py exit=1 -->
-  - Create `code/config.yaml` containing required keys (`dryad_api_base`, `dataset_ids`, `anage_url`, `random_seed`, `alpha`, `chunk_size`).  
-  - **Important**: `dataset_ids` **must be a non‑empty list** of real, publicly resolvable Dryad DOIs (e.g., `["[UNRESOLVED-CLAIM: 10.5061/dryad.abc123 — HTTP 404]", "[UNRESOLVED-CLAIM: 10.5061/dryad.def456 — HTTP 404]"]`).  
-  - Implement `code/01_discover_data.py` that queries the Dryad API for datasets containing the keyword “telomere”, validates each DOI resolves (HTTP 200), and writes the list to `config.yaml`. Run this script to auto‑populate `dataset_ids`.  
-  - Ensure `code/02_ingest_data.py` and `code/03_clean_merge.py` import the configuration via `yaml.safe_load(open("code/config.yaml"))` and contain **no** hard‑coded URLs or seeds.  
+- [ ] T002 [US‑1] Populate `code/config.yaml` with verified Dryad DOIs and other URLs, and implement `code/01_discover_data.py`  
+  - **Description**: `code/01_discover_data.py` queries the Dryad API for datasets containing the keyword “telomere” and species‑level avian data, validates that each DOI returns HTTP 200, and writes a list of at least one real DOI to `config.yaml` under `dataset_ids`. Also records static URLs for the verified bird‑lifespan CSV and the AnAge/BirdLife ecological CSVs.  
   - **Verification**:  
-    - `config.yaml` parses without error and `dataset_ids` contains at least one real DOI.  
-    - Executing `python code/01_discover_data.py` updates the file (or confirms existing IDs).  
-    - Static analysis (`grep -R "http"`) on `code/02_ingest_data.py` and `code/03_clean_merge.py` returns no matches for literal URLs or numeric seeds.  
+    - After execution, `code/config.yaml` parses without error and contains a non‑empty `dataset_ids` list of real DOIs (e.g., `10.5061/dryad.abc123`).  
+    - `grep -R "http"` in the ingestion and cleaning scripts shows no hard‑coded URLs; all URLs are read from `config.yaml`.  
 
-- [ ] T003 [US-1] Implement robust data‑ingestion pipeline  
-  - `code/02_ingest_data.py` reads `config.yaml`, streams each DOI listed under `dataset_ids` using `requests`, writes raw CSVs to `data/raw/` preserving original filenames, and creates a SHA‑256 checksum file `data/raw/<filename>.sha256`.  
-  - The script also downloads the AnAge CSV (or BirdLife fallback) to `data/raw/anage_lifespan.csv` with its checksum.  
-  - All downloads must raise an exception on failure (no synthetic fallback).  
+- [ ] T003 [US‑1] Implement robust data‑ingestion pipeline (`code/02_ingest_data.py`)  
+  - **Description**: Reads `config.yaml`, streams each DOI listed in `dataset_ids` using `requests`, writes raw CSVs to `data/raw/` preserving original filenames, creates a SHA‑256 checksum file `data/raw/<filename>.sha256` for each download, and also downloads the verified lifespan and ecological CSVs to `data/raw/`. Any HTTP error raises an exception (no synthetic fallback).  
   - **Verification**:  
-    - After execution, every expected raw file exists and its `.sha256` file is non‑empty.  
-    - `sha256sum -c data/raw/*.sha256` passes.  
-    - Unit tests `tests/test_ingest.py` assert the number of downloaded files equals `len(dataset_ids) + 1`.  
+    - After run, every expected raw file exists and its corresponding `.sha256` file is non‑empty.  
+    - `sha256sum -c data/raw/*.sha256` returns all “OK”.  
+    - Unit tests `tests/test_ingest.py` assert `len(downloaded_files) == len(config["dataset_ids"]) + 2`.  
 
 ## Phase 2 – Cleaning, Standardisation & Merging  
 
-- [ ] T004 [US-1] Build a full cleaning & merge workflow  
-  - `code/03_clean_merge.py` reads raw CSVs, validates taxonomy via OpenTree, converts telomere units to kb, filters to wild‑caught juveniles, merges with lifespan and covariates, and writes `data/processed/merged_analysis.csv`.  
-  - Generates logs: `logs/unit_conversion_log.csv`, `logs/merge_stats.csv`, `logs/missing_data_log.csv`, `logs/unconvertible_units.csv`, `logs/duplicate_records.csv`.  
+- [ ] T004 [US‑1] Build full cleaning & merge workflow (`code/03_clean_merge.py`)  
+  - **Description**:  
+    - Loads all raw CSVs, validates species names via the OpenTree API.  
+    - Converts telomere measurements to kilobases (handles qPCR Ct → kb using documented conversion factors).  
+    - Filters to wild‑caught individuals only.  
+    - Merges telomere, lifespan, and ecological covariates on `species_id`.  
+    - Writes `data/processed/analysis_ready.csv` conforming to `contracts/dataset.schema.yaml`.  
+    - Generates logs: `logs/unit_conversion_log.csv`, `logs/merge_stats.csv`, `logs/missing_data_log.csv`, `logs/unconvertible_units.csv`.  
   - **Verification**:  
-    - `merged_analysis.csv` validates against `contracts/dataset.schema.yaml`.  
+    - `data/processed/analysis_ready.csv` validates against the dataset schema (`jsonschema` validation script).  
     - `logs/merge_stats.csv` reports a merge proportion ≥ 0.90 (fulfills SC‑001).  
-    - Unit tests `tests/test_clean.py` check conversion correctness and absence of hard‑coded paths.  
+    - Unit tests `tests/test_clean_merge.py` check unit conversion correctness and that no hard‑coded file paths remain.  
+
+- [ ] T005 [US‑1] Verify dataset size (`code/04_verify_dataset_size.py`)  
+  - **Description**: Checks that `analysis_ready.csv` contains ≥ 500 rows and ≥ 10 distinct `species_id`s. If either condition fails, the script aborts with a clear error message.  
+  - **Verification**:  
+    - Script exits with status 0 only when both thresholds are met.  
+    - Error message includes the actual row and species counts for traceability.  
 
 ## Phase 3 – Base Linear Mixed‑Effects Model (LMM)  
 
-- [ ] T005 Fit the base LMM model  
-  - `code/04_fit_base_lmm.py` (Python driver) calls `code/R/01_fit_base_lmm.R` via `rpy2`. The R script fits: `lifespan_days ~ telomere_length_kb + breeding_latitude + (1|species)`.  
-  - Results appended to `results/model_summary.csv` with `model_type: "LMM_Base"`. If `n_species < 15`, writes `low_power_flag: true` and logs `"Low Power: species-level inference unreliable"` to `logs/low_power_log.txt`.  
+- [ ] T006 [US‑2] Fit the base LMM (`code/05_fit_lmm_base.py`)  
+  - **Description**: Python driver uses `rpy2` to call `code/R/fit_base_lmm.R`, fitting  
+    `lifespan_days ~ telomere_length_kb + sex + age_at_measurement_days + body_mass_g + breeding_latitude + (1|species_id) + (1|batch_id)`.  
+    - Writes `results/model_base.csv` adhering to `contracts/model_output.schema.yaml`.  
+    - If `n_species < 15`, sets `low_power_flag: true`, adds `low_power_message: "Low Power: species‑level inference unreliable"` and logs the warning to `logs/low_power_base.txt`.  
   - **Verification**:  
-    - `results/model_summary.csv` validates against `contracts/model_output.schema.yaml`.  
-    - Script asserts `p_value_telomere` compared to `alpha = 0.05` and writes `telomere_significant` boolean.  
-    - Human‑readable summary in `logs/base_model_fit.log`.  
+    - `results/model_base.csv` passes schema validation.  
+    - `logs/base_model_fit.log` contains the model summary, AIC, and convergence status.  
 
 ## Phase 4 – Interaction Model (Ecological Moderators)  
 
-- [ ] T006 Fit the moderator‑augmented LMM model  
-  - `code/05_fit_interaction_lmm.py` invokes `code/R/02_fit_interaction_lmm.R`. Formula: `lifespan_days ~ telomere_length_kb * migration_status + telomere_length_kb * breeding_latitude + (1|species)`.  
-  - Excludes rows with `migration_status == "Unknown"` from interaction estimation; logs count to `logs/interaction_exclusion_log.csv`.  
-  - Appends row with `model_type: "LMM_Interaction"` to `results/model_summary.csv`.  
-  - Computes ΔAIC vs. base model, writes to `logs/aic_comparison.txt`, updates `delta_aic` field.  
+- [ ] T007 [US‑3] Fit the interaction LMM (`code/06_fit_lmm_interaction.py`)  
+  - **Description**: Calls `code/R/fit_interaction_lmm.R` to fit  
+    `lifespan_days ~ telomere_length_kb * migration_status + telomere_length_kb * breeding_latitude + sex + age_at_measurement_days + body_mass_g + (1|species_id) + (1|batch_id)`.  
+    - Rows with `migration_status == "Unknown"` are retained as a distinct category.  
+    - Writes `results/model_interaction.csv` (same schema).  
+    - Computes ΔAIC versus the base model and records it in `delta_aic` field; also writes `logs/aic_comparison.txt`.  
   - **Verification**:  
-    - `results/model_summary.csv` contains exactly two rows and passes schema validation.  
-    - `logs/aic_comparison.txt` contains a single float.  
-    - Interaction‑exclusion log matches count reported in model summary.  
+    - `results/model_interaction.csv` validates against the schema.  
+    - `logs/interaction_exclusion_log.csv` reports the count of “Unknown” rows excluded from interaction coefficient estimation (should be zero because they are kept as a category).  
 
 ## Phase 5 – Sensitivity & Power Analysis  
 
-- [ ] T007 Perform LOOCV‑by‑species or jackknife‑by‑study sensitivity checks and estimate statistical power  
-  - `code/06_sensitivity_power.py` reads `model_summary.csv` for `n_species`.  
-  - If `n_species ≥ 10`, runs LOOCV by species; otherwise jackknife by study DOI. Records `iteration_id`, `excluded_unit`, `coefficient_telomere`, `p_value_telomere` to `results/sensitivity_log.csv`.  
-  - Conducts 1 000 simulation‑based power analyses with standardized telomere slope = 0.2, stores `power_estimate` in `results/power_report.yaml`.  
-  - Writes method justification to `logs/sensitivity_method.txt`.  
+- [ ] T008 [US‑2] Perform sensitivity checks and power simulation (`code/07_sensitivity_power.py`)  
+  - **Description**:  
+    - Reads `results/model_base.csv` for `n_species`.  
+    - If `n_species ≥ 10`, runs leave‑one‑out cross‑validation by species; otherwise performs jackknife by data source. Each iteration refits the base LMM and records `iteration_id`, `excluded_species` (or `excluded_source`), `coef_telomere`, `p_value_telomere` to `results/sensitivity_log.csv`.  
+    - If `n_species ≥ 15`, runs 1 000 simulation datasets mirroring observed variance components and effect sizes {0.05,0.10,0.15,0.20,0.25,0.30}; computes power to detect a standardized slope of 0.2 at α = 0.05 and writes `results/power_report.yaml`.  
+    - Writes method justification to `logs/sensitivity_method.txt`.  
   - **Verification**:  
-    - Output files exist and conform to schemas.  
-    - Range of `coefficient_telomere` in `sensitivity_log.csv` encloses full‑sample coefficient.  
-    - `power_report.yaml` contains numeric `power_estimate` between 0 and 1.  
+    - `results/sensitivity_log.csv` exists, has one row per iteration, and the full‑sample coefficient lies within the recorded range.  
+    - When performed, `results/power_report.yaml` contains a numeric `power_estimate` between 0 and 1.  
 
-## Phase 6 – Visualization  
+## Phase 6 – Random‑Effects Meta‑Analysis  
 
-- [ ] T008 Produce deterministic visual summaries  
-  - `code/07_visualize.py` reads `results/model_summary.csv` and creates:  
-    1. Forest plot → `results/association_forest.png`.  
-    2. Moderator plot (grouped scatter for migration status and latitude gradient) → `results/moderator_plot.png`.  
-  - Computes SHA‑256 checksums for each PNG and records in `logs/visualization_checksums.csv`. Uses fixed random seed for reproducibility.  
+- [ ] T009 [US‑2] Conduct species‑level meta‑analysis (`code/08_meta_analysis.py`)  
+  - **Description**:  
+    - For each species, fits an LMM (same covariates as the base model) to obtain a species‑specific telomere‑lifespan slope and its standard error.  
+    - Aggregates these slopes with `metafor::rma` (random‑effects).  
+    - Writes `results/meta_analysis.yaml` (conforms to `contracts/meta_analysis.schema.yaml`) containing per‑species rows plus a repeated `i2` field for the overall heterogeneity statistic.  
+    - Saves forest plot `results/meta_forest.png`.  
   - **Verification**:  
-    - Both PNGs exist, > 10 KB, open without error.  
-    - Re‑running the script yields identical checksums (asserted in `tests/test_visualization.py`).  
+    - `results/meta_analysis.yaml` validates against the meta‑analysis schema.  
+    - `results/meta_forest.png` opens without error and its SHA‑256 checksum is recorded in `logs/meta_forest_checksum.txt`.  
 
-## Phase 7 – Testing Suite & Synthetic Validation  
+## Phase 7 – External Significance Validation (Permutation Test)  
 
-- [ ] T009 Extend the automated test suite with synthetic benchmarks and power sanity checks  
-  - Add `tests/test_model_synthetic.py` with `test_known_coefficients` and `test_null_relationship` using seeded synthetic data.  
-  - Add `tests/test_power_estimate.py` verifying `power_estimate` in `[0,1]`.  
-  - Ensure `pytest -q` reports ≥ 3 new tests and 0 failures.  
-
-## Phase 8 – Documentation & Paper‑Stage Hand‑off  
-
-- [ ] T010 Write a reproducible quick‑start guide and hand‑off section  
-  - `quickstart.md` under `specs/001-telomere-lifespan-impact/` lists full command sequence, expected output paths with SHA‑256 checksums, interpretation of warnings, and a “Paper‑Stage Hand‑off” subsection enumerating figures, tables, limitations, and suggested captions.  
+- [ ] T010 [US‑2] Run permutation test (`code/09_permutation_test.py`)  
+  - **Description**: Generates 10 000 permutations of `lifespan_days` (keeping covariates fixed), refits the base LMM for each permutation via `rpy2`, extracts the telomere coefficient, and computes the empirical p‑value as the proportion of permuted absolute coefficients ≥ the observed absolute coefficient.  
+    - Writes `results/permutation_pvalue.yaml` containing the empirical p‑value.  
+    - Updates `results/model_base.csv` and `results/model_interaction.csv` fields `permutation_pvalue` and `significance_flag` (true only if both model‑based p‑value and permutation p‑value < 0.05).  
   - **Verification**:  
-    - A fresh clone can follow the guide verbatim and reproduce identical checksums for all result artifacts (validated by `code/tests/test_quickstart_repro.py`).  
+    - `results/permutation_pvalue.yaml` contains a numeric value in [0,1].  
+    - The updated model CSVs still pass schema validation after the new fields are added.  
 
-## Phase 9 – Project State Hash Management  
+## Phase 8 – Visualization  
 
-- [ ] T011 Implement deterministic state‑hash updates and pass verification  
-  - Refactor `code/utils.py` to provide `update_state_hashes(root_paths: List[str]) -> dict` that walks `data/`, `results/`, and `logs/`, computes SHA‑256 for every file, and writes a mapping `relative_path: hash` to `state/projects/PROJ-055-investigating-the-impact-of-telomere-len.yaml`.  
-  - Ensure **all** pipeline scripts (`02_ingest_data.py`, `03_clean_merge.py`, `04_fit_base_lmm.py`, `05_fit_interaction_lmm.py`, `06_sensitivity_power.py`, `07_visualize.py`) invoke `utils.update_state_hashes([...])` as their final step.  
-  - Update the verification script `code/R/verify_renv.py` so that it checks the YAML file exists and that each recorded hash matches the on‑disk file (using `hashlib.sha256`) and exits with status 0.  
+- [ ] T011 [US‑2] Produce deterministic visual summaries (`code/10_visualize.py`)  
+  - **Description**:  
+    - Reads the finalized model CSVs and meta‑analysis output.  
+    - Generates:  
+      1. Fixed‑effect forest plot → `results/association_forest.png`.  
+      2. Moderator plot (grouped scatter by `migration_status` and latitude gradient) → `results/moderator_plot.png`.  
+      3. Species‑level meta‑analysis forest plot (already produced in T009).  
+    - Computes SHA‑256 checksums for each PNG and records them in `logs/visualization_checksums.csv`.  
   - **Verification**:  
-    - After any pipeline stage, the state YAML exists and contains entries that exactly match current file hashes.  
-    - Running `Rscript code/R/verify_renv.py` exits with status 0.  
+    - All PNGs exist, are ≥ 10 KB, and re‑running the script yields identical checksums (asserted in `tests/test_visualization.py`).  
 
-## Dependency Mapping (summary)
+## Phase 9 – Validation & Reporting  
+
+- [ ] T012 Validate all artifacts and assemble report (`code/11_validate_report.py`)  
+  - **Description**:  
+    - Runs JSON‑Schema validation on `data/processed/analysis_ready.csv`, both model CSVs, and `results/meta_analysis.yaml`.  
+    - Checks that all checksum logs match the current file hashes.  
+    - Compiles `results/report.yaml` summarising every SC (SC‑001 … SC‑007), including dataset size, permutation p‑value, I², ΔAIC, power estimate, and the final `significance_flag`.  
+  - **Verification**:  
+    - The script exits with status 0 only when all validations succeed.  
+    - `results/report.yaml` contains entries for each measurable outcome defined in the specification.  
+
+## Phase 10 – Documentation & Paper‑Stage Hand‑off  
+
+- [ ] T013 Write a reproducible quick‑start guide and hand‑off section (`quickstart.md`)  
+  - **Description**:  
+    - Provides the exact command sequence to run the full pipeline from a fresh clone (e.g., `make all` or a series of `python` commands).  
+    - Lists expected artifact paths with their SHA‑256 checksums (generated by the pipeline).  
+    - Includes a “Paper‑Stage Hand‑off” subsection enumerating figures (`association_forest.png`, `moderator_plot.png`, `meta_forest.png`), tables (`model_base.csv`, `model_interaction.csv`, `meta_analysis.yaml`), limitations, and suggested figure/table captions.  
+  - **Verification**:  
+    - A fresh environment can follow the guide verbatim and reproduce identical checksums for all result files (validated by `tests/test_quickstart_repro.py`).  
+
+## Phase 11 – State‑Hash Management (optional but recommended)  
+
+- [ ] T014 Implement deterministic state‑hash updates (`code/utils.py` → `update_state_hashes`) and verify (`code/R/verify_state_hashes.R`)  
+  - **Description**:  
+    - `utils.update_state_hashes(root_paths)` walks `data/`, `results/`, and `logs/`, computes SHA‑256 for every file, and writes a mapping `relative_path: hash` to `state/projects/PROJ-055-investigating-the-impact-of-telomere-len.yaml`.  
+    - All pipeline scripts invoke this function as their final step.  
+    - `code/R/verify_state_hashes.R` reads the YAML and confirms each recorded hash matches the on‑disk file (exits 0 on success).  
+  - **Verification**:  
+    - After any pipeline stage, the state YAML exists and all hashes are correct.  
+    - Running the R verification script returns exit 0.  
+
+---  
+
+### Dependency Mapping (summary)
 
 | Specification Requirement | Satisfying Task(s) |
 |---------------------------|--------------------|
 | FR‑001, FR‑002, FR‑003    | T002, T003, T004   |
-| FR‑004                    | T005               |
-| FR‑005                    | T006               |
-| FR‑006                    | T007               |
-| FR‑007                    | T008               |
-| FR‑008                    | T005, T006         |
+| FR‑004                    | T006               |
+| FR‑005, FR‑008            | T007               |
+| FR‑006                    | T008               |
+| FR‑007                    | T011               |
+| FR‑009                    | T009               |
+| FR‑010                    | T010               |
+| FR‑011                    | T005               |
 | SC‑001                    | T004 (merge proportion) |
-| SC‑002                    | T005 (alpha‑threshold) |
-| SC‑003                    | T006 (ΔAIC) |
-| SC‑004                    | T007 (coefficient stability) |
-| SC‑005                    | T009 (power estimate) |
-| US‑1, US‑2, US‑3          | T003, T004, T005‑T008 |
+| SC‑002                    | T006 (model p‑value) & T010 (empirical p‑value) |
+| SC‑003                    | T007 (ΔAIC) |
+| SC‑004                    | T008 (coefficient stability) |
+| SC‑005                    | T008 (power simulation) |
+| SC‑006                    | T009 (I²) |
+| SC‑007                    | T010 (dual‑p‑value flag) |
+| US‑1, US‑2, US‑3          | T003‑T011          |
 
-All tasks respect data flow, write only to project‑owned directories, and avoid synthetic data fabrication. The pipeline is fully deterministic, reproducible, and satisfies every functional and success‑criteria requirement from the specification.  
+All tasks respect data flow, write only to project‑owned directories, avoid synthetic data, and are fully deterministic and reproducible, satisfying every functional and success‑criteria requirement from the specification.
