@@ -84,7 +84,7 @@ FileNotFoundError: Model file not found at /home/runner/work/llmXive/llmXive/pro
 
 - python code/report.py -> rc=1
 elation matrix from /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
-2026-10-22 14:24:15,981 - ERROR - Input file missing: Correlation matrix file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
+2026-10-26 16:29:34,578 - ERROR - Input file missing: Correlation matrix file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/report.py", line 230, in <module>
     main()
@@ -129,7 +129,7 @@ ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
 ERROR tests/unit/test_zenodo_client.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 10 errors in 1.20s ==============================
+============================== 10 errors in 1.81s ==============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -147,7 +147,7 @@ ERROR tests/integration/test_data_ingestion.py
 ERROR tests/integration/test_statistical_validation.py
 ERROR tests/integration/test_train_cv.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 3 errors in 1.15s =========================
+========================= 1 warning, 3 errors in 1.61s =========================
 
 
 

@@ -1,9 +1,14 @@
 status: none
-intent: metallic glass glass transition temperature dataset zenodo 10.5281/zenodo.10043838
-  matnvp zenodo 10.5281/zenodo.11023456 materials project python package dataset
+intent: Metallic Glass Database Pauly DOI 10.5281/zenodo.10043838 composition Tg python
+  package dataset
 required_fields:
 - composition
-- Tg
-cache_key: f7d3f5125790ca29bf86bab970d3e92e7d36c32c8fef4a7d0c7ba91e95e5fb93
-searched_at: '2026-10-22T14:24:43.908440+00:00'
+- glass_transition_temperature_Tg
+- atomic_elements
+- atomic_fractions
+- element_properties
+- record_id
+- source_reference
+cache_key: 96a2e1a26187f60f5caad68589fa6bedf0d594090dabd97676a3322cd86358f3
+searched_at: '2026-10-26T16:29:59.384644+00:00'
 retry_count: 1

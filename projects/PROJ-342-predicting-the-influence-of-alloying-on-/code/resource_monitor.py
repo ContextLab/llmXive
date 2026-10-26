@@ -226,11 +226,11 @@ def enforce_resource_limits(
 # ----------------------------------------------------------------------
 # Helper functions for the @limit_resources decorator
 # ----------------------------------------------------------------------
-def _read_limits_from_config() -> tuple[float, float]:
+def _read_limits_from_config() -> tuple:
     """
     Reads runtime (seconds) and memory (MB) limits from ``config.yaml``.
     If the file is missing or malformed, falls back to the defaults
-    (6 h runtime, 7 GB RAM).
+    (6 h runtime, 7 GB RAM).
 
     Returns:
         (cpu_limit_seconds, ram_limit_mb)
@@ -238,7 +238,7 @@ def _read_limits_from_config() -> tuple[float, float]:
     import yaml
 
     default_cpu = 6 * 3600          # 6 hours → seconds
-    default_ram = 7 * 1024          # 7 GB → MB
+    default_ram = 7 * 1024          # 7 GB → MB
 
     config_path = Path(__file__).resolve().parent.parent / "config.yaml"
     if not config_path.is_file():
