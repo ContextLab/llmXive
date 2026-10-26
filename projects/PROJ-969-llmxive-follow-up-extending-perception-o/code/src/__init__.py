@@ -1,1 +1,3 @@
-# Package marker for src submodule
+"""
+Package marker for the `code.src` submodule.
+"""
