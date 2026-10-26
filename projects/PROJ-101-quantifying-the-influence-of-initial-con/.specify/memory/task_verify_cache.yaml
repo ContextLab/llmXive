@@ -1,23 +1,29 @@
+T001:
+  c: false
+  h: c20ce5fceb1a3beb4e0cfad51df003a248c12ed2af9f8cdd49d8e29a558bf070
+  r: "The directory layout and `data/dir_structure.txt` manifest are present and correctly\
+    \ list the nine required directories, but there is no provided evidence of a CI\
+    \ step that runs `tree -L 2` (or an equivalent test) and asserts the manifest\u2019\
+    s contents. Without logs or configuration showing this verification, the task\u2019\
+    s CI\u2011verification requirement is unmet."
+  sig: 6bf8e1b8d90cb6e7ae17a26e9eec3513386bc3192a8ca55d9995380ccda6915c
 T002:
   c: true
-  h: fb57edbdf58397842a74081a564dfd6f8f989b5c754e5b9fecfef64d4d38c8e3
-  r: "Checked the presence and non\u2011empty contents of all required `__init__.py`\
-    \ files (`code/__init__.py`, `code/simulation/__init__.py`, `code/analysis/__init__.py`,\
-    \ `code/utils/__init__.py`, `tests/__init__.py`) and confirmed they allow `import\
-    \ code` without error (the top\u2011level init successfully imports `code/config.py`).\
-    \ The CI test suite ran successfully, indicating the package imports correctly."
-  sig: b745026a8421094a7bd98a03db52fa3c7d5bc7e0ea548bdef7a25340611f96b2
+  h: b5f95542536b92cba98be4d408127626c564d2d9a2dc9ac7f250d2db2a3741ab
+  r: "Checked that all required `__init__.py` files exist, are non\u2011empty, and\
+    \ contain valid Python (e.g., `code/__init__.py` successfully imports `code/config.py`,\
+    \ `code/analysis/__init__.py` imports `code/config.py`, and `code/utils/__init__.py`\
+    \ imports `code/utils/stability.py`). Importing `code` and its sub\u2011packages\
+    \ therefore runs without `ImportError`."
+  sig: c506afbbc3a75aab393945a9a3af2340bbfd390f882c2cfb83b9421d7a986dee
 T003:
-  c: false
-  h: 5820631b5428f2c10a3a02c5fc56cfa60a62a7ff9030b0b8d5078a4ebe8c5e1a
-  r: "The repository contains the required `tests/conftest.py` with a `seed` fixture\
-    \ returning\u202F42, satisfying the fixture definition. However, the mandatory\
-    \ dummy test does not pass: the recorded pytest run (`python -m pytest -v`) exits\
-    \ with an error (`AttributeError: module 'subprocess' has no attribute 'PIPE'`)\
-    \ and the test suite fails, so the verification step (\u201C`pytest -q` passes\
-    \ a dummy test that asserts reproducibility\u2026\u201D) is not met. The task\
-    \ therefore remains incomplete."
-  sig: b696b4247b930bc4650b300438aa817a1cd14048355de7d3252b69f951beb476
+  c: true
+  h: dbb79e817d555a0d388fc71a3250c22c795e82144fd8f55b01e00b9f31c84786
+  r: "The `tests/conftest.py` file (359\u202Fbytes) provides a `seed` fixture returning\
+    \ 42 and relies on pytest\u2019s built\u2011in `tmp_path` fixture, and the recorded\
+    \ pytest run (`code/.tasks/T003.tests_unit_test_dummy_seed.py.log`) shows the\
+    \ dummy test passed, confirming the configuration works as specified."
+  sig: 0f8cfc5fbca354a188d8c42d2155c68f4c2c301713c98631087ccaa803b2ad30
 T004:
   c: true
   h: 448966be75a5f851bd7d7977bb98bf666d9c5ad1cfc8a801489abf29c7d056ef
@@ -38,16 +44,16 @@ T005:
   sig: d4a63908eae610f563f1a943ce80e9e51080d8675f640c04b75b12cb4e6c6fab
 T006:
   c: false
-  h: 29ca2de01b7e2994d850b7347467df7561c042c8fba614aba3d4288d287c74b9
-  r: "The `data/generator.py` compatibility layer provides the required symbols, but\
-    \ its `integrate_trajectory` function never checks the state norm after integration.\
-    \ Consequently the unit tests `test_unphysical_trajectory_error_high_sigma` and\
-    \ `test_unphysical_trajectory_error_divergence` (which expect an `UnphysicalTrajectoryError`\
-    \ for \u03C3\u202F=\u202F1.5 and for extreme initial conditions) will fail, because\
-    \ the function only emits a warning for high noise and does not invoke the unphysical\u2011\
-    trajectory guard. The task\u2019s requirement to raise `UnphysicalTrajectoryError`\
-    \ when any state norm exceeds\u202F20.0 is ther"
-  sig: 14cd32ae3029a1f3e09d496b918b61c301fd13806ee1f6a8d523c1da75467817
+  h: 8a82f941de4e268e4436af1310d6cfc5ad40c9fc245109fa40c83d6796ffb6fb
+  r: "The required file `code/simulation/generator.py` exists and implements the Lorenz\
+    \ ODE, DOP853 integration, noise injection, `HighNoiseWarning`, and `UnphysicalTrajectoryError`.\
+    \ However, the supplied unit tests (`tests/unit/test_generator.py`) import and\
+    \ test `code/data/generator.py` and the function `generate_coupled_lorenz_trajectory`,\
+    \ not the implementation in `code/simulation/generator.py`. Consequently the verification\
+    \ tests do not exercise the mandated artifact, and the API name differs (`generate_trajectory`\
+    \ vs `generate_coupled_lorenz_trajectory`). The task\u2019s verification criteria\
+    \ are t"
+  sig: 4d8bc528409dfde0bf2a29b93e8711e3c69896c8a0484088af3f292c8452d0f3
 T007:
   c: false
   h: 7a0e64bad23b46c45194e0e053773de6dafc9e1d3eb541a664e1b72d4078e79c

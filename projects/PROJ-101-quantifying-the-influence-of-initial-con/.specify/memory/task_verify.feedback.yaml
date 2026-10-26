@@ -1,44 +1,30 @@
 T001:
-  reason: "The `data/dir_structure.txt` manifest exists and lists the nine required\
-    \ directories, but the CI integration test that runs `tree -L 2` fails \u2013\
-    \ it does not detect the `code/simulation` directory in the tree output, causing\
-    \ the verification step to error. The task requires both the manifest check **and**\
-    \ the successful `tree` verification, so the CI step is not satisfied. Fix the\
-    \ `tree` command or directory layout so that all nine directories appear in the\
-    \ `tree -L 2` output."
+  reason: "The directory layout and `data/dir_structure.txt` manifest are present\
+    \ and correctly list the nine required directories, but there is no provided evidence\
+    \ of a CI step that runs `tree -L 2` (or an equivalent test) and asserts the manifest\u2019\
+    s contents. Without logs or configuration showing this verification, the task\u2019\
+    s CI\u2011verification requirement is unmet."
   task: 3520514e19e8eb221709f8798732ba9719a0767267bb664d29ac547ec5b193f5
 T002:
   task: 7a290371e3e1f2ce97af8f2c95846c4552e8cb41b76c7f793bf14a6eaccc8def
 T003:
-  reason: "The repository contains the required `tests/conftest.py` with a `seed`\
-    \ fixture returning\u202F42, satisfying the fixture definition. However, the mandatory\
-    \ dummy test does not pass: the recorded pytest run (`python -m pytest -v`) exits\
-    \ with an error (`AttributeError: module 'subprocess' has no attribute 'PIPE'`)\
-    \ and the test suite fails, so the verification step (\u201C`pytest -q` passes\
-    \ a dummy test that asserts reproducibility\u2026\u201D) is not met. The task\
-    \ therefore remains incomplete."
   task: 272c6245d1313982afc48c391fa78b48bd8694e525ed0bc4200485ef934bcaf7
 T004:
   task: 83f6fd4d0168d18c9bd7ab5dc0e16858ed3c564610f0b5c196337c096e131e2c
 T005:
   task: ef60dd57ac9cb16673ca619a6b20855c6ab101b217734fdde963dbcc16c2aa74
 T006:
-  reason: "The `data/generator.py` compatibility layer provides the required symbols,\
-    \ but its `integrate_trajectory` function never checks the state norm after integration.\
-    \ Consequently the unit tests `test_unphysical_trajectory_error_high_sigma` and\
-    \ `test_unphysical_trajectory_error_divergence` (which expect an `UnphysicalTrajectoryError`\
-    \ for \u03C3\u202F=\u202F1.5 and for extreme initial conditions) will fail, because\
-    \ the function only emits a warning for high noise and does not invoke the unphysical\u2011\
-    trajectory guard. The task\u2019s requirement to raise `UnphysicalTrajectoryError`\
-    \ when any state norm exceeds\u202F20.0 is ther"
+  reason: "The required file `code/simulation/generator.py` exists and implements\
+    \ the Lorenz ODE, DOP853 integration, noise injection, `HighNoiseWarning`, and\
+    \ `UnphysicalTrajectoryError`. However, the supplied unit tests (`tests/unit/test_generator.py`)\
+    \ import and test `code/data/generator.py` and the function `generate_coupled_lorenz_trajectory`,\
+    \ not the implementation in `code/simulation/generator.py`. Consequently the verification\
+    \ tests do not exercise the mandated artifact, and the API name differs (`generate_trajectory`\
+    \ vs `generate_coupled_lorenz_trajectory`). The task\u2019s verification criteria\
+    \ are t"
   task: e9a3270e2311c8daca9a3887829377b151a4a377a95985475220bf9d1d158a87
 T007:
-  reason: "Checked `code/utils/stability.py` (contains `raise_if_unphysical` and `check_noise_level`)\
-    \ and `code/simulation/generator.py` (imports the guards and calls them after\
-    \ integration and for noise). While the code wiring is present, there is no provided\
-    \ evidence that the required unit tests (the same as T006) were executed and passed,\
-    \ nor any test files showing the guards being exercised. Without test execution\
-    \ results, the task\u2019s verification condition is unmet."
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
   task: 8c8dda46801d6ca9cd85afc69c7bc11d6ec2cde22fccf0d278512a8532967dc9
 T008:
   task: 42a6629d18bb30d34b535bed13f7e9f66915249ac0d096ecda68c4af17a53836
