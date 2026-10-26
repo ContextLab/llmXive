@@ -1,36 +1,3 @@
-- artifact_hash: 6fff49b0126efd9df362260ef0dc86bc110a8cfcfb3d9e05ab4e0a068191f340
-  artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://zenodo.org/record/3966973/files/gwtc1.h5`
-  verification_status: mismatch
-  verified_against_url: https://zenodo.org/records/3966973/files/gwtc1.h5
-  verified_at: '2026-10-21T05:15:42.855589Z'
-- artifact_hash: 6fff49b0126efd9df362260ef0dc86bc110a8cfcfb3d9e05ab4e0a068191f340
-  artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://zenodo.org/record/3966974/files/gwtc2.h5`
-  verification_status: mismatch
-  verified_against_url: https://zenodo.org/records/3966974/files/gwtc2.h5
-  verified_at: '2026-10-21T05:15:42.855589Z'
-- artifact_hash: 6fff49b0126efd9df362260ef0dc86bc110a8cfcfb3d9e05ab4e0a068191f340
-  artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.9999999
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.9999999
-  verified_at: '2026-10-21T05:15:42.855589Z'
 - artifact_hash: 3b28ca332fb365e993719cd65ea31ab2af2d5d0f5e3b6189a22dcfa4a0fc9a21
   artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/spec.md
   cite_id: c-001
@@ -108,3 +75,25 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966974
   verified_at: '2026-10-25T02:39:46.974025Z'
+- artifact_hash: 6472e24cb338caeb5c1502aaa50e2b95a37de15630a8a34774e5fbf677a23db7
+  artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.3966973
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966973
+  verified_at: '2026-10-26T15:17:23.134106Z'
+- artifact_hash: 6472e24cb338caeb5c1502aaa50e2b95a37de15630a8a34774e5fbf677a23db7
+  artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.3966974
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966974
+  verified_at: '2026-10-26T15:17:23.134106Z'
