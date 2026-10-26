@@ -2,8 +2,6 @@ $schema: "http://json-schema.org/draft-07/schema#"
 title: "Semantic Decay Retrieval Evaluation Report"
 type: object
 required:
-  - optimal_alpha
-  - optimal_beta
   - optimal_lambda
   - validation_accuracy
   - long_term
@@ -14,24 +12,14 @@ required:
   - mcnemar_test
   - flags
 properties:
-  optimal_alpha:
-    type: number
-    description: "Semantic similarity weight α selected by joint grid‑search (Phase 3)."
-    minimum: 0.0
-    exclusiveMaximum: 1.0
-  optimal_beta:
-    type: number
-    description: "Temporal decay weight β selected by joint grid‑search (Phase 3)."
-    minimum: 0.0
-    exclusiveMaximum: 1.0
   optimal_lambda:
     type: number
-    description: "Decay rate λ selected by joint grid‑search (Phase 3, FR‑001, FR‑015)."
+    description: "Decay rate λ selected by deterministic grid search (Phase 3, FR‑001)."
     minimum: 0.0
     exclusiveMaximum: 10.0
   validation_accuracy:
     type: number
-    description: "Top-k accuracy on the validation set using the optimal (α, β, λ) triple."
+    description: "Top‑1 accuracy on the 50‑query validation set using the optimal λ."
     minimum: 0.0
     maximum: 1.0
   long_term:
@@ -71,7 +59,7 @@ properties:
     properties:
       accuracy_top1:
         type: number
-        description: "Overall Top‑k accuracy across all queries."
+        description: "Overall Top‑1 accuracy across all queries."
         minimum: 0.0
         maximum: 1.0
   latency:
@@ -83,7 +71,7 @@ properties:
     properties:
       max_ms:
         type: number
-        description: "Maximum inference latency observed (must be ≤ 200 ms, SC‑003)."
+        description: "Maximum inference latency observed (must be ≤ 200 ms, SC‑003)."
         minimum: 0.0
       mean_ms:
         type: number
@@ -124,7 +112,7 @@ properties:
         description: "McNemar's test chi‑square statistic."
       p_value:
         type: number
-        description: "p‑value from McNemar's test (SC‑002); success if p < 0.05."
+        description: "p‑value from McNemar's test (SC‑002); success if p < 0.05."
         minimum: 0.0
         maximum: 1.0
       significant:

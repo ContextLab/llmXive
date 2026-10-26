@@ -1,14 +1,14 @@
 status: none
-intent: Ego4D dataset metadata timestamps event IDs visual audio embeddings python
-  package dataset
+intent: Ego4D dataset download with EgoD video-MAE L embeddings and metadata python
+  package
 required_fields:
+- video_id
 - timestamp
 - event_id
-- video_id
-- modality
 - embedding_vector
-- embedding_dim
-- frame_rate
-cache_key: bbecef112994f72dade8b93f9fb89cbcdc9326c2021c72ae5e15257955a75a2f
-searched_at: '2026-10-26T04:23:02.979044+00:00'
+- modality
+- query_id
+- ground_truth_event_id
+cache_key: ee105f16fd00f7b28af4662822874370c440c9dcfb82b282cb770e4663ea900b
+searched_at: '2026-10-26T04:26:38.738548+00:00'
 retry_count: 1
