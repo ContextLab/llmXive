@@ -14,14 +14,20 @@ pip install -r requirements.txt
 
 ## 2. Supply real data (required before any results)
 
-Place a real measurements file at `data/raw/diffusion_measurements.csv` matching
-`contracts/dataset.schema.yaml` (columns: `sample_id`, `composition`,
-`processing_params`, `temperature`, `diffusion_coefficient`; diffusion
-coefficients in any documented unit — harmonized to m²/s by the pipeline).
+**Option A – Use an open dataset (if one becomes available)**  
+If a verified open dataset satisfying the required columns is added to the project configuration (`config/open_dataset_url`), the pipeline will automatically download it. No manual step is needed.
 
-**Note**: no verified open download for hydrogen‑diffusion data currently
-exists (see research.md). If the file is absent, the pipeline exits non‑zero
-with an explicit data‑availability message rather than fabricating data.
+**Option B – Manual entry (current default)**  
+1. Locate the CSV template at `data/raw/hydrogen_diffusion_template.csv`.  
+2. **Fill** the required columns **`sample_id`, `composition`, `composition_fractions` (optional), `processing_params`, `temperature`, `diffusion_coefficient`**.  
+3. For each row, add a **comment** line **above** the row (starting with `#`) that records the source reference (DOI, URL, or full citation). Example:  
+   ```csv
+   # Source: DOI:10.1016/j.jmst.2022.03.015
+   sample_001,["Fe","Cr"],,{"anneal_temp":800,"cool_rate":5},900,1.2e-9
+   ```  
+4. Save the completed file as `data/raw/diffusion_measurements.csv`. The pipeline will verify the file against `contracts/dataset.schema.yaml`, compute its SHA‑256 checksum (recorded in `data/checksums.sha256`), and abort with an explicit error if the file is missing or malformed.
+
+**Note**: The raw **temperature** column is **kept** as a predictor for the XGBoost and Random Forest models (as required by FR‑008), while the linear baseline will use only the reciprocal temperature (`inv_temperature`). This respects the collinearity handling described in the plan.
 
 ## 3. Run the full pipeline
 
@@ -34,9 +40,7 @@ python -m src.cli.run_pipeline \
     --bayes_time_h 2
 ```
 
-Orchestrates ingestion → nested training → baseline comparison → SHAP
-interactions → external hold‑out → bootstrap → power analysis. Logs go to
-`logs/`. RAM/wall‑clock guards trigger the documented fallbacks (FR‑006).
+The pipeline orchestrates ingestion (including raw temperature as a predictor for the non‑linear models and the reciprocal temperature for all models), nested cross‑validation with Bayesian optimization, model evaluation, SHAP interaction analysis, bootstrap robustness checks, and power analysis. Results are written to `data/results/` and figures to `figures/`.
 
 ## 4. Inspect results
 

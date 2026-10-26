@@ -1,15 +1,16 @@
 status: none
-intent: download hydrogen diffusion coefficients NIST Standard Reference Database
-  python package dataset
+intent: hydrogen diffusion coefficient dataset materials composition NIST Standard
+  Reference Database Materials Project descriptors python package dataset
 required_fields:
-- material_composition
-- processing_history
-- measurement_temperature
 - diffusion_coefficient
-- mean_electronegativity
+- temperature
+- composition
+- processing_parameters
+- electronegativity_mean
 - atomic_radius_variance
-- free_volume_proxy
-- grain_boundary_density
-cache_key: a414eeed77891a6d5791c8df694f59b011646bc66ad46f3b35b61c007bbef5d1
-searched_at: '2026-10-18T14:44:54.596434+00:00'
+- microstructural_proxy1
+- microstructural_proxy2
+- unit
+cache_key: 21f2e73a9ee2231ac3395a8fb44a68b79d18dc0d8b66e7c91be3c9d314c34656
+searched_at: '2026-10-26T15:16:15.369092+00:00'
 retry_count: 1

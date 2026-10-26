@@ -2,7 +2,11 @@ $schema: "https://json-schema.org/draft/2020-12/schema"
 title: "Power Analysis Schema"
 description: "Post‑hoc power analysis record for interaction effect detection (FR‑009)."
 type: object
-required: [effect_size_f2, alpha, n_samples, ci_width_top_feature]
+required:
+  - effect_size_f2
+  - alpha
+  - n_samples
+  - ci_width_top_feature
 properties:
   effect_size_f2:
     type: number

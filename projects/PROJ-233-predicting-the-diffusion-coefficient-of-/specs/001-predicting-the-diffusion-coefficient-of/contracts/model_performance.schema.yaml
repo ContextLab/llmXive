@@ -5,7 +5,12 @@ type: object
 properties:
   model_performance:
     type: object
-    required: [model_type, outer_fold, rmse_log10, r2_log10, hyperparameters]
+    required:
+      - model_type
+      - outer_fold
+      - rmse_log10
+      - r2_log10
+      - hyperparameters
     properties:
       model_type:
         type: string
@@ -20,32 +25,56 @@ properties:
         type: number
       hyperparameters:
         type: object
-        additionalProperties: { type: number }
+        additionalProperties:
+          type: number
   interaction_term:
     type: object
-    required: [descriptor_a, descriptor_b, mean_abs_shap_interaction, ci_lower, ci_upper, delta_r2_ablation]
+    required:
+      - descriptor_a
+      - descriptor_b
+      - mean_abs_shap_interaction
+      - ci_lower
+      - ci_upper
+      - delta_r2_ablation
     properties:
-      descriptor_a: { type: string }
-      descriptor_b: { type: string }
-      mean_abs_shap_interaction: { type: number }
-      ci_lower: { type: number }
-      ci_upper: { type: number }
-      delta_r2_ablation: { type: number }
+      descriptor_a:
+        type: string
+      descriptor_b:
+        type: string
+      mean_abs_shap_interaction:
+        type: number
+      ci_lower:
+        type: number
+      ci_upper:
+        type: number
+      delta_r2_ablation:
+        type: number
   bootstrap_result:
     type: object
-    required: [iteration, feature_importances, outer_r2]
+    required:
+      - iteration
+      - feature_importances
+      - outer_r2
     properties:
-      iteration: { type: integer }
+      iteration:
+        type: integer
       feature_importances:
         type: object
-        additionalProperties: { type: number }
-      outer_r2: { type: number }
+        additionalProperties:
+          type: number
+      outer_r2:
+        type: number
   external_validation:
     type: object
-    required: [rmse_log10, r2_log10, interaction_variance_share]
+    required:
+      - rmse_log10
+      - r2_log10
+      - interaction_variance_share
     properties:
-      rmse_log10: { type: number }
-      r2_log10: { type: number }
+      rmse_log10:
+        type: number
+      r2_log10:
+        type: number
       interaction_variance_share:
         type: number
         minimum: 0
