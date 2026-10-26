@@ -40,7 +40,7 @@
 | `metric_a` | string | Name of the topology descriptor (e.g., `spectral_gap`). |
 | `metric_b` | string | Name of the performance metric (e.g., `t1_mean`). |
 | `rho` | number | Spearman correlation coefficient. |
-| `p_value` | number | Raw p‑value. |
+| `p_value` | number | Raw p‑value for the correlation test. |
 | `adj_p_value` | number | BH‑FDR adjusted p‑value. |
 | `partial_rho` | number (optional) | Partial correlation controlling for covariates. |
 | `window_delta` | number (optional) | Difference `ρ_window − ρ_cross` (SC‑004). |

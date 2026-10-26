@@ -42,7 +42,7 @@ The orchestrator executes the steps **in order**:
 |------|-------------|
 | `data/raw/*.json` | Raw JSON calibration snapshots (current + historical). |
 | `data/processed/performance_metrics.csv` | Median performance metrics per device (`source_window="current"`). |
-| `data/processed/performance_window_metrics.csv` | 30‑day averaged performance metrics (`source_window="window"`). |
+| `data/processed/performance_window_metrics.csv` | Time‑averaged performance metrics (`source_window="window"`). |
 | `data/processed/graph_metrics.csv` | Topological descriptors per device. |
 | `data/processed/correlation_results.csv` | Spearman/partial correlation results (schema: `contracts/correlation_results.schema.yaml`). |
 | `data/processed/window_comparison.csv` | Cross‑sectional vs. window ρ and `window_delta` (SC‑004). |

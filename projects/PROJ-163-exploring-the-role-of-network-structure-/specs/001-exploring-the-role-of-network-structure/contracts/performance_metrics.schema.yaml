@@ -1,9 +1,9 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: PerformanceMetrics
+title: "PerformanceMetrics"
 description: |
   CSV rows representing aggregated performance metrics for a single IBM Quantum backend.
   All numeric fields must be finite numbers; timestamps are ISO‑8601 strings.
-type: object
+type: "object"
 required:
   - device_id
   - timestamp
@@ -19,7 +19,7 @@ properties:
     description: "Backend identifier (e.g., ibmq_manila)."
   timestamp:
     type: "string"
-    format: date-time
+    format: "date-time"
     description: "ISO‑8601 timestamp when the snapshot was taken (for window rows this is the window‑end date)."
   t1_mean:
     type: "number"

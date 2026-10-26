@@ -1,7 +1,7 @@
 # Research: Exploring the Role of Network Structure in Superconducting Qubit Coupling
 
 ## Problem Statement
-We examine whether the **topological structure** of superconducting quantum‑processor coupling maps is **associated** with key performance metrics (T₁, T₂, CX gate error, readout error, entanglement fidelity). The study is strictly correlational; no causal claims are made. Because the publicly available IBM back‑ends number fewer than 30, we acknowledge that the achievable statistical power is limited, and the analysis will be treated as **exploratory** with transparent power reporting.
+We examine whether the **topological structure** of superconducting quantum‑processor coupling maps is **associated** with key performance metrics (median T₁, T₂, CX gate error, readout error, entanglement fidelity). The study is strictly correlational; no causal claims are made. Because the publicly available IBM back‑ends number fewer than 30, we acknowledge limited statistical power and treat the analysis as **exploratory**, with transparent power reporting.
 
 ## Dataset Strategy
 
@@ -29,17 +29,17 @@ We examine whether the **topological structure** of superconducting quantum‑pr
 1. Build an undirected `networkx.Graph` from each `coupling_map`.  
 2. Annotate edges with `edge_type` (`active`/`inactive`) for tunable‑coupler devices (FR‑007).  
 3. Compute: average shortest‑path length, diameter, global clustering coefficient, mean edge betweenness, **degree assortativity**, **spectral gap** (FR‑013).  
-4. For disconnected graphs, path‑length metrics are computed on the largest component; spectral gap is set to 0 (C‑002).  
+4. For disconnected graphs, path‑length metrics are computed on the largest component; spectral gap = 0 (C‑002).  
 5. Export `graph_metrics.csv`.
 
 ### 3. Timestamp Guard
 Before any statistical merging, verify that the topology snapshot timestamp and the performance snapshot timestamp for each device differ by **≤ 1 hour**. If any pair exceeds this bound, raise a `RuntimeError` and abort (FR‑005). This guarantees true simultaneity of the cross‑sectional data.
 
 ### 4. Primary Statistical Analysis
-- **Spearman Correlation**: Compute ρ for each topology‑performance pair.  
-- **Cluster‑Robust Variance**: Use `statsmodels.stats.sandwich_covariance.cov_cluster` clustering on `chip_generation` (FR‑015).  
-- **Permutation Test**: If N < 30, use 10 000 permutations to obtain p‑values and 95 % CI; otherwise use exact Spearman p‑value.  
-- **Partial Correlation**: Control for `chip_generation`, `qubit_count`, `device_age_days`, `readout_architecture`, `timestamp` via `pingouin.partial_corr` (FR‑011).  
+- **Spearman Correlation**: Compute ρ for each topology‑performance pair, applying a **cluster‑robust variance estimator** that clusters on `chip_generation` (FR‑015).  
+- **Linear Regression**: Fit a separate heteroscedasticity‑robust linear regression model for each topology‑performance pair, reporting β coefficients with 95 % confidence intervals (fulfills FR‑008).  
+- **Partial Correlation**: Control for `chip_generation`, `qubit_count`, `device_age_days`, `readout_architecture`, and `timestamp` via `pingouin.partial_corr` (FR‑011).  
+- **Permutation Test**: If N < 30, use 10 000 permutations to obtain p‑values and 95 % CI; otherwise use the exact Spearman p‑value.  
 - **Multiple‑Comparison Correction**: Benjamini‑Hochberg FDR (α = 0.05) (SC‑003).  
 - Output stored in `correlation_results.csv` (schema `contracts/correlation_results.schema.yaml`).
 
@@ -47,12 +47,13 @@ Before any statistical merging, verify that the topology snapshot timestamp and 
 - **LODO**: Re‑run the correlation analysis leaving out each device; store per‑fold ρ values.  
 - **Chip‑Family Exclusion**: Repeat after removing each chip generation.  
 - **30‑Day Window**: Re‑run using `"window"` rows; compute `window_delta = ρ_window − ρ_cross` and verify it lies within ±0.05 (SC‑004).  
-- Store `cross_sectional_rho`, `window_rho`, and `window_delta` in `window_comparison.csv` (FR‑014).  
+- Store `cross_sectional_rho`, `window_rho`, `window_delta` in `window_comparison.csv` (contract `window_comparison.schema.yaml`).  
 - **Success‑Metric (FR‑017)**: Compute the proportion of devices with cluster‑adjusted p ≤ 0.05 and record in `correlation_results.csv` (`prop_significant`).  
 
 ### 6. Power / MDES Analysis
-- Compute the Minimum Detectable Effect Size for Spearman ρ at **80 % power**, α = 0.05 (FR‑010).  
-- **Exploratory Flag**: Because the available device count (< 30) yields **< 60 % power** for detecting ρ = 0.3, the MDES will exceed 0.3. The pipeline automatically labels the study **exploratory**, refrains from declaring statistical significance, and reports only effect‑size estimates with permutation‑based confidence intervals (SC‑007).  
+- Perform an **a‑priori power analysis** targeting **≥ 60 % power** to detect a Spearman ρ = 0.3 (FR‑010).  
+- Compute the **Minimum Detectable Effect Size** (MDES) for this power target.  
+- **Exploratory Flag**: If achieved power < 60 % (expected with < 30 devices), label the study exploratory, refrain from claiming statistical significance, and report only effect‑size estimates with permutation‑based confidence intervals (SC‑007).  
 - Results saved as `power_analysis.csv` (schema `contracts/mdes_report.schema.yaml`).
 
 ### 7. Visualization & Reporting
@@ -65,7 +66,7 @@ Before any statistical merging, verify that the topology snapshot timestamp and 
 ## Statistical Rigor & Assumptions
 - **Multiple Comparisons**: BH‑FDR applied across all metric pairs.  
 - **Power**: MDES calculation; exploratory flag enforced when power < 60 %.  
-- **Collinearity**: Partial correlation mitigates inflated univariate claims; graph metrics are known to be inter‑related, so we avoid interpreting coefficients as independent effects.  
+- **Collinearity**: Partial correlation mitigates inflated univariate claims; graph metrics are inter‑related, so we avoid interpreting β coefficients as independent effects.  
 - **Measurement Validity**: IBM‑reported T₁/T₂, gate/readout errors, and entanglement fidelity are industry‑standard. Graph metrics are canonical network‑science descriptors with theoretical links to device performance (e.g., spectral gap ↔ circuit depth).  
 - **Causal Framing**: All statements are explicitly associational.
 
@@ -76,3 +77,6 @@ Before any statistical merging, verify that the topology snapshot timestamp and 
 - No GPU resources are required.
 
 ---
+
+
+
