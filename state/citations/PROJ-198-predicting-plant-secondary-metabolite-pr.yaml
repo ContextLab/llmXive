@@ -9,36 +9,25 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/PROJ-198-predicting-plant-secondary-metabolite-pr
   verified_at: '2026-09-18T04:36:44.156708Z'
-- artifact_hash: e49980026e5355c1f602d56690dbd9de2bce4106424d01be4ef2f1c2120e87c8
+- artifact_hash: cf0735157b9a3c1feb5684c4b23effe3e9c58e7ff4519e18873db57af767c1b4
   artifact_path: projects/PROJ-198-predicting-plant-secondary-metabolite-pr/specs/001-predicting-plant-secondary-metabolite-pr/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: information.jsp
   kind: url
-  value: https://knap-sac.org/download/knapsack.csv`
-  verification_status: unreachable
-  verified_against_url: https://knap-sac.org/download/knapsack.csv
-  verified_at: '2026-10-19T01:39:50.178157Z'
-- artifact_hash: e49980026e5355c1f602d56690dbd9de2bce4106424d01be4ef2f1c2120e87c8
+  value: http://www.knapsackfamily.com/knapsack_jsp/information.jsp
+  verification_status: pending
+  verified_against_url: https://www.knapsackfamily.com/knapsack_core/information.php
+  verified_at: '2026-10-26T10:49:32.852313Z'
+- artifact_hash: cf0735157b9a3c1feb5684c4b23effe3e9c58e7ff4519e18873db57af767c1b4
   artifact_path: projects/PROJ-198-predicting-plant-secondary-metabolite-pr/specs/001-predicting-plant-secondary-metabolite-pr/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://files.opentreeoflife.org/1kp_plant_tree.nwk`
-  verification_status: mismatch
-  verified_against_url: https://files.opentreeoflife.org/1kp_plant_tree.nwk
-  verified_at: '2026-10-19T01:39:50.178157Z'
-- artifact_hash: e49980026e5355c1f602d56690dbd9de2bce4106424d01be4ef2f1c2120e87c8
-  artifact_path: projects/PROJ-198-predicting-plant-secondary-metabolite-pr/specs/001-predicting-plant-secondary-metabolite-pr/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://dl.secondarymetabolites.org/mibig/mibig_3.0.json`
-  verification_status: mismatch
-  verified_against_url: https://dl.secondarymetabolites.org/mibig/mibig_3.0.json
-  verified_at: '2026-10-19T01:39:50.178157Z'
+  value: https://www.try-db.org/
+  verification_status: pending
+  verified_against_url: https://www.try-db.org/
+  verified_at: '2026-10-26T10:49:32.852313Z'

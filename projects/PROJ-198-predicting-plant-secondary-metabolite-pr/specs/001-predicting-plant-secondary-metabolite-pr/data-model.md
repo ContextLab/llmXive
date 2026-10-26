@@ -10,12 +10,13 @@ Defines the entities, transformations, and JSON schemas that govern every artifa
 | **Species** | `species_name` (str), `phylogenetic_clade` (str), `genome_status` (str), `metabolome_status` (str), `genome_size_mb` (float) | Metadata for each plant; used for filtering and stratification. |
 | **BGCFeature** | `species_name` (str), `bgc_type` (str), `count` (int), `presence` (bool), `mapping_source` (str) | One row per BGC type per species; counts derived from antiSMASH JSON. |
 | **MetaboliteTarget** | `species_name` (str), `inchikey` (str), `abundance_raw` (float), `abundance_log` (float), `compound_class` (str) | Harmonized metabolite data; log‑transformed for modeling. |
-| **AlignedRecord** | `species_id` (str), `clade` (str), `bgc_features` (dict\<bgc_type → int\>), `metabolite_targets` (dict\<InChIKey → float\>) | Single row of the final feature‑target matrix (output of alignment). |
-| **ModelOutput** | `model_type` (str), `r_squared` (float), `pearson_r` (float), `p_value` (float), `feature_importance` (dict), `cross_val_scores` (list\<float\>), `cv_method` (str) | Results from each regression model, ready for SSoT. |
+| **Covariate** | `species_name` (str), `ecological_niche` (str, optional), `tissue_type` (str, optional), `growth_habit` (str, optional) | Additional non‑phylogenetic covariates retrieved from the TRY Plant Trait Database. |
+| **AlignedRecord** | `species_id` (str), `clade` (str), `bgc_features` (dict\<bgc_type → int\>), `metabolite_targets` (dict\<InChIKey → float\>), `covariates` (dict\<cov_name → value\>) | Single row of the final feature‑target matrix (output of alignment). |
+| **ModelOutput** | `model_type` (str), `r_squared` (float), `pearson_r` (float), `p_value` (float), `feature_importance` (dict\<feature → score\>), `cross_val_scores` (list\<float\>), `cv_method` (str) | Results from each regression model, ready for SSoT. |
 
 ## Data Flow Diagram
-1. **Raw Input** – FASTA/GFF (genomes) + CSV/TSV (metabolites).  
-2. **Intermediate** – `bgc_predictions.json`, `metabolite_harmonized.csv`, `tree_pruned.nwk`.  
+1. **Raw Input** – FASTA/GFF (genomes) + CSV/TSV (metabolites) + TSV (covariates).  
+2. **Intermediate** – `bgc_predictions.json`, `metabolite_harmonized.csv`, `covariates.tsv`, `tree_pruned.nwk`.  
 3. **Processed** – `aligned_matrix.csv` (conforms to `aligned_dataset.schema.yaml`).  
 4. **Final** – `model_metrics.json` (conforms to `model_output.schema.yaml`).  
 
@@ -31,3 +32,4 @@ Defines the entities, transformations, and JSON schemas that govern every artifa
 - `contracts/model_output.schema.yaml` – validates each model’s result object.  
 
 ---
+

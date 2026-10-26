@@ -1,18 +1,17 @@
 status: none
-intent: NCBI RefSeq plant genomes KNApSAcK metabolite profiles MIBiG 3.0 ontology
-  python package dataset
+intent: download plant genomic assemblies NCBI RefSeq Phytozome and KNApSAcK metabolite
+  data python package dataset
 required_fields:
-- species_scientific_name
+- species_name
 - genome_assembly_accession
-- genome_fasta_url
+- genome_assembly_fasta_url
 - gff_annotation_url
-- bgc_type
-- bgc_presence_binary
-- bgc_count
+- bgc_type_presence
+- bgc_type_count
 - metabolite_inchikey
-- metabolite_name
+- metabolite_log_abundance
 - metabolite_class
-- log_transformed_abundance
-cache_key: 1bc76e9be9d02370506bca6cc35fe8eb4b4747a910373b48affa29ff8fedff4c
-searched_at: '2026-10-26T10:25:11.361088+00:00'
+- bgc_to_metabolite_class_mapping
+cache_key: dcf007747fd5e382973789373fe6e3c5b5e6314dc8e535cf86dc18414fec1ac7
+searched_at: '2026-10-26T10:44:49.365604+00:00'
 retry_count: 1
