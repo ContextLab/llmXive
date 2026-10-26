@@ -7,19 +7,19 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_data.py --repo-list code/repo_list.txt --output data/raw/ -> rc=1
-1:14:23,142 INFO httpx: HTTP Request: GET https://api.github.com/repos/octocat/Hello-World/pulls?state=closed&per_page=100&page=1 "HTTP/1.1 403 rate limit exceeded"
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-411-evaluating-the-impact-of-code-generation/code/download_data.py", line 377, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-411-evaluating-the-impact-of-code-generation/code/download_data.py", line 268, in main
-    prs = fetch_all_prs(client, owner, repo)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-411-evaluating-the-impact-of-code-generation/code/download_data.py", line 191, in fetch_all_prs
-    data, resp = _github_get(client, url, params=params)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-411-evaluating-the-impact-of-code-generation/code/download_data.py", line 158, in _github_get
-    raise RuntimeError(f"Exceeded max retries for {url} (status {resp.status_code})")
-RuntimeError: Exceeded max retries for https://api.github.com/repos/octocat/Hello-World/pulls (status 403)
+eneration/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1645, in get_hf_file_metadata
+    r = _request_wrapper(
+        ^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-411-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 372, in _request_wrapper
+    response = _request_wrapper(
+               ^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-411-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 396, in _request_wrapper
+    hf_raise_for_status(response)
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-411-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/huggingface_hub/utils/_errors.py", line 315, in hf_raise_for_status
+    raise EntryNotFoundError(message, response) from e
+huggingface_hub.utils._errors.EntryNotFoundError: 404 Client Error. (Request ID: Root=1-6adf6b38-788b07336f35df7847a3f6a6;3e5e711e-0c3d-41b9-a4e8-3dcc970804a0)
+
+Entry Not Found for url: https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/prs-v2-sample.parquet.
 
 - python code/classify_provenance.py  --input data/raw/combined_prs.json  --output data/processed/classified_prs.csv -> rc=1
 
