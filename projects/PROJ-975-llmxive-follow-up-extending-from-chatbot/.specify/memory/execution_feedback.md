@@ -24,7 +24,7 @@ tests/contract/test_schemas.py:84: Failed
 =========================== short test summary info ============================
 FAILED tests/contract/test_schemas.py::test_real_tasks_schema_compliance - Fa...
 FAILED tests/contract/test_schemas.py::test_real_skills_schema_compliance - F...
-========================= 2 failed, 3 passed in 1.58s ==========================
+========================= 2 failed, 3 passed in 1.62s ==========================
 
 
 - python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning on off  --seed 42  --randomize-tasks -> rc=1
@@ -56,7 +56,7 @@ rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
 collected 5 items / 5 deselected / 0 selected
 
-============================ 5 deselected in 0.64s =============================
+============================ 5 deselected in 0.66s =============================
 
 
 

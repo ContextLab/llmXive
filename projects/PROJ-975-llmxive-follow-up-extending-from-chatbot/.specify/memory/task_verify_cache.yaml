@@ -19,14 +19,14 @@ T002:
   sig: f1c6403bd013c14e7fc462c48257d298c2189249e5511c0e2ce352ae25830641
 T003:
   c: true
-  h: e8803259ae9c91d27cb805f615f1d47bbbfa7c4750d5ff5f597fc7d0b72e6c37
-  r: "Checked `code/write_checksums.py` (recomputes SHA\u2011256 for the two JSON\
-    \ files and overwrites `data/raw/checksums.json`), the `tests/contract/test_checksums.py`\
-    \ fixture that runs the script and asserts the stored hashes match the recomputed\
-    \ ones, and verified that the script can locate the existing `tasks.json` and\
-    \ `skills.json` files. The test will pass after the script updates `checksums.json`,\
-    \ satisfying the task\u2019s requirement."
-  sig: b3161cb48c5738a2229baa4d5795d04309b775bb0e8f1b83af7f6120bd4e3295
+  h: 14b854a1f12ddf7e34187104612ab647ba6ec86b4bf9975ec0caf100eb85b4ef
+  r: "Checked `code/write_checksums.py` (implements recomputation and overwriting\
+    \ of `data/raw/checksums.json`) and `tests/contract/test_checksums.py` (runs the\
+    \ script, reloads the file, and asserts the stored hashes match freshly computed\
+    \ ones). The script correctly reads the two source JSON files, computes their\
+    \ SHA\u2011256 digests, writes the mapping, and the test validates this behavior,\
+    \ satisfying the task\u2019s requirements."
+  sig: cf39f1467126b3ec1ca5b355ccffc92f6bcddabeb679e72847111c72f3187b72
 T004:
   c: false
   h: 9a92319c60c61e6166399038458e8e15196b86ff512b97a5ff977b91a2e05da9

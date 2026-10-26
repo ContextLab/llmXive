@@ -1,17 +1,13 @@
 status: none
-intent: synthetic multi-step task dataset with skill library python package MiniWoB
-  reference
+intent: MiniWoB++ synthetic multi-step task and skill library python package dataset
 required_fields:
 - task_id
 - task_description
-- ground_truth_solution_path
+- ground_truth_actions
 - skill_id
 - skill_name
-- skill_description
-- skill_embedding_vector
-- skill_overlap_level
-- skill_semantic_density_score
-- skill_tags
-cache_key: adc9fae07f00e71945c351d7c615b49c2619586c7339e13e38b04ea272a9b5a9
-searched_at: '2026-10-26T05:30:23.236284+00:00'
+- skill_embedding
+- semantic_overlap_level
+cache_key: c188cc0849f3ac53e936d66c956cce87f6fc640569e7048f088a1bae3e51b3e3
+searched_at: '2026-10-26T06:15:36.603162+00:00'
 retry_count: 1
