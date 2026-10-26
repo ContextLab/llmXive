@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PowerAnalysis"
-description: "Schema for the a priori power analysis output for a paired t-test."
+description: "Schema for the a priori power analysis output for a McNemar test."
 type: "object"
 properties:
   n_required:
@@ -15,9 +15,9 @@ properties:
         minimum: 0
         maximum: 1
         description: "Target statistical power (e.g., 0.8)."
-      effect_size_cohen_d:
+      effect_size_odds_ratio:
         type: "number"
-        description: "Cohen's d effect size (medium, 0.5 per spec)."
+        description: "Odds‑ratio effect size used in the power calculation."
       significance_level:
         type: "number"
         minimum: 0
@@ -30,10 +30,10 @@ properties:
         description: "Baseline success rate p0 used in the calculation."
       p0_source:
         type: "string"
-        description: "Source of baseline rate estimate ('Pilot Run' or 'Fallback 0.5')."
+        description: "Source of baseline rate estimate ('Pilot Run' or 'Fallback 0.5')"
     required:
       - power_target
-      - effect_size_cohen_d
+      - effect_size_odds_ratio
       - significance_level
       - baseline_rate
       - p0_source

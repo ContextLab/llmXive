@@ -18,7 +18,7 @@ properties:
         format: "date-time"
       method:
         type: "string"
-        const: "A priori Power Analysis (paired t-test)"
+        const: "A priori Power Analysis (McNemar)"
     required:
       - calculated_n
       - timestamp

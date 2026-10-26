@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Evaluation Result Schema"
-description: "Schema for the output of the evaluation pipeline, including paired t-test results."
+description: "Schema for the output of the evaluation pipeline, including paired McNemar results."
 type: "object"
 properties:
   metrics:
@@ -10,72 +10,49 @@ properties:
         type: "number"
         minimum: 0
         maximum: 1
-      success_rate_baseline:
-        type: "number"
-        minimum: 0
-        maximum: 1
-      step_efficiency_distilled:
-        type: "number"
-      step_efficiency_baseline:
-        type: "number"
+      baseline_metrics:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+            success_rate:
+              type: "number"
+              minimum: 0
+              maximum: 1
+            step_efficiency:
+              type: "number"
+          required:
+            - name
+            - success_rate
+            - step_efficiency
     required:
       - success_rate_distilled
-      - success_rate_baseline
+      - baseline_metrics
   statistical_test:
     type: "object"
     properties:
       test_type:
         type: "string"
-        const: "paired_t_test"
-      t_statistic:
+        const: "mcnemar"
+      chi2:
         type: "number"
-        description: "t‑statistic from paired t‑test"
-      degrees_of_freedom:
-        type: "integer"
-        description: "Degrees of freedom (N‑1)."
+        description: "McNemar chi‑square statistic"
       p_value:
         type: "number"
         description: "Two‑tailed p‑value"
       significant:
         type: "boolean"
-        description: "True if p < 0.05"
-      effect_size_cohen_d:
-        "type": "number"
-        description: "Cohen’s d effect size"
+      effect_size_odds_ratio:
+        type: "number"
+        description: "Odds‑ratio effect size"
     required:
       - test_type
-      - t_statistic
-      - degrees_of_freedom
+      - chi2
       - p_value
       - significant
-      - effect_size_cohen_d
-  power_analysis:
-    type: "object"
-    properties:
-      n_required:
-        type: "integer"
-        minimum: 1
-      power_target:
-        type: "number"
-        minimum: 0
-        maximum: 1
-      effect_size:
-        type: "number"
-        description: "Cohen’s d used in power calculation"
-      baseline_rate:
-        type: "number"
-        minimum: 0
-        maximum: 1
-      p0_source:
-        type: "string"
-        description: "Source of baseline estimate"
-    required:
-      - n_required
-      - power_target
-      - effect_size
-      - baseline_rate
-      - p0_source
+      - effect_size_odds_ratio
 required:
   - metrics
   - statistical_test
-  - power_analysis

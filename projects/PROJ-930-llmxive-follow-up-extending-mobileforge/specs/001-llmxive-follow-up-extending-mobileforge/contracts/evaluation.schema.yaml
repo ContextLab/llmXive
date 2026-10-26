@@ -26,45 +26,60 @@ properties:
     properties:
       test_type:
         type: "string"
-        const: "paired_t_test"
-      t_statistic:
+        const: "mcnemar"
+      chi2:
         type: "number"
-      degrees_of_freedom:
-        type: "integer"
+        description: "McNemar chi‑square statistic"
       p_value:
         type: "number"
+        description: "Two‑tailed p‑value"
       significant:
         type: "boolean"
-      effect_size_cohen_d:
+      effect_size_odds_ratio:
         type: "number"
+        description: "Odds‑ratio effect size for McNemar"
     required:
       - test_type
-      - t_statistic
-      - degrees_of_freedom
+      - chi2
       - p_value
       - significant
-      - effect_size_cohen_d
+      - effect_size_odds_ratio
   power_analysis:
     type: "object"
     properties:
       n_required:
         type: "integer"
         minimum: 1
-      power_target:
-        type: "number"
-      effect_size:
-        type: "number"
-      baseline_rate:
-        type: "number"
-      p0_source:
-        type: "string"
-        description: "Source of baseline rate estimate (e.g., 'Pilot Run', 'Fallback 0.5')."
+      parameters:
+        type: "object"
+        properties:
+          power_target:
+            type: "number"
+            minimum: 0
+            maximum: 1
+          effect_size_odds_ratio:
+            type: "number"
+            description: "Odds‑ratio effect size used in power calculation"
+          significance_level:
+            type: "number"
+            minimum: 0
+            maximum: 1
+          baseline_rate:
+            type: "number"
+            minimum: 0
+            maximum: 1
+          p0_source:
+            type: "string"
+            description: "Source of baseline rate estimate (e.g., 'Pilot Run', 'Fallback 0.5')"
+        required:
+          - power_target
+          - effect_size_odds_ratio
+          - significance_level
+          - baseline_rate
+          - p0_source
     required:
       - n_required
-      - power_target
-      - effect_size
-      - baseline_rate
-      - p0_source
+      - parameters
   sensitivity_report:
     type: "object"
     properties:
