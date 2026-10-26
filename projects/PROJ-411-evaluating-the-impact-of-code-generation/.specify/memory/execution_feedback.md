@@ -2,25 +2,16 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 run-book script(s) missing (plan/impl path mismatch): python code/outlier_filter.py  --input data/processed/processed_prs.csv  --iqr 1.5   # produces filtered_prs_iqr1.5.csv, plus 1.0/2.0 and relaxed variants; python code/statistical_analysis.py  --input data/processed/filtered_prs_iqr1.5.csv  --results data/results/stats_summary.csv; python code/validation.py  --aux-dataset prs-eth/AGBD  --output data/results/validation_report.md; 3 command(s) failed: python code/download_data.py --repo-list code/repo_list.txt --output data/raw/ (rc=1); python code/classify_provenance.py  --input data/raw/combined_prs.json  --output data/processed/classified_prs.csv (rc=1); python code/compute_metrics.py  --input data/processed/classified_prs.csv  --output data/processed/processed_prs.csv (rc=1); 1 declared deliverable(s) absent: data/processed/processed_prs.csv
+**Summary**: 5 run-book script(s) missing (plan/impl path mismatch): python code/outlier_filter.py  --input data/processed/processed_prs.csv  --iqr 1.5   # produces filtered_prs_iqr1.5.csv, plus 1.0/2.0 and relaxed variants; python code/statistical_analysis.py  --input data/processed/filtered_prs_iqr1.5.csv  --results data/results/stats_summary.csv; python code/validation.py  --aux-dataset prs-eth/AGBD  --output data/results/validation_report.md; 3 command(s) failed: python code/download_data.py --repo-list code/repo_list.txt --output data/raw/ (rc=-1); python code/classify_provenance.py  --input data/raw/combined_prs.json  --output data/processed/classified_prs.csv (rc=1); python code/compute_metrics.py  --input data/processed/classified_prs.csv  --output data/processed/processed_prs.csv (rc=1); 1 declared deliverable(s) absent: data/processed/processed_prs.csv
 
 ## Failing / missing run-book commands
 
-- python code/download_data.py --repo-list code/repo_list.txt --output data/raw/ -> rc=1
-eneration/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 1645, in get_hf_file_metadata
-    r = _request_wrapper(
-        ^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-411-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 372, in _request_wrapper
-    response = _request_wrapper(
-               ^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-411-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 396, in _request_wrapper
-    hf_raise_for_status(response)
-  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-411-evaluating-the-impact-of-code-generation/lib/python3.11/site-packages/huggingface_hub/utils/_errors.py", line 315, in hf_raise_for_status
-    raise EntryNotFoundError(message, response) from e
-huggingface_hub.utils._errors.EntryNotFoundError: 404 Client Error. (Request ID: Root=1-6adf6b38-788b07336f35df7847a3f6a6;3e5e711e-0c3d-41b9-a4e8-3dcc970804a0)
+- python code/download_data.py --repo-list code/repo_list.txt --output data/raw/ -> rc=-1
 
-Entry Not Found for url: https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/prs-v2-sample.parquet.
+2026-10-26 17:14:03,026 INFO __main__: Schema required fields: ['pr_id', 'repo_name', 'created_at', 'merged_at', 'additions', 'deletions', 'comment_count', 'commit_message', 'first_comment_timestamp']
+2026-10-26 17:14:03,042 WARNING __main__: Rate limit exhausted. Sleeping for 2678s until reset.
 
+[TIMEOUT after 120s]
 - python code/classify_provenance.py  --input data/raw/combined_prs.json  --output data/processed/classified_prs.csv -> rc=1
 
 Traceback (most recent call last):

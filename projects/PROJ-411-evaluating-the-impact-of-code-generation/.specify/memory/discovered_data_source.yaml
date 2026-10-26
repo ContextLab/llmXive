@@ -1,19 +1,18 @@
 status: none
-intent: download GitHub pull request metadata dataset GHTorrent GitHub PR dataset
-  python package dataset
+intent: GitHub pull request dataset with provenance labels huggingface python package
+  dataset
 required_fields:
 - pull_request_id
 - repository_full_name
 - created_at
 - merged_at
-- closed_at
-- author_login
+- comment_count
 - additions
 - deletions
 - changed_files
-- total_lines_changed
-- comment_count
-- review_comment_count
-cache_key: 559109287cd30f8b9184c84b89038f7bd2908948d8a27d0033a45fa43af4c4b6
-searched_at: '2026-10-26T15:01:38.496851+00:00'
+- review_comments_count
+- review_timestamps
+- provenance_label
+cache_key: 1c837c631ff699932998c96e08682e3533fa2ffdbc7d2cbd048681b124877f1f
+searched_at: '2026-10-26T17:17:22.087341+00:00'
 retry_count: 1
