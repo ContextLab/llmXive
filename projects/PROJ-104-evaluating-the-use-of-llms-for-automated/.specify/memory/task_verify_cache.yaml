@@ -1,20 +1,12 @@
-T001:
-  c: false
-  h: e42bff2e14a78c8f4d2d2d79cd37e703bded9b9b248b504828f7b08f4dda405a
-  r: "The quickstart guide\u2019s \u201Csample\u201D command runs only a hard\u2011\
-    coded smoke test, not a real 5\u2011sample subset downloaded via the data\u2011\
-    extraction script, and the required log file `logs/quickstart_run.log` is not\
-    \ present among the artifacts. Consequently the test does not fully meet the task\u2019\
-    s specifications."
-  sig: 8a3e6380a875f34943406f1dab0cf8d4c727426d414bbcd8d042f6dabeecb56a
 T002:
   c: true
-  h: 380402d31cfd6f5616392fa24273c5948fc35df34b1d1571967549c0ae4a22e0
-  r: "Checked `code/power_analysis.py` for correct simulation parameters (n\u202F\
-    =\u202F500, f\u202F=\u202F0.25) and report generation, and verified `results/power_report.md`\
-    \ contains the numeric power estimate line and the exploratory flag. The test\
-    \ suite `tests/test_power_analysis.py` passes with the provided markdown file."
-  sig: 6354e52e7f687c29d61dafae29831a66289746217be6242a3975a5295596fc1d
+  h: ef29fb4bbcabdcd6361280195e6e80742593d4f88555b604b68049b3e52191cd
+  r: "Checked `code/power_analysis.py` (implements Monte\u2011Carlo simulation for\
+    \ n\u202F=\u202F500, f\u202F=\u202F0.25, writes a markdown report) and `results/power_report.md`\
+    \ (contains a numeric power estimate line and an `exploratory` flag). The accompanying\
+    \ test `tests/test_power_analysis.py` finds the file, extracts a floating\u2011\
+    point power value, and validates it is within [0,\u202F1]."
+  sig: adb03f80609ed57e31d695b580be19c959a300354051bcbbaa55168dff5d3753
 T004:
   c: false
   h: 6e385feb08f6aec3a72eb56a85718b84505c00f11e6df50103d41cad0a6b02fc
@@ -36,10 +28,10 @@ T005:
   sig: b8bc8796fe4068fe34ed63415602515836646710053e8cf23842da24ade7a23b
 T013:
   c: true
-  h: 1df5e9284225a65bba9cfdad7321d2ac0786b0dea50b74dbe899a837945b0a09
-  r: "Checked `code/data_hygiene.py` (checksum computation and immutability enforcement),\
-    \ `code/seeds.py` (global SEED\u202F=\u202F42), `data/metadata.yaml` (stores SHA\u2011\
-    256 entries for all data files), and `tests/test_hygiene_and_seeds.py` (verifies\
-    \ seed, metadata coverage, immutability, deterministic power analysis, and SEED\
-    \ imports). All requirements are satisfied."
-  sig: 2948ce7b406af6265651ae3676944ea29af2ff1e00a86a5202ace64bd278e038
+  h: a3f0c5b37a59e168f5fc478d9dfe20573ed6f8cc11fddacbe414a2af6b82f330
+  r: "Checked `code/data_hygiene.py` (checksum computation and immutable\u2011file\
+    \ enforcement), `code/seeds.py` (SEED\u202F=\u202F42), `data/metadata.yaml` (present\
+    \ and written by the utility), and `tests/test_hygiene_and_seeds.py` (verifies\
+    \ seed, metadata coverage, immutability, and deterministic power analysis). All\
+    \ required behavior is implemented and testable."
+  sig: 77a4a8a44f9971d6fa18fd9f94530cb8821ac49b2dd04e54626abe96ae188fff

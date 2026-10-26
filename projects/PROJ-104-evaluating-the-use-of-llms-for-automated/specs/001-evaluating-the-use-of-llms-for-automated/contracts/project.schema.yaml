@@ -9,7 +9,19 @@ $defs:
       - commit_hash
       - commit_message
       - repository_name
-    ...
+      - doc_diff
+      - timestamp
+    properties:
+      commit_hash:
+        type: string
+      commit_message:
+        type: string
+      repository_name:
+        type: string
+      doc_diff:
+        type: string
+      timestamp:
+        type: string
   GeneratedOutput:
     type: object
     required:
@@ -18,13 +30,41 @@ $defs:
       - generated_text
       - generation_time_s
       - status
-    ...
+    properties:
+      commit_hash:
+        type: string
+      model_id:
+        type: string
+      generated_text:
+        type: string
+      generation_time_s:
+        type: number
+      status:
+        type: string
   EntitySet:
     type: object
     required:
       - sample_id
+      - type
       - entities
-    ...
+    properties:
+      sample_id:
+        type: string
+      type:
+        type: string
+        enum: [intent, surface]
+      entities:
+        type: array
+        items:
+          type: object
+          required:
+            - entity
+            - verified
+          properties:
+            entity:
+              type: string
+            verified:
+              type: boolean
   FidelityMetric:
     type: object
     required:
@@ -38,6 +78,15 @@ $defs:
     properties:
       sample_id:
         type: string
-        description: "Composite    "
-      ...
-    # Note: ****  “     “   "
+      model_id:
+        type: string
+      precision_intent:
+        type: number
+      recall_intent:
+        type: number
+      precision_surface:
+        type: number
+      recall_surface:
+        type: number
+      hallucination_rate:
+        type: number

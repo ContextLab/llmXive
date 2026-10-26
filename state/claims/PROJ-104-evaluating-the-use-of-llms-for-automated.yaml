@@ -630,3 +630,57 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-26T09:32:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: 5-sample subset of commit-message/documentation-diff pairs
+  claim_id: c_6044dbbf
+  context: "The quick smoke test (Phase\u202F0) runs a command that downloads a real\
+    \ 5\u2011sample subset of commit\u2011message / documentation\u2011diff pairs\
+    \ from the five target repositories."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The quick smoke test (Phase\u202F0) downloads a real 5\u2011sample subset\
+    \ of commit\u2011message / documentation\u2011diff pairs from the five target\
+    \ repositories via the data\u2011extraction script."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:26:28Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline completes in under a minute on GitHub Actions free tier runner
+  claim_id: c_861c432f
+  context: "The pipeline completes in well under a minute on a standard GitHub\u2011\
+    Actions free\u2011tier runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline completes in well under a minute on a standard GitHub\u2011\
+    Actions free\u2011tier runner."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:26:28Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: power analysis estimated power for n = 500
+  claim_id: c_c20ad3ce
+  context: "Runs the Monte\u2011Carlo power analysis for the Friedman test and writes\
+    \ results/power_report.md. The report contains the estimated power for n\u202F\
+    =\u202F500."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The power analysis report contains the estimated power for n\u202F=\u202F\
+    500."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:26:28Z'
