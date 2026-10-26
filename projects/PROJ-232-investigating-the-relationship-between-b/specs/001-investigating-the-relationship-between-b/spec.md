@@ -13,12 +13,12 @@ The system MUST retrieve resting‑state fMRI data from the Human Connectome Pro
 
 **Why this priority**: Without clean, matched neural and behavioral data from the same subjects, no analysis can occur. This is the foundational step for the entire research question.
 
-**Independent Test**: A researcher can run the data pipeline script on a subset of 5 subjects and verify that output files contain valid connectivity matrices (symmetric, elements in range [-1, 1], diagonal = 1.0) and corresponding MER scores without errors.
+**Independent Test**: A researcher can run the data pipeline script on a representative subset of subjects and verify that output files contain valid connectivity matrices (symmetric, elements in range [-1, 1], diagonal = 1.0) and corresponding MER scores without errors.
 
 **Acceptance Scenarios**:
 
 1. **Given** the HCP data repository and the external MER dataset are accessible, **When** the pipeline requests data for a specific subject ID, **Then** the raw fMRI NIfTI files and the paired MER score for that same subject are downloaded and stored locally.
-2. **Given** raw fMRI data exists, **When** fMRIPrep (CPU‑only mode) is executed, **Then** the output includes motion‑corrected, bandpass‑filtered (0.01–0.1 Hz) data with a framewise displacement (FD) metric calculated.
+2. **Given** raw fMRI data exists, **When** fMRIPrep (CPU‑only mode) is executed, **Then** the output includes motion‑corrected, bandpass‑filtered (low‑frequency cutoff to 0.1 Hz) data with a framewise displacement (FD) metric calculated.
 3. **Given** preprocessed fMRI data and the Schaefer atlas, **When** the extraction script runs, **Then** a functional connectivity matrix (Pearson correlation) is generated for each subject.
 
 ---
@@ -95,11 +95,11 @@ Prior to the main statistical analysis, the system MUST compute the required sam
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download resting‑state fMRI data from the HCP 1200 Subjects Release and download Music Emotion Rating (MER) scores from an external publicly available dataset (e.g., Barcelona Music Reward Questionnaire). The system MUST match subjects across datasets using the unique HCP Subject ID (or a deterministic matching key) and verify data integrity via checksums (See US-1).
+- **FR-001**: System MUST download resting‑state fMRI data from the HCP Subjects Release. and download Music Emotion Rating (MER) scores from an external publicly available dataset (e.g., Barcelona Music Reward Questionnaire). The system MUST match subjects across datasets using the unique HCP Subject ID (or a deterministic matching key) and verify data integrity via checksums (See US-1).
 - **FR-002**: System MUST preprocess the downloaded HCP resting‑state fMRI data using fMRIPrep in CPU‑only mode, applying motion correction and bandpass filtering (0.01–0.1 Hz) to generate cleaned time series (See US-1).
 - **FR-003**: System MUST extract time series from the Schaefer atlas with a high‑resolution regional parcellation. applied to the preprocessed fMRI data and compute Pearson correlation functional connectivity matrices for each subject (See US-1, US-2).
 - **FR-004**: System MUST calculate global efficiency, modularity, participation coefficient, network‑specific efficiency for DMN, Salience, Visual, and Reward (nucleus accumbens & ventral striatum) networks, and edge‑level connectivity strengths using CPU‑tractable graph theory libraries (NetworkX/bctpy) (See US-2).
-- **FR-005**: System MUST perform partial correlation analyses controlling for age, sex, and framewise displacement, and fit a regularized linear regression model with 5‑fold cross‑validation to predict MER total scores (See US-3).
+- **FR-005**: System MUST perform partial correlation analyses controlling for age, sex, and framewise displacement, and fit a regularized linear regression model with k‑fold cross‑validation to predict MER total scores (See US-3).
 - **FR-006**: System MUST apply False Discovery Rate (FDR) correction (q < 0.05) to all hypothesis tests involving multiple comparisons (See US-3).
 
 ### Key Entities

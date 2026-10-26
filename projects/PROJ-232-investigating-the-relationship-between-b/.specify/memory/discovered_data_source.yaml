@@ -1,15 +1,15 @@
 status: none
-intent: Human Connectome Project music task dataset download Nilearn python package
-  dataset
+intent: Human Connectome Project resting fMRI Barcelona Music Reward Questionnaire
+  MER scores Schaefer atlas python package dataset
 required_fields:
 - subject_id
+- resting_state_fmri_nifti_path
+- mer_total_score
+- mer_valence_score
+- mer_arousal_score
 - age
 - sex
-- resting_state_fmri_path
-- music_emotion_score
-- fd_mean
-- functional_connectivity_upper_triangular
-- schaefer_atlas_labels
-cache_key: a07318b9ad0f38df2392cb2af64a5a15eebe41f86053e9b9daf2322816858385
-searched_at: '2026-10-18T13:34:05.157574+00:00'
+- checksum
+cache_key: 953cfd78706c4c178c95402ded739d619b166954bcb3302127622aececd846cf
+searched_at: '2026-10-26T10:27:52.515274+00:00'
 retry_count: 1
