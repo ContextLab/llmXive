@@ -10,16 +10,19 @@ This module provides:
   whose length equals the requested number of message‑passing layers.
 * ``train_gnn`` – a training routine that performs early‑stopping on a
   validation loader and saves the best checkpoint.
-* Minimal ``train_epoch`` and ``validate_epoch`` helpers for the unit tests.
+* Helper functions ``train_epoch`` and ``validate_epoch`` used by the unit
+  tests and by downstream evaluation code.
 * ``main`` entry‑point that trains the model on the processed data and saves the
-  checkpoint to ``code/models/gnn.pt`` as required by the specification.
+  checkpoint to ``code/models/gnn.pt``.  For compatibility with the explain
+  script, the checkpoint is also copied to ``data/interim/gnn_checkpoint.pt``.
 """
 
 import json
 import logging
 import time
+import shutil
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Dict, Any
 
 import psutil
 import torch
@@ -206,19 +209,15 @@ def _parse_mol_graph(json_str: str) -> Tuple[torch.Tensor, torch.Tensor]:
     nodes = graph.get("nodes", [])
     edges = graph.get("edges", [])
 
-    # Node features: we use a simple one‑hot encoding of atom type (atomic_num)
-    # and a few basic attributes (degree, aromatic).  This keeps the feature
-    # dimension small and deterministic.
+    # Simple one‑hot atom‑type + degree + aromaticity encoding
     atom_nums = [n.get("atomic_num", 0) for n in nodes]
     degrees = [n.get("degree", 0) for n in nodes]
     aromatic = [int(n.get("aromatic", False)) for n in nodes]
 
-    # Stack into (num_nodes, 3) tensor
     node_feat = torch.tensor(
         np.stack([atom_nums, degrees, aromatic], axis=1), dtype=torch.float
     )
 
-    # Edge index tensor shape (2, num_edges)
     if edges:
         src = [e.get("source") for e in edges]
         tgt = [e.get("target") for e in edges]
@@ -231,30 +230,61 @@ def _parse_mol_graph(json_str: str) -> Tuple[torch.Tensor, torch.Tensor]:
 def _build_graph_dataset(df: pd.DataFrame, target_col: str = "target") -> list:
     """
     Convert each row of ``df`` into a ``torch_geometric.data.Data`` object.
-    Only the columns needed for the GNN are used (graph topology + target).
     """
     if target_col not in df.columns:
         raise ValueError(f"Target column '{target_col}' not found in DataFrame.")
-    feature_cols = [
-        c
-        for c in df.columns
-        if c
-        not in [
-            target_col,
-            "smiles",
-            "mol_valid",
-            "mol_graph",
-            "polymer_type",
-        ]
-    ]
     data_list = []
     for _, row in df.iterrows():
-        # Parse the stored graph JSON
         node_feat, edge_index = _parse_mol_graph(row["mol_graph"])
         y = torch.tensor([row[target_col]], dtype=torch.float)
         data = Data(x=node_feat, edge_index=edge_index, y=y)
         data_list.append(data)
     return data_list
+
+# ----------------------------------------------------------------------
+# Training utilities required by the unit tests
+# ----------------------------------------------------------------------
+def train_epoch(
+    model: nn.Module,
+    x: torch.Tensor,
+    edge_index: torch.Tensor,
+    batch: torch.Tensor,
+    y: torch.Tensor,
+    optimizer: torch.optim.Optimizer,
+) -> float:
+    """
+    Perform a single training epoch over a single batch.
+
+    Returns the average MSE loss for the batch as a Python ``float``.
+    """
+    model.train()
+    optimizer.zero_grad()
+    out = model(x, edge_index, batch).squeeze()
+    loss = nn.MSELoss()(out, y.squeeze())
+    loss.backward()
+    optimizer.step()
+    return loss.item()
+
+def validate_epoch(
+    model: nn.Module,
+    x: torch.Tensor,
+    edge_index: torch.Tensor,
+    batch: torch.Tensor,
+    y: torch.Tensor,
+) -> Dict[str, float]:
+    """
+    Evaluate a single batch in validation mode.
+
+    Returns a dict with keys ``loss``, ``rmse`` and ``mae``.
+    """
+    model.eval()
+    with torch.no_grad():
+        out = model(x, edge_index, batch).squeeze()
+        loss = nn.MSELoss()(out, y.squeeze()).item()
+        diff = out - y.squeeze()
+        mae = torch.mean(torch.abs(diff)).item()
+        rmse = torch.sqrt(torch.mean(diff ** 2)).item()
+    return {"loss": loss, "rmse": mae, "mae": mae}
 
 # ----------------------------------------------------------------------
 # Training routine
@@ -339,12 +369,19 @@ def train_gnn(
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             best_epoch = epoch
-            # Save checkpoint
             torch.save(
                 {
                     "epoch": epoch,
                     "model_state_dict": model.state_dict(),
                     "val_loss": val_loss,
+                    "model_config": {
+                        "input_dim": in_features,
+                        "hidden_dim": 64,
+                        "output_dim": 1,
+                        "num_layers": 3,
+                        "dropout": 0.1,
+                        "pooling": "mean",
+                    },
                 },
                 checkpoint_path,
             )
@@ -357,6 +394,12 @@ def train_gnn(
     logger.info(
         f"GNN training completed. Best epoch: {best_epoch} with val loss {best_val_loss:.4f}."
     )
+
+    # Also copy the checkpoint to the location expected by the explain script
+    interim_path = Path("data") / "interim" / "gnn_checkpoint.pt"
+    interim_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(checkpoint_path, interim_path)
+
     return checkpoint_path
 
 # ----------------------------------------------------------------------
@@ -422,6 +465,10 @@ def main() -> None:
             {"epoch": 0, "model_state_dict": dummy_model.state_dict(), "val_loss": None},
             checkpoint_path,
         )
+        # Also copy dummy to interim location
+        interim_path = Path("data") / "interim" / "gnn_checkpoint.pt"
+        interim_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(checkpoint_path, interim_path)
         logger.info(f"Dummy checkpoint written to {checkpoint_path}")
 
 if __name__ == "__main__":

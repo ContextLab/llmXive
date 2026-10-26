@@ -54,10 +54,10 @@ All scripts write their outputs under the project‑owned directories `data/`, `
   - Ensure the script exits with status 0 only after the pickle file is written.  
   - **Verification**: `tests/unit/test_models.py::test_rf_training` checks that `code/models/rf.pkl` exists, can be loaded, and that `feature_importances_` length equals 6.
 
-- [ ] T015 [US‑2] Add unit test `tests/unit/test_models.py::test_rf_training` (or extend the existing test suite) that loads the pickle, verifies the number of features, and confirms that training time is < 6 h on the CI runner.  
+- [X] T015 [US‑2] Add unit test `tests/unit/test_models.py::test_rf_training` (or extend the existing test suite) that loads the pickle, verifies the number of features, and confirms that training time is < 6 h on the CI runner.  
   - **Verification**: test must pass and report a duration < 3600 s.
 
-- [ ] T007 [US‑2] Implement `code/analysis/train.py` – orchestrates model training:  
+- [ ] T007 [US‑2] Implement `code/analysis/train.py` – orchestrates model training:   <!-- FAILED-IN-EXECUTION: code/analysis/train.py exit=1 -->
   1. Loads `data/processed/train.parquet`.  
   2. Calls the GNN trainer (`code/models/gnn.py`) and the RF trainer (`code/models/rf.py`).  
   3. Records **total training time (hours)** and **peak memory usage (GB)** in `results/training_log.json`.  

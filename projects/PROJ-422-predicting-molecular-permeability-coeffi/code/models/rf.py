@@ -2,18 +2,25 @@
 Random Forest Regressor implementation for molecular permeability prediction.
 
 This module provides the Random Forest baseline model as specified in the
-project requirements. It trains on the full descriptor vector
+project requirements. It trains on the six standard descriptor columns
 (MW, logP, TPSA, HBA, HBD, rotatable bonds) with the required hyper‑parameters,
-saves the trained model to ``code/models/rf.pkl`` and offers helper functions
-for prediction and evaluation.
+saves the fitted model to ``code/models/rf.pkl`` using ``joblib.dump``, and
+offers helper functions for prediction and evaluation.
+
+The CLI entry point loads the processed training CSV, validates the presence
+of the required descriptor columns and the target column, trains the model,
+writes the pickle, and exits with status 0 only after the file has been
+successfully written.
 """
 import logging
+import sys
 from pathlib import Path
-from typing import Union, Tuple, Dict, Any
+from typing import Union, Dict, Any
 
 import joblib
 import numpy as np
 import pandas as pd
+import yaml
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
@@ -146,8 +153,6 @@ def main() -> None:
     4. Saves the model to ``code/models/rf.pkl``.
     5. Logs basic training information.
     """
-    import sys
-    import yaml
     from llmxive_toolkit import paths, get_logger
 
     # Initialise a project‑wide logger
@@ -159,65 +164,74 @@ def main() -> None:
     train_path = project_root / "data" / "processed" / "train.csv"
     model_path = project_root / "code" / "models" / "rf.pkl"
 
-    if not train_path.is_file():
-        log.error(f"Training data not found at {train_path}.")
+    try:
+        if not train_path.is_file():
+            log.error(f"Training data not found at {train_path}.")
+            sys.exit(1)
+
+        # Load training data
+        df = pd.read_csv(train_path)
+        log.info(f"Loaded training data with {len(df)} rows and {len(df.columns)} columns.")
+
+        # Expected descriptor columns (lower‑case as written by preprocess)
+        descriptor_cols = [
+            "mw",
+            "logp",
+            "tpsa",
+            "hba",
+            "hbd",
+            "rotatable_bonds",
+        ]
+
+        missing = [c for c in descriptor_cols if c not in df.columns]
+        if missing:
+            log.error(f"Missing required descriptor columns: {missing}")
+            sys.exit(1)
+
+        X = df[descriptor_cols]
+        # Identify target column – the preprocessing step stores the experimental
+        # permeability under the generic name ``target``.
+        if "target" not in df.columns:
+            log.error("Target column 'target' not found in training data.")
+            sys.exit(1)
+
+        y = df["target"]
+
+        # Train model
+        model = train_random_forest(X, y)
+
+        # Verify that the model has exactly six importances (one per descriptor)
+        if model.feature_importances_.shape[0] != len(descriptor_cols):
+            log.warning(
+                f"Unexpected number of feature importances: "
+                f"{model.feature_importances_.shape[0]} (expected {len(descriptor_cols)})"
+            )
+
+        # Save the model
+        model_path.parent.mkdir(parents=True, exist_ok=True)
+        joblib.dump(model, model_path)
+        log.info(f"Random Forest model saved to {model_path}")
+
+        # Optional: write a tiny JSON summary for downstream steps
+        summary_path = project_root / "results" / "rf_training_summary.json"
+        summary = {
+            "model_path": str(model_path),
+            "descriptor_columns": descriptor_cols,
+            "n_estimators": 200,
+            "max_features": "sqrt",
+        }
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(summary_path, "w", encoding="utf-8") as f:
+            yaml.safe_dump(summary, f)
+        log.info(f"Training summary written to {summary_path}")
+
+        # Successful completion – exit code 0
+        sys.exit(0)
+
+    except Exception as exc:
+        # Log the exception and exit with a non‑zero status
+        log.exception(f"Unexpected error during Random Forest training: {exc}")
         sys.exit(1)
-
-    # Load training data
-    df = pd.read_csv(train_path)
-    log.info(f"Loaded training data with {len(df)} rows and {len(df.columns)} columns.")
-
-    # Expected descriptor columns (lower‑case as written by preprocess)
-    descriptor_cols = [
-        "mw",
-        "logp",
-        "tpsa",
-        "hba",
-        "hbd",
-        "rotatable_bonds",
-    ]
-
-    missing = [c for c in descriptor_cols if c not in df.columns]
-    if missing:
-        log.error(f"Missing required descriptor columns: {missing}")
-        sys.exit(1)
-
-    X = df[descriptor_cols]
-    # Identify target column – the preprocessing step stores the experimental
-    # permeability under the generic name ``target``.
-    if "target" not in df.columns:
-        log.error("Target column 'target' not found in training data.")
-        sys.exit(1)
-
-    y = df["target"]
-
-    # Train model
-    model = train_random_forest(X, y)
-
-    # Verify that the model has exactly six importances (one per descriptor)
-    if model.feature_importances_.shape[0] != len(descriptor_cols):
-        log.warning(
-            f"Unexpected number of feature importances: "
-            f"{model.feature_importances_.shape[0]} (expected {len(descriptor_cols)})"
-        )
-
-    # Save the model
-    model_path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(model, model_path)
-    log.info(f"Random Forest model saved to {model_path}")
-
-    # Optional: write a tiny JSON summary for downstream steps
-    summary_path = project_root / "results" / "rf_training_summary.json"
-    summary = {
-        "model_path": str(model_path),
-        "descriptor_columns": descriptor_cols,
-        "n_estimators": 200,
-        "max_features": "sqrt",
-    }
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(summary_path, "w", encoding="utf-8") as f:
-        yaml.safe_dump(summary, f)
-    log.info(f"Training summary written to {summary_path}")
 
 if __name__ == "__main__":
     main()

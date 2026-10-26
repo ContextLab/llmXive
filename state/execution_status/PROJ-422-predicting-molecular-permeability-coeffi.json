@@ -1,7 +1,7 @@
 {
-  "model_tier": 1,
+  "model_tier": 2,
   "fix_rounds": 0,
-  "updated_at": "2026-10-26T07:59:18Z",
+  "updated_at": "2026-10-26T08:31:44Z",
   "project_id": "PROJ-422-predicting-molecular-permeability-coeffi",
   "replan_rounds": 2
 }

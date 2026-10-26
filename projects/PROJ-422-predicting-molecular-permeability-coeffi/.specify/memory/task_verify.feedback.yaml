@@ -5,20 +5,29 @@ T001:
 T002:
   task: 01225ffdef422e3621ee10adc1a293d9872947bae04c7caf4da6044af5d4f2a8
 T003:
-  reason: "The `code/data/split.py` script fails to run the `execute_split` function\
-    \ because it expects a `config.yaml` at the project root, which is not present,\
-    \ causing unit\u2011test failures. Consequently the required split files are not\
-    \ reliably produced, and the script\u2019s main path does not enforce the \u2264\
-    5\u202Fpercentage\u2011point stratification constraint. Adding the missing configuration\
-    \ (or removing the hard dependency) and ensuring the stratified split respects\
-    \ the distribution\u2011difference threshold are needed to satisfy the task."
+  reason: "The repository contains `code/data/split.py` which implements the required\
+    \ split logic, and a `data/processed/train.parquet` file, but there is no evidence\
+    \ of the complementary `test.parquet`, `train.csv`, or `test.csv` files being\
+    \ created. Moreover, no data (e.g., row counts) is provided to confirm the 0.75\u2011\
+    0.85 train\u2011to\u2011test ratio or the \u22645\u202Fpp stratification constraint,\
+    \ so the integration test\u2019s verification criteria cannot be satisfied. The\
+    \ missing split artefacts and lack of ratio/stratification evidence must be addressed."
   task: 63ca040e52b19fb51b3b431c6e48dd0f60bf36a7cda072de4c10c871d0eb7c97
 T004:
   reason: 'Requested task execution failed; rerun successfully: run_all.sh exit=1'
   task: 873e7c9a4063fcbc6e94b6aec0cd441573872d1c204a0e4e5d9cf8748abaf5b3
 T005:
+  reason: "The `code/models/rf.py` script correctly trains a `RandomForestRegressor`\
+    \ with the required hyper\u2011parameters on the six descriptor columns and writes\
+    \ `code/models/rf.pkl`, and the pickle file is present. However, the unit test\
+    \ `test_rf_training` also expects a `results/training_log.json` file containing\
+    \ a `total_hours` field (and\u202F<\u202F6\u202Fhours), which is not present in\
+    \ the artifacts. This missing log causes the test to fail, so the task is not\
+    \ fully satisfied."
   task: c74d3a808c2fea719e4dcdd1d8082d28c6c1a0861773958d3faa1b3059d6126f
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/train.py
+    exit=1'
   task: 8a9a6ce82dd9428eb8e75aea8ff4cf74d824a02345767e2ad6c166ad72bea948
 T008:
   task: 5aa9235f0096e7e38769e5cb94c18d9a3050ecace119388e3e4a6e34c1c159bc
@@ -33,6 +42,14 @@ T012:
 T013:
   task: f45d7b39b97a52e3cdb70a747add94d34106b2227a8b0cd195d9cb4e9c347abb
 T014:
+  reason: "The `tests/unit/test_models.py::test_gnn_training_pipeline` test is present,\
+    \ but the CI log shows it fails with a `ValueError: Expected more than 1 value\
+    \ per channel when training, got input size torch.Size([1, 64])`. Consequently\
+    \ the GNN training pipeline does not complete, no checkpoint is created, and the\
+    \ wall\u2011time guard is never reached. The task requires this test to pass within\
+    \ 3600\u202Fs, which is not satisfied. Fix the batch\u2011norm handling (or otherwise\
+    \ ensure the training step works on the tiny dataset) and ensure the checkpoint\
+    \ files are written."
   task: 8a2d11fff8f9e2054e8e661f6ea2347f7d68f099eb1b3207f687a41f9cc35ac7
 T015:
   task: 24d781cc412c74b757ded7dacbff05964bbc18a4d17e0afe9540327ec898b584
