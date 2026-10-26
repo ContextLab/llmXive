@@ -95,12 +95,16 @@ Prior to the main statistical analysis, the system MUST compute the required sam
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download resting‑state fMRI data from the HCP Subjects Release. and download Music Emotion Rating (MER) scores from an external publicly available dataset (e.g., Barcelona Music Reward Questionnaire). The system MUST match subjects across datasets using the unique HCP Subject ID (or a deterministic matching key) and verify data integrity via checksums (See US-1).
+- **FR-001**: System MUST download resting‑state fMRI data from the HCP Subjects Release and download Music Emotion Rating (MER) scores from an external publicly available dataset (e.g., Barcelona Music Reward Questionnaire). The system MUST match subjects across datasets using the unique HCP Subject ID (or a deterministic matching key) and verify data integrity via checksums (See US-1).
 - **FR-002**: System MUST preprocess the downloaded HCP resting‑state fMRI data using fMRIPrep in CPU‑only mode, applying motion correction and bandpass filtering (0.01–0.1 Hz) to generate cleaned time series (See US-1).
-- **FR-003**: System MUST extract time series from the Schaefer atlas with a high‑resolution regional parcellation. applied to the preprocessed fMRI data and compute Pearson correlation functional connectivity matrices for each subject (See US-1, US-2).
+- **FR-003**: System MUST extract time series from the Schaefer atlas with a high‑resolution regional parcellation applied to the preprocessed fMRI data and compute Pearson correlation functional connectivity matrices for each subject (See US-1, US-2).
 - **FR-004**: System MUST calculate global efficiency, modularity, participation coefficient, network‑specific efficiency for DMN, Salience, Visual, and Reward (nucleus accumbens & ventral striatum) networks, and edge‑level connectivity strengths using CPU‑tractable graph theory libraries (NetworkX/bctpy) (See US-2).
 - **FR-005**: System MUST perform partial correlation analyses controlling for age, sex, and framewise displacement, and fit a regularized linear regression model with k‑fold cross‑validation to predict MER total scores (See US-3).
 - **FR-006**: System MUST apply False Discovery Rate (FDR) correction (q < 0.05) to all hypothesis tests involving multiple comparisons (See US-3).
+- **FR-007**: System MUST monitor RAM and CPU usage during all pipeline stages and generate a resource‑usage report that flags any exceedance of the free‑tier GitHub Actions limits (≤ 7 GB RAM, ≤ 6 hours runtime) (See US-4).
+- **FR-008**: System MUST compute the required sample size for detecting a correlation of r ≥ 0.20 with power ≥ 0.80 at α = 0.05, report the required N, the actual matched N, and indicate whether the power criterion is met (See US-5).
+- **FR-009**: System MUST verify that the external MER dataset employs a validated musical‑emotion rating instrument (e.g., Barcelona Music Reward Questionnaire) and report its reliability (Cronbach's α ≥ 0.80) together with the citation (See US-1).
+- **FR-010**: System MUST verify subject‑matching reliability by confirming agreement on at least two demographic attributes (age and sex) between HCP and MER records, report match confidence scores, and exclude any ambiguous matches from downstream analysis (See US-1).
 
 ### Key Entities
 
@@ -120,13 +124,17 @@ Prior to the main statistical analysis, the system MUST compute the required sam
 - **SC-003**: The false discovery rate of significant findings is measured against the threshold of q < 0.05 after FDR correction (See US-3).
 - **SC-004**: The computational resource usage (RAM and CPU time) is measured against the free‑tier GitHub Actions limit (7 GB RAM, modest CPU cores, 6 hours) to ensure feasibility (See US-4).
 - **SC-005**: The sample size (N) of the final analysis dataset is measured against the power requirements to detect an effect size of r ≥ 0.20 with power ≥ 0.80 and significance level α = 0.05 (See US-5).
+- **SC-006**: The proportion of HCP subjects successfully matched to MER scores is ≥ 70 % (See US-1).
+- **SC-007**: At least 95 % of subjects with matched data have all required network metrics successfully computed (See US-2).
+- **SC-008**: The MER instrument’s reported reliability (Cronbach's α) is ≥ 0.80 (See US-1).
 
 ## Assumptions
 
 - The Human Connectome Project (HCP) Subjects Release provides high‑quality resting‑state fMRI data for a large cohort of participants.
-- Music Emotion Rating (MER) scores are obtained from an external publicly available dataset (e.g., Barcelona Music Reward Questionnaire) that includes subject identifiers or sufficient demographic information to allow deterministic matching to HCP participants.
+- Music Emotion Rating (MER) scores are obtained from an external publicly available dataset (e.g., Barcelona Music Reward Questionnaire) that includes subject identifiers or sufficient demographic information to allow deterministic matching to HCP participants. Overlap is expected to be partial; the pipeline will report the proportion of matched subjects and proceed with the matched subset.
 - fMRIPrep can run successfully in CPU‑only mode on the GitHub Actions free tier without requiring CUDA or GPU acceleration.
 - The Schaefer atlas is compatible with the HCP data preprocessing pipeline and provides a valid parcellation for the brain regions of interest.
 - The computational load of graph theory metrics on 200×200 matrices fits within the 7 GB RAM limit of the CI runner.
 - The study design is observational; therefore, all findings will be framed as associational rather than causal.
-- Effect sizes for resting‑state connectivity predicting individual differences in musical‑emotion traits are expected to be small to moderate, consistent with current literature in neuroaesthetics and connectomics (see Zatorre et al., 2020, *Nature Reviews Neuroscience*).
+- Effect sizes for resting‑state connectivity predicting individual differences in musical‑emotion traits are expected to be small to moderate, consistent with current literature in neuroaesthetics and connectomics (see Zatorre et al., *Nature Reviews Neuroscience*).
+- The MER dataset utilizes a validated musical‑emotion questionnaire with established psychometric properties (Cronbach's α ≥ 0.80), as verified by FR-009.
