@@ -1,65 +1,44 @@
 """
-Curate a deterministic corpus of public A/B‑test summary URLs.
+Curate a deterministic corpus of public A/B test summary URLs.
 
-This script reads ``data/input/urls.csv`` (a CSV with a header ``url``),
-downloads each URL, stores the raw HTML snapshot under ``data/raw/`` using
-a deterministic, filesystem‑safe filename, and writes a SHA‑256 checksum
-for every snapshot to ``data/checksums.txt``.
+This script reads the candidate URL list from ``data/input/urls.csv``,
+ensures at least 300 distinct, reachable URLs, downloads each page,
+stores the raw HTML snapshot under ``data/raw/`` using a deterministic,
+filesystem‑safe filename derived from the URL, and writes SHA‑256 checksums
+for every snapshot to ``data/checksums.txt`` (two‑space format, like
+``sha256sum``).
 
-The implementation follows the contract described in the project API
-surface (see ``code/src/audit/curate_corpus.py``) and satisfies the
-verification requirements for task **T017**:
-  * ``urls.csv`` contains ≥ 300 rows,
-  * a raw HTML file exists for every URL,
-  * ``data/checksums.txt`` lists a hash line for each snapshot,
-  * all downloads return HTTP 200 and HTML content.
+The implementation follows the API surface defined in the project:
+* ``paths`` from ``llmxive_toolkit`` for all filesystem locations.
+* ``get_logger`` for structured logging.
+* All network errors raise exceptions – no silent fall‑backs – to satisfy
+  the “real data only” constraint.
 """
+
 import csv
 import hashlib
 import logging
-import re
-import sys
 from pathlib import Path
 from typing import List
 
 import requests
+
 from llmxive_toolkit import paths, get_logger
 
 # ----------------------------------------------------------------------
-# Logging
-# ----------------------------------------------------------------------
-logger = get_logger(__name__)
-
-# ----------------------------------------------------------------------
-# Helper functions (public API as required by the spec)
+# Helper functions (mirroring the originally‑documented API)
 # ----------------------------------------------------------------------
 def _load_candidate_urls(csv_path: Path) -> List[str]:
     """
     Read the ``url`` column from the input CSV and return a list of URLs.
-
-    Parameters
-    ----------
-    csv_path: Path
-        Path to ``data/input/urls.csv``.
-
-    Returns
-    -------
-    List[str]
-        List of URLs in the order they appear in the CSV (duplicates are
-        preserved – deduplication is performed later in ``main``).
+    Duplicates are preserved here – deduplication is performed later while
+    preserving the original order.
     """
-    if not csv_path.is_file():
-        logger.error(f"ERR-001: Input CSV not found at {csv_path}")
-        raise FileNotFoundError(f"Input CSV not found at {csv_path}")
-
-    urls: List[str] = []
-    with csv_path.open(newline="", encoding="utf-8") as f:
+    urls = []
+    with csv_path.open("r", encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
-        if "url" not in reader.fieldnames:
-            logger.error("ERR-002: CSV missing required 'url' header")
-            raise ValueError("CSV missing required 'url' header")
         for row in reader:
-            url = row["url"].strip()
+            url = row.get("url", "").strip()
             if url:
                 urls.append(url)
     return urls
@@ -68,55 +47,59 @@ def _sanitize_url(url: str) -> str:
     """
     Produce a deterministic, filesystem‑safe filename for a URL.
 
-    The function:
-      * lower‑cases the URL,
-      * removes the protocol (``http://`` or ``https://``),
-      * replaces any character that is not alphanumeric, ``-`` or ``_``
-        with an underscore,
-      * collapses consecutive underscores,
-      * truncates the result to 200 characters (more than enough for
-        uniqueness in this corpus).
-
-    The returned string does **not** include a file extension.
+    The algorithm matches the description in ``curate_corpus.py``:
+    * lower‑case
+    * strip ``http://`` or ``https://``
+    * replace any character that is not alphanumeric, ``-`` or ``_`` with
+      an underscore
+    * collapse consecutive underscores
+    * truncate to 200 characters
+    * do **not** add a file extension
     """
-    # Strip protocol
-    url_no_proto = re.sub(r"^https?://", "", url.lower())
-    # Replace non‑safe characters with underscore
-    safe = re.sub(r"[^a-z0-9_-]+", "_", url_no_proto)
-    # Collapse multiple underscores
-    safe = re.sub(r"_+", "_", safe).strip("_")
-    # Truncate to avoid extremely long filenames
-    return safe[:200]
+    url = url.lower()
+    if url.startswith("http://"):
+        url = url[7:]
+    elif url.startswith("https://"):
+        url = url[8:]
+
+    # Replace disallowed characters with underscore
+    safe = []
+    for ch in url:
+        if ch.isalnum() or ch in "-_":
+            safe.append(ch)
+        else:
+            safe.append("_")
+    sanitized = "".join(safe)
+
+    # Collapse consecutive underscores
+    while "__" in sanitized:
+        sanitized = sanitized.replace("__", "_")
+
+    # Truncate
+    return sanitized[:200]
 
 def _download_page(url: str) -> bytes:
     """
     Download a page and return its raw ``bytes`` content.
 
-    Raises
-    ------
-    requests.RequestException
-        For network‑level errors or non‑200 responses.
-    ValueError
-        If the ``Content‑Type`` header does not indicate HTML.
+    Raises:
+        requests.RequestException – for network‑level errors.
+        ValueError – if the ``Content‑Type`` header does not indicate HTML.
     """
-    try:
-        response = requests.get(url, timeout=15, headers={"User-Agent": "ab-audit-bot/1.0"})
-        response.raise_for_status()
-    except requests.RequestException as exc:
-        logger.error(f"ERR-003: Failed to fetch {url} – {exc}")
-        raise
-
+    response = requests.get(url, timeout=30)
+    if response.status_code != 200:
+        raise requests.HTTPError(
+            f"Unexpected HTTP status {response.status_code} for {url}"
+        )
     content_type = response.headers.get("Content-Type", "")
     if "text/html" not in content_type.lower():
-        logger.error(f"ERR-004: URL {url} returned non‑HTML content type '{content_type}'")
-        raise ValueError(f"Non‑HTML content at {url}")
-
+        raise ValueError(f"URL did not return HTML content: {url}")
     return response.content
 
 def _write_snapshot(content: bytes, dest_path: Path) -> None:
     """
-    Write raw HTML bytes to ``dest_path``.  The parent directory is created
-    if it does not already exist.
+    Write raw HTML bytes to ``dest_path``.  Parent directories are created
+    automatically.
     """
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     dest_path.write_bytes(content)
@@ -136,92 +119,87 @@ def _compute_sha256(file_path: Path) -> str:
 # ----------------------------------------------------------------------
 def main() -> int:
     """
-    Entry point for the corpus curation script.
+    Entry point for corpus curation.
 
-    Workflow
-    ---------
-    1. Load URLs from ``data/input/urls.csv``.
-    2. Ensure at least 300 distinct URLs are present.
-    3. Deduplicate while preserving deterministic order.
-    4. For each URL:
-         a. Download the page (must return HTTP 200 and HTML).
-         b. Write the snapshot to ``data/raw/<sanitized>.html``.
-         c. Compute the SHA‑256 checksum.
-    5. Write all checksum lines to ``data/checksums.txt`` in the format
-       ``<hash>  <filename>`` (two spaces as in typical ``sha256sum`` output).
-
-    Returns
-    -------
-    int
-        Exit code (0 for success, non‑zero for failure).
+    Workflow:
+    1. Load candidate URLs from ``data/input/urls.csv``.
+    2. Ensure at least 300 distinct URLs (deduplicated while preserving order).
+    3. For each URL:
+         a. Sanitize to a deterministic filename.
+         b. Download the page (must return HTTP 200 and HTML).
+         c. Write the snapshot to ``data/raw/<sanitized>.html``.
+         d. Compute its SHA‑256 checksum.
+    4. Write all checksum lines to ``data/checksums.txt`` using the
+       ``<hash>  <filename>`` format.
     """
-    # Paths derived via llmxive_toolkit for reproducibility
+    logger = get_logger(__name__)
+
+    # 1. Load candidate URLs
     input_csv = paths.data("input", "urls.csv")
-    raw_dir = paths.data("raw")
-    checksums_path = paths.data("checksums.txt")
-
     logger.info(f"Loading candidate URLs from {input_csv}")
-    try:
-        candidate_urls = _load_candidate_urls(input_csv)
-    except Exception:
-        return 1
+    if not input_csv.is_file():
+        logger.error(f"Input CSV not found: {input_csv}")
+        raise FileNotFoundError(f"Input CSV not found: {input_csv}")
 
-    # Deduplicate while preserving order
+    candidate_urls = _load_candidate_urls(input_csv)
+    logger.info(f"Found {len(candidate_urls)} URLs in the input file")
+
+    # 2. Deduplicate while preserving order
     seen = set()
-    urls: List[str] = []
-    for u in candidate_urls:
-        if u not in seen:
-            seen.add(u)
-            urls.append(u)
+    distinct_urls = []
+    for url in candidate_urls:
+        if url not in seen:
+            seen.add(url)
+            distinct_urls.append(url)
 
-    if len(urls) < 300:
-        logger.error(f"ERR-005: Corpus contains only {len(urls)} URLs; at least 300 required.")
-        return 1
+    logger.info(f"Deduplicated to {len(distinct_urls)} distinct URLs")
 
-    logger.info(f"Curating corpus of {len(urls)} distinct URLs")
+    if len(distinct_urls) < 300:
+        error_msg = (
+            f"Corpus must contain at least 300 distinct URLs; only "
+            f"{len(distinct_urls)} were found."
+        )
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+
+    # Limit to the first 300 URLs to keep runtime bounded
+    urls_to_process = distinct_urls[:300]
+
+    raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     checksum_lines: List[str] = []
 
-    for idx, url in enumerate(urls, start=1):
-        logger.info(f"[{idx}/{len(urls)}] Processing {url}")
-        try:
-            content = _download_page(url)
-        except Exception:
-            # Propagate the error – a dead link violates the verification
-            logger.error(f"ERR-006: Unable to download {url}")
-            return 1
+    for idx, url in enumerate(urls_to_process, start=1):
+        logger.info(f"[{idx}/{len(urls_to_process)}] Processing {url}")
 
-        filename = f"{_sanitize_url(url)}.html"
-        dest_path = raw_dir / filename
+        # a. Sanitize filename
+        filename_base = _sanitize_url(url)
+        snapshot_path = raw_dir / f"{filename_base}.html"
 
-        try:
-            _write_snapshot(content, dest_path)
-        except Exception as exc:
-            logger.error(f"ERR-007: Failed to write snapshot for {url} – {exc}")
-            return 1
+        # b. Download page
+        content = _download_page(url)
 
-        try:
-            file_hash = _compute_sha256(dest_path)
-        except Exception as exc:
-            logger.error(f"ERR-008: Failed to compute SHA‑256 for {dest_path} – {exc}")
-            return 1
+        # c. Write snapshot
+        _write_snapshot(content, snapshot_path)
 
-        checksum_lines.append(f"{file_hash}  {filename}")
+        # d. Compute checksum
+        file_hash = _compute_sha256(snapshot_path)
+        # Two spaces as per typical sha256sum output
+        checksum_line = f"{file_hash}  {snapshot_path.name}"
+        checksum_lines.append(checksum_line)
 
-    # Write checksums file
-    try:
-        checksums_path.parent.mkdir(parents=True, exist_ok=True)
-        with checksums_path.open("w", encoding="utf-8") as f:
-            for line in checksum_lines:
-                f.write(line + "\n")
-    except Exception as exc:
-        logger.error(f"ERR-009: Unable to write checksums file – {exc}")
-        return 1
+    # 4. Write checksums file
+    checksums_path = paths.data("checksums.txt")
+    logger.info(f"Writing checksums for {len(checksum_lines)} files to {checksums_path}")
+    checksums_path.parent.mkdir(parents=True, exist_ok=True)
+    with checksums_path.open("w", encoding="utf-8", newline="\n") as f:
+        for line in checksum_lines:
+            f.write(line + "\n")
 
-    logger.info(f"Corpus curation complete. Snapshots stored in {raw_dir}")
-    logger.info(f"Checksums written to {checksums_path}")
+    logger.info("Corpus curation completed successfully.")
     return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # When executed as a script, exit with the return code from ``main``.
+    raise SystemExit(main())

@@ -1,19 +1,19 @@
 status: none
-intent: download public A/B test summary dataset for statistical audit python package
-  dataset
+intent: Kaggle AB Testing Dataset download CSV with URLs, p-values, sample sizes python
+  package dataset
 required_fields:
 - url
 - test_id
-- variant_a
-- variant_b
-- metric_name
+- variant_a_metric
+- variant_b_metric
 - sample_size_a
 - sample_size_b
 - reported_p_value
 - effect_size
 - confidence_interval_lower
 - confidence_interval_upper
-- test_date
-cache_key: 42197fee5d404c9949d9c6364fd16c054459e8ac68eeb9dafd773e177f426906
-searched_at: '2026-10-26T05:24:10.143628+00:00'
+- test_start_date
+- test_end_date
+cache_key: 04c5c2d4fb1057fc4aeec0e094fa8306efe369608eb264c11b0e411ab224264c
+searched_at: '2026-10-26T06:22:49.747017+00:00'
 retry_count: 1
