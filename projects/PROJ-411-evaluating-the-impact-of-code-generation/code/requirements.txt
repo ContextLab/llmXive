@@ -1,3 +1,4 @@
-huggingface_hub==0.23.*
-pyarrow==14.*  # required for parquet I/O
-pyyaml==6.0.*   # already in base but pinned for reproducibility
+httpx==0.27.*   # GitHub REST API client
+pandas==2.2.*   # Data handling (already available but pinned for reproducibility)
+pyyaml==6.0.*   # Schema loading
+pyarrow==15.*   # Parquet support (required by pandas)
