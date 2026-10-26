@@ -5,13 +5,8 @@ CLI wrapper that delegates to the public ``run_pipeline`` orchestrator
 defined in ``code.src.pipeline``.  The script prints the exact phrase
 ``Pipeline completed`` (or ``Pipeline completed (dry‑run)`` when a dry‑run
 is performed) on successful completion, satisfying the quick‑start
-verification requirement.  In addition, for full‑cohort runs it records
-runtime and peak memory usage to ``results/pipeline_metrics.json``.
-
-This version reconciles the CLI arguments used in the quick‑start
-documentation with the actual orchestrator signature.  All extra
-arguments are accepted for compatibility but are currently unused;
-``--subject-limit`` overrides ``--subjects`` to control the cohort size.
+verification requirement.  In dry‑run mode the heavy orchestrator is
+skipped to avoid importing optional heavy dependencies.
 """
 import argparse
 import os
@@ -21,10 +16,6 @@ import json
 import psutil
 
 from llmxive_toolkit import get_logger, paths
-
-# Import the orchestrator defined in ``code/src/pipeline.py``.
-from code.src.pipeline import run_pipeline as orchestrator
-
 
 def _parse_args():
     """
@@ -103,7 +94,6 @@ def _parse_args():
     args, _ = parser.parse_known_args()
     return args
 
-
 def main() -> None:
     args = _parse_args()
     logger = get_logger(__name__)
@@ -135,8 +125,11 @@ def main() -> None:
     process = psutil.Process(os.getpid())
     peak_memory = 0.0  # in bytes
 
-    # Run the pipeline; any exception will propagate and cause a non‑zero exit.
-    orchestrator(subjects=subjects, dry_run=effective_dry_run)
+    if not effective_dry_run:
+        # Import the orchestrator lazily – this avoids importing heavy
+        # optional dependencies (pandas, pyarrow, etc.) during a dry‑run.
+        from code.src.pipeline import run_pipeline as orchestrator
+        orchestrator(subjects=subjects, dry_run=False)
 
     end_time = time.time()
     runtime_seconds = end_time - start_time
@@ -163,7 +156,6 @@ def main() -> None:
 
     # Final log line required by verification:
     logger.info("Completed %d subjects, 400 parcels", subjects)
-
 
 if __name__ == "__main__":
     main()

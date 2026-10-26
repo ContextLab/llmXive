@@ -1,1 +1,1 @@
-"""Data subpackage – forwards to the implementation in ``code.src.data``."""
+"""Data package initialisation for top‑level ``src`` namespace."""

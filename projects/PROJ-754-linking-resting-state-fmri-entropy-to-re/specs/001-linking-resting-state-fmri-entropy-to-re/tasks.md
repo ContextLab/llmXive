@@ -10,7 +10,7 @@ All scripts run on CPU‑only GitHub‑Actions runners and use only real, public
 
 ## Phase 0 – Power Planning (pre‑modeling)
 
-- [X] T014 [US0] Perform an a‑priori power analysis before any statistical modeling. `code/src/stats/power_pre.py`.
+- [~] T014 [US0] Perform an a‑priori power analysis before any statistical modeling. `code/src/stats/power_pre.py`.
   - Compute analytical power for a mixed‑effects F‑test using `statsmodels.stats.power.FTestPower` with effect size f² = 0.05, α = 0.05, and N = anticipated QC‑passed subjects (default 200).  
   - Write `results/power_analysis_pre.json` containing `power`, `effect_size_f2`, `n_subjects`, `alpha`, and `underpowered` (true if power < 0.80).  
   - Verification: JSON file parses without error and `underpowered` flag correctly reflects the computed power (satisfying SC‑006).
