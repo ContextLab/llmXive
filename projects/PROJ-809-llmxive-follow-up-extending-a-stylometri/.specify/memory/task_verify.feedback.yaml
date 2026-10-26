@@ -1,0 +1,116 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: fef1f74c270445a66156aa2568b016ac01c4d7a508425c10fdb0c2bc0b607db9
+T005:
+  task: 7734016a564b6d71ffa861e8588d726e1cb6226527d73e7414e1e95aee7bf7ac
+T006:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/PROJ-809-llmxive-followup.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: fb4a08b0355449f7e3a5341707b4356dd09149c3c0136288bd0644011f4e6187
+T007:
+  task: fdf7ea89188a9134601ce36f2b084965975248c1bf0c30dd4b6dfec1c92ccb8c
+T009:
+  task: 41c68dcc53489481b132ddc0adf55489fae0da544a62416c08474f7ac116caa8
+T010:
+  reason: "The file `tests/integration/test_data_ingestion.py` exists, but it imports\
+    \ a non\u2011existent symbol `CRITICAL_COLLISION_THRESHOLD` from `code/data_ingestion.py`.\
+    \ Since this constant is not defined in the module, the test suite cannot be imported\
+    \ or executed, so the integration test does not actually verify the data\u2011\
+    ingestion pipeline as required. Define the missing constant (or adjust the test)\
+    \ to make the integration test runnable."
+  task: 26070a8315fccf92888b0b49c6ca328fa1d09db0ac4b6f285509f8999bee9ea3
+T011:
+  task: 03054f159cde1295bcad0f9d2cd1f7cd1899230fd40148e165dc00f3ac2ae4a6
+T012:
+  reason: "The `code/data_ingestion.py` script contains the intended filtering steps\
+    \ (author extraction, \u226510 abstracts, random selection of 20 authors), but\
+    \ it cannot run as\u2011is: it calls `load_state(state_path)` while `load_state`\
+    \ is defined without parameters, causing a runtime error. Moreover, the task\u2019\
+    s expected output (author\u2011specific folders with \u226510 normalized text\
+    \ files) is not produced\u2014only a single JSON corpus is saved. These issues\
+    \ prevent the script from genuinely delivering the required 20 lead\u2011author\
+    \ extraction."
+  task: 7a16581e2ab68df21c86fe4c501514f8b80f1ba48906a6a897e56eaee2d180cc
+T013:
+  task: 3c43d7c27e7e4e171636ea294fde0c35bf09b3e4fc656930630063cc66ccb258
+T013a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/PROJ-809-llmxive-followup.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 87e2d81de3b062d58d7b15e21fc0ed4e16953765d8001a91d3ed9e1a513ebe63
+T014:
+  reason: "The `code/data_ingestion.py` script never applies the required lowercase,\
+    \ punctuation\u2011removal, and character\u2011level tokenization (e.g., it never\
+    \ calls `utils.tokenize_char_level_no_punct` and saves the raw abstract text unchanged).\
+    \ Consequently the preprocessing step mandated by T014 is missing."
+  task: 14592f09db413848149c997a6f2ea9f187ed625886f557721737e6b83edcec2a
+T015:
+  task: a889606e5aad9fb7a72f7d29ae8ccc7d6de45380f69e2f55c24852e00731be52
+T016:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/PROJ-809-llmxive-followup.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: e4a6829890c39c09e1d3fb716982b4d879e1c101f2797a444fab5e296d2b7129
+T017:
+  task: f8f886ba4a28dbd92cb01d8fd52fc71932ad5facf382e6b98f3dd5e16a686e22
+T018:
+  task: 061c5df98fba7255f0f774ee47d7a3e833e5bece001e2b6fc43c1d2768426ebc
+T019:
+  task: 0187b33fe40b34fde834409243662e30dea8fdabc018ffc3d1072d69a01904db
+T020:
+  task: e8d89c9df951f9438c4effd79a66cbd252e0ca5a38988ad26e593acf7721aca7
+T021:
+  task: b46b13123dabea0b5008fd08e80962e050249a545de1c204bb828c9eb6721689
+T022:
+  task: 69874b67e56d3877d47435fe6c60045ea062488e52ac5217abb31441a87815e9
+T023:
+  task: 65d019aac5f1ade82269242e95e50a2688c9c60c8f36a1b864c879ad8df1b646
+T023b:
+  task: 0c2b1b37615ac97189292ea40815e7b907699f55f095cb3ef0d85ff4864f06d0
+T024:
+  task: faf20fc789dc9a595f22c51efc6b8d52763b63845c20a62f127ae90946d937b0
+T025:
+  task: 2fd725ced1c9f0fe71486df56197c5836e8abd9a95f2e9f62a4d01380957804c
+T026:
+  task: bc83718b7819a00d5e5a645f3fc90db50c5ff7d5ff990ed3aebd60db7ff1c426
+T027:
+  task: d649c86682e0b01de72c1a74e6adfb7d4e1441b01e3dbd5d99bdf1c4c7f98fb3
+T028:
+  task: 721dc083f807b5584952c7e0603452262bbf43589d63085ad19b80f36bf9273c
+T029:
+  task: f8fe96aa7a335420099e02b40e317631f9beebe19c6d80fca736a0ffc95fc045
+T029a:
+  task: de4b0574140679de720c3197140d27f955cd351d721dc283a19c9326893dea0a
+T030:
+  task: 893712c6d780de5d7845ddf2e0ea027d30f473b450776c1f09c44c4c8eadcc64
+T031:
+  task: 8e7f11a3aada3e7bae3f00d2635fee2b3bfa71629d2162538762dc4ea6f2a4d8
+T032:
+  task: 9c0b12c15f25352eb8e40834038366ee0279a43a50675212d1be98a8a1397375
+T033:
+  task: beec4a2c5024762d7fd0ec68ec40262369f74b3a242f2113701763f7206d10b5
+T034:
+  task: b578e0d890c7aa492cd8c00fae1246ab6c23cf1c6eb8d0ad1f60bfb4dfe1377c
+T035:
+  task: b67a434e5c2df2015741af75c064ccca3bd78c542ac6aad5309c49eee5b5c04b
+T036:
+  task: aad126dc7a2b16f1b5beec9afa7782a6bfd567e8fdbb90ce84a262c465ddae41
+T037:
+  task: bf9209be0a63fd9eddfe21f0a0744a9a63098d1a4a3100865054bd22d24a6abe
+T038:
+  task: d00d5d8a5c58b5a131eb8fe1609b5000b16644a5ee6b3e88d87185e26c6a8155
+T039:
+  task: a93bb4baaf7e151dc4994de253e0b8ba42b4a69f65a9487f3031919fae9ea7c4
+T040:
+  task: 926eace679cbaf10d114c257059a7cb03d2362ec27f8f9a4761a5d7808c50baa
+T041:
+  task: ee0a52b9e4a89bc8030f0e0c3c9fff68f61537e2e7c5e1f5c8101e84c1cd8078
+T042:
+  task: 7d54ef5f77e5be6f3d805ae4ccbd46a6659d8554b264447cef618f2b0dcb4078
