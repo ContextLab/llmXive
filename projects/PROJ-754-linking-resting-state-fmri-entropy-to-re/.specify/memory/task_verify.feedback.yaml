@@ -1,38 +1,30 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/src/run_pipeline.py
-    exit=1'
-  task: a0c36d11149a7d73bcaa80f7ec07d4a0302af726a7568af6fb68e056f75d16ac
+  task: 7206176e37b9af32937c9b4ae4a8ac6a42f3658a4d6daffd687b234f6eec0018
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/src/data/download_hcp.py
-    exit=1'
-  task: 0476c35a3458bbdf095c53ec74414d13047dd5718ab86090cbddbee4a0437471
+  task: a33675c07213d536631f285b9d94ce261b82acdb894421ea1e551f3802de4e7e
 T003:
-  reason: "The `code/src/data/qc.py` script is present and implements the required\
-    \ logic, but the essential input file `data/raw/dsrt_scores.parquet` is missing,\
-    \ and consequently the required output artifacts `data/derived/clean_subjects.parquet`\
-    \ and `data/derived/subject_qc.csv` were not generated or provided. Without the\
-    \ input data and the resulting QC files, the task\u2019s verification conditions\
-    \ cannot be satisfied."
-  task: c813ac33e41a92839da11350099c5a879c55589d6ab34eda37778b88ad14377b
+  task: 391bce7862386bb9a5d2800208d074af689580f7eb721add72c140d518d32a42
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/src/analysis/entropy.py
-    exit=1'
-  task: 92607ab5636da82b75a1836003fe4cef22bb13177933524845a400f4b8fec55d
+  task: 1bfb769ac75860aecd80ae4b97148b43113755aa03757bd73b3527c6599b11df
 T005:
-  task: 501680e761aff2c623482e3dc2349da80beea5515dc79d7b1de13e765e300371
+  task: f8b545799a6955438f89b1ce261e9f95f866e45e8e497bafc8dec68135b1f52f
 T006:
-  task: 1b7dccd514647ed9f0397cc66022a15d1d6a2787c896b5099f9a88351404d060
+  task: 556f632971af234ae02e92d0d4a8aeadd95e713ae52cd140c5d9a54b1813c649
 T007:
-  task: 2aac6208034e68dd76d8ac2154af824533dcd0a1e345af935208f78f29fe0e8e
+  task: 778d58dc95f57eb373d17502ad08ac14ce59187e7f058fdef986e988c1660719
 T008:
-  task: 8e205281ae7f602010d18500aef8ef5cb1e6679e68c03a825b08301d039d4f53
+  task: d4d82cf70b92acf3d9f23732f0bcbe33ee05925febc2c58e97208624271206a0
 T009:
-  task: c54c956d4736a3cbd1a52ac8ffcb10f64c80ebfd66c44ee1e5b2ece3e9db05fe
+  task: 724858a5a0bdda8aa8f4374f3c223aa090059186a5141d4e8deddd58852f68d9
 T010:
-  task: 5d563777ba8e0a7a1e5a7ad4030361162338a89d7fb14e2a51c927052902d449
+  task: f3bb76e7091cbb26dbb685a20c111e15c73d417c85b31a336fb0a8f7c78b4cbd
 T011:
-  task: 21b39cbb58f3e604efd8c057d5c3a8e0e25f9e18ed0d1b81834663496386c440
-T012:
-  task: a2e14e10774ad35ec3061dcad8e1a02cd8b5256343f374b23a0d26dc2dfb16b9
-T013:
-  task: 3b0ced45161d79f92f4c9f6b3ef206b4ede18c87289eb680d08dd80ada10f768
+  task: 489807dec49e7f190b785250cf38780a864e3dcdb6537cc91a9400adfe4b3bf6
+T014:
+  reason: 'Requested task execution failed; rerun successfully: code/src/stats/power_pre.py
+    exit=1'
+  task: af80f796d27246384fecace19d36e539a0c688c76d427ea678afaf57c11b4cbe
+T015:
+  task: 987024063dfb8a47ff2de804b2e00300c5412fc5b69129062c981e1b9a0412e4
+T016:
+  task: 309bf8061256e2f48ec5be567f8c25d2f2665f9b2182cb4afb8f033686424c5e
