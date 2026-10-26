@@ -29,9 +29,6 @@ def test_raw_html_snapshots_exist():
                 .replace("/", "_")
                 .replace(".", "_")
             )
-            # The script also strips non‑alphanumerics, but this approximation
-            # is sufficient for the test because the script uses the exact same
-            # helper.
             filename = f"{sanitized}.html"
             file_path = raw_dir / filename
             assert file_path.exists(), f"Missing raw HTML for {url}"

@@ -1,0 +1,7 @@
+{
+  "task_id": "T017",
+  "fingerprint": "a9262ab0823d6b9e93a76245628356a3631fcb05b78e80148318a3895398e29f",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'tests/conftest.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`."
+}
