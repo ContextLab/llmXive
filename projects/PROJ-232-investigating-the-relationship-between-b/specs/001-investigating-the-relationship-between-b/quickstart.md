@@ -17,21 +17,18 @@ pip install -r requirements.txt
 ```bash
 python src/main.py
 ```
+
 The orchestrator performs the following steps:
 
 1. **Download** all URLs listed in the Verified Datasets block and record SHA‑256 checksums.  
-2. **Validation Gate** (`validate.py`).  
-   - **Expected outcome (current state)**: required columns are missing, so `reports/data_gap_report.json` is written and the pipeline stops with a clear message.  
-   - **If** a compliant dataset is placed manually (e.g., `data/subjects.parquet` matching `contracts/dataset.schema.yaml`), the pipeline proceeds to full analysis.  
-3. **Full analysis** (when data are present): matrix reconstruction → graph‑metric extraction → PCA → partial correlations + Ridge CV → FDR → figures → `results/analysis_results.csv`.  
+2. **Validation Gate** (`validate.py`) –  
+   - **Expected outcome (current state)**: required columns are missing **and** the pipeline writes `reports/data_gap_report.json` then stops.  
+   - **If** a compliant **open** dataset (matching the `contracts/dataset.schema.yaml` schema) **exists**, the pipeline will proceed to full analysis, including fMRIPrep preprocessing, graph‑theoretic metric computation, partial correlation, Ridge regression with cross‑validation, FDR correction, and figure generation.  
+   - **If** the validation gate fails, the pipeline automatically runs a **simulated‑data validation** that executes the complete analysis workflow on synthetic connectivity matrices and MER scores, producing a proof‑of‑concept result set (`reports/simulated_validation.json`).  
 
-## Troubleshooting
-| Symptom | Likely Cause | Remedy |
-|---------|--------------|--------|
-| `reports/data_gap_report.json` created | Verified sources lack required variables | This is the intended behavior; supply a compliant dataset or await spec amendment. |
-| Download failure for a URL | Network issue or URL typo | The script logs the error and continues with remaining files; verify connectivity or URL correctness. |
-| `MemoryError` | Attempting to load too many large matrices at once | The pipeline processes subjects sequentially; no batch flag needed. |
-| Unexpected exit code from `src/main.py` | Validation gate failure or unhandled exception | Inspect `reports/data_gap_report.json` for missing variables; fix data source accordingly. |
+3. **Resource‑Usage Report** (`reports/resource_usage.json`) summarizing peak RAM, total CPU time, and wall‑clock time is generated after the pipeline completes (or after the simulated‑data validation).  
+
+*Note*: The pipeline is designed to run on the GitHub Actions free tier; all steps are CPU‑first and respect the 7 GB RAM / 6 h runtime limits.
 
 ---
 

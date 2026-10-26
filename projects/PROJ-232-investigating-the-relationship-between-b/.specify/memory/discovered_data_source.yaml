@@ -1,15 +1,13 @@
 status: none
-intent: Human Connectome Project resting fMRI Barcelona Music Reward Questionnaire
-  MER scores Schaefer atlas python package dataset
+intent: download HCP S1200 resting fMRI ConnectomeDB and Barcelona Music Reward Questionnaire
+  python package dataset
 required_fields:
 - subject_id
-- resting_state_fmri_nifti_path
+- functional_connectivity_matrix
 - mer_total_score
-- mer_valence_score
+- mer_reward_score
 - mer_arousal_score
-- age
-- sex
-- checksum
-cache_key: 953cfd78706c4c178c95402ded739d619b166954bcb3302127622aececd846cf
-searched_at: '2026-10-26T10:27:52.515274+00:00'
+- mer_valence_score
+cache_key: d56080e266436863d648346a79aaeda705a1058e3c63412bbfe6a9b7a77c609c
+searched_at: '2026-10-26T10:41:24.219208+00:00'
 retry_count: 1

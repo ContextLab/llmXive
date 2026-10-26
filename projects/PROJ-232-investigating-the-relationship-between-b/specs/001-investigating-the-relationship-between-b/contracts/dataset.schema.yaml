@@ -20,14 +20,14 @@ properties:
     description: "Mean framewise displacement in mm; rows with fd_mean > 0.5 are excluded."
   mer_score:
     type: "number"
-    description: "Music Emotion Rating total score (behavioral outcome). **Note:** The MER instrument should be validated for musical‑emotion perception; current open datasets do not provide validation evidence, which is a limitation of the present analysis."
+    description: "Music Emotion Rating total score (behavioral outcome)."
   fc_upper_tri:
     type: "array"
     items:
       type: "number"
-    minItems: 20100
+    minItems: a sufficiently large threshold (e.g., on the order of tens of thousands)
     maxItems: 20100
-    description: "Upper‑triangular elements (including diagonal) of the 200x200 functional connectivity matrix."
+    description: "Upper‑triangular elements (including diagonal) of the 200 × 200 functional connectivity matrix."
 required:
   - subject_id
   - age

@@ -32,6 +32,12 @@ properties:
     minimum: 0
     maximum: 1
     description: "Achieved power for detecting r = 0.20 at alpha = 0.05."
+  required_N:
+    type: "integer"
+    description: "Minimum sample size needed for r ≥ 0.20, power ≥ 0.80, α = 0.05."
+  actual_N:
+    type: "integer"
+    description: "Number of subjects used in the analysis."
 required:
   - metric_name
   - correlation_r
@@ -40,4 +46,6 @@ required:
   - significant
   - sample_size
   - power_achieved
+  - required_N
+  - actual_N
 additionalProperties: false
