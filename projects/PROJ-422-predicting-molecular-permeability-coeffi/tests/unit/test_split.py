@@ -1,154 +1,105 @@
-"""
-Unit tests for code/data/split.py
-"""
 import pytest
 import pandas as pd
 import numpy as np
+import json
 from pathlib import Path
-import tempfile
-import shutil
-import yaml
+from code.data.split import main as split_main, load_processed_data
+from llmxive_toolkit import paths
 
-from code.data.split import random_split, stratified_split, execute_split, _load_config
+def test_split_files_created(tmp_path, monkeypatch):
+    """Verify that split.py creates both CSV and Parquet files for train and test."""
+    # Mock the data directory to use a temporary path
+    processed_dir = tmp_path / "processed"
+    processed_dir.mkdir()
+    
+    # Create a dummy processed dataset
+    df = pd.DataFrame({
+        "smiles": ["C", "CC", "CCC", "CCCC", "CCCCC", "CCCCCC", "CCCCCCC", "CCCCCCCC"],
+        "permeability": [1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7],
+        "polymer_type": ["A", "A", "A", "A", "B", "B", "B", "B"]
+    })
+    df.to_parquet(processed_dir / "processed_data.parquet")
+    df.to_csv(processed_dir / "processed_data.csv", index=False)
 
+    # Monkeypatch paths.data to return our tmp_path
+    def mock_paths_data(*args):
+        if args[0] == "processed":
+            return processed_dir
+        return Path("data") / args[0]
+    
+    monkeypatch.setattr("code.data.split.paths.data", mock_paths_data)
 
-class TestRandomSplit:
-    def test_basic_split(self):
-        df = pd.DataFrame({"a": range(100), "b": range(100, 200)})
-        train, test = random_split(df, test_size=0.2, random_state=42)
-        assert len(train) + len(test) == 100
-        assert len(test) == 20
-        assert len(train) == 80
+    # Run the split main
+    exit_code = split_main()
+    assert exit_code == 0
 
-    def test_invalid_test_size(self):
-        df = pd.DataFrame({"a": range(10)})
-        with pytest.raises(ValueError):
-            random_split(df, test_size=1.5)
-        with pytest.raises(ValueError):
-            random_split(df, test_size=0.0)
+    # Check for all 4 split files + metadata
+    assert (processed_dir / "train.csv").exists()
+    assert (processed_dir / "train.parquet").exists()
+    assert (processed_dir / "test.csv").exists()
+    assert (processed_dir / "test.parquet").exists()
+    assert (processed_dir / "split_metadata.json").exists()
 
-    def test_reproducibility(self):
-        df = pd.DataFrame({"a": range(100)})
-        t1, te1 = random_split(df, test_size=0.2, random_state=42)
-        t2, te2 = random_split(df, test_size=0.2, random_state=42)
-        assert t1.equals(t2)
-        assert te1.equals(te2)
+    # Verify metadata content
+    with open(processed_dir / "split_metadata.json", "r") as f:
+        meta = json.load(f)
+        assert meta["split_strategy"] == "stratified"
+        assert meta["stratify_column"] == "polymer_type"
+        assert meta["train_size"] == 6
+        assert meta["test_size"] == 2
 
+def test_small_dataset_leave_one_out(tmp_path, monkeypatch):
+    """Verify leave-one-out split for datasets with <= 5 rows."""
+    processed_dir = tmp_path / "processed"
+    processed_dir.mkdir()
+    
+    # 4 rows dataset
+    df = pd.DataFrame({
+        "smiles": ["C", "CC", "CCC", "CCCC"],
+        "permeability": [1.0, 1.1, 1.2, 1.3],
+        "polymer_type": ["A", "A", "B", "B"]
+    })
+    df.to_parquet(processed_dir / "processed_data.parquet")
 
-class TestStratifiedSplit:
-    def setup_method(self):
-        # Create a balanced dataset for stratification
-        classes = ["A"] * 50 + ["B"] * 50
-        np.random.seed(42)
-        np.random.shuffle(classes)
-        self.df = pd.DataFrame({
-            "feature": range(100),
-            "polymer_type": classes
-        })
+    def mock_paths_data(*args):
+        if args[0] == "processed":
+            return processed_dir
+        return Path("data") / args[0]
+    
+    monkeypatch.setattr("code.data.split.paths.data", mock_paths_data)
 
-    def test_stratified_split_success(self):
-        train, test = stratified_split(self.df, stratify_col="polymer_type", test_size=0.2)
-        
-        # Check sizes
-        assert len(train) + len(test) == 100
-        assert len(test) == 20
-        
-        # Check distribution
-        train_dist = train["polymer_type"].value_counts(normalize=True)
-        test_dist = test["polymer_type"].value_counts(normalize=True)
-        
-        # Both should be roughly 0.5/0.5
-        assert abs(train_dist["A"] - 0.5) < 0.1
-        assert abs(test_dist["A"] - 0.5) < 0.1
+    exit_code = split_main()
+    assert exit_code == 0
 
-    def test_missing_stratify_column(self):
-        with pytest.raises(SystemExit):
-            stratified_split(self.df, stratify_col="nonexistent_col")
+    with open(processed_dir / "split_metadata.json", "r") as f:
+        meta = json.load(f)
+        assert meta["split_strategy"] == "leave_one_out"
+        assert meta["train_size"] == 3
+        assert meta["test_size"] == 1
 
-    def test_distribution_threshold_violation(self):
-        # Create a dataset where stratification might fail threshold
-        # (This is hard to trigger with perfect stratify, so we test the logic path)
-        # We rely on the internal validation logic. 
-        # If we force a bad split (not possible with sklearn stratify), we'd trigger it.
-        # Instead, we test the threshold parameter logic by mocking or ensuring it runs.
-        train, test = stratified_split(
-            self.df, 
-            stratify_col="polymer_type", 
-            test_size=0.2, 
-            max_distribution_diff=0.05
-        )
-        # Should pass normally
-        assert len(train) == 80
+def test_quantile_stratification(tmp_path, monkeypatch):
+    """Verify stratification by target quantiles when polymer_type is missing."""
+    processed_dir = tmp_path / "processed"
+    processed_dir.mkdir()
+    
+    # No polymer_type, but enough rows for quantiles
+    df = pd.DataFrame({
+        "smiles": [f"M{i}" for i in range(20)],
+        "permeability": np.linspace(0, 10, 20)
+    })
+    df.to_parquet(processed_dir / "processed_data.parquet")
 
-    def test_insufficient_classes(self):
-        df = pd.DataFrame({"feature": range(10), "polymer_type": ["A"] * 10})
-        with pytest.raises(ValueError):
-            stratified_split(df, stratify_col="polymer_type")
+    def mock_paths_data(*args):
+        if args[0] == "processed":
+            return processed_dir
+        return Path("data") / args[0]
+    
+    monkeypatch.setattr("code.data.split.paths.data", mock_paths_data)
 
+    exit_code = split_main()
+    assert exit_code == 0
 
-class TestExecuteSplit:
-    def setup_method(self):
-        self.temp_dir = tempfile.mkdtemp()
-        self.config_path = Path(self.temp_dir) / "config.yaml"
-        # Save config in temp dir
-        with open(self.config_path, 'w') as f:
-            yaml.dump({"staged_mode": False, "stratification_diff_threshold": 0.05}, f)
-        
-        # Mock _load_config to use our temp config
-        self.original_load = _load_config
-        # We can't patch directly without a mocking framework, so we rely on the function reading from the filesystem.
-        # Ensure the expected location (three levels up) points to our temp config during the test.
-        # Since the test runs from the repository root, we copy the temp config to that location.
-        expected_path = Path(__file__).resolve().parent.parent.parent / "config.yaml"
-        shutil.copy(self.config_path, expected_path)
-
-    def teardown_method(self):
-        shutil.rmtree(self.temp_dir)
-        # Restore original config if needed
-        # (In this simple test environment, we leave the copied config; it does not affect other tests.)
-
-    def test_execute_with_stratify_column(self):
-        df = pd.DataFrame({
-            "smiles": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"],
-            "polymer_type": ["A", "A", "A", "A", "A", "B", "B", "B", "B", "B"],
-            "logP": [1.0, 2.0, 3.0, 4.0, 5.0, 1.5, 2.5, 3.5, 4.5, 5.5]
-        })
-        
-        output_dir = Path(self.temp_dir) / "output"
-        train_path, test_path = execute_split(df, str(output_dir), stratify_column="polymer_type")
-        
-        assert Path(train_path).exists()
-        assert Path(test_path).exists()
-        
-        train_df = pd.read_csv(train_path)
-        test_df = pd.read_csv(test_path)
-        
-        assert len(train_df) + len(test_df) == 10
-
-    def test_execute_without_stratify_column(self):
-        # Simulate Proxy Mode: no polymer_type
-        df = pd.DataFrame({
-            "smiles": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"],
-            "logP": [1.0, 2.0, 3.0, 4.0, 5.0, 1.5, 2.5, 3.5, 4.5, 5.5]
-        })
-        
-        output_dir = Path(self.temp_dir) / "output_fallback"
-        # This should trigger the fallback logic
-        train_path, test_path = execute_split(df, str(output_dir), stratify_column="polymer_type")
-        
-        assert Path(train_path).exists()
-        assert Path(test_path).exists()
-        
-        # Just check sizes, order is random
-        assert len(pd.read_csv(train_path)) + len(pd.read_csv(test_path)) == 10
-
-    def test_output_files_created(self):
-        df = pd.DataFrame({
-            "a": range(20),
-            "polymer_type": ["A"] * 10 + ["B"] * 10
-        })
-        output_dir = Path(self.temp_dir) / "output_check"
-        train_path, test_path = execute_split(df, str(output_dir))
-        
-        assert Path(train_path).name == "train.csv"
-        assert Path(test_path).name == "test.csv"
+    with open(processed_dir / "split_metadata.json", "r") as f:
+        meta = json.load(f)
+        assert meta["split_strategy"] == "stratified"
+        assert meta["stratify_column"] == "_strat_bins"

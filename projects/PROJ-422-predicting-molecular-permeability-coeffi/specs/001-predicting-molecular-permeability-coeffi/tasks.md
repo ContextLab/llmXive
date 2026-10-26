@@ -29,7 +29,7 @@ All scripts write their outputs under the project‑owned directories `data/`, `
   6. Drops rows with missing `target` (permeability) from the output.  
   - **Verification**: `tests/unit/test_preprocess.py` checks that both output files exist, that `mol_valid` is boolean, and that the retention guard triggers only when the valid‑molecule rate falls below 95 %.
 
-- [ ] T003 [US‑1] Implement `code/data/split.py` – reads `data/processed/processed_data.parquet`, filters to rows where `target` is non‑null, then:
+- [ ] T003 [US‑1] Implement `code/data/split.py` – reads `data/processed/processed_data.parquet`, filters to rows where `target` is non‑null, then: <!-- FAILED-IN-EXECUTION: code/data/split.py exit=1 -->
   1. If a `polymer_type` column exists, performs an **80 %/20 % stratified split** preserving an absolute ≤ 5 percentage‑point difference per polymer class (FR‑004).  
   2. If `polymer_type` is absent, performs a **stratified split based on target‑value quantile bins** (e.g., 5‑fold quantiles) to maintain distribution balance, logging the chosen strategy.  
   3. Guarantees that **both** training and test sets contain at least one record; for datasets with ≤ 5 rows it creates a **leave‑one‑out** split (the single left‑out row becomes the test set).  
@@ -47,7 +47,7 @@ All scripts write their outputs under the project‑owned directories `data/`, `
   - Saves the trained checkpoint to `code/models/gnn.pt`.  
   - **Verification**: `tests/unit/test_models.py::test_gnn_training` runs the full training loop on a tiny sampled subset, asserts that training completes within the 6‑hour wall‑time budget on the CI runner, and that `code/models/gnn.pt` exists and can be loaded without error.
 
-- [X] T014 [US‑2] Add unit test `tests/unit/test_models.py::test_gnn_training` (or augment existing file) to exercise the full GNN training pipeline, check checkpoint creation, and enforce the wall‑time limit via a timeout guard.  
+- [ ] T014 [US‑2] Add unit test `tests/unit/test_models.py::test_gnn_training` (or augment existing file) to exercise the full GNN training pipeline, check checkpoint creation, and enforce the wall‑time limit via a timeout guard.  
   - **Verification**: CI runs the test; it must pass and report a duration < 3600 s.
 
 - [ ] T005 [US‑2] Refactor `code/models/rf.py` – train a `RandomForestRegressor` (`n_estimators=200`, `max_features='sqrt'`) **using only the six standard descriptor columns** (MW, logP, TPSA, HBA, HBD, rotatable bonds) and **save** the fitted model to `code/models/rf.pkl` using `joblib.dump`.  

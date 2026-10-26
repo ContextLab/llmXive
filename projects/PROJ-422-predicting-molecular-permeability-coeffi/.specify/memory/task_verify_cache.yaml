@@ -27,16 +27,6 @@ T002:
     \ targets, and raises a non\u2011zero `SystemExit` when the valid\u2011molecule\
     \ fraction is below 95\u202F%, satisfying all test assertions."
   sig: c0f9d39f775baa6689ee71d8df747e1610a2ed89c93e72785940a54a91d1e10a
-T003:
-  c: false
-  h: 03dc5ce977d5c5239c9e1e2b6ee8d65bf4cfcf78263ed31edd3d74253af09265
-  r: "Checked `code/data/split.py` and the generated split files. While the script\
-    \ creates the required Parquet files (`train.parquet`, `test.parquet`) and implements\
-    \ the described split logic, it does **not** produce the required CSV counterparts\
-    \ (`train.csv`, `test.csv`) \u2013 these files are absent from the project. The\
-    \ missing CSV outputs mean the task\u2019s requirement of writing both Parquet\
-    \ **and** CSV splits is not satisfied."
-  sig: 35789c044bed588512b1c3d7afab88a35ab3f5063914c7633dbfef7c544592d4
 T005:
   c: false
   h: 4932e85b9a87ab2bf45944233696a1915e9973108682bbfc0fda11118fd09008
@@ -49,14 +39,17 @@ T005:
     \ fully satisfied."
   sig: 1e09d9bbbe56ea6d409c01e3aa937c912dfb5770caa2ed65275b2371b1d3954c
 T014:
-  c: true
-  h: 15e3089c00a23a53387090fa2d1e3fbaf1d47a1dd05ac42e82ca34468c019576
-  r: "Checked `tests/unit/test_models.py` which contains `test_gnn_training_pipeline`\
-    \ that builds a tiny graph dataset, runs `train_gnn`, asserts a checkpoint file\
-    \ and an interim copy are created, and verifies the elapsed time is <\u202F3600\u202F\
-    s. The CI log shows the test suite (including this test) passed in 4.80\u202F\
-    s, satisfying the wall\u2011time requirement."
-  sig: 1ef67ab51019fe7b10b107b7b3a2dbc191c0347385beff52b884a27fbe602171
+  c: false
+  h: 51b2ca41028c48ecb06c91e6c71c9608697a5c545e1c7f3ed95636d906c63189
+  r: "The repository contains a non\u2011empty `tests/unit/test_models.py` with a\
+    \ `test_gnn_training_pipeline` that builds a tiny graph dataset, calls `train_gnn`,\
+    \ checks that a checkpoint file and an interim copy exist, and asserts the elapsed\
+    \ time is\u202F<\u202F3600\u202Fs. However, there is no execution evidence (e.g.,\
+    \ CI logs or test run output) showing that this test actually runs and passes,\
+    \ nor can we confirm from the truncated `train_gnn` implementation that the interim\
+    \ checkpoint is indeed created. Without proof that the CI pipeline executes the\
+    \ test successfully within the time limit, the task\u2019s requirement "
+  sig: 0e849fc6be239c84302a0ace9c5318f3dfbb2d9f6e9ed23405c748a8279c1f6b
 T015:
   c: false
   h: 9e4c33bb666c95a0f10780408bebbda3b4f0df2ee18c1a852f0b335d5e452e02

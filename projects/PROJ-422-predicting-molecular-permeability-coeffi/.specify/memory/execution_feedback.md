@@ -19,43 +19,47 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/analysis/train.py --config config.yaml -> rc=1
-st epoch: 7 with val loss 0.0003.
-2026-10-26 08:42:51,230 INFO models.gnn: Peak memory usage during training: 0.638 GB
-2026-10-26 08:42:51,231 INFO __main__: GNN checkpoint written to code/models/gnn.pt
-2026-10-26 08:42:51,232 INFO models.rf: Training Random Forest: n_estimators=200, max_features=sqrt
-2026-10-26 08:42:51,441 INFO models.rf: Random Forest training complete. Feature importances shape: (6,)
-2026-10-26 08:42:51,477 INFO __main__: Random Forest model saved to code/models/rf.pkl
+icting-molecular-permeability-coeffi/lib/python3.11/site-packages/torch/nn/modules/transformer.py:20: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)
+  device: torch.device = torch.device(torch._C._get_default_device()),  # torch.device('cpu'),
+2026-10-26 09:18:31,219 INFO __main__: === GNN + RF training step (T007) ===
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 281, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 234, in main
-    gnn_val_rmse = _evaluate_gnn_on_loader(
-                   ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 138, in _evaluate_gnn_on_loader
-    all_preds.append(out.cpu().numpy())
-                     ^^^^^^^^^^^^^^^^^
-RuntimeError: Numpy is not available
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 188, in main
+    df_train = _load_split("train")
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 55, in _load_split
+    raise FileNotFoundError(f"{split_name} split not found at {csv_path}")
+FileNotFoundError: train split not found at /home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/data/processed/train.csv
 
 - python code/analysis/explain.py -> rc=1
-.11/site-packages/torch/nn/modules/transformer.py:20: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)
-  device: torch.device = torch.device(torch._C._get_default_device()),  # torch.device('cpu'),
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/explain.py", line 234, in main
-    explain_gnn(model_path, test_data_path, output_path)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/explain.py", line 114, in explain_gnn
-    test_graphs = load_test_graphs_from_csv(data_path, model_config)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/explain.py", line 75, in load_test_graphs_from_csv
-    raise FileNotFoundError("Graph structure file 'data/interim/test_graphs.pt' not found. "
-FileNotFoundError: Graph structure file 'data/interim/test_graphs.pt' not found. Please ensure T014b/T017 saved the graph structures.
+effi/code/analysis/explain.py", line 70, in load_test_graphs_from_csv
+    df = pd.read_csv(csv_path)
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/processed/test.csv'
 
 - bash ./run_all.sh -> rc=1
-t epoch: 10 with val loss 0.0012.
-2026-10-26 08:43:00,418 INFO models.gnn: Peak memory usage during training: 0.638 GB
-2026-10-26 08:43:00,419 INFO __main__: GNN checkpoint written to code/models/gnn.pt
-2026-10-26 08:43:00,420 INFO models.rf: Training Random Forest: n_estimators=200, max_features=sqrt
-2026-10-26 08:43:00,623 INFO models.rf: Random Forest training complete. Feature importances shape: (6,)
-2026-10-26 08:43:00,659 INFO __main__: Random Forest model saved to code/models/rf.pkl
+st epoch: 5 with val loss 0.0000.
+2026-10-26 09:18:38,616 INFO models.gnn: Peak memory usage during training: 0.636 GB
+2026-10-26 09:18:38,617 INFO __main__: GNN checkpoint written to code/models/gnn.pt
+2026-10-26 09:18:38,617 INFO models.rf: Training Random Forest: n_estimators=200, max_features=sqrt
+2026-10-26 09:18:38,767 INFO models.rf: Random Forest training complete. Feature importances shape: (6,)
+2026-10-26 09:18:38,793 INFO __main__: Random Forest model saved to code/models/rf.pkl
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 281, in <module>
     main()

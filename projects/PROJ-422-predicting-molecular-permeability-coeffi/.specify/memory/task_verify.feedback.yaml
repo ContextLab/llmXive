@@ -5,12 +5,8 @@ T001:
 T002:
   task: 01225ffdef422e3621ee10adc1a293d9872947bae04c7caf4da6044af5d4f2a8
 T003:
-  reason: "Checked `code/data/split.py` and the generated split files. While the script\
-    \ creates the required Parquet files (`train.parquet`, `test.parquet`) and implements\
-    \ the described split logic, it does **not** produce the required CSV counterparts\
-    \ (`train.csv`, `test.csv`) \u2013 these files are absent from the project. The\
-    \ missing CSV outputs mean the task\u2019s requirement of writing both Parquet\
-    \ **and** CSV splits is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/data/split.py
+    exit=1'
   task: 63ca040e52b19fb51b3b431c6e48dd0f60bf36a7cda072de4c10c871d0eb7c97
 T004:
   reason: 'Requested task execution failed; rerun successfully: run_all.sh exit=1'
@@ -41,6 +37,14 @@ T012:
 T013:
   task: f45d7b39b97a52e3cdb70a747add94d34106b2227a8b0cd195d9cb4e9c347abb
 T014:
+  reason: "The repository contains a non\u2011empty `tests/unit/test_models.py` with\
+    \ a `test_gnn_training_pipeline` that builds a tiny graph dataset, calls `train_gnn`,\
+    \ checks that a checkpoint file and an interim copy exist, and asserts the elapsed\
+    \ time is\u202F<\u202F3600\u202Fs. However, there is no execution evidence (e.g.,\
+    \ CI logs or test run output) showing that this test actually runs and passes,\
+    \ nor can we confirm from the truncated `train_gnn` implementation that the interim\
+    \ checkpoint is indeed created. Without proof that the CI pipeline executes the\
+    \ test successfully within the time limit, the task\u2019s requirement"
   task: 8a2d11fff8f9e2054e8e661f6ea2347f7d68f099eb1b3207f687a41f9cc35ac7
 T015:
   reason: "The repository contains `tests/unit/test_models.py` with a `test_rf_training`\
