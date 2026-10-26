@@ -8,18 +8,20 @@ T001:
   sig: 11ac8e75d44e7a7e4aaf983dd240b5c14de3c3cf8a8233e26ed4816f19681535
 T002:
   c: false
-  h: 9d31588ef22ba3a0af15b0514817e0d0cdc86a75779dc42562db19f0ed18014c
-  r: "The `data/raw/` directory contains only a `.gitkeep`; no `<owner>_<repo>.parquet`\
-    \ files or `commit_messages.parquet` were generated, and the required `pull_request.schema.yaml`\
-    \ is absent. Consequently the task\u2019s core deliverables (parquet files with\
-    \ PR rows and the schema) are missing."
-  sig: 04478ba2002e33eec9e8bbb6f50d7a431bf0f793fdeaed43f95a5b98b9d498e3
+  h: 0e0e0f05406259618d54bbedf462c38f06e64d567667bc5ea416f3ad9697c3f5
+  r: "The three `<owner>_<repo>.parquet` files and `commit_messages.parquet` exist\
+    \ and contain rows, and `code/data_acquisition.py` implements the required logic\
+    \ with tenacity back\u2011off. However, the required `pull_request.schema.yaml`\
+    \ file is missing, so the parquet files cannot be verified to conform to the specified\
+    \ schema, violating the task\u2019s verification criteria. Adding the missing\
+    \ schema file (and optionally ensuring the optional fields are populated) is needed\
+    \ to complete the task."
+  sig: 301f3e72affce09b266d9aaf3f857468ae46a2ec79cb2a9550029e74b2e787f3
 T003:
   c: false
-  h: df0ca19e49641686031a601280468088d8bcdce34793305067e412b0c2eb6d43
-  r: The repository contains `code/prompt_engineering.py`, but the required input
-    file `data/raw/commit_messages.parquet` is missing, causing the script (and its
-    unit test) to fail, and consequently `data/processed/intent_prompts.parquet` is
-    never created. Both the source parquet and the output parquet must exist for the
-    task to be satisfied.
-  sig: b0a6c9a9330c2462cc70c03d9b7893724940cb84d8875a68dee2d77d5f351edd
+  h: 5177ace93cf46d89769012065e4bf0a9f15768d16f3afde0b18faddb39bd1918
+  r: Checked `code/prompt_engineering.py` (present and implements the logic) and the
+    required output `data/processed/intent_prompts.parquet` (missing). The unit test
+    also fails due to a `NameError`, confirming the script has not successfully produced
+    the required parquet file.
+  sig: 8bcbfd247b360bfdd86223067390f81fb55e14e269d79fd741e25d0371c4a5ca

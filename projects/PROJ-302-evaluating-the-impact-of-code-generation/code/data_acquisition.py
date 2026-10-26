@@ -13,10 +13,14 @@ via exponential back‑off (tenacity) and writes:
 
 To stay safely within the unauthenticated GitHub rate‑limit
 (60 requests / hour) the script limits the number of PRs fetched per
-repository to a small value when no personal access token is provided.
-If a ``GITHUB_TOKEN`` environment variable is present the limit is
-increased because the higher rate‑limit (≈5 000 req/h) permits a larger
-sample.
+repository to a very small value when no personal access token is
+provided.  If a ``GITHUB_TOKEN`` environment variable is present the
+limit is increased because the higher rate‑limit (≈5 000 req/h) permits a
+larger sample.
+
+The script has been adjusted to avoid long sleeps on rate‑limit
+responses: it now raises a ``RateLimitError`` and lets tenacity handle
+the back‑off, preventing the pipeline from timing out.
 """
 
 import os
@@ -55,7 +59,8 @@ if GITHUB_TOKEN:
     MAX_PRS = int(os.getenv("DATA_ACQUISITION_MAX_PRS", "20"))
     log.info("GitHub token detected – using larger PR sample")
 else:
-    MAX_PRS = int(os.getenv("DATA_ACQUISITION_MAX_PRS", "5"))
+    # Use a single PR per repo to stay well within rate limits.
+    MAX_PRS = int(os.getenv("DATA_ACQUISITION_MAX_PRS", "1"))
     log.info(
         "No GitHub token – limiting PR sample to %d per repository to stay within rate limits",
         MAX_PRS,
@@ -95,12 +100,11 @@ def _github_get(
         remaining = int(response.headers.get("X-RateLimit-Remaining", "0"))
         reset_ts = int(response.headers.get("X-RateLimit-Reset", "0"))
         if remaining == 0:
-            wait_seconds = max(reset_ts - int(time.time()), 1)
+            # Do not sleep here; let tenacity handle back‑off.
             log.warning(
-                "Rate limit exceeded, sleeping for %d seconds before retry.",
-                wait_seconds,
+                "Rate limit exceeded; will retry after back‑off (reset in %d seconds).",
+                max(reset_ts - int(time.time()), 1),
             )
-            time.sleep(wait_seconds)
             raise RateLimitError("GitHub rate limit exceeded")
     response.raise_for_status()
     return response

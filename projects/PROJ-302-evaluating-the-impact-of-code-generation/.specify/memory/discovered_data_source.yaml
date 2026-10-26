@@ -1,19 +1,19 @@
 status: none
-intent: GHTorrent GitHub pull request metadata with code files downloadable python
-  package dataset
+intent: download GHTorrent MySQL dump GitHub pull request metadata dataset and GHArchive
+  python package dataset
 required_fields:
 - repository_id
 - repository_name
-- stars
+- repository_stars
 - pull_request_id
 - pull_request_number
 - pull_request_created_at
 - pull_request_closed_at
 - pull_request_merged_at
-- review_comment_timestamp
-- first_comment_timestamp
-- approval_timestamp
-- merge_timestamp
-cache_key: a1c67e7ad2ed8190dd454f53b4353c737814f5a61e086b4bc68543faa513c4e6
-searched_at: '2026-10-25T22:12:27.780248+00:00'
+- pull_request_state
+- commit_sha
+- commit_message
+- commit_timestamp
+cache_key: e715b91eab2368aad2300161ec69afea35bbafaf76d2b99dc85f04f08abe46ca
+searched_at: '2026-10-26T01:30:30.575939+00:00'
 retry_count: 1

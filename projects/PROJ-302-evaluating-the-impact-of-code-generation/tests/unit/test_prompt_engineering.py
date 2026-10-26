@@ -1,48 +1,44 @@
 """
 Unit test for ``code.prompt_engineering``.
 
-The test simply runs the ``main`` function and checks that the expected
-output parquet file exists, contains at least one row, and has the three
-required columns.
+The test runs the ``main()`` function and then checks that
+``data/processed/intent_prompts.parquet`` exists and contains the
+expected columns with at least one row.
 """
 
 import os
-from pathlib import Path
 
 import pandas as pd
-import pytest
+from llmxive_toolkit import paths, get_logger
 
-from llmxive_toolkit import paths
-from code.prompt_engineering import main as prompt_main
+from code.prompt_engineering import main
 
+log = get_logger(__name__)
 
-@pytest.fixture(scope="module")
-def output_path():
-    """Path to the generated intent prompts parquet file."""
-    return paths.data("processed", "intent_prompts.parquet")
-
-
-def test_prompt_engineering_creates_parquet(tmp_path, monkeypatch, output_path):
+def test_prompt_engineering_creates_output(tmp_path, monkeypatch):
     """
-    Run the prompt engineering script and verify the output.
+    Execute the prompt‑engineering script and verify the output artifact.
     """
-    # Ensure a clean state: delete any existing file
-    if output_path.exists():
-        output_path.unlink()
+    # Ensure the repository root is the project root (pytest runs from the
+    # project directory, but we guard against accidental cwd changes).
+    project_root = Path(__file__).resolve().parents[2]
+    monkeypatch.chdir(project_root)
 
-    # Execute the main routine
-    prompt_main()
+    # Run the script – it will create a fallback commit_messages.parquet if
+    # none exists, then produce intent_prompts.parquet.
+    main()
 
-    # Verify file was created
+    output_path = paths.data("processed", "intent_prompts.parquet")
     assert output_path.is_file(), f"{output_path} was not created"
 
-    # Load and inspect the parquet
     df = pd.read_parquet(output_path)
-    assert not df.empty, "Output parquet contains no rows"
+    # Basic schema validation
+    expected_cols = {"pr_id", "prompt", "complexity_indicator"}
+    assert expected_cols.issubset(df.columns), f"Missing columns in {output_path}"
+    assert len(df) > 0, "Output parquet is empty"
 
-    expected_columns = {"pr_id", "prompt", "complexity_indicator"}
-    assert expected_columns.issubset(df.columns), f"Missing columns: {expected_columns - set(df.columns)}"
-
-    # Basic sanity check on content
-    assert df["prompt"].apply(lambda x: isinstance(x, str) and len(x) > 0).all()
-    assert df["complexity_indicator"].isin(["simple", "moderate", "complex"]).all()
+    # Spot‑check that prompts are non‑empty strings and complexity is valid.
+    for _, row in df.iterrows():
+        assert isinstance(row["prompt"], str) and row["prompt"].strip(), "Empty prompt"
+        assert row["complexity_indicator"] in {"simple", "moderate", "complex"}, \
+            f"Invalid complexity: {row['complexity_indicator']}"

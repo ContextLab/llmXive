@@ -1,17 +1,19 @@
 T001:
   task: 07a7d178243203e52e8e8056088f81faa793d96eebe7787b11b89c1aa50fa5f9
 T002:
-  reason: "The `data/raw/` directory contains only a `.gitkeep`; no `<owner>_<repo>.parquet`\
-    \ files or `commit_messages.parquet` were generated, and the required `pull_request.schema.yaml`\
-    \ is absent. Consequently the task\u2019s core deliverables (parquet files with\
-    \ PR rows and the schema) are missing."
+  reason: "The three `<owner>_<repo>.parquet` files and `commit_messages.parquet`\
+    \ exist and contain rows, and `code/data_acquisition.py` implements the required\
+    \ logic with tenacity back\u2011off. However, the required `pull_request.schema.yaml`\
+    \ file is missing, so the parquet files cannot be verified to conform to the specified\
+    \ schema, violating the task\u2019s verification criteria. Adding the missing\
+    \ schema file (and optionally ensuring the optional fields are populated) is needed\
+    \ to complete the task."
   task: e8434a10257568c4f6d44e271608b76cb800f5bb7d13c584ffc1ee6c6e19f36d
 T003:
-  reason: The repository contains `code/prompt_engineering.py`, but the required input
-    file `data/raw/commit_messages.parquet` is missing, causing the script (and its
-    unit test) to fail, and consequently `data/processed/intent_prompts.parquet` is
-    never created. Both the source parquet and the output parquet must exist for the
-    task to be satisfied.
+  reason: Checked `code/prompt_engineering.py` (present and implements the logic)
+    and the required output `data/processed/intent_prompts.parquet` (missing). The
+    unit test also fails due to a `NameError`, confirming the script has not successfully
+    produced the required parquet file.
   task: 5881a2814012a369414f9211ce17be2eeb3934d5d97dedf34bc5dbf2fe0e0362
 T004:
   reason: 'Requested task execution failed; rerun successfully: code/synthetic_generation.py
