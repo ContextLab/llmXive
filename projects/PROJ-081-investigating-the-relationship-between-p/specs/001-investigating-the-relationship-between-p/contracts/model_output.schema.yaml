@@ -15,9 +15,12 @@ properties:
     description: "Result‑specific fields (see data-model.md for each result_type)."
     properties:
       # Correlation‑specific
-      matrix:
+      class_matrix:
         type: object
         description: "Pearson correlation matrix (result_type=correlation)."
+      compound_matrix:
+        type: object
+        description: "Pearson correlation matrix for individual compounds (result_type=correlation)."
       p_values:
         type: object
         description: "Raw p‑values (correlation, regression, RF)."
@@ -78,11 +81,7 @@ properties:
               type: string
             importance:
               type: number
-            p_value:
-              type: number
-            q_value:
-              type: number
-        description: "Permutation importance rankings with FDR‑corrected p‑values (rf)."
+        description: "Permutation importance rankings (no p‑values)."
       cv_r2:
         type: number
         description: "Cross‑validated R² (rf)."

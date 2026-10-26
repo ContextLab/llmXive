@@ -22,16 +22,16 @@ python src/run_pipeline.py \
 - `--max-species` caps the number of species processed (useful for very large downloads).  
 
 The script executes the phases defined in **plan.md** in order:
-1. **Data acquisition** – attempts MetaboLights, PMN, HPID; on total failure falls back to the **GHZ placeholder dataset** (verified URL).  
-2. **Pre‑processing** – handles documented absences via `absence_indicator`, performs outlier capping, then z‑score standardization.  
-3. **Power analysis** – estimates effective N and flags under‑power.  
-4. **Correlation** – computes both class‑level and compound‑level Pearson correlations; generates `outputs/heatmap.png`.  
-5. **OLS** – baseline regression with family covariate and any extra covariates present; VIF diagnostics.  
+1. **Data acquisition** – attempts MetaboLights, PMN, HPID; on total failure falls back to the **GHZ placeholder dataset** (verified URL). This placeholder **does not contain real plant metabolite or herbivory measurements**; it is used **only to validate the workflow**. The final report will contain a clear disclaimer.
+2. **Pre‑processing** – handles documented absences via `absence_indicator`, performs outlier capping, **imputes missing values on the raw scale**, then **z‑score standardization**.  
+3. **Correlation** – computes both class‑level and compound‑level Pearson correlations; generates `outputs/heatmap.png`. Results are for exploratory reporting only; **all metabolites are retained for downstream modeling**.  
+4. **Train‑test split** – reserves [deferred] of species as a hold‑out set for unbiased evaluation.  
+5. **Baseline OLS** – fits OLS on the training set with family covariate and any extra covariates present; VIF diagnostics.  
 6. **Phylogenetic GLS & Mixed‑effects** – PGLS using Open Tree of Life covariance; mixed‑effects with species random intercept.  
-7. **Random Forest** – shallow RF (max_depth=5, 200 trees) with 5‑fold CV and permutation importance.  
+7. **Random Forest** – shallow RF (max_depth=5, 200 trees) with 5‑fold CV; reports **permutation importance rankings** (no p‑values).  
 8. **Sensitivity analysis** – p‑value‑threshold sweep, outlier‑cap variation, raw vs. standardized comparison.  
-9. **Contract validation** – validates `clean.parquet` and all JSON result files against the schemas in `contracts/`.  
-10. **Final report** – `outputs/report.md` links to all artifacts and includes a **disclaimer** when the placeholder dataset is used.
+9. **Power analysis** – computes effective α = 0.05 / total_tests and uses a conservative target effect size (r≈0.2).  
+10. **Reporting** – generates `outputs/report.md` with a disclaimer that the placeholder data are not biologically meaningful and that FR‑001 could not be satisfied.
 
 ## 3. Inspect results
 All artifacts are under `outputs/`:
@@ -44,7 +44,7 @@ All artifacts are under `outputs/`:
 | `ols_results.json` | OLS coefficients, VIF, family (and any extra) effects, performance metrics. |
 | `pgls_results.json` | Phylogenetic GLS output + LRT vs OLS. |
 | `mixed_effects_results.json` | Mixed‑effects model output (family fixed, species random). |
-| `rf_results.json` | Permutation importance ranking + CV / test performance. |
+| `rf_results.json` | Permutation **importance rankings** (no p‑values) + CV / test performance. |
 | `sensitivity.json` | Results of p‑value‑threshold sweep, outlier‑cap variation, raw‑vs‑standardized robustness. |
 | `power_analysis.json` | Effective sample size, power estimates, under‑power flag. |
 | `report.md` | Human‑readable summary linking to all artifacts; contains disclaimer if placeholder data were used. |
@@ -72,7 +72,7 @@ python src/run_pipeline.py \
     --use-placeholder \
     --output-dir outputs_demo/
 ```
-The placeholder GHZ dataset is loaded from the verified URL above, mapped to the required schema, and processed through the same pipeline. **A disclaimer will be added to `outputs_demo/report.md`** stating that the data are not plant metabolomics and results are methodological only.
+The placeholder GHZ dataset is loaded from the verified URL above, mapped to the required schema, and processed through the same pipeline. **A disclaimer will be added to `outputs_demo/report.md`** stating that the data are not plant metabolite and herbivory measurements; results are methodological only.
 
 ## 6. Interpreting the outputs
 
@@ -83,14 +83,12 @@ The placeholder GHZ dataset is loaded from the verified URL above, mapped to the
 ### Biomarker Identification
 - **Correlation**: Check `correlation_summary.json` for classes with q < 0.05 (negative direction).  
 - **Regression**: In `ols_results.json`, metabolites with q < 0.05 and VIF < 5 are strong candidates.  
-- **Random Forest**: `rf_results.json` ranks metabolites by permutation importance; only those with q < 0.05 are considered robust.  
+- **Random Forest**: `rf_results.json` ranks metabolites by permutation importance; **no p‑values** are provided.  
 - **Phylogenetic check**: Compare coefficients & significance between OLS and PGLS (`pgls_results.json`). A significant LRT (p < 0.05) indicates phylogenetic non‑independence matters.  
 
 ### Robustness
 - Review `sensitivity.json`: stable rankings across p‑threshold sweeps and raw vs. standardized analyses increase confidence.
 
 ### Data Source
-- Open `report.md` – it explicitly states whether the analysis used real MetaboLights/PMN/HPID data or the GHZ placeholder. If the latter, the report is a pipeline proof‑of‑concept only.
-
----
+- Open `report.md` – it explicitly states whether the analysis used real MetaboLights/PMN/HPID data or the GHZ placeholder. If the latter, the report is a pipeline proof‑of‑concept only. 
 
