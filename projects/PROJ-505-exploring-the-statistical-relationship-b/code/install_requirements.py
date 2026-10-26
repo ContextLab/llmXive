@@ -17,9 +17,18 @@ def main() -> None:
     # Ensure the ci directory exists
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Run pip install in a subprocess, capturing stdout and stderr
-    # Use the same interpreter that is running this script.
-    cmd = [sys.executable, "-m", "pip", "install", "-r", str(req_path)]
+    # Run pip install in a subprocess, capturing stdout and stderr.
+    # Use --force-reinstall to guarantee that pip prints a
+    # "Successfully installed" line even when packages are already present.
+    cmd = [
+        sys.executable,
+        "-m",
+        "pip",
+        "install",
+        "--force-reinstall",
+        "-r",
+        str(req_path),
+    ]
     result = subprocess.run(
         cmd,
         stdout=subprocess.PIPE,
