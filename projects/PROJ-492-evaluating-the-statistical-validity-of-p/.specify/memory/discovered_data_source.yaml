@@ -1,18 +1,19 @@
 status: none
-intent: Kaggle A/B test summary dataset OpenABTest repository python package dataset
+intent: download public A/B test summary dataset with reported p-values and metrics
+  python package dataset
 required_fields:
 - url
-- test_id
-- test_name
-- variant_a_description
-- variant_b_description
-- sample_size_a
-- sample_size_b
-- metric_a_value
-- metric_b_value
+- title
 - reported_p_value
+- sample_size
+- effect_size
 - confidence_interval
+- variant_a_name
+- variant_b_name
+- outcome_metric
+- statistical_test_type
 - test_date
-cache_key: f9f45e1099999e8d1bb34db2465ad63a12deeb3f49d3ff3c7cbb1421ab47fe93
-searched_at: '2026-10-26T08:28:55.823748+00:00'
+- domain
+cache_key: 433c6da67876f7f1c3aea78856d6f8bf4d57157fdb8612e429e8030a498053a0
+searched_at: '2026-10-26T13:31:10.644434+00:00'
 retry_count: 1
