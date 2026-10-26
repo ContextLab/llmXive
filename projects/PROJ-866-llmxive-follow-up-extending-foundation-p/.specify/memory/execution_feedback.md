@@ -2,7 +2,7 @@
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_simulation.py --generate  --seed 42  --count 500; python src/cli/run_simulation.py --execute --mode full; python src/cli/run_simulation.py --execute --mode compressed  --depths 0,1,2,3,4,5,6,7,8,9,10; 1 command(s) failed: python -m pytest -v (rc=2); 1 declared deliverable(s) absent: figures/tradeoff_curve.png
+**Summary**: 5 run-book script(s) missing (plan/impl path mismatch): python src/cli/run_simulation.py --generate  --seed 42  --count 500; python src/cli/run_simulation.py --execute --mode full; python src/cli/run_simulation.py --execute --mode compressed  --depths 0,1,2,3,4,5,6,7,8,9,10; 1 command(s) failed: python -m pytest -v (rc=2); 2 declared deliverable(s) absent: data/raw/workflows.json; figures/tradeoff_curve.png
 
 ## Failing / missing run-book commands
 
@@ -18,7 +18,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-866-llmxive-follow-up-extending-foundation-p/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/src/cli/run_simulation.py': [Errno 2] No such file or directory
 
-- python src/cli/run_simulation.py --analyze  --bootstraps <large number>   # matches verified fact -> rc=2
+- python src/cli/run_simulation.py --prepare-step-data -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-866-llmxive-follow-up-extending-foundation-p/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/src/cli/run_simulation.py': [Errno 2] No such file or directory
+
+- python src/cli/run_simulation.py --analyze  --bootstraps 1000   # matches verified fact -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-866-llmxive-follow-up-extending-foundation-p/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-866-llmxive-follow-up-extending-foundation-p/src/cli/run_simulation.py': [Errno 2] No such file or directory
 
@@ -38,18 +42,29 @@ E   ModuleNotFoundError: No module named 'engines.save_processed_logs'
 =========================== short test summary info ============================
 ERROR tests/contract/test_save_processed_logs_schema.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 1.35s ===============================
+=============================== 1 error in 1.27s ===============================
 
 
 
 ## Declared deliverables still missing
 
+- data/raw/workflows.json
 - figures/tradeoff_curve.png
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/raw/workflows.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/tradeoff_model.py` — NOT invoked by the run-book
+    - `code/analysis/vif_analyzer.py` — NOT invoked by the run-book
+    - `code/engines/compressed_context.py` — NOT invoked by the run-book
+    - `code/engines/full_context.py` — NOT invoked by the run-book
+    - `code/engines/invalid_workflow_filter.py` — NOT invoked by the run-book
+    - `code/generators/synthetic_workflow.py` — NOT invoked by the run-book
+    - `code/main.py` — NOT invoked by the run-book
+    - `code/services/executor.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/workflows.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `figures/tradeoff_curve.png` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/generate_regression_data.py` — NOT invoked by the run-book
     - `code/analysis/tradeoff_model.py` — NOT invoked by the run-book
