@@ -2,15 +2,18 @@
   "datasets": {
     "42803": {
       "filename": "data/raw/42803.csv",
-      "checksum": "32bbc48a5355ed093b324d8749bec2d9646066ad4772b959fe7246567b949dae"
+      "checksum": "572987236d8df185996f9d8dd6f5df0ca12d432691c4512e64813b860b6f41ad",
+      "status": "OK"
     },
     "43844": {
       "filename": "data/raw/43844.csv",
-      "checksum": "703c91d241b7fb8ca0e9f3677987836cec6d30e50b2224394b4c8db8b1dd5897"
+      "checksum": "9cc1c345c71bcc9b486b74cbf6063fa66f4bb5e0f603a4b3c3471ec2e5e8e355",
+      "status": "OK"
     },
     "43845": {
       "filename": "data/raw/43845.csv",
-      "checksum": "78f5c5e1f16d668d5e6639befea6e4024f2d2e5285ce278f213b622e5ff9503c"
+      "checksum": "8331e5a2532f5fdb66153a8fc053df08a7dc9d2584f246c7fb1752f0a7139ca5",
+      "status": "OK"
     }
   }
 }

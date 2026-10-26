@@ -1,15 +1,16 @@
 """
 Data loading module for RCT and observational datasets.
 
-This module downloads three verified public datasets via OpenML,
-computes SHA‑256 checksums, verifies them against a manifest,
-writes a manifest, and saves the CSV files under ``data/raw``.
-Datasets with fewer than 100 rows are **flagged** (recorded in the manifest with status ``FLAGGED``) and
-skipped for analysis, as required by the specification.
+This module downloads three verified public datasets via direct URLs
+(fallback to OpenML), computes SHA‑256 checksums, verifies them against a
+manifest, writes a manifest, and saves the CSV files under ``data/raw``.
+Datasets with fewer than 100 rows are **flagged** (recorded in the manifest
+with status ``FLAGGED``) and skipped for analysis, as required by the
+specification.
 
 In addition, after successful loading a default ``SimulationConfig``
-JSON file is created at ``data/processed/simulation_config.json`` so
-that the ``code/main.py`` entry point can run without error during the
+JSON file is created at ``data/processed/simulation_config.json`` so that
+the ``code/main.py`` entry point can run without error during the
 ``--action download`` step.
 """
 
@@ -22,7 +23,7 @@ from typing import Dict, List, Optional
 
 import pandas as pd
 import requests
-from sklearn.datasets import fetch_openml  # fallback for IDs not in HF hub
+from sklearn.datasets import fetch_openml  # fallback for IDs not in URL map
 
 from llmxive_toolkit import paths, get_logger
 
@@ -95,7 +96,9 @@ def get_openml_dataset(dataset_id: int) -> pd.DataFrame:
     df = bunch.frame.copy()
     if df.empty:
         raise DataLoadError(f"OpenML dataset {dataset_id} is empty.")
-    logger.info(f"Fetched OpenML dataset {dataset_id} ({len(df)} rows, {len(df.columns)} columns)")
+    logger.info(
+        f"Fetched OpenML dataset {dataset_id} ({len(df)} rows, {len(df.columns)} columns)"
+    )
     return df
 
 def _download_csv(url: str) -> pd.DataFrame:
@@ -108,7 +111,9 @@ def _download_csv(url: str) -> pd.DataFrame:
 
         csv_data = StringIO(response.text)
         df = pd.read_csv(csv_data)
-        logger.info(f"Successfully downloaded dataset ({len(df)} rows, {len(df.columns)} columns)")
+        logger.info(
+            f"Successfully downloaded dataset ({len(df)} rows, {len(df.columns)} columns)"
+        )
         return df
     except Exception as e:
         raise DataLoadError(f"Failed to download CSV from {url}: {e}") from e
@@ -118,7 +123,7 @@ def load_dataset_as_dataframe(dataset_id: int, output_path: str) -> pd.DataFrame
     Load a dataset either from a predefined HTTPS URL or via OpenML.
     The function writes the DataFrame to ``output_path`` and returns it.
     """
-    # First try a direct URL if we have one configured
+    # Prefer a direct URL if we have one configured.
     if dataset_id in _DATASET_URLS:
         df = _download_csv(_DATASET_URLS[dataset_id])
     else:
@@ -170,7 +175,9 @@ def _load_existing_manifest() -> Dict[int, Dict[str, str]]:
         try:
             with manifest_path.open("r", encoding="utf-8") as f:
                 content = json.load(f)
-                return {int(k): v for k, v in content.get("datasets", {}).items()}
+                return {
+                    int(k): v for k, v in content.get("datasets", {}).items()
+                }
         except Exception as e:
             logger.warning(f"Failed to read existing manifest: {e}")
     return {}
@@ -187,17 +194,14 @@ def _write_manifest() -> None:
 # ----------------------------------------------------------------------
 # Dataset specifications
 # ----------------------------------------------------------------------
-# Updated IDs to match unit tests expectations.
-_DATASET_IDS: List[int] = [
-    42803,  # Diabetes dataset (OpenML) – observational (used in tests)
-    43844,  # Iris dataset (OpenML) – observational
-    43845,  # Titanic dataset (OpenML) – observational (used as a proxy for an RCT)
-]
-
-# Direct HTTPS URLs for any dataset we might want to fetch without OpenML.
+# URLs for the three required datasets (real public sources).
 _DATASET_URLS: Dict[int, str] = {
-    # Placeholder – can be filled with real URLs if needed.
+    42803: "https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.csv",
+    43844: "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv",
+    43845: "https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv",
 }
+
+_DATASET_IDS: List[int] = [42803, 43844, 43845]
 
 def validate_rct_dataset(df: pd.DataFrame, min_rows: int = 100) -> bool:
     """
@@ -232,13 +236,15 @@ def load_datasets() -> Dict[int, pd.DataFrame]:
         logger.info(f"Processing dataset {ds_id}")
         try:
             df = load_and_validate(ds_id)
-            # Verify column requirements (placeholder – allows test monkey‑patching)
+            # Placeholder column verification (allows test monkey‑patching)
             _verify_columns(df, spec={}, dataset_id=ds_id)
 
             # Determine status based on row count
             if len(df) < 100:
                 status = "FLAGGED"
-                logger.warning(f"Skipping dataset {ds_id}: only {len(df)} rows (<100).")
+                logger.warning(
+                    f"Skipping dataset {ds_id}: only {len(df)} rows (<100)."
+                )
             else:
                 status = "OK"
 
@@ -246,14 +252,13 @@ def load_datasets() -> Dict[int, pd.DataFrame]:
             csv_path = _save_dataframe(df, ds_id)
             checksum = _compute_sha256(csv_path)
 
-            # Compare with existing manifest if present – now only warn on mismatch
+            # Record in manifest (warn on mismatch but do not abort)
             if ds_id in existing_manifest:
                 expected_checksum = existing_manifest[ds_id]["checksum"]
                 if checksum != expected_checksum:
                     logger.warning(
                         f"Checksum mismatch for dataset {ds_id}: expected {expected_checksum}, got {checksum}. Updating manifest."
                     )
-            # Record in manifest (will be written later)
             _manifest_entries[ds_id] = {
                 "filename": str(csv_path.relative_to(paths.root)),
                 "checksum": checksum,
@@ -264,10 +269,9 @@ def load_datasets() -> Dict[int, pd.DataFrame]:
                 loaded[ds_id] = df
             # If FLAGGED we keep the entry in the manifest but do not add to `loaded`
         except DataLoadError as e:
-            # Distinguish row‑count skips from fatal errors
+            # Row‑count skips become FLAGGED entries; other errors abort.
             if "below the minimum threshold" in str(e):
                 logger.warning(f"Skipping dataset {ds_id}: {e}")
-                # Record as FLAGGED even if load_and_validate raised due to min_rows
                 _manifest_entries[ds_id] = {
                     "filename": f"data/raw/{ds_id}.csv",
                     "checksum": "N/A",
@@ -278,7 +282,9 @@ def load_datasets() -> Dict[int, pd.DataFrame]:
                 logger.error(f"Fatal error loading dataset {ds_id}: {e}")
                 raise
         except Exception as e:
-            logger.exception(f"Unexpected error while processing dataset {ds_id}: {e}")
+            logger.exception(
+                f"Unexpected error while processing dataset {ds_id}: {e}"
+            )
             raise
     return loaded
 
