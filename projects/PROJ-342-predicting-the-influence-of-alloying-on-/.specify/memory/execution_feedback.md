@@ -13,30 +13,45 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/download_dataset.py   # creates data/raw/metalic_glass_raw.csv; 8 command(s) failed: python code/ingest.py               # writes data/processed/cleaned_data.csv (rc=1); python code/descriptors.py (rc=1); python code/train.py (rc=1); 2 declared deliverable(s) absent: data/processed/correlation_matrix.csv; data/processed/vif_diagnostic_log.json
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ableError to fallback to mock data. """  import os import r…”; code/verify_no_synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…or("VERIFICATION FAILED: Synthetic data patterns found in ingest…”; 9 command(s) failed: python code/download_dataset.py   # creates data/raw/metalic_glass_raw.csv (rc=1); python code/ingest.py               # writes data/processed/cleaned_data.csv (rc=1); python code/descriptors.py (rc=1); 2 declared deliverable(s) absent: data/processed/correlation_matrix.csv; data/processed/vif_diagnostic_log.json
 
 ## Failing / missing run-book commands
 
-- python code/download_dataset.py   # creates data/raw/metalic_glass_raw.csv -> rc=2
+- python code/download_dataset.py   # creates data/raw/metalic_glass_raw.csv -> rc=1
+ck DOI also failed: No CSV file found in Zenodo record 10.5281/zenodo.11023456
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-342-predicting-the-influence-of-alloying-on-/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/download_dataset.py': [Errno 2] No such file or directory
-
-- python code/ingest.py               # writes data/processed/cleaned_data.csv -> rc=1
--of-alloying-on-/code/zenodo_client.py", line 49, in download_csv_from_zenodo
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/download_dataset.py", line 59, in main
+    download_csv_from_zenodo(fallback_doi, raw_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py", line 60, in download_csv_from_zenodo
     raise DataUnavailableError(f"No CSV file found in Zenodo record {doi}")
 zenodo_client.DataUnavailableError: No CSV file found in Zenodo record 10.5281/zenodo.11023456
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 223, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/download_dataset.py", line 67, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 220, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/download_dataset.py", line 64, in main
+    raise RuntimeError("Both primary and fallback DOIs are unavailable.") from e
+RuntimeError: Both primary and fallback DOIs are unavailable.
+
+- python code/ingest.py               # writes data/processed/cleaned_data.csv -> rc=1
+-of-alloying-on-/code/zenodo_client.py", line 60, in download_csv_from_zenodo
+    raise DataUnavailableError(f"No CSV file found in Zenodo record {doi}")
+zenodo_client.DataUnavailableError: No CSV file found in Zenodo record 10.5281/zenodo.11023456
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 222, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 219, in main
     run_ingestion()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/resource_monitor.py", line 320, in wrapper
     result = func(*args, **kwargs)
              ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 138, in run_ingestion
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/ingest.py", line 137, in run_ingestion
     raise DataUnavailableError("Both primary and fallback DOIs are unavailable.") from fe
 zenodo_client.DataUnavailableError: Both primary and fallback DOIs are unavailable.
 
@@ -84,7 +99,7 @@ FileNotFoundError: Model file not found at /home/runner/work/llmXive/llmXive/pro
 
 - python code/report.py -> rc=1
 elation matrix from /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
-2026-10-26 16:29:34,578 - ERROR - Input file missing: Correlation matrix file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
+2026-10-26 16:31:09,341 - ERROR - Input file missing: Correlation matrix file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/correlation_matrix.csv
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/report.py", line 230, in <module>
     main()
@@ -110,13 +125,14 @@ Traceback (most recent call last):
 FileNotFoundError: Input file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/data/processed/cleaned_mg.csv
 
 - python -m pytest tests/unit/ -> rc=2
-ure your test modules/packages have valid Python names.
+home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/tests/unit/test_verify_resource_compliance.py'.
+Hint: make sure your test modules/packages have valid Python names.
 Traceback:
 /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_zenodo_client.py:15: in <module>
-    from zenodo_client import fetch_from_zenodo, DataUnavailableError, DataInsufficientError
-E   ImportError: cannot import name 'fetch_from_zenodo' from 'zenodo_client' (/home/runner/work/llmXive/llmXive/projects/PROJ-342-predicting-the-influence-of-alloying-on-/code/zenodo_client.py)
+tests/unit/test_verify_resource_compliance.py:13: in <module>
+    from verify_resource_compliance import verify_resource_compliance, load_resource_usage
+E   ModuleNotFoundError: No module named 'verify_resource_compliance'
 =========================== short test summary info ============================
 ERROR tests/unit/test_analyze.py
 ERROR tests/unit/test_descriptors_io.py
@@ -127,9 +143,8 @@ ERROR tests/unit/test_ingest_t014.py
 ERROR tests/unit/test_train_artifacts.py
 ERROR tests/unit/test_train_lofo.py
 ERROR tests/unit/test_verify_resource_compliance.py
-ERROR tests/unit/test_zenodo_client.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
-============================== 10 errors in 1.81s ==============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 9 errors in 1.66s ===============================
 
 
 - python -m pytest tests/integration/ -> rc=2
@@ -147,7 +162,7 @@ ERROR tests/integration/test_data_ingestion.py
 ERROR tests/integration/test_statistical_validation.py
 ERROR tests/integration/test_train_cv.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-========================= 1 warning, 3 errors in 1.61s =========================
+========================= 1 warning, 3 errors in 1.56s =========================
 
 
 

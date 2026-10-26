@@ -1,6 +1,8 @@
 T001:
   task: 4255fa6266113a7a83df157aae6cb1cd7675d542621f1aa71dbcf24645ffdc20
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/download_dataset.py
+    exit=1; code/ingest.py exit=1'
   task: 1574194d3a673bde5d9abf4b7b8ca05fdf486c6d7e8dfa17a3315ee464a96a0c
 T003:
   task: 10dcba6451f40060d9656cc67816021606988c833c72c3c0bffc9e17f8d3f31e

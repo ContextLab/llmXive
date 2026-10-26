@@ -1,66 +1,106 @@
-import requests
+"""
+Zenodo client for downloading datasets by DOI.
+
+Provides functions to download CSV files from Zenodo records and handle
+various failure modes gracefully.
+"""
 import logging
+import requests
 from pathlib import Path
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 class DataUnavailableError(Exception):
-    """Raised when the dataset cannot be retrieved from Zenodo."""
+    """Raised when data cannot be retrieved from the specified source."""
     pass
 
 class DataInsufficientError(Exception):
-    """Raised when the retrieved dataset contains no usable records."""
+    """Raised when insufficient valid data remains after processing."""
     pass
 
 def download_csv_from_zenodo(doi: str, output_path: Path) -> None:
     """
-    Downloads a CSV file from Zenodo given a DOI.
+    Download a CSV file from a Zenodo record by DOI.
     
     Args:
-        doi: The Zenodo DOI (e.g., '10.5281/zenodo.10043838').
-        output_path: Path to save the downloaded CSV.
+        doi: The DOI identifier (e.g., '10.5281/zenodo.10043838')
+        output_path: Path where the CSV file will be saved
     
     Raises:
-        DataUnavailableError: If the record or CSV file is not found.
+        DataUnavailableError: If the DOI is invalid or no CSV file is found
     """
-    # Extract record ID from DOI (e.g., 10.5281/zenodo.10043838 -> 10043838)
+    # Convert DOI to Zenodo record ID
+    # DOI format: 10.5281/zenodo.XXXXXX
     try:
         record_id = doi.split('.')[-1]
-    except IndexError:
+    except (IndexError, AttributeError):
         raise DataUnavailableError(f"Invalid DOI format: {doi}")
-
-    api_url = f"https://zenodo.org/api/records/{record_id}"
+    
+    # Zenodo API endpoint
+    zenodo_api = f"https://zenodo.org/api/records/{record_id}"
     
     try:
-        response = requests.get(api_url, timeout=30)
+        # Fetch record metadata
+        response = requests.get(zenodo_api, timeout=30)
         response.raise_for_status()
-        data = response.json()
-    except Exception as e:
-        logger.error(f"Failed to fetch Zenodo metadata for DOI {doi}: {e}")
-        raise DataUnavailableError(f"Zenodo API error for DOI {doi}: {e}") from e
-
-    # Find the CSV file in the record's files list
-    files = data.get('files', [])
-    csv_file = next((f for f in files if f.get('key', '').endswith('.csv') or f.get('filename', '').endswith('.csv')), None)
+        record = response.json()
+    except requests.RequestException as e:
+        raise DataUnavailableError(f"Failed to fetch record {record_id}: {e}")
     
-    if not csv_file:
-        logger.error(f"No CSV file found in Zenodo record {doi}")
+    # Find CSV file in the record
+    csv_file = None
+    if 'files' in record:
+        for file_info in record['files']:
+            if file_info['key'].endswith('.csv'):
+                csv_file = file_info
+                break
+    
+    if csv_file is None:
         raise DataUnavailableError(f"No CSV file found in Zenodo record {doi}")
-
-    download_url = csv_file.get('links', {}).get('download')
-    if not download_url:
-        logger.error(f"No download link found for CSV in Zenodo record {doi}")
-        raise DataUnavailableError(f"No download link found for CSV in Zenodo record {doi}")
-
+    
+    # Download the CSV file
     try:
-        logger.info(f"Downloading CSV from {download_url}...")
-        with requests.get(download_url, stream=True, timeout=60) as r:
-            r.raise_for_status()
-            with open(output_path, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
-        logger.info(f"Successfully downloaded CSV to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to download file from {download_url}: {e}")
-        raise DataUnavailableError(f"Download failed for DOI {doi}: {e}") from e
+        file_url = csv_file['links']['self']
+        response = requests.get(file_url, timeout=30)
+        response.raise_for_status()
+        
+        # Write to output path
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
+        
+        logger.info(f"Downloaded {csv_file['key']} from {doi} to {output_path}")
+    except requests.RequestException as e:
+        raise DataUnavailableError(f"Failed to download CSV from {doi}: {e}")
+
+def fetch_from_zenodo(doi: str):
+    """
+    Fetch data from Zenodo by DOI and return as a pandas DataFrame.
+    
+    Args:
+        doi: The DOI identifier
+    
+    Returns:
+        pandas.DataFrame: The loaded CSV data
+    
+    Raises:
+        DataUnavailableError: If the data cannot be retrieved
+    """
+    import pandas as pd
+    import tempfile
+    
+    with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+    
+    try:
+        download_csv_from_zenodo(doi, tmp_path)
+        df = pd.read_csv(tmp_path)
+        
+        # Normalize column names
+        if 'tg_value' in df.columns and 'Tg' not in df.columns:
+            df = df.rename(columns={'tg_value': 'Tg'})
+        
+        return df
+    finally:
+        tmp_path.unlink(missing_ok=True)

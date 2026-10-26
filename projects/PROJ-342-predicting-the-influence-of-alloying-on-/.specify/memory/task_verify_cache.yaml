@@ -1,11 +1,17 @@
 T001:
   c: true
-  h: fd8eb0b35024a17dfa3c0b7e6de770de518c45479c58f2010fcb1466abca031a
-  r: "**Evidence checked:**\n\n1. **Directory structure**: All required directories\
-    \ exist as specified\u2014`code/`, `data/raw/`, `data/processed/`, `artifacts/models/`,\
-    \ `artifacts/metrics/`, `figures/`, `paper/`, `tests/`, `specs/001-predicting-the-influence-of-alloying-on/contracts/`,\
-    \ and `logs/` are confirmed present.\n\n2. **`code/__init__.py` logger configuration**:\
-    \ The file exists (2782 bytes) and contains a properly implemented project-wide\
-    \ logger that writes to `logs/project.log` and streams to stdout. The `get_logger()`\
-    \ function is exported and functional. Importing `code` will produce a configured "
-  sig: 015b0e5f783bc40a5fd070aa593053b8f1fcccfbe18aa5c34673289496d198da
+  h: 1787d07d27b0ed958219031090b4c50da0f6650f1d1d291dff3cd061751d85c0
+  r: '**Evidence checked:**
+
+
+    1. **All required directories exist**: The collector confirms `code/`, `data/raw/`,
+    `data/processed/`, `artifacts/models/`, `artifacts/metrics/`, `figures/`, `paper/`,
+    `tests/`, `specs/001-predicting-the-influence-of-alloying-on/contracts/`, and
+    `logs/` are present on disk.
+
+
+    2. **`code/__init__.py` configures a project-wide logger**: The file (2782 bytes)
+    contains proper logger initialization that writes to `logs/project.log` and streams
+    to stdout. The `get_logger()` function is implemented and exposed as `code.logger`,
+    satisfying the requirement that "importing `code` p'
+  sig: a9edf562fc2b47c14248b57f957b24702e0a75dda94c3ab1ee18d41d7abe3abe

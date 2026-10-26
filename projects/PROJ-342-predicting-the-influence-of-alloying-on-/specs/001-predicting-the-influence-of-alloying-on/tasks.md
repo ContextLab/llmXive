@@ -21,7 +21,7 @@ description: "Task list for feature implementation – Predicting the Influence 
   - Implement `code/resource_monitor.py` with a `@limit_resources` decorator that reads limits from `config.yaml` (runtime ≤ 6 h, RAM ≤ 7 GB) and writes usage to `data/resource_usage.json`.  
   - **Verification**: All listed directories exist, importing `code` produces a logger, and after a dummy decorated function runs, `data/resource_usage.json` contains keys `runtime_seconds` and `peak_ram_gb`.
 
-- [ ] T002 [P] [US1] Implement robust Zenodo ingestion pipeline (`code/ingest.py`)  
+- [ ] T002 [P] [US1] Implement robust Zenodo ingestion pipeline (`code/ingest.py`)   <!-- FAILED-IN-EXECUTION: code/download_dataset.py exit=1; code/ingest.py exit=1 -->
   - Attempt download of the primary dataset DOI `10.5281/zenodo.10043838`; on failure automatically retry the fallback DOI `10.5281/zenodo.11023456`. If both fail, raise a clear `RuntimeError` (no synthetic fallback).  
   - Stream the CSV using `pandas.read_csv(..., chunksize=1000)` to stay within the 7 GB RAM budget.  
   - Validate each chunk against `specs/001-predicting-the-influence-of-alloying-on/contracts/dataset.schema.yaml` via `jsonschema`.  

@@ -121,7 +121,7 @@ def run_ingestion() -> None:
     data_dir.mkdir(parents=True, exist_ok=True)
     
     used_doi = primary_doi
-    raw_path = data_dir / f"zenodo_{primary_doi.split('.')[-1]}.csv"
+    raw_path = data_dir / "metallic_glass_raw.csv"
     
     try:
         download_csv_from_zenodo(primary_doi, raw_path)
@@ -129,7 +129,6 @@ def run_ingestion() -> None:
     except DataUnavailableError as e:
         logger.warning(f"Primary DOI failed: {e}. Attempting fallback...")
         used_doi = fallback_doi
-        raw_path = data_dir / f"zenodo_{fallback_doi.split('.')[-1]}.csv"
         try:
             download_csv_from_zenodo(fallback_doi, raw_path)
             logger.info(f"Successfully fetched fallback DOI: {fallback_doi}")
@@ -147,7 +146,7 @@ def run_ingestion() -> None:
         raise
 
     # 3. Stream, Validate and Clean
-    cleaned_path = project_root / "data" / "processed" / "cleaned_mg.csv"
+    cleaned_path = project_root / "data" / "processed" / "cleaned_data.csv"
     cleaned_path.parent.mkdir(parents=True, exist_ok=True)
     
     raw_count = 0
@@ -204,12 +203,12 @@ def main() -> None:
         fallback_doi = "10.5281/zenodo.11023456"
         data_dir = project_root / "data" / "raw"
         data_dir.mkdir(parents=True, exist_ok=True)
-        raw_path = data_dir / f"zenodo_{primary_doi.split('.')[-1]}.csv"
+        raw_path = data_dir / "metallic_glass_raw.csv"
         try:
             download_csv_from_zenodo(primary_doi, raw_path)
             logger.info("Primary DOI verification successful.")
         except DataUnavailableError:
-            raw_path = data_dir / f"zenodo_{fallback_doi.split('.')[-1]}.csv"
+            raw_path = data_dir / "metallic_glass_raw.csv"
             try:
                 download_csv_from_zenodo(fallback_doi, raw_path)
                 logger.info("Fallback DOI verification successful.")
