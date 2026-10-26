@@ -18,7 +18,16 @@ import shutil
 
 # Third‑party import – must be present; otherwise we raise a clear error.
 try:
-    from huggingface_hub import hf_hub_download, RepositoryNotFoundError, HfHubHTTPError
+    # ``hf_hub_download`` is always available.
+    from huggingface_hub import hf_hub_download
+    # The specific exception classes may not be exported at the top level
+    # in all versions of ``huggingface_hub``.  We attempt to import them,
+    # falling back to generic ``Exception`` if unavailable.
+    try:
+        from huggingface_hub import RepositoryNotFoundError, HfHubHTTPError
+    except Exception:  # pragma: no cover
+        RepositoryNotFoundError = Exception  # type: ignore
+        HfHubHTTPError = Exception  # type: ignore
 except ImportError as exc:
     raise ImportError(
         "The 'huggingface_hub' library is required to fetch DragMesh‑2. "
@@ -98,10 +107,14 @@ def fetch_dragmesh_manifest(output_dir: Optional[Path] = None) -> Path:
         return target_path
     except RepositoryNotFoundError as e:
         logger.error(f"Repository not found: {HUGGINGFACE_DATASET_ID}")
-        raise FileNotFoundError(f"Repository not found: {HUGGINGFACE_DATASET_ID}") from e
+        raise FileNotFoundError(
+            f"Repository not found: {HUGGINGFACE_DATASET_ID}"
+        ) from e
     except HfHubHTTPError as e:
         logger.error(f"HTTP error while downloading manifest: {e}")
-        raise ConnectionError(f"Failed to download manifest from HuggingFace Hub: {e}") from e
+        raise ConnectionError(
+            f"Failed to download manifest from HuggingFace Hub: {e}"
+        ) from e
     except Exception as e:
         logger.error(f"Unexpected error while fetching manifest: {e}")
         raise

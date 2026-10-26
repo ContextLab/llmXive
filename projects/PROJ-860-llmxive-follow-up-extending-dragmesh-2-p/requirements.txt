@@ -1,18 +1,9 @@
-# Core scientific stack (already provided by the platform)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Project‑specific dependencies
+# Project dependencies
 pybullet==3.25.0
 torch==2.2.0+cpu
-huggingface_hub==0.23.0
+huggingface_hub
+# The following packages are provided by the platform and do not need explicit pins:
+# numpy, pandas, scipy, statsmodels, matplotlib, seaborn, pytest, PyYAML, requests, jsonschema, psutil
+# Additional runtime utilities
+tqdm
+# End of requirements

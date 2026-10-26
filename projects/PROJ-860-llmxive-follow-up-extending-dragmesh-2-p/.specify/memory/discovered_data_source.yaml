@@ -1,14 +1,12 @@
 status: none
-intent: Download DragMesh-2 base geometries mesh dataset python package dataset
+intent: DragMesh-2 articulated object mesh and friction dataset python package dataset
 required_fields:
 - mesh_id
 - mesh_file_path
-- vertices
-- faces
-- joint_type
-- joint_axis
-- parent_link
-- child_link
-cache_key: b52c2cdcd65f213c6d35d026cfe5a906f7ad942f4cc63af16f23e02aadc3aba2
-searched_at: '2026-10-18T16:35:57.662347+00:00'
+- friction_coefficient
+- articulation_joint_type
+- joint_limits
+- surface_material
+cache_key: dd0ee09709a36cb41e946af6b440b95840b13e566d4067c7f2b2e2c4981aa2b7
+searched_at: '2026-10-26T14:04:59.030371+00:00'
 retry_count: 1

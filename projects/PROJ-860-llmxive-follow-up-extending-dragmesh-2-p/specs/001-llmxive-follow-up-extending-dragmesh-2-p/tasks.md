@@ -11,7 +11,7 @@
 
 ## Phase 1: Setup and first end-to-end analysis
 
-- [ ] T001 [US1 US2 US3] Establish the code layout and fetch the real DragMesh-2 data with fail‑loud semantics in `code/data_loader.py`. <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
+- [ ] T001 [US1 US2 US3] Establish the code layout and fetch the real DragMesh-2 data with fail‑loud semantics in `code/data_loader.py`. <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
   - Implement `load_dragmesh_manifest()` using `datasets.load_dataset` or `hf_hub_download` against the DragMesh‑2 dataset referenced in `plan.md`, writing the trajectory manifest to `data/raw/dragmesh_manifest.jsonl`. On any fetch failure the loader MUST raise (no synthetic/mock fallback).
   - Set global seeds (`numpy`, `random`, `torch` if used) to 42 in `code/seed_config.py` for reproducibility (Constitution Principle I).
   - Enforce CPU‑only: PyBullet `DIRECT` mode, `torch` CPU build; a unit test in `code/tests/test_cpu_only.py` scans `code/` for `torch.cuda` / `device="cuda"` and fails if found (FR-004).

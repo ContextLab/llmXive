@@ -17,18 +17,24 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_loader.py -> rc=1
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 21, in <module>
-    from huggingface_hub import hf_hub_download, RepositoryNotFoundError, HfHubHTTPError
-ImportError: cannot import name 'RepositoryNotFoundError' from 'huggingface_hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/lib/python3.11/site-packages/huggingface_hub/__init__.py)
+_head_call_error
+    raise ValueError("Force download failed due to the above error.") from head_call_error
+ValueError: Force download failed due to the above error.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 23, in <module>
-    raise ImportError(
-ImportError: The 'huggingface_hub' library is required to fetch DragMesh‑2. Install it via: pip install huggingface_hub
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 208, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 187, in main
+    manifest_path = load_dragmesh_manifest()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 151, in load_dragmesh_manifest
+    return fetch_dragmesh_manifest(output_dir=output_path.parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/data_loader.py", line 110, in fetch_dragmesh_manifest
+    raise FileNotFoundError(
+FileNotFoundError: Repository not found: dragmesh/dragmesh-2
 
 - python code/main.py --mode full  --num_objects 10  --seed 42 -> rc=2
 
