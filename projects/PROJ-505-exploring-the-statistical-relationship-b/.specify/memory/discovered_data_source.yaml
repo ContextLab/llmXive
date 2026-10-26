@@ -1,19 +1,17 @@
 status: none
-intent: ACE WIND CDAWeb solar wind composition and NOAA geomagnetic indices hourly
-  dataset python package dataset
+intent: CDAWeb ACE solar wind composition and NOAA Dst Kp indices python package dataset
 required_fields:
 - timestamp
+- O/Fe
+- He/H
+- C/O
 - solar_wind_speed
 - solar_wind_density
-- solar_wind_temperature
 - IMF_Bx
 - IMF_By
 - IMF_Bz
-- O/Fe_ratio
-- He/H_ratio
-- C/O_ratio
-- Dst_index
-- Kp_index
-cache_key: 8528f457141dd55a21edbf1eb7df038c0068dbf623b1fbc1bf40e0e1d0dca087
-searched_at: '2026-10-26T21:09:23.016333+00:00'
+- Dst
+- Kp
+cache_key: 04f558932f7ea614b4e127ce7467a684e704ddea9a03483ac5b0521de6d49c2a
+searched_at: '2026-10-26T22:11:07.165552+00:00'
 retry_count: 1
