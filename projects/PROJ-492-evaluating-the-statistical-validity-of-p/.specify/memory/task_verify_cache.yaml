@@ -1,18 +1,20 @@
 T001:
-  c: false
-  h: 29c8cdcd5622b9973060c12266b89aed4c4e814aa6b6b9d3a1e9d07551b7d034
-  r: "Checked the `code/src/audit/` directory (modules present) and the `quickstart.md`\
-    \ which contains the exact command `python -m code.src.audit.run_audit data/input/urls.csv\
-    \ output/`. However, there is no evidence that running `python -m code.src.audit.run_audit\
-    \ --help` actually exits with status\u202F0 (no command\u2011line output or exit\u2011\
-    code log is provided). Add a recorded execution (e.g., terminal capture showing\
-    \ exit code\u202F0) to satisfy the verification requirement."
-  sig: 89fb6971a4e733cd3aaa0d24209801257337e9fd30aa12271df87e60d5d58d6f
-T017:
   c: true
-  h: 303762f39fd7106f7e4029f70979789d1a26eafe970951ea0804cb1764b32ced
-  r: "Checked `data/input/urls.csv` (log shows \u201CCurating corpus of 300 distinct\
-    \ URLs\u201D), the `data/raw/` directory (contains 300 HTML files) and `data/checksums.txt`\
-    \ (lists a SHA\u2011256 line for each snapshot). The presence of varied hashes\
-    \ confirms non\u2011empty HTML downloads for each URL."
-  sig: 5a408c4d7aebc5aa6da9b2acfd43c29b025562c5082a8be635ba141cc9d33b69
+  h: 857cc3c1b3783dd4a0142e112faf169eb9cc9434cc10ecf63e9c1c5caa0c9796
+  r: "Checked the `code/src/audit/` directory (contains the required modules and `run_audit.py`),\
+    \ the `specs/.../quickstart.md` file (contains the exact command line), and the\
+    \ test log confirming `python -m code.src.audit.run_audit --help` exits with status\u202F\
+    0."
+  sig: 4e15607f46112997c1d39649240fb4034818b669cb07a5ff7c89383829e1148f
+T017:
+  c: false
+  h: cff26945251b678e9b0abf6d061ae406e26fae89100f208be07c867681eef99c
+  r: "The repository contains `data/input/urls.csv`, `data/raw/` (\u2248300 files)\
+    \ and `data/checksums.txt`, but there is no concrete evidence that the CSV actually\
+    \ holds \u2265\u202F300 rows, that every URL has a matching raw HTML file, or\
+    \ that each download succeeded with HTTP\u202F200 and returned HTML (no logs or\
+    \ status checks are provided). Moreover, the URLs are generic Unbounce blog pages\
+    \ rather than verified \u201Cpublic A/B\u2011test summaries,\u201D and no sample\
+    \ of the fetched HTML is shown to confirm they are indeed such summaries. To satisfy\
+    \ the task, the implementer must supply: (1) a definitive row count for `urls.csv`"
+  sig: 0d998fcbb43fdc0edaff0cb2e40e9b79a39e5d42c619835d8fa33299e2628e5c

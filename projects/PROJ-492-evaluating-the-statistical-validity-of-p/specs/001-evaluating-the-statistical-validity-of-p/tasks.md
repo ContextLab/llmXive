@@ -8,10 +8,10 @@ The goal is to deliver a reproducible end‑to‑end audit pipeline that satisfi
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [US1] Consolidate the project layout under `code/src/audit/` (CLI, extraction, reconstruction, Monte‑Carlo, power‑analysis, synthetic‑generator modules), document the runnable command in `specs/001-evaluating-the-statistical-validity-of-p/quickstart.md`.  
+- [X] **T001** [US1] Consolidate the project layout under `code/src/audit/` (CLI, extraction, reconstruction, Monte‑Carlo, power‑analysis, synthetic‑generator modules), document the runnable command in `specs/001-evaluating-the-statistical-validity-of-p/quickstart.md`.  
   - **Verification**: `python -m code.src.audit.run_audit --help` exits with status 0 and the quickstart file contains the exact command `python -m code.src.audit.run_audit data/input/urls.csv output/`.  
 
-- [X] **T017** [US1] Curate a deterministic corpus of **≥ 300** reachable URLs that point to public A/B‑test summaries, write them to `data/input/urls.csv`, download each page and store the raw HTML snapshot under `data/raw/`, then generate SHA‑256 checksums for every snapshot in `data/checksums.txt`.  
+- [ ] **T017** [US1] Curate a deterministic corpus of **≥ 300** reachable URLs that point to public A/B‑test summaries, write them to `data/input/urls.csv`, download each page and store the raw HTML snapshot under `data/raw/`, then generate SHA‑256 checksums for every snapshot in `data/checksums.txt`.  
   - **Verification**: `urls.csv` contains ≥ 300 rows; for every URL there is a corresponding file in `data/raw/`; `data/checksums.txt` lists a hash line for each snapshot; all downloads return HTTP 200 and HTML content (no dead links).  
 
 - [ ] **T004** [US1] Implement `code/src/audit/monte_carlo_validation.py` that runs **10 000** Monte‑Carlo replicates for each statistical routine (two‑proportion z/Fisher, Welch’s t, binomial test). Compare the SciPy/StatsModels result to the Monte‑Carlo estimate and assert that the absolute difference ≤ 0.005. Write the summary to `output/monte_carlo_validation_report.json`.   <!-- FAILED-IN-EXECUTION: code/src/audit/monte_carlo_validation.py exit=1 -->

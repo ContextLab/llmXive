@@ -1,17 +1,19 @@
 status: none
-intent: download OpenML ABTest dataset with A/B test summaries python package dataset
+intent: download public A/B test summary dataset for statistical audit python package
+  dataset
 required_fields:
 - url
-- test_name
+- test_id
 - variant_a
 - variant_b
-- sample_size
-- metric
+- metric_name
+- sample_size_a
+- sample_size_b
 - reported_p_value
 - effect_size
-- confidence_interval
-- date
-- domain
-cache_key: e1540e6de7b0f1513d4fb05582925760a76f4825887e7e7757314d5e0593ab83
-searched_at: '2026-10-26T04:26:03.251254+00:00'
+- confidence_interval_lower
+- confidence_interval_upper
+- test_date
+cache_key: 42197fee5d404c9949d9c6364fd16c054459e8ac68eeb9dafd773e177f426906
+searched_at: '2026-10-26T05:24:10.143628+00:00'
 retry_count: 1
