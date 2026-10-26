@@ -11,7 +11,7 @@ This research‑implementation plan follows the three‑phase structure required
 | Goal | Run a minimal, fully‑real pipeline on a small validation set and produce real result rows under `data/results/`. |
 |------|------------------------------------------------------------|
 
-- [ ] **T001** **[US‑1]** Establish project layout, document dependencies, and download the Ego4D dataset (real data, no synthetic fallback).   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1; src/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1; src/data/preprocess.py exit=1 -->
+- [ ] **T001** **[US‑1]** Establish project layout, document dependencies, and download the Ego4D dataset (real data, no synthetic fallback).   <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1; src/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1; src/data/preprocess.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1; src/data/preprocess.py exit=1 -->
   - Create the directory tree `src/data/`, `src/retrieval/`, `src/evaluation/`, `src/cli/`, `tests/contract/`, `tests/unit/`.  
   - Add `requirements.txt` with exact versions (e.g., `faiss-cpu==1.7.4`, `datasets>=2.18`, `numpy>=1.26`, `pandas>=2.2`, `scipy>=1.13`, `scikit-learn>=1.5`, `tqdm>=4.66`, `psutil>=5.9`, `matplotlib>=3.8`).  
   - Write `specs/001-semantic-decay-retrieval/quickstart.md` that documents:  
