@@ -1,19 +1,49 @@
-status: none
-intent: OpenML python client retrieve most downloaded classification datasets metadata
-  python package dataset
-required_fields:
-- did (dataset ID)
+status: verified
+kind: pypi_package
+ref: openml
+access_python: 'import openml, pandas as pd
+
+
+  df = openml.datasets.list_datasets(output_format="dataframe")
+
+  records = df.to_dict(orient="records")
+
+  print(f"RECORDS={len(records)}")
+
+  print("FIELDS=" + ",".join(df.columns.tolist()))'
+record_count: 6697
+sample_fields:
+- did
 - name
-- url
-- number_of_instances
-- number_of_features
-- number_of_features_numeric
-- number_of_features_nominal
-- number_of_classes
+- version
+- description_160
+- uploader
+- status
+- format
+- MajorityClassSize
+- MaxNominalAttDistinctValues
+- MinorityClassSize
+- NumberOfClasses
+- NumberOfFeatures
+- NumberOfInstances
+- NumberOfInstancesWithMissingValues
+- NumberOfMissingValues
+- NumberOfNumericFeatures
+- NumberOfSymbolicFeatures
+field_coverage: 0.667
+required_fields:
+- dataset_id
+- name
+- status
 - default_target_attribute
-- citation
-- description
-- original_data_url
-cache_key: f500e62836c2afb630c38bd5aa93e27d4322a8e7a6d78fa8f29606bf3c3b99e1
-searched_at: '2026-10-24T17:44:00.319674+00:00'
-retry_count: 1
+- NumberOfInstances
+- NumberOfFeatures
+- NumberOfClasses
+- NumberOfMissingValues
+- NumberOfNumericFeatures
+- NumberOfSymbolicFeatures
+- upload_date
+- download_url
+intent: most downloaded classification datasets metadata from OpenML using python
+  package dataset
+cache_key: 5ccf156f1d293fdc8d53c28bfd6e92179a64b11b3b0c3943980795a15e5cf893

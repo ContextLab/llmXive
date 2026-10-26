@@ -1,26 +1,4 @@
-- artifact_hash: 99a8f08ecc883d463f61cfb6d317894148923fa4e249f7e5830400050fb8e7ac
-  artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: tasks.parquet
-  kind: url
-  value: https://huggingface.co/datasets/neogenesislab/korean-rag-ssot-golden-50/resolve/main/data/tasks.parquet
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69f02240a34a15a67ec00bb6/56cce0fd9a36a3db422c24eb29649ab9b911a18e9a999c8115e061ea013c1acf?X-Xet-Cas-Uid=public&user_id=public&xip=P7VvE0bZInE&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27tasks.parquet%3B+filename%3D%22tasks.parquet%22%3B&Expires=1792868172&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjlmMDIyNDBhMzRhMTVhNjdlYzAwYmI2LzU2Y2NlMGZkOWEzNmEzZGI0MjJjMjRlYjI5NjQ5YWI5YjkxMWExOGU5YTk5OWM4MTE1ZTA2MWVhMDEzYzFhY2ZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZ4aXA9UDdWdkUwYlpJbkUmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rhc2tzLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0YXNrcy5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI4NjgxNzJ9fX1dfQ__&Signature=MEQCID6JNW8BxkdRLYGAUSwyvl4Xk0nrLdtQc1mc1uRrTAM2AiAxmeNnxwvVo86Gmx8bUR11SiF3BBF5HfckpTgIS26LiQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-24T17:56:12.281849Z'
-- artifact_hash: 99a8f08ecc883d463f61cfb6d317894148923fa4e249f7e5830400050fb8e7ac
-  artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/plan.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: schema#
-  kind: url
-  value: http://json-schema.org/draft-07/schema#
-  verification_status: pending
-  verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-10-24T17:56:12.281849Z'
-- artifact_hash: e521656e1a308a01bb33eed04c82f241ee21d2b1aaaf56b058c693ef695b5794
+- artifact_hash: 362f55ddbd495f18a299b3e9d97e5530a4b1586618c05bb8bf186fcbc848aa4f
   artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/research.md
   cite_id: c-001
   cited_authors: []
@@ -29,5 +7,5 @@
   kind: url
   value: https://huggingface.co/datasets/neogenesislab/korean-rag-ssot-golden-50/resolve/main/data/tasks.parquet
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69f02240a34a15a67ec00bb6/56cce0fd9a36a3db422c24eb29649ab9b911a18e9a999c8115e061ea013c1acf?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27tasks.parquet%3B+filename%3D%22tasks.parquet%22%3B&xip=P7VvE0bZInE&user_id=public&Expires=1792868194&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjlmMDIyNDBhMzRhMTVhNjdlYzAwYmI2LzU2Y2NlMGZkOWEzNmEzZGI0MjJjMjRlYjI5NjQ5YWI5YjkxMWExOGU5YTk5OWM4MTE1ZTA2MWVhMDEzYzFhY2ZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGFza3MucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRhc2tzLnBhcnF1ZXQlMjIlM0ImeGlwPVA3VnZFMGJaSW5FJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI4NjgxOTR9fX1dfQ__&Signature=MEUCIGkinh49nwMXflCh9XBlNQaIpl6jyqBMnclIoH4qguNZAiEA4uXurnQcoVxcLCfNMHxfhIhW48HQ7k1K4WIMUN-uhsY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-10-24T17:56:34.124611Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69f02240a34a15a67ec00bb6/56cce0fd9a36a3db422c24eb29649ab9b911a18e9a999c8115e061ea013c1acf?xip=SKBvA8Hy_xg&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27tasks.parquet%3B+filename%3D%22tasks.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1792989626&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjlmMDIyNDBhMzRhMTVhNjdlYzAwYmI2LzU2Y2NlMGZkOWEzNmEzZGI0MjJjMjRlYjI5NjQ5YWI5YjkxMWExOGU5YTk5OWM4MTE1ZTA2MWVhMDEzYzFhY2ZcXD94aXA9U0tCdkE4SHlfeGcmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rhc2tzLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0YXNrcy5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTI5ODk2MjZ9fX1dfQ__&Signature=MEYCIQC4wedzfg4IDOcD%7EXfDTk80mAOhHiotNgBJ0fS4jlJMJgIhAOrixuhgH4Qi3Oab%7E6gFqukzx2lmaljHTUO8w1ZbwB7q&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-26T03:40:26.137395Z'

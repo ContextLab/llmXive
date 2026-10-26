@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T03:19:00.880291Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-234-assessing-statistical-power-in-reproduci
-last_run_id: 12f03a9c-e6aa-40e9-8cf4-c4b3f376ea32
+last_run_id: c866aa8f-a22f-4133-860f-2cba945d6564
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci
 title: Assessing Statistical Power in Reproducible Research with Public Datasets
-updated_at: '2026-10-26T03:31:44.438352Z'
+updated_at: '2026-10-26T03:41:16.942358Z'

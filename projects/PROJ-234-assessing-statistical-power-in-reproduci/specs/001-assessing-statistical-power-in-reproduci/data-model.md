@@ -1,7 +1,7 @@
 # Data Model: Assessing Statistical Power in Reproducible Research with Public Datasets
 
 ## 1. Overview
-All pipeline artifacts are stored under `projects/PROJ-234-assessing-statistical-power-in-reproduci/data/` and validated against JSON‑Schema files in `contracts/`. Immutable raw files reside in `raw/`; derived files in `processed/`. The **Single Source of Truth (SSoT)** for checksums, timestamps, and version hashes is `data/metadata.json`.
+All pipeline artifacts are stored under `projects/PROJ-<identifier>-assessing-statistical-power-in-reproduci/data/` and validated against JSON‑Schema files in `contracts/`. Immutable raw files reside in `raw/`; derived files in `processed/`. The **Single Source of Truth (SSoT)** for checksums, timestamps, and version hashes is `data/metadata.json`.
 
 ## 2. Entity Definitions
 
@@ -39,7 +39,7 @@ All pipeline artifacts are stored under `projects/PROJ-234-assessing-statistical
 | `observed_power` | number (0‑1) | Observed statistical power from reported effect size. |
 | `reference_power` | number (0‑1) | Power computed with the **test‑specific small‑effect benchmark** (d = 0.2, f = 0.2, log‑odds ≈ 0.2). |
 | `target_power` | number | Power level used for a priori checks (default 0.8). |
-| `threshold_met` | boolean | `True` if reference_power ≥ 0.8 (primary adequacy criterion). |
+| `threshold_met` | boolean | `True` if `reference_power` ≥ 0.8 (primary adequacy criterion). |
 | `status` | string (`success` | `paywalled` | `unparseable` | `skipped`) | Outcome of the calculation. |
 | `alpha` | number | Significance level used (default 0.05). |
 | `test_type` | string (`t-test` | `anova` | `logistic`) | Statistical test assumed. |
@@ -49,26 +49,27 @@ All pipeline artifacts are stored under `projects/PROJ-234-assessing-statistical
 ### 2.4 ExtractionAuditReport
 | Field | Type | Description |
 |---|---|---|
-| `total_datasets` | integer | Number of datasets retrieved from OpenML. |
-| `oa_count` | integer | Datasets with OA links. |
-| `paywalled_count` | integer | Datasets with paywalled links. |
-| `extraction_success_full_text` | integer | Successful extractions from full‑text. |
-| `extraction_success_abstract` | integer | Successful extractions from abstract fallback. |
-| `sensitivity_delta` | number | Difference in success rates (full – abstract). |
-| `extraction_success_rate` | number (0‑1) | `successes / oa_count`. |
-| `precision` | number (0‑1) | Precision on the validation set of papers. |
-| `recall` | number (0‑1) | Recall on the validation set of papers. |
-| `f1_score` | number (0‑1) | F1 on the validation set of papers. |
+| `total_datasets` | integer |
+| `oa_count` | integer |
+| `paywalled_count` | integer |
+| `extraction_success_full_text` | integer |
+| `extraction_success_abstract` | integer |
+| `sensitivity_delta` | number |
+| `extraction_success_rate` | number (0‑1) |
+| `precision` | number (0‑1) |
+| `recall` | number (0‑1) |
+| `f1_score` | number (0‑1) |
 
 ## 3. Data Flow Diagram
 1. **Ingest** → `data/raw/openml_raw.json` (immutable).  
 2. **Filter & OA Check** → `data/processed/filtered_datasets.csv` (validated against `DatasetMetadata` schema).  
 3. **Parse** → `data/processed/statistical_params.json` (validated against `StatisticalParameters` schema).  
-4. **Observed Power Compute** → `data/processed/observed_power.csv` (validated against `PowerAuditResult` schema, includes `reference_power`).  
-5. **Extraction Audit Report** → `reports/extraction_audit.json` (conforms to `ExtractionAuditReport` definition).  
-6. **Report** → `data/processed/audit_report.html` (visual + summary).  
+4. **Observed & Reference Power Compute** → `data/processed/observed_power.csv` (validated against `PowerAuditResult` schema, includes `reference_power`).  
+5. **Weighting** → `data/processed/weighted_power.csv` (contains weighted power estimates).  
+6. **Extraction Audit Report** → `reports/extraction_audit.json` (conforms to `ExtractionAuditReport` definition).  
+7. **Final HTML Report** → `data/processed/audit_report.html` (contains histograms, count < 0.8, disclaimer, and a JSON‑pointer link to `reports/extraction_audit.json`).  
 
-All files have SHA‑256 checksums recorded in `data/metadata.json`.
+All files have SHA‑based checksums recorded in `data/metadata.json`.
 
 ## 4. Constraints
 - **Immutability**: Files under `data/raw/` are never overwritten.  
@@ -80,5 +81,4 @@ All files have SHA‑256 checksums recorded in `data/metadata.json`.
 The schemas for `StatisticalParameters` and `ExtractionAuditReport` are defined within `contracts/power_audit_result.schema.yaml` under `$defs`. Contract tests reference these embedded definitions, satisfying the requirement that all intermediate files are validated against schemas in `contracts/`.
 
 ---
-
 

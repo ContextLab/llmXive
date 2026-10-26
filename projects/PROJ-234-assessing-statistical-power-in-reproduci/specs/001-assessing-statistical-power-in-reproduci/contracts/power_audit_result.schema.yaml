@@ -89,7 +89,7 @@ $defs:
         required:
           - "num"
           - "den"
-        description: "Degrees of freedom for F‑statistics."
+        description: "Degrees of freedom for F-statistics."
       validation_status:
         type: "string"
         enum:
