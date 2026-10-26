@@ -25,41 +25,9 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; code/utils/artifacts.py: synthetic/fake INPUT data not authorized by the spec — “…attempt any fallback or synthetic data generation.  If validati…”; every produced artifact is gitignored (data/raw/matrix_N1000_seed42.npy) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python -m code.main --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal --seed 42 (rc=1); python -m pytest tests/contract/test_schemas.py -v   # all tests PASSED, none SKIPPED (rc=4); python -m pytest tests/contract/ -v        # per-file schema validation; FAILS on missing files (rc=4); 7 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_report.json; data/processed/perturbation_verification.json
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; code/utils/artifacts.py: synthetic/fake INPUT data not authorized by the spec — “…attempt any fallback or synthetic data generation.  If validati…”; every produced artifact is gitignored (data/raw/matrix_N1000_seed42.npy) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python -m pytest tests/contract/test_schemas.py -v   # all tests PASSED, none SKIPPED (rc=4); python -m pytest tests/contract/ -v        # per-file schema validation; FAILS on missing files (rc=4); python -m pytest tests/integration/ -v     # reproducibility: top eigenvalue within 1e-6 of reference (rc=4); 7 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_report.json; data/processed/perturbation_verification.json
 
 ## Failing / missing run-book commands
-
-- python -m code.main --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal --seed 42 -> rc=1
-                                    'type': 'number'},
-                    'theta_actual': {'description': 'The measured spectral '
-                                                    'norm of the '
-                                                    'perturbation matrix.',
-                                     'type': 'number'},
-                    'theta_requested': {'description': 'The ‑θ value '
-                                                       'supplied by the '
-                                                       'user.',
-                                        'type': 'number'}},
-     'required': ['pattern_type',
-                  'support_density',
-                  'theta_requested',
-                  'theta_actual',
-                  'norm_match',
-                  'norm_difference',
-                  'sparsity_match'],
-     'title': 'PerturbationVerification',
-     'type': 'object'}
-
-On instance:
-    {'actual_norm': 2.5,
-     'norm_difference': 0.0,
-     'norm_match': True,
-     'pattern': 'diagonal',
-     'pattern_type': '',
-     'requested_theta': 2.5,
-     'sparsity_match': False,
-     'support_density': 1e-06,
-     'theta_actual': 0,
-     'theta_requested': 0}
 
 - python -m pytest tests/contract/test_schemas.py -v   # all tests PASSED, none SKIPPED -> rc=4
 ============================= test session starts ==============================

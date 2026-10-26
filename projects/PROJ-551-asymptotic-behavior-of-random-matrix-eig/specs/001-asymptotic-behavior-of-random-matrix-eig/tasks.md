@@ -32,7 +32,7 @@
 
 ## Phase 0 – Artifact‑writing discipline (REPAIR)
 
-- [ ] T001 [US1] **Add canonical artifact writer and comprehensive contract tests**
+- [ ] T001 [US1] **Add canonical artifact writer and comprehensive contract tests** <!-- FAILED-IN-EXECUTION: code/run_tests.py exit=1 -->
   *Create `code/utils/artifacts.py` with `write_artifact(path, data, schema_name)` that validates `data` against the contract in `specs/…/contracts/` before writing, writes JSON, appends SHA‑256 to `data/checksums.yaml`, and prints path + checksum. Add new contracts `threshold_fit.schema.yaml` (ThresholdFit) and `perturbation_verification.schema.yaml` (Verification of θ and sparsity).*
   *Rewrite `code/tests/contract/test_schemas.py` to include ONE test per artifact file:*
   - `single_run_results.json` (SimulationRun + EigenvalueResult array)

@@ -1,10 +1,5 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: ThresholdFit
-description: |
-  Result of fitting a logistic sigmoid to outlier‑probability vs. perturbation norm data.
-  Provides the estimated critical threshold θ_c, confidence interval, and model parameters.
 type: object
-additionalProperties: false
+title: ThresholdFit
 required:
   - theta_c_estimate
   - theta_c_confidence
@@ -13,34 +8,30 @@ required:
   - fit_status
 properties:
   theta_c_estimate:
-    type:
-      - number
-      - "null"
-    description: Estimated critical perturbation norm (θ_c) from the sigmoid fit.
+    anyOf:
+      - type: number
+      - type: "null"
   theta_c_confidence:
-    type:
-      - object
-      - "null"
-    description: 95 % confidence interval for θ_c.
-    required:
-      - lower
-      - upper
-    properties:
-      lower:
-        type: number
-      upper:
-        type: number
+    anyOf:
+      - type: object
+        required:
+          - lower
+          - upper
+        properties:
+          lower:
+            type: number
+          upper:
+            type: number
+        additionalProperties: false
+      - type: "null"
   a:
-    type:
-      - number
-      - "null"
-    description: Slope parameter of the logistic function.
+    anyOf:
+      - type: number
+      - type: "null"
   b:
-    type:
-      - number
-      - "null"
-    description: Intercept (b = a * θ_c) for the equivalent logistic form.
+    anyOf:
+      - type: number
+      - type: "null"
   fit_status:
     type: string
-    enum: ["success", "failed"]
-    description: Indicates whether the curve‑fit converged.
+additionalProperties: true

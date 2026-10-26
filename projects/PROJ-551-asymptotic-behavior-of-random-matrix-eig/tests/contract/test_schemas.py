@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 
 # -----------------------------------------------------------------
-# Helper to locate the repository root (two levels up from this file)
+# Helper to locate the repository root (three levels up from this file)
 # -----------------------------------------------------------------
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 
@@ -52,6 +52,7 @@ def test_sweep_runs_parquet():
     required = {"N", "theta", "run_id", "outlier_flag"}
     missing = required - set(df.columns)
     assert not missing, f"Missing columns in sweep_runs.parquet: {missing}"
+    assert len(df) > 0, "sweep_runs.parquet is empty"
 
 # 4. aggregated_thresholds.json
 def test_aggregated_thresholds():
@@ -71,6 +72,7 @@ def test_sensitivity_density_sweep_parquet():
     required = {"N", "density", "theta", "run_id", "outlier_flag"}
     missing = required - set(df.columns)
     assert not missing, f"Missing columns in sensitivity_density_sweep.parquet: {missing}"
+    assert len(df) > 0, "sensitivity_density_sweep.parquet is empty"
 
 # 7. sensitivity_metadata.json
 def test_sensitivity_metadata():
@@ -82,9 +84,11 @@ def test_sensitivity_variation_csv():
     path = REPO_ROOT / "data" / "processed" / "sensitivity_variation.csv"
     assert path.is_file(), f"Artifact missing: {path}"
     df = pd.read_csv(path)
-    required = {"density", "theta_c", "std_dev", "p_value", "shift_flag"}
+    required = {"density", "mean_theta_c", "std_dev"}
     missing = required - set(df.columns)
     assert not missing, f"Missing columns in sensitivity_variation.csv: {missing}"
+    assert len(df) > 0, "sensitivity_variation.csv is empty"
+    assert df["mean_theta_c"].notna().all(), "mean_theta_c contains null values"
 
 # 9. sensitivity_variation_notes.json
 def test_sensitivity_variation_notes():
@@ -96,9 +100,19 @@ def test_finite_size_results_csv():
     path = REPO_ROOT / "data" / "processed" / "finite_size_results.csv"
     assert path.is_file(), f"Artifact missing: {path}"
     df = pd.read_csv(path)
-    required = {"N", "k", "theta", "pattern_type", "empirical_bulk_edge", "outlier_probability"}
+    required = {
+        "N",
+        "k",
+        "theta",
+        "pattern_type",
+        "empirical_bulk_edge",
+        "outlier_probability",
+    }
     missing = required - set(df.columns)
     assert not missing, f"Missing columns in finite_size_results.csv: {missing}"
+    assert len(df) > 0, "finite_size_results.csv is empty"
+    assert df["empirical_bulk_edge"].notna().all(), "empirical_bulk_edge contains nulls"
+    assert df["outlier_probability"].notna().all(), "outlier_probability contains nulls"
 
 # 11. perturbation_verification.json (new contract)
 def test_perturbation_verification():

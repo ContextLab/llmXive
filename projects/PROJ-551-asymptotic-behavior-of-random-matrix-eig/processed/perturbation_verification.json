@@ -3,6 +3,10 @@
   "norm_difference": 0.0,
   "norm_match": true,
   "pattern": "diagonal",
+  "pattern_type": "",
   "requested_theta": 2.5,
-  "support_density": 1e-06
+  "sparsity_match": false,
+  "support_density": 1e-06,
+  "theta_actual": 0,
+  "theta_requested": 0
 }

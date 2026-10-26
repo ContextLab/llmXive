@@ -1,12 +1,6 @@
 T001:
-  reason: "The two new contracts required by T001 \u2014 `threshold_fit.schema.yaml`\
-    \ and `perturbation_verification.schema.yaml` \u2014 are MISSING (collector-confirmed),\
-    \ so `write_artifact(path, data, \"threshold_fit\")` and the new tests cannot\
-    \ work. Additionally, both `artifacts.py` and `test_schemas.py` load schemas from\
-    \ a top-level `contracts/` directory, while the task specifies the contracts live\
-    \ under `specs/\u2026/contracts/` (the `specs/` tree exists but no contracts were\
-    \ placed there), so the schema-loading paths are wrong relative to the spec. The\
-    \ writer and test suite otherwise look substantive, but the miss"
+  reason: 'Requested task execution failed; rerun successfully: code/run_tests.py
+    exit=1'
   task: 97b0c43237307b37aa23060589816ffe3efaa2377d2d081969011e0ada982d2c
 T002:
   reason: "The required artifacts `data/processed/perturbation_verification.json`,\

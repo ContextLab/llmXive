@@ -1,12 +1,13 @@
 status: none
-intent: synthetic matrix perturbation patterns dataset python package dataset
+intent: synthetic matrices deterministic perturbation patterns arXiv 0812.2602 python
+  package dataset
 required_fields:
 - matrix_id
 - matrix_values
 - perturbation_pattern
-- construction_method
-- reference_value
-- outlier_detection_constant
-cache_key: 15b157bcc6520c39dc748524b29a557d1f10c8dbe2987587ac23c2dee0e9e7f0
-searched_at: '2026-10-22T00:20:41.995947+00:00'
+- reference_constant
+- generation_seed
+- constitution_version
+cache_key: c30209133d74dc8884edd55d2035a009b52d215f006d0793932b04b8282547f4
+searched_at: '2026-10-26T15:32:25.641806+00:00'
 retry_count: 1
