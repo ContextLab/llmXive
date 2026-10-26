@@ -28,7 +28,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion/download.py: synthetic/fake INPUT data not authorized by the spec — “…etwork errors and return synthetic data.     - No fallback to mo…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…suggesting synthetic or fake data.          Args:…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…erns that might indicate synthetic data.          Args:…”; 3 run-book script(s) missing (plan/impl path mismatch): python code/data/ingest.py --species Arabidopsis --stress Drought; python code/data/preprocess.py; python code/models/evaluate.py --train_stress Drought --test_stress Salinity; 2 command(s) failed: python code/modeling/train.py --model random_forest --cv_folds 5 (rc=2); python code/modeling/train.py --model svr --cv_folds 5 (rc=2)
+**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion/download.py: synthetic/fake INPUT data not authorized by the spec — “…etwork errors and return synthetic data.     - No fallback to mo…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…suggesting synthetic or fake data.          Args:…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…erns that might indicate synthetic data.          Args:…”; 5 run-book script(s) missing (plan/impl path mismatch): python code/data/ingest.py --species Arabidopsis --stress Drought; python code/data/preprocess.py --mode fit_transform; python code/models/evaluate.py --train_stress Drought --test_stress Salinity; 2 command(s) failed: python code/modeling/train.py --model random_forest --cv_folds 5 (rc=2); python code/modeling/train.py --model svr --cv_folds 5 (rc=2)
 
 ## Failing / missing run-book commands
 
@@ -36,7 +36,7 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-267-predicting-plant-stress-response-from-pu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data/ingest.py': [Errno 2] No such file or directory
 
-- python code/data/preprocess.py -> rc=2
+- python code/data/preprocess.py --mode fit_transform -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-267-predicting-plant-stress-response-from-pu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data/preprocess.py': [Errno 2] No such file or directory
 
@@ -53,4 +53,12 @@ train.py: error: unrecognized arguments: --model svr --cv_folds 5
 - python code/models/evaluate.py --train_stress Drought --test_stress Salinity -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-267-predicting-plant-stress-response-from-pu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/models/evaluate.py': [Errno 2] No such file or directory
+
+- python code/models/train_classifier.py --model random_forest -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-267-predicting-plant-stress-response-from-pu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/models/train_classifier.py': [Errno 2] No such file or directory
+
+- python code/tasks/schema_validate.py  --dataset contracts/dataset.schema.yaml  --model_output contracts/model_output.schema.yaml -> rc=2
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-267-predicting-plant-stress-response-from-pu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/tasks/schema_validate.py': [Errno 2] No such file or directory
 

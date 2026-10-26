@@ -1,40 +1,19 @@
 T001:
+  c: true
+  h: a5ec3be14a0bb12027292831cdbcae48494dc5b64f5943785596d0a50c2ca33e
+  r: Checked `code/main.py` runs the quickstart stage, creates `logs/pipeline.log`,
+    exits 0, and its stdout matches the block in `quickstart.md`; `docs/structure.txt`
+    contains a repository tree, and all required directories (`data/raw/`, `data/processed/`,
+    `logs/`, `results/`) and files are present.
+  sig: 450b9bc71a4b6bc43cc7912122bfc07b7c857f62b2e94023b58a0ff1acea7544
+T017:
   c: false
-  h: 91f7dccd55886616a4aa8f51f0b36ea025b5323a73ef0342ce3173311c62bc01
-  r: "The logs/ directory is not present in the listed project tree, and there is\
-    \ no execution evidence showing that the commands documented in\u202Fquickstart.md\
-    \ run successfully on a clean runner. Both are required to satisfy the task."
-  sig: 0fd4c08a4ba78270c7e6fdb123a25dbfcdc5d2030ff2924093959221b13a050d
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
-    \ with Black settings, or CI scripts invoking flake8/black) are present, nor any\
-    \ documentation showing that these tools have been set up and integrated into\
-    \ the project. The required artifacts to prove the task\u2019s completion are\
-    \ missing."
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No schema\u2011validation code, Pydantic models, or dict\u2011check utilities\
-    \ for the `data/raw/` and `data/processed/` directories are present in the provided\
-    \ evidence. The required artifact (validation implementation) is missing, so the\
-    \ task is not satisfied."
-T006:
-  c: false
-  h: b8350d05d06e88a363b9a6bde209da19787aaf4473d99a3e17b5375690dade43
-  r: Checked `code/utils/logger.py` (exists and writes to `logs/pipeline.log`) and
-    the verification log `code/.tasks/T006.code_utils_verify_logging.py.log` (shows
-    the log file was created and a warning was written). However, there is no evidence
-    that the rest of the pipeline modules import and use this logger, nor that `logs/pipeline.log`
-    contains the required entries for dropped rows, missing columns, or raised errors
-    after a real pipeline run. These artifacts must be added to satisfy the task.
-  sig: 558002e913d547f7f2c853fe66a4f8fb43d40153d817eefe7cd922e60616f20a
-T012:
-  c: false
-  h: 4196c01992af3b9c57e273d5a0d9687585e94c1533e876bf1e995b8d147e7541
-  r: "The `normalize.py` file is truncated, never imports or uses the `imp3` library,\
-    \ and the LCM imputation function is incomplete. `requirements.txt` is missing\
-    \ entirely, so the required version pin for `imp3` is not present. The `docs/deviation_log.md`\
-    \ documents a different deviation (cross\u2011validation) and does not note any\
-    \ fallback for an unavailable `imp3` library."
+  h: e3450e1e381322f538a6a3f836baab8539ff1d21147913c3ad179f5f2e7caa5a
+  r: "The `code/utils/constants.py` file exists and defines `SEED` with calls to `np.random.seed`\
+    \ and `random.seed`, but the provided test (`tests/test_constants.py`) fails during\
+    \ import due to a circular\u2011import error in the `code.utils` package, so the\
+    \ seed\u2011pinning behavior is never exercised. Moreover, there is no evidence\
+    \ that other stochastic modules import and use this constant, nor is a scikit\u2011\
+    learn seed explicitly set. The task\u2019s verification requirements are therefore\
+    \ not met."
+  sig: d8798be74aefbfea5832028187d85db2686d9d4896d1966968471ed48290feea

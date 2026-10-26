@@ -1,33 +1,17 @@
-status: verified
-kind: pypi_package
-ref: GEOparse
-access_python: "import GEOparse, pandas as pd\n\ngse = GEOparse.get_GEO(geo=\"GSE14784\"\
-  , destdir=\".\")\nrecords = []\nfor gsm_name, gsm in gse.gsms.items():\n    meta\
-  \ = gsm.metadata\n    records.append({\n        \"sample_id\": gsm_name,\n     \
-  \   \"species\": meta.get(\"organism_ch1\", [\"\"])[0],\n        \"stress_condition\"\
-  : meta.get(\"characteristics_ch1\", [\"\"])[0],\n        \"platform\": meta.get(\"\
-  platform_id\", [\"\"])[0],\n        \"metadata_notes\": \"; \".join(meta.get(\"\
-  description\", []))\n    })\n\ndf = pd.DataFrame(records)\nprint(f\"RECORDS={len(df)}\"\
-  )\nprint(\"FIELDS=\" + \",\".join(df.columns))"
-record_count: 8
-sample_fields:
-- sample_id
-- species
-- stress_condition
-- platform
-- metadata_notes
-field_coverage: 0.5
+status: none
+intent: download paired plant proteomics transcriptomics GEO ProteomeXchange drought
+  salinity heat python package dataset
 required_fields:
-- sample_id
+- protein_id
+- gene_id
+- protein_abundance
+- transcript_expression
 - species
 - stress_condition
-- protein_id
-- protein_abundance
-- gene_id
-- transcript_expression
-- experiment_accession
-- platform
-- metadata_notes
-intent: NCBI GEO ProteomeXchange Ensembl plant abiotic stress paired proteomics transcriptomics
-  python package dataset
-cache_key: 715485244e5a091ad86568fdeb0a90e778c35eeb68115846704e68f9ff6262a2
+- sample_id
+- replicate
+- detection_flag
+- accession_id
+cache_key: c6ec107b525ad3af5c3b6ba4840e5fab900cfe6c056b9acf9405e7e91dc42d96
+searched_at: '2026-10-26T10:43:13.618842+00:00'
+retry_count: 1

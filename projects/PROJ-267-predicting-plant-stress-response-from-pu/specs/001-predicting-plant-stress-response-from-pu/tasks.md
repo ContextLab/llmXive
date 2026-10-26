@@ -10,7 +10,7 @@ All tasks are unchecked; they will be marked ✅ only after the described artifa
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [US1] Create the project skeleton, add a `logs/` directory, and document a runnable quick‑start command.  
+- [X] **T001** [US1] Create the project skeleton, add a `logs/` directory, and document a runnable quick‑start command.  
   - **Artifacts**: `data/raw/`, `data/processed/`, `logs/`, `results/`, `code/main.py`, `quickstart.md`, `docs/structure.txt`  
   - **Verification**: Running `python -m code.main --stage quickstart` on a clean runner creates `logs/pipeline.log` and exits with status 0; the command and its output are reproduced verbatim in `quickstart.md`; `docs/structure.txt` contains a tree listing of the repository.
 
@@ -18,7 +18,7 @@ All tasks are unchecked; they will be marked ✅ only after the described artifa
   - **Artifacts**: `code/utils/constants.py`  
   - **Verification**: A test script verifies that `np.random.seed` and `random.seed` are called using the constants defined in the module; all stochastic components in `code/` are verified to import and use these constants.
 
-- [ ] **T003** [US1] Provide a project‑wide logger (`code/utils/logger.py`) and ensure **all** pipeline modules import and use it.  
+- [ ] **T003** [US1] Provide a project‑wide logger (`code/utils/logger.py`) and ensure **all** pipeline modules import and use it.   <!-- FAILED-IN-EXECUTION: code/utils/verify_logging_imports.py exit=1 -->
   - **Artifacts**: `code/utils/logger.py`, updated imports in `code/data/*.py`, `code/models/*.py`, `code/viz/*.py`  
   - **Verification**: After a full pipeline run, `logs/pipeline.log` contains INFO entries for dropped rows, missing‑column warnings, and any raised errors; a script scans the `code/` directory to verify that every module imports and uses `get_logger`.
 

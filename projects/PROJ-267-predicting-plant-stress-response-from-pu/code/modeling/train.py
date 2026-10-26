@@ -1,7 +1,7 @@
 """
 User Story 2: Train Baseline Models (Random Forest and SVR).
 
-Implements 5-fold CV or LOOCV based on sample size strategy.
+Implements 5‑fold CV or LOOCV based on sample size strategy.
 Includes explicit logging of sample sizes and CV strategy selection 
 to logs/pipeline.log before training begins (Task T043).
 """
@@ -22,9 +22,10 @@ from sklearn.metrics import r2_score, mean_squared_error
 from sklearn.preprocessing import StandardScaler
 import joblib
 
-# Import project utilities
+# Project utilities
 from utils.config import get_project_root, get_data_path, get_results_path, get_log_path
 from utils.logging_config import setup_logging, get_logger
+from utils.constants import SEED
 from modeling.checkpoint import save_model_checkpoint, load_model_checkpoint
 
 # Constants
@@ -63,16 +64,12 @@ def load_processed_data() -> pd.DataFrame:
     df = pd.read_csv(data_path)
     
     # Identify target column (assumed to be 'expression_level' or similar based on context)
-    # If not present, look for a numeric column that isn't protein ID
+    # If not present, use the last numeric column as fallback.
     if 'expression_level' not in df.columns:
-        # Fallback: assume the last numeric column is the target if not specified
         numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if 'stress_condition' in df.columns:
-            # Drop non-numeric and stress condition
-            feature_cols = [c for c in numeric_cols if c != 'stress_condition']
-            target_col = feature_cols[-1] if len(feature_cols) > 1 else feature_cols[0]
-        else:
-            target_col = numeric_cols[-1]
+        if len(numeric_cols) == 0:
+            raise ValueError("No numeric columns found to infer a target.")
+        target_col = numeric_cols[-1]
     else:
         target_col = 'expression_level'
     
@@ -86,7 +83,6 @@ def log_sample_sizes_and_strategy(df: pd.DataFrame, target_col: str, logger: log
     project_root = get_project_root()
     log_path = project_root / "logs" / LOG_FILE_NAME
     
-    # Ensure logger writes to the specific file
     logger.info(f"--- T043 Sample Size & Strategy Check ---")
     logger.info(f"Log file: {log_path}")
     
@@ -95,9 +91,8 @@ def log_sample_sizes_and_strategy(df: pd.DataFrame, target_col: str, logger: log
     strategy_type = strategy_config.get("strategy", "unknown")
     
     # Count samples per stress condition
-    # Assuming 'stress_condition' column exists in the merged matrix
     if 'stress_condition' not in df.columns:
-        logger.warning("Column 'stress_condition' not found. Cannot log per-stress sample sizes.")
+        logger.warning("Column 'stress_condition' not found. Cannot log per‑stress sample sizes.")
         sample_counts = {"total": len(df)}
     else:
         counts = df['stress_condition'].value_counts().to_dict()
@@ -113,9 +108,9 @@ def log_sample_sizes_and_strategy(df: pd.DataFrame, target_col: str, logger: log
     if strategy_type == "LOOCV":
         logger.info(f"LOOCV selected: Will perform {total_samples} folds.")
     elif strategy_type == "5-fold":
-        logger.info(f"5-fold CV selected: Will perform 5 folds.")
+        logger.info(f"5‑fold CV selected: Will perform 5 folds.")
     else:
-        logger.warning(f"Unknown strategy: {strategy_type}. Defaulting to 5-fold.")
+        logger.warning(f"Unknown strategy: {strategy_type}. Defaulting to 5‑fold.")
     
     logger.info(f"--- End T043 Check ---")
     
@@ -128,23 +123,22 @@ def train_model(
     strategy_type: str, 
     hyperparams: Dict[str, Any],
     logger: logging.Logger
-) -> Tuple[Any, Dict[str, Any]]:
+) -> Tuple[Any, Dict[str, Any], StandardScaler]:
     """
     Train a model using the specified CV strategy.
-    Returns the fitted model and metrics.
+    Returns the fitted model, metrics, and the scaler.
     """
     logger.info(f"Training {model_type} with {strategy_type} strategy.")
     
-    # Initialize model
+    # Initialise model with the project‑wide seed where applicable
     if model_type == "RandomForest":
         model = RandomForestRegressor(
             n_estimators=hyperparams.get("n_estimators", 100),
             max_depth=hyperparams.get("max_depth", 10),
-            random_state=42,
+            random_state=SEED,
             n_jobs=-1
         )
     elif model_type == "SVR":
-        # SVR hyperparams might differ based on strategy
         kernel = hyperparams.get("kernel", "rbf")
         C = hyperparams.get("C", 1.0)
         epsilon = hyperparams.get("epsilon", 0.1)
@@ -152,30 +146,30 @@ def train_model(
     else:
         raise ValueError(f"Unknown model type: {model_type}")
     
-    # Scale features (important for SVR, good practice for RF too in some contexts)
+    # Scale features (important for SVR)
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     
-    # Setup CV
+    # Choose CV splitter
     if strategy_type == "LOOCV":
         cv = LeaveOneOut()
     else:
-        cv = KFold(n_splits=5, shuffle=True, random_state=42)
+        cv = KFold(n_splits=5, shuffle=True, random_state=SEED)
     
-    # Get predictions for R2 calculation (in-sample CV predictions)
+    # Cross‑validated predictions
     try:
         y_pred = cross_val_predict(model, X_scaled, y, cv=cv)
     except Exception as e:
         logger.error(f"CV prediction failed: {e}")
         raise
     
-    # Calculate metrics
+    # Metrics
     r2 = r2_score(y, y_pred)
     rmse = np.sqrt(mean_squared_error(y, y_pred))
     
-    logger.info(f"{model_type} Results -> R²: {r2:.4f}, RMSE: {rmse:.4f}")
+    logger.info(f"{model_type} Results → R²: {r2:.4f}, RMSE: {rmse:.4f}")
     
-    # Fit on full data for checkpointing/usage
+    # Fit on full data for later use / checkpointing
     model.fit(X_scaled, y)
     
     metrics = {
@@ -183,7 +177,7 @@ def train_model(
         "strategy": strategy_type,
         "r2": float(r2),
         "rmse": float(rmse),
-        "n_samples": len(y)
+        "n_samples": int(len(y))
     }
     
     return model, metrics, scaler
@@ -197,20 +191,19 @@ def run_training_pipeline() -> Dict[str, Any]:
     
     logger.info("Starting Training Pipeline (T019c + T043)")
     
-    # 1. Load Data
+    # Load data
     df, target_col = load_processed_data()
-    logger.info(f"Loaded data with shape {df.shape}, target: {target_col}")
+    logger.info(f"Loaded data with shape {df.shape}, target column: {target_col}")
     
-    # 2. T043: Log Sample Sizes and Strategy
+    # Log sample sizes & strategy
     sample_counts = log_sample_sizes_and_strategy(df, target_col, logger)
     
-    # 3. Load Strategy and Hyperparams
+    # Load configuration
     strategy_config = load_strategy_config()
     strategy_type = strategy_config.get("strategy", "5-fold")
     hyperparams = load_hyperparameters()
     
-    # Prepare features and target
-    # Drop non-feature columns
+    # Prepare features / target
     feature_cols = [c for c in df.columns if c not in [target_col, 'stress_condition']]
     if not feature_cols:
         raise ValueError("No feature columns found in the dataset.")
@@ -218,27 +211,26 @@ def run_training_pipeline() -> Dict[str, Any]:
     X = df[feature_cols]
     y = df[target_col]
     
-    # Handle missing values if any (though T012 should have handled this)
+    # Drop rows with missing values (should be rare after preprocessing)
     if X.isnull().any().any() or y.isnull().any():
-        logger.warning("Missing values detected. Dropping rows.")
+        logger.warning("Missing values detected. Dropping affected rows.")
         valid_idx = ~(X.isnull().any(axis=1) | y.isnull())
         X = X[valid_idx]
         y = y[valid_idx]
     
-    results = {
+    results: Dict[str, Any] = {
         "strategy": strategy_type,
-        "total_samples": len(y),
+        "total_samples": int(len(y)),
         "samples_per_stress": sample_counts,
         "models": {}
     }
     
-    # Train RF
+    # Train Random Forest
     try:
         rf_model, rf_metrics, rf_scaler = train_model(
             X, y, "RandomForest", strategy_type, hyperparams, logger
         )
         results["models"]["RandomForest"] = rf_metrics
-        # Save checkpoint
         save_model_checkpoint(rf_model, rf_scaler, rf_metrics, "RandomForest", strategy_type)
     except Exception as e:
         logger.error(f"Failed to train RandomForest: {e}")
@@ -255,7 +247,7 @@ def run_training_pipeline() -> Dict[str, Any]:
         logger.error(f"Failed to train SVR: {e}")
         results["models"]["SVR"] = {"error": str(e)}
     
-    # Write final metrics
+    # Write metrics JSON
     output_path = project_root / OUTPUT_METRICS_FILE
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
@@ -266,7 +258,8 @@ def run_training_pipeline() -> Dict[str, Any]:
 def main():
     """Entry point for the training script."""
     parser = argparse.ArgumentParser(description="Train Baseline Models")
-    parser.add_argument("--strategy", type=str, default=None, help="Override strategy (5-fold or LOOCV)")
+    parser.add_argument("--strategy", type=str, default=None,
+                        help="Override strategy (5-fold or LOOCV)")
     args = parser.parse_args()
     
     try:

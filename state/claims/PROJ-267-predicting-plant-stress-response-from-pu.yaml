@@ -551,3 +551,22 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-28T03:49:15Z'
+- artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/quickstart.md
+  attempts: 1
+  canonical: script logs Data Unavailable notice and exits when no paired plant data
+    are found
+  claim_id: c_fe5ea8bf
+  context: "In the Data Ingestion & Preprocessing step, the documentation states that\
+    \ if no paired plant data are found, the script logs a clear \u201CData Unavailable\u201D\
+    \ notice and exits gracefully."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "If no paired plant data are found, the script logs a clear \u201CData\
+    \ Unavailable\u201D notice and exits gracefully."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:41:13Z'
