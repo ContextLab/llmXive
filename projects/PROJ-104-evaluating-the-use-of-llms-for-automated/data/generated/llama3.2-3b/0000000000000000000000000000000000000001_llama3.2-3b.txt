@@ -1,1 +1,1 @@
-Generated documentation for commit 0000000000000000000000000000000000000001 using model llama3.2-3b.
+Generated documentation for commit 0000000000000000000000000000000000000001 using llama3.2-3b.

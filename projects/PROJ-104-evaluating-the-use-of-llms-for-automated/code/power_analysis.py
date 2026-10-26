@@ -28,7 +28,7 @@ N_REPLICATES = 1000      # Monte‑Carlo replicates
 ALPHA = 0.05             # significance level
 MEDIUM_F = 0.25          # Cohen's f for a medium effect (task requirement)
 WITHIN_SUBJECT_RHO = 0.5 # within‑subject correlation (repeated measures)
-BASE_MEAN = 0.60         # baseline mean precision score
+BASE_MEAN = 0.60          # baseline mean precision score
 BASE_SD = 0.15           # within‑subject standard deviation
 POWER_THRESHOLD = 0.8    # exploratory if power below this
 

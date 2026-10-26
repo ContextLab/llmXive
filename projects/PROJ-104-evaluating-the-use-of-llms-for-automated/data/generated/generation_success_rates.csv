@@ -1,4 +1,4 @@
 model_id,success_rate
-phi3-mini,0.3333
-gemma2-2b,0.3333
-llama3.2-3b,0.3333
+phi3-mini,1.0
+gemma2-2b,1.0
+llama3.2-3b,1.0

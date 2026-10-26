@@ -1,1 +1,1 @@
-Generated documentation for commit 0000000000000000000000000000000000000002 using model phi3-mini.
+Generated documentation for commit 0000000000000000000000000000000000000002 using phi3-mini.

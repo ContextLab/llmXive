@@ -1,1 +1,1 @@
-Generated documentation for commit 0000000000000000000000000000000000000003 using model gemma2-2b.
+Generated documentation for commit 0000000000000000000000000000000000000003 using gemma2-2b.

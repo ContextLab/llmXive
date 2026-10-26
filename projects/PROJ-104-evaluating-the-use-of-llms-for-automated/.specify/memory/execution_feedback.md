@@ -10,7 +10,6 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/power_analysis.py: self-declared fabricated metric — “…les, 3))      # Construct the simulated scores matrix:     #   mean + sqrt(…”
 - code/statistical_analysis.py: self-declared fabricated metric — “…rics CSV is empty – producing placeholder results.")     # Metrics we care abo…”
-- code/data_extraction.py: synthetic/fake INPUT data not authorized by the spec — “…nting silent fallback to synthetic data. """ from __future__ imp…”
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
@@ -25,7 +24,7 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/power_analysis.py: self-declared fabricated metric — “…les, 3))      # Construct the simulated scores matrix:     #   mean + sqrt(…”; code/statistical_analysis.py: self-declared fabricated metric — “…rics CSV is empty – producing placeholder results.")     # Metrics we care abo…”; code/data_extraction.py: synthetic/fake INPUT data not authorized by the spec — “…nting silent fallback to synthetic data. """ from __future__ imp…”; 4 command(s) failed: python -m src.run_pipeline --sample 5 (rc=2); python -m src.run_pipeline --full (rc=1); python -m pytest tests/unit/ (rc=2); 1 declared deliverable(s) absent: data/processed/fidelity_metrics.csv
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/power_analysis.py: self-declared fabricated metric — “…les, 3))      # Construct the simulated scores matrix:     #   mean + sqrt(…”; code/statistical_analysis.py: self-declared fabricated metric — “…rics CSV is empty – producing placeholder results.")     # Metrics we care abo…”; 4 command(s) failed: python -m src.run_pipeline --sample 5 (rc=2); python -m src.run_pipeline --full (rc=1); python -m pytest tests/unit/ (rc=1); 1 declared deliverable(s) absent: data/processed/fidelity_metrics.csv
 
 ## Failing / missing run-book commands
 
@@ -33,11 +32,12 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 Power analysis: estimated power for n=500 is 1.0000; exploratory=False
 Wrote /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/results/power_report.md
 
-2026-10-26 15:42:01,731 INFO code.run_pipeline: Running power‑analysis
-2026-10-26 15:42:32,273 INFO code.power_analysis: Power analysis complete: power=1.0000 (n=500), exploratory=False
-2026-10-26 15:42:32,274 INFO code.run_pipeline: Running generation stage
-2026-10-26 15:42:32,282 INFO code.generation: Wrote generation success rates to /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/generated/generation_success_rates.csv
-2026-10-26 15:42:32,282 INFO code.run_pipeline: Running intent‑entity extraction stage
+2026-10-26 16:07:40,399 INFO code.run_pipeline: Running power‑analysis
+2026-10-26 16:08:10,751 INFO code.power_analysis: Power analysis complete: power=1.0000 (n=500), exploratory=False
+2026-10-26 16:08:10,752 INFO code.run_pipeline: Running generation stage
+2026-10-26 16:08:10,760 INFO code.generation: Generation completed: 5 total pairs
+2026-10-26 16:08:10,760 INFO code.generation: Wrote generation success rates to /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/generated/generation_success_rates.csv
+2026-10-26 16:08:10,760 INFO code.run_pipeline: Running intent‑entity extraction stage
 usage: run_pipeline.py [-h] [--csv CSV] [--out OUT] [--repos REPOS]
 run_pipeline.py: error: unrecognized arguments: --sample 5
 
@@ -45,36 +45,22 @@ run_pipeline.py: error: unrecognized arguments: --sample 5
 Power analysis: estimated power for n=500 is 1.0000; exploratory=False
 Wrote /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/results/power_report.md
 
-2026-10-26 15:43:02,785 INFO code.run_pipeline: Running power‑analysis
-2026-10-26 15:43:33,133 INFO code.power_analysis: Power analysis complete: power=1.0000 (n=500), exploratory=False
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/src/run_pipeline.py", line 17, in <module>
-    raise SystemExit(main())
-                     ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/src/run_pipeline.py", line 14, in main
-    return _real_main()
-           ^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/run_pipeline.py", line 118, in main
-    token = sys.getenv("GITHUB_TOKEN")
-            ^^^^^^^^^^
-AttributeError: module 'sys' has no attribute 'getenv'
+2026-10-26 16:08:41,294 INFO code.run_pipeline: Running power‑analysis
+2026-10-26 16:09:11,849 INFO code.power_analysis: Power analysis complete: power=1.0000 (n=500), exploratory=False
+2026-10-26 16:09:11,849 ERROR code.run_pipeline: GITHUB_TOKEN environment variable is required for the full pipeline.
 
-- python -m pytest tests/unit/ -> rc=2
--evaluating-the-use-of-llms-for-automated/tests/unit/test_entity_extraction_intent.py _
-ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/tests/unit/test_entity_extraction_intent.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-tests/unit/test_entity_extraction_intent.py:21: in <module>
-    from code.entity_extraction_intent import run_extraction, DEFAULT_OUTPUT_DIR, DEFAULT_CSV, DEFAULT_REPOS_ROOT
-E   ImportError: cannot import name 'DEFAULT_OUTPUT_DIR' from 'code.entity_extraction_intent' (/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/entity_extraction_intent.py)
+- python -m pytest tests/unit/ -> rc=1
+  raise FileNotFoundError(gold_path)
+FileNotFoundError: /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/gold/annotations.json
+=============================== warnings summary ===============================
+projects/PROJ-104-evaluating-the-use-of-llms-for-automated/tests/unit/test_entity_extraction_intent.py::test_precision_recall_against_gold
+  /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-104-evaluating-the-use-of-llms-for-automated/lib/python3.11/site-packages/transformers/tokenization_utils_base.py:1601: FutureWarning: `clean_up_tokenization_spaces` was not set. It will be set to `True` by default. This behavior will be depracted in transformers v4.45, and will be then set to `False` by default. For more details check this issue: https://github.com/huggingface/transformers/issues/31884
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
-ERROR tests/unit/test_entity_extraction_intent.py
-!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.47s ===============================
+ERROR tests/unit/test_entity_extraction_intent.py::test_precision_recall_against_gold
+========================= 1 warning, 1 error in 3.13s ==========================
 
 
 - python -m src.run_pipeline --full --samples 500 -> rc=2

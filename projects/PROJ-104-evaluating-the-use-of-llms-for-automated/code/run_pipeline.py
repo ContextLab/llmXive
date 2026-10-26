@@ -4,12 +4,8 @@ This script provides two entry points used by the quick‑start guide:
 
 * ``--sample N`` – run a minimal smoke‑test on *N* rows (default 5).  
   The smoke‑test does **not** require a GitHub token and creates a
-  placeholder commit‑pair CSV, runs the generation stage (which writes
-  ``data/generated/generation_success_rates.csv`` and a dummy text file
-  ``data/generated/phi3-mini/sample_test.txt``) and executes the intent‑
-  entity extraction pipeline so that at least one JSON file appears under
-  ``data/intermediate/intent_entities/``.
-
+  placeholder text file such as
+  `data/generated/phi3-mini/sample_test.txt`.
 * ``--full`` – run the full pipeline (power analysis, data extraction,
   generation, entity extraction, etc.).  For the purposes of the quick‑
   start test we only need the stages that produce concrete artefacts;
@@ -26,6 +22,7 @@ helpers.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -41,8 +38,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse command‑line arguments for the pipeline.
 
     Supported flags:
-    * ``--sample N`` – run a minimal smoke‑test on *N* rows.
-    * ``--full``      – run the full pipeline (all stages).
+    * ``--sample N`` – run a minimal smoke‑test on *N* rows (default: 5 if omitted).
+    * ``--full``      – run the full pipeline (requires GitHub token).
     """
     parser = argparse.ArgumentParser(
         description="Run the LLM fidelity evaluation pipeline."
@@ -115,7 +112,7 @@ def main(argv: list[str] | None = None) -> int:
     # ------------------------------------------------------------------
     if args.full:
         # Full pipeline – requires a GitHub token for data extraction.
-        token = sys.getenv("GITHUB_TOKEN")
+        token = os.getenv("GITHUB_TOKEN")
         if not token:
             log.error(
                 "GITHUB_TOKEN environment variable is required for the full pipeline."

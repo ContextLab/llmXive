@@ -1,43 +1,46 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: tests/test_quickstart.py
-    exit=4'
-  task: ad8b7da12a812516de57f5cc04b2d15ce66c35856e417d66bfbc7d46ef6297a4
+  reason: "Checked `docs/quickstart.md` (exists and contains the required package\
+    \ list, bitsandbytes install notes, GITHUB_TOKEN instructions, and the `python\
+    \ -m code.run_pipeline --sample 5` command) and `tests/test_quickstart.py` (invokes\
+    \ the pipeline via subprocess and checks output files). However, the test suite\
+    \ fails when the `--sample 5` argument is used because `code.run_pipeline` does\
+    \ not accept that flag (exit code\u202F2), causing one of the two parametrized\
+    \ test cases to fail and preventing the required `logs/quickstart_run.log` from\
+    \ being written. The verification test therefore does not fully pa"
+  task: 5f05f57d96282a18f6021868343b921aff4e6da8c8ab93d8641f0b488c4aac6a
 T002:
-  task: 301a52712c3dd0fe87b0e770778abfeb16e6ed0f5fc2564483ea2bca5228bcd8
+  task: e95446d4051b8ece3f0103de297bec51edb0c319449e2fbbc33752b9eff6ff99
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/data_extraction.py
+  reason: 'Requested task execution failed; rerun successfully: code/run_data_extraction.py
     exit=1'
-  task: 3f204a970bc7acc62aab1f2edb9749ff55ac5a33ca39748a1515fd2246a7b4b3
+  task: 413509ecf0c2e6076dea1245afeaae00b9b073e9b19d8b08e4f42f45fd5970a7
 T004:
-  reason: "The repository lacks the required UI files (`annotation_ui/index.html`,\
-    \ etc.) and the gold\u2011standard CSVs (`data/gold/sample_for_annotation.csv`,\
-    \ `annotator_1.csv`, `annotator_2.csv`). `gold_annotation.py` writes its JSON\
-    \ to a different path, never reads the annotator CSVs, does not abort when \u03BA\
-    \u202F<\u202F0.6, and does not produce a `conflicts.log`. These missing/incorrect\
-    \ artifacts mean the task\u2019s specifications are not met."
-  task: d4bae6a779a54556a230619704daeef0b24fa7e12e16d85cd942eac3b543b508
+  task: daf14a208aef62eb9570bd4a586836b3ce16cc11b92ed2aa88f95802a3b3af8d
 T005:
-  reason: "The markdown file lacks the required \u201CCPU\u2011only compatibility\u201D\
-    \ column and its scale\u2011limitation sentence does not contain \u201Ccomparable\u201D\
-    \ or \u201Csimilar\u201D, causing `test_scale_limitation_sentence` to fail (see\
-    \ test log). Consequently the verification test does not pass and the task is\
-    \ not fully satisfied."
-  task: 19decc807d5be24f5149a74fad943d60cac068688c3fb89284e936fe3c56eb6f
+  task: 0eb4e94b76a74a7e801281847726099a0be9795ee5a23233ebf18f2f8cb4b5a3
 T006:
-  task: 86ebedd41fa998c7d9361c306b98e0ef8477ed91f700c50e3e471214571b61e8
+  task: 89eaf244292a8d45ae1fcba2315f3a0f3fcdcee8f18ea049deab574ec0121a43
 T007:
-  task: 84724bbbc8eabe543ddb624f5e312881b0669e9e6104009b914e14cce98d9e88
+  task: b490372c4ae7e2cf7bb4bfaaafdaf8c7568809b857c621c94e918cbd5f30333d
 T008:
-  task: 81b2482324f8e6b355ca1dea5a4bc5fc2132621368319e0ddd1c39f3ceaa709a
+  task: 08bca0e9b9a82517c96c28b0bbf680ab7eaccb1900ba328f8b7eafba03d5483c
 T009:
-  task: 83d42e5dc0c82269a9c05a66eeaf0fc337bda03426d0df87e58a64b7c847a742
+  task: d7cb90bc65c0f8abd411e4bcb5afd0811d79e7c62ae24c24d95649b581634fba
 T010:
-  task: c7a9298d0da86b3b77edd382e73453e958a6ae8c599ef567dc2ee5dd4f63f88a
+  task: 18043adc3098e678bf2f6a149dc053642a2376c573ce35d7f1a06528e99dcdc8
 T011:
-  task: 691c4b8cc30001ff1eaca9abd6b0d6eb2b422e7b102409a90f551d946856d2d2
+  task: 800ab666c4c816cd63dea993fc6e0ed3c9381076f8130b3fc0662d30ad5a30fb
 T012:
-  task: ac62ea7e29d9d922f9a4d1260eac5c55feae03fcabd4f01da9b339f0f94dab2c
+  task: 544ffd03e3b735a6050fe6c18b385ba34e2d153af8ef218f5e115d65db217d49
 T013:
-  task: 116ad139f468b1d6b85275cb181b10a3548997778cbc26e42fe74c00f5298802
+  reason: "The `code/data_hygiene.py` module writes checksum entries with a `\"checksum\"\
+    ` field, but the existing `data/metadata.yaml` uses `\"sha256\"` keys, causing\
+    \ a `KeyError` in the tests and leaving many data files without entries. Consequently,\
+    \ the test `test_metadata_covers_all_data_files` and the immutability test both\
+    \ fail, so the checksum\u2011recording requirement is not met. The `SEED = 42`\
+    \ implementation is present, but the overall task is incomplete."
+  task: 1a3c88070968fcfed868564ef02cf080c6fdfffe8e68aa19af764edf77ab1155
 T014:
-  task: 771c64b760a83c5a86e288e8c32eb2c5f0c119961e80fe3a465215b14a58a88c
+  task: 41243aa3624a871f81cea15136296bb0bce27f50e6d066b4b9016157ce1b7a2f
+T016:
+  task: 9faf638dd69f8369975bbf8dec1a8f03ff0473802567f8d80d370496a520d84a

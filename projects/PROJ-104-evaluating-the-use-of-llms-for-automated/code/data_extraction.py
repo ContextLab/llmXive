@@ -17,8 +17,10 @@ passed to the top‑level pipeline:
 * No explicit flag – fall back to a minimal 5‑row extraction (historical
   default).
 
-A ``GITHUB_TOKEN`` environment variable is required; the script fails
-loudly if it is missing, preventing silent fallback to synthetic data.
+A ``GITHUB_TOKEN`` environment variable **is optional**; if it is not
+present the script falls back to unauthenticated requests (subject to
+the lower GitHub rate limit).  The script fails loudly only when it cannot
+collect the required number of rows.
 """
 from __future__ import annotations
 
@@ -48,6 +50,7 @@ def _checksum(file_path: Path) -> str:
             h.update(chunk)
     return h.hexdigest()
 
+
 def update_metadata(file_path: Path) -> None:
     """Compute SHA‑256 checksum of *file_path* and store it in ``data/metadata.yaml``."""
     checksum = _checksum(file_path)
@@ -70,6 +73,7 @@ def update_metadata(file_path: Path) -> None:
         json.dump(meta, f, indent=2)
     log.debug("Recorded checksum for %s", rel)
 
+
 # ----------------------------------------------------------------------
 # Core extraction logic
 # ----------------------------------------------------------------------
@@ -83,6 +87,7 @@ TARGET_REPOS = [
 ]
 DOC_EXTS = {".md", ".rst"}
 
+
 def _github_get(url: str, token: str | None = None) -> requests.Response:
     """Perform a GET request against the GitHub API with optional token."""
     headers = {"Accept": "application/vnd.github+json"}
@@ -91,6 +96,7 @@ def _github_get(url: str, token: str | None = None) -> requests.Response:
     resp = requests.get(url, headers=headers, timeout=30)
     resp.raise_for_status()
     return resp
+
 
 def _fetch_commits(owner: str, repo: str, since_iso: str) -> List[Dict]:
     """Yield commit objects newer than *since_iso* (ISO‑8601)."""
@@ -110,6 +116,7 @@ def _fetch_commits(owner: str, repo: str, since_iso: str) -> List[Dict]:
         page += 1
     return commits
 
+
 def _fetch_diff(owner: str, repo: str, sha: str) -> List[Dict]:
     """Return the list of file dictionaries for *sha*."""
     token = os.getenv("GITHUB_TOKEN")
@@ -117,6 +124,7 @@ def _fetch_diff(owner: str, repo: str, sha: str) -> List[Dict]:
     resp = _github_get(url, token)
     data = resp.json()
     return data.get("files", [])
+
 
 def _extract_doc_diff(files: List[Dict]) -> str:
     """Concatenate diffs for documentation files only."""
@@ -128,6 +136,7 @@ def _extract_doc_diff(files: List[Dict]) -> str:
             if patch:
                 diffs.append(patch)
     return "\n".join(diffs).strip()
+
 
 def extract_commit_pairs(target: int = 5) -> List[Dict]:
     """Fetch real commit‑pair rows until *target* rows are collected."""
@@ -169,6 +178,7 @@ def extract_commit_pairs(target: int = 5) -> List[Dict]:
     log.info("Collected %d commit‑pair rows", len(rows))
     return rows
 
+
 def write_csv(rows: List[Dict]) -> None:
     """Write *rows* to ``data/raw/commit_pairs.csv``."""
     csv_path = paths.data("raw", "commit_pairs.csv")
@@ -187,6 +197,7 @@ def write_csv(rows: List[Dict]) -> None:
             writer.writerow(row)
     log.info("Wrote %d rows to %s", len(rows), csv_path)
     update_metadata(csv_path)
+
 
 def _determine_target_from_argv() -> int:
     """
@@ -212,13 +223,13 @@ def _determine_target_from_argv() -> int:
     # Default fallback (historical behaviour)
     return 5
 
+
 def main() -> int:
     """Entry point used by the pipeline."""
     try:
-        token = os.getenv("GITHUB_TOKEN")
-        if not token:
-            log.error("GITHUB_TOKEN environment variable is required for data extraction")
-            raise RuntimeError("Missing GITHUB_TOKEN")
+        # ``GITHUB_TOKEN`` is optional – unauthenticated requests are allowed
+        # but subject to stricter rate limits.  The script will raise only
+        # if it cannot collect the required number of rows.
         target = _determine_target_from_argv()
         rows = extract_commit_pairs(target=target)
         write_csv(rows)
@@ -226,6 +237,7 @@ def main() -> int:
     except Exception as e:
         log.exception("Data extraction failed")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

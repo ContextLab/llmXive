@@ -1,38 +1,31 @@
+T001:
+  c: false
+  h: 256bf4a26464df4b6e50f77108ac3362de8d9dda86e882cdb66336a7a1f5c9a0
+  r: "Checked `docs/quickstart.md` (exists and contains the required package list,\
+    \ bitsandbytes install notes, GITHUB_TOKEN instructions, and the `python -m code.run_pipeline\
+    \ --sample 5` command) and `tests/test_quickstart.py` (invokes the pipeline via\
+    \ subprocess and checks output files). However, the test suite fails when the\
+    \ `--sample 5` argument is used because `code.run_pipeline` does not accept that\
+    \ flag (exit code\u202F2), causing one of the two parametrized test cases to fail\
+    \ and preventing the required `logs/quickstart_run.log` from being written. The\
+    \ verification test therefore does not fully pa"
+  sig: 0c5fcc435d08ab2d45b6eec10dfc91fd9445aece4df7c18cb09618195c6a0c54
 T002:
   c: true
-  h: ab7389d54b8a045d51ac4fdc406c54f79c72741e91e1756c67709eb34b1140a7
-  r: "Checked `code/power_analysis.py` (implements the Monte\u2011Carlo simulation,\
-    \ writes the required markdown with power and exploratory flag) and `results/power_report.md`\
-    \ (contains a numeric power estimate line and the flag). The accompanying `tests/test_power_analysis.py`\
-    \ confirms the report exists and includes a valid floating\u2011point power value.\
-    \ All required artifacts are present and meet the task specifications."
-  sig: dd3dd7daa98d1966b981f74ed2aaee64a4d24138fa7490cf4e7522c72e6766ec
-T004:
-  c: false
-  h: 6e385feb08f6aec3a72eb56a85718b84505c00f11e6df50103d41cad0a6b02fc
-  r: "The repository lacks the required UI files (`annotation_ui/index.html`, etc.)\
-    \ and the gold\u2011standard CSVs (`data/gold/sample_for_annotation.csv`, `annotator_1.csv`,\
-    \ `annotator_2.csv`). `gold_annotation.py` writes its JSON to a different path,\
-    \ never reads the annotator CSVs, does not abort when \u03BA\u202F<\u202F0.6,\
-    \ and does not produce a `conflicts.log`. These missing/incorrect artifacts mean\
-    \ the task\u2019s specifications are not met."
-  sig: 58ad899cd25a7f0162e964252777fec62b6c4b28c84e6342374fa01e0dfe3c71
-T005:
-  c: false
-  h: 0c2d2c8c670479a1b20f99376cbda1a232592d330defa3f3377851c7ac16433b
-  r: "The markdown file lacks the required \u201CCPU\u2011only compatibility\u201D\
-    \ column and its scale\u2011limitation sentence does not contain \u201Ccomparable\u201D\
-    \ or \u201Csimilar\u201D, causing `test_scale_limitation_sentence` to fail (see\
-    \ test log). Consequently the verification test does not pass and the task is\
-    \ not fully satisfied."
-  sig: b8bc8796fe4068fe34ed63415602515836646710053e8cf23842da24ade7a23b
+  h: 5148758871b5c5b73dc2637d9bfd92471224acdb2ab8a08e440a6b3dab9ea947
+  r: "Checked `code/power_analysis.py` for correct Monte\u2011Carlo simulation of\
+    \ three paired models with n\u202F=\u202F500 and f\u202F=\u202F0.25, and verified\
+    \ that it writes `results/power_report.md` containing a numeric power estimate\
+    \ (`1.0000`) and the appropriate `exploratory` flag. The accompanying `tests/test_power_analysis.py`\
+    \ confirms the markdown file exists and the power value is a valid float."
+  sig: f569b64c6ecf8f964e829a67f6948087039f510a00672387f52d1499aa213a7b
 T013:
-  c: true
-  h: 9dd2cd2f29d1532f4d51ffb34b90730d67674cb385f5fafc4a26b0a940e18da5
-  r: "Checked `code/data_hygiene.py` (checksum computation and immutability enforcement),\
-    \ `code/seeds.py` (global SEED\u202F=\u202F42), `data/metadata.yaml` (stores checksums),\
-    \ and the test suite `tests/test_hygiene_and_seeds.py` (verifies metadata coverage,\
-    \ immutability, seed value, and deterministic power analysis). All required artifacts\
-    \ exist, contain the correct logic, and the tests would pass, satisfying the task\u2019\
-    s specifications."
-  sig: ea00177667b6cff2a7f1beb01bb265cb02012c2fac54005074380c27783246d9
+  c: false
+  h: 0498321d1731d47e380b0434203a6362f976c29981d1477959287301f71a76fb
+  r: "The `code/data_hygiene.py` module writes checksum entries with a `\"checksum\"\
+    ` field, but the existing `data/metadata.yaml` uses `\"sha256\"` keys, causing\
+    \ a `KeyError` in the tests and leaving many data files without entries. Consequently,\
+    \ the test `test_metadata_covers_all_data_files` and the immutability test both\
+    \ fail, so the checksum\u2011recording requirement is not met. The `SEED = 42`\
+    \ implementation is present, but the overall task is incomplete."
+  sig: 5eea64382c01b8ac8bf406f6455e44d6ac6a74670b9cbb9e5af2706a8a69d7eb

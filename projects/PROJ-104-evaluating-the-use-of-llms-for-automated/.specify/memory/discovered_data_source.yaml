@@ -1,29 +1,13 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: "import sys\nfrom datasets import load_dataset\n\nds = load_dataset(\"\
-  SalutefaceAAC/commit-messages-from-diffs\", split=\"train\")\nrecords = len(ds)\n\
-  print(f\"RECORDS={records}\")\nif records:\n    first = ds[0]\n    fields = list(first.keys())\n\
-  \    print(\"FIELDS=\" + \",\".join(fields))\nelse:\n    print(\"FIELDS=\")"
-record_count: 88
-sample_fields:
-- id
-- language
-- repo_context
-- diff
-- commit_message
-- conventional_commit
-- commit_type
-- scope
-- breaking_change
-- difficulty
-field_coverage: 0.5
+status: none
+intent: GitHub commit message and documentation diff paired dataset downloadable python
+  package
 required_fields:
-- commit_message
-- doc_diff
 - commit_hash
 - repository_name
+- commit_message
+- documentation_diff
 - timestamp
-- intent_entities
-intent: GitHub commit messages documentation diffs paired dataset python package dataset
-cache_key: 1452b753410c3dc53fdc963c61fa50656898bc24cf1665a4e1ec552d178ff84b
+- file_path
+cache_key: 3c113422d57a79f666d3bd66f45a5fc1c77b695358a42336792e60cc14896e00
+searched_at: '2026-10-26T16:09:35.246565+00:00'
+retry_count: 1

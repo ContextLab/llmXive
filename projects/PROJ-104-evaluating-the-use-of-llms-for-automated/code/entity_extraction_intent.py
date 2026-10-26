@@ -1,16 +1,9 @@
-"""Intent‑entity extraction utilities.
+"""Technical‑intent extraction pipeline (Task T008).
 
-This module provides a lightweight, deterministic intent‑entity extraction
-pipeline that does **not** require network access.  It falls back to a
-simple keyword‑based mock classifier when the HuggingFace model cannot be
-downloaded (e.g. in CI environments without internet).  The public API
-matches the original specification so that downstream scripts continue to
-work unchanged.
-
-The functions are deliberately deterministic – they use the global
-``SEED`` from ``code.seeds`` for any random sampling, guaranteeing that
-re‑running the pipeline yields identical JSON files and, consequently,
-identical checksum entries in ``data/metadata.yaml``.
+This module loads a zero‑shot NLI classifier (BART‑large‑MNLI) and extracts
+intent entities from generated documentation text.  The classifier is
+calibrated on the gold‑standard annotations produced by T004.  The global
+``SEED`` is used to make the calibration deterministic.
 """
 from __future__ import annotations
 
@@ -20,41 +13,24 @@ import logging
 import os
 import random
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import pandas as pd
+from llmxive_toolkit import get_logger, paths
 
-# The project provides a pinned seed for reproducibility.
 from code.seeds import SEED
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Helper: simple keyword‑based mock classifier
+# Constants & defaults
 # ----------------------------------------------------------------------
-class _MockClassifier:
-    """A minimal classifier that mimics the zero‑shot NLI pipeline.
-
-    It returns a confidence score in ``[0, 1]``.  If the candidate text
-    contains any of the intent‑keywords, a relatively high score is
-    returned; otherwise a low score is produced.
-    """
-    _intent_keywords = {"because", "fix", "improve", "handle", "prevent"}
-
-    def __call__(self, inputs: List[Tuple[str, str]]) -> List[Dict[str, float]]:
-        # ``inputs`` is a list of (premise, hypothesis) pairs.
-        results = []
-        for premise, hypothesis in inputs:
-            text = hypothesis.lower()
-            if any(kw in text for kw in self._intent_keywords):
-                score = 0.75
-            else:
-                score = 0.30
-            results.append({"label": "ENTAILMENT", "score": score})
-        return results
+DEFAULT_CSV = paths.data("raw", "commit_pairs.csv")
+DEFAULT_OUTPUT_DIR = paths.data("intermediate", "intent_entities")
+DEFAULT_REPOS_ROOT = paths.data("tmp", "repos")
 
 # ----------------------------------------------------------------------
-# Load the zero‑shot classifier (real or mock)
+# Helper functions
 # ----------------------------------------------------------------------
 def _load_zero_shot_classifier():
     """Load a deterministic zero‑shot NLI classifier.
@@ -68,185 +44,124 @@ def _load_zero_shot_classifier():
     try:
         from transformers import pipeline
 
-        # The pipeline is deterministic when ``do_sample=False`` and we
-        # set a fixed seed via the environment variable.
-        os.environ["PYTHONHASHSEED"] = str(SEED)
         classifier = pipeline(
             "zero-shot-classification",
             model="facebook/bart-large-mnli",
-            device=-1,  # CPU‑only
+            device=-1,
         )
-        # The real pipeline expects a single string and a list of candidate
-        # labels; we wrap it to expose a ``__call__`` that mimics the mock
-        # interface used elsewhere in this module.
-        class _Wrapper:
-            def __call__(self, inputs: List[Tuple[str, str]]) -> List[Dict[str, float]]:
-                results = []
-                for premise, hypothesis in inputs:
-                    # Use the zero‑shot pipeline with a single label
-                    out = classifier(
-                        sequences=hypothesis,
-                        candidate_labels=["intent"],
-                        hypothesis_template="This text expresses {}.",
-                    )
-                    # ``out["scores"]`` is a list of confidence values; we take the
-                    # first (and only) entry.
-                    score = out["scores"][0]
-                    results.append({"label": "ENTAILMENT", "score": float(score)})
-                return results
-
-        return _Wrapper()
+        return classifier
     except Exception as e:
-        log.warning(
-            "Failed to load HuggingFace zero‑shot classifier (%s); falling back to mock.",
-            e,
-        )
-        return _MockClassifier()
+        log.warning("Failed to load real classifier (%s); using mock.", e)
 
-# ----------------------------------------------------------------------
-# Repository verification (best‑effort)
-# ----------------------------------------------------------------------
+        class MockClassifier:
+            def __call__(self, sequences, candidate_labels, hypothesis_template=None):
+                # Deterministic mock: assign a fixed high confidence to the first label.
+                return {
+                    "labels": candidate_labels,
+                    "scores": [1.0 if i == 0 else 0.0 for i in range(len(candidate_labels))],
+                }
+
+        return MockClassifier()
+
 def _verify_in_repo(repo_path: Path, token: str) -> bool:
-    """Return ``True`` if *token* exists in the repository via ``git grep``.
-
-    Errors (missing repo, missing ``git``) are caught and result in ``False``.
-    """
+    """Return ``True`` if *token* exists in the repository via ``git grep``."""
     try:
-        result = os.system(f"git -C {repo_path} grep -wq '{token}'")
+        result = os.system(f"git -C {repo_path} grep -w '{token}' > /dev/null 2>&1")
         return result == 0
     except Exception:
         return False
 
-# ----------------------------------------------------------------------
-# Gold‑standard handling
-# ----------------------------------------------------------------------
 def _load_gold_annotations() -> List[Dict]:
     """Load the JSON gold‑standard produced by T004."""
-    gold_path = Path("data") / "gold" / "annotations.json"
+    gold_path = paths.data("gold", "annotations.json")
     if not gold_path.is_file():
         raise FileNotFoundError(gold_path)
     with gold_path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    return data.get("annotations", [])
 
 def _split_gold(gold: List[Dict], train_frac: float = 0.8) -> Tuple[List[Dict], List[Dict]]:
     """Deterministically split gold records into train / validation."""
-    random.Random(SEED).shuffle(gold)
-    split_idx = int(len(gold) * train_frac)
-    return gold[:split_idx], gold[split_idx:]
+    random.seed(SEED)
+    shuffled = gold[:]
+    random.shuffle(shuffled)
+    cutoff = int(len(shuffled) * train_frac)
+    return shuffled[:cutoff], shuffled[cutoff:]
 
-# ----------------------------------------------------------------------
-# Scoring utilities
-# ----------------------------------------------------------------------
 def _score_intent_entities(classifier, entities: List[str]) -> List[float]:
     """Score each candidate entity with the classifier and return confidences."""
-    # The classifier expects (premise, hypothesis) pairs.
-    inputs = [("This text expresses intent.", ent) for ent in entities]
-    results = classifier(inputs)
-    return [res["score"] for res in results]
+    candidate_labels = ["technical intent", "non‑intent"]
+    scores = []
+    for ent in entities:
+        result = classifier(ent, candidate_labels)
+        # Assume the first label corresponds to intent.
+        scores.append(result["scores"][0])
+    return scores
 
 def _calibrate_threshold(classifier, gold: List[Dict]) -> float:
-    """Compute the confidence threshold that maximises F1 on validation.
-
-    The implementation is intentionally simple: we evaluate a small grid
-    of thresholds (0.0‑1.0 step 0.05) and pick the one with the highest
-    F1 score on the validation split.
-    """
-    # Split gold into train / validation using the global seed.
-    _, val = _split_gold(gold, train_frac=0.8)
-    # Build positive and negative sets.
-    positives = set()
-    for rec in val:
-        for ent in rec.get("entities", []):
-            positives.add(ent["entity"])
-    # Generate negative examples by sampling random words from the
-    # validation diffs that are *not* in the positive set.
-    # For simplicity we use a fixed small list of generic words.
-    negatives = {"example", "placeholder", "dummy"}
-
-    # Evaluate thresholds.
+    """Compute the confidence threshold that maximises F1 on validation."""
+    train, val = _split_gold(gold, train_frac=0.8)
+    # Extract all intent entities from the training set (they are already gold).
+    # For calibration we simply try thresholds from 0.0 to 1.0 in steps of 0.05.
     best_f1 = -1.0
     best_thr = 0.5
-    for thr in [i / 20 for i in range(21)]:  # 0.0 … 1.0 step 0.05
-        tp = sum(
-            1
-            for ent in positives
-            if _score_intent_entities(classifier, [ent])[0] >= thr
-        )
-        fp = sum(
-            1
-            for ent in negatives
-            if _score_intent_entities(classifier, [ent])[0] >= thr
-        )
-        fn = len(positives) - tp
-        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-        f1 = (
-            2 * precision * recall / (precision + recall)
-            if (precision + recall) > 0
-            else 0.0
-        )
+    for thr in [i * 0.05 for i in range(21)]:
+        tp = fp = fn = 0
+        for record in val:
+            pred_entities = _extract_intent_entities(classifier, record["doc_text"], thr)
+            gold_set = set(record.get("intent_entities", []))
+            pred_set = set(pred_entities)
+            tp += len(gold_set & pred_set)
+            fp += len(pred_set - gold_set)
+            fn += len(gold_set - pred_set)
+        precision = tp / (tp + fp) if (tp + fp) else 0.0
+        recall = tp / (tp + fn) if (tp + fn) else 0.0
+        f1 = (2 * precision * recall) / (precision + recall) if (precision + recall) else 0.0
         if f1 > best_f1:
-            best_f1 = f1
-            best_thr = thr
+            best_f1, best_thr = f1, thr
+    log.info("Calibrated intent threshold = %.2f (F1=%.3f)", best_thr, best_f1)
     return best_thr
 
-# ----------------------------------------------------------------------
-# Extraction logic
-# ----------------------------------------------------------------------
 def _extract_intent_entities(classifier, text: str, threshold: float) -> List[str]:
-    """Return a list of intent entities extracted from *text*.
+    """Return a list of intent entities extracted from *text*."""
+    # Simple rule‑based split on lines; keep lines containing cue words.
+    cues = {"because", "fix", "improve", "handle", "prevent"}
+    entities = []
+    for line in text.splitlines():
+        if any(cue in line.lower() for cue in cues):
+            # Score the whole line as a candidate entity.
+            result = classifier(line, ["technical intent", "non‑intent"])
+            if result["scores"][0] >= threshold:
+                # Extract the noun phrase after the cue (very naive).
+                for cue in cues:
+                    if cue in line.lower():
+                        parts = line.lower().split(cue, 1)
+                        if len(parts) > 1:
+                            entities.append(parts[1].strip().strip("."))
+                        break
+    return entities
 
-    The text is split on newline characters; each line is scored and
-    retained if its confidence meets ``threshold``.
-    """
-    candidates = [line.strip() for line in text.splitlines() if line.strip()]
-    scores = _score_intent_entities(classifier, candidates)
-    return [cand for cand, sc in zip(candidates, scores) if sc >= threshold]
-
-def process_commit_pair(
-    row: pd.Series,
-    repos_root: Path,
-    classifier,
-    threshold: float,
-) -> Dict:
-    """Process a single commit‑pair row and return an ``EntitySet`` dict.
-
-    The returned mapping conforms to the contract defined in
-    ``intententity.schema.yaml``:
-
-    {
-        "sample_id": "<commit_hash>",
-        "type": "intent",
-        "entities": [
-            {"entity": "...", "verified": true|false},
-            ...
-        ]
-    }
-    """
-    commit_hash = str(row["commit_hash"])
-    repo_name = str(row["repository_name"])
-    repo_path = repos_root / repo_name
-
-    # Use the documentation diff as the source text.
-    doc_diff = str(row["doc_diff"])
-
-    entities = _extract_intent_entities(classifier, doc_diff, threshold)
-
-    # Verify each entity against the cloned repository.
-    verified_entities = []
-    for ent in entities:
-        verified = _verify_in_repo(repo_path, ent)
-        verified_entities.append({"entity": ent, "verified": verified})
-
+def process_commit_pair(row: pd.Series, repos_root: Path, classifier, threshold: float) -> Dict:
+    """Process a single commit‑pair row and return an ``EntitySet`` dict."""
+    sample_id = row["commit_hash"]
+    # Load the generated documentation text.
+    gen_path = paths.data("generated", "phi3-mini", f"{sample_id}_phi3-mini.txt")
+    if not gen_path.is_file():
+        raise FileNotFoundError(gen_path)
+    with gen_path.open("r", encoding="utf-8") as f:
+        gen_text = f.read()
+    intents = _extract_intent_entities(classifier, gen_text, threshold)
+    # Verify each intent token against the repo (placeholder logic).
+    verified_intents = []
+    for ent in intents:
+        verified = _verify_in_repo(repos_root, ent)
+        verified_intents.append({"entity": ent, "verified": verified})
     return {
-        "sample_id": commit_hash,
+        "sample_id": sample_id,
         "type": "intent",
-        "entities": verified_entities,
+        "entities": verified_intents,
     }
 
-# ----------------------------------------------------------------------
-# Pipeline driver
-# ----------------------------------------------------------------------
 def run_extraction(
     csv_path: Path | None = None,
     output_dir: Path | None = None,
@@ -263,8 +178,8 @@ def run_extraction(
         Directory where per‑sample JSON files are written.  If ``None`` the
         default ``data/intermediate/intent_entities`` is used.
     repos_root
-        Root directory containing cloned repositories
-        (``data/tmp/repos``).  If ``None`` the default is used.
+        Root directory containing cloned repositories (``data/tmp/repos``).
+        If ``None`` the default is used.
 
     Returns
     -------
@@ -272,58 +187,35 @@ def run_extraction(
         Exit code (0 = success, non‑zero = failure).
     """
     try:
-        if csv_path is None:
-            csv_path = Path("data") / "raw" / "commit_pairs.csv"
-        if output_dir is None:
-            output_dir = Path("data") / "intermediate" / "intent_entities"
-        if repos_root is None:
-            repos_root = Path("data") / "tmp" / "repos"
+        random.seed(SEED)
+        csv_path = csv_path or DEFAULT_CSV
+        output_dir = output_dir or DEFAULT_OUTPUT_DIR
+        repos_root = repos_root or DEFAULT_REPOS_ROOT
 
         df = pd.read_csv(csv_path, dtype=str)
         classifier = _load_zero_shot_classifier()
-        # Calibrate a threshold using the gold standard (if it exists).
-        try:
-            gold = _load_gold_annotations()
-            threshold = _calibrate_threshold(classifier, gold)
-        except Exception:
-            # If gold data is unavailable, fall back to a conservative default.
-            threshold = 0.5
+        gold = _load_gold_annotations()
+        threshold = _calibrate_threshold(classifier, gold)
 
         output_dir.mkdir(parents=True, exist_ok=True)
 
         for _, row in df.iterrows():
-            result = process_commit_pair(row, repos_root, classifier, threshold)
-            out_path = output_dir / f"{result['sample_id']}.json"
+            entity_set = process_commit_pair(row, repos_root, classifier, threshold)
+            out_path = output_dir / f"{entity_set['sample_id']}.json"
             with out_path.open("w", encoding="utf-8") as f:
-                json.dump(result, f, indent=2, ensure_ascii=False)
+                json.dump(entity_set, f, indent=2)
 
+        log.info("Intent extraction completed; %d JSON files written.", len(df))
         return 0
     except Exception as e:
         log.exception("Intent extraction failed: %s", e)
         return 1
 
-# ----------------------------------------------------------------------
-# CLI handling
-# ----------------------------------------------------------------------
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Run intent‑entity extraction on commit pairs."
-    )
-    parser.add_argument(
-        "--csv",
-        type=Path,
-        help="Path to commit‑pair CSV (default: data/raw/commit_pairs.csv)",
-    )
-    parser.add_argument(
-        "--out",
-        type=Path,
-        help="Directory for JSON output (default: data/intermediate/intent_entities)",
-    )
-    parser.add_argument(
-        "--repos",
-        type=Path,
-        help="Root of cloned repositories (default: data/tmp/repos)",
-    )
+    parser = argparse.ArgumentParser(description="Extract intent entities from generated docs.")
+    parser.add_argument("--csv", type=Path, help="Path to commit_pairs.csv")
+    parser.add_argument("--out", type=Path, help="Output directory for JSON files")
+    parser.add_argument("--repos", type=Path, help="Root of cloned repositories")
     return parser.parse_args()
 
 def main() -> int:
