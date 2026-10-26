@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T11:32:57.370497Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-866-llmxive-follow-up-extending-foundation-p
-last_run_id: 45b5817d-9c0c-43a8-a83c-ccaff6cf3207
+last_run_id: 89c897c8-8929-4c1f-882e-27298b06315c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p
 title: 'llmXive follow-up: extending "Foundation Protocol: A Coordination Layer for
   Agentic Society"'
-updated_at: '2026-10-24T13:20:17.406885Z'
+updated_at: '2026-10-26T00:31:27.195913Z'
