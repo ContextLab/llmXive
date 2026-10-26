@@ -21,7 +21,7 @@ The tasks respect data flow, provide an early end‑to‑end runnable result, an
   - Run `test -d code && test -d data/raw && test -d data/processed && test -d data/augmented && test -d data/external && test -d data/reports && test -d data/output && test -d tests && test -d state && test -d state/projects && test -f state/dir_structure.txt`.  
   - The file `state/dir_structure.txt` must contain a non‑empty listing of the top‑level directories.
 
-- [ ] **T002** Create a timestamped recursive directory listing  
+- [ ] **T002** Create a timestamped recursive directory listing   <!-- FAILED: unspecified -->
 
   **File**: `state/setup_log.txt`  
 
@@ -35,7 +35,7 @@ The tasks respect data flow, provide an early end‑to‑end runnable result, an
   - First line matches regex `^Setup run at \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.*$`.  
   - The file contains at least one line beginning with `./`.
 
-- [ ] **T003** Configure strict linting and capture a successful run  
+- [ ] **T003** Configure strict linting and capture a successful run   <!-- FAILED: unspecified -->
 
   **File**: `code/.ruff.toml` (strict rules are already present)  
 

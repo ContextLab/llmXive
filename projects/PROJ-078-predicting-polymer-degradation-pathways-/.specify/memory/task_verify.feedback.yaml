@@ -6,8 +6,16 @@ T001:
     write only project-owned outputs.'
   task: 5d3674c76ed215f459988c30c59b722b2a80058d330a51ce2825ffca8c028be9
 T002:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/setup_log.txt`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
   task: 7482edbd2246d90a4fc86857e6cee6f51757ca90a04ad8a0ecae7731f9ecfb8f
 T003:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/ruff_check.log`
+    (shadows `state/`), `state/ruff_exit_code.txt` (shadows `state/`). A project owns
+    data/, figures/, code/ and paper/; the platform owns state/ and derives artifact
+    hashes at verification time. Re-scope the step to write only project-owned outputs.'
   task: 342276596cbf1203268c9ebe50027481d5326edc21419d6abf19fc208a7b6921
 T004:
   task: cbb005c5c4cfca00804e96fde56f1d42cac5bd048c8ca0b27947215097ecbb63
