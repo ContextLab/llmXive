@@ -38,6 +38,7 @@
    - Metric JSON at `outputs/metrics/metric_results.json`
    - Control‑perturbation dataset under `outputs/control/`
    - Random‑noise baseline under `outputs/baseline/`
+   - Marginal‑perturbation dataset under `outputs/control/`
    - Final report (`outputs/report/fidelity_report.pdf` and `.json`).
 
 5. **Validate Outputs**
@@ -51,5 +52,3 @@
 - **Peak RAM** ≤ 7 GB (monitored; down‑sampling or column‑drop actions triggered automatically if exceeded).  
 
 ---
-
-

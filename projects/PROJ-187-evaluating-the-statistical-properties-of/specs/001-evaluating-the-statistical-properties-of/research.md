@@ -8,7 +8,7 @@ This document details the methodological choices, data sources, and statistical 
 |---|--------------------------|-----------------------|--------|--------------|------------------------|
 | 1 | **UCI HAR (Human Activity Recognition)** | https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv | `datasets.load_dataset("udayl/UCI_HAR", split="test")` | ~10 k rows, ~50 columns | No NaNs observed; rows with NaNs would be dropped (none found). |
 | 2 | **UCI Shopper** | https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet | `datasets.load_dataset("jlh/uci-shopper", split="train")` | ~6 k rows, 15 columns | Median imputation for numeric, mode for categorical. |
-| 3 | **UCI Adult** | https://huggingface.co/datasets/uci_adult/resolve/main/data/train.csv | `datasets.load_dataset("uci_adult", split="train")` | ~32 k rows, 15 columns | Median imputation for numeric, mode for categorical. |
+| 3 | **UCI Drop** (generic UCI collection) | https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet | `datasets.load_dataset("ucinlp/drop", split="train")` | ~8 k rows, 12 columns | Median imputation for numeric, mode for categorical. |
 
 ## Pre‑processing Pipeline
 1. **Checksum verification** (`sha256`) of each raw file after download.  
@@ -16,8 +16,8 @@ This document details the methodological choices, data sources, and statistical 
 3. **Categorical encoding** (recorded in `data/processed/<name>/metadata.yaml`):  
    - One‑hot for low‑cardinality columns (< 20 distinct values).  
    - Frequency encoding for higher cardinality columns.  
-   - All encoding decisions are logged and applied identically to training and hold‑out splits for a given dataset, ensuring that downstream fidelity metrics are not confounded by differing encodings across models.  
-4. **Train/hold‑out split**: stratified 80/20 on the target column if present; otherwise random split with fixed seed = 123.  
+   - All encoding decisions are logged and applied identically to training and hold‑out splits for a given dataset, ensuring that downstream fidelity metrics are not confounded by differing encodings.  
+4. **Train/hold‑out split**: stratified 80/20 on the target column if present; otherwise random split with fixed seed = 123 (FR‑015).  
 5. **RAM monitoring** (`psutil`). If peak RAM > 6.5 GB after encoding, uniformly down‑sample to ≤ 10 k rows **or** drop highest‑cardinality columns until under limit (FR‑009). All actions are logged.
 
 ## Generative Models
@@ -33,7 +33,7 @@ Training is performed **ten** times per (model, dataset) combination using seeds
 
 ## Fidelity Metrics
 ### Marginal Statistics
-- **Continuous columns**: mean, variance, Kolmogorov–Smirnov (KS) statistic & p‑value, kernel‑density‑estimate (Gaussian kernel, Scott’s rule) → side‑by‑side KDE vs. empirical histogram.  
+- **Continuous columns**: mean, variance, Kolmogorov–Smirnov (KS) statistic & p‑value, kernel‑density‑estimate (Gaussian kernel, Scott’s rule).  
 - **Categorical columns**: frequency distribution, χ² statistic & p‑value (df = categories − 1).  
 
 ### Correlation
@@ -43,8 +43,8 @@ Training is performed **ten** times per (model, dataset) combination using seeds
 All metrics are saved per seed; later aggregated (mean ± SD) (FR‑012).
 
 ## Statistical Testing & Corrections
-- **Multiple‑comparison correction**: Benjamini‑Hochberg (FDR = 0.05) applied across the full set of p‑values per dataset (FR‑006).  
-- **Effect‑size thresholds** (FR‑020): KS ≤ 0.1 for continuous, χ² ≤ χ²₀.₉₅ (computed from df) for categorical.  
+- **Multiple‑comparison correction**: Benjamini‑Hochberg (FDR = 0.05) applied across the full set of p‑values per dataset.  
+- **Effect‑size thresholds** (FR‑020): KS ≤ 0.1 for continuous columns; χ² ≤ χ²₀.₉₅ (computed from df) for categorical columns.  
 - **Power justification**: With >5 k rows, the KS test attains > 0.9 power for detecting an effect size of 0.1; χ² tests achieve > 0.85 power for moderate degrees of freedom. Post‑hoc power estimates are reported using standard analytical approximations (SC‑005).
 
 ### Faithful / Unfaithful Classification
@@ -56,20 +56,20 @@ Columns with estimated power < 0.8 are flagged **inconclusive** and excluded
 
 ## Control & Sensitivity Analyses
 ### Control‑Perturbation Dataset (FR‑021)
-- Constructed by **randomly permuting [deferred] of rows in each column** of the real hold‑out (seed = 99). This preserves the marginal distribution exactly while destroying dependence, providing a ground‑truth reference for **false‑positive** rates of correlation fidelity (any significant correlation difference is a false positive). It does **not** affect marginal fidelity, so marginal false‑negative rates are obtained from the random‑noise baseline instead.
+- Constructed by **fully permuting** the rows of each column of the real hold‑out (seed = 99). This preserves every marginal distribution exactly while destroying all dependence structure, providing a ground‑truth reference for **false‑positive** rates of correlation‑based fidelity metrics.
 
-### Random‑Noise Baseline (FR‑019)
-- Generated by sampling each column independently from the empirical marginal distribution of the hold‑out (seed = 42). Used as an additional baseline for **false‑negative** rates of marginal fidelity and as a comparator in paired‑test analyses (FR‑018).
+### Marginal‑Perturbation Dataset (FR‑022)
+- Generated by randomly permuting **[deferred]** of the rows within each column of the real hold‑out (seed = 2026), leaving the remaining [deferred] unchanged. This subtly perturbs marginal distributions while retaining most of the dependence structure, serving as a ground‑truth reference for **false‑negative** rates of marginal‑fidelity metrics.
 
 ### Sensitivity Sweep
 - Evaluate faithful/unfaithful classification at p‑value thresholds **0.01, 0.05, 0.10**.  
-- Compute **false‑positive** rates using the control‑perturbation dataset (any column flagged faithful despite the injected dependence disruption).  
-- Compute **false‑negative** rates using the random‑noise baseline (any column flagged unfaithful despite exact marginal preservation).  
+- Compute **false‑positive** rates using the control‑perturbation dataset (any column flagged faithful despite destroyed dependence).  
+- Compute **false‑negative** rates using the marginal‑perturbation dataset (any column flagged unfaithful despite largely preserved marginals).  
 - Report stability (SC‑004) as the proportion of column‑method pairs whose classification changes across thresholds.
 
-## Comparative Testing
+## Aggregation & Summary
 - Aggregate metric differences across seeds → mean ± SD (FR‑012).  
-- Paired significance testing between generators for each metric: Shapiro‑Wilk normality check; paired t‑test if normal, else Wilcoxon signed‑rank (FR‑018).  
+- Produce `outputs/summary/aggregated_metrics.csv` containing per‑dataset, per‑model summaries of KS, χ², Pearson/Spearman differences, and faithful fractions.
 
 ## Reporting
 - `report.py` produces a JSON machine‑readable summary and a PDF assembled via Jinja2‑rendered LaTeX; all figures are PNGs embedded as base64, avoiding external LaTeX dependencies.  
@@ -83,14 +83,12 @@ Columns with estimated power < 0.8 are flagged **inconclusive** and excluded
 ## Risks & Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Dataset exceeds RAM after encoding | Crash | RAM monitor triggers down‑sampling or column drop (FR‑009). |
+| Dataset exceeds RAM after encoding | Crash | RAM monitor triggers down‑sampling or column‑drop (FR‑009). |
 | DP‑GAN non‑convergence | Missing metrics | Log, emit NaNs, continue (FR‑010). |
 | Zero‑variance synthetic column | KS undefined | Detect (FR‑011), flag, skip KS. |
-| Control‑perturbation fraction unclear | Mis‑interpreted sensitivity | Fixed at 10 % permutation per column (FR‑021). |
-| Only two verified tabular benchmarks | FR‑001 unmet | Added third dataset (UCI Adult). |
-| Limited seeds reduce power | Weak statistical conclusions | Increased to ten seeds; power discussion added (SC‑005). |
+| Fraction for marginal‑perturbation undefined | Ambiguous sensitivity | Fixed at 20 % row permutation per column (FR‑022). |
+| Only two verified tabular benchmarks | FR‑001 unmet | Added third dataset (UCI Drop). |
+| Limited seeds reduce power | Weak statistical conclusions | Ten seeds; power discussion added (SC‑005). |
 
 ---
-
-
 
