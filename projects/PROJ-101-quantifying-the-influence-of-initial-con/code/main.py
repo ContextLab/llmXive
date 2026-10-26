@@ -1,125 +1,107 @@
 """
-Entry‑point for the project pipeline.
+code/main.py
+-------------
+Minimal CLI entry point that drives the trajectory‑generation step required
+for task T006/T007.  The full pipeline (baseline, FTLE, regression, etc.) is
+implemented in other modules; this script focuses on the generation loop so
+that the unit‑ and integration‑tests can succeed.
 
-The original implementation imported ``generate_coupled_lorenz_trajectory`` from
-``data.generator`` using an incorrect import path (``from data.generator``),
-which caused an ``ImportError`` during CI execution.  This module now uses the
-correct absolute import ``code.data.generator`` and provides a minimal but
-functional CLI that satisfies the quickstart example and the integration
-test for trajectory generation (T008).
-
-Only the parts required for the current test suite are implemented:
-* parsing of ``--N-values``, ``--noise-levels``, ``--trials`` and ``--seed``;
-* generation of trajectories via ``generate_coupled_lorenz_trajectory``;
-* storage of each trajectory as an immutable ``.npz`` file under
-  ``data/raw/trajectory_N{N}_sigma{sigma}_trial{t}.npz``;
-* basic logging of progress.
-
-The full pipeline (baseline, FTLE, regression, plotting, etc.) is delegated to
-other modules and is not required for the verification of T007.
+The CLI accepts the same flags described in ``quickstart.md`` but only
+implements the ``generate`` mode needed for the current verification stage.
 """
+
 import argparse
-import warnings
-import numpy as np
+import sys
 from pathlib import Path
 
 from llmxive_toolkit import paths, get_logger
-from .data.generator import generate_coupled_lorenz_trajectory, HighNoiseWarning, UnphysicalTrajectoryError
+
+from code.data.generator import generate_coupled_lorenz_trajectory, HighNoiseWarning, UnphysicalTrajectoryError
 
 log = get_logger(__name__)
 
-def _parse_comma_separated_floats(value: str) -> list[float]:
-    return [float(v) for v in value.split(",") if v]
 
-def _parse_comma_separated_ints(value: str) -> list[int]:
-    return [int(v) for v in value.split(",") if v]
+def parse_list(arg: str, cast_type):
+    return [cast_type(item) for item in arg.split(",") if item]
 
-def main() -> None:
+
+def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="Generate coupled Lorenz trajectories with optional noise."
+        description="Trajectory generation for coupled Lorenz system"
     )
     parser.add_argument(
         "--N-values",
         required=True,
-        help="Comma‑separated list of system dimensions, e.g. '3,5,7'",
+        help="Comma‑separated list of system dimensions (e.g. 3,5,7)",
     )
     parser.add_argument(
         "--noise-levels",
         required=True,
-        help="Comma‑separated list of σ_noise values, e.g. '0.0001,0.001,0.01'",
+        help="Comma‑separated list of sigma_noise values (e.g. 0.001,0.01)",
     )
     parser.add_argument(
         "--trials",
         type=int,
         default=30,
-        help="Number of independent trials per configuration (default: 30)",
+        help="Number of independent trials per configuration",
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="Base random seed for reproducibility (default: 42)",
+        help="Global random seed for reproducibility",
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--mode",
+        choices=["generate", "run-all"],
+        default="generate",
+        help="Pipeline mode (only 'generate' is implemented for now)",
+    )
 
-    N_list = _parse_comma_separated_ints(args.N_values)
-    sigma_list = _parse_comma_separated_floats(args.noise_levels)
+    args = parser.parse_args(argv)
+
+    N_list = parse_list(args.N_values, int)
+    sigma_list = parse_list(args.noise_levels, float)
     trials = args.trials
-    base_seed = args.seed
+    global_seed = args.seed
 
-    log.info(
-        "Starting trajectory generation: N=%s, sigma=%s, trials=%d",
-        N_list,
-        sigma_list,
-        trials,
-    )
-
-    # Ensure the output directory exists (paths.data creates intermediate folders)
-    output_dir = paths.data("raw")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    rng = np.random.default_rng(global_seed)
 
     for N in N_list:
         for sigma in sigma_list:
             for trial in range(trials):
-                seed = base_seed + N * 1000 + int(sigma * 1e4) + trial
+                seed = int(rng.integers(0, 2**31 - 1))
                 try:
                     traj = generate_coupled_lorenz_trajectory(
                         N=N,
                         sigma_noise=sigma,
                         seed=seed,
                     )
-                except HighNoiseWarning as w:
-                    # The warning is also emitted via the ``warnings`` module;
-                    # we forward it to the logger for visibility.
-                    warnings.warn(w)
-                    log.warning("High noise warning for N=%d sigma=%.4f: %s", N, sigma, w)
-                    # Continue – the trajectory is still generated.
                 except UnphysicalTrajectoryError as e:
-                    log.error(
-                        "Unphysical trajectory detected (N=%d sigma=%.4f trial=%d): %s",
-                        N,
-                        sigma,
-                        trial,
-                        e,
-                    )
-                    # Skip storing this trajectory – it violates the contract.
+                    log.warning(f"Trial {trial} for N={N}, sigma={sigma} aborted: {e}")
                     continue
-
-                filename = f"trajectory_N{N}_sigma{sigma}_trial{trial}.npz"
-                out_path = paths.data("raw", filename)
-
-                # Store as an immutable ``.npz`` file (time, state, metadata)
-                np.savez(
+                except Exception as exc:
+                    log.error(f"Unexpected error: {exc}")
+                    raise
+                
+                # Save trajectory as immutable .npz
+                out_path = paths.data(
+                    "raw",
+                    f"trajectory_N{N}_sigma{sigma:.4f}_trial{trial}.npz",
+                )
+                np.savez_compressed(
                     out_path,
                     time=traj.time,
                     state=traj.state,
                     noise_level=traj.noise_level,
-                    N=traj.N_oscillators,
+                    N_oscillators=traj.N_oscillators,
+                    coupling_strength=traj.coupling_strength,
                     seed=traj.seed,
                 )
-                log.debug("Saved trajectory %s", out_path)
+                log.info(f"Saved trajectory to {out_path}")
 
-    log.info("Trajectory generation completed successfully.")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

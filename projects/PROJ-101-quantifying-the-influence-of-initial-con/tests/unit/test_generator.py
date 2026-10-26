@@ -18,9 +18,11 @@ from code.data.generator import (
     UnphysicalTrajectoryError,
 )
 
+
 @pytest.fixture
 def rng():
     return np.random.default_rng(12345)
+
 
 def test_noise_statistics(rng):
     N = 3
@@ -32,6 +34,7 @@ def test_noise_statistics(rng):
     noise = traj.state - clean.state
     empirical_std = np.std(noise)
     assert np.isclose(empirical_std, sigma, rtol=0.05)
+
 
 def test_noise_free_accuracy():
     N = 3
@@ -64,6 +67,7 @@ def test_noise_free_accuracy():
     )
     assert np.allclose(traj.state, ref.y.T, atol=1e-9)
 
+
 def test_high_noise_warning():
     N = 3
     sigma = 0.2
@@ -71,6 +75,7 @@ def test_high_noise_warning():
         warnings.simplefilter("always")
         generate_coupled_lorenz_trajectory(N=N, sigma_noise=sigma, seed=1)
         assert any(issubclass(warn.category, HighNoiseWarning) for warn in w)
+
 
 def test_unphysical_trajectory_error():
     N = 3

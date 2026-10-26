@@ -31,7 +31,7 @@ All tasks are written as checklist items; unchecked items indicate work that sti
 
 ## Phase 2 – Synthetic trajectory generation (User Story 1, P1)  
 
-- [ ] T006 [P] Implement the coupled Lorenz system and a trajectory generator (`code/simulation/generator.py`) that uses `scipy.integrate.solve_ivp` with method **'DOP853'**, `rtol=1e-9`, `atol=1e-12`; inject additive Gaussian noise with user‑specified `sigma_noise`; **emit a `HighNoiseWarning` when `sigma_noise > 0.1`**; **raise `UnphysicalTrajectoryError` when any state norm exceeds 20.0**.  
+- [ ] T006 [P] Implement the coupled Lorenz system and a trajectory generator (`code/simulation/generator.py`) that uses `scipy.integrate.solve_ivp` with method **'DOP853'**, `rtol=1e-9`, `atol=1e-12`; inject additive Gaussian noise with user‑specified `sigma_noise`; **emit a `HighNoiseWarning` when `sigma_noise > 0.1`**; **raise `UnphysicalTrajectoryError` when any state norm exceeds 20.0**.   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
   - **Verification**: Unit tests in `tests/unit/test_generator.py` (a) compare empirical noise std‑dev to the injected `sigma_noise` within 5 %; (b) confirm a noise‑free trajectory matches a reference integration to < 1e‑9 absolute error; (c) check that `HighNoiseWarning` is raised for `sigma_noise = 0.2`; (d) check that `UnphysicalTrajectoryError` is raised for `sigma_noise = 1.5`.
 
 - [ ] T007 [P] Wire the stability guard from `code/utils/stability.py` into the generation pipeline so that `raise_if_unphysical` is called after integration and `check_noise_level` triggers the warning. Update `code/simulation/generator.py` to import and use these helpers.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->

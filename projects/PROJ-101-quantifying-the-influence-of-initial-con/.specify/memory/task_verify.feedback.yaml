@@ -1,9 +1,10 @@
 T001:
-  reason: "The directory layout and `data/dir_structure.txt` manifest are present\
-    \ and correctly list the nine required directories, but there is no provided evidence\
-    \ of a CI step that runs `tree -L 2` (or an equivalent test) and asserts the manifest\u2019\
-    s contents. Without logs or configuration showing this verification, the task\u2019\
-    s CI\u2011verification requirement is unmet."
+  reason: "The required directories and `data/dir_structure.txt` are present and correctly\
+    \ list the nine paths, but the CI verification step fails \u2013 the integration\
+    \ test `tests/integration/test_dir_structure.py` crashes with an import error\
+    \ (`AttributeError: partially initialized module 'subprocess' has no attribute\
+    \ 'PIPE'`), so the manifest is never asserted to contain the expected entries.\
+    \ The task\u2019s verification requirement is therefore not satisfied."
   task: 3520514e19e8eb221709f8798732ba9719a0767267bb664d29ac547ec5b193f5
 T002:
   task: 7a290371e3e1f2ce97af8f2c95846c4552e8cb41b76c7f793bf14a6eaccc8def
@@ -14,14 +15,7 @@ T004:
 T005:
   task: ef60dd57ac9cb16673ca619a6b20855c6ab101b217734fdde963dbcc16c2aa74
 T006:
-  reason: "The required file `code/simulation/generator.py` exists and implements\
-    \ the Lorenz ODE, DOP853 integration, noise injection, `HighNoiseWarning`, and\
-    \ `UnphysicalTrajectoryError`. However, the supplied unit tests (`tests/unit/test_generator.py`)\
-    \ import and test `code/data/generator.py` and the function `generate_coupled_lorenz_trajectory`,\
-    \ not the implementation in `code/simulation/generator.py`. Consequently the verification\
-    \ tests do not exercise the mandated artifact, and the API name differs (`generate_trajectory`\
-    \ vs `generate_coupled_lorenz_trajectory`). The task\u2019s verification criteria\
-    \ are t"
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
   task: e9a3270e2311c8daca9a3887829377b151a4a377a95985475220bf9d1d158a87
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
