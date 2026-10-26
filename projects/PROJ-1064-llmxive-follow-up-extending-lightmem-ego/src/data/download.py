@@ -165,7 +165,7 @@ def download_ego4d(output_dir: Path) -> None:
     checksum_path = output_dir / "CHECKSUMS.txt"
     with checksum_path.open("w", encoding="utf-8") as f:
         for fname, chksum in checksums.items():
-            f.write(f"{chksum}  {fname}\\n")
+            f.write(f"{chksum}  {fname}\n")
 
 
 def _parse_args() -> argparse.Namespace:
@@ -186,7 +186,7 @@ def main() -> None:
     try:
         download_ego4d(Path(args.output_dir))
     except Exception as e:
-        sys.stderr.write(f"{e}\\n")
+        sys.stderr.write(f"{e}\n")
         raise
 
 

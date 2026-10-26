@@ -7,4 +7,4 @@ scikit-learn>=1.5
 tqdm>=4.66
 psutil>=5.9
 matplotlib>=3.8
-# existing dependencies (numpy, pandas, scipy, scikit-learn, tqdm, psutil, matplotlib) are already present in the base environment.
+pyarrow>=14.0.0

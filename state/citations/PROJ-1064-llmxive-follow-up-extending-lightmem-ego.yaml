@@ -31,7 +31,7 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/637b12e60a77f602dc51fc97/c0dced70ec465313ed9ac7367ca9dfc2da472543b0e875b60a34ce9a4dd529cd?user_id=public&X-Xet-Cas-Uid=public&xip=RLcfKqAmjTg&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27arxiv-abstracts.jsonl%3B+filename%3D%22arxiv-abstracts.jsonl%22%3B&Expires=1792992736&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM3YjEyZTYwYTc3ZjYwMmRjNTFmYzk3L2MwZGNlZDcwZWM0NjUzMTNlZDlhYzczNjdjYTlkZmMyZGE0NzI1NDNiMGU4NzViNjBhMzRjZTlhNGRkNTI5Y2RcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9UkxjZktxQW1qVGcmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2FyeGl2LWFic3RyYWN0cy5qc29ubCUzQitmaWxlbmFtZSUzRCUyMmFyeGl2LWFic3RyYWN0cy5qc29ubCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyOTkyNzM2fX19XX0_&Signature=MEUCIQDXYFpbfzK2oHj-J5T8qADC4qBX5A4hDod8gnBrMDeFwgIge%7ETf7JlU9XOqFRustB5yX8Er6yrsnNzrL7powz6qdlc_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
   verified_at: '2026-10-26T04:31:53.521888Z'
-- artifact_hash: abdba9f50aef86be9b867c294c2b44a9afaa75f411604c5795b534d483cf8f1e
+- artifact_hash: 64f5abdc82223dd9789290efebe192a2250413383acaf34bce622f5b7c3702c0
   artifact_path: projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/specs/001-llmxive-follow-up-extending-lightmem-ego/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://huggingface.co/datasets/ego4d/ego4d`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/ego4d/ego4d
-  verified_at: '2026-10-26T15:06:20.778013Z'
+  verified_at: '2026-10-26T21:12:44.598534Z'

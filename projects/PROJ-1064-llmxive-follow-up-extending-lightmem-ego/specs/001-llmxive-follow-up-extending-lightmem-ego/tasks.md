@@ -23,7 +23,7 @@ This research‑implementation plan follows the three‑phase structure required
   - **Output**: `requirements.txt`, `specs/001-semantic-decay-retrieval/quickstart.md`, `src/data/download.py`, `data/raw/CHECKSUMS.txt`.  
   - **Verification**: Run `python src/data/download.py --output-dir data/raw/` and confirm (a) the expected files appear under `data/raw/`, (b) `CHECKSUMS.txt` contains matching SHA‑256 hashes, and (c) the command exits with status 0.
 
-- [ ] **T002** **[US‑1]** Preprocess the raw Ego4D data into a parquet table of memory nodes and compute the `is_rare` flag.
+- [ ] **T002** **[US‑1]** Preprocess the raw Ego4D data into a parquet table of memory nodes and compute the `is_rare` flag. <!-- FAILED-IN-EXECUTION: src/data/preprocess.py exit=1 -->
   - Implement `src/data/preprocess.py` with `build_memory_nodes_parquet(raw_dir: Path, output_path: Path) -> None`.  
   - The script must:  
     * Load the JSON manifest and embedding files from `data/raw/`.  
