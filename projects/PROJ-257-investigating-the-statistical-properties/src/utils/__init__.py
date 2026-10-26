@@ -1,3 +1,3 @@
 """
-Initialize the src.utils package for utility functions.
+src.utils package initialization.
 """

@@ -21,7 +21,7 @@ The output format is a mapping from file name to a small metadata object:
         }
     }
 
-The script exits with a non-zero status if any file is missing or its
+The script exits with a non‑zero status if any file is missing or its
 checksum does not match, fulfilling the “fail loudly” requirement.
 """
 
@@ -30,7 +30,7 @@ import sys
 from pathlib import Path
 
 from llmxive_toolkit import paths, get_logger
-from src.utils.checksum import verify_file, compute_file_hash
+from src.utils.checksum import verify_file
 
 log = get_logger(__name__)
 

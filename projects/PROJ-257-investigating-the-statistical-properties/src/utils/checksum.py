@@ -1,56 +1,95 @@
 """
-Utility functions for computing and verifying file checksums.
+src.utils.checksum
+
+Utility functions for computing and verifying SHA‑256 (or other) checksums
+of files. These helpers are used by the GWTC download and data‑availability
+scripts to ensure data integrity without any external dependencies.
 """
+
 import hashlib
 from pathlib import Path
-from typing import Union
+from typing import Callable
 
-def compute_file_hash(file_path: Union[str, Path], algorithm: str = "sha256") -> str:
+__all__ = ["compute_file_hash", "verify_file"]
+
+
+def _hash_file(path: Path, algo: Callable) -> str:
     """
-    Compute the cryptographic hash of a file.
+    Compute a hash digest for ``path`` using the supplied ``hashlib`` algorithm
+    constructor (e.g. ``hashlib.sha256``). The file is read in 8 MiB chunks
+    to avoid loading large files entirely into memory.
 
     Parameters
     ----------
-    file_path : Union[str, Path]
-        Path to the file.
-    algorithm : str
-        Hashing algorithm to use (default 'sha256').
+    path: Path
+        Path to the file whose digest is to be computed.
+    algo: Callable
+        Callable that returns a new ``hashlib`` hash object (e.g.
+        ``hashlib.sha256``).
 
     Returns
     -------
     str
-        The hex digest of the file.
+        Hexadecimal digest string.
     """
-    path = Path(file_path)
-    if not path.is_file():
-        raise FileNotFoundError(f"File not found for checksum: {path}")
-
-    hash_func = hashlib.new(algorithm)
+    h = algo()
     with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
+        for chunk in iter(lambda: f.read(8 * 1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
-def verify_file(file_path: Union[str, Path], expected_hash: str, algorithm: str = "sha256") -> bool:
+
+def compute_file_hash(file_path: str, algorithm: str = "sha256") -> str:
     """
-    Verify that a file matches the expected hash.
+    Compute the cryptographic hash of ``file_path`` using the requested
+    ``algorithm`` (default ``sha256``). Only algorithms supported by
+    :mod:`hashlib` are allowed.
 
     Parameters
     ----------
-    file_path : Union[str, Path]
-        Path to the file.
-    expected_hash : str
-        The expected hex digest.
-    algorithm : str
-        Hashing algorithm to use (default 'sha256').
+    file_path: str
+        Path to the target file.
+    algorithm: str
+        Name of the hash algorithm (e.g. ``'sha256'``).
+
+    Returns
+    -------
+    str
+        Hexadecimal digest.
+    """
+    path = Path(file_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"File not found for hashing: {file_path}")
+
+    try:
+        algo_ctor = getattr(hashlib, algorithm.lower())
+    except AttributeError as exc:
+        raise ValueError(f"Unsupported hash algorithm: {algorithm}") from exc
+
+    return _hash_file(path, algo_ctor)
+
+
+def verify_file(file_path: str, expected_hash: str, algorithm: str = "sha256") -> bool:
+    """
+    Verify that ``file_path`` exists and its hash matches ``expected_hash``.
+
+    Parameters
+    ----------
+    file_path: str
+        Path to the file to verify.
+    expected_hash: str
+        Expected hexadecimal digest.
+    algorithm: str
+        Hash algorithm used to compute ``expected_hash`` (default ``sha256``).
 
     Returns
     -------
     bool
-        True if hashes match, False otherwise.
+        ``True`` if the file exists and the computed hash equals
+        ``expected_hash``; ``False`` otherwise.
     """
     try:
-        actual_hash = compute_file_hash(file_path, algorithm=algorithm)
-        return actual_hash == expected_hash
+        actual = compute_file_hash(file_path, algorithm=algorithm)
     except Exception:
         return False
+    return actual.lower() == expected_hash.lower()
