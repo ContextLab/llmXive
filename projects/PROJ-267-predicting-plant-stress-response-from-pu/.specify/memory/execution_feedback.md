@@ -28,13 +28,22 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion/download.py: synthetic/fake INPUT data not authorized by the spec — “…etwork errors and return synthetic data.     - No fallback to mo…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…suggesting synthetic or fake data.          Args:…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…erns that might indicate synthetic data.          Args:…”; 5 run-book script(s) missing (plan/impl path mismatch): python code/data/ingest.py --species Arabidopsis --stress Drought; python code/data/preprocess.py --mode fit_transform; python code/models/evaluate.py --train_stress Drought --test_stress Salinity; 2 command(s) failed: python code/modeling/train.py --model random_forest --cv_folds 5 (rc=2); python code/modeling/train.py --model svr --cv_folds 5 (rc=2)
+**Summary**: 6 fabricated/simulated-result signal(s) — results are not real measurements: code/data_ingestion/download.py: synthetic/fake INPUT data not authorized by the spec — “…etwork errors and return synthetic data.     - No fallback to mo…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…suggesting synthetic or fake data.          Args:…”; code/data_ingestion/sanity_check.py: synthetic/fake INPUT data not authorized by the spec — “…erns that might indicate synthetic data.          Args:…”; 4 run-book script(s) missing (plan/impl path mismatch): python code/data/preprocess.py --mode fit_transform; python code/models/evaluate.py --train_stress Drought --test_stress Salinity; python code/models/train_classifier.py --model random_forest; 3 command(s) failed: python code/data/ingest.py --species Arabidopsis --stress Drought (rc=1); python code/modeling/train.py --model random_forest --cv_folds 5 (rc=2); python code/modeling/train.py --model svr --cv_folds 5 (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/data/ingest.py --species Arabidopsis --stress Drought -> rc=2
+- python code/data/ingest.py --species Arabidopsis --stress Drought -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-267-predicting-plant-stress-response-from-pu/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data/ingest.py': [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data/ingest.py", line 22, in <module>
+    from code.data.download import main as download_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data/download.py", line 18, in <module>
+    from data_ingestion.download import download_file
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data_ingestion/__init__.py", line 6, in <module>
+    from .verify_sources import parse_citations, fetch_doi_metadata, fetch_url_metadata, calculate_token_overlap, verify_semantic_relevance, validate_citation, main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-267-predicting-plant-stress-response-from-pu/code/data_ingestion/verify_sources.py", line 38, in <module>
+    setup_logging(level=LOG_LEVEL, log_path=LOG_PATH)
+TypeError: setup_logging() got an unexpected keyword argument 'level'
 
 - python code/data/preprocess.py --mode fit_transform -> rc=2
 

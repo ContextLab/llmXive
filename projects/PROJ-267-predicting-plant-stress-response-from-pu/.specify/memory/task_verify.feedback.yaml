@@ -1,6 +1,8 @@
 T001:
   task: 25f0ff372e66203e121a67384ee6d2856777b3fe88afdb74d2a5ca62635848d9
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/data/ingest.py
+    exit=1'
   task: ce907ae5b10781eee5fae169914a0821f61fa79b6aa51f7af7e6af262bba8c16
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/utils/verify_logging_imports.py

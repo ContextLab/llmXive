@@ -1,11 +1,12 @@
 T001:
   c: true
-  h: a5ec3be14a0bb12027292831cdbcae48494dc5b64f5943785596d0a50c2ca33e
-  r: Checked `code/main.py` runs the quickstart stage, creates `logs/pipeline.log`,
-    exits 0, and its stdout matches the block in `quickstart.md`; `docs/structure.txt`
-    contains a repository tree, and all required directories (`data/raw/`, `data/processed/`,
-    `logs/`, `results/`) and files are present.
-  sig: 450b9bc71a4b6bc43cc7912122bfc07b7c857f62b2e94023b58a0ff1acea7544
+  h: 39f99d7150b4d1aeb7f12fcd9f653ae58bb8a9cf85bbfc6c1f8a46d0b1236729
+  r: "Checked `code/main.py` execution log (exit\u202F0, creates `logs/pipeline.log`),\
+    \ the reproduced output in `quickstart.md`, and the presence of `data/raw/`, `data/processed/`,\
+    \ `logs/`, `results/`, `code/main.py`, `quickstart.md`, and `docs/structure.txt`\
+    \ with a non\u2011empty tree listing. All required artifacts exist and match the\
+    \ task specifications."
+  sig: 0dbf4360e8cf2fe86238eb7965948a359bf71ada0492379dc8b16767ca09946f
 T017:
   c: false
   h: e3450e1e381322f538a6a3f836baab8539ff1d21147913c3ad179f5f2e7caa5a

@@ -22,7 +22,7 @@ All tasks are unchecked; they will be marked ✅ only after the described artifa
   - **Artifacts**: `code/utils/logger.py`, updated imports in `code/data/*.py`, `code/models/*.py`, `code/viz/*.py`  
   - **Verification**: After a full pipeline run, `logs/pipeline.log` contains INFO entries for dropped rows, missing‑column warnings, and any raised errors; a script scans the `code/` directory to verify that every module imports and uses `get_logger`.
 
-- [ ] **T002** [US1] Implement real‑data ingestion that streams download of GEO/ProteomeXchange files, verifies SHA‑256 checksums, and selects the dataset with the largest sample size (n) per species-stress pair (breaking ties by earliest publication date) per FR-001; abort on failure (no silent fallback).  
+- [ ] **T002** [US1] Implement real‑data ingestion that streams download of GEO/ProteomeXchange files, verifies SHA‑256 checksums, and selects the dataset with the largest sample size (n) per species-stress pair (breaking ties by earliest publication date) per FR-001; abort on failure (no silent fallback).   <!-- FAILED-IN-EXECUTION: code/data/ingest.py exit=1 -->
   - **Artifacts**: `code/data/download.py`, `code/utils/checksums.py`, `data/raw/` (populated with the test accession GSE14784 and a matching ProteomeXchange file), `data/raw/checksums.sha256`  
   - **Verification**: After `python -m code.main --stage ingest`, the raw files exist and are > 1 KB; `checksums.sha256` matches; any download error raises an exception and the CI job fails (no fallback).
 
