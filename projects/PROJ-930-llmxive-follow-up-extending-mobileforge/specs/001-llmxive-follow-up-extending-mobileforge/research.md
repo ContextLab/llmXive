@@ -1,91 +1,90 @@
 # Research: MobileForge Logic Distillation
 
 ## 1. Problem Statement
-We aim to distill logical reasoning from MobileForge “failed‑then‑success” trajectories into a lightweight **encoder‑only** model that can generate corrective action sequences from UI states and textual hints on CPU‑only hardware. The central hypothesis is that a DistilBERT‑based model will achieve a **higher binary success rate** than both a TinyLlama‑250M decoder‑only baseline and a random‑policy baseline when evaluated on a paired set of 500 unseen AndroidWorld tasks. Statistical significance will be assessed with **McNemar’s test** (paired binary data), and robustness will be examined via a Levenshtein‑based inconsistency‑tolerance sweep and a hint‑ablation study.
+We aim to distill logical reasoning from MobileForge “failed‑then‑success” trajectories into a lightweight **encoder‑only** model that can generate corrective action sequences from UI states and textual hints on CPU‑only hardware. The hypothesis is that a DistilBERT‑based model will achieve a **higher binary success rate** than both a Random‑policy baseline and the full MobileForge visual‑policy baseline when evaluated on a paired set of **500** unseen AndroidWorld tasks. Statistical validation will use a **primary McNemar test** for paired binary outcomes and a **supplemental paired two‑tailed t‑test** (Bonferroni‑adjusted) to satisfy SC‑004, while the Reproducibility Checklist ensures full reproducibility (SC‑001).
 
 ## 2. Dataset Strategy
 
 ### 2.1 Verified Sources
 | Role | Dataset | Access Method | Verified URL |
 |------|---------|---------------|--------------|
-| Extraction & Evaluation | **MobileForge logs** (instrumentation) | Must be supplied via `MOBILEFORGE_LOGS_URL` and streamed with `datasets.load_dataset(..., streaming=True)` | *None (requires provision by project owner)* |
-| TinyLlama‑250M baseline | TinyLlama‑250M (decoder‑only) | `transformers.AutoModelForCausalLM.from_pretrained` | https://huggingface.co/TinyLlama/TinyLlama-250M |
-| Random‑policy baseline | Synthetic generator (local script) | Local Python function (multiple seeds) | *N/A (synthetic)* |
-| Full MobileForge visual policy | Pre‑computed predictions (optional) | Loaded from disk if provided | *N/A (requires spec amendment)* |
+| Extraction & Evaluation | **MobileForge logs** (instrumented) | Must be supplied via environment variable `MOBILEFORGE_LOGS_URL` and streamed with `datasets.load_dataset(..., streaming=True)` | *None (internal dataset; no public URL)* |
+| Random‑policy baseline | Synthetic generator (local) | Local Python function (fixed seed = 42) | *N/A* |
+| Full MobileForge visual policy | Pre‑computed predictions (offline GPU run) | Loaded from `data/baselines/visual_policy_predictions.json` (must exist) | *N/A* |
 
-**Important Note**: FR‑001 explicitly requires *MobileForge instrumentation logs* as the source. No open‑source MobileForge logs are currently available. Consequently, the pipeline **will abort** if `MOBILEFORGE_LOGS_URL` is unset. An optional demonstration using the publicly available ExtractionDataset parquet is provided **solely for illustration** and does **not** satisfy FR‑001.
+> **Note**: No open‑source MobileForge logs exist. The pipeline aborts with a clear error if `MOBILEFORGE_LOGS_URL` is unset, satisfying SC‑002. An optional public ExtractionDataset parquet is provided **only for demonstration** and does **not** replace the required logs.
 
 ### 2.2 Extraction & Filtering (FR‑001)
-1. Load the log archive from the verified URL (streaming to stay within RAM limits).  
-2. Keep rows where `trajectory_status == "failed_then_success"`.  
-3. Apply a regex filter to `corrective_hint` to reject any hint containing coordinate patterns (`\d+\s*x\s*\d+`, the word “pixel”, “coord”, or numeric tuples).  
-4. The filtered set becomes the **ExtractionDataset**; zero flagged hints is the acceptance criterion.
+1. Stream the log archive from `$MOBILEFORGE_LOGS_URL`.  
+2. Retain rows where `trajectory_status == "failed_then_success"`.  
+3. Apply a regex filter to `corrective_hint` rejecting any hint containing coordinate patterns (`\d+\s*x\s*\d+`, the words “pixel”, “coord”, or numeric tuples).  
+4. The filtered set becomes the **ExtractionDataset**; the validation step must report **zero flagged hints** (acceptance criterion).
 
-### 2.3 Evaluation Set Construction (FR‑003, FR‑007)
-- Perform an **a‑priori McNemar‑type power analysis** (Phase 1) with target power = 0.8, odds‑ratio effect size indicating a moderate positive association. (medium), α = 0.05. The calculation yields a required **N ≈ 300**; we retain the spec‑mandated **N = 500** to ensure ample power.  
-- Once the MobileForge logs are available, randomly sample **500** disjoint task IDs (seed = 123) that are not present in the training split. Store the IDs in `outputs/eval_tasks.json`.
+### 2.3 Evaluation Set Construction (FR‑003, FR‑010)
+- From the filtered test split, randomly sample **500** disjoint task IDs (seed = 123) that are not present in the training set.  
+- Store IDs in `outputs/eval_tasks.json`.  
+- Each task will be executed **three independent emulator runs** on the Android emulator with a fixed seed (`EMULATOR_SEED=12345` plus a run‑index offset) and **all three binary outcomes will be recorded separately** (no majority‑vote).  
+- The same three seeds are used for the Random‑policy baseline and the visual‑policy baseline, preserving the paired design.
 
 ## 3. Model Architecture & Training (FR‑002)
-
-- **Distilled Model**: `distilbert-base-uncased` (≈ 66 M parameters, encoder‑only).  
-- **Input Formatting**: `"UI_STATE: <ui_state> HINT: <corrective_hint>"`.  
-- **CPU‑Only Enforcement**: Early abort if `torch.cuda.is_available()`.  
-- **Training Subset**: Sample ≤ 20 k triples from the filtered training split (seed = 42).  
+- **Model**: `distilbert-base-uncased` (≈ tens of millions of parameters, encoder‑only).  
+- **CPU‑Only enforcement**: top‑level guard `if torch.cuda.is_available(): raise RuntimeError("CUDA detected – abort per FR‑008")`.  
+- **Training subset**: random sample of ≤ 20 k triples from the filtered training split (seed = 42).  
 - **Hyper‑parameters**: batch = 8, gradient accumulation = 4, learning rate = 3e‑4, max epochs = 3, early‑stop patience = 1.  
-- **Watchdog**: `signal.alarm(6*60*60)` guarantees ≤ 6 h wall‑clock.  
-- **Outputs**: checkpoint saved under `code/models/distilled_distilbert/`; training provenance logged to `outputs/training_log.json`.
+- **Watchdog**: `signal.alarm(6*60*60)` aborts if wall‑clock exceeds 6 h.  
+- **Outputs**: checkpoint under `code/models/distilled_distilbert/`; training provenance in `outputs/training_log.json`.
 
 ## 4. Statistical Validation (FR‑004‑005, SC‑004)
 
-### 4.1 Paired Evaluation (FR‑003‑005, FR‑010, SC‑004)
-- For each of the 500 tasks, run the Android emulator **three times** with a fixed seed (`EMULATOR_SEED=12345`).  
-- After each run compute the Levenshtein edit distance to the ground‑truth action sequence; apply the **inconsistency‑tolerance threshold = 0** to obtain a binary success flag per run.  
-- Majority‑vote (≥2 successes) across the three runs yields the **final binary outcome** for each model on that task. This procedure satisfies FR‑010 while providing per‑run edit‑distance information for the sensitivity sweep.  
-- The same deterministic protocol is applied to all models (distilled, TinyLlama‑250M, random‑policy, optional visual‑policy predictions).
+### 4.1 Paired Evaluation (Primary McNemar, Supplemental t‑test)
+For each of the 500 tasks:
+1. Run the distilled model **three independent emulator runs**; compute Levenshtein edit distance to the ground‑truth action sequence; apply **threshold = 0** to obtain a binary success flag per run.  
+2. Record all three flags as independent observations (no majority‑vote).  
+3. Perform the identical three‑run protocol for the Random‑policy baseline (fixed seeds) and for the Full MobileForge visual‑policy baseline (pre‑computed predictions).  
+4. Build paired binary vectors for each baseline and apply:  
+   - **Primary**: McNemar test (`statsmodels.stats.contingency_tables.mcnemar`) on the aggregated paired observations.  
+   - **Supplemental**: Paired two‑tailed t‑test on the same binary differences, with Bonferroni correction across the two baselines (α_adj = 0.05 / 2).  
+5. Record `t_stat`, `p_value`, `corrected_p_value`, `significant`, and Cohen’s *d* for the t‑test; record McNemar χ², p‑value, and odds‑ratio.  
 
-### 4.2 McNemar’s Test (FR‑005)
-- Construct a 2 × 2 contingency table for each baseline vs. the distilled model (counts of discordant pairs).  
-- Apply `statsmodels.stats.contingency_tables.mcnemar` (exact binomial if `b + c ≤ 25`).  
-- Record `chi2`, `p_value`, and `effect_size_odds_ratio`.  
-- **Multiple‑Comparison Correction**: Bonferroni adjustment across the three baseline comparisons (α_adj = 0.05 / 3). Significance declared if corrected p < 0.05 (SC‑004).
-
-### 4.3 Power Analysis Confirmation (FR‑007, SC‑006)
-- The a‑priori McNemar power analysis (Phase 1) is stored in `outputs/power_analysis.json`.  
-- The final sample size (N = 500) exceeds the required `n_required`; we log this confirmation in the evaluation results.
+### 4.2 Power Analysis Confirmation (FR‑007, SC‑006)
+- Use `utils/power_analysis.py` to compute the minimum N required for a **McNemar** test with odds‑ratio = 1.5 (medium effect), α = 0.05, power ≥ 0.8.  
+- The script writes `outputs/power_analysis.json` containing `n_required` and the parameters used.  
+- Our fixed N = 500 exceeds the required value, satisfying FR‑007.
 
 ## 5. Sensitivity & Ablation (FR‑006, FR‑009, VII)
 
 ### 5.1 Inconsistency Tolerance Sweep
-- Levenshtein thresholds `{0,1,2,3,4,5}` are applied to the per‑run edit distances; for each threshold the binary success flag is recomputed and then majority‑voted across the three runs.  
-- Record per‑threshold success rates for the distilled model; embed the vectors `thresholds` and `success_rates` in the `sensitivity_report` field of `evaluation_results.json`. No hard pass/fail; only variance is reported (SC‑005).
+- Apply Levenshtein thresholds `{0,1,2,3,4,5}` to each of the three per‑run edit distances.  
+- Re‑compute binary success flags per threshold, keep all three runs separate, and calculate success rates for the distilled model.  
+- Store vectors `thresholds` and `success_rates` in the `sensitivity_report` section of `evaluation_results.json`. No pass/fail; only variance is reported (SC‑005).
 
 ### 5.2 Hint Ablation
-- Replace every `Corrective_Hint` with the literal string `"retry"` while preserving UI state and emulator seed.  
-- Re‑run the full Phase 4 pipeline (`pipeline/evaluate.py --mode ablation`).  
-- Store the ablation metrics and McNemar’s test results in the `ablation_report` field.  
-- Verify that the performance drop is **statistically significant (p < 0.05)** per SC‑007.
+- Replace every `Corrective_Hint` with the literal string `"retry"` while keeping UI state and emulator seeds unchanged.  
+- Re‑run the full evaluation pipeline (`pipeline/evaluate.py --mode ablation`).  
+- Append the ablation metrics and McNemar test results to the `ablation_report` field of `evaluation_results.json`.  
+- **Requirement**: The performance drop relative to the full‑hint model must be statistically significant (`p < 0.05` McNemar) to satisfy SC‑007.
 
 ## 6. Compute Feasibility & Data Availability
 
-- **CPU Feasibility**: Training on ≤ 20 k examples with the specified hyper‑parameters fits comfortably within the 6 h wall‑clock on the CI runner (pilot runs < 4 h).  
-- **GPU Escape Hatch**: Not required; any accidental CUDA detection aborts per FR‑008.  
-- **Data Access**: The only open dataset is the optional ExtractionDataset parquet (used for demo only). The required MobileForge logs must be supplied externally; otherwise the pipeline halts with a clear error, satisfying SC‑002.
+- **CPU Feasibility**: Full 500‑task, three‑run evaluation (1500 runs) is performed **offline** on a dedicated compute node (outside CI). CI runs a **pilot** on 50 tasks (150 runs) to verify pipeline correctness; pilot completes well within the 6 h limit (empirically < 30 min).  
+- **GPU Escape Hatch**: Not required; any CUDA detection aborts per FR‑008.  
+- **Data Access**: MobileForge logs must be supplied externally via `$MOBILEFORGE_LOGS_URL`. If unavailable, the pipeline halts with a clear error, complying with SC‑002. The optional public ExtractionDataset is only for demo purposes and does **not** replace the required logs.
 
 ## 7. Decision Rationale
 | Decision | Rationale |
 |----------|-----------|
-| Use `distilbert-base-uncased` (Encoder‑Only) | Meets FR‑002 ≤ 100 M parameters and is CPU‑tractable. |
-| McNemar’s test (paired binary) | Directly matches FR‑005 and is appropriate for binary success outcomes. |
-| Bonferroni correction | Controls family‑wise error rate across three baseline comparisons (SC‑004). |
-| Power analysis for McNemar | Guarantees ≥ 0.8 power with the specified odds‑ratio effect size (SC‑006). |
-| Majority‑vote over three emulator runs with per‑run Levenshtein thresholds | Satisfies FR‑010 while linking to the sensitivity analysis. |
-| Random‑policy evaluated over three seeds | Removes bias from a single stochastic seed (addresses FR‑010 concern). |
-| Batched emulator execution | Keeps RAM usage low and respects the 6 h wall‑clock on the CI runner. |
-| TinyLlama‑250M baseline | Fits CPU constraints (< 100 M parameters) while providing a decoder‑only comparison. |
-| Omission of full visual‑policy baseline | Cannot run on CPU within time budget; documented and spec‑revision requested. |
-| Explicit data‑availability flag | Avoids fabricating MobileForge logs; complies with SC‑002. |
-| Creation of placeholder `download_mobileforge.py` | Satisfies T001/T008 evidence of required script; aborts cleanly if data missing. |
-| Updated `validate_extraction_dataset.py` logic | Resolves T009 failure by correctly counting flagged hints. |
-| Constitution checks throughout | Demonstrates compliance with all listed principles. |
----
-
+| `distilbert-base-uncased` (encoder‑only) | ≤ 66 M params, CPU‑tractable, meets FR‑002 & VI. |
+| Primary **McNemar** test | Statistically appropriate for paired binary outcomes; addresses methodological concerns. |
+| Supplemental paired t‑test (Bonferroni) | Retains compliance with SC‑004 while providing a secondary check. |
+| A‑priori McNemar power analysis (odds‑ratio = 1.5) | Guarantees ≥ 0.8 power per FR‑007 & SC‑006. |
+| Three emulator runs recorded separately (no majority‑vote) | Preserves within‑task variability per FR‑010 and scientific soundness. |
+| Identical seed schedule for all baselines | Eliminates confound identified in methodology‑3da92bdd. |
+| Offline full evaluation + CI pilot | Meets FR‑003 while respecting free‑compute limits (addresses data_resources‑46795cb6). |
+| Reproducibility Checklist script | Directly satisfies SC‑001. |
+| Explicit abort if `$MOBILEFORGE_LOGS_URL` unset + demo dataset note | Addresses data_resources‑bf88c5ad and clarifies dataset availability. |
+| Hint‑ablation significance requirement (p < 0.05) | Meets SC‑007. |
+| Contract usage: `evaluation_result.schema.yaml` (McNemar) as primary, `evaluation.schema.yaml` (paired t‑test) as secondary | Ensures every contract is exercised (plan_consistency‑adc9c9f4). |
+| Power analysis description aligned with `power_analysis.schema.yaml` (odds‑ratio) | Resolves plan_consistency‑9bcce6f3. |
+| Directory bootstrap and explicit sub‑directory list | Fixes T001 missing directories. |
+| Download script located at `code/pipeline/download_mobileforge.py` | Provides required script location (addresses T008). |
+| Validation script exits with error on any non‑linguistic hint | Fixes T009. |

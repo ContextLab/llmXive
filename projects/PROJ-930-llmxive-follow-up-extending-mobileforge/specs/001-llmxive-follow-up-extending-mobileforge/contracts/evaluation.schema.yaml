@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "EvaluationResult"
-description: "Schema for the evaluation results including statistical tests."
+title: "EvaluationResult (paired t-test)"
+description: "Schema for the evaluation results when using a paired two‑tailed t‑test."
 type: "object"
 properties:
   metrics:
@@ -10,92 +10,54 @@ properties:
         type: "number"
         minimum: 0
         maximum: 1
-      success_rate_baseline:
-        type: "number"
-        minimum: 0
-        maximum: 1
-      step_efficiency_distilled:
-        type: "number"
-      step_efficiency_baseline:
-        type: "number"
+      baseline_metrics:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+            success_rate:
+              type: "number"
+              minimum: 0
+              maximum: 1
+            step_efficiency:
+              type: "number"
+          required:
+            - name
+            - success_rate
+            - step_efficiency
     required:
       - success_rate_distilled
-      - success_rate_baseline
+      - baseline_metrics
   statistical_test:
     type: "object"
     properties:
       test_type:
         type: "string"
-        const: "mcnemar"
-      chi2:
+        const: "paired_ttest"
+      t_stat:
         type: "number"
-        description: "McNemar chi‑square statistic"
+        description: "Paired t statistic"
       p_value:
         type: "number"
         description: "Two‑tailed p‑value"
+      corrected_p_value:
+        type: "number"
+        description: "Bonferroni‑adjusted p‑value"
       significant:
         type: "boolean"
-      effect_size_odds_ratio:
+      effect_size_cohens_d:
         type: "number"
-        description: "Odds‑ratio effect size for McNemar"
+        description: "Cohen's d effect size"
     required:
       - test_type
-      - chi2
+      - t_stat
       - p_value
+      - corrected_p_value
       - significant
-      - effect_size_odds_ratio
-  power_analysis:
-    type: "object"
-    properties:
-      n_required:
-        type: "integer"
-        minimum: 1
-      parameters:
-        type: "object"
-        properties:
-          power_target:
-            type: "number"
-            minimum: 0
-            maximum: 1
-          effect_size_odds_ratio:
-            type: "number"
-            description: "Odds‑ratio effect size used in power calculation"
-          significance_level:
-            type: "number"
-            minimum: 0
-            maximum: 1
-          baseline_rate:
-            type: "number"
-            minimum: 0
-            maximum: 1
-          p0_source:
-            type: "string"
-            description: "Source of baseline rate estimate (e.g., 'Pilot Run', 'Fallback 0.5')"
-        required:
-          - power_target
-          - effect_size_odds_ratio
-          - significance_level
-          - baseline_rate
-          - p0_source
-    required:
-      - n_required
-      - parameters
-  sensitivity_report:
-    type: "object"
-    properties:
-      thresholds:
-        type: "array"
-        items:
-          type: "integer"
-      success_rates:
-        type: "array"
-        items:
-          type: "number"
-    required:
-      - thresholds
-      - success_rates
+      - effect_size_cohens_d
 required:
   - metrics
   - statistical_test
-  - power_analysis
-  - sensitivity_report
+additionalProperties: false

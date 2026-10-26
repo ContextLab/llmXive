@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Evaluation Result Schema"
-description: "Schema for the output of the evaluation pipeline, including paired McNemar results."
+title: "EvaluationResult (McNemar)"
+description: "Schema for the evaluation results using a paired McNemar test."
 type: "object"
 properties:
   metrics:
@@ -42,6 +42,9 @@ properties:
       p_value:
         type: "number"
         description: "Two‑tailed p‑value"
+      corrected_p_value:
+        type: "number"
+        description: "Bonferroni‑adjusted p‑value"
       significant:
         type: "boolean"
       effect_size_odds_ratio:
@@ -51,8 +54,10 @@ properties:
       - test_type
       - chi2
       - p_value
+      - corrected_p_value
       - significant
       - effect_size_odds_ratio
 required:
   - metrics
   - statistical_test
+additionalProperties: false
