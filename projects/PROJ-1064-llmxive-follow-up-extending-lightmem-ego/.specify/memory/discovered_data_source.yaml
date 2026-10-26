@@ -1,14 +1,14 @@
 status: none
-intent: Ego4D egocentric video dataset with timestamps, event IDs, embeddings download
-  python package dataset
+intent: Ego4D dataset metadata timestamps event IDs visual audio embeddings python
+  package dataset
 required_fields:
-- video_id
 - timestamp
 - event_id
-- visual_embedding_768d
-- audio_embedding_768d
+- video_id
 - modality
-- duration
-cache_key: eda7fd0fa1069ced6ef6e588048561089748d77f4a6f45f6f64282ad725f8cbe
-searched_at: '2026-10-25T16:11:03.794187+00:00'
+- embedding_vector
+- embedding_dim
+- frame_rate
+cache_key: bbecef112994f72dade8b93f9fb89cbcdc9326c2021c72ae5e15257955a75a2f
+searched_at: '2026-10-26T04:23:02.979044+00:00'
 retry_count: 1
