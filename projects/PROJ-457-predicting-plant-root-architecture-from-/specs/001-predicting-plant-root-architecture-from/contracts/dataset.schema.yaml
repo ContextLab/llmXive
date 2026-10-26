@@ -41,6 +41,15 @@ properties:
   sample_size_per_species:
     type: "integer"
     description: "Number of observations for the species after filtering."
+  soil_moisture_missing:
+    type: "integer"
+    description: "1 if soil_moisture was imputed, 0 otherwise."
+  temperature_missing:
+    type: "integer"
+    description: "1 if temperature was imputed, 0 otherwise."
+  elevation_missing:
+    type: "integer"
+    description: "1 if elevation was imputed, 0 otherwise."
 required:
   - species
   - root_length

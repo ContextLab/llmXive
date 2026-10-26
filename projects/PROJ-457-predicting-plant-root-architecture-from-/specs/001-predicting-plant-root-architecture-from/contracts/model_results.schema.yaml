@@ -55,7 +55,7 @@ properties:
     properties:
       mean_out_of_sample_r2:
         type: "number"
-        description: "Mean R-squared from species-stratified cross-validation."
+        description: "Mean R-squared from species‑stratified cross‑validation."
     required:
       - mean_out_of_sample_r2
   success_criteria:
@@ -66,7 +66,7 @@ properties:
         description: "True if LMM R² is within 5 % of RF R² (SC‑002)."
       sc_003_met:
         type: "boolean"
-        description: "True if nutrient coefficient p-values < 0.05 after correction (SC‑003)."
+        description: "True if nutrient coefficient p-values < 0.04 after correction (SC‑003)."
       sc_006_met:
         type: "boolean"
         description: "True if sensitivity analysis confirms biological plausibility (SC‑006)."

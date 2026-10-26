@@ -1,15 +1,14 @@
 status: none
-intent: "RootReader PlantPheno merged root\u2011soil dataset literature nutrient ranges\
-  \ ISRIC python package dataset"
+intent: PlantPheno root phenotype with phosphorus nitrogen RootReader OpenSoilNutrient
+  MergedDataset LiteratureNutrientRanges ISRICWorldSoil python package dataset
 required_fields:
 - species
-- observation_id
 - root_length
-- root_diameter
-- root_surface_area
+- root_depth
 - root_volume
-- phosphorus_concentration
-- nitrogen_concentration
-cache_key: d39bc9e6ee1a7ce223c4095bd409ef35603b97df65aa1729d6b3b8e7dc592010
-searched_at: '2026-10-18T01:49:03.103021+00:00'
+- phosphorus_ppm
+- nitrogen_ppm
+- observation_id
+cache_key: 04bf49cf0f1c10b5ac991bf56711e6fd96f080d90f8a443ca8c2c6bb18d61b6d
+searched_at: '2026-10-26T01:45:28.929665+00:00'
 retry_count: 1
