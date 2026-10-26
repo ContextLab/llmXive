@@ -6,7 +6,7 @@
 
 ### Phase 1 – Setup and first end‑to‑end analysis  
 
-- [ ] **T001** [S] [US‑1] Acquire and validate the primary dataset (FR‑001).   <!-- FAILED-IN-EXECUTION: code/src/data/load_dataset.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/load_dataset.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/load_dataset.py exit=1 --> <!-- FAILED-IN-EXECUTION: tests/code/src/data/test_load_dataset_execution.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/src/data/load_dataset.py exit=1; tests/code/src/data/test_load_dataset_execution.py exit=2 -->
+- [ ] **T001** [S] [US‑1] Acquire and validate the primary dataset (FR‑001).   <!-- FAILED-IN-EXECUTION: code/src/data/load_dataset.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/load_dataset.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/load_dataset.py exit=1 --> <!-- FAILED-IN-EXECUTION: tests/code/src/data/test_load_dataset_execution.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/src/data/load_dataset.py exit=1; tests/code/src/data/test_load_dataset_execution.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/src/data/load_dataset.py exit=1 -->
   *Implement `code/src/data/load_dataset.py` that streams the `mmbench/ocean` validation split via `datasets.load_dataset("mmbench/ocean", split="validation", streaming=True)`, writes normalized records to `data/raw/video_metadata.jsonl` (validated against `specs/001-llmxive-follow-up-extending-perception-o/contracts/video_metadata.schema.yaml`), computes and records a SHA‑256 checksum in `data/raw/checksums.json`, and updates `quickstart.md` with the runnable command `python -m code.src.data.load_dataset`.  
   *Verification: `pytest code/tests/test_load_dataset.py` must pass; the loader must raise on any fetch or parse error (no synthetic fallback).  
 

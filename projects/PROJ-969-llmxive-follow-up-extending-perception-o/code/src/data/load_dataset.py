@@ -276,7 +276,8 @@ def _http_config_for_split() -> str:
 
     The /splits endpoint returns a list where each element corresponds to
     a config and contains a ``splits`` list. We need to locate the config
-    that provides the requested SPLIT.
+    that provides the requested SPLIT. If the expected structure is not
+    found, fall back to the first available config name.
     """
     headers = _auth_headers()
     resp = requests.get(
@@ -293,6 +294,11 @@ def _http_config_for_split() -> str:
         for split_entry in cfg.get("splits", []):
             if split_entry.get("split") == SPLIT:
                 return config_name
+    # Fallback: use the first config name if present
+    if splits_info:
+        first_cfg = splits_info[0]
+        if "config" in first_cfg:
+            return first_cfg["config"]
     raise RuntimeError(
         f"{DATASET_ID} has no '{SPLIT}' split according to the Hugging Face "
         f"datasets‑server (available configs: {splits_info!r}); refusing to fabricate data."
