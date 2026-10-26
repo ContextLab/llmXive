@@ -286,11 +286,13 @@ def _generate_skills_core(
             f"    \"\"\"Skill {skill_id} generated for synthetic dataset.\"\"\"\n"
             f"    return '{skill_id}'\n"
         )
+        emb_list = embeddings[i].tolist()
         skill = {
             "skill_id": skill_id,
             "name": skill_id,                     # required by schema
             "function_code": func_code,
-            "embedding": embeddings[i].tolist(),  # schema field name
+            "embedding": emb_list,                # primary schema field
+            "embedding_vector": emb_list,         # legacy field required by tests
             "usage_count": 0,
         }
         skills.append(skill)
@@ -322,7 +324,7 @@ def generate_tasks(seed_b: int, skills: list, count: int = TASK_COUNT) -> list:
             "description": description,
             "ground_truth_path": gt_path,
             "solution_path": gt_path,          # required by schema
-            "ground_truth_skills": gt_path,    # legacy alias
+            "ground_truth_skills": gt_path,    # legacy alias (kept for compatibility)
             "complexity": complexity,
             "embedding_vector": task_embedding,
             "edge_case": False,
@@ -386,6 +388,7 @@ def main() -> None:
             "ground_truth_skills": t["ground_truth_skills"],
             "complexity": t["complexity"],
             "embedding_vector": t["embedding_vector"],
+            "edge_case": t["edge_case"],
         }
         for t in core_tasks_full
     ]
@@ -397,6 +400,7 @@ def main() -> None:
             "name": s["name"],
             "function_code": s["function_code"],
             "embedding": s["embedding"],
+            "embedding_vector": s["embedding_vector"],  # kept for test compatibility
             "usage_count": s["usage_count"],
         }
         for s in core_skills

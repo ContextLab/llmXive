@@ -1,18 +1,23 @@
 T001:
   task: 558a684ab6cfd812e0d6b3f9f7f21befeb2df67af770009870cdfeffb5b574de
 T002:
-  reason: "The generated `data/raw/skills.json` does not contain the required `function_code`\
-    \ field (it has a legacy `code` field instead), causing schema validation to fail,\
-    \ and its SHA\u2011256 digest does not match the value recorded in `data/raw/checksums.json`.\
-    \ Additionally, the required `task.schema.yaml` and `skill.schema.yaml` files\
-    \ are missing. These issues mean the synthetic data does not meet the task\u2019\
-    s validation and checksum requirements."
+  reason: "Checked `code/generate_data.py`, `data/raw/tasks.json`, `data/raw/skills.json`,\
+    \ `data/raw/checksums.json`, and `tests/unit/test_generate_data.py`. The required\
+    \ schema files (`task.schema.yaml`, `skill.schema.yaml`) are missing, the test\
+    \ suite does not validate records against schemas, and the SHA\u2011256 recorded\
+    \ for `skills.json` in `checksums.json` does not match the actual file hash, violating\
+    \ the checksum verification requirement. These issues must be fixed for the task\
+    \ to be considered complete."
   task: e1434351452dd1cf2ef1c0cd663e38c908eadce156262664ad059cbd6ec22783
 T003:
-  reason: The `code/write_checksums.py` script raises a `FileNotFoundError` for `data/raw/tasks.json`
-    (as shown in the CI log), causing both contract tests to error. Consequently the
-    required verification test does not pass. The checksum script must correctly locate
-    the data files so the test can succeed.
+  reason: "The `code/write_checksums.py` script exists and correctly computes SHA\u2011\
+    256 hashes, but its `main()` function parses `sys.argv` with `argparse` and aborts\
+    \ when pytest supplies its own command\u2011line options (e.g., `-v`, `--tb=short`).\
+    \ This causes a `SystemExit: 2` during the `recomputed_checksums` fixture, so\
+    \ both contract tests error out instead of passing. The required verification\
+    \ test therefore does not succeed in CI. The script must be modified to ignore\
+    \ unknown arguments (e.g., using `parse_known_args()` or `parse_args([])`) or\
+    \ the test must be adjusted accordingly. Until the test passes, t"
   task: 3a00ec119c9e2f9d89ea6b136df79307137dbf0ba8a3c0879393fd3a6d76d0f6
 T004:
   reason: "The pytest run (`code/.tasks/T004.tests_contract_test_schemas.py.log`)\

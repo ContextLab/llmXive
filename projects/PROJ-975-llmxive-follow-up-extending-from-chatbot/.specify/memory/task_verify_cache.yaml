@@ -1,19 +1,24 @@
 T001:
   c: true
-  h: 6cfba2142b2924ae9b89c8535981aa49ad99c1baaa058c4547cf0bb662b45bf4
-  r: "Checked `contracts/` contains the copied schema files, `code/copy_contracts.py`\
-    \ writes a correct `contract_hashes.json` with matching source/destination SHA\u2011\
-    256 hashes, and `tests/contract/test_contract_copy.py` loads this JSON and asserts\
-    \ the hashes are equal \u2013 all artifacts exist and meet the task specification."
-  sig: 93fc426092c43b77acc8d52c882c8130d4466e70494a891a9f52e8f891174fa4
-T003:
+  h: f7c41a282cf9c119b5c04f33deea90e64546d77bdf39cad9e4eb6bedc9e3ce14
+  r: "Checked that `contracts/` contains the five schema files copied from `specs/.../contracts/`,\
+    \ that `code/copy_contracts.py` implements the copy\u2011and\u2011hash logic,\
+    \ that `contract_hashes.json` records matching source and destination SHA\u2011\
+    256 hashes for each file, and that `tests/contract/test_contract_copy.py` validates\
+    \ these hashes. All artifacts exist, are non\u2011empty, and the hash mapping\
+    \ shows verbatim copies, satisfying the task requirements."
+  sig: 5edc4b9686048475d5b09ffd3d87d7201b8eadb00088625fcb5c64cdc03e5d14
+T002:
   c: false
-  h: 4eeeb8d04f104b105f0ce27f1d7ea2d024f736a07c2655b75aee9431b9f7f5f0
-  r: The `code/write_checksums.py` script raises a `FileNotFoundError` for `data/raw/tasks.json`
-    (as shown in the CI log), causing both contract tests to error. Consequently the
-    required verification test does not pass. The checksum script must correctly locate
-    the data files so the test can succeed.
-  sig: 1717104c9c430c0453964dd9a10484e19d98d3c81832d9da961b1c13cdd18c04
+  h: 3ede9c65fdb320d21c5a07233aa613e4b3257b99a342bd9cda50149bc3fc092e
+  r: "Checked `code/generate_data.py`, `data/raw/tasks.json`, `data/raw/skills.json`,\
+    \ `data/raw/checksums.json`, and `tests/unit/test_generate_data.py`. The required\
+    \ schema files (`task.schema.yaml`, `skill.schema.yaml`) are missing, the test\
+    \ suite does not validate records against schemas, and the SHA\u2011256 recorded\
+    \ for `skills.json` in `checksums.json` does not match the actual file hash, violating\
+    \ the checksum verification requirement. These issues must be fixed for the task\
+    \ to be considered complete."
+  sig: db76ce970560a9b15d9ea228732740d42c990aeecba3f105a852545215bc0b1d
 T004:
   c: false
   h: 9a92319c60c61e6166399038458e8e15196b86ff512b97a5ff977b91a2e05da9

@@ -18,12 +18,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest tests/contract/test_schemas.py -k "task or skill" -> rc=1
-dding_vector', 'ground_truth_path' were unexpected)\nTask 493 (ID: task_0493): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 494 (ID: task_0494): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 495 (ID: task_0495): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 496 (ID: task_0496): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 497 (ID: task_0497): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 498 (ID: task_0498): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 499 (ID: task_0499): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)
+was unexpected)\nSkill 92 (ID: skill_0092): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 93 (ID: skill_0093): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 94 (ID: skill_0094): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 95 (ID: skill_0095): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 96 (ID: skill_0096): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 97 (ID: skill_0097): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 98 (ID: skill_0098): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 99 (ID: skill_0099): Additional properties are not allowed ('embedding_vector' was unexpected)
 
-tests/contract/test_schemas.py:60: Failed
+tests/contract/test_schemas.py:84: Failed
 =========================== short test summary info ============================
 FAILED tests/contract/test_schemas.py::test_real_tasks_schema_compliance - Fa...
-========================= 1 failed, 4 passed in 0.88s ==========================
+FAILED tests/contract/test_schemas.py::test_real_skills_schema_compliance - F...
+========================= 2 failed, 3 passed in 1.60s ==========================
 
 
 - python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning on off  --seed 42  --randomize-tasks -> rc=1
@@ -55,7 +56,7 @@ rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
 collected 5 items / 5 deselected / 0 selected
 
-============================ 5 deselected in 0.38s =============================
+============================ 5 deselected in 0.64s =============================
 
 
 
