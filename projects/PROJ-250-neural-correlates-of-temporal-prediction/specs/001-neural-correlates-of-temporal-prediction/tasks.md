@@ -10,7 +10,7 @@ The pipeline is organized into three research phases; tasks are ordered to respe
 
 *Goal*: Verify that a minimal real‑data run works before scaling to the full cohort.
 
-- [ ] **T001** [US1] Implement the Reference‑Validator and robust dataset download module.   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
+- [ ] **T001** [US1] Implement the Reference‑Validator and robust dataset download module.   <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1; code/verify_references.py exit=1 -->
   *File*: `code/verify_references.py` (functions `verify_dataset_id()`, `verify_conditions()`, `verify_citations()`) and `code/download.py`.  
   - `verify_dataset_id()` checks that the requested OpenNeuro ID equals **ds004510** and that the URL resolves; on mismatch it raises a `DatasetIDError` with a clear message (FR‑012 (1)).  
   - `download.py` invokes `verify_dataset_id()`, then streams the full OpenNeuro ds004510 BIDS files via `curl`/`wget` (FR‑001). It writes each file under `data/raw/` and computes a SHA‑256 checksum, storing the mapping in `data/raw/checksums.json`.  

@@ -1,18 +1,18 @@
 status: none
-intent: OpenNeuro ds004510 EEG oddball auditory scene MNE-Python dataset python package
+intent: OpenNeuro ds004510 EEG dataset MNE BIDS python package dataset
 required_fields:
-- raw_eeg_signal
+- subject_id
+- session
+- run
+- eeg_data
 - sampling_rate
 - channel_names
-- channel_types
-- stimulus_event_markers
-- stimulus_condition_labels
-- subject_id
-- session_id
-- task_name
-- trial_onset_timestamps
-- trial_duration
-- artifact_flags
-cache_key: 705d5cd6ff1cb026d266cedd7b3f44e304ed7d4592bf30d0a25959b2564a7f7b
-searched_at: '2026-10-25T08:25:38.731265+00:00'
+- event_onsets
+- event_types
+- condition_label
+- time_window
+- montage
+- bids_metadata
+cache_key: 7589045a3a97d60f1b18eec0eafe48ac74ed85ec05e1fd34f9cfd0befa30c519
+searched_at: '2026-10-26T06:27:58.838760+00:00'
 retry_count: 1
