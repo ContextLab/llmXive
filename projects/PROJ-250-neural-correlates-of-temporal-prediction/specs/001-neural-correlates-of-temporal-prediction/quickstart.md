@@ -1,11 +1,12 @@
-# Quickstart: Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis
+# Quickstart: Neural Correlates of Temporal Prediction Errors in Auditory Scene Analysis  
 
-## Prerequisites
-- Python 3.11 (or newer)
-- Git
-- Access to a Linux environment with at least 7 GB RAM (GitHub Actions free tier works out‑of‑the‑box)
+## Prerequisites  
 
-## Installation
+* Python 3.11 (or newer)  
+* Git  
+* A Linux environment with at least 7 GB RAM (GitHub Actions free tier works out‑of‑the‑box)  
+
+## Installation  
 
 ```bash
 git clone <repo-url>
@@ -15,62 +16,63 @@ source .venv/bin/activate
 pip install -r code/requirements.txt
 ```
 
-## Running the Full Pipeline
+## Step‑by‑Step Execution  
 
-The pipeline is orchestrated via the scripts in `code/`. Each script writes its output to `data/` or `results/` and updates the contract state.
-
-### 0️⃣ Reference‑Validator Gates
+### 0️⃣ Dataset‑Gap Check (mandatory)  
 ```bash
-python code/verify_references.py --stage dataset   # checks ds001734 URL (FR‑012‑1)
-python code/verify_references.py --stage citations # checks bibliography (FR‑012‑3)
+python code/dataset_gap.py
 ```
+*If a suitable open dataset is found **with BOTH “simple” and “complex” condition labels**, the script prints “Dataset OK – proceeding”.*  
+*If not, it aborts with a clear error explaining the missing “complex” condition (fulfills FR‑008).*
 
-### 1️⃣ Data Acquisition
+### 1️⃣ Data Acquisition (only after Phase 0 succeeds)  
 ```bash
-python code/download.py   # downloads OpenNeuro ds001734, verifies checksums, records hash (FR‑001, FR‑013)
+python code/download.py
 ```
-*The script verifies that both “simple” and “complex” condition labels are present; if either is missing it aborts with a clear error (FR‑008).*
+*Downloads the verified EEG dataset, verifies SHA‑256 checksums (SC‑007), and records hashes in `state/...yaml` (FR‑001, FR‑013).*
 
-### 2️⃣ Preprocessing
+### 2️⃣ Preprocessing (NaN validation)  
 ```bash
-python code/preprocess.py   # band‑pass, ICA, mastoid re‑reference, baseline correction, epoching (FR‑002‑FR‑003)
+python code/preprocess.py
 ```
+*Band‑pass, ICA, mastoid re‑reference, baseline correction, epoching, QC, and channel interpolation (FR‑002, FR‑003). After epoch creation the script asserts `np.isnan(epochs.get_data()).any() == False` (SC‑008).*
 
-### 3️⃣ Analysis
+### 3️⃣ Core Analysis (includes power analysis & covariate modelling)  
 ```bash
 python code/analysis.py
 ```
 Performs:
-- MMN amplitude/latency extraction (FR‑004)  
-- Noise‑floor SNR validation (FR‑011, SC‑001)  
-- Leave‑one‑out canonical topography generation (FR‑009)  
-- Topographic consistency & validity checks (SC‑004)  
-- Paired t‑tests with FDR (FR‑005, SC‑002)  
-- Cohen’s d vs. benchmark (FR‑010, SC‑003)  
-- Optional mixed‑effects robustness model (covariates)  
+- MMN amplitude/latency extraction (150–250 ms, fronto‑central cluster) (FR‑004)  
+- Pre‑stimulus noise‑floor SNR validation (SNR ≥ 3 → SC‑001)  
+- Leave‑one‑out canonical topography generation saved to `data/templates/canonical_mmn.npy` (FR‑009)  
+- Topographic consistency & validity (Pearson r ≥ 0.8, SC‑004)  
+- Paired t‑test with Benjamini‑Hochberg FDR (FR‑005, SC‑002)  
+- Cohen’s d vs. benchmark from `data/benchmarks/mmn_effect_sizes.json` (FR‑010, SC‑003)  
+- **Power analysis** (α = 0.05, power = 0.8, effect size = 0.5); aborts confirmatory testing and flags results as exploratory if N < required (FR‑016, SC‑006)  
+- **Covariate mixed‑effects model** when stimulus‑level covariates are present (addresses methodology‑0f0359eb)  
+- Writes per‑subject **MMNMetric** rows to `results/metrics.csv` (FR‑015) and group‑level **GroupStats** to `results/stats.json`.  
 
-Outputs:
-- `results/metrics.csv` (validated by `contracts/output.schema.yaml`)  
-- `results/stats.json` (validated by `contracts/stats.schema.yaml`)  
-
-### 4️⃣ Visualization
+### 4️⃣ Visualization (file‑existence checks)  
 ```bash
 python code/visualize.py
 ```
 Generates PNG/SVG files in `results/figures/`:
 - ERP waveforms with MMN window highlighted  
-- Scalp topography maps for the simple and complex conditions  
+- Scalp topography maps for simple and complex conditions  
 - Significance heatmaps  
 
-### 5️⃣ Contract Tests (Verification)
+After each save the script asserts the file exists and its size > 0 KB; any failure raises an error (SC‑005).  
+
+### 5️⃣ Contract Tests & Reference Validation (final gate)  
 ```bash
 pytest code/tests/
 ```
-Tests verify:
-- `data/raw/` metadata against `contracts/dataset.schema.yaml`  
-- `results/metrics.csv` against `contracts/output.schema.yaml`  
-- `results/stats.json` against `contracts/stats.schema.yaml`  
-- Presence of required fields, correct data types, and logical constraints (e.g., `snr_ratio >= 3.0`).  
+Validates:
+- `data/raw/` metadata against `contracts/dataset.schema.yaml` (SC‑007)  
+- `results/metrics.csv` against `contracts/output.schema.yaml` (covers SC‑005‑SC‑009)  
+- `results/stats.json` against `contracts/stats.schema.yaml` (SC‑008)  
+- Presence and non‑empty size of all figure files (SC‑005, SC‑009)  
+- Executes `verify_references.py` to run the Reference‑Validator **before reporting** (fulfills FR‑012‑3).  
 
 All tests must pass before the pipeline is considered research‑ready.
 

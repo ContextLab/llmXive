@@ -1,17 +1,15 @@
 status: none
-intent: OpenNeuro ds004510 EEG BIDS dataset download python package dataset
+intent: download OpenNeuro ds001734 dataset via Hugging Face datasets python package
+  dataset
 required_fields:
-- subject_id
-- session_id
-- run_id
-- eeg_data
-- sampling_rate
-- event_type
-- event_time
+- eeg_signal
 - channel_names
-- channel_locations
-- reference
-- bids_metadata
-cache_key: 1081897c952d16ba69d09eb2ab8511b9d94008788a3c612eb6df97c17a1ae131
-searched_at: '2026-10-26T06:31:30.080545+00:00'
+- sampling_rate
+- event_id
+- event_time
+- condition_label
+- epoch_start
+- epoch_end
+cache_key: 1f5e74e7f86916cc32c829a6781610b4947f9597954e18e2d5ccf2b71ab2461b
+searched_at: '2026-10-26T06:50:17.686968+00:00'
 retry_count: 1
