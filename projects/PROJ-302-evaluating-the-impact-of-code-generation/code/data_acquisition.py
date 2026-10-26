@@ -17,10 +17,6 @@ repository to a very small value when no personal access token is
 provided.  If a ``GITHUB_TOKEN`` environment variable is present the
 limit is increased because the higher rate‑limit (≈5 000 req/h) permits a
 larger sample.
-
-The script has been adjusted to avoid long sleeps on rate‑limit
-responses: it now raises a ``RateLimitError`` and lets tenacity handle
-the back‑off, preventing the pipeline from timing out.
 """
 
 import os
@@ -51,16 +47,13 @@ REPOSITORIES = [
     ("microsoft", "vscode"),
 ]
 
-# If a personal access token is supplied we can request more PRs;
-# otherwise keep the sample tiny to avoid hitting the unauthenticated
-# limit (60 requests / hour).
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 if GITHUB_TOKEN:
     MAX_PRS = int(os.getenv("DATA_ACQUISITION_MAX_PRS", "20"))
     log.info("GitHub token detected – using larger PR sample")
 else:
-    # Use a single PR per repo to stay well within rate limits.
-    MAX_PRS = int(os.getenv("DATA_ACQUISITION_MAX_PRS", "1"))
+    # Use a small sample to stay well within unauthenticated rate limits.
+    MAX_PRS = int(os.getenv("DATA_ACQUISITION_MAX_PRS", "2"))
     log.info(
         "No GitHub token – limiting PR sample to %d per repository to stay within rate limits",
         MAX_PRS,
@@ -148,9 +141,7 @@ def _process_pr(
     owner: str, repo: str, pr: Dict[str, Any]
 ) -> Dict[str, Any]:
     """
-    Extract the fields required downstream.  The schema used by the
-    pipeline (``contracts/pull_request.schema.yaml``) contains at least
-    the following columns – additional columns are harmless.
+    Extract the fields required downstream.
     """
     pr_number = pr["number"]
     sha = pr.get("head", {}).get("sha")
@@ -169,13 +160,10 @@ def _process_pr(
         "deletions": pr.get("deletions"),
         "changed_files": pr.get("changed_files"),
         "author_login": pr.get("user", {}).get("login"),
-        # The following fields are optional; we set them to None to avoid
-        # extra API calls that would exhaust the unauthenticated limit.
         "review_comment_count": None,
         "ci_duration_seconds": None,
     }
 
-    # If we have an authenticated token we can afford the extra calls.
     if GITHUB_TOKEN:
         # Review comment count
         try:
@@ -183,18 +171,13 @@ def _process_pr(
             reviews = _github_get(comment_url, params={"per_page": 100}).json()
             record["review_comment_count"] = len(reviews)
         except Exception as exc:
-            log.warning(
-                "Failed to fetch review comments for PR %s: %s", pr_number, exc
-            )
-            record["review_comment_count"] = None
+            log.warning("Failed to fetch review comments for PR %s: %s", pr_number, exc)
 
         # CI duration
         try:
             if sha:
                 ci_url = f"{API_ROOT}/repos/{owner}/{repo}/commits/{sha}/check-runs"
-                runs = _github_get(ci_url, params={"per_page": 100}).json().get(
-                    "check_runs", []
-                )
+                runs = _github_get(ci_url, params={"per_page": 100}).json().get("check_runs", [])
                 durations = []
                 for run in runs:
                     if run.get("status") == "completed":
@@ -207,16 +190,10 @@ def _process_pr(
                 if durations:
                     record["ci_duration_seconds"] = sum(durations) / len(durations)
         except Exception as exc:
-            log.warning(
-                "Failed to fetch CI duration for PR %s: %s", pr_number, exc
-            )
-            record["ci_duration_seconds"] = None
+            log.warning("Failed to fetch CI duration for PR %s: %s", pr_number, exc)
 
     return record
 
-# ----------------------------------------------------------------------
-# Main orchestration
-# ----------------------------------------------------------------------
 def main() -> None:
     """
     Stream PR metadata for each repository, write per‑repo parquet files,
@@ -241,17 +218,12 @@ def main() -> None:
             try:
                 processed.append(_process_pr(owner, repo, pr))
             except Exception as exc:
-                log.warning(
-                    "Skipping PR %s due to processing error: %s",
-                    pr.get("number"),
-                    exc,
-                )
+                log.warning("Skipping PR %s due to processing error: %s", pr.get("number"), exc)
 
         df = pd.DataFrame(processed)
 
         # Write per‑repo parquet
         output_path = paths.data("raw", f"{owner}_{repo}.parquet")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
         df.to_parquet(output_path, index=False)
         log.info("Wrote %d rows to %s", len(df), output_path)
 
@@ -259,29 +231,17 @@ def main() -> None:
         for _, row in df.iterrows():
             commit_msg = (row["title"] or "") + (" " + (row["body"] or ""))
             commit_msg = commit_msg.strip()
-            if not commit_msg:
-                continue
-            all_commit_rows.append(
-                {"pr_id": row["pr_id"], "commit_message": commit_msg}
-            )
+            if commit_msg:
+                all_commit_rows.append({"pr_id": row["pr_id"], "commit_message": commit_msg})
 
-    # ------------------------------------------------------------------
-    # Write combined commit messages parquet
-    # ------------------------------------------------------------------
     if not all_commit_rows:
         log.error("No commit messages collected from any repository.")
         raise RuntimeError("Empty commit message set")
 
     commit_df = pd.DataFrame(all_commit_rows).drop_duplicates()
     commit_path = paths.data("raw", "commit_messages.parquet")
-    commit_path.parent.mkdir(parents=True, exist_ok=True)
     commit_df.to_parquet(commit_path, index=False)
-    log.info(
-        "Combined commit messages written to %s (%d rows)",
-        commit_path,
-        len(commit_df),
-    )
+    log.info("Combined commit messages written to %s (%d rows)", commit_path, len(commit_df))
 
 if __name__ == "__main__":
-    # When executed directly (e.g. via the quick‑start), run the pipeline.
     main()

@@ -10,19 +10,19 @@ All tasks are expressed as canonical checklist items; unchecked boxes indicate w
 | Goal | Produce a runnable pipeline on a small real repository and generate the core input artefacts required for matching and analysis. |
 |------|-----------------------------------------------------------------------------------------------------------------------------------|
 
-- [X] T001 [US‑1] **Create project skeleton & lock dependencies** – `requirements.txt`, `docs/quickstart.md`, `code/` package layout.  
+- [~] T001 [US‑1] **Create project skeleton & lock dependencies** – `requirements.txt`, `docs/quickstart.md`, `code/` package layout.  
   *Create the directory layout shown in `plan.md` (`code/`, `data/`, `tests/`, `docs/`). Add a `requirements.txt` that pins exact versions of all packages (pandas, pyarrow, datasets, scikit‑learn, statsmodels, scipy, radon, transformers, torch, sentence‑transformers, matplotlib, seaborn, tenacity, requests, ruff). Commit the skeleton and ensure `pip install -r requirements.txt` succeeds in a fresh venv.*  
   - **Verification**: `requirements.txt` exists with the listed versions; `docs/quickstart.md` contains a “Run‑the‑pipeline” command; a fresh `python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt` finishes without errors.
 
-- [ ] T002 [US‑1] **Data acquisition – stream PR metadata via GitHub REST API** – `code/data_acquisition.py`, `data/raw/<owner>_<repo>.parquet`
+- [~] T002 [US‑1] **Data acquisition – stream PR metadata via GitHub REST API** – `code/data_acquisition.py`, `data/raw/<owner>_<repo>.parquet`
   *Implement `code/data_acquisition.py` to stream PR metadata (creation time, merge time, review comments, CI duration, file changes) for **three** verified GitHub repositories that satisfy ≥ 1 000 stars and ≥ 100 PRs. Use the GitHub REST API with exponential backoff (via `tenacity`) to respect rate limits. Store each repository’s PR parquet file under `data/raw/<owner>_<repo>.parquet` and cache commit messages in `data/raw/commit_messages.parquet`.*  
   - **Verification**: Each `<owner>_<repo>.parquet` file exists, conforms to `pull_request.schema.yaml`, and contains > 0 rows; `commit_messages.parquet` exists with columns `pr_id` and `commit_message`; no unhandled 403 errors appear in the logs.
 
-- [ ] T003 [US‑1] **Prompt engineering** – `code/prompt_engineering.py`, `data/processed/intent_prompts.parquet`  
+- [~] T003 [US‑1] **Prompt engineering** – `code/prompt_engineering.py`, `data/processed/intent_prompts.parquet`  
   *Implement `code/prompt_engineering.py` that reads `data/raw/commit_messages.parquet`, derives a natural‑language prompt for each PR (e.g., “Write a medium‑complexity change that implements …”), and writes `data/processed/intent_prompts.parquet` containing `pr_id`, `prompt`, and a `complexity_indicator` field.*  
   - **Verification**: `intent_prompts.parquet` exists; a random sample shows non‑empty `prompt` strings and a valid `complexity_indicator` (simple / moderate / complex); all `pr_id`s match those in the raw PR files.
 
-- [ ] T004 [US‑4] **Synthetic code generation (both cohorts)** – `code/synthetic_generation.py`, `data/synthetic/context_based.parquet`, `data/synthetic/prompt_based.parquet`   <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 -->
+- [ ] T004 [US‑4] **Synthetic code generation (both cohorts)** – `code/synthetic_generation.py`, `data/synthetic/context_based.parquet`, `data/synthetic/prompt_based.parquet`   <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 -->
   *Using the CPU‑tractable **CodeLlama‑7B‑4bit‑GGUF** model, generate two LLM cohorts:*  
   1. **Context‑based** – feed the original code snippet together with its prompt.  
   2. **Prompt‑only** – feed only the NL prompt derived in T003.  

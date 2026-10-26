@@ -235,6 +235,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    # When executed as a script ``python code/prompt_engineering.py`` we
-    # honour the same behaviour as the module entry point.
     main()

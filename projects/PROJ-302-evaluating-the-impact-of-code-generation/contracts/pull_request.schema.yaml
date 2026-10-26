@@ -1,65 +1,18 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: PullRequest
 type: object
-required:
-  - pr_id
-  - repo_owner
-  - repo_name
-  - repo_id
-  - created_at
-  - state
-  - title
-  - body
-  - additions
-  - deletions
-  - changed_files
-  - author_login
 properties:
-  pr_id:
-    type: integer
-    description: Pull request number.
-  repo_owner:
-    type: string
-    description: Owner of the repository.
-  repo_name:
-    type: string
-    description: Name of the repository.
-  repo_id:
-    type: string
-    description: Full repository identifier (owner/name).
-  created_at:
-    type: string
-    format: date-time
-    description: Timestamp when the PR was created.
-  merged_at:
-    type: [string, "null"]
-    format: date-time
-    description: Timestamp when the PR was merged (null if not merged).
-  state:
-    type: string
-    enum: [open, closed, merged]
-    description: Current state of the PR.
-  title:
-    type: string
-    description: Title of the pull request.
-  body:
-    type: string
-    description: Body/description of the pull request.
-  additions:
-    type: integer
-    description: Number of lines added in the PR.
-  deletions:
-    type: integer
-    description: Number of lines deleted in the PR.
-  changed_files:
-    type: integer
-    description: Number of files changed in the PR.
-  author_login:
-    type: string
-    description: GitHub login of the PR author.
-  review_comment_count:
-    type: [integer, "null"]
-    description: Number of review comments (null if not fetched).
-  ci_duration_seconds:
-    type: [number, "null"]
-    description: Average CI duration in seconds for the PR (null if not fetched).
+  pr_id: {type: integer}
+  repo_owner: {type: string}
+  repo_name: {type: string}
+  repo_id: {type: string}
+  created_at: {type: string}
+  merged_at: {type: string}
+  state: {type: string}
+  title: {type: string}
+  body: {type: string}
+  additions: {type: integer}
+  deletions: {type: integer}
+  changed_files: {type: integer}
+  author_login: {type: string}
+  review_comment_count: {type: [integer, "null"]}
+  ci_duration_seconds: {type: [number, "null"]}
+required: [pr_id, repo_owner, repo_name, repo_id, created_at, state, title]

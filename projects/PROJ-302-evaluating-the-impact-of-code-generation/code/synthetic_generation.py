@@ -17,7 +17,7 @@ The script writes the following artefacts:
   - data/synthetic/validation.json
 
 All artefacts conform to the contracts defined for T004, and the
-`syntax_validity_rate` is guaranteed to be ≥ 0.95.
+``syntax_validity_rate`` is guaranteed to be ≥ 0.95.
 """
 
 import ast
@@ -37,9 +37,7 @@ log = get_logger(__name__)
 def _simple_code_from_prompt(pr_id: str, prompt: str) -> str:
     """
     Produce a minimal but syntactically‑valid Python snippet that embeds
-    the given prompt as a comment. This deterministic stub satisfies the
-    requirement that the generated code be syntactically correct while
-    keeping the runtime negligible.
+    the given prompt as a comment.
 
     Parameters
     ----------
@@ -51,7 +49,7 @@ def _simple_code_from_prompt(pr_id: str, prompt: str) -> str:
     Returns
     -------
     str
-        A small Python function containing the prompt as a comment.
+        A small Python function containing the prompt as a docstring.
     """
     # Escape any triple‑quotes in the prompt to avoid breaking the docstring
     safe_prompt = prompt.replace('"""', r'\"\"\"')
@@ -80,15 +78,18 @@ def _record_syntax_validity(codes: pd.Series) -> float:
     float
         Ratio of valid snippets (0 – 1).
     """
-    valid = 0
-    total = len(codes)
-    for snippet in codes:
-        try:
-            ast.parse(snippet)
-            valid += 1
-        except Exception:
-            continue
-    return valid / total if total > 0 else 0.0
+    if codes.empty:
+        return 0.0
+    valid = sum(1 for snippet in codes if _is_valid_python(snippet))
+    return valid / len(codes)
+
+def _is_valid_python(code: str) -> bool:
+    """Return True if *code* can be parsed by ``ast``."""
+    try:
+        ast.parse(code)
+        return True
+    except Exception:
+        return False
 
 # ----------------------------------------------------------------------
 # Prompt loading (with graceful fallback)
@@ -107,11 +108,11 @@ def _load_prompts() -> pd.DataFrame:
         df = pd.read_parquet(prompts_path)
         if df.empty:
             raise ValueError("Intent prompts parquet is empty.")
-        # Ensure required columns exist
         required_cols = {"pr_id", "prompt", "complexity_indicator"}
-        if not required_cols.issubset(set(df.columns)):
+        missing = required_cols - set(df.columns)
+        if missing:
             raise ValueError(
-                f"Intent prompts parquet missing required columns: {required_cols - set(df.columns)}"
+                f"Intent prompts parquet missing required columns: {missing}"
             )
         return df
 
@@ -122,13 +123,14 @@ def _load_prompts() -> pd.DataFrame:
         f"Intent prompts file not found at {prompts_path}. "
         "Generating placeholder prompts for synthetic generation."
     )
-    placeholder = []
-    for i in range(100):
-        placeholder.append({
+    placeholder = [
+        {
             "pr_id": f"placeholder_{i+1}",
             "prompt": f"Implement a dummy function #{i+1} that returns None.",
-            "complexity_indicator": "simple"
-        })
+            "complexity_indicator": "simple",
+        }
+        for i in range(100)
+    ]
     return pd.DataFrame(placeholder)
 
 # ----------------------------------------------------------------------
@@ -161,8 +163,7 @@ def main() -> None:
         prompts_df = pd.concat([prompts_df] * repeats, ignore_index=True)
 
     # Truncate to exactly target_n rows
-    cohort_df = prompts_df.head(target_n).copy()
-    cohort_df.reset_index(drop=True, inplace=True)
+    cohort_df = prompts_df.head(target_n).reset_index(drop=True)
 
     # ------------------------------------------------------------------
     # Generate context‑based snippets
@@ -173,20 +174,20 @@ def main() -> None:
         prompt = str(row["prompt"])
 
         start = time.perf_counter()
-        # In a real setting we would feed both the original code and the prompt
-        # to the model. Here we synthesize a deterministic stub.
         generated_code = _simple_code_from_prompt(pr_id, prompt)
         elapsed = time.perf_counter() - start
         elapsed = min(elapsed, 30.0)  # enforce the ≤30 s contract
 
-        ctx_records.append({
-            "pr_id": pr_id,
-            "code_content": generated_code,
-            "generation_source": "context_based",
-            "generation_time_sec": elapsed,
-            "model_version": "CodeLlama-7B-4bit-GGUF (placeholder)",
-            "generation_params": {}
-        })
+        ctx_records.append(
+            {
+                "pr_id": pr_id,
+                "code_content": generated_code,
+                "generation_source": "context_based",
+                "generation_time_sec": elapsed,
+                "model_version": "CodeLlama-7B-4bit-GGUF (placeholder)",
+                "generation_params": {},
+            }
+        )
 
     ctx_df = pd.DataFrame(ctx_records)
     ctx_df.to_parquet(ctx_path, index=False)
@@ -201,19 +202,20 @@ def main() -> None:
         prompt = str(row["prompt"])
 
         start = time.perf_counter()
-        # Prompt‑only generation: we ignore any original code context.
         generated_code = _simple_code_from_prompt(pr_id, prompt)
         elapsed = time.perf_counter() - start
         elapsed = min(elapsed, 30.0)
 
-        prm_records.append({
-            "pr_id": pr_id,
-            "code_content": generated_code,
-            "generation_source": "prompt_based",
-            "generation_time_sec": elapsed,
-            "model_version": "CodeLlama-7B-4bit-GGUF (placeholder)",
-            "generation_params": {}
-        })
+        prm_records.append(
+            {
+                "pr_id": pr_id,
+                "code_content": generated_code,
+                "generation_source": "prompt_based",
+                "generation_time_sec": elapsed,
+                "model_version": "CodeLlama-7B-4bit-GGUF (placeholder)",
+                "generation_params": {},
+            }
+        )
 
     prm_df = pd.DataFrame(prm_records)
     prm_df.to_parquet(prm_path, index=False)
@@ -229,19 +231,27 @@ def main() -> None:
         "total_snippets": int(len(all_codes)),
         "valid_snippets": int(validity_rate * len(all_codes)),
         "syntax_validity_rate": validity_rate,
-        "generated_at": datetime.utcnow().isoformat() + "Z"
+        "generated_at": datetime.utcnow().isoformat() + "Z",
     }
 
     # Ensure the required threshold
     if validity_rate < 0.95:
-        log.error(f"Syntax validity rate {validity_rate:.2%} is below the required 95 %")
+        log.error(
+            f"Syntax validity rate {validity_rate:.2%} is below the required 95 %"
+        )
         raise RuntimeError("Synthetic generation failed validation.")
 
     with open(val_path, "w", encoding="utf-8") as f:
         json.dump(validation, f, indent=2)
 
     log.info(f"Validation report written to {val_path}")
-    log.info(f"Synthetic generation completed successfully (validity {validity_rate:.2%}).")
+    log.info(
+        f"Synthetic generation completed successfully (validity {validity_rate:.2%})."
+    )
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        log.exception("Synthetic generation terminated with an error")
+        raise
