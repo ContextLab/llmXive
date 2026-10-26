@@ -3,9 +3,9 @@
 Run the full analysis on a fresh GitHub Actions runner (or any Linux environment with Python 3.11).
 
 ## Prerequisites
-- Python 3.11 installed.
-- Access token for the HCP dataset stored in the environment variable `HCP_TOKEN`.
-- At least **14 GB** free disk space and **4 GB** RAM.
+1. **Python 3.11** (or use the provided virtual environment).
+2. **HCP access token** stored in the environment variable `HCP_TOKEN`.
+3. At least **14 GB** free disk space and **4 GB** RAM.
 
 ## Step‑by‑Step
 
@@ -18,7 +18,7 @@ Run the full analysis on a fresh GitHub Actions runner (or any Linux environment
 
 2. **Run the orchestrated pipeline**
  ```bash
- python -m src.run_pipeline --subjects 5
+ python -m code.src.run_pipeline --subjects 5
  ```
  - The script will download a tiny subset of HCP data, perform QC, compute multiscale entropy and write the results to `results/`.
  - On success you will see the exact line:
@@ -27,7 +27,7 @@ Run the full analysis on a fresh GitHub Actions runner (or any Linux environment
  ```
  - To execute a full run (non‑dry‑run) provide the `--dry-run` flag set to `false` or omit it:
  ```bash
- python -m src.run_pipeline --subjects 5
+ python -m code.src.run_pipeline --subjects 5
  ```
 
 3. **Run the test suite**

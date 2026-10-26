@@ -64,8 +64,6 @@ T010:
 T011:
   task: 489807dec49e7f190b785250cf38780a864e3dcdb6537cc91a9400adfe4b3bf6
 T014:
-  reason: 'Requested task execution failed; rerun successfully: code/src/stats/power_pre.py
-    exit=1'
   task: af80f796d27246384fecace19d36e539a0c688c76d427ea678afaf57c11b4cbe
 T015:
   task: 987024063dfb8a47ff2de804b2e00300c5412fc5b69129062c981e1b9a0412e4

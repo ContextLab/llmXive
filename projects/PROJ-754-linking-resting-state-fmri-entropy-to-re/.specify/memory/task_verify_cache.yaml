@@ -63,3 +63,12 @@ T006:
     \ was run on 200 subjects or that the two result files from T005 were produced\
     \ for the full cohort. The task therefore fails to meet its specifications."
   sig: 1440a22058fd1530f86b9dcbefc42277a1e6842a81de4e16f3fd9409677b253b
+T014:
+  c: true
+  h: 965b528399806294565a81ed7793de1619368d87acdb5b4711c08077072455d4
+  r: "Checked `code/src/stats/power_pre.py` for correct use of `FTestPower` with the\
+    \ specified parameters and JSON output logic, and verified `results/power_analysis_pre.json`\
+    \ contains the required fields with a power value\u202F\u2248\u202F0.051 (<\u202F\
+    0.80) and `underpowered: true`. The script runs (as shown in the execution log)\
+    \ and produces a parsable JSON file matching the task specification."
+  sig: 370eb0e20a37a3b965400d66fd49430382fe8d375c1693fade2f107455aa4019
