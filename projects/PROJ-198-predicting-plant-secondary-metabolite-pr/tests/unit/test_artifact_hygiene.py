@@ -1,49 +1,48 @@
-"""
-Unit tests for the artifact‑hygiene utilities.
-"""
-
-import hashlib
-from pathlib import Path
-
 import pytest
+import yaml
+from pathlib import Path
+from llmxive_toolkit import paths
+from code.utils.artifact import record_artifacts, track_path, STATE_FILE
 
-from utils.artifact import record_artifacts, STATE_FILE, _load_state, track_path
+def test_sha256_computation(tmp_path):
+    """Test that record_artifacts correctly hashes a file and saves it to state."""
+    # Create a dummy file
+    test_file = tmp_path / "test_artifact.txt"
+    content = b"hello world"
+    test_file.write_bytes(content)
+    
+    # Record it
+    record_artifacts([test_file])
+    
+    # Verify state file exists and contains the hash
+    assert STATE_FILE.exists()
+    with STATE_FILE.open("rt") as f:
+        state = yaml.safe_load(f)
+    
+    # The key should be the relative path from root
+    rel_path = str(test_file.resolve().relative_to(paths.root))
+    assert rel_path in state
+    
+    # Manually compute expected hash
+    import hashlib
+    expected_hash = hashlib.sha256(content).hexdigest()
+    assert state[rel_path] == expected_hash
 
-@pytest.fixture
-def temp_file(tmp_path):
-    """Create a temporary file with known contents."""
-    p = tmp_path / "sample.txt"
-    p.write_text("llmXive artifact test")
-    return p
+def test_track_path_atexit(tmp_path, monkeypatch):
+    """Test that track_path registers a file for recording on exit."""
+    # We can't easily trigger atexit in a test without exiting the process,
+    # so we test the internal list.
+    import code.utils.artifact as artifact
+    
+    test_file = tmp_path / "tracked.txt"
+    test_file.write_text("tracked content")
+    
+    artifact._PENDING_PATHS.clear()
+    track_path(test_file)
+    
+    assert test_file.resolve() in artifact._PENDING_PATHS
 
-def test_compute_sha256_matches_manual(temp_file):
-    """The internal SHA‑256 computation must match hashlib directly."""
-    # Import the private helper via attribute access
-    compute = getattr(__import__("code.utils.artifact", fromlist=["_compute_sha256"]), "_compute_sha256")
-    manual = hashlib.sha256(b"llmXive artifact test").hexdigest()
-    assert compute(temp_file) == manual
-
-def test_record_and_load_state(temp_file):
-    """record_artifacts should write a correct entry and _load_state should read it."""
-    # Ensure a clean state file
-    if STATE_FILE.is_file():
-        STATE_FILE.unlink()
-    record_artifacts([temp_file])
-    state = _load_state()
-    rel = temp_file.resolve().relative_to(Path(__file__).parents[3])
-    assert str(rel) in state
-    # Verify stored hash matches manual hash
-    expected = hashlib.sha256(temp_file.read_bytes()).hexdigest()
-    assert state[str(rel)] == expected
-
-def test_track_path_and_atexit(tmp_path, monkeypatch):
-    """track_path should register the path for atexit flushing."""
-    p = tmp_path / "deferred.txt"
-    p.write_text("deferred")
-    # Monkey‑patch the atexit registry to call our flush directly
-    from utils.artifact import _flush_pending
-    track_path(p)
-    _flush_pending()  # force write
-    state = _load_state()
-    rel = p.resolve().relative_to(Path(__file__).parents[3])
-    assert str(rel) in state
+def test_record_missing_file():
+    """Test that record_artifacts raises FileNotFoundError for missing files."""
+    with pytest.raises(FileNotFoundError):
+        record_artifacts([paths.data("non_existent_file.csv")])

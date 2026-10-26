@@ -1,20 +1,15 @@
 T001:
   task: d83bc269745b8f87625151982a3cd2551c354fbab94e61a02b41f8e330f419c0
 T002:
-  reason: 'Requested task execution failed; rerun successfully: code/check_lint_and_env.py
-    exit=1'
+  reason: "The repository contains `.ruff.toml`, `pyproject.toml`, and `code/config.py`,\
+    \ and a log shows a check script passed, but the required `.flake8` file and `.env.example`\
+    \ (with non\u2011empty `NCBI_API_KEY` and `PMDB_API_TOKEN` values) are absent,\
+    \ so the linting/formatting and environment\u2011variable verification requirements\
+    \ are not fully satisfied."
   task: 237f5458bbb5eb6d63cb8ea891bcca1939b1fdbd90bd407c886a80a61f55a735
 T003:
   task: 70c3a6076013af70ca88953d5eeb0eebfdfb224dc36471144dd9e4a9cca83f32
 T004:
-  reason: 'The source files exist and look plausible (config.py loads spec.yaml, sets
-    a global seed; utils/logging.py configures file+console handlers defaulting to
-    logs/run.log), but the task''s verification criteria require execution evidence:
-    no `logs/run.log` artifact exists anywhere in the collected evidence, so there
-    is no proof that a run actually creates it with INFO-level messages, nor any demonstrated
-    run showing `config.seed` is reproducible across runs. The implementer should
-    execute `load_config()` (e.g. via a small run or test) from the project root and
-    commit the resulting `logs/run.log` co'
   task: 7366c60ac2e8dccea1eb3ce47cbd663380d5df4b332250e30cc34ccb648af4b7
 T005:
   reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-001-predict-plant-metabolite-pr.yaml`
@@ -23,14 +18,8 @@ T005:
     to write only project-owned outputs.'
   task: 8a69ba13f84aff487f1b8e83ba5ab322a8f394375ae90fab8ba4494c539be93c
 T006:
-  reason: "The script `code/data/download.py` exists and implements `download_genomes()`/`download_metabolites()`,\
-    \ but the verification requirement \u2014 files under `data/raw/` for successfully\
-    \ fetched genomes and metabolites \u2014 is unmet: `data/raw/` contains only `.gitkeep`\
-    \ and `phylogeny/`, with no species genome FASTA or metabolite TSV files and no\
-    \ execution logs showing a run. Additionally, all five species are mapped to the\
-    \ same MTBLS1 assay URL, which does not retrieve species-matched metabolite tables\
-    \ as the spec requires; the implementer must actually run the download (or provide\
-    \ run evidence) and us"
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
   task: 37a16fc246858c657e17ebfb98ea4e5483601f584c7b74e4bad05ce2763bbda7
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/data/antismash.py

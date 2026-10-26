@@ -17,38 +17,59 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - data/README.md: synthetic/fake INPUT data not authorized by the spec — “…─ mock_metabolites.csv # Mock metabolite data for CI testing │ └── moc…”
 - data/README.md: synthetic/fake INPUT data not authorized by the spec — “…(`CI_MODE=true`) - Uses mock data files in `data/raw/` - N…”
 
+## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
+
+These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
+
+- run-book command: `python code/cli/main.py --step download_and_align --limit 5`
+  - script usage: `main.py [-h] [--config CONFIG] [--force-download]`
+  - argparse error: `main.py: error: unrecognized arguments: --limit 5`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 10 fabricated/simulated-result signal(s) — results are not real measurements: code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…tion entry point – loads mock data, aligns, saves, and repo…”; code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…ger(__name__)     # Load mock data files (used when CI_MODE…”; code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…:         logger.error(f"Mock data not found: {e}")…”; 4 command(s) failed: python code/cli/main.py --step download_and_align (rc=1); python code/cli/main.py --step train_and_evaluate (rc=1); python code/cli/main.py --step download_and_align --limit 5 (rc=1); 1 declared deliverable(s) absent: data/processed/aligned_matrix.csv
+**Summary**: 10 fabricated/simulated-result signal(s) — results are not real measurements: code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…tion entry point – loads mock data, aligns, saves, and repo…”; code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…ger(__name__)     # Load mock data files (used when CI_MODE…”; code/data/align.py: synthetic/fake INPUT data not authorized by the spec — “…:         logger.error(f"Mock data not found: {e}")…”; 4 command(s) failed: python code/cli/main.py --step download_and_align (rc=1); python code/cli/main.py --step train_and_evaluate (rc=1); python code/cli/main.py --step download_and_align --limit 5 (rc=2); 1 declared deliverable(s) absent: data/processed/aligned_matrix.csv
 
 ## Failing / missing run-book commands
 
 - python code/cli/main.py --step download_and_align -> rc=1
-
+rting Plant Metabolite Prediction Pipeline
+2026-10-26 10:24:22,392 INFO __main__: Starting Plant Metabolite Prediction Pipeline
+2026-10-26 10:24:22,392 INFO __main__: Starting Plant Metabolite Prediction Pipeline
+2026-10-26 10:24:22,395 INFO code.config: Configuration loaded (seed=42, species=5)
+2026-10-26 10:24:22,395 INFO code.config: Configuration loaded (seed=42, species=5)
+2026-10-26 10:24:22,395 INFO code.config: Configuration loaded (seed=42, species=5)
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 14, in <module>
-    from code.data.download import download_genomes, download_metabolites
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/download.py", line 14, in <module>
-    from Bio import Entrez
-ModuleNotFoundError: No module named 'Bio'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 193, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 162, in main
+    ensure_directories(config.data_root)
+                       ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/main.py", line 1105, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Config' object has no attribute 'data_root'
 
 - python code/cli/main.py --step train_and_evaluate -> rc=1
-
+rting Plant Metabolite Prediction Pipeline
+2026-10-26 10:24:23,285 INFO __main__: Starting Plant Metabolite Prediction Pipeline
+2026-10-26 10:24:23,285 INFO __main__: Starting Plant Metabolite Prediction Pipeline
+2026-10-26 10:24:23,288 INFO code.config: Configuration loaded (seed=42, species=5)
+2026-10-26 10:24:23,288 INFO code.config: Configuration loaded (seed=42, species=5)
+2026-10-26 10:24:23,288 INFO code.config: Configuration loaded (seed=42, species=5)
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 14, in <module>
-    from code.data.download import download_genomes, download_metabolites
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/download.py", line 14, in <module>
-    from Bio import Entrez
-ModuleNotFoundError: No module named 'Bio'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 193, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 162, in main
+    ensure_directories(config.data_root)
+                       ^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-198-predicting-plant-secondary-metabolite-pr/lib/python3.11/site-packages/pydantic/main.py", line 1105, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Config' object has no attribute 'data_root'
 
-- python code/cli/main.py --step download_and_align --limit 5 -> rc=1
+- python code/cli/main.py --step download_and_align --limit 5 -> rc=2
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/cli/main.py", line 14, in <module>
-    from code.data.download import download_genomes, download_metabolites
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-198-predicting-plant-secondary-metabolite-pr/code/data/download.py", line 14, in <module>
-    from Bio import Entrez
-ModuleNotFoundError: No module named 'Bio'
+usage: main.py [-h] [--config CONFIG] [--force-download]
+               [--step {download_and_align,train_and_evaluate}]
+main.py: error: unrecognized arguments: --limit 5
 
 - python -m pytest tests/ -> rc=2
 k:
@@ -68,7 +89,7 @@ ERROR tests/unit/test_linting_config.py
 ERROR tests/unit/test_models.py
 ERROR tests/unit/test_project_structure.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 9 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 9 errors in 1.41s ===============================
+============================== 9 errors in 1.40s ===============================
 
 
 

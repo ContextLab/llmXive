@@ -1,5 +1,6 @@
-pydantic
-pydantic-settings
 python-dotenv
-ruff
-black
+pyyaml
+pydantic
+biopython
+dendropy
+tqdm

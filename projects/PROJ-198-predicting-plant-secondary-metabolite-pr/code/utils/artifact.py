@@ -13,17 +13,14 @@ import atexit
 from pathlib import Path
 from typing import Iterable, List, Mapping, MutableMapping
 
+from llmxive_toolkit import paths
+
 # ----------------------------------------------------------------------
 # Configuration
 # ----------------------------------------------------------------------
-# Project root is three levels up from this file:
-#   <project>/code/utils/artifact.py
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-
-# State file location (project‑owned location – not the platform‑owned `state/` directory)
-# The file lives under `data/state/` so that it is part of the repository
-# and can be inspected by the test suite without violating platform constraints.
-STATE_FILE = PROJECT_ROOT / "data" / "state" / "artifact_hashes.yaml"
+# State file location: placed under `data/state/` to avoid shadowing 
+# the platform-owned `state/` directory.
+STATE_FILE = paths.data("state", "artifact_hashes.yaml")
 
 # Ensure the state directory exists
 STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -37,7 +34,6 @@ def _load_state() -> MutableMapping[str, str]:
         return {}
     with STATE_FILE.open("rt", encoding="utf-8") as f:
         data = yaml.safe_load(f) or {}
-    # Guard against malformed content
     if not isinstance(data, dict):
         return {}
     return data
@@ -52,7 +48,6 @@ def _compute_sha256(file_path: Path) -> str:
     if not file_path.is_file():
         raise FileNotFoundError(f"Cannot compute checksum – file not found: {file_path}")
     hasher = hashlib.sha256()
-    # Read in chunks to avoid loading huge files into memory
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             hasher.update(chunk)
@@ -61,38 +56,34 @@ def _compute_sha256(file_path: Path) -> str:
 # ----------------------------------------------------------------------
 # Public API
 # ----------------------------------------------------------------------
-_PENDING_PATHS: List[Path] = []  # paths that will be recorded on interpreter shutdown
+_PENDING_PATHS: List[Path] = []
 
-
-def track_path(path: Path) -> None:
+def track_path(path: Path | str) -> None:
     """
     Register *path* to be recorded in the state file when the interpreter exits.
-
-    This is convenient for scripts that write many artifacts – they can simply
-    call ``track_path`` after the write operation without worrying about when
-    the state file is updated.
     """
     _PENDING_PATHS.append(Path(path).resolve())
 
-
-def record_artifacts(paths: Iterable[Path]) -> None:
+def record_artifacts(paths_to_record: Iterable[Path | str]) -> None:
     """
     Compute SHA‑256 hashes for all *paths* and store them in the state file.
-
-    Existing entries are overwritten with the latest hash.
-    The function is idempotent – calling it repeatedly with the same files
-    yields the same state.
     """
     state = _load_state()
-    for p in paths:
+    root = paths.root
+    for p in paths_to_record:
         p_resolved = Path(p).resolve()
         if not p_resolved.is_file():
             raise FileNotFoundError(f"Artifact not found: {p_resolved}")
-        rel_path = p_resolved.relative_to(PROJECT_ROOT)
+        
+        try:
+            rel_path = p_resolved.relative_to(root)
+        except ValueError:
+            # Fallback if for some reason the path is outside root
+            rel_path = p_resolved.name
+
         checksum = _compute_sha256(p_resolved)
         state[str(rel_path)] = checksum
     _save_state(state)
-
 
 # ----------------------------------------------------------------------
 # Automatic flushing on interpreter shutdown
@@ -102,11 +93,12 @@ def _flush_pending() -> None:
     if _PENDING_PATHS:
         try:
             record_artifacts(_PENDING_PATHS)
-        except Exception as exc:  # pragma: no cover – best‑effort logging
-            # Import lazily to avoid circular imports
-            from utils.logging import get_logger
-
-            log = get_logger(__name__)
-            log.error("Failed to record artifact hashes on shutdown: %s", exc)
+        except Exception as exc:
+            try:
+                from code.utils.logging import get_logger
+                log = get_logger(__name__)
+                log.error("Failed to record artifact hashes on shutdown: %s", exc)
+            except ImportError:
+                pass
 
 atexit.register(_flush_pending)

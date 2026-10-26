@@ -207,8 +207,8 @@ def load_config(config_path: Optional[Path] = None) -> Config:
     subsequent calls return the same ``Config`` instance, regardless of the
     ``config_path`` argument.
 
-    As part of T004 the global random seed is applied immediately after
-    the configuration is parsed, and an INFO message is written to
+    As part of T004 the global random seed is applied immediately after the
+    configuration is parsed, and an INFO message is written to
     ``logs/run.log``.
     """
     global _config_instance

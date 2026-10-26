@@ -1,12 +1,10 @@
 T001:
   c: true
-  h: 8a0550a8e40bd3373295c264fafc1aa226aaeb1c3f5e72cfefdac287a390bc7c
-  r: All nine required directories (`code/`, `code/data/`, `code/modeling/`, `code/utils/`,
-    `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) are confirmed
-    to exist at the project root with non-empty listings (including `.gitkeep` markers
-    and substantive files), matching the task's sole requirement of creating the core
-    directory layout.
-  sig: e03d718167557e4297a9b5ae6851da1a0f58805a685705cec538c5bde5145116
+  h: 3666d2987a903bddf0b2c85616bca048946cf1173ba6ea6309252e79fb844a6b
+  r: "All required directories (`code/`, `code/data/`, `code/modeling/`, `code/utils/`,\
+    \ `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) are\
+    \ present in the repository as confirmed by the collector\u2019s directory listings."
+  sig: 4a2acbab0f648a438d5e3b758a1b92531d4ffdad6d432d8afd5e966011ab7c0f
 T003:
   c: true
   h: 936c3795ceb91afdd591d33e7637cb3cce12007e19f46e4ff766c501eada730c
@@ -16,29 +14,14 @@ T003:
     \ missing or stubbed."
   sig: 7d7be216875efdf6426973a2bb36a98310d88d476aa585ebfc7616e861985843
 T004:
-  c: false
-  h: 0e187f3b166c21fe503b0c7533bea550ae0026efd66bcb536d96d413e77f2245
-  r: 'The source files exist and look plausible (config.py loads spec.yaml, sets a
-    global seed; utils/logging.py configures file+console handlers defaulting to logs/run.log),
-    but the task''s verification criteria require execution evidence: no `logs/run.log`
-    artifact exists anywhere in the collected evidence, so there is no proof that
-    a run actually creates it with INFO-level messages, nor any demonstrated run showing
-    `config.seed` is reproducible across runs. The implementer should execute `load_config()`
-    (e.g. via a small run or test) from the project root and commit the resulting
-    `logs/run.log` co'
-  sig: dc9305c6b2ba5a5cc012398b62b2d7dd33ebe1f743bf9224b532f26534eb7d39
-T006:
-  c: false
-  h: 802ff0eb57f2515d0b141dfa837e1ed2770d2ec3371a35b062cb9843feee7f20
-  r: "The script `code/data/download.py` exists and implements `download_genomes()`/`download_metabolites()`,\
-    \ but the verification requirement \u2014 files under `data/raw/` for successfully\
-    \ fetched genomes and metabolites \u2014 is unmet: `data/raw/` contains only `.gitkeep`\
-    \ and `phylogeny/`, with no species genome FASTA or metabolite TSV files and no\
-    \ execution logs showing a run. Additionally, all five species are mapped to the\
-    \ same MTBLS1 assay URL, which does not retrieve species-matched metabolite tables\
-    \ as the spec requires; the implementer must actually run the download (or provide\
-    \ run evidence) and us"
-  sig: bac698924aa2a7a12b22911f67164623cc00dc74503470c7370161492f7f9009
+  c: true
+  h: d625a9c21d1230f6970addd98a6b9b19cca342ea2f33c0cf201a25e73d794f6c
+  r: "Checked `code/config.py` and `code/utils/logging.py` for proper seed handling\
+    \ and logging setup, and the execution record `code/.tasks/T004.code_utils_verify_t004.py.log`\
+    \ which confirms seed reproducibility and that INFO\u2011level messages were written\
+    \ (evidenced by the logged \u201CConfiguration loaded\u201D lines and the script\u2019\
+    s \u201CLogging output verified\u201D message)."
+  sig: 88350ad818013739fccdd40dd02b309c85c9b4d8c95525d80d809c154aef4c35
 T008:
   c: false
   h: f9994b7d069385496990a5775abfb2994c01a4171b29c823b976bb87cdd3ab29

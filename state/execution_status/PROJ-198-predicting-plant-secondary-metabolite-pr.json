@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-20T16:10:21Z",
+  "updated_at": "2026-10-26T10:38:04Z",
   "project_id": "PROJ-198-predicting-plant-secondary-metabolite-pr",
-  "replan_rounds": 1
+  "replan_rounds": 2
 }

@@ -1,6 +1,17 @@
-# Project requirements
-# Existing dependencies are provided by the platform (numpy, pandas, scipy,
-# matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil).  The only additional third‑party package required for
-# phylogenetic processing is ``dendropy``.
-dendropy>=4.5.2
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+biopython
+dendropy
+tqdm
+pydantic
+docker

@@ -10,7 +10,7 @@
   *Path(s):* `code/`, `code/data/`, `code/modeling/`, `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`  
   *Verification:* Run `tree` (or equivalent) at the repository root and confirm all listed directories exist.
 
-- [ ] **T002** [ ] **Project linting, formatting, and environment‑variable management**   <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/check_lint_and_env.py exit=1 -->
+- [ ] **T002** [ ] **Project linting, formatting, and environment‑variable management**
   *Path(s):* `.ruff.toml`, `.flake8`, `pyproject.toml` (Black section), `.env.example`, `code/config.py` (loads variables via `python‑dotenv`)  
   *Verification:*  
   1. `ruff --quiet .` and `black --check .` exit with code 0.  
@@ -20,7 +20,7 @@
   *Path:* `code/models/schemas.py` (Species, BGCFeature, Metabolite, ModelOutput)  
   *Verification:* Sample JSON objects validate against the models without errors.
 
-- [ ] **T004** [ ] **Configuration loader, seed manager & logging**  
+- [X] **T004** [ ] **Configuration loader, seed manager & logging**  
   *Path(s):* `code/config.py` (loads `spec.yaml`, sets global random seed), `code/utils/logging.py` (file + console handlers)  
   *Verification:*  
   1. `config.seed` is reproducible across runs.  
@@ -36,7 +36,7 @@
 
 ## Phase 2 – Data acquisition & preprocessing (User Story 1)  
 
-- [ ] **T006** [ ] **Download genomes and metabolite tables; log missing species**  
+- [ ] **T006** [ ] **Download genomes and metabolite tables; log missing species**   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   *Path:* `code/data/download.py` (`download_genomes()`, `download_metabolites()`)  
   *Verification:* Using a test list of 5 species, the script creates files under `data/raw/` for all successfully fetched genomes and metabolites, and writes warnings for any species that could not be retrieved.  
 
