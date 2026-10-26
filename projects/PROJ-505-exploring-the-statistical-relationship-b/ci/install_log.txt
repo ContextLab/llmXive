@@ -1,0 +1,12 @@
+Requirement already satisfied: numpy==1.26.* in /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 1)) (1.26.4)
+Requirement already satisfied: pandas==2.2.* in /home/runner/.cache/llmxive/base-env/py311-6f1866971868 (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 2)) (2.2.2)
+Requirement already satisfied: scikit-learn==1.5.* in /home/runner/.cache/llmxive/base-env/py311-6f1866971868 (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 3)) (1.5.0)
+Requirement already satisfied: statsmodels==0.14.* in /home/runner/.cache/llmxive/base-env/py311-6f1866971868 (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 4)) (0.14.2)
+Requirement already satisfied: scipy==1.14.* in /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 5)) (1.14.1)
+Requirement already satisfied: pyarrow==15.0.* in /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-505-exploring-the-statistical-relationship-b/lib/python3.11/site-packages (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 6)) (15.0.2)
+ERROR: Ignored the following yanked versions: 0.4.2
+ERROR: Could not find a version that satisfies the requirement fastparquet==2024.1.* (from versions: 0.0.1, 0.0.1.post1, 0.0.1.post2, 0.0.2, 0.0.3, 0.0.4, 0.0.4.post1, 0.0.5, 0.0.6, 0.1.0, 0.1.1, 0.1.2, 0.1.3, 0.1.4, 0.1.5, 0.1.6, 0.2.0, 0.2.1, 0.3.0, 0.3.1, 0.3.2, 0.3.3, 0.4.0, 0.4.1, 0.5.0, 0.6.0, 0.6.0.post1, 0.6.1, 0.6.2, 0.6.3, 0.7.0, 0.7.1, 0.7.2, 0.8.0, 0.8.1, 0.8.2, 0.8.3, 2022.11.0, 2022.12.0, 2023.1.0, 2023.2.0, 2023.4.0, 2023.7.0, 2023.8.0, 2023.10.0, 2023.10.1, 2024.2.0, 2024.5.0, 2024.11.0, 2025.12.0, 2026.3.0, 2026.5.0, 2026.9.0)
+ERROR: No matching distribution found for fastparquet==2024.1.*
+
+[notice] A new release of pip is available: 24.0 -> 26.2.2
+[notice] To update, run: pip install --upgrade pip

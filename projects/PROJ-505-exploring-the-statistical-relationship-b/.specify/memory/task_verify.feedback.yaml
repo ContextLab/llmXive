@@ -1,50 +1,36 @@
 T001:
-  reason: "Checked the `requirements.txt` file \u2013 all 13 lines follow the required\
-    \ `package==major.minor.*` pattern. However, there is no provided evidence (e.g.,\
-    \ install logs, CI run output) that `pip install -r requirements.txt` actually\
-    \ succeeds on a clean runner, which is part of the task\u2019s verification criteria.\
-    \ This missing proof makes the task incomplete."
-  task: 6ee7d4e1464e67f99c454380b33e94670cfd3dd02a83f4826cf2f56f339b3ad0
-T002:
-  task: 2c9fb502a1669081aa5d234ccb5329147ec3ec37dc3d8ec7e3ec2c43ba973301
-T003:
-  reason: The repository contains `code/ingestion/download_real.py` and the integration
-    tests, but the required raw data directories (`data/raw/ace_swics/`, `data/raw/wind_sms/`,
-    `data/raw/omni/`) and the `data/raw/checksums.yaml` file are all missing. Without
-    these artifacts the script cannot fulfill the core requirement of downloading
-    and preserving the real CDF files.
-  task: 26ee0bbfa26153a62c6dfe654a5bb2fc4faf10b4220919d79a5515a808342c8c
-T004:
-  reason: "The repository lacks the required output artifacts `data/processed/aligned_hourly.parquet`\
-    \ and `data/artifacts/alignment_report.json`; they are marked MISSING. Consequently\
-    \ the task\u2019s core deliverables are not present despite the implementation\
-    \ and unit test existing. Generating these files at the specified locations (and\
-    \ ensuring they meet the schema and gap\u2011flagging requirements) is needed\
-    \ to complete the task."
-  task: c18edab362c9641e9579a30ce3c8fb282973c11d5b0b79788cdf388f9d0f43e9
-T005:
-  reason: 'Requested task execution failed; rerun successfully: code/analysis/coupling_functions.py
+  reason: 'Requested task execution failed; rerun successfully: code/install_requirements.py
     exit=1'
-  task: 3e3be54c3fbc242561aacf8e939376dfe2873e500437b5a95435ecd40ff2fcc3
+  task: d489298c3a0440f7660e8b2865aa620a80870b4bcdd0d48ba3950c5021c37149
+T002:
+  task: 467ac3640de5362563f4b9dd731c95a4bbf6b03af4a77b51a1cdd818f3bc3e68
+T003:
+  task: 15c193192eed949bda4dac166b64b1e84373b6fd0d78271ffbaaf984b9afbd9f
+T004:
+  task: bc97e41873f01ebc737e16d61892e65f44fc4915a6099e7957ab9ac693c51542
+T005:
+  task: 2d46a86341181d7fee9fcf9ea5f258f0152ef10cdd13ef130eaaef8a36403ea1
 T006:
-  task: 5e9a9d9a49f117593bf72bfc32b317e4234e5f05707ac76a57dbf60716ac4b59
+  task: 159ce342677864eea27da612afbc5c9a17fbc3ca623d6050cae4307d5a84e880
 T007:
-  task: 8421b11003c25271a8fddc5ab7d660223c74eb5d6f5e1c06700a6a47615ab0bd
+  task: 672524648cbd7a53aefc4a6cb4833bc9ccbd6a57634bc2d5f935bb8a8ab9fe30
 T008:
-  task: ca9e325a8b518a3ea99155765dd229a72bfa4e63e08f6e399848330b22c02218
+  task: 5ae603169cf9f5fed9de0be66c723de435100486923301dd809d08ab459ca5b7
 T009:
-  task: bf06114ac4bc2ed3e4072b6fad77b94b55d40614768ead49dc7cd5f38f83f066
+  task: c0b94d40f1100e9904e4a8344a72ec55088d4dc3ef3648ce4e2d9c2cf22bc47f
 T010:
-  task: b07ad8e143bfe7107d666647b5f657d5d434e14b7dd577acaf9df982db95555e
+  task: a9e7373da3933b22bbbcd18d53257074a7e2ca0b0e789db20729f69ed050e5cd
 T011:
-  task: 3a31aac02b5bf657c6d721bc93926223993ab33f31a917b335ba2ddef07b6a88
+  task: f9c0e3f3375e8eda9847e489d5c771c92edb4e86301e924680b15657734d111e
 T012:
-  task: 473f9f0c1780dc03127aa67e2fe16f3a84328e57584ac185b28cf9fd9118ab2d
+  task: a3526e6f9f9f793ff118a90f683944f82d3aa782ce1b71ce799df043c514b378
 T013:
-  task: b8ef10ef455bbb53a27c88ec82cf043d95f30d660341ea74afc23aae3fa0511b
+  task: f679aca0b206fc2a2d54af6a5424ced9038108145e55a67e79a666aad9e7f56e
 T014:
-  task: f5c00b344e6a234a5a3dd8ffe31e5ee637c5e8cee8f691c4140f57fcfe6c88ab
+  task: 272a29220a895a558ed26b8b249db341c8aaf2aba44f52cba4cf76eefd2f4cca
 T015:
-  task: 7d02d4bb7c10bd77e27232c5fc91f0c5645dba0fc124bd94b72098c3abc4fb75
+  task: 552b3ce88c83fb093b3b23d28f20d64a854bcf189e041363acf2241e2b86d33a
 T016:
-  task: 2b4dd845d92a20ae0eefb7dd6f9efc3c9a2dc9a4fb6ef0165344666b9b6dbfd3
+  task: a7e33cdc400284793002e9b31d501806eff9bdd8e2651c34367271633af57b3a
+T017:
+  task: 3957e1fcf49d023a500957505bee7ceed2d8616f249eb25fdbf7cac9b8c1e4ab

@@ -1,16 +1,18 @@
 status: none
-intent: download ACE SWICS WIND SWE CDAWeb NOAA Dst Kp OMNIWeb dataset via heliopy
-  python package dataset
+intent: OMNI2 CDAWeb ACE WIND solar wind composition NOAA Dst Kp python package dataset
 required_fields:
-- timestamp (UTC hour)
-- solar_wind_bulk_speed (km/s)
-- solar_wind_density (cm^-3)
-- IMF_Bz (nT)
+- timestamp
+- solar_wind_speed
+- proton_density
+- proton_temperature
+- IMF_Bx
+- IMF_By
+- IMF_Bz
 - O/Fe_ratio
 - He/H_ratio
 - C/O_ratio
-- Dst_index (nT)
-- "Kp_index (3\u2011hour)"
-cache_key: 18700d03f976f0bc0adce447e9706e3636a8f5f6c2598b914f806fbd89bebe45
-searched_at: '2026-10-25T01:26:24.590815+00:00'
+- Dst_index
+- Kp_index
+cache_key: e9806a87a626ff629819368c47c89b84494b7811c054682677e598ef27aadce7
+searched_at: '2026-10-26T13:35:42.081086+00:00'
 retry_count: 1

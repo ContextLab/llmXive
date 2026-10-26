@@ -2,7 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — Checked the `requirements.txt` file – all 13 lines follow the required `package==major.minor.*` pattern. However, there is no provided evidence (e.g., install logs, CI run output) that `pip install -r requirements.txt` actually succeeds on a clean runner, which is part of the task’s verification criteria. This missing proof makes the task incomplete.
-- **T003** — The repository contains `code/ingestion/download_real.py` and the integration tests, but the required raw data directories (`data/raw/ace_swics/`, `data/raw/wind_sms/`, `data/raw/omni/`) and the `data/raw/checksums.yaml` file are all missing. Without these artifacts the script cannot fulfill the core requirement of downloading and preserving the real CDF files.
-- **T004** — The repository lacks the required output artifacts `data/processed/aligned_hourly.parquet` and `data/artifacts/alignment_report.json`; they are marked MISSING. Consequently the task’s core deliverables are not present despite the implementation and unit test existing. Generating these files at the specified locations (and ensuring they meet the schema and gap‑flagging requirements) is needed to complete the task.
-- **T005** — Requested task execution failed; rerun successfully: code/analysis/coupling_functions.py exit=1
+- **T001** — Requested task execution failed; rerun successfully: code/install_requirements.py exit=1
