@@ -84,9 +84,6 @@ def _make_full_context_log(
         Detailed information about each violation (as returned by the Oracle).
     """
     metadata = workflow.get("metadata", {})
-    # The schema requires ``workflow_id``, ``compression_depth``, ``token_count``,
-    # and ``policy_violations``.  All other fields are optional but useful for
-    # downstream analysis.
     return {
         "workflow_id": workflow.get("id", "unknown"),
         "compression_depth": 0,                     # full‑context → no compression
@@ -109,16 +106,12 @@ def _process_workflow(
 
     Returns the execution‑log dictionary.
     """
-    # Token count – we serialize the *entire* workflow (including any embedded
+    # Token count – serialize the *entire* workflow (including any embedded
     # policy graph) and count tokens using the shared tokenizer.
     workflow_json = json.dumps(workflow, separators=(",", ":"))
     token_cnt = count_tokens(workflow_json)
 
-    # Oracle evaluation – the OraclePolicyEngine is expected to expose a method
-    # ``evaluate`` that returns a tuple ``(violations, details)`` where
-    # ``violations`` is a list of dicts (or strings) and ``details`` is a list
-    # of dicts describing each violation.  If the concrete implementation differs,
-    # adapt the call accordingly.
+    # Oracle evaluation – the OraclePolicyEngine now exposes ``evaluate``.
     try:
         violations, details = oracle.evaluate(workflow)
     except Exception as exc:

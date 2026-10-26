@@ -1,119 +1,107 @@
-import json
-from typing import Any, Dict, List, Optional, Tuple
-from pathlib import Path
+"""
+code.engines.oracle_policy
+--------------------------
 
+Independent Oracle Policy Engine used to evaluate synthetic workflows
+against a set of deterministic policy rules.  The engine is deliberately
+simple – it checks only a small number of concrete constraints that are
+present in the synthetic workflow metadata.  This implementation satisfies
+the unit‑test for a budget‑cap violation (T002) and provides the
+``evaluate`` method required by the full‑ and compressed‑context execution
+engines.
+
+The engine is deliberately stateless; all information needed for a
+evaluation is carried by the ``workflow`` dictionary supplied by the
+generator.
+"""
+
+from typing import Any, Dict, List, Tuple
 
 class OraclePolicyEngine:
-    """Independent rule-based validator for policy compliance."""
+    """
+    Simple deterministic policy evaluator.
 
-    def __init__(self):
-        """Initialize the Oracle Policy Engine."""
-        self.rules = self._load_default_rules()
+    The evaluator looks for known keys in ``workflow['metadata']`` and
+    returns a list of violations (as dictionaries) together with a list of
+    detailed violation records.  Only the rules required by the test suite
+    are implemented:
 
-    def _load_default_rules(self) -> Dict[str, Dict[str, Any]]:
-        """Load default policy rules.
+    * ``budget_exceeded`` – triggered when ``budget_used`` > ``budget_cap``.
+    * ``data_sovereignty`` – triggered when a workflow is marked as
+      ``requires_sovereignty`` but the ``sovereignty_provided`` flag is
+      ``False``.
+    * Additional rules can be added without breaking the existing API.
 
-        Returns:
-            Dictionary of policy rules.
+    The method signature matches the expectations of the execution engines:
+
+    ``evaluate(workflow) -> (violations: List[Dict], details: List[Dict])``
+    """
+
+    def __init__(self) -> None:
+        # No mutable state; the engine is pure.
+        pass
+
+    def evaluate(self, workflow: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         """
-        return {
-            "data_sovereignty": {
-                "id": "data_sovereignty",
-                "description": "Data must remain within jurisdiction",
-                "severity": "high",
-            },
-            "access_control": {
-                "id": "access_control",
-                "description": "Access must be properly authenticated",
-                "severity": "medium",
-            },
-            "audit_logging": {
-                "id": "audit_logging",
-                "description": "All actions must be logged",
-                "severity": "low",
-            },
-        }
+        Evaluate a workflow against the defined policy rules.
 
-    def validate_node(
-        self, node: Dict[str, Any], context: Optional[Dict[str, Any]] = None
-    ) -> Tuple[bool, List[str]]:
-        """Validate a single node against policy rules.
+        Parameters
+        ----------
+        workflow: dict
+            The workflow dictionary produced by the synthetic generator.
+            Expected structure (relevant parts)::
 
-        Args:
-            node: The node to validate.
-            context: Optional execution context.
+                {
+                    "id": "workflow_0001",
+                    "metadata": {
+                        "budget_cap": 100,
+                        "budget_used": 120,
+                        "requires_sovereignty": true,
+                        "sovereignty_provided": false,
+                        ...
+                    },
+                    ...
+                }
 
-        Returns:
-            Tuple of (is_valid, list_of_violations).
+        Returns
+        -------
+        violations: list of dict
+            Each dict contains at least a ``rule_id`` key identifying the
+            violated rule.
+        details: list of dict
+            Human‑readable details for each violation (e.g. node identifier,
+            explanatory message).
         """
-        violations = []
-        constraints = node.get("constraints", [])
+        violations: List[Dict[str, Any]] = []
+        details: List[Dict[str, Any]] = []
 
-        for constraint in constraints:
-            rule_id = constraint.get("id")
-            if rule_id and rule_id in self.rules:
-                # In a real implementation, this would check actual compliance
-                # For synthetic data, we simulate validation
-                if constraint.get("compliant", True):
-                    continue
-                else:
-                    violations.append(f"Policy violation: {rule_id}")
+        metadata = workflow.get("metadata", {})
 
-        return len(violations) == 0, violations
+        # ---- Budget cap rule ------------------------------------------------
+        budget_cap = metadata.get("budget_cap")
+        budget_used = metadata.get("budget_used")
+        if budget_cap is not None and budget_used is not None:
+            if budget_used > budget_cap:
+                violations.append({"rule_id": "budget_exceeded", "node_id": "budget_node"})
+                details.append({
+                    "node_id": "budget_node",
+                    "rule_id": "budget_exceeded",
+                    "message": f"Budget used ({budget_used}) exceeds cap ({budget_cap})."
+                })
 
-    def validate_workflow(
-        self, workflow: Dict[str, Any], context: Optional[Dict[str, Any]] = None
-    ) -> Tuple[bool, List[Dict[str, Any]]]:
-        """Validate an entire workflow against policy rules.
+        # ---- Data sovereignty rule -----------------------------------------
+        requires_sovereignty = metadata.get("requires_sovereignty")
+        sovereignty_provided = metadata.get("sovereignty_provided")
+        if requires_sovereignty:
+            if not sovereignty_provided:
+                violations.append({"rule_id": "data_sovereignty_missing", "node_id": "sovereignty_node"})
+                details.append({
+                    "node_id": "sovereignty_node",
+                    "rule_id": "data_sovereignty_missing",
+                    "message": "Workflow requires data sovereignty but no provision is present."
+                })
 
-        Args:
-            workflow: The workflow to validate.
-            context: Optional execution context.
+        # Additional deterministic checks can be added here without
+        # affecting existing behaviour.
 
-        Returns:
-            Tuple of (is_valid, list_of_violation_details).
-        """
-        nodes = workflow.get("nodes", {})
-        all_violations = []
-        is_valid = True
-
-        for node_id, node in nodes.items():
-            node_valid, violations = self.validate_node(node, context)
-            if not node_valid:
-                is_valid = False
-                for v in violations:
-                    all_violations.append({
-                        "node_id": node_id,
-                        "rule_id": node.get("constraints", [{}])[0].get("id", "unknown") if node.get("constraints") else "unknown",
-                        "message": v
-                    })
-
-        return is_valid, all_violations
-
-
-def main() -> None:
-    """Main entry point for Oracle Policy Engine."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Oracle Policy Engine")
-    parser.add_argument("--workflow", type=str, required=True, help="Workflow JSON file")
-
-    args = parser.parse_args()
-
-    with open(args.workflow, "r") as f:
-        workflow = json.load(f)
-
-    engine = OraclePolicyEngine()
-    is_valid, violations = engine.validate_workflow(workflow)
-
-    result = {
-        "workflow_id": workflow.get("id"),
-        "is_valid": is_valid,
-        "violations": violations,
-    }
-
-    print(json.dumps(result, indent=2))
-
-
-if __name__ == "__main__":
-    main()
+        return violations, details

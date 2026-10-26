@@ -23,7 +23,7 @@ The tasks are organized into research phases.  Each task follows the required ch
   - Requirements satisfied: FR‑002, FR‑004, FR‑007.  
   - Verification: after `python -m code.services.executor_full --n 5`, the output file exists, contains 5 logs, each log passes schema validation, and token counts are > 0.
 
-- [ ] T005 [P] **Compressed‑context execution engine** – `code/services/executor_compressed.py` implements depth‑limited BFS/DFS extraction (configurable via `--depth K`), uses the tokenizer wrapper, and writes `data/processed/compressed_context_logs.json` (mode=`compressed`).  
+- [X] T005 [P] **Compressed‑context execution engine** – `code/services/executor_compressed.py` implements depth‑limited BFS/DFS extraction (configurable via `--depth K`), uses the tokenizer wrapper, and writes `data/processed/compressed_context_logs.json` (mode=`compressed`).  
   - Handles edge cases:  
     * `compression_depth=0` → `context_reduction_pct="[deferred]"`.  
     * single‑node workflow → `context_reduction_pct="[deferred]"`.  
@@ -40,7 +40,7 @@ The tasks are organized into research phases.  Each task follows the required ch
   - Requirements satisfied: FR‑005, FR‑006, SC‑003, SC‑004.  
   - Verification: running `python -m code.services.analyzer` exits 0, both output files exist, JSON validates against its schema, and the CSV contains a column `compression_ratio` ranging from 0‑100 with at least three distinct points. The script also checks that `compression_ratio` equals the numeric `context_reduction_pct` from the source logs.
 
-- [ ] T008 [S] **Multiple‑comparison correction and trend test** – extend `analyzer.py` to compute a Cochran‑Armitage trend test and Bonferroni‑adjusted pairwise p‑values, writing `data/results/multiplicity_tests.json`.  
+- [ ] T008 [S] **Multiple‑comparison correction and trend test** – extend `analyzer.py` to compute a Cochran‑Armitage trend test and Bonferroni‑adjusted pairwise p‑values, writing `data/results/multiplicity_tests.json`.   <!-- FAILED-IN-EXECUTION: code/services/analyzer.py exit=1 -->
   - Requirements satisfied: FR‑005, SC‑003, Constitution III (statistical rigor).  
   - Verification: the JSON file contains keys `trend_statistic`, `trend_p_value`, `bonferroni_corrected` (list of dicts with `depth_pair` and `p_value`), and a boolean `significant_at_0.05`.  
 

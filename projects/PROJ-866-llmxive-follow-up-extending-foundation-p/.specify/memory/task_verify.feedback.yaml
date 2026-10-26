@@ -5,25 +5,16 @@ T002:
 T003:
   task: d75757d13dbd75c04f52e1d170a19f360d3fff76b31c73011d82f76310b6f388
 T004:
-  reason: "Checked `code/services/executor_full.py`, `code/engines/oracle_policy.py`,\
-    \ the generated `data/processed/full_context_logs.json`, and the unit\u2011test\
-    \ log. The executor imports the Oracle incorrectly (`from engines.oracle_policy\
-    \ \u2026` instead of `code.engines\u2026`), the `OraclePolicyEngine` class lacks\
-    \ the required `evaluate` method, and the script falls back to empty violations\
-    \ while logging errors. Consequently the module cannot be imported (unit test\
-    \ error) and does not truly \u201Crun each workflow through the Oracle\u201D as\
-    \ required. Fix the import path and implement an `evaluate` method (or adjust\
-    \ the exe"
+  reason: "Checked `code/services/executor_full.py`, its execution log `data/processed/full_context_logs.json`,\
+    \ and the run log `code/.tasks/T004.code_services_executor_full.py.log`. Although\
+    \ the output file exists, contains 5 entries, and each entry passes schema validation\
+    \ with token counts\u202F>\u202F0, the run log shows that the Oracle evaluation\
+    \ raised an exception for every workflow (\u201C'list' object has no attribute\
+    \ 'items'\u201D), so the engine never successfully processes workflows through\
+    \ the Oracle as required. The implementation must fix the Oracle\u2011engine interaction\
+    \ so that evaluations succeed without error"
   task: 13f563e7f98ae0af82db24d328d76d835ba55e53cbc6c99578d324e72ae7e11b
 T005:
-  reason: "Checked `code/services/executor_compressed.py`, its execution log, and\
-    \ the generated `data/processed/compressed_context_logs.json`. The script runs\
-    \ but the Oracle engine lacks an `evaluate` method (causing errors), and all log\
-    \ entries have `context_reduction_pct` set to `\"[deferred]\"` even though `--depth\
-    \ 2` was used \u2013 there is no evidence that non\u2011edge\u2011case workflows\
-    \ produce a numeric reduction percentage, nor any proof that the output JSON passes\
-    \ the required schema validation. The task therefore lacks required correct reduction\
-    \ values and schema\u2011validation evidence."
   task: 7d9bd8c1f34bf042f025e65eb09e3fb6971b931ef6ba0379481ffc1290b3a7c1
 T006:
   reason: "The provided `code/utils/step_expander.py` correctly reads both log files\
@@ -39,6 +30,8 @@ T007:
     exit=1'
   task: ee156ade4164ae3934e4198b14adc76db6bcf8da35aa66eef788a35ff439da54
 T008:
+  reason: 'Requested task execution failed; rerun successfully: code/services/analyzer.py
+    exit=1'
   task: aba9c571b9e3dbfee96e7043eae1648e335eafaeaaac70432e85db147840cb1f
 T009:
   task: 9857c4e0466a57e87fa468690364676f7f198659cad1ef250ab3a257126d572f
