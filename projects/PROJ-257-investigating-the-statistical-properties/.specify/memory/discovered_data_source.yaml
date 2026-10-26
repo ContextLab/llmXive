@@ -1,10 +1,10 @@
 status: none
-intent: download GWTC-1 GWTC-2 posterior samples Zenodo Python package dataset
+intent: GWTC-1 GWTC-2 posterior samples Zenodo python package dataset
 required_fields:
+- mass_1
+- mass_2
 - mass_ratio
 - effective_spin
-- component_mass_1
-- component_mass_2
-cache_key: 1e526bb1e79986e4269b11602d75afc5b5308442eac4bb4aab5fde9d8a68d6cd
-searched_at: '2026-10-26T15:21:50.828078+00:00'
+cache_key: 75476c5ff1038a61748b3fdeef76a2cd701d6cf835f59758c31d96a873d88915
+searched_at: '2026-10-26T15:46:06.840795+00:00'
 retry_count: 1
