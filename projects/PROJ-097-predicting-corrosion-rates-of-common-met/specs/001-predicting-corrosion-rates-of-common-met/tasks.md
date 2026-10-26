@@ -28,7 +28,7 @@ produce verifiable artefacts that satisfy every functional requirement
   *Outputs*: `data/processed/cleaned_dataset.csv` (conforms to `contracts/cleaned_dataset.schema.yaml`).  
   *Verification*: `pytest src/tests/test_clean.py` passes; the CSV contains **zero nulls** in all required columns, matches the JSON schema, and the provenance metadata file is present.
 
-- [ ] T002_val [US1] **Ingestion‑validation pass‑rate** – Create `src/pipeline/validation.py` that runs the T001 → T002 pipeline three times on a held‑out validation CSV (`data/validation/validation_subset.csv`). Compute the empirical pass‑rate based on (a) zero runtime errors, (b) presence of all required columns, (c) zero nulls in required columns.  
+- [ ] T002_val [US1] **Ingestion‑validation pass‑rate** – Create `src/pipeline/validation.py` that runs the T001 → T002 pipeline three times on a held‑out validation CSV (`data/validation/validation_subset.csv`). Compute the empirical pass‑rate based on (a) zero runtime errors, (b) presence of all required columns, (c) zero nulls in required columns.   <!-- FAILED-IN-EXECUTION: src/pipeline/validation.py exit=1 -->
   *Output*: `data/results/ingestion_validation_metrics.json` (field `pass_rate`).  
   *Verification*: The JSON exists and `pass_rate ≥ 0.95`, satisfying SC‑007.
 

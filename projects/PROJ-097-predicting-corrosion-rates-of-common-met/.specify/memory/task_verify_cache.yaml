@@ -1,60 +1,29 @@
+T000:
+  c: false
+  h: 7b481b43895a1ad5df61d14fcf918bd3ced650dbf15120173d32b906005f35c6
+  r: "Checked `reports/citation_validation.json` (empty `[]`) and the failing test\
+    \ `tests/test_citation_validation.py` which asserts the report is non\u2011empty\
+    \ and contains only `\"status\": \"verified\"` entries. The citation\u2011validation\
+    \ report is empty, so the required JSON with verified entries was not produced."
+  sig: 8351fc1e267d41312357c4d88796708b572ba0b344189057b853add457c5b898
+T001:
+  c: false
+  h: 1c716bb057938ef6cfa2771f99cf12854b77a25cff487887ecca58cbb84bfd2c
+  r: The script writes the raw file to `data/raw/zenodo_corrosion.csv` (and the expected
+    `data/raw/corrosion_dataset.csv` is missing), uses a completely different public
+    dataset (Penguins) instead of the deterministic corrosion dataset URL, and the
+    generated `metadata/dataset.yaml` lacks the required DOI field. Consequently the
+    required outputs and provenance information do not match the task specification.
+  sig: e60437134579e02c5a3ac407ec7781bd4175aba6edf460b93af13582688c0317
 T002:
   c: false
-  h: 4677f1e3af585c80576d6968ee603a34182b67fffd70dbaafb86f758035a2227
-  r: The required implementation file `src/pipeline/clean.py` (or `ingest.py`), the
-    output CSV `data/processed/cleaned_dataset.csv`, and the test suite `src/tests/test_clean.py`
-    are all missing, so the cleaning, validation, and harmonization functionality
-    cannot be verified.
-  sig: d6b170cdb9d32816d5c7fa4be26396b018cae4d0224d6929bbdb1564672d2c08
-T003:
-  c: false
-  h: 670dbfdaed613df89632898af33e9fdc9984e5fc2f528878ffb24b8124ffc1ad
-  r: "The `src/pipeline/vif.py` script is present and appears to implement the VIF\
-    \ computation, but the required output file `data/results/vif_diagnostics.json`\
-    \ is missing, and there is no provided log evidence showing warnings for VIF\u202F\
-    >\u202F5. The task\u2019s verification criteria are therefore not met."
-  sig: 12088f14c899193fdab9678319c698d871417660fc5b9265c93411babd603eeb
-T004:
-  c: false
-  h: 0bdeb027fece5bb0d8177bc4d766297a25174f7d6c8bd7f2fd7e001ef4da565e
-  r: "The `src/pipeline/features.py` script exists, but it never produces the required\
-    \ output files: `data/processed/features.parquet` is missing, and the specification\
-    \ calls for a plain\u2011text `feature_names.txt` (the script writes a JSON file\
-    \ `feature_names.json` instead, which also does not exist). Moreover, the script\
-    \ aborts if `data/processed/cleaned_dataset.csv` is absent, and no such cleaned\
-    \ dataset is present in the evidence, so the feature\u2011engineering entry point\
-    \ cannot succeed and the pytest suite would fail. These missing/incorrect artifacts\
-    \ must be added for the task to be considered compl"
-  sig: 645d651b81fce7b66ad8facb5957ecf298e8a0a58b7a687dd821852b9635ea3b
-T005:
-  c: false
-  h: 600032d3101fd6229c9ea0e4ad54b30819ebda583a346ef3a3b81e8b9890a6aa
-  r: The `src/pipeline/split.py` script is present, but the required output file `data/processed/splits.pkl`
-    is missing, so the split indices are not serialized and the verification conditions
-    cannot be checked. The task therefore remains unfinished.
-  sig: 709387e6decce6c789207a3183fbfb0c7d4c7c4dee7698832d76576b19b567a3
-T006:
-  c: false
-  h: 74fc26528aeb5b9d775aa99b58057affb077bdae473b0a975184a1d548a4c63f
-  r: "The required output files `data/results/best_full_model.joblib`, `data/results/best_null_model.joblib`,\
-    \ and `data/results/model_artifact.yaml` are missing, and there is no evidence\
-    \ that the saved model meets the performance criteria (baseline R\xB2/RMSE improvement)\
-    \ or the RAM/time limits. The training script exists, but without the generated\
-    \ artifacts the task is not fulfilled."
-  sig: 2b2e5e90fb4bb1cf964048b930b1472a1752b1c94ef2b48780f8c3038263a353
-T013:
-  c: false
-  h: 37dc1398475675b834af50ffe8a2943ad33ab471c49bafa1035d72d852f05d44
-  r: "The `src/requirements.txt` uses wildcard version specifiers (e.g., `pandas==2.2.*`)\
-    \ instead of exact pins, and `code/requirements.txt` differs in content and order,\
-    \ so the two files are not byte\u2011identical. The task\u2019s requirement for\
-    \ exact version pins and a mirrored file is therefore not satisfied."
-  sig: fc3a2a99c0725e0e77a19474ee7acb2d5049e1eb748282cde7194c0f4de9c36d
-T015:
-  c: true
-  h: ad1c0de099baee3355e1ba5a45a76440a912369314392a56783bd69a46fb99bb
-  r: "The `quickstart.md` file (specs/001-predicting-corrosion\u2011rates\u2011of\u2011\
-    common\u2011met/quickstart.md) exists, is non\u2011empty, and includes the exact\
-    \ commands `python -m src.pipeline.run_all` and `pytest src/tests/` as required.\
-    \ No other artifacts are needed for this task."
-  sig: b198690561a12bb0dcbc0dd301cb270c7e8fe12535ff57c466e95d25b6c67a4b
+  h: dd1799c749fcc0d539587d757e21b1e18fc7316f4b68ae3140d96de847834077
+  r: "Checked `src/pipeline/clean.py`, `data/processed/cleaned_dataset.csv`, the JSON\
+    \ schema, and the missing `src/tests/test_clean.py`. The cleaning script never\
+    \ converts corrosion\u2011rate units (it only casts to numeric), the output CSV\
+    \ contains extra columns and uses lower\u2011case `ph` instead of the required\
+    \ `pH`, violating the `additionalProperties: false` schema. Moreover, the required\
+    \ pytest file is absent, so the verification step cannot pass. The task\u2019\
+    s unit\u2011conversion, schema conformity, and test\u2011suite requirements are\
+    \ not met."
+  sig: e974b6c9a0bae9ac4b60dfde670a200bfb6d566ad81c706db938ced757f7104a

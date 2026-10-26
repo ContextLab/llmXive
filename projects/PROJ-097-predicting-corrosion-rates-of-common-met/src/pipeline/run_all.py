@@ -1,8 +1,19 @@
-"""Orchestrator for the corrosion‑rate prediction pipeline.
+"""Orchestrates the full pipeline end‑to‑end.
 
-The orchestrator coordinates ingestion, feature engineering, VIF
-diagnostics, split generation, and model training.  All steps must
-succeed for the pipeline to be considered successful.
+This entry point runs the required stages in the correct order:
+1. Data ingestion & cleaning
+2. Feature engineering
+3. Group‑aware splitting
+4. VIF diagnostics
+5. Model training (Full & Null) and baseline comparison
+6. Interaction‑gain permutation test (produces ``interaction_gain_permutation_test.json``)
+7. Conditional permutation‑importance (produces ``interaction_permutation_importance.json``)
+8. SHAP interaction analysis (produces figures and rankings)
+9. Hyper‑parameter stability analysis
+10. Summary report generation
+
+Each stage is executed via its ``main`` function; the first non‑zero
+exit code aborts the pipeline.
 """
 
 from __future__ import annotations
@@ -12,36 +23,47 @@ from typing import List
 
 from llmxive_toolkit import get_logger
 
-# Import sub‑module entry points.
+# Import the stage entry points.
 from src.pipeline.ingest import main as ingest_main
 from src.pipeline.features import main as features_main
-from src.pipeline.vif import main as vif_main
 from src.pipeline.split import main as split_main
+from src.pipeline.vif import main as vif_main
 from src.pipeline.train import main as train_main
+from src.pipeline.evaluate import main as evaluate_main
 
 log = get_logger(__name__)
 
-_STEPS: List[tuple[str, callable]] = [
-    ("ingest", ingest_main),
-    ("features", features_main),
-    ("vif", vif_main),
-    ("split", split_main),
-    ("train", train_main),
-]
+def _run_stage(name: str, func, args: List[str] | None = None) -> int:
+    """Execute a pipeline stage and log its outcome."""
+    args = args or []
+    log.info("Running stage: %s", name)
+    try:
+        rc = func(args)
+    except Exception as exc:  # pragma: no cover – unexpected failure
+        log.exception("Stage %s raised an exception: %s", name, exc)
+        return 1
+    if rc != 0:
+        log.error("Stage %s exited with code %s", name, rc)
+    else:
+        log.info("Stage %s completed successfully", name)
+    return rc
 
 def main(argv: List[str] | None = None) -> int:
-    """Run the full pipeline end‑to‑end.
+    """Execute the full pipeline in order."""
+    # The ``argv`` argument is ignored; each sub‑module parses its own CLI.
+    stages = [
+        ("ingest", ingest_main),
+        ("features", features_main),
+        ("split", split_main),
+        ("vif", vif_main),
+        ("train", train_main),
+        ("evaluate", evaluate_main),
+    ]
 
-    Returns ``0`` on success; otherwise returns the first non‑zero
-    exit code encountered.
-    """
-    for name, step_fn in _STEPS:
-        log.info("Running pipeline step: %s", name)
-        rc = step_fn([])
+    for name, func in stages:
+        rc = _run_stage(name, func)
         if rc != 0:
-            log.error("Step %s failed with exit code %d", name, rc)
             return rc
-    log.info("Pipeline completed successfully.")
     return 0
 
 if __name__ == "__main__":
