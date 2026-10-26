@@ -1,6 +1,5 @@
 # Project dependencies
-# Core scientific libraries are pre-installed in the execution environment.
-# Add any additional packages required for this project below.
-
-datasets>=2.18.0
-# (other non‑standard dependencies can be added here as needed)
+# Existing dependencies (numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil) are provided by the platform.
+# Added dependency for real dataset streaming.
+datasets>=2.18
