@@ -1,17 +1,15 @@
 status: none
-intent: CDAWeb ACE SWICS WIND composition NOAA Dst Kp indices python package dataset
+intent: NOAA OMNI CDAWeb solar wind composition Dst Kp index spacepy python package
+  dataset
 required_fields:
-- timestamp
-- solar_wind_speed
-- proton_density
-- IMF_Bx
-- IMF_By
-- IMF_Bz
-- O_Fe_ratio
-- He_H_ratio
-- C_O_ratio
-- Dst_index
-- Kp_index
-cache_key: a1da8c225465c5543e490a1b15bf8c7b20280e7a7bbfe0b51df3e21962dac98c
-searched_at: '2026-10-26T13:37:04.625671+00:00'
+- O/Fe
+- He/H
+- C/O
+- Dst
+- Kp
+- bulk velocity
+- density
+- IMF
+cache_key: 5db5c88d4e87837d02a81e5b486d160a6f995276434e7e870cc7c67025fc71b6
+searched_at: '2026-10-26T16:38:48.815342+00:00'
 retry_count: 1
