@@ -1,19 +1,19 @@
 status: none
-intent: OpenML surface roughness tribology dataset 42123 NIST Materials Data Repository
-  Materials Project python package dataset
+intent: OpenML Surface Roughness Tribology dataset ID 42123 Materials Project properties
+  python package dataset
 required_fields:
 - sample_id
 - material_id
+- material_formula
 - ra
-- rms
 - rz
 - rt
+- rp
+- rv
 - material_density
-- youngs_modulus
+- elastic_modulus
 - hardness
-- measurement_load
-- measurement_speed
-- imputed_flag
-cache_key: 2c45988bf970fa225744c4c971ec2c26ddfdf4416dc3f6fa493849d95805e707
-searched_at: '2026-10-22T21:25:18.200716+00:00'
+- thermal_conductivity
+cache_key: 21c9f6d20576b540ded2dfc2da874ee8a52cbc19cf421b7ad1868824f8575000
+searched_at: '2026-10-26T03:13:44.091736+00:00'
 retry_count: 1

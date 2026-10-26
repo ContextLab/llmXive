@@ -4,7 +4,7 @@
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | `experiment_id` | string (UUID) | Unique identifier for each tribological test. | ✅ |
-| `pairing_id` | string | Identifier linking the two contacting materials. | ✅ |
+| `material_pair_id` | string | Identifier linking the two contacting materials. | ✅ |
 | `material_1_id` | string | Materials Project or NIST identifier for material 1. | ✅ |
 | `material_2_id` | string | Identifier for material 2. | ✅ |
 | `Sa` | float | Arithmetic mean surface height (µm). | ✅ |
@@ -17,8 +17,8 @@
 | `elastic_modulus_2` | float | Elastic modulus of material 2 (GPa). | ✅ |
 | `hardness_1` | float | Hardness of material 1 (HV). | ✅ |
 | `hardness_2` | float | Hardness of material 2 (HV). | ✅ |
-| `hardness_modulus_ratio_1` | float | Hardness ÷ elastic modulus for material 1. | ✅ |
-| `hardness_modulus_ratio_2` | float | Hardness ÷ elastic modulus for material 2. | ✅ |
+| `hardness_modulus_ratio_1` | float | Hardness divided by elastic modulus for material 1. | ✅ |
+| `hardness_modulus_ratio_2` | float | Hardness divided by elastic modulus for material 2. | ✅ |
 | `coeff_friction` | float | Measured coefficient of friction (dimensionless). | ✅ |
 | `wear_rate` | float | Wear rate (mm³ N⁻¹ m⁻¹). | ✅ |
 
@@ -44,3 +44,4 @@ data/
 ```
 
 ---
+

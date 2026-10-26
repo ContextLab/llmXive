@@ -5,7 +5,7 @@ type: object
 additionalProperties: false
 required:
   - experiment_id
-  - pairing_id
+  - material_pair_id
   - material_1_id
   - material_2_id
   - Sa
@@ -27,7 +27,7 @@ properties:
     type: string
     description: "UUID for the experiment."
     pattern: "^[0-9a-fA-F-]{36}$"
-  pairing_id:
+  material_pair_id:
     type: string
     description: "Identifier linking the two materials."
   material_1_id:
@@ -84,7 +84,6 @@ properties:
   avg_modulus:
     type: number
     description: "Mean elastic modulus of the two materials."
-    # Note: derived fields are optional in the processed dataset but included for completeness.
   hardness_modulus_ratio_avg:
     type: number
     description: "Mean hardness‑to‑modulus ratio across the pair."

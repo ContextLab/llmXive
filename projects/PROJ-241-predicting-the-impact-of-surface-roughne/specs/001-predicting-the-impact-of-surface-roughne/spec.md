@@ -91,7 +91,7 @@ A researcher wants to identify the most important roughness and material descrip
 
 ## Verified Datasets
 
-- OpenML Surface Roughness & Tribology dataset: ID 42123 → https://www.openml.org/d/42123  
+- OpenML Surface Roughness & Tribology dataset (OpenML identifier) → https://www.openml.org/d/  
 - NIST Materials Data Repository () → 
 
 Both URLs have been manually verified to be publicly accessible and to contain the required roughness descriptors and target variables.
