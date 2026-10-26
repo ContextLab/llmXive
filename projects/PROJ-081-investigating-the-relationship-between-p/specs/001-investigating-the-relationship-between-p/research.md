@@ -4,74 +4,73 @@
 **Date**: 2026-10-26  
 
 ## Objective
-Quantify how the four plant secondary‑metabolite classes (alkaloids, terpenes, phenolics, benzoxazinoids) associate with herbivore damage, identify the strongest predictive biomarkers, and assess robustness to analytical choices (standardization, outlier handling, phylogenetic non‑independence). **Because no open, verified paired metabolomics‑herbivory dataset exists, the scientific conclusions will be limited to a methodological proof‑of‑concept; the core research question cannot be answered with real data.**  
+Quantify how the four plant secondary‑metabolite classes (alkaloids, terpenes, phenolics, benzoxazinoids) associate with herbivore damage, rank predictive biomarkers, and evaluate robustness to analytical choices (standardization, outlier handling, phylogenetic non‑independence). **Because no open, verified paired metabolomics‑herbivory dataset exists, the core scientific question cannot be answered with real data; the pipeline will therefore run on a verified placeholder dataset solely to validate the workflow.** All conclusions will be explicitly framed as methodological demonstrations.
 
 ## Decision / Rationale
-- **Method choice**: Classical statistical models (OLS, PGLS, mixed‑effects) and a shallow Random Forest are fully CPU‑tractable; no GPU is required.  
-- **Dataset selection**: **No open, verified paired metabolomics‑herbivory dataset exists** in MetaboLights, PMN, or HPID. Consequently, the pipeline will run on the **verified GHZ placeholder dataset** (`https://huggingface.co/datasets/khaoula-ghz/guanaco-llama2-5k/resolve/main/data/train-00000-of-00001.parquet`). This dataset does **not** contain real plant metabolite or herbivory measurements; it is used **solely to validate the workflow**. The final report will contain a clear disclaimer that results are not biologically meaningful and that FR‑001 could not be satisfied.  
-- **Statistical rigor**: Benjamini‑Hochberg FDR correction applied to all correlation, regression, and permutation‑importance p‑values where appropriate (note: Random Forest importance is reported **without p‑values**). 5‑fold cross‑validation for model performance (R², adjusted R², RMSE) satisfies Constitution Principle VII. A formal power analysis estimates effective sample size after phylogenetic adjustment and flags under‑power.  
-- **Phylogenetic control**: A variance‑covariance matrix derived from the Open Tree of Life will be incorporated via GLS (PGLS) and via a mixed‑effects model with species‑level random intercepts (FR‑008). A likelihood‑ratio test will assess whether phylogenetic adjustment significantly improves fit.  
-- **Construct validity**: Z‑score standardization (Constitution VI) is applied; robustness to raw concentrations is examined in Phase 8. Missing values are **imputed on the raw scale before standardization** (Phase 2). Documented biological absences are captured in a separate `absence_indicator` column to avoid conflating with missing data.  
-- **Feature selection discipline**: Correlation analysis (Phase 3) is **only for exploratory reporting**. All modeling (OLS, PGLS, Random Forest) uses the **full set of metabolites**; no double‑dipping.  
-- **Random Forest importance**: Importance scores are reported **without inferential p‑values**; users should interpret rankings qualitatively.  
-- **Power analysis**: Uses the **Bonferroni‑adjusted α derived from the total number of compound‑level tests** and a **conservative target effect size (r≈0.2)** to provide a realistic power estimate.  
+| Decision | Reasoning |
+|----------|-----------|
+| **Dataset** | MetaboLights, PMN, HPID have **no verified open source** for paired metabolomics‑herbivory data. The pipeline therefore attempts to download them (with retry logic) but **falls back to the GHZ placeholder dataset** (`https://huggingface.co/datasets/khaoula-ghz/guanaco-llama2-5k/resolve/main/data/train-00000-of-00001.parquet`). This placeholder does **not** contain plant metabolite or herbivory measurements; it is used **only to prove that the end‑to‑end pipeline works**. The final report will contain a prominent disclaimer. |
+| **Statistical methods** | Classical OLS, phylogenetic GLS, mixed‑effects, and a shallow Random Forest are fully CPU‑tractable and fit within the 6‑hour runner limit. No GPU is required. |
+| **Multiple‑comparison correction** | Benjamini‑Hochberg FDR applied to all correlation and regression p‑values (FR‑006). |
+| **Power analysis** | Uses Bonferroni‑adjusted per‑test α (α = 0.05 / total_tests) and a conservative effect size (r≈0.2). If effective N < 50, the study is flagged as exploratory (SC‑001, SC‑005). |
+| **Phylogenetic control** | Open Tree of Life provides a species tree; incorporated via PGLS and a mixed‑effects model with species random intercepts (FR‑008). |
+| **Feature‑count limit** | Variance‑based selection ensures ≤ 20 predictors (≤ 5 per class) before modeling (FR‑011). |
+| **External literature validation** | PlantCyc defense‑metabolite list lacks a verified URL; thus FR‑009 cannot be satisfied. The limitation will be noted in the report. |
 
 ## Dataset Strategy
-| Source | Verified URL (provided) | Loader | Notes |
-|--------|------------------------|--------|-------|
-| MetaboLights (primary) | *no verified URL* | REST API | Attempted first; retry logic with 3 attempts + 30 s back‑off. |
+| Source | Verified URL | Loader | Notes |
+|--------|--------------|--------|-------|
+| MetaboLights (primary) | *no verified URL* | REST API (requests) | Attempted first; retry logic with 3 attempts, 30 s back‑off. |
 | Plant Metabolic Network (PMN) (primary) | *no verified URL* | REST API | Attempted second; same retry logic. |
 | Herbivore‑Plant Interaction Database (HPID) (primary) | *no verified URL* | REST API | Attempted third; same retry logic. |
-| GHZ placeholder (fallback) | `https://huggingface.co/datasets/khaoula-ghz/guanaco-llama2-5k/resolve/main/data/train-00000-of-00001.parquet` | `datasets.load_dataset` | **Used ONLY for methodological proof‑of‑concept**. Disclaimer: results are not biologically meaningful. |
+| GHZ placeholder (fallback) | `https://huggingface.co/datasets/khaoula-ghz/guanaco-llama2-5k/resolve/main/data/train-00000-of-00001.parquet` | `datasets.load_dataset(..., streaming=False)` | **Used only for methodological validation**; does not contain real plant data. |
 
-> No fabricated URLs are introduced. The plan explicitly states which required datasets lack a verified source and why the placeholder is required.
+> No fabricated URLs are introduced. Required datasets lacking verified sources are explicitly listed as unavailable.
 
 ## Power Analysis & Sample Size
-1. **Effective N**: After phylogenetic adjustment (λ estimated from OTL tree) the effective sample size is reduced relative to observed N.  
-2. **Multiple‑comparison impact**: Benjamini‑Hochberg lowers the per‑test α; the power analysis now uses an **effective α = 0.05 / total_tests** (Bonferroni‑like) to reflect the large number of compound‑level tests and adopts a **conservative target effect size (r≈0.2)**.  
-3. **Estimated power** (assuming observed N ≥ 50): Effective sample sizes in the order of a few dozen provide moderate statistical power for OLS and somewhat lower power for PGLS.  
-4. **Under‑power flag**: If the final cleaned dataset contains **< 50 species**, the study is flagged as exploratory; results are framed as hypothesis‑generating.
+1. **Effective N**: Adjusted for phylogenetic signal (λ) after PGLS fitting.  
+2. **Multiple‑comparison impact**: Total compound‑level tests from Phase 3 are used to compute an **effective α = 0.05 / total_tests**.  
+3. **Target effect size**: Conservative r ≈ 0.2 (small).  
+4. **Power estimation**: Conducted with `statsmodels.stats.power` for OLS, PGLS, and RF.  
+5. **Under‑power flag**: If effective N < 50, `under_power_flag:true` is set and the study is labelled exploratory.  
 
 ## Statistical Methods
 | Analysis | Method | Software | Multiple‑Comparison | Power / Sample‑Size |
 |----------|--------|----------|----------------------|---------------------|
-| Correlation (class ↔ herbivory) | Pearson r (class‑level) + Pearson r (compound‑level) | `scipy.stats.pearsonr` | Benjamini‑Hochberg (q < 0.05) | Power estimated in Phase 8 |
-| Baseline OLS | OLS + family covariate + any extra covariates if present | `statsmodels.api.OLS` | BH on coefficients | Effective N from Phase 8 |
+| Correlation (class & compound) | Pearson r | `scipy.stats.pearsonr` | BH (q < 0.05) | Power estimated in Phase 11 |
+| Baseline OLS | Ordinary Least Squares | `statsmodels.api.OLS` | BH on coefficients | Effective N from Phase 11 |
 | Phylogenetic GLS | GLS with phylogenetic covariance | `statsmodels.api.GLS` | BH on coefficients; LRT vs OLS | Same N |
-| Mixed‑Effects | `MixedLM` (family fixed, species random) | `statsmodels` | BH on fixed effects | Same N |
-| Random Forest | `RandomForestRegressor(max_depth=5)` + 5‑fold CV | `sklearn` | **No p‑values** for importance; importance scores reported directly | CV‑based R² reported |
-| Sensitivity | Threshold sweep, outlier‑cap variation, raw vs. standardized | Custom loops | BH per sweep | Exploratory |
+| Mixed‑Effects | Random intercept for species | `statsmodels.MixedLM` | BH on fixed effects | Same N |
+| Random Forest | `RandomForestRegressor(max_depth=5, n_estimators=200)` | `sklearn` | **No p‑values**; importance reported | CV‑based R² used for power‑like assessment |
+| Sensitivity | Threshold sweeps, outlier caps, raw vs. standardized | Custom loops | BH per sweep | Exploratory |
 
 ## Expected Outputs
-- `data/processed/clean.parquet` – normalized dataset (no missing values); includes optional `absence_indicator`.  
-- `outputs/heatmap.png` – correlation heatmap with significance annotations.  
-- `outputs/correlation_summary.json` – list of metabolite classes with significant negative correlation (q < 0.05).  
+- `data/processed/clean.parquet` – standardized, no‑missing dataset (includes optional `absence_indicator`).  
+- `outputs/heatmap.png` – correlation heatmap with significance markings.  
+- `outputs/correlation_summary.json` – list of metabolite classes with significant negative q‑values.  
 - `outputs/ols_results.json`, `outputs/pgls_results.json`, `outputs/mixed_effects_results.json` – regression diagnostics and performance metrics.  
-- `outputs/rf_results.json` – permutation importance ranking (no p‑values) + CV / test performance.  
+- `outputs/rf_results.json` – permutation importance rankings + CV / test R², RMSE.  
 - `outputs/sensitivity.json` – robustness checks.  
 - `outputs/power_analysis.json` – effective N, power estimates, under‑power flag.  
-- `outputs/report.md` – human‑readable summary, links to all artifacts, and **disclaimer** when placeholder data were used.  
+- `outputs/report.md` – human‑readable summary, includes disclaimer about placeholder data and unmet FR‑009.  
 - YAML contracts under `contracts/` for the processed dataset and all model outputs.
 
 ## Risks & Mitigations
 | Risk | Impact | Mitigation |
 |------|--------|------------|
 | No open paired metabolomics‑herbivory dataset | Biological conclusions impossible | Use GHZ placeholder for workflow validation; clearly label results as methodological only. |
-| Memory overflow on large CSVs | Job failure | Stream data (`datasets.load_dataset(..., streaming=True)`) and batch‑process. |
-| API rate‑limits or downtime | Incomplete acquisition | 3‑attempt exponential back‑off; graceful degradation to placeholder. |
-| Multicollinearity among metabolites | Inflated variance in OLS | Compute VIF; if any VIF ≥ 5, report and rely on Random Forest for ranking. |
-| Species unmatched to OTL phylogeny | Reduced phylogenetic sample | Fuzzy matching + documentation; exclude unmatched with note. |
-| Under‑power (N < 50) | Weak inference | Formal power analysis; flag as exploratory; frame results accordingly. |
-| Standardization artifacts | Threat to construct validity | Sensitivity analysis comparing raw vs. standardized results (Phase 8). |
-| Missing ecological covariates | Potential bias | Include any available covariates; otherwise acknowledge limitation in report. |
-
+| Memory overflow on large CSVs | Job failure | Stream downloads (`datasets.load_dataset(..., streaming=True)`) and batch‑process ≤ 20 species at a time. |
+| API downtime | Incomplete acquisition | 3‑attempt exponential back‑off; fallback to placeholder. |
+| Multicollinearity | Inflated variance in OLS | Compute VIF; if VIF ≥ 5, flag and rely on Random Forest rankings. |
+| Species missing from phylogeny | Reduced phylogenetic sample | Fuzzy matching; document excluded species; proceed with matched subset. |
+| Under‑power (N < 50) | Weak inference | Formal power analysis; flag as exploratory; no causal claims. |
+| Lack of verified PlantCyc list (FR‑009) | Missing external validation | State explicitly that no verified source exists; omit overlap calculation. |
+| Standardization artifacts | Threat to construct validity | Sensitivity analysis comparing raw vs. standardized results (Phase 10). |
 
 ## Implementation Notes
-- **Feature selection discipline**: Correlation results are **not** used to pre‑select predictors for OLS or Random Forest. All predictors are entered into the models using the training set defined in Phase 4.  
-- **Random Forest importance**: Importance scores are reported **without inferential p‑values**; users should interpret rankings qualitatively.  
-- **Power analysis**: Uses the **Bonferroni‑adjusted α derived from the total number of compound‑level tests** and a **conservative target effect size (r≈0.2)** to provide a realistic power estimate.  
+- **Feature selection discipline**: Correlation results are **only for reporting**; all metabolites (or variance‑selected ≤ 20) are entered into every model (FR‑003 compliance).  
+- **Random Forest importance**: Reported without p‑values; interpreted qualitatively.  
+- **Power analysis**: Uses Bonferroni‑adjusted α and r≈0.2 to provide realistic power estimates.  
+- **Contract validation**: Every output file is validated against its JSON schema; any validation error aborts the run.  
 
-
-
-## Projects/Artifacts Validation
-All output files will be validated against the JSON schemas in `contracts/` using `llmxive_toolkit.validate_contracts`. Any validation error aborts the run, ensuring deterministic, verifiable artifacts.
+---

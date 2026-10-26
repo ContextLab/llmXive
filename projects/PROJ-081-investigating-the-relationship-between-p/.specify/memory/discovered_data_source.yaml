@@ -1,12 +1,12 @@
 status: none
-intent: download MetaboLights plant metabolomics, Plant Metabolic Network, Herbivore
-  Plant Interaction Database python package dataset
+intent: download MetaboLights plant metabolomics Plant Metabolic Network Herbivore-Plant
+  Interaction Database python package dataset
 required_fields:
-- species
+- species_name
 - metabolite_id
 - metabolite_concentration
 - herbivory_score
 - sample_id
-cache_key: ff772c0b9fcdaa0a0eadd640c5055a7bf6f132fb669a114feea438c6d678da99
-searched_at: '2026-10-26T15:50:16.935173+00:00'
+cache_key: 19f58ee061cac17b9a14989ee2759dcb466ad9e960deca0774b1846ee0fa6ced
+searched_at: '2026-10-26T16:21:13.541936+00:00'
 retry_count: 1

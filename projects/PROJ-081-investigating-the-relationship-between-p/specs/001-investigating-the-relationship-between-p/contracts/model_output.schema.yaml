@@ -17,13 +17,13 @@ properties:
       # Correlation‑specific
       class_matrix:
         type: object
-        description: "Pearson correlation matrix (result_type=correlation)."
+        description: "Pearson correlation matrix for metabolite classes (result_type=correlation)."
       compound_matrix:
         type: object
         description: "Pearson correlation matrix for individual compounds (result_type=correlation)."
       p_values:
         type: object
-        description: "Raw p‑values (correlation, regression, RF)."
+        description: "Raw p‑values (correlation, regression, RF where applicable)."
       q_values:
         type: object
         description: "FDR‑corrected p‑values via Benjamini‑Hochberg."
