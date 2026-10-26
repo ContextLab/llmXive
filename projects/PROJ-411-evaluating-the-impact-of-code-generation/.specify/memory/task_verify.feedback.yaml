@@ -1,42 +1,30 @@
 T001:
   reason: 'Requested task execution failed; rerun successfully: code/download_data.py
     exit=1'
-  task: 7d0a737974efedffbbd66f0e19375556d973eba545d49e06743e2ffdc51df67a
+  task: 81814b27994361c39c1d6fb64231bf4fe17cfa8dd7665d72bf6bb859cc8f29ba
 T002:
-  reason: "The pytest run failed (1 of 6 tests: `test_precedence_header_wins` \u2014\
-    \ header-LLM + commit-Human yields \"Mixed\" instead of \"LLM-generated\", violating\
-    \ the FR-002 header-overrides-all precedence the task requires). Additionally,\
-    \ `data/processed/classified_prs.csv` contains only a header row (all 100 PRs\
-    \ were excluded by the FR-010 filter, so no `provenance_label` values exist),\
-    \ and `data/results/group_source_contingency.csv` is MISSING \u2014 the script\
-    \ wrote it to `results/` via `paths.results()` instead of the required `data/results/`\
-    \ path."
-  task: 28056af4a8263867e745fbc24bd40abff713455906fa05cde824b4c7a8d2c5e9
+  task: add4a43608167dc498230dc0b59fd9dbdbba3971f70d2c8ffb6fcd7e918fe84e
 T003:
-  reason: 'Requested task execution failed; rerun successfully: code/compute_metrics.py
-    exit=1'
-  task: af6b5d09e6e4cffb0e56dd3fad4165d6ed74aeabb162b2c49457e80269cc0ab2
+  task: daff39249b3728796d8ff0d7d964f9b4c9894882020704099f640bf958f9d5d9
 T004:
-  task: 680a3a8011d2db519a8ca14472ee5119a09180396891078bbf3bc8e439179359
+  task: a82e655e505f2eaa1c5ecac919769ee1f6507fc0f5333d951c0ad2aaecefc391
 T005:
-  task: 1a5bacb45c6fd289ca88103468ed12df29eb7dc88a3d461283a944c581fa7a25
+  task: 7266c359d5a4007865bd796f370c451260c4a7d53c1ec1baf79ad560f3d08ffd
 T006:
-  task: ed2ca2a304ecd7093c71b3c6a5be7886fa4f37acff86e5d8625631ba25404d29
+  task: 13bdeb853f4c0e4148e7524b2b9eae1f2933eee9346bd49e1d9c4288fec9335e
 T007:
-  task: f1d6dcee40288da684809046435bc227476fc6e2c09a3e8e0df8de7df13eeaa4
+  task: 8af104dc50c44ea9a70203a695ecd55fe9dda4b4a0a741aea214d3316c4822aa
 T008:
-  task: c8e3eb7f6e03c5d8e1b98e8ea25532521fb002b9eace89ff7716302f429464c8
+  task: 7522e81b4b0eebeed499dc199432384f09010095ca96e17619adc4089b8e2f9e
 T009:
-  task: 93b7258ced4621f0c9f63acb9eb766131f3b1177f7cc07badfe1c311d75a2d30
+  task: 6ccd2a288fbb579200a2649d7c51a6529701920969a69abf93ff185a436c6e25
 T010:
-  task: e8080dcb77f06f82589f3f383dbfb9e7616040991596a3eec8384d67ce1208cf
+  task: 04ae927f6e0b126fa56f6fa8004a86a463b538f9629e270befb899300ff269d5
 T011:
-  task: 2a22908a7ac8a12371e976c2711dd972ec7a233c92a668e8ddfa1e0534d4bb38
+  task: 5fe2f01b0ca7c6c8faad08930cafbc92ff3f6ec267debf574d08f21d9b3d2cf3
 T012:
-  task: b576a7095aa8c96dfd40c1b2a74d338efabe3dff90f3734ab575939bdcf57f2a
+  task: e2fcfc85d167f7d1e1980a34ea66c24117c70be36927f1d1c07d33cc9fca8768
 T013:
-  task: c347954dbf34d4051a1fbff7b80fec734897a86deabec12c35b3607778d977e9
+  task: cdb7875938c8769e6c1f1bc4d1dcb187accd3b30d70b842e0f4572a0c0b575c6
 T014:
-  task: ca394e17a4291b6c9dd2615abdf83397c96fc9c96ce368fb3cf13746d89a0970
-T015:
-  task: 823e1cd964b69def97acec55302b26f567d872fb1015d9c591783fe15705a51f
+  task: 4f386d8459d40542f1acc3c93b71f1f7b60ca21a6dcef97a30167ff15d89c43e

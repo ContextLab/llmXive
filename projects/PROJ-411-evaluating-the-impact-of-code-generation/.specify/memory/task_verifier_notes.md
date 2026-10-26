@@ -3,5 +3,3 @@
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
 - **T001** — Requested task execution failed; rerun successfully: code/download_data.py exit=1
-- **T002** — The pytest run failed (1 of 6 tests: `test_precedence_header_wins` — header-LLM + commit-Human yields "Mixed" instead of "LLM-generated", violating the FR-002 header-overrides-all precedence the task requires). Additionally, `data/processed/classified_prs.csv` contains only a header row (all 100 PRs were excluded by the FR-010 filter, so no `provenance_label` values exist), and `data/results/group_source_contingency.csv` is MISSING — the script wrote it to `results/` via `paths.results()` instead of the required `data/results/` path.
-- **T003** — Requested task execution failed; rerun successfully: code/compute_metrics.py exit=1

@@ -1,19 +1,19 @@
 status: none
-intent: GitHub pull request metadata dataset with provenance labels python package
-  dataset
+intent: GHTorrent GitHub pull request dataset with provenance labels for LLM-generated
+  code python package dataset
 required_fields:
-- pr_id
+- pull_request_id
 - repository_full_name
-- pr_number
-- created_at
-- merged_at
-- author_login
-- commit_message
+- pr_creation_timestamp
+- pr_merge_timestamp
+- pr_comment_count
+- lines_added
+- lines_deleted
+- total_lines_changed
+- review_timestamp_list
+- classification_label
+- commit_message_text
 - file_header_attribution
-- diff_added
-- diff_deleted
-- diff_changed_files
-- comment_count
-cache_key: 2b993a2aac494213a092b6279b5b8e6aca2a05f658ffa5b8bdea3e9488233df9
-searched_at: '2026-10-26T09:20:12.200101+00:00'
+cache_key: 6139b8e0e887f1a1182d48a62cb933115b25a196bc302045be7e823b7819944a
+searched_at: '2026-10-26T09:49:12.136845+00:00'
 retry_count: 1

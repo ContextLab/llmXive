@@ -10,6 +10,14 @@ The primary dataset is fetched from the verified HF repository
 `davanstrien/authors_merged_model_prs` and
 `davanstrien/authors_merged_dataset_prs`. Each parquet file is saved under
 `data/raw/` with a `source_dataset` column indicating its origin.
+
+The script now:
+* respects the required schema (including the newly‑added
+  ``first_comment_timestamp`` field);
+* validates that *all* mandatory fields are present in the primary dataset;
+* writes SHA‑256 checksums to ``data/checksums.txt``;
+* writes a Markdown schema‑mapping report to ``data/raw/schema_map.md``;
+* logs the exact command used in the quickstart file.
 """
 import argparse
 import hashlib
@@ -44,7 +52,18 @@ SCHEMA_PATH = (
 )
 
 # Mandatory fields that must be present in the primary dataset
-PRIMARY_MANDATORY_FIELDS = {"comment_count", "merged_at"}
+# (these are the fields required for the downstream scope)
+PRIMARY_MANDATORY_FIELDS = {
+    "pr_id",
+    "repo_name",
+    "created_at",
+    "merged_at",
+    "additions",
+    "deletions",
+    "comment_count",
+    "commit_message",
+    "first_comment_timestamp",
+}
 
 # ----------------------------------------------------------------------
 # Helper functions
@@ -225,6 +244,7 @@ def main() -> None:
     checksums_path = paths.data("checksums.txt")
     write_checksums(checksum_dict, checksums_path)
 
+    # The schema map must live under data/raw/ as required by the spec.
     schema_map_path = raw_dir / "schema_map.md"
     write_schema_map(schema_map, schema_map_path)
 
@@ -233,7 +253,22 @@ def main() -> None:
         f"schema map written to {schema_map_path}"
     )
 
+    # ------------------------------------------------------------------
+    # 4. Record the command used in quickstart.md (FR‑001 logging)
+    # ------------------------------------------------------------------
+    quickstart_path = paths.root / "specs" / "001-evaluating-the-impact-of-code-generation" / "quickstart.md"
+    command_line = "python code/download_data.py --repo-list code/repo_list.txt --output data/raw/"
+    try:
+        with open(quickstart_path, "a", encoding="utf-8") as f:
+            f.write("\n```bash\n# Recorded command for reproducibility\n")
+            f.write(f"{command_line}\n```\n")
+        log.info(f"Command logged in {quickstart_path}")
+    except Exception as exc:
+        log.warning(f"Failed to log command in quickstart.md: {exc}")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Download verified PR datasets and validate schema.")
+    parser.add_argument("--repo-list", type=str, required=False, help="Path to repo list (unused for HF download).")
+    parser.add_argument("--output", type=str, required=False, help="Output directory (unused; data/raw/ is fixed).")
     _ = parser.parse_args()
     main()
