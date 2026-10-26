@@ -10,7 +10,7 @@
 
 ## Phase 1: Setup and first end-to-end analysis
 
-- [ ] T001 [US1] Implement the streaming PG-19 data loader with length filtering, split creation, and central configuration. <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=-1 --> <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=-1 --> <!-- FAILED-IN-EXECUTION: code/src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=-1 --> <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=1 -->
+- [ ] T001 [US1] Implement the streaming PG-19 data loader with length filtering, split creation, and central configuration. <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=-1 --> <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=-1 --> <!-- FAILED-IN-EXECUTION: code/src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=-1 --> <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data_loader.py exit=1 -->
   *Files*: `src/data_loader.py`, `src/config.py`, `src/logging_utils.py`, `contracts/split_definition.schema.yaml`.
   *Requirements*: FR-001 prerequisite; spec Assumptions (dataset variable fit, CPU feasibility).
   - Use the canonical dataset `lmsys/pg-19-test` (as per spec) via `datasets.load_dataset("lmsys/pg-19-test", split="train", streaming=True)`.

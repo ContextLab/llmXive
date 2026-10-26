@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-20T13:11:33Z",
-  "project_id": "PROJ-1018-llmxive-follow-up-extending-hierarchical"
+  "updated_at": "2026-10-26T09:23:43Z",
+  "project_id": "PROJ-1018-llmxive-follow-up-extending-hierarchical",
+  "replan_rounds": 1
 }

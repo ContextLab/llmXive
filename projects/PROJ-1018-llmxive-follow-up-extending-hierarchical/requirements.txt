@@ -1,8 +1,5 @@
-# Core dependencies (already present in the base environment)
-# Adding a compatible version of pyarrow to avoid the NumPy 2.0 requirement
-pyarrow<15.0.0
-datasets==2.20.0
-transformers==4.44.0
-jsonschema
+numpy>=2.0.0
+datasets
+transformers
 pyyaml
-huggingface_hub
+jsonschema

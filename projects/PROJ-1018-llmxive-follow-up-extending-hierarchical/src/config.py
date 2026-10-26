@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Any
+from dataclasses import dataclass
+from typing import Dict, Any
 import os
 import random
 import numpy as np
@@ -58,17 +58,6 @@ class Config:
         ]:
             os.makedirs(dir_path, exist_ok=True)
 
-    # Compatibility aliases used by older scripts
-    @property
-    def data_interim_dir(self) -> str:
-        """Alias for ``interim_dir`` kept for backward compatibility."""
-        return self.interim_dir
-
-    @property
-    def data_processed_dir(self) -> str:
-        """Alias for ``processed_dir`` kept for backward compatibility."""
-        return self.processed_dir
-
     def to_dict(self) -> Dict[str, Any]:
         """Serialize configuration to a plain dictionary."""
         return {
@@ -88,24 +77,3 @@ class Config:
             "skip_short_documents": self.skip_short_documents,
             "PAD_SHORT_DOCS": self.PAD_SHORT_DOCS,
         }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Config":
-        """Instantiate a Config from a dictionary."""
-        return cls(
-            seed=data.get("seed", 42),
-            chunk_size=data.get("chunk_size", 2048),
-            model_path=data.get("model_path", "lmsys/pg-19-test"),
-            k_clusters=data.get("k_clusters", 100),
-            max_context_length=data.get("max_context_length", 32768),
-            min_document_tokens=data.get("min_document_tokens", 32000),
-            output_dir=data.get("output_dir", "data"),
-            interim_dir=data.get("interim_dir", "data/interim"),
-            processed_dir=data.get("processed_dir", "data/processed"),
-            figures_dir=data.get("figures_dir", "figures"),
-            log_level=data.get("log_level", "INFO"),
-            log_format=data.get("log_format", "json"),
-            min_tokens=data.get("min_tokens", 32000),
-            skip_short_documents=data.get("skip_short_documents", True),
-            PAD_SHORT_DOCS=data.get("PAD_SHORT_DOCS", False),
-        )

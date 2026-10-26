@@ -17,7 +17,3 @@ properties:
       type: string
   checksum:
     type: string
-description: |
-  JSON schema for the split definition file produced by the PG‑19
-  streaming loader. It contains deterministic validation and test
-  document ID lists together with a SHA‑256 checksum of all IDs.
