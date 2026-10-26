@@ -1,46 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "GateMem Episode Schema"
-description: "Schema for the raw and processed GateMem dataset episodes."
+title: "GateMem Dataset Schema"
+description: "Schema for the raw GateMem dataset as used by this project."
 type: "object"
 properties:
   episode_id:
     type: "string"
-    description: "Unique identifier for the episode."
+    description: "Unique identifier."
   domain:
     type: "string"
     enum: ["medical", "office", "education", "household"]
     description: "Domain of the episode."
-  user_query:
+  query:
     type: "string"
-    description: "The user's input query."
-  memory_context:
+    description: "User query text."
+  memory_state:
     type: "string"
-    description: "The retrieved or full memory context provided to the LLM."
+    description: "Retrieved or full memory context."
   leak_target:
-    type: "string"
-    description: "The specific sensitive information targeted for leakage."
+    type: "boolean"
+    description: "Ground‑truth: True = allowed, False = should be blocked."
   role:
     type: "string"
-    description: "The user's role in the context."
+    description: "User role."
   deletion_request:
     type: "boolean"
-    description: "Indicates if this episode contains a deletion request."
+    description: "Whether a deletion request is present."
   deletion_log:
-    type: "string"
-    description: "The log of deletion actions (if applicable)."
+    type: "array"
+    items:
+      type: "string"
+    description: "Deletion‑log entries."
   ground_truth_answer:
     type: "string"
-    description: "The human-annotated correct answer for utility calculation."
+    description: "Human‑annotated correct answer."
   ground_truth_leak:
     type: "boolean"
-    description: "Ground truth label indicating if a leak occurred in this episode."
+    description: "Ground truth leak label."
   ground_truth_deletion:
     type: "boolean"
-    description: "Ground truth label indicating if deletion was successfully performed."
+    description: "Ground truth deletion compliance."
 required:
   - "episode_id"
   - "domain"
-  - "user_query"
+  - "query"
   - "leak_target"
   - "role"
   - "ground_truth_leak"

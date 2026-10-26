@@ -1,13 +1,13 @@
 status: none
-intent: GateMem dataset python package download from HuggingFace for access control
-  python package dataset
+intent: GateMem dataset download Python package from HuggingFace Datasets for medical
+  office education household python package dataset
 required_fields:
 - episode_id
 - domain
-- text
+- conversation
 - annotations
-- role_definitions
+- role
 - deletion_request_flag
-cache_key: c4bdf9f83b86f1f466edc3b6a1b92ddde7a15dd02af171a55072efc26ad21d32
-searched_at: '2026-10-22T17:22:38.907466+00:00'
+cache_key: 01377853e34f3f8e26ad9e11143646e0e08d145865868df33141bb645dbb0e68
+searched_at: '2026-10-26T02:14:59.433458+00:00'
 retry_count: 1

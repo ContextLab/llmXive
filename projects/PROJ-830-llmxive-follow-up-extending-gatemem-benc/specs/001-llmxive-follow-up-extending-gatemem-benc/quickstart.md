@@ -10,7 +10,7 @@ A step‑by‑step guide to set up the environment, fetch the real GateMem datas
 ## 1. Environment Setup
 ```bash
 # Clone the repository (assumes you are at the project root)
-git clone https://github.com/your-org/PROJ-830-llmxive-follow-up-extending-gatemem-benc.git
+git clone 
 cd PROJ-830-llmxive-follow-up-extending-gatemem-benc
 
 # Virtual environment (recommended)
@@ -75,11 +75,17 @@ All commands write per‑pipeline results to `data/processed/` and log profiling
 python src/stats/comparison.py --run-full
 ```
 This will:
-- Fit the **Generalized Linear Mixed‑Effects Model** (primary).  
-- Apply Holm‑Bonferroni correction across the six hypothesis tests.  
+- Fit the **Logistic GLMM** (binary outcomes) as the primary analysis.  
+- Apply **Holm‑Bonferroni** correction across the six primary tests **and** any fallback tests.  
 - Produce `data/processed/statistical_results.json` and a human‑readable markdown report at `data/results/final_benchmark_report.md`.
 
-## 5. Verify Outputs
+## 5. Generate Final Evaluation Output
+```bash
+python src/cli/run_evaluation.py --generate-output
+```
+The command writes `data/processed/final_output.json` which conforms to `contracts/output.schema.yaml`.  
+
+## 6. Verify Outputs
 After the run, you should see the following files:
 
 - `data/processed/gatekeeper_results.jsonl`  
@@ -88,6 +94,7 @@ After the run, you should see the following files:
 - `data/processed/unified_metrics.json`  
 - `data/processed/statistical_results.json`  
 - `data/samples/failure_cases.json` (stratified by domain)  
+- `data/processed/final_output.json` (validated against `output.schema.yaml`)  
 
 Run the test suite to ensure contract compliance:
 
@@ -97,14 +104,16 @@ pytest -q
 
 Any failure related to data integrity, checksum mismatches, or schema violations must be addressed before proceeding.
 
-## 6. Common Failure Modes
+## 7. Common Failure Modes
 | Symptom | Likely Cause | Fix |
 |---|---|---|
 | `ConnectionError` in `data_loader.py` | Internet blocked or HF URL changed | Verify connectivity; re‑run the loader. |
 | Checksum mismatch | Corrupted download | Delete `data/raw/*` and `state/artifact_hashes.yaml`, then re‑run the loader. |
 | Out‑of‑memory crash | Accidental non‑streaming load | Ensure `datasets.load_dataset(..., streaming=True)` is used; keep batch size ≤ 200. |
 | Model download fails twice | Cache corruption | Delete `~/.cache/huggingface/transformers/distilbert-base-uncased-finetuned-sst-2-english` and re‑run. The script will retry once automatically. |
+| Intent‑mapping accuracy < 80 % | Poor sentiment‑to‑intent mapping | Review the mapping logic; consider refining the label mapping or collecting more annotated data. |
 
 **License Note**: The GateMem dataset is released under a **CC‑BY‑4.0** license, permitting redistribution and commercial‑free use, satisfying Constitution Principle III.  
 
 ---
+

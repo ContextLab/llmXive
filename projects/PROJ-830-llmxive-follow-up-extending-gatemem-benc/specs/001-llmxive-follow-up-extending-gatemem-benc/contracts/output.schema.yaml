@@ -10,7 +10,7 @@ properties:
         type: "string"
       timestamp:
         type: "string"
-        format: date-time
+        format: "date-time"
       config_hash:
         type: "string"
         description: "Hash of the configuration used for this run."
