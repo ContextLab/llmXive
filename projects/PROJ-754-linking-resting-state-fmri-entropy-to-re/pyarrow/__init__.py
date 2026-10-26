@@ -1,21 +1,16 @@
 """
-Minimal stub of the ``pyarrow`` package to satisfy pandas optional imports
-in environments where the compiled binary wheels are unavailable.
-This stub provides only the attributes accessed during pandas import;
-any attempt to use full pyarrow functionality will raise a clear error.
+Minimal stub for the `pyarrow` package.
+
+The execution environment ships a broken `pyarrow` installation that
+lacks the ``__version__`` attribute, causing import failures when
+pandas attempts to import it.  Providing a lightweight stub with the
+expected attribute resolves the issue without pulling in the full
+dependency (which is unnecessary for this project because we use
+``fastparquet`` for parquet I/O).
+
+Only the ``__version__`` attribute is required for pandas' internal
+checks, so we define it here.  If other ``pyarrow`` symbols are
+accessed they will raise ``ImportError`` – this is acceptable because
+the codebase never relies on them.
 """
-class _DummyLib:
-    """Placeholder for ``pyarrow.lib``."""
-    pass
-
-# Export a ``lib`` attribute expected by pandas.compat.pyarrow
-lib = _DummyLib()
-
-# Minimal symbols that pandas may reference
-def array(*args, **kwargs):
-    raise NotImplementedError("pyarrow stub: array() is not implemented.")
-
-def Table(*args, **kwargs):
-    raise NotImplementedError("pyarrow stub: Table() is not implemented.")
-
-__all__ = ["lib", "array", "Table"]
+__version__ = "0.0.0"

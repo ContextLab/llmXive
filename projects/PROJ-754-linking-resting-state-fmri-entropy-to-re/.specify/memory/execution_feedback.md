@@ -20,22 +20,23 @@ usage: run_pipeline.py [-h] [--subjects SUBJECTS] [--dry-run]
 run_pipeline.py: error: argument --subject-limit: invalid int value: '<maximum_subjects>'
 
 - python -m pytest -v tests/ -> rc=2
-it/test_qc.py ____________________
-tests/unit/test_qc.py:16: in <module>
-    import pandas as pd
-../../.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/lib/python3.11/site-packages/pandas/__init__.py:22: in <module>
-    from pandas.compat import (
-../../.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/lib/python3.11/site-packages/pandas/compat/__init__.py:29: in <module>
-    from pandas.compat.pyarrow import (
-../../.llmxive-venvs/PROJ-754-linking-resting-state-fmri-entropy-to-re/lib/python3.11/site-packages/pandas/compat/pyarrow.py:14: in <module>
-    _palv = Version(Version(pa.__version__).base_version)
-E   AttributeError: module 'pyarrow' has no attribute '__version__'
+4/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/unit/test_entropy.py:21: in <module>
+    from src.analysis.entropy import multiscale_entropy, _row_checksum
+E   ModuleNotFoundError: No module named 'src.analysis.entropy'
+_______________ ERROR collecting tests/unit/test_run_pipeline.py _______________
+import file mismatch:
+imported module 'test_run_pipeline' has this __file__ attribute:
+  /home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/tests/integration/test_run_pipeline.py
+which is not the same as the test file we want to collect:
+  /home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/tests/unit/test_run_pipeline.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
 =========================== short test summary info ============================
-ERROR tests/unit/test_entropy.py - AttributeError: module 'pyarrow' has no at...
-ERROR tests/unit/test_power_pre.py - AttributeError: module 'pyarrow' has no ...
-ERROR tests/unit/test_qc.py - AttributeError: module 'pyarrow' has no attribu...
-!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 3 errors in 0.26s ===============================
+ERROR tests/unit/test_entropy.py
+ERROR tests/unit/test_run_pipeline.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 2 errors in 0.90s ===============================
 
 
 
