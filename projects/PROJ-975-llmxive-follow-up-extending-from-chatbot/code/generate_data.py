@@ -8,39 +8,21 @@ This script creates:
 
 The generated artifacts conform to the contract schemas located in
 `contracts/`. All fields required by the schemas are present and no
-disallowed fields are emitted in the persisted JSON files. Legacy fields
-required by the unit‑test suite are provided by the in‑memory objects
-returned to the helper functions.
-
-The script respects the active overlap level, which can be set via the
-environment variable ``OVERLAP_LEVEL`` (case‑insensitive) or via the
-``--overlap`` CLI flag. Embeddings are 384‑dimensional unit vectors whose
-mean pairwise cosine similarity satisfies the thresholds defined in the
-specification:
-
-  * LOW    – mean < 0.30
-  * MEDIUM – mean > 0.50 and ≥30 % of pairs > 0.50
-  * HIGH   – mean > 0.80 and ≥30 % of pairs > 0.80
+disallowed fields are emitted in the persisted JSON files.
 
 Deterministic seeds are used for reproducibility:
   - SEED_A (skill generation)   – default 42
   - SEED_B (task generation)    – default 123
 
-A memory‑limit guard aborts with a clear ``MemoryError`` if the system does
-not have at least 1 GiB of available RAM before generating large random
-matrices. The original 6 GiB guard proved too strict for the CI
-environment; the lowered threshold preserves the safety intent while
-allowing the script to run on the platform’s limited resources.
-
-The script can be invoked directly (no arguments required) or with the
-optional CLI flags to override defaults.
+The script respects the active overlap level, which can be set via the
+environment variable ``OVERLAP_LEVEL`` (case‑insensitive) or via the
+``--overlap`` CLI flag.
 """
 
 import argparse
 import json
 import os
 import pathlib
-import random
 import hashlib
 import numpy as np
 import psutil
@@ -81,16 +63,15 @@ def generate_random_embeddings(count: int, rng: np.random.Generator) -> np.ndarr
 
 def mean_pairwise_cosine(embeddings: np.ndarray) -> float:
     """Mean cosine similarity over all unique pairs (excluding diagonal)."""
-    # Cosine similarity of unit vectors is dot product
     sim_matrix = embeddings @ embeddings.T
     mask = ~np.eye(sim_matrix.shape[0], dtype=bool)
-    return sim_matrix[mask].mean()
+    return float(sim_matrix[mask].mean())
 
 def proportion_above(embeddings: np.ndarray, threshold: float) -> float:
     """Proportion of unique pairs with cosine similarity > `threshold`."""
     sim_matrix = embeddings @ embeddings.T
     mask = ~np.eye(sim_matrix.shape[0], dtype=bool)
-    return (sim_matrix[mask] > threshold).mean()
+    return float((sim_matrix[mask] > threshold).mean())
 
 # ----------------------------------------------------------------------
 # Validation helper required by the test suite
@@ -104,7 +85,7 @@ def validate_similarity_thresholds(
     they satisfy the thresholds for the requested ``overlap_level``.
     Returns a dictionary with the computed metrics and a boolean ``is_valid``.
     """
-    embeddings = np.array([s["embedding_vector"] for s in skills])
+    embeddings = np.array([s["embedding"] for s in skills])
     mean_sim = mean_pairwise_cosine(embeddings)
     pct_above_05 = proportion_above(embeddings, 0.50)
     pct_above_08 = proportion_above(embeddings, 0.80)
@@ -203,9 +184,6 @@ def ensure_memory_available(min_available_bytes: int = 1 * 1024**3) -> None:
     """
     Abort with a clear error if the system does not have at least
     ``min_available_bytes`` of free RAM.
-
-    The threshold has been lowered to 1 GiB to accommodate the CI
-    environment while still protecting against pathological memory usage.
     """
     available = psutil.virtual_memory().available
     if available < min_available_bytes:
@@ -221,20 +199,8 @@ def generate_skills(seed_a: int, count: int = SKILL_COUNT, overlap_level: str = 
     """
     Public wrapper used by the unit‑test suite.
 
-    Parameters
-    ----------
-    seed_a: int
-        Seed for the random number generator that drives skill creation.
-    count: int
-        Number of skills to generate.
-    overlap_level: str
-        One of ``low``, ``medium`` or ``high`` (case‑insensitive).
-
-    Returns
-    -------
-    list[dict]
-        Each dict contains both the schema‑compliant fields and the
-        legacy fields required by the tests.
+    Returns a list of skill dicts that contain **both** the schema‑required
+    fields and the legacy alias fields expected by older code.
     """
     rng = np.random.default_rng(seed_a)
     core_skills = _generate_skills_core(
@@ -242,13 +208,12 @@ def generate_skills(seed_a: int, count: int = SKILL_COUNT, overlap_level: str = 
         count,
         overlap_level.lower(),
     )
-    # Attach legacy fields and the required ``name`` field for backward compatibility.
+    # Attach legacy aliases for backward compatibility.
     for skill in core_skills:
-        skill["id"] = skill["skill_id"]          # legacy alias
-        skill["code"] = skill["function_code"]   # legacy alias
-        skill["params"] = {"name": skill["skill_id"]}  # simple param dict
-        # The contract schema expects a ``name`` property; keep it for downstream use.
-        skill["name"] = skill["skill_id"]
+        # Legacy aliases
+        skill["id"] = skill["skill_id"]
+        skill["code"] = skill["function_code"]
+        skill["params"] = {"name": skill["skill_id"]}
     return core_skills
 
 def _generate_skills_core(
@@ -267,7 +232,6 @@ def _generate_skills_core(
         attempts += 1
 
         if overlap_level == "high":
-            # Tightly clustered embeddings for high overlap.
             base_vec = rng.normal(size=384)
             base_vec = unit_vector(base_vec)
             noise = rng.normal(scale=0.001, size=(count, 384))
@@ -276,9 +240,6 @@ def _generate_skills_core(
             norms[norms == 0] = 1.0
             embeddings = raw / norms
         elif overlap_level == "medium":
-            # Moderately clustered embeddings for medium overlap.
-            # Use a larger noise scale than 'high' but still small enough
-            # to keep many pairwise similarities above 0.5.
             base_vec = rng.normal(size=384)
             base_vec = unit_vector(base_vec)
             noise = rng.normal(scale=0.05, size=(count, 384))
@@ -315,7 +276,6 @@ def _generate_skills_core(
             raise RuntimeError(
                 f"Failed to generate embeddings satisfying {overlap_level.upper()} overlap after {max_attempts} attempts."
             )
-        # otherwise retry with a fresh RNG state derived from the previous one
         rng = np.random.default_rng(rng.integers(0, 2**32 - 1))
 
     skills = []
@@ -328,8 +288,9 @@ def _generate_skills_core(
         )
         skill = {
             "skill_id": skill_id,
+            "name": skill_id,                     # required by schema
             "function_code": func_code,
-            "embedding_vector": embeddings[i].tolist(),
+            "embedding": embeddings[i].tolist(),  # schema field name
             "usage_count": 0,
         }
         skills.append(skill)
@@ -341,21 +302,6 @@ def _generate_skills_core(
 def generate_tasks(seed_b: int, skills: list, count: int = TASK_COUNT) -> list:
     """
     Public wrapper used by the unit‑test suite.
-
-    Parameters
-    ----------
-    seed_b: int
-        Seed for the random number generator that drives task creation.
-    skills: list[dict]
-        List of skill dictionaries (only ``skill_id`` is required).
-    count: int
-        Number of tasks to generate.
-
-    Returns
-    -------
-    list[dict]
-        Each dict contains both the schema‑compliant fields and the
-        legacy fields required by the tests.
     """
     rng = np.random.default_rng(seed_b)
     skill_ids = [s["skill_id"] for s in skills]
@@ -369,21 +315,19 @@ def generate_tasks(seed_b: int, skills: list, count: int = TASK_COUNT) -> list:
         path_len = int(rng.integers(3, 6))   # 3‑5 inclusive
         gt_path = rng.choice(skill_ids, size=path_len, replace=False).tolist()
 
-        # Generate a random embedding for the task (used by some schemas)
         task_embedding = generate_random_embeddings(1, rng)[0].tolist()
 
         task = {
             "task_id": task_id,
             "description": description,
-            "complexity": complexity,
             "ground_truth_path": gt_path,
-            # Legacy / auxiliary fields (kept for internal use)
-            "ground_truth_skills": gt_path,   # schema‑compliant alias
-            "solution_path": gt_path,         # retained for backward compatibility with existing code
+            "solution_path": gt_path,          # required by schema
+            "ground_truth_skills": gt_path,    # legacy alias
+            "complexity": complexity,
             "embedding_vector": task_embedding,
             "edge_case": False,
         }
-        # Legacy fields expected by the tests
+        # Legacy fields expected by older code/tests
         task["id"] = task_id
         task["num_steps"] = len(gt_path)
         tasks.append(task)
@@ -437,6 +381,8 @@ def main() -> None:
         {
             "task_id": t["task_id"],
             "description": t["description"],
+            "ground_truth_path": t["ground_truth_path"],
+            "solution_path": t["solution_path"],
             "ground_truth_skills": t["ground_truth_skills"],
             "complexity": t["complexity"],
             "embedding_vector": t["embedding_vector"],
@@ -444,13 +390,13 @@ def main() -> None:
         for t in core_tasks_full
     ]
 
-    # Strip to schema‑allowed fields for skills (include the required ``name``)
+    # Strip to schema‑allowed fields for skills
     schema_skills = [
         {
             "skill_id": s["skill_id"],
-            "name": s["name"],                     # required by schema
+            "name": s["name"],
             "function_code": s["function_code"],
-            "embedding_vector": s["embedding_vector"],
+            "embedding": s["embedding"],
             "usage_count": s["usage_count"],
         }
         for s in core_skills

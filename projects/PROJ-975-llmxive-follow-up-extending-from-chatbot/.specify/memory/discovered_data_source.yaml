@@ -1,17 +1,18 @@
 status: none
-intent: download VirtualHome and ALFWorld synthetic task and skill library python
-  package dataset
+intent: ALFRED multi-step task dataset with skill library python package dataset
 required_fields:
 - task_id
 - task_description
-- ground_truth_actions
-- ground_truth_skill_sequence
-- skill_id
-- skill_name
-- skill_embedding
-- skill_description
+- ground_truth_action_sequence
+- ground_truth_solution_path
+- skill_ids_used
+- skill_descriptions
+- skill_embedding_vector
+- semantic_overlap_level
 - semantic_density_score
-- overlap_level
-cache_key: 8fb704a901fd1ab2177935e005c42082c0eedfca1772b2835164689f088675c5
-searched_at: '2026-10-26T00:29:59.799941+00:00'
+- task_difficulty
+- environment_name
+- metadata_timestamp
+cache_key: 7b61c82fef61246307c27d79e3bf32472466d16b2104b866686267002d3673c3
+searched_at: '2026-10-26T02:29:21.851449+00:00'
 retry_count: 1

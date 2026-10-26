@@ -142,7 +142,8 @@ def test_task_skill_reference_integrity():
     skills_data = load_json_data(SKILLS_DATA_PATH)
 
     tasks_list = tasks_data['tasks'] if isinstance(tasks_data, dict) and 'tasks' in tasks_data else tasks_data
-    skills_list = skills_data['skills'] if isinstance(skills_data, dict) and 'skills' in data else skills_data
+    # Fixed bug: reference the correct variable name
+    skills_list = skills_data['skills'] if isinstance(skills_data, dict) and 'skills' in skills_data else skills_data
 
     valid_skill_ids = {s['skill_id'] for s in skills_list}
 

@@ -1,22 +1,11 @@
 T001:
   c: true
-  h: 97a8660269316425a9a392335ec56bfa4e4941c0b90cf8e8214bcb7d3dddde8a
-  r: "Checked `code/copy_contracts.py` (copies files and writes `contract_hashes.json`),\
-    \ the generated `contract_hashes.json` (matching source and destination SHA\u2011\
-    256 hashes for all schema files), and the passing CI test `tests/contract/test_contract_copy.py`.\
-    \ All required artifacts exist and verify verbatim copying."
-  sig: 718eade81cc596d7586745c373f26f572c243d4e2b559ec97b29369bf2b97449
-T002:
-  c: false
-  h: 4bf24a1de641feb482ce3dbf46ea07de57e866e089b9183fea34f697848e8aa6
-  r: "Checked `code/generate_data.py`, `data/raw/tasks.json`, `data/raw/skills.json`,\
-    \ and `data/raw/checksums.json`. The generated `skills.json` does not contain\
-    \ the fields the script writes (it has `code`/`embedding`/`last_used` instead\
-    \ of `function_code`/`embedding_vector`), the required schema files (`task.schema.yaml`,\
-    \ `skill.schema.yaml`) are missing, and the SHA\u2011256 digest for `skills.json`\
-    \ recorded in `checksums.json` does not match the actual file hash. These issues\
-    \ violate the task\u2019s requirements."
-  sig: 578e98d09bdc87f209f5f44eddf1aa1958815aa78499c6767364355809fd4b58
+  h: 6cfba2142b2924ae9b89c8535981aa49ad99c1baaa058c4547cf0bb662b45bf4
+  r: "Checked `contracts/` contains the copied schema files, `code/copy_contracts.py`\
+    \ writes a correct `contract_hashes.json` with matching source/destination SHA\u2011\
+    256 hashes, and `tests/contract/test_contract_copy.py` loads this JSON and asserts\
+    \ the hashes are equal \u2013 all artifacts exist and meet the task specification."
+  sig: 93fc426092c43b77acc8d52c882c8130d4466e70494a891a9f52e8f891174fa4
 T003:
   c: false
   h: 4eeeb8d04f104b105f0ce27f1d7ea2d024f736a07c2655b75aee9431b9f7f5f0

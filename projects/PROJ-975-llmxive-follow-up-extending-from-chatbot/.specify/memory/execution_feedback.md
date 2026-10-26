@@ -18,41 +18,20 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest tests/contract/test_schemas.py -k "task or skill" -> rc=1
-ired property\nTask 498 (ID: task_0498): 'solution_path' is a required property\nTask 499 (ID: task_0499): 'solution_path' is a required property
+dding_vector', 'ground_truth_path' were unexpected)\nTask 493 (ID: task_0493): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 494 (ID: task_0494): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 495 (ID: task_0495): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 496 (ID: task_0496): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 497 (ID: task_0497): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 498 (ID: task_0498): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)\nTask 499 (ID: task_0499): Additional properties are not allowed ('embedding_vector', 'ground_truth_path' were unexpected)
 
 tests/contract/test_schemas.py:60: Failed
-_____________________ test_task_skill_reference_integrity ______________________
-
-    def test_task_skill_reference_integrity():
-        """
-        Confirm that each task's ground_truth_path references existing skill_ids in skills.json.
-        """
-        tasks_data = load_json_data(TASKS_DATA_PATH)
-        skills_data = load_json_data(SKILLS_DATA_PATH)
-    
-        tasks_list = tasks_data['tasks'] if isinstance(tasks_data, dict) and 'tasks' in tasks_data else tasks_data
->       skills_list = skills_data['skills'] if isinstance(skills_data, dict) and 'skills' in data else skills_data
-E       NameError: name 'data' is not defined
-
-tests/contract/test_schemas.py:145: NameError
 =========================== short test summary info ============================
 FAILED tests/contract/test_schemas.py::test_real_tasks_schema_compliance - Fa...
-FAILED tests/contract/test_schemas.py::test_task_skill_reference_integrity - ...
-========================= 2 failed, 3 passed in 4.39s ==========================
+========================= 1 failed, 4 passed in 0.88s ==========================
 
 
 - python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning on off  --seed 42  --randomize-tasks -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/agent.py", line 374, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/agent.py", line 306, in main
-    library = SkillLibrary(sampled_skills)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/agent.py", line 32, in __init__
-    emb = np.array(s.get('embedding_vector', get_embedding(self.model, s['function_code'])))
-                                                                       ~^^^^^^^^^^^^^^^^^
-KeyError: 'function_code'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/agent.py", line 15, in <module>
+    from utils import get_model, get_embedding, cosine_similarity
+ImportError: cannot import name 'get_model' from 'utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-975-llmxive-follow-up-extending-from-chatbot/code/utils.py)
 
 - python code/analysis.py --input data/results/metrics.csv -> rc=1
 
@@ -76,7 +55,7 @@ rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
 collected 5 items / 5 deselected / 0 selected
 
-============================ 5 deselected in 3.63s =============================
+============================ 5 deselected in 0.38s =============================
 
 
 

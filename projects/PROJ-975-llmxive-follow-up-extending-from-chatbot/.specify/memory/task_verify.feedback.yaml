@@ -1,13 +1,12 @@
 T001:
   task: 558a684ab6cfd812e0d6b3f9f7f21befeb2df67af770009870cdfeffb5b574de
 T002:
-  reason: "Checked `code/generate_data.py`, `data/raw/tasks.json`, `data/raw/skills.json`,\
-    \ and `data/raw/checksums.json`. The generated `skills.json` does not contain\
-    \ the fields the script writes (it has `code`/`embedding`/`last_used` instead\
-    \ of `function_code`/`embedding_vector`), the required schema files (`task.schema.yaml`,\
-    \ `skill.schema.yaml`) are missing, and the SHA\u2011256 digest for `skills.json`\
-    \ recorded in `checksums.json` does not match the actual file hash. These issues\
-    \ violate the task\u2019s requirements."
+  reason: "The generated `data/raw/skills.json` does not contain the required `function_code`\
+    \ field (it has a legacy `code` field instead), causing schema validation to fail,\
+    \ and its SHA\u2011256 digest does not match the value recorded in `data/raw/checksums.json`.\
+    \ Additionally, the required `task.schema.yaml` and `skill.schema.yaml` files\
+    \ are missing. These issues mean the synthetic data does not meet the task\u2019\
+    s validation and checksum requirements."
   task: e1434351452dd1cf2ef1c0cd663e38c908eadce156262664ad059cbd6ec22783
 T003:
   reason: The `code/write_checksums.py` script raises a `FileNotFoundError` for `data/raw/tasks.json`
