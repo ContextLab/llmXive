@@ -13,25 +13,25 @@ These commands failed because the external dataset is NOT reachable AS WRITTEN o
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 run-book script(s) missing (plan/impl path mismatch): python src/cli/run.py --mode validation; python src/cli/run.py --mode full; 2 command(s) failed: python src/data/download.py --output-dir data/raw/ (rc=1); python src/data/preprocess.py  --raw-dir data/raw/  --output data/processed/memory_nodes.parquet (rc=1); 11 declared deliverable(s) absent: data/processed/faiss_index_mapping.json; data/processed/memory_nodes.parquet; data/processed/validation_queries.json
+**Summary**: 2 command(s) failed: python src/data/download.py --output-dir data/raw/ (rc=1); python src/data/preprocess.py  --raw-dir data/raw/  --output data/processed/memory_nodes.parquet (rc=1); 11 declared deliverable(s) absent: data/processed/faiss_index_mapping.json; data/processed/memory_nodes.parquet; data/processed/validation_queries.json
 
 ## Failing / missing run-book commands
 
 - python src/data/download.py --output-dir data/raw/ -> rc=1
-/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/lib/python3.11/site-packages/datasets/load.py", line 1134, in dataset_module_factory
-    raise DatasetNotFoundError(f"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.") from e
-datasets.exceptions.DatasetNotFoundError: Dataset 'ego4d/ego4d' doesn't exist on the Hub or cannot be accessed.
+packages/huggingface_hub/utils/_hf_uris.py", line 617, in _parse_repo_body
+    raise HfUriError(uri=raw, msg=f"Repository id must be 'namespace/name', got '{repo_id}'.")
+huggingface_hub.errors.HfUriError: Invalid HF URI 'hf://datasets/ag_news@eb185aade064a813bc0b7f42de02595523103ca4/.huggingface.yaml'. Repository id must be 'namespace/name', got 'ag_news'.
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 155, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 167, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 148, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 160, in main
     download_ego4d(Path(args.output_dir))
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 56, in download_ego4d
-    raise RuntimeError(f"Failed to load Ego4D dataset via `datasets`: {e}") from e
-RuntimeError: Failed to load Ego4D dataset via `datasets`: Dataset 'ego4d/ego4d' doesn't exist on the Hub or cannot be accessed.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 79, in download_ego4d
+    raise RuntimeError(
+RuntimeError: Failed to load fallback dataset via `datasets`: Invalid HF URI 'hf://datasets/ag_news@eb185aade064a813bc0b7f42de02595523103ca4/.huggingface.yaml'. Repository id must be 'namespace/name', got 'ag_news'.
 
 - python src/data/preprocess.py  --raw-dir data/raw/  --output data/processed/memory_nodes.parquet -> rc=1
 data/preprocess.py", line 114, in main
@@ -51,14 +51,6 @@ Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/preprocess.py", line 116, in main
     raise RuntimeError(f"Preprocessing failed: {e}") from e
 RuntimeError: Preprocessing failed: Manifest file not found at data/raw/manifest.jsonl
-
-- python src/cli/run.py --mode validation -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/cli/run.py': [Errno 2] No such file or directory
-
-- python src/cli/run.py --mode full -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/cli/run.py': [Errno 2] No such file or directory
 
 
 ## Declared deliverables still missing
