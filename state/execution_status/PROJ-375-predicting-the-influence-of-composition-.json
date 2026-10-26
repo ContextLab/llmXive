@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-24T22:09:30Z",
+  "updated_at": "2026-10-26T00:24:54Z",
   "project_id": "PROJ-375-predicting-the-influence-of-composition-",
-  "replan_rounds": 1
+  "replan_rounds": 2
 }

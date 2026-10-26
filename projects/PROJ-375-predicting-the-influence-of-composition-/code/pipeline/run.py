@@ -6,7 +6,7 @@ Usage:
 
 The script reads the first N rows of the curated CSV, computes the required
 compositional descriptors, ensures schema compliance for both original and
-quick-start contracts, adds a SHA‑256 checksum per row, writes the
+quick‑start contracts, adds a SHA‑256 checksum per row, writes the
 enriched DataFrame to ``results/sample_output.parquet`` and validates the
 output against the dataset JSON‑Schema contract.
 """
@@ -15,6 +15,7 @@ import argparse
 import json
 import logging
 import sys
+import hashlib
 from pathlib import Path
 
 import pandas as pd
@@ -25,7 +26,6 @@ from llmxive_toolkit import paths, get_logger
 # Project‑specific utilities
 from features.descriptors import extract_descriptors
 from features.dataset_models import validate_dataframe_schema
-from utils.io import compute_sha256, setup_logging
 
 logger = get_logger(__name__)
 
@@ -41,8 +41,7 @@ def _download_curated_csv(dest_path: Path) -> None:
     response = requests.get(CURATED_DATA_URL, timeout=30)
     response.raise_for_status()
     dest_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(dest_path, "wb") as f:
-        f.write(response.content)
+    dest_path.write_bytes(response.content)
     logger.info(f"Saved curated CSV to {dest_path}")
 
 def _load_raw_csv(csv_path: Path) -> pd.DataFrame:
@@ -66,40 +65,46 @@ def _load_raw_csv(csv_path: Path) -> pd.DataFrame:
 def _add_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     """
     Compute the four required descriptors for each ``composition`` entry.
-    Uses the public API from features.descriptors to ensure schema compliance.
+    Uses the public API from ``features.descriptors`` to ensure schema compliance.
     """
     descriptor_rows = []
     for idx, row in df.iterrows():
         comp = row["composition"]
         try:
-            # extract_descriptors returns a dict with keys:
-            # weighted_mean_atomic_radius, electronegativity_variance, vec, atomic_size_coefficient_of_variation
+            # ``extract_descriptors`` returns a dict with keys:
+            # weighted_mean_atomic_radius, electronegativity_variance,
+            # vec, atomic_size_coefficient_of_variation
             desc = extract_descriptors(comp)
             descriptor_rows.append(desc)
         except Exception as exc:
             logger.error(f"Descriptor extraction failed for row {idx} ({comp}): {exc}")
             raise
-
     desc_df = pd.DataFrame(descriptor_rows)
-    # Reset index to ensure concatenation aligns perfectly
+    # Ensure numeric types are float64 for schema validation
+    for col in desc_df.columns:
+        desc_df[col] = pd.to_numeric(desc_df[col], errors="coerce")
+    # Concatenate descriptors with the original data
     df = pd.concat([df.reset_index(drop=True), desc_df], axis=1)
     return df
 
 def _ensure_schema_compliance(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Ensure the DataFrame contains all columns required by validate_dataframe_schema,
-    including both the 'Original' and 'Quick-start' schema sets.
+    Map quick‑start descriptor names to the original schema and add required flags.
     """
-    # Map Quick-start descriptors to Original schema names
+    # Mapping quick‑start names to original schema columns
     df["mean_atomic_radius"] = df["weighted_mean_atomic_radius"]
     df["electronegativity_var"] = df["electronegativity_variance"]
     df["size_mismatch"] = df["atomic_size_coefficient_of_variation"]
-    # 'vec' is already named 'vec' in both schemas.
-    
-    # Add amorphous_flag (default to True for this curated sample of metallic glasses)
+    # ``vec`` already matches the original name.
+
+    # Add amorphous_flag – the curated sample consists only of metallic glasses
     df["amorphous_flag"] = True
-    
+
     return df
+
+def _compute_sha256(data: bytes) -> str:
+    """Return the hex SHA‑256 digest of *data*."""
+    return hashlib.sha256(data).hexdigest()
 
 def _add_checksum(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -108,9 +113,9 @@ def _add_checksum(df: pd.DataFrame) -> pd.DataFrame:
     checksums = []
     for _, row in df.iterrows():
         row_dict = row.to_dict()
-        # sort_keys=True is critical for deterministic hashing
+        # sort_keys=True guarantees deterministic ordering
         json_repr = json.dumps(row_dict, sort_keys=True).encode("utf-8")
-        checksums.append(compute_sha256(json_repr))
+        checksums.append(_compute_sha256(json_repr))
     df["checksum"] = checksums
     return df
 
@@ -126,7 +131,8 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    setup_logging()
+    # Simple console logging configuration (works even if the toolkit logger isn’t set up yet)
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
     # 1️⃣ Load raw data
     raw_csv_path = paths.data("raw", "curated_metallic_glass.csv")

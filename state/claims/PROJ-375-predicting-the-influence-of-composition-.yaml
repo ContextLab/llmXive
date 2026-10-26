@@ -1040,3 +1040,84 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-25T09:10:15Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: produces parquet file with all required columns and passes JSON schema
+    validation
+  claim_id: c_085757af
+  context: "The script will: ... Write the enriched table to `results/sample_output.parquet`.\
+    \ ... Validate the table against the JSON\u2011Schema contract; the script exits\
+    \ with status\u202F0 only if validation succeeds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command produces `results/sample_output.parquet`, which contains\
+    \ all columns required by the `mg_dataset.schema.yaml` contract and passes JSON\u2011\
+    Schema validation."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T00:23:37Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: wall-clock time less than 30 seconds for 100 rows
+  claim_id: c_d0f6fa3f
+  context: Expected runtime & resources
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Wall\u2011clock time: <\u202F30\u202Fseconds (100 rows)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T00:23:37Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: peak RAM usage less than 200 MB
+  claim_id: c_a775d3a7
+  context: Expected runtime & resources
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Peak RAM: <\u202F200\u202FMB."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T00:23:37Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: uses 1 CPU core and does not spawn parallel workers
+  claim_id: c_6003e8fe
+  context: Expected runtime & resources
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'CPU cores: 1 (the script does not spawn parallel workers).'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T00:23:37Z'
+- artifact_path: projects/PROJ-375-predicting-the-influence-of-composition-/docs/quickstart.md
+  attempts: 1
+  canonical: script exits with status 0 only on successful validation
+  claim_id: c_ed9ac28c
+  context: "Validate the table against the JSON\u2011Schema contract; the script exits\
+    \ with status\u202F0 only if validation succeeds."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "the script exits with status\u202F0 only if validation succeeds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T00:23:37Z'
