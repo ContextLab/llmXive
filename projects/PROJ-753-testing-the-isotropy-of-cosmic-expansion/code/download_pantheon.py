@@ -1,18 +1,22 @@
 """Download the Pantheon+ dataset, verify its integrity, and record provenance.
 
 This script fulfills task **T002**:
-  1. Downloads the official Pantheon+ FITS dataset from Zenodo.
-  2. Ensures the data is stored at ``data/raw/pantheon_plus.fits``.
-  3. Renames columns to match the required project schema:
+  1. Downloads the official Pantheon+ release from Zenodo.
+  2. Handles both direct FITS downloads and archive (tar.gz/zip) extraction.
+  3. Ensures the data is stored at ``data/raw/pantheon_plus.fits``.
+  4. Renames columns to match the required project schema:
      ``ID``, ``RA``, ``DEC``, ``ZHD``, ``MU``, ``MUERR``.
-  4. Computes the SHA‑256 checksum of the final FITS file.
-  5. Writes a provenance JSON file (``metadata.json``).
-  6. Updates the project‑specific state YAML with the checksum.
+  5. Computes the SHA‑256 checksum of the final FITS file.
+  6. Writes a provenance JSON file (``metadata.json``).
+  7. Updates the project‑specific state YAML with the checksum.
 """
 import argparse
 import hashlib
 import json
 import sys
+import tarfile
+import zipfile
+import io
 from pathlib import Path
 
 import yaml
@@ -29,7 +33,6 @@ DEFAULT_DATASET_VERSION = "v1.0"
 REQUIRED_COLUMNS = {"ID", "RA", "DEC", "ZHD", "MU", "MUERR"}
 
 # Column mapping from official Pantheon+ names to project names
-# Official names are typically: name, ra, dec, z, mu, mu_err
 COLUMN_MAP = {
     "name": "ID",
     "ra": "RA",
@@ -39,9 +42,11 @@ COLUMN_MAP = {
     "mu_err": "MUERR",
 }
 
-# Verified Zenodo direct download link for the FITS file
-# Record 7968445
-SOURCE_URL = "https://zenodo.org/record/7968445/files/Pantheon+_Data.fits?download=1"
+# Zenodo Record ID for Pantheon+
+RECORD_ID = "7968445"
+# The DOI resolves to https://doi.org/10.5281/zenodo.7968445
+# We use the API to find the actual file names and download URLs.
+API_URL = f"https://zenodo.org/api/records/{RECORD_ID}"
 
 STATE_FILE = (
     paths.root / "state" / "projects" / "PROJ-753-testing-the-isotropy-of-cosmic-expansion.yaml"
@@ -119,53 +124,94 @@ def update_state_yaml(state_path: Path, checksum: str) -> None:
 
 
 def download_and_process_fits(destination: Path) -> None:
-    """Download Pantheon+ from Zenodo, rename columns, and write to FITS."""
-    logger.info("Downloading Pantheon+ dataset from Zenodo: %s", SOURCE_URL)
+    """Download Pantheon+ from Zenodo, extract if archived, rename columns, and write to FITS."""
+    logger.info("Fetching file list from Zenodo API: %s", API_URL)
     
-    response = requests.get(SOURCE_URL, stream=True, timeout=120)
+    resp = requests.get(API_URL, timeout=60)
+    resp.raise_for_status()
+    record_data = resp.json()
+    
+    files = record_data.get("files", [])
+    if not files:
+        raise RuntimeError("No files found in Zenodo record.")
+
+    # Search for the FITS file directly, or a tarball/zip containing it
+    fits_entry = next((f for f in files if f["key"].endswith(".fits")), None)
+    archive_entry = next((f for f in files if f["key"].endswith((".tar.gz", ".tgz", ".zip"))), None)
+    
+    download_url = None
+    is_archive = False
+    
+    if fits_entry:
+        download_url = fits_entry["links"]["self"]
+        # Ensure we use the direct download link format
+        download_url = download_url.replace("/api/records/", "/record/").replace("/files/", "/files/") + "?download=1"
+        # Simplified: Zenodo API 'self' link is often the API endpoint. 
+        # The standard download URL is /record/{id}/files/{key}?download=1
+        download_url = f"https://zenodo.org/record/{RECORD_ID}/files/{fits_entry['key']}?download=1"
+        is_archive = False
+        logger.info("Found direct FITS file: %s", fits_entry["key"])
+    elif archive_entry:
+        download_url = f"https://zenodo.org/record/{RECORD_ID}/files/{archive_entry['key']}?download=1"
+        is_archive = True
+        logger.info("Found archive file: %s", archive_entry["key"])
+    else:
+        raise FileNotFoundError("Could not find Pantheon+ FITS or archive in Zenodo record.")
+
+    logger.info("Downloading from: %s", download_url)
+    response = requests.get(download_url, stream=True, timeout=300)
     response.raise_for_status()
-    
-    # Save temporary raw file
-    temp_raw = destination.with_suffix(".raw.fits")
-    with open(temp_raw, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-    
-    logger.info("Downloaded raw FITS. Processing columns...")
-    
-    # Load with astropy Table to handle column renaming
-    # The official file usually has the data in the first extension
+
+    if is_archive:
+        logger.info("Extracting FITS file from archive...")
+        content = response.content
+        if download_url.endswith(".zip"):
+            with zipfile.ZipFile(io.BytesIO(content)) as z:
+                fits_filename = next((n for n in z.namelist() if n.endswith(".fits")), None)
+                if not fits_filename:
+                    raise FileNotFoundError("No .fits file found in zip archive.")
+                with z.open(fits_filename) as f:
+                    raw_fits_bytes = f.read()
+        else: # tar.gz
+            with tarfile.open(fileobj=io.BytesIO(content), mode="r:gz") as t:
+                fits_member = next((m for m in t.getmembers() if m.name.endswith(".fits")), None)
+                if not fits_member:
+                    raise FileNotFoundError("No .fits file found in tar archive.")
+                raw_fits_bytes = t.extractfile(fits_member).read()
+        
+        temp_raw = destination.with_suffix(".raw.fits")
+        with open(temp_raw, "wb") as f:
+            f.write(raw_fits_bytes)
+    else:
+        temp_raw = destination.with_suffix(".raw.fits")
+        with open(temp_raw, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+    logger.info("Processing columns...")
     t = Table.read(temp_raw)
-    
-    # Create a new table with renamed columns
-    # We look for the official names and map them to project names
     current_cols = t.colnames
     new_data = {}
     
     for official_name, project_name in COLUMN_MAP.items():
+        found_col = None
         if official_name in current_cols:
-            new_data[project_name] = t[official_name]
+            found_col = official_name
         else:
-            # Try case-insensitive search
-            found = False
             for col in current_cols:
                 if col.lower() == official_name.lower():
-                    new_data[project_name] = t[col]
-                    found = True
+                    found_col = col
                     break
-            if not found:
-                raise KeyError(f"Could not find column matching {official_name} in dataset.")
+        
+        if found_col:
+            new_data[project_name] = t[found_col]
+        else:
+            raise KeyError(f"Could not find column matching {official_name} in dataset.")
 
-    # Create final table in the specific order required
-    final_table = Table(columns=[REQUIRED_COLUMNS]) # This is a set, we need a list
-    # To ensure deterministic order:
     ordered_cols = ["ID", "RA", "DEC", "ZHD", "MU", "MUERR"]
     final_table = Table({col: new_data[col] for col in ordered_cols})
-    
-    # Write to the final destination
     final_table.write(destination, overwrite=True, format="fits")
     
-    # Cleanup temp file
     if temp_raw.exists():
         temp_raw.unlink()
         
@@ -202,7 +248,7 @@ def main() -> None:
         write_metadata(
             metadata_path,
             dataset_version=args.version,
-            source_url=SOURCE_URL,
+            source_url=f"https://doi.org/10.5281/zenodo.{RECORD_ID}",
             sha256=checksum,
             citation_verified=False,
         )
@@ -210,25 +256,20 @@ def main() -> None:
         logger.info("Verification-only mode completed successfully.")
         return
 
-    # Normal mode: download, rename columns, and write FITS.
     download_and_process_fits(raw_fits_path)
 
-    # Compute checksum and verify columns.
     checksum = compute_sha256(raw_fits_path)
     verify_fits_columns(raw_fits_path)
 
-    # Write provenance metadata.
     write_metadata(
         metadata_path,
         dataset_version=args.version,
-        source_url=SOURCE_URL,
+        source_url=f"https://doi.org/10.5281/zenodo.{RECORD_ID}",
         sha256=checksum,
         citation_verified=False,
     )
 
-    # Record checksum in project state YAML.
     update_state_yaml(STATE_FILE, checksum)
-
     logger.info("Pantheon+ dataset download and verification completed successfully.")
 
 
