@@ -21,7 +21,7 @@ This project investigates the correlation between topological properties of supe
   - Metrics include shortest path, clustering, betweenness, **spectral gap**, and assortativity.
   - Devices with tunable couplers capture the **multiplex layer** (active vs. inactive edges).
   - Disconnected graphs are handled gracefully.
-- **(See SC-002, SC-007)**
+- **(See SC-002)**
 
 ### US3: Execute Statistical Correlation, Regression, and Robustness Analysis
 - **Goal**: Correlate topology with performance, quantify effect sizes, and assess robustness.
@@ -41,18 +41,20 @@ This project investigates the correlation between topological properties of supe
 Devices with calibration data that exceed the **acceptable freshness interval of 30 days** must be excluded from the primary analysis. *(See US1, SC-001)*
 
 ### FR-002: Metric Extraction
-The system must extract T1, T2, gate errors, readout errors, **entanglement fidelity**, and coupling maps from each backend's calibration payload. *(See US2)*
+The system must extract T1, T2, gate errors, readout errors, **entanglement fidelity**, and coupling maps from each backend's calibration payload.  
+**Justification**: Including gate and readout errors provides a comprehensive view of performance beyond coherence times, aligning with the research goal of assessing overall device quality. *(See US2)*
 
 ### FR-003: Cross‑Sectional Analysis
 The study shall operate as a **cross‑sectional analysis**. Topology and performance metrics are extracted from the *same* calibration snapshot (simultaneous data).  
-**Aggregation rule**: Device‑level performance values are derived by applying a statistically appropriate summary (mean or median) to per‑qubit measurements; the chosen summary (median by default) is justified as robust to outliers (see FR‑016). *(See US3)*
+**Aggregation rule**: Device‑level performance values are derived by applying a statistically appropriate summary (mean or median) to per‑qubit measurements; the chosen summary (median by default) is justified as robust to outliers (see FR‑018). *(See US3)*
 
 ### FR-004: Robustness Checks
 - **LODO**: Leave‑One‑Device‑Out analysis to ensure stability.  
 - **Time Window**: Performance metrics from a **30‑day historical window** shall be compared against the cross‑sectional results to verify correlation stability (satisfying SC‑004). Historical snapshots are obtained via the IBM Quantum archive API (see FR‑012). *(See US3, SC‑004)*
 
 ### FR-005: Cross‑Sectional Guard
-The system must raise an error if topology and performance timestamps differ by more than **1 hour**, ensuring true simultaneity. *(See US3)*
+The system must raise an error if topology and performance timestamps differ by more than **1 hour**, ensuring true simultaneity.  
+**Justification**: Ensuring topology and performance timestamps are within 1 hour guarantees that the metrics reflect the same physical state of the device, avoiding temporal‑mismatch bias. *(See US3)*
 
 ### FR-006: Entanglement Fidelity Extraction
 Extract entanglement fidelity from the calibration data (available in IBM Quantum backend properties). *(See US2)*
@@ -64,10 +66,12 @@ For devices with tunable couplers, record edge status (`active` / `inactive`) as
 Fit a linear regression model for each topology‑performance pair using heteroscedasticity‑robust standard errors; report beta coefficients with 95 % confidence intervals. *(See US3, SC‑006)*
 
 ### FR-009: Visualization Generation
-Produce scatter plots for each topology‑performance pair, a heatmap of the full correlation matrix, and a markdown report bundling all figures and tables. All plots must be saved as PNG files and referenced in the final report. *(See US3, SC‑005)*
+Produce scatter plots for each topology‑performance pair, a heatmap of the full correlation matrix, and a markdown report bundling all figures and tables. All plots must be saved as PNG files and referenced in the final report. *(See US3, SC‑005)*  
+**Justification**: Visualizing all measured performance metrics enables assessment of which aspects of device performance relate to topology. *(See US3)*
 
 ### FR-010: Power Analysis (Revised)
-Perform a priori power analysis targeting **≥ 60 % power** to detect a Spearman ρ of **0.3** (small‑to‑medium effect). Report the minimum detectable effect size (MDES) and achieved power. The relaxed target reflects the limited number of publicly accessible IBM back‑ends (< 30 devices) while still providing useful feasibility information. *(See US3, SC‑007)*
+Perform a priori power analysis targeting **≥ 60 % power** to detect a Spearman ρ of **0.3** (small‑to‑medium effect). Report the minimum detectable effect size (MDES) **for this target** and the achieved power.  
+**Justification**: A power analysis is required to ensure the study is adequately powered to detect a meaningful correlation given the limited number of publicly accessible IBM back‑ends (< 30 devices). *(See US3, SC‑007)*
 
 ### FR-011: Confounder Adjustment
 Control for known confounders (chip generation, qubit count, device age in days, readout architecture, calibration timestamp) using partial correlation or multivariate regression. *(See US3)*
@@ -82,13 +86,17 @@ Compute the spectral gap of the graph Laplacian and include it as a topology des
 For each topology‑performance pair, store the cross‑sectional Spearman ρ, the 30‑day window ρ, and their absolute difference (`window_delta`) in `window_comparison.csv`. This artifact enables verification of SC‑004. *(See SC‑004)*
 
 ### FR-015: Cluster‑Robust Correlation Testing
-When computing Spearman correlations, apply a cluster‑robust variance estimator that accounts for shared hardware generations/families among devices. Report cluster‑adjusted p‑values. *(Supports SC‑003)*
+When computing Spearman correlations, apply a cluster‑robust variance estimator that accounts for shared hardware generations/families among devices. Report cluster‑adjusted p‑values.  
+**Justification**: Devices share hardware generations; accounting for clustering prevents inflated significance estimates. *(Supports SC‑003)*
 
 ### FR-016: Separation of Topology and Performance Data
 Explicitly ensure that topology metrics are derived solely from the coupling‑map graph structure, while performance metrics are aggregated from per‑qubit properties. This separation prevents conflation of predictor and outcome information. *(Supports FR‑003 and scientific soundness)*
 
 ### FR-017: Additional Success Metric (Optional)
 Report the proportion of devices for which the cluster‑robust p‑value ≤ 0.05. *(See SC‑003)*
+
+### FR-018: Aggregation Justification
+Device‑level performance summaries use the **median** of per‑qubit measurements because the median is robust to outliers and represents typical qubit behavior (see Rousseeuw & Croux, 1993). This choice balances resistance to noisy qubits with interpretability. *(See US3)*
 
 ## Data Model
 
@@ -119,7 +127,7 @@ Report the proportion of devices for which the cluster‑robust p‑value ≤ 
 For every device, all listed graph metrics (shortest path, clustering, betweenness, spectral gap, assortativity) are computed and stored; any failure triggers a logged error and exclusion. *(See US2, FR‑013)*
 
 ### SC-003: Correlation Reporting
-Report the strongest observed Spearman ρ for any topology‑performance pair, together with its **cluster‑robust** p‑value (computed per FR‑015). A result is considered noteworthy if the cluster‑adjusted p‑value ≤ 0.05. *(See US3, FR‑011, FR‑015)*
+All topology‑performance Spearman correlations are computed with cluster‑robust variance estimation (FR‑015). P‑values are adjusted using a Bonferroni family‑wise correction (α = 0.05). The strongest correlation **among those that remain significant after correction** is highlighted, and its cluster‑adjusted p‑value must be ≤ 0.05. *(See US3, FR‑011, FR‑015)*
 
 ### SC-004: Robustness Consistency
 - LODO is performed over each device (one fold per device). The analysis is considered valid only when the study includes **≥ 10 devices**; otherwise LODO is omitted and the criterion is waived.  
@@ -133,7 +141,7 @@ Generate ≥ 6 PNG visualizations (scatter plots for each topology‑performan
 For each regression, the 95 % confidence interval of the beta coefficient must **exclude zero** for at least one topology‑performance pair. *(See US3, FR‑008)*
 
 ### SC-007: Power Analysis Reporting
-Power analysis must demonstrate **≥ 60 % power** to detect ρ = 0.3; the MDES must be ≤ 0.3. Results are recorded in `power_analysis.csv`. *(See US3, FR‑010)*
+Power analysis must demonstrate **≥ 60 % power** to detect ρ = 0.3; the MDES must be ≤ 0.3 and reported for this target. Results are recorded in `power_analysis.csv`. *(See US3, FR‑010)*
 
 ## Assumptions
 
