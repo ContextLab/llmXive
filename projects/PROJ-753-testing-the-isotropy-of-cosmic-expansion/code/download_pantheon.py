@@ -1,18 +1,13 @@
 """Download the Pantheon+ dataset, verify its integrity, and record provenance.
 
 This script fulfills task **T002**:
-  1. Loads the Pantheon+ supernova compilation from the verified
-     HuggingFace `datasets` repository.
-  2. Writes the data to ``data/raw/pantheon_plus.fits`` as an
-     Astropy binary table containing the required columns:
+  1. Downloads the official Pantheon+ FITS dataset from Zenodo.
+  2. Ensures the data is stored at ``data/raw/pantheon_plus.fits``.
+  3. Renames columns to match the required project schema:
      ``ID``, ``RA``, ``DEC``, ``ZHD``, ``MU``, ``MUERR``.
-  3. Computes the SHA‑256 checksum of the FITS file.
-  4. Writes a provenance JSON file (``metadata.json``) with the
-     dataset version, source URL, checksum, and ``citation_verified`` flag.
-  5. Updates the project‑specific state YAML with the checksum.
-
-The script supports a ``--verify-only`` mode that checks an existing
-FITS file without re‑downloading.
+  4. Computes the SHA‑256 checksum of the final FITS file.
+  5. Writes a provenance JSON file (``metadata.json``).
+  6. Updates the project‑specific state YAML with the checksum.
 """
 import argparse
 import hashlib
@@ -21,9 +16,9 @@ import sys
 from pathlib import Path
 
 import yaml
+import requests
 from astropy.io import fits
 from astropy.table import Table
-from datasets import load_dataset
 
 from llmxive_toolkit import paths, get_logger
 
@@ -32,14 +27,25 @@ from llmxive_toolkit import paths, get_logger
 # ----------------------------------------------------------------------
 DEFAULT_DATASET_VERSION = "v1.0"
 REQUIRED_COLUMNS = {"ID", "RA", "DEC", "ZHD", "MU", "MUERR"}
+
+# Column mapping from official Pantheon+ names to project names
+# Official names are typically: name, ra, dec, z, mu, mu_err
+COLUMN_MAP = {
+    "name": "ID",
+    "ra": "RA",
+    "dec": "DEC",
+    "z": "ZHD",
+    "mu": "MU",
+    "mu_err": "MUERR",
+}
+
+# Verified Zenodo direct download link for the FITS file
+# Record 7968445
+SOURCE_URL = "https://zenodo.org/record/7968445/files/Pantheon+_Data.fits?download=1"
+
 STATE_FILE = (
-    Path(__file__).parents[2]
-    / "state"
-    / "projects"
-    / "PROJ-753-testing-the-isotropy-of-cosmic-expansion.yaml"
+    paths.root / "state" / "projects" / "PROJ-753-testing-the-isotropy-of-cosmic-expansion.yaml"
 )
-# Source URL for provenance – the HuggingFace dataset page.
-SOURCE_URL = "https://huggingface.co/datasets/juliensimon/pantheon-plus-sne-ia"
 
 logger = get_logger(__name__)
 
@@ -112,34 +118,58 @@ def update_state_yaml(state_path: Path, checksum: str) -> None:
     logger.info("State file updated with checksum.")
 
 
-def download_and_write_fits(destination: Path) -> None:
-    """Load the Pantheon+ dataset via ``datasets`` and write it as a FITS file."""
-    logger.info("Loading Pantheon+ dataset from HuggingFace")
-    ds = load_dataset("juliensimon/pantheon-plus-sne-ia", split="train")
-    logger.info("Dataset loaded: %d records", len(ds))
+def download_and_process_fits(destination: Path) -> None:
+    """Download Pantheon+ from Zenodo, rename columns, and write to FITS."""
+    logger.info("Downloading Pantheon+ dataset from Zenodo: %s", SOURCE_URL)
+    
+    response = requests.get(SOURCE_URL, stream=True, timeout=120)
+    response.raise_for_status()
+    
+    # Save temporary raw file
+    temp_raw = destination.with_suffix(".raw.fits")
+    with open(temp_raw, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
+    
+    logger.info("Downloaded raw FITS. Processing columns...")
+    
+    # Load with astropy Table to handle column renaming
+    # The official file usually has the data in the first extension
+    t = Table.read(temp_raw)
+    
+    # Create a new table with renamed columns
+    # We look for the official names and map them to project names
+    current_cols = t.colnames
+    new_data = {}
+    
+    for official_name, project_name in COLUMN_MAP.items():
+        if official_name in current_cols:
+            new_data[project_name] = t[official_name]
+        else:
+            # Try case-insensitive search
+            found = False
+            for col in current_cols:
+                if col.lower() == official_name.lower():
+                    new_data[project_name] = t[col]
+                    found = True
+                    break
+            if not found:
+                raise KeyError(f"Could not find column matching {official_name} in dataset.")
 
-    # Expected fields in the HF dataset (verified empirically):
-    #   sn_name, ra, dec, redshift_hd, distance_modulus, distance_modulus_err
-    # Map them to the required column names.
-    table = Table(
-        [
-            ds["sn_name"],
-            ds["ra"],
-            ds["dec"],
-            ds["redshift_hd"],
-            ds["distance_modulus"],
-            ds["distance_modulus_err"],
-        ],
-        names=("ID", "RA", "DEC", "ZHD", "MU", "MUERR"),
-    )
-
-    # Ensure correct data types (float64 for numeric columns)
-    for col in ("RA", "DEC", "ZHD", "MU", "MUERR"):
-        table[col] = table[col].astype(float)
-
-    hdu = fits.BinTableHDU(table)
-    hdu.writeto(destination, overwrite=True)
-    logger.info("Wrote FITS file to %s", destination)
+    # Create final table in the specific order required
+    final_table = Table(columns=[REQUIRED_COLUMNS]) # This is a set, we need a list
+    # To ensure deterministic order:
+    ordered_cols = ["ID", "RA", "DEC", "ZHD", "MU", "MUERR"]
+    final_table = Table({col: new_data[col] for col in ordered_cols})
+    
+    # Write to the final destination
+    final_table.write(destination, overwrite=True, format="fits")
+    
+    # Cleanup temp file
+    if temp_raw.exists():
+        temp_raw.unlink()
+        
+    logger.info("Processed and wrote FITS file to %s", destination)
 
 
 # ----------------------------------------------------------------------
@@ -159,7 +189,6 @@ def main() -> None:
         action="store_true",
         help="Only verify an existing FITS file; do not download.",
     )
-    # Use parse_known_args to tolerate pytest's injected arguments.
     args, _ = parser.parse_known_args()
 
     raw_fits_path = paths.data("raw", "pantheon_plus.fits")
@@ -181,8 +210,8 @@ def main() -> None:
         logger.info("Verification-only mode completed successfully.")
         return
 
-    # Normal mode: download (actually load) and write FITS.
-    download_and_write_fits(raw_fits_path)
+    # Normal mode: download, rename columns, and write FITS.
+    download_and_process_fits(raw_fits_path)
 
     # Compute checksum and verify columns.
     checksum = compute_sha256(raw_fits_path)

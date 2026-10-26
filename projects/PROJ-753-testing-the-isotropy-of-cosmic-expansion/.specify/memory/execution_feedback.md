@@ -19,23 +19,18 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_pantheon.py   # writes data/raw/pantheon_plus.dat and records SHA‑256 -> rc=1
-P/1.1 200 OK"
-2026-10-25 22:07:58,114 INFO httpx2: HTTP Request: HEAD https://huggingface.co/datasets/juliensimon/pantheon-plus-sne-ia/resolve/88f73dfe1f38394b32dc581aa31db867354fb7b7/.huggingface.yaml "HTTP/1.1 404 Not Found"
-2026-10-25 22:07:58,221 INFO httpx2: HTTP Request: GET https://datasets-server.huggingface.co/info?dataset=juliensimon/pantheon-plus-sne-ia "HTTP/1.1 200 OK"
-2026-10-25 22:07:58,294 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/juliensimon/pantheon-plus-sne-ia/tree/88f73dfe1f38394b32dc581aa31db867354fb7b7/data?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-25 22:07:58,363 INFO httpx2: HTTP Request: GET https://huggingface.co/api/datasets/juliensimon/pantheon-plus-sne-ia/tree/88f73dfe1f38394b32dc581aa31db867354fb7b7?recursive=false&expand=false "HTTP/1.1 200 OK"
-2026-10-25 22:07:58,450 INFO httpx2: HTTP Request: HEAD https://huggingface.co/datasets/juliensimon/pantheon-plus-sne-ia/resolve/88f73dfe1f38394b32dc581aa31db867354fb7b7/dataset_infos.json "HTTP/1.1 404 Not Found"
-2026-10-25 22:07:58,576 INFO __main__: Dataset loaded: 1701 records
-2026-10-25 22:07:58,578 ERROR __main__: Pantheon+ download failed: Column 'ra' doesn't exist.
+
+2026-10-26 01:27:24,625 INFO __main__: Downloading Pantheon+ dataset from Zenodo: https://zenodo.org/record/7968445/files/Pantheon+_Data.fits?download=1
+2026-10-26 01:27:25,065 ERROR __main__: Pantheon+ download failed: 404 Client Error: NOT FOUND for url: https://zenodo.org/records/7968445/files/Pantheon+_Data.fits
 
 - python code/download_pantheon.py --verify-only -> rc=1
 
-2026-10-25 22:07:59,473 ERROR __main__: Pantheon+ download failed: File not found for verification: /home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/data/raw/pantheon_plus.fits
+2026-10-26 01:27:25,575 ERROR __main__: Pantheon+ download failed: File not found for verification: /home/runner/work/llmXive/llmXive/projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/data/raw/pantheon_plus.fits
 
 - python code/power_analysis.py -> rc=1
 
-2026-10-25 22:08:00,041 INFO __main__: Downloading Pantheon+ dataset from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
-2026-10-25 22:08:00,183 ERROR __main__: Power analysis failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
+2026-10-26 01:27:26,269 INFO __main__: Downloading Pantheon+ dataset from https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
+2026-10-26 01:27:26,345 ERROR __main__: Power analysis failed: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/PantheonPlusSH0ES/DataRelease/main/Pantheon%2B_SH0ES.dat
 
 - python code/analysis.py -> rc=1
 
