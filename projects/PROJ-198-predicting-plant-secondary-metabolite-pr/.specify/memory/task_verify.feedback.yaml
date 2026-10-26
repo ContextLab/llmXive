@@ -1,60 +1,39 @@
 T001:
   task: d83bc269745b8f87625151982a3cd2551c354fbab94e61a02b41f8e330f419c0
 T002:
-  reason: "The repository contains `.ruff.toml`, `pyproject.toml`, and `code/config.py`,\
-    \ and a log shows a check script passed, but the required `.flake8` file and `.env.example`\
-    \ (with non\u2011empty `NCBI_API_KEY` and `PMDB_API_TOKEN` values) are absent,\
-    \ so the linting/formatting and environment\u2011variable verification requirements\
-    \ are not fully satisfied."
-  task: 237f5458bbb5eb6d63cb8ea891bcca1939b1fdbd90bd407c886a80a61f55a735
+  reason: "The evidence includes `.ruff.toml` and `pyproject.toml`, but the required\
+    \ `.flake8` file and `.env.example` (with the placeholder keys) are missing, so\
+    \ the linting/formatting and env\u2011variable template requirements are not fully\
+    \ satisfied."
+  task: a72a9d3083ccff6edfdbfd03c5b613cf08986f0239bbcf940acdfb266f4c6413
 T003:
   task: 70c3a6076013af70ca88953d5eeb0eebfdfb224dc36471144dd9e4a9cca83f32
 T004:
   task: 7366c60ac2e8dccea1eb3ce47cbd663380d5df4b332250e30cc34ccb648af4b7
 T005:
-  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-001-predict-plant-metabolite-pr.yaml`
-    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
-  task: 8a69ba13f84aff487f1b8e83ba5ab322a8f394375ae90fab8ba4494c539be93c
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 738e70b6e41b782f50676c8dab6a851da28c74885cac8b5327233fbe083bc6e1
 T006:
   reason: 'Requested task execution failed; rerun successfully: code/data/download.py
     exit=1'
-  task: 37a16fc246858c657e17ebfb98ea4e5483601f584c7b74e4bad05ce2763bbda7
+  task: d416287bb5fdde07ba2fd48bb8b1bb99a810fb51bb183ebe746d9f201ef1327d
 T007:
-  reason: 'Requested task execution failed; rerun successfully: code/data/antismash.py
-    exit=2'
-  task: 0df487aefcb17e3873109f49985bdb2b4c782f24feaff09e49de2aca6e5d6a18
+  task: 0f0a21f5a86ecb0b58f398df6d0f9bd1ad917849fba919d2d76a473817069280
 T008:
-  reason: "The execution log for `code/data/metabolite_preprocess.py` shows it exited\
-    \ with \"No metabolite TSV files found under .../data/raw\" and \"nothing to process\"\
-    \ \u2014 no `metabolite_harmonized.csv` was ever produced, and no such output\
-    \ artifact appears in the evidence. The task's verification criterion (an output\
-    \ CSV containing only numeric `abundance_log` values \u22480\u201310 with InChIKey\
-    \ identifiers) is therefore unmet; the implementer needs actual raw metabolite\
-    \ TSVs under `data/raw/<species>/metabolites.tsv` (or explicit input paths) and\
-    \ a successful run producing the harmonized CSV."
-  task: 9286cedb83404160a4a7cd5ccfdc0e3a2fe10d6ccb317d761cad8437e4f8d545
+  task: 9c15b7bd566d17fa303434f31ebcc5f1e6305a44b5d67b8ab3149e0cfc3781ab
 T009:
-  reason: "The unit test run for this task failed (exit 1): `test_alignment_success_rate_counts_valid_species`\
-    \ fails because `align_data` computes the success rate only over the inner-joined\
-    \ species (2/2 = 100%) instead of over all input species (2/3 \u2248 0.67), so\
-    \ the alignment statistics are wrong. Additionally, the task's verification criteria\
-    \ are not evidenced: no `aligned_matrix.csv` artifact exists on disk, and missing-modality\
-    \ species are dropped with `logger.info` (\"Dropped species due to missing data\"\
-    ) rather than the required logged warning. The zero-BGC row retention test does\
-    \ pass, but the faili"
-  task: 2e7f1ee39db4834378efab789f255d97ab4c11431d414c63e5395d0342959b2b
+  task: d149bb70aad5fa598ab3beeb0edb78d026f386f5833f30d66ebf5e5caf2bb3b8
 T010:
-  reason: 'Requested task execution failed; rerun successfully: code/modeling/phylo_compute.py
-    exit=1'
-  task: acb5af8c0cac9339298c588632a12fe2f595bba86f8ecb8d7acd271c5d784a70
+  task: 9a963c041f1b931d65fbcfb3544ede1db08908a88db7a0c66044a5a3fef31d30
 T011:
-  task: 2dfca994ef94b84a3795858f276acee4f3c18aa1824ee38251b13d0d529f2451
+  task: 7d160b6ab2e3740ef497ed8d40e246ca5cec7c74cd7697f16a83c395f7a4906f
 T012:
-  task: c929c3493c7f7ca67c35e6ef180bd9378faa764592bf18e14ee6399fedb3bcdf
+  task: 7153f9b92d5323262ca3902962c6a1a2eb7a5642f290c86273a7e4c377ccba4b
 T013:
-  task: 5775092d9482dd72f53b37d56deb3f4c5b07de8ce53ed00f3310ae95e1b8885a
+  task: 7910b5608d58431c2d620406d884773b01bd4c973afaf9e3909163075ed31f41
 T014:
   task: 04bf3b2659835f81725a80a013a19a56b19a894dee7c76a500812ad1ae28eaa7
 T015a:
@@ -66,14 +45,10 @@ T015c:
 T016:
   task: e71ad303cae5d29defb75fa82954b03d9c52fa3f1ae0115f4221f4930c954eb9
 T017:
-  task: a0259e8dcbdd12cb25c879a3e940e9c83fd32c8e333a87168014c9d84a13f314
+  task: 26749d4a83f1dd280e168b4598c51d570406d9c2a839d729000d7ed35c4316c3
 T018:
-  reason: "The `calculate_alignment_success_rate()` function and the \u226580% assertion\
-    \ exist in `code/data/align.py`, but the only execution record (the unit test\
-    \ log) FAILED with `RuntimeError: Configuration not loaded` before `alignment_stats.json`\
-    \ could be written, and no actual `alignment_stats.json` artifact with a reported\
-    \ success rate is present in the evidence. The task's verification criterion \u2014\
-    \ that `alignment_stats.json` reports the retained-species percentage and asserts\
-    \ it is \u226580% \u2014 is therefore not demonstrated; the implementer must fix\
-    \ the config-loading failure (e.g., call `load_config()` in"
-  task: 27863ba102fe1d82f0e1adebb22eb63d1798c85c03168b8ddc13c4fa2653377d
+  task: ba117d51adda3dfcc9ada9fcda21af9954a9bf98f171c7708ab30b34f48d2fbc
+T020:
+  task: ecb6d7917f120e90fa312fac13075d4ae0a1173a4bee67d10da898ff9af9a49a
+T021:
+  task: 7801429e262324e28cc7f166e240e94526bbff4b92b2414382fdd791de216835

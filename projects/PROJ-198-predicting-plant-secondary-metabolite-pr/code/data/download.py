@@ -4,8 +4,9 @@ Implements real data retrieval for genomes (NCBI RefSeq) and metabolite
 abundance tables (MetaboLights). Missing species are logged as warnings.
 """
 
+import hashlib
+import json
 import logging
-import os
 from pathlib import Path
 from typing import List, Dict
 
@@ -13,10 +14,14 @@ import pandas as pd
 import requests
 from Bio import Entrez
 
-from ..config_env import get_env_manager, ensure_directories
-from ..config import get_data_path, get
+# Use the project's logging utility to ensure logs are written to
+# ``logs/download.log``.
+from utils.logging import get_logger
 
-logger = logging.getLogger(__name__)
+from code.config_env import ensure_directories
+from code.config import get_data_path, get
+
+logger = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Helper mappings – real accession numbers / URLs for a small set of
@@ -76,6 +81,42 @@ def _download_file(url: str, dest: Path) -> None:
                 f.write(chunk)
 
 
+def _record_checksum(file_path: Path) -> None:
+    """
+    Compute the SHA‑256 checksum of *file_path* and store it in
+    ``data/metadata/checksums.json``. The JSON structure is
+    ``{ "<relative_path>": "<hex_digest>", ... }``.
+    """
+    # Ensure the metadata directory exists.
+    metadata_dir = get_data_path(Path("metadata"))
+    metadata_dir.mkdir(parents=True, exist_ok=True)
+
+    checksums_path = metadata_dir / "checksums.json"
+
+    # Compute checksum.
+    sha256 = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    digest = sha256.hexdigest()
+
+    # Load existing checksums (if any).
+    if checksums_path.exists():
+        with open(checksums_path, "r", encoding="utf-8") as fp:
+            data = json.load(fp)
+    else:
+        data = {}
+
+    # Store using a path relative to the project root for reproducibility.
+    rel_path = file_path.relative_to(Path.cwd())
+    data[str(rel_path)] = digest
+
+    with open(checksums_path, "w", encoding="utf-8") as fp:
+        json.dump(data, fp, indent=2, sort_keys=True)
+
+    logger.info(f"Recorded SHA‑256 checksum for {rel_path}")
+
+
 # ----------------------------------------------------------------------
 # Public API
 # ----------------------------------------------------------------------
@@ -84,7 +125,8 @@ def download_genomes(species_list: List[Dict], force: bool = False) -> pd.DataFr
     Download genome assemblies for the supplied *species_list*.
 
     For each species we look up a pre‑defined RefSeq/GenBank accession.
-    The assembly is fetched via NCBI Entrez and written to ``data/raw/<species>/genome.fasta``.
+    The assembly is fetched via NCBI Entrez and written to
+    ``data/raw/<species>/genome.fasta``.
 
     Parameters
     ----------
@@ -122,8 +164,8 @@ def download_genomes(species_list: List[Dict], force: bool = False) -> pd.DataFr
             logger.info(f"Genome already present for {species_name} at {genome_path}")
         else:
             try:
-                # We fetch the assembly record in fasta format. 
-                # Note: For some assemblies, efetch may require specific ID formats; 
+                # Fetch the assembly record in FASTA format.
+                # Note: For some assemblies, efetch may require specific ID formats;
                 # this fails loudly if the API call is invalid for the accession.
                 with Entrez.efetch(db="assembly", id=accession, rettype="fasta", retmode="text") as handle:
                     fasta_data = handle.read()
@@ -131,6 +173,7 @@ def download_genomes(species_list: List[Dict], force: bool = False) -> pd.DataFr
                 with open(genome_path, "w", encoding="utf-8") as out_f:
                     out_f.write(fasta_data)
                 logger.info(f"Saved genome for {species_name} to {genome_path}")
+                _record_checksum(genome_path)
             except Exception as e:
                 logger.error(f"Failed to download genome for {species_name} (accession {accession}): {e}")
                 continue
@@ -194,6 +237,7 @@ def download_metabolites(species_list: List[Dict], force: bool = False) -> pd.Da
         else:
             try:
                 _download_file(url, metabolite_path)
+                _record_checksum(metabolite_path)
             except Exception as e:
                 logger.error(f"Failed to download metabolites for {species_name} from {url}: {e}")
                 continue
@@ -219,12 +263,14 @@ def main() -> None:
     CLI entry point. Downloads genomes and metabolite tables for the species
     defined in the configuration and writes an initial aligned matrix artifact.
     """
-    from ..config import load_config, get_species_list
-    from .align import align_data, save_aligned_matrix
+    from code.config import load_config, get_species_list
+    from code.data.align import align_data, save_aligned_matrix
 
     # Initialise configuration and ensure required directories exist
     config = load_config()
-    ensure_directories(config)
+    # ``ensure_directories`` creates the standard project folders; it does not
+    # require a specific attribute on the config object.
+    ensure_directories()
 
     # Resolve the species list from the configuration file
     species = get_species_list()

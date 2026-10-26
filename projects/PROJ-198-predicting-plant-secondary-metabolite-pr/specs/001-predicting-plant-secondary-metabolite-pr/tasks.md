@@ -36,7 +36,7 @@
 
 ## Phase 2 – Data acquisition & preprocessing (User Story 1)
 
-- [ ] **T006** [ ] **Download genomes and metabolite tables; log missing species**  
+- [ ] **T006** [ ] **Download genomes and metabolite tables; log missing species**   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
   *Path:* `code/data/download.py` (`download_genomes()`, `download_metabolites()`)  
   *Verification:*  
   1. Using a test list of 5 species, the script creates files under `data/raw/genomes/` and `data/raw/metabolites/` for all successfully fetched items.  

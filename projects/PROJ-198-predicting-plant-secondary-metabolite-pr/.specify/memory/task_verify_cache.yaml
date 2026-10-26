@@ -5,6 +5,13 @@ T001:
     \ `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) are\
     \ present in the repository as confirmed by the collector\u2019s directory listings."
   sig: 4a2acbab0f648a438d5e3b758a1b92531d4ffdad6d432d8afd5e966011ab7c0f
+T002:
+  c: false
+  h: 10305e05136660497a85762c6420a1002215e78c74fa7636cee67777ebd47d70
+  r: "The evidence includes `.ruff.toml` and `pyproject.toml`, but the required `.flake8`\
+    \ file and `.env.example` (with the placeholder keys) are missing, so the linting/formatting\
+    \ and env\u2011variable template requirements are not fully satisfied."
+  sig: 2466507659b498ac610e94f7fcc81c60083c36fc0186e723f9bbdc02bf0e4f27
 T003:
   c: true
   h: 936c3795ceb91afdd591d33e7637cb3cce12007e19f46e4ff766c501eada730c
@@ -22,39 +29,3 @@ T004:
     \ (evidenced by the logged \u201CConfiguration loaded\u201D lines and the script\u2019\
     s \u201CLogging output verified\u201D message)."
   sig: 88350ad818013739fccdd40dd02b309c85c9b4d8c95525d80d809c154aef4c35
-T008:
-  c: false
-  h: f9994b7d069385496990a5775abfb2994c01a4171b29c823b976bb87cdd3ab29
-  r: "The execution log for `code/data/metabolite_preprocess.py` shows it exited with\
-    \ \"No metabolite TSV files found under .../data/raw\" and \"nothing to process\"\
-    \ \u2014 no `metabolite_harmonized.csv` was ever produced, and no such output\
-    \ artifact appears in the evidence. The task's verification criterion (an output\
-    \ CSV containing only numeric `abundance_log` values \u22480\u201310 with InChIKey\
-    \ identifiers) is therefore unmet; the implementer needs actual raw metabolite\
-    \ TSVs under `data/raw/<species>/metabolites.tsv` (or explicit input paths) and\
-    \ a successful run producing the harmonized CSV."
-  sig: e046ae60ea1ac4fd346ae3baed148bd095efd1d5abba787f91a6699f9b71cda1
-T009:
-  c: false
-  h: d180fce00a6dc2fdc8fc85f30ce86d2f7b63175b1ccc6c105d6ddc3fe408e580
-  r: "The unit test run for this task failed (exit 1): `test_alignment_success_rate_counts_valid_species`\
-    \ fails because `align_data` computes the success rate only over the inner-joined\
-    \ species (2/2 = 100%) instead of over all input species (2/3 \u2248 0.67), so\
-    \ the alignment statistics are wrong. Additionally, the task's verification criteria\
-    \ are not evidenced: no `aligned_matrix.csv` artifact exists on disk, and missing-modality\
-    \ species are dropped with `logger.info` (\"Dropped species due to missing data\"\
-    ) rather than the required logged warning. The zero-BGC row retention test does\
-    \ pass, but the faili"
-  sig: d6e91aefece8bc9e0ad3ff62adbd23f78fc4b9612e72b0351286499c7277147a
-T018:
-  c: false
-  h: 9637918d136549eafd270c55e566058b4052227b47362d51009ed9cac6e516c9
-  r: "The `calculate_alignment_success_rate()` function and the \u226580% assertion\
-    \ exist in `code/data/align.py`, but the only execution record (the unit test\
-    \ log) FAILED with `RuntimeError: Configuration not loaded` before `alignment_stats.json`\
-    \ could be written, and no actual `alignment_stats.json` artifact with a reported\
-    \ success rate is present in the evidence. The task's verification criterion \u2014\
-    \ that `alignment_stats.json` reports the retained-species percentage and asserts\
-    \ it is \u226580% \u2014 is therefore not demonstrated; the implementer must fix\
-    \ the config-loading failure (e.g., call `load_config()` in"
-  sig: af239792ac82a39c4697c4e65dd5b908e6062fe009b32d5227ab34b4dad12532
