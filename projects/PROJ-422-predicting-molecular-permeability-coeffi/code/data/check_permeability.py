@@ -85,12 +85,15 @@ def _load_dataset_from_spec(spec: Dict[str, Any]) -> Dataset:
         return load_dataset(hf_path, split=split, streaming=False)
 
     if "local_path" in spec:
-        local_path = _project_root() / spec["local_path"]
-        if not local_path.is_file():
-            raise FileNotFoundError(f"Local dataset file not found: {local_path}")
-        logging.info(f"Attempting to load local CSV dataset from '{local_path}' (split='{split}')")
+        # ``local_path`` may be absolute (as used in unit tests) or relative
+        raw_path = Path(spec["local_path"])
+        if not raw_path.is_absolute():
+            raw_path = _project_root() / raw_path
+        if not raw_path.is_file():
+            raise FileNotFoundError(f"Local dataset file not found: {raw_path}")
+        logging.info(f"Attempting to load local CSV dataset from '{raw_path}' (split='{split}')")
         # ``load_dataset`` can read a CSV via the ``csv`` loader.
-        return load_dataset("csv", data_files=str(local_path), split=split, streaming=False)
+        return load_dataset("csv", data_files=str(raw_path), split=split, streaming=False)
 
     raise ValueError("Dataset spec must contain either 'hf_path' or 'local_path'")
 

@@ -1,19 +1,17 @@
 status: none
-intent: Polymer membrane permeability coefficients dataset NIST SRD 23 Materials Project
-  python package dataset
+intent: Polymer Membrane Permeability Database experimental gas permeability Robeson
+  upper bound python package dataset
 required_fields:
 - polymer_name
-- membrane_type
-- gas_species
-- permeability_coefficient
-- permeability_units
+- polymer_smiles
+- polymer_molecular_weight
+- gas_name
 - temperature_K
 - pressure_atm
+- permeability_Barrer
+- selectivity
 - measurement_method
-- experimental_or_simulation
-- simulation_method
-- uncertainty
 - reference_doi
-cache_key: a424166c6f30baad8140f68caf2f4dc6521685fac075f28f546db0a893e73e3c
-searched_at: '2026-10-24T21:34:40.029500+00:00'
+cache_key: 05c57e167d128cd9694faab4f2e430383635ff677761b1e04caeb09e138b093f
+searched_at: '2026-10-26T07:48:49.088417+00:00'
 retry_count: 1

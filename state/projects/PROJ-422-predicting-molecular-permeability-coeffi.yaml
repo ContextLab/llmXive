@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T01:01:46.479500Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-422-predicting-molecular-permeability-coeffi
-last_run_id: 3dd57995-9cf3-4a47-96a2-48e1c643260e
+last_run_id: e96da55c-3ecc-49fb-87a9-bada24792572
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-422-predicting-molecular-permeability-coeffi/specs/001-predicting-molecular-permeability-coeffi
 title: Predicting Molecular Permeability Coefficients Using Graph Neural Networks
   and Publicly Available Datasets
-updated_at: '2026-10-26T07:44:29.521842Z'
+updated_at: '2026-10-26T07:49:04.546568Z'

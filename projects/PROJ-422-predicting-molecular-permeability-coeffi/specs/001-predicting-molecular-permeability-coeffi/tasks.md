@@ -8,7 +8,7 @@ All scripts write their outputs under the project‑owned directories `data/`, `
 
 ## Phase 0 – Conditional dataset validation  
 
-- [ ] T000 [Phase 0] Implement `code/data/check_permeability.py` – scans candidate verified datasets (listed in `config/verified_datasets.yaml`) for the presence of a `permeability` column.  
+- [X] T000 [Phase 0] Implement `code/data/check_permeability.py` – scans candidate verified datasets (listed in `config/verified_datasets.yaml`) for the presence of a `permeability` column.  
   - Writes the selected dataset identifier to `config/selected_dataset.yaml` and exits 0 if found; otherwise logs an error and exits non‑zero, halting the pipeline.  
   - **Verification**: `tests/unit/test_check_permeability.py` asserts exit 0 only when the column exists and that the config file is created.
 
@@ -29,7 +29,7 @@ All scripts write their outputs under the project‑owned directories `data/`, `
   6. Drops rows with missing `target` (permeability) from the output.  
   - **Verification**: `tests/unit/test_preprocess.py` checks that both output files exist, that `mol_valid` is boolean, and that the retention guard triggers only when the valid‑molecule rate falls below 95 %.
 
-- [ ] T003 [US‑1] Implement `code/data/split.py` – reads `data/processed/processed_data.parquet`, filters to rows where `target` is non‑null, then:  
+- [ ] T003 [US‑1] Implement `code/data/split.py` – reads `data/processed/processed_data.parquet`, filters to rows where `target` is non‑null, then:   <!-- FAILED-IN-EXECUTION: code/data/split.py exit=1 -->
   1. If a `polymer_type` column exists, performs an **80 %/20 % stratified split** preserving an absolute ≤ 5 percentage‑point difference per polymer class (FR‑004).  
   2. If `polymer_type` is absent, performs a **stratified split based on target‑value quantile bins** (e.g., 5‑fold quantiles) to maintain distribution balance, logging the chosen strategy.  
   3. Guarantees that **both** training and test sets contain at least one record; for datasets with ≤ 5 rows it creates a **leave‑one‑out** split (the single left‑out row becomes the test set).  
