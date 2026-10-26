@@ -25,8 +25,8 @@ from llmxive_toolkit import paths, get_logger
 URLS_TO_VALIDATE = [
     # Public Hugging Face page for the ASSISTments dataset (CSV download URL)
     "https://huggingface.co/datasets/OloriBern/assistments-dataset",
-    # Khan Academy homepage – title contains “Khan Academy” which matches the URL tokens
-    "https://www.khanacademy.org",
+    # Khan Academy “about” page – title contains “Khan Academy” which matches the URL tokens
+    "https://www.khanacademy.org/about",
     # Public GitHub repository for the BKT implementation
     "https://github.com/psouris/BKT",
 ]
