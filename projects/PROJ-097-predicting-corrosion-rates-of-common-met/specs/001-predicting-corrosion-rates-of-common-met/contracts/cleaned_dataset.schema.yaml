@@ -36,3 +36,4 @@ properties:
     type: string
     description: "Identifier of the experimental batch or study."
 additionalProperties: false
+

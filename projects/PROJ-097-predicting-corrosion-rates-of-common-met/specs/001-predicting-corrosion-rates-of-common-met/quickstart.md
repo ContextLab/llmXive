@@ -32,12 +32,14 @@ python -m src.run_all
 1. **Ingestion** – validates columns, harmonizes units, imputes, one‑hot encodes, standardizes, writes `cleaned_dataset.csv`, `metadata/dataset.yaml`, and `vif_diagnostics.json`.  
 2. **Feature Engineering** – creates interaction and polynomial features, writes `features.parquet` and `feature_names.txt`.  
 3. **Splitting** – builds stratified GroupKFold splits, saves `splits.pkl`.  
-4. **Training** – fits Full and Null Random Forest / Gradient Boosting models, persists the best models and `model_artifact.yaml`.  
-5. **Evaluation** – runs the paired sign‑flip permutation test for interaction gain, permutation‑importance per interaction column with BH correction, stores results in `interaction_gain_test.json` and `interaction_permutation_importance.json`.  
-6. **Interpretation** – computes SHAP interaction values for the top interactions, generates PNG figures under `outputs/figures/`.  
-7. **Sensitivity** – sweeps `max_depth`, computes Jaccard similarity of top‑5 feature sets, writes `sensitivity.json`.  
-8. **Reporting** – assembles `report.md` with all metrics, visualisations, and the required associational disclaimer.  
-9. **Verification** – runs `pytest src/tests/` to ensure contract compliance; any failure aborts the CI run.
+4. **Training** – fits Full and Null Random Forest (and optionally Gradient Boosting) models within `max_depth ≤ 5`, `n_estimators ≤ 200`, persists the best models and `model_artifact.yaml`.  
+5. **Baseline** – trains a mean‑only predictor, records its R² and RMSE, and compares it to the Full model to satisfy SC‑001.  
+6. **Evaluation – Interaction‑Gain** – runs the **target‑permutation test** (shuffle the response variable *y* 1 000 times) to assess whether interaction features add predictive value (Phase 6 in the plan).  
+7. **Evaluation – Conditional Permutation‑Importance** – for each interaction column orthogonalizes it against its base features, shuffles the residuals **1 000 times**, computes ΔRMSE, derives upper‑tail empirical p‑values, and applies Benjamini‑Hochberg correction.  
+8. **Interpretation** – computes SHAP interaction values for the top‑5 interactions, generates PNG figures under `outputs/figures/`.  
+9. **Sensitivity** – sweeps `max_depth` ∈ {3,4,5}, records top‑5 feature lists, computes Jaccard similarity (≥ 0.8 required), and optionally runs an exploratory sweep with relaxed limits (`max_depth ≤ 6`, `n_estimators ≤ 250`) for power diagnostics (not used for final claims).  
+10. **Reporting** – assembles `report.md` with baseline vs. Full performance, permutation‑test outcome, BH‑adjusted interaction importance, SHAP visualisations, hyper‑parameter stability, and an explicit associational disclaimer.  
+11. **Verification** – runs `pytest src/tests/` to ensure contract compliance; any failure aborts the CI run.
 
 ## Test Suite
 ```bash
@@ -61,10 +63,11 @@ All tests must pass for the CI job to be considered successful.
 | `data/results/best_full_model.joblib` | Serialized Full model. |
 | `data/results/best_null_model.joblib` | Serialized Null model. |
 | `data/results/model_artifact.yaml` | Model metadata (conforms to schema). |
+| `data/results/baseline_performance.json` | Baseline mean‑only model metrics (R², RMSE). |
 | `data/results/vif_diagnostics.json` | VIF values for base predictors. |
-| `data/results/interaction_gain_test.json` | Paired sign‑flip test result (ΔRMSE, p‑value). |
+| `data/results/interaction_gain_test.json` | Target‑permutation test result (ΔRMSE, p‑value). |
 | `data/results/interaction_permutation_importance.json` | Raw and BH‑adjusted p‑values for each interaction. |
-| `data/results/sensitivity.json` | Hyper‑parameter stability diagnostics. |
+| `data/results/sensitivity.json` | Hyper‑parameter stability diagnostics (Jaccard scores, VIF with interactions, optional exploratory results). |
 | `outputs/figures/*.png` | SHAP summary, interaction dependence, and PDP plots. |
 | `report.md` | Full narrative with metrics, statistical tests, and disclaimer. |
 | `metadata/dataset.yaml` | Provenance (DOI/URL, SHA‑256, column list). |
@@ -76,6 +79,10 @@ All tests must pass for the CI job to be considered successful.
 ## Important Notes
 - All findings are **associational**, not causal (SC‑006).  
 - If a required column is missing from the supplied CSV, the pipeline aborts with `Error: MISSING_VARIABLE [column_name] in [dataset_source]` (FR‑001).  
-- The permutation test implemented is a **paired sign‑flip test**, satisfying the reviewer’s methodological comment.  
+- The permutation test implemented is a **target‑permutation test** (shuffling the response) to assess interaction gain, satisfying FR‑002.  
+- Conditional permutation importance uses orthogonalization and an **upper‑tail** p‑value, with 1 000 shuffles and Benjamini‑Hochberg correction, addressing FR‑012 and SC‑004.  
 
 ---
+
+
+
