@@ -8,13 +8,13 @@ T001:
     \ meta\u2011analysis CSV was downloaded as the task also requires."
   sig: 9f20de182aae88efe7dfb3d0993101b7732fa907bdcf6daa8936f140170455b1
 T001a:
-  c: true
-  h: 6f27c73a4b5ccd31e48f21a5dca2be5145e770ea2ed2d8a76f6e6458845920a4
-  r: "Checked `code/scripts/validate_cochrane_csv.py` (invoked via `tests/unit/test_validate_cochrane_csv.py`)\
-    \ which raises a clear `FileNotFoundError` when the CSV URL cannot be fetched,\
-    \ causing the CI step to fail as required. The script exists, is non\u2011empty,\
-    \ and implements the specified error handling."
-  sig: fc4a916ffcb12df370f75d2464724e89cd8e9f824a304a96c1c7ed5518fe7366
+  c: false
+  h: 8cc25b14faf79caef7a1800a432fe42739b5d7a632a11a01d24fbb4c318f8d12
+  r: The evidence does not include any script or CI configuration that checks the
+    availability of the Cochrane CSV and raises a `FileNotFoundError` on failure.
+    No file path, code snippet, or CI log showing the abort behavior is provided,
+    so the required validation functionality is missing.
+  sig: 627c0ce2a92595e9d6ff9d04d42d96218ee2a17db1a6606ee1beda72c6fade6e
 T003:
   c: true
   h: 95c9eed824740a506eab5b8567a0536ae42c9e61a11b2100f047429a2d3c4295

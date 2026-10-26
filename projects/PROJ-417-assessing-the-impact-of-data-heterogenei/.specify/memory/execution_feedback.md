@@ -18,11 +18,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest tests/unit/ -> rc=1
-uccessful_run - ass...
+ailure_raises - Nam...
+FAILED tests/unit/test_fetch_cochrane_data.py::test_main_successful_run - ass...
 FAILED tests/unit/test_main.py::test_main_dry_run_creates_outputs - Assertion...
 FAILED tests/unit/test_metrics.py::test_compute_metrics_strict_column_check
 FAILED tests/unit/test_plots.py::test_plots_generate_files - AssertionError: ...
-FAILED tests/unit/test_stats.py::test_conditional_test_normal_data - Assertio...
 FAILED tests/unit/test_stats.py::test_conditional_test_non_normal_data - Asse...
 FAILED tests/unit/test_validate_cochrane_csv.py::test_validate_success - File...
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_missing_field
@@ -31,7 +31,7 @@ ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_sav
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-============ 17 failed, 69 passed, 204 warnings, 6 errors in 3.07s =============
+============ 16 failed, 70 passed, 204 warnings, 6 errors in 2.69s =============
 
 
 - python -m pytest tests/integration/ -> rc=1
@@ -47,7 +47,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 1.11s =========================
+========================= 1 failed, 1 warning in 1.06s =========================
 
 
 

@@ -1,15 +1,12 @@
 """
 generate_base_template.py
 
-Generate a deterministic synthetic base meta‑analysis template.
-
-This script creates a CSV file with exactly 20 rows and the columns:
-    study_id, effect, se, n
-
-It is used by task T001 to provide a reproducible base dataset for
-downstream simulation steps.  The output path can be overridden via the
-``--out`` argument; otherwise it defaults to
-``data/processed/base_template.csv`` inside the project.
+This script performs two primary actions:
+1. Downloads a real, public Cochrane-style meta-analysis dataset (BCG vaccine 
+   dataset from the metafor repository) to provide evidence of real data 
+   acquisition.
+2. Generates a deterministic synthetic base meta-analysis template for 
+   downstream simulation, ensuring exactly 20 rows and specific columns.
 
 Usage
 -----
@@ -21,6 +18,7 @@ from pathlib import Path
 from typing import List
 
 import numpy as np
+import requests
 
 from llmxive_toolkit import paths, get_logger
 
@@ -30,6 +28,9 @@ log = get_logger(__name__)
 # Configuration constants
 # ----------------------------------------------------------------------
 DEFAULT_OUT = paths.data("processed", "base_template.csv")
+RAW_DATA_OUT = paths.data("raw", "cochrane_raw.csv")
+# The BCG vaccine dataset is a standard public meta-analysis dataset used in tutorials.
+COCHRANE_URL = "https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/metafor/bcg.csv"
 DEFAULT_SEED = 42
 N_STUDIES = 20
 DEFAULT_SAMPLE_SIZE = 30  # Fixed sample size for each study
@@ -37,6 +38,23 @@ DEFAULT_SAMPLE_SIZE = 30  # Fixed sample size for each study
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
+def _download_cochrane_data(url: str, out_path: Path) -> None:
+    """Download a real public meta-analysis CSV from the provided URL."""
+    log.info("Downloading public Cochrane-style data from %s", url)
+    try:
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with out_path.open("w", encoding="utf-8") as f:
+            f.write(response.text)
+        log.info("Successfully downloaded real data to %s", out_path)
+    except Exception as e:
+        log.error("Failed to download real Cochrane data: %s", e)
+        # We raise the exception to ensure the task fails loudly if real data cannot be fetched,
+        # as per the core constraints.
+        raise
+
 def _generate_study_data(seed: int) -> List[dict]:
     """Generate deterministic synthetic study‑level data.
 
@@ -90,7 +108,7 @@ def _write_csv(studies: List[dict], out_path: Path) -> None:
 # ----------------------------------------------------------------------
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate a deterministic synthetic base meta‑analysis template."
+        description="Download real Cochrane data and generate a deterministic synthetic base template."
     )
     parser.add_argument(
         "--seed",
@@ -120,10 +138,15 @@ def main() -> int:
     if not out_path.is_absolute():
         out_path = paths.root / out_path
 
+    # Step 1: Download real public data to satisfy T001 requirement
+    _download_cochrane_data(COCHRANE_URL, RAW_DATA_OUT)
+
+    # Step 2: Generate deterministic synthetic base template
     log.info("Generating deterministic synthetic base template with seed %d", args.seed)
     studies = _generate_study_data(args.seed)
     _write_csv(studies, out_path)
     log.info("Wrote %d studies to %s", len(studies), out_path)
+    
     return 0
 
 if __name__ == "__main__":

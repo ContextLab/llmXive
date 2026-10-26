@@ -4,13 +4,13 @@
 
 ## Phase 1 – Data acquisition & synthetic dataset generation  
 
-- [ ] T001 [P1] [FR-001] **Download a public Cochrane meta‑analysis CSV and generate a deterministic synthetic base template** using `code/scripts/generate_base_template.py` and store it at `data/processed/base_template.csv`.  
+- [ ] T001 [P1] [FR-001] **Download a public Cochrane meta‑analysis CSV and generate a deterministic synthetic base template** using `code/scripts/generate_base_template.py` and store it at `data/processed/base_template.csv`.   <!-- FAILED-IN-EXECUTION: code/scripts/generate_base_template.py exit=1 -->
   *Verification*:  
   • Running `python code/scripts/generate_base_template.py --out data/processed/base_template.csv` exits with status 0.  
   • The CSV contains exactly 20 rows with columns `study_id,effect,se,n`.  
   • The file exists under `data/processed/` and passes a simple header check (no schema validation required).  
 
-- [X] T001a [P1] [FR-001] **(Optional) Validate that the downloaded Cochrane CSV is accessible**; if unavailable, the pipeline aborts with a clear error.
+- [ ] T001a [P1] [FR-001] **(Optional) Validate that the downloaded Cochrane CSV is accessible**; if unavailable, the pipeline aborts with a clear error.
   *Verification*:  
   • The script raises a `FileNotFoundError` if the URL cannot be reached; CI step fails accordingly.  
 
