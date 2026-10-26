@@ -1,11 +1,24 @@
 """Data extraction for commit‑message / documentation‑diff pairs.
 
 This module provides a lightweight, real‑data implementation that fetches
-recent commits from the *requests* repository (as a fallback source) via the
-GitHub REST API, extracts diffs that modify ``.md`` or ``.rst`` files and
-writes a CSV ``data/raw/commit_pairs.csv``.  The implementation respects the
+recent commits from the target repositories via the GitHub REST API,
+extracts diffs that modify ``.md`` or ``.rst`` files and writes a CSV
+``data/raw/commit_pairs.csv``.  The implementation respects the
 project‑wide ``SEED`` for deterministic ordering and records a SHA‑256
 checksum in ``data/metadata.yaml``.
+
+The script adapts its behaviour based on the command‑line arguments
+passed to the top‑level pipeline:
+
+* ``--sample N`` – collect *N* commit‑pair rows (used for the quick‑start
+  smoke test).
+* ``--full``      – collect the full dataset of at least 500 rows (the
+  default for the full pipeline).
+* No explicit flag – fall back to a minimal 5‑row extraction (historical
+  default).
+
+A ``GITHUB_TOKEN`` environment variable is required; the script fails
+loudly if it is missing, preventing silent fallback to synthetic data.
 """
 from __future__ import annotations
 
@@ -15,6 +28,7 @@ import json
 import logging
 import os
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Dict
 
@@ -84,7 +98,10 @@ def _fetch_commits(owner: str, repo: str, since_iso: str) -> List[Dict]:
     page = 1
     token = os.getenv("GITHUB_TOKEN")
     while True:
-        url = f"{GITHUB_API}/repos/{owner}/{repo}/commits?since={since_iso}&per_page=100&page={page}"
+        url = (
+            f"{GITHUB_API}/repos/{owner}/{repo}/commits"
+            f"?since={since_iso}&per_page=100&page={page}"
+        )
         resp = _github_get(url, token)
         batch = resp.json()
         if not batch:
@@ -93,8 +110,8 @@ def _fetch_commits(owner: str, repo: str, since_iso: str) -> List[Dict]:
         page += 1
     return commits
 
-def _fetch_diff(owner: str, repo: str, sha: str) -> str:
-    """Return the full diff (as a string) for *sha*."""
+def _fetch_diff(owner: str, repo: str, sha: str) -> List[Dict]:
+    """Return the list of file dictionaries for *sha*."""
     token = os.getenv("GITHUB_TOKEN")
     url = f"{GITHUB_API}/repos/{owner}/{repo}/commits/{sha}"
     resp = _github_get(url, token)
@@ -107,7 +124,6 @@ def _extract_doc_diff(files: List[Dict]) -> str:
     for f in files:
         filename = f.get("filename", "")
         if any(filename.lower().endswith(ext) for ext in DOC_EXTS):
-            # Use the patch field which contains the unified diff
             patch = f.get("patch", "")
             if patch:
                 diffs.append(patch)
@@ -115,8 +131,6 @@ def _extract_doc_diff(files: List[Dict]) -> str:
 
 def extract_commit_pairs(target: int = 5) -> List[Dict]:
     """Fetch real commit‑pair rows until *target* rows are collected."""
-    from datetime import datetime, timedelta
-
     since = (datetime.utcnow() - timedelta(days=730)).isoformat() + "Z"
     rows: List[Dict] = []
     for owner, repo in TARGET_REPOS:
@@ -133,10 +147,15 @@ def extract_commit_pairs(target: int = 5) -> List[Dict]:
             rows.append(
                 {
                     "commit_hash": sha,
-                    "commit_message": commit.get("commit", {}).get("message", "").replace("\n", " ").strip(),
+                    "commit_message": commit.get("commit", {})
+                    .get("message", "")
+                    .replace("\n", " ")
+                    .strip(),
                     "repository_name": f"{owner}/{repo}",
                     "doc_diff": doc_diff,
-                    "timestamp": commit.get("commit", {}).get("author", {}).get("date", ""),
+                    "timestamp": commit.get("commit", {})
+                    .get("author", {})
+                    .get("date", ""),
                 }
             )
             if len(rows) >= target:
@@ -144,7 +163,9 @@ def extract_commit_pairs(target: int = 5) -> List[Dict]:
         if len(rows) >= target:
             break
     if len(rows) < target:
-        raise RuntimeError(f"Could only collect {len(rows)} commit‑pairs; need at least {target}")
+        raise RuntimeError(
+            f"Could only collect {len(rows)} commit‑pairs; need at least {target}"
+        )
     log.info("Collected %d commit‑pair rows", len(rows))
     return rows
 
@@ -152,7 +173,13 @@ def write_csv(rows: List[Dict]) -> None:
     """Write *rows* to ``data/raw/commit_pairs.csv``."""
     csv_path = paths.data("raw", "commit_pairs.csv")
     csv_path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = ["commit_hash", "commit_message", "repository_name", "doc_diff", "timestamp"]
+    fieldnames = [
+        "commit_hash",
+        "commit_message",
+        "repository_name",
+        "doc_diff",
+        "timestamp",
+    ]
     with csv_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -161,10 +188,39 @@ def write_csv(rows: List[Dict]) -> None:
     log.info("Wrote %d rows to %s", len(rows), csv_path)
     update_metadata(csv_path)
 
+def _determine_target_from_argv() -> int:
+    """
+    Decide how many rows to collect based on the CLI of the *parent* pipeline.
+
+    The top‑level ``run_pipeline`` script forwards its arguments to the
+    Python process (e.g. ``python -m code.run_pipeline --sample 5`` or
+    ``python -m code.run_pipeline --full``).  This helper inspects
+    ``sys.argv`` for those flags and returns the appropriate target size.
+    """
+    argv = sys.argv[1:]  # skip the script name
+    if "--sample" in argv:
+        idx = argv.index("--sample")
+        try:
+            sample_val = int(argv[idx + 1])
+            return max(sample_val, 1)
+        except Exception:
+            log.warning("Invalid sample size after '--sample'; falling back to 5")
+            return 5
+    if "--full" in argv:
+        # Full pipeline requires at least 500 rows as per specification.
+        return 500
+    # Default fallback (historical behaviour)
+    return 5
+
 def main() -> int:
     """Entry point used by the pipeline."""
     try:
-        rows = extract_commit_pairs(target=5)
+        token = os.getenv("GITHUB_TOKEN")
+        if not token:
+            log.error("GITHUB_TOKEN environment variable is required for data extraction")
+            raise RuntimeError("Missing GITHUB_TOKEN")
+        target = _determine_target_from_argv()
+        rows = extract_commit_pairs(target=target)
         write_csv(rows)
         return 0
     except Exception as e:

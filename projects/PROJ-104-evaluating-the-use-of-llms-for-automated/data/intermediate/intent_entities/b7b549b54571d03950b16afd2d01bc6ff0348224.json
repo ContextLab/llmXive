@@ -1,0 +1,78 @@
+{
+  "sample_id": "b7b549b54571d03950b16afd2d01bc6ff0348224",
+  "type": "intent",
+  "entities": [
+    {
+      "entity": "@@ -6,6 +6,20 @@ dev",
+      "verified": false
+    },
+    {
+      "entity": "- \\[Short description of non-trivial change.\\]",
+      "verified": false
+    },
+    {
+      "entity": "+2.34.1 (2026-05-13)",
+      "verified": false
+    },
+    {
+      "entity": "+-------------------",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+**Bugfixes**",
+      "verified": false
+    },
+    {
+      "entity": "+- Widened `json` input type from `dict` and `list` to `Mapping`",
+      "verified": false
+    },
+    {
+      "entity": "+  and `Sequence`. (#7436)",
+      "verified": false
+    },
+    {
+      "entity": "+- Changed `headers` input type to MutableMapping and removed `None` from",
+      "verified": false
+    },
+    {
+      "entity": "+  `Request.headers` typing to improve handling for users. (#7431)",
+      "verified": false
+    },
+    {
+      "entity": "+- `Response.reason` moved from `str | None` to `str` to improve handling",
+      "verified": false
+    },
+    {
+      "entity": "+  for users. (#7437)",
+      "verified": false
+    },
+    {
+      "entity": "+- Fixed a bug where some bodies with custom `__getattr__` implementations",
+      "verified": false
+    },
+    {
+      "entity": "+  weren't being properly detected as Iterables. (#7433)",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "2.34.0 (2026-05-11)",
+      "verified": false
+    },
+    {
+      "entity": "-------------------",
+      "verified": false
+    }
+  ]
+}

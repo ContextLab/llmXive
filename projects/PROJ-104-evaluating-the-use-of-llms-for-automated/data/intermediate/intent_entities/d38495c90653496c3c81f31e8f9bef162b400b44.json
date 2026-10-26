@@ -1,0 +1,34 @@
+{
+  "sample_id": "d38495c90653496c3c81f31e8f9bef162b400b44",
+  "type": "intent",
+  "entities": [
+    {
+      "entity": "@@ -2,7 +2,7 @@",
+      "verified": false
+    },
+    {
+      "entity": "Before opening any issues or proposing any pull requests, please read",
+      "verified": false
+    },
+    {
+      "entity": "our [Contributor's Guide](https://requests.readthedocs.io/en/latest/dev/contributing/)",
+      "verified": false
+    },
+    {
+      "entity": "-as well as our [AI Policy](./AI_POLICY.md).",
+      "verified": false
+    },
+    {
+      "entity": "+as well as our [AI Policy](/.github/AI_POLICY.md).",
+      "verified": false
+    },
+    {
+      "entity": "To get the greatest chance of helpful responses, please also observe the",
+      "verified": false
+    },
+    {
+      "entity": "following additional notes.",
+      "verified": false
+    }
+  ]
+}

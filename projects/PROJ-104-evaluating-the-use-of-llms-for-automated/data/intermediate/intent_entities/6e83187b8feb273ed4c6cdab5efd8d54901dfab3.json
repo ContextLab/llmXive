@@ -1,0 +1,54 @@
+{
+  "sample_id": "6e83187b8feb273ed4c6cdab5efd8d54901dfab3",
+  "type": "intent",
+  "entities": [
+    {
+      "entity": "@@ -6,6 +6,14 @@ dev",
+      "verified": false
+    },
+    {
+      "entity": "- \\[Short description of non-trivial change.\\]",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+2.34.2 (2026-05-14)",
+      "verified": false
+    },
+    {
+      "entity": "+-------------------",
+      "verified": false
+    },
+    {
+      "entity": "+- Moved `headers` input type back to `Mapping` to avoid invariance issues",
+      "verified": false
+    },
+    {
+      "entity": "+  with `MutableMapping` and inferred dict types. Users calling",
+      "verified": false
+    },
+    {
+      "entity": "+  `Request.headers.update()` may need to narrow typing in their code. (#7441)",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "+",
+      "verified": false
+    },
+    {
+      "entity": "2.34.1 (2026-05-13)",
+      "verified": false
+    },
+    {
+      "entity": "-------------------",
+      "verified": false
+    }
+  ]
+}

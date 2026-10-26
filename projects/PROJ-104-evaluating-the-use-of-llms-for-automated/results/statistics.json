@@ -1,7 +1,7 @@
 {
   "p_values": {
-    "precision_intent": null,
-    "precision_surface": null,
+    "precision_intent": 1.0,
+    "precision_surface": 1.0,
     "hallucination_rate": null
   },
   "significant": {
@@ -10,8 +10,8 @@
     "hallucination_rate": false
   },
   "effect_sizes": {
-    "precision_intent": null,
-    "precision_surface": null,
+    "precision_intent": NaN,
+    "precision_surface": NaN,
     "hallucination_rate": null
   },
   "exploratory": false

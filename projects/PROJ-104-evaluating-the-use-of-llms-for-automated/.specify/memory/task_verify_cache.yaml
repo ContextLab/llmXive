@@ -1,12 +1,12 @@
 T002:
   c: true
-  h: 930a7eaf49558ef54d6869cb8e5b211dadde350c3666cddfb071f020bebdd083
+  h: e13e9ec4b90da12c477303584127b5182f0a39cbbbc52eeaddfd7c8914fb8c49
   r: "Checked `code/power_analysis.py` (implements the Monte\u2011Carlo simulation,\
     \ writes the markdown with power and exploratory flag) and `results/power_report.md`\
     \ (contains a numeric power estimate and matching exploratory flag), and the test\
-    \ `tests/test_power_analysis.py` confirms the report\u2019s existence and valid\
-    \ numeric value."
-  sig: fbfe3fc8a0b9587591ef227b4ac8d51c78840404e4908a2a214bbabb63c19d01
+    \ `tests/test_power_analysis.py` confirms the report exists and includes a valid\
+    \ floating\u2011point power value."
+  sig: 828dfc1ff975f302d772f6aa9556c0706610b1f80c41b042d4cdd6b131b33303
 T004:
   c: false
   h: 6e385feb08f6aec3a72eb56a85718b84505c00f11e6df50103d41cad0a6b02fc
@@ -28,9 +28,10 @@ T005:
   sig: b8bc8796fe4068fe34ed63415602515836646710053e8cf23842da24ade7a23b
 T013:
   c: true
-  h: efe83dcba1f7e9c3d3de15862f994fb079a4e8b3d58c085bda438fea7f78ccc7
-  r: "Checked `code/data_hygiene.py` (checksum computation and immutable\u2011file\
-    \ enforcement), `code/seeds.py` (global SEED\u202F=\u202F42), and `tests/test_hygiene_and_seeds.py`\
-    \ (metadata coverage, immutability test, deterministic power analysis). All required\
-    \ behavior is implemented and the tests would pass."
-  sig: 30f0842deaf27ded993780d99d0d48cb093b7c831438ff8d31f2b9ceb70b56ec
+  h: d9e4af3706c9e8714ca7778dcd6558d22098b0f521bbce779171be5574427acf
+  r: "Checked `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, and `tests/test_hygiene_and_seeds.py`;\
+    \ the utilities compute and record SHA\u2011256 checksums for all files under\
+    \ `data/`, enforce immutability, provide a global `SEED = 42`, and the test suite\
+    \ verifies checksum coverage, immutability, and deterministic power\u2011analysis\
+    \ results."
+  sig: 3ca0b7a47e1f856ee2a27ad12fa8278fea2f92c80c6d26e2bdfa709fb9b4c121

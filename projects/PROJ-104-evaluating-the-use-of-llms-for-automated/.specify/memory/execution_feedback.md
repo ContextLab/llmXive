@@ -10,52 +10,55 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/power_analysis.py: self-declared fabricated metric — “…les, 3))      # Construct the simulated scores matrix:     #   mean + sqrt(…”
 - code/statistical_analysis.py: self-declared fabricated metric — “…rics CSV is empty – producing placeholder results.")     # Metrics we care abo…”
+- code/data_extraction.py: synthetic/fake INPUT data not authorized by the spec — “…nting silent fallback to synthetic data. """ from __future__ imp…”
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
 These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
 
-- run-book command: `python -m src.run_pipeline --sample 5`
+- run-book command: `python -m src.run_pipeline --full`
   - script usage: `run_pipeline.py [-h] [--csv CSV] [--out OUT] [--repos REPOS]`
-  - argparse error: `run_pipeline.py: error: unrecognized arguments: --sample 5`
+  - argparse error: `run_pipeline.py: error: unrecognized arguments: --full`
 - run-book command: `python -m src.run_pipeline --full --samples 500`
-  - script usage: `run_pipeline.py [-h] [--sample SAMPLE] [--full]`
-  - argparse error: `run_pipeline.py: error: unrecognized arguments: --samples 500`
+  - script usage: `run_pipeline.py [-h] [--csv CSV] [--out OUT] [--repos REPOS]`
+  - argparse error: `run_pipeline.py: error: unrecognized arguments: --full --samples 500`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/power_analysis.py: self-declared fabricated metric — “…les, 3))      # Construct the simulated scores matrix:     #   mean + sqrt(…”; code/statistical_analysis.py: self-declared fabricated metric — “…rics CSV is empty – producing placeholder results.")     # Metrics we care abo…”; 4 command(s) failed: python -m src.run_pipeline --sample 5 (rc=2); python -m src.run_pipeline --full (rc=1); python -m pytest tests/unit/ (rc=2); 1 declared deliverable(s) absent: data/processed/fidelity_metrics.csv
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/power_analysis.py: self-declared fabricated metric — “…les, 3))      # Construct the simulated scores matrix:     #   mean + sqrt(…”; code/statistical_analysis.py: self-declared fabricated metric — “…rics CSV is empty – producing placeholder results.")     # Metrics we care abo…”; code/data_extraction.py: synthetic/fake INPUT data not authorized by the spec — “…nting silent fallback to synthetic data. """ from __future__ imp…”; 4 command(s) failed: python -m src.run_pipeline --sample 5 (rc=1); python -m src.run_pipeline --full (rc=2); python -m pytest tests/unit/ (rc=2)
 
 ## Failing / missing run-book commands
 
-- python -m src.run_pipeline --sample 5 -> rc=2
-Power analysis: estimated power for n=500 is 1.0000; exploratory=False
-Wrote /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/results/power_report.md
-
-2026-10-26 11:10:37,177 INFO code.run_pipeline: Running quick‑start sample with 5 rows
-2026-10-26 11:11:16,910 INFO code.power_analysis: Power analysis complete: power=1.0000 (n=500), exploratory=False
-2026-10-26 11:11:16,910 INFO code.data_extraction: Fetching commits from psf/requests
-2026-10-26 11:11:29,275 INFO code.data_extraction: Collected 5 commit‑pair rows
-2026-10-26 11:11:29,277 INFO code.data_extraction: Wrote 5 rows to /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/raw/commit_pairs.csv
-2026-10-26 11:11:29,288 INFO code.generation: Wrote generation success rates to /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/generated/generation_success_rates.csv
-usage: run_pipeline.py [-h] [--csv CSV] [--out OUT] [--repos REPOS]
-run_pipeline.py: error: unrecognized arguments: --sample 5
-
-- python -m src.run_pipeline --full -> rc=1
-me/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 167, in main
-    rows = extract_commit_pairs(target=5)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 129, in extract_commit_pairs
-    files = _fetch_diff(owner, repo, sha)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 100, in _fetch_diff
+- python -m src.run_pipeline --sample 5 -> rc=1
+4-evaluating-the-use-of-llms-for-automated/code/run_pipeline.py", line 124, in main
+    rows = extract_commit_pairs(target=args.sample)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 138, in extract_commit_pairs
+    commits = _fetch_commits(owner, repo, since)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 105, in _fetch_commits
     resp = _github_get(url, token)
            ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 78, in _github_get
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 92, in _github_get
     resp.raise_for_status()
   File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/requests/models.py", line 1024, in raise_for_status
     raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 403 Client Error: rate limit exceeded for url: https://api.github.com/repos/psf/requests/commits/d44b67eb55f3dea5a36024b8c4ae6a5c37bca617
+requests.exceptions.HTTPError: 403 Client Error: rate limit exceeded for url: https://api.github.com/repos/psf/requests/commits?since=2024-10-26T13:23:35.242574Z&per_page=100&page=1
+
+- python -m src.run_pipeline --full -> rc=2
+Power analysis: estimated power for n=500 is 1.0000; exploratory=False
+Wrote /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/results/power_report.md
+
+2026-10-26 13:24:01,656 INFO code.power_analysis: Power analysis complete: power=1.0000 (n=500), exploratory=False
+2026-10-26 13:24:01,656 ERROR code.data_extraction: GITHUB_TOKEN environment variable is required for data extraction
+2026-10-26 13:24:01,656 ERROR code.data_extraction: Data extraction failed
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 221, in main
+    raise RuntimeError("Missing GITHUB_TOKEN")
+RuntimeError: Missing GITHUB_TOKEN
+2026-10-26 13:24:01,665 INFO code.generation: Wrote generation success rates to /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/generated/generation_success_rates.csv
+usage: run_pipeline.py [-h] [--csv CSV] [--out OUT] [--repos REPOS]
+run_pipeline.py: error: unrecognized arguments: --full
 
 - python -m pytest tests/unit/ -> rc=2
 -evaluating-the-use-of-llms-for-automated/tests/unit/test_entity_extraction_intent.py _
@@ -70,28 +73,24 @@ E   ImportError: cannot import name 'DEFAULT_OUTPUT_DIR' from 'code.entity_extra
 =========================== short test summary info ============================
 ERROR tests/unit/test_entity_extraction_intent.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.53s ===============================
+=============================== 1 error in 0.30s ===============================
 
 
 - python -m src.run_pipeline --full --samples 500 -> rc=2
+Power analysis: estimated power for n=500 is 1.0000; exploratory=False
+Wrote /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/results/power_report.md
 
-usage: run_pipeline.py [-h] [--sample SAMPLE] [--full]
-run_pipeline.py: error: unrecognized arguments: --samples 500
+2026-10-26 13:24:15,747 INFO code.power_analysis: Power analysis complete: power=1.0000 (n=500), exploratory=False
+2026-10-26 13:24:15,748 ERROR code.data_extraction: GITHUB_TOKEN environment variable is required for data extraction
+2026-10-26 13:24:15,748 ERROR code.data_extraction: Data extraction failed
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/code/data_extraction.py", line 221, in main
+    raise RuntimeError("Missing GITHUB_TOKEN")
+RuntimeError: Missing GITHUB_TOKEN
+2026-10-26 13:24:15,756 INFO code.generation: Wrote generation success rates to /home/runner/work/llmXive/llmXive/projects/PROJ-104-evaluating-the-use-of-llms-for-automated/data/generated/generation_success_rates.csv
+usage: run_pipeline.py [-h] [--csv CSV] [--out OUT] [--repos REPOS]
+run_pipeline.py: error: unrecognized arguments: --full --samples 500
 
-
-## Declared deliverables still missing
-
-- data/processed/fidelity_metrics.csv
-
-## Declared deliverables NOT produced — make the run-book produce them
-
-Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
-
-- `data/processed/fidelity_metrics.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/fidelity_scoring.py` — NOT invoked by the run-book
-    - `code/statistical_analysis.py` — NOT invoked by the run-book
-    - `code/visualization.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/fidelity_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project
 
 A script in this project created `.github/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.

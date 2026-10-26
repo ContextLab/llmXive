@@ -28,7 +28,7 @@ The aim is a reproducible, CPU‑first pipeline that satisfies every functional 
 
 ## Phase 1 – Data acquisition & pairing (User Story 1)  
 
-- [ ] **T003** [P1] **Extract ≥ 500 (commit_message, documentation_diff) pairs from the five target repos** – `code/data_extraction.py`, `data/raw/commit_pairs.csv`   <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=1 -->
+- [ ] **T003** [P1] **Extract ≥ 500 (commit_message, documentation_diff) pairs from the five target repos** – `code/data_extraction.py`, `data/raw/commit_pairs.csv`   <!-- FAILED-IN-EXECUTION: code/data_extraction.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_full_data_extraction.sh exit=1 -->
   - Clone `pandas`, `requests`, `scikit-learn`, `flask`, `django` into `data/tmp/repos/`.  
   - Use the **GitHub REST API** (`GET /repos/{owner}/{repo}/commits?since=2y`) with pagination and rate‑limit handling; require a `GITHUB_TOKEN` environment variable (fail loudly if missing).  
   - For each commit, fetch the full diff via `git show <sha>` and retain only hunks that modify `.md` or `.rst` files.  

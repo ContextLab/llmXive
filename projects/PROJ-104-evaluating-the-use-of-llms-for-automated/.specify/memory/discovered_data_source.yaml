@@ -1,11 +1,13 @@
 status: none
-intent: GitHub commit documentation diff paired dataset python package dataset
+intent: GitHub commit documentation diff paired dataset from GitHub REST API python
+  package dataset
 required_fields:
 - commit_hash
-- repository_name
 - commit_message
-- documentation_diff
-- commit_timestamp
-cache_key: c04cced4f83b4bcfc52bd984c4f94bdd07628de936447dca67fec47f80623122
-searched_at: '2026-10-26T11:13:44.948846+00:00'
+- repository_name
+- doc_diff
+- timestamp
+- intent_entities
+cache_key: 658058217339a0fc423ae398a94827add2f4f5bcabf25120b06e8ed9cf9dcff9
+searched_at: '2026-10-26T13:32:58.433556+00:00'
 retry_count: 1
