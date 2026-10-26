@@ -9,14 +9,14 @@ T000:
   sig: 648d95a4d2452304671919e57cbdb9519f882a634fbf60e0b119a12054e350f5
 T001:
   c: true
-  h: 0c3a770759be8a6f1bcad04ead847f6eb77f00dc77a82e19a894b20c27abdc58
-  r: "Checked `code/data/download.py` which streams or falls back to a local CSV,\
-    \ writes the file to `data/raw/permeability_data.csv`, and creates `data/raw/checksums.json`\
-    \ with a SHA\u2011256 entry. The provided `tests/unit/test_download.py` runs the\
-    \ DataLoader, confirms the CSV and checksum file exist, verifies the required\
-    \ columns (`smiles`, `permeability`) and that the file contains rows, all of which\
-    \ are satisfied by the artifacts."
-  sig: 6f500b3e07cc624cebf87a20b47fb336c45d433eb3c52dfe83299ad1c03f3fd1
+  h: 1beda403ef9c8814cdfc6dd686b3d2092be01f5742d477bd31ac0a44fceb7024
+  r: "Checked `code/data/download.py` which streams the dataset using `load_dataset(...,\
+    \ streaming=True)`, writes the CSV to `data/raw/`, and creates a SHA\u2011256\
+    \ `checksums.json`. The provided `tests/unit/test_download.py` runs the `DataLoader`,\
+    \ and the existing `data/raw/permeability_data.csv` and `checksums.json` confirm\
+    \ that a non\u2011empty file with a `permeability` column is produced and recorded.\
+    \ All required artifacts exist and satisfy the task specifications."
+  sig: cd804b0e1b7810a8f91ad79fc1fb517f49f50c0fa227c1a33da5e5b4d11e79ed
 T002:
   c: true
   h: d0a71894e41af95f2fd05c67308e337b39b2fc966c4d02c2b9808bbdd433c517
@@ -29,15 +29,14 @@ T002:
   sig: c0f9d39f775baa6689ee71d8df747e1610a2ed89c93e72785940a54a91d1e10a
 T003:
   c: false
-  h: 226bf5b97dae9dc503143a33e9b461221b49c1a6d290d0ca0a5945697d793b77
-  r: "The repository contains `code/data/split.py` which implements the required split\
-    \ logic, and a `data/processed/train.parquet` file, but there is no evidence of\
-    \ the complementary `test.parquet`, `train.csv`, or `test.csv` files being created.\
-    \ Moreover, no data (e.g., row counts) is provided to confirm the 0.75\u20110.85\
-    \ train\u2011to\u2011test ratio or the \u22645\u202Fpp stratification constraint,\
-    \ so the integration test\u2019s verification criteria cannot be satisfied. The\
-    \ missing split artefacts and lack of ratio/stratification evidence must be addressed."
-  sig: 1f5a1846098fefdb5987937698b7c2f6c2a0d204edb2568fd3451c4374e2ff28
+  h: 03dc5ce977d5c5239c9e1e2b6ee8d65bf4cfcf78263ed31edd3d74253af09265
+  r: "Checked `code/data/split.py` and the generated split files. While the script\
+    \ creates the required Parquet files (`train.parquet`, `test.parquet`) and implements\
+    \ the described split logic, it does **not** produce the required CSV counterparts\
+    \ (`train.csv`, `test.csv`) \u2013 these files are absent from the project. The\
+    \ missing CSV outputs mean the task\u2019s requirement of writing both Parquet\
+    \ **and** CSV splits is not satisfied."
+  sig: 35789c044bed588512b1c3d7afab88a35ab3f5063914c7633dbfef7c544592d4
 T005:
   c: false
   h: 4932e85b9a87ab2bf45944233696a1915e9973108682bbfc0fda11118fd09008
@@ -50,21 +49,22 @@ T005:
     \ fully satisfied."
   sig: 1e09d9bbbe56ea6d409c01e3aa937c912dfb5770caa2ed65275b2371b1d3954c
 T014:
-  c: false
-  h: 8756fc88b279074f495af95602beabf2abcbde9fa81b14eece69ec346aac24dd
-  r: "The `tests/unit/test_models.py::test_gnn_training_pipeline` test is present,\
-    \ but the CI log shows it fails with a `ValueError: Expected more than 1 value\
-    \ per channel when training, got input size torch.Size([1, 64])`. Consequently\
-    \ the GNN training pipeline does not complete, no checkpoint is created, and the\
-    \ wall\u2011time guard is never reached. The task requires this test to pass within\
-    \ 3600\u202Fs, which is not satisfied. Fix the batch\u2011norm handling (or otherwise\
-    \ ensure the training step works on the tiny dataset) and ensure the checkpoint\
-    \ files are written."
-  sig: c38bc092dacffbb324439947cd337221b5f6aa08c75c7abe22628dc035f9b08b
-T015:
   c: true
-  h: 64e584e9d29be44585164490bf52c4d17d769ed8efb9def4b0803200f5d0ae7f
-  r: "Checked `tests/unit/test_models.py` which defines `test_rf_training` verifying\
-    \ the RF pickle, feature count, and training time <\u202F6\u202Fh, and the CI\
-    \ execution log shows this test passed (while another unrelated test failed)."
-  sig: b665b00ef2ce854acac4c3428e3e95cc4caea93f2a1a4da555eefb28c76c6b8c
+  h: 15e3089c00a23a53387090fa2d1e3fbaf1d47a1dd05ac42e82ca34468c019576
+  r: "Checked `tests/unit/test_models.py` which contains `test_gnn_training_pipeline`\
+    \ that builds a tiny graph dataset, runs `train_gnn`, asserts a checkpoint file\
+    \ and an interim copy are created, and verifies the elapsed time is <\u202F3600\u202F\
+    s. The CI log shows the test suite (including this test) passed in 4.80\u202F\
+    s, satisfying the wall\u2011time requirement."
+  sig: 1ef67ab51019fe7b10b107b7b3a2dbc191c0347385beff52b884a27fbe602171
+T015:
+  c: false
+  h: 9e4c33bb666c95a0f10780408bebbda3b4f0df2ee18c1a852f0b335d5e452e02
+  r: "The repository contains `tests/unit/test_models.py` with a `test_rf_training`\
+    \ that checks the RF pickle, verifies six feature importances, and asserts `total_hours\
+    \ < 6`. However, the task\u2019s verification requires the test to confirm training\
+    \ time\u202F<\u202F3600\u202Fs (1\u202Fh) and to \u201Creport\u201D that duration,\
+    \ which the current test does not do. Moreover, the referenced `results/training_log.json`\
+    \ is not present in the checked artifacts, so its existence and content cannot\
+    \ be verified. The test therefore does not fully satisfy the specified requirement."
+  sig: 9021a78d7e081c69c9dfa22f8f311182dfda0aec41a3ec9d3439e04092f0e0e1

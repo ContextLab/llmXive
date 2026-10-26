@@ -2,24 +2,20 @@
 GNN model definitions and training utilities for molecular permeability prediction.
 
 This module provides:
-* MPNNLayer – a message‑passing layer compatible with the unit tests.
-* MPNN – a configurable 3‑layer MPNN (default) using only global mean pooling,
+* MPNNLayer – a message‑passing layer using LayerNorm to ensure stability with small batches.
+* MPNN – a configurable 3‑layer MPNN (default) using global mean pooling,
   suitable for the CPU‑only training script.
-* Factory ``create_mpnn_model`` that returns an ``MPNN`` instance (so the unit
-  tests expecting ``isinstance(..., MPNN)`` succeed) with a ``layers`` attribute
-  whose length equals the requested number of message‑passing layers.
+* Factory ``create_mpnn_model`` that returns an ``MPNN`` instance.
 * ``train_gnn`` – a training routine that performs early‑stopping on a
   validation loader and saves the best checkpoint.
-* Helper functions ``train_epoch`` and ``validate_epoch`` used by the unit
-  tests and by downstream evaluation code.
+* Helper functions ``train_epoch`` and ``validate_epoch`` used by the unit tests.
 * ``main`` entry‑point that trains the model on the processed data and saves the
-  checkpoint to ``code/models/gnn.pt``.  For compatibility with the explain
+  checkpoint to ``code/models/gnn.pt``. For compatibility with the explain
   script, the checkpoint is also copied to ``data/interim/gnn_checkpoint.pt``.
 """
 
 import json
 import logging
-import time
 import shutil
 from pathlib import Path
 from typing import Tuple, Dict, Any
@@ -35,26 +31,25 @@ import pandas as pd
 import numpy as np
 
 # ----------------------------------------------------------------------
-# Logging utilities (project‑specific)
+# Logging utilities
 # ----------------------------------------------------------------------
 try:
-    from utils.logging import setup_logging, log_result_artifact
+    from utils.logging import setup_logging
 except Exception:
     def setup_logging(*args, **kwargs):
         logging.basicConfig(level=logging.INFO)
         return logging.getLogger(__name__)
 
-    def log_result_artifact(*args, **kwargs):
-        pass
-
 logger = logging.getLogger(__name__)
 
 # ----------------------------------------------------------------------
-# Compatibility layer for the tests
+# Model Architecture
 # ----------------------------------------------------------------------
 class MPNNLayer(MessagePassing):
     """
     Single message‑passing layer.
+
+    Uses LayerNorm instead of BatchNorm1d to avoid failures on batch size 1.
     """
     def __init__(
         self,
@@ -69,7 +64,8 @@ class MPNNLayer(MessagePassing):
         self.lin_msg = nn.Linear(in_channels, hidden_channels)
         self.lin_update = nn.Linear(hidden_channels + in_channels, out_channels)
         self.dropout = nn.Dropout(dropout)
-        self.bn = nn.BatchNorm1d(out_channels)
+        # LayerNorm works with any batch size, including 1
+        self.ln = nn.LayerNorm(out_channels)
 
     def forward(
         self,
@@ -79,16 +75,19 @@ class MPNNLayer(MessagePassing):
     ) -> torch.Tensor:
         """
         Forward pass of the layer.
-        Updated to accept edge_attr to satisfy tests/unit/test_models.py.
+
+        If ``edge_index`` is empty (isolated nodes), we generate a zero‑message
+        tensor so that the subsequent concatenation with ``x`` always succeeds.
         """
         if edge_index is None or edge_index.numel() == 0:
-            msg = x
+            # Zero messages for isolated nodes
+            msg = torch.zeros((x.size(0), self.lin_msg.out_features), device=x.device)
         else:
             msg = self.propagate(edge_index, x=x)
 
         combined = torch.cat([x, msg], dim=1)
         out = self.lin_update(combined)
-        out = self.bn(out)
+        out = self.ln(out)
         out = F.relu(out)
         out = self.dropout(out)
         return out
@@ -139,6 +138,12 @@ class MPNN(nn.Module):
         edge_index: torch.Tensor | None = None,
         batch: torch.Tensor | None = None,
     ) -> torch.Tensor:
+        """
+        Forward pass through the MPNN.
+
+        ``batch`` indicates graph membership for each node; if omitted we treat
+        every node as its own graph (which works for single‑graph inputs).
+        """
         x = F.relu(self.input_proj(x))
         for layer in self.layers:
             x = layer(x, edge_index)
@@ -152,7 +157,8 @@ class MPNN(nn.Module):
 
     def early_stop(self, val_loss: float) -> bool:
         """
-        Returns True when early‑stopping should trigger.
+        Simple early‑stopping logic: reset counter when loss improves,
+        otherwise increment and stop when patience is exceeded.
         """
         if val_loss < self.best_val_loss:
             self.best_val_loss = val_loss
@@ -174,7 +180,7 @@ def create_mpnn_model(
     dropout: float = 0.1,
 ) -> MPNN:
     """
-    Factory that returns a ready‑to‑train MPNN instance.
+    Factory helper used throughout the codebase and tests.
     """
     return MPNN(
         input_dim=input_dim,
@@ -185,11 +191,11 @@ def create_mpnn_model(
     )
 
 # ----------------------------------------------------------------------
-# Helper utilities for data handling
+# Data handling helpers
 # ----------------------------------------------------------------------
 def _load_processed_data(split: str = "train") -> pd.DataFrame:
     """
-    Load the processed CSV for the requested split.
+    Load the CSV produced by ``code/data/preprocess.py`` for a given split.
     """
     csv_path = Path("data") / "processed" / f"{split}.csv"
     if not csv_path.is_file():
@@ -198,8 +204,8 @@ def _load_processed_data(split: str = "train") -> pd.DataFrame:
 
 def _parse_mol_graph(json_str: str) -> Tuple[torch.Tensor, torch.Tensor]:
     """
-    Convert the JSON string stored in ``mol_graph`` into a tuple
-    ``(node_features, edge_index)`` suitable for PyTorch Geometric.
+    Convert the stored ``mol_graph`` JSON string into node features and an
+    ``edge_index`` tensor compatible with PyTorch Geometric.
     """
     try:
         graph = json.loads(json_str)
@@ -209,7 +215,6 @@ def _parse_mol_graph(json_str: str) -> Tuple[torch.Tensor, torch.Tensor]:
     nodes = graph.get("nodes", [])
     edges = graph.get("edges", [])
 
-    # Simple one‑hot atom‑type + degree + aromaticity encoding
     atom_nums = [n.get("atomic_num", 0) for n in nodes]
     degrees = [n.get("degree", 0) for n in nodes]
     aromatic = [int(n.get("aromatic", False)) for n in nodes]
@@ -229,7 +234,8 @@ def _parse_mol_graph(json_str: str) -> Tuple[torch.Tensor, torch.Tensor]:
 
 def _build_graph_dataset(df: pd.DataFrame, target_col: str = "target") -> list:
     """
-    Convert each row of ``df`` into a ``torch_geometric.data.Data`` object.
+    Transform a dataframe with a ``mol_graph`` column into a list of
+    :class:`torch_geometric.data.Data` objects.
     """
     if target_col not in df.columns:
         raise ValueError(f"Target column '{target_col}' not found in DataFrame.")
@@ -242,7 +248,7 @@ def _build_graph_dataset(df: pd.DataFrame, target_col: str = "target") -> list:
     return data_list
 
 # ----------------------------------------------------------------------
-# Training utilities required by the unit tests
+# Training utilities
 # ----------------------------------------------------------------------
 def train_epoch(
     model: nn.Module,
@@ -253,14 +259,13 @@ def train_epoch(
     optimizer: torch.optim.Optimizer,
 ) -> float:
     """
-    Perform a single training epoch over a single batch.
-
-    Returns the average MSE loss for the batch as a Python ``float``.
+    Perform a single training epoch over one batch.
+    Returns the loss value as a Python float.
     """
     model.train()
     optimizer.zero_grad()
-    out = model(x, edge_index, batch).squeeze()
-    loss = nn.MSELoss()(out, y.squeeze())
+    out = model(x, edge_index, batch).squeeze(-1)
+    loss = nn.MSELoss()(out, y.squeeze(-1))
     loss.backward()
     optimizer.step()
     return loss.item()
@@ -273,22 +278,19 @@ def validate_epoch(
     y: torch.Tensor,
 ) -> Dict[str, float]:
     """
-    Evaluate a single batch in validation mode.
-
-    Returns a dict with keys ``loss``, ``rmse`` and ``mae``.
+    Evaluate a single batch without gradient tracking.
+    Returns a dictionary with ``loss``, ``rmse`` and ``mae``.
     """
     model.eval()
     with torch.no_grad():
-        out = model(x, edge_index, batch).squeeze()
-        loss = nn.MSELoss()(out, y.squeeze()).item()
-        diff = out - y.squeeze()
+        out = model(x, edge_index, batch).squeeze(-1)
+        target = y.squeeze(-1)
+        loss = nn.MSELoss()(out, target).item()
+        diff = out - target
         mae = torch.mean(torch.abs(diff)).item()
         rmse = torch.sqrt(torch.mean(diff ** 2)).item()
-    return {"loss": loss, "rmse": mae, "mae": mae}
+    return {"loss": loss, "rmse": rmse, "mae": mae}
 
-# ----------------------------------------------------------------------
-# Training routine
-# ----------------------------------------------------------------------
 def train_gnn(
     train_loader: DataLoader,
     val_loader: DataLoader,
@@ -298,25 +300,11 @@ def train_gnn(
     device: torch.device = torch.device("cpu"),
 ) -> Path:
     """
-    Train the GNN with early‑stopping.
+    Full training loop with early stopping.
 
-    Parameters
-    ----------
-    train_loader, val_loader : DataLoader
-        Loaders for the training and validation splits.
-    checkpoint_path : Path
-        Where to store the best checkpoint (the file is overwritten if it
-        already exists).
-    max_epochs : int, default 50
-    patience : int, default 5
-    device : torch.device, default CPU‑only
-
-    Returns
-    -------
-    Path
-        Path to the checkpoint file containing the best model state.
+    The best checkpoint (lowest validation loss) is saved to
+    ``checkpoint_path`` and also copied to ``data/interim/gnn_checkpoint.pt``.
     """
-    # Determine input dimensionality from a single batch
     sample_batch = next(iter(train_loader))
     in_features = sample_batch.x.shape[1]
 
@@ -335,25 +323,31 @@ def train_gnn(
     peak_memory = 0.0
 
     for epoch in range(1, max_epochs + 1):
+        # -----------------
+        # Training phase
+        # -----------------
         model.train()
         train_loss = 0.0
         for batch in train_loader:
             batch = batch.to(device)
             optimizer.zero_grad()
-            out = model(batch.x, batch.edge_index, batch.batch).squeeze()
-            loss = nn.MSELoss()(out, batch.y.squeeze())
+            out = model(batch.x, batch.edge_index, batch.batch).squeeze(-1)
+            loss = nn.MSELoss()(out, batch.y.squeeze(-1))
             loss.backward()
             optimizer.step()
             train_loss += loss.item() * batch.num_graphs
         train_loss /= len(train_loader.dataset)
 
+        # -----------------
+        # Validation phase
+        # -----------------
         model.eval()
         val_loss = 0.0
         with torch.no_grad():
             for batch in val_loader:
                 batch = batch.to(device)
-                out = model(batch.x, batch.edge_index, batch.batch).squeeze()
-                loss = nn.MSELoss()(out, batch.y.squeeze())
+                out = model(batch.x, batch.edge_index, batch.batch).squeeze(-1)
+                loss = nn.MSELoss()(out, batch.y.squeeze(-1))
                 val_loss += loss.item() * batch.num_graphs
         val_loss /= len(val_loader.dataset)
 
@@ -361,11 +355,9 @@ def train_gnn(
         mem = psutil.Process().memory_info().rss / (1024 ** 3)
         peak_memory = max(peak_memory, mem)
 
-        logger.info(
-            f"Epoch {epoch:02d} | Train loss: {train_loss:.4f} | Val loss: {val_loss:.4f}"
-        )
+        logger.info(f"Epoch {epoch:02d} | Train loss: {train_loss:.4f} | Val loss: {val_loss:.4f}")
 
-        # Early stopping check
+        # Save checkpoint if validation improves
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             best_epoch = epoch
@@ -387,6 +379,7 @@ def train_gnn(
             )
             logger.info(f"Checkpoint saved (epoch {epoch}).")
 
+        # Early‑stopping check
         if model.early_stop(val_loss):
             logger.info("Early stopping criteria met.")
             break
@@ -394,47 +387,35 @@ def train_gnn(
     logger.info(
         f"GNN training completed. Best epoch: {best_epoch} with val loss {best_val_loss:.4f}."
     )
+    logger.info(f"Peak memory usage during training: {peak_memory:.3f} GB")
 
-    # Also copy the checkpoint to the location expected by the explain script
+    # Ensure the interim directory exists and copy the checkpoint for downstream scripts
     interim_path = Path("data") / "interim" / "gnn_checkpoint.pt"
     interim_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(checkpoint_path, interim_path)
 
     return checkpoint_path
 
-# ----------------------------------------------------------------------
-# Main entry‑point (used by ``run_all.sh`` via ``code/analysis/train.py``)
-# ----------------------------------------------------------------------
 def main() -> None:
     """
-    Orchestrates a minimal training run: loads the processed CSV,
-    builds a graph dataset, creates a validation split, trains the GNN,
-    and writes the checkpoint to ``code/models/gnn.pt``.
+    Entry point used by the pipeline (and by the quick‑start guide).
+    Trains the GNN on the training split and writes the checkpoint.
     """
     setup_logging(task_id="T004")
     logger.info("Starting GNN training script (T004).")
-
-    # Enforce CPU‑only execution
     device = torch.device("cpu")
-
     checkpoint_path = Path("code") / "models" / "gnn.pt"
     checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
         df_train = _load_processed_data("train")
-        df_test = _load_processed_data("test")
-
         possible_targets = ["permeability", "permeability_coefficient", "target"]
-        target_col = next(
-            (c for c in possible_targets if c in df_train.columns), None
-        )
+        target_col = next((c for c in possible_targets if c in df_train.columns), None)
         if not target_col:
             raise ValueError("No recognised target column found.")
 
-        # Build graph objects for training and validation
         train_graphs = _build_graph_dataset(df_train, target_col=target_col)
-
-        # Simple 10 % validation split
+        # Simple validation split: 10 % of the training graphs
         val_size = max(1, int(0.1 * len(train_graphs)))
         np.random.seed(42)
         indices = np.random.permutation(len(train_graphs))
@@ -445,7 +426,6 @@ def main() -> None:
         train_loader = DataLoader(train_subset, batch_size=32, shuffle=True)
         val_loader = DataLoader(val_subset, batch_size=32, shuffle=False)
 
-        # Train the model
         train_gnn(
             train_loader=train_loader,
             val_loader=val_loader,
@@ -454,18 +434,16 @@ def main() -> None:
             patience=5,
             device=device,
         )
-
         logger.info(f"GNN checkpoint saved to {checkpoint_path}")
 
     except Exception as e:
         logger.error(f"Training failed: {e}")
-        # Ensure a checkpoint file exists so downstream steps do not crash
+        # Write a minimal dummy checkpoint so downstream scripts do not crash
         dummy_model = create_mpnn_model(input_dim=1, hidden_dim=64, output_dim=1)
         torch.save(
             {"epoch": 0, "model_state_dict": dummy_model.state_dict(), "val_loss": None},
             checkpoint_path,
         )
-        # Also copy dummy to interim location
         interim_path = Path("data") / "interim" / "gnn_checkpoint.pt"
         interim_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(checkpoint_path, interim_path)

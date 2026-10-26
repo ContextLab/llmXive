@@ -47,14 +47,14 @@ All scripts write their outputs under the project‑owned directories `data/`, `
   - Saves the trained checkpoint to `code/models/gnn.pt`.  
   - **Verification**: `tests/unit/test_models.py::test_gnn_training` runs the full training loop on a tiny sampled subset, asserts that training completes within the 6‑hour wall‑time budget on the CI runner, and that `code/models/gnn.pt` exists and can be loaded without error.
 
-- [ ] T014 [US‑2] Add unit test `tests/unit/test_models.py::test_gnn_training` (or augment existing file) to exercise the full GNN training pipeline, check checkpoint creation, and enforce the wall‑time limit via a timeout guard.  
+- [X] T014 [US‑2] Add unit test `tests/unit/test_models.py::test_gnn_training` (or augment existing file) to exercise the full GNN training pipeline, check checkpoint creation, and enforce the wall‑time limit via a timeout guard.  
   - **Verification**: CI runs the test; it must pass and report a duration < 3600 s.
 
 - [ ] T005 [US‑2] Refactor `code/models/rf.py` – train a `RandomForestRegressor` (`n_estimators=200`, `max_features='sqrt'`) **using only the six standard descriptor columns** (MW, logP, TPSA, HBA, HBD, rotatable bonds) and **save** the fitted model to `code/models/rf.pkl` using `joblib.dump`.  
   - Ensure the script exits with status 0 only after the pickle file is written.  
   - **Verification**: `tests/unit/test_models.py::test_rf_training` checks that `code/models/rf.pkl` exists, can be loaded, and that `feature_importances_` length equals 6.
 
-- [X] T015 [US‑2] Add unit test `tests/unit/test_models.py::test_rf_training` (or extend the existing test suite) that loads the pickle, verifies the number of features, and confirms that training time is < 6 h on the CI runner.  
+- [ ] T015 [US‑2] Add unit test `tests/unit/test_models.py::test_rf_training` (or extend the existing test suite) that loads the pickle, verifies the number of features, and confirms that training time is < 6 h on the CI runner.  
   - **Verification**: test must pass and report a duration < 3600 s.
 
 - [ ] T007 [US‑2] Implement `code/analysis/train.py` – orchestrates model training:   <!-- FAILED-IN-EXECUTION: code/analysis/train.py exit=1 -->

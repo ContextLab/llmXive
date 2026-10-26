@@ -5,13 +5,12 @@ T001:
 T002:
   task: 01225ffdef422e3621ee10adc1a293d9872947bae04c7caf4da6044af5d4f2a8
 T003:
-  reason: "The repository contains `code/data/split.py` which implements the required\
-    \ split logic, and a `data/processed/train.parquet` file, but there is no evidence\
-    \ of the complementary `test.parquet`, `train.csv`, or `test.csv` files being\
-    \ created. Moreover, no data (e.g., row counts) is provided to confirm the 0.75\u2011\
-    0.85 train\u2011to\u2011test ratio or the \u22645\u202Fpp stratification constraint,\
-    \ so the integration test\u2019s verification criteria cannot be satisfied. The\
-    \ missing split artefacts and lack of ratio/stratification evidence must be addressed."
+  reason: "Checked `code/data/split.py` and the generated split files. While the script\
+    \ creates the required Parquet files (`train.parquet`, `test.parquet`) and implements\
+    \ the described split logic, it does **not** produce the required CSV counterparts\
+    \ (`train.csv`, `test.csv`) \u2013 these files are absent from the project. The\
+    \ missing CSV outputs mean the task\u2019s requirement of writing both Parquet\
+    \ **and** CSV splits is not satisfied."
   task: 63ca040e52b19fb51b3b431c6e48dd0f60bf36a7cda072de4c10c871d0eb7c97
 T004:
   reason: 'Requested task execution failed; rerun successfully: run_all.sh exit=1'
@@ -42,14 +41,13 @@ T012:
 T013:
   task: f45d7b39b97a52e3cdb70a747add94d34106b2227a8b0cd195d9cb4e9c347abb
 T014:
-  reason: "The `tests/unit/test_models.py::test_gnn_training_pipeline` test is present,\
-    \ but the CI log shows it fails with a `ValueError: Expected more than 1 value\
-    \ per channel when training, got input size torch.Size([1, 64])`. Consequently\
-    \ the GNN training pipeline does not complete, no checkpoint is created, and the\
-    \ wall\u2011time guard is never reached. The task requires this test to pass within\
-    \ 3600\u202Fs, which is not satisfied. Fix the batch\u2011norm handling (or otherwise\
-    \ ensure the training step works on the tiny dataset) and ensure the checkpoint\
-    \ files are written."
   task: 8a2d11fff8f9e2054e8e661f6ea2347f7d68f099eb1b3207f687a41f9cc35ac7
 T015:
+  reason: "The repository contains `tests/unit/test_models.py` with a `test_rf_training`\
+    \ that checks the RF pickle, verifies six feature importances, and asserts `total_hours\
+    \ < 6`. However, the task\u2019s verification requires the test to confirm training\
+    \ time\u202F<\u202F3600\u202Fs (1\u202Fh) and to \u201Creport\u201D that duration,\
+    \ which the current test does not do. Moreover, the referenced `results/training_log.json`\
+    \ is not present in the checked artifacts, so its existence and content cannot\
+    \ be verified. The test therefore does not fully satisfy the specified requirement."
   task: 24d781cc412c74b757ded7dacbff05964bbc18a4d17e0afe9540327ec898b584

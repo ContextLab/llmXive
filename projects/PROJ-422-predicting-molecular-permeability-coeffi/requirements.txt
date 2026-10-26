@@ -1,1 +1,11 @@
+rdkit
+torch==2.2.0
+torch-geometric
+scikit-learn
+shap
+pandas
 datasets
+statsmodels
+numpy
+matplotlib
+pyarrow

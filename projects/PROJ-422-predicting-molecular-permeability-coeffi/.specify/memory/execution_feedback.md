@@ -19,40 +19,51 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/analysis/train.py --config config.yaml -> rc=1
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-422-predicting-molecular-permeability-coeffi/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
-  warnings.warn(
-2026-10-26 08:18:54,926 INFO __main__: === GNN + RF training step (T007) ===
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 281, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 188, in main
-    df_train = _load_split("train")
-               ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 55, in _load_split
-    raise FileNotFoundError(f"{split_name} split not found at {csv_path}")
-FileNotFoundError: train split not found at /home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/data/processed/train.csv
-
-- python code/analysis/explain.py -> rc=1
-{"timestamp": "2026-10-26T08:18:59.042479+00:00", "level": "ERROR", "task_id": "T004", "logger": "__main__", "message": "Model checkpoint not found at data/interim/gnn_checkpoint.pt. Please run training (T022) first.", "module": "explain", "function": "main", "line": 229}
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-422-predicting-molecular-permeability-coeffi/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
-  warnings.warn(
-
-- bash ./run_all.sh -> rc=1
--10-26 08:19:06,484 INFO models.gnn: GNN training completed. Best epoch: 50 with val loss 0.0154.
-2026-10-26 08:19:06,485 INFO __main__: GNN checkpoint written to code/models/gnn.pt
-2026-10-26 08:19:06,486 INFO models.rf: Training Random Forest: n_estimators=200, max_features=sqrt
-2026-10-26 08:19:06,684 INFO models.rf: Random Forest training complete. Feature importances shape: (6,)
-2026-10-26 08:19:06,720 INFO __main__: Random Forest model saved to code/models/rf.pkl
+st epoch: 7 with val loss 0.0003.
+2026-10-26 08:42:51,230 INFO models.gnn: Peak memory usage during training: 0.638 GB
+2026-10-26 08:42:51,231 INFO __main__: GNN checkpoint written to code/models/gnn.pt
+2026-10-26 08:42:51,232 INFO models.rf: Training Random Forest: n_estimators=200, max_features=sqrt
+2026-10-26 08:42:51,441 INFO models.rf: Random Forest training complete. Feature importances shape: (6,)
+2026-10-26 08:42:51,477 INFO __main__: Random Forest model saved to code/models/rf.pkl
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 281, in <module>
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 234, in main
     gnn_val_rmse = _evaluate_gnn_on_loader(
                    ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 141, in _evaluate_gnn_on_loader
-    y_pred = np.concatenate(all_preds)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^
-ValueError: zero-dimensional arrays cannot be concatenated
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 138, in _evaluate_gnn_on_loader
+    all_preds.append(out.cpu().numpy())
+                     ^^^^^^^^^^^^^^^^^
+RuntimeError: Numpy is not available
+
+- python code/analysis/explain.py -> rc=1
+.11/site-packages/torch/nn/modules/transformer.py:20: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)
+  device: torch.device = torch.device(torch._C._get_default_device()),  # torch.device('cpu'),
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/explain.py", line 234, in main
+    explain_gnn(model_path, test_data_path, output_path)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/explain.py", line 114, in explain_gnn
+    test_graphs = load_test_graphs_from_csv(data_path, model_config)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/explain.py", line 75, in load_test_graphs_from_csv
+    raise FileNotFoundError("Graph structure file 'data/interim/test_graphs.pt' not found. "
+FileNotFoundError: Graph structure file 'data/interim/test_graphs.pt' not found. Please ensure T014b/T017 saved the graph structures.
+
+- bash ./run_all.sh -> rc=1
+t epoch: 10 with val loss 0.0012.
+2026-10-26 08:43:00,418 INFO models.gnn: Peak memory usage during training: 0.638 GB
+2026-10-26 08:43:00,419 INFO __main__: GNN checkpoint written to code/models/gnn.pt
+2026-10-26 08:43:00,420 INFO models.rf: Training Random Forest: n_estimators=200, max_features=sqrt
+2026-10-26 08:43:00,623 INFO models.rf: Random Forest training complete. Feature importances shape: (6,)
+2026-10-26 08:43:00,659 INFO __main__: Random Forest model saved to code/models/rf.pkl
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 281, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 234, in main
+    gnn_val_rmse = _evaluate_gnn_on_loader(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-422-predicting-molecular-permeability-coeffi/code/analysis/train.py", line 138, in _evaluate_gnn_on_loader
+    all_preds.append(out.cpu().numpy())
+                     ^^^^^^^^^^^^^^^^^
+RuntimeError: Numpy is not available
 

@@ -1,17 +1,18 @@
 status: none
-intent: Polymer Membrane Permeability Database experimental dataset download or Molecular
-  Simulation Permeability Dataset python package
+intent: Polymer Membrane Permeability Database MELD Robeson Upper Bound MSPD python
+  package dataset
 required_fields:
 - polymer_name
-- polymer_structure
-- membrane_thickness
-- temperature
-- pressure
-- permeant_gas
-- permeability_coefficient
-- units
+- membrane_type
+- gas_species
+- temperature_K
+- pressure_atm
+- permeability_coefficient_Barrer
+- diffusion_coefficient_cm2_s
+- solubility_coefficient_cm3_STP_cm3_cm2
 - measurement_method
-- reference
-cache_key: dbd09f2b1c2f48a5b4dfc8f91e49f571eb3e3ca2c32e2fc407df36172e16bf8a
-searched_at: '2026-10-26T08:19:34.052152+00:00'
+- reference_citation
+- data_source
+cache_key: 738e88b49c04f8fca8e8a09f81a9d9ca93afc173a5a68b5513ab62da93ab7f18
+searched_at: '2026-10-26T08:43:24.509994+00:00'
 retry_count: 1
