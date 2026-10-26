@@ -7,6 +7,8 @@ T002:
 T003:
   task: 11ed0204c9ada72e1a55caa6d61727c9063c493c75b7be28013859b861feb210
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/src/validation/validate_observations.py
+    exit=1'
   task: 33bfedd7e675287be3aac2138c97fe26d14f7025079c6b994e0bda766fa2cab1
 T005:
   task: ed3d88c1333bfadcd1f9e485fb9aa48d8d55c579d106bcbe81ba9168c1001993

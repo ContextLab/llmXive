@@ -15,11 +15,11 @@ This module implements the workflow described in task T003:
   The CSV contains the columns:
   ``event_id, component_mass_1, component_mass_2, mass_ratio, effective_spin``.
 
-The implementation is deliberately tolerant to minor variations in the
-HDF5 dataset naming conventions used by the GWTC releases.  It looks
-for a small set of possible dataset names for each required quantity.
-If required datasets are missing for an event, that event is skipped
-(with a warning) rather than causing the whole pipeline to fail.
+The implementation tolerates minor variations in the HDF5 dataset naming
+conventions used by the GWTC releases. It looks for a small set of possible
+dataset names for each required quantity. If required datasets are missing
+for an event, that event is skipped (with a warning) rather than causing
+the whole pipeline to fail.
 
 The module provides a ``preprocess_observations()`` function that returns
 the ``Path`` to the created CSV and a ``main()`` entry point for CLI use.
@@ -35,6 +35,8 @@ import numpy as np
 import pandas as pd
 
 from llmxive_toolkit import paths, get_logger
+# Import the download helper to fetch missing raw files on‑demand.
+from src.data.download import download_all
 
 # ----------------------------------------------------------------------
 # Configuration
@@ -199,6 +201,17 @@ def preprocess_observations() -> Path:
         paths.data("raw", "gwtc2.h5"),
     ]
 
+    # If any required raw file is missing, attempt to download them.
+    missing = [p for p in raw_paths if not p.is_file()]
+    if missing:
+        log.info("Missing GWTC raw files (%s); invoking download routine.", ", ".join(str(p) for p in missing))
+        # download_all returns a dict of filename -> Path; it also writes checksums.json.
+        download_all()
+        # Re‑check existence after download attempt.
+        for p in missing:
+            if not p.is_file():
+                raise FileNotFoundError(f"Required GWTC file not found after download attempt: {p}")
+
     # Load draws for each file and concatenate
     all_event_ids: List[str] = []
     all_m1: Dict[str, np.ndarray] = {}
@@ -206,8 +219,6 @@ def preprocess_observations() -> Path:
     all_chi: Dict[str, np.ndarray] = {}
 
     for raw_path in raw_paths:
-        if not raw_path.is_file():
-            raise FileNotFoundError(f"Required GWTC file not found: {raw_path}")
         ev_ids, m1_dict, m2_dict, chi_dict = _load_event_draws(raw_path, rng)
         all_event_ids.extend(ev_ids)
         all_m1.update(m1_dict)
@@ -229,7 +240,11 @@ def preprocess_observations() -> Path:
     out_path = paths.data("processed", "obs_point_estimates.csv")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df_point.to_csv(out_path, index=False)
-    log.info("Wrote observational point‑estimate catalog to %s (%d rows)", out_path, len(df_point))
+    log.info(
+        "Wrote observational point‑estimate catalog to %s (%d rows)",
+        out_path,
+        len(df_point),
+    )
 
     return out_path
 

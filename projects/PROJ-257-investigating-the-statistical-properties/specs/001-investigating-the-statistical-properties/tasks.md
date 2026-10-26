@@ -22,12 +22,12 @@ Tasks are ordered to respect data‑flow and the functional priorities defined i
 
 ## Phase 1 – Observational data preprocessing (US‑1, priority P1)
 
-- [ ] T003 [P1] [US1] **Create an i.i.d. point‑estimate dataset from GWTC posterior samples using hierarchical bootstrap**  
+- [~] T003 [P1] [US1] **Create an i.i.d. point‑estimate dataset from GWTC posterior samples using hierarchical bootstrap**  
   *Implementation*: `code/src/data/preprocess_observations.py` loads `gwtc1.h5` and `gwtc2.h5`, **draws 500 posterior samples per event** (fixed seed `2026-10-24-01`), then performs a **hierarchical bootstrap**: resample events with replacement, and for each resampled event randomly select one of its 500 draws. From the selected draws it computes `mass_ratio = m2/m1` and `effective_spin`, filters rows with any NaN in the three key fields, and aborts if fewer than 100 valid events remain. The resulting CSV conforms to `gwtc_catalog.schema.yaml`.  
   *Output*: `data/processed/obs_point_estimates.csv`.  
   *Verification*: `pytest tests/unit/test_preprocess_observations.py` checks row count ≥ 100, required columns present, schema compliance, and that the hierarchical bootstrap procedure yields an i.i.d. dataset.
 
-- [ ] T004 [P1] [US1] **Validate observational CSV schema and verify independence (lag‑1 autocorrelation)**  
+- [ ] T004 [P1] [US1] **Validate observational CSV schema and verify independence (lag‑1 autocorrelation)**   <!-- FAILED-IN-EXECUTION: code/src/validation/validate_observations.py exit=1 -->
   *Implementation*: `code/src/validation/validate_observations.py` (1) validates `obs_point_estimates.csv` against `gwtc_catalog.schema.yaml`; (2) computes lag‑1 autocorrelation for `mass_ratio` and `effective_spin` using `statsmodels.tsa.stattools.acf` and writes `data/results/obs_independence.json` containing `lag1_mass_ratio`, `lag1_effective_spin`, and a boolean `independence_flag` that is true only if `|ρ₁| < 0.1` for both parameters.  
   *Output*: `data/results/obs_independence.json`.  
   *Verification*: `pytest tests/unit/test_obs_independence.py` asserts that the JSON matches the schema, that the autocorrelation values are numeric, and that `independence_flag` is true; if false the test fails with a diagnostic message.
