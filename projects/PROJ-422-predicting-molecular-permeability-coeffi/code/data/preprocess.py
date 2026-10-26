@@ -27,9 +27,10 @@ class MoleculeProcessor:
     The processor:
     1. Parses SMILES with RDKit, logging and excluding invalid entries (FR‑011).
     2. Computes six standard molecular descriptors (FR‑003).
-    3. Writes both CSV and Parquet files BEFORE any retention‑rate guard (FR‑012).
-    4. Enforces the ≥ 95 % valid‑molecule retention guard; if failed, exits non‑zero.
-    5. Drops rows with missing target values.
+    3. Builds a molecular‑graph JSON column (node & edge features).
+    4. Writes both CSV and Parquet files BEFORE any retention‑rate guard (FR‑012).
+    5. Enforces the ≥ 95 % valid‑molecule retention guard; if failed, exits non‑zero.
+    6. Drops rows with missing target values.
     """
 
     def __init__(self, config_path: Optional[str] = None, retention_threshold: Optional[float] = None):
@@ -107,6 +108,60 @@ class MoleculeProcessor:
             return {name: np.nan for name in self.descriptor_names}
 
     # ------------------------------------------------------------------
+    # Graph construction
+    # ------------------------------------------------------------------
+    def _mol_to_graph_json(self, mol: Chem.Mol) -> str:
+        """
+        Convert an RDKit Mol into a JSON string containing node and edge features.
+
+        Node features include:
+          - atom_idx
+          - symbol
+          - atomic_num
+          - degree
+          - formal_charge
+          - hybridization (string)
+          - aromatic (bool)
+
+        Edge features include:
+          - source (atom_idx)
+          - target (atom_idx)
+          - bond_type (single, double, triple, aromatic)
+          - aromatic (bool)
+        """
+        # Nodes
+        nodes = []
+        for atom in mol.GetAtoms():
+            nodes.append({
+                'atom_idx': atom.GetIdx(),
+                'symbol': atom.GetSymbol(),
+                'atomic_num': atom.GetAtomicNum(),
+                'degree': atom.GetDegree(),
+                'formal_charge': atom.GetFormalCharge(),
+                'hybridization': str(atom.GetHybridization()),
+                'aromatic': bool(atom.GetIsAromatic())
+            })
+
+        # Edges
+        edges = []
+        for bond in mol.GetBonds():
+            begin_idx = bond.GetBeginAtomIdx()
+            end_idx = bond.GetEndAtomIdx()
+            bond_type = str(bond.GetBondType())
+            edges.append({
+                'source': begin_idx,
+                'target': end_idx,
+                'bond_type': bond_type,
+                'aromatic': bool(bond.GetIsAromatic())
+            })
+
+        graph_dict = {
+            'nodes': nodes,
+            'edges': edges
+        }
+        return json.dumps(graph_dict)
+
+    # ------------------------------------------------------------------
     # Core processing routine
     # ------------------------------------------------------------------
     def process(
@@ -123,8 +178,9 @@ class MoleculeProcessor:
         2. Parse each SMILES; invalid entries are skipped.
         3. Exclude rows where the target is missing.
         4. Compute descriptors for valid molecules.
-        5. Write CSV and Parquet outputs **before** any guard checks.
-        6. Apply the ≥ 95 % retention guard; on failure, log a warning and exit non‑zero.
+        5. Build a molecular‑graph JSON column.
+        6. Write CSV and Parquet outputs **before** any guard checks.
+        7. Apply the ≥ 95 % retention guard; on failure, log a warning and exit non‑zero.
         """
         self.logger.info(f"Processing {len(df)} records...")
 
@@ -179,6 +235,11 @@ class MoleculeProcessor:
             descriptors = self.calculate_descriptors(mol)
 
             # ------------------------------------------------------------------
+            # Graph JSON construction
+            # ------------------------------------------------------------------
+            graph_json = self._mol_to_graph_json(mol)
+
+            # ------------------------------------------------------------------
             # Assemble the processed row
             # ------------------------------------------------------------------
             new_row = {
@@ -190,6 +251,7 @@ class MoleculeProcessor:
                 'hba': descriptors.get('hba', np.nan),
                 'hbd': descriptors.get('hbd', np.nan),
                 'rotatable_bonds': descriptors.get('rotatable_bonds', np.nan),
+                'mol_graph': graph_json,
                 'target': target_val
             }
 

@@ -9,22 +9,19 @@ T000:
   sig: 648d95a4d2452304671919e57cbdb9519f882a634fbf60e0b119a12054e350f5
 T001:
   c: false
-  h: 7cf4787410fe84ebc0c5e7e9c8ed00fcc13be05c0466d0a6c0dc72e6a961df7b
-  r: "The `data/raw/` directory is empty and the required `checksums.json` file does\
-    \ not exist, so the `DataLoader.process()` routine has not produced the CSV and\
-    \ SHA\u2011256 manifest that the unit test expects. Consequently the test `tests/unit/test_download.py`\
-    \ would fail, meaning the task\u2019s requirement is not met. The missing raw\
-    \ CSV (e.g., `data/raw/permeability_data.csv`) and its checksum file must be generated\
-    \ by the script."
-  sig: d601fec7be262838647734677b45b6cdf8cdcc18e2e3e7369e157eecee2448e7
+  h: 23c897c9862c513f80a6e7a74dff411456ad8e364e2c0e2af12e97c381ba98e9
+  r: "The `data/raw/` directory is empty and `data/raw/checksums.json` is missing,\
+    \ so the script has not demonstrably written the required CSV and checksum files,\
+    \ and there is no evidence that `tests/unit/test_download.py` actually passes.\
+    \ The task\u2019s verification step is therefore unmet."
+  sig: 042f695ba350a22e95776b7640ae79bd457c44151e87557e0d54b843b873d75a
 T002:
-  c: false
-  h: e477c79afcb757fd91cb3e167ae4844ad5a34399ce48c723843819bb2e7263cb
-  r: "Checked `code/data/preprocess.py` and the generated `processed_data.csv/parquet`.\
-    \ The processor parses SMILES, computes the six descriptors, writes both files\
-    \ before the retention guard, enforces the \u2265\u202F95\u202F% valid\u2011molecule\
-    \ check, and drops rows with missing targets. However, it never creates the required\
-    \ molecular\u2011graph JSON column (node & edge features), so the implementation\
-    \ does not fulfill all task specifications. Adding a column (e.g., `mol_graph`)\
-    \ with the graph JSON representation is needed."
-  sig: 01870b770eae9aaef405205b0da45da9813955d774d83c24f5f922b1829a9565
+  c: true
+  h: d0a71894e41af95f2fd05c67308e337b39b2fc966c4d02c2b9808bbdd433c517
+  r: "Checked `code/data/preprocess.py` implementation, the generated `data/processed/processed_data.csv`\
+    \ and `.parquet` files, and the unit tests `tests/unit/test_preprocess.py`. The\
+    \ processor parses SMILES, computes the required descriptors, builds the graph\
+    \ JSON, writes both output files before the retention guard, drops rows with missing\
+    \ targets, and raises a non\u2011zero `SystemExit` when the valid\u2011molecule\
+    \ fraction is below 95\u202F%, satisfying all test assertions."
+  sig: c0f9d39f775baa6689ee71d8df747e1610a2ed89c93e72785940a54a91d1e10a

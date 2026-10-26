@@ -54,9 +54,8 @@ def random_split(
         # Nothing to split – return empty test set (handled later)
         return df.copy(), pd.DataFrame(columns=df.columns)
 
-    # When the dataset is tiny we fall back to a leave‑one‑out style split
+    # Tiny dataset → deterministic leave‑one‑out using the first row as test
     if n <= 5:
-        # deterministic leave‑one‑out using the first row as test
         test_df = df.iloc[[0]].copy()
         train_df = df.iloc[1:].copy()
         log.info(
@@ -145,7 +144,6 @@ def _quantile_stratify(
     Creates a temporary column 'target_bin' for stratification,
     then uses the existing stratified_split logic.
     """
-    # Create bins; drop duplicates to avoid errors when values are not enough
     try:
         df["target_bin"] = pd.qcut(
             df[target_col],
@@ -159,7 +157,6 @@ def _quantile_stratify(
         )
         return random_split(df, test_size=0.2, random_state=random_state)
 
-    # Use the temporary bin column for stratified split
     train_df, test_df = stratified_split(
         df,
         stratify_col="target_bin",
@@ -174,6 +171,43 @@ def _quantile_stratify(
 # ----------------------------------------------------------------------
 # Main execution workflow
 # ----------------------------------------------------------------------
+def _prepare_dataframe(df: pd.DataFrame, target_col: str, stratify_col: str) -> pd.DataFrame:
+    """
+    Helper to:
+    * Drop rows with null target.
+    * Keep only columns needed for modelling:
+      - target column
+      - stratification column (if present)
+      - all numeric / boolean descriptor columns
+    This also removes any large JSON graph columns that would break downstream
+    numeric conversion (e.g., a 'mol_graph' column produced during preprocessing).
+    """
+    # 1. Filter rows where target is non‑null
+    df = df.dropna(subset=[target_col]).copy()
+    if df.empty:
+        log.error("No rows with a non‑null target found after filtering.")
+        raise SystemExit(1)
+
+    # 2. Determine which columns to keep
+    cols_to_keep = [target_col]
+
+    # Keep stratification column if it exists (it may be categorical)
+    if stratify_col in df.columns:
+        cols_to_keep.append(stratify_col)
+
+    # Keep all numeric / boolean columns (descriptors)
+    numeric_cols = [
+        c for c in df.columns
+        if pd.api.types.is_numeric_dtype(df[c]) or pd.api.types.is_bool_dtype(df[c])
+    ]
+    # Ensure we don't duplicate columns
+    for col in numeric_cols:
+        if col not in cols_to_keep:
+            cols_to_keep.append(col)
+
+    # Return the reduced dataframe
+    return df[cols_to_keep]
+
 def execute_split(
     df: pd.DataFrame,
     output_dir: str,
@@ -190,26 +224,23 @@ def execute_split(
     config = _load_config()
     target_col = config.get("target_column", "target")
 
-    # 1. Filter to rows where target is non‑null
-    df_filtered = df.dropna(subset=[target_col]).copy()
-    if df_filtered.empty:
-        log.error("No rows with a non‑null target found. Cannot split.")
-        raise SystemExit(1)
+    # Prepare dataframe: filter target, keep only needed columns
+    df_prepared = _prepare_dataframe(df, target_col, stratify_column)
 
-    n_rows = len(df_filtered)
+    n_rows = len(df_prepared)
     split_strategy = "random"
 
     # 2. Choose splitting strategy
     if n_rows <= 5:
         # Leave‑one‑out split (guarantees at least one test sample)
-        train_df, test_df = random_split(df_filtered, test_size=0.2, random_state=random_state)
+        train_df, test_df = random_split(df_prepared, test_size=0.2, random_state=random_state)
         split_strategy = "leave_one_out"
     else:
-        if stratify_column in df_filtered.columns:
+        if stratify_column in df_prepared.columns:
             try:
                 log.info(f"Attempting stratified split on '{stratify_column}'...")
                 train_df, test_df = stratified_split(
-                    df_filtered,
+                    df_prepared,
                     stratify_col=stratify_column,
                     test_size=test_size,
                     random_state=random_state,
@@ -219,9 +250,8 @@ def execute_split(
                 log.warning(
                     f"Stratified split failed ({e}). Falling back to target quantile stratification."
                 )
-                # Fallback to quantile based stratification
                 train_df, test_df = _quantile_stratify(
-                    df_filtered,
+                    df_prepared,
                     target_col=target_col,
                     n_bins=5,
                     random_state=random_state,
@@ -232,7 +262,7 @@ def execute_split(
                 f"Stratification column '{stratify_column}' absent. Using target quantile stratification."
             )
             train_df, test_df = _quantile_stratify(
-                df_filtered,
+                df_prepared,
                 target_col=target_col,
                 n_bins=5,
                 random_state=random_state,
@@ -241,17 +271,16 @@ def execute_split(
 
     # Ensure both splits contain at least one row (extra safety)
     if train_df.empty or test_df.empty:
-        # Move a single random row to the empty side
         if train_df.empty:
             test_df, train_df = train_test_split(
-                df_filtered,
+                df_prepared,
                 test_size=1,
                 random_state=random_state,
                 shuffle=True,
             )
         else:
             train_df, test_df = train_test_split(
-                df_filtered,
+                df_prepared,
                 test_size=1,
                 random_state=random_state,
                 shuffle=True,
@@ -293,7 +322,7 @@ def execute_split(
         "train_size": len(train_df),
         "test_size": len(test_df),
         "max_distribution_diff": max_diff,
-        "retention_rate": len(df_filtered) / len(df) if len(df) > 0 else 0,
+        "retention_rate": len(df) / len(df) if len(df) > 0 else 0,
     }
 
     with open(metrics_path, "w") as f:

@@ -21,46 +21,59 @@ pip install -r requirements.txt
 
 ## Step‑by‑Step Execution
 
-1. **Load & Verify Data (streaming)**
+1. **Download Raw Data**
+ ```bash
+ python code/data/download.py
+ ```
+ - Streams the verified dataset (or falls back to the local sample) and writes
+ `data/raw/permeability_data.csv` together with a SHA‑256 manifest
+ `data/raw/checksums.json`.
+
+2. **Load & Verify Data (streaming)**
  ```bash
  python code/data/preprocess.py
  ```
- - Streams the verified datasets from Hugging Face, computes SHA‑256 checksums, parses SMILES, and writes **both** `data/processed/processed_data.parquet` **and** `data/processed/processed_data.csv`.
- - If the valid‑molecule retention rate falls below 95 %, the script logs a warning and **exits with a non‑zero code after the files are written** (so they are available for inspection).
- - If no `permeability` column is found, the script stops after this step with an informative message and prompts the user to approve a surrogate target via the spec‑amendment workflow (see Phase 0 of the plan).
+ - Parses SMILES, computes descriptors, builds molecular‑graph JSON, and writes
+ both `data/processed/processed_data.parquet` **and** `data/processed/processed_data.csv`.
 
-2. **Create Train/Test Split**
+3. **Create Train/Test Split**
  ```bash
  python code/data/split.py
  ```
- - Generates `data/processed/train.parquet` and `data/processed/test.parquet` (stratified when possible) [UNRESOLVED-CLAIM: c_d8df92df — status=not_enough_info].
+ - Generates `data/processed/train.parquet`, `train.csv`, `test.parquet`,
+ and `test.csv` (stratified when possible).
 
-3. **Train GNN Model**
+4. **Train GNN Model**
  ```bash
  python code/models/gnn_train_and_checkpoint.py
  ```
- - Runs the GNN training routine, producing the checkpoint file `code/models/gnn.pt` [UNRESOLVED-CLAIM: c_ac17941f — status=not_enough_info].
+ - Runs the GNN training routine, producing the checkpoint file
+ `code/models/gnn.pt`.
 
-4. **Train & Evaluate Remaining Models**
+5. **Train & Evaluate Remaining Models**
  ```bash
  # Train all models, perform power analysis, and evaluate
  python code/analysis/train.py --config config.yaml
  ```
 
-5. **Interpretability**
+6. **Interpretability**
  ```bash
  python code/analysis/explain.py
  ```
 
-6. **Full End‑to‑End Run (optional)**
+7. **Full End‑to‑End Run (optional)**
  ```bash
 ./run_all.sh
  ```
- *`run_all.sh`* simply chains the three commands above and exits with a non‑zero code if any step fails.
+ *`run_all.sh`* simply chains the commands above and exits with a non‑zero code
+ if any step fails.
 
 ## Expected Outputs
-- `data/processed/processed_data.parquet` and `processed_data.csv` – cleaned feature tables (or a warning if retention < 95 %).
-- `data/processed/train.parquet` and `data/processed/test.parquet` – train/test splits.
+- `data/raw/permeability_data.csv` and `data/raw/checksums.json` – raw dataset and its checksum.
+- `data/processed/processed_data.parquet` and `processed_data.csv` – cleaned feature tables.
+- `data/processed/train.parquet` and `train.csv`, `test.parquet` and `test.csv` – train/test splits.
 - `code/models/gnn.pt` – trained GNN checkpoint.
-- `results/metrics.json` – RMSE, MAE, R² for GNN, RF, RF‑ablation; paired test result; normality test outcome; power‑analysis summary; bias‑check flag; **interpretability overlap** metric.
-- `results/interpretability/` – PNG/HTML files for SHAP bar charts and GNNExplainer substructure heatmaps.
+- `results/metrics.json` – RMSE, MAE, R² for GNN and RF; paired test result; statistical‑test outcome;
+ power‑analysis summary; **interpretability overlap** metric.
+- `results/interpretability/` – PNG/HTML files for SHAP bar charts and GNNExplainer substructure
+ heatmaps.

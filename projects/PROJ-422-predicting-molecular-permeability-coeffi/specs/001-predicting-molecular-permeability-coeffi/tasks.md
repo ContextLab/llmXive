@@ -20,7 +20,7 @@ All scripts write their outputs under the project‑owned directories `data/`, `
   - Writes raw files to `data/raw/` and a SHA‑256 manifest to `data/raw/checksums.json`.  
   - **Verification**: `tests/unit/test_download.py` checks that at least one row is written and that the `permeability` column exists in the raw file.
 
-- [ ] T002 [US‑1] Implement `code/data/preprocess.py` – `MoleculeProcessor.process(df)` that:  
+- [X] T002 [US‑1] Implement `code/data/preprocess.py` – `MoleculeProcessor.process(df)` that:  
   1. Parses each SMILES with `rdkit.Chem.MolFromSmiles`; logs and excludes invalid SMILES (FR‑011).  
   2. Computes MW, logP, TPSA, HBA, HBD, rotatable bonds.  
   3. Builds a molecular‑graph JSON column (node & edge features).  

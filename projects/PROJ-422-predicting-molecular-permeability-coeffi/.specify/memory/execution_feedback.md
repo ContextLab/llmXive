@@ -7,14 +7,14 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/analysis/train.py --config config.yaml -> rc=1
-{"timestamp": "2026-10-26T07:47:46.522266+00:00", "level": "INFO", "task_id": "T004", "logger": "root", "message": "============================================================", "module": "train", "function": "main", "line": 321}
-{"timestamp": "2026-10-26T07:47:46.522391+00:00", "level": "INFO", "task_id": "T004", "logger": "root", "message": "Molecular Permeability \u2013 Training Pipeline", "module": "train", "function": "main", "line": 322}
-{"timestamp": "2026-10-26T07:47:46.522449+00:00", "level": "INFO", "task_id": "T004", "logger": "root", "message": "============================================================", "module": "train", "function": "main", "line": 323}
-{"timestamp": "2026-10-26T07:47:46.522728+00:00", "level": "ERROR", "task_id": "T004", "logger": "root", "message": "Training or test split not found. Ensure the split step has run.", "module": "train", "function": "main", "line": 338}
+{"timestamp": "2026-10-26T07:50:27.290691+00:00", "level": "INFO", "task_id": "T004", "logger": "root", "message": "============================================================", "module": "train", "function": "main", "line": 321}
+{"timestamp": "2026-10-26T07:50:27.290807+00:00", "level": "INFO", "task_id": "T004", "logger": "root", "message": "Molecular Permeability \u2013 Training Pipeline", "module": "train", "function": "main", "line": 322}
+{"timestamp": "2026-10-26T07:50:27.290870+00:00", "level": "INFO", "task_id": "T004", "logger": "root", "message": "============================================================", "module": "train", "function": "main", "line": 323}
+{"timestamp": "2026-10-26T07:50:27.291098+00:00", "level": "ERROR", "task_id": "T004", "logger": "root", "message": "Training or test split not found. Ensure the split step has run.", "module": "train", "function": "main", "line": 338}
 
 
 - python code/analysis/explain.py -> rc=1
-{"timestamp": "2026-10-26T07:47:50.604615+00:00", "level": "ERROR", "task_id": "T004", "logger": "__main__", "message": "Model checkpoint not found at data/interim/gnn_checkpoint.pt. Please run training (T022) first.", "module": "explain", "function": "main", "line": 229}
+{"timestamp": "2026-10-26T07:50:30.660848+00:00", "level": "ERROR", "task_id": "T004", "logger": "__main__", "message": "Model checkpoint not found at data/interim/gnn_checkpoint.pt. Please run training (T022) first.", "module": "explain", "function": "main", "line": 229}
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-422-predicting-molecular-permeability-coeffi/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
   warnings.warn(
