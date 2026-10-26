@@ -12,20 +12,20 @@ pip install -r requirements.txt
 ```
 
 ## 2. Download the Ego4D Data
-Run the provided download script, which fetches the verified datasets and verifies checksums:
+Run the provided download script, which fetches the verified dataset and verifies checksums:
 
 ```bash
-python src/data/download.py \
-    --metadata-url https://huggingface.co/datasets/HuggingFaceM4/ego4d/resolve/main/dataset_infos.json \
-    --embeddings-url https://huggingface.co/datasets/Jazzcharles/ego4d_videomae_L14_feature_fps8/resolve/main/chunk_0.tar.gz \
-    --output-dir data/raw/
+python src/data/download.py --output-dir data/raw/
 ```
 
 The script will:
 
-* Download the JSON metadata and the tar‑gz of video‑MAE embeddings.  
-* Compute and store SHA‑256 checksums in `data/raw/CHECKSUMS.txt`.  
-* Verify the checksums automatically; any mismatch aborts with a clear error.
+* Download the Ego4D dataset (`ego4d/ego4d`) using the `datasets` library.
+* Stream each example to `data/raw/` as a JSON line file `manifest.jsonl`.
+* Compute a SHA‑256 checksum for each written file.
+* Write a `CHECKSUMS.txt` file with one line per file:
+      <checksum>  <filename>
+  Any mismatch aborts with a clear error.
 
 ## 3. Preprocess the Data
 Create the processed parquet file and the FAISS index:
@@ -33,15 +33,15 @@ Create the processed parquet file and the FAISS index:
 ```bash
 python src/data/preprocess.py \
     --raw-dir data/raw/ \
-    --processed-dir data/processed/
+    --output data/processed/memory_nodes.parquet
 ```
 
 This step:
 
-* Joins metadata with embeddings.  
-* Flags `is_rare` events (≤ 5 occurrences).  
-* Writes `memory_nodes.parquet`.  
-* Builds `faiss_hnsw.index` (deterministic, CPU‑only).  
+* Reads the `manifest.jsonl` and the accompanying `embeddings.npy` archive.
+* Flags `is_rare` events (≤ 5 occurrences).
+* Writes `memory_nodes.parquet`.
+* Builds `faiss_hnsw.index` (deterministic, CPU‑only).
 
 ## 4. Run the Full Benchmark
 Execute the end‑to‑end pipeline (validation mode first, then full evaluation):
@@ -50,16 +50,16 @@ Execute the end‑to‑end pipeline (validation mode first, then full evaluation
 # Quick validation to ensure the pipeline works
 python src/cli/run.py --mode validation
 
-# Full evaluation (may take up to ~2 h on the free CI runner)
+# Full evaluation (may take up to a few hours on the free CI runner)
 python src/cli/run.py --mode full
 ```
 
 The script will:
 
-* Perform the deterministic λ grid search.  
-* Evaluate both retrievers on the full query set.  
-* Record latency, CPU cycles, and run McNemar’s test.  
-* Write `evaluation_report.json` to the project root.  
+* Perform the deterministic λ grid search.
+* Evaluate both retrievers on the full query set.
+* Record latency, CPU cycles, and run McNemar’s test.
+* Write `evaluation_report.json` to the project root.
 * Produce a human‑readable markdown summary `report.md`.
 
 ## 5. Verify the Output
