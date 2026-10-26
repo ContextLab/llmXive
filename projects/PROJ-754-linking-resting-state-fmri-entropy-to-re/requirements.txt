@@ -1,18 +1,22 @@
-# Core scientific stack
-# Explicitly pinning NumPy >= 2.0.0 to resolve pyarrow ImportError
-numpy>=2.0.0
-pandas==2.2.*
-scipy==1.12.*
-matplotlib==3.8.*
-scikit-learn==1.5.*
-statsmodels==0.14.*
-seaborn==0.13.*
-pytest==8.2.*
-PyYAML==6.0.*
-requests==2.31.*
-jsonschema==4.20.*
-psutil==5.9.*
+# Project dependencies
+# Core scientific stack (already available in the runner)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
 
-# Additional packages required by the pipeline
-pyentropy==0.4.*
+# Additional packages required for the pipeline
 datasets==2.18.*
+pyarrow==10.0.1
+pyentropy==0.4.*
+nilearn==0.10.*
+joblib==1.4.*
+reportlab==4.2.*

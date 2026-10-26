@@ -39,8 +39,11 @@ ALPHA = 0.05
 POWER_THRESHOLD = 0.80
 
 
-def compute_power(n_subjects: int, effect_f2: float = EFFECT_SIZE_F2,
-                 alpha: float = ALPHA) -> float:
+def compute_power(
+    n_subjects: int,
+    effect_f2: float = EFFECT_SIZE_F2,
+    alpha: float = ALPHA,
+) -> float:
     """
     Compute analytical power for a one‑way F‑test (approximation for the mixed‑effects
     test used later). The effect size ``f`` is derived from ``f²``.
@@ -68,25 +71,36 @@ def compute_power(n_subjects: int, effect_f2: float = EFFECT_SIZE_F2,
     df_denom = max(n_subjects - df_num - 1, 1)
 
     power_analysis = FTestPower()
-    power = power_analysis.power(effect_size=effect_f,
-                                df_num=df_num,
-                                df_denom=df_denom,
-                                nobs=n_subjects,
-                                alpha=alpha)
+    # ``FTestPower.power`` expects (effect_size, df_num, df_denom, alpha)
+    power = power_analysis.power(
+        effect_size=effect_f,
+        df_num=df_num,
+        df_denom=df_denom,
+        alpha=alpha,
+    )
     LOG.debug(
         "Power calculation input – n_subjects=%s, effect_f2=%s, alpha=%s",
-        n_subjects, effect_f2, alpha,
+        n_subjects,
+        effect_f2,
+        alpha,
     )
-    LOG.debug("Derived values – effect_f=%s, df_num=%s, df_denom=%s, power=%s",
-              effect_f, df_num, df_denom, power)
+    LOG.debug(
+        "Derived values – effect_f=%s, df_num=%s, df_denom=%s, power=%s",
+        effect_f,
+        df_num,
+        df_denom,
+        power,
+    )
     return float(power)
 
 
-def write_results(power: float,
-                  n_subjects: int,
-                  effect_f2: float = EFFECT_SIZE_F2,
-                  alpha: float = ALPHA,
-                  output_path: Path | None = None) -> None:
+def write_results(
+    power: float,
+    n_subjects: int,
+    effect_f2: float = EFFECT_SIZE_F2,
+    alpha: float = ALPHA,
+    output_path: Path | None = None,
+) -> None:
     """
     Serialize the power‑analysis results to JSON.
 

@@ -1,133 +1,150 @@
 """
 pipeline.py
 ------------
-Public orchestrator for the end‑to‑end analysis.
-
-This file has been updated so that all internal imports point to the
-correct locations under ``code.src`` and the download stage now uses the
-stable ``--subjects`` flag provided by ``code.src.download_data``.
+Orchestrator that runs the full end‑to‑end pipeline for a small cohort.
+It sequentially calls the download, QC, and entropy modules and then
+copies the derived artefacts to the ``results/`` directory.
 """
-
-import argparse
 import sys
-from typing import Any
+import shutil
+from pathlib import Path
 
-from llmxive_toolkit import get_logger
+import pandas as pd
 
-# Import the CLI entry points of the individual stages.
-from code.src.download_data import main as download_main
-from code.src.data.qc import main as qc_main
-from code.src.compute_entropy import main as entropy_main
+from llmxive_toolkit import get_logger, paths
+from src.config.env_manager import get_hcp_token
+
+log = get_logger(__name__)
 
 
-def _run_stage(main_func, argv: list[str]) -> None:
-    """
-    Helper that temporarily replaces ``sys.argv`` and invokes a stage's
-    ``main`` function.
-    """
+def _run_download(subjects: int) -> None:
+    """Run the HCP download step for ``subjects`` subjects."""
+    from code.src.data.download_hcp import main as _download_main
+
+    argv = [
+        "download_hcp",
+        "--subjects",
+        str(subjects),
+        "--output-dir",
+        "data",
+    ]
     original_argv = sys.argv
     try:
         sys.argv = argv
-        main_func()
+        _download_main()
     finally:
         sys.argv = original_argv
 
 
-def run_pipeline(
-    subjects: int = 5,
-    dry_run: bool = False,
-    hcp_token: str | None = None,
-    fd_threshold: float = 0.2,
-    entropy_r: float = 0.15,
-    entropy_m: int = 2,
-    scales: tuple[int, ...] = (1, 2, 3, 4, 5),
-    batch_size: int = 50,
-    **_: Any,
-) -> None:
+def _run_qc(fd_threshold: float = 0.2) -> None:
+    """Run the QC step on the behavioural parquet produced by the download."""
+    from code.src.data.qc import main as _qc_main
+
+    behavioural_path = paths.data("raw", "dsrt_scores.parquet")
+    argv = [
+        "qc",
+        "--input",
+        str(behavioural_path),
+        "--fd-threshold",
+        str(fd_threshold),
+        "--output-dir",
+        "data",
+    ]
+    original_argv = sys.argv
+    try:
+        sys.argv = argv
+        _qc_main()
+    finally:
+        sys.argv = original_argv
+
+
+def _run_entropy() -> None:
+    """Compute multiscale entropy for the cleaned cohort."""
+    from code.src.compute_entropy import main as _entropy_main
+
+    clean_path = paths.data("derived", "clean_subjects.parquet")
+    entropy_out = paths.data("derived", "entropy_matrix.parquet")
+    argv = [
+        "compute_entropy",
+        "--input",
+        str(clean_path),
+        "--output",
+        str(entropy_out),
+    ]
+    original_argv = sys.argv
+    try:
+        sys.argv = argv
+        _entropy_main()
+    finally:
+        sys.argv = original_argv
+
+
+def _write_covariates() -> None:
+    """Create ``results/covariates.parquet`` from the clean subjects table."""
+    clean_path = paths.data("derived", "clean_subjects.parquet")
+    clean_df = pd.read_parquet(clean_path)
+
+    # Select the columns required for the covariates table.
+    covariate_cols = ["subject_id", "age", "sex", "mean_fd", "dsrt_score", "checksum"]
+    cov_df = clean_df[covariate_cols].copy()
+
+    cov_path = paths.results("covariates.parquet")
+    cov_path.parent.mkdir(parents=True, exist_ok=True)
+    cov_df.to_parquet(cov_path, index=False)
+    log.info("Covariates written to %s", cov_path)
+
+
+def _copy_results() -> None:
+    """Copy the derived entropy matrix to the ``results`` folder."""
+    src_entropy = paths.data("derived", "entropy_matrix.parquet")
+    dst_entropy = paths.results("entropy_matrix.parquet")
+    dst_entropy.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy(src_entropy, dst_entropy)
+    log.info("Entropy matrix copied to %s", dst_entropy)
+
+
+def run_pipeline(subjects: int, dry_run: bool = False) -> None:
     """
-    Execute the full pipeline.
+    Execute the full analysis pipeline.
 
     Parameters
     ----------
     subjects : int
         Number of subjects to process.
-    dry_run : bool
-        If ``True`` skip all heavy processing (used by the test suite).
-    hcp_token : str | None
-        Optional HCP access token; if ``None`` the token is read from the
-        ``HCP_TOKEN`` environment variable by the download stage.
-    fd_threshold : float
-        Motion threshold for QC.
-    entropy_r, entropy_m, scales, batch_size :
-        Parameters forwarded to the entropy stage.
+    dry_run : bool, optional
+        When ``True`` the pipeline skips all computational steps.
+        This mode is used by the quick‑start test suite.
     """
-    logger = get_logger(__name__)
-
     if dry_run:
-        logger.info("Dry‑run requested – exiting without processing.")
+        log.info(
+            "Dry‑run mode enabled (subjects=%s). Skipping all heavy processing.",
+            subjects,
+        )
         return
 
-    # ------------------------------------------------------------------
-    # Stage 1 – Download data
-    # ------------------------------------------------------------------
-    logger.info("Downloading %d subjects.", subjects)
-    _run_stage(
-        download_main,
-        [
-            "download_data",
-            "--subjects",
-            str(subjects),
-            "--output-dir",
-            "data",
-        ],
-    )
+    # Verify that an HCP token is present – the download step will raise a
+    # clear error if it is missing, but we check early to give a nicer log.
+    token = get_hcp_token()
+    log.info("Using HCP token (length %d)", len(token))
 
-    # ------------------------------------------------------------------
-    # Stage 2 – Quality control
-    # ------------------------------------------------------------------
-    logger.info("Running quality control.")
-    _run_stage(qc_main, ["qc"])
+    # Step 1: download the raw time‑series and behavioural scores.
+    log.info("Starting download of %d subjects.", subjects)
+    _run_download(subjects)
 
-    # ------------------------------------------------------------------
-    # Stage 3 – Entropy computation
-    # ------------------------------------------------------------------
-    logger.info("Computing entropy matrix.")
-    _run_stage(
-        entropy_main,
-        [
-            "compute_entropy",
-            "--input",
-            "data/derived/clean_subjects.parquet",
-            "--output",
-            "results/entropy_matrix.parquet",
-            "--scales",
-            *[str(s) for s in scales],
-            "--r",
-            str(entropy_r),
-            "--m",
-            str(entropy_m),
-            "--batch-size",
-            str(batch_size),
-        ],
-    )
+    # Step 2: quality‑control the behavioural table.
+    log.info("Running quality‑control.")
+    _run_qc(fd_threshold=0.2)
 
-    logger.info("Pipeline completed")
+    # Step 3: compute multiscale entropy.
+    log.info("Computing multiscale entropy.")
+    _run_entropy()
 
+    # Step 4: write covariates artefact.
+    log.info("Creating covariates artefact.")
+    _write_covariates()
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Programmatic entry point for the pipeline."
-    )
-    parser.add_argument(
-        "--subjects",
-        type=int,
-        default=5,
-        help="Number of subjects to process (default: 5).",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Skip heavy processing (useful for tests).",
-    )
-    args = parser.parse_args()
-    run_pipeline(subjects=args.subjects, dry_run=args.dry_run)
+    # Step 5: copy the entropy matrix to the results directory.
+    log.info("Copying result artefacts.")
+    _copy_results()
+
+    log.info("Pipeline completed for %d subjects.", subjects)

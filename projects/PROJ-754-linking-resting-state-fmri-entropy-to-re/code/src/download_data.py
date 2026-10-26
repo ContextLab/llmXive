@@ -9,12 +9,14 @@ This wrapper translates the flag and forwards the call.
 import argparse
 import sys
 
-from code.src.data.download_hcp import main as _download_hcp_main
-
 
 def main() -> None:
     """
     CLI entry point matching the signature used by ``pipeline.run_pipeline``.
+    The heavy ``download_hcp`` module (which depends on ``datasets`` and
+    ``pyarrow``) is imported lazily inside this function so that importing
+    ``src.download_data`` does not trigger those optional dependencies during
+    test collection.
     """
     parser = argparse.ArgumentParser(
         description="Download HCP data for a given number of subjects."
@@ -32,6 +34,13 @@ def main() -> None:
         help="Base directory for output files.",
     )
     args = parser.parse_args()
+
+    # Lazy import to avoid pulling heavy optional dependencies (datasets,
+    # pyarrow) at module import time. This prevents import‑time failures in
+    # environments where those packages are unavailable or incompatible.
+    from code.src.data.download_hcp import (
+        main as _download_hcp_main,
+    )  # pylint: disable=import-outside-toplevel
 
     # Translate to the flag set expected by the original script.
     argv = [

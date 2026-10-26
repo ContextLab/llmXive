@@ -15,7 +15,6 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-from datasets import load_dataset
 from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
@@ -92,6 +91,18 @@ def main() -> None:
         subject_limit = max_ci_subjects
     else:
         subject_limit = subject_limit_requested
+
+    # ------------------------------------------------------------------
+    # Lazy import of the Hugging Face ``datasets`` library.
+    # This avoids importing heavy optional dependencies (e.g. pyarrow)
+    # when the function is not executed (e.g. during a dry‑run).
+    # ------------------------------------------------------------------
+    try:
+        from datasets import load_dataset
+    except Exception as exc:
+        raise RuntimeError(
+            "Failed to import the 'datasets' library required for HCP download."
+        ) from exc
 
     # ------------------------------------------------------------------
     # Load the verified HCP‑flat dataset from Hugging Face.

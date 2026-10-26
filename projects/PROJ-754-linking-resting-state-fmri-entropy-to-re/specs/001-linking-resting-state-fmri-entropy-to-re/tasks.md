@@ -65,7 +65,7 @@ All scripts run on CPU‑only GitHub‑Actions runners and use only real, public
 
 ## Phase 3 – Statistical modeling, permutation correction & power analysis  
 
-- [ ] T007 Fit a mass‑univariate mixed‑effects model per parcel and compute VIF diagnostics. `code/src/stats/model.py`.
+- [ ] T007 Fit a mass‑univariate mixed‑effects model per parcel and compute VIF diagnostics. `code/src/stats/model.py`. <!-- FAILED-IN-EXECUTION: code/src/stats/model.py exit=1 -->
   - Loads `results/entropy_matrix.parquet` and `results/covariates.parquet`.  
   - Computes VIF for covariates `age`, `sex`, `mean_fd`; **does not drop** any covariate even if VIF ≥ 5, but records all VIF values in `results/vif_report.csv` and issues a warning if any exceed 5.  
   - Fits a mixed‑effects model per parcel using `statsmodels.MixedLM` with formula `DSRT ~ Entropy + Age + Sex + MeanFD` and a random intercept for Subject `(1|Subject)`.  
