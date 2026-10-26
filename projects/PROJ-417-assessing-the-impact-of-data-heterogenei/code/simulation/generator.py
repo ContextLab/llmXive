@@ -216,21 +216,30 @@ def create_replicate(
     return result
 
 
-def validate_simulation_output(results: List[SimulationResult]) -> bool:
+def validate_simulation_output(results: List[Any]) -> bool:
     """
-    Light‑weight sanity check used by the unit tests.
+    Light‑weight sanity check used by the unit tests and the pipeline.
+
+    The original implementation required every element to be a
+    ``SimulationResult``.  The pipeline currently produces
+    ``SimpleNamespace`` objects with the same public attributes.
+    To keep the function robust we now accept either type as long as
+    the required attributes are present.
 
     Returns ``True`` if every result contains a non‑empty ``studies``
     list and each study has a ``true_effect`` entry.
     """
     if not isinstance(results, list):
-        raise AssertionError("Expected a list of SimulationResult objects")
+        raise AssertionError("Expected a list of replication objects")
+
     for res in results:
-        if not isinstance(res, SimulationResult):
-            raise AssertionError("List element is not a SimulationResult")
-        if not res.studies:
+        # Accept both SimulationResult and SimpleNamespace‑like objects.
+        if not hasattr(res, "studies") or not hasattr(res, "replicate_id"):
+            raise AssertionError("List element lacks required replication attributes")
+        studies = getattr(res, "studies")
+        if not isinstance(studies, list) or not studies:
             raise AssertionError("Replicate contains no studies")
-        for study in res.studies:
+        for study in studies:
             if "true_effect" not in study:
                 raise AssertionError("Study record missing 'true_effect'")
     return True

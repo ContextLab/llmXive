@@ -8,51 +8,52 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py --mode full  --replicates 900  --batch-size 100  --seed 12345 -> rc=1
 
-2026-10-25 23:08:17,952 INFO __main__: Generating 900 replicates for τ²=0.0
+2026-10-26 01:37:01,107 INFO __main__: Generating 900 replicates for τ²=0.0
+2026-10-26 01:37:01,131 INFO __main__: Generating 900 replicates for τ²=0.1
+2026-10-26 01:37:01,156 INFO __main__: Generating 900 replicates for τ²=0.5
+2026-10-26 01:37:01,205 INFO __main__: Generating 900 replicates for τ²=1.0
+2026-10-26 01:37:01,232 INFO __main__: Generating 900 replicates for τ²=2.0
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 284, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 223, in main
-    simulated_records, estimation_records = _run_simulation(
-                                            ^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 73, in _run_simulation
-    validate_simulation_output(sim_namespace.replicates)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/simulation/generator.py", line 230, in validate_simulation_output
-    raise AssertionError("List element is not a SimulationResult")
-AssertionError: List element is not a SimulationResult
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 230, in main
+    write_simulation_and_estimations(simulated_records, estimation_records)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/analysis/metrics.py", line 329, in write_simulation_and_estimations
+    true_effect_lookup[rid] = float(sim[TRUE_EFFECT_COLUMN])
+                                    ~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'injected_true_effect'
 
 - python code/main.py --mode dry-run  --replicates 10  --tau-squared 0.5 1.0  --batch-size 5  --seed 42 -> rc=1
 
-2026-10-25 23:08:18,728 INFO __main__: Generating 10 replicates for τ²=0.5
+2026-10-26 01:37:02,026 INFO __main__: Generating 10 replicates for τ²=0.5
+2026-10-26 01:37:02,027 INFO __main__: Generating 10 replicates for τ²=1.0
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 284, in <module>
     sys.exit(main())
              ^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 223, in main
-    simulated_records, estimation_records = _run_simulation(
-                                            ^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 73, in _run_simulation
-    validate_simulation_output(sim_namespace.replicates)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/simulation/generator.py", line 230, in validate_simulation_output
-    raise AssertionError("List element is not a SimulationResult")
-AssertionError: List element is not a SimulationResult
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/main.py", line 230, in main
+    write_simulation_and_estimations(simulated_records, estimation_records)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-417-assessing-the-impact-of-data-heterogenei/code/analysis/metrics.py", line 329, in write_simulation_and_estimations
+    true_effect_lookup[rid] = float(sim[TRUE_EFFECT_COLUMN])
+                                    ~~~^^^^^^^^^^^^^^^^^^^^
+KeyError: 'injected_true_effect'
 
 - python -m pytest tests/unit/ -> rc=1
-y
-FAILED tests/unit/test_config_loader.py::TestGetReplicateCount::test_get_replicate_count_default
+ate_count_default
 FAILED tests/unit/test_fetch_cochrane_data.py::test_load_success - AttributeE...
 FAILED tests/unit/test_fetch_cochrane_data.py::test_load_failure_raises - Nam...
 FAILED tests/unit/test_fetch_cochrane_data.py::test_main_successful_run - ass...
 FAILED tests/unit/test_plots.py::test_plots_generate_files - AssertionError: ...
 FAILED tests/unit/test_stats.py::test_conditional_test_non_normal_data - Asse...
+FAILED tests/unit/test_validate_cochrane_csv.py::test_validate_success - File...
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_missing_field
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_invalid_record_wrong_type
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_save_dummy_record_to_results
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_file_exists
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_schema_has_required_fields
 ERROR tests/unit/test_schema_validation.py::TestEstimationResultSchema::test_valid_record_conforms
-============ 13 failed, 70 passed, 203 warnings, 6 errors in 1.84s =============
+============ 14 failed, 71 passed, 203 warnings, 6 errors in 2.04s =============
 
 
 - python -m pytest tests/integration/ -> rc=1
@@ -75,7 +76,7 @@ tests/integration/test_pipeline.py:30
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 =========================== short test summary info ============================
 FAILED tests/integration/test_pipeline.py::test_full_pipeline_dry_run - Asser...
-========================= 1 failed, 1 warning in 0.81s =========================
+========================= 1 failed, 1 warning in 0.78s =========================
 
 
 

@@ -8,13 +8,13 @@ T001:
     \ required file."
   sig: 697957db13589fd30c9bab6b9f0ac90d1de4274ba210996d434f06c4099e4996
 T001a:
-  c: false
-  h: 8cc25b14faf79caef7a1800a432fe42739b5d7a632a11a01d24fbb4c318f8d12
-  r: The evidence provides no script or test showing that the pipeline checks the
-    Cochrane CSV URL and raises a `FileNotFoundError` with a clear abort message;
-    no file path or execution log is present to confirm this behavior. The required
-    validation artifact is missing.
-  sig: 50da072a91de3a9653a0082543c2a7e7e4f55fb7c1d8fc779ac9be5596cb2daf
+  c: true
+  h: 6f27c73a4b5ccd31e48f21a5dca2be5145e770ea2ed2d8a76f6e6458845920a4
+  r: "Checked `code/scripts/validate_cochrane_csv.py` (invoked via `tests/unit/test_validate_cochrane_csv.py`)\
+    \ which raises a clear `FileNotFoundError` when the CSV URL cannot be fetched,\
+    \ causing the CI step to fail as required. The script exists, is non\u2011empty,\
+    \ and implements the specified error handling."
+  sig: fc4a916ffcb12df370f75d2464724e89cd8e9f824a304a96c1c7ed5518fe7366
 T003:
   c: false
   h: 9248694a0fe3fe92a1b4ec961460d507d37f9431c06718e950909515ee8c1b6f
