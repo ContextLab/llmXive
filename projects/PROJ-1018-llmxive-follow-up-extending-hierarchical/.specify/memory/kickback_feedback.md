@@ -1,12 +1,9 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001` (rejected 1x): Requested task execution failed; rerun successfully: src/data_loader.py exit=1
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan uses the “Long‑Context QA (Long‑QA)” dataset (`https://huggingface.co/datasets/llamaindex/long-qa`) as the downstream evaluation benchmark and then filters it to contexts ≥ 32 k tokens. The Long‑QA dataset is not documented to contain such ultra‑long contexts; after filtering it may yield very few or zero examples, which would undermine the QA evaluation (FR‑007) and the associated success criteria (SC‑004). Verify that the chosen dataset actually provides a sufficient number of ≥ 32 k‑token QA instances, or replace it with a verified long‑context QA benchmark (e.g., a filtered subset of HotpotQA or NarrativeQA) that satisfies the length requirement.

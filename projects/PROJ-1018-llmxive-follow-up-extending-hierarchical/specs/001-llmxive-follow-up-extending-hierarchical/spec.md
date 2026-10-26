@@ -13,7 +13,7 @@ The researcher MUST be able to execute the dynamic HiLS model on the PG-19 or ar
 
 **Why this priority**: Without a verified dynamic baseline and its corresponding relevance profiles, the static index cannot be constructed, and no comparison is possible. This is the foundational data acquisition step.
 
-**Independent Test**: Can be fully tested by running the extraction script on a sample of 10 documents and verifying that the output JSON contains non-empty retrieval score matrices for every chunk ID, with dimensions matching the model's expected configuration (e.g., $N_{chunks} \times N_{tokens}$).
+**Independent Test**: Can be fully tested by running the extraction script on a representative sample of documents and verifying that the output JSON contains non‑empty retrieval score matrices for every chunk ID., with dimensions matching the model's expected configuration (e.g., $N_{chunks} \times N_{tokens}$).
 
 **Acceptance Scenarios**:
 
@@ -43,7 +43,7 @@ The system MUST execute the modified "Static-HiLS" inference (using the static i
 
 **Why this priority**: This delivers the final research answer (the "extent" of reliance on dynamic vs. static priors) and validates the edge deployment claim.
 
-**Independent Test**: Can be tested by running the evaluation suite on a small subset (e.g., 5 documents) and verifying that the output includes perplexity scores for both models, a calculated p-value, and a latency comparison.
+**Independent Test**: Can be tested by running the evaluation suite on a small subset of documents and verifying that the output includes perplexity scores for both models., a calculated p-value, and a latency comparison.
 
 **Acceptance Scenarios**:
 

@@ -6,8 +6,8 @@
 |--------|-------------|-------------|-------------|
 | **RelevanceProfile** | Aggregated retrieval scores for a single document chunk. | `src/aggregation.py` | `src/clustering.py` |
 | **StaticIndex** | K centroids (in PCA space) + mapping `chunk_id → cluster_id`. | `src/clustering.py` | `src/inference.py` |
-| **EvaluationReport** | All quantitative results: log‑perplexity, QA accuracy, latency, memory, statistical test. | `src/evaluation.py` (and `src/report_sweep.py` for sweeps) | Paper generation, CI checks |
-| **SplitDefinition** | JSON list of document IDs for validation and test splits. | `src/data_loader.py` | All downstream scripts |
+| **EvaluationReport** | Quantitative results: log‑perplexity, QA accuracy, latency, memory, statistical test. | `src/evaluation.py` (and `src/report_sweep.py` for sweeps) | Paper generation, CI checks |
+| **SplitDefinition** | JSON list of document IDs for validation and test splits, plus checksum. | `src/data_loader.py` | All downstream scripts |
 
 ## 2. Schema Definitions (YAML)
 
@@ -20,7 +20,7 @@
   "end_token": "integer",
   "relevance_scores": ["number"],
   "aggregated_profile": ["number"],
-  "pca_components": ["number"],   // optional, present after PCA step
+  "pca_components": ["number"],   // optional, after PCA step
   "checksum": "string"
 }
 ```
@@ -54,7 +54,7 @@
 }
 ```
 
-### 2.4 SplitDefinition (JSON, conforms to `contracts/split_definition.schema.yaml` – defined in plan)
+### 2.4 SplitDefinition (JSON, conforms to `contracts/split_definition.schema.yaml`)
 ```json
 {
   "validation_ids": ["string"],
@@ -64,15 +64,14 @@
 ```
 
 ## 3. Data Flow Diagram
-1. **Streaming PG‑19** → `src/data_loader.py` → `SplitDefinition` (validation / test).  
-2. **Validation Docs** → `src/extraction.py` → raw score tensors (temporary).  
-3. Raw scores → `src/aggregation.py` → `RelevanceProfile` collection.  
+1. **Streaming PG‑19** → `src/data_loader.py` → `SplitDefinition` (validation & test).  
+2. **Validation Docs** → `src/extraction.py` → raw `.pt` tensors (temporary).  
+3. Raw tensors → `src/aggregation.py` → collection of `RelevanceProfile` objects.  
 4. `RelevanceProfile` → `src/clustering.py` (PCA → K‑Means) → `StaticIndex`.  
-5. **Test Docs** + `StaticIndex` → `src/inference.py` (static mode) → logits.  
-6. Logits + QA data → `src/evaluation.py` → `EvaluationReport`.  
-7. `src/sensitivity.py` repeats steps 4‑6 for each K, then `src/report_sweep.py` aggregates into `sweep_report.json`.
+5. **Test Docs** + `StaticIndex` → `src/inference.py` (static mode) → logits (in‑memory).  
+6. Logits + Long‑QA data → `src/evaluation.py` → `EvaluationReport`.  
+7. `src/sensitivity.py` repeats steps 4‑6 for each K; `src/report_sweep.py` aggregates into `sweep_report.json`.
 
-All intermediate artifacts are checksum‑verified and stored under `data/` with explicit versioning. The `filtered_pg19.json` file produced in Phase 0 conforms to the `SplitDefinition` schema, ensuring downstream scripts can rely on a well‑defined structure.
+All intermediate artifacts are checksum‑verified, stored under `data/`, and conform to the schemas above. The `filtered_pgXX.json` file produced in Phase 0 conforms to the `SplitDefinition` schema, guaranteeing downstream scripts a well‑defined input structure.
 
 ---
-

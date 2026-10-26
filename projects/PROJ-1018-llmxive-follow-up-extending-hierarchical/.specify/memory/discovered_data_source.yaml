@@ -1,12 +1,14 @@
 status: none
-intent: huggingface datasets pg19 arxiv long-context validation python package dataset
+intent: download PG-19 and arXiv long-context validation sets as python package dataset
 required_fields:
-- doc_id
+- document_id
 - chunk_id
 - chunk_text
-- retrieval_score_matrix
 - token_start
 - token_end
-cache_key: ad70a5c9420af4beba1303d09ba69047cc2a653adc3261977096e5a360194683
-searched_at: '2026-10-26T09:23:43.233394+00:00'
+- retrieval_score_matrix
+- canonical_relevance_profile
+- source_dataset
+cache_key: fb8d571498060c987d6d929de8ce5f3ca45c0594fb1b260d723c5cbd6ea1b4c3
+searched_at: '2026-10-26T09:27:04.061571+00:00'
 retry_count: 1
