@@ -1,1 +1,1 @@
-Smoke-test placeholder output - deterministic and reproducible.
+quick‑start placeholder output

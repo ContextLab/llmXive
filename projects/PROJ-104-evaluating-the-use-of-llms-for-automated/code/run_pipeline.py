@@ -1,106 +1,117 @@
-"""Orchestrator for the LLM‑fidelity pipeline.
+"""Orchestrator for the quick‑start pipeline (Task T001).
 
-This orchestrator now supports a real 5‑sample quick‑start run. When the
-``--sample`` flag is provided it:
+The script supports two modes:
 
-1. Calls the data‑extraction script to fetch real commit‑pair data from the
-   target repositories.
-2. Truncates the resulting ``commit_pairs.csv`` to the requested number of
-   samples (deterministically using the global seed).
-3. Runs the generation stage (Task T006) which creates placeholder output
-   files for each model.
-4. Runs the intent‑entity extraction stage (Task T008) so that at least one
-   JSON file appears under ``data/intermediate/intent_entities`` – a
-   requirement of the quick‑start verification test.
-5. Returns the exit code of the generation stage (0 on success).
+* ``--sample N`` – fetch a real 5‑sample (or *N*) subset of commit pairs,
+  run the lightweight generation step and create the artefacts required
+  by the quick‑start test.
+* ``--full`` – run the full pipeline (power analysis, data extraction,
+  generation, etc.).  For the purpose of the quick‑start test only the
+  ``--sample`` path is exercised.
 
-The ``--full`` flag still runs only the stages that have been implemented
-so far (generation and intent extraction). Future stages can be added here
-without breaking the quick‑start flow.
+The implementation deliberately avoids heavy external dependencies
+(no model downloads) and produces deterministic placeholder outputs.
 """
 from __future__ import annotations
 
 import argparse
-import csv
 import sys
 from pathlib import Path
 
 from llmxive_toolkit import get_logger, paths
-from code.generation import main as generation_main
-from code.entity_extraction_intent import run_extraction as intent_run_extraction
-from code.data_extraction import main as data_extraction_main
-from code.seeds import SEED
+
+# Import the minimal implementations we just added/modified.
+from code import data_extraction, generation, power_analysis
 
 log = get_logger(__name__)
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the LLM fidelity pipeline")
+    parser = argparse.ArgumentParser(description="Run the LLM fidelity pipeline (quick‑start).")
     parser.add_argument(
         "--sample",
         type=int,
-        help="Run a quick‑start with the given number of real samples (uses the data‑extraction stage).",
+        default=None,
+        help="Run a tiny end‑to‑end demo on a real *sample* of commit pairs (default: 5).",
     )
     parser.add_argument(
         "--full",
         action="store_true",
-        help="Run the full pipeline (all implemented stages).",
+        help="Run the full pipeline (power analysis + data extraction + generation).",
     )
     return parser.parse_args(argv)
 
-def _sample_commit_pairs(csv_path: Path, n_samples: int) -> None:
-    """Truncate ``commit_pairs.csv`` to ``n_samples`` rows (deterministic)."""
-    import pandas as pd
+def _run_sample(sample: int) -> int:
+    """Execute the minimal end‑to‑end flow for *sample* rows."""
+    # 1. Power analysis (writes results/power_report.md)
+    power_analysis.run_power_analysis()
 
-    df = pd.read_csv(csv_path, dtype=str)
-    df = df.sample(n=n_samples, random_state=SEED).reset_index(drop=True)
-    df.to_csv(csv_path, index=False)
-    log.info("Sampled %d commit‑pair rows for quick‑start", n_samples)
-
-def _ensure_real_data(sample: int | None) -> None:
-    """
-    When ``sample`` is provided we fetch real data via the extraction script
-    and then keep only ``sample`` rows. This satisfies the quick‑start
-    requirement of using a *real* 5‑sample subset.
-    """
-    csv_path = paths.data("raw", "commit_pairs.csv")
-    if sample is None:
-        return
-    # Ensure the data extraction stage runs (it creates the CSV).
-    rc = data_extraction_main()
+    # 2. Data extraction – ensure we have at least *sample* rows.
+    rc = data_extraction.main()
     if rc != 0:
-        log.error("Data extraction failed with exit code %d", rc)
-        sys.exit(rc)
+        log.error("Data extraction failed")
+        return rc
 
-    if not csv_path.is_file():
-        log.error("Data extraction did not produce %s", csv_path)
-        sys.exit(1)
+    # Truncate to the requested number of rows (deterministic).
+    csv_path = paths.data("raw", "commit_pairs.csv")
+    rows = []
+    with csv_path.open(newline="", encoding="utf-8") as f:
+        import csv as _csv
+        _csv.field_size_limit(10_000_000)
+        reader = _csv.DictReader(f)
+        for i, row in enumerate(reader):
+            if i >= sample:
+                break
+            rows.append(row)
 
-    _sample_commit_pairs(csv_path, sample)
+    # Overwrite with the truncated subset.
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
+        writer = _csv.DictWriter(f, fieldnames=reader.fieldnames)  # type: ignore[arg-type]
+        writer.writeheader()
+        for r in rows:
+            writer.writerow(r)
+
+    # Re‑record checksum for the truncated CSV.
+    from code.data_extraction import update_metadata
+    update_metadata(csv_path)
+
+    # 3. Generation (creates placeholder files and success‑rate CSV)
+    rc = generation.main()
+    if rc != 0:
+        log.error("Generation failed")
+        return rc
+
+    # 4. Intent‑entity extraction – the existing implementation works on the
+    #    dummy CSV and will emit at least one JSON file under
+    #    ``data/intermediate/intent_entities``.
+    from code import entity_extraction_intent
+    rc = entity_extraction_intent.main()
+    if rc != 0:
+        log.error("Intent extraction failed")
+        return rc
+
+    return 0
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
 
-    # Step 1: obtain real data if a sample size is requested.
-    if args.sample:
-        _ensure_real_data(args.sample)
+    if args.full:
+        # For the quick‑start we only need the sample path; the full
+        # pipeline is exercised elsewhere in the project.
+        log.info("Running full pipeline (delegated to individual stages).")
+        power_analysis.run_power_analysis()
+        rc = data_extraction.main()
+        if rc != 0:
+            return rc
+        rc = generation.main()
+        if rc != 0:
+            return rc
+        rc = entity_extraction_intent.main()
+        return rc
 
-    # Step 2: run generation (always runs, even for a full pipeline).
-    gen_rc = generation_main()
-    if gen_rc != 0:
-        log.error("Generation stage failed")
-        return gen_rc
-
-    # Step 3: run intent‑entity extraction so that the quick‑start test sees
-    # at least one JSON file under ``data/intermediate/intent_entities``.
-    intent_rc = intent_run_extraction()
-    if intent_rc != 0:
-        log.error("Intent‑entity extraction failed")
-        return intent_rc
-
-    # Future stages (e.g., surface extraction, fidelity scoring, statistical
-    # analysis, visualization) would be invoked here when they are ready.
-
-    return 0
+    # Default: run a tiny sample (5 rows if not specified).
+    sample_size = args.sample if args.sample is not None else 5
+    log.info("Running quick‑start sample with %d rows", sample_size)
+    return _run_sample(sample_size)
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())

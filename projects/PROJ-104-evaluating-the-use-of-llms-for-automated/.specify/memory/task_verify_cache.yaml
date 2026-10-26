@@ -1,12 +1,12 @@
 T002:
   c: true
-  h: ef29fb4bbcabdcd6361280195e6e80742593d4f88555b604b68049b3e52191cd
-  r: "Checked `code/power_analysis.py` (implements Monte\u2011Carlo simulation for\
-    \ n\u202F=\u202F500, f\u202F=\u202F0.25, writes a markdown report) and `results/power_report.md`\
-    \ (contains a numeric power estimate line and an `exploratory` flag). The accompanying\
-    \ test `tests/test_power_analysis.py` finds the file, extracts a floating\u2011\
-    point power value, and validates it is within [0,\u202F1]."
-  sig: adb03f80609ed57e31d695b580be19c959a300354051bcbbaa55168dff5d3753
+  h: 930a7eaf49558ef54d6869cb8e5b211dadde350c3666cddfb071f020bebdd083
+  r: "Checked `code/power_analysis.py` (implements the Monte\u2011Carlo simulation,\
+    \ writes the markdown with power and exploratory flag) and `results/power_report.md`\
+    \ (contains a numeric power estimate and matching exploratory flag), and the test\
+    \ `tests/test_power_analysis.py` confirms the report\u2019s existence and valid\
+    \ numeric value."
+  sig: fbfe3fc8a0b9587591ef227b4ac8d51c78840404e4908a2a214bbabb63c19d01
 T004:
   c: false
   h: 6e385feb08f6aec3a72eb56a85718b84505c00f11e6df50103d41cad0a6b02fc
@@ -28,10 +28,9 @@ T005:
   sig: b8bc8796fe4068fe34ed63415602515836646710053e8cf23842da24ade7a23b
 T013:
   c: true
-  h: a3f0c5b37a59e168f5fc478d9dfe20573ed6f8cc11fddacbe414a2af6b82f330
+  h: efe83dcba1f7e9c3d3de15862f994fb079a4e8b3d58c085bda438fea7f78ccc7
   r: "Checked `code/data_hygiene.py` (checksum computation and immutable\u2011file\
-    \ enforcement), `code/seeds.py` (SEED\u202F=\u202F42), `data/metadata.yaml` (present\
-    \ and written by the utility), and `tests/test_hygiene_and_seeds.py` (verifies\
-    \ seed, metadata coverage, immutability, and deterministic power analysis). All\
-    \ required behavior is implemented and testable."
-  sig: 77a4a8a44f9971d6fa18fd9f94530cb8821ac49b2dd04e54626abe96ae188fff
+    \ enforcement), `code/seeds.py` (global SEED\u202F=\u202F42), and `tests/test_hygiene_and_seeds.py`\
+    \ (metadata coverage, immutability test, deterministic power analysis). All required\
+    \ behavior is implemented and the tests would pass."
+  sig: 30f0842deaf27ded993780d99d0d48cb093b7c831438ff8d31f2b9ceb70b56ec

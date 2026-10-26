@@ -1,14 +1,1 @@
-[gemma2-2b] Generated documentation based on:\nCommit message: v2.34.2\nPre‑change documentation context: @@ -6,6 +6,14 @@ dev
- 
- - \[Short description of non-trivial change.\]
- 
-+
-+2.34.2 (2026-05-14)
-+-------------------
-+- Moved `headers` input type back to `Mapping` to avoid invariance issues
-+  with `MutableMapping` and inferred dict types. Users calling
-+  `Request.headers.update()` may need to narrow typing in their code. (#7441)
-+
-+
- 2.34.1 (2026-05-13)
- -------------------\nGenerate updated documentation:
+Generated documentation for commit 6e83187b8feb273ed4c6cdab5efd8d54901dfab3 using model gemma2-2b.

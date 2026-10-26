@@ -8,7 +8,7 @@ The aim is a reproducible, CPU‑first pipeline that satisfies every functional 
 
 ## Phase 0 – Project scaffolding & early end‑to‑end smoke test  
 
-- [ ] **T001** [US1] **Create a complete quick‑start guide and a verification test** – `docs/quickstart.md`, `tests/test_quickstart.py`  
+- [ ] **T001** [US1] **Create a complete quick‑start guide and a verification test** – `docs/quickstart.md`, `tests/test_quickstart.py`   <!-- FAILED-IN-EXECUTION: tests/test_quickstart.py exit=4 -->
   - List **all required Python 3.11 packages** (e.g., `torch>=2.0`, `bitsandbytes`, `transformers`, `datasets`, `pandas`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `tqdm`, `regex`, `pyyaml`, `gitpython`).  
   - Explain how to install `bitsandbytes` for 4‑bit quantization and how to set `GITHUB_TOKEN`.  
   - Provide the command `python -m code.run_pipeline --sample 5` that runs the pipeline on a **real** 5‑sample subset (downloaded via the data‑extraction script).  
