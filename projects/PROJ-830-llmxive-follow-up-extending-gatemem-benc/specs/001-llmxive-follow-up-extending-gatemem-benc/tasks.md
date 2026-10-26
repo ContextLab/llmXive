@@ -10,7 +10,7 @@
 - [ ] T001 [P] Create the JSON‑Schema contracts (`dataset.schema.yaml`, `evaluation_result.schema.yaml`, `metrics.schema.yaml`, `results.schema.yaml`, `output.schema.yaml`) under `specs/001-llmxive-follow-up-extending-gatemem-benc/contracts/`.  
   *Verification*: `pytest tests/contract/test_dataset_schema.py` and analogous contract tests all pass.  
 
-- [ ] T002 [P] Draft `quickstart.md` (in the spec folder) that documents environment setup, dataset download, and the command to run the full benchmark.  
+- [X] T002 [P] Draft `quickstart.md` (in the spec folder) that documents environment setup, dataset download, and the command to run the full benchmark.  
   *Verification*: `tests/unit/test_docs.py::test_quickstart_exists` succeeds and the file contains the required “dataset download” and “run commands” sections.  
 
 - [ ] T003 [P] Implement `src/utils/profiling.py` with `profile_execution(func, *args, **kwargs)` returning `{'latency_ms':…, 'peak_ram_mb':…}` using `psutil`.  
@@ -46,14 +46,14 @@
   - Provide `apply_rules(episode_dict) → bool`.  
   - *Verification*: `tests/unit/test_rules.py::test_malformed_handling` succeeds.  
 
-- [ ] T013 [ ] Gatekeeper pipeline – `src/gatekeeper/pipeline.py`  
+- [~] T013 [ ] Gatekeeper pipeline – `src/gatekeeper/pipeline.py`  
   - For each streamed episode: run classifier, then rules.  
   - If allowed, invoke LLM backbone (`src/utils/config.py` → `get_llm_singleton()`) with prompts from `templates/prompts.yaml`.  
   - Record results in `data/processed/gatekeeper_results.jsonl` (conforms to `evaluation_result.schema.yaml`).  
   - Profile each episode.  
   - *Verification*: `tests/integration/test_us1_medical_domain.py` produces non‑empty results file with required fields.  
 
-- [ ] T013a [ ] Verify LLM runs on CPU‑only – `tests/unit/test_llm_cpu.py`  
+- [ ] T013a [ ] Verify LLM runs on CPU‑only – `tests/unit/test_llm_cpu.py`   <!-- FAILED-IN-EXECUTION: tests/unit/test_llm_cpu.py exit=1 -->
   - Assert `device='cpu'` and successful minimal inference with the 2.7 B int8 Llama‑3 model.  
   - *Verification*: test passes on the CI runner.  
 

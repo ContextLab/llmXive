@@ -1,0 +1,75 @@
+T001:
+  reason: "The required contract files (`dataset.schema.yaml`, `evaluation_result.schema.yaml`,\
+    \ `metrics.schema.yaml`, `results.schema.yaml`, `output.schema.yaml`) are not\
+    \ shown to exist with valid content at the specified path, and no evidence is\
+    \ provided that the contract test suite actually passes (the test expects a `SCHEMA_PATH`\
+    \ that points to a root\u2011level `contracts` directory, which does not contain\
+    \ the schemas). Consequently the task\u2019s core deliverable \u2013 correct JSON\u2011\
+    Schema contracts under `specs/001-llmxive-follow-up-extending-gatemem-benc/contracts/`\
+    \ \u2013 is not demonstrably present or validated."
+  task: b08c5ab56da9233e3e3e320aa4620798672b8b4d9c380c0cbf51f8bd202cdaa7
+T002:
+  task: e94eca5db5f4e92ed4731c4b04b7b9f5bde094d1e5b29eeb051ae5818c3062d8
+T003:
+  reason: The required file `src/utils/profiling.py` is missing; only a different
+    module `code/utils/profiling.py` exists, which the tests import, but the task
+    explicitly demands an implementation at `src/utils/profiling.py`. The missing
+    artifact must be added (or the test adjusted) to satisfy the requirement.
+  task: 260512ca4e45f143512850dd9f99fd406867de33efbb341fea3706f054b7e4f9
+T010:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/artifact_hashes.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 33d06ad8d5342bbe06f158baf5dc75bce0e24290758bc010ac67be6a8f2a14c2
+T010a:
+  reason: "The required file `src/gatekeeper/classifier.py` is missing (the only classifier\
+    \ implementation lives at `code/gatekeeper/classifier.py`, which does not satisfy\
+    \ the specified path). Moreover, the unit test `tests/unit/test_classifier_mapping.py`\
+    \ fails during import because the `datasets` library pulls in `pyarrow`, which\
+    \ cannot be loaded due to an incompatible NumPy version, so the test never runs\
+    \ and cannot verify the \u2265\u202F80\u202F% accuracy requirement. The task\u2019\
+    s acceptance criteria are therefore not met."
+  task: 603c6aa78cdce17b690ac1aa7548524f37f0b10e78cfefe8b419d219d875403c
+T011:
+  reason: "The required file `src/gatekeeper/classifier.py` is missing, and the existing\
+    \ `code/gatekeeper/classifiers.py` does not implement the sentiment\u2011to\u2011\
+    intent mapping nor expose the exact API/location the task specifies. The task\u2019\
+    s core artifact is therefore absent."
+  task: 0f08de574ccdd9913714d3c5ee52545ed36015fe815d5167d0d7a44e73eb2267
+T012:
+  reason: "The required file `src/gatekeeper/rules.py` is missing, and the existing\
+    \ `code/gatekeeper/rules.py` does not implement the specified `apply_rules(episode_dict)\
+    \ \u2192 bool` nor validate roles against a whitelist in `config.py`. The task\u2019\
+    s core requirements are therefore not satisfied."
+  task: 995060c1ce03e40de905267d247cdcef9d03b495b6a25f6e91589dbd8851dc9c
+T013:
+  task: 73392e774efe96ada402307c524e01c850777f5454e4f68ef4edb6649212b1b3
+T013a:
+  reason: 'Requested task execution failed; rerun successfully: tests/unit/test_llm_cpu.py
+    exit=1'
+  task: a3ea2fc2d633f364aecb529f2854bb0b7720359afeb533e35a0f4b23b16ef687
+T014:
+  task: 1369d674f8e24dcc95c312e0ece98685cc204a48b15eb996941fab284eb839e4
+T015:
+  task: 995e0917809732c92d55e62beef183f06127250e8f321219e695b76f09ad60e1
+T016:
+  task: e2be425037b19465c3818b851f6ccf226eb4f540e91a8e814876f24c96d1e783
+T016a:
+  task: 105965714b6024f0b056ee07bf89c1621f8d753ae2bbd7fcc5e4c2e42ca5fd04
+T017:
+  task: a59dbc3d47ad3456a90a3334544f22ef59b83060c1c261a258b82825d22170c1
+T017b:
+  task: 11bcc5b495db7529f6e57565ce9847228f236f38df49c77985ba1d63811bee2d
+T018:
+  task: f9353391c43c0915fbd1470bdc611b46bf094fe4a460f5810377befae21b9171
+T019:
+  task: 21b950ac863dd92080e15823bdb20b67b88434f28e64b15a8d3d9b6e493db5d7
+T019a:
+  task: aa178d995c7b7eb2ae0ddcd8f197c77d4d6ec300dc4d159869d5f8d49620a360
+T020:
+  task: 70f33153f667e0d3fd17b79d04f3a0c1661769dc060d095798dc0fcd3b5a0609
+T021:
+  task: aa97cf8e93311683f1c1fbd3edf3e4ccf2e19d94486ddfb0095257642d7bc23d
+T023:
+  task: 68c502d744a25415187e6cc30dc578eab372c9fd277acefdd0e70f3b026af45d

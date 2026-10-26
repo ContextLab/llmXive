@@ -97,11 +97,9 @@ After the run, you should see the following files:
 - `data/processed/final_output.json` (validated against `output.schema.yaml`)  
 
 Run the test suite to ensure contract compliance:
-
 ```bash
-pytest -q
+pytest -v
 ```
-
 Any failure related to data integrity, checksum mismatches, or schema violations must be addressed before proceeding.
 
 ## 7. Common Failure Modes
@@ -113,7 +111,4 @@ Any failure related to data integrity, checksum mismatches, or schema violations
 | Model download fails twice | Cache corruption | Delete `~/.cache/huggingface/transformers/distilbert-base-uncased-finetuned-sst-2-english` and re‑run. The script will retry once automatically. |
 | Intent‑mapping accuracy < 80 % | Poor sentiment‑to‑intent mapping | Review the mapping logic; consider refining the label mapping or collecting more annotated data. |
 
-**License Note**: The GateMem dataset is released under a **CC‑BY‑4.0** license, permitting redistribution and commercial‑free use, satisfying Constitution Principle III.  
-
----
-
+**License Note**: The GateMem dataset is released under a **CC‑BY‑4.0** license, permitting redistribution and commercial‑free use, satisfying Constitution Principle III.

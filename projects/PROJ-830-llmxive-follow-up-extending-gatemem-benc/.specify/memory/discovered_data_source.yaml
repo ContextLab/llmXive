@@ -1,13 +1,14 @@
 status: none
-intent: GateMem dataset download Python package from HuggingFace Datasets for medical
-  office education household python package dataset
+intent: download GateMem dataset medical office education household annotations python
+  package
 required_fields:
 - episode_id
 - domain
-- conversation
+- text
 - annotations
-- role
+- role_definitions
 - deletion_request_flag
-cache_key: 01377853e34f3f8e26ad9e11143646e0e08d145865868df33141bb645dbb0e68
-searched_at: '2026-10-26T02:14:59.433458+00:00'
+- metadata
+cache_key: 4da94c85a43afaffb532994ea2cac3e84b49158e9394d47a66652f8c95563ac3
+searched_at: '2026-10-26T02:43:21.921535+00:00'
 retry_count: 1

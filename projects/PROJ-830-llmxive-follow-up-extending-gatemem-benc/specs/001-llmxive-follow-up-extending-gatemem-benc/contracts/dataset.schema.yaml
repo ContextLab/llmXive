@@ -1,50 +1,26 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "GateMem Dataset Schema"
-description: "Schema for the raw GateMem dataset as used by this project."
-type: "object"
-properties:
-  episode_id:
-    type: "string"
-    description: "Unique identifier."
-  domain:
-    type: "string"
-    enum: ["medical", "office", "education", "household"]
-    description: "Domain of the episode."
-  query:
-    type: "string"
-    description: "User query text."
-  memory_state:
-    type: "string"
-    description: "Retrieved or full memory context."
-  leak_target:
-    type: "boolean"
-    description: "Ground‑truth: True = allowed, False = should be blocked."
-  role:
-    type: "string"
-    description: "User role."
-  deletion_request:
-    type: "boolean"
-    description: "Whether a deletion request is present."
-  deletion_log:
-    type: "array"
-    items:
-      type: "string"
-    description: "Deletion‑log entries."
-  ground_truth_answer:
-    type: "string"
-    description: "Human‑annotated correct answer."
-  ground_truth_leak:
-    type: "boolean"
-    description: "Ground truth leak label."
-  ground_truth_deletion:
-    type: "boolean"
-    description: "Ground truth deletion compliance."
+# Dataset schema for GateMem episodes
+# This schema defines the minimal required fields that each episode
+# must contain for the benchmark pipeline.
+#
+# Required fields:
+# - id: Unique episode identifier (string)
+# - domain: One of the four benchmark domains (medical, office, education, household)
+# - leak-target: Annotation indicating whether the episode contains a leak target (string)
+# - role: The user role that generated the episode (string)
+# - outcome: Ground‑truth access decision; "allowed" or "denied" (string)
+# - authorization_boundaries: JSON object describing role‑based access limits (object)
+
 required:
-  - "episode_id"
-  - "domain"
-  - "query"
-  - "leak_target"
-  - "role"
-  - "ground_truth_leak"
-  - "ground_truth_deletion"
+  - id
+  - domain
+  - leak-target
+  - role
+  - outcome
+  - authorization_boundaries
+type: object
 additionalProperties: true
+description: |
+  Minimal contract for a GateMem episode. All fields listed under
+  ``required`` must be present; extra fields are permitted. This
+  contract is used by the data‑loader validation step and the
+  contract‑testing suite.
