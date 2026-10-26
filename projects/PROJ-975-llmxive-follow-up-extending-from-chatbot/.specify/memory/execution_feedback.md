@@ -18,13 +18,25 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m pytest tests/contract/test_schemas.py -k "task or skill" -> rc=1
-was unexpected)\nSkill 92 (ID: skill_0092): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 93 (ID: skill_0093): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 94 (ID: skill_0094): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 95 (ID: skill_0095): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 96 (ID: skill_0096): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 97 (ID: skill_0097): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 98 (ID: skill_0098): Additional properties are not allowed ('embedding_vector' was unexpected)\nSkill 99 (ID: skill_0099): Additional properties are not allowed ('embedding_vector' was unexpected)
+rty
+E           Skill 88 (ID: skill_0088): 'code' is a required property
+E           Skill 89 (ID: skill_0089): 'code' is a required property
+E           Skill 90 (ID: skill_0090): 'code' is a required property
+E           Skill 91 (ID: skill_0091): 'code' is a required property
+E           Skill 92 (ID: skill_0092): 'code' is a required property
+E           Skill 93 (ID: skill_0093): 'code' is a required property
+E           Skill 94 (ID: skill_0094): 'code' is a required property
+E           Skill 95 (ID: skill_0095): 'code' is a required property
+E           Skill 96 (ID: skill_0096): 'code' is a required property
+E           Skill 97 (ID: skill_0097): 'code' is a required property
+E           Skill 98 (ID: skill_0098): 'code' is a required property
+E           Skill 99 (ID: skill_0099): 'code' is a required property
 
-tests/contract/test_schemas.py:84: Failed
+tests/contract/test_schemas.py:85: Failed
 =========================== short test summary info ============================
 FAILED tests/contract/test_schemas.py::test_real_tasks_schema_compliance - Fa...
 FAILED tests/contract/test_schemas.py::test_real_skills_schema_compliance - F...
-========================= 2 failed, 3 passed in 1.62s ==========================
+================== 2 failed, 3 passed, 1 deselected in 1.50s ===================
 
 
 - python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning on off  --seed 42  --randomize-tasks -> rc=1
@@ -54,9 +66,9 @@ ImportError: cannot import name '_lazywhere' from 'scipy._lib._util' (/home/runn
 platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
-collected 5 items / 5 deselected / 0 selected
+collected 6 items / 6 deselected / 0 selected
 
-============================ 5 deselected in 0.66s =============================
+============================ 6 deselected in 0.61s =============================
 
 
 

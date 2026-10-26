@@ -1,52 +1,31 @@
 T001:
   c: true
-  h: f7c41a282cf9c119b5c04f33deea90e64546d77bdf39cad9e4eb6bedc9e3ce14
-  r: "Checked that `contracts/` contains the five schema files copied from `specs/.../contracts/`,\
-    \ that `code/copy_contracts.py` implements the copy\u2011and\u2011hash logic,\
-    \ that `contract_hashes.json` records matching source and destination SHA\u2011\
-    256 hashes for each file, and that `tests/contract/test_contract_copy.py` validates\
-    \ these hashes. All artifacts exist, are non\u2011empty, and the hash mapping\
-    \ shows verbatim copies, satisfying the task requirements."
-  sig: 5edc4b9686048475d5b09ffd3d87d7201b8eadb00088625fcb5c64cdc03e5d14
-T002:
-  c: false
-  h: 265ebd5bb958a54fd725aab2e7a471d79d5f9bb736e3067b08839abe3371e363
-  r: "Checked `code/generate_data.py`, `data/raw/tasks.json`, `data/raw/skills.json`,\
-    \ `data/raw/checksums.json`, and `tests/unit/test_generate_data.py`. The required\
-    \ schema files (`task.schema.yaml`, `skill.schema.yaml`) are missing, so records\
-    \ cannot be validated, and the SHA\u2011256 for `skills.json` recorded in `checksums.json`\
-    \ does not match the actual file hash, violating the checksum guard."
-  sig: f1c6403bd013c14e7fc462c48257d298c2189249e5511c0e2ce352ae25830641
+  h: e0921955d229bbab2406fca62b17955341e9f4cb99cecc3fa1148a1d41eae226
+  r: The `contracts/` directory contains verbatim copies of the five schema files
+    from `specs/.../contracts/`, `code/copy_contracts.py` performs the copy and writes
+    `contract_hashes.json`, and the JSON mapping shows identical `src_hash` and `dst_hash`
+    for each file. The test `tests/contract/test_contract_copy.py` loads this mapping
+    and asserts the hashes match, which it does. All required artifacts exist and
+    meet the specification.
+  sig: fc058b884fedf05460cbf9e55427ceab226debf9a9bf3de1fc17fda96dd43e32
 T003:
   c: true
-  h: 14b854a1f12ddf7e34187104612ab647ba6ec86b4bf9975ec0caf100eb85b4ef
-  r: "Checked `code/write_checksums.py` (implements recomputation and overwriting\
-    \ of `data/raw/checksums.json`) and `tests/contract/test_checksums.py` (runs the\
-    \ script, reloads the file, and asserts the stored hashes match freshly computed\
-    \ ones). The script correctly reads the two source JSON files, computes their\
-    \ SHA\u2011256 digests, writes the mapping, and the test validates this behavior,\
-    \ satisfying the task\u2019s requirements."
-  sig: cf39f1467126b3ec1ca5b355ccffc92f6bcddabeb679e72847111c72f3187b72
-T004:
-  c: false
-  h: 9a92319c60c61e6166399038458e8e15196b86ff512b97a5ff977b91a2e05da9
-  r: "The pytest run (`code/.tasks/T004.tests_contract_test_schemas.py.log`) exits\
-    \ with failures:\u202F`test_real_tasks_schema_compliance` reports that 500 task\
-    \ entries lack the required `solution_path` field, and `test_task_skill_reference_integrity`\
-    \ also fails (the test references an undefined variable). Consequently the raw\
-    \ JSON files do not fully validate against their schemas, and the test suite does\
-    \ not succeed as required. The tasks data must be corrected (e.g., add `solution_path`\
-    \ to each task) and the integrity test fixed before the task can be considered\
-    \ complete."
-  sig: daac2ca9861c345e65ab9cd67bc129dba686867171f083d41c0d685e0e4a9dde
+  h: 01d4ce2e103cc15c81108e53a4f0a2c3b0a48930d73d476fedfcf772dcb89a4a
+  r: "Checked `code/write_checksums.py` (full implementation that recomputes SHA\u2011\
+    256 for `data/raw/tasks.json` and `data/raw/skills.json` and overwrites `data/raw/checksums.json`),\
+    \ the existing `data/raw/checksums.json` (which the test overwrites via the script),\
+    \ and `tests/contract/test_checksums.py` (fixture runs the script\u2019s `main()`\
+    \ then asserts the stored hashes match the freshly computed ones). All required\
+    \ artifacts exist and behave as specified."
+  sig: 42ba25dc10a97db817bfb95833fc6ffa387bbdf009dff929e58ebbb148356c3a
 T005:
-  c: false
-  h: 8ede8b8f43f28fe6a0c790675015f29625b8410fa45138cee46be8aed7e3bd13
-  r: Checked `code/logging_config.py` (defines correct LOG_COLUMNS and logger) and
-    `tests/contract/test_logging_schema.py` (expects a CSV at `data/results/experiment_log.csv`).
-    The required CSV file is missing and there is no evidence that the tests were
-    run and passed, so the logging behavior has not been demonstrated.
-  sig: 6829f0ddbc921869ab6b9de2ed3841151c68ebc32c13da461bda0722c5aee97c
+  c: true
+  h: 5daa80514658a0514619736f04cb9eb86f1999016daebd79f3070a0896b0eed6
+  r: Checked `code/logging_config.py` for correct LOG_COLUMNS and CSV logger implementation,
+    and verified that `tests/contract/test_logging_schema.py` passed (header order,
+    schema compliance, and file creation) as shown in the execution logs, confirming
+    the logger writes a compliant CSV file at `data/results/experiment_log.csv`.
+  sig: d9add65ccccb5f16fa2c0ff6fe1d4449d1fd982a992a9279f4d41fd2ed26f914
 T006:
   c: false
   h: 6b6142aa5fac7f73aa4b11e655855fc5e0008f67ca65983faedcf33a186d7776
@@ -77,11 +56,10 @@ T008:
     column definitions) is needed for the task to be considered complete.
   sig: d460e75bff7fd84c9956928b8cb0de5efa9b68a18090c1a6270d507b28b92cb7
 T015:
-  c: false
-  h: 8f528cadcdf91cf83684a65e5739a14f975015de660e37067ad9952af0b63a9a
-  r: The required file `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml`
-    does exist, but the test suite `tests/contract/test_schemas.py` contains no test
-    that validates this schema (no function matching `-k "experiment_log"`), so CI
-    cannot verify the schema as required. Add a test for `experiment_log.schema.yaml`
-    (or ensure the existing test suite includes it) and confirm it passes.
-  sig: c0bb53128c0cdd4238b00a29d90a0d76793584a715595a7a6cf1d6ad27b8fac6
+  c: true
+  h: dbd3411bf34a0261f05ee454e257016594becb16525c804a938d1edb9f840acd
+  r: "Checked the presence and content of `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml`\
+    \ (1659\u202Fbytes, valid JSON schema) and the passing of `tests/contract/test_schemas.py::test_experiment_log_schema_compliance`.\
+    \ The required schema file exists, is non\u2011empty, and the test suite validates\
+    \ it successfully."
+  sig: ec9df84d99ea6451ac55dfd980b256e1dcd346b0d738ec81107758cc39286331

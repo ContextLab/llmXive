@@ -32,7 +32,7 @@ properties:
     description: "Jaccard similarity between retrieved and ground‑truth skills."
   retrieval_diversity:
     type: "number"
-    description: "Inverse variance of cosine similarities of the top‑k retrieved skills to the ground‑truth set."
+    description: "Inverse variance of cosine similarities of the top‑k (k=5) retrieved skills against the task's ground‑truth set."
   edge_case:
     type: "string"
     description: "Tag for edge cases (e.g., 'missing_skill', 'memory_limit', 'max_overlap', 'null')."

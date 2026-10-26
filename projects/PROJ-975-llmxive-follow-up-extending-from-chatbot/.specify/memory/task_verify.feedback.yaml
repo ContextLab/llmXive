@@ -1,29 +1,25 @@
 T001:
   task: 558a684ab6cfd812e0d6b3f9f7f21befeb2df67af770009870cdfeffb5b574de
 T002:
-  reason: "Checked `code/generate_data.py`, `data/raw/tasks.json`, `data/raw/skills.json`,\
-    \ `data/raw/checksums.json`, and `tests/unit/test_generate_data.py`. The required\
-    \ schema files (`task.schema.yaml`, `skill.schema.yaml`) are missing, so records\
-    \ cannot be validated, and the SHA\u2011256 for `skills.json` recorded in `checksums.json`\
-    \ does not match the actual file hash, violating the checksum guard."
+  reason: "The generated `tasks.json` fails schema validation \u2013 the required\
+    \ `ground_truth_skills` field is missing (or empty) for tasks, causing `test_schema_compliance`\
+    \ to error. The task records therefore do not conform to `task.schema.yaml`. To\
+    \ complete the task, each task must include a non\u2011empty `ground_truth_skills`\
+    \ array (3\u20115 skill IDs) that satisfies the schema, and the schema files must\
+    \ be present in the `contracts/` directory."
   task: e1434351452dd1cf2ef1c0cd663e38c908eadce156262664ad059cbd6ec22783
 T003:
   task: 3a00ec119c9e2f9d89ea6b136df79307137dbf0ba8a3c0879393fd3a6d76d0f6
 T004:
   reason: "The pytest run (`code/.tasks/T004.tests_contract_test_schemas.py.log`)\
-    \ exits with failures:\u202F`test_real_tasks_schema_compliance` reports that 500\
-    \ task entries lack the required `solution_path` field, and `test_task_skill_reference_integrity`\
-    \ also fails (the test references an undefined variable). Consequently the raw\
-    \ JSON files do not fully validate against their schemas, and the test suite does\
-    \ not succeed as required. The tasks data must be corrected (e.g., add `solution_path`\
-    \ to each task) and the integrity test fixed before the task can be considered\
-    \ complete."
+    \ exits with failures: `test_real_tasks_schema_compliance` (and also `test_real_skills_schema_compliance`)\
+    \ report \u201CAdditional properties are not allowed\u201D (e.g., `edge_case`,\
+    \ `embedding_vector` in tasks). The `fix_tasks_schema.py` script runs without\
+    \ error but does not remove these extra fields, so the JSON files still violate\
+    \ the schemas. Consequently the test suite does not exit successfully, violating\
+    \ the task requirement."
   task: d1c2ba04f33156fde60bc946cb13780ce4df3c9e770d833d90b3294136521cac
 T005:
-  reason: Checked `code/logging_config.py` (defines correct LOG_COLUMNS and logger)
-    and `tests/contract/test_logging_schema.py` (expects a CSV at `data/results/experiment_log.csv`).
-    The required CSV file is missing and there is no evidence that the tests were
-    run and passed, so the logging behavior has not been demonstrated.
   task: 794d6e0d6d90cbd32a42721cee5338971eb6584e7926037d22b94be600b6fd2c
 T006:
   reason: "Checked `code/agent.py` (has the Tuple import and CLI parsing) and the\
@@ -65,9 +61,4 @@ T013:
 T014:
   task: c2b7776851d8e8ac3d6f7dc5788935501e34f76b3ef3706fe9fed9df85961ea6
 T015:
-  reason: The required file `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml`
-    does exist, but the test suite `tests/contract/test_schemas.py` contains no test
-    that validates this schema (no function matching `-k "experiment_log"`), so CI
-    cannot verify the schema as required. Add a test for `experiment_log.schema.yaml`
-    (or ensure the existing test suite includes it) and confirm it passes.
   task: 922df92926b39fe9a8f87f494101ca7ad39bf3ce515317ade5cc55eac5fdb0b2

@@ -25,11 +25,11 @@ The list follows the three research phases (setup → full experiment →�
   *Path*: `tests/contract/test_schemas.py` runs `jsonschema.validate` on every entry of `data/raw/tasks.json` and `data/raw/skills.json` using `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`.  
   *Verification*: The test suite must exit with success; any schema violation aborts the run.
 
-- [ ] **T005** [P] [US2] **Configure logging and produce a minimal compliant CSV header**  
+- [X] **T005** [P] [US2] **Configure logging and produce a minimal compliant CSV header**  
   *Path*: `code/logging_config.py` defines `LOG_COLUMNS = ["run_id","task_id","library_size","pruning_enabled","success","latency_ms","tokens_used","retrieval_precision","retrieval_diversity","edge_case"]` and provides `get_logger(name)` that writes rows to `data/results/experiment_log.csv`.  
   *Verification*: `tests/contract/test_logging_schema.py` (a) creates a dummy row via the logger, (b) checks that `data/results/experiment_log.csv` exists, (c) asserts the header order matches `LOG_COLUMNS`, and (d) validates the dummy row against `contracts/experiment_log.schema.yaml`.
 
-- [ ] **T015** [P] [US2] **Create missing experiment_log.schema.yaml**  
+- [X] **T015** [P] [US2] **Create missing experiment_log.schema.yaml**  
   *Path*: `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml` – write the schema defined in the specification (identical to the one shown in the data model).  
   *Verification*: `tests/contract/test_schemas.py -k "experiment_log"` validates the new schema file; CI must succeed before any logging validation runs.
 

@@ -20,6 +20,7 @@ from code.config import get_experiment_config
 # Schema and Data paths
 TASK_SCHEMA_PATH = "contracts/task.schema.yaml"
 SKILL_SCHEMA_PATH = "contracts/skill.schema.yaml"
+EXPERIMENT_LOG_SCHEMA_PATH = "contracts/experiment_log.schema.yaml"
 TASKS_DATA_PATH = "data/raw/tasks.json"
 SKILLS_DATA_PATH = "data/raw/skills.json"
 
@@ -57,7 +58,7 @@ def test_real_tasks_schema_compliance():
             errors.append(f"Task {i} (ID: {task.get('task_id', 'N/A')}): {e.message}")
 
     if errors:
-        pytest.fail(f"Schema validation failed for {len(errors)} tasks:\\n" + "\\n".join(errors))
+        pytest.fail(f"Schema validation failed for {len(errors)} tasks:\n" + "\n".join(errors))
 
 def test_real_skills_schema_compliance():
     """
@@ -81,7 +82,41 @@ def test_real_skills_schema_compliance():
             errors.append(f"Skill {i} (ID: {skill.get('skill_id', 'N/A')}): {e.message}")
 
     if errors:
-        pytest.fail(f"Schema validation failed for {len(errors)} skills:\\n" + "\\n".join(errors))
+        pytest.fail(f"Schema validation failed for {len(errors)} skills:\n" + "\n".join(errors))
+
+def test_experiment_log_schema_compliance():
+    """
+    Validate that the experiment_log.schema.yaml is a valid JSON schema
+    and correctly validates a sample log entry.
+    """
+    # Priority: check contracts/ (populated by copy_contracts.py), then fallback to specs/
+    schema_path = EXPERIMENT_LOG_SCHEMA_PATH
+    if not os.path.exists(schema_path):
+        schema_path = "specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml"
+    
+    if not os.path.exists(schema_path):
+        pytest.fail(f"Experiment log schema file not found: {schema_path}")
+        
+    schema = load_schema(schema_path)
+    
+    # Sample valid entry based on the schema definition
+    sample_entry = {
+        "run_id": "run_10_off_LOW",
+        "task_id": "task_001",
+        "library_size": 10,
+        "pruning_enabled": False,
+        "success": True,
+        "latency_ms": 123.45,
+        "tokens_used": 100,
+        "retrieval_precision": 0.8,
+        "retrieval_diversity": 0.6,
+        "edge_case": "none"
+    }
+    
+    try:
+        validate(instance=sample_entry, schema=schema)
+    except ValidationError as e:
+        pytest.fail(f"Sample entry failed validation against experiment_log.schema.yaml: {e.message}")
 
 def test_skills_embedding_dimension():
     """
@@ -136,13 +171,12 @@ def test_real_skills_overlap_metrics():
 
 def test_task_skill_reference_integrity():
     """
-    Confirm that each task's ground_truth_path references existing skill_ids in skills.json.
+    Confirm that each task's ground_truth_skills references existing skill_ids in skills.json.
     """
     tasks_data = load_json_data(TASKS_DATA_PATH)
     skills_data = load_json_data(SKILLS_DATA_PATH)
 
     tasks_list = tasks_data['tasks'] if isinstance(tasks_data, dict) and 'tasks' in tasks_data else tasks_data
-    # Fixed bug: reference the correct variable name
     skills_list = skills_data['skills'] if isinstance(skills_data, dict) and 'skills' in skills_data else skills_data
 
     valid_skill_ids = {s['skill_id'] for s in skills_list}
@@ -155,4 +189,4 @@ def test_task_skill_reference_integrity():
                 errors.append(f"Task {task.get('task_id', i)} references missing skill_id: {sid}")
 
     if errors:
-        pytest.fail(f"Reference integrity check failed:\\n" + "\\n".join(errors))
+        pytest.fail(f"Reference integrity check failed:\n" + "\n".join(errors))

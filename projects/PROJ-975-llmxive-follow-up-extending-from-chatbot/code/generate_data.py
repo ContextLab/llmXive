@@ -1,22 +1,13 @@
 """
-Synthetic data generation script for llmXive follow‑up project.
+Synthetic data generation script for llmXive follow-up project.
 
 This script creates:
-  - data/raw/tasks.json
-  - data/raw/skills.json
-  - data/raw/checksums.json (SHA‑256 digests of the two JSON files)
+  - data/raw/tasks.json (500 tasks)
+  - data/raw/skills.json (100 skills)
+  - data/raw/checksums.json (SHA-256 digests of the two JSON files)
 
-The generated artifacts conform to the contract schemas located in
-`contracts/`. All fields required by the schemas are present and no
-disallowed fields are emitted in the persisted JSON files.
-
-Deterministic seeds are used for reproducibility:
-  - SEED_A (skill generation)   – default 42
-  - SEED_B (task generation)    – default 123
-
-The script respects the active overlap level, which can be set via the
-environment variable ``OVERLAP_LEVEL`` (case‑insensitive) or via the
-``--overlap`` CLI flag.
+The generated artifacts conform to the contract schemas located in `contracts/`.
+Deterministic seeds are used for reproducibility.
 """
 
 import argparse
@@ -30,17 +21,13 @@ from llmxive_toolkit import paths, get_logger
 
 logger = get_logger(__name__)
 
-# ----------------------------------------------------------------------
-# Constants required by the unit‑test suite
-# ----------------------------------------------------------------------
-SKILL_COUNT = 100   # total number of skills to generate
-TASK_COUNT = 500    # total number of tasks to generate
+# Constants
+SKILL_COUNT = 100
+TASK_COUNT = 500
+EMBEDDING_DIM = 384
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
 def compute_sha256(file_path: pathlib.Path) -> str:
-    """Return the SHA‑256 hex digest of the given file."""
+    """Return the SHA-256 hex digest of the given file."""
     sha = hashlib.sha256()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -48,18 +35,9 @@ def compute_sha256(file_path: pathlib.Path) -> str:
     return sha.hexdigest()
 
 def unit_vector(vec: np.ndarray) -> np.ndarray:
-    """Normalize a vector to unit length (guard against zero norm)."""
+    """Normalize a vector to unit length."""
     norm = np.linalg.norm(vec)
-    if norm == 0:
-        return vec
-    return vec / norm
-
-def generate_random_embeddings(count: int, rng: np.random.Generator) -> np.ndarray:
-    """Generate `count` random unit vectors of dimension 384."""
-    raw = rng.normal(size=(count, 384))
-    norms = np.linalg.norm(raw, axis=1, keepdims=True)
-    norms[norms == 0] = 1.0
-    return raw / norms
+    return vec / norm if norm > 0 else vec
 
 def mean_pairwise_cosine(embeddings: np.ndarray) -> float:
     """Mean cosine similarity over all unique pairs (excluding diagonal)."""
@@ -68,367 +46,119 @@ def mean_pairwise_cosine(embeddings: np.ndarray) -> float:
     return float(sim_matrix[mask].mean())
 
 def proportion_above(embeddings: np.ndarray, threshold: float) -> float:
-    """Proportion of unique pairs with cosine similarity > `threshold`."""
+    """Proportion of unique pairs with cosine similarity > threshold."""
     sim_matrix = embeddings @ embeddings.T
     mask = ~np.eye(sim_matrix.shape[0], dtype=bool)
     return float((sim_matrix[mask] > threshold).mean())
 
-# ----------------------------------------------------------------------
-# Validation helper required by the test suite
-# ----------------------------------------------------------------------
-def validate_similarity_thresholds(
-    skills: list,
-    overlap_level: str
-) -> dict:
-    """
-    Compute similarity statistics for a list of skill dicts and verify that
-    they satisfy the thresholds for the requested ``overlap_level``.
-    Returns a dictionary with the computed metrics and a boolean ``is_valid``.
-    """
-    embeddings = np.array([s["embedding"] for s in skills])
+def validate_similarity_thresholds(embeddings: np.ndarray, overlap_level: str) -> bool:
+    """Verify that embeddings satisfy the thresholds for the requested overlap_level."""
     mean_sim = mean_pairwise_cosine(embeddings)
-    pct_above_05 = proportion_above(embeddings, 0.50)
-    pct_above_08 = proportion_above(embeddings, 0.80)
-
-    result = {
-        "target_level": overlap_level,
-        "mean_pairwise_similarity": mean_sim,
-        "pct_above_05": pct_above_05,
-        "pct_above_08": pct_above_08,
-        "is_valid": False,
-        "issues": []
-    }
-
     level = overlap_level.lower()
     if level == "low":
-        if mean_sim < 0.30:
-            result["is_valid"] = True
-        else:
-            result["issues"].append(
-                f"Low overlap requires mean < 0.30 (got {mean_sim:.4f})"
-            )
+        return mean_sim < 0.30
     elif level == "medium":
-        if mean_sim > 0.50 and pct_above_05 >= 0.30:
-            result["is_valid"] = True
-        else:
-            result["issues"].append(
-                f"Medium overlap requires mean > 0.50 and ≥30% >0.50 "
-                f"(got mean {mean_sim:.4f}, pct {pct_above_05:.2%})"
-            )
+        return mean_sim > 0.50 and proportion_above(embeddings, 0.50) >= 0.30
     elif level == "high":
-        if mean_sim > 0.80 and pct_above_08 >= 0.30:
-            result["is_valid"] = True
-        else:
-            result["issues"].append(
-                f"High overlap requires mean > 0.80 and ≥30% >0.80 "
-                f"(got mean {mean_sim:.4f}, pct {pct_above_08:.2%})"
-            )
-    else:
-        result["issues"].append(f"Unknown overlap level: {overlap_level}")
+        return mean_sim > 0.80 and proportion_above(embeddings, 0.80) >= 0.30
+    return False
 
-    return result
-
-# ----------------------------------------------------------------------
-# Configuration handling
-# ----------------------------------------------------------------------
-DEFAULT_OVERLAP = "MEDIUM"
-DEFAULT_SEED_A = 42   # skill generation
-DEFAULT_SEED_B = 123  # task generation
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Generate synthetic tasks and skills for the llmXive experiment."
-    )
-    parser.add_argument(
-        "--overlap",
-        type=str,
-        choices=["low", "medium", "high"],
-        default=os.getenv("OVERLAP_LEVEL", DEFAULT_OVERLAP).lower(),
-        help="Semantic overlap level for the generated skill library.",
-    )
-    parser.add_argument(
-        "--seed-a",
-        type=int,
-        default=int(os.getenv("SEED_A", DEFAULT_SEED_A)),
-        help="Random seed for skill generation.",
-    )
-    parser.add_argument(
-        "--seed-b",
-        type=int,
-        default=int(os.getenv("SEED_B", DEFAULT_SEED_B)),
-        help="Random seed for task generation.",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        help="If provided, sets BOTH seed-a and seed-b to the same value (legacy shortcut).",
-    )
-    parser.add_argument(
-        "--skill-count",
-        type=int,
-        default=SKILL_COUNT,
-        help="Number of skills to generate (must be ≥ required library sizes).",
-    )
-    parser.add_argument(
-        "--task-count",
-        type=int,
-        default=TASK_COUNT,
-        help="Number of tasks to generate.",
-    )
-    return parser.parse_args()
-
-# ----------------------------------------------------------------------
-# Memory‑limit guard
-# ----------------------------------------------------------------------
 def ensure_memory_available(min_available_bytes: int = 1 * 1024**3) -> None:
-    """
-    Abort with a clear error if the system does not have at least
-    ``min_available_bytes`` of free RAM.
-    """
+    """Abort if system does not have enough free RAM."""
     available = psutil.virtual_memory().available
     if available < min_available_bytes:
-        raise MemoryError(
-            f"Insufficient RAM: need at least {min_available_bytes / (1024**3):.1f} GiB "
-            f"available, but only {available / (1024**3):.1f} GiB is free."
-        )
+        raise MemoryError(f"Insufficient RAM: need {min_available_bytes / (1024**3):.1f} GiB, got {available / (1024**3):.1f} GiB")
 
-# ----------------------------------------------------------------------
-# Skill generation (public API for tests)
-# ----------------------------------------------------------------------
-def generate_skills(seed_a: int, count: int = SKILL_COUNT, overlap_level: str = "medium") -> list:
-    """
-    Public wrapper used by the unit‑test suite.
-
-    Returns a list of skill dicts that contain **both** the schema‑required
-    fields and the legacy alias fields expected by older code.
-    """
-    rng = np.random.default_rng(seed_a)
-    core_skills = _generate_skills_core(
-        rng,
-        count,
-        overlap_level.lower(),
-    )
-    # Attach legacy aliases for backward compatibility.
-    for skill in core_skills:
-        # Legacy aliases
-        skill["id"] = skill["skill_id"]
-        skill["code"] = skill["function_code"]
-        skill["params"] = {"name": skill["skill_id"]}
-    return core_skills
-
-def _generate_skills_core(
-    rng: np.random.Generator,
-    count: int,
-    overlap_level: str,
-) -> list:
-    """
-    Internal helper that returns a list of skill dicts containing ONLY the
-    schema‑required fields.  It retries up to ``max_attempts`` times to
-    satisfy the overlap constraints.
-    """
+def generate_skills(seed: int, count: int, overlap_level: str) -> list:
+    """Generate a list of skill dictionaries with controlled semantic overlap."""
+    rng = np.random.default_rng(seed)
     attempts = 0
-    max_attempts = 100
-    while True:
+    while attempts < 100:
         attempts += 1
-
         if overlap_level == "high":
-            base_vec = rng.normal(size=384)
-            base_vec = unit_vector(base_vec)
-            noise = rng.normal(scale=0.001, size=(count, 384))
-            raw = base_vec + noise
-            norms = np.linalg.norm(raw, axis=1, keepdims=True)
-            norms[norms == 0] = 1.0
-            embeddings = raw / norms
+            base = unit_vector(rng.normal(size=EMBEDDING_DIM))
+            noise = rng.normal(scale=0.02, size=(count, EMBEDDING_DIM))
+            embeddings = np.array([unit_vector(base + n) for n in noise])
         elif overlap_level == "medium":
-            base_vec = rng.normal(size=384)
-            base_vec = unit_vector(base_vec)
-            noise = rng.normal(scale=0.05, size=(count, 384))
-            raw = base_vec + noise
-            norms = np.linalg.norm(raw, axis=1, keepdims=True)
-            norms[norms == 0] = 1.0
-            embeddings = raw / norms
-        else:  # low
-            embeddings = generate_random_embeddings(count, rng)
+            base = unit_vector(rng.normal(size=EMBEDDING_DIM))
+            noise = rng.normal(scale=0.2, size=(count, EMBEDDING_DIM))
+            embeddings = np.array([unit_vector(base + n) for n in noise])
+        else: # low
+            raw = rng.normal(size=(count, EMBEDDING_DIM))
+            embeddings = np.array([unit_vector(r) for r in raw])
 
-        mean_sim = mean_pairwise_cosine(embeddings)
-
-        if overlap_level == "low":
-            condition = mean_sim < 0.30
-        elif overlap_level == "medium":
-            condition = (
-                mean_sim > 0.50
-                and proportion_above(embeddings, 0.50) >= 0.30
-            )
-        else:  # high
-            condition = (
-                mean_sim > 0.80
-                and proportion_above(embeddings, 0.80) >= 0.30
-            )
-
-        if condition:
-            logger.info(
-                f"Generated {count} skill embeddings for {overlap_level.upper()} overlap "
-                f"(mean similarity {mean_sim:.4f}) after {attempts} attempt(s)."
-            )
+        if validate_similarity_thresholds(embeddings, overlap_level):
             break
-
-        if attempts >= max_attempts:
-            raise RuntimeError(
-                f"Failed to generate embeddings satisfying {overlap_level.upper()} overlap after {max_attempts} attempts."
-            )
         rng = np.random.default_rng(rng.integers(0, 2**32 - 1))
-
+    
     skills = []
     for i in range(count):
-        skill_id = f"skill_{i:04d}"
-        func_code = (
-            f"def {skill_id}_func():\n"
-            f"    \"\"\"Skill {skill_id} generated for synthetic dataset.\"\"\"\n"
-            f"    return '{skill_id}'\n"
-        )
-        emb_list = embeddings[i].tolist()
-        skill = {
-            "skill_id": skill_id,
-            "name": skill_id,                     # required by schema
-            "function_code": func_code,
-            "embedding": emb_list,                # primary schema field
-            "embedding_vector": emb_list,         # legacy field required by tests
-            "usage_count": 0,
-        }
-        skills.append(skill)
+        sid = f"skill_{i:04d}"
+        skills.append({
+            "skill_id": sid,
+            "name": sid,
+            "function_code": f"def {sid}_func():\n    return '{sid}'",
+            "embedding": embeddings[i].tolist(),
+            "usage_count": 0
+        })
     return skills
 
-# ----------------------------------------------------------------------
-# Task generation (public API for tests)
-# ----------------------------------------------------------------------
-def generate_tasks(seed_b: int, skills: list, count: int = TASK_COUNT) -> list:
-    """
-    Public wrapper used by the unit‑test suite.
-    """
-    rng = np.random.default_rng(seed_b)
+def generate_tasks(seed: int, skills: list, count: int) -> list:
+    """Generate a list of task dictionaries with ground-truth solution paths."""
+    rng = np.random.default_rng(seed)
     skill_ids = [s["skill_id"] for s in skills]
-
     tasks = []
     for i in range(count):
-        task_id = f"task_{i:04d}"
-        description = f"Synthetic task {i} requiring a sequence of actions."
-        complexity = int(rng.integers(1, 6))  # 1‑5 inclusive
-
-        path_len = int(rng.integers(3, 6))   # 3‑5 inclusive
+        tid = f"task_{i:04d}"
+        path_len = int(rng.integers(3, 6))
         gt_path = rng.choice(skill_ids, size=path_len, replace=False).tolist()
-
-        task_embedding = generate_random_embeddings(1, rng)[0].tolist()
-
-        task = {
-            "task_id": task_id,
-            "description": description,
-            "ground_truth_path": gt_path,
-            "solution_path": gt_path,          # required by schema
-            "ground_truth_skills": gt_path,    # legacy alias (kept for compatibility)
-            "complexity": complexity,
-            "embedding_vector": task_embedding,
-            "edge_case": False,
-        }
-        # Legacy fields expected by older code/tests
-        task["id"] = task_id
-        task["num_steps"] = len(gt_path)
-        tasks.append(task)
+        tasks.append({
+            "task_id": tid,
+            "description": f"Synthetic task {i} requiring {path_len} steps.",
+            "solution_path": gt_path,
+            "complexity": int(rng.integers(1, 6)),
+            "embedding_vector": rng.normal(size=EMBEDDING_DIM).tolist(),
+            "edge_case": False
+        })
     return tasks
 
-# ----------------------------------------------------------------------
-# Main routine (CLI entry point)
-# ----------------------------------------------------------------------
-def main() -> None:
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--overlap", choices=["low", "medium", "high"], default="medium")
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--skill-count", type=int, default=SKILL_COUNT)
+    parser.add_argument("--task-count", type=int, default=TASK_COUNT)
+    return parser.parse_args()
+
+def main():
     args = parse_args()
-
-    # Resolve legacy ``--seed`` shortcut
-    if args.seed is not None:
-        args.seed_a = args.seed_b = args.seed
-
-    # Ensure we have enough free RAM before allocating large matrices.
     ensure_memory_available()
-
-    overlap_level = args.overlap.lower()
-    logger.info(f"Generating data with overlap level: {overlap_level.upper()}")
-
-    # ------------------------------------------------------------------
-    # Generate skills (schema‑compliant dicts)
-    # ------------------------------------------------------------------
-    core_skills = generate_skills(
-        seed_a=args.seed_a,
-        count=args.skill_count,
-        overlap_level=overlap_level,
-    )
-
-    # ------------------------------------------------------------------
-    # Generate tasks (schema‑compliant dicts)
-    # ------------------------------------------------------------------
-    core_tasks_full = generate_tasks(
-        seed_b=args.seed_b,
-        skills=core_skills,
-        count=args.task_count,
-    )
-
-    # ------------------------------------------------------------------
-    # Persist JSON files (schema‑only objects)
-    # ------------------------------------------------------------------
+    
+    logger.info(f"Generating data: overlap={args.overlap}, seed={args.seed}")
+    
+    skills = generate_skills(args.seed, args.skill_count, args.overlap)
+    tasks = generate_tasks(args.seed + 1, skills, args.task_count)
+    
     raw_dir = paths.data("raw")
     raw_dir.mkdir(parents=True, exist_ok=True)
-
+    
     tasks_path = raw_dir / "tasks.json"
     skills_path = raw_dir / "skills.json"
-
-    # Strip to schema‑allowed fields for tasks
-    schema_tasks = [
-        {
-            "task_id": t["task_id"],
-            "description": t["description"],
-            "ground_truth_path": t["ground_truth_path"],
-            "solution_path": t["solution_path"],
-            "ground_truth_skills": t["ground_truth_skills"],
-            "complexity": t["complexity"],
-            "embedding_vector": t["embedding_vector"],
-            "edge_case": t["edge_case"],
-        }
-        for t in core_tasks_full
-    ]
-
-    # Strip to schema‑allowed fields for skills
-    schema_skills = [
-        {
-            "skill_id": s["skill_id"],
-            "name": s["name"],
-            "function_code": s["function_code"],
-            "embedding": s["embedding"],
-            "embedding_vector": s["embedding_vector"],  # kept for test compatibility
-            "usage_count": s["usage_count"],
-        }
-        for s in core_skills
-    ]
-
-    # Write the task list (schema‑compliant)
+    
     with open(tasks_path, "w", encoding="utf-8") as f:
-        json.dump({"tasks": schema_tasks}, f, indent=2, sort_keys=True)
-
-    # Write the skill list (schema‑compliant)
+        json.dump({"tasks": tasks}, f, indent=2, sort_keys=True)
+    
     with open(skills_path, "w", encoding="utf-8") as f:
-        json.dump({"skills": schema_skills}, f, indent=2, sort_keys=True)
-
-    logger.info(f"Wrote {len(schema_tasks)} tasks to {tasks_path}")
-    logger.info(f"Wrote {len(schema_skills)} skills to {skills_path}")
-
-    # ------------------------------------------------------------------
-    # Compute and store checksums
-    # ------------------------------------------------------------------
+        json.dump({"skills": skills}, f, indent=2, sort_keys=True)
+    
     checksums = {
         "tasks_json_sha256": compute_sha256(tasks_path),
-        "skills_json_sha256": compute_sha256(skills_path),
+        "skills_json_sha256": compute_sha256(skills_path)
     }
-    checksums_path = raw_dir / "checksums.json"
-    with open(checksums_path, "w", encoding="utf-8") as f:
+    with open(raw_dir / "checksums.json", "w", encoding="utf-8") as f:
         json.dump(checksums, f, indent=2, sort_keys=True)
-
-    logger.info(f"Checksums written to {checksums_path}")
+    
+    logger.info(f"Generated {len(tasks)} tasks and {len(skills)} skills.")
 
 if __name__ == "__main__":
     main()
