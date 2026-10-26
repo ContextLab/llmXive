@@ -1,55 +1,48 @@
 T001:
-  reason: "The `code/src/` sub\u2011packages (`data/`, `analysis/`, `stats/`, `reporting/`,\
-    \ `utils/`) do not have visible `__init__.py` files in the provided artifact list,\
-    \ so the required package markers are missing.\u202FAdditionally, `quickstart.md`\
-    \ never mentions the `--dry\u2011run` flag or the expected \u201CPipeline completed\
-    \ (dry\u2011run)\u201D output, violating the documentation requirement.\u202F\
-    (Tests pass, but the missing package init files and incomplete quick\u2011start\
-    \ documentation prevent task completion.)"
+  reason: "The evidence shows `code/src/__init__.py` but does not include `__init__.py`\
+    \ files inside the required sub\u2011packages (`data/`, `analysis/`, `stats/`,\
+    \ `reporting/`, `utils/`). Moreover, there is no execution evidence that `python\
+    \ -m code.src.run_pipeline --dry-run` exits with code\u202F0 and prints \u201C\
+    Pipeline completed (dry\u2011run)\u201D, nor any pytest output confirming \u201C\
+    0 failed, X passed\u201D. These missing artifacts prevent the task from being\
+    \ considered complete."
   task: 7206176e37b9af32937c9b4ae4a8ac6a42f3658a4d6daffd687b234f6eec0018
 T002:
-  reason: "The `download_hcp.py` script does not meet the specification: it uses the\
-    \ wrong Hugging\u202FFace dataset (`jonxuxu/HCP-flat` instead of `\"hcp\"`), caps\
-    \ the subject count to 10 (instead of deterministically selecting the first\u202F\
-    200 IDs), and the required output parquet files (`data/raw/timeseries/subject_*.parquet`\
-    \ and `data/raw/dsrt_scores.parquet`) are absent from the repository. Consequently\
-    \ the verification step cannot succeed."
+  reason: "The repository contains the `download_hcp.py` script, but the required\
+    \ output artifacts (`data/raw/dsrt_scores.parquet` and the per\u2011subject parquet\
+    \ files in `data/raw/timeseries/`) are missing, so there is no evidence that the\
+    \ script successfully downloads data, writes the files, or produces the specified\
+    \ columns. The task is not satisfied until those files are generated and verified."
   task: a33675c07213d536631f285b9d94ce261b82acdb894421ea1e551f3802de4e7e
 T003:
-  reason: "The QC script exists, but the required input file (`data/raw/dsrt_scores.parquet`)\
-    \ and the two output artifacts (`data/derived/clean_subjects.parquet`, `data/derived/subject_qc.csv`)\
-    \ are missing. Moreover, the script writes a CSV containing **only excluded subjects**\
-    \ (contrary to the task\u2019s \u201Cfull QC log\u201D requirement) and uses a\
-    \ `status` value of `\"invalid\"` that does not match the schema\u2019s allowed\
-    \ values (`\"valid\"`, `\"excluded_motion\"`, `\"excluded_missing_data\"`), so\
-    \ it would fail schema validation. The unit test also cannot import `src.data.qc`\
-    \ because the package path is incorrect. These iss"
+  reason: "The repository contains the `code/src/data/qc.py` script, but the required\
+    \ input file `data/raw/dsrt_scores.parquet` is missing, and the expected output\
+    \ artifacts `data/derived/clean_subjects.parquet` and `data/derived/subject_qc.csv`\
+    \ do not exist. Moreover, the unit test for the QC module fails during import\
+    \ (pandas version error), so the script\u2019s behavior has not been validated\
+    \ nor proven to meet the schema requirements. These missing files and failing\
+    \ tests must be addressed for the task to be considered complete."
   task: 391bce7862386bb9a5d2800208d074af689580f7eb721add72c140d518d32a42
 T004:
-  reason: "The repository contains `code/src/analysis/entropy.py` with a `multiscale_entropy`\
-    \ implementation, but the required output artifacts are absent or incorrect: `data/derived/entropy_matrix.parquet`\
-    \ and `data/derived/entropy_metadata.json` do not exist, and `data/derived/invalid_parcels.csv`\
-    \ is never created (the code only writes a single `parcel_id` column, not the\
-    \ required `subject_id`, `parcel_id`, `reason`). Consequently the task\u2019s\
-    \ specifications for writing the parquet matrix, metadata JSON, and detailed invalid\u2011\
-    parcel log are not satisfied."
+  reason: "Checked the repository and found that while `code/src/analysis/entropy.py`\
+    \ is present and implements the required functions, the required output artifacts\
+    \ `data/derived/entropy_matrix.parquet`, `data/derived/entropy_metadata.json`,\
+    \ and `data/derived/invalid_parcels.csv` are all missing. Without these files\
+    \ the task\u2019s deliverables (matrix with checksum, metadata JSON, and invalid\u2011\
+    parcel log) are not satisfied."
   task: 1bfb769ac75860aecd80ae4b97148b43113755aa03757bd73b3527c6599b11df
 T005:
-  reason: "The `results/` directory is empty \u2013 both `entropy_matrix.parquet`\
-    \ and `covariates.parquet` are missing, as is the source `data/derived/entropy_matrix.parquet`.\
-    \ The pipeline cannot be imported (unit test error `ModuleNotFoundError: No module\
-    \ named 'src.config'`), and the only successful run shown is a dry\u2011run that\
-    \ prints \u201CPipeline completed (dry\u2011run)\u201D. No evidence of actual\
-    \ processing, batching \u2264\u202F50 parcels, RAM\u2011usage logging, or a log\
-    \ line ending with \u201CCompleted 5 subjects, 400 parcels\u201D is provided.\
-    \ The required result files with the correct columns are therefore not produced."
+  reason: "The run_pipeline script exists and logs \u201CCompleted 5 subjects, 400\
+    \ parcels\u201D, but the required output files are missing \u2013 `results/entropy_matrix.parquet`\
+    \ (and its source `data/derived/entropy_matrix.parquet`) and `results/covariates.parquet`\
+    \ do not exist, so their columns cannot be verified. Additionally, there is no\
+    \ evidence that the pipeline processes parcels in batches of \u2264\u202F50 to\
+    \ keep RAM\u202F<\u202F4\u202FGB. The task\u2019s core deliverables are therefore\
+    \ not satisfied."
   task: f8b545799a6955438f89b1ce261e9f95f866e45e8e497bafc8dec68135b1f52f
 T006:
-  reason: "The run_pipeline script exists but the only recorded execution was a dry\u2011\
-    run (no HCP_TOKEN, subjects defaulted to 5) which never writes `results/pipeline_metrics.json`.\
-    \ The required metrics file is missing, and there is no evidence that the pipeline\
-    \ was run on 200 subjects or that the two result files from T005 were produced\
-    \ for the full cohort. The task therefore fails to meet its specifications."
+  reason: 'Requested task execution failed; rerun successfully: code/src/run_pipeline.py
+    exit=1'
   task: 556f632971af234ae02e92d0d4a8aeadd95e713ae52cd140c5d9a54b1813c649
 T007:
   reason: 'Requested task execution failed; rerun successfully: code/src/stats/model.py

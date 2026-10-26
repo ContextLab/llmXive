@@ -56,7 +56,7 @@ All scripts run on CPU‑only GitHub‑Actions runners and use only real, public
 
 ## Phase 2 – Full‑cohort entropy computation & resource monitoring  
 
-- [ ] T006 Run the full‑cohort entropy computation (200 subjects) and record runtime/memory metrics. `code/src/run_pipeline.py --subjects 200`.
+- [ ] T006 Run the full‑cohort entropy computation (200 subjects) and record runtime/memory metrics. `code/src/run_pipeline.py --subjects 200`. <!-- FAILED-IN-EXECUTION: code/src/run_pipeline.py exit=1 -->
   - Writes the same two result files as T005 but for the full cohort.  
   - Additionally creates `results/pipeline_metrics.json` with keys `runtime_seconds` and `peak_memory_gb`.  
   - Verification: `pipeline_metrics.json` exists and reports `runtime_seconds ≤ 5400` (≤ 1.5 h) and `peak_memory_gb ≤ 7`.

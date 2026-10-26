@@ -1,59 +1,55 @@
 T001:
   c: false
-  h: cdc1e5d060bc4f12bb36659521c7c878ae763cc3fa8e5a19dd051a310183b838
-  r: "The `code/src/` sub\u2011packages (`data/`, `analysis/`, `stats/`, `reporting/`,\
-    \ `utils/`) do not have visible `__init__.py` files in the provided artifact list,\
-    \ so the required package markers are missing.\u202FAdditionally, `quickstart.md`\
-    \ never mentions the `--dry\u2011run` flag or the expected \u201CPipeline completed\
-    \ (dry\u2011run)\u201D output, violating the documentation requirement.\u202F\
-    (Tests pass, but the missing package init files and incomplete quick\u2011start\
-    \ documentation prevent task completion.)"
-  sig: 18227d2398d1aeecd6f6be7150b71b13951487edc84c96d53ab7bd605b783fd5
+  h: 54f5a608a1b0929813a217cd656fac17c8ef77bdff8010588737e3d600bef50c
+  r: "The evidence shows `code/src/__init__.py` but does not include `__init__.py`\
+    \ files inside the required sub\u2011packages (`data/`, `analysis/`, `stats/`,\
+    \ `reporting/`, `utils/`). Moreover, there is no execution evidence that `python\
+    \ -m code.src.run_pipeline --dry-run` exits with code\u202F0 and prints \u201C\
+    Pipeline completed (dry\u2011run)\u201D, nor any pytest output confirming \u201C\
+    0 failed, X passed\u201D. These missing artifacts prevent the task from being\
+    \ considered complete."
+  sig: e40c63c39958da1247ce7baa5274b0ca993406334c419a49169d28883d67b378
 T002:
   c: false
-  h: e62065aeedd7eb8c25d4b012f6a28903d0dc3ba561cc918cb7ebfbf68a04843e
-  r: "The `download_hcp.py` script does not meet the specification: it uses the wrong\
-    \ Hugging\u202FFace dataset (`jonxuxu/HCP-flat` instead of `\"hcp\"`), caps the\
-    \ subject count to 10 (instead of deterministically selecting the first\u202F\
-    200 IDs), and the required output parquet files (`data/raw/timeseries/subject_*.parquet`\
-    \ and `data/raw/dsrt_scores.parquet`) are absent from the repository. Consequently\
-    \ the verification step cannot succeed."
-  sig: 970a412b5fb3df41f1cb1b0d2014d1fabeaee2e0879476e3d4de631e377aabb2
+  h: 3da4a15aa1a422331f62ff344f709197d17f6d25d958177c0d8eaa47286cea66
+  r: "The repository contains the `download_hcp.py` script, but the required output\
+    \ artifacts (`data/raw/dsrt_scores.parquet` and the per\u2011subject parquet files\
+    \ in `data/raw/timeseries/`) are missing, so there is no evidence that the script\
+    \ successfully downloads data, writes the files, or produces the specified columns.\
+    \ The task is not satisfied until those files are generated and verified."
+  sig: 584bf1f688b3f86c69618801939a0433b905db6f0226fc7764a1e6feb4a25ff6
 T003:
   c: false
-  h: b11bf8bad3d09eec2a6161ceda4feed2bbbb7fd5e5af34e569c2e6e5846d9cde
-  r: "The QC script exists, but the required input file (`data/raw/dsrt_scores.parquet`)\
-    \ and the two output artifacts (`data/derived/clean_subjects.parquet`, `data/derived/subject_qc.csv`)\
-    \ are missing. Moreover, the script writes a CSV containing **only excluded subjects**\
-    \ (contrary to the task\u2019s \u201Cfull QC log\u201D requirement) and uses a\
-    \ `status` value of `\"invalid\"` that does not match the schema\u2019s allowed\
-    \ values (`\"valid\"`, `\"excluded_motion\"`, `\"excluded_missing_data\"`), so\
-    \ it would fail schema validation. The unit test also cannot import `src.data.qc`\
-    \ because the package path is incorrect. These iss"
-  sig: cd7d99c71b03b38ddd17e83de95cf958679a4bf59ec136f5a3cb6ec95f113d01
+  h: 36b3049dd3724c58b6046e24a6f66297d9133259a9585171911c3f815106c851
+  r: "The repository contains the `code/src/data/qc.py` script, but the required input\
+    \ file `data/raw/dsrt_scores.parquet` is missing, and the expected output artifacts\
+    \ `data/derived/clean_subjects.parquet` and `data/derived/subject_qc.csv` do not\
+    \ exist. Moreover, the unit test for the QC module fails during import (pandas\
+    \ version error), so the script\u2019s behavior has not been validated nor proven\
+    \ to meet the schema requirements. These missing files and failing tests must\
+    \ be addressed for the task to be considered complete."
+  sig: 65d3ed5013593df94f0e2d577c2b3765821247a5b4ba2b32639d5674308797f1
 T004:
   c: false
-  h: c6514fea8c24f24f35019bf00e5c5277b7cb6cb69d625c4eb60f735cde0a176a
-  r: "The repository contains `code/src/analysis/entropy.py` with a `multiscale_entropy`\
-    \ implementation, but the required output artifacts are absent or incorrect: `data/derived/entropy_matrix.parquet`\
-    \ and `data/derived/entropy_metadata.json` do not exist, and `data/derived/invalid_parcels.csv`\
-    \ is never created (the code only writes a single `parcel_id` column, not the\
-    \ required `subject_id`, `parcel_id`, `reason`). Consequently the task\u2019s\
-    \ specifications for writing the parquet matrix, metadata JSON, and detailed invalid\u2011\
-    parcel log are not satisfied."
-  sig: c8b36f37aab02c05f3c894ba58c91cad9b1156855f2d0706247d7cd8f69ae633
+  h: fc964befcec645b08e187701a7863788442f67ca8d31f0c670ec036b734b8356
+  r: "Checked the repository and found that while `code/src/analysis/entropy.py` is\
+    \ present and implements the required functions, the required output artifacts\
+    \ `data/derived/entropy_matrix.parquet`, `data/derived/entropy_metadata.json`,\
+    \ and `data/derived/invalid_parcels.csv` are all missing. Without these files\
+    \ the task\u2019s deliverables (matrix with checksum, metadata JSON, and invalid\u2011\
+    parcel log) are not satisfied."
+  sig: 53de2856ea523bac38e38b85654d50c1bb962a2c83ea3147ea1771c436f22663
 T005:
   c: false
-  h: 6b61390a60d812f0c8142f2817988326ddb809c4d45722ae304d3d8272396f11
-  r: "The `results/` directory is empty \u2013 both `entropy_matrix.parquet` and `covariates.parquet`\
-    \ are missing, as is the source `data/derived/entropy_matrix.parquet`. The pipeline\
-    \ cannot be imported (unit test error `ModuleNotFoundError: No module named 'src.config'`),\
-    \ and the only successful run shown is a dry\u2011run that prints \u201CPipeline\
-    \ completed (dry\u2011run)\u201D. No evidence of actual processing, batching \u2264\
-    \u202F50 parcels, RAM\u2011usage logging, or a log line ending with \u201CCompleted\
-    \ 5 subjects, 400 parcels\u201D is provided. The required result files with the\
-    \ correct columns are therefore not produced."
-  sig: 174f2c0c1c4ed06c4d56b1979f3a650da2bd057f6ac6b5b12cac7316a648ca82
+  h: 293947002efff8bbdcac352cf850c236a8b364f90089704be234a23415ddce4f
+  r: "The run_pipeline script exists and logs \u201CCompleted 5 subjects, 400 parcels\u201D\
+    , but the required output files are missing \u2013 `results/entropy_matrix.parquet`\
+    \ (and its source `data/derived/entropy_matrix.parquet`) and `results/covariates.parquet`\
+    \ do not exist, so their columns cannot be verified. Additionally, there is no\
+    \ evidence that the pipeline processes parcels in batches of \u2264\u202F50 to\
+    \ keep RAM\u202F<\u202F4\u202FGB. The task\u2019s core deliverables are therefore\
+    \ not satisfied."
+  sig: af9e6b6633fc1d0d80f70bc38e9a4e7db92c86e88f8ef09345e8e7f0621d8145
 T006:
   c: false
   h: 1209080e052ac9ba635f3a12dc2f4a13ad0cb066e790fbed74cc2ff3ee0f43f8

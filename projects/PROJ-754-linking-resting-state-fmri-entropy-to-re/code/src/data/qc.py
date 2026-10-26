@@ -12,10 +12,13 @@ and writes two artefacts:
 * ``data/derived/clean_subjects.parquet`` – a parquet table containing only
   the valid subjects with additional columns ``status`` (set to ``valid``),
   ``selected`` (boolean ``True``) and a SHA‑256 ``checksum`` of the row.
-* ``data/derived/subject_qc.csv`` – a CSV log **containing only the
-  excluded subjects** (as required by the unit tests).  The log includes
-  ``subject_id, age, sex, mean_fd, dsrt_score, status, reason, selected,
-  checksum``.
+* ``data/derived/subject_qc.csv`` – a full QC log (including both valid and
+  excluded subjects) containing ``subject_id, age, sex, mean_fd,
+  dsrt_score, status, reason, selected, checksum``.  The ``status`` field
+  follows the schema defined in ``contracts/subject_qc.schema.yaml``:
+  ``valid``, ``excluded_motion`` or ``excluded_missing_data``.
+  The ``reason`` column is populated for excluded subjects and left empty
+  for valid ones.
 
 The module also provides a reusable ``validate_and_filter`` function that
 can be imported by downstream code or tests.
@@ -148,7 +151,9 @@ def main() -> None:
         raise FileNotFoundError(f"Behavioural file not found: {input_path}")
 
     logger.info("Reading behavioural data from %s", input_path)
-    behavioural_df = pd.read_parquet(input_path)
+    # Use ``fastparquet`` engine to avoid importing ``pyarrow`` which is not
+    # available in the execution environment.
+    behavioural_df = pd.read_parquet(input_path, engine="fastparquet")
 
     try:
         clean_df, exclusions = validate_and_filter(
@@ -169,37 +174,35 @@ def main() -> None:
     logger.info(
         "Writing %d valid subjects to %s", clean_df.shape[0], clean_path
     )
-    clean_df.to_parquet(clean_path, index=False)
+    clean_df.to_parquet(clean_path, index=False, engine="fastparquet")
 
-    # Write QC log CSV containing **only excluded** subjects (as expected by tests)
-    if exclusions:
-        # Build a DataFrame for the excluded rows
-        excl_ids = [sid for sid, _ in exclusions]
-        excl_df = behavioural_df[behavioural_df["subject_id"].isin(excl_ids)].copy()
-        # Populate QC columns
-        excl_df["status"] = "invalid"
-        excl_df["selected"] = False
-        # Map reasons
-        reason_map = {sid: reason for sid, reason in exclusions}
-        excl_df["reason"] = excl_df["subject_id"].map(reason_map)
-        excl_df["checksum"] = excl_df.apply(_row_checksum, axis=1)
-    else:
-        # No exclusions – create an empty DataFrame with the required columns
-        excl_df = pd.DataFrame(
-            columns=[
-                "subject_id",
-                "age",
-                "sex",
-                "mean_fd",
-                "dsrt_score",
-                "status",
-                "reason",
-                "selected",
-                "checksum",
-            ]
-        )
+    # ------------------------------------------------------------------
+    # Build the full QC log (all subjects)
+    # ------------------------------------------------------------------
+    full_qc_df = behavioural_df.copy()
 
-    qc_log_path = derived_dir / "subject_qc.csv"
+    # Initialise columns
+    full_qc_df["status"] = "valid"
+    full_qc_df["reason"] = ""
+    full_qc_df["selected"] = True
+
+    # Apply exclusions
+    for sid, reason in exclusions:
+        # Determine which schema status to assign
+        if "Missing DSRT" in reason:
+            status_val = "excluded_missing_data"
+        else:
+            status_val = "excluded_motion"
+
+        mask = full_qc_df["subject_id"] == sid
+        full_qc_df.loc[mask, "status"] = status_val
+        full_qc_df.loc[mask, "reason"] = reason
+        full_qc_df.loc[mask, "selected"] = False
+
+    # Compute checksum for every row using the helper
+    full_qc_df["checksum"] = full_qc_df.apply(_row_checksum, axis=1)
+
+    # Re‑order columns to match the schema
     column_order = [
         "subject_id",
         "age",
@@ -211,12 +214,13 @@ def main() -> None:
         "selected",
         "checksum",
     ]
+    qc_log_path = derived_dir / "subject_qc.csv"
     logger.info(
-        "Writing QC log (%d rows) to %s", excl_df.shape[0], qc_log_path
+        "Writing full QC log (%d rows) to %s", full_qc_df.shape[0], qc_log_path
     )
-    excl_df = excl_df[column_order]
+    full_qc_df = full_qc_df[column_order]
     qc_log_path.parent.mkdir(parents=True, exist_ok=True)
-    excl_df.to_csv(qc_log_path, index=False)
+    full_qc_df.to_csv(qc_log_path, index=False)
 
     # Log each exclusion via the shared logger
     for sid, reason in exclusions:

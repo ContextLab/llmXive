@@ -1,22 +1,4 @@
-# Project dependencies
-# Core scientific stack (already available in the runner)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional packages required for the pipeline
-datasets==2.18.*
-pyarrow==10.0.1
-pyentropy==0.4.*
-nilearn==0.10.*
-joblib==1.4.*
-reportlab==4.2.*
+# Existing dependencies are provided by the platform.
+# Additional third‑party packages required for this task:
+pyentropy==0.4.1
+fastparquet==2024.5.0

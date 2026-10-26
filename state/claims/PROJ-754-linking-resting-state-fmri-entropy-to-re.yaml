@@ -3349,3 +3349,55 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-26T15:02:20Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline completed' on successful run
+  claim_id: c_5da77c28
+  context: 'The script will download a tiny subset of HCP data, perform QC, compute
+    multiscale entropy and write the results to results/. On success you will see
+    the exact line: Pipeline completed'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'On success you will see the exact line: Pipeline completed'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T15:19:56Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: dry-run mode prints 'Pipeline completed (dry-run)'
+  claim_id: c_f7c46d78
+  context: "To execute a dry\u2011run (skips heavy processing) use: python -m code.src.run_pipeline\
+    \ --subjects 5 --dry-run. The dry\u2011run prints \u201CPipeline completed (dry\u2011\
+    run)\u201D."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The dry\u2011run prints \u201CPipeline completed (dry\u2011run)\u201D"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T15:19:57Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: test suite confirms successful import of all modules and clean exit of
+    dry-run
+  claim_id: c_fe3ce573
+  context: "Run the test suite with pytest -v tests/. The suite confirms that all\
+    \ modules import correctly and that a dry\u2011run of the pipeline exits cleanly."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The test suite confirms that all modules import correctly and that a\
+    \ dry\u2011run of the pipeline exits cleanly"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T15:19:58Z'

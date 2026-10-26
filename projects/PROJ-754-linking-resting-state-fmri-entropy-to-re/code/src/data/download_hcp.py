@@ -4,7 +4,7 @@ download_hcp.py
 Downloads a deterministic subset of HCP resting‑state fMRI time‑series
 (parcellated with the Schaefer‑400 atlas) and the corresponding behavioural
 DSRT scores. The implementation uses the verified Hugging Face dataset
-``jonxuxu/HCP-flat`` to obtain real data.
+``hcp`` with the ``rest`` configuration to obtain real data.
 """
 import argparse
 import logging
@@ -79,23 +79,21 @@ def main() -> None:
         )
 
     # ------------------------------------------------------------------
-    # Guard against excessively large requests in CI environments.
+    # Enforce the project‑wide maximum of 200 subjects.
     # ------------------------------------------------------------------
-    max_ci_subjects = 10
-    if subject_limit_requested > max_ci_subjects:
+    max_subjects = 200
+    if subject_limit_requested > max_subjects:
         log.warning(
-            "Requested %d subjects – capping to %d for CI execution.",
+            "Requested %d subjects – capping to %d as per project limits.",
             subject_limit_requested,
-            max_ci_subjects,
+            max_subjects,
         )
-        subject_limit = max_ci_subjects
+        subject_limit = max_subjects
     else:
         subject_limit = subject_limit_requested
 
     # ------------------------------------------------------------------
     # Lazy import of the Hugging Face ``datasets`` library.
-    # This avoids importing heavy optional dependencies (e.g. pyarrow)
-    # when the function is not executed (e.g. during a dry‑run).
     # ------------------------------------------------------------------
     try:
         from datasets import load_dataset
@@ -105,11 +103,13 @@ def main() -> None:
         ) from exc
 
     # ------------------------------------------------------------------
-    # Load the verified HCP‑flat dataset from Hugging Face.
+    # Load the verified HCP dataset from Hugging Face.
     # ------------------------------------------------------------------
-    log.info("Loading HCP‑flat dataset from Hugging Face.")
+    log.info("Loading HCP dataset from Hugging Face.")
+    # The dataset identifier and configuration are taken from the
+    # specification: dataset ``hcp`` with the ``rest`` config.
     dataset = load_dataset(
-        "jonxuxu/HCP-flat", split="train", streaming=False
+        "hcp", name="rest", split="train", streaming=False
     )
     df = dataset.to_pandas()
 
@@ -120,9 +120,9 @@ def main() -> None:
     log.info("Selected subject IDs: %s", selected_ids)
 
     # ------------------------------------------------------------------
-    # Prepare output directories.
+    # Prepare output directories using the llmxive_toolkit helpers.
     # ------------------------------------------------------------------
-    timeseries_dir = Path(args.output_dir) / "raw" / "timeseries"
+    timeseries_dir = paths.data("raw", "timeseries")
     timeseries_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
@@ -144,11 +144,9 @@ def main() -> None:
         parcel_names = [f"parcel_{i}" for i in range(ts_array.shape[1])]
         ts_df = pd.DataFrame(ts_array, columns=parcel_names)
 
-        # Add a ``timeseries`` column that contains the full vector for each row.
-        ts_df["timeseries"] = ts_df.apply(lambda r: r.tolist(), axis=1)
-
+        # Write the per‑subject parquet file.
         out_path = timeseries_dir / f"subject_{sid}.parquet"
-        ts_df.to_parquet(out_path, index=False)
+        ts_df.to_parquet(out_path, index=False, engine="fastparquet")
         log.info("Wrote timeseries for subject %s to %s", sid, out_path)
 
         # Collect behavioural information for the combined table.
@@ -166,9 +164,9 @@ def main() -> None:
     # Write the combined behavioural table.
     # ------------------------------------------------------------------
     behav_df = pd.DataFrame(behavioural_records)
-    behav_path = Path(args.output_dir) / "raw" / "dsrt_scores.parquet"
+    behav_path = paths.data("raw", "dsrt_scores.parquet")
     behav_path.parent.mkdir(parents=True, exist_ok=True)
-    behav_df.to_parquet(behav_path, index=False)
+    behav_df.to_parquet(behav_path, index=False, engine="fastparquet")
     log.info("Behavioural file written to %s", behav_path)
 
 if __name__ == "__main__":

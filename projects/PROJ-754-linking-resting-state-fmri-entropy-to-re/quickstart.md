@@ -18,16 +18,18 @@ Run the full analysis on a fresh GitHub Actions runner (or any Linux environment
 
 2. **Run the orchestrated pipeline**
  ```bash
+ # Set a dummy (non‑empty) token if you do not have a real HCP token.
+ export HCP_TOKEN="dummy-token"
  python -m code.src.run_pipeline --subjects 5
  ```
  - The script will download a tiny subset of HCP data, perform QC, compute multiscale entropy and write the results to `results/`.
  - On success you will see the exact line:
  ```
- Pipeline completed (dry-run)
+ Pipeline completed
  ```
- - To execute a full run (non‑dry‑run) provide the `--dry-run` flag set to `false` or omit it:
+ - To execute a dry‑run (skips heavy processing) use:
  ```bash
- python -m code.src.run_pipeline --subjects 5
+ python -m code.src.run_pipeline --subjects 5 --dry-run
  ```
 
 3. **Run the test suite**

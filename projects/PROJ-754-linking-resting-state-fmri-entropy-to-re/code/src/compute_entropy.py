@@ -86,7 +86,7 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Load cleaned subject metadata
     # ------------------------------------------------------------------
-    clean_df = pd.read_parquet(args.input)
+    clean_df = pd.read_parquet(args.input, engine="fastparquet")
     subject_ids = clean_df["subject_id"].astype(str).tolist()
     logger.info("Computing entropy for %d subjects.", len(subject_ids))
 
@@ -113,7 +113,7 @@ def main() -> None:
                 f"Timeseries file not found for subject {subj}"
             )
 
-        ts_df = pd.read_parquet(ts_path)
+        ts_df = pd.read_parquet(ts_path, engine="fastparquet")
 
         # Compute entropy for all parcels (batching to limit RAM)
         for batch in _batch_iter(parcel_ids, args.batch_size):
@@ -125,9 +125,10 @@ def main() -> None:
                 r=args.r,
             )
             for parcel, entropy_val in ent_series.items():
+                parcel_int = int(parcel.split("_")[1])
                 row = {
                     "subject_id": subj,
-                    "parcel_id": parcel,
+                    "parcel_id": parcel_int,
                     "entropy": float(entropy_val)
                     if not pd.isna(entropy_val)
                     else float("nan"),
@@ -155,7 +156,7 @@ def main() -> None:
         rows,
         columns=["subject_id", "parcel_id", "entropy", "checksum"],
     )
-    matrix_df.to_parquet(out_path, index=False)
+    matrix_df.to_parquet(out_path, index=False, engine="fastparquet")
     logger.info("Entropy matrix written to %s", out_path)
 
     # The multiscale_entropy function already writes invalid_parcels.csv
