@@ -24,10 +24,11 @@ Traceback (most recent call last):
 ModuleNotFoundError: No module named 'src.config'
 
 - python -m pytest -v tests/ -> rc=2
-
-tests/unit/test_power_pre.py:14: in <module>
-    from src.stats.power_pre import compute_power, write_results, POWER_THRESHOLD
-E   ModuleNotFoundError: No module named 'src.stats.power_pre'
+y:16: in <module>
+    from code.src.pipeline import run_pipeline as _orchestrator
+code/src/pipeline.py:15: in <module>
+    from src.config.env_manager import get_hcp_token
+E   ModuleNotFoundError: No module named 'src.config'
 ____________________ ERROR collecting tests/unit/test_qc.py ____________________
 ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/tests/unit/test_qc.py'.
 Hint: make sure your test modules/packages have valid Python names.
@@ -40,10 +41,9 @@ E   ModuleNotFoundError: No module named 'src.data'
 =========================== short test summary info ============================
 ERROR tests/unit/test_entropy.py
 ERROR tests/unit/test_pipeline_execution.py
-ERROR tests/unit/test_power_pre.py
 ERROR tests/unit/test_qc.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.50s ===============================
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+============================== 3 errors in 0.84s ===============================
 
 
 
