@@ -1,7 +1,7 @@
 """
 Pydantic validators for contract tests.
 Provides models for descriptor matrix and model output,
-as well as helper functions used by the contract test suite.
+and helper functions used by the contract test suite.
 """
 
 from pathlib import Path

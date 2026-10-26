@@ -1,0 +1,7 @@
+{
+  "task_id": "T101",
+  "fingerprint": "59c0c31e726862807b23b4bf1aa33f064f229dcd2c94d6c9ade3fdd3ab3161e7",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/integration/test_full_pipeline.py': imports nonexistent names from sibling files: `from models.train_lightgbm import train_lightgbm_model` (available: KFold, Path, compute_null_model_r2, cross_val_score, cross_validate_model, evaluate_model, gc, get_logger...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

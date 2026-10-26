@@ -1,23 +1,9 @@
-T102:
-  c: false
-  h: d0c43eb6dfd25529c63a5143c20b9c9cbd9aa2926ce48a7ad1b0462172123067
-  r: "The validators and test files exist and are substantive, but the task's verification\
-    \ criterion \u2014 `pytest tests/contract/ -q` passing against the real files\
-    \ \u2014 is not met: the recorded runs show all 5 tests failing because `data/processed/descriptors.parquet`\
-    \ and `data/results/model_metrics.json` do not exist (only `descriptor_names.json`\
-    \ is present). The downstream artifacts these contract tests validate must be\
-    \ produced (or the tests re-run once they exist) before this task can be considered\
-    \ complete."
-  sig: 4bd5162a78ea813cde08126c18227e31c7e7f546a5577c52e51ed031b8b3d644
 T103:
   c: false
-  h: 1a8a8fb955ed3c4eefd41fb0792804c7cfb8738c22f0e02f6cb78878d30b6c3d
-  r: 'The `validate.py` script itself does derive expected columns dynamically from
-    `descriptor_names.json` and uses `sys.exit(0)`/`sys.exit(1)` correctly, but the
-    required verification cannot be confirmed: `data/processed/descriptors.parquet`
-    is MISSING, so there is no evidence that `python code/data/validate.py data/processed/descriptors.parquet`
-    exits 0, nor any execution log demonstrating non-zero exit on a corrupted column
-    name. The implementer must produce/restore the descriptors parquet (or run the
-    validation against it) and provide actual run evidence of both the success and
-    failure cases.'
-  sig: ba1c7a1bc63cbad35120a52daa5702f29f5782b0a65f22330a261f6f7f7db502
+  h: 2bd11b507957a048ac87850cb63b1e068475ba67bbdd2a1ce91ac8b504759ffe
+  r: "Checked `code/data/validate.py` \u2013 it loads `descriptor_names.json` and\
+    \ exits\u202F0/1 based on validation logic, but there is no execution record showing\
+    \ `python code/data/validate.py data/processed/descriptors.parquet` actually returning\
+    \ 0, nor a test where a column name is corrupted to produce a non\u2011zero exit.\
+    \ Execution evidence for both the successful and failure cases is missing."
+  sig: 1384e44cb6f59ee4d5e5afb4fce59e788423f1b41efc94b1f241cae3d60a40db
