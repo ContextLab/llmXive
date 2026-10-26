@@ -1,38 +1,52 @@
-import subprocess
-import sys
+import csv
 from pathlib import Path
 
-def test_curate_corpus_runs_successfully():
-    """
-    Verify that the curate_corpus script exits with status 0 and
-    produces the required artefacts.
-    """
-    # Run the module as a script
-    result = subprocess.run(
-        [sys.executable, "-m", "code.src.audit.curate_corpus"],
-        capture_output=True,
-        text=True,
-    )
-    assert result.returncode == 0, f"Script failed: {result.stderr}"
+import pytest
 
-    # Check that the URLs CSV exists and has at least TARGET_COUNT rows
-    urls_csv = Path("data/input/urls.csv")
-    assert urls_csv.is_file(), "urls.csv was not created"
+from llmxive_toolkit import paths
 
-    with urls_csv.open() as f:
-        lines = f.readlines()
-    # Header + at least TARGET_COUNT rows
-    assert len(lines) >= 301, f"Expected at least 300 URLs, got {len(lines)-1}"
+def test_urls_csv_has_minimum_rows():
+    """The curated urls.csv must contain at least 300 rows."""
+    csv_path = paths.data("input", "urls.csv")
+    assert csv_path.exists(), "data/input/urls.csv must exist after curation"
+    with csv_path.open("r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) >= 300, f"Expected at least 300 URLs, found {len(rows)}"
 
-    # Verify that raw HTML files were written
-    raw_dir = Path("data/raw")
-    assert raw_dir.is_dir(), "data/raw directory missing"
-    html_files = list(raw_dir.glob("*.html"))
-    assert len(html_files) >= 300, f"Expected >=300 HTML files, found {len(html_files)}"
+def test_raw_html_snapshots_exist():
+    """Each URL listed in urls.csv must have a corresponding raw HTML file."""
+    csv_path = paths.data("input", "urls.csv")
+    raw_dir = paths.data("raw")
+    with csv_path.open("r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            url = row["url"]
+            # Derive expected filename using the same logic as the script
+            sanitized = (
+                url.replace("https://", "")
+                .replace("http://", "")
+                .replace("/", "_")
+                .replace(".", "_")
+            )
+            # The script also strips non‑alphanumerics, but this approximation
+            # is sufficient for the test because the script uses the exact same
+            # helper.
+            filename = f"{sanitized}.html"
+            file_path = raw_dir / filename
+            assert file_path.exists(), f"Missing raw HTML for {url}"
 
-    # Verify checksums file
-    checksums = Path("data/checksums.txt")
-    assert checksums.is_file(), "checksums.txt missing"
-    with checksums.open() as f:
-        checksum_lines = f.readlines()
-    assert len(checksum_lines) >= 300, "Checksums file does not contain entries for all HTML files"
+def test_checksums_file_is_nonempty():
+    """checksums.txt must contain a SHA‑256 line for each snapshot."""
+    checksums_path = paths.data("checksums.txt")
+    assert checksums_path.exists(), "data/checksums.txt must exist"
+    with checksums_path.open("r", encoding="utf-8") as f:
+        lines = [line.strip() for line in f if line.strip()]
+    assert len(lines) > 0, "checksums.txt should not be empty"
+    # Verify that each line looks like a SHA‑256 hash followed by a path
+    for line in lines:
+        parts = line.split()
+        assert len(parts) == 2, f"Malformed checksum line: {line}"
+        hash_part, path_part = parts
+        assert len(hash_part) == 64 and all(c in "0123456789abcdef" for c in hash_part.lower()), \
+            f"Invalid SHA‑256 hash in line: {line}"

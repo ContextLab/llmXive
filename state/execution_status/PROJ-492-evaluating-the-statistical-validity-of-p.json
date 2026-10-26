@@ -1,6 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-25T23:22:58Z",
-  "project_id": "PROJ-492-evaluating-the-statistical-validity-of-p"
+  "updated_at": "2026-10-26T03:29:07Z",
+  "project_id": "PROJ-492-evaluating-the-statistical-validity-of-p",
+  "replan_rounds": 1
 }

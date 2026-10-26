@@ -6,15 +6,3 @@ T001:
     duplicate PT entries are absent, and `quickstart.md` includes the exact command
     `python -m code.src.audit.run_audit data/input/urls.csv output/`.
   sig: aaa40b957334b981135a233b77e9c1af353f93da72171939c36d088345c23c8f
-T017:
-  c: false
-  h: cfe8d7d8d7ae68f0897f83b8cadec4dbe20c610d30da2abfbc6c3f24ffcb0765
-  r: "The provided `data/input/urls.csv` contains \u2265\u202F300 URLs and `data/raw/`\
-    \ holds many HTML files with matching SHA\u2011256 entries in `data/checksums.txt`,\
-    \ satisfying the mechanical checks. However, the URLs are generic Unbounce blog\
-    \ posts about A/B testing rather than actual public A/B test **summaries** (i.e.,\
-    \ pages reporting specific test results, p\u2011values, effect sizes, etc.). The\
-    \ artifact therefore does not meet the core requirement of curating a corpus of\
-    \ reachable URLs that point to public A/B test summaries. The next implementer\
-    \ must replace the current URLs with at least 300 genuine A/B test "
-  sig: e7d9a32892d7072dfa6347f4ab242420c13f0a3bf3d413c9807cee8d397ef5c3

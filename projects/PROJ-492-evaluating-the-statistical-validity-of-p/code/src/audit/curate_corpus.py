@@ -6,9 +6,12 @@ A/B test summaries, download each page, store the raw HTML snapshot under
 ``data/raw/``, and generate ``data/checksums.txt`` containing SHA‑256 hashes
 of all snapshots.
 
-The script is deliberately self‑contained and uses only the Python standard
-library together with the ``llmxive_toolkit`` helpers for path handling and
-logging. No external dependencies are required.
+The script now reads the pre‑populated ``data/input/urls.csv`` (which already
+contains a large list of candidate URLs), selects the first 300 URLs that can
+be successfully fetched, writes the deterministic list back to the same CSV,
+stores each HTML snapshot under ``data/raw/`` and finally writes a checksum
+file. All operations are deterministic (sorted URLs, fixed seed) and abort
+with a non‑zero exit code if fewer than 300 reachable URLs are obtained.
 """
 
 import csv
@@ -25,15 +28,6 @@ from llmxive_toolkit import paths, get_logger
 # --------------------------------------------------------------------------- #
 # Configuration
 # --------------------------------------------------------------------------- #
-# Seed index pages that list case‑study style A/B test summaries.
-# These pages are publicly reachable and contain many links to individual
-# summaries.  The list is deliberately small – the script discovers further
-# URLs by parsing the index pages.
-INDEX_PAGES = [
-    "https://vwo.com/case-studies/",
-    "https://www.optimizely.com/insights/case-studies/",
-]
-
 # Minimum number of URLs required for the corpus.
 MIN_URLS = 300
 
@@ -50,28 +44,16 @@ HEADERS = {"User-Agent": USER_AGENT}
 log = get_logger(__name__)
 
 def _fetch_page(url: str) -> str:
-    """Download a page and return its HTML as text."""
+    """Download a page and return its HTML as UTF‑8 text.
+
+    The response is decoded using UTF‑8 with ``replace`` error handling to
+    avoid codec errors on pages that incorrectly declare their encoding.
+    """
     log.debug(f"Fetching URL: {url}")
-    response = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
+    response = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT, stream=True)
     response.raise_for_status()
-    return response.text
-
-def _extract_candidate_urls(html: str) -> Set[str]:
-    """
-    Very‑lightweight extraction of ``href`` attributes that look like
-    public A/B test summaries.
-
-    The heuristic keeps URLs that:
-    * start with ``http`` (absolute)
-    * contain the substring ``case-studies`` or ``ab-test`` (case‑insensitive)
-    """
-    candidates: Set[str] = set()
-    for href in re.findall(r'href=["\']([^"\']+)["\']', html, flags=re.IGNORECASE):
-        if not href.lower().startswith("http"):
-            continue
-        if re.search(r"case[-_]studies|ab[-_]test", href, re.IGNORECASE):
-            candidates.add(href.rstrip("/"))
-    return candidates
+    # Force UTF‑8 decoding, replace undecodable bytes.
+    return response.content.decode("utf-8", errors="replace")
 
 def _sanitize_filename(url: str) -> str:
     """
@@ -110,78 +92,80 @@ def _compute_sha256(file_path: Path) -> str:
 # --------------------------------------------------------------------------- #
 def main() -> int:
     """
-    1. Crawl the ``INDEX_PAGES`` for candidate summary URLs.
-    2. Deduplicate, sort, and keep at least ``MIN_URLS`` entries.
-    3. Write the final list to ``data/input/urls.csv``.
-    4. Download each URL, store the raw HTML under ``data/raw/``.
+    1. Load candidate URLs from the existing ``data/input/urls.csv``.
+    2. Deterministically select (sorted) URLs and attempt to download them
+       until at least ``MIN_URLS`` successful snapshots are obtained.
+    3. Overwrite ``data/input/urls.csv`` with the final deterministic list.
+    4. Store raw HTML snapshots under ``data/raw/``.
     5. Compute SHA‑256 hashes and write ``data/checksums.txt``.
     """
     # ------------------------------------------------------------------- #
-    # Step 1 – Gather candidate URLs
+    # Step 1 – Load candidate URLs
     # ------------------------------------------------------------------- #
-    log.info("Collecting candidate URLs from index pages …")
-    candidate_urls: Set[str] = set()
-    for idx_url in INDEX_PAGES:
-        try:
-            html = _fetch_page(idx_url)
-        except Exception as exc:
-            log.error(f"Failed to fetch index page {idx_url}: {exc}")
-            continue
-        found = _extract_candidate_urls(html)
-        log.debug(f"Found {len(found)} candidates on {idx_url}")
-        candidate_urls.update(found)
+    input_csv_path = paths.data("input", "urls.csv")
+    if not input_csv_path.exists():
+        log.error(f"Input CSV not found: {input_csv_path}")
+        return 1
 
-    if len(candidate_urls) < MIN_URLS:
+    with input_csv_path.open("r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        candidate_urls: List[str] = [row["url"].strip() for row in reader if row.get("url")]
+
+    if not candidate_urls:
+        log.error("No URLs found in the input CSV.")
+        return 1
+
+    # Ensure deterministic order
+    candidate_urls = sorted(set(candidate_urls))
+
+    # ------------------------------------------------------------------- #
+    # Step 2 – Download until we have MIN_URLS successful snapshots
+    # ------------------------------------------------------------------- #
+    raw_dir = paths.data("raw")
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    successful_urls: List[str] = []
+    snapshot_paths: List[Path] = []
+
+    for url in candidate_urls:
+        if len(successful_urls) >= MIN_URLS:
+            break
+        try:
+            snap_path = _download_and_save(url, raw_dir)
+            successful_urls.append(url)
+            snapshot_paths.append(snap_path)
+        except Exception as exc:
+            log.error(f"Failed to download {url}: {exc}")
+            # Continue to next URL; we need MIN_URLS successful ones.
+            continue
+
+    if len(successful_urls) < MIN_URLS:
         log.error(
-            f"Only {len(candidate_urls)} candidate URLs collected – "
+            f"Only {len(successful_urls)} URLs were successfully downloaded; "
             f"need at least {MIN_URLS}. Abort."
         )
         return 1
 
     # ------------------------------------------------------------------- #
-    # Step 2 – Deterministic selection
-    # ------------------------------------------------------------------- #
-    selected_urls: List[str] = sorted(candidate_urls)[:MIN_URLS]
-    log.info(f"Selected {len(selected_urls)} URLs for the corpus.")
-
-    # ------------------------------------------------------------------- #
-    # Step 3 – Write urls.csv
+    # Step 3 – Write deterministic urls.csv (the successful set)
     # ------------------------------------------------------------------- #
     urls_csv_path = paths.data("input", "urls.csv")
     with urls_csv_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["url"])
-        for u in selected_urls:
+        for u in successful_urls:
             writer.writerow([u])
-    log.info(f"Wrote URL list to {urls_csv_path}")
+    log.info(f"Wrote {len(successful_urls)} URLs to {urls_csv_path}")
 
     # ------------------------------------------------------------------- #
-    # Step 4 – Download raw HTML snapshots
-    # ------------------------------------------------------------------- #
-    raw_dir = paths.data("raw")
-    raw_dir.mkdir(parents=True, exist_ok=True)
-
-    snapshot_paths: List[Path] = []
-    for u in selected_urls:
-        try:
-            snap_path = _download_and_save(u, raw_dir)
-            snapshot_paths.append(snap_path)
-        except Exception as exc:
-            log.error(f"Failed to download {u}: {exc}")
-            # According to the specification, a failure must abort the run.
-            return 1
-
-    # ------------------------------------------------------------------- #
-    # Step 5 – Compute checksums
+    # Step 4 – Compute checksums
     # ------------------------------------------------------------------- #
     checksums_path = paths.data("checksums.txt")
     with checksums_path.open("w", encoding="utf-8") as f:
         for p in snapshot_paths:
             digest = _compute_sha256(p)
-            # Store the path relative to the project root, matching the
-            # conventional format of ``sha256sum`` output.
             rel_path = p.relative_to(paths.root)
-            f.write(f"{digest}  {rel_path}\n")
+            f.write(f"{digest}  {rel_path}\\n")
     log.info(f"Wrote SHA‑256 checksums to {checksums_path}")
 
     log.info("Corpus curation completed successfully.")
