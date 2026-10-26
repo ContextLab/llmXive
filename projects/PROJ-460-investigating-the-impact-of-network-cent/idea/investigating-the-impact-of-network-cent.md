@@ -9,7 +9,7 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How does the structural eigenvector centrality of Default Mode Network (DMN) hubs mediate the relationship between whole‑brain resting‑state functional connectivity strength and social‑communication severity (ADOS‑2 Social Communication score) in individuals with Autism Spectrum Disorder, after accounting for age, sex, and head‑motion covariates?
+How does the structural eigenvector centrality of Default Mode Network (DMN) hubs mediate the relationship between whole‑brain resting‑state functional connectivity strength and ADOS‑2 Social Communication scores in individuals with Autism Spectrum Disorder, after accounting for age, sex, and head‑motion covariates?
 
 ## Motivation
 
@@ -41,59 +41,59 @@ Using the publicly available ABIDE I & II multimodal datasets, we will (1) compu
 
 ## Expected results
 
-We anticipate detecting a statistically significant indirect effect: structural DMN centrality will account for a non‑zero proportion of the variance that functional connectivity strength explains in ADOS‑2 social‑communication scores. A significant indirect path (95 % bootstrap CI excluding zero) would support the hypothesis that structural hub topology constrains functional dys‑connectivity relevant to behavior. A null indirect effect would suggest that functional deficits influence symptoms via mechanisms independent of DMN hub centrality.
+We will evaluate whether an indirect effect exists whereby structural DMN centrality transmits the influence of global functional connectivity strength on ADOS‑2 Social Communication scores. Significance will be assessed with bias‑corrected 95 % bootstrap confidence intervals (5 000 resamples). A confidence interval that excludes zero will be interpreted as evidence for mediation; an interval that includes zero will be interpreted as a lack of mediation. In addition, we will report the proportion of the total effect accounted for by the indirect path and examine the robustness of findings across alternative centrality measures and structural density thresholds.
 
 ## Methodology sketch
 
 - **Data acquisition**  
-  - Download paired resting‑state fMRI, diffusion MRI, and phenotypic files (including ADOS‑2 Social Communication scores, age, sex, and framewise displacement) for all ASD participants from the ABIDE I & II repositories via the NITRC portal: `https://fcon_1000.projects.nitrc.org/indi/abide/`.  
+  - Download paired resting‑state fMRI, diffusion MRI, and phenotypic files (including ADOS‑2 Social Communication scores, age, sex, and mean framewise displacement) for all ASD participants from the ABIDE I & II repositories via the NITRC portal: `https://fcon_1000.projects.nitrc.org/indi/abide/`.  
   - Retain only subjects with both modalities and complete phenotypic data.
 
 - **Quality control**  
   - Exclude runs with mean framewise displacement > 0.3 mm.  
   - Verify diffusion data quality using MRtrix3’s `dwidenoise` and `mrdegibbs`; discard subjects failing QC metrics.
 
-- **Preprocessing – functional**  
-  - Run fMRIPrep (v23.0.0) in a Docker container (CPU‑only) to perform slice‑time correction, motion correction, susceptibility distortion correction, normalization to MNI152, and extraction of confound regressors (WM, CSF, 6 motion parameters).  
+- **Functional preprocessing**  
+  - Run **fMRIPrep** (CPU‑only Docker image) to perform slice‑time correction, motion correction, susceptibility distortion correction, normalization to MNI152, and extraction of confound regressors (WM, CSF, 6 motion parameters).  
   - Apply a band‑pass filter (0.01–0.1 Hz) and regress out confounds with `nilearn.signal.clean`.
 
-- **Preprocessing – diffusion**  
+- **Diffusion preprocessing**  
   - Process dMRI with MRtrix3:  
     1. `dwidenoise` → `mrdegibbs` → `dwipreproc` (eddy & topup).  
     2. Generate a whole‑brain tractogram using probabilistic iFOD2 tracking (2 M streamlines).  
-    3. Map streamlines to the Schaefer 400‑parcel atlas (Schaefer et al., 2018) to obtain a weighted structural adjacency matrix (streamline count per edge).
+    3. Map streamlines to the Schaefer 400‑parcel atlas to obtain a weighted structural adjacency matrix (streamline count per edge).
 
 - **Parcellation & network definition**  
   - Use the Schaefer 400‑parcel atlas to extract mean BOLD time series for each parcel.  
-  - Identify the set of parcels belonging to the DMN (as defined by the atlas’s network labels).
+  - Identify parcels belonging to the DMN based on the atlas’s network labels.
 
 - **Functional connectivity metric (X)**  
   - Compute the Pearson correlation matrix across the 400 parcels, Fisher‑z transform, then take the absolute value of all off‑diagonal entries.  
-  - Define **global functional connectivity strength** as the mean of these absolute z‑values (no arbitrary correlation threshold; the full weighted matrix is used).
+  - Define **global functional connectivity strength** as the mean of these absolute z‑values (full weighted matrix, no arbitrary threshold).
 
 - **Structural centrality metric (M)**  
-  - Threshold the subject‑specific structural adjacency matrix to retain the top 15 % of strongest streamline counts (density‑matching across subjects).  
+  - Threshold each subject’s structural adjacency matrix to retain the top 15 % of strongest streamline counts (density‑matched across subjects).  
   - Compute eigenvector centrality for all 400 nodes using NetworkX.  
   - Average eigenvector centrality values across the DMN nodes to obtain **DMN‑centrality** for each subject.
 
 - **Mediation analysis**  
   - Model: `Y (ADOS‑SC) ~ X (global FC) + M (DMN centrality) + covariates (age, sex, mean FD)`.  
-  - Test the indirect path `X → M → Y` using the `statsmodels` `mediation` package with 5,000 bootstrap resamples to obtain bias‑corrected confidence intervals.  
-  - Verify independence: X is derived solely from BOLD data, M solely from dMRI, and Y is a clinical score collected independently of imaging.
+  - Test the indirect path `X → M → Y` with the `statsmodels` mediation framework, employing 5 000 bootstrap resamples to obtain bias‑corrected confidence intervals.  
+  - Confirm independence: X derives solely from BOLD data, M solely from diffusion data, and Y is a clinical score collected independently of imaging.
 
 - **Sensitivity checks**  
-  - Repeat the mediation with alternative structural density thresholds (10 % and 20 %).  
-  - Re‑run using alternative centrality measures (betweenness, degree) to test robustness of the mediation effect.
+  - Repeat mediation using alternative structural density thresholds (10 % and 20 %).  
+  - Substitute eigenvector centrality with betweenness and degree centrality to assess robustness of any mediation effect.
 
 - **Visualization & reporting**  
-  - Plot a path diagram (direct, indirect, total effects) with `matplotlib`.  
+  - Produce a path diagram (direct, indirect, total effects) with `matplotlib`.  
   - Overlay DMN parcels on a standard MNI brain using Nilearn to illustrate hub locations.  
-  - Summarize bootstrap CI tables in a markdown report.
+  - Summarize bootstrap confidence intervals and effect‑size estimates in a markdown report.
 
 - **Reproducibility & runtime constraints**  
   - All code will be containerised (Docker) and orchestrated by a GitHub Actions workflow limited to 6 h on the free‑tier runner (2 CPU, 7 GB RAM).  
   - Data are streamed directly from the ABIDE server; intermediate files are compressed to stay within the 14 GB SSD quota.  
-  - No GPU or external compute resources are required.
+  - No GPU or external compute resources are required; each processing step is designed to fit within the CPU‑only environment.
 
 ## Duplicate-check
 
@@ -104,7 +104,7 @@ We anticipate detecting a statistically significant indirect effect: structural 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-10-26T00:35:05Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-26T00:43:21Z
 **Outcome**: exhausted
 **Original term**: Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience
 **Verified citation count**: 3
