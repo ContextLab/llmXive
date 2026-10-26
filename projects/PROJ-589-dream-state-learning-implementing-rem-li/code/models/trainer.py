@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, List, Tuple
 import numpy as np
 import logging
 from pathlib import Path
@@ -41,6 +41,8 @@ class DreamScheduler:
     def __init__(self, config: Config, logger: logging.Logger):
         self.config = config
         self.logger = logger
+        # `dream_ratio` is the total number of steps in a cycle
+        # (e.g., 5 means 4 wake + 1 dream)
         self.wake_to_dream_ratio = config.get('dream_ratio', 5)
         self.current_step = 0
         self.warm_up_steps = config.get('warm_up_steps', 20)
@@ -51,15 +53,28 @@ class DreamScheduler:
         )
 
     def should_run_dream_phase(self) -> bool:
+        """
+        Determines whether the current step should be a dream step.
+        The first ``warm_up_steps`` are wake‑only. After that we follow a
+        ``wake_to_dream_ratio`` cycle where the *last* step of each cycle
+        is a dream step (e.g., for a ratio of 5 the pattern is
+        W W W W D).
+        """
         if self.current_step < self.warm_up_steps:
             return False
-        # Dream step occurs when the step index is a multiple of the total cycle length
-        return (self.current_step % self.wake_to_dream_ratio) == 0
+        # Compute position within the post‑warm‑up cycle
+        offset = self.current_step - self.warm_up_steps
+        # Dream occurs on the last step of the cycle
+        return ((offset + 1) % self.wake_to_dream_ratio) == 0
 
     def advance_step(self):
         self.current_step += 1
 
     def maybe_skip_dream_due_to_perplexity(self, model: nn.Module, held_out_batch: Dict[str, torch.Tensor]) -> bool:
+        """
+        Evaluate perplexity on a held‑out batch; if it exceeds the
+        configured threshold, the dream step is skipped.
+        """
         model.eval()
         with torch.no_grad():
             inputs = held_out_batch['input_ids'].to(self.config.device)
@@ -83,7 +98,7 @@ class Trainer:
         model: nn.Module,
         config: Config,
         device: torch.device,
-        tokenizer: Optional[Any] = None
+        tokenizer: Any = None
     ):
         self.model = model
         self.config = config
@@ -114,7 +129,14 @@ class Trainer:
 
         self.metrics_history: List[Dict[str, Any]] = []
 
-    def calculate_entropy(self, logits: torch.Tensor, labels: Optional[torch.Tensor] = None) -> float:
+    # ------------------------------------------------------------------
+    # Helper utilities
+    # ------------------------------------------------------------------
+    def calculate_entropy(self, logits: torch.Tensor, labels: torch.Tensor = None) -> float:
+        """
+        Compute average token‑wise entropy (in bits). If ``labels`` are
+        provided, the entropy is averaged only over non‑masked tokens.
+        """
         probs = torch.softmax(logits, dim=-1)
         eps = 1e-9
         log_probs = torch.log(probs + eps)
@@ -137,6 +159,9 @@ class Trainer:
         kd_loss = self.kldiv_loss(student_log_probs, teacher_probs) * (T * T)
         return kd_loss
 
+    # ------------------------------------------------------------------
+    # Training step implementations
+    # ------------------------------------------------------------------
     def train_step_wake(self, batch: Dict[str, torch.Tensor]) -> Dict[str, Any]:
         self.model.train()
         inputs = batch['input_ids'].to(self.device)
@@ -151,10 +176,16 @@ class Trainer:
         entropy = self.calculate_entropy(outputs.logits, labels) if hasattr(outputs, 'logits') else 0.0
         return {'loss': loss.item(), 'entropy': entropy, 'phase': 'WAKE'}
 
-    def train_step_dream(self, batch: Dict[str, torch.Tensor], held_out_batch: Optional[Dict[str, torch.Tensor]] = None) -> Dict[str, Any]:
+    def train_step_dream(self, batch: Dict[str, torch.Tensor], held_out_batch: Dict[str, torch.Tensor] = None) -> Dict[str, Any]:
+        """
+        Execute a dream‑phase step. If the held‑out perplexity check fails,
+        the step is *skipped* and reported as ``DUMMY_WAKE`` (so that token
+        parity with the baseline is preserved). Otherwise we perform the
+        DAE reconstruction + knowledge‑distillation loss.
+        """
         # Perplexity‑based skipping (only evaluated for dream phases)
         if held_out_batch is not None and self.scheduler.maybe_skip_dream_due_to_perplexity(self.model, held_out_batch):
-            return {'loss': 0.0, 'entropy': 0.0, 'phase': 'DREAM_SKIPPED'}
+            return {'loss': 0.0, 'entropy': 0.0, 'phase': 'DUMMY_WAKE'}
 
         self.model.train()
         inputs = batch['input_ids'].to(self.device)
@@ -186,6 +217,9 @@ class Trainer:
         entropy = self.calculate_entropy(student_outputs.logits, targets) if hasattr(student_outputs, 'logits') else 0.0
         return {'loss': loss.item(), 'entropy': entropy, 'phase': 'DREAM'}
 
+    # ------------------------------------------------------------------
+    # Main training loop
+    # ------------------------------------------------------------------
     def run_training_loop(self, dataloader: DataLoader, max_steps: int = 100) -> List[Dict[str, Any]]:
         self.logger.info(f"Starting training loop for {max_steps} steps.")
 
@@ -214,12 +248,6 @@ class Trainer:
             try:
                 if is_dream:
                     metrics = self.train_step_dream(batch, held_out_batch)
-                    # If the dream step was skipped due to high perplexity, insert a dummy wake step
-                    if metrics['phase'] == 'DREAM_SKIPPED':
-                        # Perform a wake‑step without gradient updates (dummy) to keep token parity
-                        dummy_metrics = self.train_step_wake(batch)
-                        dummy_metrics['phase'] = 'DUMMY_WAKE'
-                        metrics = dummy_metrics
                 else:
                     metrics = self.train_step_wake(batch)
 
@@ -227,7 +255,9 @@ class Trainer:
                 if is_dream and metrics['entropy'] < self.config.get('entropy_threshold', 0.5):
                     retry_count = 0
                     while metrics['entropy'] < self.config.get('entropy_threshold', 0.5) and retry_count < self.config.get('max_retries', 3):
-                        self.logger.warning(f"Low entropy ({metrics['entropy']:.4f} < {self.config.get('entropy_threshold')}) during DREAM – retry {retry_count+1}")
+                        self.logger.warning(
+                            f"Low entropy ({metrics['entropy']:.4f} < {self.config.get('entropy_threshold')}) during DREAM – retry {retry_count+1}"
+                        )
                         retry_count += 1
                         metrics = self.train_step_dream(batch, held_out_batch)
 

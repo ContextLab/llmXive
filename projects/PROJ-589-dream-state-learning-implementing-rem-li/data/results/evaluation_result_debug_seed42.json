@@ -1,0 +1,12 @@
+{
+  "run_id": "968d193f-1863-403b-85dd-ad2ac120942a",
+  "seed": -1,
+  "phase": "wake_dream",
+  "dataset": "qnli",
+  "accuracy": 0.977109,
+  "loss": 0.925205,
+  "peak_memory_mb": 912,
+  "duration_seconds": 26.755,
+  "status": "success",
+  "reconstruction_difficulty_avg": 3.146139
+}

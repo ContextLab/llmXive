@@ -80,7 +80,7 @@ class MemoryMonitor:
 
     def enforce(self, checkpoint_callback: Optional[Callable] = None) -> None:
         """Enforce memory limit, saving checkpoint if exceeded."""
-        current = self.get_current_rss_kb()
+        current = get_current_rss_kb()
 
         if current > self.limit_kb:
             if checkpoint_callback:

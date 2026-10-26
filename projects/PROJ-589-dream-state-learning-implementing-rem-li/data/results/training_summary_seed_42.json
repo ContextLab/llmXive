@@ -1,6 +1,6 @@
 {
   "seed": 42,
   "steps_completed": 20,
-  "final_loss": 1.0066722631454468,
+  "final_loss": 8.675004005432129,
   "checkpoint": "checkpoints/debug_seed42.pt"
 }

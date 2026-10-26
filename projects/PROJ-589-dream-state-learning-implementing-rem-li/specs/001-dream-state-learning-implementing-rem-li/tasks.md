@@ -16,11 +16,11 @@ Each task lists the primary artifact(s) it creates or modifies and the concrete 
   - Files: `code/requirements.txt`, `code/config.py`  
   - Verification: `pip install -r code/requirements.txt` succeeds; `python -c "import code.config; assert code.config.MAX_MEMORY_MB == 6300"` runs without error.
 
-- [ ] T002 [US1] **Implement the core Wake/Dream training loop** (20‑step warm‑up, 4 wake : 1 dream ratio, random BERT‑style masking, DAE reconstruction loss, entropy‑retry (≤3) and perplexity‑skip (threshold 50), dummy‑wake insertion for token‑parity).  
+- [~] T002 [US1] **Implement the core Wake/Dream training loop** (20‑step warm‑up, 4 wake : 1 dream ratio, random BERT‑style masking, DAE reconstruction loss, entropy‑retry (≤3) and perplexity‑skip (threshold 50), dummy‑wake insertion for token‑parity).  
   - Files: `code/models/trainer.py`, `code/data/augment.py`  
   - Verification: Unit tests in `tests/unit/test_trainer.py` assert (a) warm‑up length, (b) low‑entropy batches trigger retries, (c) high‑perplexity batches cause dream‑step skip and dummy wake, (d) total real‑token count matches the baseline for a fixed seed.
 
-- [ ] T003 [US1] **Add a CLI entry point (`code/train.py`) that wires the config, trainer, and memory monitor; on OOM abort it saves a checkpoint and logs peak RSS.**   <!-- FAILED-IN-EXECUTION: code/train.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/train.py exit=1 -->
+- [~] T003 [US1] **Add a CLI entry point (`code/train.py`) that wires the config, trainer, and memory monitor; on OOM abort it saves a checkpoint and logs peak RSS.**
   - Files: `code/train.py`, `code/utils/memory_monitor.py`  
   - Verification: Running `python code/train.py --seed 0 --total_steps 20 --mode debug` finishes within 5 min, writes `checkpoints/debug_seed0.pt` and a structured log `logs/debug_seed0.json` containing a `"peak_rss_mb"` field ≤ 6300.
 

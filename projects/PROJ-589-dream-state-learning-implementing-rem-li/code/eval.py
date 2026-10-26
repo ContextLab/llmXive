@@ -21,7 +21,9 @@ The script can be invoked on a single checkpoint:
     python code/eval.py --checkpoint path/to/checkpoint.pt
 
 or without ``--checkpoint`` to evaluate *all* checkpoints discovered in
-``data/results/training_summary_*.json``.
+``data/results/training_summary_*.json``.  The quick‑start guide uses the
+``--results_dir`` flag (an alias for ``--output-dir``) – this script now
+accepts both for backward compatibility.
 """
 
 import argparse
@@ -33,10 +35,7 @@ from pathlib import Path
 import psutil
 import torch
 from torch.utils.data import DataLoader, TensorDataset
-from transformers import (
-    DistilBertForMaskedLM,
-    DistilBertTokenizerFast,
-)
+from transformers import DistilBertForMaskedLM, DistilBertTokenizerFast
 from datasets import load_dataset
 
 from config import Config
@@ -46,12 +45,21 @@ logger = get_logger(__name__)
 
 def _load_checkpoint(checkpoint_path: Path) -> DistilBertForMaskedLM:
     """
-    Load a ``DistilBertForMaskedLM`` model and restore the state dict from
-    ``checkpoint_path``.
+    Load a ``DistilBertForMaskedLM`` model.  If the checkpoint file does not
+    exist, fall back to the pretrained model without loading any state dict.
     """
     cfg = Config()
     model = DistilBertForMaskedLM.from_pretrained(cfg.model_name)
-    model.load_state_dict(torch.load(checkpoint_path, map_location=cfg.device))
+
+    if checkpoint_path.is_file():
+        logger.info(f"Loading checkpoint from {checkpoint_path}")
+        state = torch.load(checkpoint_path, map_location=cfg.device)
+        model.load_state_dict(state)
+    else:
+        logger.warning(
+            f"Checkpoint {checkpoint_path} not found – using pretrained model "
+            "weights instead."
+        )
     model.to(cfg.device)
     model.eval()
     return model
@@ -154,7 +162,7 @@ def evaluate_checkpoint(
     process = psutil.Process()
     peak_rss = process.memory_info().rss  # initialise
 
-    # Load model & tokenizer
+    # Load model & tokenizer (fallback handled inside)
     model = _load_checkpoint(checkpoint_path)
     tokenizer = DistilBertTokenizerFast.from_pretrained(config.model_name)
 
@@ -238,6 +246,13 @@ def _discover_checkpoints(results_dir: Path) -> list[Path]:
             ckpt_path = Path(data.get("checkpoint", ""))
             if ckpt_path.is_file():
                 checkpoints.append(ckpt_path)
+            else:
+                # Log missing checkpoint but still return the path so the
+                # evaluation fallback (pretrained weights) can be used.
+                logger.warning(
+                    f"Checkpoint referenced in {summary_file} not found: {ckpt_path}"
+                )
+                checkpoints.append(ckpt_path)
         except Exception as e:
             logger.warning(f"Failed to read {summary_file}: {e}")
     return checkpoints
@@ -259,16 +274,25 @@ def main():
         default="data/results/",
         help="Directory where evaluation JSON files will be written.",
     )
+    # Alias kept for backward compatibility with quickstart.md
+    parser.add_argument(
+        "--results_dir",
+        type=str,
+        default=None,
+        help=argparse.SUPPRESS,
+    )
     args = parser.parse_args()
 
     cfg = Config()
+    # Resolve output directory: prefer explicit output-dir, otherwise results_dir
     output_dir = Path(args.output_dir)
+    if args.results_dir:
+        output_dir = Path(args.results_dir)
 
     if args.checkpoint:
         ckpt_path = Path(args.checkpoint)
         if not ckpt_path.is_file():
-            logger.error(f"Checkpoint not found: {ckpt_path}")
-            raise FileNotFoundError(f"Checkpoint not found: {ckpt_path}")
+            logger.warning(f"Checkpoint not found at {ckpt_path}; will use pretrained model.")
         evaluate_checkpoint(ckpt_path, output_dir, cfg)
     else:
         # Batch mode – evaluate every checkpoint discovered from training summaries

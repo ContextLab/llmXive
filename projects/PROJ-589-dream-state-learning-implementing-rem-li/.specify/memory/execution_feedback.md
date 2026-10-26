@@ -10,22 +10,30 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/eval.py: self-declared fabricated metric — “…oss on the QNLI inputs)   * a dummy accuracy metric (token‑level match rat…”
 
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/eval.py --results_dir data/results/`
-  - script usage: `eval.py [-h] [--checkpoint CHECKPOINT] [--output-dir OUTPUT_DIR]`
-  - argparse error: `eval.py: error: unrecognized arguments: --results_dir data/results/`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/eval.py: self-declared fabricated metric — “…oss on the QNLI inputs)   * a dummy accuracy metric (token‑level match rat…”; 1 command(s) failed: python code/eval.py --results_dir data/results/ (rc=2)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/eval.py: self-declared fabricated metric — “…oss on the QNLI inputs)   * a dummy accuracy metric (token‑level match rat…”; 2 command(s) failed: python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline (rc=-1); python code/eval.py --results_dir data/results/ (rc=-1)
 
 ## Failing / missing run-book commands
 
-- python code/eval.py --results_dir data/results/ -> rc=2
+- python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline -> rc=-1
+, "phase": "DREAM", "loss": 25.222543716430664, "entropy": 1.3579621315002441}
+2026-10-26 23:16:19,984 - models.trainer - INFO - [training_step] {"step": 24, "phase": "DREAM", "loss": 25.222543716430664, "entropy": 1.3579621315002441}
 
-usage: eval.py [-h] [--checkpoint CHECKPOINT] [--output-dir OUTPUT_DIR]
-eval.py: error: unrecognized arguments: --results_dir data/results/
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+We strongly recommend passing in an `attention_mask` since your input_ids may be padded. See https://huggingface.co/docs/transformers/troubleshooting#incorrect-output-when-padding-tokens-arent-masked.
 
+[TIMEOUT after 120s]
+- python code/eval.py --results_dir data/results/ -> rc=-1
+███████| 877k/877k [00:00<00:00, 1.95MB/s]Downloading data: 100%|██████████| 877k/877k [00:00<00:00, 1.94MB/s]
+Generating train split:   0%|          | 0/104743 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 104743/104743 [00:00<00:00, 1190470.21 examples/s]
+Generating validation split:   0%|          | 0/5463 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 5463/5463 [00:00<00:00, 986459.56 examples/s]
+Generating test split:   0%|          | 0/5463 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 5463/5463 [00:00<00:00, 758297.74 examples/s]
+We strongly recommend passing in an `attention_mask` since your input_ids may be padded. See https://huggingface.co/docs/transformers/troubleshooting#incorrect-output-when-padding-tokens-arent-masked.
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+
+[TIMEOUT after 120s]
