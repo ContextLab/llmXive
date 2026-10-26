@@ -1,10 +1,22 @@
 T001:
-  c: true
-  h: 9c68fa6086ee8b8d5294ecf92ef9126af052f5e2e97aa353753627bda0b071a7
-  r: "Checked the presence of the consolidated `code/src/audit/` package (including\
-    \ `run_audit.py`), the passing integration test `test_run_audit_help.py` confirming\
-    \ `python -m code.src.audit.run_audit --help` exits with status\u202F0, and the\
-    \ `quickstart.md` file which contains the exact command `python -m code.src.audit.run_audit\
-    \ data/input/urls.csv output/`. All required artifacts exist and meet the task\
-    \ specifications."
-  sig: 93cb51b0d1c124328a22bb5747831913deb2ccd8eaa6974e52d8f3f99cb6321a
+  c: false
+  h: e209691aea00fa3ba14876059a3ea0fc76586cf3907f5144c0466ac7dab26a03
+  r: "The quickstart.md does contain the required command, and the audit package with\
+    \ the expected modules exists, but there is no evidence that duplicate\u202FPT###\
+    \ entries have been removed, that all imports succeed, or that `python -m code.src.audit.run_audit\
+    \ --help` actually runs and exits with status\u202F0. Provide a successful run\u2011\
+    help command log and proof (e.g., a script output or test) that no PT### duplicates\
+    \ remain and that the package imports without error."
+  sig: d123875dd0a76f67f63afef86182e02fc79f4f8836241e43ffa0e122d53fc766
+T017:
+  c: false
+  h: cfe8d7d8d7ae68f0897f83b8cadec4dbe20c610d30da2abfbc6c3f24ffcb0765
+  r: "The provided `data/input/urls.csv` contains \u2265\u202F300 URLs and `data/raw/`\
+    \ holds many HTML files with matching SHA\u2011256 entries in `data/checksums.txt`,\
+    \ satisfying the mechanical checks. However, the URLs are generic Unbounce blog\
+    \ posts about A/B testing rather than actual public A/B test **summaries** (i.e.,\
+    \ pages reporting specific test results, p\u2011values, effect sizes, etc.). The\
+    \ artifact therefore does not meet the core requirement of curating a corpus of\
+    \ reachable URLs that point to public A/B test summaries. The next implementer\
+    \ must replace the current URLs with at least 300 genuine A/B test "
+  sig: e7d9a32892d7072dfa6347f4ab242420c13f0a3bf3d413c9807cee8d397ef5c3

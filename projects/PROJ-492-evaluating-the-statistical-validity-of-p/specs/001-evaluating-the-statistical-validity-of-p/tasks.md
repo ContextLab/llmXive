@@ -8,13 +8,13 @@ The goal is to deliver a reproducible end‑to‑end audit pipeline that satisfi
 
 ## Phase 1 – Setup and first end‑to‑end analysis  
 
-- [X] T001 [US1] Consolidate the project layout under `code/src/audit/` (CLI, extraction, reconstruction, Monte‑Carlo, power‑analysis, synthetic‑generator modules). Remove any duplicated `PT###` entries, ensure all imports work, and document the runnable command in `specs/001-evaluating-the-statistical-validity-of-p/quickstart.md`.
+- [ ] T001 [US1] Consolidate the project layout under `code/src/audit/` (CLI, extraction, reconstruction, Monte‑Carlo, power‑analysis, synthetic‑generator modules). Remove any duplicated `PT###` entries, ensure all imports work, and document the runnable command in `specs/001-evaluating-the-statistical-validity-of-p/quickstart.md`.
   - **Verification**: `python -m code.src.audit.run_audit --help` exits with status 0; `quickstart.md` contains the exact command `python -m code.src.audit.run_audit data/input/urls.csv output/`.  
 
-- [ ] T017 [US1] Curate a deterministic corpus of **≥ 300** reachable URLs pointing to public A/B test summaries, write them to `data/input/urls.csv`, download each page, and store the raw HTML snapshot under `data/raw/`. Generate `data/checksums.txt` with SHA‑256 hashes of all snapshots.   <!-- FAILED-IN-EXECUTION: code/src/audit/curate_corpus.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/audit/curate_corpus.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/audit/curate_corpus.py exit=1 -->
+- [ ] T017 [US1] Curate a deterministic corpus of **≥ 300** reachable URLs pointing to public A/B test summaries, write them to `data/input/urls.csv`, download each page, and store the raw HTML snapshot under `data/raw/`. Generate `data/checksums.txt` with SHA‑256 hashes of all snapshots.
   - **Verification**: `urls.csv` has ≥ 300 rows; every URL has a corresponding file in `data/raw/`; all hashes are present in `data/checksums.txt`.  
 
-- [ ] T004 [US1] Create `code/src/audit/monte_carlo_validation.py` that runs **10 000** Monte‑Carlo replicates for each statistical routine (two‑proportion z/Fisher, Welch’s t, binomial test). Compare the SciPy/StatsModels result to the Monte‑Carlo estimate and assert an absolute difference ≤ 0.005. Write `output/monte_carlo_validation_report.json` summarising each test’s difference and a pass flag.  
+- [ ] T004 [US1] Create `code/src/audit/monte_carlo_validation.py` that runs **10 000** Monte‑Carlo replicates for each statistical routine (two‑proportion z/Fisher, Welch’s t, binomial test). Compare the SciPy/StatsModels result to the Monte‑Carlo estimate and assert an absolute difference ≤ 0.005. Write `output/monte_carlo_validation_report.json` summarising each test’s difference and a pass flag.   <!-- FAILED-IN-EXECUTION: code/src/audit/monte_carlo_validation.py exit=1 -->
   - **Verification**: script exits 0; the JSON lists all four tests, each `diff` ≤ 0.005; any failure logs an `ERR‑801` and aborts the pipeline.  
 
 - [ ] T005 [US1] Run the full audit end‑to‑end on the corpus created by T017 using `code/src/audit/run_audit.py`. The pipeline must ingest URLs, fetch HTML, extract fields into `ABSummary` records, reconstruct p‑values/effect sizes, flag inconsistencies (FR‑004/FR‑004b), and write:  

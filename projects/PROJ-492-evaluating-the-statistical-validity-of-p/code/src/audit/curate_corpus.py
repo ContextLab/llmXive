@@ -1,33 +1,18 @@
 """
 curate_corpus.py
 
-Script to create a deterministic corpus of ≥ 300 reachable URLs that
-point to public A/B test summaries. The script performs the following
-steps:
+Script to create a deterministic corpus of >= 300 reachable URLs that
+point to public A/B test summaries. 
 
-1. Retrieves one or more sitemaps that list many case‑study or blog‑post
-   pages from a set of known A/B‑testing platforms (Optimizely,
-   ConversionXL, VWO, Unbounce). The list of sitemap URLs is defined in
-   ``SITEMAP_SOURCES``.
-2. Filters the URLs to keep only those that appear to be case‑study,
-   blog, or experiment pages (heuristic based on a set of keywords).
-3. Takes the first ``TARGET_COUNT`` URLs, downloads each page, and writes
-   the raw HTML to ``data/raw/<sanitized_name>.html``.
-4. Writes the list of URLs to ``data/input/urls.csv`` (header ``url``).
-5. Computes a SHA‑256 checksum for every downloaded HTML file and writes
-   the results to ``data/checksums.txt`` (format: ``<hash>  <relative_path>``).
+The script:
+1. Recursively parses sitemaps from known A/B testing platforms to find URLs.
+2. Filters URLs based on keywords identifying case studies or experiments.
+3. Downloads pages until the TARGET_COUNT of successful HTML snapshots is reached.
+4. Writes the final list of successful URLs to data/input/urls.csv.
+5. Stores raw HTML snapshots under data/raw/.
+6. Generates data/checksums.txt with SHA-256 hashes of all snapshots.
 
-The script is idempotent: if the output files already exist it will
-skip re‑downloading the corresponding pages. All paths are built using
-the ``llmxive_toolkit.paths`` helpers so they live inside the project
-directory.
-
-The script can be executed directly:
-
-    python -m code.src.audit.curate_corpus
-
-It exits with status 0 on success or propagates any exception (e.g.
-network errors) to make failures loud.
+The script is idempotent: it checks for existing files before downloading.
 """
 import csv
 import hashlib
@@ -36,35 +21,29 @@ import re
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import List
+from typing import List, Set
 
 import requests
 import xml.etree.ElementTree as ET
 
 from llmxive_toolkit import paths, get_logger
 
-# Configure a module‑level logger
 log = get_logger(__name__)
 
 # ----------------------------------------------------------------------
 # Configuration constants
 # ----------------------------------------------------------------------
-# List of publicly available sitemaps that contain many A/B‑test related pages.
 SITEMAP_SOURCES = [
     "https://www.optimizely.com/sitemap.xml",
-    "https://www.conversionxl.com/sitemap.xml",
     "https://vwo.com/sitemap.xml",
+    "https://www.conversionxl.com/sitemap.xml",
     "https://unbounce.com/sitemap.xml",
 ]
 
-# The number of URLs we need in the final corpus.
 TARGET_COUNT = 300
-
-# Concurrency settings for downloading HTML pages.
 MAX_WORKERS = 10
-TIMEOUT = 20  # seconds per HTTP request
+TIMEOUT = 20
 
-# Keywords used to identify candidate A/B‑test summary pages.
 CANDIDATE_KEYWORDS = [
     "case-study",
     "case-studies",
@@ -73,102 +52,88 @@ CANDIDATE_KEYWORDS = [
     "abtest",
     "experiment",
     "a-b-test",
+    "optimization-result",
+    "conversion-rate",
 ]
+
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
 
 # ----------------------------------------------------------------------
 # Helper utilities
 # ----------------------------------------------------------------------
 def _sanitize_filename(url: str) -> str:
-    """
-    Convert a URL into a safe filename for storing the HTML snapshot.
-    Only alphanumerics and underscores are kept.
-    """
-    # Remove scheme and replace non‑alphanumerics with underscores
     path = re.sub(r"^https?://", "", url)
     path = re.sub(r"[^A-Za-z0-9]+", "_", path)
-    # Truncate to a reasonable length
     return path[:200] + ".html"
 
-def _fetch_sitemap(sitemap_url: str) -> List[str]:
+def _fetch_sitemap_recursive(sitemap_url: str, visited: Set[str]) -> List[str]:
     """
-    Download a sitemap XML and return a list of URLs contained within.
-    This implementation is robust to the presence or absence of XML
-    namespaces.
+    Recursively fetch sitemaps and extract all <loc> URLs.
     """
-    log.info(f"Fetching sitemap from {sitemap_url}")
-    resp = requests.get(sitemap_url, timeout=TIMEOUT)
-    resp.raise_for_status()
-    # Parse XML; use ``.//{*}url`` to match any namespace
-    root = ET.fromstring(resp.content)
+    if sitemap_url in visited:
+        return []
+    visited.add(sitemap_url)
 
     urls: List[str] = []
-    for url_elem in root.findall(".//{*}url"):
-        loc = url_elem.find("{*}loc")
-        if loc is not None and loc.text:
-            urls.append(loc.text.strip())
-    log.info(f"Found {len(urls)} URLs in sitemap {sitemap_url}")
+    try:
+        log.info(f"Fetching sitemap: {sitemap_url}")
+        resp = requests.get(sitemap_url, timeout=TIMEOUT, headers={"User-Agent": USER_AGENT})
+        resp.raise_for_status()
+        root = ET.fromstring(resp.content)
+
+        # Find all loc tags regardless of namespace
+        for loc_elem in root.findall(".//{*}loc"):
+            if loc_elem.text:
+                loc_text = loc_elem.text.strip()
+                if loc_text.endswith(".xml"):
+                    # Recurse into child sitemaps
+                    urls.extend(_fetch_sitemap_recursive(loc_text, visited))
+                else:
+                    urls.append(loc_text)
+    except Exception as e:
+        log.warning(f"Failed to parse sitemap {sitemap_url}: {e}")
+    
     return urls
 
-def _gather_all_urls() -> List[str]:
-    """
-    Iterate over all sitemap sources, collect URLs, and return the
-    combined list.
-    """
+def _gather_all_candidates() -> List[str]:
     all_urls: List[str] = []
+    visited: Set[str] = set()
     for src in SITEMAP_SOURCES:
-        try:
-            urls = _fetch_sitemap(src)
-            all_urls.extend(urls)
-        except Exception as e:
-            log.warning(f"Failed to fetch sitemap {src}: {e}")
-    return all_urls
-
-def _filter_candidate_urls(urls: List[str]) -> List[str]:
-    """
-    Keep URLs that plausibly point to A/B‑test case studies, blogs,
-    or experiment write‑ups.
-    """
-    lowered = [u.lower() for u in urls]
-    candidates = [
-        u for u in lowered
-        if any(kw in u for kw in CANDIDATE_KEYWORDS)
-    ]
-    log.info(f"Filtered down to {len(candidates)} candidate URLs after keyword scan")
-    # Preserve original case‑sensitive URLs while deduplicating
+        all_urls.extend(_fetch_sitemap_recursive(src, visited))
+    
+    # Deduplicate and filter
     seen = set()
-    ordered: List[str] = []
-    for orig, low in zip(urls, lowered):
-        if low in candidates and low not in seen:
+    candidates: List[str] = []
+    for u in all_urls:
+        low = u.lower()
+        if low not in seen and any(kw in low for kw in CANDIDATE_KEYWORDS):
             seen.add(low)
-            ordered.append(orig)
-    return sorted(set(ordered))
+            candidates.append(u)
+    
+    log.info(f"Gathered {len(candidates)} total candidate URLs")
+    return sorted(candidates)
 
-def _download_html(url: str, dest_path: Path) -> None:
+def _download_html(url: str, dest_path: Path) -> bool:
     """
-    Download a single URL and write its raw HTML to ``dest_path``.
-    If the file already exists, the download is skipped.
+    Download a single URL. Return True if successful, False otherwise.
     """
     if dest_path.exists():
-        log.debug(f"File already exists, skipping download: {dest_path}")
-        return
+        return True
 
-    log.debug(f"Downloading {url}")
-    resp = requests.get(url, timeout=TIMEOUT, headers={"User-Agent": "ab-audit-bot/1.0"})
-    resp.raise_for_status()
-
-    # Ensure we got HTML (content‑type may include charset)
-    content_type = resp.headers.get("Content-Type", "")
-    if "text/html" not in content_type:
-        raise ValueError(f"URL did not return HTML: {url} (Content‑Type: {content_type})")
-
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
-    dest_path.write_bytes(resp.content)
-    log.debug(f"Wrote HTML to {dest_path}")
+    try:
+        resp = requests.get(url, timeout=TIMEOUT, headers={"User-Agent": USER_AGENT})
+        resp.raise_for_status()
+        if "text/html" not in resp.headers.get("Content-Type", "").lower():
+            return False
+        
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        dest_path.write_bytes(resp.content)
+        return True
+    except Exception as e:
+        log.debug(f"Failed to download {url}: {e}")
+        return False
 
 def _compute_sha256(file_path: Path) -> str:
-    """
-    Compute the SHA‑256 hash of a file's contents.
-    """
     sha256 = hashlib.sha256()
     with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
@@ -179,65 +144,66 @@ def _compute_sha256(file_path: Path) -> str:
 # Main orchestration
 # ----------------------------------------------------------------------
 def main() -> int:
-    """
-    Entry point for the script. Returns an exit code compatible with
-    ``python -m`` execution.
-    """
     try:
-        # 1. Load sitemaps and collect candidate URLs
-        all_urls = _gather_all_urls()
-        candidates = _filter_candidate_urls(all_urls)
+        # 1. Gather candidates
+        candidates = _gather_all_candidates()
+        if not candidates:
+            raise RuntimeError("No candidate URLs found from sitemaps.")
 
-        if len(candidates) < TARGET_COUNT:
-            raise RuntimeError(
-                f"Not enough candidate URLs found ({len(candidates)} < {TARGET_COUNT}). "
-                "Consider adding more sitemap sources."
-            )
-
-        selected_urls = candidates[:TARGET_COUNT]
-        log.info(f"Selected {len(selected_urls)} URLs for the corpus")
-
-        # 2. Prepare output paths
-        urls_csv_path = paths.data("input", "urls.csv")
+        # 2. Download until TARGET_COUNT is reached
         raw_dir = paths.data("raw")
         raw_dir.mkdir(parents=True, exist_ok=True)
+        
+        successful_urls: List[str] = []
+        
+        # Process in batches to avoid overloading but keep speed
+        batch_size = 100
+        for i in range(0, len(candidates), batch_size):
+            if len(successful_urls) >= TARGET_COUNT:
+                break
+                
+            batch = candidates[i : i + batch_size]
+            with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                future_to_url = {
+                    executor.submit(_download_html, url, raw_dir / _sanitize_filename(url)): url 
+                    for url in batch
+                }
+                for future in as_completed(future_to_url):
+                    url = future_to_url[future]
+                    if future.result():
+                        successful_urls.append(url)
+                    if len(successful_urls) >= TARGET_COUNT:
+                        # We can't easily stop the executor, but we can stop adding to our list
+                        pass
 
-        # 3. Write URLs CSV (overwrite if exists)
+        # Trim to exact target
+        final_urls = successful_urls[:TARGET_COUNT]
+        if len(final_urls) < TARGET_COUNT:
+            raise RuntimeError(f"Could only download {len(final_urls)}/{TARGET_COUNT} reachable URLs.")
+
+        # 3. Write URLs CSV
+        urls_csv_path = paths.data("input", "urls.csv")
+        urls_csv_path.parent.mkdir(parents=True, exist_ok=True)
         with urls_csv_path.open("w", newline="", encoding="utf-8") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=["url"])
             writer.writeheader()
-            for u in selected_urls:
+            for u in final_urls:
                 writer.writerow({"url": u})
-        log.info(f"Wrote URL list to {urls_csv_path}")
+        log.info(f"Wrote {len(final_urls)} URLs to {urls_csv_path}")
 
-        # 4. Download HTML snapshots in parallel
-        download_futures = {}
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            for url in selected_urls:
-                filename = _sanitize_filename(url)
-                dest_file = raw_dir / filename
-                future = executor.submit(_download_html, url, dest_file)
-                download_futures[future] = dest_file
-
-            for future in as_completed(download_futures):
-                dest = download_futures[future]
-                try:
-                    future.result()
-                except Exception as exc:
-                    log.error(f"Failed to download {dest.name}: {exc}")
-                    raise
-
-        # 5. Compute checksums
+        # 4. Compute checksums for the final set
         checksums_path = paths.data("checksums.txt")
         with checksums_path.open("w", encoding="utf-8") as chk_file:
-            for html_file in sorted(raw_dir.iterdir()):
-                if html_file.is_file():
+            # We only checksum the files corresponding to the final_urls
+            for url in final_urls:
+                filename = _sanitize_filename(url)
+                html_file = raw_dir / filename
+                if html_file.exists():
                     h = _compute_sha256(html_file)
-                    # Store path relative to the project root
                     rel_path = html_file.relative_to(paths.root)
-                    chk_file.write(f"{h}  {rel_path}\\n")
+                    chk_file.write(f"{h}  {rel_path}\n")
+        
         log.info(f"Wrote checksums to {checksums_path}")
-
         log.info("Corpus curation completed successfully")
         return 0
 

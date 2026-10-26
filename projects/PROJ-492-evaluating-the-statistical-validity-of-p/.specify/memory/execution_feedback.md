@@ -13,7 +13,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/src/audit/stat_verification_runner.py: self-declared fabricated metric — “…stds                 # Using placeholder values for demonstration with real…”; code/src/audit/synthetic.py: metric `ratio_sigma` assigned from an RNG draw (line 200); run-book completed but produced no data/figure artifacts; 2 declared deliverable(s) absent: data/input/urls.csv; data/manual_validation/real_world_labels.csv
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/src/audit/stat_verification_runner.py: self-declared fabricated metric — “…stds                 # Using placeholder values for demonstration with real…”; code/src/audit/synthetic.py: metric `ratio_sigma` assigned from an RNG draw (line 200); run-book completed but produced no data/figure artifacts; 1 declared deliverable(s) absent: data/manual_validation/real_world_labels.csv
 
 ## Failing / missing run-book commands
 
@@ -21,23 +21,12 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 ## Declared deliverables still missing
 
-- data/input/urls.csv
 - data/manual_validation/real_world_labels.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/input/urls.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/scripts/run_validator_test.py` — NOT invoked by the run-book
-    - `code/src/audit/curate_corpus.py` — NOT invoked by the run-book
-    - `code/src/audit/fetcher.py` — NOT invoked by the run-book
-    - `code/src/audit/ingestor.py` — NOT invoked by the run-book
-    - `code/src/audit/provenance_archiver.py` — NOT invoked by the run-book
-    - `code/src/cli/run_audit.py` — NOT invoked by the run-book
-    - `code/tests/integration/test_fetcher_integration.py` — NOT invoked by the run-book
-    - `code/tests/integration/test_full_pipeline.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/input/urls.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/manual_validation/real_world_labels.csv` is declared but was NOT written. Scripts referencing it:
     - `code/tests/integration/test_full_pipeline.py` — NOT invoked by the run-book
     - `code/tests/unit/test_t003_wikidata.py` — NOT invoked by the run-book
