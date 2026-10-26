@@ -76,8 +76,12 @@ def update_all_metadata() -> None:
         # Enforce immutability for ALL files in data/
         if rel_path in old_metadata:
             old_entry = old_metadata[rel_path]
-            old_hash = old_entry["checksum"] if isinstance(old_entry, dict) else old_entry
-            if current_hash != old_hash:
+            # Support legacy entries that used the key "sha256"
+            if isinstance(old_entry, dict):
+                old_hash = old_entry.get("checksum") or old_entry.get("sha256")
+            else:
+                old_hash = old_entry
+            if old_hash is not None and current_hash != old_hash:
                 raise RuntimeError(
                     f"Data hygiene violation: File {rel_path} has been overwritten. "
                     f"Expected {old_hash}, found {current_hash}. "

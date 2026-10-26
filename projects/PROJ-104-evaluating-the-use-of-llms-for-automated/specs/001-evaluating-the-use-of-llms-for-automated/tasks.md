@@ -8,7 +8,7 @@ The goal is a reproducible, CPU‑first pipeline that satisfies every functional
 
 ## Phase 0 – Project scaffolding & early end‑to‑end smoke test  
 
-- [ ] **T001** [US1] Create a complete quick‑start guide and a verification test – `docs/quickstart.md`, `tests/test_quickstart.py`  
+- [X] **T001** [US1] Create a complete quick‑start guide and a verification test – `docs/quickstart.md`, `tests/test_quickstart.py`  
   - List all required Python 3.11 packages (including `torch>=2.0`, `bitsandbytes`, `transformers`, `datasets`, `pandas`, `scikit‑learn`, `statsmodels`, `matplotlib`, `seaborn`, `tqdm`, `regex`, `pyyaml`, `gitpython`).  
   - Explain how to install `bitsandbytes` for 4‑bit quantization and how to set the `GITHUB_TOKEN` environment variable.  
   - Provide the command `python -m code.run_pipeline --sample 5` that runs the pipeline on a **real** 5‑sample subset (downloaded via the data‑extraction script).  
@@ -19,7 +19,7 @@ The goal is a reproducible, CPU‑first pipeline that satisfies every functional
   - Simulates paired precision scores for three models, estimates power for *n* = 500 with effect size *f* = 0.25, writes a numeric power estimate and an `exploratory` flag.  
   - Verification: `tests/test_power_analysis.py` checks that the markdown file exists, contains a floating‑point power value, and that `exploratory` matches the computed power (< 0.8 → true).  
 
-- [ ] **T013** [?] Data‑hygiene utilities (checksums & seeded randomness) – `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, `tests/test_hygiene_and_seeds.py`  
+- [X] **T013** [?] Data‑hygiene utilities (checksums & seeded randomness) – `code/data_hygiene.py`, `code/seeds.py`, `data/metadata.yaml`, `tests/test_hygiene_and_seeds.py`  
   - Computes SHA‑256 checksums for every file under `data/` after it is written and records them in `data/metadata.yaml`.  
   - Provides a global `SEED = 42` imported by all stochastic scripts.  
   - Verification: test asserts that each data file has a matching checksum entry, that raw files retain their original checksum across runs, and that re‑running the power analysis yields identical results.  
@@ -28,7 +28,7 @@ The goal is a reproducible, CPU‑first pipeline that satisfies every functional
 
 ## Phase 1 – Data acquisition & pairing (User Story 1)  
 
-- [ ] **T003** [P1] Extract ≥ 500 `(commit_message, documentation_diff)` pairs from the five target repos – `code/data_extraction.py`, `data/raw/commit_pairs.csv`   <!-- FAILED-IN-EXECUTION: code/run_data_extraction.py exit=1 -->
+- [X] **T003** [P1] Extract ≥ 500 `(commit_message, documentation_diff)` pairs from the five target repos – `code/data_extraction.py`, `data/raw/commit_pairs.csv`
   - Clone `pandas`, `requests`, `scikit-learn`, `flask`, `django` into `data/tmp/repos/`.  
   - Use the **GitHub REST API** (`GET /repos/{owner}/{repo}/commits?since=2y`) with pagination and rate‑limit handling; require a `GITHUB_TOKEN` environment variable (fail loudly if missing).  
   - For each commit, fetch the full diff via `git show <sha>` and retain only hunks that modify `.md` or `.rst` files.  
@@ -37,14 +37,14 @@ The goal is a reproducible, CPU‑first pipeline that satisfies every functional
   - Record a SHA‑256 checksum for the CSV in `data/metadata.yaml`.  
   - Verification: `tests/contract/test_commitpair_schema.py` validates every row; `tests/test_data_extraction.py` checks row count ≥ 500, verifies that no `doc_diff` entry is empty, and that the checksum entry exists.  
 
-- [ ] **T004** [P1] Create a 50‑sample human‑annotated gold‑standard intent dataset and enforce κ ≥ 0.6 – `code/gold_annotation.py`, `data/gold/sample_for_annotation.csv`, `annotation_ui/index.html`, `annotation_ui/style.css`, `annotation_ui/script.js`, `data/gold/annotator_1.csv`, `data/gold/annotator_2.csv`, `data/gold/annotations.json`, `data/gold/conflicts.log`  
+- [X] **T004** [P1] Create a 50‑sample human‑annotated gold‑standard intent dataset and enforce κ ≥ 0.6 – `code/gold_annotation.py`, `data/gold/sample_for_annotation.csv`, `annotation_ui/index.html`, `annotation_ui/style.css`, `annotation_ui/script.js`, `data/gold/annotator_1.csv`, `data/gold/annotator_2.csv`, `data/gold/annotations.json`, `data/gold/conflicts.log`  
   - Randomly sample 50 commit pairs from `data/raw/commit_pairs.csv` using the global seed.  
   - Export the sample to `sample_for_annotation.csv`.  
   - Provide a minimal **HTML/JS annotation UI** (served locally via `python -m http.server`) that loads each human documentation diff and lets two annotators label “technical‑intent” entities. All UI files live under `annotation_ui/`. The UI writes each annotator’s results to `annotator_<id>.csv`.  
   - `gold_annotation.py` reads the two CSVs, computes **Cohen’s κ**, **requires κ ≥ 0.6** (abort with informative error if lower), merges annotations (conflicts logged in `conflicts.log`), and writes `annotations.json` containing `sample_id`, `intent_entities`, and the achieved `kappa`.  
   - Verification: `tests/test_gold_annotation.py` asserts that `annotations.json` exists, parses correctly, and that `kappa` ≥ 0.6; also checks that the UI files are present under `annotation_ui/`.  
 
-- [ ] **T016** [FR-007] Exclude samples missing documentation diff from statistical analysis – `code/filter_missing.py`, `data/processed/filtered_commit_pairs.csv`  
+- [X] **T016** [FR-007] Exclude samples missing documentation diff from statistical analysis – `code/filter_missing.py`, `data/processed/filtered_commit_pairs.csv`  
   - Load `data/raw/commit_pairs.csv`, filter out any rows where `doc_diff` is empty or null, write the filtered CSV.  
   - Subsequent tasks (generation, entity extraction, scoring, analysis) must use this filtered file as their input source.  
   - Verification: `tests/test_filter_missing.py` asserts that the filtered CSV contains no empty `doc_diff` entries and that its row count is ≤ the original count.  
@@ -53,7 +53,7 @@ The goal is a reproducible, CPU‑first pipeline that satisfies every functional
 
 ## Phase 2 – Model selection justification (User Story 2)  
 
-- [ ] **T005** [P2] Document model‑selection rationale and provide a verification test – `docs/model_selection_and_limitations.md`, `tests/test_model_selection.py`  
+- [X] **T005** [P2] Document model‑selection rationale and provide a verification test – `docs/model_selection_and_limitations.md`, `tests/test_model_selection.py`  
   - Explain why **Phi‑3‑mini (≈ 3 B)**, **Gemma‑2‑2b (≈ 2 B)**, and **Llama‑3.2‑3B (≈ 3 B)** are the largest open‑source models that can run in **4‑bit quantization** on the GitHub Actions free‑tier runner (≈ 7 GB RAM).  
   - Include a table with columns: *Model Name*, *Parameter Count*, *Quantization Bits*, *Expected Per‑Commit Latency (s)*, **CPU‑Only Compatibility** (must be “yes”).  
   - Add a sentence explicitly stating that the three models are **of comparable (similar) size**, so any observed differences reflect architectural characteristics rather than sheer scale. The sentence must contain the word “comparable” or “similar”.  
@@ -63,7 +63,7 @@ The goal is a reproducible, CPU‑first pipeline that satisfies every functional
 
 ## Phase 3 – Model inference (User Story 2)  
 
-- [ ] **T006** [P2] CPU‑only 4‑bit generation pipeline with timeout, retries, and checksum logging – `code/generation.py`, `data/generated/phi3-mini/`, `data/generated/gemma2-2b/`, `data/generated/llama3.2-3b/`, `data/generated/generation_success_rates.csv`, `data/metadata.yaml`  
+- [X] **T006** [P2] CPU‑only 4‑bit generation pipeline with timeout, retries, and checksum logging – `code/generation.py`, `data/generated/phi3-mini/`, `data/generated/gemma2-2b/`, `data/generated/llama3.2-3b/`, `data/generated/generation_success_rates.csv`, `data/metadata.yaml`  
   - Load each model with `bitsandbytes` **4‑bit** quantization on `device="cpu"` (no GPU fallback).  
   - Prompt format must include the commit message and the pre‑change documentation snippet (extracted from the filtered dataset `data/processed/filtered_commit_pairs.csv`).  
   - Use **deterministic decoding** (`do_sample=False`, `max_new_tokens=200`).  
@@ -78,7 +78,7 @@ The goal is a reproducible, CPU‑first pipeline that satisfies every functional
 
 ## Phase 4 – Entity extraction (User Story 3)  
 
-- [ ] **T007** [P3] Surface‑entity extraction with regex + repository verification – `code/entity_extraction_surface.py`, `data/intermediate/surface_entities/`  
+- [X] **T007** [P3] Surface‑entity extraction with regex + repository verification – `code/entity_extraction_surface.py`, `data/intermediate/surface_entities/`  
   - Apply the three regex patterns required by **FR‑003**:  
     1. File paths `[\w./-]+\.(py|md|rst)`  
     2. Function signatures `def [A-Za-z_][A-Za-z0-9_]*\(`  

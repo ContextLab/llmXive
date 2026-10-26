@@ -9,6 +9,7 @@ from code.gold_annotation import (
     OUTPUT_JSON,
     run_annotation_pipeline,
     write_output,
+    CSV_PATH,
 )
 from code.seeds import SEED
 
@@ -22,7 +23,7 @@ def generated_annotations(tmp_path_factory):
     original_path = OUTPUT_JSON
     try:
         # Replace the module‑level constant temporarily
-        import importlib, sys
+        import importlib
 
         mod = importlib.import_module("code.gold_annotation")
         mod.OUTPUT_JSON = output_path
@@ -71,7 +72,7 @@ def test_annotation_file_structure(generated_annotations):
 
 def test_deterministic_sampling():
     """Ensure that sampling is deterministic given the pinned seed."""
-    from code.gold_annotation import _load_commit_pairs, _sample_commit_pairs, CSV_PATH
+    from code.gold_annotation import _load_commit_pairs, _sample_commit_pairs
 
     df = _load_commit_pairs(CSV_PATH)
     first_sample = _sample_commit_pairs(df, 5, SEED)

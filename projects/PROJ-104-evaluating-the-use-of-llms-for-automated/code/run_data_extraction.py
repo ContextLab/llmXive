@@ -15,6 +15,6 @@ import sys
 from code import data_extraction
 
 if __name__ == "__main__":
-    # Forward any additional arguments (none expected) to the module.
+    # Forward the ``--full`` flag to request the full 500‑row dataset.
     sys.argv = [sys.argv[0], "--full"]
     sys.exit(data_extraction.main())

@@ -1,9 +1,10 @@
 """Surface‑entity extraction (Task T007).
 
 This module extracts three types of surface entities from the human
-documentation diffs stored in ``data/raw/commit_pairs.csv`` and writes a
-JSON ``EntitySet`` per commit.  The three regex patterns required by the
-specification are:
+documentation diffs stored in ``data/raw/commit_pairs.csv`` and from
+the LLM‑generated documentation texts stored under
+``data/generated/<model_id>/``. The three regex patterns required by
+the specification are:
 
 1. File paths      – ``[a-zA-Z0-9_./-]+\\.(py|md|rst)``
 2. Function signatures – ``def [a-zA-Z_][a-zA-Z0-9_]*\\(``
@@ -12,22 +13,26 @@ specification are:
 For each extracted token we attempt to verify its existence in the
 repository’s current codebase using ``git grep -w`` on a local clone
 located under ``data/tmp/repos/<repository_name>``.  If the repository
-has not been cloned yet the verification step is skipped and the token
-is marked as ``verified: false`` – this is intentional: the verification
-is a best‑effort check and must never cause the pipeline to fail.
+has not been cloned yet the verification step is skipped and the
+token is marked as ``verified: false`` – this is intentional: the
+verification is a best‑effort check and must never cause the pipeline
+to fail.
 
-The output JSON for a commit has the following structure::
+The output JSON for each sample has the following structure::
 
     {
         "sample_id": "<commit_hash>",
         "type": "surface",
+        "source": "human" | "generated",
         "entities": [
             {"entity": "<token>", "verified": true|false},
             ...
         ]
     }
 
-The files are written to ``data/intermediate/surface_entities/<commit_hash>.json``.
+Files are written to ``data/intermediate/surface_entities/`` with the
+naming convention ``{commit_hash}_{source}.json`` for the human
+diff and ``{commit_hash}_{model_id}.json`` for each generated output.
 """
 from __future__ import annotations
 
@@ -69,8 +74,6 @@ def _verify_in_repo(repo_path: Path, token: str) -> bool:
         log.debug("Repo path %s does not exist – skipping verification", repo_path)
         return False
 
-    # ``git grep -w`` returns exit code 0 when matches are found,
-    # 1 when no matches, and >1 for errors.
     try:
         result = subprocess.run(
             ["git", "grep", "-w", token],
@@ -95,24 +98,24 @@ def _extract_entities(text: str) -> List[str]:
             matches.add(m.group(0))
     return sorted(matches)
 
-def process_commit_pair(row: pd.Series, repos_root: Path) -> Dict:
-    """Process a single commit‑pair row and return the EntitySet dict."""
-    commit_hash = row["commit_hash"]
-    repo_name = row["repository_name"]
-    doc_diff = row["doc_diff"] or ""
-
-    entities = _extract_entities(doc_diff)
-
-    # Verify each entity against the local repository clone.
+def _process_text(
+    commit_hash: str,
+    repo_name: str,
+    text: str,
+    source: str,
+    repos_root: Path,
+) -> Dict:
+    """Create an EntitySet dict for a given text source."""
+    entities = _extract_entities(text or "")
     repo_path = repos_root / repo_name
-    verified_entities = []
-    for ent in entities:
-        verified = _verify_in_repo(repo_path, ent)
-        verified_entities.append({"entity": ent, "verified": verified})
-
+    verified_entities = [
+        {"entity": ent, "verified": _verify_in_repo(repo_path, ent)}
+        for ent in entities
+    ]
     return {
         "sample_id": commit_hash,
         "type": "surface",
+        "source": source,
         "entities": verified_entities,
     }
 
@@ -151,18 +154,73 @@ def run_extraction(
     output_dir.mkdir(parents=True, exist_ok=True)
     df = pd.read_csv(csv_path, dtype=str)
 
-    for _, row in df.iterrows():
-        entity_set = process_commit_pair(row, repos_root)
-        out_path = output_dir / f"{entity_set['sample_id']}.json"
-        out_path.write_text(json.dumps(entity_set, indent=2, ensure_ascii=False), encoding="utf-8")
-        log.debug("Wrote surface entities for %s → %s", entity_set["sample_id"], out_path)
+    # Determine which model IDs have generated outputs.
+    generated_root = paths.data("generated")
+    model_ids = [
+        p.name
+        for p in generated_root.iterdir()
+        if p.is_dir() and any(p.glob("*.txt"))
+    ]
 
-    log.info("Surface‑entity extraction complete – %d JSON files written.", len(df))
+    for _, row in df.iterrows():
+        commit_hash = row["commit_hash"]
+        repo_name = row["repository_name"]
+        doc_diff = row.get("doc_diff", "")
+
+        # ---- Human diff ----
+        human_entity_set = _process_text(
+            commit_hash,
+            repo_name,
+            doc_diff,
+            source="human",
+            repos_root=repos_root,
+        )
+        human_out_path = output_dir / f"{commit_hash}_human.json"
+        human_out_path.write_text(
+            json.dumps(human_entity_set, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        log.debug("Wrote human surface entities for %s → %s", commit_hash, human_out_path)
+
+        # ---- Generated docs for each model ----
+        for model_id in model_ids:
+            gen_txt_path = paths.data("generated", model_id, f"{commit_hash}_{model_id}.txt")
+            if not gen_txt_path.is_file():
+                # No generated file for this commit/model – skip.
+                continue
+            try:
+                gen_text = gen_txt_path.read_text(encoding="utf-8")
+            except Exception as e:
+                log.debug("Failed to read generated file %s: %s", gen_txt_path, e)
+                continue
+
+            gen_entity_set = _process_text(
+                commit_hash,
+                repo_name,
+                gen_text,
+                source="generated",
+                repos_root=repos_root,
+            )
+            gen_out_path = output_dir / f"{commit_hash}_{model_id}.json"
+            gen_out_path.write_text(
+                json.dumps(gen_entity_set, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            log.debug(
+                "Wrote generated surface entities for %s (%s) → %s",
+                commit_hash,
+                model_id,
+                gen_out_path,
+            )
+
+    log.info(
+        "Surface‑entity extraction complete – %d commit hashes processed.", len(df)
+    )
     return 0
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Extract surface entities from commit‑pair diffs."
+        description="Extract surface entities from commit‑pair diffs and generated docs."
     )
     parser.add_argument(
         "--csv",

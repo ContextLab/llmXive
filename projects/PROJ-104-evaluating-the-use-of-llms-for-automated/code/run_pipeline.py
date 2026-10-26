@@ -39,7 +39,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     Supported flags:
     * ``--sample N`` – run a minimal smoke‑test on *N* rows (default: 5 if omitted).
-    * ``--full``      – run the full pipeline (requires GitHub token).
+    * ``--full``      – run the full end‑to‑end pipeline (requires GitHub token).
+
+    The parser uses ``parse_known_args`` so that any legacy or
+    unexpected arguments are ignored rather than causing a hard failure.
+    This makes the module tolerant to older wrappers that may still pass
+    arguments like ``--csv`` or ``--out``.
     """
     parser = argparse.ArgumentParser(
         description="Run the LLM fidelity evaluation pipeline."
@@ -55,7 +60,10 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help="Run the full end‑to‑end pipeline (requires GitHub token).",
     )
-    return parser.parse_args(argv)
+    # Accept and discard any unknown arguments to stay compatible with
+    # older command‑line interfaces.
+    args, _ = parser.parse_known_args(argv)
+    return args
 
 def _write_smoke_placeholder() -> Path:
     """Create a tiny placeholder text file used by the quick‑start test.

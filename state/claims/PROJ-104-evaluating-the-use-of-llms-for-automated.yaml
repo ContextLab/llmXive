@@ -684,3 +684,158 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-26T10:26:28Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 0
+  canonical: GitHub Actions free tier runner provides approximately 7 GB RAM and CPU-only
+    resources
+  claim_id: c_fd3096dd
+  context: "The experimental pipeline must run on the GitHub Actions free\u2011tier\
+    \ runner, which provides \u2248\u202F7\u202FGB of RAM and CPU\u2011only resources."
+  evidence:
+    asserted: '7.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The experimental pipeline must run on the GitHub Actions free\u2011tier\
+    \ runner, which provides \u2248\u202F7\u202FGB of RAM and CPU\u2011only resources."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-26T16:15:26Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Phi-3-mini has 3.0 billion parameters
+  claim_id: c_b1e0f1fb
+  context: "The chosen models are: Phi\u20113\u2011mini (Microsoft) | Parameters (\u2248\
+    \u202FB) 3.0"
+  evidence:
+    asserted: '3.0'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: "Phi\u20113\u2011mini (Microsoft) has 3.0\u202FB parameters."
+  resolved_value: '2'
+  resolver: approximate
+  source_hash: 290a41cc5fb1b98dcc344e1c80bbc36f6fae8c957aab54f9535e67f96da14e06
+  source_type: external
+  status: verified
+  updated_at: '2026-10-26T16:15:27Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Gemma-2-2b has 2.0 billion parameters
+  claim_id: c_8375a3e0
+  context: "The chosen models are: Gemma\u20112\u20112b (Google) | Parameters (\u2248\
+    \u202FB) 2.0"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Gemma\u20112\u20112b (Google) has 2.0\u202FB parameters."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-26T16:17:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Llama-3.2-3B has 3.0 billion parameters
+  claim_id: c_3de623ab
+  context: "The chosen models are: Llama\u20113.2\u20113B (Meta) | Parameters (\u2248\
+    \u202FB) 3.0"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "Llama 3.2 3B\u2019s Feedback for Programming Exercises"
+      source_id: '2504.01054'
+      url: https://arxiv.org/abs/2504.01054
+      value: 3B
+    filled: true
+  kind: numeric
+  raw_text: "Llama\u20113.2\u20113B (Meta) has 3.0\u202FB parameters."
+  resolved_value: 3B
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-26T16:18:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Phi-3-mini per-commit CPU latency 4.5 seconds
+  claim_id: c_9dabb723
+  context: "Latency estimates are obtained from a short benchmark on the same runner\
+    \ (average over 10 commits, warm\u2011started model). Expected per\u2011commit\
+    \ latency (CPU, s) 4.5."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected per\u2011commit latency for Phi\u20113\u2011mini on CPU is 4.5\
+    \ seconds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T16:18:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Gemma-2-2b per-commit CPU latency 5.0 seconds
+  claim_id: c_7f9a709e
+  context: "Latency estimates are obtained from a short benchmark on the same runner\
+    \ (average over 10 commits, warm\u2011started model). Expected per\u2011commit\
+    \ latency (CPU, s) 5.0."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected per\u2011commit latency for Gemma\u20112\u20112b on CPU is 5.0\
+    \ seconds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T16:18:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Llama-3.2-3B per-commit CPU latency 5.2 seconds
+  claim_id: c_b5f9c7db
+  context: "Latency estimates are obtained from a short benchmark on the same runner\
+    \ (average over 10 commits, warm\u2011started model). Expected per\u2011commit\
+    \ latency (CPU, s) 5.2."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected per\u2011commit latency for Llama\u20113.2\u20113B on CPU is\
+    \ 5.2 seconds."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T16:18:06Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/model_selection_and_limitations.md
+  attempts: 1
+  canonical: Benchmark averaged over 10 commits with warm-started model
+  claim_id: c_7287cc44
+  context: "Latency estimates are obtained from a short benchmark on the same runner\
+    \ (average over 10 commits, warm\u2011started model)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The benchmark averaged over 10 commits with a warm\u2011started model."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T16:18:06Z'

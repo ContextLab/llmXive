@@ -1,7 +1,0 @@
-{
-  "task_id": "T006",
-  "fingerprint": "693ace6b7dbde3422f114e3c0e8b90355495f84a8a30aa9b8faa7476ec37cfee",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'tests/unit/test_entity_extraction_intent.py': imports nonexistent names from sibling files: `from code.entity_extraction_intent import DEFAULT_CSV, DEFAULT_OUTPUT_DIR, DEFAULT_REPOS_ROOT` (available: Dict, List, Path, SEED, Tuple, _MockClassifier, _calibrate_threshold, _extract_intent_entities...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
-}

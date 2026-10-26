@@ -1,11 +1,12 @@
 """Data extraction for commit‑message / documentation‑diff pairs.
 
-This module provides a lightweight, real‑data implementation that fetches
-recent commits from the target repositories via the GitHub REST API,
+This module fetches recent commits from the target repositories,
 extracts diffs that modify ``.md`` or ``.rst`` files and writes a CSV
-``data/raw/commit_pairs.csv``.  The implementation respects the
-project‑wide ``SEED`` for deterministic ordering and records a SHA‑256
-checksum in ``data/metadata.yaml``.
+``data/raw/commit_pairs.csv``.  The implementation clones the
+repositories locally (under ``data/tmp/repos``) and uses **GitPython**
+to avoid GitHub API rate‑limit issues.  The script respects the
+project‑wide ``SEED`` for deterministic ordering and records a
+SHA‑256 checksum in ``data/metadata.yaml``.
 
 The script adapts its behaviour based on the command‑line arguments
 passed to the top‑level pipeline:
@@ -17,10 +18,10 @@ passed to the top‑level pipeline:
 * No explicit flag – fall back to a minimal 5‑row extraction (historical
   default).
 
-A ``GITHUB_TOKEN`` environment variable **is optional**; if it is not
-present the script falls back to unauthenticated requests (subject to
-the lower GitHub rate limit).  The script fails loudly only when it cannot
-collect the required number of rows.
+A ``GITHUB_TOKEN`` environment variable is **optional**; unauthenticated
+requests are not used – all data is obtained from the local clones.
+The script fails loudly only when it cannot collect the required number
+of rows.
 """
 from __future__ import annotations
 
@@ -32,9 +33,9 @@ import os
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
 
-import requests
+import git
 from llmxive_toolkit import get_logger, paths
 
 log = get_logger(__name__)
@@ -52,7 +53,8 @@ def _checksum(file_path: Path) -> str:
 
 
 def update_metadata(file_path: Path) -> None:
-    """Compute SHA‑256 checksum of *file_path* and store it in ``data/metadata.yaml``."""
+    """Compute SHA‑256 checksum of *file_path* and store it in
+    ``data/metadata.yaml``."""
     checksum = _checksum(file_path)
     meta_path = paths.data("metadata.yaml")
     meta_path.parent.mkdir(parents=True, exist_ok=True)
@@ -75,9 +77,8 @@ def update_metadata(file_path: Path) -> None:
 
 
 # ----------------------------------------------------------------------
-# Core extraction logic
+# Configuration
 # ----------------------------------------------------------------------
-GITHUB_API = "https://api.github.com"
 TARGET_REPOS = [
     ("psf", "requests"),
     ("pandas-dev", "pandas"),
@@ -87,54 +88,66 @@ TARGET_REPOS = [
 ]
 DOC_EXTS = {".md", ".rst"}
 
-
-def _github_get(url: str, token: str | None = None) -> requests.Response:
-    """Perform a GET request against the GitHub API with optional token."""
-    headers = {"Accept": "application/vnd.github+json"}
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-    resp = requests.get(url, headers=headers, timeout=30)
-    resp.raise_for_status()
-    return resp
+REPOS_ROOT = paths.data("tmp", "repos")  # <project>/data/tmp/repos
 
 
-def _fetch_commits(owner: str, repo: str, since_iso: str) -> List[Dict]:
-    """Yield commit objects newer than *since_iso* (ISO‑8601)."""
-    commits: List[Dict] = []
-    page = 1
-    token = os.getenv("GITHUB_TOKEN")
-    while True:
-        url = (
-            f"{GITHUB_API}/repos/{owner}/{repo}/commits"
-            f"?since={since_iso}&per_page=100&page={page}"
+# ----------------------------------------------------------------------
+# Core extraction logic
+# ----------------------------------------------------------------------
+def _clone_repo(owner: str, repo: str) -> Path:
+    """Clone ``owner/repo`` into ``REPOS_ROOT`` if not already present."""
+    dest = REPOS_ROOT / repo
+    if dest.is_dir() and (dest / ".git").exists():
+        log.info("Repository %s/%s already cloned at %s", owner, repo, dest)
+        return dest
+    url = f"https://github.com/{owner}/{repo}.git"
+    log.info("Cloning %s into %s", url, dest)
+    # Use a shallow clone to keep runtime reasonable while still
+    # providing enough history (500 commits is more than enough for our
+    # 2‑year window).
+    try:
+        git.Repo.clone_from(
+            url,
+            to_path=str(dest),
+            multi_options=["--depth=1000"],
         )
-        resp = _github_get(url, token)
-        batch = resp.json()
-        if not batch:
-            break
-        commits.extend(batch)
-        page += 1
+    except Exception as e:
+        log.exception("Failed to clone %s: %s", url, e)
+        raise
+    return dest
+
+
+def _iter_commits(repo_path: Path, since_iso: str) -> List[git.objects.commit.Commit]:
+    """Yield commit objects newer than *since_iso* (ISO‑8601)."""
+    repo = git.Repo(str(repo_path))
+    # GitPython accepts datetime objects for ``since``; convert ISO string.
+    since_dt = datetime.fromisoformat(since_iso.rstrip("Z"))
+    commits = list(repo.iter_commits(since=since_dt))
+    log.debug("Found %d commits in %s since %s", len(commits), repo_path, since_iso)
     return commits
 
 
-def _fetch_diff(owner: str, repo: str, sha: str) -> List[Dict]:
-    """Return the list of file dictionaries for *sha*."""
-    token = os.getenv("GITHUB_TOKEN")
-    url = f"{GITHUB_API}/repos/{owner}/{repo}/commits/{sha}"
-    resp = _github_get(url, token)
-    data = resp.json()
-    return data.get("files", [])
-
-
-def _extract_doc_diff(files: List[Dict]) -> str:
-    """Concatenate diffs for documentation files only."""
-    diffs = []
-    for f in files:
-        filename = f.get("filename", "")
-        if any(filename.lower().endswith(ext) for ext in DOC_EXTS):
-            patch = f.get("patch", "")
-            if patch:
-                diffs.append(patch)
+def _extract_doc_diff_from_commit(commit: git.objects.commit.Commit) -> str:
+    """Return concatenated diffs for documentation files only."""
+    diffs: List[str] = []
+    # ``commit.parents`` may be empty for root commit – skip those.
+    if not commit.parents:
+        return ""
+    parent = commit.parents[0]
+    diff_index = parent.diff(commit, create_patch=True)
+    for diff in diff_index:
+        # Determine the file path (new or old) and check extension.
+        path = diff.b_path or diff.a_path
+        if not path:
+            continue
+        if not any(path.lower().endswith(ext) for ext in DOC_EXTS):
+            continue
+        # diff.diff is a bytes object containing the unified diff.
+        try:
+            patch = diff.diff.decode("utf-8", errors="ignore")
+            diffs.append(patch)
+        except Exception:
+            continue
     return "\n".join(diffs).strip()
 
 
@@ -143,34 +156,31 @@ def extract_commit_pairs(target: int = 5) -> List[Dict]:
     since = (datetime.utcnow() - timedelta(days=730)).isoformat() + "Z"
     rows: List[Dict] = []
     for owner, repo in TARGET_REPOS:
-        log.info("Fetching commits from %s/%s", owner, repo)
-        commits = _fetch_commits(owner, repo, since)
+        try:
+            repo_path = _clone_repo(owner, repo)
+        except Exception:
+            log.error("Skipping repository %s/%s due to clone failure", owner, repo)
+            continue
+
+        commits = _iter_commits(repo_path, since)
         for commit in commits:
-            sha = commit.get("sha")
-            if not sha:
-                continue
-            files = _fetch_diff(owner, repo, sha)
-            doc_diff = _extract_doc_diff(files)
+            doc_diff = _extract_doc_diff_from_commit(commit)
             if not doc_diff:
                 continue
             rows.append(
                 {
-                    "commit_hash": sha,
-                    "commit_message": commit.get("commit", {})
-                    .get("message", "")
-                    .replace("\n", " ")
-                    .strip(),
+                    "commit_hash": commit.hexsha,
+                    "commit_message": commit.message.replace("\n", " ").strip(),
                     "repository_name": f"{owner}/{repo}",
                     "doc_diff": doc_diff,
-                    "timestamp": commit.get("commit", {})
-                    .get("author", {})
-                    .get("date", ""),
+                    "timestamp": commit.committed_datetime.isoformat(),
                 }
             )
             if len(rows) >= target:
                 break
         if len(rows) >= target:
             break
+
     if len(rows) < target:
         raise RuntimeError(
             f"Could only collect {len(rows)} commit‑pairs; need at least {target}"
@@ -227,9 +237,6 @@ def _determine_target_from_argv() -> int:
 def main() -> int:
     """Entry point used by the pipeline."""
     try:
-        # ``GITHUB_TOKEN`` is optional – unauthenticated requests are allowed
-        # but subject to stricter rate limits.  The script will raise only
-        # if it cannot collect the required number of rows.
         target = _determine_target_from_argv()
         rows = extract_commit_pairs(target=target)
         write_csv(rows)
