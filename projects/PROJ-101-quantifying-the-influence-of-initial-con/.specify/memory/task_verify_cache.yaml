@@ -1,29 +1,22 @@
-T001:
-  c: false
-  h: 85b0f14b019e67e17c33cd1f2d2e995393342780383bc0c630b5805c33b64773
-  r: "The required directories and `data/dir_structure.txt` are present and correctly\
-    \ list the nine paths, but the CI verification step fails \u2013 the integration\
-    \ test `tests/integration/test_dir_structure.py` crashes with an import error\
-    \ (`AttributeError: partially initialized module 'subprocess' has no attribute\
-    \ 'PIPE'`), so the manifest is never asserted to contain the expected entries.\
-    \ The task\u2019s verification requirement is therefore not satisfied."
-  sig: 374cca59b6c584111809710907d8d8f7a2a7bce8bf160512c753d8b80defe7fe
 T002:
   c: true
-  h: bbde0ed0baece2f8051d5b53f9d41e8ad850f29ca20bb3a409d1eec5dbfc0206
-  r: "Checked that all required `__init__.py` files exist with non\u2011empty, syntactically\
-    \ valid content and that importing the top\u2011level package (`import code`)\
-    \ as well as the sub\u2011packages (`code.simulation`, `code.analysis`, `code.utils`,\
-    \ `tests`) succeeds without raising `ImportError`."
-  sig: 204c8e8e1fdfd70fa07f4936395013fab697209c1d6f430d16909c7c026d9fa1
+  h: 370367e63965c7edaea07879e012d3c81f94fb407bd9edd81a14001548593b7a
+  r: "Checked that all required `__init__.py` files exist with non\u2011empty, valid\
+    \ Python code and that `code/__init__.py` successfully imports the local `code/config.py`\
+    \ (which is present), so `python -c \"import code\"` would run without ImportError;\
+    \ the sub\u2011package `__init__` files also contain only harmless docstrings,\
+    \ ensuring `import code.simulation`, `code.analysis`, `code.utils`, and `tests`\
+    \ succeed."
+  sig: 8647190e8da47c4c999ce70fdc67a0e3ff6b72078bb183f18107f4bf7a7cb346
 T003:
-  c: true
-  h: dbb79e817d555a0d388fc71a3250c22c795e82144fd8f55b01e00b9f31c84786
-  r: "The `tests/conftest.py` file (359\u202Fbytes) provides a `seed` fixture returning\
-    \ 42 and relies on pytest\u2019s built\u2011in `tmp_path` fixture, and the recorded\
-    \ pytest run (`code/.tasks/T003.tests_unit_test_dummy_seed.py.log`) shows the\
-    \ dummy test passed, confirming the configuration works as specified."
-  sig: 0f8cfc5fbca354a188d8c42d2155c68f4c2c301713c98631087ccaa803b2ad30
+  c: false
+  h: bd3a8e8f699e8a304c4050470a29f4f36ffe167c8aed2c8b0c2e407271d104a8
+  r: "The provided `tests/conftest.py` defines the required `seed` fixture but never\
+    \ references the built\u2011in `tmp_path` fixture, and no dummy test file is present\
+    \ to demonstrate that `pytest -q` runs and checks reproducibility of `np.random.RandomState(42).rand()`.\
+    \ Both the temporary\u2011directory fixture usage and the verification test are\
+    \ missing."
+  sig: b91377e0373d790bc8753c9305f6c05d7e101609445d3f40ed0f3804fd6bf865
 T004:
   c: true
   h: 448966be75a5f851bd7d7977bb98bf666d9c5ad1cfc8a801489abf29c7d056ef
@@ -42,13 +35,3 @@ T005:
     , and \u201CStep\u202F5\u202F\u2013\u202FFigures\u201D. The file is present and\
     \ non\u2011empty, fulfilling the task."
   sig: d4a63908eae610f563f1a943ce80e9e51080d8675f640c04b75b12cb4e6c6fab
-T007:
-  c: false
-  h: 7a0e64bad23b46c45194e0e053773de6dafc9e1d3eb541a664e1b72d4078e79c
-  r: "Checked `code/utils/stability.py` (contains `raise_if_unphysical` and `check_noise_level`)\
-    \ and `code/simulation/generator.py` (imports the guards and calls them after\
-    \ integration and for noise). While the code wiring is present, there is no provided\
-    \ evidence that the required unit tests (the same as T006) were executed and passed,\
-    \ nor any test files showing the guards being exercised. Without test execution\
-    \ results, the task\u2019s verification condition is unmet."
-  sig: 3571c838ed003a2d88ffb02d230f40cd565266464ff6395392ab55ea5c239290

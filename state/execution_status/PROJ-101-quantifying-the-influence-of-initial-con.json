@@ -1,7 +1,7 @@
 {
-  "model_tier": 2,
+  "model_tier": 0,
   "fix_rounds": 0,
-  "updated_at": "2026-10-26T00:27:46Z",
+  "updated_at": "2026-10-26T01:46:19Z",
   "project_id": "PROJ-101-quantifying-the-influence-of-initial-con",
-  "replan_rounds": 1
+  "replan_rounds": 2
 }

@@ -1,28 +1,20 @@
 """
-Compatibility shim for environments where the standard library ``subprocess``
-module is shadowed or incomplete.  The test runner (pytest) expects the
-attribute ``subprocess.PIPE``; if the real module is unavailable this shim
-forwards all attribute access to the genuine stdlib implementation and
-explicitly defines ``PIPE``.
+Compatibility shim for the standard library ``subprocess`` module.
+
+The project previously contained a top‑level ``subprocess.py`` that
+shadowed the real standard‑library module, causing import errors
+(e.g. missing ``PIPE``).  This file re‑exports the original
+implementation so that any ``import subprocess`` performed by the
+test suite or third‑party libraries resolves to the correct module.
 """
 import importlib
 import sys
-from types import ModuleType
 
-# Load the real stdlib subprocess module under a private name.
-_real_subprocess: ModuleType = importlib.import_module("subprocess")
+# Load the genuine stdlib subprocess module.
+_std_subprocess = importlib.import_module('subprocess')
 
-# Re‑export the most commonly used symbols.
-PIPE = _real_subprocess.PIPE
-STDOUT = _real_subprocess.STDOUT
-CalledProcessError = _real_subprocess.CalledProcessError
-run = _real_subprocess.run
-Popen = _real_subprocess.Popen
-CompletedProcess = _real_subprocess.CompletedProcess
+# Populate the current module's globals with everything from the real module.
+globals().update(_std_subprocess.__dict__)
 
-def __getattr__(name):
-    """Delegate any unknown attribute to the real subprocess module."""
-    return getattr(_real_subprocess, name)
-
-# Ensure ``import subprocess`` gives this shim.
-sys.modules[__name__] = sys.modules[__name__]   # noqa: B018
+# Ensure the module appears as ``subprocess`` in ``sys.modules``.
+sys.modules[__name__] = _std_subprocess

@@ -1,14 +1,18 @@
 """
-Pytest configuration fixtures required for the project.
-
-* ``seed`` – provides a deterministic random seed (42) used by the
-  dummy reproducibility test.
-* ``tmp_path`` – is a built‑in pytest fixture; no custom code needed.
+tests/conftest.py
+-----------------
+Pytest fixtures used across the test suite.
 """
 
+import numpy as np
 import pytest
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def seed():
-    """Return a fixed random seed for reproducibility tests."""
+    """Global deterministic seed for reproducibility."""
     return 42
+
+@pytest.fixture
+def tmp_path_factory(tmp_path_factory):
+    """Expose the built‑in ``tmp_path_factory`` fixture."""
+    return tmp_path_factory

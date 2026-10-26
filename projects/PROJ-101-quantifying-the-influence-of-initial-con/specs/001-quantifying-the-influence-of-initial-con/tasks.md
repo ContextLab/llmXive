@@ -15,7 +15,7 @@ All tasks are written as checklist items; unchecked items indicate work that sti
   - **Files**: `code/__init__.py`, `code/simulation/__init__.py`, `code/analysis/__init__.py`, `code/utils/__init__.py`, `tests/__init__.py`  
   - **Verification**: `python -c "import code"` runs without `ImportError`; CI imports each sub‑module.
 
-- [X] T003 [P] Configure pytest with a fixture suite that pins the random seed and provides a temporary directory for each test.  
+- [ ] T003 [P] Configure pytest with a fixture suite that pins the random seed and provides a temporary directory for each test.  
   - **File**: `tests/conftest.py` containing a `seed` fixture (value 42) and using the built‑in `tmp_path` fixture.  
   - **Verification**: `pytest -q` passes a dummy test that asserts reproducibility of `np.random.RandomState(42).rand()`.
 
@@ -34,7 +34,7 @@ All tasks are written as checklist items; unchecked items indicate work that sti
 - [ ] T006 [P] Implement the coupled Lorenz system and a trajectory generator (`code/simulation/generator.py`) that uses `scipy.integrate.solve_ivp` with method **'DOP853'**, `rtol=1e-9`, `atol=1e-12`; inject additive Gaussian noise with user‑specified `sigma_noise`; **emit a `HighNoiseWarning` when `sigma_noise > 0.1`**; **raise `UnphysicalTrajectoryError` when any state norm exceeds 20.0**.   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
   - **Verification**: Unit tests in `tests/unit/test_generator.py` (a) compare empirical noise std‑dev to the injected `sigma_noise` within 5 %; (b) confirm a noise‑free trajectory matches a reference integration to < 1e‑9 absolute error; (c) check that `HighNoiseWarning` is raised for `sigma_noise = 0.2`; (d) check that `UnphysicalTrajectoryError` is raised for `sigma_noise = 1.5`.
 
-- [ ] T007 [P] Wire the stability guard from `code/utils/stability.py` into the generation pipeline so that `raise_if_unphysical` is called after integration and `check_noise_level` triggers the warning. Update `code/simulation/generator.py` to import and use these helpers.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T007 [P] Wire the stability guard from `code/utils/stability.py` into the generation pipeline so that `raise_if_unphysical` is called after integration and `check_noise_level` triggers the warning. Update `code/simulation/generator.py` to import and use these helpers.
   - **Verification**: The same unit tests as T006 must pass, demonstrating that the guard is exercised during trajectory creation.
 
 - [ ] T008 [P] Implement the CLI generation loop in `code/main.py` (exposed as `python -m code.main`). It must accept `--N-values` and `--noise-levels`, iterate over the grid `N ∈ {3,5,7}` and `sigma_noise ∈ {0.0001,0.001,0.01,0.05,0.1,0.2,0.5,0.8,1.0}`, run `k` trials (`k=50` for `sigma_noise < 0.01`, otherwise `k=30`), and **write each trajectory as an immutable `.npz` file under `data/raw/trajectory_N{N}_sigma{sigma}_trial{t}.npz`**.  
