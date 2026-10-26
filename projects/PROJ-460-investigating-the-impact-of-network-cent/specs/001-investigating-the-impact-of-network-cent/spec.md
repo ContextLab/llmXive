@@ -47,7 +47,7 @@ The system MUST repeat the mediation analysis across a predefined sweep of centr
 1. **Given** the primary mediation model completed, **When** the sensitivity sweep is launched, **Then** the system produces `sensitivity_report.tsv` with rows covering each centrality‑by‑structural threshold combination and includes all required statistics.  
 2. **Given** the full dataset, **When** the confounder control step executes, **Then** the mediation model includes age, sex, and mean framewise displacement as main‑effect covariates (no interaction terms) and the adjusted indirect effect is reported alongside the unadjusted one.
 
-### Edge Cases  
+### Edge Cases
 
 - **Missing diagnosis label** – Participants lacking an ASD/TD label are excluded; the count and IDs are logged in `exclusion_log.tsv`.  
 - **Excessive motion** – Participants with mean framewise displacement > 0.3 mm or any translation/rotation > 3 mm are excluded; reasons are recorded in `motion_exclusion.tsv`.  
@@ -64,33 +64,29 @@ The system MUST repeat the mediation analysis across a predefined sweep of centr
 - **FR‑003** – System MUST preprocess fMRI with fMRIPrep v23+ inside a Docker container, performing slice‑time correction, motion correction, band‑pass filtering (0.01–0.1 Hz), spatial normalization to MNI152, and nuisance regression (white matter, CSF, six motion parameters) (See US‑1).  
 - **FR‑004** – System MUST download the Schaefer 400‑parcel atlas from the Nilearn repository, verify its SHA‑256 hash against the official value, and abort with “Atlas verification failed.” if the hash mismatches (See US‑1).  
 - **FR‑005** – System MUST exclude participants whose mean framewise displacement exceeds 0.3 mm or whose translation/rotation exceeds 3 mm, logging exclusions (See US‑1, Edge Cases).  
-- **FR‑006** – System MUST compute global functional connectivity strength (X) as the mean absolute Fisher‑z‑transformed correlation across **all** edges of the full weighted functional connectivity matrix (no arbitrary threshold). The computation is recorded in `functional_metric.log`. (See US‑2).  
-- **FR‑007** – *Removed – OSF pre‑registration not requested.*  
-- **FR‑008** – System MUST compute **global functional connectivity strength** (X) as defined in FR‑006 (See US‑2).  
-- **FR‑009** – System MUST threshold the structural adjacency matrix by retaining the top **[deferred]** of streamline counts (density‑matching) and compute **eigenvector centrality** for the DMN nodes (M). The structural threshold is logged in `structural_threshold.log`. (See US‑2).
-- **FR‑009b** – System MUST generate structural adjacency matrices from dMRI tractography by mapping streamlines onto the Schaefer 400‑parcel atlas and aggregating streamline counts per parcel pair (See US‑1).  
-- **FR‑010** – System MUST compute the **average eigenvector centrality** across all DMN parcels for each subject (See US‑2).  
-- **FR‑011** – System MUST fit a mediation model: Y = ADOS‑2 Social Communication score, X = global functional strength, M = average DMN structural centrality, covariates = age, sex, mean FD. The model must use ordinary least squares for the paths and bootstrap 5 000 resamples for the indirect effect (See US‑2).  
-- **FR‑012** – System MUST abort mediation (and write `mediation_abort.log`) if < 30 paired participants remain after QC (See US‑2).  
-- **FR‑013** – System MUST guarantee that **all reported statistics are derived exclusively from the processed participant data**; no simulated, hard‑coded, or placeholder values are permitted. A provenance manifest (`computation_manifest.txt`) must list each input file checksum, the code block that consumed it, and the resulting statistic (See US‑2).  
-- **FR‑014** – System MUST frame all findings as **ASSOCIATIONAL** (no causal language) because the study is observational (See US‑2).  
-- **FR‑015** – *Removed – Minimum Detectable Effect Size not requested.*  
-- **FR‑016** – System MUST conduct a sensitivity sweep over **centrality measures** {eigenvector, betweenness, degree} and **structural density thresholds** {10 %, 20 %, 30 %}, recompute the mediation for each combination, and output `sensitivity_report.tsv` (See US‑3).  
-- **FR‑017** – System MUST include age, sex, and mean FD as main‑effect covariates in every mediation model; interaction terms are omitted (See US‑3). The covariate specification is saved in `confounder_model_spec.txt`.  
-- **FR‑018** – *Removed – Minimum‑spanning‑tree augmentation not requested.*  
-- **FR‑019** – System MUST log data‑completeness for each required variable (fMRI, dMRI, ADOS‑2, age, sex, motion) in `data_availability_report.txt`. If any variable is missing for > 50 % of the cohort, mediation aborts with a clear error (See US‑2).  
-- **FR‑020** – System MUST output the full bootstrap distribution (`bootstrap_distribution.csv`) with header `bootstrap_id,indirect_effect,direct_effect,total_effect` and exactly 5 000 rows (See US‑2).  
-- **FR‑021** – *Removed – Computation audit log not requested.*  
-- **FR‑022** – System MUST capture the reason for tractography failure (e.g., zero streamlines) and log it in `tractography_failure.tsv` (See US‑1).  
-- **FR‑023** – System MUST generate a path diagram illustrating the direct, indirect, and total effects of the mediation model using the bootstrap‑derived coefficients (See US‑2).  
-- **FR‑024** – System MUST overlay the DMN hub locations (nodes with highest eigenvector centrality) on a standard MNI152 brain template using Nilearn for visualization (See US‑2).  
+- **FR‑006** – System MUST compute global functional connectivity strength (X) as the mean absolute Fisher‑z‑transformed correlation across **all** edges of the full weighted functional connectivity matrix (no arbitrary threshold). The computation is recorded in `functional_metric.log` (See US‑2).  
+- **FR‑007** – System MUST compute **global functional connectivity strength** (X) as defined in FR‑006 (See US‑2).  
+- **FR‑008** – System MUST threshold each subject’s structural adjacency matrix by retaining the top **[deferred]** of strongest streamline counts (density‑matched) and compute **eigenvector centrality** for all 400 nodes. The structural threshold is logged in `structural_threshold.log` (See US‑2).
+- **FR‑008b** – System MUST generate structural adjacency matrices from dMRI tractography by mapping streamlines onto the Schaefer 400‑parcel atlas and aggregating streamline counts per parcel pair (See US‑1).  
+- **FR‑009** – System MUST compute the **average eigenvector centrality** across all DMN parcels for each subject (See US‑2).  
+- **FR‑010** – System MUST fit a mediation model: Y = ADOS‑2 Social Communication score, X = global functional strength, M = average DMN structural centrality, covariates = age, sex, mean FD. The model must use ordinary least squares for the paths and bootstrap 5 000 resamples for the indirect effect (See US‑2).  
+- **FR‑011** – System MUST abort mediation (and write `mediation_abort.log`) if < 30 paired participants remain after QC (See US‑2).  
+- **FR‑012** – System MUST guarantee that **all reported statistics are derived exclusively from the processed participant data**; no simulated, hard‑coded, or placeholder values are permitted. A provenance manifest (`computation_manifest.txt`) must list each input file checksum, the code block that consumed it, and the resulting statistic (See US‑2).  
+- **FR‑013** – System MUST frame all findings as **ASSOCIATIONAL** (no causal language) because the study is observational (See US‑2).  
+- **FR‑014** – System MUST conduct a sensitivity sweep over **centrality measures** {eigenvector, betweenness, degree} and **structural density thresholds** {10 %, 20 %, 30 %}, recompute the mediation for each combination, and output `sensitivity_report.tsv` (See US‑3).  
+- **FR‑015** – System MUST include age, sex, and mean FD as main‑effect covariates in every mediation model; interaction terms are omitted (See US‑3). The covariate specification is saved in `confounder_model_spec.txt`.  
+- **FR‑016** – System MUST log data‑completeness for each required variable (fMRI, dMRI, ADOS‑2, age, sex, motion) in `data_availability_report.txt`. If any variable is missing for > 50 % of the cohort, mediation aborts with a clear error (See US‑2).  
+- **FR‑017** – System MUST output the full bootstrap distribution (`bootstrap_distribution.csv`) with header `bootstrap_id,indirect_effect,direct_effect,total_effect` and exactly 5 000 rows (See FR‑010).  
+- **FR‑018** – System MUST capture the reason for tractography failure (e.g., zero streamlines) and log it in `tractography_failure.tsv` (See US‑1).  
+- **FR‑019** – System MUST generate a path diagram illustrating the direct, indirect, and total effects of the mediation model using the bootstrap‑derived coefficients (See US‑2).  
+- **FR‑020** – System MUST overlay the DMN hub locations (nodes with highest eigenvector centrality) on a standard MNI152 brain template using Nilearn for visualization (See US‑2).  
 
 ### Key Entities *(include if feature involves data)*
 
 - **Participant** – Subject identifier with attributes: age, sex, diagnosis, mean framewise displacement, ADOS‑2 Social Communication score, fMRI time‑series, dMRI streamline matrix.  
 - **FuncTimeSeries** – Preprocessed fMRI signal matrix (timepoints × 400 parcels).  
 - **FuncAdjacency** – Weighted functional connectivity matrix (no threshold).  
-- **StructAdjacency** – Weighted structural connectivity matrix derived from dMRI tractography, thresholded by density.  
+- **StructAdjacency** – Weighted structural connectivity matrix derived from dMRI tractography, thresholded at 15 % density.  
 - **DMNCentrality** – Eigenvector centrality values for the set of DMN parcels extracted from `StructAdjacency`.  
 - **MediationResult** – JSON object containing direct effect, indirect effect, total effect, 95 % CI, p‑value, and bootstrap metadata for each (centrality measure, structural threshold) pair.  
 
@@ -99,23 +95,23 @@ The system MUST repeat the mediation analysis across a predefined sweep of centr
 ### Measurable Outcomes
 
 - **SC‑001** – ≥ 90 % of downloaded participants produce valid preprocessed fMRI time‑series files (no NaNs, correct dimensions) (See US‑1).  
-- **SC‑002** – ≥ 95 % of participants with paired data have non‑null eigenvector centrality values within the normalized range [0, 1] (See US‑2).  
-- **SC‑003** – The mediation analysis outputs a bootstrap‑derived 95 % confidence interval and p‑value for the indirect effect; the raw bootstrap distribution (`bootstrap_distribution.csv`) contains exactly 5 000 rows (See FR‑020, US‑2).  
-- **SC‑004** – The sensitivity report (`sensitivity_report.tsv`) contains indirect‑effect estimates for all 9 (3 centrality × 3 structural) parameter combinations (See FR‑016, US‑3).  
-- **SC‑005** – The confounder‑controlled model includes age, sex, and mean FD as covariates and reports the adjusted indirect effect (See FR‑017, US‑3).  
-- **SC‑006** – `data_availability_report.txt` is generated and contains entries for ≥ 95 % of participants (See FR‑019).  
-- **SC‑008** – All output files (`mediation_results.json`, `bootstrap_distribution.csv`, `computation_manifest.txt`, etc.) are reproducibly generated on a GitHub Actions free‑tier runner within the 6‑hour wall‑time limit (See Assumptions).  
-- **SC‑009** – The `computation_manifest.txt` is programmatically verified to link every output value in `mediation_results.json` to its source input file checksums (See FR‑013, US‑2).  
+- **SC‑002** – ≥ 95 % of participants with paired data have non‑null eigenvector centrality values within the normalized range [0, 1] (See FR‑009).  
+- **SC‑003** – The mediation analysis outputs a bootstrap‑derived 95 % confidence interval and p‑value for the indirect effect; the raw bootstrap distribution (`bootstrap_distribution.csv`) contains exactly 5 000 rows (See FR‑017, US‑2).  
+- **SC‑004** – The sensitivity report (`sensitivity_report.tsv`) contains indirect‑effect estimates for all 9 (3 centrality × 3 structural) parameter combinations (See FR‑014, US‑3).  
+- **SC‑005** – The confounder‑controlled model includes age, sex, and mean FD as covariates and reports the adjusted indirect effect (See FR‑015, US‑3).  
+- **SC‑006** – `data_availability_report.txt` is generated and contains entries for ≥ 95 % of participants (See FR‑016).  
+- **SC‑007** – All output files (`mediation_results.json`, `bootstrap_distribution.csv`, `computation_manifest.txt`, etc.) are reproducibly generated on a GitHub Actions free‑tier runner within the 6‑hour wall‑time limit (See Assumptions).  
+- **SC‑008** – The `computation_manifest.txt` is programmatically verified to link every output value in `mediation_results.json` to its source input file checksums (See FR‑012).  
 
 ## Assumptions
 
 - The ABIDE I/II releases contain, for a sufficient subset of participants, (i) resting‑state fMRI, (ii) diffusion‑weighted MRI, (iii) ADOS‑2 Social Communication scores, (iv) age, (v) sex, and (vi) motion parameters.  
-- At least 30 participants will have complete paired modalities after QC; this is the hard minimum for mediation (FR‑012).  
+- At least 30 participants will have complete paired modalities after QC; this is the hard minimum for mediation (FR‑011).  
 - fMRIPrep Docker image runs on a CPU‑only GitHub Actions runner (no GPU required).  
 - The Schaefer 400‑parcel atlas is publicly available; its SHA‑256 checksum will be verified against the official value at implementation time.  
 - The functional connectivity metric uses the full weighted matrix (no threshold), aligning with community practice that avoids arbitrary cut‑offs (e.g., van den Heuvel & Pol, 2010).  
-- The primary structural density threshold of 15 % is a community‑standard compromise that preserves hub structure while limiting spurious edges; sensitivity analyses will probe [deferred], [deferred] and [deferred] as well.
-- The study is observational; therefore all conclusions are presented as associational, not causal (FR‑014).  
+- The primary structural density threshold of 15 % is a community‑standard compromise that preserves hub structure while limiting spurious edges; sensitivity analyses will probe [deferred], [deferred], and [deferred] as well.
+- The study is observational; therefore all conclusions are presented as associational, not causal (FR‑013).  
 - False Discovery Rate correction will be applied when reporting node‑wise centrality statistics, although the primary mediation test is a single indirect‑effect estimate.  
 - All computations (graph metrics, regression, bootstrapping) are tractable on a 2‑CPU, ~7 GB RAM GitHub Actions runner and will complete within the 6‑hour job limit.  
 - Clinical severity scores (ADOS‑2) are available for the majority of ASD participants; if fewer than 30 participants have ADOS‑2 scores, the mediation result will be labeled exploratory with appropriate caveats.
