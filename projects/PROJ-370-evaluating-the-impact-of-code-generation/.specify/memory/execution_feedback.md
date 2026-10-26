@@ -25,13 +25,17 @@ HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test
 =========================== short test summary info ============================
 ERROR tests/unit/test_setup_project_structure.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.20s ===============================
+=============================== 1 error in 0.21s ===============================
 
 
 - python -m src.extraction.fetch_prs --test-set 10 -> rc=-1
 
-2026-10-25 09:21:11,493 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
-2026-10-25 09:21:11,494 - __main__ - INFO - Fetching PRs for microsoft/vscode...
+2026-10-26 04:24:01,762 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
+2026-10-26 04:24:01,763 - __main__ - INFO - Fetching PRs for microsoft/vscode...
+2026-10-26 04:24:30,484 - __main__ - WARNING - Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=13&per_page=100.
+2026-10-26 04:24:30,485 - __main__ - WARNING - Rate limit hit. Sleeping for 60 seconds.
+2026-10-26 04:25:30,617 - __main__ - WARNING - Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=13&per_page=100.
+2026-10-26 04:25:30,617 - __main__ - WARNING - Rate limit hit. Sleeping for 60 seconds.
 
 [TIMEOUT after 120s]
 - python -m src.cli.main --run all --max-prs 500 --seed 42 -> rc=-1
@@ -40,10 +44,12 @@ ERROR tests/unit/test_setup_project_structure.py
 [TIMEOUT after 120s]
 - python -m src.extraction.fetch_prs --repos microsoft/vscode pytorch/pytorch tensorflow/tensorflow --max-prs 500 -> rc=-1
 
-2026-10-25 09:25:11,643 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
-2026-10-25 09:25:11,643 - __main__ - INFO - Fetching PRs for microsoft/vscode...
-2026-10-25 09:26:51,575 - __main__ - WARNING - Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=44&per_page=100.
-2026-10-25 09:26:51,575 - __main__ - WARNING - Rate limit hit. Sleeping for 60 seconds.
+2026-10-26 04:28:01,901 - __main__ - INFO - Target repositories: ['microsoft/vscode', 'pytorch/pytorch', 'tensorflow/tensorflow']
+2026-10-26 04:28:01,902 - __main__ - INFO - Fetching PRs for microsoft/vscode...
+2026-10-26 04:28:02,046 - __main__ - WARNING - Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=1&per_page=100.
+2026-10-26 04:28:02,046 - __main__ - WARNING - Rate limit hit. Sleeping for 60 seconds.
+2026-10-26 04:29:28,645 - __main__ - WARNING - Rate limit hit for https://api.github.com/repos/microsoft/vscode/pulls?state=all&page=12&per_page=100.
+2026-10-26 04:29:28,645 - __main__ - WARNING - Rate limit hit. Sleeping for 60 seconds.
 
 [TIMEOUT after 120s]
 

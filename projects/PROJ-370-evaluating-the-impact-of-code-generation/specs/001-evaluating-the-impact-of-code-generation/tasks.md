@@ -24,7 +24,7 @@ canonical format:
 - [ ] T003 [P] Create a `pyproject.toml` configuring **ruff** and **black** (line‑length 88, exclude patterns) and a GitHub Actions workflow that runs `ruff check` and `black --check` – `pyproject.toml`, `.github/workflows/ci.yml`
     *Verification*: `ruff check .` and `black --check .` both return exit 0 on a clean repo.
 
-- [X] T004 [P] Implement core pipeline utilities:
+- [ ] T004 [P] Implement core pipeline utilities:
     * `code/src/pipeline/logging_utils.py` – JSON‑lines logger that writes events conforming to `contracts/run_log_event_schema.yaml` to `logs/pipeline.jsonl`.
     * `code/src/pipeline/runtime_guard.py` – `RuntimeGuard` class that records a deadline timestamp, aborts the process with exit code 143 on breach, and writes a `"timeout"` event to `logs/timeout.log`.
     * Unit tests `code/tests/unit/test_logging_utils.py` and `code/tests/unit/test_runtime_guard.py`. – `code/src/pipeline/*.py`, `code/tests/unit/*.py`
@@ -38,10 +38,10 @@ canonical format:
 
 ## Phase 2 – Data extraction, preprocessing, and triangulated ground truth
 
-- [ ] T006 [P] Define the `BugDetection` dataclass in the detection package (`code/src/detection/schema.py`) and ensure `PullRequest` is isolated in `code/src/extraction/schema.py`.
+- [X] T006 [P] Define the `BugDetection` dataclass in the detection package (`code/src/detection/schema.py`) and ensure `PullRequest` is isolated in `code/src/extraction/schema.py`.
     *Verification*: `python -c "from code.src.detection.schema import BugDetection; assert BugDetection"` runs; `pytest code/tests/contract/test_schemas.py` passes.
 
-- [ ] T007 [P] [FR‑001] Implement PR extraction script `code/src/extraction/fetch_prs.py`.
+- [ ] T007 [P] [FR‑001] Implement PR extraction script `code/src/extraction/fetch_prs.py`. <!-- FAILED-IN-EXECUTION: code/src/extraction/fetch_prs.py exit=-1 (TIMEOUT) -->
     * Reads `TARGET_REPOS` from `code/src/config/settings.py`, fetches up to 500 PRs per repo via GitHub REST API, writes raw JSON payloads to `data/raw/`, and generates `data/raw/checksums.json`.
     *Verification*: Command exits 0; `data/raw/checksums.json` matches files; `python -m code.src.extraction.fetch_prs --test-set 10` (T016) confirms non-empty diffs and comments.
 

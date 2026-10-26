@@ -24,28 +24,28 @@ from pathlib import Path
 from typing import Dict, Any
 
 # Project utilities
-from code.config.settings import get_paths, ensure_directories, get_seed
-# Logging utilities – may not exist yet; fall back to stdlib if absent
+from code.src.config.settings import get_paths, ensure_directories, get_seed
+from llmxive_toolkit import paths
+
+# Logging utilities
 try:
     from code.src.pipeline.logging_utils import log_event
-except Exception:  # pragma: no cover
+except ImportError:
     def log_event(event: Dict[str, Any]) -> None:
         """Fallback logger that writes a JSON line to logs/pipeline.jsonl."""
-        log_path = Path(get_paths().get("logs", "logs")) / "pipeline.jsonl"
+        log_path = paths.data("logs/pipeline.jsonl") if hasattr(paths, "data") else Path("logs/pipeline.jsonl")
         log_path.parent.mkdir(parents=True, exist_ok=True)
         with log_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(event, ensure_ascii=False) + "\n")
 
 # Phase runners – import the real implementations if they exist.
-# If a phase module is missing (e.g., still a placeholder), we simply log
-# that the phase would have run.
 def _run_phase(module_path: str, func_name: str, config: Dict[str, Any]) -> bool:
     """Dynamically import and execute a phase function."""
     try:
         module = __import__(module_path, fromlist=[func_name])
         phase_func = getattr(module, func_name)
         return bool(phase_func(config))
-    except Exception as exc:  # pragma: no cover
+    except Exception as exc:
         logging.error(f"Failed to run phase {module_path}.{func_name}: {exc}")
         return False
 
@@ -128,11 +128,11 @@ def main():
     )
     logger = logging.getLogger(__name__)
 
-    # Log CLI start event
+    # Log CLI start event (Requirement for T005)
     log_event({"event": "cli_start", "timestamp": time.time()})
 
     # Resolve project paths and ensure directories exist
-    paths = get_paths()
+    paths_map = get_paths()
     ensure_directories()
 
     # Record the effective random seed (FR‑019)
@@ -141,7 +141,7 @@ def main():
 
     # Build a simple config dictionary passed to phase runners
     config = {
-        "paths": paths,
+        "paths": paths_map,
         "timeout_hours": args.timeout_hours,
         "seed": seed,
         "verbose": args.verbose,
@@ -151,9 +151,8 @@ def main():
 
     if args.run == "smoke":
         logger.info("Running smoke test – generating placeholder report.")
-        # No heavy processing; directly write the smoke report.
-        results_dir = Path(paths.get("results", "results"))
-        report_path = results_dir / "smoke_report.json"
+        # Write to data/results/smoke_report.json as required by T005
+        report_path = paths.results("smoke_report.json")
         elapsed = int(time.time() - start_time)
         _write_smoke_report(report_path, elapsed)
         logger.info(f"Smoke report written to {report_path}")

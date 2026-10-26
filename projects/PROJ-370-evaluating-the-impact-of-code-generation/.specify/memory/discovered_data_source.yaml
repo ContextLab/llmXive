@@ -1,19 +1,18 @@
 status: none
-intent: download GHTorrent pull request dataset with diffs review comments linked
-  issues python package dataset
+intent: GitHub pull request dataset GHTorrent HuggingFace python package dataset
 required_fields:
 - pr_id
 - repository_full_name
-- pr_number
-- pr_title
-- pr_body
-- pr_created_at
-- pr_merged_at
-- pr_state
-- diff_hunks
-- added_files
-- removed_files
-- review_comments_text
-cache_key: 4bc53cdf0056a4942c1b45e8d55ca02d4c8e0cae5ffab7e1f3219e21aa4e3ce4
-searched_at: '2026-10-25T09:27:34.549227+00:00'
+- diff_patch
+- review_comments
+- linked_issue_ids
+- author_login
+- created_at
+- merged_at
+- state
+- files_changed
+- additions
+- deletions
+cache_key: 723be669e7d13980e221e80b0c9d70129004d7634a9032b78e0119288b2e585a
+searched_at: '2026-10-26T04:30:54.621562+00:00'
 retry_count: 1

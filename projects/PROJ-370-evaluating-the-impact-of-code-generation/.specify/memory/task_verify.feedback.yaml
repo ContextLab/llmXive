@@ -1,8 +1,7 @@
 T001:
-  reason: "The evidence shows `code/` exists, but several required sub\u2011directories\
-    \ are absent: `code/src/reporting`, `code/tests/integration` and `code/tests/contract`,\
-    \ `code/data/results`, `code/logs`, and the `specs/001-eval-llm-review-quality/contracts`\
-    \ directory. These missing folders mean the required layout was not fully created."
+  reason: "The `code/` hierarchy is present, but the required `specs/001-eval-llm-review-quality/contracts`\
+    \ directory is missing (the log shows a differently named `specs/001-evaluating-the-impact-of-code-generation/contracts`).\
+    \ The task\u2019s directory layout is therefore not fully satisfied."
   task: 7063366f657d2675ca8d35ffea3fa9ed608d120baa0b5c5b4d3c54c635cd089d
 T002:
   task: f83b58eca9fe97ffbf32282b00730410fee134a80d58c180c57b12787eeb86b7
@@ -13,26 +12,26 @@ T003:
     to write only project-owned outputs.'
   task: 32fecda622fb27b6a8d75d214bfd564728694ee6e29f8bad4c963d889194382c
 T004:
+  reason: "Checked `code/src/pipeline/logging_utils.py`, `code/src/pipeline/runtime_guard.py`\
+    \ and their unit tests `code/tests/unit/test_logging_utils.py` & `code/tests/unit/test_runtime_guard.py`.\
+    \ The files exist and the code appears to meet the functional specs, but there\
+    \ is no provided evidence that the tests were actually run (e.g., pytest output\
+    \ showing exit code\u202F0) nor a demonstration that invoking `RuntimeGuard` with\
+    \ a past deadline produces a real `logs/timeout.log` entry. Those execution artifacts\
+    \ are required to consider the task complete."
   task: 36b12a7801c6e1561c526368f847a62527a1889d107e970dbd1629163e3541a2
 T005:
-  reason: The CLI script exists, but it writes the smoke report to `results/smoke_report.json`
-    instead of the required `data/results/smoke_report.json`, and the expected `data/results/smoke_report.json`
-    file is missing. Additionally, there is no provided evidence that `logs/pipeline.jsonl`
-    contains a `"cli_start"` event.
+  reason: "The CLI script exists and logs a `\"cli_start\"` event, but the required\
+    \ output file `data/results/smoke_report.json` is missing (the script writes to\
+    \ `results/smoke_report.json` instead) and there is no evidence that `logs/pipeline.jsonl`\
+    \ actually contains the `\"cli_start\"` entry. The task\u2019s smoke\u2011test\
+    \ artifacts are not present at the specified paths."
   task: 32b78de6a20724063abd7f2a71a84c5c2a1c8aa505ea1a47b840b7785b70b55b
 T006:
-  reason: "The `BugDetection` dataclass is present in `code/src/detection/schema.py`\
-    \ and `PullRequest` is defined in `code/src/extraction/schema.py`, but the required\
-    \ test suite `code/tests/contract/test_schemas.py` is missing, so the verification\
-    \ step \u201Cpytest \u2026 passes\u201D cannot be satisfied. Add the test file\
-    \ (or evidence of its successful execution) to complete the task."
   task: de7ae35e13bbc61617e0237f1a557fd3acd59051a358cc28fa08c383ac07b1a8
 T007:
-  reason: "The repository contains the `fetch_prs.py` script, but the required output\
-    \ files are absent: `data/raw/checksums.json` is missing and there is no evidence\
-    \ (logs, command output, or generated JSON payloads) that the script was executed\
-    \ successfully or produced non\u2011empty diffs and comments. The task\u2019s\
-    \ verification steps are therefore not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/src/extraction/fetch_prs.py
+    exit=-1 (TIMEOUT)'
   task: 813cd9ff6859dd044cd755c1a3fe43899fdd4cf350749397ca21cfa5ded7fa4f
 T008:
   task: b9b6b3da6581407c81d465fccd853eee2d1103e8ddd9d06285d68d83813797de
