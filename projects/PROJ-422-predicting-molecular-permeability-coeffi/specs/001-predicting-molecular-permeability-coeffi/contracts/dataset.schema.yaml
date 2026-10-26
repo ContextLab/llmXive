@@ -42,6 +42,9 @@ properties:
     additionalProperties:
       type: integer
       enum: [0,1]
+  target_type:
+    type: string
+    description: "Either \"experimental\" or \"surrogate\" indicating the nature of the target column"
 required:
   - smiles
   - mol_valid
@@ -53,4 +56,5 @@ required:
   - rotatable_bonds
   - target
   - polymer_type_onehot
+  - target_type
 additionalProperties: false

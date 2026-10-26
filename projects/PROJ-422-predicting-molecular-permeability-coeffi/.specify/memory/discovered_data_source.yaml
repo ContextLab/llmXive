@@ -1,17 +1,16 @@
 status: none
-intent: OpenML polymer membrane permeability experimental dataset from Membrane Permeability
-  Database python package dataset
+intent: Polymer membrane permeability experimental dataset NIST polymer permeability
+  database Open Permeability Database python package dataset
 required_fields:
 - polymer_name
-- polymer_structure
-- membrane_thickness
-- temperature
-- pressure
+- polymer_smiles
+- repeat_unit
+- temperature_K
+- pressure_bar
 - gas_species
 - permeability_coefficient
-- units
+- permeability_units
 - measurement_method
-- reference
-cache_key: ba2f6a9757c43a5df3eb3d7e66279eea40df0a02db6dd4abdb742e1ba9f71e0e
-searched_at: '2026-10-26T09:34:43.704168+00:00'
+cache_key: 8b1d9348a44145407ba36b8c7625dabe67f762fa8e3e49492f42922f92a108fe
+searched_at: '2026-10-26T09:53:22.463288+00:00'
 retry_count: 1

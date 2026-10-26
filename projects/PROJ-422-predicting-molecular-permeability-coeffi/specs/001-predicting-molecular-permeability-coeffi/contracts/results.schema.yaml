@@ -78,7 +78,7 @@ properties:
         type: boolean
       bias_warning:
         type: boolean
-        description: "True if |r| > 0.6, indicating high correlation (expected for proxy target)."
+        description: "True if |r| > 0.5 ? (expected for proxy target )"
     required:
       - correlation_coefficient
       - is_confounded
@@ -88,10 +88,10 @@ properties:
     properties:
       overlap_top5:
         type: integer
-        description: "Number of overlapping features between GNN substructure mapping and SHAP descriptor ranking (0–5)."
+        description: "Number of overlapping features between GNN substructure mapping and SHAP descriptor ranking (0–5)."
       overlap_meets_threshold:
         type: boolean
-        description: "True if overlap_top5 >= 3, satisfying SC‑003."
+        description: "True if overlap_top5 >= 3 , satisfying SC‑003"
     required:
       - overlap_top5
       - overlap_meets_threshold
