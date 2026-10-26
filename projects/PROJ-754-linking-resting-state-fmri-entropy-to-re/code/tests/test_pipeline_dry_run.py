@@ -1,16 +1,14 @@
 """
-Test suite to ensure the pipeline orchestrator exits cleanly on dry-run.
+Integration test to ensure the pipeline orchestrator can be invoked
+in dry-run mode and exit with status 0.
 """
-import pytest
 from code.src.pipeline import run_pipeline
 
 def test_run_pipeline_dry_run():
     """
-    Verify that run_pipeline with dry_run=True completes without 
-    raising exceptions or attempting heavy processing.
+    Verify that run_pipeline(dry_run=True) completes without exception.
     """
     try:
-        # This should return immediately due to the dry_run check
         run_pipeline(subjects=5, dry_run=True)
     except Exception as e:
         pytest.fail(f"Pipeline dry-run failed with exception: {e}")

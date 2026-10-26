@@ -1,17 +1,19 @@
 """
-Test suite to ensure all project modules are importable without errors.
+Test that all major modules in the project can be imported without errors.
+This catches package structure issues and dependency conflicts.
 """
 import pytest
 
-def test_module_imports():
-    """Verify that all core sub-packages can be imported."""
-    try:
-        import code.src.data
-        import code.src.analysis
-        import code.src.stats
-        import code.src.reporting
-        import code.src.utils
-        import code.src.pipeline
-        import code.src.run_pipeline
-    except ImportError as e:
-        pytest.fail(f"Module import failed: {e}")
+def test_import_pipeline():
+    import code.src.pipeline
+    import code.src.run_pipeline
+    import code.src.download_data
+    import code.src.data.download_hcp
+    import code.src.data.qc
+    import code.src.compute_entropy
+    import code.src.analysis.entropy
+
+def test_import_config():
+    import code.config.env_manager
+    import code.config.logging_config
+    import code.config.lint_format
