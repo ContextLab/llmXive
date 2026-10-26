@@ -4,18 +4,18 @@
 
 | Entity | Description |
 |--------|-------------|
-| **MaterialsDataset** | Represents a processed property dataset (Band Gap, Thermal Conductivity, Elastic Modulus). |
+| **MaterialsDataset** | Processed property dataset (Band Gap, Thermal Conductivity, Elastic Modulus). |
 | **UQMethod** | Encapsulates a UQ technique, its hyper‑parameters, and execution status. |
 | **PerSampleResult** | Stores a single test‑sample prediction, interval bounds, ground truth, and absolute error. |
-| **EvaluationMetric** | Scalar metric (Calibration Error, Sharpness, Coverage) for a given dataset‑method pair. |
-| **StatisticalTestResult** | Outcome of a paired Wilcoxon test between two methods on a specific metric and dataset. |
+| **EvaluationMetric** | Scalar metric (Calibration Error, Sharpness, Coverage Error) for a given dataset‑method pair. |
+| **StatisticalTestResult** | Outcome of a paired Wilcoxon or McNemar test between two methods on a specific metric and dataset. |
 | **PipelineExecution** | Log of the overall run (run‑id, timestamps, resource usage, overall status). |
 
 ### MaterialsDataset
 | Field | Type | Notes |
 |-------|------|-------|
 | dataset_id | string | e.g., `band_gap`, `thermal_conductivity`, `elastic_modulus`. |
-| source_url | string (URI) | Verified URL from the research block. |
+| source_url | string (URI) | Verified URL from the research block (or note if unavailable). |
 | property_name | string | Human‑readable target name. |
 | n_samples | integer ≥ 1 | Total rows after loading. |
 | n_train | integer ≥ 1 | Training rows (capped at 2000). |
@@ -66,7 +66,7 @@
 | metric_type | enum: `abs_error`, `interval_width`, `coverage` |
 | method_a | string |
 | method_b | string |
-| test_name | enum: `wilcoxon` |
+| test_name | enum: `wilcoxon`, `mcnemar` |
 | p_value | number (0–1) |
 | significant | boolean |
 | alpha_adj | number (0–1) |

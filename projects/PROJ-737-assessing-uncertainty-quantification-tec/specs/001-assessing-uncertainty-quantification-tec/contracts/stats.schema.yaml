@@ -23,6 +23,7 @@ properties:
     type: string
     enum:
       - "wilcoxon"
+      - "mcnemar"
     description: "Statistical test used."
   p_value:
     type: number

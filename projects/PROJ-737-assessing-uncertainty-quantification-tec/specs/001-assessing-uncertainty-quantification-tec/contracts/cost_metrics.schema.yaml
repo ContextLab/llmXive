@@ -1,0 +1,35 @@
+# Deprecated: CostMetric schema retained for backward compatibility but not used per specification.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CostMetricSchema"
+description: "Schema for runtime and memory usage per dataset‑method pair (DEPRECATED)."
+type: object
+properties:
+  dataset_id:
+    type: string
+    description: "Foreign key to MaterialsDataset."
+  method_id:
+    type: string
+    enum:
+      - "gpr"
+      - "mc_dropout"
+      - "deep_ensemble"
+      - "conformal"
+      - "deterministic_mlp"
+    description: "UQ method identifier."
+  runtime_seconds:
+    type: number
+    description: "Wall‑clock runtime for this method on this dataset (seconds)."
+  peak_ram_gb:
+    type: number
+    description: "Peak RAM usage during this method's execution (GB)."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp of metric recording."
+required:
+  - dataset_id
+  - method_id
+  - runtime_seconds
+  - peak_ram_gb
+  - timestamp
+additionalProperties: false

@@ -1,25 +1,3 @@
-- artifact_hash: 257eb015920c2ce52ce844051758f391eec9dcc5c356f79fe0f9094a85fb6d1a
-  artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/oqmd/oqmd`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/oqmd/oqmd
-  verified_at: '2026-10-11T21:30:41.750013Z'
-- artifact_hash: 257eb015920c2ce52ce844051758f391eec9dcc5c356f79fe0f9094a85fb6d1a
-  artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/aflow/aflow`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/aflow/aflow
-  verified_at: '2026-10-11T21:30:41.750013Z'
 - artifact_hash: 46fa8991d8ea2c6fec1ceabdd579f0bc31b3369c4d33691764679d057efa428b
   artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
   cite_id: c-001
@@ -53,3 +31,25 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/aflow/thermal_conductivity/resolve/main/thermal_conductivity.csv
   verified_at: '2026-10-17T21:13:42.405748Z'
+- artifact_hash: 7322e1ceb0436706bdb82b9f19d85d3508a3f102ca26395e6fb06daef9ebdfa8
+  artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/oqmd/oqmd`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/oqmd/oqmd
+  verified_at: '2026-10-26T11:28:00.504612Z'
+- artifact_hash: 7322e1ceb0436706bdb82b9f19d85d3508a3f102ca26395e6fb06daef9ebdfa8
+  artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/aflow/aflow`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/aflow/aflow
+  verified_at: '2026-10-26T11:28:00.504612Z'
