@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-26T17:08:41.528917+00:00",
+  "generated_at": "2026-10-26T17:29:02.052044+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -51463,6 +51463,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 3.555279,
+          "ended_at": "2026-10-26T17:07:54.945818Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-26T17:07:51.390539Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 3.906884,
           "ended_at": "2026-10-26T16:37:58.127167Z",
           "model": "zai-org.glm-5.3",
@@ -51532,14 +51540,6 @@
           "model": "google.gemma-4-31B-it",
           "outcome": "success",
           "started_at": "2026-10-16T16:11:52.007986Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 206.774992,
-          "ended_at": "2026-10-16T16:11:52.004264Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-16T16:08:25.229272Z"
         }
       ],
       "paper_status": null,
@@ -79541,7 +79541,7 @@
           ]
         },
         {
-          "contributions": 36,
+          "contributions": 37,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -79595,6 +79595,14 @@
       "id": "PROJ-257-investigating-the-statistical-properties",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 64.396668,
+          "ended_at": "2026-10-26T17:10:11.133218Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-26T17:09:06.736550Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 28.866415,
@@ -79666,14 +79674,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-25T02:40:31.130316Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1790.687366,
-          "ended_at": "2026-10-25T02:40:15.334068Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T02:10:24.646702Z"
         }
       ],
       "paper_status": null,
@@ -107068,7 +107068,7 @@
       },
       "authors": [
         {
-          "contributions": 18,
+          "contributions": 19,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -107135,6 +107135,14 @@
       "id": "PROJ-411-evaluating-the-impact-of-code-generation",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 376.178596,
+          "ended_at": "2026-10-26T17:14:02.623000Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-26T17:07:46.444404Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 51.217757,
@@ -107206,14 +107214,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-26T08:14:06.681398Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 966.299706,
-          "ended_at": "2026-10-26T07:42:23.181961Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-26T07:26:16.882255Z"
         }
       ],
       "paper_status": null,
@@ -143625,7 +143625,7 @@
       },
       "authors": [
         {
-          "contributions": 57,
+          "contributions": 58,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -143684,6 +143684,14 @@
       "id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 36.959469,
+          "ended_at": "2026-10-26T17:09:09.298014Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-26T17:08:32.338545Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 42.41159,
@@ -143755,14 +143763,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-26T14:59:49.076617Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 22.040112,
-          "ended_at": "2026-10-26T13:18:42.276552Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-26T13:18:20.236440Z"
         }
       ],
       "paper_status": null,
@@ -176547,6 +176547,54 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 376.178596,
+      "ended_at": "2026-10-26T17:14:02.623000Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-411-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-26T17:07:46.444404Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 64.396668,
+      "ended_at": "2026-10-26T17:10:11.133218Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-257-investigating-the-statistical-properties",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-26T17:09:06.736550Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 36.959469,
+      "ended_at": "2026-10-26T17:09:09.298014Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-26T17:08:32.338545Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 3.555279,
+      "ended_at": "2026-10-26T17:07:54.945818Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-1051-llmxive-follow-up-extending-scalable-vis",
+      "project_stage": "tasked",
+      "severity": "hard",
+      "started_at": "2026-10-26T17:07:51.390539Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 4.075871,
       "ended_at": "2026-10-26T17:07:50.011663Z",
       "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
@@ -182496,54 +182544,6 @@
       "project_stage": "agent_blocked",
       "severity": "ok",
       "started_at": "2026-10-25T17:24:25.403540Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 918.345728,
-      "ended_at": "2026-10-25T17:22:39.719811Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-25T17:07:21.374083Z"
-    },
-    {
-      "agent": "clarifier",
-      "duration_s": 893.78108,
-      "ended_at": "2026-10-25T17:22:34.514117Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-193-predicting-battery-degradation-from-publ",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-25T17:07:40.733037Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 734.984136,
-      "ended_at": "2026-10-25T17:20:44.233426Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-25T17:08:29.249290Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 144.662251,
-      "ended_at": "2026-10-25T17:11:19.359634Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-305-statistical-analysis-of-publicly-availab",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-25T17:08:54.697383Z"
     }
   ],
   "reviewed_preprints": [
