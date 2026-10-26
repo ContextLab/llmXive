@@ -1,12 +1,12 @@
 # Quickstart: Predict Saturation Magnetization of Alloys (OQMD Data)
 
-This guide walks you through a **single CI run** that produces a surrogate model for **saturation magnetization** using the publicly verified OQMD magnetic CSV, evaluates it, generates a feature‑importance report, and exposes a CLI for single‑alloy prediction.
+This guide walks you through a **single CI run** that produces a surrogate model for **saturation magnetization** using the publicly verified OQMD magnetic dataset, evaluates it, generates a feature‑importance report, and exposes a CLI for single‑alloy prediction.
 
-> **Scope Note** – Only saturation magnetization is modeled because no verified open source provides Curie temperature. If a Curie‑temperature dataset becomes available, the pipeline can be extended accordingly. The prediction JSON schema still contains a `curie_temperature` field, which will be set to `null` pending data.
+> **Scope Note** – Only saturation magnetization is modeled because no open source provides Curie temperature. The prediction JSON schema still contains a `curie_temperature` field; the CLI will output `null` for this field with a logged warning.
 
 ## Prerequisites
 - GitHub Actions runner (free tier) **or** a local Linux environment with **Python 3.11**.
-- No API keys required (OQMD CSV is publicly downloadable).
+- No API keys required (datasets are publicly downloadable).
 
 ## 1. Clone the Repository & Install Dependencies
 ```bash
@@ -17,16 +17,14 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 2. Download the OQMD Dataset
+## 2. Download the Dataset
 ```bash
 python code/download_datasets.py
 ```
 
-This script creates:
-- `data/raw_oqmd.csv` (OQMD magnetic CSV)  
-- `data/data_sources.yaml` (manifest with URL, SHA‑256 checksum, and download timestamp)
-
-> **Note**: The script uses the verified HuggingFace URL `https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv` and the `datasets` library to stream the CSV, guaranteeing successful download on the CI runner.
+The script now:
+- Downloads the **OQMD magnetic CSV** from the verified HuggingFace URL (`).  
+- Writes `data/raw_oqmd.csv` and records its SHA‑256 checksum in `data/data_sources.yaml`.
 
 ## 3. Run the End‑to‑End Pipeline (Saturation Magnetization)
 ```bash
@@ -38,16 +36,17 @@ python -m src.models.train \
 ```
 
 **What happens**
-1. Loads the OQMD magnetic CSV from the verified URL.  
-2. Cleans the dataset (standardizes formulas, removes missing fields, resolves duplicates).  
-3. Engineers features (fractional elemental abundances, elemental‑average properties, crystal descriptors).  
-4. Performs a 5‑fold GridSearchCV (≤ 30 min) for Random Forest and Gradient Boosting regressors.  
-5. Selects the best model by R², saves it as `artifacts/model_saturation.pkl`.  
-6. Writes `metrics/metrics_saturation.json` (R², MAE, RMSE) for the internal test split.  
-7. Samples 200 distinct OQMD alloys **not** seen during training, evaluates the model, and appends external metrics to the same JSON file.  
-8. Conducts a paired Wilcoxon signed‑rank test against a Linear Regression baseline (Bonferroni‑corrected α = 0.05).  
-9. Generates feature‑importance CSV and PNG (`reports/feature_importance_saturation.*`).  
-10. Uploads all artifacts as GitHub Actions artifacts.
+1. Loads the OQMD magnetic CSV.  
+2. Cleans the dataset (standardizes formulas, discards missing fields, resolves duplicates).  
+3. Engineers **fractional elemental abundances** and **element‑wise averages** of atomic radius, first ionization energy, d‑electron count, electronegativity, bulk modulus, plus crystal‑structure descriptors.  
+4. **Calibration step**: applies a linear scaling factor to `magnetic_moment` based on an experimental benchmark (if available) to correct systematic DFT bias.  
+5. Performs a **5‑fold GridSearchCV** (≤ 30 min) for Random Forest and Gradient Boosting regressors.  
+6. Selects the best model by R², saves it as `artifacts/model_saturation.pkl`.  
+7. Writes `metrics/metrics_saturation.json` (R², MAE, RMSE) for the internal test split.  
+8. **External validation** uses a hold‑out set of **200** distinct alloys from a **different OQMD release** (e.g., OQMD v2026.09) and appends external metrics to the same JSON file.  
+9. Conducts **two paired Wilcoxon signed‑rank tests** (RF vs LR, GB vs LR) with Bonferroni‑adjusted α = 0.025 per test.  
+10. Generates feature‑importance CSV and PNG (`reports/feature_importance_saturation.*`).  
+11. Uploads all artifacts as GitHub Actions artifacts.
 
 ## 4. Inspect Results
 ```bash
@@ -93,7 +92,7 @@ python -m src.cli.predict \
   }
 }
 ```
-The prediction completes in **≤ 2 seconds** on the CI runner and conforms to the **original** `contracts/prediction.schema.yaml` (both fields present; `curie_temperature` is `null`). If a Curie‑temperature dataset becomes available, the CLI will automatically include a numeric value.
+The prediction completes in **≤ 2 seconds** on the CI runner and **conforms to the original JSON schema** (both fields present; `curie_temperature` is `null`).  
 
 ## 6. Artifact Publishing (GitHub Actions)
 The workflow `ci.yml` automatically uploads:
@@ -107,9 +106,8 @@ The workflow `ci.yml` automatically uploads:
 These artifacts enable reproducibility checks by downstream reviewers.
 
 ## 7. Extending the Pipeline
-If a verified open dataset containing Curie temperature becomes **available**, add it to `code/download_datasets.py`, extend the cleaning step, and repeat the training pipeline for the new target.
+If a verified open dataset containing Curie temperature becomes **available**, add its download URL to `code/download_datasets.py`, extend the cleaning step, and rerun the pipeline with `--target curie_temperature`. The CLI will then output a numeric value instead of `null`.
 
 ---
-
 
 
