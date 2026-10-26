@@ -1,7 +1,0 @@
-{
-  "task_id": "T001",
-  "fingerprint": "508cadb3849cd6a5b5f5fc36b3b89d8a70f1fafe4d3488d887a6741ff7572bfb",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refusing to write 'tests/unit/test_generator_distribution.py': SyntaxError at line 77: invalid syntax. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 2201"
-}

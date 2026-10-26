@@ -1,0 +1,28 @@
+T001:
+  c: false
+  h: 84af1fbb26af9aead2f1139ecfd4ad666a4599b0c7255c1344555f07a99e836a
+  r: The required output file `data/raw/workflows.json` is missing, so the generator
+    has not demonstrably created the 500 deterministic workflows that satisfy the
+    schema and depth distribution requirements. The presence of the generator script
+    and a passing unit test is insufficient without the actual JSON output. The next
+    implementer must run the generator (e.g., `python -m code.services.generator --n
+    500 --seed 42`) and provide the resulting `workflows.json` file together with
+    evidence (e.g., a checksum, line count, or validation log) confirming it contains
+    500 entries, the required depth distrib
+  sig: f0552ae50f8cced1185f471573df82cabfae8afeb742623241d0af177e7f5b2d
+T002:
+  c: true
+  h: d7fe99127adbea9ac7d55ee043afeb0506c5289e2149fc06dc1dc4f872c30131
+  r: "Checked `code/models/policy.py` for a pure\u2011Python `OraclePolicyEngine`\
+    \ implementation, `tests/unit/test_oracle.py` for the required budget\u2011cap\
+    \ test, and the recorded pytest run showing both tests passed. All required artifacts\
+    \ exist and behave as specified."
+  sig: a9d8f7bdcdd132ef5ee5061e0de53e521fafea2626dc5f3d615b10fb28dbb8d9
+T003:
+  c: false
+  h: 376e78b0e98ad7efc0b779f5a7faf812b9ddc953235e2cc43cc86c33b7c336fe
+  r: "Checked `code/lib/utils.py` \u2013 it correctly implements `count_tokens` with\
+    \ `tiktoken` and the `cl100k_base` model. However `tests/unit/test_tokenizer.py`\
+    \ is missing, so the required verification test does not exist. The task is not\
+    \ fully satisfied until the test file is provided."
+  sig: 29e9e23104f880d9de6d0d1c2b7826cccdcd27aceefc676e7aadc2172db6425e

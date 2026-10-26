@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — The required output file `data/raw/workflows.json` is missing, so the generator has not demonstrably created the 500 deterministic workflows that satisfy the schema and depth distribution requirements. The presence of the generator script and a passing unit test is insufficient without the actual JSON output. The next implementer must run the generator (e.g., `python -m code.services.generator --n 500 --seed 42`) and provide the resulting `workflows.json` file together with evidence (e.g., a checksum, line count, or validation log) confirming it contains 500 entries, the required depth distrib
+- **T003** — Checked `code/lib/utils.py` – it correctly implements `count_tokens` with `tiktoken` and the `cl100k_base` model. However `tests/unit/test_tokenizer.py` is missing, so the required verification test does not exist. The task is not fully satisfied until the test file is provided.
+- **T004** — Requested task execution failed; rerun successfully: code/services/executor_full.py exit=1

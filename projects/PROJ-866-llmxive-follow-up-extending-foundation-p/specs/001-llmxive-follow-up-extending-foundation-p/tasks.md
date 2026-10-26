@@ -11,7 +11,7 @@ The tasks are organized into research phases.  Each task follows the required ch
   - Requirements satisfied: FR‑001, FR‑008, SC‑001, deterministic seed (`SEED=42`).  
   - Verification: after running `python -m code.services.generator --n 500 --seed 42`, the file exists, contains 500 entries, each workflow has a `delegation_depth` between 1‑10 and at least 25 workflows per depth level, and passes JSON‑schema validation.
 
-- [ ] T002 [P] **Build independent Oracle Policy Engine** – `code/models/policy.py` provides a pure‑Python `OraclePolicyEngine` that evaluates a workflow against all policy nodes and returns a list of violations.  
+- [X] T002 [P] **Build independent Oracle Policy Engine** – `code/models/policy.py` provides a pure‑Python `OraclePolicyEngine` that evaluates a workflow against all policy nodes and returns a list of violations.  
   - Requirements satisfied: FR‑008, SC‑001, Constitution VI (independence).  
   - Verification: unit test `tests/unit/test_oracle.py` asserts that a known workflow with a budget‑cap violation yields exactly one violation of type `"budget_exceeded"`.
 
@@ -19,7 +19,7 @@ The tasks are organized into research phases.  Each task follows the required ch
   - Requirements satisfied: FR‑009, FR‑004 (consistent token measurement).  
   - Verification: test `tests/unit/test_tokenizer.py` checks that the string `"Hello world"` yields 2 tokens.
 
-- [ ] T004 [P] **Full‑context execution engine** – `code/services/executor_full.py` reads `data/raw/workflows.json`, runs each workflow through the Oracle, tokenizes the entire policy graph, and writes `data/processed/full_context_logs.json` adhering to `contracts/execution_log.schema.yaml` (mode=`full_context`, `compression_depth=0`).  
+- [ ] T004 [P] **Full‑context execution engine** – `code/services/executor_full.py` reads `data/raw/workflows.json`, runs each workflow through the Oracle, tokenizes the entire policy graph, and writes `data/processed/full_context_logs.json` adhering to `contracts/execution_log.schema.yaml` (mode=`full_context`, `compression_depth=0`).   <!-- FAILED-IN-EXECUTION: code/services/executor_full.py exit=1 -->
   - Requirements satisfied: FR‑002, FR‑004, FR‑007.  
   - Verification: after `python -m code.services.executor_full --n 5`, the output file exists, contains 5 logs, each log passes schema validation, and token counts are > 0.
 

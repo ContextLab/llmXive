@@ -1,10 +1,24 @@
 T001:
+  reason: The required output file `data/raw/workflows.json` is missing, so the generator
+    has not demonstrably created the 500 deterministic workflows that satisfy the
+    schema and depth distribution requirements. The presence of the generator script
+    and a passing unit test is insufficient without the actual JSON output. The next
+    implementer must run the generator (e.g., `python -m code.services.generator --n
+    500 --seed 42`) and provide the resulting `workflows.json` file together with
+    evidence (e.g., a checksum, line count, or validation log) confirming it contains
+    500 entries, the required depth distrib
   task: 56e78bbf6124da22921b8310ec465b30069823d35c8646095d1abe23442b4d8d
 T002:
   task: eb7ffd275987db976334627fa338ff71299f526c492dd16afa0edf0e64cdc604
 T003:
+  reason: "Checked `code/lib/utils.py` \u2013 it correctly implements `count_tokens`\
+    \ with `tiktoken` and the `cl100k_base` model. However `tests/unit/test_tokenizer.py`\
+    \ is missing, so the required verification test does not exist. The task is not\
+    \ fully satisfied until the test file is provided."
   task: d75757d13dbd75c04f52e1d170a19f360d3fff76b31c73011d82f76310b6f388
 T004:
+  reason: 'Requested task execution failed; rerun successfully: code/services/executor_full.py
+    exit=1'
   task: 13f563e7f98ae0af82db24d328d76d835ba55e53cbc6c99578d324e72ae7e11b
 T005:
   task: 7d9bd8c1f34bf042f025e65eb09e3fb6971b931ef6ba0379481ffc1290b3a7c1
