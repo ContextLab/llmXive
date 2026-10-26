@@ -1,55 +1,38 @@
 status: verified
-kind: pypi_package
-ref: qm9pack
-access_python: 'import qm9pack, pandas as pd
-
-
-  # Load the complete QM9 dataset
-
-  data = qm9pack.get_data(''qm9'')
-
-  df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
-
-
-  print(f"RECORDS={len(df)}")
-
-  print("FIELDS=" + ",".join(df.columns))'
-record_count: 130831
+kind: data_url
+ref: https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm9.csv
+access_python: "import io, urllib.request, pandas as pd\n\nurl = \"https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/qm9.csv\"\
+  \nwith urllib.request.urlopen(url) as resp:\n    data_bytes = resp.read()\n\ndf\
+  \ = pd.read_csv(io.BytesIO(data_bytes))\n\n# Verify SMILES column exists (case\u2011\
+  insensitive)\nsmiles_cols = [c for c in df.columns if c.lower() == \"smiles\"]\n\
+  if not smiles_cols:\n    raise RuntimeError(\"SMILES column not found in CSV\")\n\
+  \nrecord_count = len(df)\nprint(f\"RECORDS={record_count}\")\nprint(\"FIELDS=\"\
+  \ + \",\".join(smiles_cols))"
+record_count: 1228
 sample_fields:
-- XYZ_file
-- Index
-- SMILES
-- InChi
-- N_atoms
-- Stoichiometry
-- Elements
-- XYZ_Ang
-- Mulliken_pop
-- Harmonic_Freq_cmi
-- RotA_GHz
-- RotB_GHz
-- RotC_GHz
-- Dipole_debye
-- Polarizability_bohr3
-- HOMO_au
-- LUMO_au
-- HOMO_LUMO_gap_au
-- R2_bohr2
-- ZPVE_au
-- InternalEnergy_0K_au
-- InternalEnergy_298K_au
-- Enthalphy_298K_au
-- GibbsFreeEnergy_298K_au
-- Heatcapacity_Cv_cal_mol_K
-- A_xx
-- A_xy
-- A_yy
-- A_xz
-- A_yz
-- A_zz
-field_coverage: 0.5
-required_fields:
-- molecule_id
+- mol_id
 - smiles
-intent: download QM9 molecular dataset as open-source python package dataset
-cache_key: 50b09545eeb0519d607228a68294a4b9b793163dbc74262746faef7c404e7315
+- A
+- B
+- C
+- mu
+- alpha
+- homo
+- lumo
+- gap
+- r2
+- zpve
+- u0
+- u298
+- h298
+- g298
+- cv
+- u0_atom
+- u298_atom
+- h298_atom
+- g298_atom
+field_coverage: 1.0
+required_fields:
+- SMILES
+intent: download QM9 molecular dataset with SMILES strings python package dataset
+cache_key: ac6b3a8e3778d305c13cf5447ba7a7b86b088c710baedfe0745416fa952f522d
