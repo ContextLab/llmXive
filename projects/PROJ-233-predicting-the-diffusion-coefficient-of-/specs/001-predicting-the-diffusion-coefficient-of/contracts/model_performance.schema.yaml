@@ -79,4 +79,4 @@ properties:
         type: number
         minimum: 0
         maximum: 1
-        description: "Primary metric for SC‑006: proportion of explained variance attributable to pairwise interactions, computed via **ablation ΔR² share** on an independent hold‑out set."
+        description: "Primary metric for SC‑006: proportion of explained variance attributable to pairwise interactions, computed via **permutation ΔR² share** on an independent hold‑out set."
