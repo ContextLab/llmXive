@@ -1,83 +1,77 @@
-# Research: 001-gene-regulation
+# Research: Predicting Plant Stress Response from Publicly Available Transcriptomic Data
 
 ## Dataset Strategy
 
-The project relies on NCBI Gene Expression Omnibus (GEO) datasets. Because no verified HuggingFace URLs exist for the required plant stress series, the pipeline fetches raw count matrices and metadata directly from the NCBI GEO FTP server (`ftp.ncbi.nlm.nih.gov/geo/series/...`).  
+The pipeline discovers public plant RNA‑seq GEO series programmatically using **GEOparse** (verified loading recipe provided in the spec). No pre‑canned URLs are used because no open, directly‑downloadable plant stress datasets with the required metadata are present in the verified dataset list. The discovery workflow:
 
-### Verification Workflow
-1. **Download** each accession via `wget`/`curl`.  
-2. **Checksum** the downloaded archive (SHA‑256) and record it in `state/projects/PROJ-042-predicting-plant-stress-response-from-pu.yaml`.  
-3. **Parse metadata** to confirm:  
-   - **Organism** is a plant (e.g., *Arabidopsis thaliana*, *Oryza sativa*, *Zea mays*).  
-   - **Stress labels** include at least two of the four target stresses (drought, salinity, heat, cold) **and** a control condition.  
-4. **Inclusion flag** (`included: true`) is set only when both criteria are met; otherwise the dataset is excluded and logged (`logs/exclusion.log`).  
-   - **GSE40677**: Explicitly excluded as a human cancer dataset (non‑plant).
+| Step | Action |
+|------|--------|
+| 1 | Query NCBI GEO via Entrez for series where `organism` ∈ {*Arabidopsis thaliana*, *Oryza sativa*, *Solanum lycopersicum*, *Zea mays*} and `title` or `summary` contain any of “drought”, “salinity”, “heat”, “cold”. |
+| 2 | For each candidate accession, download the full SOFT file using `GEOparse.get_GEO`. |
+| 3 | Parse sample metadata; keep series that contain **≥ 2** of the four target stress types (including a control condition). |
+| 4 | Verify that **all four stress types** appear in the combined pool and that each stress is present in **≥ 2** distinct series. |
+| 5 | Record SHA‑256 checksum of each raw archive; store in `state/projects/…yaml`. |
+| 6 | If fewer than **7** qualifying series are found, abort with error `E‑DATA‑INSUFFICIENT` (FR‑017). |
 
-### Candidate GEO Accessions (post‑verification)
-| Dataset ID | Stress Types Present | Verification Outcome |
-|------------|----------------------|----------------------|
-| GSE30047   | drought, heat, control | Included |
-| GSE51148   | salinity, cold, control | Included |
-| GSE59991   | drought, salinity, heat, cold, control | Included |
-| GSE66904   | drought, salinity, heat, cold, control | Included |
-| GSE40677   | **Excluded** – human cancer dataset (non‑plant) | N/A |
-
-*If any accession fails verification (e.g., missing plant taxonomy), the pipeline aborts with a “Data Unavailable” error.*
+*Result*: When sufficient series exist, they are downloaded to `data/raw/`. If the discovery step yields fewer than 7, the pipeline stops and reports the shortfall, satisfying the specification’s abort clause.
 
 ## Methodological Rigor & Statistical Plan
 
 ### 1. Hypothesis Testing & Multiple Comparisons
-- **Primary hypothesis**: Stress signatures are separable across datasets.  
-- **Metric**: Classification accuracy (cross‑dataset).  
-- **Global Permutation Baseline**: To address the high variance of LODO with small N (N=5), stress labels are permuted **across datasets** (shuffling labels among samples from different datasets while keeping the dataset ID fixed) 1000 times. This preserves the batch structure but breaks the biological signal, generating a null distribution for the cross-dataset accuracy metric.  
-- **Permutation Test**: For each LODO fold, stress labels are **permuted within each training dataset** 1000 times (preserving batch‑condition structure) to assess within-fold significance.  
-- **Multiple‑comparison correction**: Benjamini‑Hochberg FDR applied to the set of p‑values obtained for each stress‑pair accuracy test.
+- **Primary metric**: Cross‑dataset classification accuracy (LODO).  
+- **Null distributions**:  
+  - *Within‑fold permutation*: Randomly permute stress labels **within** the held‑out dataset 1,000 times (preserving batch).  
+  - *Across‑dataset permutation*: Shuffle stress labels **across** all datasets while keeping dataset boundaries intact, also 1,000 iterations.  
+- **Significance**: Two‑sided p‑value = proportion of permuted accuracies ≥ observed accuracy.  
+- **Correction**: Benjamini‑Hochberg FDR (α = 0.05) applied to the set of p‑values from the K‑sweep (K = 50, 100, 150) (FR‑012).
 
-### 2. Power Analysis & Minimum Detectable Effect Size (MDES)
-- Because sample sizes are fixed, a formal a priori power analysis is infeasible.  
-- **Post‑hoc power**: Bootstrapped resampling of the training data estimates the probability of detecting a given accuracy lift over chance.  
-- **MDES**: Computed as the smallest accuracy improvement over the random‑chance baseline that yields ≥80 % power given the observed sample size. Results are reported in `results/model_metrics.json`. If observed accuracy ≤ MDES, the result is flagged “Underpowered – Cannot Distinguish Weak Signal from Noise”.
+### 2. Power Analysis & MDES
+- When observed accuracy ≤ random‑chance baseline (1 / N), a **post‑hoc power analysis** is performed.  
+- **MDES** computed via normal approximation for difference in proportions with α = 0.05, using the effective sample size of the held‑out dataset.  
+- **Power** estimated for detecting an effect size of 0.15 (Cohen’s h) given observed class balance. Results stored in `results/model_metrics.json` (SC‑005).
 
 ### 3. Measurement Validity
-- **Stress labels**: Validated against GEO metadata fields (`duration`, `severity`). Samples with missing or inconsistent severity are excluded per FR‑012.  
-- **Gene identifiers**: Mapped via Biopython; failure to map >10 % of genes triggers a “Feature Space Insufficient” halt.
+- Stress labels are taken directly from GEO sample metadata fields (`characteristics_ch1`). Samples lacking a clear stress annotation are written to `invalid_samples.csv` (FR‑013) and excluded.  
+- Gene identifiers are mapped to Ensembl IDs via **mygene**; mapping success rate > 90 % is required; otherwise abort (FR‑004).
 
-### 4. Collinearity & Feature Importance Stability
-- **Stability Selection**: 1000 bootstrap replicates of the training data; Random Forest feature importances are computed for each replicate.  
-- **Stability Score**: Frequency a gene appears in the top‑50 importance list across bootstraps (0  – 1). Only genes with **Stability > 0.8** are reported as robust biomarkers.  
-- This metric replaces any optional VIF check and satisfies the need for a quantitative stability assessment in the presence of correlated gene modules.
+### 4. Collinearity & Stability
+- Logistic regression coefficients are extracted for each bootstrap replicate (100 resamples).  
+- **Variance** of each coefficient across bootstraps is computed; genes with variance ≤ 0.30 and selection frequency ≥ 0.70 are flagged as robust biomarkers (FR‑010, SC‑003).  
+- No explicit VIF check is needed because the stability metric already accounts for correlated predictors.
 
 ### 5. Dataset‑Variable Fit & Label Space Harmonization
-- After verification, the **stress label space** is the *intersection* of stress types present across all **included** datasets.  
-- If a stress type is missing from any dataset, it is omitted from the multi‑class task, and the chance‑level baseline is recomputed accordingly (e.g., 3‑class vs. 4‑class).  
-- Class imbalance is addressed via stratified sampling and class‑weighting in the Random Forest (`class_weight='balanced'`).
+- After intersection, the final **FeatureSpace** contains ≥ 1,500 genes (Edge Case).  
+- The stress label space used for classification is the **intersection** of stress types present across all *included* datasets; if a stress is missing from any dataset, it is omitted and the chance baseline is recomputed accordingly (addressing edge case of single‑stress dataset).
 
-### 6. Batch‑Effect Correction & Confounding Check
-- **Pre-ComBat Confounding Check**: Before any correction, a chi-square test checks whether “batch” (dataset) and “condition” (stress) are perfectly aligned. If p < 0.01 (high confounding), the pipeline halts with a specific error to prevent the removal of biological signal. This is a proactive gate.  
-- **Within‑fold ComBat**: For each LODO iteration, batch parameters are estimated on the training set and applied to the held‑out test set only. This ensures the test set is never corrected using its own information, preventing circular validation.
+### 6. Batch‑Effect Confounding Check
+- Prior to any correction, a chi‑square test of independence between `dataset_id` and `stress_type` is performed.  
+- If **p < 0.01**, indicating perfect confounding, the pipeline aborts with `E‑BATCH‑CONFOUNDING` (new safety gate). This prevents removal of true biological signal by batch correction.
 
 ### 7. Unsupervised Validation
-- **UMAP** (or t‑SNE) is run on the **batch‑corrected test set** of each LODO fold.  
-- **Silhouette Score** > 0.4 for at least 3 of the stress clusters is required (SC‑004).  
-- Visualizations color samples by stress type and by dataset source to assess cross‑dataset overlap.
+- UMAP (2‑D, n_neighbors = 15, min_dist = 0.1) is run on the **batch‑corrected** held‑out test matrix (no additional correction).  
+- Silhouette scores computed for (a) stress‑type labels and (b) dataset‑ID labels.  
+- Success criteria: stress‑type Silhouette ≥ 0.40 for at least three classes **and** Δ ≥ 0.10 (stress – dataset) (SC‑004).
 
 ## Expected Outputs
+- `results/model_metrics.json` – all performance metrics, permutation p‑values, FDR‑adjusted q‑values, power, MDES, confusion matrix.  
+- `results/robust_biomarkers.csv` – gene IDs, coefficient variance, selection frequency.  
+- `results/umap_plot.png` & `results/embedding_coords.csv` – visual and numeric UMAP outputs.  
+- `invalid_samples.csv` – samples excluded due to missing/contradictory metadata.  
+- Updated `state/projects/PROJ-042-predicting-plant-stress-response-from-pu.yaml` with hashes and `research_complete: true`.  
+- PDF/HTML report containing sections required by US‑5, all framed associationally.
 
-- `results/model_metrics.json` – contains within‑ and cross‑dataset metrics, null distribution stats, stability scores, MDES, and post‑hoc power.  
-- `results/confusion_matrix.png` – visual confusion matrix for each LODO fold.  
-- `results/umap_plot.png` – UMAP embedding with dual coloring.  
-- `data/processed/feature_space.csv` – list of intersecting genes and top‑1500 variable genes.  
-
-All outputs are version‑hashed and referenced in the project state file to satisfy Constitution Principle V.
+All artefacts are version‑hashed and referenced in the state file, satisfying Constitution Principle V.
 
 ## Decision Log (excerpt)
 
 | Decision | Rationale |
 |----------|-----------|
-| Direct NCBI GEO fetch | Primary source verification satisfies Constitution Principle II; no fabricated URLs. |
-| [deferred] Gene Intersection | Required by Constitution Principle VII; eliminates batch‑specific artifacts. |
-| LODO CV with intra‑fold batch correction | Guarantees genuine cross‑dataset generalization testing (Principle VI) and prevents circular validation. |
-| Stability Selection & Stability Score | Provides robust biomarker identification despite collinearity. |
-| Post‑hoc power & MDES | Enables interpretation of null results (distinguish “no signal” vs. “underpowered”). |
-| Pre-ComBat Confounding Check | Proactive gate to prevent removal of true biological signal when batch and condition are aligned. |
-| Exclusion of non‑plant or single‑stress datasets | Ensures relevance to the plant stress hypothesis. |
+| Programmatic GEO discovery (GEOparse) | Uses verified primary source; no fabricated URLs (Principle II). |
+| Abort if < 7 qualifying series | Directly mandated by FR‑017; prevents downstream speculation. |
+| Strict gene‑intersection (≥ 1,500) | Enforces Principle VII; avoids batch‑specific features. |
+| LODO CV without batch correction (primary) | Guarantees genuine cross‑dataset validation per Principle VI. |
+| Bootstrap stability of coefficients | Provides quantitative robust biomarker criterion (US‑2). |
+| Two‑level permutation testing + FDR | Controls family‑wise error (FR‑012). |
+| Post‑hoc MDES & power | Enables interpretation of null results (SC‑005). |
+| Fixed random seed (`seed=42`) | Ensures reproducibility (Principle I). |
+| Resource guardrails (RAM ≤ 7 GB, runtime ≤ 6 h) | Satisfies FR‑016; prevents CI timeouts. |

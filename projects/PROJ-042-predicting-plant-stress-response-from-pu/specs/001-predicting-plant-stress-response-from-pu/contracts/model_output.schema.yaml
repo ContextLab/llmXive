@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Output Schema"
-description: "Schema for the Random Forest classifier results and evaluation metrics."
+description: "Schema for the Logistic Regression classifier results and evaluation metrics."
 type: object
 properties:
   model_info:
@@ -12,20 +12,26 @@ properties:
       hyperparameters:
         type: object
         properties:
-          n_estimators:
-            type: integer
-          max_depth:
-            type: integer
+          C:
+            type: number
+            description: "Inverse regularization strength."
+          solver:
+            type: string
+            enum:
+              - "liblinear"
+            description: "Solver used for Logistic Regression."
           random_state:
             type: integer
+            description: "Random seed."
         required:
-          - n_estimators
+          - C
+          - solver
           - random_state
       training_method:
         type: string
         enum:
           - "leave-one-dataset-out"
-          - "5-fold-cv"
+        description: "Cross‑validation strategy."
     required:
       - model_id
       - hyperparameters
@@ -40,15 +46,27 @@ properties:
             type: number
             minimum: 0
             maximum: 1
-            description: "Accuracy on the training split (80/20)."
+            description: "Accuracy on the training split (e.g., 80/20)."
           f1_macro:
             type: number
             minimum: 0
             maximum: 1
             description: "Macro‑averaged F1 score."
+          precision:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: "Macro‑averaged precision."
+          recall:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: "Macro‑averaged recall."
         required:
           - accuracy
           - f1_macro
+          - precision
+          - recall
       cross_dataset:
         type: object
         properties:
@@ -61,7 +79,7 @@ properties:
             type: number
             minimum: 0
             maximum: 1
-            description: "Macro‑averaged F1 score on held‑out data."
+            description: "Macro‑averaged F1 on held‑out data."
           generalization_gap:
             type: number
             description: "Difference between within‑dataset and cross‑dataset accuracy."
@@ -80,7 +98,7 @@ properties:
             description: "Standard deviation from permutation test."
           p_value:
             type: number
-            description: "P‑value from permutation test."
+            description: "Permutation test p‑value (before FDR)."
         required:
           - mean
           - std
@@ -92,19 +110,19 @@ properties:
         description: "Estimated power to detect the observed accuracy lift."
       mdes:
         type: number
-        description: "Minimum Detectable Effect Size at [deferred] power."
+        description: "Minimum Detectable Effect Size at α = 0.05."
       confusion_matrix:
         type: array
         items:
           type: array
           items:
             type: integer
-        description: "N × N matrix of predicted vs. true labels."
+        description: "N × N matrix of predicted vs. true stress labels."
       classes_used:
         type: array
         items:
           type: string
-        description: "List of stress types actually used in the classification."
+        description: "List of stress types actually used in classification."
     required:
       - within_dataset
       - cross_dataset
@@ -129,12 +147,12 @@ properties:
               type: number
               minimum: 0
               maximum: 1
-              description: "Stability score from bootstrapping (0.0‑1.0)."
+              description: "Stability score from bootstrap analysis (0.0‑1.0)."
           required:
             - gene_id
             - importance_score
             - stability_score
-        description: "List of top 50 genes ranked by importance (filtered by stability > 0.8)."
+        description: "List of top 50 genes ranked by importance, filtered by stability > 0.8."
     required:
       - top_genes
 required:
