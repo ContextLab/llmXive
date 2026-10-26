@@ -26,4 +26,3 @@
 Material composition is treated as a categorical variable and one‑hot encoded during preprocessing (FR‑008). Interaction features are formed **between each numeric environmental variable (pH, salinity, temperature) and each one‑hot composition column**, as well as between pairs of environmental variables. No numeric `composition_ratio` field is assumed; all composition information is captured via the one‑hot encoding.
 
 ---
-
