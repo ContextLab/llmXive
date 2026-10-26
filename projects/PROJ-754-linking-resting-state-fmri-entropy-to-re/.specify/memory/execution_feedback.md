@@ -20,23 +20,25 @@ usage: run_pipeline.py [-h] [--subjects SUBJECTS] [--dry-run]
 run_pipeline.py: error: argument --subject-limit: invalid int value: '<maximum_subjects>'
 
 - python -m pytest -v tests/ -> rc=2
-4/lib/python3.11/importlib/__init__.py:126: in import_module
+k/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re
+configfile: pyproject.toml
+plugins: platformdirs-4.13.5
+collecting ... collected 34 items / 1 error
+
+==================================== ERRORS ====================================
+_________________ ERROR collecting tests/unit/test_entropy.py __________________
+ImportError while importing test module '/home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/tests/unit/test_entropy.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/importlib/__init__.py:126: in import_module
     return _bootstrap._gcd_import(name[level:], package, level)
 tests/unit/test_entropy.py:21: in <module>
     from src.analysis.entropy import multiscale_entropy, _row_checksum
 E   ModuleNotFoundError: No module named 'src.analysis.entropy'
-_______________ ERROR collecting tests/unit/test_run_pipeline.py _______________
-import file mismatch:
-imported module 'test_run_pipeline' has this __file__ attribute:
-  /home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/tests/integration/test_run_pipeline.py
-which is not the same as the test file we want to collect:
-  /home/runner/work/llmXive/llmXive/projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/tests/unit/test_run_pipeline.py
-HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
 =========================== short test summary info ============================
 ERROR tests/unit/test_entropy.py
-ERROR tests/unit/test_run_pipeline.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 2 errors in 0.90s ===============================
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+=============================== 1 error in 0.89s ===============================
 
 
 

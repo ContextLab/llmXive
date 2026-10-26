@@ -1,19 +1,21 @@
 """
-src package initializer
------------------------
-This file ensures that the project's source code located in
-``code/src`` is importable as the top‑level ``src`` package.
-By inserting the absolute path of ``code/src`` at the front of
-``sys.path`` we make modules such as ``src.stats.power_pre`` work
-without moving any existing files.
+Top‑level ``src`` package shim.
+
+The project stores its source code under ``code/src``.  To allow
+test modules that import ``src.xxx`` (e.g. ``src.analysis.entropy``)
+to resolve to the actual implementation, we extend this package’s
+``__path__`` to include the sibling ``code/src`` directory.
+
+This approach avoids duplication of the code tree while keeping the
+import layout expected by the test suite.
 """
-import sys
+import os
 from pathlib import Path
 
-# Resolve the project root (the directory that contains the ``code`` folder)
-_project_root = Path(__file__).resolve().parent
-_code_src_path = _project_root / "code" / "src"
+# Resolve the path to the real source directory ``code/src``.
+_project_root = Path(__file__).resolve().parent.parent
+_real_src_dir = _project_root / "code" / "src"
 
-# Insert the path if it's not already present
-if str(_code_src_path) not in sys.path:
-    sys.path.insert(0, str(_code_src_path))
+# If the directory exists, add it to the package search path.
+if _real_src_dir.is_dir():
+    __path__.append(str(_real_src_dir))

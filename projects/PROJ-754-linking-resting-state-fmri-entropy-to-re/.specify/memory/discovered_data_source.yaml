@@ -1,6 +1,6 @@
 status: none
-intent: Human Connectome Project 4mm parcellated resting-state time series DSRT scores
-  ConnectomeDB python package dataset
+intent: Human Connectome Project ConnectomeDB 4mm parcellated time series Domain Specific
+  Risk Taking scores download python package
 required_fields:
 - subject_id
 - time_series
@@ -8,6 +8,6 @@ required_fields:
 - sex
 - mean_fd
 - dsrt_score
-cache_key: 92dd2e46563de340a0ced851a1aba5b2a69ec5522b635b44ec10bea53efc1379
-searched_at: '2026-10-26T18:14:00.226987+00:00'
+cache_key: 209cc338ff006383da0d67150ff4c8fbe8226f074ac63ec6c1dc41ddc2d3ec2e
+searched_at: '2026-10-26T20:16:43.196118+00:00'
 retry_count: 1
