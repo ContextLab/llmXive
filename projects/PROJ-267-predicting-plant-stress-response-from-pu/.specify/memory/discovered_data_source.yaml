@@ -1,14 +1,33 @@
-status: none
-intent: download paired proteomics transcriptomics GEO ProteomeXchange Arabidopsis
-  rice wheat abiotic stress python package dataset
+status: verified
+kind: pypi_package
+ref: GEOparse
+access_python: "import GEOparse, pandas as pd\n\ngse = GEOparse.get_GEO(geo=\"GSE14784\"\
+  , destdir=\".\")\nrecords = []\nfor gsm_name, gsm in gse.gsms.items():\n    meta\
+  \ = gsm.metadata\n    records.append({\n        \"sample_id\": gsm_name,\n     \
+  \   \"species\": meta.get(\"organism_ch1\", [\"\"])[0],\n        \"stress_condition\"\
+  : meta.get(\"characteristics_ch1\", [\"\"])[0],\n        \"platform\": meta.get(\"\
+  platform_id\", [\"\"])[0],\n        \"metadata_notes\": \"; \".join(meta.get(\"\
+  description\", []))\n    })\n\ndf = pd.DataFrame(records)\nprint(f\"RECORDS={len(df)}\"\
+  )\nprint(\"FIELDS=\" + \",\".join(df.columns))"
+record_count: 8
+sample_fields:
+- sample_id
+- species
+- stress_condition
+- platform
+- metadata_notes
+field_coverage: 0.5
 required_fields:
 - sample_id
 - species
 - stress_condition
 - protein_id
-- gene_id
 - protein_abundance
+- gene_id
 - transcript_expression
-cache_key: f192eb286d404145dea78118ca04bec00a937939e6c303c1584f5e24b2c01d97
-searched_at: '2026-10-22T23:26:47.015994+00:00'
-retry_count: 1
+- experiment_accession
+- platform
+- metadata_notes
+intent: NCBI GEO ProteomeXchange Ensembl plant abiotic stress paired proteomics transcriptomics
+  python package dataset
+cache_key: 715485244e5a091ad86568fdeb0a90e778c35eeb68115846704e68f9ff6262a2

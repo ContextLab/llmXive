@@ -7,11 +7,11 @@ The model captures the flow from raw proteomic / transcriptomic files to a unifi
 - **ProteomicSample** – protein abundance vector for a single plant sample.  
 - **TranscriptomicSample** – gene expression vector for the same sample.  
 - **StressCondition** – categorical label (`Drought`, `Salinity`, `Heat`).  
-- **UnifiedMatrix** – rows = samples; columns = normalized protein features; target = *aggregated* gene expression score (first principal component) representing overall expression patterns.
+- **UnifiedMatrix** – rows = samples; columns = normalized protein features **prefixed with `protein_`**; target = `target_gene_expression` (first principal component of stress‑responsive genes) representing overall expression patterns.
 
 ## 2. Data Flow
 1. **Raw Ingestion** → `data/raw/` (downloaded files).  
-2. **Preprocessing** (filter, impute, map IDs) → `data/processed/unified_matrix.csv`.  
+2. **Preprocessing** (filter, median impute, map IDs) → `data/processed/unified_matrix.csv`.  
 3. **Modeling** (split, train, evaluate) → `results/models/` & `results/figures/`.  
 
 ## 3. Schema Definitions
@@ -40,7 +40,7 @@ The model captures the flow from raw proteomic / transcriptomic files to a unifi
 | `sample_id` | string | Unique ID. |
 | `stress` | string | Stress label. |
 | `species` | string | Plant species. |
-| `protein_<ID>` | number | Normalized abundance for each protein (dynamic columns). |
+| `protein_<ID>` | number | Normalized protein abundance for each protein (dynamic columns, must be prefixed with `protein_`). |
 | `target_gene_expression` | number | **Aggregated expression score (first PC) representing gene‑expression patterns**. |
 
 *All processed files must validate against `contracts/dataset.schema.yaml`.*
@@ -48,8 +48,9 @@ The model captures the flow from raw proteomic / transcriptomic files to a unifi
 ## 4. Constraints & Rules
 - **Uniqueness**: (`sample_id`, `protein_id`) unique in raw proteomics.  
 - **Completeness**: Samples lacking a matching transcriptomic record are dropped (FR‑003).  
-- **Imputation**: LCM applied to protein abundances; any column where > 90 % are missing is dropped and logged.  
+- **Imputation**: **Median imputation** applied to protein abundances; any column where > 90 % are missing is dropped and logged.  
 - **Mapping**: Only rows with successful `biomaRt` mapping survive to the unified matrix.  
 - **No In‑Place Modification**: Raw files remain untouched; every transformation writes a new file under `data/processed/`.  
 
 ---
+

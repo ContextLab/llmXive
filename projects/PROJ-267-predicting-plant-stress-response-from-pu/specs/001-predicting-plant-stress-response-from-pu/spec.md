@@ -38,7 +38,7 @@ As a researcher, I want to train Random Forest and Support Vector Regression mod
 
 **Acceptance Scenarios**:
 
-1. **Given** a normalized dataset split into training (≥ 70 % of samples) and held‑out test (≤ 30 %) sets, **When** the training script runs with `RandomForestRegressor` and `SVR`, **Then** it performs 5‑fold cross‑validation on the training set and reports the mean R² score for each model.
+1. **Given** a normalized dataset split into training (≥ 70 % of samples) and held‑out test (≤ 30 %) sets, **When** the training script runs with `RandomForestRegressor` and `SVR`, **Then** it performs k‑fold cross‑validation on the training set and reports the mean R² score for each model.
 2. **Given** a model trained exclusively on drought‑stress data, **When** it is evaluated on a held‑out salinity‑stress test set, **Then** the system records the prediction performance metrics (R², RMSE) to quantify the “cross‑stress” generalization gap. The ground truth is the actual measured gene expression levels in the salinity condition, not the stress label itself.
 3. **Given** a trained model, **When** the feature‑importance extraction runs, **Then** it outputs a ranked list of the top proteins driving the predictions, sorted by absolute importance score, without requiring GPU acceleration.
 4. **Given** a trained model, **When** a permutation‑based null test is performed (randomly shuffling the gene‑expression target vector while keeping proteomic features fixed), **Then** the model’s performance on the permuted data must not significantly exceed the performance on the real data (p < 0.05), confirming that the predictive signal is not artefactual. (See SC‑009)
@@ -49,7 +49,7 @@ As a researcher, I want to train Random Forest and Support Vector Regression mod
 
 **User Story ID:** US-3
 
-As a researcher, I want the system to automatically generate publication‑ready figures (scatter plots, heat‑maps of R² degradation, feature‑importance bars) and a summary report of runtime metrics, so that I can validate the results and ensure the analysis completed within the 6‑hour compute limit.
+As a researcher, I want the system to automatically generate publication‑ready figures (scatter plots, heat‑maps of R² degradation, feature‑importance bars) and a summary report of runtime metrics, so that I can validate the results and ensure the analysis completed within the allocated compute limit.
 
 **Why this priority**: While the model training is the core logic, the visualization and reporting are required to interpret the results and satisfy the project's feasibility constraints (time and reproducibility).
 
@@ -59,7 +59,7 @@ As a researcher, I want the system to automatically generate publication‑ready
 
 1. **Given** the final model predictions and ground‑truth values, **When** the plotting script executes, **Then** it generates a scatter plot of Predicted vs. Actual gene expression with a regression line and R² annotation, and saves it as `results/prediction_scatter.png`.
 2. **Given** the cross‑stress validation results, **When** the summary report is generated, **Then** it includes a heat‑map showing the R² scores for each training‑stress → testing‑stress pair, highlighting performance degradation across stresses. (See SC‑008)
-3. **Given** the total runtime of the pipeline, **When** the system finishes, **Then** it logs the total CPU time and peak memory usage to a `runtime_metrics.json` file, confirming completion within the 6‑hour GitHub Actions free‑tier limit.
+3. **Given** the total runtime of the pipeline, **When** the system finishes, **Then** it logs the total CPU time and peak memory usage to a `runtime_metrics.json` file, confirming completion within the standard free‑tier time limit of GitHub Actions.
 
 ### Edge Cases
 
@@ -107,7 +107,7 @@ As a researcher, I want the system to automatically generate publication‑ready
 - **SC-005**: Methodological validity is measured by the successful execution of 5‑fold cross‑validation and the absence of circular data dependencies between predictors and outcomes (See US-2).
 - **SC-006**: Data‑inventory completeness is measured by achieving the ≥ 3 paired‑sample threshold for at least one species‑stress pair; otherwise the fallback classification path is triggered (See US-1).
 - **SC-007**: Fallback classification performance is measured by accuracy ≥ 70 % and F1‑score ≥ 0.65 on a held‑out test set (See US-1).
-- **SC-008**: Cross‑stress heat‑map visualisation must display R² values for all training‑stress → testing‑stress pairs, with a minimum colour‑contrast ratio of 4.5:1 for accessibility (See US-3).
+- **SC-008**: Cross‑stress heat‑map visualisation must display R² values for all training‑stress → testing‑stress pairs, with a minimum colour‑contrast ratio that satisfies accessibility standards (See US-3).
 - **SC-009**: Permutation‑based control test must yield a p‑value < 0.05 indicating the real model outperforms the null permutation distribution (See US-2).
 
 ## Assumptions
