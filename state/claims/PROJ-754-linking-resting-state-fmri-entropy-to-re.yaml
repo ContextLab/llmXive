@@ -3097,3 +3097,120 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-23T15:25:45Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline completed (dry-run)' on success
+  claim_id: c_2c64750b
+  context: 'The script will download a tiny subset of HCP data, perform QC, compute
+    multiscale entropy and write the results to results/. On success you will see
+    the exact line:'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'On success you will see the exact line: Pipeline completed (dry-run)'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:25:59Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: test suite verifies module imports and dry-run exit
+  claim_id: c_035f50f4
+  context: "Run the test suite with pytest -v tests/. - Confirms that all modules\
+    \ import correctly and that a dry\u2011run of the pipeline exits cleanly."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The test suite confirms that all modules import correctly and that a\
+    \ dry\u2011run of the pipeline exits cleanly."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:25:59Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "download and QC stage runtime \u226430 minutes, peak RAM \u22642 GB"
+  claim_id: c_8c3e8b16
+  context: Expected Runtime & Resources table, row Download & QC.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Download & QC stage takes \u2264\u202F30\u202Fmin and uses \u2264\u202F\
+    2\u202FGB RAM."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:26:00Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "entropy full 200 stage runtime \u226490 minutes, peak RAM \u22644 GB"
+  claim_id: c_38bf7e48
+  context: Expected Runtime & Resources table, row Entropy (full 200).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Entropy (full 200) stage takes \u2264\u202F90\u202Fmin and uses \u2264\
+    \u202F4\u202FGB RAM."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:26:00Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "modeling and 1000 permutations stage runtime \u2264150 minutes, peak\
+    \ RAM \u22645 GB"
+  claim_id: c_77b24aa6
+  context: "Expected Runtime & Resources table, row Modeling & 1\u202F000 permutations\
+    \ (parallel)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Modeling & 1\u202F000 permutations (parallel) stage takes \u2264\u202F\
+    150\u202Fmin and uses \u2264\u202F5\u202FGB RAM."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:26:00Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "reporting and sensitivity stage runtime \u226430 minutes, peak RAM \u2264\
+    2 GB"
+  claim_id: c_cb854956
+  context: Expected Runtime & Resources table, row Reporting & Sensitivity.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Reporting & Sensitivity stage takes \u2264\u202F30\u202Fmin and uses\
+    \ \u2264\u202F2\u202FGB RAM."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:26:00Z'
+- artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/quickstart.md
+  attempts: 1
+  canonical: "total runtime \u22484 hours, peak RAM \u22645 GB"
+  claim_id: c_9d5edd32
+  context: Expected Runtime & Resources table, total row.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Total runtime is approximately 4\u202Fh and uses \u2264\u202F5\u202F\
+    GB RAM."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T10:26:01Z'

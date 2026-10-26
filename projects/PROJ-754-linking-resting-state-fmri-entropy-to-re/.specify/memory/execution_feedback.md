@@ -43,7 +43,7 @@ ERROR tests/unit/test_pipeline_execution.py
 ERROR tests/unit/test_power_pre.py
 ERROR tests/unit/test_qc.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 4 errors in 0.28s ===============================
+============================== 4 errors in 0.31s ===============================
 
 
 

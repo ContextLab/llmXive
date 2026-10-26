@@ -1,1 +1,1 @@
-"""src.config package – configuration and environment utilities."""
+"""Package marker for ``code.src.config``."""

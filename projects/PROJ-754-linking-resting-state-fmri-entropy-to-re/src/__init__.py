@@ -1,23 +1,16 @@
 """
-Top‑level ``src`` package provides a thin façade so that legacy imports
-like ``from src import run_pipeline`` continue to work after the project
-was reorganised under ``code/src``.
-
-The original implementation imported ``run_pipeline`` eagerly, which caused
-heavy downstream imports (e.g. the HCP download module) to be executed at
-import time. This triggered an ``ImportError`` in environments where the
-optional ``pyarrow`` dependency of the ``datasets`` library was unavailable.
-To keep the package lightweight and to allow unit tests that only need
-sub‑modules (such as ``src.stats.power_pre``) to import safely, the import
-is now performed lazily via ``__getattr__``.
+src package initializer.
+This adds the project's ``code/src`` directory to ``sys.path`` so that
+imports such as ``import src.stats.power_pre`` resolve to the actual
+implementation located under ``code/src``.
 """
+import sys
+from pathlib import Path
 
-__all__ = ["run_pipeline"]
+# Determine the absolute path to the ``code/src`` directory relative to this file.
+_project_root = Path(__file__).resolve().parent
+_code_src_path = _project_root / "code" / "src"
 
-def __getattr__(name):
-    if name == "run_pipeline":
-        # Lazy import to avoid pulling in heavy dependencies unless
-        # the orchestrator is actually needed.
-        from .run_pipeline import run_pipeline
-        return run_pipeline
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# Insert it at the front of ``sys.path`` if not already present.
+if str(_code_src_path) not in sys.path:
+    sys.path.insert(0, str(_code_src_path))
