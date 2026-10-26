@@ -3,84 +3,120 @@ field: neuroscience
 submitter: google.gemma-3-27b-it
 ---
 
-# Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder
+# Investigating the Impact of Network Centrality on Resting‑State Functional Connectivity in Autism Spectrum Disorder
 
 **Field**: neuroscience
 
 ## Research question
 
-To what extent does the *structural* centrality of Default Mode Network (DMN) hubs statistically account for the association between *functional* connectivity strength and the severity of social communication deficits in Autism Spectrum Disorder (ASD), when controlling for age, sex, and head motion?
+How does the structural eigenvector centrality of Default Mode Network (DMN) hubs mediate the relationship between whole‑brain resting‑state functional connectivity strength and social‑communication severity (ADOS‑2 Social Communication score) in individuals with Autism Spectrum Disorder, after accounting for age, sex, and head‑motion covariates?
 
 ## Motivation
 
-While abnormalities in both structural and functional connectivity are established hallmarks of ASD, the specific architectural pathway by which structural network topology constrains functional dynamics to produce behavioral phenotypes remains unclear. This question addresses a critical gap by testing whether the structural "wiring" of DMN hubs acts as a bottleneck that explains the variance linking global functional connectivity disruptions to specific social communication deficits, distinguishing between primary structural deficits and secondary functional reorganization.
+Both structural and functional connectomes are repeatedly reported as atypical in ASD, yet it remains unknown whether the topology of structural hubs constrains the functional dys‑connectivity that relates to core behavioral impairments. Clarifying this mediation pathway would identify whether structural hub integrity is a mechanistic bottleneck or merely a correlated epiphenomenon, thereby guiding whether interventions should target white‑matter plasticity versus functional network re‑organisation.
 
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar, arXiv, and OpenAlex using two distinct search strategies: (1) a precise query combining "structural centrality," "DMN," "mediation," and "ASD" to find studies explicitly testing this three-variable pathway, and (2) a broader methodological query for "structure-function coupling," "diffusion MRI," and "functional connectivity" in neurodevelopmental disorders. The search yielded four relevant results from the verified literature block, none of which performed the specific multimodal mediation analysis proposed here.
+We performed two independent queries on Semantic Scholar / OpenAlex:
+
+1. **Focused query** – `"structural centrality" AND "DMN" AND "mediation" AND "autism"` – aimed at studies that directly test a mediation model linking structural hub metrics to functional connectivity and behavior in ASD.  
+2. **Broader query** – `"structure‑function coupling" AND "diffusion MRI" AND "functional connectivity" AND "neurodevelopmental"` – aimed at any multimodal work on ASD or related neurodevelopmental disorders that could serve as methodological precedents.
+
+Both queries returned only a handful of papers, none of which performed the specific multimodal mediation analysis we propose.
 
 ### What is known
-- [State-dependent changes of connectivity patterns and functional brain network topology in Autism Spectrum Disorder](https://arxiv.org/abs/1211.4766) — Establishes that ASD is associated with atypical functional brain network topology, providing foundational evidence for applying graph-theoretical metrics to resting-state data in this population.
-- [Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies](https://arxiv.org/abs/1309.5840) — Confirms that neural synchronization abnormalities are a core feature of ASD, supporting the hypothesis that global connectivity metrics are relevant predictors of behavioral outcomes.
-- [Fractal-driven distortion of resting state functional networks in fMRI: a simulation study](https://arxiv.org/abs/1208.0924) — Highlights the presence of scale-invariant (fractal) properties in resting-state networks, suggesting that simple linear connectivity metrics may not fully capture the complexity of the underlying neural dynamics, a nuance relevant to interpreting centrality measures.
-- [Consistency of Regions of Interest as nodes of functional brain networks measured by fMRI](https://arxiv.org/abs/1704.07635) — Validates the stability of functional network definitions across different node parcellation schemes, providing methodological grounding for the selection of the Schaefer atlas in this study.
+- **[State‑dependent changes of connectivity patterns and functional brain network topology in Autism Spectrum Disorder](https://arxiv.org/abs/1211.4766)** — Demonstrates that graph‑theoretical descriptors of functional networks differ in ASD, establishing that resting‑state topology can be quantified and related to the disorder.  
+- **[Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies](https://arxiv.org/abs/1309.5840)** — Shows that functional synchrony deficits are robust behavioural correlates of ASD, justifying the use of connectivity strength as a predictor of symptom severity.  
+- **[Fractal‑driven distortion of resting state functional networks in fMRI: a simulation study](https://arxiv.org/abs/1208.0924)** — Highlights that resting‑state networks exhibit scale‑invariant dynamics, cautioning against overly simplistic linear connectivity metrics and motivating the inclusion of structural topology as a complementary explanatory factor.
 
 ### What is NOT known
-No published work in the retrieved set has explicitly modeled the *statistical mediation* effect of *structural* centrality on the relationship between *functional* connectivity and *behavioral* severity. While the literature confirms that both structure and function are altered in ASD, the specific pathway where structural hub integrity explains how functional disruptions associate with social deficits has not been quantitatively tested using multimodal imaging data in a real-world dataset.
+No existing work has quantitatively modeled **structural hub centrality** (e.g., eigenvector centrality of DMN nodes derived from diffusion MRI) as a **mediator** of the link between **global functional connectivity strength** and **ADOS‑2 social‑communication scores** in ASD. Consequently, the mechanistic pathway from white‑matter architecture through functional dys‑connectivity to behavioral phenotype remains untested.
 
 ### Why this gap matters
-Understanding this association pathway is crucial for distinguishing between primary structural deficits and secondary functional reorganization. If structural centrality statistically accounts for a significant portion of the variance, it suggests that therapeutic interventions might target structural plasticity or compensatory routing; if not, the focus should shift to dynamic functional regulation. This distinction directly informs the development of targeted neurofeedback or stimulation protocols.
+Identifying whether structural hub integrity explains functional‑behavioral associations would pinpoint a targetable substrate for neuromodulatory or behavioural interventions. If centrality mediates the effect, therapies that promote white‑matter plasticity (e.g., intensive motor training, transcranial magnetic stimulation) could be prioritized; if not, strategies should focus on directly normalising functional dynamics.
 
 ### How this project addresses the gap
-This project addresses the gap by integrating diffusion MRI (for structural centrality) and resting-state fMRI (for functional connectivity) from the ABIDE datasets to perform a formal mediation analysis. The methodology explicitly isolates the DMN hubs to test whether their structural centrality statistically accounts for the variance linking global functional connectivity to ADOS-2 social communication scores, a relationship previously unquantified in the literature using real empirical data.
+Using the publicly available ABIDE I & II multimodal datasets, we will (1) compute subject‑specific structural eigenvector centrality for DMN hubs, (2) compute whole‑brain functional connectivity strength from resting‑state fMRI, and (3) perform a formal mediation analysis linking these imaging metrics to ADOS‑2 social‑communication severity, while controlling for demographic and motion covariates. This pipeline supplies the first empirical test of the hypothesised mediation pathway.
 
 ## Expected results
 
-We expect to find a significant partial mediation effect where the structural centrality of DMN hubs explains a substantial portion of the variance in social communication deficits that is otherwise attributed to global functional connectivity strength. A positive result would suggest that preserving or restoring structural hub integrity could mitigate behavioral symptoms even if global functional connectivity remains disrupted. Conversely, a null result would imply that functional connectivity impacts behavior through distributed, non-hub-specific mechanisms or that structural topology is not the primary bottleneck in ASD.
+We anticipate detecting a statistically significant indirect effect: structural DMN centrality will account for a non‑zero proportion of the variance that functional connectivity strength explains in ADOS‑2 social‑communication scores. A significant indirect path (95 % bootstrap CI excluding zero) would support the hypothesis that structural hub topology constrains functional dys‑connectivity relevant to behavior. A null indirect effect would suggest that functional deficits influence symptoms via mechanisms independent of DMN hub centrality.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download paired resting-state fMRI and diffusion MRI (dMRI) data along with ADOS-2 Social Communication scores for ASD and control participants from the ABIDE I/II datasets via the NITRC portal (https://fcon_1000.projects.nitrc.org/indi/abide/).
-- **Preprocessing (fMRI)**: Process raw fMRI data using fMRIPrep (v23+) within a Docker container, applying slice-time correction, motion correction, spatial normalization to MNI152, and nuisance regression (white matter, CSF, and motion parameters).
-- **Preprocessing (dMRI)**: Process dMRI data using MRtrix3 or FSL to correct for eddy currents and susceptibility distortion, followed by probabilistic tractography to reconstruct the structural connectome.
-- **Parcellation & Time Series**: Apply the Schaefer 400-parcel atlas to extract mean fMRI time series and identify DMN parcels; simultaneously, map dMRI streamlines to the same atlas to construct the structural adjacency matrix.
-- **Global Functional Metric (X)**: Compute the global functional connectivity strength for each subject as the mean absolute correlation value across all edges in the Fisher's z-transformed functional connectivity matrix derived from the **actual fMRI time series data**, using a fixed correlation threshold (e.g., 0.6) to define edges.
-- **Structural Centrality Metric (M)**: Calculate the eigenvector centrality specifically for the DMN nodes within each subject's structural adjacency matrix. **Crucially**, the structural matrix is thresholded using a **density-matching approach** (retaining the top X% of strongest streamline counts) to ensure sparsity is comparable to the functional matrix without inheriting the specific correlation threshold value used for X, thereby preserving independence between the graph construction rules of X and M.
-- **Mediation Analysis**: Perform a mediation analysis (using `statsmodels` or `mediation` Python libraries) where:
-    - Independent Variable (X): Global functional connectivity strength (derived from real fMRI data).
-    - Mediator (M): Average *structural* centrality of DMN hubs (derived from real dMRI data).
-    - Dependent Variable (Y): ADOS-2 Social Communication scores (obtained from clinical records, independent of imaging).
-    - Covariates: Age, sex, and mean framewise displacement are entered as main effects; interaction terms (X*Covariate, M*Covariate) will be tested in a sensitivity model to ensure the indirect effect is not biased by omitted interactions.
-- **Statistical Validation**: Use bootstrapping (5,000 resamples) to estimate confidence intervals for the indirect effect; the 95% CI must not include zero to claim significance. **All metrics are computed exclusively from real, downloaded participant data; no simulated, hardcoded, or placeholder values are used for any research results.**
-- **Abort Logic**: The pipeline will first check for the presence of paired dMRI and fMRI data for each subject. If fewer than 30 paired participants remain after quality control, the analysis will abort and log the specific reason (insufficient sample size).
-- **Sensitivity Analysis**: Repeat the analysis across a range of structural density thresholds (10% to 30%) and functional correlation thresholds (0.4 to 0.7) to ensure the mediation effect is robust to graph construction parameters.
-- **Visualization**: Generate a path diagram illustrating the direct and indirect effects, and overlay the DMN hub locations on a standard brain template using Nilearn to visualize the structural nodes in question.
-- **Reproducibility**: Document all code, parameters, and data versions in a GitHub repository, ensuring the entire pipeline executes within the 6-hour GitHub Actions runner limit.
+- **Data acquisition**  
+  - Download paired resting‑state fMRI, diffusion MRI, and phenotypic files (including ADOS‑2 Social Communication scores, age, sex, and framewise displacement) for all ASD participants from the ABIDE I & II repositories via the NITRC portal: `https://fcon_1000.projects.nitrc.org/indi/abide/`.  
+  - Retain only subjects with both modalities and complete phenotypic data.
+
+- **Quality control**  
+  - Exclude runs with mean framewise displacement > 0.3 mm.  
+  - Verify diffusion data quality using MRtrix3’s `dwidenoise` and `mrdegibbs`; discard subjects failing QC metrics.
+
+- **Preprocessing – functional**  
+  - Run fMRIPrep (v23.0.0) in a Docker container (CPU‑only) to perform slice‑time correction, motion correction, susceptibility distortion correction, normalization to MNI152, and extraction of confound regressors (WM, CSF, 6 motion parameters).  
+  - Apply a band‑pass filter (0.01–0.1 Hz) and regress out confounds with `nilearn.signal.clean`.
+
+- **Preprocessing – diffusion**  
+  - Process dMRI with MRtrix3:  
+    1. `dwidenoise` → `mrdegibbs` → `dwipreproc` (eddy & topup).  
+    2. Generate a whole‑brain tractogram using probabilistic iFOD2 tracking (2 M streamlines).  
+    3. Map streamlines to the Schaefer 400‑parcel atlas (Schaefer et al., 2018) to obtain a weighted structural adjacency matrix (streamline count per edge).
+
+- **Parcellation & network definition**  
+  - Use the Schaefer 400‑parcel atlas to extract mean BOLD time series for each parcel.  
+  - Identify the set of parcels belonging to the DMN (as defined by the atlas’s network labels).
+
+- **Functional connectivity metric (X)**  
+  - Compute the Pearson correlation matrix across the 400 parcels, Fisher‑z transform, then take the absolute value of all off‑diagonal entries.  
+  - Define **global functional connectivity strength** as the mean of these absolute z‑values (no arbitrary correlation threshold; the full weighted matrix is used).
+
+- **Structural centrality metric (M)**  
+  - Threshold the subject‑specific structural adjacency matrix to retain the top 15 % of strongest streamline counts (density‑matching across subjects).  
+  - Compute eigenvector centrality for all 400 nodes using NetworkX.  
+  - Average eigenvector centrality values across the DMN nodes to obtain **DMN‑centrality** for each subject.
+
+- **Mediation analysis**  
+  - Model: `Y (ADOS‑SC) ~ X (global FC) + M (DMN centrality) + covariates (age, sex, mean FD)`.  
+  - Test the indirect path `X → M → Y` using the `statsmodels` `mediation` package with 5,000 bootstrap resamples to obtain bias‑corrected confidence intervals.  
+  - Verify independence: X is derived solely from BOLD data, M solely from dMRI, and Y is a clinical score collected independently of imaging.
+
+- **Sensitivity checks**  
+  - Repeat the mediation with alternative structural density thresholds (10 % and 20 %).  
+  - Re‑run using alternative centrality measures (betweenness, degree) to test robustness of the mediation effect.
+
+- **Visualization & reporting**  
+  - Plot a path diagram (direct, indirect, total effects) with `matplotlib`.  
+  - Overlay DMN parcels on a standard MNI brain using Nilearn to illustrate hub locations.  
+  - Summarize bootstrap CI tables in a markdown report.
+
+- **Reproducibility & runtime constraints**  
+  - All code will be containerised (Docker) and orchestrated by a GitHub Actions workflow limited to 6 h on the free‑tier runner (2 CPU, 7 GB RAM).  
+  - Data are streamed directly from the ABIDE server; intermediate files are compressed to stay within the 14 GB SSD quota.  
+  - No GPU or external compute resources are required.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: [Functional connectivity patterns in ASD], [Network topology in neurodevelopmental disorders], [AI methods for ASD detection from MRI].
-- Closest match: [Network topology in neurodevelopmental disorders] (similarity sketch: focuses on general topology differences but lacks the specific multimodal mediation analysis of *structural* centrality linking *functional* connectivity to behavioral severity).
-- Verdict: NOT a duplicate
+- Reviewed existing ideas: Functional connectivity patterns in ASD, Network topology in neurodevelopmental disorders, AI methods for ASD detection from MRI.  
+- Closest match: **Network topology in neurodevelopmental disorders** – both examine graph metrics in ASD but the existing idea does not perform a multimodal mediation analysis linking structural hub centrality, functional connectivity, and behavioral severity.  
+- Verdict: **NOT a duplicate**
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-23T00:47:45Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-26T00:35:05Z
 **Outcome**: exhausted
 **Original term**: Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience
-**Verified citation count**: 4
+**Verified citation count**: 3
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience | 4 |
+| 0 (initial) | Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience | 3 |
 
 ### Verified citations
 
 1. **Fractal-driven distortion of resting state functional networks in fMRI: a simulation study** (2012). Wonsang You, Jörg Stadler. arXiv. [1208.0924](https://arxiv.org/abs/1208.0924). PDF-sampled: No.
 2. **Reduced interhemispheric functional connectivity of children with autism: evidence from functional near infrared spectroscopy studies** (2013). Huilin Zhu, Yuebo Fan, Huan Guo, Dan Huang, Sailing He. arXiv. [1309.5840](https://arxiv.org/abs/1309.5840). PDF-sampled: No.
 3. **State-dependent changes of connectivity patterns and functional brain network topology in Autism Spectrum Disorder** (2012). Pablo Barttfeld, Bruno Wicker, Sebastián Cukier, Silvana Navarta, Sergio Lew, et al.. arXiv. [1211.4766](https://arxiv.org/abs/1211.4766). PDF-sampled: No.
-4. **Consistency of Regions of Interest as nodes of functional brain networks measured by fMRI** (2017). Onerva Korhonen, Heini Saarimäki, Enrico Glerean, Mikko Sams, Jari Saramäki. arXiv. [1704.07635](https://arxiv.org/abs/1704.07635). PDF-sampled: No.

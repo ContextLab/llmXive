@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-23T00:47:45Z",
+  "fetched_at": "2026-10-26T00:35:05Z",
   "field": "neuroscience",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,15 @@
       "idea_body_excerpt": "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder",
       "target_n": 5
     },
-    "duration_seconds": 38.71,
-    "ended_at": "2026-08-23T00:47:45Z",
+    "duration_seconds": 797.517,
+    "ended_at": "2026-10-26T00:35:05Z",
     "expansion": null,
     "extracted_queries": [
-      "graph theory metrics brain network topology",
-      "ASD resting-state fMRI default mode network",
-      "small-world topology modularity efficiency autism",
-      "hub disruption index functional connectivity strength",
-      "centrality measures neurodevelopmental disorders biomarkers"
+      "eigenvector centrality hubness",
+      "autism spectrum disorder rs-fMRI",
+      "rich club organization graph metrics",
+      "functional connectivity strength resting-state",
+      "dysconnectivity hypothesis autism"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -31,16 +31,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "1704.07635"
+        "1211.4766"
       ]
     },
     "per_query_hit_count": {
-      "ASD resting-state fMRI default mode network": 2,
       "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience": 3,
-      "centrality measures neurodevelopmental disorders biomarkers": 3,
-      "graph theory metrics brain network topology": 3,
-      "hub disruption index functional connectivity strength": 3,
-      "small-world topology modularity efficiency autism": 2
+      "autism spectrum disorder rs-fMRI": 2,
+      "dysconnectivity hypothesis autism": 1,
+      "eigenvector centrality hubness": 3,
+      "functional connectivity strength resting-state": 1,
+      "rich club organization graph metrics": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -48,19 +48,19 @@
       "rejected_count": 2,
       "rejections": [
         {
-          "primary_pointer": "1901.09975",
-          "rationale": "The paper focuses on Alzheimer's disease and mild cognitive impairment rather than Autism Spectrum Disorder, and it investigates the relationship between genetics and effective connectivity rather than the impact of network centrality on functional connectivity. While it shares the domain of rs-fMRI analysis, it fails to meet the inclusion criteria for the specific population (ASD) or the specific mechanism (centrality effects) required by the user's question, constituting an off-domain study fo",
-          "title": "Spectral Dynamic Causal Modelling of Resting-State fMRI: Relating Effective Brain Connectivity in the Default Mode Network to Genetics"
+          "primary_pointer": "2206.11233",
+          "rationale": "The paper is a broad review of AI-based diagnostic methods for ASD using MRI, which does not measure the specific mechanism of \"network centrality\" or its relationship to \"resting-state functional connectivity\" as required by the user's question. While it covers the same population (ASD) and modality (fMRI), it fails to address the specific variables or causal mechanism, falling under the rejection rule for papers with no measurable connection to the user's specific mechanism or variables.",
+          "title": "Automatic autism spectrum disorder detection using artificial intelligence methods with MRI neuroimaging: A review"
         },
         {
-          "primary_pointer": "2003.05254",
-          "rationale": "The paper focuses on influence maximization and propagation models in social networks, which is an off-domain application of network centrality distinct from the user's neuroscience question regarding resting-state functional connectivity in Autism Spectrum Disorder. While both fields use \"centrality,\" the constructs (social influence spread vs. brain network topology) and domains (social graphs vs. fMRI connectomes) are entirely different, satisfying the rejection rule for distinct constructs s",
-          "title": "Combined Centrality Measures for an Improved Characterization of Influence Spread in Social Networks"
+          "primary_pointer": "1202.4751",
+          "rationale": "The paper is rejected because it studies a distinct empirical population (rat brain) and a different methodological focus (fractal analysis of noise artifacts) without addressing the specific construct of \"network centrality\" or the clinical domain of \"Autism Spectrum Disorder\" required by the user's question. While it deals with resting-state fMRI, it fails to meet the criteria for an empirical-population canonical study (e) or same-mechanism evidence (a) regarding the specific variables of cen",
+          "title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-23T00:47:07Z",
+    "started_at": "2026-10-26T00:21:48Z",
     "term_input": {
       "normalized": "investigating the impact of network centrality on resting-state functional connectivity in autism spectrum disorder neuroscience",
       "raw": "Investigating the Impact of Network Centrality on Resting-State Functional Connectivity in Autism Spectrum Disorder neuroscience"
@@ -69,54 +69,54 @@
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Assessing centrality in network systems is critical for understanding node importance and guiding decision-making processes. In dynamic networks, incorporating a controllability perspective is essential for identifying key nodes. In this paper, we study two control theoretic centrality measures -- the Volumetric Controllability Score (VCS) and Average Energy Controllability Score (AECS) -- to quantify node importance in linear time-invariant network systems. We prove the uniqueness of VCS and AECS for almost all specified terminal times, thereby enhancing their applicability beyond previously recognized cases. This ensures their interpretability, comparability, and reproducibility. Our analysis reveals substantial differences between VCS and AECS in linear systems with symmetric and skew-symmetric transition matrices. We also investigate the dependence of VCS and AECS on the terminal time and prove that when this parameter is extremely small, both scores become essentially uniform. Additionally, we prove that a sequence generated by a projected gradient method for computing VCS and AECS converges linearly to both measures under several assumptions. Finally, evaluations on brain networks modeled via Laplacian dynamics using real data reveal contrasting evaluation tendencies and correlations for VCS and AECS, with AECS favoring brain regions associated with cognitive and motor functions, while VCS emphasizes sensory and emotional regions.",
+          "claimed_abstract": "Eigenvector centrality is a linear algebra based graph invariant used in various rating systems such as webpage ratings for search engines. A generalization of the eigenvector centrality invariant is defined which is motivated by the need to design rating systems for bipartite graph models of time-sensitive and other processes. The linear algebra connection and some applications are described.",
           "claimed_authors": [
-            "Kazuhiro Sato",
-            "Ryohei Kawamura"
+            "Peteris Daugulis"
           ],
-          "claimed_title": "Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks",
+          "claimed_title": "A note on a generalization of eigenvector centrality for bipartite graphs and applications",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2408.03023"
+          "claimed_year": 2016,
+          "primary_pointer": "1610.01544"
         },
-        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks')",
-        "failed_at": "2026-08-23T00:47:35Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='A note on a generalization of eigenvector centrality for bipartite graphs and applications')",
+        "failed_at": "2026-10-26T00:35:04Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+          "claimed_abstract": "Retrieval-Augmented Generation (RAG) systems are essential to contemporary AI applications, allowing large language models to obtain external knowledge via vector similarity search. Nevertheless, these systems encounter a significant security flaw: hubness - items that frequently appear in the top-$k$ retrieval results for a disproportionately high number of varied queries. These hubs can be exploited to introduce harmful content, alter search rankings, bypass content filtering, and decrease system performance.\n  We introduce hubscan, an open-source security scanner that evaluates vector indices and embeddings to identify hubs in RAG systems. Hubscan presents a multi-detector architecture that integrates: (1) robust statistical hubness detection utilizing median/Median Absolute Deviation (MAD)-based z-scores, (2) cluster spread analysis to assess cross-cluster retrieval patterns, (3) stability testing under query perturbations, and (4) domain-aware and modality-aware detection for category-specific and cross-modal attacks. Our solution accommodates several vector databases (FAISS, Pinecone, Qdrant, Weaviate) and offers versatile retrieval techniques, including vector similarity, hybrid search, and lexical matching with reranking capabilities.\n  We evaluate hubscan on Food-101, MS-COCO, and FiQA adversarial hubness benchmarks constructed using state-of-the-art gradient-optimized and centroid-based hub generation methods. Hubscan achieves 90% recall at a 0.2% alert budget and 100% recall at 0.4%, with adversarial hubs ranking above the 99.8th percentile. In testing, domain-scoped scanning recovered 100% of targeted attacks that evaded global detection. Production validation on 1M real web documents from MS MARCO demonstrates significant score separation between clean documents and adversarial content.",
           "claimed_authors": [
-            "Peter Bubenik",
-            "Tane Vergili"
+            "Idan Habler",
+            "Vineeth Sai Narajala",
+            "Stav Koren",
+            "Amy Chang",
+            "Tiffany Saade"
           ],
-          "claimed_title": "Topological spaces of persistence modules and their properties",
+          "claimed_title": "Adversarial Hubness Detector: Detecting Hubness Poisoning in Retrieval-Augmented Generation Systems",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1802.08117"
+          "claimed_year": 2026,
+          "primary_pointer": "2602.22427"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Topological spaces of persistence modules and their properties')",
-        "failed_at": "2026-08-23T00:47:35Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Adversarial Hubness Detector: Detecting Hubness Poisoning in Retrieval-Augmented Generation Systems')",
+        "failed_at": "2026-10-26T00:35:04Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The characterisation of CMB polarisation is one of the next challenge in observationnal cosmology. This is especially true for the so-called B-modes that are at least 3 order of magnitude lower than CMB temperature fluctuations. A precise measurement of the angular power spectrum of these B-modes will give important constraints on inflation parameters. In this talk, I will describe two complementary experiments, BRAIN and CLOVER, dedicated to CMB polarisation measurement. These experiments are proposed to be installed in Dome-C, Antarctica, to take advantage of the extreme dryness of the atmosphere and to allow long integration time.",
+          "claimed_abstract": "In this paper we obtain bounds for the extreme entries of the principal eigenvector of hypergraphs; these bounds are computed using the spectral radius and some classical parameters such as maximum and minimum degrees. We also study inequalities involving the ratio and difference between the two extreme entries of this vector.",
           "claimed_authors": [
-            "M. Piat",
-            "C. Rosset",
-            "the BRAIN",
-            "CLOVER Collaboration"
+            "Kauê Cardoso",
+            "Vilmar Trevisan"
           ],
-          "claimed_title": "Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments",
+          "claimed_title": "Principal eigenvectors of general hypergraphs",
           "claimed_venue": "arXiv",
-          "claimed_year": 2004,
-          "primary_pointer": "astro-ph/0412590"
+          "claimed_year": 2019,
+          "primary_pointer": "1909.00238"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments')",
-        "failed_at": "2026-08-23T00:47:35Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Principal eigenvectors of general hypergraphs')",
+        "failed_at": "2026-10-26T00:35:04Z",
         "reason": "query_irrelevant"
       },
       {
@@ -134,127 +134,92 @@
           "primary_pointer": "2106.15983"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='eXtended Reality for Autism Interventions: The importance of Mediation and Sensory-Based Approaches')",
-        "failed_at": "2026-08-23T00:47:36Z",
+        "failed_at": "2026-10-26T00:35:04Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The paper is devoted to study the structure of Hawaiian groups of some topological spaces. We present some behaviors of Hawaiian groups with respect to product spaces, weak join spaces, cone spaces, covering spaces and locally trivial bundles. In particular, we determine the structure of the $n$-dimensional Hawaiian group of the $m$-dimensional Hawaiian earring space, for all $1\\leq m\\leq n$.",
+          "claimed_abstract": "The rich club organization (the presence of highly connected hub core in a network) influences many structural and functional characteristics of networks including topology, the efficiency of paths and distribution of load. Despite its major role, the literature contains only a very limited set of models capable of generating networks with realistic rich club structure. One possible reason is that the rich club organization is a divisive property among complex networks which exhibit great diversity, in contrast to other metrics (e.g. diameter, clustering or degree distribution) which seem to behave very similarly across many networks. Here we propose a simple yet powerful geometry-based growing model which can generate realistic complex networks with high rich club diversity by controlling a single geometric parameter. The growing model is validated against the Internet, protein-protein interaction, airport and power grid networks.",
           "claimed_authors": [
-            "Ameneh Babaee",
-            "Behrooz Mashayekhy",
-            "Hanieh Mirebrahimi"
+            "Máté Csigi",
+            "Attila Kőrösi",
+            "József Bíró",
+            "Zalán Heszberger",
+            "Yury Malkov",
+            "András Gulyás"
           ],
-          "claimed_title": "On Hawaiian Groups of Some Topological Spaces",
+          "claimed_title": "Geometric explanation of the rich-club phenomenon in complex networks",
           "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1111.0731"
+          "claimed_year": 2017,
+          "primary_pointer": "1702.02399"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='On Hawaiian Groups of Some Topological Spaces')",
-        "failed_at": "2026-08-23T00:47:36Z",
+        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Geometric explanation of the rich-club phenomenon in complex networks')",
+        "failed_at": "2026-10-26T00:35:04Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The COVID-19 pandemic highlighted the urgent need for robust systems to enable rapid data collection, integration, and analysis for public health responses. Existing approaches often relied on disparate, non-interoperable systems, creating bottlenecks in comprehensive analyses and timely decision-making. To address these challenges, the U.S. National Institutes of Health (NIH) launched the Rapid Acceleration of Diagnostics (RADx) initiative in 2020, with the RADx Data Hub, a centralized repository for de-identified and curated COVID-19 data, as its cornerstone. The RADx Data Hub hosts diverse study data, including clinical data, testing results, smart sensor outputs, self-reported symptoms, and information on social determinants of health. Built on cloud infrastructure, the RADx Data Hub integrates metadata standards, interoperable formats, and ontology-based tools to adhere to the FAIR (Findable, Accessible, Interoperable, Reusable) principles for data sharing. Initially developed for COVID-19 research, its architecture and processes are adaptable to other scientific disciplines. This paper provides an overview of the data hosted by the RADx Data Hub and describes the platform's capabilities and architecture.",
+          "claimed_abstract": "Spatial networks are widely used in various fields to represent and analyze interactions or relationships between locations or spatially distributed entities.There is a network science concept known as the 'rich club' phenomenon, which describes the tendency of 'rich' nodes to form densely interconnected sub-networks. Although there are established methods to quantify topological, weighted, and temporal rich clubs individually, there is limited research on measuring the rich club effect in spatially-weighted temporal networks, which could be particularly useful for studying dynamic spatial interaction networks. To address this gap, we introduce the spatially-weighted temporal rich club (WTRC), a metric that quantifies the strength and consistency of connections between rich nodes in a spatiotemporal network. Additionally, we present a unified rich club framework that distinguishes the WTRC effect from other rich club effects, providing a way to measure topological, weighted, and temporal rich club effects together. Through two case studies of human mobility networks at different spatial scales, we demonstrate how the WTRC is able to identify significant weighted temporal rich club effects, whereas the unweighted equivalent in the same network either fails to detect a rich club effect or inaccurately estimates its significance. In each case study, we explore the spatial layout and temporal variations revealed by the WTRC analysis, showcasing its particular value in studying spatiotemporal interaction networks. This research offers new insights into the study of spatiotemporal networks, with critical implications for applications such as transportation, redistricting, and epidemiology.",
           "claimed_authors": [
-            "Marcos Martinez-Romero",
-            "Matthew Horridge",
-            "Nilesh Mistry",
-            "Aubrie Weyhmiller",
-            "Jimmy K. Yu",
-            "Alissa Fujimoto",
-            "Aria Henry",
-            "Martin J. O'Connor",
-            "Ashley Sier",
-            "Stephanie Suber",
-            "Mete U. Akdogan",
-            "Yan Cao",
-            "Somu Valliappan",
-            "Joanna O. Mieczkowska",
-            "the RADx Data Hub team",
-            "Ashok Krishnamurthy",
-            "Michael A. Keller",
-            "Mark A. Musen"
+            "Jacob Kruse",
+            "Song Gao",
+            "Yuhan Ji",
+            "Keith Levin",
+            "Qunying Huang",
+            "Kenneth R. Mayer"
           ],
-          "claimed_title": "RADx Data Hub: A Cloud Platform for FAIR, Harmonized COVID-19 Data",
+          "claimed_title": "Identifying rich clubs in spatiotemporal interaction networks",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2502.00265"
+          "primary_pointer": "2501.05636"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='RADx Data Hub: A Cloud Platform for FAIR, Harmonized COVID-19 Data')",
-        "failed_at": "2026-08-23T00:47:36Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Identifying rich clubs in spatiotemporal interaction networks')",
+        "failed_at": "2026-10-26T00:35:04Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The eccentric connectivity index $ξ^c$ is a novel distance--based molecular structure descriptor that was recently used for mathematical modeling of biological activities of diverse nature. It is defined as $ξ^c (G) = \\sum_{v \\in V (G)} deg (v) \\cdot ε(v)$\\,, where $deg (v)$ and $ε(v)$ denote the vertex degree and eccentricity of $v$\\,, respectively. We survey some mathematical properties of this index and furthermore support the use of eccentric connectivity index as topological structure descriptor. We present the extremal trees and unicyclic graphs with maximum and minimum eccentric connectivity index subject to the certain graph constraints. Sharp lower and asymptotic upper bound for all graphs are given and various connections with other important graph invariants are established. In addition, we present explicit formulae for the values of eccentric connectivity index for several families of composite graphs and designed a linear algorithm for calculating the eccentric connectivity index of trees. Some open problems and related indices for further study are also listed.",
+          "claimed_abstract": "We report detailed analysis of high-resolution spectra of nine high velocity metal-rich dwarfs in the solar neighborhood. The stars are super metal-rich and 5 of them have [Fe/H]>=+0.4, making them the most metal-rich stars currently known. We find that alpha-elements decrease with increasing metallicity; s-elements are underabundant by about [s-elements/Fe]=-0.3. While exceeding the [Fe/H] of current bulge samples, the chemistry of these stars has important similarities and differences. The near-solar abundances of the alpha-capture elements places these stars on the metal-rich extension of McWilliam & Rich (1994) [ApJS, 91, 749], but their s-process abundances are much lower than those of the bulge giants. These low s-process values have been interpreted as the hallmark of an ancient stellar population.",
           "claimed_authors": [
-            "Aleksandar Ilić"
+            "S. Castro",
+            "R. M. Rich",
+            "M. Grenon",
+            "B. Barbuy",
+            "J. K. McCarthy"
           ],
-          "claimed_title": "Eccentric connectivity index",
+          "claimed_title": "High-Resolution Abundance Analysis of Very Metal-Rich Stars in the Solar Neighborhood",
           "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1103.2515"
+          "claimed_year": 1997,
+          "primary_pointer": "astro-ph/9704220"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Eccentric connectivity index')",
-        "failed_at": "2026-08-23T00:47:36Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='High-Resolution Abundance Analysis of Very Metal-Rich Stars in the Solar Neighborhood')",
+        "failed_at": "2026-10-26T00:35:04Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The eccentric connectivity index $ξ^c$ is a distance--based molecular structure descriptor that was recently used for mathematical modeling of biological activities of diverse nature. We prove that the broom has maximum $ξ^c$ among trees with a fixed maximum vertex degree, and characterize such trees with minimum $ξ^c$\\,. In addition, we propose a simple linear algorithm for calculating $ξ^c$ of trees.",
+          "claimed_abstract": "Imitation plays an important role in development, being one of the precursors of social cognition. Even though some children with autism imitate spontaneously and other children with autism can learn to imitate, the dynamics of imitation is affected in the large majority of cases. Existing studies from the literature suggest that robots can be used to teach children with autism basic interaction skills like imitation. Based on these findings, in this study, we investigate if children with autism show more social engagement when interacting with an imitative robot (Fig 1) compared to a human partner in a motor imitation task.",
           "claimed_authors": [
-            "Aleksandar Ili\\' c",
-            "Ivan Gutman"
+            "Adriana Tapus",
+            "Andreea Peca",
+            "Amir Aly",
+            "Cristina Pop",
+            "Lavinia Jisa",
+            "Sebastian Pintea",
+            "Alina Rusu",
+            "Daniel David"
           ],
-          "claimed_title": "Eccentric Connectivity Index of Chemical Trees",
+          "claimed_title": "Social Engagement of Children with Autism during Interaction with a Robot",
           "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1104.3206"
+          "claimed_year": 2020,
+          "primary_pointer": "2002.12360"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Eccentric Connectivity Index of Chemical Trees')",
-        "failed_at": "2026-08-23T00:47:36Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Centrality metrics aim to identify the most relevant nodes in a network. In literature, a broad set of metrics exists, either measuring local or global centrality characteristics. Nevertheless, when networks exhibit a high spectral gap, the usual global centrality measures typically do not add significant information with respect to the degree, i.e., the simplest local metric. To extract new information from this class of networks, we propose the use of the GENeralized Economic comPlexitY index (GENEPY). Despite its original definition within the economic field, the GENEPY can be easily applied and interpreted on a wide range of networks, characterized by high spectral gap, including monopartite and bipartite networks systems. Tests on synthetic and real-world networks show that the GENEPY can shed new light about the nodes centrality, carrying information generally poorly correlated with the nodes number of direct connections (nodes degree).",
-          "claimed_authors": [
-            "Lorenzo Costantini",
-            "Carla Sciarra",
-            "Luca Ridolfi",
-            "Francesco Laio"
-          ],
-          "claimed_title": "Measuring nodes centrality when local and global measures overlap",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.15627"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Measuring nodes centrality when local and global measures overlap')",
-        "failed_at": "2026-08-23T00:47:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Non-invasive brain imaging techniques allow understanding the behavior and macro changes in the brain to determine the progress of a disease. However, computational pathology provides a deeper understanding of brain disorders at cellular level, able to consolidate a diagnosis and make the bridge between the medical image and the omics analysis. In traditional histopathology, histology slides are visually inspected, under the microscope, by trained pathologists. This process is time-consuming and labor-intensive; therefore, the emergence of Computational Pathology has triggered great hope to ease this tedious task and make it more robust. This chapter focuses on understanding the state-of-the-art machine learning techniques used to analyze whole slide images within the context of brain disorders. We present a selective set of remarkable machine learning algorithms providing discriminative approaches and quality results on brain disorders. These methodologies are applied to different tasks, such as monitoring mechanisms contributing to disease progression and patient survival rates, analyzing morphological phenotypes for classification and quantitative assessment of disease, improving clinical care, diagnosing tumor specimens, and intraoperative interpretation. Thanks to the recent progress in machine learning algorithms for high-content image processing, computational pathology marks the rise of a new generation of medical discoveries and clinical protocols, including in brain disorders.",
-          "claimed_authors": [
-            "Gabriel Jimenez",
-            "Daniel Racoceanu"
-          ],
-          "claimed_title": "Computational Pathology for Brain Disorders",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2301.07030"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Computational Pathology for Brain Disorders')",
-        "failed_at": "2026-08-23T00:47:37Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Investigating the Impact of Network Centrality on Resting-State Functional Conne', candidate_title='Social Engagement of Children with Autism during Interaction with a Robot')",
+        "failed_at": "2026-10-26T00:35:05Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -282,7 +247,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-23T00:47:34Z"
+          "verified_at": "2026-10-26T00:35:04Z"
         }
       },
       {
@@ -311,7 +276,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-23T00:47:34Z"
+          "verified_at": "2026-10-26T00:35:04Z"
         }
       },
       {
@@ -336,42 +301,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/1211.4766",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2252,
           "query_relevance_score": 0.8,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-23T00:47:35Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Onerva Korhonen",
-            "Heini Saarimäki",
-            "Enrico Glerean",
-            "Mikko Sams",
-            "Jari Saramäki"
-          ],
-          "title": "Consistency of Regions of Interest as nodes of functional brain networks measured by fMRI",
-          "venue": "arXiv",
-          "year": 2017
-        },
-        "primary_pointer": "1704.07635",
-        "summary": "The functional network approach, where fMRI BOLD time series are mapped to networks depicting functional relationships between brain areas, has opened new insights into the function of the human brain. In this approach, the choice of network nodes is of crucial importance. One option is to consider fMRI voxels as nodes. This results in a large number of nodes, making network analysis and interpretation of results challenging. A common alternative is to use pre-defined clusters of anatomically close voxels, Regions of Interest (ROIs). This approach assumes that voxels within ROIs are functionally similar. Because these two approaches result in different network structures, it is crucial to understand what happens to network connectivity when moving from the voxel level to the ROI level. We show that the consistency of ROIs, defined as the mean Pearson correlation coefficient between the time series of their voxels, varies widely in resting-state experimental data. Therefore the assumption of similar voxel dynamics within each ROI does not generally hold. Further, the time series of low-consistency ROIs may be highly correlated, resulting in spurious links in ROI-level networks. Based on these results, we recommend that averaging BOLD signals over anatomically defined ROIs should be carefully considered.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1704.07635",
-          "http_status": 200,
-          "pdf_sample_score": 0.2843,
-          "query_relevance_score": 0.5,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-23T00:47:36Z"
+          "verified_at": "2026-10-26T00:35:04Z"
         }
       }
     ]
