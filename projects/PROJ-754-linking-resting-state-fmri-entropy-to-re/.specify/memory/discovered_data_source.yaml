@@ -1,13 +1,13 @@
 status: none
-intent: Human Connectome Project 4mm parcellated resting-state fMRI time series with
-  DSRT scores download python package dataset
+intent: Human Connectome Project 4mm parcellated resting state fMRI time series DSRT
+  scores download python package dataset
 required_fields:
 - subject_id
 - age
 - sex
-- mean_fd
+- mean_framewise_displacement
 - dsrt_score
 - time_series
-cache_key: 7f5bb028635c3e7c8b399e17f193a00ba23764180f32fefcaafdf39304acf604
-searched_at: '2026-10-26T23:15:45.982579+00:00'
+cache_key: 53476420f78fccd98717b7bf8b9533f6684945511a65d7c6e6752dd13285c71d
+searched_at: '2026-10-26T23:17:45.134390+00:00'
 retry_count: 1
