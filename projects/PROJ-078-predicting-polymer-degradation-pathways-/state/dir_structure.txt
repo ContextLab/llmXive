@@ -1,0 +1,187 @@
+.
+├── .ruff.toml
+├── .runtime-home
+├── .specify
+│   ├── memory
+│   │   ├── constitution.md
+│   │   ├── contract_ledger.json
+│   │   ├── convergence_trail
+│   │   │   ├── plan-001.jsonl
+│   │   │   ├── plan-002.jsonl
+│   │   │   ├── plan-003.jsonl
+│   │   │   ├── plan-004.jsonl
+│   │   │   ├── plan-005.jsonl
+│   │   │   ├── plan-006.jsonl
+│   │   │   ├── plan-007.jsonl
+│   │   │   ├── plan-008.jsonl
+│   │   │   ├── plan-009.jsonl
+│   │   │   ├── plan-010.jsonl
+│   │   │   ├── spec-001.jsonl
+│   │   │   ├── spec-002.jsonl
+│   │   │   ├── spec-003.jsonl
+│   │   │   └── spec-004.jsonl
+│   │   ├── data_contract_ledger.json
+│   │   ├── discovered_data_source.yaml
+│   │   ├── execution_feedback.md
+│   │   ├── research_question_validated.yaml
+│   │   ├── task_verifier_notes.md
+│   │   ├── task_verify.yaml
+│   │   ├── task_verify_cache.yaml
+│   │   ├── tasker_rounds.yaml
+│   │   └── verified_facts.yaml
+│   ├── scripts
+│   │   └── bash
+│   │       ├── check-prerequisites.sh
+│   │       ├── common.sh
+│   │       ├── create-new-feature.sh
+│   │       └── setup-plan.sh
+│   ├── summarize_cache
+│   │   └── c21ae01040b07f26
+│   │       ├── chunk_000.txt
+│   │       ├── chunk_001.txt
+│   │       ├── chunk_002.txt
+│   │       ├── chunk_003.txt
+│   │       └── manifest.json
+│   └── templates
+│       ├── checklist-template.md
+│       ├── constitution-template.md
+│       ├── plan-template.md
+│       ├── spec-template.md
+│       └── tasks-template.md
+├── README.md
+├── README_SETUP.md
+├── activity.jsonl
+├── code
+│   ├── .black
+│   ├── .black.toml
+│   ├── .gitignore
+│   ├── .gitkeep
+│   ├── .pytest.ini
+│   ├── .ruff.toml
+│   ├── .tasks
+│   │   ├── T012.atomize.yaml
+│   │   └── T016.atomize.yaml
+│   ├── README.md
+│   ├── __init__.py
+│   ├── augment.py
+│   ├── data_models.py
+│   ├── evaluate.py
+│   ├── ingest.py
+│   ├── model.py
+│   ├── power_analysis.py
+│   ├── preprocess.py
+│   ├── pyproject.toml
+│   ├── pytest.ini
+│   ├── requirements-dev.txt
+│   ├── requirements.txt
+│   ├── save_augmented_dataset.py
+│   ├── setup_dirs.py
+│   ├── setup_git.py
+│   ├── setup_project.py
+│   ├── tests_setup.py
+│   ├── train.py
+│   ├── utils.py
+│   ├── verify_setup.py
+│   ├── verify_t015b.py
+│   └── visualize.py
+├── config
+│   └── ingest_config.json
+├── data
+│   ├── .gitkeep
+│   ├── augmented
+│   ├── external
+│   ├── output
+│   ├── processed
+│   │   └── .gitkeep
+│   ├── raw
+│   │   └── .gitkeep
+│   └── reports
+│       ├── .gitkeep
+│       ├── power_analysis_report.json
+│       ├── power_analysis_warning.txt
+│       └── setup_log.json
+├── idea
+│   ├── predicting-polymer-degradation-pathways-.md
+│   └── research_question_validation.md
+├── pyproject.toml
+├── pytest.ini
+├── requirements.txt
+├── setup.sh
+├── specs
+│   └── 001-predicting-polymer-degradation-pathways
+│       ├── contracts
+│       │   ├── dataset.schema.yaml
+│       │   ├── model_output.schema.yaml
+│       │   ├── molecular_graph.schema.yaml
+│       │   ├── motif_importance.schema.yaml
+│       │   ├── output.schema.yaml
+│       │   └── polymer_record.schema.yaml
+│       ├── data-model.md
+│       ├── plan.md
+│       ├── quickstart.md
+│       ├── research.md
+│       ├── spec.md
+│       └── tasks.md
+├── state
+│   ├── .gitkeep
+│   ├── augmentation_trigger.json
+│   ├── dir_structure.txt
+│   ├── projects
+│   └── setup_log.txt
+└── tests
+    ├── .gitkeep
+    ├── __init__.py
+    ├── conftest.py
+    ├── integration
+    │   ├── .gitkeep
+    │   ├── __init__.py
+    │   ├── test_api_ingestion.py
+    │   ├── test_data_flow.py
+    │   ├── test_example.py
+    │   ├── test_ingest_integration.py
+    │   ├── test_integration_config.py
+    │   ├── test_integration_data_flow.py
+    │   ├── test_integration_smiles.py
+    │   ├── test_integration_structure.py
+    │   ├── test_preprocess_integration.py
+    │   ├── test_pytest_integration.py
+    │   ├── test_reporting.py
+    │   ├── test_setup_integration.py
+    │   ├── test_smoke.py
+    │   ├── test_t018_subsampling.py
+    │   └── test_training.py
+    ├── pytest.ini
+    ├── test_runner.py
+    ├── test_setup.py
+    ├── test_setup_project.py
+    ├── test_t001a.py
+    ├── test_t001a_directories.py
+    ├── test_t016d_save_augmented.py
+    └── unit
+        ├── .gitkeep
+        ├── __init__.py
+        ├── test_api_ingestion.py
+        ├── test_augment.py
+        ├── test_augmentation.py
+        ├── test_checksum.py
+        ├── test_data_models.py
+        ├── test_evaluate.py
+        ├── test_example.py
+        ├── test_framework.py
+        ├── test_ingest.py
+        ├── test_logging.py
+        ├── test_model.py
+        ├── test_power_analysis.py
+        ├── test_preprocess.py
+        ├── test_preprocess_save.py
+        ├── test_preprocess_t017b.py
+        ├── test_pytest_setup.py
+        ├── test_reporting.py
+        ├── test_setup_project.py
+        ├── test_subsampling.py
+        ├── test_test_structure.py
+        ├── test_train.py
+        ├── test_training.py
+        └── test_utils.py
+
+29 directories, 156 files

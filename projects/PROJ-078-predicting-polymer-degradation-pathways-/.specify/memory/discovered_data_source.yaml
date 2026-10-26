@@ -1,18 +1,18 @@
-status: none
-intent: download polymer degradation dataset from NIST Chemistry WebBook and Materials
-  Project python package dataset
-required_fields:
-- smiles
-- polymer_name
-- polymer_type
-- degradation_label
-- degradation_pathway
-- temperature_c
-- ph
-- uv_intensity
-- degradation_product_smiles
-- source_database
-- record_id
-cache_key: cb7cd1a062fc7b8ef59e2ceed400ddadaf9fc007acb8b475a731d36977850723
-searched_at: '2026-10-25T21:09:21.137638+00:00'
-retry_count: 1
+status: verified
+kind: pypi_package
+ref: pubchempy
+access_python: "import pubchempy as pcp\n\nresults = pcp.get_compounds('benzene',\
+  \ 'name')\nprint(f'RECORDS={len(results)}')\nif results:\n    sample = results[0]\n\
+  \    fields = ','.join(sample.__dict__.keys())\n    print(f'FIELDS={fields}')"
+record_count: 1
+sample_fields:
+- _record
+- _atoms
+- _bonds
+field_coverage: 1.0
+required_fields: []
+intent: '### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
+  (US-1) **As a** computational chemist, **I want** to automatically download, filter,
+  and convert polymer degradation records from NIST Chemistry WebBook and Materials
+  Project into a structured graph dataset (using synthetic '
+cache_key: 4aef461eb3e503e103516b69edaf914abf47d4bc3e99c7e725e1f8d15b8e472a

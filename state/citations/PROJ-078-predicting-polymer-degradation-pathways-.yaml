@@ -100,7 +100,7 @@
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials
   verified_at: '2026-10-25T21:31:23.472503Z'
-- artifact_hash: b345e80302289b4cf193468e2b06ba51ff1c5a00430f5b4a53cba0057a946abc
+- artifact_hash: 30e394a40f184dbb1b53759e6de7c233b977cb037a22921856c1ae6197e33e27
   artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -110,8 +110,8 @@
   value: https://huggingface.co/datasets/PolymerGenome/polymer_degradation/resolve/main/data.parquet`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/PolymerGenome/polymer_degradation/resolve/main/data.parquet
-  verified_at: '2026-10-25T21:47:33.116277Z'
-- artifact_hash: b345e80302289b4cf193468e2b06ba51ff1c5a00430f5b4a53cba0057a946abc
+  verified_at: '2026-10-26T16:26:42.259958Z'
+- artifact_hash: 30e394a40f184dbb1b53759e6de7c233b977cb037a22921856c1ae6197e33e27
   artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -121,4 +121,4 @@
   value: https://materialsproject.org/rest/v2/materials`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/rest/v2/materials
-  verified_at: '2026-10-25T21:47:33.116277Z'
+  verified_at: '2026-10-26T16:26:42.259958Z'
