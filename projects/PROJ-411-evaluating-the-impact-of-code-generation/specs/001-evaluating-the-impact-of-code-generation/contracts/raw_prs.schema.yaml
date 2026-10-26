@@ -39,10 +39,10 @@ properties:
     description: "Commit message of the PR head commit; scanned for LLM tool keywords (e.g., Copilot, GPT, Codeium)."
   diff_text:
     type: [string, "null"]
-    description: "Unified diff of the PR; used for diff‑pattern provenance signals. Optional: absence is reported by the Phase‑0 schema map."
+    description: "Unified diff of the PR; used for diff‑pattern provenance signals. Optional."
   file_headers:
     type: [string, "null"]
-    description: "Concatenated file‑header comments from changed files; highest‑precedence provenance signal. Optional: absence is reported by the Phase‑0 schema map."
+    description: "Concatenated file‑header comments from changed files; highest‑precedence provenance signal. Optional."
   labels:
     type: array
     items:
@@ -51,4 +51,4 @@ properties:
   first_comment_timestamp:
     type: [string, "null"]
     format: date-time
-    description: "Timestamp of the earliest review comment (ISO‑8601); required by FR-016 for review_active_seconds. If absent, the pipeline falls back to review_duration_seconds and reports a limitation."
+    description: "Timestamp of the earliest review comment (ISO‑8601); required by FR‑016 for review_active_seconds. If absent, the pipeline falls back to review_duration_seconds and reports a limitation."

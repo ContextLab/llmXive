@@ -33,4 +33,4 @@ properties:
   provenance_label:
     type: string
     enum: ["LLM-generated", "Human-written", "Mixed"]
-    description: "Provenance classification per FR-002 precedence rules."
+    description: "Provenance classification per FR‑002 precedence rules."

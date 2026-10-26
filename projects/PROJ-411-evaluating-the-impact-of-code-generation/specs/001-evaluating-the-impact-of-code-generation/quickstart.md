@@ -24,7 +24,7 @@ python code/download_data.py
 
 # 1. Classify provenance (FR‑002, FR‑008, FR‑010)
 python code/classify_provenance.py \
-    --input data/raw/swe_rebench_prs.parquet \
+    --input data/raw/prs_v2_sample.parquet \
     --output data/processed/classified_prs.csv
 
 # 2. Compute metrics and create the SSoT (FR‑020)
@@ -34,7 +34,8 @@ python code/compute_metrics.py \
 
 # 3. Outlier removal & filter variants (FR‑003, FR‑006, FR‑014)
 python code/outlier_filter.py \
-    --iqr 1.5  # produces filtered_prs_iqr1.5.csv, plus 1.0/2.0 and relaxed variants
+    --input data/processed/processed_prs.csv \
+    --iqr 1.5   # produces filtered_prs_iqr1.5.csv, plus 1.0/2.0 and relaxed variants
 
 # 4. Statistical analysis (power, normality, tests, mixed‑effects, Bonferroni)
 python code/statistical_analysis.py \
@@ -65,7 +66,7 @@ python code/report.py \
 | `data/results/stats_summary.csv` | Statistical test results; conforms to `contracts/statistical_results.schema.yaml`. |
 | `data/results/sensitivity_report.csv` | IQR & comment‑filter sweep results, robustness flags. |
 | `data/results/validation_report.md` | Cohen’s κ, misclassification response, or pending‑validation note. |
-| `data/results/group_source_contingency.csv` | Provenance × source contingency table (required for FR‑018). |
+| `data/results/group_source_contingency.csv` | Contingency table of provenance × source (required for FR‑018). |
 | `report.md` + `data/results/figures/` | Final manuscript‑ready report with tables, box‑plots, and limitation statements. |
 
 All files are written under the `data/` hierarchy as required by the plan and contracts.

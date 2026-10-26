@@ -4,14 +4,14 @@
 
 | Dataset | Verified Source URL | Role | Loader | Key Variables Needed |
 |---------|---------------------|------|--------|----------------------|
-| **Primary PR population** | https://huggingface.co/datasets/nebius/SWE-rebench-V2-PRs/resolve/main/data/train-00000-of-00003.parquet | Main analysis (both LLM‑generated and Human‑written PRs) | `pandas.read_parquet(hf_hub_download(...))` | `pr_id`, `repo_name`, `created_at`, `merged_at`, `additions`, `deletions`, `comment_count`, `commit_message`, `diff_text`, `file_headers`, `labels`, `first_comment_timestamp` |
-| **Auxiliary known‑LLM set A** | https://huggingface.co/datasets/prs-eth/AGBD/resolve/main/embeddings_train.csv | Validation of provenance signals (known LLM PRs) | `pandas.read_csv(hf_hub_download(...))` | `commit_message` (contains LLM keywords), limited review fields |
-| **Auxiliary known‑LLM set B** | https://huggingface.co/datasets/prs-eth/AGBD-Lite/resolve/main/AGBD-Lite-test.h5 | Same as above (alternative source) | `pandas.read_hdf(hf_hub_download(...))` | `commit_message`, minimal metadata |
+| **Primary PR population** | https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet | Main analysis (both LLM‑generated and Human‑written PRs) | `datasets.load_dataset('loubnabnl/prs-v2-sample', split='train')` (as pandas) | `pr_id`, `repo_name`, `created_at`, `merged_at`, `additions`, `deletions`, `comment_count`, `commit_message`, `diff_text`, `file_headers`, `labels`, `first_comment_timestamp` |
+| **Auxiliary known‑LLM set A** | https://huggingface.co/datasets/prs-eth/AGBD/resolve/main/embeddings_train.csv | Validation of provenance signals (known LLM PRs) | `datasets.load_dataset('prs-eth/AGBD', split='train')` (CSV) | `commit_message` (contains LLM keywords), minimal review fields |
+| **Auxiliary known‑LLM set B** | https://huggingface.co/datasets/prs-eth/AGBD-Lite/resolve/main/AGBD-Lite-test.h5 | Same as above (alternative source) | `datasets.load_dataset('prs-eth/AGBD-Lite', split='train')` (H5) | `commit_message`, minimal metadata |
 
 All files are downloaded programmatically; SHA‑256 checksums are recorded in `data/checksums.txt`. No other data sources are used.
 
 ### Why the primary comparison stays within the **single** primary dataset
-The auxiliary datasets consist of PRs that are *purpose‑built* for LLM‑generated code (e.g., model‑card edits). Mixing them with the general PR population would confound provenance with repository type and PR purpose. By restricting the binary LLM vs Human comparison to the **single** verified PR corpus (`SWE-rebench-V2-PRs`) and assigning group membership via FR‑002 signals, we eliminate dataset‑origin bias. We still report a **group × source contingency table** and a **source‑stratified descriptive analysis** of the auxiliary sets for transparency (see Phase 1 & Phase 6).
+The auxiliary datasets consist of PRs that are *purpose‑built* for LLM‑generated code (e.g., model‑card edits). Mixing them with the general PR population would confound provenance with repository type and PR purpose. By restricting the binary LLM vs Human comparison to the **single** verified PR corpus (`prs-v2-sample`) and assigning group membership via FR‑002 signals, we eliminate dataset‑origin bias. We still report a **group × source contingency table** and a **source‑stratified descriptive analysis** of the auxiliary sets for transparency (see Phase 1 & Phase 6).
 
 ### Per‑dataset variable availability (Phase 0 verification)
 
@@ -35,8 +35,8 @@ If any required variable is missing from the **primary** dataset, Phase 0 abor
 | Decision | Rationale | CPU / GPU |
 |----------|-----------|-----------|
 | Use **verified** HuggingFace parquet/CSV/H5 files instead of live GitHub API | Guarantees unattended CI execution, respects rate‑limit constraints, and satisfies FR‑001/FR‑009 via a no‑op backoff. | CPU |
-| Primary binary comparison limited to `nebius/SWE-rebench-V2-PRs` | Avoids dataset‑origin confounding; provenance is derived per‑PR, not per‑source. | CPU |
-| Classification hierarchy (header > diff > keyword) enforced in `classify_provenance.py` | Direct implementation of FR‑002 and Constitution VI; unit test `test_precedence_header_wins` will verify correct behavior. | CPU |
+| Primary binary comparison limited to `loubnabnl/prs-v2-sample` | Avoids dataset‑origin confounding; provenance is derived per‑PR, not per‑source. | CPU |
+| Classification hierarchy (header > diff > keyword) enforced in `classify_provenance.py` | Direct implementation of FR‑002 and Constitution VI; unit test `test_precedence_header_wins` verifies correct behavior. | CPU |
 | Mixed‑effects model with `repo_name` random intercept + fixed covariates (`lines_changed`, `author_experience`, `repository_popularity`, `creation_quarter`) | Satisfies FR‑013 (within‑repo non‑independence) and controls known confounders; uses `statsmodels.MixedLM` (CPU‑tractable). | CPU |
 | Pre‑specify Mann‑Whitney U as primary test; report Welch t‑test alongside | Normality tests are expected to reject at scale; the companion test provides robustness without changing conclusions. | CPU |
 | Bonferroni correction across all primary metrics | Controls family‑wise error as required by the multiplicity assumption in the spec. | CPU |
@@ -58,7 +58,7 @@ All decisions are CPU‑first; no GPU escape hatch is needed.
 6. **Robustness flag** – Set if any significance flips across IQR thresholds or comment‑filter relaxation (SC‑003).  
 7. **Collinearity** – VIF computed for `lines_changed` vs. `comment_density`; if VIF > 5, report joint relationship only.  
 8. **Power** – Verify n ≥ 64/group (t‑test) and ≈ 70/group (rank‑based); otherwise add a limitation paragraph (FR‑019, SC‑007).  
-9. **Temporal confounding** – Include `creation_quarter` as a fixed effect; run a stratified sensitivity check.  
+9 **Temporal confounding** – Include `creation_quarter` as a fixed effect; run a stratified sensitivity check.  
 
 All statistical procedures are implemented with `scipy`, `statsmodels`, and `scikit-learn`.
 
