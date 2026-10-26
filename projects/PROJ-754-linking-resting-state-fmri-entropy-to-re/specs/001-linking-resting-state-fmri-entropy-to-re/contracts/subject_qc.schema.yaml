@@ -48,4 +48,4 @@ items:
     checksum:
       type: string
       description: "SHA‑256 checksum of the row for reproducibility."
-additionalProperties: false
+  additionalProperties: false

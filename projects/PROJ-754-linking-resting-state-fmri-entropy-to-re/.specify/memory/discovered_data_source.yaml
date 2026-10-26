@@ -1,12 +1,12 @@
 status: none
-intent: Human Connectome Project ConnectomeDB 4mm parcellated resting state time series
-  DSRT scores download python package dataset
+intent: download HCP 4mm parcellated resting-state time series and DSRT scores python
+  package dataset
 required_fields:
 - subject_id
+- session_id
 - parcel_time_series
 - mean_framewise_displacement
-- DSRT_total_score
-- DSRT_subscale_scores
-cache_key: 7794ba4f9519f19e82183e575398edecf8a49dc2c60f92d5b4c70d240485ea30
-searched_at: '2026-10-26T09:18:45.224883+00:00'
+- dsrt_score
+cache_key: a565caaacd33d52ef2235e93d019744c8c7d62efdf666f82bcdcc6c27b1a6f54
+searched_at: '2026-10-26T09:21:00.687156+00:00'
 retry_count: 1

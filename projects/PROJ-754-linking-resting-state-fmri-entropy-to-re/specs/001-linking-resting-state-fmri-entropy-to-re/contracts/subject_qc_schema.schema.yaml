@@ -45,4 +45,4 @@ items:
     - status
     - reason
     - selected
-additionalProperties: false
+  additionalProperties: false

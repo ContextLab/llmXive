@@ -20,7 +20,7 @@ Run the full analysis on a fresh GitHub Actions runner (or any Linux environment
    ```bash
    python -m src.run_pipeline \
        --hcp-token $HCP_TOKEN \
-       --subject-limit 200 \
+       --subject-limit <maximum_subjects> \
        --fd-threshold 0.2 \
        --entropy-r 0.15 \
        --entropy-m 2 \
@@ -29,17 +29,19 @@ Run the full analysis on a fresh GitHub Actions runner (or any Linux environment
        --seed 42
    ```
    The script will:
-   - Download HCP time series **including** DSRT scores.
-   - Perform QC (motion, missing DSRT) → `clean_subjects.parquet` & `subject_qc.csv` (both contain a `checksum` column).
-   - Compute multiscale entropy → `entropy_matrix.json` (with per‑row `checksum`) and optional per‑scale parquet files.
-   - Fit parcel‑wise **ordinary least squares (OLS)** models, run permutations (parallel, 1 000 shuffles), compute VIF and apply mitigation, run OLS diagnostics with robust fallback, and perform an a priori power analysis.
-   - Generate the final PDF report `reports/link_entropy_risk.pdf` and NIfTI map `significant_parcels.nii.gz`.
-   - Log all steps under `logs/` (including permutation timeout logs).
+   - **Download** HCP minimally preprocessed 4 mm parcellated time series **including** DSRT scores (verified URLs).
+   - **Perform QC** (motion threshold, missing DSRT) and write `data/derived/clean_subjects.parquet` **and** `data/derived/subject_qc.csv` (validated against `contracts/subject_qc.schema.yaml`).
+   - **Compute** multiscale entropy (averaged across scales 1‑5) and write `data/derived/entropy_matrix.parquet` (validated against both `contracts/entropy.schema.yaml` **and** `contracts/entropy_schema.schema.yaml`).
+   - **Fit** a **mixed‑effects** linear model per parcel (`DSRT ~ Entropy + Age + Sex + MeanFD + (1|Subject)`) using `statsmodels.MixedLM`. If the VIF for covariates exceeds 5 (the verified VIF = 33), the pipeline automatically switches to ridge regression with cross‑validated L2 penalty.
+   - **Run** 1 000 Freedman‑Lane label‑shuffled permutations (parallelized) and apply max‑t FWE correction.
+   - **Conduct** a sensitivity sweep over `r` (0.1, 0.15, 0.2) and `m` (3, 5, 7), recording both the count of significant parcels **and** summary statistics of the entropy‑β coefficients.
+   - **Generate** the final PDF report `reports/link_entropy_risk.pdf` and NIfTI map `results/significant_parcels.nii.gz`.
+   - **Log** all steps under `logs/` (including permutation timeout logs) and exit with clear error codes if any step fails.
 
 3. **Inspect the results**
-   - **Statistical table**: `results/model_coefficients.csv` (includes `checksum`).  
+   - **Statistical table**: `results/model_coefficients.csv` (includes `checksum`).
    - **Significant parcels map**: `results/significant_parcels.nii.gz`  
-   - **Power summary**: `results/power_analysis.csv`  
+   - **Power analysis**: `results/power_analysis.csv` (shows a priori power = 0.80 for N = 200).  
    - **Sensitivity table**: `data/derived/sensitivity_records.parquet` (also summarised in the PDF).  
    - **Full report**: `reports/link_entropy_risk.pdf`
 
@@ -48,10 +50,10 @@ Run the full analysis on a fresh GitHub Actions runner (or any Linux environment
    pytest -v tests/
    ```
    The test suite checks:
-   - Successful download (`tests/integration/test_download.py`).
-   - QC logic and output file creation (`tests/unit/test_qc.py`).
-   - Entropy computation and invalid‑parcel flagging (`tests/unit/test_entropy.py`).
-   - Statistical pipeline produces the expected schema (`tests/unit/test_stats.py`).
+   - Successful download of the HCP dataset.
+   - QC logic and output file creation.
+   - Entropy computation and invalid‑parcel flagging.
+   - Statistical pipeline produces the expected schema‑conforming outputs.
 
 ## Expected Runtime & Resources (CI‑friendly)
 
@@ -66,5 +68,4 @@ Run the full analysis on a fresh GitHub Actions runner (or any Linux environment
 All steps respect the CPU‑only constraint (GC‑001) and stay within the free‑tier GitHub Actions limits.
 
 ---
-
 
