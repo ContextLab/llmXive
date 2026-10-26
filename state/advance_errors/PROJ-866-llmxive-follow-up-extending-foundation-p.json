@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-866-llmxive-follow-up-extending-foundation-p",
-  "stage": "planned",
+  "stage": "in_progress",
   "class": "transient",
-  "fingerprint": "model_chain_failed",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-22T13:58:03.754173+00:00",
-  "last_seen": "2026-10-24T13:20:17.410747+00:00",
-  "retry_after": null,
-  "last_error": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
-  "evidence": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-26T00:45:19.903841+00:00",
+  "last_seen": "2026-10-26T00:45:19.903841+00:00",
+  "retry_after": "2026-10-26T00:55:19.903841+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['openai.gpt-oss-120b', 'zai-org.glm-5.3', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: openai.gpt-oss-120b(model-down attempt 1): !DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n<html><head>\n<title>302 Moved Temporarily</title>\n</head><body>\n<h1>Moved </h1>\n<p>The document has moved <a href=\"http://outage.dartmouth.edu\">here</a>.</p>\n</body></html> | zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-4-31B-it(model-down attempt 1): !DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n<html><head>\n<title>302 Moved Temporarily</title>\n</head><body>\n<h1>Moved </h1>\n<p>The document has moved <a href=\"http://outage.dartmouth.edu\">here</a>.</p>\n</body></html> | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claud",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['openai.gpt-oss-120b', 'zai-org.glm-5.3', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: openai.gpt-oss-120b(model-down attempt 1): !DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\"> <html><head> <title>302 Moved Temporarily</title> </head><b",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }
