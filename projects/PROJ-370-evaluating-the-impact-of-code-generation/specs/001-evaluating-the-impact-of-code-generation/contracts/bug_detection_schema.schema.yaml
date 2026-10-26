@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "BugDetection Schema"
-description: "Schema for bug detections from LLM or Human sources (dataclass defined in src/detection/schema.py)"
+description: "Schema for bug detections from LLM or Human sources"
 type: "object"
 required:
   - bug_id
@@ -16,10 +16,10 @@ properties:
     description: "Unique ID for the bug detection"
   source:
     type: "string"
+    description: "Source of the bug detection"
     enum:
       - "human"
       - "llm"
-    description: "Source of the bug detection"
   file_path:
     type: "string"
     description: "Relative file path in the repository"
@@ -33,12 +33,12 @@ properties:
     minimum: 1
   severity:
     type: "string"
+    description: "Severity classification of the bug"
     enum:
       - "critical"
       - "major"
       - "minor"
       - "style"
-    description: "Severity classification of the bug"
   description:
     type: "string"
     description: "Natural language description of the bug"

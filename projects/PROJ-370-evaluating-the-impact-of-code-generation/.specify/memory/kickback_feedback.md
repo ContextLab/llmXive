@@ -1,13 +1,13 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 5 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T003` (rejected 1x): the task writes platform-owned path(s) inside the project: `.github/workflows/ci.yml` (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
-- `T005` (rejected 1x): The CLI script exists and exits 0, producing a schema‑valid `data/results/smoke_report.json`, but there is no provided evidence that `logs/pipeline.jsonl` was created and contains the required `"cli_start"` event (the file’s content is not shown). Without confirming this log entry, the task’s verification criteria are not fully satisfied.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan states a *Minimum‑N power check* ("Tests run only if analyzable PR count ≥ 100") but provides no quantitative power analysis (e.g., expected effect size, α, β) to justify that 100 PRs is sufficient for McNemar’s test and chi‑square. Without a formal power calculation the statistical claims may be under‑powered.
+- Potential confounds such as repository‑level differences, PR size, and presence of LLM‑generated code are not explicitly modelled or controlled. The plan flags LLM‑generated code (FR‑016) but does not describe how these PRs will be excluded or adjusted for in the comparative analysis, risking biased estimates of LLM‑assisted review quality.
+- Alignment relies on a fixed similarity threshold (≥ 0.85) and Jaccard overlap (≥ 0.5). The choice of these thresholds is not justified nor linked to any validation study, which may affect construct validity of the matched bug set.
+- FR-014 ('System MUST explicitly state in the final report that the term "affect" ... is interpreted as "correlate with"') is absent from the plan. No reporting task mentions this required clarification.
+- The plan states that `src.inference.run_inference` loads `bigcode/starcoder2-3b` in `torch.float16` with `low_cpu_mem_usage=True`. Float16 tensors are not supported on CPU‑only PyTorch builds and will raise a runtime error, making the inference step infeasible on the GitHub Actions free‑tier runner (CPU‑only, ≤7 GB RAM). The model should be loaded in a CPU‑compatible dtype (e.g., `torch.float32` or 8‑bit quantized) or a smaller model should be used to stay within the memory/compute budget.

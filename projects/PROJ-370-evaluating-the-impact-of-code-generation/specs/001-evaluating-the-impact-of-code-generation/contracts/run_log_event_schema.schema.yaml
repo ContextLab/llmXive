@@ -12,7 +12,7 @@ properties:
     description: "ISO-8601 UTC timestamp of the event"
   event:
     type: "string"
-    description: "Event type (e.g., 'timeout', 'pr_skipped', 'retry', 'pr_processed', 'seed_used')"
+    description: "Event type (e.g., 'cli_start', 'timeout', 'pr_skipped', 'retry', 'pr_processed', 'seed_used')"
   pr_id:
     type: "string"
     description: "Optional PR identifier the event concerns"
