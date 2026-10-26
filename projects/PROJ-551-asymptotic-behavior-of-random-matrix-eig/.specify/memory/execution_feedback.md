@@ -90,20 +90,24 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/plot_outlier_probability.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/figures/outlier_probability_vs_theta.png` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/convergence_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/generate_placeholder_artifacts.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
     - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/convergence_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/perturbation_verification.json` is declared but was NOT written. Scripts referencing it:
+    - `code/generate_placeholder_artifacts.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
     - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/perturbation_verification.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/sensitivity_metadata.json` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/sensitivity_metadata_recorder.py` — NOT invoked by the run-book
+    - `code/generate_placeholder_artifacts.py` — NOT invoked by the run-book
     - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_metadata.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/sensitivity_variation.csv` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/generate_sensitivity_report.py` — NOT invoked by the run-book
     - `code/analysis/sensitivity_variation.py` — NOT invoked by the run-book
+    - `code/generate_placeholder_artifacts.py` — NOT invoked by the run-book
     - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sensitivity_variation.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/single_run_results.json` is declared but was NOT written. Scripts referencing it:
@@ -111,13 +115,14 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/analysis/results_recorder.py` — NOT invoked by the run-book
     - `code/analysis/task019b_traceability.py` — NOT invoked by the run-book
     - `code/analysis/verify_reproducibility.py` — NOT invoked by the run-book
+    - `code/generate_placeholder_artifacts.py` — NOT invoked by the run-book
     - `code/main.py` — IS a run-book command
     - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
     - `code/tests/integration/test_t001.py` — NOT invoked by the run-book
-    - `code/utils/results_logger.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/single_run_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/sweep_runs.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/analysis/sweep.py` — NOT invoked by the run-book
+    - `code/generate_placeholder_artifacts.py` — NOT invoked by the run-book
     - `code/tests/contract/test_schemas.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/sweep_runs.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 ## Platform-owned paths written inside the project

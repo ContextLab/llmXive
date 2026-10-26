@@ -1,11 +1,11 @@
 """
-Contract‑validation test suite for the project.
+Contract‑validation test suite (T001).
 
-One test is provided for **each** artifact that the pipeline is expected
-to produce.  The tests load the real file from ``data/processed`` (or the
-appropriate location for Parquet/CSV) and validate it against the matching
-schema in ``contracts/``.  Missing files raise an ``AssertionError`` – no
-``skip`` branches are used, satisfying the “FAIL on missing” requirement.
+One test is provided for EACH artifact the pipeline is expected to
+produce.  Every test loads the REAL file from ``data/processed/`` and
+validates it against the matching schema in ``contracts/`` (JSON Schema
+via ``jsonschema`` for JSON files; explicit column‑level checks for
+Parquet/CSV).  Missing files cause FAIL; there are no SKIP branches.
 """
 import json
 import pathlib
@@ -44,7 +44,7 @@ def test_convergence_report():
     path = REPO_ROOT / "data" / "processed" / "convergence_report.json"
     _validate_json(path, "convergence_report")
 
-# 3. sweep_runs.parquet
+# 3. sweep_runs.parquet (column-level checks)
 def test_sweep_runs_parquet():
     path = REPO_ROOT / "data" / "processed" / "sweep_runs.parquet"
     assert path.is_file(), f"Artifact missing: {path}"
@@ -59,12 +59,12 @@ def test_aggregated_thresholds():
     path = REPO_ROOT / "data" / "processed" / "aggregated_thresholds.json"
     _validate_json(path, "aggregated_thresholds")
 
-# 5. threshold_fit.json
+# 5. threshold_fit.json (new contract)
 def test_threshold_fit():
     path = REPO_ROOT / "data" / "processed" / "threshold_fit.json"
     _validate_json(path, "threshold_fit")
 
-# 6. sensitivity_density_sweep.parquet
+# 6. sensitivity_density_sweep.parquet (column-level checks)
 def test_sensitivity_density_sweep_parquet():
     path = REPO_ROOT / "data" / "processed" / "sensitivity_density_sweep.parquet"
     assert path.is_file(), f"Artifact missing: {path}"
@@ -79,7 +79,7 @@ def test_sensitivity_metadata():
     path = REPO_ROOT / "data" / "processed" / "sensitivity_metadata.json"
     _validate_json(path, "sensitivity_metadata")
 
-# 8. sensitivity_variation.csv
+# 8. sensitivity_variation.csv (column-level checks)
 def test_sensitivity_variation_csv():
     path = REPO_ROOT / "data" / "processed" / "sensitivity_variation.csv"
     assert path.is_file(), f"Artifact missing: {path}"
@@ -95,7 +95,7 @@ def test_sensitivity_variation_notes():
     path = REPO_ROOT / "data" / "processed" / "sensitivity_variation_notes.json"
     _validate_json(path, "sensitivity_variation_notes")
 
-# 10. finite_size_results.csv
+# 10. finite_size_results.csv (column-level checks)
 def test_finite_size_results_csv():
     path = REPO_ROOT / "data" / "processed" / "finite_size_results.csv"
     assert path.is_file(), f"Artifact missing: {path}"

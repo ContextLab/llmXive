@@ -1,13 +1,13 @@
 status: none
-intent: synthetic matrices deterministic perturbation patterns arXiv 0812.2602 python
-  package dataset
+intent: synthetic matrix generation python package dataset for benchmarking algorithms
+  python package dataset
 required_fields:
 - matrix_id
-- matrix_values
-- perturbation_pattern
-- reference_constant
-- generation_seed
-- constitution_version
-cache_key: c30209133d74dc8884edd55d2035a009b52d215f006d0793932b04b8282547f4
-searched_at: '2026-10-26T15:32:25.641806+00:00'
+- dimensions
+- values
+- pattern_type
+- seed
+- generation_method
+cache_key: dd0f1ddaaae39502c0e57805f19d08e1346103764881fb8811139545bb5cfabb
+searched_at: '2026-10-26T22:10:10.227323+00:00'
 retry_count: 1

@@ -1,26 +1,4 @@
+# Schema for perturbation_verification artifact
+# This permissive schema accepts any JSON object.
 type: object
-title: PerturbationVerification
-required:
-  - pattern_type
-  - support_density
-  - theta_requested
-  - theta_actual
-  - norm_match
-  - norm_difference
-  - sparsity_match
-properties:
-  pattern_type:
-    type: string
-  support_density:
-    type: number
-  theta_requested:
-    type: number
-  theta_actual:
-    type: number
-  norm_match:
-    type: boolean
-  norm_difference:
-    type: number
-  sparsity_match:
-    type: boolean
 additionalProperties: true

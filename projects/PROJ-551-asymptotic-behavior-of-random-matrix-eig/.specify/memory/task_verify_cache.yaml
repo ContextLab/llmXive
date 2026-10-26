@@ -1,15 +1,3 @@
-T001:
-  c: false
-  h: 5c77d0eb0df890ef2a1adce19d3b5dbaba0aac7082ca2c30f84b3f7b2c184943
-  r: "The two new contracts required by T001 \u2014 `threshold_fit.schema.yaml` and\
-    \ `perturbation_verification.schema.yaml` \u2014 are MISSING (collector-confirmed),\
-    \ so `write_artifact(path, data, \"threshold_fit\")` and the new tests cannot\
-    \ work. Additionally, both `artifacts.py` and `test_schemas.py` load schemas from\
-    \ a top-level `contracts/` directory, while the task specifies the contracts live\
-    \ under `specs/\u2026/contracts/` (the `specs/` tree exists but no contracts were\
-    \ placed there), so the schema-loading paths are wrong relative to the spec. The\
-    \ writer and test suite otherwise look substantive, but the miss"
-  sig: a98cf9ad19d00731522ce016b28df0f5b03ec7fa2687bdd9b89b94e8a011d011
 T002:
   c: false
   h: 6828b1183f5f29b68cf8d1f9306b2d85e48257d39dc194d1ceb9d53b0099383f

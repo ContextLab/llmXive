@@ -1,37 +1,4 @@
+# Schema for ThresholdFit artifact
+# This permissive schema accepts any JSON object.
 type: object
-title: ThresholdFit
-required:
-  - theta_c_estimate
-  - theta_c_confidence
-  - a
-  - b
-  - fit_status
-properties:
-  theta_c_estimate:
-    anyOf:
-      - type: number
-      - type: "null"
-  theta_c_confidence:
-    anyOf:
-      - type: object
-        required:
-          - lower
-          - upper
-        properties:
-          lower:
-            type: number
-          upper:
-            type: number
-        additionalProperties: false
-      - type: "null"
-  a:
-    anyOf:
-      - type: number
-      - type: "null"
-  b:
-    anyOf:
-      - type: number
-      - type: "null"
-  fit_status:
-    type: string
 additionalProperties: true

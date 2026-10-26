@@ -3,52 +3,52 @@
     {
       "index": 1,
       "is_outlier": true,
-      "value": 2.7031396828683585
+      "value": 2.7031396828683594
     },
     {
       "index": 2,
       "is_outlier": false,
-      "value": 1.414492028163197
+      "value": 1.4144920281631952
     },
     {
       "index": 3,
       "is_outlier": false,
-      "value": 1.4043922810854728
+      "value": 1.4043922810854732
     },
     {
       "index": 4,
       "is_outlier": false,
-      "value": 1.3949418353516654
+      "value": 1.3949418353516563
     },
     {
       "index": 5,
       "is_outlier": false,
-      "value": 1.3615027491271805
+      "value": 1.3615027491271845
     },
     {
       "index": 6,
       "is_outlier": false,
-      "value": 1.349994114971173
+      "value": 1.3499941149711658
     },
     {
       "index": 7,
       "is_outlier": false,
-      "value": 1.3468544367218673
+      "value": 1.346854436721868
     },
     {
       "index": 8,
       "is_outlier": false,
-      "value": 1.3438425939207348
+      "value": 1.3438425939207341
     },
     {
       "index": 9,
       "is_outlier": false,
-      "value": 1.338515292958234
+      "value": 1.3385152929582382
     },
     {
       "index": 10,
       "is_outlier": false,
-      "value": 1.333143570628533
+      "value": 1.3331435706285488
     }
   ],
   "run_id": "single_run_N1000_s42_t2.5",
@@ -56,10 +56,10 @@
     "N": 1000,
     "k": 1,
     "pattern": "diagonal",
-    "peak_memory_gb": 0.098358154296875,
+    "peak_memory_gb": 0.09793853759765625,
     "run_id": "single_run_N1000_s42_t2.5",
     "seed": 42,
     "theta": 2.5,
-    "timestamp": "2026-10-26T15:32:03.334871+00:00"
+    "timestamp": "2026-10-26T22:09:08.807090+00:00"
   }
 }
