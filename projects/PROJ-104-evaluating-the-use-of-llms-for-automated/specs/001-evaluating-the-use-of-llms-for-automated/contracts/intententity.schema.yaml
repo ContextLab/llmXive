@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: IntentEntity
+description: Schema for intent entity extraction JSON files.
+type: object
+additionalProperties: false
+required:
+  - sample_id
+  - type
+  - entities
+properties:
+  sample_id:
+    type: string
+    description: Identifier of the commit/sample.
+  type:
+    type: string
+    enum:
+      - intent
+    description: Must be the literal string "intent".
+  entities:
+    type: array
+    description: List of extracted intent entities.
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - entity
+        - verified
+      properties:
+        entity:
+          type: string
+          description: The extracted intent entity text.
+        verified:
+          type: boolean
+          description: Whether the entity was verified against the repository.

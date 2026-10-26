@@ -5,11 +5,10 @@ five target repositories. It uses the GitHub REST API to identify commits
 from the last 2 years and the GitHub API to retrieve the per‑file patches.
 Only changes to ``.md`` or ``.rst`` files are retained.
 
-The script requires a ``GITHUB_TOKEN`` environment variable for authenticated
-requests (higher rate limits). If the variable is missing the script falls
-back to unauthenticated requests and logs a warning – this allows the
-pipeline to run in environments where a token is not provided while still
-attempting to fetch real data.
+The script **requires** a ``GITHUB_TOKEN`` environment variable for
+authenticated requests (higher rate limits). If the variable is missing the
+script aborts loudly – this matches the functional requirement that the
+token be mandatory.
 
 The CSV written to ``data/raw/commit_pairs.csv`` must contain at least
 ``MIN_PAIRS`` rows (500). The script aborts with a clear error if the
@@ -54,31 +53,55 @@ METADATA_PATH = paths.data("metadata.yaml")
 # GitHub API helpers
 # ----------------------------------------------------------------------
 TOKEN = os.getenv("GITHUB_TOKEN")
-if TOKEN:
-    log.info("Using provided GITHUB_TOKEN for authenticated GitHub requests.")
+if not TOKEN:
+    log.error("GITHUB_TOKEN environment variable is required for data extraction.")
+    raise RuntimeError("Missing GITHUB_TOKEN – aborting data extraction.")
 else:
-    log.warning(
-        "GITHUB_TOKEN not set – proceeding with unauthenticated GitHub API calls "
-        "(lower rate limits)."
-    )
+    log.info("Using provided GITHUB_TOKEN for authenticated GitHub requests.")
 
 SESSION = requests.Session()
 SESSION.headers.update(
     {
         "Accept": "application/vnd.github.v3+json",
         "User-Agent": "llmxive-data-extraction",
+        "Authorization": f"token {TOKEN}",
     }
 )
-if TOKEN:
-    SESSION.headers["Authorization"] = f"token {TOKEN}"
 
-def _github_get(url: str, params: dict | None = None) -> dict:
-    """GET a JSON payload from the GitHub API, handling errors."""
-    resp = SESSION.get(url, params=params, timeout=30)
-    if resp.status_code == 403:
-        raise RuntimeError(f"GitHub API rate limit or forbidden: {resp.text}")
-    resp.raise_for_status()
-    return resp.json()
+# Simple exponential back‑off retry for rate‑limit (429) and secondary
+# rate‑limit (403) responses.
+def _github_get(url: str, params: dict | None = None, max_retries: int = 5) -> dict:
+    """GET a JSON payload from the GitHub API, handling rate‑limit errors."""
+    backoff = 1
+    for attempt in range(1, max_retries + 1):
+        try:
+            resp = SESSION.get(url, params=params, timeout=30)
+            if resp.status_code in (429, 403):
+                # GitHub may include a Retry‑After header; fall back to backoff.
+                retry_after = resp.headers.get("Retry-After")
+                wait = int(retry_after) if retry_after and retry_after.isdigit() else backoff
+                log.warning(
+                    "GitHub rate limit (status %s) on %s – waiting %s seconds (attempt %d)",
+                    resp.status_code,
+                    url,
+                    wait,
+                    attempt,
+                )
+                time.sleep(wait)
+                backoff = min(backoff * 2, 60)  # cap back‑off at 60 s
+                continue
+            resp.raise_for_status()
+            return resp.json()
+        except requests.exceptions.RequestException as e:
+            if attempt == max_retries:
+                log.exception("GitHub request failed after %d attempts: %s", attempt, e)
+                raise
+            else:
+                log.warning("GitHub request error (%s) – retry %d/%d", e, attempt, max_retries)
+                time.sleep(backoff)
+                backoff = min(backoff * 2, 60)
+    # Should never reach here
+    raise RuntimeError(f"Failed to GET {url}")
 
 def _list_commits(owner: str, repo: str, since_iso: str) -> List[dict]:
     """Iterate over all commits since ``since_iso`` (ISO‑8601)."""
@@ -109,10 +132,8 @@ def _fetch_commit_diff(owner: str, repo: str, sha: str) -> str:
         filename = f.get("filename", "")
         if not (filename.endswith(".md") or filename.endswith(".rst")):
             continue
-        # ``patch`` may be None for binary files – skip those.
         patch = f.get("patch")
         if patch:
-            # Re‑create a minimal diff header for consistency.
             diff_header = f"diff --git a/{filename} b/{filename}"
             doc_hunks.append(f"{diff_header}\n{patch}")
     return "\n".join(doc_hunks).strip()
@@ -202,7 +223,7 @@ def extract_commit_pairs() -> List[dict]:
             }
             rows.append(row)
 
-        # Respect GitHub secondary rate limits – small sleep between repos.
+        # Respect GitHub secondary rate limits – short sleep between repos.
         time.sleep(1)
 
     log.info(

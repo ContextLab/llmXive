@@ -10,6 +10,7 @@ created:
   per‑model success‑rate columns.
 * At least one intent‑entity JSON file under
   ``data/intermediate/intent_entities/`` (required by the contract test).
+* A short log file ``logs/quickstart_run.log`` confirming the test run.
 """
 from __future__ import annotations
 
@@ -51,3 +52,8 @@ def test_quickstart_creates_outputs(sample_arg):
     intent_dir = paths.data("intermediate", "intent_entities")
     json_files = list(intent_dir.glob("*.json"))
     assert json_files, f"No intent JSON files found in {intent_dir}"
+
+    # 4. Write a short log file confirming the test run.
+    log_path = paths.logs("quickstart_run.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.write_text("Quickstart integration test completed successfully.\n", encoding="utf-8")

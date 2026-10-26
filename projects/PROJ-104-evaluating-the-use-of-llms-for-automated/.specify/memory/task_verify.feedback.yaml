@@ -1,85 +1,37 @@
 T001:
-  reason: "The quick\u2011start guide does not explicitly list the required Python\u202F\
-    3.11 packages (it only points to `requirements.txt`), and there is no recorded\
-    \ evidence that `pytest tests/test_quickstart.py` was executed and passed. Adding\
-    \ the package list to `docs/quickstart.md` and providing a test\u2011run log showing\
-    \ the pytest suite succeeding would be needed to satisfy the task."
-  task: 7f3f924cb1e80f425a7fe363f56fcd146eb6dd4bf05f339acb5c536bf9d85ee5
+  reason: "The quick\u2011start guide omits any instruction for setting `GITHUB_TOKEN`\
+    \ and describes only a \u201Csmoke\u2011test\u201D that uses a hard\u2011coded\
+    \ commit pair rather than a real 5\u2011sample subset downloaded by the data\u2011\
+    extraction script. Moreover, `tests/test_quickstart.py` calls `run_pipeline.main`\
+    \ directly instead of invoking the command via `subprocess`, and it does not capture\
+    \ stdout as required. These omissions mean the task\u2019s specifications are\
+    \ not fully met."
+  task: ad8b7da12a812516de57f5cc04b2d15ce66c35856e417d66bfbc7d46ef6297a4
 T002:
-  task: cecc03d00aa9eeed68fadbcd623d9e9808aa9b5726f7eb14bedaec2c2c5cf5bc
+  task: 301a52712c3dd0fe87b0e770778abfeb16e6ed0f5fc2564483ea2bca5228bcd8
 T003:
   reason: 'Requested task execution failed; rerun successfully: code/data_extraction.py
     exit=1'
-  task: e45cd58dfb2deb37015d910c48f98763df52968b3578974b6c8c76f568a25193
+  task: 3f204a970bc7acc62aab1f2edb9749ff55ac5a33ca39748a1515fd2246a7b4b3
 T004:
-  reason: "Checked `code/gold_annotation.py`, `data/gold/annotations.json`, `data/gold/sample_for_annotation.csv`,\
-    \ `data/gold/annotator_<id>.csv`, and `data/gold/conflicts.log`. The script never\
-    \ writes the required CSV sample file, provides no HTML/JS annotation UI, does\
-    \ not read annotator CSVs, writes its JSON to the wrong path (`data/gold_standard/annotations.json`),\
-    \ and only logs a fallback when \u03BA\u202F<\u202F0.6 instead of aborting\u2014\
-    so the required 50\u2011sample gold\u2011standard dataset, \u03BA\u202F\u2265\u202F\
-    0.6 guarantee, and associated files are missing."
-  task: 810e65b200d1b5e46f9b1c92fa6d192386746b409bb13bd6977c7505abc5c537
+  task: d4bae6a779a54556a230619704daeef0b24fa7e12e16d85cd942eac3b543b508
 T005:
-  reason: The `docs/model_selection_and_limitations.md` file is present and contains
-    the required rationale, table, and limitation discussion, but the required test
-    file `tests/test_model_selection.py` is missing, so the verification step cannot
-    be performed. Adding the pytest file (and ensuring it passes) is needed to complete
-    the task.
-  task: ea4f9cbf0ad1b00f0fa5161bb2825756b08fb604ba9308de706fa8c4eade1031
+  task: 19decc807d5be24f5149a74fad943d60cac068688c3fb89284e936fe3c56eb6f
 T006:
-  reason: "The repository contains `code/generation.py` and the expected output files,\
-    \ but the script deliberately skips real 4\u2011bit CPU model loading, does not\
-    \ enforce the required decoding parameters, lacks any retry\u2011logic or `log.txt`\
-    \ files, provides no timing or timeout evidence, and `data/metadata.yaml` does\
-    \ not record SHA\u2011256 checksums for the generated documentation files. Consequently\
-    \ the core requirements of loading the three LLMs on CPU and measuring true success\u2011\
-    rate performance are not met."
-  task: d776c6e9c8edb24658df159e391c1247e34020611b612b94cd1ffd811ec1a4bd
+  task: 86ebedd41fa998c7d9361c306b98e0ef8477ed91f700c50e3e471214571b61e8
 T007:
-  reason: "The `code/entity_extraction_surface.py` script is present and implements\
-    \ the three required regexes and best\u2011effort `git grep -w` verification,\
-    \ but the required output directory `data/intermediate/surface_entities/` is missing\
-    \ and no evidence (e.g., generated JSON files or a test report showing \u2265\
-    95\u202F% verification on a 50\u2011sample audit) is provided. Without these artifacts\
-    \ the task\u2019s verification requirement is not satisfied."
-  task: 05c252a997a817f4653107d31a67860b2bf68d03d4ac0d76431cfbcfb9681aac
+  task: 84724bbbc8eabe543ddb624f5e312881b0669e9e6104009b914e14cce98d9e88
 T008:
-  reason: "Checked `code/entity_extraction_intent.py` (implementation present) and\
-    \ the output directory `data/intermediate/intent_entities/` (contains only a single\
-    \ dummy JSON file). No evidence shows that the zero\u2011shot classifier was actually\
-    \ run, calibrated on the T004 gold annotations, or that precision\u202F\u2265\u202F\
-    0.75 and recall\u202F\u2265\u202F0.70 on the required 50\u2011sample gold set.\
-    \ Metrics or test results are missing, and the provided `results/statistics.json`\
-    \ contains only null placeholders. The task therefore lacks the required execution\
-    \ and evaluation artifacts."
-  task: 3f1ea1fcbe47d199b34511144c21c984cf03f4b1a501e21922e0bfa0eb21b3ba
+  task: 81b2482324f8e6b355ca1dea5a4bc5fc2132621368319e0ddd1c39f3ceaa709a
 T009:
-  reason: "The required output `data/processed/fidelity_metrics.csv` is missing, the\
-    \ schema file `fidelity.schema.yaml` (and its test) are absent, and `code/fidelity_scoring.py`\
-    \ contains only placeholder logic that never loads EntitySets or computes real\
-    \ precision/recall or hallucination rates. These gaps prevent the task\u2019s\
-    \ specifications from being satisfied."
-  task: aa3d382e985f5bcd8d229c6fc5549fb3dfc5f2c0c41a4fb8c413fc015027d555
+  task: 83d42e5dc0c82269a9c05a66eeaf0fc337bda03426d0df87e58a64b7c847a742
 T010:
-  reason: "The script `code/statistical_analysis.py` exists, but it relies on `data/processed/fidelity_metrics.csv`,\
-    \ which is not present in the evidence, so no real Shapiro\u2011Wilk, Friedman/ANOVA,\
-    \ or effect\u2011size calculations could be performed. Consequently `results/statistics.json`\
-    \ contains only `null` p\u2011values and effect sizes, indicating placeholder\
-    \ output rather than the required statistical results. The exploratory flag is\
-    \ correctly propagated, but the core analysis is missing."
-  task: f3eb4ed3a6a7c4d9df27d4ad54ffff45f2df37740fe82abdba9b59504c07fa52
+  task: c7a9298d0da86b3b77edd382e73453e958a6ae8c599ef567dc2ee5dd4f63f88a
 T011:
-  reason: "The `results/figures/intent_precision_bar.png` and `results/figures/surface_confusion_matrix.png`\
-    \ files are missing, so the required PNG artifacts do not exist or have non\u2011\
-    zero size. The `summary.md` file is present, but without the accompanying figure\
-    \ files the task\u2019s verification criteria are not met."
-  task: 57a2efed4e38228c4e0335448d4ab957dcf0e636598b98136c74463b61f0e504
+  task: 691c4b8cc30001ff1eaca9abd6b0d6eb2b422e7b102409a90f551d946856d2d2
 T012:
-  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/research.yml`
-    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
-    owns state/ and derives artifact hashes at verification time. Re-scope the step
-    to write only project-owned outputs.'
-  task: 9b900171c3c3d6ede9e74b140eaba6329ad95f41e7687ca7322a352daa2a46f3
+  task: ac62ea7e29d9d922f9a4d1260eac5c55feae03fcabd4f01da9b339f0f94dab2c
 T013:
-  task: bf8e80e7fe8781f06e510ac045ae6f6d5214bfff3e6067021e4a481b89dd24a0
+  task: 116ad139f468b1d6b85275cb181b10a3548997778cbc26e42fe74c00f5298802
+T014:
+  task: 771c64b760a83c5a86e288e8c32eb2c5f0c119961e80fe3a465215b14a58a88c

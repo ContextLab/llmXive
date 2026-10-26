@@ -1,105 +1,30 @@
 T001:
   c: false
-  h: c8d8b39640d289491488e1c94730e97d3843fbd71830adbc2afaf1a38009bf81
-  r: "The quick\u2011start guide does not explicitly list the required Python\u202F\
-    3.11 packages (it only points to `requirements.txt`), and there is no recorded\
-    \ evidence that `pytest tests/test_quickstart.py` was executed and passed. Adding\
-    \ the package list to `docs/quickstart.md` and providing a test\u2011run log showing\
-    \ the pytest suite succeeding would be needed to satisfy the task."
-  sig: 69427147f24c496f8ef883c551f49599e9d982e2fe4968485dc8064de430c386
+  h: bd562c73211f63d04d9e9a7a588ff80ca86754ee10ae9cd9ef5f21aefacbbb2a
+  r: "The quick\u2011start guide omits any instruction for setting `GITHUB_TOKEN`\
+    \ and describes only a \u201Csmoke\u2011test\u201D that uses a hard\u2011coded\
+    \ commit pair rather than a real 5\u2011sample subset downloaded by the data\u2011\
+    extraction script. Moreover, `tests/test_quickstart.py` calls `run_pipeline.main`\
+    \ directly instead of invoking the command via `subprocess`, and it does not capture\
+    \ stdout as required. These omissions mean the task\u2019s specifications are\
+    \ not fully met."
+  sig: d147776890cf735123a2a3aa5390cc8b6165d6b7b63b21ee96e4c0062d9175d9
 T002:
   c: true
-  h: e68c0a66ed6fee7be53f5308872e1362bea488eca8b8c22c712a527e88956d87
-  r: "Checked `code/power_analysis.py` (implements seeded Monte\u2011Carlo simulation\
-    \ for n\u202F=\u202F500, Cohen\u2019s\u202Ff\u202F=\u202F0.25) and the generated\
-    \ `results/power_report.md`, which contains a numeric power estimate (1.0000)\
-    \ and the correct `exploratory: false` flag matching the computed power."
-  sig: cc95c278ab60f63485c6797d32d3e4aef41f0705e65cb866c41f477ec881a0d4
-T004:
-  c: false
-  h: b32d4f31bc24d5dc8cf6345d406e63b98e77e6ea7a372c718949e9c8eb4c9c9b
-  r: "Checked `code/gold_annotation.py`, `data/gold/annotations.json`, `data/gold/sample_for_annotation.csv`,\
-    \ `data/gold/annotator_<id>.csv`, and `data/gold/conflicts.log`. The script never\
-    \ writes the required CSV sample file, provides no HTML/JS annotation UI, does\
-    \ not read annotator CSVs, writes its JSON to the wrong path (`data/gold_standard/annotations.json`),\
-    \ and only logs a fallback when \u03BA\u202F<\u202F0.6 instead of aborting\u2014\
-    so the required 50\u2011sample gold\u2011standard dataset, \u03BA\u202F\u2265\u202F\
-    0.6 guarantee, and associated files are missing."
-  sig: 468b45dd9635256e841d85a1406ed8e582b27f9df97e7d9c4b08fbb540dcd713
-T005:
-  c: false
-  h: 15cb29e683ef7d12b464c8d0349e20918860ec7c91dc859f66f0b314d68e66a5
-  r: The `docs/model_selection_and_limitations.md` file is present and contains the
-    required rationale, table, and limitation discussion, but the required test file
-    `tests/test_model_selection.py` is missing, so the verification step cannot be
-    performed. Adding the pytest file (and ensuring it passes) is needed to complete
-    the task.
-  sig: b20007ba827735d3c81a15d604c313fe5fce23cab687bfdf2959818ff35a5338
-T006:
-  c: false
-  h: 70dd70e29daa6152206cc7158d755cca4118c047263af669197e9e02223dfcf0
-  r: "The repository contains `code/generation.py` and the expected output files,\
-    \ but the script deliberately skips real 4\u2011bit CPU model loading, does not\
-    \ enforce the required decoding parameters, lacks any retry\u2011logic or `log.txt`\
-    \ files, provides no timing or timeout evidence, and `data/metadata.yaml` does\
-    \ not record SHA\u2011256 checksums for the generated documentation files. Consequently\
-    \ the core requirements of loading the three LLMs on CPU and measuring true success\u2011\
-    rate performance are not met."
-  sig: 6f6e0da8ca05012ab6a1c5add3f8d27e5284b7d673a512ca20dcbdfd12d96738
-T007:
-  c: false
-  h: 540e417cdfb2d2bc16c5bfea522b78edfb5cfd23c2851939ff39e99d013a2d9f
-  r: "The `code/entity_extraction_surface.py` script is present and implements the\
-    \ three required regexes and best\u2011effort `git grep -w` verification, but\
-    \ the required output directory `data/intermediate/surface_entities/` is missing\
-    \ and no evidence (e.g., generated JSON files or a test report showing \u2265\
-    95\u202F% verification on a 50\u2011sample audit) is provided. Without these artifacts\
-    \ the task\u2019s verification requirement is not satisfied."
-  sig: 0affd7536e64e0148749ea2fc69322c3156393da9928b7a10a52fe4516d2acd0
-T008:
-  c: false
-  h: 027a9fe3e8bf0035f6af77458d7a2c716b709e8667e5074e7d13700004067afa
-  r: "Checked `code/entity_extraction_intent.py` (implementation present) and the\
-    \ output directory `data/intermediate/intent_entities/` (contains only a single\
-    \ dummy JSON file). No evidence shows that the zero\u2011shot classifier was actually\
-    \ run, calibrated on the T004 gold annotations, or that precision\u202F\u2265\u202F\
-    0.75 and recall\u202F\u2265\u202F0.70 on the required 50\u2011sample gold set.\
-    \ Metrics or test results are missing, and the provided `results/statistics.json`\
-    \ contains only null placeholders. The task therefore lacks the required execution\
-    \ and evaluation artifacts."
-  sig: a3a0c45d093417add23581b8c8d477db0151e49a88c52045728174043ad60fab
-T009:
-  c: false
-  h: 6cd2fd3d34b0fe52bde21eda963b0fa8d0c110d7cb3b2a393aaf9ad641177cd3
-  r: "The required output `data/processed/fidelity_metrics.csv` is missing, the schema\
-    \ file `fidelity.schema.yaml` (and its test) are absent, and `code/fidelity_scoring.py`\
-    \ contains only placeholder logic that never loads EntitySets or computes real\
-    \ precision/recall or hallucination rates. These gaps prevent the task\u2019s\
-    \ specifications from being satisfied."
-  sig: de94e68e91824c10cd1354d50c756b0e618f1ac18b3dcd90e745ce572a5f5814
-T010:
-  c: false
-  h: 604687bf04864bf20e8a64a99f4a89240f80f041c89f6f066b52c29d4154a74e
-  r: "The script `code/statistical_analysis.py` exists, but it relies on `data/processed/fidelity_metrics.csv`,\
-    \ which is not present in the evidence, so no real Shapiro\u2011Wilk, Friedman/ANOVA,\
-    \ or effect\u2011size calculations could be performed. Consequently `results/statistics.json`\
-    \ contains only `null` p\u2011values and effect sizes, indicating placeholder\
-    \ output rather than the required statistical results. The exploratory flag is\
-    \ correctly propagated, but the core analysis is missing."
-  sig: 03622aed91eec7ae6d9db326d40e1620fe270e8a80673e42cc65dbe86c8c54c9
-T011:
-  c: false
-  h: d8bf682368b625877e126488ce755c813d14a94852d5b29e0da7761d7cf5f8ba
-  r: "The `results/figures/intent_precision_bar.png` and `results/figures/surface_confusion_matrix.png`\
-    \ files are missing, so the required PNG artifacts do not exist or have non\u2011\
-    zero size. The `summary.md` file is present, but without the accompanying figure\
-    \ files the task\u2019s verification criteria are not met."
-  sig: e2e2391e78ea691268ed3c0a0d0f9f109004abfea71af6cc44484e6afe4feb5c
+  h: 55e11064785ce31a30fb6e5b93689cda402295e8af95811ed660ade1bdeb4063
+  r: "Checked `code/power_analysis.py` for correct simulation logic and report generation,\
+    \ `results/power_report.md` for the required numeric power estimate line and exploratory\
+    \ flag, and `tests/test_power_analysis.py` confirming the markdown file exists\
+    \ and contains a valid floating\u2011point power value. The artifacts are present,\
+    \ non\u2011empty, and satisfy the task specifications."
+  sig: c048192e0c4c836b9bc2895796e7b44867ed262034f5ceb7b61eb21a9299fd11
 T013:
   c: true
-  h: d73a04a842f800b34dad4340e2763a37ecc36e55e5c3f9c0b89ca072e5a0c066
-  r: "Checked `code/data_hygiene.py` (checksum computation, provenance, immutability\
-    \ enforcement), `code/seeds.py` (SEED\u202F=\u202F42), `docs/quickstart.md` (seed\
-    \ policy documentation), and the passing test suite `tests/test_hygiene_and_seeds.py`\
-    \ (including the execution log confirming all assertions succeed)."
-  sig: fab0db4f0340efba2c6a138cb5d9fe212f7fce06bec5e1e966161bf95b7b812c
+  h: 1da8da87baa9433a6b1e68c27aba1593d48d9fc939ea33b194a10e19c87724bd
+  r: "Checked `code/data_hygiene.py` (checksum computation and immutability enforcement),\
+    \ `code/seeds.py` (global SEED\u202F=\u202F42), `data/metadata.yaml` (populated\
+    \ with checksums for all data files), and `tests/test_hygiene_and_seeds.py` (verifies\
+    \ metadata coverage, immutability, deterministic power analysis, and SEED imports).\
+    \ All required artifacts exist, contain the proper logic, and the tests confirm\
+    \ the specified behavior."
+  sig: 425bf5a4136952fa5666163f9bae6f141ca70a38d9da2eba899e0ab06b744d72

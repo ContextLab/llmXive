@@ -511,3 +511,35 @@
   source_type: result
   status: not_enough_info
   updated_at: '2026-10-24T21:35:34Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: quick smoke test completes in under 30 seconds
+  claim_id: c_cbcc52ca
+  context: "The quick smoke test loads one tiny hard\u2011coded commit pair, invokes\
+    \ the CPU\u2011only generation module, and writes data/generated/phi3-mini/sample_test.txt."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: It completes in well under 30 seconds and requires no model downloads.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:28:30Z'
+- artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/docs/quickstart.md
+  attempts: 1
+  canonical: power analysis report includes estimated power for n=500
+  claim_id: c_014e4d6b
+  context: Running the power analysis writes results/power_report.md, which includes
+    the estimated power for n = 500 and an exploratory flag.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The report contains the estimated power for n = 500
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-26T09:28:30Z'

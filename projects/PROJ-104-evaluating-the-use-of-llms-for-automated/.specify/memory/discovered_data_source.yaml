@@ -1,13 +1,12 @@
 status: none
-intent: Software Heritage and GitHub paired commit messages documentation diffs python
-  package dataset
+intent: GitHub commit message documentation diff dataset download python package dataset
 required_fields:
 - commit_hash
 - commit_message
 - repository_name
-- documentation_file_path
-- documentation_diff
-- commit_timestamp
-cache_key: 5a4c8e85b40f46bfd44af7f6af6ffae4adae6ef7447859fb0c7aa3fc4355b5d7
-searched_at: '2026-10-24T21:44:22.505380+00:00'
+- doc_diff
+- timestamp
+- file_path
+cache_key: 0cec602ef3c15096c93f9321f7d3772e85495d4ec0eb69a05eb7b7c9ed9a5ff4
+searched_at: '2026-10-26T09:31:25.438406+00:00'
 retry_count: 1
