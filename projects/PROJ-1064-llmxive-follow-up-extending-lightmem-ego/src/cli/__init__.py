@@ -1,3 +1,1 @@
-"""
-CLI package – placeholder __init__.
-"""
+"""Command‑line entry points."""

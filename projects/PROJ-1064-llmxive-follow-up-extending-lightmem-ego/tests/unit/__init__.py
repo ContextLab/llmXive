@@ -1,3 +1,1 @@
-"""
-Unit tests package – placeholder __init__.
-"""
+"""Unit‑test package marker."""

@@ -1,3 +1,1 @@
-"""
-Contract tests package – placeholder __init__.
-"""
+"""Contract‑test package marker."""

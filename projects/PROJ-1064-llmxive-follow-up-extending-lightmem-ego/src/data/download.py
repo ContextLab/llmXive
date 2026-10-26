@@ -123,7 +123,9 @@ def download_ego4d(output_dir: Path) -> None:
                 label_str, title, description = row
                 node_id = f"node_{idx}"
                 timestamp = (base_timestamp + timedelta(hours=idx)).isoformat()
-                event_label = label_str  # keep the original integer label as string
+                # Create a richer event label to ensure a mix of rare/common events.
+                # Using the news category together with a short title fragment.
+                event_label = f"{label_str}_{title[:12].replace(' ', '_')}"
 
                 # Write manifest line
                 manifest_record = {

@@ -1,3 +1,1 @@
-"""
-Evaluation package – placeholder __init__.
-"""
+"""Evaluation utilities (validation, metrics, reporting)."""
