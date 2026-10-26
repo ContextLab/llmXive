@@ -16,7 +16,7 @@ properties:
     description: "One of 'linear_regression', 'random_forest', or 'baseline_linear'."
   r2_test:
     type: number
-    description: "Coefficient of determination on the held‑out test set."
+    description: "Coefficient of determination on the held-out test set."
   mae_test:
     type: number
     description: "Mean Absolute Error (K⁻¹) on the test set."
@@ -27,13 +27,13 @@ properties:
     type:
       - number
       - "null"
-    description: "Two‑sided permutation‑test p‑value; null if R² < 0.3."
+    description: "Two-sided permutation-test p-value; null if R² < 0.3."
   null_result_flag:
     type: boolean
     description: "True if the observed R² is below the significance threshold (R² < 0.3)."
   runtime_seconds:
     type: number
-    description: "Wall‑clock time spent during training and evaluation."
+    description: "Wall-clock time spent during training and evaluation."
   memory_peak_mb:
     type: number
     description: "Peak memory usage in megabytes."

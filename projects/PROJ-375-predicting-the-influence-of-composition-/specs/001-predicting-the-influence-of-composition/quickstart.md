@@ -12,8 +12,8 @@ export MP_API_KEY="YOUR_API_KEY_HERE"
 
 ## Installation
 ```bash
-git clone 
-cd metallic-glass-cte
+git clone <REPO_URL>
+cd <repo_root>
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt

@@ -1,6 +1,6 @@
 status: none
-intent: download metallic glass composition and CTE dataset from Materials Project
-  and AFLOWlib python package dataset
+intent: metallic glass composition thermal expansion dataset NIST Glass Database Materials
+  Project AFLOWlib python package dataset
 required_fields:
 - composition
 - CTE
@@ -9,6 +9,6 @@ required_fields:
 - valence_electron_concentration
 - atomic_size_coefficient_of_variation
 - amorphous_state_flag
-cache_key: 18caa60e0b25ae82381066dd50ea3b164670f8b0f8b551565c50ec4e2374b757
-searched_at: '2026-10-26T00:24:54.335961+00:00'
+cache_key: 11835da590010d40c9ba3ba03274e75daec26da8efa0c89ef010901d36f2b06d
+searched_at: '2026-10-26T00:30:01.800783+00:00'
 retry_count: 1
