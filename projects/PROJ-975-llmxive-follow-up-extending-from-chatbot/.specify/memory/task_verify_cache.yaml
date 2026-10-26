@@ -1,11 +1,11 @@
 T001:
-  c: false
-  h: e080b27ed4b7bb3b992152ab36dc24d854545672005ec502c39b3e526c9eb63f
-  r: The `tests/contract/test_contract_copy.py` test fails because it cannot find
-    `contract_hashes.json` at the repository root, while `code/copy_contracts.py`
-    writes the JSON file to `data/raw/contract_hashes.json` instead of the required
-    root location. Consequently the CI verification does not pass.
-  sig: 665b6dc25448fe4752d79b00f28e8ed5ba65b2cd59d1e7d6f2e7585953f9acb4
+  c: true
+  h: 97a8660269316425a9a392335ec56bfa4e4941c0b90cf8e8214bcb7d3dddde8a
+  r: "Checked `code/copy_contracts.py` (copies files and writes `contract_hashes.json`),\
+    \ the generated `contract_hashes.json` (matching source and destination SHA\u2011\
+    256 hashes for all schema files), and the passing CI test `tests/contract/test_contract_copy.py`.\
+    \ All required artifacts exist and verify verbatim copying."
+  sig: 718eade81cc596d7586745c373f26f572c243d4e2b559ec97b29369bf2b97449
 T002:
   c: false
   h: 4bf24a1de641feb482ce3dbf46ea07de57e866e089b9183fea34f697848e8aa6
@@ -38,13 +38,13 @@ T004:
     \ complete."
   sig: daac2ca9861c345e65ab9cd67bc129dba686867171f083d41c0d685e0e4a9dde
 T005:
-  c: true
-  h: 08d6786a68435c06822390f9acde1d467dc5a1c667b3f285a7ed88af5abf5056
-  r: Checked `code/logging_config.py` (defines required LOG_COLUMNS and CSV logger)
-    and the execution log `code/.tasks/T005.tests_contract_test_logging_schema.py.log`
-    where all three contract tests passed, confirming the CSV header order, schema
-    compliance, and logger singleton behavior.
-  sig: 532e607658f6e954e9c60356a0406d020dc732434c0b9db45f4c518906b440bb
+  c: false
+  h: 8ede8b8f43f28fe6a0c790675015f29625b8410fa45138cee46be8aed7e3bd13
+  r: Checked `code/logging_config.py` (defines correct LOG_COLUMNS and logger) and
+    `tests/contract/test_logging_schema.py` (expects a CSV at `data/results/experiment_log.csv`).
+    The required CSV file is missing and there is no evidence that the tests were
+    run and passed, so the logging behavior has not been demonstrated.
+  sig: 6829f0ddbc921869ab6b9de2ed3841151c68ebc32c13da461bda0722c5aee97c
 T006:
   c: false
   h: 6b6142aa5fac7f73aa4b11e655855fc5e0008f67ca65983faedcf33a186d7776
@@ -55,6 +55,25 @@ T006:
     \ is absent. These missing artifacts prevent the task\u2019s requirement from\
     \ being satisfied."
   sig: d1125a2e257dbfaed5a5c61721d086a629e222150f1b29138f274a641b2b360c
+T007:
+  c: false
+  h: b40b0f820119e75d6f9c1abbf4ef3531a38322395a469bcad0de02fe57c03cbf
+  r: "The provided `code/pruning.py` implements removal when the **maximum** cosine\
+    \ similarity to any other skill exceeds\u202F0.70, and the unit tests in `tests/unit/test_pruning.py`\
+    \ assert exactly this behavior. The task specification, however, requires pruning\
+    \ when the **minimum** cosine similarity is **below**\u202F0.70 (i.e., the opposite\
+    \ condition). Consequently the function\u2019s logic and its tests do not match\
+    \ the stated requirement, so the task is not correctly fulfilled."
+  sig: d62c6c2f0b1a9df5214e73bc11648059727ab0743f6f1ee7f2037efaab33fbdd
+T008:
+  c: false
+  h: df7482de0922d54beeacf8f88765772e8db0bf3a3c44d680746322ebaedb7e94
+  r: The integration test `test_full_sweep.py` expects the schema file `contracts/experiment_log.schema.yaml`
+    to exist and be loaded for row validation, but this file is missing, causing the
+    test to error before any assertions are checked. Without the schema, the required
+    verification step cannot succeed. Adding the missing schema file (matching the
+    column definitions) is needed for the task to be considered complete.
+  sig: d460e75bff7fd84c9956928b8cb0de5efa9b68a18090c1a6270d507b28b92cb7
 T015:
   c: false
   h: 8f528cadcdf91cf83684a65e5739a14f975015de660e37067ad9952af0b63a9a

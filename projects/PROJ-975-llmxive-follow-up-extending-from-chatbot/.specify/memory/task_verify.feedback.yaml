@@ -1,8 +1,4 @@
 T001:
-  reason: The `tests/contract/test_contract_copy.py` test fails because it cannot
-    find `contract_hashes.json` at the repository root, while `code/copy_contracts.py`
-    writes the JSON file to `data/raw/contract_hashes.json` instead of the required
-    root location. Consequently the CI verification does not pass.
   task: 558a684ab6cfd812e0d6b3f9f7f21befeb2df67af770009870cdfeffb5b574de
 T002:
   reason: "Checked `code/generate_data.py`, `data/raw/tasks.json`, `data/raw/skills.json`,\
@@ -30,6 +26,10 @@ T004:
     \ complete."
   task: d1c2ba04f33156fde60bc946cb13780ce4df3c9e770d833d90b3294136521cac
 T005:
+  reason: Checked `code/logging_config.py` (defines correct LOG_COLUMNS and logger)
+    and `tests/contract/test_logging_schema.py` (expects a CSV at `data/results/experiment_log.csv`).
+    The required CSV file is missing and there is no evidence that the tests were
+    run and passed, so the logging behavior has not been demonstrated.
   task: 794d6e0d6d90cbd32a42721cee5338971eb6584e7926037d22b94be600b6fd2c
 T006:
   reason: "Checked `code/agent.py` (has the Tuple import and CLI parsing) and the\
@@ -40,8 +40,20 @@ T006:
     \ missing artifacts prevent the task\u2019s requirement from being satisfied."
   task: 2268e3c6d17909bc6bcae179a576c1528bd2dd7103fba9da26c4c54b7d8f36a1
 T007:
+  reason: "The provided `code/pruning.py` implements removal when the **maximum**\
+    \ cosine similarity to any other skill exceeds\u202F0.70, and the unit tests in\
+    \ `tests/unit/test_pruning.py` assert exactly this behavior. The task specification,\
+    \ however, requires pruning when the **minimum** cosine similarity is **below**\u202F\
+    0.70 (i.e., the opposite condition). Consequently the function\u2019s logic and\
+    \ its tests do not match the stated requirement, so the task is not correctly\
+    \ fulfilled."
   task: 879e6d34228d71362b97399218ca86b39850a0c51abf877d1574bb99d386acec
 T008:
+  reason: The integration test `test_full_sweep.py` expects the schema file `contracts/experiment_log.schema.yaml`
+    to exist and be loaded for row validation, but this file is missing, causing the
+    test to error before any assertions are checked. Without the schema, the required
+    verification step cannot succeed. Adding the missing schema file (matching the
+    column definitions) is needed for the task to be considered complete.
   task: 4c1a22860751fee18f16da0fa9f947cbf91ed437aac065ae52c1622e2f9ef7f6
 T009:
   reason: 'Requested task execution failed; rerun successfully: code/analysis.py exit=1'

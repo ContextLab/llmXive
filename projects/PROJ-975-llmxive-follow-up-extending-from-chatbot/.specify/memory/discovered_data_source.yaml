@@ -1,16 +1,17 @@
 status: none
-intent: synthetic multi-step task and skill library generation python package dataset
+intent: download VirtualHome and ALFWorld synthetic task and skill library python
+  package dataset
 required_fields:
 - task_id
 - task_description
-- ground_truth_solution_path
-- solution_step_order
-- action_id
+- ground_truth_actions
+- ground_truth_skill_sequence
 - skill_id
 - skill_name
-- skill_embedding_vector
+- skill_embedding
+- skill_description
 - semantic_density_score
 - overlap_level
-cache_key: cde8a0a1e54b825b0beceedfc53de833cc6ef62e957698bdaf7213c40531afd7
-searched_at: '2026-10-25T23:46:20.418022+00:00'
+cache_key: 8fb704a901fd1ab2177935e005c42082c0eedfca1772b2835164689f088675c5
+searched_at: '2026-10-26T00:29:59.799941+00:00'
 retry_count: 1

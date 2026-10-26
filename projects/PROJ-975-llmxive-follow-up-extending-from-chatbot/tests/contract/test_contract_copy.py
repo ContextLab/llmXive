@@ -12,7 +12,6 @@ from llmxive_toolkit import paths
 @pytest.fixture
 def hash_mapping():
     """Load the JSON mapping produced by copy_contracts.py."""
-    # The mapping is now written to the repository root.
     json_path = paths.root / "contract_hashes.json"
     if not os.path.exists(json_path):
         pytest.fail(

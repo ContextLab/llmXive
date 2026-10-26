@@ -38,7 +38,7 @@ tests/contract/test_schemas.py:145: NameError
 =========================== short test summary info ============================
 FAILED tests/contract/test_schemas.py::test_real_tasks_schema_compliance - Fa...
 FAILED tests/contract/test_schemas.py::test_task_skill_reference_integrity - ...
-========================= 2 failed, 3 passed in 3.14s ==========================
+========================= 2 failed, 3 passed in 4.39s ==========================
 
 
 - python code/agent.py  --library-sizes 10 20 30 40 50 60 70 80 90 100  --overlap low medium high  --pruning on off  --seed 42  --randomize-tasks -> rc=1
@@ -76,7 +76,7 @@ rootdir: /home/runner/work/llmXive/llmXive
 configfile: pyproject.toml
 collected 5 items / 5 deselected / 0 selected
 
-============================ 5 deselected in 2.69s =============================
+============================ 5 deselected in 3.63s =============================
 
 
 
@@ -97,12 +97,12 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/results/experiment_log.csv` is declared but was NOT written. Scripts referencing it:
     - `code/agent.py` — IS a run-book command
     - `code/analyze.py` — NOT invoked by the run-book
-    - `code/copy_contracts.py` — IS a run-book command
     - `code/logging_config.py` — NOT invoked by the run-book
     - `code/run_baseline.py` — NOT invoked by the run-book
     - `code/run_sensitivity.py` — NOT invoked by the run-book
     - `code/setup_contracts.py` — NOT invoked by the run-book
     - `code/smoke_logging.py` — NOT invoked by the run-book
+    - `code/verify_logging.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/results/experiment_log.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/results/feasibility_report.json` is declared but was NOT written. Scripts referencing it:
     - `code/run_feasibility.py` — NOT invoked by the run-book

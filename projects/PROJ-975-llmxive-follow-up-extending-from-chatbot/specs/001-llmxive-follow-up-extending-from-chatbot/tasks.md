@@ -8,7 +8,7 @@ The list follows the three research phases (setup → full experiment →�
 
 ## Phase 1 – Contracts, synthetic data, and first end‑to‑end run  
 
-- [ ] **T001** [P] [US1] **Copy contract schema files verbatim and verify duplication**  
+- [X] **T001** [P] [US1] **Copy contract schema files verbatim and verify duplication**  
   *Path*: `contracts/` (copies of the read‑only schemas from `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/`).  
   *Implementation*: `code/copy_contracts.py` copies each schema file, computes SHA‑256 for source and destination, and writes a mapping to **`contract_hashes.json`** at the repository root.  
   *Verification*: `tests/contract/test_contract_copy.py` loads `contract_hashes.json` and asserts `src_hash == dst_hash` for every file; the CI runs this test and must pass.
@@ -25,7 +25,7 @@ The list follows the three research phases (setup → full experiment →�
   *Path*: `tests/contract/test_schemas.py` runs `jsonschema.validate` on every entry of `data/raw/tasks.json` and `data/raw/skills.json` using `contracts/task.schema.yaml` and `contracts/skill.schema.yaml`.  
   *Verification*: The test suite must exit with success; any schema violation aborts the run.
 
-- [X] **T005** [P] [US2] **Configure logging and produce a minimal compliant CSV header**  
+- [ ] **T005** [P] [US2] **Configure logging and produce a minimal compliant CSV header**  
   *Path*: `code/logging_config.py` defines `LOG_COLUMNS = ["run_id","task_id","library_size","pruning_enabled","success","latency_ms","tokens_used","retrieval_precision","retrieval_diversity","edge_case"]` and provides `get_logger(name)` that writes rows to `data/results/experiment_log.csv`.  
   *Verification*: `tests/contract/test_logging_schema.py` (a) creates a dummy row via the logger, (b) checks that `data/results/experiment_log.csv` exists, (c) asserts the header order matches `LOG_COLUMNS`, and (d) validates the dummy row against `contracts/experiment_log.schema.yaml`.
 
@@ -47,7 +47,7 @@ The list follows the three research phases (setup → full experiment →�
 
     and asserts (1) the CSV contains 100 rows, (2) each row validates against `experiment_log.schema.yaml`, and (3) a matching JSON‑L file with 100 entries exists.
 
-- [~] **T007** [P] [US3] **Implement corrected “Skill Pruning” heuristic and its unit test**  
+- [ ] **T007** [P] [US3] **Implement corrected “Skill Pruning” heuristic and its unit test**  
   *Path*: `code/pruning.py` – defines  
 
     ```python
@@ -57,7 +57,7 @@ The list follows the three research phases (setup → full experiment →�
     The function removes a skill **iff** (`usage_count == 0`) **and** (`min_cosine_similarity_to_any_other_skill_in_library < 0.70`). No ground‑truth check is performed, matching FR‑004. Returns the pruned library and the `false_prune_count`.  
   *Verification*: `tests/unit/test_pruning.py` constructs a deterministic mini‑library with known embeddings, calls `prune_fr04`, and checks that only the intended redundant skills are removed and that `false_prune_count` is correct.
 
-- [~] **T008** [S] [US2] **Run the full factorial sweep (library × pruning × overlap) and produce complete logs**  
+- [ ] **T008** [S] [US2] **Run the full factorial sweep (library × pruning × overlap) and produce complete logs**  
   *Path*: `code/agent.py` now integrates `prune_fr04` (triggered after every 10 tasks when `--pruning fr04` is set) and records the evolving `library_size` in subsequent CSV rows.  
   *Experiment*: Execute all configurations  
 

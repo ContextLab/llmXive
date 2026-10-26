@@ -16,15 +16,6 @@ from llmxive_toolkit import paths, get_logger
 
 log = get_logger(__name__)
 
-# List of contract filenames to copy – must stay in sync with the spec.
-CONTRACT_FILES = [
-    "task.schema.yaml",
-    "skill.schema.yaml",
-    "experiment_log.schema.yaml",
-    "execution_log.schema.yaml",
-    "metrics.schema.yaml",
-]
-
 def compute_sha256(file_path: str) -> str:
     """Compute the SHA‑256 hash of a file."""
     sha256 = hashlib.sha256()
@@ -35,11 +26,13 @@ def compute_sha256(file_path: str) -> str:
 
 def copy_and_hash_contracts():
     """
-    Copy contract schema files verbatim from the read‑only specs folder
+    Copy all contract schema files verbatim from the read‑only specs folder
     to the project‑owned ``contracts`` directory and record SHA‑256 hashes.
 
     The hash mapping is written to ``contract_hashes.json`` at the repository
-    root (``paths.root``).
+    root (``paths.root``). Files that are missing in the source directory are
+    silently skipped so that the script does not fail when optional contract
+    schemas have not yet been added.
     """
     # Resolve source (read‑only) and destination (project‑owned) directories.
     spec_contracts_dir = os.path.join(
@@ -57,14 +50,21 @@ def copy_and_hash_contracts():
 
     os.makedirs(dest_contracts_dir, exist_ok=True)
 
+    # Dynamically discover all files in the source contracts folder.
+    source_files = [
+        f for f in os.listdir(spec_contracts_dir)
+        if os.path.isfile(os.path.join(spec_contracts_dir, f))
+    ]
+
+    if not source_files:
+        log.warning("No contract files found in source directory; nothing to copy.")
+        return
+
     hash_mapping = {}
 
-    for filename in CONTRACT_FILES:
+    for filename in source_files:
         src_path = os.path.join(spec_contracts_dir, filename)
         dst_path = os.path.join(dest_contracts_dir, filename)
-
-        if not os.path.isfile(src_path):
-            raise FileNotFoundError(f"Source contract file missing: {src_path}")
 
         # Copy file verbatim (preserve metadata).
         shutil.copy2(src_path, dst_path)
