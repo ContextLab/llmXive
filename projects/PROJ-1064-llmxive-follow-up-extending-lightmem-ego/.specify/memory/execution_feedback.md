@@ -1,47 +1,48 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
 
-These commands failed because the external dataset is NOT reachable AS WRITTEN on the free CI runner: a Hugging Face dataset that was renamed (canonical names like `openai_humaneval` now require a `namespace/name`), had its loading script removed (`datasets` >= 3 dropped `trust_remote_code` script datasets), is gated, or needs network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER SUCCEED. Fix it with REAL data, in this order:
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
 
-1. CORRECT the source: use the dataset's current canonical id (`namespace/name`), a public mirror, or a direct file URL, and stream / download only a SMALL REAL SAMPLE (the first N rows, one split, a few files). A verified real source may be injected below — use it.
-2. If that exact dataset is truly unreachable, switch to a DIFFERENT but genuinely-public dataset that supports the SAME analysis/metric, and say so honestly in the README.
-3. Do NOT substitute synthetic / fake / hand-built data for the real dataset. A result computed on invented data is NOT a real finding and is REJECTED by the deterministic fabrication gate — swapping in synthetic data is the single most common reason this loop never converges. The ONLY exception is a project whose OWN research question is about synthetic / simulated data (its idea says so).
-4. If, after the above, NO real data can be obtained on the CI runner, do NOT fabricate a result: leave the run to FAIL so it escalates honestly (model-tier escalation / re-plan), rather than producing a fake finding.
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- `python src/data/download.py --output-dir data/raw/`
+- every produced artifact is gitignored (data/raw/ag_news.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 2 command(s) failed: python src/data/download.py --output-dir data/raw/ (rc=1); python src/data/preprocess.py  --raw-dir data/raw/  --output data/processed/memory_nodes.parquet (rc=1); 11 declared deliverable(s) absent: data/processed/faiss_index_mapping.json; data/processed/memory_nodes.parquet; data/processed/validation_queries.json
+**Summary**: every produced artifact is gitignored (data/raw/ag_news.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python src/data/download.py --output-dir data/raw/ (rc=1); python src/data/preprocess.py  --raw-dir data/raw/  --output data/processed/memory_nodes.parquet (rc=1); 11 declared deliverable(s) absent: data/processed/faiss_index_mapping.json; data/processed/memory_nodes.parquet; data/processed/validation_queries.json
 
 ## Failing / missing run-book commands
 
 - python src/data/download.py --output-dir data/raw/ -> rc=1
-packages/huggingface_hub/utils/_hf_uris.py", line 617, in _parse_repo_body
-    raise HfUriError(uri=raw, msg=f"Repository id must be 'namespace/name', got '{repo_id}'.")
-huggingface_hub.errors.HfUriError: Invalid HF URI 'hf://datasets/ag_news@eb185aade064a813bc0b7f42de02595523103ca4/.huggingface.yaml'. Repository id must be 'namespace/name', got 'ag_news'.
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 167, in <module>
+**32 - 1\nTraceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 187, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 160, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 180, in main
     download_ego4d(Path(args.output_dir))
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 79, in download_ego4d
-    raise RuntimeError(
-RuntimeError: Failed to load fallback dataset via `datasets`: Invalid HF URI 'hf://datasets/ag_news@eb185aade064a813bc0b7f42de02595523103ca4/.huggingface.yaml'. Repository id must be 'namespace/name', got 'ag_news'.
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 133, in download_ego4d
+    embedding = _deterministic_embedding(text)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/download.py", line 56, in _deterministic_embedding
+    rng = np.random.RandomState(seed)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "numpy/random/mtrand.pyx", line 186, in numpy.random.mtrand.RandomState.__init__
+  File "numpy/random/_mt19937.pyx", line 168, in numpy.random._mt19937.MT19937._legacy_seeding
+  File "numpy/random/_mt19937.pyx", line 182, in numpy.random._mt19937.MT19937._legacy_seeding
+ValueError: Seed must be between 0 and 2**32 - 1
 
 - python src/data/preprocess.py  --raw-dir data/raw/  --output data/processed/memory_nodes.parquet -> rc=1
-data/preprocess.py", line 114, in main
+", line 114, in main
     build_memory_nodes_parquet(Path(args.raw_dir), Path(args.output))
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/preprocess.py", line 84, in build_memory_nodes_parquet
-    manifest = _load_manifest(raw_dir)
-               ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/preprocess.py", line 22, in _load_manifest
-    raise RuntimeError(f"Manifest file not found at {manifest_path}")
-RuntimeError: Manifest file not found at data/raw/manifest.jsonl
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/preprocess.py", line 85, in build_memory_nodes_parquet
+    embeddings = _load_embeddings(raw_dir)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/preprocess.py", line 43, in _load_embeddings
+    raise RuntimeError(f"Embeddings file not found at {embeddings_path}")
+RuntimeError: Embeddings file not found at data/raw/embeddings.npy
 
 The above exception was the direct cause of the following exception:
 
@@ -50,7 +51,7 @@ Traceback (most recent call last):
     main()
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-1064-llmxive-follow-up-extending-lightmem-ego/src/data/preprocess.py", line 116, in main
     raise RuntimeError(f"Preprocessing failed: {e}") from e
-RuntimeError: Preprocessing failed: Manifest file not found at data/raw/manifest.jsonl
+RuntimeError: Preprocessing failed: Embeddings file not found at data/raw/embeddings.npy
 
 
 ## Declared deliverables still missing

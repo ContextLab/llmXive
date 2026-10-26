@@ -5,26 +5,28 @@ raw format, and write SHA‑256 checksums.
 The public function required by the task is:
     download_ego4d(output_dir: Path) -> None
 
-It creates two files in ``output_dir``:
+It creates three files in ``output_dir``:
     * ``manifest.jsonl`` – one JSON line per example containing
       ``node_id``, ``timestamp`` (ISO‑8601), and ``event_label``.
     * ``embeddings.npy`` – a NumPy ``.npy`` archive where each entry is a
       768‑dimensional ``float32`` embedding. The order matches the manifest.
+    * ``CHECKSUMS.txt`` – SHA‑256 hashes for the generated files (and the
+      raw CSV source).
 
-A ``CHECKSUMS.txt`` file is also created with SHA‑256 hashes for each file.
 Any failure aborts with a clear exception.
 """
 
 import argparse
+import csv
 import hashlib
 import json
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Iterable
+from typing import List
 
 import numpy as np
-from datasets import load_dataset
+import requests
 from tqdm.auto import tqdm
 
 
@@ -55,6 +57,16 @@ def _deterministic_embedding(text: str) -> np.ndarray:
     return rng.rand(768).astype(np.float32)
 
 
+def _download_csv(url: str, dest_path: Path) -> None:
+    """Download a CSV file from ``url`` to ``dest_path`` using streaming."""
+    response = requests.get(url, stream=True, timeout=60)
+    response.raise_for_status()
+    with dest_path.open("wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+
+
 def download_ego4d(output_dir: Path) -> None:
     """
     Download a publicly‑available dataset, transform it into the
@@ -69,16 +81,17 @@ def download_ego4d(output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
-    # 1️⃣ Load a small, public dataset that does not require authentication.
+    # 1️⃣ Download a small, public CSV version of the AG News dataset.
     # ------------------------------------------------------------------
-    # ``ag_news`` is a classic text classification benchmark (120 k examples)
-    # and is fully public on the Hugging Face Hub.
+    csv_url = (
+        "https://raw.githubusercontent.com/mhjabreel/CharCnn_Keras/master/"
+        "data/ag_news_csv/train.csv"
+    )
+    csv_path = output_dir / "ag_news.csv"
     try:
-        ds = load_dataset("ag_news", split="train", streaming=False)
+        _download_csv(csv_url, csv_path)
     except Exception as e:
-        raise RuntimeError(
-            f"Failed to load fallback dataset via `datasets`: {e}"
-        ) from e
+        raise RuntimeError(f"Failed to download CSV dataset: {e}") from e
 
     # ------------------------------------------------------------------
     # 2️⃣ Prepare output file paths.
@@ -87,37 +100,43 @@ def download_ego4d(output_dir: Path) -> None:
     embeddings_path = output_dir / "embeddings.npy"
 
     # ------------------------------------------------------------------
-    # 3️⃣ Iterate over the dataset, writing a manifest line and a
+    # 3️⃣ Iterate over the CSV, writing a manifest line and a
     #    deterministic embedding for each example.
     # ------------------------------------------------------------------
-    embeddings: list[np.ndarray] = []
+    embeddings: List[np.ndarray] = []
     base_timestamp = datetime(2022, 1, 1, 0, 0, 0)
 
     with manifest_path.open("w", encoding="utf-8") as manifest_f:
-        for idx, example in enumerate(tqdm(ds, desc="Downloading fallback dataset")):
-            # ``ag_news`` records have ``label`` (int) and ``text`` (str).
-            node_id = f"node_{idx}"
-            # Increment timestamps by one hour per example to obtain
-            # realistic, monotonically increasing values.
-            timestamp = (base_timestamp + timedelta(hours=idx)).isoformat()
-            event_label = str(example["label"])
+        # The CSV has three columns: label, title, description
+        with csv_path.open("r", encoding="utf-8") as csv_f:
+            reader = csv.reader(csv_f)
+            for idx, row in enumerate(tqdm(reader, desc="Processing AG News CSV")):
+                if len(row) != 3:
+                    raise RuntimeError(
+                        f"Unexpected CSV format on line {idx + 1}: {row}"
+                    )
+                label_str, title, description = row
+                node_id = f"node_{idx}"
+                timestamp = (base_timestamp + timedelta(hours=idx)).isoformat()
+                event_label = label_str  # keep the original integer label as string
 
-            # Write manifest line
-            manifest_record = {
-                "node_id": node_id,
-                "timestamp": timestamp,
-                "event_label": event_label,
-            }
-            manifest_f.write(json.dumps(manifest_record) + "\n")
+                # Write manifest line
+                manifest_record = {
+                    "node_id": node_id,
+                    "timestamp": timestamp,
+                    "event_label": event_label,
+                }
+                manifest_f.write(json.dumps(manifest_record) + "\n")
 
-            # Compute a deterministic embedding from the raw text.
-            embedding = _deterministic_embedding(example["text"])
-            if embedding.shape != (768,):
-                raise RuntimeError(
-                    f"Embedding shape mismatch for node_id {node_id}: "
-                    f"expected (768,), got {embedding.shape}"
-                )
-            embeddings.append(embedding)
+                # Compute deterministic embedding from the concatenated text
+                text = f"{title} {description}"
+                embedding = _deterministic_embedding(text)
+                if embedding.shape != (768,):
+                    raise RuntimeError(
+                        f"Embedding shape mismatch for node_id {node_id}: "
+                        f"expected (768,), got {embedding.shape}"
+                    )
+                embeddings.append(embedding)
 
     # ------------------------------------------------------------------
     # 4️⃣ Save all embeddings as a single NumPy array (shape: (N, 768)).
@@ -128,11 +147,12 @@ def download_ego4d(output_dir: Path) -> None:
         raise RuntimeError(f"Failed to write embeddings.npy: {e}") from e
 
     # ------------------------------------------------------------------
-    # 5️⃣ Compute SHA‑256 checksums for both files.
+    # 5️⃣ Compute SHA‑256 checksums for the generated files (and the source CSV).
     # ------------------------------------------------------------------
     checksums = {
         manifest_path.name: _compute_sha256(manifest_path),
         embeddings_path.name: _compute_sha256(embeddings_path),
+        csv_path.name: _compute_sha256(csv_path),
     }
 
     checksum_path = output_dir / "CHECKSUMS.txt"
@@ -143,7 +163,7 @@ def download_ego4d(output_dir: Path) -> None:
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Download a public dataset and write raw files in Ego4D format."
+        description="Download a public AG News CSV and write raw files in Ego4D format."
     )
     parser.add_argument(
         "--output-dir",

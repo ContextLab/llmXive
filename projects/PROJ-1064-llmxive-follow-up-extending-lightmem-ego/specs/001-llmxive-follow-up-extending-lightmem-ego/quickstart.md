@@ -20,9 +20,9 @@ python src/data/download.py --output-dir data/raw/
 
 The script will:
 
-* Download the **AG News** dataset (`ag_news`) using the `datasets` library.
-* Convert each example into a Ego4D‑like ``manifest.jsonl`` containing ``node_id``, ``timestamp`` (ISO‑8601), and ``event_label``.
-* Compute a deterministic 768‑dimensional embedding for each example.
+* Download a public **AG News** CSV file.
+* Convert each example into an Ego4D‑like ``manifest.jsonl`` containing ``node_id``, ``timestamp`` (ISO‑8601), and ``event_label``.
+* Compute a deterministic embedding with a fixed dimensionality for each example.
 * Write a ``CHECKSUMS.txt`` file with SHA‑256 hashes for each file.
 
 ## 3. Preprocess the Data
