@@ -31,7 +31,7 @@ from llmxive_toolkit import paths, get_logger
 # It provides ``count_tokens(text: str) -> int`` using the ``tiktoken``
 # model ``cl100k_base``.
 try:
-    from lib.utils import count_tokens
+    from code.lib.utils import count_tokens
 except ImportError as exc:
     raise ImportError(
         "Tokenizer wrapper not found. Ensure that ``code/lib/utils.py`` defines "
@@ -40,7 +40,7 @@ except ImportError as exc:
 
 # The independent Oracle Policy Engine lives in ``code/engines/oracle_policy.py``.
 try:
-    from engines.oracle_policy import OraclePolicyEngine
+    from code.engines.oracle_policy import OraclePolicyEngine
 except ImportError as exc:
     raise ImportError(
         "OraclePolicyEngine not found. Ensure that ``code/engines/oracle_policy.py`` "

@@ -7,7 +7,7 @@ The tasks are organized into research phases.  Each task follows the required ch
 
 ## Phase 1 – Setup, deterministic data generation, and first end‑to‑end run
 
-- [ ] T001 [P] **Implement deterministic workflow generator** – `code/services/generator.py` creates `data/raw/workflows.json` containing 500 synthetic workflows that conform to `contracts/workflow.schema.yaml`.  
+- [X] T001 [P] **Implement deterministic workflow generator** – `code/services/generator.py` creates `data/raw/workflows.json` containing 500 synthetic workflows that conform to `contracts/workflow.schema.yaml`.  
   - Requirements satisfied: FR‑001, FR‑008, SC‑001, deterministic seed (`SEED=42`).  
   - Verification: after running `python -m code.services.generator --n 500 --seed 42`, the file exists, contains 500 entries, each workflow has a `delegation_depth` between 1‑10 and at least 25 workflows per depth level, and passes JSON‑schema validation.
 
@@ -15,11 +15,11 @@ The tasks are organized into research phases.  Each task follows the required ch
   - Requirements satisfied: FR‑008, SC‑001, Constitution VI (independence).  
   - Verification: unit test `tests/unit/test_oracle.py` asserts that a known workflow with a budget‑cap violation yields exactly one violation of type `"budget_exceeded"`.
 
-- [ ] T003 [P] **Create tokenizer wrapper** – `code/lib/utils.py` defines `count_tokens(text: str) -> int` using `tiktoken` with model `cl100k_base`.  
+- [X] T003 [P] **Create tokenizer wrapper** – `code/lib/utils.py` defines `count_tokens(text: str) -> int` using `tiktoken` with model `cl100k_base`.  
   - Requirements satisfied: FR‑009, FR‑004 (consistent token measurement).  
   - Verification: test `tests/unit/test_tokenizer.py` checks that the string `"Hello world"` yields 2 tokens.
 
-- [ ] T004 [P] **Full‑context execution engine** – `code/services/executor_full.py` reads `data/raw/workflows.json`, runs each workflow through the Oracle, tokenizes the entire policy graph, and writes `data/processed/full_context_logs.json` adhering to `contracts/execution_log.schema.yaml` (mode=`full_context`, `compression_depth=0`).   <!-- FAILED-IN-EXECUTION: code/services/executor_full.py exit=1 -->
+- [ ] T004 [P] **Full‑context execution engine** – `code/services/executor_full.py` reads `data/raw/workflows.json`, runs each workflow through the Oracle, tokenizes the entire policy graph, and writes `data/processed/full_context_logs.json` adhering to `contracts/execution_log.schema.yaml` (mode=`full_context`, `compression_depth=0`).
   - Requirements satisfied: FR‑002, FR‑004, FR‑007.  
   - Verification: after `python -m code.services.executor_full --n 5`, the output file exists, contains 5 logs, each log passes schema validation, and token counts are > 0.
 
@@ -34,7 +34,7 @@ The tasks are organized into research phases.  Each task follows the required ch
   - Requirements satisfied: FR‑005, new `StepOutcome` model, SC‑001.  
   - Verification: after execution, the JSON file exists, contains > 0 rows, and a separate script confirms that all numeric `context_reduction_pct` rows are ≤ 100 and that rows with the string value are not used in the GEE fit.
 
-- [ ] T007 [P] **Fit binomial GEE regression and produce trade‑off curve** – `code/services/analyzer.py` loads `step_outcomes.json`, fits a binomial GEE (logit link, exchangeable correlation) with covariates `context_reduction_pct`, `policy_complexity`, and `delegation_depth`. It writes:  
+- [ ] T007 [P] **Fit binomial GEE regression and produce trade‑off curve** – `code/services/analyzer.py` loads `step_outcomes.json`, fits a binomial GEE (logit link, exchangeable correlation) with covariates `context_reduction_pct`, `policy_complexity`, and `delegation_depth`. It writes:   <!-- FAILED-IN-EXECUTION: code/services/analyzer.py exit=1 -->
   * `data/results/analysis_results.json` (conforms to `contracts/analysis_results.schema.yaml`).  
   * `data/results/tradeoff_curve.csv` (aggregated `compression_ratio`, `error_rate`, `std_dev`, `n_samples`).  
   - Requirements satisfied: FR‑005, FR‑006, SC‑003, SC‑004.  

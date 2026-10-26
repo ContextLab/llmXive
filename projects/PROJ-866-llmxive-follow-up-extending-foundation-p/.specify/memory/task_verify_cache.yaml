@@ -1,15 +1,13 @@
 T001:
-  c: false
-  h: 84af1fbb26af9aead2f1139ecfd4ad666a4599b0c7255c1344555f07a99e836a
-  r: The required output file `data/raw/workflows.json` is missing, so the generator
-    has not demonstrably created the 500 deterministic workflows that satisfy the
-    schema and depth distribution requirements. The presence of the generator script
-    and a passing unit test is insufficient without the actual JSON output. The next
-    implementer must run the generator (e.g., `python -m code.services.generator --n
-    500 --seed 42`) and provide the resulting `workflows.json` file together with
-    evidence (e.g., a checksum, line count, or validation log) confirming it contains
-    500 entries, the required depth distrib
-  sig: f0552ae50f8cced1185f471573df82cabfae8afeb742623241d0af177e7f5b2d
+  c: true
+  h: 88eddb15f65b8ceab203251463f6e4c88997e692d32ada27637f2833efffbea0
+  r: "Checked `code/services/generator.py` (deterministic implementation with depth\
+    \ distribution), the generated `data/raw/workflows.json` (log shows 500 entries\
+    \ written), the execution log confirming a successful run with `--n 500 --seed\
+    \ 42`, and the passing unit test `tests/unit/test_generator_distribution.py` that\
+    \ validates count and depth constraints. All artifacts exist, are non\u2011empty,\
+    \ and meet the specified requirements."
+  sig: 0c02d877c377ea440a32da4f79098645e7dc38083f747612ce00c77e7b8d34c9
 T002:
   c: true
   h: d7fe99127adbea9ac7d55ee043afeb0506c5289e2149fc06dc1dc4f872c30131
@@ -19,10 +17,45 @@ T002:
     \ exist and behave as specified."
   sig: a9d8f7bdcdd132ef5ee5061e0de53e521fafea2626dc5f3d615b10fb28dbb8d9
 T003:
+  c: true
+  h: fbe2acea3404f1fc14687c9b703282555ecc8ae9d9b16d131e2e7f947a198794
+  r: The `code/lib/utils.py` file defines a `count_tokens` function that uses `tiktoken.get_encoding("cl100k_base")`
+    to count tokens, and the unit test `tests/unit/test_tokenizer.py` asserts that
+    `"Hello world"` returns 2 tokens. The provided pytest log shows the test ran and
+    passed, confirming correct implementation.
+  sig: 48ebad3b5b88006fdaf59d0d8f504a2d61ca5cb9a77b10b92fe9921da8b3159e
+T004:
   c: false
-  h: 376e78b0e98ad7efc0b779f5a7faf812b9ddc953235e2cc43cc86c33b7c336fe
-  r: "Checked `code/lib/utils.py` \u2013 it correctly implements `count_tokens` with\
-    \ `tiktoken` and the `cl100k_base` model. However `tests/unit/test_tokenizer.py`\
-    \ is missing, so the required verification test does not exist. The task is not\
-    \ fully satisfied until the test file is provided."
-  sig: 29e9e23104f880d9de6d0d1c2b7826cccdcd27aceefc676e7aadc2172db6425e
+  h: ff41096b072a837a9075b1c5c9c4b781a14187ad2530bfef4daedb049860223c
+  r: "Checked `code/services/executor_full.py`, `code/engines/oracle_policy.py`, the\
+    \ generated `data/processed/full_context_logs.json`, and the unit\u2011test log.\
+    \ The executor imports the Oracle incorrectly (`from engines.oracle_policy \u2026\
+    ` instead of `code.engines\u2026`), the `OraclePolicyEngine` class lacks the required\
+    \ `evaluate` method, and the script falls back to empty violations while logging\
+    \ errors. Consequently the module cannot be imported (unit test error) and does\
+    \ not truly \u201Crun each workflow through the Oracle\u201D as required. Fix\
+    \ the import path and implement an `evaluate` method (or adjust the exe"
+  sig: 172f33045515fc5a831cc0e1a52e35169ec08385101119172e19e9ca76d99904
+T005:
+  c: false
+  h: 185a7f924be19f992eea588489a3c3a6cea3c1cf6e1397a034b428542ebefa00
+  r: "Checked `code/services/executor_compressed.py`, its execution log, and the generated\
+    \ `data/processed/compressed_context_logs.json`. The script runs but the Oracle\
+    \ engine lacks an `evaluate` method (causing errors), and all log entries have\
+    \ `context_reduction_pct` set to `\"[deferred]\"` even though `--depth 2` was\
+    \ used \u2013 there is no evidence that non\u2011edge\u2011case workflows produce\
+    \ a numeric reduction percentage, nor any proof that the output JSON passes the\
+    \ required schema validation. The task therefore lacks required correct reduction\
+    \ values and schema\u2011validation evidence."
+  sig: c68b0503faa7965b59a11b7ae0b8e36683b3d18963140fe97e1309bf1237ae13
+T006:
+  c: false
+  h: c62602816d27d4f96689d191a7f8d817647d3b30e34b7cd37109fdff0096f140
+  r: "The provided `code/utils/step_expander.py` correctly reads both log files and\
+    \ writes `data/processed/step_outcomes.json` with the required fields and the\
+    \ `exclude_from_regression` flag, and the JSON file contains 10 records. However,\
+    \ there is no evidence of a dedicated `StepOutcome` model (e.g., a Pydantic or\
+    \ dataclass definition) as required by FR\u2011005, and the repository contains\
+    \ no such model file. Adding the missing model definition will satisfy the full\
+    \ task specification."
+  sig: 92c23ea2bdbafe01cf527763577e9714bb42bbbc16056e8101e79933c1c271c0

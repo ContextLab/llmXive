@@ -1,30 +1,42 @@
 T001:
-  reason: The required output file `data/raw/workflows.json` is missing, so the generator
-    has not demonstrably created the 500 deterministic workflows that satisfy the
-    schema and depth distribution requirements. The presence of the generator script
-    and a passing unit test is insufficient without the actual JSON output. The next
-    implementer must run the generator (e.g., `python -m code.services.generator --n
-    500 --seed 42`) and provide the resulting `workflows.json` file together with
-    evidence (e.g., a checksum, line count, or validation log) confirming it contains
-    500 entries, the required depth distrib
   task: 56e78bbf6124da22921b8310ec465b30069823d35c8646095d1abe23442b4d8d
 T002:
   task: eb7ffd275987db976334627fa338ff71299f526c492dd16afa0edf0e64cdc604
 T003:
-  reason: "Checked `code/lib/utils.py` \u2013 it correctly implements `count_tokens`\
-    \ with `tiktoken` and the `cl100k_base` model. However `tests/unit/test_tokenizer.py`\
-    \ is missing, so the required verification test does not exist. The task is not\
-    \ fully satisfied until the test file is provided."
   task: d75757d13dbd75c04f52e1d170a19f360d3fff76b31c73011d82f76310b6f388
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/services/executor_full.py
-    exit=1'
+  reason: "Checked `code/services/executor_full.py`, `code/engines/oracle_policy.py`,\
+    \ the generated `data/processed/full_context_logs.json`, and the unit\u2011test\
+    \ log. The executor imports the Oracle incorrectly (`from engines.oracle_policy\
+    \ \u2026` instead of `code.engines\u2026`), the `OraclePolicyEngine` class lacks\
+    \ the required `evaluate` method, and the script falls back to empty violations\
+    \ while logging errors. Consequently the module cannot be imported (unit test\
+    \ error) and does not truly \u201Crun each workflow through the Oracle\u201D as\
+    \ required. Fix the import path and implement an `evaluate` method (or adjust\
+    \ the exe"
   task: 13f563e7f98ae0af82db24d328d76d835ba55e53cbc6c99578d324e72ae7e11b
 T005:
+  reason: "Checked `code/services/executor_compressed.py`, its execution log, and\
+    \ the generated `data/processed/compressed_context_logs.json`. The script runs\
+    \ but the Oracle engine lacks an `evaluate` method (causing errors), and all log\
+    \ entries have `context_reduction_pct` set to `\"[deferred]\"` even though `--depth\
+    \ 2` was used \u2013 there is no evidence that non\u2011edge\u2011case workflows\
+    \ produce a numeric reduction percentage, nor any proof that the output JSON passes\
+    \ the required schema validation. The task therefore lacks required correct reduction\
+    \ values and schema\u2011validation evidence."
   task: 7d9bd8c1f34bf042f025e65eb09e3fb6971b931ef6ba0379481ffc1290b3a7c1
 T006:
+  reason: "The provided `code/utils/step_expander.py` correctly reads both log files\
+    \ and writes `data/processed/step_outcomes.json` with the required fields and\
+    \ the `exclude_from_regression` flag, and the JSON file contains 10 records. However,\
+    \ there is no evidence of a dedicated `StepOutcome` model (e.g., a Pydantic or\
+    \ dataclass definition) as required by FR\u2011005, and the repository contains\
+    \ no such model file. Adding the missing model definition will satisfy the full\
+    \ task specification."
   task: 2911e2482cf0eb94da49d0f2fc815871467c410865ce25335af118f4fcef154f
 T007:
+  reason: 'Requested task execution failed; rerun successfully: code/services/analyzer.py
+    exit=1'
   task: ee156ade4164ae3934e4198b14adc76db6bcf8da35aa66eef788a35ff439da54
 T008:
   task: aba9c571b9e3dbfee96e7043eae1648e335eafaeaaac70432e85db147840cb1f

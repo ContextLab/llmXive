@@ -1,19 +1,19 @@
 status: none
-intent: pm4py synthetic workflow generation with policy constraints multi-agent delegation
-  depth dataset python package
+intent: pm4py multi-agent synthetic workflow generator with policy constraints python
+  package dataset
 required_fields:
 - workflow_id
 - delegation_depth
-- policy_constraints
-- budget_cap
-- agents
-- full_context_execution_log
-- compressed_context_execution_log
-- step_level_outcomes
-- policy_violations
-- timestamp
+- policy_constraint_count
+- policy_constraints_detail
+- budget_cap_value
+- agents_involved
 - task_name
-- task_status
-cache_key: 98e9453e05ce93234298608ac81239a592b14249b025318903d23792de266165
-searched_at: '2026-10-26T00:35:50.065284+00:00'
+- event_timestamp
+- executing_agent_id
+- policy_node_id
+- violation_flag
+- full_context_log_id
+cache_key: d3b369571b17168f4ce4fe6f6933882a3c679aa01611a5d46d68409a3029d4cd
+searched_at: '2026-10-26T00:40:02.807197+00:00'
 retry_count: 1
