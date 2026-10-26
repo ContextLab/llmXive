@@ -75,8 +75,9 @@ ValidationRecord:
 ## Constraints (derived from FRs)
 - **FR‑004**: `flag_inconsistent` is `true` iff `diff_abs_p > 0.05` **or** `diff_abs_effect > 0.05 × max(|reported_effect|,|reconstructed_effect|)`.  
 - **FR‑004b**: If `|variant_a_n – variant_b_n| / max(variant_a_n, variant_b_n) > 0.05`, `notes` must contain a `data_quality_warning`.  
-- **FR‑012**: When baseline conversion is missing, `reconstructed_effect_size` is derived from the average of the two variant rates; `notes` must contain a heuristic flag.  
-- **SC‑001**: Extraction accuracy (field‑level) must be ≥ 95 % on the validation set; evaluated via `ValidationRecord`.  
+- **FR‑012**: When baseline conversion is missing, `reconstructed_effect_size` is derived from the average of the two variant rates; `notes` must contain a `baseline_heuristic` flag.  
+- **SC‑001**: Extraction accuracy (field‑level) must be ≥ 95 % on the validation set (evaluated via `ValidationRecord`).  
 - **SC‑003** & **SC‑026**: Monte Carlo validation must achieve absolute difference ≤ 0.005 for each statistical routine.  
+- **SC‑015**: The sensitivity sweep must not change the overall inconsistency prevalence by more than 0.02; runs exceeding this limit are flagged as failures.
 
 ---===END DATA MODEL===---

@@ -1,17 +1,16 @@
 status: none
-intent: download public A/B test summary dataset Kaggle OpenABTest python package
-  dataset
+intent: download audit corpus A/B test summary dataset with validation set python
+  package dataset
 required_fields:
 - url
-- summary_text
-- treatment_group
-- control_group
-- metric_name
 - reported_p_value
-- reported_effect_size
-- sample_size
 - test_statistic
+- variant_a_n
+- variant_b_n
+- effect_size
 - confidence_interval
-cache_key: 9cd8d3cb100f739e8d6e58cb0cf9aa3e3d7057f9fb7e19d7b307ada323c11cce
-searched_at: '2026-10-26T03:29:07.651986+00:00'
+- summary_text
+- domain
+cache_key: 2ab01fb858f3127a8a9b4c36934ce66bef61eec91596f2155c379e7ce45f3a27
+searched_at: '2026-10-26T03:30:17.312236+00:00'
 retry_count: 1

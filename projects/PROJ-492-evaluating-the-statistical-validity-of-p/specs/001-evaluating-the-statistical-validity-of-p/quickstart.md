@@ -27,14 +27,15 @@ pip install -r requirements.txt
 
 ## Step 3: Run the Audit
 ```bash
-python -m code.src.audit.run_audit data/input/urls.csv output/
+python -m src.run_audit data/input/urls.csv output/
 ```
 The script will:
-1. Download each URL and extract the required fields.  
-2. Reconstruct p‑values/effect‑sizes.  
-3. Flag inconsistencies (absolute 0.05 p‑value rule).  
-4. Perform the binomial prevalence test and sensitivity sweep.  
-5. Write `output/audit_report.json` and `output/summary_report.csv`.  
+1. Curate the URL list (`data/curated_urls.csv`).  
+2. Download each page and extract required fields into `ABSummary` records.  
+3. Reconstruct p‑values/effect sizes.  
+4. Flag inconsistencies using the absolute 0.05 p‑value rule.  
+5. Perform the binomial prevalence test and sensitivity sweep.  
+6. Write `output/audit_report.json`, `output/summary_report.csv`, `output/checksums.txt`, and `output/manifest.json`.
 
 ## Step 4: Verify Output
 ```bash
@@ -50,4 +51,6 @@ The CI workflow logs `cpu_time_seconds`, `memory_peak_mb`, and total `runtime_se
 - `runtime_seconds` ≤ 1800 (30 min) for the quickstart run.  
 - `memory_peak_mb` ≤ 2000 (2 GB).  
 
-If any of these limits are exceeded, the run fails with a clear error message.
+If any limit is exceeded, the run fails with a clear error message (SC‑028).
+
+---===END QUICKSTART===---

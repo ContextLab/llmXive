@@ -100,7 +100,7 @@ properties:
         description: "Random seed for reproducibility"
       total_records:
         type: "integer"
-        minimum: 10000
+        minimum: a sufficiently large sample size
         description: "Total synthetic records"
     required:
       - "generated_at"
