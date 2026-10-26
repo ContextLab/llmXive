@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-26T11:10:28.638664+00:00",
+  "generated_at": "2026-10-26T11:26:33.360379+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -47563,6 +47563,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 0.005394,
+          "ended_at": "2026-10-26T11:07:47.717306Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-26T11:07:47.711912Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 0.007437,
           "ended_at": "2026-10-26T08:14:13.328514Z",
           "model": "zai-org.glm-5.3",
@@ -47632,14 +47640,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-20T23:17:23.478811Z"
-        },
-        {
-          "agent": "clarifier",
-          "duration_s": 621.424172,
-          "ended_at": "2026-10-20T23:17:08.959793Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-20T23:06:47.535621Z"
         }
       ],
       "paper_status": null,
@@ -50276,7 +50276,7 @@
       },
       "authors": [
         {
-          "contributions": 46,
+          "contributions": 47,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -50335,6 +50335,14 @@
       "id": "PROJ-104-evaluating-the-use-of-llms-for-automated",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 161.511951,
+          "ended_at": "2026-10-26T11:10:37.032075Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-26T11:07:55.520124Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 785.003497,
@@ -50406,14 +50414,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-26T09:28:30.546157Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 61.057999,
-          "ended_at": "2026-10-26T09:28:30.542526Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-26T09:27:29.484527Z"
         }
       ],
       "paper_status": null,
@@ -107043,7 +107043,7 @@
       },
       "authors": [
         {
-          "contributions": 16,
+          "contributions": 17,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -107110,6 +107110,14 @@
       "id": "PROJ-411-evaluating-the-impact-of-code-generation",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 361.051195,
+          "ended_at": "2026-10-26T11:13:51.481409Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-26T11:07:50.430214Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 1034.843196,
@@ -107181,14 +107189,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-22T23:17:44.322032Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 639.28644,
-          "ended_at": "2026-10-22T23:17:07.644626Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-22T23:06:28.358186Z"
         }
       ],
       "paper_status": null,
@@ -143600,7 +143600,7 @@
       },
       "authors": [
         {
-          "contributions": 47,
+          "contributions": 48,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -143659,6 +143659,14 @@
       "id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 790.362641,
+          "ended_at": "2026-10-26T11:21:06.647830Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-26T11:07:56.285189Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 815.604587,
@@ -143730,14 +143738,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-26T09:47:24.918883Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 24.752089,
-          "ended_at": "2026-10-26T09:46:46.593214Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-26T09:46:21.841125Z"
         }
       ],
       "paper_status": null,
@@ -173020,7 +173020,7 @@
       },
       "authors": [
         {
-          "contributions": 21,
+          "contributions": 22,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -173071,6 +173071,14 @@
       "id": "PROJ-969-llmxive-follow-up-extending-perception-o",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 497.22541,
+          "ended_at": "2026-10-26T11:16:13.593128Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-26T11:07:56.367718Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 505.993925,
@@ -173142,14 +173150,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-25T18:07:57.011339Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 650.336776,
-          "ended_at": "2026-10-24T07:49:48.782864Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-24T07:38:58.446088Z"
         }
       ],
       "paper_status": null,
@@ -176520,6 +176520,66 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "implementer",
+      "duration_s": 790.362641,
+      "ended_at": "2026-10-26T11:21:06.647830Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-26T11:07:56.285189Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 497.22541,
+      "ended_at": "2026-10-26T11:16:13.593128Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-969-llmxive-follow-up-extending-perception-o",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-26T11:07:56.367718Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 361.051195,
+      "ended_at": "2026-10-26T11:13:51.481409Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-411-evaluating-the-impact-of-code-generation",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-26T11:07:50.430214Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 161.511951,
+      "ended_at": "2026-10-26T11:10:37.032075Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-104-evaluating-the-use-of-llms-for-automated",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-26T11:07:55.520124Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 0.005394,
+      "ended_at": "2026-10-26T11:07:47.717306Z",
+      "failure_reason": "ValueError: Task review context refused 'structural_record.schema.yaml': contract budget exceeded (65536 bytes/file, 131072 bytes total); split or compact inputs without dropping requirements. Repair ",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-1009-llmxive-follow-up-extending-ui-mopd-mult",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-26T11:07:47.711912Z"
+    },
     {
       "agent": "implementer",
       "duration_s": 36.99157,
@@ -182459,66 +182519,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-25T14:14:01.354625Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 119.652462,
-      "ended_at": "2026-10-25T14:14:01.351048Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-25T14:12:01.698586Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 120.395329,
-      "ended_at": "2026-10-25T14:12:01.695029Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-103-assessing-the-impact-of-mindfulness-trai",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-25T14:10:01.299700Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 24.018041,
-      "ended_at": "2026-10-25T14:11:32.110561Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-856-llmxive-follow-up-extending-crafter-a-mu",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-10-25T14:11:08.092520Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 25.796381,
-      "ended_at": "2026-10-25T14:11:08.090286Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-856-llmxive-follow-up-extending-crafter-a-mu",
-      "project_stage": "tasked",
-      "severity": "ok",
-      "started_at": "2026-10-25T14:10:42.293905Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 116.693564,
-      "ended_at": "2026-10-25T14:11:04.966005Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-305-statistical-analysis-of-publicly-availab",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-25T14:09:08.272441Z"
     }
   ],
   "reviewed_preprints": [
