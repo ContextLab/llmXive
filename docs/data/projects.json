@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-26T16:20:06.078357+00:00",
+  "generated_at": "2026-10-26T16:27:47.238122+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -43945,6 +43945,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "planner",
+          "duration_s": 502.57176,
+          "ended_at": "2026-10-26T16:26:47.635735Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-26T16:18:25.063975Z"
+        },
+        {
           "agent": "clarifier",
           "duration_s": 158.920825,
           "ended_at": "2026-10-26T16:18:14.754838Z",
@@ -44015,14 +44023,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T03:08:54.147107Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 21.489191,
-          "ended_at": "2026-10-23T03:08:54.143258Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T03:08:32.654067Z"
         }
       ],
       "paper_status": null,
@@ -79525,7 +79525,7 @@
           ]
         },
         {
-          "contributions": 33,
+          "contributions": 36,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -79581,6 +79581,30 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 28.866415,
+          "ended_at": "2026-10-26T16:13:25.687685Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-26T16:12:56.821270Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 30.827428,
+          "ended_at": "2026-10-26T16:12:56.817220Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-26T16:12:25.989792Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 75.919431,
+          "ended_at": "2026-10-26T16:12:25.985336Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-26T16:11:10.065905Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 784.350849,
           "ended_at": "2026-10-26T15:45:18.193675Z",
           "model": "openai.gpt-oss-120b",
@@ -79634,30 +79658,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-25T02:10:24.646702Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1221.301474,
-          "ended_at": "2026-10-21T06:04:18.107537Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-21T05:43:56.806063Z"
-        },
-        {
-          "agent": "clarifier",
-          "duration_s": 156.59021,
-          "ended_at": "2026-10-21T05:43:47.592033Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-21T05:41:11.001823Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1448.8553,
-          "ended_at": "2026-10-21T05:40:55.471229Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-21T05:16:46.615929Z"
         }
       ],
       "paper_status": null,
@@ -143662,6 +143662,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 42.41159,
+          "ended_at": "2026-10-26T16:27:05.856271Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-26T16:26:23.444681Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 50.284991,
           "ended_at": "2026-10-26T15:20:48.695155Z",
           "model": "openai.gpt-oss-120b",
@@ -143731,14 +143739,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-26T13:18:20.236440Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 790.362641,
-          "ended_at": "2026-10-26T11:21:06.647830Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-26T11:07:56.285189Z"
         }
       ],
       "paper_status": null,
@@ -176523,6 +176523,30 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 42.41159,
+      "ended_at": "2026-10-26T16:27:05.856271Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['openai.gpt-oss-120b', 'zai-org.glm-5.3', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-26T16:26:23.444681Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 502.57176,
+      "ended_at": "2026-10-26T16:26:47.635735Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: zai-org.glm-5",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-081-investigating-the-relationship-between-p",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-26T16:18:25.063975Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 14.559303,
       "ended_at": "2026-10-26T16:19:22.018128Z",
       "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
@@ -176640,6 +176664,42 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-26T16:11:36.316683Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 28.866415,
+      "ended_at": "2026-10-26T16:13:25.687685Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-257-investigating-the-statistical-properties",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-26T16:12:56.821270Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 30.827428,
+      "ended_at": "2026-10-26T16:12:56.817220Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-257-investigating-the-statistical-properties",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-26T16:12:25.989792Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 75.919431,
+      "ended_at": "2026-10-26T16:12:25.985336Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-257-investigating-the-statistical-properties",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-26T16:11:10.065905Z"
     },
     {
       "agent": "implementer",
@@ -182460,66 +182520,6 @@
       "project_stage": "agent_blocked",
       "severity": "ok",
       "started_at": "2026-10-25T16:43:02.645484Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 21.554394,
-      "ended_at": "2026-10-25T16:43:37.388714Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-426-the-impact-of-parasocial-relationships-w",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-25T16:43:15.834320Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 21.482337,
-      "ended_at": "2026-10-25T16:43:15.832262Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-426-the-impact-of-parasocial-relationships-w",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-25T16:42:54.349925Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 10.364793,
-      "ended_at": "2026-10-25T16:42:54.347897Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-426-the-impact-of-parasocial-relationships-w",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-25T16:42:43.983104Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 250.146894,
-      "ended_at": "2026-10-25T16:42:36.932285Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-417-assessing-the-impact-of-data-heterogenei",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-25T16:38:26.785391Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 26.503217,
-      "ended_at": "2026-10-25T16:41:35.000723Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-426-the-impact-of-parasocial-relationships-w",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-25T16:41:08.497506Z"
     }
   ],
   "reviewed_preprints": [
