@@ -16,13 +16,9 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…d:         logger.error("Synthetic data detected in raw director…”; code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…alDataValidationError if synthetic data is detected.     """…”; code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…ealDataValidationError(f"Synthetic data detected in file: {data_…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/phase0_verify_raw_counts.py; 1 command(s) failed: python -m pytest -v tests/ (rc=2)
+**Summary**: 5 fabricated/simulated-result signal(s) — results are not real measurements: code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…d:         logger.error("Synthetic data detected in raw director…”; code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…alDataValidationError if synthetic data is detected.     """…”; code/validators.py: synthetic/fake INPUT data not authorized by the spec — “…ealDataValidationError(f"Synthetic data detected in file: {data_…”; 1 command(s) failed: python -m pytest -v tests/ (rc=2)
 
 ## Failing / missing run-book commands
-
-- python code/phase0_verify_raw_counts.py -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-168-statistical-evaluation-of-dimensionality/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-168-statistical-evaluation-of-dimensionality/code/phase0_verify_raw_counts.py': [Errno 2] No such file or directory
 
 - python -m pytest -v tests/ -> rc=2
 
@@ -43,7 +39,7 @@ ERROR tests/test_generate_requirements.py
 ERROR tests/test_geometry.py
 ERROR tests/test_validators.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================= 21 warnings, 5 errors in 18.48s ========================
+======================= 21 warnings, 5 errors in 17.50s ========================
 
 
 ## Platform-owned paths written inside the project

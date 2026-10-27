@@ -1,197 +1,44 @@
-"""
-Snakefile for the statistical evaluation of dimensionality reduction pipeline.
-Implements the required workflow rules:
-verify_data_availability, download, preprocess, geometry, embed,
-cluster_fidelity, mixed_effects, sensitivity, aggregate_report, final_handoff.
-"""
+# Snakefile for the statistical evaluation pipeline
+# Implements the rules listed in tasks.md for Phase 0–Phase 7.
 
 import json
 import sys
 from pathlib import Path
 
-# Import project configuration
-from config import Config
-
-config = Config()
-ACCESSIONS = config.ACCESSIONS
-METHODS = ["PCA", "tSNE", "UMAP"]
-
-# Helper to touch a file (used in dummy rules)
-def touch(path):
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    Path(path).touch()
+# Configurable directories (mirroring config.py)
+RAW_DIR = Path("data/raw")
+PROCESSED_DIR = Path("data/processed")
+EMBEDDINGS_DIR = Path("data/embeddings")
+CLUSTERING_DIR = Path("data/clustering")
+METRICS_DIR = Path("data/metrics")
+RESULTS_DIR = Path("results")
+FIGURES_DIR = Path("figures")
 
 rule all:
-    """
-    Final target of the workflow. Produces a handoff file indicating successful completion.
-    """
     input:
-        "results/final_handoff.txt"
+        # Final artefacts (placeholder – adjust as pipeline grows)
+        expand("results/validation_report.txt",),
+        expand("data/results/statistical_result.yaml",)
 
 rule verify_data_availability:
     """
-    Abort the pipeline if *all* datasets are marked as "Unavailable" in the manifest.
+    Abort if every entry in the manifest is marked Unavailable.
     """
     input:
-        manifest="data/manifest.json"
-    output:
-        done="data/.verify_data_done"
+        manifest = "data/manifest.json"
     run:
-        # Load manifest and inspect statuses
-        with open(input.manifest, "r") as f:
+        with open(input.manifest) as f:
             manifest = json.load(f)
-        all_unavailable = all(entry.get("status", "").lower() == "unavailable"
-                             for entry in manifest)
-        if all_unavailable:
-            print("All datasets unavailable – aborting.")
-            sys.exit(1)
-        # otherwise create a sentinel file
-        touch(output.done)
+        if all(entry.get("status") == "Unavailable" for entry in manifest):
+            sys.exit("All datasets unavailable – aborting.")
+        else:
+            # Create a dummy file to satisfy Snakemake's need for an output
+            Path("results/data_gap_verified.txt").touch()
 
-rule download:
-    """
-    Placeholder for the real download step.
-    Creates dummy .h5ad files for each accession.
-    """
-    input:
-        verify="data/.verify_data_done"
-    output:
-        # One raw file per accession
-        raw=expand("data/raw/{{dataset}}.h5ad", dataset=ACCESSIONS)
-    shell:
-        """
-        for f in {output.raw}; do
-            touch "$f"
-        done
-        """
-
-rule preprocess:
-    """
-    Placeholder for preprocessing.
-    Generates a processed matrix (Parquet) per accession.
-    """
-    input:
-        raw=expand("data/raw/{{dataset}}.h5ad", dataset=ACCESSIONS)
-    output:
-        matrix=expand("data/processed/{{dataset}}_matrix.parquet", dataset=ACCESSIONS)
-    shell:
-        """
-        for f in {output.matrix}; do
-            touch "$f"
-        done
-        """
-
-rule geometry:
-    """
-    Placeholder for geometric diagnostics.
-    Writes a JSON descriptor per accession.
-    """
-    input:
-        matrix=expand("data/processed/{{dataset}}_matrix.parquet", dataset=ACCESSIONS)
-    output:
-        geom=expand("data/processed/{{dataset}}_geometric.json", dataset=ACCESSIONS)
-    shell:
-        """
-        for f in {output.geom}; do
-            echo '{{"intrinsic_dimensionality": 0, "local_density": 0}}' > "$f"
-        done
-        """
-
-rule embed:
-    """
-    Generates PCA, t‑SNE and UMAP embeddings for each dataset.
-    """
-    input:
-        matrix=expand("data/processed/{{dataset}}_matrix.parquet", dataset=ACCESSIONS)
-    output:
-        pca=expand("data/embeddings/{{dataset}}_PCA.csv", dataset=ACCESSIONS),
-        tsne=expand("data/embeddings/{{dataset}}_tSNE.csv", dataset=ACCESSIONS),
-        umap=expand("data/embeddings/{{dataset}}_UMAP.csv", dataset=ACCESSIONS)
-    shell:
-        """
-        for f in {output.pca} {output.tsne} {output.umap}; do
-            # Write a minimal CSV with a header; real code would produce real embeddings
-            echo "cell_id,dim1,dim2" > "$f"
-        done
-        """
-
-rule cluster_fidelity:
-    """
-    Runs Leiden clustering on each embedding and computes fidelity metrics.
-    """
-    input:
-        pca=expand("data/embeddings/{{dataset}}_PCA.csv", dataset=ACCESSIONS),
-        tsne=expand("data/embeddings/{{dataset}}_tSNE.csv", dataset=ACCESSIONS),
-        umap=expand("data/embeddings/{{dataset}}_UMAP.csv", dataset=ACCESSIONS)
-    output:
-        # One CSV per dataset‑method combination
-        metrics=expand("data/metrics/{{dataset}}_{{method}}_clusters.csv",
-                       dataset=ACCESSIONS, method=METHODS)
-    shell:
-        """
-        for f in {output.metrics}; do
-            echo "cell_id,cluster_label,silhouette_score,optimal_resolution" > "$f"
-        done
-        """
-
-rule mixed_effects:
-    """
-    Fits the mixed‑effects model (placeholder implementation).
-    """
-    input:
-        metrics=expand("data/metrics/{{dataset}}_{{method}}_clusters.csv",
-                       dataset=ACCESSIONS, method=METHODS)
-    output:
-        yaml="data/results/mixed_effects.yaml"
-    run:
-        # Dummy YAML content
-        content = {
-            "model": "mixed_effects_placeholder",
-            "status": "success"
-        }
-        Path(output.yaml).parent.mkdir(parents=True, exist_ok=True)
-        with open(output.yaml, "w") as out:
-            import yaml
-            yaml.safe_dump(content, out)
-
-rule sensitivity:
-    """
-    Performs the sensitivity sweep over silhouette thresholds (placeholder).
-    """
-    input:
-        metrics=expand("data/metrics/{{dataset}}_{{method}}_clusters.csv",
-                       dataset=ACCESSIONS, method=METHODS)
-    output:
-        csv="data/metrics/sensitivity_summary.csv"
-    shell:
-        """
-        echo "dataset,method,threshold,ari,nmi" > {output.csv}
-        """
-
-rule aggregate_report:
-    """
-    Consolidates metrics and produces a validation report.
-    """
-    input:
-        mixed="data/results/mixed_effects.yaml",
-        sensitivity="data/metrics/sensitivity_summary.csv"
-    output:
-        report="results/validation_report.txt"
-    run:
-        Path(output.report).parent.mkdir(parents=True, exist_ok=True)
-        with open(output.report, "w") as f:
-            f.write("Validation Report\\n")
-            f.write("PASS\\n")
-
-rule final_handoff:
-    """
-    Final hand‑off artifact indicating the pipeline completed successfully.
-    """
-    input:
-        report="results/validation_report.txt"
-    output:
-        handoff="results/final_handoff.txt"
-    run:
-        Path(output.handoff).parent.mkdir(parents=True, exist_ok=True)
-        with open(output.handoff, "w") as f:
-            f.write("Pipeline completed successfully.\\n")
+include: "code/phase1_preprocess.py"
+include: "code/phase2_geometry.py"
+include: "code/phase3_embeddings.py"
+include: "code/phase4_fidelity_fixed.py"
+include: "code/phase5_sensitivity.py"
+include: "code/phase6_mixed_effects.py"
+include: "code/phase7_reporting.py"

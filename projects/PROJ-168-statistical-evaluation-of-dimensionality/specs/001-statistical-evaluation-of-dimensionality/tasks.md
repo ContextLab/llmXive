@@ -7,33 +7,33 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
 
 ## Phase 0 – Project Foundations & Specification Alignment  
 
-- [ ] T001 **[US1]** Initialise project directory layout and produce a verifiable listing.  
+- [~] T001 **[US1]** Initialise project directory layout and produce a verifiable listing.  
   - Create directories: `data/raw/`, `data/processed/`, `data/embeddings/`, `data/clustering/`, `data/metrics/`, `data/results/`, `figures/`, `code/`, `code/tests/`, `paper/`.  
   - Generate `results/dir_listing.txt` via `find data code results figures paper -type d > results/dir_listing.txt`.  
   - **Verification**: `assert pathlib.Path('results/dir_listing.txt').exists()` and the file contains each of the directories listed above.  
 
-- [X] T003 **[US1]** Provide utility documentation (`code/ci_workflow_doc.md`).  
+- [~] T003 **[US1]** Provide utility documentation (`code/ci_workflow_doc.md`).  
   - Write a markdown file describing the CI limits checker (`code/ci_limits.py`) and reference it from `README.md`.  
   - **Verification**: `grep -i "ci_limits.py" code/ci_workflow_doc.md` returns a match, `grep -i "ci_workflow_doc.md" README.md` returns a match, and both files appear in `results/dir_listing.txt`.  
   - *Note*: No files are written outside project‑owned directories (the previous .github path has been removed).  
 
-- [ ] T004 **[US1]** Implement CI limits checker (`code/ci_limits.py`).  
+- [~] T004 **[US1]** Implement CI limits checker (`code/ci_limits.py`).  
   - Reads `results/monitoring.csv`, exits 1 if `peak_ram_bytes` > 7 000 000 000 or total `wall_time_s` > 21 600, otherwise exits 0 with a success message.  
   - **Verification**: Running the script on a deliberately violating CSV returns exit code 1; on a compliant CSV returns 0.  
 
-- [ ] T006 **[US1]** Create a full Snakemake workflow (`code/Snakefile`).  
+- [~] T006 **[US1]** Create a full Snakemake workflow (`code/Snakefile`).  
   - Implements rules: `verify_data_availability`, `download`, `preprocess`, `geometry`, `embed`, `cluster_fidelity`, `mixed_effects`, `sensitivity`, `aggregate_report`, `final_handoff`.  
   - `verify_data_availability` aborts with “All datasets unavailable – aborting.” if every entry in `data/manifest.json` is `"Unavailable"`.  
   - **Verification**: `snakemake -n -s code/Snakefile verify_data_availability` prints abort message when appropriate; `snakemake -p -s code/Snakefile --dag | dot -Tpng -o dag.png` shows the full DAG.  
 
-- [ ] T007 **[FR‑001]** Resolve dataset availability (`code/data_gap_resolver.py`).  
+- [~] T007 **[FR‑001]** Resolve dataset availability (`code/data_gap_resolver.py`).  
   - Iterate over GEO accessions GSE131907, GSE111322, GSE150728 (or documented open substitutes per amendment).  
   - Download via `datasets.load_dataset("geo", name=accession, split="train", streaming=False)`.  
   - Compute SHA‑256, write raw file to `data/raw/<accession>.h5ad`, and record fields `dataset_id`, `source_url`, `status`, `checksum`, `raw_file_path`, `processed_file_path` (null) in `data/manifest.json`.  
   - If fewer than three datasets are `"Available"`, write `results/data_gap_summary.txt` and exit 1.  
   - **Verification**: `python -m jsonschema -i data/manifest.json specs/001‑statistical‑evaluation‑of‑dimensionality/contracts/dataset.schema.yaml` exits 0; when < 3 available, `cat results/data_gap_summary.txt` contains “abort”.  
 
-- [ ] T008 **[FR‑002 FR‑003 US1]** Pre‑process each available dataset and compute geometry (`code/preprocess_and_geometry.py`).
+- [ ] T008 **[FR‑002 FR‑003 US1]** Pre‑process each available dataset and compute geometry (`code/preprocess_and_geometry.py`). <!-- FAILED-IN-EXECUTION: code/preprocess_and_geometry.py exit=1 -->
   - For each `"Available"` entry in `data/manifest.json`:  
     1. Load raw matrix with Scanpy (`sc.read_h5ad`).  
     2. Export ground‑truth labels to `data/processed/<dataset_id>_labels.csv`.  

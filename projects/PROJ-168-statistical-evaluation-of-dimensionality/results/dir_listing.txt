@@ -12,5 +12,3 @@ code/workflows
 results
 figures
 paper
-code/ci_workflow_doc.md
-README.md

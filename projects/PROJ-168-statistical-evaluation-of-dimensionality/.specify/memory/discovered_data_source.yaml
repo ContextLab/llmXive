@@ -1,9 +1,11 @@
 status: none
-intent: download GEO scRNA-seq datasets GSE111322 GSE150728 GSE13 python package dataset
+intent: Gene Expression Omnibus scRNA-seq count matrices GSE111322 GSE150728 GSE13
+  series download python package dataset
 required_fields:
+- cell_id
 - gene_id
-- cell_barcode
 - raw_counts
-cache_key: 5ebd4d015c28592a65c176ded73f7180d5708ecaa1431796ee378f3eb662eeb8
-searched_at: '2026-10-24T01:35:21.768381+00:00'
+- metadata
+cache_key: a9b20561ab7628a1c5aeb0a240765b0824f3fa327afd9243b99e9f288f2ab08d
+searched_at: '2026-10-27T05:12:29.698449+00:00'
 retry_count: 1

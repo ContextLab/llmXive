@@ -1,50 +1,78 @@
+"""
+Unit tests for the Data Gap Resolver (T007).
+
+The tests verify that:
+  * The resolver creates a manifest containing exactly the three required
+    GEO accessions.
+  * Each manifest entry conforms to the JSON schema defined in
+    `specs/001-statistical-evaluation-of-dimensionality/contracts/dataset.schema.yaml`.
+"""
+
 import json
 import pathlib
 
-from code.data_gap_resolver import DataGapResolver, DatasetStatus
-from code.config import Config
+import pytest
+from jsonschema import validate, ValidationError
 
-def test_manifest_created_and_has_minimum_entries(tmp_path, monkeypatch):
+from data_gap_resolver import DataGapResolver, DatasetStatus
+
+# Path to the schema file
+SCHEMA_PATH = pathlib.Path(__file__).parent.parent / "specs" / "001-statistical-evaluation-of-dimensionality" / "contracts" / "dataset.schema.yaml"
+
+@pytest.fixture
+def clean_manifest(tmp_path, monkeypatch):
     """
-    Ensure that ``DataGapResolver.resolve_all_gaps`` creates a manifest
-    JSON file and that it contains at least three entries with status
-    ``Available`` when the underlying raw files already exist.
-    The test runs in a temporary directory to avoid touching the real
-    project data.
+    Ensure a fresh manifest file for each test run.
     """
-    # -----------------------------------------------------------------
-    # Set up a temporary Config that points to a fresh ``data/raw`` folder
-    # -----------------------------------------------------------------
-    cfg = Config()
-    cfg.data_raw = tmp_path / "raw"
-    cfg.results_dir = tmp_path / "results"
-    cfg.data_raw.mkdir(parents=True, exist_ok=True)
-    cfg.results_dir.mkdir(parents=True, exist_ok=True)
+    # Redirect the Config paths to a temporary directory
+    from config import Config
+    temp_config = Config()
+    temp_config.RAW_DATA_DIR = tmp_path / "raw"
+    temp_config.RESULTS_DIR = tmp_path / "results"
+    temp_config.RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    temp_config.RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    # -----------------------------------------------------------------
-    # Pretend that three accession files already exist (empty files are fine
-    # because the resolver only checks for existence before attempting a
-    # download).  The resolver will compute a checksum on these files.
-    # -----------------------------------------------------------------
-    for acc in cfg.accessions:
-        (cfg.data_raw / f"{acc}_dummy_counts.txt").write_text("gene1\tgene2\n1\t2\n")
+    # Monkey‑patch the Config used by DataGapResolver
+    monkeypatch.setattr("data_gap_resolver.Config", lambda: temp_config)
 
-    resolver = DataGapResolver(cfg)
-    report = resolver.resolve_all_gaps()
+    # Ensure no pre‑existing manifest interferes
+    manifest_path = pathlib.Path(__file__).parent.parent / "data" / "manifest.json"
+    if manifest_path.exists():
+        manifest_path.unlink()
+    yield
+    # Cleanup after test
+    if manifest_path.exists():
+        manifest_path.unlink()
 
-    manifest_path = pathlib.Path("data") / "manifest.json"
-    assert manifest_path.is_file(), "manifest.json was not created"
+def test_resolver_creates_valid_manifest(clean_manifest):
+    resolver = DataGapResolver()
+    status, found, missing = resolver.resolve()
 
+    # Should have succeeded
+    assert status == "enough"
+    assert len(found) == 3
+    assert missing == []
+
+    # Load and inspect manifest
+    manifest_path = pathlib.Path(__file__).parent.parent / "data" / "manifest.json"
+    assert manifest_path.is_file()
     with manifest_path.open() as f:
         manifest = json.load(f)
 
-    # All three accessions should be present
-    assert len(manifest) == len(cfg.accessions)
+    assert isinstance(manifest, list)
+    assert len(manifest) == 3
 
-    # All should be marked as Available because the dummy files exist
-    available = [e for e in manifest if e["status"] == DatasetStatus.AVAILABLE]
-    assert len(available) == len(cfg.accessions), "Not all datasets marked Available"
+    # Verify required fields and types
+    for entry in manifest:
+        assert entry["status"] == DatasetStatus.AVAILABLE
+        assert entry["checksum"] is not None
+        assert entry["raw_file_path"] is not None
+        assert entry["processed_file_path"] is None
 
-    # The report should reflect the same counts
-    assert report["summary"]["available"] == len(cfg.accessions)
-    assert report["summary"]["unavailable"] == 0
+    # Validate against JSON schema
+    with SCHEMA_PATH.open() as schema_file:
+        schema = json.load(schema_file)
+    try:
+        validate(instance=manifest[0], schema=schema)
+    except ValidationError as e:
+        pytest.fail(f"Manifest entry does not conform to schema: {e}")

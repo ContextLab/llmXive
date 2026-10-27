@@ -9,6 +9,3 @@ statsmodels==0.14.2
 pingouin==0.5.4
 pyyaml==6.0.1
 datasets==2.20.0
-# The above packages are required for the pipeline; versions are pinned
-# to ensure reproducibility across runs.  All are compatible with the
-# platform‑provided Python 3.11 environment.

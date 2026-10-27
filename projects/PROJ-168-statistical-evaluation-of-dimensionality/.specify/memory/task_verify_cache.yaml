@@ -30,12 +30,3 @@ T007:
     \ needed for the jsonschema validation is missing. These issues prevent the task\
     \ from being considered genuinely completed."
   sig: 815e8bf5ac76583bdc0a2846245bcffa53f1d1a95698a8dc17d52dfa62dece52
-T008:
-  c: false
-  h: ee5f224d8dbb45a3b3060f8b4eacae6749e4189561d65fe6aeff3271c280be51
-  r: "The `data/processed/` directory contains only `TEST001_matrix.parquet`; the\
-    \ required label CSV (`*_labels.csv`), HVG count file (`*_hvg.txt`), and geometry\
-    \ JSON (`*_geometric.json`) are absent, so steps\u202F2,\u202F4,\u202F8\u2011\
-    9 of the task are not satisfied. The pipeline therefore does not fully meet the\
-    \ specification."
-  sig: 34f451d8a81a88640e25c956ce78020ba37af587104b79f9299fb28be68efd6c

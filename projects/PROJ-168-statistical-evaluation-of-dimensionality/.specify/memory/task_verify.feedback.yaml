@@ -28,11 +28,8 @@ T007:
     \ completed."
   task: 1b6fba68ec28caaf55b21e9fa16bafebc2b2d92eb2e407e3fc784d0b3778b4d0
 T008:
-  reason: "The `data/processed/` directory contains only `TEST001_matrix.parquet`;\
-    \ the required label CSV (`*_labels.csv`), HVG count file (`*_hvg.txt`), and geometry\
-    \ JSON (`*_geometric.json`) are absent, so steps\u202F2,\u202F4,\u202F8\u2011\
-    9 of the task are not satisfied. The pipeline therefore does not fully meet the\
-    \ specification."
+  reason: 'Requested task execution failed; rerun successfully: code/preprocess_and_geometry.py
+    exit=1'
   task: a1e6f67ea7723284c6a4c1d8d76bd3ac84d36dd3bcef05b99ced4d9e3f6c13f7
 T009:
   reason: 'Requested task execution failed; rerun successfully: code/generate_embeddings.py

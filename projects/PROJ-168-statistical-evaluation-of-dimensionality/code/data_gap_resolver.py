@@ -165,18 +165,3 @@ class DataGapResolver:
                 summary_path.unlink()
             logger.info("Data‑gap resolution successful: ≥ 3 datasets available.")
             return "enough", found_datasets, missing_datasets
-
-def main() -> None:
-    """
-    CLI entry point. Executes resolution and exits based on the 3‑dataset rule.
-    """
-    resolver = DataGapResolver()
-    status, found, missing = resolver.resolve()
-
-    if status == "insufficient":
-        sys.exit(1)
-
-    sys.exit(0)
-
-if __name__ == "__main__":
-    main()
