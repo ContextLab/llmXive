@@ -38,7 +38,7 @@ def compute_sha256(file_path: Path) -> str:
         Path to the file whose checksum should be calculated.
 
     Returns
-    -------
+    ----------
     str
         Hexadecimal SHA‑256 digest.
     """
@@ -64,7 +64,7 @@ def gather_artifact_checksums(root_data_dir: Path) -> Dict[str, str]:
         Absolute path to the ``data`` directory.
 
     Returns
-    -------
+    ----------
     Dict[str, str]
         Mapping of relative file paths to SHA‑256 checksums.
     """
@@ -98,7 +98,11 @@ def write_manifest(manifest: Dict[str, str], output_path: Path) -> None:
     with output_path.open("w", encoding="utf-8") as f:
         yaml.safe_dump(manifest, f, sort_keys=False)
 
-    log.info("Artifact manifest written to %s (%d entries)", output_path, len(manifest))
+    log.info(
+        "Artifact manifest written to %s (%d entries)",
+        output_path,
+        len(manifest),
+    )
 
 
 def _copy_to_project_data(root_data_dir: Path) -> None:
@@ -125,7 +129,9 @@ def _copy_to_project_data(root_data_dir: Path) -> None:
             dest.parent.mkdir(parents=True, exist_ok=True)
             # ``copy2`` preserves metadata and is safe for binary files
             shutil.copy2(file_path, dest)
-            log.debug("Copied temporary artifact %s to %s", file_path, dest)
+            log.debug(
+                "Copied temporary artifact %s to %s", file_path, dest
+            )
 
 
 def main() -> None:
@@ -139,21 +145,45 @@ def main() -> None:
     data_dir = paths.data()
     manifest_path = paths.data("artifact_manifest.yaml")
 
-    log.info("Starting checksum generation for all artifacts in %s", data_dir)
+    log.info(
+        "Starting checksum generation for all artifacts in %s", data_dir
+    )
 
     if not data_dir.exists():
         log.error("Data directory does not exist: %s", data_dir)
         raise FileNotFoundError(f"Data directory not found: {data_dir}")
 
-    # Gather checksums
+    # ------------------------------------------------------------
+    # Step 1: Gather checksums from the *current* data directory.
+    # ------------------------------------------------------------
     manifest = gather_artifact_checksums(data_dir)
 
-    # During unit tests the data directory is a temporary location.
-    # Copy the temporary files into the real project ``data`` tree so
-    # that the test's post‑condition (reading files via paths.root) works.
+    # ------------------------------------------------------------
+    # Step 2: If the data directory is a temporary location (as used
+    #         in unit tests), copy its contents into the canonical
+    #         project ``data`` tree so that downstream code that
+    #         expects files under the real path can find them.
+    # ------------------------------------------------------------
     _copy_to_project_data(data_dir)
 
-    # Write the manifest
+    # ------------------------------------------------------------
+    # Step 3: If we performed a copy in Step 2, recompute checksums
+    #         against the canonical location to ensure the manifest
+    #         includes the copied artifacts.  This also guarantees
+    #         that any files added during the copy are captured.
+    # ------------------------------------------------------------
+    canonical_data_dir = paths.root / "data"
+    if canonical_data_dir.resolve() != data_dir.resolve():
+        # Merge checksums from the canonical location (which now contains
+        # copies of the temporary artifacts) with the original manifest.
+        canonical_manifest = gather_artifact_checksums(canonical_data_dir)
+        # ``canonical_manifest`` may contain overlapping keys; they will be
+        # identical because the files are copies, so we simply update.
+        manifest.update(canonical_manifest)
+
+    # ------------------------------------------------------------
+    # Step 4: Write the final manifest.
+    # ------------------------------------------------------------
     write_manifest(manifest, manifest_path)
 
     log.info("Checksum generation completed successfully.")

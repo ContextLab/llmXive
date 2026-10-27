@@ -9,11 +9,11 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
 
 ## Phase 0 – Project scaffolding  
 
-- [X] T001 [P] Create the required project directory tree and verify its existence.  
+- [~] T001 [P] Create the required project directory tree and verify its existence.  
   - **Paths created**: `src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, `contracts/`, `config/`.  
   - **Verification**: Run `tree -L 2 .` (or equivalent) and store the output in `docs/directory_structure.txt`; the file must list all nine top‑level folders.
 
-- [X] T002 Add the three contract schema files required by the specification and validate them.
+- [~] T002 Add the three contract schema files required by the specification and validate them.
   - **Files**:  
     - `contracts/unified_dataset.schema.yaml` (matches *MatchedUsersDataset*).  
     - `contracts/model_output.schema.yaml` (matches *ModelResult*).  
@@ -24,7 +24,7 @@ Tasks are ordered by scientific data‑flow; tasks that can run in parallel are 
 - [X] T020 [P] Set a global random seed (42) for all stochastic steps and record it in `config/random_seed.yaml`.  
   - **Verification**: Script `src/utils/set_seed.py` writes the seed file and asserts that `numpy`, `random`, and `torch` (if present) are seeded; downstream scripts import this utility.
 
-- [ ] T018 [P] Compute SHA‑256 checksums for every raw and derived data artifact created throughout the pipeline and store them in `data/artifact_manifest.yaml`.  
+- [~] T018 [P] Compute SHA‑256 checksums for every raw and derived data artifact created throughout the pipeline and store them in `data/artifact_manifest.yaml`.  
   - **Verification**: `src/utils/checksum.py` generates the manifest; a subsequent verification step compares current file hashes to the manifest and fails if any mismatch is detected.
 
 ---
