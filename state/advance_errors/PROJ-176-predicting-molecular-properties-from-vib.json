@@ -2,13 +2,13 @@
   "project_id": "PROJ-176-predicting-molecular-properties-from-vib",
   "stage": "in_progress",
   "class": "transient",
-  "fingerprint": "unknown",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-20T12:19:30.553749+00:00",
-  "last_seen": "2026-10-20T13:20:58.974219+00:00",
-  "retry_after": null,
-  "last_error": "no implementation progress: no stage change or verified task completion",
-  "evidence": "no implementation progress: no stage change or verified task completion",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-27T19:09:30.488967+00:00",
+  "last_seen": "2026-10-27T19:09:30.488967+00:00",
+  "retry_after": "2026-10-27T19:19:30.488967+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }
