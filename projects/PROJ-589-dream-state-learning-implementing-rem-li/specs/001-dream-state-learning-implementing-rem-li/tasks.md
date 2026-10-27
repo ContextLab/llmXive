@@ -43,7 +43,7 @@ Each task lists the primary artifact(s) it creates or modifies and the concrete 
   - Files: `code/baseline.py` (or extended `trainer.py` with `--mode baseline`)  
   - Verification: Integration test `tests/integration/test_token_parity.py` confirms identical `real_token_count` for a given seed between baseline and experimental runs.
 
-- [ ] T007 [US1] **Orchestrate a multi‑seed experiment** (seeds 0, 1, 2, 3, 4) that runs both regimes, saves per‑seed `experiment_result.json` files, and records all runtime metrics.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/run_experiment.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T007 [US1] **Orchestrate a multi‑seed experiment** (seeds 0, 1, 2, 3, 4) that runs both regimes, saves per‑seed `experiment_result.json` files, and records all runtime metrics.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/run_experiment.sh exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
   - Files: `code/main.py` (or `scripts/run_experiment.sh`)  
   - Verification: After execution, `data/results/experiment_result_seed0_wake_dream.json`, `…_baseline.json`, … up to seed 4 exist, each conforming to `contracts/experiment_result_schema.schema.yaml`.
 

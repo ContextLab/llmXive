@@ -42,8 +42,8 @@ class Config:
         self.held_out_batch_size = 8
         
         # Model and Path configuration
-        # Use a tiny DistilBERT variant to keep downloads fast in the quick‑start.
-        self.model_name = "sshleifer/tiny-distilbert-base-uncased"
+        # Use a universally available small model to avoid lookup issues.
+        self.model_name = "distilbert-base-uncased"
         self.log_dir = "data/logs"
         self.results_dir = "data/results"
         self.checkpoint_dir = "data/checkpoints"
@@ -105,12 +105,11 @@ def get_config():
         held_out_subset=None,
         held_out_batch_size=8,
         device=torch.device('cpu'),
-        # Tiny model for fast downloads in tests / quick‑start
-        model_name="sshleifer/tiny-distilbert-base-uncased",
+        # Use a universally available model name
+        model_name="distilbert-base-uncased",
         log_dir="data/logs",
         results_dir="data/results",
         checkpoint_dir="data/checkpoints",
-        # Add the missing memory limit attribute required by Trainer
         memory_limit_bytes=int(6.3 * 1024 ** 3)
     )
     # Provide a ``get`` method like the real Config class
