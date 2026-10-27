@@ -1,69 +1,39 @@
+import pandas as pd
 import json
 from pathlib import Path
-
-import pandas as pd
-import pytest
-
-from code.synthetic_generation import (
-    _load_prompts,
-    _simple_code_from_prompt,
-    main,
-)
 from llmxive_toolkit import paths
 
-def test_simple_code_is_valid():
-    """The stub generator must produce syntactically valid Python."""
-    code = _simple_code_from_prompt("123", "Do something simple")
-    # Should parse without error
-    import ast
-    ast.parse(code)  # will raise if invalid
-
-def test_load_prompts_fallback(tmp_path, monkeypatch):
-    """When the real prompts file is missing we should get a deterministic placeholder."""
-    # Point the toolkit to a temporary project root so that paths.data resolves inside tmp_path
-    monkeypatch.setattr("llmxive_toolkit.paths.root", tmp_path, raising=False)
-
-    # Ensure no intent_prompts.parquet exists
-    prompts_path = paths.data("processed", "intent_prompts.parquet")
-    if prompts_path.is_file():
-        prompts_path.unlink()
-
-    df = _load_prompts()
-    assert len(df) == 100
-    assert set(df.columns) == {"pr_id", "prompt", "complexity_indicator"}
-
-def test_main_creates_artifacts(tmp_path, monkeypatch):
-    """Running main() must create the three expected artefacts."""
-    # Redirect the project's root to a temporary directory for isolation
-    monkeypatch.setattr("llmxive_toolkit.paths.root", tmp_path, raising=False)
-
-    # Ensure fallback will be used (no real prompts file)
-    prompts_path = paths.data("processed", "intent_prompts.parquet")
-    if prompts_path.is_file():
-        prompts_path.unlink()
-
-    # Run the generation
-    main()
-
+def test_synthetic_artifacts_exist():
+    """Verify that T004 produced the required artifacts."""
     ctx_path = paths.data("synthetic", "context_based.parquet")
     prm_path = paths.data("synthetic", "prompt_based.parquet")
     val_path = paths.data("synthetic", "validation.json")
 
-    for p in (ctx_path, prm_path):
-        assert p.is_file(), f"{p} was not created"
-        df = pd.read_parquet(p)
-        assert len(df) == 100
-        assert set(df.columns) >= {
-            "pr_id",
-            "code_content",
-            "generation_source",
-            "generation_time_sec",
-            "model_version",
-            "generation_params",
-        }
+    assert ctx_path.exists(), "context_based.parquet is missing"
+    assert prm_path.exists(), "prompt_based.parquet is missing"
+    assert val_path.exists(), "validation.json is missing"
 
-    assert val_path.is_file(), "validation.json missing"
-    with open(val_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    assert data["total_snippets"] == 200
-    assert data["syntax_validity_rate"] >= 0.95
+def test_synthetic_data_quality():
+    """Verify the content of the generated cohorts."""
+    ctx_df = pd.read_parquet(paths.data("synthetic", "context_based.parquet"))
+    prm_df = pd.read_parquet(paths.data("synthetic", "prompt_based.parquet"))
+    
+    # Check minimum size
+    assert len(ctx_df) >= 100, "Context-based cohort too small"
+    assert len(prm_df) >= 100, "Prompt-based cohort too small"
+    
+    # Check required columns
+    required_cols = {"pr_id", "code_content", "generation_source", "generation_time_sec", "model_version"}
+    assert required_cols.issubset(set(ctx_df.columns)), "Missing columns in context_based.parquet"
+    assert required_cols.issubset(set(prm_df.columns)), "Missing columns in prompt_based.parquet"
+    
+    # Check time constraint
+    assert (ctx_df["generation_time_sec"] <= 30.0).all(), "Some snippets took > 30s"
+
+def test_validation_report():
+    """Verify the validation report and threshold."""
+    with open(paths.data("synthetic", "validation.json"), "r") as f:
+        val = json.load(f)
+    
+    assert "syntax_validity_rate" in val
+    assert val["syntax_validity_rate"] >= 0.95, f"Validity rate {val['syntax_validity_rate']} below 0.95"

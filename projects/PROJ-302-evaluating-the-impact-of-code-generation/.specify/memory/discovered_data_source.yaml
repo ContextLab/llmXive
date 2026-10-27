@@ -1,19 +1,19 @@
 status: none
-intent: download GitHub pull request metadata dataset GHTorrent GitHub Archive BigQuery
-  python package dataset
+intent: download GHTorrent and GHArchive GitHub pull request metadata python package
+  dataset
 required_fields:
 - repository_id
 - repository_name
-- stars
+- repository_stars
 - pull_request_id
 - pull_request_created_at
-- pull_request_closed_at
+- pull_request_first_comment_at
+- pull_request_approved_at
 - pull_request_merged_at
-- first_review_comment_timestamp
-- approval_timestamp
-- merge_timestamp
-- files_changed
-- lines_added
-cache_key: ea6fc0dcf52f94245e671c835e4bbc1baf483d651a3767a88097045f838710c5
-searched_at: '2026-10-26T19:25:38.686981+00:00'
+- pull_request_closed_at
+- pull_request_author
+- pull_request_reviewer_ids
+- commit_sha
+cache_key: 46409c50776e3711906c4d07077e778075d634b8354e7e1a72980a9533973568
+searched_at: '2026-10-27T17:17:00.035779+00:00'
 retry_count: 1
