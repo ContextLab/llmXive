@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-27T07:16:32.463511+00:00",
+  "generated_at": "2026-10-27T07:33:53.467878+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -37837,6 +37837,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.457046,
+          "ended_at": "2026-10-27T07:16:01.958855Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T07:15:58.501809Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 26.624676,
           "ended_at": "2026-10-24T17:38:58.747492Z",
           "model": "openai.gpt-oss-120b",
@@ -37906,14 +37914,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-14T13:14:43.557930Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 120.73679,
-          "ended_at": "2026-10-14T13:13:39.389400Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-14T13:11:38.652610Z"
         }
       ],
       "paper_status": null,
@@ -91047,6 +91047,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 5.577097,
+          "ended_at": "2026-10-27T07:17:51.334989Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T07:17:45.757892Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 6.066836,
           "ended_at": "2026-10-27T05:08:32.396389Z",
           "model": "zai-org.glm-5.3",
@@ -91116,14 +91124,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T16:25:17.857202Z"
-        },
-        {
-          "agent": "clarifier",
-          "duration_s": 950.248033,
-          "ended_at": "2026-10-23T16:25:00.669850Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T16:09:10.421817Z"
         }
       ],
       "paper_status": null,
@@ -109762,7 +109762,7 @@
           ]
         },
         {
-          "contributions": 17,
+          "contributions": 19,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -109793,6 +109793,22 @@
       "id": "PROJ-426-the-impact-of-parasocial-relationships-w",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 23.112278,
+          "ended_at": "2026-10-27T07:16:24.252220Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-27T07:16:01.139942Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 20.783372,
+          "ended_at": "2026-10-27T07:16:01.135801Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-27T07:15:40.352429Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 23.227409,
@@ -109856,22 +109872,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-25T16:40:37.695154Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 25.844386,
-          "ended_at": "2026-10-25T16:40:37.693149Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T16:40:11.848763Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 87.926388,
-          "ended_at": "2026-10-25T16:39:03.350715Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T16:37:35.424327Z"
         }
       ],
       "paper_status": null,
@@ -153678,6 +153678,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 111.459338,
+          "ended_at": "2026-10-27T07:18:33.990742Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T07:16:42.531404Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 107.572571,
           "ended_at": "2026-10-27T05:09:33.163085Z",
           "model": "zai-org.glm-5.3",
@@ -153747,14 +153755,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T01:22:28.836613Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 68.520001,
-          "ended_at": "2026-10-22T22:09:51.057098Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-22T22:08:42.537097Z"
         }
       ],
       "paper_status": null,
@@ -176570,6 +176570,66 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 111.459338,
+      "ended_at": "2026-10-27T07:18:33.990742Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-847-llmxive-follow-up-extending-learning-fro",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-27T07:16:42.531404Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 5.577097,
+      "ended_at": "2026-10-27T07:17:51.334989Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-317-the-impact-of-visual-detail-on-false-mem",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-27T07:17:45.757892Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 23.112278,
+      "ended_at": "2026-10-27T07:16:24.252220Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-426-the-impact-of-parasocial-relationships-w",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-27T07:16:01.139942Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.457046,
+      "ended_at": "2026-10-27T07:16:01.958855Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-044-evaluating-the-effectiveness-of-differen",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-27T07:15:58.501809Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 20.783372,
+      "ended_at": "2026-10-27T07:16:01.135801Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-426-the-impact-of-parasocial-relationships-w",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-27T07:15:40.352429Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 3.029463,
       "ended_at": "2026-10-27T07:15:53.631955Z",
@@ -182529,66 +182589,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-25T23:41:49.709970Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 39.952878,
-      "ended_at": "2026-10-25T23:41:49.708029Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-101-quantifying-the-influence-of-initial-con",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-25T23:41:09.755151Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 42.64737,
-      "ended_at": "2026-10-25T23:41:09.753034Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-101-quantifying-the-influence-of-initial-con",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-25T23:40:27.105664Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 11.022002,
-      "ended_at": "2026-10-25T23:40:58.902010Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-25T23:40:47.880008Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 76.382969,
-      "ended_at": "2026-10-25T23:40:47.877802Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-25T23:39:31.494833Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 48.907117,
-      "ended_at": "2026-10-25T23:39:31.492599Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-25T23:38:42.585482Z"
     }
   ],
   "reviewed_preprints": [
