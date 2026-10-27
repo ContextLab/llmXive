@@ -1,19 +1,43 @@
-status: none
-intent: UCI Machine Learning Repository OpenML HuggingFace datasets download python
-  package dataset
-required_fields:
+status: verified
+kind: pypi_package
+ref: openml
+access_python: "import openml, pandas as pd\n\ndef safe_int(val):\n    return int(val)\
+  \ if pd.notna(val) else None\n\ndef safe_float(val):\n    return float(val) if pd.notna(val)\
+  \ else None\n\ndf = openml.datasets.list_datasets(output_format=\"dataframe\")\n\
+  records = []\nfor _, r in df.iterrows():\n    n_instances = safe_int(r[\"NumberOfInstances\"\
+  ])\n    n_missing = safe_int(r[\"NumberOfMissingValues\"])\n    rec = {\n      \
+  \  \"dataset_id\": safe_int(r[\"did\"]),\n        \"name\": r[\"name\"],\n     \
+  \   \"source\": r.get(\"source\", None),\n        \"task_type\": r.get(\"format\"\
+  , None),\n        \"n_samples\": safe_int(r[\"NumberOfInstances\"]),\n        \"\
+  n_features\": safe_int(r[\"NumberOfFeatures\"]),\n        \"n_continuous_features\"\
+  : safe_int(r[\"NumberOfNumericFeatures\"]),\n        \"target_name\": r.get(\"default_target_attribute\"\
+  , None),\n        \"missing_percentage\": (\n            (n_missing / n_instances\
+  \ * 100) if n_instances and n_missing is not None else None\n        ),\n      \
+  \  \"download_url\": r.get(\"url\", None),\n    }\n    records.append(rec)\n\nprint(f\"\
+  RECORDS={len(records)}\")\nfirst = records[0] if records else {}\nfields = [k for\
+  \ k, v in first.items() if v is not None]\nprint(\"FIELDS=\" + \",\".join(fields))"
+record_count: 6697
+sample_fields:
 - dataset_id
-- dataset_name
+- name
+- task_type
 - n_samples
 - n_features
-- n_numeric_features
-- n_categorical_features
+- n_continuous_features
+- missing_percentage
+field_coverage: 0.75
+required_fields:
+- dataset_id
+- name
+- source
+- task_type
+- n_samples
+- n_features
+- n_continuous_features
 - target_name
 - target_type
-- continuous_variable_names
-- categorical_group_label_name
-- missing_percentage_per_feature
-- shapiro_wilk_p_value
-cache_key: 5aa7892cddd7aceeb9324a0e0648b420ea320d94239b1c61c6a84fb1c344f69a
-searched_at: '2026-10-27T19:09:07.386219+00:00'
-retry_count: 1
+- missing_percentage
+- download_url
+- sha256_checksum
+intent: UCI Machine Learning Repository OpenML dataset catalog python package dataset
+cache_key: d3a9b20c77477a6448ea1a205acb65139afee8d1b576e71b809d00d812e72b8f
