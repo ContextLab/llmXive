@@ -34,7 +34,7 @@ main.py: error: unrecognized arguments: # Executes all phases in order
 platform linux -- Python 3.11.17, pytest-8.1.1, pluggy-1.7.0
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-257-investigating-the-statistical-properties
 configfile: pyproject.toml
-plugins: platformdirs-4.13.5
+plugins: platformdirs-4.13.6
 collected 0 items
 
 ============================ no tests ran in 0.01s =============================
