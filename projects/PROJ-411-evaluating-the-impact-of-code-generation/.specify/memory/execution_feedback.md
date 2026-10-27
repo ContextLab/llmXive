@@ -8,9 +8,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/download_data.py --repo-list code/repo_list.txt --output data/raw/ -> rc=-1
 
-2026-10-27 02:16:55,759 INFO __main__: Schema required fields: ['pr_id', 'repo_name', 'created_at', 'merged_at', 'additions', 'deletions', 'comment_count', 'commit_message', 'first_comment_timestamp']
-2026-10-27 02:18:01,824 INFO __main__: Fetched 3085 PRs for psf/requests
-2026-10-27 02:18:10,500 WARNING __main__: Rate limit exhausted. Sleeping for 2666s until reset.
+2026-10-27 13:21:17,500 INFO __main__: Schema required fields: ['pr_id', 'repo_name', 'created_at', 'merged_at', 'additions', 'deletions', 'comment_count', 'commit_message', 'first_comment_timestamp']
+2026-10-27 13:21:17,500 INFO __main__: Processing psf/requests...
+2026-10-27 13:21:17,615 WARNING __main__: Rate limit exhausted. Sleeping for 1326s until reset.
 
 [TIMEOUT after 120s]
 - python code/classify_provenance.py  --input data/raw/combined_prs.json  --output data/processed/classified_prs.csv -> rc=1

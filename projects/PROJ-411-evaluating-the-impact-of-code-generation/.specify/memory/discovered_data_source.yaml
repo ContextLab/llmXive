@@ -1,19 +1,19 @@
 status: none
-intent: GHTorrent pull request dataset with LLM provenance classification python package
-  dataset
+intent: download GHTorrent GitHub pull request metadata dataset and Kaggle GitHub
+  PR dataset python package
 required_fields:
-- pull_request_id
+- pr_id
 - repository_full_name
-- creation_timestamp
-- merge_timestamp
+- pr_number
 - author_login
-- comment_count
-- review_comment_count
-- lines_added
-- lines_deleted
-- total_lines_changed
-- review_timestamps
-- commit_message
-cache_key: 0875722a6b18699ce06e08adaaa5c207cd9afecc793eb6b1991ba869c9200655
-searched_at: '2026-10-27T02:19:46.706937+00:00'
+- created_at
+- merged_at
+- closed_at
+- state
+- merged
+- additions
+- deletions
+- changed_files
+cache_key: 90b4d394beb393a796143727e64d7dfddbe77f4b06f68b0f09245e3394e76d3f
+searched_at: '2026-10-27T13:26:04.605273+00:00'
 retry_count: 1
