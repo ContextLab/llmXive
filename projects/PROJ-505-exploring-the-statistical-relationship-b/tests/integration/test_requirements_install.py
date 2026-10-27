@@ -3,6 +3,7 @@ Integration test for T001.
 Verifies that each package listed in requirements.txt was installed
 successfully by inspecting the pip install log captured in ci/install_log.txt.
 """
+import re
 from pathlib import Path
 
 def _parse_requirements(req_file: Path):
@@ -18,7 +19,7 @@ def _parse_requirements(req_file: Path):
         yield pkg
 
 def test_all_requirements_successfully_installed():
-    project_root = Path(__file__).resolve().parents[2]  # tests/integration -> project root
+    project_root = Path(__file__).resolve().parents[2]  # tests/integration/test_requirements_install.py -> project root
     req_path = project_root / "requirements.txt"
     log_path = project_root / "ci" / "install_log.txt"
 
@@ -36,12 +37,11 @@ def test_all_requirements_successfully_installed():
     for line in log_content.splitlines():
         if success_phrase in line:
             # Extract package names (they appear after the phrase, separated by spaces)
-            # Example: "Successfully installed numpy-2.0.0 pandas-2.2.1 ..."
+            # Example: "Successfully installed numpy-1.26.4 pandas-2.2.2 ..."
             parts = line.split(success_phrase, 1)[1].strip().split()
             for part in parts:
                 # The format may be pkg==ver or pkg-ver; we normalize to the package name
                 # by splitting at the first occurrence of '==' or '-' (if followed by a digit)
-                import re
                 name = re.split(r'==|-', part)[0]
                 installed_packages.add(name.lower())
 

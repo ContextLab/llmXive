@@ -10,7 +10,7 @@ from pathlib import Path
 
 def main() -> None:
     # Resolve paths relative to the project root
-    project_root = Path(__file__).resolve().parents[1]  # code/ -> project root
+    project_root = Path(__file__).resolve().parents[1]  # code/install_requirements.py -> project root
     req_path = project_root / "requirements.txt"
     log_path = project_root / "ci" / "install_log.txt"
 
