@@ -1,10 +1,10 @@
 status: none
-intent: download GSM8K train test splits and BIG-Bench logical subset via huggingface
-  datasets python package dataset
+intent: huggingface datasets package GSM8K BIG-bench logical subset download python
+  package dataset
 required_fields:
 - question
 - answer
-- id
-cache_key: 0b03ee83ed1266d59ab97282d54abce91be7296350d76ecdfab88ac358d98857
-searched_at: '2026-10-23T18:55:18.909630+00:00'
+- split
+cache_key: 4256661056e6eb53ff182a1274c8189ce3680f010689892d372902384eb0aaa2
+searched_at: '2026-10-27T02:15:05.871551+00:00'
 retry_count: 1
