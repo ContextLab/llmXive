@@ -1,8 +1,9 @@
 status: none
-intent: "OEIS A008683 M\xF6bius function values download dataset python package dataset"
+intent: "OEIS A008683 M\xF6bius function values dataset LMFDB reference python package\
+  \ dataset"
 required_fields:
 - n
 - mu
-cache_key: d57b58595020294d1372d06d671f44e8bffd61e7cfece0daf5932dd619258544
-searched_at: '2026-10-27T10:08:36.593289+00:00'
+cache_key: b85c36151c4b471911909329b460a8a75597a6a731ca2dd25434abe1e5dccd74
+searched_at: '2026-10-27T22:08:45.634558+00:00'
 retry_count: 1
