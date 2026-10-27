@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-27T15:11:54.315783+00:00",
+  "generated_at": "2026-10-27T15:30:21.671466+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -37837,6 +37837,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.503036,
+          "ended_at": "2026-10-27T15:12:38.580662Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T15:12:34.077626Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 7.393888,
           "ended_at": "2026-10-27T12:12:19.457731Z",
           "model": "zai-org.glm-5.3",
@@ -37906,14 +37914,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-24T17:06:27.596838Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 944.8742,
-          "ended_at": "2026-10-20T22:55:29.740711Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-20T22:39:44.866511Z"
         }
       ],
       "paper_status": null,
@@ -47253,6 +47253,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 14.439131,
+          "ended_at": "2026-10-27T15:11:15.585127Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T15:11:01.145996Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 17.748929,
           "ended_at": "2026-10-27T09:09:13.538284Z",
           "model": "zai-org.glm-5.3",
@@ -47322,14 +47330,6 @@
           "model": "deterministic-no-llm",
           "outcome": "skipped",
           "started_at": "2026-10-23T11:43:28.841840Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 388.705735,
-          "ended_at": "2026-10-23T11:43:16.638209Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T11:36:47.932474Z"
         }
       ],
       "paper_status": null,
@@ -71473,6 +71473,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 48.061978,
+          "ended_at": "2026-10-27T15:11:18.693918Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T15:10:30.631940Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 56.068602,
           "ended_at": "2026-10-27T13:13:55.631706Z",
           "model": "zai-org.glm-5.3",
@@ -71542,14 +71550,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-22T01:18:10.459856Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 60.973081,
-          "ended_at": "2026-10-21T23:06:28.185631Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-21T23:05:27.212550Z"
         }
       ],
       "paper_status": null,
@@ -83981,6 +83981,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.851404,
+          "ended_at": "2026-10-27T15:21:28.459344Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T15:21:23.607940Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 387.470614,
           "ended_at": "2026-10-12T12:21:14.745440Z",
           "model": "openai.gpt-oss-120b",
@@ -84050,14 +84058,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-04T15:30:42.958702Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 19.728454,
-          "ended_at": "2026-09-04T15:30:42.955586Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-04T15:30:23.227132Z"
         }
       ],
       "paper_status": null,
@@ -92716,6 +92716,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.307773,
+          "ended_at": "2026-10-27T15:10:12.967741Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T15:10:09.659968Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.389219,
           "ended_at": "2026-10-27T14:11:23.978060Z",
           "model": "zai-org.glm-5.3",
@@ -92785,14 +92793,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-18T15:32:12.985814Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 144.733555,
-          "ended_at": "2026-10-18T15:32:04.034467Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-18T15:29:39.300912Z"
         }
       ],
       "paper_status": null,
@@ -139931,6 +139931,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.472338,
+          "ended_at": "2026-10-27T15:10:48.455258Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T15:10:43.982920Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.210491,
           "ended_at": "2026-10-27T09:09:07.273638Z",
           "model": "zai-org.glm-5.3",
@@ -140000,14 +140008,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T06:08:55.623666Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 272.033245,
-          "ended_at": "2026-10-20T18:27:45.469274Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-20T18:23:13.436029Z"
         }
       ],
       "paper_status": null,
@@ -142811,6 +142811,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 3.396407,
+          "ended_at": "2026-10-27T15:11:44.181022Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T15:11:40.784615Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 3.169834,
           "ended_at": "2026-10-27T12:09:00.330873Z",
           "model": "zai-org.glm-5.3",
@@ -142880,14 +142888,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-25T04:07:51.859452Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 652.915843,
-          "ended_at": "2026-10-16T08:50:20.893871Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-16T08:39:27.978028Z"
         }
       ],
       "paper_status": null,
@@ -176570,6 +176570,90 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 4.851404,
+      "ended_at": "2026-10-27T15:21:28.459344Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-275-statistical-analysis-of-publicly-availab",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-27T15:21:23.607940Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.503036,
+      "ended_at": "2026-10-27T15:12:38.580662Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-044-evaluating-the-effectiveness-of-differen",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-27T15:12:34.077626Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 3.396407,
+      "ended_at": "2026-10-27T15:11:44.181022Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-743-ambient-temperature-influence-on-moral-d",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-27T15:11:40.784615Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 48.061978,
+      "ended_at": "2026-10-27T15:11:18.693918Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-211-predicting-gene-expression-from-chromati",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-27T15:10:30.631940Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 14.439131,
+      "ended_at": "2026-10-27T15:11:15.585127Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-1000-llmxive-follow-up-extending-orbitquant-d",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-27T15:11:01.145996Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.472338,
+      "ended_at": "2026-10-27T15:10:48.455258Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-712-predicting-individual-pain-sensitivity-f",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-27T15:10:43.982920Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.307773,
+      "ended_at": "2026-10-27T15:10:12.967741Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-327-can-publicly-available-microbiome-data-p",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-27T15:10:09.659968Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 152.593761,
       "ended_at": "2026-10-27T14:35:44.798035Z",
@@ -182517,90 +182601,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-26T01:23:49.384774Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 25.99902,
-      "ended_at": "2026-10-26T01:27:06.561685Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T01:26:40.562665Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 174.894569,
-      "ended_at": "2026-10-26T01:26:40.558516Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-302-evaluating-the-impact-of-code-generation",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T01:23:45.663947Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 129.205323,
-      "ended_at": "2026-10-26T01:26:00.538350Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-101-quantifying-the-influence-of-initial-con",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-26T01:23:51.333027Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 178.74506,
-      "ended_at": "2026-10-26T00:45:20.517503Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "zai-org.glm-5.3",
-      "outcome": "failed",
-      "project_id": "PROJ-903-llmxive-follow-up-extending-data-journal",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-26T00:42:21.772443Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 41.546006,
-      "ended_at": "2026-10-26T00:45:19.903302Z",
-      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['openai.gpt-oss-120b', 'zai-org.glm-5.3', 'google.gemma-4-31B-it', 'anthropic",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-866-llmxive-follow-up-extending-foundation-p",
-      "project_stage": "in_progress",
-      "severity": "hard",
-      "started_at": "2026-10-26T00:44:38.357296Z"
-    },
-    {
-      "agent": "specifier",
-      "duration_s": 55.617073,
-      "ended_at": "2026-10-26T00:45:11.467764Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-460-investigating-the-impact-of-network-cent",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-26T00:44:15.850691Z"
-    },
-    {
-      "agent": "project_initializer",
-      "duration_s": 14.031898,
-      "ended_at": "2026-10-26T00:44:08.075442Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-460-investigating-the-impact-of-network-cent",
-      "project_stage": "specified",
-      "severity": "ok",
-      "started_at": "2026-10-26T00:43:54.043544Z"
     }
   ],
   "reviewed_preprints": [
