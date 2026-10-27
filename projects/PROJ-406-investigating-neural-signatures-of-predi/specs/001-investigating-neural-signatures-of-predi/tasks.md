@@ -20,7 +20,7 @@ Each task lists the scientific requirement it satisfies, the concrete output fil
 
 ### Phase 1 – Data ingestion & preprocessing  
 
-- [ ] **T001** [P1] [US1] Download the Müller‑Lyer training dataset from the verified public source and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1; src/ingest/load_illusions.py exit=1 -->
+- [ ] **T001** [P1] [US1] Download the Müller‑Lyer training dataset from the verified public source and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1; src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/utils/generate_seed_log.py exit=1 -->
   - **File(s)**: `data/raw/muller_lyer.parquet` (raw).  
   - **Requirement**: **FR‑001** – download dataset; enforce required columns; **subject_id** must be unique (error on duplicates).  
   - **Verification**:  

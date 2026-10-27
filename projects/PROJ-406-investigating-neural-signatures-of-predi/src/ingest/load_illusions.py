@@ -415,7 +415,15 @@ def _download_parquet(
     if hf_dataset is not None and load_dataset is not None:
         try:
             log.info("Falling back to ``datasets`` to load %s", hf_dataset)
-            ds = load_dataset(hf_dataset, split="train")
+            # First try with explicit split "train"
+            try:
+                ds = load_dataset(hf_dataset, split="train")
+            except Exception:
+                # If no explicit split, load the whole dataset dict
+                ds_dict = load_dataset(hf_dataset)
+                # Grab the first split available
+                first_key = next(iter(ds_dict))
+                ds = ds_dict[first_key]
             df = ds.to_pandas()
             if not req or _obtain_dataframe(df, req, raw_path):
                 log.info("Dataset %s written to %s via ``datasets`` fallback",
