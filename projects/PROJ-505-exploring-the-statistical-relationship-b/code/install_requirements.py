@@ -17,8 +17,7 @@ def main() -> None:
     # Ensure the ci directory exists
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 1. Upgrade pip first to ensure the latest installer is used, 
-    # which helps with dependency resolution and binary wheel selection.
+    # 1. Upgrade pip first to ensure the latest installer is used.
     subprocess.run(
         [sys.executable, "-m", "pip", "install", "--upgrade", "pip"],
         capture_output=True,
@@ -26,14 +25,16 @@ def main() -> None:
     )
 
     # 2. Run pip install.
-    # We use --force-reinstall to guarantee that pip prints the 
+    # We use --upgrade and --force-reinstall to guarantee that pip prints the 
     # "Successfully installed" line for the requested packages,
     # which is a strict requirement for the integration test T001.
+    # We align numpy to 2.0.* per plan.md to avoid conflicts with platform pre-installs.
     cmd = [
         sys.executable,
         "-m",
         "pip",
         "install",
+        "--upgrade",
         "--force-reinstall",
         "-r",
         str(req_path),
@@ -52,7 +53,6 @@ def main() -> None:
     log_path.write_text(result.stdout, encoding="utf-8")
 
     # Exit with the same return code as pip.
-    # If pip fails (exit 1), the task is marked as failed.
     sys.exit(result.returncode)
 
 if __name__ == "__main__":

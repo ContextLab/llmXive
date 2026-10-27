@@ -37,7 +37,7 @@ def test_all_requirements_successfully_installed():
     for line in log_content.splitlines():
         if success_phrase in line:
             # Extract package names (they appear after the phrase, separated by spaces)
-            # Example: "Successfully installed numpy-1.26.4 pandas-2.2.2 ..."
+            # Example: "Successfully installed numpy-2.0.1 pandas-2.2.2 ..."
             parts = line.split(success_phrase, 1)[1].strip().split()
             for part in parts:
                 # The format may be pkg==ver or pkg-ver; we normalize to the package name

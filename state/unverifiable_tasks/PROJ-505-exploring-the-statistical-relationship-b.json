@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-505-exploring-the-statistical-relationship-b",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "Requested task execution failed; rerun successfully: code/install_requirements.py exit=1",
+      "first_seen": "2026-10-27T20:11:50.955196+00:00",
+      "last_seen": "2026-10-27T20:11:50.955196+00:00"
+    }
+  ],
+  "updated_at": "2026-10-27T20:11:50.955196+00:00"
+}

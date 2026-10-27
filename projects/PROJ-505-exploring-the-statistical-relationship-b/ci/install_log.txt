@@ -1,5 +1,5 @@
-Collecting numpy==1.26.* (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 1))
-  Downloading numpy-1.26.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (61 kB)
+Collecting numpy==2.0.* (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 1))
+  Downloading numpy-2.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (60 kB)
 Collecting pandas==2.2.* (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 2))
   Downloading pandas-2.2.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (89 kB)
 Collecting scikit-learn==1.5.* (from -r /home/runner/work/llmXive/llmXive/projects/PROJ-505-exploring-the-statistical-relationship-b/requirements.txt (line 3))
