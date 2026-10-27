@@ -5,5 +5,5 @@
   "final_loss": null,
   "checkpoint": "checkpoints/checkpoint_seed_3_step_100.pt",
   "peak_rss_mb": 1131,
-  "duration_seconds": 2.324
+  "duration_seconds": 3.603
 }

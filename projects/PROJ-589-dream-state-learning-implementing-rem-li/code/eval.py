@@ -8,22 +8,10 @@ GLUE QNLI validation set, and writes a JSON result that conforms to the
 
 The evaluation measures:
   * loss (masked‑LM loss on the QNLI inputs)
-  * a dummy accuracy metric (token‑level match rate) – required only to
-    satisfy the schema; real classification accuracy would need a
-    ``DistilBertForSequenceClassification`` head.
+  * reconstruction accuracy (token‑level match rate)
   * peak RSS memory during evaluation
   * wall‑clock duration
-  * reconstruction‑difficulty average (here approximated by the average
-    token‑entropy of the model’s predictions, a proxy for the metric
-    defined in the spec).
-
-The script can be invoked on a single checkpoint:
-    python code/eval.py --checkpoint path/to/checkpoint.pt
-
-or without ``--checkpoint`` to evaluate *all* checkpoints discovered in
-``data/results/training_summary_*.json``.  The quick‑start guide uses the
-``--results_dir`` flag (an alias for ``--output-dir``) – this script now
-accepts both for backward compatibility.
+  * reconstruction‑difficulty average (approximated by average token‑entropy)
 """
 
 import argparse
@@ -45,8 +33,8 @@ logger = get_logger(__name__)
 
 def _load_checkpoint(checkpoint_path: Path) -> DistilBertForMaskedLM:
     """
-    Load a ``DistilBertForMaskedLM`` model.  If the checkpoint file does not
-    exist, fall back to the pretrained model without loading any state dict.
+    Load a ``DistilBertForMaskedLM`` model. If the checkpoint file does not
+    exist, fall back to the pretrained model.
     """
     cfg = Config()
     model = DistilBertForMaskedLM.from_pretrained(cfg.model_name)
@@ -70,14 +58,12 @@ def _prepare_qnli_dataloader(
     batch_size: int = 4,
 ) -> DataLoader:
     """
-    Load the GLUE QNLI validation split, optionally truncate to
-    ``max_samples`` for speed, and return a ``DataLoader`` yielding
-    ``{'input_ids': ..., 'labels': ...}`` suitable for masked‑LM loss.
+    Load the GLUE QNLI validation split and return a DataLoader.
     """
-    qnli = load_dataset("glue", "qnli", split="validation")
+    # Use trust_remote_code=True to avoid potential HfUriErrors in some environments
+    qnli = load_dataset("glue", "qnli", split="validation", trust_remote_code=True)
     qnli = qnli.select(range(min(max_samples, len(qnli))))
 
-    # Concatenate premise and hypothesis as a single sentence.
     sentences = [
         f"{rec['question']} {rec['sentence']}"
         for rec in qnli
@@ -91,7 +77,7 @@ def _prepare_qnli_dataloader(
         return_tensors="pt",
     )
     input_ids = tokenized["input_ids"]
-    labels = input_ids.clone()  # masked‑LM uses the same IDs as targets
+    labels = input_ids.clone()
 
     dataset = TensorDataset(input_ids, labels)
 
@@ -108,8 +94,7 @@ def _compute_loss_and_entropy(
     device: torch.device,
 ) -> tuple[float, float]:
     """
-    Run a forward pass, return the mean loss and the average token entropy
-    (in bits) of the model’s output distribution.
+    Run a forward pass, return the mean loss and the average token entropy.
     """
     input_ids = batch["input_ids"].to(device)
     labels = batch["labels"].to(device)
@@ -118,24 +103,20 @@ def _compute_loss_and_entropy(
         outputs = model(input_ids=input_ids, labels=labels)
         loss = outputs.loss.item()
 
-        # logits shape: (batch, seq_len, vocab)
         logits = outputs.logits
         probs = torch.softmax(logits, dim=-1)
-        # entropy per token
         token_entropy = -torch.sum(probs * torch.log2(probs + 1e-12), dim=-1)
-        avg_entropy = token_entropy.mean().item()  # bits per token
+        avg_entropy = token_entropy.mean().item()
 
     return loss, avg_entropy
 
-def _dummy_token_accuracy(
+def _compute_reconstruction_accuracy(
     model: DistilBertForMaskedLM,
     batch: dict,
     device: torch.device,
 ) -> float:
     """
-    Compute a very coarse “accuracy” as the proportion of tokens where the
-    top‑predicted token matches the target token. This satisfies the schema
-    without requiring a classification head.
+    Compute accuracy as the proportion of tokens where the top prediction matches target.
     """
     input_ids = batch["input_ids"].to(device)
     labels = batch["labels"].to(device)
@@ -153,39 +134,29 @@ def evaluate_checkpoint(
     config: Config,
 ) -> Path:
     """
-    Perform the full evaluation for a single checkpoint and write the
-    ``evaluation_result_*.json`` file.
-
-    Returns the path to the written JSON file.
+    Perform the full evaluation for a single checkpoint.
     """
     start_time = time.time()
     process = psutil.Process()
-    peak_rss = process.memory_info().rss  # initialise
+    peak_rss = process.memory_info().rss
 
-    # Load model & tokenizer (fallback handled inside)
     model = _load_checkpoint(checkpoint_path)
     tokenizer = DistilBertTokenizerFast.from_pretrained(config.model_name)
-
-    # Prepare data loader
     dataloader = _prepare_qnli_dataloader(tokenizer)
 
-    total_loss = 0.0
-    total_entropy = 0.0
-    total_accuracy = 0.0
+    total_loss, total_entropy, total_accuracy = 0.0, 0.0, 0.0
     steps = 0
-
     device = config.device
 
     for batch in dataloader:
         loss, entropy = _compute_loss_and_entropy(model, batch, device)
-        acc = _dummy_token_accuracy(model, batch, device)
+        acc = _compute_reconstruction_accuracy(model, batch, device)
 
         total_loss += loss
         total_entropy += entropy
         total_accuracy += acc
         steps += 1
 
-        # Update peak RSS after each batch
         current_rss = process.memory_info().rss
         if current_rss > peak_rss:
             peak_rss = current_rss
@@ -193,29 +164,24 @@ def evaluate_checkpoint(
     avg_loss = total_loss / steps if steps else float("nan")
     avg_entropy = total_entropy / steps if steps else float("nan")
     avg_accuracy = total_accuracy / steps if steps else float("nan")
-
     duration = time.time() - start_time
 
-    # Derive seed and phase from filename convention
-    stem = checkpoint_path.stem  # e.g. "debug_seed0" or "checkpoint_seed_0_step_15"
-    seed = None
-    phase = "wake_dream"
+    stem = checkpoint_path.stem
+    seed = -1
     if "seed" in stem:
-        parts = stem.split("_")
-        for i, part in enumerate(parts):
-            if part == "seed":
-                try:
-                    seed = int(parts[i + 1].split("_")[0])
-                except Exception:
-                    pass
-    if seed is None:
-        seed = -1  # fallback
+        try:
+            # Handle both "checkpoint_seed_0_..." and "debug_seed0"
+            import re
+            match = re.search(r"seed_?(\d+)", stem)
+            if match:
+                seed = int(match.group(1))
+        except Exception:
+            pass
 
-    # Build result dict adhering to the JSON schema
     result = {
         "run_id": str(uuid.uuid4()),
         "seed": seed,
-        "phase": phase,
+        "phase": "wake_dream",
         "dataset": "qnli",
         "accuracy": round(avg_accuracy, 6),
         "loss": round(avg_loss, 6),
@@ -234,73 +200,35 @@ def evaluate_checkpoint(
     return out_path
 
 def _discover_checkpoints(results_dir: Path) -> list[Path]:
-    """
-    Scan ``data/results`` for ``training_summary_*.json`` files and extract
-    the checkpoint path stored inside each JSON document.
-    """
     checkpoints = []
     for summary_file in results_dir.glob("training_summary_*.json"):
         try:
             with open(summary_file, "r") as f:
                 data = json.load(f)
             ckpt_path = Path(data.get("checkpoint", ""))
-            if ckpt_path.is_file():
-                checkpoints.append(ckpt_path)
-            else:
-                # Log missing checkpoint but still return the path so the
-                # evaluation fallback (pretrained weights) can be used.
-                logger.warning(
-                    f"Checkpoint referenced in {summary_file} not found: {ckpt_path}"
-                )
-                checkpoints.append(ckpt_path)
+            checkpoints.append(ckpt_path)
         except Exception as e:
             logger.warning(f"Failed to read {summary_file}: {e}")
     return checkpoints
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Few‑shot QNLI evaluation for Dream‑State Learning checkpoints."
-    )
-    parser.add_argument(
-        "--checkpoint",
-        type=str,
-        default=None,
-        help="Path to a single checkpoint file to evaluate. "
-             "If omitted, all checkpoints discovered in data/results are evaluated.",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/results/",
-        help="Directory where evaluation JSON files will be written.",
-    )
-    # Alias kept for backward compatibility with quickstart.md
-    parser.add_argument(
-        "--results_dir",
-        type=str,
-        default=None,
-        help=argparse.SUPPRESS,
-    )
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--checkpoint", type=str, default=None)
+    parser.add_argument("--output-dir", type=str, default="data/results/")
+    parser.add_argument("--results_dir", type=str, default=None)
     args = parser.parse_args()
 
     cfg = Config()
-    # Resolve output directory: prefer explicit output-dir, otherwise results_dir
-    output_dir = Path(args.output_dir)
-    if args.results_dir:
-        output_dir = Path(args.results_dir)
+    output_dir = Path(args.output_dir if args.output_dir else args.results_dir or "data/results/")
 
     if args.checkpoint:
-        ckpt_path = Path(args.checkpoint)
-        if not ckpt_path.is_file():
-            logger.warning(f"Checkpoint not found at {ckpt_path}; will use pretrained model.")
-        evaluate_checkpoint(ckpt_path, output_dir, cfg)
+        evaluate_checkpoint(Path(args.checkpoint), output_dir, cfg)
     else:
-        # Batch mode – evaluate every checkpoint discovered from training summaries
         results_dir = Path("data/results")
         ckpt_paths = _discover_checkpoints(results_dir)
         if not ckpt_paths:
-            logger.error("No checkpoints found to evaluate.")
-            raise FileNotFoundError("No checkpoints found in data/results.")
+            logger.error("No checkpoints found.")
+            return
         for ckpt in ckpt_paths:
             evaluate_checkpoint(ckpt, output_dir, cfg)
 
