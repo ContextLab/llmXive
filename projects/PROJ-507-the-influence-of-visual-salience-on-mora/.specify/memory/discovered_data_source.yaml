@@ -1,16 +1,19 @@
 status: none
-intent: CodedotAI Visual Genome image dataset with CLIP CLMM MoralD annotations python
-  package dataset
+intent: download Visual Genome images and CodedotAI code_clippy_github dataset with
+  CLIP and BERT models python package dataset
 required_fields:
 - image_id
 - image_url
-- source
-- dataset_name
-- bbox_x
-- bbox_y
-- bbox_width
-- bbox_height
-- moral_label
-cache_key: 102cc0492fda15e231c7984ad63bb7db21533d08486a758805dc95fe73391807
-searched_at: '2026-10-26T15:16:08.593583+00:00'
+- metadata
+- bounding_box
+- original_image_path
+- low_salience_image_path
+- medium_salience_image_path
+- high_salience_image_path
+- clip_cosine_similarity
+- rms_contrast_change_percent
+- texture_change_metric
+- edge_density_change_metric
+cache_key: 22ca4b3e1f080e6181e7d6678386db187c7beb7f65ca0ce1c306f35eb8b88196
+searched_at: '2026-10-27T02:22:43.189765+00:00'
 retry_count: 1

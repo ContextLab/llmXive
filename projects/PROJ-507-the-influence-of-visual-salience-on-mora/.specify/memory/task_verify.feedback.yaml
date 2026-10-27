@@ -3,6 +3,8 @@ T001:
     exit=1'
   task: 3121ac8fc33861e82b0390431c5d6f93420e757b972d8dfff2d91166ece8db59
 T002:
+  reason: 'Requested task execution failed; rerun successfully: code/02_prepare_human_coding_dir.py
+    exit=1'
   task: a9f00d956e18cc57140b7c57a5a8e68a1f4ead12eeaf2e16ab04597125d3f2db
 T003:
   task: 96dd6c8e384ef5769e367eebbd8ee1eda1ed0bf57fbf51e700fbb8870d590a30

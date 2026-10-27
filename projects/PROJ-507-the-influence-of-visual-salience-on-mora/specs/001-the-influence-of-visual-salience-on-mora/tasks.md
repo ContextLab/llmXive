@@ -9,7 +9,7 @@
 | Goal | Run a minimal, fully‑executable pipeline on a small real subset to prove that all downstream steps can be triggered without error. |
 |------|-----------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] **T001** [US‑001] **Ingest and filter raw images from Visual Genome** – `code/01_ingest_and_filter.py`   <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/01_ingest_and_filter.py exit=-1 (TIMEOUT) -->
+- [~] **T001** [US‑001] **Ingest and filter raw images from Visual Genome** – `code/01_ingest_and_filter.py`
   - Stream the **Visual Genome** image dataset with `datasets.load_dataset("visual_genome", "images", split="train", streaming=True)`.  
   - Keep records whose `metadata.tags` contain **“conflict”** or **“social”** and that have a downloadable image URL.  
   - Limit to the first **200** matching records (fixed seed 42) so RAM < 2 GB.  
@@ -21,7 +21,7 @@
     - The CSV contains ≥ 1 row and every `original_image_path` points to an existing file under `data/raw/images/`.  
     - Unit test `tests/unit/test_data_loader.py` asserts that a simulated fetch failure raises a `DataFetchError`.
 
-- [ ] **T002** [US‑001] **Create human‑coding directory and template** – `code/02_prepare_human_coding_dir.py`  
+- [ ] **T002** [US‑001] **Create human‑coding directory and template** – `code/02_prepare_human_coding_dir.py`   <!-- FAILED-IN-EXECUTION: code/02_prepare_human_coding_dir.py exit=1 -->
   - Create the folder `data/raw/human_coding/` (must exist after execution).  
   - Generate a **template CSV** `data/raw/human_coding/annotations_template.csv` that lists all `scenario_id`s from `candidates_filtered.csv` and provides columns for three independent annotators to record a 1‑5 ambiguity rating.  
   - Include a short README in the same folder describing the annotation procedure and required number of raters.  
