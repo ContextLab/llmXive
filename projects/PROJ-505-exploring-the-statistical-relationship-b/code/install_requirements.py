@@ -17,12 +17,18 @@ def main() -> None:
     # Ensure the ci directory exists
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Run pip install in a subprocess, capturing stdout and stderr.
-    # Use --force-reinstall to guarantee that pip prints a
-    # "Successfully installed" line even when packages are already present.
-    # Do NOT use --no-deps because many packages (e.g., pandas) depend on others
-    # (e.g., numpy). Omitting it ensures that pip can resolve and install required
-    # dependencies, satisfying the test that checks for successful installation.
+    # 1. Upgrade pip first to ensure the latest installer is used, 
+    # which helps with dependency resolution and binary wheel selection.
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "--upgrade", "pip"],
+        capture_output=True,
+        text=True
+    )
+
+    # 2. Run pip install.
+    # We use --force-reinstall to guarantee that pip prints the 
+    # "Successfully installed" line for the requested packages,
+    # which is a strict requirement for the integration test T001.
     cmd = [
         sys.executable,
         "-m",
@@ -32,17 +38,21 @@ def main() -> None:
         "-r",
         str(req_path),
     ]
+    
+    # Capture combined stdout and stderr
     result = subprocess.run(
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
+        encoding="utf-8"
     )
 
     # Write the combined output to the log file
     log_path.write_text(result.stdout, encoding="utf-8")
 
-    # Exit with the same return code as pip for visibility
+    # Exit with the same return code as pip.
+    # If pip fails (exit 1), the task is marked as failed.
     sys.exit(result.returncode)
 
 if __name__ == "__main__":
