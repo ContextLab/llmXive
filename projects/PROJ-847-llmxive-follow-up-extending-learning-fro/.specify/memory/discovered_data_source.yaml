@@ -4,7 +4,7 @@ ref: datasets
 access_python: 'import datasets
 
 
-  ds = datasets.load_dataset("openai/gsm8k", "main", split="train")
+  ds = datasets.load_dataset(''openai/gsm8k'', ''main'', split=''train'')
 
   print(f"RECORDS={len(ds)}")
 
@@ -17,8 +17,8 @@ field_coverage: 0.5
 required_fields:
 - question
 - answer
-- solution
 - split
-intent: download GSM8K train test parquet plus BigBench logical subset python package
-  dataset
-cache_key: 6040a4d062ddfafcf3af7b77bf5941ebe82cbfd847e97120e03dd5ab8ff8c93e
+- id
+intent: GSM8K dataset and BIG-Bench logical subset download via huggingface datasets
+  python package dataset
+cache_key: e9aec81a7f9c23282c5e234b385ba5e0b3dfdb7df7cb27e4efe8bd61d1491c4b
