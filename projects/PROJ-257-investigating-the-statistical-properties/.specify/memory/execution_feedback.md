@@ -60,10 +60,12 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `src/data/preprocess.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/obs_point_estimates.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/gwtc1.h5` is declared but was NOT written. Scripts referencing it:
+    - `code/src/data/download.py` — NOT invoked by the run-book
     - `code/src/data/preprocess_observations.py` — NOT invoked by the run-book
     - `src/data/preprocess.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/gwtc1.h5` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/gwtc2.h5` is declared but was NOT written. Scripts referencing it:
+    - `code/src/data/download.py` — NOT invoked by the run-book
     - `code/src/data/preprocess_observations.py` — NOT invoked by the run-book
     - `src/data/preprocess.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/gwtc2.h5` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

@@ -1,11 +1,9 @@
 """
 code/src/data/download_gwtc.py
 
-Wrapper script that triggers the GWTC‑1 and GWTC‑2 download workflow.
-The heavy‑lifting is performed by ``src.data.download.download_all`` which
-now implements a robust, real‑data download with SHA‑256 verification.
+Wrapper script that triggers the GWTC-1 and GWTC-2 download workflow.
+The heavy-lifting is performed by src.data.download.download_all.
 """
-
 import sys
 from llmxive_toolkit import get_logger
 from src.data.download import download_all

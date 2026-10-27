@@ -1,16 +1,10 @@
 """
 tests/unit/test_download_gwtc.py
 
-Unit tests for the GWTC download script. The tests verify that:
-1. Both expected files exist after the download.
-2. Each file is a readable HDF5 archive.
-3. The SHA-256 checksum recorded in `data/raw/checksums.json` matches the
-   computed hash of the file on disk.
+Unit tests for the GWTC download script.
 """
-
 import json
 from pathlib import Path
-
 import h5py
 import pytest
 from llmxive_toolkit import paths
@@ -46,7 +40,7 @@ def test_checksum_matches(downloaded_files):
 
     for key, filename in (("gwtc1", "gwtc1.h5"), ("gwtc2", "gwtc2.h5")):
         path = downloaded_files[key]
-        computed = compute_file_hash(str(path), algorithm="sha256")
+        computed = compute_file_hash(str(path))
         recorded = manifest.get(filename)
         assert recorded is not None, f"No checksum entry for {filename}"
         assert computed == recorded, f"Checksum mismatch for {filename}: {computed} != {recorded}"
