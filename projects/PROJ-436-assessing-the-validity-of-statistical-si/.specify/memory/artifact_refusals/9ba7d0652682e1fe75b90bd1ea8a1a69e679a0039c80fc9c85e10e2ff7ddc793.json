@@ -1,7 +1,0 @@
-{
-  "task_id": "T002",
-  "fingerprint": "4a805d27d61cc734432799e10d53411a82df0d0560b6cba39e04deccf23e2bc3",
-  "count": 1,
-  "model": "openai.gpt-oss-120b",
-  "reason": "[implementer] refused 'preparation.py': `code/preparation.py` already exists. Edit that file; do not add a second copy or a re-exporting wrapper at the project root."
-}

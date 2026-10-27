@@ -29,7 +29,9 @@ from config import (
 from data_loader import _DATASET_IDS
 
 def _load_schema():
-    schema_path = Path("specs/001-assessing-the-validity-of-statistical-si/contracts/simulation_config.schema.yaml")
+    schema_path = Path(
+        "specs/001-assessing-the-validity-of-statistical-si/contracts/simulation_config.schema.yaml"
+    )
     with open(schema_path) as f:
         return json.load(f)
 

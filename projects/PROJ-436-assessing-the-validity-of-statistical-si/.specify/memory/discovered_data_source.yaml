@@ -1,10 +1,11 @@
 status: none
-intent: download RCT-1 MCAR-0 MAR-0 datasets from OpenML python package dataset
+intent: causal inference benchmark RCT-1 MCAR-0 MAR-0 python package dataset
 required_fields:
-- id
-- feature columns (numeric or categorical)
-- treatment column (binary)
-- outcome column (continuous or binary)
-cache_key: 656ac894aa9bd5f1a7beb7ca00495dc5851faf835a87956831d739b5d3f2eeac
-searched_at: '2026-10-26T03:26:09.239607+00:00'
+- treatment
+- outcome
+- covariate_1
+- covariate_2
+- covariate_3
+cache_key: 7467c98d626e84fcfc3f253f6533aecf78abbee8e8a16adcad8d0da40c1d188e
+searched_at: '2026-10-27T01:30:29.364489+00:00'
 retry_count: 1

@@ -13,7 +13,7 @@ The following checklist implements the complete, reproducible study while satisf
    · Unit test `tests/unit/test_data_loader.py` asserts that each file is downloaded, checksum matches, and that a dataset with N < 100 is recorded as `FLAGGED` in the manifest.  
    · Running `python -c "from code.data_loader import load_all"` completes without error on the CI runner.
 
-- [ ] **T002** [P] **[US-1]** *Prepare data: synthesize treatment/outcome where absent and enforce a true null hypothesis*  
+- [~] **T002** [P] **[US-1]** *Prepare data: synthesize treatment/outcome where absent and enforce a true null hypothesis*  
   **File**: `code/preparation.py`  
   *Implementation*:  
    · Detect missing `treatment` column → create binary `treatment` ~ Bernoulli(0.5).  
@@ -23,7 +23,7 @@ The following checklist implements the complete, reproducible study while satisf
    · Unit test `tests/unit/test_preparation.py` checks that after preparation the treatment column is present, has mean ≈ 0.5, and that the correlation between outcome and covariates lies within the prescribed band.  
    · A sanity t‑test / logistic regression on the permuted data returns a p‑value > 0.5, confirming the null.
 
-- [ ] **T003** [P] **[US-1]** *Generate exhaustive SimulationConfig objects*  
+- [ ] **T003** [P] **[US-1]** *Generate exhaustive SimulationConfig objects*   <!-- FAILED-IN-EXECUTION: code/generate_simulation_configs.py exit=1 -->
   **File**: `code/config.py`  
   *Implementation*:  
    · For each verified dataset, create configs for the three missingness mechanisms (MCAR, MAR, MNAR), eight missingness rates `{0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40}`, both outcome types (`continuous`, `binary`), and the three analysis methods (`CC`, `MI`, `IPW`).  
