@@ -11,7 +11,7 @@ This module provides a single function ``write_artifact`` that:
   6. Prints ``[artifact] <path> sha256=<checksum>`` to stdout.
 
 The function is deliberately lightweight – it does **not** attempt any
-fallback or synthetic data generation.  If validation or I/O fails the
+fallback or synthetic data generation. If validation or I/O fails the
 exception propagates, causing the pipeline to abort (as required by the
 “write‑then‑verify” discipline).
 """

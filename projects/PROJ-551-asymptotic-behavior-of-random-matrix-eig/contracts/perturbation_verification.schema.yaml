@@ -1,4 +1,33 @@
-# Schema for perturbation_verification artifact
-# This permissive schema accepts any JSON object.
 type: object
-additionalProperties: true
+properties:
+  requested_theta:
+    type: number
+    description: "The target spectral norm theta"
+  measured_norm:
+    type: number
+    description: "The actual L2 norm of the generated perturbation matrix"
+  norm_diff:
+    type: number
+    description: "Absolute difference between requested and measured norm"
+  requested_sparsity:
+    type: number
+    description: "Target support density p"
+  measured_sparsity:
+    type: number
+    description: "Actual support density of the generated matrix"
+  sparsity_diff:
+    type: number
+    description: "Absolute difference between requested and measured sparsity"
+  pattern_type:
+    type: string
+    description: "Type of perturbation pattern (e.g., diagonal, random-sparse)"
+  verification_status:
+    type: string
+    enum: ["pass", "fail"]
+    description: "Whether the perturbation meets the structural fidelity constraints"
+required:
+  - requested_theta
+  - measured_norm
+  - requested_sparsity
+  - measured_sparsity
+  - verification_status

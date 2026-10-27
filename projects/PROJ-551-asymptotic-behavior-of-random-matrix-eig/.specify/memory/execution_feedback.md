@@ -10,7 +10,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 - code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”
 - code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”
-- code/utils/artifacts.py: synthetic/fake INPUT data not authorized by the spec — “…attempt any fallback or synthetic data generation.  If validati…”
+- code/utils/artifacts.py: synthetic/fake INPUT data not authorized by the spec — “…attempt any fallback or synthetic data generation. If validatio…”
 
 ## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
 
@@ -25,9 +25,32 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; code/utils/artifacts.py: synthetic/fake INPUT data not authorized by the spec — “…attempt any fallback or synthetic data generation.  If validati…”; every produced artifact is gitignored (data/raw/matrix_N1000_seed42.npy) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python -m pytest tests/contract/test_schemas.py -v   # all tests PASSED, none SKIPPED (rc=4); python -m pytest tests/contract/ -v        # per-file schema validation; FAILS on missing files (rc=4); python -m pytest tests/integration/ -v     # reproducibility: top eigenvalue within 1e-6 of reference (rc=4); 7 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_report.json; data/processed/perturbation_verification.json
+**Summary**: 3 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis/generate_sensitivity_report.py: synthetic/fake INPUT data not authorized by the spec — “…tistical correlations in simulated data. No physical system is m…”; code/research.md: synthetic/fake INPUT data not authorized by the spec — “…correlations within the simulated data. - **Role**: The algorit…”; code/utils/artifacts.py: synthetic/fake INPUT data not authorized by the spec — “…attempt any fallback or synthetic data generation. If validatio…”; every produced artifact is gitignored (data/raw/matrix_N1000_seed42.npy) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python -m code.main --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal --seed 42 (rc=1); python -m pytest tests/contract/test_schemas.py -v   # all tests PASSED, none SKIPPED (rc=4); python -m pytest tests/contract/ -v        # per-file schema validation; FAILS on missing files (rc=4); 7 declared deliverable(s) absent: data/figures/outlier_probability_vs_theta.png; data/processed/convergence_report.json; data/processed/perturbation_verification.json
 
 ## Failing / missing run-book commands
+
+- python -m code.main --mode single --N 1000 --theta 2.5 --k 1 --pattern diagonal --seed 42 -> rc=1
+tic-behavior-of-random-matrix-eig/code/main.py", line 339, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 331, in main
+    run_single_mode(args)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/main.py", line 248, in run_single_mode
+    write_artifact(verification_path, verification_data, "perturbation_verification")
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/utils/artifacts.py", line 115, in write_artifact
+    jsonschema.validate(instance=data, schema=schema)
+  File "/home/runner/.cache/llmxive/base-env/py311-6f1866971868/jsonschema/validators.py", line 1332, in validate
+    raise error
+jsonschema.exceptions.ValidationError: '' is not one of ['pass', 'fail']
+
+Failed validating 'enum' in schema['properties']['verification_status']:
+    {'description': 'Whether the perturbation meets the structural '
+                    'fidelity constraints',
+     'enum': ['pass', 'fail'],
+     'type': 'string'}
+
+On instance['verification_status']:
+    ''
 
 - python -m pytest tests/contract/test_schemas.py -v   # all tests PASSED, none SKIPPED -> rc=4
 ============================= test session starts ==============================
@@ -35,7 +58,7 @@ platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/wor
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig
 configfile: pyproject.toml
-plugins: platformdirs-4.13.5
+plugins: platformdirs-4.13.6
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================
@@ -49,7 +72,7 @@ platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/wor
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig
 configfile: pyproject.toml
-plugins: platformdirs-4.13.5
+plugins: platformdirs-4.13.6
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================
@@ -63,7 +86,7 @@ platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0 -- /home/runner/wor
 cachedir: .pytest_cache
 rootdir: /home/runner/work/llmXive/llmXive/projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig
 configfile: pyproject.toml
-plugins: platformdirs-4.13.5
+plugins: platformdirs-4.13.6
 collecting ... collected 0 items
 
 ============================ no tests ran in 0.00s =============================

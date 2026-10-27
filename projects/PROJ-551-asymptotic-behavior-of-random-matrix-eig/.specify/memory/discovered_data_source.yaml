@@ -1,13 +1,12 @@
 status: none
-intent: synthetic matrix generation python package dataset for benchmarking algorithms
-  python package dataset
+intent: Synthetic matrices and perturbation patterns dataset arXiv 0812.2602 python
+  package dataset
 required_fields:
 - matrix_id
-- dimensions
-- values
-- pattern_type
-- seed
-- generation_method
-cache_key: dd0f1ddaaae39502c0e57805f19d08e1346103764881fb8811139545bb5cfabb
-searched_at: '2026-10-26T22:10:10.227323+00:00'
+- matrix_values
+- perturbation_pattern
+- reference_semicircle_edge
+- outlier_detection_constant
+cache_key: 3fa702d099d6d0453092c09fd6c763cb9dd3deb0fb3d5510ac4b4306493f2e33
+searched_at: '2026-10-27T09:13:11.803560+00:00'
 retry_count: 1

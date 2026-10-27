@@ -1,4 +1,24 @@
-# Schema for ThresholdFit artifact
-# This permissive schema accepts any JSON object.
 type: object
-additionalProperties: true
+properties:
+  theta_c_estimate:
+    type: ["number", "null"]
+    description: "Maximum Likelihood Estimate of the critical threshold theta_c"
+  theta_c_confidence:
+    type: ["number", "null"]
+    description: "95% CI half-width from 5-fold seed bootstrap"
+  a:
+    type: ["number", "null"]
+    description: "Slope of the logistic function"
+  b:
+    type: ["number", "null"]
+    description: "Intercept for the equivalent form 1/(1+exp(-(a*theta + b)))"
+  fit_status:
+    type: string
+    enum: ["success", "failed"]
+    description: "Status of the numerical fit convergence"
+required:
+  - theta_c_estimate
+  - theta_c_confidence
+  - a
+  - b
+  - fit_status
