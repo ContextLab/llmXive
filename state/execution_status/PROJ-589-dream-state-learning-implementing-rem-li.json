@@ -10,10 +10,10 @@
     "python code/eval.py --results-dir data/results/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/eval.py': [Errno 2] No such file or directory"
   ],
   "fix_rounds": 0,
-  "model_tier": 1,
+  "model_tier": 2,
   "total_attempts": 1,
   "replan_rounds": 1,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-22T21:50:10Z"
+  "updated_at": "2026-10-27T02:17:22Z"
 }
