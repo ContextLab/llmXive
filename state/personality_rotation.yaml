@@ -1,14 +1,7 @@
-last_used: john-von-neumann
-last_used_at: '2026-10-27T10:06:02.179393+00:00'
-last_outcome: model_error
+last_used: linus-pauling
+last_used_at: '2026-10-27T12:05:59.617874+00:00'
+last_outcome: abstained
 history:
-- slug: david-krakauer
-  started_at: '2026-06-28T23:55:14.736210+00:00'
-  ended_at: '2026-06-29T00:37:46.417447+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-582-socratic-transformers-dialogue-based-sel/reviews/research/david-krakauer-simulated__2026-06-29__research.md
 - slug: eric-kandel
   started_at: '2026-06-29T00:37:46.417447+00:00'
   ended_at: '2026-06-29T01:47:13.306808+00:00'
@@ -1325,3 +1318,7 @@ history:
   started_at: '2026-10-27T08:05:55.409579+00:00'
   ended_at: '2026-10-27T10:06:02.179393+00:00'
   outcome: model_error
+- slug: linus-pauling
+  started_at: '2026-10-27T10:06:02.179393+00:00'
+  ended_at: '2026-10-27T12:05:59.617874+00:00'
+  outcome: abstained
