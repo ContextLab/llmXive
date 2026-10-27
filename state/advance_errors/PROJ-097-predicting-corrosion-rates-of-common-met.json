@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-097-predicting-corrosion-rates-of-common-met",
-  "stage": "clarified",
+  "stage": "in_progress",
   "class": "transient",
-  "fingerprint": "model_chain_failed",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-22T22:43:46.541833+00:00",
-  "last_seen": "2026-10-26T05:29:11.952244+00:00",
-  "retry_after": null,
-  "last_error": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-4-31B-it(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min",
-  "evidence": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 3 consecutive failures / 30 min | google.gemma-4-31B-it(unavailable): circuit open: Dartmouth endpoint persistently unavailable after 1 consecutive failures / 30 min",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-27T08:08:46.160411+00:00",
+  "last_seen": "2026-10-27T08:08:46.160411+00:00",
+  "retry_after": "2026-10-27T08:18:46.160411+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }
