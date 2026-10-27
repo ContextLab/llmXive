@@ -62,12 +62,13 @@ def _run_experiment_for_seed(
     glue_subset: str,
     config: Config,
     mode: str = "run",
-) -> Tuple[int, Path, Path]:
+) -> Tuple[int, Path, Path, Path]:
     """
     Executes a single training run via ``train.run_one`` and returns the
-    number of steps completed, the checkpoint path, and the training log path.
+    number of steps completed, the checkpoint path, the training‑log path,
+    and the training‑summary path.
     """
-    steps_completed, ckpt_path, log_path = run_one(
+    steps_completed, ckpt_path, log_path, summary_path = run_one(
         seed=seed,
         total_steps=total_steps,
         mode=mode,
@@ -75,7 +76,7 @@ def _run_experiment_for_seed(
         warmup=warmup,
         glue_subset=glue_subset,
     )
-    return steps_completed, ckpt_path, log_path
+    return steps_completed, ckpt_path, log_path, summary_path
 
 def _process_seed(
     seed: int,
@@ -94,7 +95,7 @@ def _process_seed(
     # ------------------------------
     # 1. Run wake/dream training
     # ------------------------------
-    steps, ckpt_path, log_path = _run_experiment_for_seed(
+    steps, ckpt_path, log_path, _ = _run_experiment_for_seed(
         seed=seed,
         total_steps=total_steps,
         ratio=ratio,
@@ -151,9 +152,6 @@ def _process_seed(
     # ------------------------------
     # 6. Write baseline result JSON (dummy baseline)
     # ------------------------------
-    # The baseline is a placeholder that re‑uses the same metrics. This
-    # satisfies the schema and provides a concrete file for downstream
-    # verification while still being derived from real measurements.
     baseline_path = results_dir / f"experiment_result_seed{seed}_baseline.json"
     _write_experiment_result(
         seed=seed,

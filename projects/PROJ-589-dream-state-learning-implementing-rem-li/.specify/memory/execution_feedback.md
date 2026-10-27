@@ -12,28 +12,64 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/eval.py: self-declared fabricated metric — “…oss on the QNLI inputs)   * a dummy accuracy metric (token‑level match rat…”; 2 command(s) failed: python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline (rc=-1); python code/eval.py --results_dir data/results/ (rc=-1)
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/eval.py: self-declared fabricated metric — “…oss on the QNLI inputs)   * a dummy accuracy metric (token‑level match rat…”; 4 command(s) failed: python code/train.py  --seed 42  --total_steps 20  --warmup_steps 5  --ratio 4:1  --mode debug (rc=1); python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline (rc=1); python code/train.py  --seeds 3,4  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp_sweep 0.5 1.0 1.5 2.0  --baseline (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline -> rc=-1
-, "phase": "DREAM", "loss": 25.222543716430664, "entropy": 1.3579621315002441}
-2026-10-26 23:16:19,984 - models.trainer - INFO - [training_step] {"step": 24, "phase": "DREAM", "loss": 25.222543716430664, "entropy": 1.3579621315002441}
+- python code/train.py  --seed 42  --total_steps 20  --warmup_steps 5  --ratio 4:1  --mode debug -> rc=1
+9-dream-state-learning-implementing-rem-li/code/train.py", line 240, in main
+    run_one(
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/train.py", line 139, in run_one
+    tokenizer = DistilBertTokenizerFast.from_pretrained(cfg.model_name)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/transformers/tokenization_utils_base.py", line 2010, in from_pretrained
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/transformers/utils/hub.py", line 421, in cached_file
+    raise EnvironmentError(
+OSError: sshleifer/tiny-distilbert-base-uncased is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'
+If this is a private repository, make sure to pass a token having permission to this repo either by logging in with `huggingface-cli login` or by passing `token=<your_token>`
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
-  warnings.warn(
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
-  warnings.warn(
-We strongly recommend passing in an `attention_mask` since your input_ids may be padded. See https://huggingface.co/docs/transformers/troubleshooting#incorrect-output-when-padding-tokens-arent-masked.
+- python code/train.py  --seeds 0,1,2  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp 1.0  --baseline -> rc=1
+9-dream-state-learning-implementing-rem-li/code/train.py", line 240, in main
+    run_one(
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/train.py", line 139, in run_one
+    tokenizer = DistilBertTokenizerFast.from_pretrained(cfg.model_name)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/transformers/tokenization_utils_base.py", line 2010, in from_pretrained
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/transformers/utils/hub.py", line 421, in cached_file
+    raise EnvironmentError(
+OSError: sshleifer/tiny-distilbert-base-uncased is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'
+If this is a private repository, make sure to pass a token having permission to this repo either by logging in with `huggingface-cli login` or by passing `token=<your_token>`
 
-[TIMEOUT after 120s]
-- python code/eval.py --results_dir data/results/ -> rc=-1
-███████| 877k/877k [00:00<00:00, 1.95MB/s]Downloading data: 100%|██████████| 877k/877k [00:00<00:00, 1.94MB/s]
-Generating train split:   0%|          | 0/104743 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 104743/104743 [00:00<00:00, 1190470.21 examples/s]
-Generating validation split:   0%|          | 0/5463 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 5463/5463 [00:00<00:00, 986459.56 examples/s]
-Generating test split:   0%|          | 0/5463 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 5463/5463 [00:00<00:00, 758297.74 examples/s]
-We strongly recommend passing in an `attention_mask` since your input_ids may be padded. See https://huggingface.co/docs/transformers/troubleshooting#incorrect-output-when-padding-tokens-arent-masked.
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/huggingface_hub/file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
-  warnings.warn(
+- python code/train.py  --seeds 3,4  --total_steps 100  --warmup_steps 20  --ratio 4:1  --temp_sweep 0.5 1.0 1.5 2.0  --baseline -> rc=1
+9-dream-state-learning-implementing-rem-li/code/train.py", line 240, in main
+    run_one(
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/train.py", line 139, in run_one
+    tokenizer = DistilBertTokenizerFast.from_pretrained(cfg.model_name)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/transformers/tokenization_utils_base.py", line 2010, in from_pretrained
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/transformers/utils/hub.py", line 421, in cached_file
+    raise EnvironmentError(
+OSError: sshleifer/tiny-distilbert-base-uncased is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'
+If this is a private repository, make sure to pass a token having permission to this repo either by logging in with `huggingface-cli login` or by passing `token=<your_token>`
 
-[TIMEOUT after 120s]
+- python code/eval.py --results_dir data/results/ -> rc=1
+_checkpoint
+    model = _load_checkpoint(checkpoint_path)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-589-dream-state-learning-implementing-rem-li/code/eval.py", line 52, in _load_checkpoint
+    model = DistilBertForMaskedLM.from_pretrained(cfg.model_name)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/transformers/modeling_utils.py", line 3015, in from_pretrained
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-589-dream-state-learning-implementing-rem-li/lib/python3.11/site-packages/transformers/utils/hub.py", line 421, in cached_file
+    raise EnvironmentError(
+OSError: sshleifer/tiny-distilbert-base-uncased is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'
+If this is a private repository, make sure to pass a token having permission to this repo either by logging in with `huggingface-cli login` or by passing `token=<your_token>`
+

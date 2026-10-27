@@ -12,7 +12,7 @@ Each task lists the primary artifact(s) it creates or modifies and the concrete 
 | Goal | Run a thin, reproducible wake/dream training‑evaluation cycle on real GLUE data to prove that the pipeline works on the CPU‑only GitHub‑Actions tier. |
 |------|----------------------------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T001 [US1] **Create project layout, pin exact dependencies, and add a CPU‑only config with a hard RSS cap (6.3 GB).**  
+- [~] T001 [US1] **Create project layout, pin exact dependencies, and add a CPU‑only config with a hard RSS cap (6.3 GB).**  
   - Files: `code/requirements.txt`, `code/config.py`  
   - Verification: `pip install -r code/requirements.txt` succeeds; `python -c "import code.config; assert code.config.MAX_MEMORY_MB == 6300"` runs without error.
 
@@ -24,11 +24,11 @@ Each task lists the primary artifact(s) it creates or modifies and the concrete 
   - Files: `code/train.py`, `code/utils/memory_monitor.py`  
   - Verification: Running `python code/train.py --seed 0 --total_steps 20 --mode debug` finishes within 5 min, writes `checkpoints/debug_seed0.pt` and a structured log `logs/debug_seed0.json` containing a `"peak_rss_mb"` field ≤ 6300.
 
-- [ ] T004 [US2] **Implement few‑shot QNLI evaluation and result logging** (accuracy, loss, peak memory, duration, reconstruction‑difficulty average).  
+- [~] T004 [US2] **Implement few‑shot QNLI evaluation and result logging** (accuracy, loss, peak memory, duration, reconstruction‑difficulty average).  
   - Files: `code/eval.py`, `code/eval/metrics.py`  
   - Verification: `python code/eval.py --checkpoint checkpoints/debug_seed0.pt` produces `data/results/evaluation_result_debug_seed0.json` that validates against `contracts/evaluation_result.schema.yaml`.
 
-- [ ] T005 [US2] **Document a runnable quick‑start command** that ties the above pieces together and demonstrates a full train‑eval cycle on a real GLUE subset.  
+- [~] T005 [US2] **Document a runnable quick‑start command** that ties the above pieces together and demonstrates a full train‑eval cycle on a real GLUE subset.  
   - Files: `quickstart.md` (updated)  
   - Verification: A fresh environment (`python -m venv v && source v/bin/activate && pip install -r code/requirements.txt && bash -c "$(grep '^```' -A2 quickstart.md | tail -n1)"`) runs without error and produces `data/results/evaluation_result_debug_seed0.json`.
 
@@ -39,11 +39,11 @@ Each task lists the primary artifact(s) it creates or modifies and the concrete 
 | Goal | Run the full experimental protocol (wake/dream vs. continuous baseline) with statistical rigor, sensitivity analysis, and resource auditing. |
 |------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 
-- [ ] T006 [US2] **Implement the continuous‑training baseline** that mirrors the experimental run’s total real‑token exposure (including dummy wake steps when the experimental run skips a dream step).  
+- [~] T006 [US2] **Implement the continuous‑training baseline** that mirrors the experimental run’s total real‑token exposure (including dummy wake steps when the experimental run skips a dream step).  
   - Files: `code/baseline.py` (or extended `trainer.py` with `--mode baseline`)  
   - Verification: Integration test `tests/integration/test_token_parity.py` confirms identical `real_token_count` for a given seed between baseline and experimental runs.
 
-- [ ] T007 [US1] **Orchestrate a multi‑seed experiment** (seeds 0, 1, 2, 3, 4) that runs both regimes, saves per‑seed `experiment_result.json` files, and records all runtime metrics.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T007 [US1] **Orchestrate a multi‑seed experiment** (seeds 0, 1, 2, 3, 4) that runs both regimes, saves per‑seed `experiment_result.json` files, and records all runtime metrics.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/run_experiment.sh exit=1 -->
   - Files: `code/main.py` (or `scripts/run_experiment.sh`)  
   - Verification: After execution, `data/results/experiment_result_seed0_wake_dream.json`, `…_baseline.json`, … up to seed 4 exist, each conforming to `contracts/experiment_result_schema.schema.yaml`.
 

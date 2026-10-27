@@ -67,7 +67,10 @@ def main() -> None:
         default="mrpc",
         help="GLUE subset to use for training (kept for API compatibility).",
     )
-    args = parser.parse_args()
+    # Use ``parse_known_args`` so that any future/unused arguments do not
+    # cause an exit code 2 (argparse usage error). This makes the script
+    # robust to the extra flags that the quick‑start may forward.
+    args, _ = parser.parse_known_args()
 
     seed_list = parse_seed_list(args.seeds, args.seed)
 

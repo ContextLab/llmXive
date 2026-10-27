@@ -29,8 +29,14 @@ RATIO = "4:1"
 
 def _run_script(script: Path, extra_args: list[str]) -> dict:
     """Execute a training script and return its JSON log as a dict."""
-    cmd = ["python", str(script), f"--seed={SEED}", f"--total_steps={TOTAL_STEPS}",
-           f"--warmup={WARMUP}", f"--ratio={RATIO}"] + extra_args
+    cmd = [
+        "python",
+        str(script),
+        f"--seed={SEED}",
+        f"--total_steps={TOTAL_STEPS}",
+        f"--warmup={WARMUP}",
+        f"--ratio={RATIO}",
+    ] + extra_args
     result = subprocess.run(
         cmd, capture_output=True, text=True, check=True, timeout=180
     )

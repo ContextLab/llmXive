@@ -42,7 +42,8 @@ class Config:
         self.held_out_batch_size = 8
         
         # Model and Path configuration
-        self.model_name = "distilbert-base-uncased"
+        # Use a tiny DistilBERT variant to keep downloads fast in the quick‑start.
+        self.model_name = "sshleifer/tiny-distilbert-base-uncased"
         self.log_dir = "data/logs"
         self.results_dir = "data/results"
         self.checkpoint_dir = "data/checkpoints"
@@ -104,7 +105,8 @@ def get_config():
         held_out_subset=None,
         held_out_batch_size=8,
         device=torch.device('cpu'),
-        model_name="distilbert-base-uncased",
+        # Tiny model for fast downloads in tests / quick‑start
+        model_name="sshleifer/tiny-distilbert-base-uncased",
         log_dir="data/logs",
         results_dir="data/results",
         checkpoint_dir="data/checkpoints",
