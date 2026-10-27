@@ -18,26 +18,26 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.ingest.load_illusions  --download  --output-dir data/raw -> rc=1
-di/src/ingest/load_illusions.py", line 670, in <module>
+ns.py", line 676, in <module>
     main(sys.argv[1:])
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 654, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 660, in main
     _process_one("muller")
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 616, in _process_one
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 622, in _process_one
     _download_parquet(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 440, in _download_parquet
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 446, in _download_parquet
     raise RuntimeError(
-RuntimeError: Failed to download parquet from any known REAL sources: ['openneuro/muller-lyer', 'OpenNeuro/muller-lyer', 'openneuro/muller_lyer', 'OpenNeuro/muller_lyer', 'psychology/muller_lyer']. Also attempted ``datasets`` fallback for psychology/muller_lyer and a HuggingFace Hub search for datasets matching the required schema ['subject_id', 'trial_id', 'stimulus_length', 'response_length', 'stimulus_parameters']. No real, publicly-reachable dataset with these columns was found; refusing to fabricate data. Please verify dataset availability or provide a direct URL.
+RuntimeError: Failed to download parquet from any known REAL sources: ['openneuro/muller-lyer', 'OpenNeuro/muller-lyer', 'openneuro/muller_lyer', 'OpenNeuro/muller_lyer', 'psychology/muller_lyer', 'psychology/muller_lyer']. Also attempted ``datasets`` fallback for psychology/muller_lyer and a HuggingFace Hub search for datasets matching the required schema ['subject_id', 'trial_id', 'stimulus_length', 'response_length', 'stimulus_parameters']. No real, publicly-reachable dataset with these columns was found; refusing to fabricate data. Please verify dataset availability or provide a direct URL.
 
 - python -m src.ingest.load_illusions  --clean  --raw-dir data/raw  --clean-dir data/clean -> rc=1
 
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 670, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 676, in <module>
     main(sys.argv[1:])
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 654, in main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 660, in main
     _process_one("muller")
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 647, in _process_one
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-406-investigating-neural-signatures-of-predi/src/ingest/load_illusions.py", line 653, in _process_one
     raise RuntimeError(f"Raw parquet not found at {raw_path}. Run --download first.")
 RuntimeError: Raw parquet not found at data/raw/muller_lyer.parquet. Run --download first.
 
@@ -74,9 +74,11 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/clean/aligned_subjects.csv` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
 - `data/clean/clean_muller_lyer.csv` is declared but was NOT written. Scripts referencing it:
+    - `src/ingest/clean_illusions.py` — NOT invoked by the run-book
     - `src/ingest/load_illusions.py` — IS a run-book command
   Make ONE of these WRITE `data/clean/clean_muller_lyer.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/clean/clean_ponzo.csv` is declared but was NOT written. Scripts referencing it:
+    - `src/ingest/clean_illusions.py` — NOT invoked by the run-book
     - `src/ingest/load_illusions.py` — IS a run-book command
   Make ONE of these WRITE `data/clean/clean_ponzo.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/derived/beta_residuals.csv` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
@@ -86,8 +88,10 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/derived/precision_parameters.csv` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
 - `data/merged/merged_results.csv` is declared but NOT written and NO script references it — create the script that produces it and add it to quickstart.md.
 - `data/raw/muller_lyer.parquet` is declared but was NOT written. Scripts referencing it:
+    - `src/ingest/clean_illusions.py` — NOT invoked by the run-book
     - `src/ingest/load_illusions.py` — IS a run-book command
   Make ONE of these WRITE `data/raw/muller_lyer.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/ponzo.parquet` is declared but was NOT written. Scripts referencing it:
+    - `src/ingest/clean_illusions.py` — NOT invoked by the run-book
     - `src/ingest/load_illusions.py` — IS a run-book command
   Make ONE of these WRITE `data/raw/ponzo.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

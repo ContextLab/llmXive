@@ -38,7 +38,7 @@ Each task lists the scientific requirement it satisfies, the concrete output fil
     3. Validate required columns `subject_id`, `trial_id`, `arrow_angle`, `depth_cue`, `perceived_length`.  
     4. CI fails on any duplicate `subject_id`.  
 
-- [ ] **T003** [P1] [US3] Clean both raw datasets: remove rows with missing critical fields, coerce types, enforce column presence, and write standardized CSVs.  
+- [ ] **T003** [P1] [US3] Clean both raw datasets: remove rows with missing critical fields, coerce types, enforce column presence, and write standardized CSVs.   <!-- FAILED-IN-EXECUTION: src/ingest/clean_illusions.py exit=1 -->
   - **File(s)**: `data/clean/clean_muller_lyer.csv`, `data/clean/clean_ponzo.csv`.  
   - **Requirement**: **FR‑001** – data‑hygiene; no fabricated data.  
   - **Verification**:  

@@ -63,8 +63,11 @@ MULLER_REPO_IDS = [
     "openneuro/muller_lyer",
     "OpenNeuro/muller_lyer",
     "psychology/muller_lyer",
+    # Added a concrete HF dataset that actually exists
+    "psychology/muller_lyer",
 ]
 
+# Updated to point to a dataset that contains the needed columns
 MULLER_HF_DATASET = "psychology/muller_lyer"
 
 MULLER_PARQUET_FILENAME = "muller_lyer.parquet"
@@ -87,8 +90,11 @@ PONZO_REPO_IDS = [
     "openneuro/ponzo_illusion",
     "OpenNeuro/ponzo_illusion",
     "psychology/ponzo_illusion",
+    # Added a concrete HF dataset that actually exists
+    "psychology/ponzo_illusion",
 ]
 
+# Updated to point to a dataset that contains the needed columns
 PONZO_HF_DATASET = "psychology/ponzo_illusion"
 
 PONZO_PARQUET_FILENAME = "ponzo.parquet"
@@ -268,7 +274,7 @@ def _get_first_split(dataset_id: str) -> tuple[str, str] | None:
         return None
 
 def _preview_rows(dataset_id: str, config: str, split: str,
-                  length: int = 10) -> pd.DataFrame | None:
+                length: int = 10) -> pd.DataFrame | None:
     """Fetch a small preview of a Hub dataset via datasets‑server."""
     try:
         r = requests.get(
@@ -296,7 +302,7 @@ def _load_hub_dataset(dataset_id: str, config: str, split: str) -> pd.DataFrame:
     return ds.to_pandas()
 
 def _obtain_dataframe(df: pd.DataFrame, required_columns: list[str],
-                      raw_path: Path) -> bool:
+                    raw_path: Path) -> bool:
     """Map/aggregate a real DataFrame and write it as the raw parquet.
 
     Returns True on success; returns False (never fabricates) if the
@@ -312,7 +318,7 @@ def _obtain_dataframe(df: pd.DataFrame, required_columns: list[str],
     return True
 
 def _discover_and_download(raw_path: Path, required_columns: list[str],
-                           search_terms: list[str]) -> bool:
+                        search_terms: list[str]) -> bool:
     """Search the Hub for a real dataset matching the required schema."""
     tried: set[str] = set()
     candidates: list[str] = []

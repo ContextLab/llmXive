@@ -17,6 +17,8 @@ T002:
     exit=1'
   task: b91a71bf1ef6bd40a97e5c485603f0178399270fedc967d12ae020a7d1791eff
 T003:
+  reason: 'Requested task execution failed; rerun successfully: src/ingest/clean_illusions.py
+    exit=1'
   task: dad7120f2006f954fec8dc1f6e27a8fee7f7059c40ec853ef44378116efcc7c4
 T004:
   task: 33dffd0a1cfffc78ca9970cc6ac915201bf4d29d5c1c1bd9f1e1ff52a3272775
