@@ -1,14 +1,7 @@
 last_used: geoffrey-west
-last_used_at: '2026-10-27T04:06:22.184255+00:00'
-last_outcome: abstained
+last_used_at: '2026-10-27T06:05:53.621555+00:00'
+last_outcome: model_error
 history:
-- slug: albert-einstein
-  started_at: '2026-06-28T22:27:12.239176+00:00'
-  ended_at: '2026-06-28T22:51:41.712404+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-465-quantifying-the-impact-of-data-resolutio/reviews/research/albert-einstein-simulated__2026-06-28__research.md
 - slug: dan-rockmore
   started_at: '2026-06-28T22:51:41.712404+00:00'
   ended_at: '2026-06-28T23:27:18.195425+00:00'
@@ -1330,3 +1323,7 @@ history:
   started_at: '2026-10-27T02:10:39.811644+00:00'
   ended_at: '2026-10-27T04:06:22.184255+00:00'
   outcome: abstained
+- slug: john-von-neumann
+  started_at: '2026-10-27T04:06:22.184255+00:00'
+  ended_at: '2026-10-27T06:05:53.621555+00:00'
+  outcome: model_error
