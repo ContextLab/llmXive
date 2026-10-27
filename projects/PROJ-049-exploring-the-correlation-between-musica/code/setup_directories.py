@@ -1,28 +1,27 @@
 import seed
-import os
-from pathlib import Path
-from typing import List
+import pathlib
+import logging
 
-REQUIRED_DIRS = [
-    "data/raw",
-    "data/processed",
-    "results",
-    "logs",
-    "code",
-    "tests"
-]
+# Set up basic logging for directory creation
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def create_directory_structure() -> None:
+def create_directory_structure():
     """
     Create the required directory structure for the project.
-
-    This function iterates over :data:`REQUIRED_DIRS` and ensures each path
-    exists as a directory. Missing parents are created automatically
-    (``parents=True``) and no error is raised if the directory already
-    exists (``exist_ok=True``).
-
-    The function is idempotent – calling it multiple times has the same
-    effect as calling it once.
+    
+    This function ensures that all base directories required by the 
+    research pipeline exist at the project root.
     """
-    for dir_path in REQUIRED_DIRS:
-        Path(dir_path).mkdir(parents=True, exist_ok=True)
+    required_dirs = [
+        'data/raw',
+        'data/processed',
+        'results',
+        'logs',
+        'code',
+        'tests'
+    ]
+    for d in required_dirs:
+        p = pathlib.Path(d)
+        p.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Ensured directory exists: {d}")

@@ -4,12 +4,8 @@ T001:
     not fully created.
   task: 0d099e146a38d9cc4abaecf3a381e02a3eec4d5bb8ac961a511033a1de8880ba
 T002:
-  reason: "The `requirements.txt` file exists and correctly pins exact versions for\
-    \ all listed packages, but there is no evidence that the required verification\
-    \ step was performed\u2014no `installed.txt` file, no `pip freeze` command output,\
-    \ and no `diff -u` results showing that the installed environment matches the\
-    \ pinned versions. The implementer must provide the execution evidence of the\
-    \ verification command."
+  reason: 'Requested task execution failed; rerun successfully: code/verify_requirements.py
+    exit=1'
   task: 5af52b77bdd431a131ce6c9233730a56c5058d621fb5434a919bc6d4543f6e5f
 T003:
   task: 09bc5631c20cf6a6b4ac7506db5d5174d12b8968dbf821ba9a4eecab969d9645

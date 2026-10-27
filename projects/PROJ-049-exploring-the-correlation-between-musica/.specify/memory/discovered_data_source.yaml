@@ -1,19 +1,19 @@
 status: none
-intent: BFI-2 personality scores with Last.fm listening history linked dataset Zenodo
+intent: OpenPsychometrics BFI-2 with Last.fm listening history linked dataset download
   python package dataset
 required_fields:
 - user_id
-- openness
-- conscientiousness
-- extraversion
-- agreeableness
-- neuroticism
+- bfi2_openness
+- bfi2_conscientiousness
+- bfi2_extraversion
+- bfi2_agreeableness
+- bfi2_neuroticism
 - age
 - gender
-- raw_genre_tags
-- standardized_genre
+- country
 - listening_timestamp
 - track_id
-cache_key: 8a5e9e2c6a39be9d3e60c4ceab128bab871b95d196b4be34952a2f84e7c61120
-searched_at: '2026-10-21T08:22:47.598191+00:00'
+- artist_name
+cache_key: 6b8aa8a6c4a0b14d674c5b9523c1b1ee75d332c32d79fa8e835394a49d734e55
+searched_at: '2026-10-27T20:12:08.797322+00:00'
 retry_count: 1
