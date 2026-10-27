@@ -1,11 +1,10 @@
 status: none
-intent: causal inference benchmark RCT-1 MCAR-0 MAR-0 python package dataset
+intent: CausalData python package dataset OpenML UCI Machine Learning Repository
 required_fields:
+- id
+- covariates
 - treatment
 - outcome
-- covariate_1
-- covariate_2
-- covariate_3
-cache_key: 7467c98d626e84fcfc3f253f6533aecf78abbee8e8a16adcad8d0da40c1d188e
-searched_at: '2026-10-27T01:30:29.364489+00:00'
+cache_key: 365691d872fed227b3ec42aac5ad168bd3198bf699736fd26464a4f262e93c42
+searched_at: '2026-10-27T01:35:54.925892+00:00'
 retry_count: 1
