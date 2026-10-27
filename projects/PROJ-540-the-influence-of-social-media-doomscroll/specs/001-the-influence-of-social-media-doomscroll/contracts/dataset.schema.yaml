@@ -17,7 +17,7 @@ properties:
     type:
       - "number"
       - "null"
-    description: "Baseline or trait anxiety score; dropped if coupled with outcome."
+    description: "Baseline or trait anxiety score; may be null if instrument overlaps with outcome."
     minimum: 0
   age:
     type: "integer"

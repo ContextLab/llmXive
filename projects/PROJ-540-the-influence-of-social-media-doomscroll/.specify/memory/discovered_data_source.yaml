@@ -1,6 +1,6 @@
 status: none
-intent: download General Social Survey 2022 dataset with anxiety and news exposure
-  python package dataset
+intent: General Social Survey news consumption anxiety variables download python package
+  dataset
 required_fields:
 - news_exposure_freq
 - anxiety_score
@@ -8,6 +8,12 @@ required_fields:
 - age
 - gender
 - social_media_engagement
-cache_key: 55540e49116fc75ce6689c9959e64768d2cc659956ee194f660c0805ca3b0a84
-searched_at: '2026-10-24T05:42:25.206091+00:00'
+- SES
+- total_media_use
+- instrument_source
+- measurement_timepoint
+- proxy_flag
+- proxy_validated
+cache_key: a4791eed9e433255cb50a3b6488d43201bc0b880d67d69b5095e50d31ec66c59
+searched_at: '2026-10-27T12:30:38.778095+00:00'
 retry_count: 1

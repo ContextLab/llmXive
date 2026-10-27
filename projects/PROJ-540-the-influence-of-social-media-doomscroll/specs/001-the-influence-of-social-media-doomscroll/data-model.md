@@ -13,14 +13,11 @@
 | `age` | integer | Age in years | non‑null, 18 – 100 |
 | `gender` | string | Gender category | non‑null, categorical |
 | `social_media_engagement` | number \| null | Overall social‑media use; required only for robustness check | ≥ 0 |
-| `SES` | string \| null | Socio‑economic status category (required confounder) | enum: ["low","medium","high"] |
-| `total_media_use` | number \| null | Total media consumption time (minutes per day) – required confounder | ≥ 0 |
-| `prior_mental_health_history` | string \| null | Self‑report of prior mental‑health diagnosis – required confounder | non‑null if present |
 | `instrument_source` | string | Name of the anxiety instrument (e.g., GAD‑7) | non‑null |
-| `measurement_timepoint` | string | Timepoint of measurement (pre, post, trait) | non‑null |
+| `measurement_timepoint` | string | Timepoint of measurement (`pre`, `post`, `trait`) | non‑null |
 | `proxy_flag` | boolean | True if `anxiety_score` is a proxy for anticipatory anxiety (FR‑008) | non‑null |
 | `coupling_risk` | boolean | True if baseline and outcome anxiety may be mathematically coupled | non‑null |
-| `proxy_validated` | boolean | True if the proxy anxiety instrument is on the validated whitelist | non‑null |
+| `proxy_validated` | boolean | True if the proxy instrument is on the validated whitelist | non‑null |
 | `missingness_indicator_<var>` | boolean \| null | Indicator for non‑MCAR missingness for each predictor (added when MCAR test fails) | optional |
 
 ### VariableMetadata (metadata for anxiety measures)
@@ -47,11 +44,11 @@
 | `p_values` | object | Mapping *variable → p‑value*. |
 | `vif_scores` | object | Mapping *variable → VIF*; VIF > 10 triggers a flag. |
 | `assumption_checks` | object | `{linearity, homoscedasticity, normality, shapiro_wilk_p_value}` (PASS/FAIL/WARNING). |
-| `robustness_result` | object \| null | If robustness check runs: `{subset_n, coefficient, p_value, status, bootstrap}`; otherwise null. |
+| `robustness_result` | object \| null | If robustness runs: `{subset_n, coefficient, p_value, status, bootstrap}`; otherwise null. |
 | `flags` | array[string] | Warnings such as `"Low Power"`, `"Proxy Used (unvalidated)"`, `"Proxy Used (validated)"`, `"High VIF"`, `"Robustness Skipped (r <= 0.3)"`, `"Associational Only"`. |
 | `runtime` | number | Execution time in seconds (SC‑005). |
 | `halt_report` | object \| null | Present only when `data_status = "HALTED_NO_VALID_DATASET"`; records sources checked, checksums, real column inventories, and missing variables. |
-| `proxy_validated` | boolean | Mirrors the dataset‑level `proxy_validated` flag when a proxy is used. |
+| `proxy_validated` | boolean | Mirrors dataset‑level `proxy_validated` flag when a proxy is used. |
 | `associational_only` | boolean | Always `true` (observational data). |
 
 ### HaltReport (nested inside `RegressionResult` when ingestion fails)
@@ -67,20 +64,17 @@
 ## Data Flow
 1. **Ingestion** (`code/ingest.py`): download verified parquet files → `data/raw/`; compute SHA‑256; validate schema against `contracts/dataset.schema.yaml`.  
 2. **If validation fails** (current reality): create `output/results/regression_results.json` with `data_status = "HALTED_NO_VALID_DATASET"` and embed a complete `halt_report`; pipeline stops.  
-3. **If validation succeeds** (future scenario): clean data → `SurveyResponse` entities (in‑memory); perform listwise deletion, MCAR test, proxy validation, distinctness check, and OLS modeling; no intermediate CSV is written.  
-4. **Modeling** (`code/model.py`): OLS fit, diagnostics, correlation, robustness → populate all fields of `RegressionResult`.  
-5. **Visualization** (`code/viz.py`): generate `output/plots/scatter_regression.png`.  
+3. **If validation succeeds** (future scenario): clean data → `SurveyResponse` entities (in‑memory); perform listwise deletion, MCAR test, proxy validation, distinctness check, OLS modeling; no intermediate CSV is required except the optional exported cleaned CSV for verification.  
+4. **Modeling** (`code/model.py`): OLS fit, diagnostics, correlation, robustness → populate `RegressionResult`.  
+5. **Visualization** (`code/viz.py`): generate `output/plots/scatter_news_anxiety.png`.  
 6. **Success‑criteria validation** (`code/validate_sc.py`): read the JSON, write `outputs/success_criteria_log.txt`.  
-7. **Documentation** (`code/generate_readme.py`) and **archiving** (`code/archive.py`) are executed after validation (tasks T025, T026).  
+7. **Documentation** (`code/generate_readme.py`) and **archiving** (`code/archive.py`) run after validation.  
 
 ## Assumptions & Constraints
-- No imputation; rows with missing predictor/outcome are dropped after MCAR assessment (unless non‑MCAR, when indicator vars and multiple‑imputation sensitivity are added).  
+- No imputation; rows with missing predictor/outcome are dropped after MCAR assessment (unless non‑MCAR, when indicator vars and a sensitivity analysis are added).  
 - Gender is one‑hot encoded for OLS; continuous predictors remain on original scale.  
 - `baseline_anxiety` is dropped (and `coupling_risk = true`) if the same instrument/timepoint is detected as `anxiety_score`.  
-- Robustness check runs only when `social_media_engagement` exists **and** `|r| > 0.3` after appropriate normality handling.  
+- Robustness check runs only when `social_media_engagement` exists **and** `|r| > 0.3`.  
 - All numeric computations use double precision on CPU; no GPU required.  
 
 ---
-
-
-

@@ -23,29 +23,31 @@ python code/main.py
 ```
 
 ### What the pipeline does
-1. **Power analysis** – computes the minimum required sample size for the effect‑size thresholds in SC‑001 (β ≥ 0.10, f² ≥ 0.02) using `statsmodels.stats.power.FTestPower` (α = 0.05, power = 0.80). If the projected N after cleaning would be insufficient, the run stops with an “Insufficient Power” error.  
+1. **Power analysis** – computes the minimum sample size needed for the effect‑size thresholds in SC‑001 (β ≥ 0.10 or f² ≥ 0.02) using `statsmodels.stats.power.FTestPower`. If the projected N after cleaning would be insufficient, the run stops with an “Insufficient Power” error.  
 2. **Ingestion** (`code/ingest.py`): downloads the three verified parquet URLs, computes SHA‑256 checksums, and validates each against the required schema.  
-   - **Current expected outcome**: if none of the files contain the required survey variables, the pipeline writes `output/results/regression_results.json` with `data_status = "HALTED_NO_VALID_DATASET"` and a detailed `halt_report`, then stops.  
-   - **Future scenario**: when a suitable open dataset is added to the spec, the pipeline proceeds to cleaning and analysis.  
-3. **Cleaning & Missingness** – listwise deletion of rows missing `news_exposure_freq` or `anxiety_score` (hard stop if N < 30, low‑power warning if 30 ≤ N < 100). Runs Little’s MCAR test; if the data are not MCAR, adds binary missingness indicators **and** runs a 10‑fold multiple‑imputation sensitivity analysis.  
-4. **Proxy validation** – checks whether any proxy anxiety instrument is on the validated whitelist (GAD‑7, STAI‑Y, PHQ‑9). If an unvalidated proxy is detected, the run halts with an explicit error; if validated, a construct‑validity warning flag is added.  
+   - **Current expected outcome**: because none of the files contain the required survey variables, the pipeline writes `output/results/regression_results.json` with `data_status = "HALTED_NO_VALID_DATASET"` and a detailed `halt_report`, then stops.  
+   - **Future scenario**: when a suitable open dataset is added, the pipeline proceeds to cleaning and analysis.  
+3. **Cleaning & Missingness** – listwise deletion of rows missing `news_exposure_freq` or `anxiety_score` (hard stop if N < 30, low‑power warning if 30 ≤ N < 100). Runs Little’s MCAR test; if data are not MCAR, adds binary missingness indicators and runs a 10‑fold multiple‑imputation sensitivity analysis.  
+4. **Proxy validation** – checks whether any proxy anxiety instrument is on the validated whitelist (`GAD‑7`, `STAI‑Y`, `PHQ‑9`). If an unvalidated proxy is detected, the run halts; if validated, a construct‑validity warning flag is added.  
 5. **Distinctness check** – loads `variable_metadata.csv` to ensure `baseline_anxiety` and `anxiety_score` come from distinct instruments or timepoints; drops `baseline_anxiety` and flags coupling risk if not.  
-6. **Modeling** (`code/model.py`): fits an OLS regression with **primary covariates** `news_exposure_freq`, `baseline_anxiety` (if retained), `age`, `gender`, **and required confounders** `SES`, `total_media_use`, `prior_mental_health_history`. Computes VIF, Breusch‑Pagan, residual normality, and linearity diagnostics.  
-7. **Correlation** – selects Pearson or Spearman based on normality of `news_exposure_freq` and `anxiety_score`.  
-8. **Robustness check** – if `social_media_engagement` correlates with `news_exposure_freq` (|r| > 0.3), refits the model on the top‑percentile engagement subset; otherwise logs a warning.  
-9. **Visualization** – produces `output/plots/scatter_regression.png` with regression line and 95 % confidence interval.  
-10. **Result assembly** – writes `output/results/regression_results.json` (single source of truth).  
-11. **Success‑criteria validation** (`code/validate_sc.py`): inspects the JSON and writes `outputs/success_criteria_log.txt` with PASS/FAIL/BLOCKED for SC‑001 – SC‑005.  
-12. **Documentation** (`code/generate_readme.py`): creates a reproducible `README.md` summarizing data sources, pipeline steps, runtime, and reproducibility instructions.  
-13. **Archiving** (`code/archive.py`): creates `archive.zip` containing `code/`, `data/`, and `outputs/`.  
-14. **Sign‑off** – CI automatically writes `outputs/signoff_report.json` summarizing run status.
+6. **Export cleaned CSV** – writes `data/processed/cleaned_survey.csv` (used by verification scripts).  
+7. **Modeling** (`code/model.py`): fits an OLS regression with covariates `news_exposure_freq`, `baseline_anxiety` (if retained), `age`, and one‑hot `gender`.  
+8. **Correlation** – selects Pearson or Spearman based on normality of `news_exposure_freq` and `anxiety_score`.  
+9. **Assumption checks** – computes VIF, Breusch‑Pagan, residual normality, and linearity diagnostics.  
+10. **Robustness check** – if `social_media_engagement` correlates with `news_exposure_freq` (|r| > 0.3), refits the model on the top‑percentile engagement subset; otherwise logs a warning.  
+11. **Visualization** – produces `output/plots/scatter_news_anxiety.png` with regression line and 95 % confidence interval.  
+12. **Result assembly** – writes `output/results/regression_results.json` (single source of truth).  
+13. **Success‑criteria validation** (`code/validate_sc.py`): inspects the JSON and writes `outputs/success_criteria_log.txt` with PASS/FAIL/BLOCKED for SC‑001 – SC‑005.  
+14. **Documentation** (`code/generate_readme.py`): creates a reproducible `README.md` summarizing data sources, pipeline steps, runtime, and reproducibility instructions.  
+15. **Archiving** (`code/archive.py`): creates `archive.zip` containing `code/`, `data/`, and `outputs/`.  
+16. **Sign‑off** – CI automatically writes `outputs/signoff_report.json` summarizing run status.  
 
 ## Verification Checklist
 - `data/raw/` contains the three downloaded parquet files with recorded SHA‑256 checksums.  
 - `output/results/regression_results.json` exists and is **the sole source of truth**: either `data_status = "HALTED_NO_VALID_DATASET"` with a nested `halt_report` (current state) **or** a full regression result set plus flags. No placeholder numbers appear anywhere.  
-- `outputs/success_criteria_log.txt` was generated by executing `code/validate_sc.py` (not hand‑written).  
-- `output/plots/scatter_regression.png` is produced when a dataset validates.  
-- `README.md` was generated by `code/generate_readme.py` and contains reproducibility instructions.  
+- `outputs/success_criteria_log.txt` is generated by executing `code/validate_sc.py` (not hand‑written).  
+- `output/plots/scatter_news_anxiety.png` is produced when a dataset validates.  
+- `README.md` is generated by `code/generate_readme.py` and contains reproducibility instructions.  
 - `archive.zip` contains the `code/`, `data/`, and `outputs/` directories.  
 - Runtime reported in the JSON is ≤ 60 s (SC‑005).  
 
@@ -53,14 +55,11 @@ python code/main.py
 
 | Symptom | Likely Cause | Remedy |
 |---------|--------------|--------|
-| Halt at schema validation | No verified dataset contains required columns (current known state) | Expected behavior per FR‑001. To obtain statistical results, add a verified open dataset that matches the required schema and re‑run. **Do not fabricate data.** |
+| Halt at schema validation | No verified dataset contains required columns (current known state) | Expected behavior per FR‑001. Add a verified open dataset that matches the schema and re‑run. **Do not fabricate data.** |
 | N < 30 after cleaning | Excessive missingness in a future valid dataset | Hard stop per FR‑002; cannot proceed. |
-| VIF > 10 | Predictor collinearity (e.g., `baseline_anxiety` derived from `anxiety_score`) | Review `vif_scores` in the JSON; the pipeline will flag `High VIF` and suppress independent‑effect claims. |
-| MCAR test indicates non‑MCAR | Little’s MCAR test (T015) returned p < 0.05 | The pipeline adds missingness indicators **and** runs a multiple‑imputation sensitivity analysis; results are still reported with a bias‑warning flag. |
+| VIF > 10 | Predictor collinearity (e.g., `baseline_anxiety` derived from `anxiety_score`) | Review `vif_scores` in the JSON; the pipeline flags `High VIF` and suppresses independent‑effect claims. |
+| MCAR test indicates non‑MCAR | Little’s MCAR test returned p < 0.05 | The pipeline adds missingness indicators **and** runs a multiple‑imputation sensitivity analysis; results are still reported with a bias‑warning flag. |
 | Robustness skipped | `social_media_engagement` missing or correlation ≤ 0.3 | Review the `flags` array in the JSON; robustness is optional per FR‑006. |
 | Proxy instrument unvalidated | Proxy anxiety scale not on whitelist | The pipeline halts with an explicit error (FR‑008). Add a validated proxy or a fully validated instrument. |
 
 ---
-
-
-
