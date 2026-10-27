@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-27T00:07:56.623856+00:00",
+  "generated_at": "2026-10-27T00:12:28.521492+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -50361,6 +50361,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.817518,
+          "ended_at": "2026-10-27T00:11:16.581843Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T00:11:12.764325Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.458288,
           "ended_at": "2026-10-26T21:07:06.775218Z",
           "model": "zai-org.glm-5.3",
@@ -50430,14 +50438,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-26T16:14:38.184984Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 29.334401,
-          "ended_at": "2026-10-26T16:14:38.181793Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-26T16:14:08.847392Z"
         }
       ],
       "paper_status": null,
@@ -168276,6 +168276,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 2.597512,
+          "ended_at": "2026-10-27T00:11:17.197762Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-27T00:11:14.600250Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 3.166668,
           "ended_at": "2026-10-26T23:09:43.724319Z",
           "model": "zai-org.glm-5.3",
@@ -168345,14 +168353,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-24T01:21:34.994347Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 35.505903,
-          "ended_at": "2026-10-23T23:10:03.913565Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T23:09:28.407662Z"
         }
       ],
       "paper_status": null,
@@ -176562,6 +176562,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "tasker",
+      "duration_s": 2.597512,
+      "ended_at": "2026-10-27T00:11:17.197762Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-936-llmxive-follow-up-extending-a-matter-of",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-27T00:11:14.600250Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.817518,
+      "ended_at": "2026-10-27T00:11:16.581843Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-104-evaluating-the-use-of-llms-for-automated",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-27T00:11:12.764325Z"
+    },
+    {
       "agent": "personality",
       "display_name": "Geoffrey West (simulated)",
       "duration_s": 15.673614,
@@ -182548,30 +182572,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-25T21:06:47.070062Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 801.477133,
-      "ended_at": "2026-10-25T21:28:22.802957Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-361-investigating-the-relationship-between-b",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-25T21:15:01.325824Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 761.470985,
-      "ended_at": "2026-10-25T21:19:56.124390Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-492-evaluating-the-statistical-validity-of-p",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-25T21:07:14.653405Z"
     }
   ],
   "reviewed_preprints": [
