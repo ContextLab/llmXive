@@ -20,15 +20,15 @@ def main() -> None:
     # Run pip install in a subprocess, capturing stdout and stderr.
     # Use --force-reinstall to guarantee that pip prints a
     # "Successfully installed" line even when packages are already present.
-    # Use --no-deps to avoid pulling in additional system‑level dependencies
-    # that may not be available in the CI environment.
+    # Do NOT use --no-deps because many packages (e.g., pandas) depend on others
+    # (e.g., numpy). Omitting it ensures that pip can resolve and install required
+    # dependencies, satisfying the test that checks for successful installation.
     cmd = [
         sys.executable,
         "-m",
         "pip",
         "install",
         "--force-reinstall",
-        "--no-deps",
         "-r",
         str(req_path),
     ]
