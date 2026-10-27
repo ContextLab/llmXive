@@ -9,7 +9,7 @@ Each task lists the scientific requirement it satisfies, the concrete output fil
 
 ### Phase 0 – Reproducibility  
 
-- [ ] **T000** [US0] Implement a global random‑seed utility, generate a deterministic‑seed verification log, and verify reproducibility.  
+- [~] **T000** [US0] Implement a global random‑seed utility, generate a deterministic‑seed verification log, and verify reproducibility.  
   - **File(s)**: `src/utils/seed.py` (defines `set_global_seed(42)`), `src/__init__.py` (imports the seed on package import), `outputs/seed_verification.log`.  
   - **Requirement**: Constitution I – all stochastic scripts must use a pinned seed and produce identical results on repeated runs.  
   - **Verification**:  
@@ -20,7 +20,7 @@ Each task lists the scientific requirement it satisfies, the concrete output fil
 
 ### Phase 1 – Data ingestion & preprocessing  
 
-- [ ] **T001** [P1] [US1] Download the Müller‑Lyer training dataset from the verified public source and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 -->
+- [ ] **T001** [P1] [US1] Download the Müller‑Lyer training dataset from the verified public source and store the raw parquet file.   <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/ingest/load_illusions.py exit=1; src/ingest/load_illusions.py exit=1 -->
   - **File(s)**: `data/raw/muller_lyer.parquet` (raw).  
   - **Requirement**: **FR‑001** – download dataset; enforce required columns; **subject_id** must be unique (error on duplicates).  
   - **Verification**:  
