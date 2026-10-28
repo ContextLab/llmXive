@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-28T10:20:46.972706+00:00",
+  "generated_at": "2026-10-28T10:26:06.131322+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -35963,6 +35963,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1074.431451,
+          "ended_at": "2026-10-28T10:24:44.058655Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T10:06:49.627204Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1091.503813,
           "ended_at": "2026-10-28T08:28:08.327925Z",
           "model": "zai-org.glm-5.3",
@@ -36032,14 +36040,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "failed",
           "started_at": "2026-10-20T14:41:22.397790Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 439.802494,
-          "ended_at": "2026-10-20T14:39:00.907278Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-20T14:31:41.104784Z"
         }
       ],
       "paper_status": null,
@@ -46589,6 +46589,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1076.314673,
+          "ended_at": "2026-10-28T10:24:50.332784Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T10:06:54.018111Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.305674,
           "ended_at": "2026-10-27T23:08:50.078358Z",
           "model": "zai-org.glm-5.3",
@@ -46658,14 +46666,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-26T05:46:32.512976Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 39.084792,
-          "ended_at": "2026-10-26T05:46:32.509289Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-26T05:45:53.424497Z"
         }
       ],
       "paper_status": null,
@@ -109489,6 +109489,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1075.569581,
+          "ended_at": "2026-10-28T10:24:51.941788Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T10:06:56.372207Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1078.797027,
           "ended_at": "2026-10-28T07:25:42.409532Z",
           "model": "zai-org.glm-5.3",
@@ -109558,14 +109566,6 @@
           "model": "zai-org.glm-5.3",
           "outcome": "success",
           "started_at": "2026-10-21T12:43:11.040518Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1744.0749,
-          "ended_at": "2026-10-21T12:42:55.159707Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-21T12:13:51.084807Z"
         }
       ],
       "paper_status": null,
@@ -176594,6 +176594,42 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 1075.569581,
+      "ended_at": "2026-10-28T10:24:51.941788Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-424-investigating-the-predictive-power-of-mo",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-28T10:06:56.372207Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1076.314673,
+      "ended_at": "2026-10-28T10:24:50.332784Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-097-predicting-corrosion-rates-of-common-met",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-28T10:06:54.018111Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1074.431451,
+      "ended_at": "2026-10-28T10:24:44.058655Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-033-predicting-material-properties-from-comp",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-28T10:06:49.627204Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 1402.54465,
       "ended_at": "2026-10-28T09:35:26.531392Z",
@@ -182601,42 +182637,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-26T07:26:16.882255Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 153.216706,
-      "ended_at": "2026-10-26T07:40:43.922328Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-26T07:38:10.705622Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 117.395318,
-      "ended_at": "2026-10-26T07:38:10.701897Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-26T07:36:13.306579Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 145.165085,
-      "ended_at": "2026-10-26T07:36:13.302872Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-975-llmxive-follow-up-extending-from-chatbot",
-      "project_stage": "agent_blocked",
-      "severity": "ok",
-      "started_at": "2026-10-26T07:33:48.137787Z"
     }
   ],
   "reviewed_preprints": [
