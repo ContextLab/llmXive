@@ -33,7 +33,7 @@ All tasks are expressed as plain‑text checklist items; each unchecked box (`- 
   - If fewer than three datasets are `"Available"`, write `results/data_gap_summary.txt` and exit 1.  
   - **Verification**: `python -m jsonschema -i data/manifest.json specs/001‑statistical‑evaluation‑of‑dimensionality/contracts/dataset.schema.yaml` exits 0; when < 3 available, `cat results/data_gap_summary.txt` contains “abort”.  
 
-- [ ] T008 **[FR‑002 FR‑003 US1]** Pre‑process each available dataset and compute geometry (`code/preprocess_and_geometry.py`). <!-- FAILED-IN-EXECUTION: code/preprocess_and_geometry.py exit=1 -->
+- [ ] T008 **[FR‑002 FR‑003 US1]** Pre‑process each available dataset and compute geometry (`code/preprocess_and_geometry.py`). <!-- FAILED-IN-EXECUTION: code/preprocess_and_geometry.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/preprocess_and_geometry.py exit=1 -->
   - For each `"Available"` entry in `data/manifest.json`:  
     1. Load raw matrix with Scanpy (`sc.read_h5ad`).  
     2. Export ground‑truth labels to `data/processed/<dataset_id>_labels.csv`.  

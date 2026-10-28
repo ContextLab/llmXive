@@ -21,7 +21,7 @@ from llmxive_toolkit import paths, get_logger
 from config import Config
 from utils import ResourceMonitor
 
-log = get_logger(__name__)  # standard logger from llmxive_toolkit
+log = get_logger(__name__)
 
 
 # ----------------------------------------------------------------------
@@ -87,7 +87,7 @@ def _select_hvgs(adata: sc.AnnData) -> int:
 def _deterministic_subsample(adata: sc.AnnData) -> sc.AnnData:
     """
     Deterministically subsample ``Config.SAMPLE_SIZE`` cells when the
-    dataset exceeds ``Config.SAMPLE_CELLS_THRESHOLD``.  The RNG seed is
+    dataset exceeds ``Config.SAMPLE_CELLS_THRESHOLD``. The RNG seed is
     fixed via ``Config.SEED``.
     """
     if adata.n_obs > Config.SAMPLE_CELLS_THRESHOLD:
@@ -110,7 +110,7 @@ def _compute_intrinsic_dimensionality(
     k : int
         Number of nearest neighbours (default 15 as required).
     pair_count : int
-        Number of cells to sample for the estimator.  If the total number
+        Number of cells to sample for the estimator. If the total number
         of cells is smaller, all cells are used.
     seed : int
         Random seed for reproducible sampling.
@@ -178,8 +178,11 @@ def _compute_local_density(
 
 def _write_parquet(adata: sc.AnnData, out_path: Path) -> None:
     """Write the (potentially sampled) matrix to Parquet."""
+    X = adata.X
+    if not isinstance(X, np.ndarray):
+        X = X.toarray()
     df = pd.DataFrame(
-        adata.X,
+        X,
         index=adata.obs_names.astype(str),
         columns=adata.var_names.astype(str),
     )
@@ -205,24 +208,16 @@ def _process_one_dataset(entry: dict) -> None:
 
     log.info(f"Starting preprocessing for dataset {dataset_id}")
 
-    # ------------------------------------------------------------------
     # 1. Load raw counts
-    # ------------------------------------------------------------------
     adata_raw = _load_raw_h5ad(raw_path)
 
-    # ------------------------------------------------------------------
     # 2. Export ground‑truth labels
-    # ------------------------------------------------------------------
     _export_labels(adata_raw, dataset_id)
 
-    # ------------------------------------------------------------------
     # 3. Log‑CPM transformation
-    # ------------------------------------------------------------------
-    # Ensure counts are in dense format for the transformation
     if isinstance(adata_raw.X, np.ndarray):
         counts = adata_raw.X.astype(float)
     else:
-        # Sparse matrix – convert to dense (datasets are modestly sized)
         counts = adata_raw.X.toarray().astype(float)
 
     logcpm = _logcpm_transform(counts)
@@ -230,9 +225,7 @@ def _process_one_dataset(entry: dict) -> None:
     adata.obs_names = adata_raw.obs_names.astype(str)
     adata.var_names = adata_raw.var_names.astype(str)
 
-    # ------------------------------------------------------------------
     # 4. HVG selection
-    # ------------------------------------------------------------------
     n_hvg = _select_hvgs(adata)
     hvg_path = paths.processed(f"{dataset_id}_hvg.txt")
     hvg_path.write_text(str(n_hvg))
@@ -240,15 +233,10 @@ def _process_one_dataset(entry: dict) -> None:
     # Keep only HVGs for downstream steps
     adata = adata[:, adata.var["highly_variable"]].copy()
 
-    # ------------------------------------------------------------------
     # 5. Deterministic subsampling
-    # ------------------------------------------------------------------
     adata = _deterministic_subsample(adata)
 
-    # ------------------------------------------------------------------
     # 6. Geometric diagnostics
-    # ------------------------------------------------------------------
-    # Use the dense matrix for nearest‑neighbour calculations
     matrix = adata.X
     if not isinstance(matrix, np.ndarray):
         matrix = matrix.toarray()
@@ -268,7 +256,6 @@ def _process_one_dataset(entry: dict) -> None:
     geom = {
         "intrinsic_dimensionality": intrinsic_dim,
         "local_density": local_density,
-        # Include parameters for verification purposes
         "params": {
             "k": 15,
             "pair_count": min(10000, matrix.shape[0]),
@@ -278,9 +265,7 @@ def _process_one_dataset(entry: dict) -> None:
     geom_path = paths.processed(f"{dataset_id}_geometric.json")
     geom_path.write_text(json.dumps(geom, indent=2))
 
-    # ------------------------------------------------------------------
     # 7. Write processed matrix
-    # ------------------------------------------------------------------
     matrix_path = paths.processed(f"{dataset_id}_matrix.parquet")
     _write_parquet(adata, matrix_path)
 

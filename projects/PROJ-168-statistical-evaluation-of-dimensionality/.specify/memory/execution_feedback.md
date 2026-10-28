@@ -39,7 +39,7 @@ ERROR tests/test_generate_requirements.py
 ERROR tests/test_geometry.py
 ERROR tests/test_validators.py
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-======================= 21 warnings, 5 errors in 17.50s ========================
+======================= 21 warnings, 5 errors in 20.33s ========================
 
 
 ## Platform-owned paths written inside the project
