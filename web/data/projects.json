@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-28T23:07:58.769725+00:00",
+  "generated_at": "2026-10-28T23:18:15.081015+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -61146,6 +61146,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 5.926875,
+          "ended_at": "2026-10-28T23:07:28.685190Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T23:07:22.758315Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.720354,
           "ended_at": "2026-10-28T21:07:53.625160Z",
           "model": "zai-org.glm-5.3",
@@ -61215,14 +61223,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-28T06:59:12.482821Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 0.951402,
-          "ended_at": "2026-09-28T06:59:07.356791Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-28T06:59:06.405389Z"
         }
       ],
       "paper_status": null,
@@ -61660,6 +61660,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 103.168551,
+          "ended_at": "2026-10-28T23:08:34.498021Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T23:06:51.329470Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 127.397444,
           "ended_at": "2026-10-28T17:10:28.936640Z",
           "model": "zai-org.glm-5.3",
@@ -61729,14 +61737,6 @@
           "model": "google.gemma-4-31B-it",
           "outcome": "success",
           "started_at": "2026-10-24T03:35:43.929028Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 559.91725,
-          "ended_at": "2026-10-19T23:54:25.835435Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-19T23:45:05.918185Z"
         }
       ],
       "paper_status": null,
@@ -175681,6 +175681,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 103.168551,
+      "ended_at": "2026-10-28T23:08:34.498021Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-156-statistical-analysis-of-publicly-availab",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-28T23:06:51.329470Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 5.926875,
+      "ended_at": "2026-10-28T23:07:28.685190Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-153-decoding-regulatory-element-contribution",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-28T23:07:22.758315Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 11.517134,
       "ended_at": "2026-10-28T23:06:43.556375Z",
@@ -181715,30 +181739,6 @@
       "project_stage": "in_progress",
       "severity": "soft",
       "started_at": "2026-10-26T10:52:15.561037Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 118.520304,
-      "ended_at": "2026-10-26T10:52:05.811478Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-198-predicting-plant-secondary-metabolite-pr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T10:50:07.291174Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 691.480854,
-      "ended_at": "2026-10-26T10:49:52.349117Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-198-predicting-plant-secondary-metabolite-pr",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T10:38:20.868263Z"
     }
   ],
   "reviewed_preprints": [
