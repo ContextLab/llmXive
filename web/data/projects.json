@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-28T22:19:29.455792+00:00",
+  "generated_at": "2026-10-28T22:35:03.118907+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -122699,7 +122699,7 @@
           ]
         },
         {
-          "contributions": 31,
+          "contributions": 35,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -122756,6 +122756,38 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 26.41297,
+          "ended_at": "2026-10-28T22:15:26.080865Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-28T22:14:59.667895Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 32.527523,
+          "ended_at": "2026-10-28T22:14:59.663620Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-28T22:14:27.136097Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 32.304048,
+          "ended_at": "2026-10-28T22:14:27.132186Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-28T22:13:54.828138Z"
+        },
+        {
+          "agent": "implementer",
+          "duration_s": 389.932109,
+          "ended_at": "2026-10-28T22:13:54.823048Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-28T22:07:24.890939Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 261.644127,
           "ended_at": "2026-10-28T00:15:13.875973Z",
           "model": "google.gemma-4-31B-it",
@@ -122801,38 +122833,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-26T04:10:32.252711Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 222.877904,
-          "ended_at": "2026-10-25T13:10:13.372381Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T13:06:30.494477Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 194.174998,
-          "ended_at": "2026-10-25T12:11:15.866346Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T12:08:01.691348Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 893.098591,
-          "ended_at": "2026-10-25T10:21:46.939773Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T10:06:53.841182Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 1017.705107,
-          "ended_at": "2026-10-25T07:25:38.877890Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-25T07:08:41.172783Z"
         }
       ],
       "paper_status": null,
@@ -128475,6 +128475,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 474.703205,
+          "ended_at": "2026-10-28T22:15:02.074441Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "failed",
+          "started_at": "2026-10-28T22:07:07.371236Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 520.815409,
           "ended_at": "2026-10-27T12:35:13.640814Z",
           "model": "openai.gpt-oss-120b",
@@ -128544,14 +128552,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-14T12:23:53.141000Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 889.404312,
-          "ended_at": "2026-10-14T12:23:37.539054Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-14T12:08:48.134742Z"
         }
       ],
       "paper_status": null,
@@ -175681,6 +175681,66 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 26.41297,
+      "ended_at": "2026-10-28T22:15:26.080865Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-28T22:14:59.667895Z"
+    },
+    {
+      "agent": "planner",
+      "duration_s": 474.703205,
+      "ended_at": "2026-10-28T22:15:02.074441Z",
+      "failure_reason": "BackendUnavailable: every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(permanent): Error code: 400 | google.gemma-4-31B-it(model-d",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "failed",
+      "project_id": "PROJ-540-the-influence-of-social-media-doomscroll",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-28T22:07:07.371236Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 32.527523,
+      "ended_at": "2026-10-28T22:14:59.663620Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-28T22:14:27.136097Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 32.304048,
+      "ended_at": "2026-10-28T22:14:27.132186Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-28T22:13:54.828138Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 389.932109,
+      "ended_at": "2026-10-28T22:13:54.823048Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-507-the-influence-of-visual-salience-on-mora",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-28T22:07:24.890939Z"
+    },
+    {
       "agent": "tasker",
       "duration_s": 3.139987,
       "ended_at": "2026-10-28T22:07:41.738693Z",
@@ -181679,66 +181739,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-26T10:41:42.423353Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 28.550738,
-      "ended_at": "2026-10-26T10:41:42.419881Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-267-predicting-plant-stress-response-from-pu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T10:41:13.869143Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 124.651889,
-      "ended_at": "2026-10-26T10:41:13.865513Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-267-predicting-plant-stress-response-from-pu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T10:39:09.213624Z"
-    },
-    {
-      "agent": "clarifier",
-      "duration_s": 94.747267,
-      "ended_at": "2026-10-26T10:39:44.781089Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-232-investigating-the-relationship-between-b",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-26T10:38:10.033822Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 0.035126,
-      "ended_at": "2026-10-26T10:39:01.575397Z",
-      "failure_reason": "",
-      "model": "deterministic-no-llm",
-      "outcome": "skipped",
-      "project_id": "PROJ-267-predicting-plant-stress-response-from-pu",
-      "project_stage": "in_progress",
-      "severity": "soft",
-      "started_at": "2026-10-26T10:39:01.540271Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 279.633964,
-      "ended_at": "2026-10-26T10:38:47.717434Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-267-predicting-plant-stress-response-from-pu",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T10:34:08.083470Z"
     }
   ],
   "reviewed_preprints": [
