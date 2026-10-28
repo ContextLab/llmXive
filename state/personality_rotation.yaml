@@ -1,14 +1,7 @@
 last_used: marie-curie
-last_used_at: '2026-10-27T18:08:31.996199+00:00'
+last_used_at: '2026-10-28T00:06:09.786607+00:00'
 last_outcome: model_error
 history:
-- slug: john-von-neumann
-  started_at: '2026-06-29T07:58:24.781776+00:00'
-  ended_at: '2026-06-29T09:46:20.265839+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-631-https-arxiv-org-abs-2605-25604/paper/reviews/john-von-neumann-simulated__2026-06-29__paper.md
 - slug: linus-pauling
   started_at: '2026-06-29T09:46:20.265839+00:00'
   ended_at: '2026-06-29T11:49:24.254716+00:00'
@@ -1316,4 +1309,8 @@ history:
 - slug: richard-feynman
   started_at: '2026-10-27T16:06:14.117696+00:00'
   ended_at: '2026-10-27T18:08:31.996199+00:00'
+  outcome: model_error
+- slug: richard-feynman
+  started_at: '2026-10-27T18:08:31.996199+00:00'
+  ended_at: '2026-10-28T00:06:09.786607+00:00'
   outcome: model_error
