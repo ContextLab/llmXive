@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-27T23:17:19.199683+00:00",
+  "generated_at": "2026-10-28T00:06:33.130180+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -135785,6 +135785,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 10.67894,
+          "ended_at": "2026-10-28T00:06:09.786607+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "model_error",
+          "started_at": "2026-10-28T00:05:59.107667+00:00"
+        },
+        {
           "agent": "planner",
           "duration_s": 101.300996,
           "ended_at": "2026-10-27T22:20:45.948999Z",
@@ -135855,14 +135863,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-27T00:13:54.304371Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 109.046121,
-          "ended_at": "2026-10-27T00:13:54.301756Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-27T00:12:05.255635Z"
         }
       ],
       "paper_status": null,
@@ -176586,6 +176586,21 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Richard Feynman (simulated)",
+      "duration_s": 10.67894,
+      "ended_at": "2026-10-28T00:06:09.786607+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "richard-feynman",
+      "project_id": "PROJ-589-dream-state-learning-implementing-rem-li",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-28T00:05:59.107667+00:00"
+    },
+    {
       "agent": "planner",
       "duration_s": 155.792488,
       "ended_at": "2026-10-27T23:11:04.614264Z",
@@ -182611,18 +182626,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-26T03:41:50.991303Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 38.905127,
-      "ended_at": "2026-10-26T03:41:18.201456Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-492-evaluating-the-statistical-validity-of-p",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T03:40:39.296329Z"
     }
   ],
   "reviewed_preprints": [
