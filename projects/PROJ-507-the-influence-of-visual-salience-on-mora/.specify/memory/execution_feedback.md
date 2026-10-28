@@ -26,19 +26,11 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/processed/candidates_filtered.csv, data/raw/checksums.json, data/raw/human_coding/annotations_template.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
-## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
-
-These commands did not crash on a code bug — the script's own argparse REJECTED the arguments the quickstart passed (it required flags the quickstart omitted, or the quickstart passed flags the script never declared). Re-running the identical command can NEVER pass, and editing the script's logic will NOT help: the run-book command and the script's CLI have DRIFTED. Reconcile them — either change the quickstart command to match the script's real usage, OR change the script's argparse to accept the quickstart's arguments (whichever is correct for the analysis). The script's REAL usage is shown so you can see the exact gap:
-
-- run-book command: `python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv`
-  - script usage: `03_process_human_coding.py [-h] --annotations-dir ANNOTATIONS_DIR`
-  - argparse error: `03_process_human_coding.py: error: the following arguments are required: --annotations-dir, --candidates-csv, --valid-output, --ground-truth-output`
+- every produced artifact is gitignored (data/raw/human_coding/annotations_template.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 18 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…r: If the path indicates synthetic data and --allow-synthetic is…”; code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…help="Allow analysis of synthetic data (located in data/synth/)…”; code/data_hygiene.py: synthetic/fake INPUT data not authorized by the spec — “…]          # Define synthetic data directory     synthetic_…”; every produced artifact is gitignored (data/processed/candidates_filtered.csv, data/raw/checksums.json, data/raw/human_coding/annotations_template.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 run-book script(s) missing (plan/impl path mismatch): python code/00_pilot_power_analysis.py --config config/pilot.yaml; python code/04_manipulate_stimuli.py  --input data/processed/scenarios.csv  --output data/processed/stimuli_manifest.csv; python code/05_survey_deployment.py  --mode pilot  --participants 10  --output data/processed/responses_raw.csv; 1 command(s) failed: python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv (rc=2); 1 declared deliverable(s) absent: data/processed/valid_scenarios.csv
+**Summary**: 18 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…r: If the path indicates synthetic data and --allow-synthetic is…”; code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…help="Allow analysis of synthetic data (located in data/synth/)…”; code/data_hygiene.py: synthetic/fake INPUT data not authorized by the spec — “…]          # Define synthetic data directory     synthetic_…”; every produced artifact is gitignored (data/raw/human_coding/annotations_template.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 run-book script(s) missing (plan/impl path mismatch): python code/00_pilot_power_analysis.py --config config/pilot.yaml; python code/05_survey_deployment.py  --mode pilot  --participants 10  --output data/processed/responses_raw.csv; python code/06_data_cleaning.py  --input data/processed/responses_raw.csv  --output data/processed/responses_cleaned.csv; 3 command(s) failed: python code/01_ingest_and_filter.py  --max-scenarios 30  --output data/processed/candidates_filtered.csv (rc=-1); python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv (rc=1); python code/04_manipulate_stimuli.py  --input data/processed/scenarios.csv  --output data/processed/stimuli_manifest.csv (rc=1); 3 declared deliverable(s) absent: data/processed/candidates_filtered.csv; data/processed/ground_truth_match.csv; data/processed/valid_scenarios.csv
 
 ## Failing / missing run-book commands
 
@@ -46,17 +38,38 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/00_pilot_power_analysis.py': [Errno 2] No such file or directory
 
-- python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv -> rc=2
+- python code/01_ingest_and_filter.py  --max-scenarios 30  --output data/processed/candidates_filtered.csv -> rc=-1
+2026-10-28 22:16:11 | INFO     | __main__             | Attempting to load Visual Genome via HuggingFace datasets (streaming).
+2026-10-28 22:16:11 | WARNING  | __main__             | Streaming load failed (The `datasets` package cannot be imported in the current environment.). Falling back to direct image download.
 
-usage: 03_process_human_coding.py [-h] --annotations-dir ANNOTATIONS_DIR
-                                  --candidates-csv CANDIDATES_CSV
-                                  --valid-output VALID_OUTPUT
-                                  --ground-truth-output GROUND_TRUTH_OUTPUT
-03_process_human_coding.py: error: the following arguments are required: --annotations-dir, --candidates-csv, --valid-output, --ground-truth-output
+2026-10-28 22:16:11,044 INFO __main__: Attempting to load Visual Genome via HuggingFace datasets (streaming).
+2026-10-28 22:16:11,064 WARNING __main__: Streaming load failed (The `datasets` package cannot be imported in the current environment.). Falling back to direct image download.
 
-- python code/04_manipulate_stimuli.py  --input data/processed/scenarios.csv  --output data/processed/stimuli_manifest.csv -> rc=2
+[TIMEOUT after 120s]
+- python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv -> rc=1
 
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/04_manipulate_stimuli.py': [Errno 2] No such file or directory
+2026-10-28 22:18:10,623 INFO __main__: Loading annotations from data/raw/human_coding
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/03_process_human_coding.py", line 251, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/03_process_human_coding.py", line 170, in main
+    annotations_df = _load_annotation_files(annotations_dir)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/03_process_human_coding.py", line 68, in _load_annotation_files
+    raise ValueError(f"Annotation files are missing required columns: {missing}")
+ValueError: Annotation files are missing required columns: {'rating', 'annotator_id'}
+
+- python code/04_manipulate_stimuli.py  --input data/processed/scenarios.csv  --output data/processed/stimuli_manifest.csv -> rc=1
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/04_manipulate_stimuli.py", line 336, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/04_manipulate_stimuli.py", line 188, in main
+    cfg = load_yaml_config(manipulation_cfg_path)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/04_manipulate_stimuli.py", line 54, in load_yaml_config
+    raise FileNotFoundError(f"Manipulation config not found: {config_path}")
+FileNotFoundError: Manipulation config not found: /home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/config/manipulation.yaml
 
 - python code/05_survey_deployment.py  --mode pilot  --participants 10  --output data/processed/responses_raw.csv -> rc=2
 
@@ -73,12 +86,22 @@ usage: 03_process_human_coding.py [-h] --annotations-dir ANNOTATIONS_DIR
 
 ## Declared deliverables still missing
 
+- data/processed/candidates_filtered.csv
+- data/processed/ground_truth_match.csv
 - data/processed/valid_scenarios.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/processed/candidates_filtered.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/01_ingest_and_filter.py` — IS a run-book command
+    - `code/02_prepare_human_coding_dir.py` — IS a run-book command
+    - `code/03_process_human_coding.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/candidates_filtered.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/ground_truth_match.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/03_process_human_coding.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/ground_truth_match.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/valid_scenarios.csv` is declared but was NOT written. Scripts referencing it:
     - `code/03_process_human_coding.py` — IS a run-book command
     - `code/human_coding.py` — NOT invoked by the run-book

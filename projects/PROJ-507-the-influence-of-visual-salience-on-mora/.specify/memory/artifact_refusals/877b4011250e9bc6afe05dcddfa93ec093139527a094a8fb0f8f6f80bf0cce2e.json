@@ -1,0 +1,7 @@
+{
+  "task_id": "T004",
+  "fingerprint": "4a8beefbe261a9d5c5ecc4a4021dc73dfba2fc649ce94321943126c35ddd2487",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused 'tests/unit/test_manipulation.py': it would replace working code with a file that has none. To leave a file unchanged, leave it out of `artifacts`; to re-run it unchanged, give `path`, `execute: true` and `args` and omit `contents`."
+}

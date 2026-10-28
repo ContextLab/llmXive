@@ -21,7 +21,7 @@
     - The CSV contains ≥ 1 row and every `original_image_path` points to an existing file under `data/raw/images/`.  
     - Unit test `tests/unit/test_data_loader.py` asserts that a simulated fetch failure raises a `DataFetchError`.
 
-- [ ] **T002** [US‑001] **Create human‑coding directory and template** – `code/02_prepare_human_coding_dir.py`   <!-- FAILED-IN-EXECUTION: code/02_prepare_human_coding_dir.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/02_prepare_human_coding_dir.py exit=1 -->
+- [~] **T002** [US‑001] **Create human‑coding directory and template** – `code/02_prepare_human_coding_dir.py`
   - Create the folder `data/raw/human_coding/` (must exist after execution).  
   - Generate a **template CSV** `data/raw/human_coding/annotations_template.csv` that lists all `scenario_id`s from `candidates_filtered.csv` and provides columns for three independent annotators to record a 1‑5 ambiguity rating.  
   - Include a short README in the same folder describing the annotation procedure and required number of raters.  
@@ -29,7 +29,7 @@
     - After script execution the folder and template file are present.  
     - Integration test `tests/integration/test_human_coding_dir.py` checks that the file count matches the number of scenarios and that the header columns are correct.
 
-- [ ] **T003** [US‑001] **Process human‑coding annotations and select ambiguous scenarios** – `code/03_process_human_coding.py`  
+- [~] **T003** [US‑001] **Process human‑coding annotations and select ambiguous scenarios** – `code/03_process_human_coding.py`  
   - Load all annotation CSVs placed in `data/raw/human_coding/` (at least three per scenario).  
   - Compute for each scenario:  
     1. **Mean ambiguity score** (1‑5 Likert).  
@@ -41,7 +41,7 @@
     - Unit test `tests/unit/test_human_coding.py` validates `calculate_cohens_kappa` on a hand‑computed example and checks that the filtering logic keeps only scenarios meeting both thresholds.  
     - The script aborts loudly (`raise RuntimeError`) if any required annotation file is missing.
 
-- [ ] **T015** **Provide a thin wrapper for the moral‑intent model** – `code/bert_moral_intent.py`  
+- [~] **T015** **Provide a thin wrapper for the moral‑intent model** – `code/bert_moral_intent.py`  
   - Download the `bert-base-uncased` checkpoint fine‑tuned on MoralD from Hugging Face (`transformers.AutoModelForSequenceClassification`).  
   - Verify the file checksum (SHA‑256) against the published hash.  
   - Expose `compute_preservation_score(original_image_path, manipulated_image_path)` that:  

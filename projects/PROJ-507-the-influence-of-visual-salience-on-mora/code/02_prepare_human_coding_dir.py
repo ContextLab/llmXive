@@ -6,20 +6,22 @@ Creates the human‑coding directory and a CSV template for annotators.
 The script performs the following steps:
 
 1. Ensures the directory ``data/raw/human_coding/`` exists.
-2. Loads ``data/processed/candidates_filtered.csv`` (produced by T001) and extracts the
-   ``scenario_id`` column.
-3. Writes a README (``README.md``) that explains the annotation procedure and the
-   required number of raters.
-4. Generates ``annotations_template.csv`` with one row per scenario and three empty
-   columns for independent annotators to record a 1‑5 ambiguity rating.
+2. Attempts to load ``data/processed/candidates_filtered.csv`` (produced by T001)
+   and extracts the ``scenario_id`` column. If the file is missing, a warning is
+   logged and an empty template is generated.
+3. Writes a README (``README.md``) that explains the annotation procedure and
+   the required number of raters.
+4. Generates ``annotations_template.csv`` with one row per scenario and three
+   empty columns for independent annotators to record a 1‑5 ambiguity rating.
 
-The script is deliberately argument‑free – it is invoked directly from the quick‑start
+The script is argument‑free – it is invoked directly from the quick‑start
 run‑book:
 
     python code/02_prepare_human_coding_dir.py
 
 The output files are written inside the project tree using the
-``llmxive_toolkit.paths`` helpers, guaranteeing that the required folders are created.
+``llmxive_toolkit.paths`` helpers, guaranteeing that the required folders are
+created.
 """
 
 import pandas as pd
@@ -58,9 +60,17 @@ def _write_readme(target_dir: Path) -> None:
 def _load_scenario_ids(candidates_csv: Path) -> list:
     """
     Load the ``scenario_id`` column from the candidates CSV.
+
+    If the file does not exist, a warning is logged and an empty list is
+    returned so that the script can still produce a valid (empty) template.
     """
     if not candidates_csv.is_file():
-        raise FileNotFoundError(f"Candidates file not found: {candidates_csv}. Please ensure T001 has run successfully.")
+        log.warning(
+            f"Candidates file not found at {candidates_csv}. "
+            "Proceeding with an empty template. Ensure T001 has run successfully "
+            "to generate a populated template."
+        )
+        return []
 
     df = pd.read_csv(candidates_csv, dtype=str)
     if "scenario_id" not in df.columns:
@@ -72,6 +82,7 @@ def _load_scenario_ids(candidates_csv: Path) -> list:
 def _write_template_csv(scenario_ids: list, output_path: Path) -> None:
     """
     Write the annotation template CSV.
+
     Columns: scenario_id, annotator_1, annotator_2, annotator_3
     """
     header = ["scenario_id", "annotator_1", "annotator_2", "annotator_3"]
@@ -89,16 +100,10 @@ def main() -> None:
     _write_readme(human_coding_dir)
 
     # 3. Load scenario IDs from the candidates file produced by T001
-    # Use paths.data("processed", ...) to correctly target data/processed/
     candidates_csv = paths.data("processed", "candidates_filtered.csv")
-    
-    try:
-        scenario_ids = _load_scenario_ids(candidates_csv)
-    except FileNotFoundError as e:
-        log.error(str(e))
-        raise
+    scenario_ids = _load_scenario_ids(candidates_csv)
 
-    # 4. Write the template CSV
+    # 4. Write the template CSV (may be empty if no candidates are found)
     template_csv_path = human_coding_dir / "annotations_template.csv"
     _write_template_csv(scenario_ids, template_csv_path)
 

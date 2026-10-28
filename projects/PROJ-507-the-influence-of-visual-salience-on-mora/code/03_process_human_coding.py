@@ -3,7 +3,7 @@ Pipeline script for Task T003 – Process human coding and select ambiguous scen
 
 The script orchestrates the following steps:
 
-1. Load all annotation CSV files produced by ``code/02_acquire_annotations.py``.
+1. Load all annotation CSV files produced by the human‑coding step.
 2. Compute per‑scenario mean ambiguity score and overall Fleiss' Kappa.
 3. Apply the filtering criteria:
    * mean rating ≥ 3.5
@@ -12,11 +12,21 @@ The script orchestrates the following steps:
    benchmark (``data/external/morald_tags.json``) and write matches to
    ``ground_truth_match.csv``.
 5. Join the retained IDs with the original candidate information
-   (``candidates_filtered.csv``) to produce ``valid_scenarios.csv`` that
+   (``candidates_filtered.csv``) and write ``valid_scenarios.csv`` that
    conforms to ``contracts/dataset.schema.yaml``.
 
-The script aborts with a clear error message if any required input file is
-missing, ensuring that downstream steps cannot proceed with incomplete data.
+The script accepts both the original argument set (used by earlier
+implementations) **and** the simplified argument set used by the current
+quick‑start (`--input` / `--output`). Missing arguments are filled with
+sensible defaults:
+
+* ``--annotations-dir`` defaults to ``data/raw/human_coding/``.
+* ``--ground-truth-output`` defaults to ``data/processed/ground_truth_match.csv``.
+* ``--valid-output`` defaults to the path supplied via ``--output``.
+
+The script aborts with a clear error message if any required input file
+is missing, ensuring that downstream steps cannot proceed with incomplete
+data.
 """
 
 import argparse
@@ -26,7 +36,7 @@ from pathlib import Path
 
 import pandas as pd
 
-# Local helpers
+# Local helpers from the human_coding module
 from human_coding import (
     process_annotations,
     cross_reference_external_validation,
@@ -73,35 +83,79 @@ def _load_candidates(candidates_path: Path) -> pd.DataFrame:
         raise ValueError(f"Candidates CSV missing required columns: {missing}")
     return df
 
-def main():
+def _parse_args() -> argparse.Namespace:
+    """
+    Parse command‑line arguments.  The parser supports both the legacy
+    argument names (``--annotations-dir``, ``--candidates-csv``,
+    ``--valid-output``, ``--ground-truth-output``) and the newer,
+    streamlined names used by the quick‑start (``--input`` and ``--output``).
+    """
     parser = argparse.ArgumentParser(
         description="Process human coding annotations and select ambiguous scenarios (Task T003)."
     )
+    # Legacy arguments
     parser.add_argument(
         "--annotations-dir",
         type=str,
-        required=True,
         help="Directory containing annotation CSV files produced by T002.",
     )
     parser.add_argument(
         "--candidates-csv",
         type=str,
-        required=True,
         help="Path to the candidates CSV (output of T001).",
     )
     parser.add_argument(
         "--valid-output",
         type=str,
-        required=True,
         help="Path where the filtered valid scenarios CSV will be written.",
     )
     parser.add_argument(
         "--ground-truth-output",
         type=str,
-        required=True,
         help="Path where the ground‑truth match CSV will be written.",
     )
+    # New, concise arguments (used by quickstart)
+    parser.add_argument(
+        "--input",
+        type=str,
+        help="Alias for ``--candidates-csv`` (required by quickstart).",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Alias for ``--valid-output`` (required by quickstart).",
+    )
     args = parser.parse_args()
+
+    # Resolve defaults / aliases
+    # Annotations directory defaults to the standard location if not supplied
+    if not args.annotations_dir:
+        args.annotations_dir = str(Path("data/raw/human_coding"))
+    # Ground‑truth output defaults to the canonical location
+    if not args.ground_truth_output:
+        args.ground_truth_output = str(Path("data/processed/ground_truth_match.csv"))
+    # Map the concise aliases to the legacy names
+    if args.input:
+        args.candidates_csv = args.input
+    if args.output:
+        args.valid_output = args.output
+
+    # Final sanity checks – the script cannot run without these three paths
+    missing = []
+    if not args.annotations_dir:
+        missing.append("--annotations-dir")
+    if not args.candidates_csv:
+        missing.append("--candidates-csv (or --input)")
+    if not args.valid_output:
+        missing.append("--valid-output (or --output)")
+    if missing:
+        parser.error(
+            f"The following required arguments are missing: {', '.join(missing)}"
+        )
+    return args
+
+def main():
+    args = _parse_args()
 
     # Resolve paths via llmxive_toolkit for consistency
     annotations_dir = Path(args.annotations_dir)
@@ -129,8 +183,6 @@ def main():
     # ------------------------------------------------------------------
     # 3. Compute per‑scenario mean rating (using *all* retained ratings)
     # ------------------------------------------------------------------
-    # Merge the original (filtered‑by‑annotator‑count) annotations back
-    # to compute the mean rating per scenario.
     sufficient_scenarios = processed_df["scenario_id"].unique()
     filtered_annotations = annotations_df[
         annotations_df["scenario_id"].isin(sufficient_scenarios)

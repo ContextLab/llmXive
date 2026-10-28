@@ -1,14 +1,19 @@
 status: none
-intent: CodedotAI code_clippy_github dataset clip-vit-base-patch32 model BERT MoralD
+intent: download CodedotAI code_clippy_github Visual Genome CLMM Benchmark MoralD
   python package dataset
 required_fields:
 - image_id
 - image_url
-- metadata
-- bounding_box
+- image_file_path
+- source_dataset_name
+- bounding_boxes
+- roi_bbox
 - moral_ambiguity_label
-- region_mask
-- original_image_path
-cache_key: a94c7bccd4001cbc35af2de2c76d3ea0431aa4c74e75e37c2db0ab6eb5ecbf43
-searched_at: '2026-10-28T00:16:35.553537+00:00'
+- clip_cosine_similarity
+- rms_contrast_change_percent
+- texture_change_metric
+- edge_density_change_metric
+- human_coder_validation_score
+cache_key: e5999b82e5bd8ec8867686f8bb334de3cf8fc50356c8b85836b73c7e8eecf072
+searched_at: '2026-10-28T22:19:00.668253+00:00'
 retry_count: 1
