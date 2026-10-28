@@ -1,14 +1,9 @@
 status: none
-intent: speedrun.com API download run times runner IDs attempt numbers category dates
-  python package dataset
-required_fields:
-- run_time_seconds
-- runner_id
-- attempt_number
-- category
-- submission_date
-- game_id
-- run_id
-cache_key: dbaf2103c691960a4ac4d2db2a689a3842982813a91f1a79c1b58e10c8ef1838
-searched_at: '2026-10-24T03:44:29.331072+00:00'
+intent: "### User Story 1 - Data Acquisition and Preprocessing (Priority: P1) As a\
+  \ researcher, I want to download and clean speedrun data from speedrun.com for multiple\
+  \ games so that I have a validated dataset ready for statistical analysis. **Why\
+  \ this priority**: This is the foundational step\u2014without clean,"
+required_fields: []
+cache_key: ff9e3842a3d303981830c7d27e98a15b3899feb9d7767e1d4fecb6cedf7d6fca
+searched_at: '2026-10-28T06:29:07.958008+00:00'
 retry_count: 1
