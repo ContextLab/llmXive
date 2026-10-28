@@ -1,9 +1,39 @@
-status: none
-intent: '### User Story 1 - Download and Filter Real-World Datasets (US-1) (Priority:
-  P1) As a researcher, I want to download and filter public datasets from UCI and
-  OpenML that contain continuous variables and known group labels, so that I have
-  valid real-world non-normal data for transformation analysis. *'
-required_fields: []
-cache_key: e50d2fbfe19f03dd6048e69c0f80a6b81c229fff6745618d513daa74cc4bcbb7
-searched_at: '2026-10-28T02:10:53.851335+00:00'
-retry_count: 1
+status: verified
+kind: pypi_package
+ref: openml
+access_python: "import pandas as pd, openml\n\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
+  # Keep only classification\u2011type datasets (NumberOfClasses defined and > 1)\n\
+  if 'NumberOfClasses' in df.columns:\n    df = df[df['NumberOfClasses'].notnull()\
+  \ & (df['NumberOfClasses'] > 1)]\nrecords = len(df)\nprint(f\"RECORDS={records}\"\
+  )\n\n# Mapping of required fields to OpenML column names (None means not directly\
+  \ available)\nrequired_map = {\n    'dataset_id': 'did',\n    'dataset_name': 'name',\n\
+  \    'source_repository': None,\n    'download_url': 'url',\n    'sha256_checksum':\
+  \ None,\n    'num_instances': 'NumberOfInstances',\n    'num_numeric_features':\
+  \ 'NumberOfNumericFeatures',\n    'num_categorical_features': 'NumberOfCategoricalFeatures',\n\
+  \    'target_variable_name': 'default_target_attribute',\n    'target_type': None,\n\
+  \    'continuous_feature_names': None,\n    'shapiro_wilk_pvalues': None\n}\npresent_fields\
+  \ = [field for field, col in required_map.items() if col and col in df.columns]\n\
+  print('FIELDS=' + ','.join(present_fields))"
+record_count: 2728
+sample_fields:
+- dataset_id
+- dataset_name
+- num_instances
+- num_numeric_features
+field_coverage: 0.5
+required_fields:
+- dataset_id
+- dataset_name
+- source_repository
+- download_url
+- sha256_checksum
+- num_instances
+- num_numeric_features
+- num_categorical_features
+- target_variable_name
+- target_type
+- continuous_feature_names
+- shapiro_wilk_pvalues
+intent: UCI Machine Learning Repository OpenML HuggingFace downloadable classification
+  datasets python package dataset
+cache_key: cc1e16d47d800f2f09fdee4df421526123793e3cb02d681f675de839846598b7
