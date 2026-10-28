@@ -6,8 +6,10 @@ required_fields:
 - energy
 - d_band_center
 - p_band_center
-- bader_charge
+- bader_charges
 - log_TOF
-cache_key: c2266fdd005312ba1550775bc36708a4197812ef3e0ca868c89b7aee54279b5e
-searched_at: '2026-10-27T20:10:21.582494+00:00'
+- material_id
+- source
+cache_key: 6d97ce06b1a61228c75b6cf5c14f3e63b18d5a16c5df86f144de496e25b7d191
+searched_at: '2026-10-28T01:12:43.791488+00:00'
 retry_count: 1
