@@ -1,5 +1,5 @@
 status: none
-intent: General Social Survey news consumption anxiety variables download python package
+intent: General Social Survey Pew Research YouGov survey data download python package
   dataset
 required_fields:
 - news_exposure_freq
@@ -8,12 +8,6 @@ required_fields:
 - age
 - gender
 - social_media_engagement
-- SES
-- total_media_use
-- instrument_source
-- measurement_timepoint
-- proxy_flag
-- proxy_validated
-cache_key: a4791eed9e433255cb50a3b6488d43201bc0b880d67d69b5095e50d31ec66c59
-searched_at: '2026-10-27T12:30:38.778095+00:00'
+cache_key: fd91a78a48bae076d3edc22d0e85d1eb7abcaf6553e270e7556014e1ff1a9c82
+searched_at: '2026-10-28T22:08:50.303380+00:00'
 retry_count: 1
