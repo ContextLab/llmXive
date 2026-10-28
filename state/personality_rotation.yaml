@@ -1,14 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-10-28T12:11:02.962007+00:00'
-last_outcome: model_error
+last_used: rosalind-franklin
+last_used_at: '2026-10-28T14:05:46.468692+00:00'
+last_outcome: abstained
 history:
-- slug: richard-feynman
-  started_at: '2026-06-29T13:42:09.090500+00:00'
-  ended_at: '2026-06-29T15:19:42.302494+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-675-comparing-born-model-predictions-with-ex/reviews/research/richard-feynman-simulated__2026-06-29__research.md
 - slug: rosalind-franklin
   started_at: '2026-06-29T15:19:42.302494+00:00'
   ended_at: '2026-06-29T17:08:50.118770+00:00'
@@ -1308,3 +1301,7 @@ history:
   started_at: '2026-10-28T02:05:38.707616+00:00'
   ended_at: '2026-10-28T12:11:02.962007+00:00'
   outcome: model_error
+- slug: rosalind-franklin
+  started_at: '2026-10-28T12:11:02.962007+00:00'
+  ended_at: '2026-10-28T14:05:46.468692+00:00'
+  outcome: abstained
