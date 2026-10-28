@@ -29,6 +29,7 @@ import io
 import zipfile
 import tempfile
 import shutil
+import sys
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -57,13 +58,34 @@ FALLBACK_DATA_URL = (
 # ----------------------------------------------------------------------
 def _load_schema() -> Dict[str, Any]:
     """
-    Load the dataset JSON‑schema from ``contracts/dataset.schema.yaml``.
+    Load the dataset JSON‑schema from one of the known locations.
+    The schema lives under ``specs/001-predicting-the-yield-strength-of-high-en/contracts``.
+    As a fallback we also check a legacy ``contracts`` directory at the project root.
     """
-    schema_path = Path(__file__).resolve().parents[2] / "contracts" / "dataset.schema.yaml"
-    if not schema_path.is_file():
-        raise FileNotFoundError(f"Dataset schema not found at {schema_path}")
-    with schema_path.open("r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    possible_paths = [
+        # Legacy location (project root)
+        Path(__file__).resolve().parents[2] / "contracts" / "dataset.schema.yaml",
+        # Official location inside specs
+        Path.cwd()
+        / "specs"
+        / "001-predicting-the-yield-strength-of-high-en"
+        / "contracts"
+        / "dataset.schema.yaml",
+        # In case the script is run from a different cwd, resolve relative to this file
+        Path(__file__).resolve().parents[3]
+        / "specs"
+        / "001-predicting-the-yield-strength-of-high-en"
+        / "contracts"
+        / "dataset.schema.yaml",
+    ]
+    for schema_path in possible_paths:
+        if schema_path.is_file():
+            with schema_path.open("r", encoding="utf-8") as f:
+                return yaml.safe_load(f)
+    raise FileNotFoundError(
+        "Dataset schema not found. Checked locations: "
+        + ", ".join(str(p) for p in possible_paths)
+    )
 
 def _validate_row(row: Dict[str, Any], schema: Dict[str, Any]) -> None:
     """
@@ -99,10 +121,14 @@ def _extract_csv_from_zip(zip_path: Path) -> Path:
     with zipfile.ZipFile(zip_path, "r") as zf:
         for member in zf.namelist():
             if member.lower().endswith(".csv"):
-                with zf.open(member) as src, tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp:
+                with zf.open(member) as src, tempfile.NamedTemporaryFile(
+                    delete=False, suffix=".csv"
+                ) as tmp:
                     shutil.copyfileobj(src, tmp)
                     return Path(tmp.name)
-    raise RuntimeError(f"No CSV file found inside ZIP archive {zip_path}")
+    raise RuntimeError(
+        f"No CSV file found inside ZIP archive {zip_path}"
+    )
 
 def _download_from_zenodo(search_query: str = "high entropy alloy yield strength") -> Path:
     """
@@ -110,7 +136,9 @@ def _download_from_zenodo(search_query: str = "high entropy alloy yield strength
     record that contains a CSV file (or a ZIP containing a CSV), and download
     that file. Returns the temporary ``Path`` to the downloaded CSV.
     """
-    logger.info(f"Searching Zenodo for dataset matching query: '{search_query}'")
+    logger.info(
+        f"Searching Zenodo for dataset matching query: '{search_query}'"
+    )
     api_url = "https://zenodo.org/api/records"
     params = {"q": search_query, "size": 20, "sort": "mostviewed"}
     response = requests.get(api_url, params=params, timeout=30)
@@ -118,7 +146,9 @@ def _download_from_zenodo(search_query: str = "high entropy alloy yield strength
     records = response.json().get("hits", {}).get("hits", [])
 
     if not records:
-        raise RuntimeError(f"No Zenodo records found for query '{search_query}'")
+        raise RuntimeError(
+            f"No Zenodo records found for query '{search_query}'"
+        )
 
     for rec in records:
         files = rec.get("files", [])
@@ -138,7 +168,9 @@ def _download_from_zenodo(search_query: str = "high entropy alloy yield strength
                 zip_tmp.unlink(missing_ok=True)
                 return csv_path
 
-    raise RuntimeError("No suitable CSV (or ZIP containing CSV) found in Zenodo search results")
+    raise RuntimeError(
+        "No suitable CSV (or ZIP containing CSV) found in Zenodo search results"
+    )
 
 def _parse_composition(comp_str: str) -> Dict[str, float]:
     """
@@ -152,7 +184,9 @@ def _parse_composition(comp_str: str) -> Dict[str, float]:
     pattern = r"([A-Z][a-z]?)(?:\(?([0-9]*\.?[0-9]+)\)?)"
     matches = re.findall(pattern, comp_str)
     if not matches:
-        raise ValueError(f"Unable to parse composition string: '{comp_str}'")
+        raise ValueError(
+            f"Unable to parse composition string: '{comp_str}'"
+        )
     composition = {}
     for element, fraction in matches:
         composition[element] = float(fraction)
@@ -190,7 +224,9 @@ def fetch_heas() -> Path:
     dataset_url = config.get("hea_dataset_url")  # user‑provided URL, optional
 
     if dataset_url:
-        logger.info(f"Downloading HEA dataset from configured URL: {dataset_url}")
+        logger.info(
+            f"Downloading HEA dataset from configured URL: {dataset_url}"
+        )
         csv_path = Path.cwd() / "data" / "raw" / "heas_raw_downloaded.csv"
         _download_file(dataset_url, csv_path)
     else:
@@ -199,7 +235,9 @@ def fetch_heas() -> Path:
         try:
             csv_path = _download_from_zenodo()
         except Exception as zen_err:
-            logger.warning(f"Zenodo search failed ({zen_err}); using fallback URL.")
+            logger.warning(
+                f"Zenodo search failed ({zen_err}); using fallback URL."
+            )
             csv_path = Path.cwd() / "data" / "raw" / "heas_raw_fallback.csv"
             _download_file(FALLBACK_DATA_URL, csv_path)
 
@@ -220,8 +258,7 @@ def fetch_heas() -> Path:
     # Validate each row and ensure ``composition`` is a JSON‑encoded dict
     # ------------------------------------------------------------------
     for idx, row in enumerate(rows, start=1):
-        # The fallback CSV may use a column named 'Composition' or similar.
-        # Normalise the column name to ``composition``.
+        # Normalise column names that may differ in source files.
         if "Composition" in row and "composition" not in row:
             row["composition"] = row.pop("Composition")
         if "AlloyID" in row and "alloy_id" not in row:
@@ -242,17 +279,26 @@ def fetch_heas() -> Path:
             try:
                 row["yield_strength"] = float(row["yield_strength"])
             except (TypeError, ValueError):
-                raise ValueError(f"Row {idx}: yield_strength must be numeric")
+                raise ValueError(
+                    f"Row {idx}: yield_strength must be numeric"
+                )
 
         try:
             _validate_row(row, schema)
         except ValueError as exc:
-            raise ValueError(f"Validation failed for row {idx}: {exc}") from exc
+            raise ValueError(
+                f"Validation failed for row {idx}: {exc}"
+            ) from exc
 
     # ------------------------------------------------------------------
     # Write the validated data to the canonical location
     # ------------------------------------------------------------------
-    output_path = Path(__file__).resolve().parents[2] / "data" / "raw" / "heas_raw.csv"
+    output_path = (
+        Path(__file__).resolve().parents[2]
+        / "data"
+        / "raw"
+        / "heas_raw.csv"
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info(f"Writing validated dataset to {output_path}")
 
@@ -267,7 +313,9 @@ def fetch_heas() -> Path:
                 row["composition"] = json.dumps(row["composition"])
             writer.writerow(row)
 
-    logger.info("HEA dataset download and validation completed successfully")
+    logger.info(
+        "HEA dataset download and validation completed successfully"
+    )
     return output_path
 
 # ----------------------------------------------------------------------
