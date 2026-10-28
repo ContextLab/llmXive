@@ -1,43 +1,9 @@
-status: verified
-kind: pypi_package
-ref: openml
-access_python: "import openml, pandas as pd\n\ndef safe_int(val):\n    return int(val)\
-  \ if pd.notna(val) else None\n\ndef safe_float(val):\n    return float(val) if pd.notna(val)\
-  \ else None\n\ndf = openml.datasets.list_datasets(output_format=\"dataframe\")\n\
-  records = []\nfor _, r in df.iterrows():\n    n_instances = safe_int(r[\"NumberOfInstances\"\
-  ])\n    n_missing = safe_int(r[\"NumberOfMissingValues\"])\n    rec = {\n      \
-  \  \"dataset_id\": safe_int(r[\"did\"]),\n        \"name\": r[\"name\"],\n     \
-  \   \"source\": r.get(\"source\", None),\n        \"task_type\": r.get(\"format\"\
-  , None),\n        \"n_samples\": safe_int(r[\"NumberOfInstances\"]),\n        \"\
-  n_features\": safe_int(r[\"NumberOfFeatures\"]),\n        \"n_continuous_features\"\
-  : safe_int(r[\"NumberOfNumericFeatures\"]),\n        \"target_name\": r.get(\"default_target_attribute\"\
-  , None),\n        \"missing_percentage\": (\n            (n_missing / n_instances\
-  \ * 100) if n_instances and n_missing is not None else None\n        ),\n      \
-  \  \"download_url\": r.get(\"url\", None),\n    }\n    records.append(rec)\n\nprint(f\"\
-  RECORDS={len(records)}\")\nfirst = records[0] if records else {}\nfields = [k for\
-  \ k, v in first.items() if v is not None]\nprint(\"FIELDS=\" + \",\".join(fields))"
-record_count: 6697
-sample_fields:
-- dataset_id
-- name
-- task_type
-- n_samples
-- n_features
-- n_continuous_features
-- missing_percentage
-field_coverage: 0.75
-required_fields:
-- dataset_id
-- name
-- source
-- task_type
-- n_samples
-- n_features
-- n_continuous_features
-- target_name
-- target_type
-- missing_percentage
-- download_url
-- sha256_checksum
-intent: UCI Machine Learning Repository OpenML dataset catalog python package dataset
-cache_key: d3a9b20c77477a6448ea1a205acb65139afee8d1b576e71b809d00d812e72b8f
+status: none
+intent: '### User Story 1 - Download and Filter Real-World Datasets (US-1) (Priority:
+  P1) As a researcher, I want to download and filter public datasets from UCI and
+  OpenML that contain continuous variables and known group labels, so that I have
+  valid real-world non-normal data for transformation analysis. *'
+required_fields: []
+cache_key: e50d2fbfe19f03dd6048e69c0f80a6b81c229fff6745618d513daa74cc4bcbb7
+searched_at: '2026-10-28T02:10:53.851335+00:00'
+retry_count: 1
