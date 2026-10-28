@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-28T16:12:19.024715+00:00",
+  "generated_at": "2026-10-28T16:31:50.315479+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -35946,6 +35946,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 5.342525,
+          "ended_at": "2026-10-28T16:12:13.248125Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T16:12:07.905600Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 137.862418,
           "ended_at": "2026-10-28T12:11:19.489469Z",
           "model": "zai-org.glm-5.3",
@@ -36015,14 +36023,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-24T13:29:01.868803Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1320.809114,
-          "ended_at": "2026-10-24T13:28:46.534350Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-24T13:06:45.725236Z"
         }
       ],
       "paper_status": null,
@@ -175682,6 +175682,18 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 5.342525,
+      "ended_at": "2026-10-28T16:12:13.248125Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-033-predicting-material-properties-from-comp",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-28T16:12:07.905600Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 3.79861,
       "ended_at": "2026-10-28T16:11:18.609133Z",
       "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
@@ -181718,18 +181730,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-26T09:28:30.546157Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 61.057999,
-      "ended_at": "2026-10-26T09:28:30.542526Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-104-evaluating-the-use-of-llms-for-automated",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T09:27:29.484527Z"
     }
   ],
   "reviewed_preprints": [
