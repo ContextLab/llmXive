@@ -1,16 +1,15 @@
 status: none
-intent: Defects4J v2.0 Java buggy methods dataset download pip installable python
-  package dataset
+intent: Defects4J v2.0 python package dataset download buggy methods ground truth
 required_fields:
 - participant_id
 - task_id
 - condition
 - timestamp_ms
-- selected_line_number
-- ground_truth_buggy_line
-- project_name
-- method_name
-- buggy_method_id
-cache_key: a59446dfc38d1bdd7db599d117667b5bb06d28f6bb7d1f10876e8383112bbe91
-searched_at: '2026-10-28T18:20:55.234252+00:00'
+- selected_line
+- ground_truth_line
+- project
+- buggy_method
+- bug_id
+cache_key: ce1040e7463c657bd8d42b42da067f30daf69e4d7c1fe3881356ae1680991cb3
+searched_at: '2026-10-28T21:07:38.894282+00:00'
 retry_count: 1
