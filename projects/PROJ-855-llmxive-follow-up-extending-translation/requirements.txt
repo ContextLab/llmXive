@@ -1,18 +1,5 @@
-# Core dependencies (available in the base environment)
-numpy
-pandas
-scipy
-matplotlib
-scikit-learn
-statsmodels
-seaborn
-pytest
-PyYAML
-requests
-jsonschema
-psutil
-
-# Additional packages required for this project
-pybullet==3.2.5
-pyarrow>=12.0.0
-# torch is already available in the base environment (CPU‑only) and does not need to be listed here.
+# Existing dependencies are assumed to be present.
+# Adding explicit requirement for Parquet support.
+pyarrow>=13.0.0
+# (Optional) fastparquet can be used as an alternative engine.
+fastparquet>=0.8.0

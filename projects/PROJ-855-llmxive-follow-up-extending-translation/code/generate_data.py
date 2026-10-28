@@ -99,10 +99,28 @@ def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
 def setup_pybullet(config: Dict[str, Any]) -> int:
     """Initialize a head‑less PyBullet client."""
     physics_client = p.connect(p.DIRECT)
-    p.setAdditionalSearchPath(pybullet_data.getDataPath())
+    data_path = pybullet_data.getDataPath()
+    p.setAdditionalSearchPath(data_path)
     p.setGravity(0, 0, config["simulation"]["gravity"])
     p.setTimeStep(config["simulation"]["time_step"])
     return physics_client
+
+# ----------------------------------------------------------------------
+# Helper to load a URDF with a fallback to an absolute path
+# ----------------------------------------------------------------------
+def _load_urdf(file_name: str, *load_args, **load_kwargs):
+    """
+    Load a URDF file. First tries the regular PyBullet search path; if that fails,
+    constructs an absolute path using ``pybullet_data.getDataPath()``.
+    """
+    try:
+        return p.loadURDF(file_name, *load_args, **load_kwargs)
+    except Exception as exc:
+        # Construct absolute path as a fallback
+        abs_path = os.path.join(pybullet_data.getDataPath(), file_name)
+        if not os.path.isfile(abs_path):
+            raise FileNotFoundError(f"URDF file not found: {file_name} (tried {abs_path})") from exc
+        return p.loadURDF(abs_path, *load_args, **load_kwargs)
 
 # ----------------------------------------------------------------------
 # Scene creation
@@ -113,16 +131,16 @@ def create_robot_and_object(physics_client: int, geometry_type: str) -> Tuple[in
     geometric object. Returns the robot body id and the object body id.
     """
     # Load a flat ground plane
-    p.loadURDF("plane.urdf", physicsClientId=physics_client)
+    _load_urdf("plane.urdf", physicsClientId=physics_client)
 
     # Dummy robot – forces are applied directly to the object.
     start_pos = [0, 0, 0]
     start_ori = p.getQuaternionFromEuler([0, 0, 0])
-    robot_id = p.loadURDF(
+    robot_id = _load_urdf(
         "r2d2.urdf", start_pos, start_ori, physicsClientId=physics_client
     )
 
-    # Map geometry identifiers to URDFs that are guaranteed to exist in
+    # Map geometry identifiers to URDFs that are known to exist in
     # ``pybullet_data``. If a mapping is missing we fall back to a generic
     # small cube to keep the pipeline deterministic.
     urdf_map = {
@@ -135,7 +153,7 @@ def create_robot_and_object(physics_client: int, geometry_type: str) -> Tuple[in
         "sphere_large": "sphere2.urdf",    # ``sphere2.urdf`` exists as a larger sphere
     }
     urdf_name = urdf_map.get(geometry_type, "cube_small.urdf")
-    obj_id = p.loadURDF(
+    obj_id = _load_urdf(
         urdf_name, [0, 0, 1], physicsClientId=physics_client
     )
 
