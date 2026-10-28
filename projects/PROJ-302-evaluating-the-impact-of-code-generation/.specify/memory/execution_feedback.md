@@ -21,9 +21,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py --full-run -> rc=-1
 
-2026-10-27 17:14:02,409 INFO __main__: Running main() of 'code.data_acquisition' for stage 'data_acquisition'.
-2026-10-27 17:14:02,409 INFO code.data_acquisition.data_acquisition: Fetching PRs for tensorflow/tensorflow
-2026-10-27 17:14:35,950 WARNING code.data_acquisition.data_acquisition: Rate limit exceeded, sleeping for 2633s before retry.
+2026-10-28 15:17:19,277 INFO __main__: Running main() of 'code.data_acquisition' for stage 'data_acquisition'.
+2026-10-28 15:17:19,277 INFO code.data_acquisition.data_acquisition: Fetching PRs for tensorflow/tensorflow
+2026-10-28 15:17:55,444 WARNING code.data_acquisition.data_acquisition: Rate limit exceeded, sleeping for 3347s before retry.
 
 [TIMEOUT after 120s]
 
@@ -80,6 +80,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
   Make ONE of these WRITE `data/raw/commit_messages.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/synthetic/context_based.parquet` is declared but was NOT written. Scripts referencing it:
     - `code/data_acquisition/cohort_analyzer.py` — NOT invoked by the run-book
+    - `code/feature_extraction.py` — NOT invoked by the run-book
     - `code/synthetic_generation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/synthetic/context_based.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/synthetic/validation.json` is declared but was NOT written. Scripts referencing it:

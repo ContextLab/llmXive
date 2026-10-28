@@ -17,6 +17,8 @@ T004:
     exit=1'
   task: cbe32e240ace677d7572bb6d4fc39276cffc563f5b601349b6003131b4b1ee01
 T005:
+  reason: 'Requested task execution failed; rerun successfully: code/feature_extraction.py
+    exit=1'
   task: 1005478d42f19ef5156abbffd8bf39e8ada3e19d7f598caf8ceb7849d53d3cca
 T006:
   task: 15f6feb0aee45aa6c664e9702e60c7a2d96c735171131641f3c49821c8aaad6d

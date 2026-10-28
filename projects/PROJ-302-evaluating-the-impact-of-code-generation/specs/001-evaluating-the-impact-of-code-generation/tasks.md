@@ -22,14 +22,14 @@ All tasks are expressed as canonical checklist items; unchecked boxes indicate w
   *Implement `code/prompt_engineering.py` that reads `data/raw/commit_messages.parquet`, derives a natural‑language prompt for each PR (e.g., “Write a medium‑complexity change that implements …”), and writes `data/processed/intent_prompts.parquet` containing `pr_id`, `prompt`, and a `complexity_indicator` field.*  
   - **Verification**: `intent_prompts.parquet` exists; a random sample shows non‑empty `prompt` strings and a valid `complexity_indicator` (simple / moderate / complex); all `pr_id`s match those in the raw PR files.
 
-- [ ] T004 [US‑4] **Synthetic code generation (both cohorts)** – `code/synthetic_generation.py`, `data/synthetic/context_based.parquet`, `data/synthetic/prompt_based.parquet`   <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 -->
+- [ ] T004 [US‑4] **Synthetic code generation (both cohorts)** – `code/synthetic_generation.py`, `data/synthetic/context_based.parquet`, `data/synthetic/prompt_based.parquet`   <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/synthetic_generation.py exit=1 --> <!-- FAILED: unspecified -->
   *Using the CPU‑tractable **CodeLlama‑7B‑4bit‑GGUF** model, generate two LLM cohorts:*  
   1. **Context‑based** – feed the original code snippet together with its prompt.  
   2. **Prompt‑only** – feed only the NL prompt derived in T003.  
   *Generate at least 100 snippets per cohort for the pilot run. Write the results to the parquet files above. Enforce ≤ 30 s per snippet and record a syntax‑validity rate ≥ 0.95 (AST parse success) in `data/synthetic/validation.json`.*  
   - **Verification**: Both parquet files exist; all `generation_time_sec` ≤ 30; `validation.json` reports `syntax_validity_rate` ≥ 0.95; model version and generation parameters are present for every row.
 
-- [ ] T005 [US‑1] **Feature extraction & covariate configuration** – `code/feature_extraction.py`, `data/processed/merged_features.parquet`, `data/processed/covariate_config.json`  
+- [ ] T005 [US‑1] **Feature extraction & covariate configuration** – `code/feature_extraction.py`, `data/processed/merged_features.parquet`, `data/processed/covariate_config.json`   <!-- FAILED-IN-EXECUTION: code/feature_extraction.py exit=1 -->
   *Implement `code/feature_extraction.py` to compute for **all** PRs (human, context‑based, prompt‑based):*  
   - LOC and cyclomatic complexity via `radon` → `file_size_loc`, `complexity_score`.  
   - CI build duration → `ci_build_time`.  
