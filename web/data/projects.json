@@ -28709,7 +28709,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-28T02:09:08.352054+00:00",
+  "generated_at": "2026-10-28T02:26:20.590233+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -31191,6 +31191,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 35.575075,
+          "ended_at": "2026-10-28T02:08:15.004510Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T02:07:39.429435Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 11.474746,
           "ended_at": "2026-10-28T01:08:08.950085Z",
           "model": "zai-org.glm-5.3",
@@ -31260,14 +31268,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-21T06:27:39.885546Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 898.863112,
-          "ended_at": "2026-10-21T06:27:20.631050Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-21T06:12:21.767938Z"
         }
       ],
       "paper_status": null,
@@ -117961,6 +117961,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 4.50594,
+          "ended_at": "2026-10-28T02:10:19.040504Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T02:10:14.534564Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 3.844542,
           "ended_at": "2026-10-28T00:10:31.796168Z",
           "model": "zai-org.glm-5.3",
@@ -118030,14 +118038,6 @@
           "model": "anthropic.claude-haiku-4-5-20251001",
           "outcome": "success",
           "started_at": "2026-10-21T04:32:55.377034Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 188.741759,
-          "ended_at": "2026-10-21T04:32:55.373631Z",
-          "model": "anthropic.claude-haiku-4-5-20251001",
-          "outcome": "success",
-          "started_at": "2026-10-21T04:29:46.631872Z"
         }
       ],
       "paper_status": null,
@@ -128073,6 +128073,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 185.909572,
+          "ended_at": "2026-10-28T02:11:22.790950Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T02:08:16.881378Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 155.792488,
           "ended_at": "2026-10-27T23:11:04.614264Z",
           "model": "zai-org.glm-5.3",
@@ -128142,14 +128150,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-23T19:08:49.279278Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1686.702859,
-          "ended_at": "2026-10-21T21:11:45.427330Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-21T20:43:38.724471Z"
         }
       ],
       "paper_status": null,
@@ -176586,6 +176586,42 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 185.909572,
+      "ended_at": "2026-10-28T02:11:22.790950Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-533-evaluating-the-impact-of-data-transforma",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-28T02:08:16.881378Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.50594,
+      "ended_at": "2026-10-28T02:10:19.040504Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-474-neural-correlates-of-simulated-social-ex",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-28T02:10:14.534564Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 35.575075,
+      "ended_at": "2026-10-28T02:08:15.004510Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-008-psychology-research",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-28T02:07:39.429435Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 3.810889,
       "ended_at": "2026-10-28T02:08:14.904924Z",
@@ -182593,42 +182629,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-26T04:35:51.149545Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 0.039339,
-      "ended_at": "2026-10-26T04:35:43.325921Z",
-      "failure_reason": "",
-      "model": "deterministic-no-llm",
-      "outcome": "skipped",
-      "project_id": "PROJ-1064-llmxive-follow-up-extending-lightmem-ego",
-      "project_stage": "clarified",
-      "severity": "soft",
-      "started_at": "2026-10-26T04:35:43.286582Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 116.885031,
-      "ended_at": "2026-10-26T04:35:33.864372Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-1064-llmxive-follow-up-extending-lightmem-ego",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-26T04:33:36.979341Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 605.816781,
-      "ended_at": "2026-10-26T04:33:22.777233Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-1064-llmxive-follow-up-extending-lightmem-ego",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-26T04:23:16.960452Z"
     }
   ],
   "reviewed_preprints": [
