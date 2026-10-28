@@ -1,9 +1,6 @@
 T001:
-  reason: "The `data/` directory is missing entirely, and the `code/` and `tests/`\
-    \ directories are populated with many files rather than being empty as required.\
-    \ The scaffold verification log claims the directories exist, but the current\
-    \ repository state does not contain an empty `data/` folder, so the task\u2019\
-    s requirement is not satisfied."
+  reason: 'Requested task execution failed; rerun successfully: code/verify_scaffold.py
+    exit=1'
   task: a7e90cb3f3caf66afdca832e1b96310acebd921a5b895f1ba540129131159dfd
 T002:
   reason: 'Requested task execution failed; rerun successfully: code/setup_requirements.py

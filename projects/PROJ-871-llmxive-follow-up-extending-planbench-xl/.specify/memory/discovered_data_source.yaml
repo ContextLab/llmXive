@@ -1,11 +1,15 @@
 status: none
-intent: PlanBench-XL dataset download from HuggingFace python package dataset
+intent: download PlanBench-XL dataset python package including implicit failure subset
+  ground truth
 required_fields:
 - task_id
 - task_description
-- ground_truth_status
+- plan_steps
+- tool_calls
+- failure_type
 - implicit_failure_flag
-- tool_actions
-cache_key: 38c7bbb837f51fe679f83f88261900e3ba95a8e2b6fd5a04e15cf91a80adedf4
-searched_at: '2026-10-24T01:05:55.810404+00:00'
+- ground_truth_status
+- metadata
+cache_key: 235521cc5d775da50cb1c58fbff960bf89dde0e100e4d373fdfcfa92e033297c
+searched_at: '2026-10-28T21:11:18.381683+00:00'
 retry_count: 1

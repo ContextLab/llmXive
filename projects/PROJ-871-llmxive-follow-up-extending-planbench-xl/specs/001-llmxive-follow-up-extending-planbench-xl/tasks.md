@@ -7,7 +7,7 @@
 
 ## Phase 0 – Project scaffolding (foundational, must be completed before any user‑story work)
 
-- [ ] **T001** Create the project root `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/` with sub‑directories `code/`, `data/`, `tests/` (and the nested folders listed in `plan.md`).  
+- [ ] **T001** Create the project root `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/` with sub‑directories `code/`, `data/`, `tests/` (and the nested folders listed in `plan.md`).   <!-- FAILED-IN-EXECUTION: code/verify_scaffold.py exit=1 -->
   *Artifact*: empty directories at the paths above.  
   **Verification**: run a script that asserts `code/`, `data/`, and `tests/` exist.
 

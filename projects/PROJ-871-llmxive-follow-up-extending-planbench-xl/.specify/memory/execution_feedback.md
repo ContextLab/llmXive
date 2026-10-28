@@ -60,7 +60,7 @@ ERROR tests/unit/test_extractor.py
 ERROR tests/unit/test_loader.py
 ERROR tests/unit/test_stats.py - NameError: name 'Path' is not defined
 !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 2.39s ===============================
+============================== 5 errors in 2.32s ===============================
 
 
 

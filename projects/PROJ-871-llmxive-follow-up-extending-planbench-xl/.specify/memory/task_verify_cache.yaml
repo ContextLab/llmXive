@@ -1,12 +1,3 @@
-T001:
-  c: false
-  h: 107ac24bd60739a4e87a7ef679d9d173b0c1ef09df9ec51ee33e9a4af49cd569
-  r: "The `data/` directory is missing entirely, and the `code/` and `tests/` directories\
-    \ are populated with many files rather than being empty as required. The scaffold\
-    \ verification log claims the directories exist, but the current repository state\
-    \ does not contain an empty `data/` folder, so the task\u2019s requirement is\
-    \ not satisfied."
-  sig: ae572fe7acab0a659cbe86ebde7332b5203e2488179662481a017d66ee0fe7fc
 T003:
   c: false
   h: f3cb94143bf25cc749091ff8105c6ef61841c9fdd1387f273ed7f4f5279f8e06
