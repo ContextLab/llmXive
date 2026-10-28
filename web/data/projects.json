@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-28T08:27:18.190359+00:00",
+  "generated_at": "2026-10-28T08:37:56.022092+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -31196,6 +31196,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1080.950711,
+          "ended_at": "2026-10-28T08:27:40.466579Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T08:09:39.515868Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1085.441721,
           "ended_at": "2026-10-28T05:25:37.706074Z",
           "model": "zai-org.glm-5.3",
@@ -31265,14 +31273,6 @@
           "model": "deterministic-no-llm",
           "outcome": "skipped",
           "started_at": "2026-10-21T06:47:32.650578Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 188.104711,
-          "ended_at": "2026-10-21T06:47:22.377866Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-21T06:44:14.273155Z"
         }
       ],
       "paper_status": null,
@@ -35946,6 +35946,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 1091.503813,
+          "ended_at": "2026-10-28T08:28:08.327925Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T08:09:56.824112Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1085.155157,
           "ended_at": "2026-10-28T07:26:21.067765Z",
           "model": "zai-org.glm-5.3",
@@ -36015,14 +36023,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-20T14:31:41.104784Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 110.594992,
-          "ended_at": "2026-10-20T14:31:41.100960Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "success",
-          "started_at": "2026-10-20T14:29:50.505968Z"
         }
       ],
       "paper_status": null,
@@ -127327,6 +127327,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 1293.319677,
+          "ended_at": "2026-10-28T08:29:27.635469Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T08:07:54.315792Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 185.909572,
           "ended_at": "2026-10-28T02:11:22.790950Z",
           "model": "zai-org.glm-5.3",
@@ -127396,14 +127404,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-23T20:09:52.728765Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 983.88368,
-          "ended_at": "2026-10-23T19:25:13.162958Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "failed",
-          "started_at": "2026-10-23T19:08:49.279278Z"
         }
       ],
       "paper_status": null,
@@ -175680,6 +175680,42 @@
   ],
   "recent_activity": [
     {
+      "agent": "planner",
+      "duration_s": 1293.319677,
+      "ended_at": "2026-10-28T08:29:27.635469Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-533-evaluating-the-impact-of-data-transforma",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-28T08:07:54.315792Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1091.503813,
+      "ended_at": "2026-10-28T08:28:08.327925Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-033-predicting-material-properties-from-comp",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-28T08:09:56.824112Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1080.950711,
+      "ended_at": "2026-10-28T08:27:40.466579Z",
+      "failure_reason": "BackendUnavailable: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['zai-org.glm-5.3', 'openai.gpt-oss-120b', 'google.gemma-4-31B-it', 'anthropic",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-008-psychology-research",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-28T08:09:39.515868Z"
+    },
+    {
       "agent": "implementer",
       "duration_s": 1080.095981,
       "ended_at": "2026-10-28T08:26:33.656701Z",
@@ -181687,42 +181723,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-26T07:26:24.070568Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 577.483839,
-      "ended_at": "2026-10-26T06:57:00.235593Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-250-neural-correlates-of-temporal-prediction",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-10-26T06:47:22.751754Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 18.935826,
-      "ended_at": "2026-10-26T06:54:21.380022Z",
-      "failure_reason": "TaskFormatError: Tasker must repair ambiguous task identities while preserving requirements. Malformed: ['- [ ] T013d\u2011cont. **[P]** `code/data/graph_builder.py` \u2013 Parse the `structure` column with `py",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "failed",
-      "project_id": "PROJ-169-predicting-the-elastic-moduli-of-2d-mate",
-      "project_stage": "planned",
-      "severity": "hard",
-      "started_at": "2026-10-26T06:54:02.444196Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 27.191055,
-      "ended_at": "2026-10-26T06:51:20.129806Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-1031-llmxive-follow-up-extending-robodojo-a-u",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T06:50:52.938751Z"
     }
   ],
   "reviewed_preprints": [
