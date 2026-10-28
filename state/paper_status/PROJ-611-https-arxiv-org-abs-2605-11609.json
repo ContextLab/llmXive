@@ -11,12 +11,12 @@
         "page": 20
       }
     ],
-    "audited_at": "2026-10-27T23:39:31.862035+00:00"
+    "audited_at": "2026-10-28T00:27:28.931829+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-611-https-arxiv-org-abs-2605-11609",
-  "updated_at": "2026-10-27T23:39:31.862048+00:00"
+  "updated_at": "2026-10-28T00:27:28.931841+00:00"
 }
