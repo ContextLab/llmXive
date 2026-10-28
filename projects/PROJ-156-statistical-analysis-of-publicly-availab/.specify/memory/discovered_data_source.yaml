@@ -1,5 +1,5 @@
 status: none
-intent: speedrun.com API python package speedrunpy download run times dataset
+intent: download speedrun.com leaderboard data API python package dataset
 required_fields:
 - game_id
 - run_time_seconds
@@ -7,6 +7,6 @@ required_fields:
 - attempt_number
 - category
 - submission_date
-cache_key: a242e1fcdee3356146f3c0a2666a642cc759f35da0eee94ea0c5855cee82cfc9
-searched_at: '2026-10-28T17:10:28.220064+00:00'
+cache_key: 99b3c6f15a57023f438955dbac5902f78a25411b3e143a52087b962d7ad767f3
+searched_at: '2026-10-28T23:08:33.759636+00:00'
 retry_count: 1
