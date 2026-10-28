@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-28T17:20:44.241225+00:00",
+  "generated_at": "2026-10-28T18:08:25.869704+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -69010,6 +69010,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 11.687352,
+          "ended_at": "2026-10-28T17:15:07.660668Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T17:14:55.973316Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 11.481133,
           "ended_at": "2026-10-28T14:06:08.497223Z",
           "model": "zai-org.glm-5.3",
@@ -69079,14 +69087,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-26T10:38:20.868263Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 168.622302,
-          "ended_at": "2026-10-26T10:24:21.330183Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-26T10:21:32.707881Z"
         }
       ],
       "paper_status": null,
@@ -158127,6 +158127,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 11.972742,
+          "ended_at": "2026-10-28T18:08:01.490776+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "model_error",
+          "started_at": "2026-10-28T18:07:49.518034+00:00"
+        },
+        {
           "agent": "tasker",
           "duration_s": 649.286695,
           "ended_at": "2026-10-28T15:27:20.451301Z",
@@ -158197,14 +158205,6 @@
           "model": "google.gemma-4-31B-it",
           "outcome": "failed",
           "started_at": "2026-10-09T14:11:12.740934Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 389.931896,
-          "ended_at": "2026-09-28T19:28:29.760467Z",
-          "model": "anthropic.claude-haiku-4-5-20251001",
-          "outcome": "failed",
-          "started_at": "2026-09-28T19:21:59.828571Z"
         }
       ],
       "paper_status": null,
@@ -169443,6 +169443,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 3.876178,
+          "ended_at": "2026-10-28T17:21:48.179173Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-28T17:21:44.302995Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 1072.010234,
           "ended_at": "2026-10-28T06:26:17.841434Z",
           "model": "zai-org.glm-5.3",
@@ -169512,14 +169520,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-20T10:31:12.415641Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 0.034967,
-          "ended_at": "2026-10-20T10:31:03.891097Z",
-          "model": "deterministic-no-llm",
-          "outcome": "skipped",
-          "started_at": "2026-10-20T10:31:03.856130Z"
         }
       ],
       "paper_status": null,
@@ -175681,6 +175681,45 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Stephen Wolfram (simulated)",
+      "duration_s": 11.972742,
+      "ended_at": "2026-10-28T18:08:01.490776+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "stephen-wolfram",
+      "project_id": "PROJ-880-llmxive-follow-up-extending-your-unembed",
+      "project_stage": "tasked",
+      "severity": "hard",
+      "started_at": "2026-10-28T18:07:49.518034+00:00"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 3.876178,
+      "ended_at": "2026-10-28T17:21:48.179173Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-950-llmxive-follow-up-extending-tua-bench-a",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-28T17:21:44.302995Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 11.687352,
+      "ended_at": "2026-10-28T17:15:07.660668Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-198-predicting-plant-secondary-metabolite-pr",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-28T17:14:55.973316Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 127.397444,
       "ended_at": "2026-10-28T17:10:28.936640Z",
@@ -181694,42 +181733,6 @@
       "project_stage": "clarified",
       "severity": "ok",
       "started_at": "2026-10-26T09:19:00.340722Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 754.573507,
-      "ended_at": "2026-10-26T09:40:12.860713Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-849-llmxive-follow-up-extending-agent-explor",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T09:27:38.287206Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 54.675551,
-      "ended_at": "2026-10-26T09:35:03.889645Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-104-evaluating-the-use-of-llms-for-automated",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T09:34:09.214094Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 20.860102,
-      "ended_at": "2026-10-26T09:34:09.210257Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-104-evaluating-the-use-of-llms-for-automated",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T09:33:48.350155Z"
     }
   ],
   "reviewed_preprints": [
