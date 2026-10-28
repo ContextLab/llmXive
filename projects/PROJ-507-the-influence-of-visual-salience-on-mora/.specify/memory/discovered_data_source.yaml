@@ -1,19 +1,14 @@
 status: none
-intent: download Visual Genome images and CodedotAI code_clippy_github dataset with
-  CLIP and BERT models python package dataset
+intent: CodedotAI code_clippy_github dataset clip-vit-base-patch32 model BERT MoralD
+  python package dataset
 required_fields:
 - image_id
 - image_url
 - metadata
 - bounding_box
+- moral_ambiguity_label
+- region_mask
 - original_image_path
-- low_salience_image_path
-- medium_salience_image_path
-- high_salience_image_path
-- clip_cosine_similarity
-- rms_contrast_change_percent
-- texture_change_metric
-- edge_density_change_metric
-cache_key: 22ca4b3e1f080e6181e7d6678386db187c7beb7f65ca0ce1c306f35eb8b88196
-searched_at: '2026-10-27T02:22:43.189765+00:00'
+cache_key: a94c7bccd4001cbc35af2de2c76d3ea0431aa4c74e75e37c2db0ab6eb5ecbf43
+searched_at: '2026-10-28T00:16:35.553537+00:00'
 retry_count: 1

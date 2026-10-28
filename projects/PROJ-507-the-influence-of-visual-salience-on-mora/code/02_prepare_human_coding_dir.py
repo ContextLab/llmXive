@@ -43,14 +43,14 @@ def _write_readme(target_dir: Path) -> None:
     """
     readme_path = target_dir / "README.md"
     content = (
-        "# Human Coding Annotation Procedure\\n\\n"
-        "This folder contains the template CSV that annotators should fill out.\\n"
-        "For each ``scenario_id`` you must provide an **ambiguity rating** on a 1‑5 Likert scale,\\n"
-        "where 1 = *Not ambiguous* and 5 = *Highly ambiguous*.\\n\\n"
-        "Three independent annotators are required for each scenario.\\n"
-        "Please do not modify the ``scenario_id`` column.\\n"
-        "When all three columns are completed, save the file as ``annotations_filled.csv``\\n"
-        "and place it back into this directory for downstream processing (T003).\\n"
+        "# Human Coding Annotation Procedure\n\n"
+        "This folder contains the template CSV that annotators should fill out.\n"
+        "For each `scenario_id` you must provide an **ambiguity rating** on a 1‑5 Likert scale,\n"
+        "where 1 = *Not ambiguous* and 5 = *Highly ambiguous*.\n\n"
+        "Three independent annotators are required for each scenario.\n"
+        "Please do not modify the `scenario_id` column.\n"
+        "When all three columns are completed, save the file as `annotations_filled.csv`\n"
+        "and place it back into this directory for downstream processing (T003).\n"
     )
     readme_path.write_text(content, encoding="utf-8")
     log.info(f"Wrote README to {readme_path}")
@@ -60,7 +60,7 @@ def _load_scenario_ids(candidates_csv: Path) -> list:
     Load the ``scenario_id`` column from the candidates CSV.
     """
     if not candidates_csv.is_file():
-        raise FileNotFoundError(f"Candidates file not found: {candidates_csv}")
+        raise FileNotFoundError(f"Candidates file not found: {candidates_csv}. Please ensure T001 has run successfully.")
 
     df = pd.read_csv(candidates_csv, dtype=str)
     if "scenario_id" not in df.columns:
@@ -89,8 +89,14 @@ def main() -> None:
     _write_readme(human_coding_dir)
 
     # 3. Load scenario IDs from the candidates file produced by T001
-    candidates_csv = paths.processed("candidates_filtered.csv")
-    scenario_ids = _load_scenario_ids(candidates_csv)
+    # Use paths.data("processed", ...) to correctly target data/processed/
+    candidates_csv = paths.data("processed", "candidates_filtered.csv")
+    
+    try:
+        scenario_ids = _load_scenario_ids(candidates_csv)
+    except FileNotFoundError as e:
+        log.error(str(e))
+        raise
 
     # 4. Write the template CSV
     template_csv_path = human_coding_dir / "annotations_template.csv"

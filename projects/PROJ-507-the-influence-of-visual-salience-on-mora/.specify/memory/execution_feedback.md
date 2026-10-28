@@ -26,7 +26,7 @@ Every command exited 0 and the files were written — but the numbers in them ar
 3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
 4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
 
-- every produced artifact is gitignored (data/processed/candidates_filtered.csv, data/raw/checksums.json, data/raw/images/1288.jpg) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- every produced artifact is gitignored (data/processed/candidates_filtered.csv, data/raw/checksums.json, data/raw/human_coding/annotations_template.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
 
 ## ⚠ RUN-BOOK / CLI MISMATCH — the quickstart calls the script with the wrong arguments
 
@@ -38,26 +38,13 @@ These commands did not crash on a code bug — the script's own argparse REJECTE
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 18 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…r: If the path indicates synthetic data and --allow-synthetic is…”; code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…help="Allow analysis of synthetic data (located in data/synth/)…”; code/data_hygiene.py: synthetic/fake INPUT data not authorized by the spec — “…]          # Define synthetic data directory     synthetic_…”; every produced artifact is gitignored (data/processed/candidates_filtered.csv, data/raw/checksums.json, data/raw/images/1288.jpg) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 run-book script(s) missing (plan/impl path mismatch): python code/00_pilot_power_analysis.py --config config/pilot.yaml; python code/04_manipulate_stimuli.py  --input data/processed/scenarios.csv  --output data/processed/stimuli_manifest.csv; python code/05_survey_deployment.py  --mode pilot  --participants 10  --output data/processed/responses_raw.csv; 2 command(s) failed: python code/02_prepare_human_coding_dir.py   # creates data/raw/human_coding/ (rc=1); python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv (rc=2); 1 declared deliverable(s) absent: data/processed/valid_scenarios.csv
+**Summary**: 18 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…r: If the path indicates synthetic data and --allow-synthetic is…”; code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…help="Allow analysis of synthetic data (located in data/synth/)…”; code/data_hygiene.py: synthetic/fake INPUT data not authorized by the spec — “…]          # Define synthetic data directory     synthetic_…”; every produced artifact is gitignored (data/processed/candidates_filtered.csv, data/raw/checksums.json, data/raw/human_coding/annotations_template.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 5 run-book script(s) missing (plan/impl path mismatch): python code/00_pilot_power_analysis.py --config config/pilot.yaml; python code/04_manipulate_stimuli.py  --input data/processed/scenarios.csv  --output data/processed/stimuli_manifest.csv; python code/05_survey_deployment.py  --mode pilot  --participants 10  --output data/processed/responses_raw.csv; 1 command(s) failed: python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv (rc=2); 1 declared deliverable(s) absent: data/processed/valid_scenarios.csv
 
 ## Failing / missing run-book commands
 
 - python code/00_pilot_power_analysis.py --config config/pilot.yaml -> rc=2
 
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/00_pilot_power_analysis.py': [Errno 2] No such file or directory
-
-- python code/02_prepare_human_coding_dir.py   # creates data/raw/human_coding/ -> rc=1
-g directory at /home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/data/raw/human_coding
-2026-10-27 02:22:17,424 INFO __main__: Wrote README to /home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/data/raw/human_coding/README.md
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/02_prepare_human_coding_dir.py", line 102, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/02_prepare_human_coding_dir.py", line 93, in main
-    scenario_ids = _load_scenario_ids(candidates_csv)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/02_prepare_human_coding_dir.py", line 63, in _load_scenario_ids
-    raise FileNotFoundError(f"Candidates file not found: {candidates_csv}")
-FileNotFoundError: Candidates file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/processed/candidates_filtered.csv
 
 - python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv -> rc=2
 

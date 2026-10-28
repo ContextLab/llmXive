@@ -21,7 +21,7 @@
     - The CSV contains ≥ 1 row and every `original_image_path` points to an existing file under `data/raw/images/`.  
     - Unit test `tests/unit/test_data_loader.py` asserts that a simulated fetch failure raises a `DataFetchError`.
 
-- [ ] **T002** [US‑001] **Create human‑coding directory and template** – `code/02_prepare_human_coding_dir.py`   <!-- FAILED-IN-EXECUTION: code/02_prepare_human_coding_dir.py exit=1 -->
+- [ ] **T002** [US‑001] **Create human‑coding directory and template** – `code/02_prepare_human_coding_dir.py`   <!-- FAILED-IN-EXECUTION: code/02_prepare_human_coding_dir.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/02_prepare_human_coding_dir.py exit=1 -->
   - Create the folder `data/raw/human_coding/` (must exist after execution).  
   - Generate a **template CSV** `data/raw/human_coding/annotations_template.csv` that lists all `scenario_id`s from `candidates_filtered.csv` and provides columns for three independent annotators to record a 1‑5 ambiguity rating.  
   - Include a short README in the same folder describing the annotation procedure and required number of raters.  
