@@ -2,6 +2,16 @@ import subprocess
 import sys
 from pathlib import Path
 
+def normalize(line):
+    """
+    Normalize a requirement line to lowercase package name to avoid 
+    casing mismatches (e.g., PyYAML vs pyyaml).
+    """
+    if '==' in line:
+        pkg, ver = line.split('==', 1)
+        return f"{pkg.lower()}=={ver}"
+    return line.lower()
+
 def main():
     """
     Verification for T002:
@@ -31,7 +41,6 @@ def main():
         sys.exit(1)
 
     # 2. Filter installed packages to only those in requirements.txt
-    # This ensures that 'diff -u requirements.txt installed.txt' is meaningful
     filtered_installed = []
     for line in installed_lines:
         if '==' in line:
@@ -47,13 +56,12 @@ def main():
     with open('installed.txt', 'w') as f:
         f.write('\n'.join(filtered_installed) + '\n')
 
-    # 4. Compare
+    # 4. Compare using normalization to handle casing (e.g. PyYAML vs pyyaml)
     mismatches = []
-    req_set = set(required_lines)
-    inst_set = set(filtered_installed)
+    req_set = {normalize(line) for line in required_lines}
+    inst_set = {normalize(line) for line in filtered_installed}
     
-    # Check for missing or mismatched versions
-    for req in required_lines:
+    for req in req_set:
         if req not in inst_set:
             mismatches.append(req)
 

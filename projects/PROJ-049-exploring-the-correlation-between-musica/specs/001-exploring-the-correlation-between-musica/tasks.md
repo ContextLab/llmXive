@@ -20,7 +20,7 @@
   PY
   ```
 
-- [ ] **T002** **Pin exact dependency versions**   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
+- [ ] **T002** **Pin exact dependency versions**   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
   Create `requirements.txt` containing the exact versions listed in the plan (pandas, numpy, scipy, statsmodels, scikit‑learn, matplotlib, seaborn, datasets, pytest, pyyaml, jsonschema).  
   **Verification**: Run `pip freeze > installed.txt` and ensure `diff -u requirements.txt installed.txt` reports no version mismatches.
 
