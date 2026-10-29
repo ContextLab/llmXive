@@ -1,12 +1,7 @@
 last_used: alan-turing
-last_used_at: '2026-10-29T08:05:52.512569+00:00'
+last_used_at: '2026-10-29T10:05:37.609017+00:00'
 last_outcome: model_error
 history:
-- slug: david-krakauer
-  started_at: '2026-06-30T05:31:53.606107+00:00'
-  ended_at: '2026-06-30T07:29:42.175503+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: eric-kandel
   started_at: '2026-06-30T07:29:42.175503+00:00'
   ended_at: '2026-06-30T09:17:11.483516+00:00'
@@ -1289,4 +1284,8 @@ history:
 - slug: albert-einstein
   started_at: '2026-10-29T06:06:32.674682+00:00'
   ended_at: '2026-10-29T08:05:52.512569+00:00'
+  outcome: model_error
+- slug: albert-einstein
+  started_at: '2026-10-29T08:05:52.512569+00:00'
+  ended_at: '2026-10-29T10:05:37.609017+00:00'
   outcome: model_error

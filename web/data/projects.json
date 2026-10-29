@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-29T09:19:18.661431+00:00",
+  "generated_at": "2026-10-29T10:06:01.240787+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -106568,6 +106568,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 10.708172,
+          "ended_at": "2026-10-29T10:05:37.609017+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "model_error",
+          "started_at": "2026-10-29T10:05:26.900845+00:00"
+        },
+        {
           "agent": "planner",
           "duration_s": 157.980299,
           "ended_at": "2026-10-29T09:18:24.371524Z",
@@ -106638,14 +106646,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-26T17:07:46.444404Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 51.217757,
-          "ended_at": "2026-10-26T15:01:11.696805Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-26T15:00:20.479048Z"
         }
       ],
       "paper_status": null,
@@ -175689,6 +175689,21 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Albert Einstein (simulated)",
+      "duration_s": 10.708172,
+      "ended_at": "2026-10-29T10:05:37.609017+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "albert-einstein",
+      "project_id": "PROJ-411-evaluating-the-impact-of-code-generation",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-29T10:05:26.900845+00:00"
+    },
+    {
       "agent": "planner",
       "duration_s": 157.980299,
       "ended_at": "2026-10-29T09:18:24.371524Z",
@@ -181744,18 +181759,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-10-26T18:16:53.898283Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 347.16438,
-      "ended_at": "2026-10-26T18:15:12.941345Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-559-neuro-symbolic-learning-networks-bridgin",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-26T18:09:25.776965Z"
     }
   ],
   "reviewed_preprints": [
