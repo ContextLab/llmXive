@@ -1,14 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-10-29T16:06:55.885456+00:00'
-last_outcome: model_error
+last_used: dan-rockmore
+last_used_at: '2026-10-29T18:05:56.268172+00:00'
+last_outcome: abstained
 history:
-- slug: geoffrey-west
-  started_at: '2026-06-30T12:52:03.734845+00:00'
-  ended_at: '2026-06-30T15:00:32.820802+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-748-multi-lcb-extending-livecodebench-to-mul/reviews/research/geoffrey-west-simulated__2026-06-30__research.md
 - slug: john-von-neumann
   started_at: '2026-06-30T15:00:32.820802+00:00'
   ended_at: '2026-06-30T16:52:21.348737+00:00'
@@ -1282,3 +1275,7 @@ history:
   started_at: '2026-10-29T14:07:16.830416+00:00'
   ended_at: '2026-10-29T16:06:55.885456+00:00'
   outcome: model_error
+- slug: dan-rockmore
+  started_at: '2026-10-29T16:06:55.885456+00:00'
+  ended_at: '2026-10-29T18:05:56.268172+00:00'
+  outcome: abstained
