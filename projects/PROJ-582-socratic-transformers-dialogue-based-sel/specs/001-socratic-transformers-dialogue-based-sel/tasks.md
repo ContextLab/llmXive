@@ -15,7 +15,7 @@ All paths are relative to the project root `projects/PROJ-582-socratic-transform
 
 ## Phase 0 – Project bootstrap (must complete before any research work)
 
-- [ ] **T001** [P] Create the canonical project directory tree  
+- [~] **T001** [P] Create the canonical project directory tree  
   `code/`, `code/src/`, `code/data/raw/`, `code/data/processed/`, `code/data/results/`, `code/tests/`, `code/state/`.  
   **Verification**:  
   ```bash
@@ -28,7 +28,7 @@ All paths are relative to the project root `projects/PROJ-582-socratic-transform
   PY
   ```
 
-- [X] **T002** Create the core Python packaging files  
+- [~] **T002** Create the core Python packaging files  
   * `code/requirements.txt` – must list `transformers`, `peft`, `bitsandbytes`, `datasets`, `scikit-learn`, `pandas`, `pytest`, `ruff`, `black`.  
   * `code/pyproject.toml` – minimal project metadata plus `[tool.black]` and `[tool.ruff]` sections.  
   * `code/ruff.toml` – configure ruff to target `src/` and `tests/`.  
@@ -44,7 +44,7 @@ All paths are relative to the project root `projects/PROJ-582-socratic-transform
 
 ## Phase 1 – Real data acquisition & integrity (CPU‑first)
 
-- [ ] **T003** Implement `src/data/download.py` to fetch **GSM8K**, **MATH**, and **MMLU‑STEM** via `datasets.load_dataset(..., streaming=False)`.   <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 -->
+- [ ] **T003** Implement `src/data/download.py` to fetch **GSM8K**, **MATH**, and **MMLU‑STEM** via `datasets.load_dataset(..., streaming=False)`.   <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download.py exit=1 -->
   Write the raw files into `data/raw/` (preserving original filenames) and generate a SHA‑256 manifest `state/artifact_hashes.yaml` that records a hash for every file written.  
   **Verification**:  
   ```bash

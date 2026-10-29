@@ -1,11 +1,13 @@
 status: none
-intent: self-refine Socratic dialogue critique revised answer dataset HuggingFace
-  python package dataset
+intent: Self-Refine dataset critique revised answer SocraticQA Evol-Instruct python
+  package dataset
 required_fields:
 - question
 - answer
 - critique
 - revised_answer
-cache_key: 8973c929c9ad9f843cb0652ab548d6689e01908f0983aba0f4aeb508f463bfdb
-searched_at: '2026-10-29T05:14:13.122199+00:00'
+- source_dataset
+- split
+cache_key: ce77cdd6f6b06304285fe0a665b3ea4539f9d4bcdc49af57b052459f20d6369b
+searched_at: '2026-10-29T08:13:56.786555+00:00'
 retry_count: 1
