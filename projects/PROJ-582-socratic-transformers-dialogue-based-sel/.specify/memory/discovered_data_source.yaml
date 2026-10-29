@@ -1,13 +1,11 @@
 status: none
-intent: SocraticQA Self-CRITIC CoQA QuAC dataset python package dataset
+intent: self-refine Socratic dialogue critique revised answer dataset HuggingFace
+  python package dataset
 required_fields:
 - question
 - answer
 - critique
 - revised_answer
-- source_id
-- dialogue_id
-- turn_number
-cache_key: 565ebdacb26574bb9cec0285b8f5c9bebdaaa2142a13d8b1f2380cbc49b193c2
-searched_at: '2026-10-29T03:11:22.812400+00:00'
+cache_key: 8973c929c9ad9f843cb0652ab548d6689e01908f0983aba0f4aeb508f463bfdb
+searched_at: '2026-10-29T05:14:13.122199+00:00'
 retry_count: 1
