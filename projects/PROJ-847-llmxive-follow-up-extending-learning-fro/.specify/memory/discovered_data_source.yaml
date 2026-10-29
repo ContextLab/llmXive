@@ -1,9 +1,30 @@
-status: none
-intent: '### User Story 1 - Fixed-Density Baseline Convergence (Priority: P1) (See
-  US-1) The research team must be able to execute a controlled training simulation
-  using the d-OPSD framework with fixed retaining ratios ($\rho_{\text{teacher}}$)
-  to establish a performance baseline and observe the effect of st'
-required_fields: []
-cache_key: 99e0ca568c876ba01c73318a555726d49733149796aef343d2f218ca2feb0f09
-searched_at: '2026-10-28T04:30:51.365023+00:00'
-retry_count: 1
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import os
+
+  from datasets import load_dataset
+
+
+  dataset_dict = load_dataset("openai/gsm8k", "main")
+
+  total_records = sum(len(split) for split in dataset_dict.values())
+
+  first_split = next(iter(dataset_dict.values()))
+
+  print(f"RECORDS={total_records}")
+
+  print("FIELDS=" + ",".join(first_split.column_names))'
+record_count: 8792
+sample_fields:
+- question
+- answer
+field_coverage: 0.5
+required_fields:
+- question
+- answer
+- id
+- metadata
+intent: download GSM8K train test parquet and BigBench logical subset python package
+  dataset
+cache_key: f5358f67f9789da0cfb16e438b4c6b256305b8b02c63c3f3a6ead02c3b57ecfe
