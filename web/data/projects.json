@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-29T13:10:58.538158+00:00",
+  "generated_at": "2026-10-29T13:21:08.934068+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -175431,6 +175431,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 241.224551,
+          "ended_at": "2026-10-29T13:13:11.640069Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-29T13:09:10.415518Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 169.449776,
           "ended_at": "2026-10-29T12:10:50.931023Z",
           "model": "zai-org.glm-5.3",
@@ -175500,14 +175508,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-23T16:10:14.949339Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 31.015032,
-          "ended_at": "2026-10-23T16:10:14.946610Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-23T16:09:43.931578Z"
         }
       ],
       "paper_status": null,
@@ -175688,6 +175688,18 @@
     }
   ],
   "recent_activity": [
+    {
+      "agent": "planner",
+      "duration_s": 241.224551,
+      "ended_at": "2026-10-29T13:13:11.640069Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-997-llmxive-follow-up-extending-the-mirage-o",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-29T13:09:10.415518Z"
+    },
     {
       "agent": "implementer",
       "duration_s": 8.826092,
@@ -181747,18 +181759,6 @@
       "project_stage": "in_progress",
       "severity": "hard",
       "started_at": "2026-10-26T21:16:54.990705Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 88.255779,
-      "ended_at": "2026-10-26T21:12:44.644175Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-1064-llmxive-follow-up-extending-lightmem-ego",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-26T21:11:16.388396Z"
     }
   ],
   "reviewed_preprints": [
