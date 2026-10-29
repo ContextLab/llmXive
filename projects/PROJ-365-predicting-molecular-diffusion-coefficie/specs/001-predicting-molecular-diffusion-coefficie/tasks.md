@@ -21,10 +21,10 @@ The checklist follows the canonical format
 
 ## Phase 0 – Data acquisition & provenance
 
-- [X] T001 [P] [US1] Create the raw‑data directory – `data/raw/`  
+- [~] T001 [P] [US1] Create the raw‑data directory – `data/raw/`  
     • Verification: after running the setup script, `ls data/raw` lists a directory (exit code 0).  
 
-- [ ] T002 [P] [US1] Generate a deterministic synthetic dataset (validation‑only fallback) – `code/ingestion/generate_synthetic.py`  
+- [~] T002 [P] [US1] Generate a deterministic synthetic dataset (validation‑only fallback) – `code/ingestion/generate_synthetic.py`  
     • The script writes `data/raw/dataset.csv` with **exactly 500** rows and columns `smiles,solvent_type,diffusion_coefficient,viscosity,dielectric_constant`, using a fixed random seed (`42`).  
     • **Note:** This synthetic dataset is **only** for pipeline validation and does **not** satisfy FR‑001, which requires experimental data.  
     • Verification: the CSV exists, its row count equals 500, and it validates against `contracts/ingestion_schema.schema.yaml`.  
@@ -34,11 +34,11 @@ The checklist follows the canonical format
     • If `plan.md` does **not** contain a URL, the script aborts with a clear error (“No real dataset URL – FR‑001 cannot be satisfied”).  
     • Verification: on success the file exists, is non‑empty, and passes schema validation (`contracts/ingestion_schema.schema.yaml`). On missing URL the script exits with non‑zero status and logs the abort message.  
 
-- [ ] T004 [P] [US1] Record the data‑source flag – `code/ingestion/flag_source.py`  
+- [~] T004 [P] [US1] Record the data‑source flag – `code/ingestion/flag_source.py`  
     • Writes `data/data_source_flag.json` with `{ "source": "real" }` if `fetch_real.py` succeeded, otherwise `{ "source": "synthetic" }`.  
     • Verification: the JSON file exists and contains the correct `"source"` value.  
 
-- [X] T019 [P] [US1] Compute SHA‑256 checksums of raw dataset files – `code/ingestion/checksums.py`  
+- [~] T019 [P] [US1] Compute SHA‑256 checksums of raw dataset files – `code/ingestion/checksums.py`  
     • Reads all files under `data/raw/`, computes their SHA‑256 hashes, and writes `data/checksums.txt` (one `<hash>  <relative_path>` per line).  
     • Verification: `data/checksums.txt` exists, contains a line for `dataset.csv`, and each hash matches the file’s content.  
 
@@ -50,21 +50,21 @@ The checklist follows the canonical format
 
 ## Phase 1 – Ingestion & featurization pipeline
 
-- [ ] T005 [P] [US1] Validate raw records (SMILES syntax, missing fields) – `code/ingestion/validate.py`  
+- [~] T005 [P] [US1] Validate raw records (SMILES syntax, missing fields) – `code/ingestion/validate.py`  
     • Returns a list of **valid** records, logs `[INVALID_SMILES]` for unparsable SMILES and `[MISSING_DATA_EXCLUDED]` for incomplete rows.  
     • Writes `data/processed/valid_record_count.txt` containing the integer count of valid records.  
     • Verification: after execution on `data/raw/dataset.csv`, `data/logs/ingestion.log` contains the expected tags, `data/processed/valid_record_count.txt` exists and its integer value equals the number of records marked *valid*.  
 
-- [ ] T006 [P] [US1] Featurize validated records into PyTorch‑Geometric graphs and solvent descriptors – `code/ingestion/featurize.py`  
+- [~] T006 [P] [US1] Featurize validated records into PyTorch‑Geometric graphs and solvent descriptors – `code/ingestion/featurize.py`  
     • Produces `data/processed/featurized_data.jsonl`; each line conforms to `contracts/dataset.schema.yaml`.  
     • Records peak memory usage during processing to `artifacts/reports/memory_profile.json` (SC‑005).  
     • Verification: a random line parsed with `jsonschema.validate` passes the schema; file size > 0 KB; `memory_profile.json` contains `peak_memory_mb` and asserts `peak_memory_mb ≤ 7000`.  
 
-- [ ] T007 [P] [US1] End‑to‑end ingestion orchestrator – `code/ingestion/ingest.py`   <!-- FAILED-IN-EXECUTION: code/ingestion/ingest.py exit=1 -->
+- [~] T007 [P] [US1] End‑to‑end ingestion orchestrator – `code/ingestion/ingest.py`
     • Calls `validate.py` → `featurize.py` → writes the JSONL output; skips invalid records, logs reasons, and updates `data/data_source_flag.json` if needed.  
     • Verification: after execution, `data/processed/featurized_data.jsonl` exists and the number of records equals the count recorded in `data/processed/valid_record_count.txt`.  
 
-- [ ] T021 [P] [US1] Batch‑process extremely large molecules to stay within memory limits – `code/ingestion/batch_featurize.py`  
+- [~] T021 [P] [US1] Batch‑process extremely large molecules to stay within memory limits – `code/ingestion/batch_featurize.py`  
     • Detects molecules whose atom count exceeds a configurable threshold (e.g., 200 atoms) and processes them in smaller sub‑batches or logs `[EXCEEDED_MEMORY]` and skips them.  
     • Verification: logs contain no unhandled OOM errors; `memory_profile.json` reports peak memory ≤ 7000 MB even when large‑molecule records are present.  
 
@@ -72,7 +72,7 @@ The checklist follows the canonical format
 
 ## Phase 2 – Model implementation & training (CPU‑only)
 
-- [ ] T008 [P] [US2] Implement a CPU‑only single‑layer Message Passing Neural Network – `code/models/mpnn.py`  
+- [~] T008 [P] [US2] Implement a CPU‑only single‑layer Message Passing Neural Network – `code/models/mpnn.py`  
     • On import, asserts `torch.cuda.is_available() is False` and logs “Device: CPU”.  
     • Provides a `forward` method that accepts a batch of `torch_geometric.data.Data`.  
     • Verification: unit test runs a forward pass on a tiny synthetic batch without raising; the log contains “Device: CPU”.  

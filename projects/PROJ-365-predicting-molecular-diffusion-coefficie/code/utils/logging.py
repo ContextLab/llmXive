@@ -14,6 +14,7 @@ The public API matches the names listed in the project's API surface.
 from __future__ import annotations
 
 import logging
+import json
 from pathlib import Path
 from typing import Any, Mapping
 

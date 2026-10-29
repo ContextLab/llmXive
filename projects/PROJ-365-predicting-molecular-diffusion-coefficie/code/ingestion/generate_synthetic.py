@@ -84,8 +84,8 @@ def generate_synthetic_dataset(output_path: Path, num_rows: int = NUM_ROWS) -> N
         smiles = generate_random_smiles()
         solvent_info = select_random_solvent()
         solvent_name = solvent_info["name"]
-        viscosity = solvent_info["viscosity"]
-        dielectric = solvent_info["dielectric_constant"]
+        viscosity = float(solvent_info["viscosity"])
+        dielectric = float(solvent_info["dielectric_constant"])
 
         mw = approximate_molecular_weight(smiles)
         diffusion = stokes_einstein_diffusion(mw, viscosity)
@@ -93,7 +93,7 @@ def generate_synthetic_dataset(output_path: Path, num_rows: int = NUM_ROWS) -> N
         rows.append({
             "smiles": smiles,
             "solvent_type": solvent_name,          # Column name matches schema
-            "diffusion_coefficient": f"{diffusion:.6e}",
+            "diffusion_coefficient": diffusion,    # Store as numeric value
             "viscosity": viscosity,
             "dielectric_constant": dielectric
         })

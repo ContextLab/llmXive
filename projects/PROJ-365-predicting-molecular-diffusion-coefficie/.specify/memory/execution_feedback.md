@@ -49,7 +49,7 @@ E   ImportError: cannot import name 'STABILITY_THRESHOLD' from 'training.generat
 =========================== short test summary info ============================
 ERROR tests/contract/test_sensitivity_summary.py
 !!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
-=============================== 1 error in 0.09s ===============================
+=============================== 1 error in 0.23s ===============================
 
 
 ## Platform-owned paths written inside the project

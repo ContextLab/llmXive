@@ -18,17 +18,6 @@ T002:
     \ validation, which is not demonstrated. Fix the schema loading (or file format)\
     \ and ensure the CSV passes the JSON\u2011Schema check."
   sig: 4ee5efb20ef72307eddf5b81d97f58c01ad896c0af317f1446afe758d595784c
-T003:
-  c: false
-  h: 13d19fac8fcecdad3afbcc053231bc788868c398a9a300ca7aa29e118ee0fabd
-  r: "Checked `code/ingestion/fetch_real.py`, `plan.md`, `data/raw/dataset.csv`, and\
-    \ the test log `code/.tasks/T003.tests_test_fetch_real.py.log`. The script aborts\
-    \ because `plan.md` contains no URL, causing the \u201CNo real dataset URL \u2013\
-    \ FR\u2011001 cannot be satisfied\u201D error and the \u201Csuccessful download\u201D\
-    \ test to fail. No evidence shows that a real download occurred, that the CSV\
-    \ was produced by the script, or that schema validation was performed. A valid\
-    \ `Dataset URL:` line and a successful download+validation are required."
-  sig: e943452597451d508c62e7394db64a542f38c908ca0d1e472ab8d3867c89df2b
 T004:
   c: false
   h: 5a3be071c80258d6025ed122123029fad8679a6ccbc1cfffe95b68621c9beb93

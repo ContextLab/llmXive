@@ -5,7 +5,7 @@ This module provides functions to validate individual rows of the raw diffusion
 dataset. Validation includes:
   * SMILES string validation using RDKit.
   * Detection of missing solvent‑related variables (any column whose name starts
-    with ``solvent_``).
+    ``solvent_``).
 
 Rows that fail validation are excluded from downstream processing and the
 corresponding events are logged using the project's logging utilities.
@@ -16,15 +16,13 @@ of valid records.
 """
 
 import csv
+import argparse
 from pathlib import Path
 from typing import Dict, Iterable, List
 
 from rdkit import Chem
 
-from utils.logging import (
-    get_logger,
-    log_missing_data_excluded,
-)
+from utils.logging import get_logger
 from utils.config import get_project_root
 
 __all__ = [
@@ -89,8 +87,8 @@ def validate_row(row: Dict[str, str]) -> bool:
         logger.debug(
             f"Row missing solvent data for fields: {', '.join(missing_keys)}"
         )
-        # utils.logging already formats the tag correctly
-        log_missing_data_excluded(logger, row)
+        # Log the required tag for missing data
+        logger.info("[MISSING_DATA_EXCLUDED] Missing solvent fields: " + ", ".join(missing_keys))
         return False
 
     # All checks passed
@@ -117,8 +115,6 @@ def main() -> None:
     ``data/processed/valid_record_count.txt``. Paths can be overridden via the
     ``--input`` and ``--output`` arguments.
     """
-    import argparse
-
     parser = argparse.ArgumentParser(
         description="Validate raw diffusion dataset CSV."
     )
@@ -134,7 +130,8 @@ def main() -> None:
         default=get_project_root() / "data" / "processed" / "validated.csv",
         help="Path where the validated CSV will be written.",
     )
-    args = parser.parse_args()
+    # Use parse_known_args so that unexpected arguments (e.g. pytest's) are ignored
+    args, _ = parser.parse_known_args()
 
     input_path: Path = args.input
     output_path: Path = args.output

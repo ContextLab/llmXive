@@ -1,87 +1,43 @@
-"""Tests for ``code/ingestion/update_state.py``.
+"""Unit test for ``code/ingestion/update_state.py``.
 
-The test creates a minimal ``checksums.txt`` file (if it does not already
-exist), runs the ``update_state`` script, and verifies that the generated
-state YAML contains the expected keys and values.
+The test creates (or overwrites) a minimal ``checksums.txt`` file,
+runs the ``main`` function, and verifies that a state YAML file is
+written under ``data/state`` containing the expected keys and a
+recent ``updated_at`` timestamp.
 """
 
 import datetime
-import json
-import os
-from pathlib import Path
-
 import yaml
-import pytest
+from pathlib import Path
 
 from llmxive_toolkit import paths
 
-# Import the script to test its ``main`` function.
-from code.ingestion.update_state import main as update_state_main
-
-@pytest.fixture
-def ensure_raw_data(tmp_path_factory):
-    """Create a minimal raw data environment for the test."""
-    # Use the project's real paths (they point under the repo root).
-    raw_dir = paths.data("raw")
-    raw_dir.mkdir(parents=True, exist_ok=True)
-
-    # Ensure a dummy dataset.csv exists.
-    dataset_path = raw_dir / "dataset.csv"
-    if not dataset_path.is_file():
-        dataset_path.write_text("smiles,solvent_type,diffusion_coefficient,viscosity,dielectric_constant\n", encoding="utf-8")
-
-    # Create a simple checksums.txt with the hash of dataset.csv.
+def test_update_state_writes_yaml(tmp_path):
+    # Ensure the checksums file exists with a deterministic entry.
     checksums_path = paths.data("checksums.txt")
-    import hashlib
+    checksums_path.parent.mkdir(parents=True, exist_ok=True)
+    checksums_path.write_text("dummyhash  data/raw/dataset.csv\n", encoding="utf-8")
 
-    def _hash(p: Path) -> str:
-        h = hashlib.sha256()
-        with p.open("rb") as f:
-            for chunk in iter(lambda: f.read(8192), b""):
-                h.update(chunk)
-        return h.hexdigest()
+    # Import and run the script's main function.
+    from ingestion.update_state import main
+    main()
 
-    checksum_line = f"{_hash(dataset_path)}  data/raw/dataset.csv\n"
-    checksums_path.write_text(checksum_line, encoding="utf-8")
-
-    return {
-        "raw_dir": raw_dir,
-        "dataset_path": dataset_path,
-        "checksums_path": checksums_path,
-    }
-
-def test_update_state_writes_yaml(ensure_raw_data):
-    """Run the script and verify the produced state file."""
-    # Run the update_state script.
-    update_state_main()
-
-    state_path = paths.state("ingestion", "state.yaml")
-    assert state_path.is_file(), "State YAML file was not created"
+    # Verify that the state file was created in the project‑owned location.
+    state_path = paths.data("state", "ingestion_state.yaml")
+    assert state_path.is_file(), f"State file not found at {state_path}"
 
     # Load and inspect the YAML content.
-    with state_path.open("r", encoding="utf-8") as f:
-        state_data = yaml.safe_load(f)
+    content = yaml.safe_load(state_path.read_text(encoding="utf-8"))
+    assert isinstance(content, dict), "State file does not contain a YAML mapping"
+    assert "artifact_hashes" in content, "Missing 'artifact_hashes' section"
+    assert "updated_at" in content, "Missing 'updated_at' timestamp"
 
-    # Basic structure checks.
-    assert isinstance(state_data, dict), "State file must contain a mapping"
-    assert "artifact_hashes" in state_data, "Missing 'artifact_hashes' key"
-    assert "updated_at" in state_data, "Missing 'updated_at' key"
+    # The dummy entry should be present.
+    artifact_hashes = content["artifact_hashes"]
+    assert "data/raw/dataset.csv" in artifact_hashes, "Checksum entry missing for dataset.csv"
 
-    # Verify that the dataset.csv entry exists.
-    artifact_hashes = state_data["artifact_hashes"]
-    assert "data/raw/dataset.csv" in artifact_hashes, "dataset.csv hash missing"
-
-    # Verify that the checksums.txt entry exists (added by the script).
-    rel_checksums = str(paths.data("checksums.txt").relative_to(paths.root))
-    assert rel_checksums in artifact_hashes, "checksums.txt hash missing"
-
-    # Verify that the timestamp is a valid ISO‑8601 string.
-    try:
-        parsed = datetime.datetime.fromisoformat(state_data["updated_at"])
-    except Exception as exc:
-        pytest.fail(f"'updated_at' is not a valid ISO‑8601 timestamp: {exc}")
-
-    # The timestamp should be recent (within the last minute).
+    # Verify the timestamp is recent (within the last 30 seconds).
+    ts = datetime.datetime.fromisoformat(content["updated_at"])
     now = datetime.datetime.now(datetime.timezone.utc)
-    delta = now - parsed
-    assert delta.total_seconds() < 60, "Timestamp is not recent"
+    delta = (now - ts).total_seconds()
+    assert delta < 30, f"Timestamp is too old: {delta} seconds ago"

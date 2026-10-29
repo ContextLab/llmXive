@@ -4,12 +4,12 @@ Linear Regression baseline model for predicting molecular diffusion coefficients
 This model builds a feature vector for each molecule by concatenating:
   1. A Morgan fingerprint (binary vector) derived from the molecule's SMILES.
   2. Solvent descriptor values (any column in the input DataFrame that starts
-     with the prefix ``solvent_``).
+     with the prefix ``solvent_``) or, for backward compatibility, columns
+     named ``viscosity`` and ``dielectric_constant`` (or ``dielectric``).
 
 The combined feature vector is fed to a scikit‑learn ``LinearRegression``
-estimator.  The class provides a simple ``fit`` / ``predict`` API that can
-be used by the training pipeline (see T041) and the evaluation step
-(T021).
+estimator. The class provides a simple ``fit`` / ``predict`` API that can
+be used by the training pipeline and the evaluation step.
 
 The implementation deliberately avoids any GPU/torch dependencies – the
 baseline is a pure CPU model.
@@ -48,6 +48,7 @@ class LinearRegressionBaseline:
         self.n_bits = n_bits
         self.radius = radius
         self._model = LinearRegression()
+        # Will be populated on first call to ``_prepare_features``.
         self._solvent_columns: List[str] = []
 
     # -----------------------------------------------------------------
@@ -72,7 +73,7 @@ class LinearRegressionBaseline:
 
     def _solvent_feature_vector(self, row: pd.Series) -> np.ndarray:
         """Extract solvent descriptor values from a DataFrame row."""
-        # solvent descriptor columns are identified during ``fit`` and cached.
+        # ``self._solvent_columns`` holds the exact column names to use.
         values = row[self._solvent_columns].astype(np.float32).values
         return values
 
@@ -83,27 +84,49 @@ class LinearRegressionBaseline:
         solvent_vec = np.asarray(solvent_features, dtype=np.float32)
         return np.concatenate([fp_vec, solvent_vec])
 
+    def _detect_solvent_columns(self, df: pd.DataFrame) -> List[str]:
+        """
+        Detect solvent descriptor columns.
+
+        Preference is given to columns whose names start with ``solvent_``.
+        For backward compatibility, if no such columns exist, we fall back
+        to the historic names ``viscosity`` and ``dielectric_constant`` (or
+        ``dielectric``). The returned list contains the **exact** column
+        names present in ``df``.
+        """
+        # Preferred naming scheme.
+        prefixed = [col for col in df.columns if col.startswith("solvent_")]
+        if prefixed:
+            logger.debug("Detected solvent columns (prefixed): %s", prefixed)
+            return prefixed
+
+        # Legacy naming scheme – look for the two required fields.
+        legacy_candidates = {"viscosity", "dielectric_constant", "dielectric"}
+        found = [col for col in df.columns if col in legacy_candidates]
+        if len(found) >= 2:
+            logger.debug(
+                "Detected legacy solvent columns (no prefix): %s", found
+            )
+            return found
+
+        raise ValueError(
+            "No solvent descriptor columns found. Expected columns starting with "
+            "'solvent_' or legacy columns 'viscosity' and 'dielectric_constant'."
+        )
+
     def _prepare_features(self, df: pd.DataFrame) -> np.ndarray:
         """
         Convert a DataFrame into a 2‑D NumPy array of features.
 
         The DataFrame must contain a ``smiles`` column and one or more
-        columns whose names start with ``solvent_``.
+        solvent descriptor columns.
         """
         if "smiles" not in df.columns:
             raise KeyError("Input DataFrame must contain a 'smiles' column.")
 
-        # Detect solvent descriptor columns on the first call.
+        # Detect solvent columns on first call.
         if not self._solvent_columns:
-            self._solvent_columns = [
-                col for col in df.columns if col.startswith("solvent_")
-            ]
-            if not self._solvent_columns:
-                raise ValueError(
-                    "No solvent descriptor columns found (expected columns "
-                    "starting with 'solvent_')."
-                )
-            logger.debug("Detected solvent columns: %s", self._solvent_columns)
+            self._solvent_columns = self._detect_solvent_columns(df)
 
         feature_list: List[np.ndarray] = []
         for _, row in df.iterrows():

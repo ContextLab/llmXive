@@ -49,6 +49,7 @@ def _hash_record(row: Dict[str, Any]) -> str:
     canonical = json.dumps(row, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
+
 def _smiles_to_molecule_graph(smiles: str) -> Data:
     """
     Convert a SMILES string into a ``torch_geometric`` ``Data`` object
@@ -103,9 +104,12 @@ def _smiles_to_molecule_graph(smiles: str) -> Data:
 
     return Data(x=x, edge_index=edge_index, edge_attr=edge_attr)
 
+
 def _extract_solvent_descriptor(row: Dict[str, Any]) -> Dict[str, float]:
     """
-    Pull viscosity and dielectric constant from a CSV row.
+    Pull viscosity and dielectric constant from a CSV row and return them
+    using the field names required by ``contracts/dataset.schema.yaml``.
+    The schema expects the keys ``viscosity`` and ``dielectric``.
     """
     viscosity_keys = ["viscosity", "solvent_viscosity", "visc"]
     dielectric_keys = ["dielectric_constant", "solvent_dielectric_constant", "dielectric"]
@@ -128,7 +132,9 @@ def _extract_solvent_descriptor(row: Dict[str, Any]) -> Dict[str, float]:
             f"{dielectric_key}={row[dielectric_key]}"
         ) from exc
 
-    return {"viscosity": viscosity, "dielectric_constant": dielectric}
+    # The schema calls this field ``dielectric`` (not ``dielectric_constant``)
+    return {"viscosity": viscosity, "dielectric": dielectric}
+
 
 # -------------------------------------------------------------------------
 # Main featurization routine
@@ -211,6 +217,7 @@ def featurize_row(row: Dict[str, Any]) -> Dict[str, Any] | None:
         "exclusion_reason": None,
     }
     return output
+
 
 def main() -> None:
     """
