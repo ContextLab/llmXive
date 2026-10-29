@@ -1,14 +1,7 @@
-last_used: stephen-wolfram
-last_used_at: '2026-10-28T22:06:08.971533+00:00'
-last_outcome: model_error
+last_used: ada-lovelace
+last_used_at: '2026-10-29T00:06:37.344296+00:00'
+last_outcome: abstained
 history:
-- slug: alan-turing
-  started_at: '2026-06-29T20:43:43.176108+00:00'
-  ended_at: '2026-06-29T22:30:29.831796+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/reviews/research/alan-turing-simulated__2026-06-29__research.md
 - slug: albert-einstein
   started_at: '2026-06-29T22:30:29.831796+00:00'
   ended_at: '2026-06-30T01:00:34.537201+00:00'
@@ -1300,3 +1293,7 @@ history:
   started_at: '2026-10-28T20:07:53.260810+00:00'
   ended_at: '2026-10-28T22:06:08.971533+00:00'
   outcome: model_error
+- slug: ada-lovelace
+  started_at: '2026-10-28T22:06:08.971533+00:00'
+  ended_at: '2026-10-29T00:06:37.344296+00:00'
+  outcome: abstained
