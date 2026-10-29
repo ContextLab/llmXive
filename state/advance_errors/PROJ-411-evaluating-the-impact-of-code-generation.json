@@ -1,14 +1,14 @@
 {
   "project_id": "PROJ-411-evaluating-the-impact-of-code-generation",
-  "stage": "in_progress",
+  "stage": "clarified",
   "class": "transient",
   "fingerprint": "backend_chain_failed",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-26T09:51:25.240825+00:00",
-  "last_seen": "2026-10-29T09:15:26.405741+00:00",
-  "retry_after": null,
-  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['google.gemma-4-31B-it', 'zai-org.glm-5.3', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: google.gemma-4-31B-it(model-down attempt 1): Dartmouth 'google.gemma-4-31B-it' exhausted its total retry deadline | zai-org.glm-5.3(model-down attempt 1): Dartmouth model 'zai-org.glm-5.3' hung past 270s deadline (no response received) | openai.gpt-oss-120b(model-down attempt 1): Request timed out. | anthropic.claude-haiku-4-5-20251001(permanent): Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectTimeout: HTTPSConnectionPool(host='chat.dartmouth.edu', port=443): Max retries exceeded with url: /api/v1/credits/balance (Caused by ConnectTimeoutError(<HTTPSConnection(host='chat.dartmouth.edu', port=443) at 0x7f8a0e3c9690>, 'Connection to chat.dartmouth.edu timed out. (connect timeout=30.0)')))",
-  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth(outage): every model in chain ['google.gemma-4-31B-it', 'zai-org.glm-5.3', 'openai.gpt-oss-120b', 'anthropic.claude-haiku-4-5-20251001'] failed on backend 'dartmouth'; errors: google.gemma-4-31B-it(model-down attempt 1): Dartmouth 'google.gemma-4-31B-it' exhausted its total retry deadline | zai-org.glm-5.3(model-down attempt 1",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-29T09:18:24.373725+00:00",
+  "last_seen": "2026-10-29T09:18:24.373725+00:00",
+  "retry_after": "2026-10-29T09:28:24.373725+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }
