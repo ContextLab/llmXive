@@ -2,24 +2,16 @@
 code/data/fetch_heas.py
 -----------------------
 
-This module downloads a curated High‑Entropy Alloy (HEA) yield‑strength
+This module downloads a curated High-Entropy Alloy (HEA) yield-strength
 dataset from a verified external source, validates each record against the
-JSON‑schema contract `contracts/dataset.schema.yaml`, and writes the cleaned
-CSV to ``data/raw/heas_raw.csv``.
+JSON-schema contract `contracts/dataset.schema.yaml`, and writes the cleaned
+CSV to `data/raw/heas_raw.csv`.
 
-The implementation follows the contract‑driven approach used throughout
-the project:
-
-* The dataset URL can be supplied via the configuration (`utils.config.get_config()`).
-  If not provided, a known, publicly accessible CSV on GitHub is used as a
-  fallback.  This CSV is a real dataset extracted from the Materials
-  Informatics community and conforms to the required schema after minimal
-  processing.
-* Each row is validated with ``jsonschema.validate``; a missing required
-  field (e.g. ``yield_strength``) raises a ``ValueError`` with a clear
-  message, satisfying FR‑009.
-* The function returns the ``Path`` to the written CSV for downstream
-  callers.
+The implementation follows the contract-driven approach:
+* Each row is validated with `jsonschema.validate`; a missing required
+  field (e.g. `yield_strength`) raises a `ValueError` with a clear
+  message, satisfying FR-009.
+* Data is fetched from Zenodo or a verified fallback URL.
 """
 
 import csv
@@ -31,14 +23,13 @@ import tempfile
 import shutil
 import sys
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 import requests
 import yaml
 from jsonschema import validate, ValidationError
 
-from utils.config import get_config
-from utils.logging import get_logger
+from llmxive_toolkit import paths, get_logger
 
 logger = get_logger(__name__)
 
@@ -46,9 +37,7 @@ logger = get_logger(__name__)
 # Constants
 # ----------------------------------------------------------------------
 # A verified, publicly available CSV containing HEA compositions and
-# yield‑strength measurements.  The file is hosted on GitHub and is
-# maintained by the Materials‑Data‑Science community.  It is a real
-# dataset (not synthetic) and is updated periodically.
+# yield-strength measurements.
 FALLBACK_DATA_URL = (
     "https://raw.githubusercontent.com/Materials-Data-Science-and-Informatics/HEA-data/main/HEA_yield_strength.csv"
 )
@@ -58,17 +47,10 @@ FALLBACK_DATA_URL = (
 # ----------------------------------------------------------------------
 def _load_schema() -> Dict[str, Any]:
     """
-    Load the dataset JSON‑schema from the canonical location inside
-    ``specs/001-predicting-the-yield-strength-of-high-en/contracts``.
+    Load the dataset JSON-schema from the canonical location.
     """
-    # Resolve the project root relative to this file.
-    project_root = Path(__file__).resolve().parents[2]
-    schema_path = (
-        project_root
-        / "specs"
-        / "001-predicting-the-yield-strength-of-high-en"
-        / "contracts"
-        / "dataset.schema.yaml"
+    schema_path = paths.path(
+        "specs", "001-predicting-the-yield-strength-of-high-en", "contracts", "dataset.schema.yaml"
     )
     if not schema_path.is_file():
         raise FileNotFoundError(f"Dataset schema not found at {schema_path}")
@@ -78,7 +60,7 @@ def _load_schema() -> Dict[str, Any]:
 def _validate_row(row: Dict[str, Any], schema: Dict[str, Any]) -> None:
     """
     Validate a single row (dictionary) against the loaded schema.
-    Raises ``ValueError`` with a helpful message if validation fails.
+    Raises `ValueError` with a helpful message if validation fails.
     """
     try:
         validate(instance=row, schema=schema)
@@ -90,7 +72,7 @@ def _validate_row(row: Dict[str, Any], schema: Dict[str, Any]) -> None:
 
 def _download_file(url: str, dest_path: Path) -> None:
     """
-    Download a file from ``url`` and write it to ``dest_path``.
+    Download a file from `url` and write it to `dest_path`.
     """
     logger.info(f"Downloading file from {url}")
     with requests.get(url, timeout=30, stream=True) as resp:
@@ -103,7 +85,7 @@ def _download_file(url: str, dest_path: Path) -> None:
 
 def _extract_csv_from_zip(zip_path: Path) -> Path:
     """
-    Extract the first CSV file found inside ``zip_path`` to a temporary
+    Extract the first CSV file found inside `zip_path` to a temporary
     location and return the Path to the extracted CSV.
     """
     with zipfile.ZipFile(zip_path, "r") as zf:
@@ -121,8 +103,7 @@ def _extract_csv_from_zip(zip_path: Path) -> Path:
 def _download_from_zenodo(search_query: str = "high entropy alloy yield strength") -> Path:
     """
     Perform a Zenodo API search for the given query, pick the first public
-    record that contains a CSV file (or a ZIP containing a CSV), and download
-    that file. Returns the temporary ``Path`` to the downloaded CSV.
+    record that contains a CSV file, and download it.
     """
     logger.info(
         f"Searching Zenodo for dataset matching query: '{search_query}'"
@@ -145,12 +126,12 @@ def _download_from_zenodo(search_query: str = "high entropy alloy yield strength
             lower_name = filename.lower()
             if lower_name.endswith(".csv") and "yield" in lower_name:
                 download_url = f["links"]["download"]
-                tmp_path = Path.cwd() / "data" / "raw" / filename
+                tmp_path = paths.data("raw", filename)
                 _download_file(download_url, tmp_path)
                 return tmp_path
             if lower_name.endswith(".zip"):
                 download_url = f["links"]["download"]
-                zip_tmp = Path.cwd() / "data" / "raw" / filename
+                zip_tmp = paths.data("raw", filename)
                 _download_file(download_url, zip_tmp)
                 csv_path = _extract_csv_from_zip(zip_tmp)
                 zip_tmp.unlink(missing_ok=True)
@@ -162,11 +143,7 @@ def _download_from_zenodo(search_query: str = "high entropy alloy yield strength
 
 def _parse_composition(comp_str: str) -> Dict[str, float]:
     """
-    Parse composition strings such as ``Al0.3Co0.3Cr0.3`` or
-    ``Al(0.3)Co(0.3)Cr(0.3)`` into a dictionary mapping element symbols to
-    their atomic fractions. This helper is retained for compatibility
-    with downstream descriptor code that expects a ``composition`` field
-    expressed as a JSON string.
+    Parse composition strings such as `Al0.3Co0.3Cr0.3` into a dictionary.
     """
     comp_str = comp_str.replace(" ", "")
     pattern = r"([A-Z][a-z]?)(?:\(?([0-9]*\.?[0-9]+)\)?)"
@@ -185,53 +162,22 @@ def _parse_composition(comp_str: str) -> Dict[str, float]:
         composition[k] /= total
     return composition
 
-# ----------------------------------------------------------------------
-# Main public function
-# ----------------------------------------------------------------------
 def fetch_heas() -> Path:
     """
     Download the HEA dataset, validate every row, and write the cleaned CSV
-    to ``data/raw/heas_raw.csv``.
-
-    Returns
-    -------
-    pathlib.Path
-        Path to the written CSV file.
-
-    Raises
-    ------
-    RuntimeError
-        If the dataset cannot be fetched.
-    ValueError
-        If any row fails schema validation (e.g. missing ``yield_strength``).
+    to `data/raw/heas_raw.csv`.
     """
-    # ------------------------------------------------------------------
-    # Determine source URL
-    # ------------------------------------------------------------------
-    config = get_config()
-    dataset_url = config.get("hea_dataset_url")  # user‑provided URL, optional
-
-    if dataset_url:
-        logger.info(
-            f"Downloading HEA dataset from configured URL: {dataset_url}"
+    # 1. Determine source URL
+    try:
+        csv_path = _download_from_zenodo()
+    except Exception as zen_err:
+        logger.warning(
+            f"Zenodo search failed ({zen_err}); using fallback URL."
         )
-        csv_path = Path.cwd() / "data" / "raw" / "heas_raw_downloaded.csv"
-        _download_file(dataset_url, csv_path)
-    else:
-        # First try Zenodo search; if that fails, fall back to the known
-        # GitHub‑hosted CSV.
-        try:
-            csv_path = _download_from_zenodo()
-        except Exception as zen_err:
-            logger.warning(
-                f"Zenodo search failed ({zen_err}); using fallback URL."
-            )
-            csv_path = Path.cwd() / "data" / "raw" / "heas_raw_fallback.csv"
-            _download_file(FALLBACK_DATA_URL, csv_path)
+        csv_path = paths.data("raw", "heas_raw_fallback.csv")
+        _download_file(FALLBACK_DATA_URL, csv_path)
 
-    # ------------------------------------------------------------------
-    # Load CSV and normalize rows
-    # ------------------------------------------------------------------
+    # 2. Load CSV
     logger.info(f"Reading dataset from {csv_path}")
     with csv_path.open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -242,11 +188,9 @@ def fetch_heas() -> Path:
 
     schema = _load_schema()
 
-    # ------------------------------------------------------------------
-    # Validate each row and ensure ``composition`` is a JSON‑encoded dict
-    # ------------------------------------------------------------------
+    # 3. Validate each row and normalize
     for idx, row in enumerate(rows, start=1):
-        # Normalise column names that may differ in source files.
+        # Normalise column names
         if "Composition" in row and "composition" not in row:
             row["composition"] = row.pop("Composition")
         if "AlloyID" in row and "alloy_id" not in row:
@@ -254,7 +198,7 @@ def fetch_heas() -> Path:
         if "YieldStrength" in row and "yield_strength" not in row:
             row["yield_strength"] = row.pop("YieldStrength")
 
-        # Convert composition to a dict if it is a string.
+        # Convert composition to a dict
         if "composition" in row and isinstance(row["composition"], str):
             try:
                 comp_dict = json.loads(row["composition"])
@@ -262,7 +206,7 @@ def fetch_heas() -> Path:
                 comp_dict = _parse_composition(row["composition"])
             row["composition"] = comp_dict
 
-        # Ensure numeric yield_strength.
+        # Ensure numeric yield_strength
         if "yield_strength" in row:
             try:
                 row["yield_strength"] = float(row["yield_strength"])
@@ -278,40 +222,27 @@ def fetch_heas() -> Path:
                 f"Validation failed for row {idx}: {exc}"
             ) from exc
 
-    # ------------------------------------------------------------------
-    # Write the validated data to the canonical location
-    # ------------------------------------------------------------------
-    output_path = (
-        Path(__file__).resolve().parents[2]
-        / "data"
-        / "raw"
-        / "heas_raw.csv"
-    )
+    # 4. Write the validated data to the canonical location
+    output_path = paths.data("raw", "heas_raw.csv")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     logger.info(f"Writing validated dataset to {output_path}")
 
-    # Preserve column order – use the keys from the first validated row.
     fieldnames = rows[0].keys()
     with output_path.open("w", newline="", encoding="utf-8") as out_f:
         writer = csv.DictWriter(out_f, fieldnames=fieldnames)
         writer.writeheader()
         for row in rows:
-            # Store composition as a JSON string for downstream consistency.
+            # Store composition as a JSON string for CSV compatibility
             if isinstance(row.get("composition"), dict):
                 row["composition"] = json.dumps(row["composition"])
             writer.writerow(row)
 
-    logger.info(
-        "HEA dataset download and validation completed successfully"
-    )
+    logger.info("HEA dataset download and validation completed successfully")
     return output_path
 
-# ----------------------------------------------------------------------
-# CLI entry point
-# ----------------------------------------------------------------------
 def main() -> None:
     """
-    Command‑line entry point for ``python -m code.data.fetch_heas``.
+    Command-line entry point for `python -m code.data.fetch_heas`.
     """
     try:
         path = fetch_heas()

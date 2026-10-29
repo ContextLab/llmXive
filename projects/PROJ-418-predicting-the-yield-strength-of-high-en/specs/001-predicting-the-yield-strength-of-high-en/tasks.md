@@ -15,7 +15,7 @@
 
 ## Phase 1 – Data acquisition & descriptor calculation  
 
-- [ ] T001 **Download curated HEA dataset from Zenodo** – fetch the dataset from the verified Zenodo DOI (as listed in the specification), write to `data/raw/heas_raw.csv`, and validate each record against `contracts/dataset.schema.yaml`. Abort with a clear error if any required field is missing.   <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_pipeline_with_checksum.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1; code/data/fetch_heas_test_runner.py exit=1 -->
+- [ ] T001 **Download curated HEA dataset from Zenodo** – fetch the dataset from the verified Zenodo DOI (as listed in the specification), write to `data/raw/heas_raw.csv`, and validate each record against `contracts/dataset.schema.yaml`. Abort with a clear error if any required field is missing.   <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_pipeline_with_checksum.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1; code/data/fetch_heas_test_runner.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 -->
   - **Implementation**: `code/data/fetch_heas.py`  
   - **Verification**: `code/tests/test_fetch_heas.py` checks that a record missing `yield_strength` raises `ValueError` and that the produced CSV passes schema validation.  
 

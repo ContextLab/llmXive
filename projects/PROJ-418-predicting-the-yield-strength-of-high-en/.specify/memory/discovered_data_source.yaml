@@ -1,13 +1,19 @@
 status: none
-intent: download HEA yield strength dataset Zenodo DOI and Materials Project elemental
-  properties python package dataset
+intent: download high entropy alloy yield strength dataset Zenodo and Materials Project
+  elemental properties python package dataset
 required_fields:
-- alloy_id
-- composition
-- yield_strength
-- measurement_temperature
-- strain_rate
-- phase
-cache_key: fc047eaca09ff39d2e9eaf624e6a0e4ceb7746d4b788790bc6684010aeef23bd
-searched_at: '2026-10-29T18:11:26.023506+00:00'
+- alloy_identifier
+- element_symbols
+- element_fractions
+- yield_strength_MPa
+- processing_temperature_C
+- processing_time_s
+- phase_information
+- reference_dataset_identifier
+- validation_alloy_identifier
+- validation_element_symbols
+- validation_element_fractions
+- validation_yield_strength_MPa
+cache_key: 08eb39ed0ff7ad39c1bda36c2650208d144b3e509d6888698d73d2d7392f4cc2
+searched_at: '2026-10-29T21:09:57.978976+00:00'
 retry_count: 1
