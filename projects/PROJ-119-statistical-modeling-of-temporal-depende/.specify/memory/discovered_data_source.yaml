@@ -1,12 +1,12 @@
 status: none
-intent: CoinGecko OHLCV daily BTC ETH python package dataset
+intent: CoinGecko daily OHLCV Bitcoin and Ethereum python package dataset
 required_fields:
 - date
 - open
 - high
 - low
 - close
-- total_volume
-cache_key: b7dd17be0acb2efe4ff8318d90456449ae2bef32dc0d1e7ffdf9e698b52e64a6
-searched_at: '2026-10-24T16:41:38.089307+00:00'
+- volume
+cache_key: 9404e38e4872f3378a59d74012f37530454a703d99bdbb3f461ff8e230d02f43
+searched_at: '2026-10-29T16:12:23.699903+00:00'
 retry_count: 1
