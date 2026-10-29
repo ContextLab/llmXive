@@ -1,15 +1,12 @@
 status: none
-intent: Ionic liquid interaction energy benchmark CCSD(T)/CBS Zenodo and NIST thermophysical
-  properties python package dataset
+intent: ionic liquid interaction energy benchmark CCSD(T) CBS Zenodo dataset python
+  package dataset
 required_fields:
 - ion_pair_id
 - reference_interaction_energy_ccsd_t_cbs
-- molecular_coordinates
-- reference_dispersion_energy
-- ionic_liquid_name
-- temperature
-- density
-- viscosity
-cache_key: fe8d0cb45f89b63413f2eeed0854af2a0f617d4d4281d0a03107eb58a419f0a0
-searched_at: '2026-10-29T04:12:35.953302+00:00'
+- geometry_coordinates
+- charge
+- multiplicity
+cache_key: 3b83c83d712b84009c7ac1e794eb08a52cf6384f17f27caddebfe2c688832ab2
+searched_at: '2026-10-29T05:12:11.746229+00:00'
 retry_count: 1
