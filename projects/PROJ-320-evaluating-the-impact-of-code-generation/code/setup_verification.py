@@ -17,6 +17,11 @@ from pathlib import Path
 # Project‑level helpers
 from llmxive_toolkit import paths, get_logger
 
+# Resolve the path to the root‑level requirements.txt.
+# The script resides in <project_root>/code/, so we need to go up one level.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+REQUIREMENTS_PATH = PROJECT_ROOT / "requirements.txt"
+
 log_file = paths.logs("setup_verification.log")
 logger = get_logger(__name__, log_file=str(log_file))
 
@@ -25,12 +30,14 @@ def install_requirements() -> bool:
     Install the root‑level requirements.txt using pip.
     Returns True on success, False otherwise.
     """
-    requirements_path = Path(__file__).resolve().parents[2] / "requirements.txt"
-    logger.info(f"Installing requirements from {requirements_path}")
+    logger.info(f"Installing requirements from {REQUIREMENTS_PATH}")
+    if not REQUIREMENTS_PATH.is_file():
+        logger.error(f"requirements.txt not found at {REQUIREMENTS_PATH}")
+        return False
     try:
         # Use the same Python executable that runs this script
         subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "-r", str(requirements_path)],
+            [sys.executable, "-m", "pip", "install", "-r", str(REQUIREMENTS_PATH)],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )

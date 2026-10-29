@@ -1,3 +1,1 @@
-"""
-Package marker for the `data` module.
-"""
+# This file makes the `code/data` directory a Python package.

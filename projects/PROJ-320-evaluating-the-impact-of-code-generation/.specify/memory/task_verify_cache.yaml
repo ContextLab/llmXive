@@ -24,17 +24,6 @@ T005:
     \ so the test suite does not fully pass as required. The detector implementation\
     \ itself exists, but the verification condition is not met."
   sig: 60d77460abd0befd4d5a089cf1a15f3d0d455ae8f8de6ad4e00d3c44a9c6e79c
-T006:
-  c: false
-  h: e056bcb003ee681b6263beba2ed22f0037e946d7945edd409dd6461770f6fc0d
-  r: "The classification script cannot be imported because it tries `from data.entropy_detector\
-    \ import compute_entropy` while the detector lives at `code/data/entropy_detector.py`,\
-    \ causing a `ModuleNotFoundError` (see unit\u2011test log). Moreover, the generated\
-    \ CSV includes extra columns (`confidence_score`, `flagged_for_audit`, `review_cycles`,\
-    \ `entropy_score`) that are not defined in `pr_schema.schema.yaml`, so the file\
-    \ would not validate against the schema. Fix the import path and ensure the CSV\
-    \ contains only the fields listed in the schema (or update the schema accordingly)."
-  sig: 75fff073af4d6604b30da36389b3a96cb86dcaedc4f699f6c242dccea963be9d
 T008:
   c: false
   h: ee68077077e1a7ec23099938345acc14a010984c91b6da7b46ace47ca795fb11

@@ -8,6 +8,7 @@ entropy log2(N), where N is the total number of tokens observed.
 from __future__ import annotations
 
 import math
+from collections import Counter
 from typing import Dict, List
 
 
@@ -15,15 +16,13 @@ def tokenize_diff(diff_text: str) -> List[str]:
     """Tokenise a diff by whitespace splitting (per T005 spec)."""
     if not diff_text:
         return []
+    # split on any whitespace (spaces, newlines, tabs)
     return diff_text.split()
 
 
 def token_frequencies(tokens: List[str]) -> Dict[str, int]:
     """Count occurrences of each token."""
-    freq: Dict[str, int] = {}
-    for tok in tokens:
-        freq[tok] = freq.get(tok, 0) + 1
-    return freq
+    return dict(Counter(tokens))
 
 
 def shannon_entropy(tokens: List[str]) -> float:
@@ -53,20 +52,22 @@ def compute_entropy(diff_text: str) -> float:
         Empty or single-token diffs return 0.0.
     """
     if not isinstance(diff_text, str):
-        raise TypeError(f"diff_text must be a string, got {type(diff_text).__name__}")
+        raise TypeError(
+            f"diff_text must be a string, got {type(diff_text).__name__}"
+        )
 
     tokens = tokenize_diff(diff_text)
     if not tokens:
         return 0.0
 
-    freq = token_frequencies(tokens)
-    distinct = len(freq)
+    # If there is only one distinct token, entropy is zero by definition.
+    distinct = len(set(tokens))
     if distinct <= 1:
         return 0.0
 
     entropy = shannon_entropy(tokens)
-    # Normalise by the theoretical maximum entropy for the given token count.
-    max_entropy = math.log2(len(tokens))
+    max_entropy = math.log2(len(tokens)) if len(tokens) > 0 else 0.0
     normalized = entropy / max_entropy if max_entropy > 0 else 0.0
-    # Guard against tiny floating point excursions outside [0, 1].
+
+    # Clamp to [0, 1] to guard against floating‑point rounding issues.
     return max(0.0, min(1.0, normalized))

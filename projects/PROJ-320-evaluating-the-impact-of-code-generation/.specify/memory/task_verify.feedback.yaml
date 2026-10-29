@@ -26,13 +26,8 @@ T005:
     \ itself exists, but the verification condition is not met."
   task: 66549574e4d9f668a39fdd6e7689c493afbef463616ad62ce4c110b3bbc3e405
 T006:
-  reason: "The classification script cannot be imported because it tries `from data.entropy_detector\
-    \ import compute_entropy` while the detector lives at `code/data/entropy_detector.py`,\
-    \ causing a `ModuleNotFoundError` (see unit\u2011test log). Moreover, the generated\
-    \ CSV includes extra columns (`confidence_score`, `flagged_for_audit`, `review_cycles`,\
-    \ `entropy_score`) that are not defined in `pr_schema.schema.yaml`, so the file\
-    \ would not validate against the schema. Fix the import path and ensure the CSV\
-    \ contains only the fields listed in the schema (or update the schema accordingly)."
+  reason: 'Requested task execution failed; rerun successfully: code/data/classify_prs.py
+    exit=1'
   task: bc0c6cd9ddeeb914dc017405f9e0e74f5e0acfabebc8e86621f6a524be66d306
 T008:
   reason: "The `code/analysis/complexity.py` script never retrieves full source files\

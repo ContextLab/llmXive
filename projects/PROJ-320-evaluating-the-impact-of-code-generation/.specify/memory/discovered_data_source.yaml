@@ -1,18 +1,18 @@
 status: none
-intent: download GitHub pull request dataset GHTorrent GH Archive python package dataset
+intent: download GitHub pull request dataset from GH Archive as python package dataset
 required_fields:
-- pull_request_id
+- pr_id
 - repository_full_name
+- pr_title
+- pr_body
 - created_at
 - merged_at
 - author_login
 - author_association
-- commit_message
-- files_changed
+- labels
+- commits_count
+- changed_files
 - additions
-- deletions
-- llm_generated_label
-- raw_json
-cache_key: 2c4795a52f73187ca6c4fbf57416f58807e3d438a84a3080d1bcc0ed0f4be9d8
-searched_at: '2026-10-29T01:13:54.835217+00:00'
+cache_key: 5ed90e958cff80098036f2aa4c17d5f8744e54f017cc1d02d381202f1a5069f8
+searched_at: '2026-10-29T03:14:24.023940+00:00'
 retry_count: 1

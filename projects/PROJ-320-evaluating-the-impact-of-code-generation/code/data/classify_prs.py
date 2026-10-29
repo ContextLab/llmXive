@@ -26,7 +26,6 @@ import argparse
 import csv
 import json
 import os
-import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -35,7 +34,10 @@ from typing import Any, Dict, List, Optional
 # Project imports
 from utils.logging import get_logger, setup_logging
 from utils.seeds import set_global_seed
-from data.entropy_detector import compute_entropy  # secondary entropy detector
+# The entropy detector lives in the same package (`code/data`), so we import it
+# via the package name `data` (the `code/data` directory is now a package thanks
+# to the added `__init__.py` file).
+from data.entropy_detector import compute_entropy
 
 # ----------------------------------------------------------------------
 # Configuration & Constants
@@ -105,7 +107,7 @@ def calculate_confidence_score(user: str, message: str) -> float:
       * Exact LLM‑bot username → 1.0
       * LLM‑bot username *without* a commit‑message marker → 0.9
       * Commit‑message marker *without* bot username → 0.7
-      * Both present but not an exact bot match → 0.5‑0.9 (here 0.8)
+      * Both present but not an exact bot match → 0.8 (treated as strong evidence)
       * No evidence → 0.0 (treated as human)
     """
     if is_infra_bot(user):
@@ -115,7 +117,6 @@ def calculate_confidence_score(user: str, message: str) -> float:
     msg_match = has_llm_signature(message)
 
     if bot_match and msg_match:
-        # Exact bot match (username is in the known list) + marker
         return 1.0
     if bot_match and not msg_match:
         return 0.9
