@@ -22,9 +22,9 @@ The public API matches the project’s existing surface:
   - calculate_descriptors()
   - filter_missing_properties()
   - main()
-The implementation has been extended to raise a clear ``KeyError`` when an
-element is missing from the elemental table and to output column names
-that exactly match the JSON‑schema contracts.
+The implementation raises a clear ``KeyError`` when an element is missing
+from the elemental table and writes column names that exactly match the
+JSON‑schema contracts.
 """
 
 import os
@@ -37,6 +37,7 @@ import re
 from typing import Dict, List, Any, Optional, Tuple
 
 from utils.logging import get_logger
+from llmxive_toolkit import paths
 
 logger = get_logger(__name__)
 
@@ -50,7 +51,7 @@ logger = get_logger(__name__)
 # during unit‑test execution) while still using the authoritative source
 # when the pipeline runs end‑to‑end.
 # ----------------------------------------------------------------------
-ELEMENTAL_PROPERTIES_CSV = os.path.join("data", "raw", "elemental_properties.csv")
+ELEMENTAL_PROPERTIES_CSV = paths.data("raw", "elemental_properties.csv")
 
 def _load_properties_from_csv() -> Dict[str, Dict[str, float]]:
     """Load elemental properties from the CSV file.
@@ -59,11 +60,12 @@ def _load_properties_from_csv() -> Dict[str, Dict[str, float]]:
     ``valence``, ``melting_point`` (optional).  Missing columns are ignored.
     Returns a mapping ``{symbol: {prop: value, ...}}``.
     """
-    if not os.path.isfile(ELEMENTAL_PROPERTIES_CSV):
+    csv_path = ELEMENTAL_PROPERTIES_CSV
+    if not csv_path.is_file():
         logger.debug("Elemental properties CSV not found – using built‑in table.")
         return {}
 
-    df = pd.read_csv(ELEMENTAL_PROPERTIES_CSV, dtype=str)
+    df = pd.read_csv(csv_path, dtype=str)
     required = {"element", "radius", "electronegativity", "valence"}
     missing = required - set(df.columns.str.lower())
     if missing:
@@ -78,13 +80,21 @@ def _load_properties_from_csv() -> Dict[str, Dict[str, float]]:
             radius = float(row["radius"])
             chi = float(row["electronegativity"])
             val = float(row["valence"])
-            tm = float(row["melting_point"]) if "melting_point" in row and pd.notna(row["melting_point"]) else None
+            tm = (
+                float(row["melting_point"])
+                if "melting_point" in row and pd.notna(row["melting_point"])
+                else None
+            )
         except ValueError as e:
-            raise ValueError(f"Invalid numeric value in elemental properties CSV for {symbol}: {e}")
+            raise ValueError(
+                f"Invalid numeric value in elemental properties CSV for {symbol}: {e}"
+            )
 
-        entry: Dict[str, float] = {"radius": radius,
-                                   "electronegativity": chi,
-                                   "valence": val}
+        entry: Dict[str, float] = {
+            "radius": radius,
+            "electronegativity": chi,
+            "valence": val,
+        }
         if tm is not None:
             entry["melting_point"] = tm
         props[symbol] = entry
@@ -92,24 +102,24 @@ def _load_properties_from_csv() -> Dict[str, Dict[str, float]]:
 
 # Hard‑coded fallback (identical to the original implementation)
 _FALLBACK_ELEMENTAL_PROPERTIES: Dict[str, Dict[str, float]] = {
-    'Cr': {'radius': 128, 'electronegativity': 1.66, 'valence': 6},
-    'Co': {'radius': 125, 'electronegativity': 1.88, 'valence': 9},
-    'Fe': {'radius': 126, 'electronegativity': 1.83, 'valence': 8},
-    'Ni': {'radius': 124, 'electronegativity': 1.91, 'valence': 10},
-    'Mn': {'radius': 127, 'electronegativity': 1.55, 'valence': 7},
-    'Al': {'radius': 143, 'electronegativity': 1.61, 'valence': 3},
-    'Cu': {'radius': 128, 'electronegativity': 1.90, 'valence': 11},
-    'Ti': {'radius': 147, 'electronegativity': 1.54, 'valence': 4},
-    'V':  {'radius': 134, 'electronegativity': 1.63, 'valence': 5},
-    'Nb': {'radius': 146, 'electronegativity': 1.60, 'valence': 5},
-    'Ta': {'radius': 146, 'electronegativity': 1.50, 'valence': 5},
-    'Mo': {'radius': 139, 'electronegativity': 2.16, 'valence': 6},
-    'W':  {'radius': 139, 'electronegativity': 2.36, 'valence': 6},
-    'Zr': {'radius': 160, 'electronegativity': 1.33, 'valence': 4},
-    'Hf': {'radius': 159, 'electronegativity': 1.30, 'valence': 4},
-    'Si': {'radius': 117, 'electronegativity': 1.90, 'valence': 4},
-    'C':  {'radius': 77,  'electronegativity': 2.55, 'valence': 4},
-    'O':  {'radius': 73,  'electronegativity': 3.44, 'valence': 6},
+    "Cr": {"radius": 128, "electronegativity": 1.66, "valence": 6},
+    "Co": {"radius": 125, "electronegativity": 1.88, "valence": 9},
+    "Fe": {"radius": 126, "electronegativity": 1.83, "valence": 8},
+    "Ni": {"radius": 124, "electronegativity": 1.91, "valence": 10},
+    "Mn": {"radius": 127, "electronegativity": 1.55, "valence": 7},
+    "Al": {"radius": 143, "electronegativity": 1.61, "valence": 3},
+    "Cu": {"radius": 128, "electronegativity": 1.90, "valence": 11},
+    "Ti": {"radius": 147, "electronegativity": 1.54, "valence": 4},
+    "V": {"radius": 134, "electronegativity": 1.63, "valence": 5},
+    "Nb": {"radius": 146, "electronegativity": 1.60, "valence": 5},
+    "Ta": {"radius": 146, "electronegativity": 1.50, "valence": 5},
+    "Mo": {"radius": 139, "electronegativity": 2.16, "valence": 6},
+    "W": {"radius": 139, "electronegativity": 2.36, "valence": 6},
+    "Zr": {"radius": 160, "electronegativity": 1.33, "valence": 4},
+    "Hf": {"radius": 159, "electronegativity": 1.30, "valence": 4},
+    "Si": {"radius": 117, "electronegativity": 1.90, "valence": 4},
+    "C": {"radius": 77, "electronegativity": 2.55, "valence": 4},
+    "O": {"radius": 73, "electronegativity": 3.44, "valence": 6},
 }
 
 def get_elemental_properties() -> Dict[str, Dict[str, float]]:
@@ -185,8 +195,9 @@ def _parse_composition(comp_str: str) -> Tuple[List[str], List[float]]:
 # ----------------------------------------------------------------------
 # Descriptor calculations for a single composition
 # ----------------------------------------------------------------------
-def calculate_single_composition_descriptors(row: pd.Series,
-                                             props: Dict[str, Dict[str, float]]) -> Dict[str, Any]:
+def calculate_single_composition_descriptors(
+    row: pd.Series, props: Dict[str, Dict[str, float]]
+) -> Dict[str, Any]:
     """
     Compute the five descriptors for a single alloy composition.
 
@@ -218,7 +229,6 @@ def calculate_single_composition_descriptors(row: pd.Series,
         v = get_property(elem, "valence")
         tm = get_property(elem, "melting_point")  # may be None
 
-        # The helper raises KeyError for missing element; we propagate it.
         radii.append(r)                # type: ignore[arg-type]
         electronegativities.append(chi)  # type: ignore[arg-type]
         valences.append(v)              # type: ignore[arg-type]
@@ -236,7 +246,9 @@ def calculate_single_composition_descriptors(row: pd.Series,
 
     # 3. Electronegativity variance (Δχ) = sqrt( Σ c_i (χ_i - χ̄)² )
     chi_bar = calculate_weighted_average(electronegativities, fractions)
-    delta_chi = np.sqrt(sum(c * (chi - chi_bar) ** 2 for chi, c in zip(electronegativities, fractions)))
+    delta_chi = np.sqrt(
+        sum(c * (chi - chi_bar) ** 2 for chi, c in zip(electronegativities, fractions))
+    )
 
     # 4. Valence electron concentration (VEC) = Σ c_i * V_i
     vec = calculate_weighted_average(valences, fractions)
@@ -244,8 +256,15 @@ def calculate_single_composition_descriptors(row: pd.Series,
     # 5. Melting‑point variance (ΔTm) – if we have melting points, compute variance,
     #    otherwise set to 0.0 (the schema permits zero).
     if melting_points:
-        tm_bar = calculate_weighted_average(melting_points, fractions[:len(melting_points)])
-        delta_tm = np.sqrt(sum(c * (tm - tm_bar) ** 2 for tm, c in zip(melting_points, fractions[:len(melting_points)])))
+        tm_bar = calculate_weighted_average(
+            melting_points, fractions[: len(melting_points)]
+        )
+        delta_tm = np.sqrt(
+            sum(
+                c * (tm - tm_bar) ** 2
+                for tm, c in zip(melting_points, fractions[: len(melting_points)])
+            )
+        )
     else:
         delta_tm = 0.0
 
@@ -299,8 +318,29 @@ def filter_missing_properties(df: pd.DataFrame) -> pd.DataFrame:
     ]
     initial = len(df)
     df_clean = df.dropna(subset=desc_cols)
-    logger.info(f"filter_missing_properties: removed {initial - len(df_clean)} rows with NaNs")
+    logger.info(
+        f"filter_missing_properties: removed {initial - len(df_clean)} rows with NaNs"
+    )
     return df_clean
+
+def _load_schema(schema_filename: str) -> Dict[str, Any]:
+    """
+    Load a JSON‑schema file from the project's ``specs`` directory.
+
+    The contracts live under
+    ``specs/001-predicting-the-yield-strength-of-high-en/contracts``.
+    """
+    schema_path = (
+        paths.root
+        / "specs"
+        / "001-predicting-the-yield-strength-of-high-en"
+        / "contracts"
+        / schema_filename
+    )
+    if not schema_path.is_file():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 def main():
     """
@@ -310,12 +350,12 @@ def main():
     ``data/processed/hea_descriptors.csv`` and validates the output against
     both JSON‑schema contracts.
     """
-    raw_path = os.path.join("data", "raw", "heas_raw.csv")
-    processed_dir = os.path.join("data", "processed")
+    raw_path = paths.data("raw", "heas_raw.csv")
+    processed_dir = paths.data("processed")
     os.makedirs(processed_dir, exist_ok=True)
-    out_path = os.path.join(processed_dir, "hea_descriptors.csv")
+    out_path = processed_dir / "hea_descriptors.csv"
 
-    if not os.path.isfile(raw_path):
+    if not raw_path.is_file():
         logger.error(f"Raw dataset not found at {raw_path}")
         raise FileNotFoundError(f"Raw dataset not found at {raw_path}")
 
@@ -337,14 +377,9 @@ def main():
     # ------------------------------------------------------------------
     from jsonschema import validate, ValidationError
 
-    # Load descriptor schema
-    descriptor_schema_path = os.path.join("contracts", "descriptor.schema.yaml")
-    hea_schema_path = os.path.join("contracts", "hea_schema.schema.yaml")
     try:
-        with open(descriptor_schema_path, "r", encoding="utf-8") as f:
-            descriptor_schema = json.load(f)
-        with open(hea_schema_path, "r", encoding="utf-8") as f:
-            hea_schema = json.load(f)
+        descriptor_schema = _load_schema("descriptor.schema.yaml")
+        hea_schema = _load_schema("hea_schema.schema.yaml")
     except Exception as exc:
         logger.error(f"Failed to load schema files: {exc}")
         raise
@@ -356,8 +391,13 @@ def main():
             validate(instance=rec_dict, schema=descriptor_schema)
             validate(instance=rec_dict, schema=hea_schema)
         except ValidationError as ve:
-            logger.error(f"Schema validation error for record {rec_dict.get('composition')}: {ve.message}")
+            logger.error(
+                f"Schema validation error for record {rec_dict.get('composition')}: {ve.message}"
+            )
             raise
 
     logger.info("Descriptor generation completed successfully.")
     return df_desc
+
+if __name__ == "__main__":
+    main()

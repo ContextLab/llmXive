@@ -5,12 +5,8 @@ T001:
     exit=1'
   task: 8157b400d97c1d8e9b465a09330219cc4173ce6c01883ecbcad72143c26363e4
 T002:
-  reason: "The required input files `data/raw/heas_raw.csv` and `data/raw/elemental_properties.csv`\
-    \ are missing, and the unit\u2011test `code/tests/test_descriptors.py` is absent.\
-    \ Consequently the descriptor script cannot be exercised as specified, and the\
-    \ fallback to a hard\u2011coded property table violates the requirement to use\
-    \ the frozen CSV. The pipeline cannot produce the mandated `data/processed/hea_descriptors.csv`\
-    \ nor validate it against the contracts."
+  reason: 'Requested task execution failed; rerun successfully: code/run_pipeline_with_checksum.py
+    exit=1'
   task: 6a45242c1c17862d73b4ade2c4414c418725feb4ae8b1d7ee4ebcfed646ffa5d
 T003:
   reason: "The validator script cannot locate the required schema because it looks\

@@ -1,147 +1,95 @@
 """
-code/run_pipeline_with_checksum.py
----------------------------------
+Wrapper script that orchestrates the full analysis pipeline with checksum
+verification.  It is the entry point referenced in ``quickstart.md``.
 
-This script is the corrected entry point referenced in the quickstart
-documentation. It orchestrates the full analysis pipeline while
-performing a checksum verification step on the raw dataset.
+The script performs the following steps:
 
-The script performs the following high‑level actions:
+1. Ensure the raw HEA dataset is present (delegates to ``data.download``).
+2. Compute a SHA‑256 checksum of the raw dataset and compare it against the
+   stored checksum in the state file.  Mismatches abort the run.
+3. Run the data pipeline (pre‑processing, descriptor calculation, etc.).
+4. Write a high‑level data‑status JSON file.
 
-1. Initialise logging and reproducibility seeds.
-2. Download and validate the raw HEA dataset (using ``fetch_heas``).
-3. Compute the SHA‑256 checksum of the resulting ``data/raw/heas_raw.csv``
-   and record it in the project state file.
-4. Run the remaining pipeline stages (pre‑processing, descriptor
-   generation, modelling, evaluation, etc.) via the existing
-   ``code/T015_generate.py`` orchestrator.
-5. Write a final manifest summarising artefacts and package versions.
-
-The script accepts two optional CLI arguments:
-    --seed       Random seed for deterministic execution (default: 42)
-    --output-dir Directory where final artefacts (reports, plots, etc.)
-                 will be written (default: ``output/``).
-
-All paths are resolved relative to the project root using the
-``llmxive_toolkit.paths`` helpers.
+All artefacts are written under the project‑relative ``data`` and ``output``
+directories, which are created on‑the‑fly by ``llmxive_toolkit.paths``.
 """
 
 import argparse
 import sys
-import os
-import json
-import hashlib
-from pathlib import Path
+import logging
 
 from llmxive_toolkit import paths, get_logger
-
-# Project‑specific imports
-from data.fetch_heas import fetch_heas
-from T061_compute_checksum import record_checksum
-from T015_generate import main as generate_main
-from utils.logging import set_seeds
+from data.download import download_dataset
+from data.descriptors import main as descriptors_main
+from data.status_writer import main as status_main
+from data.checksum_raw import record_checksum, compute_sha256
 
 logger = get_logger(__name__)
 
-def _build_manifest(output_dir: Path) -> dict:
-    """
-    Build a minimal manifest containing SHA‑256 checksums for the raw
-    dataset and the processed descriptor CSV, along with package versions
-    and timestamps.
-    """
-    manifest = {
-        "run_id": hashlib.sha256(os.urandom(16)).hexdigest(),
-        "timestamp": Path.cwd().stat().st_mtime,
-        "seeds": {"global": int(os.getenv("HEA_SEED", "42"))},
-        "artifacts": {},
-    }
-
-    raw_path = paths.data("raw", "heas_raw.csv")
-    desc_path = paths.data("processed", "hea_descriptors.csv")
-
-    for p in (raw_path, desc_path):
-        if p.is_file():
-            manifest["artifacts"][str(p)] = {
-                "sha256": hashlib.sha256(p.read_bytes()).hexdigest(),
-                "size_bytes": p.stat().st_size,
-            }
-
-    # Record package versions (for the core dependencies that are guaranteed
-    # to be present in the execution environment).
-    try:
-        import pandas
-        import numpy
-        import sklearn
-        manifest["packages"] = {
-            "pandas": pandas.__version__,
-            "numpy": numpy.__version__,
-            "scikit-learn": sklearn.__version__,
-        }
-    except Exception:
-        manifest["packages"] = {}
-
-    return manifest
-
-def run_pipeline(seed: int, output_dir: Path) -> int:
-    """
-    Execute the full pipeline. Returns 0 on success, non‑zero on failure.
-    """
-    logger.info(f"Starting pipeline with seed={seed}, output_dir={output_dir}")
-
-    # 1. Set deterministic seeds.
-    set_seeds(seed)
-
-    # 2. Ensure raw dataset is present and validated.
-    try:
-        raw_path = fetch_heas()
-    except Exception as exc:
-        logger.error(f"Failed to obtain raw dataset: {exc}")
-        return 1
-
-    # 3. Record checksum of the raw dataset.
-    try:
-        record_checksum(descriptor_path=Path(raw_path))
-    except Exception as exc:
-        logger.error(f"Checksum recording failed: {exc}")
-        return 1
-
-    # 4. Run descriptor generation and status writing (T015).
-    try:
-        generate_main()
-    except Exception as exc:
-        logger.error(f"Descriptor generation failed: {exc}")
-        return 1
-
-    # 5. Record checksum of the processed descriptor CSV.
-    try:
-        record_checksum()
-    except Exception as exc:
-        logger.error(f"Checksum recording for descriptor CSV failed: {exc}")
-        return 1
-
-    # 6. Write manifest.
-    manifest = _build_manifest(output_dir)
-    manifest_path = output_dir / "manifest.json"
-    manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    with manifest_path.open("w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
-
-    logger.info(f"Pipeline completed successfully. Manifest written to {manifest_path}")
-    return 0
-
-def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Run the full HEA analysis pipeline.")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Run the full HEA pipeline with checksum verification."
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducible steps (currently unused).",
+    )
     parser.add_argument(
         "--output-dir",
         type=str,
-        default="output/",
-        help="Directory to store final artefacts (manifest, report, etc.)",
+        default="output",
+        help="Directory where pipeline outputs will be stored.",
     )
-    args = parser.parse_args(argv)
+    return parser.parse_args(argv)
 
-    output_dir = Path(args.output_dir)
-    return run_pipeline(seed=args.seed, output_dir=output_dir)
+def main(argv=None):
+    args = parse_args(argv)
+
+    # Step 1: Ensure raw dataset exists (download if necessary)
+    try:
+        logger.info("Ensuring raw dataset is present...")
+        download_dataset()  # uses default path data/raw/heas_raw.csv
+    except FileNotFoundError as e:
+        logger.error(f"Dataset not found and could not be downloaded: {e}")
+        sys.exit(1)
+
+    # Step 2: Verify checksum of the raw dataset
+    raw_path = paths.data("raw", "heas_raw.csv")
+    try:
+        logger.info(f"Computing checksum for {raw_path}")
+        checksum = compute_sha256(str(raw_path))
+        recorded = record_checksum(str(raw_path))
+        if checksum != recorded:
+            logger.error(
+                "Checksum mismatch for raw dataset. "
+                f"Computed: {checksum}, Recorded: {recorded}"
+            )
+            sys.exit(1)
+        logger.info("Checksum verification passed.")
+    except Exception as e:
+        logger.error(f"Checksum verification failed: {e}")
+        sys.exit(1)
+
+    # Step 3: Run descriptor generation (this also validates against schemas)
+    try:
+        logger.info("Running descriptor generation...")
+        descriptors_main()
+    except Exception as e:
+        logger.error(f"Descriptor generation failed: {e}")
+        sys.exit(1)
+
+    # Step 4: Write data status JSON (row count, warnings, etc.)
+    try:
+        logger.info("Writing data status JSON...")
+        status_main()
+    except Exception as e:
+        logger.error(f"Failed to write data status: {e}")
+        sys.exit(1)
+
+    logger.info("Pipeline completed successfully.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

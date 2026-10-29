@@ -7,10 +7,10 @@
     "python -m src.pipeline.run  --seed 42  --output-dir output/ -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-418-predicting-the-yield-strength-of-high-en/code/.venv/bin/python: Error while finding module specification for 'src.pipeline.run' (ModuleNotFoundError: No module named 'src')"
   ],
   "fix_rounds": 0,
-  "model_tier": 1,
+  "model_tier": 2,
   "total_attempts": 1,
   "replan_rounds": 1,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-10-23T20:47:42Z"
+  "updated_at": "2026-10-29T18:11:26Z"
 }

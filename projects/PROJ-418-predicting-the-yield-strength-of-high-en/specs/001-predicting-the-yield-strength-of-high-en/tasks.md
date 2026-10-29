@@ -19,7 +19,7 @@
   - **Implementation**: `code/data/fetch_heas.py`  
   - **Verification**: `code/tests/test_fetch_heas.py` checks that a record missing `yield_strength` raises `ValueError` and that the produced CSV passes schema validation.  
 
-- [ ] T002 **Compute composition‑based descriptors** – read `data/raw/heas_raw.csv`, use the frozen elemental‑property table `data/raw/elemental_properties.csv` to calculate mixing entropy, atomic‑size mismatch (δ), electronegativity variance (Δχ), VEC, and melting‑point variance; write the result to `data/processed/hea_descriptors.csv` and validate against `contracts/descriptor.schema.yaml` **and** `contracts/hea_schema.schema.yaml`.  
+- [ ] T002 **Compute composition‑based descriptors** – read `data/raw/heas_raw.csv`, use the frozen elemental‑property table `data/raw/elemental_properties.csv` to calculate mixing entropy, atomic‑size mismatch (δ), electronegativity variance (Δχ), VEC, and melting‑point variance; write the result to `data/processed/hea_descriptors.csv` and validate against `contracts/descriptor.schema.yaml` **and** `contracts/hea_schema.schema.yaml`.   <!-- FAILED-IN-EXECUTION: code/run_pipeline_with_checksum.py exit=1 -->
   - **Implementation**: `code/data/descriptors.py`  
   - **Verification**: `code/tests/test_descriptors.py` contains known‑value checks (e.g., CoCrFeMnNi) and asserts that a missing element symbol raises a clear `KeyError`.  
 
