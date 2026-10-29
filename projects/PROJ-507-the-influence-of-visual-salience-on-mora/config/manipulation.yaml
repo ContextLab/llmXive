@@ -1,0 +1,9 @@
+low:
+  contrast: 0.7
+  brightness: -20
+medium:
+  contrast: 1.0
+  brightness: 0
+high:
+  contrast: 1.3
+  brightness: 20

@@ -30,7 +30,7 @@ Every command exited 0 and the files were written — but the numbers in them ar
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 18 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…r: If the path indicates synthetic data and --allow-synthetic is…”; code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…help="Allow analysis of synthetic data (located in data/synth/)…”; code/data_hygiene.py: synthetic/fake INPUT data not authorized by the spec — “…]          # Define synthetic data directory     synthetic_…”; every produced artifact is gitignored (data/raw/human_coding/annotations_template.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 run-book script(s) missing (plan/impl path mismatch): python code/00_pilot_power_analysis.py --config config/pilot.yaml; python code/05_survey_deployment.py  --mode pilot  --participants 10  --output data/processed/responses_raw.csv; python code/06_data_cleaning.py  --input data/processed/responses_raw.csv  --output data/processed/responses_cleaned.csv; 3 command(s) failed: python code/01_ingest_and_filter.py  --max-scenarios 30  --output data/processed/candidates_filtered.csv (rc=-1); python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv (rc=1); python code/04_manipulate_stimuli.py  --input data/processed/scenarios.csv  --output data/processed/stimuli_manifest.csv (rc=1); 3 declared deliverable(s) absent: data/processed/candidates_filtered.csv; data/processed/ground_truth_match.csv; data/processed/valid_scenarios.csv
+**Summary**: 18 fabricated/simulated-result signal(s) — results are not real measurements: code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…r: If the path indicates synthetic data and --allow-synthetic is…”; code/analysis.py: synthetic/fake INPUT data not authorized by the spec — “…help="Allow analysis of synthetic data (located in data/synth/)…”; code/data_hygiene.py: synthetic/fake INPUT data not authorized by the spec — “…]          # Define synthetic data directory     synthetic_…”; every produced artifact is gitignored (data/raw/human_coding/annotations_template.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; overall deadline 300s exceeded; 1 run-book script(s) missing (plan/impl path mismatch): python code/00_pilot_power_analysis.py --config config/pilot.yaml; 3 command(s) failed: python code/01_ingest_and_filter.py  --max-scenarios 30  --output data/processed/candidates_filtered.csv (rc=-1); python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv (rc=1); python code/04_manipulate_stimuli.py  --input data/processed/scenarios.csv  --output data/processed/stimuli_manifest.csv (rc=1); 3 declared deliverable(s) absent: data/processed/candidates_filtered.csv; data/processed/ground_truth_match.csv; data/processed/valid_scenarios.csv
 
 ## Failing / missing run-book commands
 
@@ -39,16 +39,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 /home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/00_pilot_power_analysis.py': [Errno 2] No such file or directory
 
 - python code/01_ingest_and_filter.py  --max-scenarios 30  --output data/processed/candidates_filtered.csv -> rc=-1
-2026-10-28 22:16:11 | INFO     | __main__             | Attempting to load Visual Genome via HuggingFace datasets (streaming).
-2026-10-28 22:16:11 | WARNING  | __main__             | Streaming load failed (The `datasets` package cannot be imported in the current environment.). Falling back to direct image download.
+2026-10-29 20:12:07 | INFO     | __main__             | Attempting to load Visual Genome via HuggingFace datasets (streaming).
+2026-10-29 20:12:07 | WARNING  | __main__             | Streaming load failed (The `datasets` package cannot be imported in the current environment.). Falling back to direct image download.
 
-2026-10-28 22:16:11,044 INFO __main__: Attempting to load Visual Genome via HuggingFace datasets (streaming).
-2026-10-28 22:16:11,064 WARNING __main__: Streaming load failed (The `datasets` package cannot be imported in the current environment.). Falling back to direct image download.
+2026-10-29 20:12:07,259 INFO __main__: Attempting to load Visual Genome via HuggingFace datasets (streaming).
+2026-10-29 20:12:07,259 WARNING __main__: Streaming load failed (The `datasets` package cannot be imported in the current environment.). Falling back to direct image download.
 
 [TIMEOUT after 120s]
 - python code/03_process_human_coding.py  --input data/processed/candidates_filtered.csv  --output data/processed/scenarios.csv -> rc=1
 
-2026-10-28 22:18:10,623 INFO __main__: Loading annotations from data/raw/human_coding
+2026-10-29 20:14:06,652 INFO __main__: Loading annotations from data/raw/human_coding
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/03_process_human_coding.py", line 251, in <module>
     main()
@@ -57,31 +57,16 @@ Traceback (most recent call last):
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/03_process_human_coding.py", line 68, in _load_annotation_files
     raise ValueError(f"Annotation files are missing required columns: {missing}")
-ValueError: Annotation files are missing required columns: {'rating', 'annotator_id'}
+ValueError: Annotation files are missing required columns: {'annotator_id', 'rating'}
 
 - python code/04_manipulate_stimuli.py  --input data/processed/scenarios.csv  --output data/processed/stimuli_manifest.csv -> rc=1
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/04_manipulate_stimuli.py", line 336, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/04_manipulate_stimuli.py", line 188, in main
-    cfg = load_yaml_config(manipulation_cfg_path)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/04_manipulate_stimuli.py", line 54, in load_yaml_config
-    raise FileNotFoundError(f"Manipulation config not found: {config_path}")
-FileNotFoundError: Manipulation config not found: /home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/config/manipulation.yaml
-
-- python code/05_survey_deployment.py  --mode pilot  --participants 10  --output data/processed/responses_raw.csv -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/05_survey_deployment.py': [Errno 2] No such file or directory
-
-- python code/06_data_cleaning.py  --input data/processed/responses_raw.csv  --output data/processed/responses_cleaned.csv -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/06_data_cleaning.py': [Errno 2] No such file or directory
-
-- python code/07_analysis_clmm.py  --input data/processed/responses_cleaned.csv  --output data/processed/analysis_results.json -> rc=2
-
-/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/07_analysis_clmm.py': [Errno 2] No such file or directory
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/04_manipulate_stimuli.py", line 31, in <module>
+    from bert_moral_intent import compute_preservation_score
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-507-the-influence-of-visual-salience-on-mora/code/bert_moral_intent.py", line 31, in <module>
+    from transformers.utils.hub import get_file_from_repo
+ImportError: cannot import name 'get_file_from_repo' from 'transformers.utils.hub' (/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-507-the-influence-of-visual-salience-on-mora/lib/python3.11/site-packages/transformers/utils/hub.py)
 
 
 ## Declared deliverables still missing
