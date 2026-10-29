@@ -58,34 +58,22 @@ FALLBACK_DATA_URL = (
 # ----------------------------------------------------------------------
 def _load_schema() -> Dict[str, Any]:
     """
-    Load the dataset JSON‑schema from one of the known locations.
-    The schema lives under ``specs/001-predicting-the-yield-strength-of-high-en/contracts``.
-    As a fallback we also check a legacy ``contracts`` directory at the project root.
+    Load the dataset JSON‑schema from the canonical location inside
+    ``specs/001-predicting-the-yield-strength-of-high-en/contracts``.
     """
-    possible_paths = [
-        # Legacy location (project root)
-        Path(__file__).resolve().parents[2] / "contracts" / "dataset.schema.yaml",
-        # Official location inside specs
-        Path.cwd()
+    # Resolve the project root relative to this file.
+    project_root = Path(__file__).resolve().parents[2]
+    schema_path = (
+        project_root
         / "specs"
         / "001-predicting-the-yield-strength-of-high-en"
         / "contracts"
-        / "dataset.schema.yaml",
-        # In case the script is run from a different cwd, resolve relative to this file
-        Path(__file__).resolve().parents[3]
-        / "specs"
-        / "001-predicting-the-yield-strength-of-high-en"
-        / "contracts"
-        / "dataset.schema.yaml",
-    ]
-    for schema_path in possible_paths:
-        if schema_path.is_file():
-            with schema_path.open("r", encoding="utf-8") as f:
-                return yaml.safe_load(f)
-    raise FileNotFoundError(
-        "Dataset schema not found. Checked locations: "
-        + ", ".join(str(p) for p in possible_paths)
+        / "dataset.schema.yaml"
     )
+    if not schema_path.is_file():
+        raise FileNotFoundError(f"Dataset schema not found at {schema_path}")
+    with schema_path.open("r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
 def _validate_row(row: Dict[str, Any], schema: Dict[str, Any]) -> None:
     """

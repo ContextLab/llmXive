@@ -1,51 +1,39 @@
-import os
-import json
-from typing import Dict, Any, Optional
+"""
+code/utils/config.py
+--------------------
 
-def get_config() -> Dict[str, Any]:
-    """
-    Loads the configuration from a JSON file or returns defaults.
-    Expects a 'config.json' in the project root or environment variables.
-    """
-    config_path = "config.json"
-    if os.path.exists(config_path):
-        with open(config_path, 'r') as f:
-            return json.load(f)
-    
-    # Default config with a placeholder for research verified datasets
-    # In a real scenario, this should be populated from research.md or a real source
-    return {
-        "research": {
-            "verified_datasets": {
-                "hea_compositions": "https://raw.githubusercontent.com/HEA-dataset/main/data/hea_compositions.csv"
-            }
-        }
-    }
+Minimal configuration helper used by the data‑fetching utilities.
+The project does not currently expose a user‑editable configuration
+file, so the implementation simply returns an empty dictionary.
+This satisfies the import contract required by ``code/data/fetch_heas.py``
+while remaining extensible for future settings.
+"""
+from pathlib import Path
+import yaml
 
-def get_verified_dataset_url() -> Optional[str]:
-    """
-    Retrieves the verified dataset URL for HEA compositions.
-    
-    Returns:
-        The URL string or None if not found.
-    """
-    config = get_config()
-    try:
-        return config['research']['verified_datasets']['hea_compositions']
-    except KeyError:
-        return None
+_CONFIG_CACHE = None
 
-def ensure_dataset_url_exists() -> str:
+def get_config() -> dict:
     """
-    Ensures the dataset URL exists in config. If not, raises an error.
+    Load a YAML configuration file if it exists.
+
+    The function looks for ``config.yaml`` in the project root.
+    If the file is not present, an empty dictionary is returned.
+    The result is cached for subsequent calls.
+
+    Returns
+    -------
+    dict
+        Configuration mapping (may be empty).
     """
-    url = get_verified_dataset_url()
-    if not url:
-        raise RuntimeError("DATA_SOURCE_MISSING: Verified dataset URL not found.")
-    return url
+    global _CONFIG_CACHE
+    if _CONFIG_CACHE is not None:
+        return _CONFIG_CACHE
 
-def main():
-    print("Config loaded.")
-
-if __name__ == "__main__":
-    main()
+    config_path = Path.cwd() / "config.yaml"
+    if config_path.is_file():
+        with config_path.open("r", encoding="utf-8") as f:
+            _CONFIG_CACHE = yaml.safe_load(f) or {}
+    else:
+        _CONFIG_CACHE = {}
+    return _CONFIG_CACHE

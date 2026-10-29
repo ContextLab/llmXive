@@ -1,12 +1,11 @@
 status: none
-intent: HEA yield strength dataset Zenodo download python package dataset
+intent: high entropy alloy yield strength Zenodo dataset Materials Project periodic
+  table python package dataset
 required_fields:
-- alloy_id
-- element_symbol
-- atomic_fraction
-- yield_strength
-- phase
-- processing_route
-cache_key: 95f00ef33b57e57d77536ea6805981a7a61fd017c002996aab5af72771031f98
-searched_at: '2026-10-28T01:09:37.374041+00:00'
+- sample_id (unique alloy identifier)
+- element_fraction_<element_symbol> (fractional composition for each element, e.g.,
+  Al, Co, Cr, Fe, Mn, Ni, ...)
+- yield_strength (measured yield strength, e.g., MPa)
+cache_key: 8488e01cfcf241b4cc57e8286651e77038d8303a8b0a99f6c32e7094275441f0
+searched_at: '2026-10-29T16:12:05.597938+00:00'
 retry_count: 1

@@ -7,13 +7,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python -m src.pipeline.run  --seed 42  --output-dir output/ -> rc=1
-2026-10-28 01:08:59 - __main__ - INFO - Starting pipeline with seed=42, output_dir=output/
-2026-10-28 01:08:59 - __main__ - ERROR - Pipeline execution failed: run_pipeline() got an unexpected keyword argument 'output_dir'
+
+2026-10-29 16:10:57 - __main__ - INFO - Starting pipeline with seed=42, output_dir=output/
+2026-10-29 16:10:57 - __main__ - ERROR - Pipeline execution failed: run_pipeline() got an unexpected keyword argument 'output_dir'
 Traceback (most recent call last):
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-418-predicting-the-yield-strength-of-high-en/src/pipeline/run.py", line 63, in main
     run_pipeline(output_dir=args.output_dir)
 TypeError: run_pipeline() got an unexpected keyword argument 'output_dir'
-
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
@@ -24,7 +24,9 @@ Traceback (most recent call last):
 TypeError: run_pipeline() got an unexpected keyword argument 'output_dir'
 
 - python -m pytest -q -> rc=2
-portError: cannot import name 'SUPPORTED_UNITS' from 'code.utils.unit_utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-418-predicting-the-yield-strength-of-high-en/code/utils/unit_utils.py)
+n <module>
+    from models.report_generator import (
+E   ImportError: cannot import name 'load_metrics' from 'models.report_generator' (/home/runner/work/llmXive/llmXive/projects/PROJ-418-predicting-the-yield-strength-of-high-en/code/tests/../models/report_generator.py)
 =============================== warnings summary ===============================
 tests/integration/test_T200_descriptor_generation.py:17
   /home/runner/work/llmXive/llmXive/projects/PROJ-418-predicting-the-yield-strength-of-high-en/tests/integration/test_T200_descriptor_generation.py:17: PytestUnknownMarkWarning: Unknown pytest.mark.integration - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
@@ -35,11 +37,9 @@ tests/integration/test_T200_descriptor_generation.py:17
 ERROR code/tests/test_setup_dirs.py
 ERROR tests/test_setup_dirs.py
 ERROR tests/unit/test_checksum_raw.py
-ERROR tests/unit/test_logging_seed.py
 ERROR tests/unit/test_report_generator.py
-ERROR tests/unit/test_unit_utils.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!!
-1 warning, 6 errors in 2.27s
+!!!!!!!!!!!!!!!!!!! Interrupted: 4 errors during collection !!!!!!!!!!!!!!!!!!!!
+1 warning, 4 errors in 1.86s
 
 
 
@@ -61,7 +61,6 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/data/pipeline.py` — NOT invoked by the run-book
     - `code/data/validate_user_composition.py` — NOT invoked by the run-book
     - `code/tests/test_user_composition.py` — NOT invoked by the run-book
-    - `code/utils/config.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/input/compositions.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/hea_descriptors.csv` is declared but was NOT written. Scripts referencing it:
     - `code/T015_generate.py` — NOT invoked by the run-book
