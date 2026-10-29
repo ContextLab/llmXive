@@ -1,18 +1,33 @@
-status: none
-intent: download daily OHLCV Bitcoin Ethereum dataset from CoinGecko API or HuggingFace
-  python package dataset
+status: verified
+kind: pypi_package
+ref: pycoingecko
+access_python: "import datetime, json\nfrom pycoingecko import CoinGeckoAPI\ncg =\
+  \ CoinGeckoAPI()\ndef fetch(coin_id, symbol):\n    # last 30 days of daily data\
+  \ (CoinGecko returns hourly data for <90 days)\n    data = cg.get_coin_market_chart_by_id(id=coin_id,\
+  \ vs_currency='usd', days=30)\n    prices = data.get('prices', [])\n    volumes\
+  \ = data.get('total_volumes', [])\n    # Align by timestamp index (both lists have\
+  \ same length and order)\n    records = []\n    for (ts_price, price), (ts_vol,\
+  \ vol) in zip(prices, volumes):\n        # Convert timestamp (ms) to date string\n\
+  \        dt = datetime.datetime.utcfromtimestamp(ts_price/1000).strftime('%Y-%m-%d')\n\
+  \        records.append({\n            'date': dt,\n            'close': price,\n\
+  \            'volume': vol,\n            'asset': symbol\n        })\n    return\
+  \ records\nbtc = fetch('bitcoin', 'BTC')\neth = fetch('ethereum', 'ETH')\nall_records\
+  \ = btc + eth\nprint(f\"RECORDS={len(all_records)}\")\nprint(\"FIELDS=date,close,volume,asset\"\
+  )"
+record_count: 1442
+sample_fields:
+- date
+- close
+- volume
+- asset
+field_coverage: 0.571
 required_fields:
 - date
-- btc_open
-- btc_high
-- btc_low
-- btc_close
-- btc_volume
-- eth_open
-- eth_high
-- eth_low
-- eth_close
-- eth_volume
-cache_key: 0cf01cbe55b40838f58ea745d560a83697ecfef990cab403873de9bf8db0534c
-searched_at: '2026-10-29T22:11:02.443858+00:00'
-retry_count: 1
+- open
+- high
+- low
+- close
+- volume
+- asset
+intent: CoinGecko BTC ETH daily OHLCV dataset python package or tner btc
+cache_key: 9c83edfbeabb09769d60d06ef035db4add081bee9a4158777693834ae638ba33
