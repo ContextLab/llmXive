@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-28T23:18:15.081015+00:00",
+  "generated_at": "2026-10-29T00:07:16.587410+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -158128,6 +158128,14 @@
       "last_run_log": [
         {
           "agent": "personality",
+          "duration_s": 2.039983,
+          "ended_at": "2026-10-29T00:06:37.344296+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "abstained",
+          "started_at": "2026-10-29T00:06:35.304313+00:00"
+        },
+        {
+          "agent": "personality",
           "duration_s": 14.125682,
           "ended_at": "2026-10-28T22:06:08.971533+00:00",
           "model": "openai.gpt-oss-120b",
@@ -158197,14 +158205,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-17T15:05:36.573798Z"
-        },
-        {
-          "agent": "planner",
-          "duration_s": 1008.093197,
-          "ended_at": "2026-10-17T14:22:42.789754Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "failed",
-          "started_at": "2026-10-17T14:05:54.696557Z"
         }
       ],
       "paper_status": null,
@@ -175681,6 +175681,21 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Ada Lovelace (simulated)",
+      "duration_s": 2.039983,
+      "ended_at": "2026-10-29T00:06:37.344296+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "abstained",
+      "personality_slug": "ada-lovelace",
+      "project_id": "PROJ-880-llmxive-follow-up-extending-your-unembed",
+      "project_stage": "tasked",
+      "severity": "soft",
+      "started_at": "2026-10-29T00:06:35.304313+00:00"
+    },
+    {
       "agent": "planner",
       "duration_s": 103.168551,
       "ended_at": "2026-10-28T23:08:34.498021Z",
@@ -181727,18 +181742,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-26T10:52:23.471089Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 0.028577,
-      "ended_at": "2026-10-26T10:52:15.589614Z",
-      "failure_reason": "",
-      "model": "deterministic-no-llm",
-      "outcome": "skipped",
-      "project_id": "PROJ-198-predicting-plant-secondary-metabolite-pr",
-      "project_stage": "in_progress",
-      "severity": "soft",
-      "started_at": "2026-10-26T10:52:15.561037Z"
     }
   ],
   "reviewed_preprints": [
