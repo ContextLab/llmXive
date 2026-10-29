@@ -1,6 +1,19 @@
 status: none
-intent: Download paired RNA-seq and DNase-seq/ATAC-seq count data from ENCODE.
-required_fields: []
-cache_key: 4a2d40205e64cf0e9739364aece38f73277948316ae7f497868bd11f6fe81839
-searched_at: '2026-10-28T11:29:53.807260+00:00'
+intent: ENCODE paired RNA-seq and ATAC-seq count matrices download from ENCODE Data
+  Coordination Center python package dataset
+required_fields:
+- sample_id
+- assay_type
+- biosample_type
+- organism
+- experiment_accession
+- file_id
+- gene_id
+- peak_id
+- genomic_coordinate
+- count_value
+- replicate
+- library_strategy
+cache_key: 73546aae4150f07824d2b9472197c05234670b13ff102fdaf522a5ad6bebeafa
+searched_at: '2026-10-29T09:08:13.966556+00:00'
 retry_count: 1
