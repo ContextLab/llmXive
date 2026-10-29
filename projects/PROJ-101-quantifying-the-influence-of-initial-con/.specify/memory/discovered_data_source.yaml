@@ -1,14 +1,11 @@
 status: none
-intent: coupled Lorenz oscillator synthetic trajectories configurable noise DOP853
-  integrator python package dataset
+intent: download synthetic coupled Lorenz oscillator trajectories python package dataset
 required_fields:
 - time
-- oscillator_index
-- x
-- y
-- z
+- x_i
+- y_i
+- z_i
 - noise_std
-- integration_step
-cache_key: 9942414516ba2ebbeb520ab97caa70f034593d3d6bed339db24fa9a600350884
-searched_at: '2026-10-26T01:48:18.753008+00:00'
+cache_key: 1633bc550c116bcde95566c1dd986eb86fdb5f974e94c9f411c9d7e812c93b69
+searched_at: '2026-10-29T12:24:32.086070+00:00'
 retry_count: 1
