@@ -1,14 +1,7 @@
 last_used: alan-turing
-last_used_at: '2026-10-29T10:05:37.609017+00:00'
+last_used_at: '2026-10-29T12:06:26.892046+00:00'
 last_outcome: model_error
 history:
-- slug: eric-kandel
-  started_at: '2026-06-30T07:29:42.175503+00:00'
-  ended_at: '2026-06-30T09:17:11.483516+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-029-predicting-cognitive-decline-from-restin/reviews/research/eric-kandel-simulated__2026-06-30__research.md
 - slug: freeman-dyson
   started_at: '2026-06-30T09:17:11.483516+00:00'
   ended_at: '2026-06-30T11:09:57.664413+00:00'
@@ -1288,4 +1281,8 @@ history:
 - slug: albert-einstein
   started_at: '2026-10-29T08:05:52.512569+00:00'
   ended_at: '2026-10-29T10:05:37.609017+00:00'
+  outcome: model_error
+- slug: albert-einstein
+  started_at: '2026-10-29T10:05:37.609017+00:00'
+  ended_at: '2026-10-29T12:06:26.892046+00:00'
   outcome: model_error
