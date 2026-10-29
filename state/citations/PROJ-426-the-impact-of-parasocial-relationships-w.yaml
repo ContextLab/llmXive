@@ -86,14 +86,3 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/12ml/e-CARE/a9c788710144e6edd31f925345fa107c0634e223/train.csv?%2Fdatasets%2F12ml%2Fe-CARE%2Fresolve%2Fmain%2Ftrain.csv=&etag=%226b34f92c91c821241904e5033a90a69ca8407257%22
   verified_at: '2026-10-25T16:31:34.000842Z'
-- artifact_hash: 856c478a38b550afbb8dce37fbcb800ad2c839a19029f45c8467a3560613a5b9
-  artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: train.csv
-  kind: url
-  value: https://huggingface.co/datasets/12ml/e-CARE/resolve/main/train.csv`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/12ml/e-CARE/a9c788710144e6edd31f925345fa107c0634e223/train.csv?%2Fdatasets%2F12ml%2Fe-CARE%2Fresolve%2Fmain%2Ftrain.csv=&etag=%226b34f92c91c821241904e5033a90a69ca8407257%22
-  verified_at: '2026-10-25T16:31:56.868590Z'

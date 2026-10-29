@@ -1,8 +1,3 @@
-# Project dependencies
-pandas
-pyarrow
-datasets
-# The following are already provided in the execution environment and
-# therefore omitted from the list: numpy, scipy, matplotlib,
-# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
-# jsonschema, psutil
+# Existing base dependencies are provided by the platform.
+# Additional third‑party packages required for T003:
+zenodo-get

@@ -3,6 +3,7 @@ T001:
 T002:
   task: e173da3b07f270b420718ca31709c2812b01b753983fa1a2fa8736d2322a7434
 T003:
+  reason: 'Requested task execution failed; rerun successfully: code/src/main.py exit=1'
   task: 1771c3bbcab9e4fc14585f0d93a6aeb543d4ac5e95626989943ca2d14a3f89ce
 T004:
   task: 23f8ae0440a50227aa88b62548b86bfcafff9227eb9ceb22fcdacd48d3f4f7d3

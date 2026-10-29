@@ -1,33 +1,36 @@
 """
-Download the Reddit Loneliness Longitudinal Dataset.
+Download the Reddit Loneliness Longitudinal Dataset from Zenodo.
 
-This script fetches a publicly available Reddit Loneliness dataset from the
-HuggingFace Hub (or another real source), validates required columns,
-enforces a minimum of six distinct calendar months with non‑null loneliness
-scores per user, and writes the cleaned data to
-``data/raw/loneliness_dataset.parquet``.
+This script fetches the dataset associated with the DOI provided in the
+configuration, validates that all required columns are present, enforces
+a minimum longitudinal depth (≥ 6 distinct calendar months with a
+non‑null UCLA Loneliness score per user), checks that the cleaned dataset
+contains at least 600 rows, and writes the result as Parquet together with
+a SHA‑256 checksum.
 """
 
 import sys
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-
+from typing import Dict, Any, List
 import pandas as pd
-from datasets import load_dataset, Dataset
+import hashlib
+import zipfile
 
-# Project imports – these modules already exist in the repository
+# Ensure project root is on sys.path when the script is executed directly
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from zenodo_get import zenodo_get
 from src.utils.logging import get_logger, log_stage_start, log_stage_end, log_error_context
+from src.utils.config import get_config
 from src.utils.data_validation import record_checksum, ValidationError
 
-# Configure logger
 logger = get_logger(__name__)
 
 # ----------------------------------------------------------------------
-# Configuration
+# Configuration constants
 # ----------------------------------------------------------------------
-# The script does not rely on an external config file; all parameters are
-# defined here to keep the implementation self‑contained.
 REQUIRED_COLUMNS = [
     "username_hash",
     "UCLA_Loneliness_Score",
@@ -36,54 +39,117 @@ REQUIRED_COLUMNS = [
     "age",
     "gender",
 ]
-MIN_MONTHS_PER_USER = 6          # Minimum distinct months with a score
-MIN_VALID_ROWS = 600            # Minimum total rows after cleaning
-HUGGINGFACE_DATASET = "reddit_loneliness"  # Real dataset identifier
-HUGGINGFACE_CONFIG = "default"  # Config name if the dataset has multiple configs
 
-# Output locations (relative to project root)
-OUTPUT_DIR = Path("data/raw")
-OUTPUT_PARQUET = OUTPUT_DIR / "loneliness_dataset.parquet"
-CHECKSUM_FILE = OUTPUT_DIR / "loneliness_dataset.sha256"
+MIN_MONTHS_PER_USER = 6          # longitudinal depth requirement
+MIN_VALID_ROWS = 600            # overall row count requirement
 
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def _load_from_huggingface() -> pd.DataFrame:
+def load_config() -> Dict[str, Any]:
     """
-    Load the Reddit Loneliness dataset from the HuggingFace Hub.
+    Load configuration for data paths and Zenodo DOI.
 
     Returns
     -------
-    pd.DataFrame
-        The raw dataset as a pandas DataFrame.
+    dict
+        Mapping with keys:
+        - zenodo_doi: str, DOI of the dataset
+        - output_path: Path, where the final Parquet should be stored
+        - checksum_path: Path, where the checksum file should be stored
+    """
+    cfg = get_config()
+    return {
+        "zenodo_doi": cfg.get("data", {}).get(
+            "zenodo_loneliness_doi", "10.5281/zenodo.123456"
+        ),
+        "output_path": Path(
+            cfg.get("paths", {})
+            .get("raw_loneliness_dataset", "data/raw/loneliness_dataset.parquet")
+        ),
+        "checksum_path": Path(
+            cfg.get("paths", {})
+            .get("raw_loneliness_checksum", "data/raw/loneliness_dataset.sha256")
+        ),
+    }
+
+def fetch_dataset(doi: str, download_dir: Path) -> Path:
+    """
+    Download the dataset from Zenodo using the ``zenodo_get`` utility.
+
+    Parameters
+    ----------
+    doi : str
+        Zenodo DOI.
+    download_dir : pathlib.Path
+        Directory where the files should be placed.
+
+    Returns
+    -------
+    pathlib.Path
+        Path to the primary data file (CSV, Parquet, or extracted file).
 
     Raises
     ------
     RuntimeError
-        If the dataset cannot be loaded (e.g., network error or missing
-        dataset).
+        If the download fails or no suitable data file is found.
     """
-    logger.info(f"Attempting to load dataset '{HUGGINGFACE_DATASET}' from HuggingFace Hub")
+    logger.info(f"Downloading Zenodo dataset DOI: {doi}")
     try:
-        # ``load_dataset`` returns a ``datasets.Dataset`` object; we convert it
-        # to a pandas DataFrame for easier processing.
-        hf_dataset: Dataset = load_dataset(HUGGINGFACE_DATASET, name=HUGGINGFACE_CONFIG, split="train")
-        df = pd.DataFrame(hf_dataset)
-        logger.info(f"Loaded {len(df)} rows from HuggingFace dataset")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load dataset from HuggingFace: {e}")
-        raise RuntimeError("Unable to fetch the Reddit Loneliness dataset from a real source.") from e
+        zenodo_get([doi], output_dir=str(download_dir))
+    except Exception as exc:
+        logger.error(f"zenodo_get failed: {exc}")
+        raise RuntimeError(f"Failed to download dataset from Zenodo DOI {doi}") from exc
 
-def _validate_columns(df: pd.DataFrame) -> None:
+    # Find a data file (CSV, Parquet, or ZIP containing one of those)
+    candidates = list(download_dir.rglob("*"))
+    data_file = None
+    for candidate in candidates:
+        if candidate.suffix.lower() in {".csv", ".parquet"}:
+            data_file = candidate
+            break
+        if candidate.suffix.lower() == ".zip":
+            # Extract ZIP to a temporary location inside download_dir
+            with zipfile.ZipFile(candidate, "r") as zf:
+                zf.extractall(download_dir)
+            # After extraction, look again for CSV/Parquet
+            for extracted in download_dir.rglob("*"):
+                if extracted.suffix.lower() in {".csv", ".parquet"}:
+                    data_file = extracted
+                    break
+        if data_file:
+            break
+
+    if data_file is None:
+        raise RuntimeError(
+            f"No CSV/Parquet data file found after downloading DOI {doi}"
+        )
+    logger.info(f"Dataset file resolved to: {data_file}")
+    return data_file
+
+def load_dataframe(file_path: Path) -> pd.DataFrame:
     """
-    Ensure that all required columns are present.
+    Load a CSV or Parquet file into a pandas DataFrame.
 
     Parameters
     ----------
-    df : pd.DataFrame
-        DataFrame to validate.
+    file_path : pathlib.Path
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
+    if file_path.suffix.lower() == ".csv":
+        df = pd.read_csv(file_path)
+    elif file_path.suffix.lower() == ".parquet":
+        df = pd.read_parquet(file_path)
+    else:
+        raise ValueError(f"Unsupported file extension: {file_path.suffix}")
+    return df
+
+def validate_columns(df: pd.DataFrame) -> None:
+    """
+    Ensure the DataFrame contains all required columns.
 
     Raises
     ------
@@ -92,115 +158,122 @@ def _validate_columns(df: pd.DataFrame) -> None:
     """
     missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
     if missing:
-        raise ValueError(f"Dataset is missing required columns: {missing}")
+        raise ValueError(
+            f"Dataset missing required columns: {missing}"
+        )
     logger.info("All required columns are present.")
 
-def _enforce_longitudinal_depth(df: pd.DataFrame) -> pd.DataFrame:
+def enforce_longitudinal_depth(df: pd.DataFrame) -> pd.DataFrame:
     """
     Keep only users that have at least ``MIN_MONTHS_PER_USER`` distinct
     calendar months with a non‑null UCLA Loneliness score.
 
-    Parameters
-    ----------
-    df : pd.DataFrame
-
     Returns
     -------
-    pd.DataFrame
+    pandas.DataFrame
         Filtered DataFrame.
     """
-    # Ensure timestamp is a datetime type
-    df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True, errors="coerce")
-    before_drop = len(df)
-    df = df.dropna(subset=["timestamp", "UCLA_Loneliness_Score"])
-    logger.info(f"Dropped {before_drop - len(df)} rows with invalid timestamps or scores")
+    # Ensure timestamp is datetime
+    if not pd.api.types.is_datetime64_any_dtype(df["timestamp"]):
+        df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
 
-    # Compute month period per observation
-    df["month"] = df["timestamp"].dt.to_period("M")
+    # Drop rows with missing timestamp or score
+    df = df.dropna(subset=["timestamp", "UCLA_Loneliness_Score"])
+
+    # Create month identifier
+    df["year_month"] = df["timestamp"].dt.to_period("M")
 
     # Count distinct months per user
     month_counts = (
-        df.groupby("username_hash")["month"]
+        df.groupby("username_hash")["year_month"]
         .nunique()
-        .reset_index(name="distinct_months")
+        .reset_index(name="month_count")
     )
-    eligible_users = month_counts[
-        month_counts["distinct_months"] >= MIN_MONTHS_PER_USER
-    ]["username_hash"]
-    filtered_df = df[df["username_hash"].isin(eligible_users)].copy()
-    logger.info(
-        f"Retained {len(filtered_df)} rows from {len(df)} after enforcing ≥{MIN_MONTHS_PER_USER} months per user"
-    )
-    # Drop the temporary helper column
-    filtered_df = filtered_df.drop(columns=["month"])
-    return filtered_df
 
-def _final_row_count_check(df: pd.DataFrame) -> None:
+    eligible_users = month_counts[
+        month_counts["month_count"] >= MIN_MONTHS_PER_USER
+    ]["username_hash"]
+
+    filtered = df[df["username_hash"].isin(eligible_users)].copy()
+    filtered.drop(columns=["year_month"], inplace=True)
+
+    logger.info(
+        f"Longitudinal depth filter: {len(eligible_users)} users retained "
+        f"out of {df['username_hash'].nunique()} total."
+    )
+    return filtered
+
+def final_row_count_check(df: pd.DataFrame) -> None:
     """
     Verify that the cleaned dataset meets the minimum row count.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
 
     Raises
     ------
     ValueError
-        If the dataset contains fewer rows than ``MIN_VALID_ROWS``.
+        If the row count is below ``MIN_VALID_ROWS``.
     """
     if len(df) < MIN_VALID_ROWS:
         raise ValueError(
             f"Dataset contains only {len(df)} rows after cleaning; "
             f"minimum required is {MIN_VALID_ROWS}."
         )
-    logger.info(f"Dataset passes minimum row count check ({len(df)} rows).")
+    logger.info(f"Row count check passed ({len(df)} rows).")
 
 # ----------------------------------------------------------------------
-# Main workflow
+# Main entry point
 # ----------------------------------------------------------------------
 def main() -> None:
     """
-    Entry point for the ingestion script.
-
-    The function:
-    1. Loads the raw dataset from a verified real source.
-    2. Validates required columns.
-    3. Enforces longitudinal depth per user.
-    4. Checks that the final row count meets the study's minimum.
-    5. Persists the cleaned DataFrame as Parquet and records a SHA‑256 checksum.
+    Orchestrates the download, validation, filtering, and persistence of
+    the Reddit Loneliness Longitudinal Dataset.
     """
     log_stage_start("T003: Download Loneliness Dataset")
-
     try:
-        # Ensure the output directory exists
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        cfg = load_config()
+        output_path: Path = cfg["output_path"]
+        checksum_path: Path = cfg["checksum_path"]
+        download_dir = Path("data/raw")
+        download_dir.mkdir(parents=True, exist_ok=True)
 
-        # 1️⃣ Load raw data
-        raw_df = _load_from_huggingface()
+        # ------------------------------------------------------------------
+        # 1. Download
+        # ------------------------------------------------------------------
+        raw_file = fetch_dataset(cfg["zenodo_doi"], download_dir)
 
-        # 2️⃣ Validate schema
-        _validate_columns(raw_df)
+        # ------------------------------------------------------------------
+        # 2. Load into DataFrame
+        # ------------------------------------------------------------------
+        df = load_dataframe(raw_file)
 
-        # 3️⃣ Enforce longitudinal depth
-        cleaned_df = _enforce_longitudinal_depth(raw_df)
+        # ------------------------------------------------------------------
+        # 3. Validate required columns
+        # ------------------------------------------------------------------
+        validate_columns(df)
 
-        # 4️⃣ Minimum rows check
-        _final_row_count_check(cleaned_df)
+        # ------------------------------------------------------------------
+        # 4. Enforce longitudinal depth (≥6 months per user)
+        # ------------------------------------------------------------------
+        df = enforce_longitudinal_depth(df)
 
-        # 5️⃣ Write Parquet
-        cleaned_df.to_parquet(OUTPUT_PARQUET, index=False)
-        logger.info(f"Cleaned dataset written to {OUTPUT_PARQUET}")
+        # ------------------------------------------------------------------
+        # 5. Final row count verification (≥600 rows)
+        # ------------------------------------------------------------------
+        final_row_count_check(df)
 
-        # 6️⃣ Record checksum
-        record_checksum(OUTPUT_PARQUET, CHECKSUM_FILE)
-        logger.info(f"Checksum recorded in {CHECKSUM_FILE}")
+        # ------------------------------------------------------------------
+        # 6. Persist cleaned data as Parquet and write checksum
+        # ------------------------------------------------------------------
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_parquet(output_path, index=False)
+        logger.info(f"Cleaned dataset written to {output_path}")
 
-        log_stage_end("T003: Download Loneliness Dataset", success=True)
+        # Record checksum
+        record_checksum(output_path, checksum_path)
+        logger.info(f"Checksum written to {checksum_path}")
 
+        log_stage_end("T003: Download Loneliness Dataset - Success")
     except Exception as exc:
-        log_error_context("T003: Download Loneliness Dataset", exc)
-        log_stage_end("T003: Download Loneliness Dataset", success=False)
-        # Re‑raise so that CI / test harness can see the failure
+        log_error_context("T003: Download Loneliness Dataset - Failed", exc)
         raise
 
 if __name__ == "__main__":
