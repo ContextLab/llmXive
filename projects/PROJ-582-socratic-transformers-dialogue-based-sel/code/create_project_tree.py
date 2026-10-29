@@ -1,24 +1,19 @@
 """
-create_project_tree.py
+Utility script to create the canonical project directory tree for the
+Socratic Transformers project.
 
-Script to create the canonical project directory tree required for the
-Socratic Transformers pipeline.
-
-Expected layout (relative to this script's directory, which is the project's
+Required directories (relative to the location of this script, i.e. the
 ``code`` folder):
+    - src
+    - data/raw
+    - data/processed
+    - data/results
+    - tests
+    - state
 
-    src/
-    data/
-        raw/
-        processed/
-        results/
-    tests/
-    state/
-
-The script is idempotent – existing directories are left untouched.
-It exits with code 0 on success and raises any exception otherwise.
+The script is idempotent: running it multiple times will not raise
+errors if the directories already exist.
 """
-
 import sys
 from pathlib import Path
 
@@ -28,21 +23,26 @@ def create_directories(base_path: Path) -> None:
 
     Parameters
     ----------
-    base_path: Path
-        The ``code`` directory of the project.
+    base_path : Path
+        The root ``code`` directory of the project.
     """
-    # Define the relative directories required by the specification
+    # List of required directories relative to ``base_path``
     required_dirs = [
-        base_path / "src",
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
-        base_path / "data" / "results",
-        base_path / "tests",
-        base_path / "state",
+        Path("src"),
+        Path("data/raw"),
+        Path("data/processed"),
+        Path("data/results"),
+        Path("tests"),
+        Path("state"),
     ]
 
-    for d in required_dirs:
-        d.mkdir(parents=True, exist_ok=True)
+    for rel_dir in required_dirs:
+        dir_path = base_path / rel_dir
+        dir_path.mkdir(parents=True, exist_ok=True)
+        # Ensure a .gitkeep file exists so empty directories are tracked
+        gitkeep = dir_path / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.touch()
 
 def main() -> int:
     """
@@ -54,14 +54,13 @@ def main() -> int:
         Exit status (0 = success, non‑zero = failure).
     """
     try:
-        # The script resides in ``code``; its parent directory is the target root.
-        code_dir = Path(__file__).resolve().parent
-        create_directories(code_dir)
-    except Exception as exc:
-        # Log the exception to stderr and propagate a non‑zero exit code.
-        print(f"Error while creating project directories: {exc}", file=sys.stderr)
+        # ``__file__`` points to this script inside the ``code`` folder
+        code_root = Path(__file__).resolve().parent
+        create_directories(code_root)
+        return 0
+    except Exception as e:
+        print(f"Error creating project directories: {e}", file=sys.stderr)
         return 1
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

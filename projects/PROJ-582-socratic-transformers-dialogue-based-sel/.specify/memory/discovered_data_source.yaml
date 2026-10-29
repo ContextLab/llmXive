@@ -1,13 +1,13 @@
 status: none
-intent: download SocraticQA and SQuAD critique dialogue dataset python package dataset
+intent: SocraticQA Self-CRITIC CoQA QuAC dataset python package dataset
 required_fields:
 - question
 - answer
 - critique
 - revised_answer
+- source_id
 - dialogue_id
 - turn_number
-- source
-cache_key: 5f8fc4d53f6e4c278ec5dbc7388d390e8ad42ce01da5916710038409d74d0e15
-searched_at: '2026-10-29T01:11:07.484764+00:00'
+cache_key: 565ebdacb26574bb9cec0285b8f5c9bebdaaa2142a13d8b1f2380cbc49b193c2
+searched_at: '2026-10-29T03:11:22.812400+00:00'
 retry_count: 1
