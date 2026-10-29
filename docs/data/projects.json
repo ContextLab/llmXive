@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-29T05:09:10.501683+00:00",
+  "generated_at": "2026-10-29T05:21:02.558232+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -69010,6 +69010,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 13.082298,
+          "ended_at": "2026-10-29T05:09:20.778669Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-29T05:09:07.696371Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 11.517134,
           "ended_at": "2026-10-28T23:06:43.556375Z",
           "model": "zai-org.glm-5.3",
@@ -69079,14 +69087,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-26T10:52:23.471089Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 0.028577,
-          "ended_at": "2026-10-26T10:52:15.589614Z",
-          "model": "deterministic-no-llm",
-          "outcome": "skipped",
-          "started_at": "2026-10-26T10:52:15.561037Z"
         }
       ],
       "paper_status": null,
@@ -130684,7 +130684,7 @@
           ]
         },
         {
-          "contributions": 17,
+          "contributions": 18,
           "kind": "llm",
           "name": "google.gemma-4-31B-it",
           "roles": [
@@ -130721,6 +130721,14 @@
       "id": "PROJ-551-asymptotic-behavior-of-random-matrix-eig",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 188.074798,
+          "ended_at": "2026-10-29T05:10:07.888168Z",
+          "model": "google.gemma-4-31B-it",
+          "outcome": "success",
+          "started_at": "2026-10-29T05:06:59.813370Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 1107.218046,
@@ -130792,14 +130800,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-21T15:06:08.451398Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 638.198157,
-          "ended_at": "2026-10-21T12:26:14.221031Z",
-          "model": "zai-org.glm-5.3",
-          "outcome": "failed",
-          "started_at": "2026-10-21T12:15:36.022874Z"
         }
       ],
       "paper_status": null,
@@ -133323,7 +133323,7 @@
           ]
         },
         {
-          "contributions": 15,
+          "contributions": 16,
           "kind": "llm",
           "name": "openai.gpt-oss-120b",
           "roles": [
@@ -133363,6 +133363,14 @@
       "id": "PROJ-582-socratic-transformers-dialogue-based-sel",
       "keywords": [],
       "last_run_log": [
+        {
+          "agent": "implementer",
+          "duration_s": 26.496017,
+          "ended_at": "2026-10-29T05:07:43.087964Z",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "success",
+          "started_at": "2026-10-29T05:07:16.591947Z"
+        },
         {
           "agent": "implementer",
           "duration_s": 14.299302,
@@ -133434,14 +133442,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-12T18:18:48.219957Z"
-        },
-        {
-          "agent": "tasker",
-          "duration_s": 0.036295,
-          "ended_at": "2026-10-12T18:18:39.848591Z",
-          "model": "deterministic-no-llm",
-          "outcome": "skipped",
-          "started_at": "2026-10-12T18:18:39.812296Z"
         }
       ],
       "paper_status": null,
@@ -141426,6 +141426,14 @@
       "last_run_log": [
         {
           "agent": "planner",
+          "duration_s": 213.863706,
+          "ended_at": "2026-10-29T05:12:12.298631Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-29T05:08:38.434925Z"
+        },
+        {
+          "agent": "planner",
           "duration_s": 184.064225,
           "ended_at": "2026-10-29T04:12:36.302993Z",
           "model": "zai-org.glm-5.3",
@@ -141495,14 +141503,6 @@
           "model": "google.gemma-4-31B-it",
           "outcome": "success",
           "started_at": "2026-10-15T06:20:21.347521Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 158.523663,
-          "ended_at": "2026-10-15T06:18:22.616552Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-15T06:15:44.092889Z"
         }
       ],
       "paper_status": null,
@@ -150092,6 +150092,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 7.712619,
+          "ended_at": "2026-10-29T05:07:07.351254Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-29T05:06:59.638635Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 8.246293,
           "ended_at": "2026-10-28T23:06:41.856626Z",
           "model": "zai-org.glm-5.3",
@@ -150161,14 +150169,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-09-05T09:22:03.554850Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 48.552095,
-          "ended_at": "2026-09-05T09:22:03.551101Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-09-05T09:21:14.999006Z"
         }
       ],
       "paper_status": null,
@@ -156180,6 +156180,14 @@
       "last_run_log": [
         {
           "agent": "tasker",
+          "duration_s": 2.895096,
+          "ended_at": "2026-10-29T05:06:57.194465Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-29T05:06:54.299369Z"
+        },
+        {
+          "agent": "tasker",
           "duration_s": 3.139987,
           "ended_at": "2026-10-28T22:07:41.738693Z",
           "model": "zai-org.glm-5.3",
@@ -156249,14 +156257,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "failed",
           "started_at": "2026-10-25T06:11:46.089229Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 147.24254,
-          "ended_at": "2026-10-25T06:10:51.551374Z",
-          "model": "google.gemma-4-31B-it",
-          "outcome": "success",
-          "started_at": "2026-10-25T06:08:24.308834Z"
         }
       ],
       "paper_status": null,
@@ -175682,6 +175682,78 @@
   "recent_activity": [
     {
       "agent": "planner",
+      "duration_s": 213.863706,
+      "ended_at": "2026-10-29T05:12:12.298631Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-735-transferability-of-dft-d3-dispersion-to-",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-29T05:08:38.434925Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 188.074798,
+      "ended_at": "2026-10-29T05:10:07.888168Z",
+      "failure_reason": "",
+      "model": "google.gemma-4-31B-it",
+      "outcome": "success",
+      "project_id": "PROJ-551-asymptotic-behavior-of-random-matrix-eig",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-29T05:06:59.813370Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 13.082298,
+      "ended_at": "2026-10-29T05:09:20.778669Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-198-predicting-plant-secondary-metabolite-pr",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-29T05:09:07.696371Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 26.496017,
+      "ended_at": "2026-10-29T05:07:43.087964Z",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "outcome": "success",
+      "project_id": "PROJ-582-socratic-transformers-dialogue-based-sel",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-10-29T05:07:16.591947Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 7.712619,
+      "ended_at": "2026-10-29T05:07:07.351254Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-829-llmxive-follow-up-extending-fashionchame",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-29T05:06:59.638635Z"
+    },
+    {
+      "agent": "tasker",
+      "duration_s": 2.895096,
+      "ended_at": "2026-10-29T05:06:57.194465Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-868-llmxive-follow-up-extending-locateanythi",
+      "project_stage": "planned",
+      "severity": "hard",
+      "started_at": "2026-10-29T05:06:54.299369Z"
+    },
+    {
+      "agent": "planner",
       "duration_s": 184.064225,
       "ended_at": "2026-10-29T04:12:36.302993Z",
       "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
@@ -181673,78 +181745,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-26T16:00:46.907486Z"
-    },
-    {
-      "agent": "planner",
-      "duration_s": 465.250293,
-      "ended_at": "2026-10-26T16:00:32.394164Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-104-evaluating-the-use-of-llms-for-automated",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T15:52:47.143871Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 42.047193,
-      "ended_at": "2026-10-26T15:52:45.987968Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-264-predicting-plant-phenology-from-satellit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T15:52:03.940775Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 9.406305,
-      "ended_at": "2026-10-26T15:52:03.938625Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-264-predicting-plant-phenology-from-satellit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T15:51:54.532320Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 15.959867,
-      "ended_at": "2026-10-26T15:51:54.530198Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-264-predicting-plant-phenology-from-satellit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T15:51:38.570331Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 13.921421,
-      "ended_at": "2026-10-26T15:51:38.568135Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-264-predicting-plant-phenology-from-satellit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T15:51:24.646714Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.827657,
-      "ended_at": "2026-10-26T15:51:24.644661Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-264-predicting-plant-phenology-from-satellit",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T15:51:21.817004Z"
     }
   ],
   "reviewed_preprints": [
