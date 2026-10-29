@@ -59,7 +59,7 @@ def _export_labels(adata: sc.AnnData, dataset_id: str) -> None:
     else:
         # No explicit label column – create a placeholder with just the IDs
         labels = pd.DataFrame({"cell_id": adata.obs_names.astype(str)})
-    out_path = paths.processed(f"{dataset_id}_labels.csv")
+    out_path = paths.data("processed", f"{dataset_id}_labels.csv")
     labels.to_csv(out_path, index=False)
 
 
@@ -227,7 +227,7 @@ def _process_one_dataset(entry: dict) -> None:
 
     # 4. HVG selection
     n_hvg = _select_hvgs(adata)
-    hvg_path = paths.processed(f"{dataset_id}_hvg.txt")
+    hvg_path = paths.data("processed", f"{dataset_id}_hvg.txt")
     hvg_path.write_text(str(n_hvg))
 
     # Keep only HVGs for downstream steps
@@ -262,11 +262,11 @@ def _process_one_dataset(entry: dict) -> None:
             "seed": 42,
         },
     }
-    geom_path = paths.processed(f"{dataset_id}_geometric.json")
+    geom_path = paths.data("processed", f"{dataset_id}_geometric.json")
     geom_path.write_text(json.dumps(geom, indent=2))
 
     # 7. Write processed matrix
-    matrix_path = paths.processed(f"{dataset_id}_matrix.parquet")
+    matrix_path = paths.data("processed", f"{dataset_id}_matrix.parquet")
     _write_parquet(adata, matrix_path)
 
     log.info(

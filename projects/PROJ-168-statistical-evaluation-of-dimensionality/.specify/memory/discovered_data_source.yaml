@@ -1,11 +1,10 @@
 status: none
-intent: "download scRNA\u2011seq GSE111322 GSE150728 GEO using GEOparse python package\
-  \ dataset"
+intent: GEOparse download NCBI GEO GSE111322 GSE150728 GSE13 series python package
+  dataset
 required_fields:
-- gene_id
-- gene_name
 - cell_barcode
+- gene_symbol
 - raw_counts
-cache_key: 694c425d3bccfeeb65a0c76c118facb760a074af139fd69dd53f7a720f315cca
-searched_at: '2026-10-28T15:15:29.588327+00:00'
+cache_key: c609c3147a481e65d42ee291055c472548ba0b5810ac83678c4b5b8b78c3ceac
+searched_at: '2026-10-29T02:11:43.844216+00:00'
 retry_count: 1
