@@ -1,5 +1,6 @@
 status: none
-intent: GSM8K ONNX Runtime quantization divergence dataset python package
+intent: GSM8K quantization divergence dataset gradient norms local curvature Llama-2-3B-4bit-GGUF
+  HuggingFace python package dataset
 required_fields:
 - prompt_text
 - full_precision_logits
@@ -11,7 +12,6 @@ required_fields:
 - kl_divergence_fp8
 - gradient_norm
 - local_curvature
-- model_identifier
-cache_key: dacab95e7db35dd365f56bc5ef2c25da3b1e274f254cb9cea023b45bf5d9f9f0
-searched_at: '2026-10-24T13:39:02.790415+00:00'
+cache_key: acdcb1a5cb80de2ec4b83e64076a2a3de417a43ae5af82e05f62a29fb9f6fb2f
+searched_at: '2026-10-29T12:10:50.724782+00:00'
 retry_count: 1
