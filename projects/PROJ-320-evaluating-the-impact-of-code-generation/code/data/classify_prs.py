@@ -31,13 +31,29 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+# ----------------------------------------------------------------------
+# Standard library logging (avoid the broken utils.logging implementation)
+# ----------------------------------------------------------------------
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+
+# ----------------------------------------------------------------------
 # Project imports
-from utils.logging import get_logger, setup_logging
-from utils.seeds import set_global_seed
+# ----------------------------------------------------------------------
 # The entropy detector lives in the same package (`code/data`), so we import it
-# via the package name `data` (the `code/data` directory is now a package thanks
-# to the added `__init__.py` file).
-from data.entropy_detector import compute_entropy
+# via the package name `data` (the `code/data` directory is a package thanks
+# to an `__init__.py` file).
+try:
+    from data.entropy_detector import compute_entropy
+except Exception as exc:
+    logger.error(f"Failed to import entropy detector: {exc}")
+    sys.exit(1)
 
 # ----------------------------------------------------------------------
 # Configuration & Constants
@@ -78,11 +94,13 @@ LLM_COMMIT_INDICATORS = [
 # ----------------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------------
-logger = get_logger(__name__)
-
 def set_reproducibility_seed(seed: int = 42) -> None:
     """Set the global random seed for any stochastic components."""
-    set_global_seed(seed)
+    import random
+    import numpy as np
+
+    random.seed(seed)
+    np.random.seed(seed)
 
 def is_llm_bot(user: str) -> bool:
     """Return True if the username matches a known LLM bot."""
@@ -342,17 +360,17 @@ def save_classified_prs(results: List[Dict[str, Any]], output_path: str) -> None
 
 def run_classification(input_path: str, output_path: str) -> Dict[str, Any]:
     """Execute the end‑to‑end classification pipeline."""
-    logger.log("classification_started", input=input_path, output=output_path)
+    logger.info(f"Classification started – input: {input_path} output: {output_path}")
 
     prs = load_prs_from_raw(input_path)
-    logger.log("raw_prs_loaded", count=len(prs))
+    logger.info(f"Loaded {len(prs)} raw PR objects")
 
     results = classify_prs(prs)
     llm_cnt = sum(1 for r in results if r["source_type"] == "llm")
-    logger.log("classification_completed", llm=llm_cnt)
+    logger.info(f"Classification completed – LLM PRs: {llm_cnt}")
 
     save_classified_prs(results, output_path)
-    logger.log("results_saved", path=output_path)
+    logger.info(f"Results saved to {output_path}")
 
     summary = {
         "total_prs": len(results),
@@ -366,21 +384,35 @@ def run_classification(input_path: str, output_path: str) -> Dict[str, Any]:
 # CLI Entry Point
 # ----------------------------------------------------------------------
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Classify PRs as LLM‑generated or Human‑authored")
-    parser.add_argument("--input", required=True, help="Path to raw PR data (directory of JSONL files or a JSON file)")
-    parser.add_argument("--output", required=True, help="Path to output CSV")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    parser = argparse.ArgumentParser(
+        description="Classify PRs as LLM‑generated or Human‑authored"
+    )
+    parser.add_argument(
+        "--input",
+        required=True,
+        help="Path to raw PR data (directory of JSONL files or a JSON file)",
+    )
+    parser.add_argument(
+        "--output",
+        required=True,
+        help="Path to output CSV",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility",
+    )
     args = parser.parse_args()
 
-    # Initialise logging and reproducibility
-    setup_logging(script_name="classify_prs")
+    # Initialise reproducibility seed
     set_reproducibility_seed(args.seed)
 
     try:
         summary = run_classification(args.input, args.output)
         print(json.dumps(summary, indent=2))
     except Exception as exc:
-        logger.log("classification_failed", error=str(exc))
+        logger.error(f"Classification failed: {exc}")
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
 

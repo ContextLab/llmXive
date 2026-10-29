@@ -13,10 +13,10 @@
     "python code/audit/manual_validation.py --input data/processed/prs_metrics.csv --output data/processed/audit_log.csv -> rc=1\n    2026-10-08 15:32:16,813 - __main__ - INFO - Starting manual validation audit for data/processed/prs_metrics.csv\n2026-10-08 15:32:16,813 - __main__ - ERROR - Input file not found: data/processed/prs_metrics.csv. Ensure T017 (save_labeled_dataset) has completed."
   ],
   "fix_rounds": 0,
-  "model_tier": 2,
+  "model_tier": 0,
   "total_attempts": 2,
-  "replan_rounds": 0,
+  "replan_rounds": 1,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-10-29T03:14:26Z"
+  "updated_at": "2026-10-29T06:13:17Z"
 }

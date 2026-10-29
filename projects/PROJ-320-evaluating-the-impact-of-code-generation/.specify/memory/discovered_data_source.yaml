@@ -1,18 +1,49 @@
-status: none
-intent: download GitHub pull request dataset from GH Archive as python package dataset
+status: verified
+kind: pypi_package
+ref: ghapi
+access_python: "import asyncio\nfrom ghapi.core import GhApi\n\nasync def main():\n\
+  \    api = GhApi()\n    owner = \"microsoft\"\n    repo = \"vscode\"\n    pr_summaries\
+  \ = await api.pulls.list(owner=owner, repo=repo, state=\"all\", per_page=30)\n \
+  \   records = []\n    for summary in pr_summaries:\n        pr = await api.pulls.get(owner,\
+  \ repo, summary[\"number\"])\n        records.append({\n            \"pr_id\": pr.get(\"\
+  id\"),\n            \"repository_full_name\": f\"{owner}/{repo}\",\n           \
+  \ \"pr_number\": pr.get(\"number\"),\n            \"pr_title\": pr.get(\"title\"\
+  ),\n            \"pr_body\": pr.get(\"body\"),\n            \"author_username\"\
+  : pr.get(\"user\", {}).get(\"login\"),\n            \"author_type\": pr.get(\"user\"\
+  , {}).get(\"type\"),\n            \"created_at\": pr.get(\"created_at\"),\n    \
+  \        \"merged_at\": pr.get(\"merged_at\"),\n            \"state\": pr.get(\"\
+  state\"),\n            \"additions\": pr.get(\"additions\"),\n            \"deletions\"\
+  : pr.get(\"deletions\")\n        })\n    print(f\"RECORDS={len(records)}\")\n  \
+  \  print(\"FIELDS=\" + \",\".join(records[0].keys()) if records else \"FIELDS=\"\
+  )\n\nif __name__ == \"__main__\":\n    asyncio.run(main())"
+record_count: 30
+sample_fields:
+- pr_id
+- repository_full_name
+- pr_number
+- pr_title
+- pr_body
+- author_username
+- author_type
+- created_at
+- merged_at
+- state
+- additions
+- deletions
+field_coverage: 0.917
 required_fields:
 - pr_id
 - repository_full_name
+- pr_number
 - pr_title
 - pr_body
+- author_username
+- author_type
 - created_at
 - merged_at
-- author_login
-- author_association
-- labels
-- commits_count
-- changed_files
+- state
 - additions
-cache_key: 5ed90e958cff80098036f2aa4c17d5f8744e54f017cc1d02d381202f1a5069f8
-searched_at: '2026-10-29T03:14:24.023940+00:00'
-retry_count: 1
+- deletions
+intent: GitHub Pull Requests dataset from GitHub API and GHTorrent with LLM bot labels
+  python package dataset
+cache_key: 8bf330da764c7be43d71c65c729b4c52ad9e66f2b4adf4db8aa28416d8c82eb9

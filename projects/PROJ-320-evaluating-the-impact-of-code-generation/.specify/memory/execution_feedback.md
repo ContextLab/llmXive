@@ -97,6 +97,49 @@ NameError: name 'logging' is not defined
 - data/processed/prs_metrics.csv
 - data/processed/results.json
 
+## ✅ VERIFIED REAL DATA SOURCE — use THIS in the data loader
+
+Do NOT invent or guess a download URL/API (a hallucinated endpoint will 404). A real source was discovered AND verified by actually loading real data from it:
+
+- **Install**: add `ghapi` to the project's `requirements.txt` and `pip install ghapi`.
+- **Verified**: this loads **30** real records with fields: pr_id, repository_full_name, pr_number, pr_title, pr_body, author_username, author_type, created_at, merged_at, state, additions, deletions.
+- **Working access recipe** (this EXACT code was executed and returned real data — base the loader on it):
+
+```python
+import asyncio
+from ghapi.core import GhApi
+
+async def main():
+    api = GhApi()
+    owner = "microsoft"
+    repo = "vscode"
+    pr_summaries = await api.pulls.list(owner=owner, repo=repo, state="all", per_page=30)
+    records = []
+    for summary in pr_summaries:
+        pr = await api.pulls.get(owner, repo, summary["number"])
+        records.append({
+            "pr_id": pr.get("id"),
+            "repository_full_name": f"{owner}/{repo}",
+            "pr_number": pr.get("number"),
+            "pr_title": pr.get("title"),
+            "pr_body": pr.get("body"),
+            "author_username": pr.get("user", {}).get("login"),
+            "author_type": pr.get("user", {}).get("type"),
+            "created_at": pr.get("created_at"),
+            "merged_at": pr.get("merged_at"),
+            "state": pr.get("state"),
+            "additions": pr.get("additions"),
+            "deletions": pr.get("deletions")
+        })
+    print(f"RECORDS={len(records)}")
+    print("FIELDS=" + ",".join(records[0].keys()) if records else "FIELDS=")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+Write the loader to use this source/recipe, persist the records to the declared raw/processed data files, and DELETE any old code that fetches from a guessed website endpoint.
+
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).

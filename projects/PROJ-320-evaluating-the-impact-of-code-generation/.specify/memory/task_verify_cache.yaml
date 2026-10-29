@@ -8,14 +8,6 @@ T002:
     \ expectations, so running `pytest tests/unit/test_checksum.py` would exit with\
     \ code\u202F0."
   sig: 535cc923a67d161256acda5f9b883571b73fd7e7f265c60d597656007d6c897c
-T004:
-  c: false
-  h: bceba742f7dae1ec0b1ad81c53d4bb5f423bbad3ab94e5a4bfd7a16fc1256c35
-  r: The only artifact present is the `requirements.txt`; there is no `logs/setup_verification.log`
-    nor any evidence that the `python -c "import importlib; importlib.import_module('requests')"`
-    command was run and succeeded after installing the requirements. The required
-    verification log is missing.
-  sig: 9ad797b482075ca5224339f3cd0581d9ec20de9f5ac68f534e494536f434d844
 T005:
   c: false
   h: c41a9b3cca38a5b66bc13f5f2af913294bb62d660ea1bfe2b16ecfb20e076919

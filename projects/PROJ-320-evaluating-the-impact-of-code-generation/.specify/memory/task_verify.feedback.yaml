@@ -16,8 +16,10 @@ T003:
     \ must"
   task: 36a0a3227e918b2afb71c3eabdfd2b55953299125bfa250ff68af6f98c6f15d3
 T004:
-  reason: 'Requested task execution failed; rerun successfully: code/setup_verification.py
-    exit=1'
+  reason: The only artifact present is the `requirements.txt`; there is no `logs/setup_verification.log`
+    nor any evidence that the `python -c "import importlib; importlib.import_module('requests')"`
+    command was run and succeeded after installing the requirements. The required
+    verification log is missing.
   task: 6cac0a6ba31ca08f989f218db7910c147ae2720d94737d1261ee9f5b57890913
 T005:
   reason: "The unit test `tests/unit/test_entropy_detector.py` fails the \u201Cnoisy\

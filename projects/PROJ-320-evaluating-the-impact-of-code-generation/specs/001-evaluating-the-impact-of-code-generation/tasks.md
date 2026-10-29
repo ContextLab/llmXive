@@ -21,7 +21,7 @@
   5. After each repo, count rows labelled `llm`; if fewer than 10, automatically continue with the next repository defined in `code/utils/config.py` until a total of ≤ 200 PRs is collected.  
   – **Verification**: After running `python -m code.data.fetch_github`, the `data/raw/` directory contains JSONL files respecting the batch size, total PR records ≤ 200, and at least 10 rows are labelled `llm` (or the fallback list is exhausted). All checksum files exist and match the data files.
 
-- [~] T004 Verify Python 3.11 project setup and package installation **using the `requirements.txt` created by T001**.
+- [ ] T004 Verify Python 3.11 project setup and package installation **using the `requirements.txt` created by T001**.
   – **Verification**: The command `python -c "import importlib; importlib.import_module('requests')"` runs without ImportError after installing from `requirements.txt`; the verification log is stored at `logs/setup_verification.log`.
 
 - [~] T005 Implement the secondary entropy detector `code/data/entropy_detector.py`:
@@ -33,7 +33,7 @@
   Add a unit test `tests/unit/test_entropy_detector.py` that checks higher entropy for a noisy diff versus a clean diff.  
   – **Verification**: Unit test passes; the detector can be imported and returns a float between 0 and 1.
 
-- [ ] T006 Implement the primary classification script `code/data/classify_prs.py` that: <!-- FAILED-IN-EXECUTION: code/data/classify_prs.py exit=1 -->
+- [ ] T006 Implement the primary classification script `code/data/classify_prs.py` that: <!-- FAILED-IN-EXECUTION: code/data/classify_prs.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/classify_prs.py exit=1 -->
   * Reads all `data/raw/*.jsonl`,
   * Detects known LLM‑bot usernames (`copilot-bot`, `github-copilot`) and commit‑message markers,
   * Calls `entropy_detector.compute_entropy` on each diff,
