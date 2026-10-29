@@ -1,5 +1,5 @@
 status: none
-intent: download General Social Survey Pew Research YouGov anxiety news exposure variables
+intent: download GSS Pew Research YouGov survey news exposure anxiety variables dataset
   python package dataset
 required_fields:
 - news_exposure_freq
@@ -8,6 +8,6 @@ required_fields:
 - age
 - gender
 - social_media_engagement
-cache_key: 9ddb80b37aeb9b266afa13ea63352bdd4a95d1cf23090192bacdebc4fef35df4
-searched_at: '2026-10-29T01:10:47.218424+00:00'
+cache_key: afa12db03c28332c14db6237631730d021b2aca856115d6cd7fb8412a9673439
+searched_at: '2026-10-29T01:27:02.940779+00:00'
 retry_count: 1
