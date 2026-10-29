@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-29T16:38:59.713198+00:00",
+  "generated_at": "2026-10-29T17:08:11.695199+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -144325,6 +144325,14 @@
       "last_run_log": [
         {
           "agent": "clarifier",
+          "duration_s": 3.085999,
+          "ended_at": "2026-10-29T17:07:13.411989Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-29T17:07:10.325990Z"
+        },
+        {
+          "agent": "clarifier",
           "duration_s": 3.111969,
           "ended_at": "2026-10-29T08:07:56.413307Z",
           "model": "zai-org.glm-5.3",
@@ -144394,14 +144402,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-19T03:27:33.666480Z"
-        },
-        {
-          "agent": "specifier",
-          "duration_s": 67.06487,
-          "ended_at": "2026-10-19T03:27:26.043343Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-19T03:26:18.978473Z"
         }
       ],
       "paper_status": null,
@@ -164816,6 +164816,14 @@
       "last_run_log": [
         {
           "agent": "implementer",
+          "duration_s": 2.912843,
+          "ended_at": "2026-10-29T17:07:28.261828Z",
+          "model": "zai-org.glm-5.3",
+          "outcome": "failed",
+          "started_at": "2026-10-29T17:07:25.348985Z"
+        },
+        {
+          "agent": "implementer",
           "duration_s": 4.312421,
           "ended_at": "2026-10-29T06:11:00.978133Z",
           "model": "zai-org.glm-5.3",
@@ -164885,14 +164893,6 @@
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
           "started_at": "2026-10-03T17:01:49.789612Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 61.62827,
-          "ended_at": "2026-10-03T17:01:49.787395Z",
-          "model": "qwen.qwen3.5-122b",
-          "outcome": "success",
-          "started_at": "2026-10-03T17:00:48.159125Z"
         }
       ],
       "paper_status": null,
@@ -175689,6 +175689,30 @@
   ],
   "recent_activity": [
     {
+      "agent": "implementer",
+      "duration_s": 2.912843,
+      "ended_at": "2026-10-29T17:07:28.261828Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-918-llmxive-follow-up-extending-agentic-abst",
+      "project_stage": "in_progress",
+      "severity": "hard",
+      "started_at": "2026-10-29T17:07:25.348985Z"
+    },
+    {
+      "agent": "clarifier",
+      "duration_s": 3.085999,
+      "ended_at": "2026-10-29T17:07:13.411989Z",
+      "failure_reason": "BackendError: every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+      "model": "zai-org.glm-5.3",
+      "outcome": "failed",
+      "project_id": "PROJ-762-quantifying-hallucination-in-llm-generat",
+      "project_stage": "specified",
+      "severity": "hard",
+      "started_at": "2026-10-29T17:07:10.325990Z"
+    },
+    {
       "agent": "planner",
       "duration_s": 209.253798,
       "ended_at": "2026-10-29T16:12:24.079376Z",
@@ -181738,30 +181762,6 @@
       "project_stage": "clarified",
       "severity": "hard",
       "started_at": "2026-10-26T23:16:01.098427Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 158.128608,
-      "ended_at": "2026-10-26T23:15:22.572851Z",
-      "failure_reason": "",
-      "model": "google.gemma-4-31B-it",
-      "outcome": "success",
-      "project_id": "PROJ-754-linking-resting-state-fmri-entropy-to-re",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-26T23:12:44.444243Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 253.353648,
-      "ended_at": "2026-10-26T23:13:55.982803Z",
-      "failure_reason": "",
-      "model": "openai.gpt-oss-120b",
-      "outcome": "success",
-      "project_id": "PROJ-257-investigating-the-statistical-properties",
-      "project_stage": "clarified",
-      "severity": "ok",
-      "started_at": "2026-10-26T23:09:42.629155Z"
     }
   ],
   "reviewed_preprints": [
