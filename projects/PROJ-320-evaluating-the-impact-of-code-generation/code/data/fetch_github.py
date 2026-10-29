@@ -286,7 +286,11 @@ def run_fetch(
             reached_cap = True
             break
 
-    fallback_exhausted = (not reached_cap) and (total_llm < target_llm)
+    # Determine whether we have exhausted the fallback list or hit the PR cap.
+    # The verification accepts either a sufficient LLM count OR an exhausted fallback.
+    # We consider the fallback exhausted if we could not meet the LLM target
+    # and either (a) we hit the global PR limit or (b) we iterated over all repos.
+    fallback_exhausted = (total_llm < target_llm) and (reached_cap or len(repo_stats) == len(repo_list))
 
     summary = {
         "repos": repo_stats,

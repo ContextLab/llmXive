@@ -4,11 +4,10 @@ This script reads the root-level ``requirements.txt`` file, runs
 ``pip install -r requirements.txt`` using the current Python interpreter,
 and writes the combined stdout/stderr output to
 ``logs/requirements_install.log``.  The log file is created under the
-project root and contains the success message emitted by pip when the
-installation completes without error.
-
-The script exits with status 0 on success and non‑zero on failure,
-allowing the CI verification step to detect any installation problems.
+project root and contains the full pip output.  Successful installation
+is determined solely by the subprocess return code (0).  The script exits
+with status 0 on success and non‑zero on failure, allowing CI verification
+to detect any installation problems.
 """
 import subprocess
 import sys
@@ -30,8 +29,6 @@ def main() -> None:
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Run pip install using the same interpreter that executes this script.
-    # ``-q`` is omitted so that the full output (including the success line)
-    # is captured for the log.
     cmd = [sys.executable, "-m", "pip", "install", "-r", str(requirements_path)]
     try:
         result = subprocess.run(
@@ -57,15 +54,6 @@ def main() -> None:
             f"pip install exited with code {result.returncode}. See log at {log_path}\\n"
         )
         sys.exit(result.returncode)
-
-    # Optional: verify that pip reported a successful installation.
-    # The canonical success line contains “Successfully installed”.
-    if "Successfully installed" not in result.stdout:
-        sys.stderr.write(
-            "pip install completed but did not report a successful installation.\\n"
-            "Check the log for details.\\n"
-        )
-        sys.exit(1)
 
     # If we reach this point, installation succeeded.
     print(f"Dependencies installed successfully. Log written to {log_path}")

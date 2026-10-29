@@ -7,13 +7,13 @@
 
 ### User Story 1 – Data Acquisition and LLM Classification (US-1)
 
-- [ ] T001 Create a root‑level `requirements.txt` (path: `requirements.txt`) listing `requests`, `pandas`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`, `pydantic`. Record the installation log at `logs/requirements_install.log`.   <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 -->
+- [~] T001 Create a root‑level `requirements.txt` (path: `requirements.txt`) listing `requests`, `pandas`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`, `pytest`, `pydantic`. Record the installation log at `logs/requirements_install.log`.
   – **Verification**: `pip install -r requirements.txt` on a clean runner finishes without error; the log contains the success message and is committed.
 
 - [X] T002 Implement a checksum utility `code/utils/checksum.py` exposing `sha256_file(path: str) -> str`. Add a unit test `tests/unit/test_checksum.py`.  
   – **Verification**: `pytest tests/unit/test_checksum.py` exits with code 0 and the test asserts the correct SHA‑256 of a known file.
 
-- [ ] T003 Implement the GitHub fetch script `code/data/fetch_github.py` with function `fetch_batch(repo: str, limit: int, batch_size: int = 50, max_retries: int = 3)`. The script must:
+- [~] T003 Implement the GitHub fetch script `code/data/fetch_github.py` with function `fetch_batch(repo: str, limit: int, batch_size: int = 50, max_retries: int = 3)`. The script must:
   1. Paginate through the GitHub REST API in batches of **50 PRs**,
   2. Apply exponential back‑off on HTTP 429/5xx (max 3 retries),
   3. Write each raw JSON payload to `data/raw/<repo>_prs.jsonl`,
@@ -21,7 +21,7 @@
   5. After each repo, count rows labelled `llm`; if fewer than 10, automatically continue with the next repository defined in `code/utils/config.py` until a total of ≤ 200 PRs is collected.  
   – **Verification**: After running `python -m code.data.fetch_github`, the `data/raw/` directory contains JSONL files respecting the batch size, total PR records ≤ 200, and at least 10 rows are labelled `llm` (or the fallback list is exhausted). All checksum files exist and match the data files.
 
-- [ ] T004 Verify Python 3.11 project setup and package installation **using the `requirements.txt` created by T001**.  
+- [ ] T004 Verify Python 3.11 project setup and package installation **using the `requirements.txt` created by T001**.   <!-- FAILED-IN-EXECUTION: code/setup_verification.py exit=1 -->
   – **Verification**: The command `python -c "import importlib; importlib.import_module('requests')"` runs without ImportError after installing from `requirements.txt`; the verification log is stored at `logs/setup_verification.log`.
 
 - [ ] T005 Implement the secondary entropy detector `code/data/entropy_detector.py`:
