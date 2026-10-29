@@ -1,12 +1,11 @@
 status: none
-intent: Synthetic matrices and perturbation patterns dataset arXiv 0812.2602 python
-  package dataset
+intent: synthetic matrices perturbation patterns benchmark python package dataset
 required_fields:
 - matrix_id
 - matrix_values
 - perturbation_pattern
-- reference_semicircle_edge
-- outlier_detection_constant
-cache_key: 3fa702d099d6d0453092c09fd6c763cb9dd3deb0fb3d5510ac4b4306493f2e33
-searched_at: '2026-10-27T09:13:11.803560+00:00'
+- reference_value
+- generation_method
+cache_key: 72bfc8ee2cd80fff02b2fda112b088265f0a4c253f07f1fd8c1e3c8bc07966fd
+searched_at: '2026-10-29T05:10:31.519121+00:00'
 retry_count: 1

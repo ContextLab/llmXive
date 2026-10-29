@@ -1,24 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ThresholdFit
+description: Schema for the sigmoid fit results of the critical threshold theta_c.
 type: object
 properties:
   theta_c_estimate:
     type: ["number", "null"]
-    description: "Maximum Likelihood Estimate of the critical threshold theta_c"
+    description: MLE of the critical threshold theta_c.
   theta_c_confidence:
     type: ["number", "null"]
-    description: "95% CI half-width from 5-fold seed bootstrap"
+    description: 95% CI half-width from bootstrap.
   a:
     type: ["number", "null"]
-    description: "Slope of the logistic function"
+    description: Slope of the logistic function.
   b:
     type: ["number", "null"]
-    description: "Intercept for the equivalent form 1/(1+exp(-(a*theta + b)))"
+    description: Intercept for the equivalent form 1/(1+exp(-(a*theta + b))).
   fit_status:
     type: string
     enum: ["success", "failed"]
-    description: "Status of the numerical fit convergence"
-required:
-  - theta_c_estimate
-  - theta_c_confidence
-  - a
-  - b
-  - fit_status
+    description: Status of the numerical fit.
+required: ["theta_c_estimate", "theta_c_confidence", "a", "b", "fit_status"]
