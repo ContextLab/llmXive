@@ -3,12 +3,12 @@
   "stage": "clarified",
   "class": "transient",
   "fingerprint": "model_chain_failed",
-  "consecutive_count": 2,
+  "consecutive_count": 0,
   "first_seen": "2026-10-27T12:35:13.641668+00:00",
-  "last_seen": "2026-10-28T22:15:02.075459+00:00",
-  "retry_after": "2026-10-28T22:35:02.075459+00:00",
+  "last_seen": "2026-10-29T01:22:45.502794+00:00",
+  "retry_after": null,
   "last_error": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(permanent): Error code: 400 | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
   "evidence": "every model in chain ['zai-org.glm-5.3', 'google.gemma-4-31B-it'] failed on backend 'dartmouth'; errors: zai-org.glm-5.3(permanent): Error code: 400 | google.gemma-4-31B-it(model-down attempt 1): Dartmouth model 'google.gemma-4-31B-it' hung past 180s deadline (no response received)",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "retry_scheduled"
+  "status": "cleared"
 }
