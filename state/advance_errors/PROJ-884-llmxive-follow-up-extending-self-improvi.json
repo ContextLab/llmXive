@@ -2,13 +2,13 @@
   "project_id": "PROJ-884-llmxive-follow-up-extending-self-improvi",
   "stage": "in_progress",
   "class": "transient",
-  "fingerprint": "unknown",
-  "consecutive_count": 0,
-  "first_seen": "2026-10-25T07:36:14.472040+00:00",
-  "last_seen": "2026-10-25T10:27:14.359821+00:00",
-  "retry_after": null,
-  "last_error": "no implementation progress: no stage change or verified task completion",
-  "evidence": "no implementation progress: no stage change or verified task completion",
+  "fingerprint": "backend_chain_failed",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-29T18:08:55.045029+00:00",
+  "last_seen": "2026-10-29T18:08:55.045029+00:00",
+  "retry_after": "2026-10-29T18:18:55.045029+00:00",
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
+  "evidence": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Error code: 400 | local: transformers is not installed; required by local backend",
   "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
-  "status": "cleared"
+  "status": "retry_scheduled"
 }
