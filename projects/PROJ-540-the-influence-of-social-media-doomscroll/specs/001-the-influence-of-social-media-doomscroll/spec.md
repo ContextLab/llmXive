@@ -11,7 +11,7 @@
 
 **User Story ID**: US-1
 
-The system MUST download a specified public survey dataset (e.g., General Social Survey, Pew Research, or YouGov) that contains the required variables and extract the specific variables needed for the analysis: negative news consumption frequency, anxiety scores (anticipatory or general), baseline anxiety, and demographic covariates.
+The system MUST download a verified open‑access survey dataset in CSV or TSV format (e.g., GSS, Pew, YouGov) that contains the required variables and extract the specific variables needed for the analysis: negative news consumption frequency, anxiety scores (anticipatory or general), baseline anxiety, and demographic covariates.
 
 **Why this priority**: Without successfully ingesting and correctly mapping the raw data to the required analytical variables, no statistical modeling or hypothesis testing can occur. This is the foundational step for the entire research pipeline.
 
@@ -28,7 +28,7 @@ The system MUST download a specified public survey dataset (e.g., General Social
 
 **User Story ID**: US-2
 
-The system MUST fit a multiple linear regression model to estimate the association between negative news exposure and anxiety scores, controlling for baseline anxiety and demographics, and calculate the correlation coefficient. The system MUST ensure that baseline and outcome anxiety measures are distinct constructs (e.g., trait vs. state or pre-test vs. post-test) to avoid mathematical coupling.
+The system MUST fit a multiple linear regression model to estimate the association between negative news exposure and anxiety scores, controlling for baseline anxiety and demographics, and calculate the correlation coefficient. The system MUST ensure that baseline and outcome anxiety measures are distinct constructs (e.g., trait vs. state or pre‑test vs. post‑test) to avoid mathematical coupling.
 
 **Why this priority**: This is the core research activity. It directly answers the research question by quantifying the relationship while controlling for confounders.
 
@@ -36,7 +36,7 @@ The system MUST fit a multiple linear regression model to estimate the associati
 
 **Acceptance Scenarios**:
 
-1. **Given** a cleaned dataset with valid numeric variables, **When** the regression model is fitted, **Then** the output includes the coefficient, standard error, and p-value for the `news_exposure_freq` predictor.
+1. **Given** a cleaned dataset with valid numeric variables, **When** the regression model is fitted, **Then** the output includes the coefficient, standard error, and p‑value for the `news_exposure_freq` predictor.
 2. **Given** a fitted model, **When** the assumption checks run, **Then** the system outputs diagnostic plots (residuals vs. fitted, Q‑Q plot) and a pass/fail status for linearity, homoscedasticity, and normality assumptions.
 
 ---
@@ -45,7 +45,7 @@ The system MUST fit a multiple linear regression model to estimate the associati
 
 **User Story ID**: US-3
 
-The system MUST generate a scatter plot with a regression line and confidence interval, and perform a robustness check by re‑running the analysis on a subset of users with high social media engagement defined as the top [deferred] (i.e., values at or above the 75th percentile) of `social_media_engagement`, provided that engagement correlates with news exposure (r > 0.3).
+The system MUST generate a scatter plot with a regression line and confidence interval, and perform a robustness check by re‑running the analysis on a subset of users with high social media engagement defined as the top [deferred] (values at or above the 75th percentile) of `social_media_engagement`, provided that engagement correlates with news exposure (r > 0.3).
 
 **Why this priority**: Visualization provides immediate interpretability for stakeholders, while the robustness check ensures the findings are not driven by a specific segment of the population, adding scientific rigor.
 
@@ -61,7 +61,7 @@ The system MUST generate a scatter plot with a regression line and confidence in
 ### Edge Cases
 
 - **What happens when** the dataset lacks a critical predictor variable (e.g., `news_exposure_freq` is missing)? The system MUST log an error and halt, preventing the assumption of variable interchangeability.
-- **What happens when** the dataset lacks the specific 'anticipatory_anxiety' variable but contains 'general_anxiety'? The system MUST adjust to use 'general_anxiety' as a proxy, flag the construct validity limitation, and proceed.
+- **What happens when** the dataset lacks the specific `anxiety_score` variable but contains `general_anxiety`? The system MUST adjust to use `general_anxiety` as a proxy, flag the construct validity limitation, and proceed.
 - **How does the system handle** perfect multicollinearity (e.g., if `baseline_anxiety` is mathematically derived from `anxiety_score`)? The system MUST detect the Variance Inflation Factor (VIF) > 10 and flag the model as unstable, preventing the reporting of independent effects.
 - **What happens when** the sample size is too small for regression?
     - If N < 30: The system MUST stop and report a power limitation warning (Hard Stop).
@@ -71,14 +71,15 @@ The system MUST generate a scatter plot with a regression line and confidence in
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download a public survey dataset from a specified URL (e.g., GSS, Pew) and parse it into a structured dataframe format, ensuring the schema matches required variables. (See US-1)
-- **FR-002**: System MUST perform listwise deletion on rows with missing values in the predictor (`news_exposure_freq`) or outcome (`anxiety_score`) variables ONLY IF the resulting sample size is ≥ 30 **and** the overall missingness proportion for these variables is ≤ 10%. The procedure assumes data are Missing Completely At Random (MCAR); if the MCAR assumption is violated, the system MUST abort and report the violation. If resulting N < 30, the system MUST halt and report a power limitation warning. (See US-1)
+- **FR-001**: System MUST download a verified open‑access survey dataset in CSV or TSV format from a specified URL (e.g., GSS, Pew) and parse it into a structured dataframe format, ensuring the schema matches required variables. (See US-1)
+- **FR-002**: System MUST perform listwise deletion on rows with missing values in the predictor (`news_exposure_freq`) or outcome (`anxiety_score`) variables ONLY IF the resulting sample size is ≥ 30 **and** the overall missingness proportion for these variables is ≤ 10%. The procedure assumes data are Missing Completely At Random (MCAR); the system MUST assess MCAR using Little’s MCAR test (e.g., `statsmodels.stats.missing.LittleMCAR`). If the test yields p ≤ 0.05, the MCAR assumption is considered violated and the system MUST abort and report the violation. If resulting N < 30, the system MUST halt and report a power limitation warning. (See US-1)
 - **FR-003**: System MUST fit a multiple linear regression model where `anxiety_score` is the dependent variable and `news_exposure_freq`, `baseline_anxiety`, `age`, and `gender` are independent variables. The system MUST verify that `baseline_anxiety` and `anxiety_score` are measured via distinct instruments or time points by consulting a metadata file (`variable_metadata.csv`) that lists each variable’s instrument identifier; the identifiers for the two anxiety measures MUST differ. (See US-2)
 - **FR-004**: System MUST calculate and report the Pearson correlation coefficient between `news_exposure_freq` and `anxiety_score` if both variables pass a Shapiro‑Wilk normality test (p > 0.05); otherwise it MUST calculate and report the Spearman rank‑order correlation coefficient. The normality test result and the chosen statistic shall be documented in the analysis report. (See US-2)
 - **FR-005**: System MUST verify model assumptions (linearity, homoscedasticity, normality of residuals) and output diagnostic metrics. (See US-2)
-- **FR-006**: System MUST perform a robustness check by re‑fitting the model on a subset of users with high social media engagement defined as the top [deferred] (i.e., values at or above the 75th percentile) of `social_media_engagement`, provided the correlation between `social_media_engagement` and `news_exposure_freq` is > 0.3. If correlation ≤ 0.3, the system MUST skip the check and log a warning. (See US-3)
-- **FR-007**: System MUST flag the analysis results if 'general_anxiety' was used as a proxy for 'anticipatory_anxiety', explicitly noting the construct validity limitation. (See US-2)
+- **FR-006**: System MUST perform a robustness check by re‑fitting the model on a subset of users with high social media engagement defined as the top [deferred] (values at or above the 75th percentile) of `social_media_engagement`, provided the correlation between `social_media_engagement` and `news_exposure_freq` is > 0.3. If correlation ≤ 0.3, the system MUST skip the check and log a warning. (See US-3)
+- **FR-007**: System MUST flag the analysis results if `general_anxiety` was used as a proxy for `anxiety_score`, explicitly noting the construct validity limitation. (See US-2)
 - **FR-009**: System MUST conduct a sensitivity analysis comparing results from listwise deletion with results from multiple imputation (e.g., MICE) when the missingness proportion for predictor/outcome variables is ≤ 10%. The analysis report must include both sets of coefficients, their confidence intervals, and a brief interpretation of any substantive differences. (See US-1)
+- **FR-010**: System MUST compare the sign and statistical significance (p < 0.05) of the `news_exposure_freq` coefficient between the full‑sample analysis and the high‑engagement subset analysis; if the sign differs or either p‑value exceeds 0.05, the system MUST flag the robustness check as failed. (See US-3)
 
 ### Key Entities
 
@@ -99,10 +100,11 @@ The system MUST generate a scatter plot with a regression line and confidence in
 ## Assumptions
 
 - The analysis accepts any public dataset (e.g., GSS, Pew, YouGov) that contains the required variables: `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, and demographics. The system does not assume GSS specifically, but requires the schema.
-- If the dataset lacks a specific 'anticipatory_anxiety' scale (common in general surveys like GSS), the system will use 'general_anxiety' as a proxy, provided the limitation is explicitly flagged in the output (see FR-007).
+- If the dataset lacks a specific `anxiety_score` scale (common in general surveys like GSS), the system will use `general_anxiety` as a proxy, provided the limitation is explicitly flagged in the output (see FR-007).
 - The relationship between news exposure and anxiety is linear enough to be modeled via linear regression; non‑linear relationships will be noted as a limitation if residual plots suggest curvature.
 - The dataset sample size must be ≥ 30 to proceed. If 30 ≤ N < 100, results are considered preliminary with low power.
 - The analysis runs entirely on CPU without GPU acceleration, utilizing standard Python libraries (pandas, statsmodels, scikit‑learn) which are compatible with the GitHub Actions free‑tier environment.
 - Since the data is observational, all findings will be framed as associational, not causal, regardless of the statistical significance of the results.
 - Listwise deletion is the primary method for missing data. If the resulting N < 30, the analysis halts. No imputation methods are applied by default to preserve simplicity for CPU constraints, but a sensitivity analysis using multiple imputation is performed when missingness ≤ 10% (see FR-009).
-- 'Social media engagement' is used as a proxy for 'doomscrolling frequency' in the robustness check, valid only if correlated with news exposure (r > 0.3).
+- `Social_media_engagement` is used as a proxy for `doomscrolling` frequency in the robustness check, valid only if correlated with news exposure (r > 0.3).
+- All reported metrics will be derived from actual execution of the pipeline; no synthetic placeholder values will be used.
