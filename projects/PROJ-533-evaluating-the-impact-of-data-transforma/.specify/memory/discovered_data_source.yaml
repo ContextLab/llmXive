@@ -1,39 +1,40 @@
 status: verified
 kind: pypi_package
 ref: openml
-access_python: "import pandas as pd, openml\n\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
-  # Keep only classification\u2011type datasets (NumberOfClasses defined and > 1)\n\
-  if 'NumberOfClasses' in df.columns:\n    df = df[df['NumberOfClasses'].notnull()\
-  \ & (df['NumberOfClasses'] > 1)]\nrecords = len(df)\nprint(f\"RECORDS={records}\"\
-  )\n\n# Mapping of required fields to OpenML column names (None means not directly\
-  \ available)\nrequired_map = {\n    'dataset_id': 'did',\n    'dataset_name': 'name',\n\
-  \    'source_repository': None,\n    'download_url': 'url',\n    'sha256_checksum':\
-  \ None,\n    'num_instances': 'NumberOfInstances',\n    'num_numeric_features':\
-  \ 'NumberOfNumericFeatures',\n    'num_categorical_features': 'NumberOfCategoricalFeatures',\n\
-  \    'target_variable_name': 'default_target_attribute',\n    'target_type': None,\n\
-  \    'continuous_feature_names': None,\n    'shapiro_wilk_pvalues': None\n}\npresent_fields\
-  \ = [field for field, col in required_map.items() if col and col in df.columns]\n\
-  print('FIELDS=' + ','.join(present_fields))"
-record_count: 2728
+access_python: "import openml, pandas as pd\ndf = openml.datasets.list_datasets(output_format='dataframe')\n\
+  # compute missingness percent\nif {'NumberOfMissingValues','NumberOfInstances','NumberOfFeatures'}.issubset(df.columns):\n\
+  \    df['missingness_percent'] = df['NumberOfMissingValues'] / (df['NumberOfInstances']\
+  \ * df['NumberOfFeatures']) * 100\nelse:\n    raise RuntimeError('Required columns\
+  \ for missingness calculation not found')\n# add source_repository column\ndf['source_repository']\
+  \ = 'OpenML'\n# rename columns to match required schema where possible\ncol_map\
+  \ = {\n    'did': 'dataset_id',\n    'name': 'name',\n    'url': 'download_url',\n\
+  \    'NumberOfInstances': 'num_instances',\n    'NumberOfNumericFeatures': 'num_numeric_features',\n\
+  \    'default_target_attribute': 'target_column',\n    'md5_checksum': 'sha256_checksum',\n\
+  \    'description': 'metadata_json'\n}\ndf = df.rename(columns=col_map)\n# select\
+  \ only columns that exist from the required list\nrequired = ['dataset_id','name','download_url','num_instances','num_numeric_features','target_column','target_type','missingness_percent','sha256_checksum','metadata_json','source_repository']\n\
+  existing = [c for c in required if c in df.columns]\ndf = df[existing]\nprint(f\"\
+  RECORDS={len(df)}\")\nprint(\"FIELDS=\" + \",\".join(df.columns.tolist()))"
+record_count: 6697
 sample_fields:
 - dataset_id
-- dataset_name
+- name
 - num_instances
 - num_numeric_features
-field_coverage: 0.5
+- missingness_percent
+- source_repository
+field_coverage: 0.545
 required_fields:
 - dataset_id
-- dataset_name
-- source_repository
+- name
 - download_url
-- sha256_checksum
 - num_instances
 - num_numeric_features
-- num_categorical_features
-- target_variable_name
+- target_column
 - target_type
-- continuous_feature_names
-- shapiro_wilk_pvalues
-intent: UCI Machine Learning Repository OpenML HuggingFace downloadable classification
-  datasets python package dataset
-cache_key: cc1e16d47d800f2f09fdee4df421526123793e3cb02d681f675de839846598b7
+- missingness_percent
+- sha256_checksum
+- metadata_json
+- source_repository
+intent: OpenML UCI Machine Learning Repository HuggingFace datasets python package
+  dataset
+cache_key: 10c462fc2e7f892c4e4a8c036b8b0f38c1520422e5a2877a005d1ec8a219428b
