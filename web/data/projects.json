@@ -28700,7 +28700,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-10-29T07:24:51.236760+00:00",
+  "generated_at": "2026-10-29T08:06:24.142904+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -91167,6 +91167,14 @@
       "keywords": [],
       "last_run_log": [
         {
+          "agent": "personality",
+          "duration_s": 12.736396,
+          "ended_at": "2026-10-29T08:05:52.512569+00:00",
+          "model": "openai.gpt-oss-120b",
+          "outcome": "model_error",
+          "started_at": "2026-10-29T08:05:39.776173+00:00"
+        },
+        {
           "agent": "planner",
           "duration_s": 119.777569,
           "ended_at": "2026-10-29T06:15:33.371555Z",
@@ -91237,14 +91245,6 @@
           "model": "openai.gpt-oss-120b",
           "outcome": "success",
           "started_at": "2026-10-17T09:16:12.144695Z"
-        },
-        {
-          "agent": "implementer",
-          "duration_s": 407.736574,
-          "ended_at": "2026-10-16T07:24:40.372570Z",
-          "model": "openai.gpt-oss-120b",
-          "outcome": "success",
-          "started_at": "2026-10-16T07:17:52.635996Z"
         }
       ],
       "paper_status": null,
@@ -175681,6 +175681,21 @@
   ],
   "recent_activity": [
     {
+      "agent": "personality",
+      "display_name": "Albert Einstein (simulated)",
+      "duration_s": 12.736396,
+      "ended_at": "2026-10-29T08:05:52.512569+00:00",
+      "failure_reason": "",
+      "model": "openai.gpt-oss-120b",
+      "model_kind": "personality_simulator",
+      "outcome": "model_error",
+      "personality_slug": "albert-einstein",
+      "project_id": "PROJ-320-evaluating-the-impact-of-code-generation",
+      "project_stage": "clarified",
+      "severity": "hard",
+      "started_at": "2026-10-29T08:05:39.776173+00:00"
+    },
+    {
       "agent": "implementer",
       "duration_s": 20.444373,
       "ended_at": "2026-10-29T07:12:43.330099Z",
@@ -181736,18 +181751,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-10-26T16:28:33.465502Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 27.280431,
-      "ended_at": "2026-10-26T16:28:33.461613Z",
-      "failure_reason": "",
-      "model": "anthropic.claude-haiku-4-5-20251001",
-      "outcome": "success",
-      "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-10-26T16:28:06.181182Z"
     }
   ],
   "reviewed_preprints": [
