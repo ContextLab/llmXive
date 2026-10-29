@@ -6,7 +6,7 @@
 
 **Goal**: Obtain real input data via the GitHub REST API, produce a classified and metric‑rich single source of truth, and verify that a minimal pipeline runs without error on real data.
 
-- [ ] T001 [P] [US-001] **Download raw PR metadata from GitHub** – implement `code/download_data.py` that: <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/run_download_data.sh exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/run_download_data.sh exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=-1 (TIMEOUT) -->
+- [ ] T001 [P] [US-001] **Download raw PR metadata from GitHub** – implement `code/download_data.py` that: <!-- FAILED-IN-EXECUTION: code/run_download_data.sh exit=-1 (TIMEOUT) --> <!-- FAILED-IN-EXECUTION: code/run_download_data.sh exit=-1 (TIMEOUT) -->
   - Reads the list of target repositories from `code/repo_list.txt`.
   - Calls the GitHub REST API (`/repos/{owner}/{repo}/pulls`) with pagination, respecting the concrete rate‑limit of **5 000 requests per hour** (FR‑001) and applying exponential backoff on 429/403 responses (FR‑009).
   - Persists raw JSON responses under `data/raw/` (one file per repository) and records SHA‑256 checksums in `data/checksums.txt`.
@@ -15,7 +15,7 @@
   - Logs the exact command used in `specs/001-evaluating-the-impact-of-code-generation/quickstart.md`.
   - **Verification**: `python code/download_data.py` exits 0; raw JSON files exist; checksums file present; schema_map covers all required fields; rate‑limit handling exercised.
 
-- [ ] T002 [P] [US-001] **Classify code provenance** – implement `code/classify_provenance.py` that reads the raw files produced by T001, applies FR‑002 precedence (file‑header > diff‑pattern > commit‑message) and produces:
+- [~] T002 [P] [US-001] **Classify code provenance** – implement `code/classify_provenance.py` that reads the raw files produced by T001, applies FR‑002 precedence (file‑header > diff‑pattern > commit‑message) and produces:
   - `data/processed/classified_prs.csv` with a `provenance_label` column limited to `["LLM-generated","Human‑written","Mixed"]`.
   - `data/results/group_source_contingency.csv` (note the `data/results/` location) containing the contingency of provenance vs. source repository.
   - Repository‑level fallback: if a repository contains **zero LLM‑generated PRs**, log a warning and **exclude only that repository** from the binary comparison (FR‑010). Mixed‑signal PRs are labelled “Mixed” and excluded from the primary comparison (FR‑008).

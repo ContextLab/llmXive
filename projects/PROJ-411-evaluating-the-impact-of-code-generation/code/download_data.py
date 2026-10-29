@@ -5,11 +5,14 @@ Phase 0 script: download raw pull-request metadata from the GitHub REST API.
 The script reads a list of repositories (owner/repo) from a text file,
 fetches pull requests, enriches each PR with the required fields defined in 
 `raw_prs.schema.yaml`, validates the presence of those fields, and writes 
-one JSON file per repository under `data/raw/`. It also creates a SHA-256 
-checksums file and a markdown schema-mapping report.
+one JSON file per repository under `data/raw/`. It also creates a combined 
+JSON file for downstream processing, a SHA-256 checksums file, and a 
+markdown schema-mapping report.
 
-To avoid timeouts on massive repositories (e.g., psf/requests), the script 
-defaults to fetching the 200 most recent PRs per repository.
+To avoid timeouts on massive repositories and respect unauthenticated 
+rate limits (60 requests/hour), the script defaults to fetching a 
+small number of PRs. This can be increased via --max-prs if a 
+GITHUB_TOKEN is provided.
 """
 import argparse
 import hashlib
@@ -18,7 +21,7 @@ import os
 import random
 import time
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 import pandas as pd
 import requests
@@ -35,7 +38,8 @@ GITHUB_API = "https://api.github.com"
 MAX_RETRIES = 5
 BACKOFF_BASE = 2 
 PER_PAGE = 100    
-DEFAULT_MAX_PRS = 200  # Limit to prevent timeouts on huge repos
+# Default reduced to 10 to ensure CI completion without a token (approx 30-40 calls/repo)
+DEFAULT_MAX_PRS = 10  
 
 SCHEMA_PATH = (
     paths.root
@@ -168,10 +172,10 @@ def _fetch_commit_message(owner: str, repo: str, sha: str) -> str:
     data = _request(url).json()
     return data.get("commit", {}).get("message", "")
 
-def _fetch_first_comment_timestamp(owner: str, repo: str, number: int) -> str:
+def _fetch_first_comment_timestamp(owner: str, repo: str, number: int) -> Optional[str]:
     url = f"{GITHUB_API}/repos/{owner}/{repo}/issues/{number}/comments"
     comments = _request(url, params={"per_page": PER_PAGE}).json()
-    if not comments:
+    if not comments or not isinstance(comments, list):
         return None
     earliest = min(comments, key=lambda c: c.get("created_at", ""))
     return earliest.get("created_at")
@@ -199,6 +203,7 @@ def main() -> None:
 
     checksum_dict: Dict[Path, str] = {}
     schema_map: Dict[str, Dict[str, str]] = {}
+    all_enriched_records = []
 
     with open(repo_list_path, "r", encoding="utf-8") as f:
         repo_lines = [ln.strip() for ln in f.readlines() if ln.strip()]
@@ -244,6 +249,7 @@ def main() -> None:
                     raise RuntimeError(f"Required field '{field}' missing from PR {number} in {owner}/{repo}")
             
             enriched_records.append(record)
+            all_enriched_records.append(record)
 
         json_path = output_dir / f"{owner}_{repo}_prs.json"
         with open(json_path, "w", encoding="utf-8") as jf:
@@ -252,6 +258,12 @@ def main() -> None:
         checksum_dict[json_path] = compute_sha256(json_path)
         df_repo = pd.DataFrame(enriched_records)
         schema_map[json_path.name] = validate_columns(df_repo, all_fields)
+
+    # Also write a combined file as expected by classify_provenance.py in quickstart.md
+    combined_path = output_dir / "combined_prs.json"
+    with open(combined_path, "w", encoding="utf-8") as cf:
+        json.dump(all_enriched_records, cf, ensure_ascii=False, indent=2)
+    checksum_dict[combined_path] = compute_sha256(combined_path)
 
     write_checksums(checksum_dict, paths.data("checksums.txt"))
     write_schema_map(schema_map, output_dir / "schema_map.md")

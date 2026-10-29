@@ -1,7 +1,7 @@
 """
 classify_provenance.py
 
-Phase 1 script: Classifies the provenance of pull requests as LLM-generated, 
+Phase 1 script: Classifies the provenance of pull requests as LLM-generated,
 Human-written, or Mixed based on a precedence hierarchy of signals.
 
 Precedence: File-header -> Diff-pattern -> Commit-message keywords.
@@ -11,7 +11,7 @@ import argparse
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Optional
 
 from llmxive_toolkit import paths, get_logger
 
@@ -31,11 +31,11 @@ def get_signal(text: Optional[str], llm_sigs: set, human_sigs: set) -> Optional[
     """Returns 'LLM', 'Human', or None based on keyword presence in text."""
     if pd.isna(text) or not text:
         return None
-    
+
     text_lower = str(text).lower()
     has_llm = any(sig in text_lower for sig in llm_sigs)
     has_human = any(sig in text_lower for sig in human_sigs)
-    
+
     if has_llm and has_human:
         return "Mixed"
     if has_llm:
@@ -52,14 +52,14 @@ def classify_row(row: pd.Series) -> str:
     header_text = row.get("file_headers", None)
     diff_text = row.get("diff_text", None)
     commit_text = row.get("commit_message", None)
-    
+
     # Determine signals per tier
     sig_header = get_signal(header_text, LLM_HEADER_SIGS, HUMAN_HEADER_SIGS)
     sig_diff = get_signal(diff_text, LLM_DIFF_SIGS, HUMAN_DIFF_SIGS)
     sig_commit = get_signal(commit_text, LLM_KEYWORDS, HUMAN_KEYWORDS)
-    
+
     signals = [sig_header, sig_diff, sig_commit]
-    
+
     # Check for conflict (Mixed)
     # A conflict occurs if we have both LLM and Human signals across any tiers,
     # or if any single tier is already 'Mixed'.
@@ -68,67 +68,83 @@ def classify_row(row: pd.Series) -> str:
         return "Mixed"
     if "LLM" in all_sigs and "Human" in all_sigs:
         return "Mixed"
-    
+
     # Apply precedence (First non-None wins)
     for sig in signals:
         if sig == "LLM":
             return "LLM-generated"
         if sig == "Human":
             return "Human-written"
-    
+
     # Default fallback
     return "Human-written"
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=str, required=True)
-    parser.add_argument("--output", type=str, required=True)
-    args = parser.parse_args()
-    
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    
+def _load_input(input_path: Path) -> pd.DataFrame:
+    """
+    Load the raw PR data. Supports JSON (array of objects) and Parquet formats.
+    """
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    log.info(f"Loading dataset from {input_path}")
-    df = pd.read_parquet(input_path, engine="pyarrow")
-    
+
+    suffix = input_path.suffix.lower()
+    if suffix == ".json":
+        log.info(f"Reading JSON input from {input_path}")
+        # The combined file is a JSON array; read it directly.
+        return pd.read_json(input_path, orient="records")
+    elif suffix in {".parquet", ".pq"}:
+        log.info(f"Reading Parquet input from {input_path}")
+        return pd.read_parquet(input_path, engine="pyarrow")
+    else:
+        raise ValueError(f"Unsupported input file format: {suffix}")
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", type=str, required=True, help="Path to raw PR data (JSON or Parquet).")
+    parser.add_argument("--output", type=str, required=True, help="Path to write classified CSV.")
+    args = parser.parse_args()
+
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+
+    # Load data
+    df = _load_input(input_path)
+
     # Check for missing high-precedence columns to report limitation
     missing_cols = []
-    if "file_headers" not in df.columns: missing_cols.append("file_headers")
-    if "diff_text" not in df.columns: missing_cols.append("diff_text")
-    
-    if missing_cols:
-        log.warning(f"Higher-precedence signal fields {missing_cols} are absent. "
-                    "Classification precedence collapses to commit-message tier.")
+    if "file_headers" not in df.columns:
+        missing_cols.append("file_headers")
+    if "diff_text" not in df.columns:
+        missing_cols.append("diff_text")
 
-    # Add source_dataset for contingency table
+    if missing_cols:
+        log.warning(
+            f"Higher-precedence signal fields {missing_cols} are absent. "
+            "Classification precedence collapses to commit-message tier."
+        )
+
+    # Add source_dataset for contingency table (static identifier for now)
     df["source_dataset"] = "prs-v2-sample"
-    
+
     log.info("Applying provenance classification...")
     df["provenance_label"] = df.apply(classify_row, axis=1)
-    
-    # Ensure labels match required set
-    # Map internal 'LLM'/'Human' to final labels if needed, but classify_row already does this.
-    
+
     # FR-010: Exclude repositories with zero LLM-generated PRs
     repo_llm_counts = df[df["provenance_label"] == "LLM-generated"].groupby("repo_name").size()
     valid_repos = set(repo_llm_counts.index)
-    
+
     initial_count = len(df)
     df = df[df["repo_name"].isin(valid_repos)].copy()
     final_count = len(df)
-    
+
     excluded_count = initial_count - final_count
     if excluded_count > 0:
         log.warning(f"Excluded {excluded_count} PRs from repositories with zero LLM-generated PRs.")
 
-    # Save processed dataset
+    # Write classified dataset
     output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
     log.info(f"Classified PRs saved to {output_path}")
-    
+
     # Emit group x source contingency table
     contingency = pd.crosstab(df["provenance_label"], df["source_dataset"])
     results_path = paths.results("group_source_contingency.csv")

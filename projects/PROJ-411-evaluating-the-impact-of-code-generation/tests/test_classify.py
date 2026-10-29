@@ -49,7 +49,7 @@ def test_mixed_conflict():
         "commit_message": "manually verified" # Human
     })
     assert classify_row(row1) == "Mixed"
-    
+
     # Case 2: Single tier contains both
     row2 = pd.Series({
         "file_headers": None,

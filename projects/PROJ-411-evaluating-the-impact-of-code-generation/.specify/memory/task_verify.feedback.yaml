@@ -1,6 +1,6 @@
 T001:
-  reason: 'Requested task execution failed; rerun successfully: code/download_data.py
-    exit=1'
+  reason: 'Requested task execution failed; rerun successfully: code/run_download_data.sh
+    exit=-1 (TIMEOUT)'
   task: 81814b27994361c39c1d6fb64231bf4fe17cfa8dd7665d72bf6bb859cc8f29ba
 T002:
   task: add4a43608167dc498230dc0b59fd9dbdbba3971f70d2c8ffb6fcd7e918fe84e

@@ -74,3 +74,18 @@ If **no LLM‑generated PRs** are detected after classification, step 4 will e
 ---
 
 
+
+```bash
+# Recorded command for reproducibility
+python code/download_data.py --repo-list code/repo_list.txt --output data/raw/
+```
+
+```bash
+# Recorded command for reproducibility
+python code/download_data.py --repo-list code/repo_list.txt --output data/raw/
+```
+
+```bash
+# Recorded command for reproducibility
+python code/download_data.py --repo-list code/repo_list.txt --output data/raw/
+```
