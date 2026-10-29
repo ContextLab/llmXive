@@ -1,14 +1,33 @@
-status: none
-intent: download PlanBench-XL dataset from HuggingFace open-source python package
-  dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets, pandas as pd
+
+  # Attempt to load PlanBench-XL from the HuggingFace hub (if available)
+
+  ds = datasets.load_dataset("JiayuJeff/PlanBench-XL", split="train")
+
+  # Convert to a pandas DataFrame for easier inspection
+
+  df = ds.to_pandas()
+
+  print(f"RECORDS={len(df)}")
+
+  # List only the fields that match the required schema
+
+  required = ["task_id","task_description","tools","ground_truth_status","implicit_failure","task_metadata"]
+
+  print("FIELDS=" + ",".join([c for c in df.columns if c in required]))'
+record_count: 327
+sample_fields:
+- task_id
+field_coverage: 0.5
 required_fields:
 - task_id
 - task_description
-- plan
-- tool_calls
-- implicit_failure
+- tools
 - ground_truth_status
-- metadata
-cache_key: 0f9a0f8b499029c9d0ee6c81f3b6f3dc180444ab0137002686540f32c3a525f9
-searched_at: '2026-10-29T00:20:22.624954+00:00'
-retry_count: 1
+- implicit_failure
+- task_metadata
+intent: PlanBench-XL dataset download pip install python package dataset
+cache_key: 29110b135914519e86d57ac21c47e96242ca10855e8211a673286d8f1ceefc1a
