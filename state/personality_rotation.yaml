@@ -1,12 +1,7 @@
-last_used: ada-lovelace
-last_used_at: '2026-10-29T02:06:00.696315+00:00'
-last_outcome: model_error
+last_used: alan-turing
+last_used_at: '2026-10-29T06:06:32.674682+00:00'
+last_outcome: abstained
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-30T01:00:34.537201+00:00'
-  ended_at: '2026-06-30T03:17:26.035615+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: daniel-kahneman
   started_at: '2026-06-30T03:17:26.035615+00:00'
   ended_at: '2026-06-30T05:31:53.606107+00:00'
@@ -1294,3 +1289,7 @@ history:
   started_at: '2026-10-29T00:06:37.344296+00:00'
   ended_at: '2026-10-29T02:06:00.696315+00:00'
   outcome: model_error
+- slug: alan-turing
+  started_at: '2026-10-29T02:06:00.696315+00:00'
+  ended_at: '2026-10-29T06:06:32.674682+00:00'
+  outcome: abstained
